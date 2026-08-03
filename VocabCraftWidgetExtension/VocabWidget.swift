@@ -1,7 +1,6 @@
 import WidgetKit
 import SwiftUI
 import SwiftData
-import VocabCraftApp
 
 public struct VocabWidgetProvider: TimelineProvider {
     public init() {}

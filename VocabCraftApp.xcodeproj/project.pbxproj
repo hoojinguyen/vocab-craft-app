@@ -7,34 +7,105 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F10000012D50000000000001 /* VocabCraftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000012D50000000000000 /* VocabCraftApp.swift */; };
-		F10000022D50000000000001 /* DatasetEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000022D50000000000000 /* DatasetEngine.swift */; };
-		F10000032D50000000000001 /* DatasetModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000032D50000000000000 /* DatasetModels.swift */; };
-		F10000042D50000000000001 /* SharedAppGroupContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000042D50000000000000 /* SharedAppGroupContainer.swift */; };
-		F10000052D50000000000001 /* SwiftDataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000052D50000000000000 /* SwiftDataModels.swift */; };
-		F10000062D50000000000001 /* SpeechRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000062D50000000000000 /* SpeechRecognitionService.swift */; };
-		F10000072D50000000000001 /* TextToSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000072D50000000000000 /* TextToSpeechService.swift */; };
-		F10000082D50000000000001 /* SRSEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000082D50000000000000 /* SRSEngine.swift */; };
-		F10000092D50000000000001 /* ReflexDrillView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000092D50000000000000 /* ReflexDrillView.swift */; };
+		300000012D50000000000001 /* VocabCraftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000012D50000000000000 /* VocabCraftApp.swift */; };
+		300000022D50000000000001 /* DatasetEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000022D50000000000000 /* DatasetEngine.swift */; };
+		300000032D50000000000001 /* DatasetModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000032D50000000000000 /* DatasetModels.swift */; };
+		300000042D50000000000001 /* SharedAppGroupContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000042D50000000000000 /* SharedAppGroupContainer.swift */; };
+		300000052D50000000000001 /* SwiftDataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000052D50000000000000 /* SwiftDataModels.swift */; };
+		300000062D50000000000001 /* SpeechRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000062D50000000000000 /* SpeechRecognitionService.swift */; };
+		300000072D50000000000001 /* TextToSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000072D50000000000000 /* TextToSpeechService.swift */; };
+		300000082D50000000000001 /* SRSEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000082D50000000000000 /* SRSEngine.swift */; };
+		300000092D50000000000001 /* ReflexDrillView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000092D50000000000000 /* ReflexDrillView.swift */; };
+		300000412D50000000000001 /* VocabWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000412D50000000000000 /* VocabWidget.swift */; };
+		300000422D50000000000001 /* VocabWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000422D50000000000000 /* VocabWidgetView.swift */; };
+		300000432D50000000000001 /* NextWordIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000432D50000000000000 /* NextWordIntent.swift */; };
+		300000442D50000000000001 /* MarkLearnedIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000442D50000000000000 /* MarkLearnedIntent.swift */; };
+		300000452D50000000000001 /* DatasetEngine.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 200000022D50000000000000 /* DatasetEngine.swift */; };
+		300000462D50000000000001 /* SharedAppGroupContainer.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 200000042D50000000000000 /* SharedAppGroupContainer.swift */; };
+		300000472D50000000000001 /* SwiftDataModels.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 200000052D50000000000000 /* SwiftDataModels.swift */; };
+		300000482D50000000000001 /* DatasetModels.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 200000032D50000000000000 /* DatasetModels.swift */; };
+		300000492D50000000000001 /* SRSEngine.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 200000082D50000000000000 /* SRSEngine.swift */; };
+		300000512D50000000000001 /* DatasetEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000512D50000000000000 /* DatasetEngineTests.swift */; };
+		300000522D50000000000001 /* SwiftDataModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000522D50000000000000 /* SwiftDataModelsTests.swift */; };
+		300000532D50000000000001 /* SpeechServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000532D50000000000000 /* SpeechServiceTests.swift */; };
+		300000542D50000000000001 /* SRSEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000542D50000000000000 /* SRSEngineTests.swift */; };
+		300000552D50000000000001 /* WidgetIntentsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000552D50000000000000 /* WidgetIntentsTests.swift */; };
+		300000402D50000000000002 /* VocabCraftWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 200000402D50000000000000 /* VocabCraftWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		700000402D50000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 100000002D50000000000000 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 600000022D50000000000000;
+			remoteInfo = VocabCraftWidgetExtension;
+		};
+		700000502D50000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 100000002D50000000000000 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 600000012D50000000000000;
+			remoteInfo = VocabCraftApp;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		100000002D50000000000099 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				300000402D50000000000002 /* VocabCraftWidgetExtension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
-		F10000002D50000000000000 /* VocabCraftApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VocabCraftApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		F10000012D50000000000000 /* VocabCraftApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/VocabCraftApp.swift; sourceTree = "<group>"; };
-		F10000022D50000000000000 /* DatasetEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/Database/DatasetEngine.swift; sourceTree = "<group>"; };
-		F10000032D50000000000000 /* DatasetModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/Database/DatasetModels.swift; sourceTree = "<group>"; };
-		F10000042D50000000000000 /* SharedAppGroupContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/Database/SharedAppGroupContainer.swift; sourceTree = "<group>"; };
-		F10000052D50000000000000 /* SwiftDataModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/Database/SwiftDataModels.swift; sourceTree = "<group>"; };
-		F10000062D50000000000000 /* SpeechRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/Audio/SpeechRecognitionService.swift; sourceTree = "<group>"; };
-		F10000072D50000000000000 /* TextToSpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/Audio/TextToSpeechService.swift; sourceTree = "<group>"; };
-		F10000082D50000000000000 /* SRSEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core/SRS/SRSEngine.swift; sourceTree = "<group>"; };
-		F10000092D50000000000000 /* ReflexDrillView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Features/ReflexDrill/ReflexDrillView.swift; sourceTree = "<group>"; };
-		F10000102D50000000000000 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = App/Info.plist; sourceTree = "<group>"; };
-		F10000112D50000000000000 /* VocabCraftApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App/VocabCraftApp.entitlements; sourceTree = "<group>"; };
+		200000002D50000000000000 /* VocabCraftApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VocabCraftApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		200000402D50000000000000 /* VocabCraftWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VocabCraftWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		200000502D50000000000000 /* VocabCraftAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VocabCraftAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		200000012D50000000000000 /* VocabCraftApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabCraftApp.swift; sourceTree = "<group>"; };
+		200000022D50000000000000 /* DatasetEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatasetEngine.swift; sourceTree = "<group>"; };
+		200000032D50000000000000 /* DatasetModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatasetModels.swift; sourceTree = "<group>"; };
+		200000042D50000000000000 /* SharedAppGroupContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedAppGroupContainer.swift; sourceTree = "<group>"; };
+		200000052D50000000000000 /* SwiftDataModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDataModels.swift; sourceTree = "<group>"; };
+		200000062D50000000000000 /* SpeechRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionService.swift; sourceTree = "<group>"; };
+		200000072D50000000000000 /* TextToSpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextToSpeechService.swift; sourceTree = "<group>"; };
+		200000082D50000000000000 /* SRSEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SRSEngine.swift; sourceTree = "<group>"; };
+		200000092D50000000000000 /* ReflexDrillView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReflexDrillView.swift; sourceTree = "<group>"; };
+		200000102D50000000000000 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		200000112D50000000000000 /* VocabCraftApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VocabCraftApp.entitlements; sourceTree = "<group>"; };
+		200000412D50000000000000 /* VocabWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabWidget.swift; sourceTree = "<group>"; };
+		200000422D50000000000000 /* VocabWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabWidgetView.swift; sourceTree = "<group>"; };
+		200000432D50000000000000 /* NextWordIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextWordIntent.swift; sourceTree = "<group>"; };
+		200000442D50000000000000 /* MarkLearnedIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkLearnedIntent.swift; sourceTree = "<group>"; };
+		200000512D50000000000000 /* DatasetEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatasetEngineTests.swift; sourceTree = "<group>"; };
+		200000522D50000000000000 /* SwiftDataModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDataModelsTests.swift; sourceTree = "<group>"; };
+		200000532D50000000000000 /* SpeechServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechServiceTests.swift; sourceTree = "<group>"; };
+		200000542D50000000000000 /* SRSEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SRSEngineTests.swift; sourceTree = "<group>"; };
+		200000552D50000000000000 /* WidgetIntentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetIntentsTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		F10000002D50000000000001 /* Frameworks */ = {
+		100000012D50000000000000 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		100000402D50000000000000 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		100000502D50000000000000 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -44,36 +115,127 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		F10000002D50000000000002 /* MainGroup */ = {
+		400000002D50000000000000 /* MainGroup */ = {
 			isa = PBXGroup;
 			children = (
-				F10000002D50000000000003 /* VocabCraftApp */,
-				F10000002D50000000000004 /* Products */,
+				400000012D50000000000000 /* VocabCraftApp */,
+				400000072D50000000000000 /* VocabCraftWidgetExtension */,
+				400000082D50000000000000 /* VocabCraftAppTests */,
+				400000092D50000000000000 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		F10000002D50000000000003 /* VocabCraftApp */ = {
+		400000012D50000000000000 /* VocabCraftApp */ = {
 			isa = PBXGroup;
 			children = (
-				F10000012D50000000000000 /* VocabCraftApp.swift */,
-				F10000022D50000000000000 /* DatasetEngine.swift */,
-				F10000032D50000000000000 /* DatasetModels.swift */,
-				F10000042D50000000000000 /* SharedAppGroupContainer.swift */,
-				F10000052D50000000000000 /* SwiftDataModels.swift */,
-				F10000062D50000000000000 /* SpeechRecognitionService.swift */,
-				F10000072D50000000000000 /* TextToSpeechService.swift */,
-				F10000082D50000000000000 /* SRSEngine.swift */,
-				F10000092D50000000000000 /* ReflexDrillView.swift */,
-				F10000102D50000000000000 /* Info.plist */,
-				F10000112D50000000000000 /* VocabCraftApp.entitlements */,
+				400000022D50000000000000 /* App */,
+				400000032D50000000000000 /* Core */,
+				400000042D50000000000000 /* Features */,
 			);
 			path = VocabCraftApp;
 			sourceTree = "<group>";
 		};
-		F10000002D50000000000004 /* Products */ = {
+		400000022D50000000000000 /* App */ = {
 			isa = PBXGroup;
 			children = (
-				F10000002D50000000000000 /* VocabCraftApp.app */,
+				200000012D50000000000000 /* VocabCraftApp.swift */,
+				200000102D50000000000000 /* Info.plist */,
+				200000112D50000000000000 /* VocabCraftApp.entitlements */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		400000032D50000000000000 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				400000052D50000000000000 /* Database */,
+				400000062D50000000000000 /* Audio */,
+				400000102D50000000000000 /* SRS */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		400000052D50000000000000 /* Database */ = {
+			isa = PBXGroup;
+			children = (
+				200000022D50000000000000 /* DatasetEngine.swift */,
+				200000032D50000000000000 /* DatasetModels.swift */,
+				200000042D50000000000000 /* SharedAppGroupContainer.swift */,
+				200000052D50000000000000 /* SwiftDataModels.swift */,
+			);
+			path = Database;
+			sourceTree = "<group>";
+		};
+		400000062D50000000000000 /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				200000062D50000000000000 /* SpeechRecognitionService.swift */,
+				200000072D50000000000000 /* TextToSpeechService.swift */,
+			);
+			path = Audio;
+			sourceTree = "<group>";
+		};
+		400000102D50000000000000 /* SRS */ = {
+			isa = PBXGroup;
+			children = (
+				200000082D50000000000000 /* SRSEngine.swift */,
+			);
+			path = SRS;
+			sourceTree = "<group>";
+		};
+		400000042D50000000000000 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				400000112D50000000000000 /* ReflexDrill */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		400000112D50000000000000 /* ReflexDrill */ = {
+			isa = PBXGroup;
+			children = (
+				200000092D50000000000000 /* ReflexDrillView.swift */,
+			);
+			path = ReflexDrill;
+			sourceTree = "<group>";
+		};
+		400000072D50000000000000 /* VocabCraftWidgetExtension */ = {
+			isa = PBXGroup;
+			children = (
+				200000412D50000000000000 /* VocabWidget.swift */,
+				200000422D50000000000000 /* VocabWidgetView.swift */,
+				400000122D50000000000000 /* AppIntents */,
+			);
+			path = VocabCraftWidgetExtension;
+			sourceTree = "<group>";
+		};
+		400000122D50000000000000 /* AppIntents */ = {
+			isa = PBXGroup;
+			children = (
+				200000432D50000000000000 /* NextWordIntent.swift */,
+				200000442D50000000000000 /* MarkLearnedIntent.swift */,
+			);
+			path = AppIntents;
+			sourceTree = "<group>";
+		};
+		400000082D50000000000000 /* VocabCraftAppTests */ = {
+			isa = PBXGroup;
+			children = (
+				200000512D50000000000000 /* DatasetEngineTests.swift */,
+				200000522D50000000000000 /* SwiftDataModelsTests.swift */,
+				200000532D50000000000000 /* SpeechServiceTests.swift */,
+				200000542D50000000000000 /* SRSEngineTests.swift */,
+				200000552D50000000000000 /* WidgetIntentsTests.swift */,
+			);
+			path = VocabCraftAppTests;
+			sourceTree = "<group>";
+		};
+		400000092D50000000000000 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				200000002D50000000000000 /* VocabCraftApp.app */,
+				200000402D50000000000000 /* VocabCraftWidgetExtension.appex */,
+				200000502D50000000000000 /* VocabCraftAppTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -81,38 +243,80 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		F10000002D50000000000005 /* VocabCraftApp */ = {
+		600000012D50000000000000 /* VocabCraftApp */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F10000002D50000000000006 /* Build configuration list for PBXNativeTarget "VocabCraftApp" */;
+			buildConfigurationList = 500000012D50000000000000 /* Build configuration list for PBXNativeTarget "VocabCraftApp" */;
 			buildPhases = (
-				F10000002D50000000000007 /* Sources */,
-				F10000002D50000000000001 /* Frameworks */,
+				100000022D50000000000000 /* Sources */,
+				100000012D50000000000000 /* Frameworks */,
+				100000002D50000000000099 /* Embed App Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				800000402D50000000000001 /* TargetDependency */,
+			);
+			name = VocabCraftApp;
+			productName = VocabCraftApp;
+			productReference = 200000002D50000000000000 /* VocabCraftApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+		600000022D50000000000000 /* VocabCraftWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 500000022D50000000000000 /* Build configuration list for PBXNativeTarget "VocabCraftWidgetExtension" */;
+			buildPhases = (
+				100000402D50000000000002 /* Sources */,
+				100000402D50000000000000 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = VocabCraftApp;
-			productName = VocabCraftApp;
-			productReference = F10000002D50000000000000 /* VocabCraftApp.app */;
-			productType = "com.apple.product-type.application";
+			name = VocabCraftWidgetExtension;
+			productName = VocabCraftWidgetExtension;
+			productReference = 200000402D50000000000000 /* VocabCraftWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		600000032D50000000000000 /* VocabCraftAppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 500000032D50000000000000 /* Build configuration list for PBXNativeTarget "VocabCraftAppTests" */;
+			buildPhases = (
+				100000502D50000000000002 /* Sources */,
+				100000502D50000000000000 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				800000502D50000000000001 /* TargetDependency */,
+			);
+			name = VocabCraftAppTests;
+			productName = VocabCraftAppTests;
+			productReference = 200000502D50000000000000 /* VocabCraftAppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		F10000002D50000000000008 /* Project object */ = {
+		100000002D50000000000000 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1540;
 				LastUpgradeCheck = 1540;
 				TargetAttributes = {
-					F10000002D50000000000005 = {
+					600000012D50000000000000 = {
 						CreatedOnToolsVersion = 15.4;
+					};
+					600000022D50000000000000 = {
+						CreatedOnToolsVersion = 15.4;
+					};
+					600000032D50000000000000 = {
+						CreatedOnToolsVersion = 15.4;
+						TestTargetID = 600000012D50000000000000;
 					};
 				};
 			};
-			buildConfigurationList = F10000002D50000000000009 /* Build configuration list for PBXProject "VocabCraftApp" */;
+			buildConfigurationList = 500000002D50000000000000 /* Build configuration list for PBXProject "VocabCraftApp" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -120,37 +324,80 @@
 				en,
 				Base,
 			);
-			mainGroup = F10000002D50000000000002 /* MainGroup */;
-			productRefGroup = F10000002D50000000000004 /* Products */;
+			mainGroup = 400000002D50000000000000 /* MainGroup */;
+			productRefGroup = 400000092D50000000000000 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				F10000002D50000000000005 /* VocabCraftApp */,
+				600000012D50000000000000 /* VocabCraftApp */,
+				600000022D50000000000000 /* VocabCraftWidgetExtension */,
+				600000032D50000000000000 /* VocabCraftAppTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		F10000002D50000000000007 /* Sources */ = {
+		100000022D50000000000000 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F10000012D50000000000001 /* VocabCraftApp.swift in Sources */,
-				F10000022D50000000000001 /* DatasetEngine.swift in Sources */,
-				F10000032D50000000000001 /* DatasetModels.swift in Sources */,
-				F10000042D50000000000001 /* SharedAppGroupContainer.swift in Sources */,
-				F10000052D50000000000001 /* SwiftDataModels.swift in Sources */,
-				F10000062D50000000000001 /* SpeechRecognitionService.swift in Sources */,
-				F10000072D50000000000001 /* TextToSpeechService.swift in Sources */,
-				F10000082D50000000000001 /* SRSEngine.swift in Sources */,
-				F10000092D50000000000001 /* ReflexDrillView.swift in Sources */,
+				300000012D50000000000001 /* VocabCraftApp.swift in Sources */,
+				300000022D50000000000001 /* DatasetEngine.swift in Sources */,
+				300000032D50000000000001 /* DatasetModels.swift in Sources */,
+				300000042D50000000000001 /* SharedAppGroupContainer.swift in Sources */,
+				300000052D50000000000001 /* SwiftDataModels.swift in Sources */,
+				300000062D50000000000001 /* SpeechRecognitionService.swift in Sources */,
+				300000072D50000000000001 /* TextToSpeechService.swift in Sources */,
+				300000082D50000000000001 /* SRSEngine.swift in Sources */,
+				300000092D50000000000001 /* ReflexDrillView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		100000402D50000000000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				300000412D50000000000001 /* VocabWidget.swift in Sources */,
+				300000422D50000000000001 /* VocabWidgetView.swift in Sources */,
+				300000432D50000000000001 /* NextWordIntent.swift in Sources */,
+				300000442D50000000000001 /* MarkLearnedIntent.swift in Sources */,
+				300000452D50000000000001 /* DatasetEngine.swift in Widget Sources */,
+				300000462D50000000000001 /* SharedAppGroupContainer.swift in Widget Sources */,
+				300000472D50000000000001 /* SwiftDataModels.swift in Widget Sources */,
+				300000482D50000000000001 /* DatasetModels.swift in Widget Sources */,
+				300000492D50000000000001 /* SRSEngine.swift in Widget Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		100000502D50000000000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				300000512D50000000000001 /* DatasetEngineTests.swift in Sources */,
+				300000522D50000000000001 /* SwiftDataModelsTests.swift in Sources */,
+				300000532D50000000000001 /* SpeechServiceTests.swift in Sources */,
+				300000542D50000000000001 /* SRSEngineTests.swift in Sources */,
+				300000552D50000000000001 /* WidgetIntentsTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		800000402D50000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 600000022D50000000000000 /* VocabCraftWidgetExtension */;
+			targetProxy = 700000402D50000000000001 /* PBXContainerItemProxy */;
+		};
+		800000502D50000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 600000012D50000000000000 /* VocabCraftApp */;
+			targetProxy = 700000502D500000000000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
-		F10000002D50000000000010 /* Debug */ = {
+		500000002D50000000000001 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -173,7 +420,7 @@
 			};
 			name = Debug;
 		};
-		F10000002D50000000000011 /* Release */ = {
+		500000002D50000000000002 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -196,7 +443,7 @@
 			};
 			name = Release;
 		};
-		F10000002D50000000000012 /* Debug */ = {
+		500000012D50000000000001 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -219,7 +466,7 @@
 			};
 			name = Debug;
 		};
-		F10000002D50000000000013 /* Release */ = {
+		500000012D50000000000002 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -236,6 +483,84 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.hoojinguyen.vocabcraft;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				CODE_SIGN_ENTITLEMENTS = VocabCraftApp/App/VocabCraftApp.entitlements;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		500000022D50000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = VocabWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hoojinguyen.vocabcraft.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		500000022D50000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = VocabWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hoojinguyen.vocabcraft.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		500000032D50000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hoojinguyen.vocabcraft.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		500000032D50000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hoojinguyen.vocabcraft.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -245,25 +570,43 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		F10000002D50000000000006 /* Build configuration list for PBXNativeTarget "VocabCraftApp" */ = {
+		500000002D50000000000000 /* Build configuration list for PBXProject "VocabCraftApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				F10000002D50000000000012 /* Debug */,
-				F10000002D50000000000013 /* Release */,
+				500000002D50000000000001 /* Debug */,
+				500000002D50000000000002 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F10000002D50000000000009 /* Build configuration list for PBXProject "VocabCraftApp" */ = {
+		500000012D50000000000000 /* Build configuration list for PBXNativeTarget "VocabCraftApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				F10000002D50000000000010 /* Debug */,
-				F10000002D50000000000011 /* Release */,
+				500000012D50000000000001 /* Debug */,
+				500000012D50000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		500000022D50000000000000 /* Build configuration list for PBXNativeTarget "VocabCraftWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				500000022D50000000000001 /* Debug */,
+				500000022D50000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		500000032D50000000000000 /* Build configuration list for PBXNativeTarget "VocabCraftAppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				500000032D50000000000001 /* Debug */,
+				500000032D50000000000002 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = F10000002D50000000000008 /* Project object */;
+	rootObject = 100000002D50000000000000 /* Project object */;
 }
