@@ -8,7 +8,7 @@ let package = Package(
         .iOS(.v17)
     ],
     products: [
-        .library(
+        .executable(
             name: "VocabCraftApp",
             targets: ["VocabCraftApp"]
         ),
@@ -17,11 +17,13 @@ let package = Package(
             targets: ["VocabCraftWidgetExtension"]
         ),
     ],
+
     targets: [
-        .target(
+        .executableTarget(
             name: "VocabCraftApp",
             path: "VocabCraftApp"
         ),
+
         .target(
             name: "VocabCraftWidgetExtension",
             dependencies: ["VocabCraftApp"],
