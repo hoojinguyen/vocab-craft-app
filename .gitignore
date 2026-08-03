@@ -1,5 +1,4 @@
 .build/
 .swiftpm/
 xcuserdata/
-*.xcworkspace
 .superpowers/
