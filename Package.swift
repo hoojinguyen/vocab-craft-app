@@ -12,15 +12,24 @@ let package = Package(
             name: "VocabCraftApp",
             targets: ["VocabCraftApp"]
         ),
+        .library(
+            name: "VocabCraftWidgetExtension",
+            targets: ["VocabCraftWidgetExtension"]
+        ),
     ],
     targets: [
         .target(
             name: "VocabCraftApp",
             path: "VocabCraftApp"
         ),
+        .target(
+            name: "VocabCraftWidgetExtension",
+            dependencies: ["VocabCraftApp"],
+            path: "VocabCraftWidgetExtension"
+        ),
         .testTarget(
             name: "VocabCraftAppTests",
-            dependencies: ["VocabCraftApp"],
+            dependencies: ["VocabCraftApp", "VocabCraftWidgetExtension"],
             path: "VocabCraftAppTests"
         ),
     ]
