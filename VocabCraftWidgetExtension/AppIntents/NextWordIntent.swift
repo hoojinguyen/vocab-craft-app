@@ -2,7 +2,9 @@ import Foundation
 import AppIntents
 import WidgetKit
 import SwiftData
+#if SWIFT_PACKAGE
 import VocabCraftApp
+#endif
 
 public struct NextWordIntent: AppIntent {
     public static var title: LocalizedStringResource = "Từ tiếp theo"
