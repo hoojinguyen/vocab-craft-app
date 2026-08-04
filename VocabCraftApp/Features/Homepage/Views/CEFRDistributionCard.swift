@@ -1,0 +1,144 @@
+import SwiftUI
+
+public struct CEFRDistributionCard: View {
+    public let a1a2Count: Int
+    public let b1b2Count: Int
+    public let c1c2Count: Int
+    public var onDetailTap: (() -> Void)?
+
+    public init(
+        a1a2Count: Int = 450,
+        b1b2Count: Int = 620,
+        c1c2Count: Int = 350,
+        onDetailTap: (() -> Void)? = nil
+    ) {
+        self.a1a2Count = a1a2Count
+        self.b1b2Count = b1b2Count
+        self.c1c2Count = c1c2Count
+        self.onDetailTap = onDetailTap
+    }
+
+    private var totalCount: Int {
+        max(a1a2Count + b1b2Count + c1c2Count, 1)
+    }
+
+    private var a1a2Ratio: CGFloat {
+        CGFloat(a1a2Count) / CGFloat(totalCount)
+    }
+
+    private var b1b2Ratio: CGFloat {
+        CGFloat(b1b2Count) / CGFloat(totalCount)
+    }
+
+    private var c1c2Ratio: CGFloat {
+        CGFloat(c1c2Count) / CGFloat(totalCount)
+    }
+
+    public var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            // Header with Chevron detail link
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("PHÂN BỔ TRÌNH ĐỘ CEFR")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundColor(.secondary)
+                        .tracking(0.5)
+
+                    Text("Tiến trình năng lực")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.primary)
+                }
+
+                Spacer()
+
+                if let onDetailTap = onDetailTap {
+                    Button(action: onDetailTap) {
+                        HStack(spacing: 2) {
+                            Text("Chi tiết")
+                                .font(.system(size: 12, weight: .semibold))
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 12, weight: .semibold))
+                        }
+                        .foregroundColor(.vocabCoral)
+                    }
+                } else {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.secondary)
+                }
+            }
+
+            // Tri-color Segmented Progress Bar
+            GeometryReader { geometry in
+                let width = geometry.size.width
+                HStack(spacing: 3) {
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(Color.vocabMint)
+                        .frame(width: max(width * a1a2Ratio - 2, 4))
+
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(Color.vocabPeach)
+                        .frame(width: max(width * b1b2Ratio - 2, 4))
+
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(Color.vocabLavender)
+                        .frame(width: max(width * c1c2Ratio - 2, 4))
+                }
+            }
+            .frame(height: 10)
+            .clipShape(Capsule())
+
+            // Legend / breakdown
+            HStack(spacing: 16) {
+                CEFRLegendItem(
+                    title: "A1-A2",
+                    count: a1a2Count,
+                    color: Color.vocabMint
+                )
+
+                Spacer()
+
+                CEFRLegendItem(
+                    title: "B1-B2",
+                    count: b1b2Count,
+                    color: Color.vocabPeach
+                )
+
+                Spacer()
+
+                CEFRLegendItem(
+                    title: "C1-C2",
+                    count: c1c2Count,
+                    color: Color.vocabLavender
+                )
+            }
+            .font(.system(size: 12))
+        }
+        .padding(18)
+        .background(Color.vocabSurfaceSoft)
+        .cornerRadius(24)
+        .padding(.horizontal)
+    }
+}
+
+private struct CEFRLegendItem: View {
+    let title: String
+    let count: Int
+    let color: Color
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Circle()
+                .fill(color)
+                .frame(width: 8, height: 8)
+
+            Text(title)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundColor(.secondary)
+
+            Text("\(count)")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundColor(.primary)
+        }
+    }
+}
