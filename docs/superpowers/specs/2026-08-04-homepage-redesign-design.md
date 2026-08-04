@@ -15,7 +15,7 @@ This specification defines the complete redesign of the **VocabCraft Homepage Sc
 1. **Adaptive Learning & SRS Analytics Dashboard:** Position SRS Memory Retention and Reflex Speed at the center of the user experience.
 2. **Editorial Precision meets Gamified Focus:** Combine Cohere-style dictionary precision with warm, motivating gamification (Continuous Streak 🔥, Goal Progress Rings, High-contrast Feature Cards).
 3. **Dual Theme System (Light & Dark Mode):** Full color-token parity with `DESIGN.md` (Warm Cream `#FFFAF0` for Light Mode, Teal-tinted Dark `#0A1A1A` for Dark Mode).
-4. **iOS Native UX Alignment:** Replace web-centric patterns (e.g. desktop `⌘K`) with native mobile paradigms (Voice Input, SF Symbols, Liquid Glass floating tab bar).
+4. **iOS Native Iconography & UX Alignment:** All icons MUST be natively provided by Apple's **SF Symbols Framework** using SwiftUI's `Image(systemName: "...")` (Strictly NO text emojis or custom SVGs in code). Replace web-centric patterns (e.g. desktop `⌘K`) with mobile paradigms (Voice Input, Liquid Glass floating tab bar).
 
 ---
 
@@ -44,7 +44,27 @@ VocabCraft adapts `DESIGN.md` for a mobile context using generous corner radii, 
 - **Body & Interface:** SF Pro Text / Inter (`14px`–`16px` Medium/SemiBold).
 - **Data & Badges:** JetBrains Mono (`10px`–`12px` Mono Bold for CEFR levels, time in ms, retention % numbers).
 
-### 2.3 Radius & Spacing Scale
+### 2.3 Strict Native Apple SF Symbols Iconography Registry
+
+Every icon in the iOS application is strictly bound to Apple's native **SF Symbols** library (`Image(systemName: "...")`). Under no circumstances are text emojis or custom icon fonts used in implementation:
+
+| UI Location | Component | Apple SF Symbol Key | Render Mode |
+|---|---|---|---|
+| Header | Streak Flame Badge | `Image(systemName: "flame.fill")` | `.multicolor` / `.hierarchical` |
+| Header | Notification Bell | `Image(systemName: "bell.fill")` | `.hierarchical` |
+| Search Bar | Search Lens | `Image(systemName: "magnifyingglass")` | `.monochrome` |
+| Search Bar | Voice Input Mic | `Image(systemName: "mic.fill")` | `.hierarchical` |
+| Quick Drill Card | Badge Icon | `Image(systemName: "bolt.fill")` | `.monochrome` |
+| Quick Drill Card | Timer Graphic | `Image(systemName: "timer")` | `.monochrome` |
+| SRS Queue Card | Badge Icon | `Image(systemName: "calendar")` | `.monochrome` |
+| SRS Queue Card | Deck Graphic | `Image(systemName: "rectangle.stack.fill")` | `.monochrome` |
+| CEFR Card | Chevron Detail Link | `Image(systemName: "chevron.right")` | `.monochrome` |
+| Bottom Nav Bar | Tab 1: Home | `Image(systemName: "house.fill")` | `.hierarchical` |
+| Bottom Nav Bar | Tab 2: Vocabulary | `Image(systemName: "book.fill")` | `.hierarchical` |
+| Bottom Nav Bar | Tab 3: Reflex | `Image(systemName: "bolt.fill")` | `.hierarchical` |
+| Bottom Nav Bar | Tab 4: Settings | `Image(systemName: "gearshape.fill")` | `.hierarchical` |
+
+### 2.4 Radius & Spacing Scale
 - **Bento Feature Cards:** `{rounded.xl}` (`24px`).
 - **Search Input & Secondary Cards:** `{rounded.md}` (`12px` - `16px`).
 - **Badges & Streak Pills:** `{rounded.pill}` (`9999px`).
@@ -82,34 +102,34 @@ The homepage is structured into three main vertical sections:
 
 ### 3.1 Top Header & Profile Progress
 - **Left:** User Profile Avatar framed within a **Conic Progress Ring** (`#FF7759`) representing Daily Goal completion (e.g. 75%).
-- **Middle-Left Label:** `🔥 14 NGÀY CONTINUOUS` Streak Flame Pill + Today's Goal percentage readout.
-- **Right:** Native Notification Bell (`bell.fill`) with unread status indicator. Settings button is removed from the header and placed cleanly in the bottom navigation bar.
+- **Middle-Left Label:** `Image(systemName: "flame.fill")` Streak Flame Pill (`#FF7759`) + Today's Goal percentage readout.
+- **Right:** Native Notification Bell (`Image(systemName: "bell.fill")`) with unread status indicator. Settings button is removed from the header and placed cleanly in the bottom navigation bar.
 
 ### 3.2 Mobile Quick Search Bar
 - Native rounded input field (`#FAF5E8` in Light, `#1A2A2A` in Dark).
-- **Search Icon:** `magnifyingglass` SF Symbol.
-- **Voice Action:** Native Microphone icon (`microphone.fill`) for voice lookup (replacing web `⌘K`).
+- **Search Icon:** `Image(systemName: "magnifyingglass")`.
+- **Voice Action:** Native Microphone icon (`Image(systemName: "mic.fill")`) for voice lookup (replacing web `⌘K`).
 
 ### 3.3 Bento Grid Dashboard Body
 1. **SRS Memory Hero Card (`#1A3A3A` Deep Teal):**
    - High-contrast display: Total SRS words in long-term memory (1,420 words).
    - **Dynamic Retention Gauge Ring:** 60px Circular progress ring using `#A4D4C5` (Mint Memory) to display the 85% retention status.
 2. **Reflex Quick Drill Card (`#FFB084` Brand Peach):**
-   - Accent card launching 10-question / 60-second reflex practice (`bolt.fill`).
+   - Accent card launching 10-question / 60-second reflex practice (`Image(systemName: "bolt.fill")`).
 3. **SRS Due Queue Card (`#B8A4ED` Brand Lavender):**
-   - Action card displaying cards due for review today (`calendar` / `cards.fill`).
+   - Action card displaying cards due for review today (`Image(systemName: "calendar")` & `Image(systemName: "rectangle.stack.fill")`).
 4. **CEFR Vocabulary Distribution Card (`#F5F0E0` / `#1A2A2A`):**
-   - Tri-color segmented progress bar mapping A1-A2 (Teal `#1A3A3A` / Mint `#A4D4C5`), B1-B2 (Pink `#FF4D8B`), C1-C2 (Ochre `#E8B94A`).
+   - Tri-color segmented progress bar mapping A1-A2 (Teal `#1A3A3A` / Mint `#A4D4C5`), B1-B2 (Pink `#FF4D8B`), C1-C2 (Ochre `#E8B94A`). Detail link uses `Image(systemName: "chevron.right")`.
 
 ### 3.4 iOS Liquid Glass Floating Bottom Navigation Bar
 - **Styling:** Floating card (`margin: 12px`, `border-radius: 28px`) rendered with translucency and real-time blur (`backdrop-filter: blur(20px)`).
   - Light Mode: `rgba(255, 250, 240, 0.85)` with `1px solid rgba(255, 255, 255, 0.8)`.
   - Dark Mode: `rgba(26, 42, 42, 0.85)` with `1px solid rgba(255, 255, 255, 0.15)`.
-- **Tabs (SF Symbols):**
-  1. `house.fill` — **Trang chủ** (Active with background pill highlight)
-  2. `book.fill` — **Từ vựng**
-  3. `bolt.fill` — **Phản xạ**
-  4. `gearshape.fill` — **Cài đặt**
+- **Tabs (Native SF Symbols):**
+  1. `Image(systemName: "house.fill")` — **Trang chủ** (Active with background pill highlight)
+  2. `Image(systemName: "book.fill")` — **Từ vựng**
+  3. `Image(systemName: "bolt.fill")` — **Phản xạ**
+  4. `Image(systemName: "gearshape.fill")` — **Cài đặt**
 
 ---
 
@@ -126,5 +146,5 @@ The Homepage UI consumes state from existing Core engines:
 - [x] Design System Tokens mapped 100% to `DESIGN.md` for both Light and Dark modes.
 - [x] Desktop shortcuts removed in favor of Mobile Voice Input.
 - [x] Dynamic multi-color SRS progress ring rendered.
-- [x] Native iOS SF Symbols icons specified.
+- [x] All icons strictly bound to Apple's native **SF Symbols Framework** (`Image(systemName: "...")`).
 - [x] Liquid Glass Floating Tab Bar specified with translucency and blur filters.
