@@ -17,9 +17,9 @@ public final class SubTopicSessionEngine: @unchecked Sendable {
     public private(set) var comboCount: Int = 0
     public private(set) var xpEarned: Int = 0
     public private(set) var correctCount: Int = 0
-    public private(set) var firstTryCorrectCount: Int = 0
+    public private(set) var passedCount: Int = 0
     public private(set) var totalQuestionsCount: Int = 0
-    public private(set) var wordFirstAttemptResults: [Int: Bool] = [:]
+    public private(set) var questionPassedResults: [Int: Bool] = [:]
 
     public var currentWord: TopicWord? {
         guard currentIndex < activeWords.count else { return nil }
@@ -32,7 +32,7 @@ public final class SubTopicSessionEngine: @unchecked Sendable {
 
     public var accuracyPercentage: Int {
         guard totalQuestionsCount > 0 else { return 100 }
-        return Int((Double(firstTryCorrectCount) / Double(totalQuestionsCount)) * 100)
+        return Int((Double(passedCount) / Double(totalQuestionsCount)) * 100)
     }
 
     public var isPassed: Bool {
@@ -58,30 +58,23 @@ public final class SubTopicSessionEngine: @unchecked Sendable {
             xpEarned += xp
             comboCount += 1
             correctCount += 1
+            passedCount += 1
+            questionPassedResults[originalIndex] = true
 
-            if wordFirstAttemptResults[originalIndex] == nil {
-                if attemptsLeft == 2 {
-                    firstTryCorrectCount += 1
-                    wordFirstAttemptResults[originalIndex] = true
-                } else {
-                    wordFirstAttemptResults[originalIndex] = false
-                }
-            }
             return SubmitResult(isCorrect: true, attemptsRemaining: attemptsLeft, xpDelta: xp, isSessionFinished: false)
         } else {
             attemptsLeft -= 1
             if attemptsLeft <= 0 {
                 xpEarned -= 5
                 comboCount = 0
-                if wordFirstAttemptResults[originalIndex] == nil {
-                    wordFirstAttemptResults[originalIndex] = false
-                }
+                questionPassedResults[originalIndex] = false
                 return SubmitResult(isCorrect: false, attemptsRemaining: 0, xpDelta: -5, isSessionFinished: false)
             } else {
                 return SubmitResult(isCorrect: false, attemptsRemaining: 1, xpDelta: 0, isSessionFinished: false)
             }
         }
     }
+
 
     public func advanceToNextWord() {
         currentIndex += 1

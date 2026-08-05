@@ -116,8 +116,8 @@ final class SubTopicSessionEngineTests: XCTestCase {
         // Submit correct for question 0
         let res1 = engine.submitAnswer(selectedVietnamese: "Nghĩa A")
         XCTAssertTrue(res1.isCorrect)
-        XCTAssertEqual(engine.wordFirstAttemptResults[0], true)
-        XCTAssertEqual(engine.firstTryCorrectCount, 1)
+        XCTAssertEqual(engine.questionPassedResults[0], true)
+        XCTAssertEqual(engine.passedCount, 1)
 
         engine.advanceToNextWord()
 
@@ -125,12 +125,32 @@ final class SubTopicSessionEngineTests: XCTestCase {
         _ = engine.submitAnswer(selectedVietnamese: "Sai")
         let res2 = engine.submitAnswer(selectedVietnamese: "Sai")
         XCTAssertFalse(res2.isCorrect)
-        XCTAssertEqual(engine.wordFirstAttemptResults[1], false)
+        XCTAssertEqual(engine.questionPassedResults[1], false)
 
-        // Accuracy should be 50% (1/2 on first try)
+        // Accuracy should be 50% (1/2 passed)
         XCTAssertEqual(engine.accuracyPercentage, 50)
     }
+
+    func testSecondAttemptCorrectMarksQuestionPassedGreen() {
+        let words = [
+            TopicWord(id: "1", english: "A", phonetic: "/a/", vietnamese: "Nghĩa A")
+        ]
+        let engine = SubTopicSessionEngine(words: words)
+
+        // Attempt 1 wrong
+        let res1 = engine.submitAnswer(selectedVietnamese: "Sai")
+        XCTAssertFalse(res1.isCorrect)
+        XCTAssertNil(engine.questionPassedResults[0])
+
+        // Attempt 2 correct
+        let res2 = engine.submitAnswer(selectedVietnamese: "Nghĩa A")
+        XCTAssertTrue(res2.isCorrect)
+        XCTAssertEqual(engine.questionPassedResults[0], true)
+        XCTAssertEqual(engine.passedCount, 1)
+        XCTAssertEqual(engine.accuracyPercentage, 100)
+    }
 }
+
 
 
 

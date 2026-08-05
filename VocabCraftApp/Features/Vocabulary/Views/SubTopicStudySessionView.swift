@@ -10,8 +10,10 @@ public struct SubTopicStudySessionView: View {
     @State private var isSuccess: Bool = true
     @State private var selectedAnswer: String? = nil
     @State private var options: [String] = []
+    @State private var lastXPDelta: Int = 10
 
     @Environment(\.colorScheme) private var colorScheme
+
 
     public init(
         node: SubTopicNode,
@@ -111,7 +113,7 @@ public struct SubTopicStudySessionView: View {
                         if isFlipped {
                             VStack(alignment: .leading, spacing: 8) {
                                 HStack {
-                                    Text(isSuccess ? "✓ Chính xác! (+10 XP)" : "✕ Chưa chính xác (-5 XP)")
+                                    Text(isSuccess ? "✓ Chính xác! (+\(lastXPDelta) XP)" : "✕ Chưa chính xác (-5 XP)")
                                         .font(.system(size: 15, weight: .heavy))
                                         .foregroundColor(isSuccess ? Color.vocabMint : Color.vocabCoral)
                                     Spacer()
@@ -148,7 +150,7 @@ public struct SubTopicStudySessionView: View {
                 SubTopicSessionSummaryView(
                     xpEarned: engine.xpEarned,
                     totalQuestions: engine.totalQuestionsCount,
-                    correctCount: engine.firstTryCorrectCount,
+                    correctCount: engine.passedCount,
                     onRestart: {
                         self.engine = SubTopicSessionEngine(words: node.words.isEmpty ? SubTopicStudySessionView.sampleWords : node.words)
                     },
@@ -178,6 +180,7 @@ public struct SubTopicStudySessionView: View {
         let result = engine.submitAnswer(selectedVietnamese: opt)
 
         isSuccess = result.isCorrect
+        lastXPDelta = result.xpDelta
         if result.isCorrect || result.attemptsRemaining <= 0 {
             isFlipped = true
         }
@@ -190,12 +193,13 @@ public struct SubTopicStudySessionView: View {
     }
 
     private func segmentColor(for index: Int) -> Color {
-        if let passed = engine.wordFirstAttemptResults[index] {
+        if let passed = engine.questionPassedResults[index] {
             return passed ? Color.vocabMint : Color.vocabCoral
         } else {
             return Color.gray.opacity(0.18)
         }
     }
+
 
 
 
