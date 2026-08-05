@@ -2,6 +2,7 @@ import XCTest
 import SwiftUI
 @testable import VocabCraftApp
 
+@MainActor
 final class ReflexDrillViewTests: XCTestCase {
     func testReflexDrillViewInitializationWithoutEngine() {
         let view = ReflexDrillView(datasetEngine: nil, cefrLevel: "B1")

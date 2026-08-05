@@ -3,6 +3,7 @@ import AVFoundation
 import Speech
 @testable import VocabCraftApp
 
+@MainActor
 final class SpeechServiceTests: XCTestCase {
 
     // MARK: - TextToSpeechService Tests
