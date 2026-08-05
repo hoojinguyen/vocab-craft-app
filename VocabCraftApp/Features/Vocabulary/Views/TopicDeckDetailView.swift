@@ -79,7 +79,7 @@ public struct TopicDeckDetailView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                         .background(Color.vocabPeach)
-                        .foregroundColor(Color.vocabInk)
+                        .foregroundColor(Color(red: 0.05, green: 0.08, blue: 0.12))
                         .cornerRadius(12)
                     }
                 }
@@ -109,13 +109,14 @@ public struct TopicDeckDetailView: View {
                                     } else if node.state == .active {
                                         Text("\(index + 1)")
                                             .font(.system(size: 18, weight: .bold))
-                                            .foregroundColor(Color.vocabInk)
+                                            .foregroundColor(Color(red: 0.05, green: 0.08, blue: 0.12))
                                     } else {
                                         Image(systemName: "lock.fill")
                                             .font(.system(size: 16))
                                             .foregroundColor(Color.vocabMuted)
                                     }
                                 }
+
 
                                 // Node Card Info
                                 Button(action: { selectedNode = node }) {

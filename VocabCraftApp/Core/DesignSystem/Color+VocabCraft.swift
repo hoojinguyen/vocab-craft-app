@@ -71,9 +71,10 @@ public extension Color {
 
 
     static let vocabPeach = dynamic(
-        light: Color(red: 1.0, green: 0.69, blue: 0.52),  // #FFB084 Peach
-        dark: Color(red: 1.0, green: 0.75, blue: 0.61)   // #FFC09C (+Luminance)
+        light: Color(red: 0.90, green: 0.43, blue: 0.10), // #E66E1A High-Contrast Warm Amber Orange (Light)
+        dark: Color(red: 0.98, green: 0.60, blue: 0.22)   // #FA9938 Vibrant Solar Orange (Dark)
     )
+
 
     static let vocabLavender = dynamic(
         light: Color(red: 0.72, green: 0.64, blue: 0.93), // #B8A4ED Lavender
