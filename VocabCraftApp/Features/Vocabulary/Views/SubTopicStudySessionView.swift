@@ -227,21 +227,22 @@ public struct SubTopicStudySessionView: View {
         if let passed = engine.questionPassedResults[index] {
             return passed ? Color.vocabMint : Color.vocabCoral
         } else if index == engine.currentIndex {
-            return Color.vocabPeach.opacity(0.8)
+            return Color.vocabPeach.opacity(0.25)
         } else {
             return Color.vocabSurfaceCard
         }
     }
 
     private func segmentBorderColor(for index: Int) -> Color {
-        if index == engine.currentIndex {
+        if let passed = engine.questionPassedResults[index] {
+            return passed ? Color.vocabMint : Color.vocabCoral
+        } else if index == engine.currentIndex {
             return Color.vocabPeach
-        } else if engine.questionPassedResults[index] == nil {
-            return Color.vocabHairline
         } else {
-            return Color.clear
+            return Color.vocabHairline
         }
     }
+
 
 
     private func formattedXPText(_ xp: Int) -> String {
