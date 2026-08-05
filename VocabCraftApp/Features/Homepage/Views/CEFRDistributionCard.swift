@@ -60,6 +60,8 @@ public struct CEFRDistributionCard: View {
                                 .font(.system(size: 12, weight: .semibold))
                         }
                         .foregroundColor(Color.vocabCoral)
+                        .frame(minWidth: 44, minHeight: 44, alignment: .trailing)
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 } else {
