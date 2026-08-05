@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "skills": {
+    "ios-design-agent-skill": {
+      "source": "vermont42/iOS-Design-Agent-Skill",
+      "sourceType": "github",
+      "skillPath": "ios-design-agent-skill/SKILL.md",
+      "computedHash": "d041b128fdf52d3dd1ff05b00860d02e79b533518d7a676b29323eb4a299fc53"
+    },
+    "ios-design-guidelines": {
+      "source": "ehmo/platform-design-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ios/SKILL.md",
+      "computedHash": "4e61d1d5668179860746145d26b9e17179b4822e012a480d6c077656d0f9d324"
+    },
+    "swift-architecture-skill": {
+      "source": "efremidze/swift-architecture-skill",
+      "sourceType": "github",
+      "skillPath": "swift-architecture-skill/SKILL.md",
+      "computedHash": "94f90473e22d2e76bab5272dfff7ea86f85d14ab1c51f74ef74e7cb15178d6d3"
+    },
+    "swiftui-design-skill": {
+      "source": "wholiver/swiftui-design-skill",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "e566cd9af70769555a866c11a8037f326a699f600de200a9dde8518122fb0b32"
+    }
+  }
+}

@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # Antigravity Rule: UI Design System & Component Guidelines
 
 > **Scope**: Applicable to all Swift / SwiftUI views, color tokens, layout components, and UI interactions across `VocabCraftApp`.
