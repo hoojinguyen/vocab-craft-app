@@ -4,17 +4,20 @@ public struct SettingsRowView<Content: View>: View {
     public let iconName: String
     public let iconColor: Color
     public let title: String
+    public let subtitle: String?
     public let content: Content
 
     public init(
         iconName: String,
         iconColor: Color,
         title: String,
+        subtitle: String? = nil,
         @ViewBuilder content: () -> Content
     ) {
         self.iconName = iconName
         self.iconColor = iconColor
         self.title = title
+        self.subtitle = subtitle
         self.content = content()
     }
 
@@ -29,13 +32,22 @@ public struct SettingsRowView<Content: View>: View {
                     .foregroundColor(iconColor)
             }
             
-            Text(title)
-                .font(.body)
-                .foregroundColor(.vocabInk)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.subheadline.weight(.medium))
+                    .foregroundColor(.vocabInk)
+                
+                if let subtitle {
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundColor(.vocabMuted)
+                }
+            }
             
-            Spacer()
+            Spacer(minLength: 8)
             
             content
         }
+        .padding(.vertical, 2)
     }
 }

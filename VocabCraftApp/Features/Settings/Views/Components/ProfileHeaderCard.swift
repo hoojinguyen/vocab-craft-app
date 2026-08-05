@@ -17,54 +17,74 @@ public struct ProfileHeaderCard: View {
 
     public var body: some View {
         HStack(spacing: 16) {
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [.vocabHeroTeal, .vocabHeroAccent],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
+            ZStack(alignment: .bottomTrailing) {
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [.vocabHeroTeal, .vocabHeroAccent],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
                         )
-                    )
-                    .frame(width: 58, height: 58)
-                    .shadow(color: Color.vocabHeroTeal.opacity(0.3), radius: 6, x: 0, y: 3)
-                
-                Text(userName.prefix(1))
-                    .font(.title2.bold())
-                    .fontDesign(.rounded)
-                    .foregroundColor(.white)
+                        .frame(width: 60, height: 60)
+                        .overlay(
+                            Circle()
+                                .stroke(Color.white, lineWidth: 2)
+                        )
+                        .shadow(color: Color.vocabHeroTeal.opacity(0.35), radius: 8, x: 0, y: 4)
+                    
+                    Text(userName.prefix(1))
+                        .font(.title2.bold())
+                        .fontDesign(.rounded)
+                        .foregroundColor(.white)
+                }
+
+                // Status indicator dot
+                Circle()
+                    .fill(Color.vocabMint)
+                    .frame(width: 14, height: 14)
+                    .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                    .shadow(color: Color.vocabMint.opacity(0.4), radius: 3, x: 0, y: 1)
+                    .offset(x: 2, y: 2)
             }
             
             VStack(alignment: .leading, spacing: 6) {
                 Text(userName)
-                    .font(.title3.weight(.bold))
+                    .font(.headline.weight(.bold))
                     .fontDesign(.rounded)
                     .foregroundColor(.vocabInk)
                 
-                HStack(spacing: 8) {
+                HStack(spacing: 6) {
                     Text(userLevel)
-                        .font(.caption.weight(.bold))
+                        .font(.caption2.weight(.bold))
                         .fontDesign(.rounded)
-                        .padding(.horizontal, 10)
+                        .padding(.horizontal, 9)
                         .padding(.vertical, 4)
-                        .background(Color.vocabLavender.opacity(0.15))
+                        .background(
+                            Capsule()
+                                .fill(Color.vocabLavender.opacity(0.14))
+                                .overlay(Capsule().stroke(Color.vocabLavender.opacity(0.25), lineWidth: 0.8))
+                        )
                         .foregroundColor(.vocabLavender)
-                        .clipShape(Capsule())
                     
-                    HStack(spacing: 4) {
+                    HStack(spacing: 3) {
                         Image(systemName: "flame.fill")
-                            .font(.caption)
+                            .font(.caption2)
                             .foregroundColor(.vocabCoral)
                         Text("\(streakDays) ngày")
-                            .font(.caption.weight(.bold))
+                            .font(.caption2.weight(.bold))
                             .fontDesign(.rounded)
                             .monospacedDigit()
                             .foregroundColor(.vocabCoral)
                     }
-                    .padding(.horizontal, 10)
+                    .padding(.horizontal, 9)
                     .padding(.vertical, 4)
-                    .background(Color.vocabCoral.opacity(0.12))
-                    .clipShape(Capsule())
+                    .background(
+                        Capsule()
+                            .fill(Color.vocabCoral.opacity(0.12))
+                            .overlay(Capsule().stroke(Color.vocabCoral.opacity(0.22), lineWidth: 0.8))
+                    )
                 }
             }
             Spacer()

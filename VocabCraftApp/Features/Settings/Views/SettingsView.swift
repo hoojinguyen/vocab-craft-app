@@ -23,22 +23,50 @@ public struct SettingsView: View {
                     iconColor: .vocabHeroAccent,
                     title: "Mục tiêu từ/ngày"
                 ) {
-                    HStack(spacing: 8) {
+                    HStack(spacing: 0) {
+                        Button(action: {
+                            if viewModel.store.dailyGoalCount > 5 {
+                                viewModel.store.dailyGoalCount -= 5
+                            }
+                        }) {
+                            Image(systemName: "minus")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(.vocabHeroAccent)
+                                .frame(width: 30, height: 28)
+                        }
+                        .buttonStyle(.plain)
+
+                        Divider()
+                            .frame(height: 14)
+                            .opacity(0.35)
+
                         Text("\(viewModel.store.dailyGoalCount) từ")
-                            .font(.callout.weight(.bold))
+                            .font(.caption.weight(.bold))
                             .fontDesign(.rounded)
                             .monospacedDigit()
-                            .lineLimit(1)
-                            .fixedSize(horizontal: true, vertical: false)
                             .foregroundColor(.vocabHeroAccent)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 4)
-                            .background(Color.vocabHeroAccent.opacity(0.12))
-                            .clipShape(Capsule())
+                            .frame(minWidth: 50)
+                            .frame(height: 28)
 
-                        Stepper("", value: $viewModel.store.dailyGoalCount, in: 5...50, step: 5)
-                            .labelsHidden()
+                        Divider()
+                            .frame(height: 14)
+                            .opacity(0.35)
+
+                        Button(action: {
+                            if viewModel.store.dailyGoalCount < 50 {
+                                viewModel.store.dailyGoalCount += 5
+                            }
+                        }) {
+                            Image(systemName: "plus")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(.vocabHeroAccent)
+                                .frame(width: 30, height: 28)
+                        }
+                        .buttonStyle(.plain)
                     }
+                    .background(Color.vocabHeroAccent.opacity(0.12))
+                    .clipShape(Capsule())
+                    .overlay(Capsule().stroke(Color.vocabHeroAccent.opacity(0.25), lineWidth: 0.8))
                 }
 
                 SettingsRowView(
@@ -49,7 +77,7 @@ public struct SettingsView: View {
                     Toggle("", isOn: Binding(
                         get: { viewModel.store.isNotificationEnabled },
                         set: { newValue in
-                            withAnimation(.smooth) {
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                                 viewModel.store.isNotificationEnabled = newValue
                             }
                         }
@@ -57,13 +85,19 @@ public struct SettingsView: View {
                 }
 
                 if viewModel.store.isNotificationEnabled {
-                    DatePicker(
-                        "Giờ nhắc nhở",
-                        selection: $viewModel.store.notificationTime,
-                        displayedComponents: .hourAndMinute
-                    )
-                    .font(.subheadline.weight(.medium))
-                    .foregroundColor(.vocabInk)
+                    SettingsRowView(
+                        iconName: "clock.fill",
+                        iconColor: .vocabHeroAccent,
+                        title: "Giờ nhắc nhở"
+                    ) {
+                        DatePicker(
+                            "",
+                            selection: $viewModel.store.notificationTime,
+                            displayedComponents: .hourAndMinute
+                        )
+                        .labelsHidden()
+                        .tint(.vocabHeroAccent)
+                    }
                     .transition(.opacity.combined(with: .move(edge: .top)))
                 }
 
@@ -73,11 +107,12 @@ public struct SettingsView: View {
                     SettingsRowView(
                         iconName: "arrow.triangle.2.circlepath",
                         iconColor: .vocabCoral,
-                        title: "Reset tiến trình SRS"
+                        title: "Reset tiến trình SRS",
+                        subtitle: "Đặt lại tất cả các từ đã học"
                     ) {
                         Image(systemName: "chevron.right")
                             .font(.caption.weight(.bold))
-                            .foregroundColor(.vocabMuted)
+                            .foregroundColor(.vocabCoral.opacity(0.7))
                     }
                 }
             }
@@ -105,35 +140,49 @@ public struct SettingsView: View {
                         title: "Tốc độ đọc"
                     ) {
                         Text(String(format: "%.2fx", viewModel.store.ttsSpeed))
-                            .font(.footnote.weight(.bold))
+                            .font(.caption.weight(.bold))
                             .fontDesign(.rounded)
                             .monospacedDigit()
                             .foregroundColor(.vocabPeach)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 2)
-                            .background(Color.vocabPeach.opacity(0.12))
-                            .clipShape(Capsule())
+                            .padding(.horizontal, 9)
+                            .padding(.vertical, 3)
+                            .background(
+                                Capsule()
+                                    .fill(Color.vocabPeach.opacity(0.14))
+                                    .overlay(Capsule().stroke(Color.vocabPeach.opacity(0.25), lineWidth: 0.8))
+                            )
                     }
 
                     Slider(value: $viewModel.store.ttsSpeed, in: 0.5...1.0, step: 0.05)
                         .tint(.vocabPeach)
+                        .padding(.horizontal, 2)
                 }
+                .padding(.vertical, 2)
 
                 Button(action: {
                     viewModel.playAudioPreview()
                 }) {
-                    HStack(spacing: 8) {
-                        Image(systemName: viewModel.isPlayingAudio ? "speaker.wave.3.fill" : "play.circle.fill")
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(.vocabPeach)
-                            .symbolEffect(.bounce, value: viewModel.isPlayingAudio)
-                        
-                        Text(viewModel.isPlayingAudio ? "Đang phát mẫu âm thanh..." : "Nghe thử phát âm TTS")
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundColor(.vocabPeach)
-                        Spacer()
+                    SettingsRowView(
+                        iconName: viewModel.isPlayingAudio ? "speaker.wave.3.fill" : "play.circle.fill",
+                        iconColor: .vocabPeach,
+                        title: viewModel.isPlayingAudio ? "Đang phát mẫu..." : "Nghe thử phát âm TTS"
+                    ) {
+                        HStack(spacing: 6) {
+                            if viewModel.isPlayingAudio {
+                                HStack(spacing: 2) {
+                                    ForEach(0..<4) { i in
+                                        RoundedRectangle(cornerRadius: 1)
+                                            .fill(Color.vocabPeach)
+                                            .frame(width: 2.5, height: CGFloat([10, 18, 14, 8][i]))
+                                    }
+                                }
+                                .padding(.trailing, 2)
+                            }
+                            Image(systemName: "chevron.right")
+                                .font(.caption.weight(.bold))
+                                .foregroundColor(.vocabMuted)
+                        }
                     }
-                    .padding(.vertical, 4)
                 }
             }
             .listRowBackground(Color.vocabSurfaceCard)
@@ -180,13 +229,16 @@ public struct SettingsView: View {
                     title: "Đồng bộ iCloud"
                 ) {
                     Text("Đã đồng bộ")
-                        .font(.caption.weight(.bold))
+                        .font(.caption2.weight(.bold))
                         .fontDesign(.rounded)
                         .foregroundColor(.vocabMint)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 3)
-                        .background(Color.vocabMint.opacity(0.12))
-                        .clipShape(Capsule())
+                        .background(
+                            Capsule()
+                                .fill(Color.vocabMint.opacity(0.14))
+                                .overlay(Capsule().stroke(Color.vocabMint.opacity(0.25), lineWidth: 0.8))
+                        )
                 }
 
                 Button(action: {
@@ -205,11 +257,11 @@ public struct SettingsView: View {
                     }
                 }
 
-                HStack {
-                    Text("Phiên bản ứng dụng")
-                        .font(.body)
-                        .foregroundColor(.vocabInk)
-                    Spacer()
+                SettingsRowView(
+                    iconName: "info.circle.fill",
+                    iconColor: .vocabMuted,
+                    title: "Phiên bản ứng dụng"
+                ) {
                     Text("v1.2.0 (Build 42)")
                         .font(.footnote.weight(.medium))
                         .fontDesign(.rounded)
@@ -226,7 +278,7 @@ public struct SettingsView: View {
         .scrollContentBackground(.hidden)
         .background(Color.vocabCanvas)
         .safeAreaInset(edge: .bottom) {
-            Color.clear.frame(height: 90)
+            Color.clear.frame(height: 115)
         }
         .sensoryFeedback(.selection, trigger: viewModel.store.dailyGoalCount)
         .sensoryFeedback(.selection, trigger: viewModel.store.ttsVoiceGender)
