@@ -38,6 +38,11 @@ public extension Color {
         dark: Color(red: 0.06, green: 0.17, blue: 0.17)   // #0F2B2B Dark Teal
     )
 
+    static let vocabHeroAccent = dynamic(
+        light: Color(red: 0.10, green: 0.23, blue: 0.23), // #1A3A3A Deep Forest Teal
+        dark: Color(red: 0.71, green: 0.90, blue: 0.84)   // #B5E5D6 Bright Mint Accent
+    )
+
     static let vocabInk = dynamic(
         light: Color(red: 0.04, green: 0.04, blue: 0.04), // #0A0A0A Off-Black
         dark: Color(red: 0.94, green: 0.96, blue: 0.99)   // #F0F6FC Soft Off-White

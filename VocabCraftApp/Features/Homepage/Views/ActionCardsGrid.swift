@@ -46,7 +46,7 @@ public struct ActionCardsGrid: View {
 
                         Image(systemName: "timer")
                             .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(Color.vocabHeroTeal)
+                            .foregroundColor(Color.vocabHeroAccent)
                     }
 
                     VStack(alignment: .leading, spacing: 2) {
@@ -90,7 +90,7 @@ public struct ActionCardsGrid: View {
 
                         Image(systemName: "rectangle.stack.fill")
                             .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(Color.vocabHeroTeal)
+                            .foregroundColor(Color.vocabHeroAccent)
                     }
 
                     VStack(alignment: .leading, spacing: 2) {
