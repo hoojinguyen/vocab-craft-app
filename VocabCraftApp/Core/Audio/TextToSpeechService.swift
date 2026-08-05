@@ -25,9 +25,21 @@ public final class TextToSpeechService: NSObject, @preconcurrency AVSpeechSynthe
         utterance.rate = rate
         if let voice = AVSpeechSynthesisVoice(language: locale) {
             utterance.voice = voice
+        } else if let fallbackVoice = AVSpeechSynthesisVoice.speechVoices().first(where: { $0.language.hasPrefix("en") }) {
+            utterance.voice = fallbackVoice
         } else {
-            utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
+            utterance.voice = AVSpeechSynthesisVoice(language: AVSpeechSynthesisVoice.currentLanguageCode())
         }
+
+#if os(iOS)
+        do {
+            let audioSession = AVAudioSession.sharedInstance()
+            try audioSession.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers, .defaultToSpeaker])
+            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+        } catch {
+            print("Failed to set AVAudioSession category for TTS: \(error)")
+        }
+#endif
 
         isSpeaking = true
         synthesizer.speak(utterance)
@@ -43,14 +55,14 @@ public final class TextToSpeechService: NSObject, @preconcurrency AVSpeechSynthe
     // MARK: - AVSpeechSynthesizerDelegate
 
     public nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
-        Task { @MainActor in
-            self.isSpeaking = false
+        Task { @MainActor [weak self] in
+            self?.isSpeaking = false
         }
     }
 
     public nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
-        Task { @MainActor in
-            self.isSpeaking = false
+        Task { @MainActor [weak self] in
+            self?.isSpeaking = false
         }
     }
 }
