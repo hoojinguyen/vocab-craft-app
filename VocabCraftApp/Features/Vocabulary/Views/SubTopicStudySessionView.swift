@@ -163,16 +163,12 @@ public struct SubTopicStudySessionView: View {
         selectedAnswer = opt
         let result = engine.submitAnswer(selectedVietnamese: opt)
 
-        if result.isCorrect {
-            isSuccess = true
+        isSuccess = result.isCorrect
+        if result.isCorrect || result.attemptsRemaining <= 0 {
             isFlipped = true
-        } else {
-            if result.attemptsRemaining <= 0 {
-                isSuccess = false
-                isFlipped = true
-            }
         }
     }
+
 
     private func nextWord() {
         selectedAnswer = nil
