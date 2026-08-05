@@ -36,7 +36,7 @@ public struct SuggestedWordsCardView: View {
                     HStack(spacing: 5) {
                         ForEach(words.indices, id: \.self) { index in
                             Circle()
-                                .fill(index == selectedIndex ? Color.vocabPeach : Color.vocabHairline)
+                                .fill(index == selectedIndex ? Color.vocabMint : Color.vocabHairline)
                                 .frame(width: index == selectedIndex ? 7 : 5, height: index == selectedIndex ? 7 : 5)
                                 .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedIndex)
                         }
