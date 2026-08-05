@@ -54,11 +54,6 @@ public struct HomepageView: View {
                             unreadNotifications: viewModel.state.unreadNotifications
                         )
 
-                        MobileSearchView(
-                            searchText: $viewModel.searchText,
-                            onVoiceSearchTapped: { viewModel.performVoiceSearch() }
-                        )
-
                         SRSMemoryHeroCard(
                             totalWords: viewModel.state.totalWords,
                             retentionPercentage: viewModel.state.retentionPercentage
@@ -78,6 +73,8 @@ public struct HomepageView: View {
                 }
             case .vocabulary:
                 VocabularyView()
+            case .search:
+                SearchNewWordView()
             case .reflex, .settings:
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 16) {
