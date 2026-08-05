@@ -19,6 +19,14 @@ def generate_pbxproj():
 		300000072D50000000000001 /* TextToSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000072D50000000000000 /* TextToSpeechService.swift */; };
 		300000082D50000000000001 /* SRSEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000082D50000000000000 /* SRSEngine.swift */; };
 		300000092D50000000000001 /* ReflexDrillView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000092D50000000000000 /* ReflexDrillView.swift */; };
+		300000102D50000000000001 /* Color+VocabCraft.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000102D50000000000001 /* Color+VocabCraft.swift */; };
+		300000112D50000000000001 /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000112D50000000000001 /* HeaderView.swift */; };
+		300000122D50000000000001 /* MobileSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000122D50000000000001 /* MobileSearchView.swift */; };
+		300000132D50000000000001 /* SRSMemoryHeroCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000132D50000000000001 /* SRSMemoryHeroCard.swift */; };
+		300000142D50000000000001 /* ActionCardsGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000142D50000000000001 /* ActionCardsGrid.swift */; };
+		300000152D50000000000001 /* CEFRDistributionCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000152D50000000000001 /* CEFRDistributionCard.swift */; };
+		300000162D50000000000001 /* LiquidGlassTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000162D50000000000001 /* LiquidGlassTabBar.swift */; };
+		300000172D50000000000001 /* HomepageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000172D50000000000001 /* HomepageView.swift */; };
 		300000412D50000000000001 /* VocabWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000412D50000000000000 /* VocabWidget.swift */; };
 		300000422D50000000000001 /* VocabWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000422D50000000000000 /* VocabWidgetView.swift */; };
 		300000432D50000000000001 /* NextWordIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000432D50000000000000 /* NextWordIntent.swift */; };
@@ -91,6 +99,14 @@ def generate_pbxproj():
 		200000532D50000000000000 /* SpeechServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechServiceTests.swift; sourceTree = "<group>"; };
 		200000542D50000000000000 /* SRSEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SRSEngineTests.swift; sourceTree = "<group>"; };
 		200000552D50000000000000 /* WidgetIntentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetIntentsTests.swift; sourceTree = "<group>"; };
+		200000102D50000000000001 /* Color+VocabCraft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+VocabCraft.swift"; sourceTree = "<group>"; };
+		200000112D50000000000001 /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
+		200000122D50000000000001 /* MobileSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileSearchView.swift; sourceTree = "<group>"; };
+		200000132D50000000000001 /* SRSMemoryHeroCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SRSMemoryHeroCard.swift; sourceTree = "<group>"; };
+		200000142D50000000000001 /* ActionCardsGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionCardsGrid.swift; sourceTree = "<group>"; };
+		200000152D50000000000001 /* CEFRDistributionCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CEFRDistributionCard.swift; sourceTree = "<group>"; };
+		200000162D50000000000001 /* LiquidGlassTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlassTabBar.swift; sourceTree = "<group>"; };
+		200000172D50000000000001 /* HomepageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomepageView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -154,8 +170,17 @@ def generate_pbxproj():
 				400000052D50000000000000 /* Database */,
 				400000062D50000000000000 /* Audio */,
 				400000102D50000000000000 /* SRS */,
+				400000202D50000000000000 /* DesignSystem */,
 			);
 			path = Core;
+			sourceTree = "<group>";
+		};
+		400000202D50000000000000 /* DesignSystem */ = {
+			isa = PBXGroup;
+			children = (
+				200000102D50000000000001 /* Color+VocabCraft.swift */,
+			);
+			path = DesignSystem;
 			sourceTree = "<group>";
 		};
 		400000052D50000000000000 /* Database */ = {
@@ -190,6 +215,7 @@ def generate_pbxproj():
 			isa = PBXGroup;
 			children = (
 				400000112D50000000000000 /* ReflexDrill */,
+				400000212D50000000000000 /* Homepage */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -200,6 +226,28 @@ def generate_pbxproj():
 				200000092D50000000000000 /* ReflexDrillView.swift */,
 			);
 			path = ReflexDrill;
+			sourceTree = "<group>";
+		};
+		400000212D50000000000000 /* Homepage */ = {
+			isa = PBXGroup;
+			children = (
+				400000222D50000000000000 /* Views */,
+			);
+			path = Homepage;
+			sourceTree = "<group>";
+		};
+		400000222D50000000000000 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				200000112D50000000000001 /* HeaderView.swift */,
+				200000122D50000000000001 /* MobileSearchView.swift */,
+				200000132D50000000000001 /* SRSMemoryHeroCard.swift */,
+				200000142D50000000000001 /* ActionCardsGrid.swift */,
+				200000152D50000000000001 /* CEFRDistributionCard.swift */,
+				200000162D50000000000001 /* LiquidGlassTabBar.swift */,
+				200000172D50000000000001 /* HomepageView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		400000072D50000000000000 /* VocabCraftWidgetExtension */ = {
@@ -353,6 +401,14 @@ def generate_pbxproj():
 				300000072D50000000000001 /* TextToSpeechService.swift in Sources */,
 				300000082D50000000000001 /* SRSEngine.swift in Sources */,
 				300000092D50000000000001 /* ReflexDrillView.swift in Sources */,
+				300000102D50000000000001 /* Color+VocabCraft.swift in Sources */,
+				300000112D50000000000001 /* HeaderView.swift in Sources */,
+				300000122D50000000000001 /* MobileSearchView.swift in Sources */,
+				300000132D50000000000001 /* SRSMemoryHeroCard.swift in Sources */,
+				300000142D50000000000001 /* ActionCardsGrid.swift in Sources */,
+				300000152D50000000000001 /* CEFRDistributionCard.swift in Sources */,
+				300000162D50000000000001 /* LiquidGlassTabBar.swift in Sources */,
+				300000172D50000000000001 /* HomepageView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -499,9 +555,8 @@ def generate_pbxproj():
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = VocabWidget;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = VocabCraftWidgetExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hoojinguyen.vocabcraft.widget;
@@ -520,9 +575,8 @@ def generate_pbxproj():
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = VocabWidget;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = VocabCraftWidgetExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hoojinguyen.vocabcraft.widget;
