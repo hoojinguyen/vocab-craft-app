@@ -37,6 +37,17 @@ final class BentoCardsTests: XCTestCase {
         XCTAssertTrue(queueCalled)
     }
 
+    func testActionCardsGridInstantiation() {
+        let grid = ActionCardsGrid(dueCardsCount: 24, onReflexTap: {}, onQueueTap: {})
+        XCTAssertNotNil(grid.body)
+        XCTAssertEqual(grid.dueCardsCount, 24)
+    }
+
+    func testBentoCardButtonStyleInstantiation() {
+        let style = BentoCardButtonStyle()
+        XCTAssertNotNil(style)
+    }
+
     func testCEFRDistributionCardInitialization() {
         var detailTapped = false
 
