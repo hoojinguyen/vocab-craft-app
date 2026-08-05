@@ -45,8 +45,10 @@ def generate_pbxproj():
 		300000192D50000000000001 /* VocabularySummaryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000192D50000000000001 /* VocabularySummaryCard.swift */; };
 		300000202D50000000000001 /* WordAccordionCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000202D50000000000001 /* WordAccordionCard.swift */; };
 		300000212D50000000000001 /* TopicDecksGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000212D50000000000001 /* TopicDecksGridView.swift */; };
+		300000222D50000000000001 /* VocabularyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000222D50000000000001 /* VocabularyView.swift */; };
 		300000562D50000000000001 /* VocabularyModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000562D50000000000001 /* VocabularyModelsTests.swift */; };
 		300000572D50000000000001 /* VocabularyViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000572D50000000000001 /* VocabularyViewsTests.swift */; };
+		300000582D50000000000001 /* VocabularyViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000582D50000000000001 /* VocabularyViewTests.swift */; };
 		300000402D50000000000002 /* VocabCraftWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 200000402D50000000000000 /* VocabCraftWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -117,8 +119,10 @@ def generate_pbxproj():
 		200000192D50000000000001 /* VocabularySummaryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularySummaryCard.swift; sourceTree = "<group>"; };
 		200000202D50000000000001 /* WordAccordionCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordAccordionCard.swift; sourceTree = "<group>"; };
 		200000212D50000000000001 /* TopicDecksGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicDecksGridView.swift; sourceTree = "<group>"; };
+		200000222D50000000000001 /* VocabularyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyView.swift; sourceTree = "<group>"; };
 		200000562D50000000000001 /* VocabularyModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyModelsTests.swift; sourceTree = "<group>"; };
 		200000572D50000000000001 /* VocabularyViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyViewsTests.swift; sourceTree = "<group>"; };
+		200000582D50000000000001 /* VocabularyViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyViewTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -256,6 +260,7 @@ def generate_pbxproj():
 				200000192D50000000000001 /* VocabularySummaryCard.swift */,
 				200000202D50000000000001 /* WordAccordionCard.swift */,
 				200000212D50000000000001 /* TopicDecksGridView.swift */,
+				200000222D50000000000001 /* VocabularyView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -335,6 +340,7 @@ def generate_pbxproj():
 			children = (
 				200000562D50000000000001 /* VocabularyModelsTests.swift */,
 				200000572D50000000000001 /* VocabularyViewsTests.swift */,
+				200000582D50000000000001 /* VocabularyViewTests.swift */,
 			);
 			path = Vocabulary;
 			sourceTree = "<group>";
@@ -471,6 +477,7 @@ def generate_pbxproj():
 				300000192D50000000000001 /* VocabularySummaryCard.swift in Sources */,
 				300000202D50000000000001 /* WordAccordionCard.swift in Sources */,
 				300000212D50000000000001 /* TopicDecksGridView.swift in Sources */,
+				300000222D50000000000001 /* VocabularyView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -501,6 +508,7 @@ def generate_pbxproj():
 				300000552D50000000000001 /* WidgetIntentsTests.swift in Sources */,
 				300000562D50000000000001 /* VocabularyModelsTests.swift in Sources */,
 				300000572D50000000000001 /* VocabularyViewsTests.swift in Sources */,
+				300000582D50000000000001 /* VocabularyViewTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

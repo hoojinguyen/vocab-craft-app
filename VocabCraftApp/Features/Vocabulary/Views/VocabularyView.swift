@@ -1,0 +1,149 @@
+import SwiftUI
+
+public struct VocabularyView: View {
+    @State private var searchText = ""
+    @State private var selectedFilter = "Tất cả"
+    @State private var selectedTab = 0 // 0: Kho từ cá nhân, 1: Bộ từ chủ đề
+    @State private var expandedWordId: Int64? = 1 // Expand first word by default
+    @State private var wordItems: [WordItem] = WordItem.mockData
+
+    private let filterOptions = ["Tất cả", "Cần ôn ⚡", "Đã thuộc ⭐5", "A1-A2", "B1-B2", "C1-C2"]
+
+    public init() {}
+
+    public var body: some View {
+        ZStack {
+            Color.vocabCanvas
+                .ignoresSafeArea()
+
+            VStack(spacing: 14) {
+                // Sticky Header Search Bar
+                MobileSearchView(searchText: $searchText, onVoiceSearchTapped: {})
+                    .padding(.top, 8)
+
+                // Segmented Switch (Kho Từ Cá Nhân vs Bộ Từ Chủ Đề)
+                HStack(spacing: 0) {
+                    segmentedTabButton(title: "Kho Từ Cá Nhân", tabIndex: 0)
+                    segmentedTabButton(title: "Bộ Từ Chủ Đề", tabIndex: 1)
+                }
+                .padding(4)
+                .background(Color.vocabSurfaceCard)
+                .cornerRadius(16)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.vocabHairline, lineWidth: 1.5)
+                )
+                .padding(.horizontal)
+
+                if selectedTab == 0 {
+                    // Filter Pills (Horizontal Scroll)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(filterOptions, id: \.self) { filter in
+                                filterPill(filter)
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+
+                    ScrollView(.vertical, showsIndicators: false) {
+                        VStack(spacing: 12) {
+                            // Bento Summary Strip
+                            VocabularySummaryCard(
+                                totalWords: wordItems.count * 473,
+                                srsRetentionPercentage: 0.85,
+                                dueCount: 24
+                            )
+
+                            // Word Accordion Cards List
+                            VStack(spacing: 10) {
+                                ForEach(filteredWords) { item in
+                                    WordAccordionCard(
+                                        item: item,
+                                        isExpanded: expandedWordId == item.id,
+                                        onTap: {
+                                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                                if expandedWordId == item.id {
+                                                    expandedWordId = nil
+                                                } else {
+                                                    expandedWordId = item.id
+                                                }
+                                            }
+                                        },
+                                        onAudioTap: {},
+                                        onDrillTap: {}
+                                    )
+                                }
+                            }
+                            .padding(.horizontal)
+                        }
+                        .padding(.bottom, 90) // Clear floating tab bar
+                    }
+                } else {
+                    // Topic Decks Grid Tab
+                    ScrollView(.vertical, showsIndicators: false) {
+                        TopicDecksGridView(onDeckSelected: { _ in })
+                            .padding(.top, 4)
+                            .padding(.bottom, 90)
+                    }
+                }
+            }
+        }
+    }
+
+    private var filteredWords: [WordItem] {
+        var result = wordItems
+        if !searchText.isEmpty {
+            result = result.filter { $0.lemma.localizedCaseInsensitiveContains(searchText) || $0.definition.localizedCaseInsensitiveContains(searchText) }
+        }
+        if selectedFilter == "A1-A2" {
+            result = result.filter { $0.cefrLevel == "A1" || $0.cefrLevel == "A2" }
+        } else if selectedFilter == "B1-B2" {
+            result = result.filter { $0.cefrLevel == "B1" || $0.cefrLevel == "B2" }
+        } else if selectedFilter == "C1-C2" {
+            result = result.filter { $0.cefrLevel == "C1" || $0.cefrLevel == "C2" }
+        } else if selectedFilter == "Cần ôn ⚡" {
+            result = result.filter { $0.masteryLevel < 3 }
+        } else if selectedFilter == "Đã thuộc ⭐5" {
+            result = result.filter { $0.masteryLevel >= 4 }
+        }
+        return result
+    }
+
+    private func segmentedTabButton(title: String, tabIndex: Int) -> some View {
+        Button(action: {
+            withAnimation(.spring(response: 0.2, dampingFraction: 0.7)) {
+                selectedTab = tabIndex
+            }
+        }) {
+            Text(title)
+                .font(.system(size: 13, weight: .bold))
+                .foregroundColor(selectedTab == tabIndex ? Color.vocabInk : Color.vocabMuted)
+                .frame(maxWidth: .infinity)
+                .frame(height: 36)
+                .background(selectedTab == tabIndex ? Color.vocabInk.opacity(0.08) : Color.clear)
+                .cornerRadius(12)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func filterPill(_ title: String) -> some View {
+        let isSelected = selectedFilter == title
+        return Button(action: {
+            selectedFilter = title
+        }) {
+            Text(title)
+                .font(.system(size: 12, weight: isSelected ? .bold : .medium))
+                .foregroundColor(isSelected ? Color.vocabCanvas : Color.vocabInk)
+                .padding(.horizontal, 14)
+                .frame(height: 36)
+                .background(isSelected ? Color.vocabInk : Color.vocabSurfaceCard)
+                .cornerRadius(18)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18)
+                        .stroke(isSelected ? Color.clear : Color.vocabHairline, lineWidth: 1.5)
+                )
+        }
+        .buttonStyle(.plain)
+    }
+}

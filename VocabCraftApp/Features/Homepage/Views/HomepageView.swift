@@ -36,36 +36,55 @@ public struct HomepageView: View {
             Color.vocabCanvas
                 .ignoresSafeArea()
 
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: 16) {
-                    HeaderView(
-                        userName: userName,
-                        streakDays: streakDays,
-                        dailyGoalProgress: dailyGoalProgress,
-                        unreadNotifications: unreadNotifications
-                    )
+            switch selectedTab {
+            case .home:
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(spacing: 16) {
+                        HeaderView(
+                            userName: userName,
+                            streakDays: streakDays,
+                            dailyGoalProgress: dailyGoalProgress,
+                            unreadNotifications: unreadNotifications
+                        )
 
-                    MobileSearchView(
-                        searchText: $searchText,
-                        onVoiceSearchTapped: {}
-                    )
+                        MobileSearchView(
+                            searchText: $searchText,
+                            onVoiceSearchTapped: {}
+                        )
 
-                    SRSMemoryHeroCard(
-                        totalWords: totalWords,
-                        retentionPercentage: retentionPercentage
-                    )
+                        SRSMemoryHeroCard(
+                            totalWords: totalWords,
+                            retentionPercentage: retentionPercentage
+                        )
 
-                    ActionCardsGrid(
-                        dueCardsCount: dueCardsCount,
-                        onReflexTap: {},
-                        onQueueTap: {}
-                    )
+                        ActionCardsGrid(
+                            dueCardsCount: dueCardsCount,
+                            onReflexTap: {},
+                            onQueueTap: {}
+                        )
 
-                    CEFRDistributionCard()
+                        CEFRDistributionCard()
 
-                    Spacer(minLength: 100)
+                        Spacer(minLength: 100)
+                    }
+                    .padding(.top)
                 }
-                .padding(.top)
+            case .vocabulary:
+                VocabularyView()
+            case .reflex, .settings:
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(spacing: 16) {
+                        HeaderView(
+                            userName: userName,
+                            streakDays: streakDays,
+                            dailyGoalProgress: dailyGoalProgress,
+                            unreadNotifications: unreadNotifications
+                        )
+
+                        Spacer(minLength: 100)
+                    }
+                    .padding(.top)
+                }
             }
 
             LiquidGlassTabBar(selectedTab: $selectedTab)
