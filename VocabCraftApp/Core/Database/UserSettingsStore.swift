@@ -10,6 +10,22 @@ public final class UserSettingsStore: @unchecked Sendable {
     @AppStorage("is_notification_enabled") public var isNotificationEnabled: Bool = true
     
     @ObservationIgnored
+    @AppStorage("notification_time_interval") public var notificationTimeInterval: Double = 72000 // Default 20:00
+    
+    public var notificationTime: Date {
+        get {
+            let calendar = Calendar.current
+            let startOfDay = calendar.startOfDay(for: Date())
+            return startOfDay.addingTimeInterval(notificationTimeInterval)
+        }
+        set {
+            let calendar = Calendar.current
+            let startOfDay = calendar.startOfDay(for: newValue)
+            notificationTimeInterval = newValue.timeIntervalSince(startOfDay)
+        }
+    }
+    
+    @ObservationIgnored
     @AppStorage("tts_voice_gender") public var ttsVoiceGender: String = "US"
     
     @ObservationIgnored

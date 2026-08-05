@@ -3,7 +3,7 @@ import SwiftUI
 @MainActor
 @Observable
 public final class SettingsViewModel {
-    public let store: UserSettingsStore
+    public var store: UserSettingsStore
     public var isPlayingAudio: Bool = false
     public var cacheSizeString: String = "12.4 MB"
     private let ttsService: TextToSpeechProtocol?
