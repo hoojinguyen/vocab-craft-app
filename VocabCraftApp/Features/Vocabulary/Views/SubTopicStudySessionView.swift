@@ -90,7 +90,7 @@ public struct SubTopicStudySessionView: View {
                                 .font(.system(size: 13, weight: .bold))
                                 .foregroundColor(Color.vocabMuted)
                             Spacer()
-                            Text("Lần \(min(2, max(1, 3 - engine.attemptsLeft)))/2")
+                            Text("Lần \(max(0, 2 - engine.attemptsLeft))/2")
                                 .font(.system(size: 11, weight: .semibold))
                                 .foregroundColor(Color.vocabMuted)
                         }
@@ -191,13 +191,15 @@ public struct SubTopicStudySessionView: View {
 
     private func segmentColor(for index: Int) -> Color {
         if index < engine.currentIndex {
-            return Color.vocabMint
+            let passed = engine.questionResults[index] ?? true
+            return passed ? Color.vocabMint : Color.vocabCoral
         } else if index == engine.currentIndex {
             return Color.vocabPeach
         } else {
             return Color.gray.opacity(0.18)
         }
     }
+
 
     private func formattedXPText(_ xp: Int) -> String {
         if xp > 0 {

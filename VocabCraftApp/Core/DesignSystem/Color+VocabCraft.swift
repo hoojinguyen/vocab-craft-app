@@ -60,14 +60,15 @@ public extension Color {
 
     // Brand Accent Tokens
     static let vocabCoral = dynamic(
-        light: Color(red: 1.0, green: 0.42, blue: 0.35),  // #FF6B5A Coral
-        dark: Color(red: 1.0, green: 0.48, blue: 0.42)   // #FF7A6B (+Luminance)
+        light: Color(red: 0.88, green: 0.22, blue: 0.28), // #E13847 High-Contrast Crimson Coral
+        dark: Color(red: 0.97, green: 0.44, blue: 0.44)   // #F87171 Bright Coral
     )
 
     static let vocabMint = dynamic(
-        light: Color(red: 0.64, green: 0.83, blue: 0.77), // #A4D4C5 Mint
-        dark: Color(red: 0.71, green: 0.90, blue: 0.84)  // #B5E5D6 (+Luminance)
+        light: Color(red: 0.04, green: 0.62, blue: 0.45), // #0A9E73 High-Contrast Emerald Green
+        dark: Color(red: 0.20, green: 0.83, blue: 0.60)   // #34D399 Bright Mint Accent
     )
+
 
     static let vocabPeach = dynamic(
         light: Color(red: 1.0, green: 0.69, blue: 0.52),  // #FFB084 Peach

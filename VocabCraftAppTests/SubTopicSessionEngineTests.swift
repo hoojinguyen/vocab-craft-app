@@ -110,5 +110,27 @@ final class SubTopicSessionEngineTests: XCTestCase {
         XCTAssertTrue(options.contains("Sự tự động hóa"))
         XCTAssertEqual(Set(options).count, 4, "Options must contain 4 distinct Vietnamese meanings without duplicates")
     }
+
+    func testQuestionResultsTracksPassAndFail() {
+        let words = [
+            TopicWord(id: "1", english: "A", phonetic: "/a/", vietnamese: "Nghĩa A"),
+            TopicWord(id: "2", english: "B", phonetic: "/b/", vietnamese: "Nghĩa B")
+        ]
+        let engine = SubTopicSessionEngine(words: words)
+
+        // Submit correct for question 0
+        let res1 = engine.submitAnswer(selectedVietnamese: "Nghĩa A")
+        XCTAssertTrue(res1.isCorrect)
+        XCTAssertEqual(engine.questionResults[0], true)
+
+        engine.advanceToNextWord()
+
+        // Submit incorrect twice for question 1
+        _ = engine.submitAnswer(selectedVietnamese: "Sai")
+        let res2 = engine.submitAnswer(selectedVietnamese: "Sai")
+        XCTAssertFalse(res2.isCorrect)
+        XCTAssertEqual(engine.questionResults[1], false)
+    }
 }
+
 
