@@ -43,9 +43,19 @@
 		300000202D50000000000001 /* WordAccordionCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000202D50000000000001 /* WordAccordionCard.swift */; };
 		300000212D50000000000001 /* TopicDecksGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000212D50000000000001 /* TopicDecksGridView.swift */; };
 		300000222D50000000000001 /* VocabularyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000222D50000000000001 /* VocabularyView.swift */; };
+		300000232D50000000000001 /* TopicDeckModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000232D50000000000001 /* TopicDeckModels.swift */; };
+		300000242D50000000000001 /* SubTopicPreviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000242D50000000000001 /* SubTopicPreviewSheet.swift */; };
+		300000252D50000000000001 /* TopicDeckDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000252D50000000000001 /* TopicDeckDetailView.swift */; };
 		300000562D50000000000001 /* VocabularyModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000562D50000000000001 /* VocabularyModelsTests.swift */; };
 		300000572D50000000000001 /* VocabularyViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000572D50000000000001 /* VocabularyViewsTests.swift */; };
 		300000582D50000000000001 /* VocabularyViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000582D50000000000001 /* VocabularyViewTests.swift */; };
+		300000602D50000000000001 /* SubTopicSessionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000602D50000000000001 /* SubTopicSessionEngine.swift */; };
+		300000612D50000000000001 /* ReflexFlipCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000612D50000000000001 /* ReflexFlipCardView.swift */; };
+		300000622D50000000000001 /* SubTopicStudySessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000622D50000000000001 /* SubTopicStudySessionView.swift */; };
+		300000632D50000000000001 /* SubTopicSessionEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000632D50000000000001 /* SubTopicSessionEngineTests.swift */; };
+		300000642D50000000000001 /* ReflexFlipCardViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000642D50000000000001 /* ReflexFlipCardViewTests.swift */; };
+		300000652D50000000000001 /* SubTopicStudySessionViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000652D50000000000001 /* SubTopicStudySessionViewTests.swift */; };
+		300000662D50000000000001 /* SubTopicPreviewSheetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000662D50000000000001 /* SubTopicPreviewSheetTests.swift */; };
 		300000402D50000000000002 /* VocabCraftWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 200000402D50000000000000 /* VocabCraftWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -117,9 +127,19 @@
 		200000202D50000000000001 /* WordAccordionCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordAccordionCard.swift; sourceTree = "<group>"; };
 		200000212D50000000000001 /* TopicDecksGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicDecksGridView.swift; sourceTree = "<group>"; };
 		200000222D50000000000001 /* VocabularyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyView.swift; sourceTree = "<group>"; };
+		200000232D50000000000001 /* TopicDeckModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicDeckModels.swift; sourceTree = "<group>"; };
+		200000242D50000000000001 /* SubTopicPreviewSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubTopicPreviewSheet.swift; sourceTree = "<group>"; };
+		200000252D50000000000001 /* TopicDeckDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicDeckDetailView.swift; sourceTree = "<group>"; };
 		200000562D50000000000001 /* VocabularyModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyModelsTests.swift; sourceTree = "<group>"; };
 		200000572D50000000000001 /* VocabularyViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyViewsTests.swift; sourceTree = "<group>"; };
 		200000582D50000000000001 /* VocabularyViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyViewTests.swift; sourceTree = "<group>"; };
+		200000602D50000000000001 /* SubTopicSessionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubTopicSessionEngine.swift; sourceTree = "<group>"; };
+		200000612D50000000000001 /* ReflexFlipCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReflexFlipCardView.swift; sourceTree = "<group>"; };
+		200000622D50000000000001 /* SubTopicStudySessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubTopicStudySessionView.swift; sourceTree = "<group>"; };
+		200000632D50000000000001 /* SubTopicSessionEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubTopicSessionEngineTests.swift; sourceTree = "<group>"; };
+		200000642D50000000000001 /* ReflexFlipCardViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReflexFlipCardViewTests.swift; sourceTree = "<group>"; };
+		200000652D50000000000001 /* SubTopicStudySessionViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubTopicStudySessionViewTests.swift; sourceTree = "<group>"; };
+		200000662D50000000000001 /* SubTopicPreviewSheetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubTopicPreviewSheetTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -247,6 +267,8 @@
 			isa = PBXGroup;
 			children = (
 				200000182D50000000000001 /* WordItem.swift */,
+				200000232D50000000000001 /* TopicDeckModels.swift */,
+				200000602D50000000000001 /* SubTopicSessionEngine.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -258,6 +280,10 @@
 				200000202D50000000000001 /* WordAccordionCard.swift */,
 				200000212D50000000000001 /* TopicDecksGridView.swift */,
 				200000222D50000000000001 /* VocabularyView.swift */,
+				200000242D50000000000001 /* SubTopicPreviewSheet.swift */,
+				200000252D50000000000001 /* TopicDeckDetailView.swift */,
+				200000612D50000000000001 /* ReflexFlipCardView.swift */,
+				200000622D50000000000001 /* SubTopicStudySessionView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -319,6 +345,10 @@
 				200000532D50000000000000 /* SpeechServiceTests.swift */,
 				200000542D50000000000000 /* SRSEngineTests.swift */,
 				200000552D50000000000000 /* WidgetIntentsTests.swift */,
+				200000632D50000000000001 /* SubTopicSessionEngineTests.swift */,
+				200000642D50000000000001 /* ReflexFlipCardViewTests.swift */,
+				200000652D50000000000001 /* SubTopicStudySessionViewTests.swift */,
+				200000662D50000000000001 /* SubTopicPreviewSheetTests.swift */,
 				400000322D50000000000000 /* Features */,
 			);
 			path = VocabCraftAppTests;
@@ -475,6 +505,12 @@
 				300000202D50000000000001 /* WordAccordionCard.swift in Sources */,
 				300000212D50000000000001 /* TopicDecksGridView.swift in Sources */,
 				300000222D50000000000001 /* VocabularyView.swift in Sources */,
+				300000232D50000000000001 /* TopicDeckModels.swift in Sources */,
+				300000242D50000000000001 /* SubTopicPreviewSheet.swift in Sources */,
+				300000252D50000000000001 /* TopicDeckDetailView.swift in Sources */,
+				300000602D50000000000001 /* SubTopicSessionEngine.swift in Sources */,
+				300000612D50000000000001 /* ReflexFlipCardView.swift in Sources */,
+				300000622D50000000000001 /* SubTopicStudySessionView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -506,6 +542,10 @@
 				300000562D50000000000001 /* VocabularyModelsTests.swift in Sources */,
 				300000572D50000000000001 /* VocabularyViewsTests.swift in Sources */,
 				300000582D50000000000001 /* VocabularyViewTests.swift in Sources */,
+				300000632D50000000000001 /* SubTopicSessionEngineTests.swift in Sources */,
+				300000642D50000000000001 /* ReflexFlipCardViewTests.swift in Sources */,
+				300000652D50000000000001 /* SubTopicStudySessionViewTests.swift in Sources */,
+				300000662D50000000000001 /* SubTopicPreviewSheetTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
