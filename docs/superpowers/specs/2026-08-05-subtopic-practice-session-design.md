@@ -1,105 +1,100 @@
-# Design Spec: Sub-topic Practice Session Screen (Màn hình Học & Luyện tập Chặng)
+# Design Spec: Sub-topic Practice Session Screen (Màn hình Học & Luyện tập Chặng - Redesign V4)
 
 - **Date**: 2026-08-05
-- **Feature**: Sub-topic Practice Session & Interactive 3D Flip Flashcard Flow
+- **Feature**: Sub-topic Practice Session, Minimal 3D Flip Flashcard & Ergonomic UI Redesign V4
 - **Module**: `VocabCraftApp/Features/Vocabulary`
 - **Status**: Approved by User
 
 ---
 
-## 1. Overview & Purpose
+## 1. Overview & UI/UX Design Principles
 
-The **Sub-topic Practice Session Screen** (`SubTopicStudySessionView`) is the core interactive learning view launched when a user taps *"Luyện tập riêng chặng này"* or *"⚡ Bắt đầu học Chặng X"* from the Topic Deck Detail screen.
+The **Sub-topic Practice Session Screen** (`SubTopicStudySessionView`) provides a gamified, high-contrast, one-handed ergonomic learning experience on iOS.
 
-It implements an engaging **Gamified Micro-Learning Loop** combining a 2-sided 3D Flipping Flashcard (`ReflexFlipCardView`), a 2-attempt penalty multiple-choice quiz challenge, Apple Native FX (Core Animation `CAEmitterLayer` ProMotion particle confetti & Sensory Haptics), and automatic synchronization of mastered words to the user's Personal Vocabulary Vault.
+### Core UX Principles (V4 Upgrade):
+1. **High-Contrast Premium Light Mode Aesthetics**: Clean Slate-50 background (`Color.vocabCanvas`), pure white cards (`Color.vocabSurfaceCard`), crisp ink typography (`Color.vocabInk`), and zero washed-out/dull tones.
+2. **Minimalist Flashcard**:
+   - **Front Face**: Only Word (large title) ➔ IPA Phonetic ➔ Pure Icon Audio Button (`speaker.wave.2.fill` in a circle). No clutter, no instruction labels.
+   - **Back Face**: Mint Green / Coral Red border. Word ➔ IPA ➔ Circle Audio Icon ➔ `[Part of speech] Vietnamese Definition` ➔ Highlighted Context Example (*"Ví dụ:"*).
+3. **Re-architected Top Header Bar**:
+   - Close Button (`xmark`) in a 32pt circular pill.
+   - 10-Segmented Progress Bar.
+   - **`⚡ +XP` Badge** directly on the top header bar next to the progress bar (replacing streak counter).
+4. **Thumb-Zone Ergonomics**:
+   - Quiz options grid and action buttons positioned in the lower 55% of the screen for single-handed thumb accessibility.
+   - Nudge/bounce tactile feedback (`scaleEffect(0.98)` on press).
+   - Quiz section title: *"Chọn đáp án đúng:"* with subtle attempt indicator (`Lần 1/2`).
+5. **Clean Bottom Toast Feedback**:
+   - Toast banner displays concise status (`✓ Chính xác! (+10 XP)` or `✕ Chưa chính xác (-5 XP)`).
+   - Action button maintains simple, actionable text (`Tiếp tục ➔`).
+6. **10-Word Dataset**: Sub-topic nodes supply 10 sample words per node for rich progress tracking.
 
 ---
 
-## 2. User Journey & Core Interactive Flow
+## 2. Component Structure & Data Flow
 
 ```
-SubTopicPreviewSheet / TopicDeckDetailView
-       │
-       ▼ (Tap "Luyện tập riêng chặng này" / "Bắt đầu học Chặng X")
+TopicDeckDetailView
+  │ (Tap "Luyện tập riêng chặng này" / Hero CTA)
+  ▼
 SubTopicStudySessionView
-  ├── Top Header (Exit xmark, Segmented Progress Bar, 🔥 Combo Counter)
+  ├── Top Header Bar (Close Circle, 10-Segment Progress, ⚡ XP Badge)
   │
-  ├── Interactive 3D Flip Flashcard (ReflexFlipCardView)
-  │     ├── FRONT: English Word, Phonetic IPA, Audio Button (🔊)
-  │     └── BACK: Vietnamese Definition, Part of Speech, Context Example Sentence
+  ├── ReflexFlipCardView (3D Y-axis Flip)
+  │     ├── FRONT: Word ➔ IPA ➔ Icon Audio Button
+  │     └── BACK: Word ➔ IPA ➔ Icon Audio Button ➔ [partOfSpeech] Meaning ➔ Highlighted Example
   │
-  ├── Quiz Options Grid (4 Multiple Choice Options, 2 Attempts Left "2/2")
-  │     ├── Attempt 1 Correct ──► 3D Flip Card to BACK (Green Theme), +10 XP, Auto-Sync Vault
-  │     ├── Attempt 1 Wrong   ──► Shake animation, Hint, "1/2" attempts left (+5 XP potential)
-  │     └── Attempt 2 Wrong   ──► 3D Flip Card to BACK (Red Theme), -5 XP, Move to Retry Queue
+  ├── Thumb-Zone Quiz Grid ("Chọn đáp án đúng:", 4 Options, Tactile press 0.98)
   │
-  └── Bottom Feedback Toast Sheet ──► Tap "TỪ TIẾP THEO ➔"
+  └── Bottom Feedback Sheet (Concise Toast Banner + "Tiếp tục ➔" Button)
        │
-       ▼ (All words in session completed)
+       ▼ (All 10 words completed)
 SubTopicSessionSummaryView
-  ├── Apple Native CAEmitterLayer GPU Confetti
+  ├── CAEmitterLayer ProMotion 120Hz GPU Confetti Particles
   ├── SwiftUI Sensory Haptics (.sensoryFeedback(.success))
-  ├── SF Symbol Animations (🏆 .symbolEffect(.bounce))
-  └── Actions: "🔄 Ôn lại chặng này" | "🚀 Chuyển sang Chặng tiếp theo ➔"
+  ├── SF Symbol Animation (🏆 .symbolEffect(.bounce))
+  └── Actions: "CHUYỂN CHẶNG TIẾP THEO" | "Ôn lại chặng này"
 ```
 
 ---
 
-## 3. Detailed Component Architecture
+## 3. Detailed Data Models & Dataset Extensions
 
-### 3.1 Design System, SF Symbols & Dual Theme Standards
-- **SF Symbols Compliance**: 100% Apple standard SF Symbols via `Image(systemName:)`:
-  - Exit: `xmark`
-  - Audio: `speaker.wave.2.fill`
-  - Selection states: `checkmark.circle.fill`, `xmark.circle.fill`
-  - Streak & Trophy: `flame.fill`, `trophy.fill`, `star.fill`
-  - Actions: `arrow.right`, `arrow.counterclockwise`
-- **Dual Theme Support (Light & Dark Mode)**:
-  - Canvas & Surfaces: `Color.vocabCanvas`, `Color.vocabSurfaceCard`, `Color.vocabSurfaceSoft`.
-  - Text Ink: `Color.vocabInk`, `Color.vocabBody`, `Color.vocabMuted`.
-  - Accents: `Color.vocabMint`, `Color.vocabPeach`, `Color.vocabCoral`, `Color.vocabLavender`.
-  - Hairlines: `Color.vocabHairline`.
+### Sample 10-Word Subtopic Dataset (`TopicDeckModels.swift`):
+- `Automation` ("Sự tự động hóa")
+- `Algorithm` ("Thuật toán")
+- `Ecosystem` ("Hệ sinh thái")
+- `Biodiversity` ("Đa dạng sinh học")
+- `Sustainability` ("Sự bền vững")
+- `Innovation` ("Sự đổi mới sáng tạo")
+- `Infrastructure` ("Hạ tầng")
+- `Artificial` ("Nhân tạo")
+- `Intelligence` ("Trí tuệ")
+- `Architecture` ("Kiến trúc")
 
-### 3.2 3D Flip Flashcard Component (`ReflexFlipCardView`)
-- **Front Face**:
-  - English word title in bold typography (`title-lg`).
-  - Audio pill with `speaker.wave.2.fill` icon & IPA phonetic pronunciation.
-  - Prompt text: *"Chọn nghĩa tiếng Việt chính xác bên dưới"*.
-- **Back Face**:
-  - Vietnamese definition in bold accent color.
-  - Context sentence card with target word bolded (e.g. *"The **algorithm** processes data in real time."*).
-- **3D Rotation**: Smooth Y-axis 3D flip animation using SwiftUI `.rotation3DEffect(.degrees(isFlipped ? 180 : 0), axis: (x: 0, y: 1, z: 0))`.
-
-### 3.3 Game Engine & Penalty Logic (`SubTopicSessionEngine`)
-- **Max Attempts**: 2 attempts per word.
-- **Scoring**:
-  - 1st attempt correct: **+10 XP**, `comboCount += 1`, Card flips 3D to Back (Green accent).
-  - 1st attempt incorrect: `attemptsLeft = 1`, option turns red, user can try 1 more time for **+5 XP**.
-  - 2nd attempt incorrect: **-5 XP**, `comboCount = 0`, Card flips 3D to Back (Red accent), word appended to `retryQueue` to be reviewed at the end of the session.
-
-### 3.4 Celebration & Summary View (`SubTopicSessionSummaryView`)
-- **Apple Native Effects**:
-  - **`CAEmitterLayer` Particle Engine**: GPU-accelerated confetti running at 120Hz ProMotion directly via Core Animation without webviews or GIFs.
-  - **Sensory Feedback**: `UIImpactFeedbackGenerator` / `.sensoryFeedback(.success, trigger: ...)` for tactile satisfaction.
-  - **Symbol Effects**: `trophy.fill` animated with `.symbolEffect(.bounce)`.
+### Highlighting Target Word in Examples:
+Target words in example sentences are dynamically formatted or bolded/highlighted with a soft yellow background tag (`Color.vocabYellowHighlight`).
 
 ---
 
-## 4. File Structure & Changes
+## 4. File Structure & Target Files
 
-- `VocabCraftApp/Features/Vocabulary/Models/TopicDeckModels.swift` (Update models with session state & retry queue)
-- `VocabCraftApp/Features/Vocabulary/Models/SubTopicSessionEngine.swift` (New session state machine)
-- `VocabCraftApp/Features/Vocabulary/Views/ReflexFlipCardView.swift` (New 3D flip card component)
-- `VocabCraftApp/Features/Vocabulary/Views/SubTopicStudySessionView.swift` (New main study session view)
-- `VocabCraftApp/Features/Vocabulary/Views/SubTopicSessionSummaryView.swift` (New summary view with native FX)
+- `VocabCraftApp/Features/Vocabulary/Models/TopicDeckModels.swift` (10-word dataset & model fields)
+- `VocabCraftApp/Features/Vocabulary/Models/SubTopicSessionEngine.swift` (XP & attempt formatting fix)
+- `VocabCraftApp/Features/Vocabulary/Views/ReflexFlipCardView.swift` (Minimal Front face & Back face with highlighted example)
+- `VocabCraftApp/Features/Vocabulary/Views/SubTopicStudySessionView.swift` (Header XP badge, 10 segments, clean toast, thumb ergonomics)
+- `VocabCraftApp/Features/Vocabulary/Views/SubTopicSessionSummaryView.swift` (Completion view with CAEmitterLayer confetti & Sensory Haptics)
+- `VocabCraftApp/Features/Vocabulary/Views/TopicDeckDetailView.swift` (Navigation presentation)
 
 ---
 
 ## 5. Verification & Acceptance Criteria
 
-1. Tapping *"Luyện tập riêng chặng này"* opens `SubTopicStudySessionView`.
-2. Flashcard starts on **Front Face** showing only Word + IPA + Audio button.
-3. Answering correctly flips card 3D to **Back Face** (Green theme) showing Vietnamese definition + Example sentence, awards **+10 XP**, and auto-syncs word to Personal Vocab Vault.
-4. Answering incorrectly twice flips card 3D to **Back Face** (Red theme), deducts **-5 XP**, and adds word to retry queue.
-5. Finishing the session presents `SubTopicSessionSummaryView` with `CAEmitterLayer` confetti and sensory haptics.
-6. Build and unit tests pass cleanly with 100% SF Symbols and Light/Dark mode token compliance.
+1. XP text on status bar shows clean formatting (`+10 XP`, `-5 XP`), no `+-5` strings.
+2. Distractor options generated do not produce near-identical choices.
+3. Flashcard front face displays only Word, IPA text (Row 2), and Circle Audio Icon (Row 3).
+4. Flashcard back face highlights target word in the example sentence cleanly.
+5. Quiz section header displays *"Chọn đáp án đúng:"* with `Lần 1/2` tag.
+6. Progress bar renders 10 segments for 10-word dataset.
+7. Bottom action button uses simple *"Tiếp tục ➔"* text with top toast banner showing feedback.
+8. 74+ unit tests pass cleanly, `xcodebuild build` succeeds, and app runs on iPhone Simulator.
