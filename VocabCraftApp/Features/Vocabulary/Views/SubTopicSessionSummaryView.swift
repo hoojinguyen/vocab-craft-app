@@ -84,34 +84,40 @@ public struct SubTopicSessionSummaryView: View {
         return Int((Double(correctCount) / Double(totalQuestions)) * 100)
     }
 
+    private var isPassed: Bool {
+        return accuracyPercentage >= 80
+    }
+
     public var body: some View {
         ZStack {
             #if canImport(UIKit)
-            // GPU Accelerated Confetti Layer on iOS
-            ConfettiParticleView()
-                .ignoresSafeArea()
-                .allowsHitTesting(false)
+            if isPassed {
+                // GPU Accelerated Confetti Layer on iOS when passed
+                ConfettiParticleView()
+                    .ignoresSafeArea()
+                    .allowsHitTesting(false)
+            }
             #endif
 
             VStack(spacing: 24) {
                 Spacer()
 
-                // Animated Trophy Badge
-                Image(systemName: "trophy.fill")
+                // Animated Badge (Trophy if Passed, Warning Seal if Failed)
+                Image(systemName: isPassed ? "trophy.fill" : "exclamationmark.triangle.fill")
                     .font(.system(size: 64))
-                    .foregroundColor(Color.vocabPeach)
+                    .foregroundColor(isPassed ? Color.vocabPeach : Color.vocabCoral)
                     .symbolEffect(.bounce, value: triggerSensoryHaptic)
 
                 VStack(spacing: 8) {
-                    Text("CHÚC MỪNG HOÀN THÀNH CHẶNG!")
+                    Text(isPassed ? "CHÚC MỪNG HOÀN THÀNH CHẶNG!" : "CHƯA ĐẠT CHỈ TIÊU (CẦN ≥ 80%)")
                         .font(.system(size: 20, weight: .bold))
-
                         .foregroundColor(Color.vocabInk)
                         .multilineTextAlignment(.center)
 
-                    Text("Đã tự động đồng bộ từ vựng vào Kho cá nhân")
+                    Text(isPassed ? "Đã tự động đồng bộ từ vựng vào Kho cá nhân" : "Bạn cần đạt tối thiểu 80% độ chính xác để mở chặng tiếp theo")
                         .font(.system(size: 13, weight: .medium))
                         .foregroundColor(Color.vocabMuted)
+                        .multilineTextAlignment(.center)
                 }
 
                 // Stats Dashboard Grid
@@ -120,7 +126,7 @@ public struct SubTopicSessionSummaryView: View {
                         Text("TỔNG THƯỞNG")
                             .font(.system(size: 10, weight: .bold))
                             .foregroundColor(Color.vocabMuted)
-                        Text("+\(xpEarned) XP")
+                        Text("+\(max(0, xpEarned)) XP")
                             .font(.system(size: 22, weight: .bold))
                             .foregroundColor(Color.vocabMint)
                     }
@@ -139,7 +145,7 @@ public struct SubTopicSessionSummaryView: View {
                             .foregroundColor(Color.vocabMuted)
                         Text("\(accuracyPercentage)%")
                             .font(.system(size: 22, weight: .bold))
-                            .foregroundColor(Color.vocabPeach)
+                            .foregroundColor(isPassed ? Color.vocabMint : Color.vocabCoral)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(16)
@@ -155,27 +161,49 @@ public struct SubTopicSessionSummaryView: View {
 
                 // Action Buttons
                 VStack(spacing: 12) {
-                    Button(action: onFinish) {
-                        HStack(spacing: 8) {
-                            Text("CHUYỂN CHẶNG TIẾP THEO")
-                                .font(.system(size: 14, weight: .bold))
-                            Image(systemName: "arrow.right")
+                    if isPassed {
+                        Button(action: onFinish) {
+                            HStack(spacing: 8) {
+                                Text("CHUYỂN CHẶNG TIẾP THEO")
+                                    .font(.system(size: 14, weight: .bold))
+                                Image(systemName: "arrow.right")
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(Color.vocabMint)
+                            .foregroundColor(Color.vocabCanvas)
+                            .cornerRadius(14)
                         }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(Color.vocabMint)
-                        .foregroundColor(Color.vocabCanvas)
-                        .cornerRadius(14)
-                    }
 
-                    Button(action: onRestart) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "arrow.counterclockwise")
-                            Text("Ôn lại chặng này")
-                                .font(.system(size: 13, weight: .semibold))
+                        Button(action: onRestart) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "arrow.counterclockwise")
+                                Text("Ôn lại chặng này")
+                                    .font(.system(size: 13, weight: .semibold))
+                            }
+                            .foregroundColor(Color.vocabMuted)
+                            .padding(.vertical, 8)
                         }
-                        .foregroundColor(Color.vocabMuted)
-                        .padding(.vertical, 8)
+                    } else {
+                        Button(action: onRestart) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "arrow.counterclockwise")
+                                Text("HỌC LẠI CHẶNG NÀY")
+                                    .font(.system(size: 14, weight: .bold))
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(Color.vocabCoral)
+                            .foregroundColor(Color.vocabCanvas)
+                            .cornerRadius(14)
+                        }
+
+                        Button(action: onFinish) {
+                            Text("Về trang chủ")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundColor(Color.vocabMuted)
+                                .padding(.vertical, 8)
+                        }
                     }
                 }
             }
@@ -185,6 +213,7 @@ public struct SubTopicSessionSummaryView: View {
         .onAppear {
             triggerSensoryHaptic = true
         }
-        .sensoryFeedback(.success, trigger: triggerSensoryHaptic)
+        .sensoryFeedback(isPassed ? .success : .error, trigger: triggerSensoryHaptic)
     }
+
 }

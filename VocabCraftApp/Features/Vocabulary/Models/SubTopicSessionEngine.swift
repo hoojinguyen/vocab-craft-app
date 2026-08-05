@@ -12,7 +12,6 @@ public struct SubmitResult: Sendable {
 public final class SubTopicSessionEngine: @unchecked Sendable {
     public private(set) var activeWords: [TopicWord]
     public private(set) var initialWords: [TopicWord]
-    public private(set) var retryQueue: [TopicWord] = []
     public private(set) var currentIndex: Int = 0
     public private(set) var attemptsLeft: Int = 2
     public private(set) var comboCount: Int = 0
@@ -36,6 +35,10 @@ public final class SubTopicSessionEngine: @unchecked Sendable {
         return Int((Double(firstTryCorrectCount) / Double(totalQuestionsCount)) * 100)
     }
 
+    public var isPassed: Bool {
+        return accuracyPercentage >= 80
+    }
+
     public init(words: [TopicWord]) {
         self.activeWords = words
         self.initialWords = words
@@ -48,9 +51,7 @@ public final class SubTopicSessionEngine: @unchecked Sendable {
         }
 
         let isCorrect = selectedVietnamese == word.vietnamese
-
-        // Find original index of the current word
-        let originalIndex = initialWords.firstIndex(where: { $0.id == word.id })
+        let originalIndex = currentIndex
 
         if isCorrect {
             let xp = (attemptsLeft == 2) ? 10 : 5
@@ -58,12 +59,12 @@ public final class SubTopicSessionEngine: @unchecked Sendable {
             comboCount += 1
             correctCount += 1
 
-            if let origIdx = originalIndex, wordFirstAttemptResults[origIdx] == nil {
+            if wordFirstAttemptResults[originalIndex] == nil {
                 if attemptsLeft == 2 {
                     firstTryCorrectCount += 1
-                    wordFirstAttemptResults[origIdx] = true
+                    wordFirstAttemptResults[originalIndex] = true
                 } else {
-                    wordFirstAttemptResults[origIdx] = false
+                    wordFirstAttemptResults[originalIndex] = false
                 }
             }
             return SubmitResult(isCorrect: true, attemptsRemaining: attemptsLeft, xpDelta: xp, isSessionFinished: false)
@@ -72,9 +73,8 @@ public final class SubTopicSessionEngine: @unchecked Sendable {
             if attemptsLeft <= 0 {
                 xpEarned -= 5
                 comboCount = 0
-                retryQueue.append(word)
-                if let origIdx = originalIndex, wordFirstAttemptResults[origIdx] == nil {
-                    wordFirstAttemptResults[origIdx] = false
+                if wordFirstAttemptResults[originalIndex] == nil {
+                    wordFirstAttemptResults[originalIndex] = false
                 }
                 return SubmitResult(isCorrect: false, attemptsRemaining: 0, xpDelta: -5, isSessionFinished: false)
             } else {
@@ -83,16 +83,11 @@ public final class SubTopicSessionEngine: @unchecked Sendable {
         }
     }
 
-
-
     public func advanceToNextWord() {
         currentIndex += 1
         attemptsLeft = 2
-        if currentIndex >= activeWords.count && !retryQueue.isEmpty {
-            activeWords.append(contentsOf: retryQueue)
-            retryQueue.removeAll()
-        }
     }
+
 
     public func generateDistractors(for word: TopicWord) -> [String] {
         let correctMeaning = word.vietnamese

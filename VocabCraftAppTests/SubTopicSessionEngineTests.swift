@@ -42,7 +42,6 @@ final class SubTopicSessionEngineTests: XCTestCase {
         XCTAssertEqual(res2.attemptsRemaining, 0)
         XCTAssertEqual(engine.xpEarned, -5)
         XCTAssertEqual(engine.comboCount, 0)
-        XCTAssertEqual(engine.retryQueue.count, 1)
     }
 
     func testSecondAttemptCorrectScoring() {
@@ -61,7 +60,7 @@ final class SubTopicSessionEngineTests: XCTestCase {
         XCTAssertEqual(engine.comboCount, 1)
     }
 
-    func testAdvanceToNextWordFlushesRetryQueueAtEnd() {
+    func testStrictSessionCompletionAndPassingThreshold() {
         let words = [
             TopicWord(id: "w1", english: "Algorithm", phonetic: "/ˈæl.ɡə.rɪ.ðəm/", vietnamese: "Thuật toán"),
             TopicWord(id: "w2", english: "Automation", phonetic: "/ˌɔː.təˈmeɪ.ʃən/", vietnamese: "Tự động hóa")
@@ -71,7 +70,6 @@ final class SubTopicSessionEngineTests: XCTestCase {
         // Fail word 1 twice
         _ = engine.submitAnswer(selectedVietnamese: "Wrong 1")
         _ = engine.submitAnswer(selectedVietnamese: "Wrong 2")
-        XCTAssertEqual(engine.retryQueue.count, 1)
 
         engine.advanceToNextWord()
         XCTAssertEqual(engine.currentIndex, 1)
@@ -82,19 +80,16 @@ final class SubTopicSessionEngineTests: XCTestCase {
         _ = engine.submitAnswer(selectedVietnamese: "Tự động hóa")
         engine.advanceToNextWord()
 
-        // At end of original activeWords list, retryQueue should be flushed into activeWords
+        // Session completes strictly after word count (2 words)
         XCTAssertEqual(engine.currentIndex, 2)
-        XCTAssertEqual(engine.currentWord?.english, "Algorithm")
-        XCTAssertTrue(engine.retryQueue.isEmpty)
-        XCTAssertFalse(engine.isSessionComplete)
-
-        // Solve retried word
-        _ = engine.submitAnswer(selectedVietnamese: "Thuật toán")
-        engine.advanceToNextWord()
-
         XCTAssertTrue(engine.isSessionComplete)
         XCTAssertNil(engine.currentWord)
+
+        // Accuracy is 50% (1/2 passed), so isPassed is false (<80%)
+        XCTAssertEqual(engine.accuracyPercentage, 50)
+        XCTAssertFalse(engine.isPassed)
     }
+
 
     func testDistractorGeneratorReturnsFourUniqueOptions() {
         let words = [
