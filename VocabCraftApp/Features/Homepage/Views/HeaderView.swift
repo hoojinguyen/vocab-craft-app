@@ -18,7 +18,7 @@ public struct HeaderView: View {
             // Avatar inside Daily Goal Conic Ring
             ZStack {
                 Circle()
-                    .stroke(Color.gray.opacity(0.2), lineWidth: 3)
+                    .stroke(Color.vocabHairline, lineWidth: 3)
                 Circle()
                     .trim(from: 0, to: min(max(dailyGoalProgress, 0), 1.0))
                     .stroke(Color.vocabCoral, style: StrokeStyle(lineWidth: 3, lineCap: .round))
@@ -26,46 +26,57 @@ public struct HeaderView: View {
                 
                 Text(userName.prefix(2).uppercased())
                     .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(.primary)
+                    .foregroundColor(Color.vocabInk)
             }
             .frame(width: 44, height: 44)
 
             VStack(alignment: .leading, spacing: 2) {
-                HStack(spacing: 4) {
-                    Image(systemName: "flame.fill")
-                        .font(.caption)
-                        .foregroundColor(.vocabCoral)
-                    Text("\(streakDays) NGÀY CONTINUOUS")
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(.vocabCoral)
-                }
+                Text("Chào \(userName) 👋")
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(Color.vocabInk)
                 
                 Text("Mục tiêu hôm nay: \(Int(dailyGoalProgress * 100))%")
-                    .font(.system(size: 15, weight: .bold))
-                    .foregroundColor(.primary)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(Color.vocabMuted)
             }
 
             Spacer()
 
-            // Notification Bell (SF Symbol) with unread dot indicator
+            // Streak Badge Pill Capsule
+            HStack(spacing: 4) {
+                Image(systemName: "flame.fill")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundColor(.vocabCoral)
+                Text("\(streakDays) ngày liên tiếp")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundColor(.vocabCoral)
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(Color.vocabCoral.opacity(0.12))
+            .clipShape(Capsule())
+
+            // Notification Bell Button with 44x44pt touch target
             ZStack(alignment: .topTrailing) {
                 Button(action: {}) {
                     Image(systemName: "bell.fill")
                         .font(.system(size: 16))
-                        .foregroundColor(.primary)
-                        .frame(width: 38, height: 38)
+                        .foregroundColor(Color.vocabInk)
+                        .frame(width: 44, height: 44)
                         .background(Color.vocabSurfaceSoft)
                         .clipShape(Circle())
                 }
+                .buttonStyle(.plain)
                 
                 if unreadNotifications {
                     Circle()
                         .fill(Color.vocabCoral)
-                        .frame(width: 8, height: 8)
-                        .offset(x: -2, y: 2)
+                        .frame(width: 9, height: 9)
+                        .offset(x: -4, y: 4)
                 }
             }
         }
         .padding(.horizontal)
     }
 }
+
