@@ -127,30 +127,20 @@ public struct SubTopicStudySessionView: View {
                     }
                 }
             } else {
-                // Session finished
-                VStack(spacing: 16) {
-                    Image(systemName: "trophy.fill")
-                        .font(.system(size: 48))
-                        .foregroundColor(Color.vocabPeach)
-                    Text("CHÚC MỪNG HOÀN THÀNH CHẶNG!")
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(Color.vocabInk)
-                    Text("Tổng XP nhận được: +\(engine.xpEarned)")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(Color.vocabMuted)
-
-                    Button(action: { onComplete(engine.xpEarned) }) {
-                        Text("HOÀN THÀNH")
-                            .font(.system(size: 14, weight: .bold))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(Color.vocabInk)
-                            .foregroundColor(Color.vocabCanvas)
-                            .cornerRadius(14)
+                // Session finished -> Present dedicated SubTopicSessionSummaryView with Apple Native FX
+                SubTopicSessionSummaryView(
+                    xpEarned: engine.xpEarned,
+                    totalQuestions: engine.totalQuestionsCount,
+                    correctCount: engine.correctCount,
+                    onRestart: {
+                        self.engine = SubTopicSessionEngine(words: node.words)
+                    },
+                    onFinish: {
+                        onComplete(engine.xpEarned)
                     }
-                }
-                .padding(24)
+                )
             }
+
         }
         .padding(20)
         .background(Color.vocabCanvas.ignoresSafeArea())

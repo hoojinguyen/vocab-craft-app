@@ -56,6 +56,9 @@
 		300000642D50000000000001 /* ReflexFlipCardViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000642D50000000000001 /* ReflexFlipCardViewTests.swift */; };
 		300000652D50000000000001 /* SubTopicStudySessionViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000652D50000000000001 /* SubTopicStudySessionViewTests.swift */; };
 		300000662D50000000000001 /* SubTopicPreviewSheetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000662D50000000000001 /* SubTopicPreviewSheetTests.swift */; };
+		300000672D50000000000001 /* SubTopicSessionSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000672D50000000000001 /* SubTopicSessionSummaryView.swift */; };
+		300000682D50000000000001 /* SubTopicSessionSummaryViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000682D50000000000001 /* SubTopicSessionSummaryViewTests.swift */; };
+
 		300000402D50000000000002 /* VocabCraftWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 200000402D50000000000000 /* VocabCraftWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -140,6 +143,9 @@
 		200000642D50000000000001 /* ReflexFlipCardViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReflexFlipCardViewTests.swift; sourceTree = "<group>"; };
 		200000652D50000000000001 /* SubTopicStudySessionViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubTopicStudySessionViewTests.swift; sourceTree = "<group>"; };
 		200000662D50000000000001 /* SubTopicPreviewSheetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubTopicPreviewSheetTests.swift; sourceTree = "<group>"; };
+		200000672D50000000000001 /* SubTopicSessionSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubTopicSessionSummaryView.swift; sourceTree = "<group>"; };
+		200000682D50000000000001 /* SubTopicSessionSummaryViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubTopicSessionSummaryViewTests.swift; sourceTree = "<group>"; };
+
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -284,6 +290,8 @@
 				200000252D50000000000001 /* TopicDeckDetailView.swift */,
 				200000612D50000000000001 /* ReflexFlipCardView.swift */,
 				200000622D50000000000001 /* SubTopicStudySessionView.swift */,
+				200000672D50000000000001 /* SubTopicSessionSummaryView.swift */,
+
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -349,6 +357,8 @@
 				200000642D50000000000001 /* ReflexFlipCardViewTests.swift */,
 				200000652D50000000000001 /* SubTopicStudySessionViewTests.swift */,
 				200000662D50000000000001 /* SubTopicPreviewSheetTests.swift */,
+				200000682D50000000000001 /* SubTopicSessionSummaryViewTests.swift */,
+
 				400000322D50000000000000 /* Features */,
 			);
 			path = VocabCraftAppTests;
@@ -511,6 +521,8 @@
 				300000602D50000000000001 /* SubTopicSessionEngine.swift in Sources */,
 				300000612D50000000000001 /* ReflexFlipCardView.swift in Sources */,
 				300000622D50000000000001 /* SubTopicStudySessionView.swift in Sources */,
+				300000672D50000000000001 /* SubTopicSessionSummaryView.swift in Sources */,
+
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -546,6 +558,8 @@
 				300000642D50000000000001 /* ReflexFlipCardViewTests.swift in Sources */,
 				300000652D50000000000001 /* SubTopicStudySessionViewTests.swift in Sources */,
 				300000662D50000000000001 /* SubTopicPreviewSheetTests.swift in Sources */,
+				300000682D50000000000001 /* SubTopicSessionSummaryViewTests.swift in Sources */,
+
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
