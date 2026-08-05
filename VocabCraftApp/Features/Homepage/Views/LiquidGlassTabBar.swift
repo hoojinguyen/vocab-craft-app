@@ -5,6 +5,7 @@ public enum TabItem: Int, CaseIterable, Identifiable {
     case vocabulary = 1
     case reflex = 2
     case settings = 3
+    case search = 4
 
     public var id: Int { rawValue }
 
@@ -14,6 +15,7 @@ public enum TabItem: Int, CaseIterable, Identifiable {
         case .vocabulary: return "Từ vựng"
         case .reflex: return "Phản xạ"
         case .settings: return "Cài đặt"
+        case .search: return "Tra từ"
         }
     }
 
@@ -23,6 +25,7 @@ public enum TabItem: Int, CaseIterable, Identifiable {
         case .vocabulary: return "book.fill"
         case .reflex: return "bolt.fill"
         case .settings: return "gearshape.fill"
+        case .search: return "magnifyingglass"
         }
     }
 }
