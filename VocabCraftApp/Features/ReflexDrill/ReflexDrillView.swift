@@ -21,194 +21,221 @@ public struct ReflexDrillView: View {
     }
 
     public var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                // Header Bar
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Phản xạ nói Eng")
-                            .font(.caption)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.secondary)
-                        Text("Reflex Drill (\(cefrLevel))")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                    }
-                    Spacer()
-                    
-                    HStack(spacing: 6) {
-                        Image(systemName: "stopwatch.fill")
-                            .foregroundColor(.orange)
-                        Text("< 2500ms")
-                            .font(.caption)
-                            .fontWeight(.heavy)
-                            .foregroundColor(.orange)
-                    }
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(Color.orange.opacity(0.15))
-                    .cornerRadius(20)
-                }
-                .padding(.horizontal)
+        ZStack {
+            Color.vocabCanvas
+                .ignoresSafeArea()
 
-                if let drill = drill {
-                    // Prompt Card
-                    VStack(spacing: 16) {
-                        Text(drill.promptText)
-                            .font(.system(size: 28, weight: .bold, design: .rounded))
-                            .multilineTextAlignment(.center)
-                            .foregroundColor(.primary)
-                            .padding(.top, 8)
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 20) {
+                    // Header Bar
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Phản xạ nói Eng")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.vocabMuted)
+                            Text("Reflex Drill (\(cefrLevel))")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.vocabInk)
+                        }
+                        Spacer()
+                        
+                        HStack(spacing: 6) {
+                            Image(systemName: "stopwatch.fill")
+                                .foregroundColor(.vocabPeach)
+                            Text("< 2500ms")
+                                .font(.caption)
+                                .fontWeight(.heavy)
+                                .foregroundColor(.vocabPeach)
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Color.vocabPeach.opacity(0.18))
+                        .cornerRadius(20)
+                    }
+                    .padding(.horizontal)
 
-                        if let sentence = drill.sentenceTextEn, !sentence.isEmpty {
-                            Text("\"\(sentence)\"")
-                                .font(.body)
-                                .italic()
-                                .foregroundColor(.secondary)
+                    if let drill = drill {
+                        // Prompt Card (Neumorphic Bento Surface Card)
+                        VStack(spacing: 16) {
+                            Text(drill.promptText)
+                                .font(.system(size: 28, weight: .bold, design: .rounded))
                                 .multilineTextAlignment(.center)
-                        }
+                                .foregroundColor(.vocabInk)
+                                .padding(.top, 8)
 
-                        // Listen Audio TTS Button
-                        Button(action: {
-                            tts.speak(text: drill.correctAnswer)
-                        }) {
-                            HStack(spacing: 8) {
-                                Image(systemName: tts.isSpeaking ? "speaker.wave.3.fill" : "speaker.wave.2.fill")
-                                Text(tts.isSpeaking ? "Đang phát audio..." : "Nghe phát âm")
-                                    .fontWeight(.medium)
+                            if let sentence = drill.sentenceTextEn, !sentence.isEmpty {
+                                Text("\"\(sentence)\"")
+                                    .font(.body)
+                                    .italic()
+                                    .foregroundColor(.vocabMuted)
+                                    .multilineTextAlignment(.center)
                             }
-                            .font(.subheadline)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 10)
-                            .background(Color.blue.opacity(0.12))
-                            .foregroundColor(.blue)
-                            .cornerRadius(20)
+
+                            // Listen Audio TTS Button
+                            Button(action: {
+                                tts.speak(text: drill.correctAnswer)
+                            }) {
+                                HStack(spacing: 8) {
+                                    Image(systemName: tts.isSpeaking ? "speaker.wave.3.fill" : "speaker.wave.2.fill")
+                                    Text(tts.isSpeaking ? "Đang phát audio..." : "Nghe phát âm")
+                                        .fontWeight(.medium)
+                                }
+                                .font(.subheadline)
+                                .padding(.horizontal, 18)
+                                .padding(.vertical, 12)
+                                .background(Color.vocabHeroAccent.opacity(0.15))
+                                .foregroundColor(Color.vocabHeroAccent)
+                                .cornerRadius(20)
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(BentoCardButtonStyle())
                         }
-                    }
-                    .padding(20)
-                    .frame(maxWidth: .infinity)
-                    .background(
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(Color.gray.opacity(0.12))
-                    )
-                    .padding(.horizontal)
+                        .padding(20)
+                        .frame(maxWidth: .infinity)
+                        .background(Color.vocabSurfaceCard)
+                        .cornerRadius(20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.vocabHairline, lineWidth: 1.5)
+                        )
+                        .shadow(color: Color.vocabHeroTeal.opacity(0.05), radius: 6, x: 0, y: 3)
+                        .padding(.horizontal)
 
-                    // Live Recognized Text Box
-                    VStack(spacing: 8) {
-                        Text(stt.recognizedText.isEmpty ? (stt.isRecording ? "Đang lắng nghe..." : "Nhấn micro và nói đáp án...") : stt.recognizedText)
-                            .font(.title3)
-                            .fontWeight(stt.recognizedText.isEmpty ? .regular : .semibold)
-                            .foregroundColor(stt.recognizedText.isEmpty ? .secondary : .primary)
-                            .multilineTextAlignment(.center)
-                            .frame(maxWidth: .infinity, minHeight: 60)
-                            .padding()
-                            .background(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .stroke(stt.isRecording ? Color.red : Color.gray.opacity(0.3), lineWidth: stt.isRecording ? 2 : 1)
-                                    .background(Color.gray.opacity(0.05).cornerRadius(16))
-                            )
-                    }
-                    .padding(.horizontal)
+                        // Live Recognized Text Box
+                        VStack(spacing: 8) {
+                            Text(stt.recognizedText.isEmpty ? (stt.isRecording ? "Đang lắng nghe..." : "Nhấn micro và nói đáp án...") : stt.recognizedText)
+                                .font(.title3)
+                                .fontWeight(stt.recognizedText.isEmpty ? .regular : .semibold)
+                                .foregroundColor(stt.recognizedText.isEmpty ? .vocabMuted : .vocabInk)
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: .infinity, minHeight: 60)
+                                .padding()
+                                .background(Color.vocabSurfaceCard)
+                                .cornerRadius(16)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .stroke(stt.isRecording ? Color.vocabCoral : Color.vocabHairline, lineWidth: stt.isRecording ? 2 : 1.5)
+                                )
+                        }
+                        .padding(.horizontal)
 
-                    // Mic Record Button
-                    Button(action: toggleMic) {
-                        ZStack {
-                            Circle()
-                                .fill(stt.isRecording ? Color.red.opacity(0.15) : Color.blue.opacity(0.12))
-                                .frame(width: 88, height: 88)
-
-                            if stt.isRecording {
+                        // Mic Record Button
+                        Button(action: toggleMic) {
+                            ZStack {
                                 Circle()
-                                    .stroke(Color.red, lineWidth: 3)
+                                    .fill(stt.isRecording ? Color.vocabCoral.opacity(0.18) : Color.vocabHeroAccent.opacity(0.12))
                                     .frame(width: 88, height: 88)
-                            }
 
-                            Image(systemName: stt.isRecording ? "mic.fill" : "mic.circle.fill")
-                                .font(.system(size: 40))
-                                .foregroundColor(stt.isRecording ? .red : .blue)
+                                if stt.isRecording {
+                                    Circle()
+                                        .stroke(Color.vocabCoral, lineWidth: 3)
+                                        .frame(width: 88, height: 88)
+                                }
+
+                                Image(systemName: stt.isRecording ? "mic.fill" : "mic.circle.fill")
+                                    .font(.system(size: 40))
+                                    .foregroundColor(stt.isRecording ? Color.vocabCoral : Color.vocabHeroAccent)
+                            }
+                            .contentShape(Rectangle())
                         }
-                    }
+                        .buttonStyle(BentoCardButtonStyle())
+                        .frame(minWidth: 44, minHeight: 44)
 
-                    // Feedback & SRS Analytics Section
-                    if isEvaluated {
-                        VStack(spacing: 14) {
-                            HStack {
-                                Label(feedbackText, systemImage: srsResult?.nextMastery ?? 0 > currentMastery ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
+                        // Feedback & SRS Analytics Section
+                        if isEvaluated {
+                            VStack(spacing: 14) {
+                                HStack {
+                                    Label(
+                                        feedbackText,
+                                        systemImage: (srsResult?.nextMastery ?? 0) > currentMastery ? "checkmark.circle.fill" : "exclamationmark.triangle.fill"
+                                    )
                                     .font(.headline)
-                                    .foregroundColor(srsResult?.nextMastery ?? 0 > 0 ? .green : .red)
-
-                                Spacer()
-
-                                Text("⚡ \(elapsedTimeMs) ms")
-                                    .font(.subheadline)
-                                    .fontWeight(.bold)
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 4)
-                                    .background(elapsedTimeMs < 2500 ? Color.green.opacity(0.15) : Color.orange.opacity(0.15))
-                                    .foregroundColor(elapsedTimeMs < 2500 ? .green : .orange)
-                                    .cornerRadius(12)
-                            }
-
-                            if let res = srsResult {
-                                Divider()
-
-                                HStack(spacing: 20) {
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text("Mastery Level")
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
-                                        Text("Cấp \(res.nextMastery)")
-                                            .font(.subheadline)
-                                            .fontWeight(.bold)
-                                    }
+                                    .foregroundColor((srsResult?.nextMastery ?? 0) > currentMastery ? Color.vocabMint : Color.vocabCoral)
 
                                     Spacer()
 
-                                    VStack(alignment: .trailing, spacing: 2) {
-                                        Text("SRS Ôn tiếp")
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
-                                        Text("\(res.intervalDays) ngày sau")
-                                            .font(.subheadline)
-                                            .fontWeight(.bold)
+                                    Text("⚡ \(elapsedTimeMs) ms")
+                                        .font(.subheadline)
+                                        .fontWeight(.bold)
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 4)
+                                        .background(elapsedTimeMs < 2500 ? Color.vocabMint.opacity(0.18) : Color.vocabPeach.opacity(0.18))
+                                        .foregroundColor(elapsedTimeMs < 2500 ? Color.vocabMint : Color.vocabPeach)
+                                        .cornerRadius(12)
+                                }
+
+                                if let res = srsResult {
+                                    Divider()
+                                        .background(Color.vocabHairline)
+
+                                    HStack(spacing: 20) {
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text("Mastery Level")
+                                                .font(.caption)
+                                                .foregroundColor(.vocabMuted)
+                                            Text("Cấp \(res.nextMastery)")
+                                                .font(.subheadline)
+                                                .fontWeight(.bold)
+                                                .foregroundColor(.vocabInk)
+                                        }
+
+                                        Spacer()
+
+                                        VStack(alignment: .trailing, spacing: 2) {
+                                            Text("SRS Ôn tiếp")
+                                                .font(.caption)
+                                                .foregroundColor(.vocabMuted)
+                                            Text("\(res.intervalDays) ngày sau")
+                                                .font(.subheadline)
+                                                .fontWeight(.bold)
+                                                .foregroundColor(.vocabInk)
+                                        }
                                     }
                                 }
                             }
+                            .padding(16)
+                            .background(Color.vocabSurfaceCard)
+                            .cornerRadius(16)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(Color.vocabHairline, lineWidth: 1.5)
+                            )
+                            .padding(.horizontal)
                         }
-                        .padding(16)
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(Color.gray.opacity(0.1))
-                        )
-                        .padding(.horizontal)
-                    }
 
-                    // Next Drill Action Button
-                    Button(action: loadNextDrill) {
-                        HStack {
-                            Text("Bài tiếp theo")
-                                .fontWeight(.semibold)
-                            Image(systemName: "arrow.right.circle.fill")
+                        // Next Drill Action Button
+                        Button(action: loadNextDrill) {
+                            HStack {
+                                Text("Bài tiếp theo")
+                                    .fontWeight(.semibold)
+                                Image(systemName: "arrow.right.circle.fill")
+                            }
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .background(Color.vocabHeroAccent)
+                            .cornerRadius(16)
+                            .contentShape(Rectangle())
                         }
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(Color.blue)
-                        .cornerRadius(16)
+                        .buttonStyle(BentoCardButtonStyle())
+                        .padding(.horizontal)
+                        .padding(.bottom, 40)
+                    } else {
+                        VStack(spacing: 16) {
+                            ProgressView()
+                                .tint(Color.vocabHeroAccent)
+                            Text("Đang tải dữ liệu reflex drill...")
+                                .font(.subheadline)
+                                .foregroundColor(.vocabMuted)
+                        }
+                        .frame(minHeight: 300)
                     }
-                    .padding(.horizontal)
-                } else {
-                    VStack(spacing: 16) {
-                        ProgressView()
-                        Text("Đang tải dữ liệu reflex drill...")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                    .frame(minHeight: 300)
                 }
+                .padding(.vertical)
             }
-            .padding(.vertical)
         }
         .onAppear(perform: loadNextDrill)
     }

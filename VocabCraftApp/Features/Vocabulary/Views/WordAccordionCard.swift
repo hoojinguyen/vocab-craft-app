@@ -97,8 +97,9 @@ public struct WordAccordionCard: View {
                                     .foregroundColor(Color.vocabHeroAccent)
                             }
                             .frame(width: 44, height: 44)
+                            .contentShape(Rectangle())
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(BentoCardButtonStyle())
 
                         VStack(alignment: .leading, spacing: 2) {
                             Text(item.exampleSentenceEn)
@@ -123,8 +124,9 @@ public struct WordAccordionCard: View {
                         .frame(height: 44)
                         .background(Color.vocabPeach.opacity(0.25))
                         .cornerRadius(12)
+                        .contentShape(Rectangle())
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(BentoCardButtonStyle())
                 }
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }

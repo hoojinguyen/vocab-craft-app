@@ -48,7 +48,7 @@ public struct VocabularyView: View {
                     .padding(.horizontal)
 
                     if selectedTab == 0 {
-                        // Filter Pills (Horizontal Scroll)
+                        // Filter Pills (Horizontal Scroll with Dynamic Counts)
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
                                 ForEach(filterOptions, id: \.self) { filter in
@@ -128,9 +128,21 @@ public struct VocabularyView: View {
         return result
     }
 
+    private func filterCount(for title: String) -> Int {
+        switch title {
+        case "Tất cả": return wordItems.count
+        case "Cần ôn ⚡": return wordItems.filter { $0.masteryLevel < 3 }.count
+        case "Đã thuộc ⭐5": return wordItems.filter { $0.masteryLevel >= 4 }.count
+        case "A1-A2": return wordItems.filter { $0.cefrLevel == "A1" || $0.cefrLevel == "A2" }.count
+        case "B1-B2": return wordItems.filter { $0.cefrLevel == "B1" || $0.cefrLevel == "B2" }.count
+        case "C1-C2": return wordItems.filter { $0.cefrLevel == "C1" || $0.cefrLevel == "C2" }.count
+        default: return wordItems.count
+        }
+    }
+
     private func segmentedTabButton(title: String, tabIndex: Int) -> some View {
         Button(action: {
-            withAnimation(.spring(response: 0.2, dampingFraction: 0.7)) {
+            withAnimation(.spring(response: 0.25, dampingFraction: 0.75)) {
                 selectedTab = tabIndex
             }
         }) {
@@ -138,19 +150,25 @@ public struct VocabularyView: View {
                 .font(.system(size: 13, weight: .bold))
                 .foregroundColor(selectedTab == tabIndex ? Color.vocabInk : Color.vocabMuted)
                 .frame(maxWidth: .infinity)
-                .frame(height: 36)
+                .frame(height: 38)
                 .background(selectedTab == tabIndex ? Color.vocabInk.opacity(0.08) : Color.clear)
                 .cornerRadius(12)
+                .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(BentoCardButtonStyle())
     }
 
     private func filterPill(_ title: String) -> some View {
         let isSelected = selectedFilter == title
+        let count = filterCount(for: title)
+        let displayTitle = "\(title) (\(count))"
+
         return Button(action: {
-            selectedFilter = title
+            withAnimation(.spring(response: 0.25, dampingFraction: 0.75)) {
+                selectedFilter = title
+            }
         }) {
-            Text(title)
+            Text(displayTitle)
                 .font(.system(size: 12, weight: isSelected ? .bold : .medium))
                 .foregroundColor(isSelected ? Color.vocabCanvas : Color.vocabInk)
                 .padding(.horizontal, 14)
@@ -161,7 +179,8 @@ public struct VocabularyView: View {
                     RoundedRectangle(cornerRadius: 18)
                         .stroke(isSelected ? Color.clear : Color.vocabHairline, lineWidth: 1.5)
                 )
+                .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(BentoCardButtonStyle())
     }
 }
