@@ -29,10 +29,6 @@ public struct VocabularyView: View {
                 .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .trailing)))
             } else {
                 VStack(spacing: 14) {
-                    // Sticky Header Search Bar
-                    MobileSearchView(searchText: $searchText, onVoiceSearchTapped: {})
-                        .padding(.top, 8)
-
                     // Segmented Switch (Kho Từ Cá Nhân vs Bộ Từ Chủ Đề)
                     HStack(spacing: 0) {
                         segmentedTabButton(title: "Kho Từ Cá Nhân", tabIndex: 0)
@@ -46,6 +42,7 @@ public struct VocabularyView: View {
                             .stroke(Color.vocabHairline, lineWidth: 1.5)
                     )
                     .padding(.horizontal)
+                    .padding(.top, 12)
 
                     if selectedTab == 0 {
                         // Filter Pills (Horizontal Scroll with Dynamic Counts)
