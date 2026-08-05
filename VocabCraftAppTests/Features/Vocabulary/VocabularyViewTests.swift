@@ -2,6 +2,7 @@ import XCTest
 import SwiftUI
 @testable import VocabCraftApp
 
+@MainActor
 final class VocabularyViewTests: XCTestCase {
     func testVocabularyViewInitializationAndTabSwitch() {
         let view = VocabularyView()

@@ -2,6 +2,7 @@ import XCTest
 import SwiftUI
 @testable import VocabCraftApp
 
+@MainActor
 final class SubTopicPreviewSheetTests: XCTestCase {
     func testSheetInitialization() {
         let node = SubTopicNode(
