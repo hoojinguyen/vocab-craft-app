@@ -42,7 +42,9 @@ def generate_pbxproj():
 		300000542D50000000000001 /* SRSEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000542D50000000000000 /* SRSEngineTests.swift */; };
 		300000552D50000000000001 /* WidgetIntentsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000552D50000000000000 /* WidgetIntentsTests.swift */; };
 		300000182D50000000000001 /* WordItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000182D50000000000001 /* WordItem.swift */; };
+		300000192D50000000000001 /* VocabularySummaryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000192D50000000000001 /* VocabularySummaryCard.swift */; };
 		300000562D50000000000001 /* VocabularyModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000562D50000000000001 /* VocabularyModelsTests.swift */; };
+		300000572D50000000000001 /* VocabularyViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000572D50000000000001 /* VocabularyViewsTests.swift */; };
 		300000402D50000000000002 /* VocabCraftWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 200000402D50000000000000 /* VocabCraftWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -110,7 +112,9 @@ def generate_pbxproj():
 		200000162D50000000000001 /* LiquidGlassTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlassTabBar.swift; sourceTree = "<group>"; };
 		200000172D50000000000001 /* HomepageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomepageView.swift; sourceTree = "<group>"; };
 		200000182D50000000000001 /* WordItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordItem.swift; sourceTree = "<group>"; };
+		200000192D50000000000001 /* VocabularySummaryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularySummaryCard.swift; sourceTree = "<group>"; };
 		200000562D50000000000001 /* VocabularyModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyModelsTests.swift; sourceTree = "<group>"; };
+		200000572D50000000000001 /* VocabularyViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyViewsTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -229,6 +233,7 @@ def generate_pbxproj():
 			isa = PBXGroup;
 			children = (
 				400000312D50000000000000 /* Models */,
+				400000342D50000000000000 /* Views */,
 			);
 			path = Vocabulary;
 			sourceTree = "<group>";
@@ -239,6 +244,14 @@ def generate_pbxproj():
 				200000182D50000000000001 /* WordItem.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		400000342D50000000000000 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				200000192D50000000000001 /* VocabularySummaryCard.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		400000112D50000000000000 /* ReflexDrill */ = {
@@ -315,6 +328,7 @@ def generate_pbxproj():
 			isa = PBXGroup;
 			children = (
 				200000562D50000000000001 /* VocabularyModelsTests.swift */,
+				200000572D50000000000001 /* VocabularyViewsTests.swift */,
 			);
 			path = Vocabulary;
 			sourceTree = "<group>";
@@ -448,6 +462,7 @@ def generate_pbxproj():
 				300000162D50000000000001 /* LiquidGlassTabBar.swift in Sources */,
 				300000172D50000000000001 /* HomepageView.swift in Sources */,
 				300000182D50000000000001 /* WordItem.swift in Sources */,
+				300000192D50000000000001 /* VocabularySummaryCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -477,6 +492,7 @@ def generate_pbxproj():
 				300000542D50000000000001 /* SRSEngineTests.swift in Sources */,
 				300000552D50000000000001 /* WidgetIntentsTests.swift in Sources */,
 				300000562D50000000000001 /* VocabularyModelsTests.swift in Sources */,
+				300000572D50000000000001 /* VocabularyViewsTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
