@@ -16,6 +16,31 @@ final class HeaderViewTests: XCTestCase {
         XCTAssertEqual(view.dailyGoalProgress, 0.75)
         XCTAssertTrue(view.unreadNotifications)
     }
+
+    func testHeaderViewCallbacks() {
+        var avatarTapped = false
+        var notificationTapped = false
+
+        let view = HeaderView(
+            userName: "Alex Swift",
+            streakDays: 7,
+            dailyGoalProgress: 0.50,
+            unreadNotifications: false,
+            onAvatarTap: { avatarTapped = true },
+            onNotificationTap: { notificationTapped = true }
+        )
+
+        XCTAssertNotNil(view.body)
+        XCTAssertNotNil(view.onAvatarTap)
+        XCTAssertNotNil(view.onNotificationTap)
+
+        view.onAvatarTap?()
+        view.onNotificationTap?()
+
+        XCTAssertTrue(avatarTapped)
+        XCTAssertTrue(notificationTapped)
+    }
 }
+
 
 
