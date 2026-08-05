@@ -45,15 +45,15 @@ public struct ActionCardsGrid: View {
                         }
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(Color.vocabInk.opacity(0.06))
-                        .foregroundColor(Color.vocabInk)
+                        .background(Color.vocabPeach.opacity(0.18))
+                        .foregroundColor(Color.vocabPeach)
                         .cornerRadius(10)
 
                         Spacer()
 
                         Image(systemName: "timer")
                             .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(Color.vocabHeroAccent)
+                            .foregroundColor(Color.vocabPeach)
                     }
 
                     VStack(alignment: .leading, spacing: 2) {
@@ -95,15 +95,15 @@ public struct ActionCardsGrid: View {
                         }
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(Color.vocabInk.opacity(0.06))
-                        .foregroundColor(Color.vocabInk)
+                        .background(Color.vocabLavender.opacity(0.18))
+                        .foregroundColor(Color.vocabLavender)
                         .cornerRadius(10)
 
                         Spacer()
 
                         Image(systemName: "rectangle.stack.fill")
                             .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(Color.vocabHeroAccent)
+                            .foregroundColor(Color.vocabLavender)
                     }
 
                     VStack(alignment: .leading, spacing: 2) {

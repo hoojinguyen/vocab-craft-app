@@ -34,7 +34,8 @@ public struct HeaderView: View {
                     .font(.system(size: 13, weight: .bold))
                     .foregroundColor(.vocabCoral)
                 Text("\(streakDays)")
-                    .font(.system(size: 13, weight: .bold))
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .monospacedDigit()
                     .foregroundColor(.vocabCoral)
             }
             .padding(.horizontal, 12)

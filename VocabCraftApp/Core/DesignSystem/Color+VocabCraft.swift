@@ -34,13 +34,13 @@ public extension Color {
     )
 
     static let vocabHeroTeal = dynamic(
-        light: Color(red: 0.12, green: 0.16, blue: 0.22), // #1F2937 Editorial Deep Slate
-        dark: Color(red: 0.12, green: 0.16, blue: 0.23)   // #1E293B Dark Slate Container
+        light: Color(red: 0.10, green: 0.23, blue: 0.23), // #1A3A3A Deep Forest Teal Container
+        dark: Color(red: 0.06, green: 0.17, blue: 0.17)   // #0F2B2B Dark Teal Container
     )
 
     static let vocabHeroAccent = dynamic(
-        light: Color(red: 0.22, green: 0.26, blue: 0.32), // #374151 Slate Accent
-        dark: Color(red: 0.90, green: 0.91, blue: 0.92)   // #E5E7EB Minimal Light Accent
+        light: Color(red: 0.04, green: 0.62, blue: 0.45), // #0A9E73 Vibrant Emerald Accent
+        dark: Color(red: 0.71, green: 0.90, blue: 0.84)   // #B5E5D6 Bright Mint Accent
     )
 
     static let vocabInk = dynamic(
@@ -58,25 +58,25 @@ public extension Color {
         dark: Color.white.opacity(0.12)
     )
 
-    // Brand Accent Tokens (Streamlined for Minimalist UI)
+    // Functional Semantic Accent Tokens
     static let vocabCoral = dynamic(
-        light: Color(red: 0.60, green: 0.11, blue: 0.11), // #991B1B Deep Muted Red Accent
+        light: Color(red: 0.88, green: 0.22, blue: 0.28), // #E13847 Crimson Coral (Streak / Error / Alert)
         dark: Color(red: 0.97, green: 0.44, blue: 0.44)   // #F87171 Bright Coral
     )
 
     static let vocabMint = dynamic(
-        light: Color(red: 0.22, green: 0.26, blue: 0.32), // #374151 Minimal Slate
-        dark: Color(red: 0.82, green: 0.84, blue: 0.86)   // #D1D5DB Minimal Off-White Accent
+        light: Color(red: 0.04, green: 0.62, blue: 0.45), // #0A9E73 Emerald Mint (Success / Retention / A1-A2)
+        dark: Color(red: 0.20, green: 0.83, blue: 0.60)   // #34D399 Bright Mint
     )
 
     static let vocabPeach = dynamic(
-        light: Color(red: 0.29, green: 0.33, blue: 0.39), // #4B5563 Medium Slate
-        dark: Color(red: 0.61, green: 0.64, blue: 0.69)   // #9CA3AF Light Slate
+        light: Color(red: 0.90, green: 0.43, blue: 0.10), // #E66E1A Warm Amber Orange (Reflex Challenge / B1-B2)
+        dark: Color(red: 0.98, green: 0.60, blue: 0.22)   // #FA9938 Bright Amber
     )
 
     static let vocabLavender = dynamic(
-        light: Color(red: 0.42, green: 0.45, blue: 0.50), // #6B7280 Soft Slate
-        dark: Color(red: 0.42, green: 0.45, blue: 0.50)   // #6B7280 Dark Muted Slate
+        light: Color(red: 0.55, green: 0.36, blue: 0.96), // #8B5CF6 Vibrant Purple (SRS Queue / C1-C2)
+        dark: Color(red: 0.78, green: 0.72, blue: 0.95)   // #C8B8F2 Bright Lavender
     )
 
     init(hex: String) {

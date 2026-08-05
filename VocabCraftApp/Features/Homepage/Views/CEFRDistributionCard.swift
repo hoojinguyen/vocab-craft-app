@@ -60,7 +60,7 @@ public struct CEFRDistributionCard: View {
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 12, weight: .semibold))
                         }
-                        .foregroundColor(Color.vocabInk)
+                        .foregroundColor(Color.vocabCoral)
                         .frame(minWidth: 44, minHeight: 44, alignment: .trailing)
                         .contentShape(Rectangle())
                     }
