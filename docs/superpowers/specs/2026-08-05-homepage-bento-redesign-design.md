@@ -52,10 +52,10 @@ Redesign the primary landing experience of **VocabCraft** (`HomepageView`) from 
 ```
 
 ### 2.1 HeaderView
-* **Avatar & Progress Ring**: 44x44 pt frame. 3pt conic stroke depicting `dailyGoalProgress`. User initials "HN" centered inside.
-* **Greeting & Goal Subtitle**: Title `"Chào Hooji 👋"` (16pt Bold, `vocabInk`). Subtitle `"Mục tiêu hôm nay: 75%"` (12pt Medium, `vocabMuted`).
-* **Streak Badge**: Capsule pill container (`vocabCoral.opacity(0.12)` fill). Icon `flame.fill` + Text `"14 ngày liên tiếp"` (11pt Bold, `vocabCoral`).
-* **Notification Bell Button**: 44x44 pt touch boundary. Background `vocabSurfaceSoft`, icon `bell.fill` (16pt, `vocabInk`). Red indicator dot (8x8 pt, `vocabCoral`) aligned top-right.
+* **Ultra-Clean Header**: Removed duplicate Avatar progress ring for maximum horizontal spacing and clean layout.
+* **Greeting & Goal Subtitle**: Title `"Chào Hooji 👋"` (20pt Bold, `vocabInk`). Subtitle `"Mục tiêu hôm nay: 75%"` (13pt Medium, `vocabMuted`).
+* **Minimalist Streak Badge**: Capsule pill container (`vocabCoral.opacity(0.12)` fill). Icon `flame.fill` + Number `"14"` (13pt Bold, `vocabCoral`).
+* **Notification Bell Button**: 44x44 pt touch boundary. Background `vocabSurfaceSoft`, icon `bell.fill` (16pt, `vocabInk`). Red indicator dot (9x9 pt, `vocabCoral`) aligned top-right.
 
 ### 2.2 MobileSearchView
 * **Container**: `RoundedRectangle(cornerRadius: 20, style: .continuous)` filled with `vocabSurfaceCard`, stroke overlay `vocabHairline` (1.5pt), shadow `vocabHeroTeal.opacity(0.05)` (radius 6).
