@@ -100,7 +100,7 @@ public struct SubTopicStudySessionView: View {
                 if isFlipped {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(isSuccess ? "✓ Chính xác! (+10 XP)" : "✕ Chưa chính xác (-5 XP)")
-                            .font(.system(size: 16, weight: .extrabold))
+                            .font(.system(size: 16, weight: .heavy))
                             .foregroundColor(isSuccess ? Color.vocabMint : Color.vocabCoral)
 
                         Text(isSuccess ? "Đã tự động đồng bộ từ vựng vào Kho cá nhân." : "Từ này sẽ được đưa về cuối lượt để ôn lại.")
