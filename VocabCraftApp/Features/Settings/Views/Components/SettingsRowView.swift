@@ -22,11 +22,11 @@ public struct SettingsRowView<Content: View>: View {
         HStack(spacing: 12) {
             ZStack {
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(iconColor)
-                    .frame(width: 30, height: 30)
+                    .fill(iconColor.opacity(0.15))
+                    .frame(width: 32, height: 32)
                 Image(systemName: iconName)
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(.white)
+                    .foregroundColor(iconColor)
             }
             
             Text(title)

@@ -21,4 +21,11 @@ final class SettingsViewModelTests: XCTestCase {
         vm.playAudioPreview()
         XCTAssertTrue(vm.isPlayingAudio)
     }
+
+    func testResetSRSProgress() {
+        let vm = SettingsViewModel()
+        vm.store.dailyGoalCount = 30
+        vm.resetSRSProgress()
+        XCTAssertEqual(vm.store.dailyGoalCount, 15)
+    }
 }

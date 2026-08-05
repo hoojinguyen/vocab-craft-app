@@ -32,4 +32,9 @@ public final class SettingsViewModel {
     public func clearCache() {
         cacheSizeString = "0.0 MB"
     }
+
+    public func resetSRSProgress() {
+        // Resets SRS progress to default initial state
+        store.dailyGoalCount = 15
+    }
 }
