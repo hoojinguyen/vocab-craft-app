@@ -43,6 +43,7 @@ def generate_pbxproj():
 		300000552D50000000000001 /* WidgetIntentsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000552D50000000000000 /* WidgetIntentsTests.swift */; };
 		300000182D50000000000001 /* WordItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000182D50000000000001 /* WordItem.swift */; };
 		300000192D50000000000001 /* VocabularySummaryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000192D50000000000001 /* VocabularySummaryCard.swift */; };
+		300000202D50000000000001 /* WordAccordionCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000202D50000000000001 /* WordAccordionCard.swift */; };
 		300000562D50000000000001 /* VocabularyModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000562D50000000000001 /* VocabularyModelsTests.swift */; };
 		300000572D50000000000001 /* VocabularyViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000572D50000000000001 /* VocabularyViewsTests.swift */; };
 		300000402D50000000000002 /* VocabCraftWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 200000402D50000000000000 /* VocabCraftWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -113,6 +114,7 @@ def generate_pbxproj():
 		200000172D50000000000001 /* HomepageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomepageView.swift; sourceTree = "<group>"; };
 		200000182D50000000000001 /* WordItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordItem.swift; sourceTree = "<group>"; };
 		200000192D50000000000001 /* VocabularySummaryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularySummaryCard.swift; sourceTree = "<group>"; };
+		200000202D50000000000001 /* WordAccordionCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordAccordionCard.swift; sourceTree = "<group>"; };
 		200000562D50000000000001 /* VocabularyModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyModelsTests.swift; sourceTree = "<group>"; };
 		200000572D50000000000001 /* VocabularyViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyViewsTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -250,6 +252,7 @@ def generate_pbxproj():
 			isa = PBXGroup;
 			children = (
 				200000192D50000000000001 /* VocabularySummaryCard.swift */,
+				200000202D50000000000001 /* WordAccordionCard.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -463,6 +466,7 @@ def generate_pbxproj():
 				300000172D50000000000001 /* HomepageView.swift in Sources */,
 				300000182D50000000000001 /* WordItem.swift in Sources */,
 				300000192D50000000000001 /* VocabularySummaryCard.swift in Sources */,
+				300000202D50000000000001 /* WordAccordionCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
