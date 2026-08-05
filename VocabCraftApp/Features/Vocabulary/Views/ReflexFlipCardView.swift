@@ -49,12 +49,13 @@ public struct ReflexFlipCardView: View {
             .cornerRadius(20)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.vocabHairline, lineWidth: 1.5)
+                    .stroke(Color.vocabHairline.opacity(0.6), lineWidth: 1)
             )
+            .shadow(color: Color.black.opacity(colorScheme == .dark ? 0.25 : 0.06), radius: 10, x: 0, y: 5)
             .opacity(isFlipped ? 0 : 1)
 
             // BACK FACE (DETAILED: Word -> IPA -> Audio -> [partOfSpeech] Meaning -> Example)
-            VStack(spacing: 8) {
+            VStack(spacing: 10) {
                 Text(word.english)
                     .font(.system(size: 24, weight: .bold))
                     .foregroundColor(Color.vocabInk)
@@ -87,14 +88,8 @@ public struct ReflexFlipCardView: View {
                         .italic()
                         .foregroundColor(Color.vocabInk)
                 }
-                .padding(10)
+                .padding(.top, 4)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color.vocabSurfaceSoft)
-                .cornerRadius(10)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.vocabHairline, lineWidth: 1)
-                )
             }
             .padding(20)
             .frame(maxWidth: .infinity, minHeight: 220)
@@ -102,8 +97,9 @@ public struct ReflexFlipCardView: View {
             .cornerRadius(20)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
-                    .stroke(isSuccess ? Color.vocabMint : Color.vocabCoral, lineWidth: 1.5)
+                    .stroke((isSuccess ? Color.vocabMint : Color.vocabCoral).opacity(0.6), lineWidth: 1)
             )
+            .shadow(color: Color.black.opacity(colorScheme == .dark ? 0.25 : 0.06), radius: 10, x: 0, y: 5)
             .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
             .opacity(isFlipped ? 1 : 0)
         }
@@ -131,3 +127,4 @@ public struct ReflexFlipCardView: View {
         }
     }
 }
+

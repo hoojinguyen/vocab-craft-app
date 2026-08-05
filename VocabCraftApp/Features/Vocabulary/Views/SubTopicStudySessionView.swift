@@ -27,7 +27,7 @@ public struct SubTopicStudySessionView: View {
 
     public var body: some View {
         VStack(spacing: 16) {
-            // Header Bar with Circle Close & XP Badge
+            // Header Bar with Circle Close & Sleek XP Badge
             HStack(spacing: 12) {
                 Button(action: onDismiss) {
                     Image(systemName: "xmark")
@@ -38,97 +38,110 @@ public struct SubTopicStudySessionView: View {
                         .clipShape(Circle())
                 }
 
-                // 10 Progress segments
-                HStack(spacing: 3) {
+                // 10 Progress segments with 2 distinct colors
+                HStack(spacing: 4) {
                     ForEach(0..<max(1, engine.totalQuestionsCount), id: \.self) { idx in
                         RoundedRectangle(cornerRadius: 3)
-                            .fill(idx < engine.currentIndex ? Color.vocabMint : Color.vocabHairline)
+                            .fill(segmentColor(for: idx))
                             .frame(height: 6)
                     }
                 }
 
-                // Header XP Badge
+                // Sleek Pill XP Badge
                 HStack(spacing: 4) {
-                    Text("⚡")
-                    Text("+\(engine.xpEarned) XP")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(Color.vocabPeach)
+                    Image(systemName: "bolt.fill")
+                        .font(.system(size: 11, weight: .black))
+                        .foregroundColor(.yellow)
+                    Text(formattedXPText(engine.xpEarned))
+                        .font(.system(size: 12, weight: .bold, design: .rounded))
+                        .foregroundColor(Color.vocabInk)
                 }
                 .padding(.horizontal, 10)
-                .padding(.vertical, 4)
-                .background(Color.vocabPeach.opacity(0.15))
-                .cornerRadius(12)
+                .padding(.vertical, 5)
+                .background(
+                    Capsule()
+                        .fill(Color.vocabSurfaceCard)
+                        .shadow(color: Color.black.opacity(0.06), radius: 4, x: 0, y: 2)
+                )
+                .overlay(
+                    Capsule()
+                        .stroke(Color.vocabPeach.opacity(0.4), lineWidth: 1)
+                )
             }
 
             if let word = engine.currentWord {
-                // 3D Flip Flashcard
-                ReflexFlipCardView(
-                    word: word,
-                    isFlipped: isFlipped,
-                    isSuccess: isSuccess,
-                    onAudioTap: {
-                        // TTS audio
-                    }
-                )
-
-                Spacer()
-
-                // Thumb-Zone Quiz Options Section
-                VStack(spacing: 10) {
-                    HStack {
-                        Text("Chọn đáp án đúng:")
-                            .font(.system(size: 13, weight: .bold))
-                            .foregroundColor(Color.vocabMuted)
-                        Spacer()
-                        Text("Lần \(3 - engine.attemptsLeft)/2")
-                            .font(.system(size: 11, weight: .semibold))
-                            .foregroundColor(Color.vocabMuted)
-                    }
-
-                    ForEach(options, id: \.self) { opt in
-                        QuizOptionRowView(
-                            option: opt,
-                            isSelected: selectedAnswer == opt,
-                            isSuccess: isSuccess,
-                            action: { handleAnswer(opt) },
-                            isDisabled: selectedAnswer != nil && isFlipped
-                        )
-                    }
-                }
-
-                // Bottom Feedback Sheet / Continue Action
-                if isFlipped {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(isSuccess ? "✓ Chính xác! (+10 XP)" : "✕ Chưa chính xác (-5 XP)")
-                            .font(.system(size: 16, weight: .heavy))
-                            .foregroundColor(isSuccess ? Color.vocabMint : Color.vocabCoral)
-
-                        Text(isSuccess ? "Đã tự động đồng bộ từ vựng vào Kho cá nhân." : "Từ này sẽ được đưa về cuối lượt để ôn lại.")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(Color.vocabMuted)
-
-                        Button(action: nextWord) {
-                            HStack {
-                                Text("Tiếp tục")
-                                    .font(.system(size: 14, weight: .bold))
-                                Image(systemName: "arrow.right")
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(Color.vocabInk)
-                            .foregroundColor(Color.vocabCanvas)
-                            .cornerRadius(14)
+                VStack(spacing: 16) {
+                    // 3D Flip Flashcard
+                    ReflexFlipCardView(
+                        word: word,
+                        isFlipped: isFlipped,
+                        isSuccess: isSuccess,
+                        onAudioTap: {
+                            // TTS audio
                         }
-                        .buttonStyle(PressedScaleButtonStyle())
-                        .padding(.top, 4)
-                    }
-                    .padding(16)
-                    .background((isSuccess ? Color.vocabMint : Color.vocabCoral).opacity(0.1))
-                    .cornerRadius(16)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(isSuccess ? Color.vocabMint : Color.vocabCoral, lineWidth: 1.5)
                     )
+
+                    Spacer(minLength: 8)
+
+                    // Thumb-Zone Quiz Options Section (Fixed Position)
+                    VStack(spacing: 10) {
+                        HStack {
+                            Text("Chọn đáp án đúng:")
+                                .font(.system(size: 13, weight: .bold))
+                                .foregroundColor(Color.vocabMuted)
+                            Spacer()
+                            Text("Lần \(min(2, max(1, 3 - engine.attemptsLeft)))/2")
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundColor(Color.vocabMuted)
+                        }
+
+                        ForEach(options, id: \.self) { opt in
+                            QuizOptionRowView(
+                                option: opt,
+                                isSelected: selectedAnswer == opt,
+                                isSuccess: isSuccess,
+                                action: { handleAnswer(opt) },
+                                isDisabled: selectedAnswer != nil && isFlipped
+                            )
+                        }
+                    }
+
+                    // Fixed Height Action Slot / Feedback Toast
+                    VStack {
+                        if isFlipped {
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    Text(isSuccess ? "✓ Chính xác! (+10 XP)" : "✕ Chưa chính xác (-5 XP)")
+                                        .font(.system(size: 15, weight: .heavy))
+                                        .foregroundColor(isSuccess ? Color.vocabMint : Color.vocabCoral)
+                                    Spacer()
+                                }
+
+                                Button(action: nextWord) {
+                                    HStack {
+                                        Text("Tiếp tục")
+                                            .font(.system(size: 14, weight: .bold))
+                                        Image(systemName: "arrow.right")
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 12)
+                                    .background(Color.vocabInk)
+                                    .foregroundColor(Color.vocabCanvas)
+                                    .cornerRadius(12)
+                                }
+                                .buttonStyle(PressedScaleButtonStyle())
+                            }
+                            .padding(14)
+                            .background((isSuccess ? Color.vocabMint : Color.vocabCoral).opacity(0.1))
+                            .cornerRadius(14)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .stroke((isSuccess ? Color.vocabMint : Color.vocabCoral).opacity(0.5), lineWidth: 1)
+                            )
+                            .transition(.opacity)
+                        }
+                    }
+                    .frame(height: 104)
                 }
             } else {
                 // Session finished -> SubTopicSessionSummaryView
@@ -144,6 +157,7 @@ public struct SubTopicStudySessionView: View {
                     }
                 )
             }
+
         }
         .padding(20)
         .background(Color.vocabCanvas.ignoresSafeArea())
@@ -169,12 +183,32 @@ public struct SubTopicStudySessionView: View {
         }
     }
 
-
     private func nextWord() {
         selectedAnswer = nil
         isFlipped = false
         engine.advanceToNextWord()
     }
+
+    private func segmentColor(for index: Int) -> Color {
+        if index < engine.currentIndex {
+            return Color.vocabMint
+        } else if index == engine.currentIndex {
+            return Color.vocabPeach
+        } else {
+            return Color.gray.opacity(0.18)
+        }
+    }
+
+    private func formattedXPText(_ xp: Int) -> String {
+        if xp > 0 {
+            return "+\(xp) XP"
+        } else if xp == 0 {
+            return "0 XP"
+        } else {
+            return "\(xp) XP"
+        }
+    }
+
 
     public static let sampleWords: [TopicWord] = [
         TopicWord(id: "w1", english: "Automation", phonetic: "/ˌɔː.təˈmeɪ.ʃən/", vietnamese: "Sự tự động hóa", example: "Factory automation reduces production costs.", partOfSpeech: "noun"),
