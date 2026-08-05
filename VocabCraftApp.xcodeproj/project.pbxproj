@@ -40,6 +40,9 @@
 		300000162D50000000000001 /* LiquidGlassTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000162D50000000000001 /* LiquidGlassTabBar.swift */; };
 		300000172D50000000000001 /* HomepageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000172D50000000000001 /* HomepageView.swift */; };
 		300000992D50000000000001 /* SearchNewWordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000992D50000000000001 /* SearchNewWordView.swift */; };
+		399000992D50000000000001 /* SuggestedWord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 299000992D50000000000001 /* SuggestedWord.swift */; };
+		300000982D50000000000001 /* SuggestedWordsCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000982D50000000000001 /* SuggestedWordsCardView.swift */; };
+		300000972D50000000000001 /* SuggestedWordsCardViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000972D50000000000001 /* SuggestedWordsCardViewTests.swift */; };
 		300000412D50000000000001 /* VocabWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000412D50000000000000 /* VocabWidget.swift */; };
 		300000422D50000000000001 /* VocabWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000422D50000000000000 /* VocabWidgetView.swift */; };
 		300000432D50000000000001 /* NextWordIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000432D50000000000000 /* NextWordIntent.swift */; };
@@ -157,6 +160,9 @@
 		200000162D50000000000001 /* LiquidGlassTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlassTabBar.swift; sourceTree = "<group>"; };
 		200000172D50000000000001 /* HomepageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomepageView.swift; sourceTree = "<group>"; };
 		200000992D50000000000001 /* SearchNewWordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchNewWordView.swift; sourceTree = "<group>"; };
+		299000992D50000000000001 /* SuggestedWord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Domain/Entities/SuggestedWord.swift"; sourceTree = "<group>"; };
+		200000982D50000000000001 /* SuggestedWordsCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestedWordsCardView.swift; sourceTree = "<group>"; };
+		200000972D50000000000001 /* SuggestedWordsCardViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestedWordsCardViewTests.swift; sourceTree = "<group>"; };
 		200000182D50000000000001 /* WordItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordItem.swift; sourceTree = "<group>"; };
 		200000192D50000000000001 /* VocabularySummaryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularySummaryCard.swift; sourceTree = "<group>"; };
 		200000202D50000000000001 /* WordAccordionCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordAccordionCard.swift; sourceTree = "<group>"; };
@@ -219,6 +225,7 @@
 			isa = PBXGroup;
 			children = (
 				299000012D50000000000001 /* Word.swift */,
+				299000992D50000000000001 /* SuggestedWord.swift */,
 				299000022D50000000000001 /* AudioServiceProtocols.swift */,
 				299000032D50000000000001 /* VocabularyRepositoryProtocol.swift */,
 				299000042D50000000000001 /* SRSRepositoryProtocol.swift */,
@@ -368,6 +375,7 @@
 				200000162D50000000000001 /* LiquidGlassTabBar.swift */,
 				200000172D50000000000001 /* HomepageView.swift */,
 				200000992D50000000000001 /* SearchNewWordView.swift */,
+				200000982D50000000000001 /* SuggestedWordsCardView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -572,6 +580,8 @@
 				300000162D50000000000001 /* LiquidGlassTabBar.swift in Sources */,
 				300000172D50000000000001 /* HomepageView.swift in Sources */,
 				300000992D50000000000001 /* SearchNewWordView.swift in Sources */,
+				399000992D50000000000001 /* SuggestedWord.swift in Sources */,
+				300000982D50000000000001 /* SuggestedWordsCardView.swift in Sources */,
 				300000182D50000000000001 /* WordItem.swift in Sources */,
 				300000192D50000000000001 /* VocabularySummaryCard.swift in Sources */,
 				300000202D50000000000001 /* WordAccordionCard.swift in Sources */,

@@ -54,6 +54,14 @@ public struct HomepageView: View {
                             unreadNotifications: viewModel.state.unreadNotifications
                         )
 
+                        SuggestedWordsCardView(
+                            words: viewModel.suggestedWords,
+                            selectedIndex: $viewModel.currentSuggestedWordIndex,
+                            onBookmarkToggle: { id in
+                                viewModel.toggleBookmarkSuggestedWord(id: id)
+                            }
+                        )
+
                         SRSMemoryHeroCard(
                             totalWords: viewModel.state.totalWords,
                             retentionPercentage: viewModel.state.retentionPercentage

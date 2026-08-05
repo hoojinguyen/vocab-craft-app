@@ -12,6 +12,8 @@ public struct HomepageState: Equatable {
     public var unreadNotifications: Bool
     public var searchText: String
     public var selectedTab: TabItem
+    public var suggestedWords: [SuggestedWord]
+    public var currentSuggestedWordIndex: Int
 
     public init(
         userName: String = "Hooji N.",
@@ -22,7 +24,9 @@ public struct HomepageState: Equatable {
         retentionPercentage: Double = 0.85,
         unreadNotifications: Bool = true,
         searchText: String = "",
-        selectedTab: TabItem = .home
+        selectedTab: TabItem = .home,
+        suggestedWords: [SuggestedWord] = SuggestedWord.sampleWords,
+        currentSuggestedWordIndex: Int? = nil
     ) {
         self.userName = userName
         self.streakDays = streakDays
@@ -33,6 +37,16 @@ public struct HomepageState: Equatable {
         self.unreadNotifications = unreadNotifications
         self.searchText = searchText
         self.selectedTab = selectedTab
+        self.suggestedWords = suggestedWords
+        
+        // Randomize initial suggested word index on each app launch if not explicitly set
+        if let explicitIndex = currentSuggestedWordIndex, suggestedWords.indices.contains(explicitIndex) {
+            self.currentSuggestedWordIndex = explicitIndex
+        } else if !suggestedWords.isEmpty {
+            self.currentSuggestedWordIndex = Int.random(in: 0..<suggestedWords.count)
+        } else {
+            self.currentSuggestedWordIndex = 0
+        }
     }
 }
 
@@ -51,6 +65,16 @@ public final class HomepageViewModel {
         set { state.selectedTab = newValue }
     }
 
+    public var currentSuggestedWordIndex: Int {
+        get { state.currentSuggestedWordIndex }
+        set { state.currentSuggestedWordIndex = newValue }
+    }
+
+    public var suggestedWords: [SuggestedWord] {
+        get { state.suggestedWords }
+        set { state.suggestedWords = newValue }
+    }
+
     public init(initialState: HomepageState = HomepageState()) {
         self.state = initialState
     }
@@ -63,7 +87,14 @@ public final class HomepageViewModel {
         state.searchText = text
     }
 
+    public func toggleBookmarkSuggestedWord(id: String) {
+        if let index = state.suggestedWords.firstIndex(where: { $0.id == id }) {
+            state.suggestedWords[index].isBookmarked.toggle()
+        }
+    }
+
     public func performVoiceSearch() {
         // Trigger voice search intent
     }
 }
+
