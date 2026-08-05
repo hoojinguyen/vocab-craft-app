@@ -11,6 +11,7 @@ public struct SubTopicStudySessionView: View {
     @State private var selectedAnswer: String? = nil
     @State private var options: [String] = []
     @State private var lastXPDelta: Int = 10
+    @State private var attemptedWrongAnswers: Set<String> = []
 
     @Environment(\.colorScheme) private var colorScheme
 
@@ -28,52 +29,52 @@ public struct SubTopicStudySessionView: View {
     }
 
     public var body: some View {
-        VStack(spacing: 16) {
-            // Header Bar with Circle Close & Sleek XP Badge
-            HStack(spacing: 12) {
-                Button(action: onDismiss) {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundColor(Color.vocabInk)
-                        .frame(width: 32, height: 32)
-                        .background(Color.vocabSurfaceSoft)
-                        .clipShape(Circle())
-                }
-
-                // 10 Progress segments with 2 distinct colors
-                HStack(spacing: 4) {
-                    ForEach(0..<max(1, engine.totalQuestionsCount), id: \.self) { idx in
-                        RoundedRectangle(cornerRadius: 3)
-                            .fill(segmentColor(for: idx))
-                            .frame(height: 6)
+        VStack(spacing: 20) {
+            if !engine.isSessionComplete {
+                // Header (Close, Progress Bar, XP Counter)
+                HStack(spacing: 12) {
+                    Button(action: onDismiss) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(Color.vocabInk)
+                            .frame(width: 36, height: 36)
+                            .background(Color.vocabSurfaceCard)
+                            .clipShape(Circle())
+                            .overlay(
+                                Circle().stroke(Color.vocabHairline, lineWidth: 1)
+                            )
                     }
+
+                    // Segmented Progress Bar (Strictly 10 segments matching initial 10 node words)
+                    HStack(spacing: 4) {
+                        ForEach(0..<engine.totalQuestionsCount, id: \.self) { idx in
+                            RoundedRectangle(cornerRadius: 3)
+                                .fill(segmentColor(for: idx))
+                                .frame(height: 6)
+                        }
+                    }
+
+                    // Dynamic XP Pill Badge
+                    HStack(spacing: 4) {
+                        Image(systemName: "bolt.fill")
+                            .font(.system(size: 11))
+                            .foregroundColor(Color.vocabMint)
+                        Text(formattedXPText(engine.xpEarned))
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(Color.vocabInk)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(Color.vocabSurfaceCard)
+                    .cornerRadius(20)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(Color.vocabHairline, lineWidth: 1)
+                    )
                 }
 
-                // Sleek Pill XP Badge
-                HStack(spacing: 4) {
-                    Image(systemName: "bolt.fill")
-                        .font(.system(size: 11, weight: .black))
-                        .foregroundColor(.yellow)
-                    Text(formattedXPText(engine.xpEarned))
-                        .font(.system(size: 12, weight: .bold, design: .rounded))
-                        .foregroundColor(Color.vocabInk)
-                }
-                .padding(.horizontal, 10)
-                .padding(.vertical, 5)
-                .background(
-                    Capsule()
-                        .fill(Color.vocabSurfaceCard)
-                        .shadow(color: Color.black.opacity(0.06), radius: 4, x: 0, y: 2)
-                )
-                .overlay(
-                    Capsule()
-                        .stroke(Color.vocabPeach.opacity(0.4), lineWidth: 1)
-                )
-            }
-
-            if let word = engine.currentWord {
-                VStack(spacing: 16) {
-                    // 3D Flip Flashcard
+                // 3D Flip Card Widget
+                if let word = engine.currentWord {
                     ReflexFlipCardView(
                         word: word,
                         isFlipped: isFlipped,
@@ -82,28 +83,30 @@ public struct SubTopicStudySessionView: View {
                             // TTS audio
                         }
                     )
+                }
 
-                    Spacer(minLength: 8)
 
-                    // Thumb-Zone Quiz Options Section (Fixed Position)
+                // Thumb-Zone Quiz Options & Attempt Status Header
+                VStack(spacing: 12) {
+                    HStack {
+                        Text("Chọn đáp án đúng:")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(Color.vocabInk)
+                        Spacer()
+                        Text("Lần \(2 - engine.attemptsLeft)/2")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(Color.vocabMuted)
+                    }
+
                     VStack(spacing: 10) {
-                        HStack {
-                            Text("Chọn đáp án đúng:")
-                                .font(.system(size: 13, weight: .bold))
-                                .foregroundColor(Color.vocabMuted)
-                            Spacer()
-                            Text("Lần \(max(0, 2 - engine.attemptsLeft))/2")
-                                .font(.system(size: 11, weight: .semibold))
-                                .foregroundColor(Color.vocabMuted)
-                        }
-
                         ForEach(options, id: \.self) { opt in
                             QuizOptionRowView(
                                 option: opt,
                                 isSelected: selectedAnswer == opt,
+                                isWrongAttempted: attemptedWrongAnswers.contains(opt),
                                 isSuccess: isSuccess,
                                 action: { handleAnswer(opt) },
-                                isDisabled: selectedAnswer != nil && isFlipped
+                                isDisabled: isFlipped || attemptedWrongAnswers.contains(opt)
                             )
                         }
                     }
@@ -153,13 +156,15 @@ public struct SubTopicStudySessionView: View {
                     correctCount: engine.passedCount,
                     onRestart: {
                         self.engine = SubTopicSessionEngine(words: node.words.isEmpty ? SubTopicStudySessionView.sampleWords : node.words)
+                        self.attemptedWrongAnswers.removeAll()
+                        self.selectedAnswer = nil
+                        self.isFlipped = false
                     },
                     onFinish: {
                         onComplete(engine.xpEarned)
                     }
                 )
             }
-
         }
         .padding(20)
         .background(Color.vocabCanvas.ignoresSafeArea())
@@ -176,18 +181,26 @@ public struct SubTopicStudySessionView: View {
     }
 
     private func handleAnswer(_ opt: String) {
-        selectedAnswer = opt
         let result = engine.submitAnswer(selectedVietnamese: opt)
 
         isSuccess = result.isCorrect
         lastXPDelta = result.xpDelta
-        if result.isCorrect || result.attemptsRemaining <= 0 {
+
+        if result.isCorrect {
+            selectedAnswer = opt
             isFlipped = true
+        } else {
+            attemptedWrongAnswers.insert(opt)
+            if result.attemptsRemaining <= 0 {
+                selectedAnswer = opt
+                isFlipped = true
+            }
         }
     }
 
     private func nextWord() {
         selectedAnswer = nil
+        attemptedWrongAnswers.removeAll()
         isFlipped = false
         engine.advanceToNextWord()
     }
@@ -200,10 +213,6 @@ public struct SubTopicStudySessionView: View {
         }
     }
 
-
-
-
-
     private func formattedXPText(_ xp: Int) -> String {
         if xp > 0 {
             return "+\(xp) XP"
@@ -213,7 +222,6 @@ public struct SubTopicStudySessionView: View {
             return "\(xp) XP"
         }
     }
-
 
     public static let sampleWords: [TopicWord] = [
         TopicWord(id: "w1", english: "Automation", phonetic: "/ˌɔː.təˈmeɪ.ʃən/", vietnamese: "Sự tự động hóa", example: "Factory automation reduces production costs.", partOfSpeech: "noun"),
@@ -232,6 +240,7 @@ public struct SubTopicStudySessionView: View {
 private struct QuizOptionRowView: View {
     let option: String
     let isSelected: Bool
+    let isWrongAttempted: Bool
     let isSuccess: Bool
     let action: () -> Void
     let isDisabled: Bool
@@ -244,6 +253,9 @@ private struct QuizOptionRowView: View {
                 Spacer()
                 if isSelected {
                     Image(systemName: isSuccess ? "checkmark.circle.fill" : "xmark.circle.fill")
+                } else if isWrongAttempted {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(Color.vocabCoral)
                 } else {
                     Image(systemName: "circle")
                         .foregroundColor(Color.vocabHairline)
@@ -263,18 +275,33 @@ private struct QuizOptionRowView: View {
     }
 
     private var backgroundColor: Color {
-        guard isSelected else { return Color.vocabSurfaceCard }
-        return isSuccess ? Color.vocabMint.opacity(0.15) : Color.vocabCoral.opacity(0.15)
+        if isSelected {
+            return isSuccess ? Color.vocabMint.opacity(0.15) : Color.vocabCoral.opacity(0.15)
+        }
+        if isWrongAttempted {
+            return Color.vocabCoral.opacity(0.12)
+        }
+        return Color.vocabSurfaceCard
     }
 
     private var foregroundColor: Color {
-        guard isSelected else { return Color.vocabInk }
-        return isSuccess ? Color.vocabMint : Color.vocabCoral
+        if isSelected {
+            return isSuccess ? Color.vocabMint : Color.vocabCoral
+        }
+        if isWrongAttempted {
+            return Color.vocabCoral
+        }
+        return Color.vocabInk
     }
 
     private var borderColor: Color {
-        guard isSelected else { return Color.vocabHairline }
-        return isSuccess ? Color.vocabMint : Color.vocabCoral
+        if isSelected {
+            return isSuccess ? Color.vocabMint : Color.vocabCoral
+        }
+        if isWrongAttempted {
+            return Color.vocabCoral.opacity(0.4)
+        }
+        return Color.vocabHairline
     }
 }
 
