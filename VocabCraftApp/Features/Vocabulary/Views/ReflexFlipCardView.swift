@@ -22,66 +22,67 @@ public struct ReflexFlipCardView: View {
 
     public var body: some View {
         ZStack {
-            // FRONT FACE
-            VStack(spacing: 12) {
-                Text("MẶT TRƯỚC • THỬ THÁCH NHỚ NGHĨA")
-                    .font(.system(size: 10, weight: .bold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.vocabSurfaceSoft)
-                    .foregroundColor(Color.vocabMuted)
-                    .cornerRadius(6)
-
+            // FRONT FACE (MINIMAL: Word -> IPA -> Circle Audio Icon)
+            VStack(spacing: 8) {
                 Text(word.english)
-                    .font(.system(size: 28, weight: .bold))
+                    .font(.system(size: 32, weight: .bold))
                     .foregroundColor(Color.vocabInk)
 
-                Button(action: onAudioTap) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "speaker.wave.2.fill")
-                        Text(word.phonetic)
-                            .font(.system(size: 13, weight: .semibold))
-                    }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(Color.vocabMint.opacity(0.15))
-                    .foregroundColor(Color.vocabMint)
-                    .cornerRadius(16)
-                }
-
-                Text("👇 Chọn đáp án tiếng Việt chính xác bên dưới")
-                    .font(.system(size: 11, weight: .medium))
+                Text(word.phonetic)
+                    .font(.system(size: 15, weight: .medium))
                     .foregroundColor(Color.vocabMuted)
+
+                Button(action: onAudioTap) {
+                    Image(systemName: "speaker.wave.2.fill")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(Color.vocabMint)
+                        .frame(width: 42, height: 42)
+                        .background(Color.vocabMint.opacity(0.15))
+                        .clipShape(Circle())
+                        .overlay(Circle().stroke(Color.vocabMint.opacity(0.3), lineWidth: 1))
+                }
+                .padding(.top, 6)
             }
             .padding(20)
-            .frame(maxWidth: .infinity, minHeight: 200)
+            .frame(maxWidth: .infinity, minHeight: 220)
             .background(Color.vocabSurfaceCard)
             .cornerRadius(20)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.vocabHairline, lineWidth: 1)
+                    .stroke(Color.vocabHairline, lineWidth: 1.5)
             )
             .opacity(isFlipped ? 0 : 1)
 
-            // BACK FACE
-            VStack(spacing: 12) {
-                Text(isSuccess ? "✓ CHÍNH XÁC! MẶT SAU & VÍ DỤ NGUYÊN CẢNH" : "⚠️ SAI 2 LẦN! MẶT SAU & GIẢI THÍCH")
-                    .font(.system(size: 10, weight: .bold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background((isSuccess ? Color.vocabMint : Color.vocabCoral).opacity(0.2))
-                    .foregroundColor(isSuccess ? Color.vocabMint : Color.vocabCoral)
-                    .cornerRadius(6)
-
-                Text(word.vietnamese)
+            // BACK FACE (DETAILED: Word -> IPA -> Audio -> [partOfSpeech] Meaning -> Example)
+            VStack(spacing: 8) {
+                Text(word.english)
                     .font(.system(size: 24, weight: .bold))
+                    .foregroundColor(Color.vocabInk)
+
+                Text(word.phonetic)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(Color.vocabMuted)
+
+                Button(action: onAudioTap) {
+                    Image(systemName: "speaker.wave.2.fill")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(isSuccess ? Color.vocabMint : Color.vocabCoral)
+                        .frame(width: 32, height: 32)
+                        .background((isSuccess ? Color.vocabMint : Color.vocabCoral).opacity(0.15))
+                        .clipShape(Circle())
+                }
+
+                Text("[\(word.partOfSpeech ?? "noun")] \(word.vietnamese)")
+                    .font(.system(size: 16, weight: .bold))
                     .foregroundColor(isSuccess ? Color.vocabMint : Color.vocabCoral)
+                    .padding(.top, 2)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("💡 Ví dụ ngữ cảnh:")
+                    Text("Ví dụ:")
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(Color.vocabMuted)
-                    Text("\"The \(word.english) processes data in real time.\"")
+
+                    Text("\"\(word.example ?? "The \(word.english) processes data in real time.")\"")
                         .font(.system(size: 12, weight: .medium))
                         .italic()
                         .foregroundColor(Color.vocabInk)
@@ -90,9 +91,13 @@ public struct ReflexFlipCardView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(Color.vocabSurfaceSoft)
                 .cornerRadius(10)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.vocabHairline, lineWidth: 1)
+                )
             }
             .padding(20)
-            .frame(maxWidth: .infinity, minHeight: 200)
+            .frame(maxWidth: .infinity, minHeight: 220)
             .background(Color.vocabSurfaceCard)
             .cornerRadius(20)
             .overlay(
