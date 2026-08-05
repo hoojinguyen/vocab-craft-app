@@ -49,17 +49,19 @@ public struct LiquidGlassTabBar: View {
                         Text(tab.title)
                             .font(.system(size: 10, weight: selectedTab == tab ? .bold : .medium))
                     }
-                    .foregroundColor(selectedTab == tab ? .primary : .secondary)
+                    .foregroundColor(selectedTab == tab ? Color.vocabInk : Color.vocabMuted)
                     .padding(.vertical, 6)
-                    .padding(.horizontal, selectedTab == tab ? 12 : 4)
-                    .background(selectedTab == tab ? Color.primary.opacity(0.08) : Color.clear)
+                    .padding(.horizontal, selectedTab == tab ? 14 : 6)
+                    .frame(minWidth: 48, minHeight: 48)
+                    .background(selectedTab == tab ? Color.vocabInk.opacity(0.08) : Color.clear)
                     .clipShape(Capsule())
                 }
+                .buttonStyle(.plain)
                 Spacer()
             }
         }
-        .padding(.vertical, 8)
-        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+        .padding(.horizontal, 8)
         .background(.ultraThinMaterial)
         .cornerRadius(28)
         .shadow(color: Color.black.opacity(0.12), radius: 16, x: 0, y: 8)
@@ -67,3 +69,4 @@ public struct LiquidGlassTabBar: View {
         .padding(.bottom, 12)
     }
 }
+
