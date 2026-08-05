@@ -67,4 +67,31 @@ public final class SubTopicSessionEngine: @unchecked Sendable {
             retryQueue.removeAll()
         }
     }
+
+    public func generateDistractors(for word: TopicWord) -> [String] {
+        let correctMeaning = word.vietnamese
+
+        // Get unique vietnamese meanings from activeWords excluding correctMeaning
+        var availableDistractors = Array(Set(activeWords.map { $0.vietnamese }).subtracting([correctMeaning]))
+
+        // Fallback options in case activeWords doesn't have enough unique words
+        let defaultFallbacks = [
+            "Sự tự động hóa", "Thuật toán", "Hệ sinh thái",
+            "Đa dạng sinh học", "Sự bền vững", "Sự đổi mới sáng tạo",
+            "Hạ tầng", "Nhân tạo", "Trí tuệ", "Kiến trúc"
+        ]
+
+        for fallback in defaultFallbacks {
+            if availableDistractors.count >= 3 { break }
+            if fallback != correctMeaning && !availableDistractors.contains(fallback) {
+                availableDistractors.append(fallback)
+            }
+        }
+
+        let selectedDistractors = Array(availableDistractors.shuffled().prefix(3))
+        var allOptions = selectedDistractors + [correctMeaning]
+        allOptions.shuffle()
+        return allOptions
+    }
 }
+

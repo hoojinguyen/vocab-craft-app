@@ -10,50 +10,8 @@ public struct TopicDeckDetailView: View {
 
 
     // Sample data (to be wired to ViewModel)
-    private let nodes: [SubTopicNode] = [
-        SubTopicNode(
-            id: "1",
-            title: "Môi trường & Khí hậu",
-            iconName: "leaf.fill",
-            totalWords: 25,
-            learnedWords: 25,
-            state: .completed,
-            words: [
-                TopicWord(id: "w1", english: "Ecosystem", phonetic: "/ˈiː.koʊˌsɪs.təm/", vietnamese: "Hệ sinh thái", isMastered: true, isSavedToPersonalVault: true),
-                TopicWord(id: "w2", english: "Biodiversity", phonetic: "/ˌbaɪ.oʊ.daɪˈvɜːr.sə.ti/", vietnamese: "Đa dạng sinh học", isMastered: true, isSavedToPersonalVault: true)
-            ]
-        ),
-        SubTopicNode(
-            id: "2",
-            title: "Giáo dục & Đào tạo",
-            iconName: "graduationcap.fill",
-            totalWords: 25,
-            learnedWords: 25,
-            state: .completed,
-            words: []
-        ),
-        SubTopicNode(
-            id: "3",
-            title: "Công nghệ & AI",
-            iconName: "cpu",
-            totalWords: 25,
-            learnedWords: 12,
-            state: .active,
-            words: [
-                TopicWord(id: "w3", english: "Algorithm", phonetic: "/ˈæl.ɡə.rɪ.ðəm/", vietnamese: "Thuật toán", isMastered: true, isSavedToPersonalVault: true),
-                TopicWord(id: "w4", english: "Automation", phonetic: "/ˌɔː.təˈmeɪ.ʃən/", vietnamese: "Tự động hóa", isMastered: false, isSavedToPersonalVault: false)
-            ]
-        ),
-        SubTopicNode(
-            id: "4",
-            title: "Kinh tế & Thị trường",
-            iconName: "chart.line.uptrend.xyaxis",
-            totalWords: 25,
-            learnedWords: 0,
-            state: .locked,
-            words: []
-        )
-    ]
+    private let nodes: [SubTopicNode] = SubTopicNode.sampleNodes
+
 
     public init(deckId: String, onBack: @escaping () -> Void) {
         self.deckId = deckId

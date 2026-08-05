@@ -95,4 +95,20 @@ final class SubTopicSessionEngineTests: XCTestCase {
         XCTAssertTrue(engine.isSessionComplete)
         XCTAssertNil(engine.currentWord)
     }
+
+    func testDistractorGeneratorReturnsFourUniqueOptions() {
+        let words = [
+            TopicWord(id: "w1", english: "Automation", phonetic: "/ˌɔː.təˈmeɪ.ʃən/", vietnamese: "Sự tự động hóa", example: "Factory automation reduces costs.", partOfSpeech: "noun"),
+            TopicWord(id: "w2", english: "Algorithm", phonetic: "/ˈæl.ɡə.rɪ.ðəm/", vietnamese: "Thuật toán", example: "The algorithm runs fast.", partOfSpeech: "noun"),
+            TopicWord(id: "w3", english: "Ecosystem", phonetic: "/ˈiː.koʊˌsɪs.təm/", vietnamese: "Hệ sinh thái", example: "Protect the ecosystem.", partOfSpeech: "noun"),
+            TopicWord(id: "w4", english: "Biodiversity", phonetic: "/ˌbaɪ.oʊ.daɪˈvɜːr.sə.ti/", vietnamese: "Đa dạng sinh học", example: "Forests have high biodiversity.", partOfSpeech: "noun")
+        ]
+        let engine = SubTopicSessionEngine(words: words)
+        let options = engine.generateDistractors(for: words[0])
+
+        XCTAssertEqual(options.count, 4)
+        XCTAssertTrue(options.contains("Sự tự động hóa"))
+        XCTAssertEqual(Set(options).count, 4, "Options must contain 4 distinct Vietnamese meanings without duplicates")
+    }
 }
+
