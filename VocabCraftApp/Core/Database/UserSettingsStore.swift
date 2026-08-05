@@ -3,14 +3,23 @@ import Foundation
 
 @Observable
 public final class UserSettingsStore: @unchecked Sendable {
-    @ObservationIgnored
-    @AppStorage("daily_goal_count") public var dailyGoalCount: Int = 15
+    public var dailyGoalCount: Int {
+        didSet {
+            UserDefaults.standard.set(dailyGoalCount, forKey: "daily_goal_count")
+        }
+    }
     
-    @ObservationIgnored
-    @AppStorage("is_notification_enabled") public var isNotificationEnabled: Bool = true
+    public var isNotificationEnabled: Bool {
+        didSet {
+            UserDefaults.standard.set(isNotificationEnabled, forKey: "is_notification_enabled")
+        }
+    }
     
-    @ObservationIgnored
-    @AppStorage("notification_time_interval") public var notificationTimeInterval: Double = 72000 // Default 20:00
+    public var notificationTimeInterval: Double {
+        didSet {
+            UserDefaults.standard.set(notificationTimeInterval, forKey: "notification_time_interval")
+        }
+    }
     
     public var notificationTime: Date {
         get {
@@ -25,20 +34,53 @@ public final class UserSettingsStore: @unchecked Sendable {
         }
     }
     
-    @ObservationIgnored
-    @AppStorage("tts_voice_gender") public var ttsVoiceGender: String = "US"
+    public var ttsVoiceGender: String {
+        didSet {
+            UserDefaults.standard.set(ttsVoiceGender, forKey: "tts_voice_gender")
+        }
+    }
     
-    @ObservationIgnored
-    @AppStorage("tts_speed") public var ttsSpeed: Double = 0.85
+    public var ttsSpeed: Double {
+        didSet {
+            UserDefaults.standard.set(ttsSpeed, forKey: "tts_speed")
+        }
+    }
     
-    @ObservationIgnored
-    @AppStorage("app_theme") public var appTheme: String = "system"
+    public var appTheme: String {
+        didSet {
+            UserDefaults.standard.set(appTheme, forKey: "app_theme")
+        }
+    }
     
-    @ObservationIgnored
-    @AppStorage("is_haptics_enabled") public var isHapticsEnabled: Bool = true
+    public var isHapticsEnabled: Bool {
+        didSet {
+            UserDefaults.standard.set(isHapticsEnabled, forKey: "is_haptics_enabled")
+        }
+    }
     
-    @ObservationIgnored
-    @AppStorage("is_sound_effects_enabled") public var isSoundEffectsEnabled: Bool = true
+    public var isSoundEffectsEnabled: Bool {
+        didSet {
+            UserDefaults.standard.set(isSoundEffectsEnabled, forKey: "is_sound_effects_enabled")
+        }
+    }
 
-    public init() {}
+    public var colorScheme: ColorScheme? {
+        switch appTheme {
+        case "dark": return .dark
+        case "light": return .light
+        default: return nil
+        }
+    }
+
+    public init() {
+        let defaults = UserDefaults.standard
+        self.dailyGoalCount = defaults.object(forKey: "daily_goal_count") != nil ? defaults.integer(forKey: "daily_goal_count") : 15
+        self.isNotificationEnabled = defaults.object(forKey: "is_notification_enabled") != nil ? defaults.bool(forKey: "is_notification_enabled") : true
+        self.notificationTimeInterval = defaults.object(forKey: "notification_time_interval") != nil ? defaults.double(forKey: "notification_time_interval") : 72000
+        self.ttsVoiceGender = defaults.string(forKey: "tts_voice_gender") ?? "US"
+        self.ttsSpeed = defaults.object(forKey: "tts_speed") != nil ? defaults.double(forKey: "tts_speed") : 1.0
+        self.appTheme = defaults.string(forKey: "app_theme") ?? "system"
+        self.isHapticsEnabled = defaults.object(forKey: "is_haptics_enabled") != nil ? defaults.bool(forKey: "is_haptics_enabled") : true
+        self.isSoundEffectsEnabled = defaults.object(forKey: "is_sound_effects_enabled") != nil ? defaults.bool(forKey: "is_sound_effects_enabled") : true
+    }
 }

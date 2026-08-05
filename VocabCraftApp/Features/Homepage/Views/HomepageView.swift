@@ -109,5 +109,6 @@ public struct HomepageView: View {
 
             LiquidGlassTabBar(selectedTab: $viewModel.selectedTab)
         }
+        .preferredColorScheme(viewModel.settingsViewModel.store.colorScheme)
     }
 }

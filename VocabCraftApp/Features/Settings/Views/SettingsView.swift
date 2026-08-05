@@ -3,6 +3,8 @@ import SwiftUI
 public struct SettingsView: View {
     @Bindable public var viewModel: SettingsViewModel
     @State private var showResetAlert: Bool = false
+    @State private var showGoalInputAlert: Bool = false
+    @State private var goalInputText: String = ""
 
     public init(viewModel: SettingsViewModel) {
         self.viewModel = viewModel
@@ -32,37 +34,46 @@ public struct SettingsView: View {
                             Image(systemName: "minus")
                                 .font(.system(size: 12, weight: .bold))
                                 .foregroundColor(.vocabHeroAccent)
-                                .frame(width: 30, height: 28)
+                                .frame(width: 32, height: 30)
+                                .contentShape(Rectangle())
                         }
-                        .buttonStyle(.plain)
-
-                        Divider()
-                            .frame(height: 14)
-                            .opacity(0.35)
-
-                        Text("\(viewModel.store.dailyGoalCount) từ")
-                            .font(.caption.weight(.bold))
-                            .fontDesign(.rounded)
-                            .monospacedDigit()
-                            .foregroundColor(.vocabHeroAccent)
-                            .frame(minWidth: 50)
-                            .frame(height: 28)
+                        .buttonStyle(.borderless)
 
                         Divider()
                             .frame(height: 14)
                             .opacity(0.35)
 
                         Button(action: {
-                            if viewModel.store.dailyGoalCount < 50 {
+                            goalInputText = "\(viewModel.store.dailyGoalCount)"
+                            showGoalInputAlert = true
+                        }) {
+                            Text("\(viewModel.store.dailyGoalCount) từ")
+                                .font(.caption.weight(.bold))
+                                .fontDesign(.rounded)
+                                .monospacedDigit()
+                                .foregroundColor(.vocabHeroAccent)
+                                .frame(minWidth: 50)
+                                .frame(height: 30)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.borderless)
+
+                        Divider()
+                            .frame(height: 14)
+                            .opacity(0.35)
+
+                        Button(action: {
+                            if viewModel.store.dailyGoalCount < 100 {
                                 viewModel.store.dailyGoalCount += 5
                             }
                         }) {
                             Image(systemName: "plus")
                                 .font(.system(size: 12, weight: .bold))
                                 .foregroundColor(.vocabHeroAccent)
-                                .frame(width: 30, height: 28)
+                                .frame(width: 32, height: 30)
+                                .contentShape(Rectangle())
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(.borderless)
                     }
                     .background(Color.vocabHeroAccent.opacity(0.12))
                     .clipShape(Capsule())
@@ -153,7 +164,7 @@ public struct SettingsView: View {
                             )
                     }
 
-                    Slider(value: $viewModel.store.ttsSpeed, in: 0.5...1.0, step: 0.05)
+                    Slider(value: $viewModel.store.ttsSpeed, in: 0.5...1.5, step: 0.05)
                         .tint(.vocabPeach)
                         .padding(.horizontal, 2)
                 }
@@ -280,12 +291,26 @@ public struct SettingsView: View {
         .safeAreaInset(edge: .bottom) {
             Color.clear.frame(height: 115)
         }
-        .sensoryFeedback(.selection, trigger: viewModel.store.dailyGoalCount)
-        .sensoryFeedback(.selection, trigger: viewModel.store.ttsVoiceGender)
-        .sensoryFeedback(.selection, trigger: viewModel.store.appTheme)
-        .sensoryFeedback(.impact(weight: .light), trigger: viewModel.store.isNotificationEnabled)
-        .sensoryFeedback(.impact(weight: .light), trigger: viewModel.store.isHapticsEnabled)
-        .sensoryFeedback(.impact(weight: .light), trigger: viewModel.store.isSoundEffectsEnabled)
+        .sensoryFeedback(.selection, trigger: viewModel.store.dailyGoalCount) { _, _ in viewModel.store.isHapticsEnabled }
+        .sensoryFeedback(.selection, trigger: viewModel.store.ttsVoiceGender) { _, _ in viewModel.store.isHapticsEnabled }
+        .sensoryFeedback(.selection, trigger: viewModel.store.appTheme) { _, _ in viewModel.store.isHapticsEnabled }
+        .sensoryFeedback(.impact(weight: .light), trigger: viewModel.store.isNotificationEnabled) { _, _ in viewModel.store.isHapticsEnabled }
+        .sensoryFeedback(.impact(weight: .light), trigger: viewModel.store.isHapticsEnabled) { _, _ in viewModel.store.isHapticsEnabled }
+        .sensoryFeedback(.impact(weight: .light), trigger: viewModel.store.isSoundEffectsEnabled) { _, _ in viewModel.store.isHapticsEnabled }
+        .alert("Nhập số lượng từ/ngày", isPresented: $showGoalInputAlert) {
+            TextField("Số từ (5 - 100)", text: $goalInputText)
+                #if os(iOS)
+                .keyboardType(.numberPad)
+                #endif
+            Button("Hủy", role: .cancel) {}
+            Button("Lưu") {
+                if let val = Int(goalInputText), val >= 5, val <= 100 {
+                    viewModel.store.dailyGoalCount = val
+                }
+            }
+        } message: {
+            Text("Nhập số lượng từ mục tiêu cần học mỗi ngày từ 5 đến 100 từ.")
+        }
         .alert("Xác nhận Reset Tiến trình", isPresented: $showResetAlert) {
             Button("Hủy", role: .cancel) {}
             Button("Reset", role: .destructive) {

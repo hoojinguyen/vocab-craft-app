@@ -13,7 +13,7 @@ public final class TextToSpeechService: NSObject, @preconcurrency AVSpeechSynthe
         synthesizer.delegate = self
     }
 
-    public func speak(text: String, rate: Float = 0.5, locale: String = "en-US") {
+    public func speak(text: String, rate: Float = 1.0, locale: String = "en-US") {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
 
@@ -22,7 +22,11 @@ public final class TextToSpeechService: NSObject, @preconcurrency AVSpeechSynthe
         }
 
         let utterance = AVSpeechUtterance(string: trimmed)
-        utterance.rate = rate
+        
+        // Scale rate relative to AVSpeechUtteranceDefaultSpeechRate (0.5) so 1.0x = normal speed
+        let scaledRate = AVSpeechUtteranceDefaultSpeechRate * rate
+        utterance.rate = min(max(scaledRate, AVSpeechUtteranceMinimumSpeechRate), AVSpeechUtteranceMaximumSpeechRate)
+
         if let voice = AVSpeechSynthesisVoice(language: locale) {
             utterance.voice = voice
         } else if let fallbackVoice = AVSpeechSynthesisVoice.speechVoices().first(where: { $0.language.hasPrefix("en") }) {

@@ -34,7 +34,7 @@ public final class SettingsViewModel {
     }
 
     public func resetSRSProgress() {
-        // Resets SRS progress to default initial state
+        // Resets SRS progress without touching user notification settings
         store.dailyGoalCount = 15
     }
 }
