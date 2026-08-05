@@ -3,15 +3,17 @@ import SwiftUI
 @testable import VocabCraftApp
 
 final class ColorTokensTests: XCTestCase {
-    func testColorTokensExist() {
+    func testSemanticColorTokensExistAndInstantiate() {
         XCTAssertNotNil(Color.vocabCanvas)
-        XCTAssertNotNil(Color.vocabSurfaceSoft)
+        XCTAssertNotNil(Color.vocabSurfaceCard)
         XCTAssertNotNil(Color.vocabHeroTeal)
+        XCTAssertNotNil(Color.vocabInk)
+        XCTAssertNotNil(Color.vocabMuted)
+        XCTAssertNotNil(Color.vocabHairline)
+        XCTAssertNotNil(Color.vocabCoral)
         XCTAssertNotNil(Color.vocabMint)
         XCTAssertNotNil(Color.vocabPeach)
         XCTAssertNotNil(Color.vocabLavender)
-        XCTAssertNotNil(Color.vocabCoral)
-        XCTAssertNotNil(Color.vocabInk)
     }
 
     func testColorHexInitializer() {
@@ -22,3 +24,4 @@ final class ColorTokensTests: XCTestCase {
         XCTAssertNotNil(greenWithoutHash)
     }
 }
+

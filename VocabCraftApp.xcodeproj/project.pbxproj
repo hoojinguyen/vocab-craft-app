@@ -16,7 +16,7 @@
 		300000072D50000000000001 /* TextToSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000072D50000000000000 /* TextToSpeechService.swift */; };
 		300000082D50000000000001 /* SRSEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000082D50000000000000 /* SRSEngine.swift */; };
 		300000092D50000000000001 /* ReflexDrillView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000092D50000000000000 /* ReflexDrillView.swift */; };
-		300000102D50000000000001 /* ColorTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000102D50000000000001 /* ColorTokens.swift */; };
+		300000102D50000000000001 /* Color+VocabCraft.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000102D50000000000001 /* Color+VocabCraft.swift */; };
 		300000112D50000000000001 /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000112D50000000000001 /* HeaderView.swift */; };
 		300000122D50000000000001 /* MobileSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000122D50000000000001 /* MobileSearchView.swift */; };
 		300000132D50000000000001 /* SRSMemoryHeroCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000132D50000000000001 /* SRSMemoryHeroCard.swift */; };
@@ -96,7 +96,7 @@
 		200000532D50000000000000 /* SpeechServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechServiceTests.swift; sourceTree = "<group>"; };
 		200000542D50000000000000 /* SRSEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SRSEngineTests.swift; sourceTree = "<group>"; };
 		200000552D50000000000000 /* WidgetIntentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetIntentsTests.swift; sourceTree = "<group>"; };
-		200000102D50000000000001 /* ColorTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorTokens.swift; sourceTree = "<group>"; };
+		200000102D50000000000001 /* Color+VocabCraft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Color+VocabCraft.swift; sourceTree = "<group>"; };
 		200000112D50000000000001 /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
 		200000122D50000000000001 /* MobileSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileSearchView.swift; sourceTree = "<group>"; };
 		200000132D50000000000001 /* SRSMemoryHeroCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SRSMemoryHeroCard.swift; sourceTree = "<group>"; };
@@ -175,7 +175,7 @@
 		400000202D50000000000000 /* DesignSystem */ = {
 			isa = PBXGroup;
 			children = (
-				200000102D50000000000001 /* ColorTokens.swift */,
+				200000102D50000000000001 /* Color+VocabCraft.swift */,
 			);
 			path = DesignSystem;
 			sourceTree = "<group>";
@@ -398,7 +398,7 @@
 				300000072D50000000000001 /* TextToSpeechService.swift in Sources */,
 				300000082D50000000000001 /* SRSEngine.swift in Sources */,
 				300000092D50000000000001 /* ReflexDrillView.swift in Sources */,
-				300000102D50000000000001 /* ColorTokens.swift in Sources */,
+				300000102D50000000000001 /* Color+VocabCraft.swift in Sources */,
 				300000112D50000000000001 /* HeaderView.swift in Sources */,
 				300000122D50000000000001 /* MobileSearchView.swift in Sources */,
 				300000132D50000000000001 /* SRSMemoryHeroCard.swift in Sources */,
@@ -552,9 +552,8 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = VocabWidget;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = VocabCraftWidgetExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hoojinguyen.vocabcraft.widget;
@@ -573,9 +572,8 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = VocabWidget;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = VocabCraftWidgetExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hoojinguyen.vocabcraft.widget;
