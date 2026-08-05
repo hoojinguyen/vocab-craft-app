@@ -31,28 +31,29 @@ public struct SubTopicStudySessionView: View {
     public var body: some View {
         VStack(spacing: 20) {
             if !engine.isSessionComplete {
-                // Header (Close, Progress Bar, XP Counter)
-                HStack(spacing: 12) {
+                // ROW 1: Navigation & Stats Header (Close Button, Title, XP Badge)
+                HStack {
                     Button(action: onDismiss) {
                         Image(systemName: "xmark")
                             .font(.system(size: 14, weight: .bold))
                             .foregroundColor(Color.vocabInk)
-                            .frame(width: 36, height: 36)
+                            .frame(width: 38, height: 38)
                             .background(Color.vocabSurfaceCard)
                             .clipShape(Circle())
                             .overlay(
                                 Circle().stroke(Color.vocabHairline, lineWidth: 1)
                             )
+                            .shadow(color: Color.black.opacity(colorScheme == .dark ? 0.2 : 0.04), radius: 6, x: 0, y: 3)
                     }
 
-                    // Segmented Progress Bar (Strictly 10 segments matching initial 10 node words)
-                    HStack(spacing: 4) {
-                        ForEach(0..<engine.totalQuestionsCount, id: \.self) { idx in
-                            RoundedRectangle(cornerRadius: 3)
-                                .fill(segmentColor(for: idx))
-                                .frame(height: 6)
-                        }
-                    }
+                    Spacer()
+
+                    Text(node.title)
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(Color.vocabInk)
+                        .lineLimit(1)
+
+                    Spacer()
 
                     // Dynamic XP Pill Badge
                     HStack(spacing: 4) {
@@ -63,15 +64,30 @@ public struct SubTopicStudySessionView: View {
                             .font(.system(size: 12, weight: .bold))
                             .foregroundColor(Color.vocabInk)
                     }
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 7)
                     .background(Color.vocabSurfaceCard)
                     .cornerRadius(20)
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
                             .stroke(Color.vocabHairline, lineWidth: 1)
                     )
+                    .shadow(color: Color.black.opacity(colorScheme == .dark ? 0.2 : 0.04), radius: 6, x: 0, y: 3)
                 }
+
+                // ROW 2: Dedicated Full-Width Segmented Progress Bar
+                HStack(spacing: 5) {
+                    ForEach(0..<engine.totalQuestionsCount, id: \.self) { idx in
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(segmentColor(for: idx))
+                            .frame(height: 8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 4)
+                                    .stroke(segmentBorderColor(for: idx), lineWidth: idx == engine.currentIndex ? 1.5 : 0)
+                            )
+                    }
+                }
+                .padding(.top, 4)
 
                 // 3D Flip Card Widget
                 if let word = engine.currentWord {
@@ -84,7 +100,6 @@ public struct SubTopicStudySessionView: View {
                         }
                     )
                 }
-
 
                 // Thumb-Zone Quiz Options & Attempt Status Header
                 VStack(spacing: 12) {
@@ -166,7 +181,10 @@ public struct SubTopicStudySessionView: View {
                 )
             }
         }
-        .padding(20)
+        .padding(.horizontal, 20)
+        .padding(.top, 12)
+        .padding(.bottom, 20)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Color.vocabCanvas.ignoresSafeArea())
         .onAppear {
             if let word = engine.currentWord {
@@ -208,10 +226,23 @@ public struct SubTopicStudySessionView: View {
     private func segmentColor(for index: Int) -> Color {
         if let passed = engine.questionPassedResults[index] {
             return passed ? Color.vocabMint : Color.vocabCoral
+        } else if index == engine.currentIndex {
+            return Color.vocabPeach.opacity(0.8)
         } else {
-            return Color.gray.opacity(0.18)
+            return Color.vocabSurfaceCard
         }
     }
+
+    private func segmentBorderColor(for index: Int) -> Color {
+        if index == engine.currentIndex {
+            return Color.vocabPeach
+        } else if engine.questionPassedResults[index] == nil {
+            return Color.vocabHairline
+        } else {
+            return Color.clear
+        }
+    }
+
 
     private func formattedXPText(_ xp: Int) -> String {
         if xp > 0 {
