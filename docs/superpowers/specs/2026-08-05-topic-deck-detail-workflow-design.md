@@ -40,31 +40,46 @@ TopicDeckDetailView
 
 ## 3. UI/UX Architecture & Component Breakdown
 
-### 3.1 Top Header Banner
-- **Title & Metadata**: Displays Deck Title, Icon, Word Count, and Difficulty Level Badge (e.g., `B2-C1`).
+### 3.1 Design System & Theme Consistency
+- **SF Symbols Compliance**: All icons MUST use Apple's standard SF Symbols (`Image(systemName:)`) for optimal native iOS aesthetics and weight consistency:
+  - Completion: `checkmark.circle.fill`, `checkmark.seal.fill`
+  - Active / Study: `play.fill`, `flame.fill`, `sparkles`
+  - Locked Node: `lock.fill`
+  - Category SF Symbols: `leaf.fill` (Môi trường), `cpu` / `laptopcomputer` (Công nghệ), `graduationcap.fill` (Giáo dục), `briefcase.fill` (Thương mại), `bubble.left.and.bubble.right.fill` (Giao tiếp).
+  - Actions / Vault: `bookmark.fill`, `plus.circle.fill`, `chevron.right`.
+- **Dual Theme Support (Light & Dark Mode)**:
+  - Strict utilization of theme tokens from `Color+VocabTheme.swift` and `DESIGN.md`:
+    - Canvas & Surfaces: `Color.vocabCanvas`, `Color.vocabSurfaceCard`, `Color.vocabSurfaceSoft`.
+    - Text Ink: `Color.vocabInk`, `Color.vocabBody`, `Color.vocabMuted`.
+    - Accents: `Color.vocabMint`, `Color.vocabPeach`, `Color.vocabLavender`, `Color.vocabCoral`.
+    - Hairlines: `Color.vocabHairline`.
+  - All cards, steppers, connecting lines, and bottom sheets dynamically adjust contrast and borders seamlessly between `@Environment(\.colorScheme) == .light` and `.dark`.
+
+### 3.2 Top Header Banner
+- **Title & Metadata**: Displays Deck Title, SF Symbol Icon, Word Count, and Difficulty Level Badge (e.g., `B2-C1`).
 - **Progress Overview**:
   - Percentage completed bar (e.g., `65%`).
   - Stat line: `325 / 500 từ đã thuộc • Tự động đồng bộ Kho cá nhân`.
 - **Primary Hero Action Button**:
-  - Gradient CTA button: `"⚡ BẮT ĐẦU HỌC CHẶNG 3 (CÔNG NGHỆ)"`.
+  - Prominent CTA button: `"⚡ BẮT ĐẦU HỌC CHẶNG 3 (CÔNG NGHỆ)"` using SF Symbol `play.fill`.
   - Single tap directly launches the drill/study session for the active unlocked node.
 
-### 3.2 Game-like Timeline Stepper (Roadmap Path)
+### 3.3 Game-like Timeline Stepper (Roadmap Path)
 - **Visual Design**:
-  - Vertical connecting line linking sequential nodes.
+  - Vertical connecting line (`Color.vocabHairline` in light mode / subtle stroke in dark mode) linking sequential nodes.
   - Distinct node states:
-    - **`.completed`**: Green/Mint circular icon (`✓`), 100% completion label.
+    - **`.completed`**: Green/Mint circular icon with `checkmark.fill`, 100% completion label.
     - **`.active`**: Gold/Amber pulsing circular icon with node number, active glow, completion ratio (e.g., `12/25 từ • 48%`).
-    - **`.locked`**: Dark slate circular icon with lock emblem (`🔒`), opacity 0.6.
+    - **`.locked`**: Dark slate circular icon with lock emblem (`lock.fill`), opacity 0.6.
 - **Interactivity**:
   - Tapping any node opens the `SubTopicPreviewSheet`.
 
-### 3.3 SubTopic Preview Bottom Sheet (`SubTopicPreviewSheet`)
-- **Header**: Sub-topic title, icon, total word count, progress.
+### 3.4 SubTopic Preview Bottom Sheet (`SubTopicPreviewSheet`)
+- **Header**: Sub-topic title, SF Symbol icon, total word count, progress.
 - **Word List Accordion / Rows**:
   - English word, phonetic pronunciation, Vietnamese meaning.
-  - Status indicators (`✓ Đã thuộc`, `⚡ Đang học`, `○ Chưa học`).
-  - Bookmark button (`🔖`) to manually toggle inclusion in Personal Vocab Vault.
+  - Status indicators (`✓ Đã thuộc` via `checkmark.circle.fill`, `⚡ Đang học` via `flame.fill`, `○ Chưa học`).
+  - Bookmark button (`bookmark.fill`) to manually toggle inclusion in Personal Vocab Vault.
 - **Action**: `"Luyện tập riêng chặng này"` button to start a targeted drill session.
 
 ---
@@ -83,7 +98,7 @@ public enum NodeState: String, Codable, Sendable {
 public struct SubTopicNode: Identifiable, Codable, Sendable {
     public let id: String
     public let title: String
-    public let iconName: String
+    public let iconName: String // SF Symbol name
     public let totalWords: Int
     public let learnedWords: Int
     public let state: NodeState
@@ -122,6 +137,9 @@ public struct TopicWord: Identifiable, Codable, Sendable {
 
 1. Tapping any Topic Deck card in `TopicDecksGridView` navigates cleanly to `TopicDeckDetailView`.
 2. `TopicDeckDetailView` displays the Hero CTA and Timeline Stepper with correct node states (`.completed`, `.active`, `.locked`).
-3. Tapping the Hero CTA launches a study session for the active node.
-4. Tapping a node presents `SubTopicPreviewSheet` with word details and status.
-5. Learning words in a Topic Deck updates progress and auto-syncs to the user's Personal Vocab Vault.
+3. Icons strictly use Apple SF Symbols (`systemName`) across all components.
+4. UI renders cleanly and consistently across both Light Mode and Dark Mode using `Color+VocabTheme` design tokens.
+5. Tapping the Hero CTA launches a study session for the active node.
+6. Tapping a node presents `SubTopicPreviewSheet` with word details and status.
+7. Learning words in a Topic Deck updates progress and auto-syncs to the user's Personal Vocab Vault.
+
