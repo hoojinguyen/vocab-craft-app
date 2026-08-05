@@ -15,43 +15,29 @@ public struct HeaderView: View {
 
     public var body: some View {
         HStack(alignment: .center, spacing: 12) {
-            // Avatar inside Daily Goal Conic Ring
-            ZStack {
-                Circle()
-                    .stroke(Color.vocabHairline, lineWidth: 3)
-                Circle()
-                    .trim(from: 0, to: min(max(dailyGoalProgress, 0), 1.0))
-                    .stroke(Color.vocabCoral, style: StrokeStyle(lineWidth: 3, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
-                
-                Text(userName.prefix(2).uppercased())
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(Color.vocabInk)
-            }
-            .frame(width: 44, height: 44)
-
+            // Greeting & Goal Subtitle
             VStack(alignment: .leading, spacing: 2) {
                 Text("Chào \(userName) 👋")
-                    .font(.system(size: 16, weight: .bold))
+                    .font(.system(size: 20, weight: .bold))
                     .foregroundColor(Color.vocabInk)
                 
                 Text("Mục tiêu hôm nay: \(Int(dailyGoalProgress * 100))%")
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(Color.vocabMuted)
             }
 
             Spacer()
 
-            // Streak Badge Pill Capsule
+            // Minimalist Streak Badge (Icon + Number)
             HStack(spacing: 4) {
                 Image(systemName: "flame.fill")
-                    .font(.system(size: 12, weight: .bold))
+                    .font(.system(size: 13, weight: .bold))
                     .foregroundColor(.vocabCoral)
-                Text("\(streakDays) ngày liên tiếp")
-                    .font(.system(size: 11, weight: .bold))
+                Text("\(streakDays)")
+                    .font(.system(size: 13, weight: .bold))
                     .foregroundColor(.vocabCoral)
             }
-            .padding(.horizontal, 10)
+            .padding(.horizontal, 12)
             .padding(.vertical, 6)
             .background(Color.vocabCoral.opacity(0.12))
             .clipShape(Capsule())
@@ -79,4 +65,5 @@ public struct HeaderView: View {
         .padding(.horizontal)
     }
 }
+
 
