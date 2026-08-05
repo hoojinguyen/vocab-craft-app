@@ -69,11 +69,25 @@ public struct HomepageView: View {
 
                         ActionCardsGrid(
                             dueCardsCount: viewModel.state.dueCardsCount,
-                            onReflexTap: {},
-                            onQueueTap: {}
+                            onReflexTap: {
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                                    viewModel.selectTab(.reflex)
+                                }
+                            },
+                            onQueueTap: {
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                                    viewModel.selectTab(.vocabulary)
+                                }
+                            }
                         )
 
-                        CEFRDistributionCard()
+                        CEFRDistributionCard(
+                            onDetailTap: {
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                                    viewModel.selectTab(.vocabulary)
+                                }
+                            }
+                        )
 
                         Spacer(minLength: 100)
                     }
@@ -83,7 +97,9 @@ public struct HomepageView: View {
                 VocabularyView()
             case .search:
                 SearchNewWordView()
-            case .reflex, .settings:
+            case .reflex:
+                ReflexDrillView()
+            case .settings:
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 16) {
                         HeaderView(
