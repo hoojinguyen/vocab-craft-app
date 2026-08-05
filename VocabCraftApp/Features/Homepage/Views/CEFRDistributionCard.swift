@@ -40,7 +40,8 @@ public struct CEFRDistributionCard: View {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("PHÂN BỔ TRÌNH ĐỘ CEFR")
-                        .font(.system(size: 10, weight: .bold))
+                        .font(.caption.smallCaps())
+                        .fontWeight(.bold)
                         .foregroundColor(Color.vocabMuted)
                         .tracking(0.5)
 
@@ -59,7 +60,7 @@ public struct CEFRDistributionCard: View {
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 12, weight: .semibold))
                         }
-                        .foregroundColor(Color.vocabCoral)
+                        .foregroundColor(Color.vocabInk)
                         .frame(minWidth: 44, minHeight: 44, alignment: .trailing)
                         .contentShape(Rectangle())
                     }
@@ -88,7 +89,7 @@ public struct CEFRDistributionCard: View {
                         .frame(width: max(width * c1c2Ratio - 2, 4))
                 }
             }
-            .frame(height: 10)
+            .frame(height: 8)
             .clipShape(Capsule())
 
             // Legend / breakdown
@@ -124,7 +125,7 @@ public struct CEFRDistributionCard: View {
             RoundedRectangle(cornerRadius: 20)
                 .stroke(Color.vocabHairline, lineWidth: 1.5)
         )
-        .shadow(color: Color.vocabHeroTeal.opacity(0.04), radius: 6, x: 0, y: 3)
+        .shadow(color: Color.black.opacity(0.03), radius: 6, x: 0, y: 3)
         .padding(.horizontal)
     }
 }
@@ -135,18 +136,20 @@ private struct CEFRLegendItem: View {
     let color: Color
 
     var body: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 4) {
             Circle()
                 .fill(color)
-                .frame(width: 8, height: 8)
+                .frame(width: 6, height: 6)
 
             Text(title)
                 .font(.system(size: 11, weight: .medium))
                 .foregroundColor(Color.vocabMuted)
 
             Text("\(count) từ")
-                .font(.system(size: 12, weight: .bold))
+                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .monospacedDigit()
                 .foregroundColor(Color.vocabInk)
         }
+        .lineLimit(1)
     }
 }

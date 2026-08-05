@@ -25,21 +25,21 @@ public struct ReflexFlipCardView: View {
             // FRONT FACE (MINIMAL: Word -> IPA -> Circle Audio Icon)
             VStack(spacing: 8) {
                 Text(word.english)
-                    .font(.system(size: 32, weight: .bold))
+                    .font(.system(size: 32, weight: .bold, design: .serif))
                     .foregroundColor(Color.vocabInk)
 
                 Text(word.phonetic)
-                    .font(.system(size: 15, weight: .medium))
+                    .font(.system(size: 15, weight: .medium, design: .monospaced))
                     .foregroundColor(Color.vocabMuted)
 
                 Button(action: onAudioTap) {
                     Image(systemName: "speaker.wave.2.fill")
                         .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(Color.vocabMint)
+                        .foregroundColor(Color.vocabInk)
                         .frame(width: 42, height: 42)
-                        .background(Color.vocabMint.opacity(0.15))
+                        .background(Color.vocabInk.opacity(0.08))
                         .clipShape(Circle())
-                        .overlay(Circle().stroke(Color.vocabMint.opacity(0.3), lineWidth: 1))
+                        .overlay(Circle().stroke(Color.vocabHairline, lineWidth: 1))
                 }
                 .padding(.top, 6)
             }
@@ -49,19 +49,19 @@ public struct ReflexFlipCardView: View {
             .cornerRadius(20)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.vocabHairline.opacity(0.6), lineWidth: 1)
+                    .stroke(Color.vocabHairline, lineWidth: 1.5)
             )
-            .shadow(color: Color.black.opacity(colorScheme == .dark ? 0.25 : 0.06), radius: 10, x: 0, y: 5)
+            .shadow(color: Color.black.opacity(colorScheme == .dark ? 0.25 : 0.04), radius: 8, x: 0, y: 4)
             .opacity(isFlipped ? 0 : 1)
 
             // BACK FACE (DETAILED: Word -> IPA -> Audio -> [partOfSpeech] Meaning -> Example)
             VStack(spacing: 10) {
                 Text(word.english)
-                    .font(.system(size: 24, weight: .bold))
+                    .font(.system(size: 24, weight: .bold, design: .serif))
                     .foregroundColor(Color.vocabInk)
 
                 Text(word.phonetic)
-                    .font(.system(size: 13, weight: .medium))
+                    .font(.system(size: 13, weight: .medium, design: .monospaced))
                     .foregroundColor(Color.vocabMuted)
 
                 Button(action: onAudioTap) {
@@ -69,22 +69,23 @@ public struct ReflexFlipCardView: View {
                         .font(.system(size: 13, weight: .bold))
                         .foregroundColor(isSuccess ? Color.vocabMint : Color.vocabCoral)
                         .frame(width: 32, height: 32)
-                        .background((isSuccess ? Color.vocabMint : Color.vocabCoral).opacity(0.15))
+                        .background((isSuccess ? Color.vocabMint : Color.vocabCoral).opacity(0.12))
                         .clipShape(Circle())
                 }
 
-                Text("[\(word.partOfSpeech ?? "noun")] \(word.vietnamese)")
+                Text("[\(word.partOfSpeech)] \(word.vietnamese)")
                     .font(.system(size: 16, weight: .bold))
                     .foregroundColor(isSuccess ? Color.vocabMint : Color.vocabCoral)
                     .padding(.top, 2)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Ví dụ:")
-                        .font(.system(size: 11, weight: .bold))
+                        .font(.caption.smallCaps())
+                        .fontWeight(.bold)
                         .foregroundColor(Color.vocabMuted)
 
                     formattedExampleText
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.system(size: 13, weight: .medium, design: .serif))
                         .italic()
                         .foregroundColor(Color.vocabInk)
                 }
@@ -97,9 +98,9 @@ public struct ReflexFlipCardView: View {
             .cornerRadius(20)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
-                    .stroke((isSuccess ? Color.vocabMint : Color.vocabCoral).opacity(0.6), lineWidth: 1)
+                    .stroke((isSuccess ? Color.vocabMint : Color.vocabCoral).opacity(0.6), lineWidth: 1.5)
             )
-            .shadow(color: Color.black.opacity(colorScheme == .dark ? 0.25 : 0.06), radius: 10, x: 0, y: 5)
+            .shadow(color: Color.black.opacity(colorScheme == .dark ? 0.25 : 0.04), radius: 8, x: 0, y: 4)
             .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
             .opacity(isFlipped ? 1 : 0)
         }
@@ -108,7 +109,7 @@ public struct ReflexFlipCardView: View {
     }
 
     private var formattedExampleText: Text {
-        let sentence = word.example ?? "The \(word.english) processes data in real time."
+        let sentence = word.example
         let target = word.english
         if let range = sentence.range(of: target, options: .caseInsensitive) {
             let prefix = String(sentence[..<range.lowerBound])

@@ -83,7 +83,7 @@ public struct SubTopicStudySessionView: View {
                             .frame(height: 8)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 4)
-                                    .stroke(segmentBorderColor(for: idx), lineWidth: idx == engine.currentIndex ? 1.5 : 0)
+                                    .stroke(segmentBorderColor(for: idx), lineWidth: segmentLineWidth(for: idx))
                             )
                     }
                 }
@@ -223,23 +223,39 @@ public struct SubTopicStudySessionView: View {
         engine.advanceToNextWord()
     }
 
-    private func segmentColor(for index: Int) -> Color {
+    func segmentColor(for index: Int) -> Color {
         if let passed = engine.questionPassedResults[index] {
             return passed ? Color.vocabMint : Color.vocabCoral
         } else if index == engine.currentIndex {
             return Color.vocabPeach.opacity(0.25)
         } else {
-            return Color.vocabSurfaceCard
+            return Color.dynamic(
+                light: Color(red: 0.96, green: 0.94, blue: 0.89),
+                dark: Color.white.opacity(0.08)
+            )
         }
     }
 
-    private func segmentBorderColor(for index: Int) -> Color {
+    func segmentBorderColor(for index: Int) -> Color {
         if let passed = engine.questionPassedResults[index] {
             return passed ? Color.vocabMint : Color.vocabCoral
         } else if index == engine.currentIndex {
             return Color.vocabPeach
         } else {
-            return Color.vocabHairline
+            return Color.dynamic(
+                light: Color(red: 0.45, green: 0.45, blue: 0.45),
+                dark: Color.white.opacity(0.20)
+            )
+        }
+    }
+
+    func segmentLineWidth(for index: Int) -> CGFloat {
+        if engine.questionPassedResults[index] != nil {
+            return 0
+        } else if index == engine.currentIndex {
+            return 1.5
+        } else {
+            return 1.0
         }
     }
 

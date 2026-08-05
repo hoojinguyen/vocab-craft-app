@@ -24,21 +24,28 @@ public struct ActionCardsGrid: View {
         self.onQueueTap = onQueueTap
     }
 
+    @State private var reflexTrigger = false
+    @State private var queueTrigger = false
+
     public var body: some View {
         HStack(spacing: 12) {
             // Quick Reflex Drill Card
-            Button(action: onReflexTap) {
+            Button(action: {
+                reflexTrigger.toggle()
+                onReflexTap()
+            }) {
                 VStack(alignment: .leading, spacing: 14) {
                     HStack {
                         HStack(spacing: 4) {
                             Image(systemName: "bolt.fill")
                                 .font(.system(size: 10, weight: .bold))
                             Text("THỬ THÁCH")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.caption.smallCaps())
+                                .fontWeight(.bold)
                         }
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(Color.vocabPeach.opacity(0.20))
+                        .background(Color.vocabInk.opacity(0.06))
                         .foregroundColor(Color.vocabInk)
                         .cornerRadius(10)
 
@@ -66,23 +73,29 @@ public struct ActionCardsGrid: View {
                     RoundedRectangle(cornerRadius: 20)
                         .stroke(Color.vocabHairline, lineWidth: 1.5)
                 )
-                .shadow(color: Color.vocabHeroTeal.opacity(0.04), radius: 6, x: 0, y: 3)
+                .shadow(color: Color.black.opacity(0.03), radius: 6, x: 0, y: 3)
             }
             .buttonStyle(BentoCardButtonStyle())
+            .sensoryFeedback(.impact(weight: .light), trigger: reflexTrigger)
 
             // SRS Queue Card
-            Button(action: onQueueTap) {
+            Button(action: {
+                queueTrigger.toggle()
+                onQueueTap()
+            }) {
                 VStack(alignment: .leading, spacing: 14) {
                     HStack {
                         HStack(spacing: 4) {
                             Image(systemName: "rectangle.stack.fill")
                                 .font(.system(size: 10, weight: .bold))
                             Text("\(dueCardsCount) THẺ BÀI")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(.caption.smallCaps())
+                                .fontWeight(.bold)
+                                .monospacedDigit()
                         }
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(Color.vocabLavender.opacity(0.20))
+                        .background(Color.vocabInk.opacity(0.06))
                         .foregroundColor(Color.vocabInk)
                         .cornerRadius(10)
 
@@ -110,9 +123,10 @@ public struct ActionCardsGrid: View {
                     RoundedRectangle(cornerRadius: 20)
                         .stroke(Color.vocabHairline, lineWidth: 1.5)
                 )
-                .shadow(color: Color.vocabHeroTeal.opacity(0.04), radius: 6, x: 0, y: 3)
+                .shadow(color: Color.black.opacity(0.03), radius: 6, x: 0, y: 3)
             }
             .buttonStyle(BentoCardButtonStyle())
+            .sensoryFeedback(.impact(weight: .light), trigger: queueTrigger)
         }
         .padding(.horizontal)
     }
