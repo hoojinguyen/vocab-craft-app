@@ -5,16 +5,8 @@ public struct SubTopicStudySessionView: View {
     public let onDismiss: () -> Void
     public let onComplete: (Int) -> Void
 
-    @State private var engine: SubTopicSessionEngine
-    @State private var isFlipped: Bool = false
-    @State private var isSuccess: Bool = true
-    @State private var selectedAnswer: String? = nil
-    @State private var options: [String] = []
-    @State private var lastXPDelta: Int = 10
-    @State private var attemptedWrongAnswers: Set<String> = []
-
+    @State private var viewModel: StudySessionViewModel
     @Environment(\.colorScheme) private var colorScheme
-
 
     public init(
         node: SubTopicNode,
@@ -25,12 +17,14 @@ public struct SubTopicStudySessionView: View {
         self.onDismiss = onDismiss
         self.onComplete = onComplete
         let wordsToUse = node.words.isEmpty ? SubTopicStudySessionView.sampleWords : node.words
-        self._engine = State(initialValue: SubTopicSessionEngine(words: wordsToUse))
+        self._viewModel = State(wrappedValue: StudySessionViewModel(words: wordsToUse))
     }
 
     public var body: some View {
+        @Bindable var viewModel = viewModel
+
         VStack(spacing: 20) {
-            if !engine.isSessionComplete {
+            if !viewModel.engine.isSessionComplete {
                 // ROW 1: Navigation & Stats Header (Close Button, Title, XP Badge)
                 HStack {
                     Button(action: onDismiss) {
@@ -60,7 +54,7 @@ public struct SubTopicStudySessionView: View {
                         Image(systemName: "bolt.fill")
                             .font(.system(size: 11))
                             .foregroundColor(Color.vocabMint)
-                        Text(formattedXPText(engine.xpEarned))
+                        Text(formattedXPText(viewModel.engine.xpEarned))
                             .font(.system(size: 12, weight: .bold))
                             .foregroundColor(Color.vocabInk)
                     }
@@ -77,7 +71,7 @@ public struct SubTopicStudySessionView: View {
 
                 // ROW 2: Dedicated Full-Width Segmented Progress Bar
                 HStack(spacing: 5) {
-                    ForEach(0..<engine.totalQuestionsCount, id: \.self) { idx in
+                    ForEach(0..<viewModel.engine.totalQuestionsCount, id: \.self) { idx in
                         RoundedRectangle(cornerRadius: 4)
                             .fill(segmentColor(for: idx))
                             .frame(height: 8)
@@ -90,13 +84,13 @@ public struct SubTopicStudySessionView: View {
                 .padding(.top, 4)
 
                 // 3D Flip Card Widget
-                if let word = engine.currentWord {
+                if let word = viewModel.engine.currentWord {
                     ReflexFlipCardView(
                         word: word,
-                        isFlipped: isFlipped,
-                        isSuccess: isSuccess,
+                        isFlipped: viewModel.isFlipped,
+                        isSuccess: viewModel.isSuccess,
                         onAudioTap: {
-                            // TTS audio
+                            viewModel.speakCurrentWord()
                         }
                     )
                 }
@@ -108,36 +102,36 @@ public struct SubTopicStudySessionView: View {
                             .font(.system(size: 14, weight: .bold))
                             .foregroundColor(Color.vocabInk)
                         Spacer()
-                        Text("Lần \(2 - engine.attemptsLeft)/2")
+                        Text("Lần \(2 - viewModel.engine.attemptsLeft)/2")
                             .font(.system(size: 12, weight: .semibold))
                             .foregroundColor(Color.vocabMuted)
                     }
 
                     VStack(spacing: 10) {
-                        ForEach(options, id: \.self) { opt in
+                        ForEach(viewModel.options, id: \.self) { opt in
                             QuizOptionRowView(
                                 option: opt,
-                                isSelected: selectedAnswer == opt,
-                                isWrongAttempted: attemptedWrongAnswers.contains(opt),
-                                isSuccess: isSuccess,
-                                action: { handleAnswer(opt) },
-                                isDisabled: isFlipped || attemptedWrongAnswers.contains(opt)
+                                isSelected: viewModel.selectedAnswer == opt,
+                                isWrongAttempted: viewModel.attemptedWrongAnswers.contains(opt),
+                                isSuccess: viewModel.isSuccess,
+                                action: { viewModel.submitAnswer(opt) },
+                                isDisabled: viewModel.isFlipped || viewModel.attemptedWrongAnswers.contains(opt)
                             )
                         }
                     }
 
                     // Fixed Height Action Slot / Feedback Toast
                     VStack {
-                        if isFlipped {
+                        if viewModel.isFlipped {
                             VStack(alignment: .leading, spacing: 8) {
                                 HStack {
-                                    Text(isSuccess ? "✓ Chính xác! (+\(lastXPDelta) XP)" : "✕ Chưa chính xác (-5 XP)")
+                                    Text(viewModel.isSuccess ? "✓ Chính xác! (+\(viewModel.lastXPDelta) XP)" : "✕ Chưa chính xác (-5 XP)")
                                         .font(.system(size: 15, weight: .heavy))
-                                        .foregroundColor(isSuccess ? Color.vocabMint : Color.vocabCoral)
+                                        .foregroundColor(viewModel.isSuccess ? Color.vocabMint : Color.vocabCoral)
                                     Spacer()
                                 }
 
-                                Button(action: nextWord) {
+                                Button(action: { viewModel.advanceToNext() }) {
                                     HStack {
                                         Text("Tiếp tục")
                                             .font(.system(size: 14, weight: .bold))
@@ -152,11 +146,11 @@ public struct SubTopicStudySessionView: View {
                                 .buttonStyle(PressedScaleButtonStyle())
                             }
                             .padding(14)
-                            .background((isSuccess ? Color.vocabMint : Color.vocabCoral).opacity(0.1))
+                            .background((viewModel.isSuccess ? Color.vocabMint : Color.vocabCoral).opacity(0.1))
                             .cornerRadius(14)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 14)
-                                    .stroke((isSuccess ? Color.vocabMint : Color.vocabCoral).opacity(0.5), lineWidth: 1)
+                                    .stroke((viewModel.isSuccess ? Color.vocabMint : Color.vocabCoral).opacity(0.5), lineWidth: 1)
                             )
                             .transition(.opacity)
                         }
@@ -166,17 +160,15 @@ public struct SubTopicStudySessionView: View {
             } else {
                 // Session finished -> SubTopicSessionSummaryView
                 SubTopicSessionSummaryView(
-                    xpEarned: engine.xpEarned,
-                    totalQuestions: engine.totalQuestionsCount,
-                    correctCount: engine.passedCount,
+                    xpEarned: viewModel.engine.xpEarned,
+                    totalQuestions: viewModel.engine.totalQuestionsCount,
+                    correctCount: viewModel.engine.passedCount,
                     onRestart: {
-                        self.engine = SubTopicSessionEngine(words: node.words.isEmpty ? SubTopicStudySessionView.sampleWords : node.words)
-                        self.attemptedWrongAnswers.removeAll()
-                        self.selectedAnswer = nil
-                        self.isFlipped = false
+                        let wordsToUse = node.words.isEmpty ? SubTopicStudySessionView.sampleWords : node.words
+                        self.viewModel = StudySessionViewModel(words: wordsToUse)
                     },
                     onFinish: {
-                        onComplete(engine.xpEarned)
+                        onComplete(viewModel.engine.xpEarned)
                     }
                 )
             }
@@ -186,47 +178,12 @@ public struct SubTopicStudySessionView: View {
         .padding(.bottom, 20)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Color.vocabCanvas.ignoresSafeArea())
-        .onAppear {
-            if let word = engine.currentWord {
-                options = engine.generateDistractors(for: word)
-            }
-        }
-        .onChange(of: engine.currentIndex) { _, _ in
-            if let word = engine.currentWord {
-                options = engine.generateDistractors(for: word)
-            }
-        }
-    }
-
-    private func handleAnswer(_ opt: String) {
-        let result = engine.submitAnswer(selectedVietnamese: opt)
-
-        isSuccess = result.isCorrect
-        lastXPDelta = result.xpDelta
-
-        if result.isCorrect {
-            selectedAnswer = opt
-            isFlipped = true
-        } else {
-            attemptedWrongAnswers.insert(opt)
-            if result.attemptsRemaining <= 0 {
-                selectedAnswer = opt
-                isFlipped = true
-            }
-        }
-    }
-
-    private func nextWord() {
-        selectedAnswer = nil
-        attemptedWrongAnswers.removeAll()
-        isFlipped = false
-        engine.advanceToNextWord()
     }
 
     func segmentColor(for index: Int) -> Color {
-        if let passed = engine.questionPassedResults[index] {
+        if let passed = viewModel.engine.questionPassedResults[index] {
             return passed ? Color.vocabMint : Color.vocabCoral
-        } else if index == engine.currentIndex {
+        } else if index == viewModel.engine.currentIndex {
             return Color.vocabPeach.opacity(0.25)
         } else {
             return Color.dynamic(
@@ -237,9 +194,9 @@ public struct SubTopicStudySessionView: View {
     }
 
     func segmentBorderColor(for index: Int) -> Color {
-        if let passed = engine.questionPassedResults[index] {
+        if let passed = viewModel.engine.questionPassedResults[index] {
             return passed ? Color.vocabMint : Color.vocabCoral
-        } else if index == engine.currentIndex {
+        } else if index == viewModel.engine.currentIndex {
             return Color.vocabPeach
         } else {
             return Color.dynamic(
@@ -250,16 +207,14 @@ public struct SubTopicStudySessionView: View {
     }
 
     func segmentLineWidth(for index: Int) -> CGFloat {
-        if engine.questionPassedResults[index] != nil {
+        if viewModel.engine.questionPassedResults[index] != nil {
             return 0
-        } else if index == engine.currentIndex {
+        } else if index == viewModel.engine.currentIndex {
             return 1.5
         } else {
             return 1.0
         }
     }
-
-
 
     private func formattedXPText(_ xp: Int) -> String {
         if xp > 0 {

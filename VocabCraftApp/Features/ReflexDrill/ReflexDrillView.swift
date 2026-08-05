@@ -1,27 +1,27 @@
 import SwiftUI
 
 public struct ReflexDrillView: View {
-    @State private var drill: ReflexDrillRecord?
-    @State private var startTime: Date?
-    @State private var elapsedTimeMs: Int = 0
-    @State private var feedbackText: String = ""
-    @State private var currentMastery: Int = 0
-    @State private var easeFactor: Double = 2.5
-    @State private var srsResult: SRSResult?
-    @State private var isEvaluated: Bool = false
-    @State private var cefrLevel: String = "B1"
-    @State private var triggerSparkle: Bool = false
+    @State private var viewModel: ReflexDrillViewModel
 
-    private let tts = TextToSpeechService()
-    private let stt = SpeechRecognitionService()
-    private let datasetEngine: DatasetEngine?
+    @MainActor
+    public init(viewModel: ReflexDrillViewModel) {
+        self._viewModel = State(wrappedValue: viewModel)
+    }
 
+    @MainActor
     public init(datasetEngine: DatasetEngine? = nil, cefrLevel: String = "B1") {
-        self.datasetEngine = datasetEngine
-        self._cefrLevel = State(initialValue: cefrLevel)
+        let repo = VocabularyRepositoryImpl(datasetEngine: datasetEngine)
+        let fetchUseCase = FetchVocabularyUseCase(repository: repo)
+        let vm = ReflexDrillViewModel(
+            fetchVocabularyUseCase: fetchUseCase,
+            cefrLevel: cefrLevel
+        )
+        self._viewModel = State(wrappedValue: vm)
     }
 
     public var body: some View {
+        @Bindable var viewModel = viewModel
+
         ZStack {
             Color.vocabCanvas
                 .ignoresSafeArea()
@@ -35,7 +35,7 @@ public struct ReflexDrillView: View {
                                 .font(.caption)
                                 .fontWeight(.semibold)
                                 .foregroundColor(.vocabMuted)
-                            Text("Reflex Drill (\(cefrLevel))")
+                            Text("Reflex Drill (\(viewModel.state.cefrLevel))")
                                 .font(.title2)
                                 .fontWeight(.bold)
                                 .foregroundColor(.vocabInk)
@@ -57,7 +57,7 @@ public struct ReflexDrillView: View {
                     }
                     .padding(.horizontal)
 
-                    if let drill = drill {
+                    if let drill = viewModel.state.drill {
                         // Prompt Card (Neumorphic Bento Surface Card)
                         VStack(spacing: 16) {
                             Text(drill.promptText)
@@ -76,11 +76,11 @@ public struct ReflexDrillView: View {
 
                             // Listen Audio TTS Button
                             Button(action: {
-                                tts.speak(text: drill.correctAnswer)
+                                viewModel.speakCorrectAnswer()
                             }) {
                                 HStack(spacing: 8) {
-                                    Image(systemName: tts.isSpeaking ? "speaker.wave.3.fill" : "speaker.wave.2.fill")
-                                    Text(tts.isSpeaking ? "Đang phát audio..." : "Nghe phát âm")
+                                    Image(systemName: viewModel.ttsService.isSpeaking ? "speaker.wave.3.fill" : "speaker.wave.2.fill")
+                                    Text(viewModel.ttsService.isSpeaking ? "Đang phát audio..." : "Nghe phát âm")
                                         .fontWeight(.medium)
                                 }
                                 .font(.subheadline)
@@ -106,10 +106,10 @@ public struct ReflexDrillView: View {
 
                         // Live Recognized Text Box
                         VStack(spacing: 8) {
-                            Text(stt.recognizedText.isEmpty ? (stt.isRecording ? "Đang lắng nghe..." : "Nhấn micro và nói đáp án...") : stt.recognizedText)
+                            Text(viewModel.sttService.recognizedText.isEmpty ? (viewModel.sttService.isListening ? "Đang lắng nghe..." : "Nhấn micro và nói đáp án...") : viewModel.sttService.recognizedText)
                                 .font(.title3)
-                                .fontWeight(stt.recognizedText.isEmpty ? .regular : .semibold)
-                                .foregroundColor(stt.recognizedText.isEmpty ? .vocabMuted : .vocabInk)
+                                .fontWeight(viewModel.sttService.recognizedText.isEmpty ? .regular : .semibold)
+                                .foregroundColor(viewModel.sttService.recognizedText.isEmpty ? .vocabMuted : .vocabInk)
                                 .multilineTextAlignment(.center)
                                 .frame(maxWidth: .infinity, minHeight: 60)
                                 .padding()
@@ -117,58 +117,65 @@ public struct ReflexDrillView: View {
                                 .cornerRadius(16)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 16)
-                                        .stroke(stt.isRecording ? Color.vocabCoral : Color.vocabHairline, lineWidth: stt.isRecording ? 2 : 1.5)
+                                        .stroke(viewModel.sttService.isListening ? Color.vocabCoral : Color.vocabHairline, lineWidth: viewModel.sttService.isListening ? 2 : 1.5)
                                 )
                         }
                         .padding(.horizontal)
 
                         // Mic Record Button
-                        Button(action: toggleMic) {
+                        Button(action: {
+                            if viewModel.sttService.isListening {
+                                viewModel.stopVoiceRecognition()
+                                viewModel.evaluateAnswer(viewModel.sttService.recognizedText)
+                            } else {
+                                viewModel.startVoiceRecognition()
+                            }
+                        }) {
                             ZStack {
                                 Circle()
-                                    .fill(stt.isRecording ? Color.vocabCoral.opacity(0.18) : Color.vocabHeroAccent.opacity(0.12))
+                                    .fill(viewModel.sttService.isListening ? Color.vocabCoral.opacity(0.18) : Color.vocabHeroAccent.opacity(0.12))
                                     .frame(width: 88, height: 88)
 
-                                if stt.isRecording {
+                                if viewModel.sttService.isListening {
                                     Circle()
                                         .stroke(Color.vocabCoral, lineWidth: 3)
                                         .frame(width: 88, height: 88)
                                 }
 
-                                Image(systemName: stt.isRecording ? "mic.fill" : "mic.circle.fill")
+                                Image(systemName: viewModel.sttService.isListening ? "mic.fill" : "mic.circle.fill")
                                     .font(.system(size: 40))
-                                    .foregroundColor(stt.isRecording ? Color.vocabCoral : Color.vocabHeroAccent)
+                                    .foregroundColor(viewModel.sttService.isListening ? Color.vocabCoral : Color.vocabHeroAccent)
                             }
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(BentoCardButtonStyle())
                         .frame(minWidth: 44, minHeight: 44)
 
-                        // Feedback & SRS Analytics Section with Particle Burst Overlay
-                        if isEvaluated {
+                        // Feedback & SRS Analytics Section
+                        if viewModel.state.isEvaluated {
                             ZStack {
                                 VStack(spacing: 14) {
                                     HStack {
                                         Label(
-                                            feedbackText,
-                                            systemImage: (srsResult?.nextMastery ?? 0) > currentMastery ? "checkmark.circle.fill" : "exclamationmark.triangle.fill"
+                                            viewModel.state.feedbackText,
+                                            systemImage: (viewModel.state.srsResult?.nextMastery ?? 0) > viewModel.state.currentMastery ? "checkmark.circle.fill" : "exclamationmark.triangle.fill"
                                         )
                                         .font(.headline)
-                                        .foregroundColor((srsResult?.nextMastery ?? 0) > currentMastery ? Color.vocabMint : Color.vocabCoral)
+                                        .foregroundColor((viewModel.state.srsResult?.nextMastery ?? 0) > viewModel.state.currentMastery ? Color.vocabMint : Color.vocabCoral)
 
                                         Spacer()
 
-                                        Text("⚡ \(elapsedTimeMs) ms")
+                                        Text("⚡ \(viewModel.state.elapsedTimeMs) ms")
                                             .font(.subheadline)
                                             .fontWeight(.bold)
                                             .padding(.horizontal, 10)
                                             .padding(.vertical, 4)
-                                            .background(elapsedTimeMs < 2500 ? Color.vocabMint.opacity(0.18) : Color.vocabPeach.opacity(0.18))
-                                            .foregroundColor(elapsedTimeMs < 2500 ? Color.vocabMint : Color.vocabPeach)
+                                            .background(viewModel.state.elapsedTimeMs < 2500 ? Color.vocabMint.opacity(0.18) : Color.vocabPeach.opacity(0.18))
+                                            .foregroundColor(viewModel.state.elapsedTimeMs < 2500 ? Color.vocabMint : Color.vocabPeach)
                                             .cornerRadius(12)
                                     }
 
-                                    if let res = srsResult {
+                                    if let res = viewModel.state.srsResult {
                                         Divider()
                                             .background(Color.vocabHairline)
 
@@ -206,12 +213,14 @@ public struct ReflexDrillView: View {
                                 )
                                 .padding(.horizontal)
 
-                                SRSSparkleEffectView(isEmitting: $triggerSparkle)
+                                SRSSparkleEffectView(isEmitting: $viewModel.state.triggerSparkle)
                             }
                         }
 
                         // Next Drill Action Button
-                        Button(action: loadNextDrill) {
+                        Button(action: {
+                            viewModel.nextDrill()
+                        }) {
                             HStack {
                                 Text("Bài tiếp theo")
                                     .fontWeight(.semibold)
@@ -242,81 +251,8 @@ public struct ReflexDrillView: View {
                 .padding(.vertical)
             }
         }
-        .onAppear(perform: loadNextDrill)
-    }
-
-    private func loadNextDrill() {
-        isEvaluated = false
-        feedbackText = ""
-        srsResult = nil
-        triggerSparkle = false
-        stt.stopListening()
-        
-        if let engine = datasetEngine {
-            drill = engine.getRandomReflexDrill(cefrLevel: cefrLevel)
-        } else {
-            // Demo fallback drill for testing preview/views
-            drill = ReflexDrillRecord(
-                id: 1,
-                drillType: "speaking_reflex",
-                promptText: "Bổ sung thông tin chi tiết?",
-                correctAnswer: "elaborate",
-                distractors: ["evaluate", "eliminate", "elevate"],
-                targetTimeMs: 2500,
-                sentenceTextEn: "Can you elaborate on your point?"
-            )
-        }
-        startTime = nil
-    }
-
-    private func toggleMic() {
-        if stt.isRecording {
-            stt.stopListening()
-            evaluateResponse()
-        } else {
-            stt.requestAuthorization { authorized in
-                if authorized {
-                    do {
-                        startTime = Date()
-                        try stt.startListening()
-                    } catch {
-                        print("Speech recognition failed to start: \(error)")
-                    }
-                }
-            }
-        }
-    }
-
-    private func evaluateResponse() {
-        guard let drill = drill else { return }
-        let now = Date()
-        let start = startTime ?? now.addingTimeInterval(-2.0)
-        elapsedTimeMs = max(100, Int(now.timeIntervalSince(start) * 1000))
-
-        let userText = stt.recognizedText.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
-        let targetText = drill.correctAnswer.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
-
-        let isCorrect = userText == targetText || userText.contains(targetText)
-
-        let result = SRSEngine.calculateNextInterval(
-            currentMastery: currentMastery,
-            easeFactor: easeFactor,
-            isCorrect: isCorrect,
-            responseTimeMs: elapsedTimeMs
-        )
-
-        srsResult = result
-        currentMastery = result.nextMastery
-        easeFactor = result.easeFactor
-        isEvaluated = true
-
-        if isCorrect {
-            feedbackText = elapsedTimeMs < 2500 ? "Phản xạ xuất sắc!" : "Chính xác (Cần nhanh hơn)"
-            if elapsedTimeMs < 2500 {
-                triggerSparkle = true
-            }
-        } else {
-            feedbackText = "Chưa đúng. Đáp án: \(drill.correctAnswer)"
+        .onAppear {
+            viewModel.loadDrills()
         }
     }
 }

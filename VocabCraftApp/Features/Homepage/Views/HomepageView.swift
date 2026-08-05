@@ -2,17 +2,19 @@ import SwiftUI
 
 /// Integrated Homepage view showcasing Bento grid layout, dark mode aesthetic, and liquid glass navigation.
 public struct HomepageView: View {
-    public let userName: String
-    public let streakDays: Int
-    public let dailyGoalProgress: Double
-    public let dueCardsCount: Int
-    public let totalWords: Int
-    public let retentionPercentage: Double
-    public let unreadNotifications: Bool
+    @State private var viewModel: HomepageViewModel
 
-    @State private var searchText: String = ""
-    @State private var selectedTab: TabItem = .home
+    @MainActor
+    public init(viewModel: HomepageViewModel) {
+        self._viewModel = State(wrappedValue: viewModel)
+    }
 
+    @MainActor
+    public init() {
+        self._viewModel = State(wrappedValue: HomepageViewModel())
+    }
+
+    @MainActor
     public init(
         userName: String = "Hooji N.",
         streakDays: Int = 14,
@@ -22,43 +24,48 @@ public struct HomepageView: View {
         retentionPercentage: Double = 0.85,
         unreadNotifications: Bool = true
     ) {
-        self.userName = userName
-        self.streakDays = streakDays
-        self.dailyGoalProgress = dailyGoalProgress
-        self.dueCardsCount = dueCardsCount
-        self.totalWords = totalWords
-        self.retentionPercentage = retentionPercentage
-        self.unreadNotifications = unreadNotifications
+        let state = HomepageState(
+            userName: userName,
+            streakDays: streakDays,
+            dailyGoalProgress: dailyGoalProgress,
+            dueCardsCount: dueCardsCount,
+            totalWords: totalWords,
+            retentionPercentage: retentionPercentage,
+            unreadNotifications: unreadNotifications
+        )
+        self._viewModel = State(wrappedValue: HomepageViewModel(initialState: state))
     }
 
     public var body: some View {
+        @Bindable var viewModel = viewModel
+
         ZStack(alignment: .bottom) {
             Color.vocabCanvas
                 .ignoresSafeArea()
 
-            switch selectedTab {
+            switch viewModel.selectedTab {
             case .home:
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 16) {
                         HeaderView(
-                            userName: userName,
-                            streakDays: streakDays,
-                            dailyGoalProgress: dailyGoalProgress,
-                            unreadNotifications: unreadNotifications
+                            userName: viewModel.state.userName,
+                            streakDays: viewModel.state.streakDays,
+                            dailyGoalProgress: viewModel.state.dailyGoalProgress,
+                            unreadNotifications: viewModel.state.unreadNotifications
                         )
 
                         MobileSearchView(
-                            searchText: $searchText,
-                            onVoiceSearchTapped: {}
+                            searchText: $viewModel.searchText,
+                            onVoiceSearchTapped: { viewModel.performVoiceSearch() }
                         )
 
                         SRSMemoryHeroCard(
-                            totalWords: totalWords,
-                            retentionPercentage: retentionPercentage
+                            totalWords: viewModel.state.totalWords,
+                            retentionPercentage: viewModel.state.retentionPercentage
                         )
 
                         ActionCardsGrid(
-                            dueCardsCount: dueCardsCount,
+                            dueCardsCount: viewModel.state.dueCardsCount,
                             onReflexTap: {},
                             onQueueTap: {}
                         )
@@ -75,10 +82,10 @@ public struct HomepageView: View {
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 16) {
                         HeaderView(
-                            userName: userName,
-                            streakDays: streakDays,
-                            dailyGoalProgress: dailyGoalProgress,
-                            unreadNotifications: unreadNotifications
+                            userName: viewModel.state.userName,
+                            streakDays: viewModel.state.streakDays,
+                            dailyGoalProgress: viewModel.state.dailyGoalProgress,
+                            unreadNotifications: viewModel.state.unreadNotifications
                         )
 
                         Spacer(minLength: 100)
@@ -87,7 +94,7 @@ public struct HomepageView: View {
                 }
             }
 
-            LiquidGlassTabBar(selectedTab: $selectedTab)
+            LiquidGlassTabBar(selectedTab: $viewModel.selectedTab)
         }
     }
 }
