@@ -7,10 +7,14 @@ public struct VocabularyView: View {
     @State private var expandedWordId: Int64? = 1 // Expand first word by default
     @State private var wordItems: [WordItem] = WordItem.mockData
     @State private var selectedDeckId: String? = nil
+    private let ttsService: TextToSpeechProtocol
 
     private let filterOptions = ["Tất cả", "Cần ôn ⚡", "Đã thuộc ⭐5", "A1-A2", "B1-B2", "C1-C2"]
 
-    public init() {}
+    @MainActor
+    public init(ttsService: TextToSpeechProtocol? = nil) {
+        self.ttsService = ttsService ?? TextToSpeechService()
+    }
 
     public var body: some View {
         ZStack {
@@ -79,7 +83,9 @@ public struct VocabularyView: View {
                                                     }
                                                 }
                                             },
-                                            onAudioTap: {},
+                                            onAudioTap: {
+                                                ttsService.speak(text: item.lemma)
+                                            },
                                             onDrillTap: {}
                                         )
                                     }

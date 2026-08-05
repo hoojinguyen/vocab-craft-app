@@ -4,6 +4,20 @@ public struct SubTopicPreviewSheet: View {
     public let node: SubTopicNode
     public let onStartDrill: () -> Void
     public let onToggleVault: (TopicWord) -> Void
+    private let ttsService: TextToSpeechProtocol
+
+    @MainActor
+    public init(
+        node: SubTopicNode,
+        onStartDrill: @escaping () -> Void,
+        onToggleVault: @escaping (TopicWord) -> Void,
+        ttsService: TextToSpeechProtocol? = nil
+    ) {
+        self.node = node
+        self.onStartDrill = onStartDrill
+        self.onToggleVault = onToggleVault
+        self.ttsService = ttsService ?? TextToSpeechService()
+    }
 
     public var body: some View {
         VStack(spacing: 16) {
@@ -77,11 +91,27 @@ public struct SubTopicPreviewSheet: View {
                     .foregroundColor(Color.vocabPeach)
             }
 
+            Button(action: { ttsService.speak(text: word.english) }) {
+                Image(systemName: "speaker.wave.2.fill")
+                    .foregroundColor(Color.vocabInk)
+                    .font(.system(size: 14, weight: .bold))
+                    .frame(width: 32, height: 32)
+                    .background(Color.vocabInk.opacity(0.06))
+                    .clipShape(Circle())
+                    .contentShape(Circle())
+            }
+            .buttonStyle(BentoCardButtonStyle())
+
             Button(action: { onToggleVault(word) }) {
                 Image(systemName: word.isSavedToPersonalVault ? "bookmark.fill" : "bookmark")
                     .foregroundColor(word.isSavedToPersonalVault ? Color.vocabPeach : Color.vocabMuted)
-                    .font(.system(size: 16))
+                    .font(.system(size: 14, weight: .semibold))
+                    .frame(width: 32, height: 32)
+                    .background(word.isSavedToPersonalVault ? Color.vocabPeach.opacity(0.12) : Color.vocabSurfaceSoft)
+                    .clipShape(Circle())
+                    .contentShape(Circle())
             }
+            .buttonStyle(BentoCardButtonStyle())
         }
         .padding(12)
         .background(Color.vocabSurfaceCard)

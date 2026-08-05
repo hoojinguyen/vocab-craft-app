@@ -84,10 +84,14 @@ extension SubTopicNode {
             id: "2",
             title: "Giáo dục & Đào tạo",
             iconName: "graduationcap.fill",
-            totalWords: 25,
-            learnedWords: 25,
+            totalWords: 5,
+            learnedWords: 5,
             state: .completed,
-            words: []
+            words: [
+                TopicWord(id: "w21", english: "Curriculum", phonetic: "/kəˈrɪk.jə.ləm/", vietnamese: "Chương trình giảng dạy", example: "The school offers a modern STEM curriculum.", partOfSpeech: "noun", isMastered: true, isSavedToPersonalVault: true),
+                TopicWord(id: "w22", english: "Pedagogy", phonetic: "/ˈped.ə.ɡɑː.dʒi/", vietnamese: "Phương pháp giảng dạy", example: "Innovative pedagogy enhances student engagement.", partOfSpeech: "noun", isMastered: true, isSavedToPersonalVault: false),
+                TopicWord(id: "w23", english: "Scholarship", phonetic: "/ˈskɑː.lɚ.ʃɪp/", vietnamese: "Học bổng", example: "She won a full scholarship to Harvard.", partOfSpeech: "noun", isMastered: true, isSavedToPersonalVault: true)
+            ]
         ),
         SubTopicNode(
             id: "3",
@@ -113,10 +117,14 @@ extension SubTopicNode {
             id: "4",
             title: "Kinh tế & Thị trường",
             iconName: "chart.line.uptrend.xyaxis",
-            totalWords: 25,
+            totalWords: 5,
             learnedWords: 0,
             state: .locked,
-            words: []
+            words: [
+                TopicWord(id: "w41", english: "Inflation", phonetic: "/ɪnˈfleɪ.ʃən/", vietnamese: "Lạm phát", example: "Central banks aim to control inflation.", partOfSpeech: "noun"),
+                TopicWord(id: "w42", english: "Monopoly", phonetic: "/məˈnɑː.pəl.i/", vietnamese: "Độc quyền", example: "The law prevents market monopoly.", partOfSpeech: "noun"),
+                TopicWord(id: "w43", english: "Revenue", phonetic: "/ˈrev.ə.nuː/", vietnamese: "Doanh thu", example: "Annual revenue increased by fifteen percent.", partOfSpeech: "noun")
+            ]
         )
     ]
 }
