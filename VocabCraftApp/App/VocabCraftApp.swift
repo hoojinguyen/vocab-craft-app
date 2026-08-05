@@ -5,6 +5,7 @@ import SwiftData
 struct VocabCraftApp: App {
     let container: ModelContainer
     let datasetEngine: DatasetEngine?
+    let appContainer: AppContainer
 
     init() {
         do {
@@ -12,12 +13,14 @@ struct VocabCraftApp: App {
         } catch {
             fatalError("Failed to initialize SwiftData App Group container: \(error)")
         }
-        datasetEngine = DatasetEngine()
+        let engine = DatasetEngine()
+        self.datasetEngine = engine
+        self.appContainer = AppContainer(datasetEngine: engine, modelContainer: container)
     }
 
     var body: some Scene {
         WindowGroup {
-            HomepageView()
+            HomepageView(viewModel: appContainer.makeHomepageViewModel())
         }
         .modelContainer(container)
     }
