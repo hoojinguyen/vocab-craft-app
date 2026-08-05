@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VocabCraft Dashboard - 3 Option Comparison Board (DESIGN.md)</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    :root {
+      /* Tokens from DESIGN.md */
+      --primary: #17171c;
+      --cohere-black: #000000;
+      --ink: #212121;
+      --deep-green: #003c33;
+      --dark-navy: #071829;
+      --canvas: #ffffff;
+      --soft-stone: #eeece7;
+      --hairline: #d9d9dd;
+      --border-light: #e5e7eb;
+      --muted: #93939f;
+      --slate: #75758a;
+      --action-blue: #1863dc;
+      --coral: #ff7759;
+      --coral-soft: #ffad9b;
+      --on-primary: #ffffff;
+
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: #0f1015;
+      font-family: var(--font-body);
+      color: #ffffff;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .top-controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .page-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--coral);
+    }
+
+    .option-switcher {
+      display: flex;
+      background: #1a1d24;
+      padding: 4px;
+      border-radius: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      gap: 4px;
+    }
+
+    .switch-btn {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .switch-btn.active {
+      background: var(--coral);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(255, 119, 89, 0.3);
+    }
+
+    /* Smartphone Frame */
+    .phone-container {
+      width: 390px;
+      height: 820px;
+      border-radius: 48px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.8), 0 0 0 10px #22252e;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s ease;
+    }
+
+    .notch {
+      width: 120px;
+      height: 26px;
+      background: #000000;
+      border-radius: 16px;
+      margin: 10px auto 0;
+      z-index: 100;
+    }
+
+    .view-option { display: none; flex-direction: column; height: 100%; }
+    .view-option.active { display: flex; }
+
+    /* ========================================================= */
+    /* OPTION 1: Enterprise Editorial Console (Cohere Classic)    */
+    /* ========================================================= */
+    .opt1-bg { background: var(--canvas); color: var(--ink); }
+
+    .opt1-header {
+      padding: 16px 20px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .opt1-title {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: var(--primary);
+    }
+
+    .opt1-streak {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff4f0;
+      border: 1px solid var(--coral-soft);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--coral);
+    }
+
+    .opt1-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .opt1-hero {
+      background-color: var(--deep-green);
+      color: var(--on-primary);
+      border-radius: 22px;
+      padding: 22px;
+    }
+
+    .opt1-hero-mono {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: rgba(255,255,255,0.7);
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .opt1-hero-h1 {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 600;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+
+    .opt1-progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 6px;
+    }
+
+    .opt1-progress-bg {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+      margin-bottom: 18px;
+    }
+
+    .opt1-progress-fill {
+      width: 60%;
+      height: 100%;
+      background: #4cd9a4;
+      border-radius: 3px;
+    }
+
+    .opt1-pill-btn {
+      width: 100%;
+      background: var(--canvas);
+      color: var(--primary);
+      border: none;
+      padding: 13px;
+      border-radius: 32px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .opt1-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .opt1-card {
+      background: var(--soft-stone);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .opt1-card-lbl {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--slate);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .opt1-card-val {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .opt1-filter-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .opt1-chip {
+      padding: 6px 14px;
+      border-radius: 30px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      border: 1px solid var(--hairline);
+      background: transparent;
+      color: var(--slate);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .opt1-chip.active {
+      background: var(--coral);
+      border-color: var(--coral);
+      color: #ffffff;
+    }
+
+    .opt1-table {
+      border-top: 1px solid var(--hairline);
+    }
+
+    .opt1-row {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--hairline);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* ========================================================= */
+    /* OPTION 2: Clean Light Editorial (Tối Giản Sáng)           */
+    /* ========================================================= */
+    .opt2-bg { background: #ffffff; color: var(--ink); }
+
+    .opt2-header {
+      padding: 24px 20px 12px;
+    }
+
+    .opt2-hero-card {
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    }
+
+    .opt2-btn-black {
+      width: 100%;
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 14px;
+      border-radius: 32px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 14px;
+    }
+
+    /* ========================================================= */
+    /* OPTION 3: Dark Command Center (Giao Diện Tối Toàn Phần)   */
+    /* ========================================================= */
+    .opt3-bg { background: var(--primary); color: #ffffff; }
+
+    .opt3-header {
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .opt3-hero-card {
+      background: linear-gradient(135deg, #22242b 0%, #17171c 100%);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 22px;
+      padding: 22px;
+    }
+
+    .opt3-btn-coral {
+      width: 100%;
+      background: var(--coral);
+      color: #ffffff;
+      border: none;
+      padding: 14px;
+      border-radius: 32px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(255, 119, 89, 0.4);
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="top-controls">
+    <div class="page-title">VocabCraft Dashboard Options (DESIGN.md)</div>
+    <div class="option-switcher">
+      <button class="switch-btn active" onclick="showOption(1)">OPTION 1: Cohere Classic</button>
+      <button class="switch-btn" onclick="showOption(2)">OPTION 2: Clean Light</button>
+      <button class="switch-btn" onclick="showOption(3)">OPTION 3: Dark Command</button>
+    </div>
+  </div>
+
+  <!-- Device Frame -->
+  <div class="phone-container" id="phoneContainer">
+    <div class="notch"></div>
+
+    <!-- ================= OPTION 1 ================= -->
+    <div class="view-option opt1-bg active" id="opt1">
+      <div class="opt1-header">
+        <div class="opt1-title">VOCABCRAFT</div>
+        <div class="opt1-streak">
+          <span>🔥</span>
+          <span>7 DAYS STREAK</span>
+        </div>
+      </div>
+
+      <div class="opt1-body">
+        <!-- Hero Dark Band -->
+        <div class="opt1-hero">
+          <div class="opt1-hero-mono">SPEECH & REFLEX DRILL</div>
+          <div class="opt1-hero-h1">Ready for Today's Reflex?</div>
+          <div class="opt1-progress-info">
+            <span>Daily Goal</span>
+            <span>12 / 20 Words</span>
+          </div>
+          <div class="opt1-progress-bg">
+            <div class="opt1-progress-fill"></div>
+          </div>
+          <button class="opt1-pill-btn" onclick="alert('Kích hoạt Màn hình Reflex Drill!')">
+            <span>Bắt đầu Luyện Phản Xạ</span>
+            <span>▶</span>
+          </button>
+        </div>
+
+        <!-- 2 Column Grid -->
+        <div class="opt1-grid">
+          <div class="opt1-card">
+            <div>
+              <div class="opt1-card-lbl">WORD OF THE DAY</div>
+              <div style="font-family: var(--font-display); font-weight: 600; font-size: 18px;">Resilient</div>
+              <div style="font-size: 12px; color: var(--slate); margin-top: 2px;">Kiên cường, hồi phục nhanh</div>
+            </div>
+            <button onclick="playTTS()" style="margin-top: 10px; background: #fff; border: 1px solid var(--border-light); padding: 5px; border-radius: 12px; font-size: 11px; color: var(--action-blue); cursor: pointer;">🔊 Listen</button>
+          </div>
+
+          <div class="opt1-card">
+            <div>
+              <div class="opt1-card-lbl">AVG REFLEX SPEED</div>
+              <div class="opt1-card-val">1,850ms</div>
+              <div style="font-size: 11px; color: var(--slate); margin-top: 4px;">⚡ Fast Reaction</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CEFR Filters & Due Reviews -->
+        <div>
+          <div style="font-family: var(--font-display); font-weight: 600; margin-bottom: 10px;">Due for Review (18)</div>
+          <div class="opt1-filter-row" style="margin-bottom: 12px;">
+            <button class="opt1-chip active">ALL</button>
+            <button class="opt1-chip">A1</button>
+            <button class="opt1-chip">A2</button>
+            <button class="opt1-chip">B1</button>
+            <button class="opt1-chip">B2</button>
+            <button class="opt1-chip">C1</button>
+            <button class="opt1-chip">C2</button>
+          </div>
+
+          <div class="opt1-table">
+            <div class="opt1-row">
+              <div>
+                <strong style="font-size: 15px;">Articulate</strong> <span style="font-family: var(--font-mono); font-size: 10px; background: var(--soft-stone); padding: 2px 6px; border-radius: 4px;">C1</span>
+                <div style="font-size: 12px; color: var(--slate);">Diễn đạt rõ ràng, trôi chảy</div>
+              </div>
+              <button onclick="playTTS('Articulate')" style="background: none; border: none; font-size: 16px; cursor: pointer;">🔊</button>
+            </div>
+
+            <div class="opt1-row">
+              <div>
+                <strong style="font-size: 15px;">Spontaneous</strong> <span style="font-family: var(--font-mono); font-size: 10px; background: var(--soft-stone); padding: 2px 6px; border-radius: 4px;">B2</span>
+                <div style="font-size: 12px; color: var(--slate);">Tự phát, tự nhiên</div>
+              </div>
+              <button onclick="playTTS('Spontaneous')" style="background: none; border: none; font-size: 16px; cursor: pointer;">🔊</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= OPTION 2 ================= -->
+    <div class="view-option opt2-bg" id="opt2">
+      <div class="opt2-header">
+        <div style="font-family: var(--font-mono); font-size: 11px; color: var(--slate); text-transform: uppercase;">DAILY PRACTICE</div>
+        <h1 style="font-family: var(--font-display); font-size: 28px; font-weight: 600; margin-top: 4px;">Clean Editorial Deck</h1>
+      </div>
+
+      <div class="opt1-body">
+        <div class="opt2-hero-card">
+          <div style="font-family: var(--font-mono); font-size: 11px; color: var(--coral);">TARGET: &lt; 2,000 MS</div>
+          <h2 style="font-family: var(--font-display); font-size: 22px; margin-top: 4px;">Reflex Speed Training</h2>
+          <p style="font-size: 13px; color: var(--slate); margin-top: 6px;">18 words waiting for spaced repetition audio drill today.</p>
+          <button class="opt2-btn-black">Start Practice ▶</button>
+        </div>
+
+        <div style="background: var(--soft-stone); border-radius: 16px; padding: 18px;">
+          <div style="font-family: var(--font-mono); font-size: 10px; color: var(--slate);">WORD OF THE DAY</div>
+          <div style="font-family: var(--font-display); font-size: 20px; font-weight: 600; margin-top: 4px;">Resilient</div>
+          <div style="font-size: 13px; color: var(--ink); margin-top: 4px;">Kiên cường trước khó khăn</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= OPTION 3 ================= -->
+    <div class="view-option opt3-bg" id="opt3">
+      <div class="opt3-header">
+        <div style="font-family: var(--font-mono); font-size: 12px; color: var(--coral);">COMMAND CENTER</div>
+        <div style="font-size: 12px; color: var(--muted);">🔥 7 DAYS</div>
+      </div>
+
+      <div class="opt1-body">
+        <div class="opt3-hero-card">
+          <div style="font-family: var(--font-mono); font-size: 11px; color: #4cd9a4;">SYSTEM READY</div>
+          <h2 style="font-family: var(--font-display); font-size: 24px; margin-top: 4px;">Reflex Voice Drill</h2>
+          <div style="font-size: 13px; color: var(--muted); margin: 8px 0 16px;">Target latency: 1,850ms (92% Accuracy)</div>
+          <button class="opt3-btn-coral">🎙️ LAUNCH VOICE DRILL</button>
+        </div>
+
+        <div style="background: #22242b; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 16px;">
+          <div style="font-family: var(--font-mono); font-size: 10px; color: var(--coral);">DUE REVIEWS</div>
+          <div style="font-size: 16px; font-weight: 600; margin-top: 4px;">18 Words Ready</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function showOption(num) {
+      document.querySelectorAll('.switch-btn').forEach((btn, idx) => {
+        btn.classList.toggle('active', idx === num - 1);
+      });
+      document.querySelectorAll('.view-option').forEach((view, idx) => {
+        view.classList.toggle('active', idx === num - 1);
+      });
+    }
+
+    function playTTS(text = 'Resilient') {
+      if ('speechSynthesis' in window) {
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'en-US';
+        window.speechSynthesis.speak(u);
+      }
+    }
+  </script>
+</body>
+</html>
