@@ -15,6 +15,7 @@ final class MobileSearchViewTests: XCTestCase {
             }
         )
         
+        XCTAssertNotNil(view.body)
         XCTAssertEqual(view.searchText, "Hello")
         XCTAssertFalse(voiceTapped)
     }
