@@ -8,4 +8,13 @@ final class SubTopicStudySessionViewTests: XCTestCase {
         let view = SubTopicStudySessionView(node: node, onDismiss: {}, onComplete: { _ in })
         XCTAssertNotNil(view)
     }
+
+    func testViewInitializationWithTenWordDataset() {
+        let words = (1...10).map { idx in
+            TopicWord(id: "w\(idx)", english: "Word \(idx)", phonetic: "/w\(idx)/", vietnamese: "Từ \(idx)")
+        }
+        let node = SubTopicNode(id: "1", title: "Công nghệ", iconName: "cpu", totalWords: 10, learnedWords: 0, state: .active, words: words)
+        let view = SubTopicStudySessionView(node: node, onDismiss: {}, onComplete: { _ in })
+        XCTAssertNotNil(view)
+    }
 }
