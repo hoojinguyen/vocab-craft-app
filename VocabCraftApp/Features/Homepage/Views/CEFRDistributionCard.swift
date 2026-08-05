@@ -36,17 +36,17 @@ public struct CEFRDistributionCard: View {
 
     public var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            // Header with Chevron detail link
+            // Header with Detail link
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("PHÂN BỔ TRÌNH ĐỘ CEFR")
                         .font(.system(size: 10, weight: .bold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Color.vocabMuted)
                         .tracking(0.5)
 
-                    Text("Tiến trình năng lực")
+                    Text("Tiến trình năng lực từ vựng")
                         .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(Color.vocabInk)
                 }
 
                 Spacer()
@@ -59,12 +59,13 @@ public struct CEFRDistributionCard: View {
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 12, weight: .semibold))
                         }
-                        .foregroundColor(.vocabCoral)
+                        .foregroundColor(Color.vocabCoral)
                     }
+                    .buttonStyle(.plain)
                 } else {
                     Image(systemName: "chevron.right")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(Color.vocabMuted)
                 }
             }
 
@@ -89,7 +90,7 @@ public struct CEFRDistributionCard: View {
             .clipShape(Capsule())
 
             // Legend / breakdown
-            HStack(spacing: 16) {
+            HStack(spacing: 12) {
                 CEFRLegendItem(
                     title: "A1-A2",
                     count: a1a2Count,
@@ -115,8 +116,13 @@ public struct CEFRDistributionCard: View {
             .font(.system(size: 12))
         }
         .padding(18)
-        .background(Color.vocabSurfaceSoft)
-        .cornerRadius(24)
+        .background(Color.vocabSurfaceCard)
+        .cornerRadius(20)
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(Color.vocabHairline, lineWidth: 1.5)
+        )
+        .shadow(color: Color.vocabHeroTeal.opacity(0.04), radius: 6, x: 0, y: 3)
         .padding(.horizontal)
     }
 }
@@ -134,11 +140,11 @@ private struct CEFRLegendItem: View {
 
             Text(title)
                 .font(.system(size: 11, weight: .medium))
-                .foregroundColor(.secondary)
+                .foregroundColor(Color.vocabMuted)
 
-            Text("\(count)")
+            Text("\(count) từ")
                 .font(.system(size: 12, weight: .bold))
-                .foregroundColor(.primary)
+                .foregroundColor(Color.vocabInk)
         }
     }
 }

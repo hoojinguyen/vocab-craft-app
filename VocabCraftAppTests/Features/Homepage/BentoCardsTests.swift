@@ -66,4 +66,9 @@ final class BentoCardsTests: XCTestCase {
         cefrCard.onDetailTap?()
         XCTAssertTrue(detailTapped)
     }
+
+    func testCEFRDistributionCardInstantiation() {
+        let card = CEFRDistributionCard(a1a2Count: 450, b1b2Count: 620, c1c2Count: 350)
+        XCTAssertNotNil(card.body)
+    }
 }
