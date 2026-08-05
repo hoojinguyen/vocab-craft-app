@@ -104,19 +104,7 @@ public struct HomepageView: View {
             case .reflex:
                 ReflexDrillView()
             case .settings:
-                ScrollView(.vertical, showsIndicators: false) {
-                    VStack(spacing: 16) {
-                        HeaderView(
-                            userName: viewModel.state.userName,
-                            streakDays: viewModel.state.streakDays,
-                            dailyGoalProgress: viewModel.state.dailyGoalProgress,
-                            unreadNotifications: viewModel.state.unreadNotifications
-                        )
-
-                        Spacer(minLength: 100)
-                    }
-                    .padding(.top)
-                }
+                SettingsView(viewModel: viewModel.settingsViewModel)
             }
 
             LiquidGlassTabBar(selectedTab: $viewModel.selectedTab)

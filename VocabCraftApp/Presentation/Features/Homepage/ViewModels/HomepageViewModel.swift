@@ -76,10 +76,13 @@ public final class HomepageViewModel {
     }
 
     public let ttsService: TextToSpeechProtocol
+    public var settingsViewModel: SettingsViewModel
 
     public init(initialState: HomepageState = HomepageState(), ttsService: TextToSpeechProtocol? = nil) {
         self.state = initialState
-        self.ttsService = ttsService ?? TextToSpeechService()
+        let tts = ttsService ?? TextToSpeechService()
+        self.ttsService = tts
+        self.settingsViewModel = SettingsViewModel(ttsService: tts)
     }
 
     public func speakSuggestedWord(_ word: SuggestedWord) {
