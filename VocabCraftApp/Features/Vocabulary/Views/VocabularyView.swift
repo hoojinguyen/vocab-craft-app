@@ -6,6 +6,7 @@ public struct VocabularyView: View {
     @State private var selectedTab = 0 // 0: Kho từ cá nhân, 1: Bộ từ chủ đề
     @State private var expandedWordId: Int64? = 1 // Expand first word by default
     @State private var wordItems: [WordItem] = WordItem.mockData
+    @State private var selectedDeckId: String? = nil
 
     private let filterOptions = ["Tất cả", "Cần ôn ⚡", "Đã thuộc ⭐5", "A1-A2", "B1-B2", "C1-C2"]
 
@@ -16,77 +17,94 @@ public struct VocabularyView: View {
             Color.vocabCanvas
                 .ignoresSafeArea()
 
-            VStack(spacing: 14) {
-                // Sticky Header Search Bar
-                MobileSearchView(searchText: $searchText, onVoiceSearchTapped: {})
-                    .padding(.top, 8)
-
-                // Segmented Switch (Kho Từ Cá Nhân vs Bộ Từ Chủ Đề)
-                HStack(spacing: 0) {
-                    segmentedTabButton(title: "Kho Từ Cá Nhân", tabIndex: 0)
-                    segmentedTabButton(title: "Bộ Từ Chủ Đề", tabIndex: 1)
-                }
-                .padding(4)
-                .background(Color.vocabSurfaceCard)
-                .cornerRadius(16)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color.vocabHairline, lineWidth: 1.5)
-                )
-                .padding(.horizontal)
-
-                if selectedTab == 0 {
-                    // Filter Pills (Horizontal Scroll)
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(filterOptions, id: \.self) { filter in
-                                filterPill(filter)
-                            }
+            if let deckId = selectedDeckId {
+                TopicDeckDetailView(
+                    deckId: deckId,
+                    onBack: {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                            selectedDeckId = nil
                         }
-                        .padding(.horizontal)
                     }
+                )
+                .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .trailing)))
+            } else {
+                VStack(spacing: 14) {
+                    // Sticky Header Search Bar
+                    MobileSearchView(searchText: $searchText, onVoiceSearchTapped: {})
+                        .padding(.top, 8)
 
-                    ScrollView(.vertical, showsIndicators: false) {
-                        VStack(spacing: 12) {
-                            // Bento Summary Strip
-                            VocabularySummaryCard(
-                                totalWords: wordItems.count * 473,
-                                srsRetentionPercentage: 0.85,
-                                dueCount: 24
-                            )
+                    // Segmented Switch (Kho Từ Cá Nhân vs Bộ Từ Chủ Đề)
+                    HStack(spacing: 0) {
+                        segmentedTabButton(title: "Kho Từ Cá Nhân", tabIndex: 0)
+                        segmentedTabButton(title: "Bộ Từ Chủ Đề", tabIndex: 1)
+                    }
+                    .padding(4)
+                    .background(Color.vocabSurfaceCard)
+                    .cornerRadius(16)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.vocabHairline, lineWidth: 1.5)
+                    )
+                    .padding(.horizontal)
 
-                            // Word Accordion Cards List
-                            VStack(spacing: 10) {
-                                ForEach(filteredWords) { item in
-                                    WordAccordionCard(
-                                        item: item,
-                                        isExpanded: expandedWordId == item.id,
-                                        onTap: {
-                                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                                if expandedWordId == item.id {
-                                                    expandedWordId = nil
-                                                } else {
-                                                    expandedWordId = item.id
-                                                }
-                                            }
-                                        },
-                                        onAudioTap: {},
-                                        onDrillTap: {}
-                                    )
+                    if selectedTab == 0 {
+                        // Filter Pills (Horizontal Scroll)
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(filterOptions, id: \.self) { filter in
+                                    filterPill(filter)
                                 }
                             }
                             .padding(.horizontal)
                         }
-                        .padding(.bottom, 90) // Clear floating tab bar
-                    }
-                } else {
-                    // Topic Decks Grid Tab
-                    ScrollView(.vertical, showsIndicators: false) {
-                        TopicDecksGridView(onDeckSelected: { _ in })
+
+                        ScrollView(.vertical, showsIndicators: false) {
+                            VStack(spacing: 12) {
+                                // Bento Summary Strip
+                                VocabularySummaryCard(
+                                    totalWords: wordItems.count * 473,
+                                    srsRetentionPercentage: 0.85,
+                                    dueCount: 24
+                                )
+
+                                // Word Accordion Cards List
+                                VStack(spacing: 10) {
+                                    ForEach(filteredWords) { item in
+                                        WordAccordionCard(
+                                            item: item,
+                                            isExpanded: expandedWordId == item.id,
+                                            onTap: {
+                                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                                    if expandedWordId == item.id {
+                                                        expandedWordId = nil
+                                                    } else {
+                                                        expandedWordId = item.id
+                                                    }
+                                                }
+                                            },
+                                            onAudioTap: {},
+                                            onDrillTap: {}
+                                        )
+                                    }
+                                }
+                                .padding(.horizontal)
+                            }
+                            .padding(.bottom, 90) // Clear floating tab bar
+                        }
+                    } else {
+                        // Topic Decks Grid Tab
+                        ScrollView(.vertical, showsIndicators: false) {
+                            TopicDecksGridView(onDeckSelected: { deckId in
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                    selectedDeckId = deckId
+                                }
+                            })
                             .padding(.top, 4)
                             .padding(.bottom, 90)
+                        }
                     }
                 }
+                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .leading)))
             }
         }
     }

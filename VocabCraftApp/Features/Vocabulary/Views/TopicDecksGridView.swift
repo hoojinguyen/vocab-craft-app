@@ -49,7 +49,11 @@ public struct TopicDecksGridView: View {
     public var body: some View {
         LazyVGrid(columns: columns, spacing: 12) {
             ForEach(decks) { deck in
-                Button(action: { onDeckSelected(deck.id) }) {
+                Button(action: {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                        onDeckSelected(deck.id)
+                    }
+                }) {
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
                             Image(systemName: deck.iconName)
