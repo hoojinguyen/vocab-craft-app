@@ -41,6 +41,8 @@ def generate_pbxproj():
 		300000532D50000000000001 /* SpeechServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000532D50000000000000 /* SpeechServiceTests.swift */; };
 		300000542D50000000000001 /* SRSEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000542D50000000000000 /* SRSEngineTests.swift */; };
 		300000552D50000000000001 /* WidgetIntentsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000552D50000000000000 /* WidgetIntentsTests.swift */; };
+		300000182D50000000000001 /* WordItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000182D50000000000001 /* WordItem.swift */; };
+		300000562D50000000000001 /* VocabularyModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000562D50000000000001 /* VocabularyModelsTests.swift */; };
 		300000402D50000000000002 /* VocabCraftWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 200000402D50000000000000 /* VocabCraftWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -107,6 +109,8 @@ def generate_pbxproj():
 		200000152D50000000000001 /* CEFRDistributionCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CEFRDistributionCard.swift; sourceTree = "<group>"; };
 		200000162D50000000000001 /* LiquidGlassTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlassTabBar.swift; sourceTree = "<group>"; };
 		200000172D50000000000001 /* HomepageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomepageView.swift; sourceTree = "<group>"; };
+		200000182D50000000000001 /* WordItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordItem.swift; sourceTree = "<group>"; };
+		200000562D50000000000001 /* VocabularyModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyModelsTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -216,8 +220,25 @@ def generate_pbxproj():
 			children = (
 				400000112D50000000000000 /* ReflexDrill */,
 				400000212D50000000000000 /* Homepage */,
+				400000302D50000000000000 /* Vocabulary */,
 			);
 			path = Features;
+			sourceTree = "<group>";
+		};
+		400000302D50000000000000 /* Vocabulary */ = {
+			isa = PBXGroup;
+			children = (
+				400000312D50000000000000 /* Models */,
+			);
+			path = Vocabulary;
+			sourceTree = "<group>";
+		};
+		400000312D50000000000000 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				200000182D50000000000001 /* WordItem.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		400000112D50000000000000 /* ReflexDrill */ = {
@@ -277,8 +298,25 @@ def generate_pbxproj():
 				200000532D50000000000000 /* SpeechServiceTests.swift */,
 				200000542D50000000000000 /* SRSEngineTests.swift */,
 				200000552D50000000000000 /* WidgetIntentsTests.swift */,
+				400000322D50000000000000 /* Features */,
 			);
 			path = VocabCraftAppTests;
+			sourceTree = "<group>";
+		};
+		400000322D50000000000000 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				400000332D50000000000000 /* Vocabulary */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		400000332D50000000000000 /* Vocabulary */ = {
+			isa = PBXGroup;
+			children = (
+				200000562D50000000000001 /* VocabularyModelsTests.swift */,
+			);
+			path = Vocabulary;
 			sourceTree = "<group>";
 		};
 		400000092D50000000000000 /* Products */ = {
@@ -409,6 +447,7 @@ def generate_pbxproj():
 				300000152D50000000000001 /* CEFRDistributionCard.swift in Sources */,
 				300000162D50000000000001 /* LiquidGlassTabBar.swift in Sources */,
 				300000172D50000000000001 /* HomepageView.swift in Sources */,
+				300000182D50000000000001 /* WordItem.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -437,6 +476,7 @@ def generate_pbxproj():
 				300000532D50000000000001 /* SpeechServiceTests.swift in Sources */,
 				300000542D50000000000001 /* SRSEngineTests.swift in Sources */,
 				300000552D50000000000001 /* WidgetIntentsTests.swift in Sources */,
+				300000562D50000000000001 /* VocabularyModelsTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
