@@ -61,4 +61,10 @@ final class VocabularyViewsTests: XCTestCase {
         XCTAssertTrue(audioTapped)
         XCTAssertTrue(drillTapped)
     }
+
+    func testTopicDecksGridViewInstantiation() {
+        let view = TopicDecksGridView(onDeckSelected: { _ in })
+        XCTAssertNotNil(view.body)
+    }
 }
+
