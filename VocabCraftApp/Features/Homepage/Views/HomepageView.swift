@@ -1,5 +1,6 @@
 import SwiftUI
 
+/// Integrated Homepage view showcasing Bento grid layout, dark mode aesthetic, and liquid glass navigation.
 public struct HomepageView: View {
     public let userName: String
     public let streakDays: Int
