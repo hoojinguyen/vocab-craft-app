@@ -148,7 +148,7 @@ public struct SubTopicStudySessionView: View {
                 SubTopicSessionSummaryView(
                     xpEarned: engine.xpEarned,
                     totalQuestions: engine.totalQuestionsCount,
-                    correctCount: engine.correctCount,
+                    correctCount: engine.firstTryCorrectCount,
                     onRestart: {
                         self.engine = SubTopicSessionEngine(words: node.words.isEmpty ? SubTopicStudySessionView.sampleWords : node.words)
                     },
@@ -190,13 +190,13 @@ public struct SubTopicStudySessionView: View {
     }
 
     private func segmentColor(for index: Int) -> Color {
-        if index < engine.currentIndex {
-            let passed = engine.questionResults[index] ?? true
+        if let passed = engine.wordFirstAttemptResults[index] {
             return passed ? Color.vocabMint : Color.vocabCoral
         } else {
             return Color.gray.opacity(0.18)
         }
     }
+
 
 
 

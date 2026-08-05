@@ -11,14 +11,16 @@ public struct SubmitResult: Sendable {
 @Observable
 public final class SubTopicSessionEngine: @unchecked Sendable {
     public private(set) var activeWords: [TopicWord]
+    public private(set) var initialWords: [TopicWord]
     public private(set) var retryQueue: [TopicWord] = []
     public private(set) var currentIndex: Int = 0
     public private(set) var attemptsLeft: Int = 2
     public private(set) var comboCount: Int = 0
     public private(set) var xpEarned: Int = 0
     public private(set) var correctCount: Int = 0
+    public private(set) var firstTryCorrectCount: Int = 0
     public private(set) var totalQuestionsCount: Int = 0
-    public private(set) var questionResults: [Int: Bool] = [:]
+    public private(set) var wordFirstAttemptResults: [Int: Bool] = [:]
 
     public var currentWord: TopicWord? {
         guard currentIndex < activeWords.count else { return nil }
@@ -29,8 +31,14 @@ public final class SubTopicSessionEngine: @unchecked Sendable {
         return currentIndex >= activeWords.count
     }
 
+    public var accuracyPercentage: Int {
+        guard totalQuestionsCount > 0 else { return 100 }
+        return Int((Double(firstTryCorrectCount) / Double(totalQuestionsCount)) * 100)
+    }
+
     public init(words: [TopicWord]) {
         self.activeWords = words
+        self.initialWords = words
         self.totalQuestionsCount = words.count
     }
 
@@ -41,13 +49,22 @@ public final class SubTopicSessionEngine: @unchecked Sendable {
 
         let isCorrect = selectedVietnamese == word.vietnamese
 
+        // Find original index of the current word
+        let originalIndex = initialWords.firstIndex(where: { $0.id == word.id })
+
         if isCorrect {
             let xp = (attemptsLeft == 2) ? 10 : 5
             xpEarned += xp
             comboCount += 1
             correctCount += 1
-            if questionResults[currentIndex] == nil {
-                questionResults[currentIndex] = true
+
+            if let origIdx = originalIndex, wordFirstAttemptResults[origIdx] == nil {
+                if attemptsLeft == 2 {
+                    firstTryCorrectCount += 1
+                    wordFirstAttemptResults[origIdx] = true
+                } else {
+                    wordFirstAttemptResults[origIdx] = false
+                }
             }
             return SubmitResult(isCorrect: true, attemptsRemaining: attemptsLeft, xpDelta: xp, isSessionFinished: false)
         } else {
@@ -56,13 +73,16 @@ public final class SubTopicSessionEngine: @unchecked Sendable {
                 xpEarned -= 5
                 comboCount = 0
                 retryQueue.append(word)
-                questionResults[currentIndex] = false
+                if let origIdx = originalIndex, wordFirstAttemptResults[origIdx] == nil {
+                    wordFirstAttemptResults[origIdx] = false
+                }
                 return SubmitResult(isCorrect: false, attemptsRemaining: 0, xpDelta: -5, isSessionFinished: false)
             } else {
                 return SubmitResult(isCorrect: false, attemptsRemaining: 1, xpDelta: 0, isSessionFinished: false)
             }
         }
     }
+
 
 
     public func advanceToNextWord() {

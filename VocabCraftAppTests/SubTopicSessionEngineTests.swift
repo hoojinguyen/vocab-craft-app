@@ -121,7 +121,8 @@ final class SubTopicSessionEngineTests: XCTestCase {
         // Submit correct for question 0
         let res1 = engine.submitAnswer(selectedVietnamese: "Nghĩa A")
         XCTAssertTrue(res1.isCorrect)
-        XCTAssertEqual(engine.questionResults[0], true)
+        XCTAssertEqual(engine.wordFirstAttemptResults[0], true)
+        XCTAssertEqual(engine.firstTryCorrectCount, 1)
 
         engine.advanceToNextWord()
 
@@ -129,8 +130,12 @@ final class SubTopicSessionEngineTests: XCTestCase {
         _ = engine.submitAnswer(selectedVietnamese: "Sai")
         let res2 = engine.submitAnswer(selectedVietnamese: "Sai")
         XCTAssertFalse(res2.isCorrect)
-        XCTAssertEqual(engine.questionResults[1], false)
+        XCTAssertEqual(engine.wordFirstAttemptResults[1], false)
+
+        // Accuracy should be 50% (1/2 on first try)
+        XCTAssertEqual(engine.accuracyPercentage, 50)
     }
 }
+
 
 
