@@ -5,7 +5,9 @@ public struct TopicDeckDetailView: View {
     public let onBack: () -> Void
 
     @State private var selectedNode: SubTopicNode? = nil
+    @State private var activeStudyNode: SubTopicNode? = nil
     @Environment(\.colorScheme) private var colorScheme
+
 
     // Sample data (to be wired to ViewModel)
     private let nodes: [SubTopicNode] = [
@@ -107,9 +109,10 @@ public struct TopicDeckDetailView: View {
                     // Hero CTA
                     Button(action: {
                         if let active = nodes.first(where: { $0.state == .active }) {
-                            selectedNode = active
+                            activeStudyNode = active
                         }
                     }) {
+
                         HStack {
                             Image(systemName: "play.fill")
                             Text("BẮT ĐẦU HỌC CHẶNG 3 (CÔNG NGHỆ)")
@@ -209,14 +212,34 @@ public struct TopicDeckDetailView: View {
             SubTopicPreviewSheet(
                 node: node,
                 onStartDrill: {
+                    let targetNode = node
                     selectedNode = nil
+                    activeStudyNode = targetNode
                 },
                 onToggleVault: { word in
                     // Toggle vault logic
                 }
             )
         }
+#if os(iOS)
+        .fullScreenCover(item: $activeStudyNode) { node in
+            SubTopicStudySessionView(
+                node: node,
+                onDismiss: { activeStudyNode = nil },
+                onComplete: { _ in activeStudyNode = nil }
+            )
+        }
+#else
+        .sheet(item: $activeStudyNode) { node in
+            SubTopicStudySessionView(
+                node: node,
+                onDismiss: { activeStudyNode = nil },
+                onComplete: { _ in activeStudyNode = nil }
+            )
+        }
+#endif
     }
+
 
     private func nodeColor(for state: NodeState) -> Color {
         switch state {

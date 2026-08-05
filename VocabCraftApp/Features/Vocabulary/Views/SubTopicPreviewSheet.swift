@@ -5,19 +5,6 @@ public struct SubTopicPreviewSheet: View {
     public let onStartDrill: () -> Void
     public let onToggleVault: (TopicWord) -> Void
 
-    @State private var isPresentingSession: Bool = false
-    @Environment(\.colorScheme) private var colorScheme
-
-    public init(
-        node: SubTopicNode,
-        onStartDrill: @escaping () -> Void,
-        onToggleVault: @escaping (TopicWord) -> Void
-    ) {
-        self.node = node
-        self.onStartDrill = onStartDrill
-        self.onToggleVault = onToggleVault
-    }
-
     public var body: some View {
         VStack(spacing: 16) {
             headerView
@@ -28,24 +15,8 @@ public struct SubTopicPreviewSheet: View {
         }
         .padding(20)
         .background(Color.vocabCanvas)
-#if os(iOS)
-        .fullScreenCover(isPresented: $isPresentingSession) {
-            SubTopicStudySessionView(
-                node: node,
-                onDismiss: { isPresentingSession = false },
-                onComplete: { _ in isPresentingSession = false }
-            )
-        }
-#else
-        .sheet(isPresented: $isPresentingSession) {
-            SubTopicStudySessionView(
-                node: node,
-                onDismiss: { isPresentingSession = false },
-                onComplete: { _ in isPresentingSession = false }
-            )
-        }
-#endif
     }
+
 
     private var headerView: some View {
         HStack(spacing: 12) {
@@ -122,10 +93,8 @@ public struct SubTopicPreviewSheet: View {
     }
 
     private var startDrillButton: some View {
-        Button(action: {
-            isPresentingSession = true
-            onStartDrill()
-        }) {
+        Button(action: onStartDrill) {
+
             HStack {
                 Image(systemName: "play.fill")
                 Text("Luyện tập riêng chặng này")
