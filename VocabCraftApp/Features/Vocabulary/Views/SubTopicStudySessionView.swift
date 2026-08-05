@@ -86,29 +86,13 @@ public struct SubTopicStudySessionView: View {
                     }
 
                     ForEach(options, id: \.self) { opt in
-                        Button(action: { handleAnswer(opt) }) {
-                            HStack {
-                                Text(opt)
-                                    .font(.system(size: 15, weight: .bold))
-                                Spacer()
-                                if selectedAnswer == opt {
-                                    Image(systemName: isSuccess ? "checkmark.circle.fill" : "xmark.circle.fill")
-                                } else {
-                                    Image(systemName: "circle")
-                                        .foregroundColor(Color.vocabHairline)
-                                }
-                            }
-                            .padding(14)
-                            .background(optionBackground(for: opt))
-                            .foregroundColor(optionForeground(for: opt))
-                            .cornerRadius(14)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 14)
-                                    .stroke(optionBorder(for: opt), lineWidth: 1.5)
-                            )
-                        }
-                        .buttonStyle(PressedScaleButtonStyle())
-                        .disabled(selectedAnswer != nil && isFlipped)
+                        QuizOptionRowView(
+                            option: opt,
+                            isSelected: selectedAnswer == opt,
+                            isSuccess: isSuccess,
+                            action: { handleAnswer(opt) },
+                            isDisabled: selectedAnswer != nil && isFlipped
+                        )
                     }
                 }
 
@@ -196,21 +180,6 @@ public struct SubTopicStudySessionView: View {
         engine.advanceToNextWord()
     }
 
-    private func optionBackground(for opt: String) -> Color {
-        guard let sel = selectedAnswer, sel == opt else { return Color.vocabSurfaceCard }
-        return isSuccess ? Color.vocabMint.opacity(0.15) : Color.vocabCoral.opacity(0.15)
-    }
-
-    private func optionForeground(for opt: String) -> Color {
-        guard let sel = selectedAnswer, sel == opt else { return Color.vocabInk }
-        return isSuccess ? Color.vocabMint : Color.vocabCoral
-    }
-
-    private func optionBorder(for opt: String) -> Color {
-        guard let sel = selectedAnswer, sel == opt else { return Color.vocabHairline }
-        return isSuccess ? Color.vocabMint : Color.vocabCoral
-    }
-
     public static let sampleWords: [TopicWord] = [
         TopicWord(id: "w1", english: "Automation", phonetic: "/ˌɔː.təˈmeɪ.ʃən/", vietnamese: "Sự tự động hóa", example: "Factory automation reduces production costs.", partOfSpeech: "noun"),
         TopicWord(id: "w2", english: "Algorithm", phonetic: "/ˈæl.ɡə.rɪ.ðəm/", vietnamese: "Thuật toán", example: "The search algorithm returns accurate results.", partOfSpeech: "noun"),
@@ -223,6 +192,55 @@ public struct SubTopicStudySessionView: View {
         TopicWord(id: "w9", english: "Intelligence", phonetic: "/ɪnˈtel.ə.dʒəns/", vietnamese: "Trí tuệ", example: "Human intelligence is adaptable.", partOfSpeech: "noun"),
         TopicWord(id: "w10", english: "Architecture", phonetic: "/ˈɑːr.kə.tek.tʃər/", vietnamese: "Kiến trúc", example: "Modern architecture combines style and utility.", partOfSpeech: "noun")
     ]
+}
+
+private struct QuizOptionRowView: View {
+    let option: String
+    let isSelected: Bool
+    let isSuccess: Bool
+    let action: () -> Void
+    let isDisabled: Bool
+
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                Text(option)
+                    .font(.system(size: 15, weight: .bold))
+                Spacer()
+                if isSelected {
+                    Image(systemName: isSuccess ? "checkmark.circle.fill" : "xmark.circle.fill")
+                } else {
+                    Image(systemName: "circle")
+                        .foregroundColor(Color.vocabHairline)
+                }
+            }
+            .padding(14)
+            .background(backgroundColor)
+            .foregroundColor(foregroundColor)
+            .cornerRadius(14)
+            .overlay(
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(borderColor, lineWidth: 1.5)
+            )
+        }
+        .buttonStyle(PressedScaleButtonStyle())
+        .disabled(isDisabled)
+    }
+
+    private var backgroundColor: Color {
+        guard isSelected else { return Color.vocabSurfaceCard }
+        return isSuccess ? Color.vocabMint.opacity(0.15) : Color.vocabCoral.opacity(0.15)
+    }
+
+    private var foregroundColor: Color {
+        guard isSelected else { return Color.vocabInk }
+        return isSuccess ? Color.vocabMint : Color.vocabCoral
+    }
+
+    private var borderColor: Color {
+        guard isSelected else { return Color.vocabHairline }
+        return isSuccess ? Color.vocabMint : Color.vocabCoral
+    }
 }
 
 public struct PressedScaleButtonStyle: ButtonStyle {
