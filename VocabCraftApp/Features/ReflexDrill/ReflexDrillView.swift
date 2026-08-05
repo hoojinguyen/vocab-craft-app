@@ -10,6 +10,7 @@ public struct ReflexDrillView: View {
     @State private var srsResult: SRSResult?
     @State private var isEvaluated: Bool = false
     @State private var cefrLevel: String = "B1"
+    @State private var triggerSparkle: Bool = false
 
     private let tts = TextToSpeechService()
     private let stt = SpeechRecognitionService()
@@ -143,66 +144,70 @@ public struct ReflexDrillView: View {
                         .buttonStyle(BentoCardButtonStyle())
                         .frame(minWidth: 44, minHeight: 44)
 
-                        // Feedback & SRS Analytics Section
+                        // Feedback & SRS Analytics Section with Particle Burst Overlay
                         if isEvaluated {
-                            VStack(spacing: 14) {
-                                HStack {
-                                    Label(
-                                        feedbackText,
-                                        systemImage: (srsResult?.nextMastery ?? 0) > currentMastery ? "checkmark.circle.fill" : "exclamationmark.triangle.fill"
-                                    )
-                                    .font(.headline)
-                                    .foregroundColor((srsResult?.nextMastery ?? 0) > currentMastery ? Color.vocabMint : Color.vocabCoral)
-
-                                    Spacer()
-
-                                    Text("⚡ \(elapsedTimeMs) ms")
-                                        .font(.subheadline)
-                                        .fontWeight(.bold)
-                                        .padding(.horizontal, 10)
-                                        .padding(.vertical, 4)
-                                        .background(elapsedTimeMs < 2500 ? Color.vocabMint.opacity(0.18) : Color.vocabPeach.opacity(0.18))
-                                        .foregroundColor(elapsedTimeMs < 2500 ? Color.vocabMint : Color.vocabPeach)
-                                        .cornerRadius(12)
-                                }
-
-                                if let res = srsResult {
-                                    Divider()
-                                        .background(Color.vocabHairline)
-
-                                    HStack(spacing: 20) {
-                                        VStack(alignment: .leading, spacing: 2) {
-                                            Text("Mastery Level")
-                                                .font(.caption)
-                                                .foregroundColor(.vocabMuted)
-                                            Text("Cấp \(res.nextMastery)")
-                                                .font(.subheadline)
-                                                .fontWeight(.bold)
-                                                .foregroundColor(.vocabInk)
-                                        }
+                            ZStack {
+                                VStack(spacing: 14) {
+                                    HStack {
+                                        Label(
+                                            feedbackText,
+                                            systemImage: (srsResult?.nextMastery ?? 0) > currentMastery ? "checkmark.circle.fill" : "exclamationmark.triangle.fill"
+                                        )
+                                        .font(.headline)
+                                        .foregroundColor((srsResult?.nextMastery ?? 0) > currentMastery ? Color.vocabMint : Color.vocabCoral)
 
                                         Spacer()
 
-                                        VStack(alignment: .trailing, spacing: 2) {
-                                            Text("SRS Ôn tiếp")
-                                                .font(.caption)
-                                                .foregroundColor(.vocabMuted)
-                                            Text("\(res.intervalDays) ngày sau")
-                                                .font(.subheadline)
-                                                .fontWeight(.bold)
-                                                .foregroundColor(.vocabInk)
+                                        Text("⚡ \(elapsedTimeMs) ms")
+                                            .font(.subheadline)
+                                            .fontWeight(.bold)
+                                            .padding(.horizontal, 10)
+                                            .padding(.vertical, 4)
+                                            .background(elapsedTimeMs < 2500 ? Color.vocabMint.opacity(0.18) : Color.vocabPeach.opacity(0.18))
+                                            .foregroundColor(elapsedTimeMs < 2500 ? Color.vocabMint : Color.vocabPeach)
+                                            .cornerRadius(12)
+                                    }
+
+                                    if let res = srsResult {
+                                        Divider()
+                                            .background(Color.vocabHairline)
+
+                                        HStack(spacing: 20) {
+                                            VStack(alignment: .leading, spacing: 2) {
+                                                Text("Mastery Level")
+                                                    .font(.caption)
+                                                    .foregroundColor(.vocabMuted)
+                                                Text("Cấp \(res.nextMastery)")
+                                                    .font(.subheadline)
+                                                    .fontWeight(.bold)
+                                                    .foregroundColor(.vocabInk)
+                                            }
+
+                                            Spacer()
+
+                                            VStack(alignment: .trailing, spacing: 2) {
+                                                Text("SRS Ôn tiếp")
+                                                    .font(.caption)
+                                                    .foregroundColor(.vocabMuted)
+                                                Text("\(res.intervalDays) ngày sau")
+                                                    .font(.subheadline)
+                                                    .fontWeight(.bold)
+                                                    .foregroundColor(.vocabInk)
+                                            }
                                         }
                                     }
                                 }
+                                .padding(16)
+                                .background(Color.vocabSurfaceCard)
+                                .cornerRadius(16)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .stroke(Color.vocabHairline, lineWidth: 1.5)
+                                )
+                                .padding(.horizontal)
+
+                                SRSSparkleEffectView(isEmitting: $triggerSparkle)
                             }
-                            .padding(16)
-                            .background(Color.vocabSurfaceCard)
-                            .cornerRadius(16)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .stroke(Color.vocabHairline, lineWidth: 1.5)
-                            )
-                            .padding(.horizontal)
                         }
 
                         // Next Drill Action Button
@@ -244,6 +249,7 @@ public struct ReflexDrillView: View {
         isEvaluated = false
         feedbackText = ""
         srsResult = nil
+        triggerSparkle = false
         stt.stopListening()
         
         if let engine = datasetEngine {
@@ -306,6 +312,9 @@ public struct ReflexDrillView: View {
 
         if isCorrect {
             feedbackText = elapsedTimeMs < 2500 ? "Phản xạ xuất sắc!" : "Chính xác (Cần nhanh hơn)"
+            if elapsedTimeMs < 2500 {
+                triggerSparkle = true
+            }
         } else {
             feedbackText = "Chưa đúng. Đáp án: \(drill.correctAnswer)"
         }

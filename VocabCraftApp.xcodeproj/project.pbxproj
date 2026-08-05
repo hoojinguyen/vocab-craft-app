@@ -17,6 +17,7 @@
 		300000082D50000000000001 /* SRSEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000082D50000000000000 /* SRSEngine.swift */; };
 		300000092D50000000000001 /* ReflexDrillView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000092D50000000000000 /* ReflexDrillView.swift */; };
 		300000102D50000000000001 /* Color+VocabCraft.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000102D50000000000001 /* Color+VocabCraft.swift */; };
+		300000702D50000000000001 /* SRSSparkleEffectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000702D50000000000001 /* SRSSparkleEffectView.swift */; };
 		300000112D50000000000001 /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000112D50000000000001 /* HeaderView.swift */; };
 		300000122D50000000000001 /* MobileSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000122D50000000000001 /* MobileSearchView.swift */; };
 		300000132D50000000000001 /* SRSMemoryHeroCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000132D50000000000001 /* SRSMemoryHeroCard.swift */; };
@@ -118,6 +119,7 @@
 		200000542D50000000000000 /* SRSEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SRSEngineTests.swift; sourceTree = "<group>"; };
 		200000552D50000000000000 /* WidgetIntentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetIntentsTests.swift; sourceTree = "<group>"; };
 		200000102D50000000000001 /* Color+VocabCraft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+VocabCraft.swift"; sourceTree = "<group>"; };
+		200000702D50000000000001 /* SRSSparkleEffectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SRSSparkleEffectView.swift; sourceTree = "<group>"; };
 		200000112D50000000000001 /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
 		200000122D50000000000001 /* MobileSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileSearchView.swift; sourceTree = "<group>"; };
 		200000132D50000000000001 /* SRSMemoryHeroCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SRSMemoryHeroCard.swift; sourceTree = "<group>"; };
@@ -218,6 +220,7 @@
 			isa = PBXGroup;
 			children = (
 				200000102D50000000000001 /* Color+VocabCraft.swift */,
+				200000702D50000000000001 /* SRSSparkleEffectView.swift */,
 			);
 			path = DesignSystem;
 			sourceTree = "<group>";
@@ -503,6 +506,7 @@
 				300000082D50000000000001 /* SRSEngine.swift in Sources */,
 				300000092D50000000000001 /* ReflexDrillView.swift in Sources */,
 				300000102D50000000000001 /* Color+VocabCraft.swift in Sources */,
+				300000702D50000000000001 /* SRSSparkleEffectView.swift in Sources */,
 				300000112D50000000000001 /* HeaderView.swift in Sources */,
 				300000122D50000000000001 /* MobileSearchView.swift in Sources */,
 				300000132D50000000000001 /* SRSMemoryHeroCard.swift in Sources */,
