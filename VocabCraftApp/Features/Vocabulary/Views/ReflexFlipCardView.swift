@@ -82,7 +82,7 @@ public struct ReflexFlipCardView: View {
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(Color.vocabMuted)
 
-                    Text("\"\(word.example ?? "The \(word.english) processes data in real time.")\"")
+                    formattedExampleText
                         .font(.system(size: 12, weight: .medium))
                         .italic()
                         .foregroundColor(Color.vocabInk)
@@ -109,5 +109,25 @@ public struct ReflexFlipCardView: View {
         }
         .rotation3DEffect(.degrees(isFlipped ? 180 : 0), axis: (x: 0, y: 1, z: 0))
         .animation(.spring(response: 0.55, dampingFraction: 0.8), value: isFlipped)
+    }
+
+    private var formattedExampleText: Text {
+        let sentence = word.example ?? "The \(word.english) processes data in real time."
+        let target = word.english
+        if let range = sentence.range(of: target, options: .caseInsensitive) {
+            let prefix = String(sentence[..<range.lowerBound])
+            let match = String(sentence[range])
+            let suffix = String(sentence[range.upperBound...])
+
+            return Text("\"")
+                + Text(prefix)
+                + Text(match)
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundColor(Color.vocabPeach)
+                + Text(suffix)
+                + Text("\"")
+        } else {
+            return Text("\"\(sentence)\"")
+        }
     }
 }
