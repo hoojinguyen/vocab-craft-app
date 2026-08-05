@@ -193,12 +193,11 @@ public struct SubTopicStudySessionView: View {
         if index < engine.currentIndex {
             let passed = engine.questionResults[index] ?? true
             return passed ? Color.vocabMint : Color.vocabCoral
-        } else if index == engine.currentIndex {
-            return Color.vocabPeach
         } else {
             return Color.gray.opacity(0.18)
         }
     }
+
 
 
     private func formattedXPText(_ xp: Int) -> String {
