@@ -75,8 +75,15 @@ public final class HomepageViewModel {
         set { state.suggestedWords = newValue }
     }
 
-    public init(initialState: HomepageState = HomepageState()) {
+    public let ttsService: TextToSpeechProtocol
+
+    public init(initialState: HomepageState = HomepageState(), ttsService: TextToSpeechProtocol? = nil) {
         self.state = initialState
+        self.ttsService = ttsService ?? TextToSpeechService()
+    }
+
+    public func speakSuggestedWord(_ word: SuggestedWord) {
+        ttsService.speak(text: word.lemma)
     }
 
     public func selectTab(_ tab: TabItem) {

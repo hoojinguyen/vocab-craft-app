@@ -39,7 +39,7 @@ public final class AppContainer {
     }
 
     public func makeHomepageViewModel() -> HomepageViewModel {
-        HomepageViewModel()
+        HomepageViewModel(ttsService: ttsService)
     }
 
     public func makeReflexDrillViewModel(cefrLevel: String = "B1") -> ReflexDrillViewModel {

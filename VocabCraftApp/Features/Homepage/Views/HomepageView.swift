@@ -10,8 +10,8 @@ public struct HomepageView: View {
     }
 
     @MainActor
-    public init() {
-        self._viewModel = State(wrappedValue: HomepageViewModel())
+    public init(ttsService: TextToSpeechProtocol? = nil) {
+        self._viewModel = State(wrappedValue: HomepageViewModel(ttsService: ttsService))
     }
 
     @MainActor
@@ -22,7 +22,8 @@ public struct HomepageView: View {
         dueCardsCount: Int = 24,
         totalWords: Int = 1420,
         retentionPercentage: Double = 0.85,
-        unreadNotifications: Bool = true
+        unreadNotifications: Bool = true,
+        ttsService: TextToSpeechProtocol? = nil
     ) {
         let state = HomepageState(
             userName: userName,
@@ -33,7 +34,7 @@ public struct HomepageView: View {
             retentionPercentage: retentionPercentage,
             unreadNotifications: unreadNotifications
         )
-        self._viewModel = State(wrappedValue: HomepageViewModel(initialState: state))
+        self._viewModel = State(wrappedValue: HomepageViewModel(initialState: state, ttsService: ttsService))
     }
 
     public var body: some View {
@@ -59,6 +60,9 @@ public struct HomepageView: View {
                             selectedIndex: $viewModel.currentSuggestedWordIndex,
                             onBookmarkToggle: { id in
                                 viewModel.toggleBookmarkSuggestedWord(id: id)
+                            },
+                            onSpeakTap: { word in
+                                viewModel.speakSuggestedWord(word)
                             }
                         )
 

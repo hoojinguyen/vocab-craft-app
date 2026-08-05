@@ -7,7 +7,7 @@ public struct SuggestedWordsCardView: View {
     public let onBookmarkToggle: (String) -> Void
     public let onSpeakTap: ((SuggestedWord) -> Void)?
 
-    @State private var isPlayingAudio: Bool = false
+    @State private var playingWordId: String? = nil
 
     public init(
         words: [SuggestedWord],
@@ -87,23 +87,27 @@ public struct SuggestedWordsCardView: View {
 
                 HStack(spacing: 8) {
                     // Audio Speaker Button
+                    let isPlayingThisWord = playingWordId == word.id
                     Button(action: {
                         withAnimation(.easeInOut(duration: 0.2)) {
-                            isPlayingAudio = true
+                            playingWordId = word.id
                         }
                         onSpeakTap?(word)
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                            isPlayingAudio = false
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                            if playingWordId == word.id {
+                                playingWordId = nil
+                            }
                         }
                     }) {
-                        Image(systemName: isPlayingAudio ? "speaker.wave.3.fill" : "speaker.wave.2.fill")
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundColor(isPlayingAudio ? Color.vocabMint : Color.vocabInk)
-                            .frame(width: 32, height: 32)
-                            .background(Color.vocabSurfaceSoft)
+                        Image(systemName: isPlayingThisWord ? "speaker.wave.3.fill" : "speaker.wave.2.fill")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(isPlayingThisWord ? Color.vocabMint : Color.vocabInk)
+                            .frame(width: 36, height: 36)
+                            .background(isPlayingThisWord ? Color.vocabMint.opacity(0.18) : Color.vocabSurfaceSoft)
                             .clipShape(Circle())
+                            .contentShape(Circle())
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(BentoCardButtonStyle())
 
                     // Bookmark Button
                     Button(action: {
@@ -112,13 +116,14 @@ public struct SuggestedWordsCardView: View {
                         }
                     }) {
                         Image(systemName: word.isBookmarked ? "bookmark.fill" : "bookmark")
-                            .font(.system(size: 13, weight: .semibold))
+                            .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(word.isBookmarked ? Color.vocabPeach : Color.vocabMuted)
-                            .frame(width: 32, height: 32)
-                            .background(word.isBookmarked ? Color.vocabPeach.opacity(0.12) : Color.vocabSurfaceSoft)
+                            .frame(width: 36, height: 36)
+                            .background(word.isBookmarked ? Color.vocabPeach.opacity(0.15) : Color.vocabSurfaceSoft)
                             .clipShape(Circle())
+                            .contentShape(Circle())
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(BentoCardButtonStyle())
                 }
             }
 
