@@ -10,6 +10,13 @@ final class BentoCardsTests: XCTestCase {
         XCTAssertEqual(hero.retentionPercentage, 0.85, accuracy: 0.001)
     }
 
+    func testSRSMemoryHeroCardInstantiation() {
+        let heroCard = SRSMemoryHeroCard(totalWords: 1420, retentionPercentage: 0.85)
+        XCTAssertNotNil(heroCard.body)
+        XCTAssertEqual(heroCard.totalWords, 1420)
+        XCTAssertEqual(heroCard.retentionPercentage, 0.85)
+    }
+
     func testActionCardsGridInitializationAndCallbacks() {
         var reflexCalled = false
         var queueCalled = false
