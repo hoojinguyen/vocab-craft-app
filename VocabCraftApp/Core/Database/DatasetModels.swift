@@ -1,6 +1,6 @@
 import Foundation
 
-public struct WordRecord: Identifiable, Sendable {
+public struct WordRecord: Identifiable, Equatable, Sendable {
     public let id: Int64
     public let lemma: String
     public let pos: String?
@@ -31,7 +31,7 @@ public struct WordRecord: Identifiable, Sendable {
     }
 }
 
-public struct ReflexDrillRecord: Identifiable, Sendable {
+public struct ReflexDrillRecord: Identifiable, Equatable, Sendable {
     public let id: Int64
     public let drillType: String
     public let promptText: String

@@ -20,8 +20,9 @@ public enum SpeechRecognitionError: Error, LocalizedError {
     }
 }
 
+@MainActor
 @Observable
-public final class SpeechRecognitionService: NSObject, @unchecked Sendable {
+public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol, @unchecked Sendable {
     private let speechRecognizer: SFSpeechRecognizer?
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     private var recognitionTask: SFSpeechRecognitionTask?
@@ -29,6 +30,7 @@ public final class SpeechRecognitionService: NSObject, @unchecked Sendable {
     private var isTapInstalled = false
 
     public var isRecording: Bool = false
+    public var isListening: Bool { isRecording }
     public var recognizedText: String = ""
 
     public init(locale: String = "en-US") {
@@ -40,6 +42,21 @@ public final class SpeechRecognitionService: NSObject, @unchecked Sendable {
         SFSpeechRecognizer.requestAuthorization { status in
             DispatchQueue.main.async {
                 completion(status == .authorized)
+            }
+        }
+    }
+
+    public func startListening(onResult: @escaping (String) -> Void, onError: @escaping (Error) -> Void) {
+        requestAuthorization { [weak self] authorized in
+            guard let self = self else { return }
+            guard authorized else {
+                onError(SpeechRecognitionError.notAuthorized)
+                return
+            }
+            do {
+                try self.startListening()
+            } catch {
+                onError(error)
             }
         }
     }

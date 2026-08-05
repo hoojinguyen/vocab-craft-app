@@ -2,8 +2,9 @@ import Foundation
 import AVFoundation
 import Observation
 
+@MainActor
 @Observable
-public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, @unchecked Sendable {
+public final class TextToSpeechService: NSObject, @preconcurrency AVSpeechSynthesizerDelegate, TextToSpeechProtocol, @unchecked Sendable {
     private let synthesizer = AVSpeechSynthesizer()
     public var isSpeaking: Bool = false
 
@@ -41,11 +42,15 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, @
 
     // MARK: - AVSpeechSynthesizerDelegate
 
-    public func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
-        isSpeaking = false
+    public nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+        Task { @MainActor in
+            self.isSpeaking = false
+        }
     }
 
-    public func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
-        isSpeaking = false
+    public nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
+        Task { @MainActor in
+            self.isSpeaking = false
+        }
     }
 }
