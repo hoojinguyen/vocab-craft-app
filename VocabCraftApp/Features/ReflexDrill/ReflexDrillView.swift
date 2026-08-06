@@ -334,110 +334,156 @@ public struct ReflexMicControlHubView: View {
     }
 }
 
-// MARK: - Performance Result & SRS Dashboard Component View
-public struct ReflexPerformanceCardView: View {
+// MARK: - Sticky Bottom Result Sheet Component View
+public struct ReflexResultBottomDockView: View {
     public let state: ReflexDrillState
+    public let onNext: () -> Void
 
     public var body: some View {
         let isSuccess = (state.srsResult?.nextMastery ?? 0) >= state.currentMastery
         let isSpeedTargetHit = state.elapsedTimeMs < 2500
 
-        ZStack {
-            VStack(spacing: 16) {
-                HStack(alignment: .center) {
-                    HStack(spacing: 8) {
-                        Image(systemName: isSuccess ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
-                            .font(.title3)
-                            .foregroundColor(isSuccess ? Color.vocabMint : Color.vocabCoral)
+        VStack(spacing: 14) {
+            // Top Drag Handle Indicator
+            Capsule()
+                .fill(isSuccess ? Color.vocabMint.opacity(0.4) : Color.vocabCoral.opacity(0.4))
+                .frame(width: 36, height: 4)
+                .padding(.top, 8)
 
-                        Text(isSuccess ? "Phản xạ Tuyệt vời!" : "Cần rèn luyện thêm")
-                            .font(.headline)
+            // Header Status & Speed Metric
+            HStack(alignment: .center) {
+                HStack(spacing: 8) {
+                    Image(systemName: isSuccess ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
+                        .font(.title3)
+                        .foregroundColor(isSuccess ? Color.vocabMint : Color.vocabCoral)
+
+                    Text(isSuccess ? "Phản xạ Tuyệt vời!" : "Cần rèn luyện thêm")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundColor(.vocabInk)
+                }
+
+                Spacer()
+
+                HStack(spacing: 4) {
+                    Image(systemName: "stopwatch.fill")
+                        .font(.caption2)
+                    Text("\(state.elapsedTimeMs) ms")
+                        .font(.subheadline)
+                        .fontWeight(.bold)
+                        .monospacedDigit()
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(isSpeedTargetHit ? Color.vocabMint.opacity(0.16) : Color.vocabPeach.opacity(0.16))
+                .foregroundColor(isSpeedTargetHit ? Color.vocabMint : Color.vocabPeach)
+                .cornerRadius(12)
+            }
+
+            // Feedback Text
+            Text(state.feedbackText)
+                .font(.subheadline)
+                .foregroundColor(.vocabMuted)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            // SRS Progress & Schedule
+            if let res = state.srsResult {
+                Divider()
+                    .background(Color.vocabHairline)
+
+                HStack(spacing: 16) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("CẤP ĐỘ PHẢN XẠ (SRS)")
+                            .font(.caption2)
                             .fontWeight(.bold)
-                            .foregroundColor(.vocabInk)
+                            .foregroundColor(.vocabMuted)
+
+                        HStack(spacing: 6) {
+                            Text("Cấp \(state.currentMastery)")
+                                .font(.subheadline)
+                                .foregroundColor(.vocabMuted)
+                            Image(systemName: "arrow.right")
+                                .font(.caption2)
+                                .foregroundColor(.vocabHeroAccent)
+                            Text("Cấp \(res.nextMastery)")
+                                .font(.subheadline)
+                                .fontWeight(.bold)
+                                .foregroundColor(.vocabHeroAccent)
+                        }
                     }
 
                     Spacer()
 
-                    HStack(spacing: 4) {
-                        Image(systemName: "stopwatch.fill")
+                    VStack(alignment: .trailing, spacing: 4) {
+                        Text("LỊCH ÔN TIẾP THEO")
                             .font(.caption2)
-                        Text("\(state.elapsedTimeMs) ms")
+                            .fontWeight(.bold)
+                            .foregroundColor(.vocabMuted)
+
+                        Text("\(res.intervalDays) ngày sau")
                             .font(.subheadline)
                             .fontWeight(.bold)
-                            .monospacedDigit()
+                            .foregroundColor(.vocabInk)
                     }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(isSpeedTargetHit ? Color.vocabMint.opacity(0.16) : Color.vocabPeach.opacity(0.16))
-                    .foregroundColor(isSpeedTargetHit ? Color.vocabMint : Color.vocabPeach)
-                    .cornerRadius(12)
-                }
-
-                Text(state.feedbackText)
-                    .font(.subheadline)
-                    .foregroundColor(.vocabMuted)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-
-                if let res = state.srsResult {
-                    Divider()
-                        .background(Color.vocabHairline)
-
-                    HStack(spacing: 16) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("CẤP ĐỘ PHẢN XẠ (SRS)")
-                                .font(.caption2)
-                                .fontWeight(.bold)
-                                .foregroundColor(.vocabMuted)
-
-                            HStack(spacing: 6) {
-                                Text("Cấp \(state.currentMastery)")
-                                    .font(.subheadline)
-                                    .foregroundColor(.vocabMuted)
-                                Image(systemName: "arrow.right")
-                                    .font(.caption2)
-                                    .foregroundColor(.vocabHeroAccent)
-                                Text("Cấp \(res.nextMastery)")
-                                    .font(.subheadline)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.vocabHeroAccent)
-                            }
-                        }
-
-                        Spacer()
-
-                        VStack(alignment: .trailing, spacing: 4) {
-                            Text("LỊCH ÔN TIẾP THEO")
-                                .font(.caption2)
-                                .fontWeight(.bold)
-                                .foregroundColor(.vocabMuted)
-
-                            Text("\(res.intervalDays) ngày sau")
-                                .font(.subheadline)
-                                .fontWeight(.bold)
-                                .foregroundColor(.vocabInk)
-                        }
-                    }
-                    .padding(.top, 4)
                 }
             }
-            .padding(20)
-            .background(Color.vocabSurfaceCard)
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(
-                        isSuccess ? Color.vocabMint.opacity(0.35) : Color.vocabCoral.opacity(0.35),
-                        lineWidth: 1.5
-                    )
-            )
-            .shadow(color: Color.black.opacity(0.04), radius: 8, x: 0, y: 4)
-            .padding(.horizontal)
 
+            // Primary Action Button anchored in thumb reach zone
+            Button(action: onNext) {
+                HStack(spacing: 10) {
+                    Text("Bài tiếp theo")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                    Image(systemName: "arrow.right.circle.fill")
+                        .font(.title3)
+                }
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: 52)
+                .background(
+                    LinearGradient(
+                        colors: [Color.vocabHeroAccent, Color.vocabHeroAccent.opacity(0.88)],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .cornerRadius(16)
+                .shadow(color: Color.vocabHeroAccent.opacity(0.28), radius: 10, x: 0, y: 5)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(BentoCardButtonStyle())
+            .padding(.top, 2)
+        }
+        .padding(.horizontal, 20)
+        .padding(.bottom, 24)
+        .background(
+            ZStack {
+                Color.vocabSurfaceCard
+                LinearGradient(
+                    colors: [
+                        isSuccess ? Color.vocabMint.opacity(0.08) : Color.vocabCoral.opacity(0.08),
+                        Color.vocabSurfaceCard
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            }
+        )
+        .clipShape(UnevenRoundedRectangle(topLeadingRadius: 28, bottomLeadingRadius: 0, bottomTrailingRadius: 0, topTrailingRadius: 28))
+        .overlay(
+            UnevenRoundedRectangle(topLeadingRadius: 28, bottomLeadingRadius: 0, bottomTrailingRadius: 0, topTrailingRadius: 28)
+                .stroke(
+                    isSuccess ? Color.vocabMint.opacity(0.35) : Color.vocabCoral.opacity(0.35),
+                    lineWidth: 1.5
+                )
+        )
+        .shadow(color: Color.black.opacity(0.12), radius: 18, x: 0, y: -6)
+        .overlay(
             SRSSparkleEffectView(isEmitting: Binding(
                 get: { state.triggerSparkle },
                 set: { _ in }
             ))
-        }
+        )
     }
 }
 
@@ -463,12 +509,12 @@ public struct ReflexDrillView: View {
     }
 
     public var body: some View {
-        ZStack {
+        ZStack(alignment: .bottom) {
             Color.vocabCanvas
                 .ignoresSafeArea()
 
             ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: 24) {
+                VStack(spacing: 20) {
                     // Header Bar
                     ReflexHeaderBarView(
                         currentIndex: viewModel.state.currentDrillIndex,
@@ -513,43 +559,6 @@ public struct ReflexDrillView: View {
                                 }
                             }
                         )
-
-                        // Result & SRS Dashboard & Next Action
-                        if viewModel.state.isEvaluated {
-                            VStack(spacing: 16) {
-                                ReflexPerformanceCardView(state: viewModel.state)
-
-                                Button(action: {
-                                    withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
-                                        viewModel.nextDrill()
-                                    }
-                                }) {
-                                    HStack(spacing: 10) {
-                                        Text("Bài tiếp theo")
-                                            .font(.headline)
-                                            .fontWeight(.bold)
-                                        Image(systemName: "arrow.right.circle.fill")
-                                            .font(.title3)
-                                    }
-                                    .foregroundColor(.white)
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 52)
-                                    .background(
-                                        LinearGradient(
-                                            colors: [Color.vocabHeroAccent, Color.vocabHeroAccent.opacity(0.88)],
-                                            startPoint: .leading,
-                                            endPoint: .trailing
-                                        )
-                                    )
-                                    .cornerRadius(16)
-                                    .shadow(color: Color.vocabHeroAccent.opacity(0.28), radius: 10, x: 0, y: 5)
-                                    .contentShape(Rectangle())
-                                }
-                                .buttonStyle(BentoCardButtonStyle())
-                                .padding(.horizontal)
-                            }
-                            .transition(.move(edge: .bottom).combined(with: .opacity))
-                        }
                     } else {
                         // Loading State
                         VStack(spacing: 16) {
@@ -565,7 +574,20 @@ public struct ReflexDrillView: View {
                     }
                 }
                 .padding(.top)
-                .padding(.bottom, 90) // Clear floating TabBar height
+                .padding(.bottom, viewModel.state.isEvaluated ? 270 : 90)
+            }
+
+            // Sticky Bottom Result Sheet
+            if viewModel.state.isEvaluated {
+                ReflexResultBottomDockView(
+                    state: viewModel.state,
+                    onNext: {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                            viewModel.nextDrill()
+                        }
+                    }
+                )
+                .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
         .onAppear {
