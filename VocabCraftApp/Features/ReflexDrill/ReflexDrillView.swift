@@ -142,53 +142,44 @@ public struct ReflexDrillView: View {
                         // MARK: - Tactile Mic Control Hub
                         micControlHub(viewModel: viewModel)
 
-                        // MARK: - Result & SRS Performance Dashboard
+                        // MARK: - Result & SRS Performance Dashboard & Next Action
                         if viewModel.state.isEvaluated {
-                            performanceResultCard(viewModel: viewModel)
-                                .transition(.move(edge: .bottom).combined(with: .opacity))
-                        }
+                            VStack(spacing: 16) {
+                                performanceResultCard(viewModel: viewModel)
 
-                        // MARK: - Primary Next Drill Action Button
-                        Button(action: {
-                            withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
-                                showEnglishHint = false
-                                viewModel.nextDrill()
-                            }
-                        }) {
-                            HStack(spacing: 10) {
-                                Text("Bài tiếp theo")
-                                    .font(.headline)
-                                    .fontWeight(.bold)
-                                Image(systemName: "arrow.right.circle.fill")
-                                    .font(.title3)
-                            }
-                            .foregroundColor(viewModel.state.isEvaluated ? .white : .vocabHeroAccent)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 52)
-                            .background(
-                                Group {
-                                    if viewModel.state.isEvaluated {
+                                // Primary Next Drill Action Button (Appears only after evaluation)
+                                Button(action: {
+                                    withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                                        showEnglishHint = false
+                                        viewModel.nextDrill()
+                                    }
+                                }) {
+                                    HStack(spacing: 10) {
+                                        Text("Bài tiếp theo")
+                                            .font(.headline)
+                                            .fontWeight(.bold)
+                                        Image(systemName: "arrow.right.circle.fill")
+                                            .font(.title3)
+                                    }
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 52)
+                                    .background(
                                         LinearGradient(
                                             colors: [Color.vocabHeroAccent, Color.vocabHeroAccent.opacity(0.88)],
                                             startPoint: .leading,
                                             endPoint: .trailing
                                         )
-                                    } else {
-                                        Color.vocabHeroAccent.opacity(0.12)
-                                    }
+                                    )
+                                    .cornerRadius(16)
+                                    .shadow(color: Color.vocabHeroAccent.opacity(0.28), radius: 10, x: 0, y: 5)
+                                    .contentShape(Rectangle())
                                 }
-                            )
-                            .cornerRadius(16)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .stroke(viewModel.state.isEvaluated ? Color.clear : Color.vocabHeroAccent.opacity(0.3), lineWidth: 1.5)
-                            )
-                            .shadow(color: viewModel.state.isEvaluated ? Color.vocabHeroAccent.opacity(0.28) : Color.clear, radius: 10, x: 0, y: 5)
-                            .contentShape(Rectangle())
+                                .buttonStyle(BentoCardButtonStyle())
+                                .padding(.horizontal)
+                            }
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
                         }
-                        .buttonStyle(BentoCardButtonStyle())
-                        .padding(.horizontal)
-                        .padding(.bottom, 36)
                     } else {
                         // Loading State
                         VStack(spacing: 16) {
@@ -203,7 +194,8 @@ public struct ReflexDrillView: View {
                         .frame(maxWidth: .infinity, minHeight: 320)
                     }
                 }
-                .padding(.vertical)
+                .padding(.top)
+                .padding(.bottom, 90) // Clear floating TabBar height
             }
         }
         .onAppear {
@@ -243,27 +235,52 @@ public struct ReflexDrillView: View {
                     .foregroundColor(.vocabInk)
             }
 
-            Spacer()
+            HStack(spacing: 8) {
+                // Target Speed Chip
+                HStack(spacing: 6) {
+                    Image(systemName: "bolt.fill")
+                        .font(.caption)
+                        .foregroundColor(.vocabPeach)
+                    Text("< 2500ms")
+                        .font(.caption)
+                        .fontWeight(.heavy)
+                        .monospacedDigit()
+                        .foregroundColor(.vocabPeach)
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 7)
+                .background(Color.vocabPeach.opacity(0.14))
+                .overlay(
+                    Capsule()
+                        .stroke(Color.vocabPeach.opacity(0.3), lineWidth: 1)
+                )
+                .clipShape(Capsule())
 
-            // Target Speed Chip
-            HStack(spacing: 6) {
-                Image(systemName: "bolt.fill")
-                    .font(.caption)
-                    .foregroundColor(.vocabPeach)
-                Text("< 2500ms")
-                    .font(.caption)
-                    .fontWeight(.heavy)
-                    .monospacedDigit()
-                    .foregroundColor(.vocabPeach)
+                // Skip Button when not evaluated
+                if !viewModel.state.isEvaluated {
+                    Button(action: {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                            showEnglishHint = false
+                            viewModel.nextDrill()
+                        }
+                    }) {
+                        HStack(spacing: 3) {
+                            Text("Bỏ qua")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                            Image(systemName: "chevron.right")
+                                .font(.caption2)
+                        }
+                        .foregroundColor(.vocabMuted)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 7)
+                        .background(Color.vocabMuted.opacity(0.08))
+                        .cornerRadius(12)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(BentoCardButtonStyle())
+                }
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(Color.vocabPeach.opacity(0.14))
-            .overlay(
-                Capsule()
-                    .stroke(Color.vocabPeach.opacity(0.3), lineWidth: 1)
-            )
-            .clipShape(Capsule())
         }
         .padding(.horizontal)
     }
