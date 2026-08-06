@@ -98,6 +98,7 @@ public struct ReflexSpeechVisualizerView: View {
 public struct ReflexDrillView: View {
     @State private var viewModel: ReflexDrillViewModel
     @State private var isMicPulsing = false
+    @State private var showEnglishHint = false
 
     @MainActor
     public init(viewModel: ReflexDrillViewModel) {
@@ -150,6 +151,7 @@ public struct ReflexDrillView: View {
                         // MARK: - Primary Next Drill Action Button
                         Button(action: {
                             withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                                showEnglishHint = false
                                 viewModel.nextDrill()
                             }
                         }) {
@@ -160,18 +162,28 @@ public struct ReflexDrillView: View {
                                 Image(systemName: "arrow.right.circle.fill")
                                     .font(.title3)
                             }
-                            .foregroundColor(.white)
+                            .foregroundColor(viewModel.state.isEvaluated ? .white : .vocabHeroAccent)
                             .frame(maxWidth: .infinity)
                             .frame(height: 52)
                             .background(
-                                LinearGradient(
-                                    colors: [Color.vocabHeroAccent, Color.vocabHeroAccent.opacity(0.88)],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
+                                Group {
+                                    if viewModel.state.isEvaluated {
+                                        LinearGradient(
+                                            colors: [Color.vocabHeroAccent, Color.vocabHeroAccent.opacity(0.88)],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        )
+                                    } else {
+                                        Color.vocabHeroAccent.opacity(0.12)
+                                    }
+                                }
                             )
                             .cornerRadius(16)
-                            .shadow(color: Color.vocabHeroAccent.opacity(0.28), radius: 10, x: 0, y: 5)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(viewModel.state.isEvaluated ? Color.clear : Color.vocabHeroAccent.opacity(0.3), lineWidth: 1.5)
+                            )
+                            .shadow(color: viewModel.state.isEvaluated ? Color.vocabHeroAccent.opacity(0.28) : Color.clear, radius: 10, x: 0, y: 5)
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(BentoCardButtonStyle())
@@ -241,6 +253,7 @@ public struct ReflexDrillView: View {
                 Text("< 2500ms")
                     .font(.caption)
                     .fontWeight(.heavy)
+                    .monospacedDigit()
                     .foregroundColor(.vocabPeach)
             }
             .padding(.horizontal, 12)
@@ -275,14 +288,39 @@ public struct ReflexDrillView: View {
                 .lineSpacing(4)
                 .padding(.horizontal, 8)
 
-            // English Hint / Reference Sentence
+            // English Hint / Reference Sentence (Hidden by default to encourage active recall)
             if let sentence = drill.sentenceTextEn, !sentence.isEmpty {
-                Text("\"\(sentence)\"")
-                    .font(.callout)
-                    .italic()
-                    .foregroundColor(.vocabMuted)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 12)
+                if showEnglishHint || viewModel.state.isEvaluated {
+                    Text("\"\(sentence)\"")
+                        .font(.callout)
+                        .italic()
+                        .fontDesign(.serif)
+                        .foregroundColor(.vocabMuted)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 12)
+                        .transition(.opacity.combined(with: .scale(scale: 0.96)))
+                } else {
+                    Button(action: {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            showEnglishHint = true
+                        }
+                    }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "lightbulb.fill")
+                                .font(.caption2)
+                            Text("Xem gợi ý đáp án")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 6)
+                        .background(Color.vocabPeach.opacity(0.14))
+                        .foregroundColor(.vocabPeach)
+                        .cornerRadius(14)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(BentoCardButtonStyle())
+                }
             }
 
             // Audio TTS Listen Button
@@ -292,6 +330,7 @@ public struct ReflexDrillView: View {
                 HStack(spacing: 8) {
                     Image(systemName: viewModel.ttsService.isSpeaking ? "speaker.wave.3.fill" : "speaker.wave.2.fill")
                         .font(.subheadline)
+                        .symbolEffect(.bounce, value: viewModel.ttsService.isSpeaking)
 
                     Text(viewModel.ttsService.isSpeaking ? "Đang phát audio..." : "Nghe phát âm chuẩn")
                         .font(.subheadline)
@@ -372,6 +411,7 @@ public struct ReflexDrillView: View {
                     Image(systemName: isListening ? "waveform.and.mic" : "mic.fill")
                         .font(.system(size: 34, weight: .semibold))
                         .foregroundColor(.white)
+                        .symbolEffect(.bounce, value: isListening)
                 }
                 .frame(width: 112, height: 112)
                 .contentShape(Circle())
@@ -418,6 +458,7 @@ public struct ReflexDrillView: View {
                         Text("\(viewModel.state.elapsedTimeMs) ms")
                             .font(.subheadline)
                             .fontWeight(.bold)
+                            .monospacedDigit()
                     }
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
