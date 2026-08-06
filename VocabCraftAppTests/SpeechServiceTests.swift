@@ -69,4 +69,19 @@ final class SpeechServiceTests: XCTestCase {
         
         waitForExpectations(timeout: 5.0, handler: nil)
     }
+
+    func testSTTStartListeningWithoutAuthorizationFailsGracefully() {
+        let stt = SpeechRecognitionService()
+        let expectation = self.expectation(description: "Error callback should be triggered when un-authorized")
+        
+        stt.startListening(
+            onResult: { _ in },
+            onError: { error in
+                XCTAssertNotNil(error, "Error should be provided when start listening fails")
+                expectation.fulfill()
+            }
+        )
+        
+        waitForExpectations(timeout: 5.0, handler: nil)
+    }
 }
