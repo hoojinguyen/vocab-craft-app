@@ -12,6 +12,7 @@ public struct ReflexDrillState: Equatable {
     public var easeFactor: Double = 2.5
     public var srsResult: SRSResult?
     public var isEvaluated: Bool = false
+    public var isCorrect: Bool = false
     public var cefrLevel: String = "B1"
     public var triggerSparkle: Bool = false
     public var errorMessage: String = ""
@@ -88,6 +89,7 @@ public final class ReflexDrillViewModel {
         state.startTime = Date()
         state.elapsedTimeMs = 0
         state.isEvaluated = false
+        state.isCorrect = false
         state.feedbackText = ""
         state.srsResult = nil
         
@@ -160,6 +162,7 @@ public final class ReflexDrillViewModel {
         state.currentMastery = result.nextMastery
         state.easeFactor = result.easeFactor
         state.srsResult = result
+        state.isCorrect = isCorrect
         state.isEvaluated = true
 
         if isCorrect {

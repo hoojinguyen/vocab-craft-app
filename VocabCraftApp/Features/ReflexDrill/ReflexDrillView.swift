@@ -124,9 +124,12 @@ public struct ReflexHeaderBarView: View {
         HStack(alignment: .center, spacing: 10) {
             if let onDismiss {
                 Button(action: onDismiss) {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.title2)
-                        .foregroundColor(.vocabMuted.opacity(0.6))
+                    Image(systemName: "xmark")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(.vocabInk)
+                        .frame(width: 32, height: 32)
+                        .background(Color.vocabMuted.opacity(0.1))
+                        .clipShape(Circle())
                 }
                 .buttonStyle(BentoCardButtonStyle())
             }
@@ -163,18 +166,18 @@ public struct ReflexHeaderBarView: View {
 
             HStack(spacing: 8) {
                 // Target Speed Chip
-                HStack(spacing: 6) {
+                HStack(spacing: 5) {
                     Image(systemName: "bolt.fill")
-                        .font(.caption)
+                        .font(.caption2)
                         .foregroundColor(.vocabPeach)
-                    Text("< 2500ms")
+                    Text("< 2.5s")
                         .font(.caption)
                         .fontWeight(.heavy)
                         .monospacedDigit()
                         .foregroundColor(.vocabPeach)
                 }
                 .padding(.horizontal, 10)
-                .padding(.vertical, 7)
+                .padding(.vertical, 6)
                 .background(Color.vocabPeach.opacity(0.14))
                 .overlay(
                     Capsule()
@@ -194,7 +197,7 @@ public struct ReflexHeaderBarView: View {
                         }
                         .foregroundColor(.vocabMuted)
                         .padding(.horizontal, 10)
-                        .padding(.vertical, 7)
+                        .padding(.vertical, 6)
                         .background(Color.vocabMuted.opacity(0.08))
                         .cornerRadius(12)
                         .contentShape(Rectangle())
@@ -360,6 +363,7 @@ public struct ReflexMicControlHubView: View {
                 .foregroundColor(isListening ? .vocabCoral : .vocabMuted)
         }
         .padding(.vertical, 6)
+        .sensoryFeedback(.impact(weight: .medium), trigger: isListening)
     }
 }
 
@@ -368,8 +372,17 @@ public struct ReflexResultBottomDockView: View {
     public let state: ReflexDrillState
     public let onNext: () -> Void
 
+    private var formattedTime: String {
+        if state.elapsedTimeMs >= 1000 {
+            let seconds = Double(state.elapsedTimeMs) / 1000.0
+            return String(format: "%.1fs", seconds)
+        } else {
+            return "\(state.elapsedTimeMs)ms"
+        }
+    }
+
     public var body: some View {
-        let isSuccess = (state.srsResult?.nextMastery ?? 0) >= state.currentMastery
+        let isSuccess = state.isCorrect
         let isSpeedTargetHit = state.elapsedTimeMs < 2500
 
         VStack(spacing: 14) {
@@ -382,11 +395,11 @@ public struct ReflexResultBottomDockView: View {
             // Header Status & Speed Metric
             HStack(alignment: .center) {
                 HStack(spacing: 8) {
-                    Image(systemName: isSuccess ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
+                    Image(systemName: isSuccess ? "checkmark.circle.fill" : "xmark.circle.fill")
                         .font(.title3)
                         .foregroundColor(isSuccess ? Color.vocabMint : Color.vocabCoral)
 
-                    Text(isSuccess ? "Phản xạ Tuyệt vời!" : "Cần rèn luyện thêm")
+                    Text(isSuccess ? (isSpeedTargetHit ? "Phản xạ Tuyệt vời!" : "Chính xác!") : "Cần rèn luyện thêm")
                         .font(.headline)
                         .fontWeight(.bold)
                         .foregroundColor(.vocabInk)
@@ -397,7 +410,7 @@ public struct ReflexResultBottomDockView: View {
                 HStack(spacing: 4) {
                     Image(systemName: "stopwatch.fill")
                         .font(.caption2)
-                    Text("\(state.elapsedTimeMs) ms")
+                    Text(formattedTime)
                         .font(.subheadline)
                         .fontWeight(.bold)
                         .monospacedDigit()
@@ -629,6 +642,7 @@ public struct ReflexDrillView: View {
         .onChange(of: viewModel.state.currentDrillIndex) { _, _ in
             showEnglishHint = false
         }
+        .sensoryFeedback(viewModel.state.isCorrect ? .success : .error, trigger: viewModel.state.isEvaluated)
         .alert("Thông báo thu âm", isPresented: $viewModel.state.showErrorAlert) {
             Button("Đã hiểu", role: .cancel) { }
         } message: {
