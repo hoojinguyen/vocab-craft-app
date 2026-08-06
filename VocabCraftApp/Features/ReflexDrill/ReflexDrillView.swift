@@ -574,5 +574,10 @@ public struct ReflexDrillView: View {
         .onChange(of: viewModel.state.currentDrillIndex) { _, _ in
             showEnglishHint = false
         }
+        .alert("Thông báo thu âm", isPresented: $viewModel.state.showErrorAlert) {
+            Button("Đã hiểu", role: .cancel) { }
+        } message: {
+            Text(viewModel.state.errorMessage)
+        }
     }
 }

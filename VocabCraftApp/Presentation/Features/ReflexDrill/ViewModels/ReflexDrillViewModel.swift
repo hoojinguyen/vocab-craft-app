@@ -14,6 +14,8 @@ public struct ReflexDrillState: Equatable {
     public var isEvaluated: Bool = false
     public var cefrLevel: String = "B1"
     public var triggerSparkle: Bool = false
+    public var errorMessage: String = ""
+    public var showErrorAlert: Bool = false
 
     public init(cefrLevel: String = "B1") {
         self.cefrLevel = cefrLevel
@@ -110,8 +112,16 @@ public final class ReflexDrillViewModel {
             onResult: { [weak self] recognizedText in
                 self?.evaluateAnswer(recognizedText)
             },
-            onError: { [weak self] _ in
-                self?.state.feedbackText = "Không thể ghi âm. Vui lòng thử lại!"
+            onError: { [weak self] error in
+                let desc: String
+                if let err = error as? SpeechRecognitionError, let msg = err.errorDescription {
+                    desc = msg
+                } else {
+                    desc = error.localizedDescription
+                }
+                self?.state.feedbackText = "Không thể ghi âm: \(desc)"
+                self?.state.errorMessage = desc
+                self?.state.showErrorAlert = true
             }
         )
     }

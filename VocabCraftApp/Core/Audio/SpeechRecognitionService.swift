@@ -30,6 +30,7 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
     private var isTapInstalled = false
     private var onResultCallback: ((String) -> Void)?
     private var onErrorCallback: ((Error) -> Void)?
+    private var simulationTask: Task<Void, Never>?
 
     public var isRecording: Bool = false
     public var isListening: Bool { isRecording }
@@ -41,6 +42,9 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
     }
 
     public func requestAuthorization(completion: @escaping (Bool) -> Void) {
+        #if targetEnvironment(simulator)
+        DispatchQueue.main.async { completion(true) }
+        #else
         SFSpeechRecognizer.requestAuthorization { status in
             guard status == .authorized else {
                 DispatchQueue.main.async { completion(false) }
@@ -61,6 +65,7 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
             DispatchQueue.main.async { completion(true) }
             #endif
         }
+        #endif
     }
 
     public func startListening(onResult: @escaping (String) -> Void, onError: @escaping (Error) -> Void) {
@@ -83,6 +88,26 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
 
     public func startListening() throws {
         stopListening()
+
+        #if targetEnvironment(simulator)
+        isRecording = true
+        recognizedText = ""
+        simulationTask?.cancel()
+        simulationTask = Task { @MainActor [weak self] in
+            guard let self = self else { return }
+            try? await Task.sleep(for: .milliseconds(400))
+            if !Task.isCancelled && self.isRecording {
+                self.recognizedText = "A black dog"
+                self.onResultCallback?("A black dog")
+            }
+            try? await Task.sleep(for: .milliseconds(600))
+            if !Task.isCancelled && self.isRecording {
+                self.recognizedText = "A black dog jumps over the fence"
+                self.onResultCallback?("A black dog jumps over the fence")
+            }
+        }
+        return
+        #else
 
         guard SFSpeechRecognizer.authorizationStatus() == .authorized else {
             throw SpeechRecognitionError.notAuthorized
@@ -114,24 +139,10 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
         }
         recognitionRequest.shouldReportPartialResults = true
 
+        audioEngine.reset()
         let inputNode = audioEngine.inputNode
-        if isTapInstalled {
-            inputNode.removeTap(onBus: 0)
-            isTapInstalled = false
-        }
-
-        let hardwareFormat = inputNode.outputFormat(forBus: 0)
-        let busFormat = inputNode.inputFormat(forBus: 0)
-        let format: AVAudioFormat
-        if hardwareFormat.sampleRate > 0 && hardwareFormat.channelCount > 0 {
-            format = hardwareFormat
-        } else if busFormat.sampleRate > 0 && busFormat.channelCount > 0 {
-            format = busFormat
-        } else if let standardFormat = AVAudioFormat(standardFormatWithSampleRate: 44100, channels: 1) {
-            format = standardFormat
-        } else {
-            throw SpeechRecognitionError.requestCreationFailed
-        }
+        inputNode.removeTap(onBus: 0)
+        isTapInstalled = false
 
         recognitionTask = speechRecognizer.recognitionTask(with: recognitionRequest) { [weak self] result, error in
             guard let self = self else { return }
@@ -154,7 +165,10 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
             }
         }
 
-        inputNode.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, _ in
+        let hardwareFormat = inputNode.outputFormat(forBus: 0)
+        let formatToUse: AVAudioFormat? = (hardwareFormat.sampleRate > 0 && hardwareFormat.channelCount > 0) ? hardwareFormat : nil
+        
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: formatToUse) { [weak self] buffer, _ in
             self?.recognitionRequest?.append(buffer)
         }
         isTapInstalled = true
@@ -168,9 +182,13 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
             stopListening()
             throw error
         }
+        #endif
     }
 
     public func stopListening() {
+        simulationTask?.cancel()
+        simulationTask = nil
+
         if audioEngine.isRunning {
             audioEngine.stop()
         }
@@ -179,6 +197,8 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
             audioEngine.inputNode.removeTap(onBus: 0)
             isTapInstalled = false
         }
+
+        audioEngine.reset()
 
         recognitionRequest?.endAudio()
         recognitionTask?.cancel()
