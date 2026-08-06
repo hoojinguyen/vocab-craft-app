@@ -121,89 +121,65 @@ public struct ReflexHeaderBarView: View {
     }
 
     public var body: some View {
-        HStack(alignment: .center, spacing: 10) {
+        HStack(alignment: .center) {
+            // Close Action
             if let onDismiss {
                 Button(action: onDismiss) {
                     Image(systemName: "xmark")
                         .font(.system(size: 14, weight: .bold))
                         .foregroundColor(.vocabInk)
-                        .frame(width: 32, height: 32)
-                        .background(Color.vocabMuted.opacity(0.1))
+                        .frame(width: 34, height: 34)
+                        .background(Color.vocabMuted.opacity(0.12))
                         .clipShape(Circle())
                 }
                 .buttonStyle(BentoCardButtonStyle())
             }
 
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 6) {
-                    Text("Phản xạ nói Eng")
-                        .font(.caption)
-                        .fontWeight(.bold)
-                        .foregroundColor(.vocabMuted)
-                        .textCase(.uppercase)
+            Spacer()
 
-                    Text("•")
-                        .font(.caption)
-                        .foregroundColor(.vocabMuted)
-
-                    Text("BÀI \(currentIndex + 1)/\(max(1, totalCount))")
-                        .font(.caption2)
-                        .fontWeight(.bold)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Color.vocabHeroAccent.opacity(0.12))
-                        .foregroundColor(.vocabHeroAccent)
-                        .cornerRadius(6)
-                }
-
+            // Center Title & Lesson Progress Badge
+            HStack(spacing: 6) {
                 Text("Reflex Drill (\(cefrLevel))")
-                    .font(.title2)
+                    .font(.subheadline)
                     .fontWeight(.bold)
                     .foregroundColor(.vocabInk)
+
+                Text("•")
+                    .font(.caption)
+                    .foregroundColor(.vocabMuted)
+
+                Text("Bài \(currentIndex + 1)/\(max(1, totalCount))")
+                    .font(.caption2)
+                    .fontWeight(.bold)
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 3)
+                    .background(Color.vocabHeroAccent.opacity(0.12))
+                    .foregroundColor(.vocabHeroAccent)
+                    .clipShape(Capsule())
             }
 
             Spacer()
 
-            HStack(spacing: 8) {
-                // Target Speed Chip
-                HStack(spacing: 5) {
-                    Image(systemName: "bolt.fill")
-                        .font(.caption2)
-                        .foregroundColor(.vocabPeach)
-                    Text("< 2.5s")
-                        .font(.caption)
-                        .fontWeight(.heavy)
-                        .monospacedDigit()
-                        .foregroundColor(.vocabPeach)
-                }
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(Color.vocabPeach.opacity(0.14))
-                .overlay(
-                    Capsule()
-                        .stroke(Color.vocabPeach.opacity(0.3), lineWidth: 1)
-                )
-                .clipShape(Capsule())
-
-                // Skip Button when not evaluated
-                if !isEvaluated {
-                    Button(action: onSkip) {
-                        HStack(spacing: 3) {
-                            Text("Bỏ qua")
-                                .font(.caption)
-                                .fontWeight(.semibold)
-                            Image(systemName: "chevron.right")
-                                .font(.caption2)
-                        }
-                        .foregroundColor(.vocabMuted)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(Color.vocabMuted.opacity(0.08))
-                        .cornerRadius(12)
-                        .contentShape(Rectangle())
+            // Skip Action
+            if !isEvaluated {
+                Button(action: onSkip) {
+                    HStack(spacing: 3) {
+                        Text("Bỏ qua")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                        Image(systemName: "chevron.right")
+                            .font(.caption2)
                     }
-                    .buttonStyle(BentoCardButtonStyle())
+                    .foregroundColor(.vocabMuted)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(Color.vocabMuted.opacity(0.08))
+                    .clipShape(Capsule())
                 }
+                .buttonStyle(BentoCardButtonStyle())
+            } else {
+                Color.clear
+                    .frame(width: 34, height: 34)
             }
         }
         .padding(.horizontal)
@@ -220,12 +196,32 @@ public struct ReflexPromptHeroCardView: View {
 
     public var body: some View {
         VStack(spacing: 18) {
-            HStack {
+            HStack(alignment: .center) {
                 Label("CÂU CẦN PHẢN XẠ NÓI", systemImage: "quote.bubble.fill")
                     .font(.caption2)
                     .fontWeight(.bold)
                     .foregroundColor(.vocabHeroAccent)
+
                 Spacer()
+
+                // Target Speed Chip anchored in context
+                HStack(spacing: 4) {
+                    Image(systemName: "bolt.fill")
+                        .font(.caption2)
+                    Text("< 2.5s")
+                        .font(.caption2)
+                        .fontWeight(.heavy)
+                        .monospacedDigit()
+                }
+                .foregroundColor(.vocabPeach)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color.vocabPeach.opacity(0.14))
+                .overlay(
+                    Capsule()
+                        .stroke(Color.vocabPeach.opacity(0.3), lineWidth: 1)
+                )
+                .clipShape(Capsule())
             }
 
             // Main Vietnamese Prompt
