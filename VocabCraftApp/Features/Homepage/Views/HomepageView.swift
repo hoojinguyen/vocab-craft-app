@@ -102,12 +102,19 @@ public struct HomepageView: View {
             case .search:
                 SearchNewWordView()
             case .reflex:
-                ReflexDrillView()
+                ReflexDrillView(onDismiss: {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                        viewModel.selectTab(.home)
+                    }
+                })
             case .settings:
                 SettingsView(viewModel: viewModel.settingsViewModel)
             }
 
-            LiquidGlassTabBar(selectedTab: $viewModel.selectedTab)
+            if viewModel.selectedTab != .reflex {
+                LiquidGlassTabBar(selectedTab: $viewModel.selectedTab)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
         }
         .preferredColorScheme(viewModel.settingsViewModel.store.colorScheme)
     }

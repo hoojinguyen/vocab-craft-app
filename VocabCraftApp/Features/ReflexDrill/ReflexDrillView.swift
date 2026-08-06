@@ -95,15 +95,42 @@ public struct ReflexSpeechVisualizerView: View {
 }
 
 // MARK: - Reflex Header Bar Component View
+// MARK: - Reflex Header Bar Component View
 public struct ReflexHeaderBarView: View {
     public let currentIndex: Int
     public let totalCount: Int
     public let cefrLevel: String
     public let isEvaluated: Bool
+    public var onDismiss: (() -> Void)? = nil
     public let onSkip: () -> Void
 
+    public init(
+        currentIndex: Int,
+        totalCount: Int,
+        cefrLevel: String,
+        isEvaluated: Bool,
+        onDismiss: (() -> Void)? = nil,
+        onSkip: @escaping () -> Void
+    ) {
+        self.currentIndex = currentIndex
+        self.totalCount = totalCount
+        self.cefrLevel = cefrLevel
+        self.isEvaluated = isEvaluated
+        self.onDismiss = onDismiss
+        self.onSkip = onSkip
+    }
+
     public var body: some View {
-        HStack(alignment: .center) {
+        HStack(alignment: .center, spacing: 10) {
+            if let onDismiss {
+                Button(action: onDismiss) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(.vocabMuted.opacity(0.6))
+                }
+                .buttonStyle(BentoCardButtonStyle())
+            }
+
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 6) {
                     Text("Phản xạ nói Eng")
@@ -131,6 +158,8 @@ public struct ReflexHeaderBarView: View {
                     .fontWeight(.bold)
                     .foregroundColor(.vocabInk)
             }
+
+            Spacer()
 
             HStack(spacing: 8) {
                 // Target Speed Chip
@@ -455,7 +484,7 @@ public struct ReflexResultBottomDockView: View {
             .padding(.top, 2)
         }
         .padding(.horizontal, 20)
-        .padding(.bottom, 24)
+        .padding(.bottom, 36)
         .background(
             ZStack {
                 Color.vocabSurfaceCard
@@ -491,14 +520,16 @@ public struct ReflexResultBottomDockView: View {
 public struct ReflexDrillView: View {
     @State private var viewModel: ReflexDrillViewModel
     @State private var showEnglishHint = false
+    public var onDismiss: (() -> Void)? = nil
 
     @MainActor
-    public init(viewModel: ReflexDrillViewModel) {
+    public init(viewModel: ReflexDrillViewModel, onDismiss: (() -> Void)? = nil) {
         self._viewModel = State(wrappedValue: viewModel)
+        self.onDismiss = onDismiss
     }
 
     @MainActor
-    public init(datasetEngine: DatasetEngine? = nil, cefrLevel: String = "B1") {
+    public init(datasetEngine: DatasetEngine? = nil, cefrLevel: String = "B1", onDismiss: (() -> Void)? = nil) {
         let repo = VocabularyRepositoryImpl(datasetEngine: datasetEngine)
         let fetchUseCase = FetchVocabularyUseCase(repository: repo)
         let vm = ReflexDrillViewModel(
@@ -506,6 +537,7 @@ public struct ReflexDrillView: View {
             cefrLevel: cefrLevel
         )
         self._viewModel = State(wrappedValue: vm)
+        self.onDismiss = onDismiss
     }
 
     public var body: some View {
@@ -521,6 +553,7 @@ public struct ReflexDrillView: View {
                         totalCount: viewModel.state.drillsList.count,
                         cefrLevel: viewModel.state.cefrLevel,
                         isEvaluated: viewModel.state.isEvaluated,
+                        onDismiss: onDismiss,
                         onSkip: {
                             withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
                                 viewModel.nextDrill()
@@ -574,7 +607,7 @@ public struct ReflexDrillView: View {
                     }
                 }
                 .padding(.top)
-                .padding(.bottom, viewModel.state.isEvaluated ? 270 : 90)
+                .padding(.bottom, viewModel.state.isEvaluated ? 230 : 40)
             }
 
             // Sticky Bottom Result Sheet
