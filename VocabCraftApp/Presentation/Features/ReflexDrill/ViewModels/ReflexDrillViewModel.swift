@@ -27,10 +27,14 @@ public final class ReflexDrillViewModel {
     
     private let fetchVocabularyUseCase: FetchVocabularyUseCaseProtocol?
     private let evaluateSRSUseCase: EvaluateSRSUseCaseProtocol?
-    public let ttsService: TextToSpeechProtocol
-    public let sttService: SpeechRecognitionProtocol
+    private let ttsService: TextToSpeechProtocol
+    private let sttService: SpeechRecognitionProtocol
     
     private var timerTask: Task<Void, Never>?
+
+    public var isListening: Bool { sttService.isListening }
+    public var recognizedText: String { sttService.recognizedText }
+    public var isSpeaking: Bool { ttsService.isSpeaking }
 
     public init(
         fetchVocabularyUseCase: FetchVocabularyUseCaseProtocol? = nil,
