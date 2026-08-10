@@ -14,6 +14,19 @@ public struct ReflexSpeechVisualizerView: View {
 
     public var body: some View {
         VStack(spacing: 12) {
+            // Header Label for Context & Affordance
+            HStack {
+                Label(
+                    isListening ? "ĐANG LẮNG NGHE GIỌNG NÓI..." : "ĐÁP ÁN BẠN NÓI",
+                    systemImage: isListening ? "waveform" : "mic.text.fill"
+                )
+                .font(.caption2.bold().smallCaps())
+                .foregroundColor(isListening ? .vocabCoral : .vocabMuted)
+
+                Spacer()
+            }
+            .padding(.horizontal, 4)
+
             // Equalizer Sound Bar Visualizer
             if isListening {
                 HStack(spacing: 5) {
@@ -30,13 +43,13 @@ public struct ReflexSpeechVisualizerView: View {
                             .animation(.easeInOut(duration: 0.12), value: barHeights[index])
                     }
                 }
-                .frame(height: 36)
+                .frame(height: 32)
                 .task(id: isListening) {
                     guard isListening else { return }
                     while !Task.isCancelled && isListening {
                         try? await Task.sleep(for: .milliseconds(120))
                         for i in 0..<barHeights.count {
-                            barHeights[i] = CGFloat.random(in: 8...34)
+                            barHeights[i] = CGFloat.random(in: 8...30)
                         }
                     }
                 }
@@ -45,12 +58,12 @@ public struct ReflexSpeechVisualizerView: View {
 
             // Recognized Speech Text Display
             Text(displayText)
-                .font(.system(size: 18, weight: recognizedText.isEmpty ? .regular : .semibold, design: .rounded))
-                .foregroundColor(recognizedText.isEmpty ? .vocabMuted : .vocabInk)
+                .font(.system(size: 19, weight: recognizedText.isEmpty ? .medium : .semibold, design: .rounded))
+                .foregroundColor(recognizedText.isEmpty ? .vocabMuted.opacity(0.6) : .vocabInk)
                 .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity, minHeight: 48)
+                .frame(maxWidth: .infinity, minHeight: 44)
                 .padding(.horizontal, 16)
-                .padding(.vertical, 10)
+                .padding(.vertical, 8)
         }
         .padding(16)
         .background(
@@ -198,8 +211,7 @@ public struct ReflexPromptHeroCardView: View {
         VStack(spacing: 18) {
             HStack(alignment: .center) {
                 Label("CÂU CẦN PHẢN XẠ NÓI", systemImage: "quote.bubble.fill")
-                    .font(.caption2)
-                    .fontWeight(.bold)
+                    .font(.caption2.bold().smallCaps())
                     .foregroundColor(.vocabHeroAccent)
 
                 Spacer()
@@ -382,12 +394,6 @@ public struct ReflexResultBottomDockView: View {
         let isSpeedTargetHit = state.elapsedTimeMs < 2500
 
         VStack(spacing: 14) {
-            // Top Drag Handle Indicator
-            Capsule()
-                .fill(isSuccess ? Color.vocabMint.opacity(0.4) : Color.vocabCoral.opacity(0.4))
-                .frame(width: 36, height: 4)
-                .padding(.top, 8)
-
             // Header Status & Speed Metric
             HStack(alignment: .center) {
                 HStack(spacing: 8) {
@@ -407,16 +413,16 @@ public struct ReflexResultBottomDockView: View {
                     Image(systemName: "stopwatch.fill")
                         .font(.caption2)
                     Text(formattedTime)
-                        .font(.subheadline)
-                        .fontWeight(.bold)
+                        .font(.subheadline.bold())
                         .monospacedDigit()
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(isSpeedTargetHit ? Color.vocabMint.opacity(0.16) : Color.vocabPeach.opacity(0.16))
-                .foregroundColor(isSpeedTargetHit ? Color.vocabMint : Color.vocabPeach)
-                .cornerRadius(12)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(isSuccess ? Color.vocabMint.opacity(0.14) : Color.vocabInk.opacity(0.06))
+                .foregroundColor(isSuccess ? Color.vocabMint : Color.vocabInk)
+                .cornerRadius(10)
             }
+            .padding(.top, 14)
 
             // Feedback Text
             Text(state.feedbackText)
@@ -432,8 +438,7 @@ public struct ReflexResultBottomDockView: View {
                 HStack(spacing: 16) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("CẤP ĐỘ PHẢN XẠ (SRS)")
-                            .font(.caption2)
-                            .fontWeight(.bold)
+                            .font(.caption2.bold().smallCaps())
                             .foregroundColor(.vocabMuted)
 
                         HStack(spacing: 6) {
@@ -454,8 +459,7 @@ public struct ReflexResultBottomDockView: View {
 
                     VStack(alignment: .trailing, spacing: 4) {
                         Text("LỊCH ÔN TIẾP THEO")
-                            .font(.caption2)
-                            .fontWeight(.bold)
+                            .font(.caption2.bold().smallCaps())
                             .foregroundColor(.vocabMuted)
 
                         Text("\(res.intervalDays) ngày sau")
@@ -479,14 +483,25 @@ public struct ReflexResultBottomDockView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 52)
                 .background(
-                    LinearGradient(
+                    isSuccess
+                    ? LinearGradient(
                         colors: [Color.vocabHeroAccent, Color.vocabHeroAccent.opacity(0.88)],
                         startPoint: .leading,
                         endPoint: .trailing
-                    )
+                      )
+                    : LinearGradient(
+                        colors: [Color.vocabInk, Color.vocabInk.opacity(0.9)],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                      )
                 )
                 .cornerRadius(16)
-                .shadow(color: Color.vocabHeroAccent.opacity(0.28), radius: 10, x: 0, y: 5)
+                .shadow(
+                    color: isSuccess ? Color.vocabHeroAccent.opacity(0.28) : Color.black.opacity(0.15),
+                    radius: 10,
+                    x: 0,
+                    y: 5
+                )
                 .contentShape(Rectangle())
             }
             .buttonStyle(BentoCardButtonStyle())
@@ -507,9 +522,9 @@ public struct ReflexResultBottomDockView: View {
                 )
             }
         )
-        .clipShape(UnevenRoundedRectangle(topLeadingRadius: 28, bottomLeadingRadius: 0, bottomTrailingRadius: 0, topTrailingRadius: 28))
+        .clipShape(UnevenRoundedRectangle(topLeadingRadius: 24, bottomLeadingRadius: 0, bottomTrailingRadius: 0, topTrailingRadius: 24))
         .overlay(
-            UnevenRoundedRectangle(topLeadingRadius: 28, bottomLeadingRadius: 0, bottomTrailingRadius: 0, topTrailingRadius: 28)
+            UnevenRoundedRectangle(topLeadingRadius: 24, bottomLeadingRadius: 0, bottomTrailingRadius: 0, topTrailingRadius: 24)
                 .stroke(
                     isSuccess ? Color.vocabMint.opacity(0.35) : Color.vocabCoral.opacity(0.35),
                     lineWidth: 1.5
@@ -587,20 +602,23 @@ public struct ReflexDrillView: View {
                         )
                         .padding(.horizontal)
 
-                        // Tactile Mic Control Hub
-                        ReflexMicControlHubView(
-                            isListening: viewModel.isListening,
-                            onTapMic: {
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                                    if viewModel.isListening {
-                                        viewModel.stopVoiceRecognition()
-                                        viewModel.evaluateAnswer(viewModel.recognizedText)
-                                    } else {
-                                        viewModel.startVoiceRecognition()
+                        // Tactile Mic Control Hub (Hidden when evaluated to avoid occlusion behind bottom dock)
+                        if !viewModel.state.isEvaluated {
+                            ReflexMicControlHubView(
+                                isListening: viewModel.isListening,
+                                onTapMic: {
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                                        if viewModel.isListening {
+                                            viewModel.stopVoiceRecognition()
+                                            viewModel.evaluateAnswer(viewModel.recognizedText)
+                                        } else {
+                                            viewModel.startVoiceRecognition()
+                                        }
                                     }
                                 }
-                            }
-                        )
+                            )
+                            .transition(.scale.combined(with: .opacity))
+                        }
                     } else {
                         // Loading State
                         VStack(spacing: 16) {
