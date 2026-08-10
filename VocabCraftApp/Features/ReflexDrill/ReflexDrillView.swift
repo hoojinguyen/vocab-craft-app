@@ -534,10 +534,7 @@ public struct ReflexResultBottomDockView: View {
         .padding(.horizontal, 16)
         .padding(.bottom, 12)
         .overlay(
-            SRSSparkleEffectView(isEmitting: Binding(
-                get: { state.triggerSparkle },
-                set: { _ in }
-            ))
+            SRSSparkleEffectView(isEmitting: .constant(state.triggerSparkle))
         )
     }
 }
@@ -610,12 +607,7 @@ public struct ReflexDrillView: View {
                                     isListening: viewModel.isListening,
                                     onTapMic: {
                                         withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                                            if viewModel.isListening {
-                                                viewModel.stopVoiceRecognition()
-                                                viewModel.evaluateAnswer(viewModel.recognizedText)
-                                            } else {
-                                                viewModel.startVoiceRecognition()
-                                            }
+                                            viewModel.handleMicTap()
                                         }
                                     }
                                 )

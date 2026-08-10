@@ -125,7 +125,7 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
         }
 
         let audioSession = AVAudioSession.sharedInstance()
-        try audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.defaultToSpeaker, .allowBluetooth])
+        try audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.defaultToSpeaker, .allowBluetoothHFP])
         try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
         #endif
 
@@ -151,34 +151,31 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
 
         recognitionTask = speechRecognizer.recognitionTask(with: recognitionRequest) { [weak self] result, error in
             guard let self = self else { return }
-            if let result = result {
-                let text = result.bestTranscription.formattedString
-                DispatchQueue.main.async {
+            Task { @MainActor in
+                if let result = result {
+                    let text = result.bestTranscription.formattedString
                     self.recognizedText = text
                     self.onResultCallback?(text)
                 }
-            }
-            if let error = error {
-                let nsError = error as NSError
-                let isCancelledError = !self.isRecording ||
-                    (nsError.domain == "kAFAssistantErrorDomain" && (nsError.code == 216 || nsError.code == 1110)) ||
-                    (nsError.domain == "com.apple.speech.speechrecognitionerror" && nsError.code == 203)
-                
-                DispatchQueue.main.async {
+                if let error = error {
+                    let nsError = error as NSError
+                    let isCancelledError = !self.isRecording ||
+                        (nsError.domain == "kAFAssistantErrorDomain" && (nsError.code == 216 || nsError.code == 1110)) ||
+                        (nsError.domain == "com.apple.speech.speechrecognitionerror" && nsError.code == 203)
+                    
                     if !isCancelledError {
                         self.onErrorCallback?(error)
                     }
                     self.stopListening()
-                }
-            } else if result?.isFinal ?? false {
-                DispatchQueue.main.async {
+                } else if result?.isFinal ?? false {
                     self.stopListening()
                 }
             }
         }
         
-        inputNode.installTap(onBus: 0, bufferSize: 1024, format: hardwareFormat) { [weak self] buffer, _ in
-            self?.recognitionRequest?.append(buffer)
+        let request = recognitionRequest
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: hardwareFormat) { buffer, _ in
+            request.append(buffer)
         }
         isTapInstalled = true
 

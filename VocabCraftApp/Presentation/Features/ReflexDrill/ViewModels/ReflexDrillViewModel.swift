@@ -53,6 +53,13 @@ public final class ReflexDrillViewModel {
         self.sttService = sttService ?? SpeechRecognitionService()
     }
 
+    deinit {
+        let stt = sttService
+        Task { @MainActor in
+            stt.stopListening()
+        }
+    }
+
     public func loadDrills() {
         Task {
             do {
@@ -63,7 +70,9 @@ public final class ReflexDrillViewModel {
                     self.state.drill = drills.first
                 }
             } catch {
-                // Fallback or error state
+                print("[ReflexDrillViewModel] Failed to load drills: \(error.localizedDescription)")
+                self.state.errorMessage = "Không thể tải danh sách bài tập: \(error.localizedDescription)"
+                self.state.showErrorAlert = true
             }
             if self.state.drill == nil {
                 self.setupSampleDrill()
@@ -94,11 +103,12 @@ public final class ReflexDrillViewModel {
         state.srsResult = nil
         
         timerTask?.cancel()
-        timerTask = Task {
+        timerTask = Task { [weak self] in
             while !Task.isCancelled {
                 try? await Task.sleep(for: .milliseconds(100))
-                if let start = state.startTime {
-                    state.elapsedTimeMs = Int(Date().timeIntervalSince(start) * 1000)
+                guard let self = self else { break }
+                if let start = self.state.startTime {
+                    self.state.elapsedTimeMs = Int(Date().timeIntervalSince(start) * 1000)
                 }
             }
         }
@@ -109,16 +119,22 @@ public final class ReflexDrillViewModel {
         ttsService.speak(text: drill.correctAnswer)
     }
 
+    public func handleMicTap() {
+        if isListening {
+            stopVoiceRecognition()
+            evaluateAnswer(recognizedText)
+        } else {
+            startVoiceRecognition()
+        }
+    }
+
     public func startVoiceRecognition() {
         ttsService.stop()
         sttService.startListening(
             onResult: { [weak self] recognizedText in
-                guard let self = self else { return }
-                // Only auto-evaluate when user has matched the exact correct answer.
-                // Partial speech updates allow live visualizer updates without stopping recording.
-                let cleanedAnswer = recognizedText.trimmingCharacters(in: .punctuationCharacters).lowercased()
-                if let target = self.state.drill?.correctAnswer.trimmingCharacters(in: .punctuationCharacters).lowercased(),
-                   !target.isEmpty, cleanedAnswer == target {
+                guard let self = self, let target = self.state.drill?.correctAnswer else { return }
+                // Only auto-evaluate when user speech matches target answer.
+                if self.isCorrectAnswer(userText: recognizedText, targetText: target) {
                     self.evaluateAnswer(recognizedText)
                 }
             },
@@ -145,10 +161,7 @@ public final class ReflexDrillViewModel {
         sttService.stopListening()
 
         guard let drill = state.drill else { return }
-        
-        let cleanedAnswer = answer.trimmingCharacters(in: .punctuationCharacters).lowercased()
-        let cleanedCorrect = drill.correctAnswer.trimmingCharacters(in: .punctuationCharacters).lowercased()
-        let isCorrect = cleanedAnswer == cleanedCorrect || cleanedAnswer.contains(cleanedCorrect)
+        let isCorrect = isCorrectAnswer(userText: answer, targetText: drill.correctAnswer)
 
         let result: SRSResult
         if let useCase = evaluateSRSUseCase {
@@ -190,5 +203,19 @@ public final class ReflexDrillViewModel {
             setupSampleDrill()
         }
         startDrillTimer()
+    }
+
+    // MARK: - Helper Methods
+    
+    private func normalizeText(_ text: String) -> String {
+        text.lowercased()
+            .trimmingCharacters(in: .whitespacesAndNewlines.union(.punctuationCharacters))
+    }
+
+    private func isCorrectAnswer(userText: String, targetText: String) -> Bool {
+        let userClean = normalizeText(userText)
+        let targetClean = normalizeText(targetText)
+        guard !userClean.isEmpty, !targetClean.isEmpty else { return false }
+        return userClean == targetClean || userClean.contains(targetClean)
     }
 }
