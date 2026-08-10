@@ -154,8 +154,15 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
                 }
             }
             if let error = error {
+                let nsError = error as NSError
+                let isCancelledError = !self.isRecording ||
+                    (nsError.domain == "kAFAssistantErrorDomain" && (nsError.code == 216 || nsError.code == 1110)) ||
+                    (nsError.domain == "com.apple.speech.speechrecognitionerror" && nsError.code == 203)
+                
                 DispatchQueue.main.async {
-                    self.onErrorCallback?(error)
+                    if !isCancelledError {
+                        self.onErrorCallback?(error)
+                    }
                     self.stopListening()
                 }
             } else if result?.isFinal ?? false {
@@ -189,6 +196,9 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
         simulationTask?.cancel()
         simulationTask = nil
 
+        guard isRecording else { return }
+        isRecording = false
+
         if audioEngine.isRunning {
             audioEngine.stop()
         }
@@ -205,7 +215,6 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
 
         recognitionRequest = nil
         recognitionTask = nil
-        isRecording = false
 
         #if os(iOS)
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)

@@ -112,7 +112,14 @@ public final class ReflexDrillViewModel {
     public func startVoiceRecognition() {
         sttService.startListening(
             onResult: { [weak self] recognizedText in
-                self?.evaluateAnswer(recognizedText)
+                guard let self = self else { return }
+                // Only auto-evaluate when user has matched the exact correct answer.
+                // Partial speech updates allow live visualizer updates without stopping recording.
+                let cleanedAnswer = recognizedText.trimmingCharacters(in: .punctuationCharacters).lowercased()
+                if let target = self.state.drill?.correctAnswer.trimmingCharacters(in: .punctuationCharacters).lowercased(),
+                   !target.isEmpty, cleanedAnswer == target {
+                    self.evaluateAnswer(recognizedText)
+                }
             },
             onError: { [weak self] error in
                 let desc: String

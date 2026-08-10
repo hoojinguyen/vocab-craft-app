@@ -25,7 +25,6 @@ public struct ReflexSpeechVisualizerView: View {
 
                 Spacer()
             }
-            .padding(.horizontal, 4)
 
             // Equalizer Sound Bar Visualizer
             if isListening {
@@ -62,16 +61,17 @@ public struct ReflexSpeechVisualizerView: View {
                 .foregroundColor(recognizedText.isEmpty ? .vocabMuted.opacity(0.6) : .vocabInk)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity, minHeight: 44)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
         }
-        .padding(16)
+        .padding(18)
+        .frame(maxWidth: .infinity)
         .background(
             ZStack {
                 Color.vocabSurfaceCard
 
                 if isListening {
-                    RoundedRectangle(cornerRadius: 20)
+                    RoundedRectangle(cornerRadius: 24)
                         .stroke(
                             LinearGradient(
                                 colors: [Color.vocabCoral.opacity(0.6), Color.vocabPeach.opacity(0.4)],
@@ -81,18 +81,19 @@ public struct ReflexSpeechVisualizerView: View {
                             lineWidth: 2
                         )
                 } else {
-                    RoundedRectangle(cornerRadius: 20)
+                    RoundedRectangle(cornerRadius: 24)
                         .stroke(Color.vocabHairline, lineWidth: 1.5)
                 }
             }
         )
-        .cornerRadius(20)
+        .cornerRadius(24)
         .shadow(
             color: isListening ? Color.vocabCoral.opacity(0.12) : Color.black.opacity(0.03),
             radius: isListening ? 12 : 6,
             x: 0,
             y: isListening ? 6 : 3
         )
+        .padding(.horizontal, 16)
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isListening)
     }
 
@@ -389,11 +390,19 @@ public struct ReflexResultBottomDockView: View {
         }
     }
 
+    private var conciseFeedbackText: String {
+        if state.isCorrect {
+            return "Phản xạ xuất sắc! Đáp án chuẩn xác."
+        } else {
+            return "Chưa trùng khớp — Hãy thử luyện tập lại."
+        }
+    }
+
     public var body: some View {
         let isSuccess = state.isCorrect
         let isSpeedTargetHit = state.elapsedTimeMs < 2500
 
-        VStack(spacing: 14) {
+        VStack(spacing: 12) {
             // Header Status & Speed Metric
             HStack(alignment: .center) {
                 HStack(spacing: 8) {
@@ -402,8 +411,7 @@ public struct ReflexResultBottomDockView: View {
                         .foregroundColor(isSuccess ? Color.vocabMint : Color.vocabCoral)
 
                     Text(isSuccess ? (isSpeedTargetHit ? "Phản xạ Tuyệt vời!" : "Chính xác!") : "Cần rèn luyện thêm")
-                        .font(.headline)
-                        .fontWeight(.bold)
+                        .font(.headline.bold())
                         .foregroundColor(.vocabInk)
                 }
 
@@ -422,10 +430,10 @@ public struct ReflexResultBottomDockView: View {
                 .foregroundColor(isSuccess ? Color.vocabMint : Color.vocabInk)
                 .cornerRadius(10)
             }
-            .padding(.top, 14)
+            .padding(.top, 4)
 
-            // Feedback Text
-            Text(state.feedbackText)
+            // Concise Feedback Line (No redundant sentence echoing)
+            Text(conciseFeedbackText)
                 .font(.subheadline)
                 .foregroundColor(.vocabMuted)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -436,85 +444,77 @@ public struct ReflexResultBottomDockView: View {
                     .background(Color.vocabHairline)
 
                 HStack(spacing: 16) {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 3) {
                         Text("CẤP ĐỘ PHẢN XẠ (SRS)")
                             .font(.caption2.bold().smallCaps())
                             .foregroundColor(.vocabMuted)
 
-                        HStack(spacing: 6) {
+                        if res.nextMastery > state.currentMastery {
+                            HStack(spacing: 4) {
+                                Text("Cấp \(state.currentMastery)")
+                                    .font(.subheadline)
+                                    .foregroundColor(.vocabMuted)
+                                Image(systemName: "arrow.right")
+                                    .font(.caption2)
+                                    .foregroundColor(.vocabHeroAccent)
+                                Text("Cấp \(res.nextMastery)")
+                                    .font(.subheadline.bold())
+                                    .foregroundColor(.vocabHeroAccent)
+                            }
+                        } else {
                             Text("Cấp \(state.currentMastery)")
-                                .font(.subheadline)
-                                .foregroundColor(.vocabMuted)
-                            Image(systemName: "arrow.right")
-                                .font(.caption2)
-                                .foregroundColor(.vocabHeroAccent)
-                            Text("Cấp \(res.nextMastery)")
-                                .font(.subheadline)
-                                .fontWeight(.bold)
-                                .foregroundColor(.vocabHeroAccent)
+                                .font(.subheadline.bold())
+                                .foregroundColor(.vocabInk)
                         }
                     }
 
                     Spacer()
 
-                    VStack(alignment: .trailing, spacing: 4) {
+                    VStack(alignment: .trailing, spacing: 3) {
                         Text("LỊCH ÔN TIẾP THEO")
                             .font(.caption2.bold().smallCaps())
                             .foregroundColor(.vocabMuted)
 
                         Text("\(res.intervalDays) ngày sau")
-                            .font(.subheadline)
-                            .fontWeight(.bold)
+                            .font(.subheadline.bold())
                             .foregroundColor(.vocabInk)
                     }
                 }
             }
 
-            // Primary Action Button anchored in thumb reach zone
+            // Primary Action Button (Brand Emerald Mint Accent consistent across all screens)
             Button(action: onNext) {
-                HStack(spacing: 10) {
+                HStack(spacing: 8) {
                     Text("Bài tiếp theo")
-                        .font(.headline)
-                        .fontWeight(.bold)
+                        .font(.headline.bold())
                     Image(systemName: "arrow.right.circle.fill")
                         .font(.title3)
                 }
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
-                .frame(height: 52)
+                .frame(height: 50)
                 .background(
-                    isSuccess
-                    ? LinearGradient(
+                    LinearGradient(
                         colors: [Color.vocabHeroAccent, Color.vocabHeroAccent.opacity(0.88)],
                         startPoint: .leading,
                         endPoint: .trailing
-                      )
-                    : LinearGradient(
-                        colors: [Color.vocabInk, Color.vocabInk.opacity(0.9)],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                      )
+                    )
                 )
-                .cornerRadius(16)
-                .shadow(
-                    color: isSuccess ? Color.vocabHeroAccent.opacity(0.28) : Color.black.opacity(0.15),
-                    radius: 10,
-                    x: 0,
-                    y: 5
-                )
+                .cornerRadius(14)
+                .shadow(color: Color.vocabHeroAccent.opacity(0.25), radius: 8, x: 0, y: 4)
                 .contentShape(Rectangle())
             }
             .buttonStyle(BentoCardButtonStyle())
             .padding(.top, 2)
         }
-        .padding(.horizontal, 20)
-        .padding(.bottom, 36)
+        .padding(18)
+        .frame(maxWidth: .infinity)
         .background(
             ZStack {
                 Color.vocabSurfaceCard
                 LinearGradient(
                     colors: [
-                        isSuccess ? Color.vocabMint.opacity(0.08) : Color.vocabCoral.opacity(0.08),
+                        isSuccess ? Color.vocabMint.opacity(0.08) : Color.vocabCoral.opacity(0.06),
                         Color.vocabSurfaceCard
                     ],
                     startPoint: .top,
@@ -522,15 +522,17 @@ public struct ReflexResultBottomDockView: View {
                 )
             }
         )
-        .clipShape(UnevenRoundedRectangle(topLeadingRadius: 24, bottomLeadingRadius: 0, bottomTrailingRadius: 0, topTrailingRadius: 24))
+        .clipShape(RoundedRectangle(cornerRadius: 24))
         .overlay(
-            UnevenRoundedRectangle(topLeadingRadius: 24, bottomLeadingRadius: 0, bottomTrailingRadius: 0, topTrailingRadius: 24)
+            RoundedRectangle(cornerRadius: 24)
                 .stroke(
                     isSuccess ? Color.vocabMint.opacity(0.35) : Color.vocabCoral.opacity(0.35),
                     lineWidth: 1.5
                 )
         )
-        .shadow(color: Color.black.opacity(0.12), radius: 18, x: 0, y: -6)
+        .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 6)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 12)
         .overlay(
             SRSSparkleEffectView(isEmitting: Binding(
                 get: { state.triggerSparkle },
@@ -565,89 +567,90 @@ public struct ReflexDrillView: View {
     }
 
     public var body: some View {
-        ZStack(alignment: .bottom) {
+        ZStack {
             Color.vocabCanvas
                 .ignoresSafeArea()
 
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: 20) {
-                    // Header Bar
-                    ReflexHeaderBarView(
-                        currentIndex: viewModel.state.currentDrillIndex,
-                        totalCount: viewModel.state.drillsList.count,
-                        cefrLevel: viewModel.state.cefrLevel,
-                        isEvaluated: viewModel.state.isEvaluated,
-                        onDismiss: onDismiss,
-                        onSkip: {
+            VStack(spacing: 0) {
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(spacing: 20) {
+                        // Header Bar
+                        ReflexHeaderBarView(
+                            currentIndex: viewModel.state.currentDrillIndex,
+                            totalCount: viewModel.state.drillsList.count,
+                            cefrLevel: viewModel.state.cefrLevel,
+                            isEvaluated: viewModel.state.isEvaluated,
+                            onDismiss: onDismiss,
+                            onSkip: {
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                                    viewModel.nextDrill()
+                                }
+                            }
+                        )
+
+                        if let drill = viewModel.state.drill {
+                            // Prompt Hero Challenge Card
+                            ReflexPromptHeroCardView(
+                                drill: drill,
+                                isEvaluated: viewModel.state.isEvaluated,
+                                isSpeaking: viewModel.isSpeaking,
+                                showEnglishHint: $showEnglishHint,
+                                onSpeak: { viewModel.speakCorrectAnswer() }
+                            )
+
+                            // Speech Visualizer & Live Text Display
+                            ReflexSpeechVisualizerView(
+                                isListening: viewModel.isListening,
+                                recognizedText: viewModel.recognizedText
+                            )
+
+                            // Tactile Mic Control Hub (Hidden when evaluated to avoid occlusion behind bottom dock)
+                            if !viewModel.state.isEvaluated {
+                                ReflexMicControlHubView(
+                                    isListening: viewModel.isListening,
+                                    onTapMic: {
+                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                                            if viewModel.isListening {
+                                                viewModel.stopVoiceRecognition()
+                                                viewModel.evaluateAnswer(viewModel.recognizedText)
+                                            } else {
+                                                viewModel.startVoiceRecognition()
+                                            }
+                                        }
+                                    }
+                                )
+                                .transition(.scale.combined(with: .opacity))
+                            }
+                        } else {
+                            // Loading State
+                            VStack(spacing: 16) {
+                                ProgressView()
+                                    .tint(Color.vocabHeroAccent)
+                                    .scaleEffect(1.2)
+                                Text("Đang tải bài tập phản xạ nói...")
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.vocabMuted)
+                            }
+                            .frame(maxWidth: .infinity, minHeight: 320)
+                        }
+                    }
+                    .padding(.top)
+                    .padding(.bottom, 20)
+                }
+
+                // Sticky Bottom Result Sheet (Docked cleanly below ScrollView)
+                if viewModel.state.isEvaluated {
+                    ReflexResultBottomDockView(
+                        state: viewModel.state,
+                        onNext: {
                             withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
                                 viewModel.nextDrill()
                             }
                         }
                     )
-
-                    if let drill = viewModel.state.drill {
-                        // Prompt Hero Challenge Card
-                        ReflexPromptHeroCardView(
-                            drill: drill,
-                            isEvaluated: viewModel.state.isEvaluated,
-                            isSpeaking: viewModel.isSpeaking,
-                            showEnglishHint: $showEnglishHint,
-                            onSpeak: { viewModel.speakCorrectAnswer() }
-                        )
-
-                        // Speech Visualizer & Live Text Display
-                        ReflexSpeechVisualizerView(
-                            isListening: viewModel.isListening,
-                            recognizedText: viewModel.recognizedText
-                        )
-                        .padding(.horizontal)
-
-                        // Tactile Mic Control Hub (Hidden when evaluated to avoid occlusion behind bottom dock)
-                        if !viewModel.state.isEvaluated {
-                            ReflexMicControlHubView(
-                                isListening: viewModel.isListening,
-                                onTapMic: {
-                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                                        if viewModel.isListening {
-                                            viewModel.stopVoiceRecognition()
-                                            viewModel.evaluateAnswer(viewModel.recognizedText)
-                                        } else {
-                                            viewModel.startVoiceRecognition()
-                                        }
-                                    }
-                                }
-                            )
-                            .transition(.scale.combined(with: .opacity))
-                        }
-                    } else {
-                        // Loading State
-                        VStack(spacing: 16) {
-                            ProgressView()
-                                .tint(Color.vocabHeroAccent)
-                                .scaleEffect(1.2)
-                            Text("Đang tải bài tập phản xạ nói...")
-                                .font(.subheadline)
-                                .fontWeight(.medium)
-                                .foregroundColor(.vocabMuted)
-                        }
-                        .frame(maxWidth: .infinity, minHeight: 320)
-                    }
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
-                .padding(.top)
-                .padding(.bottom, viewModel.state.isEvaluated ? 230 : 40)
-            }
-
-            // Sticky Bottom Result Sheet
-            if viewModel.state.isEvaluated {
-                ReflexResultBottomDockView(
-                    state: viewModel.state,
-                    onNext: {
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
-                            viewModel.nextDrill()
-                        }
-                    }
-                )
-                .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
         .onAppear {

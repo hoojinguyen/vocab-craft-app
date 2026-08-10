@@ -34,4 +34,14 @@ final class ReflexDrillViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.state.currentMastery, 0)
         XCTAssertFalse(viewModel.state.triggerSparkle)
     }
+
+    func testStartVoiceRecognitionDoesNotAutoEvaluateOnPartialResult() {
+        let viewModel = ReflexDrillViewModel(cefrLevel: "B1")
+        viewModel.setupSampleDrill()
+        viewModel.startVoiceRecognition()
+        
+        // On simulator, startVoiceRecognition initiates simulationTask.
+        // Immediately after start, before complete answer is simulated, it should not be evaluated.
+        XCTAssertFalse(viewModel.state.isEvaluated)
+    }
 }
