@@ -125,7 +125,7 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
         }
 
         let audioSession = AVAudioSession.sharedInstance()
-        try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
+        try audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.defaultToSpeaker, .allowBluetooth])
         try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
         #endif
 
@@ -143,6 +143,11 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
         let inputNode = audioEngine.inputNode
         inputNode.removeTap(onBus: 0)
         isTapInstalled = false
+
+        let hardwareFormat = inputNode.outputFormat(forBus: 0)
+        guard hardwareFormat.sampleRate > 0 && hardwareFormat.channelCount > 0 else {
+            throw SpeechRecognitionError.requestCreationFailed
+        }
 
         recognitionTask = speechRecognizer.recognitionTask(with: recognitionRequest) { [weak self] result, error in
             guard let self = self else { return }
@@ -171,11 +176,8 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
                 }
             }
         }
-
-        let hardwareFormat = inputNode.outputFormat(forBus: 0)
-        let formatToUse: AVAudioFormat? = (hardwareFormat.sampleRate > 0 && hardwareFormat.channelCount > 0) ? hardwareFormat : nil
         
-        inputNode.installTap(onBus: 0, bufferSize: 1024, format: formatToUse) { [weak self] buffer, _ in
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: hardwareFormat) { [weak self] buffer, _ in
             self?.recognitionRequest?.append(buffer)
         }
         isTapInstalled = true

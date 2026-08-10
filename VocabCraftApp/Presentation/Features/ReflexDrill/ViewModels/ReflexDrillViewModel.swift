@@ -110,6 +110,7 @@ public final class ReflexDrillViewModel {
     }
 
     public func startVoiceRecognition() {
+        ttsService.stop()
         sttService.startListening(
             onResult: { [weak self] recognizedText in
                 guard let self = self else { return }

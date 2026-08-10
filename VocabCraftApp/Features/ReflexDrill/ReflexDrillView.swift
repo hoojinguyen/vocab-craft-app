@@ -18,7 +18,7 @@ public struct ReflexSpeechVisualizerView: View {
             HStack {
                 Label(
                     isListening ? "ĐANG LẮNG NGHE GIỌNG NÓI..." : "ĐÁP ÁN BẠN NÓI",
-                    systemImage: isListening ? "waveform" : "mic.text.fill"
+                    systemImage: isListening ? "waveform" : "mic.fill"
                 )
                 .font(.caption2.bold().smallCaps())
                 .foregroundColor(isListening ? .vocabCoral : .vocabMuted)
