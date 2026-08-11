@@ -42,18 +42,18 @@ public struct QuickReflexDrillSheetView: View {
     }
 
     private var drillContentBody: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 16) {
             // Step Progress Bar
-            HStack(spacing: 6) {
+            HStack(spacing: 8) {
                 ForEach(0..<viewModel.steps.count, id: \.self) { idx in
-                    Rectangle()
-                        .fill(idx <= viewModel.currentStepIndex ? Color.vocabPeach : Color.vocabHairline)
-                        .frame(height: 4)
-                        .cornerRadius(2)
+                    Capsule()
+                        .fill(idx <= viewModel.currentStepIndex ? Color.vocabHeroAccent : Color.vocabHairline.opacity(0.6))
+                        .frame(height: 6)
+                        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: viewModel.currentStepIndex)
                 }
             }
             .padding(.horizontal)
-            .padding(.top, 8)
+            .padding(.top, 12)
 
             // Target Word Header Badge
             HStack(spacing: 8) {
@@ -65,22 +65,26 @@ public struct QuickReflexDrillSheetView: View {
                     .foregroundColor(Color.vocabMuted)
                 Spacer()
                 Text(viewModel.targetWord.phonetic)
-                    .font(.system(size: 14, design: .serif))
+                    .font(.system(size: 15, design: .serif))
                     .foregroundColor(Color.vocabMuted)
             }
-            .padding(14)
+            .padding(16)
             .background(Color.vocabSurfaceCard)
-            .cornerRadius(14)
-            .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.vocabHairline, lineWidth: 1))
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .shadow(color: Color.black.opacity(0.03), radius: 6, x: 0, y: 2)
+            .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Color.vocabHairline, lineWidth: 1))
             .padding(.horizontal)
+
+            Spacer(minLength: 0)
 
             if viewModel.currentStepIndex < viewModel.steps.count {
                 let currentStep = viewModel.steps[viewModel.currentStepIndex]
                 
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("Bước \(currentStep.id)/3: \(currentStep.promptText)")
-                        .font(.system(size: 15, weight: .bold))
+                VStack(alignment: .leading, spacing: 18) {
+                    Text(currentStep.promptText)
+                        .font(.system(size: 16, weight: .bold))
                         .foregroundColor(Color.vocabInk)
+                        .fixedSize(horizontal: false, vertical: true)
 
                     switch currentStep.type {
                     case .pronunciation:
@@ -91,24 +95,25 @@ public struct QuickReflexDrillSheetView: View {
                         fillInBlankStepView(step: currentStep)
                     }
                 }
-                .padding()
+                .padding(20)
                 .background(Color.vocabSurfaceCard)
-                .cornerRadius(20)
-                .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.vocabHairline, lineWidth: 1.5))
+                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                .shadow(color: Color.black.opacity(0.04), radius: 10, x: 0, y: 4)
+                .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(Color.vocabHairline, lineWidth: 1))
                 .padding(.horizontal)
             }
 
-            Spacer()
+            Spacer(minLength: 0)
         }
     }
 
     private func pronunciationStepView(step: QuickDrillStep) -> some View {
         VStack(spacing: 16) {
             Text("\"\(step.targetText)\"")
-                .font(.system(size: 17, weight: .medium, design: .serif))
+                .font(.system(size: 18, weight: .medium, design: .serif))
                 .foregroundColor(Color.vocabInk)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal)
+                .padding(.horizontal, 8)
 
             Button(action: { viewModel.speakTargetSentence() }) {
                 HStack(spacing: 6) {
@@ -117,21 +122,37 @@ public struct QuickReflexDrillSheetView: View {
                 }
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundColor(Color.vocabHeroAccent)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .background(Color.vocabHeroAccent.opacity(0.1))
+                .clipShape(Capsule())
             }
 
-            // Hold-to-Talk Mic Button with Touch Gesture
-            VStack(spacing: 8) {
+            // Hold-to-Talk Mic Button with Touch Gesture & Pulsing Ring
+            VStack(spacing: 10) {
                 ZStack {
-                    Circle()
-                        .fill(viewModel.isMicActive ? Color.red.opacity(0.25) : (viewModel.isStepEvaluated ? (viewModel.isStepCorrect ? Color.vocabMint.opacity(0.25) : Color.red.opacity(0.25)) : Color.vocabPeach.opacity(0.25)))
-                        .frame(width: 80, height: 80)
-                        .scaleEffect(viewModel.isMicActive ? 1.15 : 1.0)
-                        .animation(.spring(response: 0.3, dampingFraction: 0.6), value: viewModel.isMicActive)
+                    if viewModel.isMicActive {
+                        Circle()
+                            .stroke(Color.red.opacity(0.3), lineWidth: 6)
+                            .frame(width: 96, height: 96)
+                            .scaleEffect(viewModel.isMicActive ? 1.15 : 1.0)
+                            .animation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true), value: viewModel.isMicActive)
+                    }
 
-                    Image(systemName: viewModel.isMicActive ? "mic.fill" : (viewModel.isStepEvaluated ? (viewModel.isStepCorrect ? "checkmark" : "xmark") : "mic"))
-                        .font(.system(size: 32, weight: .bold))
-                        .foregroundColor(viewModel.isMicActive ? .red : (viewModel.isStepEvaluated ? (viewModel.isStepCorrect ? Color.vocabMint : .red) : Color.vocabInk))
+                    Circle()
+                        .fill(
+                            viewModel.isMicActive 
+                                ? Color.red 
+                                : (viewModel.isStepEvaluated ? (viewModel.isStepCorrect ? Color.vocabMint : Color.red) : Color.vocabHeroAccent)
+                        )
+                        .frame(width: 80, height: 80)
+                        .shadow(color: (viewModel.isMicActive ? Color.red : Color.vocabHeroAccent).opacity(0.3), radius: 8, y: 4)
+
+                    Image(systemName: viewModel.isMicActive ? "mic.fill" : (viewModel.isStepEvaluated ? (viewModel.isStepCorrect ? "checkmark" : "xmark") : "mic.fill"))
+                        .font(.system(size: 30, weight: .bold))
+                        .foregroundColor(.white)
                 }
+                .sensoryFeedback(.impact(weight: .medium), trigger: viewModel.isMicActive)
                 .gesture(
                     DragGesture(minimumDistance: 0)
                         .onChanged { _ in
@@ -147,7 +168,7 @@ public struct QuickReflexDrillSheetView: View {
                 )
 
                 Text(viewModel.isMicActive ? "Đang thu âm... Nhả ra để kiểm tra" : "Nhấn giữ để nói • Nhả để kiểm tra")
-                    .font(.system(size: 12, weight: .bold))
+                    .font(.system(size: 13, weight: .semibold))
                     .foregroundColor(viewModel.isMicActive ? .red : Color.vocabMuted)
             }
             .padding(.vertical, 8)
@@ -171,7 +192,7 @@ public struct QuickReflexDrillSheetView: View {
     }
 
     private func optionsStepView(step: QuickDrillStep) -> some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 12) {
             ForEach(step.options, id: \.self) { option in
                 let isSelected = viewModel.selectedOption == option
                 let isTarget = option == step.targetText
@@ -182,140 +203,179 @@ public struct QuickReflexDrillSheetView: View {
                         viewModel.submitAnswer(option)
                     }
                 }) {
-                    HStack {
+                    HStack(spacing: 12) {
                         Text(option)
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(Color.vocabInk)
-
-                        Spacer()
-
-                        if isEvaluated {
-                            if isTarget {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(Color.vocabMint)
-                            } else if isSelected {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(.red)
-                            }
-                        }
-                    }
-                    .padding()
-                    .background(
-                        isEvaluated
-                            ? (isTarget ? Color.vocabMint.opacity(0.25) : (isSelected ? Color.red.opacity(0.15) : Color.vocabCanvas))
-                            : Color.vocabCanvas
-                    )
-                    .cornerRadius(12)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(
-                                isEvaluated
-                                    ? (isTarget ? Color.vocabMint : (isSelected ? Color.red : Color.vocabHairline))
-                                    : Color.vocabHairline,
-                                lineWidth: isEvaluated && (isTarget || isSelected) ? 2 : 1
+                            .font(.system(size: 15, weight: isSelected || (isEvaluated && isTarget) ? .bold : .medium))
+                            .foregroundColor(
+                                isEvaluated && isTarget 
+                                    ? Color(uiColor: .systemGreen) 
+                                    : (isEvaluated && isSelected ? Color.red : Color.vocabInk)
                             )
-                    )
-                }
-                .buttonStyle(BentoCardButtonStyle())
-                .disabled(isEvaluated)
-            }
-        }
-    }
-
-    private func fillInBlankStepView(step: QuickDrillStep) -> some View {
-        VStack(spacing: 14) {
-            if let gapSentence = step.sentenceWithGap {
-                Text("\"\(gapSentence)\"")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(Color.vocabInk)
-                    .multilineTextAlignment(.center)
-                    .padding()
-            }
-
-            ForEach(step.options, id: \.self) { option in
-                let isSelected = viewModel.selectedOption == option
-                let isTarget = option == step.targetText
-                let isEvaluated = viewModel.isStepEvaluated
-
-                Button(action: {
-                    if !isEvaluated {
-                        viewModel.submitAnswer(option)
-                    }
-                }) {
-                    HStack {
-                        Text(option)
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(Color.vocabInk)
+                            .multilineTextAlignment(.leading)
 
                         Spacer()
 
                         if isEvaluated {
                             if isTarget {
                                 Image(systemName: "checkmark.circle.fill")
+                                    .font(.system(size: 18))
                                     .foregroundColor(Color.vocabMint)
                             } else if isSelected {
                                 Image(systemName: "xmark.circle.fill")
+                                    .font(.system(size: 18))
                                     .foregroundColor(.red)
                             }
                         }
                     }
                     .padding(.horizontal, 16)
-                    .frame(height: 48)
+                    .frame(minHeight: 52)
                     .background(
                         isEvaluated
-                            ? (isTarget ? Color.vocabMint.opacity(0.25) : (isSelected ? Color.red.opacity(0.15) : Color.vocabCanvas))
+                            ? (isTarget ? Color.vocabMint.opacity(0.12) : (isSelected ? Color.red.opacity(0.12) : Color.vocabCanvas))
                             : Color.vocabCanvas
                     )
-                    .cornerRadius(12)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 12)
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
                             .stroke(
                                 isEvaluated
-                                    ? (isTarget ? Color.vocabMint : (isSelected ? Color.red : Color.vocabHairline))
+                                    ? (isTarget ? Color.vocabMint : (isSelected ? Color.red : Color.clear))
                                     : Color.vocabHairline,
-                                lineWidth: isEvaluated && (isTarget || isSelected) ? 2 : 1
+                                lineWidth: isEvaluated && (isTarget || isSelected) ? 1.5 : 1
                             )
                     )
                 }
                 .buttonStyle(BentoCardButtonStyle())
                 .disabled(isEvaluated)
+                .sensoryFeedback(isTarget ? .success : .error, trigger: isEvaluated)
             }
         }
     }
 
+    private func fillInBlankStepView(step: QuickDrillStep) -> some View {
+        VStack(spacing: 16) {
+            if let gapSentence = step.sentenceWithGap {
+                Text("\"\(gapSentence)\"")
+                    .font(.system(size: 17, weight: .semibold, design: .serif))
+                    .foregroundColor(Color.vocabInk)
+                    .multilineTextAlignment(.center)
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 12)
+            }
+
+            ForEach(step.options, id: \.self) { option in
+                let isSelected = viewModel.selectedOption == option
+                let isTarget = option == step.targetText
+                let isEvaluated = viewModel.isStepEvaluated
+
+                Button(action: {
+                    if !isEvaluated {
+                        viewModel.submitAnswer(option)
+                    }
+                }) {
+                    HStack(spacing: 12) {
+                        Text(option)
+                            .font(.system(size: 15, weight: isSelected || (isEvaluated && isTarget) ? .bold : .medium))
+                            .foregroundColor(
+                                isEvaluated && isTarget 
+                                    ? Color(uiColor: .systemGreen) 
+                                    : (isEvaluated && isSelected ? Color.red : Color.vocabInk)
+                            )
+
+                        Spacer()
+
+                        if isEvaluated {
+                            if isTarget {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.system(size: 18))
+                                    .foregroundColor(Color.vocabMint)
+                            } else if isSelected {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.system(size: 18))
+                                    .foregroundColor(.red)
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .frame(height: 52)
+                    .background(
+                        isEvaluated
+                            ? (isTarget ? Color.vocabMint.opacity(0.12) : (isSelected ? Color.red.opacity(0.12) : Color.vocabCanvas))
+                            : Color.vocabCanvas
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .stroke(
+                                isEvaluated
+                                    ? (isTarget ? Color.vocabMint : (isSelected ? Color.red : Color.clear))
+                                    : Color.vocabHairline,
+                                lineWidth: isEvaluated && (isTarget || isSelected) ? 1.5 : 1
+                            )
+                    )
+                }
+                .buttonStyle(BentoCardButtonStyle())
+                .disabled(isEvaluated)
+                .sensoryFeedback(isTarget ? .success : .error, trigger: isEvaluated)
+            }
+        }
+    }
+
+    private var formattedReactionTime: String {
+        let avgMs = viewModel.elapsedTimeMs / max(1, viewModel.steps.count)
+        if avgMs >= 1000 {
+            let sec = Double(avgMs) / 1000.0
+            return String(format: "%.2f s / câu", sec)
+        } else {
+            return "\(avgMs) ms / câu"
+        }
+    }
+
     private var completionCardView: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 24) {
             Spacer()
 
             ZStack {
                 Circle()
-                    .fill(Color.vocabMint.opacity(0.2))
-                    .frame(width: 90, height: 90)
+                    .fill(Color.vocabMint.opacity(0.15))
+                    .frame(width: 100, height: 100)
                 Image(systemName: viewModel.isCorrect ? "sparkles" : "checkmark.circle.fill")
-                    .font(.system(size: 44))
+                    .font(.system(size: 48, weight: .semibold))
                     .foregroundColor(Color.vocabMint)
+                    .symbolEffect(.bounce, value: viewModel.isCompleted)
             }
 
-            Text(viewModel.isCorrect ? "Xuất sắc! Đã làm chủ phản xạ" : "Đã hoàn thành lượt luyện tập!")
-                .font(.system(size: 20, weight: .bold))
-                .foregroundColor(Color.vocabInk)
+            VStack(spacing: 8) {
+                Text(viewModel.isCorrect ? "Xuất sắc! Đã làm chủ phản xạ" : "Đã hoàn thành lượt luyện tập!")
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundColor(Color.vocabInk)
+                    .multilineTextAlignment(.center)
+
+                Text("Thời gian phản xạ: \(formattedReactionTime)")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(Color.vocabMuted)
+                    .monospacedDigit()
+            }
 
             if let result = viewModel.srsResult {
-                HStack(spacing: 4) {
-                    Text("Độ thuộc SRS mới:")
+                HStack(spacing: 6) {
+                    Text("Mức độ thuộc SRS:")
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(Color.vocabMuted)
+                    
+                    let displayStars = max(1, result.nextMastery)
                     ForEach(1...5, id: \.self) { star in
-                        Image(systemName: star <= result.nextMastery ? "star.fill" : "star")
-                            .font(.system(size: 12))
-                            .foregroundColor(star <= result.nextMastery ? Color.vocabMint : Color.vocabMuted.opacity(0.3))
+                        Image(systemName: star <= displayStars ? "star.fill" : "star")
+                            .font(.system(size: 14))
+                            .foregroundColor(star <= displayStars ? Color.vocabMint : Color.vocabMuted.opacity(0.3))
                     }
                 }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .background(Color.vocabSurfaceCard)
+                .clipShape(Capsule())
+                .shadow(color: Color.black.opacity(0.03), radius: 4, x: 0, y: 2)
             }
-
-            Text("Thời gian phản xạ: \(viewModel.elapsedTimeMs / 3) ms / câu")
-                .font(.system(size: 13, weight: .medium))
-                .foregroundColor(Color.vocabMuted)
 
             Spacer()
 
@@ -325,16 +385,17 @@ public struct QuickReflexDrillSheetView: View {
                 dismiss()
             }) {
                 Text("Hoàn tất")
-                    .font(.system(size: 16, weight: .bold))
+                    .font(.system(size: 17, weight: .bold))
                     .foregroundColor(Color.vocabCanvas)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 50)
+                    .frame(height: 52)
                     .background(Color.vocabInk)
-                    .cornerRadius(16)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             }
             .buttonStyle(BentoCardButtonStyle())
-            .padding(.horizontal)
-            .padding(.bottom, 20)
+            .sensoryFeedback(.success, trigger: viewModel.isCompleted)
+            .padding(.horizontal, 20)
+            .padding(.bottom, 24)
         }
     }
 }
