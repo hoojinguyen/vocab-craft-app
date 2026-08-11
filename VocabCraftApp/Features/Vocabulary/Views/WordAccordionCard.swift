@@ -29,11 +29,12 @@ public struct WordAccordionCard: View {
                     VStack(alignment: .leading, spacing: 2) {
                         HStack(spacing: 6) {
                             Text(item.lemma)
-                                .font(.system(size: 17, weight: .bold))
+                                .font(.system(size: 19, weight: .bold, design: .serif))
                                 .foregroundColor(Color.vocabInk)
                             
                             Text(item.pos)
-                                .font(.system(size: 11, weight: .semibold))
+                                .font(.system(size: 11, weight: .semibold, design: .serif))
+                                .italic()
                                 .foregroundColor(Color.vocabMuted)
                         }
                         
@@ -76,7 +77,7 @@ public struct WordAccordionCard: View {
 
             // Expanded Detail Content
             if isExpanded {
-                VStack(alignment: .leading, spacing: 10) {
+                VStack(alignment: .leading, spacing: 12) {
                     Divider()
                         .overlay(Color.vocabHairline)
 
@@ -90,8 +91,8 @@ public struct WordAccordionCard: View {
                         Button(action: onAudioTap) {
                             ZStack {
                                 Circle()
-                                    .fill(Color.vocabHeroAccent.opacity(0.12))
-                                    .frame(width: 36, height: 36)
+                                    .fill(Color.vocabHeroAccent.opacity(0.14))
+                                    .frame(width: 38, height: 38)
                                 Image(systemName: "speaker.wave.2.fill")
                                     .font(.system(size: 14))
                                     .foregroundColor(Color.vocabHeroAccent)
@@ -103,7 +104,7 @@ public struct WordAccordionCard: View {
 
                         VStack(alignment: .leading, spacing: 2) {
                             Text(item.exampleSentenceEn)
-                                .font(.system(size: 13, weight: .medium))
+                                .font(.system(size: 13, weight: .medium, design: .serif))
                                 .foregroundColor(Color.vocabInk)
                             Text(item.exampleSentenceVi)
                                 .font(.system(size: 12, weight: .regular))
@@ -111,19 +112,26 @@ public struct WordAccordionCard: View {
                         }
                     }
 
-                    // Quick Practice Button
+                    // Quick Practice Button (Primary CTA Upgrade)
                     Button(action: onDrillTap) {
-                        HStack(spacing: 6) {
+                        HStack(spacing: 8) {
                             Image(systemName: "bolt.fill")
-                                .font(.system(size: 12, weight: .bold))
+                                .font(.system(size: 13, weight: .bold))
                             Text("Luyện phản xạ từ này")
                                 .font(.system(size: 13, weight: .bold))
                         }
-                        .foregroundColor(Color.vocabInk)
+                        .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 44)
-                        .background(Color.vocabPeach.opacity(0.25))
-                        .cornerRadius(12)
+                        .background(
+                            LinearGradient(
+                                colors: [Color.vocabPeach, Color(hex: "FA9938")],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .clipShape(Capsule())
+                        .shadow(color: Color.vocabPeach.opacity(0.35), radius: 6, x: 0, y: 3)
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(BentoCardButtonStyle())
@@ -136,9 +144,14 @@ public struct WordAccordionCard: View {
         .cornerRadius(20)
         .overlay(
             RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.vocabHairline, lineWidth: 1.5)
+                .stroke(isExpanded ? Color.vocabHeroAccent.opacity(0.3) : Color.vocabHairline, lineWidth: isExpanded ? 1.8 : 1.5)
         )
-        .shadow(color: Color.vocabHeroTeal.opacity(0.04), radius: 6, x: 0, y: 3)
+        .shadow(
+            color: isExpanded ? Color.black.opacity(0.08) : Color.vocabHeroTeal.opacity(0.04),
+            radius: isExpanded ? 12 : 6,
+            x: 0,
+            y: isExpanded ? 5 : 3
+        )
     }
 
     private func cefrColor(_ level: String) -> Color {

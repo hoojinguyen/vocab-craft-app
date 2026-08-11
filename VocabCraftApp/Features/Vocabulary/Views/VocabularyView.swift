@@ -50,6 +50,32 @@ public struct VocabularyView: View {
                     .padding(.top, 12)
 
                     if selectedTab == 0 {
+                        // Quick Search Bar
+                        HStack(spacing: 8) {
+                            Image(systemName: "magnifyingglass")
+                                .foregroundColor(Color.vocabMuted)
+                                .font(.system(size: 14, weight: .semibold))
+                            TextField("Tìm kiếm từ vựng, nghĩa...", text: $searchText)
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundColor(Color.vocabInk)
+                            if !searchText.isEmpty {
+                                Button(action: { searchText = "" }) {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundColor(Color.vocabMuted)
+                                        .font(.system(size: 14))
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 14)
+                        .frame(height: 40)
+                        .background(Color.vocabSurfaceCard)
+                        .cornerRadius(12)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.vocabHairline, lineWidth: 1.2)
+                        )
+                        .padding(.horizontal)
+
                         // Filter Pills (Horizontal Scroll with Dynamic Counts)
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
@@ -173,6 +199,7 @@ public struct VocabularyView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(BentoCardButtonStyle())
+        .sensoryFeedback(.selection, trigger: selectedTab)
     }
 
     private func filterPill(_ title: String) -> some View {
@@ -199,5 +226,6 @@ public struct VocabularyView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(BentoCardButtonStyle())
+        .sensoryFeedback(.selection, trigger: selectedFilter)
     }
 }

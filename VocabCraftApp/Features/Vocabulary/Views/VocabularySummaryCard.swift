@@ -39,12 +39,13 @@ public struct VocabularySummaryCard: View {
     }
 
     private func metricItem(title: String, label: String, color: Color) -> some View {
-        VStack(spacing: 2) {
+        VStack(spacing: 3) {
             Text(title)
-                .font(.system(size: 18, weight: .bold))
+                .font(.system(size: 19, weight: .bold, design: .rounded))
+                .monospacedDigit()
                 .foregroundColor(color)
             Text(label)
-                .font(.system(size: 11, weight: .medium))
+                .font(.system(size: 11, weight: .semibold))
                 .foregroundColor(Color.vocabMuted)
         }
         .frame(maxWidth: .infinity)
