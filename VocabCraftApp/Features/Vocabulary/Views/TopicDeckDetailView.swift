@@ -46,23 +46,38 @@ public struct TopicDeckDetailView: View {
                     }
 
                     HStack {
-                        Text("Tiến độ: 65% (325/500 từ)")
+                        Text("Tiến độ: ")
                             .font(.system(size: 13, weight: .medium))
+                            .foregroundColor(Color.vocabMuted)
+                        + Text("65%")
+                            .font(.system(size: 13, weight: .bold, design: .rounded))
+                            .monospacedDigit()
+                            .foregroundColor(Color.vocabMint)
+                        + Text(" (325/500 từ)")
+                            .font(.system(size: 13, weight: .medium))
+                            .monospacedDigit()
                             .foregroundColor(Color.vocabMuted)
                         Spacer()
                     }
 
-                    // Progress bar
+                    // Progress bar (Capsule Gradient Upgrade)
                     GeometryReader { geo in
                         ZStack(alignment: .leading) {
-                            RoundedRectangle(cornerRadius: 3)
+                            Capsule()
                                 .fill(Color.vocabHairline)
-                            RoundedRectangle(cornerRadius: 3)
-                                .fill(Color.vocabMint)
+                            Capsule()
+                                .fill(
+                                    LinearGradient(
+                                        colors: [Color.vocabMint, Color(hex: "34D399")],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
                                 .frame(width: geo.size.width * 0.65)
+                                .shadow(color: Color.vocabMint.opacity(0.35), radius: 3, x: 0, y: 1.5)
                         }
                     }
-                    .frame(height: 6)
+                    .frame(height: 8)
 
                     // Hero CTA (Pill Gradient Upgrade)
                     Button(action: {
