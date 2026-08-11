@@ -124,17 +124,26 @@ public struct SubTopicPreviewSheet: View {
 
     private var startDrillButton: some View {
         Button(action: onStartDrill) {
-
-            HStack {
+            HStack(spacing: 8) {
                 Image(systemName: "play.fill")
+                    .font(.system(size: 13, weight: .bold))
                 Text("Luyện tập riêng chặng này")
-                    .fontWeight(.bold)
+                    .font(.system(size: 14, weight: .bold))
             }
+            .foregroundColor(.white)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
-            .background(Color.vocabInk)
-            .foregroundColor(Color.vocabCanvas)
-            .cornerRadius(14)
+            .frame(height: 46)
+            .background(
+                LinearGradient(
+                    colors: [Color.vocabPeach, Color(hex: "FA9938")],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .clipShape(Capsule())
+            .shadow(color: Color.vocabPeach.opacity(0.35), radius: 6, x: 0, y: 3)
+            .contentShape(Rectangle())
         }
+        .buttonStyle(BentoCardButtonStyle())
     }
 }

@@ -64,24 +64,34 @@ public struct TopicDeckDetailView: View {
                     }
                     .frame(height: 6)
 
-                    // Hero CTA
+                    // Hero CTA (Pill Gradient Upgrade)
                     Button(action: {
                         if let active = nodes.first(where: { $0.state == .active }) {
                             activeStudyNode = active
                         }
                     }) {
-
-                        HStack {
+                        HStack(spacing: 8) {
                             Image(systemName: "play.fill")
+                                .font(.system(size: 13, weight: .bold))
                             Text("BẮT ĐẦU HỌC CHẶNG 3 (CÔNG NGHỆ)")
-                                .font(.system(size: 14, weight: .bold))
+                                .font(.system(size: 13, weight: .bold))
                         }
+                        .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(Color.vocabPeach)
-                        .foregroundColor(Color(red: 0.05, green: 0.08, blue: 0.12))
-                        .cornerRadius(12)
+                        .frame(height: 46)
+                        .background(
+                            LinearGradient(
+                                colors: [Color.vocabPeach, Color(hex: "FA9938")],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .clipShape(Capsule())
+                        .shadow(color: Color.vocabPeach.opacity(0.35), radius: 6, x: 0, y: 3)
+                        .contentShape(Rectangle())
                     }
+                    .buttonStyle(BentoCardButtonStyle())
+                    .sensoryFeedback(.impact(weight: .medium), trigger: activeStudyNode != nil)
                 }
                 .padding(16)
                 .background(Color.vocabSurfaceCard)
