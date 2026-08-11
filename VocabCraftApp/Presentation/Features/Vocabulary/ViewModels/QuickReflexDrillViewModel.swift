@@ -15,7 +15,7 @@ public final class QuickReflexDrillViewModel {
     public var srsResult: SRSResult?
     public var triggerSparkle: Bool = false
 
-    // Real-time Mic & Speech State
+    // Real-time Mic & Speech State (Hold-to-Talk)
     public var isMicActive: Bool = false
     public var recordedSpokenText: String = ""
     public var errorMessage: String? = nil
@@ -24,7 +24,6 @@ public final class QuickReflexDrillViewModel {
     public var isStepEvaluated: Bool = false
     public var isStepCorrect: Bool = false
     public var selectedOption: String? = nil
-    public var stepFeedbackMessage: String = ""
 
     private let ttsService: TextToSpeechProtocol
     private let sttService: SpeechRecognitionProtocol
@@ -64,7 +63,7 @@ public final class QuickReflexDrillViewModel {
         let step1 = QuickDrillStep(
             id: 1,
             type: .pronunciation,
-            promptText: "Đọc to câu ví dụ chứa từ '\(targetWord.lemma)'",
+            promptText: "Nhấn giữ mic và đọc câu ví dụ chứa từ '\(targetWord.lemma)'",
             targetText: targetWord.exampleSentenceEn
         )
 
@@ -120,18 +119,10 @@ public final class QuickReflexDrillViewModel {
         ttsService.speak(text: steps[currentStepIndex].targetText)
     }
 
-    public func handleMicTap() {
-        if isMicActive {
-            stopVoiceRecognition()
-            if !recordedSpokenText.isEmpty {
-                submitAnswer(recordedSpokenText)
-            }
-        } else {
-            startVoiceRecognition()
-        }
-    }
+    // MARK: - Hold-to-Talk Speech Recognition Methods
 
-    public func startVoiceRecognition() {
+    public func startRecording() {
+        guard !isMicActive && !isStepEvaluated else { return }
         ttsService.stop()
         errorMessage = nil
         isMicActive = true
@@ -140,32 +131,43 @@ public final class QuickReflexDrillViewModel {
         sttService.startListening(
             onResult: { [weak self] text in
                 guard let self = self else { return }
+                // Accumulate full transcription continuously without auto-cutting off
                 self.recordedSpokenText = text
-                guard self.currentStepIndex < self.steps.count else { return }
-                let target = self.steps[self.currentStepIndex].targetText
-                if self.isAnswerMatching(userText: text, targetText: target) {
-                    self.stopVoiceRecognition()
-                    self.submitAnswer(text)
-                }
             },
             onError: { [weak self] error in
                 guard let self = self else { return }
                 self.isMicActive = false
                 let errDesc = error.localizedDescription
-                self.errorMessage = "Không thể thu âm: \(errDesc). Vui lòng kiểm tra quyền Micro trong Cài đặt."
+                self.errorMessage = "Không thể thu âm: \(errDesc). Vui lòng kiểm tra quyền Micro."
             }
         )
     }
 
-    public func stopVoiceRecognition() {
+    public func stopRecordingAndEvaluate() {
+        guard isMicActive else { return }
         isMicActive = false
         sttService.stopListening()
+
+        if !recordedSpokenText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            submitAnswer(recordedSpokenText)
+        } else {
+            errorMessage = "Chưa nghe thấy câu trả lời. Hãy nhấn giữ mic và đọc câu mẫu."
+        }
     }
+
+    public func handleMicTap() {
+        if isMicActive {
+            stopRecordingAndEvaluate()
+        } else {
+            startRecording()
+        }
+    }
+
+    // MARK: - Answer Submission & Fast Auto-Advance
 
     public func submitAnswer(_ answer: String) {
         guard currentStepIndex < steps.count, !isStepEvaluated else { return }
         autoAdvanceTask?.cancel()
-        stopVoiceRecognition()
 
         let currentStep = steps[currentStepIndex]
         let correct = isAnswerMatching(userText: answer, targetText: currentStep.targetText)
@@ -176,14 +178,11 @@ public final class QuickReflexDrillViewModel {
 
         if correct {
             stepSuccessCount += 1
-            stepFeedbackMessage = "Chính xác!"
-        } else {
-            stepFeedbackMessage = "Chưa chính xác. Đáp án đúng: \"\(currentStep.targetText)\""
         }
 
-        // Auto-advance after 1.4s delay so user clearly sees correct/wrong feedback
+        // Fast auto-advance after 800ms show of correct/wrong highlight
         autoAdvanceTask = Task { [weak self] in
-            try? await Task.sleep(for: .milliseconds(1400))
+            try? await Task.sleep(for: .milliseconds(800))
             guard let self = self, !Task.isCancelled else { return }
             self.nextStep()
         }
@@ -195,7 +194,6 @@ public final class QuickReflexDrillViewModel {
         isStepCorrect = false
         selectedOption = nil
         recordedSpokenText = ""
-        stepFeedbackMessage = ""
         errorMessage = nil
 
         if currentStepIndex + 1 < steps.count {
@@ -207,7 +205,10 @@ public final class QuickReflexDrillViewModel {
 
     public func finishDrill() {
         timerTask?.cancel()
-        stopVoiceRecognition()
+        if isMicActive {
+            sttService.stopListening()
+            isMicActive = false
+        }
         
         let allCorrect = stepSuccessCount == steps.count
         let avgTimeMs = steps.isEmpty ? 2000 : elapsedTimeMs / steps.count

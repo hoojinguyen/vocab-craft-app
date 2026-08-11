@@ -90,39 +90,6 @@ public struct QuickReflexDrillSheetView: View {
                     case .fillInBlank:
                         fillInBlankStepView(step: currentStep)
                     }
-
-                    // Step Evaluation Feedback Banner
-                    if viewModel.isStepEvaluated {
-                        HStack(spacing: 8) {
-                            Image(systemName: viewModel.isStepCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
-                                .font(.system(size: 18, weight: .bold))
-                                .foregroundColor(viewModel.isStepCorrect ? Color.vocabMint : .red)
-                            
-                            Text(viewModel.stepFeedbackMessage)
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundColor(Color.vocabInk)
-
-                            Spacer()
-
-                            Button(action: { viewModel.nextStep() }) {
-                                HStack(spacing: 4) {
-                                    Text("Tiếp tục")
-                                        .font(.system(size: 13, weight: .bold))
-                                    Image(systemName: "arrow.right")
-                                        .font(.system(size: 12, weight: .bold))
-                                }
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background(viewModel.isStepCorrect ? Color.vocabMint : Color.vocabInk)
-                                .foregroundColor(Color.vocabCanvas)
-                                .cornerRadius(10)
-                            }
-                        }
-                        .padding(12)
-                        .background(viewModel.isStepCorrect ? Color.vocabMint.opacity(0.15) : Color.red.opacity(0.1))
-                        .cornerRadius(12)
-                        .transition(.opacity.combined(with: .move(edge: .bottom)))
-                    }
                 }
                 .padding()
                 .background(Color.vocabSurfaceCard)
@@ -152,23 +119,38 @@ public struct QuickReflexDrillSheetView: View {
                 .foregroundColor(Color.vocabHeroAccent)
             }
 
-            Button(action: { viewModel.handleMicTap() }) {
+            // Hold-to-Talk Mic Button with Touch Gesture
+            VStack(spacing: 8) {
                 ZStack {
                     Circle()
-                        .fill(viewModel.isMicActive ? Color.red.opacity(0.2) : Color.vocabPeach.opacity(0.25))
-                        .frame(width: 72, height: 72)
-                    Image(systemName: viewModel.isMicActive ? "mic.fill" : "mic")
-                        .font(.system(size: 28))
-                        .foregroundColor(viewModel.isMicActive ? .red : Color.vocabInk)
-                }
-            }
-            .buttonStyle(BentoCardButtonStyle())
+                        .fill(viewModel.isMicActive ? Color.red.opacity(0.25) : (viewModel.isStepEvaluated ? (viewModel.isStepCorrect ? Color.vocabMint.opacity(0.25) : Color.red.opacity(0.25)) : Color.vocabPeach.opacity(0.25)))
+                        .frame(width: 80, height: 80)
+                        .scaleEffect(viewModel.isMicActive ? 1.15 : 1.0)
+                        .animation(.spring(response: 0.3, dampingFraction: 0.6), value: viewModel.isMicActive)
 
-            if viewModel.isMicActive {
-                Text("Đang thu âm... Đọc to câu mẫu")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.red)
+                    Image(systemName: viewModel.isMicActive ? "mic.fill" : (viewModel.isStepEvaluated ? (viewModel.isStepCorrect ? "checkmark" : "xmark") : "mic"))
+                        .font(.system(size: 32, weight: .bold))
+                        .foregroundColor(viewModel.isMicActive ? .red : (viewModel.isStepEvaluated ? (viewModel.isStepCorrect ? Color.vocabMint : .red) : Color.vocabInk))
+                }
+                .gesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged { _ in
+                            if !viewModel.isMicActive && !viewModel.isStepEvaluated {
+                                viewModel.startRecording()
+                            }
+                        }
+                        .onEnded { _ in
+                            if viewModel.isMicActive {
+                                viewModel.stopRecordingAndEvaluate()
+                            }
+                        }
+                )
+
+                Text(viewModel.isMicActive ? "Đang thu âm... Nhả ra để kiểm tra" : "Nhấn giữ để nói • Nhả để kiểm tra")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundColor(viewModel.isMicActive ? .red : Color.vocabMuted)
             }
+            .padding(.vertical, 8)
 
             if !viewModel.recordedSpokenText.isEmpty {
                 Text("Đã nghe: \"\(viewModel.recordedSpokenText)\"")
@@ -220,7 +202,7 @@ public struct QuickReflexDrillSheetView: View {
                     .padding()
                     .background(
                         isEvaluated
-                            ? (isTarget ? Color.vocabMint.opacity(0.2) : (isSelected ? Color.red.opacity(0.12) : Color.vocabCanvas))
+                            ? (isTarget ? Color.vocabMint.opacity(0.25) : (isSelected ? Color.red.opacity(0.15) : Color.vocabCanvas))
                             : Color.vocabCanvas
                     )
                     .cornerRadius(12)
@@ -281,7 +263,7 @@ public struct QuickReflexDrillSheetView: View {
                     .frame(height: 48)
                     .background(
                         isEvaluated
-                            ? (isTarget ? Color.vocabMint.opacity(0.2) : (isSelected ? Color.red.opacity(0.12) : Color.vocabCanvas))
+                            ? (isTarget ? Color.vocabMint.opacity(0.25) : (isSelected ? Color.red.opacity(0.15) : Color.vocabCanvas))
                             : Color.vocabCanvas
                     )
                     .cornerRadius(12)

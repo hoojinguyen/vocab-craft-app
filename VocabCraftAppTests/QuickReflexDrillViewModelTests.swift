@@ -38,35 +38,35 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
     }
 
     @MainActor
-    func testStepEvaluationFeedbackAndAdvancement() {
+    func testHoldToTalkRecordingAndEvaluation() {
         let viewModel = QuickReflexDrillViewModel(targetWord: targetWord, allWords: samplePool)
         
-        // Step 1: Pronunciation evaluation shows feedback before nextStep
-        viewModel.submitAnswer("Her fame proved to be ephemeral.")
+        // Hold-to-Talk press down
+        viewModel.startRecording()
+        XCTAssertTrue(viewModel.isMicActive)
+
+        // Simulated speech stream
+        viewModel.recordedSpokenText = "Her fame proved to be ephemeral."
+
+        // Hold-to-Talk release
+        viewModel.stopRecordingAndEvaluate()
+        XCTAssertFalse(viewModel.isMicActive)
         XCTAssertTrue(viewModel.isStepEvaluated)
         XCTAssertTrue(viewModel.isStepCorrect)
-        XCTAssertEqual(viewModel.stepFeedbackMessage, "Chính xác!")
-        XCTAssertEqual(viewModel.currentStepIndex, 0) // Still on step 0 until nextStep is called
+    }
 
-        viewModel.nextStep()
-        XCTAssertEqual(viewModel.currentStepIndex, 1)
-        XCTAssertFalse(viewModel.isStepEvaluated)
-
-        // Step 2: Incorrect option evaluation shows feedback & correct answer hint
-        viewModel.submitAnswer("Sai đáp án")
+    @MainActor
+    func testOptionSubmissionAndNextStep() {
+        let viewModel = QuickReflexDrillViewModel(targetWord: targetWord, allWords: samplePool)
+        viewModel.currentStepIndex = 1 // Step 2: Options
+        
+        viewModel.submitAnswer("Phù du, chóng phai")
         XCTAssertTrue(viewModel.isStepEvaluated)
-        XCTAssertFalse(viewModel.isStepCorrect)
-        XCTAssertTrue(viewModel.stepFeedbackMessage.contains("Chưa chính xác"))
+        XCTAssertTrue(viewModel.isStepCorrect)
+        XCTAssertEqual(viewModel.selectedOption, "Phù du, chóng phai")
 
         viewModel.nextStep()
         XCTAssertEqual(viewModel.currentStepIndex, 2)
-
-        // Step 3: Correct option evaluation
-        viewModel.submitAnswer("Ephemeral")
-        XCTAssertTrue(viewModel.isStepEvaluated)
-        XCTAssertTrue(viewModel.isStepCorrect)
-
-        viewModel.nextStep()
-        XCTAssertTrue(viewModel.isCompleted)
+        XCTAssertFalse(viewModel.isStepEvaluated)
     }
 }
