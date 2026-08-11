@@ -388,7 +388,7 @@ private struct OptionRowView: View {
         Button(action: action) {
             HStack(spacing: 12) {
                 Text(optionText)
-                    .font(.system(.body, weight: isSelected || (isEvaluated && isTarget) ? .bold : .medium))
+                    .font(.system(size: 15, weight: .bold))
                     .foregroundColor(textColor)
                     .multilineTextAlignment(.leading)
 
@@ -402,44 +402,65 @@ private struct OptionRowView: View {
                     } else if isSelected {
                         Image(systemName: "xmark.circle.fill")
                             .font(.system(size: 20))
-                            .foregroundColor(.red)
+                            .foregroundColor(Color.vocabCoral)
+                    } else {
+                        Image(systemName: "circle")
+                            .font(.system(size: 20))
+                            .foregroundColor(Color.vocabHairline)
                     }
+                } else {
+                    Image(systemName: "circle")
+                        .font(.system(size: 20))
+                        .foregroundColor(Color.vocabHairline)
                 }
             }
-            .padding(.horizontal, 16)
-            .frame(minHeight: 54)
+            .padding(14)
+            .frame(minHeight: 52)
             .background(backgroundColor)
             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .stroke(borderColor, lineWidth: isEvaluated && (isTarget || isSelected) ? 1.5 : 1)
+                    .stroke(borderColor, lineWidth: 1.5)
             )
         }
         .buttonStyle(BentoPressButtonStyle())
         .disabled(isEvaluated)
     }
 
+    private var backgroundColor: Color {
+        if isEvaluated {
+            if isTarget {
+                return Color.vocabMint.opacity(0.15)
+            } else if isSelected {
+                return Color.vocabCoral.opacity(0.15)
+            }
+        }
+        return Color.vocabSurfaceCard
+    }
+
     private var textColor: Color {
         if isEvaluated {
-            return isTarget ? Color.vocabMint : (isSelected ? Color.red : Color.vocabInk)
+            if isTarget {
+                return Color.vocabMint
+            } else if isSelected {
+                return Color.vocabCoral
+            }
         }
         return Color.vocabInk
     }
 
-    private var backgroundColor: Color {
-        if isEvaluated {
-            return isTarget ? Color.vocabMint.opacity(0.12) : (isSelected ? Color.red.opacity(0.12) : Color.vocabCanvas)
-        }
-        return Color.vocabCanvas
-    }
-
     private var borderColor: Color {
         if isEvaluated {
-            return isTarget ? Color.vocabMint : (isSelected ? Color.red : Color.clear)
+            if isTarget {
+                return Color.vocabMint
+            } else if isSelected {
+                return Color.vocabCoral
+            }
         }
         return Color.vocabHairline
     }
 }
+
 
 private struct BentoPressButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
