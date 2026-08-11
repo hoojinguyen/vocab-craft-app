@@ -101,71 +101,57 @@ public struct TopicDeckDetailView: View {
                         .stroke(Color.vocabHairline, lineWidth: 1)
                 )
 
-                // Timeline Roadmap
+                // Timeline Roadmap (Gradient & Depth Upgrade)
                 VStack(spacing: 0) {
                     ForEach(Array(nodes.enumerated()), id: \.element.id) { index, node in
                         VStack(spacing: 0) {
                             HStack(spacing: 14) {
-                                // Node Circle Icon
-                                ZStack {
-                                    Circle()
-                                        .fill(nodeColor(for: node.state))
-                                        .frame(width: 48, height: 48)
+                                // Node Circle Icon (Gradient Upgrade)
+                                nodeCircleIcon(node: node, index: index)
 
-                                    if node.state == .completed {
-                                        Image(systemName: "checkmark")
-                                            .font(.system(size: 18, weight: .bold))
-                                            .foregroundColor(Color.vocabCanvas)
-                                    } else if node.state == .active {
-                                        Text("\(index + 1)")
-                                            .font(.system(size: 18, weight: .bold))
-                                            .foregroundColor(Color(red: 0.05, green: 0.08, blue: 0.12))
-                                    } else {
-                                        Image(systemName: "lock.fill")
-                                            .font(.system(size: 16))
-                                            .foregroundColor(Color.vocabMuted)
-                                    }
-                                }
-
-
-                                // Node Card Info
+                                // Node Card Info (Gradient Border & Depth Upgrade)
                                 Button(action: { selectedNode = node }) {
                                     HStack {
                                         VStack(alignment: .leading, spacing: 4) {
-                                            HStack {
+                                            HStack(spacing: 6) {
                                                 Image(systemName: node.iconName)
+                                                    .font(.system(size: 15, weight: .bold))
+                                                    .foregroundColor(node.state == .active ? Color.vocabPeach : (node.state == .completed ? Color.vocabMint : Color.vocabInk))
                                                 Text(node.title)
                                                     .font(.system(size: 15, weight: .bold))
+                                                    .foregroundColor(Color.vocabInk)
                                             }
-                                            .foregroundColor(Color.vocabInk)
 
                                             Text("\(node.learnedWords)/\(node.totalWords) từ đã thuộc")
-                                                .font(.system(size: 12))
+                                                .font(.system(size: 12, weight: .medium))
                                                 .foregroundColor(Color.vocabMuted)
                                         }
 
                                         Spacer()
 
                                         Image(systemName: "chevron.right")
-                                            .font(.system(size: 14))
-                                            .foregroundColor(Color.vocabMuted)
+                                            .font(.system(size: 14, weight: .semibold))
+                                            .foregroundColor(node.state == .active ? Color.vocabPeach : Color.vocabMuted)
                                     }
-                                    .padding(12)
-                                    .background(Color.vocabSurfaceCard)
-                                    .cornerRadius(12)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .stroke(node.state == .active ? Color.vocabPeach : Color.vocabHairline, lineWidth: node.state == .active ? 2 : 1)
+                                    .padding(14)
+                                    .background(nodeCardBackground(for: node.state))
+                                    .cornerRadius(14)
+                                    .overlay(nodeCardBorder(for: node.state))
+                                    .shadow(
+                                        color: node.state == .active ? Color.vocabPeach.opacity(0.18) : (node.state == .completed ? Color.vocabMint.opacity(0.06) : Color.clear),
+                                        radius: node.state == .active ? 8 : 4,
+                                        x: 0,
+                                        y: node.state == .active ? 4 : 2
                                     )
+                                    .contentShape(Rectangle())
                                 }
+                                .buttonStyle(BentoCardButtonStyle())
                             }
 
-                            // Vertical Line (except for last item)
+                            // Vertical Line (Gradient Upgrade)
                             if index < nodes.count - 1 {
                                 HStack {
-                                    Rectangle()
-                                        .fill(node.state == .completed ? Color.vocabMint : Color.vocabHairline)
-                                        .frame(width: 4, height: 28)
+                                    connectingLine(state: node.state)
                                         .padding(.leading, 22)
                                     Spacer()
                                 }
@@ -209,12 +195,107 @@ public struct TopicDeckDetailView: View {
 #endif
     }
 
+    @ViewBuilder
+    private func nodeCircleIcon(node: SubTopicNode, index: Int) -> some View {
+        ZStack {
+            switch node.state {
+            case .completed:
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.vocabMint, Color(hex: "34D399")],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 48, height: 48)
+                    .shadow(color: Color.vocabMint.opacity(0.35), radius: 5, x: 0, y: 3)
 
-    private func nodeColor(for state: NodeState) -> Color {
+                Image(systemName: "checkmark")
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(.white)
+
+            case .active:
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.vocabPeach, Color(hex: "FA9938")],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 48, height: 48)
+                    .shadow(color: Color.vocabPeach.opacity(0.4), radius: 6, x: 0, y: 3)
+
+                Text("\(index + 1)")
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(.white)
+
+            case .locked:
+                Circle()
+                    .fill(Color.vocabSurfaceSoft)
+                    .frame(width: 48, height: 48)
+
+                Image(systemName: "lock.fill")
+                    .font(.system(size: 16))
+                    .foregroundColor(Color.vocabMuted)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func nodeCardBorder(for state: NodeState) -> some View {
         switch state {
-        case .completed: return Color.vocabMint
-        case .active: return Color.vocabPeach
-        case .locked: return Color.vocabSurfaceSoft
+        case .active:
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(
+                    LinearGradient(
+                        colors: [Color.vocabPeach, Color(hex: "FA9938")],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    ),
+                    lineWidth: 2
+                )
+        case .completed:
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.vocabMint.opacity(0.35), lineWidth: 1.2)
+        case .locked:
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.vocabHairline, lineWidth: 1)
+        }
+    }
+
+    private func nodeCardBackground(for state: NodeState) -> Color {
+        switch state {
+        case .active:
+            return Color.vocabPeach.opacity(0.04)
+        case .completed, .locked:
+            return Color.vocabSurfaceCard
+        }
+    }
+
+    @ViewBuilder
+    private func connectingLine(state: NodeState) -> some View {
+        if state == .completed {
+            LinearGradient(
+                colors: [Color.vocabMint, Color(hex: "34D399")],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .frame(width: 4, height: 28)
+            .cornerRadius(2)
+        } else if state == .active {
+            LinearGradient(
+                colors: [Color.vocabPeach, Color.vocabHairline],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .frame(width: 4, height: 28)
+            .cornerRadius(2)
+        } else {
+            RoundedRectangle(cornerRadius: 2)
+                .fill(Color.vocabHairline)
+                .frame(width: 4, height: 28)
         }
     }
 }
