@@ -7,6 +7,7 @@ public struct VocabularyView: View {
     @State private var expandedWordId: Int64? = 1 // Expand first word by default
     @State private var wordItems: [WordItem] = WordItem.mockData
     @State private var selectedDeckId: String? = nil
+    @State private var selectedDrillWord: WordItem? = nil
     private let ttsService: TextToSpeechProtocol
 
     private let filterOptions = ["Tất cả", "Cần ôn ⚡", "Đã thuộc ⭐5", "A1-A2", "B1-B2", "C1-C2"]
@@ -86,7 +87,9 @@ public struct VocabularyView: View {
                                             onAudioTap: {
                                                 ttsService.speak(text: item.lemma)
                                             },
-                                            onDrillTap: {}
+                                            onDrillTap: {
+                                                selectedDrillWord = item
+                                            }
                                         )
                                     }
                                 }
@@ -109,6 +112,17 @@ public struct VocabularyView: View {
                 }
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .leading)))
             }
+        }
+        .sheet(item: $selectedDrillWord) { targetWord in
+            QuickReflexDrillSheetView(
+                targetWord: targetWord,
+                allWords: wordItems,
+                onComplete: { updatedMastery in
+                    if let idx = wordItems.firstIndex(where: { $0.id == targetWord.id }) {
+                        wordItems[idx].masteryLevel = updatedMastery
+                    }
+                }
+            )
         }
     }
 
