@@ -15,6 +15,13 @@ public final class QuickReflexDrillViewModel {
     public var srsResult: SRSResult?
     public var triggerSparkle: Bool = false
 
+    // Step Timer & Speed Bonus State
+    public var stepRemainingSeconds: Double = 5.0
+    public var stepMaxSeconds: Double = 5.0
+    public var isSpeedBonus: Bool = false
+    public var totalSpeedBonusCount: Int = 0
+    private var stepStartTime: Date?
+
     // Real-time Mic & Speech State (Hold-to-Talk)
     public var isMicActive: Bool = false
     public var recordedSpokenText: String = ""
@@ -59,39 +66,32 @@ public final class QuickReflexDrillViewModel {
     public func generateSteps() {
         let distractors = allWords.filter { $0.id != targetWord.id }
         
-        // Step 1: Pronunciation
-        let step1 = QuickDrillStep(
-            id: 1,
-            type: .pronunciation,
-            promptText: "Nhấn giữ mic và đọc câu ví dụ chứa từ '\(targetWord.lemma)'",
-            targetText: targetWord.exampleSentenceEn
-        )
-
-        // Step 2: Fast Meaning Match
+        // Step 1: Fast Meaning Match (Recognition - Nhận biết nhanh)
         var defOptions = distractors.shuffled().prefix(3).map { $0.definition }
         defOptions.append(targetWord.definition)
         defOptions.shuffle()
 
-        let step2 = QuickDrillStep(
-            id: 2,
+        let step1 = QuickDrillStep(
+            id: 1,
             type: .fastMeaning,
             promptText: "Chọn nghĩa tiếng Việt đúng của từ '\(targetWord.lemma)'",
             targetText: targetWord.definition,
             options: Array(defOptions)
         )
 
-        // Step 3: Fill in Blank
+        // Step 2: Fill in Blank with First-letter Hint (Context - Ngữ cảnh ứng dụng)
+        let firstLetter = String(targetWord.lemma.prefix(1)).capitalized
         let sentenceGap = targetWord.exampleSentenceEn.replacingOccurrences(
             of: targetWord.lemma,
-            with: "_______",
+            with: "\(firstLetter)_______",
             options: .caseInsensitive
         )
         var lemmaOptions = distractors.shuffled().prefix(3).map { $0.lemma }
         lemmaOptions.append(targetWord.lemma)
         lemmaOptions.shuffle()
 
-        let step3 = QuickDrillStep(
-            id: 3,
+        let step2 = QuickDrillStep(
+            id: 2,
             type: .fillInBlank,
             promptText: "Hoàn thành câu bằng từ tiếng Anh chính xác",
             targetText: targetWord.lemma,
@@ -99,17 +99,36 @@ public final class QuickReflexDrillViewModel {
             sentenceWithGap: sentenceGap
         )
 
+        // Step 3: Pronunciation Vocalization (Peak Reflex - Đọc & Phát âm câu mẫu)
+        let step3 = QuickDrillStep(
+            id: 3,
+            type: .pronunciation,
+            promptText: "Nhấn giữ mic và đọc câu ví dụ chứa từ '\(targetWord.lemma)'",
+            targetText: targetWord.exampleSentenceEn
+        )
+
         self.steps = [step1, step2, step3]
     }
 
     public func startTimer() {
         startTime = Date()
+        stepStartTime = Date()
+        stepRemainingSeconds = stepMaxSeconds
         timerTask?.cancel()
+
         timerTask = Task { [weak self] in
             while !Task.isCancelled {
                 try? await Task.sleep(for: .milliseconds(100))
                 guard let self = self, let start = self.startTime else { break }
+                
                 self.elapsedTimeMs = Int(Date().timeIntervalSince(start) * 1000)
+
+                // Per-step countdown tick
+                if !self.isStepEvaluated, let stepStart = self.stepStartTime {
+                    let elapsedStep = Date().timeIntervalSince(stepStart)
+                    let rem = max(0, self.stepMaxSeconds - elapsedStep)
+                    self.stepRemainingSeconds = rem
+                }
             }
         }
     }
@@ -131,7 +150,6 @@ public final class QuickReflexDrillViewModel {
         sttService.startListening(
             onResult: { [weak self] text in
                 guard let self = self else { return }
-                // Accumulate full transcription continuously without auto-cutting off
                 self.recordedSpokenText = text
             },
             onError: { [weak self] error in
@@ -178,6 +196,14 @@ public final class QuickReflexDrillViewModel {
 
         if correct {
             stepSuccessCount += 1
+            // Check speed bonus (< 2.5s)
+            if let stepStart = stepStartTime {
+                let duration = Date().timeIntervalSince(stepStart)
+                if duration <= 2.5 {
+                    isSpeedBonus = true
+                    totalSpeedBonusCount += 1
+                }
+            }
         }
 
         // Fast auto-advance after 800ms show of correct/wrong highlight
@@ -192,12 +218,15 @@ public final class QuickReflexDrillViewModel {
         autoAdvanceTask?.cancel()
         isStepEvaluated = false
         isStepCorrect = false
+        isSpeedBonus = false
         selectedOption = nil
         recordedSpokenText = ""
         errorMessage = nil
 
         if currentStepIndex + 1 < steps.count {
             currentStepIndex += 1
+            stepStartTime = Date()
+            stepRemainingSeconds = stepMaxSeconds
         } else {
             finishDrill()
         }

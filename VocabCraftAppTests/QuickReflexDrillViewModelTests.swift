@@ -31,15 +31,16 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
         let viewModel = QuickReflexDrillViewModel(targetWord: targetWord, allWords: samplePool)
         let steps = viewModel.steps
         XCTAssertEqual(steps.count, 3)
-        XCTAssertEqual(steps[0].type, .pronunciation)
-        XCTAssertEqual(steps[1].type, .fastMeaning)
-        XCTAssertEqual(steps[2].type, .fillInBlank)
-        XCTAssertTrue(steps[1].options.contains("Phù du, chóng phai"))
+        XCTAssertEqual(steps[0].type, .fastMeaning)
+        XCTAssertEqual(steps[1].type, .fillInBlank)
+        XCTAssertEqual(steps[2].type, .pronunciation)
+        XCTAssertTrue(steps[0].options.contains("Phù du, chóng phai"))
     }
 
     @MainActor
     func testHoldToTalkRecordingAndEvaluation() {
         let viewModel = QuickReflexDrillViewModel(targetWord: targetWord, allWords: samplePool)
+        viewModel.currentStepIndex = 2 // Step 3: Pronunciation
         
         // Hold-to-Talk press down
         viewModel.startRecording()
@@ -58,7 +59,7 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
     @MainActor
     func testOptionSubmissionAndNextStep() {
         let viewModel = QuickReflexDrillViewModel(targetWord: targetWord, allWords: samplePool)
-        viewModel.currentStepIndex = 1 // Step 2: Options
+        viewModel.currentStepIndex = 0 // Step 1: Fast Meaning Options
         
         viewModel.submitAnswer("Phù du, chóng phai")
         XCTAssertTrue(viewModel.isStepEvaluated)
@@ -66,7 +67,7 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.selectedOption, "Phù du, chóng phai")
 
         viewModel.nextStep()
-        XCTAssertEqual(viewModel.currentStepIndex, 2)
+        XCTAssertEqual(viewModel.currentStepIndex, 1)
         XCTAssertFalse(viewModel.isStepEvaluated)
     }
 }

@@ -84,11 +84,45 @@ public struct QuickReflexDrillSheetView: View {
             if viewModel.currentStepIndex < viewModel.steps.count {
                 let currentStep = viewModel.steps[viewModel.currentStepIndex]
                 
-                VStack(alignment: .leading, spacing: 20) {
-                    Text(currentStep.promptText)
-                        .font(.system(.headline, design: .rounded, weight: .bold))
-                        .foregroundColor(Color.vocabInk)
-                        .fixedSize(horizontal: false, vertical: true)
+                VStack(alignment: .leading, spacing: 18) {
+                    // Per-step Countdown Bar
+                    GeometryReader { geo in
+                        ZStack(alignment: .leading) {
+                            Capsule()
+                                .fill(Color.vocabHairline.opacity(0.4))
+                                .frame(height: 4)
+                            
+                            Capsule()
+                                .fill(viewModel.stepRemainingSeconds <= 2.0 ? Color.orange : Color.vocabHeroAccent)
+                                .frame(width: max(0, geo.size.width * CGFloat(viewModel.stepRemainingSeconds / viewModel.stepMaxSeconds)), height: 4)
+                                .animation(.linear(duration: 0.1), value: viewModel.stepRemainingSeconds)
+                        }
+                    }
+                    .frame(height: 4)
+
+                    HStack(alignment: .top) {
+                        Text(currentStep.promptText)
+                            .font(.system(.headline, design: .rounded, weight: .bold))
+                            .foregroundColor(Color.vocabInk)
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        Spacer()
+
+                        if viewModel.isSpeedBonus {
+                            HStack(spacing: 4) {
+                                Image(systemName: "bolt.fill")
+                                    .font(.system(size: 11))
+                                Text("Siêu tốc")
+                                    .font(.system(size: 11, weight: .bold))
+                            }
+                            .foregroundColor(.orange)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.orange.opacity(0.15))
+                            .clipShape(Capsule())
+                            .transition(.scale.combined(with: .opacity))
+                        }
+                    }
 
                     switch currentStep.type {
                     case .pronunciation:
@@ -326,6 +360,19 @@ public struct QuickReflexDrillSheetView: View {
                     .font(.system(.subheadline, weight: .medium))
                     .foregroundColor(Color.vocabMuted)
                     .monospacedDigit()
+
+                if viewModel.totalSpeedBonusCount > 0 {
+                    HStack(spacing: 4) {
+                        Image(systemName: "bolt.fill")
+                        Text("\(viewModel.totalSpeedBonusCount)/\(viewModel.steps.count) câu Phản xạ siêu tốc")
+                    }
+                    .font(.system(.caption, weight: .bold))
+                    .foregroundColor(.orange)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(Color.orange.opacity(0.15))
+                    .clipShape(Capsule())
+                }
             }
 
             if let result = viewModel.srsResult {
@@ -460,7 +507,6 @@ private struct OptionRowView: View {
         return Color.vocabHairline
     }
 }
-
 
 private struct BentoPressButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
