@@ -79,11 +79,10 @@ public final class QuickReflexDrillViewModel {
             options: Array(defOptions)
         )
 
-        // Step 2: Fill in Blank with First-letter Hint (Context - Ngữ cảnh ứng dụng)
-        let firstLetter = String(targetWord.lemma.prefix(1)).capitalized
+        // Step 2: Fill in Blank (Context - Ngữ cảnh ứng dụng)
         let sentenceGap = targetWord.exampleSentenceEn.replacingOccurrences(
             of: targetWord.lemma,
-            with: "\(firstLetter)_______",
+            with: "_______",
             options: .caseInsensitive
         )
         var lemmaOptions = distractors.shuffled().prefix(3).map { $0.lemma }
