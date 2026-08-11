@@ -14,16 +14,27 @@ public final class QuickReflexDrillViewModel {
     public var stepSuccessCount: Int = 0
     public var srsResult: SRSResult?
     public var triggerSparkle: Bool = false
-    public var feedbackMessage: String = ""
+
+    // Real-time Mic & Speech State
+    public var isMicActive: Bool = false
+    public var recordedSpokenText: String = ""
+    public var errorMessage: String? = nil
+
+    // Step Evaluation Feedback State
+    public var isStepEvaluated: Bool = false
+    public var isStepCorrect: Bool = false
+    public var selectedOption: String? = nil
+    public var stepFeedbackMessage: String = ""
 
     private let ttsService: TextToSpeechProtocol
     private let sttService: SpeechRecognitionProtocol
     private let evaluateSRSUseCase: EvaluateSRSUseCaseProtocol?
     private var startTime: Date?
     private var timerTask: Task<Void, Never>?
+    private var autoAdvanceTask: Task<Void, Never>?
 
-    public var isListening: Bool { sttService.isListening }
-    public var recognizedText: String { sttService.recognizedText }
+    public var isListening: Bool { isMicActive || sttService.isListening }
+    public var recognizedText: String { recordedSpokenText }
 
     public init(
         targetWord: WordItem,
@@ -53,7 +64,7 @@ public final class QuickReflexDrillViewModel {
         let step1 = QuickDrillStep(
             id: 1,
             type: .pronunciation,
-            promptText: "Đọc to câu ví dụ chứa từ \(targetWord.lemma)",
+            promptText: "Đọc to câu ví dụ chứa từ '\(targetWord.lemma)'",
             targetText: targetWord.exampleSentenceEn
         )
 
@@ -110,35 +121,82 @@ public final class QuickReflexDrillViewModel {
     }
 
     public func handleMicTap() {
-        if isListening {
-            sttService.stopListening()
-            submitAnswer(recognizedText)
+        if isMicActive {
+            stopVoiceRecognition()
+            if !recordedSpokenText.isEmpty {
+                submitAnswer(recordedSpokenText)
+            }
         } else {
-            ttsService.stop()
-            sttService.startListening(
-                onResult: { [weak self] text in
-                    guard let self = self, self.currentStepIndex < self.steps.count else { return }
-                    let target = self.steps[self.currentStepIndex].targetText
-                    if self.isAnswerMatching(userText: text, targetText: target) {
-                        self.sttService.stopListening()
-                        self.submitAnswer(text)
-                    }
-                },
-                onError: { [weak self] _ in
-                    self?.feedbackMessage = "Không thể nhận diện giọng nói"
-                }
-            )
+            startVoiceRecognition()
         }
     }
 
+    public func startVoiceRecognition() {
+        ttsService.stop()
+        errorMessage = nil
+        isMicActive = true
+        recordedSpokenText = ""
+
+        sttService.startListening(
+            onResult: { [weak self] text in
+                guard let self = self else { return }
+                self.recordedSpokenText = text
+                guard self.currentStepIndex < self.steps.count else { return }
+                let target = self.steps[self.currentStepIndex].targetText
+                if self.isAnswerMatching(userText: text, targetText: target) {
+                    self.stopVoiceRecognition()
+                    self.submitAnswer(text)
+                }
+            },
+            onError: { [weak self] error in
+                guard let self = self else { return }
+                self.isMicActive = false
+                let errDesc = error.localizedDescription
+                self.errorMessage = "Không thể thu âm: \(errDesc). Vui lòng kiểm tra quyền Micro trong Cài đặt."
+            }
+        )
+    }
+
+    public func stopVoiceRecognition() {
+        isMicActive = false
+        sttService.stopListening()
+    }
+
     public func submitAnswer(_ answer: String) {
-        guard currentStepIndex < steps.count else { return }
+        guard currentStepIndex < steps.count, !isStepEvaluated else { return }
+        autoAdvanceTask?.cancel()
+        stopVoiceRecognition()
+
         let currentStep = steps[currentStepIndex]
         let correct = isAnswerMatching(userText: answer, targetText: currentStep.targetText)
 
+        self.selectedOption = answer
+        self.isStepEvaluated = true
+        self.isStepCorrect = correct
+
         if correct {
             stepSuccessCount += 1
+            stepFeedbackMessage = "Chính xác!"
+        } else {
+            stepFeedbackMessage = "Chưa chính xác. Đáp án đúng: \"\(currentStep.targetText)\""
         }
+
+        // Auto-advance after 1.4s delay so user clearly sees correct/wrong feedback
+        autoAdvanceTask = Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(1400))
+            guard let self = self, !Task.isCancelled else { return }
+            self.nextStep()
+        }
+    }
+
+    public func nextStep() {
+        autoAdvanceTask?.cancel()
+        isStepEvaluated = false
+        isStepCorrect = false
+        selectedOption = nil
+        recordedSpokenText = ""
+        stepFeedbackMessage = ""
+        errorMessage = nil
 
         if currentStepIndex + 1 < steps.count {
             currentStepIndex += 1
@@ -149,7 +207,7 @@ public final class QuickReflexDrillViewModel {
 
     public func finishDrill() {
         timerTask?.cancel()
-        sttService.stopListening()
+        stopVoiceRecognition()
         
         let allCorrect = stepSuccessCount == steps.count
         let avgTimeMs = steps.isEmpty ? 2000 : elapsedTimeMs / steps.count

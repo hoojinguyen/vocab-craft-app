@@ -38,20 +38,35 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
     }
 
     @MainActor
-    func testAnswerValidationAndAdvancement() {
+    func testStepEvaluationFeedbackAndAdvancement() {
         let viewModel = QuickReflexDrillViewModel(targetWord: targetWord, allWords: samplePool)
         
-        // Step 1 correct
+        // Step 1: Pronunciation evaluation shows feedback before nextStep
         viewModel.submitAnswer("Her fame proved to be ephemeral.")
-        XCTAssertEqual(viewModel.currentStepIndex, 1)
+        XCTAssertTrue(viewModel.isStepEvaluated)
+        XCTAssertTrue(viewModel.isStepCorrect)
+        XCTAssertEqual(viewModel.stepFeedbackMessage, "Chính xác!")
+        XCTAssertEqual(viewModel.currentStepIndex, 0) // Still on step 0 until nextStep is called
 
-        // Step 2 correct option
-        viewModel.submitAnswer("Phù du, chóng phai")
+        viewModel.nextStep()
+        XCTAssertEqual(viewModel.currentStepIndex, 1)
+        XCTAssertFalse(viewModel.isStepEvaluated)
+
+        // Step 2: Incorrect option evaluation shows feedback & correct answer hint
+        viewModel.submitAnswer("Sai đáp án")
+        XCTAssertTrue(viewModel.isStepEvaluated)
+        XCTAssertFalse(viewModel.isStepCorrect)
+        XCTAssertTrue(viewModel.stepFeedbackMessage.contains("Chưa chính xác"))
+
+        viewModel.nextStep()
         XCTAssertEqual(viewModel.currentStepIndex, 2)
 
-        // Step 3 correct lemma
+        // Step 3: Correct option evaluation
         viewModel.submitAnswer("Ephemeral")
+        XCTAssertTrue(viewModel.isStepEvaluated)
+        XCTAssertTrue(viewModel.isStepCorrect)
+
+        viewModel.nextStep()
         XCTAssertTrue(viewModel.isCompleted)
-        XCTAssertTrue(viewModel.isCorrect)
     }
 }
