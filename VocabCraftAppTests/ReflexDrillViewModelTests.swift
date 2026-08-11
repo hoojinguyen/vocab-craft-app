@@ -126,8 +126,8 @@ final class ReflexDrillViewModelTests: XCTestCase {
         XCTAssertTrue(viewModel.isListening)
         XCTAssertFalse(viewModel.state.isEvaluated)
 
-        // Simulate intermediate speech
-        mockSTT.simulateResult("A black dog jumps over the fence")
+        // Simulate intermediate speech (non-matching so it doesn't auto-evaluate before tap)
+        mockSTT.simulateResult("A black cat")
 
         // Tap 2: Stop listening & evaluate
         viewModel.handleMicTap()

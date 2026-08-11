@@ -44,22 +44,12 @@ public final class StudySessionViewModel {
             isSuccess = true
             isFlipped = true
             speakCurrentWord()
-            
-            Task {
-                try? await Task.sleep(for: .seconds(1.2))
-                advanceToNext()
-            }
         } else {
             isSuccess = false
             attemptedWrongAnswers.insert(option)
             if result.attemptsRemaining == 0 {
                 isFlipped = true
                 speakCurrentWord()
-                
-                Task {
-                    try? await Task.sleep(for: .seconds(1.5))
-                    advanceToNext()
-                }
             }
         }
     }
