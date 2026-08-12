@@ -25,7 +25,7 @@ public struct HomepageState: Equatable {
         unreadNotifications: Bool = true,
         searchText: String = "",
         selectedTab: TabItem = .home,
-        suggestedWords: [SuggestedWord] = SuggestedWord.sampleWords,
+        suggestedWords: [SuggestedWord] = [],
         currentSuggestedWordIndex: Int? = nil
     ) {
         self.userName = userName
@@ -75,12 +75,47 @@ public final class HomepageViewModel {
         set { state.suggestedWords = newValue }
     }
 
+    public let fetchVocabularyUseCase: FetchVocabularyUseCaseProtocol?
     public let ttsService: TextToSpeechProtocol
 
-    public init(initialState: HomepageState = HomepageState(), ttsService: TextToSpeechProtocol? = nil) {
+    public init(
+        initialState: HomepageState = HomepageState(),
+        fetchVocabularyUseCase: FetchVocabularyUseCaseProtocol? = nil,
+        ttsService: TextToSpeechProtocol? = nil
+    ) {
         self.state = initialState
+        self.fetchVocabularyUseCase = fetchVocabularyUseCase
         self.ttsService = ttsService ?? TextToSpeechService()
     }
+
+    public func loadData() async {
+        guard let useCase = fetchVocabularyUseCase else { return }
+        do {
+            let fetchedWords = try await useCase.executeFetchWords(limit: 10)
+            if !fetchedWords.isEmpty {
+                self.state.suggestedWords = fetchedWords.map { word in
+                    SuggestedWord(
+                        id: String(word.id),
+                        lemma: word.lemma,
+                        pos: word.pos ?? "noun",
+                        ipaUs: word.ipaUs ?? "",
+                        cefrLevel: word.cefrLevel ?? "A1",
+                        definitionVi: word.definitionVi ?? word.definitionEn ?? "",
+                        definitionEn: word.definitionEn ?? "",
+                        example: word.example ?? "",
+                        isBookmarked: false,
+                        topicTag: "Từ vựng nổi bật"
+                    )
+                }
+                if self.state.currentSuggestedWordIndex >= self.state.suggestedWords.count {
+                    self.state.currentSuggestedWordIndex = 0
+                }
+            }
+        } catch {
+            print("[HomepageViewModel] Failed to load data: \(error)")
+        }
+    }
+
 
     public func speakSuggestedWord(_ word: SuggestedWord) {
         ttsService.speak(text: word.lemma)

@@ -9,14 +9,14 @@ public struct TopicDeckDetailView: View {
     @Environment(\.colorScheme) private var colorScheme
 
 
-    // Sample data (to be wired to ViewModel)
-    private let nodes: [SubTopicNode] = SubTopicNode.sampleNodes
+    private let nodes: [SubTopicNode]
 
-
-    public init(deckId: String, onBack: @escaping () -> Void) {
+    public init(deckId: String, nodes: [SubTopicNode] = [], onBack: @escaping () -> Void) {
         self.deckId = deckId
+        self.nodes = nodes
         self.onBack = onBack
     }
+
 
     public var body: some View {
         ScrollView {

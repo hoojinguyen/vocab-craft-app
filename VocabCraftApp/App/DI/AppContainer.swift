@@ -21,6 +21,7 @@ public final class AppContainer {
     public init(
         datasetEngine: DatasetEngine? = nil,
         modelContainer: ModelContainer? = nil,
+        useMockData: Bool? = nil,
         ttsService: TextToSpeechProtocol? = nil,
         sttService: SpeechRecognitionProtocol? = nil,
         userSettingsStore: UserSettingsStore? = nil
@@ -28,7 +29,10 @@ public final class AppContainer {
         self.datasetEngine = datasetEngine
         self.modelContainer = modelContainer
         
-        let vocabRepo = VocabularyRepositoryImpl(datasetEngine: datasetEngine)
+        let shouldMock = useMockData ?? (datasetEngine == nil)
+        let vocabRepo: VocabularyRepositoryProtocol = shouldMock
+            ? MockVocabularyRepository()
+            : VocabularyRepositoryImpl(datasetEngine: datasetEngine)
         let srsRepo = SRSRepositoryImpl(modelContext: modelContainer?.mainContext)
         
         self.vocabularyRepository = vocabRepo
@@ -43,9 +47,14 @@ public final class AppContainer {
         self.userSettingsStore = userSettingsStore ?? UserSettingsStore()
     }
 
+
     public func makeHomepageViewModel() -> HomepageViewModel {
-        HomepageViewModel(ttsService: ttsService)
+        HomepageViewModel(
+            fetchVocabularyUseCase: fetchVocabularyUseCase,
+            ttsService: ttsService
+        )
     }
+
 
     public func makeReflexDrillViewModel(cefrLevel: String = "B1") -> ReflexDrillViewModel {
         ReflexDrillViewModel(

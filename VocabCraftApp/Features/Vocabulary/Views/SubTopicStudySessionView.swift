@@ -16,9 +16,9 @@ public struct SubTopicStudySessionView: View {
         self.node = node
         self.onDismiss = onDismiss
         self.onComplete = onComplete
-        let wordsToUse = node.words.isEmpty ? SubTopicStudySessionView.sampleWords : node.words
-        self._viewModel = State(initialValue: StudySessionViewModel(words: wordsToUse))
+        self._viewModel = State(initialValue: StudySessionViewModel(words: node.words))
     }
+
 
     public var body: some View {
         @Bindable var viewModel = viewModel
@@ -238,7 +238,9 @@ public struct SubTopicStudySessionView: View {
         TopicWord(id: "w9", english: "Intelligence", phonetic: "/ɪnˈtel.ə.dʒəns/", vietnamese: "Trí tuệ", example: "Human intelligence is adaptable.", partOfSpeech: "noun"),
         TopicWord(id: "w10", english: "Architecture", phonetic: "/ˈɑːr.kə.tek.tʃər/", vietnamese: "Kiến trúc", example: "Modern architecture combines style and utility.", partOfSpeech: "noun")
     ]
+
 }
+
 
 private struct QuizOptionRowView: View {
     let option: String

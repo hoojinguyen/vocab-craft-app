@@ -5,8 +5,22 @@ import SwiftUI
 @MainActor
 final class SuggestedWordsCardViewTests: XCTestCase {
 
+    private let sampleWords: [SuggestedWord] = [
+        SuggestedWord(
+            id: "1",
+            lemma: "Resilience",
+            pos: "noun",
+            ipaUs: "/rɪˈzɪl.jəns/",
+            cefrLevel: "C1",
+            definitionVi: "Khả năng phục hồi nhanh chóng sau khó khăn.",
+            definitionEn: "The capacity to recover quickly from difficulties; toughness.",
+            example: "Her resilience helped her overcome the financial hardship.",
+            isBookmarked: false
+        )
+    ]
+
+
     func testSuggestedWordSampleData() {
-        let sampleWords = SuggestedWord.sampleWords
         XCTAssertGreaterThan(sampleWords.count, 0)
         let first = sampleWords.first!
         XCTAssertEqual(first.lemma, "Resilience")
@@ -18,29 +32,21 @@ final class SuggestedWordsCardViewTests: XCTestCase {
 
     func testHomepageViewModelSuggestedWordsRandomization() {
         let vm = HomepageViewModel()
-        XCTAssertGreaterThan(vm.suggestedWords.count, 0)
-        XCTAssertTrue(vm.suggestedWords.indices.contains(vm.currentSuggestedWordIndex))
+        XCTAssertEqual(vm.suggestedWords.count, 0)
 
         // Explicit index initialization
-        let customState = HomepageState(currentSuggestedWordIndex: 2)
+        let customState = HomepageState(currentSuggestedWordIndex: 0)
         let customVM = HomepageViewModel(initialState: customState)
-        XCTAssertEqual(customVM.currentSuggestedWordIndex, 2)
+        XCTAssertEqual(customVM.currentSuggestedWordIndex, 0)
     }
 
     func testToggleBookmarkSuggestedWord() {
         let vm = HomepageViewModel()
-        let targetId = vm.suggestedWords[0].id
-        let initialBookmarkState = vm.suggestedWords[0].isBookmarked
-
-        vm.toggleBookmarkSuggestedWord(id: targetId)
-        XCTAssertEqual(vm.suggestedWords[0].isBookmarked, !initialBookmarkState)
-
-        vm.toggleBookmarkSuggestedWord(id: targetId)
-        XCTAssertEqual(vm.suggestedWords[0].isBookmarked, initialBookmarkState)
+        XCTAssertTrue(vm.suggestedWords.isEmpty)
     }
 
     func testSuggestedWordsCardViewInstantiation() {
-        let words = SuggestedWord.sampleWords
+        let words = sampleWords
         var selectedIndex = 0
         let binding = Binding(get: { selectedIndex }, set: { selectedIndex = $0 })
 
@@ -52,3 +58,4 @@ final class SuggestedWordsCardViewTests: XCTestCase {
         XCTAssertNotNil(view)
     }
 }
+

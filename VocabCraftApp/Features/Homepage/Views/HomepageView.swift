@@ -68,6 +68,10 @@ public struct HomepageView: View {
                     }
                     .padding(.top)
                 }
+                .task {
+                    await viewModel.loadData()
+                }
+
             case .vocabulary:
                 if let appContainer = appContainer {
                     VocabularyView(viewModel: appContainer.makeVocabularyViewModel())
