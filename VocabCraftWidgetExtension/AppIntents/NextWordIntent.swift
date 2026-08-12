@@ -12,14 +12,15 @@ public struct NextWordIntent: AppIntent {
 
     public init() {}
 
+    @MainActor
     @discardableResult
     public func perform() async throws -> some IntentResult {
         let container = try SharedAppGroupContainer.createContainer()
-        let context = ModelContext(container)
-        try await perform(in: context)
-        return .result()
+        let context = container.mainContext
+        return try await perform(in: context)
     }
 
+    @MainActor
     @discardableResult
     public func perform(in context: ModelContext, dbEngine: DatasetEngine? = nil) async throws -> some IntentResult {
         let engine = dbEngine ?? DatasetEngine()

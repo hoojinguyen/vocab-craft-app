@@ -5,6 +5,7 @@ import WidgetKit
 import AppIntents
 @testable import VocabCraftApp
 
+@MainActor
 final class WidgetIntentsTests: XCTestCase {
     var container: ModelContainer!
     var context: ModelContext!
@@ -12,7 +13,7 @@ final class WidgetIntentsTests: XCTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
         container = try SharedAppGroupContainer.createContainer(inMemory: true)
-        context = ModelContext(container)
+        context = container.mainContext
     }
 
     override func tearDownWithError() throws {

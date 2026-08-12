@@ -2,6 +2,7 @@ import XCTest
 import SwiftData
 @testable import VocabCraftApp
 
+@MainActor
 final class SwiftDataModelsTests: XCTestCase {
     var container: ModelContainer!
     var context: ModelContext!
@@ -9,7 +10,7 @@ final class SwiftDataModelsTests: XCTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
         container = try SharedAppGroupContainer.createContainer(inMemory: true)
-        context = ModelContext(container)
+        context = container.mainContext
     }
 
     override func tearDownWithError() throws {
