@@ -39,70 +39,24 @@ public struct LiquidGlassTabBar: View {
     }
 
     public var body: some View {
-        HStack(spacing: 10) {
-            // Main Tab Bar Capsule (Trang chủ, Từ vựng, Phản xạ, Cài đặt)
-            Group {
-                if #available(iOS 26, macOS 26, *) {
-                    GlassEffectContainer(spacing: 4) {
-                        mainTabsContent
-                            .glassEffect(.regular, in: Capsule())
-                    }
-                } else {
-                    mainTabsContent
-                        .background(
-                            Capsule()
-                                .fill(.ultraThinMaterial)
-                                .overlay(
-                                    Capsule()
-                                        .stroke(
-                                            LinearGradient(
-                                                colors: [
-                                                    Color.white.opacity(0.45),
-                                                    Color.white.opacity(0.12),
-                                                    Color.black.opacity(0.06)
-                                                ],
-                                                startPoint: .topLeading,
-                                                endPoint: .bottomTrailing
-                                            ),
-                                            lineWidth: 1
-                                        )
-                                )
-                        )
-                        .shadow(color: Color.black.opacity(0.12), radius: 20, x: 0, y: 10)
+        Group {
+            if #available(iOS 26, macOS 26, *) {
+                GlassEffectContainer(spacing: 0) {
+                    tabContent
+                        .glassEffect(.regular, in: Capsule())
                 }
-            }
-
-            // Standalone Search Circle Button (Apple Music Search Button Style)
-            let isSearchSelected = selectedTab == .search
-            Button(action: {
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.72)) {
-                    selectedTab = .search
-                }
-            }) {
-                Image(systemName: TabItem.search.symbol)
-                    .font(.system(size: 20, weight: isSearchSelected ? .bold : .medium))
-                    .foregroundColor(isSearchSelected ? Color.vocabMint : Color.vocabInk)
-                    .scaleEffect(isSearchSelected ? 1.15 : 1.0)
-                    .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isSearchSelected)
-                    .frame(width: 52, height: 52)
-                    .contentShape(Circle())
-            }
-            .buttonStyle(.plain)
-            .background(
-                Group {
-                    if #available(iOS 26, macOS 26, *) {
-                        Circle().glassEffect(.regular.interactive(), in: Circle())
-                    } else {
-                        Circle()
-                            .fill(.ultraThinMaterial)
+            } else {
+                tabContent
+                    .background(
+                        Capsule()
+                            .fill(.thinMaterial)
                             .overlay(
-                                Circle()
+                                Capsule()
                                     .stroke(
                                         LinearGradient(
                                             colors: [
-                                                Color.white.opacity(0.45),
-                                                Color.white.opacity(0.12),
-                                                Color.black.opacity(0.06)
+                                                Color.white.opacity(0.6),
+                                                Color.white.opacity(0.15)
                                             ],
                                             startPoint: .topLeading,
                                             endPoint: .bottomTrailing
@@ -110,20 +64,18 @@ public struct LiquidGlassTabBar: View {
                                         lineWidth: 1
                                     )
                             )
-                            .shadow(color: Color.black.opacity(0.12), radius: 20, x: 0, y: 10)
-                    }
-                }
-            )
+                            .shadow(color: Color.black.opacity(0.08), radius: 16, x: 0, y: 6)
+                    )
+            }
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 8)
         .sensoryFeedback(.selection, trigger: selectedTab)
     }
 
-    private var mainTabsContent: some View {
-        HStack(spacing: 2) {
-            let mainTabs: [TabItem] = [.home, .vocabulary, .reflex, .settings]
-            ForEach(mainTabs) { tab in
+    private var tabContent: some View {
+        HStack(spacing: 0) {
+            ForEach(TabItem.allCases) { tab in
                 let isSelected = selectedTab == tab
                 Button(action: {
                     withAnimation(.spring(response: 0.35, dampingFraction: 0.72)) {
@@ -140,35 +92,22 @@ public struct LiquidGlassTabBar: View {
                             .font(.system(size: 10, weight: isSelected ? .bold : .medium, design: .rounded))
                     }
                     .foregroundColor(isSelected ? Color.vocabMint : Color.vocabMuted)
-                    .padding(.vertical, 6)
-                    .padding(.horizontal, 10)
-                    .frame(maxWidth: .infinity, minHeight: 48)
-                    .contentShape(Rectangle()) // CRITICAL: Makes the entire tab area 100% tappable on real device!
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 12)
+                    .frame(maxWidth: .infinity, minHeight: 52)
+                    .contentShape(Rectangle()) // CRITICAL: Makes entire tab column 100% tappable on real devices!
                     .background {
                         if isSelected {
                             if #available(iOS 26, macOS 26, *) {
                                 Capsule()
-                                    .fill(Color.vocabInk.opacity(0.07))
+                                    .fill(Color.dynamic(light: Color.white.opacity(0.85), dark: Color.white.opacity(0.12)))
                                     .glassEffect(.regular.interactive(), in: Capsule())
                                     .glassEffectID("activeTabPill", in: animationNamespace)
                                     .glassEffectTransition(.matchedGeometry)
                             } else {
                                 Capsule()
-                                    .fill(Color.vocabInk.opacity(0.07))
-                                    .overlay(
-                                        Capsule()
-                                            .stroke(
-                                                LinearGradient(
-                                                    colors: [
-                                                        Color.white.opacity(0.35),
-                                                        Color.white.opacity(0.08)
-                                                    ],
-                                                    startPoint: .topLeading,
-                                                    endPoint: .bottomTrailing
-                                                ),
-                                                lineWidth: 0.8
-                                            )
-                                    )
+                                    .fill(Color.dynamic(light: Color.white.opacity(0.85), dark: Color.white.opacity(0.12)))
+                                    .shadow(color: Color.black.opacity(0.06), radius: 4, x: 0, y: 2)
                                     .matchedGeometryEffect(id: "activeTabIndicator", in: animationNamespace)
                             }
                         }
@@ -177,7 +116,7 @@ public struct LiquidGlassTabBar: View {
                 .buttonStyle(.plain)
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 5)
         .padding(.horizontal, 6)
     }
 }
@@ -196,6 +135,8 @@ public struct LiquidGlassTabBar: View {
     }
     .preferredColorScheme(.dark)
 }
+
+
 
 
 
