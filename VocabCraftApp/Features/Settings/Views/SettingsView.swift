@@ -19,11 +19,11 @@ public struct SettingsView: View {
             .listRowBackground(Color.vocabSurfaceCard)
 
             // Learning & SRS Section
-            Section(header: sectionHeader("Học tập & Ôn tập (SRS)")) {
+            Section(header: sectionHeader(AppStrings.Settings.sectionLearningSRS)) {
                 SettingsRowView(
                     iconName: "target",
                     iconColor: .vocabHeroAccent,
-                    title: "Mục tiêu từ/ngày"
+                    title: AppStrings.Settings.dailyGoal
                 ) {
                     HStack(spacing: 0) {
                         Button(action: {
@@ -47,7 +47,7 @@ public struct SettingsView: View {
                             goalInputText = "\(viewModel.store.dailyGoalCount)"
                             showGoalInputAlert = true
                         }) {
-                            Text("\(viewModel.store.dailyGoalCount) từ")
+                            Text("\(viewModel.store.dailyGoalCount) \(AppStrings.Common.wordUnit)")
                                 .font(.caption.weight(.bold))
                                 .fontDesign(.rounded)
                                 .monospacedDigit()
@@ -83,7 +83,7 @@ public struct SettingsView: View {
                 SettingsRowView(
                     iconName: "bell.fill",
                     iconColor: .vocabHeroAccent,
-                    title: "Nhắc nhở ôn tập"
+                    title: AppStrings.Settings.reminderNotification
                 ) {
                     Toggle("", isOn: Binding(
                         get: { viewModel.store.isNotificationEnabled },
@@ -99,7 +99,7 @@ public struct SettingsView: View {
                     SettingsRowView(
                         iconName: "clock.fill",
                         iconColor: .vocabHeroAccent,
-                        title: "Giờ nhắc nhở"
+                        title: AppStrings.Settings.reminderTime
                     ) {
                         DatePicker(
                             "",
@@ -118,8 +118,8 @@ public struct SettingsView: View {
                     SettingsRowView(
                         iconName: "arrow.triangle.2.circlepath",
                         iconColor: .vocabCoral,
-                        title: "Reset tiến trình SRS",
-                        subtitle: "Đặt lại tất cả các từ đã học"
+                        title: AppStrings.Settings.resetSRS,
+                        subtitle: AppStrings.Settings.resetSRSSubtitle
                     ) {
                         Image(systemName: "chevron.right")
                             .font(.caption.weight(.bold))
@@ -130,11 +130,11 @@ public struct SettingsView: View {
             .listRowBackground(Color.vocabSurfaceCard)
 
             // Audio & TTS Section
-            Section(header: sectionHeader("Âm thanh & Phát âm")) {
+            Section(header: sectionHeader(AppStrings.Settings.sectionAudioTTS)) {
                 SettingsRowView(
                     iconName: "speaker.wave.2.fill",
                     iconColor: .vocabPeach,
-                    title: "Giọng đọc tiếng Anh"
+                    title: AppStrings.Settings.englishVoice
                 ) {
                     Picker("", selection: $viewModel.store.ttsVoiceGender) {
                         Text("US (Mỹ)").tag("US")
@@ -148,7 +148,7 @@ public struct SettingsView: View {
                     SettingsRowView(
                         iconName: "speedometer",
                         iconColor: .vocabPeach,
-                        title: "Tốc độ đọc"
+                        title: AppStrings.Settings.speechSpeed
                     ) {
                         Text(String(format: "%.2fx", viewModel.store.ttsSpeed))
                             .font(.caption.weight(.bold))
@@ -176,7 +176,7 @@ public struct SettingsView: View {
                     SettingsRowView(
                         iconName: viewModel.isPlayingAudio ? "speaker.wave.3.fill" : "play.circle.fill",
                         iconColor: .vocabPeach,
-                        title: viewModel.isPlayingAudio ? "Đang phát mẫu..." : "Nghe thử phát âm TTS"
+                        title: viewModel.isPlayingAudio ? AppStrings.Settings.playingAudio : AppStrings.Settings.testTTS
                     ) {
                         HStack(spacing: 6) {
                             if viewModel.isPlayingAudio {
@@ -199,25 +199,25 @@ public struct SettingsView: View {
             .listRowBackground(Color.vocabSurfaceCard)
 
             // Appearance & Experience Section
-            Section(header: sectionHeader("Giao diện & Trải nghiệm")) {
+            Section(header: sectionHeader(AppStrings.Settings.sectionAppearance)) {
                 SettingsRowView(
                     iconName: "paintpalette.fill",
                     iconColor: .vocabLavender,
-                    title: "Giao diện App"
+                    title: AppStrings.Settings.appTheme
                 ) {
                     Picker("", selection: $viewModel.store.appTheme) {
-                        Text("Tối").tag("dark")
-                        Text("Sáng").tag("light")
-                        Text("Auto").tag("system")
+                        Text(AppStrings.Settings.themeDark).tag("dark")
+                        Text(AppStrings.Settings.themeLight).tag("light")
+                        Text(AppStrings.Settings.themeSystem).tag("system")
                     }
                     .pickerStyle(.segmented)
-                    .frame(width: 160)
+                    .frame(width: 170)
                 }
 
                 SettingsRowView(
                     iconName: "hand.tap.fill",
                     iconColor: .vocabLavender,
-                    title: "Rung phản hồi (Haptics)"
+                    title: AppStrings.Settings.haptics
                 ) {
                     Toggle("", isOn: $viewModel.store.isHapticsEnabled)
                 }
@@ -225,21 +225,39 @@ public struct SettingsView: View {
                 SettingsRowView(
                     iconName: "waveform",
                     iconColor: .vocabLavender,
-                    title: "Hiệu ứng âm thanh"
+                    title: AppStrings.Settings.soundEffects
                 ) {
                     Toggle("", isOn: $viewModel.store.isSoundEffectsEnabled)
                 }
             }
             .listRowBackground(Color.vocabSurfaceCard)
 
+            // Language & Region Section
+            Section(header: sectionHeader(AppStrings.Settings.sectionLanguage)) {
+                SettingsRowView(
+                    iconName: "globe",
+                    iconColor: .vocabHeroTeal,
+                    title: AppStrings.Settings.appLanguage
+                ) {
+                    Picker("", selection: $viewModel.store.appLanguage) {
+                        Text(AppStrings.Settings.langSystem).tag("system")
+                        Text(AppStrings.Settings.langVietnamese).tag("vi")
+                        Text(AppStrings.Settings.langEnglish).tag("en")
+                    }
+                    .pickerStyle(.menu)
+                    .tint(.vocabHeroTeal)
+                }
+            }
+            .listRowBackground(Color.vocabSurfaceCard)
+
             // App Data & About Section
-            Section(header: sectionHeader("Ứng dụng & Dữ liệu")) {
+            Section(header: sectionHeader(AppStrings.Settings.sectionAppData)) {
                 SettingsRowView(
                     iconName: "icloud.fill",
                     iconColor: .vocabMuted,
-                    title: "Đồng bộ iCloud"
+                    title: AppStrings.Settings.icloudSync
                 ) {
-                    Text("Đã đồng bộ")
+                    Text(AppStrings.Settings.synced)
                         .font(.caption2.weight(.bold))
                         .fontDesign(.rounded)
                         .foregroundColor(.vocabMint)
@@ -258,7 +276,7 @@ public struct SettingsView: View {
                     SettingsRowView(
                         iconName: "trash.fill",
                         iconColor: .vocabMuted,
-                        title: "Dọn dẹp bộ nhớ đệm"
+                        title: AppStrings.Settings.clearCache
                     ) {
                         Text(viewModel.cacheSizeString)
                             .font(.caption.weight(.semibold))
@@ -271,7 +289,7 @@ public struct SettingsView: View {
                 SettingsRowView(
                     iconName: "info.circle.fill",
                     iconColor: .vocabMuted,
-                    title: "Phiên bản ứng dụng"
+                    title: AppStrings.Settings.appVersion
                 ) {
                     Text("v1.2.0 (Build 42)")
                         .font(.footnote.weight(.medium))
@@ -294,30 +312,31 @@ public struct SettingsView: View {
         .sensoryFeedback(.selection, trigger: viewModel.store.dailyGoalCount) { _, _ in viewModel.store.isHapticsEnabled }
         .sensoryFeedback(.selection, trigger: viewModel.store.ttsVoiceGender) { _, _ in viewModel.store.isHapticsEnabled }
         .sensoryFeedback(.selection, trigger: viewModel.store.appTheme) { _, _ in viewModel.store.isHapticsEnabled }
+        .sensoryFeedback(.selection, trigger: viewModel.store.appLanguage) { _, _ in viewModel.store.isHapticsEnabled }
         .sensoryFeedback(.impact(weight: .light), trigger: viewModel.store.isNotificationEnabled) { _, _ in viewModel.store.isHapticsEnabled }
         .sensoryFeedback(.impact(weight: .light), trigger: viewModel.store.isHapticsEnabled) { _, _ in viewModel.store.isHapticsEnabled }
         .sensoryFeedback(.impact(weight: .light), trigger: viewModel.store.isSoundEffectsEnabled) { _, _ in viewModel.store.isHapticsEnabled }
-        .alert("Nhập số lượng từ/ngày", isPresented: $showGoalInputAlert) {
-            TextField("Số từ (5 - 100)", text: $goalInputText)
+        .alert(AppStrings.Settings.inputGoalTitle, isPresented: $showGoalInputAlert) {
+            TextField("5 - 100", text: $goalInputText)
                 #if os(iOS)
                 .keyboardType(.numberPad)
                 #endif
-            Button("Hủy", role: .cancel) {}
-            Button("Lưu") {
+            Button(AppStrings.Common.cancel, role: .cancel) {}
+            Button(AppStrings.Common.save) {
                 if let val = Int(goalInputText), val >= 5, val <= 100 {
                     viewModel.store.dailyGoalCount = val
                 }
             }
         } message: {
-            Text("Nhập số lượng từ mục tiêu cần học mỗi ngày từ 5 đến 100 từ.")
+            Text(AppStrings.Settings.inputGoalMessage)
         }
-        .alert("Xác nhận Reset Tiến trình", isPresented: $showResetAlert) {
-            Button("Hủy", role: .cancel) {}
-            Button("Reset", role: .destructive) {
+        .alert(AppStrings.Settings.resetConfirmTitle, isPresented: $showResetAlert) {
+            Button(AppStrings.Common.cancel, role: .cancel) {}
+            Button(AppStrings.Common.reset, role: .destructive) {
                 viewModel.resetSRSProgress()
             }
         } message: {
-            Text("Tất cả dữ liệu ôn tập SRS sẽ được đặt lại từ đầu. Hành động này không thể hoàn tác.")
+            Text(AppStrings.Settings.resetConfirmMessage)
         }
     }
 
