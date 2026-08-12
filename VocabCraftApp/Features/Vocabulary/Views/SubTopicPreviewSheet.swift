@@ -45,7 +45,7 @@ public struct SubTopicPreviewSheet: View {
                 Text(node.title)
                     .font(.system(size: 18, weight: .bold))
                     .foregroundColor(Color.vocabInk)
-                Text("\(node.learnedWords)/\(node.totalWords) từ đã thuộc")
+                Text("\(node.learnedWords)/\(node.totalWords) \(AppStrings.Vocabulary.wordsMasteredCount)")
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(Color.vocabMuted)
             }
@@ -127,7 +127,7 @@ public struct SubTopicPreviewSheet: View {
             HStack(spacing: 8) {
                 Image(systemName: "play.fill")
                     .font(.system(size: 13, weight: .bold))
-                Text("Luyện tập riêng chặng này")
+                Text(AppStrings.Vocabulary.startLearning)
                     .font(.system(size: 14, weight: .bold))
             }
             .foregroundColor(.white)

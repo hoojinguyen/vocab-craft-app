@@ -79,7 +79,7 @@ public struct ReflexFlipCardView: View {
                     .padding(.top, 2)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Ví dụ:")
+                    Text("\(AppStrings.Vocabulary.example):")
                         .font(.caption.smallCaps())
                         .fontWeight(.bold)
                         .foregroundColor(Color.vocabMuted)

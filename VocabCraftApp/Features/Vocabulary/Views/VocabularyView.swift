@@ -36,8 +36,8 @@ public struct VocabularyView: View {
                 VStack(spacing: 14) {
                     // Segmented Switch (Kho Từ Cá Nhân vs Bộ Từ Chủ Đề)
                     HStack(spacing: 0) {
-                        segmentedTabButton(title: "Kho Từ Cá Nhân", tabIndex: 0)
-                        segmentedTabButton(title: "Bộ Từ Chủ Đề", tabIndex: 1)
+                        segmentedTabButton(title: AppStrings.Vocabulary.personalBank, tabIndex: 0)
+                        segmentedTabButton(title: AppStrings.Vocabulary.topicDecks, tabIndex: 1)
                     }
                     .padding(4)
                     .background(Color.vocabSurfaceCard)
@@ -55,7 +55,7 @@ public struct VocabularyView: View {
                             Image(systemName: "magnifyingglass")
                                 .foregroundColor(Color.vocabMuted)
                                 .font(.system(size: 14, weight: .semibold))
-                            TextField("Tìm kiếm từ vựng, nghĩa...", text: $bindableVM.searchText)
+                            TextField(AppStrings.Vocabulary.searchPlaceholder, text: $bindableVM.searchText)
                                 .font(.system(size: 13, weight: .medium))
                                 .foregroundColor(Color.vocabInk)
                             if !vm.searchText.isEmpty {
@@ -183,7 +183,7 @@ public struct VocabularyView: View {
     private func filterPill(_ filter: VocabularyFilter) -> some View {
         let isSelected = vm.selectedFilter == filter
         let count = vm.filterCount(for: filter)
-        let displayTitle = "\(filter.rawValue) (\(count))"
+        let displayTitle = "\(filter.title) (\(count))"
 
         return Button(action: {
             withAnimation(.spring(response: 0.25, dampingFraction: 0.75)) {

@@ -117,7 +117,7 @@ public struct WordAccordionCard: View {
                         HStack(spacing: 8) {
                             Image(systemName: "bolt.fill")
                                 .font(.system(size: 13, weight: .bold))
-                            Text("Luyện phản xạ từ này")
+                            Text(AppStrings.Homepage.practiceNow)
                                 .font(.system(size: 13, weight: .bold))
                         }
                         .foregroundColor(.white)

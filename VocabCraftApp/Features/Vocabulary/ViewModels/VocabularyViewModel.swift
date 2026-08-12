@@ -9,6 +9,17 @@ public enum VocabularyFilter: String, CaseIterable, Equatable, Sendable {
     case a1a2 = "A1-A2"
     case b1b2 = "B1-B2"
     case c1c2 = "C1-C2"
+
+    public var title: String {
+        switch self {
+        case .all: return AppStrings.Vocabulary.filterAll
+        case .needsReview: return AppStrings.Vocabulary.filterReviewNeeded
+        case .mastered: return AppStrings.Vocabulary.filterMastered
+        case .a1a2: return "A1-A2"
+        case .b1b2: return "B1-B2"
+        case .c1c2: return "C1-C2"
+        }
+    }
 }
 
 @MainActor

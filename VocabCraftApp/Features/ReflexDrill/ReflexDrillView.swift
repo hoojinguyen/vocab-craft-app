@@ -17,7 +17,7 @@ public struct ReflexSpeechVisualizerView: View {
             // Header Label for Context & Affordance
             HStack {
                 Label(
-                    isListening ? "ĐANG LẮNG NGHE GIỌNG NÓI..." : "ĐÁP ÁN BẠN NÓI",
+                    isListening ? AppStrings.Reflex.listening : AppStrings.Reflex.spokenAnswer,
                     systemImage: isListening ? "waveform" : "mic.fill"
                 )
                 .font(.caption2.bold().smallCaps())

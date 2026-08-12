@@ -178,7 +178,7 @@ public struct SubTopicSessionSummaryView: View {
                         Button(action: onRestart) {
                             HStack(spacing: 6) {
                                 Image(systemName: "arrow.counterclockwise")
-                                Text("Ôn lại chặng này")
+                                Text(AppStrings.Vocabulary.studyAgain)
                                     .font(.system(size: 13, weight: .semibold))
                             }
                             .foregroundColor(Color.vocabMuted)
@@ -188,7 +188,7 @@ public struct SubTopicSessionSummaryView: View {
                         Button(action: onRestart) {
                             HStack(spacing: 8) {
                                 Image(systemName: "arrow.counterclockwise")
-                                Text("HỌC LẠI CHẶNG NÀY")
+                                Text(AppStrings.Vocabulary.studyAgain.uppercased())
                                     .font(.system(size: 14, weight: .bold))
                             }
                             .frame(maxWidth: .infinity)
@@ -199,7 +199,7 @@ public struct SubTopicSessionSummaryView: View {
                         }
 
                         Button(action: onFinish) {
-                            Text("Về trang chủ")
+                            Text(AppStrings.Vocabulary.backToHome)
                                 .font(.system(size: 13, weight: .semibold))
                                 .foregroundColor(Color.vocabMuted)
                                 .padding(.vertical, 8)
