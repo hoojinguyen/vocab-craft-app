@@ -1,8 +1,7 @@
-import Foundation
 import AppIntents
-import WidgetKit
+import Foundation
 import SwiftData
-
+import WidgetKit
 
 public struct NextWordIntent: AppIntent {
     public static var title: LocalizedStringResource = "Từ tiếp theo"
@@ -41,6 +40,7 @@ public struct NextWordIntent: AppIntent {
             exampleEn = word.example ?? ""
         } else {
             // Fallback word rotation if sqlite database is unavailable
+            // swiftlint:disable:next large_tuple
             let fallbackWords: [(Int64, String, String, String, String)] = [
                 (101, "Abandon", "/əˈbæn.dən/", "Từ bỏ, ruồng bỏ", "He decided to abandon the plan."),
                 (102, "Brilliant", "/ˈbrɪl.jənt/", "Rực rỡ, xuất sắc", "She gave a brilliant performance."),

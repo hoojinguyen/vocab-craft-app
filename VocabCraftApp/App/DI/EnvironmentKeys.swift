@@ -13,7 +13,7 @@ public extension EnvironmentValues {
         get { self[AppContainerKey.self] }
         set { self[AppContainerKey.self] = newValue }
     }
-    
+
     var ttsService: TextToSpeechProtocol? {
         get { self[TextToSpeechKey.self] }
         set { self[TextToSpeechKey.self] = newValue }

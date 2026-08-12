@@ -1,13 +1,13 @@
-import Foundation
-import Speech
 import AVFoundation
+import Foundation
 import Observation
+import Speech
 
 public enum SpeechRecognitionError: Error, LocalizedError {
     case recognizerUnavailable
     case requestCreationFailed
     case notAuthorized
-    
+
     public var errorDescription: String? {
         switch self {
         case .recognizerUnavailable:
@@ -59,7 +59,7 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
             guard let userInfo = notification.userInfo,
                   let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
                   let type = AVAudioSession.InterruptionType(rawValue: typeValue) else { return }
-            
+
             if type == .began {
                 Task { @MainActor [weak self] in
                     guard let self = self, self.isRecording else { return }
@@ -192,7 +192,7 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
                     let isCancelledError = !self.isRecording ||
                         (nsError.domain == "kAFAssistantErrorDomain" && (nsError.code == 216 || nsError.code == 1110)) ||
                         (nsError.domain == "com.apple.speech.speechrecognitionerror" && nsError.code == 203)
-                    
+
                     if !isCancelledError {
                         self.onErrorCallback?(error)
                     }
@@ -202,7 +202,7 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
                 }
             }
         }
-        
+
         let request = recognitionRequest
         inputNode.installTap(onBus: 0, bufferSize: 1024, format: hardwareFormat) { buffer, _ in
             request.append(buffer)

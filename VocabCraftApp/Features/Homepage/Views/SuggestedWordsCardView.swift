@@ -7,7 +7,7 @@ public struct SuggestedWordsCardView: View {
     public let onBookmarkToggle: (String) -> Void
     public let onSpeakTap: ((SuggestedWord) -> Void)?
 
-    @State private var playingWordId: String? = nil
+    @State private var playingWordId: String?
 
     public init(
         words: [SuggestedWord],

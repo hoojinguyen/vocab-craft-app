@@ -1,5 +1,5 @@
-import XCTest
 @testable import VocabCraftApp
+import XCTest
 
 final class SRSEngineTests: XCTestCase {
     func testFastCorrectResponseIncreasesEaseFactorAndMastery() {
@@ -9,7 +9,7 @@ final class SRSEngineTests: XCTestCase {
             isCorrect: true,
             responseTimeMs: 1500
         )
-        
+
         XCTAssertEqual(result.nextMastery, 1)
         XCTAssertEqual(result.easeFactor, 2.6, accuracy: 0.001)
         XCTAssertEqual(result.intervalDays, 1)
@@ -22,7 +22,7 @@ final class SRSEngineTests: XCTestCase {
             isCorrect: true,
             responseTimeMs: 2000
         )
-        
+
         XCTAssertEqual(result.nextMastery, 3)
         XCTAssertEqual(result.easeFactor, 2.6, accuracy: 0.001)
         XCTAssertGreaterThan(result.intervalDays, 6)
@@ -35,7 +35,7 @@ final class SRSEngineTests: XCTestCase {
             isCorrect: true,
             responseTimeMs: 3000
         )
-        
+
         XCTAssertEqual(result.nextMastery, 2)
         XCTAssertEqual(result.easeFactor, 2.5, accuracy: 0.001)
         XCTAssertEqual(result.intervalDays, 6)
@@ -48,7 +48,7 @@ final class SRSEngineTests: XCTestCase {
             isCorrect: false,
             responseTimeMs: 1200
         )
-        
+
         XCTAssertEqual(result.nextMastery, 0)
         XCTAssertEqual(result.easeFactor, 2.3, accuracy: 0.001)
         XCTAssertEqual(result.intervalDays, 1)
@@ -61,7 +61,7 @@ final class SRSEngineTests: XCTestCase {
             isCorrect: false,
             responseTimeMs: 5000
         )
-        
+
         XCTAssertEqual(result.nextMastery, 0)
         XCTAssertEqual(result.easeFactor, 1.3, accuracy: 0.001)
         XCTAssertEqual(result.intervalDays, 1)
@@ -74,7 +74,7 @@ final class SRSEngineTests: XCTestCase {
             isCorrect: true,
             responseTimeMs: 1000
         )
-        
+
         XCTAssertEqual(result.nextMastery, 5)
         XCTAssertGreaterThan(result.intervalDays, 10)
     }

@@ -20,12 +20,12 @@ public struct QuickReflexDrillState: Equatable, Sendable {
     // Real-time Mic & Speech State (Hold-to-Talk)
     public var isMicActive: Bool = false
     public var recordedSpokenText: String = ""
-    public var errorMessage: String? = nil
+    public var errorMessage: String?
 
     // Step Evaluation Feedback State
     public var isStepEvaluated: Bool = false
     public var isStepCorrect: Bool = false
-    public var selectedOption: String? = nil
+    public var selectedOption: String?
 
     public init() {}
 }
@@ -36,7 +36,7 @@ public final class QuickReflexDrillViewModel {
     public let targetWord: WordItem
     public let allWords: [WordItem]
     public var state = QuickReflexDrillState()
-    
+
     // Internal Tracking State (Not UI bound)
     private var stepStartTime: Date?
     private var startTime: Date?
@@ -73,7 +73,7 @@ public final class QuickReflexDrillViewModel {
 
     public func generateSteps() {
         let distractors = allWords.filter { $0.id != targetWord.id }
-        
+
         // Step 1: Fast Meaning Match (Recognition - Nhận biết nhanh)
         var defOptions = distractors.shuffled().prefix(3).map { $0.definition }
         defOptions.append(targetWord.definition)
@@ -127,7 +127,7 @@ public final class QuickReflexDrillViewModel {
             while !Task.isCancelled {
                 try? await Task.sleep(for: .milliseconds(100))
                 guard let self = self, let start = self.startTime else { break }
-                
+
                 self.state.elapsedTimeMs = Int(Date().timeIntervalSince(start) * 1000)
 
                 // Per-step countdown tick
@@ -245,7 +245,7 @@ public final class QuickReflexDrillViewModel {
             sttService.stopListening()
             state.isMicActive = false
         }
-        
+
         let allCorrect = state.stepSuccessCount == state.steps.count
         let avgTimeMs = state.steps.isEmpty ? 2000 : state.elapsedTimeMs / state.steps.count
 

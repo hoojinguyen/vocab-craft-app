@@ -1,6 +1,6 @@
-import XCTest
 import SwiftUI
 @testable import VocabCraftApp
+import XCTest
 
 final class HeaderViewTests: XCTestCase {
     func testHeaderViewInstantiation() {
@@ -41,6 +41,3 @@ final class HeaderViewTests: XCTestCase {
         XCTAssertTrue(notificationTapped)
     }
 }
-
-
-

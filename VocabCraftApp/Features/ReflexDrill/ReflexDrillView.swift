@@ -115,7 +115,7 @@ public struct ReflexHeaderBarView: View {
     public let totalCount: Int
     public let cefrLevel: String
     public let isEvaluated: Bool
-    public var onDismiss: (() -> Void)? = nil
+    public var onDismiss: (() -> Void)?
     public let onSkip: () -> Void
 
     public init(
@@ -543,7 +543,7 @@ public struct ReflexResultBottomDockView: View {
 public struct ReflexDrillView: View {
     @State private var viewModel: ReflexDrillViewModel
     @State private var showEnglishHint = false
-    public var onDismiss: (() -> Void)? = nil
+    public var onDismiss: (() -> Void)?
 
     @MainActor
     public init(viewModel: ReflexDrillViewModel, onDismiss: (() -> Void)? = nil) {

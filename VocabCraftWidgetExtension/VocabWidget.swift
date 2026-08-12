@@ -1,6 +1,6 @@
-import WidgetKit
-import SwiftUI
 import SwiftData
+import SwiftUI
+import WidgetKit
 
 public struct VocabWidgetProvider: TimelineProvider {
     public init() {}

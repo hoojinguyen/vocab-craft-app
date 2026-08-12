@@ -1,5 +1,5 @@
-import XCTest
 @testable import VocabCraftApp
+import XCTest
 
 final class TopicDeckModelsTests: XCTestCase {
     func testSubTopicNodeInitialization() {

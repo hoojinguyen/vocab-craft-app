@@ -38,7 +38,7 @@ public struct HomepageState: Equatable {
         self.searchText = searchText
         self.selectedTab = selectedTab
         self.suggestedWords = suggestedWords
-        
+
         // Randomize initial suggested word index on each app launch if not explicitly set
         if let explicitIndex = currentSuggestedWordIndex, suggestedWords.indices.contains(explicitIndex) {
             self.currentSuggestedWordIndex = explicitIndex
@@ -54,12 +54,12 @@ public struct HomepageState: Equatable {
 @Observable
 public final class HomepageViewModel {
     public private(set) var state: HomepageState
-    
+
     public var searchText: String {
         get { state.searchText }
         set { state.searchText = newValue }
     }
-    
+
     public var selectedTab: TabItem {
         get { state.selectedTab }
         set { state.selectedTab = newValue }
@@ -115,7 +115,6 @@ public final class HomepageViewModel {
             print("[HomepageViewModel] Failed to load data: \(error)")
         }
     }
-
 
     public func speakSuggestedWord(_ word: SuggestedWord) {
         ttsService.speak(text: word.lemma)

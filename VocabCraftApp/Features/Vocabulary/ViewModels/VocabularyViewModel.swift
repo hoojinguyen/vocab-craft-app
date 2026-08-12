@@ -31,8 +31,8 @@ public final class VocabularyViewModel {
     public var expandedWordId: Int64? = 1 // Expand first word by default
     public var wordItems: [WordItem] = []
     public var isLoading: Bool = false
-    public var selectedDeckId: String? = nil
-    public var selectedDrillWord: WordItem? = nil
+    public var selectedDeckId: String?
+    public var selectedDrillWord: WordItem?
 
     private let fetchVocabularyUseCase: FetchVocabularyUseCaseProtocol?
     public let ttsService: TextToSpeechProtocol?
@@ -90,7 +90,7 @@ public final class VocabularyViewModel {
             self.wordItems = WordItem.mockData
             return
         }
-        
+
         isLoading = true
         do {
             let domainWords = try await useCase.executeFetchWords(limit: 50)

@@ -14,17 +14,17 @@ public struct VocabularySummaryCard: View {
     public var body: some View {
         HStack(spacing: 0) {
             metricItem(title: "\(totalWords)", label: "Tổng số từ", color: .vocabInk)
-            
+
             Divider()
                 .frame(height: 32)
                 .overlay(Color.vocabHairline)
-            
+
             metricItem(title: "\(Int(srsRetentionPercentage * 100))%", label: "Trí nhớ SRS", color: .vocabMint)
-            
+
             Divider()
                 .frame(height: 32)
                 .overlay(Color.vocabHairline)
-            
+
             metricItem(title: "\(dueCount)", label: "Cần ôn", color: .vocabCoral)
         }
         .padding(.vertical, 14)

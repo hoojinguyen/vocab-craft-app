@@ -1,5 +1,5 @@
-import SwiftUI
 import Foundation
+import SwiftUI
 
 @MainActor
 @Observable
@@ -9,19 +9,19 @@ public final class UserSettingsStore {
             UserDefaults.standard.set(dailyGoalCount, forKey: "daily_goal_count")
         }
     }
-    
+
     public var isNotificationEnabled: Bool {
         didSet {
             UserDefaults.standard.set(isNotificationEnabled, forKey: "is_notification_enabled")
         }
     }
-    
+
     public var notificationTimeInterval: Double {
         didSet {
             UserDefaults.standard.set(notificationTimeInterval, forKey: "notification_time_interval")
         }
     }
-    
+
     public var notificationTime: Date {
         get {
             let calendar = Calendar.current
@@ -34,37 +34,37 @@ public final class UserSettingsStore {
             notificationTimeInterval = newValue.timeIntervalSince(startOfDay)
         }
     }
-    
+
     public var ttsVoiceGender: String {
         didSet {
             UserDefaults.standard.set(ttsVoiceGender, forKey: "tts_voice_gender")
         }
     }
-    
+
     public var ttsSpeed: Double {
         didSet {
             UserDefaults.standard.set(ttsSpeed, forKey: "tts_speed")
         }
     }
-    
+
     public var appTheme: String {
         didSet {
             UserDefaults.standard.set(appTheme, forKey: "app_theme")
         }
     }
-    
+
     public var isHapticsEnabled: Bool {
         didSet {
             UserDefaults.standard.set(isHapticsEnabled, forKey: "is_haptics_enabled")
         }
     }
-    
+
     public var isSoundEffectsEnabled: Bool {
         didSet {
             UserDefaults.standard.set(isSoundEffectsEnabled, forKey: "is_sound_effects_enabled")
         }
     }
-    
+
     public var appLanguage: String {
         didSet {
             UserDefaults.standard.set(appLanguage, forKey: "app_language")

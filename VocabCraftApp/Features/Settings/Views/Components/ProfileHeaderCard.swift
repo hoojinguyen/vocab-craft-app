@@ -33,7 +33,7 @@ public struct ProfileHeaderCard: View {
                                 .stroke(Color.white, lineWidth: 2)
                         )
                         .shadow(color: Color.vocabHeroTeal.opacity(0.35), radius: 8, x: 0, y: 4)
-                    
+
                     Text(userName.prefix(1))
                         .font(.title2.bold())
                         .fontDesign(.rounded)
@@ -48,13 +48,13 @@ public struct ProfileHeaderCard: View {
                     .shadow(color: Color.vocabMint.opacity(0.4), radius: 3, x: 0, y: 1)
                     .offset(x: 2, y: 2)
             }
-            
+
             VStack(alignment: .leading, spacing: 6) {
                 Text(userName)
                     .font(.headline.weight(.bold))
                     .fontDesign(.rounded)
                     .foregroundColor(.vocabInk)
-                
+
                 HStack(spacing: 6) {
                     Text(userLevel)
                         .font(.caption2.weight(.bold))
@@ -67,7 +67,7 @@ public struct ProfileHeaderCard: View {
                                 .overlay(Capsule().stroke(Color.vocabLavender.opacity(0.25), lineWidth: 0.8))
                         )
                         .foregroundColor(.vocabLavender)
-                    
+
                     HStack(spacing: 3) {
                         Image(systemName: "flame.fill")
                             .font(.caption2)

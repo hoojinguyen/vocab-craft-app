@@ -31,7 +31,6 @@ public struct SubTopicPreviewSheet: View {
         .background(Color.vocabCanvas)
     }
 
-
     private var headerView: some View {
         HStack(spacing: 12) {
             Image(systemName: node.iconName)

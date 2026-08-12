@@ -1,5 +1,5 @@
-import Foundation
 import AVFoundation
+import Foundation
 import Observation
 
 @MainActor
@@ -31,7 +31,7 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
             guard let userInfo = notification.userInfo,
                   let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
                   let type = AVAudioSession.InterruptionType(rawValue: typeValue) else { return }
-            
+
             if type == .began {
                 Task { @MainActor [weak self] in
                     self?.stop()
@@ -50,7 +50,7 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         }
 
         let utterance = AVSpeechUtterance(string: trimmed)
-        
+
         // Scale rate relative to AVSpeechUtteranceDefaultSpeechRate (0.5) so 1.0x = normal speed
         let scaledRate = AVSpeechUtteranceDefaultSpeechRate * rate
         utterance.rate = min(max(scaledRate, AVSpeechUtteranceMinimumSpeechRate), AVSpeechUtteranceMaximumSpeechRate)

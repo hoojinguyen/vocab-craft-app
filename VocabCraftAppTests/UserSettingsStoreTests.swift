@@ -1,5 +1,5 @@
-import XCTest
 @testable import VocabCraftApp
+import XCTest
 
 @MainActor
 final class UserSettingsStoreTests: XCTestCase {
@@ -20,4 +20,3 @@ final class UserSettingsStoreTests: XCTestCase {
     }
 
 }
-

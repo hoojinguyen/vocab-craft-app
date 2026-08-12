@@ -1,17 +1,16 @@
-import XCTest
 import SQLite3
 @testable import VocabCraftApp
+import XCTest
 
 @MainActor
 final class DatasetEngineTests: XCTestCase {
-    
     var testDbPath: String!
 
     override func setUpWithError() throws {
         try super.setUpWithError()
         let tempDir = FileManager.default.temporaryDirectory
         testDbPath = tempDir.appendingPathComponent("test_dataset_\(UUID().uuidString).db").path
-        
+
         var db: OpaquePointer?
         guard sqlite3_open(testDbPath, &db) == SQLITE_OK else {
             XCTFail("Failed to create test database")

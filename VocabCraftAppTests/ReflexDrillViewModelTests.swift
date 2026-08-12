@@ -1,5 +1,5 @@
-import XCTest
 @testable import VocabCraftApp
+import XCTest
 
 // MARK: - Mocks for Deterministic Unit Testing
 
@@ -100,7 +100,7 @@ final class ReflexDrillViewModelTests: XCTestCase {
 
     func testReflexDrillViewModelInitializationAndSampleDrill() {
         viewModel.setupSampleDrill()
-        
+
         XCTAssertNotNil(viewModel.state.drill)
         XCTAssertEqual(viewModel.state.drill?.promptText, "Một chú chó đen nhảy qua rào")
     }
@@ -108,9 +108,9 @@ final class ReflexDrillViewModelTests: XCTestCase {
     func testEvaluateAnswerCorrectIncreasesMastery() {
         viewModel.setupSampleDrill()
         viewModel.startDrillTimer()
-        
+
         viewModel.evaluateAnswer("A black dog jumps over the fence")
-        
+
         XCTAssertTrue(viewModel.state.isEvaluated)
         XCTAssertTrue(viewModel.state.isCorrect)
         XCTAssertEqual(viewModel.state.currentMastery, 1)
@@ -120,9 +120,9 @@ final class ReflexDrillViewModelTests: XCTestCase {
     func testEvaluateAnswerIncorrectResetsMastery() {
         viewModel.setupSampleDrill()
         viewModel.startDrillTimer()
-        
+
         viewModel.evaluateAnswer("Wrong response")
-        
+
         XCTAssertTrue(viewModel.state.isEvaluated)
         XCTAssertFalse(viewModel.state.isCorrect)
         XCTAssertEqual(viewModel.state.currentMastery, 0)
@@ -132,7 +132,7 @@ final class ReflexDrillViewModelTests: XCTestCase {
     func testStartVoiceRecognitionAutoEvaluatesOnExactMatchingAnswer() {
         viewModel.setupSampleDrill()
         viewModel.startVoiceRecognition()
-        
+
         XCTAssertTrue(mockSTT.isListening)
         XCTAssertFalse(viewModel.state.isEvaluated)
 

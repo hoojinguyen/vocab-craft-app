@@ -22,7 +22,7 @@ public extension Color {
         light: Color(red: 0.98, green: 0.98, blue: 0.96), // #FAF9F6 Minimal Off-White
         dark: Color(red: 0.07, green: 0.07, blue: 0.07)   // #121212 Minimal Dark Slate
     )
-    
+
     static let vocabSurfaceSoft = dynamic(
         light: Color(red: 0.95, green: 0.95, blue: 0.93), // #F3F2EE Soft Slate
         dark: Color(red: 0.10, green: 0.10, blue: 0.10)   // #1A1A1A Dark Surface

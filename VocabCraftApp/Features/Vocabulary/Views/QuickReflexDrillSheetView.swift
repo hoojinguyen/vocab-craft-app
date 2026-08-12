@@ -92,7 +92,7 @@ public struct QuickReflexDrillSheetView: View {
             // Current Active Step Content
             if viewModel.state.currentStepIndex < viewModel.state.steps.count {
                 let currentStep = viewModel.state.steps[viewModel.state.currentStepIndex]
-                
+
                 VStack(alignment: .leading, spacing: 18) {
                     // Per-step Countdown Bar
                     GeometryReader { geo in
@@ -100,7 +100,7 @@ public struct QuickReflexDrillSheetView: View {
                             Capsule()
                                 .fill(Color.vocabHairline.opacity(0.4))
                                 .frame(height: 4)
-                            
+
                             Capsule()
                                 .fill(viewModel.state.stepRemainingSeconds <= 2.0 ? Color.orange : Color.vocabHeroAccent)
                                 .frame(width: max(0, geo.size.width * CGFloat(viewModel.state.stepRemainingSeconds / viewModel.state.stepMaxSeconds)), height: 4)
@@ -171,13 +171,13 @@ public struct QuickReflexDrillSheetView: View {
                 .font(.system(.title3, design: .rounded, weight: .bold))
                 .foregroundColor(Color.vocabInk)
                 .animation(.easeInOut(duration: 0.2), value: displayLemma)
-            
+
             Text(viewModel.targetWord.pos)
                 .font(.system(.caption, weight: .semibold))
                 .foregroundColor(Color.vocabMuted)
-            
+
             Spacer()
-            
+
             Text(viewModel.targetWord.phonetic)
                 .font(.system(.subheadline, design: .serif))
                 .foregroundColor(Color.vocabMuted)
@@ -228,8 +228,8 @@ public struct QuickReflexDrillSheetView: View {
 
                     Circle()
                         .fill(
-                            viewModel.state.isMicActive 
-                                ? Color.red 
+                            viewModel.state.isMicActive
+                                ? Color.red
                                 : (viewModel.state.isStepEvaluated ? (viewModel.state.isStepCorrect ? Color.vocabMint : Color.red) : Color.vocabHeroAccent)
                         )
                         .frame(width: 80, height: 80)
@@ -389,7 +389,7 @@ public struct QuickReflexDrillSheetView: View {
                     Text("Mức độ thuộc SRS:")
                         .font(.system(.subheadline, weight: .medium))
                         .foregroundColor(Color.vocabMuted)
-                    
+
                     let displayStars = max(1, result.nextMastery)
                     HStack(spacing: 4) {
                         ForEach(1...5, id: \.self) { star in

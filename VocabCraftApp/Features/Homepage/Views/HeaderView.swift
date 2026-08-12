@@ -42,7 +42,7 @@ public struct HeaderView: View {
                     // Background track circle
                     Circle()
                         .stroke(Color.vocabMint.opacity(0.18), lineWidth: 3.5)
-                    
+
                     // Animated Radial Progress Ring
                     Circle()
                         .trim(from: 0, to: CGFloat(min(max(dailyGoalProgress, 0), 1.0)))
@@ -51,12 +51,12 @@ public struct HeaderView: View {
                             style: StrokeStyle(lineWidth: 3.5, lineCap: .round)
                         )
                         .rotationEffect(.degrees(-90))
-                    
+
                     // User Initials Inner Avatar
                     Circle()
                         .fill(Color.vocabSurfaceSoft)
                         .padding(5)
-                    
+
                     Text(userInitials)
                         .font(.system(size: 15, weight: .bold, design: .rounded))
                         .foregroundColor(Color.vocabInk)
@@ -70,7 +70,7 @@ public struct HeaderView: View {
                 Text("Chào \(userName)")
                     .font(.system(size: 19, weight: .bold))
                     .foregroundColor(Color.vocabInk)
-                
+
                 HStack(spacing: 4) {
                     (Text(AppStrings.Homepage.dailyGoal) + Text(":"))
                         .foregroundColor(Color.vocabMuted)
@@ -109,7 +109,7 @@ public struct HeaderView: View {
                         .clipShape(Circle())
                 }
                 .buttonStyle(.plain)
-                
+
                 if unreadNotifications {
                     Circle()
                         .fill(Color.vocabCoral)
@@ -121,6 +121,3 @@ public struct HeaderView: View {
         .padding(.horizontal)
     }
 }
-
-
-

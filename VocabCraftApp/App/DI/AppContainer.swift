@@ -6,10 +6,10 @@ import SwiftData
 public final class AppContainer {
     public let datasetEngine: DatasetEngine?
     public let modelContainer: ModelContainer?
-    
+
     public let vocabularyRepository: VocabularyRepositoryProtocol
     public let srsRepository: SRSRepositoryProtocol
-    
+
     public let ttsService: TextToSpeechProtocol
     public let sttService: SpeechRecognitionProtocol
 
@@ -28,25 +28,24 @@ public final class AppContainer {
     ) {
         self.datasetEngine = datasetEngine
         self.modelContainer = modelContainer
-        
+
         let shouldMock = useMockData ?? (datasetEngine == nil)
         let vocabRepo: VocabularyRepositoryProtocol = shouldMock
             ? MockVocabularyRepository()
             : VocabularyRepositoryImpl(datasetEngine: datasetEngine)
         let srsRepo = SRSRepositoryImpl(modelContext: modelContainer?.mainContext)
-        
+
         self.vocabularyRepository = vocabRepo
         self.srsRepository = srsRepo
-        
+
         self.ttsService = ttsService ?? TextToSpeechService()
         self.sttService = sttService ?? SpeechRecognitionService()
-        
+
         self.fetchVocabularyUseCase = FetchVocabularyUseCase(repository: vocabRepo)
         self.evaluateSRSUseCase = EvaluateSRSUseCase(srsRepository: srsRepo)
 
         self.userSettingsStore = userSettingsStore ?? UserSettingsStore()
     }
-
 
     public func makeHomepageViewModel() -> HomepageViewModel {
         HomepageViewModel(
@@ -54,7 +53,6 @@ public final class AppContainer {
             ttsService: ttsService
         )
     }
-
 
     public func makeReflexDrillViewModel(cefrLevel: String = "B1") -> ReflexDrillViewModel {
         ReflexDrillViewModel(

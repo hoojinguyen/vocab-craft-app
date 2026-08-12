@@ -1,9 +1,8 @@
-import XCTest
 @testable import VocabCraftApp
+import XCTest
 
 @MainActor
 final class SettingsViewModelTests: XCTestCase {
-
     private func makeSUT() -> SettingsViewModel {
         let store = UserSettingsStore()
         let tts = MockTextToSpeechService()

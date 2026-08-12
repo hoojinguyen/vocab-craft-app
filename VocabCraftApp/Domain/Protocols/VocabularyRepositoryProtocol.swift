@@ -37,4 +37,3 @@ public protocol VocabularyRepositoryProtocol: Sendable {
     /// - Returns: An array of ``TopicDeck`` objects.
     func fetchTopicDecks() async throws -> [TopicDeck]
 }
-

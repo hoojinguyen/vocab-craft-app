@@ -1,6 +1,6 @@
-import XCTest
 import SwiftUI
 @testable import VocabCraftApp
+import XCTest
 
 @MainActor
 final class SettingsViewTests: XCTestCase {
@@ -11,7 +11,6 @@ final class SettingsViewTests: XCTestCase {
         let view = SettingsView(viewModel: vm)
         XCTAssertNotNil(view.body)
     }
-
 
     func testProfileHeaderCardInitialization() {
         let card = ProfileHeaderCard(userName: "Hooji N.", userLevel: "B2 Intermediate", streakDays: 14)

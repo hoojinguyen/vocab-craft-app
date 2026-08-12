@@ -76,12 +76,10 @@ public final class SubTopicSessionEngine {
         }
     }
 
-
     public func advanceToNextWord() {
         currentIndex += 1
         attemptsLeft = 2
     }
-
 
     public func generateDistractors(for word: TopicWord) -> [String] {
         let correctMeaning = word.vietnamese
@@ -109,4 +107,3 @@ public final class SubTopicSessionEngine {
         return allOptions
     }
 }
-

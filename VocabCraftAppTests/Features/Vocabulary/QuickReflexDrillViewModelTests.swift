@@ -1,5 +1,5 @@
-import XCTest
 @testable import VocabCraftApp
+import XCTest
 
 final class QuickReflexDrillViewModelTests: XCTestCase {
     var targetWord: WordItem!
@@ -41,7 +41,7 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
     func testHoldToTalkRecordingAndEvaluation() {
         let viewModel = QuickReflexDrillViewModel(targetWord: targetWord, allWords: samplePool)
         viewModel.state.currentStepIndex = 2 // Step 3: Pronunciation
-        
+
         // Hold-to-Talk press down
         viewModel.startRecording()
         XCTAssertTrue(viewModel.state.isMicActive)
@@ -60,7 +60,7 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
     func testOptionSubmissionAndNextStep() {
         let viewModel = QuickReflexDrillViewModel(targetWord: targetWord, allWords: samplePool)
         viewModel.state.currentStepIndex = 0 // Step 1: Fast Meaning Options
-        
+
         viewModel.submitAnswer("Phù du, chóng phai")
         XCTAssertTrue(viewModel.state.isStepEvaluated)
         XCTAssertTrue(viewModel.state.isStepCorrect)

@@ -1,0 +1,49 @@
+disabled_rules:
+  - todo
+  - inclusive_language # Domain concept: vocabulary mastery level
+
+opt_in_rules:
+  - empty_count
+  - closure_spacing
+  - force_unwrapping
+  - sorted_imports
+  - vertical_whitespace_opening_braces
+  - private_swiftui_state
+  - unhandled_throwing_task
+
+included:
+  - VocabCraftApp
+  - VocabCraftWidgetExtension
+  - VocabCraftAppTests
+
+excluded:
+  - .build
+  - DerivedData
+  - "**/.build"
+  - "**/Generated"
+
+identifier_name:
+  excluded:
+    - id
+    - i
+    - x
+    - y
+    - a
+    - r
+    - g
+    - b
+    - u
+    - t
+    - SQLITE_TRANSIENT
+
+line_length:
+  warning: 140
+  error: 300
+
+type_body_length:
+  warning: 350
+  error: 500
+
+file_length:
+  warning: 650
+  error: 1000

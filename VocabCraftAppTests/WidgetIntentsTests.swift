@@ -1,9 +1,9 @@
-import XCTest
+import AppIntents
 import SwiftData
 import SwiftUI
-import WidgetKit
-import AppIntents
 @testable import VocabCraftApp
+import WidgetKit
+import XCTest
 
 @MainActor
 final class WidgetIntentsTests: XCTestCase {

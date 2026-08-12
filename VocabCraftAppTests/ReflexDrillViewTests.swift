@@ -1,6 +1,6 @@
-import XCTest
 import SwiftUI
 @testable import VocabCraftApp
+import XCTest
 
 @MainActor
 final class ReflexDrillViewTests: XCTestCase {
@@ -27,8 +27,6 @@ final class ReflexDrillViewTests: XCTestCase {
         let view = ReflexDrillView(viewModel: vm)
         XCTAssertNotNil(view)
     }
-
-
 
     func testSRSSparkleEffectViewInstantiation() {
         var isEmitting = true

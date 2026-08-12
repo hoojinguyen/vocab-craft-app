@@ -19,7 +19,7 @@ public extension TextToSpeechProtocol {
 public protocol SpeechRecognitionProtocol: AnyObject {
     var isListening: Bool { get }
     var recognizedText: String { get }
-    
+
     func startListening(onResult: @escaping (String) -> Void, onError: @escaping (Error) -> Void)
     func stopListening()
 }

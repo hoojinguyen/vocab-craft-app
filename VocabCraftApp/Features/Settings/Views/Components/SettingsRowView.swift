@@ -31,21 +31,21 @@ public struct SettingsRowView<Content: View>: View {
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundColor(iconColor)
             }
-            
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.subheadline.weight(.medium))
                     .foregroundColor(.vocabInk)
-                
+
                 if let subtitle {
                     Text(subtitle)
                         .font(.caption)
                         .foregroundColor(.vocabMuted)
                 }
             }
-            
+
             Spacer(minLength: 8)
-            
+
             content
         }
         .padding(.vertical, 2)

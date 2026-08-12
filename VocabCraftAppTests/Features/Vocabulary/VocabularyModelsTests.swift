@@ -1,5 +1,5 @@
-import XCTest
 @testable import VocabCraftApp
+import XCTest
 
 final class VocabularyModelsTests: XCTestCase {
     func testWordItemInitializationAndMockData() {

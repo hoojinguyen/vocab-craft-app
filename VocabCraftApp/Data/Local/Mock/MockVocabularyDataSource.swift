@@ -102,6 +102,5 @@ public struct MockVocabularyDataSource: Sendable {
         )
     ]
 
-
     public init() {}
 }

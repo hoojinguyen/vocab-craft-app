@@ -1,9 +1,8 @@
-import SwiftUI
 import Foundation
+import SwiftUI
 
 /// Centralized localization namespace for VocabCraftApp strings using SwiftUI LocalizedStringKey.
 public enum AppStrings {
-    
     // MARK: - Common Strings
     public enum Common {
         public static var ok: LocalizedStringKey { "common.ok" }
@@ -19,7 +18,7 @@ public enum AppStrings {
         public static var close: LocalizedStringKey { "common.close" }
         public static var wordUnit: LocalizedStringKey { "common.wordUnit" }
     }
-    
+
     // MARK: - Tab Bar Titles
     public enum Tabs {
         public static var home: LocalizedStringKey { "tabs.home" }
@@ -28,7 +27,7 @@ public enum AppStrings {
         public static var reflex: LocalizedStringKey { "tabs.reflex" }
         public static var settings: LocalizedStringKey { "tabs.settings" }
     }
-    
+
     // MARK: - Homepage View
     public enum Homepage {
         public static var greeting: LocalizedStringKey { "homepage.greeting" }
@@ -53,7 +52,7 @@ public enum AppStrings {
         public static var saved: LocalizedStringKey { "homepage.saved" }
         public static var saveWord: LocalizedStringKey { "homepage.saveWord" }
     }
-    
+
     // MARK: - Vocabulary View
     public enum Vocabulary {
         public static var personalBank: LocalizedStringKey { "vocabulary.personalBank" }
@@ -76,7 +75,7 @@ public enum AppStrings {
         public static var masteredBadge: LocalizedStringKey { "vocabulary.masteredBadge" }
         public static var reviewBadge: LocalizedStringKey { "vocabulary.reviewBadge" }
     }
-    
+
     // MARK: - Reflex Drill View
     public enum Reflex {
         public static var title: LocalizedStringKey { "reflex.title" }
@@ -93,7 +92,7 @@ public enum AppStrings {
         public static var reflexAccuracy: LocalizedStringKey { "reflex.reflexAccuracy" }
         public static var continueNext: LocalizedStringKey { "reflex.continueNext" }
     }
-    
+
     // MARK: - Settings View
     public enum Settings {
         public static var sectionLearningSRS: LocalizedStringKey { "settings.sectionLearningSRS" }

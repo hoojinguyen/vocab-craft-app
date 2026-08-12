@@ -31,7 +31,6 @@ public struct WordRecord: Identifiable, Equatable, Sendable {
     }
 }
 
-
 public struct ReflexDrillRecord: Identifiable, Equatable, Sendable {
     public let id: Int64
     public let drillType: String
@@ -59,5 +58,3 @@ public struct ReflexDrillRecord: Identifiable, Equatable, Sendable {
         self.sentenceTextEn = sentenceTextEn
     }
 }
-
-

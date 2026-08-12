@@ -1,5 +1,5 @@
-import XCTest
 @testable import VocabCraftApp
+import XCTest
 
 @MainActor
 final class StudySessionViewModelTests: XCTestCase {

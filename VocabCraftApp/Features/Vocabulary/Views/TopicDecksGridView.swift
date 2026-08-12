@@ -62,19 +62,19 @@ public struct TopicDecksGridView: View {
                                 .padding(8)
                                 .background(deck.badgeColor.opacity(0.20))
                                 .clipShape(Circle())
-                            
+
                             Spacer()
-                            
+
                             Text("📚 \(deck.wordCount)")
                                 .font(.system(size: 10, weight: .bold))
                                 .foregroundColor(Color.vocabMuted)
                         }
-                        
+
                         VStack(alignment: .leading, spacing: 4) {
                             Text(deck.title)
                                 .font(.system(size: 15, weight: .bold))
                                 .foregroundColor(Color.vocabInk)
-                            
+
                             Text("\(Int(deck.completionPercentage * 100))% hoàn thành")
                                 .font(.system(size: 11, weight: .medium))
                                 .foregroundColor(Color.vocabMuted)

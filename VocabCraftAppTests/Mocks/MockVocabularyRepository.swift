@@ -55,4 +55,12 @@ public final class MockVocabularyRepository: VocabularyRepositoryProtocol {
     public func searchWords(query: String) async throws -> [Word] {
         return mockWords.filter { $0.lemma.localizedCaseInsensitiveContains(query) }
     }
+
+    public func fetchSuggestedWords(limit: Int) async throws -> [SuggestedWord] {
+        return []
+    }
+
+    public func fetchTopicDecks() async throws -> [TopicDeck] {
+        return []
+    }
 }

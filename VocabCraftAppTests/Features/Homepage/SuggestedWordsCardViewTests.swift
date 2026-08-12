@@ -1,10 +1,9 @@
-import XCTest
 import SwiftUI
 @testable import VocabCraftApp
+import XCTest
 
 @MainActor
 final class SuggestedWordsCardViewTests: XCTestCase {
-
     private let sampleWords: [SuggestedWord] = [
         SuggestedWord(
             id: "1",
@@ -18,7 +17,6 @@ final class SuggestedWordsCardViewTests: XCTestCase {
             isBookmarked: false
         )
     ]
-
 
     func testSuggestedWordSampleData() {
         XCTAssertGreaterThan(sampleWords.count, 0)
@@ -58,4 +56,3 @@ final class SuggestedWordsCardViewTests: XCTestCase {
         XCTAssertNotNil(view)
     }
 }
-

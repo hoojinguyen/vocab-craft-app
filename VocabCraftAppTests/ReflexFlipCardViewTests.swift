@@ -1,6 +1,6 @@
-import XCTest
 import SwiftUI
 @testable import VocabCraftApp
+import XCTest
 
 final class ReflexFlipCardViewTests: XCTestCase {
     func testCardInitialization() {

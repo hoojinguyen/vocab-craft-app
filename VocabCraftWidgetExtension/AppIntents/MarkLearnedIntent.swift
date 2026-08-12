@@ -1,8 +1,7 @@
-import Foundation
 import AppIntents
-import WidgetKit
+import Foundation
 import SwiftData
-
+import WidgetKit
 
 public struct MarkLearnedIntent: AppIntent {
     public static var title: LocalizedStringResource = "Đã thuộc"

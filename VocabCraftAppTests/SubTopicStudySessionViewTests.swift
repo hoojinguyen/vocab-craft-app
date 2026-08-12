@@ -1,6 +1,6 @@
-import XCTest
 import SwiftUI
 @testable import VocabCraftApp
+import XCTest
 
 final class SubTopicStudySessionViewTests: XCTestCase {
     func testViewInitialization() {

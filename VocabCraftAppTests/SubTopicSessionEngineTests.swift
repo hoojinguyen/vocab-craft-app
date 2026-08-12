@@ -1,5 +1,5 @@
-import XCTest
 @testable import VocabCraftApp
+import XCTest
 
 @MainActor
 final class SubTopicSessionEngineTests: XCTestCase {
@@ -91,7 +91,6 @@ final class SubTopicSessionEngineTests: XCTestCase {
         XCTAssertFalse(engine.isPassed)
     }
 
-
     func testDistractorGeneratorReturnsFourUniqueOptions() {
         let words = [
             TopicWord(id: "w1", english: "Automation", phonetic: "/ˌɔː.təˈmeɪ.ʃən/", vietnamese: "Sự tự động hóa", example: "Factory automation reduces costs.", partOfSpeech: "noun"),
@@ -151,7 +150,3 @@ final class SubTopicSessionEngineTests: XCTestCase {
         XCTAssertEqual(engine.accuracyPercentage, 100)
     }
 }
-
-
-
-

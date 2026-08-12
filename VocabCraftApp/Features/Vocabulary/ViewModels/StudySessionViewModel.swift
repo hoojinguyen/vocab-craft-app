@@ -7,11 +7,11 @@ public final class StudySessionViewModel {
     public private(set) var engine: SubTopicSessionEngine
     public var isFlipped: Bool = false
     public var isSuccess: Bool = true
-    public var selectedAnswer: String? = nil
+    public var selectedAnswer: String?
     public var options: [String] = []
     public var lastXPDelta: Int = 10
     public var attemptedWrongAnswers: Set<String> = []
-    
+
     public let ttsService: TextToSpeechProtocol
 
     public init(words: [TopicWord], ttsService: TextToSpeechProtocol? = nil) {
@@ -35,7 +35,7 @@ public final class StudySessionViewModel {
 
     public func submitAnswer(_ option: String) {
         guard selectedAnswer == nil || attemptedWrongAnswers.contains(option) == false else { return }
-        
+
         let result = engine.submitAnswer(selectedVietnamese: option)
         selectedAnswer = option
         lastXPDelta = result.xpDelta

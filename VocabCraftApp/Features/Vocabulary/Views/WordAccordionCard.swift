@@ -31,20 +31,20 @@ public struct WordAccordionCard: View {
                             Text(item.lemma)
                                 .font(.system(size: 19, weight: .bold, design: .serif))
                                 .foregroundColor(Color.vocabInk)
-                            
+
                             Text(item.pos)
                                 .font(.system(size: 11, weight: .semibold, design: .serif))
                                 .italic()
                                 .foregroundColor(Color.vocabMuted)
                         }
-                        
+
                         Text(item.phonetic)
                             .font(.system(size: 13, weight: .medium, design: .serif))
                             .foregroundColor(Color.vocabMuted)
                     }
-                    
+
                     Spacer()
-                    
+
                     // CEFR Badge
                     Text(item.cefrLevel)
                         .font(.system(size: 10, weight: .bold))
@@ -53,7 +53,7 @@ public struct WordAccordionCard: View {
                         .background(cefrColor(item.cefrLevel).opacity(0.18))
                         .foregroundColor(Color.vocabInk)
                         .cornerRadius(8)
-                    
+
                     // SRS Mastery Stars
                     HStack(spacing: 2) {
                         ForEach(1...5, id: \.self) { star in

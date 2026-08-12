@@ -1,6 +1,6 @@
+import AppIntents
 import SwiftUI
 import WidgetKit
-import AppIntents
 
 public struct VocabWidgetEntry: TimelineEntry {
     public let date: Date

@@ -1,6 +1,6 @@
-import XCTest
 import SwiftData
 @testable import VocabCraftApp
+import XCTest
 
 @MainActor
 final class SwiftDataModelsTests: XCTestCase {

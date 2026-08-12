@@ -27,12 +27,12 @@ public struct ReflexDrillState: Equatable {
 @Observable
 public final class ReflexDrillViewModel {
     public var state: ReflexDrillState
-    
+
     private let fetchVocabularyUseCase: FetchVocabularyUseCaseProtocol
     private let evaluateSRSUseCase: EvaluateSRSUseCaseProtocol
     private let ttsService: TextToSpeechProtocol
     private let sttService: SpeechRecognitionProtocol
-    
+
     private var timerTask: Task<Void, Never>?
     private var loadTask: Task<Void, Never>?
 
@@ -104,7 +104,7 @@ public final class ReflexDrillViewModel {
         state.isCorrect = false
         state.feedbackText = ""
         state.srsResult = nil
-        
+
         timerTask?.cancel()
         timerTask = Task { [weak self] in
             while !Task.isCancelled {
@@ -199,7 +199,7 @@ public final class ReflexDrillViewModel {
     }
 
     // MARK: - Helper Methods
-    
+
     private func normalizeText(_ text: String) -> String {
         text.lowercased()
             .trimmingCharacters(in: .whitespacesAndNewlines.union(.punctuationCharacters))

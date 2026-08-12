@@ -1,20 +1,20 @@
-import XCTest
 @testable import VocabCraftApp
+import XCTest
 
 // MARK: - Mock SRS Repository
 
 @MainActor
 final class MockSRSRepository: SRSRepositoryProtocol {
     var savedProgress: SRSProgressItem?
-    
+
     func getProgress(wordId: Int64) async throws -> SRSProgressItem? {
         return nil
     }
-    
+
     func saveProgress(_ item: SRSProgressItem) async throws {
         savedProgress = item
     }
-    
+
     func logReflexSession(drillId: Int64, responseTimeMs: Int, accuracyScore: Double) async throws {
         // no-op for test
     }
@@ -33,7 +33,7 @@ final class EvaluateSRSUseCaseTests: XCTestCase {
             isCorrect: true,
             responseTimeMs: 1500
         )
-        
+
         XCTAssertEqual(result.nextMastery, 1)
         XCTAssertEqual(result.easeFactor, 2.6, accuracy: 0.001)
         XCTAssertEqual(result.intervalDays, 1)
@@ -47,7 +47,7 @@ final class EvaluateSRSUseCaseTests: XCTestCase {
             isCorrect: true,
             responseTimeMs: 2000
         )
-        
+
         XCTAssertEqual(result.nextMastery, 1)
         XCTAssertEqual(result.easeFactor, 2.6, accuracy: 0.001)
         XCTAssertNotNil(mockRepo.savedProgress)

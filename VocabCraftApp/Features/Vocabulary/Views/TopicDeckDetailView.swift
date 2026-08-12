@@ -4,10 +4,9 @@ public struct TopicDeckDetailView: View {
     public let deckId: String
     public let onBack: () -> Void
 
-    @State private var selectedNode: SubTopicNode? = nil
-    @State private var activeStudyNode: SubTopicNode? = nil
+    @State private var selectedNode: SubTopicNode?
+    @State private var activeStudyNode: SubTopicNode?
     @Environment(\.colorScheme) private var colorScheme
-
 
     private let nodes: [SubTopicNode]
 
@@ -16,7 +15,6 @@ public struct TopicDeckDetailView: View {
         self.nodes = nodes
         self.onBack = onBack
     }
-
 
     public var body: some View {
         ScrollView {
@@ -186,7 +184,7 @@ public struct TopicDeckDetailView: View {
                     selectedNode = nil
                     activeStudyNode = targetNode
                 },
-                onToggleVault: { word in
+                onToggleVault: { _ in
                     // Toggle vault logic
                 }
             )

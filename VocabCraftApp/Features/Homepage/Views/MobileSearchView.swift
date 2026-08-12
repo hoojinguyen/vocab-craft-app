@@ -14,11 +14,11 @@ public struct MobileSearchView: View {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(Color.vocabHeroAccent)
-            
+
             TextField("Tra cứu từ vựng hoặc thẻ bài...", text: $searchText)
                 .font(.system(size: 15, weight: .medium))
                 .foregroundColor(Color.vocabInk)
-            
+
             if !searchText.isEmpty {
                 Button(action: { searchText = "" }) {
                     Image(systemName: "xmark.circle.fill")
@@ -28,7 +28,7 @@ public struct MobileSearchView: View {
                 }
                 .buttonStyle(.plain)
             }
-            
+
             Button(action: onVoiceSearchTapped) {
                 ZStack {
                     Circle()
@@ -57,4 +57,3 @@ public struct MobileSearchView: View {
         .padding(.horizontal)
     }
 }
-

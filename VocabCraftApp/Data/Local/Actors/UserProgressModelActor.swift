@@ -58,4 +58,3 @@ public actor UserProgressModelActor {
         try modelContext.save()
     }
 }
-

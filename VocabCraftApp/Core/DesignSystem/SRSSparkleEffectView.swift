@@ -2,7 +2,7 @@ import SwiftUI
 
 public struct SRSSparkleEffectView: View {
     @Binding public var isEmitting: Bool
-    
+
     @State private var particles: [SparkleParticle] = []
 
     public init(isEmitting: Binding<Bool>) {

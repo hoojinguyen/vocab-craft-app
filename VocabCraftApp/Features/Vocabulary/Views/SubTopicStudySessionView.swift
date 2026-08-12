@@ -19,7 +19,6 @@ public struct SubTopicStudySessionView: View {
         self._viewModel = State(initialValue: StudySessionViewModel(words: node.words))
     }
 
-
     public var body: some View {
         @Bindable var viewModel = viewModel
 
@@ -240,7 +239,6 @@ public struct SubTopicStudySessionView: View {
     ]
 
 }
-
 
 private struct QuizOptionRowView: View {
     let option: String

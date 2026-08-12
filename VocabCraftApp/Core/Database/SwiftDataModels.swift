@@ -36,7 +36,6 @@ public final class UserWordProgress {
     }
 }
 
-
 @Model
 public final class ReflexSessionLog {
     @Attribute(.unique) public var id: UUID

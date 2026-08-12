@@ -31,5 +31,3 @@ public struct Word: Identifiable, Equatable, Hashable, Sendable {
         self.example = example
     }
 }
-
-

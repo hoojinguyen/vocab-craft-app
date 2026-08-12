@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 @main
 struct VocabCraftApp: App {
@@ -9,8 +9,17 @@ struct VocabCraftApp: App {
 
     init() {
         let isTesting = NSClassFromString("XCTestCase") != nil
+        let fallbackSchema = Schema([UserWordProgress.self, ReflexSessionLog.self, WidgetCurrentState.self])
         if isTesting {
-            self.container = (try? SharedAppGroupContainer.createContainer(inMemory: true)) ?? (try! ModelContainer(for: Schema([UserWordProgress.self, ReflexSessionLog.self, WidgetCurrentState.self])))
+            let containerResult: ModelContainer
+            if let primary = try? SharedAppGroupContainer.createContainer(inMemory: true) {
+                containerResult = primary
+            } else if let secondary = try? ModelContainer(for: fallbackSchema) {
+                containerResult = secondary
+            } else {
+                fatalError("Failed to create test ModelContainer")
+            }
+            self.container = containerResult
             let engine = DatasetEngine()
             self.datasetEngine = engine
             self.appContainer = AppContainer(datasetEngine: engine, modelContainer: container)
@@ -19,7 +28,15 @@ struct VocabCraftApp: App {
         do {
             self.container = try SharedAppGroupContainer.createContainer()
         } catch {
-            self.container = (try? SharedAppGroupContainer.createContainer(inMemory: true)) ?? (try! ModelContainer(for: Schema([UserWordProgress.self, ReflexSessionLog.self, WidgetCurrentState.self])))
+            let containerResult: ModelContainer
+            if let primary = try? SharedAppGroupContainer.createContainer(inMemory: true) {
+                containerResult = primary
+            } else if let secondary = try? ModelContainer(for: fallbackSchema) {
+                containerResult = secondary
+            } else {
+                fatalError("Failed to create fallback ModelContainer: \(error.localizedDescription)")
+            }
+            self.container = containerResult
         }
         let engine = DatasetEngine()
         self.datasetEngine = engine

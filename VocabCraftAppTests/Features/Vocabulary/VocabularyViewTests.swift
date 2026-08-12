@@ -1,6 +1,6 @@
-import XCTest
 import SwiftUI
 @testable import VocabCraftApp
+import XCTest
 
 @MainActor
 final class VocabularyViewTests: XCTestCase {
@@ -11,7 +11,7 @@ final class VocabularyViewTests: XCTestCase {
     }
 
     func testTopicDeckSelectionNavigation() {
-        var selectedDeck: String? = nil
+        var selectedDeck: String?
         let gridView = TopicDecksGridView(onDeckSelected: { deckId in
             selectedDeck = deckId
         })

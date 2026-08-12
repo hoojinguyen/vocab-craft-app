@@ -21,7 +21,7 @@ public final class SettingsViewModel {
         let sampleText = "VocabCraft: Master English naturally"
         let localeStr = store.ttsVoiceGender == "US" ? "en-US" : "en-GB"
         ttsService.speak(text: sampleText, rate: Float(store.ttsSpeed), locale: localeStr)
-        
+
         audioTask = Task {
             try? await Task.sleep(for: .seconds(1.5))
             guard !Task.isCancelled else { return }

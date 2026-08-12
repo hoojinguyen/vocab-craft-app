@@ -17,7 +17,7 @@ public struct VocabularyView: View {
 
     public var body: some View {
         @Bindable var bindableVM = vm
-        
+
         ZStack {
             Color.vocabCanvas
                 .ignoresSafeArea()
@@ -94,7 +94,6 @@ public struct VocabularyView: View {
                                     srsRetentionPercentage: 0.85,
                                     dueCount: vm.filterCount(for: .needsReview)
                                 )
-
 
                                 // Word Accordion Cards List
                                 VStack(spacing: 10) {
