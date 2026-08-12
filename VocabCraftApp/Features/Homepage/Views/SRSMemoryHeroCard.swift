@@ -18,7 +18,7 @@ public struct SRSMemoryHeroCard: View {
                     .foregroundColor(Color.vocabMint)
                     .tracking(0.5)
 
-                Text("\(totalWords) \(AppStrings.Common.wordUnit)")
+                (Text("\(totalWords) ") + Text(AppStrings.Common.wordUnit))
                     .font(.system(size: 28, weight: .bold, design: .rounded))
                     .monospacedDigit()
                     .foregroundColor(Color.vocabInk)
@@ -41,7 +41,7 @@ public struct SRSMemoryHeroCard: View {
                         style: StrokeStyle(lineWidth: 4, lineCap: .round)
                     )
                     .rotationEffect(.degrees(-90))
-                
+
                 Text("\(Int(retentionPercentage * 100))%")
                     .font(.system(size: 13, weight: .bold, design: .rounded))
                     .monospacedDigit()

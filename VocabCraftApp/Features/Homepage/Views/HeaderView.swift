@@ -72,7 +72,7 @@ public struct HeaderView: View {
                     .foregroundColor(Color.vocabInk)
                 
                 HStack(spacing: 4) {
-                    Text("\(AppStrings.Homepage.dailyGoal):")
+                    (Text(AppStrings.Homepage.dailyGoal) + Text(":"))
                         .foregroundColor(Color.vocabMuted)
                     Text("\(Int(dailyGoalProgress * 100))%")
                         .fontWeight(.bold)

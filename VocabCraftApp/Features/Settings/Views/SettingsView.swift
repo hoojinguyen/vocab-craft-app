@@ -47,7 +47,7 @@ public struct SettingsView: View {
                             goalInputText = "\(viewModel.store.dailyGoalCount)"
                             showGoalInputAlert = true
                         }) {
-                            Text("\(viewModel.store.dailyGoalCount) \(AppStrings.Common.wordUnit)")
+                            (Text("\(viewModel.store.dailyGoalCount) ") + Text(AppStrings.Common.wordUnit))
                                 .font(.caption.weight(.bold))
                                 .fontDesign(.rounded)
                                 .monospacedDigit()

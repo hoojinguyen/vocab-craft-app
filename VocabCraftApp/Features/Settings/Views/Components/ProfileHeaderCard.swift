@@ -72,7 +72,7 @@ public struct ProfileHeaderCard: View {
                         Image(systemName: "flame.fill")
                             .font(.caption2)
                             .foregroundColor(.vocabCoral)
-                        Text("\(streakDays) \(AppStrings.Homepage.streakDays)")
+                        (Text("\(streakDays) ") + Text(AppStrings.Homepage.streakDays))
                             .font(.caption2.weight(.bold))
                             .fontDesign(.rounded)
                             .monospacedDigit()

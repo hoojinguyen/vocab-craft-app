@@ -25,7 +25,7 @@ public struct SearchNewWordView: View {
                     // Header Title
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("\(AppStrings.Tabs.search) 🔍")
+                            (Text(AppStrings.Tabs.search) + Text(" 🔍"))
                                 .font(.system(size: 24, weight: .bold))
                                 .foregroundColor(Color.vocabInk)
                             Text(AppStrings.Homepage.searchPlaceholder)

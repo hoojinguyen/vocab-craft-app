@@ -45,7 +45,7 @@ public struct SubTopicPreviewSheet: View {
                 Text(node.title)
                     .font(.system(size: 18, weight: .bold))
                     .foregroundColor(Color.vocabInk)
-                Text("\(node.learnedWords)/\(node.totalWords) \(AppStrings.Vocabulary.wordsMasteredCount)")
+                (Text("\(node.learnedWords)/\(node.totalWords) ") + Text(AppStrings.Vocabulary.wordsMasteredCount))
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(Color.vocabMuted)
             }
