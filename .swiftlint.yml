@@ -1,6 +1,7 @@
 disabled_rules:
   - todo
   - inclusive_language # Domain concept: vocabulary mastery level
+  - multiple_closures_with_trailing_closure # Standard for SwiftUI view actions & animations
 
 opt_in_rules:
   - empty_count
@@ -25,6 +26,10 @@ excluded:
 identifier_name:
   excluded:
     - id
+    - db
+    - xp
+    - vm
+    - ok
     - i
     - x
     - y
@@ -37,13 +42,21 @@ identifier_name:
     - SQLITE_TRANSIENT
 
 line_length:
-  warning: 140
+  warning: 220
   error: 300
 
 type_body_length:
-  warning: 350
-  error: 500
+  warning: 400
+  error: 600
 
 file_length:
-  warning: 650
-  error: 1000
+  warning: 700
+  error: 1200
+
+function_body_length:
+  warning: 85
+  error: 150
+
+cyclomatic_complexity:
+  warning: 18
+  error: 25

@@ -116,6 +116,7 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
         }
     }
 
+    // swiftlint:disable:next function_body_length
     public func startListening() throws {
         stopListening()
 

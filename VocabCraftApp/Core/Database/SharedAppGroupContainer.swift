@@ -19,10 +19,11 @@ public struct SharedAppGroupContainer {
         let storeURL: URL
         if let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) {
             storeURL = groupURL.appendingPathComponent("user_progress.sqlite")
-        } else {
-            let appSupportURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-                .appendingPathComponent("VocabCraft", isDirectory: true)
+        } else if let baseSupportURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
+            let appSupportURL = baseSupportURL.appendingPathComponent("VocabCraft", isDirectory: true)
             storeURL = appSupportURL.appendingPathComponent("user_progress.sqlite")
+        } else {
+            storeURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("user_progress.sqlite")
         }
 
         try? FileManager.default.createDirectory(at: storeURL.deletingLastPathComponent(), withIntermediateDirectories: true)

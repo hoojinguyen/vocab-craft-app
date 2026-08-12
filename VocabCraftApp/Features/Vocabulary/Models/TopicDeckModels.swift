@@ -76,8 +76,26 @@ extension SubTopicNode {
             learnedWords: 25,
             state: .completed,
             words: [
-                TopicWord(id: "w1", english: "Ecosystem", phonetic: "/ˈiː.koʊˌsɪs.təm/", vietnamese: "Hệ sinh thái", example: "Pollution threatens the marine ecosystem.", partOfSpeech: "noun", isMastered: true, isSavedToPersonalVault: true),
-                TopicWord(id: "w2", english: "Biodiversity", phonetic: "/ˌbaɪ.oʊ.daɪˈvɜːr.sə.ti/", vietnamese: "Đa dạng sinh học", example: "Rainforests are rich in biodiversity.", partOfSpeech: "noun", isMastered: true, isSavedToPersonalVault: true)
+                TopicWord(
+                    id: "w1",
+                    english: "Ecosystem",
+                    phonetic: "/ˈiː.koʊˌsɪs.təm/",
+                    vietnamese: "Hệ sinh thái",
+                    example: "Pollution threatens the marine ecosystem.",
+                    partOfSpeech: "noun",
+                    isMastered: true,
+                    isSavedToPersonalVault: true
+                ),
+                TopicWord(
+                    id: "w2",
+                    english: "Biodiversity",
+                    phonetic: "/ˌbaɪ.oʊ.daɪˈvɜːr.sə.ti/",
+                    vietnamese: "Đa dạng sinh học",
+                    example: "Rainforests are rich in biodiversity.",
+                    partOfSpeech: "noun",
+                    isMastered: true,
+                    isSavedToPersonalVault: true
+                )
             ]
         )
     ]
