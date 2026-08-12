@@ -10,7 +10,7 @@ public enum VocabularyFilter: String, CaseIterable, Equatable, Sendable {
     case b1b2 = "B1-B2"
     case c1c2 = "C1-C2"
 
-    public var title: String {
+    public var title: LocalizedStringKey {
         switch self {
         case .all: return AppStrings.Vocabulary.filterAll
         case .needsReview: return AppStrings.Vocabulary.filterReviewNeeded

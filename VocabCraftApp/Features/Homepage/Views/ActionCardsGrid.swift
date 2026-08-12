@@ -88,10 +88,14 @@ public struct ActionCardsGrid: View {
                         HStack(spacing: 4) {
                             Image(systemName: "rectangle.stack.fill")
                                 .font(.system(size: 10, weight: .bold))
-                            Text("\(dueCardsCount) \(AppStrings.Common.wordUnit.uppercased())")
-                                .font(.caption.smallCaps())
-                                .fontWeight(.bold)
-                                .monospacedDigit()
+                            HStack(spacing: 3) {
+                                Text("\(dueCardsCount)")
+                                Text(AppStrings.Common.wordUnit)
+                                    .textCase(.uppercase)
+                            }
+                            .font(.caption.smallCaps())
+                            .fontWeight(.bold)
+                            .monospacedDigit()
                         }
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)

@@ -340,7 +340,7 @@ public struct SettingsView: View {
         }
     }
 
-    private func sectionHeader(_ title: String) -> some View {
+    private func sectionHeader(_ title: LocalizedStringKey) -> some View {
         Text(title)
             .font(.caption.bold().smallCaps())
             .foregroundColor(.vocabMuted)

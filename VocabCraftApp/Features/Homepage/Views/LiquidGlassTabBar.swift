@@ -9,7 +9,7 @@ public enum TabItem: Int, CaseIterable, Identifiable {
 
     public var id: Int { rawValue }
 
-    public var title: String {
+    public var title: LocalizedStringKey {
         switch self {
         case .home: return AppStrings.Tabs.home
         case .vocabulary: return AppStrings.Tabs.vocabulary

@@ -3,15 +3,15 @@ import SwiftUI
 public struct SettingsRowView<Content: View>: View {
     public let iconName: String
     public let iconColor: Color
-    public let title: String
-    public let subtitle: String?
+    public let title: LocalizedStringKey
+    public let subtitle: LocalizedStringKey?
     public let content: Content
 
     public init(
         iconName: String,
         iconColor: Color,
-        title: String,
-        subtitle: String? = nil,
+        title: LocalizedStringKey,
+        subtitle: LocalizedStringKey? = nil,
         @ViewBuilder content: () -> Content
     ) {
         self.iconName = iconName

@@ -188,8 +188,9 @@ public struct SubTopicSessionSummaryView: View {
                         Button(action: onRestart) {
                             HStack(spacing: 8) {
                                 Image(systemName: "arrow.counterclockwise")
-                                Text(AppStrings.Vocabulary.studyAgain.uppercased())
+                                Text(AppStrings.Vocabulary.studyAgain)
                                     .font(.system(size: 14, weight: .bold))
+                                    .textCase(.uppercase)
                             }
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)

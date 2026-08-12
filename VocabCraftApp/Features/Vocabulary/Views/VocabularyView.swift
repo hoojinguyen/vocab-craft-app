@@ -161,7 +161,7 @@ public struct VocabularyView: View {
         }
     }
 
-    private func segmentedTabButton(title: String, tabIndex: Int) -> some View {
+    private func segmentedTabButton(title: LocalizedStringKey, tabIndex: Int) -> some View {
         Button(action: {
             withAnimation(.spring(response: 0.25, dampingFraction: 0.75)) {
                 vm.selectedTab = tabIndex
@@ -183,15 +183,17 @@ public struct VocabularyView: View {
     private func filterPill(_ filter: VocabularyFilter) -> some View {
         let isSelected = vm.selectedFilter == filter
         let count = vm.filterCount(for: filter)
-        let displayTitle = "\(filter.title) (\(count))"
 
         return Button(action: {
             withAnimation(.spring(response: 0.25, dampingFraction: 0.75)) {
                 vm.selectedFilter = filter
             }
         }) {
-            Text(displayTitle)
-                .font(.system(size: 12, weight: isSelected ? .bold : .medium))
+            HStack(spacing: 4) {
+                Text(filter.title)
+                Text("(\(count))")
+            }
+            .font(.system(size: 12, weight: isSelected ? .bold : .medium))
                 .foregroundColor(isSelected ? Color.vocabCanvas : Color.vocabInk)
                 .padding(.horizontal, 14)
                 .frame(height: 36)
