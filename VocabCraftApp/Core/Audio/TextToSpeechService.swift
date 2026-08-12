@@ -4,13 +4,41 @@ import Observation
 
 @MainActor
 @Observable
-public final class TextToSpeechService: NSObject, @preconcurrency AVSpeechSynthesizerDelegate, TextToSpeechProtocol, @unchecked Sendable {
+public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, TextToSpeechProtocol, @unchecked Sendable {
     private let synthesizer = AVSpeechSynthesizer()
     public var isSpeaking: Bool = false
+    private nonisolated(unsafe) var interruptionObserver: NSObjectProtocol?
 
     public override init() {
         super.init()
         synthesizer.delegate = self
+        setupInterruptionObserver()
+    }
+
+    deinit {
+        if let observer = interruptionObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+    }
+
+    private func setupInterruptionObserver() {
+        #if os(iOS)
+        interruptionObserver = NotificationCenter.default.addObserver(
+            forName: AVAudioSession.interruptionNotification,
+            object: AVAudioSession.sharedInstance(),
+            queue: .main
+        ) { [weak self] notification in
+            guard let userInfo = notification.userInfo,
+                  let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
+                  let type = AVAudioSession.InterruptionType(rawValue: typeValue) else { return }
+            
+            if type == .began {
+                Task { @MainActor [weak self] in
+                    self?.stop()
+                }
+            }
+        }
+        #endif
     }
 
     public func speak(text: String, rate: Float = 1.0, locale: String = "en-US") {

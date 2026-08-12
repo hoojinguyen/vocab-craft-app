@@ -31,6 +31,7 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
     private var onResultCallback: ((String) -> Void)?
     private var onErrorCallback: ((Error) -> Void)?
     private var simulationTask: Task<Void, Never>?
+    private nonisolated(unsafe) var interruptionObserver: NSObjectProtocol?
 
     public var isRecording: Bool = false
     public var isListening: Bool { isRecording }
@@ -39,6 +40,35 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
     public init(locale: String = "en-US") {
         self.speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: locale))
         super.init()
+        setupInterruptionObserver()
+    }
+
+    deinit {
+        if let observer = interruptionObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+    }
+
+    private func setupInterruptionObserver() {
+        #if os(iOS)
+        interruptionObserver = NotificationCenter.default.addObserver(
+            forName: AVAudioSession.interruptionNotification,
+            object: AVAudioSession.sharedInstance(),
+            queue: .main
+        ) { [weak self] notification in
+            guard let userInfo = notification.userInfo,
+                  let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
+                  let type = AVAudioSession.InterruptionType(rawValue: typeValue) else { return }
+            
+            if type == .began {
+                Task { @MainActor [weak self] in
+                    guard let self = self, self.isRecording else { return }
+                    self.stopListening()
+                    self.onErrorCallback?(SpeechRecognitionError.notAuthorized)
+                }
+            }
+        }
+        #endif
     }
 
     public func requestAuthorization(completion: @escaping (Bool) -> Void) {
