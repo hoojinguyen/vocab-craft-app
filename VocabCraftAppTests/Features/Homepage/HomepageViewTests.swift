@@ -25,19 +25,9 @@ final class HomepageViewTests: XCTestCase {
     }
 
     func testHomepageViewInitialization() {
-        let homepage = HomepageView()
-        XCTAssertNotNil(homepage)
-    }
-
-    func testHomepageViewCustomInit() {
-        let homepage = HomepageView(
-            userName: "Alice",
-            streakDays: 7,
-            dailyGoalProgress: 0.5,
-            dueCardsCount: 12,
-            totalWords: 500,
-            retentionPercentage: 0.9
-        )
+        let viewModel = HomepageViewModel()
+        let homepage = HomepageView(viewModel: viewModel)
         XCTAssertNotNil(homepage)
     }
 }
+
