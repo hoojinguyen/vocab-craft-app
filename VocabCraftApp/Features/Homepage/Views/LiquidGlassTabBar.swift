@@ -30,9 +30,19 @@ public enum TabItem: Int, CaseIterable, Identifiable {
     }
 }
 
+struct LiquidGlassTabButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.93 : 1.0)
+            .opacity(configuration.isPressed ? 0.85 : 1.0)
+            .animation(.spring(response: 0.22, dampingFraction: 0.65), value: configuration.isPressed)
+    }
+}
+
 public struct LiquidGlassTabBar: View {
     @Binding public var selectedTab: TabItem
     @Namespace private var animationNamespace
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     public init(selectedTab: Binding<TabItem>) {
         self._selectedTab = selectedTab
@@ -78,15 +88,16 @@ public struct LiquidGlassTabBar: View {
             ForEach(TabItem.allCases) { tab in
                 let isSelected = selectedTab == tab
                 Button(action: {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.72)) {
+                    let springAnimation = Animation.spring(response: 0.36, dampingFraction: 0.74)
+                    withAnimation(reduceMotion ? .none : springAnimation) {
                         selectedTab = tab
                     }
                 }) {
                     VStack(spacing: 3) {
                         Image(systemName: tab.symbol)
                             .font(.system(size: 18, weight: isSelected ? .bold : .medium))
-                            .scaleEffect(isSelected ? 1.1 : 1.0)
-                            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isSelected)
+                            .scaleEffect(isSelected ? (reduceMotion ? 1.0 : 1.12) : 1.0)
+                            .animation(.spring(response: 0.3, dampingFraction: 0.55), value: isSelected)
 
                         Text(tab.title)
                             .font(.system(size: 10, weight: isSelected ? .bold : .medium, design: .rounded))
@@ -113,7 +124,7 @@ public struct LiquidGlassTabBar: View {
                         }
                     }
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(LiquidGlassTabButtonStyle())
             }
         }
         .padding(.vertical, 5)
