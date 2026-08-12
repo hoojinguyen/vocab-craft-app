@@ -695,6 +695,7 @@
 				300000452D50000000000001 /* DatasetEngine.swift in Sources */,
 				300000462D50000000000001 /* SharedAppGroupContainer.swift in Sources */,
 				300000472D50000000000001 /* SwiftDataModels.swift in Sources */,
+				399000012D50000000000001 /* Domain/Entities/Word.swift in Sources */,
 				300000482D50000000000001 /* DatasetModels.swift in Sources */,
 				300000492D50000000000001 /* SRSEngine.swift in Sources */,
 				6E9C49A497E537D48539FEF5 /* VocabWidget.swift in Sources */,

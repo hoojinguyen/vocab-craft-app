@@ -29,7 +29,7 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
     @MainActor
     func testStepGeneration() {
         let viewModel = QuickReflexDrillViewModel(targetWord: targetWord, allWords: samplePool)
-        let steps = viewModel.steps
+        let steps = viewModel.state.steps
         XCTAssertEqual(steps.count, 3)
         XCTAssertEqual(steps[0].type, .fastMeaning)
         XCTAssertEqual(steps[1].type, .fillInBlank)
@@ -40,34 +40,34 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
     @MainActor
     func testHoldToTalkRecordingAndEvaluation() {
         let viewModel = QuickReflexDrillViewModel(targetWord: targetWord, allWords: samplePool)
-        viewModel.currentStepIndex = 2 // Step 3: Pronunciation
+        viewModel.state.currentStepIndex = 2 // Step 3: Pronunciation
         
         // Hold-to-Talk press down
         viewModel.startRecording()
-        XCTAssertTrue(viewModel.isMicActive)
+        XCTAssertTrue(viewModel.state.isMicActive)
 
         // Simulated speech stream
-        viewModel.recordedSpokenText = "Her fame proved to be ephemeral."
+        viewModel.state.recordedSpokenText = "Her fame proved to be ephemeral."
 
         // Hold-to-Talk release
         viewModel.stopRecordingAndEvaluate()
-        XCTAssertFalse(viewModel.isMicActive)
-        XCTAssertTrue(viewModel.isStepEvaluated)
-        XCTAssertTrue(viewModel.isStepCorrect)
+        XCTAssertFalse(viewModel.state.isMicActive)
+        XCTAssertTrue(viewModel.state.isStepEvaluated)
+        XCTAssertTrue(viewModel.state.isStepCorrect)
     }
 
     @MainActor
     func testOptionSubmissionAndNextStep() {
         let viewModel = QuickReflexDrillViewModel(targetWord: targetWord, allWords: samplePool)
-        viewModel.currentStepIndex = 0 // Step 1: Fast Meaning Options
+        viewModel.state.currentStepIndex = 0 // Step 1: Fast Meaning Options
         
         viewModel.submitAnswer("Phù du, chóng phai")
-        XCTAssertTrue(viewModel.isStepEvaluated)
-        XCTAssertTrue(viewModel.isStepCorrect)
-        XCTAssertEqual(viewModel.selectedOption, "Phù du, chóng phai")
+        XCTAssertTrue(viewModel.state.isStepEvaluated)
+        XCTAssertTrue(viewModel.state.isStepCorrect)
+        XCTAssertEqual(viewModel.state.selectedOption, "Phù du, chóng phai")
 
         viewModel.nextStep()
-        XCTAssertEqual(viewModel.currentStepIndex, 1)
-        XCTAssertFalse(viewModel.isStepEvaluated)
+        XCTAssertEqual(viewModel.state.currentStepIndex, 1)
+        XCTAssertFalse(viewModel.state.isStepEvaluated)
     }
 }

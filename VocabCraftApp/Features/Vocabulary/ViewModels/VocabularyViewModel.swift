@@ -18,7 +18,8 @@ public final class VocabularyViewModel {
     public var selectedFilter: VocabularyFilter = .all
     public var selectedTab = 0 // 0: Kho từ cá nhân, 1: Bộ từ chủ đề
     public var expandedWordId: Int64? = 1 // Expand first word by default
-    public var wordItems: [WordItem] = WordItem.mockData
+    public var wordItems: [WordItem] = []
+    public var isLoading: Bool = false
     public var selectedDeckId: String? = nil
     public var selectedDrillWord: WordItem? = nil
 
@@ -70,5 +71,34 @@ public final class VocabularyViewModel {
     public func filterCount(for title: String) -> Int {
         guard let filter = VocabularyFilter(rawValue: title) else { return wordItems.count }
         return filterCount(for: filter)
+    }
+
+    public func loadWords() async {
+        guard let useCase = fetchVocabularyUseCase else {
+            // Fallback to mock data if no use case is provided (e.g., previews)
+            self.wordItems = WordItem.mockData
+            return
+        }
+        
+        isLoading = true
+        do {
+            let domainWords = try await useCase.executeFetchWords(limit: 50)
+            self.wordItems = domainWords.map { word in
+                WordItem(
+                    id: word.id,
+                    lemma: word.lemma,
+                    phonetic: word.ipaUs ?? "",
+                    pos: word.pos ?? "",
+                    definition: word.definitionVi ?? word.definitionEn ?? "",
+                    exampleSentenceEn: word.example ?? "",
+                    exampleSentenceVi: "", // Could be enhanced later
+                    cefrLevel: word.cefrLevel ?? "A1",
+                    masteryLevel: 0 // Ideally this comes from SRS progress, setting default for now
+                )
+            }
+        } catch {
+            print("Failed to load words: \(error)")
+        }
+        isLoading = false
     }
 }

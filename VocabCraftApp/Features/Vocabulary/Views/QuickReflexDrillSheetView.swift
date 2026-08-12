@@ -28,7 +28,7 @@ public struct QuickReflexDrillSheetView: View {
         ZStack {
             Color.vocabCanvas.ignoresSafeArea()
 
-            if viewModel.isCompleted {
+            if viewModel.state.isCompleted {
                 completionCardView
             } else {
                 drillContentBody
@@ -62,7 +62,7 @@ public struct QuickReflexDrillSheetView: View {
 
                 Spacer()
 
-                Text("\(min(viewModel.currentStepIndex + 1, viewModel.steps.count)) / \(viewModel.steps.count)")
+                Text("\(min(viewModel.state.currentStepIndex + 1, viewModel.state.steps.count)) / \(viewModel.state.steps.count)")
                     .font(.system(size: 13, weight: .bold, design: .monospaced))
                     .foregroundColor(Color.vocabHeroAccent)
                     .padding(.horizontal, 10)
@@ -75,11 +75,11 @@ public struct QuickReflexDrillSheetView: View {
 
             // Step Progress Bar
             HStack(spacing: 8) {
-                ForEach(0..<viewModel.steps.count, id: \.self) { idx in
+                ForEach(0..<viewModel.state.steps.count, id: \.self) { idx in
                     Capsule()
-                        .fill(idx <= viewModel.currentStepIndex ? Color.vocabHeroAccent : Color.vocabHairline.opacity(0.6))
+                        .fill(idx <= viewModel.state.currentStepIndex ? Color.vocabHeroAccent : Color.vocabHairline.opacity(0.6))
                         .frame(height: 5)
-                        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: viewModel.currentStepIndex)
+                        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: viewModel.state.currentStepIndex)
                 }
             }
             .padding(.horizontal, 20)
@@ -90,8 +90,8 @@ public struct QuickReflexDrillSheetView: View {
             Spacer(minLength: 0)
 
             // Current Active Step Content
-            if viewModel.currentStepIndex < viewModel.steps.count {
-                let currentStep = viewModel.steps[viewModel.currentStepIndex]
+            if viewModel.state.currentStepIndex < viewModel.state.steps.count {
+                let currentStep = viewModel.state.steps[viewModel.state.currentStepIndex]
                 
                 VStack(alignment: .leading, spacing: 18) {
                     // Per-step Countdown Bar
@@ -102,9 +102,9 @@ public struct QuickReflexDrillSheetView: View {
                                 .frame(height: 4)
                             
                             Capsule()
-                                .fill(viewModel.stepRemainingSeconds <= 2.0 ? Color.orange : Color.vocabHeroAccent)
-                                .frame(width: max(0, geo.size.width * CGFloat(viewModel.stepRemainingSeconds / viewModel.stepMaxSeconds)), height: 4)
-                                .animation(.linear(duration: 0.1), value: viewModel.stepRemainingSeconds)
+                                .fill(viewModel.state.stepRemainingSeconds <= 2.0 ? Color.orange : Color.vocabHeroAccent)
+                                .frame(width: max(0, geo.size.width * CGFloat(viewModel.state.stepRemainingSeconds / viewModel.state.stepMaxSeconds)), height: 4)
+                                .animation(.linear(duration: 0.1), value: viewModel.state.stepRemainingSeconds)
                         }
                     }
                     .frame(height: 4)
@@ -117,7 +117,7 @@ public struct QuickReflexDrillSheetView: View {
 
                         Spacer()
 
-                        if viewModel.isSpeedBonus {
+                        if viewModel.state.isSpeedBonus {
                             HStack(spacing: 4) {
                                 Image(systemName: "bolt.fill")
                                     .font(.system(size: 11))
@@ -156,8 +156,8 @@ public struct QuickReflexDrillSheetView: View {
     }
 
     private var displayLemma: String {
-        if viewModel.currentStepIndex < viewModel.steps.count {
-            let currentStep = viewModel.steps[viewModel.currentStepIndex]
+        if viewModel.state.currentStepIndex < viewModel.state.steps.count {
+            let currentStep = viewModel.state.steps[viewModel.state.currentStepIndex]
             if currentStep.type == .fillInBlank {
                 return String(repeating: "•", count: max(5, viewModel.targetWord.lemma.count))
             }
@@ -218,58 +218,58 @@ public struct QuickReflexDrillSheetView: View {
             // Interactive Mic Button with Visual Feedback
             VStack(spacing: 12) {
                 ZStack {
-                    if viewModel.isMicActive {
+                    if viewModel.state.isMicActive {
                         Circle()
                             .stroke(Color.red.opacity(0.3), lineWidth: 8)
                             .frame(width: 96, height: 96)
-                            .scaleEffect(viewModel.isMicActive ? 1.15 : 1.0)
-                            .animation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true), value: viewModel.isMicActive)
+                            .scaleEffect(viewModel.state.isMicActive ? 1.15 : 1.0)
+                            .animation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true), value: viewModel.state.isMicActive)
                     }
 
                     Circle()
                         .fill(
-                            viewModel.isMicActive 
+                            viewModel.state.isMicActive 
                                 ? Color.red 
-                                : (viewModel.isStepEvaluated ? (viewModel.isStepCorrect ? Color.vocabMint : Color.red) : Color.vocabHeroAccent)
+                                : (viewModel.state.isStepEvaluated ? (viewModel.state.isStepCorrect ? Color.vocabMint : Color.red) : Color.vocabHeroAccent)
                         )
                         .frame(width: 80, height: 80)
-                        .shadow(color: (viewModel.isMicActive ? Color.red : Color.vocabHeroAccent).opacity(0.35), radius: 10, y: 4)
+                        .shadow(color: (viewModel.state.isMicActive ? Color.red : Color.vocabHeroAccent).opacity(0.35), radius: 10, y: 4)
 
-                    Image(systemName: viewModel.isMicActive ? "waveform" : (viewModel.isStepEvaluated ? (viewModel.isStepCorrect ? "checkmark" : "xmark") : "mic.fill"))
+                    Image(systemName: viewModel.state.isMicActive ? "waveform" : (viewModel.state.isStepEvaluated ? (viewModel.state.isStepCorrect ? "checkmark" : "xmark") : "mic.fill"))
                         .font(.system(size: 30, weight: .bold))
                         .foregroundColor(.white)
-                        .symbolEffect(.bounce, value: viewModel.isMicActive)
+                        .symbolEffect(.bounce, value: viewModel.state.isMicActive)
                 }
-                .sensoryFeedback(.impact(weight: .medium), trigger: viewModel.isMicActive)
+                .sensoryFeedback(.impact(weight: .medium), trigger: viewModel.state.isMicActive)
                 .gesture(
                     DragGesture(minimumDistance: 0)
                         .onChanged { _ in
-                            if !viewModel.isMicActive && !viewModel.isStepEvaluated {
+                            if !viewModel.state.isMicActive && !viewModel.state.isStepEvaluated {
                                 viewModel.startRecording()
                             }
                         }
                         .onEnded { _ in
-                            if viewModel.isMicActive {
+                            if viewModel.state.isMicActive {
                                 viewModel.stopRecordingAndEvaluate()
                             }
                         }
                 )
 
-                Text(viewModel.isMicActive ? "Đang thu âm... Nhả ra để kiểm tra" : "Nhấn giữ để nói • Nhả để kiểm tra")
+                Text(viewModel.state.isMicActive ? "Đang thu âm... Nhả ra để kiểm tra" : "Nhấn giữ để nói • Nhả để kiểm tra")
                     .font(.system(.subheadline, weight: .semibold))
-                    .foregroundColor(viewModel.isMicActive ? .red : Color.vocabMuted)
+                    .foregroundColor(viewModel.state.isMicActive ? .red : Color.vocabMuted)
             }
             .padding(.vertical, 4)
 
-            if !viewModel.recordedSpokenText.isEmpty {
-                Text("Đã nghe: \"\(viewModel.recordedSpokenText)\"")
+            if !viewModel.state.recordedSpokenText.isEmpty {
+                Text("Đã nghe: \"\(viewModel.state.recordedSpokenText)\"")
                     .font(.system(.subheadline, weight: .semibold))
                     .foregroundColor(Color.vocabInk)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 8)
             }
 
-            if let errorMsg = viewModel.errorMessage {
+            if let errorMsg = viewModel.state.errorMessage {
                 Text(errorMsg)
                     .font(.system(.footnote, weight: .medium))
                     .foregroundColor(.red)
@@ -282,9 +282,9 @@ public struct QuickReflexDrillSheetView: View {
     private func optionsStepView(step: QuickDrillStep) -> some View {
         VStack(spacing: 12) {
             ForEach(step.options, id: \.self) { option in
-                let isSelected = viewModel.selectedOption == option
+                let isSelected = viewModel.state.selectedOption == option
                 let isTarget = option == step.targetText
-                let isEvaluated = viewModel.isStepEvaluated
+                let isEvaluated = viewModel.state.isStepEvaluated
 
                 OptionRowView(
                     optionText: option,
@@ -315,9 +315,9 @@ public struct QuickReflexDrillSheetView: View {
             }
 
             ForEach(step.options, id: \.self) { option in
-                let isSelected = viewModel.selectedOption == option
+                let isSelected = viewModel.state.selectedOption == option
                 let isTarget = option == step.targetText
-                let isEvaluated = viewModel.isStepEvaluated
+                let isEvaluated = viewModel.state.isStepEvaluated
 
                 OptionRowView(
                     optionText: option,
@@ -336,7 +336,7 @@ public struct QuickReflexDrillSheetView: View {
     }
 
     private var formattedReactionTime: String {
-        let avgMs = viewModel.elapsedTimeMs / max(1, viewModel.steps.count)
+        let avgMs = viewModel.state.elapsedTimeMs / max(1, viewModel.state.steps.count)
         if avgMs >= 1000 {
             let sec = Double(avgMs) / 1000.0
             return String(format: "%.2f s / câu", sec)
@@ -353,14 +353,14 @@ public struct QuickReflexDrillSheetView: View {
                 Circle()
                     .fill(Color.vocabMint.opacity(0.15))
                     .frame(width: 104, height: 104)
-                Image(systemName: viewModel.isCorrect ? "sparkles" : "checkmark.circle.fill")
+                Image(systemName: viewModel.state.isCorrect ? "sparkles" : "checkmark.circle.fill")
                     .font(.system(size: 52, weight: .semibold))
                     .foregroundColor(Color.vocabMint)
-                    .symbolEffect(.bounce, value: viewModel.isCompleted)
+                    .symbolEffect(.bounce, value: viewModel.state.isCompleted)
             }
 
             VStack(spacing: 8) {
-                Text(viewModel.isCorrect ? "Xuất sắc! Đã làm chủ phản xạ" : "Đã hoàn thành lượt luyện tập!")
+                Text(viewModel.state.isCorrect ? "Xuất sắc! Đã làm chủ phản xạ" : "Đã hoàn thành lượt luyện tập!")
                     .font(.system(.title2, design: .rounded, weight: .bold))
                     .foregroundColor(Color.vocabInk)
                     .multilineTextAlignment(.center)
@@ -370,10 +370,10 @@ public struct QuickReflexDrillSheetView: View {
                     .foregroundColor(Color.vocabMuted)
                     .monospacedDigit()
 
-                if viewModel.totalSpeedBonusCount > 0 {
+                if viewModel.state.totalSpeedBonusCount > 0 {
                     HStack(spacing: 4) {
                         Image(systemName: "bolt.fill")
-                        Text("\(viewModel.totalSpeedBonusCount)/\(viewModel.steps.count) câu Phản xạ siêu tốc")
+                        Text("\(viewModel.state.totalSpeedBonusCount)/\(viewModel.state.steps.count) câu Phản xạ siêu tốc")
                     }
                     .font(.system(.caption, weight: .bold))
                     .foregroundColor(.orange)
@@ -384,7 +384,7 @@ public struct QuickReflexDrillSheetView: View {
                 }
             }
 
-            if let result = viewModel.srsResult {
+            if let result = viewModel.state.srsResult {
                 HStack(spacing: 8) {
                     Text("Mức độ thuộc SRS:")
                         .font(.system(.subheadline, weight: .medium))
@@ -410,7 +410,7 @@ public struct QuickReflexDrillSheetView: View {
             Spacer()
 
             Button(action: {
-                let updatedLevel = viewModel.srsResult?.nextMastery ?? viewModel.targetWord.masteryLevel
+                let updatedLevel = viewModel.state.srsResult?.nextMastery ?? viewModel.targetWord.masteryLevel
                 onComplete(updatedLevel)
                 dismiss()
             }) {
@@ -424,7 +424,7 @@ public struct QuickReflexDrillSheetView: View {
                     .shadow(color: Color.vocabHeroAccent.opacity(0.3), radius: 8, x: 0, y: 4)
             }
             .buttonStyle(BentoPressButtonStyle())
-            .sensoryFeedback(.success, trigger: viewModel.isCompleted)
+            .sensoryFeedback(.success, trigger: viewModel.state.isCompleted)
             .padding(.horizontal, 20)
             .padding(.bottom, 24)
         }

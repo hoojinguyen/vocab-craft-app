@@ -153,6 +153,11 @@ public struct VocabularyView: View {
                 }
             )
         }
+        .task {
+            if vm.wordItems.isEmpty && !vm.isLoading {
+                await vm.loadWords()
+            }
+        }
     }
 
     private func segmentedTabButton(title: String, tabIndex: Int) -> some View {

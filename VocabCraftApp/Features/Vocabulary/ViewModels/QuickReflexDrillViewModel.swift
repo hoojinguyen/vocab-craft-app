@@ -1,11 +1,7 @@
 import Foundation
 import Observation
 
-@MainActor
-@Observable
-public final class QuickReflexDrillViewModel {
-    public let targetWord: WordItem
-    public let allWords: [WordItem]
+public struct QuickReflexDrillState: Equatable, Sendable {
     public var steps: [QuickDrillStep] = []
     public var currentStepIndex: Int = 0
     public var elapsedTimeMs: Int = 0
@@ -20,7 +16,6 @@ public final class QuickReflexDrillViewModel {
     public var stepMaxSeconds: Double = 5.0
     public var isSpeedBonus: Bool = false
     public var totalSpeedBonusCount: Int = 0
-    private var stepStartTime: Date?
 
     // Real-time Mic & Speech State (Hold-to-Talk)
     public var isMicActive: Bool = false
@@ -32,15 +27,28 @@ public final class QuickReflexDrillViewModel {
     public var isStepCorrect: Bool = false
     public var selectedOption: String? = nil
 
-    private let ttsService: TextToSpeechProtocol
-    private let sttService: SpeechRecognitionProtocol
-    private let evaluateSRSUseCase: EvaluateSRSUseCaseProtocol?
+    public init() {}
+}
+
+@MainActor
+@Observable
+public final class QuickReflexDrillViewModel {
+    public let targetWord: WordItem
+    public let allWords: [WordItem]
+    public var state = QuickReflexDrillState()
+    
+    // Internal Tracking State (Not UI bound)
+    private var stepStartTime: Date?
     private var startTime: Date?
     private var timerTask: Task<Void, Never>?
     private var autoAdvanceTask: Task<Void, Never>?
 
-    public var isListening: Bool { isMicActive || sttService.isListening }
-    public var recognizedText: String { recordedSpokenText }
+    private let ttsService: TextToSpeechProtocol
+    private let sttService: SpeechRecognitionProtocol
+    private let evaluateSRSUseCase: EvaluateSRSUseCaseProtocol?
+
+    public var isListening: Bool { state.isMicActive || sttService.isListening }
+    public var recognizedText: String { state.recordedSpokenText }
 
     public init(
         targetWord: WordItem,
@@ -106,13 +114,13 @@ public final class QuickReflexDrillViewModel {
             targetText: targetWord.exampleSentenceEn
         )
 
-        self.steps = [step1, step2, step3]
+        self.state.steps = [step1, step2, step3]
     }
 
     public func startTimer() {
         startTime = Date()
         stepStartTime = Date()
-        stepRemainingSeconds = stepMaxSeconds
+        state.stepRemainingSeconds = state.stepMaxSeconds
         timerTask?.cancel()
 
         timerTask = Task { [weak self] in
@@ -120,60 +128,60 @@ public final class QuickReflexDrillViewModel {
                 try? await Task.sleep(for: .milliseconds(100))
                 guard let self = self, let start = self.startTime else { break }
                 
-                self.elapsedTimeMs = Int(Date().timeIntervalSince(start) * 1000)
+                self.state.elapsedTimeMs = Int(Date().timeIntervalSince(start) * 1000)
 
                 // Per-step countdown tick
-                if !self.isStepEvaluated, let stepStart = self.stepStartTime {
+                if !self.state.isStepEvaluated, let stepStart = self.stepStartTime {
                     let elapsedStep = Date().timeIntervalSince(stepStart)
-                    let rem = max(0, self.stepMaxSeconds - elapsedStep)
-                    self.stepRemainingSeconds = rem
+                    let rem = max(0, self.state.stepMaxSeconds - elapsedStep)
+                    self.state.stepRemainingSeconds = rem
                 }
             }
         }
     }
 
     public func speakTargetSentence() {
-        guard currentStepIndex < steps.count else { return }
-        ttsService.speak(text: steps[currentStepIndex].targetText)
+        guard state.currentStepIndex < state.steps.count else { return }
+        ttsService.speak(text: state.steps[state.currentStepIndex].targetText)
     }
 
     // MARK: - Hold-to-Talk Speech Recognition Methods
 
     public func startRecording() {
-        guard !isMicActive && !isStepEvaluated else { return }
+        guard !state.isMicActive && !state.isStepEvaluated else { return }
         ttsService.stop()
-        errorMessage = nil
-        isMicActive = true
-        recordedSpokenText = ""
+        state.errorMessage = nil
+        state.isMicActive = true
+        state.recordedSpokenText = ""
 
         sttService.startListening(
             onResult: { [weak self] text in
                 guard let self = self else { return }
-                self.recordedSpokenText = text
+                self.state.recordedSpokenText = text
             },
             onError: { [weak self] error in
                 guard let self = self else { return }
-                self.isMicActive = false
+                self.state.isMicActive = false
                 let errDesc = error.localizedDescription
-                self.errorMessage = "Không thể thu âm: \(errDesc). Vui lòng kiểm tra quyền Micro."
+                self.state.errorMessage = "Không thể thu âm: \(errDesc). Vui lòng kiểm tra quyền Micro."
             }
         )
     }
 
     public func stopRecordingAndEvaluate() {
-        guard isMicActive else { return }
-        isMicActive = false
+        guard state.isMicActive else { return }
+        state.isMicActive = false
         sttService.stopListening()
 
-        if !recordedSpokenText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            submitAnswer(recordedSpokenText)
+        if !state.recordedSpokenText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            submitAnswer(state.recordedSpokenText)
         } else {
-            errorMessage = "Chưa nghe thấy câu trả lời. Hãy nhấn giữ mic và đọc câu mẫu."
+            state.errorMessage = "Chưa nghe thấy câu trả lời. Hãy nhấn giữ mic và đọc câu mẫu."
         }
     }
 
     public func handleMicTap() {
-        if isMicActive {
+        if state.isMicActive {
             stopRecordingAndEvaluate()
         } else {
             startRecording()
@@ -183,24 +191,24 @@ public final class QuickReflexDrillViewModel {
     // MARK: - Answer Submission & Fast Auto-Advance
 
     public func submitAnswer(_ answer: String) {
-        guard currentStepIndex < steps.count, !isStepEvaluated else { return }
+        guard state.currentStepIndex < state.steps.count, !state.isStepEvaluated else { return }
         autoAdvanceTask?.cancel()
 
-        let currentStep = steps[currentStepIndex]
+        let currentStep = state.steps[state.currentStepIndex]
         let correct = isAnswerMatching(userText: answer, targetText: currentStep.targetText)
 
-        self.selectedOption = answer
-        self.isStepEvaluated = true
-        self.isStepCorrect = correct
+        self.state.selectedOption = answer
+        self.state.isStepEvaluated = true
+        self.state.isStepCorrect = correct
 
         if correct {
-            stepSuccessCount += 1
+            state.stepSuccessCount += 1
             // Check speed bonus (< 2.5s)
             if let stepStart = stepStartTime {
                 let duration = Date().timeIntervalSince(stepStart)
                 if duration <= 2.5 {
-                    isSpeedBonus = true
-                    totalSpeedBonusCount += 1
+                    state.isSpeedBonus = true
+                    state.totalSpeedBonusCount += 1
                 }
             }
         }
@@ -215,17 +223,17 @@ public final class QuickReflexDrillViewModel {
 
     public func nextStep() {
         autoAdvanceTask?.cancel()
-        isStepEvaluated = false
-        isStepCorrect = false
-        isSpeedBonus = false
-        selectedOption = nil
-        recordedSpokenText = ""
-        errorMessage = nil
+        state.isStepEvaluated = false
+        state.isStepCorrect = false
+        state.isSpeedBonus = false
+        state.selectedOption = nil
+        state.recordedSpokenText = ""
+        state.errorMessage = nil
 
-        if currentStepIndex + 1 < steps.count {
-            currentStepIndex += 1
+        if state.currentStepIndex + 1 < state.steps.count {
+            state.currentStepIndex += 1
             stepStartTime = Date()
-            stepRemainingSeconds = stepMaxSeconds
+            state.stepRemainingSeconds = state.stepMaxSeconds
         } else {
             finishDrill()
         }
@@ -233,13 +241,13 @@ public final class QuickReflexDrillViewModel {
 
     public func finishDrill() {
         timerTask?.cancel()
-        if isMicActive {
+        if state.isMicActive {
             sttService.stopListening()
-            isMicActive = false
+            state.isMicActive = false
         }
         
-        let allCorrect = stepSuccessCount == steps.count
-        let avgTimeMs = steps.isEmpty ? 2000 : elapsedTimeMs / steps.count
+        let allCorrect = state.stepSuccessCount == state.steps.count
+        let avgTimeMs = state.steps.isEmpty ? 2000 : state.elapsedTimeMs / state.steps.count
 
         let result: SRSResult
         if let useCase = evaluateSRSUseCase {
@@ -258,10 +266,10 @@ public final class QuickReflexDrillViewModel {
             )
         }
 
-        self.srsResult = result
-        self.isCorrect = allCorrect
-        self.triggerSparkle = allCorrect
-        self.isCompleted = true
+        self.state.srsResult = result
+        self.state.isCorrect = allCorrect
+        self.state.triggerSparkle = allCorrect
+        self.state.isCompleted = true
     }
 
     private func isAnswerMatching(userText: String, targetText: String) -> Bool {
