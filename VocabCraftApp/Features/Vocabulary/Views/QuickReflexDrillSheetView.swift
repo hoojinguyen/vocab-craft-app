@@ -9,9 +9,18 @@ public struct QuickReflexDrillSheetView: View {
     public init(
         targetWord: WordItem,
         allWords: [WordItem],
+        ttsService: TextToSpeechProtocol? = nil,
+        sttService: SpeechRecognitionProtocol? = nil,
+        evaluateSRSUseCase: EvaluateSRSUseCaseProtocol? = nil,
         onComplete: @escaping (Int) -> Void
     ) {
-        self._viewModel = State(initialValue: QuickReflexDrillViewModel(targetWord: targetWord, allWords: allWords))
+        self._viewModel = State(initialValue: QuickReflexDrillViewModel(
+            targetWord: targetWord,
+            allWords: allWords,
+            ttsService: ttsService,
+            sttService: sttService,
+            evaluateSRSUseCase: evaluateSRSUseCase
+        ))
         self.onComplete = onComplete
     }
 

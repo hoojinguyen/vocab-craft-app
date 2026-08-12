@@ -1,15 +1,19 @@
 import SwiftUI
 
 public struct VocabularyView: View {
-    @State private var vm = VocabularyViewModel()
-    @Environment(\.ttsService) private var ttsServiceEnv
-    private var ttsService: TextToSpeechProtocol {
-        ttsServiceEnv ?? TextToSpeechService()
-    }
-    private let filterOptions = ["Tất cả", "Cần ôn ⚡", "Đã thuộc ⭐5", "A1-A2", "B1-B2", "C1-C2"]
+    @State private var vm: VocabularyViewModel
+    @Environment(\.appContainer) private var appContainer
+    private let filterOptions = VocabularyFilter.allCases
 
     @MainActor
-    public init() {}
+    public init(viewModel: VocabularyViewModel? = nil) {
+        self._vm = State(initialValue: viewModel ?? VocabularyViewModel())
+    }
+
+    /// Resolved TTS service: from ViewModel injection, environment, or fallback.
+    private var ttsService: TextToSpeechProtocol {
+        vm.ttsService ?? appContainer?.ttsService ?? TextToSpeechService()
+    }
 
     public var body: some View {
         @Bindable var bindableVM = vm
@@ -139,6 +143,9 @@ public struct VocabularyView: View {
             QuickReflexDrillSheetView(
                 targetWord: targetWord,
                 allWords: vm.wordItems,
+                ttsService: appContainer?.ttsService,
+                sttService: appContainer?.sttService,
+                evaluateSRSUseCase: appContainer?.evaluateSRSUseCase,
                 onComplete: { updatedMastery in
                     if let idx = vm.wordItems.firstIndex(where: { $0.id == targetWord.id }) {
                         vm.wordItems[idx].masteryLevel = updatedMastery
@@ -167,14 +174,14 @@ public struct VocabularyView: View {
         .sensoryFeedback(.selection, trigger: vm.selectedTab)
     }
 
-    private func filterPill(_ title: String) -> some View {
-        let isSelected = vm.selectedFilter == title
-        let count = vm.filterCount(for: title)
-        let displayTitle = "\(title) (\(count))"
+    private func filterPill(_ filter: VocabularyFilter) -> some View {
+        let isSelected = vm.selectedFilter == filter
+        let count = vm.filterCount(for: filter)
+        let displayTitle = "\(filter.rawValue) (\(count))"
 
         return Button(action: {
             withAnimation(.spring(response: 0.25, dampingFraction: 0.75)) {
-                vm.selectedFilter = title
+                vm.selectedFilter = filter
             }
         }) {
             Text(displayTitle)
