@@ -1,6 +1,6 @@
 import Foundation
 
-public protocol FetchVocabularyUseCaseProtocol: Sendable {
+public protocol FetchVocabularyUseCaseProtocol: AnyObject {
     func executeFetchWords(limit: Int) async throws -> [Word]
     func executeSearch(query: String) async throws -> [Word]
     func executeFetchDrills(cefrLevel: String) async throws -> [ReflexDrillRecord]

@@ -8,8 +8,9 @@ public struct SubmitResult: Sendable {
     public let isSessionFinished: Bool
 }
 
+@MainActor
 @Observable
-public final class SubTopicSessionEngine: @unchecked Sendable {
+public final class SubTopicSessionEngine {
     public private(set) var activeWords: [TopicWord]
     public private(set) var initialWords: [TopicWord]
     public private(set) var currentIndex: Int = 0

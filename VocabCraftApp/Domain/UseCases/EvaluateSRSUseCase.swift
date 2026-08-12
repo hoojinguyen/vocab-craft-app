@@ -1,7 +1,7 @@
 import Foundation
 
 /// Business UseCase for computing SRS intervals and updating user mastery.
-public protocol EvaluateSRSUseCaseProtocol: Sendable {
+public protocol EvaluateSRSUseCaseProtocol: AnyObject {
     func evaluateResponse(
         currentMastery: Int,
         easeFactor: Double,
@@ -17,9 +17,9 @@ public protocol EvaluateSRSUseCaseProtocol: Sendable {
 }
 
 public final class EvaluateSRSUseCase: EvaluateSRSUseCaseProtocol {
-    private let srsRepository: SRSRepositoryProtocol?
+    private let srsRepository: SRSRepositoryProtocol
 
-    public init(srsRepository: SRSRepositoryProtocol? = nil) {
+    public init(srsRepository: SRSRepositoryProtocol) {
         self.srsRepository = srsRepository
     }
 
@@ -42,7 +42,7 @@ public final class EvaluateSRSUseCase: EvaluateSRSUseCaseProtocol {
         isCorrect: Bool,
         responseTimeMs: Int
     ) async throws -> SRSResult {
-        let currentProgress = try await srsRepository?.getProgress(wordId: wordId)
+        let currentProgress = try await srsRepository.getProgress(wordId: wordId)
             ?? SRSProgressItem(wordId: wordId)
 
         let result = evaluateResponse(
@@ -65,7 +65,7 @@ public final class EvaluateSRSUseCase: EvaluateSRSUseCaseProtocol {
             totalReviews: currentProgress.totalReviews + 1
         )
 
-        try await srsRepository?.saveProgress(updatedProgress)
+        try await srsRepository.saveProgress(updatedProgress)
         return result
     }
 }

@@ -1,5 +1,6 @@
 import Foundation
 
+@MainActor
 public final class VocabularyRepositoryImpl: VocabularyRepositoryProtocol {
     private let datasetEngine: DatasetEngine?
 

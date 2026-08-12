@@ -1,8 +1,9 @@
 import SwiftUI
 import Foundation
 
+@MainActor
 @Observable
-public final class UserSettingsStore: @unchecked Sendable {
+public final class UserSettingsStore {
     public var dailyGoalCount: Int {
         didSet {
             UserDefaults.standard.set(dailyGoalCount, forKey: "daily_goal_count")

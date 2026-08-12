@@ -1,7 +1,8 @@
 import Foundation
 import SQLite3
 
-public final class DatasetEngine: @unchecked Sendable {
+@MainActor
+public final class DatasetEngine {
     private var db: OpaquePointer?
 
     public init?(dbPath: String? = Bundle.main.path(forResource: "english_dataset", ofType: "db")) {
