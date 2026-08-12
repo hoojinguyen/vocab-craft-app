@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0.0",
+  "created_at": "2026-08-12T17:25:37.817033+00:00",
+  "type": "compilation-diagnostics",
+  "build": {
+    "entrypoint": "project",
+    "path": "VocabCraftApp.xcodeproj",
+    "scheme": "VocabCraftApp",
+    "configuration": "Debug",
+    "destination": "platform=iOS Simulator,name=iPhone 17"
+  },
+  "threshold_ms": 100,
+  "build_duration_seconds": 10.278,
+  "build_success": true,
+  "raw_log_path": ".build-benchmark/20260812T172526Z-vocabcraftapp-diagnostics.log",
+  "warnings": [
+    {
+      "file": "/Users/hoojinguyen/Projects/vocab-craft-app/VocabCraftApp/Features/Homepage/Views/SuggestedWordsCardView.swift",
+      "line": 67,
+      "column": 18,
+      "duration_ms": 118,
+      "kind": "function-body",
+      "name": "suggestedCard(for:)"
+    }
+  ],
+  "summary": {
+    "total_warnings": 1,
+    "function_body_warnings": 1,
+    "expression_warnings": 0,
+    "slowest_ms": 118
+  }
+}

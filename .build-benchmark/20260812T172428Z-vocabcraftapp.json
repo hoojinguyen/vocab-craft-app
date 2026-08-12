@@ -1,0 +1,620 @@
+{
+  "schema_version": "1.1.0",
+  "created_at": "2026-08-12T17:25:21.640045+00:00",
+  "build": {
+    "entrypoint": "project",
+    "path": "VocabCraftApp.xcodeproj",
+    "scheme": "VocabCraftApp",
+    "configuration": "Debug",
+    "destination": "platform=iOS Simulator,name=iPhone 17",
+    "derived_data_path": "",
+    "command": "xcodebuild -project VocabCraftApp.xcodeproj -scheme VocabCraftApp -configuration Debug -destination \"platform=iOS Simulator,name=iPhone 17\""
+  },
+  "environment": {
+    "host": "Hoojis-Mac-mini.local",
+    "macos_version": "macOS-26.6.1-arm64-arm-64bit-Mach-O",
+    "xcode_version": "Xcode 26.6\nBuild version 17F113",
+    "cwd": "/Users/hoojinguyen/Projects/vocab-craft-app"
+  },
+  "runs": {
+    "clean": [
+      {
+        "id": "clean-1",
+        "build_type": "clean",
+        "duration_seconds": 10.557,
+        "success": true,
+        "exit_code": 0,
+        "command": "xcodebuild -project VocabCraftApp.xcodeproj -scheme VocabCraftApp -configuration Debug -destination \"platform=iOS Simulator,name=iPhone 17\" build -showBuildTimingSummary",
+        "raw_log_path": ".build-benchmark/20260812T172428Z-vocabcraftapp-clean-1.log",
+        "timing_summary_categories": [
+          {
+            "name": "SwiftCompile",
+            "seconds": 60.665,
+            "task_count": 40
+          },
+          {
+            "name": "SwiftEmitModule",
+            "seconds": 2.974,
+            "task_count": 4
+          },
+          {
+            "name": "SwiftDriver",
+            "seconds": 1.516,
+            "task_count": 4
+          },
+          {
+            "name": "Ld",
+            "seconds": 0.989,
+            "task_count": 4
+          },
+          {
+            "name": "ValidateEmbeddedBinary",
+            "seconds": 0.347,
+            "task_count": 1
+          },
+          {
+            "name": "GenerateDSYMFile",
+            "seconds": 0.227,
+            "task_count": 2
+          },
+          {
+            "name": "ExtractAppIntentsMetadata",
+            "seconds": 0.044,
+            "task_count": 2
+          },
+          {
+            "name": "AppIntentsSSUTraining",
+            "seconds": 0.042,
+            "task_count": 2
+          },
+          {
+            "name": "CodeSign",
+            "seconds": 0.039,
+            "task_count": 2
+          },
+          {
+            "name": "Copy",
+            "seconds": 0.038,
+            "task_count": 17
+          },
+          {
+            "name": "CompileXCStrings",
+            "seconds": 0.033,
+            "task_count": 1
+          },
+          {
+            "name": "CopySwiftLibs",
+            "seconds": 0.02,
+            "task_count": 1
+          },
+          {
+            "name": "ProcessProductPackagingDER",
+            "seconds": 0.017,
+            "task_count": 4
+          },
+          {
+            "name": "RegisterExecutionPolicyException",
+            "seconds": 0.014,
+            "task_count": 2
+          },
+          {
+            "name": "CreateUniversalBinary",
+            "seconds": 0.008,
+            "task_count": 2
+          },
+          {
+            "name": "ProcessInfoPlistFile",
+            "seconds": 0.008,
+            "task_count": 2
+          },
+          {
+            "name": "Touch",
+            "seconds": 0.006,
+            "task_count": 2
+          },
+          {
+            "name": "WriteAuxiliaryFile",
+            "seconds": 0.005,
+            "task_count": 38
+          },
+          {
+            "name": "SwiftDriver Compilation Requirements",
+            "seconds": 0.004,
+            "task_count": 4
+          },
+          {
+            "name": "SwiftDriver Compilation",
+            "seconds": 0.004,
+            "task_count": 4
+          },
+          {
+            "name": "CopyStringsFile",
+            "seconds": 0.004,
+            "task_count": 2
+          },
+          {
+            "name": "ProcessProductPackaging",
+            "seconds": 0.002,
+            "task_count": 4
+          },
+          {
+            "name": "SwiftMergeGeneratedHeaders",
+            "seconds": 0.001,
+            "task_count": 2
+          },
+          {
+            "name": "Validate",
+            "seconds": 0.0,
+            "task_count": 1
+          }
+        ]
+      },
+      {
+        "id": "clean-2",
+        "build_type": "clean",
+        "duration_seconds": 10.13,
+        "success": true,
+        "exit_code": 0,
+        "command": "xcodebuild -project VocabCraftApp.xcodeproj -scheme VocabCraftApp -configuration Debug -destination \"platform=iOS Simulator,name=iPhone 17\" build -showBuildTimingSummary",
+        "raw_log_path": ".build-benchmark/20260812T172428Z-vocabcraftapp-clean-2.log",
+        "timing_summary_categories": [
+          {
+            "name": "SwiftCompile",
+            "seconds": 59.158,
+            "task_count": 40
+          },
+          {
+            "name": "SwiftEmitModule",
+            "seconds": 3.096,
+            "task_count": 4
+          },
+          {
+            "name": "SwiftDriver",
+            "seconds": 1.505,
+            "task_count": 4
+          },
+          {
+            "name": "Ld",
+            "seconds": 0.983,
+            "task_count": 4
+          },
+          {
+            "name": "ValidateEmbeddedBinary",
+            "seconds": 0.339,
+            "task_count": 1
+          },
+          {
+            "name": "GenerateDSYMFile",
+            "seconds": 0.232,
+            "task_count": 2
+          },
+          {
+            "name": "ExtractAppIntentsMetadata",
+            "seconds": 0.043,
+            "task_count": 2
+          },
+          {
+            "name": "Copy",
+            "seconds": 0.041,
+            "task_count": 17
+          },
+          {
+            "name": "CodeSign",
+            "seconds": 0.037,
+            "task_count": 2
+          },
+          {
+            "name": "CompileXCStrings",
+            "seconds": 0.032,
+            "task_count": 1
+          },
+          {
+            "name": "AppIntentsSSUTraining",
+            "seconds": 0.032,
+            "task_count": 2
+          },
+          {
+            "name": "ProcessProductPackagingDER",
+            "seconds": 0.02,
+            "task_count": 4
+          },
+          {
+            "name": "CopySwiftLibs",
+            "seconds": 0.02,
+            "task_count": 1
+          },
+          {
+            "name": "RegisterExecutionPolicyException",
+            "seconds": 0.013,
+            "task_count": 2
+          },
+          {
+            "name": "ProcessInfoPlistFile",
+            "seconds": 0.008,
+            "task_count": 2
+          },
+          {
+            "name": "CopyStringsFile",
+            "seconds": 0.008,
+            "task_count": 2
+          },
+          {
+            "name": "WriteAuxiliaryFile",
+            "seconds": 0.007,
+            "task_count": 38
+          },
+          {
+            "name": "CreateUniversalBinary",
+            "seconds": 0.007,
+            "task_count": 2
+          },
+          {
+            "name": "SwiftDriver Compilation Requirements",
+            "seconds": 0.005,
+            "task_count": 4
+          },
+          {
+            "name": "Touch",
+            "seconds": 0.005,
+            "task_count": 2
+          },
+          {
+            "name": "SwiftDriver Compilation",
+            "seconds": 0.005,
+            "task_count": 4
+          },
+          {
+            "name": "ProcessProductPackaging",
+            "seconds": 0.003,
+            "task_count": 4
+          },
+          {
+            "name": "SwiftMergeGeneratedHeaders",
+            "seconds": 0.001,
+            "task_count": 2
+          },
+          {
+            "name": "Validate",
+            "seconds": 0.0,
+            "task_count": 1
+          }
+        ]
+      },
+      {
+        "id": "clean-3",
+        "build_type": "clean",
+        "duration_seconds": 10.211,
+        "success": true,
+        "exit_code": 0,
+        "command": "xcodebuild -project VocabCraftApp.xcodeproj -scheme VocabCraftApp -configuration Debug -destination \"platform=iOS Simulator,name=iPhone 17\" build -showBuildTimingSummary",
+        "raw_log_path": ".build-benchmark/20260812T172428Z-vocabcraftapp-clean-3.log",
+        "timing_summary_categories": [
+          {
+            "name": "SwiftCompile",
+            "seconds": 56.453,
+            "task_count": 40
+          },
+          {
+            "name": "SwiftEmitModule",
+            "seconds": 3.265,
+            "task_count": 4
+          },
+          {
+            "name": "SwiftDriver",
+            "seconds": 1.483,
+            "task_count": 4
+          },
+          {
+            "name": "Ld",
+            "seconds": 1.025,
+            "task_count": 4
+          },
+          {
+            "name": "ValidateEmbeddedBinary",
+            "seconds": 0.353,
+            "task_count": 1
+          },
+          {
+            "name": "GenerateDSYMFile",
+            "seconds": 0.213,
+            "task_count": 2
+          },
+          {
+            "name": "ExtractAppIntentsMetadata",
+            "seconds": 0.045,
+            "task_count": 2
+          },
+          {
+            "name": "CodeSign",
+            "seconds": 0.036,
+            "task_count": 2
+          },
+          {
+            "name": "Copy",
+            "seconds": 0.033,
+            "task_count": 17
+          },
+          {
+            "name": "AppIntentsSSUTraining",
+            "seconds": 0.033,
+            "task_count": 2
+          },
+          {
+            "name": "CompileXCStrings",
+            "seconds": 0.032,
+            "task_count": 1
+          },
+          {
+            "name": "ProcessProductPackagingDER",
+            "seconds": 0.02,
+            "task_count": 4
+          },
+          {
+            "name": "CopySwiftLibs",
+            "seconds": 0.02,
+            "task_count": 1
+          },
+          {
+            "name": "RegisterExecutionPolicyException",
+            "seconds": 0.013,
+            "task_count": 2
+          },
+          {
+            "name": "CreateUniversalBinary",
+            "seconds": 0.01,
+            "task_count": 2
+          },
+          {
+            "name": "CopyStringsFile",
+            "seconds": 0.008,
+            "task_count": 2
+          },
+          {
+            "name": "ProcessInfoPlistFile",
+            "seconds": 0.007,
+            "task_count": 2
+          },
+          {
+            "name": "WriteAuxiliaryFile",
+            "seconds": 0.006,
+            "task_count": 38
+          },
+          {
+            "name": "SwiftDriver Compilation Requirements",
+            "seconds": 0.005,
+            "task_count": 4
+          },
+          {
+            "name": "SwiftDriver Compilation",
+            "seconds": 0.004,
+            "task_count": 4
+          },
+          {
+            "name": "Touch",
+            "seconds": 0.004,
+            "task_count": 2
+          },
+          {
+            "name": "ProcessProductPackaging",
+            "seconds": 0.002,
+            "task_count": 4
+          },
+          {
+            "name": "SwiftMergeGeneratedHeaders",
+            "seconds": 0.001,
+            "task_count": 2
+          },
+          {
+            "name": "Validate",
+            "seconds": 0.0,
+            "task_count": 1
+          }
+        ]
+      }
+    ],
+    "incremental": [
+      {
+        "id": "incremental-1",
+        "build_type": "incremental",
+        "duration_seconds": 2.555,
+        "success": true,
+        "exit_code": 0,
+        "command": "xcodebuild -project VocabCraftApp.xcodeproj -scheme VocabCraftApp -configuration Debug -destination \"platform=iOS Simulator,name=iPhone 17\" build -showBuildTimingSummary",
+        "raw_log_path": ".build-benchmark/20260812T172428Z-vocabcraftapp-incremental-1.log",
+        "timing_summary_categories": [
+          {
+            "name": "SwiftEmitModule",
+            "seconds": 1.706,
+            "task_count": 2
+          },
+          {
+            "name": "SwiftDriver",
+            "seconds": 1.035,
+            "task_count": 2
+          },
+          {
+            "name": "SwiftCompile",
+            "seconds": 0.843,
+            "task_count": 2
+          },
+          {
+            "name": "ValidateEmbeddedBinary",
+            "seconds": 0.351,
+            "task_count": 1
+          },
+          {
+            "name": "SwiftDriver Compilation",
+            "seconds": 0.023,
+            "task_count": 2
+          },
+          {
+            "name": "CodeSign",
+            "seconds": 0.019,
+            "task_count": 1
+          },
+          {
+            "name": "ExtractAppIntentsMetadata",
+            "seconds": 0.012,
+            "task_count": 1
+          },
+          {
+            "name": "Copy",
+            "seconds": 0.009,
+            "task_count": 5
+          },
+          {
+            "name": "CopySwiftLibs",
+            "seconds": 0.008,
+            "task_count": 1
+          },
+          {
+            "name": "ProcessInfoPlistFile",
+            "seconds": 0.004,
+            "task_count": 1
+          },
+          {
+            "name": "SwiftDriver Compilation Requirements",
+            "seconds": 0.001,
+            "task_count": 2
+          },
+          {
+            "name": "Validate",
+            "seconds": 0.0,
+            "task_count": 1
+          }
+        ]
+      },
+      {
+        "id": "incremental-2",
+        "build_type": "incremental",
+        "duration_seconds": 1.783,
+        "success": true,
+        "exit_code": 0,
+        "command": "xcodebuild -project VocabCraftApp.xcodeproj -scheme VocabCraftApp -configuration Debug -destination \"platform=iOS Simulator,name=iPhone 17\" build -showBuildTimingSummary",
+        "raw_log_path": ".build-benchmark/20260812T172428Z-vocabcraftapp-incremental-2.log",
+        "timing_summary_categories": [
+          {
+            "name": "SwiftEmitModule",
+            "seconds": 1.183,
+            "task_count": 2
+          },
+          {
+            "name": "SwiftDriver",
+            "seconds": 0.793,
+            "task_count": 2
+          },
+          {
+            "name": "SwiftCompile",
+            "seconds": 0.344,
+            "task_count": 2
+          },
+          {
+            "name": "SwiftDriver Compilation",
+            "seconds": 0.03,
+            "task_count": 2
+          },
+          {
+            "name": "CodeSign",
+            "seconds": 0.018,
+            "task_count": 1
+          },
+          {
+            "name": "ExtractAppIntentsMetadata",
+            "seconds": 0.011,
+            "task_count": 1
+          },
+          {
+            "name": "Copy",
+            "seconds": 0.005,
+            "task_count": 4
+          },
+          {
+            "name": "SwiftDriver Compilation Requirements",
+            "seconds": 0.002,
+            "task_count": 2
+          },
+          {
+            "name": "Validate",
+            "seconds": 0.0,
+            "task_count": 1
+          }
+        ]
+      },
+      {
+        "id": "incremental-3",
+        "build_type": "incremental",
+        "duration_seconds": 1.883,
+        "success": true,
+        "exit_code": 0,
+        "command": "xcodebuild -project VocabCraftApp.xcodeproj -scheme VocabCraftApp -configuration Debug -destination \"platform=iOS Simulator,name=iPhone 17\" build -showBuildTimingSummary",
+        "raw_log_path": ".build-benchmark/20260812T172428Z-vocabcraftapp-incremental-3.log",
+        "timing_summary_categories": [
+          {
+            "name": "SwiftEmitModule",
+            "seconds": 1.114,
+            "task_count": 2
+          },
+          {
+            "name": "SwiftDriver",
+            "seconds": 0.802,
+            "task_count": 2
+          },
+          {
+            "name": "SwiftCompile",
+            "seconds": 0.342,
+            "task_count": 2
+          },
+          {
+            "name": "SwiftDriver Compilation",
+            "seconds": 0.027,
+            "task_count": 2
+          },
+          {
+            "name": "CodeSign",
+            "seconds": 0.018,
+            "task_count": 1
+          },
+          {
+            "name": "ExtractAppIntentsMetadata",
+            "seconds": 0.011,
+            "task_count": 1
+          },
+          {
+            "name": "Copy",
+            "seconds": 0.005,
+            "task_count": 4
+          },
+          {
+            "name": "SwiftDriver Compilation Requirements",
+            "seconds": 0.001,
+            "task_count": 2
+          },
+          {
+            "name": "Validate",
+            "seconds": 0.0,
+            "task_count": 1
+          }
+        ]
+      }
+    ]
+  },
+  "summary": {
+    "clean": {
+      "count": 3,
+      "min_seconds": 10.13,
+      "max_seconds": 10.557,
+      "median_seconds": 10.211,
+      "average_seconds": 10.299
+    },
+    "incremental": {
+      "count": 3,
+      "min_seconds": 1.783,
+      "max_seconds": 2.555,
+      "median_seconds": 1.883,
+      "average_seconds": 2.074
+    }
+  },
+  "notes": [
+    "touch-file: VocabCraftApp/App/VocabCraftApp.swift"
+  ]
+}

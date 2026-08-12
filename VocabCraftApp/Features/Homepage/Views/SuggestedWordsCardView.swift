@@ -66,92 +66,9 @@ public struct SuggestedWordsCardView: View {
     @ViewBuilder
     private func suggestedCard(for word: SuggestedWord) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            // Top Row: CEFR Badge, POS tag & Action Buttons
-            HStack(alignment: .center) {
-                HStack(spacing: 6) {
-                    Text(word.cefrLevel)
-                        .font(.system(size: 11, weight: .bold, design: .rounded))
-                        .foregroundColor(cefrColor(for: word.cefrLevel))
-                        .padding(.horizontal, 7)
-                        .padding(.vertical, 3)
-                        .background(cefrColor(for: word.cefrLevel).opacity(0.15))
-                        .clipShape(Capsule())
-
-                    Text(word.pos)
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(Color.vocabMuted)
-                        .italic()
-                }
-
-                Spacer()
-
-                HStack(spacing: 8) {
-                    // Audio Speaker Button
-                    let isPlayingThisWord = playingWordId == word.id
-                    Button(action: {
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            playingWordId = word.id
-                        }
-                        onSpeakTap?(word)
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                            if playingWordId == word.id {
-                                playingWordId = nil
-                            }
-                        }
-                    }) {
-                        Image(systemName: isPlayingThisWord ? "speaker.wave.3.fill" : "speaker.wave.2.fill")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(isPlayingThisWord ? Color.vocabMint : Color.vocabInk)
-                            .frame(width: 36, height: 36)
-                            .background(isPlayingThisWord ? Color.vocabMint.opacity(0.18) : Color.vocabSurfaceSoft)
-                            .clipShape(Circle())
-                            .contentShape(Circle())
-                    }
-                    .buttonStyle(BentoCardButtonStyle())
-
-                    // Bookmark Button
-                    Button(action: {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                            onBookmarkToggle(word.id)
-                        }
-                    }) {
-                        Image(systemName: word.isBookmarked ? "bookmark.fill" : "bookmark")
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(word.isBookmarked ? Color.vocabPeach : Color.vocabMuted)
-                            .frame(width: 36, height: 36)
-                            .background(word.isBookmarked ? Color.vocabPeach.opacity(0.15) : Color.vocabSurfaceSoft)
-                            .clipShape(Circle())
-                            .contentShape(Circle())
-                    }
-                    .buttonStyle(BentoCardButtonStyle())
-                }
-            }
-
-            // Word Lemma & Phonetics
-            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text(word.lemma)
-                    .font(.system(size: 22, weight: .bold, design: .serif))
-                    .foregroundColor(Color.vocabInk)
-
-                Text(word.ipaUs)
-                    .font(.system(size: 13, weight: .medium, design: .rounded))
-                    .foregroundColor(Color.vocabMuted)
-            }
-
-            // Vietnamese Definition Only
-            Text(word.definitionVi)
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(Color.vocabInk)
-                .lineLimit(2)
-
-            // Simple Unboxed Example Sentence
-            if !word.example.isEmpty {
-                Text("Ex: “\(word.example)”")
-                    .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(Color.vocabMuted)
-                    .italic()
-                    .lineLimit(2)
-            }
+            cardHeader(for: word)
+            cardTitleRow(for: word)
+            cardContent(for: word)
         }
         .padding(14)
         .background(Color.vocabSurfaceCard)
@@ -162,6 +79,96 @@ public struct SuggestedWordsCardView: View {
         )
         .shadow(color: Color.black.opacity(0.03), radius: 6, x: 0, y: 2)
         .padding(.horizontal)
+    }
+
+    @ViewBuilder
+    private func cardHeader(for word: SuggestedWord) -> some View {
+        HStack(alignment: .center) {
+            HStack(spacing: 6) {
+                Text(word.cefrLevel)
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .foregroundColor(cefrColor(for: word.cefrLevel))
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 3)
+                    .background(cefrColor(for: word.cefrLevel).opacity(0.15))
+                    .clipShape(Capsule())
+
+                Text(word.pos)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(Color.vocabMuted)
+                    .italic()
+            }
+
+            Spacer()
+
+            HStack(spacing: 8) {
+                let isPlayingThisWord: Bool = (playingWordId == word.id)
+                Button(action: {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        playingWordId = word.id
+                    }
+                    onSpeakTap?(word)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                        if playingWordId == word.id {
+                            playingWordId = nil
+                        }
+                    }
+                }) {
+                    Image(systemName: isPlayingThisWord ? "speaker.wave.3.fill" : "speaker.wave.2.fill")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(isPlayingThisWord ? Color.vocabMint : Color.vocabInk)
+                        .frame(width: 36, height: 36)
+                        .background(isPlayingThisWord ? Color.vocabMint.opacity(0.18) : Color.vocabSurfaceSoft)
+                        .clipShape(Circle())
+                        .contentShape(Circle())
+                }
+                .buttonStyle(BentoCardButtonStyle())
+
+                Button(action: {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                        onBookmarkToggle(word.id)
+                    }
+                }) {
+                    Image(systemName: word.isBookmarked ? "bookmark.fill" : "bookmark")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(word.isBookmarked ? Color.vocabPeach : Color.vocabMuted)
+                        .frame(width: 36, height: 36)
+                        .background(word.isBookmarked ? Color.vocabPeach.opacity(0.15) : Color.vocabSurfaceSoft)
+                        .clipShape(Circle())
+                        .contentShape(Circle())
+                }
+                .buttonStyle(BentoCardButtonStyle())
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func cardTitleRow(for word: SuggestedWord) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Text(word.lemma)
+                .font(.system(size: 22, weight: .bold, design: .serif))
+                .foregroundColor(Color.vocabInk)
+
+            Text(word.ipaUs)
+                .font(.system(size: 13, weight: .medium, design: .rounded))
+                .foregroundColor(Color.vocabMuted)
+        }
+    }
+
+    @ViewBuilder
+    private func cardContent(for word: SuggestedWord) -> some View {
+        Text(word.definitionVi)
+            .font(.system(size: 13, weight: .semibold))
+            .foregroundColor(Color.vocabInk)
+            .lineLimit(2)
+
+        if !word.example.isEmpty {
+            Text("Ex: “\(word.example)”")
+                .font(.system(size: 12, weight: .regular))
+                .foregroundColor(Color.vocabMuted)
+                .italic()
+                .lineLimit(2)
+        }
     }
 
     private func cefrColor(for level: String) -> Color {
