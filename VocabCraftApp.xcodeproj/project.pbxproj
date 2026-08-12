@@ -77,14 +77,14 @@
 		399000072D50000000000001 /* Data/Repositories/VocabularyRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 299000072D50000000000001 /* Data/Repositories/VocabularyRepositoryImpl.swift */; };
 		399000082D50000000000001 /* Data/Repositories/SRSRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 299000082D50000000000001 /* Data/Repositories/SRSRepositoryImpl.swift */; };
 		399000092D50000000000001 /* App/DI/AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 299000092D50000000000001 /* App/DI/AppContainer.swift */; };
-		399000102D50000000000001 /* Presentation/Features/Homepage/ViewModels/HomepageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 299000102D50000000000001 /* Presentation/Features/Homepage/ViewModels/HomepageViewModel.swift */; };
-		399000112D50000000000001 /* Presentation/Features/ReflexDrill/ViewModels/ReflexDrillViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 299000112D50000000000001 /* Presentation/Features/ReflexDrill/ViewModels/ReflexDrillViewModel.swift */; };
-		399000122D50000000000001 /* Presentation/Features/Vocabulary/ViewModels/StudySessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 299000122D50000000000001 /* Presentation/Features/Vocabulary/ViewModels/StudySessionViewModel.swift */; };
+		399000102D50000000000001 /* Features/Homepage/ViewModels/HomepageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 299000102D50000000000001 /* Features/Homepage/ViewModels/HomepageViewModel.swift */; };
+		399000112D50000000000001 /* Features/ReflexDrill/ViewModels/ReflexDrillViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 299000112D50000000000001 /* Features/ReflexDrill/ViewModels/ReflexDrillViewModel.swift */; };
+		399000122D50000000000001 /* Features/Vocabulary/ViewModels/StudySessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 299000122D50000000000001 /* Features/Vocabulary/ViewModels/StudySessionViewModel.swift */; };
 		399000132D50000000000001 /* EvaluateSRSUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 299000132D50000000000001 /* EvaluateSRSUseCaseTests.swift */; };
 		399000142D50000000000001 /* ReflexDrillViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 299000142D50000000000001 /* ReflexDrillViewModelTests.swift */; };
 		399000152D50000000000001 /* Domain/Models/QuickDrillStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 299000152D50000000000001 /* Domain/Models/QuickDrillStep.swift */; };
-		399000162D50000000000001 /* Presentation/Features/Vocabulary/ViewModels/QuickReflexDrillViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 299000162D50000000000001 /* Presentation/Features/Vocabulary/ViewModels/QuickReflexDrillViewModel.swift */; };
-		399000172D50000000000001 /* Presentation/Features/Vocabulary/Views/QuickReflexDrillSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 299000172D50000000000001 /* Presentation/Features/Vocabulary/Views/QuickReflexDrillSheetView.swift */; };
+		399000162D50000000000001 /* Features/Vocabulary/ViewModels/QuickReflexDrillViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 299000162D50000000000001 /* Features/Vocabulary/ViewModels/QuickReflexDrillViewModel.swift */; };
+		399000172D50000000000001 /* Features/Vocabulary/Views/QuickReflexDrillSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 299000172D50000000000001 /* Features/Vocabulary/Views/QuickReflexDrillSheetView.swift */; };
 		399000182D50000000000001 /* QuickDrillStepTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 299000182D50000000000001 /* QuickDrillStepTests.swift */; };
 		399000192D50000000000001 /* QuickReflexDrillViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 299000192D50000000000001 /* QuickReflexDrillViewModelTests.swift */; };
 		399000202D50000000000001 /* QuickReflexDrillSheetViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 299000202D50000000000001 /* QuickReflexDrillSheetViewTests.swift */; };
@@ -192,14 +192,14 @@
 		299000072D50000000000001 /* Data/Repositories/VocabularyRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data/Repositories/VocabularyRepositoryImpl.swift; sourceTree = "<group>"; };
 		299000082D50000000000001 /* Data/Repositories/SRSRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data/Repositories/SRSRepositoryImpl.swift; sourceTree = "<group>"; };
 		299000092D50000000000001 /* App/DI/AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/DI/AppContainer.swift; sourceTree = "<group>"; };
-		299000102D50000000000001 /* Presentation/Features/Homepage/ViewModels/HomepageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Features/Homepage/ViewModels/HomepageViewModel.swift; sourceTree = "<group>"; };
-		299000112D50000000000001 /* Presentation/Features/ReflexDrill/ViewModels/ReflexDrillViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Features/ReflexDrill/ViewModels/ReflexDrillViewModel.swift; sourceTree = "<group>"; };
-		299000122D50000000000001 /* Presentation/Features/Vocabulary/ViewModels/StudySessionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Features/Vocabulary/ViewModels/StudySessionViewModel.swift; sourceTree = "<group>"; };
+		299000102D50000000000001 /* Features/Homepage/ViewModels/HomepageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Features/Homepage/ViewModels/HomepageViewModel.swift; sourceTree = "<group>"; };
+		299000112D50000000000001 /* Features/ReflexDrill/ViewModels/ReflexDrillViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Features/ReflexDrill/ViewModels/ReflexDrillViewModel.swift; sourceTree = "<group>"; };
+		299000122D50000000000001 /* Features/Vocabulary/ViewModels/StudySessionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Features/Vocabulary/ViewModels/StudySessionViewModel.swift; sourceTree = "<group>"; };
 		299000132D50000000000001 /* EvaluateSRSUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvaluateSRSUseCaseTests.swift; sourceTree = "<group>"; };
 		299000142D50000000000001 /* ReflexDrillViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReflexDrillViewModelTests.swift; sourceTree = "<group>"; };
 		299000152D50000000000001 /* Domain/Models/QuickDrillStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Domain/Models/QuickDrillStep.swift; sourceTree = "<group>"; };
-		299000162D50000000000001 /* Presentation/Features/Vocabulary/ViewModels/QuickReflexDrillViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Features/Vocabulary/ViewModels/QuickReflexDrillViewModel.swift; sourceTree = "<group>"; };
-		299000172D50000000000001 /* Presentation/Features/Vocabulary/Views/QuickReflexDrillSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation/Features/Vocabulary/Views/QuickReflexDrillSheetView.swift; sourceTree = "<group>"; };
+		299000162D50000000000001 /* Features/Vocabulary/ViewModels/QuickReflexDrillViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Features/Vocabulary/ViewModels/QuickReflexDrillViewModel.swift; sourceTree = "<group>"; };
+		299000172D50000000000001 /* Features/Vocabulary/Views/QuickReflexDrillSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Features/Vocabulary/Views/QuickReflexDrillSheetView.swift; sourceTree = "<group>"; };
 		299000182D50000000000001 /* QuickDrillStepTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickDrillStepTests.swift; sourceTree = "<group>"; };
 		299000192D50000000000001 /* QuickReflexDrillViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickReflexDrillViewModelTests.swift; sourceTree = "<group>"; };
 		299000202D50000000000001 /* QuickReflexDrillSheetViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickReflexDrillSheetViewTests.swift; sourceTree = "<group>"; };
@@ -254,12 +254,12 @@
 				299000072D50000000000001 /* Data/Repositories/VocabularyRepositoryImpl.swift */,
 				299000082D50000000000001 /* Data/Repositories/SRSRepositoryImpl.swift */,
 				299000092D50000000000001 /* App/DI/AppContainer.swift */,
-				299000102D50000000000001 /* Presentation/Features/Homepage/ViewModels/HomepageViewModel.swift */,
-				299000112D50000000000001 /* Presentation/Features/ReflexDrill/ViewModels/ReflexDrillViewModel.swift */,
-				299000122D50000000000001 /* Presentation/Features/Vocabulary/ViewModels/StudySessionViewModel.swift */,
+				299000102D50000000000001 /* Features/Homepage/ViewModels/HomepageViewModel.swift */,
+				299000112D50000000000001 /* Features/ReflexDrill/ViewModels/ReflexDrillViewModel.swift */,
+				299000122D50000000000001 /* Features/Vocabulary/ViewModels/StudySessionViewModel.swift */,
 				299000152D50000000000001 /* Domain/Models/QuickDrillStep.swift */,
-				299000162D50000000000001 /* Presentation/Features/Vocabulary/ViewModels/QuickReflexDrillViewModel.swift */,
-				299000172D50000000000001 /* Presentation/Features/Vocabulary/Views/QuickReflexDrillSheetView.swift */,
+				299000162D50000000000001 /* Features/Vocabulary/ViewModels/QuickReflexDrillViewModel.swift */,
+				299000172D50000000000001 /* Features/Vocabulary/Views/QuickReflexDrillSheetView.swift */,
 				400000022D50000000000000 /* App */,
 				400000032D50000000000000 /* Core */,
 				400000042D50000000000000 /* Features */,
@@ -624,12 +624,12 @@
 				399000072D50000000000001 /* Data/Repositories/VocabularyRepositoryImpl.swift in Sources */,
 				399000082D50000000000001 /* Data/Repositories/SRSRepositoryImpl.swift in Sources */,
 				399000092D50000000000001 /* App/DI/AppContainer.swift in Sources */,
-				399000102D50000000000001 /* Presentation/Features/Homepage/ViewModels/HomepageViewModel.swift in Sources */,
-				399000112D50000000000001 /* Presentation/Features/ReflexDrill/ViewModels/ReflexDrillViewModel.swift in Sources */,
-				399000122D50000000000001 /* Presentation/Features/Vocabulary/ViewModels/StudySessionViewModel.swift in Sources */,
+				399000102D50000000000001 /* Features/Homepage/ViewModels/HomepageViewModel.swift in Sources */,
+				399000112D50000000000001 /* Features/ReflexDrill/ViewModels/ReflexDrillViewModel.swift in Sources */,
+				399000122D50000000000001 /* Features/Vocabulary/ViewModels/StudySessionViewModel.swift in Sources */,
 				399000152D50000000000001 /* Domain/Models/QuickDrillStep.swift in Sources */,
-				399000162D50000000000001 /* Presentation/Features/Vocabulary/ViewModels/QuickReflexDrillViewModel.swift in Sources */,
-				399000172D50000000000001 /* Presentation/Features/Vocabulary/Views/QuickReflexDrillSheetView.swift in Sources */,
+				399000162D50000000000001 /* Features/Vocabulary/ViewModels/QuickReflexDrillViewModel.swift in Sources */,
+				399000172D50000000000001 /* Features/Vocabulary/Views/QuickReflexDrillSheetView.swift in Sources */,
 				300000012D50000000000001 /* VocabCraftApp.swift in Sources */,
 				300000022D50000000000001 /* DatasetEngine.swift in Sources */,
 				300000032D50000000000001 /* DatasetModels.swift in Sources */,
