@@ -551,18 +551,6 @@ public struct ReflexDrillView: View {
         self.onDismiss = onDismiss
     }
 
-    @MainActor
-    public init(datasetEngine: DatasetEngine? = nil, cefrLevel: String = "B1", onDismiss: (() -> Void)? = nil) {
-        let repo = VocabularyRepositoryImpl(datasetEngine: datasetEngine)
-        let fetchUseCase = FetchVocabularyUseCase(repository: repo)
-        let vm = ReflexDrillViewModel(
-            fetchVocabularyUseCase: fetchUseCase,
-            cefrLevel: cefrLevel
-        )
-        self._viewModel = State(initialValue: vm)
-        self.onDismiss = onDismiss
-    }
-
     public var body: some View {
         ZStack {
             Color.vocabCanvas

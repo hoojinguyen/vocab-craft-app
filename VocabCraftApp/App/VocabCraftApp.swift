@@ -29,6 +29,8 @@ struct VocabCraftApp: App {
     var body: some Scene {
         WindowGroup {
             HomepageView(viewModel: appContainer.makeHomepageViewModel())
+                .environment(\.appContainer, appContainer)
+                .environment(\.ttsService, appContainer.ttsService)
         }
         .modelContainer(container)
     }

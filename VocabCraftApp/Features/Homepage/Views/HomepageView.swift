@@ -3,6 +3,7 @@ import SwiftUI
 /// Integrated Homepage view showcasing Bento grid layout, dark mode aesthetic, and liquid glass navigation.
 public struct HomepageView: View {
     @State private var viewModel: HomepageViewModel
+    @Environment(\.appContainer) private var appContainer
 
     @MainActor
     public init(viewModel: HomepageViewModel) {
@@ -100,11 +101,15 @@ public struct HomepageView: View {
             case .search:
                 SearchNewWordView()
             case .reflex:
-                ReflexDrillView(onDismiss: {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
-                        viewModel.selectTab(.home)
-                    }
-                })
+                if let appContainer = appContainer {
+                    ReflexDrillView(viewModel: appContainer.makeReflexDrillViewModel(), onDismiss: {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                            viewModel.selectTab(.home)
+                        }
+                    })
+                } else {
+                    Text("AppContainer is missing")
+                }
             case .settings:
                 SettingsView(viewModel: viewModel.settingsViewModel)
             }
