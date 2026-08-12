@@ -6,12 +6,12 @@ public struct HomepageView: View {
 
     @MainActor
     public init(viewModel: HomepageViewModel) {
-        self._viewModel = State(wrappedValue: viewModel)
+        self._viewModel = State(initialValue: viewModel)
     }
 
     @MainActor
     public init(ttsService: TextToSpeechProtocol? = nil) {
-        self._viewModel = State(wrappedValue: HomepageViewModel(ttsService: ttsService))
+        self._viewModel = State(initialValue: HomepageViewModel(ttsService: ttsService))
     }
 
     @MainActor
@@ -34,12 +34,10 @@ public struct HomepageView: View {
             retentionPercentage: retentionPercentage,
             unreadNotifications: unreadNotifications
         )
-        self._viewModel = State(wrappedValue: HomepageViewModel(initialState: state, ttsService: ttsService))
+        self._viewModel = State(initialValue: HomepageViewModel(initialState: state, ttsService: ttsService))
     }
 
     public var body: some View {
-        @Bindable var viewModel = viewModel
-
         ZStack(alignment: .bottom) {
             Color.vocabCanvas
                 .ignoresSafeArea()

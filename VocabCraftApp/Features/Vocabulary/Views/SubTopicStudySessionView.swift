@@ -17,7 +17,7 @@ public struct SubTopicStudySessionView: View {
         self.onDismiss = onDismiss
         self.onComplete = onComplete
         let wordsToUse = node.words.isEmpty ? SubTopicStudySessionView.sampleWords : node.words
-        self._viewModel = State(wrappedValue: StudySessionViewModel(words: wordsToUse))
+        self._viewModel = State(initialValue: StudySessionViewModel(words: wordsToUse))
     }
 
     public var body: some View {

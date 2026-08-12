@@ -6,7 +6,8 @@ import SwiftUI
 final class VocabularyViewTests: XCTestCase {
     func testVocabularyViewInitializationAndTabSwitch() {
         let view = VocabularyView()
-        XCTAssertNotNil(view.body)
+        let host = UIHostingController(rootView: view)
+        XCTAssertNotNil(host.view)
     }
 
     func testTopicDeckSelectionNavigation() {
@@ -14,7 +15,8 @@ final class VocabularyViewTests: XCTestCase {
         let gridView = TopicDecksGridView(onDeckSelected: { deckId in
             selectedDeck = deckId
         })
-        XCTAssertNotNil(gridView.body)
+        let host = UIHostingController(rootView: gridView)
+        XCTAssertNotNil(host.view)
 
         // Trigger deck selection callback
         gridView.onDeckSelected("deck-123")

@@ -547,7 +547,7 @@ public struct ReflexDrillView: View {
 
     @MainActor
     public init(viewModel: ReflexDrillViewModel, onDismiss: (() -> Void)? = nil) {
-        self._viewModel = State(wrappedValue: viewModel)
+        self._viewModel = State(initialValue: viewModel)
         self.onDismiss = onDismiss
     }
 
@@ -559,7 +559,7 @@ public struct ReflexDrillView: View {
             fetchVocabularyUseCase: fetchUseCase,
             cefrLevel: cefrLevel
         )
-        self._viewModel = State(wrappedValue: vm)
+        self._viewModel = State(initialValue: vm)
         self.onDismiss = onDismiss
     }
 
