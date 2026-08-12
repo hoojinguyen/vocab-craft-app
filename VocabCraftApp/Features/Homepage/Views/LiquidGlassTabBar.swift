@@ -82,10 +82,10 @@ public struct LiquidGlassTabBar: View {
                 ZStack {
                     if isSearchSelected {
                         Circle()
-                            .fill(Color.vocabMint.opacity(0.16))
+                            .fill(Color.vocabInk.opacity(0.07))
                             .overlay(
                                 Circle()
-                                    .stroke(Color.vocabMint.opacity(0.4), lineWidth: 1)
+                                    .stroke(Color.white.opacity(0.35), lineWidth: 0.8)
                             )
                     }
 
@@ -159,20 +159,20 @@ public struct LiquidGlassTabBar: View {
                         if isSelected {
                             if #available(iOS 26, macOS 26, *) {
                                 Capsule()
-                                    .fill(Color.vocabMint.opacity(0.14))
-                                    .glassEffect(.regular.tint(Color.vocabMint.opacity(0.2)).interactive(), in: Capsule())
+                                    .fill(Color.vocabInk.opacity(0.07))
+                                    .glassEffect(.regular.interactive(), in: Capsule())
                                     .glassEffectID("activeTabPill", in: animationNamespace)
                                     .glassEffectTransition(.matchedGeometry)
                             } else {
                                 Capsule()
-                                    .fill(Color.vocabMint.opacity(0.14))
+                                    .fill(Color.vocabInk.opacity(0.07))
                                     .overlay(
                                         Capsule()
                                             .stroke(
                                                 LinearGradient(
                                                     colors: [
-                                                        Color.vocabMint.opacity(0.35),
-                                                        Color.vocabMint.opacity(0.1)
+                                                        Color.white.opacity(0.35),
+                                                        Color.white.opacity(0.08)
                                                     ],
                                                     startPoint: .topLeading,
                                                     endPoint: .bottomTrailing
