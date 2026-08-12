@@ -79,24 +79,13 @@ public struct LiquidGlassTabBar: View {
                     selectedTab = .search
                 }
             }) {
-                ZStack {
-                    if isSearchSelected {
-                        Circle()
-                            .fill(Color.vocabInk.opacity(0.07))
-                            .overlay(
-                                Circle()
-                                    .stroke(Color.white.opacity(0.35), lineWidth: 0.8)
-                            )
-                    }
-
-                    Image(systemName: TabItem.search.symbol)
-                        .font(.system(size: 20, weight: isSearchSelected ? .bold : .medium))
-                        .foregroundColor(isSearchSelected ? Color.vocabMint : Color.vocabInk)
-                        .scaleEffect(isSearchSelected ? 1.15 : 1.0)
-                        .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isSearchSelected)
-                }
-                .frame(width: 52, height: 52)
-                .contentShape(Circle())
+                Image(systemName: TabItem.search.symbol)
+                    .font(.system(size: 20, weight: isSearchSelected ? .bold : .medium))
+                    .foregroundColor(isSearchSelected ? Color.vocabMint : Color.vocabInk)
+                    .scaleEffect(isSearchSelected ? 1.15 : 1.0)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isSearchSelected)
+                    .frame(width: 52, height: 52)
+                    .contentShape(Circle())
             }
             .buttonStyle(.plain)
             .background(
