@@ -18,7 +18,7 @@ final class VocabularyViewModelTests: XCTestCase {
     
     func test_filteredWords_emptySearchAndAllFilter_returnsAllWords() {
         sut.searchText = ""
-        sut.selectedFilter = "Tất cả"
+        sut.selectedFilter = .all
         
         let result = sut.filteredWords
         
@@ -26,9 +26,8 @@ final class VocabularyViewModelTests: XCTestCase {
     }
     
     func test_filteredWords_withSearchText_returnsMatchingWords() {
-        // Find a word from mockData, e.g., "resilience"
         sut.searchText = "resilience"
-        sut.selectedFilter = "Tất cả"
+        sut.selectedFilter = .all
         
         let result = sut.filteredWords
         
@@ -38,7 +37,7 @@ final class VocabularyViewModelTests: XCTestCase {
     
     func test_filteredWords_withFilter_returnsCorrectWords() {
         sut.searchText = ""
-        sut.selectedFilter = "Cần ôn ⚡"
+        sut.selectedFilter = .needsReview
         
         let result = sut.filteredWords
         
@@ -50,7 +49,7 @@ final class VocabularyViewModelTests: XCTestCase {
         let totalCount = sut.wordItems.count
         let needsReviewCount = sut.wordItems.filter { $0.masteryLevel < 3 }.count
         
-        XCTAssertEqual(sut.filterCount(for: "Tất cả"), totalCount)
-        XCTAssertEqual(sut.filterCount(for: "Cần ôn ⚡"), needsReviewCount)
+        XCTAssertEqual(sut.filterCount(for: .all), totalCount)
+        XCTAssertEqual(sut.filterCount(for: .needsReview), needsReviewCount)
     }
 }

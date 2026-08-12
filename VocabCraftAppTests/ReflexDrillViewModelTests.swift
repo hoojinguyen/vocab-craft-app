@@ -43,19 +43,46 @@ final class MockTextToSpeechService: TextToSpeechProtocol {
     }
 }
 
+// MARK: - Mock Use Cases
+
+final class MockFetchVocabularyUseCase: FetchVocabularyUseCaseProtocol {
+    func executeFetchWords(limit: Int) async throws -> [Word] { [] }
+    func executeSearch(query: String) async throws -> [Word] { [] }
+    func executeFetchDrills(cefrLevel: String) async throws -> [ReflexDrillRecord] { [] }
+}
+
+final class MockEvaluateSRSUseCase: EvaluateSRSUseCaseProtocol {
+    func evaluateResponse(currentMastery: Int, easeFactor: Double, isCorrect: Bool, responseTimeMs: Int) -> SRSResult {
+        SRSResult(
+            nextMastery: isCorrect ? currentMastery + 1 : max(0, currentMastery - 1),
+            easeFactor: isCorrect ? easeFactor + 0.1 : max(1.3, easeFactor - 0.2),
+            intervalDays: isCorrect ? max(1, currentMastery + 1) : 1
+        )
+    }
+    func recordReview(wordId: Int64, isCorrect: Bool, responseTimeMs: Int) async throws -> SRSResult {
+        evaluateResponse(currentMastery: 0, easeFactor: 2.5, isCorrect: isCorrect, responseTimeMs: responseTimeMs)
+    }
+}
+
 // MARK: - ViewModel Unit Tests
 
 @MainActor
 final class ReflexDrillViewModelTests: XCTestCase {
     private var mockSTT: MockSpeechRecognitionService!
     private var mockTTS: MockTextToSpeechService!
+    private var mockFetchUseCase: MockFetchVocabularyUseCase!
+    private var mockSRSUseCase: MockEvaluateSRSUseCase!
     private var viewModel: ReflexDrillViewModel!
 
     override func setUp() {
         super.setUp()
         mockSTT = MockSpeechRecognitionService()
         mockTTS = MockTextToSpeechService()
+        mockFetchUseCase = MockFetchVocabularyUseCase()
+        mockSRSUseCase = MockEvaluateSRSUseCase()
         viewModel = ReflexDrillViewModel(
+            fetchVocabularyUseCase: mockFetchUseCase,
+            evaluateSRSUseCase: mockSRSUseCase,
             ttsService: mockTTS,
             sttService: mockSTT,
             cefrLevel: "B1"
@@ -66,6 +93,8 @@ final class ReflexDrillViewModelTests: XCTestCase {
         viewModel = nil
         mockSTT = nil
         mockTTS = nil
+        mockFetchUseCase = nil
+        mockSRSUseCase = nil
         super.tearDown()
     }
 

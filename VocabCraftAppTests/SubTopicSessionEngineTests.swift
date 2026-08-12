@@ -1,6 +1,7 @@
 import XCTest
 @testable import VocabCraftApp
 
+@MainActor
 final class SubTopicSessionEngineTests: XCTestCase {
     func testEngineInitializationAndScoring() {
         let words = [

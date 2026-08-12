@@ -2,6 +2,7 @@ import XCTest
 import SQLite3
 @testable import VocabCraftApp
 
+@MainActor
 final class DatasetEngineTests: XCTestCase {
     
     var testDbPath: String!
