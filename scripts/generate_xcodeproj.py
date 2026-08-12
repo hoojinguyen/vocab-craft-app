@@ -62,11 +62,6 @@ def generate_pbxproj():
             pbx_build_files.append(f'\t\t{build_id} /* {filename} in Widget Sources */ = {{isa = PBXBuildFile; fileRef = {ref_id} /* {filename} */; }};')
             widget_sources_build_files.append(f'\t\t\t\t{build_id} /* {filename} in Widget Sources */,')
 
-            # Also add to App sources (except @main bundle) so main App and Tests (via @testable import) have access
-            if filename != "VocabWidgetBundle.swift":
-                app_build_id = generate_id("3002", path + "_app")
-                pbx_build_files.append(f'\t\t{app_build_id} /* {filename} in App Sources */ = {{isa = PBXBuildFile; fileRef = {ref_id} /* {filename} */; }};')
-                app_sources_build_files.append(f'\t\t\t\t{app_build_id} /* {filename} in App Sources */,')
 
 
     # Process Widget Shared Files
