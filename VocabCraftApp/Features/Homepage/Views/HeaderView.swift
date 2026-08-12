@@ -72,13 +72,11 @@ public struct HeaderView: View {
                     .foregroundColor(Color.vocabInk)
                 
                 HStack(spacing: 4) {
-                    Text("Mục tiêu:")
+                    Text("\(AppStrings.Homepage.dailyGoal):")
                         .foregroundColor(Color.vocabMuted)
                     Text("\(Int(dailyGoalProgress * 100))%")
                         .fontWeight(.bold)
                         .foregroundColor(Color.vocabMint)
-                    Text("hôm nay")
-                        .foregroundColor(Color.vocabMuted)
                 }
                 .font(.system(size: 13, weight: .medium))
             }

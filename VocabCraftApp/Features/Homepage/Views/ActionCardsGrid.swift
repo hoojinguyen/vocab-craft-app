@@ -39,7 +39,7 @@ public struct ActionCardsGrid: View {
                         HStack(spacing: 4) {
                             Image(systemName: "bolt.fill")
                                 .font(.system(size: 10, weight: .bold))
-                            Text("THỬ THÁCH")
+                            Text(AppStrings.Homepage.reflexTitle)
                                 .font(.caption.smallCaps())
                                 .fontWeight(.bold)
                         }
@@ -57,10 +57,10 @@ public struct ActionCardsGrid: View {
                     }
 
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Luyện Phản Xạ")
+                        Text(AppStrings.Homepage.reflexTitle)
                             .font(.system(size: 16, weight: .bold))
                             .foregroundColor(Color.vocabInk)
-                        Text("Rèn phản xạ tốc độ")
+                        Text(AppStrings.Homepage.practiceNow)
                             .font(.system(size: 12, weight: .medium))
                             .foregroundColor(Color.vocabMuted)
                     }
@@ -88,7 +88,7 @@ public struct ActionCardsGrid: View {
                         HStack(spacing: 4) {
                             Image(systemName: "rectangle.stack.fill")
                                 .font(.system(size: 10, weight: .bold))
-                            Text("\(dueCardsCount) THẺ BÀI")
+                            Text("\(dueCardsCount) \(AppStrings.Common.wordUnit.uppercased())")
                                 .font(.caption.smallCaps())
                                 .fontWeight(.bold)
                                 .monospacedDigit()
@@ -107,10 +107,10 @@ public struct ActionCardsGrid: View {
                     }
 
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Hàng Đợi SRS")
+                        Text(AppStrings.Homepage.vocabLibraryTitle)
                             .font(.system(size: 16, weight: .bold))
                             .foregroundColor(Color.vocabInk)
-                        Text("Cần hoàn thành hôm nay")
+                        Text(AppStrings.Homepage.dueCardsSubtitle(dueCardsCount))
                             .font(.system(size: 12, weight: .medium))
                             .foregroundColor(Color.vocabMuted)
                     }

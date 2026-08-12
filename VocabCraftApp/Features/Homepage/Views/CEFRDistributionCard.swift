@@ -39,13 +39,13 @@ public struct CEFRDistributionCard: View {
             // Header with Detail link
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("PHÂN BỔ TRÌNH ĐỘ CEFR")
+                    Text(AppStrings.Homepage.cefrTitle)
                         .font(.caption.smallCaps())
                         .fontWeight(.bold)
                         .foregroundColor(Color.vocabMuted)
                         .tracking(0.5)
 
-                    Text("Tiến trình năng lực từ vựng")
+                    Text("CEFR")
                         .font(.system(size: 16, weight: .bold))
                         .foregroundColor(Color.vocabInk)
                 }
@@ -55,7 +55,7 @@ public struct CEFRDistributionCard: View {
                 if let onDetailTap = onDetailTap {
                     Button(action: onDetailTap) {
                         HStack(spacing: 2) {
-                            Text("Chi tiết")
+                            Text(AppStrings.Common.viewDetails)
                                 .font(.system(size: 12, weight: .semibold))
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 12, weight: .semibold))

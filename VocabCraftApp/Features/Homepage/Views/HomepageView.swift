@@ -104,5 +104,6 @@ public struct HomepageView: View {
             }
         }
         .preferredColorScheme(appContainer?.userSettingsStore.colorScheme)
+        .environment(\.locale, appContainer?.userSettingsStore.appLocale ?? .autoupdatingCurrent)
     }
 }

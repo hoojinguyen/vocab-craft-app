@@ -25,10 +25,10 @@ public struct SearchNewWordView: View {
                     // Header Title
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Tra cứu từ mới 🔍")
+                            Text("\(AppStrings.Tabs.search) 🔍")
                                 .font(.system(size: 24, weight: .bold))
                                 .foregroundColor(Color.vocabInk)
-                            Text("Khám phá định nghĩa, ngữ cảnh & thẻ bài SRS")
+                            Text(AppStrings.Homepage.searchPlaceholder)
                                 .font(.system(size: 13, weight: .medium))
                                 .foregroundColor(Color.vocabMuted)
                         }
@@ -43,7 +43,7 @@ public struct SearchNewWordView: View {
                             .font(.system(size: 16, weight: .medium))
                             .foregroundColor(Color.vocabMuted)
 
-                        TextField("Nhập từ tiếng Anh hoặc ngữ cảnh...", text: $searchText)
+                        TextField(AppStrings.Homepage.searchPlaceholder, text: $searchText)
                             .font(.system(size: 15, weight: .medium))
                             .foregroundColor(Color.vocabInk)
                             .focused($isSearchFocused)

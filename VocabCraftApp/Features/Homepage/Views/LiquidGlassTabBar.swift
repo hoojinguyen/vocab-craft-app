@@ -11,11 +11,11 @@ public enum TabItem: Int, CaseIterable, Identifiable {
 
     public var title: String {
         switch self {
-        case .home: return "Trang chủ"
-        case .vocabulary: return "Từ vựng"
-        case .search: return "Tra từ"
-        case .reflex: return "Phản xạ"
-        case .settings: return "Cài đặt"
+        case .home: return AppStrings.Tabs.home
+        case .vocabulary: return AppStrings.Tabs.vocabulary
+        case .search: return AppStrings.Tabs.search
+        case .reflex: return AppStrings.Tabs.reflex
+        case .settings: return AppStrings.Tabs.settings
         }
     }
 

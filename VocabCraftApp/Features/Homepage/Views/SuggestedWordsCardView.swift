@@ -25,7 +25,7 @@ public struct SuggestedWordsCardView: View {
         VStack(spacing: 8) {
             // Combined Single-line Header: Section Title & Minimalist Page Indicator Dots
             HStack {
-                Text("GỢI Ý TỪ MỚI")
+                Text(AppStrings.Homepage.suggestedWordsTitle)
                     .font(.system(size: 12, weight: .bold))
                     .foregroundColor(Color.vocabMuted)
                     .tracking(0.5)

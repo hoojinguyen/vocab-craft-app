@@ -12,18 +12,18 @@ public struct SRSMemoryHeroCard: View {
     public var body: some View {
         HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 6) {
-                Text("TRÍ NHỚ DÀI HẠN (SRS)")
+                Text(AppStrings.Homepage.srsHeader)
                     .font(.caption.smallCaps())
                     .fontWeight(.bold)
                     .foregroundColor(Color.vocabMint)
                     .tracking(0.5)
 
-                Text("\(totalWords) từ")
+                Text("\(totalWords) \(AppStrings.Common.wordUnit)")
                     .font(.system(size: 28, weight: .bold, design: .rounded))
                     .monospacedDigit()
                     .foregroundColor(Color.vocabInk)
 
-                Text("\(Int(retentionPercentage * 100))% từ đã đi vào bộ nhớ bền vững")
+                Text(AppStrings.Homepage.srsRetentionMessage(Int(retentionPercentage * 100)))
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(Color.vocabMuted)
             }
