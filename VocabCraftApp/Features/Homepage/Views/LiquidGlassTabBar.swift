@@ -3,9 +3,9 @@ import SwiftUI
 public enum TabItem: Int, CaseIterable, Identifiable {
     case home = 0
     case vocabulary = 1
+    case search = 4 // Center Hero FAB
     case reflex = 2
     case settings = 3
-    case search = 4
 
     public var id: Int { rawValue }
 
@@ -13,9 +13,9 @@ public enum TabItem: Int, CaseIterable, Identifiable {
         switch self {
         case .home: return "Trang chủ"
         case .vocabulary: return "Từ vựng"
+        case .search: return "Tra từ"
         case .reflex: return "Phản xạ"
         case .settings: return "Cài đặt"
-        case .search: return "Tra từ"
         }
     }
 
@@ -23,9 +23,9 @@ public enum TabItem: Int, CaseIterable, Identifiable {
         switch self {
         case .home: return "house.fill"
         case .vocabulary: return "book.fill"
+        case .search: return "magnifyingglass"
         case .reflex: return "bolt.fill"
         case .settings: return "gearshape.fill"
-        case .search: return "magnifyingglass"
         }
     }
 }
@@ -39,6 +39,14 @@ struct LiquidGlassTabButtonStyle: ButtonStyle {
     }
 }
 
+struct CenterHeroButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.90 : 1.0)
+            .animation(.spring(response: 0.2, dampingFraction: 0.6), value: configuration.isPressed)
+    }
+}
+
 public struct LiquidGlassTabBar: View {
     @Binding public var selectedTab: TabItem
     @Namespace private var animationNamespace
@@ -48,34 +56,40 @@ public struct LiquidGlassTabBar: View {
         self._selectedTab = selectedTab
     }
 
+    private var leftTabs: [TabItem] { [.home, .vocabulary] }
+    private var rightTabs: [TabItem] { [.reflex, .settings] }
+
     public var body: some View {
-        Group {
-            if #available(iOS 26, macOS 26, *) {
-                GlassEffectContainer(spacing: 0) {
-                    tabContent
-                        .glassEffect(.regular, in: Capsule())
+        ZStack(alignment: .center) {
+            // Main Dock Capsule Container
+            Group {
+                if #available(iOS 26, macOS 26, *) {
+                    GlassEffectContainer(spacing: 0) {
+                        dockContent
+                            .glassEffect(.regular, in: Capsule())
+                    }
+                } else {
+                    dockContent
+                        .background(
+                            Capsule()
+                                .fill(.thinMaterial)
+                                .overlay(
+                                    Capsule()
+                                        .stroke(
+                                            LinearGradient(
+                                                colors: [
+                                                    Color.white.opacity(0.6),
+                                                    Color.white.opacity(0.15)
+                                                ],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            ),
+                                            lineWidth: 1
+                                        )
+                                )
+                                .shadow(color: Color.black.opacity(0.08), radius: 16, x: 0, y: 6)
+                        )
                 }
-            } else {
-                tabContent
-                    .background(
-                        Capsule()
-                            .fill(.thinMaterial)
-                            .overlay(
-                                Capsule()
-                                    .stroke(
-                                        LinearGradient(
-                                            colors: [
-                                                Color.white.opacity(0.6),
-                                                Color.white.opacity(0.15)
-                                            ],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        ),
-                                        lineWidth: 1
-                                    )
-                            )
-                            .shadow(color: Color.black.opacity(0.08), radius: 16, x: 0, y: 6)
-                    )
             }
         }
         .padding(.horizontal, 16)
@@ -83,52 +97,118 @@ public struct LiquidGlassTabBar: View {
         .sensoryFeedback(.selection, trigger: selectedTab)
     }
 
-    private var tabContent: some View {
+    private var dockContent: some View {
         HStack(spacing: 0) {
-            ForEach(TabItem.allCases) { tab in
-                let isSelected = selectedTab == tab
-                Button(action: {
-                    let springAnimation = Animation.spring(response: 0.36, dampingFraction: 0.74)
-                    withAnimation(reduceMotion ? .none : springAnimation) {
-                        selectedTab = tab
-                    }
-                }) {
-                    VStack(spacing: 3) {
-                        Image(systemName: tab.symbol)
-                            .font(.system(size: 18, weight: isSelected ? .bold : .medium))
-                            .scaleEffect(isSelected ? (reduceMotion ? 1.0 : 1.12) : 1.0)
-                            .animation(.spring(response: 0.3, dampingFraction: 0.55), value: isSelected)
+            // Left 2 items: Trang chủ, Từ vựng
+            ForEach(leftTabs) { tab in
+                tabButton(for: tab)
+            }
 
-                        Text(tab.title)
-                            .font(.system(size: 10, weight: isSelected ? .bold : .medium, design: .rounded))
-                    }
-                    .foregroundColor(isSelected ? Color.vocabMint : Color.vocabMuted)
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 12)
-                    .frame(maxWidth: .infinity, minHeight: 52)
-                    .contentShape(Rectangle()) // CRITICAL: Makes entire tab column 100% tappable on real devices!
-                    .background {
-                        if isSelected {
-                            if #available(iOS 26, macOS 26, *) {
-                                Capsule()
-                                    .fill(Color.dynamic(light: Color.white.opacity(0.85), dark: Color.white.opacity(0.12)))
-                                    .glassEffect(.regular.interactive(), in: Capsule())
-                                    .glassEffectID("activeTabPill", in: animationNamespace)
-                                    .glassEffectTransition(.matchedGeometry)
-                            } else {
-                                Capsule()
-                                    .fill(Color.dynamic(light: Color.white.opacity(0.85), dark: Color.white.opacity(0.12)))
-                                    .shadow(color: Color.black.opacity(0.06), radius: 4, x: 0, y: 2)
-                                    .matchedGeometryEffect(id: "activeTabIndicator", in: animationNamespace)
-                            }
-                        }
-                    }
-                }
-                .buttonStyle(LiquidGlassTabButtonStyle())
+            // Center Hero Search Button
+            centerHeroButton
+
+            // Right 2 items: Phản xạ, Cài đặt
+            ForEach(rightTabs) { tab in
+                tabButton(for: tab)
             }
         }
         .padding(.vertical, 5)
         .padding(.horizontal, 6)
+    }
+
+    @ViewBuilder
+    private func tabButton(for tab: TabItem) -> some View {
+        let isSelected = selectedTab == tab
+        Button(action: {
+            let springAnimation = Animation.spring(response: 0.36, dampingFraction: 0.74)
+            withAnimation(reduceMotion ? .none : springAnimation) {
+                selectedTab = tab
+            }
+        }) {
+            VStack(spacing: 3) {
+                Image(systemName: tab.symbol)
+                    .font(.system(size: 18, weight: isSelected ? .bold : .medium))
+                    .scaleEffect(isSelected ? (reduceMotion ? 1.0 : 1.12) : 1.0)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.55), value: isSelected)
+
+                Text(tab.title)
+                    .font(.system(size: 10, weight: isSelected ? .bold : .medium, design: .rounded))
+            }
+            .foregroundColor(isSelected ? Color.vocabMint : Color.vocabMuted)
+            .padding(.vertical, 8)
+            .padding(.horizontal, 8)
+            .frame(maxWidth: .infinity, minHeight: 52)
+            .contentShape(Rectangle())
+            .background {
+                if isSelected {
+                    if #available(iOS 26, macOS 26, *) {
+                        Capsule()
+                            .fill(Color.dynamic(light: Color.white.opacity(0.85), dark: Color.white.opacity(0.12)))
+                            .glassEffect(.regular.interactive(), in: Capsule())
+                            .glassEffectID("activeTabPill", in: animationNamespace)
+                            .glassEffectTransition(.matchedGeometry)
+                    } else {
+                        Capsule()
+                            .fill(Color.dynamic(light: Color.white.opacity(0.85), dark: Color.white.opacity(0.12)))
+                            .shadow(color: Color.black.opacity(0.06), radius: 4, x: 0, y: 2)
+                            .matchedGeometryEffect(id: "activeTabIndicator", in: animationNamespace)
+                    }
+                }
+            }
+        }
+        .buttonStyle(LiquidGlassTabButtonStyle())
+    }
+
+    private var centerHeroButton: some View {
+        let isSelected = selectedTab == .search
+        return Button(action: {
+            let springAnimation = Animation.spring(response: 0.36, dampingFraction: 0.74)
+            withAnimation(reduceMotion ? .none : springAnimation) {
+                selectedTab = .search
+            }
+        }) {
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color.vocabMint,
+                                Color.vocabMint.opacity(0.88)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .shadow(
+                        color: Color.vocabMint.opacity(isSelected ? 0.5 : 0.3),
+                        radius: isSelected ? 12 : 8,
+                        x: 0,
+                        y: isSelected ? 6 : 4
+                    )
+                    .overlay(
+                        Circle()
+                            .stroke(
+                                LinearGradient(
+                                    colors: [.white.opacity(0.6), .white.opacity(0.1)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1.2
+                            )
+                    )
+
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundColor(.white)
+                    .scaleEffect(isSelected ? (reduceMotion ? 1.0 : 1.15) : 1.0)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.55), value: isSelected)
+            }
+            .frame(width: 48, height: 48)
+            .padding(.horizontal, 6)
+            .contentShape(Circle())
+        }
+        .buttonStyle(CenterHeroButtonStyle())
+        .offset(y: -4) // Elevated slightly above dock baseline
     }
 }
 
@@ -146,8 +226,3 @@ public struct LiquidGlassTabBar: View {
     }
     .preferredColorScheme(.dark)
 }
-
-
-
-
-
