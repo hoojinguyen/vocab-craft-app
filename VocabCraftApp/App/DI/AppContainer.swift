@@ -16,11 +16,14 @@ public final class AppContainer {
     public let fetchVocabularyUseCase: FetchVocabularyUseCaseProtocol
     public let evaluateSRSUseCase: EvaluateSRSUseCaseProtocol
 
+    public let userSettingsStore: UserSettingsStore
+
     public init(
         datasetEngine: DatasetEngine? = nil,
         modelContainer: ModelContainer? = nil,
         ttsService: TextToSpeechProtocol? = nil,
-        sttService: SpeechRecognitionProtocol? = nil
+        sttService: SpeechRecognitionProtocol? = nil,
+        userSettingsStore: UserSettingsStore? = nil
     ) {
         self.datasetEngine = datasetEngine
         self.modelContainer = modelContainer
@@ -36,6 +39,8 @@ public final class AppContainer {
         
         self.fetchVocabularyUseCase = FetchVocabularyUseCase(repository: vocabRepo)
         self.evaluateSRSUseCase = EvaluateSRSUseCase(srsRepository: srsRepo)
+
+        self.userSettingsStore = userSettingsStore ?? UserSettingsStore()
     }
 
     public func makeHomepageViewModel() -> HomepageViewModel {
@@ -55,6 +60,20 @@ public final class AppContainer {
     public func makeStudySessionViewModel(words: [TopicWord]) -> StudySessionViewModel {
         StudySessionViewModel(
             words: words,
+            ttsService: ttsService
+        )
+    }
+
+    public func makeSettingsViewModel() -> SettingsViewModel {
+        SettingsViewModel(
+            store: userSettingsStore,
+            ttsService: ttsService
+        )
+    }
+
+    public func makeVocabularyViewModel() -> VocabularyViewModel {
+        VocabularyViewModel(
+            fetchVocabularyUseCase: fetchVocabularyUseCase,
             ttsService: ttsService
         )
     }

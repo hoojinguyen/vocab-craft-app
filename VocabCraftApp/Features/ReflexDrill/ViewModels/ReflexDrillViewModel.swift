@@ -28,29 +28,30 @@ public struct ReflexDrillState: Equatable {
 public final class ReflexDrillViewModel {
     public var state: ReflexDrillState
     
-    private let fetchVocabularyUseCase: FetchVocabularyUseCaseProtocol?
-    private let evaluateSRSUseCase: EvaluateSRSUseCaseProtocol?
+    private let fetchVocabularyUseCase: FetchVocabularyUseCaseProtocol
+    private let evaluateSRSUseCase: EvaluateSRSUseCaseProtocol
     private let ttsService: TextToSpeechProtocol
     private let sttService: SpeechRecognitionProtocol
     
     private var timerTask: Task<Void, Never>?
+    private var loadTask: Task<Void, Never>?
 
     public var isListening: Bool { sttService.isListening }
     public var recognizedText: String { sttService.recognizedText }
     public var isSpeaking: Bool { ttsService.isSpeaking }
 
     public init(
-        fetchVocabularyUseCase: FetchVocabularyUseCaseProtocol? = nil,
-        evaluateSRSUseCase: EvaluateSRSUseCaseProtocol? = nil,
-        ttsService: TextToSpeechProtocol? = nil,
-        sttService: SpeechRecognitionProtocol? = nil,
+        fetchVocabularyUseCase: FetchVocabularyUseCaseProtocol,
+        evaluateSRSUseCase: EvaluateSRSUseCaseProtocol,
+        ttsService: TextToSpeechProtocol,
+        sttService: SpeechRecognitionProtocol,
         cefrLevel: String = "B1"
     ) {
         self.state = ReflexDrillState(cefrLevel: cefrLevel)
         self.fetchVocabularyUseCase = fetchVocabularyUseCase
         self.evaluateSRSUseCase = evaluateSRSUseCase
-        self.ttsService = ttsService ?? TextToSpeechService()
-        self.sttService = sttService ?? SpeechRecognitionService()
+        self.ttsService = ttsService
+        self.sttService = sttService
     }
 
     deinit {
@@ -61,14 +62,16 @@ public final class ReflexDrillViewModel {
     }
 
     public func loadDrills() {
-        Task {
+        loadTask?.cancel()
+        loadTask = Task {
             do {
-                if let useCase = fetchVocabularyUseCase {
-                    let drills = try await useCase.executeFetchDrills(cefrLevel: state.cefrLevel)
-                    self.state.drillsList = drills
-                    self.state.currentDrillIndex = 0
-                    self.state.drill = drills.first
-                }
+                let drills = try await fetchVocabularyUseCase.executeFetchDrills(cefrLevel: state.cefrLevel)
+                guard !Task.isCancelled else { return }
+                self.state.drillsList = drills
+                self.state.currentDrillIndex = 0
+                self.state.drill = drills.first
+            } catch is CancellationError {
+                return
             } catch {
                 print("[ReflexDrillViewModel] Failed to load drills: \(error.localizedDescription)")
                 self.state.errorMessage = "Không thể tải danh sách bài tập: \(error.localizedDescription)"
@@ -163,22 +166,12 @@ public final class ReflexDrillViewModel {
         guard let drill = state.drill else { return }
         let isCorrect = isCorrectAnswer(userText: answer, targetText: drill.correctAnswer)
 
-        let result: SRSResult
-        if let useCase = evaluateSRSUseCase {
-            result = useCase.evaluateResponse(
-                currentMastery: state.currentMastery,
-                easeFactor: state.easeFactor,
-                isCorrect: isCorrect,
-                responseTimeMs: state.elapsedTimeMs
-            )
-        } else {
-            result = SRSEngine.calculateNextInterval(
-                currentMastery: state.currentMastery,
-                easeFactor: state.easeFactor,
-                isCorrect: isCorrect,
-                responseTimeMs: state.elapsedTimeMs
-            )
-        }
+        let result = evaluateSRSUseCase.evaluateResponse(
+            currentMastery: state.currentMastery,
+            easeFactor: state.easeFactor,
+            isCorrect: isCorrect,
+            responseTimeMs: state.elapsedTimeMs
+        )
 
         state.currentMastery = result.nextMastery
         state.easeFactor = result.easeFactor

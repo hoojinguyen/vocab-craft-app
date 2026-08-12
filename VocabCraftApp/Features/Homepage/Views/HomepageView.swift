@@ -10,34 +10,6 @@ public struct HomepageView: View {
         self._viewModel = State(initialValue: viewModel)
     }
 
-    @MainActor
-    public init(ttsService: TextToSpeechProtocol? = nil) {
-        self._viewModel = State(initialValue: HomepageViewModel(ttsService: ttsService))
-    }
-
-    @MainActor
-    public init(
-        userName: String = "Hooji N.",
-        streakDays: Int = 14,
-        dailyGoalProgress: Double = 0.75,
-        dueCardsCount: Int = 24,
-        totalWords: Int = 1420,
-        retentionPercentage: Double = 0.85,
-        unreadNotifications: Bool = true,
-        ttsService: TextToSpeechProtocol? = nil
-    ) {
-        let state = HomepageState(
-            userName: userName,
-            streakDays: streakDays,
-            dailyGoalProgress: dailyGoalProgress,
-            dueCardsCount: dueCardsCount,
-            totalWords: totalWords,
-            retentionPercentage: retentionPercentage,
-            unreadNotifications: unreadNotifications
-        )
-        self._viewModel = State(initialValue: HomepageViewModel(initialState: state, ttsService: ttsService))
-    }
-
     public var body: some View {
         ZStack(alignment: .bottom) {
             Color.vocabCanvas
@@ -97,7 +69,11 @@ public struct HomepageView: View {
                     .padding(.top)
                 }
             case .vocabulary:
-                VocabularyView()
+                if let appContainer = appContainer {
+                    VocabularyView(viewModel: appContainer.makeVocabularyViewModel())
+                } else {
+                    VocabularyView()
+                }
             case .search:
                 SearchNewWordView()
             case .reflex:
@@ -111,7 +87,11 @@ public struct HomepageView: View {
                     Text("AppContainer is missing")
                 }
             case .settings:
-                SettingsView(viewModel: viewModel.settingsViewModel)
+                if let appContainer = appContainer {
+                    SettingsView(viewModel: appContainer.makeSettingsViewModel())
+                } else {
+                    Text("AppContainer is missing")
+                }
             }
 
             if viewModel.selectedTab != .reflex {
@@ -119,6 +99,6 @@ public struct HomepageView: View {
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
-        .preferredColorScheme(viewModel.settingsViewModel.store.colorScheme)
+        .preferredColorScheme(appContainer?.userSettingsStore.colorScheme)
     }
 }
