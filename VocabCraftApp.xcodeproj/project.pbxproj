@@ -37,6 +37,7 @@
 		300000422D50000000000001 /* VocabWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000422D50000000000000 /* VocabWidgetView.swift */; };
 		300000432D50000000000001 /* NextWordIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000432D50000000000000 /* NextWordIntent.swift */; };
 		300000442D50000000000001 /* MarkLearnedIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000442D50000000000000 /* MarkLearnedIntent.swift */; };
+		300000492D50000000000099 /* VocabWidgetBundle.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 200000492D50000000000099 /* VocabWidgetBundle.swift */; };
 		300000452D50000000000001 /* DatasetEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000022D50000000000000 /* DatasetEngine.swift */; };
 		300000462D50000000000001 /* SharedAppGroupContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000042D50000000000000 /* SharedAppGroupContainer.swift */; };
 		300000472D50000000000001 /* SwiftDataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000052D50000000000000 /* SwiftDataModels.swift */; };
@@ -155,6 +156,7 @@
 		200000422D50000000000000 /* VocabWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabWidgetView.swift; sourceTree = "<group>"; };
 		200000432D50000000000000 /* NextWordIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextWordIntent.swift; sourceTree = "<group>"; };
 		200000442D50000000000000 /* MarkLearnedIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkLearnedIntent.swift; sourceTree = "<group>"; };
+		200000492D50000000000099 /* VocabWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabCraftWidgetExtension/VocabWidgetBundle.swift; sourceTree = "<group>"; };
 		200000502D50000000000000 /* VocabCraftAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VocabCraftAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000512D50000000000000 /* DatasetEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatasetEngineTests.swift; sourceTree = "<group>"; };
 		200000522D50000000000000 /* SwiftDataModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDataModelsTests.swift; sourceTree = "<group>"; };
@@ -661,6 +663,10 @@
 				300000612D50000000000001 /* ReflexFlipCardView.swift in Sources */,
 				300000622D50000000000001 /* SubTopicStudySessionView.swift in Sources */,
 				300000672D50000000000001 /* SubTopicSessionSummaryView.swift in Sources */,
+				300000412D50000000000001 /* VocabWidget.swift in Sources */,
+				300000422D50000000000001 /* VocabWidgetView.swift in Sources */,
+				300000432D50000000000001 /* NextWordIntent.swift in Sources */,
+				300000442D50000000000001 /* MarkLearnedIntent.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -672,6 +678,7 @@
 				300000422D50000000000001 /* VocabWidgetView.swift in Sources */,
 				300000432D50000000000001 /* NextWordIntent.swift in Sources */,
 				300000442D50000000000001 /* MarkLearnedIntent.swift in Sources */,
+				300000492D50000000000099 /* VocabWidgetBundle.swift in Widget Sources */,
 				300000452D50000000000001 /* DatasetEngine.swift in Sources */,
 				300000462D50000000000001 /* SharedAppGroupContainer.swift in Sources */,
 				300000472D50000000000001 /* SwiftDataModels.swift in Sources */,
@@ -877,6 +884,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -888,6 +896,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VocabCraftApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VocabCraftApp";
 			};
 			name = Debug;
 		};
@@ -895,6 +904,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -906,6 +916,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VocabCraftApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VocabCraftApp";
 			};
 			name = Release;
 		};

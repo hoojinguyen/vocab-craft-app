@@ -4,7 +4,6 @@ import SwiftUI
 import WidgetKit
 import AppIntents
 @testable import VocabCraftApp
-@testable import VocabCraftWidgetExtension
 
 final class WidgetIntentsTests: XCTestCase {
     var container: ModelContainer!

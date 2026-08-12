@@ -62,9 +62,6 @@ public struct VocabWidgetProvider: TimelineProvider {
     }
 }
 
-#if !canImport(XCTest)
-@main
-#endif
 public struct VocabWidget: Widget {
     public let kind: String = "VocabWidget"
 

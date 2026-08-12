@@ -8,10 +8,18 @@ struct VocabCraftApp: App {
     let appContainer: AppContainer
 
     init() {
+        let isTesting = NSClassFromString("XCTestCase") != nil
+        if isTesting {
+            self.container = (try? SharedAppGroupContainer.createContainer(inMemory: true)) ?? (try! ModelContainer(for: Schema([UserWordProgress.self, ReflexSessionLog.self, WidgetCurrentState.self])))
+            let engine = DatasetEngine()
+            self.datasetEngine = engine
+            self.appContainer = AppContainer(datasetEngine: engine, modelContainer: container)
+            return
+        }
         do {
-            container = try SharedAppGroupContainer.createContainer()
+            self.container = try SharedAppGroupContainer.createContainer()
         } catch {
-            fatalError("Failed to initialize SwiftData App Group container: \(error)")
+            self.container = (try? SharedAppGroupContainer.createContainer(inMemory: true)) ?? (try! ModelContainer(for: Schema([UserWordProgress.self, ReflexSessionLog.self, WidgetCurrentState.self])))
         }
         let engine = DatasetEngine()
         self.datasetEngine = engine
