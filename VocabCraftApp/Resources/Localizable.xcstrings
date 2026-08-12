@@ -1,0 +1,570 @@
+{
+  "sourceLanguage" : "vi",
+  "strings" : {
+    "common.back" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Back" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Quay lại" } }
+      }
+    },
+    "common.cancel" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Hủy" } }
+      }
+    },
+    "common.close" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Close" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Đóng" } }
+      }
+    },
+    "common.congratulations" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Congratulations!" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Chúc mừng!" } }
+      }
+    },
+    "common.done" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Done" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Hoàn thành" } }
+      }
+    },
+    "common.ok" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "OK" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "OK" } }
+      }
+    },
+    "common.reset" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reset" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Reset" } }
+      }
+    },
+    "common.retry" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Retry" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Thử lại" } }
+      }
+    },
+    "common.save" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Save" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Lưu" } }
+      }
+    },
+    "common.search" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Tìm kiếm" } }
+      }
+    },
+    "common.viewDetails" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "View Details" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Xem chi tiết" } }
+      }
+    },
+    "common.wordUnit" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "words" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "từ" } }
+      }
+    },
+    "tabs.home" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Home" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Trang chủ" } }
+      }
+    },
+    "tabs.reflex" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reflex" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Phản xạ" } }
+      }
+    },
+    "tabs.search" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Tra cứu" } }
+      }
+    },
+    "tabs.settings" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Settings" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Cài đặt" } }
+      }
+    },
+    "tabs.vocabulary" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Vocabulary" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Kho từ" } }
+      }
+    },
+    "homepage.cefrTitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "CEFR LEVEL DISTRIBUTION" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "PHÂN BỔ TRÌNH ĐỘ CEFR" } }
+      }
+    },
+    "homepage.dailyGoal" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Today's Goal" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Mục tiêu hôm nay" } }
+      }
+    },
+    "homepage.explore" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "EXPLORE" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "KHÁM PHÁ" } }
+      }
+    },
+    "homepage.greeting" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Welcome back!" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Chào mừng trở lại!" } }
+      }
+    },
+    "homepage.newWordBadge" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "New word" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Từ mới" } }
+      }
+    },
+    "homepage.practiceNow" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "PRACTICE NOW" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "LUYỆN NGAY" } }
+      }
+    },
+    "homepage.reflexTitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "REFLEX DRILL" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "ÔN TẬP PHẢN XẠ" } }
+      }
+    },
+    "homepage.saveWord" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Save word" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Lưu từ" } }
+      }
+    },
+    "homepage.saved" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Saved" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Đã lưu" } }
+      }
+    },
+    "homepage.searchPlaceholder" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search new words..." } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Tra cứu từ mới..." } }
+      }
+    },
+    "homepage.srsHeader" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "LONG TERM MEMORY (SRS)" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "TRÍ NHỚ DÀI HẠN (SRS)" } }
+      }
+    },
+    "homepage.streakDays" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "day streak" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "ngày chuỗi" } }
+      }
+    },
+    "homepage.suggestedWordsTitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "TODAY'S SUGGESTED WORDS" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "TỪ VỰNG GỢI Ý HÔM NAY" } }
+      }
+    },
+    "homepage.vocabLibrarySubtitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "All topic decks" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Tất cả các bộ từ" } }
+      }
+    },
+    "homepage.vocabLibraryTitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "VOCABULARY LIBRARY" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "KHO TỪ VỰNG" } }
+      }
+    },
+    "reflex.correct" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Correct!" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Chính xác!" } }
+      }
+    },
+    "reflex.holdToSpeak" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hold to speak..." } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Giữ để nói..." } }
+      }
+    },
+    "reflex.incorrect" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Incorrect" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Chưa chính xác" } }
+      }
+    },
+    "reflex.listenPronunciation" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Listen pronunciation" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Nghe phát âm" } }
+      }
+    },
+    "reflex.listening" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "LISTENING TO VOICE..." } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "ĐANG LẮNG NGHE GIỌNG NÓI..." } }
+      }
+    },
+    "reflex.spokenAnswer" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "YOUR SPOKEN ANSWER" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "ĐÁP ÁN BẠN NÓI" } }
+      }
+    },
+    "reflex.startNow" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "START NOW" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "BẮT ĐẦU NGAY" } }
+      }
+    },
+    "reflex.subtitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Speak or pick correct answer in shortest time" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Nói phản xạ hoặc chọn đáp án đúng trong thời gian ngắn nhất" } }
+      }
+    },
+    "reflex.tapToFlip" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Tap to flip" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Chạm để lật mặt sau" } }
+      }
+    },
+    "reflex.title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "LIGHTNING REFLEX DRILL" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "LUYỆN PHẢN XẠ XUẤT QUỶ NHẬP THẦN" } }
+      }
+    },
+    "settings.appLanguage" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "App Language" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Ngôn ngữ ứng dụng" } }
+      }
+    },
+    "settings.appTheme" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "App Theme" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Giao diện App" } }
+      }
+    },
+    "settings.appVersion" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "App Version" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Phiên bản ứng dụng" } }
+      }
+    },
+    "settings.clearCache" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clear Cache" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Dọn dẹp bộ nhớ đệm" } }
+      }
+    },
+    "settings.dailyGoal" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Daily Goal (words/day)" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Mục tiêu từ/ngày" } }
+      }
+    },
+    "settings.englishVoice" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "English TTS Accent" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Giọng đọc tiếng Anh" } }
+      }
+    },
+    "settings.haptics" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Haptic Feedback" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Rung phản hồi (Haptics)" } }
+      }
+    },
+    "settings.icloudSync" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "iCloud Sync" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Đồng bộ iCloud" } }
+      }
+    },
+    "settings.inputGoalMessage" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter daily target word count between 5 and 100 words." } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Nhập số lượng từ mục tiêu cần học mỗi ngày từ 5 đến 100 từ." } }
+      }
+    },
+    "settings.inputGoalTitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter Daily Goal" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Nhập số lượng từ/ngày" } }
+      }
+    },
+    "settings.langEnglish" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "English" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Tiếng Anh (English)" } }
+      }
+    },
+    "settings.langSystem" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "System Default" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Theo hệ thống" } }
+      }
+    },
+    "settings.langVietnamese" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Vietnamese" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Tiếng Việt" } }
+      }
+    },
+    "settings.playingAudio" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Playing preview..." } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Đang phát mẫu..." } }
+      }
+    },
+    "settings.profileBadge" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Dedicated Learner" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Học viên Chăm chỉ" } }
+      }
+    },
+    "settings.reminderNotification" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Review Reminders" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Nhắc nhở ôn tập" } }
+      }
+    },
+    "settings.reminderTime" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reminder Time" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Giờ nhắc nhở" } }
+      }
+    },
+    "settings.resetConfirmMessage" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "All SRS review progress will be reset. This action cannot be undone." } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Tất cả dữ liệu ôn tập SRS sẽ được đặt lại từ đầu. Hành động này không thể hoàn tác." } }
+      }
+    },
+    "settings.resetConfirmTitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Confirm Reset Progress" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Xác nhận Reset Tiến trình" } }
+      }
+    },
+    "settings.resetSRS" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reset SRS Progress" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Reset tiến trình SRS" } }
+      }
+    },
+    "settings.resetSRSSubtitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reset all studied words" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Đặt lại tất cả các từ đã học" } }
+      }
+    },
+    "settings.sectionAppearance" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Appearance & Experience" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Giao diện & Trải nghiệm" } }
+      }
+    },
+    "settings.sectionAppData" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "App & Data" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Ứng dụng & Dữ liệu" } }
+      }
+    },
+    "settings.sectionAudioTTS" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Audio & Speech" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Âm thanh & Phát âm" } }
+      }
+    },
+    "settings.sectionLanguage" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Language & Region" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Ngôn ngữ & Vùng" } }
+      }
+    },
+    "settings.sectionLearningSRS" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Learning & Review (SRS)" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Học tập & Ôn tập (SRS)" } }
+      }
+    },
+    "settings.soundEffects" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sound Effects" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Hiệu ứng âm thanh" } }
+      }
+    },
+    "settings.speechSpeed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Speech Speed" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Tốc độ đọc" } }
+      }
+    },
+    "settings.synced" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Synced" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Đã đồng bộ" } }
+      }
+    },
+    "settings.testTTS" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Test Speech Pronunciation" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Nghe thử phát âm TTS" } }
+      }
+    },
+    "settings.themeDark" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Dark" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Tối" } }
+      }
+    },
+    "settings.themeLight" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Light" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Sáng" } }
+      }
+    },
+    "settings.themeSystem" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "System" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Auto" } }
+      }
+    },
+    "vocabulary.backToHome" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Back to Home" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Về trang chủ" } }
+      }
+    },
+    "vocabulary.definition" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Definition" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Nghĩa" } }
+      }
+    },
+    "vocabulary.example" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Example" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Ví dụ" } }
+      }
+    },
+    "vocabulary.filterAll" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "All" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Tất cả" } }
+      }
+    },
+    "vocabulary.filterMastered" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Mastered" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Thành thạo" } }
+      }
+    },
+    "vocabulary.filterReviewNeeded" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Needs Review" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Cần ôn tập" } }
+      }
+    },
+    "vocabulary.filterSaved" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Saved" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Đã lưu" } }
+      }
+    },
+    "vocabulary.lessonCompleted" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Lesson Completed" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Bạn đã hoàn thành bài học" } }
+      }
+    },
+    "vocabulary.level" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Level" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Trình độ" } }
+      }
+    },
+    "vocabulary.masteredBadge" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Mastered" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Đã thuộc" } }
+      }
+    },
+    "vocabulary.personalBank" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Personal Bank" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Kho Từ Cá Nhân" } }
+      }
+    },
+    "vocabulary.previewTopic" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Preview Topic" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Xem trước chủ đề" } }
+      }
+    },
+    "vocabulary.reviewBadge" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Review" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Cần ôn" } }
+      }
+    },
+    "vocabulary.searchPlaceholder" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search words, meanings..." } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Tìm kiếm từ vựng, nghĩa..." } }
+      }
+    },
+    "vocabulary.startLearning" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Start Learning Now" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Bắt đầu học ngay" } }
+      }
+    },
+    "vocabulary.studyAgain" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Study Again" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Học lại" } }
+      }
+    },
+    "vocabulary.topicDecks" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Topic Decks" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Bộ Từ Chủ Đề" } }
+      }
+    },
+    "vocabulary.wordCount" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Word Count" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Số từ" } }
+      }
+    },
+    "vocabulary.wordsMasteredCount" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Mastered Words" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Số từ đã thuộc" } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

@@ -64,6 +64,20 @@ public final class UserSettingsStore {
             UserDefaults.standard.set(isSoundEffectsEnabled, forKey: "is_sound_effects_enabled")
         }
     }
+    
+    public var appLanguage: String {
+        didSet {
+            UserDefaults.standard.set(appLanguage, forKey: "app_language")
+        }
+    }
+
+    public var appLocale: Locale? {
+        switch appLanguage {
+        case "vi": return Locale(identifier: "vi")
+        case "en": return Locale(identifier: "en")
+        default: return nil
+        }
+    }
 
     public var colorScheme: ColorScheme? {
         switch appTheme {
@@ -81,6 +95,7 @@ public final class UserSettingsStore {
         self.ttsVoiceGender = defaults.string(forKey: "tts_voice_gender") ?? "US"
         self.ttsSpeed = defaults.object(forKey: "tts_speed") != nil ? defaults.double(forKey: "tts_speed") : 1.0
         self.appTheme = defaults.string(forKey: "app_theme") ?? "system"
+        self.appLanguage = defaults.string(forKey: "app_language") ?? "system"
         self.isHapticsEnabled = defaults.object(forKey: "is_haptics_enabled") != nil ? defaults.bool(forKey: "is_haptics_enabled") : true
         self.isSoundEffectsEnabled = defaults.object(forKey: "is_sound_effects_enabled") != nil ? defaults.bool(forKey: "is_sound_effects_enabled") : true
     }

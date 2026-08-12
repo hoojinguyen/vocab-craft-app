@@ -58,6 +58,8 @@
 		30008C6450FFC705ADA3 /* SharedAppGroupContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20008C6450FFC705ADA3 /* SharedAppGroupContainer.swift */; };
 		300091F224DACBC284B0 /* MockVocabularyRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200091F224DACBC284B0 /* MockVocabularyRepository.swift */; };
 		3000928AAF987BEB4203 /* UserSettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000928AAF987BEB4203 /* UserSettingsStore.swift */; };
+		3000A111222333445566 /* AppStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A111222333445566 /* AppStrings.swift */; };
+		3000B111222333445566 /* Localizable.xcstrings in Sources */ = {isa = PBXBuildFile; fileRef = 2000B111222333445566 /* Localizable.xcstrings */; };
 		300096513C5AE8139597 /* MobileSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200096513C5AE8139597 /* MobileSearchView.swift */; };
 		30009A66CE4FB106804A /* ReflexDrillViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20009A66CE4FB106804A /* ReflexDrillViewModelTests.swift */; };
 		30009AC1BB7654E455DF /* SwiftDataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20009AC1BB7654E455DF /* SwiftDataModels.swift */; };
@@ -198,6 +200,8 @@
 		20008C6450FFC705ADA3 /* SharedAppGroupContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedAppGroupContainer.swift; sourceTree = "<group>"; };
 		200091F224DACBC284B0 /* MockVocabularyRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockVocabularyRepository.swift; sourceTree = "<group>"; };
 		2000928AAF987BEB4203 /* UserSettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettingsStore.swift; sourceTree = "<group>"; };
+		2000A111222333445566 /* AppStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStrings.swift; sourceTree = "<group>"; };
+		2000B111222333445566 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		200096513C5AE8139597 /* MobileSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileSearchView.swift; sourceTree = "<group>"; };
 		20009A66CE4FB106804A /* ReflexDrillViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReflexDrillViewModelTests.swift; sourceTree = "<group>"; };
 		20009AC1BB7654E455DF /* SwiftDataModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDataModels.swift; sourceTree = "<group>"; };
@@ -397,6 +401,7 @@
 				4000A7A935EBB1D5F368 /* Data */,
 				4000B39FE0027A309904 /* Domain */,
 				4000DCA222F51AEF85D4 /* Features */,
+				4000RESOURCES00001 /* Resources */,
 			);
 			path = VocabCraftApp;
 			sourceTree = "<group>";
@@ -463,6 +468,7 @@
 				4000778F3AC70FE2B174 /* Audio */,
 				4000B9FD3CB2F2042047 /* Database */,
 				40003153465D574812BC /* DesignSystem */,
+				4000LOCALIZATION001 /* Localization */,
 				4000DA48C316E1ADA496 /* SRS */,
 			);
 			path = Core;
@@ -636,6 +642,22 @@
 				2000928AAF987BEB4203 /* UserSettingsStore.swift */,
 			);
 			path = Database;
+			sourceTree = "<group>";
+		};
+		4000LOCALIZATION001 /* Localization */ = {
+			isa = PBXGroup;
+			children = (
+				2000A111222333445566 /* AppStrings.swift */,
+			);
+			path = Localization;
+			sourceTree = "<group>";
+		};
+		4000RESOURCES00001 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				2000B111222333445566 /* Localizable.xcstrings */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		4000BDD811B778859DDB /* Views */ = {
@@ -827,6 +849,8 @@
 				30008C6450FFC705ADA3 /* SharedAppGroupContainer.swift in Sources */,
 				30009AC1BB7654E455DF /* SwiftDataModels.swift in Sources */,
 				3000928AAF987BEB4203 /* UserSettingsStore.swift in Sources */,
+				3000A111222333445566 /* AppStrings.swift in Sources */,
+				3000B111222333445566 /* Localizable.xcstrings in Sources */,
 				3000B21282A5513A6144 /* Color+VocabCraft.swift in Sources */,
 				3000F3EB39E8AC94F8B1 /* SRSSparkleEffectView.swift in Sources */,
 				30003498E286D20C1EBC /* SRSEngine.swift in Sources */,
