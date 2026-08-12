@@ -3,37 +3,41 @@ import Foundation
 @MainActor
 public final class VocabularyRepositoryImpl: VocabularyRepositoryProtocol {
     private let datasetEngine: DatasetEngine?
+    private let progressActor: UserProgressModelActor?
 
-    public init(datasetEngine: DatasetEngine? = nil) {
+    public init(datasetEngine: DatasetEngine? = nil, progressActor: UserProgressModelActor? = nil) {
         self.datasetEngine = datasetEngine
+        self.progressActor = progressActor
     }
 
     public func fetchWordRecords(limit: Int) async throws -> [Word] {
-        guard let engine = datasetEngine, let record = engine.getRandomWordForWidget() else { return [] }
-        let word = Word(
-            id: record.id,
-            lemma: record.lemma,
-            pos: record.pos,
-            ipaUs: record.ipaUs,
-            cefrLevel: record.cefrLevel,
-            definitionEn: record.definitionEn,
-            definitionVi: record.definitionVi,
-            example: record.example
-        )
-        return [word]
+        guard let engine = datasetEngine else { return [] }
+        let records = engine.fetchWordRecords(limit: limit)
+        return records.map { r in
+            Word(
+                id: r.id,
+                lemma: r.lemma,
+                pos: r.pos,
+                ipaUs: r.ipaUs,
+                cefrLevel: r.cefrLevel,
+                definitionEn: r.definitionEn,
+                definitionVi: r.definitionVi,
+                example: r.example
+            )
+        }
     }
 
     public func fetchWord(id: Int64) async throws -> Word? {
-        guard let engine = datasetEngine, let record = engine.getRandomWordForWidget() else { return nil }
+        guard let engine = datasetEngine, let r = engine.fetchWordById(id: id) else { return nil }
         return Word(
-            id: record.id,
-            lemma: record.lemma,
-            pos: record.pos,
-            ipaUs: record.ipaUs,
-            cefrLevel: record.cefrLevel,
-            definitionEn: record.definitionEn,
-            definitionVi: record.definitionVi,
-            example: record.example
+            id: r.id,
+            lemma: r.lemma,
+            pos: r.pos,
+            ipaUs: r.ipaUs,
+            cefrLevel: r.cefrLevel,
+            definitionEn: r.definitionEn,
+            definitionVi: r.definitionVi,
+            example: r.example
         )
     }
 
@@ -43,17 +47,20 @@ public final class VocabularyRepositoryImpl: VocabularyRepositoryProtocol {
     }
 
     public func searchWords(query: String) async throws -> [Word] {
-        guard let engine = datasetEngine, let record = engine.getWordDetails(lemma: query) else { return [] }
-        let word = Word(
-            id: record.id,
-            lemma: record.lemma,
-            pos: record.pos,
-            ipaUs: record.ipaUs,
-            cefrLevel: record.cefrLevel,
-            definitionEn: record.definitionEn,
-            definitionVi: record.definitionVi,
-            example: record.example
-        )
-        return [word]
+        guard let engine = datasetEngine else { return [] }
+        let records = engine.searchWords(query: query)
+        return records.map { r in
+            Word(
+                id: r.id,
+                lemma: r.lemma,
+                pos: r.pos,
+                ipaUs: r.ipaUs,
+                cefrLevel: r.cefrLevel,
+                definitionEn: r.definitionEn,
+                definitionVi: r.definitionVi,
+                example: r.example
+            )
+        }
     }
 }
+

@@ -4,7 +4,9 @@ import SwiftData
 @Model
 public final class UserWordProgress {
     @Attribute(.unique) public var wordId: Int64
+    public var cefrLevel: String
     public var masteryLevel: Int
+    public var isBookmarked: Bool
     public var easeFactor: Double
     public var intervalDays: Int
     public var nextReviewDate: Date
@@ -13,7 +15,9 @@ public final class UserWordProgress {
 
     public init(
         wordId: Int64,
+        cefrLevel: String = "A1",
         masteryLevel: Int = 0,
+        isBookmarked: Bool = false,
         easeFactor: Double = 2.5,
         intervalDays: Int = 1,
         nextReviewDate: Date = Date(),
@@ -21,7 +25,9 @@ public final class UserWordProgress {
         totalReviews: Int = 0
     ) {
         self.wordId = wordId
+        self.cefrLevel = cefrLevel
         self.masteryLevel = masteryLevel
+        self.isBookmarked = isBookmarked
         self.easeFactor = easeFactor
         self.intervalDays = intervalDays
         self.nextReviewDate = nextReviewDate
@@ -29,6 +35,7 @@ public final class UserWordProgress {
         self.totalReviews = totalReviews
     }
 }
+
 
 @Model
 public final class ReflexSessionLog {

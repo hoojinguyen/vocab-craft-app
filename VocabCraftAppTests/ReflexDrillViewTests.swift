@@ -5,14 +5,30 @@ import SwiftUI
 @MainActor
 final class ReflexDrillViewTests: XCTestCase {
     func testReflexDrillViewInitializationWithoutEngine() {
-        let view = ReflexDrillView(datasetEngine: nil, cefrLevel: "B1")
+        let vm = ReflexDrillViewModel(
+            fetchVocabularyUseCase: MockFetchVocabularyUseCase(),
+            evaluateSRSUseCase: MockEvaluateSRSUseCase(),
+            ttsService: MockTextToSpeechService(),
+            sttService: MockSpeechRecognitionService(),
+            cefrLevel: "B1"
+        )
+        let view = ReflexDrillView(viewModel: vm)
         XCTAssertNotNil(view)
     }
 
     func testReflexDrillViewInitializationWithCEFRLevel() {
-        let view = ReflexDrillView(datasetEngine: nil, cefrLevel: "C1")
+        let vm = ReflexDrillViewModel(
+            fetchVocabularyUseCase: MockFetchVocabularyUseCase(),
+            evaluateSRSUseCase: MockEvaluateSRSUseCase(),
+            ttsService: MockTextToSpeechService(),
+            sttService: MockSpeechRecognitionService(),
+            cefrLevel: "C1"
+        )
+        let view = ReflexDrillView(viewModel: vm)
         XCTAssertNotNil(view)
     }
+
+
 
     func testSRSSparkleEffectViewInstantiation() {
         var isEmitting = true

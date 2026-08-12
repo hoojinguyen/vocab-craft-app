@@ -90,10 +90,11 @@ public struct VocabularyView: View {
                             VStack(spacing: 12) {
                                 // Bento Summary Strip
                                 VocabularySummaryCard(
-                                    totalWords: vm.wordItems.count * 473,
+                                    totalWords: vm.wordItems.count,
                                     srsRetentionPercentage: 0.85,
-                                    dueCount: 24
+                                    dueCount: vm.filterCount(for: .needsReview)
                                 )
+
 
                                 // Word Accordion Cards List
                                 VStack(spacing: 10) {

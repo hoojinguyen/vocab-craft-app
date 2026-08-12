@@ -1,0 +1,61 @@
+import Foundation
+import SwiftData
+
+@ModelActor
+public actor UserProgressModelActor {
+    public func getProgress(wordId: Int64) throws -> UserWordProgress? {
+        let descriptor = FetchDescriptor<UserWordProgress>(
+            predicate: #Predicate { $0.wordId == wordId }
+        )
+        return try modelContext.fetch(descriptor).first
+    }
+
+    public func saveProgress(
+        wordId: Int64,
+        cefrLevel: String = "A1",
+        masteryLevel: Int = 0,
+        isBookmarked: Bool = false,
+        nextReviewDate: Date = Date(),
+        lastReviewDate: Date = Date(),
+        easeFactor: Double = 2.5,
+        intervalDays: Int = 1,
+        totalReviews: Int = 0
+    ) throws {
+        if let existing = try getProgress(wordId: wordId) {
+            existing.cefrLevel = cefrLevel
+            existing.masteryLevel = masteryLevel
+            existing.isBookmarked = isBookmarked
+            existing.nextReviewDate = nextReviewDate
+            existing.lastReviewDate = lastReviewDate
+            existing.easeFactor = easeFactor
+            existing.intervalDays = intervalDays
+            existing.totalReviews = totalReviews
+        } else {
+            let newProgress = UserWordProgress(
+                wordId: wordId,
+                cefrLevel: cefrLevel,
+                masteryLevel: masteryLevel,
+                isBookmarked: isBookmarked,
+                easeFactor: easeFactor,
+                intervalDays: intervalDays,
+                nextReviewDate: nextReviewDate,
+                lastReviewDate: lastReviewDate,
+                totalReviews: totalReviews
+            )
+            modelContext.insert(newProgress)
+        }
+        try modelContext.save()
+    }
+
+    public func fetchAllProgress() throws -> [UserWordProgress] {
+        let descriptor = FetchDescriptor<UserWordProgress>()
+        return try modelContext.fetch(descriptor)
+    }
+
+    public func logDrillRecord(drillId: Int64, responseTimeMs: Int, accuracyScore: Double) throws {
+        let record = ReflexSessionLog(drillId: drillId, responseTimeMs: responseTimeMs, accuracyScore: accuracyScore)
+        modelContext.insert(record)
+        try modelContext.save()
+    }
+}
+

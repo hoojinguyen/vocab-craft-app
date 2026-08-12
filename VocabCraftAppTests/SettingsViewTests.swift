@@ -5,10 +5,13 @@ import SwiftUI
 @MainActor
 final class SettingsViewTests: XCTestCase {
     func testSettingsViewInitialization() {
-        let vm = SettingsViewModel()
+        let store = UserSettingsStore()
+        let tts = MockTextToSpeechService()
+        let vm = SettingsViewModel(store: store, ttsService: tts)
         let view = SettingsView(viewModel: vm)
         XCTAssertNotNil(view.body)
     }
+
 
     func testProfileHeaderCardInitialization() {
         let card = ProfileHeaderCard(userName: "Hooji N.", userLevel: "B2 Intermediate", streakDays: 14)

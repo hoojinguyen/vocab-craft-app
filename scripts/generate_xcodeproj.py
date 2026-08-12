@@ -1,76 +1,170 @@
 import os
+import hashlib
+
+def generate_id(prefix, path):
+    # Generates a 24-character hex ID compatible with Xcode PBX object IDs
+    h = hashlib.sha1(path.encode('utf-8')).hexdigest()[:16].upper()
+    return f"{prefix}{h}"
+
+def scan_files(base_dir):
+    file_paths = []
+    for root, _, files in os.walk(base_dir):
+        for file in files:
+            if file.endswith('.swift') or file.endswith('.plist') or file.endswith('.entitlements'):
+                full_path = os.path.join(root, file)
+                file_paths.append(full_path)
+    file_paths.sort()
+    return file_paths
 
 def generate_pbxproj():
-    content = """// !$*UTF8*$!
-{
+    app_files = scan_files("VocabCraftApp")
+    test_files = scan_files("VocabCraftAppTests")
+    widget_files = scan_files("VocabCraftWidgetExtension")
+
+    # Widget shared files from main app
+    widget_shared_files = [
+        "VocabCraftApp/Core/Database/DatasetEngine.swift",
+        "VocabCraftApp/Core/Database/SharedAppGroupContainer.swift",
+        "VocabCraftApp/Core/Database/SwiftDataModels.swift",
+        "VocabCraftApp/Core/Database/DatasetModels.swift",
+        "VocabCraftApp/Core/SRS/SRSEngine.swift"
+    ]
+
+    pbx_build_files = []
+    pbx_file_refs = []
+    app_sources_build_files = []
+    widget_sources_build_files = []
+    test_sources_build_files = []
+
+    # Process App Files
+    for path in app_files:
+        filename = os.path.basename(path)
+        ref_id = generate_id("2000", path)
+        build_id = generate_id("3000", path)
+
+        file_type = "sourcecode.swift" if filename.endswith(".swift") else ("text.plist.xml" if filename.endswith(".plist") else "text.plist.entitlements")
+        pbx_file_refs.append(f'\t\t{ref_id} /* {filename} */ = {{isa = PBXFileReference; lastKnownFileType = {file_type}; path = "{filename}"; sourceTree = "<group>"; }};')
+
+        if filename.endswith(".swift"):
+            pbx_build_files.append(f'\t\t{build_id} /* {filename} in Sources */ = {{isa = PBXBuildFile; fileRef = {ref_id} /* {filename} */; }};')
+            app_sources_build_files.append(f'\t\t\t\t{build_id} /* {filename} in Sources */,')
+
+    # Process Widget Files
+    for path in widget_files:
+        filename = os.path.basename(path)
+        ref_id = generate_id("2000", path)
+        build_id = generate_id("3000", path)
+
+        file_type = "sourcecode.swift" if filename.endswith(".swift") else "text.plist.xml"
+        pbx_file_refs.append(f'\t\t{ref_id} /* {filename} */ = {{isa = PBXFileReference; lastKnownFileType = {file_type}; path = "{filename}"; sourceTree = "<group>"; }};')
+
+        if filename.endswith(".swift"):
+            pbx_build_files.append(f'\t\t{build_id} /* {filename} in Widget Sources */ = {{isa = PBXBuildFile; fileRef = {ref_id} /* {filename} */; }};')
+            widget_sources_build_files.append(f'\t\t\t\t{build_id} /* {filename} in Widget Sources */,')
+
+            # Also add to App sources (except @main bundle) so main App and Tests (via @testable import) have access
+            if filename != "VocabWidgetBundle.swift":
+                app_build_id = generate_id("3002", path + "_app")
+                pbx_build_files.append(f'\t\t{app_build_id} /* {filename} in App Sources */ = {{isa = PBXBuildFile; fileRef = {ref_id} /* {filename} */; }};')
+                app_sources_build_files.append(f'\t\t\t\t{app_build_id} /* {filename} in App Sources */,')
+
+
+    # Process Widget Shared Files
+    for path in widget_shared_files:
+        filename = os.path.basename(path)
+        ref_id = generate_id("2000", path)
+        build_id = generate_id("3001", path + "_widget")
+        pbx_build_files.append(f'\t\t{build_id} /* {filename} in Widget Sources */ = {{isa = PBXBuildFile; fileRef = {ref_id} /* {filename} */; }};')
+        widget_sources_build_files.append(f'\t\t\t\t{build_id} /* {filename} in Widget Sources */,')
+
+
+    # Process Test Files
+    for path in test_files:
+        filename = os.path.basename(path)
+        ref_id = generate_id("2000", path)
+        build_id = generate_id("3000", path)
+
+        file_type = "sourcecode.swift"
+        pbx_file_refs.append(f'\t\t{ref_id} /* {filename} */ = {{isa = PBXFileReference; lastKnownFileType = {file_type}; path = "{filename}"; sourceTree = "<group>"; }};')
+
+        if filename.endswith(".swift"):
+            pbx_build_files.append(f'\t\t{build_id} /* {filename} in Test Sources */ = {{isa = PBXBuildFile; fileRef = {ref_id} /* {filename} */; }};')
+            test_sources_build_files.append(f'\t\t\t\t{build_id} /* {filename} in Test Sources */,')
+
+    # Helper for creating group structure recursively
+    def create_groups_for_dir(dir_path, group_id_prefix):
+        children = []
+        entries = sorted(os.listdir(dir_path))
+        group_entries = []
+
+        for entry in entries:
+            full_path = os.path.join(dir_path, entry)
+            if os.path.isdir(full_path):
+                child_group_id = generate_id("4000", full_path)
+                children.append(f'\t\t\t\t{child_group_id} /* {entry} */,')
+                group_entries.extend(create_groups_for_dir(full_path, "4000"))
+            elif entry.endswith(".swift") or entry.endswith(".plist") or entry.endswith(".entitlements"):
+                file_ref_id = generate_id("2000", full_path)
+                children.append(f'\t\t\t\t{file_ref_id} /* {entry} */,')
+
+        group_id = generate_id(group_id_prefix, dir_path)
+        group_str = f"""\t\t{group_id} /* {os.path.basename(dir_path)} */ = {{
+\t\t\tisa = PBXGroup;
+\t\t\tchildren = (
+""" + "\n".join(children) + f"""
+\t\t\t);
+\t\t\tpath = "{os.path.basename(dir_path)}";
+\t\t\tsourceTree = "<group>";
+\t\t}};"""
+        group_entries.insert(0, group_str)
+        return group_entries
+
+    app_group_str = "\n".join(create_groups_for_dir("VocabCraftApp", "4000"))
+    test_group_str = "\n".join(create_groups_for_dir("VocabCraftAppTests", "4000"))
+    widget_group_str = "\n".join(create_groups_for_dir("VocabCraftWidgetExtension", "4000"))
+
+    app_root_id = generate_id("4000", "VocabCraftApp")
+    test_root_id = generate_id("4000", "VocabCraftAppTests")
+    widget_root_id = generate_id("4000", "VocabCraftWidgetExtension")
+
+    pbx_build_section = "\n".join(pbx_build_files)
+    pbx_file_ref_section = "\n".join(pbx_file_refs)
+    app_sources_section = "\n".join(app_sources_build_files)
+    widget_sources_section = "\n".join(widget_sources_build_files)
+    test_sources_section = "\n".join(test_sources_build_files)
+
+    content = f"""// !$*UTF8*$!
+{{
 	archiveVersion = 1;
-	classes = {
-	};
+	classes = {{
+	}};
 	objectVersion = 56;
-	objects = {
+	objects = {{
 
 /* Begin PBXBuildFile section */
-		300000012D50000000000001 /* VocabCraftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000012D50000000000000 /* VocabCraftApp.swift */; };
-		300000022D50000000000001 /* DatasetEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000022D50000000000000 /* DatasetEngine.swift */; };
-		300000032D50000000000001 /* DatasetModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000032D50000000000000 /* DatasetModels.swift */; };
-		300000042D50000000000001 /* SharedAppGroupContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000042D50000000000000 /* SharedAppGroupContainer.swift */; };
-		300000052D50000000000001 /* SwiftDataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000052D50000000000000 /* SwiftDataModels.swift */; };
-		300000062D50000000000001 /* SpeechRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000062D50000000000000 /* SpeechRecognitionService.swift */; };
-		300000072D50000000000001 /* TextToSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000072D50000000000000 /* TextToSpeechService.swift */; };
-		300000082D50000000000001 /* SRSEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000082D50000000000000 /* SRSEngine.swift */; };
-		300000092D50000000000001 /* ReflexDrillView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000092D50000000000000 /* ReflexDrillView.swift */; };
-		300000102D50000000000001 /* Color+VocabCraft.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000102D50000000000001 /* Color+VocabCraft.swift */; };
-		300000112D50000000000001 /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000112D50000000000001 /* HeaderView.swift */; };
-		300000122D50000000000001 /* MobileSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000122D50000000000001 /* MobileSearchView.swift */; };
-		300000132D50000000000001 /* SRSMemoryHeroCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000132D50000000000001 /* SRSMemoryHeroCard.swift */; };
-		300000142D50000000000001 /* ActionCardsGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000142D50000000000001 /* ActionCardsGrid.swift */; };
-		300000152D50000000000001 /* CEFRDistributionCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000152D50000000000001 /* CEFRDistributionCard.swift */; };
-		300000162D50000000000001 /* LiquidGlassTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000162D50000000000001 /* LiquidGlassTabBar.swift */; };
-		300000172D50000000000001 /* HomepageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000172D50000000000001 /* HomepageView.swift */; };
-		300000412D50000000000001 /* VocabWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000412D50000000000000 /* VocabWidget.swift */; };
-		300000422D50000000000001 /* VocabWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000422D50000000000000 /* VocabWidgetView.swift */; };
-		300000432D50000000000001 /* NextWordIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000432D50000000000000 /* NextWordIntent.swift */; };
-		300000442D50000000000001 /* MarkLearnedIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000442D50000000000000 /* MarkLearnedIntent.swift */; };
-		300000452D50000000000001 /* DatasetEngine.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 200000022D50000000000000 /* DatasetEngine.swift */; };
-		300000462D50000000000001 /* SharedAppGroupContainer.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 200000042D50000000000000 /* SharedAppGroupContainer.swift */; };
-		300000472D50000000000001 /* SwiftDataModels.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 200000052D50000000000000 /* SwiftDataModels.swift */; };
-		300000482D50000000000001 /* DatasetModels.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 200000032D50000000000000 /* DatasetModels.swift */; };
-		300000492D50000000000001 /* SRSEngine.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 200000082D50000000000000 /* SRSEngine.swift */; };
-		300000512D50000000000001 /* DatasetEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000512D50000000000000 /* DatasetEngineTests.swift */; };
-		300000522D50000000000001 /* SwiftDataModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000522D50000000000000 /* SwiftDataModelsTests.swift */; };
-		300000532D50000000000001 /* SpeechServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000532D50000000000000 /* SpeechServiceTests.swift */; };
-		300000542D50000000000001 /* SRSEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000542D50000000000000 /* SRSEngineTests.swift */; };
-		300000552D50000000000001 /* WidgetIntentsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000552D50000000000000 /* WidgetIntentsTests.swift */; };
-		300000182D50000000000001 /* WordItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000182D50000000000001 /* WordItem.swift */; };
-		300000192D50000000000001 /* VocabularySummaryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000192D50000000000001 /* VocabularySummaryCard.swift */; };
-		300000202D50000000000001 /* WordAccordionCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000202D50000000000001 /* WordAccordionCard.swift */; };
-		300000212D50000000000001 /* TopicDecksGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000212D50000000000001 /* TopicDecksGridView.swift */; };
-		300000222D50000000000001 /* VocabularyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000222D50000000000001 /* VocabularyView.swift */; };
-		300000562D50000000000001 /* VocabularyModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000562D50000000000001 /* VocabularyModelsTests.swift */; };
-		300000572D50000000000001 /* VocabularyViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000572D50000000000001 /* VocabularyViewsTests.swift */; };
-		300000582D50000000000001 /* VocabularyViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000582D50000000000001 /* VocabularyViewTests.swift */; };
-		300000402D50000000000002 /* VocabCraftWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 200000402D50000000000000 /* VocabCraftWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+{pbx_build_section}
+		300000402D50000000000002 /* VocabCraftWidgetExtension.appex in Embed App Extensions */ = {{isa = PBXBuildFile; fileRef = 200000402D50000000000000 /* VocabCraftWidgetExtension.appex */; settings = {{ATTRIBUTES = (RemoveHeadersOnCopy, ); }}; }};
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		700000402D50000000000001 /* PBXContainerItemProxy */ = {
+		700000402D50000000000001 /* PBXContainerItemProxy */ = {{
 			isa = PBXContainerItemProxy;
 			containerPortal = 100000002D50000000000000 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 600000022D50000000000000;
 			remoteInfo = VocabCraftWidgetExtension;
-		};
-		700000502D50000000000001 /* PBXContainerItemProxy */ = {
+		}};
+		700000502D50000000000001 /* PBXContainerItemProxy */ = {{
 			isa = PBXContainerItemProxy;
 			containerPortal = 100000002D50000000000000 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 600000012D50000000000000;
 			remoteInfo = VocabCraftApp;
-		};
+		}};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		100000002D50000000000099 /* Embed App Extensions */ = {
+		100000002D50000000000099 /* Embed App Extensions */ = {{
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
@@ -80,272 +174,55 @@ def generate_pbxproj():
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
-		};
+		}};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		200000002D50000000000000 /* VocabCraftApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VocabCraftApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		200000402D50000000000000 /* VocabCraftWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VocabCraftWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		200000502D50000000000000 /* VocabCraftAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VocabCraftAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		200000012D50000000000000 /* VocabCraftApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabCraftApp.swift; sourceTree = "<group>"; };
-		200000022D50000000000000 /* DatasetEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatasetEngine.swift; sourceTree = "<group>"; };
-		200000032D50000000000000 /* DatasetModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatasetModels.swift; sourceTree = "<group>"; };
-		200000042D50000000000000 /* SharedAppGroupContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedAppGroupContainer.swift; sourceTree = "<group>"; };
-		200000052D50000000000000 /* SwiftDataModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDataModels.swift; sourceTree = "<group>"; };
-		200000062D50000000000000 /* SpeechRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionService.swift; sourceTree = "<group>"; };
-		200000072D50000000000000 /* TextToSpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextToSpeechService.swift; sourceTree = "<group>"; };
-		200000082D50000000000000 /* SRSEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SRSEngine.swift; sourceTree = "<group>"; };
-		200000092D50000000000000 /* ReflexDrillView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReflexDrillView.swift; sourceTree = "<group>"; };
-		200000102D50000000000000 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		200000112D50000000000000 /* VocabCraftApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VocabCraftApp.entitlements; sourceTree = "<group>"; };
-		200000412D50000000000000 /* VocabWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabWidget.swift; sourceTree = "<group>"; };
-		200000422D50000000000000 /* VocabWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabWidgetView.swift; sourceTree = "<group>"; };
-		200000432D50000000000000 /* NextWordIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextWordIntent.swift; sourceTree = "<group>"; };
-		200000442D50000000000000 /* MarkLearnedIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkLearnedIntent.swift; sourceTree = "<group>"; };
-		200000512D50000000000000 /* DatasetEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatasetEngineTests.swift; sourceTree = "<group>"; };
-		200000522D50000000000000 /* SwiftDataModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDataModelsTests.swift; sourceTree = "<group>"; };
-		200000532D50000000000000 /* SpeechServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechServiceTests.swift; sourceTree = "<group>"; };
-		200000542D50000000000000 /* SRSEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SRSEngineTests.swift; sourceTree = "<group>"; };
-		200000552D50000000000000 /* WidgetIntentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetIntentsTests.swift; sourceTree = "<group>"; };
-		200000102D50000000000001 /* Color+VocabCraft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+VocabCraft.swift"; sourceTree = "<group>"; };
-		200000112D50000000000001 /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
-		200000122D50000000000001 /* MobileSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileSearchView.swift; sourceTree = "<group>"; };
-		200000132D50000000000001 /* SRSMemoryHeroCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SRSMemoryHeroCard.swift; sourceTree = "<group>"; };
-		200000142D50000000000001 /* ActionCardsGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionCardsGrid.swift; sourceTree = "<group>"; };
-		200000152D50000000000001 /* CEFRDistributionCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CEFRDistributionCard.swift; sourceTree = "<group>"; };
-		200000162D50000000000001 /* LiquidGlassTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlassTabBar.swift; sourceTree = "<group>"; };
-		200000172D50000000000001 /* HomepageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomepageView.swift; sourceTree = "<group>"; };
-		200000182D50000000000001 /* WordItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordItem.swift; sourceTree = "<group>"; };
-		200000192D50000000000001 /* VocabularySummaryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularySummaryCard.swift; sourceTree = "<group>"; };
-		200000202D50000000000001 /* WordAccordionCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordAccordionCard.swift; sourceTree = "<group>"; };
-		200000212D50000000000001 /* TopicDecksGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicDecksGridView.swift; sourceTree = "<group>"; };
-		200000222D50000000000001 /* VocabularyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyView.swift; sourceTree = "<group>"; };
-		200000562D50000000000001 /* VocabularyModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyModelsTests.swift; sourceTree = "<group>"; };
-		200000572D50000000000001 /* VocabularyViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyViewsTests.swift; sourceTree = "<group>"; };
-		200000582D50000000000001 /* VocabularyViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyViewTests.swift; sourceTree = "<group>"; };
+		200000002D50000000000000 /* VocabCraftApp.app */ = {{isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VocabCraftApp.app; sourceTree = BUILT_PRODUCTS_DIR; }};
+		200000402D50000000000000 /* VocabCraftWidgetExtension.appex */ = {{isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VocabCraftWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; }};
+		200000502D50000000000000 /* VocabCraftAppTests.xctest */ = {{isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VocabCraftAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; }};
+{pbx_file_ref_section}
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		100000012D50000000000000 /* Frameworks */ = {
+		100000012D50000000000000 /* Frameworks */ = {{
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
-		};
-		100000402D50000000000000 /* Frameworks */ = {
+		}};
+		100000402D50000000000000 /* Frameworks */ = {{
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
-		};
-		100000502D50000000000000 /* Frameworks */ = {
+		}};
+		100000502D50000000000000 /* Frameworks */ = {{
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
-		};
+		}};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		400000002D50000000000000 /* MainGroup */ = {
+		400000002D50000000000000 /* MainGroup */ = {{
 			isa = PBXGroup;
 			children = (
-				400000012D50000000000000 /* VocabCraftApp */,
-				400000072D50000000000000 /* VocabCraftWidgetExtension */,
-				400000082D50000000000000 /* VocabCraftAppTests */,
+				{app_root_id} /* VocabCraftApp */,
+				{widget_root_id} /* VocabCraftWidgetExtension */,
+				{test_root_id} /* VocabCraftAppTests */,
 				400000092D50000000000000 /* Products */,
 			);
 			sourceTree = "<group>";
-		};
-		400000012D50000000000000 /* VocabCraftApp */ = {
-			isa = PBXGroup;
-			children = (
-				400000022D50000000000000 /* App */,
-				400000032D50000000000000 /* Core */,
-				400000042D50000000000000 /* Features */,
-			);
-			path = VocabCraftApp;
-			sourceTree = "<group>";
-		};
-		400000022D50000000000000 /* App */ = {
-			isa = PBXGroup;
-			children = (
-				200000012D50000000000000 /* VocabCraftApp.swift */,
-				200000102D50000000000000 /* Info.plist */,
-				200000112D50000000000000 /* VocabCraftApp.entitlements */,
-			);
-			path = App;
-			sourceTree = "<group>";
-		};
-		400000032D50000000000000 /* Core */ = {
-			isa = PBXGroup;
-			children = (
-				400000052D50000000000000 /* Database */,
-				400000062D50000000000000 /* Audio */,
-				400000102D50000000000000 /* SRS */,
-				400000202D50000000000000 /* DesignSystem */,
-			);
-			path = Core;
-			sourceTree = "<group>";
-		};
-		400000202D50000000000000 /* DesignSystem */ = {
-			isa = PBXGroup;
-			children = (
-				200000102D50000000000001 /* Color+VocabCraft.swift */,
-			);
-			path = DesignSystem;
-			sourceTree = "<group>";
-		};
-		400000052D50000000000000 /* Database */ = {
-			isa = PBXGroup;
-			children = (
-				200000022D50000000000000 /* DatasetEngine.swift */,
-				200000032D50000000000000 /* DatasetModels.swift */,
-				200000042D50000000000000 /* SharedAppGroupContainer.swift */,
-				200000052D50000000000000 /* SwiftDataModels.swift */,
-			);
-			path = Database;
-			sourceTree = "<group>";
-		};
-		400000062D50000000000000 /* Audio */ = {
-			isa = PBXGroup;
-			children = (
-				200000062D50000000000000 /* SpeechRecognitionService.swift */,
-				200000072D50000000000000 /* TextToSpeechService.swift */,
-			);
-			path = Audio;
-			sourceTree = "<group>";
-		};
-		400000102D50000000000000 /* SRS */ = {
-			isa = PBXGroup;
-			children = (
-				200000082D50000000000000 /* SRSEngine.swift */,
-			);
-			path = SRS;
-			sourceTree = "<group>";
-		};
-		400000042D50000000000000 /* Features */ = {
-			isa = PBXGroup;
-			children = (
-				400000112D50000000000000 /* ReflexDrill */,
-				400000212D50000000000000 /* Homepage */,
-				400000302D50000000000000 /* Vocabulary */,
-			);
-			path = Features;
-			sourceTree = "<group>";
-		};
-		400000302D50000000000000 /* Vocabulary */ = {
-			isa = PBXGroup;
-			children = (
-				400000312D50000000000000 /* Models */,
-				400000342D50000000000000 /* Views */,
-			);
-			path = Vocabulary;
-			sourceTree = "<group>";
-		};
-		400000312D50000000000000 /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				200000182D50000000000001 /* WordItem.swift */,
-			);
-			path = Models;
-			sourceTree = "<group>";
-		};
-		400000342D50000000000000 /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				200000192D50000000000001 /* VocabularySummaryCard.swift */,
-				200000202D50000000000001 /* WordAccordionCard.swift */,
-				200000212D50000000000001 /* TopicDecksGridView.swift */,
-				200000222D50000000000001 /* VocabularyView.swift */,
-			);
-			path = Views;
-			sourceTree = "<group>";
-		};
-		400000112D50000000000000 /* ReflexDrill */ = {
-			isa = PBXGroup;
-			children = (
-				200000092D50000000000000 /* ReflexDrillView.swift */,
-			);
-			path = ReflexDrill;
-			sourceTree = "<group>";
-		};
-		400000212D50000000000000 /* Homepage */ = {
-			isa = PBXGroup;
-			children = (
-				400000222D50000000000000 /* Views */,
-			);
-			path = Homepage;
-			sourceTree = "<group>";
-		};
-		400000222D50000000000000 /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				200000112D50000000000001 /* HeaderView.swift */,
-				200000122D50000000000001 /* MobileSearchView.swift */,
-				200000132D50000000000001 /* SRSMemoryHeroCard.swift */,
-				200000142D50000000000001 /* ActionCardsGrid.swift */,
-				200000152D50000000000001 /* CEFRDistributionCard.swift */,
-				200000162D50000000000001 /* LiquidGlassTabBar.swift */,
-				200000172D50000000000001 /* HomepageView.swift */,
-			);
-			path = Views;
-			sourceTree = "<group>";
-		};
-		400000072D50000000000000 /* VocabCraftWidgetExtension */ = {
-			isa = PBXGroup;
-			children = (
-				200000412D50000000000000 /* VocabWidget.swift */,
-				200000422D50000000000000 /* VocabWidgetView.swift */,
-				400000122D50000000000000 /* AppIntents */,
-			);
-			path = VocabCraftWidgetExtension;
-			sourceTree = "<group>";
-		};
-		400000122D50000000000000 /* AppIntents */ = {
-			isa = PBXGroup;
-			children = (
-				200000432D50000000000000 /* NextWordIntent.swift */,
-				200000442D50000000000000 /* MarkLearnedIntent.swift */,
-			);
-			path = AppIntents;
-			sourceTree = "<group>";
-		};
-		400000082D50000000000000 /* VocabCraftAppTests */ = {
-			isa = PBXGroup;
-			children = (
-				200000512D50000000000000 /* DatasetEngineTests.swift */,
-				200000522D50000000000000 /* SwiftDataModelsTests.swift */,
-				200000532D50000000000000 /* SpeechServiceTests.swift */,
-				200000542D50000000000000 /* SRSEngineTests.swift */,
-				200000552D50000000000000 /* WidgetIntentsTests.swift */,
-				400000322D50000000000000 /* Features */,
-			);
-			path = VocabCraftAppTests;
-			sourceTree = "<group>";
-		};
-		400000322D50000000000000 /* Features */ = {
-			isa = PBXGroup;
-			children = (
-				400000332D50000000000000 /* Vocabulary */,
-			);
-			path = Features;
-			sourceTree = "<group>";
-		};
-		400000332D50000000000000 /* Vocabulary */ = {
-			isa = PBXGroup;
-			children = (
-				200000562D50000000000001 /* VocabularyModelsTests.swift */,
-				200000572D50000000000001 /* VocabularyViewsTests.swift */,
-				200000582D50000000000001 /* VocabularyViewTests.swift */,
-			);
-			path = Vocabulary;
-			sourceTree = "<group>";
-		};
-		400000092D50000000000000 /* Products */ = {
+		}};
+{app_group_str}
+{widget_group_str}
+{test_group_str}
+		400000092D50000000000000 /* Products */ = {{
 			isa = PBXGroup;
 			children = (
 				200000002D50000000000000 /* VocabCraftApp.app */,
@@ -354,11 +231,11 @@ def generate_pbxproj():
 			);
 			name = Products;
 			sourceTree = "<group>";
-		};
+		}};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		600000012D50000000000000 /* VocabCraftApp */ = {
+		600000012D50000000000000 /* VocabCraftApp */ = {{
 			isa = PBXNativeTarget;
 			buildConfigurationList = 500000012D50000000000000 /* Build configuration list for PBXNativeTarget "VocabCraftApp" */;
 			buildPhases = (
@@ -375,8 +252,8 @@ def generate_pbxproj():
 			productName = VocabCraftApp;
 			productReference = 200000002D50000000000000 /* VocabCraftApp.app */;
 			productType = "com.apple.product-type.application";
-		};
-		600000022D50000000000000 /* VocabCraftWidgetExtension */ = {
+		}};
+		600000022D50000000000000 /* VocabCraftWidgetExtension */ = {{
 			isa = PBXNativeTarget;
 			buildConfigurationList = 500000022D50000000000000 /* Build configuration list for PBXNativeTarget "VocabCraftWidgetExtension" */;
 			buildPhases = (
@@ -391,8 +268,8 @@ def generate_pbxproj():
 			productName = VocabCraftWidgetExtension;
 			productReference = 200000402D50000000000000 /* VocabCraftWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
-		};
-		600000032D50000000000000 /* VocabCraftAppTests */ = {
+		}};
+		600000032D50000000000000 /* VocabCraftAppTests */ = {{
 			isa = PBXNativeTarget;
 			buildConfigurationList = 500000032D50000000000000 /* Build configuration list for PBXNativeTarget "VocabCraftAppTests" */;
 			buildPhases = (
@@ -408,29 +285,29 @@ def generate_pbxproj():
 			productName = VocabCraftAppTests;
 			productReference = 200000502D50000000000000 /* VocabCraftAppTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
-		};
+		}};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		100000002D50000000000000 /* Project object */ = {
+		100000002D50000000000000 /* Project object */ = {{
 			isa = PBXProject;
-			attributes = {
+			attributes = {{
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1540;
 				LastUpgradeCheck = 1540;
-				TargetAttributes = {
-					600000012D50000000000000 = {
+				TargetAttributes = {{
+					600000012D50000000000000 = {{
 						CreatedOnToolsVersion = 15.4;
-					};
-					600000022D50000000000000 = {
+					}};
+					600000022D50000000000000 = {{
 						CreatedOnToolsVersion = 15.4;
-					};
-					600000032D50000000000000 = {
+					}};
+					600000032D50000000000000 = {{
 						CreatedOnToolsVersion = 15.4;
 						TestTargetID = 600000012D50000000000000;
-					};
-				};
-			};
+					}};
+				}};
+			}};
 			buildConfigurationList = 500000002D50000000000000 /* Build configuration list for PBXProject "VocabCraftApp" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
@@ -448,89 +325,53 @@ def generate_pbxproj():
 				600000022D50000000000000 /* VocabCraftWidgetExtension */,
 				600000032D50000000000000 /* VocabCraftAppTests */,
 			);
-		};
+		}};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		100000022D50000000000000 /* Sources */ = {
+		100000022D50000000000000 /* Sources */ = {{
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				300000012D50000000000001 /* VocabCraftApp.swift in Sources */,
-				300000022D50000000000001 /* DatasetEngine.swift in Sources */,
-				300000032D50000000000001 /* DatasetModels.swift in Sources */,
-				300000042D50000000000001 /* SharedAppGroupContainer.swift in Sources */,
-				300000052D50000000000001 /* SwiftDataModels.swift in Sources */,
-				300000062D50000000000001 /* SpeechRecognitionService.swift in Sources */,
-				300000072D50000000000001 /* TextToSpeechService.swift in Sources */,
-				300000082D50000000000001 /* SRSEngine.swift in Sources */,
-				300000092D50000000000001 /* ReflexDrillView.swift in Sources */,
-				300000102D50000000000001 /* Color+VocabCraft.swift in Sources */,
-				300000112D50000000000001 /* HeaderView.swift in Sources */,
-				300000122D50000000000001 /* MobileSearchView.swift in Sources */,
-				300000132D50000000000001 /* SRSMemoryHeroCard.swift in Sources */,
-				300000142D50000000000001 /* ActionCardsGrid.swift in Sources */,
-				300000152D50000000000001 /* CEFRDistributionCard.swift in Sources */,
-				300000162D50000000000001 /* LiquidGlassTabBar.swift in Sources */,
-				300000172D50000000000001 /* HomepageView.swift in Sources */,
-				300000182D50000000000001 /* WordItem.swift in Sources */,
-				300000192D50000000000001 /* VocabularySummaryCard.swift in Sources */,
-				300000202D50000000000001 /* WordAccordionCard.swift in Sources */,
-				300000212D50000000000001 /* TopicDecksGridView.swift in Sources */,
-				300000222D50000000000001 /* VocabularyView.swift in Sources */,
+{app_sources_section}
 			);
 			runOnlyForDeploymentPostprocessing = 0;
-		};
-		100000402D50000000000002 /* Sources */ = {
+		}};
+		100000402D50000000000002 /* Sources */ = {{
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				300000412D50000000000001 /* VocabWidget.swift in Sources */,
-				300000422D50000000000001 /* VocabWidgetView.swift in Sources */,
-				300000432D50000000000001 /* NextWordIntent.swift in Sources */,
-				300000442D50000000000001 /* MarkLearnedIntent.swift in Sources */,
-				300000452D50000000000001 /* DatasetEngine.swift in Widget Sources */,
-				300000462D50000000000001 /* SharedAppGroupContainer.swift in Widget Sources */,
-				300000472D50000000000001 /* SwiftDataModels.swift in Widget Sources */,
-				300000482D50000000000001 /* DatasetModels.swift in Widget Sources */,
-				300000492D50000000000001 /* SRSEngine.swift in Widget Sources */,
+{widget_sources_section}
 			);
 			runOnlyForDeploymentPostprocessing = 0;
-		};
-		100000502D50000000000002 /* Sources */ = {
+		}};
+		100000502D50000000000002 /* Sources */ = {{
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				300000512D50000000000001 /* DatasetEngineTests.swift in Sources */,
-				300000522D50000000000001 /* SwiftDataModelsTests.swift in Sources */,
-				300000532D50000000000001 /* SpeechServiceTests.swift in Sources */,
-				300000542D50000000000001 /* SRSEngineTests.swift in Sources */,
-				300000552D50000000000001 /* WidgetIntentsTests.swift in Sources */,
-				300000562D50000000000001 /* VocabularyModelsTests.swift in Sources */,
-				300000572D50000000000001 /* VocabularyViewsTests.swift in Sources */,
-				300000582D50000000000001 /* VocabularyViewTests.swift in Sources */,
+{test_sources_section}
 			);
 			runOnlyForDeploymentPostprocessing = 0;
-		};
+		}};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		800000402D50000000000001 /* PBXTargetDependency */ = {
+		800000402D50000000000001 /* PBXTargetDependency */ = {{
 			isa = PBXTargetDependency;
 			target = 600000022D50000000000000 /* VocabCraftWidgetExtension */;
-			targetProxy = 700000402D50000000000001 /* PBXContainerItemProxy */;
-		};
-		800000502D50000000000001 /* PBXTargetDependency */ = {
+			targetProxy = 700000402D500000000000001 /* PBXContainerItemProxy */;
+		}};
+		800000502D50000000000001 /* PBXTargetDependency */ = {{
 			isa = PBXTargetDependency;
 			target = 600000012D50000000000000 /* VocabCraftApp */;
 			targetProxy = 700000502D500000000000001 /* PBXContainerItemProxy */;
-		};
+		}};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		500000002D50000000000001 /* Debug */ = {
+		500000002D50000000000001 /* Debug */ = {{
 			isa = XCBuildConfiguration;
-			buildSettings = {
+			buildSettings = {{
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -548,12 +389,12 @@ def generate_pbxproj():
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-			};
+			}};
 			name = Debug;
-		};
-		500000002D50000000000002 /* Release */ = {
+		}};
+		500000002D50000000000002 /* Release */ = {{
 			isa = XCBuildConfiguration;
-			buildSettings = {
+			buildSettings = {{
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -571,12 +412,12 @@ def generate_pbxproj():
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-			};
+			}};
 			name = Release;
-		};
-		500000012D50000000000001 /* Debug */ = {
+		}};
+		500000012D50000000000001 /* Debug */ = {{
 			isa = XCBuildConfiguration;
-			buildSettings = {
+			buildSettings = {{
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -584,22 +425,26 @@ def generate_pbxproj():
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				ENABLE_TESTABILITY = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = VocabCraftApp/App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hoojinguyen.vocabcraft;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_MODULE_NAME = VocabCraftApp;
 				CODE_SIGN_ENTITLEMENTS = VocabCraftApp/App/VocabCraftApp.entitlements;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-			};
+			}};
 			name = Debug;
-		};
-		500000012D50000000000002 /* Release */ = {
+		}};
+
+		500000012D50000000000002 /* Release */ = {{
 			isa = XCBuildConfiguration;
-			buildSettings = {
+			buildSettings = {{
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -617,12 +462,12 @@ def generate_pbxproj():
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-			};
+			}};
 			name = Release;
-		};
-		500000022D50000000000001 /* Debug */ = {
+		}};
+		500000022D50000000000001 /* Debug */ = {{
 			isa = XCBuildConfiguration;
-			buildSettings = {
+			buildSettings = {{
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
@@ -637,12 +482,12 @@ def generate_pbxproj():
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-			};
+			}};
 			name = Debug;
-		};
-		500000022D50000000000002 /* Release */ = {
+		}};
+		500000022D50000000000002 /* Release */ = {{
 			isa = XCBuildConfiguration;
-			buildSettings = {
+			buildSettings = {{
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
@@ -657,13 +502,14 @@ def generate_pbxproj():
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-			};
+			}};
 			name = Release;
-		};
-		500000032D50000000000001 /* Debug */ = {
+		}};
+		500000032D50000000000001 /* Debug */ = {{
 			isa = XCBuildConfiguration;
-			buildSettings = {
+			buildSettings = {{
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -675,13 +521,15 @@ def generate_pbxproj():
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-			};
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VocabCraftApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VocabCraftApp";
+			}};
 			name = Debug;
-		};
-		500000032D50000000000002 /* Release */ = {
+		}};
+		500000032D50000000000002 /* Release */ = {{
 			isa = XCBuildConfiguration;
-			buildSettings = {
+			buildSettings = {{
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -693,13 +541,15 @@ def generate_pbxproj():
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-			};
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VocabCraftApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VocabCraftApp";
+			}};
 			name = Release;
-		};
+		}};
+
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		500000002D50000000000000 /* Build configuration list for PBXProject "VocabCraftApp" */ = {
+		500000002D50000000000000 /* Build configuration list for PBXProject "VocabCraftApp" */ = {{
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				500000002D50000000000001 /* Debug */,
@@ -707,8 +557,8 @@ def generate_pbxproj():
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
-		};
-		500000012D50000000000000 /* Build configuration list for PBXNativeTarget "VocabCraftApp" */ = {
+		}};
+		500000012D50000000000000 /* Build configuration list for PBXNativeTarget "VocabCraftApp" */ = {{
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				500000012D50000000000001 /* Debug */,
@@ -716,8 +566,8 @@ def generate_pbxproj():
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
-		};
-		500000022D50000000000000 /* Build configuration list for PBXNativeTarget "VocabCraftWidgetExtension" */ = {
+		}};
+		500000022D50000000000000 /* Build configuration list for PBXNativeTarget "VocabCraftWidgetExtension" */ = {{
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				500000022D50000000000001 /* Debug */,
@@ -725,8 +575,8 @@ def generate_pbxproj():
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
-		};
-		500000032D50000000000000 /* Build configuration list for PBXNativeTarget "VocabCraftAppTests" */ = {
+		}};
+		500000032D50000000000000 /* Build configuration list for PBXNativeTarget "VocabCraftAppTests" */ = {{
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				500000032D50000000000001 /* Debug */,
@@ -734,16 +584,16 @@ def generate_pbxproj():
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
-		};
+		}};
 /* End XCConfigurationList section */
-	};
+	}};
 	rootObject = 100000002D50000000000000 /* Project object */;
-}
+}}
 """
     os.makedirs("VocabCraftApp.xcodeproj", exist_ok=True)
     with open("VocabCraftApp.xcodeproj/project.pbxproj", "w") as f:
         f.write(content)
-    print("Clean PBXGroups and Targets written to VocabCraftApp.xcodeproj/project.pbxproj!")
+    print("Dynamically generated complete PBXGroups and Targets in project.pbxproj!")
 
 if __name__ == "__main__":
     generate_pbxproj()
