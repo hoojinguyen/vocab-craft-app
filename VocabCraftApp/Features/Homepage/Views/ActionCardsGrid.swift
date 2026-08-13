@@ -39,7 +39,7 @@ public struct ActionCardsGrid: View {
                         HStack(spacing: 4) {
                             Image(systemName: "bolt.fill")
                                 .font(.system(size: 10, weight: .bold))
-                            Text(AppStrings.Homepage.reflexTitle)
+                            Text(AppStrings.Homepage.reflexBadge)
                                 .font(.caption.smallCaps())
                                 .fontWeight(.bold)
                         }
@@ -60,13 +60,16 @@ public struct ActionCardsGrid: View {
                         Text(AppStrings.Homepage.reflexTitle)
                             .font(.system(size: 16, weight: .bold))
                             .foregroundColor(Color.vocabInk)
+                            .lineLimit(2)
+                            .frame(maxWidth: .infinity, minHeight: 40, alignment: .topLeading)
+
                         Text(AppStrings.Homepage.practiceNow)
                             .font(.system(size: 12, weight: .medium))
                             .foregroundColor(Color.vocabMuted)
                     }
                 }
                 .padding(16)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                 .background(Color.vocabSurfaceCard)
                 .cornerRadius(20)
                 .overlay(
@@ -114,13 +117,16 @@ public struct ActionCardsGrid: View {
                         Text(AppStrings.Homepage.vocabLibraryTitle)
                             .font(.system(size: 16, weight: .bold))
                             .foregroundColor(Color.vocabInk)
+                            .lineLimit(2)
+                            .frame(maxWidth: .infinity, minHeight: 40, alignment: .topLeading)
+
                         Text(AppStrings.Homepage.dueCardsSubtitle(dueCardsCount))
                             .font(.system(size: 12, weight: .medium))
                             .foregroundColor(Color.vocabMuted)
                     }
                 }
                 .padding(16)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                 .background(Color.vocabSurfaceCard)
                 .cornerRadius(20)
                 .overlay(
@@ -132,6 +138,7 @@ public struct ActionCardsGrid: View {
             .buttonStyle(BentoCardButtonStyle())
             .sensoryFeedback(.impact(weight: .light), trigger: queueTrigger)
         }
+        .fixedSize(horizontal: false, vertical: true)
         .padding(.horizontal)
     }
 }

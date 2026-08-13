@@ -53,7 +53,7 @@ public struct SuggestedWordsCardView: View {
                             .tag(index)
                     }
                 }
-                .frame(height: 145)
+                .frame(height: 160)
 #if os(iOS)
                 .tabViewStyle(.page(indexDisplayMode: .never))
 #else

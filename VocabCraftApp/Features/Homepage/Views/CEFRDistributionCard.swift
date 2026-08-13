@@ -145,7 +145,7 @@ private struct CEFRLegendItem: View {
                 .font(.system(size: 11, weight: .medium))
                 .foregroundColor(Color.vocabMuted)
 
-            Text("\(count) từ")
+            (Text("\(count) ") + Text(AppStrings.Common.wordUnit))
                 .font(.system(size: 11, weight: .bold, design: .rounded))
                 .monospacedDigit()
                 .foregroundColor(Color.vocabInk)

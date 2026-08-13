@@ -67,7 +67,7 @@ public struct HeaderView: View {
 
             // Greeting & Goal Subtitle
             VStack(alignment: .leading, spacing: 2) {
-                Text("Chào \(userName)")
+                Text(AppStrings.Homepage.greetingUser(userName))
                     .font(.system(size: 19, weight: .bold))
                     .foregroundColor(Color.vocabInk)
 
