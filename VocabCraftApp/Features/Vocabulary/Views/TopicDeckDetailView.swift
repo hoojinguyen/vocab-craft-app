@@ -156,7 +156,7 @@ public struct TopicDeckDetailView: View {
                             .padding(.top, 40)
                     } else {
                         ForEach(Array(viewModel.nodes.enumerated()), id: \.element.id) { index, node in
-                        VStack(spacing: 0) {
+                        VStack(alignment: .leading, spacing: 0) {
                             HStack(spacing: 14) {
                                 // Node Circle Icon (Gradient Upgrade)
                                 nodeCircleIcon(node: node, index: index)
