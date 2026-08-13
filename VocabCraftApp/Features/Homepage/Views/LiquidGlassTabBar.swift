@@ -23,7 +23,7 @@ public enum TabItem: Int, CaseIterable, Identifiable {
         switch self {
         case .home: return "house.fill"
         case .vocabulary: return "book.fill"
-        case .search: return "magnifyingglass"
+        case .search: return "plus"
         case .reflex: return "bolt.fill"
         case .settings: return "gearshape.fill"
         }
@@ -197,8 +197,8 @@ public struct LiquidGlassTabBar: View {
                             )
                     )
 
-                Image(systemName: "magnifyingglass")
-                    .font(.system(size: 20, weight: .bold))
+                Image(systemName: "plus")
+                    .font(.system(size: 22, weight: .bold))
                     .foregroundColor(.white)
                     .scaleEffect(isSelected ? (reduceMotion ? 1.0 : 1.15) : 1.0)
                     .animation(.spring(response: 0.3, dampingFraction: 0.55), value: isSelected)

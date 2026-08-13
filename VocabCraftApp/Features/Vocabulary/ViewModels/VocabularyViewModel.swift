@@ -56,6 +56,19 @@ public final class VocabularyViewModel {
         filterService.countMatches(in: wordItems, for: filter)
     }
 
+    /// Delete a word from personal bank.
+    public func deleteWord(id: Int64) {
+        wordItems.removeAll(where: { $0.id == id })
+    }
+
+    /// Toggle mastery level for a word between 5 (mastered) and 1 (needs review).
+    public func toggleMastered(id: Int64) {
+        if let index = wordItems.firstIndex(where: { $0.id == id }) {
+            let current = wordItems[index].masteryLevel
+            wordItems[index].masteryLevel = current >= 5 ? 1 : 5
+        }
+    }
+
     /// Backward-compatible overload for string-based filter counts (used by existing views).
     public func filterCount(for title: String) -> Int {
         guard let filter = VocabularyFilter(rawValue: title) else { return wordItems.count }

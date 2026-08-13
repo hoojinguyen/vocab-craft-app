@@ -85,44 +85,69 @@ public struct VocabularyView: View {
                             }
                             .padding(.horizontal)
                         }
+                        .padding(.vertical, 2)
 
-                        ScrollView(.vertical, showsIndicators: false) {
-                            VStack(spacing: 12) {
-                                // Bento Summary Strip
-                                VocabularySummaryCard(
-                                    totalWords: vm.wordItems.count,
-                                    srsRetentionPercentage: 0.85,
-                                    dueCount: vm.filterCount(for: .needsReview)
-                                )
+                        List {
+                            VocabularySummaryCard(
+                                totalWords: vm.wordItems.count,
+                                srsRetentionPercentage: 0.85,
+                                dueCount: vm.filterCount(for: .needsReview)
+                            )
+                            .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 8, trailing: 0))
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
 
-                                // Word Accordion Cards List
-                                VStack(spacing: 10) {
-                                    ForEach(vm.filteredWords) { item in
-                                        WordAccordionCard(
-                                            item: item,
-                                            isExpanded: vm.expandedWordId == item.id,
-                                            onTap: {
-                                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                                    if vm.expandedWordId == item.id {
-                                                        vm.expandedWordId = nil
-                                                    } else {
-                                                        vm.expandedWordId = item.id
-                                                    }
-                                                }
-                                            },
-                                            onAudioTap: {
-                                                ttsService.speak(text: item.lemma)
-                                            },
-                                            onDrillTap: {
-                                                vm.selectedDrillWord = item
+                            ForEach(vm.filteredWords) { item in
+                                WordAccordionCard(
+                                    item: item,
+                                    isExpanded: vm.expandedWordId == item.id,
+                                    onTap: {
+                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                            if vm.expandedWordId == item.id {
+                                                vm.expandedWordId = nil
+                                            } else {
+                                                vm.expandedWordId = item.id
                                             }
+                                        }
+                                    },
+                                    onAudioTap: {
+                                        ttsService.speak(text: item.lemma)
+                                    },
+                                    onDrillTap: {
+                                        vm.selectedDrillWord = item
+                                    }
+                                )
+                                .listRowInsets(EdgeInsets(top: 5, leading: 16, bottom: 5, trailing: 16))
+                                .listRowSeparator(.hidden)
+                                .listRowBackground(Color.clear)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                            vm.deleteWord(id: item.id)
+                                        }
+                                    } label: {
+                                        Label("Xóa từ", systemImage: "trash.fill")
+                                    }
+                                    .tint(.red)
+                                }
+                                .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                    Button {
+                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                            vm.toggleMastered(id: item.id)
+                                        }
+                                    } label: {
+                                        Label(
+                                            item.masteryLevel >= 5 ? "Cần ôn" : "Đã thuộc",
+                                            systemImage: item.masteryLevel >= 5 ? "arrow.clockwise" : "checkmark.seal.fill"
                                         )
                                     }
+                                    .tint(item.masteryLevel >= 5 ? .orange : .green)
                                 }
-                                .padding(.horizontal)
                             }
-                            .padding(.bottom, 90) // Clear floating tab bar
                         }
+                        .listStyle(.plain)
+                        .scrollContentBackground(.hidden)
+                        .padding(.bottom, 60)
                     } else {
                         // Topic Decks Grid Tab
                         ScrollView(.vertical, showsIndicators: false) {

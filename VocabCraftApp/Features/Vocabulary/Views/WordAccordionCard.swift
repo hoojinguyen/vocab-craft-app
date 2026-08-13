@@ -45,21 +45,23 @@ public struct WordAccordionCard: View {
 
                     Spacer()
 
-                    // CEFR Badge
-                    Text(item.cefrLevel)
-                        .font(.system(size: 10, weight: .bold))
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(cefrColor(item.cefrLevel).opacity(0.18))
-                        .foregroundColor(Color.vocabInk)
-                        .cornerRadius(8)
+                    VStack(alignment: .trailing, spacing: 5) {
+                        // CEFR Badge
+                        Text(item.cefrLevel)
+                            .font(.system(size: 10, weight: .bold))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(cefrColor(item.cefrLevel).opacity(0.18))
+                            .foregroundColor(cefrColor(item.cefrLevel))
+                            .cornerRadius(8)
 
-                    // SRS Mastery Stars
-                    HStack(spacing: 2) {
-                        ForEach(1...5, id: \.self) { star in
-                            Image(systemName: star <= item.masteryLevel ? "star.fill" : "star")
-                                .font(.system(size: 9))
-                                .foregroundColor(star <= item.masteryLevel ? Color.vocabMint : Color.vocabMuted.opacity(0.4))
+                        // SRS Mastery Meter (Clean 5-segment bar)
+                        HStack(spacing: 3) {
+                            ForEach(1...5, id: \.self) { level in
+                                Capsule()
+                                    .fill(level <= item.masteryLevel ? Color.vocabMint : Color.vocabMuted.opacity(0.25))
+                                    .frame(width: 7, height: 4)
+                            }
                         }
                     }
                 }
