@@ -38,9 +38,18 @@ public struct WordAccordionCard: View {
                                 .foregroundColor(Color.vocabMuted)
                         }
 
-                        Text(item.phonetic)
-                            .font(.system(size: 13, weight: .medium, design: .serif))
-                            .foregroundColor(Color.vocabMuted)
+                        HStack(spacing: 8) {
+                            Text(item.phonetic)
+                                .font(.system(size: 13, weight: .medium, design: .serif))
+                                .foregroundColor(Color.vocabMuted)
+                                
+                            Image(systemName: "speaker.wave.2")
+                                .font(.system(size: 14))
+                                .foregroundColor(Color.vocabHeroAccent)
+                                .onTapGesture {
+                                    onAudioTap()
+                                }
+                        }
                     }
 
                     Spacer()
@@ -88,30 +97,14 @@ public struct WordAccordionCard: View {
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(Color.vocabInk)
 
-                    // Example Sentence + TTS Audio Button
-                    HStack(alignment: .top, spacing: 10) {
-                        Button(action: onAudioTap) {
-                            ZStack {
-                                Circle()
-                                    .fill(Color.vocabHeroAccent.opacity(0.14))
-                                    .frame(width: 38, height: 38)
-                                Image(systemName: "speaker.wave.2.fill")
-                                    .font(.system(size: 14))
-                                    .foregroundColor(Color.vocabHeroAccent)
-                            }
-                            .frame(width: 44, height: 44)
-                            .contentShape(Rectangle())
-                        }
-                        .buttonStyle(BentoCardButtonStyle())
-
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(item.exampleSentenceEn)
-                                .font(.system(size: 13, weight: .medium, design: .serif))
-                                .foregroundColor(Color.vocabInk)
-                            Text(item.exampleSentenceVi)
-                                .font(.system(size: 12, weight: .regular))
-                                .foregroundColor(Color.vocabMuted)
-                        }
+                    // Example Sentence
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(item.exampleSentenceEn)
+                            .font(.system(size: 13, weight: .medium, design: .serif))
+                            .foregroundColor(Color.vocabInk)
+                        Text(item.exampleSentenceVi)
+                            .font(.system(size: 12, weight: .regular))
+                            .foregroundColor(Color.vocabMuted)
                     }
 
                     // Quick Practice Button (Primary CTA Upgrade)
@@ -133,7 +126,7 @@ public struct WordAccordionCard: View {
                             )
                         )
                         .clipShape(Capsule())
-                        .shadow(color: Color.vocabPeach.opacity(0.35), radius: 6, x: 0, y: 3)
+                        .shadow(color: Color.vocabPeach.opacity(0.2), radius: 4, x: 0, y: 2)
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(BentoCardButtonStyle())

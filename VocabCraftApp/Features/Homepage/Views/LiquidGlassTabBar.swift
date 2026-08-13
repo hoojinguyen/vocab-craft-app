@@ -23,7 +23,7 @@ public enum TabItem: Int, CaseIterable, Identifiable {
         switch self {
         case .home: return "house.fill"
         case .vocabulary: return "book.fill"
-        case .search: return "plus"
+        case .search: return "magnifyingglass"
         case .reflex: return "bolt.fill"
         case .settings: return "gearshape.fill"
         }
@@ -57,7 +57,7 @@ public struct LiquidGlassTabBar: View {
     }
 
     private var leftTabs: [TabItem] { [.home, .vocabulary] }
-    private var rightTabs: [TabItem] { [.reflex, .settings] }
+    private var rightTabs: [TabItem] { [.search, .settings] }
 
     public var body: some View {
         ZStack(alignment: .center) {
@@ -160,11 +160,11 @@ public struct LiquidGlassTabBar: View {
     }
 
     private var centerHeroButton: some View {
-        let isSelected = selectedTab == .search
+        let isSelected = selectedTab == .reflex
         return Button(action: {
             let springAnimation = Animation.spring(response: 0.36, dampingFraction: 0.74)
             withAnimation(reduceMotion ? .none : springAnimation) {
-                selectedTab = .search
+                selectedTab = .reflex
             }
         }) {
             ZStack {
@@ -197,7 +197,7 @@ public struct LiquidGlassTabBar: View {
                             )
                     )
 
-                Image(systemName: "plus")
+                Image(systemName: "bolt.fill")
                     .font(.system(size: 22, weight: .bold))
                     .foregroundColor(.white)
                     .scaleEffect(isSelected ? (reduceMotion ? 1.0 : 1.15) : 1.0)
