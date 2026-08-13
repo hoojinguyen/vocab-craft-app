@@ -40,6 +40,18 @@ final class MockDatasetDataSource: DatasetDataSourceProtocol {
     func getRandomWordForWidget() -> WordRecord? {
         mockRecords.first
     }
+
+    func fetchTopicDecks() -> [TopicDeckRecord] {
+        return []
+    }
+
+    func fetchSubTopicNodes(deckId: String) -> [SubTopicNodeRecord] {
+        return []
+    }
+
+    func fetchWordsForNode(nodeId: String) -> [WordRecord] {
+        return []
+    }
 }
 
 @Suite("DatasetDataSource Protocol Tests")

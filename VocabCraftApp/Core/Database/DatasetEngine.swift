@@ -238,4 +238,103 @@ public final class DatasetEngine: DatasetDataSourceProtocol {
     public func getRandomWordForWidget() -> WordRecord? {
         return fetchWordRecords(limit: 100).randomElement()
     }
+
+    public func fetchTopicDecks() -> [TopicDeckRecord] {
+        guard let db = db else { return [] }
+        let query = """
+            SELECT id, title, icon_name, badge_color_hex, sort_order
+            FROM topic_decks
+            ORDER BY sort_order ASC;
+        """
+        var statement: OpaquePointer?
+        if sqlite3_prepare_v2(db, query, -1, &statement, nil) != SQLITE_OK {
+            return []
+        }
+        defer { sqlite3_finalize(statement) }
+
+        var results: [TopicDeckRecord] = []
+        while sqlite3_step(statement) == SQLITE_ROW {
+            let id = String(cString: sqlite3_column_text(statement, 0))
+            let title = String(cString: sqlite3_column_text(statement, 1))
+            let iconName = String(cString: sqlite3_column_text(statement, 2))
+            let badgeColorHex = String(cString: sqlite3_column_text(statement, 3))
+            let sortOrder = Int(sqlite3_column_int(statement, 4))
+            
+            results.append(TopicDeckRecord(id: id, title: title, iconName: iconName, badgeColorHex: badgeColorHex, sortOrder: sortOrder))
+        }
+        return results
+    }
+
+    public func fetchSubTopicNodes(deckId: String) -> [SubTopicNodeRecord] {
+        guard let db = db else { return [] }
+        let query = """
+            SELECT id, deck_id, title, icon_name, sort_order
+            FROM topic_nodes
+            WHERE deck_id = ?
+            ORDER BY sort_order ASC;
+        """
+        var statement: OpaquePointer?
+        if sqlite3_prepare_v2(db, query, -1, &statement, nil) != SQLITE_OK {
+            return []
+        }
+        defer { sqlite3_finalize(statement) }
+        
+        let SQLITE_TRANSIENT = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
+        sqlite3_bind_text(statement, 1, deckId, -1, SQLITE_TRANSIENT)
+
+        var results: [SubTopicNodeRecord] = []
+        while sqlite3_step(statement) == SQLITE_ROW {
+            let id = String(cString: sqlite3_column_text(statement, 0))
+            let dId = String(cString: sqlite3_column_text(statement, 1))
+            let title = String(cString: sqlite3_column_text(statement, 2))
+            let iconName = String(cString: sqlite3_column_text(statement, 3))
+            let sortOrder = Int(sqlite3_column_int(statement, 4))
+            
+            results.append(SubTopicNodeRecord(id: id, deckId: dId, title: title, iconName: iconName, sortOrder: sortOrder))
+        }
+        return results
+    }
+    
+    public func fetchWordsForNode(nodeId: String) -> [WordRecord] {
+        guard let db = db else { return [] }
+        let query = """
+            SELECT w.id, w.lemma, w.pos, w.ipa_us, w.cefr_level, d.definition_en, d.definition_vi, d.example
+            FROM words w
+            JOIN node_words nw ON w.id = nw.word_id
+            LEFT JOIN definitions d ON w.id = d.word_id
+            WHERE nw.node_id = ?;
+        """
+        var statement: OpaquePointer?
+        if sqlite3_prepare_v2(db, query, -1, &statement, nil) != SQLITE_OK {
+            return []
+        }
+        defer { sqlite3_finalize(statement) }
+
+        let SQLITE_TRANSIENT = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
+        sqlite3_bind_text(statement, 1, nodeId, -1, SQLITE_TRANSIENT)
+
+        var results: [WordRecord] = []
+        while sqlite3_step(statement) == SQLITE_ROW {
+            let id = sqlite3_column_int64(statement, 0)
+            let lemma = String(cString: sqlite3_column_text(statement, 1))
+            let pos = sqlite3_column_text(statement, 2).map { String(cString: $0) }
+            let ipaUs = sqlite3_column_text(statement, 3).map { String(cString: $0) }
+            let cefr = sqlite3_column_text(statement, 4).map { String(cString: $0) }
+            let defEn = sqlite3_column_text(statement, 5).map { String(cString: $0) }
+            let defVi = sqlite3_column_text(statement, 6).map { String(cString: $0) }
+            let example = sqlite3_column_text(statement, 7).map { String(cString: $0) }
+
+            results.append(WordRecord(
+                id: id,
+                lemma: lemma,
+                pos: pos,
+                ipaUs: ipaUs,
+                cefrLevel: cefr,
+                definitionEn: defEn,
+                definitionVi: defVi,
+                example: example
+            ))
+        }
+        return results
+    }
 }

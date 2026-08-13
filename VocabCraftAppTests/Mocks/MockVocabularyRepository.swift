@@ -1,7 +1,7 @@
 import Foundation
 @testable import VocabCraftApp
 
-public final class MockVocabularyRepository: VocabularyRepositoryProtocol {
+public final class MockVocabularyRepository: VocabularyRepositoryProtocol, @unchecked Sendable {
     public var mockWords: [Word] = [
         Word(
             id: 1,
@@ -61,6 +61,10 @@ public final class MockVocabularyRepository: VocabularyRepositoryProtocol {
     }
 
     public func fetchTopicDecks() async throws -> [TopicDeck] {
+        return []
+    }
+
+    public func fetchTopicDeckDetails(deckId: String) async throws -> [SubTopicNode] {
         return []
     }
 }

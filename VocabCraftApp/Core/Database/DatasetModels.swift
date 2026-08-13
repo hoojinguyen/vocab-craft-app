@@ -58,3 +58,35 @@ public struct ReflexDrillRecord: Identifiable, Equatable, Sendable {
         self.sentenceTextEn = sentenceTextEn
     }
 }
+
+public struct TopicDeckRecord: Identifiable, Equatable, Sendable {
+    public let id: String
+    public let title: String
+    public let iconName: String
+    public let badgeColorHex: String
+    public let sortOrder: Int
+
+    public init(id: String, title: String, iconName: String, badgeColorHex: String, sortOrder: Int) {
+        self.id = id
+        self.title = title
+        self.iconName = iconName
+        self.badgeColorHex = badgeColorHex
+        self.sortOrder = sortOrder
+    }
+}
+
+public struct SubTopicNodeRecord: Identifiable, Equatable, Sendable {
+    public let id: String
+    public let deckId: String
+    public let title: String
+    public let iconName: String
+    public let sortOrder: Int
+
+    public init(id: String, deckId: String, title: String, iconName: String, sortOrder: Int) {
+        self.id = id
+        self.deckId = deckId
+        self.title = title
+        self.iconName = iconName
+        self.sortOrder = sortOrder
+    }
+}

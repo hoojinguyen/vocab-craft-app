@@ -4,16 +4,15 @@ public struct TopicDeckDetailView: View {
     public let deckId: String
     public let onBack: () -> Void
 
+    @State private var viewModel: TopicDeckDetailViewModel
     @State private var selectedNode: SubTopicNode?
     @State private var activeStudyNode: SubTopicNode?
     @Environment(\.colorScheme) private var colorScheme
 
-    private let nodes: [SubTopicNode]
-
-    public init(deckId: String, nodes: [SubTopicNode] = [], onBack: @escaping () -> Void) {
+    public init(deckId: String, repository: VocabularyRepositoryProtocol, onBack: @escaping () -> Void) {
         self.deckId = deckId
-        self.nodes = nodes.isEmpty ? SubTopicNode.sampleNodes : nodes
         self.onBack = onBack
+        _viewModel = State(initialValue: TopicDeckDetailViewModel(deckId: deckId, repository: repository))
     }
 
     public var body: some View {
@@ -43,8 +42,8 @@ public struct TopicDeckDetailView: View {
                             .cornerRadius(6)
                     }
 
-                    let totalWords = nodes.reduce(0) { $0 + $1.totalWords }
-                    let learnedWords = nodes.reduce(0) { $0 + $1.learnedWords }
+                    let totalWords = viewModel.nodes.reduce(0) { $0 + $1.totalWords }
+                    let learnedWords = viewModel.nodes.reduce(0) { $0 + $1.learnedWords }
                     let percentage = totalWords > 0 ? Int((Double(learnedWords) / Double(totalWords)) * 100) : 0
                     let progressFraction = totalWords > 0 ? CGFloat(learnedWords) / CGFloat(totalWords) : 0.0
 
@@ -84,7 +83,7 @@ public struct TopicDeckDetailView: View {
 
                     // Hero CTA (Pill Gradient Upgrade)
                     Button(action: {
-                        if let active = nodes.first(where: { $0.state == .active }) {
+                        if let active = viewModel.nodes.first(where: { $0.state == .active }) {
                             activeStudyNode = active
                         }
                     }) {
@@ -92,7 +91,7 @@ public struct TopicDeckDetailView: View {
                             Image(systemName: "play.fill")
                                 .font(.system(size: 13, weight: .bold))
                             
-                            let activeNodeTitle = nodes.first(where: { $0.state == .active })?.title.uppercased() ?? "BẮT ĐẦU HỌC"
+                            let activeNodeTitle = viewModel.nodes.first(where: { $0.state == .active })?.title.uppercased() ?? "BẮT ĐẦU HỌC"
                             Text("BẮT ĐẦU HỌC \(activeNodeTitle)")
                                 .font(.system(size: 13, weight: .bold))
                         }
@@ -123,7 +122,15 @@ public struct TopicDeckDetailView: View {
 
                 // Timeline Roadmap (Gradient & Depth Upgrade)
                 VStack(spacing: 0) {
-                    ForEach(Array(nodes.enumerated()), id: \.element.id) { index, node in
+                    if viewModel.isLoading {
+                        ProgressView()
+                            .padding(.top, 40)
+                    } else if viewModel.nodes.isEmpty {
+                        Text("Chưa có dữ liệu chặng học.")
+                            .foregroundColor(Color.vocabMuted)
+                            .padding(.top, 40)
+                    } else {
+                        ForEach(Array(viewModel.nodes.enumerated()), id: \.element.id) { index, node in
                         VStack(spacing: 0) {
                             HStack(spacing: 14) {
                                 // Node Circle Icon (Gradient Upgrade)
@@ -136,7 +143,7 @@ public struct TopicDeckDetailView: View {
                                             HStack(spacing: 6) {
                                                 Image(systemName: node.iconName)
                                                     .font(.system(size: 15, weight: .bold))
-                                                    .foregroundColor(node.state == .active ? Color.vocabPeach : (node.state == .completed ? Color.vocabMint : Color.vocabInk))
+                                                    .foregroundColor(nodeIconColor(for: node.state))
                                                 Text(node.title)
                                                     .font(.system(size: 15, weight: .bold))
                                                     .foregroundColor(Color.vocabInk)
@@ -169,18 +176,22 @@ public struct TopicDeckDetailView: View {
                             }
 
                             // Vertical Line (Gradient Upgrade)
-                            if index < nodes.count - 1 {
+                            if index < viewModel.nodes.count - 1 {
                                 HStack {
                                     connectingLine(state: node.state)
                                         .padding(.leading, 22)
-                                    Spacer()
+                                    }
                                 }
                             }
                         }
                     }
                 }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 40)
             }
-            .padding(16)
+        }
+        .task {
+            await viewModel.loadDeck()
         }
         .background(Color.vocabCanvas.ignoresSafeArea())
         .sheet(item: $selectedNode) { node in
@@ -213,6 +224,14 @@ public struct TopicDeckDetailView: View {
             )
         }
 #endif
+    }
+    
+    private func nodeIconColor(for state: NodeState) -> Color {
+        switch state {
+        case .active: return Color.vocabPeach
+        case .completed: return Color.vocabMint
+        case .locked: return Color.vocabInk
+        }
     }
 
     @ViewBuilder

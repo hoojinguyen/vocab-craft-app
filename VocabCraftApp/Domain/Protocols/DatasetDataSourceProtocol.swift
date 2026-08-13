@@ -9,6 +9,11 @@ public protocol DatasetDataSourceProtocol: AnyObject {
     func searchWords(query searchQuery: String) -> [WordRecord]
     func fetchWordById(id targetId: Int64) -> WordRecord?
     func getRandomWordForWidget() -> WordRecord?
+
+    // Topic Decks
+    func fetchTopicDecks() -> [TopicDeckRecord]
+    func fetchSubTopicNodes(deckId: String) -> [SubTopicNodeRecord]
+    func fetchWordsForNode(nodeId: String) -> [WordRecord]
 }
 
 public extension DatasetDataSourceProtocol {

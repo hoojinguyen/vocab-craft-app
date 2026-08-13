@@ -25,6 +25,7 @@ public struct VocabularyView: View {
             if let deckId = vm.selectedDeckId {
                 TopicDeckDetailView(
                     deckId: deckId,
+                    repository: appContainer.vocabularyRepository,
                     onBack: {
                         withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                             vm.selectedDeckId = nil

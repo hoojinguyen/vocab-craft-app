@@ -36,4 +36,10 @@ public protocol VocabularyRepositoryProtocol: Sendable {
     ///
     /// - Returns: An array of ``TopicDeck`` objects.
     func fetchTopicDecks() async throws -> [TopicDeck]
+    
+    /// Fetches the nodes for a specific topic deck.
+    ///
+    /// - Parameter deckId: The ID of the topic deck.
+    /// - Returns: An array of ``SubTopicNode`` objects belonging to the deck.
+    func fetchTopicDeckDetails(deckId: String) async throws -> [SubTopicNode]
 }

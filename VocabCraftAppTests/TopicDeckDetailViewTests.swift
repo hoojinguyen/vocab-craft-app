@@ -4,7 +4,7 @@ import XCTest
 
 final class TopicDeckDetailViewTests: XCTestCase {
     func testDetailViewInitialization() {
-        let view = TopicDeckDetailView(deckId: "1", onBack: {})
+        let view = TopicDeckDetailView(deckId: "1", repository: MockVocabularyRepository(), onBack: {})
         XCTAssertNotNil(view)
     }
 }

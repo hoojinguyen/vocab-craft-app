@@ -64,4 +64,9 @@ public final class MockVocabularyRepository: VocabularyRepositoryProtocol, Senda
     public func fetchTopicDecks() async throws -> [TopicDeck] {
         return dataSource.mockTopicDecks
     }
+    
+    /// Fetches the nodes for a specific topic deck.
+    public func fetchTopicDeckDetails(deckId: String) async throws -> [SubTopicNode] {
+        return SubTopicNode.sampleNodes
+    }
 }
