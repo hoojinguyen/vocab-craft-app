@@ -51,7 +51,7 @@ public struct VocabWidgetProvider: TimelineProvider {
         var fetchDescriptor = FetchDescriptor<UserWordProgress>(predicate: #Predicate { $0.wordId == wordId })
         fetchDescriptor.fetchLimit = 1
         fetchDescriptor.propertiesToFetch = [\.masteryLevel]
-        
+
         let mastery = (try? context.fetch(fetchDescriptor))?.first?.masteryLevel ?? 0
 
         return VocabWidgetEntry(

@@ -480,5 +480,3 @@ public struct ReflexDrillView: View {
         }
     }
 }
-
-

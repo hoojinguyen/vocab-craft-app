@@ -42,7 +42,7 @@ public struct WordAccordionCard: View {
                             Text(item.phonetic)
                                 .font(.system(size: 13, weight: .medium, design: .serif))
                                 .foregroundColor(Color.vocabMuted)
-                                
+
                             Image(systemName: "speaker.wave.2")
                                 .font(.system(size: 14))
                                 .foregroundColor(Color.vocabHeroAccent)
