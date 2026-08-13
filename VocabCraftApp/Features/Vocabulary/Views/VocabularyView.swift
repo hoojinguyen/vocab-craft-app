@@ -127,7 +127,7 @@ public struct VocabularyView: View {
                                             vm.deleteWord(id: item.id)
                                         }
                                     } label: {
-                                        Label("Xóa từ", systemImage: "trash.fill")
+                                        Label(AppStrings.Vocabulary.deleteWord, systemImage: "trash.fill")
                                     }
                                     .tint(.red)
                                 }
@@ -138,7 +138,7 @@ public struct VocabularyView: View {
                                         }
                                     } label: {
                                         Label(
-                                            item.masteryLevel >= 5 ? "Cần ôn" : "Đã thuộc",
+                                            item.masteryLevel >= 5 ? AppStrings.Vocabulary.reviewBadge : AppStrings.Vocabulary.masteredBadge,
                                             systemImage: item.masteryLevel >= 5 ? "arrow.clockwise" : "checkmark.seal.fill"
                                         )
                                     }

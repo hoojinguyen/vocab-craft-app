@@ -52,11 +52,11 @@ public struct QuickReflexDrillSheetView: View {
                         )
                         .shadow(color: Color.black.opacity(colorScheme == .dark ? 0.2 : 0.04), radius: 6, x: 0, y: 3)
                 }
-                .accessibilityLabel("Đóng")
+                .accessibilityLabel(AppStrings.Common.close)
 
                 Spacer()
 
-                Text("Luyện Phản Xạ Nhanh")
+                Text(AppStrings.Reflex.quickPracticeTitle)
                     .font(.system(size: 16, weight: .bold))
                     .foregroundColor(Color.vocabInk)
 
@@ -112,7 +112,7 @@ public struct QuickReflexDrillSheetView: View {
                             HStack(spacing: 4) {
                                 Image(systemName: "bolt.fill")
                                     .font(.system(size: 11))
-                                Text("Siêu tốc")
+                                Text(AppStrings.Reflex.speedBonus)
                                     .font(.system(size: 11, weight: .bold))
                             }
                             .foregroundColor(.orange)
@@ -195,7 +195,7 @@ public struct QuickReflexDrillSheetView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "speaker.wave.2.fill")
                         .font(.system(size: 14))
-                    Text("Nghe câu mẫu")
+                    Text(AppStrings.Reflex.listenExample)
                         .font(.system(.subheadline, weight: .semibold))
                 }
                 .foregroundColor(Color.vocabHeroAccent)
@@ -210,15 +210,15 @@ public struct QuickReflexDrillSheetView: View {
             VocabSpeechVisualizerView(
                 isListening: viewModel.isListening,
                 recognizedText: viewModel.recognizedText,
-                placeholderText: "Nhấn micro bên dưới và nói đáp án tiếng Anh..."
+                placeholderText: String(localized: "reflex.micPlaceholder")
             )
 
             // Interactive Tap-to-Talk Mic Control Hub
             if !viewModel.state.isStepEvaluated {
                 VocabMicControlHubView(
                     isListening: viewModel.isListening,
-                    idleSubtitleText: "Chạm vào Micro để bắt đầu nói",
-                    listeningSubtitleText: "Chạm để hoàn thành bài nói",
+                    idleSubtitleText: String(localized: "reflex.micIdle"),
+                    listeningSubtitleText: String(localized: "reflex.micListening"),
                     onTapMic: {
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                             viewModel.handleMicTap()
@@ -297,9 +297,11 @@ public struct QuickReflexDrillSheetView: View {
         let avgMs = viewModel.state.elapsedTimeMs / max(1, viewModel.state.steps.count)
         if avgMs >= 1000 {
             let sec = Double(avgMs) / 1000.0
-            return String(format: "%.2f s / câu", sec)
+            let format = String(localized: "reflex.secondsPerQuestionFormat")
+            return String(format: format, sec)
         } else {
-            return "\(avgMs) ms / câu"
+            let format = String(localized: "reflex.msPerQuestionFormat")
+            return String(format: format, avgMs)
         }
     }
 
@@ -318,12 +320,12 @@ public struct QuickReflexDrillSheetView: View {
             }
 
             VStack(spacing: 8) {
-                Text(viewModel.state.isCorrect ? "Xuất sắc! Đã làm chủ phản xạ" : "Đã hoàn thành lượt luyện tập!")
+                Text(viewModel.state.isCorrect ? AppStrings.Reflex.masteredFeedback : AppStrings.Reflex.completedFeedback)
                     .font(.system(.title2, design: .rounded, weight: .bold))
                     .foregroundColor(Color.vocabInk)
                     .multilineTextAlignment(.center)
 
-                Text("Thời gian phản xạ: \(formattedReactionTime)")
+                (Text(AppStrings.Reflex.reactionTimeLabel) + Text(" \(formattedReactionTime)"))
                     .font(.system(.subheadline, weight: .medium))
                     .foregroundColor(Color.vocabMuted)
                     .monospacedDigit()
@@ -331,7 +333,7 @@ public struct QuickReflexDrillSheetView: View {
                 if viewModel.state.totalSpeedBonusCount > 0 {
                     HStack(spacing: 4) {
                         Image(systemName: "bolt.fill")
-                        Text("\(viewModel.state.totalSpeedBonusCount)/\(viewModel.state.steps.count) câu Phản xạ siêu tốc")
+                        Text(AppStrings.Reflex.speedBonusCountLabel(count: viewModel.state.totalSpeedBonusCount, total: viewModel.state.steps.count))
                     }
                     .font(.system(.caption, weight: .bold))
                     .foregroundColor(.orange)
@@ -344,7 +346,7 @@ public struct QuickReflexDrillSheetView: View {
 
             if let result = viewModel.state.srsResult {
                 HStack(spacing: 8) {
-                    Text("Mức độ thuộc SRS:")
+                    Text(AppStrings.Reflex.srsLevelHeader)
                         .font(.system(.subheadline, weight: .medium))
                         .foregroundColor(Color.vocabMuted)
 
@@ -372,7 +374,7 @@ public struct QuickReflexDrillSheetView: View {
                 onComplete(updatedLevel)
                 dismiss()
             }) {
-                Text("Hoàn tất")
+                Text(AppStrings.Common.done)
                     .font(.system(.headline, weight: .bold))
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)

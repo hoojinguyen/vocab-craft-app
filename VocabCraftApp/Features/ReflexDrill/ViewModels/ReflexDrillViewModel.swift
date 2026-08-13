@@ -78,7 +78,7 @@ public final class ReflexDrillViewModel {
                 return
             } catch {
                 print("[ReflexDrillViewModel] Failed to load drills: \(error.localizedDescription)")
-                self.state.errorMessage = "Không thể tải danh sách bài tập: \(error.localizedDescription)"
+                self.state.errorMessage = String(localized: "reflex.errorLoadingDrills \(error.localizedDescription)")
                 self.state.showErrorAlert = true
             }
             if self.state.drill == nil {
@@ -152,7 +152,7 @@ public final class ReflexDrillViewModel {
                 } else {
                     desc = error.localizedDescription
                 }
-                self?.state.feedbackText = "Không thể ghi âm: \(desc)"
+                self?.state.feedbackText = String(localized: "reflex.errorRecording \(desc)")
                 self?.state.errorMessage = desc
                 self?.state.showErrorAlert = true
             }
@@ -184,10 +184,10 @@ public final class ReflexDrillViewModel {
         state.isEvaluated = true
 
         if isCorrect {
-            state.feedbackText = "Chính xác! Phản xạ xuất sắc (\(state.elapsedTimeMs)ms)"
+            state.feedbackText = String(localized: "reflex.correctFeedbackMs \(state.elapsedTimeMs)")
             state.triggerSparkle = true
         } else {
-            state.feedbackText = "Chưa chính xác. Đáp án đúng: \"\(drill.correctAnswer)\""
+            state.feedbackText = String(localized: "reflex.incorrectFeedback \(drill.correctAnswer)")
             state.triggerSparkle = false
         }
     }

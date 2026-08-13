@@ -57,7 +57,7 @@ public struct ReflexHeaderBarView: View {
                     .font(.caption)
                     .foregroundColor(.vocabMuted)
 
-                Text("Bài \(currentIndex + 1)/\(max(1, totalCount))")
+                Text(AppStrings.Reflex.lessonProgressLabel(current: currentIndex + 1, total: max(1, totalCount)))
                     .font(.caption2)
                     .fontWeight(.bold)
                     .padding(.horizontal, 7)
@@ -73,7 +73,7 @@ public struct ReflexHeaderBarView: View {
             if !isEvaluated {
                 Button(action: onSkip) {
                     HStack(spacing: 3) {
-                        Text("Bỏ qua")
+                        Text(AppStrings.Common.skip)
                             .font(.subheadline)
                             .fontWeight(.medium)
                         Image(systemName: "chevron.right")
@@ -106,7 +106,7 @@ public struct ReflexPromptHeroCardView: View {
     public var body: some View {
         VStack(spacing: 18) {
             HStack(alignment: .center) {
-                Label("CÂU CẦN PHẢN XẠ NÓI", systemImage: "quote.bubble.fill")
+                Label(AppStrings.Reflex.promptHeader, systemImage: "quote.bubble.fill")
                     .font(.caption2.bold().smallCaps())
                     .foregroundColor(.vocabHeroAccent)
 
@@ -160,7 +160,7 @@ public struct ReflexPromptHeroCardView: View {
                         HStack(spacing: 6) {
                             Image(systemName: "lightbulb.fill")
                                 .font(.caption2)
-                            Text("Xem gợi ý đáp án")
+                            Text(AppStrings.Reflex.viewHint)
                                 .font(.caption)
                                 .fontWeight(.semibold)
                         }
@@ -182,7 +182,7 @@ public struct ReflexPromptHeroCardView: View {
                         .font(.subheadline)
                         .symbolEffect(.bounce, value: isSpeaking)
 
-                    Text(isSpeaking ? "Đang phát audio..." : "Nghe phát âm chuẩn")
+                    Text(isSpeaking ? AppStrings.Reflex.speakingState : AppStrings.Reflex.listenStandardPronunciation)
                         .font(.subheadline)
                         .fontWeight(.semibold)
                 }
@@ -225,9 +225,9 @@ public struct ReflexResultBottomDockView: View {
 
     private var conciseFeedbackText: String {
         if state.isCorrect {
-            return "Phản xạ xuất sắc! Đáp án chuẩn xác."
+            return String(localized: "reflex.feedbackCorrect")
         } else {
-            return "Chưa trùng khớp — Hãy thử luyện tập lại."
+            return String(localized: "reflex.feedbackIncorrect")
         }
     }
 
@@ -243,7 +243,7 @@ public struct ReflexResultBottomDockView: View {
                         .font(.title3)
                         .foregroundColor(isSuccess ? Color.vocabMint : Color.vocabCoral)
 
-                    Text(isSuccess ? (isSpeedTargetHit ? "Phản xạ Tuyệt vời!" : "Chính xác!") : "Cần rèn luyện thêm")
+                    Text(isSuccess ? (isSpeedTargetHit ? AppStrings.Reflex.excellentSpeech : AppStrings.Reflex.correctSpeech) : AppStrings.Reflex.needsPractice)
                         .font(.headline.bold())
                         .foregroundColor(.vocabInk)
                 }
@@ -278,24 +278,24 @@ public struct ReflexResultBottomDockView: View {
 
                 HStack(spacing: 16) {
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("CẤP ĐỘ PHẢN XẠ (SRS)")
+                        Text(AppStrings.Reflex.srsLevelHeader)
                             .font(.caption2.bold().smallCaps())
                             .foregroundColor(.vocabMuted)
 
                         if res.nextMastery > state.currentMastery {
                             HStack(spacing: 4) {
-                                Text("Cấp \(state.currentMastery)")
+                                Text(AppStrings.Reflex.levelLabel(level: state.currentMastery))
                                     .font(.subheadline)
                                     .foregroundColor(.vocabMuted)
                                 Image(systemName: "arrow.right")
                                     .font(.caption2)
                                     .foregroundColor(.vocabHeroAccent)
-                                Text("Cấp \(res.nextMastery)")
+                                Text(AppStrings.Reflex.levelLabel(level: res.nextMastery))
                                     .font(.subheadline.bold())
                                     .foregroundColor(.vocabHeroAccent)
                             }
                         } else {
-                            Text("Cấp \(state.currentMastery)")
+                            Text(AppStrings.Reflex.levelLabel(level: state.currentMastery))
                                 .font(.subheadline.bold())
                                 .foregroundColor(.vocabInk)
                         }
@@ -304,11 +304,11 @@ public struct ReflexResultBottomDockView: View {
                     Spacer()
 
                     VStack(alignment: .trailing, spacing: 3) {
-                        Text("LỊCH ÔN TIẾP THEO")
+                        Text(AppStrings.Reflex.nextReviewHeader)
                             .font(.caption2.bold().smallCaps())
                             .foregroundColor(.vocabMuted)
 
-                        Text("\(res.intervalDays) ngày sau")
+                        Text(AppStrings.Reflex.daysLater(days: res.intervalDays))
                             .font(.subheadline.bold())
                             .foregroundColor(.vocabInk)
                     }
@@ -318,7 +318,7 @@ public struct ReflexResultBottomDockView: View {
             // Primary Action Button (Brand Emerald Mint Accent consistent across all screens)
             Button(action: onNext) {
                 HStack(spacing: 8) {
-                    Text("Bài tiếp theo")
+                    Text(AppStrings.Reflex.nextDrill)
                         .font(.headline.bold())
                     Image(systemName: "arrow.right.circle.fill")
                         .font(.title3)
@@ -440,7 +440,7 @@ public struct ReflexDrillView: View {
                                 ProgressView()
                                     .tint(Color.vocabHeroAccent)
                                     .scaleEffect(1.2)
-                                Text("Đang tải bài tập phản xạ nói...")
+                                Text(AppStrings.Reflex.loadingDrills)
                                     .font(.subheadline)
                                     .fontWeight(.medium)
                                     .foregroundColor(.vocabMuted)
@@ -473,8 +473,8 @@ public struct ReflexDrillView: View {
             showEnglishHint = false
         }
         .sensoryFeedback(viewModel.state.isCorrect ? .success : .error, trigger: viewModel.state.isEvaluated)
-        .alert("Thông báo thu âm", isPresented: $viewModel.state.showErrorAlert) {
-            Button("Đã hiểu", role: .cancel) { }
+        .alert(AppStrings.Reflex.audioAlertTitle, isPresented: $viewModel.state.showErrorAlert) {
+            Button(AppStrings.Common.understand, role: .cancel) { }
         } message: {
             Text(viewModel.state.errorMessage)
         }

@@ -13,19 +13,19 @@ public struct VocabularySummaryCard: View {
 
     public var body: some View {
         HStack(spacing: 0) {
-            metricItem(title: "\(totalWords)", label: "Tổng số từ", color: .vocabInk)
+            metricItem(title: "\(totalWords)", label: AppStrings.Vocabulary.summaryTotalWords, color: .vocabInk)
 
             Divider()
                 .frame(height: 32)
                 .overlay(Color.vocabHairline)
 
-            metricItem(title: "\(Int(srsRetentionPercentage * 100))%", label: "Trí nhớ SRS", color: .vocabMint)
+            metricItem(title: "\(Int(srsRetentionPercentage * 100))%", label: AppStrings.Vocabulary.summarySrsMemory, color: .vocabMint)
 
             Divider()
                 .frame(height: 32)
                 .overlay(Color.vocabHairline)
 
-            metricItem(title: "\(dueCount)", label: "Cần ôn", color: .vocabCoral)
+            metricItem(title: "\(dueCount)", label: AppStrings.Vocabulary.summaryNeedsReview, color: .vocabCoral)
         }
         .padding(.vertical, 14)
         .background(Color.vocabSurfaceCard)
@@ -38,7 +38,7 @@ public struct VocabularySummaryCard: View {
         .padding(.horizontal)
     }
 
-    private func metricItem(title: String, label: String, color: Color) -> some View {
+    private func metricItem(title: String, label: LocalizedStringKey, color: Color) -> some View {
         VStack(spacing: 3) {
             Text(title)
                 .font(.system(size: 19, weight: .bold, design: .rounded))

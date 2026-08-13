@@ -137,8 +137,8 @@ public struct SettingsView: View {
                     title: AppStrings.Settings.englishVoice
                 ) {
                     Picker("", selection: $viewModel.store.ttsVoiceGender) {
-                        Text("US (Mỹ)").tag("US")
-                        Text("UK (Anh)").tag("UK")
+                        Text(AppStrings.Settings.voiceUS).tag("US")
+                        Text(AppStrings.Settings.voiceUK).tag("UK")
                     }
                     .pickerStyle(.segmented)
                     .frame(width: 140)

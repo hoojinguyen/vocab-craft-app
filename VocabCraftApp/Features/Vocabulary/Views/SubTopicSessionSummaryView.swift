@@ -109,12 +109,12 @@ public struct SubTopicSessionSummaryView: View {
                     .symbolEffect(.bounce, value: triggerSensoryHaptic)
 
                 VStack(spacing: 8) {
-                    Text(isPassed ? "CHÚC MỪNG HOÀN THÀNH CHẶNG!" : "CHƯA ĐẠT CHỈ TIÊU (CẦN ≥ 80%)")
+                    Text(isPassed ? AppStrings.Vocabulary.summaryPassedTitle : AppStrings.Vocabulary.summaryFailedTitle)
                         .font(.system(size: 20, weight: .bold))
                         .foregroundColor(Color.vocabInk)
                         .multilineTextAlignment(.center)
 
-                    Text(isPassed ? "Đã tự động đồng bộ từ vựng vào Kho cá nhân" : "Bạn cần đạt tối thiểu 80% độ chính xác để mở chặng tiếp theo")
+                    Text(isPassed ? AppStrings.Vocabulary.summaryPassedSubtitle : AppStrings.Vocabulary.summaryFailedSubtitle)
                         .font(.system(size: 13, weight: .medium))
                         .foregroundColor(Color.vocabMuted)
                         .multilineTextAlignment(.center)
@@ -123,7 +123,7 @@ public struct SubTopicSessionSummaryView: View {
                 // Stats Dashboard Grid
                 HStack(spacing: 16) {
                     VStack(spacing: 6) {
-                        Text("TỔNG THƯỞNG")
+                        Text(AppStrings.Vocabulary.summaryTotalReward)
                             .font(.system(size: 10, weight: .bold))
                             .foregroundColor(Color.vocabMuted)
                         Text("+\(max(0, xpEarned)) XP")
@@ -140,7 +140,7 @@ public struct SubTopicSessionSummaryView: View {
                     )
 
                     VStack(spacing: 6) {
-                        Text("ĐỘ CHÍNH XÁC")
+                        Text(AppStrings.Vocabulary.summaryAccuracy)
                             .font(.system(size: 10, weight: .bold))
                             .foregroundColor(Color.vocabMuted)
                         Text("\(accuracyPercentage)%")
@@ -164,7 +164,7 @@ public struct SubTopicSessionSummaryView: View {
                     if isPassed {
                         Button(action: onFinish) {
                             HStack(spacing: 8) {
-                                Text("CHUYỂN CHẶNG TIẾP THEO")
+                                Text(AppStrings.Vocabulary.summaryNextStage)
                                     .font(.system(size: 14, weight: .bold))
                                 Image(systemName: "arrow.right")
                             }

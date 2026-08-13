@@ -17,6 +17,10 @@ public enum AppStrings {
         public static var retry: LocalizedStringKey { "common.retry" }
         public static var close: LocalizedStringKey { "common.close" }
         public static var wordUnit: LocalizedStringKey { "common.wordUnit" }
+        public static var delete: LocalizedStringKey { "common.delete" }
+        public static var `continue`: LocalizedStringKey { "common.continue" }
+        public static var skip: LocalizedStringKey { "common.skip" }
+        public static var understand: LocalizedStringKey { "common.understand" }
     }
 
     // MARK: - Tab Bar Titles
@@ -78,6 +82,40 @@ public enum AppStrings {
         public static var example: LocalizedStringKey { "vocabulary.example" }
         public static var masteredBadge: LocalizedStringKey { "vocabulary.masteredBadge" }
         public static var reviewBadge: LocalizedStringKey { "vocabulary.reviewBadge" }
+        public static var deleteWord: LocalizedStringKey { "vocabulary.deleteWord" }
+        public static func completionPercent(_ percent: Int) -> LocalizedStringKey {
+            LocalizedStringKey("vocabulary.completionPercent \(percent)")
+        }
+        public static var summaryPassedTitle: LocalizedStringKey { "vocabulary.summaryPassedTitle" }
+        public static var summaryFailedTitle: LocalizedStringKey { "vocabulary.summaryFailedTitle" }
+        public static var summaryPassedSubtitle: LocalizedStringKey { "vocabulary.summaryPassedSubtitle" }
+        public static var summaryFailedSubtitle: LocalizedStringKey { "vocabulary.summaryFailedSubtitle" }
+        public static var summaryTotalReward: LocalizedStringKey { "vocabulary.summaryTotalReward" }
+        public static var summaryAccuracy: LocalizedStringKey { "vocabulary.summaryAccuracy" }
+        public static var summaryNextStage: LocalizedStringKey { "vocabulary.summaryNextStage" }
+        public static var summaryTotalWords: LocalizedStringKey { "vocabulary.summaryTotalWords" }
+        public static var summarySrsMemory: LocalizedStringKey { "vocabulary.summarySrsMemory" }
+        public static var summaryNeedsReview: LocalizedStringKey { "vocabulary.summaryNeedsReview" }
+        public static var quizSelectOptionTitle: LocalizedStringKey { "vocabulary.quizSelectOptionTitle" }
+        public static func attemptsLabel(current: Int, total: Int) -> LocalizedStringKey {
+            LocalizedStringKey("vocabulary.attemptsLabel \(current) \(total)")
+        }
+        public static func quizCorrectXP(xp: Int) -> LocalizedStringKey {
+            LocalizedStringKey("vocabulary.quizCorrectXP \(xp)")
+        }
+        public static var quizIncorrectXP: LocalizedStringKey { "vocabulary.quizIncorrectXP" }
+        public static var progressTitle: LocalizedStringKey { "vocabulary.progressTitle" }
+        public static func progressWordsCount(current: Int, total: Int) -> LocalizedStringKey {
+            LocalizedStringKey("vocabulary.progressWordsCount \(current) \(total)")
+        }
+        public static var startNodeDefaultTitle: LocalizedStringKey { "vocabulary.startNodeDefaultTitle" }
+        public static func startLearningNode(_ nodeTitle: String) -> LocalizedStringKey {
+            LocalizedStringKey("vocabulary.startLearningNode \(nodeTitle)")
+        }
+        public static var emptyStageData: LocalizedStringKey { "vocabulary.emptyStageData" }
+        public static func wordsMasteredCountLabel(current: Int, total: Int) -> LocalizedStringKey {
+            LocalizedStringKey("vocabulary.wordsMasteredCountLabel \(current) \(total)")
+        }
     }
 
     // MARK: - Reflex Drill View
@@ -95,6 +133,45 @@ public enum AppStrings {
         public static var reflexStreakCompleted: LocalizedStringKey { "reflex.reflexStreakCompleted" }
         public static var reflexAccuracy: LocalizedStringKey { "reflex.reflexAccuracy" }
         public static var continueNext: LocalizedStringKey { "reflex.continueNext" }
+        public static var quickPracticeTitle: LocalizedStringKey { "reflex.quickPracticeTitle" }
+        public static var speedBonus: LocalizedStringKey { "reflex.speedBonus" }
+        public static var listenExample: LocalizedStringKey { "reflex.listenExample" }
+        public static var micPlaceholder: LocalizedStringKey { "reflex.micPlaceholder" }
+        public static var micIdle: LocalizedStringKey { "reflex.micIdle" }
+        public static var micListening: LocalizedStringKey { "reflex.micListening" }
+        public static var masteredFeedback: LocalizedStringKey { "reflex.masteredFeedback" }
+        public static var completedFeedback: LocalizedStringKey { "reflex.completedFeedback" }
+        public static var reactionTimeTitle: LocalizedStringKey { "reflex.reactionTimeTitle" }
+        public static var reactionTimeLabel: LocalizedStringKey { "reflex.reactionTimeLabel" }
+        public static func speedBonusCountLabel(count: Int, total: Int) -> LocalizedStringKey {
+            LocalizedStringKey("reflex.speedBonusCountLabel \(count) \(total)")
+        }
+        public static var srsLevelHeader: LocalizedStringKey { "reflex.srsLevelHeader" }
+        public static func levelLabel(level: Int) -> LocalizedStringKey {
+            LocalizedStringKey("reflex.levelLabel \(level)")
+        }
+        public static var nextReviewHeader: LocalizedStringKey { "reflex.nextReviewHeader" }
+        public static func daysLater(days: Int) -> LocalizedStringKey {
+            LocalizedStringKey("reflex.daysLater \(days)")
+        }
+        public static var nextDrill: LocalizedStringKey { "reflex.nextDrill" }
+        public static var loadingDrills: LocalizedStringKey { "reflex.loadingDrills" }
+        public static var audioAlertTitle: LocalizedStringKey { "reflex.audioAlertTitle" }
+        public static func lessonProgressLabel(current: Int, total: Int) -> LocalizedStringKey {
+            LocalizedStringKey("reflex.lessonProgressLabel \(current) \(total)")
+        }
+        public static var promptHeader: LocalizedStringKey { "reflex.promptHeader" }
+        public static var viewHint: LocalizedStringKey { "reflex.viewHint" }
+        public static var speakingState: LocalizedStringKey { "reflex.speakingState" }
+        public static var listenStandardPronunciation: LocalizedStringKey { "reflex.listenStandardPronunciation" }
+        public static var feedbackCorrect: LocalizedStringKey { "reflex.feedbackCorrect" }
+        public static var feedbackIncorrect: LocalizedStringKey { "reflex.feedbackIncorrect" }
+        public static var excellentSpeech: LocalizedStringKey { "reflex.excellentSpeech" }
+        public static var correctSpeech: LocalizedStringKey { "reflex.correctSpeech" }
+        public static var needsPractice: LocalizedStringKey { "reflex.needsPractice" }
+        public static func incorrectFeedback(_ answer: String) -> LocalizedStringKey {
+            LocalizedStringKey("reflex.incorrectFeedback \(answer)")
+        }
     }
 
     // MARK: - Settings View
@@ -132,5 +209,17 @@ public enum AppStrings {
         public static var resetConfirmTitle: LocalizedStringKey { "settings.resetConfirmTitle" }
         public static var resetConfirmMessage: LocalizedStringKey { "settings.resetConfirmMessage" }
         public static var profileBadge: LocalizedStringKey { "settings.profileBadge" }
+        public static var voiceUS: LocalizedStringKey { "settings.voiceUS" }
+        public static var voiceUK: LocalizedStringKey { "settings.voiceUK" }
+    }
+
+    // MARK: - Search View
+    public enum Search {
+        public static var upcomingFeatureTitle: LocalizedStringKey { "search.upcomingFeatureTitle" }
+        public static var smartLookupTitle: LocalizedStringKey { "search.smartLookupTitle" }
+        public static var smartLookupDescription: LocalizedStringKey { "search.smartLookupDescription" }
+        public static var recentSearchesTitle: LocalizedStringKey { "search.recentSearchesTitle" }
+        public static var suggestedTopicsTitle: LocalizedStringKey { "search.suggestedTopicsTitle" }
+        public static var placeholder: LocalizedStringKey { "search.placeholder" }
     }
 }

@@ -71,11 +71,11 @@ public struct TopicDecksGridView: View {
                         }
 
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(deck.title)
+                            Text(LocalizedStringKey(deck.title))
                                 .font(.system(size: 15, weight: .bold))
                                 .foregroundColor(Color.vocabInk)
 
-                            Text("\(Int(deck.completionPercentage * 100))% hoàn thành")
+                            Text(AppStrings.Vocabulary.completionPercent(Int(deck.completionPercentage * 100)))
                                 .font(.system(size: 11, weight: .medium))
                                 .foregroundColor(Color.vocabMuted)
                         }

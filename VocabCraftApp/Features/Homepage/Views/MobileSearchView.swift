@@ -15,7 +15,7 @@ public struct MobileSearchView: View {
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(Color.vocabHeroAccent)
 
-            TextField("Tra cứu từ vựng hoặc thẻ bài...", text: $searchText)
+            TextField(AppStrings.Search.placeholder, text: $searchText)
                 .font(.system(size: 15, weight: .medium))
                 .foregroundColor(Color.vocabInk)
 

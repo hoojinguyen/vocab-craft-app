@@ -73,14 +73,14 @@ public struct TopicDeckDetailView: View {
                     let progressFraction = totalWords > 0 ? CGFloat(learnedWords) / CGFloat(totalWords) : 0.0
 
                     HStack {
-                        Text("Tiến độ: ")
+                        Text(AppStrings.Vocabulary.progressTitle)
                             .font(.system(size: 13, weight: .medium))
                             .foregroundColor(Color.vocabMuted)
                         + Text("\(percentage)%")
                             .font(.system(size: 13, weight: .bold, design: .rounded))
                             .monospacedDigit()
                             .foregroundColor(Color.vocabMint)
-                        + Text(" (\(learnedWords)/\(totalWords) từ)")
+                        + Text(AppStrings.Vocabulary.progressWordsCount(current: learnedWords, total: totalWords))
                             .font(.system(size: 13, weight: .medium))
                             .monospacedDigit()
                             .foregroundColor(Color.vocabMuted)
@@ -116,8 +116,8 @@ public struct TopicDeckDetailView: View {
                             Image(systemName: "play.fill")
                                 .font(.system(size: 13, weight: .bold))
                             
-                            let activeNodeTitle = viewModel.nodes.first(where: { $0.state == .active })?.title.uppercased() ?? "BẮT ĐẦU HỌC"
-                            Text("BẮT ĐẦU HỌC \(activeNodeTitle)")
+                            let activeNodeTitle = viewModel.nodes.first(where: { $0.state == .active })?.title.uppercased() ?? String(localized: "vocabulary.startNodeDefaultTitle")
+                            Text(AppStrings.Vocabulary.startLearningNode(activeNodeTitle))
                                 .font(.system(size: 13, weight: .bold))
                         }
                         .foregroundColor(.white)
@@ -151,7 +151,7 @@ public struct TopicDeckDetailView: View {
                         ProgressView()
                             .padding(.top, 40)
                     } else if viewModel.nodes.isEmpty {
-                        Text("Chưa có dữ liệu chặng học.")
+                        Text(AppStrings.Vocabulary.emptyStageData)
                             .foregroundColor(Color.vocabMuted)
                             .padding(.top, 40)
                     } else {
@@ -174,7 +174,7 @@ public struct TopicDeckDetailView: View {
                                                     .foregroundColor(Color.vocabInk)
                                             }
 
-                                            Text("\(node.learnedWords)/\(node.totalWords) từ đã thuộc")
+                                            Text(AppStrings.Vocabulary.wordsMasteredCountLabel(current: node.learnedWords, total: node.totalWords))
                                                 .font(.system(size: 12, weight: .medium))
                                                 .foregroundColor(Color.vocabMuted)
                                         }

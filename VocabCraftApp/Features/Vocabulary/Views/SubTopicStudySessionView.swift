@@ -97,11 +97,11 @@ public struct SubTopicStudySessionView: View {
                 // Thumb-Zone Quiz Options & Attempt Status Header
                 VStack(spacing: 12) {
                     HStack {
-                        Text("Chọn đáp án đúng:")
+                        Text(AppStrings.Vocabulary.quizSelectOptionTitle)
                             .font(.system(size: 14, weight: .bold))
                             .foregroundColor(Color.vocabInk)
                         Spacer()
-                        Text("Lần \(2 - viewModel.engine.attemptsLeft)/2")
+                        Text(AppStrings.Vocabulary.attemptsLabel(current: 2 - viewModel.engine.attemptsLeft, total: 2))
                             .font(.system(size: 12, weight: .semibold))
                             .foregroundColor(Color.vocabMuted)
                     }
@@ -124,7 +124,7 @@ public struct SubTopicStudySessionView: View {
                         if viewModel.isFlipped {
                             VStack(alignment: .leading, spacing: 8) {
                                 HStack {
-                                    Text(viewModel.isSuccess ? "✓ Chính xác! (+\(viewModel.lastXPDelta) XP)" : "✕ Chưa chính xác (-5 XP)")
+                                    Text(viewModel.isSuccess ? AppStrings.Vocabulary.quizCorrectXP(xp: viewModel.lastXPDelta) : AppStrings.Vocabulary.quizIncorrectXP)
                                         .font(.system(size: 15, weight: .heavy))
                                         .foregroundColor(viewModel.isSuccess ? Color.vocabMint : Color.vocabCoral)
                                     Spacer()
@@ -132,7 +132,7 @@ public struct SubTopicStudySessionView: View {
 
                                 Button(action: { viewModel.advanceToNext() }) {
                                     HStack {
-                                        Text("Tiếp tục")
+                                        Text(AppStrings.Common.continue)
                                             .font(.system(size: 14, weight: .bold))
                                         Image(systemName: "arrow.right")
                                     }

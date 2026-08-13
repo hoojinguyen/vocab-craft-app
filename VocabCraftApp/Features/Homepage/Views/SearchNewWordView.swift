@@ -78,17 +78,17 @@ public struct SearchNewWordView: View {
                             Image(systemName: "sparkles")
                                 .font(.system(size: 14, weight: .bold))
                                 .foregroundColor(.orange)
-                            Text("TÍNH NĂNG SẮP RA MẮT")
+                            Text(AppStrings.Search.upcomingFeatureTitle)
                                 .font(.system(size: 11, weight: .bold))
                                 .foregroundColor(.orange)
                             Spacer()
                         }
 
-                        Text("Tra cứu thông minh bằng AI Context")
+                        Text(AppStrings.Search.smartLookupTitle)
                             .font(.system(size: 16, weight: .bold))
                             .foregroundColor(Color.vocabInk)
 
-                        Text("Hệ thống từ điển thông minh với AI giải thích ngữ cảnh tự nhiên, phát âm bản ngữ và tự động tạo thẻ nhớ SRS chuẩn bị được ra mắt.")
+                        Text(AppStrings.Search.smartLookupDescription)
                             .font(.system(size: 13))
                             .foregroundColor(Color.vocabMuted)
                             .lineSpacing(3)
@@ -110,7 +110,7 @@ public struct SearchNewWordView: View {
 
                     // Recent Searches
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Từ vừa tìm kiếm")
+                        Text(AppStrings.Search.recentSearchesTitle)
                             .font(.system(size: 15, weight: .bold))
                             .foregroundColor(Color.vocabInk)
                             .padding(.horizontal)
@@ -143,7 +143,7 @@ public struct SearchNewWordView: View {
 
                     // Suggested Topics Grid
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Chủ đề từ vựng gợi ý")
+                        Text(AppStrings.Search.suggestedTopicsTitle)
                             .font(.system(size: 15, weight: .bold))
                             .foregroundColor(Color.vocabInk)
                             .padding(.horizontal)
@@ -158,7 +158,7 @@ public struct SearchNewWordView: View {
                                         .background(topic.2.opacity(0.12))
                                         .cornerRadius(10)
 
-                                    Text(topic.0)
+                                    Text(LocalizedStringKey(topic.0))
                                         .font(.system(size: 13, weight: .bold))
                                         .foregroundColor(Color.vocabInk)
                                         .lineLimit(1)
