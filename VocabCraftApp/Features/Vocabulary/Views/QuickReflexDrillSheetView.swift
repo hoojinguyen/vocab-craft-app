@@ -206,58 +206,25 @@ public struct QuickReflexDrillSheetView: View {
             }
             .buttonStyle(BentoPressButtonStyle())
 
-            // Interactive Mic Button with Visual Feedback
-            VStack(spacing: 12) {
-                ZStack {
-                    if viewModel.state.isMicActive {
-                        Circle()
-                            .stroke(Color.red.opacity(0.3), lineWidth: 8)
-                            .frame(width: 96, height: 96)
-                            .scaleEffect(viewModel.state.isMicActive ? 1.15 : 1.0)
-                            .animation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true), value: viewModel.state.isMicActive)
+            // Speech Visualizer Display
+            VocabSpeechVisualizerView(
+                isListening: viewModel.isListening,
+                recognizedText: viewModel.recognizedText,
+                placeholderText: "Nhấn micro bên dưới và nói đáp án tiếng Anh..."
+            )
+
+            // Interactive Tap-to-Talk Mic Control Hub
+            if !viewModel.state.isStepEvaluated {
+                VocabMicControlHubView(
+                    isListening: viewModel.isListening,
+                    idleSubtitleText: "Chạm vào Micro để bắt đầu nói",
+                    listeningSubtitleText: "Chạm để hoàn thành bài nói",
+                    onTapMic: {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                            viewModel.handleMicTap()
+                        }
                     }
-
-                    Circle()
-                        .fill(
-                            viewModel.state.isMicActive
-                                ? Color.red
-                                : (viewModel.state.isStepEvaluated ? (viewModel.state.isStepCorrect ? Color.vocabMint : Color.red) : Color.vocabHeroAccent)
-                        )
-                        .frame(width: 80, height: 80)
-                        .shadow(color: (viewModel.state.isMicActive ? Color.red : Color.vocabHeroAccent).opacity(0.35), radius: 10, y: 4)
-
-                    Image(systemName: viewModel.state.isMicActive ? "waveform" : (viewModel.state.isStepEvaluated ? (viewModel.state.isStepCorrect ? "checkmark" : "xmark") : "mic.fill"))
-                        .font(.system(size: 30, weight: .bold))
-                        .foregroundColor(.white)
-                        .symbolEffect(.bounce, value: viewModel.state.isMicActive)
-                }
-                .sensoryFeedback(.impact(weight: .medium), trigger: viewModel.state.isMicActive)
-                .gesture(
-                    DragGesture(minimumDistance: 0)
-                        .onChanged { _ in
-                            if !viewModel.state.isMicActive && !viewModel.state.isStepEvaluated {
-                                viewModel.startRecording()
-                            }
-                        }
-                        .onEnded { _ in
-                            if viewModel.state.isMicActive {
-                                viewModel.stopRecordingAndEvaluate()
-                            }
-                        }
                 )
-
-                Text(viewModel.state.isMicActive ? "Đang thu âm... Nhả ra để kiểm tra" : "Nhấn giữ để nói • Nhả để kiểm tra")
-                    .font(.system(.subheadline, weight: .semibold))
-                    .foregroundColor(viewModel.state.isMicActive ? .red : Color.vocabMuted)
-            }
-            .padding(.vertical, 4)
-
-            if !viewModel.state.recordedSpokenText.isEmpty {
-                Text("Đã nghe: \"\(viewModel.state.recordedSpokenText)\"")
-                    .font(.system(.subheadline, weight: .semibold))
-                    .foregroundColor(Color.vocabInk)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 8)
             }
 
             if let errorMsg = viewModel.state.errorMessage {

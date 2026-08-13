@@ -1,114 +1,9 @@
 import SwiftUI
 
-// MARK: - Active Speech Visualizer View Component
-public struct ReflexSpeechVisualizerView: View {
-    public let isListening: Bool
-    public let recognizedText: String
+// MARK: - Reusable Speech Visualizer & Mic Control Hub Aliases
+public typealias ReflexSpeechVisualizerView = VocabSpeechVisualizerView
+public typealias ReflexMicControlHubView = VocabMicControlHubView
 
-    @State private var barHeights: [CGFloat] = [12, 24, 18, 30, 16, 26, 14]
-
-    public init(isListening: Bool, recognizedText: String) {
-        self.isListening = isListening
-        self.recognizedText = recognizedText
-    }
-
-    public var body: some View {
-        VStack(spacing: 12) {
-            // Header Label for Context & Affordance
-            HStack {
-                Label(
-                    isListening ? AppStrings.Reflex.listening : AppStrings.Reflex.spokenAnswer,
-                    systemImage: isListening ? "waveform" : "mic.fill"
-                )
-                .font(.caption2.bold().smallCaps())
-                .foregroundColor(isListening ? .vocabCoral : .vocabMuted)
-
-                Spacer()
-            }
-
-            // Equalizer Sound Bar Visualizer
-            if isListening {
-                HStack(spacing: 5) {
-                    ForEach(0..<barHeights.count, id: \.self) { index in
-                        RoundedRectangle(cornerRadius: 3)
-                            .fill(
-                                LinearGradient(
-                                    colors: [Color.vocabCoral, Color.vocabPeach],
-                                    startPoint: .bottom,
-                                    endPoint: .top
-                                )
-                            )
-                            .frame(width: 4, height: barHeights[index])
-                            .animation(.easeInOut(duration: 0.12), value: barHeights[index])
-                    }
-                }
-                .frame(height: 32)
-                .task(id: isListening) {
-                    guard isListening else { return }
-                    while !Task.isCancelled && isListening {
-                        try? await Task.sleep(for: .milliseconds(120))
-                        for i in 0..<barHeights.count {
-                            barHeights[i] = CGFloat.random(in: 8...30)
-                        }
-                    }
-                }
-                .transition(.scale.combined(with: .opacity))
-            }
-
-            // Recognized Speech Text Display
-            Text(displayText)
-                .font(.system(size: 19, weight: recognizedText.isEmpty ? .medium : .semibold, design: .rounded))
-                .foregroundColor(recognizedText.isEmpty ? .vocabMuted.opacity(0.6) : .vocabInk)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity, minHeight: 44)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-        }
-        .padding(18)
-        .frame(maxWidth: .infinity)
-        .background(
-            ZStack {
-                Color.vocabSurfaceCard
-
-                if isListening {
-                    RoundedRectangle(cornerRadius: 24)
-                        .stroke(
-                            LinearGradient(
-                                colors: [Color.vocabCoral.opacity(0.6), Color.vocabPeach.opacity(0.4)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 2
-                        )
-                } else {
-                    RoundedRectangle(cornerRadius: 24)
-                        .stroke(Color.vocabHairline, lineWidth: 1.5)
-                }
-            }
-        )
-        .cornerRadius(24)
-        .shadow(
-            color: isListening ? Color.vocabCoral.opacity(0.12) : Color.black.opacity(0.03),
-            radius: isListening ? 12 : 6,
-            x: 0,
-            y: isListening ? 6 : 3
-        )
-        .padding(.horizontal, 16)
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isListening)
-    }
-
-    private var displayText: String {
-        if !recognizedText.isEmpty {
-            return recognizedText
-        }
-        if isListening {
-            return "Đang lắng nghe câu nói của bạn..."
-        }
-        return "Nhấn micro bên dưới và nói đáp án tiếng Anh..."
-    }
-}
-
-// MARK: - Reflex Header Bar Component View
 // MARK: - Reflex Header Bar Component View
 public struct ReflexHeaderBarView: View {
     public let currentIndex: Int
@@ -311,68 +206,6 @@ public struct ReflexPromptHeroCardView: View {
         )
         .shadow(color: Color.black.opacity(0.04), radius: 10, x: 0, y: 4)
         .padding(.horizontal)
-    }
-}
-
-// MARK: - Tactile Mic Control Hub Component View
-public struct ReflexMicControlHubView: View {
-    public let isListening: Bool
-    public let onTapMic: () -> Void
-
-    @State private var isMicPulsing = false
-
-    public var body: some View {
-        VStack(spacing: 12) {
-            Button(action: onTapMic) {
-                ZStack {
-                    if isListening {
-                        Circle()
-                            .stroke(Color.vocabCoral.opacity(0.35), lineWidth: 4)
-                            .frame(width: 108, height: 108)
-                            .scaleEffect(isMicPulsing ? 1.2 : 1.0)
-                            .opacity(isMicPulsing ? 0.2 : 0.8)
-                            .onAppear {
-                                withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true)) {
-                                    isMicPulsing = true
-                                }
-                            }
-                            .onDisappear {
-                                isMicPulsing = false
-                            }
-                    }
-
-                    Circle()
-                        .fill(
-                            isListening
-                            ? LinearGradient(colors: [Color.vocabCoral, Color.vocabCoral.opacity(0.85)], startPoint: .top, endPoint: .bottom)
-                            : LinearGradient(colors: [Color.vocabHeroAccent, Color.vocabHeroAccent.opacity(0.85)], startPoint: .top, endPoint: .bottom)
-                        )
-                        .frame(width: 84, height: 84)
-                        .shadow(
-                            color: isListening ? Color.vocabCoral.opacity(0.4) : Color.vocabHeroAccent.opacity(0.35),
-                            radius: 14,
-                            x: 0,
-                            y: 6
-                        )
-
-                    Image(systemName: isListening ? "waveform.and.mic" : "mic.fill")
-                        .font(.system(size: 34, weight: .semibold))
-                        .foregroundColor(.white)
-                        .symbolEffect(.bounce, value: isListening)
-                }
-                .frame(width: 112, height: 112)
-                .contentShape(Circle())
-            }
-            .buttonStyle(BentoCardButtonStyle())
-            .accessibilityLabel(isListening ? "Dừng ghi âm và chấm điểm" : "Bắt đầu nói đáp án tiếng Anh")
-
-            Text(isListening ? "Chạm để hoàn thành bài nói" : "Chạm vào Micro để bắt đầu nói")
-                .font(.caption)
-                .fontWeight(.medium)
-                .foregroundColor(isListening ? .vocabCoral : .vocabMuted)
-        }
-        .padding(.vertical, 6)
-        .sensoryFeedback(.impact(weight: .medium), trigger: isListening)
     }
 }
 
@@ -584,14 +417,14 @@ public struct ReflexDrillView: View {
                             )
 
                             // Speech Visualizer & Live Text Display
-                            ReflexSpeechVisualizerView(
+                            VocabSpeechVisualizerView(
                                 isListening: viewModel.isListening,
                                 recognizedText: viewModel.recognizedText
                             )
 
                             // Tactile Mic Control Hub (Hidden when evaluated to avoid occlusion behind bottom dock)
                             if !viewModel.state.isEvaluated {
-                                ReflexMicControlHubView(
+                                VocabMicControlHubView(
                                     isListening: viewModel.isListening,
                                     onTapMic: {
                                         withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
@@ -647,3 +480,5 @@ public struct ReflexDrillView: View {
         }
     }
 }
+
+

@@ -110,7 +110,7 @@ public final class QuickReflexDrillViewModel {
         let step3 = QuickDrillStep(
             id: 3,
             type: .pronunciation,
-            promptText: "Nhấn giữ mic và đọc câu ví dụ chứa từ '\(targetWord.lemma)'",
+            promptText: "Chạm micro và đọc câu ví dụ chứa từ '\(targetWord.lemma)'",
             targetText: targetWord.exampleSentenceEn
         )
 
@@ -145,7 +145,7 @@ public final class QuickReflexDrillViewModel {
         ttsService.speak(text: state.steps[state.currentStepIndex].targetText)
     }
 
-    // MARK: - Hold-to-Talk Speech Recognition Methods
+    // MARK: - Tap-to-Talk Speech Recognition Methods
 
     public func startRecording() {
         guard !state.isMicActive && !state.isStepEvaluated else { return }
@@ -158,6 +158,12 @@ public final class QuickReflexDrillViewModel {
             onResult: { [weak self] text in
                 guard let self = self else { return }
                 self.state.recordedSpokenText = text
+                if self.state.currentStepIndex < self.state.steps.count {
+                    let target = self.state.steps[self.state.currentStepIndex].targetText
+                    if self.isAnswerMatching(userText: text, targetText: target) {
+                        self.stopRecordingAndEvaluate()
+                    }
+                }
             },
             onError: { [weak self] error in
                 guard let self = self else { return }
@@ -176,7 +182,7 @@ public final class QuickReflexDrillViewModel {
         if !state.recordedSpokenText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             submitAnswer(state.recordedSpokenText)
         } else {
-            state.errorMessage = "Chưa nghe thấy câu trả lời. Hãy nhấn giữ mic và đọc câu mẫu."
+            state.errorMessage = "Chưa nghe thấy câu trả lời. Hãy chạm micro và đọc câu mẫu."
         }
     }
 

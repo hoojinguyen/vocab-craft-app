@@ -38,20 +38,20 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
     }
 
     @MainActor
-    func testHoldToTalkRecordingAndEvaluation() {
+    func testTapToTalkRecordingAndEvaluation() {
         let viewModel = QuickReflexDrillViewModel(targetWord: targetWord, allWords: samplePool)
         viewModel.state.currentStepIndex = 2 // Step 3: Pronunciation
 
-        // Hold-to-Talk press down
-        viewModel.startRecording()
-        XCTAssertTrue(viewModel.state.isMicActive)
+        // Tap 1: Start listening
+        viewModel.handleMicTap()
+        XCTAssertTrue(viewModel.isListening)
 
         // Simulated speech stream
         viewModel.state.recordedSpokenText = "Her fame proved to be ephemeral."
 
-        // Hold-to-Talk release
-        viewModel.stopRecordingAndEvaluate()
-        XCTAssertFalse(viewModel.state.isMicActive)
+        // Tap 2: Stop listening & evaluate
+        viewModel.handleMicTap()
+        XCTAssertFalse(viewModel.isListening)
         XCTAssertTrue(viewModel.state.isStepEvaluated)
         XCTAssertTrue(viewModel.state.isStepCorrect)
     }

@@ -104,6 +104,8 @@
 		3000EAE4A7B7D61EA805 /* ReflexDrillViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000EAE4A7B7D61EA805 /* ReflexDrillViewTests.swift */; };
 		3000F020886343A9460C /* SuggestedWordsCardViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000F020886343A9460C /* SuggestedWordsCardViewTests.swift */; };
 		3000F3EB39E8AC94F8B1 /* SRSSparkleEffectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000F3EB39E8AC94F8B1 /* SRSSparkleEffectView.swift */; };
+		3000A1A2B3C4D5E6F7890001 /* VocabMicControlHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A2B3C4D5E6F7890001 /* VocabMicControlHubView.swift */; };
+		3000A1A2B3C4D5E6F7890002 /* VocabSpeechVisualizerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A2B3C4D5E6F7890002 /* VocabSpeechVisualizerView.swift */; };
 		3000F5E38233F07AA9F3 /* LiquidGlassTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000F5E38233F07AA9F3 /* LiquidGlassTabBar.swift */; };
 		3000F67BBB703E2C8F8D /* SubTopicPreviewSheetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000F67BBB703E2C8F8D /* SubTopicPreviewSheetTests.swift */; };
 		3000F862E9AA098E9263 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000F862E9AA098E9263 /* SettingsView.swift */; };
@@ -253,6 +255,8 @@
 		2000EAE4A7B7D61EA805 /* ReflexDrillViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReflexDrillViewTests.swift; sourceTree = "<group>"; };
 		2000F020886343A9460C /* SuggestedWordsCardViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestedWordsCardViewTests.swift; sourceTree = "<group>"; };
 		2000F3EB39E8AC94F8B1 /* SRSSparkleEffectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SRSSparkleEffectView.swift; sourceTree = "<group>"; };
+		2000A1A2B3C4D5E6F7890001 /* VocabMicControlHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabMicControlHubView.swift; sourceTree = "<group>"; };
+		2000A1A2B3C4D5E6F7890002 /* VocabSpeechVisualizerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabSpeechVisualizerView.swift; sourceTree = "<group>"; };
 		2000F5E38233F07AA9F3 /* LiquidGlassTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlassTabBar.swift; sourceTree = "<group>"; };
 		2000F67BBB703E2C8F8D /* SubTopicPreviewSheetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubTopicPreviewSheetTests.swift; sourceTree = "<group>"; };
 		2000F862E9AA098E9263 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -382,6 +386,8 @@
 			children = (
 				2000B21282A5513A6144 /* Color+VocabCraft.swift */,
 				2000F3EB39E8AC94F8B1 /* SRSSparkleEffectView.swift */,
+				2000A1A2B3C4D5E6F7890001 /* VocabMicControlHubView.swift */,
+				2000A1A2B3C4D5E6F7890002 /* VocabSpeechVisualizerView.swift */,
 			);
 			path = DesignSystem;
 			sourceTree = "<group>";
@@ -894,6 +900,8 @@
 				3000B111222333445566 /* Localizable.xcstrings in Sources */,
 				3000B21282A5513A6144 /* Color+VocabCraft.swift in Sources */,
 				3000F3EB39E8AC94F8B1 /* SRSSparkleEffectView.swift in Sources */,
+				3000A1A2B3C4D5E6F7890001 /* VocabMicControlHubView.swift in Sources */,
+				3000A1A2B3C4D5E6F7890002 /* VocabSpeechVisualizerView.swift in Sources */,
 				30003498E286D20C1EBC /* SRSEngine.swift in Sources */,
 				3000EA1A05F3921C21B6 /* UserProgressModelActor.swift in Sources */,
 				30007597124286610F99 /* MockVocabularyDataSource.swift in Sources */,
