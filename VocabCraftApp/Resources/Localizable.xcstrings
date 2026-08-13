@@ -121,10 +121,34 @@
         "vi" : { "stringUnit" : { "state" : "translated", "value" : "KHÁM PHÁ" } }
       }
     },
+    "homepage.dueCardsSubtitle %lld" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld words to review" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "%lld từ cần ôn" } }
+      }
+    },
     "homepage.greeting" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Welcome back!" } },
         "vi" : { "stringUnit" : { "state" : "translated", "value" : "Chào mừng trở lại!" } }
+      }
+    },
+    "homepage.greetingUser %@" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hello %@" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Chào %@" } }
+      }
+    },
+    "homepage.reflexBadge" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "REFLEX" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "PHẢN XẠ" } }
+      }
+    },
+    "homepage.srsRetentionMessage %lld" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld%% words in long-term memory" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "%lld%% từ đã đi vào bộ nhớ bền vững" } }
       }
     },
     "homepage.newWordBadge" : {

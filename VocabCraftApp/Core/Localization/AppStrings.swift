@@ -31,16 +31,20 @@ public enum AppStrings {
     // MARK: - Homepage View
     public enum Homepage {
         public static var greeting: LocalizedStringKey { "homepage.greeting" }
+        public static func greetingUser(_ name: String) -> LocalizedStringKey {
+            LocalizedStringKey("homepage.greetingUser \(name)")
+        }
         public static var streakDays: LocalizedStringKey { "homepage.streakDays" }
         public static var dailyGoal: LocalizedStringKey { "homepage.dailyGoal" }
         public static var suggestedWordsTitle: LocalizedStringKey { "homepage.suggestedWordsTitle" }
         public static var srsHeader: LocalizedStringKey { "homepage.srsHeader" }
         public static func srsRetentionMessage(_ percent: Int) -> LocalizedStringKey {
-            LocalizedStringKey("\(percent)% từ đã đi vào bộ nhớ bền vững")
+            LocalizedStringKey("homepage.srsRetentionMessage \(percent)")
         }
         public static var reflexTitle: LocalizedStringKey { "homepage.reflexTitle" }
+        public static var reflexBadge: LocalizedStringKey { "homepage.reflexBadge" }
         public static func dueCardsSubtitle(_ count: Int) -> LocalizedStringKey {
-            LocalizedStringKey("\(count) từ cần ôn")
+            LocalizedStringKey("homepage.dueCardsSubtitle \(count)")
         }
         public static var practiceNow: LocalizedStringKey { "homepage.practiceNow" }
         public static var vocabLibraryTitle: LocalizedStringKey { "homepage.vocabLibraryTitle" }
