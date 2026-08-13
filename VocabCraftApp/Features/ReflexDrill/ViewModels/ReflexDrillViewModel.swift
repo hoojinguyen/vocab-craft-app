@@ -36,8 +36,12 @@ public final class ReflexDrillViewModel {
     private var timerTask: Task<Void, Never>?
     private var loadTask: Task<Void, Never>?
 
-    public var isListening: Bool { sttService.isListening }
-    public var recognizedText: String { sttService.recognizedText }
+    public var isListening: Bool {
+        (sttService as? SpeechRecognitionService)?.isListening ?? sttService.isListening
+    }
+    public var recognizedText: String {
+        (sttService as? SpeechRecognitionService)?.recognizedText ?? sttService.recognizedText
+    }
     public var isSpeaking: Bool { ttsService.isSpeaking }
 
     public init(

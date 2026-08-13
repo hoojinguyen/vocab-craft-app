@@ -39,7 +39,8 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
 
     @MainActor
     func testTapToTalkRecordingAndEvaluation() {
-        let viewModel = QuickReflexDrillViewModel(targetWord: targetWord, allWords: samplePool)
+        let mockSTT = MockSpeechRecognitionService()
+        let viewModel = QuickReflexDrillViewModel(targetWord: targetWord, allWords: samplePool, sttService: mockSTT)
         viewModel.state.currentStepIndex = 2 // Step 3: Pronunciation
 
         // Tap 1: Start listening
@@ -47,10 +48,11 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
         XCTAssertTrue(viewModel.isListening)
 
         // Simulated speech stream
-        viewModel.state.recordedSpokenText = "Her fame proved to be ephemeral."
+        mockSTT.simulateResult("Her fame proved to be ephemeral.")
 
-        // Tap 2: Stop listening & evaluate
-        viewModel.handleMicTap()
+        if !viewModel.state.isStepEvaluated {
+            viewModel.handleMicTap()
+        }
         XCTAssertFalse(viewModel.isListening)
         XCTAssertTrue(viewModel.state.isStepEvaluated)
         XCTAssertTrue(viewModel.state.isStepCorrect)

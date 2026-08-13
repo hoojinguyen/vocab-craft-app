@@ -47,8 +47,12 @@ public final class QuickReflexDrillViewModel {
     private let sttService: SpeechRecognitionProtocol
     private let evaluateSRSUseCase: EvaluateSRSUseCaseProtocol?
 
-    public var isListening: Bool { state.isMicActive || sttService.isListening }
-    public var recognizedText: String { state.recordedSpokenText }
+    public var isListening: Bool {
+        (sttService as? SpeechRecognitionService)?.isListening ?? sttService.isListening
+    }
+    public var recognizedText: String {
+        (sttService as? SpeechRecognitionService)?.recognizedText ?? sttService.recognizedText
+    }
 
     public init(
         targetWord: WordItem,
@@ -148,16 +152,13 @@ public final class QuickReflexDrillViewModel {
     // MARK: - Tap-to-Talk Speech Recognition Methods
 
     public func startRecording() {
-        guard !state.isMicActive && !state.isStepEvaluated else { return }
+        guard !isListening && !state.isStepEvaluated else { return }
         ttsService.stop()
         state.errorMessage = nil
-        state.isMicActive = true
-        state.recordedSpokenText = ""
 
         sttService.startListening(
             onResult: { [weak self] text in
                 guard let self = self else { return }
-                self.state.recordedSpokenText = text
                 if self.state.currentStepIndex < self.state.steps.count {
                     let target = self.state.steps[self.state.currentStepIndex].targetText
                     if self.isAnswerMatching(userText: text, targetText: target) {
@@ -167,27 +168,30 @@ public final class QuickReflexDrillViewModel {
             },
             onError: { [weak self] error in
                 guard let self = self else { return }
-                self.state.isMicActive = false
-                let errDesc = error.localizedDescription
-                self.state.errorMessage = "Không thể thu âm: \(errDesc). Vui lòng kiểm tra quyền Micro."
+                let desc: String
+                if let err = error as? SpeechRecognitionError, let msg = err.errorDescription {
+                    desc = msg
+                } else {
+                    desc = error.localizedDescription
+                }
+                self.state.errorMessage = "Không thể thu âm: \(desc). Vui lòng kiểm tra quyền Micro."
             }
         )
     }
 
     public func stopRecordingAndEvaluate() {
-        guard state.isMicActive else { return }
-        state.isMicActive = false
+        let answer = recognizedText
         sttService.stopListening()
 
-        if !state.recordedSpokenText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            submitAnswer(state.recordedSpokenText)
+        if !answer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            submitAnswer(answer)
         } else {
             state.errorMessage = "Chưa nghe thấy câu trả lời. Hãy chạm micro và đọc câu mẫu."
         }
     }
 
     public func handleMicTap() {
-        if state.isMicActive {
+        if isListening {
             stopRecordingAndEvaluate()
         } else {
             startRecording()
@@ -247,9 +251,8 @@ public final class QuickReflexDrillViewModel {
 
     public func finishDrill() {
         timerTask?.cancel()
-        if state.isMicActive {
+        if isListening {
             sttService.stopListening()
-            state.isMicActive = false
         }
 
         let allCorrect = state.stepSuccessCount == state.steps.count
