@@ -131,7 +131,8 @@ public struct WordAccordionCard: View {
                     }
                     .buttonStyle(BentoCardButtonStyle())
                 }
-                .transition(.opacity.combined(with: .move(edge: .top)))
+                .compositingGroup()
+                .transition(.opacity)
             }
         }
         .padding(16)
@@ -143,9 +144,9 @@ public struct WordAccordionCard: View {
         )
         .shadow(
             color: isExpanded ? Color.black.opacity(0.08) : Color.vocabHeroTeal.opacity(0.04),
-            radius: isExpanded ? 12 : 6,
+            radius: 8,
             x: 0,
-            y: isExpanded ? 5 : 3
+            y: 4
         )
     }
 
