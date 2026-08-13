@@ -36,46 +36,24 @@ public final class VocabularyViewModel {
 
     private let fetchVocabularyUseCase: FetchVocabularyUseCaseProtocol?
     public let ttsService: TextToSpeechProtocol?
+    private let filterService: VocabularyFilterService
 
     public init(
         fetchVocabularyUseCase: FetchVocabularyUseCaseProtocol? = nil,
-        ttsService: TextToSpeechProtocol? = nil
+        ttsService: TextToSpeechProtocol? = nil,
+        filterService: VocabularyFilterService = VocabularyFilterService()
     ) {
         self.fetchVocabularyUseCase = fetchVocabularyUseCase
         self.ttsService = ttsService
+        self.filterService = filterService
     }
 
     public var filteredWords: [WordItem] {
-        var result = wordItems
-        if !searchText.isEmpty {
-            result = result.filter { $0.lemma.localizedCaseInsensitiveContains(searchText) || $0.definition.localizedCaseInsensitiveContains(searchText) }
-        }
-        switch selectedFilter {
-        case .all:
-            break
-        case .needsReview:
-            result = result.filter { $0.masteryLevel < 3 }
-        case .mastered:
-            result = result.filter { $0.masteryLevel >= 4 }
-        case .a1a2:
-            result = result.filter { $0.cefrLevel == "A1" || $0.cefrLevel == "A2" }
-        case .b1b2:
-            result = result.filter { $0.cefrLevel == "B1" || $0.cefrLevel == "B2" }
-        case .c1c2:
-            result = result.filter { $0.cefrLevel == "C1" || $0.cefrLevel == "C2" }
-        }
-        return result
+        filterService.filter(words: wordItems, filter: selectedFilter, searchText: searchText)
     }
 
     public func filterCount(for filter: VocabularyFilter) -> Int {
-        switch filter {
-        case .all: return wordItems.count
-        case .needsReview: return wordItems.filter { $0.masteryLevel < 3 }.count
-        case .mastered: return wordItems.filter { $0.masteryLevel >= 4 }.count
-        case .a1a2: return wordItems.filter { $0.cefrLevel == "A1" || $0.cefrLevel == "A2" }.count
-        case .b1b2: return wordItems.filter { $0.cefrLevel == "B1" || $0.cefrLevel == "B2" }.count
-        case .c1c2: return wordItems.filter { $0.cefrLevel == "C1" || $0.cefrLevel == "C2" }.count
-        }
+        filterService.countMatches(in: wordItems, for: filter)
     }
 
     /// Backward-compatible overload for string-based filter counts (used by existing views).
