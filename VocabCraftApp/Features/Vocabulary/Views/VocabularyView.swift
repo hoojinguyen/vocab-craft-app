@@ -12,7 +12,7 @@ public struct VocabularyView: View {
 
     /// Resolved TTS service: from ViewModel injection, environment, or fallback.
     private var ttsService: TextToSpeechProtocol {
-        vm.ttsService ?? appContainer?.ttsService ?? TextToSpeechService()
+        vm.ttsService ?? appContainer.ttsService
     }
 
     public var body: some View {
@@ -143,9 +143,9 @@ public struct VocabularyView: View {
             QuickReflexDrillSheetView(
                 targetWord: targetWord,
                 allWords: vm.wordItems,
-                ttsService: appContainer?.ttsService,
-                sttService: appContainer?.sttService,
-                evaluateSRSUseCase: appContainer?.evaluateSRSUseCase,
+                ttsService: appContainer.ttsService,
+                sttService: appContainer.sttService,
+                evaluateSRSUseCase: appContainer.evaluateSRSUseCase,
                 onComplete: { updatedMastery in
                     if let idx = vm.wordItems.firstIndex(where: { $0.id == targetWord.id }) {
                         vm.wordItems[idx].masteryLevel = updatedMastery

@@ -1,7 +1,9 @@
 import SwiftData
 import SwiftUI
 
+#if !SWIFT_PACKAGE
 @main
+#endif
 struct VocabCraftApp: App {
     let container: ModelContainer
     let datasetEngine: DatasetEngine?
@@ -47,7 +49,11 @@ struct VocabCraftApp: App {
         WindowGroup {
             HomepageView(viewModel: appContainer.makeHomepageViewModel())
                 .environment(\.appContainer, appContainer)
+                .environment(\.appRouter, appContainer.appRouter)
                 .environment(\.ttsService, appContainer.ttsService)
+                .onOpenURL { url in
+                    appContainer.appRouter.handleDeepLink(url: url)
+                }
         }
         .modelContainer(container)
     }

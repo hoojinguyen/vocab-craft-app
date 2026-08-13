@@ -17,6 +17,7 @@ public final class AppContainer {
     public let evaluateSRSUseCase: EvaluateSRSUseCaseProtocol
 
     public let userSettingsStore: UserSettingsStore
+    public let appRouter: AppRouter
 
     public init(
         datasetEngine: DatasetEngine? = nil,
@@ -24,7 +25,8 @@ public final class AppContainer {
         useMockData: Bool? = nil,
         ttsService: TextToSpeechProtocol? = nil,
         sttService: SpeechRecognitionProtocol? = nil,
-        userSettingsStore: UserSettingsStore? = nil
+        userSettingsStore: UserSettingsStore? = nil,
+        appRouter: AppRouter? = nil
     ) {
         self.datasetEngine = datasetEngine
         self.modelContainer = modelContainer
@@ -45,6 +47,7 @@ public final class AppContainer {
         self.evaluateSRSUseCase = EvaluateSRSUseCase(srsRepository: srsRepo)
 
         self.userSettingsStore = userSettingsStore ?? UserSettingsStore()
+        self.appRouter = appRouter ?? AppRouter()
     }
 
     public func makeHomepageViewModel() -> HomepageViewModel {
@@ -84,4 +87,6 @@ public final class AppContainer {
             ttsService: ttsService
         )
     }
+
+    public static let mock = AppContainer(useMockData: true)
 }

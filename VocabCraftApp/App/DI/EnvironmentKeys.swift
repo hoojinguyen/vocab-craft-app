@@ -1,7 +1,13 @@
 import SwiftUI
 
+@MainActor
 private struct AppContainerKey: EnvironmentKey {
-    static let defaultValue: AppContainer? = nil
+    static let defaultValue: AppContainer = .mock
+}
+
+@MainActor
+private struct AppRouterKey: EnvironmentKey {
+    static let defaultValue: AppRouter? = nil
 }
 
 private struct TextToSpeechKey: EnvironmentKey {
@@ -9,9 +15,16 @@ private struct TextToSpeechKey: EnvironmentKey {
 }
 
 public extension EnvironmentValues {
-    var appContainer: AppContainer? {
+    @MainActor
+    var appContainer: AppContainer {
         get { self[AppContainerKey.self] }
         set { self[AppContainerKey.self] = newValue }
+    }
+
+    @MainActor
+    var appRouter: AppRouter? {
+        get { self[AppRouterKey.self] }
+        set { self[AppRouterKey.self] = newValue }
     }
 
     var ttsService: TextToSpeechProtocol? {

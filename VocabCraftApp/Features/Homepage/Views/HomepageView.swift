@@ -4,6 +4,12 @@ import SwiftUI
 public struct HomepageView: View {
     @State private var viewModel: HomepageViewModel
     @Environment(\.appContainer) private var appContainer
+    @Environment(\.appRouter) private var appRouter
+    @State private var fallbackRouter = AppRouter()
+
+    private var currentRouter: AppRouter {
+        appRouter ?? appContainer.appRouter
+    }
 
     @MainActor
     public init(viewModel: HomepageViewModel) {
@@ -15,7 +21,7 @@ public struct HomepageView: View {
             Color.vocabCanvas
                 .ignoresSafeArea()
 
-            switch viewModel.selectedTab {
+            switch currentRouter.selectedTab {
             case .home:
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 16) {
@@ -45,22 +51,16 @@ public struct HomepageView: View {
                         ActionCardsGrid(
                             dueCardsCount: viewModel.state.dueCardsCount,
                             onReflexTap: {
-                                withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
-                                    viewModel.selectTab(.reflex)
-                                }
+                                currentRouter.navigateToReflex()
                             },
                             onQueueTap: {
-                                withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
-                                    viewModel.selectTab(.vocabulary)
-                                }
+                                currentRouter.navigateToVocabulary()
                             }
                         )
 
                         CEFRDistributionCard(
                             onDetailTap: {
-                                withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
-                                    viewModel.selectTab(.vocabulary)
-                                }
+                                currentRouter.navigateToVocabulary()
                             }
                         )
 
@@ -73,37 +73,26 @@ public struct HomepageView: View {
                 }
 
             case .vocabulary:
-                if let appContainer = appContainer {
-                    VocabularyView(viewModel: appContainer.makeVocabularyViewModel())
-                } else {
-                    VocabularyView()
-                }
+                VocabularyView(viewModel: appContainer.makeVocabularyViewModel())
             case .search:
                 SearchNewWordView()
             case .reflex:
-                if let appContainer = appContainer {
-                    ReflexDrillView(viewModel: appContainer.makeReflexDrillViewModel(), onDismiss: {
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
-                            viewModel.selectTab(.home)
-                        }
-                    })
-                } else {
-                    Text("AppContainer is missing")
-                }
+                ReflexDrillView(viewModel: appContainer.makeReflexDrillViewModel(), onDismiss: {
+                    currentRouter.navigateToHome()
+                })
             case .settings:
-                if let appContainer = appContainer {
-                    SettingsView(viewModel: appContainer.makeSettingsViewModel())
-                } else {
-                    Text("AppContainer is missing")
-                }
+                SettingsView(viewModel: appContainer.makeSettingsViewModel())
             }
 
-            if viewModel.selectedTab != .reflex {
-                LiquidGlassTabBar(selectedTab: $viewModel.selectedTab)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            if currentRouter.selectedTab != .reflex {
+                LiquidGlassTabBar(selectedTab: Binding(
+                    get: { currentRouter.selectedTab },
+                    set: { currentRouter.selectTab($0) }
+                ))
+                .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
-        .preferredColorScheme(appContainer?.userSettingsStore.colorScheme)
-        .environment(\.locale, appContainer?.userSettingsStore.appLocale ?? .autoupdatingCurrent)
+        .preferredColorScheme(appContainer.userSettingsStore.colorScheme)
+        .environment(\.locale, appContainer.userSettingsStore.appLocale ?? .autoupdatingCurrent)
     }
 }
