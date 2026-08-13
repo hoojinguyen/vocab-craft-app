@@ -12,7 +12,7 @@ public struct TopicDeckDetailView: View {
 
     public init(deckId: String, nodes: [SubTopicNode] = [], onBack: @escaping () -> Void) {
         self.deckId = deckId
-        self.nodes = nodes
+        self.nodes = nodes.isEmpty ? SubTopicNode.sampleNodes : nodes
         self.onBack = onBack
     }
 
@@ -43,15 +43,20 @@ public struct TopicDeckDetailView: View {
                             .cornerRadius(6)
                     }
 
+                    let totalWords = nodes.reduce(0) { $0 + $1.totalWords }
+                    let learnedWords = nodes.reduce(0) { $0 + $1.learnedWords }
+                    let percentage = totalWords > 0 ? Int((Double(learnedWords) / Double(totalWords)) * 100) : 0
+                    let progressFraction = totalWords > 0 ? CGFloat(learnedWords) / CGFloat(totalWords) : 0.0
+
                     HStack {
                         Text("Tiến độ: ")
                             .font(.system(size: 13, weight: .medium))
                             .foregroundColor(Color.vocabMuted)
-                        + Text("65%")
+                        + Text("\(percentage)%")
                             .font(.system(size: 13, weight: .bold, design: .rounded))
                             .monospacedDigit()
                             .foregroundColor(Color.vocabMint)
-                        + Text(" (325/500 từ)")
+                        + Text(" (\(learnedWords)/\(totalWords) từ)")
                             .font(.system(size: 13, weight: .medium))
                             .monospacedDigit()
                             .foregroundColor(Color.vocabMuted)
@@ -72,7 +77,7 @@ public struct TopicDeckDetailView: View {
                                             endPoint: .trailing
                                         )
                                     )
-                                    .frame(width: geo.size.width * 0.65)
+                                    .frame(width: geo.size.width * progressFraction)
                                     .shadow(color: Color.vocabMint.opacity(0.35), radius: 3, x: 0, y: 1.5)
                             }
                         )
@@ -86,7 +91,9 @@ public struct TopicDeckDetailView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "play.fill")
                                 .font(.system(size: 13, weight: .bold))
-                            Text("BẮT ĐẦU HỌC CHẶNG 3 (CÔNG NGHỆ)")
+                            
+                            let activeNodeTitle = nodes.first(where: { $0.state == .active })?.title.uppercased() ?? "BẮT ĐẦU HỌC"
+                            Text("BẮT ĐẦU HỌC \(activeNodeTitle)")
                                 .font(.system(size: 13, weight: .bold))
                         }
                         .foregroundColor(.white)

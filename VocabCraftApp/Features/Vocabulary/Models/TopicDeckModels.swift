@@ -70,10 +70,10 @@ extension SubTopicNode {
     public static let sampleNodes: [SubTopicNode] = [
         SubTopicNode(
             id: "1",
-            title: "Môi trường & Khí hậu",
-            iconName: "leaf.fill",
-            totalWords: 25,
-            learnedWords: 25,
+            title: "Chặng 1: Khởi động",
+            iconName: "flag.fill",
+            totalWords: 150,
+            learnedWords: 150,
             state: .completed,
             words: [
                 TopicWord(
@@ -97,6 +97,44 @@ extension SubTopicNode {
                     isSavedToPersonalVault: true
                 )
             ]
+        ),
+        SubTopicNode(
+            id: "2",
+            title: "Chặng 2: Kinh tế & Xã hội",
+            iconName: "chart.bar.fill",
+            totalWords: 150,
+            learnedWords: 150,
+            state: .completed,
+            words: []
+        ),
+        SubTopicNode(
+            id: "3",
+            title: "Chặng 3: Công nghệ",
+            iconName: "cpu",
+            totalWords: 100,
+            learnedWords: 25,
+            state: .active,
+            words: [
+                TopicWord(
+                    id: "w3",
+                    english: "Artificial Intelligence",
+                    phonetic: "/ˌɑːr.t̬əˈfɪʃ.əl ɪnˈtel.ə.dʒəns/",
+                    vietnamese: "Trí tuệ nhân tạo",
+                    example: "AI is transforming many industries.",
+                    partOfSpeech: "noun",
+                    isMastered: false,
+                    isSavedToPersonalVault: false
+                )
+            ]
+        ),
+        SubTopicNode(
+            id: "4",
+            title: "Chặng 4: Văn hóa & Nghệ thuật",
+            iconName: "paintpalette.fill",
+            totalWords: 100,
+            learnedWords: 0,
+            state: .locked,
+            words: []
         )
     ]
 }
