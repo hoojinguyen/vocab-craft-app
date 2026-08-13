@@ -3,15 +3,15 @@ import Foundation
 /// Production repository implementation connecting SQLite dataset engine and SwiftData user progress actor.
 @MainActor
 public final class VocabularyRepositoryImpl: VocabularyRepositoryProtocol {
-    private let datasetEngine: DatasetEngine?
+    private let datasetEngine: DatasetDataSourceProtocol?
     private let progressActor: UserProgressModelActor?
 
     /// Creates a production vocabulary repository with optional dataset engine and progress actor dependencies.
     ///
     /// - Parameters:
-    ///   - datasetEngine: The SQLite dataset engine instance.
+    ///   - datasetEngine: The SQLite dataset engine instance or mock implementing DatasetDataSourceProtocol.
     ///   - progressActor: The SwiftData background actor for user progress operations.
-    public init(datasetEngine: DatasetEngine? = nil, progressActor: UserProgressModelActor? = nil) {
+    public init(datasetEngine: DatasetDataSourceProtocol? = nil, progressActor: UserProgressModelActor? = nil) {
         self.datasetEngine = datasetEngine
         self.progressActor = progressActor
     }

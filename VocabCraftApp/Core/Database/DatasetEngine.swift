@@ -2,7 +2,7 @@ import Foundation
 import SQLite3
 
 @MainActor
-public final class DatasetEngine {
+public final class DatasetEngine: DatasetDataSourceProtocol {
     private var db: OpaquePointer?
 
     public init?(dbPath: String? = Bundle.main.path(forResource: "english_dataset", ofType: "db")) {
