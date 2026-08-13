@@ -109,6 +109,12 @@
       "skillPath": "skills/swiftdata/SKILL.md",
       "computedHash": "fce693f37af15168a48540f92c005026a9df4d92f973f656a57dfd15f2c5860e"
     },
+    "swiftdata-pro": {
+      "source": "twostraws/swiftdata-agent-skill",
+      "sourceType": "github",
+      "skillPath": "swiftdata-pro/SKILL.md",
+      "computedHash": "2f979bad98ea3a6744084c5f93e27897f02e8d0ffe15dd03042e88aaae4da14c"
+    },
     "swiftlint": {
       "source": "dpearson2699/swift-ios-skills",
       "sourceType": "github",
