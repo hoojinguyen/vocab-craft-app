@@ -169,6 +169,12 @@
       "skillPath": "skills/swiftui-uikit-interop/SKILL.md",
       "computedHash": "35915265a8056369b657d45319dfea3da05a2fc1cf185b966f33bdb016773c28"
     },
+    "widgets": {
+      "source": "n0an/Widgets-Agent-Skill",
+      "sourceType": "github",
+      "skillPath": "widgets/SKILL.md",
+      "computedHash": "161cec00ded4f2aff93eef3ae68270cfb359b969ef6727197d14e4ee06c38e04"
+    },
     "xcode-build-benchmark": {
       "source": "avdlee/xcode-build-optimization-agent-skill",
       "sourceType": "github",
