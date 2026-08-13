@@ -95,19 +95,10 @@ public struct QuickReflexDrillSheetView: View {
 
                 VStack(alignment: .leading, spacing: 18) {
                     // Per-step Countdown Bar
-                    GeometryReader { geo in
-                        ZStack(alignment: .leading) {
-                            Capsule()
-                                .fill(Color.vocabHairline.opacity(0.4))
-                                .frame(height: 4)
-
-                            Capsule()
-                                .fill(viewModel.state.stepRemainingSeconds <= 2.0 ? Color.orange : Color.vocabHeroAccent)
-                                .frame(width: max(0, geo.size.width * CGFloat(viewModel.state.stepRemainingSeconds / viewModel.state.stepMaxSeconds)), height: 4)
-                                .animation(.linear(duration: 0.1), value: viewModel.state.stepRemainingSeconds)
-                        }
-                    }
-                    .frame(height: 4)
+                    CountdownBarView(
+                        remainingSeconds: viewModel.state.stepRemainingSeconds,
+                        maxSeconds: viewModel.state.stepMaxSeconds
+                    )
 
                     HStack(alignment: .top) {
                         Text(currentStep.promptText)
@@ -522,5 +513,29 @@ private struct BentoPressButtonStyle: ButtonStyle {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
             .animation(.spring(response: 0.25, dampingFraction: 0.7), value: configuration.isPressed)
+    }
+}
+
+struct CountdownBarView: View {
+    let remainingSeconds: Double
+    let maxSeconds: Double
+
+    var body: some View {
+        GeometryReader { geo in
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .fill(Color.vocabHairline.opacity(0.4))
+                    .frame(height: 4)
+
+                Capsule()
+                    .fill(remainingSeconds <= 2.0 ? Color.orange : Color.vocabHeroAccent)
+                    .frame(
+                        width: max(0, geo.size.width * CGFloat(remainingSeconds / max(maxSeconds, 1))),
+                        height: 4
+                    )
+                    .animation(.linear(duration: 0.1), value: remainingSeconds)
+            }
+        }
+        .frame(height: 4)
     }
 }

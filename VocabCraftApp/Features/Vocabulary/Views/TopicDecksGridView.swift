@@ -81,16 +81,16 @@ public struct TopicDecksGridView: View {
                         }
 
                         // Progress Bar
-                        GeometryReader { geo in
-                            ZStack(alignment: .leading) {
-                                RoundedRectangle(cornerRadius: 2)
-                                    .fill(Color.vocabHairline)
-                                RoundedRectangle(cornerRadius: 2)
-                                    .fill(Color.vocabMint)
-                                    .frame(width: geo.size.width * CGFloat(deck.completionPercentage))
-                            }
-                        }
-                        .frame(height: 4)
+                        RoundedRectangle(cornerRadius: 2)
+                            .fill(Color.vocabHairline)
+                            .frame(height: 4)
+                            .overlay(
+                                GeometryReader { geo in
+                                    RoundedRectangle(cornerRadius: 2)
+                                        .fill(Color.vocabMint)
+                                        .frame(width: geo.size.width * CGFloat(deck.completionPercentage))
+                                }
+                            )
                     }
                     .padding(14)
                     .background(Color.vocabSurfaceCard)

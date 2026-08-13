@@ -59,23 +59,23 @@ public struct TopicDeckDetailView: View {
                     }
 
                     // Progress bar (Capsule Gradient Upgrade)
-                    GeometryReader { geo in
-                        ZStack(alignment: .leading) {
-                            Capsule()
-                                .fill(Color.vocabHairline)
-                            Capsule()
-                                .fill(
-                                    LinearGradient(
-                                        colors: [Color.vocabMint, Color(hex: "34D399")],
-                                        startPoint: .leading,
-                                        endPoint: .trailing
+                    Capsule()
+                        .fill(Color.vocabHairline)
+                        .frame(height: 8)
+                        .overlay(
+                            GeometryReader { geo in
+                                Capsule()
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [Color.vocabMint, Color(hex: "34D399")],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        )
                                     )
-                                )
-                                .frame(width: geo.size.width * 0.65)
-                                .shadow(color: Color.vocabMint.opacity(0.35), radius: 3, x: 0, y: 1.5)
-                        }
-                    }
-                    .frame(height: 8)
+                                    .frame(width: geo.size.width * 0.65)
+                                    .shadow(color: Color.vocabMint.opacity(0.35), radius: 3, x: 0, y: 1.5)
+                            }
+                        )
 
                     // Hero CTA (Pill Gradient Upgrade)
                     Button(action: {
