@@ -2,6 +2,9 @@ import AppIntents
 import SwiftData
 import SwiftUI
 @testable import VocabCraftApp
+#if SWIFT_PACKAGE
+@testable import VocabCraftWidgetExtension
+#endif
 import WidgetKit
 import XCTest
 

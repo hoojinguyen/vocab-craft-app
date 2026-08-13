@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		300008F15FA2F8FA1668 /* VocabularyFilterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200008F15FA2F8FA1668 /* VocabularyFilterService.swift */; };
+		300008F25FA2F8FA1668 /* AppRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200008F25FA2F8FA1668 /* AppRouter.swift */; };
+		300008F35FA2F8FA1668 /* DatasetDataSourceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200008F35FA2F8FA1668 /* DatasetDataSourceProtocol.swift */; };
+		300008F45FA2F8FA1668 /* VocabularyFilterServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200008F45FA2F8FA1668 /* VocabularyFilterServiceTests.swift */; };
+		300008F55FA2F8FA1668 /* AppRouterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200008F55FA2F8FA1668 /* AppRouterTests.swift */; };
+		300008F65FA2F8FA1668 /* DatasetDataSourceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200008F65FA2F8FA1668 /* DatasetDataSourceTests.swift */; };
 		300000402D50000000000002 /* VocabCraftWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 200000402D50000000000000 /* VocabCraftWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		300001F55FA2F8FA1668 /* FetchVocabularyUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200001F55FA2F8FA1668 /* FetchVocabularyUseCase.swift */; };
 		300002284C02A8E338C2 /* VocabWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200002284C02A8E338C2 /* VocabWidgetBundle.swift */; };
@@ -145,6 +151,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		200008F15FA2F8FA1668 /* VocabularyFilterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyFilterService.swift; sourceTree = "<group>"; };
+		200008F25FA2F8FA1668 /* AppRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRouter.swift; sourceTree = "<group>"; };
+		200008F35FA2F8FA1668 /* DatasetDataSourceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatasetDataSourceProtocol.swift; sourceTree = "<group>"; };
+		200008F45FA2F8FA1668 /* VocabularyFilterServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyFilterServiceTests.swift; sourceTree = "<group>"; };
+		200008F55FA2F8FA1668 /* AppRouterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRouterTests.swift; sourceTree = "<group>"; };
+		200008F65FA2F8FA1668 /* DatasetDataSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatasetDataSourceTests.swift; sourceTree = "<group>"; };
 		200000002D50000000000000 /* VocabCraftApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VocabCraftApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000402D50000000000000 /* VocabCraftWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VocabCraftWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000502D50000000000000 /* VocabCraftAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VocabCraftAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -516,6 +528,7 @@
 			isa = PBXGroup;
 			children = (
 				20009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift */,
+				200008F35FA2F8FA1668 /* DatasetDataSourceProtocol.swift */,
 				20001B54BD9C7BC878A1 /* SRSRepositoryProtocol.swift */,
 				2000A91CFCCE87349186 /* VocabularyRepositoryProtocol.swift */,
 			);
@@ -554,6 +567,8 @@
 			isa = PBXGroup;
 			children = (
 				200055893DED0D8FA1E3 /* DatasetEngineTests.swift */,
+				200008F55FA2F8FA1668 /* AppRouterTests.swift */,
+				200008F65FA2F8FA1668 /* DatasetDataSourceTests.swift */,
 				4000055E0D33D4F777BC /* DesignSystem */,
 				2000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift */,
 				4000538975BBBF45E56C /* Features */,
@@ -574,6 +589,7 @@
 				2000E3AFED7A38ECFE12 /* TopicDeckDetailViewTests.swift */,
 				20006C3205A7C09C3ED0 /* TopicDeckModelsTests.swift */,
 				2000CD9B3F3B4D5FDBA7 /* UserSettingsStoreTests.swift */,
+				200008F45FA2F8FA1668 /* VocabularyFilterServiceTests.swift */,
 				2000B8D5FB4EC872D73A /* VocabularyViewModelTests.swift */,
 				200084512C285C79A09D /* WidgetIntentsTests.swift */,
 			);
@@ -616,20 +632,38 @@
 				4000C597CF74B9A0760A /* Entities */,
 				4000260E29F35C2EBCD5 /* Models */,
 				40008F48FF4076AEA27E /* Protocols */,
+				40009998E72E73697418 /* Services */,
 				40008298FFEC52A63E9E /* UseCases */,
 			);
 			path = Domain;
+			sourceTree = "<group>";
+		};
+		40009998E72E73697418 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				200008F15FA2F8FA1668 /* VocabularyFilterService.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 		4000B900E72E73697418 /* App */ = {
 			isa = PBXGroup;
 			children = (
 				400024B9E720CD376832 /* DI */,
+				40009999E72E73697418 /* Navigation */,
 				20004DC19C2C12FAB3C7 /* Info.plist */,
 				2000AE8014E8A9522B13 /* VocabCraftApp.entitlements */,
 				20005D17660A661FF2F5 /* VocabCraftApp.swift */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		40009999E72E73697418 /* Navigation */ = {
+			isa = PBXGroup;
+			children = (
+				200008F25FA2F8FA1668 /* AppRouter.swift */,
+			);
+			path = Navigation;
 			sourceTree = "<group>";
 		};
 		4000B9FD3CB2F2042047 /* Database */ = {
@@ -843,6 +877,9 @@
 				3000C94DD80FE52023FA /* NextWordIntent.swift in Sources */,
 				3000473CACA7476916FA /* VocabWidget.swift in Sources */,
 				300075A9C43B4E98CD5D /* VocabWidgetView.swift in Sources */,
+				300008F25FA2F8FA1668 /* AppRouter.swift in Sources */,
+				300008F15FA2F8FA1668 /* VocabularyFilterService.swift in Sources */,
+				300008F35FA2F8FA1668 /* DatasetDataSourceProtocol.swift in Sources */,
 				3000DE9D056D85598F6E /* AppContainer.swift in Sources */,
 				3000FAD85B1C0D0923C5 /* EnvironmentKeys.swift in Sources */,
 				30005D17660A661FF2F5 /* VocabCraftApp.swift in Sources */,
@@ -916,6 +953,7 @@
 				300002284C02A8E338C2 /* VocabWidgetBundle.swift in Sources */,
 				300075A9C43B4E98CD5D /* VocabWidgetView.swift in Sources */,
 				300132D6AE8B05DECF03 /* DatasetEngine.swift in Sources */,
+				300008F35FA2F8FA1668 /* DatasetDataSourceProtocol.swift in Sources */,
 				30010ECE298907299966 /* SharedAppGroupContainer.swift in Sources */,
 				3001573EA4CC3FAE2D09 /* SwiftDataModels.swift in Sources */,
 				30019977515C5A5B7FC8 /* DatasetModels.swift in Sources */,
@@ -927,6 +965,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				300008F55FA2F8FA1668 /* AppRouterTests.swift in Sources */,
+				300008F65FA2F8FA1668 /* DatasetDataSourceTests.swift in Sources */,
+				300008F45FA2F8FA1668 /* VocabularyFilterServiceTests.swift in Sources */,
 				300055893DED0D8FA1E3 /* DatasetEngineTests.swift in Sources */,
 				3000D052EA676149B3D6 /* ColorTokensTests.swift in Sources */,
 				3000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift in Sources */,

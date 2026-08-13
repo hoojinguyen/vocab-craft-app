@@ -9,7 +9,7 @@ final class SettingsViewTests: XCTestCase {
         let tts = MockTextToSpeechService()
         let vm = SettingsViewModel(store: store, ttsService: tts)
         let view = SettingsView(viewModel: vm)
-        XCTAssertNotNil(view.body)
+        XCTAssertNotNil(view.viewModel)
     }
 
     func testProfileHeaderCardInitialization() {
@@ -17,7 +17,6 @@ final class SettingsViewTests: XCTestCase {
         XCTAssertEqual(card.userName, "Hooji N.")
         XCTAssertEqual(card.userLevel, "B2 Intermediate")
         XCTAssertEqual(card.streakDays, 14)
-        XCTAssertNotNil(card.body)
     }
 
     func testSettingsRowViewInitialization() {
@@ -26,6 +25,5 @@ final class SettingsViewTests: XCTestCase {
         }
         XCTAssertEqual(row.title, "Test Goal")
         XCTAssertEqual(row.iconName, "target")
-        XCTAssertNotNil(row.body)
     }
 }

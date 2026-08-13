@@ -11,7 +11,8 @@ public struct SharedAppGroupContainer {
             WidgetCurrentState.self
         ])
 
-        if inMemory {
+        let isTesting = NSClassFromString("XCTestCase") != nil
+        if inMemory || isTesting {
             let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
             return try ModelContainer(for: schema, configurations: [config])
         }

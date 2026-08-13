@@ -8,22 +8,20 @@ let package = Package(
         .iOS(.v17)
     ],
     products: [
-        .executable(
+        .library(
             name: "VocabCraftApp",
             targets: ["VocabCraftApp"]
         ),
         .library(
             name: "VocabCraftWidgetExtension",
             targets: ["VocabCraftWidgetExtension"]
-        ),
+        )
     ],
-
     targets: [
-        .executableTarget(
+        .target(
             name: "VocabCraftApp",
             path: "VocabCraftApp"
         ),
-
         .target(
             name: "VocabCraftWidgetExtension",
             dependencies: ["VocabCraftApp"],
@@ -33,6 +31,6 @@ let package = Package(
             name: "VocabCraftAppTests",
             dependencies: ["VocabCraftApp", "VocabCraftWidgetExtension"],
             path: "VocabCraftAppTests"
-        ),
+        )
     ]
 )

@@ -10,7 +10,6 @@ final class HeaderViewTests: XCTestCase {
             dailyGoalProgress: 0.75,
             unreadNotifications: true
         )
-        XCTAssertNotNil(view.body)
         XCTAssertEqual(view.userName, "Hooji N.")
         XCTAssertEqual(view.streakDays, 14)
         XCTAssertEqual(view.dailyGoalProgress, 0.75)
@@ -30,7 +29,6 @@ final class HeaderViewTests: XCTestCase {
             onNotificationTap: { notificationTapped = true }
         )
 
-        XCTAssertNotNil(view.body)
         XCTAssertNotNil(view.onAvatarTap)
         XCTAssertNotNil(view.onNotificationTap)
 

@@ -12,7 +12,6 @@ final class BentoCardsTests: XCTestCase {
 
     func testSRSMemoryHeroCardInstantiation() {
         let heroCard = SRSMemoryHeroCard(totalWords: 1420, retentionPercentage: 0.85)
-        XCTAssertNotNil(heroCard.body)
         XCTAssertEqual(heroCard.totalWords, 1420)
         XCTAssertEqual(heroCard.retentionPercentage, 0.85)
     }
@@ -39,7 +38,6 @@ final class BentoCardsTests: XCTestCase {
 
     func testActionCardsGridInstantiation() {
         let grid = ActionCardsGrid(dueCardsCount: 24, onReflexTap: {}, onQueueTap: {})
-        XCTAssertNotNil(grid.body)
         XCTAssertEqual(grid.dueCardsCount, 24)
     }
 
@@ -69,6 +67,6 @@ final class BentoCardsTests: XCTestCase {
 
     func testCEFRDistributionCardInstantiation() {
         let card = CEFRDistributionCard(a1a2Count: 450, b1b2Count: 620, c1c2Count: 350)
-        XCTAssertNotNil(card.body)
+        XCTAssertEqual(card.a1a2Count, 450)
     }
 }

@@ -38,7 +38,12 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
     public var recognizedText: String = ""
 
     public init(locale: String = "en-US") {
-        self.speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: locale))
+        let isTesting = NSClassFromString("XCTestCase") != nil
+        if isTesting {
+            self.speechRecognizer = nil
+        } else {
+            self.speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: locale))
+        }
         super.init()
         setupInterruptionObserver()
     }

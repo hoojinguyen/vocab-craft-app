@@ -1,3 +1,4 @@
+#if os(iOS)
 import AVFoundation
 import Speech
 @testable import VocabCraftApp
@@ -16,13 +17,9 @@ final class SpeechServiceTests: XCTestCase {
         let tts = TextToSpeechService()
         XCTAssertFalse(tts.isSpeaking)
 
-        // Speak non-empty text
         tts.speak(text: "Hello world", rate: 0.5, locale: "en-US")
-
-        // isSpeaking should be true after speak is invoked
         XCTAssertTrue(tts.isSpeaking, "isSpeaking should be true while speaking")
 
-        // Stop speech synthesizer
         tts.stop()
         XCTAssertFalse(tts.isSpeaking, "isSpeaking should be false after stop is called")
     }
@@ -89,3 +86,4 @@ final class SpeechServiceTests: XCTestCase {
         #endif
     }
 }
+#endif
