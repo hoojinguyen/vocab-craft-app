@@ -11,9 +11,10 @@ public final class SRSRepositoryImpl: SRSRepositoryProtocol {
 
     public func getProgress(wordId: Int64) async throws -> SRSProgressItem? {
         guard let context = modelContext else { return nil }
-        let fetchDescriptor = FetchDescriptor<UserWordProgress>(
+        var fetchDescriptor = FetchDescriptor<UserWordProgress>(
             predicate: #Predicate { $0.wordId == wordId }
         )
+        fetchDescriptor.fetchLimit = 1
         let results = try context.fetch(fetchDescriptor)
         guard let entity = results.first else { return nil }
         return SRSProgressItem(
@@ -30,9 +31,10 @@ public final class SRSRepositoryImpl: SRSRepositoryProtocol {
     public func saveProgress(_ item: SRSProgressItem) async throws {
         guard let context = modelContext else { return }
         let targetId = item.wordId
-        let fetchDescriptor = FetchDescriptor<UserWordProgress>(
+        var fetchDescriptor = FetchDescriptor<UserWordProgress>(
             predicate: #Predicate { $0.wordId == targetId }
         )
+        fetchDescriptor.fetchLimit = 1
         let results = try context.fetch(fetchDescriptor)
 
         if let existing = results.first {

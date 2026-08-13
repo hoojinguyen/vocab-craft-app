@@ -4,9 +4,10 @@ import SwiftData
 @ModelActor
 public actor UserProgressModelActor {
     public func getProgress(wordId: Int64) throws -> UserWordProgress? {
-        let descriptor = FetchDescriptor<UserWordProgress>(
+        var descriptor = FetchDescriptor<UserWordProgress>(
             predicate: #Predicate { $0.wordId == wordId }
         )
+        descriptor.fetchLimit = 1
         return try modelContext.fetch(descriptor).first
     }
 

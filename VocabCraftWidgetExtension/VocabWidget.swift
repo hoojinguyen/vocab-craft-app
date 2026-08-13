@@ -48,8 +48,11 @@ public struct VocabWidgetProvider: TimelineProvider {
         }
 
         let wordId = state.currentWordId
-        let allProgress = (try? context.fetch(FetchDescriptor<UserWordProgress>())) ?? []
-        let mastery = allProgress.first(where: { $0.wordId == wordId })?.masteryLevel ?? 0
+        var fetchDescriptor = FetchDescriptor<UserWordProgress>(predicate: #Predicate { $0.wordId == wordId })
+        fetchDescriptor.fetchLimit = 1
+        fetchDescriptor.propertiesToFetch = [\.masteryLevel]
+        
+        let mastery = (try? context.fetch(fetchDescriptor))?.first?.masteryLevel ?? 0
 
         return VocabWidgetEntry(
             date: state.lastUpdated,

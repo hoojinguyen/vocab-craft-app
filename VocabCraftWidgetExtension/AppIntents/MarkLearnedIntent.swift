@@ -31,8 +31,9 @@ public struct MarkLearnedIntent: AppIntent {
         }
 
         let wordId = currentState.currentWordId
-        let allProgress = try context.fetch(FetchDescriptor<UserWordProgress>())
-        let existingProgress = allProgress.first(where: { $0.wordId == wordId })
+        var fetchDescriptor = FetchDescriptor<UserWordProgress>(predicate: #Predicate { $0.wordId == wordId })
+        fetchDescriptor.fetchLimit = 1
+        let existingProgress = try context.fetch(fetchDescriptor).first
 
         if let progress = existingProgress {
             let srsResult = SRSEngine.calculateNextInterval(

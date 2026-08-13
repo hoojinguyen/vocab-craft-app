@@ -11,12 +11,12 @@ struct VocabCraftApp: App {
 
     init() {
         let isTesting = NSClassFromString("XCTestCase") != nil
-        let fallbackSchema = Schema([UserWordProgress.self, ReflexSessionLog.self, WidgetCurrentState.self])
+        let fallbackSchema = Schema(versionedSchema: SchemaV1.self)
         if isTesting {
             let containerResult: ModelContainer
             if let primary = try? SharedAppGroupContainer.createContainer(inMemory: true) {
                 containerResult = primary
-            } else if let secondary = try? ModelContainer(for: fallbackSchema) {
+            } else if let secondary = try? ModelContainer(for: fallbackSchema, migrationPlan: AppMigrationPlan.self) {
                 containerResult = secondary
             } else {
                 fatalError("Failed to create test ModelContainer")
@@ -33,7 +33,7 @@ struct VocabCraftApp: App {
             let containerResult: ModelContainer
             if let primary = try? SharedAppGroupContainer.createContainer(inMemory: true) {
                 containerResult = primary
-            } else if let secondary = try? ModelContainer(for: fallbackSchema) {
+            } else if let secondary = try? ModelContainer(for: fallbackSchema, migrationPlan: AppMigrationPlan.self) {
                 containerResult = secondary
             } else {
                 fatalError("Failed to create fallback ModelContainer: \(error.localizedDescription)")

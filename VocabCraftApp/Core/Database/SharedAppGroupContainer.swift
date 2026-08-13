@@ -1,20 +1,32 @@
 import Foundation
 import SwiftData
 
+public enum SchemaV1: VersionedSchema {
+    public static var versionIdentifier = Schema.Version(1, 0, 0)
+    public static var models: [any PersistentModel.Type] {
+        [UserWordProgress.self, ReflexSessionLog.self, WidgetCurrentState.self]
+    }
+}
+
+public enum AppMigrationPlan: SchemaMigrationPlan {
+    public static var schemas: [any VersionedSchema.Type] {
+        [SchemaV1.self]
+    }
+    public static var stages: [MigrationStage] {
+        []
+    }
+}
+
 public struct SharedAppGroupContainer {
     public static let appGroupID = "group.com.hoojinguyen.vocabcraft"
 
     public static func createContainer(inMemory: Bool = false) throws -> ModelContainer {
-        let schema = Schema([
-            UserWordProgress.self,
-            ReflexSessionLog.self,
-            WidgetCurrentState.self
-        ])
+        let schema = Schema(versionedSchema: SchemaV1.self)
 
         let isTesting = NSClassFromString("XCTestCase") != nil
         if inMemory || isTesting {
             let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
-            return try ModelContainer(for: schema, configurations: [config])
+            return try ModelContainer(for: schema, migrationPlan: AppMigrationPlan.self, configurations: [config])
         }
 
         let storeURL: URL
@@ -29,6 +41,6 @@ public struct SharedAppGroupContainer {
 
         try? FileManager.default.createDirectory(at: storeURL.deletingLastPathComponent(), withIntermediateDirectories: true)
         let config = ModelConfiguration(schema: schema, url: storeURL)
-        return try ModelContainer(for: schema, configurations: [config])
+        return try ModelContainer(for: schema, migrationPlan: AppMigrationPlan.self, configurations: [config])
     }
 }
