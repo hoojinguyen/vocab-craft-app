@@ -15,23 +15,39 @@ public final class SpeechAssessmentService: SpeechAssessmentProtocol, @unchecked
     // MARK: - Dependencies
 
     private let engine: SpeechRecognitionEngineProtocol
+    private let initialSilenceDuration: Duration
     private let silenceDuration: Duration
     private var silenceDetector: SilenceDetector?
     private var currentSessionToken = UUID()
 
     // MARK: - Initialization
 
-    /// Initializes a speech assessment service with optional engine and silence duration.
+    /// Initializes a speech assessment service with optional engine and silence durations.
     ///
     /// - Parameters:
     ///   - recognitionEngine: Audio recognition engine conforming to `SpeechRecognitionEngineProtocol`.
+    ///   - initialSilenceDuration: Duration to wait before first speech before auto-stopping (default: 5.0s).
     ///   - silenceDuration: Duration of silence after speech activity before auto-stopping (default: 1.3s).
     public init(
         recognitionEngine: SpeechRecognitionEngineProtocol = SpeechRecognitionEngine(),
+        initialSilenceDuration: Duration = .seconds(5),
         silenceDuration: Duration = .milliseconds(1300)
     ) {
         self.engine = recognitionEngine
+        self.initialSilenceDuration = initialSilenceDuration
         self.silenceDuration = silenceDuration
+    }
+
+    /// Convenience initializer using default 5s initial silence and custom trailing silence duration.
+    public convenience init(
+        recognitionEngine: SpeechRecognitionEngineProtocol = SpeechRecognitionEngine(),
+        silenceDuration: Duration = .milliseconds(1300)
+    ) {
+        self.init(
+            recognitionEngine: recognitionEngine,
+            initialSilenceDuration: .seconds(5),
+            silenceDuration: silenceDuration
+        )
     }
 
     deinit {
@@ -80,8 +96,11 @@ public final class SpeechAssessmentService: SpeechAssessmentProtocol, @unchecked
             biasedPhrases.append(targetSentence)
         }
 
-        // Setup silence auto-stop detector and arm it immediately
-        let detector = SilenceDetector(silenceDuration: silenceDuration) { [weak self] in
+        // Setup silence auto-stop detector with dual-phase timers and arm it immediately
+        let detector = SilenceDetector(
+            initialSilenceDuration: initialSilenceDuration,
+            trailingSilenceDuration: silenceDuration
+        ) { [weak self] in
             Task { @MainActor [weak self] in
                 guard let self, self.isListening, self.currentSessionToken == sessionToken else { return }
                 let finalEval = self.currentEvaluation ?? FuzzySpeechMatcher.evaluate(
@@ -124,8 +143,12 @@ public final class SpeechAssessmentService: SpeechAssessmentProtocol, @unchecked
                                 self.currentEvaluation = eval
                                 onProgress(eval)
 
-                                // Instant Reflex Trigger: pass threshold reached without waiting for speech end
-                                if eval.isPassed {
+                                // Instant Reflex Trigger: pass threshold reached with sufficient token coverage
+                                let matchedTokensCount = eval.tokens.filter { $0.status != .missing }.count
+                                let requiredCoverage = max(1, Int(Double(eval.tokens.count) * 0.85))
+                                let hasSufficientCoverage = matchedTokensCount >= requiredCoverage || eval.overallScore >= 95.0
+
+                                if eval.isPassed && hasSufficientCoverage {
                                     self.stopAssessing()
                                     onCompletion(eval)
                                 }

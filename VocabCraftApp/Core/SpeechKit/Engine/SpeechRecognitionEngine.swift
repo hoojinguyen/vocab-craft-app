@@ -97,15 +97,13 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
             throw SpeechKitError.recognizerUnavailable
         }
 
-        guard recognizer.supportsOnDeviceRecognition else {
-            throw SpeechKitError.recognizerUnavailable
-        }
+        let supportsOnDevice = recognizer.supportsOnDeviceRecognition
 
         do {
             #if os(iOS)
             let audioSession = AVAudioSession.sharedInstance()
             do {
-                try audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers, .allowBluetoothHFP])
+                try audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.defaultToSpeaker, .allowBluetoothHFP])
                 try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
             } catch {
                 throw SpeechKitError.audioSessionConfigurationFailed
@@ -113,7 +111,7 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
             #endif
 
             let request = SFSpeechAudioBufferRecognitionRequest()
-            request.requiresOnDeviceRecognition = true
+            request.requiresOnDeviceRecognition = supportsOnDevice
             request.shouldReportPartialResults = true
             if !contextualPhrases.isEmpty {
                 request.contextualStrings = contextualPhrases

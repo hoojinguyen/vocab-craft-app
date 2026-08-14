@@ -55,6 +55,30 @@ final class MockSpeechRecognitionEngine: SpeechRecognitionEngineProtocol, @unche
     }
 }
 
+// MARK: - Safe Box for Sendable Closures
+
+private final class SafeBoolBox: @unchecked Sendable {
+    private let lock = NSLock()
+    private var _value: Bool
+
+    init(_ value: Bool = false) {
+        self._value = value
+    }
+
+    var value: Bool {
+        get {
+            lock.lock()
+            defer { lock.unlock() }
+            return _value
+        }
+        set {
+            lock.lock()
+            defer { lock.unlock() }
+            _value = newValue
+        }
+    }
+}
+
 // MARK: - SpeechAssessmentService Tests
 
 @MainActor
@@ -68,6 +92,7 @@ final class SpeechAssessmentServiceTests: XCTestCase {
         mockEngine = MockSpeechRecognitionEngine()
         service = SpeechAssessmentService(
             recognitionEngine: mockEngine,
+            initialSilenceDuration: .milliseconds(80),
             silenceDuration: .milliseconds(80)
         )
     }
@@ -195,6 +220,27 @@ final class SpeechAssessmentServiceTests: XCTestCase {
         XCTAssertTrue(completionResult!.isPassed)
         XCTAssertGreaterThanOrEqual(completionResult!.overallScore, 75.0)
         XCTAssertFalse(service.isListening)
+    }
+
+    func testInstantReflexTrigger_lowCoverageBelow95_doesNotCompletePrematurely() async {
+        let target = "The quick brown fox jumps over the lazy dog in the summer morning"
+        var didComplete = false
+
+        service.startAssessing(
+            targetSentence: target,
+            toleranceThreshold: 0.5,
+            onCompletion: { _ in
+                didComplete = true
+            }
+        )
+
+        // Partial speech with partial match that is not enough coverage (<85%) and <95% score
+        mockEngine.simulatePartialResult("the quick brown fox")
+
+        try? await Task.sleep(for: .milliseconds(30))
+
+        XCTAssertFalse(didComplete, "Should not prematurely trigger instant reflex pass when token coverage is low and score < 95%")
+        XCTAssertTrue(service.isListening)
     }
 
     func testSilenceTimeout_stopsAndEmitsFinalEvaluation() async {
@@ -334,5 +380,36 @@ final class SpeechAssessmentServiceTests: XCTestCase {
         await fulfillment(of: [secondCompletionExpectation], timeout: 1.0)
         XCTAssertFalse(firstCompletionCalled, "Stale callback from session 1 should not have triggered session 1's completion")
         XCTAssertTrue(secondCompletionCalled)
+    }
+
+    // MARK: - Dual-Phase Silence Detector Tests
+
+    func testSilenceDetector_initialSilenceTimeout() async throws {
+        let didFireSilence = SafeBoolBox(false)
+        let detector = SilenceDetector(
+            initialSilenceDuration: .milliseconds(100),
+            trailingSilenceDuration: .milliseconds(50)
+        ) {
+            didFireSilence.value = true
+        }
+        detector.arm()
+        try await Task.sleep(for: .milliseconds(150))
+        XCTAssertTrue(didFireSilence.value, "Initial silence timer should fire if no activity registered")
+    }
+
+    func testSilenceDetector_activityResetsToTrailingDuration() async throws {
+        let didFireSilence = SafeBoolBox(false)
+        let detector = SilenceDetector(
+            initialSilenceDuration: .milliseconds(200),
+            trailingSilenceDuration: .milliseconds(80)
+        ) {
+            didFireSilence.value = true
+        }
+        detector.arm()
+        try await Task.sleep(for: .milliseconds(50))
+        detector.registerActivity()
+        XCTAssertFalse(didFireSilence.value)
+        try await Task.sleep(for: .milliseconds(100))
+        XCTAssertTrue(didFireSilence.value, "Trailing silence timer should fire after activity registered")
     }
 }

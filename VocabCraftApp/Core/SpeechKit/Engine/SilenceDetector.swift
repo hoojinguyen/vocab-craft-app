@@ -1,39 +1,73 @@
 import Foundation
 
-/// Detects conversational silence and triggers an auto-stop callback after a specified duration of inactivity.
+/// Detects conversational silence using a dual-phase timeout (initial wait vs. trailing silence)
+/// and triggers an auto-stop callback after a specified duration of inactivity.
 public final class SilenceDetector: @unchecked Sendable {
-    private let silenceDuration: Duration
+    private let initialSilenceDuration: Duration
+    private let trailingSilenceDuration: Duration
     private let onSilence: @Sendable () -> Void
     private let lock = NSLock()
     private var timerTask: Task<Void, Never>?
+    private var hasRegisteredActivity = false
 
-    /// Initializes a silence detector with a specified silence duration.
+    /// Initializes a dual-phase silence detector.
     ///
     /// - Parameters:
-    ///   - silenceDuration: Inactivity duration before firing silence callback (default: 1.3s).
+    ///   - initialSilenceDuration: Duration to wait before first speech before auto-stopping (default: 5.0s).
+    ///   - trailingSilenceDuration: Inactivity duration after speech activity before auto-stopping (default: 1.3s).
     ///   - onSilence: Callback invoked when silence threshold elapses.
     public init(
+        initialSilenceDuration: Duration = .seconds(5),
+        trailingSilenceDuration: Duration = .milliseconds(1300),
+        onSilence: @escaping @Sendable () -> Void
+    ) {
+        self.initialSilenceDuration = initialSilenceDuration
+        self.trailingSilenceDuration = trailingSilenceDuration
+        self.onSilence = onSilence
+    }
+
+    /// Convenience initializer using default 5s initial silence and custom trailing silence duration.
+    public convenience init(
         silenceDuration: Duration = .milliseconds(1300),
         onSilence: @escaping @Sendable () -> Void
     ) {
-        self.silenceDuration = silenceDuration
-        self.onSilence = onSilence
+        self.init(
+            initialSilenceDuration: .seconds(5),
+            trailingSilenceDuration: silenceDuration,
+            onSilence: onSilence
+        )
     }
 
     deinit {
         cancel()
     }
 
-    /// Arms the silence detector, starting the inactivity timer.
+    /// Arms the silence detector, starting the initial silence countdown.
     public func arm() {
-        registerActivity()
+        lock.lock()
+        timerTask?.cancel()
+        hasRegisteredActivity = false
+        let duration = initialSilenceDuration
+        let callback = onSilence
+
+        timerTask = Task {
+            do {
+                try await Task.sleep(for: duration)
+                guard !Task.isCancelled else { return }
+                callback()
+            } catch {
+                // Cancelled
+            }
+        }
+        lock.unlock()
     }
 
-    /// Registers acoustic or speech activity, resetting the silence debounce timer.
+    /// Registers acoustic or speech activity, switching to or resetting the trailing silence timer.
     public func registerActivity() {
         lock.lock()
         timerTask?.cancel()
-        let duration = silenceDuration
+        hasRegisteredActivity = true
+        let duration = trailingSilenceDuration
         let callback = onSilence
 
         timerTask = Task {
