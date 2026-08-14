@@ -72,4 +72,95 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.state.currentStepIndex, 1)
         XCTAssertFalse(viewModel.state.isStepEvaluated)
     }
+
+    @MainActor
+    func testStep3_singleWordDoesNotPassFullSentence() {
+        let mockSpeechAssessment = MockSpeechAssessmentServiceForViewModel()
+        let viewModel = QuickReflexDrillViewModel(
+            targetWord: targetWord,
+            allWords: samplePool,
+            speechAssessmentService: mockSpeechAssessment
+        )
+        // Advance to Step 3
+        viewModel.submitAnswer(viewModel.state.steps[0].targetText)
+        viewModel.nextStep()
+        viewModel.submitAnswer(viewModel.state.steps[1].targetText)
+        viewModel.nextStep()
+        XCTAssertEqual(viewModel.state.currentStepIndex, 2)
+
+        // User says just "the" for multi-word sentence
+        viewModel.startRecording()
+        let partialResult = SpeechEvaluationResult(
+            targetSentence: viewModel.state.steps[2].targetText,
+            spokenText: "the",
+            tokens: [],
+            overallScore: 15.0,
+            isPassed: false,
+            durationMs: 500
+        )
+        mockSpeechAssessment.simulateProgress(partialResult)
+
+        XCTAssertFalse(viewModel.state.isStepEvaluated, "Single word must not trigger premature pass")
+        XCTAssertEqual(viewModel.recognizedText, "the")
+        XCTAssertEqual(viewModel.speechEvaluationResult?.spokenText, "the")
+    }
+
+    @MainActor
+    func testStep3_sttFallback_singleWordDoesNotPassFullSentence() {
+        let mockSTT = MockSpeechRecognitionService()
+        let viewModel = QuickReflexDrillViewModel(
+            targetWord: targetWord,
+            allWords: samplePool,
+            sttService: mockSTT
+        )
+        // Advance to Step 3
+        viewModel.submitAnswer(viewModel.state.steps[0].targetText)
+        viewModel.nextStep()
+        viewModel.submitAnswer(viewModel.state.steps[1].targetText)
+        viewModel.nextStep()
+        XCTAssertEqual(viewModel.state.currentStepIndex, 2)
+
+        // User says just "the" which is inside "Her fame proved to be ephemeral."
+        viewModel.startRecording()
+        mockSTT.simulateResult("the")
+
+        XCTAssertFalse(viewModel.state.isStepEvaluated, "Single word substring must not pass in STT fallback")
+
+        // Now user says the full target sentence
+        mockSTT.simulateResult("Her fame proved to be ephemeral.")
+        XCTAssertTrue(viewModel.state.isStepEvaluated)
+        XCTAssertTrue(viewModel.state.isStepCorrect)
+    }
+
+    @MainActor
+    func testStep3_speechAssessmentService_completionPassing() {
+        let mockSpeechAssessment = MockSpeechAssessmentServiceForViewModel()
+        let viewModel = QuickReflexDrillViewModel(
+            targetWord: targetWord,
+            allWords: samplePool,
+            speechAssessmentService: mockSpeechAssessment
+        )
+        viewModel.state.currentStepIndex = 2
+
+        viewModel.startRecording()
+        XCTAssertTrue(mockSpeechAssessment.didStartAssessing)
+        XCTAssertTrue(viewModel.isListening)
+
+        let token = WordTokenResult(id: 0, targetWord: "Her", spokenWord: "Her", status: .exactMatch, similarityScore: 1.0)
+        let passResult = SpeechEvaluationResult(
+            targetSentence: viewModel.state.steps[2].targetText,
+            spokenText: "Her fame proved to be ephemeral.",
+            tokens: [token],
+            overallScore: 0.95,
+            isPassed: true,
+            durationMs: 1200
+        )
+        mockSpeechAssessment.simulateCompletion(passResult)
+
+        XCTAssertFalse(viewModel.isListening)
+        XCTAssertTrue(viewModel.state.isStepEvaluated)
+        XCTAssertTrue(viewModel.state.isStepCorrect)
+        XCTAssertEqual(viewModel.speechEvaluationResult?.tokens.count, 1)
+    }
 }
+

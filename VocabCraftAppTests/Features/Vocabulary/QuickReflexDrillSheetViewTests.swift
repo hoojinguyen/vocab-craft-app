@@ -22,5 +22,14 @@ final class QuickReflexDrillSheetViewTests: XCTestCase {
             onComplete: { _ in }
         )
         XCTAssertNotNil(view)
+
+        let mockSpeechAssessment = MockSpeechAssessmentServiceForViewModel()
+        let viewWithSpeechKit = QuickReflexDrillSheetView(
+            targetWord: word,
+            allWords: [word],
+            speechAssessmentService: mockSpeechAssessment,
+            onComplete: { _ in }
+        )
+        XCTAssertNotNil(viewWithSpeechKit)
     }
 }

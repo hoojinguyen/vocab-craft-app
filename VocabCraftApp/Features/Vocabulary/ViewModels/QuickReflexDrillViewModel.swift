@@ -37,6 +37,8 @@ public final class QuickReflexDrillViewModel {
     public let allWords: [WordItem]
     public var state = QuickReflexDrillState()
 
+    public var speechEvaluationResult: SpeechEvaluationResult?
+
     // Internal Tracking State (Not UI bound)
     private var stepStartTime: Date?
     private var startTime: Date?
@@ -45,13 +47,21 @@ public final class QuickReflexDrillViewModel {
 
     private let ttsService: TextToSpeechProtocol
     private let sttService: SpeechRecognitionProtocol
+    private let speechAssessmentService: SpeechAssessmentProtocol?
     private let evaluateSRSUseCase: EvaluateSRSUseCaseProtocol?
 
     public var isListening: Bool {
-        (sttService as? SpeechRecognitionService)?.isListening ?? sttService.isListening
+        if let assessment = speechAssessmentService {
+            return assessment.isListening
+        }
+        return (sttService as? SpeechRecognitionService)?.isListening ?? sttService.isListening
     }
+
     public var recognizedText: String {
-        (sttService as? SpeechRecognitionService)?.recognizedText ?? sttService.recognizedText
+        if let eval = speechEvaluationResult, !eval.spokenText.isEmpty {
+            return eval.spokenText
+        }
+        return (sttService as? SpeechRecognitionService)?.recognizedText ?? sttService.recognizedText
     }
 
     public init(
@@ -59,12 +69,14 @@ public final class QuickReflexDrillViewModel {
         allWords: [WordItem],
         ttsService: TextToSpeechProtocol? = nil,
         sttService: SpeechRecognitionProtocol? = nil,
+        speechAssessmentService: SpeechAssessmentProtocol? = nil,
         evaluateSRSUseCase: EvaluateSRSUseCaseProtocol? = nil
     ) {
         self.targetWord = targetWord
         self.allWords = allWords
         self.ttsService = ttsService ?? TextToSpeechService()
         self.sttService = sttService ?? SpeechRecognitionService()
+        self.speechAssessmentService = speechAssessmentService
         self.evaluateSRSUseCase = evaluateSRSUseCase
         generateSteps()
         startTimer()
@@ -72,7 +84,11 @@ public final class QuickReflexDrillViewModel {
 
     deinit {
         let stt = sttService
-        Task { @MainActor in stt.stopListening() }
+        let speechAssessment = speechAssessmentService
+        Task { @MainActor in
+            stt.stopListening()
+            speechAssessment?.stopAssessing()
+        }
     }
 
     public func generateSteps() {
@@ -155,34 +171,66 @@ public final class QuickReflexDrillViewModel {
         guard !isListening && !state.isStepEvaluated else { return }
         ttsService.stop()
         state.errorMessage = nil
+        speechEvaluationResult = nil
 
-        sttService.startListening(
-            onResult: { [weak self] text in
-                guard let self = self else { return }
-                if self.state.currentStepIndex < self.state.steps.count {
-                    let target = self.state.steps[self.state.currentStepIndex].targetText
-                    if self.isAnswerMatching(userText: text, targetText: target) {
-                        self.stopRecordingAndEvaluate()
+        guard state.currentStepIndex < state.steps.count else { return }
+        let currentStep = state.steps[state.currentStepIndex]
+
+        if let assessment = speechAssessmentService {
+            assessment.startAssessing(
+                targetSentence: currentStep.targetText,
+                toleranceThreshold: 0.75,
+                contextualPhrases: [targetWord.lemma, currentStep.targetText],
+                onProgress: { [weak self] evaluation in
+                    guard let self = self else { return }
+                    self.speechEvaluationResult = evaluation
+                },
+                onCompletion: { [weak self] evaluation in
+                    guard let self = self else { return }
+                    self.speechEvaluationResult = evaluation
+                    self.stopRecordingAndEvaluate()
+                },
+                onError: { [weak self] error in
+                    guard let self = self else { return }
+                    let desc: String
+                    if let err = error as? SpeechKitError, let msg = err.errorDescription {
+                        desc = msg
+                    } else {
+                        desc = error.localizedDescription
                     }
+                    self.state.errorMessage = "Không thể thu âm: \(desc). Vui lòng kiểm tra quyền Micro."
                 }
-            },
-            onError: { [weak self] error in
-                guard let self = self else { return }
-                let desc: String
-                if let err = error as? SpeechRecognitionError, let msg = err.errorDescription {
-                    desc = msg
-                } else {
-                    desc = error.localizedDescription
+            )
+        } else {
+            sttService.startListening(
+                onResult: { [weak self] text in
+                    guard let self = self else { return }
+                    if self.state.currentStepIndex < self.state.steps.count {
+                        let target = self.state.steps[self.state.currentStepIndex].targetText
+                        if self.isAnswerMatching(userText: text, targetText: target) {
+                            self.stopRecordingAndEvaluate()
+                        }
+                    }
+                },
+                onError: { [weak self] error in
+                    guard let self = self else { return }
+                    let desc: String
+                    if let err = error as? SpeechRecognitionError, let msg = err.errorDescription {
+                        desc = msg
+                    } else {
+                        desc = error.localizedDescription
+                    }
+                    self.state.errorMessage = "Không thể thu âm: \(desc). Vui lòng kiểm tra quyền Micro."
                 }
-                self.state.errorMessage = "Không thể thu âm: \(desc). Vui lòng kiểm tra quyền Micro."
-            }
-        )
+            )
+        }
     }
 
     public func stopRecordingAndEvaluate() {
-        let answer = recognizedText
+        speechAssessmentService?.stopAssessing()
         sttService.stopListening()
 
+        let answer = recognizedText
         if !answer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             submitAnswer(answer)
         } else {
@@ -239,6 +287,7 @@ public final class QuickReflexDrillViewModel {
         state.selectedOption = nil
         state.recordedSpokenText = ""
         state.errorMessage = nil
+        speechEvaluationResult = nil
 
         if state.currentStepIndex + 1 < state.steps.count {
             state.currentStepIndex += 1
@@ -252,6 +301,7 @@ public final class QuickReflexDrillViewModel {
     public func finishDrill() {
         timerTask?.cancel()
         if isListening {
+            speechAssessmentService?.stopAssessing()
             sttService.stopListening()
         }
 
@@ -285,6 +335,11 @@ public final class QuickReflexDrillViewModel {
         let u = userText.lowercased().trimmingCharacters(in: .whitespacesAndNewlines.union(.punctuationCharacters))
         let t = targetText.lowercased().trimmingCharacters(in: .whitespacesAndNewlines.union(.punctuationCharacters))
         guard !u.isEmpty, !t.isEmpty else { return false }
-        return u == t || u.contains(t) || t.contains(u)
+
+        if let eval = speechEvaluationResult, state.currentStepIndex < state.steps.count, state.steps[state.currentStepIndex].type == .pronunciation {
+            return eval.isPassed
+        }
+
+        return u == t
     }
 }

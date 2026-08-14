@@ -171,6 +171,7 @@ public struct VocabularyView: View {
                 allWords: vm.wordItems,
                 ttsService: appContainer.ttsService,
                 sttService: appContainer.sttService,
+                speechAssessmentService: appContainer.speechAssessmentService,
                 evaluateSRSUseCase: appContainer.evaluateSRSUseCase,
                 onComplete: { updatedMastery in
                     if let idx = vm.wordItems.firstIndex(where: { $0.id == targetWord.id }) {

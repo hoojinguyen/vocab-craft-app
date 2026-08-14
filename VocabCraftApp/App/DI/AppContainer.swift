@@ -92,6 +92,20 @@ public final class AppContainer {
         )
     }
 
+    public func makeQuickReflexDrillViewModel(
+        targetWord: WordItem,
+        allWords: [WordItem]
+    ) -> QuickReflexDrillViewModel {
+        QuickReflexDrillViewModel(
+            targetWord: targetWord,
+            allWords: allWords,
+            ttsService: ttsService,
+            sttService: sttService,
+            speechAssessmentService: speechAssessmentService,
+            evaluateSRSUseCase: evaluateSRSUseCase
+        )
+    }
+
     public static let mock = AppContainer(useMockData: true)
     public static let shared = AppContainer.mock
 }

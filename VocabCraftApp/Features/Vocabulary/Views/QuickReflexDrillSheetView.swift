@@ -11,6 +11,7 @@ public struct QuickReflexDrillSheetView: View {
         allWords: [WordItem],
         ttsService: TextToSpeechProtocol? = nil,
         sttService: SpeechRecognitionProtocol? = nil,
+        speechAssessmentService: SpeechAssessmentProtocol? = nil,
         evaluateSRSUseCase: EvaluateSRSUseCaseProtocol? = nil,
         onComplete: @escaping (Int) -> Void
     ) {
@@ -19,6 +20,7 @@ public struct QuickReflexDrillSheetView: View {
             allWords: allWords,
             ttsService: ttsService,
             sttService: sttService,
+            speechAssessmentService: speechAssessmentService,
             evaluateSRSUseCase: evaluateSRSUseCase
         ))
         self.onComplete = onComplete
@@ -210,7 +212,8 @@ public struct QuickReflexDrillSheetView: View {
             VocabSpeechVisualizerView(
                 isListening: viewModel.isListening,
                 recognizedText: viewModel.recognizedText,
-                placeholderText: String(localized: "reflex.micPlaceholder")
+                placeholderText: String(localized: "reflex.micPlaceholder"),
+                evaluationResult: viewModel.speechEvaluationResult
             )
 
             // Interactive Tap-to-Talk Mic Control Hub
