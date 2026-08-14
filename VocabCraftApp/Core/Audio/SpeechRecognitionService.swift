@@ -211,6 +211,7 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
 
         let request = recognitionRequest
         inputNode.installTap(onBus: 0, bufferSize: 1024, format: hardwareFormat) { buffer, _ in
+            guard buffer.frameLength > 0 else { return }
             request.append(buffer)
         }
         isTapInstalled = true

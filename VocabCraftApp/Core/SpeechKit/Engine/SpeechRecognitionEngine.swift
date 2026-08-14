@@ -25,6 +25,7 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
     private let lock = NSLock()
     private var _isRecording = false
     private var currentSessionId = UUID()
+    private var simulationTask: Task<Void, Never>?
 
     public var isRecording: Bool {
         lock.lock()
@@ -44,7 +45,11 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
 
     /// Requests user authorization for microphone and speech recognition.
     public func requestAuthorization(completion: @escaping @Sendable (Bool) -> Void) {
-        #if os(iOS)
+        #if targetEnvironment(simulator)
+        DispatchQueue.main.async {
+            completion(true)
+        }
+        #elseif os(iOS)
         if #available(iOS 17.0, *) {
             AVAudioApplication.requestRecordPermission { micGranted in
                 guard micGranted else {
@@ -93,6 +98,41 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
             stopInternal()
         }
 
+        #if targetEnvironment(simulator)
+        _isRecording = true
+        let sessionId = UUID()
+        self.currentSessionId = sessionId
+        let phrases = contextualPhrases
+
+        simulationTask?.cancel()
+        simulationTask = Task { [weak self] in
+            guard let self = self else { return }
+            try? await Task.sleep(for: .milliseconds(400))
+            self.lock.lock()
+            guard self.currentSessionId == sessionId, self._isRecording else {
+                self.lock.unlock()
+                return
+            }
+            self.lock.unlock()
+
+            let target = phrases.first ?? "Sample utterance"
+            let words = target.split(separator: " ")
+            if words.count > 1 {
+                let partial = words.prefix(max(1, words.count / 2)).joined(separator: " ")
+                onPartialResult(partial)
+            }
+
+            try? await Task.sleep(for: .milliseconds(600))
+            self.lock.lock()
+            guard self.currentSessionId == sessionId, self._isRecording else {
+                self.lock.unlock()
+                return
+            }
+            self.lock.unlock()
+
+            onFinalResult(target)
+        }
+        #else
         guard let recognizer = speechRecognizer, recognizer.isAvailable else {
             throw SpeechKitError.recognizerUnavailable
         }
@@ -132,6 +172,8 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
             let engine = AVAudioEngine()
             self.audioEngine = engine
             let inputNode = engine.inputNode
+            inputNode.removeTap(onBus: 0)
+
             let recordingFormat = inputNode.outputFormat(forBus: 0)
 
             guard recordingFormat.sampleRate > 0, recordingFormat.channelCount > 0 else {
@@ -139,6 +181,7 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
             }
 
             inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self] buffer, _ in
+                guard buffer.frameLength > 0 else { return }
                 self?.recognitionRequest?.append(buffer)
             }
 
@@ -182,6 +225,7 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
             stopInternal()
             throw error
         }
+        #endif
     }
 
     /// Stops audio capture and finalizes the current recognition session.
@@ -193,6 +237,9 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
 
     private func stopInternal() {
         _isRecording = false
+
+        simulationTask?.cancel()
+        simulationTask = nil
 
         if let engine = audioEngine {
             engine.inputNode.removeTap(onBus: 0)
