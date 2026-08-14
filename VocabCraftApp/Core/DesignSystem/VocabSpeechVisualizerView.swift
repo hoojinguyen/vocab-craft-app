@@ -1,36 +1,52 @@
 import SwiftUI
 
-/// Shared speech visualizer component showing animated sound equalizer bars
-/// and live recognized speech text display across voice features.
+/// Shared speech visualizer component showing animated sound equalizer bars,
+/// live recognized speech text display, and word token highlight chips across voice features.
 public struct VocabSpeechVisualizerView: View {
     public let isListening: Bool
     public let recognizedText: String
     public let placeholderText: String
+    public let evaluationResult: SpeechEvaluationResult?
+    public let tokens: [WordTokenResult]
 
     @State private var barHeights: [CGFloat] = [12, 24, 18, 30, 16, 26, 14]
 
     public init(
         isListening: Bool,
         recognizedText: String,
-        placeholderText: String = "Nhấn micro bên dưới và nói đáp án tiếng Anh..."
+        placeholderText: String = "Nhấn micro bên dưới và nói đáp án tiếng Anh...",
+        evaluationResult: SpeechEvaluationResult? = nil,
+        tokens: [WordTokenResult]? = nil
     ) {
         self.isListening = isListening
         self.recognizedText = recognizedText
         self.placeholderText = placeholderText
+        self.evaluationResult = evaluationResult
+        if let explicitTokens = tokens {
+            self.tokens = explicitTokens
+        } else if let eval = evaluationResult {
+            self.tokens = eval.tokens
+        } else {
+            self.tokens = []
+        }
     }
 
     public var body: some View {
         VStack(spacing: 12) {
-            // Header Label
+            // Header Label & Evaluation Badge
             HStack {
                 Label(
-                    isListening ? AppStrings.Reflex.listening : AppStrings.Reflex.spokenAnswer,
-                    systemImage: isListening ? "waveform" : "mic.fill"
+                    headerTitle,
+                    systemImage: headerIcon
                 )
                 .font(.caption2.bold().smallCaps())
-                .foregroundColor(isListening ? .vocabCoral : .vocabMuted)
+                .foregroundColor(headerColor)
 
                 Spacer()
+
+                if let eval = evaluationResult {
+                    evaluationBadge(eval)
+                }
             }
 
             // Equalizer Sound Bar Visualizer
@@ -62,14 +78,25 @@ public struct VocabSpeechVisualizerView: View {
                 .transition(.scale.combined(with: .opacity))
             }
 
-            // Recognized Speech Text Display
-            Text(displayText)
-                .font(.system(size: 19, weight: recognizedText.isEmpty ? .medium : .semibold, design: .rounded))
-                .foregroundColor(recognizedText.isEmpty ? .vocabMuted.opacity(0.6) : .vocabInk)
-                .multilineTextAlignment(.center)
+            // Word Tokens Highlight or Recognized Speech Text Display
+            if !tokens.isEmpty {
+                SpeechWordHighlightView(
+                    tokens: tokens,
+                    targetSentence: evaluationResult?.targetSentence ?? "",
+                    evaluationResult: evaluationResult
+                )
                 .frame(maxWidth: .infinity, minHeight: 44)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+            } else {
+                Text(displayText)
+                    .font(.system(size: 19, weight: recognizedText.isEmpty ? .medium : .semibold, design: .rounded))
+                    .foregroundColor(recognizedText.isEmpty ? .vocabMuted.opacity(0.6) : .vocabInk)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+            }
         }
         .padding(18)
         .frame(maxWidth: .infinity)
@@ -87,6 +114,9 @@ public struct VocabSpeechVisualizerView: View {
                             ),
                             lineWidth: 2
                         )
+                } else if let eval = evaluationResult, eval.isPassed {
+                    RoundedRectangle(cornerRadius: 24)
+                        .stroke(Color.green.opacity(0.4), lineWidth: 1.5)
                 } else {
                     RoundedRectangle(cornerRadius: 24)
                         .stroke(Color.vocabHairline, lineWidth: 1.5)
@@ -102,6 +132,50 @@ public struct VocabSpeechVisualizerView: View {
         )
         .padding(.horizontal, 16)
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isListening)
+        .animation(.easeInOut(duration: 0.2), value: tokens)
+    }
+
+    private var headerTitle: LocalizedStringKey {
+        if isListening {
+            return AppStrings.Reflex.listening
+        } else if evaluationResult != nil {
+            return "Đánh giá phát âm"
+        } else {
+            return AppStrings.Reflex.spokenAnswer
+        }
+    }
+
+    private var headerIcon: String {
+        if isListening {
+            return "waveform"
+        } else if evaluationResult != nil {
+            return "text.badge.checkmark"
+        } else {
+            return "mic.fill"
+        }
+    }
+
+    private var headerColor: Color {
+        if isListening {
+            return .vocabCoral
+        } else if let eval = evaluationResult {
+            return eval.isPassed ? .green : .vocabPeach
+        } else {
+            return .vocabMuted
+        }
+    }
+
+    @ViewBuilder
+    private func evaluationBadge(_ eval: SpeechEvaluationResult) -> some View {
+        HStack(spacing: 4) {
+            Text("⚡️ \(Int(eval.overallScore * 100))%")
+                .font(.caption2.bold())
+                .foregroundColor(eval.isPassed ? .green : .orange)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 3)
+        .background((eval.isPassed ? Color.green : Color.orange).opacity(0.12))
+        .clipShape(Capsule())
     }
 
     private var displayText: String {
