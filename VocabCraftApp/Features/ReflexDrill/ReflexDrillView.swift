@@ -419,7 +419,8 @@ public struct ReflexDrillView: View {
                             // Speech Visualizer & Live Text Display
                             VocabSpeechVisualizerView(
                                 isListening: viewModel.isListening,
-                                recognizedText: viewModel.recognizedText
+                                recognizedText: viewModel.recognizedText,
+                                evaluationResult: viewModel.speechEvaluationResult
                             )
 
                             // Tactile Mic Control Hub (Hidden when evaluated to avoid occlusion behind bottom dock)

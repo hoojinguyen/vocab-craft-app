@@ -27,21 +27,36 @@ public struct ReflexDrillState: Equatable {
 @Observable
 public final class ReflexDrillViewModel {
     public var state: ReflexDrillState
+    public var speechEvaluationResult: SpeechEvaluationResult?
+
+    private var internalRecognizedText: String = ""
 
     private let fetchVocabularyUseCase: FetchVocabularyUseCaseProtocol
     private let evaluateSRSUseCase: EvaluateSRSUseCaseProtocol
     private let ttsService: TextToSpeechProtocol
     private let sttService: SpeechRecognitionProtocol
+    private let speechAssessmentService: SpeechAssessmentProtocol?
 
     private var timerTask: Task<Void, Never>?
     private var loadTask: Task<Void, Never>?
 
     public var isListening: Bool {
-        (sttService as? SpeechRecognitionService)?.isListening ?? sttService.isListening
+        if let assessment = speechAssessmentService {
+            return assessment.isListening
+        }
+        return (sttService as? SpeechRecognitionService)?.isListening ?? sttService.isListening
     }
+
     public var recognizedText: String {
-        (sttService as? SpeechRecognitionService)?.recognizedText ?? sttService.recognizedText
+        if let eval = speechEvaluationResult, !eval.spokenText.isEmpty {
+            return eval.spokenText
+        }
+        if !internalRecognizedText.isEmpty {
+            return internalRecognizedText
+        }
+        return (sttService as? SpeechRecognitionService)?.recognizedText ?? sttService.recognizedText
     }
+
     public var isSpeaking: Bool { ttsService.isSpeaking }
 
     public init(
@@ -49,6 +64,7 @@ public final class ReflexDrillViewModel {
         evaluateSRSUseCase: EvaluateSRSUseCaseProtocol,
         ttsService: TextToSpeechProtocol,
         sttService: SpeechRecognitionProtocol,
+        speechAssessmentService: SpeechAssessmentProtocol? = nil,
         cefrLevel: String = "B1"
     ) {
         self.state = ReflexDrillState(cefrLevel: cefrLevel)
@@ -56,12 +72,15 @@ public final class ReflexDrillViewModel {
         self.evaluateSRSUseCase = evaluateSRSUseCase
         self.ttsService = ttsService
         self.sttService = sttService
+        self.speechAssessmentService = speechAssessmentService
     }
 
     deinit {
         let stt = sttService
+        let assessment = speechAssessmentService
         Task { @MainActor in
             stt.stopListening()
+            assessment?.stopAssessing()
         }
     }
 
@@ -108,6 +127,8 @@ public final class ReflexDrillViewModel {
         state.isCorrect = false
         state.feedbackText = ""
         state.srsResult = nil
+        speechEvaluationResult = nil
+        internalRecognizedText = ""
 
         timerTask?.cancel()
         timerTask = Task { [weak self] in
@@ -126,10 +147,23 @@ public final class ReflexDrillViewModel {
         ttsService.speak(text: drill.correctAnswer)
     }
 
+    public func toggleListening() {
+        handleMicTap()
+    }
+
+    public func startListening() {
+        startVoiceRecognition()
+    }
+
+    public func stopListening() {
+        stopVoiceRecognition()
+    }
+
     public func handleMicTap() {
         if isListening {
             stopVoiceRecognition()
-            evaluateAnswer(recognizedText)
+            let answerToEvaluate = speechEvaluationResult?.spokenText ?? recognizedText
+            evaluateAnswer(answerToEvaluate)
         } else {
             startVoiceRecognition()
         }
@@ -137,44 +171,105 @@ public final class ReflexDrillViewModel {
 
     public func startVoiceRecognition() {
         ttsService.stop()
-        sttService.startListening(
-            onResult: { [weak self] recognizedText in
-                guard let self = self, let target = self.state.drill?.correctAnswer else { return }
-                // Only auto-evaluate when user speech matches target answer.
-                if self.isCorrectAnswer(userText: recognizedText, targetText: target) {
-                    self.evaluateAnswer(recognizedText)
+        guard let drill = state.drill else { return }
+
+        let targetSentence = drill.correctAnswer
+        var contextualPhrases: [String] = []
+        if let sentenceEn = drill.sentenceTextEn, !sentenceEn.isEmpty {
+            contextualPhrases.append(sentenceEn)
+        }
+        if !targetSentence.isEmpty && !contextualPhrases.contains(targetSentence) {
+            contextualPhrases.append(targetSentence)
+        }
+        for distractor in drill.distractors where !contextualPhrases.contains(distractor) {
+            contextualPhrases.append(distractor)
+        }
+
+        if let assessment = speechAssessmentService {
+            assessment.startAssessing(
+                targetSentence: targetSentence,
+                toleranceThreshold: 0.75,
+                contextualPhrases: contextualPhrases,
+                onProgress: { [weak self] evaluation in
+                    guard let self = self else { return }
+                    self.speechEvaluationResult = evaluation
+                    self.internalRecognizedText = evaluation.spokenText
+                },
+                onCompletion: { [weak self] evaluation in
+                    guard let self = self else { return }
+                    self.speechEvaluationResult = evaluation
+                    self.internalRecognizedText = evaluation.spokenText
+                    if evaluation.isPassed {
+                        self.evaluateAnswer(evaluation.spokenText)
+                    }
+                },
+                onError: { [weak self] error in
+                    guard let self = self else { return }
+                    let desc: String
+                    if let err = error as? SpeechKitError, let msg = err.errorDescription {
+                        desc = msg
+                    } else if let err = error as? SpeechRecognitionError, let msg = err.errorDescription {
+                        desc = msg
+                    } else {
+                        desc = error.localizedDescription
+                    }
+                    self.state.feedbackText = String(localized: "reflex.errorRecording \(desc)")
+                    self.state.errorMessage = desc
+                    self.state.showErrorAlert = true
                 }
-            },
-            onError: { [weak self] error in
-                let desc: String
-                if let err = error as? SpeechRecognitionError, let msg = err.errorDescription {
-                    desc = msg
-                } else {
-                    desc = error.localizedDescription
+            )
+        } else {
+            sttService.startListening(
+                onResult: { [weak self] recognizedText in
+                    guard let self = self, let target = self.state.drill?.correctAnswer else { return }
+                    self.internalRecognizedText = recognizedText
+                    // Only auto-evaluate when user speech matches target answer.
+                    if self.isCorrectAnswer(userText: recognizedText, targetText: target) {
+                        self.evaluateAnswer(recognizedText)
+                    }
+                },
+                onError: { [weak self] error in
+                    let desc: String
+                    if let err = error as? SpeechRecognitionError, let msg = err.errorDescription {
+                        desc = msg
+                    } else {
+                        desc = error.localizedDescription
+                    }
+                    self?.state.feedbackText = String(localized: "reflex.errorRecording \(desc)")
+                    self?.state.errorMessage = desc
+                    self?.state.showErrorAlert = true
                 }
-                self?.state.feedbackText = String(localized: "reflex.errorRecording \(desc)")
-                self?.state.errorMessage = desc
-                self?.state.showErrorAlert = true
-            }
-        )
+            )
+        }
     }
 
     public func stopVoiceRecognition() {
+        speechAssessmentService?.stopAssessing()
         sttService.stopListening()
     }
 
     public func evaluateAnswer(_ answer: String) {
         timerTask?.cancel()
         sttService.stopListening()
+        speechAssessmentService?.stopAssessing()
 
         guard let drill = state.drill else { return }
-        let isCorrect = isCorrectAnswer(userText: answer, targetText: drill.correctAnswer)
+        let isCorrect: Bool
+        if let eval = speechEvaluationResult, !eval.spokenText.isEmpty {
+            isCorrect = eval.isPassed || isCorrectAnswer(userText: eval.spokenText, targetText: drill.correctAnswer)
+        } else {
+            isCorrect = isCorrectAnswer(userText: answer, targetText: drill.correctAnswer)
+        }
+
+        let responseTime = (speechEvaluationResult?.durationMs ?? 0) > 0
+            ? speechEvaluationResult!.durationMs
+            : state.elapsedTimeMs
 
         let result = evaluateSRSUseCase.evaluateResponse(
             currentMastery: state.currentMastery,
             easeFactor: state.easeFactor,
             isCorrect: isCorrect,
-            responseTimeMs: state.elapsedTimeMs
+            responseTimeMs: responseTime
         )
 
         state.currentMastery = result.nextMastery
