@@ -139,7 +139,7 @@ public struct VocabSpeechVisualizerView: View {
         if isListening {
             return AppStrings.Reflex.listening
         } else if evaluationResult != nil {
-            return "Đánh giá phát âm"
+            return AppStrings.Reflex.speechEvaluation
         } else {
             return AppStrings.Reflex.spokenAnswer
         }

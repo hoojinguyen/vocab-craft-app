@@ -184,6 +184,14 @@ final class StringNormalizerTests: XCTestCase {
         XCTAssertEqual(StringNormalizer.convertDigitsToWords("5"), "five")
         XCTAssertEqual(StringNormalizer.convertDigitsToWords("10"), "ten")
         XCTAssertEqual(StringNormalizer.convertDigitsToWords("0"), "zero")
+        XCTAssertEqual(StringNormalizer.convertDigitsToWords("1,000"), "one thousand")
+        XCTAssertEqual(StringNormalizer.convertDigitsToWords("3.14"), "three point one four")
+    }
+
+    func testNormalize_groupedAndDecimalNumbers() {
+        let input = "There are 1,000 meters in a kilometer and pi is 3.14."
+        let expected = "there are one thousand meters in a kilometer and pi is three point one four"
+        XCTAssertEqual(StringNormalizer.normalize(input), expected)
     }
 
     func testStripPunctuation_standalone() {

@@ -255,4 +255,84 @@ final class SpeechAssessmentServiceTests: XCTestCase {
         XCTAssertFalse(service.isListening)
         XCTAssertEqual(mockEngine.stopCallCount, 1)
     }
+
+    func testInitialSilenceTimeout_withNoPartialResults_stopsAndEmitsFinalEvaluation() async {
+        let target = "Never give up."
+        let completionExpectation = expectation(description: "Initial silence auto-stop completion")
+        var completionResult: SpeechEvaluationResult?
+
+        service.startAssessing(
+            targetSentence: target,
+            toleranceThreshold: 0.75,
+            onCompletion: { result in
+                completionResult = result
+                completionExpectation.fulfill()
+            }
+        )
+
+        // No partial result is simulated; the initial armed timer should fire after 80ms
+        await fulfillment(of: [completionExpectation], timeout: 1.0)
+
+        XCTAssertNotNil(completionResult)
+        XCTAssertFalse(completionResult!.isPassed)
+        XCTAssertEqual(completionResult?.spokenText, "")
+        XCTAssertFalse(service.isListening)
+    }
+
+    func testAuthorizationDenied_forwardsSpeechRecognitionNotAuthorizedError() async {
+        mockEngine.requestAuthResult = false
+        let errorExpectation = expectation(description: "Not authorized error received")
+        var receivedError: Error?
+
+        service.startAssessing(
+            targetSentence: "Hello world",
+            onError: { error in
+                receivedError = error
+                errorExpectation.fulfill()
+            }
+        )
+
+        await fulfillment(of: [errorExpectation], timeout: 1.0)
+
+        XCTAssertEqual(receivedError as? SpeechKitError, .speechRecognitionNotAuthorized)
+        XCTAssertFalse(service.isListening)
+    }
+
+    func testSessionTokenIsolation_ignoresStaleCallbacksFromPreviousSession() async {
+        let firstTarget = "First sentence"
+        let secondTarget = "Second sentence"
+
+        var firstCompletionCalled = false
+        var secondCompletionCalled = false
+        let secondCompletionExpectation = expectation(description: "Second session completed")
+
+        // Start session 1
+        service.startAssessing(
+            targetSentence: firstTarget,
+            onCompletion: { _ in
+                firstCompletionCalled = true
+            }
+        )
+        let firstEngineCallback = mockEngine.onPartialResultHandler
+
+        // Immediately restart with session 2
+        service.startAssessing(
+            targetSentence: secondTarget,
+            onCompletion: { result in
+                secondCompletionCalled = true
+                XCTAssertEqual(result.targetSentence, secondTarget)
+                secondCompletionExpectation.fulfill()
+            }
+        )
+
+        // Stale callback from session 1 should be ignored
+        firstEngineCallback?("first sentence")
+
+        // Valid callback from session 2
+        mockEngine.simulatePartialResult("second sentence")
+
+        await fulfillment(of: [secondCompletionExpectation], timeout: 1.0)
+        XCTAssertFalse(firstCompletionCalled, "Stale callback from session 1 should not have triggered session 1's completion")
+        XCTAssertTrue(secondCompletionCalled)
+    }
 }

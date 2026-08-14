@@ -129,6 +129,17 @@ final class FuzzySpeechMatcherTests: XCTestCase {
         XCTAssertEqual(results[3].similarityScore, 0.8, accuracy: 1e-6)
     }
 
+    func testSequenceAligner_nearMatch_isFuzzyMatchNotExactMatch() {
+        // 100 character token with 1 substitution -> similarity 0.99
+        let targetWord = String(repeating: "a", count: 100)
+        let spokenWord = String(repeating: "a", count: 99) + "b"
+
+        let results = SequenceAligner.align(targetTokens: [targetWord], spokenTokens: [spokenWord])
+        XCTAssertEqual(results.count, 1)
+        XCTAssertEqual(results[0].status, .fuzzyMatch)
+        XCTAssertEqual(results[0].similarityScore, 0.99, accuracy: 1e-6)
+    }
+
     func testSequenceAligner_emptyInputs() {
         let emptyTargets = SequenceAligner.align(targetTokens: [], spokenTokens: ["hello"])
         XCTAssertTrue(emptyTargets.isEmpty)

@@ -17,6 +17,7 @@ public final class SpeechAssessmentService: SpeechAssessmentProtocol, @unchecked
     private let engine: SpeechRecognitionEngineProtocol
     private let silenceDuration: Duration
     private var silenceDetector: SilenceDetector?
+    private var currentSessionToken = UUID()
 
     // MARK: - Initialization
 
@@ -66,6 +67,8 @@ public final class SpeechAssessmentService: SpeechAssessmentProtocol, @unchecked
             stopAssessing()
         }
 
+        let sessionToken = UUID()
+        currentSessionToken = sessionToken
         isListening = true
         currentEvaluation = nil
 
@@ -77,10 +80,10 @@ public final class SpeechAssessmentService: SpeechAssessmentProtocol, @unchecked
             biasedPhrases.append(targetSentence)
         }
 
-        // Setup silence auto-stop detector
+        // Setup silence auto-stop detector and arm it immediately
         let detector = SilenceDetector(silenceDuration: silenceDuration) { [weak self] in
             Task { @MainActor [weak self] in
-                guard let self, self.isListening else { return }
+                guard let self, self.isListening, self.currentSessionToken == sessionToken else { return }
                 let finalEval = self.currentEvaluation ?? FuzzySpeechMatcher.evaluate(
                     spokenText: "",
                     targetSentence: targetSentence,
@@ -92,63 +95,86 @@ public final class SpeechAssessmentService: SpeechAssessmentProtocol, @unchecked
             }
         }
         self.silenceDetector = detector
+        detector.arm()
 
-        do {
-            try engine.start(
-                contextualPhrases: biasedPhrases,
-                onPartialResult: { [weak self] partialText in
-                    Task { @MainActor [weak self] in
-                        guard let self, self.isListening else { return }
-                        self.silenceDetector?.registerActivity()
-
-                        let durationMs = Int(Date().timeIntervalSince(startTime) * 1000)
-                        let eval = FuzzySpeechMatcher.evaluate(
-                            spokenText: partialText,
-                            targetSentence: targetSentence,
-                            passThreshold: toleranceThreshold,
-                            durationMs: durationMs
-                        )
-                        self.currentEvaluation = eval
-                        onProgress(eval)
-
-                        // Instant Reflex Trigger: pass threshold reached without waiting for speech end
-                        if eval.isPassed {
-                            self.stopAssessing()
-                            onCompletion(eval)
-                        }
-                    }
-                },
-                onFinalResult: { [weak self] finalText in
-                    Task { @MainActor [weak self] in
-                        guard let self, self.isListening else { return }
-                        let durationMs = Int(Date().timeIntervalSince(startTime) * 1000)
-                        let eval = FuzzySpeechMatcher.evaluate(
-                            spokenText: finalText,
-                            targetSentence: targetSentence,
-                            passThreshold: toleranceThreshold,
-                            durationMs: durationMs
-                        )
-                        self.currentEvaluation = eval
-                        self.stopAssessing()
-                        onCompletion(eval)
-                    }
-                },
-                onError: { [weak self] error in
-                    Task { @MainActor [weak self] in
-                        guard let self, self.isListening else { return }
-                        self.stopAssessing()
-                        onError(error)
-                    }
+        engine.requestAuthorization { [weak self] authorized in
+            let handleAuth: @MainActor () -> Void = { [weak self] in
+                guard let self, self.isListening, self.currentSessionToken == sessionToken else { return }
+                guard authorized else {
+                    self.stopAssessing()
+                    onError(SpeechKitError.speechRecognitionNotAuthorized)
+                    return
                 }
-            )
-        } catch {
-            stopAssessing()
-            onError(error)
+
+                do {
+                    try self.engine.start(
+                        contextualPhrases: biasedPhrases,
+                        onPartialResult: { [weak self] partialText in
+                            Task { @MainActor [weak self] in
+                                guard let self, self.isListening, self.currentSessionToken == sessionToken else { return }
+                                self.silenceDetector?.registerActivity()
+
+                                let durationMs = Int(Date().timeIntervalSince(startTime) * 1000)
+                                let eval = FuzzySpeechMatcher.evaluate(
+                                    spokenText: partialText,
+                                    targetSentence: targetSentence,
+                                    passThreshold: toleranceThreshold,
+                                    durationMs: durationMs
+                                )
+                                self.currentEvaluation = eval
+                                onProgress(eval)
+
+                                // Instant Reflex Trigger: pass threshold reached without waiting for speech end
+                                if eval.isPassed {
+                                    self.stopAssessing()
+                                    onCompletion(eval)
+                                }
+                            }
+                        },
+                        onFinalResult: { [weak self] finalText in
+                            Task { @MainActor [weak self] in
+                                guard let self, self.isListening, self.currentSessionToken == sessionToken else { return }
+                                let durationMs = Int(Date().timeIntervalSince(startTime) * 1000)
+                                let eval = FuzzySpeechMatcher.evaluate(
+                                    spokenText: finalText,
+                                    targetSentence: targetSentence,
+                                    passThreshold: toleranceThreshold,
+                                    durationMs: durationMs
+                                )
+                                self.currentEvaluation = eval
+                                self.stopAssessing()
+                                onCompletion(eval)
+                            }
+                        },
+                        onError: { [weak self] error in
+                            Task { @MainActor [weak self] in
+                                guard let self, self.isListening, self.currentSessionToken == sessionToken else { return }
+                                self.stopAssessing()
+                                onError(error)
+                            }
+                        }
+                    )
+                } catch {
+                    self.stopAssessing()
+                    onError(error)
+                }
+            }
+
+            if Thread.isMainThread {
+                MainActor.assumeIsolated {
+                    handleAuth()
+                }
+            } else {
+                Task { @MainActor in
+                    handleAuth()
+                }
+            }
         }
     }
 
     /// Stops the active speech assessment session and releases recognition resources.
     public func stopAssessing() {
+        currentSessionToken = UUID()
         silenceDetector?.cancel()
         silenceDetector = nil
         engine.stop()

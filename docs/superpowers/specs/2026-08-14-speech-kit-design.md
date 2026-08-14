@@ -96,7 +96,7 @@ Following Clean Architecture and `swift-architecture` guidelines, `SpeechKit` op
   $$\text{Ratio}(w_1, w_2) = 1.0 - \frac{\text{LevenshteinDistance}(w_1, w_2)}{\max(\text{len}(w_1), \text{len}(w_2))}$$
 - **Token Classification**:
   - `exactMatch` (Score = 1.0): Exact string match.
-  - `fuzzyMatch` (Score = 0.75 - 0.99): Levenshtein ratio $\ge 0.75$ (tolerates missing plural/tense suffixes like `jump` vs `jumps`, `walk` vs `walked`).
+  - `fuzzyMatch` (Score = 0.75 - 0.99): Levenshtein ratio $\ge 0.75$ (tolerates single-character suffix or accent variations like `jump` vs `jumps` [0.80], `play` vs `plays` [0.80]).
   - `missing` (Score = 0.0): Word omitted or distance $< 0.75$.
 - **Sequence Alignment Algorithm**: Uses dynamic programming (Longest Common Subsequence variant) to match user words against target words in left-to-right order without losing alignment if filler words (e.g., *"um"*, *"ah"*, *"like"*) are inserted.
 - **Overall Sentence Score**:

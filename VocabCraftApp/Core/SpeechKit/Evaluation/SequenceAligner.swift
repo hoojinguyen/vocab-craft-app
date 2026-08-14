@@ -89,7 +89,7 @@ public enum SequenceAligner {
             if let spokenIndex = targetToSpoken[index] {
                 let spokenWord = spokenTokens[spokenIndex]
                 let sim = simMatrix[index][spokenIndex]
-                let status: WordMatchStatus = (sim >= 0.99) ? .exactMatch : .fuzzyMatch
+                let status: WordMatchStatus = (sim == 1.0 || targetWord == spokenWord) ? .exactMatch : .fuzzyMatch
                 return WordTokenResult(
                     id: index,
                     targetWord: targetWord,

@@ -181,7 +181,11 @@ public struct SpeechFlowLayout: Layout {
         var currentRow = Row()
 
         for subview in subviews {
-            let size = subview.sizeThatFits(.unspecified)
+            let itemProposal = maxWidth.isFinite ? ProposedViewSize(width: maxWidth, height: nil) : .unspecified
+            let rawSize = subview.sizeThatFits(itemProposal)
+            let constrainedWidth = maxWidth.isFinite ? min(rawSize.width, maxWidth) : rawSize.width
+            let size = CGSize(width: constrainedWidth, height: rawSize.height)
+
             let itemSpacing = currentRow.items.isEmpty ? 0 : spacing
 
             if !currentRow.items.isEmpty && (currentRow.width + itemSpacing + size.width) > maxWidth {

@@ -87,10 +87,8 @@ public enum StringNormalizer {
         }
     }()
 
-    // MARK: - Digit Maps & Formatters
-
     private static let plainNumberRegex: NSRegularExpression? = {
-        try? NSRegularExpression(pattern: "\\b\\d+\\b")
+        try? NSRegularExpression(pattern: "\\b(?:\\d{1,3}(?:,\\d{3})+|\\d+)(?:\\.\\d+)?\\b")
     }()
 
     private static let ordinalMappings: [(regex: NSRegularExpression, replacement: String)] = {
@@ -227,11 +225,20 @@ public enum StringNormalizer {
 
         for match in matches.reversed() {
             let matchString = nsString.substring(with: match.range)
+            let cleanString = matchString.replacingOccurrences(of: ",", with: "")
             let replacement: String
 
-            if let mapped = digitMap[matchString] {
+            if let mapped = digitMap[cleanString] {
                 replacement = mapped
-            } else if let num = Int(matchString), let spelled = spellOutFormatter.string(from: NSNumber(value: num)) {
+            } else if cleanString.contains(".") {
+                if let num = Double(cleanString), let spelled = spellOutFormatter.string(from: NSNumber(value: num)) {
+                    replacement = spelled.replacingOccurrences(of: "-", with: " ")
+                } else {
+                    replacement = matchString
+                }
+            } else if let num = Int(cleanString), let spelled = spellOutFormatter.string(from: NSNumber(value: num)) {
+                replacement = spelled.replacingOccurrences(of: "-", with: " ")
+            } else if let num = Double(cleanString), let spelled = spellOutFormatter.string(from: NSNumber(value: num)) {
                 replacement = spelled.replacingOccurrences(of: "-", with: " ")
             } else {
                 replacement = matchString

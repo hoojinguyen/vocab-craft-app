@@ -8,7 +8,7 @@
 
 **Tech Stack:** Swift 5.10+, iOS 17+, Speech framework (`SFSpeechRecognizer`), AVFoundation (`AVAudioEngine`), Observation framework, SwiftUI, Swift Testing.
 
-**Spec:** [`docs/superpowers/specs/2026-08-14-speech-kit-design.md`](file:///Users/hoojinguyen/Projects/vocab-craft-app/docs/superpowers/specs/2026-08-14-speech-kit-design.md)
+**Spec:** [`docs/superpowers/specs/2026-08-14-speech-kit-design.md`](../specs/2026-08-14-speech-kit-design.md)
 
 ## Global Constraints
 - Target Platform: iOS 17.0+, macOS 14.0+

@@ -24,6 +24,11 @@ public final class SilenceDetector: @unchecked Sendable {
         cancel()
     }
 
+    /// Arms the silence detector, starting the inactivity timer.
+    public func arm() {
+        registerActivity()
+    }
+
     /// Registers acoustic or speech activity, resetting the silence debounce timer.
     public func registerActivity() {
         lock.lock()
