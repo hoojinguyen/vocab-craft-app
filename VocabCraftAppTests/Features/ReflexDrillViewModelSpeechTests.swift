@@ -179,38 +179,24 @@ final class ReflexDrillViewModelSpeechTests: XCTestCase {
         XCTAssertNotNil(viewModel.state.srsResult)
     }
 
-    func testFailingEvaluationOnSilenceDoesNotAdvanceUntilUserRetry() {
-        viewModel.startListening()
+    func testSilenceTimeoutOrFailedSpeech_triggersEvaluationAndShowsFeedback() {
+        viewModel.startVoiceRecognition()
+        XCTAssertTrue(viewModel.isListening)
 
         let failedResult = SpeechEvaluationResult(
             targetSentence: "A black dog jumps over the fence",
-            spokenText: "A white cat",
-            tokens: [
-                WordTokenResult(id: 0, targetWord: "A", spokenWord: "a", status: .exactMatch, similarityScore: 1.0),
-                WordTokenResult(id: 1, targetWord: "black", spokenWord: "white", status: .missing, similarityScore: 0.1),
-                WordTokenResult(id: 2, targetWord: "dog", spokenWord: "cat", status: .missing, similarityScore: 0.1),
-                WordTokenResult(id: 3, targetWord: "jumps", spokenWord: nil, status: .missing, similarityScore: 0.0),
-                WordTokenResult(id: 4, targetWord: "over", spokenWord: nil, status: .missing, similarityScore: 0.0),
-                WordTokenResult(id: 5, targetWord: "the", spokenWord: nil, status: .missing, similarityScore: 0.0),
-                WordTokenResult(id: 6, targetWord: "fence", spokenWord: nil, status: .missing, similarityScore: 0.0)
-            ],
-            overallScore: 0.14,
+            spokenText: "A red cat",
+            tokens: [],
+            overallScore: 20.0,
             isPassed: false,
-            durationMs: 2100
+            durationMs: 2500
         )
-
-        // Silence auto-stop completes with failed evaluation
         mockSpeechAssessment.simulateCompletion(failedResult)
 
-        // Card should NOT be marked evaluated/completed so user can retry or tap give up
         XCTAssertFalse(viewModel.isListening)
-        XCTAssertFalse(viewModel.state.isEvaluated)
-        XCTAssertEqual(viewModel.recognizedText, "A white cat")
-        XCTAssertEqual(viewModel.speechEvaluationResult?.overallScore, 0.14)
-
-        // User can tap mic again to retry
-        viewModel.handleMicTap()
-        XCTAssertTrue(viewModel.isListening)
+        XCTAssertTrue(viewModel.state.isEvaluated)
+        XCTAssertFalse(viewModel.state.isCorrect)
+        XCTAssertFalse(viewModel.state.feedbackText.isEmpty)
     }
 
     func testMicrophoneTapWhileListeningManuallyStopsAndEvaluates() {

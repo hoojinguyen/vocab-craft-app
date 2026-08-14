@@ -199,9 +199,7 @@ public final class ReflexDrillViewModel {
                     guard let self = self else { return }
                     self.speechEvaluationResult = evaluation
                     self.internalRecognizedText = evaluation.spokenText
-                    if evaluation.isPassed {
-                        self.evaluateAnswer(evaluation.spokenText)
-                    }
+                    self.evaluateAnswer(evaluation.spokenText)
                 },
                 onError: { [weak self] error in
                     guard let self = self else { return }
