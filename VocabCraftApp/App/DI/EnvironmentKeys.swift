@@ -14,6 +14,10 @@ private struct TextToSpeechKey: EnvironmentKey {
     static let defaultValue: TextToSpeechProtocol? = nil
 }
 
+private struct SpeechAssessmentServiceKey: EnvironmentKey {
+    static let defaultValue: SpeechAssessmentProtocol? = nil
+}
+
 public extension EnvironmentValues {
     @MainActor
     var appContainer: AppContainer {
@@ -30,5 +34,10 @@ public extension EnvironmentValues {
     var ttsService: TextToSpeechProtocol? {
         get { self[TextToSpeechKey.self] }
         set { self[TextToSpeechKey.self] = newValue }
+    }
+
+    var speechAssessmentService: SpeechAssessmentProtocol? {
+        get { self[SpeechAssessmentServiceKey.self] }
+        set { self[SpeechAssessmentServiceKey.self] = newValue }
     }
 }

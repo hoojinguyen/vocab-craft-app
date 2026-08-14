@@ -169,6 +169,7 @@ public enum AppStrings {
         public static var excellentSpeech: LocalizedStringKey { "reflex.excellentSpeech" }
         public static var correctSpeech: LocalizedStringKey { "reflex.correctSpeech" }
         public static var needsPractice: LocalizedStringKey { "reflex.needsPractice" }
+        public static var speechEvaluation: LocalizedStringKey { "reflex.speechEvaluation" }
         public static func incorrectFeedback(_ answer: String) -> LocalizedStringKey {
             LocalizedStringKey("reflex.incorrectFeedback \(answer)")
         }

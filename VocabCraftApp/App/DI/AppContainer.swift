@@ -12,6 +12,7 @@ public final class AppContainer {
 
     public let ttsService: TextToSpeechProtocol
     public let sttService: SpeechRecognitionProtocol
+    public let speechAssessmentService: SpeechAssessmentProtocol
 
     public let fetchVocabularyUseCase: FetchVocabularyUseCaseProtocol
     public let evaluateSRSUseCase: EvaluateSRSUseCaseProtocol
@@ -25,6 +26,7 @@ public final class AppContainer {
         useMockData: Bool? = nil,
         ttsService: TextToSpeechProtocol? = nil,
         sttService: SpeechRecognitionProtocol? = nil,
+        speechAssessmentService: SpeechAssessmentProtocol? = nil,
         userSettingsStore: UserSettingsStore? = nil,
         appRouter: AppRouter? = nil
     ) {
@@ -42,6 +44,7 @@ public final class AppContainer {
 
         self.ttsService = ttsService ?? TextToSpeechService()
         self.sttService = sttService ?? SpeechRecognitionService()
+        self.speechAssessmentService = speechAssessmentService ?? SpeechAssessmentService()
 
         self.fetchVocabularyUseCase = FetchVocabularyUseCase(repository: vocabRepo)
         self.evaluateSRSUseCase = EvaluateSRSUseCase(srsRepository: srsRepo)
@@ -63,6 +66,7 @@ public final class AppContainer {
             evaluateSRSUseCase: evaluateSRSUseCase,
             ttsService: ttsService,
             sttService: sttService,
+            speechAssessmentService: speechAssessmentService,
             cefrLevel: cefrLevel
         )
     }
@@ -89,4 +93,5 @@ public final class AppContainer {
     }
 
     public static let mock = AppContainer(useMockData: true)
+    public static let shared = AppContainer.mock
 }

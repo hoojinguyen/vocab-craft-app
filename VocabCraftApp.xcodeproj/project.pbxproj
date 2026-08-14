@@ -119,6 +119,25 @@
 		3001573EA4CC3FAE2D09 /* SwiftDataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20009AC1BB7654E455DF /* SwiftDataModels.swift */; };
 		30019977515C5A5B7FC8 /* DatasetModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000D26FBFB21A7CA2FE /* DatasetModels.swift */; };
 		3001A8C3A90BD362D3C1 /* SRSEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003498E286D20C1EBC /* SRSEngine.swift */; };
+		300039B0E8475383FEFA /* SilenceDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200039B0E8475383FEFA /* SilenceDetector.swift */; };
+		3000D37579A0D86E8769 /* SpeechRecognitionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000D37579A0D86E8769 /* SpeechRecognitionEngine.swift */; };
+		3000FADDE6CA3EA1DA38 /* FuzzySpeechMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FADDE6CA3EA1DA38 /* FuzzySpeechMatcher.swift */; };
+		3000C15AB5EAE471F6F0 /* SequenceAligner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C15AB5EAE471F6F0 /* SequenceAligner.swift */; };
+		3000AD238354265694ED /* StringNormalizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000AD238354265694ED /* StringNormalizer.swift */; };
+		3000DD35B1FA84ABCE05 /* SpeechEvaluationResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DD35B1FA84ABCE05 /* SpeechEvaluationResult.swift */; };
+		300075B525D12FA887F6 /* SpeechKitError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200075B525D12FA887F6 /* SpeechKitError.swift */; };
+		3000355C892D49CEE080 /* WordMatchStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000355C892D49CEE080 /* WordMatchStatus.swift */; };
+		3000802DF61246A27CC0 /* WordTokenResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000802DF61246A27CC0 /* WordTokenResult.swift */; };
+		3000EBFFD548C273DED3 /* SpeechAssessmentProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000EBFFD548C273DED3 /* SpeechAssessmentProtocol.swift */; };
+		30007BF8B72CFEC3007C /* SpeechAssessmentService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20007BF8B72CFEC3007C /* SpeechAssessmentService.swift */; };
+		3000C11273B413F47E21 /* SpeechWordHighlightView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C11273B413F47E21 /* SpeechWordHighlightView.swift */; };
+		3000A97D89A8D2F003B0 /* FuzzySpeechMatcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A97D89A8D2F003B0 /* FuzzySpeechMatcherTests.swift */; };
+		300040B2BA42F6B0A168 /* SilenceDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200040B2BA42F6B0A168 /* SilenceDetectorTests.swift */; };
+		3000E580CD8F30CC7BC8 /* SpeechAssessmentServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000E580CD8F30CC7BC8 /* SpeechAssessmentServiceTests.swift */; };
+		3000A302D996E4804027 /* SpeechKitModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A302D996E4804027 /* SpeechKitModelTests.swift */; };
+		300083E7229A9CC492C1 /* SpeechWordHighlightViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200083E7229A9CC492C1 /* SpeechWordHighlightViewTests.swift */; };
+		30003758086F870878E1 /* StringNormalizerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003758086F870878E1 /* StringNormalizerTests.swift */; };
+		30004C19D2AB6B584153 /* ReflexDrillViewModelSpeechTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20004C19D2AB6B584153 /* ReflexDrillViewModelSpeechTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -265,6 +284,25 @@
 		2000FAD85B1C0D0923C5 /* EnvironmentKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentKeys.swift; sourceTree = "<group>"; };
 		2000FBE3EC435722C797 /* MockVocabularyRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockVocabularyRepository.swift; sourceTree = "<group>"; };
 		2000FE45C5E45EEC44B5 /* ReflexFlipCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReflexFlipCardView.swift; sourceTree = "<group>"; };
+		200039B0E8475383FEFA /* SilenceDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SilenceDetector.swift; sourceTree = "<group>"; };
+		2000D37579A0D86E8769 /* SpeechRecognitionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionEngine.swift; sourceTree = "<group>"; };
+		2000FADDE6CA3EA1DA38 /* FuzzySpeechMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FuzzySpeechMatcher.swift; sourceTree = "<group>"; };
+		2000C15AB5EAE471F6F0 /* SequenceAligner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequenceAligner.swift; sourceTree = "<group>"; };
+		2000AD238354265694ED /* StringNormalizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringNormalizer.swift; sourceTree = "<group>"; };
+		2000DD35B1FA84ABCE05 /* SpeechEvaluationResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechEvaluationResult.swift; sourceTree = "<group>"; };
+		200075B525D12FA887F6 /* SpeechKitError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechKitError.swift; sourceTree = "<group>"; };
+		2000355C892D49CEE080 /* WordMatchStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordMatchStatus.swift; sourceTree = "<group>"; };
+		2000802DF61246A27CC0 /* WordTokenResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordTokenResult.swift; sourceTree = "<group>"; };
+		2000EBFFD548C273DED3 /* SpeechAssessmentProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechAssessmentProtocol.swift; sourceTree = "<group>"; };
+		20007BF8B72CFEC3007C /* SpeechAssessmentService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechAssessmentService.swift; sourceTree = "<group>"; };
+		2000C11273B413F47E21 /* SpeechWordHighlightView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechWordHighlightView.swift; sourceTree = "<group>"; };
+		2000A97D89A8D2F003B0 /* FuzzySpeechMatcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FuzzySpeechMatcherTests.swift; sourceTree = "<group>"; };
+		200040B2BA42F6B0A168 /* SilenceDetectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SilenceDetectorTests.swift; sourceTree = "<group>"; };
+		2000E580CD8F30CC7BC8 /* SpeechAssessmentServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechAssessmentServiceTests.swift; sourceTree = "<group>"; };
+		2000A302D996E4804027 /* SpeechKitModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechKitModelTests.swift; sourceTree = "<group>"; };
+		200083E7229A9CC492C1 /* SpeechWordHighlightViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechWordHighlightViewTests.swift; sourceTree = "<group>"; };
+		20003758086F870878E1 /* StringNormalizerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringNormalizerTests.swift; sourceTree = "<group>"; };
+		20004C19D2AB6B584153 /* ReflexDrillViewModelSpeechTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReflexDrillViewModelSpeechTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -467,7 +505,8 @@
 			children = (
 				40004A7D1798887BBCBC /* Homepage */,
 				4000829CC0FFDB01C99C /* Vocabulary */,
-			);
+			
+				20004C19D2AB6B584153 /* ReflexDrillViewModelSpeechTests.swift */,);
 			path = Features;
 			sourceTree = "<group>";
 		};
@@ -488,7 +527,8 @@
 				40003153465D574812BC /* DesignSystem */,
 				4000LOCALIZATION001 /* Localization */,
 				4000DA48C316E1ADA496 /* SRS */,
-			);
+			
+				4000E9529EF1DC1AE414 /* SpeechKit */,);
 			path = Core;
 			sourceTree = "<group>";
 		};
@@ -598,7 +638,8 @@
 				200008F45FA2F8FA1668 /* VocabularyFilterServiceTests.swift */,
 				2000B8D5FB4EC872D73A /* VocabularyViewModelTests.swift */,
 				200084512C285C79A09D /* WidgetIntentsTests.swift */,
-			);
+			
+				400030A41344F33193C4 /* SpeechKitTests */,);
 			path = VocabCraftAppTests;
 			sourceTree = "<group>";
 		};
@@ -778,6 +819,78 @@
 			path = Components;
 			sourceTree = "<group>";
 		};
+		400099444B36ECEA33E0 /* Engine */ = {
+			isa = PBXGroup;
+			children = (
+				200039B0E8475383FEFA /* SilenceDetector.swift */,
+				2000D37579A0D86E8769 /* SpeechRecognitionEngine.swift */,
+			);
+			path = Engine;
+			sourceTree = "<group>";
+		};
+		4000D82FA29262F55A14 /* Evaluation */ = {
+			isa = PBXGroup;
+			children = (
+				2000FADDE6CA3EA1DA38 /* FuzzySpeechMatcher.swift */,
+				2000C15AB5EAE471F6F0 /* SequenceAligner.swift */,
+				2000AD238354265694ED /* StringNormalizer.swift */,
+			);
+			path = Evaluation;
+			sourceTree = "<group>";
+		};
+		40001BCC37C214AEBB8C /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				2000DD35B1FA84ABCE05 /* SpeechEvaluationResult.swift */,
+				200075B525D12FA887F6 /* SpeechKitError.swift */,
+				2000355C892D49CEE080 /* WordMatchStatus.swift */,
+				2000802DF61246A27CC0 /* WordTokenResult.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		4000C970B10D0CB97BD2 /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				2000EBFFD548C273DED3 /* SpeechAssessmentProtocol.swift */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
+		4000E0E3928453FAF0A6 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				2000C11273B413F47E21 /* SpeechWordHighlightView.swift */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		4000E9529EF1DC1AE414 /* SpeechKit */ = {
+			isa = PBXGroup;
+			children = (
+				400099444B36ECEA33E0 /* Engine */,
+				4000D82FA29262F55A14 /* Evaluation */,
+				40001BCC37C214AEBB8C /* Models */,
+				4000C970B10D0CB97BD2 /* Protocols */,
+				4000E0E3928453FAF0A6 /* UI */,
+				20007BF8B72CFEC3007C /* SpeechAssessmentService.swift */,
+			);
+			path = SpeechKit;
+			sourceTree = "<group>";
+		};
+		400030A41344F33193C4 /* SpeechKitTests */ = {
+			isa = PBXGroup;
+			children = (
+				2000A97D89A8D2F003B0 /* FuzzySpeechMatcherTests.swift */,
+				200040B2BA42F6B0A168 /* SilenceDetectorTests.swift */,
+				2000E580CD8F30CC7BC8 /* SpeechAssessmentServiceTests.swift */,
+				2000A302D996E4804027 /* SpeechKitModelTests.swift */,
+				200083E7229A9CC492C1 /* SpeechWordHighlightViewTests.swift */,
+				20003758086F870878E1 /* StringNormalizerTests.swift */,
+			);
+			path = SpeechKitTests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -948,7 +1061,19 @@
 				300073FE6FA5AB57DCF7 /* VocabularySummaryCard.swift in Sources */,
 				3000AE48F46F0BF167D1 /* VocabularyView.swift in Sources */,
 				30000DD711B4AA5C7E90 /* WordAccordionCard.swift in Sources */,
-			);
+			
+				300039B0E8475383FEFA /* SilenceDetector.swift in Sources */,
+				3000D37579A0D86E8769 /* SpeechRecognitionEngine.swift in Sources */,
+				3000FADDE6CA3EA1DA38 /* FuzzySpeechMatcher.swift in Sources */,
+				3000C15AB5EAE471F6F0 /* SequenceAligner.swift in Sources */,
+				3000AD238354265694ED /* StringNormalizer.swift in Sources */,
+				3000DD35B1FA84ABCE05 /* SpeechEvaluationResult.swift in Sources */,
+				300075B525D12FA887F6 /* SpeechKitError.swift in Sources */,
+				3000355C892D49CEE080 /* WordMatchStatus.swift in Sources */,
+				3000802DF61246A27CC0 /* WordTokenResult.swift in Sources */,
+				3000EBFFD548C273DED3 /* SpeechAssessmentProtocol.swift in Sources */,
+				30007BF8B72CFEC3007C /* SpeechAssessmentService.swift in Sources */,
+				3000C11273B413F47E21 /* SpeechWordHighlightView.swift in Sources */,);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		100000402D50000000000002 /* Sources */ = {
@@ -1009,7 +1134,14 @@
 				3000CD9B3F3B4D5FDBA7 /* UserSettingsStoreTests.swift in Sources */,
 				3000B8D5FB4EC872D73A /* VocabularyViewModelTests.swift in Sources */,
 				300084512C285C79A09D /* WidgetIntentsTests.swift in Sources */,
-			);
+			
+				3000A97D89A8D2F003B0 /* FuzzySpeechMatcherTests.swift in Sources */,
+				300040B2BA42F6B0A168 /* SilenceDetectorTests.swift in Sources */,
+				3000E580CD8F30CC7BC8 /* SpeechAssessmentServiceTests.swift in Sources */,
+				3000A302D996E4804027 /* SpeechKitModelTests.swift in Sources */,
+				300083E7229A9CC492C1 /* SpeechWordHighlightViewTests.swift in Sources */,
+				30003758086F870878E1 /* StringNormalizerTests.swift in Sources */,
+				30004C19D2AB6B584153 /* ReflexDrillViewModelSpeechTests.swift in Sources */,);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */

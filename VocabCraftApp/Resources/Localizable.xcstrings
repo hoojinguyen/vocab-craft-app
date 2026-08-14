@@ -937,6 +937,12 @@
         "vi" : { "stringUnit" : { "state" : "translated", "value" : "Cần rèn luyện thêm" } }
       }
     },
+    "reflex.speechEvaluation" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "SPEECH EVALUATION" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "ĐÁNH GIÁ PHÁT ÂM" } }
+      }
+    },
     "reflex.errorLoadingDrills %@" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Cannot load drills: %@" } },
