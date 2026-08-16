@@ -5,6 +5,8 @@ import XCTest
 final class QuickReflexDrillViewModelTests: XCTestCase {
     private var targetWord: WordItem!
     private var mockSTT: MockSpeechRecognitionService!
+    private var mockTTS: RecordingQuickReflexTTS!
+    private var mockSpeechAssessment: MockSpeechAssessmentForQuickReflex!
     private var mockSRS: RecordingSRSUseCase!
     private var mockAttempts: RecordingQuickReflexAttemptRepository!
 
@@ -17,28 +19,88 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
             pos: "adj.",
             definition: "Phù du, chóng phai",
             exampleSentenceEn: "Her fame proved to be ephemeral.",
-            exampleSentenceVi: "Sự nổi tiếng của cô ấy chỉ kéo dài ngắn ngủi.",
+            exampleSentenceVi: "Sự nổi tiếng của cô ấy chỉ kéo dài ngắn nguôi.",
             cefrLevel: "B2",
-            masteryLevel: 2
+            masteryLevel: 2,
+            collocationEn: "ephemeral fame"
         )
         mockSTT = MockSpeechRecognitionService()
+        mockTTS = RecordingQuickReflexTTS()
+        mockSpeechAssessment = MockSpeechAssessmentForQuickReflex()
         mockSRS = RecordingSRSUseCase()
         mockAttempts = RecordingQuickReflexAttemptRepository()
     }
 
-    func testSuccessfulRetrieveThenUseRecordsSRSOnceAndPersistsAttempt() async throws {
+    func testFullLadderProgressesThroughAllStagesAndRecordsSRS() async throws {
         let viewModel = makeViewModel()
 
+        // Stage 1: Recall Word
+        XCTAssertEqual(viewModel.state.phase, .recallWord)
         viewModel.submitTypedAnswer("Ephemeral")
-        XCTAssertEqual(viewModel.state.phase, .useInSentence)
-        viewModel.submitTypedAnswer("The trend is ephemeral.")
-        try await viewModel.finish(confidence: .comfortable)
+        XCTAssertEqual(viewModel.state.phase, .recallCollocation)
+        XCTAssertTrue(viewModel.state.recallWordSucceeded)
 
+        // Stage 2: Recall Collocation
+        viewModel.submitTypedAnswer("ephemeral fame")
+        XCTAssertEqual(viewModel.state.phase, .produceSentence)
+        XCTAssertTrue(viewModel.state.collocationSucceeded)
+
+        // Stage 3: Sentence Production -> Shadow Model
+        viewModel.submitTypedAnswer("Her fame was ephemeral.")
+        XCTAssertEqual(viewModel.state.phase, .shadowModel)
+        XCTAssertTrue(viewModel.state.produceSentenceSucceeded)
+        XCTAssertEqual(mockTTS.spokenTexts.last, viewModel.prompts.modelSentenceEn)
+
+        // Shadowing action / proceed to result
+        viewModel.proceedToResult()
+        XCTAssertEqual(viewModel.state.phase, .result)
+
+        try await viewModel.finish(confidence: .comfortable)
         XCTAssertEqual(mockSRS.recordedCalls.count, 1)
         XCTAssertEqual(mockSRS.recordedCalls.first?.wordId, targetWord.id)
         XCTAssertEqual(mockAttempts.saved.count, 1)
-        XCTAssertTrue(mockAttempts.saved[0].retrieveSucceeded)
-        XCTAssertTrue(mockAttempts.saved[0].useSucceeded)
+        XCTAssertTrue(mockAttempts.saved[0].recallWordSucceeded)
+        XCTAssertTrue(mockAttempts.saved[0].collocationSucceeded)
+        XCTAssertTrue(mockAttempts.saved[0].produceSentenceSucceeded)
+    }
+
+    func testShadowingInvokesSpeechAssessment() {
+        let viewModel = makeViewModel()
+        viewModel.submitTypedAnswer("Ephemeral")
+        viewModel.submitTypedAnswer("ephemeral fame")
+        viewModel.submitTypedAnswer("Her fame was ephemeral.")
+        XCTAssertEqual(viewModel.state.phase, .shadowModel)
+
+        viewModel.startShadowingAssessment()
+        XCTAssertTrue(mockSpeechAssessment.isListening)
+        XCTAssertEqual(mockSpeechAssessment.targetSentence, viewModel.prompts.modelSentenceEn)
+    }
+
+    func testShadowingCompletionRecordsPronunciationScore() async throws {
+        let viewModel = makeViewModel()
+        viewModel.submitTypedAnswer("Ephemeral")
+        viewModel.submitTypedAnswer("ephemeral fame")
+        viewModel.submitTypedAnswer("Her fame was ephemeral.")
+
+        viewModel.startShadowingAssessment()
+        let evaluation = SpeechEvaluationResult(
+            targetSentence: "Her fame proved to be ephemeral.",
+            spokenText: "Her fame proved to be ephemeral.",
+            tokens: [],
+            overallScore: 88.0,
+            isPassed: true,
+            durationMs: 2100
+        )
+        mockSpeechAssessment.simulateCompletion(result: evaluation)
+
+        XCTAssertEqual(viewModel.state.shadowPronunciationScore, 88.0)
+        XCTAssertEqual(viewModel.speechEvaluationResult?.overallScore, 88.0)
+
+        viewModel.proceedToResult()
+        try await viewModel.finish(confidence: .comfortable)
+
+        XCTAssertEqual(mockAttempts.saved.count, 1)
+        XCTAssertEqual(mockAttempts.saved[0].shadowPronunciationScore, 88.0)
     }
 
     func testRevealAnswerDoesNotRecordSRSAndPersistsAttempt() async throws {
@@ -49,10 +111,10 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
 
         XCTAssertTrue(mockSRS.recordedCalls.isEmpty)
         XCTAssertEqual(mockAttempts.saved.count, 1)
-        XCTAssertFalse(mockAttempts.saved[0].retrieveSucceeded)
+        XCTAssertFalse(mockAttempts.saved[0].recallWordSucceeded)
     }
 
-    func testSkipDoesNotRecordSRSAndPersistsAttempt() async throws {
+    func testSkipInStage1DoesNotRecordSRSAndPersistsAttempt() async throws {
         let viewModel = makeViewModel()
 
         viewModel.skip()
@@ -60,6 +122,40 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
 
         XCTAssertTrue(mockSRS.recordedCalls.isEmpty)
         XCTAssertEqual(mockAttempts.saved.count, 1)
+        XCTAssertFalse(mockAttempts.saved[0].recallWordSucceeded)
+    }
+
+    func testSkipInStage2DoesNotRecordSRS() async throws {
+        let viewModel = makeViewModel()
+        viewModel.submitTypedAnswer("Ephemeral")
+        XCTAssertEqual(viewModel.state.phase, .recallCollocation)
+
+        viewModel.skip()
+        try await viewModel.finish(confidence: .uncertain)
+
+        XCTAssertTrue(mockSRS.recordedCalls.isEmpty)
+        XCTAssertEqual(mockAttempts.saved.count, 1)
+        XCTAssertTrue(mockAttempts.saved[0].recallWordSucceeded)
+        XCTAssertFalse(mockAttempts.saved[0].collocationSucceeded)
+    }
+
+    func testStage3SentenceFailureStillRecordsSRSIfStages1And2Succeeded() async throws {
+        let viewModel = makeViewModel()
+        viewModel.submitTypedAnswer("Ephemeral")
+        viewModel.submitTypedAnswer("ephemeral fame")
+        viewModel.submitTypedAnswer("A sentence without the target word.")
+
+        XCTAssertEqual(viewModel.state.phase, .shadowModel)
+        XCTAssertFalse(viewModel.state.produceSentenceSucceeded)
+
+        viewModel.proceedToResult()
+        try await viewModel.finish(confidence: .comfortable)
+
+        XCTAssertEqual(mockSRS.recordedCalls.count, 1)
+        XCTAssertEqual(mockAttempts.saved.count, 1)
+        XCTAssertTrue(mockAttempts.saved[0].recallWordSucceeded)
+        XCTAssertTrue(mockAttempts.saved[0].collocationSucceeded)
+        XCTAssertFalse(mockAttempts.saved[0].produceSentenceSucceeded)
     }
 
     func testHintsProgressWithoutChangingStageOrCorrectness() {
@@ -70,9 +166,9 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
 
         XCTAssertEqual(viewModel.state.visibleHintLevel, 2)
         XCTAssertEqual(viewModel.state.maxHintLevel, 2)
-        XCTAssertEqual(viewModel.state.phase, .retrieve)
-        XCTAssertFalse(viewModel.state.retrieveSucceeded)
-        XCTAssertFalse(viewModel.state.useSucceeded)
+        XCTAssertEqual(viewModel.state.phase, .recallWord)
+        XCTAssertFalse(viewModel.state.recallWordSucceeded)
+        XCTAssertFalse(viewModel.state.collocationSucceeded)
     }
 
     func testSpeechErrorSwitchesToTyping() {
@@ -106,13 +202,32 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
         mockSTT.recognizedText = "a different answer"
         viewModel.startRecording()
         viewModel.stopRecordingAndEvaluate()
-        XCTAssertEqual(viewModel.state.phase, .retrieve)
+        XCTAssertEqual(viewModel.state.phase, .recallWord)
         XCTAssertEqual(viewModel.state.retryCount, 1)
         XCTAssertEqual(viewModel.state.inputMode, .voice)
 
         viewModel.startRecording()
         viewModel.stopRecordingAndEvaluate()
-        XCTAssertEqual(viewModel.state.phase, .retrieve)
+        XCTAssertEqual(viewModel.state.phase, .recallWord)
+        XCTAssertEqual(viewModel.state.retryCount, 1)
+        XCTAssertEqual(viewModel.state.inputMode, .typing)
+    }
+
+    func testNonmatchingCollocationSpeechGetsOneRetryThenTypingFallback() {
+        let viewModel = makeViewModel()
+        viewModel.submitTypedAnswer("ephemeral")
+        XCTAssertEqual(viewModel.state.phase, .recallCollocation)
+
+        mockSTT.recognizedText = "wrong collocation"
+        viewModel.startRecording()
+        viewModel.stopRecordingAndEvaluate()
+        XCTAssertEqual(viewModel.state.phase, .recallCollocation)
+        XCTAssertEqual(viewModel.state.retryCount, 1)
+        XCTAssertEqual(viewModel.state.inputMode, .voice)
+
+        viewModel.startRecording()
+        viewModel.stopRecordingAndEvaluate()
+        XCTAssertEqual(viewModel.state.phase, .recallCollocation)
         XCTAssertEqual(viewModel.state.retryCount, 1)
         XCTAssertEqual(viewModel.state.inputMode, .typing)
     }
@@ -120,33 +235,34 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
     func testNonmatchingUseSpeechGetsOneRetryThenTypingFallback() {
         let viewModel = makeViewModel()
         viewModel.submitTypedAnswer("ephemeral")
-        XCTAssertEqual(viewModel.state.phase, .useInSentence)
+        viewModel.submitTypedAnswer("ephemeral fame")
+        XCTAssertEqual(viewModel.state.phase, .produceSentence)
 
         mockSTT.recognizedText = "a sentence without the word"
         viewModel.startRecording()
         viewModel.stopRecordingAndEvaluate()
-        XCTAssertEqual(viewModel.state.phase, .useInSentence)
+        XCTAssertEqual(viewModel.state.phase, .produceSentence)
         XCTAssertEqual(viewModel.state.retryCount, 1)
         XCTAssertEqual(viewModel.state.inputMode, .voice)
 
         viewModel.startRecording()
         viewModel.stopRecordingAndEvaluate()
-        XCTAssertEqual(viewModel.state.phase, .useInSentence)
+        XCTAssertEqual(viewModel.state.phase, .produceSentence)
         XCTAssertEqual(viewModel.state.retryCount, 1)
         XCTAssertEqual(viewModel.state.inputMode, .typing)
     }
 
-    func testStaleRecordingCallbackCannotAdvanceUseStage() {
+    func testStaleRecordingCallbackCannotAdvanceStage() {
         let viewModel = makeViewModel()
 
         viewModel.startRecording()
         mockSTT.simulateResult("ephemeral")
-        XCTAssertEqual(viewModel.state.phase, .useInSentence)
+        XCTAssertEqual(viewModel.state.phase, .recallCollocation)
 
         mockSTT.simulateResult("A second stale result says ephemeral.")
 
-        XCTAssertEqual(viewModel.state.phase, .useInSentence)
-        XCTAssertFalse(viewModel.state.useSucceeded)
+        XCTAssertEqual(viewModel.state.phase, .recallCollocation)
+        XCTAssertFalse(viewModel.state.collocationSucceeded)
     }
 
     func testCancelStopsListeningAndDoesNotPersist() async throws {
@@ -162,18 +278,7 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
         XCTAssertTrue(mockSRS.recordedCalls.isEmpty)
     }
 
-    func testUseStageAnswerCannotReturnToRetrieve() {
-        let viewModel = makeViewModel()
-        viewModel.submitTypedAnswer("ephemeral")
-        XCTAssertEqual(viewModel.state.phase, .useInSentence)
-
-        viewModel.submitTypedAnswer("This sentence omits the expression")
-
-        XCTAssertEqual(viewModel.state.phase, .result)
-        XCTAssertFalse(viewModel.state.useSucceeded)
-    }
-
-    func testTransitionToUseStageResetsSpeechRetryAllowance() {
+    func testTransitionToCollocationStageResetsSpeechRetryAllowance() {
         let viewModel = makeViewModel()
         mockSTT.recognizedText = "not the target"
         viewModel.startRecording()
@@ -182,10 +287,10 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
 
         viewModel.submitTypedAnswer("ephemeral")
 
-        XCTAssertEqual(viewModel.state.phase, .useInSentence)
+        XCTAssertEqual(viewModel.state.phase, .recallCollocation)
         XCTAssertEqual(viewModel.state.retryCount, 1)
 
-        mockSTT.recognizedText = "a sentence without the target"
+        mockSTT.recognizedText = "wrong collocation"
         viewModel.startRecording()
         viewModel.stopRecordingAndEvaluate()
         XCTAssertEqual(viewModel.state.retryCount, 2)
@@ -197,40 +302,28 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
 
         viewModel.submitTypedAnswer("The answer is ephemeral")
 
-        XCTAssertEqual(viewModel.state.phase, .retrieve)
-        XCTAssertFalse(viewModel.state.retrieveSucceeded)
+        XCTAssertEqual(viewModel.state.phase, .recallWord)
+        XCTAssertFalse(viewModel.state.recallWordSucceeded)
 
         viewModel.submitTypedAnswer("EPHEMERAL!")
-        XCTAssertEqual(viewModel.state.phase, .useInSentence)
+        XCTAssertEqual(viewModel.state.phase, .recallCollocation)
     }
 
-    func testUseStageSkipPersistsDeferredAttemptWithoutSRS() async throws {
+    func testCollocationRequiresExactNormalizedTargetExpression() {
         let viewModel = makeViewModel()
         viewModel.submitTypedAnswer("ephemeral")
+        XCTAssertEqual(viewModel.state.phase, .recallCollocation)
 
-        viewModel.skip()
-        try await viewModel.finish(confidence: .uncertain)
+        viewModel.submitTypedAnswer("something else")
+        XCTAssertEqual(viewModel.state.phase, .recallCollocation)
+        XCTAssertFalse(viewModel.state.collocationSucceeded)
 
-        XCTAssertEqual(mockAttempts.saved.count, 1)
-        XCTAssertTrue(mockAttempts.saved[0].retrieveSucceeded)
-        XCTAssertFalse(mockAttempts.saved[0].useSucceeded)
-        XCTAssertTrue(mockSRS.recordedCalls.isEmpty)
+        viewModel.submitTypedAnswer("Ephemeral Fame!")
+        XCTAssertEqual(viewModel.state.phase, .produceSentence)
+        XCTAssertTrue(viewModel.state.collocationSucceeded)
     }
 
-    func testUseStageRevealPersistsDeferredAttemptWithoutSRS() async throws {
-        let viewModel = makeViewModel()
-        viewModel.submitTypedAnswer("ephemeral")
-
-        viewModel.revealAnswer()
-        try await viewModel.finish(confidence: .uncertain)
-
-        XCTAssertEqual(mockAttempts.saved.count, 1)
-        XCTAssertTrue(mockAttempts.saved[0].retrieveSucceeded)
-        XCTAssertFalse(mockAttempts.saved[0].useSucceeded)
-        XCTAssertTrue(mockSRS.recordedCalls.isEmpty)
-    }
-
-    func testFinishPersistsRetryTotalAcrossBothStages() async throws {
+    func testFinishPersistsRetryTotalAcrossAllStages() async throws {
         let viewModel = makeViewModel()
 
         mockSTT.recognizedText = "wrong"
@@ -238,21 +331,29 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
         viewModel.stopRecordingAndEvaluate()
         viewModel.submitTypedAnswer("ephemeral")
 
+        mockSTT.recognizedText = "wrong collocation"
+        viewModel.startRecording()
+        viewModel.stopRecordingAndEvaluate()
+        viewModel.submitTypedAnswer("ephemeral fame")
+
         mockSTT.recognizedText = "a sentence without the target"
         viewModel.startRecording()
         viewModel.stopRecordingAndEvaluate()
         viewModel.submitTypedAnswer("The trend is ephemeral.")
+        viewModel.proceedToResult()
         try await viewModel.finish(confidence: .comfortable)
 
-        XCTAssertEqual(mockAttempts.saved.first?.retryCount, 2)
+        XCTAssertEqual(mockAttempts.saved.first?.retryCount, 3)
     }
 
     func testSentenceFrameHintPersistsAsHighestHintLevel() async throws {
         let viewModel = makeViewModel()
         viewModel.submitTypedAnswer("ephemeral")
+        viewModel.submitTypedAnswer("ephemeral fame")
 
         viewModel.advanceHint()
         viewModel.submitTypedAnswer("The trend is ephemeral.")
+        viewModel.proceedToResult()
         try await viewModel.finish(confidence: .comfortable)
 
         XCTAssertEqual(mockAttempts.saved.first?.maxHintLevel, 3)
@@ -273,7 +374,7 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
         viewModel.submitTypedAnswer("ephemeral")
 
         XCTAssertFalse(viewModel.state.isPaused)
-        XCTAssertEqual(viewModel.state.retrieveTimeMs, 5_000)
+        XCTAssertEqual(viewModel.state.recallWordTimeMs, 5_000)
         XCTAssertEqual(viewModel.state.visibleHintLevel, 0)
     }
 
@@ -286,24 +387,30 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.state.revealedTargetExpression, "Ephemeral")
     }
 
-    func testHintTimingUsesTwoRetrieveHintsAndOneUseSentenceFrame() {
-        XCTAssertEqual(QuickReflexHintTiming.automaticDelaySeconds(for: .retrieve), [4, 7])
-        XCTAssertEqual(QuickReflexHintTiming.automaticDelaySeconds(for: .useInSentence), [5])
+    func testHintTimingUses3TierTimings() {
+        XCTAssertEqual(QuickReflexHintTiming.automaticDelaySeconds(for: .recallWord), [3, 6])
+        XCTAssertEqual(QuickReflexHintTiming.automaticDelaySeconds(for: .recallCollocation), [4])
+        XCTAssertEqual(QuickReflexHintTiming.automaticDelaySeconds(for: .produceSentence), [5])
+        XCTAssertEqual(QuickReflexHintTiming.automaticDelaySeconds(for: .shadowModel), [])
+        XCTAssertEqual(QuickReflexHintTiming.automaticDelaySeconds(for: .result), [])
     }
 
     func testResumedHintsKeepOriginalActiveTimeDeadlines() {
-        XCTAssertEqual(QuickReflexHintTiming.remainingDelaySeconds(for: .retrieve, activeElapsedSeconds: 3), [1, 4])
-        XCTAssertEqual(QuickReflexHintTiming.remainingDelaySeconds(for: .retrieve, activeElapsedSeconds: 4), [0, 3])
-        XCTAssertEqual(QuickReflexHintTiming.remainingDelaySeconds(for: .retrieve, activeElapsedSeconds: 6), [0, 1])
-        XCTAssertEqual(QuickReflexHintTiming.remainingDelaySeconds(for: .useInSentence, activeElapsedSeconds: 4), [1])
-        XCTAssertEqual(QuickReflexHintTiming.remainingDelaySeconds(for: .useInSentence, activeElapsedSeconds: 5), [0])
+        XCTAssertEqual(QuickReflexHintTiming.remainingDelaySeconds(for: .recallWord, activeElapsedSeconds: 1), [2, 5])
+        XCTAssertEqual(QuickReflexHintTiming.remainingDelaySeconds(for: .recallWord, activeElapsedSeconds: 3), [0, 3])
+        XCTAssertEqual(QuickReflexHintTiming.remainingDelaySeconds(for: .recallWord, activeElapsedSeconds: 6), [0, 0])
+        XCTAssertEqual(QuickReflexHintTiming.remainingDelaySeconds(for: .recallCollocation, activeElapsedSeconds: 2), [2])
+        XCTAssertEqual(QuickReflexHintTiming.remainingDelaySeconds(for: .produceSentence, activeElapsedSeconds: 3), [2])
+        XCTAssertEqual(QuickReflexHintTiming.remainingDelaySeconds(for: .produceSentence, activeElapsedSeconds: 5), [0])
     }
 
     func testFailedPersistenceLeavesResultRetryableUntilFinishSucceeds() async throws {
         let failingAttempts = FailingOnceQuickReflexAttemptRepository()
         let viewModel = makeViewModel(attemptRepository: failingAttempts)
         viewModel.submitTypedAnswer("ephemeral")
+        viewModel.submitTypedAnswer("ephemeral fame")
         viewModel.submitTypedAnswer("The trend is ephemeral.")
+        viewModel.proceedToResult()
 
         await XCTAssertThrowsErrorAsync(try await viewModel.finish(confidence: .comfortable))
 
@@ -322,7 +429,9 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
         let suspendedAttempts = SuspendedQuickReflexAttemptRepository()
         let viewModel = makeViewModel(attemptRepository: suspendedAttempts)
         viewModel.submitTypedAnswer("ephemeral")
+        viewModel.submitTypedAnswer("ephemeral fame")
         viewModel.submitTypedAnswer("The trend is ephemeral.")
+        viewModel.proceedToResult()
 
         let finishTask = Task { try? await viewModel.finish(confidence: .comfortable) }
         await fulfillment(of: [suspendedAttempts.saveStarted], timeout: 1)
@@ -345,7 +454,9 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
         QuickReflexDrillViewModel(
             targetWord: targetWord,
             allWords: [targetWord],
+            ttsService: mockTTS,
             sttService: mockSTT,
+            speechAssessmentService: mockSpeechAssessment,
             evaluateSRSUseCase: mockSRS,
             attemptRepository: attemptRepository ?? mockAttempts,
             clock: clock
@@ -359,6 +470,68 @@ private final class MutableClock {
 
     func advance(by seconds: TimeInterval) {
         date.addTimeInterval(seconds)
+    }
+}
+
+private final class RecordingQuickReflexTTS: TextToSpeechProtocol {
+    private(set) var spokenTexts: [String] = []
+    var isSpeaking: Bool = false
+
+    func speak(text: String, rate: Float, locale: String) {
+        spokenTexts.append(text)
+        isSpeaking = true
+    }
+
+    func stop() {
+        isSpeaking = false
+    }
+}
+
+private final class MockSpeechAssessmentForQuickReflex: SpeechAssessmentProtocol {
+    var isListening: Bool = false
+    var currentEvaluation: SpeechEvaluationResult?
+    var targetSentence: String?
+    var toleranceThreshold: Double?
+    var contextualPhrases: [String] = []
+    var onProgressHandler: ((SpeechEvaluationResult) -> Void)?
+    var onCompletionHandler: ((SpeechEvaluationResult) -> Void)?
+    var onErrorHandler: ((Error) -> Void)?
+
+    func startAssessing(
+        targetSentence: String,
+        toleranceThreshold: Double,
+        contextualPhrases: [String],
+        onProgress: @escaping (SpeechEvaluationResult) -> Void,
+        onCompletion: @escaping (SpeechEvaluationResult) -> Void,
+        onError: @escaping (Error) -> Void
+    ) {
+        self.isListening = true
+        self.targetSentence = targetSentence
+        self.toleranceThreshold = toleranceThreshold
+        self.contextualPhrases = contextualPhrases
+        self.onProgressHandler = onProgress
+        self.onCompletionHandler = onCompletion
+        self.onErrorHandler = onError
+    }
+
+    func stopAssessing() {
+        self.isListening = false
+    }
+
+    func simulateProgress(result: SpeechEvaluationResult) {
+        self.currentEvaluation = result
+        self.onProgressHandler?(result)
+    }
+
+    func simulateCompletion(result: SpeechEvaluationResult) {
+        self.isListening = false
+        self.currentEvaluation = result
+        self.onCompletionHandler?(result)
+    }
+
+    func simulateError(error: Error) {
+        self.isListening = false
+        self.onErrorHandler?(error)
     }
 }
 
@@ -389,7 +562,7 @@ private final class RecordingQuickReflexAttemptRepository: QuickReflexAttemptRep
     }
 
     func mostRecentSuccessfulAttempt(for wordId: Int64) async throws -> QuickReflexAttempt? {
-        saved.last(where: { $0.wordId == wordId && $0.retrieveSucceeded })
+        saved.last(where: { $0.wordId == wordId && $0.recallWordSucceeded })
     }
 }
 

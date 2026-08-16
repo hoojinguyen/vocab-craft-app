@@ -1,17 +1,20 @@
 import Foundation
 import Observation
 
-/// Observable state for the two-stage productive-recall quick reflex drill.
+/// Observable state for the 3-tier productive-recall quick reflex drill.
 public struct QuickReflexDrillState: Equatable, Sendable {
-    public var phase: QuickReflexPhase = .retrieve
+    public var phase: QuickReflexPhase = .recallWord
     public var inputMode: QuickReflexInputMode = .voice
     public var visibleHintLevel = 0
     public var maxHintLevel = 0
     public var retryCount = 0
-    public var retrieveSucceeded = false
-    public var useSucceeded = false
-    public var retrieveTimeMs = 0
-    public var useTimeMs = 0
+    public var recallWordSucceeded = false
+    public var collocationSucceeded = false
+    public var produceSentenceSucceeded = false
+    public var recallWordTimeMs = 0
+    public var collocationTimeMs = 0
+    public var produceSentenceTimeMs = 0
+    public var shadowPronunciationScore: Double?
     public var isCompleted = false
     public var isCancelled = false
     public var isFinishing = false
@@ -20,6 +23,24 @@ public struct QuickReflexDrillState: Equatable, Sendable {
     public var revealedTargetExpression: String?
     public var showsSentenceFrame = false
     public var errorMessage: String?
+
+    // Backward-compatibility accessors
+    public var retrieveSucceeded: Bool {
+        get { recallWordSucceeded }
+        set { recallWordSucceeded = newValue }
+    }
+    public var useSucceeded: Bool {
+        get { produceSentenceSucceeded }
+        set { produceSentenceSucceeded = newValue }
+    }
+    public var retrieveTimeMs: Int {
+        get { recallWordTimeMs }
+        set { recallWordTimeMs = newValue }
+    }
+    public var useTimeMs: Int {
+        get { produceSentenceTimeMs }
+        set { produceSentenceTimeMs = newValue }
+    }
 
     // These presentation fields keep the unchanged legacy sheet source-compatible
     // until its dedicated presentation task replaces the three-option layout.
@@ -54,6 +75,7 @@ public final class QuickReflexDrillViewModel {
 
     private let ttsService: TextToSpeechProtocol
     private let sttService: SpeechRecognitionProtocol
+    private let speechAssessmentService: SpeechAssessmentProtocol?
     private let evaluateSRSUseCase: EvaluateSRSUseCaseProtocol?
     private let attemptRepository: QuickReflexAttemptRepositoryProtocol
     private let clock: () -> Date
@@ -68,15 +90,28 @@ public final class QuickReflexDrillViewModel {
     /// The sentence-frame hint follows the retrieve stage's levels one and two.
     private let sentenceFrameHintLevel = 3
 
-    public var isListening: Bool { sttService.isListening }
-    public var recognizedText: String { sttService.recognizedText }
+    public var isListening: Bool {
+        if state.phase == .shadowModel, let speechAssessmentService {
+            return speechAssessmentService.isListening
+        }
+        return sttService.isListening
+    }
+
+    public var recognizedText: String {
+        if state.phase == .shadowModel, let eval = speechEvaluationResult, !eval.spokenText.isEmpty {
+            return eval.spokenText
+        }
+        return sttService.recognizedText
+    }
+
+    public var isSpeaking: Bool { ttsService.isSpeaking }
 
     public init(
         targetWord: WordItem,
         allWords: [WordItem],
         ttsService: TextToSpeechProtocol? = nil,
         sttService: SpeechRecognitionProtocol? = nil,
-        speechAssessmentService _: SpeechAssessmentProtocol? = nil,
+        speechAssessmentService: SpeechAssessmentProtocol? = nil,
         evaluateSRSUseCase: EvaluateSRSUseCaseProtocol? = nil,
         promptFactory: QuickReflexPromptFactory = QuickReflexPromptFactory(),
         attemptRepository: QuickReflexAttemptRepositoryProtocol? = nil,
@@ -87,6 +122,7 @@ public final class QuickReflexDrillViewModel {
         self.prompts = promptFactory.makePrompts(for: targetWord)
         self.ttsService = ttsService ?? TextToSpeechService()
         self.sttService = sttService ?? SpeechRecognitionService()
+        self.speechAssessmentService = speechAssessmentService
         self.evaluateSRSUseCase = evaluateSRSUseCase
         self.attemptRepository = attemptRepository ?? QuickReflexAttemptRepositoryImpl()
         self.clock = clock
@@ -98,9 +134,11 @@ public final class QuickReflexDrillViewModel {
         hintTasks.forEach { $0.cancel() }
         let stt = sttService
         let tts = ttsService
+        let assessment = speechAssessmentService
         Task { @MainActor in
             stt.stopListening()
             tts.stop()
+            assessment?.stopAssessing()
         }
     }
 
@@ -151,10 +189,18 @@ public final class QuickReflexDrillViewModel {
     }
 
     public func handleMicTap() {
-        if isListening {
-            stopRecordingAndEvaluate()
+        if state.phase == .shadowModel {
+            if isListening {
+                stopShadowingAssessment()
+            } else {
+                startShadowingAssessment()
+            }
         } else {
-            startRecording()
+            if isListening {
+                stopRecordingAndEvaluate()
+            } else {
+                startRecording()
+            }
         }
     }
 
@@ -162,9 +208,57 @@ public final class QuickReflexDrillViewModel {
         submit(answer, mode: .typing)
     }
 
+    // MARK: - Shadowing Assessment
+
+    public func startShadowingAssessment() {
+        guard state.phase == .shadowModel, let speechAssessmentService else { return }
+        ttsService.stop()
+        state.errorMessage = nil
+        speechAssessmentService.startAssessing(
+            targetSentence: prompts.modelSentenceEn,
+            toleranceThreshold: 0.75,
+            contextualPhrases: [prompts.modelSentenceEn, targetWord.lemma].filter { !$0.isEmpty },
+            onProgress: { [weak self] evaluation in
+                guard let self else { return }
+                self.speechEvaluationResult = evaluation
+            },
+            onCompletion: { [weak self] evaluation in
+                guard let self else { return }
+                self.speechEvaluationResult = evaluation
+                self.state.shadowPronunciationScore = evaluation.overallScore
+            },
+            onError: { [weak self] error in
+                guard let self else { return }
+                self.state.errorMessage = AppStrings.Reflex.quickRecordingError(error.localizedDescription)
+            }
+        )
+    }
+
+    public func stopShadowingAssessment() {
+        guard state.phase == .shadowModel, let speechAssessmentService else { return }
+        speechAssessmentService.stopAssessing()
+        if let evaluation = speechEvaluationResult {
+            state.shadowPronunciationScore = evaluation.overallScore
+        }
+    }
+
+    public func proceedToResult() {
+        guard state.phase == .shadowModel else { return }
+        speechAssessmentService?.stopAssessing()
+        ttsService.stop()
+        if let evaluation = speechEvaluationResult, state.shadowPronunciationScore == nil {
+            state.shadowPronunciationScore = evaluation.overallScore
+        }
+        state.phase = .result
+    }
+
+    public func speakModelSentence() {
+        ttsService.speak(text: prompts.modelSentenceEn)
+    }
+
     /// Excludes inactive app time from the current phase and prevents background hint delivery.
     public func pause() {
-        guard canAnswerCurrentPhase, !state.isPaused else { return }
+        guard (canAnswerCurrentPhase || state.phase == .shadowModel), !state.isPaused else { return }
         elapsedBeforePauseMs += liveElapsedTimeMs()
         state.isPaused = true
         stopListeningAndTimers()
@@ -175,13 +269,15 @@ public final class QuickReflexDrillViewModel {
         guard !state.isCancelled, !state.isCompleted, state.phase != .result, state.isPaused else { return }
         activePhaseStartedAt = clock()
         state.isPaused = false
-        scheduleHints()
+        if state.phase != .shadowModel {
+            scheduleHints()
+        }
     }
 
-    /// Shows the next staged hint. Timers call this at 4 and 7 seconds; it never ends a stage.
+    /// Shows the next staged hint. Timers call this at scheduled intervals; it never ends a stage.
     public func advanceHint() {
         guard canAnswerCurrentPhase else { return }
-        if state.phase == .useInSentence {
+        if state.phase == .produceSentence {
             showSentenceFrame()
             return
         }
@@ -204,15 +300,13 @@ public final class QuickReflexDrillViewModel {
 
     /// Stops all live resources. A cancelled drill is never saved or sent to SRS.
     public func cancel() {
-        // Persistence is an explicit critical section: once it begins, cancellation is rejected
-        // so a completed external write cannot be left without its corresponding completion flow.
         guard !state.isFinishing else { return }
         lifecycleSession += 1
         stopListeningAndTimers()
         state.isCancelled = true
     }
 
-    /// Persists exactly one completed attempt and records SRS only after successful retrieval.
+    /// Persists exactly one completed attempt and records SRS only after successful recall and collocation.
     public func finish(confidence: QuickReflexConfidence) async throws {
         guard state.phase == .result, !state.isCancelled, !state.isCompleted, !state.isFinishing else { return }
         state.isFinishing = true
@@ -222,10 +316,13 @@ public final class QuickReflexDrillViewModel {
 
         let attempt = QuickReflexAttempt(
             wordId: targetWord.id,
-            retrieveTimeMs: state.retrieveTimeMs,
-            useTimeMs: state.useTimeMs,
-            retrieveSucceeded: state.retrieveSucceeded,
-            useSucceeded: state.useSucceeded,
+            recallWordTimeMs: state.recallWordTimeMs,
+            collocationTimeMs: state.collocationTimeMs,
+            produceSentenceTimeMs: state.produceSentenceTimeMs,
+            recallWordSucceeded: state.recallWordSucceeded,
+            collocationSucceeded: state.collocationSucceeded,
+            produceSentenceSucceeded: state.produceSentenceSucceeded,
+            shadowPronunciationScore: state.shadowPronunciationScore,
             maxHintLevel: state.maxHintLevel,
             inputMode: state.inputMode,
             retryCount: state.retryCount,
@@ -240,17 +337,19 @@ public final class QuickReflexDrillViewModel {
             hasPersistedAttempt = true
         }
 
-        if state.retrieveSucceeded, !state.isDeferredAttempt, let evaluateSRSUseCase, state.srsResult == nil {
+        let isEligibleForSRS = state.recallWordSucceeded && state.collocationSucceeded
+        if isEligibleForSRS, !state.isDeferredAttempt, let evaluateSRSUseCase, state.srsResult == nil {
+            try Task.checkCancellation()
             guard isActiveFinish(session) else { return }
             state.srsResult = try await evaluateSRSUseCase.recordReview(
                 wordId: targetWord.id,
                 isCorrect: true,
-                responseTimeMs: state.retrieveTimeMs
+                responseTimeMs: state.recallWordTimeMs
             )
         }
 
         stopListeningAndTimers()
-        state.isCorrect = state.retrieveSucceeded && state.useSucceeded
+        state.isCorrect = isEligibleForSRS && state.produceSentenceSucceeded
         state.triggerSparkle = state.isCorrect
         state.isCompleted = true
     }
@@ -269,7 +368,7 @@ public final class QuickReflexDrillViewModel {
     }
 
     private var canAnswerCurrentPhase: Bool {
-        !state.isCancelled && !state.isCompleted && !state.isPaused && state.phase != .result
+        !state.isCancelled && !state.isCompleted && !state.isPaused && state.phase != .result && state.phase != .shadowModel
     }
 
     private func isActiveFinish(_ session: Int) -> Bool {
@@ -277,7 +376,14 @@ public final class QuickReflexDrillViewModel {
     }
 
     private var currentPrompt: QuickReflexStagePrompt {
-        state.phase == .useInSentence ? prompts.use : prompts.retrieve
+        switch state.phase {
+        case .recallWord:
+            return prompts.recallWord
+        case .recallCollocation:
+            return prompts.recallCollocation
+        case .produceSentence, .shadowModel, .result:
+            return prompts.produceSentence
+        }
     }
 
     private func matchesCurrentPhase(response: String) -> Bool {
@@ -304,18 +410,25 @@ public final class QuickReflexDrillViewModel {
         let elapsed = elapsedTimeMs()
 
         switch state.phase {
-        case .recallWord, .recallCollocation:
-            state.retrieveSucceeded = isCorrect
-            state.retrieveTimeMs = elapsed
+        case .recallWord:
+            state.recallWordSucceeded = isCorrect
+            state.recallWordTimeMs = elapsed
+            guard isCorrect else { return }
+            state.phase = .recallCollocation
+            beginPhase()
+        case .recallCollocation:
+            state.collocationSucceeded = isCorrect
+            state.collocationTimeMs = elapsed
             guard isCorrect else { return }
             state.phase = .produceSentence
             beginPhase()
         case .produceSentence:
-            state.useSucceeded = isCorrect
-            state.useTimeMs = elapsed
-            state.phase = .result
+            state.produceSentenceSucceeded = isCorrect
+            state.produceSentenceTimeMs = elapsed
+            state.phase = .shadowModel
             hintTasks.forEach { $0.cancel() }
             hintTasks.removeAll()
+            ttsService.speak(text: prompts.modelSentenceEn)
         case .shadowModel, .result:
             return
         }
@@ -325,12 +438,19 @@ public final class QuickReflexDrillViewModel {
         guard canAnswerCurrentPhase else { return }
         state.isDeferredAttempt = true
         stopCurrentRecording()
-        if state.phase == .recallWord || state.phase == .recallCollocation {
-            state.retrieveSucceeded = false
-            state.retrieveTimeMs = elapsedTimeMs()
-        } else {
-            state.useSucceeded = false
-            state.useTimeMs = elapsedTimeMs()
+        let elapsed = elapsedTimeMs()
+        switch state.phase {
+        case .recallWord:
+            state.recallWordSucceeded = false
+            state.recallWordTimeMs = elapsed
+        case .recallCollocation:
+            state.collocationSucceeded = false
+            state.collocationTimeMs = elapsed
+        case .produceSentence:
+            state.produceSentenceSucceeded = false
+            state.produceSentenceTimeMs = elapsed
+        case .shadowModel, .result:
+            break
         }
         state.phase = .result
         hintTasks.forEach { $0.cancel() }
@@ -392,7 +512,7 @@ public final class QuickReflexDrillViewModel {
 
     private func showSentenceFrame() {
         guard canAnswerCurrentPhase,
-              state.phase == .useInSentence,
+              state.phase == .produceSentence,
               currentPrompt.sentenceFrame != nil else { return }
         state.showsSentenceFrame = true
         state.maxHintLevel = max(state.maxHintLevel, sentenceFrameHintLevel)
@@ -416,6 +536,7 @@ public final class QuickReflexDrillViewModel {
     private func stopListeningAndTimers() {
         ttsService.stop()
         stopCurrentRecording()
+        speechAssessmentService?.stopAssessing()
         hintTasks.forEach { $0.cancel() }
         hintTasks.removeAll()
     }
