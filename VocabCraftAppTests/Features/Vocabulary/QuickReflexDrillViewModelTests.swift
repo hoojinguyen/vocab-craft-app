@@ -183,13 +183,79 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
         viewModel.submitTypedAnswer("ephemeral")
 
         XCTAssertEqual(viewModel.state.phase, .useInSentence)
-        XCTAssertEqual(viewModel.state.retryCount, 0)
+        XCTAssertEqual(viewModel.state.retryCount, 1)
 
         mockSTT.recognizedText = "a sentence without the target"
         viewModel.startRecording()
         viewModel.stopRecordingAndEvaluate()
-        XCTAssertEqual(viewModel.state.retryCount, 1)
+        XCTAssertEqual(viewModel.state.retryCount, 2)
         XCTAssertEqual(viewModel.state.inputMode, .voice)
+    }
+
+    func testRetrieveRequiresExactNormalizedTargetExpression() {
+        let viewModel = makeViewModel()
+
+        viewModel.submitTypedAnswer("The answer is ephemeral")
+
+        XCTAssertEqual(viewModel.state.phase, .retrieve)
+        XCTAssertFalse(viewModel.state.retrieveSucceeded)
+
+        viewModel.submitTypedAnswer("EPHEMERAL!")
+        XCTAssertEqual(viewModel.state.phase, .useInSentence)
+    }
+
+    func testUseStageSkipPersistsDeferredAttemptWithoutSRS() async throws {
+        let viewModel = makeViewModel()
+        viewModel.submitTypedAnswer("ephemeral")
+
+        viewModel.skip()
+        try await viewModel.finish(confidence: .uncertain)
+
+        XCTAssertEqual(mockAttempts.saved.count, 1)
+        XCTAssertTrue(mockAttempts.saved[0].retrieveSucceeded)
+        XCTAssertFalse(mockAttempts.saved[0].useSucceeded)
+        XCTAssertTrue(mockSRS.recordedCalls.isEmpty)
+    }
+
+    func testUseStageRevealPersistsDeferredAttemptWithoutSRS() async throws {
+        let viewModel = makeViewModel()
+        viewModel.submitTypedAnswer("ephemeral")
+
+        viewModel.revealAnswer()
+        try await viewModel.finish(confidence: .uncertain)
+
+        XCTAssertEqual(mockAttempts.saved.count, 1)
+        XCTAssertTrue(mockAttempts.saved[0].retrieveSucceeded)
+        XCTAssertFalse(mockAttempts.saved[0].useSucceeded)
+        XCTAssertTrue(mockSRS.recordedCalls.isEmpty)
+    }
+
+    func testFinishPersistsRetryTotalAcrossBothStages() async throws {
+        let viewModel = makeViewModel()
+
+        mockSTT.recognizedText = "wrong"
+        viewModel.startRecording()
+        viewModel.stopRecordingAndEvaluate()
+        viewModel.submitTypedAnswer("ephemeral")
+
+        mockSTT.recognizedText = "a sentence without the target"
+        viewModel.startRecording()
+        viewModel.stopRecordingAndEvaluate()
+        viewModel.submitTypedAnswer("The trend is ephemeral.")
+        try await viewModel.finish(confidence: .comfortable)
+
+        XCTAssertEqual(mockAttempts.saved.first?.retryCount, 2)
+    }
+
+    func testSentenceFrameHintPersistsAsHighestHintLevel() async throws {
+        let viewModel = makeViewModel()
+        viewModel.submitTypedAnswer("ephemeral")
+
+        viewModel.advanceHint()
+        viewModel.submitTypedAnswer("The trend is ephemeral.")
+        try await viewModel.finish(confidence: .comfortable)
+
+        XCTAssertEqual(mockAttempts.saved.first?.maxHintLevel, 3)
     }
 
     func testRevealAnswerCarriesTargetExpressionIntoResult() {

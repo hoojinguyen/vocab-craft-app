@@ -1,6 +1,13 @@
 import Foundation
 
 public enum TargetExpressionMatcher {
+    /// Matches only the target expression after case and punctuation normalization.
+    public static func matchesExactly(response: String, expression: String) -> Bool {
+        let responseTokens = StringNormalizer.tokenize(response)
+        let expressionTokens = StringNormalizer.tokenize(expression)
+        return !expressionTokens.isEmpty && responseTokens == expressionTokens
+    }
+
     public static func contains(response: String, expression: String) -> Bool {
         let responseTokens = StringNormalizer.tokenize(response)
         let expressionTokens = StringNormalizer.tokenize(expression)

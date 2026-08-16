@@ -15,6 +15,7 @@ public struct QuickReflexDrillState: Equatable, Sendable {
     public var isCompleted = false
     public var isCancelled = false
     public var isFinishing = false
+    public var isDeferredAttempt = false
     public var revealedTargetExpression: String?
     public var showsSentenceFrame = false
     public var errorMessage: String?
@@ -56,10 +57,14 @@ public final class QuickReflexDrillViewModel {
     private let attemptRepository: QuickReflexAttemptRepositoryProtocol
     private let clock: () -> Date
     private var activePhaseStartedAt: Date
-    private var hintTasks: [Task<Void, Never>] = []
+    // Task handles are only mutated on the main actor, but must be cancelled synchronously at teardown.
+    private nonisolated(unsafe) var hintTasks: [Task<Void, Never>] = []
     private var recordingSession = 0
     private var lifecycleSession = 0
     private var hasPersistedAttempt = false
+    private var stageRetryCount = 0
+    /// The sentence-frame hint follows the retrieve stage's levels one and two.
+    private let sentenceFrameHintLevel = 3
 
     public var isListening: Bool { sttService.isListening }
     public var recognizedText: String { sttService.recognizedText }
@@ -88,6 +93,7 @@ public final class QuickReflexDrillViewModel {
     }
 
     deinit {
+        hintTasks.forEach { $0.cancel() }
         let stt = sttService
         Task { @MainActor in
             stt.stopListening()
@@ -109,8 +115,7 @@ public final class QuickReflexDrillViewModel {
                       self.canAnswerCurrentPhase,
                       self.recordingSession == session,
                       self.state.phase == phase else { return }
-                let target = self.currentPrompt.targetExpression
-                guard TargetExpressionMatcher.contains(response: text, expression: target) else { return }
+                guard self.matchesCurrentPhase(response: text) else { return }
                 self.submit(text, mode: .voice)
             },
             onError: { [weak self] error in
@@ -134,7 +139,7 @@ public final class QuickReflexDrillViewModel {
             handleUnclearSpeech()
             return
         }
-        guard TargetExpressionMatcher.contains(response: answer, expression: currentPrompt.targetExpression) else {
+        guard matchesCurrentPhase(response: answer) else {
             handleUnclearSpeech()
             return
         }
@@ -156,6 +161,10 @@ public final class QuickReflexDrillViewModel {
     /// Shows the next staged hint. Timers call this at 4 and 7 seconds; it never ends a stage.
     public func advanceHint() {
         guard canAnswerCurrentPhase else { return }
+        if state.phase == .useInSentence {
+            showSentenceFrame()
+            return
+        }
         let maximum = currentPrompt.hints.count
         guard state.visibleHintLevel < maximum else { return }
         state.visibleHintLevel += 1
@@ -209,7 +218,7 @@ public final class QuickReflexDrillViewModel {
             hasPersistedAttempt = true
         }
 
-        if state.retrieveSucceeded, let evaluateSRSUseCase, state.srsResult == nil {
+        if state.retrieveSucceeded, !state.isDeferredAttempt, let evaluateSRSUseCase, state.srsResult == nil {
             try Task.checkCancellation()
             guard isActiveFinish(session) else { return }
             state.srsResult = try await evaluateSRSUseCase.recordReview(
@@ -252,6 +261,17 @@ public final class QuickReflexDrillViewModel {
         state.phase == .useInSentence ? prompts.use : prompts.retrieve
     }
 
+    private func matchesCurrentPhase(response: String) -> Bool {
+        switch state.phase {
+        case .retrieve:
+            TargetExpressionMatcher.matchesExactly(response: response, expression: currentPrompt.targetExpression)
+        case .useInSentence:
+            TargetExpressionMatcher.contains(response: response, expression: currentPrompt.targetExpression)
+        case .result:
+            false
+        }
+    }
+
     private func submit(_ answer: String, mode: QuickReflexInputMode) {
         guard canAnswerCurrentPhase else { return }
         let trimmedAnswer = answer.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -261,10 +281,7 @@ public final class QuickReflexDrillViewModel {
         state.inputMode = mode
         state.errorMessage = nil
         state.recordedSpokenText = trimmedAnswer
-        let isCorrect = TargetExpressionMatcher.contains(
-            response: trimmedAnswer,
-            expression: currentPrompt.targetExpression
-        )
+        let isCorrect = matchesCurrentPhase(response: trimmedAnswer)
         let elapsed = elapsedTimeMs()
 
         switch state.phase {
@@ -287,6 +304,7 @@ public final class QuickReflexDrillViewModel {
 
     private func completeWithoutSuccessfulRetrieval() {
         guard canAnswerCurrentPhase else { return }
+        state.isDeferredAttempt = true
         stopCurrentRecording()
         if state.phase == .retrieve {
             state.retrieveSucceeded = false
@@ -301,8 +319,9 @@ public final class QuickReflexDrillViewModel {
     }
 
     private func handleUnclearSpeech() {
-        if state.retryCount == 0 {
-            state.retryCount = 1
+        if stageRetryCount == 0 {
+            stageRetryCount = 1
+            state.retryCount += 1
             state.inputMode = .voice
             state.errorMessage = AppStrings.Reflex.quickSpeechRetryText
         } else {
@@ -314,7 +333,7 @@ public final class QuickReflexDrillViewModel {
     private func beginPhase() {
         activePhaseStartedAt = clock()
         state.visibleHintLevel = 0
-        state.retryCount = 0
+        stageRetryCount = 0
         state.showsSentenceFrame = false
         state.errorMessage = nil
         scheduleHints()
@@ -349,6 +368,7 @@ public final class QuickReflexDrillViewModel {
               state.phase == .useInSentence,
               currentPrompt.sentenceFrame != nil else { return }
         state.showsSentenceFrame = true
+        state.maxHintLevel = max(state.maxHintLevel, sentenceFrameHintLevel)
     }
 
     private func showHint(level: Int) {
