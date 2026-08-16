@@ -27,6 +27,7 @@ public struct QuickReflexDrillSheetView: View {
     @State private var typedAnswer = ""
     @State private var latestSuccessfulAttempt: QuickReflexAttempt?
     @State private var isFinishing = false
+    @State private var finishTask: Task<Void, Never>?
 
     public let onComplete: (Int) -> Void
     private let attemptRepository: QuickReflexAttemptRepositoryProtocol?
@@ -68,7 +69,10 @@ public struct QuickReflexDrillSheetView: View {
             }
         }
         .task { await loadLatestSuccessfulAttempt() }
+        .interactiveDismissDisabled(isFinishing || viewModel.state.isFinishing)
         .onDisappear {
+            finishTask?.cancel()
+            finishTask = nil
             if !viewModel.state.isCompleted {
                 viewModel.cancel()
             }
@@ -426,6 +430,7 @@ public struct QuickReflexDrillSheetView: View {
     }
 
     private func close() {
+        guard !isFinishing, !viewModel.state.isFinishing else { return }
         viewModel.cancel()
         dismiss()
     }
@@ -434,13 +439,22 @@ public struct QuickReflexDrillSheetView: View {
         guard !isFinishing else { return }
         isFinishing = true
 
-        Task {
-            defer { isFinishing = false }
+        finishTask = Task {
+            defer {
+                isFinishing = false
+                finishTask = nil
+            }
             do {
                 try await viewModel.finish(confidence: confidence)
+                guard !Task.isCancelled,
+                      !viewModel.state.isCancelled,
+                      viewModel.state.isCompleted else { return }
                 onComplete(viewModel.state.srsResult?.nextMastery ?? viewModel.targetWord.masteryLevel)
                 dismiss()
+            } catch is CancellationError {
+                return
             } catch {
+                guard !Task.isCancelled, !viewModel.state.isCancelled else { return }
                 viewModel.state.errorMessage = error.localizedDescription
             }
         }

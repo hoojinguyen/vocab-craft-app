@@ -192,6 +192,27 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
         XCTAssertEqual(mockSRS.recordedCalls.count, 1)
     }
 
+    func testCancellingDuringFinishPreventsPersistingOrRecordingSRS() async throws {
+        let suspendedAttempts = SuspendedQuickReflexAttemptRepository()
+        let viewModel = makeViewModel(attemptRepository: suspendedAttempts)
+        viewModel.submitTypedAnswer("ephemeral")
+        viewModel.submitTypedAnswer("The trend is ephemeral.")
+
+        let finishTask = Task { try? await viewModel.finish(confidence: .comfortable) }
+        await fulfillment(of: [suspendedAttempts.saveStarted], timeout: 1)
+
+        viewModel.cancel()
+        finishTask.cancel()
+        suspendedAttempts.resumeSave()
+        _ = await finishTask.result
+
+        XCTAssertTrue(viewModel.state.isCancelled)
+        XCTAssertFalse(viewModel.state.isCompleted)
+        XCTAssertFalse(viewModel.state.isFinishing)
+        XCTAssertTrue(suspendedAttempts.persistedAttempts.isEmpty)
+        XCTAssertTrue(mockSRS.recordedCalls.isEmpty)
+    }
+
     private func makeViewModel(
         attemptRepository: QuickReflexAttemptRepositoryProtocol? = nil
     ) -> QuickReflexDrillViewModel {
@@ -252,6 +273,30 @@ private final class FailingOnceQuickReflexAttemptRepository: QuickReflexAttemptR
 
     private enum TestPersistenceError: Error {
         case unavailable
+    }
+}
+
+private final class SuspendedQuickReflexAttemptRepository: QuickReflexAttemptRepositoryProtocol {
+    let saveStarted = XCTestExpectation(description: "save started")
+    private var saveContinuation: CheckedContinuation<Void, Never>?
+    private(set) var persistedAttempts: [QuickReflexAttempt] = []
+
+    func save(_ attempt: QuickReflexAttempt) async throws {
+        saveStarted.fulfill()
+        await withCheckedContinuation { continuation in
+            saveContinuation = continuation
+        }
+        guard !Task.isCancelled else { return }
+        persistedAttempts.append(attempt)
+    }
+
+    func mostRecentSuccessfulAttempt(for _: Int64) async throws -> QuickReflexAttempt? {
+        nil
+    }
+
+    func resumeSave() {
+        saveContinuation?.resume()
+        saveContinuation = nil
     }
 }
 

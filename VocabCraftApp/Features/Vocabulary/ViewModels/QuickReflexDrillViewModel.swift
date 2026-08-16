@@ -14,6 +14,7 @@ public struct QuickReflexDrillState: Equatable, Sendable {
     public var useTimeMs = 0
     public var isCompleted = false
     public var isCancelled = false
+    public var isFinishing = false
     public var errorMessage: String?
 
     // These presentation fields keep the unchanged legacy sheet source-compatible
@@ -55,6 +56,7 @@ public final class QuickReflexDrillViewModel {
     private var activePhaseStartedAt: Date
     private var hintTasks: [Task<Void, Never>] = []
     private var recordingSession = 0
+    private var lifecycleSession = 0
     private var hasPersistedAttempt = false
 
     public var isListening: Bool { sttService.isListening }
@@ -169,13 +171,18 @@ public final class QuickReflexDrillViewModel {
 
     /// Stops all live resources. A cancelled drill is never saved or sent to SRS.
     public func cancel() {
+        lifecycleSession += 1
         stopListeningAndTimers()
         state.isCancelled = true
     }
 
     /// Persists exactly one completed attempt and records SRS only after successful retrieval.
     public func finish(confidence: QuickReflexConfidence) async throws {
-        guard state.phase == .result, !state.isCancelled, !state.isCompleted else { return }
+        guard state.phase == .result, !state.isCancelled, !state.isCompleted, !state.isFinishing else { return }
+        state.isFinishing = true
+        defer { state.isFinishing = false }
+
+        let session = lifecycleSession
 
         let attempt = QuickReflexAttempt(
             wordId: targetWord.id,
@@ -191,18 +198,25 @@ public final class QuickReflexDrillViewModel {
         )
 
         if !hasPersistedAttempt {
+            try Task.checkCancellation()
+            guard isActiveFinish(session) else { return }
             try await attemptRepository.save(attempt)
+            guard isActiveFinish(session) else { return }
             hasPersistedAttempt = true
         }
 
         if state.retrieveSucceeded, let evaluateSRSUseCase, state.srsResult == nil {
+            try Task.checkCancellation()
+            guard isActiveFinish(session) else { return }
             state.srsResult = try await evaluateSRSUseCase.recordReview(
                 wordId: targetWord.id,
                 isCorrect: true,
                 responseTimeMs: state.retrieveTimeMs
             )
+            guard isActiveFinish(session) else { return }
         }
 
+        guard isActiveFinish(session) else { return }
         stopListeningAndTimers()
         state.isCorrect = state.retrieveSucceeded && state.useSucceeded
         state.triggerSparkle = state.isCorrect
@@ -224,6 +238,10 @@ public final class QuickReflexDrillViewModel {
 
     private var canAnswerCurrentPhase: Bool {
         !state.isCancelled && !state.isCompleted && state.phase != .result
+    }
+
+    private func isActiveFinish(_ session: Int) -> Bool {
+        session == lifecycleSession && !state.isCancelled && !Task.isCancelled
     }
 
     private var currentPrompt: QuickReflexStagePrompt {
