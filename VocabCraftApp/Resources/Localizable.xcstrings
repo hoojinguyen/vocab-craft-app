@@ -925,6 +925,60 @@
         "vi" : { "stringUnit" : { "state" : "translated", "value" : "Đang lưu kết quả…" } }
       }
     },
+    "reflex.quickRevealedAnswer" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Answer" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Đáp án" } }
+      }
+    },
+    "reflex.quickNounSentenceFrame" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The ___ played an important role." } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "The ___ played an important role." } }
+      }
+    },
+    "reflex.quickVerbSentenceFrame" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "They decided to ___ before sunset." } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "They decided to ___ before sunset." } }
+      }
+    },
+    "reflex.quickAdjectiveSentenceFrame" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "It was a ___ decision." } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "It was a ___ decision." } }
+      }
+    },
+    "reflex.quickAdverbSentenceFrame" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "She spoke ___ during the meeting." } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "She spoke ___ during the meeting." } }
+      }
+    },
+    "reflex.quickPhraseSentenceFrame" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "To begin, I tried to ___." } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "To begin, I tried to ___." } }
+      }
+    },
+    "reflex.quickTimeSaved %@" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ saved" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Nhanh hơn %@" } }
+      }
+    },
+    "reflex.quickTimeSlower %@" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ slower" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Chậm hơn %@" } }
+      }
+    },
+    "reflex.quickTimeUnchanged" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Same time" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Cùng thời gian" } }
+      }
+    },
     "reflex.quickMicDefaultIdle" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Tap the microphone to start speaking" } },

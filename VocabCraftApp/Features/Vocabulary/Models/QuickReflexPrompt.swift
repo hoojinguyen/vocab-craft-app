@@ -16,17 +16,34 @@ public struct QuickReflexStagePrompt: Equatable, Sendable {
     public let promptText: String
     public let targetExpression: String
     public let hints: [String]
+    public let sentenceFrame: String?
 
     public init(
         phase: QuickReflexPhase,
         promptText: String,
         targetExpression: String,
-        hints: [String]
+        hints: [String],
+        sentenceFrame: String? = nil
     ) {
         self.phase = phase
         self.promptText = promptText
         self.targetExpression = targetExpression
         self.hints = hints
+        self.sentenceFrame = sentenceFrame
+    }
+}
+
+/// The distinct automatic assistance cadence for each productive-recall stage.
+public enum QuickReflexHintTiming {
+    public static func automaticDelaySeconds(for phase: QuickReflexPhase) -> [Int] {
+        switch phase {
+        case .retrieve:
+            [4, 7]
+        case .useInSentence:
+            [5]
+        case .result:
+            []
+        }
     }
 }
 

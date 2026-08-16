@@ -15,6 +15,8 @@ public struct QuickReflexDrillState: Equatable, Sendable {
     public var isCompleted = false
     public var isCancelled = false
     public var isFinishing = false
+    public var revealedTargetExpression: String?
+    public var showsSentenceFrame = false
     public var errorMessage: String?
 
     // These presentation fields keep the unchanged legacy sheet source-compatible
@@ -162,6 +164,8 @@ public final class QuickReflexDrillViewModel {
 
     /// Revealing or skipping always ends the attempt without an SRS review.
     public func revealAnswer() {
+        guard canAnswerCurrentPhase else { return }
+        state.revealedTargetExpression = currentPrompt.targetExpression
         completeWithoutSuccessfulRetrieval()
     }
 
@@ -310,19 +314,41 @@ public final class QuickReflexDrillViewModel {
     private func beginPhase() {
         activePhaseStartedAt = clock()
         state.visibleHintLevel = 0
+        state.retryCount = 0
+        state.showsSentenceFrame = false
         state.errorMessage = nil
         scheduleHints()
     }
 
     private func scheduleHints() {
         hintTasks.forEach { $0.cancel() }
-        hintTasks = [4, 7].enumerated().map { index, seconds in
-            Task { [weak self] in
-                try? await Task.sleep(for: .seconds(seconds))
-                guard !Task.isCancelled else { return }
-                self?.showHint(level: index + 1)
+        switch state.phase {
+        case .retrieve:
+            hintTasks = QuickReflexHintTiming.automaticDelaySeconds(for: .retrieve).enumerated().map { index, seconds in
+                Task { [weak self] in
+                    try? await Task.sleep(for: .seconds(seconds))
+                    guard !Task.isCancelled else { return }
+                    self?.showHint(level: index + 1)
+                }
             }
+        case .useInSentence:
+            hintTasks = QuickReflexHintTiming.automaticDelaySeconds(for: .useInSentence).map { seconds in
+                Task { [weak self] in
+                    try? await Task.sleep(for: .seconds(seconds))
+                    guard !Task.isCancelled else { return }
+                    self?.showSentenceFrame()
+                }
+            }
+        case .result:
+            hintTasks = []
         }
+    }
+
+    private func showSentenceFrame() {
+        guard canAnswerCurrentPhase,
+              state.phase == .useInSentence,
+              currentPrompt.sentenceFrame != nil else { return }
+        state.showsSentenceFrame = true
     }
 
     private func showHint(level: Int) {

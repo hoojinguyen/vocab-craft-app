@@ -173,6 +173,39 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
         XCTAssertFalse(viewModel.state.useSucceeded)
     }
 
+    func testTransitionToUseStageResetsSpeechRetryAllowance() {
+        let viewModel = makeViewModel()
+        mockSTT.recognizedText = "not the target"
+        viewModel.startRecording()
+        viewModel.stopRecordingAndEvaluate()
+        XCTAssertEqual(viewModel.state.retryCount, 1)
+
+        viewModel.submitTypedAnswer("ephemeral")
+
+        XCTAssertEqual(viewModel.state.phase, .useInSentence)
+        XCTAssertEqual(viewModel.state.retryCount, 0)
+
+        mockSTT.recognizedText = "a sentence without the target"
+        viewModel.startRecording()
+        viewModel.stopRecordingAndEvaluate()
+        XCTAssertEqual(viewModel.state.retryCount, 1)
+        XCTAssertEqual(viewModel.state.inputMode, .voice)
+    }
+
+    func testRevealAnswerCarriesTargetExpressionIntoResult() {
+        let viewModel = makeViewModel()
+
+        viewModel.revealAnswer()
+
+        XCTAssertEqual(viewModel.state.phase, .result)
+        XCTAssertEqual(viewModel.state.revealedTargetExpression, "Ephemeral")
+    }
+
+    func testHintTimingUsesTwoRetrieveHintsAndOneUseSentenceFrame() {
+        XCTAssertEqual(QuickReflexHintTiming.automaticDelaySeconds(for: .retrieve), [4, 7])
+        XCTAssertEqual(QuickReflexHintTiming.automaticDelaySeconds(for: .useInSentence), [5])
+    }
+
     func testFailedPersistenceLeavesResultRetryableUntilFinishSucceeds() async throws {
         let failingAttempts = FailingOnceQuickReflexAttemptRepository()
         let viewModel = makeViewModel(attemptRepository: failingAttempts)

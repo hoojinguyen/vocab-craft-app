@@ -20,9 +20,27 @@ public struct QuickReflexPromptFactory: Sendable {
             phase: .useInSentence,
             promptText: usePrompt,
             targetExpression: word.lemma,
-            hints: [word.lemma]
+            hints: [],
+            sentenceFrame: sentenceFrame(for: word.pos)
         )
 
         return QuickReflexPrompts(retrieve: retrieve, use: use)
+    }
+
+    private func sentenceFrame(for partOfSpeech: String) -> String {
+        let normalizedPartOfSpeech = partOfSpeech.lowercased()
+        if normalizedPartOfSpeech.contains("verb") {
+            return AppStrings.Reflex.quickVerbSentenceFrame
+        }
+        if normalizedPartOfSpeech.contains("adverb") {
+            return AppStrings.Reflex.quickAdverbSentenceFrame
+        }
+        if normalizedPartOfSpeech.contains("adjective") || normalizedPartOfSpeech.contains("adj") {
+            return AppStrings.Reflex.quickAdjectiveSentenceFrame
+        }
+        if normalizedPartOfSpeech.contains("phrase") || normalizedPartOfSpeech.contains("idiom") {
+            return AppStrings.Reflex.quickPhraseSentenceFrame
+        }
+        return AppStrings.Reflex.quickNounSentenceFrame
     }
 }

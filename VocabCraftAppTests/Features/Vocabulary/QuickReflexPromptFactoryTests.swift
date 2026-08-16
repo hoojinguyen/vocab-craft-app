@@ -31,7 +31,19 @@ final class QuickReflexPromptFactoryTests: XCTestCase {
         XCTAssertEqual(prompts.use.phase, .useInSentence)
         XCTAssertEqual(prompts.use.promptText, "Sự kiên cường giúp cô ấy vượt qua khó khăn.")
         XCTAssertEqual(prompts.use.targetExpression, "resilience")
-        XCTAssertEqual(prompts.use.hints, ["resilience"])
+        XCTAssertTrue(prompts.use.hints.isEmpty)
+    }
+
+    func testMakePromptsAddsAPartOfSpeechSentenceFrameForUseStage() {
+        let noun = makeWord(lemma: "resilience", pos: "noun", definition: "Khả năng phục hồi", exampleSentenceVi: "")
+        let verb = makeWord(lemma: "adapt", pos: "verb", definition: "Thích nghi", exampleSentenceVi: "")
+
+        let nounFrame = QuickReflexPromptFactory().makePrompts(for: noun).use.sentenceFrame
+        let verbFrame = QuickReflexPromptFactory().makePrompts(for: verb).use.sentenceFrame
+
+        XCTAssertNotNil(nounFrame)
+        XCTAssertNotNil(verbFrame)
+        XCTAssertNotEqual(nounFrame, verbFrame)
     }
 
     func testMakePromptsFallsBackWhenVietnameseExampleIsEmpty() {

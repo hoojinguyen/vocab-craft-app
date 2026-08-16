@@ -22,6 +22,32 @@ public struct QuickReflexDrillPhaseConfiguration: Equatable, Sendable {
     }
 }
 
+public enum QuickReflexTimeDelta: Equatable, Sendable {
+    case saved(milliseconds: Int)
+    case slower(milliseconds: Int)
+    case unchanged
+}
+
+public struct QuickReflexTimeComparison: Equatable, Sendable {
+    public let retrieveDelta: QuickReflexTimeDelta
+    public let useDelta: QuickReflexTimeDelta
+
+    public init(currentRetrieveTimeMs: Int, previousRetrieveTimeMs: Int, currentUseTimeMs: Int, previousUseTimeMs: Int) {
+        retrieveDelta = Self.delta(current: currentRetrieveTimeMs, previous: previousRetrieveTimeMs)
+        useDelta = Self.delta(current: currentUseTimeMs, previous: previousUseTimeMs)
+    }
+
+    private static func delta(current: Int, previous: Int) -> QuickReflexTimeDelta {
+        if current < previous {
+            return .saved(milliseconds: previous - current)
+        }
+        if current > previous {
+            return .slower(milliseconds: current - previous)
+        }
+        return .unchanged
+    }
+}
+
 public struct QuickReflexDrillSheetView: View {
     @State private var viewModel: QuickReflexDrillViewModel
     @State private var typedAnswer = ""
@@ -170,6 +196,16 @@ public struct QuickReflexDrillSheetView: View {
 
             hintSection
 
+            if viewModel.state.showsSentenceFrame, let sentenceFrame = currentPrompt.sentenceFrame {
+                Label(sentenceFrame, systemImage: "text.quote")
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(Color.vocabHeroAccent)
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.vocabHeroAccent.opacity(0.08))
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            }
+
             VocabSpeechVisualizerView(
                 isListening: viewModel.isListening,
                 recognizedText: viewModel.recognizedText,
@@ -283,8 +319,10 @@ public struct QuickReflexDrillSheetView: View {
     private var typedEntry: some View {
         HStack(spacing: 10) {
             TextField(AppStrings.Reflex.quickTypeAnswer, text: $typedAnswer)
+#if os(iOS)
                 .textInputAutocapitalization(.sentences)
                 .autocorrectionDisabled()
+#endif
                 .submitLabel(.done)
                 .onSubmit(submitTypedAnswer)
                 .padding(.horizontal, 14)
@@ -319,6 +357,21 @@ public struct QuickReflexDrillSheetView: View {
 
                     resultRow(title: AppStrings.Reflex.quickRetrieveTitle, succeeded: viewModel.state.retrieveSucceeded, timeMs: viewModel.state.retrieveTimeMs)
                     resultRow(title: AppStrings.Reflex.quickUseTitle, succeeded: viewModel.state.useSucceeded, timeMs: viewModel.state.useTimeMs)
+
+                    if let revealedTargetExpression = viewModel.state.revealedTargetExpression {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(AppStrings.Reflex.quickRevealedAnswer)
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(Color.vocabMuted)
+                            Text(revealedTargetExpression)
+                                .font(.system(.title3, design: .rounded, weight: .bold))
+                                .foregroundStyle(Color.vocabHeroAccent)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(14)
+                        .background(Color.vocabHeroAccent.opacity(0.08))
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    }
 
                     if let latestSuccessfulAttempt {
                         previousAttemptComparison(latestSuccessfulAttempt)
@@ -389,19 +442,27 @@ public struct QuickReflexDrillSheetView: View {
     }
 
     private func previousAttemptComparison(_ attempt: QuickReflexAttempt) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        let comparison = QuickReflexTimeComparison(
+            currentRetrieveTimeMs: viewModel.state.retrieveTimeMs,
+            previousRetrieveTimeMs: attempt.retrieveTimeMs,
+            currentUseTimeMs: viewModel.state.useTimeMs,
+            previousUseTimeMs: attempt.useTimeMs
+        )
+        return VStack(alignment: .leading, spacing: 8) {
             Text(AppStrings.Reflex.quickPreviousAttempt)
                 .font(.caption.weight(.bold))
                 .foregroundStyle(Color.vocabMuted)
             timeComparisonRow(
                 title: AppStrings.Reflex.quickRetrieveTitle,
                 current: viewModel.state.retrieveTimeMs,
-                previous: attempt.retrieveTimeMs
+                previous: attempt.retrieveTimeMs,
+                delta: comparison.retrieveDelta
             )
             timeComparisonRow(
                 title: AppStrings.Reflex.quickUseTitle,
                 current: viewModel.state.useTimeMs,
-                previous: attempt.useTimeMs
+                previous: attempt.useTimeMs,
+                delta: comparison.useDelta
             )
         }
         .font(.subheadline)
@@ -411,7 +472,7 @@ public struct QuickReflexDrillSheetView: View {
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
-    private func timeComparisonRow(title: LocalizedStringKey, current: Int, previous: Int) -> some View {
+    private func timeComparisonRow(title: LocalizedStringKey, current: Int, previous: Int, delta: QuickReflexTimeDelta) -> some View {
         HStack {
             Text(title)
             Spacer()
@@ -419,8 +480,32 @@ public struct QuickReflexDrillSheetView: View {
             Text(formattedTime(current)).monospacedDigit()
             Text(AppStrings.Reflex.quickPreviousAttempt)
             Text(formattedTime(previous)).monospacedDigit()
+            Text(timeDeltaLabel(delta))
+                .foregroundStyle(deltaColor(delta))
         }
         .font(.caption)
+    }
+
+    private func timeDeltaLabel(_ delta: QuickReflexTimeDelta) -> LocalizedStringKey {
+        switch delta {
+        case let .saved(milliseconds):
+            AppStrings.Reflex.quickTimeSaved(formattedTime(milliseconds))
+        case let .slower(milliseconds):
+            AppStrings.Reflex.quickTimeSlower(formattedTime(milliseconds))
+        case .unchanged:
+            AppStrings.Reflex.quickTimeUnchanged
+        }
+    }
+
+    private func deltaColor(_ delta: QuickReflexTimeDelta) -> Color {
+        switch delta {
+        case .saved:
+            .vocabMint
+        case .slower:
+            .vocabCoral
+        case .unchanged:
+            .vocabMuted
+        }
     }
 
     private func submitTypedAnswer() {

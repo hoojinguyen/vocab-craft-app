@@ -25,6 +25,18 @@ final class QuickReflexDrillSheetViewTests: XCTestCase {
         XCTAssertEqual(configuration.stageNumber, 2)
     }
 
+    func testTimeComparisonReportsSavingsAndSlowerDeltasForEachStage() {
+        let comparison = QuickReflexTimeComparison(
+            currentRetrieveTimeMs: 1_200,
+            previousRetrieveTimeMs: 1_700,
+            currentUseTimeMs: 2_800,
+            previousUseTimeMs: 2_000
+        )
+
+        XCTAssertEqual(comparison.retrieveDelta, .saved(milliseconds: 500))
+        XCTAssertEqual(comparison.useDelta, .slower(milliseconds: 800))
+    }
+
     @MainActor
     func testQuickReflexDrillSheetViewInitialization() {
         let word = WordItem(

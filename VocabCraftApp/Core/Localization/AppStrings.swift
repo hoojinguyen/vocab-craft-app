@@ -157,6 +157,15 @@ public enum AppStrings {
         public static var quickComfortable: LocalizedStringKey { "reflex.quickComfortable" }
         public static var quickUncertain: LocalizedStringKey { "reflex.quickUncertain" }
         public static var quickSaving: LocalizedStringKey { "reflex.quickSaving" }
+        public static var quickRevealedAnswer: LocalizedStringKey { "reflex.quickRevealedAnswer" }
+        public static var quickNounSentenceFrame: String { String(localized: "reflex.quickNounSentenceFrame") }
+        public static var quickVerbSentenceFrame: String { String(localized: "reflex.quickVerbSentenceFrame") }
+        public static var quickAdjectiveSentenceFrame: String { String(localized: "reflex.quickAdjectiveSentenceFrame") }
+        public static var quickAdverbSentenceFrame: String { String(localized: "reflex.quickAdverbSentenceFrame") }
+        public static var quickPhraseSentenceFrame: String { String(localized: "reflex.quickPhraseSentenceFrame") }
+        public static func quickTimeSaved(_ time: String) -> LocalizedStringKey { LocalizedStringKey("reflex.quickTimeSaved \(time)") }
+        public static func quickTimeSlower(_ time: String) -> LocalizedStringKey { LocalizedStringKey("reflex.quickTimeSlower \(time)") }
+        public static var quickTimeUnchanged: LocalizedStringKey { "reflex.quickTimeUnchanged" }
         public static var quickMicDefaultIdleText: String { String(localized: "reflex.quickMicDefaultIdle") }
         public static var quickMicDefaultListeningText: String { String(localized: "reflex.quickMicDefaultListening") }
         public static var quickMicStartAccessibility: LocalizedStringKey { "reflex.quickMicStartAccessibility" }
