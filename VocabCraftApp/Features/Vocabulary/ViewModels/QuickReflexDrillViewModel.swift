@@ -204,6 +204,9 @@ public final class QuickReflexDrillViewModel {
 
     /// Stops all live resources. A cancelled drill is never saved or sent to SRS.
     public func cancel() {
+        // Persistence is an explicit critical section: once it begins, cancellation is rejected
+        // so a completed external write cannot be left without its corresponding completion flow.
+        guard !state.isFinishing else { return }
         lifecycleSession += 1
         stopListeningAndTimers()
         state.isCancelled = true
@@ -234,22 +237,18 @@ public final class QuickReflexDrillViewModel {
             try Task.checkCancellation()
             guard isActiveFinish(session) else { return }
             try await attemptRepository.save(attempt)
-            guard isActiveFinish(session) else { return }
             hasPersistedAttempt = true
         }
 
         if state.retrieveSucceeded, !state.isDeferredAttempt, let evaluateSRSUseCase, state.srsResult == nil {
-            try Task.checkCancellation()
             guard isActiveFinish(session) else { return }
             state.srsResult = try await evaluateSRSUseCase.recordReview(
                 wordId: targetWord.id,
                 isCorrect: true,
                 responseTimeMs: state.retrieveTimeMs
             )
-            guard isActiveFinish(session) else { return }
         }
 
-        guard isActiveFinish(session) else { return }
         stopListeningAndTimers()
         state.isCorrect = state.retrieveSucceeded && state.useSucceeded
         state.triggerSparkle = state.isCorrect
@@ -274,7 +273,7 @@ public final class QuickReflexDrillViewModel {
     }
 
     private func isActiveFinish(_ session: Int) -> Bool {
-        session == lifecycleSession && !state.isCancelled && !Task.isCancelled
+        session == lifecycleSession && !state.isCancelled
     }
 
     private var currentPrompt: QuickReflexStagePrompt {
@@ -362,9 +361,13 @@ public final class QuickReflexDrillViewModel {
 
     private func scheduleHints() {
         hintTasks.forEach { $0.cancel() }
+        let activeElapsedSeconds = Double(elapsedTimeMs()) / 1_000
         switch state.phase {
         case .retrieve:
-            hintTasks = QuickReflexHintTiming.automaticDelaySeconds(for: .retrieve).enumerated().map { index, seconds in
+            hintTasks = QuickReflexHintTiming.remainingDelaySeconds(
+                for: .retrieve,
+                activeElapsedSeconds: activeElapsedSeconds
+            ).enumerated().map { index, seconds in
                 Task { [weak self] in
                     try? await Task.sleep(for: .seconds(seconds))
                     guard !Task.isCancelled else { return }
@@ -372,7 +375,10 @@ public final class QuickReflexDrillViewModel {
                 }
             }
         case .useInSentence:
-            hintTasks = QuickReflexHintTiming.automaticDelaySeconds(for: .useInSentence).map { seconds in
+            hintTasks = QuickReflexHintTiming.remainingDelaySeconds(
+                for: .useInSentence,
+                activeElapsedSeconds: activeElapsedSeconds
+            ).map { seconds in
                 Task { [weak self] in
                     try? await Task.sleep(for: .seconds(seconds))
                     guard !Task.isCancelled else { return }

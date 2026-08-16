@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 /// Display decisions shared by the productive-recall stage card and its focused tests.
 public struct QuickReflexDrillPhaseConfiguration: Equatable, Sendable {
@@ -104,10 +107,25 @@ public struct QuickReflexDrillSheetView: View {
                 viewModel.pause()
             }
         }
+        .onChange(of: viewModel.state.phase) { _, phase in
+            guard phase != .result else { return }
+            announceForAccessibility(AppStrings.Reflex.quickStageProgressValue(
+                stage: QuickReflexDrillPhaseConfiguration(phase: phase, inputMode: viewModel.state.inputMode).stageNumber,
+                total: 2
+            ))
+        }
+        .onChange(of: viewModel.state.visibleHintLevel) { oldLevel, newLevel in
+            guard newLevel > oldLevel else { return }
+            announceForAccessibility(AppStrings.Reflex.quickHintAvailableText)
+        }
+        .onChange(of: viewModel.state.showsSentenceFrame) { _, isVisible in
+            guard isVisible else { return }
+            announceForAccessibility(AppStrings.Reflex.quickHintAvailableText)
+        }
         .onDisappear {
-            finishTask?.cancel()
-            finishTask = nil
-            if !viewModel.state.isCompleted {
+            if !isFinishing, !viewModel.state.isFinishing, !viewModel.state.isCompleted {
+                finishTask?.cancel()
+                finishTask = nil
                 viewModel.cancel()
             }
         }
@@ -560,6 +578,12 @@ public struct QuickReflexDrillSheetView: View {
 
     private func formattedTime(_ milliseconds: Int) -> String {
         String(format: "%.1fs", Double(milliseconds) / 1_000)
+    }
+
+    private func announceForAccessibility(_ message: String) {
+#if canImport(UIKit)
+        UIAccessibility.post(notification: .announcement, argument: message)
+#endif
     }
 }
 

@@ -291,6 +291,14 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
         XCTAssertEqual(QuickReflexHintTiming.automaticDelaySeconds(for: .useInSentence), [5])
     }
 
+    func testResumedHintsKeepOriginalActiveTimeDeadlines() {
+        XCTAssertEqual(QuickReflexHintTiming.remainingDelaySeconds(for: .retrieve, activeElapsedSeconds: 3), [1, 4])
+        XCTAssertEqual(QuickReflexHintTiming.remainingDelaySeconds(for: .retrieve, activeElapsedSeconds: 4), [0, 3])
+        XCTAssertEqual(QuickReflexHintTiming.remainingDelaySeconds(for: .retrieve, activeElapsedSeconds: 6), [0, 1])
+        XCTAssertEqual(QuickReflexHintTiming.remainingDelaySeconds(for: .useInSentence, activeElapsedSeconds: 4), [1])
+        XCTAssertEqual(QuickReflexHintTiming.remainingDelaySeconds(for: .useInSentence, activeElapsedSeconds: 5), [0])
+    }
+
     func testFailedPersistenceLeavesResultRetryableUntilFinishSucceeds() async throws {
         let failingAttempts = FailingOnceQuickReflexAttemptRepository()
         let viewModel = makeViewModel(attemptRepository: failingAttempts)
@@ -310,7 +318,7 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
         XCTAssertEqual(mockSRS.recordedCalls.count, 1)
     }
 
-    func testCancellingDuringFinishPreventsPersistingOrRecordingSRS() async throws {
+    func testCancelDuringFinishIsRejectedOncePersistenceCriticalSectionBegins() async throws {
         let suspendedAttempts = SuspendedQuickReflexAttemptRepository()
         let viewModel = makeViewModel(attemptRepository: suspendedAttempts)
         viewModel.submitTypedAnswer("ephemeral")
@@ -320,15 +328,14 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
         await fulfillment(of: [suspendedAttempts.saveStarted], timeout: 1)
 
         viewModel.cancel()
-        finishTask.cancel()
         suspendedAttempts.resumeSave()
         _ = await finishTask.result
 
-        XCTAssertTrue(viewModel.state.isCancelled)
-        XCTAssertFalse(viewModel.state.isCompleted)
+        XCTAssertFalse(viewModel.state.isCancelled)
+        XCTAssertTrue(viewModel.state.isCompleted)
         XCTAssertFalse(viewModel.state.isFinishing)
-        XCTAssertTrue(suspendedAttempts.persistedAttempts.isEmpty)
-        XCTAssertTrue(mockSRS.recordedCalls.isEmpty)
+        XCTAssertEqual(suspendedAttempts.persistedAttempts.count, 1)
+        XCTAssertEqual(mockSRS.recordedCalls.count, 1)
     }
 
     private func makeViewModel(

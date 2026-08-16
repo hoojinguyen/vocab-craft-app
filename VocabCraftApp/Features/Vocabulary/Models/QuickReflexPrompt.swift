@@ -45,6 +45,13 @@ public enum QuickReflexHintTiming {
             []
         }
     }
+
+    /// Remaining active-time delays, preserving original stage deadlines across app suspension.
+    public static func remainingDelaySeconds(for phase: QuickReflexPhase, activeElapsedSeconds: Double) -> [Double] {
+        automaticDelaySeconds(for: phase).map { deadline in
+            max(0, Double(deadline) - activeElapsedSeconds)
+        }
+    }
 }
 
 public struct QuickReflexPrompts: Equatable, Sendable {

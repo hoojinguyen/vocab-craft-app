@@ -90,7 +90,7 @@ public struct VocabSpeechVisualizerView: View {
                 .padding(.vertical, 4)
             } else {
                 Text(displayText)
-                    .font(.system(size: 19, weight: recognizedText.isEmpty ? .medium : .semibold, design: .rounded))
+                    .font(.body.weight(recognizedText.isEmpty ? .medium : .semibold))
                     .foregroundColor(recognizedText.isEmpty ? .vocabMuted.opacity(0.6) : .vocabInk)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: .infinity, minHeight: 44)

@@ -817,6 +817,12 @@
         "vi" : { "stringUnit" : { "state" : "translated", "value" : "Gợi ý" } }
       }
     },
+    "reflex.quickHintAvailable" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "A new hint is available." } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Đã có gợi ý mới." } }
+      }
+    },
     "reflex.quickTranscriptPlaceholder" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Your spoken answer will appear here." } },

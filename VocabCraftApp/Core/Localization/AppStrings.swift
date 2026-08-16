@@ -142,6 +142,7 @@ public enum AppStrings {
         public static var quickListenExample: LocalizedStringKey { "reflex.quickListenExample" }
         public static var quickHints: LocalizedStringKey { "reflex.quickHints" }
         public static var quickShowHint: LocalizedStringKey { "reflex.quickShowHint" }
+        public static var quickHintAvailableText: String { String(localized: "reflex.quickHintAvailable") }
         public static var quickTypeAnswer: LocalizedStringKey { "reflex.quickTypeAnswer" }
         public static var quickSubmit: LocalizedStringKey { "reflex.quickSubmit" }
         public static var quickTypingFallback: LocalizedStringKey { "reflex.quickTypingFallback" }
