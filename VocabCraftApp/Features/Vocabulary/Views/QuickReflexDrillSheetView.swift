@@ -376,6 +376,7 @@ public struct QuickReflexDrillSheetView: View {
                 .frame(maxWidth: .infinity)
                 .background((score >= 0.75 ? Color.vocabMint : Color.vocabPeach).opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                .animation(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.state.shadowPronunciationScore)
             }
 
             VocabSpeechVisualizerView(
@@ -414,7 +415,6 @@ public struct QuickReflexDrillSheetView: View {
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(Color.vocabHairline, lineWidth: 1))
         .shadow(color: Color.black.opacity(0.04), radius: 12, x: 0, y: 4)
-        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.state.shadowPronunciationScore)
     }
 
     private var phaseTitle: LocalizedStringKey {

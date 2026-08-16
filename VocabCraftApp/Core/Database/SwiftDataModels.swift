@@ -101,7 +101,7 @@ public final class QuickReflexAttemptRecord {
         collocationTimeMs: Int = 0,
         produceSentenceTimeMs: Int,
         recallWordSucceeded: Bool,
-        collocationSucceeded: Bool = true,
+        collocationSucceeded: Bool,
         produceSentenceSucceeded: Bool,
         shadowPronunciationScore: Double? = nil,
         maxHintLevel: Int,

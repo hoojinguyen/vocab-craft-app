@@ -17,7 +17,7 @@ public enum CollocationExtractor {
     }
 
     private static func extractChunk(lemma: String, from sentence: String) -> String? {
-        let cleanSentence = sentence.replacingOccurrences(of: "[\"',.!?]", with: "", options: .regularExpression)
+        let cleanSentence = sentence.components(separatedBy: .punctuationCharacters).joined()
         let tokens = cleanSentence.components(separatedBy: .whitespaces).filter { !$0.isEmpty }
         guard let index = tokens.firstIndex(where: { $0.caseInsensitiveCompare(lemma) == .orderedSame }) else {
             return nil

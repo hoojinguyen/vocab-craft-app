@@ -99,4 +99,26 @@ final class CollocationExtractorTests: XCTestCase {
         let collocation = CollocationExtractor.extract(for: word)
         XCTAssertEqual(collocation, "smoothly in practice")
     }
+
+    func testExtractStripsAllPunctuationCharacters() {
+        let word = WordItem(
+            id: 7,
+            lemma: "resilience",
+            phonetic: "",
+            pos: "n.",
+            definition: "Kiên cường",
+            exampleSentenceEn: "Her (resilience); [tested] daily—shines through.",
+            exampleSentenceVi: "",
+            cefrLevel: "B2",
+            masteryLevel: 1
+        )
+        let collocation = CollocationExtractor.extract(for: word)
+        XCTAssertFalse(collocation.isEmpty)
+        XCTAssertTrue(collocation.contains("resilience"))
+        XCTAssertFalse(collocation.contains("("))
+        XCTAssertFalse(collocation.contains(")"))
+        XCTAssertFalse(collocation.contains(";"))
+        XCTAssertFalse(collocation.contains("["))
+        XCTAssertFalse(collocation.contains("]"))
+    }
 }
