@@ -282,11 +282,11 @@ public final class QuickReflexDrillViewModel {
 
     private func matchesCurrentPhase(response: String) -> Bool {
         switch state.phase {
-        case .retrieve:
+        case .recallWord, .recallCollocation:
             TargetExpressionMatcher.matchesExactly(response: response, expression: currentPrompt.targetExpression)
-        case .useInSentence:
+        case .produceSentence:
             TargetExpressionMatcher.contains(response: response, expression: currentPrompt.targetExpression)
-        case .result:
+        case .shadowModel, .result:
             false
         }
     }
@@ -304,19 +304,19 @@ public final class QuickReflexDrillViewModel {
         let elapsed = elapsedTimeMs()
 
         switch state.phase {
-        case .retrieve:
+        case .recallWord, .recallCollocation:
             state.retrieveSucceeded = isCorrect
             state.retrieveTimeMs = elapsed
             guard isCorrect else { return }
-            state.phase = .useInSentence
+            state.phase = .produceSentence
             beginPhase()
-        case .useInSentence:
+        case .produceSentence:
             state.useSucceeded = isCorrect
             state.useTimeMs = elapsed
             state.phase = .result
             hintTasks.forEach { $0.cancel() }
             hintTasks.removeAll()
-        case .result:
+        case .shadowModel, .result:
             return
         }
     }
@@ -325,7 +325,7 @@ public final class QuickReflexDrillViewModel {
         guard canAnswerCurrentPhase else { return }
         state.isDeferredAttempt = true
         stopCurrentRecording()
-        if state.phase == .retrieve {
+        if state.phase == .recallWord || state.phase == .recallCollocation {
             state.retrieveSucceeded = false
             state.retrieveTimeMs = elapsedTimeMs()
         } else {
@@ -363,9 +363,9 @@ public final class QuickReflexDrillViewModel {
         hintTasks.forEach { $0.cancel() }
         let activeElapsedSeconds = Double(elapsedTimeMs()) / 1_000
         switch state.phase {
-        case .retrieve:
+        case .recallWord, .recallCollocation:
             hintTasks = QuickReflexHintTiming.remainingDelaySeconds(
-                for: .retrieve,
+                for: state.phase,
                 activeElapsedSeconds: activeElapsedSeconds
             ).enumerated().map { index, seconds in
                 Task { [weak self] in
@@ -374,9 +374,9 @@ public final class QuickReflexDrillViewModel {
                     self?.showHint(level: index + 1)
                 }
             }
-        case .useInSentence:
+        case .produceSentence:
             hintTasks = QuickReflexHintTiming.remainingDelaySeconds(
-                for: .useInSentence,
+                for: .produceSentence,
                 activeElapsedSeconds: activeElapsedSeconds
             ).map { seconds in
                 Task { [weak self] in
@@ -385,7 +385,7 @@ public final class QuickReflexDrillViewModel {
                     self?.showSentenceFrame()
                 }
             }
-        case .result:
+        case .shadowModel, .result:
             hintTasks = []
         }
     }

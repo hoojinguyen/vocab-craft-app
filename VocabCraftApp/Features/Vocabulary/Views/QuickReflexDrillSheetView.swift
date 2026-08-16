@@ -17,10 +17,12 @@ public struct QuickReflexDrillPhaseConfiguration: Equatable, Sendable {
     public var showsTypingFallback: Bool { inputMode == .typing }
     public var stageNumber: Int {
         switch phase {
-        case .retrieve:
+        case .recallWord:
             1
-        case .useInSentence, .result:
+        case .recallCollocation:
             2
+        case .produceSentence, .shadowModel, .result:
+            3
         }
     }
 }

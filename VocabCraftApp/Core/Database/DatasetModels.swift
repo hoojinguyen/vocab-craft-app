@@ -9,6 +9,8 @@ public struct WordRecord: Identifiable, Equatable, Sendable {
     public let definitionEn: String?
     public let definitionVi: String?
     public let example: String?
+    public let collocationEn: String?
+    public let collocationVi: String?
 
     public init(
         id: Int64,
@@ -18,7 +20,9 @@ public struct WordRecord: Identifiable, Equatable, Sendable {
         cefrLevel: String? = nil,
         definitionEn: String? = nil,
         definitionVi: String? = nil,
-        example: String? = nil
+        example: String? = nil,
+        collocationEn: String? = nil,
+        collocationVi: String? = nil
     ) {
         self.id = id
         self.lemma = lemma
@@ -28,6 +32,8 @@ public struct WordRecord: Identifiable, Equatable, Sendable {
         self.definitionEn = definitionEn
         self.definitionVi = definitionVi
         self.example = example
+        self.collocationEn = collocationEn
+        self.collocationVi = collocationVi
     }
 }
 

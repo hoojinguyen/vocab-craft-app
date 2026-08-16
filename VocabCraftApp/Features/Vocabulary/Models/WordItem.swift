@@ -11,6 +11,8 @@ public struct WordItem: Identifiable, Equatable, Sendable {
     public let cefrLevel: String
     public var masteryLevel: Int
     public var nextReviewDate: Date
+    public let collocationEn: String?
+    public let collocationVi: String?
 
     public init(
         id: Int64,
@@ -22,7 +24,9 @@ public struct WordItem: Identifiable, Equatable, Sendable {
         exampleSentenceVi: String,
         cefrLevel: String,
         masteryLevel: Int,
-        nextReviewDate: Date = Date()
+        nextReviewDate: Date = Date(),
+        collocationEn: String? = nil,
+        collocationVi: String? = nil
     ) {
         self.id = id
         self.lemma = lemma
@@ -34,6 +38,8 @@ public struct WordItem: Identifiable, Equatable, Sendable {
         self.cefrLevel = cefrLevel
         self.masteryLevel = masteryLevel
         self.nextReviewDate = nextReviewDate
+        self.collocationEn = collocationEn
+        self.collocationVi = collocationVi
     }
 
     public static let mockData: [WordItem] = [
