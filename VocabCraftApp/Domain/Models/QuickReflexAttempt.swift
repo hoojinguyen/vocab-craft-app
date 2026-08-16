@@ -7,20 +7,64 @@ public enum QuickReflexConfidence: String, CaseIterable, Equatable, Sendable {
 }
 
 /// A persistence-neutral record of one quick-reflex learning attempt.
-public struct QuickReflexAttempt: Equatable, Sendable {
+public struct QuickReflexAttempt: Identifiable, Equatable, Sendable {
+    public let id: UUID
     public let wordId: Int64
-    public let retrieveTimeMs: Int
-    public let useTimeMs: Int
-    public let retrieveSucceeded: Bool
-    public let useSucceeded: Bool
+    public let recallWordTimeMs: Int
+    public let collocationTimeMs: Int
+    public let produceSentenceTimeMs: Int
+    public let recallWordSucceeded: Bool
+    public let collocationSucceeded: Bool
+    public let produceSentenceSucceeded: Bool
+    public let shadowPronunciationScore: Double?
     public let maxHintLevel: Int
     public let inputMode: QuickReflexInputMode
     public let retryCount: Int
     public let confidence: QuickReflexConfidence
     public let timestamp: Date
 
-    /// Creates a learning attempt with its complete response and confidence signals.
+    // Backward-compatible accessors
+    public var retrieveTimeMs: Int { recallWordTimeMs }
+    public var useTimeMs: Int { produceSentenceTimeMs }
+    public var retrieveSucceeded: Bool { recallWordSucceeded }
+    public var useSucceeded: Bool { produceSentenceSucceeded }
+
+    /// Creates a learning attempt with its complete response and confidence signals across all ladder stages.
     public init(
+        id: UUID = UUID(),
+        wordId: Int64,
+        recallWordTimeMs: Int,
+        collocationTimeMs: Int,
+        produceSentenceTimeMs: Int,
+        recallWordSucceeded: Bool,
+        collocationSucceeded: Bool,
+        produceSentenceSucceeded: Bool,
+        shadowPronunciationScore: Double? = nil,
+        maxHintLevel: Int,
+        inputMode: QuickReflexInputMode,
+        retryCount: Int,
+        confidence: QuickReflexConfidence,
+        timestamp: Date = Date()
+    ) {
+        self.id = id
+        self.wordId = wordId
+        self.recallWordTimeMs = recallWordTimeMs
+        self.collocationTimeMs = collocationTimeMs
+        self.produceSentenceTimeMs = produceSentenceTimeMs
+        self.recallWordSucceeded = recallWordSucceeded
+        self.collocationSucceeded = collocationSucceeded
+        self.produceSentenceSucceeded = produceSentenceSucceeded
+        self.shadowPronunciationScore = shadowPronunciationScore
+        self.maxHintLevel = maxHintLevel
+        self.inputMode = inputMode
+        self.retryCount = retryCount
+        self.confidence = confidence
+        self.timestamp = timestamp
+    }
+
+    /// Legacy initializer overload for backward compatibility during transitions.
+    public init(
+        id: UUID = UUID(),
         wordId: Int64,
         retrieveTimeMs: Int,
         useTimeMs: Int,
@@ -32,15 +76,21 @@ public struct QuickReflexAttempt: Equatable, Sendable {
         confidence: QuickReflexConfidence,
         timestamp: Date = Date()
     ) {
-        self.wordId = wordId
-        self.retrieveTimeMs = retrieveTimeMs
-        self.useTimeMs = useTimeMs
-        self.retrieveSucceeded = retrieveSucceeded
-        self.useSucceeded = useSucceeded
-        self.maxHintLevel = maxHintLevel
-        self.inputMode = inputMode
-        self.retryCount = retryCount
-        self.confidence = confidence
-        self.timestamp = timestamp
+        self.init(
+            id: id,
+            wordId: wordId,
+            recallWordTimeMs: retrieveTimeMs,
+            collocationTimeMs: 0,
+            produceSentenceTimeMs: useTimeMs,
+            recallWordSucceeded: retrieveSucceeded,
+            collocationSucceeded: retrieveSucceeded,
+            produceSentenceSucceeded: useSucceeded,
+            shadowPronunciationScore: nil,
+            maxHintLevel: maxHintLevel,
+            inputMode: inputMode,
+            retryCount: retryCount,
+            confidence: confidence,
+            timestamp: timestamp
+        )
     }
 }

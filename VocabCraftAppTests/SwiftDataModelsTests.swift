@@ -195,10 +195,13 @@ final class SwiftDataModelsTests: XCTestCase {
         let timestamp = Date(timeIntervalSince1970: 1_700_000_000)
         let record = QuickReflexAttemptRecord(
             wordId: 7,
-            retrieveTimeMs: 1_100,
-            useTimeMs: 2_600,
-            retrieveSucceeded: true,
-            useSucceeded: true,
+            recallWordTimeMs: 1_100,
+            collocationTimeMs: 1_500,
+            produceSentenceTimeMs: 2_600,
+            recallWordSucceeded: true,
+            collocationSucceeded: true,
+            produceSentenceSucceeded: true,
+            shadowPronunciationScore: 92.5,
             maxHintLevel: 1,
             inputModeRawValue: "voice",
             retryCount: 1,
@@ -213,24 +216,36 @@ final class SwiftDataModelsTests: XCTestCase {
         XCTAssertEqual(records.count, 1)
         XCTAssertEqual(records.first?.id, record.id)
         XCTAssertEqual(records.first?.wordId, 7)
-        XCTAssertEqual(records.first?.retrieveTimeMs, 1_100)
-        XCTAssertEqual(records.first?.useTimeMs, 2_600)
-        XCTAssertEqual(records.first?.retrieveSucceeded, true)
-        XCTAssertEqual(records.first?.useSucceeded, true)
+        XCTAssertEqual(records.first?.recallWordTimeMs, 1_100)
+        XCTAssertEqual(records.first?.collocationTimeMs, 1_500)
+        XCTAssertEqual(records.first?.produceSentenceTimeMs, 2_600)
+        XCTAssertEqual(records.first?.recallWordSucceeded, true)
+        XCTAssertEqual(records.first?.collocationSucceeded, true)
+        XCTAssertEqual(records.first?.produceSentenceSucceeded, true)
+        XCTAssertEqual(records.first?.shadowPronunciationScore, 92.5)
         XCTAssertEqual(records.first?.maxHintLevel, 1)
         XCTAssertEqual(records.first?.inputModeRawValue, "voice")
         XCTAssertEqual(records.first?.retryCount, 1)
         XCTAssertEqual(records.first?.confidenceRawValue, "comfortable")
         XCTAssertEqual(records.first?.timestamp, timestamp)
+
+        // Backward-compatible properties
+        XCTAssertEqual(records.first?.retrieveTimeMs, 1_100)
+        XCTAssertEqual(records.first?.useTimeMs, 2_600)
+        XCTAssertEqual(records.first?.retrieveSucceeded, true)
+        XCTAssertEqual(records.first?.useSucceeded, true)
     }
 
     func testQuickReflexAttemptRecordCRUD() throws {
         let record = QuickReflexAttemptRecord(
             wordId: 8,
-            retrieveTimeMs: 800,
-            useTimeMs: 1_200,
-            retrieveSucceeded: true,
-            useSucceeded: false,
+            recallWordTimeMs: 800,
+            collocationTimeMs: 950,
+            produceSentenceTimeMs: 1_200,
+            recallWordSucceeded: true,
+            collocationSucceeded: false,
+            produceSentenceSucceeded: false,
+            shadowPronunciationScore: nil,
             maxHintLevel: 0,
             inputModeRawValue: "typing",
             retryCount: 0,
@@ -245,12 +260,16 @@ final class SwiftDataModelsTests: XCTestCase {
         let fetched = try context.fetch(descriptor)
         XCTAssertEqual(fetched.count, 1)
 
-        fetched.first?.useSucceeded = true
+        fetched.first?.collocationSucceeded = true
+        fetched.first?.produceSentenceSucceeded = true
+        fetched.first?.shadowPronunciationScore = 88.0
         fetched.first?.confidenceRawValue = "comfortable"
         try context.save()
 
         let updated = try context.fetch(descriptor)
-        XCTAssertEqual(updated.first?.useSucceeded, true)
+        XCTAssertEqual(updated.first?.collocationSucceeded, true)
+        XCTAssertEqual(updated.first?.produceSentenceSucceeded, true)
+        XCTAssertEqual(updated.first?.shadowPronunciationScore, 88.0)
         XCTAssertEqual(updated.first?.confidenceRawValue, "comfortable")
 
         if let recordToDelete = updated.first {

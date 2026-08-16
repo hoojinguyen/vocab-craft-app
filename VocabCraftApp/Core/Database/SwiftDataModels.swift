@@ -63,16 +63,70 @@ public final class ReflexSessionLog {
 public final class QuickReflexAttemptRecord {
     @Attribute(.unique) public var id: UUID
     public var wordId: Int64
-    public var retrieveTimeMs: Int
-    public var useTimeMs: Int
-    public var retrieveSucceeded: Bool
-    public var useSucceeded: Bool
+    public var recallWordTimeMs: Int
+    public var collocationTimeMs: Int
+    public var produceSentenceTimeMs: Int
+    public var recallWordSucceeded: Bool
+    public var collocationSucceeded: Bool
+    public var produceSentenceSucceeded: Bool
+    public var shadowPronunciationScore: Double?
     public var maxHintLevel: Int
     public var inputModeRawValue: String
     public var retryCount: Int
     public var confidenceRawValue: String
     public var timestamp: Date
 
+    // Backward-compatible computed properties
+    public var retrieveTimeMs: Int {
+        get { recallWordTimeMs }
+        set { recallWordTimeMs = newValue }
+    }
+    public var useTimeMs: Int {
+        get { produceSentenceTimeMs }
+        set { produceSentenceTimeMs = newValue }
+    }
+    public var retrieveSucceeded: Bool {
+        get { recallWordSucceeded }
+        set { recallWordSucceeded = newValue }
+    }
+    public var useSucceeded: Bool {
+        get { produceSentenceSucceeded }
+        set { produceSentenceSucceeded = newValue }
+    }
+
+    public init(
+        id: UUID = UUID(),
+        wordId: Int64,
+        recallWordTimeMs: Int,
+        collocationTimeMs: Int = 0,
+        produceSentenceTimeMs: Int,
+        recallWordSucceeded: Bool,
+        collocationSucceeded: Bool = true,
+        produceSentenceSucceeded: Bool,
+        shadowPronunciationScore: Double? = nil,
+        maxHintLevel: Int,
+        inputModeRawValue: String,
+        retryCount: Int,
+        confidenceRawValue: String,
+        timestamp: Date = Date()
+    ) {
+        self.id = id
+        self.wordId = wordId
+        self.recallWordTimeMs = recallWordTimeMs
+        self.collocationTimeMs = collocationTimeMs
+        self.produceSentenceTimeMs = produceSentenceTimeMs
+        self.recallWordSucceeded = recallWordSucceeded
+        self.collocationSucceeded = collocationSucceeded
+        self.produceSentenceSucceeded = produceSentenceSucceeded
+        self.shadowPronunciationScore = shadowPronunciationScore
+        self.maxHintLevel = maxHintLevel
+        self.inputModeRawValue = inputModeRawValue
+        self.retryCount = retryCount
+        self.confidenceRawValue = confidenceRawValue
+        self.timestamp = timestamp
+    }
+
+    /// Legacy initializer overload for backward compatibility
     public init(
         id: UUID = UUID(),
         wordId: Int64,
@@ -88,10 +142,13 @@ public final class QuickReflexAttemptRecord {
     ) {
         self.id = id
         self.wordId = wordId
-        self.retrieveTimeMs = retrieveTimeMs
-        self.useTimeMs = useTimeMs
-        self.retrieveSucceeded = retrieveSucceeded
-        self.useSucceeded = useSucceeded
+        self.recallWordTimeMs = retrieveTimeMs
+        self.collocationTimeMs = 0
+        self.produceSentenceTimeMs = useTimeMs
+        self.recallWordSucceeded = retrieveSucceeded
+        self.collocationSucceeded = retrieveSucceeded
+        self.produceSentenceSucceeded = useSucceeded
+        self.shadowPronunciationScore = nil
         self.maxHintLevel = maxHintLevel
         self.inputModeRawValue = inputModeRawValue
         self.retryCount = retryCount

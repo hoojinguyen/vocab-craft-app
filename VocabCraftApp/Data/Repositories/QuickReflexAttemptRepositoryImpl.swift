@@ -16,11 +16,15 @@ public final class QuickReflexAttemptRepositoryImpl: QuickReflexAttemptRepositor
         guard let modelContext else { return }
 
         modelContext.insert(QuickReflexAttemptRecord(
+            id: attempt.id,
             wordId: attempt.wordId,
-            retrieveTimeMs: attempt.retrieveTimeMs,
-            useTimeMs: attempt.useTimeMs,
-            retrieveSucceeded: attempt.retrieveSucceeded,
-            useSucceeded: attempt.useSucceeded,
+            recallWordTimeMs: attempt.recallWordTimeMs,
+            collocationTimeMs: attempt.collocationTimeMs,
+            produceSentenceTimeMs: attempt.produceSentenceTimeMs,
+            recallWordSucceeded: attempt.recallWordSucceeded,
+            collocationSucceeded: attempt.collocationSucceeded,
+            produceSentenceSucceeded: attempt.produceSentenceSucceeded,
+            shadowPronunciationScore: attempt.shadowPronunciationScore,
             maxHintLevel: attempt.maxHintLevel,
             inputModeRawValue: rawValue(for: attempt.inputMode),
             retryCount: attempt.retryCount,
@@ -30,12 +34,12 @@ public final class QuickReflexAttemptRepositoryImpl: QuickReflexAttemptRepositor
         try modelContext.save()
     }
 
-    /// Returns the newest attempt whose retrieval stage succeeded for a word.
+    /// Returns the newest attempt whose word recall stage succeeded for a word.
     public func mostRecentSuccessfulAttempt(for wordId: Int64) async throws -> QuickReflexAttempt? {
         guard let modelContext else { return nil }
 
         var descriptor = FetchDescriptor<QuickReflexAttemptRecord>(
-            predicate: #Predicate { $0.wordId == wordId && $0.retrieveSucceeded }
+            predicate: #Predicate { $0.wordId == wordId && $0.recallWordSucceeded }
         )
         descriptor.sortBy = [SortDescriptor(\.timestamp, order: .reverse)]
         descriptor.fetchLimit = 1
@@ -45,11 +49,15 @@ public final class QuickReflexAttemptRepositoryImpl: QuickReflexAttemptRepositor
 
     private func makeAttempt(from record: QuickReflexAttemptRecord) -> QuickReflexAttempt {
         QuickReflexAttempt(
+            id: record.id,
             wordId: record.wordId,
-            retrieveTimeMs: record.retrieveTimeMs,
-            useTimeMs: record.useTimeMs,
-            retrieveSucceeded: record.retrieveSucceeded,
-            useSucceeded: record.useSucceeded,
+            recallWordTimeMs: record.recallWordTimeMs,
+            collocationTimeMs: record.collocationTimeMs,
+            produceSentenceTimeMs: record.produceSentenceTimeMs,
+            recallWordSucceeded: record.recallWordSucceeded,
+            collocationSucceeded: record.collocationSucceeded,
+            produceSentenceSucceeded: record.produceSentenceSucceeded,
+            shadowPronunciationScore: record.shadowPronunciationScore,
             maxHintLevel: record.maxHintLevel,
             inputMode: inputMode(from: record.inputModeRawValue),
             retryCount: record.retryCount,
