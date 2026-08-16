@@ -134,6 +134,29 @@ public enum AppStrings {
         public static var reflexAccuracy: LocalizedStringKey { "reflex.reflexAccuracy" }
         public static var continueNext: LocalizedStringKey { "reflex.continueNext" }
         public static var quickPracticeTitle: LocalizedStringKey { "reflex.quickPracticeTitle" }
+        public static var quickStageProgress: LocalizedStringKey { "reflex.quickStageProgress" }
+        public static var quickRetrieveTitle: LocalizedStringKey { "reflex.quickRetrieveTitle" }
+        public static var quickUseTitle: LocalizedStringKey { "reflex.quickUseTitle" }
+        public static var quickVoiceMode: LocalizedStringKey { "reflex.quickVoiceMode" }
+        public static var quickTypingMode: LocalizedStringKey { "reflex.quickTypingMode" }
+        public static var quickListenExample: LocalizedStringKey { "reflex.quickListenExample" }
+        public static var quickHints: LocalizedStringKey { "reflex.quickHints" }
+        public static var quickShowHint: LocalizedStringKey { "reflex.quickShowHint" }
+        public static var quickTypeAnswer: LocalizedStringKey { "reflex.quickTypeAnswer" }
+        public static var quickSubmit: LocalizedStringKey { "reflex.quickSubmit" }
+        public static var quickTypingFallback: LocalizedStringKey { "reflex.quickTypingFallback" }
+        public static var quickTranscriptFeedback: LocalizedStringKey { "reflex.quickTranscriptFeedback" }
+        public static var quickReveal: LocalizedStringKey { "reflex.quickReveal" }
+        public static var quickSkip: LocalizedStringKey { "reflex.quickSkip" }
+        public static var quickResultsTitle: LocalizedStringKey { "reflex.quickResultsTitle" }
+        public static var quickSucceeded: LocalizedStringKey { "reflex.quickSucceeded" }
+        public static var quickNeedsPractice: LocalizedStringKey { "reflex.quickNeedsPractice" }
+        public static var quickPreviousAttempt: LocalizedStringKey { "reflex.quickPreviousAttempt" }
+        public static var quickCurrentAttempt: LocalizedStringKey { "reflex.quickCurrentAttempt" }
+        public static var quickConfidenceQuestion: LocalizedStringKey { "reflex.quickConfidenceQuestion" }
+        public static var quickComfortable: LocalizedStringKey { "reflex.quickComfortable" }
+        public static var quickUncertain: LocalizedStringKey { "reflex.quickUncertain" }
+        public static var quickSaving: LocalizedStringKey { "reflex.quickSaving" }
         public static var speedBonus: LocalizedStringKey { "reflex.speedBonus" }
         public static var listenExample: LocalizedStringKey { "reflex.listenExample" }
         public static var micPlaceholder: LocalizedStringKey { "reflex.micPlaceholder" }

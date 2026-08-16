@@ -3,6 +3,28 @@ import SwiftUI
 import XCTest
 
 final class QuickReflexDrillSheetViewTests: XCTestCase {
+    func testRetrievePhaseConfigurationHidesLemmaAndSupportsTypingFallback() {
+        let configuration = QuickReflexDrillPhaseConfiguration(
+            phase: .retrieve,
+            inputMode: .typing
+        )
+
+        XCTAssertTrue(configuration.hidesLemma)
+        XCTAssertTrue(configuration.showsTypingFallback)
+        XCTAssertEqual(configuration.stageNumber, 1)
+    }
+
+    func testUsePhaseConfigurationShowsLemmaAndSupportsVoiceInput() {
+        let configuration = QuickReflexDrillPhaseConfiguration(
+            phase: .useInSentence,
+            inputMode: .voice
+        )
+
+        XCTAssertFalse(configuration.hidesLemma)
+        XCTAssertFalse(configuration.showsTypingFallback)
+        XCTAssertEqual(configuration.stageNumber, 2)
+    }
+
     @MainActor
     func testQuickReflexDrillSheetViewInitialization() {
         let word = WordItem(

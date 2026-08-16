@@ -1,8 +1,36 @@
 import SwiftUI
 
+/// Display decisions shared by the productive-recall stage card and its focused tests.
+public struct QuickReflexDrillPhaseConfiguration: Equatable, Sendable {
+    public let phase: QuickReflexPhase
+    public let inputMode: QuickReflexInputMode
+
+    public init(phase: QuickReflexPhase, inputMode: QuickReflexInputMode) {
+        self.phase = phase
+        self.inputMode = inputMode
+    }
+
+    public var hidesLemma: Bool { phase == .retrieve }
+    public var showsTypingFallback: Bool { inputMode == .typing }
+    public var stageNumber: Int {
+        switch phase {
+        case .retrieve:
+            1
+        case .useInSentence, .result:
+            2
+        }
+    }
+}
+
 public struct QuickReflexDrillSheetView: View {
     @State private var viewModel: QuickReflexDrillViewModel
+    @State private var typedAnswer = ""
+    @State private var latestSuccessfulAttempt: QuickReflexAttempt?
+    @State private var isFinishing = false
+
     public let onComplete: (Int) -> Void
+    private let attemptRepository: QuickReflexAttemptRepositoryProtocol?
+
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
 
@@ -25,6 +53,7 @@ public struct QuickReflexDrillSheetView: View {
             evaluateSRSUseCase: evaluateSRSUseCase,
             attemptRepository: attemptRepository
         ))
+        self.attemptRepository = attemptRepository
         self.onComplete = onComplete
     }
 
@@ -32,12 +61,13 @@ public struct QuickReflexDrillSheetView: View {
         ZStack {
             Color.vocabCanvas.ignoresSafeArea()
 
-            if viewModel.state.isCompleted {
-                completionCardView
+            if viewModel.state.phase == .result {
+                resultCard
             } else {
-                drillContentBody
+                stageContent
             }
         }
+        .task { await loadLatestSuccessfulAttempt() }
         .onDisappear {
             if !viewModel.state.isCompleted {
                 viewModel.cancel()
@@ -45,479 +75,385 @@ public struct QuickReflexDrillSheetView: View {
         }
     }
 
-    private var drillContentBody: some View {
-        VStack(spacing: 16) {
-            // Header Navigation Bar (Consistent with SubTopicStudySessionView & ReflexDrillView)
-            HStack {
-                Button(action: {
-                    viewModel.cancel()
-                    dismiss()
-                }) {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundColor(Color.vocabInk)
-                        .frame(width: 36, height: 36)
-                        .background(Color.vocabSurfaceCard)
-                        .clipShape(Circle())
-                        .overlay(
-                            Circle().stroke(Color.vocabHairline, lineWidth: 1)
-                        )
-                        .shadow(color: Color.black.opacity(colorScheme == .dark ? 0.2 : 0.04), radius: 6, x: 0, y: 3)
-                }
-                .accessibilityLabel(AppStrings.Common.close)
+    private var configuration: QuickReflexDrillPhaseConfiguration {
+        QuickReflexDrillPhaseConfiguration(phase: viewModel.state.phase, inputMode: viewModel.state.inputMode)
+    }
 
-                Spacer()
+    private var currentPrompt: QuickReflexStagePrompt {
+        viewModel.state.phase == .useInSentence ? viewModel.prompts.use : viewModel.prompts.retrieve
+    }
 
-                Text(AppStrings.Reflex.quickPracticeTitle)
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(Color.vocabInk)
-
-                Spacer()
-
-                Text("\(min(viewModel.state.currentStepIndex + 1, viewModel.state.steps.count)) / \(viewModel.state.steps.count)")
-                    .font(.system(size: 13, weight: .bold, design: .monospaced))
-                    .foregroundColor(Color.vocabHeroAccent)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(Color.vocabHeroAccent.opacity(0.12))
-                    .clipShape(Capsule())
+    private var stageContent: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                header
+                progressIndicator
+                phaseCard
             }
             .padding(.horizontal, 20)
-            .padding(.top, 12)
-
-            // Step Progress Bar
-            HStack(spacing: 8) {
-                ForEach(0..<viewModel.state.steps.count, id: \.self) { idx in
-                    Capsule()
-                        .fill(idx <= viewModel.state.currentStepIndex ? Color.vocabHeroAccent : Color.vocabHairline.opacity(0.6))
-                        .frame(height: 5)
-                        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: viewModel.state.currentStepIndex)
-                }
-            }
-            .padding(.horizontal, 20)
-
-            // Target Word Header Badge
-            targetWordHeaderBadge
-
-            Spacer(minLength: 0)
-
-            // Current Active Step Content
-            if viewModel.state.currentStepIndex < viewModel.state.steps.count {
-                let currentStep = viewModel.state.steps[viewModel.state.currentStepIndex]
-
-                VStack(alignment: .leading, spacing: 18) {
-                    // Per-step Countdown Bar
-                    CountdownBarView(
-                        remainingSeconds: viewModel.state.stepRemainingSeconds,
-                        maxSeconds: viewModel.state.stepMaxSeconds
-                    )
-
-                    HStack(alignment: .top) {
-                        Text(currentStep.promptText)
-                            .font(.system(.headline, design: .rounded, weight: .bold))
-                            .foregroundColor(Color.vocabInk)
-                            .fixedSize(horizontal: false, vertical: true)
-
-                        Spacer()
-
-                        if viewModel.state.isSpeedBonus {
-                            HStack(spacing: 4) {
-                                Image(systemName: "bolt.fill")
-                                    .font(.system(size: 11))
-                                Text(AppStrings.Reflex.speedBonus)
-                                    .font(.system(size: 11, weight: .bold))
-                            }
-                            .foregroundColor(.orange)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.orange.opacity(0.15))
-                            .clipShape(Capsule())
-                            .transition(.scale.combined(with: .opacity))
-                        }
-                    }
-
-                    switch currentStep.type {
-                    case .pronunciation:
-                        pronunciationStepView(step: currentStep)
-                    case .fastMeaning:
-                        optionsStepView(step: currentStep)
-                    case .fillInBlank:
-                        fillInBlankStepView(step: currentStep)
-                    }
-                }
-                .padding(20)
-                .frame(maxWidth: .infinity)
-                .background(Color.vocabSurfaceCard)
-                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                .shadow(color: Color.black.opacity(0.04), radius: 12, x: 0, y: 4)
-                .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(Color.vocabHairline, lineWidth: 1))
-                .padding(.horizontal, 20)
-            }
-
-            Spacer(minLength: 0)
+            .padding(.vertical, 12)
         }
     }
 
-    private var displayLemma: String {
-        if viewModel.state.currentStepIndex < viewModel.state.steps.count {
-            let currentStep = viewModel.state.steps[viewModel.state.currentStepIndex]
-            if currentStep.type == .fillInBlank {
-                return String(repeating: "•", count: max(5, viewModel.targetWord.lemma.count))
+    private var header: some View {
+        HStack {
+            Button(action: close) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(Color.vocabInk)
+                    .frame(width: 44, height: 44)
+                    .background(Color.vocabSurfaceCard)
+                    .clipShape(Circle())
+                    .overlay(Circle().stroke(Color.vocabHairline, lineWidth: 1))
+                    .shadow(color: Color.black.opacity(colorScheme == .dark ? 0.2 : 0.04), radius: 6, x: 0, y: 3)
             }
-        }
-        return viewModel.targetWord.lemma
-    }
-
-    private var targetWordHeaderBadge: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 8) {
-            Text(displayLemma)
-                .font(.system(.title3, design: .rounded, weight: .bold))
-                .foregroundColor(Color.vocabInk)
-                .animation(.easeInOut(duration: 0.2), value: displayLemma)
-
-            Text(viewModel.targetWord.pos)
-                .font(.system(.caption, weight: .semibold))
-                .foregroundColor(Color.vocabMuted)
+            .accessibilityLabel(AppStrings.Common.close)
 
             Spacer()
 
-            Text(viewModel.targetWord.phonetic)
-                .font(.system(.subheadline, design: .serif))
-                .foregroundColor(Color.vocabMuted)
-        }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 14)
-        .background(Color.vocabSurfaceCard)
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .shadow(color: Color.black.opacity(0.03), radius: 6, x: 0, y: 2)
-        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Color.vocabHairline, lineWidth: 1))
-        .padding(.horizontal, 20)
-    }
+            Text(AppStrings.Reflex.quickPracticeTitle)
+                .font(.system(size: 16, weight: .bold))
+                .foregroundStyle(Color.vocabInk)
 
-    private func pronunciationStepView(step: QuickDrillStep) -> some View {
-        VStack(spacing: 20) {
-            Text("\"\(step.targetText)\"")
-                .font(.system(.title3, design: .serif, weight: .medium))
-                .foregroundColor(Color.vocabInk)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 8)
-                .frame(maxWidth: .infinity)
+            Spacer()
 
-            Button(action: { viewModel.speakTargetSentence() }) {
-                HStack(spacing: 6) {
-                    Image(systemName: "speaker.wave.2.fill")
-                        .font(.system(size: 14))
-                    Text(AppStrings.Reflex.listenExample)
-                        .font(.system(.subheadline, weight: .semibold))
-                }
-                .foregroundColor(Color.vocabHeroAccent)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 10)
+            Text("\(configuration.stageNumber)/2")
+                .font(.system(size: 13, weight: .bold, design: .monospaced))
+                .foregroundStyle(Color.vocabHeroAccent)
+                .padding(.horizontal, 10)
+                .frame(minHeight: 28)
                 .background(Color.vocabHeroAccent.opacity(0.12))
                 .clipShape(Capsule())
-            }
-            .buttonStyle(BentoPressButtonStyle())
+                .accessibilityLabel(AppStrings.Reflex.quickStageProgress)
+        }
+    }
 
-            // Speech Visualizer Display
+    private var progressIndicator: some View {
+        HStack(spacing: 8) {
+            ForEach(1...2, id: \.self) { stage in
+                Capsule()
+                    .fill(stage <= configuration.stageNumber ? Color.vocabHeroAccent : Color.vocabHairline.opacity(0.6))
+                    .frame(height: 5)
+            }
+        }
+        .accessibilityLabel(AppStrings.Reflex.quickStageProgress)
+    }
+
+    private var phaseCard: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            phaseHeader
+
+            Text(currentPrompt.promptText)
+                .font(.system(.title3, design: .rounded, weight: .bold))
+                .foregroundStyle(Color.vocabInk)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityAddTraits(.isHeader)
+
+            if !configuration.hidesLemma {
+                wordIdentity
+            }
+
+            if viewModel.state.phase == .useInSentence,
+               !viewModel.targetWord.exampleSentenceEn.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                Button(action: viewModel.speakExampleSentence) {
+                    Label(AppStrings.Reflex.quickListenExample, systemImage: "speaker.wave.2.fill")
+                        .font(.system(.subheadline, weight: .semibold))
+                        .foregroundStyle(Color.vocabHeroAccent)
+                        .frame(minHeight: 44)
+                }
+                .buttonStyle(.plain)
+            }
+
+            hintSection
+
             VocabSpeechVisualizerView(
                 isListening: viewModel.isListening,
                 recognizedText: viewModel.recognizedText,
-                placeholderText: String(localized: "reflex.micPlaceholder"),
+                placeholderText: String(localized: "reflex.quickTranscriptPlaceholder"),
                 evaluationResult: viewModel.speechEvaluationResult
             )
+            .accessibilityLabel(AppStrings.Reflex.quickTranscriptFeedback)
 
-            // Interactive Tap-to-Talk Mic Control Hub
-            if !viewModel.state.isStepEvaluated {
-                VocabMicControlHubView(
-                    isListening: viewModel.isListening,
-                    idleSubtitleText: String(localized: "reflex.micIdle"),
-                    listeningSubtitleText: String(localized: "reflex.micListening"),
-                    onTapMic: {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                            viewModel.handleMicTap()
-                        }
-                    }
-                )
-            }
-
-            if let errorMsg = viewModel.state.errorMessage {
-                Text(errorMsg)
-                    .font(.system(.footnote, weight: .medium))
-                    .foregroundColor(.red)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-            }
-        }
-    }
-
-    private func optionsStepView(step: QuickDrillStep) -> some View {
-        VStack(spacing: 12) {
-            ForEach(step.options, id: \.self) { option in
-                let isSelected = viewModel.state.selectedOption == option
-                let isTarget = option == step.targetText
-                let isEvaluated = viewModel.state.isStepEvaluated
-
-                OptionRowView(
-                    optionText: option,
-                    isSelected: isSelected,
-                    isTarget: isTarget,
-                    isEvaluated: isEvaluated,
-                    action: {
-                        if !isEvaluated {
-                            viewModel.submitAnswer(option)
-                        }
-                    }
-                )
-                .sensoryFeedback(isTarget ? .success : .error, trigger: isEvaluated)
-            }
-        }
-    }
-
-    private func fillInBlankStepView(step: QuickDrillStep) -> some View {
-        VStack(spacing: 16) {
-            if let gapSentence = step.sentenceWithGap {
-                Text("\"\(gapSentence)\"")
-                    .font(.system(.title3, design: .serif, weight: .medium))
-                    .foregroundColor(Color.vocabInk)
-                    .multilineTextAlignment(.center)
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 12)
-                    .frame(maxWidth: .infinity)
-            }
-
-            ForEach(step.options, id: \.self) { option in
-                let isSelected = viewModel.state.selectedOption == option
-                let isTarget = option == step.targetText
-                let isEvaluated = viewModel.state.isStepEvaluated
-
-                OptionRowView(
-                    optionText: option,
-                    isSelected: isSelected,
-                    isTarget: isTarget,
-                    isEvaluated: isEvaluated,
-                    action: {
-                        if !isEvaluated {
-                            viewModel.submitAnswer(option)
-                        }
-                    }
-                )
-                .sensoryFeedback(isTarget ? .success : .error, trigger: isEvaluated)
-            }
-        }
-    }
-
-    private var formattedReactionTime: String {
-        let avgMs = viewModel.state.elapsedTimeMs / max(1, viewModel.state.steps.count)
-        if avgMs >= 1000 {
-            let sec = Double(avgMs) / 1000.0
-            let format = String(localized: "reflex.secondsPerQuestionFormat")
-            return String(format: format, sec)
-        } else {
-            let format = String(localized: "reflex.msPerQuestionFormat")
-            return String(format: format, avgMs)
-        }
-    }
-
-    private var completionCardView: some View {
-        VStack(spacing: 24) {
-            Spacer()
-
-            ZStack {
-                Circle()
-                    .fill(Color.vocabMint.opacity(0.15))
-                    .frame(width: 104, height: 104)
-                Image(systemName: viewModel.state.isCorrect ? "sparkles" : "checkmark.circle.fill")
-                    .font(.system(size: 52, weight: .semibold))
-                    .foregroundColor(Color.vocabMint)
-                    .symbolEffect(.bounce, value: viewModel.state.isCompleted)
-            }
-
-            VStack(spacing: 8) {
-                Text(viewModel.state.isCorrect ? AppStrings.Reflex.masteredFeedback : AppStrings.Reflex.completedFeedback)
-                    .font(.system(.title2, design: .rounded, weight: .bold))
-                    .foregroundColor(Color.vocabInk)
-                    .multilineTextAlignment(.center)
-
-                (Text(AppStrings.Reflex.reactionTimeLabel) + Text(" \(formattedReactionTime)"))
-                    .font(.system(.subheadline, weight: .medium))
-                    .foregroundColor(Color.vocabMuted)
-                    .monospacedDigit()
-
-                if viewModel.state.totalSpeedBonusCount > 0 {
-                    HStack(spacing: 4) {
-                        Image(systemName: "bolt.fill")
-                        Text(AppStrings.Reflex.speedBonusCountLabel(count: viewModel.state.totalSpeedBonusCount, total: viewModel.state.steps.count))
-                    }
-                    .font(.system(.caption, weight: .bold))
-                    .foregroundColor(.orange)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(Color.orange.opacity(0.15))
-                    .clipShape(Capsule())
-                }
-            }
-
-            if let result = viewModel.state.srsResult {
-                HStack(spacing: 8) {
-                    Text(AppStrings.Reflex.srsLevelHeader)
-                        .font(.system(.subheadline, weight: .medium))
-                        .foregroundColor(Color.vocabMuted)
-
-                    let displayStars = max(1, result.nextMastery)
-                    HStack(spacing: 4) {
-                        ForEach(1...5, id: \.self) { star in
-                            Image(systemName: star <= displayStars ? "star.fill" : "star")
-                                .font(.system(size: 15, weight: .semibold))
-                                .foregroundColor(star <= displayStars ? Color.orange : Color.vocabMuted.opacity(0.3))
-                        }
-                    }
-                }
-                .padding(.horizontal, 18)
-                .padding(.vertical, 12)
-                .background(Color.vocabSurfaceCard)
-                .clipShape(Capsule())
-                .shadow(color: Color.black.opacity(0.03), radius: 6, x: 0, y: 2)
-                .overlay(Capsule().stroke(Color.vocabHairline, lineWidth: 1))
-            }
-
-            Spacer()
-
-            Button(action: {
-                let updatedLevel = viewModel.state.srsResult?.nextMastery ?? viewModel.targetWord.masteryLevel
-                onComplete(updatedLevel)
-                dismiss()
-            }) {
-                Text(AppStrings.Common.done)
-                    .font(.system(.headline, weight: .bold))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 54)
-                    .background(Color.vocabHeroAccent)
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                    .shadow(color: Color.vocabHeroAccent.opacity(0.3), radius: 8, x: 0, y: 4)
-            }
-            .buttonStyle(BentoPressButtonStyle())
-            .sensoryFeedback(.success, trigger: viewModel.state.isCompleted)
-            .padding(.horizontal, 20)
-            .padding(.bottom, 24)
-        }
-    }
-}
-
-// MARK: - Reusable Supporting Views
-
-private struct OptionRowView: View {
-    let optionText: String
-    let isSelected: Bool
-    let isTarget: Bool
-    let isEvaluated: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 12) {
-                Text(optionText)
-                    .font(.system(size: 15, weight: .bold))
-                    .foregroundColor(textColor)
-                    .multilineTextAlignment(.leading)
-
-                Spacer(minLength: 8)
-
-                if isEvaluated {
-                    if isTarget {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 20))
-                            .foregroundColor(Color.vocabMint)
-                    } else if isSelected {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 20))
-                            .foregroundColor(Color.vocabCoral)
-                    } else {
-                        Image(systemName: "circle")
-                            .font(.system(size: 20))
-                            .foregroundColor(Color.vocabHairline)
-                    }
-                } else {
-                    Image(systemName: "circle")
-                        .font(.system(size: 20))
-                        .foregroundColor(Color.vocabHairline)
-                }
-            }
-            .padding(14)
-            .frame(minHeight: 52)
-            .background(backgroundColor)
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .stroke(borderColor, lineWidth: 1.5)
+            VocabMicControlHubView(
+                isListening: viewModel.isListening,
+                idleSubtitleText: String(localized: "reflex.quickMicIdle"),
+                listeningSubtitleText: String(localized: "reflex.quickMicListening"),
+                onTapMic: viewModel.handleMicTap
             )
-        }
-        .buttonStyle(BentoPressButtonStyle())
-        .disabled(isEvaluated)
-    }
 
-    private var backgroundColor: Color {
-        if isEvaluated {
-            if isTarget {
-                return Color.vocabMint.opacity(0.15)
-            } else if isSelected {
-                return Color.vocabCoral.opacity(0.15)
+            typedEntry
+
+            if let errorMessage = viewModel.state.errorMessage {
+                Text(errorMessage)
+                    .font(.footnote.weight(.medium))
+                    .foregroundStyle(Color.vocabCoral)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+            }
+
+            HStack(spacing: 12) {
+                Button(action: viewModel.revealAnswer) {
+                    Text(AppStrings.Reflex.quickReveal)
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                }
+                .buttonStyle(SecondaryDrillButtonStyle())
+
+                Button(action: viewModel.skip) {
+                    Text(AppStrings.Reflex.quickSkip)
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                }
+                .buttonStyle(SecondaryDrillButtonStyle())
             }
         }
-        return Color.vocabSurfaceCard
+        .padding(20)
+        .frame(maxWidth: .infinity)
+        .background(Color.vocabSurfaceCard)
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(Color.vocabHairline, lineWidth: 1))
+        .shadow(color: Color.black.opacity(0.04), radius: 12, x: 0, y: 4)
     }
 
-    private var textColor: Color {
-        if isEvaluated {
-            if isTarget {
-                return Color.vocabMint
-            } else if isSelected {
-                return Color.vocabCoral
-            }
+    private var phaseHeader: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Text(viewModel.state.phase == .retrieve ? AppStrings.Reflex.quickRetrieveTitle : AppStrings.Reflex.quickUseTitle)
+                .font(.system(.headline, design: .rounded, weight: .bold))
+                .foregroundStyle(Color.vocabHeroAccent)
+
+            Spacer()
+
+            Text(configuration.showsTypingFallback ? AppStrings.Reflex.quickTypingMode : AppStrings.Reflex.quickVoiceMode)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(Color.vocabMuted)
         }
-        return Color.vocabInk
+        .accessibilityElement(children: .combine)
     }
 
-    private var borderColor: Color {
-        if isEvaluated {
-            if isTarget {
-                return Color.vocabMint
-            } else if isSelected {
-                return Color.vocabCoral
+    private var wordIdentity: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Text(viewModel.targetWord.lemma)
+                .font(.system(.title3, design: .rounded, weight: .bold))
+                .foregroundStyle(Color.vocabInk)
+            Text(viewModel.targetWord.pos)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(Color.vocabMuted)
+            Spacer()
+            Text(viewModel.targetWord.phonetic)
+                .font(.system(.subheadline, design: .serif))
+                .foregroundStyle(Color.vocabMuted)
+        }
+        .padding(14)
+        .background(Color.vocabCanvas)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+    }
+
+    private var hintSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(AppStrings.Reflex.quickHints)
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(Color.vocabMuted)
+
+                Spacer()
+
+                if viewModel.state.visibleHintLevel < currentPrompt.hints.count {
+                    Button(action: viewModel.advanceHint) {
+                        Text(AppStrings.Reflex.quickShowHint)
+                            .font(.caption.weight(.semibold))
+                            .frame(minHeight: 44)
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(Color.vocabHeroAccent)
+                }
+            }
+
+            ForEach(Array(currentPrompt.hints.prefix(viewModel.state.visibleHintLevel).enumerated()), id: \.offset) { _, hint in
+                Label(hint, systemImage: "lightbulb.fill")
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(Color.vocabHeroAccent)
+                    .accessibilityLabel("\(String(localized: "reflex.quickHint")): \(hint)")
             }
         }
-        return Color.vocabHairline
+        .accessibilityElement(children: .contain)
+    }
+
+    private var typedEntry: some View {
+        HStack(spacing: 10) {
+            TextField(AppStrings.Reflex.quickTypeAnswer, text: $typedAnswer)
+                .textInputAutocapitalization(.sentences)
+                .autocorrectionDisabled()
+                .submitLabel(.done)
+                .onSubmit(submitTypedAnswer)
+                .padding(.horizontal, 14)
+                .frame(minHeight: 48)
+                .background(Color.vocabCanvas)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(Color.vocabHairline, lineWidth: 1))
+
+            Button(action: submitTypedAnswer) {
+                Text(AppStrings.Reflex.quickSubmit)
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(.white)
+                    .frame(minWidth: 76, minHeight: 48)
+                    .background(Color.vocabHeroAccent)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            }
+            .disabled(typedAnswer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        }
+        .accessibilityLabel(AppStrings.Reflex.quickTypingFallback)
+    }
+
+    private var resultCard: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                header
+
+                VStack(alignment: .leading, spacing: 20) {
+                    Text(AppStrings.Reflex.quickResultsTitle)
+                        .font(.system(.title2, design: .rounded, weight: .bold))
+                        .foregroundStyle(Color.vocabInk)
+                        .accessibilityAddTraits(.isHeader)
+
+                    resultRow(title: AppStrings.Reflex.quickRetrieveTitle, succeeded: viewModel.state.retrieveSucceeded, timeMs: viewModel.state.retrieveTimeMs)
+                    resultRow(title: AppStrings.Reflex.quickUseTitle, succeeded: viewModel.state.useSucceeded, timeMs: viewModel.state.useTimeMs)
+
+                    if let latestSuccessfulAttempt {
+                        previousAttemptComparison(latestSuccessfulAttempt)
+                    }
+
+                    Text(AppStrings.Reflex.quickConfidenceQuestion)
+                        .font(.headline.weight(.bold))
+                        .foregroundStyle(Color.vocabInk)
+
+                    VStack(spacing: 12) {
+                        Button(action: { finish(confidence: .comfortable) }) {
+                            Text(AppStrings.Reflex.quickComfortable)
+                                .frame(maxWidth: .infinity, minHeight: 48)
+                        }
+                        .buttonStyle(PrimaryDrillButtonStyle())
+
+                        Button(action: { finish(confidence: .uncertain) }) {
+                            Text(AppStrings.Reflex.quickUncertain)
+                                .frame(maxWidth: .infinity, minHeight: 48)
+                        }
+                        .buttonStyle(SecondaryDrillButtonStyle())
+                    }
+                    .disabled(isFinishing)
+
+                    if isFinishing {
+                        ProgressView(AppStrings.Reflex.quickSaving)
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+                .padding(20)
+                .background(Color.vocabSurfaceCard)
+                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(Color.vocabHairline, lineWidth: 1))
+            }
+            .padding(20)
+        }
+    }
+
+    private func resultRow(title: LocalizedStringKey, succeeded: Bool, timeMs: Int) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: succeeded ? "checkmark.circle.fill" : "xmark.circle.fill")
+                .font(.title3)
+                .foregroundStyle(succeeded ? Color.vocabMint : Color.vocabCoral)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title)
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(Color.vocabInk)
+                Text(succeeded ? AppStrings.Reflex.quickSucceeded : AppStrings.Reflex.quickNeedsPractice)
+                    .font(.caption)
+                    .foregroundStyle(Color.vocabMuted)
+            }
+            Spacer()
+            Text(formattedTime(timeMs))
+                .font(.caption.monospacedDigit())
+                .foregroundStyle(Color.vocabMuted)
+        }
+        .padding(14)
+        .background(Color.vocabCanvas)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+    }
+
+    private func previousAttemptComparison(_ attempt: QuickReflexAttempt) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(AppStrings.Reflex.quickPreviousAttempt)
+                .font(.caption.weight(.bold))
+                .foregroundStyle(Color.vocabMuted)
+            HStack {
+                Text(AppStrings.Reflex.quickCurrentAttempt)
+                Spacer()
+                Text(formattedTime(viewModel.state.retrieveTimeMs)).monospacedDigit()
+            }
+            HStack {
+                Text(AppStrings.Reflex.quickPreviousAttempt)
+                Spacer()
+                Text(formattedTime(attempt.retrieveTimeMs)).monospacedDigit()
+            }
+        }
+        .font(.subheadline)
+        .foregroundStyle(Color.vocabInk)
+        .padding(14)
+        .background(Color.vocabHeroAccent.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+    }
+
+    private func submitTypedAnswer() {
+        let answer = typedAnswer
+        typedAnswer = ""
+        viewModel.submitTypedAnswer(answer)
+    }
+
+    private func close() {
+        viewModel.cancel()
+        dismiss()
+    }
+
+    private func finish(confidence: QuickReflexConfidence) {
+        guard !isFinishing else { return }
+        isFinishing = true
+
+        Task {
+            defer { isFinishing = false }
+            do {
+                try await viewModel.finish(confidence: confidence)
+                onComplete(viewModel.state.srsResult?.nextMastery ?? viewModel.targetWord.masteryLevel)
+                dismiss()
+            } catch {
+                viewModel.state.errorMessage = error.localizedDescription
+            }
+        }
+    }
+
+    private func loadLatestSuccessfulAttempt() async {
+        guard let attemptRepository else { return }
+        latestSuccessfulAttempt = try? await attemptRepository.mostRecentSuccessfulAttempt(for: viewModel.targetWord.id)
+    }
+
+    private func formattedTime(_ milliseconds: Int) -> String {
+        String(format: "%.1fs", Double(milliseconds) / 1_000)
     }
 }
 
-private struct BentoPressButtonStyle: ButtonStyle {
+private struct PrimaryDrillButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
-            .animation(.spring(response: 0.25, dampingFraction: 0.7), value: configuration.isPressed)
+            .font(.headline.weight(.bold))
+            .foregroundStyle(.white)
+            .background(Color.vocabHeroAccent)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .opacity(configuration.isPressed ? 0.86 : 1)
     }
 }
 
-struct CountdownBarView: View {
-    let remainingSeconds: Double
-    let maxSeconds: Double
-
-    var body: some View {
-        GeometryReader { geo in
-            ZStack(alignment: .leading) {
-                Capsule()
-                    .fill(Color.vocabHairline.opacity(0.4))
-                    .frame(height: 4)
-
-                Capsule()
-                    .fill(remainingSeconds <= 2.0 ? Color.orange : Color.vocabHeroAccent)
-                    .frame(
-                        width: max(0, geo.size.width * CGFloat(remainingSeconds / max(maxSeconds, 1))),
-                        height: 4
-                    )
-                    .animation(.linear(duration: 0.1), value: remainingSeconds)
-            }
-        }
-        .frame(height: 4)
+private struct SecondaryDrillButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(Color.vocabHeroAccent)
+            .background(Color.vocabHeroAccent.opacity(configuration.isPressed ? 0.18 : 0.10))
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Color.vocabHeroAccent.opacity(0.25), lineWidth: 1))
     }
 }

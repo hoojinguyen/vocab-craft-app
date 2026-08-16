@@ -210,6 +210,7 @@ public final class QuickReflexDrillViewModel {
     public func generateSteps() {}
     public func startTimer() {}
     public func speakTargetSentence() { ttsService.speak(text: currentPrompt.targetExpression) }
+    public func speakExampleSentence() { ttsService.speak(text: targetWord.exampleSentenceEn) }
     public func submitAnswer(_ answer: String) { submitTypedAnswer(answer) }
     public func nextStep() {}
     public func finishDrill() {
