@@ -9,6 +9,7 @@ public final class AppContainer {
 
     public let vocabularyRepository: VocabularyRepositoryProtocol
     public let srsRepository: SRSRepositoryProtocol
+    public let quickReflexAttemptRepository: QuickReflexAttemptRepositoryProtocol
 
     public let ttsService: TextToSpeechProtocol
     public let sttService: SpeechRecognitionProtocol
@@ -38,9 +39,11 @@ public final class AppContainer {
             ? MockVocabularyRepository()
             : VocabularyRepositoryImpl(datasetEngine: datasetEngine)
         let srsRepo = SRSRepositoryImpl(modelContext: modelContainer?.mainContext)
+        let quickReflexAttemptRepo = QuickReflexAttemptRepositoryImpl(modelContext: modelContainer?.mainContext)
 
         self.vocabularyRepository = vocabRepo
         self.srsRepository = srsRepo
+        self.quickReflexAttemptRepository = quickReflexAttemptRepo
 
         self.ttsService = ttsService ?? TextToSpeechService()
         self.sttService = sttService ?? SpeechRecognitionService()
@@ -102,7 +105,8 @@ public final class AppContainer {
             ttsService: ttsService,
             sttService: sttService,
             speechAssessmentService: speechAssessmentService,
-            evaluateSRSUseCase: evaluateSRSUseCase
+            evaluateSRSUseCase: evaluateSRSUseCase,
+            attemptRepository: quickReflexAttemptRepository
         )
     }
 

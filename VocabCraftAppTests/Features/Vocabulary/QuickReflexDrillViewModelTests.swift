@@ -1,16 +1,19 @@
 @testable import VocabCraftApp
 import XCTest
 
+@MainActor
 final class QuickReflexDrillViewModelTests: XCTestCase {
-    var targetWord: WordItem!
-    var samplePool: [WordItem]!
+    private var targetWord: WordItem!
+    private var mockSTT: MockSpeechRecognitionService!
+    private var mockSRS: RecordingSRSUseCase!
+    private var mockAttempts: RecordingQuickReflexAttemptRepository!
 
     override func setUp() {
         super.setUp()
         targetWord = WordItem(
             id: 1,
             lemma: "Ephemeral",
-            phonetic: "/'fem.ər.əl/",
+            phonetic: "/ɪˈfem.ər.əl/",
             pos: "adj.",
             definition: "Phù du, chóng phai",
             exampleSentenceEn: "Her fame proved to be ephemeral.",
@@ -18,149 +21,147 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
             cefrLevel: "B2",
             masteryLevel: 2
         )
-        samplePool = [
-            targetWord,
-            WordItem(id: 2, lemma: "Resilience", phonetic: "/rɪ'zɪl.jəns/", pos: "n.", definition: "Khả năng phục hồi", exampleSentenceEn: "Test", exampleSentenceVi: "Test", cefrLevel: "C1", masteryLevel: 5),
-            WordItem(id: 3, lemma: "Meticulous", phonetic: "/mə'tɪk.jə.ləs/", pos: "adj.", definition: "Tỉ mỉ, cẩn thận", exampleSentenceEn: "Test", exampleSentenceVi: "Test", cefrLevel: "B2", masteryLevel: 1),
-            WordItem(id: 4, lemma: "Pragmatic", phonetic: "/præɡ'mæt.ɪk/", pos: "adj.", definition: "Thực tế", exampleSentenceEn: "Test", exampleSentenceVi: "Test", cefrLevel: "C1", masteryLevel: 3)
-        ]
+        mockSTT = MockSpeechRecognitionService()
+        mockSRS = RecordingSRSUseCase()
+        mockAttempts = RecordingQuickReflexAttemptRepository()
     }
 
-    @MainActor
-    func testStepGeneration() {
-        let viewModel = QuickReflexDrillViewModel(targetWord: targetWord, allWords: samplePool)
-        let steps = viewModel.state.steps
-        XCTAssertEqual(steps.count, 3)
-        XCTAssertEqual(steps[0].type, .fastMeaning)
-        XCTAssertEqual(steps[1].type, .fillInBlank)
-        XCTAssertEqual(steps[2].type, .pronunciation)
-        XCTAssertTrue(steps[0].options.contains("Phù du, chóng phai"))
+    func testSuccessfulRetrieveThenUseRecordsSRSOnceAndPersistsAttempt() async throws {
+        let viewModel = makeViewModel()
+
+        viewModel.submitTypedAnswer("Ephemeral")
+        XCTAssertEqual(viewModel.state.phase, .useInSentence)
+        viewModel.submitTypedAnswer("The trend is ephemeral.")
+        try await viewModel.finish(confidence: .comfortable)
+
+        XCTAssertEqual(mockSRS.recordedCalls.count, 1)
+        XCTAssertEqual(mockSRS.recordedCalls.first?.wordId, targetWord.id)
+        XCTAssertEqual(mockAttempts.saved.count, 1)
+        XCTAssertTrue(mockAttempts.saved[0].retrieveSucceeded)
+        XCTAssertTrue(mockAttempts.saved[0].useSucceeded)
     }
 
-    @MainActor
-    func testTapToTalkRecordingAndEvaluation() {
-        let mockSTT = MockSpeechRecognitionService()
-        let viewModel = QuickReflexDrillViewModel(targetWord: targetWord, allWords: samplePool, sttService: mockSTT)
-        viewModel.state.currentStepIndex = 2 // Step 3: Pronunciation
+    func testRevealAnswerDoesNotRecordSRSAndPersistsAttempt() async throws {
+        let viewModel = makeViewModel()
 
-        // Tap 1: Start listening
-        viewModel.handleMicTap()
-        XCTAssertTrue(viewModel.isListening)
+        viewModel.revealAnswer()
+        try await viewModel.finish(confidence: .uncertain)
 
-        // Simulated speech stream
-        mockSTT.simulateResult("Her fame proved to be ephemeral.")
-
-        if !viewModel.state.isStepEvaluated {
-            viewModel.handleMicTap()
-        }
-        XCTAssertFalse(viewModel.isListening)
-        XCTAssertTrue(viewModel.state.isStepEvaluated)
-        XCTAssertTrue(viewModel.state.isStepCorrect)
+        XCTAssertTrue(mockSRS.recordedCalls.isEmpty)
+        XCTAssertEqual(mockAttempts.saved.count, 1)
+        XCTAssertFalse(mockAttempts.saved[0].retrieveSucceeded)
     }
 
-    @MainActor
-    func testOptionSubmissionAndNextStep() {
-        let viewModel = QuickReflexDrillViewModel(targetWord: targetWord, allWords: samplePool)
-        viewModel.state.currentStepIndex = 0 // Step 1: Fast Meaning Options
+    func testSkipDoesNotRecordSRSAndPersistsAttempt() async throws {
+        let viewModel = makeViewModel()
 
-        viewModel.submitAnswer("Phù du, chóng phai")
-        XCTAssertTrue(viewModel.state.isStepEvaluated)
-        XCTAssertTrue(viewModel.state.isStepCorrect)
-        XCTAssertEqual(viewModel.state.selectedOption, "Phù du, chóng phai")
+        viewModel.skip()
+        try await viewModel.finish(confidence: .uncertain)
 
-        viewModel.nextStep()
-        XCTAssertEqual(viewModel.state.currentStepIndex, 1)
-        XCTAssertFalse(viewModel.state.isStepEvaluated)
+        XCTAssertTrue(mockSRS.recordedCalls.isEmpty)
+        XCTAssertEqual(mockAttempts.saved.count, 1)
     }
 
-    @MainActor
-    func testStep3_singleWordDoesNotPassFullSentence() {
-        let mockSpeechAssessment = MockSpeechAssessmentServiceForViewModel()
-        let viewModel = QuickReflexDrillViewModel(
-            targetWord: targetWord,
-            allWords: samplePool,
-            speechAssessmentService: mockSpeechAssessment
-        )
-        // Advance to Step 3
-        viewModel.submitAnswer(viewModel.state.steps[0].targetText)
-        viewModel.nextStep()
-        viewModel.submitAnswer(viewModel.state.steps[1].targetText)
-        viewModel.nextStep()
-        XCTAssertEqual(viewModel.state.currentStepIndex, 2)
+    func testHintsProgressWithoutChangingStageOrCorrectness() {
+        let viewModel = makeViewModel()
 
-        // User says just "the" for multi-word sentence
-        viewModel.startRecording()
-        let partialResult = SpeechEvaluationResult(
-            targetSentence: viewModel.state.steps[2].targetText,
-            spokenText: "the",
-            tokens: [],
-            overallScore: 15.0,
-            isPassed: false,
-            durationMs: 500
-        )
-        mockSpeechAssessment.simulateProgress(partialResult)
+        viewModel.advanceHint()
+        viewModel.advanceHint()
 
-        XCTAssertFalse(viewModel.state.isStepEvaluated, "Single word must not trigger premature pass")
-        XCTAssertEqual(viewModel.recognizedText, "the")
-        XCTAssertEqual(viewModel.speechEvaluationResult?.spokenText, "the")
+        XCTAssertEqual(viewModel.state.visibleHintLevel, 2)
+        XCTAssertEqual(viewModel.state.maxHintLevel, 2)
+        XCTAssertEqual(viewModel.state.phase, .retrieve)
+        XCTAssertFalse(viewModel.state.retrieveSucceeded)
+        XCTAssertFalse(viewModel.state.useSucceeded)
     }
 
-    @MainActor
-    func testStep3_sttFallback_singleWordDoesNotPassFullSentence() {
-        let mockSTT = MockSpeechRecognitionService()
-        let viewModel = QuickReflexDrillViewModel(
-            targetWord: targetWord,
-            allWords: samplePool,
-            sttService: mockSTT
-        )
-        // Advance to Step 3
-        viewModel.submitAnswer(viewModel.state.steps[0].targetText)
-        viewModel.nextStep()
-        viewModel.submitAnswer(viewModel.state.steps[1].targetText)
-        viewModel.nextStep()
-        XCTAssertEqual(viewModel.state.currentStepIndex, 2)
-
-        // User says just "the" which is inside "Her fame proved to be ephemeral."
-        viewModel.startRecording()
-        mockSTT.simulateResult("the")
-
-        XCTAssertFalse(viewModel.state.isStepEvaluated, "Single word substring must not pass in STT fallback")
-
-        // Now user says the full target sentence
-        mockSTT.simulateResult("Her fame proved to be ephemeral.")
-        XCTAssertTrue(viewModel.state.isStepEvaluated)
-        XCTAssertTrue(viewModel.state.isStepCorrect)
-    }
-
-    @MainActor
-    func testStep3_speechAssessmentService_completionPassing() {
-        let mockSpeechAssessment = MockSpeechAssessmentServiceForViewModel()
-        let viewModel = QuickReflexDrillViewModel(
-            targetWord: targetWord,
-            allWords: samplePool,
-            speechAssessmentService: mockSpeechAssessment
-        )
-        viewModel.state.currentStepIndex = 2
+    func testSpeechErrorSwitchesToTyping() {
+        let viewModel = makeViewModel()
 
         viewModel.startRecording()
-        XCTAssertTrue(mockSpeechAssessment.didStartAssessing)
-        XCTAssertTrue(viewModel.isListening)
+        mockSTT.simulateError(SpeechRecognitionError.notAuthorized)
 
-        let token = WordTokenResult(id: 0, targetWord: "Her", spokenWord: "Her", status: .exactMatch, similarityScore: 1.0)
-        let passResult = SpeechEvaluationResult(
-            targetSentence: viewModel.state.steps[2].targetText,
-            spokenText: "Her fame proved to be ephemeral.",
-            tokens: [token],
-            overallScore: 0.95,
-            isPassed: true,
-            durationMs: 1200
+        XCTAssertEqual(viewModel.state.inputMode, .typing)
+        XCTAssertNotNil(viewModel.state.errorMessage)
+        XCTAssertFalse(mockSTT.isListening)
+    }
+
+    func testEmptySpeechGetsOneRetryThenTypingFallback() {
+        let viewModel = makeViewModel()
+
+        viewModel.startRecording()
+        viewModel.stopRecordingAndEvaluate()
+        XCTAssertEqual(viewModel.state.retryCount, 1)
+        XCTAssertEqual(viewModel.state.inputMode, .voice)
+
+        viewModel.startRecording()
+        viewModel.stopRecordingAndEvaluate()
+        XCTAssertEqual(viewModel.state.retryCount, 1)
+        XCTAssertEqual(viewModel.state.inputMode, .typing)
+    }
+
+    func testCancelStopsListeningAndDoesNotPersist() async throws {
+        let viewModel = makeViewModel()
+        viewModel.startRecording()
+
+        viewModel.cancel()
+        try await viewModel.finish(confidence: .comfortable)
+
+        XCTAssertTrue(viewModel.state.isCancelled)
+        XCTAssertFalse(mockSTT.isListening)
+        XCTAssertTrue(mockAttempts.saved.isEmpty)
+        XCTAssertTrue(mockSRS.recordedCalls.isEmpty)
+    }
+
+    func testUseStageAnswerCannotReturnToRetrieve() {
+        let viewModel = makeViewModel()
+        viewModel.submitTypedAnswer("ephemeral")
+        XCTAssertEqual(viewModel.state.phase, .useInSentence)
+
+        viewModel.submitTypedAnswer("This sentence omits the expression")
+
+        XCTAssertEqual(viewModel.state.phase, .result)
+        XCTAssertFalse(viewModel.state.useSucceeded)
+    }
+
+    private func makeViewModel() -> QuickReflexDrillViewModel {
+        QuickReflexDrillViewModel(
+            targetWord: targetWord,
+            allWords: [targetWord],
+            sttService: mockSTT,
+            evaluateSRSUseCase: mockSRS,
+            attemptRepository: mockAttempts
         )
-        mockSpeechAssessment.simulateCompletion(passResult)
-
-        XCTAssertFalse(viewModel.isListening)
-        XCTAssertTrue(viewModel.state.isStepEvaluated)
-        XCTAssertTrue(viewModel.state.isStepCorrect)
-        XCTAssertEqual(viewModel.speechEvaluationResult?.tokens.count, 1)
     }
 }
 
+private final class RecordingSRSUseCase: EvaluateSRSUseCaseProtocol {
+    struct RecordedCall: Equatable {
+        let wordId: Int64
+        let isCorrect: Bool
+        let responseTimeMs: Int
+    }
+
+    private(set) var recordedCalls: [RecordedCall] = []
+
+    func evaluateResponse(currentMastery: Int, easeFactor: Double, isCorrect: Bool, responseTimeMs: Int) -> SRSResult {
+        SRSResult(nextMastery: currentMastery + 1, easeFactor: easeFactor, intervalDays: 1)
+    }
+
+    func recordReview(wordId: Int64, isCorrect: Bool, responseTimeMs: Int) async throws -> SRSResult {
+        recordedCalls.append(RecordedCall(wordId: wordId, isCorrect: isCorrect, responseTimeMs: responseTimeMs))
+        return evaluateResponse(currentMastery: 0, easeFactor: 2.5, isCorrect: isCorrect, responseTimeMs: responseTimeMs)
+    }
+}
+
+private final class RecordingQuickReflexAttemptRepository: QuickReflexAttemptRepositoryProtocol {
+    private(set) var saved: [QuickReflexAttempt] = []
+
+    func save(_ attempt: QuickReflexAttempt) async throws {
+        saved.append(attempt)
+    }
+
+    func mostRecentSuccessfulAttempt(for wordId: Int64) async throws -> QuickReflexAttempt? {
+        saved.last(where: { $0.wordId == wordId && $0.retrieveSucceeded })
+    }
+}

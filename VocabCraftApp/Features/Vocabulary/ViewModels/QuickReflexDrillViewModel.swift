@@ -1,30 +1,38 @@
 import Foundation
 import Observation
 
+/// Observable state for the two-stage productive-recall quick reflex drill.
 public struct QuickReflexDrillState: Equatable, Sendable {
-    public var steps: [QuickDrillStep] = []
-    public var currentStepIndex: Int = 0
-    public var elapsedTimeMs: Int = 0
-    public var isCompleted: Bool = false
-    public var isCorrect: Bool = false
-    public var stepSuccessCount: Int = 0
-    public var srsResult: SRSResult?
-    public var triggerSparkle: Bool = false
-
-    // Step Timer & Speed Bonus State
-    public var stepRemainingSeconds: Double = 5.0
-    public var stepMaxSeconds: Double = 5.0
-    public var isSpeedBonus: Bool = false
-    public var totalSpeedBonusCount: Int = 0
-
-    // Real-time Mic & Speech State (Hold-to-Talk)
-    public var isMicActive: Bool = false
-    public var recordedSpokenText: String = ""
+    public var phase: QuickReflexPhase = .retrieve
+    public var inputMode: QuickReflexInputMode = .voice
+    public var visibleHintLevel = 0
+    public var maxHintLevel = 0
+    public var retryCount = 0
+    public var retrieveSucceeded = false
+    public var useSucceeded = false
+    public var retrieveTimeMs = 0
+    public var useTimeMs = 0
+    public var isCompleted = false
+    public var isCancelled = false
     public var errorMessage: String?
 
-    // Step Evaluation Feedback State
-    public var isStepEvaluated: Bool = false
-    public var isStepCorrect: Bool = false
+    // These presentation fields keep the unchanged legacy sheet source-compatible
+    // until its dedicated presentation task replaces the three-option layout.
+    public var steps: [QuickDrillStep] = []
+    public var currentStepIndex = 0
+    public var elapsedTimeMs = 0
+    public var isCorrect = false
+    public var srsResult: SRSResult?
+    public var triggerSparkle = false
+    public var stepSuccessCount = 0
+    public var stepRemainingSeconds = 0.0
+    public var stepMaxSeconds = 0.0
+    public var isSpeedBonus = false
+    public var totalSpeedBonusCount = 0
+    public var isMicActive = false
+    public var recordedSpokenText = ""
+    public var isStepEvaluated = false
+    public var isStepCorrect = false
     public var selectedOption: String?
 
     public init() {}
@@ -35,207 +43,76 @@ public struct QuickReflexDrillState: Equatable, Sendable {
 public final class QuickReflexDrillViewModel {
     public let targetWord: WordItem
     public let allWords: [WordItem]
+    public private(set) var prompts: QuickReflexPrompts
     public var state = QuickReflexDrillState()
-
     public var speechEvaluationResult: SpeechEvaluationResult?
-
-    // Internal Tracking State (Not UI bound)
-    private var stepStartTime: Date?
-    private var startTime: Date?
-    private var timerTask: Task<Void, Never>?
-    private var autoAdvanceTask: Task<Void, Never>?
 
     private let ttsService: TextToSpeechProtocol
     private let sttService: SpeechRecognitionProtocol
-    private let speechAssessmentService: SpeechAssessmentProtocol?
     private let evaluateSRSUseCase: EvaluateSRSUseCaseProtocol?
+    private let attemptRepository: QuickReflexAttemptRepositoryProtocol
+    private let clock: () -> Date
+    private var activePhaseStartedAt: Date
+    private var hintTasks: [Task<Void, Never>] = []
 
-    public var isListening: Bool {
-        if let assessment = speechAssessmentService {
-            return assessment.isListening
-        }
-        return (sttService as? SpeechRecognitionService)?.isListening ?? sttService.isListening
-    }
-
-    public var recognizedText: String {
-        if let eval = speechEvaluationResult, !eval.spokenText.isEmpty {
-            return eval.spokenText
-        }
-        return (sttService as? SpeechRecognitionService)?.recognizedText ?? sttService.recognizedText
-    }
+    public var isListening: Bool { sttService.isListening }
+    public var recognizedText: String { sttService.recognizedText }
 
     public init(
         targetWord: WordItem,
         allWords: [WordItem],
         ttsService: TextToSpeechProtocol? = nil,
         sttService: SpeechRecognitionProtocol? = nil,
-        speechAssessmentService: SpeechAssessmentProtocol? = nil,
-        evaluateSRSUseCase: EvaluateSRSUseCaseProtocol? = nil
+        speechAssessmentService _: SpeechAssessmentProtocol? = nil,
+        evaluateSRSUseCase: EvaluateSRSUseCaseProtocol? = nil,
+        promptFactory: QuickReflexPromptFactory = QuickReflexPromptFactory(),
+        attemptRepository: QuickReflexAttemptRepositoryProtocol? = nil,
+        clock: @escaping () -> Date = Date.init
     ) {
         self.targetWord = targetWord
         self.allWords = allWords
+        self.prompts = promptFactory.makePrompts(for: targetWord)
         self.ttsService = ttsService ?? TextToSpeechService()
         self.sttService = sttService ?? SpeechRecognitionService()
-        self.speechAssessmentService = speechAssessmentService
         self.evaluateSRSUseCase = evaluateSRSUseCase
-        generateSteps()
-        startTimer()
+        self.attemptRepository = attemptRepository ?? QuickReflexAttemptRepositoryImpl()
+        self.clock = clock
+        self.activePhaseStartedAt = clock()
+        scheduleHints()
     }
 
-    deinit {
-        let stt = sttService
-        let speechAssessment = speechAssessmentService
-        Task { @MainActor in
-            stt.stopListening()
-            speechAssessment?.stopAssessing()
-        }
-    }
-
-    public func generateSteps() {
-        let distractors = allWords.filter { $0.id != targetWord.id }
-
-        // Step 1: Fast Meaning Match (Recognition - Nhận biết nhanh)
-        var defOptions = distractors.shuffled().prefix(3).map { $0.definition }
-        defOptions.append(targetWord.definition)
-        defOptions.shuffle()
-
-        let step1 = QuickDrillStep(
-            id: 1,
-            type: .fastMeaning,
-            promptText: "Chọn nghĩa tiếng Việt đúng của từ '\(targetWord.lemma)'",
-            targetText: targetWord.definition,
-            options: Array(defOptions)
-        )
-
-        // Step 2: Fill in Blank (Context - Ngữ cảnh ứng dụng)
-        let sentenceGap = targetWord.exampleSentenceEn.replacingOccurrences(
-            of: targetWord.lemma,
-            with: "_______",
-            options: .caseInsensitive
-        )
-        var lemmaOptions = distractors.shuffled().prefix(3).map { $0.lemma }
-        lemmaOptions.append(targetWord.lemma)
-        lemmaOptions.shuffle()
-
-        let step2 = QuickDrillStep(
-            id: 2,
-            type: .fillInBlank,
-            promptText: "Hoàn thành câu bằng từ tiếng Anh chính xác",
-            targetText: targetWord.lemma,
-            options: Array(lemmaOptions),
-            sentenceWithGap: sentenceGap
-        )
-
-        // Step 3: Pronunciation Vocalization (Peak Reflex - Đọc & Phát âm câu mẫu)
-        let step3 = QuickDrillStep(
-            id: 3,
-            type: .pronunciation,
-            promptText: "Chạm micro và đọc câu ví dụ chứa từ '\(targetWord.lemma)'",
-            targetText: targetWord.exampleSentenceEn
-        )
-
-        self.state.steps = [step1, step2, step3]
-    }
-
-    public func startTimer() {
-        startTime = Date()
-        stepStartTime = Date()
-        state.stepRemainingSeconds = state.stepMaxSeconds
-        timerTask?.cancel()
-
-        timerTask = Task { [weak self] in
-            while !Task.isCancelled {
-                try? await Task.sleep(for: .milliseconds(100))
-                guard let self = self, let start = self.startTime else { break }
-
-                self.state.elapsedTimeMs = Int(Date().timeIntervalSince(start) * 1000)
-
-                // Per-step countdown tick
-                if !self.state.isStepEvaluated, let stepStart = self.stepStartTime {
-                    let elapsedStep = Date().timeIntervalSince(stepStart)
-                    let rem = max(0, self.state.stepMaxSeconds - elapsedStep)
-                    self.state.stepRemainingSeconds = rem
-                }
-            }
-        }
-    }
-
-    public func speakTargetSentence() {
-        guard state.currentStepIndex < state.steps.count else { return }
-        ttsService.speak(text: state.steps[state.currentStepIndex].targetText)
-    }
-
-    // MARK: - Tap-to-Talk Speech Recognition Methods
-
+    /// Begins raw speech recognition for the current productive-recall phase.
     public func startRecording() {
-        guard !isListening && !state.isStepEvaluated else { return }
-        ttsService.stop()
+        guard !state.isCancelled, !state.isCompleted, state.phase != .result, !isListening else { return }
         state.errorMessage = nil
-        speechEvaluationResult = nil
-
-        guard state.currentStepIndex < state.steps.count else { return }
-        let currentStep = state.steps[state.currentStepIndex]
-
-        if let assessment = speechAssessmentService {
-            assessment.startAssessing(
-                targetSentence: currentStep.targetText,
-                toleranceThreshold: 0.75,
-                contextualPhrases: [targetWord.lemma, currentStep.targetText],
-                onProgress: { [weak self] evaluation in
-                    guard let self = self else { return }
-                    self.speechEvaluationResult = evaluation
-                },
-                onCompletion: { [weak self] evaluation in
-                    guard let self = self else { return }
-                    self.speechEvaluationResult = evaluation
-                    self.stopRecordingAndEvaluate()
-                },
-                onError: { [weak self] error in
-                    guard let self = self else { return }
-                    let desc: String
-                    if let err = error as? SpeechKitError, let msg = err.errorDescription {
-                        desc = msg
-                    } else {
-                        desc = error.localizedDescription
-                    }
-                    self.state.errorMessage = "Không thể thu âm: \(desc). Vui lòng kiểm tra quyền Micro."
-                }
-            )
-        } else {
-            sttService.startListening(
-                onResult: { [weak self] text in
-                    guard let self = self else { return }
-                    if self.state.currentStepIndex < self.state.steps.count {
-                        let target = self.state.steps[self.state.currentStepIndex].targetText
-                        if self.isAnswerMatching(userText: text, targetText: target) {
-                            self.stopRecordingAndEvaluate()
-                        }
-                    }
-                },
-                onError: { [weak self] error in
-                    guard let self = self else { return }
-                    let desc: String
-                    if let err = error as? SpeechRecognitionError, let msg = err.errorDescription {
-                        desc = msg
-                    } else {
-                        desc = error.localizedDescription
-                    }
-                    self.state.errorMessage = "Không thể thu âm: \(desc). Vui lòng kiểm tra quyền Micro."
-                }
-            )
-        }
+        state.inputMode = .voice
+        ttsService.stop()
+        sttService.startListening(
+            onResult: { [weak self] text in
+                guard let self, self.canAnswerCurrentPhase else { return }
+                let target = self.currentPrompt.targetExpression
+                guard TargetExpressionMatcher.contains(response: text, expression: target) else { return }
+                self.submit(text, mode: .voice)
+            },
+            onError: { [weak self] error in
+                guard let self, !self.state.isCancelled else { return }
+                self.sttService.stopListening()
+                self.state.inputMode = .typing
+                self.state.errorMessage = "Không thể thu âm: \(error.localizedDescription). Hãy nhập câu trả lời."
+            }
+        )
     }
 
+    /// Stops listening and evaluates the final raw transcript, allowing one empty retry.
     public func stopRecordingAndEvaluate() {
-        speechAssessmentService?.stopAssessing()
+        guard !state.isCancelled, !state.isCompleted, state.phase != .result else { return }
         sttService.stopListening()
-
-        let answer = recognizedText
-        if !answer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            submitAnswer(answer)
-        } else {
-            state.errorMessage = "Chưa nghe thấy câu trả lời. Hãy chạm micro và đọc câu mẫu."
+        let answer = recognizedText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !answer.isEmpty else {
+            handleUnclearSpeech()
+            return
         }
+        submit(answer, mode: .voice)
     }
 
     public func handleMicTap() {
@@ -246,100 +123,179 @@ public final class QuickReflexDrillViewModel {
         }
     }
 
-    // MARK: - Answer Submission & Fast Auto-Advance
+    public func submitTypedAnswer(_ answer: String) {
+        submit(answer, mode: .typing)
+    }
 
-    public func submitAnswer(_ answer: String) {
-        guard state.currentStepIndex < state.steps.count, !state.isStepEvaluated else { return }
-        autoAdvanceTask?.cancel()
+    /// Shows the next staged hint. Timers call this at 4 and 7 seconds; it never ends a stage.
+    public func advanceHint() {
+        guard canAnswerCurrentPhase else { return }
+        let maximum = currentPrompt.hints.count
+        guard state.visibleHintLevel < maximum else { return }
+        state.visibleHintLevel += 1
+        state.maxHintLevel = max(state.maxHintLevel, state.visibleHintLevel)
+    }
 
-        let currentStep = state.steps[state.currentStepIndex]
-        let correct = isAnswerMatching(userText: answer, targetText: currentStep.targetText)
+    /// Revealing or skipping always ends the attempt without an SRS review.
+    public func revealAnswer() {
+        completeWithoutSuccessfulRetrieval()
+    }
 
-        self.state.selectedOption = answer
-        self.state.isStepEvaluated = true
-        self.state.isStepCorrect = correct
+    public func skip() {
+        completeWithoutSuccessfulRetrieval()
+    }
 
-        if correct {
-            state.stepSuccessCount += 1
-            // Check speed bonus (< 2.5s)
-            if let stepStart = stepStartTime {
-                let duration = Date().timeIntervalSince(stepStart)
-                if duration <= 2.5 {
-                    state.isSpeedBonus = true
-                    state.totalSpeedBonusCount += 1
-                }
+    /// Stops all live resources. A cancelled drill is never saved or sent to SRS.
+    public func cancel() {
+        stopListeningAndTimers()
+        state.isCancelled = true
+    }
+
+    /// Persists exactly one completed attempt and records SRS only after successful retrieval.
+    public func finish(confidence: QuickReflexConfidence) async throws {
+        guard state.phase == .result, !state.isCancelled, !state.isCompleted else { return }
+
+        state.isCompleted = true
+        stopListeningAndTimers()
+        state.isCorrect = state.retrieveSucceeded && state.useSucceeded
+        state.triggerSparkle = state.isCorrect
+
+        let attempt = QuickReflexAttempt(
+            wordId: targetWord.id,
+            retrieveTimeMs: state.retrieveTimeMs,
+            useTimeMs: state.useTimeMs,
+            retrieveSucceeded: state.retrieveSucceeded,
+            useSucceeded: state.useSucceeded,
+            maxHintLevel: state.maxHintLevel,
+            inputMode: state.inputMode,
+            retryCount: state.retryCount,
+            confidence: confidence,
+            timestamp: clock()
+        )
+        try await attemptRepository.save(attempt)
+
+        guard state.retrieveSucceeded else { return }
+        if let evaluateSRSUseCase {
+            state.srsResult = try await evaluateSRSUseCase.recordReview(
+                wordId: targetWord.id,
+                isCorrect: true,
+                responseTimeMs: state.retrieveTimeMs
+            )
+        }
+    }
+
+    // MARK: - Legacy presentation compatibility
+
+    public func generateSteps() {}
+    public func startTimer() {}
+    public func speakTargetSentence() { ttsService.speak(text: currentPrompt.targetExpression) }
+    public func submitAnswer(_ answer: String) { submitTypedAnswer(answer) }
+    public func nextStep() {}
+    public func finishDrill() {
+        guard state.phase == .result else { return }
+        Task { [weak self] in try? await self?.finish(confidence: .uncertain) }
+    }
+
+    private var canAnswerCurrentPhase: Bool {
+        !state.isCancelled && !state.isCompleted && state.phase != .result
+    }
+
+    private var currentPrompt: QuickReflexStagePrompt {
+        state.phase == .useInSentence ? prompts.use : prompts.retrieve
+    }
+
+    private func submit(_ answer: String, mode: QuickReflexInputMode) {
+        guard canAnswerCurrentPhase else { return }
+        let trimmedAnswer = answer.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedAnswer.isEmpty else { return }
+
+        sttService.stopListening()
+        state.inputMode = mode
+        state.errorMessage = nil
+        state.recordedSpokenText = trimmedAnswer
+        let isCorrect = TargetExpressionMatcher.contains(
+            response: trimmedAnswer,
+            expression: currentPrompt.targetExpression
+        )
+        let elapsed = elapsedTimeMs()
+
+        switch state.phase {
+        case .retrieve:
+            state.retrieveSucceeded = isCorrect
+            state.retrieveTimeMs = elapsed
+            guard isCorrect else { return }
+            state.phase = .useInSentence
+            beginPhase()
+        case .useInSentence:
+            state.useSucceeded = isCorrect
+            state.useTimeMs = elapsed
+            state.phase = .result
+            hintTasks.forEach { $0.cancel() }
+            hintTasks.removeAll()
+        case .result:
+            return
+        }
+    }
+
+    private func completeWithoutSuccessfulRetrieval() {
+        guard canAnswerCurrentPhase else { return }
+        sttService.stopListening()
+        if state.phase == .retrieve {
+            state.retrieveSucceeded = false
+            state.retrieveTimeMs = elapsedTimeMs()
+        } else {
+            state.useSucceeded = false
+            state.useTimeMs = elapsedTimeMs()
+        }
+        state.phase = .result
+        hintTasks.forEach { $0.cancel() }
+        hintTasks.removeAll()
+    }
+
+    private func handleUnclearSpeech() {
+        if state.retryCount == 0 {
+            state.retryCount = 1
+            state.inputMode = .voice
+            state.errorMessage = "Chưa nghe thấy câu trả lời. Hãy thử lại một lần."
+        } else {
+            state.inputMode = .typing
+            state.errorMessage = "Chưa nghe thấy câu trả lời. Hãy nhập câu trả lời."
+        }
+    }
+
+    private func beginPhase() {
+        activePhaseStartedAt = clock()
+        state.visibleHintLevel = 0
+        state.errorMessage = nil
+        scheduleHints()
+    }
+
+    private func scheduleHints() {
+        hintTasks.forEach { $0.cancel() }
+        hintTasks = [4, 7].enumerated().map { index, seconds in
+            Task { [weak self] in
+                try? await Task.sleep(for: .seconds(seconds))
+                guard !Task.isCancelled else { return }
+                self?.showHint(level: index + 1)
             }
         }
-
-        // Fast auto-advance after 800ms show of correct/wrong highlight
-        autoAdvanceTask = Task { [weak self] in
-            try? await Task.sleep(for: .milliseconds(800))
-            guard let self = self, !Task.isCancelled else { return }
-            self.nextStep()
-        }
     }
 
-    public func nextStep() {
-        autoAdvanceTask?.cancel()
-        state.isStepEvaluated = false
-        state.isStepCorrect = false
-        state.isSpeedBonus = false
-        state.selectedOption = nil
-        state.recordedSpokenText = ""
-        state.errorMessage = nil
-        speechEvaluationResult = nil
-
-        if state.currentStepIndex + 1 < state.steps.count {
-            state.currentStepIndex += 1
-            stepStartTime = Date()
-            state.stepRemainingSeconds = state.stepMaxSeconds
-        } else {
-            finishDrill()
-        }
+    private func showHint(level: Int) {
+        guard canAnswerCurrentPhase, level > state.visibleHintLevel else { return }
+        let maximum = currentPrompt.hints.count
+        state.visibleHintLevel = min(level, maximum)
+        state.maxHintLevel = max(state.maxHintLevel, state.visibleHintLevel)
     }
 
-    public func finishDrill() {
-        timerTask?.cancel()
-        if isListening {
-            speechAssessmentService?.stopAssessing()
-            sttService.stopListening()
-        }
-
-        let allCorrect = state.stepSuccessCount == state.steps.count
-        let avgTimeMs = state.steps.isEmpty ? 2000 : state.elapsedTimeMs / state.steps.count
-
-        let result: SRSResult
-        if let useCase = evaluateSRSUseCase {
-            result = useCase.evaluateResponse(
-                currentMastery: targetWord.masteryLevel,
-                easeFactor: 2.5,
-                isCorrect: allCorrect,
-                responseTimeMs: avgTimeMs
-            )
-        } else {
-            result = SRSEngine.calculateNextInterval(
-                currentMastery: targetWord.masteryLevel,
-                easeFactor: 2.5,
-                isCorrect: allCorrect,
-                responseTimeMs: avgTimeMs
-            )
-        }
-
-        self.state.srsResult = result
-        self.state.isCorrect = allCorrect
-        self.state.triggerSparkle = allCorrect
-        self.state.isCompleted = true
+    private func elapsedTimeMs() -> Int {
+        Int(clock().timeIntervalSince(activePhaseStartedAt) * 1_000)
     }
 
-    private func isAnswerMatching(userText: String, targetText: String) -> Bool {
-        let u = userText.lowercased().trimmingCharacters(in: .whitespacesAndNewlines.union(.punctuationCharacters))
-        let t = targetText.lowercased().trimmingCharacters(in: .whitespacesAndNewlines.union(.punctuationCharacters))
-        guard !u.isEmpty, !t.isEmpty else { return false }
-
-        if let eval = speechEvaluationResult, state.currentStepIndex < state.steps.count, state.steps[state.currentStepIndex].type == .pronunciation {
-            return eval.isPassed
-        }
-
-        return u == t
+    private func stopListeningAndTimers() {
+        ttsService.stop()
+        sttService.stopListening()
+        hintTasks.forEach { $0.cancel() }
+        hintTasks.removeAll()
     }
 }
