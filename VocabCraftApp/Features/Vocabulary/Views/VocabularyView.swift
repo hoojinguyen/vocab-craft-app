@@ -173,6 +173,7 @@ public struct VocabularyView: View {
                 sttService: appContainer.sttService,
                 speechAssessmentService: appContainer.speechAssessmentService,
                 evaluateSRSUseCase: appContainer.evaluateSRSUseCase,
+                attemptRepository: appContainer.quickReflexAttemptRepository,
                 onComplete: { updatedMastery in
                     if let idx = vm.wordItems.firstIndex(where: { $0.id == targetWord.id }) {
                         vm.wordItems[idx].masteryLevel = updatedMastery

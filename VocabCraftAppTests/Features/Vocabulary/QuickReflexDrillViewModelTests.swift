@@ -136,6 +136,19 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.state.inputMode, .typing)
     }
 
+    func testStaleRecordingCallbackCannotAdvanceUseStage() {
+        let viewModel = makeViewModel()
+
+        viewModel.startRecording()
+        mockSTT.simulateResult("ephemeral")
+        XCTAssertEqual(viewModel.state.phase, .useInSentence)
+
+        mockSTT.simulateResult("A second stale result says ephemeral.")
+
+        XCTAssertEqual(viewModel.state.phase, .useInSentence)
+        XCTAssertFalse(viewModel.state.useSucceeded)
+    }
+
     func testCancelStopsListeningAndDoesNotPersist() async throws {
         let viewModel = makeViewModel()
         viewModel.startRecording()

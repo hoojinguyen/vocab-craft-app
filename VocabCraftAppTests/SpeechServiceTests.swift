@@ -54,6 +54,18 @@ final class SpeechServiceTests: XCTestCase {
         XCTAssertEqual(stt.recognizedText, "")
     }
 
+    func testSTTCancelBeforeAuthorizationCannotStartCapture() async throws {
+        #if targetEnvironment(simulator)
+        let stt = SpeechRecognitionService()
+        stt.startListening(onResult: { _ in }, onError: { _ in })
+        stt.stopListening()
+
+        try await Task.sleep(for: .milliseconds(100))
+
+        XCTAssertFalse(stt.isRecording)
+        #endif
+    }
+
     func testSTTAuthorizationRequestHandling() {
         let stt = SpeechRecognitionService()
         let expectation = self.expectation(description: "Speech recognition authorization callback")

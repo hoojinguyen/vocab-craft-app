@@ -54,6 +54,7 @@ public final class QuickReflexDrillViewModel {
     private let clock: () -> Date
     private var activePhaseStartedAt: Date
     private var hintTasks: [Task<Void, Never>] = []
+    private var recordingSession = 0
 
     public var isListening: Bool { sttService.isListening }
     public var recognizedText: String { sttService.recognizedText }
@@ -81,22 +82,38 @@ public final class QuickReflexDrillViewModel {
         scheduleHints()
     }
 
+    deinit {
+        let stt = sttService
+        Task { @MainActor in
+            stt.stopListening()
+        }
+    }
+
     /// Begins raw speech recognition for the current productive-recall phase.
     public func startRecording() {
         guard !state.isCancelled, !state.isCompleted, state.phase != .result, !isListening else { return }
+        recordingSession += 1
+        let session = recordingSession
+        let phase = state.phase
         state.errorMessage = nil
         state.inputMode = .voice
         ttsService.stop()
         sttService.startListening(
             onResult: { [weak self] text in
-                guard let self, self.canAnswerCurrentPhase else { return }
+                guard let self,
+                      self.canAnswerCurrentPhase,
+                      self.recordingSession == session,
+                      self.state.phase == phase else { return }
                 let target = self.currentPrompt.targetExpression
                 guard TargetExpressionMatcher.contains(response: text, expression: target) else { return }
                 self.submit(text, mode: .voice)
             },
             onError: { [weak self] error in
-                guard let self, !self.state.isCancelled else { return }
-                self.sttService.stopListening()
+                guard let self,
+                      !self.state.isCancelled,
+                      self.recordingSession == session,
+                      self.state.phase == phase else { return }
+                self.stopCurrentRecording()
                 self.state.inputMode = .typing
                 self.state.errorMessage = "Không thể thu âm: \(error.localizedDescription). Hãy nhập câu trả lời."
             }
@@ -106,7 +123,7 @@ public final class QuickReflexDrillViewModel {
     /// Stops listening and evaluates the final raw transcript, allowing one empty retry.
     public func stopRecordingAndEvaluate() {
         guard !state.isCancelled, !state.isCompleted, state.phase != .result else { return }
-        sttService.stopListening()
+        stopCurrentRecording()
         let answer = recognizedText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !answer.isEmpty else {
             handleUnclearSpeech()
@@ -213,7 +230,7 @@ public final class QuickReflexDrillViewModel {
         let trimmedAnswer = answer.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedAnswer.isEmpty else { return }
 
-        sttService.stopListening()
+        stopCurrentRecording()
         state.inputMode = mode
         state.errorMessage = nil
         state.recordedSpokenText = trimmedAnswer
@@ -243,7 +260,7 @@ public final class QuickReflexDrillViewModel {
 
     private func completeWithoutSuccessfulRetrieval() {
         guard canAnswerCurrentPhase else { return }
-        sttService.stopListening()
+        stopCurrentRecording()
         if state.phase == .retrieve {
             state.retrieveSucceeded = false
             state.retrieveTimeMs = elapsedTimeMs()
@@ -298,8 +315,13 @@ public final class QuickReflexDrillViewModel {
 
     private func stopListeningAndTimers() {
         ttsService.stop()
-        sttService.stopListening()
+        stopCurrentRecording()
         hintTasks.forEach { $0.cancel() }
         hintTasks.removeAll()
+    }
+
+    private func stopCurrentRecording() {
+        recordingSession += 1
+        sttService.stopListening()
     }
 }

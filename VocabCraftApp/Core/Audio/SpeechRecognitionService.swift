@@ -31,6 +31,7 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
     private var onResultCallback: ((String) -> Void)?
     private var onErrorCallback: ((Error) -> Void)?
     private var simulationTask: Task<Void, Never>?
+    private var authorizationRequestID = 0
     private nonisolated(unsafe) var interruptionObserver: NSObjectProtocol?
 
     public var isRecording: Bool = false
@@ -104,11 +105,14 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
     }
 
     public func startListening(onResult: @escaping (String) -> Void, onError: @escaping (Error) -> Void) {
+        authorizationRequestID += 1
+        let requestID = authorizationRequestID
         self.onResultCallback = onResult
         self.onErrorCallback = onError
 
         requestAuthorization { [weak self] authorized in
             guard let self = self else { return }
+            guard self.authorizationRequestID == requestID else { return }
             guard authorized else {
                 onError(SpeechRecognitionError.notAuthorized)
                 return
@@ -229,6 +233,9 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
     }
 
     public func stopListening() {
+        // An authorization callback may arrive after cancellation. Advancing this
+        // token prevents it from starting a new capture session.
+        authorizationRequestID += 1
         simulationTask?.cancel()
         simulationTask = nil
 

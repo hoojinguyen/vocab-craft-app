@@ -13,6 +13,7 @@ public struct QuickReflexDrillSheetView: View {
         sttService: SpeechRecognitionProtocol? = nil,
         speechAssessmentService: SpeechAssessmentProtocol? = nil,
         evaluateSRSUseCase: EvaluateSRSUseCaseProtocol? = nil,
+        attemptRepository: QuickReflexAttemptRepositoryProtocol? = nil,
         onComplete: @escaping (Int) -> Void
     ) {
         self._viewModel = State(initialValue: QuickReflexDrillViewModel(
@@ -21,7 +22,8 @@ public struct QuickReflexDrillSheetView: View {
             ttsService: ttsService,
             sttService: sttService,
             speechAssessmentService: speechAssessmentService,
-            evaluateSRSUseCase: evaluateSRSUseCase
+            evaluateSRSUseCase: evaluateSRSUseCase,
+            attemptRepository: attemptRepository
         ))
         self.onComplete = onComplete
     }
@@ -36,13 +38,21 @@ public struct QuickReflexDrillSheetView: View {
                 drillContentBody
             }
         }
+        .onDisappear {
+            if !viewModel.state.isCompleted {
+                viewModel.cancel()
+            }
+        }
     }
 
     private var drillContentBody: some View {
         VStack(spacing: 16) {
             // Header Navigation Bar (Consistent with SubTopicStudySessionView & ReflexDrillView)
             HStack {
-                Button(action: { dismiss() }) {
+                Button(action: {
+                    viewModel.cancel()
+                    dismiss()
+                }) {
                     Image(systemName: "xmark")
                         .font(.system(size: 14, weight: .bold))
                         .foregroundColor(Color.vocabInk)

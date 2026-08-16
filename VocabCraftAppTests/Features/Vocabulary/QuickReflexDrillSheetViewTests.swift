@@ -31,5 +31,21 @@ final class QuickReflexDrillSheetViewTests: XCTestCase {
             onComplete: { _ in }
         )
         XCTAssertNotNil(viewWithSpeechKit)
+
+        let viewWithAttemptRepository = QuickReflexDrillSheetView(
+            targetWord: word,
+            allWords: [word],
+            attemptRepository: SheetAttemptRepository(),
+            onComplete: { _ in }
+        )
+        XCTAssertNotNil(viewWithAttemptRepository)
+    }
+}
+
+private final class SheetAttemptRepository: QuickReflexAttemptRepositoryProtocol {
+    func save(_: QuickReflexAttempt) async throws {}
+
+    func mostRecentSuccessfulAttempt(for _: Int64) async throws -> QuickReflexAttempt? {
+        nil
     }
 }
