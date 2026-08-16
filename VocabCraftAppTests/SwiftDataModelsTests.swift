@@ -35,6 +35,66 @@ final class SwiftDataModelsTests: XCTestCase {
         XCTAssertEqual(SharedAppGroupContainer.appGroupID, "group.com.hoojinguyen.vocabcraft")
     }
 
+    func testSchemaV1StoreMigratesToV2AndRetainsProgress() throws {
+        let storeURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("QuickReflexMigration-\(UUID().uuidString).sqlite")
+        defer {
+            try? FileManager.default.removeItem(at: storeURL)
+            try? FileManager.default.removeItem(at: URL(fileURLWithPath: storeURL.path + "-shm"))
+            try? FileManager.default.removeItem(at: URL(fileURLWithPath: storeURL.path + "-wal"))
+        }
+
+        let expectedReviewDate = Date(timeIntervalSince1970: 1_700_000_000)
+        do {
+            let schema = Schema(versionedSchema: SchemaV1.self)
+            let configuration = ModelConfiguration(schema: schema, url: storeURL)
+            let v1Container = try ModelContainer(for: schema, configurations: [configuration])
+            let v1Context = v1Container.mainContext
+            v1Context.insert(UserWordProgress(
+                wordId: 909,
+                masteryLevel: 3,
+                easeFactor: 2.7,
+                intervalDays: 12,
+                nextReviewDate: expectedReviewDate,
+                lastReviewDate: expectedReviewDate,
+                totalReviews: 8
+            ))
+            try v1Context.save()
+        }
+
+        let v2Schema = Schema(versionedSchema: SchemaV2.self)
+        let v2Configuration = ModelConfiguration(schema: v2Schema, url: storeURL)
+        let v2Container = try ModelContainer(
+            for: v2Schema,
+            migrationPlan: AppMigrationPlan.self,
+            configurations: [v2Configuration]
+        )
+        let v2Context = v2Container.mainContext
+
+        let progress = try v2Context.fetch(FetchDescriptor<UserWordProgress>(
+            predicate: #Predicate { $0.wordId == 909 }
+        ))
+        XCTAssertEqual(progress.count, 1)
+        XCTAssertEqual(progress.first?.masteryLevel, 3)
+        XCTAssertEqual(progress.first?.nextReviewDate, expectedReviewDate)
+
+        let attempt = QuickReflexAttemptRecord(
+            wordId: 909,
+            retrieveTimeMs: 900,
+            useTimeMs: 1_500,
+            retrieveSucceeded: true,
+            useSucceeded: true,
+            maxHintLevel: 0,
+            inputModeRawValue: "voice",
+            retryCount: 0,
+            confidenceRawValue: "comfortable"
+        )
+        v2Context.insert(attempt)
+        try v2Context.save()
+
+        XCTAssertEqual(try v2Context.fetch(FetchDescriptor<QuickReflexAttemptRecord>()).count, 1)
+    }
+
     // MARK: - UserWordProgress Tests
 
     func testUserWordProgressCreationAndDefaults() {

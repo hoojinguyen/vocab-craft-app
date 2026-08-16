@@ -7,6 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3000A201000000000001 /* QuickReflexPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A201000000000001 /* QuickReflexPrompt.swift */; };
+		3000A201000000000002 /* QuickReflexPromptFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A201000000000002 /* QuickReflexPromptFactory.swift */; };
+		3000A201000000000003 /* TargetExpressionMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A201000000000003 /* TargetExpressionMatcher.swift */; };
+		3000A201000000000004 /* QuickReflexAttempt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A201000000000004 /* QuickReflexAttempt.swift */; };
+		3000A201000000000005 /* QuickReflexAttemptRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A201000000000005 /* QuickReflexAttemptRepositoryProtocol.swift */; };
+		3000A201000000000006 /* QuickReflexAttemptRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A201000000000006 /* QuickReflexAttemptRepositoryImpl.swift */; };
+		3000A201000000000007 /* QuickReflexPromptFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A201000000000007 /* QuickReflexPromptFactoryTests.swift */; };
+		3000A201000000000009 /* TargetExpressionMatcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A201000000000009 /* TargetExpressionMatcherTests.swift */; };
+		3000A20100000000000A /* QuickReflexAttemptRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A20100000000000A /* QuickReflexAttemptRepositoryTests.swift */; };
 		300008F15FA2F8FA1668 /* VocabularyFilterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200008F15FA2F8FA1668 /* VocabularyFilterService.swift */; };
 		300008F25FA2F8FA1668 /* AppRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200008F25FA2F8FA1668 /* AppRouter.swift */; };
 		300008F35FA2F8FA1668 /* DatasetDataSourceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200008F35FA2F8FA1668 /* DatasetDataSourceProtocol.swift */; };
@@ -172,6 +181,15 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2000A201000000000001 /* QuickReflexPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickReflexPrompt.swift; sourceTree = "<group>"; };
+		2000A201000000000002 /* QuickReflexPromptFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickReflexPromptFactory.swift; sourceTree = "<group>"; };
+		2000A201000000000003 /* TargetExpressionMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TargetExpressionMatcher.swift; sourceTree = "<group>"; };
+		2000A201000000000004 /* QuickReflexAttempt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickReflexAttempt.swift; sourceTree = "<group>"; };
+		2000A201000000000005 /* QuickReflexAttemptRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickReflexAttemptRepositoryProtocol.swift; sourceTree = "<group>"; };
+		2000A201000000000006 /* QuickReflexAttemptRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickReflexAttemptRepositoryImpl.swift; sourceTree = "<group>"; };
+		2000A201000000000007 /* QuickReflexPromptFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickReflexPromptFactoryTests.swift; sourceTree = "<group>"; };
+		2000A201000000000009 /* TargetExpressionMatcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TargetExpressionMatcherTests.swift; sourceTree = "<group>"; };
+		2000A20100000000000A /* QuickReflexAttemptRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickReflexAttemptRepositoryTests.swift; sourceTree = "<group>"; };
 		200008F15FA2F8FA1668 /* VocabularyFilterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyFilterService.swift; sourceTree = "<group>"; };
 		200008F25FA2F8FA1668 /* AppRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRouter.swift; sourceTree = "<group>"; };
 		200008F35FA2F8FA1668 /* DatasetDataSourceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatasetDataSourceProtocol.swift; sourceTree = "<group>"; };
@@ -385,6 +403,7 @@
 		40001FE94D3B22BA736B /* Repositories */ = {
 			isa = PBXGroup;
 			children = (
+				2000A201000000000006 /* QuickReflexAttemptRepositoryImpl.swift */,
 				2000FBE3EC435722C797 /* MockVocabularyRepository.swift */,
 				20002717CA572B9B21A6 /* SRSRepositoryImpl.swift */,
 				2000174FE7B23888C774 /* VocabularyRepositoryImpl.swift */,
@@ -396,6 +415,7 @@
 			isa = PBXGroup;
 			children = (
 				40003F19FFEFFBC77ACB /* Models */,
+				4000A201000000000008 /* Services */,
 				400093F1EE2146E580AB /* ViewModels */,
 				40004E123BE05A2038D9 /* Views */,
 			);
@@ -414,6 +434,7 @@
 		4000260E29F35C2EBCD5 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				2000A201000000000004 /* QuickReflexAttempt.swift */,
 				20004E04DA4BC3CA718A /* QuickDrillStep.swift */,
 			);
 			path = Models;
@@ -442,6 +463,7 @@
 		40003F19FFEFFBC77ACB /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				2000A201000000000001 /* QuickReflexPrompt.swift */,
 				20008890835203644360 /* SubTopicSessionEngine.swift */,
 				2000C27C11DD5CE9F2EC /* TopicDeckModels.swift */,
 				20004CE3746FBD029DA6 /* WordItem.swift */,
@@ -560,6 +582,9 @@
 		4000829CC0FFDB01C99C /* Vocabulary */ = {
 			isa = PBXGroup;
 			children = (
+				2000A20100000000000A /* QuickReflexAttemptRepositoryTests.swift */,
+				2000A201000000000007 /* QuickReflexPromptFactoryTests.swift */,
+				2000A201000000000009 /* TargetExpressionMatcherTests.swift */,
 				2000D50F7F5D8C2CEA88 /* QuickDrillStepTests.swift */,
 				2000E0ACD94DDAB84823 /* QuickReflexDrillSheetViewTests.swift */,
 				2000BA864DF00075F57F /* QuickReflexDrillViewModelTests.swift */,
@@ -573,6 +598,7 @@
 		40008F48FF4076AEA27E /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
+				2000A201000000000005 /* QuickReflexAttemptRepositoryProtocol.swift */,
 				20009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift */,
 				200008F35FA2F8FA1668 /* DatasetDataSourceProtocol.swift */,
 				20001B54BD9C7BC878A1 /* SRSRepositoryProtocol.swift */,
@@ -597,6 +623,15 @@
 				2000A2F071BDE838E61F /* VocabularyViewModel.swift */,
 			);
 			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		4000A201000000000008 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				2000A201000000000002 /* QuickReflexPromptFactory.swift */,
+				2000A201000000000003 /* TargetExpressionMatcher.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 		40009A7A10F832BFCD13 /* Local */ = {
@@ -992,6 +1027,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3000A201000000000001 /* QuickReflexPrompt.swift in Sources */,
+				3000A201000000000002 /* QuickReflexPromptFactory.swift in Sources */,
+				3000A201000000000003 /* TargetExpressionMatcher.swift in Sources */,
+				3000A201000000000004 /* QuickReflexAttempt.swift in Sources */,
+				3000A201000000000005 /* QuickReflexAttemptRepositoryProtocol.swift in Sources */,
+				3000A201000000000006 /* QuickReflexAttemptRepositoryImpl.swift in Sources */,
 				300014ABEEFD5E14865F /* MarkLearnedIntent.swift in Sources */,
 				3000C94DD80FE52023FA /* NextWordIntent.swift in Sources */,
 				3000473CACA7476916FA /* VocabWidget.swift in Sources */,
@@ -1098,6 +1139,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3000A201000000000007 /* QuickReflexPromptFactoryTests.swift in Sources */,
+				3000A201000000000009 /* TargetExpressionMatcherTests.swift in Sources */,
+				3000A20100000000000A /* QuickReflexAttemptRepositoryTests.swift in Sources */,
 				300008F55FA2F8FA1668 /* AppRouterTests.swift in Sources */,
 				300008F65FA2F8FA1668 /* DatasetDataSourceTests.swift in Sources */,
 				300008F45FA2F8FA1668 /* VocabularyFilterServiceTests.swift in Sources */,

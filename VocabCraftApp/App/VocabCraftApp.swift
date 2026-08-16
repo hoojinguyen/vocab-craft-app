@@ -11,7 +11,7 @@ struct VocabCraftApp: App {
 
     init() {
         let isTesting = NSClassFromString("XCTestCase") != nil
-        let fallbackSchema = Schema(versionedSchema: SchemaV1.self)
+        let fallbackSchema = Schema(versionedSchema: SchemaV2.self)
         if isTesting {
             let containerResult: ModelContainer
             if let primary = try? SharedAppGroupContainer.createContainer(inMemory: true) {
