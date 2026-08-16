@@ -8,12 +8,21 @@ public enum SchemaV1: VersionedSchema {
     }
 }
 
+public enum SchemaV2: VersionedSchema {
+    public static var versionIdentifier = Schema.Version(2, 0, 0)
+    public static var models: [any PersistentModel.Type] {
+        [UserWordProgress.self, ReflexSessionLog.self, WidgetCurrentState.self, QuickReflexAttemptRecord.self]
+    }
+}
+
 public enum AppMigrationPlan: SchemaMigrationPlan {
     public static var schemas: [any VersionedSchema.Type] {
-        [SchemaV1.self]
+        [SchemaV1.self, SchemaV2.self]
     }
     public static var stages: [MigrationStage] {
-        []
+        [
+            .lightweight(fromVersion: SchemaV1.self, toVersion: SchemaV2.self)
+        ]
     }
 }
 
@@ -21,7 +30,7 @@ public struct SharedAppGroupContainer {
     public static let appGroupID = "group.com.hoojinguyen.vocabcraft"
 
     public static func createContainer(inMemory: Bool = false) throws -> ModelContainer {
-        let schema = Schema(versionedSchema: SchemaV1.self)
+        let schema = Schema(versionedSchema: SchemaV2.self)
 
         let isTesting = NSClassFromString("XCTestCase") != nil
         if inMemory || isTesting {

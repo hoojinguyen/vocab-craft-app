@@ -129,6 +129,78 @@ final class SwiftDataModelsTests: XCTestCase {
         XCTAssertEqual(afterDelete.first?.drillId, 1002)
     }
 
+    // MARK: - Quick Reflex Attempt Tests
+
+    func testQuickReflexAttemptRecordStoresAllLearningSignals() throws {
+        let timestamp = Date(timeIntervalSince1970: 1_700_000_000)
+        let record = QuickReflexAttemptRecord(
+            wordId: 7,
+            retrieveTimeMs: 1_100,
+            useTimeMs: 2_600,
+            retrieveSucceeded: true,
+            useSucceeded: true,
+            maxHintLevel: 1,
+            inputModeRawValue: "voice",
+            retryCount: 1,
+            confidenceRawValue: "comfortable",
+            timestamp: timestamp
+        )
+
+        context.insert(record)
+        try context.save()
+
+        let records = try context.fetch(FetchDescriptor<QuickReflexAttemptRecord>())
+        XCTAssertEqual(records.count, 1)
+        XCTAssertEqual(records.first?.id, record.id)
+        XCTAssertEqual(records.first?.wordId, 7)
+        XCTAssertEqual(records.first?.retrieveTimeMs, 1_100)
+        XCTAssertEqual(records.first?.useTimeMs, 2_600)
+        XCTAssertEqual(records.first?.retrieveSucceeded, true)
+        XCTAssertEqual(records.first?.useSucceeded, true)
+        XCTAssertEqual(records.first?.maxHintLevel, 1)
+        XCTAssertEqual(records.first?.inputModeRawValue, "voice")
+        XCTAssertEqual(records.first?.retryCount, 1)
+        XCTAssertEqual(records.first?.confidenceRawValue, "comfortable")
+        XCTAssertEqual(records.first?.timestamp, timestamp)
+    }
+
+    func testQuickReflexAttemptRecordCRUD() throws {
+        let record = QuickReflexAttemptRecord(
+            wordId: 8,
+            retrieveTimeMs: 800,
+            useTimeMs: 1_200,
+            retrieveSucceeded: true,
+            useSucceeded: false,
+            maxHintLevel: 0,
+            inputModeRawValue: "typing",
+            retryCount: 0,
+            confidenceRawValue: "uncertain"
+        )
+        context.insert(record)
+        try context.save()
+
+        let descriptor = FetchDescriptor<QuickReflexAttemptRecord>(
+            predicate: #Predicate { $0.wordId == 8 }
+        )
+        let fetched = try context.fetch(descriptor)
+        XCTAssertEqual(fetched.count, 1)
+
+        fetched.first?.useSucceeded = true
+        fetched.first?.confidenceRawValue = "comfortable"
+        try context.save()
+
+        let updated = try context.fetch(descriptor)
+        XCTAssertEqual(updated.first?.useSucceeded, true)
+        XCTAssertEqual(updated.first?.confidenceRawValue, "comfortable")
+
+        if let recordToDelete = updated.first {
+            context.delete(recordToDelete)
+            try context.save()
+        }
+
+        XCTAssertTrue(try context.fetch(descriptor).isEmpty)
+    }
+
     // MARK: - WidgetCurrentState Tests
 
     func testWidgetCurrentStateDefaults() {

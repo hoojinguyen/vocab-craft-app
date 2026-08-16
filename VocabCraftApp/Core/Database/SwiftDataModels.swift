@@ -60,6 +60,47 @@ public final class ReflexSessionLog {
 }
 
 @Model
+public final class QuickReflexAttemptRecord {
+    @Attribute(.unique) public var id: UUID
+    public var wordId: Int64
+    public var retrieveTimeMs: Int
+    public var useTimeMs: Int
+    public var retrieveSucceeded: Bool
+    public var useSucceeded: Bool
+    public var maxHintLevel: Int
+    public var inputModeRawValue: String
+    public var retryCount: Int
+    public var confidenceRawValue: String
+    public var timestamp: Date
+
+    public init(
+        id: UUID = UUID(),
+        wordId: Int64,
+        retrieveTimeMs: Int,
+        useTimeMs: Int,
+        retrieveSucceeded: Bool,
+        useSucceeded: Bool,
+        maxHintLevel: Int,
+        inputModeRawValue: String,
+        retryCount: Int,
+        confidenceRawValue: String,
+        timestamp: Date = Date()
+    ) {
+        self.id = id
+        self.wordId = wordId
+        self.retrieveTimeMs = retrieveTimeMs
+        self.useTimeMs = useTimeMs
+        self.retrieveSucceeded = retrieveSucceeded
+        self.useSucceeded = useSucceeded
+        self.maxHintLevel = maxHintLevel
+        self.inputModeRawValue = inputModeRawValue
+        self.retryCount = retryCount
+        self.confidenceRawValue = confidenceRawValue
+        self.timestamp = timestamp
+    }
+}
+
+@Model
 public final class WidgetCurrentState {
     @Attribute(.unique) public var id: String
     public var currentWordId: Int64
