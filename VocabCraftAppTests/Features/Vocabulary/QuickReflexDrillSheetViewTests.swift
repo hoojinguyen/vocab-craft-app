@@ -3,9 +3,9 @@ import SwiftUI
 import XCTest
 
 final class QuickReflexDrillSheetViewTests: XCTestCase {
-    func testRetrievePhaseConfigurationHidesLemmaAndSupportsTypingFallback() {
+    func testRecallWordPhaseConfigurationHidesLemmaAndSupportsTypingFallback() {
         let configuration = QuickReflexDrillPhaseConfiguration(
-            phase: .retrieve,
+            phase: .recallWord,
             inputMode: .typing
         )
 
@@ -14,9 +14,9 @@ final class QuickReflexDrillSheetViewTests: XCTestCase {
         XCTAssertEqual(configuration.stageNumber, 1)
     }
 
-    func testUsePhaseConfigurationShowsLemmaAndSupportsVoiceInput() {
+    func testRecallCollocationPhaseConfigurationShowsLemmaAndReportsStage2() {
         let configuration = QuickReflexDrillPhaseConfiguration(
-            phase: .useInSentence,
+            phase: .recallCollocation,
             inputMode: .voice
         )
 
@@ -25,22 +25,65 @@ final class QuickReflexDrillSheetViewTests: XCTestCase {
         XCTAssertEqual(configuration.stageNumber, 2)
     }
 
-    func testTimeComparisonReportsSavingsAndSlowerDeltasForEachStage() {
+    func testProduceSentenceAndShadowModelPhaseConfigurationReportsStage3() {
+        let produceConfig = QuickReflexDrillPhaseConfiguration(
+            phase: .produceSentence,
+            inputMode: .voice
+        )
+        XCTAssertFalse(produceConfig.hidesLemma)
+        XCTAssertEqual(produceConfig.stageNumber, 3)
+
+        let shadowConfig = QuickReflexDrillPhaseConfiguration(
+            phase: .shadowModel,
+            inputMode: .voice
+        )
+        XCTAssertFalse(shadowConfig.hidesLemma)
+        XCTAssertEqual(shadowConfig.stageNumber, 3)
+    }
+
+    func test3TierTimeComparisonReportsDeltasForEachStage() {
         let comparison = QuickReflexTimeComparison(
-            currentRetrieveTimeMs: 1_200,
-            previousRetrieveTimeMs: 1_700,
-            currentUseTimeMs: 2_800,
-            previousUseTimeMs: 2_000
+            currentRecallWordTimeMs: 1_200,
+            previousRecallWordTimeMs: 1_700,
+            currentCollocationTimeMs: 1_500,
+            previousCollocationTimeMs: 1_500,
+            currentProduceSentenceTimeMs: 2_800,
+            previousProduceSentenceTimeMs: 2_000
         )
 
+        XCTAssertEqual(comparison.recallWordDelta, .saved(milliseconds: 500))
+        XCTAssertEqual(comparison.collocationDelta, .unchanged)
+        XCTAssertEqual(comparison.produceSentenceDelta, .slower(milliseconds: 800))
+
+        // Backward-compatibility properties
         XCTAssertEqual(comparison.retrieveDelta, .saved(milliseconds: 500))
         XCTAssertEqual(comparison.useDelta, .slower(milliseconds: 800))
     }
 
-    func testTimeDeltaStringsUseStaticLocalizedFormats() {
+    func testLegacy2TierTimeComparisonInitializerCompatibility() {
+        let comparison = QuickReflexTimeComparison(
+            currentRetrieveTimeMs: 1_000,
+            previousRetrieveTimeMs: 1_500,
+            currentUseTimeMs: 2_500,
+            previousUseTimeMs: 2_000
+        )
+
+        XCTAssertEqual(comparison.recallWordDelta, .saved(milliseconds: 500))
+        XCTAssertEqual(comparison.collocationDelta, .unchanged)
+        XCTAssertEqual(comparison.produceSentenceDelta, .slower(milliseconds: 500))
+    }
+
+    func testAppStringsReflex3TierLocalizationKeys() {
+        let segment1 = AppStrings.Reflex.quickProgressSegment(1)
+        XCTAssertFalse(segment1.isEmpty)
+        XCTAssertTrue(segment1.contains("1") && segment1.contains("3"))
+
+        let shadowScore = AppStrings.Reflex.quickShadowScoreLabel(88)
+        XCTAssertFalse(shadowScore.isEmpty)
+        XCTAssertTrue(shadowScore.contains("88%"))
+
         let saved = AppStrings.Reflex.quickTimeSaved("0.5s")
         let slower = AppStrings.Reflex.quickTimeSlower("0.8s")
-
         XCTAssertTrue(saved.contains("0.5s"))
         XCTAssertTrue(slower.contains("0.8s"))
         XCTAssertFalse(saved.contains("%@"))
@@ -93,3 +136,4 @@ private final class SheetAttemptRepository: QuickReflexAttemptRepositoryProtocol
         nil
     }
 }
+

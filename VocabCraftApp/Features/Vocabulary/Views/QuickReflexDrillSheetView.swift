@@ -13,7 +13,7 @@ public struct QuickReflexDrillPhaseConfiguration: Equatable, Sendable {
         self.inputMode = inputMode
     }
 
-    public var hidesLemma: Bool { phase == .retrieve }
+    public var hidesLemma: Bool { phase == .recallWord }
     public var showsTypingFallback: Bool { inputMode == .typing }
     public var stageNumber: Int {
         switch phase {
@@ -34,15 +34,42 @@ public enum QuickReflexTimeDelta: Equatable, Sendable {
 }
 
 public struct QuickReflexTimeComparison: Equatable, Sendable {
-    public let retrieveDelta: QuickReflexTimeDelta
-    public let useDelta: QuickReflexTimeDelta
+    public let recallWordDelta: QuickReflexTimeDelta
+    public let collocationDelta: QuickReflexTimeDelta
+    public let produceSentenceDelta: QuickReflexTimeDelta
+
+    // Backward-compatible accessors
+    public var retrieveDelta: QuickReflexTimeDelta { recallWordDelta }
+    public var useDelta: QuickReflexTimeDelta { produceSentenceDelta }
+
+    public init(
+        currentRecallWordTimeMs: Int,
+        previousRecallWordTimeMs: Int,
+        currentCollocationTimeMs: Int = 0,
+        previousCollocationTimeMs: Int = 0,
+        currentProduceSentenceTimeMs: Int,
+        previousProduceSentenceTimeMs: Int
+    ) {
+        recallWordDelta = Self.delta(current: currentRecallWordTimeMs, previous: previousRecallWordTimeMs)
+        collocationDelta = Self.delta(current: currentCollocationTimeMs, previous: previousCollocationTimeMs)
+        produceSentenceDelta = Self.delta(current: currentProduceSentenceTimeMs, previous: previousProduceSentenceTimeMs)
+    }
 
     public init(currentRetrieveTimeMs: Int, previousRetrieveTimeMs: Int, currentUseTimeMs: Int, previousUseTimeMs: Int) {
-        retrieveDelta = Self.delta(current: currentRetrieveTimeMs, previous: previousRetrieveTimeMs)
-        useDelta = Self.delta(current: currentUseTimeMs, previous: previousUseTimeMs)
+        self.init(
+            currentRecallWordTimeMs: currentRetrieveTimeMs,
+            previousRecallWordTimeMs: previousRetrieveTimeMs,
+            currentCollocationTimeMs: 0,
+            previousCollocationTimeMs: 0,
+            currentProduceSentenceTimeMs: currentUseTimeMs,
+            previousProduceSentenceTimeMs: previousUseTimeMs
+        )
     }
 
     private static func delta(current: Int, previous: Int) -> QuickReflexTimeDelta {
+        if previous == 0 && current > 0 {
+            return .unchanged
+        }
         if current < previous {
             return .saved(milliseconds: previous - current)
         }
@@ -111,9 +138,10 @@ public struct QuickReflexDrillSheetView: View {
         }
         .onChange(of: viewModel.state.phase) { _, phase in
             guard phase != .result else { return }
+            let stageNum = QuickReflexDrillPhaseConfiguration(phase: phase, inputMode: viewModel.state.inputMode).stageNumber
             announceForAccessibility(AppStrings.Reflex.quickStageProgressValue(
-                stage: QuickReflexDrillPhaseConfiguration(phase: phase, inputMode: viewModel.state.inputMode).stageNumber,
-                total: 2
+                stage: stageNum,
+                total: 3
             ))
         }
         .onChange(of: viewModel.state.visibleHintLevel) { oldLevel, newLevel in
@@ -138,7 +166,14 @@ public struct QuickReflexDrillSheetView: View {
     }
 
     private var currentPrompt: QuickReflexStagePrompt {
-        viewModel.state.phase == .useInSentence ? viewModel.prompts.use : viewModel.prompts.retrieve
+        switch viewModel.state.phase {
+        case .recallWord:
+            return viewModel.prompts.recallWord
+        case .recallCollocation:
+            return viewModel.prompts.recallCollocation
+        case .produceSentence, .shadowModel, .result:
+            return viewModel.prompts.produceSentence
+        }
     }
 
     private var stageContent: some View {
@@ -175,20 +210,20 @@ public struct QuickReflexDrillSheetView: View {
 
             Spacer()
 
-            Text("\(configuration.stageNumber)/2")
+            Text("\(configuration.stageNumber)/3")
                 .font(.caption.weight(.bold))
                 .foregroundStyle(Color.vocabHeroAccent)
                 .padding(.horizontal, 10)
                 .frame(minHeight: 28)
                 .background(Color.vocabHeroAccent.opacity(0.12))
                 .clipShape(Capsule())
-                .accessibilityLabel(AppStrings.Reflex.quickStageProgressValue(stage: configuration.stageNumber, total: 2))
+                .accessibilityLabel(AppStrings.Reflex.quickStageProgressValue(stage: configuration.stageNumber, total: 3))
         }
     }
 
     private var progressIndicator: some View {
         HStack(spacing: 8) {
-            ForEach(1...2, id: \.self) { stage in
+            ForEach(1...3, id: \.self) { stage in
                 Capsule()
                     .fill(stage <= configuration.stageNumber ? Color.vocabHeroAccent : Color.vocabHairline.opacity(0.6))
                     .frame(height: 5)
@@ -197,7 +232,16 @@ public struct QuickReflexDrillSheetView: View {
         .accessibilityHidden(true)
     }
 
+    @ViewBuilder
     private var phaseCard: some View {
+        if viewModel.state.phase == .shadowModel {
+            shadowingPhaseCard
+        } else {
+            activeDrillCard
+        }
+    }
+
+    private var activeDrillCard: some View {
         VStack(alignment: .leading, spacing: 20) {
             phaseHeader
 
@@ -209,9 +253,11 @@ public struct QuickReflexDrillSheetView: View {
 
             if !configuration.hidesLemma {
                 wordIdentity
+            } else if viewModel.state.phase == .recallWord {
+                definitionBadge
             }
 
-            if viewModel.state.phase == .useInSentence,
+            if viewModel.state.phase == .produceSentence,
                !viewModel.targetWord.exampleSentenceEn.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 Button(action: viewModel.speakExampleSentence) {
                     Label(AppStrings.Reflex.quickListenExample, systemImage: "speaker.wave.2.fill")
@@ -281,9 +327,110 @@ public struct QuickReflexDrillSheetView: View {
         .shadow(color: Color.black.opacity(0.04), radius: 12, x: 0, y: 4)
     }
 
+    private var shadowingPhaseCard: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text(AppStrings.Reflex.quickStage3Title)
+                    .font(.system(.headline, design: .rounded, weight: .bold))
+                    .foregroundStyle(Color.vocabHeroAccent)
+
+                Spacer()
+
+                Text(AppStrings.Reflex.quickShadowCardTitle)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Color.vocabMuted)
+            }
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text(AppStrings.Reflex.quickModelSentence)
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(Color.vocabMuted)
+
+                Text(viewModel.prompts.modelSentenceEn)
+                    .font(.system(.title3, design: .rounded, weight: .bold))
+                    .foregroundStyle(Color.vocabInk)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.vocabHeroAccent.opacity(0.08))
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+
+            Button(action: viewModel.speakModelSentence) {
+                Label(AppStrings.Reflex.quickListenModelAgain, systemImage: "speaker.wave.3.fill")
+                    .font(.system(.subheadline, weight: .semibold))
+                    .foregroundStyle(Color.vocabHeroAccent)
+                    .frame(minHeight: 44)
+            }
+            .buttonStyle(.plain)
+
+            if let score = viewModel.state.shadowPronunciationScore {
+                HStack(spacing: 8) {
+                    Image(systemName: score >= 0.75 ? "checkmark.circle.fill" : "sparkles")
+                        .foregroundStyle(score >= 0.75 ? Color.vocabMint : Color.vocabPeach)
+                    Text(AppStrings.Reflex.quickShadowScoreLabel(Int(score * 100)))
+                        .font(.headline.weight(.bold))
+                        .foregroundStyle(Color.vocabInk)
+                }
+                .padding(12)
+                .frame(maxWidth: .infinity)
+                .background((score >= 0.75 ? Color.vocabMint : Color.vocabPeach).opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            }
+
+            VocabSpeechVisualizerView(
+                isListening: viewModel.isListening,
+                recognizedText: viewModel.recognizedText,
+                placeholderText: String(localized: "reflex.quickTranscriptPlaceholder"),
+                evaluationResult: viewModel.speechEvaluationResult,
+                tokens: viewModel.speechEvaluationResult?.tokens
+            )
+            .accessibilityLabel(AppStrings.Reflex.quickTranscriptFeedback)
+
+            VocabMicControlHubView(
+                isListening: viewModel.isListening,
+                idleSubtitleText: String(localized: "reflex.quickMicIdle"),
+                listeningSubtitleText: String(localized: "reflex.quickMicListening"),
+                onTapMic: viewModel.handleMicTap
+            )
+
+            if let errorMessage = viewModel.state.errorMessage {
+                Text(errorMessage)
+                    .font(.footnote.weight(.medium))
+                    .foregroundStyle(Color.vocabCoral)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+            }
+
+            Button(action: viewModel.proceedToResult) {
+                Text(AppStrings.Reflex.quickContinue)
+                    .frame(maxWidth: .infinity, minHeight: 48)
+            }
+            .buttonStyle(PrimaryDrillButtonStyle())
+        }
+        .padding(20)
+        .frame(maxWidth: .infinity)
+        .background(Color.vocabSurfaceCard)
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(Color.vocabHairline, lineWidth: 1))
+        .shadow(color: Color.black.opacity(0.04), radius: 12, x: 0, y: 4)
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.state.shadowPronunciationScore)
+    }
+
+    private var phaseTitle: LocalizedStringKey {
+        switch viewModel.state.phase {
+        case .recallWord:
+            return AppStrings.Reflex.quickStage1Title
+        case .recallCollocation:
+            return AppStrings.Reflex.quickStage2Title
+        case .produceSentence, .shadowModel, .result:
+            return AppStrings.Reflex.quickStage3Title
+        }
+    }
+
     private var phaseHeader: some View {
         HStack(alignment: .firstTextBaseline, spacing: 8) {
-            Text(viewModel.state.phase == .retrieve ? AppStrings.Reflex.quickRetrieveTitle : AppStrings.Reflex.quickUseTitle)
+            Text(phaseTitle)
                 .font(.system(.headline, design: .rounded, weight: .bold))
                 .foregroundStyle(Color.vocabHeroAccent)
 
@@ -312,6 +459,25 @@ public struct QuickReflexDrillSheetView: View {
         .padding(14)
         .background(Color.vocabCanvas)
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+    }
+
+    private var definitionBadge: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Text(viewModel.targetWord.pos)
+                .font(.caption.weight(.bold))
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(Color.vocabHeroAccent.opacity(0.12))
+                .foregroundStyle(Color.vocabHeroAccent)
+                .clipShape(Capsule())
+            Text(viewModel.targetWord.definition)
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(Color.vocabInk)
+            Spacer()
+        }
+        .padding(12)
+        .background(Color.vocabCanvas)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
     private var hintSection: some View {
@@ -383,8 +549,32 @@ public struct QuickReflexDrillSheetView: View {
                         .foregroundStyle(Color.vocabInk)
                         .accessibilityAddTraits(.isHeader)
 
-                    resultRow(title: AppStrings.Reflex.quickRetrieveTitle, succeeded: viewModel.state.retrieveSucceeded, timeMs: viewModel.state.retrieveTimeMs)
-                    resultRow(title: AppStrings.Reflex.quickUseTitle, succeeded: viewModel.state.useSucceeded, timeMs: viewModel.state.useTimeMs)
+                    resultRow(title: AppStrings.Reflex.quickStage1Title, succeeded: viewModel.state.recallWordSucceeded, timeMs: viewModel.state.recallWordTimeMs)
+                    resultRow(title: AppStrings.Reflex.quickStage2Title, succeeded: viewModel.state.collocationSucceeded, timeMs: viewModel.state.collocationTimeMs)
+                    resultRow(title: AppStrings.Reflex.quickStage3Title, succeeded: viewModel.state.produceSentenceSucceeded, timeMs: viewModel.state.produceSentenceTimeMs)
+
+                    if let shadowScore = viewModel.state.shadowPronunciationScore {
+                        HStack(spacing: 12) {
+                            Image(systemName: shadowScore >= 0.75 ? "waveform.badge.checkmark" : "waveform")
+                                .font(.title3)
+                                .foregroundStyle(shadowScore >= 0.75 ? Color.vocabMint : Color.vocabPeach)
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(AppStrings.Reflex.quickShadowCardTitle)
+                                    .font(.subheadline.weight(.bold))
+                                    .foregroundStyle(Color.vocabInk)
+                                Text(AppStrings.Reflex.quickShadowScoreLabel(Int(shadowScore * 100)))
+                                    .font(.caption)
+                                    .foregroundStyle(Color.vocabMuted)
+                            }
+                            Spacer()
+                            Text("\(Int(shadowScore * 100))%")
+                                .font(.caption.monospacedDigit().weight(.bold))
+                                .foregroundStyle(shadowScore >= 0.75 ? Color.vocabMint : Color.vocabPeach)
+                        }
+                        .padding(14)
+                        .background(Color.vocabCanvas)
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    }
 
                     if let revealedTargetExpression = viewModel.state.revealedTargetExpression {
                         VStack(alignment: .leading, spacing: 4) {
@@ -471,26 +661,36 @@ public struct QuickReflexDrillSheetView: View {
 
     private func previousAttemptComparison(_ attempt: QuickReflexAttempt) -> some View {
         let comparison = QuickReflexTimeComparison(
-            currentRetrieveTimeMs: viewModel.state.retrieveTimeMs,
-            previousRetrieveTimeMs: attempt.retrieveTimeMs,
-            currentUseTimeMs: viewModel.state.useTimeMs,
-            previousUseTimeMs: attempt.useTimeMs
+            currentRecallWordTimeMs: viewModel.state.recallWordTimeMs,
+            previousRecallWordTimeMs: attempt.recallWordTimeMs,
+            currentCollocationTimeMs: viewModel.state.collocationTimeMs,
+            previousCollocationTimeMs: attempt.collocationTimeMs,
+            currentProduceSentenceTimeMs: viewModel.state.produceSentenceTimeMs,
+            previousProduceSentenceTimeMs: attempt.produceSentenceTimeMs
         )
         return VStack(alignment: .leading, spacing: 8) {
             Text(AppStrings.Reflex.quickPreviousAttempt)
                 .font(.caption.weight(.bold))
                 .foregroundStyle(Color.vocabMuted)
             timeComparisonRow(
-                title: AppStrings.Reflex.quickRetrieveTitle,
-                current: viewModel.state.retrieveTimeMs,
-                previous: attempt.retrieveTimeMs,
-                delta: comparison.retrieveDelta
+                title: AppStrings.Reflex.quickStage1Title,
+                current: viewModel.state.recallWordTimeMs,
+                previous: attempt.recallWordTimeMs,
+                delta: comparison.recallWordDelta
             )
+            if attempt.collocationTimeMs > 0 || viewModel.state.collocationTimeMs > 0 {
+                timeComparisonRow(
+                    title: AppStrings.Reflex.quickStage2Title,
+                    current: viewModel.state.collocationTimeMs,
+                    previous: attempt.collocationTimeMs,
+                    delta: comparison.collocationDelta
+                )
+            }
             timeComparisonRow(
-                title: AppStrings.Reflex.quickUseTitle,
-                current: viewModel.state.useTimeMs,
-                previous: attempt.useTimeMs,
-                delta: comparison.useDelta
+                title: AppStrings.Reflex.quickStage3Title,
+                current: viewModel.state.produceSentenceTimeMs,
+                previous: attempt.produceSentenceTimeMs,
+                delta: comparison.produceSentenceDelta
             )
         }
         .font(.subheadline)
@@ -610,3 +810,4 @@ private struct SecondaryDrillButtonStyle: ButtonStyle {
             .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Color.vocabHeroAccent.opacity(0.25), lineWidth: 1))
     }
 }
+

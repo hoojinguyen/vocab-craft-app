@@ -135,6 +135,21 @@ public enum AppStrings {
         public static var continueNext: LocalizedStringKey { "reflex.continueNext" }
         public static var quickPracticeTitle: LocalizedStringKey { "reflex.quickPracticeTitle" }
         public static var quickStageProgress: LocalizedStringKey { "reflex.quickStageProgress" }
+        public static func quickProgressSegment(_ stage: Int) -> String {
+            String(format: String(localized: "reflex.quickProgressSegment %lld"), stage)
+        }
+        public static var quickStage1Title: LocalizedStringKey { "reflex.quickStage1Title" }
+        public static var quickStage2Title: LocalizedStringKey { "reflex.quickStage2Title" }
+        public static var quickStage3Title: LocalizedStringKey { "reflex.quickStage3Title" }
+        public static var quickShadowButton: LocalizedStringKey { "reflex.quickShadowButton" }
+        public static func quickShadowScoreLabel(_ score: Int) -> String {
+            String(format: String(localized: "reflex.quickShadowScoreLabel %lld"), score)
+        }
+        public static var quickListenModelAgain: LocalizedStringKey { "reflex.quickListenModelAgain" }
+        public static var quickContinue: LocalizedStringKey { "reflex.quickContinue" }
+        public static var quickShadowCardTitle: LocalizedStringKey { "reflex.quickShadowCardTitle" }
+        public static var quickModelSentence: LocalizedStringKey { "reflex.quickModelSentence" }
+        public static var quickCollocationBadge: LocalizedStringKey { "reflex.quickCollocationBadge" }
         public static var quickRetrieveTitle: LocalizedStringKey { "reflex.quickRetrieveTitle" }
         public static var quickUseTitle: LocalizedStringKey { "reflex.quickUseTitle" }
         public static var quickVoiceMode: LocalizedStringKey { "reflex.quickVoiceMode" }

@@ -763,6 +763,72 @@
         "vi" : { "stringUnit" : { "state" : "translated", "value" : "Luyện Phản Xạ Nhanh" } }
       }
     },
+    "reflex.quickProgressSegment %lld" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Stage %lld/3" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Nấc %lld/3" } }
+      }
+    },
+    "reflex.quickStage1Title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Stage 1: Contextual Word Recall" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Nấc 1: Điền từ vào ngữ cảnh" } }
+      }
+    },
+    "reflex.quickStage2Title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Stage 2: Collocation Chunking" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Nấc 2: Phản xạ Cụm từ (Collocation)" } }
+      }
+    },
+    "reflex.quickStage3Title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Stage 3: Sentence & Shadowing" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Nấc 3: Đặt câu & Nhại lại mẫu" } }
+      }
+    },
+    "reflex.quickShadowButton" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "🎙️ Shadow Pronunciation" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "🎙️ Nhại lại (Shadow)" } }
+      }
+    },
+    "reflex.quickShadowScoreLabel %lld" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pronunciation Score: %lld%%" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Điểm phát âm: %lld%%" } }
+      }
+    },
+    "reflex.quickListenModelAgain" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Listen to model sentence" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Nghe lại câu mẫu" } }
+      }
+    },
+    "reflex.quickContinue" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Continue" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Tiếp tục" } }
+      }
+    },
+    "reflex.quickShadowCardTitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Shadowing & Intonation" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Luyện Nhại & Ngữ Điệu (Shadowing)" } }
+      }
+    },
+    "reflex.quickModelSentence" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Model Sentence:" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Câu mẫu chuẩn:" } }
+      }
+    },
+    "reflex.quickCollocationBadge" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Collocation" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Cụm từ" } }
+      }
+    },
     "reflex.quickStageProgress" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Practice stage progress" } },
