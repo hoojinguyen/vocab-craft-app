@@ -15,6 +15,7 @@ public struct QuickReflexDrillState: Equatable, Sendable {
     public var isCompleted = false
     public var isCancelled = false
     public var isFinishing = false
+    public var isPaused = false
     public var isDeferredAttempt = false
     public var revealedTargetExpression: String?
     public var showsSentenceFrame = false
@@ -57,6 +58,7 @@ public final class QuickReflexDrillViewModel {
     private let attemptRepository: QuickReflexAttemptRepositoryProtocol
     private let clock: () -> Date
     private var activePhaseStartedAt: Date
+    private var elapsedBeforePauseMs = 0
     // Task handles are only mutated on the main actor, but must be cancelled synchronously at teardown.
     private nonisolated(unsafe) var hintTasks: [Task<Void, Never>] = []
     private var recordingSession = 0
@@ -95,14 +97,16 @@ public final class QuickReflexDrillViewModel {
     deinit {
         hintTasks.forEach { $0.cancel() }
         let stt = sttService
+        let tts = ttsService
         Task { @MainActor in
             stt.stopListening()
+            tts.stop()
         }
     }
 
     /// Begins raw speech recognition for the current productive-recall phase.
     public func startRecording() {
-        guard !state.isCancelled, !state.isCompleted, state.phase != .result, !isListening else { return }
+        guard canAnswerCurrentPhase, !isListening else { return }
         recordingSession += 1
         let session = recordingSession
         let phase = state.phase
@@ -132,7 +136,7 @@ public final class QuickReflexDrillViewModel {
 
     /// Stops listening and evaluates the final raw transcript, allowing one empty retry.
     public func stopRecordingAndEvaluate() {
-        guard !state.isCancelled, !state.isCompleted, state.phase != .result else { return }
+        guard canAnswerCurrentPhase else { return }
         stopCurrentRecording()
         let answer = recognizedText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !answer.isEmpty else {
@@ -156,6 +160,22 @@ public final class QuickReflexDrillViewModel {
 
     public func submitTypedAnswer(_ answer: String) {
         submit(answer, mode: .typing)
+    }
+
+    /// Excludes inactive app time from the current phase and prevents background hint delivery.
+    public func pause() {
+        guard canAnswerCurrentPhase, !state.isPaused else { return }
+        elapsedBeforePauseMs += liveElapsedTimeMs()
+        state.isPaused = true
+        stopListeningAndTimers()
+    }
+
+    /// Continues the existing phase from its paused elapsed time and restarts hint delays fresh.
+    public func resume() {
+        guard !state.isCancelled, !state.isCompleted, state.phase != .result, state.isPaused else { return }
+        activePhaseStartedAt = clock()
+        state.isPaused = false
+        scheduleHints()
     }
 
     /// Shows the next staged hint. Timers call this at 4 and 7 seconds; it never ends a stage.
@@ -250,7 +270,7 @@ public final class QuickReflexDrillViewModel {
     }
 
     private var canAnswerCurrentPhase: Bool {
-        !state.isCancelled && !state.isCompleted && state.phase != .result
+        !state.isCancelled && !state.isCompleted && !state.isPaused && state.phase != .result
     }
 
     private func isActiveFinish(_ session: Int) -> Bool {
@@ -332,6 +352,7 @@ public final class QuickReflexDrillViewModel {
 
     private func beginPhase() {
         activePhaseStartedAt = clock()
+        elapsedBeforePauseMs = 0
         state.visibleHintLevel = 0
         stageRetryCount = 0
         state.showsSentenceFrame = false
@@ -379,6 +400,10 @@ public final class QuickReflexDrillViewModel {
     }
 
     private func elapsedTimeMs() -> Int {
+        elapsedBeforePauseMs + liveElapsedTimeMs()
+    }
+
+    private func liveElapsedTimeMs() -> Int {
         Int(clock().timeIntervalSince(activePhaseStartedAt) * 1_000)
     }
 

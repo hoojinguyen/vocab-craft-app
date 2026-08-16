@@ -258,6 +258,25 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
         XCTAssertEqual(mockAttempts.saved.first?.maxHintLevel, 3)
     }
 
+    func testPauseAndResumeExcludesInactiveTimeAndKeepsHintsHidden() {
+        let clock = MutableClock()
+        let viewModel = makeViewModel(clock: { clock.now })
+        clock.advance(by: 2)
+
+        viewModel.pause()
+        XCTAssertTrue(viewModel.state.isPaused)
+        XCTAssertEqual(viewModel.state.visibleHintLevel, 0)
+
+        clock.advance(by: 60)
+        viewModel.resume()
+        clock.advance(by: 3)
+        viewModel.submitTypedAnswer("ephemeral")
+
+        XCTAssertFalse(viewModel.state.isPaused)
+        XCTAssertEqual(viewModel.state.retrieveTimeMs, 5_000)
+        XCTAssertEqual(viewModel.state.visibleHintLevel, 0)
+    }
+
     func testRevealAnswerCarriesTargetExpressionIntoResult() {
         let viewModel = makeViewModel()
 
@@ -313,15 +332,26 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
     }
 
     private func makeViewModel(
-        attemptRepository: QuickReflexAttemptRepositoryProtocol? = nil
+        attemptRepository: QuickReflexAttemptRepositoryProtocol? = nil,
+        clock: @escaping () -> Date = Date.init
     ) -> QuickReflexDrillViewModel {
         QuickReflexDrillViewModel(
             targetWord: targetWord,
             allWords: [targetWord],
             sttService: mockSTT,
             evaluateSRSUseCase: mockSRS,
-            attemptRepository: attemptRepository ?? mockAttempts
+            attemptRepository: attemptRepository ?? mockAttempts,
+            clock: clock
         )
+    }
+}
+
+private final class MutableClock {
+    private(set) var date = Date(timeIntervalSinceReferenceDate: 0)
+    var now: Date { date }
+
+    func advance(by seconds: TimeInterval) {
+        date.addTimeInterval(seconds)
     }
 }
 

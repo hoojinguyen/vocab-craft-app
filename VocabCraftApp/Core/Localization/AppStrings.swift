@@ -158,13 +158,20 @@ public enum AppStrings {
         public static var quickUncertain: LocalizedStringKey { "reflex.quickUncertain" }
         public static var quickSaving: LocalizedStringKey { "reflex.quickSaving" }
         public static var quickRevealedAnswer: LocalizedStringKey { "reflex.quickRevealedAnswer" }
+        public static func quickStageProgressValue(stage: Int, total: Int) -> String {
+            String(format: String(localized: "reflex.quickStageProgressValue %lld %lld"), stage, total)
+        }
         public static var quickNounSentenceFrame: String { String(localized: "reflex.quickNounSentenceFrame") }
         public static var quickVerbSentenceFrame: String { String(localized: "reflex.quickVerbSentenceFrame") }
         public static var quickAdjectiveSentenceFrame: String { String(localized: "reflex.quickAdjectiveSentenceFrame") }
         public static var quickAdverbSentenceFrame: String { String(localized: "reflex.quickAdverbSentenceFrame") }
         public static var quickPhraseSentenceFrame: String { String(localized: "reflex.quickPhraseSentenceFrame") }
-        public static func quickTimeSaved(_ time: String) -> LocalizedStringKey { LocalizedStringKey("reflex.quickTimeSaved \(time)") }
-        public static func quickTimeSlower(_ time: String) -> LocalizedStringKey { LocalizedStringKey("reflex.quickTimeSlower \(time)") }
+        public static func quickTimeSaved(_ time: String) -> String {
+            String(format: String(localized: "reflex.quickTimeSaved %@"), time)
+        }
+        public static func quickTimeSlower(_ time: String) -> String {
+            String(format: String(localized: "reflex.quickTimeSlower %@"), time)
+        }
         public static var quickTimeUnchanged: LocalizedStringKey { "reflex.quickTimeUnchanged" }
         public static var quickMicDefaultIdleText: String { String(localized: "reflex.quickMicDefaultIdle") }
         public static var quickMicDefaultListeningText: String { String(localized: "reflex.quickMicDefaultListening") }
@@ -179,6 +186,9 @@ public enum AppStrings {
         public static var quickSpeechTypingText: String { String(localized: "reflex.quickSpeechTyping") }
         public static func quickUsePrompt(_ lemma: String) -> String {
             String(localized: "reflex.quickUsePrompt \(lemma)")
+        }
+        public static func quickUsePromptFromExample(_ lemma: String, _ example: String) -> String {
+            String(format: String(localized: "reflex.quickUsePromptFromExample %@ %@"), lemma, example)
         }
         public static var speedBonus: LocalizedStringKey { "reflex.speedBonus" }
         public static var listenExample: LocalizedStringKey { "reflex.listenExample" }

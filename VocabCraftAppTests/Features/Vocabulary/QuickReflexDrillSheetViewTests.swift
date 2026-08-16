@@ -37,6 +37,16 @@ final class QuickReflexDrillSheetViewTests: XCTestCase {
         XCTAssertEqual(comparison.useDelta, .slower(milliseconds: 800))
     }
 
+    func testTimeDeltaStringsUseStaticLocalizedFormats() {
+        let saved = AppStrings.Reflex.quickTimeSaved("0.5s")
+        let slower = AppStrings.Reflex.quickTimeSlower("0.8s")
+
+        XCTAssertTrue(saved.contains("0.5s"))
+        XCTAssertTrue(slower.contains("0.8s"))
+        XCTAssertFalse(saved.contains("%@"))
+        XCTAssertFalse(slower.contains("%@"))
+    }
+
     @MainActor
     func testQuickReflexDrillSheetViewInitialization() {
         let word = WordItem(

@@ -60,6 +60,7 @@ public struct QuickReflexDrillSheetView: View {
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.scenePhase) private var scenePhase
 
     public init(
         targetWord: WordItem,
@@ -96,6 +97,13 @@ public struct QuickReflexDrillSheetView: View {
         }
         .task { await loadLatestSuccessfulAttempt() }
         .interactiveDismissDisabled(isFinishing || viewModel.state.isFinishing)
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                viewModel.resume()
+            } else {
+                viewModel.pause()
+            }
+        }
         .onDisappear {
             finishTask?.cancel()
             finishTask = nil
@@ -142,19 +150,19 @@ public struct QuickReflexDrillSheetView: View {
             Spacer()
 
             Text(AppStrings.Reflex.quickPracticeTitle)
-                .font(.system(size: 16, weight: .bold))
+                .font(.headline)
                 .foregroundStyle(Color.vocabInk)
 
             Spacer()
 
             Text("\(configuration.stageNumber)/2")
-                .font(.system(size: 13, weight: .bold, design: .monospaced))
+                .font(.caption.weight(.bold))
                 .foregroundStyle(Color.vocabHeroAccent)
                 .padding(.horizontal, 10)
                 .frame(minHeight: 28)
                 .background(Color.vocabHeroAccent.opacity(0.12))
                 .clipShape(Capsule())
-                .accessibilityLabel(AppStrings.Reflex.quickStageProgress)
+                .accessibilityLabel(AppStrings.Reflex.quickStageProgressValue(stage: configuration.stageNumber, total: 2))
         }
     }
 
@@ -166,7 +174,7 @@ public struct QuickReflexDrillSheetView: View {
                     .frame(height: 5)
             }
         }
-        .accessibilityLabel(AppStrings.Reflex.quickStageProgress)
+        .accessibilityHidden(true)
     }
 
     private var phaseCard: some View {
@@ -486,14 +494,14 @@ public struct QuickReflexDrillSheetView: View {
         .font(.caption)
     }
 
-    private func timeDeltaLabel(_ delta: QuickReflexTimeDelta) -> LocalizedStringKey {
+    private func timeDeltaLabel(_ delta: QuickReflexTimeDelta) -> String {
         switch delta {
         case let .saved(milliseconds):
             AppStrings.Reflex.quickTimeSaved(formattedTime(milliseconds))
         case let .slower(milliseconds):
             AppStrings.Reflex.quickTimeSlower(formattedTime(milliseconds))
         case .unchanged:
-            AppStrings.Reflex.quickTimeUnchanged
+            String(localized: "reflex.quickTimeUnchanged")
         }
     }
 

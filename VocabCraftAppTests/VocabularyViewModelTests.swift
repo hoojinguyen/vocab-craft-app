@@ -52,4 +52,36 @@ final class VocabularyViewModelTests: XCTestCase {
         XCTAssertEqual(sut.filterCount(for: .all), totalCount)
         XCTAssertEqual(sut.filterCount(for: .needsReview), needsReviewCount)
     }
+
+    func testLoadedDatasetExampleFeedsSpecificQuickReflexUsePrompt() async {
+        let useCase = VocabularyFetchUseCaseStub(words: [
+            Word(
+                id: 77,
+                lemma: "resilience",
+                pos: "noun",
+                definitionVi: "Khả năng phục hồi",
+                example: "Her resilience helped her recover after the setback."
+            )
+        ])
+        let viewModel = VocabularyViewModel(fetchVocabularyUseCase: useCase)
+
+        await viewModel.loadWords()
+        let loadedWord = try! XCTUnwrap(viewModel.wordItems.first)
+        let prompt = QuickReflexPromptFactory().makePrompts(for: loadedWord).use.promptText
+
+        XCTAssertEqual(loadedWord.exampleSentenceEn, "Her resilience helped her recover after the setback.")
+        XCTAssertEqual(prompt, AppStrings.Reflex.quickUsePromptFromExample(loadedWord.lemma, loadedWord.exampleSentenceEn))
+    }
+}
+
+private final class VocabularyFetchUseCaseStub: FetchVocabularyUseCaseProtocol {
+    private let words: [Word]
+
+    init(words: [Word]) {
+        self.words = words
+    }
+
+    func executeFetchWords(limit _: Int) async throws -> [Word] { words }
+    func executeSearch(query _: String) async throws -> [Word] { [] }
+    func executeFetchDrills(cefrLevel _: String) async throws -> [ReflexDrillRecord] { [] }
 }

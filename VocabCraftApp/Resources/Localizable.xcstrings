@@ -979,6 +979,12 @@
         "vi" : { "stringUnit" : { "state" : "translated", "value" : "Cùng thời gian" } }
       }
     },
+    "reflex.quickStageProgressValue %lld %lld" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Stage %lld of %lld" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Bước %lld trên %lld" } }
+      }
+    },
     "reflex.quickMicDefaultIdle" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Tap the microphone to start speaking" } },
@@ -1037,6 +1043,12 @@
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Say an English sentence using %@." } },
         "vi" : { "stringUnit" : { "state" : "translated", "value" : "Hãy nói một câu tiếng Anh có dùng %@." } }
+      }
+    },
+    "reflex.quickUsePromptFromExample %@ %@" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Create a new English sentence using %@. Let this example guide the idea: %@" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Hãy tạo một câu tiếng Anh mới có dùng %@, lấy ý từ câu mẫu này: %@" } }
       }
     },
     "reflex.speedBonus" : {

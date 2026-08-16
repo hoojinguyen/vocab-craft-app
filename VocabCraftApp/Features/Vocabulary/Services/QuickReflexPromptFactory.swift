@@ -13,9 +13,15 @@ public struct QuickReflexPromptFactory: Sendable {
         )
 
         let vietnameseExample = word.exampleSentenceVi.trimmingCharacters(in: .whitespacesAndNewlines)
-        let usePrompt = vietnameseExample.isEmpty
-            ? AppStrings.Reflex.quickUsePrompt(word.lemma)
-            : word.exampleSentenceVi
+        let englishExample = word.exampleSentenceEn.trimmingCharacters(in: .whitespacesAndNewlines)
+        let usePrompt: String
+        if !vietnameseExample.isEmpty {
+            usePrompt = vietnameseExample
+        } else if !englishExample.isEmpty {
+            usePrompt = AppStrings.Reflex.quickUsePromptFromExample(word.lemma, englishExample)
+        } else {
+            usePrompt = AppStrings.Reflex.quickUsePrompt(word.lemma)
+        }
         let use = QuickReflexStagePrompt(
             phase: .useInSentence,
             promptText: usePrompt,

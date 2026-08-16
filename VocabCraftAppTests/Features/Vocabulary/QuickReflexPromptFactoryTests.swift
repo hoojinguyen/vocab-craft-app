@@ -54,6 +54,29 @@ final class QuickReflexPromptFactoryTests: XCTestCase {
         XCTAssertEqual(prompts.use.promptText, AppStrings.Reflex.quickUsePrompt("break the ice"))
     }
 
+    func testMakePromptsUsesEnglishExampleWhenVietnameseExampleIsMissing() {
+        var word = makeWord(lemma: "resilience", pos: "noun", definition: "Khả năng phục hồi", exampleSentenceVi: "")
+        word = WordItem(
+            id: word.id,
+            lemma: word.lemma,
+            phonetic: word.phonetic,
+            pos: word.pos,
+            definition: word.definition,
+            exampleSentenceEn: "Her resilience helped her recover after the setback.",
+            exampleSentenceVi: word.exampleSentenceVi,
+            cefrLevel: word.cefrLevel,
+            masteryLevel: word.masteryLevel
+        )
+
+        let prompts = QuickReflexPromptFactory().makePrompts(for: word)
+
+        XCTAssertEqual(
+            prompts.use.promptText,
+            AppStrings.Reflex.quickUsePromptFromExample(word.lemma, word.exampleSentenceEn)
+        )
+        XCTAssertNotEqual(prompts.use.promptText, AppStrings.Reflex.quickUsePrompt(word.lemma))
+    }
+
     private func makeWord(
         lemma: String,
         pos: String,
