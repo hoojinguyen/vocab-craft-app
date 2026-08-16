@@ -112,6 +112,10 @@ public final class QuickReflexDrillViewModel {
             handleUnclearSpeech()
             return
         }
+        guard TargetExpressionMatcher.contains(response: answer, expression: currentPrompt.targetExpression) else {
+            handleUnclearSpeech()
+            return
+        }
         submit(answer, mode: .voice)
     }
 

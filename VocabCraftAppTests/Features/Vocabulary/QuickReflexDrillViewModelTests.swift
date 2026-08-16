@@ -100,6 +100,42 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.state.inputMode, .typing)
     }
 
+    func testNonmatchingRetrieveSpeechGetsOneRetryThenTypingFallback() {
+        let viewModel = makeViewModel()
+
+        mockSTT.recognizedText = "a different answer"
+        viewModel.startRecording()
+        viewModel.stopRecordingAndEvaluate()
+        XCTAssertEqual(viewModel.state.phase, .retrieve)
+        XCTAssertEqual(viewModel.state.retryCount, 1)
+        XCTAssertEqual(viewModel.state.inputMode, .voice)
+
+        viewModel.startRecording()
+        viewModel.stopRecordingAndEvaluate()
+        XCTAssertEqual(viewModel.state.phase, .retrieve)
+        XCTAssertEqual(viewModel.state.retryCount, 1)
+        XCTAssertEqual(viewModel.state.inputMode, .typing)
+    }
+
+    func testNonmatchingUseSpeechGetsOneRetryThenTypingFallback() {
+        let viewModel = makeViewModel()
+        viewModel.submitTypedAnswer("ephemeral")
+        XCTAssertEqual(viewModel.state.phase, .useInSentence)
+
+        mockSTT.recognizedText = "a sentence without the word"
+        viewModel.startRecording()
+        viewModel.stopRecordingAndEvaluate()
+        XCTAssertEqual(viewModel.state.phase, .useInSentence)
+        XCTAssertEqual(viewModel.state.retryCount, 1)
+        XCTAssertEqual(viewModel.state.inputMode, .voice)
+
+        viewModel.startRecording()
+        viewModel.stopRecordingAndEvaluate()
+        XCTAssertEqual(viewModel.state.phase, .useInSentence)
+        XCTAssertEqual(viewModel.state.retryCount, 1)
+        XCTAssertEqual(viewModel.state.inputMode, .typing)
+    }
+
     func testCancelStopsListeningAndDoesNotPersist() async throws {
         let viewModel = makeViewModel()
         viewModel.startRecording()
