@@ -106,7 +106,7 @@ final class SpeechWordHighlightViewTests: XCTestCase {
         
         XCTAssertTrue(view.isListening)
         XCTAssertEqual(view.recognizedText, "Test speech")
-        XCTAssertEqual(view.placeholderText, "Nhấn micro bên dưới và nói đáp án tiếng Anh...")
+        XCTAssertEqual(view.placeholderText, AppStrings.Reflex.quickVisualizerPlaceholderText)
         XCTAssertNil(view.evaluationResult)
         XCTAssertTrue(view.tokens.isEmpty)
     }

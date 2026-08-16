@@ -55,6 +55,7 @@ public final class QuickReflexDrillViewModel {
     private var activePhaseStartedAt: Date
     private var hintTasks: [Task<Void, Never>] = []
     private var recordingSession = 0
+    private var hasPersistedAttempt = false
 
     public var isListening: Bool { sttService.isListening }
     public var recognizedText: String { sttService.recognizedText }
@@ -115,7 +116,7 @@ public final class QuickReflexDrillViewModel {
                       self.state.phase == phase else { return }
                 self.stopCurrentRecording()
                 self.state.inputMode = .typing
-                self.state.errorMessage = "Không thể thu âm: \(error.localizedDescription). Hãy nhập câu trả lời."
+                self.state.errorMessage = AppStrings.Reflex.quickRecordingError(error.localizedDescription)
             }
         )
     }
@@ -176,11 +177,6 @@ public final class QuickReflexDrillViewModel {
     public func finish(confidence: QuickReflexConfidence) async throws {
         guard state.phase == .result, !state.isCancelled, !state.isCompleted else { return }
 
-        state.isCompleted = true
-        stopListeningAndTimers()
-        state.isCorrect = state.retrieveSucceeded && state.useSucceeded
-        state.triggerSparkle = state.isCorrect
-
         let attempt = QuickReflexAttempt(
             wordId: targetWord.id,
             retrieveTimeMs: state.retrieveTimeMs,
@@ -193,16 +189,24 @@ public final class QuickReflexDrillViewModel {
             confidence: confidence,
             timestamp: clock()
         )
-        try await attemptRepository.save(attempt)
 
-        guard state.retrieveSucceeded else { return }
-        if let evaluateSRSUseCase {
+        if !hasPersistedAttempt {
+            try await attemptRepository.save(attempt)
+            hasPersistedAttempt = true
+        }
+
+        if state.retrieveSucceeded, let evaluateSRSUseCase, state.srsResult == nil {
             state.srsResult = try await evaluateSRSUseCase.recordReview(
                 wordId: targetWord.id,
                 isCorrect: true,
                 responseTimeMs: state.retrieveTimeMs
             )
         }
+
+        stopListeningAndTimers()
+        state.isCorrect = state.retrieveSucceeded && state.useSucceeded
+        state.triggerSparkle = state.isCorrect
+        state.isCompleted = true
     }
 
     // MARK: - Legacy presentation compatibility
@@ -278,10 +282,10 @@ public final class QuickReflexDrillViewModel {
         if state.retryCount == 0 {
             state.retryCount = 1
             state.inputMode = .voice
-            state.errorMessage = "Chưa nghe thấy câu trả lời. Hãy thử lại một lần."
+            state.errorMessage = AppStrings.Reflex.quickSpeechRetryText
         } else {
             state.inputMode = .typing
-            state.errorMessage = "Chưa nghe thấy câu trả lời. Hãy nhập câu trả lời."
+            state.errorMessage = AppStrings.Reflex.quickSpeechTypingText
         }
     }
 

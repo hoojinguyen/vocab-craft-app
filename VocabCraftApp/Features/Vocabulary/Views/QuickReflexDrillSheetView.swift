@@ -339,6 +339,14 @@ public struct QuickReflexDrillSheetView: View {
                     }
                     .disabled(isFinishing)
 
+                    if let errorMessage = viewModel.state.errorMessage {
+                        Text(errorMessage)
+                            .font(.footnote.weight(.medium))
+                            .foregroundStyle(Color.vocabCoral)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity)
+                    }
+
                     if isFinishing {
                         ProgressView(AppStrings.Reflex.quickSaving)
                             .frame(maxWidth: .infinity)
@@ -381,22 +389,34 @@ public struct QuickReflexDrillSheetView: View {
             Text(AppStrings.Reflex.quickPreviousAttempt)
                 .font(.caption.weight(.bold))
                 .foregroundStyle(Color.vocabMuted)
-            HStack {
-                Text(AppStrings.Reflex.quickCurrentAttempt)
-                Spacer()
-                Text(formattedTime(viewModel.state.retrieveTimeMs)).monospacedDigit()
-            }
-            HStack {
-                Text(AppStrings.Reflex.quickPreviousAttempt)
-                Spacer()
-                Text(formattedTime(attempt.retrieveTimeMs)).monospacedDigit()
-            }
+            timeComparisonRow(
+                title: AppStrings.Reflex.quickRetrieveTitle,
+                current: viewModel.state.retrieveTimeMs,
+                previous: attempt.retrieveTimeMs
+            )
+            timeComparisonRow(
+                title: AppStrings.Reflex.quickUseTitle,
+                current: viewModel.state.useTimeMs,
+                previous: attempt.useTimeMs
+            )
         }
         .font(.subheadline)
         .foregroundStyle(Color.vocabInk)
         .padding(14)
         .background(Color.vocabHeroAccent.opacity(0.08))
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+    }
+
+    private func timeComparisonRow(title: LocalizedStringKey, current: Int, previous: Int) -> some View {
+        HStack {
+            Text(title)
+            Spacer()
+            Text(AppStrings.Reflex.quickCurrentAttempt)
+            Text(formattedTime(current)).monospacedDigit()
+            Text(AppStrings.Reflex.quickPreviousAttempt)
+            Text(formattedTime(previous)).monospacedDigit()
+        }
+        .font(.caption)
     }
 
     private func submitTypedAnswer() {

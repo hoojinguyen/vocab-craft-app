@@ -14,7 +14,7 @@ public struct VocabSpeechVisualizerView: View {
     public init(
         isListening: Bool,
         recognizedText: String,
-        placeholderText: String = "Nhấn micro bên dưới và nói đáp án tiếng Anh...",
+        placeholderText: String = AppStrings.Reflex.quickVisualizerPlaceholderText,
         evaluationResult: SpeechEvaluationResult? = nil,
         tokens: [WordTokenResult]? = nil
     ) {
@@ -183,7 +183,7 @@ public struct VocabSpeechVisualizerView: View {
             return recognizedText
         }
         if isListening {
-            return "Đang lắng nghe câu nói của bạn..."
+            return AppStrings.Reflex.quickVisualizerListeningText
         }
         return placeholderText
     }

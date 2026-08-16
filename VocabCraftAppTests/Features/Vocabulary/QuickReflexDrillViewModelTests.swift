@@ -173,13 +173,34 @@ final class QuickReflexDrillViewModelTests: XCTestCase {
         XCTAssertFalse(viewModel.state.useSucceeded)
     }
 
-    private func makeViewModel() -> QuickReflexDrillViewModel {
+    func testFailedPersistenceLeavesResultRetryableUntilFinishSucceeds() async throws {
+        let failingAttempts = FailingOnceQuickReflexAttemptRepository()
+        let viewModel = makeViewModel(attemptRepository: failingAttempts)
+        viewModel.submitTypedAnswer("ephemeral")
+        viewModel.submitTypedAnswer("The trend is ephemeral.")
+
+        await XCTAssertThrowsErrorAsync(try await viewModel.finish(confidence: .comfortable))
+
+        XCTAssertEqual(viewModel.state.phase, .result)
+        XCTAssertFalse(viewModel.state.isCompleted)
+        XCTAssertNil(viewModel.state.srsResult)
+
+        try await viewModel.finish(confidence: .comfortable)
+
+        XCTAssertTrue(viewModel.state.isCompleted)
+        XCTAssertEqual(failingAttempts.saveCallCount, 2)
+        XCTAssertEqual(mockSRS.recordedCalls.count, 1)
+    }
+
+    private func makeViewModel(
+        attemptRepository: QuickReflexAttemptRepositoryProtocol? = nil
+    ) -> QuickReflexDrillViewModel {
         QuickReflexDrillViewModel(
             targetWord: targetWord,
             allWords: [targetWord],
             sttService: mockSTT,
             evaluateSRSUseCase: mockSRS,
-            attemptRepository: mockAttempts
+            attemptRepository: attemptRepository ?? mockAttempts
         )
     }
 }
@@ -213,4 +234,34 @@ private final class RecordingQuickReflexAttemptRepository: QuickReflexAttemptRep
     func mostRecentSuccessfulAttempt(for wordId: Int64) async throws -> QuickReflexAttempt? {
         saved.last(where: { $0.wordId == wordId && $0.retrieveSucceeded })
     }
+}
+
+private final class FailingOnceQuickReflexAttemptRepository: QuickReflexAttemptRepositoryProtocol {
+    private(set) var saveCallCount = 0
+
+    func save(_: QuickReflexAttempt) async throws {
+        saveCallCount += 1
+        if saveCallCount == 1 {
+            throw TestPersistenceError.unavailable
+        }
+    }
+
+    func mostRecentSuccessfulAttempt(for _: Int64) async throws -> QuickReflexAttempt? {
+        nil
+    }
+
+    private enum TestPersistenceError: Error {
+        case unavailable
+    }
+}
+
+private func XCTAssertThrowsErrorAsync<T>(
+    _ expression: @autoclosure () async throws -> T,
+    file: StaticString = #filePath,
+    line: UInt = #line
+) async {
+    do {
+        _ = try await expression()
+        XCTFail("Expected an error to be thrown", file: file, line: line)
+    } catch {}
 }

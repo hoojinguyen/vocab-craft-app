@@ -12,8 +12,8 @@ public struct VocabMicControlHubView: View {
 
     public init(
         isListening: Bool,
-        idleSubtitleText: String = "Chạm vào Micro để bắt đầu nói",
-        listeningSubtitleText: String = "Chạm để hoàn thành bài nói",
+        idleSubtitleText: String = AppStrings.Reflex.quickMicDefaultIdleText,
+        listeningSubtitleText: String = AppStrings.Reflex.quickMicDefaultListeningText,
         onTapMic: @escaping () -> Void
     ) {
         self.isListening = isListening
@@ -73,7 +73,7 @@ public struct VocabMicControlHubView: View {
                 .contentShape(Circle())
             }
             .buttonStyle(VocabBentoCardButtonStyle())
-            .accessibilityLabel(isListening ? "Dừng ghi âm và chấm điểm" : "Bắt đầu nói đáp án tiếng Anh")
+            .accessibilityLabel(isListening ? AppStrings.Reflex.quickMicStopAccessibility : AppStrings.Reflex.quickMicStartAccessibility)
 
             Text(isListening ? listeningSubtitleText : idleSubtitleText)
                 .font(.caption)

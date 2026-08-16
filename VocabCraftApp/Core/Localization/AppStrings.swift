@@ -157,6 +157,20 @@ public enum AppStrings {
         public static var quickComfortable: LocalizedStringKey { "reflex.quickComfortable" }
         public static var quickUncertain: LocalizedStringKey { "reflex.quickUncertain" }
         public static var quickSaving: LocalizedStringKey { "reflex.quickSaving" }
+        public static var quickMicDefaultIdleText: String { String(localized: "reflex.quickMicDefaultIdle") }
+        public static var quickMicDefaultListeningText: String { String(localized: "reflex.quickMicDefaultListening") }
+        public static var quickMicStartAccessibility: LocalizedStringKey { "reflex.quickMicStartAccessibility" }
+        public static var quickMicStopAccessibility: LocalizedStringKey { "reflex.quickMicStopAccessibility" }
+        public static var quickVisualizerPlaceholderText: String { String(localized: "reflex.quickVisualizerPlaceholder") }
+        public static var quickVisualizerListeningText: String { String(localized: "reflex.quickVisualizerListening") }
+        public static func quickRecordingError(_ description: String) -> String {
+            String(localized: "reflex.quickRecordingError \(description)")
+        }
+        public static var quickSpeechRetryText: String { String(localized: "reflex.quickSpeechRetry") }
+        public static var quickSpeechTypingText: String { String(localized: "reflex.quickSpeechTyping") }
+        public static func quickUsePrompt(_ lemma: String) -> String {
+            String(localized: "reflex.quickUsePrompt \(lemma)")
+        }
         public static var speedBonus: LocalizedStringKey { "reflex.speedBonus" }
         public static var listenExample: LocalizedStringKey { "reflex.listenExample" }
         public static var micPlaceholder: LocalizedStringKey { "reflex.micPlaceholder" }

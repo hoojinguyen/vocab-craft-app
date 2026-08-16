@@ -14,7 +14,7 @@ public struct QuickReflexPromptFactory: Sendable {
 
         let vietnameseExample = word.exampleSentenceVi.trimmingCharacters(in: .whitespacesAndNewlines)
         let usePrompt = vietnameseExample.isEmpty
-            ? "Hãy nói một câu tiếng Anh có dùng \(word.lemma)."
+            ? AppStrings.Reflex.quickUsePrompt(word.lemma)
             : word.exampleSentenceVi
         let use = QuickReflexStagePrompt(
             phase: .useInSentence,

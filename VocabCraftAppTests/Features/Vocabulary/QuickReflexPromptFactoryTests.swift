@@ -39,7 +39,7 @@ final class QuickReflexPromptFactoryTests: XCTestCase {
 
         let prompts = QuickReflexPromptFactory().makePrompts(for: word)
 
-        XCTAssertEqual(prompts.use.promptText, "Hãy nói một câu tiếng Anh có dùng break the ice.")
+        XCTAssertEqual(prompts.use.promptText, AppStrings.Reflex.quickUsePrompt("break the ice"))
     }
 
     private func makeWord(

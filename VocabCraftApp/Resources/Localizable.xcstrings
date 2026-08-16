@@ -925,6 +925,66 @@
         "vi" : { "stringUnit" : { "state" : "translated", "value" : "Đang lưu kết quả…" } }
       }
     },
+    "reflex.quickMicDefaultIdle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Tap the microphone to start speaking" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Chạm vào Micro để bắt đầu nói" } }
+      }
+    },
+    "reflex.quickMicDefaultListening" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Tap to finish speaking" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Chạm để hoàn thành bài nói" } }
+      }
+    },
+    "reflex.quickMicStartAccessibility" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Start speaking your English answer" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Bắt đầu nói đáp án tiếng Anh" } }
+      }
+    },
+    "reflex.quickMicStopAccessibility" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Stop recording and evaluate" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Dừng ghi âm và chấm điểm" } }
+      }
+    },
+    "reflex.quickVisualizerPlaceholder" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Tap the microphone below and speak your English answer…" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Nhấn micro bên dưới và nói đáp án tiếng Anh..." } }
+      }
+    },
+    "reflex.quickVisualizerListening" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Listening to your answer…" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Đang lắng nghe câu nói của bạn..." } }
+      }
+    },
+    "reflex.quickRecordingError %@" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recording is unavailable: %@. Please type your answer." } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Không thể thu âm: %@. Hãy nhập câu trả lời." } }
+      }
+    },
+    "reflex.quickSpeechRetry" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "We could not hear an answer. Please try once more." } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Chưa nghe thấy câu trả lời. Hãy thử lại một lần." } }
+      }
+    },
+    "reflex.quickSpeechTyping" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "We could not hear an answer. Please type it instead." } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Chưa nghe thấy câu trả lời. Hãy nhập câu trả lời." } }
+      }
+    },
+    "reflex.quickUsePrompt %@" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Say an English sentence using %@." } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Hãy nói một câu tiếng Anh có dùng %@." } }
+      }
+    },
     "reflex.speedBonus" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Speedy" } },
