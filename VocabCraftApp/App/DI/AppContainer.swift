@@ -75,13 +75,7 @@ public final class AppContainer {
     }
 
     public func makeReflexBlitzViewModel(words: [ReflexBlitzWordItem] = []) -> ReflexBlitzViewModel {
-        let blitzWords: [ReflexBlitzWordItem] = !words.isEmpty ? words : [
-            ReflexBlitzWordItem(id: 1, lemma: "ephemeral", pos: "adj.", definitionVi: "Phù du, chóng tàn", exampleSentenceEn: "Her fame is ephemeral in nature.", exampleSentenceVi: "Danh tiếng của cô ấy phù du."),
-            ReflexBlitzWordItem(id: 2, lemma: "serendipity", pos: "n.", definitionVi: "Sự may mắn bất ngờ", exampleSentenceEn: "Finding this book was pure serendipity.", exampleSentenceVi: "Tìm thấy cuốn sách này là may mắn bất ngờ."),
-            ReflexBlitzWordItem(id: 3, lemma: "ubiquitous", pos: "adj.", definitionVi: "Phổ biến khắp nơi", exampleSentenceEn: "Smartphones are ubiquitous today.", exampleSentenceVi: "Điện thoại thông minh phổ biến khắp nơi."),
-            ReflexBlitzWordItem(id: 4, lemma: "resilience", pos: "n.", definitionVi: "Sự kiên cường phục hồi", exampleSentenceEn: "She showed great resilience in crisis.", exampleSentenceVi: "Cô ấy thể hiện sự kiên cường trong khủng hoảng."),
-            ReflexBlitzWordItem(id: 5, lemma: "eloquent", pos: "adj.", definitionVi: "Hùng biện lưu loát", exampleSentenceEn: "He gave an eloquent speech.", exampleSentenceVi: "Anh ấy đã có bài phát biểu hùng biện.")
-        ]
+        let blitzWords = !words.isEmpty ? words : ReflexBlitzWordItem.defaultStarterWords
         return ReflexBlitzViewModel(
             words: blitzWords,
             continuousSpeechService: ContinuousReflexSpeechService(),

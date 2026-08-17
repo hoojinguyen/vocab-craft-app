@@ -104,7 +104,47 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
         guard !isSessionActive else { return }
         isSessionActive = true
         transcriptOffset = 0
+
+        #if targetEnvironment(simulator)
         startAudioStream()
+        #else
+        requestAuthorization { [weak self] authorized in
+            guard let self = self, self.isSessionActive else { return }
+            if authorized {
+                self.startAudioStream()
+            } else {
+                let error = NSError(domain: "ContinuousReflexSpeech", code: 401, userInfo: [NSLocalizedDescriptionKey: "Microphone or Speech Recognition permission not authorized."])
+                self.onError?(error)
+            }
+        }
+        #endif
+    }
+
+    public func requestAuthorization(completion: @escaping (Bool) -> Void) {
+        #if targetEnvironment(simulator)
+        completion(true)
+        #else
+        SFSpeechRecognizer.requestAuthorization { status in
+            guard status == .authorized else {
+                DispatchQueue.main.async { completion(false) }
+                return
+            }
+
+            #if os(iOS)
+            if #available(iOS 17.0, *) {
+                AVAudioApplication.requestRecordPermission { granted in
+                    DispatchQueue.main.async { completion(granted) }
+                }
+            } else {
+                AVAudioSession.sharedInstance().requestRecordPermission { granted in
+                    DispatchQueue.main.async { completion(granted) }
+                }
+            }
+            #else
+            DispatchQueue.main.async { completion(true) }
+            #endif
+        }
+        #endif
     }
 
     public func stopSession() {
@@ -136,25 +176,34 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
     }
 
     private func startAudioStream() {
-        let engine = AVAudioEngine()
-        self.audioEngine = engine
-        let request = SFSpeechAudioBufferRecognitionRequest()
-        request.shouldReportPartialResults = true
-        request.taskHint = .confirmation
-        self.recognitionRequest = request
-
-        let inputNode = engine.inputNode
-        let recordingFormat = inputNode.outputFormat(forBus: 0)
-        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self] buffer, _ in
-            self?.recognitionRequest?.append(buffer)
-        }
-
         do {
             #if os(iOS)
             let audioSession = AVAudioSession.sharedInstance()
             try audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.defaultToSpeaker, .allowBluetooth])
             try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
             #endif
+
+            let engine = AVAudioEngine()
+            self.audioEngine = engine
+            let request = SFSpeechAudioBufferRecognitionRequest()
+            request.shouldReportPartialResults = true
+            request.taskHint = .confirmation
+            self.recognitionRequest = request
+
+            let inputNode = engine.inputNode
+            let recordingFormat = inputNode.outputFormat(forBus: 0)
+
+            guard recordingFormat.sampleRate > 0 && recordingFormat.channelCount > 0 else {
+                // Audio format not valid on simulator or inactive input bus
+                let error = NSError(domain: "ContinuousReflexSpeech", code: 400, userInfo: [NSLocalizedDescriptionKey: "Invalid microphone sample rate or format."])
+                self.onError?(error)
+                return
+            }
+
+            inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self] buffer, _ in
+                self?.recognitionRequest?.append(buffer)
+            }
+
             try engine.start()
             self.recognitionTask = speechRecognizer?.recognitionTask(with: request) { [weak self] result, error in
                 guard let self = self else { return }

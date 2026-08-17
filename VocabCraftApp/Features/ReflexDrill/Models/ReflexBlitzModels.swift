@@ -56,6 +56,39 @@ public struct ReflexBlitzWordItem: Identifiable, Equatable, Sendable {
         let firstLetter = lemma.prefix(1).lowercased()
         self.initialLetterHint = "\(pos). • \(firstLetter)..."
     }
+
+    public init(from wordItem: WordItem) {
+        self.init(
+            id: Int(wordItem.id),
+            lemma: wordItem.lemma,
+            pos: wordItem.pos,
+            definitionVi: wordItem.definition,
+            exampleSentenceEn: wordItem.exampleSentenceEn,
+            exampleSentenceVi: wordItem.exampleSentenceVi
+        )
+    }
+
+    public init(from word: Word) {
+        let sentenceEn = word.example ?? "The word is \(word.lemma)."
+        self.init(
+            id: Int(word.id),
+            lemma: word.lemma,
+            pos: word.pos ?? "word",
+            definitionVi: word.definitionVi ?? word.definitionEn ?? "",
+            exampleSentenceEn: sentenceEn,
+            exampleSentenceVi: word.definitionVi ?? ""
+        )
+    }
+
+    public static var defaultStarterWords: [ReflexBlitzWordItem] {
+        [
+            ReflexBlitzWordItem(id: 1, lemma: "ephemeral", pos: "adj.", definitionVi: "Phù du, chóng tàn", exampleSentenceEn: "Her fame is ephemeral in nature.", exampleSentenceVi: "Danh tiếng của cô ấy phù du."),
+            ReflexBlitzWordItem(id: 2, lemma: "serendipity", pos: "n.", definitionVi: "Sự may mắn bất ngờ", exampleSentenceEn: "Finding this book was pure serendipity.", exampleSentenceVi: "Tìm thấy cuốn sách này là may mắn bất ngờ."),
+            ReflexBlitzWordItem(id: 3, lemma: "ubiquitous", pos: "adj.", definitionVi: "Phổ biến khắp nơi", exampleSentenceEn: "Smartphones are ubiquitous today.", exampleSentenceVi: "Điện thoại thông minh phổ biến khắp nơi."),
+            ReflexBlitzWordItem(id: 4, lemma: "resilience", pos: "n.", definitionVi: "Sự kiên cường phục hồi", exampleSentenceEn: "She showed great resilience in crisis.", exampleSentenceVi: "Cô ấy thể hiện sự kiên cường trong khủng hoảng."),
+            ReflexBlitzWordItem(id: 5, lemma: "eloquent", pos: "adj.", definitionVi: "Hùng biện lưu loát", exampleSentenceEn: "He gave an eloquent speech.", exampleSentenceVi: "Anh ấy đã có bài phát biểu hùng biện.")
+        ]
+    }
 }
 
 public struct ReflexBlitzAttempt: Identifiable, Codable, Sendable, Equatable {

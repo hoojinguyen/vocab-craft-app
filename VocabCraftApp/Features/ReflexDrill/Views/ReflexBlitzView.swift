@@ -4,12 +4,12 @@ import SwiftUI
 /// Manages phase transitions (countdown, drilling, timeout revealing, summary),
 /// audio speech recognition status visualizer, progressive scaffolding, and typing fallback.
 public struct ReflexBlitzView: View {
-    @State private var viewModel: ReflexBlitzViewModel
+    public var viewModel: ReflexBlitzViewModel
     @State private var typingInput: String = ""
     public var onDismiss: () -> Void
 
     public init(viewModel: ReflexBlitzViewModel, onDismiss: @escaping () -> Void) {
-        self._viewModel = State(initialValue: viewModel)
+        self.viewModel = viewModel
         self.onDismiss = onDismiss
     }
 

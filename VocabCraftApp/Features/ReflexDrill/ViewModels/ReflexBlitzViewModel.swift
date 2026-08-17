@@ -81,6 +81,19 @@ public final class ReflexBlitzViewModel {
                 }
             }
         }
+
+        continuousSpeechService.onError = { [weak self] error in
+            print("[ReflexBlitzViewModel] Continuous speech error: \(error.localizedDescription)")
+            if Thread.isMainThread {
+                MainActor.assumeIsolated {
+                    self?.isKeyboardFallbackActive = true
+                }
+            } else {
+                Task { @MainActor [weak self] in
+                    self?.isKeyboardFallbackActive = true
+                }
+            }
+        }
     }
 
     public func startCountdown() {
