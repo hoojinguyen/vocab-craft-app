@@ -82,11 +82,134 @@ public struct ReflexBlitzWordItem: Identifiable, Equatable, Sendable {
 
     public static var defaultStarterWords: [ReflexBlitzWordItem] {
         [
-            ReflexBlitzWordItem(id: 1, lemma: "ephemeral", pos: "adj.", definitionVi: "Phù du, chóng tàn", exampleSentenceEn: "Her fame is ephemeral in nature.", exampleSentenceVi: "Danh tiếng của cô ấy phù du."),
-            ReflexBlitzWordItem(id: 2, lemma: "serendipity", pos: "n.", definitionVi: "Sự may mắn bất ngờ", exampleSentenceEn: "Finding this book was pure serendipity.", exampleSentenceVi: "Tìm thấy cuốn sách này là may mắn bất ngờ."),
-            ReflexBlitzWordItem(id: 3, lemma: "ubiquitous", pos: "adj.", definitionVi: "Phổ biến khắp nơi", exampleSentenceEn: "Smartphones are ubiquitous today.", exampleSentenceVi: "Điện thoại thông minh phổ biến khắp nơi."),
-            ReflexBlitzWordItem(id: 4, lemma: "resilience", pos: "n.", definitionVi: "Sự kiên cường phục hồi", exampleSentenceEn: "She showed great resilience in crisis.", exampleSentenceVi: "Cô ấy thể hiện sự kiên cường trong khủng hoảng."),
-            ReflexBlitzWordItem(id: 5, lemma: "eloquent", pos: "adj.", definitionVi: "Hùng biện lưu loát", exampleSentenceEn: "He gave an eloquent speech.", exampleSentenceVi: "Anh ấy đã có bài phát biểu hùng biện.")
+            ReflexBlitzWordItem(
+                id: 1,
+                lemma: "habit",
+                pos: "n.",
+                definitionVi: "Thói quen hàng ngày",
+                exampleSentenceEn: "Reading books before bed is a great habit.",
+                exampleSentenceVi: "Đọc sách trước khi ngủ là một thói quen tuyệt vời."
+            ),
+            ReflexBlitzWordItem(
+                id: 2,
+                lemma: "focus",
+                pos: "v.",
+                definitionVi: "Tập trung",
+                exampleSentenceEn: "Please turn off the music so I can focus on studying.",
+                exampleSentenceVi: "Làm ơn tắt nhạc để tôi có thể tập trung vào việc học."
+            ),
+            ReflexBlitzWordItem(
+                id: 3,
+                lemma: "comfortable",
+                pos: "adj.",
+                definitionVi: "Thoải mái, dễ chịu",
+                exampleSentenceEn: "These new running shoes are extremely comfortable to wear.",
+                exampleSentenceVi: "Đôi giày chạy mới này mang cực kỳ thoải mái."
+            ),
+            ReflexBlitzWordItem(
+                id: 4,
+                lemma: "improve",
+                pos: "v.",
+                definitionVi: "Cải thiện, nâng cao",
+                exampleSentenceEn: "Daily practice will help you improve your speaking skills.",
+                exampleSentenceVi: "Luyện tập hàng ngày sẽ giúp bạn cải thiện kỹ năng nói."
+            ),
+            ReflexBlitzWordItem(
+                id: 5,
+                lemma: "opportunity",
+                pos: "n.",
+                definitionVi: "Cơ hội tốt",
+                exampleSentenceEn: "Studying abroad is a wonderful opportunity to learn.",
+                exampleSentenceVi: "Du học là một cơ hội tuyệt vời để học hỏi."
+            ),
+            ReflexBlitzWordItem(
+                id: 6,
+                lemma: "confident",
+                pos: "adj.",
+                definitionVi: "Tự tin",
+                exampleSentenceEn: "She feels very confident when speaking in public.",
+                exampleSentenceVi: "Cô ấy cảm thấy rất tự tin khi phát biểu trước công chúng."
+            ),
+            ReflexBlitzWordItem(
+                id: 7,
+                lemma: "schedule",
+                pos: "n.",
+                definitionVi: "Lịch trình, thời gian biểu",
+                exampleSentenceEn: "I have a very busy schedule this morning.",
+                exampleSentenceVi: "Tôi có một lịch trình rất bận rộn vào sáng nay."
+            ),
+            ReflexBlitzWordItem(
+                id: 8,
+                lemma: "remind",
+                pos: "v.",
+                definitionVi: "Nhắc nhở",
+                exampleSentenceEn: "Please remind me to call my mom tonight.",
+                exampleSentenceVi: "Làm ơn nhắc tôi gọi điện cho mẹ tối nay."
+            ),
+            ReflexBlitzWordItem(
+                id: 9,
+                lemma: "delicious",
+                pos: "adj.",
+                definitionVi: "Thơm ngon",
+                exampleSentenceEn: "This homemade cake smells great and tastes delicious.",
+                exampleSentenceVi: "Chiếc bánh tự làm này thơm lừng và vị rất ngon."
+            ),
+            ReflexBlitzWordItem(
+                id: 10,
+                lemma: "flexible",
+                pos: "adj.",
+                definitionVi: "Linh hoạt",
+                exampleSentenceEn: "Our company offers flexible working hours for everyone.",
+                exampleSentenceVi: "Công ty chúng tôi có giờ làm việc linh hoạt cho mọi người."
+            ),
+            ReflexBlitzWordItem(
+                id: 11,
+                lemma: "protect",
+                pos: "v.",
+                definitionVi: "Bảo vệ",
+                exampleSentenceEn: "You should wear a helmet to protect your head.",
+                exampleSentenceVi: "Bạn nên đội mũ bảo hiểm để bảo vệ đầu của mình."
+            ),
+            ReflexBlitzWordItem(
+                id: 12,
+                lemma: "creative",
+                pos: "adj.",
+                definitionVi: "Sáng tạo",
+                exampleSentenceEn: "He always comes up with creative solutions to problems.",
+                exampleSentenceVi: "Anh ấy luôn đưa ra những giải pháp sáng tạo cho vấn đề."
+            ),
+            ReflexBlitzWordItem(
+                id: 13,
+                lemma: "experience",
+                pos: "n.",
+                definitionVi: "Trải nghiệm, kinh nghiệm",
+                exampleSentenceEn: "Traveling alone was an unforgettable experience for him.",
+                exampleSentenceVi: "Đi du lịch một mình là một trải nghiệm khó quên đối với anh ấy."
+            ),
+            ReflexBlitzWordItem(
+                id: 14,
+                lemma: "patient",
+                pos: "adj.",
+                definitionVi: "Kiên nhẫn",
+                exampleSentenceEn: "A good teacher is always kind and patient with students.",
+                exampleSentenceVi: "Một giáo viên giỏi luôn tốt bụng và kiên nhẫn với học sinh."
+            ),
+            ReflexBlitzWordItem(
+                id: 15,
+                lemma: "encourage",
+                pos: "v.",
+                definitionVi: "Động viên, khích lệ",
+                exampleSentenceEn: "Parents should always encourage their children to read.",
+                exampleSentenceVi: "Cha mẹ nên luôn động viên con cái đọc sách."
+            ),
+            ReflexBlitzWordItem(
+                id: 16,
+                lemma: "energy",
+                pos: "n.",
+                definitionVi: "Năng lượng",
+                exampleSentenceEn: "A healthy breakfast gives you energy for the whole day.",
+                exampleSentenceVi: "Bữa sáng lành mạnh cung cấp cho bạn năng lượng cho cả ngày."
+            )
         ]
     }
 }

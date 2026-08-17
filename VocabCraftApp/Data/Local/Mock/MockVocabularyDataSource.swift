@@ -7,60 +7,60 @@ public struct MockVocabularyDataSource: Sendable {
     public let mockWords: [Word] = [
         Word(
             id: 1,
-            lemma: "Ephemeral",
-            pos: "adjective",
-            ipaUs: "/ɪˈfem.ər.əl/",
-            cefrLevel: "B2",
-            definitionEn: "lasting for a very short time",
-            definitionVi: "Phù du, ngắn ngủi",
-            example: "Her fame proved to be ephemeral."
+            lemma: "Habit",
+            pos: "noun",
+            ipaUs: "/ˈhæb.ɪt/",
+            cefrLevel: "A2",
+            definitionEn: "something that you do regularly or often",
+            definitionVi: "Thói quen hàng ngày",
+            example: "Reading books before bed is a great habit."
         ),
         Word(
             id: 2,
-            lemma: "Resilience",
-            pos: "noun",
-            ipaUs: "/rɪˈzɪl.jəns/",
-            cefrLevel: "C1",
-            definitionEn: "the capacity to recover quickly from difficulties",
-            definitionVi: "Tính kiên cường, sự phục hồi",
-            example: "Courage and resilience are essential for victory."
+            lemma: "Improve",
+            pos: "verb",
+            ipaUs: "/ɪmˈpruːv/",
+            cefrLevel: "B1",
+            definitionEn: "to make something better or become better",
+            definitionVi: "Cải thiện, nâng cao kỹ năng",
+            example: "Daily practice will help you improve your speaking skills."
         ),
         Word(
             id: 3,
-            lemma: "Serendipity",
-            pos: "noun",
-            ipaUs: "/ˌser.ənˈdɪp.ə.ti/",
-            cefrLevel: "C2",
-            definitionEn: "finding valuable or agreeable things not sought for",
-            definitionVi: "Sự tình cờ may mắn",
-            example: "Finding out about the job opening was pure serendipity."
+            lemma: "Confident",
+            pos: "adjective",
+            ipaUs: "/ˈkɑːn.fə.dənt/",
+            cefrLevel: "B1",
+            definitionEn: "having a feeling of trust and certainty",
+            definitionVi: "Tự tin trong giao tiếp",
+            example: "She feels very confident when speaking in public."
         )
     ]
 
     public let mockSuggestedWords: [SuggestedWord] = [
         SuggestedWord(
             id: "s1",
-            lemma: "Resilience",
-            pos: "noun",
-            ipaUs: "/rɪˈzɪl.jəns/",
-            cefrLevel: "C1",
-            definitionVi: "Khả năng phục hồi nhanh chóng sau khó khăn.",
-            definitionEn: "The capacity to recover quickly from difficulties; toughness.",
-            example: "Her resilience helped her overcome the financial hardship.",
+            lemma: "Improve",
+            pos: "verb",
+            ipaUs: "/ɪmˈpruːv/",
+            cefrLevel: "B1",
+            definitionVi: "Cải thiện, nâng cao chất lượng hoặc kỹ năng.",
+            definitionEn: "To make or become better.",
+            example: "Daily practice will help you improve your speaking skills.",
             isBookmarked: false,
-            topicTag: "Từ vựng nổi bật"
+            topicTag: "Kỹ năng hàng ngày"
         ),
         SuggestedWord(
             id: "s2",
-            lemma: "Ubiquitous",
-            pos: "adjective",
-            ipaUs: "/juːˈbɪk.wə.t̬əs/",
-            cefrLevel: "C1",
-            definitionVi: "Có mặt ở khắp mọi nơi.",
-            definitionEn: "Present, appearing, or found everywhere.",
-            example: "Smartphones have become ubiquitous in modern society.",
+            lemma: "Focus",
+            pos: "verb",
+            ipaUs: "/ˈfoʊ.kəs/",
+            cefrLevel: "B1",
+            definitionVi: "Tập trung sự chú ý vào một việc cụ thể.",
+            definitionEn: "To give your full attention to what you are doing.",
+            example: "Please turn off the music so I can focus on studying.",
             isBookmarked: true,
-            topicTag: "Công nghệ"
+            topicTag: "Học tập & Làm việc"
         )
     ]
 

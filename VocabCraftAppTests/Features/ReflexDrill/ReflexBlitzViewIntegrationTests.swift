@@ -130,7 +130,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
     func testAppContainerMakeReflexBlitzViewModel() {
         let container = AppContainer.mock
         let defaultVM = container.makeReflexBlitzViewModel()
-        XCTAssertEqual(defaultVM.words.count, 5)
+        XCTAssertEqual(defaultVM.words.count, ReflexBlitzWordItem.defaultStarterWords.count)
 
         let customWords = [
             ReflexBlitzWordItem(
