@@ -64,9 +64,9 @@ public struct ReflexBlitzCardView: View {
         .padding(28)
         .frame(maxWidth: .infinity, minHeight: 220)
         .background(Color.vocabSurfaceCard)
-        .cornerRadius(28)
+        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 28)
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
                 .stroke(
                     isCorrect ? Color.vocabMint : (isTimeout ? Color.vocabCoral : Color.vocabHairline),
                     lineWidth: isCorrect || isTimeout ? 2.5 : 1.5

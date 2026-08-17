@@ -127,7 +127,7 @@ final class ReflexBlitzModelsTests: XCTestCase {
         XCTAssertEqual(emptySummary.totalWords, 0)
         XCTAssertEqual(emptySummary.correctWords, 0)
         XCTAssertEqual(emptySummary.averageResponseTimeMs, 0)
-        XCTAssertEqual(emptySummary.speedRating, "⚡️ Reflex Master") // 0/0 edge case (avgTime 0 <= 2500 && correct == total)
+        XCTAssertEqual(emptySummary.speedRating, "🌱 Steady Learner")
         
         let slowAttempts = [
             ReflexBlitzAttempt(id: UUID(), wordId: 1, lemma: "slow", responseTimeMs: 5000, usedHint: false, isCorrect: true, timestamp: Date()),

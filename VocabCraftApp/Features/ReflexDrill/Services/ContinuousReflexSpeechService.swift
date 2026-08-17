@@ -150,6 +150,11 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
         }
 
         do {
+            #if os(iOS)
+            let audioSession = AVAudioSession.sharedInstance()
+            try audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.defaultToSpeaker, .allowBluetooth])
+            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+            #endif
             try engine.start()
             self.recognitionTask = speechRecognizer?.recognitionTask(with: request) { [weak self] result, error in
                 guard let self = self else { return }

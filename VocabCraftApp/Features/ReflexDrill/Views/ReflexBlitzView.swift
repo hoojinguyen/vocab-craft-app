@@ -186,6 +186,8 @@ public struct ReflexBlitzView: View {
         .onDisappear {
             viewModel.cancelSession()
         }
+        .sensoryFeedback(.success, trigger: viewModel.currentAttemptIsCorrect) { _, isCorrect in isCorrect }
+        .sensoryFeedback(.impact(weight: .heavy), trigger: viewModel.phase) { _, newPhase in newPhase == .timeoutRevealing }
     }
 
     private func submitKeyboard() {

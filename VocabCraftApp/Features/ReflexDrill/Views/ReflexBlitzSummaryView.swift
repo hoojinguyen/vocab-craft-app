@@ -111,6 +111,7 @@ public struct ReflexBlitzSummaryView: View {
                             .accessibilityAddTraits(.isHeader)
 
                         ForEach(summary.weakWordAttempts) { weak in
+                            let timeLabel = weak.responseTimeMs >= 6000 ? "Hết giờ" : String(format: "%.1fs", Double(weak.responseTimeMs) / 1000.0)
                             HStack {
                                 Text(weak.lemma)
                                     .font(.body.bold())
@@ -118,7 +119,7 @@ public struct ReflexBlitzSummaryView: View {
 
                                 Spacer()
 
-                                Text(weak.responseTimeMs >= 6000 ? "Hết giờ" : "\(String(format: "%.1fs", Double(weak.responseTimeMs) / 1000.0))")
+                                Text(timeLabel)
                                     .font(.caption.bold())
                                     .foregroundColor(.vocabCoral)
                                     .padding(.horizontal, 8)
@@ -128,10 +129,10 @@ public struct ReflexBlitzSummaryView: View {
                             }
                             .padding()
                             .background(Color.vocabSurfaceCard)
-                            .cornerRadius(16)
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                             .padding(.horizontal)
                             .accessibilityElement(children: .combine)
-                            .accessibilityLabel("Từ cần ôn: \(weak.lemma), thời gian phản hồi: \(weak.responseTimeMs >= 6000 ? "Hết giờ" : "\(String(format: "%.1fs", Double(weak.responseTimeMs) / 1000.0))")")
+                            .accessibilityLabel("Từ cần ôn: \(weak.lemma), thời gian phản hồi: \(timeLabel)")
                         }
 
                         // Re-drill Button
@@ -146,7 +147,7 @@ public struct ReflexBlitzSummaryView: View {
                             .frame(maxWidth: .infinity)
                             .frame(minHeight: 50)
                             .background(Color.vocabCoral)
-                            .cornerRadius(16)
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                             .shadow(color: Color.vocabCoral.opacity(0.3), radius: 8, y: 4)
                         }
                         .buttonStyle(BentoCardButtonStyle())
@@ -163,7 +164,7 @@ public struct ReflexBlitzSummaryView: View {
                         .frame(maxWidth: .infinity)
                         .frame(minHeight: 52)
                         .background(Color.vocabHeroAccent)
-                        .cornerRadius(16)
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                         .shadow(color: Color.vocabHeroAccent.opacity(0.25), radius: 8, y: 4)
                 }
                 .buttonStyle(BentoCardButtonStyle())

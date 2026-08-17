@@ -127,9 +127,9 @@ public struct ReflexBlitzSessionSummary: Identifiable, Sendable, Equatable {
         let weak = attempts.filter { !$0.isCorrect || $0.speedTier == .needsPractice }
 
         let rating: String
-        if avgTime <= 2500 && correct == total {
+        if total > 0 && avgTime <= 2500 && correct == total {
             rating = "⚡️ Reflex Master"
-        } else if avgTime <= 4000 && Double(correct) / Double(max(1, total)) >= 0.7 {
+        } else if total > 0 && avgTime <= 4000 && Double(correct) / Double(max(1, total)) >= 0.7 {
             rating = "🔥 Swift Reflex"
         } else {
             rating = "🌱 Steady Learner"
