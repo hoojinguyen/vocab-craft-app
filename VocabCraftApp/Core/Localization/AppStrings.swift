@@ -1,6 +1,14 @@
 import Foundation
 import SwiftUI
 
+#if !SWIFT_PACKAGE
+extension Bundle {
+    static var module: Bundle {
+        Bundle.main
+    }
+}
+#endif
+
 /// Centralized localization namespace for VocabCraftApp strings using SwiftUI LocalizedStringKey.
 public enum AppStrings {
     // MARK: - Common Strings
