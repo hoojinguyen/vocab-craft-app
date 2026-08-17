@@ -5,6 +5,10 @@ import Speech
 public protocol ContinuousReflexSpeechProtocol: AnyObject, Sendable {
     var isSessionActive: Bool { get }
     var currentTranscript: String { get }
+    var onMatchDetected: ((String) -> Void)? { get set }
+    var onTranscriptUpdate: ((String) -> Void)? { get set }
+    var onError: ((Error) -> Void)? { get set }
+
     func startSession()
     func stopSession()
     func setTargetWord(lemma: String, contextualPhrases: [String])
@@ -17,35 +21,63 @@ public final class MockContinuousReflexSpeechService: ContinuousReflexSpeechProt
     public var currentTargetLemma: String = ""
     public var contextualPhrases: [String] = []
     public var onMatchDetected: ((String) -> Void)?
+    public var onTranscriptUpdate: ((String) -> Void)?
+    public var onError: ((Error) -> Void)?
+
+    private var transcriptOffset: Int = 0
 
     public init() {}
 
     public func startSession() {
         isSessionActive = true
+        transcriptOffset = 0
     }
 
     public func stopSession() {
         isSessionActive = false
         currentTranscript = ""
         currentTargetLemma = ""
+        transcriptOffset = 0
     }
 
     public func setTargetWord(lemma: String, contextualPhrases: [String]) {
         self.currentTargetLemma = lemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         self.contextualPhrases = contextualPhrases
-        self.currentTranscript = ""
+        self.transcriptOffset = currentTranscript.count
     }
 
     public func resetBuffer() {
         self.currentTranscript = ""
+        self.transcriptOffset = 0
     }
 
     public func simulateTranscript(_ text: String) {
         self.currentTranscript = text
-        let clean = text.lowercased()
-        if !currentTargetLemma.isEmpty && (clean == currentTargetLemma || clean.contains(currentTargetLemma)) {
+        onTranscriptUpdate?(text)
+
+        let newSpoken = extractNewlySpoken(from: text, offset: transcriptOffset)
+        if !currentTargetLemma.isEmpty && containsWordBoundaryMatch(text: newSpoken, lemma: currentTargetLemma) {
             onMatchDetected?(currentTargetLemma)
         }
+    }
+
+    private func extractNewlySpoken(from fullTranscript: String, offset: Int) -> String {
+        guard fullTranscript.count >= offset else {
+            return fullTranscript
+        }
+        let index = fullTranscript.index(fullTranscript.startIndex, offsetBy: offset, limitedBy: fullTranscript.endIndex) ?? fullTranscript.endIndex
+        return String(fullTranscript[index...])
+    }
+
+    private func containsWordBoundaryMatch(text: String, lemma: String) -> Bool {
+        guard !lemma.isEmpty, !text.isEmpty else { return false }
+        let escapedLemma = NSRegularExpression.escapedPattern(for: lemma)
+        let pattern = "\\b\(escapedLemma)\\b"
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) else {
+            return false
+        }
+        let range = NSRange(text.startIndex..<text.endIndex, in: text)
+        return regex.firstMatch(in: text, options: [], range: range) != nil
     }
 }
 
@@ -55,6 +87,7 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
 
     private var currentTargetLemma: String = ""
     private var contextualPhrases: [String] = []
+    private var transcriptOffset: Int = 0
 
     private let speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
     private var audioEngine: AVAudioEngine?
@@ -70,6 +103,7 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
     public func startSession() {
         guard !isSessionActive else { return }
         isSessionActive = true
+        transcriptOffset = 0
         startAudioStream()
     }
 
@@ -88,16 +122,17 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
         audioEngine = nil
         currentTranscript = ""
         currentTargetLemma = ""
+        transcriptOffset = 0
     }
 
     public func setTargetWord(lemma: String, contextualPhrases: [String]) {
         self.currentTargetLemma = lemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         self.contextualPhrases = contextualPhrases
-        self.currentTranscript = ""
+        self.transcriptOffset = currentTranscript.count
     }
 
     public func resetBuffer() {
-        self.currentTranscript = ""
+        self.transcriptOffset = currentTranscript.count
     }
 
     private func startAudioStream() {
@@ -136,9 +171,28 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
 
     private func evaluateSpokenText(_ spoken: String) {
         guard !currentTargetLemma.isEmpty else { return }
-        let clean = spoken.lowercased().trimmingCharacters(in: .whitespacesAndNewlines.union(.punctuationCharacters))
-        if clean == currentTargetLemma || clean.contains(currentTargetLemma) {
+        let newSpoken = extractNewlySpoken(from: spoken, offset: transcriptOffset)
+        if containsWordBoundaryMatch(text: newSpoken, lemma: currentTargetLemma) {
             onMatchDetected?(currentTargetLemma)
         }
+    }
+
+    private func extractNewlySpoken(from fullTranscript: String, offset: Int) -> String {
+        guard fullTranscript.count >= offset else {
+            return fullTranscript
+        }
+        let index = fullTranscript.index(fullTranscript.startIndex, offsetBy: offset, limitedBy: fullTranscript.endIndex) ?? fullTranscript.endIndex
+        return String(fullTranscript[index...])
+    }
+
+    private func containsWordBoundaryMatch(text: String, lemma: String) -> Bool {
+        guard !lemma.isEmpty, !text.isEmpty else { return false }
+        let escapedLemma = NSRegularExpression.escapedPattern(for: lemma)
+        let pattern = "\\b\(escapedLemma)\\b"
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) else {
+            return false
+        }
+        let range = NSRange(text.startIndex..<text.endIndex, in: text)
+        return regex.firstMatch(in: text, options: [], range: range) != nil
     }
 }

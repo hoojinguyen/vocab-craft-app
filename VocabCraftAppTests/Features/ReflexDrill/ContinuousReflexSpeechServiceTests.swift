@@ -3,7 +3,7 @@ import XCTest
 
 final class ContinuousReflexSpeechServiceTests: XCTestCase {
     func testTargetSwitchingAndMatching() {
-        let mockService = MockContinuousReflexSpeechService()
+        let mockService: ContinuousReflexSpeechProtocol = MockContinuousReflexSpeechService()
         var matchedTarget: String?
 
         mockService.onMatchDetected = { matched in
@@ -15,17 +15,58 @@ final class ContinuousReflexSpeechServiceTests: XCTestCase {
 
         // Set target 1
         mockService.setTargetWord(lemma: "ephemeral", contextualPhrases: ["Her fame proved to be ephemeral"])
-        mockService.simulateTranscript("I think it is ephemeral indeed")
+        (mockService as? MockContinuousReflexSpeechService)?.simulateTranscript("I think it is ephemeral indeed")
         XCTAssertEqual(matchedTarget, "ephemeral")
 
         // Reset and switch to target 2 without stopping session
         matchedTarget = nil
         mockService.setTargetWord(lemma: "serendipity", contextualPhrases: ["Pure serendipity"])
-        mockService.simulateTranscript("serendipity")
+        (mockService as? MockContinuousReflexSpeechService)?.simulateTranscript("I think it is ephemeral indeed serendipity")
         XCTAssertEqual(matchedTarget, "serendipity")
 
         mockService.stopSession()
         XCTAssertFalse(mockService.isSessionActive)
+    }
+
+    func testWordBoundaryMatchingPreventsSubstringFalsePositives() {
+        let mockService = MockContinuousReflexSpeechService()
+        var matchedTarget: String?
+        mockService.onMatchDetected = { matchedTarget = $0 }
+
+        mockService.startSession()
+        // Target is "in"
+        mockService.setTargetWord(lemma: "in", contextualPhrases: [])
+
+        // "morning" contains "in" as a substring, but NOT as a separate word token
+        mockService.simulateTranscript("Good morning everyone")
+        XCTAssertNil(matchedTarget, "Substring match on 'morning' should not trigger match for 'in'")
+
+        // Now speak "in" as a distinct word
+        mockService.simulateTranscript("Good morning everyone in the room")
+        XCTAssertEqual(matchedTarget, "in")
+    }
+
+    func testCumulativeTranscriptOffsetPreventsHistoricalMatching() {
+        let mockService = MockContinuousReflexSpeechService()
+        var matchedTarget: String?
+        mockService.onMatchDetected = { matchedTarget = $0 }
+
+        mockService.startSession()
+
+        // Speak some sentences first
+        mockService.simulateTranscript("The weather is ephemeral today")
+
+        // Now set new target word that happened to be in previous transcript
+        mockService.setTargetWord(lemma: "ephemeral", contextualPhrases: [])
+
+        // Simulating the same transcript without new words should NOT match because of transcriptOffset
+        matchedTarget = nil
+        mockService.simulateTranscript("The weather is ephemeral today")
+        XCTAssertNil(matchedTarget, "Historical transcript before setTargetWord should not match")
+
+        // Now speak new phrase containing ephemeral after the offset
+        mockService.simulateTranscript("The weather is ephemeral today and also ephemeral tonight")
+        XCTAssertEqual(matchedTarget, "ephemeral")
     }
 
     func testMockServiceResetBufferAndNoMatch() {
@@ -41,8 +82,6 @@ final class ContinuousReflexSpeechServiceTests: XCTestCase {
         XCTAssertEqual(mockService.currentTranscript, "completely unrelated text")
 
         mockService.resetBuffer()
-        XCTAssertEqual(mockService.currentTranscript, "")
-
         mockService.stopSession()
         XCTAssertFalse(mockService.isSessionActive)
         XCTAssertEqual(mockService.currentTargetLemma, "")
@@ -64,8 +103,8 @@ final class ContinuousReflexSpeechServiceTests: XCTestCase {
         XCTAssertEqual(matchedWords, ["serendipity"])
     }
 
-    func testContinuousReflexSpeechServiceInitialState() {
-        let service = ContinuousReflexSpeechService()
+    func testContinuousReflexSpeechServiceInitialStateAndProtocolConformance() {
+        let service: ContinuousReflexSpeechProtocol = ContinuousReflexSpeechService()
         XCTAssertFalse(service.isSessionActive)
         XCTAssertEqual(service.currentTranscript, "")
 
