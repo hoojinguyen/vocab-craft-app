@@ -256,4 +256,16 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.countdownCount, 3)
         XCTAssertTrue(mockSpeech.isSessionActive)
     }
+
+    func testRepeatedMatchIgnoredWhenCurrentAttemptAlreadyCorrect() {
+        viewModel.beginSessionDirectly()
+        viewModel.handleSpokenMatch("ephemeral")
+        XCTAssertEqual(viewModel.attempts.count, 1)
+        XCTAssertEqual(viewModel.comboStreak, 1)
+
+        // Second match on same attempt before advance
+        viewModel.handleSpokenMatch("ephemeral")
+        XCTAssertEqual(viewModel.attempts.count, 1)
+        XCTAssertEqual(viewModel.comboStreak, 1)
+    }
 }

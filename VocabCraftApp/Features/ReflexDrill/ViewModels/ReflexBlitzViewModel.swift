@@ -176,7 +176,7 @@ public final class ReflexBlitzViewModel {
     }
 
     public func handleSpokenMatch(_ matchedLemma: String) {
-        guard phase == .drilling, let word = currentWord,
+        guard phase == .drilling, !currentAttemptIsCorrect, let word = currentWord,
               word.lemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == matchedLemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         else { return }
 
@@ -246,7 +246,7 @@ public final class ReflexBlitzViewModel {
     }
 
     public func submitKeyboardInput(_ text: String) {
-        guard phase == .drilling, let word = currentWord else { return }
+        guard phase == .drilling, !currentAttemptIsCorrect, let word = currentWord else { return }
         let cleanInput = text.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         let cleanLemma = word.lemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         if cleanInput == cleanLemma {
