@@ -20,7 +20,8 @@ let package = Package(
     targets: [
         .target(
             name: "VocabCraftApp",
-            path: "VocabCraftApp"
+            path: "VocabCraftApp",
+            resources: [.process("Resources")]
         ),
         .target(
             name: "VocabCraftWidgetExtension",

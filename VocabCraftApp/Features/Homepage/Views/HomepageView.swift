@@ -77,7 +77,7 @@ public struct HomepageView: View {
             case .search:
                 SearchNewWordView()
             case .reflex:
-                ReflexDrillView(viewModel: appContainer.makeReflexDrillViewModel(), onDismiss: {
+                ReflexBlitzView(viewModel: appContainer.makeReflexBlitzViewModel(), onDismiss: {
                     currentRouter.navigateToHome()
                 })
             case .settings:

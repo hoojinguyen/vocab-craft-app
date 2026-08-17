@@ -136,14 +136,14 @@ public enum AppStrings {
         public static var quickPracticeTitle: LocalizedStringKey { "reflex.quickPracticeTitle" }
         public static var quickStageProgress: LocalizedStringKey { "reflex.quickStageProgress" }
         public static func quickProgressSegment(_ stage: Int) -> String {
-            String(format: String(localized: "reflex.quickProgressSegment %lld"), stage)
+            String(format: String(localized: "reflex.quickProgressSegment %lld", defaultValue: "Stage %lld/3", bundle: .module), stage)
         }
         public static var quickStage1Title: LocalizedStringKey { "reflex.quickStage1Title" }
         public static var quickStage2Title: LocalizedStringKey { "reflex.quickStage2Title" }
         public static var quickStage3Title: LocalizedStringKey { "reflex.quickStage3Title" }
         public static var quickShadowButton: LocalizedStringKey { "reflex.quickShadowButton" }
         public static func quickShadowScoreLabel(_ score: Int) -> String {
-            String(format: String(localized: "reflex.quickShadowScoreLabel %lld"), score)
+            String(format: String(localized: "reflex.quickShadowScoreLabel %lld", defaultValue: "Pronunciation Score: %lld%%", bundle: .module), score)
         }
         public static var quickListenModelAgain: LocalizedStringKey { "reflex.quickListenModelAgain" }
         public static var quickContinue: LocalizedStringKey { "reflex.quickContinue" }
@@ -157,7 +157,7 @@ public enum AppStrings {
         public static var quickListenExample: LocalizedStringKey { "reflex.quickListenExample" }
         public static var quickHints: LocalizedStringKey { "reflex.quickHints" }
         public static var quickShowHint: LocalizedStringKey { "reflex.quickShowHint" }
-        public static var quickHintAvailableText: String { String(localized: "reflex.quickHintAvailable") }
+        public static var quickHintAvailableText: String { String(localized: "reflex.quickHintAvailable", defaultValue: "Hint available", bundle: .module) }
         public static var quickTypeAnswer: LocalizedStringKey { "reflex.quickTypeAnswer" }
         public static var quickSubmit: LocalizedStringKey { "reflex.quickSubmit" }
         public static var quickTypingFallback: LocalizedStringKey { "reflex.quickTypingFallback" }
@@ -175,36 +175,36 @@ public enum AppStrings {
         public static var quickSaving: LocalizedStringKey { "reflex.quickSaving" }
         public static var quickRevealedAnswer: LocalizedStringKey { "reflex.quickRevealedAnswer" }
         public static func quickStageProgressValue(stage: Int, total: Int) -> String {
-            String(format: String(localized: "reflex.quickStageProgressValue %lld %lld"), stage, total)
+            String(format: String(localized: "reflex.quickStageProgressValue %lld %lld", defaultValue: "Stage %lld of %lld", bundle: .module), stage, total)
         }
-        public static var quickNounSentenceFrame: String { String(localized: "reflex.quickNounSentenceFrame") }
-        public static var quickVerbSentenceFrame: String { String(localized: "reflex.quickVerbSentenceFrame") }
-        public static var quickAdjectiveSentenceFrame: String { String(localized: "reflex.quickAdjectiveSentenceFrame") }
-        public static var quickAdverbSentenceFrame: String { String(localized: "reflex.quickAdverbSentenceFrame") }
-        public static var quickPhraseSentenceFrame: String { String(localized: "reflex.quickPhraseSentenceFrame") }
+        public static var quickNounSentenceFrame: String { String(localized: "reflex.quickNounSentenceFrame", defaultValue: "Create a sentence using the noun '%@' with '%@'", bundle: .module) }
+        public static var quickVerbSentenceFrame: String { String(localized: "reflex.quickVerbSentenceFrame", defaultValue: "Create a sentence using the verb '%@' with '%@'", bundle: .module) }
+        public static var quickAdjectiveSentenceFrame: String { String(localized: "reflex.quickAdjectiveSentenceFrame", defaultValue: "Create a sentence using the adjective '%@' with '%@'", bundle: .module) }
+        public static var quickAdverbSentenceFrame: String { String(localized: "reflex.quickAdverbSentenceFrame", defaultValue: "Create a sentence using the adverb '%@' with '%@'", bundle: .module) }
+        public static var quickPhraseSentenceFrame: String { String(localized: "reflex.quickPhraseSentenceFrame", defaultValue: "Create a sentence using the phrase '%@' with '%@'", bundle: .module) }
         public static func quickTimeSaved(_ time: String) -> String {
-            String(format: String(localized: "reflex.quickTimeSaved %@"), time)
+            String(format: String(localized: "reflex.quickTimeSaved %@", defaultValue: "-%@ saved", bundle: .module), time)
         }
         public static func quickTimeSlower(_ time: String) -> String {
-            String(format: String(localized: "reflex.quickTimeSlower %@"), time)
+            String(format: String(localized: "reflex.quickTimeSlower %@", defaultValue: "+%@ slower", bundle: .module), time)
         }
         public static var quickTimeUnchanged: LocalizedStringKey { "reflex.quickTimeUnchanged" }
-        public static var quickMicDefaultIdleText: String { String(localized: "reflex.quickMicDefaultIdle") }
-        public static var quickMicDefaultListeningText: String { String(localized: "reflex.quickMicDefaultListening") }
+        public static var quickMicDefaultIdleText: String { String(localized: "reflex.quickMicDefaultIdle", defaultValue: "Tap to Speak", bundle: .module) }
+        public static var quickMicDefaultListeningText: String { String(localized: "reflex.quickMicDefaultListening", defaultValue: "Listening...", bundle: .module) }
         public static var quickMicStartAccessibility: LocalizedStringKey { "reflex.quickMicStartAccessibility" }
         public static var quickMicStopAccessibility: LocalizedStringKey { "reflex.quickMicStopAccessibility" }
-        public static var quickVisualizerPlaceholderText: String { String(localized: "reflex.quickVisualizerPlaceholder") }
-        public static var quickVisualizerListeningText: String { String(localized: "reflex.quickVisualizerListening") }
+        public static var quickVisualizerPlaceholderText: String { String(localized: "reflex.quickVisualizerPlaceholder", defaultValue: "Speak the word or collocation aloud", bundle: .module) }
+        public static var quickVisualizerListeningText: String { String(localized: "reflex.quickVisualizerListening", defaultValue: "Listening to your pronunciation...", bundle: .module) }
         public static func quickRecordingError(_ description: String) -> String {
-            String(localized: "reflex.quickRecordingError \(description)")
+            String(format: String(localized: "reflex.quickRecordingError %@", defaultValue: "Recording error: %@", bundle: .module), description)
         }
-        public static var quickSpeechRetryText: String { String(localized: "reflex.quickSpeechRetry") }
-        public static var quickSpeechTypingText: String { String(localized: "reflex.quickSpeechTyping") }
+        public static var quickSpeechRetryText: String { String(localized: "reflex.quickSpeechRetry", defaultValue: "Try speaking again or switch to typing", bundle: .module) }
+        public static var quickSpeechTypingText: String { String(localized: "reflex.quickSpeechTyping", defaultValue: "Type your answer below", bundle: .module) }
         public static func quickUsePrompt(_ lemma: String) -> String {
-            String(localized: "reflex.quickUsePrompt \(lemma)")
+            String(format: String(localized: "reflex.quickUsePrompt %@", defaultValue: "Make a sentence using '%@'", bundle: .module), lemma)
         }
         public static func quickUsePromptFromExample(_ lemma: String, _ example: String) -> String {
-            String(format: String(localized: "reflex.quickUsePromptFromExample %@ %@"), lemma, example)
+            String(format: String(localized: "reflex.quickUsePromptFromExample %@ %@", defaultValue: "Make a complete sentence with '%@' based on: \"%@\"", bundle: .module), lemma, example)
         }
         public static var speedBonus: LocalizedStringKey { "reflex.speedBonus" }
         public static var listenExample: LocalizedStringKey { "reflex.listenExample" }
