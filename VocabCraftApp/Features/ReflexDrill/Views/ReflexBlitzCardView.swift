@@ -1,76 +1,8 @@
 import SwiftUI
 
-/// Custom shape that traces clockwise along the rounded rectangle perimeter starting at top-center.
-/// Eliminates rotationEffect bugs that cause stroke geometry overflow and rendering glitches.
-public struct PerimeterCountdownShape: Shape {
-    public var cornerRadius: CGFloat = 24
-
-    public init(cornerRadius: CGFloat = 24) {
-        self.cornerRadius = cornerRadius
-    }
-
-    public func path(in rect: CGRect) -> Path {
-        var path = Path()
-        let r = min(cornerRadius, min(rect.width, rect.height) / 2)
-        let midX = rect.midX
-        let minX = rect.minX
-        let maxX = rect.maxX
-        let minY = rect.minY
-        let maxY = rect.maxY
-
-        // Start at top center
-        path.move(to: CGPoint(x: midX, y: minY))
-        // Top right straight line
-        path.addLine(to: CGPoint(x: maxX - r, y: minY))
-        // Top right rounded corner arc
-        path.addArc(
-            center: CGPoint(x: maxX - r, y: minY + r),
-            radius: r,
-            startAngle: .radians(-.pi / 2),
-            endAngle: .radians(0),
-            clockwise: false
-        )
-        // Right vertical edge
-        path.addLine(to: CGPoint(x: maxX, y: maxY - r))
-        // Bottom right rounded corner arc
-        path.addArc(
-            center: CGPoint(x: maxX - r, y: maxY - r),
-            radius: r,
-            startAngle: .radians(0),
-            endAngle: .radians(.pi / 2),
-            clockwise: false
-        )
-        // Bottom horizontal edge
-        path.addLine(to: CGPoint(x: minX + r, y: maxY))
-        // Bottom left rounded corner arc
-        path.addArc(
-            center: CGPoint(x: minX + r, y: maxY - r),
-            radius: r,
-            startAngle: .radians(.pi / 2),
-            endAngle: .radians(.pi),
-            clockwise: false
-        )
-        // Left vertical edge
-        path.addLine(to: CGPoint(x: minX, y: minY + r))
-        // Top left rounded corner arc
-        path.addArc(
-            center: CGPoint(x: minX + r, y: minY + r),
-            radius: r,
-            startAngle: .radians(.pi),
-            endAngle: .radians(3 * .pi / 2),
-            clockwise: false
-        )
-        // Complete path back to top center
-        path.addLine(to: CGPoint(x: midX, y: minY))
-        path.closeSubpath()
-
-        return path
-    }
-}
-
 /// Challenge card view for Spoken Reflex Blitz drill.
-/// Features a perimeter countdown stroke timer, clear cognitive visual hierarchy (Trigger -> Context -> Pronunciation),
-/// dynamic cloze slot with progressive scaffolding, and an integrated audio dock / keyboard fallback.
+/// Features clean spatial hierarchy (Trigger -> Context -> Scaffolding / Pronunciation -> Audio Dock / Typing Fallback),
+/// progressive disclosure for phonetics and hints, dynamic cloze slot, and an integrated audio dock / keyboard fallback.
 public struct ReflexBlitzCardView: View {
     public let word: ReflexBlitzWordItem
     public let fractionRemaining: Double
@@ -152,7 +84,7 @@ public struct ReflexBlitzCardView: View {
     }
 
     public var body: some View {
-        VStack(spacing: 18) {
+        VStack(spacing: 16) {
             // 1. TRIGGER AREA: Part of Speech & Vietnamese Meaning
             VStack(spacing: 8) {
                 if !word.pos.isEmpty {
@@ -187,24 +119,26 @@ public struct ReflexBlitzCardView: View {
                         : (isCorrect ? "Câu hoàn chỉnh: \(word.completedSentenceWithTargetWord)" : "Câu điền từ: \(word.clozeSentenceEn)")
                 )
 
-            // 3. PRONUNCIATION & SCAFFOLDING AREA
+            // 3. PRONUNCIATION & SCAFFOLDING AREA (Progressive Disclosure: Hide IPA during active recall)
             HStack(spacing: 8) {
-                if !word.ipa.isEmpty {
+                if (isCorrect || isTimeout) && !word.ipa.isEmpty {
                     HStack(spacing: 5) {
                         Image(systemName: "waveform")
                             .font(.caption2)
                         Text(word.ipa)
                             .font(.subheadline.monospaced())
+                            .lineLimit(1)
                     }
-                    .foregroundColor(isCorrect ? .vocabMint : (isTimeout ? .vocabCoral : .vocabMuted))
+                    .foregroundColor(isCorrect ? .vocabMint : .vocabCoral)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 5)
                     .background(
                         isCorrect
                             ? Color.vocabMint.opacity(0.14)
-                            : (isTimeout ? Color.vocabCoral.opacity(0.14) : Color.vocabMuted.opacity(0.08))
+                            : Color.vocabCoral.opacity(0.14)
                     )
                     .clipShape(Capsule())
+                    .transition(.scale.combined(with: .opacity))
                     .accessibilityLabel("Phiên âm IPA: \(word.ipa)")
                 }
 
@@ -228,6 +162,9 @@ public struct ReflexBlitzCardView: View {
                     .accessibilityLabel("Gợi ý ký tự đầu: \(word.initialLetterHint)")
                 }
             }
+            .animation(.spring(response: 0.35, dampingFraction: 0.75), value: showHint)
+            .animation(.spring(response: 0.35, dampingFraction: 0.75), value: isCorrect)
+            .animation(.spring(response: 0.35, dampingFraction: 0.75), value: isTimeout)
 
             Spacer(minLength: 4)
 
@@ -251,25 +188,14 @@ public struct ReflexBlitzCardView: View {
             }
         }
         .padding(22)
-        .frame(maxWidth: .infinity, minHeight: 310)
+        .frame(maxWidth: .infinity, minHeight: 300)
         .background(Color.vocabSurfaceCard)
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         .overlay(
-            // Background subtle track
-            PerimeterCountdownShape(cornerRadius: 24)
-                .stroke(Color.vocabHairline.opacity(0.25), lineWidth: 3.5)
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .stroke(Color.vocabHairline.opacity(0.5), lineWidth: 1)
         )
-        .overlay(
-            // Active countdown perimeter contour stroke (clock-wise, zero rotation bug)
-            PerimeterCountdownShape(cornerRadius: 24)
-                .trim(from: 0, to: CGFloat(max(0.0, min(1.0, fractionRemaining))))
-                .stroke(
-                    timerStrokeColor,
-                    style: StrokeStyle(lineWidth: 3.5, lineCap: .round)
-                )
-                .animation(.linear(duration: 0.05), value: fractionRemaining)
-        )
-        .shadow(color: Color.black.opacity(0.18), radius: 16, x: 0, y: 8)
+        .shadow(color: Color.black.opacity(0.06), radius: 16, x: 0, y: 6)
         .padding(.horizontal)
     }
 
@@ -285,7 +211,7 @@ public struct ReflexBlitzCardView: View {
                    let matchRange = Range(match.range, in: text) {
                     let prefix = String(text[..<matchRange.lowerBound])
                     let suffix = String(text[matchRange.upperBound...])
-                    
+
                     Text(prefix)
                         .font(.title3.weight(.medium))
                         .foregroundColor(.vocabInk)
@@ -313,7 +239,6 @@ public struct ReflexBlitzCardView: View {
                 .foregroundColor(isCorrect ? .vocabMint : .vocabCoral)
         }
     }
-
 
     private var slotTextColor: Color {
         if isCorrect {
@@ -396,4 +321,3 @@ public struct ReflexBlitzCardView: View {
         }
     }
 }
-

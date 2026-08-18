@@ -233,4 +233,79 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertEqual(sentence, word.completedSentenceWithTargetWord)
         XCTAssertEqual(correctCard.word.ipa, "/ˈfluː.ənt/")
     }
+
+    @MainActor
+    func testCardHidesIPAUntilAnswered() {
+        let word = ReflexBlitzWordItem(
+            id: 10,
+            lemma: "meticulous",
+            pos: "adj.",
+            ipa: "/məˈtɪk.jə.ləs/",
+            definitionVi: "Tỉ mỉ, cẩn thận",
+            exampleSentenceEn: "She is meticulous about her work quality.",
+            exampleSentenceVi: "Cô ấy rất tỉ mỉ về chất lượng công việc của mình."
+        )
+
+        // 1. Active drilling without hint: IPA must be hidden from view body
+        let activeDrillingCard = ReflexBlitzCardView(
+            word: word,
+            fractionRemaining: 0.8,
+            timerStage: .steady,
+            showHint: false,
+            isCorrect: false,
+            isTimeout: false,
+            liveTranscript: ""
+        )
+        XCTAssertNotNil(activeDrillingCard.body)
+        XCTAssertFalse(activeDrillingCard.isCorrect)
+        XCTAssertFalse(activeDrillingCard.isTimeout)
+        XCTAssertFalse(activeDrillingCard.showHint)
+        XCTAssertEqual(activeDrillingCard.displayedSentence, word.clozeSentenceEn)
+
+        // 2. Active drilling with hint: hint initial letter revealed, IPA still hidden
+        let hintedDrillingCard = ReflexBlitzCardView(
+            word: word,
+            fractionRemaining: 0.4,
+            timerStage: .warning,
+            showHint: true,
+            isCorrect: false,
+            isTimeout: false,
+            liveTranscript: ""
+        )
+        XCTAssertNotNil(hintedDrillingCard.body)
+        XCTAssertTrue(hintedDrillingCard.showHint)
+        XCTAssertFalse(hintedDrillingCard.isCorrect)
+        XCTAssertFalse(hintedDrillingCard.isTimeout)
+        XCTAssertTrue(word.initialLetterHint.hasPrefix("m..."))
+
+        // 3. Correct match: IPA and full target word revealed
+        let correctCard = ReflexBlitzCardView(
+            word: word,
+            fractionRemaining: 0.5,
+            timerStage: .steady,
+            showHint: false,
+            isCorrect: true,
+            isTimeout: false,
+            liveTranscript: "meticulous"
+        )
+        XCTAssertNotNil(correctCard.body)
+        XCTAssertTrue(correctCard.isCorrect)
+        XCTAssertEqual(correctCard.displayedSentence, word.completedSentenceWithTargetWord)
+        XCTAssertEqual(correctCard.word.ipa, "/məˈtɪk.jə.ləs/")
+
+        // 4. Timeout reveal: IPA and full example sentence revealed
+        let timeoutCard = ReflexBlitzCardView(
+            word: word,
+            fractionRemaining: 0.0,
+            timerStage: .urgent,
+            showHint: true,
+            isCorrect: false,
+            isTimeout: true,
+            liveTranscript: ""
+        )
+        XCTAssertNotNil(timeoutCard.body)
+        XCTAssertTrue(timeoutCard.isTimeout)
+        XCTAssertEqual(timeoutCard.displayedSentence, word.exampleSentenceEn)
+        XCTAssertEqual(timeoutCard.word.ipa, "/məˈtɪk.jə.ləs/")
+    }
 }
