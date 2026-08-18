@@ -10,6 +10,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
                 id: 1,
                 lemma: "ephemeral",
                 pos: "adj.",
+                ipa: "/ɪˈfem.ər.əl/",
                 definitionVi: "Phù du, chóng tàn",
                 exampleSentenceEn: "Her fame is ephemeral in nature.",
                 exampleSentenceVi: "Danh tiếng của cô ấy phù du."
@@ -18,6 +19,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
                 id: 2,
                 lemma: "serendipity",
                 pos: "n.",
+                ipa: "/ˌser.ənˈdɪp.ə.ti/",
                 definitionVi: "Sự may mắn bất ngờ",
                 exampleSentenceEn: "Finding this was pure serendipity.",
                 exampleSentenceVi: "Tìm thấy thứ này là may mắn bất ngờ."
@@ -297,11 +299,11 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         let (vmSummary, _, _, _) = makeViewModel()
         vmSummary.beginSessionDirectly()
         let attempts = [
-            ReflexBlitzAttempt(wordId: 1, lemma: "ephemeral", responseTimeMs: 1400, usedHint: false, isCorrect: true),
-            ReflexBlitzAttempt(wordId: 2, lemma: "serendipity", responseTimeMs: 2100, usedHint: false, isCorrect: true),
-            ReflexBlitzAttempt(wordId: 3, lemma: "resilient", responseTimeMs: 6000, usedHint: true, isCorrect: false),
-            ReflexBlitzAttempt(wordId: 4, lemma: "meticulous", responseTimeMs: 5200, usedHint: true, isCorrect: true),
-            ReflexBlitzAttempt(wordId: 5, lemma: "eloquent", responseTimeMs: 6000, usedHint: true, isCorrect: false)
+            ReflexBlitzAttempt(wordId: 1, lemma: "ephemeral", pos: "adj.", ipa: "/ɪˈfem.ər.əl/", definitionVi: "Phù du, chóng tàn", responseTimeMs: 1400, usedHint: false, isCorrect: true),
+            ReflexBlitzAttempt(wordId: 2, lemma: "serendipity", pos: "n.", ipa: "/ˌser.ənˈdɪp.ə.ti/", definitionVi: "Sự may mắn bất ngờ", responseTimeMs: 2100, usedHint: false, isCorrect: true),
+            ReflexBlitzAttempt(wordId: 3, lemma: "resilient", pos: "adj.", ipa: "/rɪˈzɪl.jənt/", definitionVi: "Kiên cường, phục hồi nhanh", responseTimeMs: 6000, usedHint: true, isCorrect: false),
+            ReflexBlitzAttempt(wordId: 4, lemma: "meticulous", pos: "adj.", ipa: "/məˈtɪk.jə.ləs/", definitionVi: "Tỉ mỉ, cẩn thận", responseTimeMs: 5200, usedHint: true, isCorrect: true),
+            ReflexBlitzAttempt(wordId: 5, lemma: "eloquent", pos: "adj.", ipa: "/ˈel.ə.kwənt/", definitionVi: "Hùng biện, lưu loát", responseTimeMs: 6000, usedHint: true, isCorrect: false)
         ]
         vmSummary.attempts = attempts
         let summary = ReflexBlitzSessionSummary.create(from: attempts, maxCombo: 2)
@@ -309,6 +311,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         vmSummary.phase = .summary
         let summaryView = ReflexBlitzSummaryView(
             summary: summary,
+            onSpeakWord: { _ in },
             onReDrillWeak: {},
             onFinish: {}
         )
