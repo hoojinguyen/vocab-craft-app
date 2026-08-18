@@ -64,11 +64,12 @@ public struct ReflexBlitzView: View {
                 },
                 onSkip: {
                     viewModel.handleTimeout()
-                }
+                },
+                showSkipInHeader: false
             )
             .padding(.top, 12)
 
-            Spacer(minLength: 16)
+            Spacer(minLength: 12)
 
             // Challenge Card with Integrated Voice / Fallback Dock & Perimeter Timer
             if let word = viewModel.currentWord {
@@ -93,27 +94,61 @@ public struct ReflexBlitzView: View {
                 ))
             }
 
-            Spacer(minLength: 16)
+            Spacer(minLength: 12)
 
-            // Lightweight Mode Switcher Control
-            Button(action: {
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                    viewModel.isKeyboardFallbackActive.toggle()
+            // Ergonomic Bottom Control Bar (Thumb Zone)
+            HStack(spacing: 12) {
+                // Mode Toggle Button (Keyboard vs Voice)
+                Button(action: {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                        viewModel.isKeyboardFallbackActive.toggle()
+                    }
+                }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: viewModel.isKeyboardFallbackActive ? "waveform" : "keyboard")
+                        Text(viewModel.isKeyboardFallbackActive ? "Luyện nói" : "Gõ phím")
+                    }
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundColor(.vocabMuted)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                    .background(Color.vocabSurfaceCard)
+                    .clipShape(Capsule())
+                    .overlay(
+                        Capsule()
+                            .stroke(Color.vocabHairline.opacity(0.5), lineWidth: 1)
+                    )
                 }
-            }) {
-                HStack(spacing: 6) {
-                    Image(systemName: viewModel.isKeyboardFallbackActive ? "waveform" : "keyboard")
-                    Text(viewModel.isKeyboardFallbackActive ? "Chuyển sang chế độ nói" : "Chuyển sang gõ phím")
+                .buttonStyle(BentoCardButtonStyle())
+                .accessibilityLabel(viewModel.isKeyboardFallbackActive ? "Chuyển sang chế độ nói" : "Chuyển sang gõ phím")
+
+                Spacer()
+
+                // Skip Button
+                Button(action: {
+                    viewModel.handleTimeout()
+                }) {
+                    HStack(spacing: 5) {
+                        Text("Bỏ qua")
+                        Image(systemName: "forward.fill")
+                            .font(.caption2)
+                    }
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundColor(.vocabMuted)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                    .background(Color.vocabSurfaceCard)
+                    .clipShape(Capsule())
+                    .overlay(
+                        Capsule()
+                            .stroke(Color.vocabHairline.opacity(0.5), lineWidth: 1)
+                    )
                 }
-                .font(.footnote.weight(.semibold))
-                .foregroundColor(.vocabMuted)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 8)
-                .background(Color.vocabSurfaceCard.opacity(0.8))
-                .clipShape(Capsule())
+                .buttonStyle(BentoCardButtonStyle())
+                .accessibilityLabel("Bỏ qua từ hiện tại")
             }
-            .accessibilityLabel(viewModel.isKeyboardFallbackActive ? "Chuyển sang chế độ nói" : "Chuyển sang gõ phím")
-            .padding(.bottom, 24)
+            .padding(.horizontal, 20)
+            .padding(.bottom, 20)
         }
     }
 
@@ -124,3 +159,4 @@ public struct ReflexBlitzView: View {
         typingInput = ""
     }
 }
+
