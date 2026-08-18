@@ -57,6 +57,7 @@ final class ReflexBlitzSummaryViewTests: XCTestCase {
             onFinish: {}
         )
         XCTAssertNotNil(view.body)
+        XCTAssertNotNil(view.summaryContent)
         XCTAssertTrue(view.summary.weakWordAttempts.isEmpty)
     }
 
@@ -100,13 +101,86 @@ final class ReflexBlitzSummaryViewTests: XCTestCase {
             onFinish: {}
         )
         XCTAssertNotNil(view.body)
+        XCTAssertNotNil(view.summaryContent)
         XCTAssertEqual(view.summary.weakWordAttempts.count, 2)
         XCTAssertEqual(view.summary.weakWordAttempts[0].pos, "adj.")
         XCTAssertEqual(view.summary.weakWordAttempts[0].ipa, "/ɪˈfem.ər.əl/")
         XCTAssertEqual(view.summary.weakWordAttempts[0].definitionVi, "Phù du, chóng tàn")
-        
+
         view.onSpeakWord?("ephemeral")
         XCTAssertEqual(spokenWord, "ephemeral")
+    }
+
+    @MainActor
+    func testSummaryViewWithLongIPAAndComplexPhonetics() {
+        let longIPAAttempts = [
+            ReflexBlitzAttempt(
+                wordId: 101,
+                lemma: "serendipity",
+                pos: "n.",
+                ipa: "/ˌser.ənˈdɪp.ə.ti/",
+                definitionVi: "Sự tình cờ may mắn",
+                responseTimeMs: 6000,
+                usedHint: true,
+                isCorrect: false
+            ),
+            ReflexBlitzAttempt(
+                wordId: 102,
+                lemma: "meticulous",
+                pos: "adj.",
+                ipa: "/məˈtɪk.jə.ləs/",
+                definitionVi: "Tỉ mỉ, cẩn thận từng li từng tí",
+                responseTimeMs: 5200,
+                usedHint: false,
+                isCorrect: false
+            ),
+            ReflexBlitzAttempt(
+                wordId: 103,
+                lemma: "unconditional",
+                pos: "adj.",
+                ipa: "/ˌʌn.kənˈdɪʃ.ən.əl/",
+                definitionVi: "Vô điều kiện, tuyệt đối",
+                responseTimeMs: 4800,
+                usedHint: true,
+                isCorrect: true
+            ),
+            ReflexBlitzAttempt(
+                wordId: 104,
+                lemma: "comprehensive",
+                pos: "adj.",
+                ipa: "/ˌkɒm.prɪˈhen.sɪv/",
+                definitionVi: "Toàn diện, bao quát",
+                responseTimeMs: 6000,
+                usedHint: false,
+                isCorrect: false
+            )
+        ]
+
+        let summary = ReflexBlitzSessionSummary(
+            id: UUID(),
+            totalWords: 4,
+            correctWords: 1,
+            averageResponseTimeMs: 5500,
+            maxComboStreak: 1,
+            attempts: longIPAAttempts,
+            weakWordAttempts: longIPAAttempts,
+            speedRating: "🌱 Steady Learner"
+        )
+
+        let view = ReflexBlitzSummaryView(
+            summary: summary,
+            onSpeakWord: { _ in },
+            onReDrillWeak: {},
+            onFinish: {}
+        )
+
+        XCTAssertNotNil(view.body)
+        XCTAssertNotNil(view.summaryContent)
+        XCTAssertEqual(view.summary.weakWordAttempts.count, 4)
+        XCTAssertEqual(view.summary.weakWordAttempts[0].ipa, "/ˌser.ənˈdɪp.ə.ti/")
+        XCTAssertEqual(view.summary.weakWordAttempts[1].ipa, "/məˈtɪk.jə.ləs/")
+        XCTAssertEqual(view.summary.weakWordAttempts[2].ipa, "/ˌʌn.kənˈdɪʃ.ən.əl/")
+        XCTAssertEqual(view.summary.weakWordAttempts[3].ipa, "/ˌkɒm.prɪˈhen.sɪv/")
     }
 
     @MainActor
