@@ -2,15 +2,18 @@ import SwiftUI
 
 public struct ReflexBlitzSummaryView: View {
     public let summary: ReflexBlitzSessionSummary
+    public let onSpeakWord: ((String) -> Void)?
     public let onReDrillWeak: () -> Void
     public let onFinish: () -> Void
 
     public init(
         summary: ReflexBlitzSessionSummary,
+        onSpeakWord: ((String) -> Void)? = nil,
         onReDrillWeak: @escaping () -> Void,
         onFinish: @escaping () -> Void
     ) {
         self.summary = summary
+        self.onSpeakWord = onSpeakWord
         self.onReDrillWeak = onReDrillWeak
         self.onFinish = onFinish
     }
@@ -118,13 +121,44 @@ public struct ReflexBlitzSummaryView: View {
 
                         ForEach(summary.weakWordAttempts) { weak in
                             let timeLabel = weak.responseTimeMs >= 6000 ? "Hết giờ" : String(format: "%.1fs", Double(weak.responseTimeMs) / 1000.0)
-                            HStack {
-                                Text(weak.lemma)
-                                    .font(.body.bold())
-                                    .foregroundColor(.vocabInk)
+                            HStack(alignment: .center, spacing: 14) {
+                                // Word metadata
+                                VStack(alignment: .leading, spacing: 4) {
+                                    HStack(spacing: 8) {
+                                        Text(weak.lemma)
+                                            .font(.headline.bold())
+                                            .foregroundColor(.vocabInk)
+                                        if !weak.pos.isEmpty || !weak.ipa.isEmpty {
+                                            Text([weak.pos, weak.ipa].filter { !$0.isEmpty }.joined(separator: " • "))
+                                                .font(.caption.monospaced())
+                                                .foregroundColor(.vocabMuted)
+                                        }
+                                    }
+                                    if !weak.definitionVi.isEmpty {
+                                        Text(weak.definitionVi)
+                                            .font(.subheadline)
+                                            .foregroundColor(.vocabMuted)
+                                            .lineLimit(1)
+                                    }
+                                }
 
                                 Spacer()
 
+                                // Speaker mini button
+                                if let onSpeak = onSpeakWord {
+                                    Button(action: { onSpeak(weak.lemma) }) {
+                                        Image(systemName: "speaker.wave.2.fill")
+                                            .font(.footnote)
+                                            .foregroundColor(.vocabHeroAccent)
+                                            .frame(width: 36, height: 36)
+                                            .background(Color.vocabHeroAccent.opacity(0.12))
+                                            .clipShape(Circle())
+                                    }
+                                    .buttonStyle(.borderless)
+                                    .accessibilityLabel("Nghe phát âm từ \(weak.lemma)")
+                                }
+
+                                // Time / Timeout badge
                                 Text(timeLabel)
                                     .font(.caption.bold())
                                     .foregroundColor(.vocabCoral)
@@ -133,9 +167,9 @@ public struct ReflexBlitzSummaryView: View {
                                     .background(Color.vocabCoral.opacity(0.12))
                                     .clipShape(Capsule())
                             }
-                            .padding()
+                            .padding(14)
                             .background(Color.vocabSurfaceCard)
-                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                             .padding(.horizontal)
                             .accessibilityElement(children: .combine)
                             .accessibilityLabel("Từ cần ôn: \(weak.lemma), thời gian phản hồi: \(timeLabel)")

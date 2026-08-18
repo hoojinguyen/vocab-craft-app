@@ -21,6 +21,9 @@ public struct ReflexBlitzView: View {
             if viewModel.phase == .summary, let summary = viewModel.sessionSummary {
                 ReflexBlitzSummaryView(
                     summary: summary,
+                    onSpeakWord: { lemma in
+                        viewModel.speakLemma(lemma)
+                    },
                     onReDrillWeak: {
                         viewModel.reDrillWeakWords()
                     },
