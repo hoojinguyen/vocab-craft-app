@@ -42,7 +42,18 @@ struct VocabCraftApp: App {
         }
         let engine = DatasetEngine()
         self.datasetEngine = engine
-        self.appContainer = AppContainer(datasetEngine: engine, modelContainer: container)
+        let initialTab: TabItem
+        if ProcessInfo.processInfo.arguments.contains("-tab-reflex") {
+            initialTab = .reflex
+        } else if ProcessInfo.processInfo.arguments.contains("-tab-vocabulary") {
+            initialTab = .vocabulary
+        } else if ProcessInfo.processInfo.arguments.contains("-tab-settings") {
+            initialTab = .settings
+        } else {
+            initialTab = .home
+        }
+        let router = AppRouter(initialTab: initialTab)
+        self.appContainer = AppContainer(datasetEngine: engine, modelContainer: container, appRouter: router)
     }
 
     var body: some Scene {
@@ -54,6 +65,16 @@ struct VocabCraftApp: App {
                 .environment(\.speechAssessmentService, appContainer.speechAssessmentService)
                 .onOpenURL { url in
                     appContainer.appRouter.handleDeepLink(url: url)
+                }
+                .onAppear {
+                    let args = ProcessInfo.processInfo.arguments
+                    if args.contains("-tab-reflex") {
+                        appContainer.appRouter.selectTab(.reflex)
+                    } else if args.contains("-tab-vocabulary") {
+                        appContainer.appRouter.selectTab(.vocabulary)
+                    } else if args.contains("-tab-settings") {
+                        appContainer.appRouter.selectTab(.settings)
+                    }
                 }
         }
         .modelContainer(container)

@@ -27,76 +27,7 @@ public struct ReflexBlitzView: View {
                     onFinish: onDismiss
                 )
             } else {
-                VStack(spacing: 20) {
-                    // Header Bar
-                    ReflexBlitzHeaderView(
-                        currentIndex: viewModel.currentWordIndex,
-                        totalCount: viewModel.words.count,
-                        comboStreak: viewModel.comboStreak,
-                        onClose: {
-                            viewModel.cancelSession()
-                            onDismiss()
-                        },
-                        onSkip: {
-                            viewModel.handleTimeout()
-                        }
-                    )
-                    .padding(.top, 12)
-
-                    Spacer(minLength: 12)
-
-                    // Challenge Card with Integrated Voice / Fallback Dock & Perimeter Timer
-                    if let word = viewModel.currentWord {
-                        ReflexBlitzCardView(
-                            word: word,
-                            fractionRemaining: viewModel.fractionRemaining,
-                            timerStage: viewModel.timerStage,
-                            showHint: viewModel.showHint,
-                            isCorrect: viewModel.currentAttemptIsCorrect,
-                            isTimeout: viewModel.phase == .timeoutRevealing,
-                            liveTranscript: viewModel.liveTranscript,
-                            elapsedTimeMs: viewModel.elapsedTimeMs,
-                            isKeyboardFallbackActive: viewModel.isKeyboardFallbackActive,
-                            keyboardInputText: $typingInput,
-                            onSubmitKeyboard: {
-                                submitKeyboard()
-                            }
-                        )
-                        .transition(.asymmetric(
-                            insertion: .move(edge: .trailing).combined(with: .opacity),
-                            removal: .move(edge: .leading).combined(with: .opacity)
-                        ))
-                    }
-
-                    Spacer(minLength: 12)
-
-                    // Mode Switcher Control
-                    Button(action: {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                            viewModel.toggleKeyboardFallback()
-                        }
-                    }) {
-                        HStack(spacing: 6) {
-                            Image(systemName: viewModel.isKeyboardFallbackActive ? "mic.fill" : "keyboard")
-                                .font(.caption)
-                            Text(viewModel.isKeyboardFallbackActive ? "Chuyển sang chế độ nói" : "Hoặc gõ phím")
-                                .font(.caption.bold())
-                        }
-                        .foregroundColor(viewModel.isKeyboardFallbackActive ? .vocabHeroAccent : .vocabMuted)
-                        .padding(.vertical, 8)
-                        .padding(.horizontal, 14)
-                        .background(
-                            viewModel.isKeyboardFallbackActive
-                                ? Color.vocabHeroAccent.opacity(0.1)
-                                : Color.vocabMuted.opacity(0.08)
-                        )
-                        .clipShape(Capsule())
-                        .frame(minHeight: 44)
-                    }
-                    .buttonStyle(BentoCardButtonStyle())
-                    .accessibilityLabel(viewModel.isKeyboardFallbackActive ? "Chuyển về chế độ micro" : "Chuyển sang gõ phím thay thế")
-                    .padding(.bottom, 24)
-                }
+                drillingView
 
                 if viewModel.phase == .countdown {
                     ReflexCountdownOverlayView(count: viewModel.countdownCount)
@@ -114,6 +45,73 @@ public struct ReflexBlitzView: View {
         }
         .sensoryFeedback(.success, trigger: viewModel.currentAttemptIsCorrect) { _, isCorrect in isCorrect }
         .sensoryFeedback(.impact(weight: .heavy), trigger: viewModel.phase) { _, newPhase in newPhase == .timeoutRevealing }
+    }
+
+    @ViewBuilder
+    public var drillingView: some View {
+        VStack(spacing: 16) {
+            // Header Bar
+            ReflexBlitzHeaderView(
+                currentIndex: viewModel.currentWordIndex,
+                totalCount: viewModel.words.count,
+                comboStreak: viewModel.comboStreak,
+                onClose: {
+                    viewModel.cancelSession()
+                    onDismiss()
+                },
+                onSkip: {
+                    viewModel.handleTimeout()
+                }
+            )
+            .padding(.top, 12)
+
+            Spacer(minLength: 16)
+
+            // Challenge Card with Integrated Voice / Fallback Dock & Perimeter Timer
+            if let word = viewModel.currentWord {
+                ReflexBlitzCardView(
+                    word: word,
+                    fractionRemaining: viewModel.fractionRemaining,
+                    timerStage: viewModel.timerStage,
+                    showHint: viewModel.showHint,
+                    isCorrect: viewModel.phase == .drilling && viewModel.currentAttemptIsCorrect,
+                    isTimeout: viewModel.phase == .timeoutRevealing,
+                    liveTranscript: viewModel.liveTranscript,
+                    elapsedTimeMs: viewModel.elapsedTimeMs,
+                    isKeyboardFallbackActive: viewModel.isKeyboardFallbackActive,
+                    keyboardInputText: $typingInput,
+                    onSubmitKeyboard: {
+                        submitKeyboard()
+                    }
+                )
+                .transition(.asymmetric(
+                    insertion: .move(edge: .trailing).combined(with: .opacity),
+                    removal: .move(edge: .leading).combined(with: .opacity)
+                ))
+            }
+
+            Spacer(minLength: 16)
+
+            // Lightweight Mode Switcher Control
+            Button(action: {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                    viewModel.isKeyboardFallbackActive.toggle()
+                }
+            }) {
+                HStack(spacing: 6) {
+                    Image(systemName: viewModel.isKeyboardFallbackActive ? "waveform" : "keyboard")
+                    Text(viewModel.isKeyboardFallbackActive ? "Chuyển sang chế độ nói" : "Chuyển sang gõ phím")
+                }
+                .font(.footnote.weight(.semibold))
+                .foregroundColor(.vocabMuted)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .background(Color.vocabSurfaceCard.opacity(0.8))
+                .clipShape(Capsule())
+            }
+            .accessibilityLabel(viewModel.isKeyboardFallbackActive ? "Chuyển sang chế độ nói" : "Chuyển sang gõ phím")
+            .padding(.bottom, 24)
+        }
     }
 
     private func submitKeyboard() {

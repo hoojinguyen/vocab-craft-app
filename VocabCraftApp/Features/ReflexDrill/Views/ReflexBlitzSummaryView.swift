@@ -21,7 +21,13 @@ public struct ReflexBlitzSummaryView: View {
 
     public var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
-            VStack(spacing: 24) {
+            summaryContent
+        }
+        .background(Color.vocabCanvas.ignoresSafeArea())
+    }
+
+    public var summaryContent: some View {
+        VStack(spacing: 24) {
                 // Title Badge
                 VStack(spacing: 8) {
                     Text(summary.speedRating)
@@ -170,9 +176,6 @@ public struct ReflexBlitzSummaryView: View {
                 .buttonStyle(BentoCardButtonStyle())
                 .padding(.horizontal)
                 .padding(.bottom, 20)
-                .accessibilityLabel("Hoàn thành và lưu tiến độ")
             }
         }
-        .background(Color.vocabCanvas.ignoresSafeArea())
     }
-}

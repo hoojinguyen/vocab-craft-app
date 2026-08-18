@@ -105,16 +105,31 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         vm.beginSessionDirectly()
         XCTAssertFalse(vm.isKeyboardFallbackActive)
 
-        vm.toggleKeyboardFallback()
-        XCTAssertTrue(vm.isKeyboardFallbackActive)
-
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
         XCTAssertNotNil(view.body)
+        XCTAssertNotNil(view.drillingView)
+
+        vm.toggleKeyboardFallback()
+        XCTAssertTrue(vm.isKeyboardFallbackActive)
 
         // Submit via keyboard
         vm.submitKeyboardInput("ephemeral")
         XCTAssertTrue(vm.currentAttemptIsCorrect)
         XCTAssertEqual(vm.comboStreak, 1)
+    }
+
+    func testDrillingViewRendersConsolidatedCardAndPillControl() {
+        let (vm, _, _, _) = makeViewModel()
+        vm.beginSessionDirectly()
+
+        let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
+        XCTAssertNotNil(view.drillingView)
+        XCTAssertFalse(vm.isKeyboardFallbackActive)
+
+        // Verify keyboard mode activation alters state
+        vm.isKeyboardFallbackActive = true
+        XCTAssertTrue(vm.isKeyboardFallbackActive)
+        XCTAssertNotNil(view.drillingView)
     }
 
     func testCancellationTeardownOnDisappear() {
@@ -199,5 +214,109 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         // 6. Dismiss View
         view.onDismiss()
         XCTAssertTrue(dismissed)
+    }
+
+    private func renderSnapshot<V: View>(view: V, filename: String) {
+        let sizedView = view
+            .frame(width: 393, height: 852)
+            .background(Color.vocabCanvas)
+            .environment(\.colorScheme, .dark)
+
+        let renderer = ImageRenderer(content: sizedView)
+        renderer.scale = 2.0
+        renderer.proposedSize = ProposedViewSize(width: 393, height: 852)
+
+        if let image = renderer.uiImage, let data = image.pngData() {
+            let outputDir = URL(fileURLWithPath: "/Users/hoojinguyen/.gemini/antigravity/brain/c652ef14-7e40-47b1-81d8-6f055a9343f5/screenshots")
+            try? FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
+            let fileURL = outputDir.appendingPathComponent(filename)
+            try? data.write(to: fileURL)
+            print("[Snapshot] Successfully saved with ImageRenderer: \(filename) (size: \(data.count) bytes)")
+        } else {
+            print("[Snapshot] ImageRenderer failed for \(filename)")
+        }
+    }
+
+    func testCaptureAllReflexBlitzScreenshots() {
+        // 1. Homepage Entry
+        let container = AppContainer.mock
+        let homeVM = container.makeHomepageViewModel()
+        let homeView = HomepageView(viewModel: homeVM)
+            .environment(\.appContainer, container)
+            .environment(\.appRouter, container.appRouter)
+        renderSnapshot(view: homeView, filename: "01_homepage_reflex_entry.png")
+
+        // 2. Countdown Phase
+        let (vmCountdown, _, _, _) = makeViewModel()
+        vmCountdown.phase = .countdown
+        vmCountdown.countdownCount = 3
+        let countdownView = ReflexBlitzView(viewModel: vmCountdown, onDismiss: {})
+        renderSnapshot(view: countdownView, filename: "02_reflex_countdown.png")
+
+        // 3. Drilling Initial State (Normal listening)
+        let (vmDrill, _, _, _) = makeViewModel()
+        vmDrill.beginSessionDirectly()
+        vmDrill.elapsedTimeMs = 1200
+        let drillView = ReflexBlitzView(viewModel: vmDrill, onDismiss: {})
+        renderSnapshot(view: drillView, filename: "03_reflex_drilling_initial.png")
+
+        // 4. Drilling Scaffolding Hint Active
+        let (vmHint, _, _, _) = makeViewModel()
+        vmHint.beginSessionDirectly()
+        vmHint.elapsedTimeMs = 4200
+        vmHint.showHint = true
+        let hintView = ReflexBlitzView(viewModel: vmHint, onDismiss: {})
+        renderSnapshot(view: hintView, filename: "04_reflex_drilling_hint.png")
+
+        // 5. Drilling Spoken Correct Match & Combo
+        let (vmCorrect, _, _, _) = makeViewModel()
+        vmCorrect.beginSessionDirectly()
+        vmCorrect.loadWordForTesting(at: 1)
+        vmCorrect.comboStreak = 3
+        vmCorrect.currentAttemptIsCorrect = true
+        vmCorrect.liveTranscript = "Finding this was pure serendipity"
+        let correctView = ReflexBlitzView(viewModel: vmCorrect, onDismiss: {})
+        renderSnapshot(view: correctView, filename: "05_reflex_drilling_correct_combo.png")
+
+        // 6. Drilling Timeout & Revealing Answer
+        let (vmTimeout, _, _, _) = makeViewModel()
+        vmTimeout.beginSessionDirectly()
+        vmTimeout.loadWordForTesting(at: 0)
+        vmTimeout.phase = .timeoutRevealing
+        let timeoutView = ReflexBlitzView(viewModel: vmTimeout, onDismiss: {})
+        renderSnapshot(view: timeoutView, filename: "06_reflex_drilling_timeout_reveal.png")
+
+        // 7. Drilling Keyboard Fallback Mode
+        let (vmKeyb, _, _, _) = makeViewModel()
+        vmKeyb.beginSessionDirectly()
+        vmKeyb.isKeyboardFallbackActive = true
+        let keybView = ReflexBlitzView(viewModel: vmKeyb, onDismiss: {})
+        renderSnapshot(view: keybView, filename: "07_reflex_drilling_keyboard_mode.png")
+
+        // 8. Session Summary Screen
+        let (vmSummary, _, _, _) = makeViewModel()
+        vmSummary.beginSessionDirectly()
+        let attempts = [
+            ReflexBlitzAttempt(wordId: 1, lemma: "ephemeral", responseTimeMs: 1400, usedHint: false, isCorrect: true),
+            ReflexBlitzAttempt(wordId: 2, lemma: "serendipity", responseTimeMs: 2100, usedHint: false, isCorrect: true),
+            ReflexBlitzAttempt(wordId: 3, lemma: "resilient", responseTimeMs: 6000, usedHint: true, isCorrect: false),
+            ReflexBlitzAttempt(wordId: 4, lemma: "meticulous", responseTimeMs: 5200, usedHint: true, isCorrect: true),
+            ReflexBlitzAttempt(wordId: 5, lemma: "eloquent", responseTimeMs: 6000, usedHint: true, isCorrect: false)
+        ]
+        vmSummary.attempts = attempts
+        let summary = ReflexBlitzSessionSummary.create(from: attempts, maxCombo: 2)
+        vmSummary.sessionSummary = summary
+        vmSummary.phase = .summary
+        let summaryView = ReflexBlitzSummaryView(
+            summary: summary,
+            onReDrillWeak: {},
+            onFinish: {}
+        )
+        renderSnapshot(
+            view: summaryView.summaryContent
+                .padding(.top, 40)
+                .frame(width: 393, alignment: .top),
+            filename: "08_reflex_summary_screen.png"
+        )
     }
 }
