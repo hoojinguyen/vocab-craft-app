@@ -32,6 +32,7 @@ public struct ReflexBlitzWordItem: Identifiable, Equatable, Sendable {
     public let id: Int
     public let lemma: String
     public let pos: String
+    public let ipa: String
     public let definitionVi: String
     public let exampleSentenceEn: String
     public let exampleSentenceVi: String
@@ -42,19 +43,23 @@ public struct ReflexBlitzWordItem: Identifiable, Equatable, Sendable {
         id: Int,
         lemma: String,
         pos: String,
+        ipa: String = "",
         definitionVi: String,
         exampleSentenceEn: String,
-        exampleSentenceVi: String
+        exampleSentenceVi: String,
+        clozeSentenceEn: String? = nil
     ) {
         self.id = id
         self.lemma = lemma
         self.pos = pos
+        self.ipa = ipa
         self.definitionVi = definitionVi
         self.exampleSentenceEn = exampleSentenceEn
         self.exampleSentenceVi = exampleSentenceVi
-        self.clozeSentenceEn = ReflexClozeFormatter.formatCloze(sentenceEn: exampleSentenceEn, lemma: lemma)
+        self.clozeSentenceEn = clozeSentenceEn ?? ReflexClozeFormatter.formatCloze(sentenceEn: exampleSentenceEn, lemma: lemma)
         let firstLetter = lemma.prefix(1).lowercased()
-        self.initialLetterHint = "\(pos). • \(firstLetter)..."
+        let formattedPos = pos.hasSuffix(".") ? pos : "\(pos)."
+        self.initialLetterHint = "\(firstLetter)... • \(formattedPos)"
     }
 
     public init(from wordItem: WordItem) {
@@ -62,6 +67,7 @@ public struct ReflexBlitzWordItem: Identifiable, Equatable, Sendable {
             id: Int(wordItem.id),
             lemma: wordItem.lemma,
             pos: wordItem.pos,
+            ipa: wordItem.phonetic,
             definitionVi: wordItem.definition,
             exampleSentenceEn: wordItem.exampleSentenceEn,
             exampleSentenceVi: wordItem.exampleSentenceVi
@@ -74,10 +80,37 @@ public struct ReflexBlitzWordItem: Identifiable, Equatable, Sendable {
             id: Int(word.id),
             lemma: word.lemma,
             pos: word.pos ?? "word",
+            ipa: word.ipaUs ?? "",
             definitionVi: word.definitionVi ?? word.definitionEn ?? "",
             exampleSentenceEn: sentenceEn,
             exampleSentenceVi: word.definitionVi ?? ""
         )
+    }
+
+    public var completedSentenceWithTargetWord: String {
+        if clozeSentenceEn.contains("[ _________ ]") {
+            return clozeSentenceEn.replacingOccurrences(of: "[ _________ ]", with: lemma)
+        } else if clozeSentenceEn.contains("[ ________ ]") {
+            return clozeSentenceEn.replacingOccurrences(of: "[ ________ ]", with: lemma)
+        } else if clozeSentenceEn.contains("[ ______ ]") {
+            return clozeSentenceEn.replacingOccurrences(of: "[ ______ ]", with: lemma)
+        } else if let regex = try? NSRegularExpression(pattern: "\\[\\s*_{3,}\\s*\\]") {
+            let range = NSRange(clozeSentenceEn.startIndex..., in: clozeSentenceEn)
+            let replaced = regex.stringByReplacingMatches(in: clozeSentenceEn, options: [], range: range, withTemplate: lemma)
+            if replaced != clozeSentenceEn {
+                return replaced
+            }
+        }
+
+        if let regex = try? NSRegularExpression(pattern: "_{3,}") {
+            let range = NSRange(clozeSentenceEn.startIndex..., in: clozeSentenceEn)
+            let replaced = regex.stringByReplacingMatches(in: clozeSentenceEn, options: [], range: range, withTemplate: lemma)
+            if replaced != clozeSentenceEn {
+                return replaced
+            }
+        }
+
+        return !exampleSentenceEn.isEmpty ? exampleSentenceEn : clozeSentenceEn
     }
 
     public static var defaultStarterWords: [ReflexBlitzWordItem] {
@@ -86,138 +119,105 @@ public struct ReflexBlitzWordItem: Identifiable, Equatable, Sendable {
                 id: 1,
                 lemma: "habit",
                 pos: "n.",
+                ipa: "/ˈhæb.ɪt/",
                 definitionVi: "Thói quen hàng ngày",
                 exampleSentenceEn: "Reading books before bed is a great habit.",
                 exampleSentenceVi: "Đọc sách trước khi ngủ là một thói quen tuyệt vời."
             ),
             ReflexBlitzWordItem(
                 id: 2,
-                lemma: "focus",
+                lemma: "expand",
                 pos: "v.",
-                definitionVi: "Tập trung",
-                exampleSentenceEn: "Please turn off the music so I can focus on studying.",
-                exampleSentenceVi: "Làm ơn tắt nhạc để tôi có thể tập trung vào việc học."
+                ipa: "/ɪkˈspænd/",
+                definitionVi: "Mở rộng, phát triển",
+                exampleSentenceEn: "Reading daily helps you expand your vocabulary.",
+                exampleSentenceVi: "Đọc sách mỗi ngày giúp bạn mở rộng vốn từ vựng."
             ),
             ReflexBlitzWordItem(
                 id: 3,
-                lemma: "comfortable",
+                lemma: "fluent",
                 pos: "adj.",
-                definitionVi: "Thoải mái, dễ chịu",
-                exampleSentenceEn: "These new running shoes are extremely comfortable to wear.",
-                exampleSentenceVi: "Đôi giày chạy mới này mang cực kỳ thoải mái."
+                ipa: "/ˈfluː.ənt/",
+                definitionVi: "Trôi chảy, lưu loát",
+                exampleSentenceEn: "She is fluent in English and French.",
+                exampleSentenceVi: "Cô ấy nói trôi chảy tiếng Anh và tiếng Pháp."
             ),
             ReflexBlitzWordItem(
                 id: 4,
-                lemma: "improve",
-                pos: "v.",
-                definitionVi: "Cải thiện, nâng cao",
-                exampleSentenceEn: "Daily practice will help you improve your speaking skills.",
-                exampleSentenceVi: "Luyện tập hàng ngày sẽ giúp bạn cải thiện kỹ năng nói."
-            ),
-            ReflexBlitzWordItem(
-                id: 5,
-                lemma: "opportunity",
-                pos: "n.",
-                definitionVi: "Cơ hội tốt",
-                exampleSentenceEn: "Studying abroad is a wonderful opportunity to learn.",
-                exampleSentenceVi: "Du học là một cơ hội tuyệt vời để học hỏi."
-            ),
-            ReflexBlitzWordItem(
-                id: 6,
                 lemma: "confident",
                 pos: "adj.",
+                ipa: "/ˈkɑːn.fə.dənt/",
                 definitionVi: "Tự tin",
                 exampleSentenceEn: "She feels very confident when speaking in public.",
                 exampleSentenceVi: "Cô ấy cảm thấy rất tự tin khi phát biểu trước công chúng."
             ),
             ReflexBlitzWordItem(
+                id: 5,
+                lemma: "achieve",
+                pos: "v.",
+                ipa: "/əˈtʃiːv/",
+                definitionVi: "Đạt được, hoàn thành",
+                exampleSentenceEn: "Hard work will help you achieve your goals.",
+                exampleSentenceVi: "Chăm chỉ sẽ giúp bạn đạt được mục tiêu."
+            ),
+            ReflexBlitzWordItem(
+                id: 6,
+                lemma: "resilient",
+                pos: "adj.",
+                ipa: "/rɪˈzɪl.jənt/",
+                definitionVi: "Kiên cường, mau hồi phục",
+                exampleSentenceEn: "They remained resilient during difficult times.",
+                exampleSentenceVi: "Họ vẫn kiên cường trong suốt những giai đoạn khó khăn."
+            ),
+            ReflexBlitzWordItem(
                 id: 7,
-                lemma: "schedule",
+                lemma: "serendipity",
                 pos: "n.",
-                definitionVi: "Lịch trình, thời gian biểu",
-                exampleSentenceEn: "I have a very busy schedule this morning.",
-                exampleSentenceVi: "Tôi có một lịch trình rất bận rộn vào sáng nay."
+                ipa: "/ˌser.ənˈdɪp.ə.ti/",
+                definitionVi: "Sự tình cờ may mắn",
+                exampleSentenceEn: "It was pure serendipity that we met today.",
+                exampleSentenceVi: "Thật là một sự tình cờ may mắn khi chúng ta gặp nhau hôm nay."
             ),
             ReflexBlitzWordItem(
                 id: 8,
-                lemma: "remind",
-                pos: "v.",
-                definitionVi: "Nhắc nhở",
-                exampleSentenceEn: "Please remind me to call my mom tonight.",
-                exampleSentenceVi: "Làm ơn nhắc tôi gọi điện cho mẹ tối nay."
+                lemma: "ephemeral",
+                pos: "adj.",
+                ipa: "/ɪˈfem.ər.əl/",
+                definitionVi: "Phù du, chóng tàn",
+                exampleSentenceEn: "Fame can be ephemeral in the digital age.",
+                exampleSentenceVi: "Danh tiếng có thể rất phù du trong thời đại số."
             ),
             ReflexBlitzWordItem(
                 id: 9,
-                lemma: "delicious",
+                lemma: "luminous",
                 pos: "adj.",
-                definitionVi: "Thơm ngon",
-                exampleSentenceEn: "This homemade cake smells great and tastes delicious.",
-                exampleSentenceVi: "Chiếc bánh tự làm này thơm lừng và vị rất ngon."
+                ipa: "/ˈluː.mə.nəs/",
+                definitionVi: "Tỏa sáng, rực rỡ",
+                exampleSentenceEn: "The night sky was filled with luminous stars.",
+                exampleSentenceVi: "Bầu trời đêm ngập tràn những vì sao tỏa sáng."
             ),
             ReflexBlitzWordItem(
                 id: 10,
-                lemma: "flexible",
+                lemma: "meticulous",
                 pos: "adj.",
-                definitionVi: "Linh hoạt",
-                exampleSentenceEn: "Our company offers flexible working hours for everyone.",
-                exampleSentenceVi: "Công ty chúng tôi có giờ làm việc linh hoạt cho mọi người."
-            ),
-            ReflexBlitzWordItem(
-                id: 11,
-                lemma: "protect",
-                pos: "v.",
-                definitionVi: "Bảo vệ",
-                exampleSentenceEn: "You should wear a helmet to protect your head.",
-                exampleSentenceVi: "Bạn nên đội mũ bảo hiểm để bảo vệ đầu của mình."
-            ),
-            ReflexBlitzWordItem(
-                id: 12,
-                lemma: "creative",
-                pos: "adj.",
-                definitionVi: "Sáng tạo",
-                exampleSentenceEn: "He always comes up with creative solutions to problems.",
-                exampleSentenceVi: "Anh ấy luôn đưa ra những giải pháp sáng tạo cho vấn đề."
-            ),
-            ReflexBlitzWordItem(
-                id: 13,
-                lemma: "experience",
-                pos: "n.",
-                definitionVi: "Trải nghiệm, kinh nghiệm",
-                exampleSentenceEn: "Traveling alone was an unforgettable experience for him.",
-                exampleSentenceVi: "Đi du lịch một mình là một trải nghiệm khó quên đối với anh ấy."
-            ),
-            ReflexBlitzWordItem(
-                id: 14,
-                lemma: "patient",
-                pos: "adj.",
-                definitionVi: "Kiên nhẫn",
-                exampleSentenceEn: "A good teacher is always kind and patient with students.",
-                exampleSentenceVi: "Một giáo viên giỏi luôn tốt bụng và kiên nhẫn với học sinh."
-            ),
-            ReflexBlitzWordItem(
-                id: 15,
-                lemma: "encourage",
-                pos: "v.",
-                definitionVi: "Động viên, khích lệ",
-                exampleSentenceEn: "Parents should always encourage their children to read.",
-                exampleSentenceVi: "Cha mẹ nên luôn động viên con cái đọc sách."
-            ),
-            ReflexBlitzWordItem(
-                id: 16,
-                lemma: "energy",
-                pos: "n.",
-                definitionVi: "Năng lượng",
-                exampleSentenceEn: "A healthy breakfast gives you energy for the whole day.",
-                exampleSentenceVi: "Bữa sáng lành mạnh cung cấp cho bạn năng lượng cho cả ngày."
+                ipa: "/məˈtɪk.jə.ləs/",
+                definitionVi: "Tỉ mỉ, cẩn thận",
+                exampleSentenceEn: "She is meticulous about her work quality.",
+                exampleSentenceVi: "Cô ấy rất tỉ mỉ về chất lượng công việc của mình."
             )
         ]
     }
 }
 
+public typealias ReflexBlitzWeakWordAttempt = ReflexBlitzAttempt
+
 public struct ReflexBlitzAttempt: Identifiable, Codable, Sendable, Equatable {
     public let id: UUID
     public let wordId: Int
     public let lemma: String
+    public let pos: String
+    public let ipa: String
+    public let definitionVi: String
     public let responseTimeMs: Int
     public let usedHint: Bool
     public let isCorrect: Bool
@@ -227,6 +227,9 @@ public struct ReflexBlitzAttempt: Identifiable, Codable, Sendable, Equatable {
         id: UUID = UUID(),
         wordId: Int,
         lemma: String,
+        pos: String = "",
+        ipa: String = "",
+        definitionVi: String = "",
         responseTimeMs: Int,
         usedHint: Bool,
         isCorrect: Bool,
@@ -235,6 +238,9 @@ public struct ReflexBlitzAttempt: Identifiable, Codable, Sendable, Equatable {
         self.id = id
         self.wordId = wordId
         self.lemma = lemma
+        self.pos = pos
+        self.ipa = ipa
+        self.definitionVi = definitionVi
         self.responseTimeMs = responseTimeMs
         self.usedHint = usedHint
         self.isCorrect = isCorrect

@@ -48,7 +48,7 @@ final class ReflexBlitzModelsTests: XCTestCase {
         XCTAssertEqual(item.exampleSentenceEn, "It was pure serendipity that we met.")
         XCTAssertEqual(item.exampleSentenceVi, "Thật là một sự tình cờ may mắn khi chúng tôi gặp nhau.")
         XCTAssertEqual(item.clozeSentenceEn, "It was pure [ _________ ] that we met.")
-        XCTAssertEqual(item.initialLetterHint, "n. • s...")
+        XCTAssertEqual(item.initialLetterHint, "s... • n.")
     }
     
     func testAttemptModelPropertiesAndSpeedTier() {
@@ -137,4 +137,52 @@ final class ReflexBlitzModelsTests: XCTestCase {
         XCTAssertEqual(slowSummary.speedRating, "🌱 Steady Learner")
         XCTAssertEqual(slowSummary.weakWordAttempts.count, 1) // Only 'slower' (incorrect and needsPractice)
     }
+
+    func testReflexBlitzWordItemIPAPhoneticsAndCompletedSentence() {
+        let word = ReflexBlitzWordItem(
+            id: 10,
+            lemma: "serendipity",
+            pos: "n.",
+            ipa: "/ˌser.ənˈdɪp.ə.ti/",
+            definitionVi: "Sự may mắn bất ngờ",
+            exampleSentenceEn: "Finding this was pure serendipity.",
+            exampleSentenceVi: "Tìm thấy thứ này là may mắn bất ngờ."
+        )
+        XCTAssertEqual(word.ipa, "/ˌser.ənˈdɪp.ə.ti/")
+        XCTAssertEqual(word.initialLetterHint, "s... • n.")
+        XCTAssertEqual(word.completedSentenceWithTargetWord, "Finding this was pure serendipity.")
+    }
+
+    func testSummaryPreservesWeakWordIPAndDefinition() {
+        let attempt = ReflexBlitzAttempt(
+            wordId: 11,
+            lemma: "resilient",
+            pos: "adj.",
+            ipa: "/rɪˈzɪl.jənt/",
+            definitionVi: "Kiên cường, mau hồi phục",
+            responseTimeMs: 6000,
+            usedHint: true,
+            isCorrect: false
+        )
+        let summary = ReflexBlitzSessionSummary.create(from: [attempt], maxCombo: 0)
+        XCTAssertEqual(summary.weakWordAttempts.count, 1)
+        XCTAssertEqual(summary.weakWordAttempts.first?.pos, "adj.")
+        XCTAssertEqual(summary.weakWordAttempts.first?.ipa, "/rɪˈzɪl.jənt/")
+        XCTAssertEqual(summary.weakWordAttempts.first?.definitionVi, "Kiên cường, mau hồi phục")
+    }
+
+    func testDefaultStarterWordsContainRealisticIPA() {
+        let words = ReflexBlitzWordItem.defaultStarterWords
+        XCTAssertEqual(words.count, 10)
+        let lemmas = words.map { $0.lemma }
+        XCTAssertTrue(lemmas.contains("habit"))
+        XCTAssertTrue(lemmas.contains("resilient"))
+        XCTAssertTrue(lemmas.contains("serendipity"))
+        XCTAssertTrue(lemmas.contains("ephemeral"))
+        for word in words {
+            XCTAssertFalse(word.ipa.isEmpty, "Word \(word.lemma) must have non-empty IPA")
+            XCTAssertTrue(word.ipa.hasPrefix("/"), "Word \(word.lemma) IPA should start with /")
+        }
+    }
 }
+
