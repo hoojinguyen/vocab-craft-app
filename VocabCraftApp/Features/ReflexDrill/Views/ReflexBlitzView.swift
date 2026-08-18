@@ -58,6 +58,8 @@ public struct ReflexBlitzView: View {
                 currentIndex: viewModel.currentWordIndex,
                 totalCount: viewModel.words.count,
                 comboStreak: viewModel.comboStreak,
+                fractionRemaining: viewModel.fractionRemaining,
+                timerStage: viewModel.timerStage,
                 onClose: {
                     viewModel.cancelSession()
                     onDismiss()
@@ -112,12 +114,14 @@ public struct ReflexBlitzView: View {
                     .foregroundColor(.vocabMuted)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 10)
+                    .frame(minHeight: 44)
                     .background(Color.vocabSurfaceCard)
                     .clipShape(Capsule())
                     .overlay(
                         Capsule()
                             .stroke(Color.vocabHairline.opacity(0.5), lineWidth: 1)
                     )
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(BentoCardButtonStyle())
                 .accessibilityLabel(viewModel.isKeyboardFallbackActive ? "Chuyển sang chế độ nói" : "Chuyển sang gõ phím")
@@ -137,12 +141,14 @@ public struct ReflexBlitzView: View {
                     .foregroundColor(.vocabMuted)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 10)
+                    .frame(minHeight: 44)
                     .background(Color.vocabSurfaceCard)
                     .clipShape(Capsule())
                     .overlay(
                         Capsule()
                             .stroke(Color.vocabHairline.opacity(0.5), lineWidth: 1)
                     )
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(BentoCardButtonStyle())
                 .accessibilityLabel("Bỏ qua từ hiện tại")

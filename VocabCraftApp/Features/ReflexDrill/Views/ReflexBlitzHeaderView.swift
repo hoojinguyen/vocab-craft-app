@@ -4,14 +4,29 @@ public struct ReflexBlitzHeaderView: View {
     public let currentIndex: Int
     public let totalCount: Int
     public let comboStreak: Int
+    public let fractionRemaining: Double
+    public let timerStage: ReflexBlitzTimerStage
     public let onClose: () -> Void
     public let onSkip: () -> Void
     public var showSkipInHeader: Bool
+
+    public var timerBarColor: Color {
+        switch timerStage {
+        case .steady:
+            return .vocabHeroAccent
+        case .warning:
+            return .vocabPeach
+        case .urgent:
+            return .vocabCoral
+        }
+    }
 
     public init(
         currentIndex: Int,
         totalCount: Int,
         comboStreak: Int,
+        fractionRemaining: Double = 1.0,
+        timerStage: ReflexBlitzTimerStage = .steady,
         onClose: @escaping () -> Void,
         onSkip: @escaping () -> Void = {},
         showSkipInHeader: Bool = false
@@ -19,6 +34,8 @@ public struct ReflexBlitzHeaderView: View {
         self.currentIndex = currentIndex
         self.totalCount = totalCount
         self.comboStreak = comboStreak
+        self.fractionRemaining = fractionRemaining
+        self.timerStage = timerStage
         self.onClose = onClose
         self.onSkip = onSkip
         self.showSkipInHeader = showSkipInHeader
@@ -96,26 +113,27 @@ public struct ReflexBlitzHeaderView: View {
                 }
             }
 
-            // Animated Capsule Progress Bar
+            // Smooth Linear Countdown Progress Bar Anchored Under Header
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     Capsule()
-                        .fill(Color.vocabHairline.opacity(0.4))
-                        .frame(height: 5)
+                        .fill(Color.vocabHairline.opacity(0.35))
+                        .frame(height: 4.5)
 
                     Capsule()
-                        .fill(Color.vocabHeroAccent)
+                        .fill(timerBarColor)
                         .frame(
-                            width: max(0, min(geo.size.width, geo.size.width * CGFloat(currentIndex + 1) / CGFloat(max(1, totalCount)))),
-                            height: 5
+                            width: max(0, min(geo.size.width, geo.size.width * CGFloat(fractionRemaining))),
+                            height: 4.5
                         )
-                        .animation(.spring(response: 0.35, dampingFraction: 0.75), value: currentIndex)
+                        .animation(.linear(duration: 0.05), value: fractionRemaining)
+                        .animation(.easeInOut(duration: 0.25), value: timerStage)
                 }
             }
-            .frame(height: 5)
+            .frame(height: 4.5)
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Tiến độ luyện tập")
-            .accessibilityValue("Từ \(currentIndex + 1) trên \(totalCount)")
+            .accessibilityLabel("Thời gian còn lại")
+            .accessibilityValue("\(Int(fractionRemaining * 100))%")
         }
         .padding(.horizontal)
     }

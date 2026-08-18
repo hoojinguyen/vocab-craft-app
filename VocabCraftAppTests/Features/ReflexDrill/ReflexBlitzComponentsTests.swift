@@ -12,6 +12,8 @@ final class ReflexBlitzComponentsTests: XCTestCase {
             currentIndex: 2,
             totalCount: 8,
             comboStreak: 3,
+            fractionRemaining: 0.75,
+            timerStage: .warning,
             onClose: { didClose = true },
             onSkip: { didSkip = true }
         )
@@ -19,6 +21,9 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertEqual(header.currentIndex, 2)
         XCTAssertEqual(header.totalCount, 8)
         XCTAssertEqual(header.comboStreak, 3)
+        XCTAssertEqual(header.fractionRemaining, 0.75)
+        XCTAssertEqual(header.timerStage, .warning)
+        XCTAssertEqual(header.timerBarColor, .vocabPeach)
 
         header.onClose()
         header.onSkip()
@@ -27,11 +32,46 @@ final class ReflexBlitzComponentsTests: XCTestCase {
     }
 
     @MainActor
+    func testHeaderViewTimerStagesColor() {
+        let steadyHeader = ReflexBlitzHeaderView(
+            currentIndex: 0,
+            totalCount: 5,
+            comboStreak: 0,
+            fractionRemaining: 1.0,
+            timerStage: .steady,
+            onClose: {}
+        )
+        XCTAssertEqual(steadyHeader.timerBarColor, .vocabHeroAccent)
+
+        let warningHeader = ReflexBlitzHeaderView(
+            currentIndex: 1,
+            totalCount: 5,
+            comboStreak: 0,
+            fractionRemaining: 0.4,
+            timerStage: .warning,
+            onClose: {}
+        )
+        XCTAssertEqual(warningHeader.timerBarColor, .vocabPeach)
+
+        let urgentHeader = ReflexBlitzHeaderView(
+            currentIndex: 2,
+            totalCount: 5,
+            comboStreak: 0,
+            fractionRemaining: 0.1,
+            timerStage: .urgent,
+            onClose: {}
+        )
+        XCTAssertEqual(urgentHeader.timerBarColor, .vocabCoral)
+    }
+
+    @MainActor
     func testHeaderViewBodyRendersAcrossComboThresholds() {
         let noComboHeader = ReflexBlitzHeaderView(
             currentIndex: 0,
             totalCount: 5,
             comboStreak: 1,
+            fractionRemaining: 0.9,
+            timerStage: .steady,
             onClose: {},
             onSkip: {}
         )
@@ -41,6 +81,8 @@ final class ReflexBlitzComponentsTests: XCTestCase {
             currentIndex: 4,
             totalCount: 5,
             comboStreak: 4,
+            fractionRemaining: 0.2,
+            timerStage: .urgent,
             onClose: {},
             onSkip: {}
         )
