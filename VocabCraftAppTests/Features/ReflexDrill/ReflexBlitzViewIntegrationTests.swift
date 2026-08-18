@@ -1,5 +1,10 @@
 import SwiftUI
 import XCTest
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 @testable import VocabCraftApp
 
 @MainActor
@@ -166,7 +171,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
 
     func testFullSessionEndToEndFlow() async {
         let words = makeSampleWords()
-        let (vm, mockSpeech, _, mockSRS) = makeViewModel(words: words)
+        let (vm, mockSpeech, _, _) = makeViewModel(words: words)
         var dismissed = false
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: { dismissed = true })
@@ -228,7 +233,21 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         renderer.scale = 2.0
         renderer.proposedSize = ProposedViewSize(width: 393, height: 852)
 
-        if let image = renderer.uiImage, let data = image.pngData() {
+        var pngData: Data?
+
+        #if canImport(UIKit)
+        if let uiImage = renderer.uiImage {
+            pngData = uiImage.pngData()
+        }
+        #elseif canImport(AppKit)
+        if let nsImage = renderer.nsImage,
+           let tiffData = nsImage.tiffRepresentation,
+           let bitmap = NSBitmapImageRep(data: tiffData) {
+            pngData = bitmap.representation(using: .png, properties: [:])
+        }
+        #endif
+
+        if let data = pngData {
             let outputDir = URL(fileURLWithPath: "/Users/hoojinguyen/.gemini/antigravity/brain/c652ef14-7e40-47b1-81d8-6f055a9343f5/screenshots")
             try? FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
             let fileURL = outputDir.appendingPathComponent(filename)
