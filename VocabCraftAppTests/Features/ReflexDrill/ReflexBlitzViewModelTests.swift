@@ -157,6 +157,16 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.liveTranscript, "Speaking some words...")
     }
 
+    func testLiveTranscriptResetsWhenLoadingNextWord() {
+        viewModel.beginSessionDirectly()
+        mockSpeech.simulateTranscript("first word speech")
+        XCTAssertEqual(viewModel.liveTranscript, "first word speech")
+
+        // Switch to next word
+        viewModel.loadWordForTesting(at: 1)
+        XCTAssertEqual(viewModel.liveTranscript, "", "liveTranscript should reset to empty upon loading next word")
+    }
+
     func testKeyboardFallbackSubmission() {
         viewModel.beginSessionDirectly()
         viewModel.toggleKeyboardFallback()

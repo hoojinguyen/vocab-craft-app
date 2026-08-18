@@ -162,6 +162,7 @@ public final class ReflexBlitzViewModel {
         showHint = false
         currentAttemptIsCorrect = false
         elapsedTimeMs = 0
+        liveTranscript = ""
         wordStartTime = Date()
         phase = .drilling
 

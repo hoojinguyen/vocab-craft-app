@@ -128,4 +128,30 @@ final class ContinuousReflexSpeechServiceTests: XCTestCase {
         XCTAssertFalse(service.isSessionActive)
         XCTAssertEqual(service.currentTranscript, "")
     }
+
+    func testTranscriptUpdateEmitsOnlyNewlySpokenTranscriptForCurrentTarget() {
+        let mockService = MockContinuousReflexSpeechService()
+        var receivedTranscript: String = ""
+        mockService.onTranscriptUpdate = { receivedTranscript = $0 }
+
+        mockService.startSession()
+
+        // Word 1: Speak phrase
+        mockService.setTargetWord(lemma: "ephemeral", contextualPhrases: [])
+        mockService.simulateTranscript("Hello Spain expand")
+        XCTAssertEqual(receivedTranscript, "Hello Spain expand")
+
+        // Switch to Word 2: setTargetWord updates offset
+        mockService.setTargetWord(lemma: "fluent", contextualPhrases: [])
+
+        // Now speak for word 2 (speech recognizer accumulates full session text)
+        mockService.simulateTranscript("Hello Spain expand fluent")
+        // The transcript emitted to UI MUST only be "fluent", NOT the historical "Hello Spain expand fluent"
+        XCTAssertEqual(receivedTranscript, "fluent")
+
+        // Switch to Word 3:
+        mockService.setTargetWord(lemma: "confident", contextualPhrases: [])
+        mockService.simulateTranscript("Hello Spain expand fluent confident")
+        XCTAssertEqual(receivedTranscript, "confident")
+    }
 }

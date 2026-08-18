@@ -99,7 +99,7 @@ public struct ReflexBlitzView: View {
             Spacer(minLength: 12)
 
             // Ergonomic Bottom Control Bar (Thumb Zone)
-            HStack(spacing: 12) {
+            HStack(spacing: 16) {
                 // Mode Toggle Button (Keyboard vs Voice)
                 Button(action: {
                     withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
@@ -108,52 +108,51 @@ public struct ReflexBlitzView: View {
                 }) {
                     HStack(spacing: 6) {
                         Image(systemName: viewModel.isKeyboardFallbackActive ? "waveform" : "keyboard")
+                            .font(.subheadline)
                         Text(viewModel.isKeyboardFallbackActive ? "Luyện nói" : "Gõ phím")
                     }
                     .font(.subheadline.weight(.semibold))
-                    .foregroundColor(.vocabMuted)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
-                    .frame(minHeight: 44)
+                    .foregroundColor(.vocabInk)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 48)
                     .background(Color.vocabSurfaceCard)
                     .clipShape(Capsule())
                     .overlay(
                         Capsule()
-                            .stroke(Color.vocabHairline.opacity(0.5), lineWidth: 1)
+                            .stroke(Color.vocabHairline.opacity(0.6), lineWidth: 1)
                     )
+                    .shadow(color: Color.black.opacity(0.03), radius: 6, x: 0, y: 2)
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(BentoCardButtonStyle())
                 .accessibilityLabel(viewModel.isKeyboardFallbackActive ? "Chuyển sang chế độ nói" : "Chuyển sang gõ phím")
 
-                Spacer()
-
                 // Skip Button
                 Button(action: {
                     viewModel.handleTimeout()
                 }) {
-                    HStack(spacing: 5) {
+                    HStack(spacing: 6) {
                         Text("Bỏ qua")
                         Image(systemName: "forward.fill")
                             .font(.caption2)
                     }
                     .font(.subheadline.weight(.semibold))
                     .foregroundColor(.vocabMuted)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
-                    .frame(minHeight: 44)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 48)
                     .background(Color.vocabSurfaceCard)
                     .clipShape(Capsule())
                     .overlay(
                         Capsule()
-                            .stroke(Color.vocabHairline.opacity(0.5), lineWidth: 1)
+                            .stroke(Color.vocabHairline.opacity(0.6), lineWidth: 1)
                     )
+                    .shadow(color: Color.black.opacity(0.03), radius: 6, x: 0, y: 2)
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(BentoCardButtonStyle())
                 .accessibilityLabel("Bỏ qua từ hiện tại")
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, 24)
             .padding(.bottom, 20)
         }
     }

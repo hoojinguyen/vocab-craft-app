@@ -53,9 +53,10 @@ public final class MockContinuousReflexSpeechService: ContinuousReflexSpeechProt
 
     public func simulateTranscript(_ text: String) {
         self.currentTranscript = text
-        onTranscriptUpdate?(text)
-
         let newSpoken = extractNewlySpoken(from: text, offset: transcriptOffset)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        onTranscriptUpdate?(newSpoken)
+
         if !currentTargetLemma.isEmpty && containsWordBoundaryMatch(text: newSpoken, lemma: currentTargetLemma) {
             onMatchDetected?(currentTargetLemma)
         }
@@ -214,7 +215,9 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
                 if let result = result {
                     let spoken = result.bestTranscription.formattedString
                     self.currentTranscript = spoken
-                    self.onTranscriptUpdate?(spoken)
+                    let newSpoken = self.extractNewlySpoken(from: spoken, offset: self.transcriptOffset)
+                        .trimmingCharacters(in: .whitespacesAndNewlines)
+                    self.onTranscriptUpdate?(newSpoken)
                     self.evaluateSpokenText(spoken)
                 }
             }

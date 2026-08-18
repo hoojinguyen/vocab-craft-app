@@ -248,7 +248,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         #endif
 
         if let data = pngData {
-            let outputDir = URL(fileURLWithPath: "/Users/hoojinguyen/.gemini/antigravity/brain/c652ef14-7e40-47b1-81d8-6f055a9343f5/screenshots")
+            let outputDir = URL(fileURLWithPath: "/Users/hoojinguyen/.gemini/antigravity/brain/3b687e54-0fd0-44b1-acc7-9aab8337466d/screenshots")
             try? FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
             let fileURL = outputDir.appendingPathComponent(filename)
             try? data.write(to: fileURL)
@@ -295,7 +295,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         vmCorrect.loadWordForTesting(at: 1)
         vmCorrect.comboStreak = 3
         vmCorrect.currentAttemptIsCorrect = true
-        vmCorrect.liveTranscript = "Finding this was pure serendipity"
+        vmCorrect.liveTranscript = "serendipity"
         let correctView = ReflexBlitzView(viewModel: vmCorrect, onDismiss: {})
         renderSnapshot(view: correctView, filename: "05_reflex_drilling_correct_combo.png")
 

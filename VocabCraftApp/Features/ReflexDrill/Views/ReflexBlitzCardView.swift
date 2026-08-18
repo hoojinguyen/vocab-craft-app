@@ -75,21 +75,22 @@ public struct ReflexBlitzCardView: View {
         } else if showHint {
             let initial = String(word.lemma.prefix(1)).lowercased()
             let dotsCount = max(1, word.lemma.count - 1)
-            return "❲ \(initial)" + String(repeating: " •", count: dotsCount) + " ❳"
+            return "[ \(initial)" + String(repeating: " •", count: dotsCount) + " ]"
         } else {
             let dotsCount = max(3, min(6, word.lemma.count))
             let dots = String(repeating: "• ", count: dotsCount).trimmingCharacters(in: .whitespaces)
-            return "❲ \(dots) ❳"
+            return "[ \(dots) ]"
         }
     }
 
     public var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 18) {
             // 1. TRIGGER AREA: Part of Speech & Vietnamese Meaning
-            VStack(spacing: 8) {
+            VStack(spacing: 6) {
                 if !word.pos.isEmpty {
                     Text(word.pos.uppercased())
                         .font(.caption2.weight(.bold))
+                        .fontDesign(.rounded)
                         .foregroundColor(.vocabHeroAccent)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 4)
@@ -104,13 +105,13 @@ public struct ReflexBlitzCardView: View {
                     .lineLimit(2)
                     .accessibilityLabel("Nghĩa tiếng Việt: \(word.definitionVi)")
             }
-            .padding(.top, 4)
+            .padding(.top, 2)
 
             // 2. CONTEXT AREA: English Cloze Sentence with Dynamic Interactive Slot
             sentenceView
                 .multilineTextAlignment(.center)
                 .lineSpacing(6)
-                .padding(.horizontal, 10)
+                .padding(.horizontal, 8)
                 .animation(.spring(response: 0.35, dampingFraction: 0.75), value: isCorrect)
                 .animation(.spring(response: 0.35, dampingFraction: 0.75), value: isTimeout)
                 .accessibilityLabel(
@@ -119,54 +120,47 @@ public struct ReflexBlitzCardView: View {
                         : (isCorrect ? "Câu hoàn chỉnh: \(word.completedSentenceWithTargetWord)" : "Câu điền từ: \(word.clozeSentenceEn)")
                 )
 
-            // 3. PRONUNCIATION & SCAFFOLDING AREA (Progressive Disclosure: Hide IPA during active recall)
-            HStack(spacing: 8) {
-                if (isCorrect || isTimeout) && !word.ipa.isEmpty {
-                    HStack(spacing: 5) {
-                        Image(systemName: "waveform")
-                            .font(.caption2)
-                        Text(word.ipa)
-                            .font(.subheadline.monospaced())
-                            .lineLimit(1)
-                    }
-                    .foregroundColor(isCorrect ? .vocabMint : .vocabCoral)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 5)
-                    .background(
-                        isCorrect
-                            ? Color.vocabMint.opacity(0.14)
-                            : Color.vocabCoral.opacity(0.14)
-                    )
-                    .clipShape(Capsule())
-                    .transition(.scale.combined(with: .opacity))
-                    .accessibilityLabel("Phiên âm IPA: \(word.ipa)")
+            // 3. PRONUNCIATION & SCAFFOLDING AREA (Progressive Disclosure)
+            if (isCorrect || isTimeout) && !word.ipa.isEmpty {
+                HStack(spacing: 5) {
+                    Image(systemName: "waveform")
+                        .font(.caption2)
+                    Text(word.ipa)
+                        .font(.subheadline.monospaced())
+                        .lineLimit(1)
                 }
-
-                if showHint && !isCorrect && !isTimeout {
-                    HStack(spacing: 5) {
-                        Image(systemName: "lightbulb.fill")
-                            .font(.caption2)
-                        Text("Gợi ý: \(word.initialLetterHint)")
-                            .font(.caption.bold())
-                    }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 5)
-                    .background(Color.vocabPeach.opacity(0.16))
-                    .foregroundColor(.vocabPeach)
-                    .clipShape(Capsule())
-                    .overlay(
-                        Capsule()
-                            .stroke(Color.vocabPeach.opacity(0.35), lineWidth: 1)
-                    )
-                    .transition(.scale.combined(with: .opacity))
-                    .accessibilityLabel("Gợi ý ký tự đầu: \(word.initialLetterHint)")
-                }
+                .foregroundColor(isCorrect ? .vocabMint : .vocabCoral)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 5)
+                .background(
+                    isCorrect
+                        ? Color.vocabMint.opacity(0.14)
+                        : Color.vocabCoral.opacity(0.14)
+                )
+                .clipShape(Capsule())
+                .transition(.scale.combined(with: .opacity))
+                .accessibilityLabel("Phiên âm IPA: \(word.ipa)")
             }
-            .animation(.spring(response: 0.35, dampingFraction: 0.75), value: showHint)
-            .animation(.spring(response: 0.35, dampingFraction: 0.75), value: isCorrect)
-            .animation(.spring(response: 0.35, dampingFraction: 0.75), value: isTimeout)
 
-            Spacer(minLength: 4)
+            if showHint && !isCorrect && !isTimeout {
+                HStack(spacing: 5) {
+                    Image(systemName: "lightbulb.fill")
+                        .font(.caption2)
+                    Text("Gợi ý: \(word.initialLetterHint)")
+                        .font(.caption.bold())
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 5)
+                .background(Color.vocabPeach.opacity(0.16))
+                .foregroundColor(.vocabPeach)
+                .clipShape(Capsule())
+                .overlay(
+                    Capsule()
+                        .stroke(Color.vocabPeach.opacity(0.35), lineWidth: 1)
+                )
+                .transition(.scale.combined(with: .opacity))
+                .accessibilityLabel("Gợi ý ký tự đầu: \(word.initialLetterHint)")
+            }
 
             // Organic Divider
             Rectangle()
@@ -188,7 +182,7 @@ public struct ReflexBlitzCardView: View {
             }
         }
         .padding(22)
-        .frame(maxWidth: .infinity, minHeight: 300)
+        .frame(maxWidth: .infinity)
         .background(Color.vocabSurfaceCard)
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         .overlay(
@@ -214,28 +208,34 @@ public struct ReflexBlitzCardView: View {
 
                     Text(prefix)
                         .font(.title3.weight(.medium))
+                        .fontDesign(.serif)
                         .foregroundColor(.vocabInk)
                     +
                     Text(" \(slotRepresentation) ")
                         .font(.title3.bold())
+                        .fontDesign(.monospaced)
                         .foregroundColor(slotTextColor)
                     +
                     Text(suffix)
                         .font(.title3.weight(.medium))
+                        .fontDesign(.serif)
                         .foregroundColor(.vocabInk)
                 } else {
                     Text(displayedSentence)
                         .font(.title3.weight(.medium))
+                        .fontDesign(.serif)
                         .foregroundColor(.vocabInk)
                 }
             } else {
                 Text(displayedSentence)
                     .font(.title3.weight(.medium))
+                    .fontDesign(.serif)
                     .foregroundColor(.vocabInk)
             }
         } else {
             Text(displayedSentence)
                 .font(.title3.weight(.bold))
+                .fontDesign(.serif)
                 .foregroundColor(isCorrect ? .vocabMint : .vocabCoral)
         }
     }
@@ -292,8 +292,8 @@ public struct ReflexBlitzCardView: View {
 
     @ViewBuilder
     private var livingAudioDockView: some View {
-        VStack(spacing: 7) {
-            HStack(spacing: 6) {
+        VStack(spacing: 8) {
+            HStack(spacing: 5) {
                 ForEach(0..<9, id: \.self) { index in
                     Capsule()
                         .fill(
@@ -311,13 +311,36 @@ public struct ReflexBlitzCardView: View {
             .frame(height: 24)
             .accessibilityHidden(true)
 
-            Text(liveTranscript.isEmpty ? "Nói từ tiếng Anh vào micro..." : "\"\(liveTranscript)...\"")
-                .font(.footnote)
-                .fontWeight(liveTranscript.isEmpty ? .regular : .semibold)
-                .foregroundColor(liveTranscript.isEmpty ? .vocabMuted : .vocabInk)
-                .lineLimit(1)
-                .contentTransition(.opacity)
-                .accessibilityLabel(liveTranscript.isEmpty ? "Đang chờ phát âm..." : "Nhận diện giọng nói: \(liveTranscript)")
+            if liveTranscript.isEmpty {
+                HStack(spacing: 5) {
+                    Image(systemName: "mic.fill")
+                        .font(.caption2)
+                    Text("Đang lắng nghe phát âm...")
+                        .font(.footnote)
+                }
+                .foregroundColor(.vocabMuted)
+                .transition(.opacity)
+            } else {
+                HStack(spacing: 6) {
+                    Image(systemName: "waveform")
+                        .font(.caption2)
+                    Text(liveTranscript)
+                        .font(.footnote.weight(.bold))
+                }
+                .foregroundColor(timerStrokeColor)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 4)
+                .background(timerStrokeColor.opacity(0.12))
+                .clipShape(Capsule())
+                .transition(.scale.combined(with: .opacity))
+            }
         }
+        .padding(.vertical, 8)
+        .padding(.horizontal, 16)
+        .frame(maxWidth: .infinity)
+        .background(Color.vocabCanvas.opacity(0.6))
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .animation(.spring(response: 0.3, dampingFraction: 0.75), value: liveTranscript.isEmpty)
+        .accessibilityLabel(liveTranscript.isEmpty ? "Đang chờ phát âm..." : "Nhận diện giọng nói: \(liveTranscript)")
     }
 }
