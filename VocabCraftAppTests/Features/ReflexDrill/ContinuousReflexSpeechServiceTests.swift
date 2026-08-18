@@ -10,7 +10,7 @@ final class ContinuousReflexSpeechServiceTests: XCTestCase {
             matchedTarget = matched
         }
 
-        mockService.startSession()
+        mockService.startSession(contextualPhrases: ["ephemeral", "serendipity"])
         XCTAssertTrue(mockService.isSessionActive)
 
         // Set target 1
@@ -26,6 +26,48 @@ final class ContinuousReflexSpeechServiceTests: XCTestCase {
 
         mockService.stopSession()
         XCTAssertFalse(mockService.isSessionActive)
+    }
+
+    func testFuzzyMatchingAndAccentTolerance() {
+        let mockService = MockContinuousReflexSpeechService()
+        var matchedTarget: String?
+        mockService.onMatchDetected = { matchedTarget = $0 }
+
+        mockService.startSession()
+
+        // 1. STT slight misspelling / accent: "reluctence" instead of "reluctant"
+        mockService.setTargetWord(lemma: "reluctant", contextualPhrases: [])
+        mockService.simulateTranscript("I felt very reluctence about it")
+        XCTAssertEqual(matchedTarget, "reluctant", "Fuzzy matcher should tolerate slight acoustic variation in reluctant")
+
+        // 2. STT missing ending phoneme: "ephemera" instead of "ephemeral"
+        matchedTarget = nil
+        mockService.setTargetWord(lemma: "ephemeral", contextualPhrases: [])
+        mockService.simulateTranscript("I felt very reluctence about it ephemera")
+        XCTAssertEqual(matchedTarget, "ephemeral", "Fuzzy matcher should match ephemera for ephemeral")
+
+        // 3. STT typo: "abundent" instead of "abundant"
+        matchedTarget = nil
+        mockService.setTargetWord(lemma: "abundant", contextualPhrases: [])
+        mockService.simulateTranscript("I felt very reluctence about it ephemera abundent")
+        XCTAssertEqual(matchedTarget, "abundant", "Fuzzy matcher should match abundent for abundant")
+
+        mockService.stopSession()
+    }
+
+    func testStemmingAndPrefixToleranceForReflex() {
+        let mockService = MockContinuousReflexSpeechService()
+        var matchedTarget: String?
+        mockService.onMatchDetected = { matchedTarget = $0 }
+
+        mockService.startSession()
+
+        // Target: "hesitate", Learner utters "hesitating"
+        mockService.setTargetWord(lemma: "hesitate", contextualPhrases: [])
+        mockService.simulateTranscript("She was hesitating")
+        XCTAssertEqual(matchedTarget, "hesitate", "Stem prefix match should recognize hesitating for hesitate")
+
+        mockService.stopSession()
     }
 
     func testWordBoundaryMatchingPreventsSubstringFalsePositives() {

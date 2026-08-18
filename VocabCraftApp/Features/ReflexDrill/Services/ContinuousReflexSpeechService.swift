@@ -9,10 +9,70 @@ public protocol ContinuousReflexSpeechProtocol: AnyObject, Sendable {
     var onTranscriptUpdate: ((String) -> Void)? { get set }
     var onError: ((Error) -> Void)? { get set }
 
+    func startSession(contextualPhrases: [String])
     func startSession()
     func stopSession()
     func setTargetWord(lemma: String, contextualPhrases: [String])
     func resetBuffer()
+}
+
+public extension ContinuousReflexSpeechProtocol {
+    func startSession() {
+        startSession(contextualPhrases: [])
+    }
+}
+
+public enum ReflexSpeechMatcher {
+    /// Evaluates whether spoken text contains the target lemma or an acceptable phonetic / accent / inflection reflex match.
+    public static func isReflexMatch(
+        spokenText: String,
+        targetLemma: String,
+        toleranceThreshold: Double = 0.70
+    ) -> Bool {
+        let normalizedTarget = StringNormalizer.normalize(targetLemma)
+        guard !normalizedTarget.isEmpty, !spokenText.isEmpty else { return false }
+
+        // Tokenize the newly spoken stream
+        let tokens = StringNormalizer.tokenize(spokenText)
+        guard !tokens.isEmpty else { return false }
+
+        // Multi-word lemma check (e.g. phrasal verbs "give up", "look forward to")
+        let targetTokens = StringNormalizer.tokenize(normalizedTarget)
+        if targetTokens.count > 1 {
+            let eval = FuzzySpeechMatcher.evaluate(
+                spokenText: spokenText,
+                targetSentence: normalizedTarget,
+                passThreshold: toleranceThreshold
+            )
+            if eval.isPassed { return true }
+        }
+
+        // Single-word lemma evaluation (most common case in Reflex Blitz)
+        for token in tokens {
+            // 1. Exact normalized token match
+            if token == normalizedTarget {
+                return true
+            }
+
+            // 2. Stemming / Inflection / Prefix match (e.g. "hesitate" vs "hesitated" / "hesitating")
+            if normalizedTarget.count >= 4 {
+                if token.hasPrefix(normalizedTarget) {
+                    return true
+                }
+                if token.count >= 4 && normalizedTarget.hasPrefix(token) {
+                    return true
+                }
+            }
+
+            // 3. Fuzzy phonetic & accent tolerance via Levenshtein similarity ratio
+            let ratio = FuzzySpeechMatcher.similarityRatio(token, normalizedTarget)
+            if ratio >= toleranceThreshold {
+                return true
+            }
+        }
+
+        return false
+    }
 }
 
 public final class MockContinuousReflexSpeechService: ContinuousReflexSpeechProtocol, @unchecked Sendable {
@@ -20,6 +80,7 @@ public final class MockContinuousReflexSpeechService: ContinuousReflexSpeechProt
     public var currentTranscript: String = ""
     public var currentTargetLemma: String = ""
     public var contextualPhrases: [String] = []
+    public var sessionContextualPhrases: [String] = []
     public var onMatchDetected: ((String) -> Void)?
     public var onTranscriptUpdate: ((String) -> Void)?
     public var onError: ((Error) -> Void)?
@@ -28,15 +89,21 @@ public final class MockContinuousReflexSpeechService: ContinuousReflexSpeechProt
 
     public init() {}
 
+    public func startSession(contextualPhrases: [String]) {
+        self.isSessionActive = true
+        self.sessionContextualPhrases = contextualPhrases
+        self.transcriptOffset = 0
+    }
+
     public func startSession() {
-        isSessionActive = true
-        transcriptOffset = 0
+        startSession(contextualPhrases: [])
     }
 
     public func stopSession() {
         isSessionActive = false
         currentTranscript = ""
         currentTargetLemma = ""
+        sessionContextualPhrases = []
         transcriptOffset = 0
     }
 
@@ -57,7 +124,7 @@ public final class MockContinuousReflexSpeechService: ContinuousReflexSpeechProt
             .trimmingCharacters(in: .whitespacesAndNewlines)
         onTranscriptUpdate?(newSpoken)
 
-        if !currentTargetLemma.isEmpty && containsWordBoundaryMatch(text: newSpoken, lemma: currentTargetLemma) {
+        if !currentTargetLemma.isEmpty && ReflexSpeechMatcher.isReflexMatch(spokenText: newSpoken, targetLemma: currentTargetLemma) {
             onMatchDetected?(currentTargetLemma)
         }
     }
@@ -69,17 +136,6 @@ public final class MockContinuousReflexSpeechService: ContinuousReflexSpeechProt
         let index = fullTranscript.index(fullTranscript.startIndex, offsetBy: offset, limitedBy: fullTranscript.endIndex) ?? fullTranscript.endIndex
         return String(fullTranscript[index...])
     }
-
-    private func containsWordBoundaryMatch(text: String, lemma: String) -> Bool {
-        guard !lemma.isEmpty, !text.isEmpty else { return false }
-        let escapedLemma = NSRegularExpression.escapedPattern(for: lemma)
-        let pattern = "\\b\(escapedLemma)\\b"
-        guard let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) else {
-            return false
-        }
-        let range = NSRange(text.startIndex..<text.endIndex, in: text)
-        return regex.firstMatch(in: text, options: [], range: range) != nil
-    }
 }
 
 public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol, @unchecked Sendable {
@@ -88,6 +144,7 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
 
     private var currentTargetLemma: String = ""
     private var contextualPhrases: [String] = []
+    private var sessionContextualPhrases: [String] = []
     private var transcriptOffset: Int = 0
 
     private let speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
@@ -101,9 +158,10 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
 
     public init() {}
 
-    public func startSession() {
+    public func startSession(contextualPhrases: [String]) {
         guard !isSessionActive else { return }
         isSessionActive = true
+        self.sessionContextualPhrases = contextualPhrases
         transcriptOffset = 0
 
         #if targetEnvironment(simulator)
@@ -119,6 +177,10 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
             }
         }
         #endif
+    }
+
+    public func startSession() {
+        startSession(contextualPhrases: [])
     }
 
     public func requestAuthorization(completion: @escaping (Bool) -> Void) {
@@ -163,6 +225,7 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
         audioEngine = nil
         currentTranscript = ""
         currentTargetLemma = ""
+        sessionContextualPhrases = []
         transcriptOffset = 0
     }
 
@@ -189,13 +252,24 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
             let request = SFSpeechAudioBufferRecognitionRequest()
             request.shouldReportPartialResults = true
             request.taskHint = .confirmation
+
+            // Contextual biasing with session words and phrases for acoustic accuracy
+            if !sessionContextualPhrases.isEmpty {
+                request.contextualStrings = Array(Set(sessionContextualPhrases.filter { !$0.isEmpty }))
+            }
+
+            #if os(iOS)
+            if #available(iOS 16.0, *) {
+                request.addsPunctuation = false
+            }
+            #endif
+
             self.recognitionRequest = request
 
             let inputNode = engine.inputNode
             let recordingFormat = inputNode.outputFormat(forBus: 0)
 
             guard recordingFormat.sampleRate > 0 && recordingFormat.channelCount > 0 else {
-                // Audio format not valid on simulator or inactive input bus
                 let error = NSError(domain: "ContinuousReflexSpeech", code: 400, userInfo: [NSLocalizedDescriptionKey: "Invalid microphone sample rate or format."])
                 self.onError?(error)
                 return
@@ -209,7 +283,10 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
             self.recognitionTask = speechRecognizer?.recognitionTask(with: request) { [weak self] result, error in
                 guard let self = self else { return }
                 if let error = error {
-                    self.onError?(error)
+                    let nsError = error as NSError
+                    if nsError.code != 216 { // 216 = canceled on stop
+                        self.onError?(error)
+                    }
                     return
                 }
                 if let result = result {
@@ -229,7 +306,7 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
     private func evaluateSpokenText(_ spoken: String) {
         guard !currentTargetLemma.isEmpty else { return }
         let newSpoken = extractNewlySpoken(from: spoken, offset: transcriptOffset)
-        if containsWordBoundaryMatch(text: newSpoken, lemma: currentTargetLemma) {
+        if ReflexSpeechMatcher.isReflexMatch(spokenText: newSpoken, targetLemma: currentTargetLemma) {
             onMatchDetected?(currentTargetLemma)
         }
     }
@@ -240,16 +317,5 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
         }
         let index = fullTranscript.index(fullTranscript.startIndex, offsetBy: offset, limitedBy: fullTranscript.endIndex) ?? fullTranscript.endIndex
         return String(fullTranscript[index...])
-    }
-
-    private func containsWordBoundaryMatch(text: String, lemma: String) -> Bool {
-        guard !lemma.isEmpty, !text.isEmpty else { return false }
-        let escapedLemma = NSRegularExpression.escapedPattern(for: lemma)
-        let pattern = "\\b\(escapedLemma)\\b"
-        guard let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) else {
-            return false
-        }
-        let range = NSRange(text.startIndex..<text.endIndex, in: text)
-        return regex.firstMatch(in: text, options: [], range: range) != nil
     }
 }

@@ -123,7 +123,8 @@ public final class ReflexBlitzViewModel {
 
         phase = .countdown
         countdownCount = 3
-        continuousSpeechService.startSession()
+        let contextualPhrases = words.flatMap { [$0.lemma, $0.exampleSentenceEn] }
+        continuousSpeechService.startSession(contextualPhrases: contextualPhrases)
 
         countdownTask = Task { @MainActor [weak self] in
             for i in stride(from: 3, through: 1, by: -1) {
@@ -138,7 +139,8 @@ public final class ReflexBlitzViewModel {
 
     public func beginSessionDirectly() {
         countdownTask?.cancel()
-        continuousSpeechService.startSession()
+        let contextualPhrases = words.flatMap { [$0.lemma, $0.exampleSentenceEn] }
+        continuousSpeechService.startSession(contextualPhrases: contextualPhrases)
         beginDrilling()
     }
 
