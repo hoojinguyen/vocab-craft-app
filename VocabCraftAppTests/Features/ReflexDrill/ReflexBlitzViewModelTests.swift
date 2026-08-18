@@ -268,4 +268,145 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.attempts.count, 1)
         XCTAssertEqual(viewModel.comboStreak, 1)
     }
+
+    // MARK: - Task 2 Dynamic Timer & Audio Helper Tests
+
+    func testFractionRemainingCalculations() {
+        viewModel.beginSessionDirectly()
+        viewModel.simulateElapsedTime(ms: 0)
+        XCTAssertEqual(viewModel.fractionRemaining, 1.0, accuracy: 0.001)
+
+        viewModel.simulateElapsedTime(ms: 3000)
+        XCTAssertEqual(viewModel.fractionRemaining, 0.5, accuracy: 0.001)
+
+        viewModel.simulateElapsedTime(ms: 6000)
+        XCTAssertEqual(viewModel.fractionRemaining, 0.0, accuracy: 0.001)
+
+        viewModel.simulateElapsedTime(ms: 7000)
+        XCTAssertEqual(viewModel.fractionRemaining, 0.0, accuracy: 0.001)
+    }
+
+    func testTimerStagesAcrossIntervals() {
+        viewModel.beginSessionDirectly()
+
+        viewModel.simulateElapsedTime(ms: 0)
+        XCTAssertEqual(viewModel.timerStage, .steady)
+
+        viewModel.simulateElapsedTime(ms: 3499)
+        XCTAssertEqual(viewModel.timerStage, .steady)
+
+        viewModel.simulateElapsedTime(ms: 3500)
+        XCTAssertEqual(viewModel.timerStage, .warning)
+
+        viewModel.simulateElapsedTime(ms: 4999)
+        XCTAssertEqual(viewModel.timerStage, .warning)
+
+        viewModel.simulateElapsedTime(ms: 5000)
+        XCTAssertEqual(viewModel.timerStage, .urgent)
+
+        viewModel.simulateElapsedTime(ms: 5200)
+        XCTAssertEqual(viewModel.timerStage, .urgent)
+
+        viewModel.simulateElapsedTime(ms: 6000)
+        XCTAssertEqual(viewModel.timerStage, .urgent)
+    }
+
+    func testSpeakLemmaInvokesTTSService() {
+        mockTTS.lastSpokenText = nil
+        mockTTS.isSpeaking = false
+
+        viewModel.speakLemma("serendipity")
+        XCTAssertTrue(mockTTS.isSpeaking)
+        XCTAssertEqual(mockTTS.lastSpokenText, "serendipity")
+    }
+
+    func testSpeakCurrentWordSpeaksActiveLemma() {
+        viewModel.beginSessionDirectly()
+        mockTTS.lastSpokenText = nil
+
+        viewModel.speakCurrentWord()
+        XCTAssertEqual(mockTTS.lastSpokenText, "ephemeral")
+
+        viewModel.loadWordForTesting(at: 1)
+        viewModel.speakCurrentWord()
+        XCTAssertEqual(mockTTS.lastSpokenText, "vital")
+
+        let emptyVM = ReflexBlitzViewModel(
+            words: [],
+            continuousSpeechService: mockSpeech,
+            ttsService: mockTTS,
+            evaluateSRSUseCase: mockSRS
+        )
+        mockTTS.lastSpokenText = nil
+        emptyVM.speakCurrentWord()
+        XCTAssertNil(mockTTS.lastSpokenText)
+    }
+
+    func testAttemptsAndSummaryContainRichWordMetadata() {
+        let richWords = [
+            ReflexBlitzWordItem(
+                id: 101,
+                lemma: "meticulous",
+                pos: "adj.",
+                ipa: "/məˈtɪk.jə.ləs/",
+                definitionVi: "Tỉ mỉ, cẩn thận",
+                exampleSentenceEn: "She is meticulous about detail.",
+                exampleSentenceVi: "Cô ấy tỉ mỉ về từng chi tiết."
+            ),
+            ReflexBlitzWordItem(
+                id: 102,
+                lemma: "resilient",
+                pos: "adj.",
+                ipa: "/rɪˈzɪl.jənt/",
+                definitionVi: "Kiên cường",
+                exampleSentenceEn: "They are resilient.",
+                exampleSentenceVi: "Họ rất kiên cường."
+            )
+        ]
+
+        let richVM = ReflexBlitzViewModel(
+            words: richWords,
+            continuousSpeechService: mockSpeech,
+            ttsService: mockTTS,
+            evaluateSRSUseCase: mockSRS
+        )
+
+        richVM.beginSessionDirectly()
+
+        // 1. Spoken match on word 0
+        richVM.handleSpokenMatch("meticulous")
+        XCTAssertEqual(richVM.attempts.count, 1)
+        let firstAttempt = richVM.attempts[0]
+        XCTAssertEqual(firstAttempt.wordId, 101)
+        XCTAssertEqual(firstAttempt.lemma, "meticulous")
+        XCTAssertEqual(firstAttempt.pos, "adj.")
+        XCTAssertEqual(firstAttempt.ipa, "/məˈtɪk.jə.ləs/")
+        XCTAssertEqual(firstAttempt.definitionVi, "Tỉ mỉ, cẩn thận")
+
+        // 2. Timeout on word 1 (Weak word)
+        richVM.loadWordForTesting(at: 1)
+        richVM.handleTimeout()
+        XCTAssertEqual(richVM.attempts.count, 2)
+        let secondAttempt = richVM.attempts[1]
+        XCTAssertEqual(secondAttempt.wordId, 102)
+        XCTAssertEqual(secondAttempt.lemma, "resilient")
+        XCTAssertEqual(secondAttempt.pos, "adj.")
+        XCTAssertEqual(secondAttempt.ipa, "/rɪˈzɪl.jənt/")
+        XCTAssertEqual(secondAttempt.definitionVi, "Kiên cường")
+
+        // 3. Summary weak words contain metadata
+        richVM.finishSession()
+        guard let summary = richVM.sessionSummary else {
+            XCTFail("Expected session summary to exist")
+            return
+        }
+
+        XCTAssertEqual(summary.weakWordAttempts.count, 1)
+        let weakAttempt = summary.weakWordAttempts[0]
+        XCTAssertEqual(weakAttempt.wordId, 102)
+        XCTAssertEqual(weakAttempt.lemma, "resilient")
+        XCTAssertEqual(weakAttempt.pos, "adj.")
+        XCTAssertEqual(weakAttempt.ipa, "/rɪˈzɪl.jənt/")
+        XCTAssertEqual(weakAttempt.definitionVi, "Kiên cường")
+    }
 }

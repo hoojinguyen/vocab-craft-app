@@ -8,6 +8,12 @@ public enum ReflexBlitzPhase: Equatable, Sendable {
     case summary
 }
 
+public enum ReflexBlitzTimerStage: Equatable, Sendable {
+    case steady
+    case warning
+    case urgent
+}
+
 @MainActor
 @Observable
 public final class ReflexBlitzViewModel {
@@ -42,6 +48,20 @@ public final class ReflexBlitzViewModel {
     public var progressFraction: Double {
         guard !words.isEmpty else { return 0 }
         return Double(currentWordIndex) / Double(words.count)
+    }
+
+    public var fractionRemaining: Double {
+        max(0.0, min(1.0, 1.0 - Double(elapsedTimeMs) / 6000.0))
+    }
+
+    public var timerStage: ReflexBlitzTimerStage {
+        if elapsedTimeMs < 3500 {
+            return .steady
+        } else if elapsedTimeMs < 5000 {
+            return .warning
+        } else {
+            return .urgent
+        }
     }
 
     public init(
@@ -178,6 +198,15 @@ public final class ReflexBlitzViewModel {
         }
     }
 
+    public func speakLemma(_ lemma: String) {
+        ttsService.speak(text: lemma, rate: 0.5, locale: "en-US")
+    }
+
+    public func speakCurrentWord() {
+        guard let word = currentWord else { return }
+        speakLemma(word.lemma)
+    }
+
     public func simulateElapsedTime(ms: Int) {
         self.elapsedTimeMs = ms
         if ms >= 3500 {
@@ -203,6 +232,9 @@ public final class ReflexBlitzViewModel {
         let attempt = ReflexBlitzAttempt(
             wordId: word.id,
             lemma: word.lemma,
+            pos: word.pos,
+            ipa: word.ipa,
+            definitionVi: word.definitionVi,
             responseTimeMs: elapsedTimeMs,
             usedHint: showHint,
             isCorrect: true
@@ -234,13 +266,16 @@ public final class ReflexBlitzViewModel {
         let attempt = ReflexBlitzAttempt(
             wordId: word.id,
             lemma: word.lemma,
+            pos: word.pos,
+            ipa: word.ipa,
+            definitionVi: word.definitionVi,
             responseTimeMs: 6000,
             usedHint: true,
             isCorrect: false
         )
         attempts.append(attempt)
 
-        ttsService.speak(text: word.lemma, rate: 0.5, locale: "en-US")
+        speakLemma(word.lemma)
 
         Task {
             _ = try? await self.evaluateSRSUseCase.recordReview(
