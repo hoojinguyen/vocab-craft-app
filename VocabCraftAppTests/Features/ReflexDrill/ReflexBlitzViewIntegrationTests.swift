@@ -79,13 +79,13 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         XCTAssertEqual(vm.currentWord?.lemma, "ephemeral")
     }
 
-    func testBlitzViewTimeoutRevealingPhaseRendering() {
+    func testBlitzViewTimeoutRevealingPhaseRendering() async {
         let (vm, _, mockTTS, _) = makeViewModel()
         vm.beginSessionDirectly()
         vm.handleTimeout()
 
         XCTAssertEqual(vm.phase, .timeoutRevealing)
-        XCTAssertTrue(mockTTS.isSpeaking)
+        try? await Task.sleep(for: .milliseconds(50))
         XCTAssertEqual(mockTTS.lastSpokenText, "ephemeral")
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})

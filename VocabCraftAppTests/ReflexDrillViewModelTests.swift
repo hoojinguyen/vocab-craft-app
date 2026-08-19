@@ -29,13 +29,41 @@ final class MockSpeechRecognitionService: SpeechRecognitionProtocol {
     }
 }
 
+final class MockSoundEffectService: SoundEffectServiceProtocol, @unchecked Sendable {
+    var playSuccessChimeCallCount: Int = 0
+
+    func playSuccessChime() {
+        playSuccessChimeCallCount += 1
+    }
+}
+
 final class MockTextToSpeechService: TextToSpeechProtocol {
     var isSpeaking: Bool = false
     var lastSpokenText: String?
+    var lastSpokenRate: Float?
+    var lastSpokenLocale: String?
+    var speakCallCount: Int = 0
+    var speakAsyncCallCount: Int = 0
+    var onSpeakAsync: ((String, Float, String) async -> Void)?
 
     func speak(text: String, rate: Float, locale: String) {
+        speakCallCount += 1
         isSpeaking = true
         lastSpokenText = text
+        lastSpokenRate = rate
+        lastSpokenLocale = locale
+    }
+
+    func speakAsync(text: String, rate: Float, locale: String) async {
+        speakAsyncCallCount += 1
+        isSpeaking = true
+        lastSpokenText = text
+        lastSpokenRate = rate
+        lastSpokenLocale = locale
+        if let onSpeakAsync = onSpeakAsync {
+            await onSpeakAsync(text, rate, locale)
+        }
+        isSpeaking = false
     }
 
     func stop() {

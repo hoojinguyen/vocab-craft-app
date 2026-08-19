@@ -26,7 +26,15 @@ public final class ReflexBlitzViewModel {
     public var comboStreak: Int = 0
     public var maxComboStreak: Int = 0
     public var currentAttemptIsCorrect: Bool = false
-    public var isKeyboardFallbackActive: Bool = false
+    public var isKeyboardFallbackActive: Bool = false {
+        didSet {
+            if isKeyboardFallbackActive {
+                continuousSpeechService.pauseListening()
+            } else {
+                continuousSpeechService.resumeListening()
+            }
+        }
+    }
     public var liveTranscript: String = ""
     public var sessionSummary: ReflexBlitzSessionSummary?
     public var attempts: [ReflexBlitzAttempt] = []
@@ -34,6 +42,7 @@ public final class ReflexBlitzViewModel {
     private let continuousSpeechService: ContinuousReflexSpeechProtocol
     private let ttsService: TextToSpeechProtocol
     private let evaluateSRSUseCase: EvaluateSRSUseCaseProtocol
+    private let soundEffectService: SoundEffectServiceProtocol
 
     private var countdownTask: Task<Void, Never>?
     private var sessionTimerTask: Task<Void, Never>?
@@ -68,12 +77,14 @@ public final class ReflexBlitzViewModel {
         words: [ReflexBlitzWordItem],
         continuousSpeechService: ContinuousReflexSpeechProtocol,
         ttsService: TextToSpeechProtocol,
-        evaluateSRSUseCase: EvaluateSRSUseCaseProtocol
+        evaluateSRSUseCase: EvaluateSRSUseCaseProtocol,
+        soundEffectService: SoundEffectServiceProtocol = SoundEffectService.shared
     ) {
         self.words = words
         self.continuousSpeechService = continuousSpeechService
         self.ttsService = ttsService
         self.evaluateSRSUseCase = evaluateSRSUseCase
+        self.soundEffectService = soundEffectService
         setupSpeechServiceBindings()
     }
 
@@ -184,7 +195,7 @@ public final class ReflexBlitzViewModel {
         sessionTimerTask?.cancel()
         sessionTimerTask = Task { @MainActor [weak self] in
             while !Task.isCancelled {
-                try? await Task.sleep(for: .milliseconds(50))
+                try? await Task.sleep(for: .milliseconds(100))
                 guard let self = self, self.phase == .drilling, let start = self.wordStartTime else { break }
                 let elapsed = Int(Date().timeIntervalSince(start) * 1000)
                 self.elapsedTimeMs = elapsed
@@ -227,6 +238,7 @@ public final class ReflexBlitzViewModel {
 
         sessionTimerTask?.cancel()
         currentAttemptIsCorrect = true
+        soundEffectService.playSuccessChime()
         comboStreak += 1
         if comboStreak > maxComboStreak {
             maxComboStreak = comboStreak
@@ -254,7 +266,7 @@ public final class ReflexBlitzViewModel {
 
         advanceTask?.cancel()
         advanceTask = Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .milliseconds(400))
+            try? await Task.sleep(for: .milliseconds(1000))
             guard let self = self, self.phase == .drilling, !Task.isCancelled else { return }
             self.loadWord(at: self.currentWordIndex + 1)
         }
@@ -278,7 +290,7 @@ public final class ReflexBlitzViewModel {
         )
         attempts.append(attempt)
 
-        speakLemma(word.lemma)
+        continuousSpeechService.pauseListening()
 
         Task {
             _ = try? await self.evaluateSRSUseCase.recordReview(
@@ -290,8 +302,11 @@ public final class ReflexBlitzViewModel {
 
         advanceTask?.cancel()
         advanceTask = Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .milliseconds(1200))
-            guard let self = self, self.phase == .timeoutRevealing, !Task.isCancelled else { return }
+            await self?.ttsService.speakAsync(text: word.lemma, rate: 0.5, locale: "en-US")
+            try? await Task.sleep(for: .milliseconds(300))
+            guard let self = self, !Task.isCancelled else { return }
+            self.continuousSpeechService.resumeListening()
+            guard self.phase == .timeoutRevealing else { return }
             self.loadWord(at: self.currentWordIndex + 1)
         }
     }
