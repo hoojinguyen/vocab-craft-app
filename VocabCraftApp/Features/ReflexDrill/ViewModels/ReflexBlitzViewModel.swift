@@ -305,7 +305,9 @@ public final class ReflexBlitzViewModel {
             await self?.ttsService.speakAsync(text: word.lemma, rate: 0.5, locale: "en-US")
             try? await Task.sleep(for: .milliseconds(300))
             guard let self = self, !Task.isCancelled else { return }
-            self.continuousSpeechService.resumeListening()
+            if !self.isKeyboardFallbackActive {
+                self.continuousSpeechService.resumeListening()
+            }
             guard self.phase == .timeoutRevealing else { return }
             self.loadWord(at: self.currentWordIndex + 1)
         }

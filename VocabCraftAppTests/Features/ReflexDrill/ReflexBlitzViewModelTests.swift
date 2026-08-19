@@ -166,6 +166,26 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.phase, .drilling, "Phase should return to drilling")
     }
 
+    func testHandleTimeoutInKeyboardFallbackModeMaintainsMutedListeningState() async {
+        viewModel.beginSessionDirectly()
+        viewModel.isKeyboardFallbackActive = true
+        XCTAssertTrue(mockSpeech.isRecognitionMuted)
+
+        viewModel.handleTimeout()
+        XCTAssertTrue(mockSpeech.isRecognitionMuted)
+        XCTAssertEqual(viewModel.phase, .timeoutRevealing)
+
+        try? await Task.sleep(for: .milliseconds(50))
+        XCTAssertEqual(mockTTS.lastSpokenText, "ephemeral")
+        XCTAssertEqual(mockTTS.speakAsyncCallCount, 1)
+
+        // After 300ms buffer, speech recognition should REMAIN muted because keyboard mode is active
+        try? await Task.sleep(for: .milliseconds(350))
+        XCTAssertTrue(mockSpeech.isRecognitionMuted, "Speech recognition should remain muted after timeout when keyboard fallback is active")
+        XCTAssertEqual(viewModel.currentWordIndex, 1, "Should advance to next word")
+        XCTAssertEqual(viewModel.phase, .drilling, "Phase should return to drilling")
+    }
+
     func testConsecutiveMatchesBuildComboStreak() {
         viewModel.beginSessionDirectly()
 
