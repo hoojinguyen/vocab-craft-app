@@ -1,5 +1,18 @@
 import SwiftUI
 
+/// Structural breakdown of a cloze sentence for inline styled reveal.
+public struct ClozeSentenceParts: Equatable, Sendable {
+    public let prefix: String
+    public let slot: String
+    public let suffix: String
+
+    public init(prefix: String, slot: String, suffix: String) {
+        self.prefix = prefix
+        self.slot = slot
+        self.suffix = suffix
+    }
+}
+
 /// Challenge card view for Spoken Reflex Blitz drill.
 /// Features clean spatial hierarchy (Trigger -> Context -> Scaffolding / Pronunciation -> Audio Dock / Typing Fallback),
 /// progressive disclosure for phonetics and hints, dynamic cloze slot, and an integrated audio dock / keyboard fallback.
@@ -69,7 +82,7 @@ public struct ReflexBlitzCardView: View {
         }
     }
 
-    private var slotRepresentation: String {
+    public var slotRepresentation: String {
         if isCorrect || isTimeout {
             return word.lemma
         } else if showHint {
@@ -81,6 +94,22 @@ public struct ReflexBlitzCardView: View {
             let dots = String(repeating: "• ", count: dotsCount).trimmingCharacters(in: .whitespaces)
             return "[ \(dots) ]"
         }
+    }
+
+    public var clozeParts: ClozeSentenceParts? {
+        guard let regex = try? NSRegularExpression(pattern: "\\[\\s*_{3,}\\s*\\]|_{3,}") else {
+            return nil
+        }
+        let text = word.clozeSentenceEn
+        let nsRange = NSRange(text.startIndex..., in: text)
+        guard let match = regex.firstMatch(in: text, options: [], range: nsRange),
+              let matchRange = Range(match.range, in: text) else {
+            return nil
+        }
+        let prefix = String(text[..<matchRange.lowerBound])
+        let suffix = String(text[matchRange.upperBound...])
+        let slot = isCorrect || isTimeout ? word.lemma : slotRepresentation
+        return ClozeSentenceParts(prefix: prefix, slot: slot, suffix: suffix)
     }
 
     public var body: some View {
@@ -197,46 +226,43 @@ public struct ReflexBlitzCardView: View {
 
     @ViewBuilder
     private var sentenceView: some View {
-        if !isCorrect && !isTimeout {
-            if let regex = try? NSRegularExpression(pattern: "\\[\\s*_{3,}\\s*\\]|_{3,}") {
-                let text = word.clozeSentenceEn
-                let nsRange = NSRange(text.startIndex..., in: text)
-                if let match = regex.firstMatch(in: text, options: [], range: nsRange),
-                   let matchRange = Range(match.range, in: text) {
-                    let prefix = String(text[..<matchRange.lowerBound])
-                    let suffix = String(text[matchRange.upperBound...])
-
-                    Text(prefix)
-                        .font(.title3.weight(.medium))
-                        .fontDesign(.serif)
-                        .foregroundColor(.vocabInk)
-                    +
-                    Text(" \(slotRepresentation) ")
-                        .font(.title3.bold())
-                        .fontDesign(.monospaced)
-                        .foregroundColor(slotTextColor)
-                    +
-                    Text(suffix)
-                        .font(.title3.weight(.medium))
-                        .fontDesign(.serif)
-                        .foregroundColor(.vocabInk)
-                } else {
-                    Text(displayedSentence)
-                        .font(.title3.weight(.medium))
-                        .fontDesign(.serif)
-                        .foregroundColor(.vocabInk)
-                }
+        if let parts = clozeParts {
+            if isCorrect || isTimeout {
+                Text(parts.prefix)
+                    .font(.title3.weight(.medium))
+                    .fontDesign(.serif)
+                    .foregroundColor(.vocabInk)
+                +
+                Text(parts.slot)
+                    .font(.title3.weight(.bold))
+                    .fontDesign(.serif)
+                    .foregroundColor(isCorrect ? .vocabMint : .vocabCoral)
+                +
+                Text(parts.suffix)
+                    .font(.title3.weight(.medium))
+                    .fontDesign(.serif)
+                    .foregroundColor(.vocabInk)
             } else {
-                Text(displayedSentence)
+                Text(parts.prefix)
+                    .font(.title3.weight(.medium))
+                    .fontDesign(.serif)
+                    .foregroundColor(.vocabInk)
+                +
+                Text(parts.slot)
+                    .font(.title3.bold())
+                    .fontDesign(.monospaced)
+                    .foregroundColor(slotTextColor)
+                +
+                Text(parts.suffix)
                     .font(.title3.weight(.medium))
                     .fontDesign(.serif)
                     .foregroundColor(.vocabInk)
             }
         } else {
             Text(displayedSentence)
-                .font(.title3.weight(.bold))
+                .font(.title3.weight(isCorrect || isTimeout ? .bold : .medium))
                 .fontDesign(.serif)
-                .foregroundColor(isCorrect ? .vocabMint : .vocabCoral)
+                .foregroundColor(isCorrect ? .vocabMint : (isTimeout ? .vocabCoral : .vocabInk))
         }
     }
 

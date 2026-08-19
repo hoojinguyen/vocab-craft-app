@@ -350,4 +350,103 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertEqual(timeoutCard.displayedSentence, word.exampleSentenceEn)
         XCTAssertEqual(timeoutCard.word.ipa, "/məˈtɪk.jə.ləs/")
     }
+
+    @MainActor
+    func testClozeSentenceRevealPartsOnCorrectAndTimeout() {
+        let word = ReflexBlitzWordItem(
+            id: 3,
+            lemma: "fluent",
+            pos: "adj.",
+            ipa: "/ˈfluː.ənt/",
+            definitionVi: "Trôi chảy, lưu loát",
+            exampleSentenceEn: "She is fluent in English and French.",
+            exampleSentenceVi: "Cô ấy nói trôi chảy tiếng Anh và tiếng Pháp.",
+            clozeSentenceEn: "She is [ _________ ] in English and French."
+        )
+
+        // 1. Drilling state: cloze slot has placeholder dots
+        let drillingCard = ReflexBlitzCardView(
+            word: word,
+            fractionRemaining: 0.9,
+            timerStage: .steady,
+            showHint: false,
+            isCorrect: false,
+            isTimeout: false
+        )
+        let drillingParts = drillingCard.clozeParts
+        XCTAssertNotNil(drillingParts)
+        XCTAssertEqual(drillingParts?.prefix, "She is ")
+        XCTAssertEqual(drillingParts?.suffix, " in English and French.")
+        XCTAssertTrue(drillingParts?.slot.contains("•") == true)
+
+        // 2. Hinted state: cloze slot contains initial letter hint
+        let hintedCard = ReflexBlitzCardView(
+            word: word,
+            fractionRemaining: 0.4,
+            timerStage: .warning,
+            showHint: true,
+            isCorrect: false,
+            isTimeout: false
+        )
+        let hintedParts = hintedCard.clozeParts
+        XCTAssertNotNil(hintedParts)
+        XCTAssertEqual(hintedParts?.prefix, "She is ")
+        XCTAssertEqual(hintedParts?.suffix, " in English and French.")
+        XCTAssertTrue(hintedParts?.slot.contains("f") == true)
+
+        // 3. Correct match state: cloze slot reveals the target lemma
+        let correctCard = ReflexBlitzCardView(
+            word: word,
+            fractionRemaining: 0.6,
+            timerStage: .steady,
+            showHint: false,
+            isCorrect: true,
+            isTimeout: false
+        )
+        let correctParts = correctCard.clozeParts
+        XCTAssertNotNil(correctParts)
+        XCTAssertEqual(correctParts?.prefix, "She is ")
+        XCTAssertEqual(correctParts?.slot, "fluent")
+        XCTAssertEqual(correctParts?.suffix, " in English and French.")
+        XCTAssertEqual((correctParts?.prefix ?? "") + (correctParts?.slot ?? "") + (correctParts?.suffix ?? ""), "She is fluent in English and French.")
+        XCTAssertNotNil(correctCard.body)
+
+        // 4. Timeout state: cloze slot reveals the target lemma
+        let timeoutCard = ReflexBlitzCardView(
+            word: word,
+            fractionRemaining: 0.0,
+            timerStage: .urgent,
+            showHint: true,
+            isCorrect: false,
+            isTimeout: true
+        )
+        let timeoutParts = timeoutCard.clozeParts
+        XCTAssertNotNil(timeoutParts)
+        XCTAssertEqual(timeoutParts?.prefix, "She is ")
+        XCTAssertEqual(timeoutParts?.slot, "fluent")
+        XCTAssertEqual(timeoutParts?.suffix, " in English and French.")
+        XCTAssertNotNil(timeoutCard.body)
+    }
+
+    @MainActor
+    func testClozeSentenceFallbackWhenNoPatternMatches() {
+        let noClozeWord = ReflexBlitzWordItem(
+            id: 4,
+            lemma: "resilient",
+            pos: "adj.",
+            ipa: "/rɪˈzɪl.jənt/",
+            definitionVi: "Kiên cường",
+            exampleSentenceEn: "They stayed strong.",
+            exampleSentenceVi: "Họ luôn vững vàng.",
+            clozeSentenceEn: "They stayed strong."
+        )
+
+        let card = ReflexBlitzCardView(
+            word: noClozeWord,
+            isCorrect: true
+        )
+        XCTAssertNil(card.clozeParts)
+        XCTAssertNotNil(card.body)
+    }
 }
+
