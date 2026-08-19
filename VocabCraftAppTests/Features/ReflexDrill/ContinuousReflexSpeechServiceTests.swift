@@ -196,4 +196,44 @@ final class ContinuousReflexSpeechServiceTests: XCTestCase {
         mockService.simulateTranscript("Hello Spain expand fluent confident")
         XCTAssertEqual(receivedTranscript, "confident")
     }
+
+    func testPauseAndResumeListening() {
+        let mock = MockContinuousReflexSpeechService()
+        mock.startSession()
+        mock.setTargetWord(lemma: "habit", contextualPhrases: [])
+
+        mock.pauseListening()
+        XCTAssertTrue(mock.isRecognitionMuted)
+
+        var matchDetected = false
+        var transcriptEmitted: String?
+        mock.onMatchDetected = { _ in matchDetected = true }
+        mock.onTranscriptUpdate = { transcriptEmitted = $0 }
+        mock.simulateTranscript("habit")
+        XCTAssertFalse(matchDetected, "Should not detect match while listening is muted/paused")
+        XCTAssertNil(transcriptEmitted, "Should not emit transcript while listening is muted/paused")
+
+        mock.resumeListening()
+        XCTAssertFalse(mock.isRecognitionMuted)
+        mock.simulateTranscript("habit")
+        XCTAssertTrue(matchDetected, "Should detect match after resuming listening")
+        XCTAssertEqual(transcriptEmitted, "habit")
+    }
+
+    func testContinuousReflexSpeechServicePauseResumeLifecycle() {
+        let service: ContinuousReflexSpeechProtocol = ContinuousReflexSpeechService()
+        XCTAssertFalse(service.isRecognitionMuted)
+
+        service.pauseListening()
+        XCTAssertTrue(service.isRecognitionMuted)
+
+        service.resumeListening()
+        XCTAssertFalse(service.isRecognitionMuted)
+
+        service.pauseListening()
+        XCTAssertTrue(service.isRecognitionMuted)
+        service.stopSession()
+        XCTAssertFalse(service.isRecognitionMuted, "Stopping session should reset recognition mute state")
+    }
 }
+

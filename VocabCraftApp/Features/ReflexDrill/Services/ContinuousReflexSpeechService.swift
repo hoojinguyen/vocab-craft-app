@@ -4,6 +4,7 @@ import Speech
 
 public protocol ContinuousReflexSpeechProtocol: AnyObject, Sendable {
     var isSessionActive: Bool { get }
+    var isRecognitionMuted: Bool { get }
     var currentTranscript: String { get }
     var onMatchDetected: ((String) -> Void)? { get set }
     var onTranscriptUpdate: ((String) -> Void)? { get set }
@@ -12,6 +13,8 @@ public protocol ContinuousReflexSpeechProtocol: AnyObject, Sendable {
     func startSession(contextualPhrases: [String])
     func startSession()
     func stopSession()
+    func pauseListening()
+    func resumeListening()
     func setTargetWord(lemma: String, contextualPhrases: [String])
     func resetBuffer()
 }
@@ -77,6 +80,7 @@ public enum ReflexSpeechMatcher {
 
 public final class MockContinuousReflexSpeechService: ContinuousReflexSpeechProtocol, @unchecked Sendable {
     public var isSessionActive: Bool = false
+    public var isRecognitionMuted: Bool = false
     public var currentTranscript: String = ""
     public var currentTargetLemma: String = ""
     public var contextualPhrases: [String] = []
@@ -101,10 +105,19 @@ public final class MockContinuousReflexSpeechService: ContinuousReflexSpeechProt
 
     public func stopSession() {
         isSessionActive = false
+        isRecognitionMuted = false
         currentTranscript = ""
         currentTargetLemma = ""
         sessionContextualPhrases = []
         transcriptOffset = 0
+    }
+
+    public func pauseListening() {
+        isRecognitionMuted = true
+    }
+
+    public func resumeListening() {
+        isRecognitionMuted = false
     }
 
     public func setTargetWord(lemma: String, contextualPhrases: [String]) {
@@ -119,6 +132,7 @@ public final class MockContinuousReflexSpeechService: ContinuousReflexSpeechProt
     }
 
     public func simulateTranscript(_ text: String) {
+        guard !isRecognitionMuted else { return }
         self.currentTranscript = text
         let newSpoken = extractNewlySpoken(from: text, offset: transcriptOffset)
             .trimmingCharacters(in: .whitespacesAndNewlines)
@@ -140,6 +154,7 @@ public final class MockContinuousReflexSpeechService: ContinuousReflexSpeechProt
 
 public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol, @unchecked Sendable {
     public private(set) var isSessionActive: Bool = false
+    public private(set) var isRecognitionMuted: Bool = false
     public private(set) var currentTranscript: String = ""
 
     private var currentTargetLemma: String = ""
@@ -212,6 +227,7 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
 
     public func stopSession() {
         isSessionActive = false
+        isRecognitionMuted = false
         recognitionTask?.cancel()
         recognitionTask = nil
         recognitionRequest?.endAudio()
@@ -229,6 +245,14 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
         transcriptOffset = 0
     }
 
+    public func pauseListening() {
+        isRecognitionMuted = true
+    }
+
+    public func resumeListening() {
+        isRecognitionMuted = false
+    }
+
     public func setTargetWord(lemma: String, contextualPhrases: [String]) {
         self.currentTargetLemma = lemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         self.contextualPhrases = contextualPhrases
@@ -243,7 +267,7 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
         do {
             #if os(iOS)
             let audioSession = AVAudioSession.sharedInstance()
-            try audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.defaultToSpeaker, .allowBluetooth])
+            try audioSession.setCategory(.playAndRecord, mode: .spokenAudio, options: [.defaultToSpeaker, .allowBluetooth, .allowBluetoothA2DP])
             try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
             #endif
 
@@ -276,7 +300,8 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
             }
 
             inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self] buffer, _ in
-                self?.recognitionRequest?.append(buffer)
+                guard let self = self, !self.isRecognitionMuted else { return }
+                self.recognitionRequest?.append(buffer)
             }
 
             try engine.start()
@@ -289,6 +314,7 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
                     }
                     return
                 }
+                guard !self.isRecognitionMuted else { return }
                 if let result = result {
                     let spoken = result.bestTranscription.formattedString
                     self.currentTranscript = spoken
@@ -319,3 +345,4 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
         return String(fullTranscript[index...])
     }
 }
+
