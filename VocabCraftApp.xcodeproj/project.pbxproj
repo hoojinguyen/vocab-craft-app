@@ -21,6 +21,7 @@
 		3000FB020000000000000004 /* ReflexBlitzComponentsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FB020000000000000004 /* ReflexBlitzComponentsTests.swift */; };
 		3000FB020000000000000005 /* ReflexBlitzSummaryViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FB020000000000000005 /* ReflexBlitzSummaryViewTests.swift */; };
 		3000FB020000000000000006 /* ReflexBlitzViewIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FB020000000000000006 /* ReflexBlitzViewIntegrationTests.swift */; };
+		3000FB030000000000000002 /* SoundEffectAndTTSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FB030000000000000002 /* SoundEffectAndTTSTests.swift */; };
 		3000A201000000000001 /* QuickReflexPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A201000000000001 /* QuickReflexPrompt.swift */; };
 		3000A201000000000002 /* QuickReflexPromptFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A201000000000002 /* QuickReflexPromptFactory.swift */; };
 		3000A201000000000003 /* TargetExpressionMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A201000000000003 /* TargetExpressionMatcher.swift */; };
@@ -110,6 +111,7 @@
 		3000B8D5FB4EC872D73A /* VocabularyViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B8D5FB4EC872D73A /* VocabularyViewModelTests.swift */; };
 		3000BA864DF00075F57F /* QuickReflexDrillViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000BA864DF00075F57F /* QuickReflexDrillViewModelTests.swift */; };
 		3000BEA090FB6DD9E928 /* TextToSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000BEA090FB6DD9E928 /* TextToSpeechService.swift */; };
+		3000FB030000000000000001 /* SoundEffectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FB030000000000000001 /* SoundEffectService.swift */; };
 		3000C27C11DD5CE9F2EC /* TopicDeckModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C27C11DD5CE9F2EC /* TopicDeckModels.swift */; };
 		3000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift */; };
 		3000C94DD80FE52023FA /* NextWordIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C94DD80FE52023FA /* NextWordIntent.swift */; };
@@ -211,6 +213,7 @@
 		2000FB020000000000000004 /* ReflexBlitzComponentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Features/ReflexDrill/ReflexBlitzComponentsTests.swift"; sourceTree = "<group>"; };
 		2000FB020000000000000005 /* ReflexBlitzSummaryViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Features/ReflexDrill/ReflexBlitzSummaryViewTests.swift"; sourceTree = "<group>"; };
 		2000FB020000000000000006 /* ReflexBlitzViewIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Features/ReflexDrill/ReflexBlitzViewIntegrationTests.swift"; sourceTree = "<group>"; };
+		2000FB030000000000000002 /* SoundEffectAndTTSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/Audio/SoundEffectAndTTSTests.swift"; sourceTree = "<group>"; };
 		2000A201000000000001 /* QuickReflexPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickReflexPrompt.swift; sourceTree = "<group>"; };
 		2000A201000000000002 /* QuickReflexPromptFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickReflexPromptFactory.swift; sourceTree = "<group>"; };
 		2000A201000000000003 /* TargetExpressionMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TargetExpressionMatcher.swift; sourceTree = "<group>"; };
@@ -305,6 +308,7 @@
 		2000B8D5FB4EC872D73A /* VocabularyViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyViewModelTests.swift; sourceTree = "<group>"; };
 		2000BA864DF00075F57F /* QuickReflexDrillViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickReflexDrillViewModelTests.swift; sourceTree = "<group>"; };
 		2000BEA090FB6DD9E928 /* TextToSpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextToSpeechService.swift; sourceTree = "<group>"; };
+		2000FB030000000000000001 /* SoundEffectService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundEffectService.swift; sourceTree = "<group>"; };
 		2000C27C11DD5CE9F2EC /* TopicDeckModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicDeckModels.swift; sourceTree = "<group>"; };
 		2000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvaluateSRSUseCaseTests.swift; sourceTree = "<group>"; };
 		2000C94DD80FE52023FA /* NextWordIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextWordIntent.swift; sourceTree = "<group>"; };
@@ -591,6 +595,7 @@
 			children = (
 				200054D51843DFDCEB06 /* SpeechRecognitionService.swift */,
 				2000BEA090FB6DD9E928 /* TextToSpeechService.swift */,
+				2000FB030000000000000001 /* SoundEffectService.swift */,
 			);
 			path = Audio;
 			sourceTree = "<group>";
@@ -687,6 +692,7 @@
 				2000FB020000000000000004 /* ReflexBlitzComponentsTests.swift */,
 				2000FB020000000000000005 /* ReflexBlitzSummaryViewTests.swift */,
 				2000FB020000000000000006 /* ReflexBlitzViewIntegrationTests.swift */,
+				2000FB030000000000000002 /* SoundEffectAndTTSTests.swift */,
 				200055893DED0D8FA1E3 /* DatasetEngineTests.swift */,
 				200008F55FA2F8FA1668 /* AppRouterTests.swift */,
 				200008F65FA2F8FA1668 /* DatasetDataSourceTests.swift */,
@@ -1102,6 +1108,7 @@
 				30005D17660A661FF2F5 /* VocabCraftApp.swift in Sources */,
 				300054D51843DFDCEB06 /* SpeechRecognitionService.swift in Sources */,
 				3000BEA090FB6DD9E928 /* TextToSpeechService.swift in Sources */,
+				3000FB030000000000000001 /* SoundEffectService.swift in Sources */,
 				300054D59B97E59482EE /* DatasetEngine.swift in Sources */,
 				3000D26FBFB21A7CA2FE /* DatasetModels.swift in Sources */,
 				30008C6450FFC705ADA3 /* SharedAppGroupContainer.swift in Sources */,
@@ -1202,6 +1209,7 @@
 				3000FB020000000000000004 /* ReflexBlitzComponentsTests.swift in Sources */,
 				3000FB020000000000000005 /* ReflexBlitzSummaryViewTests.swift in Sources */,
 				3000FB020000000000000006 /* ReflexBlitzViewIntegrationTests.swift in Sources */,
+				3000FB030000000000000002 /* SoundEffectAndTTSTests.swift in Sources */,
 				3000A20100000000000C /* CollocationExtractorTests.swift in Sources */,
 				3000A201000000000007 /* QuickReflexPromptFactoryTests.swift in Sources */,
 				3000A201000000000009 /* TargetExpressionMatcherTests.swift in Sources */,
