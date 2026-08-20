@@ -818,6 +818,57 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         )
         XCTAssertFalse(activeView.isReviewed)
     }
+
+    @MainActor
+    func testCardViewShakeAndErrorPresentationOnIncorrectReview() {
+        let word = ReflexBlitzWordItem.defaultStarterWords[0]
+        let incorrectResult = ReflexCardResult(
+            isCorrect: false,
+            responseTimeMs: 2500,
+            isTimeout: false,
+            selectedOption: "incorrectOption",
+            typedText: "wrongWord",
+            recognizedSpoken: nil
+        )
+
+        let cardView = ReflexBlitzCardView(
+            word: word,
+            mode: .typing,
+            cardPhase: .reviewed(result: incorrectResult),
+            options: []
+        )
+
+        XCTAssertTrue(cardView.isReviewed)
+        XCTAssertFalse(cardView.isResultCorrect)
+        XCTAssertFalse(cardView.isResultTimeout)
+        XCTAssertEqual(cardView.cardBorderColor, .vocabCoral)
+        XCTAssertNotNil(cardView.body)
+    }
+
+    @MainActor
+    func testCardViewShakeAndTimeoutPresentationOnTimeoutReview() {
+        let word = ReflexBlitzWordItem.defaultStarterWords[1]
+        let timeoutResult = ReflexCardResult(
+            isCorrect: false,
+            responseTimeMs: 6000,
+            isTimeout: true
+        )
+
+        let cardView = ReflexBlitzCardView(
+            word: word,
+            mode: .speaking,
+            cardPhase: .reviewed(result: timeoutResult),
+            options: []
+        )
+
+        XCTAssertTrue(cardView.isReviewed)
+        XCTAssertFalse(cardView.isResultCorrect)
+        XCTAssertTrue(cardView.isResultTimeout)
+        XCTAssertEqual(cardView.cardBorderColor, .vocabCoral)
+        XCTAssertEqual(cardView.timerStrokeColor, .vocabCoral)
+        XCTAssertNotNil(cardView.body)
+    }
 }
+
 
 

@@ -34,6 +34,7 @@ public struct ReflexBlitzCardView: View {
     public let onReplayAudio: (() -> Void)?
 
     @FocusState private var isTextFieldFocused: Bool
+    @State private var shakeOffset: CGFloat = 0
 
     public init(
         word: ReflexBlitzWordItem,
@@ -201,7 +202,18 @@ public struct ReflexBlitzCardView: View {
                 .stroke(cardBorderColor, lineWidth: isReviewed ? 2 : 1)
         )
         .shadow(color: Color.black.opacity(0.06), radius: 16, x: 0, y: 6)
+        .offset(x: shakeOffset)
         .padding(.horizontal)
+        .onChange(of: isReviewed) { _, reviewed in
+            if reviewed && !isResultCorrect {
+                withAnimation(.spring(response: 0.15, dampingFraction: 0.2, blendDuration: 0.15)) {
+                    shakeOffset = 6
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                    shakeOffset = 0
+                }
+            }
+        }
     }
 
     // MARK: - Active Countdown Content

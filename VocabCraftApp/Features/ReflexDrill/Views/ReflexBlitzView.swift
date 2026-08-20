@@ -74,6 +74,14 @@ public struct ReflexBlitzView: View {
         }
         .sensoryFeedback(.success, trigger: viewModel.currentAttemptIsCorrect) { _, isCorrect in isCorrect }
         .sensoryFeedback(.impact(weight: .heavy), trigger: isReviewedTimeout) { _, isTimeout in isTimeout }
+        .sensoryFeedback(.error, trigger: isReviewedIncorrect) { _, isIncorrect in isIncorrect }
+    }
+
+    private var isReviewedIncorrect: Bool {
+        if case .reviewed(let result) = viewModel.cardPhase {
+            return !result.isCorrect
+        }
+        return false
     }
 
     private var isReviewedTimeout: Bool {
