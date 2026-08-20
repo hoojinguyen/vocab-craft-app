@@ -168,7 +168,7 @@ public struct VocabSpeechVisualizerView: View {
     @ViewBuilder
     private func evaluationBadge(_ eval: SpeechEvaluationResult) -> some View {
         HStack(spacing: 4) {
-            Text("⚡️ \(Int(eval.overallScore * 100))%")
+            Text("⚡️ \(Int(eval.overallScore))%")
                 .font(.caption2.bold())
                 .foregroundColor(eval.isPassed ? .green : .orange)
         }

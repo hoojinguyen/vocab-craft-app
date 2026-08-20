@@ -96,8 +96,12 @@ public struct ReflexBlitzCardView: View {
         }
     }
 
+    private static let clozeRegex: NSRegularExpression? = {
+        try? NSRegularExpression(pattern: "\\[\\s*_{3,}\\s*\\]|_{3,}")
+    }()
+
     public var clozeParts: ClozeSentenceParts? {
-        guard let regex = try? NSRegularExpression(pattern: "\\[\\s*_{3,}\\s*\\]|_{3,}") else {
+        guard let regex = Self.clozeRegex else {
             return nil
         }
         let text = word.clozeSentenceEn
