@@ -129,10 +129,34 @@ public struct ReflexBlitzAdvanceDockView: View {
                     onAdvance()
                 }) {
                     HStack(spacing: 8) {
-                        Text(buttonTitle)
-                            .font(.headline.weight(.bold))
-                            .foregroundColor(.white)
+                        if isTimeout {
+                            Image(systemName: "clock.badge.exclamationmark.fill")
+                                .font(.subheadline.bold())
+                                .symbolRenderingMode(.hierarchical)
+                            Text("Hết giờ • Từ tiếp theo")
+                                .font(.headline.weight(.bold))
+                                .fontDesign(.rounded)
+                        } else if isCorrect {
+                            Image(systemName: "bolt.fill")
+                                .font(.subheadline.bold())
+                                .symbolRenderingMode(.hierarchical)
+                                .symbolEffect(.pulse)
+                            Text("\(formattedResponseTime) • Từ tiếp theo")
+                                .font(.headline.weight(.bold))
+                                .fontDesign(.rounded)
+                        } else {
+                            Image(systemName: "arrow.right.circle.fill")
+                                .font(.subheadline.bold())
+                                .symbolRenderingMode(.hierarchical)
+                            Text("\(formattedResponseTime) • Từ tiếp theo")
+                                .font(.headline.weight(.bold))
+                                .fontDesign(.rounded)
+                        }
+
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 13, weight: .bold))
                     }
+                    .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .frame(height: 54)
                     .background(buttonGradient)
@@ -163,10 +187,11 @@ public struct ReflexBlitzAdvanceDockView: View {
                 }) {
                     HStack(spacing: 6) {
                         Text("Bỏ qua")
+                            .font(.subheadline.weight(.semibold))
                         Image(systemName: "forward.fill")
-                            .font(.caption2)
+                            .font(.caption2.weight(.bold))
+                            .symbolRenderingMode(.hierarchical)
                     }
-                    .font(.subheadline.weight(.semibold))
                     .foregroundColor(.vocabMuted)
                     .frame(maxWidth: .infinity)
                     .frame(height: 48)
@@ -182,6 +207,7 @@ public struct ReflexBlitzAdvanceDockView: View {
                 .buttonStyle(BentoCardButtonStyle())
                 .accessibilityLabel("Bỏ qua từ hiện tại")
             }
+
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 12)

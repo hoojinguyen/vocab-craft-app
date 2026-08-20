@@ -253,34 +253,50 @@ public struct ReflexBlitzCardView: View {
 
     @ViewBuilder
     private var activeListeningContent: some View {
-        // Listening mode stimulus: Audio waveform + replay button (Lemma & Cloze hidden!)
-        VStack(spacing: 12) {
-            HStack(spacing: 5) {
-                ForEach(0..<9, id: \.self) { index in
+        // Listening mode stimulus: Hero Audio Player Widget + Replay cue (Lemma & Cloze hidden!)
+        VStack(spacing: 16) {
+            // Pulsing Audio Visualizer
+            HStack(spacing: 6) {
+                ForEach(0..<11, id: \.self) { index in
                     Capsule()
-                        .fill(timerStrokeColor)
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.vocabHeroAccent, Color.vocabHeroAccent.opacity(0.6)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
                         .frame(
                             width: 3.5,
-                            height: CGFloat(8 + ((index * 5 + (elapsedTimeMs / 70)) % 16))
+                            height: CGFloat(10 + ((index * 6 + (elapsedTimeMs / 60)) % 22))
                         )
-                        .animation(.easeInOut(duration: 0.12), value: elapsedTimeMs)
+                        .animation(.easeInOut(duration: 0.1), value: elapsedTimeMs)
                 }
             }
-            .frame(height: 24)
+            .frame(height: 32)
             .accessibilityHidden(true)
 
             if let onReplayAudio = onReplayAudio {
                 Button(action: onReplayAudio) {
                     HStack(spacing: 8) {
-                        Image(systemName: "speaker.wave.2.fill")
+                        Image(systemName: "speaker.wave.3.fill")
+                            .font(.system(size: 16, weight: .bold))
+                            .symbolRenderingMode(.hierarchical)
+                            .symbolEffect(.pulse, options: .repeating)
+
                         Text("Nghe lại phát âm")
+
+                            .font(.subheadline.weight(.bold))
                     }
-                    .font(.subheadline.bold())
                     .foregroundColor(.vocabHeroAccent)
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, 18)
                     .padding(.vertical, 10)
-                    .background(Color.vocabHeroAccent.opacity(0.12))
+                    .background(.ultraThinMaterial)
                     .clipShape(Capsule())
+                    .overlay(
+                        Capsule()
+                            .stroke(Color.vocabHeroAccent.opacity(0.3), lineWidth: 1)
+                    )
                     .frame(minHeight: 44)
                 }
                 .buttonStyle(BentoCardButtonStyle())
@@ -288,10 +304,10 @@ public struct ReflexBlitzCardView: View {
             }
 
             Text("Chọn nghĩa tiếng Việt của từ vừa nghe")
-                .font(.footnote)
+                .font(.footnote.weight(.medium))
                 .foregroundColor(.vocabMuted)
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 8)
 
         dividerLine
 
@@ -307,14 +323,23 @@ public struct ReflexBlitzCardView: View {
             HStack(spacing: 6) {
                 Image(systemName: isResultCorrect ? "checkmark.circle.fill" : (isResultTimeout ? "clock.badge.exclamationmark.fill" : "xmark.circle.fill"))
                     .font(.subheadline.bold())
+                    .symbolRenderingMode(.hierarchical)
+                    .symbolEffect(.bounce, value: isReviewed)
+
                 Text(isResultCorrect ? "Chính xác!" : (isResultTimeout ? "Hết thời gian!" : "Chưa chính xác"))
                     .font(.subheadline.bold())
+                    .fontDesign(.rounded)
             }
+
             .foregroundColor(isResultCorrect ? .vocabMint : .vocabCoral)
             .padding(.horizontal, 14)
             .padding(.vertical, 6)
             .background((isResultCorrect ? Color.vocabMint : Color.vocabCoral).opacity(0.12))
             .clipShape(Capsule())
+            .overlay(
+                Capsule()
+                    .stroke((isResultCorrect ? Color.vocabMint : Color.vocabCoral).opacity(0.25), lineWidth: 0.8)
+            )
 
             // Target Lemma, POS, IPA, Audio Speaker Button
             VStack(spacing: 6) {
@@ -337,11 +362,16 @@ public struct ReflexBlitzCardView: View {
                     if let onReplayAudio = onReplayAudio {
                         Button(action: onReplayAudio) {
                             Image(systemName: "speaker.wave.2.fill")
-                                .font(.subheadline.weight(.semibold))
+                                .font(.system(size: 15, weight: .semibold))
+                                .symbolRenderingMode(.hierarchical)
                                 .foregroundColor(.vocabHeroAccent)
                                 .frame(width: 36, height: 36)
-                                .background(Color.vocabHeroAccent.opacity(0.12))
+                                .background(.ultraThinMaterial)
                                 .clipShape(Circle())
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color.vocabHeroAccent.opacity(0.2), lineWidth: 0.8)
+                                )
                         }
                         .buttonStyle(BentoCardButtonStyle())
                         .accessibilityLabel("Phát âm lại từ")
@@ -370,6 +400,7 @@ public struct ReflexBlitzCardView: View {
                     .multilineTextAlignment(.center)
                     .lineSpacing(5)
                     .padding(.horizontal, 8)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 if !word.exampleSentenceVi.isEmpty {
                     Text(word.exampleSentenceVi)
@@ -377,17 +408,33 @@ public struct ReflexBlitzCardView: View {
                         .foregroundColor(.vocabMuted)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 8)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
 
             // Options feedback or speech/typing feedback
-            if (mode == .multipleChoice || mode == .listening) && !options.isEmpty {
+            if mode == .multipleChoice && !options.isEmpty {
                 dividerLine
                 reviewedOptionsGrid
+            } else if mode == .listening {
+                // For Listening mode in Reviewed state: Show compact result chip to avoid truncation
+                HStack(spacing: 6) {
+                    Image(systemName: isResultCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
+                        .font(.caption)
+                        .symbolRenderingMode(.hierarchical)
+                    Text("Đã chọn: \(selectedOptionText ?? word.definitionVi)")
+                        .font(.caption.bold())
+                }
+                .foregroundColor(isResultCorrect ? .vocabMint : .vocabCoral)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background((isResultCorrect ? Color.vocabMint : Color.vocabCoral).opacity(0.12))
+                .clipShape(Capsule())
             } else if mode == .speaking, let spoken = reviewResult?.recognizedSpoken, !spoken.isEmpty {
                 HStack(spacing: 6) {
                     Image(systemName: "waveform")
                         .font(.caption)
+                        .symbolRenderingMode(.hierarchical)
                     Text("Nhận diện: \(spoken)")
                         .font(.caption.bold())
                 }
@@ -400,6 +447,7 @@ public struct ReflexBlitzCardView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "keyboard")
                         .font(.caption)
+                        .symbolRenderingMode(.hierarchical)
                     Text("Đã nhập: \(typed)")
                         .font(.caption.bold())
                 }
@@ -411,6 +459,7 @@ public struct ReflexBlitzCardView: View {
             }
         }
     }
+
 
     // MARK: - Subviews & Areas
 
@@ -459,6 +508,7 @@ public struct ReflexBlitzCardView: View {
             HStack(spacing: 5) {
                 Image(systemName: "waveform")
                     .font(.caption2)
+                    .symbolRenderingMode(.hierarchical)
                 Text(word.ipa)
                     .font(.subheadline.monospaced())
                     .lineLimit(1)
@@ -473,9 +523,10 @@ public struct ReflexBlitzCardView: View {
             .transition(.scale.combined(with: .opacity))
             .accessibilityLabel("Phiên âm IPA: \(word.ipa)")
         } else if showHint && !isReviewed {
-            HStack(spacing: 5) {
-                Image(systemName: "lightbulb.fill")
+            HStack(spacing: 6) {
+                Image(systemName: "lightbulb.min.fill")
                     .font(.caption2)
+                    .symbolRenderingMode(.hierarchical)
                 Text("Gợi ý: \(word.initialLetterHint)")
                     .font(.caption.bold())
             }
@@ -570,19 +621,20 @@ public struct ReflexBlitzCardView: View {
     private var activeOptionsGrid: some View {
         let isMultipleChoice = mode == .multipleChoice
         let gridColumns = isMultipleChoice
-            ? [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)]
+            ? [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)]
             : [GridItem(.flexible())]
 
-        LazyVGrid(columns: gridColumns, spacing: 10) {
+        LazyVGrid(columns: gridColumns, spacing: 12) {
             ForEach(Array(options.enumerated()), id: \.element.id) { index, option in
                 Button(action: {
                     onSelectOption?(option)
                 }) {
-                    HStack(spacing: 8) {
+                    HStack(spacing: 10) {
                         Text(optionLetter(for: index))
-                            .font(.caption2.weight(.bold))
+                            .font(.caption.weight(.bold))
+                            .fontDesign(.rounded)
                             .foregroundColor(.vocabMuted)
-                            .frame(width: 22, height: 22)
+                            .frame(width: 24, height: 24)
                             .background(Color.vocabMuted.opacity(0.12))
                             .clipShape(Circle())
 
@@ -594,13 +646,13 @@ public struct ReflexBlitzCardView: View {
 
                         Spacer(minLength: 0)
                     }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 10)
-                    .frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
+                    .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
                     .background(Color.vocabCanvas)
-                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
                             .stroke(Color.vocabHairline.opacity(0.8), lineWidth: 1)
                     )
                     .contentShape(Rectangle())
@@ -626,6 +678,7 @@ public struct ReflexBlitzCardView: View {
                 HStack(spacing: 8) {
                     Text(optionLetter(for: index))
                         .font(.caption2.weight(.bold))
+                        .fontDesign(.rounded)
                         .foregroundColor(
                             isSelected
                                 ? (isCorrect ? .vocabMint : .vocabCoral)
@@ -654,10 +707,12 @@ public struct ReflexBlitzCardView: View {
 
                     if isSelected {
                         Image(systemName: isCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
+                            .symbolRenderingMode(.hierarchical)
                             .foregroundColor(isCorrect ? .vocabMint : .vocabCoral)
                             .font(.subheadline)
                     } else if isCorrect {
                         Image(systemName: "checkmark.circle.fill")
+                            .symbolRenderingMode(.hierarchical)
                             .foregroundColor(.vocabMint)
                             .font(.subheadline)
                     }
@@ -691,11 +746,11 @@ public struct ReflexBlitzCardView: View {
                 .textFieldStyle(.plain)
                 .focused($isTextFieldFocused)
                 .padding(.horizontal, 14)
-                .padding(.vertical, 11)
+                .padding(.vertical, 12)
                 .background(Color.vocabCanvas)
-                .cornerRadius(12)
+                .cornerRadius(14)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: 14)
                         .stroke(
                             isTextFieldFocused ? Color.vocabHeroAccent : Color.vocabHairline.opacity(0.8),
                             lineWidth: isTextFieldFocused ? 1.5 : 1
@@ -714,7 +769,9 @@ public struct ReflexBlitzCardView: View {
                 onSubmitKeyboard?()
             }) {
                 Image(systemName: "arrow.up.circle.fill")
-                    .font(.system(size: 32))
+                    .font(.system(size: 34, weight: .bold))
+                    .symbolRenderingMode(.hierarchical)
+                    .symbolEffect(.bounce, value: keyboardInputText.count)
                     .foregroundColor(
                         keyboardInputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                             ? .vocabMuted.opacity(0.35)
@@ -755,11 +812,14 @@ public struct ReflexBlitzCardView: View {
             .accessibilityHidden(true)
 
             if liveTranscript.isEmpty {
-                HStack(spacing: 5) {
+                HStack(spacing: 6) {
                     Image(systemName: "mic.fill")
                         .font(.caption2)
+                        .symbolRenderingMode(.hierarchical)
+                        .symbolEffect(.pulse, options: .repeating)
+
                     Text("Đang lắng nghe phát âm...")
-                        .font(.footnote)
+                        .font(.footnote.weight(.medium))
                 }
                 .foregroundColor(.vocabMuted)
                 .transition(.opacity)
@@ -767,23 +827,26 @@ public struct ReflexBlitzCardView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "waveform")
                         .font(.caption2)
+                        .symbolRenderingMode(.hierarchical)
+
                     Text(liveTranscript)
                         .font(.footnote.weight(.bold))
                 }
                 .foregroundColor(timerStrokeColor)
                 .padding(.horizontal, 12)
-                .padding(.vertical, 4)
+                .padding(.vertical, 5)
                 .background(timerStrokeColor.opacity(0.12))
                 .clipShape(Capsule())
                 .transition(.scale.combined(with: .opacity))
             }
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, 10)
         .padding(.horizontal, 16)
         .frame(maxWidth: .infinity)
         .background(Color.vocabCanvas.opacity(0.6))
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .animation(.spring(response: 0.3, dampingFraction: 0.75), value: liveTranscript.isEmpty)
         .accessibilityLabel(liveTranscript.isEmpty ? "Đang chờ phát âm..." : "Nhận diện giọng nói: \(liveTranscript)")
     }
 }
+
