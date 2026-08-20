@@ -32,17 +32,21 @@ public struct ReflexBlitzModeItem: Identifiable, Sendable, Equatable {
 /// Speaking (Luyện nói), Typing (Gõ từ), Multiple Choice (Trắc nghiệm), and Listening (Phản xạ nghe).
 public struct ReflexBlitzModeSelectionView: View {
     public let onSelectMode: (ReflexBlitzMode) -> Void
+    public var onSelectConfig: ((ReflexBlitzDeepLinkConfig) -> Void)? = nil
     public let onDismiss: () -> Void
 
     @State private var selectedModeTrigger: ReflexBlitzMode?
 
     public init(
         onSelectMode: @escaping (ReflexBlitzMode) -> Void,
+        onSelectConfig: ((ReflexBlitzDeepLinkConfig) -> Void)? = nil,
         onDismiss: @escaping () -> Void
     ) {
         self.onSelectMode = onSelectMode
+        self.onSelectConfig = onSelectConfig
         self.onDismiss = onDismiss
     }
+
 
     public static func modeItem(for mode: ReflexBlitzMode) -> ReflexBlitzModeItem {
         switch mode {
@@ -173,27 +177,28 @@ public struct ReflexBlitzModeSelectionView: View {
         .sensoryFeedback(.selection, trigger: selectedModeTrigger)
     }
 
+
+
     @ViewBuilder
     private func modeCard(for item: ReflexBlitzModeItem) -> some View {
         Button(action: {
             selectedModeTrigger = item.mode
             onSelectMode(item.mode)
         }) {
-            VStack(alignment: .leading, spacing: 12) {
-                // Top Row: Mode Icon & Timer Badge
-                HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 14) {
+                // Top Row: Native Hierarchical Icon & Timer Glass Pill
+                HStack(alignment: .center) {
                     Image(systemName: item.iconName)
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(item.accentColor)
-                        .frame(width: 44, height: 44)
-                        .background(item.accentColor.opacity(0.14))
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .font(.system(size: 26, weight: .semibold))
+                        .symbolRenderingMode(.hierarchical)
+                        .foregroundStyle(item.accentColor)
 
                     Spacer(minLength: 4)
 
-                    HStack(spacing: 3) {
-                        Image(systemName: "timer")
-                            .font(.system(size: 10, weight: .bold))
+                    HStack(spacing: 4) {
+                        Image(systemName: "stopwatch.fill")
+                            .font(.system(size: 10, weight: .semibold))
+                            .symbolRenderingMode(.hierarchical)
                         Text(item.badgeText)
                             .font(.caption2.monospacedDigit().bold())
                     }
@@ -202,12 +207,17 @@ public struct ReflexBlitzModeSelectionView: View {
                     .padding(.vertical, 4)
                     .background(item.accentColor.opacity(0.12))
                     .clipShape(Capsule())
+                    .overlay(
+                        Capsule()
+                            .stroke(item.accentColor.opacity(0.2), lineWidth: 0.8)
+                    )
                 }
 
                 // Text Content
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 5) {
                     Text(item.title)
                         .font(.headline.weight(.bold))
+                        .fontDesign(.rounded)
                         .foregroundColor(.vocabInk)
                         .lineLimit(1)
 
@@ -221,23 +231,46 @@ public struct ReflexBlitzModeSelectionView: View {
 
                 Spacer(minLength: 0)
 
-                // Action Cue Arrow
+                // Trailing Apple-style Navigation Cue
                 HStack {
                     Spacer()
-                    Image(systemName: "arrow.right.circle.fill")
-                        .font(.system(size: 18))
-                        .foregroundColor(item.accentColor.opacity(0.7))
+                    Image(systemName: "chevron.forward")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundStyle(item.accentColor.opacity(0.8))
                 }
             }
-            .padding(16)
-            .frame(maxWidth: .infinity, minHeight: 170, alignment: .topLeading)
-            .background(Color.vocabSurfaceCard)
-            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .stroke(Color.vocabHairline.opacity(0.7), lineWidth: 1)
+            .padding(18)
+            .frame(maxWidth: .infinity, minHeight: 165, alignment: .topLeading)
+            .background(
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .fill(Color.vocabSurfaceCard)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 22, style: .continuous)
+                            .fill(
+                                LinearGradient(
+                                    colors: [item.accentColor.opacity(0.06), Color.clear],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                    )
             )
-            .shadow(color: Color.black.opacity(0.04), radius: 8, x: 0, y: 3)
+            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .stroke(
+                        LinearGradient(
+                            colors: [
+                                item.accentColor.opacity(0.35),
+                                Color.white.opacity(0.08)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1
+                    )
+            )
+            .shadow(color: Color.black.opacity(0.06), radius: 10, x: 0, y: 4)
             .contentShape(Rectangle())
         }
         .buttonStyle(BentoCardButtonStyle())
@@ -246,3 +279,4 @@ public struct ReflexBlitzModeSelectionView: View {
         .accessibilityHint("Nhấn để bắt đầu luyện tập với chế độ \(item.title)")
     }
 }
+
