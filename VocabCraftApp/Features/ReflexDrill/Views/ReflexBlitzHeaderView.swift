@@ -59,98 +59,99 @@ public struct ReflexBlitzHeaderView: View {
 
     public var body: some View {
         VStack(spacing: 12) {
+            // Top Action & Progress Bar Row (Perfect 3-Column Balance)
             HStack(alignment: .center) {
-                // Close button (Leading)
+                // Leading: Close button (Apple Glass Button)
                 Button(action: onClose) {
                     Image(systemName: "xmark")
-                        .font(.system(size: 14, weight: .bold))
+                        .font(.system(size: 13, weight: .bold))
                         .foregroundColor(.vocabInk)
                         .frame(width: 36, height: 36)
-                        .background(Color.vocabMuted.opacity(0.12))
+                        .background(.ultraThinMaterial)
                         .clipShape(Circle())
+                        .overlay(
+                            Circle()
+                                .stroke(Color.white.opacity(0.12), lineWidth: 0.8)
+                        )
                         .frame(minWidth: 44, minHeight: 44)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(BentoCardButtonStyle())
                 .accessibilityLabel("Đóng luyện tập")
 
-                Spacer()
+                Spacer(minLength: 8)
 
-                // Center: Mode Badge + Step counter + Active Combo Badge
-                HStack(spacing: 8) {
-                    // Active Mode Badge
+                // Center: Apple Fitness+ Segmented Progress Bar & Step Counter
+                VStack(spacing: 5) {
+                    // Segmented Interval Progress Bars
                     HStack(spacing: 4) {
-                        Image(systemName: modeIconName)
-                            .font(.caption2.weight(.bold))
-                        Text(mode.title)
-                            .font(.caption.weight(.bold))
-                    }
-                    .foregroundColor(.vocabInk)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
-                    .background(Color.vocabMuted.opacity(0.08))
-                    .clipShape(Capsule())
-                    .accessibilityLabel("Chế độ \(mode.title)")
-
-                    // Progress count
-                    Text("\(currentIndex + 1)/\(totalCount)")
-                        .font(.caption.monospacedDigit().weight(.bold))
-                        .foregroundColor(.vocabMuted)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
-                        .background(Color.vocabMuted.opacity(0.08))
-                        .clipShape(Capsule())
-                        .accessibilityLabel("Tiến độ: từ \(currentIndex + 1) trên \(totalCount)")
-
-                    // Combo Streak Badge
-                    if comboStreak >= 2 {
-                        HStack(spacing: 4) {
-                            Image(systemName: "flame.fill")
-                                .symbolEffect(.bounce, value: comboStreak)
-                            Text("x\(comboStreak)")
-                                .fontWeight(.heavy)
+                        ForEach(0..<max(1, totalCount), id: \.self) { index in
+                            Capsule()
+                                .fill(segmentColor(for: index))
+                                .frame(height: 4)
+                                .frame(maxWidth: .infinity)
+                                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: currentIndex)
                         }
-                        .font(.caption.bold())
-                        .foregroundColor(.vocabPeach)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
-                        .background(Color.vocabPeach.opacity(0.15))
-                        .clipShape(Capsule())
-                        .transition(.scale.combined(with: .opacity))
-                        .accessibilityLabel("Chuỗi combo \(comboStreak)")
                     }
+                    .frame(maxWidth: 160)
+
+                    // Step counter
+                    Text("\(currentIndex + 1) / \(totalCount)")
+                        .font(.caption2.monospacedDigit().weight(.bold))
+                        .foregroundColor(.vocabMuted)
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Tiến độ: từ \(currentIndex + 1) trên \(totalCount)")
 
-                Spacer()
+                Spacer(minLength: 8)
 
-                // Trailing: Optional Skip button or balanced spacer
-                if showSkipInHeader {
+                // Trailing: Combo Streak Badge or Balanced Placeholder
+                if comboStreak >= 2 {
+                    HStack(spacing: 4) {
+                        Image(systemName: "flame.fill")
+                            .symbolRenderingMode(.multicolor)
+                            .symbolEffect(.bounce, value: comboStreak)
+                        Text("x\(comboStreak)")
+                            .font(.caption.monospacedDigit().bold())
+                            .foregroundColor(.vocabPeach)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(Color.vocabPeach.opacity(0.14))
+                    .clipShape(Capsule())
+                    .overlay(
+                        Capsule()
+                            .stroke(Color.vocabPeach.opacity(0.3), lineWidth: 0.8)
+                    )
+                    .frame(minWidth: 44, minHeight: 44, alignment: .trailing)
+                    .transition(.scale.combined(with: .opacity))
+                    .accessibilityLabel("Chuỗi combo \(comboStreak)")
+                } else if showSkipInHeader {
                     Button(action: onSkip) {
                         Text("Bỏ qua")
-                            .font(.subheadline.bold())
+                            .font(.caption.bold())
                             .foregroundColor(.vocabMuted)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 8)
-                            .background(Color.vocabMuted.opacity(0.08))
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(.ultraThinMaterial)
                             .clipShape(Capsule())
-                            .frame(minHeight: 44)
-                            .contentShape(Rectangle())
                     }
                     .buttonStyle(BentoCardButtonStyle())
+                    .frame(minWidth: 44, minHeight: 44, alignment: .trailing)
                     .accessibilityLabel("Bỏ qua từ hiện tại")
                 } else {
-                    // Invisible 44x44 placeholder to keep center content perfectly balanced
+                    // Invisible 44x44 placeholder to keep center segmented bar mathematically centered
                     Color.clear
                         .frame(width: 44, height: 44)
                         .accessibilityHidden(true)
                 }
             }
 
-            // Smooth Linear Countdown Progress Bar Anchored Under Header
+            // Smooth Linear Countdown Timer Bar Anchored Under Header
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     Capsule()
-                        .fill(Color.vocabHairline.opacity(0.35))
+                        .fill(Color.vocabHairline.opacity(0.3))
                         .frame(height: 4.5)
 
                     Capsule()
@@ -159,6 +160,7 @@ public struct ReflexBlitzHeaderView: View {
                             width: max(0, min(geo.size.width, geo.size.width * CGFloat(fractionRemaining))),
                             height: 4.5
                         )
+                        .shadow(color: timerBarColor.opacity(timerStage == .urgent ? 0.6 : 0.25), radius: 5, x: 0, y: 0)
                         .animation(.linear(duration: 0.05), value: fractionRemaining)
                         .animation(.easeInOut(duration: 0.25), value: timerStage)
                 }
@@ -170,5 +172,17 @@ public struct ReflexBlitzHeaderView: View {
         }
         .padding(.horizontal)
     }
+
+    private func segmentColor(for index: Int) -> Color {
+        if index < currentIndex {
+            return Color.vocabHeroAccent.opacity(0.7)
+        } else if index == currentIndex {
+            return Color.vocabHeroAccent
+        } else {
+            return Color.vocabHairline.opacity(0.4)
+        }
+    }
+
+
 }
 

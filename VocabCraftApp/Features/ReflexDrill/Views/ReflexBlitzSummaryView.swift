@@ -67,13 +67,25 @@ public struct ReflexBlitzSummaryView: View {
 
     // MARK: - Header
     private var headerView: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 14) {
             Image(systemName: headerIconName)
-                .font(.system(size: 30, weight: .semibold))
-                .foregroundColor(.vocabHeroAccent)
-                .frame(width: 60, height: 60)
-                .background(Color.vocabHeroAccent.opacity(0.12))
+                .font(.system(size: 36, weight: .semibold))
+                .symbolRenderingMode(.multicolor)
+                .frame(width: 68, height: 68)
+                .background(.ultraThinMaterial)
                 .clipShape(Circle())
+                .overlay(
+                    Circle()
+                        .stroke(
+                            LinearGradient(
+                                colors: [Color.vocabHeroAccent.opacity(0.4), Color.white.opacity(0.1)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1.2
+                        )
+                )
+                .shadow(color: Color.vocabHeroAccent.opacity(0.2), radius: 12, x: 0, y: 4)
                 .accessibilityHidden(true)
 
             VStack(spacing: 4) {
@@ -83,7 +95,7 @@ public struct ReflexBlitzSummaryView: View {
                     .accessibilityAddTraits(.isHeader)
 
                 Text("Hoàn thành phiên phản xạ Blitz")
-                    .font(.subheadline)
+                    .font(.subheadline.weight(.medium))
                     .foregroundColor(.vocabMuted)
             }
         }
@@ -96,14 +108,18 @@ public struct ReflexBlitzSummaryView: View {
     private var bentoMetricsGrid: some View {
         HStack(spacing: 12) {
             metricCard(
-                icon: "bolt.fill",
+                icon: "speedometer",
+                isMulticolor: false,
+                accentColor: .vocabHeroAccent,
                 value: formattedAvgTime,
                 title: "Tốc độ TB",
                 accessibilityLabel: "Tốc độ trung bình: \(formattedAvgTime)"
             )
 
             metricCard(
-                icon: "checkmark.circle.fill",
+                icon: "target",
+                isMulticolor: false,
+                accentColor: .vocabMint,
                 value: "\(summary.correctWords)/\(summary.totalWords)",
                 title: "Độ chính xác",
                 accessibilityLabel: "Độ chính xác: \(summary.correctWords) trên \(summary.totalWords) từ"
@@ -111,6 +127,8 @@ public struct ReflexBlitzSummaryView: View {
 
             metricCard(
                 icon: "flame.fill",
+                isMulticolor: true,
+                accentColor: .vocabPeach,
                 value: "x\(summary.maxComboStreak)",
                 title: "Max Combo",
                 accessibilityLabel: "Chuỗi combo tối đa: \(summary.maxComboStreak)"
@@ -119,28 +137,47 @@ public struct ReflexBlitzSummaryView: View {
         .padding(.horizontal)
     }
 
-    private func metricCard(icon: String, value: String, title: String, accessibilityLabel: String) -> some View {
-        VStack(spacing: 6) {
-            Image(systemName: icon)
-                .font(.subheadline.weight(.semibold))
-                .foregroundColor(.vocabHeroAccent)
-                .frame(width: 32, height: 32)
-                .background(Color.vocabHeroAccent.opacity(0.12))
-                .clipShape(Circle())
-                .accessibilityHidden(true)
+    private func metricCard(icon: String, isMulticolor: Bool, accentColor: Color, value: String, title: String, accessibilityLabel: String) -> some View {
+        VStack(spacing: 8) {
+            Group {
+                if isMulticolor {
+                    Image(systemName: icon)
+                        .symbolRenderingMode(.multicolor)
+                } else {
+                    Image(systemName: icon)
+                        .symbolRenderingMode(.hierarchical)
+                        .foregroundStyle(accentColor)
+                }
+            }
+            .font(.system(size: 20, weight: .semibold))
+            .frame(width: 38, height: 38)
+            .background(.ultraThinMaterial)
+            .clipShape(Circle())
+            .overlay(
+                Circle()
+                    .stroke(accentColor.opacity(0.2), lineWidth: 0.8)
+            )
+            .accessibilityHidden(true)
 
             Text(value)
-                .font(.title3.bold())
+                .font(.title3.weight(.bold))
+                .fontDesign(.rounded)
+                .monospacedDigit()
                 .foregroundColor(.vocabInk)
 
             Text(title)
-                .font(.caption)
+                .font(.caption2.weight(.medium))
                 .foregroundColor(.vocabMuted)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 14)
+        .padding(.vertical, 16)
+        .padding(.horizontal, 8)
         .background(Color.vocabSurfaceCard)
-        .cornerRadius(18)
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(Color.vocabHairline.opacity(0.7), lineWidth: 1)
+        )
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabel)
     }
@@ -149,12 +186,14 @@ public struct ReflexBlitzSummaryView: View {
     private var weakWordsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 6) {
-                Image(systemName: "exclamationmark.triangle.fill")
+                Image(systemName: "exclamationmark.circle.fill")
+                    .symbolRenderingMode(.hierarchical)
                     .foregroundColor(.vocabCoral)
-                    .font(.subheadline)
+                    .font(.headline)
                     .accessibilityHidden(true)
                 Text("Từ cần củng cố (\(summary.weakWordAttempts.count))")
                     .font(.headline.weight(.bold))
+                    .fontDesign(.rounded)
                     .foregroundColor(.vocabInk)
             }
             .padding(.horizontal)
@@ -171,11 +210,12 @@ public struct ReflexBlitzSummaryView: View {
         let timeLabel = weak.responseTimeMs >= 6000 ? "Hết giờ" : String(format: "%.1fs", Double(weak.responseTimeMs) / 1000.0)
         let meta = [weak.pos, weak.ipa].filter { !$0.isEmpty }.joined(separator: " • ")
 
-        return VStack(alignment: .leading, spacing: 6) {
+        return VStack(alignment: .leading, spacing: 8) {
             // Tier 1: Lemma text on the left, Audio Speaker button on the right
             HStack(alignment: .center) {
                 Text(weak.lemma)
                     .font(.headline.weight(.bold))
+                    .fontDesign(.rounded)
                     .foregroundColor(.vocabInk)
 
                 Spacer()
@@ -183,11 +223,16 @@ public struct ReflexBlitzSummaryView: View {
                 if let onSpeak = onSpeakWord {
                     Button(action: { onSpeak(weak.lemma) }) {
                         Image(systemName: "speaker.wave.2.fill")
-                            .font(.footnote)
+                            .font(.system(size: 14, weight: .semibold))
+                            .symbolRenderingMode(.hierarchical)
                             .foregroundColor(.vocabHeroAccent)
-                            .frame(width: 32, height: 32)
-                            .background(Color.vocabHeroAccent.opacity(0.12))
+                            .frame(width: 34, height: 34)
+                            .background(.ultraThinMaterial)
                             .clipShape(Circle())
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.vocabHeroAccent.opacity(0.2), lineWidth: 0.8)
+                            )
                     }
                     .buttonStyle(.borderless)
                     .accessibilityLabel("Nghe phát âm từ \(weak.lemma)")
@@ -208,24 +253,34 @@ public struct ReflexBlitzSummaryView: View {
                 if !weak.definitionVi.isEmpty {
                     Text(weak.definitionVi)
                         .font(.subheadline)
-                        .foregroundColor(.vocabMuted)
+                        .foregroundColor(.vocabInk.opacity(0.8))
                         .lineLimit(2)
                 }
 
                 Spacer()
 
-                Text(timeLabel)
-                    .font(.caption.bold())
-                    .foregroundColor(.vocabCoral)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.vocabCoral.opacity(0.12))
-                    .clipShape(Capsule())
+                HStack(spacing: 4) {
+                    Image(systemName: "stopwatch.fill")
+                        .font(.system(size: 10, weight: .bold))
+                        .symbolRenderingMode(.hierarchical)
+
+                    Text(timeLabel)
+                        .font(.caption2.monospacedDigit().bold())
+                }
+                .foregroundColor(.vocabCoral)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color.vocabCoral.opacity(0.12))
+                .clipShape(Capsule())
             }
         }
-        .padding(14)
+        .padding(16)
         .background(Color.vocabSurfaceCard)
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(Color.vocabHairline.opacity(0.6), lineWidth: 1)
+        )
         .padding(.horizontal)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Từ cần ôn: \(weak.lemma), thời gian phản hồi: \(timeLabel)")
@@ -233,14 +288,15 @@ public struct ReflexBlitzSummaryView: View {
 
     // MARK: - Perfect Score State
     private var perfectScoreCard: some View {
-        VStack(spacing: 10) {
-            Image(systemName: "checkmark.seal.fill")
-                .font(.system(size: 36))
-                .foregroundColor(.vocabMint)
+        VStack(spacing: 12) {
+            Image(systemName: "medal.fill")
+                .font(.system(size: 44, weight: .bold))
+                .symbolRenderingMode(.multicolor)
                 .accessibilityHidden(true)
 
             Text("Phản xạ hoàn hảo!")
-                .font(.headline.weight(.bold))
+                .font(.title3.weight(.bold))
+                .fontDesign(.rounded)
                 .foregroundColor(.vocabInk)
 
             Text("Bạn đã trả lời chính xác và nhanh chóng toàn bộ từ vựng.")
@@ -249,10 +305,21 @@ public struct ReflexBlitzSummaryView: View {
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 20)
-        .padding(.horizontal, 16)
+        .padding(.vertical, 24)
+        .padding(.horizontal, 20)
         .background(Color.vocabSurfaceCard)
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(
+                    LinearGradient(
+                        colors: [Color.vocabMint.opacity(0.4), Color.white.opacity(0.08)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
+        )
         .padding(.horizontal)
     }
 
@@ -263,18 +330,27 @@ public struct ReflexBlitzSummaryView: View {
                 // Primary Action: Re-drill weak words
                 Button(action: onReDrillWeak) {
                     HStack(spacing: 8) {
-                        Image(systemName: "arrow.clockwise")
-                            .font(.headline.weight(.semibold))
+                        Image(systemName: "arrow.triangle.2.circlepath")
+                            .font(.headline.weight(.bold))
+                            .symbolRenderingMode(.hierarchical)
                             .accessibilityHidden(true)
+
                         Text("Luyện lại \(summary.weakWordAttempts.count) từ chưa thuộc")
+                            .font(.headline.bold())
+                            .fontDesign(.rounded)
                     }
-                    .font(.headline.bold())
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
-                    .frame(minHeight: 50)
-                    .background(Color.vocabCoral)
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                    .shadow(color: Color.vocabCoral.opacity(0.3), radius: 8, y: 4)
+                    .frame(minHeight: 52)
+                    .background(
+                        LinearGradient(
+                            colors: [Color.vocabCoral, Color.vocabCoral.opacity(0.9)],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .shadow(color: Color.vocabCoral.opacity(0.35), radius: 10, y: 5)
                 }
                 .buttonStyle(BentoCardButtonStyle())
                 .accessibilityLabel("Luyện lại \(summary.weakWordAttempts.count) từ chưa thuộc")
@@ -292,14 +368,25 @@ public struct ReflexBlitzSummaryView: View {
             } else {
                 // Primary Action: Finish & Save
                 Button(action: onFinish) {
-                    Text("Hoàn thành & Lưu tiến độ")
-                        .font(.headline.bold())
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(minHeight: 52)
-                        .background(Color.vocabHeroAccent)
-                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                        .shadow(color: Color.vocabHeroAccent.opacity(0.25), radius: 8, y: 4)
+                    HStack(spacing: 8) {
+                        Image(systemName: "checkmark")
+                            .font(.headline.weight(.bold))
+                        Text("Hoàn thành & Lưu tiến độ")
+                            .font(.headline.bold())
+                            .fontDesign(.rounded)
+                    }
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: 54)
+                    .background(
+                        LinearGradient(
+                            colors: [Color.vocabHeroAccent, Color.vocabMint],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .shadow(color: Color.vocabHeroAccent.opacity(0.3), radius: 10, y: 5)
                 }
                 .buttonStyle(BentoCardButtonStyle())
                 .accessibilityLabel("Hoàn thành và lưu tiến độ")
@@ -315,4 +402,5 @@ public struct ReflexBlitzSummaryView: View {
                 .shadow(color: Color.black.opacity(0.06), radius: 8, y: -4)
         )
     }
+
 }
