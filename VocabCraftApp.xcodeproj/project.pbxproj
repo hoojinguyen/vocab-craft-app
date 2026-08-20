@@ -15,6 +15,8 @@
 		3000FB010000000000000006 /* ReflexBlitzCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FB010000000000000006 /* ReflexBlitzCardView.swift */; };
 		3000FB010000000000000007 /* ReflexBlitzSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FB010000000000000007 /* ReflexBlitzSummaryView.swift */; };
 		3000FB010000000000000008 /* ReflexBlitzView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FB010000000000000008 /* ReflexBlitzView.swift */; };
+		3000FB010000000000000009 /* ReflexBlitzModeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FB010000000000000009 /* ReflexBlitzModeSelectionView.swift */; };
+		3000FB01000000000000000A /* ReflexBlitzAdvanceDockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FB01000000000000000A /* ReflexBlitzAdvanceDockView.swift */; };
 		3000FB020000000000000001 /* ReflexBlitzModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FB020000000000000001 /* ReflexBlitzModelsTests.swift */; };
 		3000FB020000000000000002 /* ContinuousReflexSpeechServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FB020000000000000002 /* ContinuousReflexSpeechServiceTests.swift */; };
 		3000FB020000000000000003 /* ReflexBlitzViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FB020000000000000003 /* ReflexBlitzViewModelTests.swift */; };
@@ -207,6 +209,8 @@
 		2000FB010000000000000006 /* ReflexBlitzCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/ReflexBlitzCardView.swift"; sourceTree = "<group>"; };
 		2000FB010000000000000007 /* ReflexBlitzSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/ReflexBlitzSummaryView.swift"; sourceTree = "<group>"; };
 		2000FB010000000000000008 /* ReflexBlitzView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/ReflexBlitzView.swift"; sourceTree = "<group>"; };
+		2000FB010000000000000009 /* ReflexBlitzModeSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/ReflexBlitzModeSelectionView.swift"; sourceTree = "<group>"; };
+		2000FB01000000000000000A /* ReflexBlitzAdvanceDockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/ReflexBlitzAdvanceDockView.swift"; sourceTree = "<group>"; };
 		2000FB020000000000000001 /* ReflexBlitzModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Features/ReflexDrill/ReflexBlitzModelsTests.swift"; sourceTree = "<group>"; };
 		2000FB020000000000000002 /* ContinuousReflexSpeechServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Features/ReflexDrill/ContinuousReflexSpeechServiceTests.swift"; sourceTree = "<group>"; };
 		2000FB020000000000000003 /* ReflexBlitzViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Features/ReflexDrill/ReflexBlitzViewModelTests.swift"; sourceTree = "<group>"; };
@@ -756,6 +760,8 @@
 				2000FB010000000000000006 /* ReflexBlitzCardView.swift */,
 				2000FB010000000000000007 /* ReflexBlitzSummaryView.swift */,
 				2000FB010000000000000008 /* ReflexBlitzView.swift */,
+				2000FB010000000000000009 /* ReflexBlitzModeSelectionView.swift */,
+				2000FB01000000000000000A /* ReflexBlitzAdvanceDockView.swift */,
 				20007465AED07FB92017 /* ReflexDrillView.swift */,
 				400090860225ED9DE9BC /* ViewModels */,
 			);
@@ -1089,6 +1095,8 @@
 				3000FB010000000000000006 /* ReflexBlitzCardView.swift in Sources */,
 				3000FB010000000000000007 /* ReflexBlitzSummaryView.swift in Sources */,
 				3000FB010000000000000008 /* ReflexBlitzView.swift in Sources */,
+				3000FB010000000000000009 /* ReflexBlitzModeSelectionView.swift in Sources */,
+				3000FB01000000000000000A /* ReflexBlitzAdvanceDockView.swift in Sources */,
 				3000A20100000000000B /* CollocationExtractor.swift in Sources */,
 				3000A201000000000001 /* QuickReflexPrompt.swift in Sources */,
 				3000A201000000000002 /* QuickReflexPromptFactory.swift in Sources */,

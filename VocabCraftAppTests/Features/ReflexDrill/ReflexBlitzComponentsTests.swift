@@ -448,5 +448,167 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertNil(card.clozeParts)
         XCTAssertNotNil(card.body)
     }
+
+    // MARK: - Mode Selection View Tests
+
+    @MainActor
+    func testModeSelectionViewInstantiationAndCallbacks() {
+        var selectedMode: ReflexBlitzMode?
+        var didDismiss = false
+
+        let view = ReflexBlitzModeSelectionView(
+            onSelectMode: { mode in
+                selectedMode = mode
+            },
+            onDismiss: {
+                didDismiss = true
+            }
+        )
+        XCTAssertNotNil(view)
+        XCTAssertNotNil(view.body)
+
+        // Verify dismissal callback
+        view.onDismiss()
+        XCTAssertTrue(didDismiss)
+
+        // Verify mode selections
+        for mode in ReflexBlitzMode.allCases {
+            view.onSelectMode(mode)
+            XCTAssertEqual(selectedMode, mode)
+        }
+    }
+
+    @MainActor
+    func testModeSelectionViewMetadataAndCards() {
+        for mode in ReflexBlitzMode.allCases {
+            let item = ReflexBlitzModeSelectionView.modeItem(for: mode)
+            XCTAssertEqual(item.mode, mode)
+            XCTAssertFalse(item.title.isEmpty)
+            XCTAssertFalse(item.subtitle.isEmpty)
+            XCTAssertFalse(item.badgeText.isEmpty)
+            XCTAssertFalse(item.iconName.isEmpty)
+        }
+
+        let speaking = ReflexBlitzModeSelectionView.modeItem(for: .speaking)
+        XCTAssertEqual(speaking.title, "Luyện nói")
+        XCTAssertEqual(speaking.badgeText, "6.0s")
+        XCTAssertEqual(speaking.iconName, "waveform.and.mic")
+
+        let typing = ReflexBlitzModeSelectionView.modeItem(for: .typing)
+        XCTAssertEqual(typing.title, "Gõ từ")
+        XCTAssertEqual(typing.badgeText, "7.5s")
+        XCTAssertEqual(typing.iconName, "keyboard")
+
+        let multipleChoice = ReflexBlitzModeSelectionView.modeItem(for: .multipleChoice)
+        XCTAssertEqual(multipleChoice.title, "Trắc nghiệm")
+        XCTAssertEqual(multipleChoice.badgeText, "4.5s")
+        XCTAssertEqual(multipleChoice.iconName, "square.grid.2x2.fill")
+
+        let listening = ReflexBlitzModeSelectionView.modeItem(for: .listening)
+        XCTAssertEqual(listening.title, "Phản xạ nghe")
+        XCTAssertEqual(listening.badgeText, "5.5s")
+        XCTAssertEqual(listening.iconName, "headphones")
+    }
+
+    // MARK: - Advance Dock View Tests
+
+    @MainActor
+    func testAdvanceDockViewDisplaysFormattedTimeOnCorrect() {
+        var didAdvance = false
+        let view = ReflexBlitzAdvanceDockView(
+            isReviewed: true,
+            responseTimeMs: 1400,
+            isCorrect: true,
+            isTimeout: false,
+            onAdvance: { didAdvance = true }
+        )
+        XCTAssertNotNil(view)
+        XCTAssertEqual(view.formattedResponseTime, "1.4s")
+        XCTAssertEqual(view.buttonTitle, "⚡️ 1.4s • Từ tiếp theo ➔")
+        XCTAssertNotNil(view.body)
+
+        view.onAdvance()
+        XCTAssertTrue(didAdvance)
+    }
+
+    @MainActor
+    func testAdvanceDockViewDisplaysTimeoutState() {
+        var didAdvance = false
+        let view = ReflexBlitzAdvanceDockView(
+            isReviewed: true,
+            responseTimeMs: 6000,
+            isCorrect: false,
+            isTimeout: true,
+            onAdvance: { didAdvance = true }
+        )
+        XCTAssertNotNil(view)
+        XCTAssertEqual(view.buttonTitle, "⚠️ Hết giờ • Từ tiếp theo ➔")
+        XCTAssertNotNil(view.body)
+
+        view.onAdvance()
+        XCTAssertTrue(didAdvance)
+    }
+
+    @MainActor
+    func testAdvanceDockViewDisplaysIncorrectNonTimeoutState() {
+        let view = ReflexBlitzAdvanceDockView(
+            isReviewed: true,
+            responseTimeMs: 2300,
+            isCorrect: false,
+            isTimeout: false,
+            onAdvance: {}
+        )
+        XCTAssertNotNil(view)
+        XCTAssertEqual(view.formattedResponseTime, "2.3s")
+        XCTAssertEqual(view.buttonTitle, "2.3s • Từ tiếp theo ➔")
+        XCTAssertNotNil(view.body)
+    }
+
+    @MainActor
+    func testAdvanceDockViewActiveDrillingAndSkip() {
+        var didSkip = false
+        var didAdvance = false
+        let view = ReflexBlitzAdvanceDockView(
+            isReviewed: false,
+            responseTimeMs: 0,
+            isCorrect: false,
+            isTimeout: false,
+            onAdvance: { didAdvance = true },
+            onSkip: { didSkip = true }
+        )
+        XCTAssertNotNil(view)
+        XCTAssertEqual(view.buttonTitle, "Bỏ qua")
+        XCTAssertNotNil(view.body)
+
+        view.onSkip?()
+        XCTAssertTrue(didSkip)
+        view.onAdvance()
+        XCTAssertTrue(didAdvance)
+    }
+
+    @MainActor
+    func testAdvanceDockViewCardPhaseConvenienceInit() {
+        let correctResult = ReflexCardResult(
+            isCorrect: true,
+            responseTimeMs: 900,
+            isTimeout: false
+        )
+        let reviewedView = ReflexBlitzAdvanceDockView(
+            cardPhase: .reviewed(result: correctResult),
+            onAdvance: {}
+        )
+        XCTAssertTrue(reviewedView.isReviewed)
+        XCTAssertTrue(reviewedView.isCorrect)
+        XCTAssertFalse(reviewedView.isTimeout)
+        XCTAssertEqual(reviewedView.responseTimeMs, 900)
+        XCTAssertEqual(reviewedView.formattedResponseTime, "0.9s")
+
+        let activeView = ReflexBlitzAdvanceDockView(
+            cardPhase: .activeCountdown,
+            onAdvance: {}
+        )
+        XCTAssertFalse(activeView.isReviewed)
+    }
 }
+
 
