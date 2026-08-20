@@ -23,6 +23,18 @@ public final class DatasetEngine: DatasetDataSourceProtocol {
         }
     }
 
+    // MARK: - Safe SQLite Extraction Helpers
+
+    private func columnText(_ statement: OpaquePointer?, _ index: Int32) -> String {
+        guard let cStr = sqlite3_column_text(statement, index) else { return "" }
+        return String(cString: cStr)
+    }
+
+    private func optionalColumnText(_ statement: OpaquePointer?, _ index: Int32) -> String? {
+        guard let cStr = sqlite3_column_text(statement, index) else { return nil }
+        return String(cString: cStr)
+    }
+
     public func getRandomReflexDrill(cefrLevel: String) -> ReflexDrillRecord? {
         guard let db = db else { return nil }
         let query = """
@@ -41,12 +53,12 @@ public final class DatasetEngine: DatasetDataSourceProtocol {
 
         if sqlite3_step(statement) == SQLITE_ROW {
             let id = sqlite3_column_int64(statement, 0)
-            let drillType = String(cString: sqlite3_column_text(statement, 1))
-            let promptText = sqlite3_column_text(statement, 2).map { String(cString: $0) } ?? ""
-            let correctAnswer = String(cString: sqlite3_column_text(statement, 3))
-            let distractorsJson = sqlite3_column_text(statement, 4).map { String(cString: $0) } ?? "[]"
+            let drillType = columnText(statement, 1)
+            let promptText = columnText(statement, 2)
+            let correctAnswer = columnText(statement, 3)
+            let distractorsJson = optionalColumnText(statement, 4) ?? "[]"
             let targetTimeMs = Int(sqlite3_column_int(statement, 5))
-            let sentenceTextEn = sqlite3_column_text(statement, 6).map { String(cString: $0) }
+            let sentenceTextEn = optionalColumnText(statement, 6)
 
             let data = distractorsJson.data(using: .utf8) ?? Data()
             let distractors = (try? JSONSerialization.jsonObject(with: data) as? [String]) ?? []
@@ -81,13 +93,13 @@ public final class DatasetEngine: DatasetDataSourceProtocol {
 
         if sqlite3_step(statement) == SQLITE_ROW {
             let id = sqlite3_column_int64(statement, 0)
-            let lemma = String(cString: sqlite3_column_text(statement, 1))
-            let pos = sqlite3_column_text(statement, 2).map { String(cString: $0) }
-            let ipaUs = sqlite3_column_text(statement, 3).map { String(cString: $0) }
-            let cefr = sqlite3_column_text(statement, 4).map { String(cString: $0) }
-            let defEn = sqlite3_column_text(statement, 5).map { String(cString: $0) }
-            let defVi = sqlite3_column_text(statement, 6).map { String(cString: $0) }
-            let example = sqlite3_column_text(statement, 7).map { String(cString: $0) }
+            let lemma = columnText(statement, 1)
+            let pos = optionalColumnText(statement, 2)
+            let ipaUs = optionalColumnText(statement, 3)
+            let cefr = optionalColumnText(statement, 4)
+            let defEn = optionalColumnText(statement, 5)
+            let defVi = optionalColumnText(statement, 6)
+            let example = optionalColumnText(statement, 7)
 
             return WordRecord(
                 id: id,
@@ -130,13 +142,13 @@ public final class DatasetEngine: DatasetDataSourceProtocol {
         var results: [WordRecord] = []
         while sqlite3_step(statement) == SQLITE_ROW {
             let id = sqlite3_column_int64(statement, 0)
-            let lemma = String(cString: sqlite3_column_text(statement, 1))
-            let pos = sqlite3_column_text(statement, 2).map { String(cString: $0) }
-            let ipaUs = sqlite3_column_text(statement, 3).map { String(cString: $0) }
-            let cefr = sqlite3_column_text(statement, 4).map { String(cString: $0) }
-            let defEn = sqlite3_column_text(statement, 5).map { String(cString: $0) }
-            let defVi = sqlite3_column_text(statement, 6).map { String(cString: $0) }
-            let example = sqlite3_column_text(statement, 7).map { String(cString: $0) }
+            let lemma = columnText(statement, 1)
+            let pos = optionalColumnText(statement, 2)
+            let ipaUs = optionalColumnText(statement, 3)
+            let cefr = optionalColumnText(statement, 4)
+            let defEn = optionalColumnText(statement, 5)
+            let defVi = optionalColumnText(statement, 6)
+            let example = optionalColumnText(statement, 7)
 
             results.append(WordRecord(
                 id: id,
@@ -174,13 +186,13 @@ public final class DatasetEngine: DatasetDataSourceProtocol {
         var results: [WordRecord] = []
         while sqlite3_step(statement) == SQLITE_ROW {
             let id = sqlite3_column_int64(statement, 0)
-            let lemma = String(cString: sqlite3_column_text(statement, 1))
-            let pos = sqlite3_column_text(statement, 2).map { String(cString: $0) }
-            let ipaUs = sqlite3_column_text(statement, 3).map { String(cString: $0) }
-            let cefr = sqlite3_column_text(statement, 4).map { String(cString: $0) }
-            let defEn = sqlite3_column_text(statement, 5).map { String(cString: $0) }
-            let defVi = sqlite3_column_text(statement, 6).map { String(cString: $0) }
-            let example = sqlite3_column_text(statement, 7).map { String(cString: $0) }
+            let lemma = columnText(statement, 1)
+            let pos = optionalColumnText(statement, 2)
+            let ipaUs = optionalColumnText(statement, 3)
+            let cefr = optionalColumnText(statement, 4)
+            let defEn = optionalColumnText(statement, 5)
+            let defVi = optionalColumnText(statement, 6)
+            let example = optionalColumnText(statement, 7)
 
             results.append(WordRecord(
                 id: id,
@@ -212,13 +224,13 @@ public final class DatasetEngine: DatasetDataSourceProtocol {
 
         if sqlite3_step(statement) == SQLITE_ROW {
             let id = sqlite3_column_int64(statement, 0)
-            let lemma = String(cString: sqlite3_column_text(statement, 1))
-            let pos = sqlite3_column_text(statement, 2).map { String(cString: $0) }
-            let ipaUs = sqlite3_column_text(statement, 3).map { String(cString: $0) }
-            let cefr = sqlite3_column_text(statement, 4).map { String(cString: $0) }
-            let defEn = sqlite3_column_text(statement, 5).map { String(cString: $0) }
-            let defVi = sqlite3_column_text(statement, 6).map { String(cString: $0) }
-            let example = sqlite3_column_text(statement, 7).map { String(cString: $0) }
+            let lemma = columnText(statement, 1)
+            let pos = optionalColumnText(statement, 2)
+            let ipaUs = optionalColumnText(statement, 3)
+            let cefr = optionalColumnText(statement, 4)
+            let defEn = optionalColumnText(statement, 5)
+            let defVi = optionalColumnText(statement, 6)
+            let example = optionalColumnText(statement, 7)
 
             return WordRecord(
                 id: id,
@@ -254,10 +266,10 @@ public final class DatasetEngine: DatasetDataSourceProtocol {
 
         var results: [TopicDeckRecord] = []
         while sqlite3_step(statement) == SQLITE_ROW {
-            let id = String(cString: sqlite3_column_text(statement, 0))
-            let title = String(cString: sqlite3_column_text(statement, 1))
-            let iconName = String(cString: sqlite3_column_text(statement, 2))
-            let badgeColorHex = String(cString: sqlite3_column_text(statement, 3))
+            let id = columnText(statement, 0)
+            let title = columnText(statement, 1)
+            let iconName = columnText(statement, 2)
+            let badgeColorHex = columnText(statement, 3)
             let sortOrder = Int(sqlite3_column_int(statement, 4))
             
             results.append(TopicDeckRecord(id: id, title: title, iconName: iconName, badgeColorHex: badgeColorHex, sortOrder: sortOrder))
@@ -284,10 +296,10 @@ public final class DatasetEngine: DatasetDataSourceProtocol {
 
         var results: [SubTopicNodeRecord] = []
         while sqlite3_step(statement) == SQLITE_ROW {
-            let id = String(cString: sqlite3_column_text(statement, 0))
-            let dId = String(cString: sqlite3_column_text(statement, 1))
-            let title = String(cString: sqlite3_column_text(statement, 2))
-            let iconName = String(cString: sqlite3_column_text(statement, 3))
+            let id = columnText(statement, 0)
+            let dId = columnText(statement, 1)
+            let title = columnText(statement, 2)
+            let iconName = columnText(statement, 3)
             let sortOrder = Int(sqlite3_column_int(statement, 4))
             
             results.append(SubTopicNodeRecord(id: id, deckId: dId, title: title, iconName: iconName, sortOrder: sortOrder))
@@ -316,13 +328,13 @@ public final class DatasetEngine: DatasetDataSourceProtocol {
         var results: [WordRecord] = []
         while sqlite3_step(statement) == SQLITE_ROW {
             let id = sqlite3_column_int64(statement, 0)
-            let lemma = String(cString: sqlite3_column_text(statement, 1))
-            let pos = sqlite3_column_text(statement, 2).map { String(cString: $0) }
-            let ipaUs = sqlite3_column_text(statement, 3).map { String(cString: $0) }
-            let cefr = sqlite3_column_text(statement, 4).map { String(cString: $0) }
-            let defEn = sqlite3_column_text(statement, 5).map { String(cString: $0) }
-            let defVi = sqlite3_column_text(statement, 6).map { String(cString: $0) }
-            let example = sqlite3_column_text(statement, 7).map { String(cString: $0) }
+            let lemma = columnText(statement, 1)
+            let pos = optionalColumnText(statement, 2)
+            let ipaUs = optionalColumnText(statement, 3)
+            let cefr = optionalColumnText(statement, 4)
+            let defEn = optionalColumnText(statement, 5)
+            let defVi = optionalColumnText(statement, 6)
+            let example = optionalColumnText(statement, 7)
 
             results.append(WordRecord(
                 id: id,
