@@ -3,6 +3,8 @@ import SwiftUI
 /// Integrated Homepage view showcasing Bento grid layout, dark mode aesthetic, and liquid glass navigation.
 public struct HomepageView: View {
     @State private var viewModel: HomepageViewModel
+    @State private var vocabularyVM: VocabularyViewModel?
+    @State private var settingsVM: SettingsViewModel?
     @Environment(\.appContainer) private var appContainer
     @Environment(\.appRouter) private var appRouter
     @State private var fallbackRouter = AppRouter()
@@ -73,7 +75,7 @@ public struct HomepageView: View {
                 }
 
             case .vocabulary:
-                VocabularyView(viewModel: appContainer.makeVocabularyViewModel())
+                VocabularyView(viewModel: vocabularyVM ?? appContainer.makeVocabularyViewModel())
             case .search:
                 SearchNewWordView()
             case .reflex:
@@ -81,7 +83,7 @@ public struct HomepageView: View {
                     currentRouter.navigateToHome()
                 })
             case .settings:
-                SettingsView(viewModel: appContainer.makeSettingsViewModel())
+                SettingsView(viewModel: settingsVM ?? appContainer.makeSettingsViewModel())
             }
 
             if currentRouter.selectedTab != .reflex {
@@ -90,6 +92,14 @@ public struct HomepageView: View {
                     set: { currentRouter.selectTab($0) }
                 ))
                 .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .onAppear {
+            if vocabularyVM == nil {
+                vocabularyVM = appContainer.makeVocabularyViewModel()
+            }
+            if settingsVM == nil {
+                settingsVM = appContainer.makeSettingsViewModel()
             }
         }
         .preferredColorScheme(appContainer.userSettingsStore.colorScheme)

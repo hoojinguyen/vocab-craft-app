@@ -29,4 +29,36 @@ final class HomepageViewTests: XCTestCase {
         let homepage = HomepageView(viewModel: viewModel)
         XCTAssertNotNil(homepage)
     }
+
+    func testHomepageViewBodyEvaluationAcrossTabSwitching() {
+        let container = AppContainer.mock
+        let viewModel = container.makeHomepageViewModel()
+        let homepage = HomepageView(viewModel: viewModel)
+
+        for tab in TabItem.allCases {
+            container.appRouter.selectedTab = tab
+            XCTAssertNotNil(homepage.body)
+        }
+    }
+
+    func testHomepageViewBodyForIndividualTabs() {
+        let container = AppContainer.mock
+        let viewModel = container.makeHomepageViewModel()
+        let homepage = HomepageView(viewModel: viewModel)
+
+        container.appRouter.navigateToHome()
+        XCTAssertNotNil(homepage.body)
+
+        container.appRouter.navigateToVocabulary()
+        XCTAssertNotNil(homepage.body)
+
+        container.appRouter.selectTab(.search)
+        XCTAssertNotNil(homepage.body)
+
+        container.appRouter.navigateToReflex()
+        XCTAssertNotNil(homepage.body)
+
+        container.appRouter.navigateToSettings()
+        XCTAssertNotNil(homepage.body)
+    }
 }
