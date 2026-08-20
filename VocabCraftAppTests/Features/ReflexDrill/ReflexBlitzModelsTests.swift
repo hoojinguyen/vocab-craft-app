@@ -171,14 +171,106 @@ final class ReflexBlitzModelsTests: XCTestCase {
         XCTAssertEqual(summary.weakWordAttempts.first?.definitionVi, "Kiên cường, mau hồi phục")
     }
 
+    func testReflexBlitzModeProperties() {
+        XCTAssertEqual(ReflexBlitzMode.multipleChoice.timeLimitSeconds, 4.5)
+        XCTAssertEqual(ReflexBlitzMode.listening.timeLimitSeconds, 5.5)
+        XCTAssertEqual(ReflexBlitzMode.speaking.timeLimitSeconds, 6.0)
+        XCTAssertEqual(ReflexBlitzMode.typing.timeLimitSeconds, 7.5)
+        
+        XCTAssertEqual(ReflexBlitzMode.speaking.title, "Luyện nói")
+        XCTAssertEqual(ReflexBlitzMode.typing.title, "Gõ từ")
+        XCTAssertEqual(ReflexBlitzMode.multipleChoice.title, "Trắc nghiệm")
+        XCTAssertEqual(ReflexBlitzMode.listening.title, "Phản xạ nghe")
+        
+        XCTAssertEqual(ReflexBlitzMode.speaking.id, "speaking")
+        XCTAssertEqual(ReflexBlitzMode.allCases.count, 4)
+    }
+
+    func testReflexCardPhaseAndResult() {
+        let activePhase = ReflexCardPhase.activeCountdown
+        XCTAssertEqual(activePhase, .activeCountdown)
+
+        let result = ReflexCardResult(
+            isCorrect: true,
+            responseTimeMs: 1200,
+            isTimeout: false,
+            selectedOption: "habit",
+            typedText: nil,
+            recognizedSpoken: nil
+        )
+        let reviewedPhase = ReflexCardPhase.reviewed(result: result)
+        XCTAssertEqual(reviewedPhase, .reviewed(result: result))
+        XCTAssertNotEqual(activePhase, reviewedPhase)
+        XCTAssertEqual(result.isCorrect, true)
+        XCTAssertEqual(result.responseTimeMs, 1200)
+        XCTAssertFalse(result.isTimeout)
+        XCTAssertEqual(result.selectedOption, "habit")
+    }
+
+    func testReflexBlitzOption() {
+        let option = ReflexBlitzOption(text: "habit", isCorrect: true)
+        XCTAssertFalse(option.id.isEmpty)
+        XCTAssertEqual(option.text, "habit")
+        XCTAssertTrue(option.isCorrect)
+    }
+
+    func testGenerateOptionsForMultipleChoice() {
+        let words = ReflexBlitzWordItem.defaultStarterWords
+        let target = words[0]
+        let options = target.generateOptions(mode: .multipleChoice, allPool: words)
+        XCTAssertEqual(options.count, 4)
+        XCTAssertEqual(options.filter { $0.isCorrect }.count, 1)
+        XCTAssertTrue(options.contains { $0.text == target.lemma && $0.isCorrect })
+        
+        let uniqueTexts = Set(options.map { $0.text })
+        XCTAssertEqual(uniqueTexts.count, 4, "Options must not have duplicates")
+    }
+
+    func testGenerateOptionsForListening() {
+        let words = ReflexBlitzWordItem.defaultStarterWords
+        let target = words[0]
+        let options = target.generateOptions(mode: .listening, allPool: words)
+        XCTAssertEqual(options.count, 4)
+        XCTAssertEqual(options.filter { $0.isCorrect }.count, 1)
+        XCTAssertTrue(options.contains { $0.text == target.definitionVi && $0.isCorrect })
+        
+        let uniqueTexts = Set(options.map { $0.text })
+        XCTAssertEqual(uniqueTexts.count, 4, "Options must not have duplicates")
+    }
+
+    func testGenerateOptionsSmallPoolFallback() {
+        let words = [ReflexBlitzWordItem.defaultStarterWords[0]] // Pool size 1
+        let target = words[0]
+        let options = target.generateOptions(mode: .multipleChoice, allPool: words)
+        XCTAssertEqual(options.count, 4)
+        XCTAssertEqual(options.filter { $0.isCorrect }.count, 1)
+        XCTAssertTrue(options.contains { $0.text == target.lemma && $0.isCorrect })
+    }
+
+    func testGenerateOptionsNonOptionModes() {
+        let words = ReflexBlitzWordItem.defaultStarterWords
+        let target = words[0]
+        let speakingOptions = target.generateOptions(mode: .speaking, allPool: words)
+        let typingOptions = target.generateOptions(mode: .typing, allPool: words)
+        XCTAssertTrue(speakingOptions.isEmpty)
+        XCTAssertTrue(typingOptions.isEmpty)
+    }
+
+    func testCuratedStarterWordsCount() {
+        XCTAssertEqual(ReflexBlitzWordItem.defaultStarterWords.count, 12)
+    }
+
     func testDefaultStarterWordsContainRealisticIPA() {
         let words = ReflexBlitzWordItem.defaultStarterWords
-        XCTAssertEqual(words.count, 10)
+        XCTAssertEqual(words.count, 12)
+        let expectedLemmas = [
+            "habit", "improve", "focus", "create", "journey", "relax",
+            "challenge", "protect", "connect", "energy", "simple", "success"
+        ]
         let lemmas = words.map { $0.lemma }
-        XCTAssertTrue(lemmas.contains("habit"))
-        XCTAssertTrue(lemmas.contains("resilient"))
-        XCTAssertTrue(lemmas.contains("serendipity"))
-        XCTAssertTrue(lemmas.contains("ephemeral"))
+        for expected in expectedLemmas {
+            XCTAssertTrue(lemmas.contains(expected), "Missing expected lemma: \(expected)")
+        }
         for word in words {
             XCTAssertFalse(word.ipa.isEmpty, "Word \(word.lemma) must have non-empty IPA")
             XCTAssertTrue(word.ipa.hasPrefix("/"), "Word \(word.lemma) IPA should start with /")
