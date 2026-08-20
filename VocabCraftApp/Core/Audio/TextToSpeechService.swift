@@ -42,6 +42,20 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         #endif
     }
 
+    private nonisolated(unsafe) static var cachedVoices: [String: AVSpeechSynthesisVoice] = [:]
+    private static let voiceLock = NSLock()
+
+    public nonisolated static func resolveVoice(for locale: String) -> AVSpeechSynthesisVoice? {
+        voiceLock.lock()
+        defer { voiceLock.unlock() }
+        if let cached = cachedVoices[locale] { return cached }
+        let voice = AVSpeechSynthesisVoice(language: locale)
+            ?? AVSpeechSynthesisVoice.speechVoices().first(where: { $0.language.hasPrefix("en") })
+            ?? AVSpeechSynthesisVoice(language: AVSpeechSynthesisVoice.currentLanguageCode())
+        if let voice { cachedVoices[locale] = voice }
+        return voice
+    }
+
     public func speak(text: String, rate: Float = 1.0, locale: String = "en-US") {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
@@ -54,13 +68,7 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         let scaledRate = AVSpeechUtteranceDefaultSpeechRate * rate
         utterance.rate = min(max(scaledRate, AVSpeechUtteranceMinimumSpeechRate), AVSpeechUtteranceMaximumSpeechRate)
 
-        if let voice = AVSpeechSynthesisVoice(language: locale) {
-            utterance.voice = voice
-        } else if let fallbackVoice = AVSpeechSynthesisVoice.speechVoices().first(where: { $0.language.hasPrefix("en") }) {
-            utterance.voice = fallbackVoice
-        } else {
-            utterance.voice = AVSpeechSynthesisVoice(language: AVSpeechSynthesisVoice.currentLanguageCode())
-        }
+        utterance.voice = Self.resolveVoice(for: locale)
 
 #if os(iOS)
         do {
@@ -96,13 +104,7 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         let scaledRate = AVSpeechUtteranceDefaultSpeechRate * rate
         utterance.rate = min(max(scaledRate, AVSpeechUtteranceMinimumSpeechRate), AVSpeechUtteranceMaximumSpeechRate)
 
-        if let voice = AVSpeechSynthesisVoice(language: locale) {
-            utterance.voice = voice
-        } else if let fallbackVoice = AVSpeechSynthesisVoice.speechVoices().first(where: { $0.language.hasPrefix("en") }) {
-            utterance.voice = fallbackVoice
-        } else {
-            utterance.voice = AVSpeechSynthesisVoice(language: AVSpeechSynthesisVoice.currentLanguageCode())
-        }
+        utterance.voice = Self.resolveVoice(for: locale)
 
 #if os(iOS)
         do {
@@ -120,11 +122,32 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
             return
         }
 
+        let timeoutTask = Task { @MainActor [weak self] in
+            do {
+                try await Task.sleep(nanoseconds: 8_000_000_000)
+            } catch {
+                return
+            }
+            guard let self = self else { return }
+            if self.activeContinuation != nil {
+                if self.synthesizer.isSpeaking {
+                    self.synthesizer.stopSpeaking(at: .immediate)
+                }
+                self.isSpeaking = false
+                if let continuation = self.activeContinuation {
+                    self.activeContinuation = nil
+                    continuation.resume()
+                }
+            }
+        }
+
         await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
             self.activeContinuation = continuation
             self.isSpeaking = true
             self.synthesizer.speak(utterance)
         }
+
+        timeoutTask.cancel()
     }
 
     public func stop() {
