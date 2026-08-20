@@ -100,9 +100,8 @@ public struct ReflexBlitzModeSelectionView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                // Top Dismiss Bar
+                // Top Dismiss Bar (Unified Top-Left)
                 HStack {
-                    Spacer()
                     Button(action: onDismiss) {
                         Image(systemName: "xmark")
                             .font(.system(size: 14, weight: .bold))
@@ -115,6 +114,8 @@ public struct ReflexBlitzModeSelectionView: View {
                     }
                     .buttonStyle(BentoCardButtonStyle())
                     .accessibilityLabel("Đóng chọn chế độ")
+
+                    Spacer()
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 16)
