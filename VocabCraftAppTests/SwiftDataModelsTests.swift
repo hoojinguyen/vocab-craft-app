@@ -334,4 +334,36 @@ final class SwiftDataModelsTests: XCTestCase {
         let afterDelete = try context.fetch(descriptor)
         XCTAssertEqual(afterDelete.count, 0)
     }
+
+    // MARK: - UserProgressModelActor Batch Query Tests
+
+    func testUserProgressSummaryInitialization() {
+        let summary = UserProgressSummary(masteryLevel: 5, isBookmarked: true)
+        XCTAssertEqual(summary.masteryLevel, 5)
+        XCTAssertTrue(summary.isBookmarked)
+    }
+
+    func testUserProgressModelActorFetchAllMasteryLevels() async throws {
+        let actor = UserProgressModelActor(modelContainer: container)
+        try await actor.saveProgress(wordId: 101, masteryLevel: 3, isBookmarked: false)
+        try await actor.saveProgress(wordId: 102, masteryLevel: 5, isBookmarked: true)
+
+        let masteryMap = try await actor.fetchAllMasteryLevels()
+        XCTAssertEqual(masteryMap[101], 3)
+        XCTAssertEqual(masteryMap[102], 5)
+        XCTAssertNil(masteryMap[999])
+    }
+
+    func testUserProgressModelActorFetchAllProgressSummaryMap() async throws {
+        let actor = UserProgressModelActor(modelContainer: container)
+        try await actor.saveProgress(wordId: 201, masteryLevel: 2, isBookmarked: true)
+        try await actor.saveProgress(wordId: 202, masteryLevel: 5, isBookmarked: false)
+
+        let summaryMap = try await actor.fetchAllProgressSummaryMap()
+        XCTAssertEqual(summaryMap[201]?.masteryLevel, 2)
+        XCTAssertEqual(summaryMap[201]?.isBookmarked, true)
+        XCTAssertEqual(summaryMap[202]?.masteryLevel, 5)
+        XCTAssertEqual(summaryMap[202]?.isBookmarked, false)
+        XCTAssertNil(summaryMap[999])
+    }
 }

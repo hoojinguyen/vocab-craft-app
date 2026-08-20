@@ -105,6 +105,8 @@ public final class VocabularyRepositoryImpl: VocabularyRepositoryProtocol {
             return MockVocabularyDataSource.shared.mockTopicDecks
         }
         
+        let masteryMap = (try? await progressActor?.fetchAllMasteryLevels()) ?? [:]
+        
         var decks: [TopicDeck] = []
         for r in records {
             // Need to compute wordCount and completionPercentage
@@ -116,11 +118,9 @@ public final class VocabularyRepositoryImpl: VocabularyRepositoryProtocol {
                 let wordRecords = engine.fetchWordsForNode(nodeId: nodeRecord.id)
                 totalWords += wordRecords.count
                 
-                if let progressActor = progressActor {
-                    for w in wordRecords {
-                        if let progress = try? await progressActor.getProgress(wordId: w.id), progress.masteryLevel >= 5 {
-                            learnedWords += 1
-                        }
+                for w in wordRecords {
+                    if (masteryMap[w.id] ?? 0) >= 5 {
+                        learnedWords += 1
                     }
                 }
             }
@@ -146,6 +146,8 @@ public final class VocabularyRepositoryImpl: VocabularyRepositoryProtocol {
             return SubTopicNode.sampleNodes
         }
         
+        let progressMap = (try? await progressActor?.fetchAllProgressSummaryMap()) ?? [:]
+        
         var nodes: [SubTopicNode] = []
         var previousCompleted = true // First node is unlocked by default
         
@@ -155,13 +157,11 @@ public final class VocabularyRepositoryImpl: VocabularyRepositoryProtocol {
             var learnedWords = 0
             
             for w in wordRecords {
-                var isMastered = false
-                var isSaved = false
-                if let progressActor = progressActor, let progress = try? await progressActor.getProgress(wordId: w.id) {
-                    isMastered = progress.masteryLevel >= 5
-                    isSaved = progress.isBookmarked
-                    if isMastered { learnedWords += 1 }
-                }
+                let summary = progressMap[w.id]
+                let isMastered = (summary?.masteryLevel ?? 0) >= 5
+                let isSaved = summary?.isBookmarked ?? false
+                if isMastered { learnedWords += 1 }
+                
                 topicWords.append(TopicWord(
                     id: String(w.id),
                     english: w.lemma,
