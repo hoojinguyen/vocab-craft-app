@@ -7,6 +7,7 @@ public struct ReflexBlitzHeaderView: View {
     public let fractionRemaining: Double
     public let timerStage: ReflexBlitzTimerStage
     public let mode: ReflexBlitzMode
+    public let attempts: [ReflexBlitzAttempt]
     public let onClose: () -> Void
     public let onSkip: () -> Void
     public var showSkipInHeader: Bool
@@ -42,6 +43,7 @@ public struct ReflexBlitzHeaderView: View {
         fractionRemaining: Double = 1.0,
         timerStage: ReflexBlitzTimerStage = .steady,
         mode: ReflexBlitzMode = .speaking,
+        attempts: [ReflexBlitzAttempt] = [],
         onClose: @escaping () -> Void,
         onSkip: @escaping () -> Void = {},
         showSkipInHeader: Bool = false
@@ -52,6 +54,7 @@ public struct ReflexBlitzHeaderView: View {
         self.fractionRemaining = fractionRemaining
         self.timerStage = timerStage
         self.mode = mode
+        self.attempts = attempts
         self.onClose = onClose
         self.onSkip = onSkip
         self.showSkipInHeader = showSkipInHeader
@@ -161,7 +164,7 @@ public struct ReflexBlitzHeaderView: View {
                             height: 4.5
                         )
                         .shadow(color: timerBarColor.opacity(timerStage == .urgent ? 0.6 : 0.25), radius: 5, x: 0, y: 0)
-                        .animation(.linear(duration: 0.05), value: fractionRemaining)
+                        .animation(.linear(duration: 0.1), value: fractionRemaining)
                         .animation(.easeInOut(duration: 0.25), value: timerStage)
                 }
             }
@@ -173,9 +176,9 @@ public struct ReflexBlitzHeaderView: View {
         .padding(.horizontal)
     }
 
-    private func segmentColor(for index: Int) -> Color {
-        if index < currentIndex {
-            return Color.vocabHeroAccent.opacity(0.7)
+    public func segmentColor(for index: Int) -> Color {
+        if index < attempts.count {
+            return attempts[index].isCorrect ? Color.vocabMint : Color.vocabCoral
         } else if index == currentIndex {
             return Color.vocabHeroAccent
         } else {

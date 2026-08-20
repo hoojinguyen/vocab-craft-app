@@ -94,11 +94,11 @@ public struct ReflexBlitzView: View {
                 fractionRemaining: viewModel.fractionRemaining,
                 timerStage: viewModel.timerStage,
                 mode: viewModel.selectedMode,
+                attempts: viewModel.attempts,
                 onClose: {
                     viewModel.cancelSession()
                     viewModel.phase = .modeSelection
                 },
-
                 onSkip: {
                     viewModel.handleTimeout()
                 },

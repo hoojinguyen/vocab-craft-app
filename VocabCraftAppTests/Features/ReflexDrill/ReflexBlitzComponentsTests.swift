@@ -65,6 +65,25 @@ final class ReflexBlitzComponentsTests: XCTestCase {
     }
 
     @MainActor
+    func testHeaderViewSegmentColorsWithAttemptsHistory() {
+        let attempts = [
+            ReflexBlitzAttempt(wordId: 1, lemma: "a", pos: "", ipa: "", definitionVi: "", responseTimeMs: 1000, usedHint: false, isCorrect: true),
+            ReflexBlitzAttempt(wordId: 2, lemma: "b", pos: "", ipa: "", definitionVi: "", responseTimeMs: 2000, usedHint: false, isCorrect: false)
+        ]
+        let header = ReflexBlitzHeaderView(
+            currentIndex: 2,
+            totalCount: 5,
+            comboStreak: 0,
+            attempts: attempts,
+            onClose: {}
+        )
+        XCTAssertEqual(header.segmentColor(for: 0), Color.vocabMint)
+        XCTAssertEqual(header.segmentColor(for: 1), Color.vocabCoral)
+        XCTAssertEqual(header.segmentColor(for: 2), Color.vocabHeroAccent)
+        XCTAssertEqual(header.segmentColor(for: 3), Color.vocabHairline.opacity(0.4))
+    }
+
+    @MainActor
     func testHeaderViewBodyRendersAcrossComboThresholds() {
         let noComboHeader = ReflexBlitzHeaderView(
             currentIndex: 0,
