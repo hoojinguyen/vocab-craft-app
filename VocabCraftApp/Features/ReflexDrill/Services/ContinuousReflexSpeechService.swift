@@ -183,6 +183,7 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
 
     private var currentSessionId = UUID()
     private var simulationTask: Task<Void, Never>?
+    private var routeChangeObserver: (any NSObjectProtocol)?
 
     private let speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
     private var audioEngine: AVAudioEngine?
@@ -231,9 +232,24 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
         }
     }
 
-    public init() {}
+    public init() {
+        #if os(iOS)
+        routeChangeObserver = NotificationCenter.default.addObserver(
+            forName: AVAudioSession.routeChangeNotification,
+            object: nil,
+            queue: nil
+        ) { [weak self] notification in
+            self?.handleRouteChange(notification: notification)
+        }
+        #endif
+    }
 
     deinit {
+        #if os(iOS)
+        if let observer = routeChangeObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        #endif
         stopSession()
     }
 
@@ -417,7 +433,7 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
         do {
             #if os(iOS)
             let audioSession = AVAudioSession.sharedInstance()
-            try audioSession.setCategory(.playAndRecord, mode: .spokenAudio, options: [.defaultToSpeaker, .allowBluetoothHFP, .allowBluetoothA2DP])
+            try audioSession.setCategory(.playAndRecord, mode: .spokenAudio, options: [.defaultToSpeaker, .allowBluetooth, .allowBluetoothA2DP])
             try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
             #endif
 
@@ -442,6 +458,7 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
             #endif
 
             let inputNode = engine.inputNode
+            inputNode.removeTap(onBus: 0)
             let recordingFormat = inputNode.outputFormat(forBus: 0)
 
             guard recordingFormat.sampleRate > 0 && recordingFormat.channelCount > 0 else {
@@ -464,6 +481,7 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
                 req?.append(buffer)
             }
 
+            engine.prepare()
             try engine.start()
             let task = speechRecognizer?.recognitionTask(with: request) { [weak self] result, error in
                 guard let self = self else { return }
@@ -551,4 +569,62 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
             callback(error)
         }
     }
+
+    #if os(iOS)
+    private func handleRouteChange(notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let reasonValue = userInfo[AVAudioSessionRouteChangeReasonKey] as? UInt,
+              let reason = AVAudioSession.RouteChangeReason(rawValue: reasonValue) else {
+            return
+        }
+
+        lock.lock()
+        guard _isSessionActive else {
+            lock.unlock()
+            return
+        }
+        lock.unlock()
+
+        switch reason {
+        case .newDeviceAvailable, .oldDeviceUnavailable, .categoryChange, .routeConfigurationChange:
+            #if !targetEnvironment(simulator) && !os(macOS)
+            restartAudioStream()
+            #endif
+        default:
+            break
+        }
+    }
+    #endif
+
+    #if !targetEnvironment(simulator) && !os(macOS)
+    private func restartAudioStream() {
+        lock.lock()
+        guard _isSessionActive else {
+            lock.unlock()
+            return
+        }
+
+        let taskToCancel = recognitionTask
+        recognitionTask = nil
+
+        let requestToEnd = recognitionRequest
+        recognitionRequest = nil
+
+        let engineToStop = audioEngine
+        audioEngine = nil
+        lock.unlock()
+
+        taskToCancel?.cancel()
+        requestToEnd?.endAudio()
+
+        if let engine = engineToStop {
+            if engine.isRunning {
+                engine.stop()
+            }
+            engine.inputNode.removeTap(onBus: 0)
+        }
+
+        startAudioStream()
+    }
+    #endif
 }

@@ -1,3 +1,4 @@
+import AVFoundation
 @testable import VocabCraftApp
 import XCTest
 
@@ -299,6 +300,53 @@ final class ContinuousReflexSpeechServiceTests: XCTestCase {
 
         service.stopSession()
         XCTAssertFalse(service.isSessionActive)
+    }
+
+    func testServiceSurvivesRouteChangeNotification() {
+        let service = ContinuousReflexSpeechService()
+        service.startSession(contextualPhrases: ["hello"])
+        NotificationCenter.default.post(
+            name: AVAudioSession.routeChangeNotification,
+            object: nil,
+            userInfo: [AVAudioSessionRouteChangeReasonKey: AVAudioSession.RouteChangeReason.newDeviceAvailable.rawValue]
+        )
+        XCTAssertTrue(service.isSessionActive)
+        service.stopSession()
+    }
+
+    func testServiceRouteChangeWhenInactiveDoesNothing() {
+        let service = ContinuousReflexSpeechService()
+        XCTAssertFalse(service.isSessionActive)
+        NotificationCenter.default.post(
+            name: AVAudioSession.routeChangeNotification,
+            object: nil,
+            userInfo: [AVAudioSessionRouteChangeReasonKey: AVAudioSession.RouteChangeReason.oldDeviceUnavailable.rawValue]
+        )
+        XCTAssertFalse(service.isSessionActive)
+    }
+
+    func testServiceSurvivesMultipleRouteChangeReasons() {
+        let service = ContinuousReflexSpeechService()
+        service.startSession(contextualPhrases: ["test"])
+
+        let reasons: [AVAudioSession.RouteChangeReason] = [
+            .newDeviceAvailable,
+            .oldDeviceUnavailable,
+            .categoryChange,
+            .override,
+            .wakeFromSleep,
+            .noSuitableRouteForCategory,
+            .routeConfigurationChange
+        ]
+        for reason in reasons {
+            NotificationCenter.default.post(
+                name: AVAudioSession.routeChangeNotification,
+                object: nil,
+                userInfo: [AVAudioSessionRouteChangeReasonKey: reason.rawValue]
+            )
+            XCTAssertTrue(service.isSessionActive)
+        }
+        service.stopSession()
     }
 }
 
