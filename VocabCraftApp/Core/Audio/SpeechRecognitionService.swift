@@ -22,7 +22,7 @@ public enum SpeechRecognitionError: Error, LocalizedError {
 
 @MainActor
 @Observable
-public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol, @unchecked Sendable {
+public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol {
     private let speechRecognizer: SFSpeechRecognizer?
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     private var recognitionTask: SFSpeechRecognitionTask?
@@ -32,7 +32,7 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
     private var onErrorCallback: ((Error) -> Void)?
     private var simulationTask: Task<Void, Never>?
     private var authorizationRequestID = 0
-    private nonisolated(unsafe) var interruptionObserver: NSObjectProtocol?
+    private var interruptionObserver: (any NSObjectProtocol)?
 
     public var isRecording: Bool = false
     public var isListening: Bool { isRecording }
@@ -47,12 +47,6 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
         }
         super.init()
         setupInterruptionObserver()
-    }
-
-    deinit {
-        if let observer = interruptionObserver {
-            NotificationCenter.default.removeObserver(observer)
-        }
     }
 
     private func setupInterruptionObserver() {

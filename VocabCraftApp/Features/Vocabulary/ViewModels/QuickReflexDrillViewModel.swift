@@ -81,8 +81,7 @@ public final class QuickReflexDrillViewModel {
     private let clock: () -> Date
     private var activePhaseStartedAt: Date
     private var elapsedBeforePauseMs = 0
-    // Task handles are only mutated on the main actor, but must be cancelled synchronously at teardown.
-    private nonisolated(unsafe) var hintTasks: [Task<Void, Never>] = []
+    private var hintTasks: [Task<Void, Never>] = []
     private var recordingSession = 0
     private var lifecycleSession = 0
     private var hasPersistedAttempt = false
@@ -131,7 +130,6 @@ public final class QuickReflexDrillViewModel {
     }
 
     deinit {
-        hintTasks.forEach { $0.cancel() }
         let stt = sttService
         let tts = ttsService
         let assessment = speechAssessmentService

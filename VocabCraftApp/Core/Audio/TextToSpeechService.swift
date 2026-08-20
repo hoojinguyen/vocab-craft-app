@@ -4,22 +4,16 @@ import Observation
 
 @MainActor
 @Observable
-public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, TextToSpeechProtocol, @unchecked Sendable {
+public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, TextToSpeechProtocol {
     private let synthesizer = AVSpeechSynthesizer()
     public var isSpeaking: Bool = false
     private var activeContinuation: CheckedContinuation<Void, Never>?
-    private nonisolated(unsafe) var interruptionObserver: NSObjectProtocol?
+    private var interruptionObserver: (any NSObjectProtocol)?
 
     public override init() {
         super.init()
         synthesizer.delegate = self
         setupInterruptionObserver()
-    }
-
-    deinit {
-        if let observer = interruptionObserver {
-            NotificationCenter.default.removeObserver(observer)
-        }
     }
 
     private func setupInterruptionObserver() {
