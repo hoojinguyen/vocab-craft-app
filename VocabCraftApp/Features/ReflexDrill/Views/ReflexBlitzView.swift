@@ -65,7 +65,7 @@ public struct ReflexBlitzView: View {
             viewModel.cancelSession()
         }
         .sensoryFeedback(.success, trigger: viewModel.currentAttemptIsCorrect) { _, isCorrect in isCorrect }
-        .sensoryFeedback(.impact(weight: .heavy), trigger: isReviewedTimeout)
+        .sensoryFeedback(.impact(weight: .heavy), trigger: isReviewedTimeout) { _, isTimeout in isTimeout }
     }
 
     private var isReviewedTimeout: Bool {

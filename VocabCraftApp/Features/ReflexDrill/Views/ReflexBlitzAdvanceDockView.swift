@@ -74,7 +74,7 @@ public struct ReflexBlitzAdvanceDockView: View {
 
     public var formattedResponseTime: String {
         let seconds = Double(responseTimeMs) / 1000.0
-        return String(format: "%.1f", seconds) + "s"
+        return String(format: "%.1fs", seconds)
     }
 
     public var buttonTitle: String {
