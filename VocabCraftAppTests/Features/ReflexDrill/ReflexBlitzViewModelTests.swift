@@ -226,6 +226,34 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         }
     }
 
+    func testListeningModeTimeoutDoesNotSpeakAgain() {
+        viewModel.selectMode(.listening)
+        viewModel.beginSessionDirectly()
+        // Initial speak count is 1 for listening mode opening
+        XCTAssertEqual(mockTTS.speakCallCount, 1)
+
+        viewModel.handleTimeout()
+        // Speak count should STILL be 1 (not 2)
+        XCTAssertEqual(mockTTS.speakCallCount, 1, "Listening mode timeout should not re-speak the lemma")
+    }
+
+    func testAttemptsHistoryTracksCorrectAndIncorrectOrder() {
+        viewModel.selectMode(.multipleChoice)
+        viewModel.beginSessionDirectly()
+
+        // Word 0: Correct
+        let correctOpt = viewModel.currentOptions.first(where: { $0.isCorrect })!
+        viewModel.selectOption(correctOpt)
+        XCTAssertEqual(viewModel.attempts.count, 1)
+        XCTAssertTrue(viewModel.attempts[0].isCorrect)
+
+        // Word 1: Timeout
+        viewModel.advanceToNextWord()
+        viewModel.handleTimeout()
+        XCTAssertEqual(viewModel.attempts.count, 2)
+        XCTAssertFalse(viewModel.attempts[1].isCorrect)
+    }
+
     // MARK: - Speaking Modality
 
     func testSpeakingModeSpokenMatchTransitionsToReviewedAndPausesListening() {
