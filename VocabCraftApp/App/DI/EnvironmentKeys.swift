@@ -1,7 +1,7 @@
 import SwiftUI
 
 private struct AppContainerKey: EnvironmentKey {
-    static let defaultValue: AppContainer = .mock
+    static let defaultValue: AppContainer? = nil
 }
 
 private struct AppRouterKey: EnvironmentKey {
@@ -19,7 +19,7 @@ private struct SpeechAssessmentServiceKey: EnvironmentKey {
 public extension EnvironmentValues {
     @MainActor
     var appContainer: AppContainer {
-        get { self[AppContainerKey.self] }
+        get { self[AppContainerKey.self] ?? .mock }
         set { self[AppContainerKey.self] = newValue }
     }
 
