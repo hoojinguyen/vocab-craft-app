@@ -235,5 +235,71 @@ final class ContinuousReflexSpeechServiceTests: XCTestCase {
         service.stopSession()
         XCTAssertFalse(service.isRecognitionMuted, "Stopping session should reset recognition mute state")
     }
+
+    func testContinuousReflexSpeechServiceSimulatorStartAndStopLifecycle() {
+        let service = ContinuousReflexSpeechService()
+        XCTAssertFalse(service.isSessionActive)
+
+        service.startSession(contextualPhrases: ["test", "reflex"])
+        XCTAssertTrue(service.isSessionActive)
+
+        service.stopSession()
+        XCTAssertFalse(service.isSessionActive)
+        XCTAssertFalse(service.isRecognitionMuted)
+        XCTAssertEqual(service.currentTranscript, "")
+    }
+
+    func testContinuousReflexSpeechServiceSimulateTranscriptAndMainActorCallbacks() {
+        let service = ContinuousReflexSpeechService()
+        service.startSession(contextualPhrases: ["resilient"])
+
+        let transcriptExpectation = expectation(description: "Transcript update on main thread")
+        let matchExpectation = expectation(description: "Match detected on main thread")
+
+        service.onTranscriptUpdate = { transcript in
+            XCTAssertTrue(Thread.isMainThread, "onTranscriptUpdate must be called on main thread")
+            if transcript == "She is very resilient" {
+                transcriptExpectation.fulfill()
+            }
+        }
+
+        service.onMatchDetected = { matched in
+            XCTAssertTrue(Thread.isMainThread, "onMatchDetected must be called on main thread")
+            if matched == "resilient" {
+                matchExpectation.fulfill()
+            }
+        }
+
+        service.setTargetWord(lemma: "resilient", contextualPhrases: [])
+        service.simulateTranscript("She is very resilient")
+
+        wait(for: [transcriptExpectation, matchExpectation], timeout: 2.0)
+        service.stopSession()
+    }
+
+    func testContinuousReflexSpeechServiceConcurrentAccessThreadSafety() {
+        let service = ContinuousReflexSpeechService()
+        service.startSession(contextualPhrases: ["thread", "safety"])
+
+        let iterationCount = 200
+        DispatchQueue.concurrentPerform(iterations: iterationCount) { i in
+            if i % 4 == 0 {
+                service.pauseListening()
+            } else if i % 4 == 1 {
+                service.resumeListening()
+            } else if i % 4 == 2 {
+                service.setTargetWord(lemma: "word\(i)", contextualPhrases: ["phrase \(i)"])
+            } else {
+                _ = service.isSessionActive
+                _ = service.isRecognitionMuted
+                _ = service.currentTranscript
+                service.resetBuffer()
+            }
+        }
+
+        service.stopSession()
+        XCTAssertFalse(service.isSessionActive)
+    }
 }
+
 
