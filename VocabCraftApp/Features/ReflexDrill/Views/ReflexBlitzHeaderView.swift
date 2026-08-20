@@ -6,6 +6,7 @@ public struct ReflexBlitzHeaderView: View {
     public let comboStreak: Int
     public let fractionRemaining: Double
     public let timerStage: ReflexBlitzTimerStage
+    public let mode: ReflexBlitzMode
     public let onClose: () -> Void
     public let onSkip: () -> Void
     public var showSkipInHeader: Bool
@@ -21,12 +22,26 @@ public struct ReflexBlitzHeaderView: View {
         }
     }
 
+    private var modeIconName: String {
+        switch mode {
+        case .speaking:
+            return "waveform.and.mic"
+        case .typing:
+            return "keyboard"
+        case .multipleChoice:
+            return "square.grid.2x2.fill"
+        case .listening:
+            return "headphones"
+        }
+    }
+
     public init(
         currentIndex: Int,
         totalCount: Int,
         comboStreak: Int,
         fractionRemaining: Double = 1.0,
         timerStage: ReflexBlitzTimerStage = .steady,
+        mode: ReflexBlitzMode = .speaking,
         onClose: @escaping () -> Void,
         onSkip: @escaping () -> Void = {},
         showSkipInHeader: Bool = false
@@ -36,6 +51,7 @@ public struct ReflexBlitzHeaderView: View {
         self.comboStreak = comboStreak
         self.fractionRemaining = fractionRemaining
         self.timerStage = timerStage
+        self.mode = mode
         self.onClose = onClose
         self.onSkip = onSkip
         self.showSkipInHeader = showSkipInHeader
@@ -60,8 +76,23 @@ public struct ReflexBlitzHeaderView: View {
 
                 Spacer()
 
-                // Center: Step counter & Active Combo Badge
+                // Center: Mode Badge + Step counter + Active Combo Badge
                 HStack(spacing: 8) {
+                    // Active Mode Badge
+                    HStack(spacing: 4) {
+                        Image(systemName: modeIconName)
+                            .font(.caption2.weight(.bold))
+                        Text(mode.title)
+                            .font(.caption.weight(.bold))
+                    }
+                    .foregroundColor(.vocabInk)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(Color.vocabMuted.opacity(0.08))
+                    .clipShape(Capsule())
+                    .accessibilityLabel("Chế độ \(mode.title)")
+
+                    // Progress count
                     Text("\(currentIndex + 1)/\(totalCount)")
                         .font(.caption.monospacedDigit().weight(.bold))
                         .foregroundColor(.vocabMuted)
@@ -69,7 +100,9 @@ public struct ReflexBlitzHeaderView: View {
                         .padding(.vertical, 5)
                         .background(Color.vocabMuted.opacity(0.08))
                         .clipShape(Capsule())
+                        .accessibilityLabel("Tiến độ: từ \(currentIndex + 1) trên \(totalCount)")
 
+                    // Combo Streak Badge
                     if comboStreak >= 2 {
                         HStack(spacing: 4) {
                             Image(systemName: "flame.fill")

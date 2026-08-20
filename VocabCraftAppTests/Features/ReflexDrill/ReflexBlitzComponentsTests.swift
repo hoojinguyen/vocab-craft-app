@@ -90,6 +90,23 @@ final class ReflexBlitzComponentsTests: XCTestCase {
     }
 
     @MainActor
+    func testHeaderViewWithModeProperty() {
+        let header = ReflexBlitzHeaderView(
+            currentIndex: 1,
+            totalCount: 10,
+            comboStreak: 2,
+            fractionRemaining: 0.5,
+            timerStage: .steady,
+            mode: .listening,
+            onClose: {},
+            onSkip: {},
+            showSkipInHeader: true
+        )
+        XCTAssertEqual(header.mode, .listening)
+        XCTAssertNotNil(header.body)
+    }
+
+    @MainActor
     func testCountdownOverlayInstantiationAndBody() {
         let overlayCountdown = ReflexCountdownOverlayView(count: 3)
         XCTAssertNotNil(overlayCountdown)
@@ -148,7 +165,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertEqual(defaultCard.timerStrokeColor, .vocabHeroAccent)
         XCTAssertNotNil(defaultCard.body)
 
-        defaultCard.onSubmitKeyboard()
+        defaultCard.onSubmitKeyboard?()
         XCTAssertTrue(submitted)
 
         // Warning stage
@@ -447,6 +464,179 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         )
         XCTAssertNil(card.clozeParts)
         XCTAssertNotNil(card.body)
+    }
+
+    @MainActor
+    func testCardViewInMultipleChoiceModeRendersOptions() {
+        let word = ReflexBlitzWordItem.defaultStarterWords[0]
+        let options = word.generateOptions(mode: .multipleChoice, allPool: ReflexBlitzWordItem.defaultStarterWords)
+        var selectedOption: ReflexBlitzOption?
+        let cardView = ReflexBlitzCardView(
+            word: word,
+            mode: .multipleChoice,
+            cardPhase: .activeCountdown,
+            options: options,
+            onSelectOption: { opt in selectedOption = opt }
+        )
+        XCTAssertNotNil(cardView)
+        XCTAssertEqual(cardView.mode, .multipleChoice)
+        XCTAssertEqual(cardView.options.count, 4)
+        XCTAssertNotNil(cardView.body)
+
+        cardView.onSelectOption?(options[0])
+        XCTAssertEqual(selectedOption?.id, options[0].id)
+    }
+
+    @MainActor
+    func testCardViewInSpeakingModeRendersLivingAudio() {
+        let word = ReflexBlitzWordItem.defaultStarterWords[1]
+        let cardView = ReflexBlitzCardView(
+            word: word,
+            mode: .speaking,
+            cardPhase: .activeCountdown,
+            liveTranscript: "improve"
+        )
+        XCTAssertNotNil(cardView)
+        XCTAssertEqual(cardView.mode, .speaking)
+        XCTAssertEqual(cardView.liveTranscript, "improve")
+        XCTAssertNotNil(cardView.body)
+    }
+
+    @MainActor
+    func testCardViewInTypingModeRendersTextFieldAndSubmit() {
+        let word = ReflexBlitzWordItem.defaultStarterWords[2]
+        var didSubmit = false
+        var text = "focus"
+        let binding = Binding<String>(get: { text }, set: { text = $0 })
+        let cardView = ReflexBlitzCardView(
+            word: word,
+            mode: .typing,
+            cardPhase: .activeCountdown,
+            keyboardInputText: binding,
+            onSubmitKeyboard: { didSubmit = true }
+        )
+        XCTAssertNotNil(cardView)
+        XCTAssertEqual(cardView.mode, .typing)
+        XCTAssertNotNil(cardView.body)
+
+        cardView.onSubmitKeyboard?()
+        XCTAssertTrue(didSubmit)
+    }
+
+    @MainActor
+    func testCardViewInListeningModeRendersWaveformAndAudioOptions() {
+        let word = ReflexBlitzWordItem.defaultStarterWords[3]
+        let options = word.generateOptions(mode: .listening, allPool: ReflexBlitzWordItem.defaultStarterWords)
+        var didReplayAudio = false
+        let cardView = ReflexBlitzCardView(
+            word: word,
+            mode: .listening,
+            cardPhase: .activeCountdown,
+            options: options,
+            onReplayAudio: { didReplayAudio = true }
+        )
+        XCTAssertNotNil(cardView)
+        XCTAssertEqual(cardView.mode, .listening)
+        XCTAssertEqual(cardView.options.count, 4)
+        XCTAssertNotNil(cardView.body)
+
+        cardView.onReplayAudio?()
+        XCTAssertTrue(didReplayAudio)
+    }
+
+    @MainActor
+    func testCardViewInReviewedStateRendersCompletedSentence() {
+        let word = ReflexBlitzWordItem.defaultStarterWords[0]
+        let cardView = ReflexBlitzCardView(
+            word: word,
+            mode: .speaking,
+            cardPhase: .reviewed(result: ReflexCardResult(
+                isCorrect: true,
+                responseTimeMs: 1200,
+                isTimeout: false,
+                selectedOption: nil,
+                typedText: nil,
+                recognizedSpoken: "habit"
+            )),
+            options: []
+        )
+        XCTAssertEqual(cardView.displayedSentence, word.completedSentenceWithTargetWord)
+        XCTAssertTrue(cardView.isReviewed)
+        XCTAssertTrue(cardView.isResultCorrect)
+        XCTAssertFalse(cardView.isResultTimeout)
+        XCTAssertEqual(cardView.cardBorderColor, .vocabMint)
+        XCTAssertNotNil(cardView.body)
+    }
+
+    @MainActor
+    func testCardViewInReviewedStateHighlightsSelectedAndCorrectOptions() {
+        let word = ReflexBlitzWordItem.defaultStarterWords[0]
+        let options = [
+            ReflexBlitzOption(id: "1", text: "habit", isCorrect: true),
+            ReflexBlitzOption(id: "2", text: "focus", isCorrect: false),
+            ReflexBlitzOption(id: "3", text: "create", isCorrect: false),
+            ReflexBlitzOption(id: "4", text: "relax", isCorrect: false)
+        ]
+
+        // Incorrect selection
+        let wrongCardView = ReflexBlitzCardView(
+            word: word,
+            mode: .multipleChoice,
+            cardPhase: .reviewed(result: ReflexCardResult(
+                isCorrect: false,
+                responseTimeMs: 2200,
+                isTimeout: false,
+                selectedOption: "focus",
+                typedText: nil,
+                recognizedSpoken: nil
+            )),
+            options: options
+        )
+        XCTAssertTrue(wrongCardView.isReviewed)
+        XCTAssertFalse(wrongCardView.isResultCorrect)
+        XCTAssertEqual(wrongCardView.cardBorderColor, .vocabCoral)
+        XCTAssertEqual(wrongCardView.selectedOptionText, "focus")
+        XCTAssertNotNil(wrongCardView.body)
+
+        // Timeout selection
+        let timeoutCardView = ReflexBlitzCardView(
+            word: word,
+            mode: .multipleChoice,
+            cardPhase: .reviewed(result: ReflexCardResult(
+                isCorrect: false,
+                responseTimeMs: 4500,
+                isTimeout: true,
+                selectedOption: nil,
+                typedText: nil,
+                recognizedSpoken: nil
+            )),
+            options: options
+        )
+        XCTAssertTrue(timeoutCardView.isReviewed)
+        XCTAssertTrue(timeoutCardView.isResultTimeout)
+        XCTAssertEqual(timeoutCardView.cardBorderColor, .vocabCoral)
+        XCTAssertNotNil(timeoutCardView.body)
+    }
+
+    @MainActor
+    func testCardViewInReviewedStateShowsAudioReplayAndTranslation() {
+        let word = ReflexBlitzWordItem.defaultStarterWords[4]
+        var replayed = false
+        let cardView = ReflexBlitzCardView(
+            word: word,
+            mode: .listening,
+            cardPhase: .reviewed(result: ReflexCardResult(
+                isCorrect: true,
+                responseTimeMs: 1500,
+                isTimeout: false,
+                selectedOption: word.definitionVi
+            )),
+            options: [],
+            onReplayAudio: { replayed = true }
+        )
+        XCTAssertNotNil(cardView.body)
+        cardView.onReplayAudio?()
+        XCTAssertTrue(replayed)
     }
 
     // MARK: - Mode Selection View Tests
