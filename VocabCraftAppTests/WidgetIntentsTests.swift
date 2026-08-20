@@ -116,4 +116,37 @@ final class WidgetIntentsTests: XCTestCase {
         let view = VocabWidgetView(entry: entry)
         XCTAssertNotNil(view.body)
     }
+
+    func testWidgetContainerHolderSharedContainer() {
+        let container = WidgetContainerHolder.sharedContainer
+        XCTAssertNotNil(container)
+    }
+
+    func testVocabWidgetProviderFetchCurrentEntryWithDefaultContainer() throws {
+        guard let shared = WidgetContainerHolder.sharedContainer else {
+            XCTFail("Shared container should not be nil")
+            return
+        }
+        let sharedContext = ModelContext(shared)
+        let state = WidgetCurrentState(
+            currentWordId: 404,
+            lemma: "Persistent",
+            ipaUs: "/pəˈsɪs.tənt/",
+            definitionVi: "Bền bỉ",
+            exampleEn: "Success comes with persistent effort.",
+            lastUpdated: Date()
+        )
+        sharedContext.insert(state)
+        let progress = UserWordProgress(wordId: 404, masteryLevel: 2)
+        sharedContext.insert(progress)
+        try sharedContext.save()
+
+        let provider = VocabWidgetProvider()
+        let fetched = provider.fetchCurrentEntry()
+        XCTAssertNotNil(fetched)
+        XCTAssertEqual(fetched?.lemma, "Persistent")
+        XCTAssertEqual(fetched?.definitionVi, "Bền bỉ")
+        XCTAssertEqual(fetched?.masteryLevel, 2)
+    }
 }
+

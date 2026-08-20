@@ -5,6 +5,16 @@ import WidgetKit
 import VocabCraftApp
 #endif
 
+public enum WidgetContainerHolder {
+    public static let sharedContainer: ModelContainer? = {
+        let isTesting = NSClassFromString("XCTestCase") != nil
+        if isTesting {
+            return try? SharedAppGroupContainer.createContainer(inMemory: true)
+        }
+        return try? SharedAppGroupContainer.createContainer()
+    }()
+}
+
 public struct VocabWidgetProvider: TimelineProvider {
     public init() {}
 
@@ -39,7 +49,7 @@ public struct VocabWidgetProvider: TimelineProvider {
     }
 
     public func fetchCurrentEntry(in container: ModelContainer? = nil) -> VocabWidgetEntry? {
-        guard let targetContainer = container ?? (try? SharedAppGroupContainer.createContainer()) else {
+        guard let targetContainer = container ?? WidgetContainerHolder.sharedContainer else {
             return nil
         }
         let context = ModelContext(targetContainer)
