@@ -31,9 +31,14 @@ final class MockSpeechRecognitionService: SpeechRecognitionProtocol {
 
 final class MockSoundEffectService: SoundEffectServiceProtocol, @unchecked Sendable {
     var playSuccessChimeCallCount: Int = 0
+    var playIncorrectChimeCallCount: Int = 0
 
     func playSuccessChime() {
         playSuccessChimeCallCount += 1
+    }
+
+    func playIncorrectChime() {
+        playIncorrectChimeCallCount += 1
     }
 }
 

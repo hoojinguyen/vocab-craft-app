@@ -3,6 +3,7 @@ import Foundation
 
 public protocol SoundEffectServiceProtocol: Sendable {
     func playSuccessChime()
+    func playIncorrectChime()
 }
 
 public final class SoundEffectService: SoundEffectServiceProtocol, @unchecked Sendable {
@@ -14,6 +15,12 @@ public final class SoundEffectService: SoundEffectServiceProtocol, @unchecked Se
         #if os(iOS)
         // 1054 is the standard pleasant UI acknowledgment chime, or 1057 / 1394
         AudioServicesPlaySystemSound(1054)
+        #endif
+    }
+
+    public func playIncorrectChime() {
+        #if os(iOS)
+        AudioServicesPlaySystemSound(1053)
         #endif
     }
 }

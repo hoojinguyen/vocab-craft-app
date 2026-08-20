@@ -287,6 +287,7 @@ public final class ReflexBlitzViewModel {
                 maxComboStreak = comboStreak
             }
         } else {
+            soundEffectService.playIncorrectChime()
             comboStreak = 0
         }
 
@@ -423,6 +424,7 @@ public final class ReflexBlitzViewModel {
         sessionTimerTask?.cancel()
         currentAttemptIsCorrect = false
         comboStreak = 0
+        soundEffectService.playIncorrectChime()
 
         let timeLimitMs = Int(selectedMode.timeLimitSeconds * 1000)
         let attempt = ReflexBlitzAttempt(

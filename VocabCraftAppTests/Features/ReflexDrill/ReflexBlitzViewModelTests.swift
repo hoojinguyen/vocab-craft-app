@@ -140,9 +140,21 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.comboStreak, 0)
         XCTAssertEqual(viewModel.maxComboStreak, 3)
         XCTAssertEqual(mockSound.playSuccessChimeCallCount, 0)
+        XCTAssertEqual(mockSound.playIncorrectChimeCallCount, 1)
         XCTAssertEqual(viewModel.attempts.count, 1)
         XCTAssertEqual(viewModel.attempts.first?.isCorrect, false)
         XCTAssertEqual(viewModel.attempts.first?.responseTimeMs, 2000)
+    }
+
+    func testIncorrectOptionTriggersIncorrectChime() {
+        viewModel.selectMode(.multipleChoice)
+        viewModel.beginSessionDirectly()
+        guard let wrongOption = viewModel.currentOptions.first(where: { !$0.isCorrect }) else {
+            XCTFail("No wrong option found")
+            return
+        }
+        viewModel.selectOption(wrongOption)
+        XCTAssertEqual(mockSound.playIncorrectChimeCallCount, 1)
     }
 
     // MARK: - Typing Modality
@@ -289,6 +301,14 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.attempts.count, 1)
         XCTAssertEqual(viewModel.attempts.first?.isCorrect, false)
         XCTAssertEqual(viewModel.attempts.first?.responseTimeMs, 6000)
+        XCTAssertEqual(mockSound.playIncorrectChimeCallCount, 1)
+    }
+
+    func testTimeoutTriggersIncorrectChime() {
+        viewModel.selectMode(.speaking)
+        viewModel.beginSessionDirectly()
+        viewModel.handleTimeout()
+        XCTAssertEqual(mockSound.playIncorrectChimeCallCount, 1)
     }
 
     func testSimulateElapsedTimeAtModeLimitTriggersTimeout() {

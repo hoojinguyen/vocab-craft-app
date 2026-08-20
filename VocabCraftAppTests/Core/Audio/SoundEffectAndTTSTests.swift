@@ -24,12 +24,14 @@ final class SoundEffectAndTTSTests: XCTestCase {
     func testSoundEffectServicePlaysWithoutCrashing() {
         let soundService: SoundEffectServiceProtocol = SoundEffectService.shared
         soundService.playSuccessChime()
+        soundService.playIncorrectChime()
         XCTAssertTrue(true)
     }
 
     func testSoundEffectServiceInstanceCreation() {
         let instance = SoundEffectService()
         instance.playSuccessChime()
+        instance.playIncorrectChime()
         XCTAssertTrue(true)
     }
 
