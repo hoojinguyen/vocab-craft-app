@@ -78,6 +78,12 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
         #endif
     }
 
+    private func isSessionActiveAndRecording(sessionId: UUID) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return currentSessionId == sessionId && _isRecording
+    }
+
     /// Starts audio recording and real-time speech transcription.
     ///
     /// - Parameters:
@@ -108,12 +114,9 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
         simulationTask = Task { [weak self] in
             guard let self = self else { return }
             try? await Task.sleep(for: .milliseconds(400))
-            self.lock.lock()
-            guard self.currentSessionId == sessionId, self._isRecording else {
-                self.lock.unlock()
+            guard self.isSessionActiveAndRecording(sessionId: sessionId) else {
                 return
             }
-            self.lock.unlock()
 
             let target = phrases.first ?? "Sample utterance"
             let words = target.split(separator: " ")
@@ -123,12 +126,9 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
             }
 
             try? await Task.sleep(for: .milliseconds(600))
-            self.lock.lock()
-            guard self.currentSessionId == sessionId, self._isRecording else {
-                self.lock.unlock()
+            guard self.isSessionActiveAndRecording(sessionId: sessionId) else {
                 return
             }
-            self.lock.unlock()
 
             onFinalResult(target)
         }

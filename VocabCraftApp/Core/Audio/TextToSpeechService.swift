@@ -43,7 +43,7 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
     }
 
     private nonisolated(unsafe) static var cachedVoices: [String: AVSpeechSynthesisVoice] = [:]
-    private static let voiceLock = NSLock()
+    private nonisolated static let voiceLock = NSLock()
 
     public nonisolated static func resolveVoice(for locale: String) -> AVSpeechSynthesisVoice? {
         voiceLock.lock()

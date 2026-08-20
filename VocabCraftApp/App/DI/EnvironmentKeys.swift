@@ -1,11 +1,9 @@
 import SwiftUI
 
-@MainActor
 private struct AppContainerKey: EnvironmentKey {
     static let defaultValue: AppContainer = .mock
 }
 
-@MainActor
 private struct AppRouterKey: EnvironmentKey {
     static let defaultValue: AppRouter? = nil
 }

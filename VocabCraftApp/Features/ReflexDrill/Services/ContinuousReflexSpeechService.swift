@@ -392,6 +392,12 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
         evaluateSpokenText(spoken: text, target: target, offset: offset)
     }
 
+    private func checkSessionActive(sessionId: UUID) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return _isSessionActive && currentSessionId == sessionId
+    }
+
     private func startAudioStream() {
         #if targetEnvironment(simulator) || os(macOS)
         lock.lock()
@@ -401,10 +407,7 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
             while !Task.isCancelled {
                 try? await Task.sleep(for: .milliseconds(500))
                 guard let self = self else { return }
-                self.lock.lock()
-                let isActive = self._isSessionActive && self.currentSessionId == sessionId
-                self.lock.unlock()
-                if !isActive {
+                if !self.checkSessionActive(sessionId: sessionId) {
                     break
                 }
             }
