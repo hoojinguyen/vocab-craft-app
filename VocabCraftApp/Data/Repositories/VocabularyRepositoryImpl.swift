@@ -118,10 +118,8 @@ public final class VocabularyRepositoryImpl: VocabularyRepositoryProtocol {
                 let wordRecords = engine.fetchWordsForNode(nodeId: nodeRecord.id)
                 totalWords += wordRecords.count
                 
-                for w in wordRecords {
-                    if (masteryMap[w.id] ?? 0) >= 5 {
-                        learnedWords += 1
-                    }
+                for wordRecord in wordRecords where (masteryMap[wordRecord.id] ?? 0) >= 5 {
+                    learnedWords += 1
                 }
             }
             
@@ -156,19 +154,19 @@ public final class VocabularyRepositoryImpl: VocabularyRepositoryProtocol {
             var topicWords: [TopicWord] = []
             var learnedWords = 0
             
-            for w in wordRecords {
-                let summary = progressMap[w.id]
+            for wordRecord in wordRecords {
+                let summary = progressMap[wordRecord.id]
                 let isMastered = (summary?.masteryLevel ?? 0) >= 5
                 let isSaved = summary?.isBookmarked ?? false
                 if isMastered { learnedWords += 1 }
                 
                 topicWords.append(TopicWord(
-                    id: String(w.id),
-                    english: w.lemma,
-                    phonetic: w.ipaUs ?? "",
-                    vietnamese: w.definitionVi ?? w.definitionEn ?? "",
-                    example: w.example ?? "",
-                    partOfSpeech: w.pos ?? "",
+                    id: String(wordRecord.id),
+                    english: wordRecord.lemma,
+                    phonetic: wordRecord.ipaUs ?? "",
+                    vietnamese: wordRecord.definitionVi ?? wordRecord.definitionEn ?? "",
+                    example: wordRecord.example ?? "",
+                    partOfSpeech: wordRecord.pos ?? "",
                     isMastered: isMastered,
                     isSavedToPersonalVault: isSaved
                 ))

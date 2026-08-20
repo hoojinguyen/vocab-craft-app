@@ -549,4 +549,3 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
         }
     }
 }
-
