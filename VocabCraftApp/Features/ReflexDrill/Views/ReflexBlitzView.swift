@@ -1,8 +1,9 @@
 import SwiftUI
 
-/// Main container view for the Spoken Reflex Blitz drill experience.
-/// Manages phase transitions (countdown, drilling, timeout revealing, summary),
-/// audio speech recognition status visualizer, progressive scaffolding, and typing fallback.
+/// Main container view for the Redesigned Reflex Blitz drill experience.
+/// Manages phase transitions (mode selection, countdown, drilling, and summary),
+/// 4 distinct drill modalities (Speaking, Typing, Multiple Choice, Listening),
+/// and the paused review consolidation dock.
 public struct ReflexBlitzView: View {
     public var viewModel: ReflexBlitzViewModel
     @State private var typingInput: String = ""
@@ -18,18 +19,35 @@ public struct ReflexBlitzView: View {
             Color.vocabCanvas
                 .ignoresSafeArea()
 
-            if viewModel.phase == .summary, let summary = viewModel.sessionSummary {
-                ReflexBlitzSummaryView(
-                    summary: summary,
-                    onSpeakWord: { lemma in
-                        viewModel.speakLemma(lemma)
+            switch viewModel.phase {
+            case .modeSelection:
+                ReflexBlitzModeSelectionView(
+                    onSelectMode: { mode in
+                        viewModel.selectMode(mode)
                     },
-                    onReDrillWeak: {
-                        viewModel.reDrillWeakWords()
-                    },
-                    onFinish: onDismiss
+                    onDismiss: {
+                        viewModel.cancelSession()
+                        onDismiss()
+                    }
                 )
-            } else {
+                .transition(.opacity)
+
+            case .summary:
+                if let summary = viewModel.sessionSummary {
+                    ReflexBlitzSummaryView(
+                        summary: summary,
+                        onSpeakWord: { lemma in
+                            viewModel.speakLemma(lemma)
+                        },
+                        onReDrillWeak: {
+                            viewModel.reDrillWeakWords()
+                        },
+                        onFinish: onDismiss
+                    )
+                    .transition(.opacity)
+                }
+
+            case .countdown, .drilling, .timeoutRevealing:
                 drillingView
 
                 if viewModel.phase == .countdown {
@@ -47,19 +65,27 @@ public struct ReflexBlitzView: View {
             viewModel.cancelSession()
         }
         .sensoryFeedback(.success, trigger: viewModel.currentAttemptIsCorrect) { _, isCorrect in isCorrect }
-        .sensoryFeedback(.impact(weight: .heavy), trigger: viewModel.phase) { _, newPhase in newPhase == .timeoutRevealing }
+        .sensoryFeedback(.impact(weight: .heavy), trigger: isReviewedTimeout)
+    }
+
+    private var isReviewedTimeout: Bool {
+        if case .reviewed(let result) = viewModel.cardPhase {
+            return result.isTimeout
+        }
+        return viewModel.phase == .timeoutRevealing
     }
 
     @ViewBuilder
     public var drillingView: some View {
         VStack(spacing: 16) {
-            // Header Bar
+            // Header Bar with Mode Badge, Step Counter, Combo Streak, and Close Button
             ReflexBlitzHeaderView(
                 currentIndex: viewModel.currentWordIndex,
                 totalCount: viewModel.words.count,
                 comboStreak: viewModel.comboStreak,
                 fractionRemaining: viewModel.fractionRemaining,
                 timerStage: viewModel.timerStage,
+                mode: viewModel.selectedMode,
                 onClose: {
                     viewModel.cancelSession()
                     onDismiss()
@@ -73,21 +99,30 @@ public struct ReflexBlitzView: View {
 
             Spacer(minLength: 12)
 
-            // Challenge Card with Integrated Voice / Fallback Dock & Perimeter Timer
+            // Challenge Card with 4-mode presentation & reviewed consolidation state
             if let word = viewModel.currentWord {
                 ReflexBlitzCardView(
                     word: word,
+                    mode: viewModel.selectedMode,
+                    cardPhase: viewModel.cardPhase,
+                    options: viewModel.currentOptions,
                     fractionRemaining: viewModel.fractionRemaining,
                     timerStage: viewModel.timerStage,
                     showHint: viewModel.showHint,
-                    isCorrect: viewModel.phase == .drilling && viewModel.currentAttemptIsCorrect,
-                    isTimeout: viewModel.phase == .timeoutRevealing,
+                    isCorrect: viewModel.currentAttemptIsCorrect,
+                    isTimeout: isReviewedTimeout,
                     liveTranscript: viewModel.liveTranscript,
                     elapsedTimeMs: viewModel.elapsedTimeMs,
                     isKeyboardFallbackActive: viewModel.isKeyboardFallbackActive,
                     keyboardInputText: $typingInput,
+                    onSelectOption: { option in
+                        viewModel.selectOption(option)
+                    },
                     onSubmitKeyboard: {
                         submitKeyboard()
+                    },
+                    onReplayAudio: {
+                        viewModel.speakCurrentWord()
                     }
                 )
                 .transition(.asymmetric(
@@ -98,62 +133,18 @@ public struct ReflexBlitzView: View {
 
             Spacer(minLength: 12)
 
-            // Ergonomic Bottom Control Bar (Thumb Zone)
-            HStack(spacing: 16) {
-                // Mode Toggle Button (Keyboard vs Voice)
-                Button(action: {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                        viewModel.isKeyboardFallbackActive.toggle()
-                    }
-                }) {
-                    HStack(spacing: 6) {
-                        Image(systemName: viewModel.isKeyboardFallbackActive ? "waveform" : "keyboard")
-                            .font(.subheadline)
-                        Text(viewModel.isKeyboardFallbackActive ? "Luyện nói" : "Gõ phím")
-                    }
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundColor(.vocabInk)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 48)
-                    .background(Color.vocabSurfaceCard)
-                    .clipShape(Capsule())
-                    .overlay(
-                        Capsule()
-                            .stroke(Color.vocabHairline.opacity(0.6), lineWidth: 1)
-                    )
-                    .shadow(color: Color.black.opacity(0.03), radius: 6, x: 0, y: 2)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(BentoCardButtonStyle())
-                .accessibilityLabel(viewModel.isKeyboardFallbackActive ? "Chuyển sang chế độ nói" : "Chuyển sang gõ phím")
-
-                // Skip Button
-                Button(action: {
+            // Ergonomic Advance Dock / Bottom Skip button in Thumb Zone
+            ReflexBlitzAdvanceDockView(
+                cardPhase: viewModel.cardPhase,
+                onAdvance: {
+                    typingInput = ""
+                    viewModel.advanceToNextWord()
+                },
+                onSkip: {
                     viewModel.handleTimeout()
-                }) {
-                    HStack(spacing: 6) {
-                        Text("Bỏ qua")
-                        Image(systemName: "forward.fill")
-                            .font(.caption2)
-                    }
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundColor(.vocabMuted)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 48)
-                    .background(Color.vocabSurfaceCard)
-                    .clipShape(Capsule())
-                    .overlay(
-                        Capsule()
-                            .stroke(Color.vocabHairline.opacity(0.6), lineWidth: 1)
-                    )
-                    .shadow(color: Color.black.opacity(0.03), radius: 6, x: 0, y: 2)
-                    .contentShape(Rectangle())
                 }
-                .buttonStyle(BentoCardButtonStyle())
-                .accessibilityLabel("Bỏ qua từ hiện tại")
-            }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 20)
+            )
+            .padding(.bottom, 16)
         }
     }
 
