@@ -61,259 +61,323 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         super.tearDown()
     }
 
-    func testInitialCountdownPhase() {
-        XCTAssertEqual(viewModel.phase, .countdown)
-        XCTAssertEqual(viewModel.countdownCount, 3)
+    // MARK: - Initial State & Mode Selection
+
+    func testInitialPhaseIsModeSelection() {
+        XCTAssertEqual(viewModel.phase, .modeSelection)
+        XCTAssertEqual(viewModel.selectedMode, .speaking)
+        XCTAssertEqual(viewModel.cardPhase, .activeCountdown)
         XCTAssertEqual(viewModel.words.count, 3)
         XCTAssertEqual(viewModel.currentWordIndex, 0)
         XCTAssertEqual(viewModel.progressFraction, 0.0)
     }
 
-    func testStartDrillingAndAutoAdvanceOnCorrectMatch() async {
+    func testModeSelectionStartsCountdown() {
+        viewModel.selectMode(.multipleChoice)
+        XCTAssertEqual(viewModel.selectedMode, .multipleChoice)
+        XCTAssertEqual(viewModel.phase, .countdown)
+        XCTAssertEqual(viewModel.countdownCount, 3)
+    }
+
+    // MARK: - Multiple Choice Modality
+
+    func testMultipleChoiceCorrectOptionTransitionsToReviewed() {
+        viewModel.selectMode(.multipleChoice)
         viewModel.beginSessionDirectly()
         XCTAssertEqual(viewModel.phase, .drilling)
-        XCTAssertEqual(viewModel.currentWordIndex, 0)
-        XCTAssertEqual(viewModel.currentWord?.lemma, "ephemeral")
-        XCTAssertTrue(mockSpeech.isSessionActive)
+        XCTAssertEqual(viewModel.currentOptions.count, 4)
 
-        // Simulate correct speech recognition
-        mockSpeech.simulateTranscript("ephemeral")
+        guard let correctOption = viewModel.currentOptions.first(where: { $0.isCorrect }) else {
+            XCTFail("No correct option found")
+            return
+        }
+        XCTAssertEqual(correctOption.text, "ephemeral")
 
-        XCTAssertTrue(viewModel.currentAttemptIsCorrect)
-        XCTAssertEqual(mockSound.playSuccessChimeCallCount, 1)
+        viewModel.simulateElapsedTime(ms: 1200)
+        viewModel.selectOption(correctOption)
+
+        if case .reviewed(let result) = viewModel.cardPhase {
+            XCTAssertTrue(result.isCorrect)
+            XCTAssertFalse(result.isTimeout)
+            XCTAssertEqual(result.selectedOption, "ephemeral")
+            XCTAssertEqual(result.responseTimeMs, 1200)
+        } else {
+            XCTFail("Expected cardPhase to be .reviewed")
+        }
+
         XCTAssertEqual(viewModel.comboStreak, 1)
         XCTAssertEqual(viewModel.maxComboStreak, 1)
+        XCTAssertEqual(mockSound.playSuccessChimeCallCount, 1)
         XCTAssertEqual(viewModel.attempts.count, 1)
         XCTAssertEqual(viewModel.attempts.first?.lemma, "ephemeral")
-        XCTAssertTrue(viewModel.attempts.first?.isCorrect ?? false)
+        XCTAssertEqual(viewModel.attempts.first?.isCorrect, true)
+        XCTAssertEqual(viewModel.attempts.first?.responseTimeMs, 1200)
     }
 
-    func testHandleSpokenMatchPlaysSuccessChimeAndAccurateResponseTime() async {
+    func testMultipleChoiceIncorrectOptionTransitionsToReviewed() {
+        viewModel.selectMode(.multipleChoice)
         viewModel.beginSessionDirectly()
-        viewModel.simulateElapsedTime(ms: 1200)
+        viewModel.comboStreak = 3
+        viewModel.maxComboStreak = 3
 
-        mockSpeech.simulateTranscript("ephemeral")
+        guard let incorrectOption = viewModel.currentOptions.first(where: { !$0.isCorrect }) else {
+            XCTFail("No incorrect option found")
+            return
+        }
 
-        XCTAssertEqual(mockSound.playSuccessChimeCallCount, 1, "Should play success chime on match")
-        XCTAssertEqual(viewModel.attempts.first?.responseTimeMs, 1200, "Response time must record match time without including dwell delay")
+        viewModel.simulateElapsedTime(ms: 2000)
+        viewModel.selectOption(incorrectOption)
 
-        // Dwell time: 1000ms delay before advancing
-        XCTAssertEqual(viewModel.currentWordIndex, 0, "Should remain on current word immediately after match")
-        try? await Task.sleep(for: .milliseconds(500))
-        XCTAssertEqual(viewModel.currentWordIndex, 0, "Should still be on word 0 during 1000ms dwell")
-        try? await Task.sleep(for: .milliseconds(600))
-        XCTAssertEqual(viewModel.currentWordIndex, 1, "Should advance to word 1 after 1000ms dwell")
+        if case .reviewed(let result) = viewModel.cardPhase {
+            XCTAssertFalse(result.isCorrect)
+            XCTAssertFalse(result.isTimeout)
+            XCTAssertEqual(result.selectedOption, incorrectOption.text)
+            XCTAssertEqual(result.responseTimeMs, 2000)
+        } else {
+            XCTFail("Expected cardPhase to be .reviewed")
+        }
+
+        XCTAssertEqual(viewModel.comboStreak, 0)
+        XCTAssertEqual(viewModel.maxComboStreak, 3)
+        XCTAssertEqual(mockSound.playSuccessChimeCallCount, 0)
+        XCTAssertEqual(viewModel.attempts.count, 1)
+        XCTAssertEqual(viewModel.attempts.first?.isCorrect, false)
+        XCTAssertEqual(viewModel.attempts.first?.responseTimeMs, 2000)
     }
 
-    func testHintRevealsAt3500ms() {
-        viewModel.beginSessionDirectly()
-        XCTAssertFalse(viewModel.showHint)
+    // MARK: - Typing Modality
 
-        viewModel.simulateElapsedTime(ms: 3600)
-        XCTAssertTrue(viewModel.showHint)
-    }
-
-    func testSimulateElapsedTimeAt6000TriggersTimeout() async {
+    func testTypingModeCorrectSubmissionTransitionsToReviewed() {
+        viewModel.selectMode(.typing)
         viewModel.beginSessionDirectly()
         XCTAssertEqual(viewModel.phase, .drilling)
+        XCTAssertEqual(viewModel.cardPhase, .activeCountdown)
 
-        viewModel.simulateElapsedTime(ms: 6000)
-        XCTAssertEqual(viewModel.phase, .timeoutRevealing)
-        XCTAssertEqual(viewModel.comboStreak, 0)
-        XCTAssertTrue(mockSpeech.isRecognitionMuted, "Speech recognition should be paused during timeout")
+        viewModel.simulateElapsedTime(ms: 1800)
+        viewModel.submitTypingAnswer(viewModel.currentWord!.lemma)
 
-        try? await Task.sleep(for: .milliseconds(50))
-        XCTAssertEqual(mockTTS.lastSpokenText, "ephemeral")
+        if case .reviewed(let result) = viewModel.cardPhase {
+            XCTAssertTrue(result.isCorrect)
+            XCTAssertFalse(result.isTimeout)
+            XCTAssertEqual(result.typedText, "ephemeral")
+            XCTAssertEqual(result.responseTimeMs, 1800)
+        } else {
+            XCTFail("Expected cardPhase to be .reviewed")
+        }
+
+        XCTAssertEqual(viewModel.comboStreak, 1)
+        XCTAssertEqual(mockSound.playSuccessChimeCallCount, 1)
     }
 
-    func testTimeoutTriggersRevealTTSAndResetsCombo() async {
+    func testTypingModeCaseAndWhitespaceInsensitiveMatch() {
+        viewModel.selectMode(.typing)
+        viewModel.beginSessionDirectly()
+        viewModel.submitTypingAnswer("   EPHEMERAL  \n")
+
+        if case .reviewed(let result) = viewModel.cardPhase {
+            XCTAssertTrue(result.isCorrect)
+        } else {
+            XCTFail("Expected cardPhase to be .reviewed")
+        }
+    }
+
+    func testTypingModeIncorrectSubmissionDoesNotTransitionActivePhase() {
+        viewModel.selectMode(.typing)
+        viewModel.beginSessionDirectly()
+        viewModel.submitTypingAnswer("wrongword")
+
+        XCTAssertEqual(viewModel.cardPhase, .activeCountdown, "Incorrect typing input should allow user to retry before timeout")
+        XCTAssertEqual(viewModel.attempts.count, 0)
+    }
+
+    // MARK: - Listening Modality
+
+    func testListeningModeAutoSpeaksAndGeneratesDefinitionOptions() {
+        viewModel.selectMode(.listening)
+        viewModel.beginSessionDirectly()
+
+        XCTAssertEqual(mockTTS.lastSpokenText, "ephemeral", "Listening mode must auto-speak target lemma on load")
+        XCTAssertEqual(viewModel.currentOptions.count, 4)
+
+        guard let correctOption = viewModel.currentOptions.first(where: { $0.isCorrect }) else {
+            XCTFail("No correct option found")
+            return
+        }
+        XCTAssertEqual(correctOption.text, "Phù du, ngắn ngủi")
+
+        viewModel.selectOption(correctOption)
+        if case .reviewed(let result) = viewModel.cardPhase {
+            XCTAssertTrue(result.isCorrect)
+            XCTAssertEqual(result.selectedOption, "Phù du, ngắn ngủi")
+        } else {
+            XCTFail("Expected cardPhase to be .reviewed")
+        }
+    }
+
+    // MARK: - Speaking Modality
+
+    func testSpeakingModeSpokenMatchTransitionsToReviewedAndPausesListening() {
+        viewModel.selectMode(.speaking)
+        viewModel.beginSessionDirectly()
+        XCTAssertFalse(mockSpeech.isRecognitionMuted)
+
+        viewModel.simulateElapsedTime(ms: 1500)
+        mockSpeech.simulateTranscript("ephemeral")
+
+        if case .reviewed(let result) = viewModel.cardPhase {
+            XCTAssertTrue(result.isCorrect)
+            XCTAssertFalse(result.isTimeout)
+            XCTAssertEqual(result.recognizedSpoken, "ephemeral")
+            XCTAssertEqual(result.responseTimeMs, 1500)
+        } else {
+            XCTFail("Expected cardPhase to be .reviewed")
+        }
+
+        XCTAssertTrue(mockSpeech.isRecognitionMuted, "Speech listening must pause during review state")
+        XCTAssertEqual(mockSound.playSuccessChimeCallCount, 1)
+        XCTAssertEqual(viewModel.comboStreak, 1)
+    }
+
+    func testSpokenMatchCaseInsensitivityAndWhitespaceTrimming() {
+        viewModel.selectMode(.speaking)
+        viewModel.beginSessionDirectly()
+        viewModel.handleSpokenMatch("  EPHEMERAL\n")
+
+        if case .reviewed(let result) = viewModel.cardPhase {
+            XCTAssertTrue(result.isCorrect)
+        } else {
+            XCTFail("Expected cardPhase to be .reviewed")
+        }
+        XCTAssertEqual(viewModel.comboStreak, 1)
+    }
+
+    func testRepeatedMatchIgnoredWhenCurrentAttemptAlreadyCorrect() {
+        viewModel.selectMode(.speaking)
+        viewModel.beginSessionDirectly()
+        viewModel.handleSpokenMatch("ephemeral")
+        XCTAssertEqual(viewModel.attempts.count, 1)
+        XCTAssertEqual(viewModel.comboStreak, 1)
+
+        // Second match on same attempt while reviewed
+        viewModel.handleSpokenMatch("ephemeral")
+        XCTAssertEqual(viewModel.attempts.count, 1)
+        XCTAssertEqual(viewModel.comboStreak, 1)
+    }
+
+    // MARK: - Timeout & Review Pause Handling
+
+    func testTimeoutTransitionsToReviewedAndSpeaksLemma() {
+        viewModel.selectMode(.speaking)
         viewModel.beginSessionDirectly()
         viewModel.comboStreak = 4
         viewModel.maxComboStreak = 4
 
         viewModel.handleTimeout()
 
-        XCTAssertEqual(viewModel.phase, .timeoutRevealing)
+        if case .reviewed(let result) = viewModel.cardPhase {
+            XCTAssertFalse(result.isCorrect)
+            XCTAssertTrue(result.isTimeout)
+            XCTAssertEqual(result.responseTimeMs, 6000)
+        } else {
+            XCTFail("Expected cardPhase to be .reviewed on timeout")
+        }
+
         XCTAssertEqual(viewModel.comboStreak, 0)
         XCTAssertEqual(viewModel.maxComboStreak, 4)
-        XCTAssertTrue(mockSpeech.isRecognitionMuted, "Recognition should be paused on timeout")
+        XCTAssertTrue(mockSpeech.isRecognitionMuted, "Speech recognition must pause during review state")
+        XCTAssertEqual(mockTTS.lastSpokenText, "ephemeral", "Target word must be spoken on timeout")
         XCTAssertEqual(viewModel.attempts.count, 1)
-        XCTAssertFalse(viewModel.attempts.first?.isCorrect ?? true)
+        XCTAssertEqual(viewModel.attempts.first?.isCorrect, false)
         XCTAssertEqual(viewModel.attempts.first?.responseTimeMs, 6000)
-
-        try? await Task.sleep(for: .milliseconds(50))
-        XCTAssertEqual(mockTTS.lastSpokenText, "ephemeral")
-        XCTAssertEqual(mockTTS.speakAsyncCallCount, 1)
     }
 
-    func testHandleTimeoutPausesListeningAwaitsTTSAndResumesAfterBuffer() async {
+    func testSimulateElapsedTimeAtModeLimitTriggersTimeout() {
+        viewModel.selectMode(.multipleChoice) // 4.5s limit
         viewModel.beginSessionDirectly()
-        XCTAssertFalse(mockSpeech.isRecognitionMuted)
 
-        viewModel.handleTimeout()
-
-        XCTAssertTrue(mockSpeech.isRecognitionMuted, "Speech recognition must be paused immediately on timeout")
-        XCTAssertEqual(viewModel.phase, .timeoutRevealing)
-
-        try? await Task.sleep(for: .milliseconds(50))
-        XCTAssertEqual(mockTTS.lastSpokenText, "ephemeral")
-        XCTAssertEqual(mockTTS.speakAsyncCallCount, 1)
-
-        // 300ms buffer after TTS completes before resuming recognition and advancing
-        try? await Task.sleep(for: .milliseconds(350))
-        XCTAssertFalse(mockSpeech.isRecognitionMuted, "Speech recognition should resume after TTS and 300ms buffer")
-        XCTAssertEqual(viewModel.currentWordIndex, 1, "Should advance to next word")
-        XCTAssertEqual(viewModel.phase, .drilling, "Phase should return to drilling")
+        viewModel.simulateElapsedTime(ms: 4500)
+        if case .reviewed(let result) = viewModel.cardPhase {
+            XCTAssertTrue(result.isTimeout)
+            XCTAssertEqual(result.responseTimeMs, 4500)
+        } else {
+            XCTFail("Expected timeout at 4500ms in multiple choice mode")
+        }
     }
 
-    func testHandleTimeoutInKeyboardFallbackModeMaintainsMutedListeningState() async {
+    // MARK: - Navigation & Advance
+
+    func testAdvanceToNextWordLoadsNextWordAndResetsCardPhase() {
+        viewModel.selectMode(.typing)
         viewModel.beginSessionDirectly()
-        viewModel.isKeyboardFallbackActive = true
-        XCTAssertTrue(mockSpeech.isRecognitionMuted)
+        XCTAssertEqual(viewModel.currentWordIndex, 0)
 
-        viewModel.handleTimeout()
-        XCTAssertTrue(mockSpeech.isRecognitionMuted)
-        XCTAssertEqual(viewModel.phase, .timeoutRevealing)
+        viewModel.submitTypingAnswer(viewModel.currentWord!.lemma)
+        XCTAssertEqual(viewModel.currentWordIndex, 0, "Should remain on current word in review state until advanceToNextWord is called")
 
-        try? await Task.sleep(for: .milliseconds(50))
-        XCTAssertEqual(mockTTS.lastSpokenText, "ephemeral")
-        XCTAssertEqual(mockTTS.speakAsyncCallCount, 1)
-
-        // After 300ms buffer, speech recognition should REMAIN muted because keyboard mode is active
-        try? await Task.sleep(for: .milliseconds(350))
-        XCTAssertTrue(mockSpeech.isRecognitionMuted, "Speech recognition should remain muted after timeout when keyboard fallback is active")
-        XCTAssertEqual(viewModel.currentWordIndex, 1, "Should advance to next word")
-        XCTAssertEqual(viewModel.phase, .drilling, "Phase should return to drilling")
+        viewModel.advanceToNextWord()
+        XCTAssertEqual(viewModel.currentWordIndex, 1)
+        XCTAssertEqual(viewModel.cardPhase, .activeCountdown)
+        XCTAssertEqual(viewModel.currentWord?.lemma, "vital")
+        XCTAssertEqual(viewModel.elapsedTimeMs, 0)
     }
 
-    func testConsecutiveMatchesBuildComboStreak() {
+    func testAdvanceToNextWordOnLastWordFinishesSession() {
+        viewModel.selectMode(.multipleChoice)
         viewModel.beginSessionDirectly()
 
-        // Match word 1
-        mockSpeech.simulateTranscript("ephemeral")
-        XCTAssertEqual(viewModel.comboStreak, 1)
-        XCTAssertEqual(viewModel.maxComboStreak, 1)
-
-        // Advance to word 2 manually / simulate
-        viewModel.handleSpokenMatch("vital") // Not active word yet since index is 0, so should be ignored
-        XCTAssertEqual(viewModel.comboStreak, 1)
-
-        viewModel.loadWordForTesting(at: 1)
-        mockSpeech.simulateTranscript("The answer is vital today")
-        XCTAssertEqual(viewModel.comboStreak, 2)
-        XCTAssertEqual(viewModel.maxComboStreak, 2)
-
-        // Word 3 times out -> combo reset
         viewModel.loadWordForTesting(at: 2)
-        viewModel.handleTimeout()
-        XCTAssertEqual(viewModel.comboStreak, 0)
-        XCTAssertEqual(viewModel.maxComboStreak, 2)
-    }
+        guard let correct = viewModel.currentOptions.first(where: { $0.isCorrect }) else {
+            XCTFail("No correct option found")
+            return
+        }
+        viewModel.selectOption(correct)
 
-    func testSpokenMatchCaseInsensitivityAndWhitespaceTrimming() {
-        viewModel.beginSessionDirectly()
-        viewModel.handleSpokenMatch("  EPHEMERAL\n")
-
-        XCTAssertTrue(viewModel.currentAttemptIsCorrect)
-        XCTAssertEqual(viewModel.comboStreak, 1)
-    }
-
-    func testLiveTranscriptUpdatesPropagated() {
-        viewModel.beginSessionDirectly()
-        mockSpeech.simulateTranscript("Speaking some words...")
-
-        XCTAssertEqual(viewModel.liveTranscript, "Speaking some words...")
-    }
-
-    func testLiveTranscriptResetsWhenLoadingNextWord() {
-        viewModel.beginSessionDirectly()
-        mockSpeech.simulateTranscript("first word speech")
-        XCTAssertEqual(viewModel.liveTranscript, "first word speech")
-
-        // Switch to next word
-        viewModel.loadWordForTesting(at: 1)
-        XCTAssertEqual(viewModel.liveTranscript, "", "liveTranscript should reset to empty upon loading next word")
-    }
-
-    func testKeyboardFallbackSubmission() {
-        viewModel.beginSessionDirectly()
-        viewModel.toggleKeyboardFallback()
-        XCTAssertTrue(viewModel.isKeyboardFallbackActive)
-
-        // Incorrect keyboard input
-        viewModel.submitKeyboardInput("wrongword")
-        XCTAssertFalse(viewModel.currentAttemptIsCorrect)
-        XCTAssertEqual(viewModel.comboStreak, 0)
-
-        // Correct keyboard input
-        viewModel.submitKeyboardInput("  Ephemeral  ")
-        XCTAssertTrue(viewModel.currentAttemptIsCorrect)
-        XCTAssertEqual(viewModel.comboStreak, 1)
-        XCTAssertEqual(mockSound.playSuccessChimeCallCount, 1, "Keyboard submission should play success chime")
-    }
-
-    func testToggleKeyboardFallbackControlsListeningState() {
-        viewModel.beginSessionDirectly()
-        XCTAssertFalse(viewModel.isKeyboardFallbackActive)
-        XCTAssertFalse(mockSpeech.isRecognitionMuted)
-
-        viewModel.toggleKeyboardFallback()
-        XCTAssertTrue(viewModel.isKeyboardFallbackActive)
-        XCTAssertTrue(mockSpeech.isRecognitionMuted, "Recognition should be paused when keyboard fallback is active")
-
-        viewModel.toggleKeyboardFallback()
-        XCTAssertFalse(viewModel.isKeyboardFallbackActive)
-        XCTAssertFalse(mockSpeech.isRecognitionMuted, "Recognition should resume when keyboard fallback is deactivated")
-    }
-
-    func testDirectKeyboardFallbackActiveMutationControlsListeningState() {
-        viewModel.beginSessionDirectly()
-        XCTAssertFalse(mockSpeech.isRecognitionMuted)
-
-        viewModel.isKeyboardFallbackActive = true
-        XCTAssertTrue(mockSpeech.isRecognitionMuted, "Recognition should be paused when isKeyboardFallbackActive is set to true")
-
-        viewModel.isKeyboardFallbackActive = false
-        XCTAssertFalse(mockSpeech.isRecognitionMuted, "Recognition should resume when isKeyboardFallbackActive is set to false")
-    }
-
-    func testFinishSessionGeneratesSummary() {
-        viewModel.beginSessionDirectly()
-
-        // Attempt 1: Correct
-        viewModel.handleSpokenMatch("ephemeral")
-
-        // Attempt 2: Timeout
-        viewModel.loadWordForTesting(at: 1)
-        viewModel.handleTimeout()
-
-        viewModel.finishSession()
-
+        viewModel.advanceToNextWord()
         XCTAssertEqual(viewModel.phase, .summary)
         XCTAssertFalse(mockSpeech.isSessionActive)
         XCTAssertNotNil(viewModel.sessionSummary)
-        XCTAssertEqual(viewModel.sessionSummary?.totalWords, 2)
+        XCTAssertEqual(viewModel.sessionSummary?.totalWords, 1)
         XCTAssertEqual(viewModel.sessionSummary?.correctWords, 1)
-        XCTAssertEqual(viewModel.sessionSummary?.weakWordAttempts.count, 1)
-        XCTAssertEqual(viewModel.sessionSummary?.weakWordAttempts.first?.lemma, "vital")
     }
 
-    func testReDrillWeakWordsResetsSessionWithOnlyWeakWords() {
+    func testConsecutiveMatchesAcrossWordsBuildComboStreak() {
+        viewModel.selectMode(.typing)
+        viewModel.beginSessionDirectly()
+
+        // Word 1
+        viewModel.submitTypingAnswer("ephemeral")
+        XCTAssertEqual(viewModel.comboStreak, 1)
+        viewModel.advanceToNextWord()
+
+        // Word 2
+        viewModel.submitTypingAnswer("vital")
+        XCTAssertEqual(viewModel.comboStreak, 2)
+        XCTAssertEqual(viewModel.maxComboStreak, 2)
+        viewModel.advanceToNextWord()
+
+        // Word 3 times out
+        viewModel.handleTimeout()
+        XCTAssertEqual(viewModel.comboStreak, 0)
+        XCTAssertEqual(viewModel.maxComboStreak, 2)
+    }
+
+    func testReDrillWeakWordsPreservesSelectedMode() {
+        viewModel.selectMode(.typing)
         viewModel.beginSessionDirectly()
 
         // Word 1: Correct
-        viewModel.handleSpokenMatch("ephemeral")
+        viewModel.submitTypingAnswer("ephemeral")
+        viewModel.advanceToNextWord()
 
         // Word 2: Timeout (weak)
-        viewModel.loadWordForTesting(at: 1)
         viewModel.handleTimeout()
+        viewModel.advanceToNextWord()
 
         // Word 3: Correct
-        viewModel.loadWordForTesting(at: 2)
-        viewModel.handleSpokenMatch("serendipity")
+        viewModel.submitTypingAnswer("serendipity")
+        viewModel.advanceToNextWord()
 
-        viewModel.finishSession()
-
+        XCTAssertEqual(viewModel.phase, .summary)
         XCTAssertEqual(viewModel.sessionSummary?.weakWordAttempts.count, 1)
         XCTAssertEqual(viewModel.sessionSummary?.weakWordAttempts.first?.wordId, 2)
 
@@ -322,75 +386,62 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.words.count, 1)
         XCTAssertEqual(viewModel.words.first?.id, 2)
         XCTAssertEqual(viewModel.words.first?.lemma, "vital")
+        XCTAssertEqual(viewModel.selectedMode, .typing)
         XCTAssertEqual(viewModel.phase, .countdown)
     }
 
-    func testProgressFraction() {
-        viewModel.beginSessionDirectly()
-        XCTAssertEqual(viewModel.progressFraction, 0.0)
+    // MARK: - Dynamic Timers, Hints & Progress
 
-        viewModel.loadWordForTesting(at: 1)
-        XCTAssertEqual(viewModel.progressFraction, 1.0 / 3.0, accuracy: 0.001)
-
-        viewModel.loadWordForTesting(at: 2)
-        XCTAssertEqual(viewModel.progressFraction, 2.0 / 3.0, accuracy: 0.001)
-
-        let emptyVM = ReflexBlitzViewModel(
-            words: [],
-            continuousSpeechService: mockSpeech,
-            ttsService: mockTTS,
-            evaluateSRSUseCase: mockSRS
-        )
-        XCTAssertEqual(emptyVM.progressFraction, 0.0)
-        XCTAssertNil(emptyVM.currentWord)
-    }
-
-    func testCancelSessionStopsServices() {
-        viewModel.beginSessionDirectly()
-        XCTAssertTrue(mockSpeech.isSessionActive)
-
-        viewModel.cancelSession()
-        XCTAssertFalse(mockSpeech.isSessionActive)
-        XCTAssertFalse(mockTTS.isSpeaking)
-    }
-
-    func testStartCountdownInitializesSession() {
-        viewModel.startCountdown()
-        XCTAssertEqual(viewModel.phase, .countdown)
-        XCTAssertEqual(viewModel.countdownCount, 3)
-        XCTAssertTrue(mockSpeech.isSessionActive)
-    }
-
-    func testRepeatedMatchIgnoredWhenCurrentAttemptAlreadyCorrect() {
-        viewModel.beginSessionDirectly()
-        viewModel.handleSpokenMatch("ephemeral")
-        XCTAssertEqual(viewModel.attempts.count, 1)
-        XCTAssertEqual(viewModel.comboStreak, 1)
-
-        // Second match on same attempt before advance
-        viewModel.handleSpokenMatch("ephemeral")
-        XCTAssertEqual(viewModel.attempts.count, 1)
-        XCTAssertEqual(viewModel.comboStreak, 1)
-    }
-
-    // MARK: - Task 2 Dynamic Timer & Audio Helper Tests
-
-    func testFractionRemainingCalculations() {
+    func testFractionRemainingAcrossDifferentModes() {
+        // 1. Speaking (6.0s)
+        viewModel.selectMode(.speaking)
         viewModel.beginSessionDirectly()
         viewModel.simulateElapsedTime(ms: 0)
         XCTAssertEqual(viewModel.fractionRemaining, 1.0, accuracy: 0.001)
-
         viewModel.simulateElapsedTime(ms: 3000)
         XCTAssertEqual(viewModel.fractionRemaining, 0.5, accuracy: 0.001)
-
         viewModel.simulateElapsedTime(ms: 6000)
         XCTAssertEqual(viewModel.fractionRemaining, 0.0, accuracy: 0.001)
 
-        viewModel.simulateElapsedTime(ms: 7000)
-        XCTAssertEqual(viewModel.fractionRemaining, 0.0, accuracy: 0.001)
+        // 2. Multiple Choice (4.5s)
+        viewModel.selectMode(.multipleChoice)
+        viewModel.beginSessionDirectly()
+        viewModel.simulateElapsedTime(ms: 0)
+        XCTAssertEqual(viewModel.fractionRemaining, 1.0, accuracy: 0.001)
+        viewModel.simulateElapsedTime(ms: 2250)
+        XCTAssertEqual(viewModel.fractionRemaining, 0.5, accuracy: 0.001)
+
+        // 3. Typing (7.5s)
+        viewModel.selectMode(.typing)
+        viewModel.beginSessionDirectly()
+        viewModel.simulateElapsedTime(ms: 0)
+        XCTAssertEqual(viewModel.fractionRemaining, 1.0, accuracy: 0.001)
+        viewModel.simulateElapsedTime(ms: 3750)
+        XCTAssertEqual(viewModel.fractionRemaining, 0.5, accuracy: 0.001)
+    }
+
+    func testHintTimingForSpeakingAndTyping() {
+        // Speaking: Hint at 3.5s
+        viewModel.selectMode(.speaking)
+        viewModel.beginSessionDirectly()
+        XCTAssertFalse(viewModel.showHint)
+        viewModel.simulateElapsedTime(ms: 3499)
+        XCTAssertFalse(viewModel.showHint)
+        viewModel.simulateElapsedTime(ms: 3500)
+        XCTAssertTrue(viewModel.showHint)
+
+        // Typing: Hint at 4.5s
+        viewModel.selectMode(.typing)
+        viewModel.beginSessionDirectly()
+        XCTAssertFalse(viewModel.showHint)
+        viewModel.simulateElapsedTime(ms: 4499)
+        XCTAssertFalse(viewModel.showHint)
+        viewModel.simulateElapsedTime(ms: 4500)
+        XCTAssertTrue(viewModel.showHint)
     }
 
     func testTimerStagesAcrossIntervals() {
+        viewModel.selectMode(.speaking)
         viewModel.beginSessionDirectly()
 
         viewModel.simulateElapsedTime(ms: 0)
@@ -408,12 +459,22 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         viewModel.simulateElapsedTime(ms: 5000)
         XCTAssertEqual(viewModel.timerStage, .urgent)
 
-        viewModel.simulateElapsedTime(ms: 5200)
-        XCTAssertEqual(viewModel.timerStage, .urgent)
-
         viewModel.simulateElapsedTime(ms: 6000)
         XCTAssertEqual(viewModel.timerStage, .urgent)
     }
+
+    func testProgressFraction() {
+        viewModel.beginSessionDirectly()
+        XCTAssertEqual(viewModel.progressFraction, 0.0)
+
+        viewModel.loadWordForTesting(at: 1)
+        XCTAssertEqual(viewModel.progressFraction, 1.0 / 3.0, accuracy: 0.001)
+
+        viewModel.loadWordForTesting(at: 2)
+        XCTAssertEqual(viewModel.progressFraction, 2.0 / 3.0, accuracy: 0.001)
+    }
+
+    // MARK: - Audio & Helpers
 
     func testSpeakLemmaInvokesTTSService() {
         mockTTS.lastSpokenText = nil
@@ -434,16 +495,26 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         viewModel.loadWordForTesting(at: 1)
         viewModel.speakCurrentWord()
         XCTAssertEqual(mockTTS.lastSpokenText, "vital")
+    }
 
-        let emptyVM = ReflexBlitzViewModel(
-            words: [],
-            continuousSpeechService: mockSpeech,
-            ttsService: mockTTS,
-            evaluateSRSUseCase: mockSRS
-        )
-        mockTTS.lastSpokenText = nil
-        emptyVM.speakCurrentWord()
-        XCTAssertNil(mockTTS.lastSpokenText)
+    func testCancelSessionStopsServices() {
+        viewModel.selectMode(.speaking)
+        viewModel.beginSessionDirectly()
+        XCTAssertTrue(mockSpeech.isSessionActive)
+
+        viewModel.cancelSession()
+        XCTAssertFalse(mockSpeech.isSessionActive)
+        XCTAssertFalse(mockTTS.isSpeaking)
+    }
+
+    func testLiveTranscriptUpdatesPropagatedAndResetOnNextWord() {
+        viewModel.selectMode(.speaking)
+        viewModel.beginSessionDirectly()
+        mockSpeech.simulateTranscript("Speaking some words...")
+        XCTAssertEqual(viewModel.liveTranscript, "Speaking some words...")
+
+        viewModel.advanceToNextWord()
+        XCTAssertEqual(viewModel.liveTranscript, "", "liveTranscript should reset to empty upon loading next word")
     }
 
     func testAttemptsAndSummaryContainRichWordMetadata() {
@@ -475,10 +546,11 @@ final class ReflexBlitzViewModelTests: XCTestCase {
             evaluateSRSUseCase: mockSRS
         )
 
+        richVM.selectMode(.typing)
         richVM.beginSessionDirectly()
 
-        // 1. Spoken match on word 0
-        richVM.handleSpokenMatch("meticulous")
+        // 1. Spoken/typed match on word 0
+        richVM.submitTypingAnswer("meticulous")
         XCTAssertEqual(richVM.attempts.count, 1)
         let firstAttempt = richVM.attempts[0]
         XCTAssertEqual(firstAttempt.wordId, 101)
@@ -488,7 +560,7 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         XCTAssertEqual(firstAttempt.definitionVi, "Tỉ mỉ, cẩn thận")
 
         // 2. Timeout on word 1 (Weak word)
-        richVM.loadWordForTesting(at: 1)
+        richVM.advanceToNextWord()
         richVM.handleTimeout()
         XCTAssertEqual(richVM.attempts.count, 2)
         let secondAttempt = richVM.attempts[1]
@@ -499,7 +571,7 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         XCTAssertEqual(secondAttempt.definitionVi, "Kiên cường")
 
         // 3. Summary weak words contain metadata
-        richVM.finishSession()
+        richVM.advanceToNextWord()
         guard let summary = richVM.sessionSummary else {
             XCTFail("Expected session summary to exist")
             return
@@ -514,3 +586,4 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         XCTAssertEqual(weakAttempt.definitionVi, "Kiên cường")
     }
 }
+
