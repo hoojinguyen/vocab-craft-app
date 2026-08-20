@@ -54,7 +54,7 @@ public final class ReflexBlitzViewModel {
     private var hintTimerTask: Task<Void, Never>?
     private var timeoutTimerTask: Task<Void, Never>?
     private var advanceTask: Task<Void, Never>?
-    private var wordStartTime: Date?
+    public var wordStartTime: Date?
 
     public var currentWord: ReflexBlitzWordItem? {
         guard currentWordIndex >= 0 && currentWordIndex < words.count else { return nil }

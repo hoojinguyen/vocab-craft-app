@@ -209,7 +209,8 @@ public struct ReflexBlitzCardView: View {
                 withAnimation(.spring(response: 0.15, dampingFraction: 0.2, blendDuration: 0.15)) {
                     shakeOffset = 6
                 }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                Task { @MainActor in
+                    try? await Task.sleep(for: .milliseconds(150))
                     shakeOffset = 0
                 }
             }

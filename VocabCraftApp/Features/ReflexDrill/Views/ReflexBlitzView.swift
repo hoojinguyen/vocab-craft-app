@@ -103,6 +103,9 @@ public struct ReflexBlitzView: View {
                 timerStage: viewModel.timerStage,
                 mode: viewModel.selectedMode,
                 attempts: viewModel.attempts,
+                wordStartTime: viewModel.wordStartTime,
+                timeLimitSeconds: viewModel.selectedMode.timeLimitSeconds,
+                isTimerActive: viewModel.cardPhase == .activeCountdown,
                 onClose: {
                     viewModel.cancelSession()
                     viewModel.phase = .modeSelection

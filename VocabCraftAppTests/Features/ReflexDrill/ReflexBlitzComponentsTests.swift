@@ -126,6 +126,27 @@ final class ReflexBlitzComponentsTests: XCTestCase {
     }
 
     @MainActor
+    func testHeaderViewDynamicTimerBar() {
+        let now = Date()
+        let activeHeader = ReflexBlitzHeaderView(
+            currentIndex: 0,
+            totalCount: 5,
+            comboStreak: 0,
+            fractionRemaining: 1.0,
+            timerStage: .steady,
+            mode: .speaking,
+            wordStartTime: now,
+            timeLimitSeconds: 6.0,
+            isTimerActive: true,
+            onClose: {}
+        )
+        XCTAssertEqual(activeHeader.wordStartTime, now)
+        XCTAssertEqual(activeHeader.timeLimitSeconds, 6.0)
+        XCTAssertTrue(activeHeader.isTimerActive)
+        XCTAssertNotNil(activeHeader.body)
+    }
+
+    @MainActor
     func testCountdownOverlayInstantiationAndBody() {
         let overlayCountdown = ReflexCountdownOverlayView(count: 3)
         XCTAssertNotNil(overlayCountdown)
