@@ -42,17 +42,56 @@ struct VocabCraftApp: App {
         }
         let engine = DatasetEngine()
         self.datasetEngine = engine
+        let args = ProcessInfo.processInfo.arguments
         let initialTab: TabItem
-        if ProcessInfo.processInfo.arguments.contains("-tab-reflex") {
+        if args.contains("-tab-reflex") || args.contains("-reflex-mode") || args.contains("-reflex-phase") {
             initialTab = .reflex
-        } else if ProcessInfo.processInfo.arguments.contains("-tab-vocabulary") {
+        } else if args.contains("-tab-vocabulary") {
             initialTab = .vocabulary
-        } else if ProcessInfo.processInfo.arguments.contains("-tab-settings") {
+        } else if args.contains("-tab-settings") {
             initialTab = .settings
         } else {
             initialTab = .home
         }
         let router = AppRouter(initialTab: initialTab)
+
+        if let modeIdx = args.firstIndex(of: "-reflex-mode"), modeIdx + 1 < args.count {
+            let modeStr = args[modeIdx + 1]
+            let mode = ReflexBlitzMode(rawValue: modeStr) ?? .speaking
+            let phaseStr = args.firstIndex(of: "-reflex-phase").flatMap { $0 + 1 < args.count ? args[$0 + 1] : nil }
+            let stateStr = args.firstIndex(of: "-reflex-state").flatMap { $0 + 1 < args.count ? args[$0 + 1] : nil }
+            let hint = args.contains("-reflex-hint")
+            let combo = args.firstIndex(of: "-reflex-combo").flatMap { $0 + 1 < args.count ? Int(args[$0 + 1]) : nil } ?? 0
+
+            let phase: ReflexBlitzPhase
+            if phaseStr == "summary" {
+                phase = .summary
+            } else if phaseStr == "modeSelection" {
+                phase = .modeSelection
+            } else {
+                phase = .drilling
+            }
+
+            router.pendingReflexBlitzConfig = ReflexBlitzDeepLinkConfig(
+                mode: mode,
+                phase: phase,
+                state: stateStr,
+                showHint: hint,
+                combo: combo
+            )
+        } else if let phaseIdx = args.firstIndex(of: "-reflex-phase"), phaseIdx + 1 < args.count {
+            let phaseStr = args[phaseIdx + 1]
+            if phaseStr == "summary" {
+                router.pendingReflexBlitzConfig = ReflexBlitzDeepLinkConfig(
+                    mode: .speaking,
+                    phase: .summary,
+                    state: nil,
+                    showHint: false,
+                    combo: 3
+                )
+            }
+        }
+
         self.appContainer = AppContainer(datasetEngine: engine, modelContainer: container, appRouter: router)
     }
 
@@ -66,17 +105,8 @@ struct VocabCraftApp: App {
                 .onOpenURL { url in
                     appContainer.appRouter.handleDeepLink(url: url)
                 }
-                .onAppear {
-                    let args = ProcessInfo.processInfo.arguments
-                    if args.contains("-tab-reflex") {
-                        appContainer.appRouter.selectTab(.reflex)
-                    } else if args.contains("-tab-vocabulary") {
-                        appContainer.appRouter.selectTab(.vocabulary)
-                    } else if args.contains("-tab-settings") {
-                        appContainer.appRouter.selectTab(.settings)
-                    }
-                }
         }
         .modelContainer(container)
     }
 }
+

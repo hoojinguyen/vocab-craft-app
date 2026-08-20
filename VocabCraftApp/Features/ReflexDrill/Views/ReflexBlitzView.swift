@@ -25,12 +25,16 @@ public struct ReflexBlitzView: View {
                     onSelectMode: { mode in
                         viewModel.selectMode(mode)
                     },
+                    onSelectConfig: { config in
+                        viewModel.applyReviewConfig(config)
+                    },
                     onDismiss: {
                         viewModel.cancelSession()
                         onDismiss()
                     }
                 )
                 .transition(.opacity)
+
 
             case .summary:
                 if let summary = viewModel.sessionSummary {
@@ -51,9 +55,13 @@ public struct ReflexBlitzView: View {
                 drillingView
 
                 if viewModel.phase == .countdown {
-                    ReflexCountdownOverlayView(count: viewModel.countdownCount)
-                        .transition(.opacity)
+                    ReflexCountdownOverlayView(
+                        count: viewModel.countdownCount,
+                        mode: viewModel.selectedMode
+                    )
+                    .transition(.opacity)
                 }
+
             }
         }
         .onAppear {
@@ -88,8 +96,9 @@ public struct ReflexBlitzView: View {
                 mode: viewModel.selectedMode,
                 onClose: {
                     viewModel.cancelSession()
-                    onDismiss()
+                    viewModel.phase = .modeSelection
                 },
+
                 onSkip: {
                     viewModel.handleTimeout()
                 },
