@@ -148,6 +148,7 @@ public struct ReflexBlitzAdvanceDockView: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(BentoCardButtonStyle())
+                .keyboardShortcut(.defaultAction)
                 .transition(.scale.combined(with: .opacity))
                 .accessibilityLabel(accessibilityDescription)
                 .accessibilityHint("Nhấn để chuyển sang từ vựng tiếp theo")
