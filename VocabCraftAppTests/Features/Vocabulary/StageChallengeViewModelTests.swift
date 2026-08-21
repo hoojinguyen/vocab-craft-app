@@ -1,6 +1,6 @@
 import SwiftUI
-import XCTest
 @testable import VocabCraftApp
+import XCTest
 #if canImport(UIKit)
 import UIKit
 #endif
@@ -13,15 +13,15 @@ final class StageChallengeViewModelTests: XCTestCase {
         }
         let stage = SubTopicStage(id: "stage_daily_1", deckId: "deck_daily", title: "Chặng 1", iconName: "heart", sortOrder: 1, state: .active, words: words)
         let sut = StageChallengeViewModel(stage: stage, completeUseCase: AppContainer.mock.completeStageChallengeUseCase)
-        
+
         XCTAssertEqual(sut.currentIndex, 0)
         XCTAssertEqual(sut.questions.count, words.count)
         XCTAssertFalse(sut.isCompleted)
         XCTAssertNil(sut.summary)
-        
+
         let initialQuestion = sut.currentQuestion
         XCTAssertNotNil(initialQuestion)
-        
+
         sut.submitAnswer(initialQuestion?.correctAnswer ?? "")
         XCTAssertTrue(sut.lastAnswerCorrect)
         XCTAssertEqual(sut.results.count, 1)

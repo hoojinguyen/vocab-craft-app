@@ -47,3 +47,40 @@ public final class StageProgressRepositoryImpl: StageProgressRepositoryProtocol,
         try context.save()
     }
 }
+
+public final class MockStageProgressRepository: StageProgressRepositoryProtocol, @unchecked Sendable {
+    private var records: [String: UserStageProgress] = [:]
+
+    public init(records: [String: UserStageProgress] = [:]) {
+        self.records = records
+    }
+
+    @MainActor
+    public func fetchStageProgress(stageId: String) async throws -> UserStageProgress? {
+        records[stageId]
+    }
+
+    @MainActor
+    public func fetchCompletedStageIds(deckId: String) async throws -> Set<String> {
+        let completed = records.values.filter { $0.deckId == deckId && $0.isCompleted }
+        return Set(completed.map(\.stageId))
+    }
+
+    @MainActor
+    public func saveStageProgress(stageId: String, deckId: String, isCompleted: Bool, score: Int) async throws {
+        if let existing = records[stageId] {
+            existing.isCompleted = isCompleted
+            existing.score = score
+            existing.completedAt = Date()
+        } else {
+            let record = UserStageProgress(
+                stageId: stageId,
+                deckId: deckId,
+                isCompleted: isCompleted,
+                score: score,
+                completedAt: Date()
+            )
+            records[stageId] = record
+        }
+    }
+}

@@ -127,6 +127,7 @@ public actor UserProgressModelActor: UserProgressRepositoryProtocol {
         try modelContext.save()
     }
 
+    // swiftlint:disable:next function_parameter_count
     public func saveProgress(
         wordId: Int64,
         cefrLevel: String,

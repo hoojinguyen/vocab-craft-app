@@ -112,6 +112,7 @@ public final class MockUserProgressRepository: UserProgressRepositoryProtocol, @
         storage[wordId]
     }
 
+    // swiftlint:disable:next function_parameter_count
     public func saveProgress(
         wordId: Int64,
         cefrLevel: String,

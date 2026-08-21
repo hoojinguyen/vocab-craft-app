@@ -10,7 +10,7 @@ public final class StageChallengeViewModel {
     public private(set) var currentIndex: Int = 0
     public private(set) var results: [WordChallengeResult] = []
     public private(set) var lastAnswerCorrect: Bool = false
-    public private(set) var selectedAnswer: String? = nil
+    public private(set) var selectedAnswer: String?
     public private(set) var isAnswerSubmitted: Bool = false
     public private(set) var isCompleted: Bool = false
     public private(set) var summary: StageCompletionSummary?

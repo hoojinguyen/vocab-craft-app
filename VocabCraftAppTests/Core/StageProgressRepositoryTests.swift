@@ -1,6 +1,6 @@
-import XCTest
 import SwiftData
 @testable import VocabCraftApp
+import XCTest
 
 final class StageProgressRepositoryTests: XCTestCase {
     var container: ModelContainer!

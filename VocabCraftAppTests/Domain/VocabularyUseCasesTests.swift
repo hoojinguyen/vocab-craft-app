@@ -1,15 +1,15 @@
-import XCTest
 @testable import VocabCraftApp
+import XCTest
 
 final class MockUserProgressActor: UserProgressRepositoryProtocol, @unchecked Sendable {
     private var storage: [Int64: UserWordProgressData] = [:]
-    
+
     init(initialData: [UserWordProgressData] = []) {
         for item in initialData {
             storage[item.wordId] = item
         }
     }
-    
+
     func recordChallengeResult(wordId: Int64, isCorrect: Bool, stageId: String?, deckId: String?) async throws {
         if let existing = storage[wordId] {
             let updatedMastery = isCorrect ? min(5, existing.masteryLevel + 1) : existing.masteryLevel
@@ -42,7 +42,7 @@ final class MockUserProgressActor: UserProgressRepositoryProtocol, @unchecked Se
             )
         }
     }
-    
+
     func toggleBookmark(wordId: Int64) async throws -> Bool {
         if let existing = storage[wordId] {
             let newState = !existing.isBookmarked
@@ -70,7 +70,7 @@ final class MockUserProgressActor: UserProgressRepositoryProtocol, @unchecked Se
             return true
         }
     }
-    
+
     func markWordReviewed(wordId: Int64, isCorrect: Bool) async throws {
         if let existing = storage[wordId] {
             let newMastery = isCorrect ? min(5, existing.masteryLevel + 1) : existing.masteryLevel
@@ -99,19 +99,19 @@ final class MockUserProgressActor: UserProgressRepositoryProtocol, @unchecked Se
             )
         }
     }
-    
+
     func clearNeedsReview(wordId: Int64) async throws {
         try await markWordReviewed(wordId: wordId, isCorrect: true)
     }
-    
+
     func fetchAllProgress() async throws -> [UserWordProgressData] {
         Array(storage.values)
     }
-    
+
     func getProgress(wordId: Int64) async throws -> UserWordProgressData? {
         storage[wordId]
     }
-    
+
     func saveProgress(
         wordId: Int64,
         cefrLevel: String,
@@ -179,24 +179,24 @@ final class VocabularyUseCasesTests: XCTestCase {
             UserWordProgressData(wordId: 3, masteryLevel: 5, isBookmarked: true, needsReview: false, mistakeCount: 0)
         ])
         let sut = FetchPersonalVaultUseCase(dataSource: dataSource, progressRepo: progressRepo)
-        
+
         let allResult = try await sut.execute(filter: .all, searchQuery: nil)
         XCTAssertEqual(allResult.words.count, 3)
         XCTAssertEqual(allResult.metrics.totalWords, 3)
         XCTAssertEqual(allResult.metrics.needsReviewCount, 1)
         XCTAssertEqual(allResult.metrics.masteredCount, 2)
         XCTAssertEqual(allResult.metrics.bookmarkedCount, 2)
-        
+
         let weakResult = try await sut.execute(filter: .needsReview, searchQuery: nil)
         XCTAssertEqual(weakResult.words.count, 1)
         XCTAssertEqual(weakResult.words.first?.id, 2)
-        
+
         let masteredResult = try await sut.execute(filter: .mastered, searchQuery: nil)
         XCTAssertEqual(masteredResult.words.count, 2)
-        
+
         let bookmarkedResult = try await sut.execute(filter: .bookmarked, searchQuery: nil)
         XCTAssertEqual(bookmarkedResult.words.count, 2)
-        
+
         let searchResult = try await sut.execute(filter: .all, searchQuery: "Resilience")
         XCTAssertEqual(searchResult.words.count, 1)
         XCTAssertEqual(searchResult.words.first?.lemma, "Resilience")
@@ -207,16 +207,16 @@ final class VocabularyUseCasesTests: XCTestCase {
             UserWordProgressData(wordId: 2, masteryLevel: 1, isBookmarked: false, needsReview: true, mistakeCount: 1)
         ])
         let sut = ReviewWeakWordsUseCase(dataSource: dataSource, progressRepo: progressRepo)
-        
+
         let weakWords = try await sut.fetchWeakWords()
         XCTAssertEqual(weakWords.count, 1)
         XCTAssertEqual(weakWords.first?.id, 2)
-        
+
         try await sut.markWordReviewed(wordId: 2, isCorrect: true)
-        
+
         let updatedWeakWords = try await sut.fetchWeakWords()
         XCTAssertEqual(updatedWeakWords.count, 0)
-        
+
         let updatedProgress = try await progressRepo.getProgress(wordId: 2)
         XCTAssertEqual(updatedProgress?.needsReview, false)
         XCTAssertEqual(updatedProgress?.masteryLevel, 2)
@@ -227,10 +227,10 @@ final class VocabularyUseCasesTests: XCTestCase {
             UserWordProgressData(wordId: 1, masteryLevel: 2, isBookmarked: false)
         ])
         let sut = ToggleWordBookmarkUseCase(progressRepo: progressRepo)
-        
+
         let state1 = try await sut.execute(wordId: 1)
         XCTAssertTrue(state1)
-        
+
         let state2 = try await sut.execute(wordId: 1)
         XCTAssertFalse(state2)
     }

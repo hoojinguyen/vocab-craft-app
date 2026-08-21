@@ -69,7 +69,7 @@ public final class AppContainer {
         self.vocabularyDataSource = resolvedDataSource
 
         let resolvedStageRepo: StageProgressRepositoryProtocol = stageProgressRepository
-            ?? StageProgressRepositoryImpl(modelContext: modelContainer?.mainContext)
+            ?? (modelContainer.map { StageProgressRepositoryImpl(modelContext: $0.mainContext) } ?? MockStageProgressRepository())
         self.stageProgressRepository = resolvedStageRepo
 
         let shouldMock = useMockData ?? (datasetEngine == nil)
@@ -226,6 +226,8 @@ public final class AppContainer {
         )
     }
 
-    public static let mock = AppContainer(useMockData: true, useSampleData: true)
-    public static let shared = AppContainer.mock
+    public static var mock: AppContainer {
+        AppContainer(useMockData: true, useSampleData: true)
+    }
+    public static let shared = AppContainer(useMockData: false, useSampleData: false)
 }

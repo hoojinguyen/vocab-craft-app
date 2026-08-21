@@ -1,12 +1,12 @@
-import XCTest
 @testable import VocabCraftApp
+import XCTest
 
 @MainActor
 final class SmartReviewViewModelTests: XCTestCase {
     func test_loadWeakWords_populatesFromUseCaseWhenEmpty() async {
         let container = AppContainer.mock
         let sut = container.makeSmartReviewViewModel()
-        
+
         XCTAssertTrue(sut.weakWords.isEmpty)
         await sut.loadWeakWords()
         // weak words might be empty or populated depending on user progress
@@ -42,24 +42,24 @@ final class SmartReviewViewModelTests: XCTestCase {
         ]
         let container = AppContainer.mock
         let sut = SmartReviewViewModel(weakWords: words, reviewUseCase: container.reviewWeakWordsUseCase, ttsService: container.ttsService)
-        
+
         XCTAssertEqual(sut.weakWords.count, 2)
         XCTAssertEqual(sut.currentIndex, 0)
         XCTAssertEqual(sut.currentWord?.id, 1)
         XCTAssertFalse(sut.isRevealed)
         XCTAssertFalse(sut.isCompleted)
-        
+
         sut.revealDefinition()
         XCTAssertTrue(sut.isRevealed)
-        
+
         sut.playAudio()
-        
+
         await sut.markCurrentReviewed(isCorrect: true)
         XCTAssertEqual(sut.currentIndex, 1)
         XCTAssertEqual(sut.currentWord?.id, 2)
         XCTAssertFalse(sut.isRevealed)
         XCTAssertFalse(sut.isCompleted)
-        
+
         sut.revealDefinition()
         await sut.markCurrentReviewed(isCorrect: false)
         XCTAssertTrue(sut.isCompleted)

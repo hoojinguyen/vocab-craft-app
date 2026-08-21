@@ -1,18 +1,18 @@
-import XCTest
 @testable import VocabCraftApp
+import XCTest
 
 @MainActor
 final class TopicDecksViewModelTests: XCTestCase {
     func test_loadDecks_populatesCuratedDecks() async {
         let container = AppContainer.mock
         let sut = container.makeTopicDecksViewModel()
-        
+
         XCTAssertTrue(sut.decks.isEmpty)
         XCTAssertFalse(sut.isLoading)
         XCTAssertNil(sut.errorMessage)
-        
+
         await sut.loadDecks()
-        
+
         XCTAssertEqual(sut.decks.count, 4)
         XCTAssertEqual(sut.decks.map(\.id), ["deck_daily", "deck_business", "deck_tech", "deck_academic"])
         XCTAssertFalse(sut.isLoading)
@@ -25,10 +25,10 @@ final class TopicDecksViewModelTests: XCTestCase {
                 throw NSError(domain: "test", code: 500, userInfo: [NSLocalizedDescriptionKey: "Failed to fetch topic decks"])
             }
         }
-        
+
         let sut = TopicDecksViewModel(fetchTopicDecksUseCase: FailingUseCase())
         await sut.loadDecks()
-        
+
         XCTAssertTrue(sut.decks.isEmpty)
         XCTAssertFalse(sut.isLoading)
         XCTAssertEqual(sut.errorMessage, "Failed to fetch topic decks")

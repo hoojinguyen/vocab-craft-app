@@ -4,23 +4,24 @@ import Foundation
 public protocol UserProgressRepositoryProtocol: Sendable {
     /// Records the result of a challenge question for a word.
     func recordChallengeResult(wordId: Int64, isCorrect: Bool, stageId: String?, deckId: String?) async throws
-    
+
     /// Toggles the bookmark status for the given word ID, returning the new bookmark state.
     @discardableResult
     func toggleBookmark(wordId: Int64) async throws -> Bool
-    
+
     /// Marks a word as reviewed during a focused review session.
     func markWordReviewed(wordId: Int64, isCorrect: Bool) async throws
-    
+
     /// Clears the `needsReview` flag for a given word ID.
     func clearNeedsReview(wordId: Int64) async throws
-    
+
     /// Fetches all user word progress data snapshots.
     func fetchAllProgress() async throws -> [UserWordProgressData]
-    
+
     /// Fetches the user word progress data for a single word ID.
     func getProgress(wordId: Int64) async throws -> UserWordProgressData?
-    
+
+    // swiftlint:disable function_parameter_count
     /// Saves or updates a word progress snapshot.
     func saveProgress(
         wordId: Int64,
@@ -32,4 +33,5 @@ public protocol UserProgressRepositoryProtocol: Sendable {
         sourceDeckId: String?,
         sourceNodeId: String?
     ) async throws
+    // swiftlint:enable function_parameter_count
 }

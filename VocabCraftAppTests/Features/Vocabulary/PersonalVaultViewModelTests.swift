@@ -1,5 +1,5 @@
-import XCTest
 @testable import VocabCraftApp
+import XCTest
 
 @MainActor
 final class PersonalVaultViewModelTests: XCTestCase {
@@ -18,13 +18,13 @@ final class PersonalVaultViewModelTests: XCTestCase {
         await sut.loadData()
         sut.setFilter(.needsReview)
         XCTAssertEqual(sut.selectedFilter, .needsReview)
-        
+
         sut.setFilter(.mastered)
         XCTAssertEqual(sut.selectedFilter, .mastered)
-        
+
         sut.setFilter(.bookmarked)
         XCTAssertEqual(sut.selectedFilter, .bookmarked)
-        
+
         sut.setFilter(.all)
         XCTAssertEqual(sut.selectedFilter, .all)
     }
@@ -33,7 +33,7 @@ final class PersonalVaultViewModelTests: XCTestCase {
         let container = AppContainer.mock
         let sut = container.makePersonalVaultViewModel()
         await sut.loadData()
-        
+
         sut.setSearchQuery("Resilience")
         XCTAssertEqual(sut.searchQuery, "Resilience")
     }
@@ -42,7 +42,7 @@ final class PersonalVaultViewModelTests: XCTestCase {
         let container = AppContainer.mock
         let sut = container.makePersonalVaultViewModel()
         await sut.loadData()
-        
+
         if let firstWord = sut.words.first {
             let initialBookmark = firstWord.isBookmarked
             await sut.toggleBookmark(wordId: firstWord.id)

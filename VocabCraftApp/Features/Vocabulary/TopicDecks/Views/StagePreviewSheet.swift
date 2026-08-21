@@ -22,7 +22,7 @@ public struct StagePreviewSheet: View {
         self.onToggleBookmark = onToggleBookmark
         self.onClose = onClose
         self.ttsService = ttsService ?? TextToSpeechService()
-        
+
         let initialBookmarks = Set(stage.words.filter(\.isSavedToPersonalVault).map(\.id))
         _bookmarkedWordIds = State(initialValue: initialBookmarks)
     }
