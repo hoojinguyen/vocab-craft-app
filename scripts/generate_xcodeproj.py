@@ -10,11 +10,26 @@ def scan_files(base_dir):
     file_paths = []
     for root, _, files in os.walk(base_dir):
         for file in files:
-            if file.endswith('.swift') or file.endswith('.plist') or file.endswith('.entitlements'):
+            if file.endswith('.swift') or file.endswith('.plist') or file.endswith('.entitlements') or file.endswith('.xcstrings') or file.endswith('.json') or file.endswith('.xcassets'):
                 full_path = os.path.join(root, file)
                 file_paths.append(full_path)
     file_paths.sort()
     return file_paths
+
+def get_file_type(filename):
+    if filename.endswith(".swift"):
+        return "sourcecode.swift"
+    elif filename.endswith(".plist"):
+        return "text.plist.xml"
+    elif filename.endswith(".entitlements"):
+        return "text.plist.entitlements"
+    elif filename.endswith(".xcstrings"):
+        return "text.json.xcstrings"
+    elif filename.endswith(".json"):
+        return "text.json"
+    elif filename.endswith(".xcassets"):
+        return "folder.assetcatalog"
+    return "text"
 
 def generate_pbxproj():
     app_files = scan_files("VocabCraftApp")
@@ -34,6 +49,7 @@ def generate_pbxproj():
     pbx_build_files = []
     pbx_file_refs = []
     app_sources_build_files = []
+    app_resources_build_files = []
     widget_sources_build_files = []
     test_sources_build_files = []
 
@@ -43,12 +59,15 @@ def generate_pbxproj():
         ref_id = generate_id("2000", path)
         build_id = generate_id("3000", path)
 
-        file_type = "sourcecode.swift" if filename.endswith(".swift") else ("text.plist.xml" if filename.endswith(".plist") else "text.plist.entitlements")
+        file_type = get_file_type(filename)
         pbx_file_refs.append(f'\t\t{ref_id} /* {filename} */ = {{isa = PBXFileReference; lastKnownFileType = {file_type}; path = "{filename}"; sourceTree = "<group>"; }};')
 
         if filename.endswith(".swift"):
             pbx_build_files.append(f'\t\t{build_id} /* {filename} in Sources */ = {{isa = PBXBuildFile; fileRef = {ref_id} /* {filename} */; }};')
             app_sources_build_files.append(f'\t\t\t\t{build_id} /* {filename} in Sources */,')
+        elif filename.endswith(".xcstrings") or filename.endswith(".json") or filename.endswith(".xcassets"):
+            pbx_build_files.append(f'\t\t{build_id} /* {filename} in Resources */ = {{isa = PBXBuildFile; fileRef = {ref_id} /* {filename} */; }};')
+            app_resources_build_files.append(f'\t\t\t\t{build_id} /* {filename} in Resources */,')
 
     # Process Widget Files
     for path in widget_files:
@@ -56,14 +75,15 @@ def generate_pbxproj():
         ref_id = generate_id("2000", path)
         build_id = generate_id("3000", path)
 
-        file_type = "sourcecode.swift" if filename.endswith(".swift") else "text.plist.xml"
+        file_type = get_file_type(filename)
         pbx_file_refs.append(f'\t\t{ref_id} /* {filename} */ = {{isa = PBXFileReference; lastKnownFileType = {file_type}; path = "{filename}"; sourceTree = "<group>"; }};')
 
         if filename.endswith(".swift"):
             pbx_build_files.append(f'\t\t{build_id} /* {filename} in Widget Sources */ = {{isa = PBXBuildFile; fileRef = {ref_id} /* {filename} */; }};')
             widget_sources_build_files.append(f'\t\t\t\t{build_id} /* {filename} in Widget Sources */,')
-
-
+            test_build_id = generate_id("3002", path + "_test")
+            pbx_build_files.append(f'\t\t{test_build_id} /* {filename} in Test Sources */ = {{isa = PBXBuildFile; fileRef = {ref_id} /* {filename} */; }};')
+            test_sources_build_files.append(f'\t\t\t\t{test_build_id} /* {filename} in Test Sources */,')
 
     # Process Widget Shared Files
     for path in widget_shared_files:
@@ -73,14 +93,13 @@ def generate_pbxproj():
         pbx_build_files.append(f'\t\t{build_id} /* {filename} in Widget Sources */ = {{isa = PBXBuildFile; fileRef = {ref_id} /* {filename} */; }};')
         widget_sources_build_files.append(f'\t\t\t\t{build_id} /* {filename} in Widget Sources */,')
 
-
     # Process Test Files
     for path in test_files:
         filename = os.path.basename(path)
         ref_id = generate_id("2000", path)
         build_id = generate_id("3000", path)
 
-        file_type = "sourcecode.swift"
+        file_type = get_file_type(filename)
         pbx_file_refs.append(f'\t\t{ref_id} /* {filename} */ = {{isa = PBXFileReference; lastKnownFileType = {file_type}; path = "{filename}"; sourceTree = "<group>"; }};')
 
         if filename.endswith(".swift"):
@@ -99,7 +118,7 @@ def generate_pbxproj():
                 child_group_id = generate_id("4000", full_path)
                 children.append(f'\t\t\t\t{child_group_id} /* {entry} */,')
                 group_entries.extend(create_groups_for_dir(full_path, "4000"))
-            elif entry.endswith(".swift") or entry.endswith(".plist") or entry.endswith(".entitlements"):
+            elif entry.endswith(".swift") or entry.endswith(".plist") or entry.endswith(".entitlements") or entry.endswith(".xcstrings") or entry.endswith(".json") or entry.endswith(".xcassets"):
                 file_ref_id = generate_id("2000", full_path)
                 children.append(f'\t\t\t\t{file_ref_id} /* {entry} */,')
 
@@ -126,6 +145,7 @@ def generate_pbxproj():
     pbx_build_section = "\n".join(pbx_build_files)
     pbx_file_ref_section = "\n".join(pbx_file_refs)
     app_sources_section = "\n".join(app_sources_build_files)
+    app_resources_section = "\n".join(app_resources_build_files)
     widget_sources_section = "\n".join(widget_sources_build_files)
     test_sources_section = "\n".join(test_sources_build_files)
 
@@ -237,6 +257,7 @@ def generate_pbxproj():
 			buildPhases = (
 				100000022D50000000000000 /* Sources */,
 				100000012D50000000000000 /* Frameworks */,
+				100000032D50000000000000 /* Resources */,
 				100000002D50000000000099 /* Embed App Extensions */,
 			);
 			buildRules = (
@@ -310,6 +331,7 @@ def generate_pbxproj():
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				vi,
 				Base,
 			);
 			mainGroup = 400000002D50000000000000 /* MainGroup */;
@@ -323,6 +345,17 @@ def generate_pbxproj():
 			);
 		}};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		100000032D50000000000000 /* Resources */ = {{
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+{app_resources_section}
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		}};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		100000022D50000000000000 /* Sources */ = {{

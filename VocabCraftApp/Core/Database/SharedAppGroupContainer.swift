@@ -11,7 +11,13 @@ public enum SchemaV1: VersionedSchema {
 public enum SchemaV2: VersionedSchema {
     public static var versionIdentifier = Schema.Version(2, 0, 0)
     public static var models: [any PersistentModel.Type] {
-        [UserWordProgress.self, ReflexSessionLog.self, WidgetCurrentState.self, QuickReflexAttemptRecord.self]
+        [
+            UserWordProgress.self,
+            UserStageProgress.self,
+            ReflexSessionLog.self,
+            WidgetCurrentState.self,
+            QuickReflexAttemptRecord.self
+        ]
     }
 }
 
@@ -50,6 +56,16 @@ public struct SharedAppGroupContainer {
 
         try? FileManager.default.createDirectory(at: storeURL.deletingLastPathComponent(), withIntermediateDirectories: true)
         let config = ModelConfiguration(schema: schema, url: storeURL)
-        return try ModelContainer(for: schema, migrationPlan: AppMigrationPlan.self, configurations: [config])
+        do {
+            return try ModelContainer(for: schema, migrationPlan: AppMigrationPlan.self, configurations: [config])
+        } catch {
+            print("SharedAppGroupContainer: Encountered migration or store loading error (\(error)). Resetting store to recover...")
+            let shmURL = storeURL.deletingPathExtension().appendingPathExtension("sqlite-shm")
+            let walURL = storeURL.deletingPathExtension().appendingPathExtension("sqlite-wal")
+            try? FileManager.default.removeItem(at: storeURL)
+            try? FileManager.default.removeItem(at: shmURL)
+            try? FileManager.default.removeItem(at: walURL)
+            return try ModelContainer(for: schema, migrationPlan: AppMigrationPlan.self, configurations: [config])
+        }
     }
 }

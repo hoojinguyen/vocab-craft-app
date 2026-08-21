@@ -2,7 +2,7 @@ import AppIntents
 import Foundation
 import SwiftData
 import WidgetKit
-#if SWIFT_PACKAGE
+#if canImport(VocabCraftApp)
 import VocabCraftApp
 #endif
 
