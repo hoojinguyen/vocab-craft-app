@@ -3,7 +3,7 @@ import Foundation
 public protocol FetchVocabularyUseCaseProtocol: AnyObject {
     func executeFetchWords(limit: Int) async throws -> [Word]
     func executeSearch(query: String) async throws -> [Word]
-    func executeFetchDrills(cefrLevel: String) async throws -> [ReflexDrillRecord]
+    func executeFetchDrills(cefrLevel: String) async throws -> [ReflexDrillItem]
 }
 
 public final class FetchVocabularyUseCase: FetchVocabularyUseCaseProtocol {
@@ -21,7 +21,7 @@ public final class FetchVocabularyUseCase: FetchVocabularyUseCaseProtocol {
         try await repository.searchWords(query: query)
     }
 
-    public func executeFetchDrills(cefrLevel: String) async throws -> [ReflexDrillRecord] {
+    public func executeFetchDrills(cefrLevel: String) async throws -> [ReflexDrillItem] {
         try await repository.fetchReflexDrillRecords(cefrLevel: cefrLevel)
     }
 }

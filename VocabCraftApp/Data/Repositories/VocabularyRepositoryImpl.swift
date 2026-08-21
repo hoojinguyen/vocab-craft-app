@@ -1,5 +1,4 @@
 import Foundation
-import SwiftUI
 
 /// Production repository implementation connecting SQLite dataset engine and SwiftData user progress actor.
 @MainActor
@@ -51,9 +50,19 @@ public final class VocabularyRepositoryImpl: VocabularyRepositoryProtocol {
     }
 
     /// Fetches reflex drill prompt records matching the specified CEFR level.
-    public func fetchReflexDrillRecords(cefrLevel: String) async throws -> [ReflexDrillRecord] {
+    public func fetchReflexDrillRecords(cefrLevel: String) async throws -> [ReflexDrillItem] {
         guard let engine = datasetEngine, let record = engine.getRandomReflexDrill(cefrLevel: cefrLevel) else { return [] }
-        return [record]
+        return [
+            ReflexDrillItem(
+                id: record.id,
+                drillType: record.drillType,
+                promptText: record.promptText,
+                correctAnswer: record.correctAnswer,
+                distractors: record.distractors,
+                targetTimeMs: record.targetTimeMs,
+                sentenceTextEn: record.sentenceTextEn
+            )
+        ]
     }
 
     /// Searches vocabulary words matching the given query string.
@@ -129,7 +138,7 @@ public final class VocabularyRepositoryImpl: VocabularyRepositoryProtocol {
                 title: r.title,
                 wordCount: totalWords,
                 completionPercentage: percentage,
-                badgeColor: Color(hex: r.badgeColorHex),
+                badgeColorHex: r.badgeColorHex,
                 iconName: r.iconName
             ))
         }

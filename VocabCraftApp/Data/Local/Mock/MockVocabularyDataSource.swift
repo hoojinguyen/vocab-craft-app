@@ -64,8 +64,8 @@ public struct MockVocabularyDataSource: Sendable {
         )
     ]
 
-    public let mockReflexDrills: [ReflexDrillRecord] = [
-        ReflexDrillRecord(
+    public let mockReflexDrills: [ReflexDrillItem] = [
+        ReflexDrillItem(
             id: 101,
             drillType: "multiple_choice",
             promptText: "Chọn nghĩa chính xác của 'Ephemeral':",
@@ -73,7 +73,7 @@ public struct MockVocabularyDataSource: Sendable {
             distractors: ["Lâu dài", "Vĩnh cửu", "Kiên cường"],
             targetTimeMs: 3000
         ),
-        ReflexDrillRecord(
+        ReflexDrillItem(
             id: 102,
             drillType: "multiple_choice",
             promptText: "Chọn nghĩa chính xác của 'Resilience':",
@@ -89,7 +89,7 @@ public struct MockVocabularyDataSource: Sendable {
             title: "Công nghệ & Đổi mới",
             wordCount: 30,
             completionPercentage: 0.35,
-            badgeColor: .blue,
+            badgeColorHex: "#3B82F6",
             iconName: "cpu"
         ),
         TopicDeck(
@@ -97,7 +97,7 @@ public struct MockVocabularyDataSource: Sendable {
             title: "Kinh doanh & Tài chính",
             wordCount: 45,
             completionPercentage: 0.60,
-            badgeColor: .green,
+            badgeColorHex: "#10B981",
             iconName: "chart.bar.fill"
         )
     ]

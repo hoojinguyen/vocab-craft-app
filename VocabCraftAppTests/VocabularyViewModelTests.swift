@@ -83,5 +83,5 @@ private final class VocabularyFetchUseCaseStub: FetchVocabularyUseCaseProtocol {
 
     func executeFetchWords(limit _: Int) async throws -> [Word] { words }
     func executeSearch(query _: String) async throws -> [Word] { [] }
-    func executeFetchDrills(cefrLevel _: String) async throws -> [ReflexDrillRecord] { [] }
+    func executeFetchDrills(cefrLevel _: String) async throws -> [ReflexDrillItem] { [] }
 }

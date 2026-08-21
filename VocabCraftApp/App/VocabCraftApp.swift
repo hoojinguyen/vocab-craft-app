@@ -97,14 +97,18 @@ struct VocabCraftApp: App {
 
     var body: some Scene {
         WindowGroup {
-            HomepageView(viewModel: appContainer.makeHomepageViewModel())
-                .environment(\.appContainer, appContainer)
-                .environment(\.appRouter, appContainer.appRouter)
-                .environment(\.ttsService, appContainer.ttsService)
-                .environment(\.speechAssessmentService, appContainer.speechAssessmentService)
-                .onOpenURL { url in
-                    appContainer.appRouter.handleDeepLink(url: url)
-                }
+            if NSClassFromString("XCTestCase") != nil {
+                Text("Testing...")
+            } else {
+                HomepageView(viewModel: appContainer.makeHomepageViewModel())
+                    .environment(\.appContainer, appContainer)
+                    .environment(\.appRouter, appContainer.appRouter)
+                    .environment(\.ttsService, appContainer.ttsService)
+                    .environment(\.speechAssessmentService, appContainer.speechAssessmentService)
+                    .onOpenURL { url in
+                        appContainer.appRouter.handleDeepLink(url: url)
+                    }
+            }
         }
         .modelContainer(container)
     }

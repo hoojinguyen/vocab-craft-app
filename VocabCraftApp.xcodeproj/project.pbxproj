@@ -56,6 +56,9 @@
 		300020A86E4013F2A9E9 /* ProfileHeaderCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200020A86E4013F2A9E9 /* ProfileHeaderCard.swift */; };
 		30002717CA572B9B21A6 /* SRSRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20002717CA572B9B21A6 /* SRSRepositoryImpl.swift */; };
 		30002A121BF620A9A229 /* Word.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20002A121BF620A9A229 /* Word.swift */; };
+		3000D0010000000000000002 /* TopicDeckEntities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000D0010000000000000002 /* TopicDeckEntities.swift */; };
+		3000D0010000000000000003 /* ReflexDrillItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000D0010000000000000003 /* ReflexDrillItem.swift */; };
+		3000D0010000000000000004 /* ContinuousReflexSpeechProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000D0010000000000000004 /* ContinuousReflexSpeechProtocol.swift */; };
 		30002A4CBDD7D76C361F /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20002A4CBDD7D76C361F /* HeaderView.swift */; };
 		300031F097ABA2148D97 /* HeaderViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200031F097ABA2148D97 /* HeaderViewTests.swift */; };
 		30003498E286D20C1EBC /* SRSEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003498E286D20C1EBC /* SRSEngine.swift */; };
@@ -116,6 +119,7 @@
 		3000BA864DF00075F57F /* QuickReflexDrillViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000BA864DF00075F57F /* QuickReflexDrillViewModelTests.swift */; };
 		3000BEA090FB6DD9E928 /* TextToSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000BEA090FB6DD9E928 /* TextToSpeechService.swift */; };
 		3000FB030000000000000001 /* SoundEffectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FB030000000000000001 /* SoundEffectService.swift */; };
+		3000D0010000000000000001 /* DomainEntitiesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000D0010000000000000001 /* DomainEntitiesTests.swift */; };
 		3000C27C11DD5CE9F2EC /* TopicDeckModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C27C11DD5CE9F2EC /* TopicDeckModels.swift */; };
 		3000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift */; };
 		3000C94DD80FE52023FA /* NextWordIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C94DD80FE52023FA /* NextWordIntent.swift */; };
@@ -255,6 +259,9 @@
 		200020A86E4013F2A9E9 /* ProfileHeaderCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileHeaderCard.swift; sourceTree = "<group>"; };
 		20002717CA572B9B21A6 /* SRSRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SRSRepositoryImpl.swift; sourceTree = "<group>"; };
 		20002A121BF620A9A229 /* Word.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Word.swift; sourceTree = "<group>"; };
+		2000D0010000000000000002 /* TopicDeckEntities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicDeckEntities.swift; sourceTree = "<group>"; };
+		2000D0010000000000000003 /* ReflexDrillItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReflexDrillItem.swift; sourceTree = "<group>"; };
+		2000D0010000000000000004 /* ContinuousReflexSpeechProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinuousReflexSpeechProtocol.swift; sourceTree = "<group>"; };
 		20002A4CBDD7D76C361F /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
 		200031F097ABA2148D97 /* HeaderViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderViewTests.swift; sourceTree = "<group>"; };
 		20003498E286D20C1EBC /* SRSEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SRSEngine.swift; sourceTree = "<group>"; };
@@ -317,6 +324,7 @@
 		2000BA864DF00075F57F /* QuickReflexDrillViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickReflexDrillViewModelTests.swift; sourceTree = "<group>"; };
 		2000BEA090FB6DD9E928 /* TextToSpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextToSpeechService.swift; sourceTree = "<group>"; };
 		2000FB030000000000000001 /* SoundEffectService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundEffectService.swift; sourceTree = "<group>"; };
+		2000D0010000000000000001 /* DomainEntitiesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DomainEntitiesTests.swift; sourceTree = "<group>"; };
 		2000C27C11DD5CE9F2EC /* TopicDeckModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicDeckModels.swift; sourceTree = "<group>"; };
 		2000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvaluateSRSUseCaseTests.swift; sourceTree = "<group>"; };
 		2000C94DD80FE52023FA /* NextWordIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextWordIntent.swift; sourceTree = "<group>"; };
@@ -645,6 +653,7 @@
 		40008F48FF4076AEA27E /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
+				2000D0010000000000000004 /* ContinuousReflexSpeechProtocol.swift */,
 				2000A201000000000005 /* QuickReflexAttemptRepositoryProtocol.swift */,
 				20009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift */,
 				200008F35FA2F8FA1668 /* DatasetDataSourceProtocol.swift */,
@@ -723,6 +732,7 @@
 				20003F8BC4CF0102DDE2 /* SubTopicStudySessionViewTests.swift */,
 				2000FAC198AA799A3AC5 /* SwiftDataModelsTests.swift */,
 				2000E3AFED7A38ECFE12 /* TopicDeckDetailViewTests.swift */,
+				2000D0010000000000000001 /* DomainEntitiesTests.swift */,
 				20006C3205A7C09C3ED0 /* TopicDeckModelsTests.swift */,
 				2000CD9B3F3B4D5FDBA7 /* UserSettingsStoreTests.swift */,
 				200008F45FA2F8FA1668 /* VocabularyFilterServiceTests.swift */,
@@ -861,7 +871,9 @@
 		4000C597CF74B9A0760A /* Entities */ = {
 			isa = PBXGroup;
 			children = (
+				2000D0010000000000000003 /* ReflexDrillItem.swift */,
 				200036675EAE3D605018 /* SuggestedWord.swift */,
+				2000D0010000000000000002 /* TopicDeckEntities.swift */,
 				20002A121BF620A9A229 /* Word.swift */,
 			);
 			path = Entities;
@@ -1141,10 +1153,13 @@
 				3000FBE3EC435722C797 /* MockVocabularyRepository.swift in Sources */,
 				30002717CA572B9B21A6 /* SRSRepositoryImpl.swift in Sources */,
 				3000174FE7B23888C774 /* VocabularyRepositoryImpl.swift in Sources */,
+				3000D0010000000000000003 /* ReflexDrillItem.swift in Sources */,
 				300036675EAE3D605018 /* SuggestedWord.swift in Sources */,
+				3000D0010000000000000002 /* TopicDeckEntities.swift in Sources */,
 				30002A121BF620A9A229 /* Word.swift in Sources */,
 				30004E04DA4BC3CA718A /* QuickDrillStep.swift in Sources */,
 				30009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift in Sources */,
+				3000D0010000000000000004 /* ContinuousReflexSpeechProtocol.swift in Sources */,
 				30001B54BD9C7BC878A1 /* SRSRepositoryProtocol.swift in Sources */,
 				3000A91CFCCE87349186 /* VocabularyRepositoryProtocol.swift in Sources */,
 				3000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift in Sources */,
@@ -1262,6 +1277,7 @@
 				30003F8BC4CF0102DDE2 /* SubTopicStudySessionViewTests.swift in Sources */,
 				3000FAC198AA799A3AC5 /* SwiftDataModelsTests.swift in Sources */,
 				3000E3AFED7A38ECFE12 /* TopicDeckDetailViewTests.swift in Sources */,
+				3000D0010000000000000001 /* DomainEntitiesTests.swift in Sources */,
 				30006C3205A7C09C3ED0 /* TopicDeckModelsTests.swift in Sources */,
 				3000CD9B3F3B4D5FDBA7 /* UserSettingsStoreTests.swift in Sources */,
 				3000B8D5FB4EC872D73A /* VocabularyViewModelTests.swift in Sources */,

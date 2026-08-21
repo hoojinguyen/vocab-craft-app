@@ -1,7 +1,7 @@
 import Foundation
 
 /// Accesses vocabulary entities, topic decks, and drill dataset records.
-public protocol VocabularyRepositoryProtocol: Sendable {
+public protocol VocabularyRepositoryProtocol: AnyObject, Sendable {
     /// Fetches vocabulary word records up to the specified limit.
     ///
     /// - Parameter limit: The maximum number of words to return. Defaults to 50.
@@ -17,8 +17,8 @@ public protocol VocabularyRepositoryProtocol: Sendable {
     /// Fetches reflex drill prompt records matching the specified CEFR level.
     ///
     /// - Parameter cefrLevel: The target CEFR level (e.g., "A1", "B1", "C1").
-    /// - Returns: An array of ``ReflexDrillRecord`` objects.
-    func fetchReflexDrillRecords(cefrLevel: String) async throws -> [ReflexDrillRecord]
+    /// - Returns: An array of ``ReflexDrillItem`` objects.
+    func fetchReflexDrillRecords(cefrLevel: String) async throws -> [ReflexDrillItem]
 
     /// Searches vocabulary words matching the given query string.
     ///

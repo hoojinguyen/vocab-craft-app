@@ -30,8 +30,8 @@ public final class MockVocabularyRepository: VocabularyRepositoryProtocol, Senda
     /// Fetches reflex drill prompt records matching the specified CEFR level.
     ///
     /// - Parameter cefrLevel: The target CEFR level (e.g., "A1", "B1", "C1").
-    /// - Returns: An array of ``ReflexDrillRecord`` objects.
-    public func fetchReflexDrillRecords(cefrLevel: String) async throws -> [ReflexDrillRecord] {
+    /// - Returns: An array of ``ReflexDrillItem`` objects.
+    public func fetchReflexDrillRecords(cefrLevel: String) async throws -> [ReflexDrillItem] {
         return dataSource.mockReflexDrills
     }
 

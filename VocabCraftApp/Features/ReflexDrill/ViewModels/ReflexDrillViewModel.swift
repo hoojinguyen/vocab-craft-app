@@ -2,8 +2,8 @@ import Foundation
 import Observation
 
 public struct ReflexDrillState: Equatable {
-    public var drill: ReflexDrillRecord?
-    public var drillsList: [ReflexDrillRecord] = []
+    public var drill: ReflexDrillItem?
+    public var drillsList: [ReflexDrillItem] = []
     public var currentDrillIndex: Int = 0
     public var startTime: Date?
     public var elapsedTimeMs: Int = 0
@@ -108,7 +108,7 @@ public final class ReflexDrillViewModel {
     }
 
     public func setupSampleDrill() {
-        let sample = ReflexDrillRecord(
+        let sample = ReflexDrillItem(
             id: 101,
             drillType: "speak_phrase",
             promptText: "Một chú chó đen nhảy qua rào",

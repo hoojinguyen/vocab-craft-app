@@ -39,9 +39,9 @@ public final class MockVocabularyRepository: VocabularyRepositoryProtocol, @unch
         return mockWords.first { $0.id == id }
     }
 
-    public func fetchReflexDrillRecords(cefrLevel: String) async throws -> [ReflexDrillRecord] {
+    public func fetchReflexDrillRecords(cefrLevel: String) async throws -> [ReflexDrillItem] {
         return [
-            ReflexDrillRecord(
+            ReflexDrillItem(
                 id: 101,
                 drillType: "multiple_choice",
                 promptText: "Choose correct meaning for 'Ephemeral'",

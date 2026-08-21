@@ -1,41 +1,9 @@
 import SwiftUI
 
-public struct TopicDeck: Identifiable, Sendable {
-    public let id: String
-    public let title: String
-    public let wordCount: Int
-    public let completionPercentage: Double
-    public let badgeColor: Color
-    public let iconName: String
-
-    public init(
-        id: String,
-        title: String,
-        wordCount: Int,
-        completionPercentage: Double,
-        badgeColor: Color,
-        iconName: String
-    ) {
-        self.id = id
-        self.title = title
-        self.wordCount = wordCount
-        self.completionPercentage = completionPercentage
-        self.badgeColor = badgeColor
-        self.iconName = iconName
-    }
-}
-
 public struct TopicDecksGridView: View {
     public let onDeckSelected: (String) -> Void
 
-    private let decks: [TopicDeck] = [
-        TopicDeck(id: "1", title: "IELTS Academic", wordCount: 500, completionPercentage: 0.65, badgeColor: .vocabLavender, iconName: "graduationcap.fill"),
-        TopicDeck(id: "2", title: "TOEIC Business", wordCount: 450, completionPercentage: 0.40, badgeColor: .vocabPeach, iconName: "briefcase.fill"),
-        TopicDeck(id: "3", title: "Oxford 3000", wordCount: 3000, completionPercentage: 0.85, badgeColor: .vocabMint, iconName: "book.closed.fill"),
-        TopicDeck(id: "4", title: "Travel & Food", wordCount: 250, completionPercentage: 0.20, badgeColor: .vocabCoral, iconName: "airplane"),
-        TopicDeck(id: "5", title: "Công Nghệ & AI", wordCount: 350, completionPercentage: 0.55, badgeColor: .vocabPeach, iconName: "cpu.fill"),
-        TopicDeck(id: "6", title: "Giao Tiếp Ngày", wordCount: 400, completionPercentage: 0.90, badgeColor: .vocabMint, iconName: "bubble.left.and.bubble.right.fill")
-    ]
+    private let decks: [TopicDeck] = TopicDeck.sampleDecks
 
     private let columns = [
         GridItem(.flexible(), spacing: 12),

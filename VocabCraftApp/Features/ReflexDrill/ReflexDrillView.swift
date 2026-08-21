@@ -97,7 +97,7 @@ public struct ReflexHeaderBarView: View {
 
 // MARK: - Prompt Hero Challenge Card Component View
 public struct ReflexPromptHeroCardView: View {
-    public let drill: ReflexDrillRecord
+    public let drill: ReflexDrillItem
     public let isEvaluated: Bool
     public let isSpeaking: Bool
     @Binding public var showEnglishHint: Bool

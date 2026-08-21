@@ -1,69 +1,19 @@
 import Foundation
 import SwiftUI
 
-public enum NodeState: String, Codable, Sendable {
-    case completed
-    case active
-    case locked
-}
-
-public struct TopicWord: Identifiable, Codable, Sendable {
-    public let id: String
-    public let english: String
-    public let phonetic: String
-    public let vietnamese: String
-    public let example: String
-    public let partOfSpeech: String
-    public var isMastered: Bool
-    public var isSavedToPersonalVault: Bool
-
-    public init(
-        id: String,
-        english: String,
-        phonetic: String,
-        vietnamese: String,
-        example: String = "",
-        partOfSpeech: String = "noun",
-        isMastered: Bool = false,
-        isSavedToPersonalVault: Bool = false
-    ) {
-        self.id = id
-        self.english = english
-        self.phonetic = phonetic
-        self.vietnamese = vietnamese
-        self.example = example
-        self.partOfSpeech = partOfSpeech
-        self.isMastered = isMastered
-        self.isSavedToPersonalVault = isSavedToPersonalVault
+extension TopicDeck {
+    public var badgeColor: Color {
+        Color(hex: badgeColorHex)
     }
-}
 
-public struct SubTopicNode: Identifiable, Codable, Sendable {
-    public let id: String
-    public let title: String
-    public let iconName: String
-    public let totalWords: Int
-    public let learnedWords: Int
-    public let state: NodeState
-    public let words: [TopicWord]
-
-    public init(
-        id: String,
-        title: String,
-        iconName: String,
-        totalWords: Int,
-        learnedWords: Int,
-        state: NodeState,
-        words: [TopicWord]
-    ) {
-        self.id = id
-        self.title = title
-        self.iconName = iconName
-        self.totalWords = totalWords
-        self.learnedWords = learnedWords
-        self.state = state
-        self.words = words
-    }
+    public static let sampleDecks: [TopicDeck] = [
+        TopicDeck(id: "1", title: "IELTS Academic", wordCount: 500, completionPercentage: 0.65, badgeColorHex: "#9F7AEA", iconName: "graduationcap.fill"),
+        TopicDeck(id: "2", title: "TOEIC Business", wordCount: 450, completionPercentage: 0.40, badgeColorHex: "#ED8936", iconName: "briefcase.fill"),
+        TopicDeck(id: "3", title: "Oxford 3000", wordCount: 3000, completionPercentage: 0.85, badgeColorHex: "#38B2AC", iconName: "book.closed.fill"),
+        TopicDeck(id: "4", title: "Travel & Food", wordCount: 250, completionPercentage: 0.20, badgeColorHex: "#E53E3E", iconName: "airplane"),
+        TopicDeck(id: "5", title: "Công Nghệ & AI", wordCount: 350, completionPercentage: 0.55, badgeColorHex: "#ED8936", iconName: "cpu.fill"),
+        TopicDeck(id: "6", title: "Giao Tiếp Ngày", wordCount: 400, completionPercentage: 0.90, badgeColorHex: "#38B2AC", iconName: "bubble.left.and.bubble.right.fill")
+    ]
 }
 
 extension SubTopicNode {
