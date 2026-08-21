@@ -94,15 +94,7 @@ public struct VocabularyView: View {
                 vaultViewModel: currentVaultVM,
                 onStartPractice: { selectedWords in
                     isPresentingPracticeSelection = false
-                    let drillVM = MixedReflexDrillViewModel(
-                        selectedWords: selectedWords,
-                        queueUseCase: GenerateMixedReflexQueueUseCase(),
-                        recordAttemptUseCase: RecordMixedDrillAttemptUseCase(
-                            progressRepo: appContainer.userProgressRepository,
-                            dataSource: appContainer.vocabularyDataSource
-                        ),
-                        ttsService: appContainer.ttsService
-                    )
+                    let drillVM = appContainer.makeMixedReflexDrillViewModel(selectedWords: selectedWords)
                     activeDrillViewModel = drillVM
                 },
                 onClose: {

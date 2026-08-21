@@ -3,7 +3,7 @@ import SwiftUI
 /// Integrated Homepage view showcasing Bento grid layout, dark mode aesthetic, and liquid glass navigation.
 public struct HomepageView: View {
     @State private var viewModel: HomepageViewModel
-    @State private var vocabularyVM: VocabularyViewModel?
+    @State private var vaultVM: PersonalVaultViewModel?
     @State private var settingsVM: SettingsViewModel?
     @State private var reflexBlitzVM: ReflexBlitzViewModel?
     @Environment(\.appContainer) private var appContainer
@@ -73,7 +73,7 @@ public struct HomepageView: View {
                 }
 
             case .vocabulary:
-                VocabularyView(viewModel: vocabularyVM ?? appContainer.makeVocabularyViewModel())
+                VocabularyView(vaultViewModel: vaultVM ?? appContainer.makePersonalVaultViewModel())
             case .search:
                 SearchNewWordView()
             case .reflex:
@@ -91,8 +91,8 @@ public struct HomepageView: View {
             }
         }
         .onAppear {
-            if vocabularyVM == nil {
-                vocabularyVM = appContainer.makeVocabularyViewModel()
+            if vaultVM == nil {
+                vaultVM = appContainer.makePersonalVaultViewModel()
             }
             if settingsVM == nil {
                 settingsVM = appContainer.makeSettingsViewModel()

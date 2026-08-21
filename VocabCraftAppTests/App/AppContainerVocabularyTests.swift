@@ -74,4 +74,23 @@ final class AppContainerVocabularyTests: XCTestCase {
         XCTAssertNotNil(containerWithSample.reviewWeakWordsUseCase)
         XCTAssertNotNil(containerWithSample.stageProgressRepository)
     }
+
+    @MainActor
+    func test_appContainer_instantiatesMixedReflexDrillDependencies() {
+        let container = AppContainer.mock
+        let queueUseCase = container.makeGenerateMixedReflexQueueUseCase()
+        XCTAssertNotNil(queueUseCase)
+
+        let recordAttemptUseCase = container.makeRecordMixedDrillAttemptUseCase()
+        XCTAssertNotNil(recordAttemptUseCase)
+
+        let sampleWords = [
+            VaultWordItem(id: 1, lemma: "resilience", pos: "n.", definitionVi: "Sự kiên cường"),
+            VaultWordItem(id: 2, lemma: "habit", pos: "n.", definitionVi: "Thói quen")
+        ]
+        let drillVM = container.makeMixedReflexDrillViewModel(selectedWords: sampleWords)
+        XCTAssertNotNil(drillVM)
+        XCTAssertEqual(drillVM.queue.count, 2)
+        XCTAssertFalse(drillVM.isCompleted)
+    }
 }

@@ -36,6 +36,8 @@ public final class AppContainer {
     public let fetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProtocol
     public let reviewWeakWordsUseCase: ReviewWeakWordsUseCaseProtocol
     public let toggleWordBookmarkUseCase: ToggleWordBookmarkUseCaseProtocol
+    public let generateMixedReflexQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol
+    public let recordMixedDrillAttemptUseCase: RecordMixedDrillAttemptUseCaseProtocol
 
     // MARK: - Stores & Navigation
     public let userSettingsStore: UserSettingsStore
@@ -49,6 +51,8 @@ public final class AppContainer {
         vocabularyDataSource: VocabularyDataSourceProtocol? = nil,
         stageProgressRepository: StageProgressRepositoryProtocol? = nil,
         userProgressRepository: (any UserProgressRepositoryProtocol)? = nil,
+        generateMixedReflexQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol? = nil,
+        recordMixedDrillAttemptUseCase: RecordMixedDrillAttemptUseCaseProtocol? = nil,
         ttsService: TextToSpeechProtocol? = nil,
         sttService: SpeechRecognitionProtocol? = nil,
         speechAssessmentService: SpeechAssessmentProtocol? = nil,
@@ -117,9 +121,24 @@ public final class AppContainer {
         self.toggleWordBookmarkUseCase = ToggleWordBookmarkUseCase(
             progressRepo: resolvedUserProgressRepo
         )
+        self.generateMixedReflexQueueUseCase = generateMixedReflexQueueUseCase ?? GenerateMixedReflexQueueUseCase()
+        self.recordMixedDrillAttemptUseCase = recordMixedDrillAttemptUseCase ?? RecordMixedDrillAttemptUseCase(
+            progressRepo: resolvedUserProgressRepo,
+            dataSource: resolvedDataSource
+        )
 
         self.userSettingsStore = userSettingsStore ?? UserSettingsStore()
         self.appRouter = appRouter ?? AppRouter()
+    }
+
+    // MARK: - Use Case Factories
+
+    public func makeGenerateMixedReflexQueueUseCase() -> GenerateMixedReflexQueueUseCaseProtocol {
+        generateMixedReflexQueueUseCase
+    }
+
+    public func makeRecordMixedDrillAttemptUseCase() -> RecordMixedDrillAttemptUseCaseProtocol {
+        recordMixedDrillAttemptUseCase
     }
 
     // MARK: - View Model Factories
@@ -186,6 +205,15 @@ public final class AppContainer {
             continuousSpeechService: ContinuousReflexSpeechService(),
             ttsService: ttsService,
             evaluateSRSUseCase: evaluateSRSUseCase
+        )
+    }
+
+    public func makeMixedReflexDrillViewModel(selectedWords: [VaultWordItem]) -> MixedReflexDrillViewModel {
+        MixedReflexDrillViewModel(
+            selectedWords: selectedWords,
+            queueUseCase: generateMixedReflexQueueUseCase,
+            recordAttemptUseCase: recordMixedDrillAttemptUseCase,
+            ttsService: ttsService
         )
     }
 
