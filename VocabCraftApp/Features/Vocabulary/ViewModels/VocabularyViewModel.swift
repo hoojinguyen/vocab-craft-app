@@ -29,7 +29,12 @@ public final class VocabularyViewModel {
     public var selectedFilter: VocabularyFilter = .all
     public var selectedTab = 0 // 0: Kho từ cá nhân, 1: Bộ từ chủ đề
     public var expandedWordId: Int64? = 1 // Expand first word by default
-    public var wordItems: [WordItem] = []
+    public var wordItems: [WordItem] = [] {
+        didSet {
+            recalculateFilterCounts()
+        }
+    }
+    public private(set) var filterCounts: [VocabularyFilter: Int] = [:]
     public var isLoading: Bool = false
     public var selectedDeckId: String?
     public var selectedDrillWord: WordItem?
@@ -46,14 +51,19 @@ public final class VocabularyViewModel {
         self.fetchVocabularyUseCase = fetchVocabularyUseCase
         self.ttsService = ttsService
         self.filterService = filterService
+        self.filterCounts = filterService.countAllCategories(in: wordItems)
     }
 
     public var filteredWords: [WordItem] {
         filterService.filter(words: wordItems, filter: selectedFilter, searchText: searchText)
     }
 
+    private func recalculateFilterCounts() {
+        self.filterCounts = filterService.countAllCategories(in: wordItems)
+    }
+
     public func filterCount(for filter: VocabularyFilter) -> Int {
-        filterService.countMatches(in: wordItems, for: filter)
+        filterCounts[filter] ?? 0
     }
 
     /// Delete a word from personal bank.

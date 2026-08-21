@@ -54,4 +54,36 @@ public struct VocabularyFilterService: Sendable {
             return words.filter { $0.cefrLevel == "C1" || $0.cefrLevel == "C2" }.count
         }
     }
+
+    /// Single-pass accumulator calculating counts for all categories simultaneously in O(N).
+    public func countAllCategories(in words: [WordItem]) -> [VocabularyFilter: Int] {
+        var counts: [VocabularyFilter: Int] = [
+            .all: words.count,
+            .needsReview: 0,
+            .mastered: 0,
+            .a1a2: 0,
+            .b1b2: 0,
+            .c1c2: 0
+        ]
+
+        for word in words {
+            if word.masteryLevel < 3 {
+                counts[.needsReview, default: 0] += 1
+            }
+            if word.masteryLevel >= 4 {
+                counts[.mastered, default: 0] += 1
+            }
+            let level = word.cefrLevel.uppercased()
+            if level == "A1" || level == "A2" {
+                counts[.a1a2, default: 0] += 1
+            } else if level == "B1" || level == "B2" {
+                counts[.b1b2, default: 0] += 1
+            } else if level == "C1" || level == "C2" {
+                counts[.c1c2, default: 0] += 1
+            }
+        }
+
+        return counts
+    }
 }
+

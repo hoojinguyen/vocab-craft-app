@@ -59,4 +59,16 @@ struct VocabularyFilterServiceTests {
         #expect(service.countMatches(in: sampleWords, for: .b1b2) == 1)
         #expect(service.countMatches(in: sampleWords, for: .c1c2) == 1)
     }
+
+    @Test("Calculates all filter counts in a single pass")
+    func testCountAllCategories() {
+        let counts = service.countAllCategories(in: sampleWords)
+        #expect(counts[.all] == 4)
+        #expect(counts[.needsReview] == 2)
+        #expect(counts[.mastered] == 2)
+        #expect(counts[.a1a2] == 2)
+        #expect(counts[.b1b2] == 1)
+        #expect(counts[.c1c2] == 1)
+    }
 }
+
