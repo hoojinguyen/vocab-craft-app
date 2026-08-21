@@ -39,6 +39,7 @@ identifier_name:
     - b
     - u
     - t
+    - ms
     - SQLITE_TRANSIENT
 
 line_length:
