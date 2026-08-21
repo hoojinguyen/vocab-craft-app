@@ -15,7 +15,6 @@ public struct MixedReflexDrillView: View {
     public let onFinish: () -> Void
 
     @State private var timerTask: Task<Void, Never>?
-    @State private var itemStartTime: Date?
     @State private var fractionRemaining: Double = 1.0
     @State private var elapsedTimeMs: Int = 0
     @State private var cardPhase: ReflexCardPhase = .activeCountdown
@@ -25,7 +24,6 @@ public struct MixedReflexDrillView: View {
     @State private var currentOptions: [ReflexBlitzOption] = []
     @State private var showExitAlert: Bool = false
     @State private var shakeOffset: CGFloat = 0
-    @FocusState private var isTextFieldFocused: Bool
 
     public init(
         viewModel: MixedReflexDrillViewModel,
@@ -106,11 +104,9 @@ public struct MixedReflexDrillView: View {
     @ViewBuilder
     private func drillingSessionContent(currentItem: MixedReflexDrillItem) -> some View {
         VStack(spacing: 14) {
-            // Header Bar with Close, Progress Bar, Step Counter, Combo Flame
             sessionHeaderBar(currentItem: currentItem)
                 .padding(.top, 10)
 
-            // Dynamic Mode Badge & Dynamic Pulse Timer Bar
             VStack(spacing: 8) {
                 DynamicReflexModeBadge(mode: currentItem.assignedMode)
 
@@ -124,13 +120,11 @@ public struct MixedReflexDrillView: View {
 
             Spacer(minLength: 8)
 
-            // Challenge Interactive Card
             challengeCard(for: currentItem)
                 .padding(.horizontal, 16)
 
             Spacer(minLength: 8)
 
-            // Bottom Advance / Skip Dock in Thumb Reach Zone
             ReflexBlitzAdvanceDockView(
                 cardPhase: cardPhase,
                 onAdvance: {
@@ -147,7 +141,6 @@ public struct MixedReflexDrillView: View {
     // MARK: - Header Bar
     private func sessionHeaderBar(currentItem: MixedReflexDrillItem) -> some View {
         HStack(alignment: .center) {
-            // Close Button
             Button(action: {
                 showExitAlert = true
             }) {
@@ -158,42 +151,31 @@ public struct MixedReflexDrillView: View {
                     .background(.ultraThinMaterial)
                     .clipShape(Circle())
                     .overlay(
-                        Circle()
-                            .stroke(Color.white.opacity(0.12), lineWidth: 0.8)
+                        Circle().stroke(Color.vocabHairline, lineWidth: 1)
                     )
             }
             .buttonStyle(PlainButtonStyle())
-            .frame(minWidth: 44, minHeight: 44, alignment: .leading)
-            .accessibilityLabel("Đóng bài luyện tập")
+            .frame(minWidth: 44, minHeight: 44)
+            .accessibilityLabel("Thoát bài luyện tập")
 
             Spacer()
 
-            // Center Segmented Step Counter
-            VStack(spacing: 4) {
-                HStack(spacing: 3) {
-                    ForEach(0..<max(1, viewModel.queue.count), id: \.self) { index in
-                        Capsule()
-                            .fill(stepSegmentColor(for: index))
-                            .frame(height: 4)
-                            .frame(maxWidth: 16)
-                    }
+            HStack(spacing: 4) {
+                ForEach(0..<viewModel.queue.count, id: \.self) { idx in
+                    Capsule()
+                        .fill(stepSegmentColor(for: idx))
+                        .frame(width: max(4, min(14, 180.0 / Double(max(1, viewModel.queue.count)))), height: 5)
                 }
-
-                Text("\(viewModel.currentIndex + 1) / \(viewModel.queue.count)")
-                    .font(.caption2.monospacedDigit().bold())
-                    .foregroundColor(.vocabMuted)
             }
-            .accessibilityElement(children: .combine)
-            .accessibilityLabel("Tiến độ: câu \(viewModel.currentIndex + 1) trên \(viewModel.queue.count)")
 
             Spacer()
 
-            // Combo Flame Badge
-            if viewModel.comboStreak >= 2 {
+            if viewModel.comboStreak > 1 {
                 HStack(spacing: 4) {
                     Image(systemName: "flame.fill")
-                        .symbolRenderingMode(.multicolor)
-                    Text("x\(viewModel.comboStreak)")
+                        .font(.caption2.bold())
+                        .foregroundColor(.vocabPeach)
+                    Text("\(viewModel.comboStreak)x")
                         .font(.caption.monospacedDigit().bold())
                         .foregroundColor(.vocabPeach)
                 }
@@ -225,7 +207,13 @@ public struct MixedReflexDrillView: View {
     private func challengeCard(for item: MixedReflexDrillItem) -> some View {
         VStack(spacing: 16) {
             if isReviewed {
-                reviewedCardView(for: item)
+                MixedDrillReviewedSection(
+                    item: item,
+                    result: reviewedResult,
+                    onPlayAudio: {
+                        viewModel.playAudioForCurrentWord()
+                    }
+                )
             } else {
                 activeChallengeContent(for: item)
             }
@@ -238,7 +226,7 @@ public struct MixedReflexDrillView: View {
             RoundedRectangle(cornerRadius: 22, style: .continuous)
                 .stroke(cardBorderColor, lineWidth: isReviewed ? 2 : 1)
         )
-        .shadow(color: Color.black.opacity(0.05), radius: 12, x: 0, y: 4)
+        .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 3)
         .offset(x: shakeOffset)
     }
 
@@ -255,183 +243,54 @@ public struct MixedReflexDrillView: View {
     private func activeChallengeContent(for item: MixedReflexDrillItem) -> some View {
         switch item.assignedMode {
         case .multipleChoice:
-            activeMultipleChoiceView(for: item)
+            MixedDrillMultipleChoiceSection(
+                word: item.word,
+                options: currentOptions,
+                onSelectOption: { option in
+                    handleAnswerSubmission(isCorrect: option.isCorrect, selectedOption: option.text)
+                }
+            )
         case .speaking:
             if isKeyboardFallbackActive {
-                activeTypingView(for: item)
+                MixedDrillTypingSection(
+                    word: item.word,
+                    typingText: $typingText,
+                    onSubmit: {
+                        submitTypingAnswer(for: item.word)
+                    }
+                )
             } else {
-                activeSpeakingView(for: item)
+                MixedDrillSpeakingSection(
+                    word: item.word,
+                    liveTranscript: liveTranscript,
+                    elapsedTimeMs: elapsedTimeMs,
+                    onSwitchToKeyboard: {
+                        withAnimation(.spring(response: 0.25, dampingFraction: 0.75)) {
+                            isKeyboardFallbackActive = true
+                            speechService?.pauseListening()
+                        }
+                    }
+                )
             }
         case .typing:
-            activeTypingView(for: item)
-        case .listening:
-            activeListeningView(for: item)
-        }
-    }
-
-    // MARK: - Mode 1: Multiple Choice
-    @ViewBuilder
-    private func activeMultipleChoiceView(for item: MixedReflexDrillItem) -> some View {
-        wordPromptHeader(for: item.word)
-
-        clozeSentenceView(for: item.word, isReviewed: false)
-
-        dividerLine
-
-        // 2x2 Option Grid
-        LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
-            ForEach(Array(currentOptions.enumerated()), id: \.element.id) { index, option in
-                Button(action: {
-                    handleAnswerSubmission(isCorrect: option.isCorrect, selectedOption: option.text)
-                }) {
-                    HStack(spacing: 8) {
-                        Text(optionLetter(for: index))
-                            .font(.caption.bold())
-                            .foregroundColor(.vocabMuted)
-                            .frame(width: 22, height: 22)
-                            .background(Color.vocabMuted.opacity(0.12))
-                            .clipShape(Circle())
-
-                        Text(option.text)
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundColor(.vocabInk)
-                            .lineLimit(2)
-
-                        Spacer(minLength: 0)
-                    }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 12)
-                    .frame(maxWidth: .infinity, minHeight: 50, alignment: .leading)
-                    .background(Color.vocabCanvas)
-                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .stroke(Color.vocabHairline, lineWidth: 1)
-                    )
-                }
-                .buttonStyle(BentoCardButtonStyle())
-                .accessibilityLabel("Lựa chọn \(optionLetter(for: index)): \(option.text)")
-            }
-        }
-    }
-
-    // MARK: - Mode 2: Speaking
-    @ViewBuilder
-    private func activeSpeakingView(for item: MixedReflexDrillItem) -> some View {
-        wordPromptHeader(for: item.word)
-
-        clozeSentenceView(for: item.word, isReviewed: false)
-
-        dividerLine
-
-        // Waveform & Listening State Dock
-        VStack(spacing: 8) {
-            HStack(spacing: 4) {
-                ForEach(0..<9, id: \.self) { idx in
-                    Capsule()
-                        .fill(Color.vocabMint)
-                        .frame(width: 3.5, height: CGFloat(8 + ((idx * 5 + (elapsedTimeMs / 60)) % 18)))
-                        .animation(.easeInOut(duration: 0.1), value: elapsedTimeMs)
-                }
-            }
-            .frame(height: 26)
-            .accessibilityHidden(true)
-
-            if liveTranscript.isEmpty {
-                HStack(spacing: 6) {
-                    Image(systemName: "mic.fill")
-                        .font(.caption2)
-                        .symbolRenderingMode(.hierarchical)
-                        .foregroundColor(.vocabMint)
-
-                    Text("Đang lắng nghe phát âm...")
-                        .font(.footnote.weight(.medium))
-                        .foregroundColor(.vocabMuted)
-                }
-            } else {
-                HStack(spacing: 6) {
-                    Image(systemName: "waveform")
-                        .font(.caption2)
-                        .foregroundColor(.vocabHeroAccent)
-
-                    Text(liveTranscript)
-                        .font(.footnote.bold())
-                        .foregroundColor(.vocabHeroAccent)
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 4)
-                .background(Color.vocabHeroAccent.opacity(0.12))
-                .clipShape(Capsule())
-            }
-
-            // Keyboard Fallback Switch
-            Button(action: {
-                withAnimation(.spring(response: 0.25, dampingFraction: 0.75)) {
-                    isKeyboardFallbackActive = true
-                    speechService?.pauseListening()
-                }
-            }) {
-                HStack(spacing: 4) {
-                    Image(systemName: "keyboard")
-                        .font(.caption2)
-                    Text("Chuyển sang gõ từ")
-                        .font(.caption2.weight(.semibold))
-                }
-                .foregroundColor(.vocabMuted)
-                .padding(.top, 4)
-                .frame(minHeight: 44)
-            }
-            .buttonStyle(PlainButtonStyle())
-        }
-        .padding(.vertical, 8)
-        .frame(maxWidth: .infinity)
-        .background(Color.vocabCanvas.opacity(0.6))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-    }
-
-    // MARK: - Mode 3: Typing
-    @ViewBuilder
-    private func activeTypingView(for item: MixedReflexDrillItem) -> some View {
-        wordPromptHeader(for: item.word)
-
-        clozeSentenceView(for: item.word, isReviewed: false)
-
-        dividerLine
-
-        HStack(spacing: 8) {
-            TextField("Gõ từ tiếng Anh...", text: $typingText)
-                .textFieldStyle(.plain)
-                .focused($isTextFieldFocused)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 12)
-                .background(Color.vocabCanvas)
-                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .stroke(isTextFieldFocused ? Color.vocabHeroAccent : Color.vocabHairline, lineWidth: isTextFieldFocused ? 1.5 : 1)
-                )
-                .autocorrectionDisabled()
-                #if os(iOS)
-                .textInputAutocapitalization(.never)
-                #endif
-                .onSubmit {
+            MixedDrillTypingSection(
+                word: item.word,
+                typingText: $typingText,
+                onSubmit: {
                     submitTypingAnswer(for: item.word)
                 }
-
-            Button(action: {
-                submitTypingAnswer(for: item.word)
-            }) {
-                Image(systemName: "arrow.up.circle.fill")
-                    .font(.system(size: 34, weight: .bold))
-                    .symbolRenderingMode(.hierarchical)
-                    .foregroundColor(typingText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? .vocabMuted.opacity(0.35) : .vocabHeroAccent)
-            }
-            .disabled(typingText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            .frame(minWidth: 44, minHeight: 44)
-            .accessibilityLabel("Gửi câu trả lời đã gõ")
-        }
-        .onAppear {
-            isTextFieldFocused = true
+            )
+        case .listening:
+            MixedDrillListeningSection(
+                options: currentOptions,
+                elapsedTimeMs: elapsedTimeMs,
+                onPlayAudio: {
+                    viewModel.playAudioForCurrentWord()
+                },
+                onSelectOption: { option in
+                    handleAnswerSubmission(isCorrect: option.isCorrect, selectedOption: option.text)
+                }
+            )
         }
     }
 
@@ -441,246 +300,6 @@ public struct MixedReflexDrillView: View {
         let target = word.lemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         let isCorrect = input == target
         handleAnswerSubmission(isCorrect: isCorrect, typedText: typingText)
-    }
-
-    // MARK: - Mode 4: Listening
-    @ViewBuilder
-    private func activeListeningView(for item: MixedReflexDrillItem) -> some View {
-        // Lemma is hidden during listening drill!
-        VStack(spacing: 12) {
-            // Audio wave visualizer
-            HStack(spacing: 5) {
-                ForEach(0..<11, id: \.self) { idx in
-                    Capsule()
-                        .fill(Color.vocabHeroAccent)
-                        .frame(width: 3.5, height: CGFloat(8 + ((idx * 6 + (elapsedTimeMs / 60)) % 22)))
-                        .animation(.easeInOut(duration: 0.1), value: elapsedTimeMs)
-                }
-            }
-            .frame(height: 28)
-            .accessibilityHidden(true)
-
-            Button(action: {
-                viewModel.playAudioForCurrentWord()
-            }) {
-                HStack(spacing: 6) {
-                    Image(systemName: "speaker.wave.3.fill")
-                        .font(.system(size: 15, weight: .bold))
-                        .symbolRenderingMode(.hierarchical)
-                    Text("Nghe lại phát âm")
-                        .font(.subheadline.bold())
-                }
-                .foregroundColor(.vocabHeroAccent)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(.ultraThinMaterial)
-                .clipShape(Capsule())
-                .overlay(
-                    Capsule()
-                        .stroke(Color.vocabHeroAccent.opacity(0.35), lineWidth: 1)
-                )
-                .frame(minHeight: 44)
-            }
-            .buttonStyle(BentoCardButtonStyle())
-            .accessibilityLabel("Nghe lại phát âm")
-
-            Text("Chọn nghĩa tiếng Việt chính xác của từ vừa nghe")
-                .font(.caption.weight(.medium))
-                .foregroundColor(.vocabMuted)
-        }
-        .padding(.vertical, 4)
-
-        dividerLine
-
-        // 1-column Definition Options List
-        VStack(spacing: 8) {
-            ForEach(Array(currentOptions.enumerated()), id: \.element.id) { index, option in
-                Button(action: {
-                    handleAnswerSubmission(isCorrect: option.isCorrect, selectedOption: option.text)
-                }) {
-                    HStack(spacing: 8) {
-                        Text(optionLetter(for: index))
-                            .font(.caption.bold())
-                            .foregroundColor(.vocabMuted)
-                            .frame(width: 22, height: 22)
-                            .background(Color.vocabMuted.opacity(0.12))
-                            .clipShape(Circle())
-
-                        Text(option.text)
-                            .font(.subheadline)
-                            .foregroundColor(.vocabInk)
-                            .lineLimit(2)
-
-                        Spacer()
-                    }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 10)
-                    .frame(maxWidth: .infinity, minHeight: 46, alignment: .leading)
-                    .background(Color.vocabCanvas)
-                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .stroke(Color.vocabHairline, lineWidth: 1)
-                    )
-                }
-                .buttonStyle(BentoCardButtonStyle())
-                .accessibilityLabel("Lựa chọn \(optionLetter(for: index)): \(option.text)")
-            }
-        }
-    }
-
-    // MARK: - Reviewed Card State View
-    @ViewBuilder
-    private func reviewedCardView(for item: MixedReflexDrillItem) -> some View {
-        VStack(spacing: 12) {
-            // Status Header Badge
-            HStack(spacing: 6) {
-                Image(systemName: isResultCorrect ? "checkmark.circle.fill" : (isResultTimeout ? "clock.badge.exclamationmark.fill" : "xmark.circle.fill"))
-                    .font(.headline.bold())
-                    .symbolRenderingMode(.hierarchical)
-
-                Text(isResultCorrect ? "Chính xác!" : (isResultTimeout ? "Hết thời gian!" : "Chưa chính xác"))
-                    .font(.headline.bold())
-                    .fontDesign(.rounded)
-            }
-            .foregroundColor(isResultCorrect ? .vocabMint : .vocabCoral)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 6)
-            .background((isResultCorrect ? Color.vocabMint : Color.vocabCoral).opacity(0.14))
-            .clipShape(Capsule())
-
-            // Correct Lemma & Speaker
-            HStack(alignment: .center, spacing: 8) {
-                Text(item.word.lemma)
-                    .font(.title2.weight(.bold))
-                    .fontDesign(.rounded)
-                    .foregroundColor(.vocabInk)
-
-                Button(action: {
-                    viewModel.playAudioForCurrentWord()
-                }) {
-                    Image(systemName: "speaker.wave.2.fill")
-                        .font(.system(size: 14, weight: .semibold))
-                        .symbolRenderingMode(.hierarchical)
-                        .foregroundColor(.vocabHeroAccent)
-                        .frame(width: 32, height: 32)
-                        .background(.ultraThinMaterial)
-                        .clipShape(Circle())
-                        .overlay(
-                            Circle()
-                                .stroke(Color.vocabHeroAccent.opacity(0.25), lineWidth: 0.8)
-                        )
-                }
-                .buttonStyle(PlainButtonStyle())
-                .frame(minWidth: 44, minHeight: 44)
-                .accessibilityLabel("Nghe phát âm từ \(item.word.lemma)")
-            }
-
-            // Phonetics & POS
-            let meta = [item.word.pos, item.word.phonetic].filter { !$0.isEmpty }.joined(separator: " • ")
-            if !meta.isEmpty {
-                Text(meta)
-                    .font(.caption.monospaced())
-                    .foregroundColor(.vocabMuted)
-            }
-
-            // Vietnamese Definition
-            Text(item.word.definitionVi)
-                .font(.subheadline.weight(.medium))
-                .foregroundColor(.vocabInk.opacity(0.85))
-                .multilineTextAlignment(.center)
-
-            // Complete Sentence
-            if !item.word.exampleSentenceEn.isEmpty {
-                dividerLine
-
-                Text(item.word.exampleSentenceEn)
-                    .font(.subheadline.weight(.medium))
-                    .fontDesign(.serif)
-                    .foregroundColor(.vocabInk)
-                    .multilineTextAlignment(.center)
-            }
-        }
-        .padding(.vertical, 8)
-    }
-
-    // MARK: - Prompt Header Component
-    private func wordPromptHeader(for word: VaultWordItem) -> some View {
-        VStack(spacing: 4) {
-            if !word.pos.isEmpty {
-                Text(word.pos.uppercased())
-                    .font(.caption2.weight(.bold))
-                    .fontDesign(.rounded)
-                    .foregroundColor(.vocabHeroAccent)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 2)
-                    .background(Color.vocabHeroAccent.opacity(0.12))
-                    .clipShape(Capsule())
-            }
-
-            Text(word.definitionVi)
-                .font(.headline.weight(.bold))
-                .foregroundColor(.vocabInk)
-                .multilineTextAlignment(.center)
-                .lineLimit(2)
-        }
-    }
-
-    // MARK: - Cloze Sentence Component
-    private func clozeSentenceView(for word: VaultWordItem, isReviewed: Bool) -> some View {
-        let sentence = word.exampleSentenceEn
-        guard !sentence.isEmpty else {
-            return AnyView(EmptyView())
-        }
-
-        let cloze = ReflexClozeFormatter.formatCloze(sentenceEn: sentence, lemma: word.lemma)
-        let (prefix, suffix) = ReflexClozeFormatter.extractTemplateParts(from: cloze)
-
-        return AnyView(
-            VStack(spacing: 4) {
-                if !suffix.isEmpty || cloze != prefix {
-                    Text(prefix)
-                        .font(.subheadline.weight(.medium))
-                        .fontDesign(.serif)
-                        .foregroundColor(.vocabInk)
-                    +
-                    Text(isReviewed ? word.lemma : "[ _______ ]")
-                        .font(.subheadline.bold())
-                        .fontDesign(isReviewed ? .serif : .monospaced)
-                        .foregroundColor(isReviewed ? (isResultCorrect ? .vocabMint : .vocabCoral) : .vocabHeroAccent)
-                    +
-                    Text(suffix)
-                        .font(.subheadline.weight(.medium))
-                        .fontDesign(.serif)
-                        .foregroundColor(.vocabInk)
-                } else {
-                    Text(sentence)
-                        .font(.subheadline.weight(.medium))
-                        .fontDesign(.serif)
-                        .foregroundColor(.vocabInk)
-                }
-            }
-            .multilineTextAlignment(.center)
-            .padding(.horizontal, 4)
-        )
-    }
-
-    private var dividerLine: some View {
-        Rectangle()
-            .fill(
-                LinearGradient(
-                    colors: [.clear, Color.vocabHairline, .clear],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-            )
-            .frame(height: 1)
-            .padding(.horizontal, 4)
-    }
-
-    private func optionLetter(for index: Int) -> String {
-        let letters = ["A", "B", "C", "D", "E", "F"]
-        return index < letters.count ? letters[index] : "\(index + 1)"
     }
 
     // MARK: - Session Execution & Drill Flow Logic
@@ -694,7 +313,6 @@ public struct MixedReflexDrillView: View {
         elapsedTimeMs = 0
 
         let startTime = Date()
-        itemStartTime = startTime
         currentOptions = viewModel.generateOptions(for: item)
 
         if item.assignedMode == .listening {
@@ -800,7 +418,7 @@ public struct MixedReflexDrillView: View {
             }
         }
 
-        speechService?.onMatchDetected = { matchedLemma in
+        speechService?.onMatchDetected = { _ in
             Task { @MainActor in
                 guard self.cardPhase == .activeCountdown else { return }
                 self.handleAnswerSubmission(isCorrect: true)

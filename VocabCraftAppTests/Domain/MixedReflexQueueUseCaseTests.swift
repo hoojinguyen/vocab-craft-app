@@ -4,7 +4,6 @@ import Testing
 
 @Suite("MixedReflexQueueUseCase & RecordMixedDrillAttempt Tests")
 struct MixedReflexQueueUseCaseTests {
-
     // MARK: - GenerateMixedReflexQueueUseCase Tests
 
     @Test("Tạo hàng đợi gán ngẫu nhiên 4 mode cho danh sách từ")

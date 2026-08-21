@@ -9,7 +9,7 @@ public struct VaultWordItem: Identifiable, Sendable, Equatable {
     public let exampleSentenceEn: String
     public let exampleSentenceVi: String
     public let cefrLevel: String?
-    
+
     public let isMastered: Bool
     public let isBookmarked: Bool
     public let correctStreak: Int

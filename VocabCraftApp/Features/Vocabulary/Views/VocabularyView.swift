@@ -365,70 +365,43 @@ public struct VocabularyView: View {
         guard let stateIdx = args.firstIndex(of: "-vocab-state"), stateIdx + 1 < args.count else { return }
         let state = args[stateIdx + 1]
 
+        if state == "personal-empty" {
+            vaultVM?.deselectAll()
+            return
+        }
+
+        await seedSampleUserProgress()
+        if let vm = vaultVM { await vm.loadData() }
+
+        applyAutomationFilterAndSearch(state: state)
+        applyAutomationPresentation(state: state)
+    }
+
+    private func applyAutomationFilterAndSearch(state: String) {
+        guard let vm = vaultVM else { return }
         switch state {
-        case "personal-empty":
-            if let vm = vaultVM {
-                vm.deselectAll()
-            }
-
-        case "personal-populated":
-            await seedSampleUserProgress()
-            if let vm = vaultVM { await vm.loadData() }
-
         case "personal-expanded":
-            await seedSampleUserProgress()
-            if let vm = vaultVM {
-                await vm.loadData()
-                expandedWordId = vm.vaultWords.first?.id
-            }
-
+            expandedWordId = vm.vaultWords.first?.id
         case "personal-filter-needs-review", "filter-not-mastered":
-            await seedSampleUserProgress()
-            if let vm = vaultVM {
-                await vm.loadData()
-                vm.setVaultFilter(.notMastered)
-            }
-
+            vm.setVaultFilter(.notMastered)
         case "personal-filter-mastered":
-            await seedSampleUserProgress()
-            if let vm = vaultVM {
-                await vm.loadData()
-                vm.setVaultFilter(.mastered)
-            }
-
+            vm.setVaultFilter(.mastered)
         case "personal-filter-bookmarked":
-            await seedSampleUserProgress()
-            if let vm = vaultVM {
-                await vm.loadData()
-                vm.setVaultFilter(.bookmarked)
-            }
-
+            vm.setVaultFilter(.bookmarked)
         case "personal-search-match":
-            await seedSampleUserProgress()
-            if let vm = vaultVM {
-                await vm.loadData()
-                vm.setSearchQuery("resilience")
-            }
-
+            vm.setSearchQuery("resilience")
         case "personal-search-empty":
-            await seedSampleUserProgress()
-            if let vm = vaultVM {
-                await vm.loadData()
-                vm.setSearchQuery("không_tìm_thấy_từ")
-            }
-
-        case "practice-selection":
-            await seedSampleUserProgress()
-            if let vm = vaultVM { await vm.loadData() }
-            isPresentingPracticeSelection = true
-
-        case "smart-review-question", "smart-review-revealed", "smart-review-completed":
-            await seedSampleUserProgress()
-            if let vm = vaultVM { await vm.loadData() }
-            isPresentingSmartReview = true
-
+            vm.setSearchQuery("không_tìm_thấy_từ")
         default:
             break
+        }
+    }
+
+    private func applyAutomationPresentation(state: String) {
+        if state == "practice-selection" {
+            isPresentingPracticeSelection = true
+        } else if state.starts(with: "smart-review") {
+            isPresentingSmartReview = true
         }
     }
 

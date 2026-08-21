@@ -1,5 +1,17 @@
 import Foundation
 
+public struct MasteryEvaluationResult: Sendable, Equatable {
+    public let newStreak: Int
+    public let newPracticedModes: Set<ReflexBlitzMode>
+    public let isMastered: Bool
+
+    public init(newStreak: Int, newPracticedModes: Set<ReflexBlitzMode>, isMastered: Bool) {
+        self.newStreak = newStreak
+        self.newPracticedModes = newPracticedModes
+        self.isMastered = isMastered
+    }
+}
+
 public struct MasteryEvaluationPolicy: Sendable {
     public static let requiredStreakForMastery = 3
     public static let requiredDistinctModesForMastery = 2
@@ -9,9 +21,9 @@ public struct MasteryEvaluationPolicy: Sendable {
         practicedModes: Set<ReflexBlitzMode>,
         isCorrect: Bool,
         currentMode: ReflexBlitzMode
-    ) -> (newStreak: Int, newPracticedModes: Set<ReflexBlitzMode>, isMastered: Bool) {
+    ) -> MasteryEvaluationResult {
         if !isCorrect {
-            return (newStreak: 0, newPracticedModes: [], isMastered: false)
+            return MasteryEvaluationResult(newStreak: 0, newPracticedModes: [], isMastered: false)
         }
 
         let newStreak = currentStreak + 1
@@ -21,6 +33,6 @@ public struct MasteryEvaluationPolicy: Sendable {
         let isMastered = (newStreak >= requiredStreakForMastery) &&
                          (newModes.count >= requiredDistinctModesForMastery)
 
-        return (newStreak: newStreak, newPracticedModes: newModes, isMastered: isMastered)
+        return MasteryEvaluationResult(newStreak: newStreak, newPracticedModes: newModes, isMastered: isMastered)
     }
 }

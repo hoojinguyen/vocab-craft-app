@@ -1,10 +1,9 @@
-import Testing
 import SwiftUI
+import Testing
 @testable import VocabCraftApp
 
 @Suite("MixedReflexDrillViews Tests")
 struct MixedReflexDrillViewsTests {
-
     @Test("DynamicReflexModeBadge hiển thị đúng cho cả 4 chế độ")
     @MainActor
     func testDynamicReflexModeBadgeRendering() {

@@ -15,7 +15,7 @@ struct MasteryEvaluationPolicyTests {
         #expect(result1.newStreak == 1)
         #expect(result1.newPracticedModes.contains(.multipleChoice))
         #expect(result1.isMastered == false)
-        
+
         // Lần 2 đúng vẫn với MultipleChoice (chưa đủ 2 chế độ khác nhau)
         let result2 = MasteryEvaluationPolicy.evaluate(
             currentStreak: 2,

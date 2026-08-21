@@ -48,117 +48,9 @@ public struct TopCarouselFlashcardView: View {
             onWordSelected?(word)
         }) {
             VStack(alignment: .leading, spacing: 10) {
-                // Top Meta Row
-                HStack(alignment: .center, spacing: 6) {
-                    if let cefr = word.cefrLevel, !cefr.isEmpty {
-                        Text(cefr.uppercased())
-                            .font(.system(size: 10, weight: .bold))
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(cefrBadgeBackground(for: cefr))
-                            .foregroundColor(Color.vocabInk)
-                            .cornerRadius(4)
-                    }
-
-                    if !word.pos.isEmpty {
-                        Text("(\(word.pos))")
-                            .font(.system(size: 11, weight: .medium).italic())
-                            .foregroundColor(Color.vocabMuted)
-                    }
-
-                    if word.isMastered {
-                        HStack(spacing: 3) {
-                            Image(systemName: "checkmark.seal.fill")
-                                .font(.system(size: 10, weight: .bold))
-                            Text("Đã thuộc")
-                                .font(.system(size: 10, weight: .bold))
-                        }
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Color.vocabMint.opacity(0.18))
-                        .foregroundColor(Color.vocabMint)
-                        .cornerRadius(4)
-                    } else if word.correctStreak > 0 {
-                        HStack(spacing: 3) {
-                            Image(systemName: "flame.fill")
-                                .font(.system(size: 10, weight: .bold))
-                            Text("Chuỗi: \(word.correctStreak)/3")
-                                .font(.system(size: 10, weight: .bold))
-                        }
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Color.vocabPeach.opacity(0.18))
-                        .foregroundColor(Color.vocabPeach)
-                        .cornerRadius(4)
-                    }
-
-                    Spacer()
-
-                    // Bookmark Button
-                    Button(action: {
-                        onBookmarkTap?(word)
-                    }) {
-                        Image(systemName: word.isBookmarked ? "bookmark.fill" : "bookmark")
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(word.isBookmarked ? Color.vocabPeach : Color.vocabMuted)
-                            .frame(width: 36, height: 36)
-                            .contentShape(Rectangle())
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .frame(minWidth: 44, minHeight: 44)
-
-                    // Audio Playback Button
-                    Button(action: {
-                        onAudioTap?(word)
-                    }) {
-                        Image(systemName: "speaker.wave.2.fill")
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundColor(Color.vocabHeroAccent)
-                            .frame(width: 34, height: 34)
-                            .background(Color.vocabHeroAccent.opacity(0.12))
-                            .clipShape(Circle())
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .frame(minWidth: 44, minHeight: 44)
-                }
-
-                // Lemma & Phonetic
-                HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text(word.lemma)
-                        .font(.system(size: 22, weight: .bold, design: .serif))
-                        .foregroundColor(Color.vocabInk)
-
-                    if !word.phonetic.isEmpty {
-                        Text(word.phonetic)
-                            .font(.system(size: 13, weight: .medium, design: .monospaced))
-                            .foregroundColor(Color.vocabMuted)
-                    }
-                }
-
-                // Vietnamese Definition
-                Text(word.definitionVi)
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(Color.vocabInk)
-                    .lineLimit(2)
-
-                // Contextual Example Sentence with Highlight
-                if !word.exampleSentenceEn.isEmpty {
-                    VStack(alignment: .leading, spacing: 3) {
-                        highlightedExample(sentence: word.exampleSentenceEn, lemma: word.lemma)
-
-                        if !word.exampleSentenceVi.isEmpty {
-                            Text(word.exampleSentenceVi)
-                                .font(.system(size: 11, weight: .regular))
-                                .foregroundColor(Color.vocabMuted)
-                                .lineLimit(1)
-                        }
-                    }
-                    .padding(8)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.vocabSurfaceSoft)
-                    .cornerRadius(8)
-                }
-
+                flashcardMetaHeader(for: word)
+                flashcardWordTitle(for: word)
+                flashcardExampleBox(for: word)
                 Spacer(minLength: 0)
             }
             .padding(14)
@@ -173,6 +65,120 @@ public struct TopCarouselFlashcardView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
+    }
+
+    private func flashcardMetaHeader(for word: VaultWordItem) -> some View {
+        HStack(alignment: .center, spacing: 6) {
+            if let cefr = word.cefrLevel, !cefr.isEmpty {
+                Text(cefr.uppercased())
+                    .font(.system(size: 10, weight: .bold))
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(cefrBadgeBackground(for: cefr))
+                    .foregroundColor(Color.vocabInk)
+                    .cornerRadius(4)
+            }
+
+            if !word.pos.isEmpty {
+                Text("(\(word.pos))")
+                    .font(.system(size: 11, weight: .medium).italic())
+                    .foregroundColor(Color.vocabMuted)
+            }
+
+            if word.isMastered {
+                HStack(spacing: 3) {
+                    Image(systemName: "checkmark.seal.fill")
+                        .font(.system(size: 10, weight: .bold))
+                    Text("Đã thuộc")
+                        .font(.system(size: 10, weight: .bold))
+                }
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Color.vocabMint.opacity(0.18))
+                .foregroundColor(Color.vocabMint)
+                .cornerRadius(4)
+            } else if word.correctStreak > 0 {
+                HStack(spacing: 3) {
+                    Image(systemName: "flame.fill")
+                        .font(.system(size: 10, weight: .bold))
+                    Text("Chuỗi: \(word.correctStreak)/3")
+                        .font(.system(size: 10, weight: .bold))
+                }
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Color.vocabPeach.opacity(0.18))
+                .foregroundColor(Color.vocabPeach)
+                .cornerRadius(4)
+            }
+
+            Spacer()
+
+            Button(action: {
+                onBookmarkTap?(word)
+            }) {
+                Image(systemName: word.isBookmarked ? "bookmark.fill" : "bookmark")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(word.isBookmarked ? Color.vocabPeach : Color.vocabMuted)
+                    .frame(width: 36, height: 36)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(PlainButtonStyle())
+            .frame(minWidth: 44, minHeight: 44)
+
+            Button(action: {
+                onAudioTap?(word)
+            }) {
+                Image(systemName: "speaker.wave.2.fill")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(Color.vocabHeroAccent)
+                    .frame(width: 34, height: 34)
+                    .background(Color.vocabHeroAccent.opacity(0.12))
+                    .clipShape(Circle())
+            }
+            .buttonStyle(PlainButtonStyle())
+            .frame(minWidth: 44, minHeight: 44)
+        }
+    }
+
+    private func flashcardWordTitle(for word: VaultWordItem) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text(word.lemma)
+                    .font(.system(size: 22, weight: .bold, design: .serif))
+                    .foregroundColor(Color.vocabInk)
+
+                if !word.phonetic.isEmpty {
+                    Text(word.phonetic)
+                        .font(.system(size: 13, weight: .medium, design: .monospaced))
+                        .foregroundColor(Color.vocabMuted)
+                }
+            }
+
+            Text(word.definitionVi)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(Color.vocabInk)
+                .lineLimit(2)
+        }
+    }
+
+    @ViewBuilder
+    private func flashcardExampleBox(for word: VaultWordItem) -> some View {
+        if !word.exampleSentenceEn.isEmpty {
+            VStack(alignment: .leading, spacing: 3) {
+                highlightedExample(sentence: word.exampleSentenceEn, lemma: word.lemma)
+
+                if !word.exampleSentenceVi.isEmpty {
+                    Text(word.exampleSentenceVi)
+                        .font(.system(size: 11, weight: .regular))
+                        .foregroundColor(Color.vocabMuted)
+                        .lineLimit(1)
+                }
+            }
+            .padding(8)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.vocabSurfaceSoft)
+            .cornerRadius(8)
+        }
     }
 
     // MARK: - Example Sentence Highlighting

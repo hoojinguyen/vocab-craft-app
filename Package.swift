@@ -21,12 +21,19 @@ let package = Package(
         .target(
             name: "VocabCraftApp",
             path: "VocabCraftApp",
+            exclude: [
+                "App/Info.plist",
+                "App/VocabCraftApp.entitlements"
+            ],
             resources: [.process("Resources")]
         ),
         .target(
             name: "VocabCraftWidgetExtension",
             dependencies: ["VocabCraftApp"],
-            path: "VocabCraftWidgetExtension"
+            path: "VocabCraftWidgetExtension",
+            exclude: [
+                "Info.plist"
+            ]
         ),
         .testTarget(
             name: "VocabCraftAppTests",

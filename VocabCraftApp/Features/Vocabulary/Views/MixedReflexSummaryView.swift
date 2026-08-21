@@ -201,106 +201,9 @@ public struct MixedReflexSummaryView: View {
         let timeFormatted = String(format: "%.1fs", Double(attempt.responseTimeMs) / 1000.0)
 
         return VStack(alignment: .leading, spacing: 8) {
-            // Tier 1: Lemma + Speaker Audio + Mastery / Result Badge
-            HStack(alignment: .center) {
-                Text(attempt.lemma)
-                    .font(.headline.weight(.bold))
-                    .fontDesign(.rounded)
-                    .foregroundColor(.vocabInk)
-
-                if let onSpeak = onSpeakWord {
-                    Button(action: { onSpeak(attempt.lemma) }) {
-                        Image(systemName: "speaker.wave.2.fill")
-                            .font(.system(size: 13, weight: .semibold))
-                            .symbolRenderingMode(.hierarchical)
-                            .foregroundColor(.vocabHeroAccent)
-                            .frame(width: 32, height: 32)
-                            .background(.ultraThinMaterial)
-                            .clipShape(Circle())
-                            .overlay(
-                                Circle()
-                                    .stroke(Color.vocabHeroAccent.opacity(0.2), lineWidth: 0.8)
-                            )
-                    }
-                    .buttonStyle(.plain)
-                    .frame(minWidth: 44, minHeight: 44)
-                    .accessibilityLabel("Nghe phát âm từ \(attempt.lemma)")
-                }
-
-                Spacer()
-
-                if isMasteredWord {
-                    HStack(spacing: 4) {
-                        Image(systemName: "checkmark.seal.fill")
-                            .font(.caption2.bold())
-                        Text("Đã thuộc")
-                            .font(.caption2.bold())
-                    }
-                    .foregroundColor(.vocabMint)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.vocabMint.opacity(0.14))
-                    .clipShape(Capsule())
-                } else if attempt.isCorrect {
-                    HStack(spacing: 3) {
-                        Image(systemName: "checkmark")
-                            .font(.caption2.bold())
-                        Text("Đúng")
-                            .font(.caption2.bold())
-                    }
-                    .foregroundColor(.vocabHeroAccent)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.vocabHeroAccent.opacity(0.12))
-                    .clipShape(Capsule())
-                } else {
-                    HStack(spacing: 3) {
-                        Image(systemName: "arrow.triangle.2.circlepath")
-                            .font(.caption2.bold())
-                        Text("Đã luyện lại")
-                            .font(.caption2.bold())
-                    }
-                    .foregroundColor(.vocabPeach)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.vocabPeach.opacity(0.12))
-                    .clipShape(Capsule())
-                }
-            }
-
-            // Tier 2: Part of Speech & IPA
-            let metaParts = [attempt.pos, attempt.ipa].filter { !$0.isEmpty }
-            if !metaParts.isEmpty {
-                Text(metaParts.joined(separator: " • "))
-                    .font(.caption.monospaced())
-                    .foregroundColor(.vocabMuted)
-            }
-
-            // Tier 3: Definition & Response time
-            HStack(alignment: .center, spacing: 8) {
-                if !attempt.definitionVi.isEmpty {
-                    Text(attempt.definitionVi)
-                        .font(.subheadline)
-                        .foregroundColor(.vocabInk.opacity(0.85))
-                        .lineLimit(2)
-                }
-
-                Spacer()
-
-                HStack(spacing: 4) {
-                    Image(systemName: "stopwatch.fill")
-                        .font(.system(size: 10, weight: .bold))
-                        .symbolRenderingMode(.hierarchical)
-
-                    Text(timeFormatted)
-                        .font(.caption2.monospacedDigit().bold())
-                }
-                .foregroundColor(attempt.isCorrect ? .vocabHeroAccent : .vocabCoral)
-                .padding(.horizontal, 7)
-                .padding(.vertical, 3)
-                .background((attempt.isCorrect ? Color.vocabHeroAccent : Color.vocabCoral).opacity(0.10))
-                .clipShape(Capsule())
-            }
+            wordAttemptHeader(attempt: attempt, isMasteredWord: isMasteredWord)
+            wordAttemptMeta(attempt: attempt)
+            wordAttemptFooter(attempt: attempt, timeFormatted: timeFormatted)
         }
         .padding(14)
         .background(Color.vocabSurfaceCard)
@@ -311,6 +214,116 @@ public struct MixedReflexSummaryView: View {
         )
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(attempt.lemma), \(attempt.definitionVi), thời gian phản hồi: \(timeFormatted)")
+    }
+
+    private func wordAttemptHeader(attempt: ReflexBlitzAttempt, isMasteredWord: Bool) -> some View {
+        HStack(alignment: .center) {
+            Text(attempt.lemma)
+                .font(.headline.weight(.bold))
+                .fontDesign(.rounded)
+                .foregroundColor(.vocabInk)
+
+            if let onSpeak = onSpeakWord {
+                Button(action: { onSpeak(attempt.lemma) }) {
+                    Image(systemName: "speaker.wave.2.fill")
+                        .font(.system(size: 13, weight: .semibold))
+                        .symbolRenderingMode(.hierarchical)
+                        .foregroundColor(.vocabHeroAccent)
+                        .frame(width: 32, height: 32)
+                        .background(.ultraThinMaterial)
+                        .clipShape(Circle())
+                        .overlay(
+                            Circle()
+                                .stroke(Color.vocabHeroAccent.opacity(0.2), lineWidth: 0.8)
+                        )
+                }
+                .buttonStyle(.plain)
+                .frame(minWidth: 44, minHeight: 44)
+                .accessibilityLabel("Nghe phát âm từ \(attempt.lemma)")
+            }
+
+            Spacer()
+
+            wordAttemptStatusBadge(attempt: attempt, isMasteredWord: isMasteredWord)
+        }
+    }
+
+    @ViewBuilder
+    private func wordAttemptStatusBadge(attempt: ReflexBlitzAttempt, isMasteredWord: Bool) -> some View {
+        if isMasteredWord {
+            HStack(spacing: 4) {
+                Image(systemName: "checkmark.seal.fill")
+                    .font(.caption2.bold())
+                Text("Đã thuộc")
+                    .font(.caption2.bold())
+            }
+            .foregroundColor(.vocabMint)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(Color.vocabMint.opacity(0.14))
+            .clipShape(Capsule())
+        } else if attempt.isCorrect {
+            HStack(spacing: 3) {
+                Image(systemName: "checkmark")
+                    .font(.caption2.bold())
+                Text("Đúng")
+                    .font(.caption2.bold())
+            }
+            .foregroundColor(.vocabHeroAccent)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(Color.vocabHeroAccent.opacity(0.12))
+            .clipShape(Capsule())
+        } else {
+            HStack(spacing: 3) {
+                Image(systemName: "arrow.triangle.2.circlepath")
+                    .font(.caption2.bold())
+                Text("Đã luyện lại")
+                    .font(.caption2.bold())
+            }
+            .foregroundColor(.vocabPeach)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(Color.vocabPeach.opacity(0.12))
+            .clipShape(Capsule())
+        }
+    }
+
+    @ViewBuilder
+    private func wordAttemptMeta(attempt: ReflexBlitzAttempt) -> some View {
+        let metaParts = [attempt.pos, attempt.ipa].filter { !$0.isEmpty }
+        if !metaParts.isEmpty {
+            Text(metaParts.joined(separator: " • "))
+                .font(.caption.monospaced())
+                .foregroundColor(.vocabMuted)
+        }
+    }
+
+    private func wordAttemptFooter(attempt: ReflexBlitzAttempt, timeFormatted: String) -> some View {
+        HStack(alignment: .center, spacing: 8) {
+            if !attempt.definitionVi.isEmpty {
+                Text(attempt.definitionVi)
+                    .font(.subheadline)
+                    .foregroundColor(.vocabInk.opacity(0.85))
+                    .lineLimit(2)
+            }
+
+            Spacer()
+
+            HStack(spacing: 4) {
+                Image(systemName: "stopwatch.fill")
+                    .font(.system(size: 10, weight: .bold))
+                    .symbolRenderingMode(.hierarchical)
+
+                Text(timeFormatted)
+                    .font(.caption2.monospacedDigit().bold())
+            }
+            .foregroundColor(attempt.isCorrect ? .vocabHeroAccent : .vocabCoral)
+            .padding(.horizontal, 7)
+            .padding(.vertical, 3)
+            .background((attempt.isCorrect ? Color.vocabHeroAccent : Color.vocabCoral).opacity(0.10))
+            .clipShape(Capsule())
+        }
     }
 
     private func isWordMastered(attempt: ReflexBlitzAttempt) -> Bool {

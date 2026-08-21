@@ -90,18 +90,18 @@ public struct StageChallengeView: View {
             let state = args[stateIdx + 1]
             try? await Task.sleep(nanoseconds: 200_000_000)
             if state == "stage-quiz-correct" {
-                if let q = viewModel.currentQuestion {
-                    viewModel.submitAnswer(q.correctAnswer)
+                if let questionItem = viewModel.currentQuestion {
+                    viewModel.submitAnswer(questionItem.correctAnswer)
                 }
             } else if state == "stage-quiz-incorrect" {
-                if let q = viewModel.currentQuestion {
-                    let wrong = q.options.first { $0 != q.correctAnswer } ?? ""
+                if let questionItem = viewModel.currentQuestion {
+                    let wrong = questionItem.options.first { $0 != questionItem.correctAnswer } ?? ""
                     viewModel.submitAnswer(wrong)
                 }
             } else if state == "stage-summary-passed" {
                 for _ in 0..<viewModel.questions.count {
-                    if let q = viewModel.currentQuestion {
-                        viewModel.submitAnswer(q.correctAnswer)
+                    if let questionItem = viewModel.currentQuestion {
+                        viewModel.submitAnswer(questionItem.correctAnswer)
                     }
                     if !viewModel.isLastQuestion {
                         viewModel.nextQuestion()
@@ -110,11 +110,11 @@ public struct StageChallengeView: View {
                 await viewModel.completeStage()
             } else if state == "stage-summary-failed" {
                 for idx in 0..<viewModel.questions.count {
-                    if let q = viewModel.currentQuestion {
+                    if let questionItem = viewModel.currentQuestion {
                         if idx < 2 {
-                            viewModel.submitAnswer(q.correctAnswer)
+                            viewModel.submitAnswer(questionItem.correctAnswer)
                         } else {
-                            let wrong = q.options.first { $0 != q.correctAnswer } ?? ""
+                            let wrong = questionItem.options.first { $0 != questionItem.correctAnswer } ?? ""
                             viewModel.submitAnswer(wrong)
                         }
                     }
