@@ -210,7 +210,7 @@
 
 /* Begin PBXFileReference section */
 		2000FB010000000000000001 /* ReflexBlitzModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/ReflexBlitzModels.swift"; sourceTree = "<group>"; };
-		2000FB010000000000000002 /* ContinuousReflexSpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Services/ContinuousReflexSpeechService.swift"; sourceTree = "<group>"; };
+		2000FB010000000000000002 /* ContinuousReflexSpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinuousReflexSpeechService.swift; sourceTree = "<group>"; };
 		2000FB010000000000000003 /* ReflexBlitzViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ViewModels/ReflexBlitzViewModel.swift"; sourceTree = "<group>"; };
 		2000FB010000000000000004 /* ReflexCountdownOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/ReflexCountdownOverlayView.swift"; sourceTree = "<group>"; };
 		2000FB010000000000000005 /* ReflexBlitzHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/ReflexBlitzHeaderView.swift"; sourceTree = "<group>"; };
@@ -617,6 +617,7 @@
 				200054D51843DFDCEB06 /* SpeechRecognitionService.swift */,
 				2000BEA090FB6DD9E928 /* TextToSpeechService.swift */,
 				2000FB030000000000000001 /* SoundEffectService.swift */,
+				2000FB010000000000000002 /* ContinuousReflexSpeechService.swift */,
 			);
 			path = Audio;
 			sourceTree = "<group>";
@@ -774,7 +775,6 @@
 			isa = PBXGroup;
 			children = (
 				2000FB010000000000000001 /* ReflexBlitzModels.swift */,
-				2000FB010000000000000002 /* ContinuousReflexSpeechService.swift */,
 				2000FB010000000000000003 /* ReflexBlitzViewModel.swift */,
 				2000FB010000000000000004 /* ReflexCountdownOverlayView.swift */,
 				2000FB010000000000000005 /* ReflexBlitzHeaderView.swift */,

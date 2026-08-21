@@ -302,6 +302,7 @@ final class ContinuousReflexSpeechServiceTests: XCTestCase {
         XCTAssertFalse(service.isSessionActive)
     }
 
+#if os(iOS)
     func testServiceSurvivesRouteChangeNotification() {
         let service = ContinuousReflexSpeechService()
         service.startSession(contextualPhrases: ["hello"])
@@ -348,4 +349,5 @@ final class ContinuousReflexSpeechServiceTests: XCTestCase {
         }
         service.stopSession()
     }
+#endif
 }
