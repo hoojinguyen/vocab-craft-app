@@ -12,6 +12,7 @@ public final class MixedReflexDrillViewModel {
     public private(set) var isCompleted: Bool = false
     public private(set) var sessionSummary: ReflexBlitzSessionSummary?
 
+    private let selectedWords: [VaultWordItem]
     private let queueUseCase: GenerateMixedReflexQueueUseCaseProtocol
     private let recordAttemptUseCase: RecordMixedDrillAttemptUseCaseProtocol?
     private let ttsService: TextToSpeechProtocol?
@@ -22,6 +23,7 @@ public final class MixedReflexDrillViewModel {
         recordAttemptUseCase: RecordMixedDrillAttemptUseCaseProtocol? = nil,
         ttsService: TextToSpeechProtocol? = nil
     ) {
+        self.selectedWords = selectedWords
         self.queueUseCase = queueUseCase
         self.recordAttemptUseCase = recordAttemptUseCase
         self.ttsService = ttsService
@@ -39,6 +41,45 @@ public final class MixedReflexDrillViewModel {
     public var progress: Double {
         guard !queue.isEmpty else { return 1.0 }
         return Double(currentIndex) / Double(queue.count)
+    }
+
+    public func generateOptions(for item: MixedReflexDrillItem) -> [ReflexBlitzOption] {
+        let mode = item.assignedMode
+        guard mode == .multipleChoice || mode == .listening else { return [] }
+
+        let isMultipleChoice = mode == .multipleChoice
+        let correctText = isMultipleChoice ? item.word.lemma : item.word.definitionVi
+
+        var distractors: [String] = []
+        var seen: Set<String> = [correctText]
+
+        for otherWord in selectedWords.shuffled() {
+            let candidate = isMultipleChoice ? otherWord.lemma : otherWord.definitionVi
+            if !candidate.isEmpty && !seen.contains(candidate) {
+                seen.insert(candidate)
+                distractors.append(candidate)
+                if distractors.count == 3 { break }
+            }
+        }
+
+        if distractors.count < 3 {
+            for starter in ReflexBlitzWordItem.defaultStarterWords.shuffled() {
+                let candidate = isMultipleChoice ? starter.lemma : starter.definitionVi
+                if !candidate.isEmpty && !seen.contains(candidate) {
+                    seen.insert(candidate)
+                    distractors.append(candidate)
+                    if distractors.count == 3 { break }
+                }
+            }
+        }
+
+        var options: [ReflexBlitzOption] = [
+            ReflexBlitzOption(text: correctText, isCorrect: true)
+        ]
+        for distractor in distractors.prefix(3) {
+            options.append(ReflexBlitzOption(text: distractor, isCorrect: false))
+        }
+        return options.shuffled()
     }
 
     public func submitAnswer(isCorrect: Bool, responseTimeMs: Int = 2000) async {
@@ -77,6 +118,16 @@ public final class MixedReflexDrillViewModel {
         }
     }
 
+    public func restartSession() {
+        self.queue = queueUseCase.generate(from: selectedWords)
+        self.currentIndex = 0
+        self.comboStreak = 0
+        self.maxComboStreak = 0
+        self.attempts = []
+        self.isCompleted = self.queue.isEmpty
+        self.sessionSummary = nil
+    }
+
     private func finishSession() {
         isCompleted = true
         sessionSummary = ReflexBlitzSessionSummary.create(
@@ -88,5 +139,9 @@ public final class MixedReflexDrillViewModel {
     public func playAudioForCurrentWord() {
         guard let current = currentItem else { return }
         ttsService?.speak(text: current.word.lemma)
+    }
+
+    public func playAudio(for text: String) {
+        ttsService?.speak(text: text)
     }
 }
