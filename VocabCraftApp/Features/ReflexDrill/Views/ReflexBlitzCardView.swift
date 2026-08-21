@@ -165,24 +165,10 @@ public struct ReflexBlitzCardView: View {
         }
     }
 
-    private static let clozeRegex: NSRegularExpression? = {
-        try? NSRegularExpression(pattern: "\\[\\s*_{3,}\\s*\\]|_{3,}")
-    }()
-
     public var clozeParts: ClozeSentenceParts? {
-        guard let regex = Self.clozeRegex else {
-            return nil
-        }
-        let text = word.clozeSentenceEn
-        let nsRange = NSRange(text.startIndex..., in: text)
-        guard let match = regex.firstMatch(in: text, options: [], range: nsRange),
-              let matchRange = Range(match.range, in: text) else {
-            return nil
-        }
-        let prefix = String(text[..<matchRange.lowerBound])
-        let suffix = String(text[matchRange.upperBound...])
+        guard word.hasClozeSlot else { return nil }
         let slot = isReviewed ? word.lemma : slotRepresentation
-        return ClozeSentenceParts(prefix: prefix, slot: slot, suffix: suffix)
+        return ClozeSentenceParts(prefix: word.clozePrefix, slot: slot, suffix: word.clozeSuffix)
     }
 
     public var body: some View {

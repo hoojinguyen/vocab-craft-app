@@ -20,6 +20,13 @@ final class ReflexBlitzModelsTests: XCTestCase {
         XCTAssertEqual(ReflexClozeFormatter.formatCloze(sentenceEn: "Hello world", lemma: ""), "Hello world")
     }
 
+    func testReflexClozeFormatterTemplateExtraction() {
+        let sentence = "He decided to [ ______ ] the project."
+        let (prefix, suffix) = ReflexClozeFormatter.extractTemplateParts(from: sentence)
+        XCTAssertEqual(prefix, "He decided to ")
+        XCTAssertEqual(suffix, " the project.")
+    }
+
     func testSpeedTierClassification() {
         XCTAssertEqual(ReflexSpeedTier.from(responseTimeMs: 1800, usedHint: false), .flash)
         XCTAssertEqual(ReflexSpeedTier.from(responseTimeMs: 2499, usedHint: false), .flash)
