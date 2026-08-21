@@ -34,6 +34,7 @@ public final class FetchDeckRoadmapUseCase: FetchDeckRoadmapUseCaseProtocol, Sen
                     phonetic: dto.phonetic,
                     vietnamese: dto.definitionVi,
                     example: dto.exampleEn,
+                    exampleVi: dto.exampleVi,
                     partOfSpeech: dto.pos,
                     isMastered: false,
                     isSavedToPersonalVault: false

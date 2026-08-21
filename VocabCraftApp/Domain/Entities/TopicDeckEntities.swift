@@ -12,6 +12,7 @@ public struct TopicWord: Identifiable, Codable, Equatable, Sendable {
     public let phonetic: String
     public let vietnamese: String
     public let example: String
+    public var exampleVi: String
     public let partOfSpeech: String
     public var isMastered: Bool
     public var isSavedToPersonalVault: Bool
@@ -22,6 +23,7 @@ public struct TopicWord: Identifiable, Codable, Equatable, Sendable {
         phonetic: String,
         vietnamese: String,
         example: String = "",
+        exampleVi: String = "",
         partOfSpeech: String = "noun",
         isMastered: Bool = false,
         isSavedToPersonalVault: Bool = false
@@ -31,6 +33,7 @@ public struct TopicWord: Identifiable, Codable, Equatable, Sendable {
         self.phonetic = phonetic
         self.vietnamese = vietnamese
         self.example = example
+        self.exampleVi = exampleVi
         self.partOfSpeech = partOfSpeech
         self.isMastered = isMastered
         self.isSavedToPersonalVault = isSavedToPersonalVault
