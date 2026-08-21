@@ -23,4 +23,10 @@ final class ColorTokensTests: XCTestCase {
         let greenWithoutHash = Color(hex: "00FF00")
         XCTAssertNotNil(greenWithoutHash)
     }
+
+    func testSRSSparkleEffectViewLifecycle() {
+        let binding = Binding.constant(true)
+        let view = SRSSparkleEffectView(isEmitting: binding)
+        XCTAssertNotNil(view.body)
+    }
 }

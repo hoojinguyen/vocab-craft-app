@@ -21,10 +21,21 @@ public struct SRSSparkleEffectView: View {
             }
         }
         .allowsHitTesting(false)
-        .onChange(of: isEmitting) { _, emitting in
-            if emitting {
-                burst()
+        .task(id: isEmitting) {
+            guard isEmitting else { return }
+            burst()
+            try? await Task.sleep(for: .milliseconds(300))
+            guard !Task.isCancelled else { return }
+            withAnimation(.easeOut(duration: 0.5)) {
+                for idx in particles.indices {
+                    particles[idx].opacity = 0
+                    particles[idx].scale = 0.1
+                }
             }
+            try? await Task.sleep(for: .milliseconds(500))
+            guard !Task.isCancelled else { return }
+            particles.removeAll()
+            isEmitting = false
         }
     }
 
@@ -52,20 +63,6 @@ public struct SRSSparkleEffectView: View {
             for idx in particles.indices {
                 particles[idx].scale = 1.2
             }
-        }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            withAnimation(.easeOut(duration: 0.5)) {
-                for idx in particles.indices {
-                    particles[idx].opacity = 0
-                    particles[idx].scale = 0.1
-                }
-            }
-        }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-            particles.removeAll()
-            isEmitting = false
         }
     }
 }
