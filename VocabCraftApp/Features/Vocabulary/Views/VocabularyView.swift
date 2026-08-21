@@ -1,15 +1,15 @@
 import SwiftUI
 
-/// Main Vocabulary Hub view integrating the Personal Vault tab and the Topic Decks tab.
-/// Uses a clean Apple HIG segmented bar, Bento card design system, and unified navigation.
+/// Redesigned Vocabulary Hub (Kho từ) single view.
+/// Features a native search bar, 3-tab segmented category filter (Chưa thuộc, Đã thuộc, Đã lưu),
+/// big 'LUYỆN TẬP' CTA button, top carousel flashcards with horizontal paging,
+/// and a clean LazyVStack word list with expandable accordion cards.
 public struct VocabularyView: View {
     @Environment(\.appContainer) private var appContainer
     @State private var vaultVM: PersonalVaultViewModel?
     @State private var legacyVM: VocabularyViewModel?
-    @State private var selectedTab: Int = 0
-    @State private var selectedDeckId: String?
-    @State private var selectedStage: SubTopicStage?
-    @State private var activeChallengeStage: SubTopicStage?
+    @State private var isPresentingPracticeSelection: Bool = false
+    @State private var activeDrillViewModel: MixedReflexDrillViewModel?
     @State private var isPresentingSmartReview: Bool = false
     @State private var expandedWordId: Int64?
 
@@ -38,54 +38,89 @@ public struct VocabularyView: View {
             Color.vocabCanvas
                 .ignoresSafeArea()
 
-            if let deckId = selectedDeckId {
-                TopicRoadmapView(
-                    deckId: deckId,
-                    onBack: {
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                            selectedDeckId = nil
-                        }
-                    },
-                    onStageSelected: { stage in
-                        selectedStage = stage
-                    }
-                )
-                .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .trailing)))
-            } else {
-                VStack(spacing: 14) {
-                    // Segmented Switch (Kho Từ Cá Nhân vs Bộ Từ Chủ Đề)
-                    HStack(spacing: 0) {
-                        segmentedTabButton(title: AppStrings.Vocabulary.personalBank, tabIndex: 0)
-                        segmentedTabButton(title: AppStrings.Vocabulary.topicDecks, tabIndex: 1)
-                    }
-                    .padding(4)
-                    .background(Color.vocabSurfaceCard)
-                    .cornerRadius(16)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.vocabHairline, lineWidth: 1.5)
-                    )
-                    .padding(.horizontal)
-                    .padding(.top, 12)
+            VStack(spacing: 0) {
+                // Header & Search Bar
+                headerAndSearchBar(bindableVM: bindableVaultVM)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
+                    .padding(.bottom, 6)
 
-                    if selectedTab == 0 {
-                        // Personal Vault Tab
-                        personalVaultTabContent(vaultVM: currentVaultVM, bindableVM: bindableVaultVM)
-                    } else {
-                        // Topic Decks Grid Tab
-                        ScrollView(.vertical, showsIndicators: false) {
-                            TopicDecksGridView(onDeckSelected: { deckId in
-                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                    selectedDeckId = deckId
+                // 3-Tab Segmented Filter (Chưa thuộc / Đã thuộc / Đã lưu)
+                segmentedTabControl(vaultVM: currentVaultVM)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 4)
+
+                // Big 'LUYỆN TẬP' CTA Button
+                practiceCTAButton(vaultVM: currentVaultVM)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 6)
+                    .padding(.bottom, 10)
+
+                // Main Scrollable Content (Carousel + Word List)
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(spacing: 14) {
+                        // Top Carousel Flashcard View
+                        if !currentVaultVM.vaultWords.isEmpty {
+                            TopCarouselFlashcardView(
+                                words: Array(currentVaultVM.vaultWords.prefix(10)),
+                                onAudioTap: { word in
+                                    currentVaultVM.playAudio(for: word)
+                                },
+                                onBookmarkTap: { word in
+                                    Task {
+                                        await currentVaultVM.toggleBookmark(wordId: word.id)
+                                    }
+                                },
+                                onWordSelected: { word in
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
+                                        expandedWordId = (expandedWordId == word.id) ? nil : word.id
+                                    }
                                 }
-                            })
-                            .padding(.top, 4)
-                            .padding(.bottom, 90)
+                            )
                         }
+
+                        // Word List Section
+                        wordListSection(vaultVM: currentVaultVM)
+                    }
+                    .padding(.bottom, 90)
+                }
+                .refreshable {
+                    await currentVaultVM.loadData()
+                }
+            }
+        }
+        .sheet(isPresented: $isPresentingPracticeSelection) {
+            PracticeSelectionView(
+                vaultViewModel: currentVaultVM,
+                onStartPractice: { selectedWords in
+                    isPresentingPracticeSelection = false
+                    let drillVM = MixedReflexDrillViewModel(
+                        selectedWords: selectedWords,
+                        queueUseCase: GenerateMixedReflexQueueUseCase(),
+                        recordAttemptUseCase: RecordMixedDrillAttemptUseCase(
+                            progressRepo: appContainer.userProgressRepository,
+                            dataSource: appContainer.vocabularyDataSource
+                        ),
+                        ttsService: appContainer.ttsService
+                    )
+                    activeDrillViewModel = drillVM
+                },
+                onClose: {
+                    isPresentingPracticeSelection = false
+                }
+            )
+        }
+        .sheet(item: $activeDrillViewModel) { drillVM in
+            MixedReflexDrillView(
+                viewModel: drillVM,
+                speechService: ContinuousReflexSpeechService(),
+                onFinish: {
+                    activeDrillViewModel = nil
+                    Task {
+                        await currentVaultVM.loadData()
                     }
                 }
-                .transition(.asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .leading)))
-            }
+            )
         }
         .sheet(isPresented: $isPresentingSmartReview) {
             SmartReviewSessionView(
@@ -100,104 +135,192 @@ public struct VocabularyView: View {
                 }
             )
         }
-        .sheet(item: $selectedStage) { stage in
-            StagePreviewSheet(
-                stage: stage,
-                onStartChallenge: {
-                    let challengeStage = stage
-                    selectedStage = nil
-                    activeChallengeStage = challengeStage
-                },
-                onClose: {
-                    selectedStage = nil
-                },
-                ttsService: appContainer.ttsService
-            )
-        }
-        .sheet(item: $activeChallengeStage) { stage in
-            StageChallengeView(
-                viewModel: appContainer.makeStageChallengeViewModel(stage: stage),
-                onClose: {
-                    activeChallengeStage = nil
-                    Task {
-                        await currentVaultVM.loadData()
-                    }
-                },
-                onCompleted: { _ in
-                    Task {
-                        await currentVaultVM.loadData()
-                    }
-                }
-            )
-        }
         .task {
             if vaultVM == nil {
                 vaultVM = appContainer.makePersonalVaultViewModel()
             }
-            if let vm = vaultVM, vm.words.isEmpty && !vm.isLoading {
+            await setupAutomationState()
+            if let vm = vaultVM, vm.vaultWords.isEmpty && !vm.isLoading {
                 await vm.loadData()
             }
         }
     }
 
-    // MARK: - Personal Vault Content
-    @ViewBuilder
-    private func personalVaultTabContent(
-        vaultVM: PersonalVaultViewModel,
-        bindableVM: PersonalVaultViewModel
-    ) -> some View {
-        VStack(spacing: 12) {
-            // Search Bar and Filter Pills
-            PersonalSearchFilterBar(
-                searchQuery: Binding(
+    // MARK: - Header & Search Bar
+    private func headerAndSearchBar(bindableVM: PersonalVaultViewModel) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Kho từ")
+                    .font(.system(size: 26, weight: .bold, design: .serif))
+                    .foregroundColor(Color.vocabInk)
+
+                Spacer()
+            }
+
+            // Search Bar
+            HStack(spacing: 8) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(Color.vocabMuted)
+                    .font(.system(size: 14, weight: .semibold))
+
+                TextField("Tìm kiếm từ vựng hoặc nghĩa...", text: Binding(
                     get: { bindableVM.searchQuery },
                     set: { bindableVM.setSearchQuery($0) }
-                ),
-                selectedFilter: vaultVM.selectedFilter,
-                metrics: vaultVM.metrics,
-                onFilterChanged: { filter in
-                    vaultVM.setFilter(filter)
+                ))
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(Color.vocabInk)
+                .autocorrectionDisabled()
+                #if os(iOS)
+                .textInputAutocapitalization(.never)
+                #endif
+
+                if !bindableVM.searchQuery.isEmpty {
+                    Button(action: {
+                        bindableVM.setSearchQuery("")
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(Color.vocabMuted)
+                            .font(.system(size: 15))
+                            .frame(width: 32, height: 32)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .frame(minWidth: 44, minHeight: 44)
                 }
+            }
+            .padding(.horizontal, 12)
+            .frame(height: 42)
+            .background(Color.vocabSurfaceCard)
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.vocabHairline, lineWidth: 1.2)
             )
+        }
+    }
 
-            // Scrollable List of Hero Card and Clean Word Cards
-            List {
-                PersonalVaultHeroCard(
-                    metrics: vaultVM.metrics,
-                    onStartSmartReview: {
-                        isPresentingSmartReview = true
-                    }
-                )
-                .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 8, trailing: 0))
-                .listRowSeparator(.hidden)
-                .listRowBackground(Color.clear)
+    // MARK: - 3-Tab Segmented Filter
+    private func segmentedTabControl(vaultVM: PersonalVaultViewModel) -> some View {
+        HStack(spacing: 4) {
+            ForEach(VaultTabFilter.allCases, id: \.self) { tab in
+                let isSelected = vaultVM.vaultTabFilter == tab
+                let count = tabCount(for: tab, vaultVM: vaultVM)
 
-                if vaultVM.isLoading && vaultVM.words.isEmpty {
-                    HStack {
-                        Spacer()
-                        ProgressView()
-                            .padding(.vertical, 20)
-                        Spacer()
+                Button(action: {
+                    withAnimation(.spring(response: 0.25, dampingFraction: 0.75)) {
+                        vaultVM.setVaultFilter(tab)
                     }
-                    .listRowSeparator(.hidden)
-                    .listRowBackground(Color.clear)
-                } else if vaultVM.words.isEmpty {
-                    emptyVaultView
-                        .listRowInsets(EdgeInsets(top: 20, leading: 16, bottom: 20, trailing: 16))
-                        .listRowSeparator(.hidden)
-                        .listRowBackground(Color.clear)
-                } else {
-                    ForEach(vaultVM.words) { word in
-                        CleanWordCardView(
+                }) {
+                    HStack(spacing: 4) {
+                        Text(tab.title)
+                        if count > 0 {
+                            Text("(\(count))")
+                                .font(.system(size: 11, weight: isSelected ? .bold : .medium, design: .rounded))
+                        }
+                    }
+                    .font(.system(size: 13, weight: isSelected ? .bold : .medium))
+                    .foregroundColor(isSelected ? Color.vocabInk : Color.vocabMuted)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 38)
+                    .background(isSelected ? Color.vocabInk.opacity(0.08) : Color.clear)
+                    .cornerRadius(10)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(PlainButtonStyle())
+                .sensoryFeedback(.selection, trigger: isSelected)
+            }
+        }
+        .padding(4)
+        .background(Color.vocabSurfaceCard)
+        .cornerRadius(14)
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(Color.vocabHairline, lineWidth: 1)
+        )
+    }
+
+    private func tabCount(for tab: VaultTabFilter, vaultVM: PersonalVaultViewModel) -> Int {
+        switch tab {
+        case .notMastered:
+            return max(0, vaultVM.metrics.totalWords - vaultVM.metrics.masteredCount)
+        case .mastered:
+            return vaultVM.metrics.masteredCount
+        case .bookmarked:
+            return vaultVM.metrics.bookmarkedCount
+        }
+    }
+
+    // MARK: - Big 'LUYỆN TẬP' CTA Button
+    private func practiceCTAButton(vaultVM: PersonalVaultViewModel) -> some View {
+        Button(action: {
+            isPresentingPracticeSelection = true
+        }) {
+            HStack(spacing: 8) {
+                Image(systemName: "bolt.fill")
+                    .font(.system(size: 17, weight: .bold))
+
+                Text("LUYỆN TẬP PHẢN XẠ")
+                    .font(.system(size: 15, weight: .bold, design: .rounded))
+            }
+            .foregroundColor(.white)
+            .frame(maxWidth: .infinity)
+            .frame(height: 48)
+            .background(Color.vocabHeroAccent)
+            .cornerRadius(16)
+            .shadow(
+                color: Color.vocabHeroAccent.opacity(0.28),
+                radius: 8,
+                x: 0,
+                y: 4
+            )
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(BentoCardButtonStyle())
+        .sensoryFeedback(.impact(weight: .medium), trigger: isPresentingPracticeSelection)
+    }
+
+    // MARK: - Word List Section
+    @ViewBuilder
+    private func wordListSection(vaultVM: PersonalVaultViewModel) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text("Danh sách từ vựng")
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundColor(Color.vocabInk)
+
+                if !vaultVM.vaultWords.isEmpty {
+                    Text("\(vaultVM.vaultWords.count)")
+                        .font(.system(size: 12, weight: .bold, design: .rounded))
+                        .foregroundColor(Color.vocabMuted)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 2)
+                        .background(Color.vocabSurfaceSoft)
+                        .clipShape(Capsule())
+                }
+
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+
+            if vaultVM.isLoading && vaultVM.vaultWords.isEmpty {
+                HStack {
+                    Spacer()
+                    ProgressView()
+                        .padding(.vertical, 30)
+                    Spacer()
+                }
+            } else if vaultVM.vaultWords.isEmpty {
+                emptyVaultView
+                    .padding(.horizontal, 16)
+            } else {
+                LazyVStack(spacing: 8) {
+                    ForEach(vaultVM.vaultWords) { word in
+                        VaultWordCardView(
                             word: word,
                             isExpanded: expandedWordId == word.id,
                             onTap: {
                                 withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
-                                    if expandedWordId == word.id {
-                                        expandedWordId = nil
-                                    } else {
-                                        expandedWordId = word.id
-                                    }
+                                    expandedWordId = (expandedWordId == word.id) ? nil : word.id
                                 }
                             },
                             onAudioTap: {
@@ -209,54 +332,33 @@ public struct VocabularyView: View {
                                 }
                             }
                         )
-                        .listRowInsets(EdgeInsets(top: 5, leading: 16, bottom: 5, trailing: 16))
-                        .listRowSeparator(.hidden)
-                        .listRowBackground(Color.clear)
-                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                            Button {
-                                Task {
-                                    await vaultVM.toggleBookmark(wordId: word.id)
-                                }
-                            } label: {
-                                Label(
-                                    word.isBookmarked ? "Bỏ ghim" : "Ghim từ",
-                                    systemImage: word.isBookmarked ? "bookmark.slash.fill" : "bookmark.fill"
-                                )
-                            }
-                            .tint(Color.vocabPeach)
-                        }
                     }
                 }
-            }
-            .listStyle(.plain)
-            .scrollContentBackground(.hidden)
-            .padding(.bottom, 60)
-            .refreshable {
-                await vaultVM.loadData()
+                .padding(.horizontal, 16)
             }
         }
     }
 
-    // MARK: - Empty Vault View
+    // MARK: - Empty State View
     private var emptyVaultView: some View {
         VStack(spacing: 12) {
             Image(systemName: "tray.fill")
                 .font(.system(size: 36))
                 .foregroundColor(Color.vocabMuted.opacity(0.6))
-                .padding(.top, 20)
+                .padding(.top, 16)
 
-            Text("Chưa có từ vựng nào")
+            Text("Chưa có từ vựng")
                 .font(.system(size: 16, weight: .bold))
                 .foregroundColor(Color.vocabInk)
 
-            Text("Hoàn thành các chặng trong Bộ Từ Chủ Đề để nạp từ vựng mới vào kho cá nhân của bạn.")
+            Text("Không tìm thấy từ vựng nào trong danh mục này.")
                 .font(.system(size: 13, weight: .medium))
                 .foregroundColor(Color.vocabMuted)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 24)
+        .padding(.vertical, 28)
         .background(Color.vocabSurfaceCard)
         .cornerRadius(16)
         .overlay(
@@ -265,23 +367,87 @@ public struct VocabularyView: View {
         )
     }
 
-    // MARK: - Segmented Tab Button
-    private func segmentedTabButton(title: LocalizedStringKey, tabIndex: Int) -> some View {
-        Button(action: {
-            withAnimation(.spring(response: 0.25, dampingFraction: 0.75)) {
-                selectedTab = tabIndex
+    // MARK: - Automation State Setup
+    private func setupAutomationState() async {
+        let args = ProcessInfo.processInfo.arguments
+        guard let stateIdx = args.firstIndex(of: "-vocab-state"), stateIdx + 1 < args.count else { return }
+        let state = args[stateIdx + 1]
+
+        switch state {
+        case "personal-empty":
+            if let vm = vaultVM {
+                vm.deselectAll()
             }
-        }) {
-            Text(title)
-                .font(.system(size: 13, weight: .bold))
-                .foregroundColor(selectedTab == tabIndex ? Color.vocabInk : Color.vocabMuted)
-                .frame(maxWidth: .infinity)
-                .frame(height: 38)
-                .background(selectedTab == tabIndex ? Color.vocabInk.opacity(0.08) : Color.clear)
-                .cornerRadius(12)
-                .contentShape(Rectangle())
+
+        case "personal-populated":
+            await seedSampleUserProgress()
+            if let vm = vaultVM { await vm.loadData() }
+
+        case "personal-expanded":
+            await seedSampleUserProgress()
+            if let vm = vaultVM {
+                await vm.loadData()
+                expandedWordId = vm.vaultWords.first?.id
+            }
+
+        case "personal-filter-needs-review", "filter-not-mastered":
+            await seedSampleUserProgress()
+            if let vm = vaultVM {
+                await vm.loadData()
+                vm.setVaultFilter(.notMastered)
+            }
+
+        case "personal-filter-mastered":
+            await seedSampleUserProgress()
+            if let vm = vaultVM {
+                await vm.loadData()
+                vm.setVaultFilter(.mastered)
+            }
+
+        case "personal-filter-bookmarked":
+            await seedSampleUserProgress()
+            if let vm = vaultVM {
+                await vm.loadData()
+                vm.setVaultFilter(.bookmarked)
+            }
+
+        case "personal-search-match":
+            await seedSampleUserProgress()
+            if let vm = vaultVM {
+                await vm.loadData()
+                vm.setSearchQuery("resilience")
+            }
+
+        case "personal-search-empty":
+            await seedSampleUserProgress()
+            if let vm = vaultVM {
+                await vm.loadData()
+                vm.setSearchQuery("không_tìm_thấy_từ")
+            }
+
+        case "practice-selection":
+            await seedSampleUserProgress()
+            if let vm = vaultVM { await vm.loadData() }
+            isPresentingPracticeSelection = true
+
+        case "smart-review-question", "smart-review-revealed", "smart-review-completed":
+            await seedSampleUserProgress()
+            if let vm = vaultVM { await vm.loadData() }
+            isPresentingSmartReview = true
+
+        default:
+            break
         }
-        .buttonStyle(BentoCardButtonStyle())
-        .sensoryFeedback(.selection, trigger: selectedTab)
+    }
+
+    private func seedSampleUserProgress() async {
+        let repo = appContainer.userProgressRepository
+        try? await repo.saveProgress(wordId: 1, cefrLevel: "B1", masteryLevel: 3, isBookmarked: false, needsReview: false, mistakeCount: 0, sourceDeckId: "deck_daily", sourceNodeId: "stage_daily_1")
+        try? await repo.saveProgress(wordId: 2, cefrLevel: "B1", masteryLevel: 1, isBookmarked: true, needsReview: true, mistakeCount: 2, sourceDeckId: "deck_daily", sourceNodeId: "stage_daily_1")
+        try? await repo.saveProgress(wordId: 3, cefrLevel: "B2", masteryLevel: 4, isBookmarked: false, needsReview: false, mistakeCount: 0, sourceDeckId: "deck_daily", sourceNodeId: "stage_daily_1")
+        try? await repo.saveProgress(wordId: 4, cefrLevel: "A2", masteryLevel: 5, isBookmarked: true, needsReview: false, mistakeCount: 0, sourceDeckId: "deck_daily", sourceNodeId: "stage_daily_1")
+        try? await repo.saveProgress(wordId: 5, cefrLevel: "B1", masteryLevel: 2, isBookmarked: false, needsReview: true, mistakeCount: 1, sourceDeckId: "deck_daily", sourceNodeId: "stage_daily_1")
+        try? await repo.saveProgress(wordId: 6, cefrLevel: "B2", masteryLevel: 5, isBookmarked: false, needsReview: false, mistakeCount: 0, sourceDeckId: "deck_daily", sourceNodeId: "stage_daily_1")
+        try? await repo.saveProgress(wordId: 7, cefrLevel: "A2", masteryLevel: 4, isBookmarked: true, needsReview: false, mistakeCount: 0, sourceDeckId: "deck_daily", sourceNodeId: "stage_daily_1")
     }
 }

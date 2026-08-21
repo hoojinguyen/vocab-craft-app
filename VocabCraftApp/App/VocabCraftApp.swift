@@ -46,7 +46,7 @@ struct VocabCraftApp: App {
         let initialTab: TabItem
         if args.contains("-tab-reflex") || args.contains("-reflex-mode") || args.contains("-reflex-phase") {
             initialTab = .reflex
-        } else if args.contains("-tab-vocabulary") {
+        } else if args.contains("-tab-vocabulary") || args.contains("-vocab-state") {
             initialTab = .vocabulary
         } else if args.contains("-tab-settings") {
             initialTab = .settings

@@ -37,9 +37,8 @@ public struct TopicRoadmapView: View {
         }
         .background(Color.vocabCanvas.ignoresSafeArea())
         .task {
-            if viewModel.stages.isEmpty {
-                await viewModel.loadRoadmap()
-            }
+            viewModel = appContainer.makeTopicRoadmapViewModel(deckId: deckId)
+            await viewModel.loadRoadmap()
         }
     }
 

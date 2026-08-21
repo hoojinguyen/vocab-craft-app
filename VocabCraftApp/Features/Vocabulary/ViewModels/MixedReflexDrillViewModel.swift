@@ -3,7 +3,8 @@ import Observation
 
 @MainActor
 @Observable
-public final class MixedReflexDrillViewModel {
+public final class MixedReflexDrillViewModel: Identifiable {
+    public let id: UUID = UUID()
     public private(set) var queue: [MixedReflexDrillItem] = []
     public private(set) var currentIndex: Int = 0
     public private(set) var comboStreak: Int = 0

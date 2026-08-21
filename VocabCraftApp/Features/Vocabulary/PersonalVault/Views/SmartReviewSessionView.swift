@@ -36,6 +36,19 @@ public struct SmartReviewSessionView: View {
         }
         .task {
             await viewModel.loadWeakWords()
+            let args = ProcessInfo.processInfo.arguments
+            if let stateIdx = args.firstIndex(of: "-vocab-state"), stateIdx + 1 < args.count {
+                let state = args[stateIdx + 1]
+                if state == "smart-review-revealed" {
+                    try? await Task.sleep(nanoseconds: 200_000_000)
+                    viewModel.revealDefinition()
+                } else if state == "smart-review-completed" {
+                    try? await Task.sleep(nanoseconds: 200_000_000)
+                    while !viewModel.isCompleted && !viewModel.weakWords.isEmpty {
+                        await viewModel.markCurrentReviewed(isCorrect: true)
+                    }
+                }
+            }
         }
     }
 

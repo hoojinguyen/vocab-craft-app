@@ -84,6 +84,47 @@ public struct StageChallengeView: View {
         .sensoryFeedback(.error, trigger: feedbackHapticTrigger) { _, newValue in
             newValue > 0 && !viewModel.lastAnswerCorrect
         }
+        .task {
+            let args = ProcessInfo.processInfo.arguments
+            guard let stateIdx = args.firstIndex(of: "-vocab-state"), stateIdx + 1 < args.count else { return }
+            let state = args[stateIdx + 1]
+            try? await Task.sleep(nanoseconds: 200_000_000)
+            if state == "stage-quiz-correct" {
+                if let q = viewModel.currentQuestion {
+                    viewModel.submitAnswer(q.correctAnswer)
+                }
+            } else if state == "stage-quiz-incorrect" {
+                if let q = viewModel.currentQuestion {
+                    let wrong = q.options.first { $0 != q.correctAnswer } ?? ""
+                    viewModel.submitAnswer(wrong)
+                }
+            } else if state == "stage-summary-passed" {
+                for _ in 0..<viewModel.questions.count {
+                    if let q = viewModel.currentQuestion {
+                        viewModel.submitAnswer(q.correctAnswer)
+                    }
+                    if !viewModel.isLastQuestion {
+                        viewModel.nextQuestion()
+                    }
+                }
+                await viewModel.completeStage()
+            } else if state == "stage-summary-failed" {
+                for idx in 0..<viewModel.questions.count {
+                    if let q = viewModel.currentQuestion {
+                        if idx < 2 {
+                            viewModel.submitAnswer(q.correctAnswer)
+                        } else {
+                            let wrong = q.options.first { $0 != q.correctAnswer } ?? ""
+                            viewModel.submitAnswer(wrong)
+                        }
+                    }
+                    if !viewModel.isLastQuestion {
+                        viewModel.nextQuestion()
+                    }
+                }
+                await viewModel.completeStage()
+            }
+        }
     }
 
     // MARK: - Top Bar
