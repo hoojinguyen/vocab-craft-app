@@ -1,35 +1,53 @@
 import SwiftUI
 
+/// Main Vocabulary Hub view integrating the Personal Vault tab and the Topic Decks tab.
+/// Uses a clean Apple HIG segmented bar, Bento card design system, and unified navigation.
 public struct VocabularyView: View {
-    @State private var vm: VocabularyViewModel
     @Environment(\.appContainer) private var appContainer
-    private let filterOptions = VocabularyFilter.allCases
+    @State private var vaultVM: PersonalVaultViewModel?
+    @State private var legacyVM: VocabularyViewModel?
+    @State private var selectedTab: Int = 0
+    @State private var selectedDeckId: String?
+    @State private var selectedStage: SubTopicStage?
+    @State private var activeChallengeStage: SubTopicStage?
+    @State private var isPresentingSmartReview: Bool = false
+    @State private var expandedWordId: Int64?
 
     @MainActor
-    public init(viewModel: VocabularyViewModel? = nil) {
-        self._vm = State(initialValue: viewModel ?? VocabularyViewModel())
+    public init(
+        vaultViewModel: PersonalVaultViewModel? = nil,
+        viewModel: VocabularyViewModel? = nil
+    ) {
+        self._vaultVM = State(initialValue: vaultViewModel)
+        self._legacyVM = State(initialValue: viewModel)
     }
 
-    /// Resolved TTS service: from ViewModel injection, environment, or fallback.
-    private var ttsService: TextToSpeechProtocol {
-        vm.ttsService ?? appContainer.ttsService
+    private var activeVaultVM: PersonalVaultViewModel {
+        if let vm = vaultVM {
+            return vm
+        }
+        let vm = appContainer.makePersonalVaultViewModel()
+        return vm
     }
 
     public var body: some View {
-        @Bindable var bindableVM = vm
+        let currentVaultVM = activeVaultVM
+        @Bindable var bindableVaultVM = currentVaultVM
 
         ZStack {
             Color.vocabCanvas
                 .ignoresSafeArea()
 
-            if let deckId = vm.selectedDeckId {
-                TopicDeckDetailView(
+            if let deckId = selectedDeckId {
+                TopicRoadmapView(
                     deckId: deckId,
-                    repository: appContainer.vocabularyRepository,
                     onBack: {
                         withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                            vm.selectedDeckId = nil
+                            selectedDeckId = nil
                         }
+                    },
+                    onStageSelected: { stage in
+                        selectedStage = stage
                     }
                 )
                 .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .trailing)))
@@ -50,111 +68,15 @@ public struct VocabularyView: View {
                     .padding(.horizontal)
                     .padding(.top, 12)
 
-                    if vm.selectedTab == 0 {
-                        // Quick Search Bar
-                        HStack(spacing: 8) {
-                            Image(systemName: "magnifyingglass")
-                                .foregroundColor(Color.vocabMuted)
-                                .font(.system(size: 14, weight: .semibold))
-                            TextField(AppStrings.Vocabulary.searchPlaceholder, text: $bindableVM.searchText)
-                                .font(.system(size: 13, weight: .medium))
-                                .foregroundColor(Color.vocabInk)
-                            if !vm.searchText.isEmpty {
-                                Button(action: { vm.searchText = "" }) {
-                                    Image(systemName: "xmark.circle.fill")
-                                        .foregroundColor(Color.vocabMuted)
-                                        .font(.system(size: 14))
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 14)
-                        .frame(height: 40)
-                        .background(Color.vocabSurfaceCard)
-                        .cornerRadius(12)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.vocabHairline, lineWidth: 1.2)
-                        )
-                        .padding(.horizontal)
-
-                        // Filter Pills (Horizontal Scroll with Dynamic Counts)
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 8) {
-                                ForEach(filterOptions, id: \.self) { filter in
-                                    filterPill(filter)
-                                }
-                            }
-                            .padding(.horizontal)
-                        }
-                        .padding(.vertical, 2)
-
-                        List {
-                            VocabularySummaryCard(
-                                totalWords: vm.wordItems.count,
-                                srsRetentionPercentage: 0.85,
-                                dueCount: vm.filterCount(for: .needsReview)
-                            )
-                            .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 8, trailing: 0))
-                            .listRowSeparator(.hidden)
-                            .listRowBackground(Color.clear)
-
-                            ForEach(vm.filteredWords) { item in
-                                WordAccordionCard(
-                                    item: item,
-                                    isExpanded: vm.expandedWordId == item.id,
-                                    onTap: {
-                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                            if vm.expandedWordId == item.id {
-                                                vm.expandedWordId = nil
-                                            } else {
-                                                vm.expandedWordId = item.id
-                                            }
-                                        }
-                                    },
-                                    onAudioTap: {
-                                        ttsService.speak(text: item.lemma)
-                                    },
-                                    onDrillTap: {
-                                        vm.selectedDrillWord = item
-                                    }
-                                )
-                                .listRowInsets(EdgeInsets(top: 5, leading: 16, bottom: 5, trailing: 16))
-                                .listRowSeparator(.hidden)
-                                .listRowBackground(Color.clear)
-                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                    Button(role: .destructive) {
-                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                            vm.deleteWord(id: item.id)
-                                        }
-                                    } label: {
-                                        Label(AppStrings.Vocabulary.deleteWord, systemImage: "trash.fill")
-                                    }
-                                    .tint(.red)
-                                }
-                                .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                                    Button {
-                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                            vm.toggleMastered(id: item.id)
-                                        }
-                                    } label: {
-                                        Label(
-                                            item.masteryLevel >= 5 ? AppStrings.Vocabulary.reviewBadge : AppStrings.Vocabulary.masteredBadge,
-                                            systemImage: item.masteryLevel >= 5 ? "arrow.clockwise" : "checkmark.seal.fill"
-                                        )
-                                    }
-                                    .tint(item.masteryLevel >= 5 ? .orange : .green)
-                                }
-                            }
-                        }
-                        .listStyle(.plain)
-                        .scrollContentBackground(.hidden)
-                        .padding(.bottom, 60)
+                    if selectedTab == 0 {
+                        // Personal Vault Tab
+                        personalVaultTabContent(vaultVM: currentVaultVM, bindableVM: bindableVaultVM)
                     } else {
                         // Topic Decks Grid Tab
                         ScrollView(.vertical, showsIndicators: false) {
                             TopicDecksGridView(onDeckSelected: { deckId in
                                 withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                    vm.selectedDeckId = deckId
+                                    selectedDeckId = deckId
                                 }
                             })
                             .padding(.top, 4)
@@ -165,74 +87,201 @@ public struct VocabularyView: View {
                 .transition(.asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .leading)))
             }
         }
-        .sheet(item: $bindableVM.selectedDrillWord) { targetWord in
-            QuickReflexDrillSheetView(
-                targetWord: targetWord,
-                allWords: vm.wordItems,
-                ttsService: appContainer.ttsService,
-                sttService: appContainer.sttService,
-                speechAssessmentService: appContainer.speechAssessmentService,
-                evaluateSRSUseCase: appContainer.evaluateSRSUseCase,
-                attemptRepository: appContainer.quickReflexAttemptRepository,
-                onComplete: { updatedMastery in
-                    if let idx = vm.wordItems.firstIndex(where: { $0.id == targetWord.id }) {
-                        vm.wordItems[idx].masteryLevel = updatedMastery
+        .sheet(isPresented: $isPresentingSmartReview) {
+            SmartReviewSessionView(
+                viewModel: appContainer.makeSmartReviewViewModel(
+                    weakWords: currentVaultVM.words.filter(\.needsReview)
+                ),
+                onDismiss: {
+                    isPresentingSmartReview = false
+                    Task {
+                        await currentVaultVM.loadData()
+                    }
+                }
+            )
+        }
+        .sheet(item: $selectedStage) { stage in
+            StagePreviewSheet(
+                stage: stage,
+                onStartChallenge: {
+                    let challengeStage = stage
+                    selectedStage = nil
+                    activeChallengeStage = challengeStage
+                },
+                onClose: {
+                    selectedStage = nil
+                },
+                ttsService: appContainer.ttsService
+            )
+        }
+        .sheet(item: $activeChallengeStage) { stage in
+            StageChallengeView(
+                viewModel: appContainer.makeStageChallengeViewModel(stage: stage),
+                onClose: {
+                    activeChallengeStage = nil
+                    Task {
+                        await currentVaultVM.loadData()
+                    }
+                },
+                onCompleted: { _ in
+                    Task {
+                        await currentVaultVM.loadData()
                     }
                 }
             )
         }
         .task {
-            if vm.wordItems.isEmpty && !vm.isLoading {
-                await vm.loadWords()
+            if vaultVM == nil {
+                vaultVM = appContainer.makePersonalVaultViewModel()
+            }
+            if let vm = vaultVM, vm.words.isEmpty && !vm.isLoading {
+                await vm.loadData()
             }
         }
     }
 
+    // MARK: - Personal Vault Content
+    @ViewBuilder
+    private func personalVaultTabContent(
+        vaultVM: PersonalVaultViewModel,
+        bindableVM: PersonalVaultViewModel
+    ) -> some View {
+        VStack(spacing: 12) {
+            // Search Bar and Filter Pills
+            PersonalSearchFilterBar(
+                searchQuery: Binding(
+                    get: { bindableVM.searchQuery },
+                    set: { bindableVM.setSearchQuery($0) }
+                ),
+                selectedFilter: vaultVM.selectedFilter,
+                metrics: vaultVM.metrics,
+                onFilterChanged: { filter in
+                    vaultVM.setFilter(filter)
+                }
+            )
+
+            // Scrollable List of Hero Card and Clean Word Cards
+            List {
+                PersonalVaultHeroCard(
+                    metrics: vaultVM.metrics,
+                    onStartSmartReview: {
+                        isPresentingSmartReview = true
+                    }
+                )
+                .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 8, trailing: 0))
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
+
+                if vaultVM.isLoading && vaultVM.words.isEmpty {
+                    HStack {
+                        Spacer()
+                        ProgressView()
+                            .padding(.vertical, 20)
+                        Spacer()
+                    }
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+                } else if vaultVM.words.isEmpty {
+                    emptyVaultView
+                        .listRowInsets(EdgeInsets(top: 20, leading: 16, bottom: 20, trailing: 16))
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                } else {
+                    ForEach(vaultVM.words) { word in
+                        CleanWordCardView(
+                            word: word,
+                            isExpanded: expandedWordId == word.id,
+                            onTap: {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
+                                    if expandedWordId == word.id {
+                                        expandedWordId = nil
+                                    } else {
+                                        expandedWordId = word.id
+                                    }
+                                }
+                            },
+                            onAudioTap: {
+                                vaultVM.playAudio(for: word)
+                            },
+                            onBookmarkTap: {
+                                Task {
+                                    await vaultVM.toggleBookmark(wordId: word.id)
+                                }
+                            }
+                        )
+                        .listRowInsets(EdgeInsets(top: 5, leading: 16, bottom: 5, trailing: 16))
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                            Button {
+                                Task {
+                                    await vaultVM.toggleBookmark(wordId: word.id)
+                                }
+                            } label: {
+                                Label(
+                                    word.isBookmarked ? "Bỏ ghim" : "Ghim từ",
+                                    systemImage: word.isBookmarked ? "bookmark.slash.fill" : "bookmark.fill"
+                                )
+                            }
+                            .tint(Color.vocabPeach)
+                        }
+                    }
+                }
+            }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .padding(.bottom, 60)
+            .refreshable {
+                await vaultVM.loadData()
+            }
+        }
+    }
+
+    // MARK: - Empty Vault View
+    private var emptyVaultView: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "tray.fill")
+                .font(.system(size: 36))
+                .foregroundColor(Color.vocabMuted.opacity(0.6))
+                .padding(.top, 20)
+
+            Text("Chưa có từ vựng nào")
+                .font(.system(size: 16, weight: .bold))
+                .foregroundColor(Color.vocabInk)
+
+            Text("Hoàn thành các chặng trong Bộ Từ Chủ Đề để nạp từ vựng mới vào kho cá nhân của bạn.")
+                .font(.system(size: 13, weight: .medium))
+                .foregroundColor(Color.vocabMuted)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 24)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 24)
+        .background(Color.vocabSurfaceCard)
+        .cornerRadius(16)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.vocabHairline, lineWidth: 1)
+        )
+    }
+
+    // MARK: - Segmented Tab Button
     private func segmentedTabButton(title: LocalizedStringKey, tabIndex: Int) -> some View {
         Button(action: {
             withAnimation(.spring(response: 0.25, dampingFraction: 0.75)) {
-                vm.selectedTab = tabIndex
+                selectedTab = tabIndex
             }
         }) {
             Text(title)
                 .font(.system(size: 13, weight: .bold))
-                .foregroundColor(vm.selectedTab == tabIndex ? Color.vocabInk : Color.vocabMuted)
+                .foregroundColor(selectedTab == tabIndex ? Color.vocabInk : Color.vocabMuted)
                 .frame(maxWidth: .infinity)
                 .frame(height: 38)
-                .background(vm.selectedTab == tabIndex ? Color.vocabInk.opacity(0.08) : Color.clear)
+                .background(selectedTab == tabIndex ? Color.vocabInk.opacity(0.08) : Color.clear)
                 .cornerRadius(12)
                 .contentShape(Rectangle())
         }
         .buttonStyle(BentoCardButtonStyle())
-        .sensoryFeedback(.selection, trigger: vm.selectedTab)
-    }
-
-    private func filterPill(_ filter: VocabularyFilter) -> some View {
-        let isSelected = vm.selectedFilter == filter
-        let count = vm.filterCount(for: filter)
-
-        return Button(action: {
-            withAnimation(.spring(response: 0.25, dampingFraction: 0.75)) {
-                vm.selectedFilter = filter
-            }
-        }) {
-            HStack(spacing: 4) {
-                Text(filter.title)
-                Text("(\(count))")
-            }
-            .font(.system(size: 12, weight: isSelected ? .bold : .medium))
-                .foregroundColor(isSelected ? Color.vocabCanvas : Color.vocabInk)
-                .padding(.horizontal, 14)
-                .frame(height: 36)
-                .background(isSelected ? Color.vocabInk : Color.vocabSurfaceCard)
-                .cornerRadius(18)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 18)
-                        .stroke(isSelected ? Color.clear : Color.vocabHairline, lineWidth: 1.5)
-                )
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(BentoCardButtonStyle())
-        .sensoryFeedback(.selection, trigger: vm.selectedFilter)
+        .sensoryFeedback(.selection, trigger: selectedTab)
     }
 }
