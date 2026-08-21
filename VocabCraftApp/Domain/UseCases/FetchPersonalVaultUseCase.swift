@@ -24,6 +24,8 @@ public struct PersonalVaultMetrics: Sendable, Equatable {
     public let masteredCount: Int
     public let bookmarkedCount: Int
 
+    public var totalCount: Int { totalWords }
+
     public init(
         totalWords: Int = 0,
         needsReviewCount: Int = 0,

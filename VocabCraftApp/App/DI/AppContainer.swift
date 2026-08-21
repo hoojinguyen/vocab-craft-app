@@ -4,21 +4,40 @@ import SwiftData
 /// Centralized Composition Root / Dependency Injection Container.
 @MainActor
 public final class AppContainer {
+    // MARK: - Configuration
+    /// Toggle to switch between curated sample dataset and production data source.
+    public let useSampleData: Bool
+
     public let datasetEngine: DatasetEngine?
     public let modelContainer: ModelContainer?
+
+    // MARK: - Data Sources & Repositories
+    public let vocabularyDataSource: VocabularyDataSourceProtocol
+    public let stageProgressRepository: StageProgressRepositoryProtocol
+    public let userProgressRepository: any UserProgressRepositoryProtocol
 
     public let vocabularyRepository: VocabularyRepositoryProtocol
     public let srsRepository: SRSRepositoryProtocol
     public let quickReflexAttemptRepository: QuickReflexAttemptRepositoryProtocol
 
+    // MARK: - Services
     public let ttsService: TextToSpeechProtocol
     public let sttService: SpeechRecognitionProtocol
     public let speechAssessmentService: SpeechAssessmentProtocol
 
+    // MARK: - Domain Use Cases
     public let fetchVocabularyUseCase: FetchVocabularyUseCaseProtocol
     public let evaluateSRSUseCase: EvaluateSRSUseCaseProtocol
     public let resetUserProgressUseCase: ResetUserProgressUseCaseProtocol
 
+    public let fetchTopicDecksUseCase: FetchTopicDecksUseCaseProtocol
+    public let fetchDeckRoadmapUseCase: FetchDeckRoadmapUseCaseProtocol
+    public let completeStageChallengeUseCase: CompleteStageChallengeUseCaseProtocol
+    public let fetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProtocol
+    public let reviewWeakWordsUseCase: ReviewWeakWordsUseCaseProtocol
+    public let toggleWordBookmarkUseCase: ToggleWordBookmarkUseCaseProtocol
+
+    // MARK: - Stores & Navigation
     public let userSettingsStore: UserSettingsStore
     public let appRouter: AppRouter
 
@@ -26,16 +45,32 @@ public final class AppContainer {
         datasetEngine: DatasetEngine? = nil,
         modelContainer: ModelContainer? = nil,
         useMockData: Bool? = nil,
+        useSampleData: Bool = true,
+        vocabularyDataSource: VocabularyDataSourceProtocol? = nil,
+        stageProgressRepository: StageProgressRepositoryProtocol? = nil,
+        userProgressRepository: (any UserProgressRepositoryProtocol)? = nil,
         ttsService: TextToSpeechProtocol? = nil,
         sttService: SpeechRecognitionProtocol? = nil,
         speechAssessmentService: SpeechAssessmentProtocol? = nil,
         userSettingsStore: UserSettingsStore? = nil,
         appRouter: AppRouter? = nil
     ) {
+        self.useSampleData = useSampleData
         self.datasetEngine = datasetEngine
         self.modelContainer = modelContainer
 
         let progressActor: UserProgressModelActor? = modelContainer.map { UserProgressModelActor(modelContainer: $0) }
+        let resolvedUserProgressRepo: any UserProgressRepositoryProtocol = userProgressRepository
+            ?? (progressActor ?? MockUserProgressRepository())
+        self.userProgressRepository = resolvedUserProgressRepo
+
+        let resolvedDataSource: VocabularyDataSourceProtocol = vocabularyDataSource
+            ?? (useSampleData ? SampleVocabularyDataSource() : SampleVocabularyDataSource())
+        self.vocabularyDataSource = resolvedDataSource
+
+        let resolvedStageRepo: StageProgressRepositoryProtocol = stageProgressRepository
+            ?? StageProgressRepositoryImpl(modelContext: modelContainer?.mainContext)
+        self.stageProgressRepository = resolvedStageRepo
 
         let shouldMock = useMockData ?? (datasetEngine == nil)
         let vocabRepo: VocabularyRepositoryProtocol = shouldMock
@@ -48,16 +83,82 @@ public final class AppContainer {
         self.srsRepository = srsRepo
         self.quickReflexAttemptRepository = quickReflexAttemptRepo
 
-        self.ttsService = ttsService ?? TextToSpeechService()
+        let resolvedTTS = ttsService ?? TextToSpeechService()
+        self.ttsService = resolvedTTS
         self.sttService = sttService ?? SpeechRecognitionService()
         self.speechAssessmentService = speechAssessmentService ?? SpeechAssessmentService()
 
+        // Existing Use Cases
         self.fetchVocabularyUseCase = FetchVocabularyUseCase(repository: vocabRepo)
         self.evaluateSRSUseCase = EvaluateSRSUseCase(srsRepository: srsRepo)
         self.resetUserProgressUseCase = ResetUserProgressUseCase(srsRepository: srsRepo)
 
+        // Vocabulary Hub Use Cases
+        self.fetchTopicDecksUseCase = FetchTopicDecksUseCase(
+            dataSource: resolvedDataSource,
+            stageRepo: resolvedStageRepo
+        )
+        self.fetchDeckRoadmapUseCase = FetchDeckRoadmapUseCase(
+            dataSource: resolvedDataSource,
+            stageRepo: resolvedStageRepo
+        )
+        self.completeStageChallengeUseCase = CompleteStageChallengeUseCase(
+            stageRepo: resolvedStageRepo,
+            progressRepo: resolvedUserProgressRepo
+        )
+        self.fetchPersonalVaultUseCase = FetchPersonalVaultUseCase(
+            dataSource: resolvedDataSource,
+            progressRepo: resolvedUserProgressRepo
+        )
+        self.reviewWeakWordsUseCase = ReviewWeakWordsUseCase(
+            dataSource: resolvedDataSource,
+            progressRepo: resolvedUserProgressRepo
+        )
+        self.toggleWordBookmarkUseCase = ToggleWordBookmarkUseCase(
+            progressRepo: resolvedUserProgressRepo
+        )
+
         self.userSettingsStore = userSettingsStore ?? UserSettingsStore()
         self.appRouter = appRouter ?? AppRouter()
+    }
+
+    // MARK: - View Model Factories
+
+    public func makeTopicDecksViewModel() -> TopicDecksViewModel {
+        TopicDecksViewModel(
+            fetchTopicDecksUseCase: fetchTopicDecksUseCase
+        )
+    }
+
+    public func makeTopicRoadmapViewModel(deckId: String) -> TopicRoadmapViewModel {
+        TopicRoadmapViewModel(
+            deckId: deckId,
+            fetchDeckRoadmapUseCase: fetchDeckRoadmapUseCase
+        )
+    }
+
+    public func makeStageChallengeViewModel(stage: SubTopicStage) -> StageChallengeViewModel {
+        StageChallengeViewModel(
+            stage: stage,
+            completeUseCase: completeStageChallengeUseCase,
+            ttsService: ttsService
+        )
+    }
+
+    public func makePersonalVaultViewModel() -> PersonalVaultViewModel {
+        PersonalVaultViewModel(
+            fetchVaultUseCase: fetchPersonalVaultUseCase,
+            toggleBookmarkUseCase: toggleWordBookmarkUseCase,
+            ttsService: ttsService
+        )
+    }
+
+    public func makeSmartReviewViewModel(weakWords: [PersonalWord] = []) -> SmartReviewViewModel {
+        SmartReviewViewModel(
+            weakWords: weakWords,
+            reviewUseCase: reviewWeakWordsUseCase,
+            ttsService: ttsService
+        )
     }
 
     public func makeHomepageViewModel() -> HomepageViewModel {
@@ -125,6 +226,6 @@ public final class AppContainer {
         )
     }
 
-    public static let mock = AppContainer(useMockData: true)
+    public static let mock = AppContainer(useMockData: true, useSampleData: true)
     public static let shared = AppContainer.mock
 }
