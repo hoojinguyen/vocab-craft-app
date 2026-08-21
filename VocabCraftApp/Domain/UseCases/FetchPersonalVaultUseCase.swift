@@ -17,6 +17,21 @@ public enum PersonalVaultFilter: String, CaseIterable, Sendable, Equatable {
     }
 }
 
+/// 3-tab filter for the redesigned Vocabulary Vault.
+public enum VaultTabFilter: String, CaseIterable, Sendable, Equatable {
+    case notMastered
+    case mastered
+    case bookmarked
+
+    public var title: String {
+        switch self {
+        case .notMastered: return "Chưa thuộc"
+        case .mastered: return "Đã thuộc"
+        case .bookmarked: return "Đã lưu"
+        }
+    }
+}
+
 /// Aggregated metrics and word count statistics for the Personal Vault.
 public struct PersonalVaultMetrics: Sendable, Equatable {
     public let totalWords: Int
@@ -53,11 +68,16 @@ public struct PersonalVaultResult: Sendable, Equatable {
 /// Protocol for fetching and filtering Personal Vault words and calculating statistics.
 public protocol FetchPersonalVaultUseCaseProtocol: Sendable {
     func execute(filter: PersonalVaultFilter, searchQuery: String?) async throws -> PersonalVaultResult
+    func fetchVaultWords(filter: VaultTabFilter, searchQuery: String?) async throws -> [VaultWordItem]
 }
 
 public extension FetchPersonalVaultUseCaseProtocol {
     func execute(filter: PersonalVaultFilter = .all, searchQuery: String? = nil) async throws -> PersonalVaultResult {
         try await execute(filter: filter, searchQuery: searchQuery)
+    }
+
+    func fetchVaultWords(filter: VaultTabFilter = .notMastered, searchQuery: String? = nil) async throws -> [VaultWordItem] {
+        try await fetchVaultWords(filter: filter, searchQuery: searchQuery)
     }
 }
 
@@ -131,5 +151,53 @@ public final class FetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProtocol,
         }
 
         return PersonalVaultResult(words: filteredWords, metrics: metrics)
+    }
+
+    public func fetchVaultWords(filter: VaultTabFilter = .notMastered, searchQuery: String? = nil) async throws -> [VaultWordItem] {
+        let allProgress = try await progressRepo.fetchAllProgress()
+        var allVaultWords: [VaultWordItem] = []
+        allVaultWords.reserveCapacity(allProgress.count)
+
+        for progress in allProgress {
+            if let wordDTO = try await dataSource.fetchWordById(id: progress.wordId) {
+                let isMastered = progress.isMastered || progress.masteryLevel >= 4
+                let vaultWord = VaultWordItem(
+                    id: wordDTO.id,
+                    lemma: wordDTO.lemma,
+                    pos: wordDTO.pos,
+                    phonetic: wordDTO.phonetic,
+                    definitionVi: wordDTO.definitionVi,
+                    exampleSentenceEn: wordDTO.exampleEn,
+                    exampleSentenceVi: wordDTO.exampleVi,
+                    cefrLevel: wordDTO.cefrLevel,
+                    isMastered: isMastered,
+                    isBookmarked: progress.isBookmarked,
+                    correctStreak: progress.consecutiveCorrectStreak,
+                    practicedModes: progress.practicedModes,
+                    lastPracticedAt: progress.lastReviewDate
+                )
+                allVaultWords.append(vaultWord)
+            }
+        }
+
+        var filteredWords: [VaultWordItem]
+        switch filter {
+        case .notMastered:
+            filteredWords = allVaultWords.filter { !$0.isMastered }
+        case .mastered:
+            filteredWords = allVaultWords.filter(\.isMastered)
+        case .bookmarked:
+            filteredWords = allVaultWords.filter(\.isBookmarked)
+        }
+
+        if let query = searchQuery?.trimmingCharacters(in: .whitespacesAndNewlines), !query.isEmpty {
+            let lowerQuery = query.lowercased()
+            filteredWords = filteredWords.filter { word in
+                word.lemma.lowercased().contains(lowerQuery) ||
+                word.definitionVi.lowercased().contains(lowerQuery)
+            }
+        }
+
+        return filteredWords
     }
 }

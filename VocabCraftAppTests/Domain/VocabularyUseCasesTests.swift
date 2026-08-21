@@ -112,6 +112,47 @@ final class MockUserProgressActor: UserProgressRepositoryProtocol, @unchecked Se
         storage[wordId]
     }
 
+    func recordDrillResult(
+        wordId: Int64,
+        isCorrect: Bool,
+        newStreak: Int,
+        newModes: Set<ReflexBlitzMode>,
+        isMastered: Bool
+    ) async throws {
+        if let existing = storage[wordId] {
+            storage[wordId] = UserWordProgressData(
+                wordId: existing.wordId,
+                cefrLevel: existing.cefrLevel,
+                masteryLevel: isMastered ? 5 : (isCorrect ? max(1, existing.masteryLevel) : existing.masteryLevel),
+                isBookmarked: existing.isBookmarked,
+                easeFactor: existing.easeFactor,
+                intervalDays: existing.intervalDays,
+                nextReviewDate: existing.nextReviewDate,
+                lastReviewDate: Date(),
+                totalReviews: existing.totalReviews + 1,
+                needsReview: !isCorrect,
+                mistakeCount: isCorrect ? existing.mistakeCount : existing.mistakeCount + 1,
+                sourceDeckId: existing.sourceDeckId,
+                sourceNodeId: existing.sourceNodeId,
+                consecutiveCorrectStreak: newStreak,
+                practicedModes: newModes,
+                isMastered: isMastered
+            )
+        } else {
+            storage[wordId] = UserWordProgressData(
+                wordId: wordId,
+                cefrLevel: "A1",
+                masteryLevel: isMastered ? 5 : (isCorrect ? 1 : 0),
+                isBookmarked: false,
+                needsReview: !isCorrect,
+                mistakeCount: isCorrect ? 0 : 1,
+                consecutiveCorrectStreak: newStreak,
+                practicedModes: newModes,
+                isMastered: isMastered
+            )
+        }
+    }
+
     func saveProgress(
         wordId: Int64,
         cefrLevel: String,

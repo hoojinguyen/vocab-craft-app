@@ -21,6 +21,18 @@ public protocol UserProgressRepositoryProtocol: Sendable {
     /// Fetches the user word progress data for a single word ID.
     func getProgress(wordId: Int64) async throws -> UserWordProgressData?
 
+    /// Fetches the user word progress data for a single word ID (alias).
+    func fetchProgress(for wordId: Int64) async throws -> UserWordProgressData?
+
+    /// Records the result of a reflex blitz / mixed reflex drill attempt.
+    func recordDrillResult(
+        wordId: Int64,
+        isCorrect: Bool,
+        newStreak: Int,
+        newModes: Set<ReflexBlitzMode>,
+        isMastered: Bool
+    ) async throws
+
     // swiftlint:disable function_parameter_count
     /// Saves or updates a word progress snapshot.
     func saveProgress(
@@ -34,4 +46,10 @@ public protocol UserProgressRepositoryProtocol: Sendable {
         sourceNodeId: String?
     ) async throws
     // swiftlint:enable function_parameter_count
+}
+
+public extension UserProgressRepositoryProtocol {
+    func fetchProgress(for wordId: Int64) async throws -> UserWordProgressData? {
+        try await getProgress(wordId: wordId)
+    }
 }

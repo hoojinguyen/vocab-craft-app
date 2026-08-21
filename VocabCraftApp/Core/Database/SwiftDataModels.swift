@@ -16,6 +16,20 @@ public final class UserWordProgress {
     public var mistakeCount: Int
     public var sourceDeckId: String?
     public var sourceNodeId: String?
+    public var consecutiveCorrectStreak: Int
+    public var practicedModesRaw: String
+    public var isMastered: Bool
+
+    public var practicedModes: Set<ReflexBlitzMode> {
+        get {
+            guard !practicedModesRaw.isEmpty else { return [] }
+            let modes = practicedModesRaw.split(separator: ",").compactMap { ReflexBlitzMode(rawValue: String($0)) }
+            return Set(modes)
+        }
+        set {
+            practicedModesRaw = newValue.map(\.rawValue).sorted().joined(separator: ",")
+        }
+    }
 
     public init(
         wordId: Int64,
@@ -30,7 +44,10 @@ public final class UserWordProgress {
         needsReview: Bool = false,
         mistakeCount: Int = 0,
         sourceDeckId: String? = nil,
-        sourceNodeId: String? = nil
+        sourceNodeId: String? = nil,
+        consecutiveCorrectStreak: Int = 0,
+        practicedModesRaw: String = "",
+        isMastered: Bool = false
     ) {
         self.wordId = wordId
         self.cefrLevel = cefrLevel
@@ -45,6 +62,9 @@ public final class UserWordProgress {
         self.mistakeCount = mistakeCount
         self.sourceDeckId = sourceDeckId
         self.sourceNodeId = sourceNodeId
+        self.consecutiveCorrectStreak = consecutiveCorrectStreak
+        self.practicedModesRaw = practicedModesRaw
+        self.isMastered = isMastered
     }
 }
 

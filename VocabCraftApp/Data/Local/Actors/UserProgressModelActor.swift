@@ -25,6 +25,9 @@ public struct UserWordProgressData: Sendable, Equatable {
     public let mistakeCount: Int
     public let sourceDeckId: String?
     public let sourceNodeId: String?
+    public let consecutiveCorrectStreak: Int
+    public let practicedModes: Set<ReflexBlitzMode>
+    public let isMastered: Bool
 
     public init(
         wordId: Int64,
@@ -39,7 +42,10 @@ public struct UserWordProgressData: Sendable, Equatable {
         needsReview: Bool = false,
         mistakeCount: Int = 0,
         sourceDeckId: String? = nil,
-        sourceNodeId: String? = nil
+        sourceNodeId: String? = nil,
+        consecutiveCorrectStreak: Int = 0,
+        practicedModes: Set<ReflexBlitzMode> = [],
+        isMastered: Bool = false
     ) {
         self.wordId = wordId
         self.cefrLevel = cefrLevel
@@ -54,6 +60,9 @@ public struct UserWordProgressData: Sendable, Equatable {
         self.mistakeCount = mistakeCount
         self.sourceDeckId = sourceDeckId
         self.sourceNodeId = sourceNodeId
+        self.consecutiveCorrectStreak = consecutiveCorrectStreak
+        self.practicedModes = practicedModes
+        self.isMastered = isMastered
     }
 }
 
@@ -82,11 +91,18 @@ public actor UserProgressModelActor: UserProgressRepositoryProtocol {
             needsReview: item.needsReview,
             mistakeCount: item.mistakeCount,
             sourceDeckId: item.sourceDeckId,
-            sourceNodeId: item.sourceNodeId
+            sourceNodeId: item.sourceNodeId,
+            consecutiveCorrectStreak: item.consecutiveCorrectStreak,
+            practicedModes: item.practicedModes,
+            isMastered: item.isMastered
         )
     }
 
     public func getProgress(wordId: Int64) throws -> UserWordProgressData? {
+        try getProgressData(wordId: wordId)
+    }
+
+    public func fetchProgress(for wordId: Int64) throws -> UserWordProgressData? {
         try getProgressData(wordId: wordId)
     }
 
@@ -237,6 +253,46 @@ public actor UserProgressModelActor: UserProgressRepositoryProtocol {
         try markWordReviewed(wordId: wordId, isCorrect: true)
     }
 
+    public func recordDrillResult(
+        wordId: Int64,
+        isCorrect: Bool,
+        newStreak: Int,
+        newModes: Set<ReflexBlitzMode>,
+        isMastered: Bool
+    ) throws {
+        if let existing = try fetchEntity(wordId: wordId) {
+            existing.consecutiveCorrectStreak = newStreak
+            existing.practicedModes = newModes
+            existing.isMastered = isMastered
+            existing.lastReviewDate = Date()
+            existing.totalReviews += 1
+            if isMastered {
+                existing.masteryLevel = 5
+            }
+            if !isCorrect {
+                existing.needsReview = true
+                existing.mistakeCount += 1
+            } else {
+                existing.needsReview = false
+            }
+        } else {
+            let newProgress = UserWordProgress(
+                wordId: wordId,
+                cefrLevel: "A1",
+                masteryLevel: isMastered ? 5 : (isCorrect ? 1 : 0),
+                isBookmarked: false,
+                needsReview: !isCorrect,
+                mistakeCount: isCorrect ? 0 : 1,
+                consecutiveCorrectStreak: newStreak,
+                practicedModesRaw: newModes.map(\.rawValue).sorted().joined(separator: ","),
+                isMastered: isMastered
+            )
+            newProgress.totalReviews = 1
+            modelContext.insert(newProgress)
+        }
+        try modelContext.save()
+    }
+
     public func fetchAllProgressData() throws -> [UserWordProgressData] {
         let descriptor = FetchDescriptor<UserWordProgress>()
         let items = try modelContext.fetch(descriptor)
@@ -254,7 +310,10 @@ public actor UserProgressModelActor: UserProgressRepositoryProtocol {
                 needsReview: item.needsReview,
                 mistakeCount: item.mistakeCount,
                 sourceDeckId: item.sourceDeckId,
-                sourceNodeId: item.sourceNodeId
+                sourceNodeId: item.sourceNodeId,
+                consecutiveCorrectStreak: item.consecutiveCorrectStreak,
+                practicedModes: item.practicedModes,
+                isMastered: item.isMastered
             )
         }
     }
