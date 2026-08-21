@@ -1,6 +1,19 @@
 import Foundation
 import SwiftData
 
+extension UserWordProgress {
+    public var practicedModes: Set<ReflexBlitzMode> {
+        get {
+            guard !practicedModesRaw.isEmpty else { return [] }
+            let modes = practicedModesRaw.split(separator: ",").compactMap { ReflexBlitzMode(rawValue: String($0)) }
+            return Set(modes)
+        }
+        set {
+            practicedModesRaw = newValue.map(\.rawValue).sorted().joined(separator: ",")
+        }
+    }
+}
+
 public struct UserProgressSummary: Sendable, Equatable {
     public let masteryLevel: Int
     public let isBookmarked: Bool

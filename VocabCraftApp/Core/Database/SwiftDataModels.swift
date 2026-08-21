@@ -20,17 +20,6 @@ public final class UserWordProgress {
     public var practicedModesRaw: String
     public var isMastered: Bool
 
-    public var practicedModes: Set<ReflexBlitzMode> {
-        get {
-            guard !practicedModesRaw.isEmpty else { return [] }
-            let modes = practicedModesRaw.split(separator: ",").compactMap { ReflexBlitzMode(rawValue: String($0)) }
-            return Set(modes)
-        }
-        set {
-            practicedModesRaw = newValue.map(\.rawValue).sorted().joined(separator: ",")
-        }
-    }
-
     public init(
         wordId: Int64,
         cefrLevel: String = "A1",
