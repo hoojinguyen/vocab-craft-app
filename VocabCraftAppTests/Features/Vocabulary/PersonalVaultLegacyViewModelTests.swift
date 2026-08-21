@@ -2,7 +2,7 @@
 import XCTest
 
 @MainActor
-final class PersonalVaultViewModelTests: XCTestCase {
+final class PersonalVaultLegacyViewModelTests: XCTestCase {
     func test_loadVault_calculatesMetricsAndFiltersWithoutEmojiTags() async {
         let container = AppContainer.mock
         let sut = container.makePersonalVaultViewModel()

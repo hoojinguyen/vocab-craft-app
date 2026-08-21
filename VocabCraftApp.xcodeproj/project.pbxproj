@@ -79,7 +79,7 @@
 		30004D5A668F6276E9BC /* SettingsViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20004D5A668F6276E9BC /* SettingsViewTests.swift */; };
 		30004E04DA4BC3CA718A /* QuickDrillStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20004E04DA4BC3CA718A /* QuickDrillStep.swift */; };
 		30004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift */; };
-		300050086C61903A7B75 /* PersonalVaultViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200050086C61903A7B75 /* PersonalVaultViewModelTests.swift */; };
+		300050086C61903A7B75 /* PersonalVaultLegacyViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200050086C61903A7B75 /* PersonalVaultLegacyViewModelTests.swift */; };
 		300050C060601037BB90 /* WordTokenResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200050C060601037BB90 /* WordTokenResult.swift */; };
 		300051810A7B65A07F9A /* VocabularyModelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200051810A7B65A07F9A /* VocabularyModelsTests.swift */; };
 		300054D51843DFDCEB06 /* SpeechRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200054D51843DFDCEB06 /* SpeechRecognitionService.swift */; };
@@ -333,7 +333,7 @@
 		20004DC19C2C12FAB3C7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		20004E04DA4BC3CA718A /* QuickDrillStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickDrillStep.swift; sourceTree = "<group>"; };
 		20004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomepageViewTests.swift; sourceTree = "<group>"; };
-		200050086C61903A7B75 /* PersonalVaultViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalVaultViewModelTests.swift; sourceTree = "<group>"; };
+		200050086C61903A7B75 /* PersonalVaultLegacyViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalVaultLegacyViewModelTests.swift; sourceTree = "<group>"; };
 		200050C060601037BB90 /* WordTokenResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordTokenResult.swift; sourceTree = "<group>"; };
 		200051810A7B65A07F9A /* VocabularyModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyModelsTests.swift; sourceTree = "<group>"; };
 		200054D51843DFDCEB06 /* SpeechRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionService.swift; sourceTree = "<group>"; };
@@ -907,7 +907,7 @@
 			isa = PBXGroup;
 			children = (
 				2000D22F93692E9C65C5 /* CollocationExtractorTests.swift */,
-				200050086C61903A7B75 /* PersonalVaultViewModelTests.swift */,
+				200050086C61903A7B75 /* PersonalVaultLegacyViewModelTests.swift */,
 				200022913C72DD267B8F /* PersonalVaultViewsTests.swift */,
 				2000D50F7F5D8C2CEA88 /* QuickDrillStepTests.swift */,
 				20001088FE6A49C1E272 /* QuickReflexAttemptRepositoryTests.swift */,
@@ -1285,7 +1285,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				800000402D50000000000001 /* PBXTargetDependency */,
 			);
 			name = VocabCraftApp;
 			productName = VocabCraftApp;
@@ -1567,7 +1566,7 @@
 				3000A5EC389D77272424 /* ReflexBlitzViewModelTests.swift in Sources */,
 				3000DD4CECAB945418DA /* ReflexDrillViewModelSpeechTests.swift in Sources */,
 				3000D22F93692E9C65C5 /* CollocationExtractorTests.swift in Sources */,
-				300050086C61903A7B75 /* PersonalVaultViewModelTests.swift in Sources */,
+				300050086C61903A7B75 /* PersonalVaultLegacyViewModelTests.swift in Sources */,
 				300022913C72DD267B8F /* PersonalVaultViewsTests.swift in Sources */,
 				3000D50F7F5D8C2CEA88 /* QuickDrillStepTests.swift in Sources */,
 				30001088FE6A49C1E272 /* QuickReflexAttemptRepositoryTests.swift in Sources */,
