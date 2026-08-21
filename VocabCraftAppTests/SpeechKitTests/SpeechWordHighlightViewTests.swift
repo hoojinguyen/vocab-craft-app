@@ -152,4 +152,13 @@ final class SpeechWordHighlightViewTests: XCTestCase {
         XCTAssertEqual(view.tokens.count, 2)
         XCTAssertNil(view.evaluationResult)
     }
+
+    func testVocabSpeechVisualizerViewIsolation() {
+        let visualizer = VocabSpeechVisualizerView(
+            isListening: true,
+            recognizedText: "hello",
+            placeholderText: "Listening..."
+        )
+        XCTAssertNotNil(visualizer.body)
+    }
 }

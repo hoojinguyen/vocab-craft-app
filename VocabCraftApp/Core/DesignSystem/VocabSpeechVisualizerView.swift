@@ -9,8 +9,6 @@ public struct VocabSpeechVisualizerView: View {
     public let evaluationResult: SpeechEvaluationResult?
     public let tokens: [WordTokenResult]
 
-    @State private var barHeights: [CGFloat] = [12, 24, 18, 30, 16, 26, 14]
-
     public init(
         isListening: Bool,
         recognizedText: String,
@@ -51,31 +49,8 @@ public struct VocabSpeechVisualizerView: View {
 
             // Equalizer Sound Bar Visualizer
             if isListening {
-                HStack(spacing: 5) {
-                    ForEach(0..<barHeights.count, id: \.self) { index in
-                        RoundedRectangle(cornerRadius: 3)
-                            .fill(
-                                LinearGradient(
-                                    colors: [Color.vocabCoral, Color.vocabPeach],
-                                    startPoint: .bottom,
-                                    endPoint: .top
-                                )
-                            )
-                            .frame(width: 4, height: barHeights[index])
-                            .animation(.easeInOut(duration: 0.12), value: barHeights[index])
-                    }
-                }
-                .frame(height: 32)
-                .task(id: isListening) {
-                    guard isListening else { return }
-                    while !Task.isCancelled && isListening {
-                        try? await Task.sleep(for: .milliseconds(120))
-                        for i in 0..<barHeights.count {
-                            barHeights[i] = CGFloat.random(in: 8...30)
-                        }
-                    }
-                }
-                .transition(.scale.combined(with: .opacity))
+                EqualizerBarsView(isListening: isListening)
+                    .transition(.scale.combined(with: .opacity))
             }
 
             // Word Tokens Highlight or Recognized Speech Text Display
@@ -186,5 +161,37 @@ public struct VocabSpeechVisualizerView: View {
             return AppStrings.Reflex.quickVisualizerListeningText
         }
         return placeholderText
+    }
+}
+
+private struct EqualizerBarsView: View {
+    let isListening: Bool
+    @State private var barHeights: [CGFloat] = [12, 24, 18, 30, 16, 26, 14]
+
+    var body: some View {
+        HStack(spacing: 5) {
+            ForEach(0..<barHeights.count, id: \.self) { index in
+                RoundedRectangle(cornerRadius: 3)
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.vocabCoral, Color.vocabPeach],
+                            startPoint: .bottom,
+                            endPoint: .top
+                        )
+                    )
+                    .frame(width: 4, height: barHeights[index])
+                    .animation(.easeInOut(duration: 0.12), value: barHeights[index])
+            }
+        }
+        .frame(height: 32)
+        .task(id: isListening) {
+            guard isListening else { return }
+            while !Task.isCancelled && isListening {
+                try? await Task.sleep(for: .milliseconds(120))
+                for i in 0..<barHeights.count {
+                    barHeights[i] = CGFloat.random(in: 8...30)
+                }
+            }
+        }
     }
 }
