@@ -62,8 +62,6 @@ public struct HomepageView: View {
         }
     }
 
-
-
     public var body: some View {
         ZStack(alignment: .bottom) {
             Color.vocabCanvas
@@ -199,7 +197,3 @@ public struct HomepageView: View {
         .environment(\.locale, appContainer.userSettingsStore.appLocale ?? .autoupdatingCurrent)
     }
 }
-
-
-
-

@@ -84,6 +84,8 @@
 		300075A9C43B4E98CD5D /* VocabWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200075A9C43B4E98CD5D /* VocabWidgetView.swift */; };
 		30007E84695DF55F278D /* SettingsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20007E84695DF55F278D /* SettingsViewModelTests.swift */; };
 		300080D6E75B2F2E5FAD /* QuickReflexDrillSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200080D6E75B2F2E5FAD /* QuickReflexDrillSheetView.swift */; };
+		300080D6E75B2F2E5FAA /* QuickReflexResultCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200080D6E75B2F2E5FAA /* QuickReflexResultCardView.swift */; };
+		3000FB01000000000000000B /* ReflexBlitzCardReviewedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FB01000000000000000B /* ReflexBlitzCardReviewedView.swift */; };
 		300084512C285C79A09D /* WidgetIntentsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200084512C285C79A09D /* WidgetIntentsTests.swift */; };
 		3000871815071728E145 /* VocabularyViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000871815071728E145 /* VocabularyViewsTests.swift */; };
 		30008890835203644360 /* SubTopicSessionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20008890835203644360 /* SubTopicSessionEngine.swift */; };
@@ -282,6 +284,8 @@
 		200075A9C43B4E98CD5D /* VocabWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabWidgetView.swift; sourceTree = "<group>"; };
 		20007E84695DF55F278D /* SettingsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModelTests.swift; sourceTree = "<group>"; };
 		200080D6E75B2F2E5FAD /* QuickReflexDrillSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickReflexDrillSheetView.swift; sourceTree = "<group>"; };
+		200080D6E75B2F2E5FAA /* QuickReflexResultCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickReflexResultCardView.swift; sourceTree = "<group>"; };
+		2000FB01000000000000000B /* ReflexBlitzCardReviewedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Views/ReflexBlitzCardReviewedView.swift"; sourceTree = "<group>"; };
 		200084512C285C79A09D /* WidgetIntentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetIntentsTests.swift; sourceTree = "<group>"; };
 		2000871815071728E145 /* VocabularyViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyViewsTests.swift; sourceTree = "<group>"; };
 		20008890835203644360 /* SubTopicSessionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubTopicSessionEngine.swift; sourceTree = "<group>"; };
@@ -540,6 +544,7 @@
 			isa = PBXGroup;
 			children = (
 				200080D6E75B2F2E5FAD /* QuickReflexDrillSheetView.swift */,
+				200080D6E75B2F2E5FAA /* QuickReflexResultCardView.swift */,
 				2000FE45C5E45EEC44B5 /* ReflexFlipCardView.swift */,
 				2000A970E3851B674608 /* SubTopicPreviewSheet.swift */,
 				200089ECF8394BCF829D /* SubTopicSessionSummaryView.swift */,
@@ -758,6 +763,7 @@
 				2000FB010000000000000004 /* ReflexCountdownOverlayView.swift */,
 				2000FB010000000000000005 /* ReflexBlitzHeaderView.swift */,
 				2000FB010000000000000006 /* ReflexBlitzCardView.swift */,
+				2000FB01000000000000000B /* ReflexBlitzCardReviewedView.swift */,
 				2000FB010000000000000007 /* ReflexBlitzSummaryView.swift */,
 				2000FB010000000000000008 /* ReflexBlitzView.swift */,
 				2000FB010000000000000009 /* ReflexBlitzModeSelectionView.swift */,
@@ -1093,6 +1099,7 @@
 				3000FB010000000000000004 /* ReflexCountdownOverlayView.swift in Sources */,
 				3000FB010000000000000005 /* ReflexBlitzHeaderView.swift in Sources */,
 				3000FB010000000000000006 /* ReflexBlitzCardView.swift in Sources */,
+				3000FB01000000000000000B /* ReflexBlitzCardReviewedView.swift in Sources */,
 				3000FB010000000000000007 /* ReflexBlitzSummaryView.swift in Sources */,
 				3000FB010000000000000008 /* ReflexBlitzView.swift in Sources */,
 				3000FB010000000000000009 /* ReflexBlitzModeSelectionView.swift in Sources */,
@@ -1165,6 +1172,7 @@
 				3000A6E85473D55734B1 /* StudySessionViewModel.swift in Sources */,
 				3000A2F071BDE838E61F /* VocabularyViewModel.swift in Sources */,
 				300080D6E75B2F2E5FAD /* QuickReflexDrillSheetView.swift in Sources */,
+				300080D6E75B2F2E5FAA /* QuickReflexResultCardView.swift in Sources */,
 				3000FE45C5E45EEC44B5 /* ReflexFlipCardView.swift in Sources */,
 				3000A970E3851B674608 /* SubTopicPreviewSheet.swift in Sources */,
 				300089ECF8394BCF829D /* SubTopicSessionSummaryView.swift in Sources */,

@@ -104,25 +104,25 @@ public final class VocabularyRepositoryImpl: VocabularyRepositoryProtocol {
         if records.isEmpty {
             return MockVocabularyDataSource.shared.mockTopicDecks
         }
-        
+
         let masteryMap = (try? await progressActor?.fetchAllMasteryLevels()) ?? [:]
-        
+
         var decks: [TopicDeck] = []
         for r in records {
             // Need to compute wordCount and completionPercentage
             let nodeRecords = engine.fetchSubTopicNodes(deckId: r.id)
             var totalWords = 0
             var learnedWords = 0
-            
+
             for nodeRecord in nodeRecords {
                 let wordRecords = engine.fetchWordsForNode(nodeId: nodeRecord.id)
                 totalWords += wordRecords.count
-                
+
                 for wordRecord in wordRecords where (masteryMap[wordRecord.id] ?? 0) >= 5 {
                     learnedWords += 1
                 }
             }
-            
+
             let percentage = totalWords > 0 ? Double(learnedWords) / Double(totalWords) : 0.0
             decks.append(TopicDeck(
                 id: r.id,
@@ -135,7 +135,7 @@ public final class VocabularyRepositoryImpl: VocabularyRepositoryProtocol {
         }
         return decks
     }
-    
+
     /// Fetches the nodes for a specific topic deck.
     public func fetchTopicDeckDetails(deckId: String) async throws -> [SubTopicNode] {
         guard let engine = datasetEngine else { return SubTopicNode.sampleNodes }
@@ -143,23 +143,23 @@ public final class VocabularyRepositoryImpl: VocabularyRepositoryProtocol {
         if nodeRecords.isEmpty {
             return SubTopicNode.sampleNodes
         }
-        
+
         let progressMap = (try? await progressActor?.fetchAllProgressSummaryMap()) ?? [:]
-        
+
         var nodes: [SubTopicNode] = []
         var previousCompleted = true // First node is unlocked by default
-        
+
         for nodeRecord in nodeRecords {
             let wordRecords = engine.fetchWordsForNode(nodeId: nodeRecord.id)
             var topicWords: [TopicWord] = []
             var learnedWords = 0
-            
+
             for wordRecord in wordRecords {
                 let summary = progressMap[wordRecord.id]
                 let isMastered = (summary?.masteryLevel ?? 0) >= 5
                 let isSaved = summary?.isBookmarked ?? false
                 if isMastered { learnedWords += 1 }
-                
+
                 topicWords.append(TopicWord(
                     id: String(wordRecord.id),
                     english: wordRecord.lemma,
@@ -171,10 +171,10 @@ public final class VocabularyRepositoryImpl: VocabularyRepositoryProtocol {
                     isSavedToPersonalVault: isSaved
                 ))
             }
-            
+
             let totalWords = wordRecords.count
             let isCompleted = totalWords > 0 && learnedWords == totalWords
-            
+
             let state: NodeState
             if isCompleted {
                 state = .completed
@@ -183,9 +183,9 @@ public final class VocabularyRepositoryImpl: VocabularyRepositoryProtocol {
             } else {
                 state = .locked
             }
-            
+
             previousCompleted = isCompleted
-            
+
             nodes.append(SubTopicNode(
                 id: nodeRecord.id,
                 title: nodeRecord.title,

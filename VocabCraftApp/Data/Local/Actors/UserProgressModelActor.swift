@@ -4,7 +4,7 @@ import SwiftData
 public struct UserProgressSummary: Sendable {
     public let masteryLevel: Int
     public let isBookmarked: Bool
-    
+
     public init(masteryLevel: Int, isBookmarked: Bool) {
         self.masteryLevel = masteryLevel
         self.isBookmarked = isBookmarked

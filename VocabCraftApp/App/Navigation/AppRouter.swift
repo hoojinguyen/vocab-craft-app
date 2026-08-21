@@ -68,7 +68,6 @@ public final class AppRouter {
                 phase = .drilling
             }
 
-
             self.pendingReflexBlitzConfig = ReflexBlitzDeepLinkConfig(
                 mode: mode,
                 phase: phase,
@@ -87,5 +86,3 @@ public final class AppRouter {
         }
     }
 }
-
-

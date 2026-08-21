@@ -109,4 +109,3 @@ struct VocabCraftApp: App {
         .modelContainer(container)
     }
 }
-

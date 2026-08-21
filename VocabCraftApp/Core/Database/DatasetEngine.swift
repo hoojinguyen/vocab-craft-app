@@ -271,7 +271,7 @@ public final class DatasetEngine: DatasetDataSourceProtocol {
             let iconName = columnText(statement, 2)
             let badgeColorHex = columnText(statement, 3)
             let sortOrder = Int(sqlite3_column_int(statement, 4))
-            
+
             results.append(TopicDeckRecord(id: id, title: title, iconName: iconName, badgeColorHex: badgeColorHex, sortOrder: sortOrder))
         }
         return results
@@ -290,7 +290,7 @@ public final class DatasetEngine: DatasetDataSourceProtocol {
             return []
         }
         defer { sqlite3_finalize(statement) }
-        
+
         let SQLITE_TRANSIENT = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
         sqlite3_bind_text(statement, 1, deckId, -1, SQLITE_TRANSIENT)
 
@@ -301,12 +301,12 @@ public final class DatasetEngine: DatasetDataSourceProtocol {
             let title = columnText(statement, 2)
             let iconName = columnText(statement, 3)
             let sortOrder = Int(sqlite3_column_int(statement, 4))
-            
+
             results.append(SubTopicNodeRecord(id: id, deckId: dId, title: title, iconName: iconName, sortOrder: sortOrder))
         }
         return results
     }
-    
+
     public func fetchWordsForNode(nodeId: String) -> [WordRecord] {
         guard let db = db else { return [] }
         let query = """
