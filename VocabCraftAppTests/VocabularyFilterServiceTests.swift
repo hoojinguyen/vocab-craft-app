@@ -71,4 +71,3 @@ struct VocabularyFilterServiceTests {
         #expect(counts[.c1c2] == 1)
     }
 }
-

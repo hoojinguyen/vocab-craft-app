@@ -114,4 +114,3 @@ public struct TopicDeckSummaryRecord: Sendable, Equatable {
         self.totalWords = totalWords
     }
 }
-

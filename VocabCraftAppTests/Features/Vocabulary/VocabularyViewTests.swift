@@ -95,4 +95,3 @@ final class VocabularyViewTests: XCTestCase {
         XCTAssertEqual(vm.filterCount(for: .needsReview), 1)
     }
 }
-
