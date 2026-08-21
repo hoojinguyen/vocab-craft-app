@@ -12,6 +12,10 @@ public final class UserWordProgress {
     public var nextReviewDate: Date
     public var lastReviewDate: Date
     public var totalReviews: Int
+    public var needsReview: Bool
+    public var mistakeCount: Int
+    public var sourceDeckId: String?
+    public var sourceNodeId: String?
 
     public init(
         wordId: Int64,
@@ -22,7 +26,11 @@ public final class UserWordProgress {
         intervalDays: Int = 1,
         nextReviewDate: Date = Date(),
         lastReviewDate: Date = Date(),
-        totalReviews: Int = 0
+        totalReviews: Int = 0,
+        needsReview: Bool = false,
+        mistakeCount: Int = 0,
+        sourceDeckId: String? = nil,
+        sourceNodeId: String? = nil
     ) {
         self.wordId = wordId
         self.cefrLevel = cefrLevel
@@ -33,6 +41,27 @@ public final class UserWordProgress {
         self.nextReviewDate = nextReviewDate
         self.lastReviewDate = lastReviewDate
         self.totalReviews = totalReviews
+        self.needsReview = needsReview
+        self.mistakeCount = mistakeCount
+        self.sourceDeckId = sourceDeckId
+        self.sourceNodeId = sourceNodeId
+    }
+}
+
+@Model
+public final class UserStageProgress {
+    @Attribute(.unique) public var stageId: String
+    public var deckId: String
+    public var isCompleted: Bool
+    public var score: Int
+    public var completedAt: Date
+
+    public init(stageId: String, deckId: String, isCompleted: Bool = false, score: Int = 0, completedAt: Date = Date()) {
+        self.stageId = stageId
+        self.deckId = deckId
+        self.isCompleted = isCompleted
+        self.score = score
+        self.completedAt = completedAt
     }
 }
 

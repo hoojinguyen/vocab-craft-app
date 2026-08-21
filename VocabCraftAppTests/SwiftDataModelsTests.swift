@@ -128,8 +128,37 @@ final class SwiftDataModelsTests: XCTestCase {
         XCTAssertEqual(progress.totalReviews, 5)
     }
 
+    func testUserWordProgressNewFieldsDefaultsAndCustomInitialization() {
+        let defaultProgress = UserWordProgress(wordId: 105)
+        XCTAssertFalse(defaultProgress.needsReview)
+        XCTAssertEqual(defaultProgress.mistakeCount, 0)
+        XCTAssertNil(defaultProgress.sourceDeckId)
+        XCTAssertNil(defaultProgress.sourceNodeId)
+
+        let customProgress = UserWordProgress(
+            wordId: 106,
+            needsReview: true,
+            mistakeCount: 3,
+            sourceDeckId: "deck_daily",
+            sourceNodeId: "stage_daily_1"
+        )
+        XCTAssertTrue(customProgress.needsReview)
+        XCTAssertEqual(customProgress.mistakeCount, 3)
+        XCTAssertEqual(customProgress.sourceDeckId, "deck_daily")
+        XCTAssertEqual(customProgress.sourceNodeId, "stage_daily_1")
+    }
+
     func testUserWordProgressCRUD() throws {
-        let progress = UserWordProgress(wordId: 303, masteryLevel: 1, easeFactor: 2.4, intervalDays: 2)
+        let progress = UserWordProgress(
+            wordId: 303,
+            masteryLevel: 1,
+            easeFactor: 2.4,
+            intervalDays: 2,
+            needsReview: true,
+            mistakeCount: 2,
+            sourceDeckId: "deck_daily",
+            sourceNodeId: "stage_daily_1"
+        )
         context.insert(progress)
         try context.save()
 
@@ -137,15 +166,23 @@ final class SwiftDataModelsTests: XCTestCase {
         let fetched = try context.fetch(descriptor)
         XCTAssertEqual(fetched.count, 1)
         XCTAssertEqual(fetched.first?.masteryLevel, 1)
+        XCTAssertEqual(fetched.first?.needsReview, true)
+        XCTAssertEqual(fetched.first?.mistakeCount, 2)
+        XCTAssertEqual(fetched.first?.sourceDeckId, "deck_daily")
+        XCTAssertEqual(fetched.first?.sourceNodeId, "stage_daily_1")
 
         // Update
         fetched.first?.masteryLevel = 4
         fetched.first?.totalReviews = 10
+        fetched.first?.needsReview = false
+        fetched.first?.mistakeCount = 0
         try context.save()
 
         let updated = try context.fetch(descriptor)
         XCTAssertEqual(updated.first?.masteryLevel, 4)
         XCTAssertEqual(updated.first?.totalReviews, 10)
+        XCTAssertEqual(updated.first?.needsReview, false)
+        XCTAssertEqual(updated.first?.mistakeCount, 0)
 
         // Delete
         if let toDelete = updated.first {
@@ -154,6 +191,53 @@ final class SwiftDataModelsTests: XCTestCase {
         }
 
         let afterDelete = try context.fetch(descriptor)
+        XCTAssertEqual(afterDelete.count, 0)
+    }
+
+    // MARK: - UserStageProgress Tests
+
+    func testUserStageProgressCreationAndDefaults() {
+        let now = Date()
+        let progress = UserStageProgress(stageId: "stage_food_1", deckId: "deck_food")
+        XCTAssertEqual(progress.stageId, "stage_food_1")
+        XCTAssertEqual(progress.deckId, "deck_food")
+        XCTAssertFalse(progress.isCompleted)
+        XCTAssertEqual(progress.score, 0)
+        XCTAssertLessThanOrEqual(progress.completedAt.timeIntervalSince(now), 1.0)
+    }
+
+    func testUserStageProgressCRUD() throws {
+        let testSchema = Schema([UserStageProgress.self])
+        let testConfig = ModelConfiguration(isStoredInMemoryOnly: true)
+        let testContainer = try ModelContainer(for: testSchema, configurations: [testConfig])
+        let stageContext = testContainer.mainContext
+
+        let stage = UserStageProgress(stageId: "stage_travel_1", deckId: "deck_travel", isCompleted: true, score: 85)
+        stageContext.insert(stage)
+        try stageContext.save()
+
+        let descriptor = FetchDescriptor<UserStageProgress>(predicate: #Predicate { $0.stageId == "stage_travel_1" })
+        let fetched = try stageContext.fetch(descriptor)
+        XCTAssertEqual(fetched.count, 1)
+        XCTAssertEqual(fetched.first?.stageId, "stage_travel_1")
+        XCTAssertEqual(fetched.first?.deckId, "deck_travel")
+        XCTAssertEqual(fetched.first?.isCompleted, true)
+        XCTAssertEqual(fetched.first?.score, 85)
+
+        // Update
+        fetched.first?.score = 100
+        try stageContext.save()
+
+        let updated = try stageContext.fetch(descriptor)
+        XCTAssertEqual(updated.first?.score, 100)
+
+        // Delete
+        if let toDelete = updated.first {
+            stageContext.delete(toDelete)
+            try stageContext.save()
+        }
+
+        let afterDelete = try stageContext.fetch(descriptor)
         XCTAssertEqual(afterDelete.count, 0)
     }
 
