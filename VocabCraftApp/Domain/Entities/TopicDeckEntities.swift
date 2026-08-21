@@ -73,6 +73,10 @@ public struct TopicDeck: Identifiable, Codable, Equatable, Sendable {
     public let badgeColorHex: String
     public let iconName: String
 
+    public var totalWords: Int {
+        wordCount
+    }
+
     public init(
         id: String,
         title: String,

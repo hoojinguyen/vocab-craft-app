@@ -21,6 +21,10 @@ public struct UserWordProgressData: Sendable, Equatable {
     public let nextReviewDate: Date
     public let lastReviewDate: Date
     public let totalReviews: Int
+    public let needsReview: Bool
+    public let mistakeCount: Int
+    public let sourceDeckId: String?
+    public let sourceNodeId: String?
 
     public init(
         wordId: Int64,
@@ -31,7 +35,11 @@ public struct UserWordProgressData: Sendable, Equatable {
         intervalDays: Int = 1,
         nextReviewDate: Date = Date(),
         lastReviewDate: Date = Date(),
-        totalReviews: Int = 0
+        totalReviews: Int = 0,
+        needsReview: Bool = false,
+        mistakeCount: Int = 0,
+        sourceDeckId: String? = nil,
+        sourceNodeId: String? = nil
     ) {
         self.wordId = wordId
         self.cefrLevel = cefrLevel
@@ -42,11 +50,15 @@ public struct UserWordProgressData: Sendable, Equatable {
         self.nextReviewDate = nextReviewDate
         self.lastReviewDate = lastReviewDate
         self.totalReviews = totalReviews
+        self.needsReview = needsReview
+        self.mistakeCount = mistakeCount
+        self.sourceDeckId = sourceDeckId
+        self.sourceNodeId = sourceNodeId
     }
 }
 
 @ModelActor
-public actor UserProgressModelActor {
+public actor UserProgressModelActor: UserProgressRepositoryProtocol {
     private func fetchEntity(wordId: Int64) throws -> UserWordProgress? {
         var descriptor = FetchDescriptor<UserWordProgress>(
             predicate: #Predicate { $0.wordId == wordId }
@@ -66,8 +78,16 @@ public actor UserProgressModelActor {
             intervalDays: item.intervalDays,
             nextReviewDate: item.nextReviewDate,
             lastReviewDate: item.lastReviewDate,
-            totalReviews: item.totalReviews
+            totalReviews: item.totalReviews,
+            needsReview: item.needsReview,
+            mistakeCount: item.mistakeCount,
+            sourceDeckId: item.sourceDeckId,
+            sourceNodeId: item.sourceNodeId
         )
+    }
+
+    public func getProgress(wordId: Int64) throws -> UserWordProgressData? {
+        try getProgressData(wordId: wordId)
     }
 
     public func saveProgress(
@@ -107,6 +127,115 @@ public actor UserProgressModelActor {
         try modelContext.save()
     }
 
+    public func saveProgress(
+        wordId: Int64,
+        cefrLevel: String,
+        masteryLevel: Int,
+        isBookmarked: Bool,
+        needsReview: Bool,
+        mistakeCount: Int,
+        sourceDeckId: String?,
+        sourceNodeId: String?
+    ) throws {
+        if let existing = try fetchEntity(wordId: wordId) {
+            existing.cefrLevel = cefrLevel
+            existing.masteryLevel = masteryLevel
+            existing.isBookmarked = isBookmarked
+            existing.needsReview = needsReview
+            existing.mistakeCount = mistakeCount
+            existing.sourceDeckId = sourceDeckId
+            existing.sourceNodeId = sourceNodeId
+            existing.lastReviewDate = Date()
+        } else {
+            let newProgress = UserWordProgress(
+                wordId: wordId,
+                cefrLevel: cefrLevel,
+                masteryLevel: masteryLevel,
+                isBookmarked: isBookmarked,
+                needsReview: needsReview,
+                mistakeCount: mistakeCount,
+                sourceDeckId: sourceDeckId,
+                sourceNodeId: sourceNodeId
+            )
+            modelContext.insert(newProgress)
+        }
+        try modelContext.save()
+    }
+
+    public func recordChallengeResult(wordId: Int64, isCorrect: Bool, stageId: String?, deckId: String?) throws {
+        if let existing = try fetchEntity(wordId: wordId) {
+            if isCorrect {
+                existing.masteryLevel = min(5, existing.masteryLevel + 1)
+            } else {
+                existing.needsReview = true
+                existing.mistakeCount += 1
+            }
+            if let stageId { existing.sourceNodeId = stageId }
+            if let deckId { existing.sourceDeckId = deckId }
+            existing.lastReviewDate = Date()
+            existing.totalReviews += 1
+        } else {
+            let newProgress = UserWordProgress(
+                wordId: wordId,
+                cefrLevel: "A1",
+                masteryLevel: isCorrect ? 1 : 0,
+                isBookmarked: false,
+                needsReview: !isCorrect,
+                mistakeCount: isCorrect ? 0 : 1,
+                sourceDeckId: deckId,
+                sourceNodeId: stageId
+            )
+            newProgress.totalReviews = 1
+            modelContext.insert(newProgress)
+        }
+        try modelContext.save()
+    }
+
+    public func toggleBookmark(wordId: Int64) throws -> Bool {
+        if let existing = try fetchEntity(wordId: wordId) {
+            existing.isBookmarked.toggle()
+            let state = existing.isBookmarked
+            try modelContext.save()
+            return state
+        } else {
+            let newProgress = UserWordProgress(
+                wordId: wordId,
+                isBookmarked: true
+            )
+            modelContext.insert(newProgress)
+            try modelContext.save()
+            return true
+        }
+    }
+
+    public func markWordReviewed(wordId: Int64, isCorrect: Bool) throws {
+        if let existing = try fetchEntity(wordId: wordId) {
+            if isCorrect {
+                existing.needsReview = false
+                existing.masteryLevel = min(5, existing.masteryLevel + 1)
+            } else {
+                existing.needsReview = true
+                existing.mistakeCount += 1
+            }
+            existing.lastReviewDate = Date()
+            existing.totalReviews += 1
+        } else {
+            let newProgress = UserWordProgress(
+                wordId: wordId,
+                masteryLevel: isCorrect ? 1 : 0,
+                needsReview: !isCorrect,
+                mistakeCount: isCorrect ? 0 : 1
+            )
+            newProgress.totalReviews = 1
+            modelContext.insert(newProgress)
+        }
+        try modelContext.save()
+    }
+
+    public func clearNeedsReview(wordId: Int64) throws {
+        try markWordReviewed(wordId: wordId, isCorrect: true)
+    }
+
     public func fetchAllProgressData() throws -> [UserWordProgressData] {
         let descriptor = FetchDescriptor<UserWordProgress>()
         let items = try modelContext.fetch(descriptor)
@@ -120,9 +249,17 @@ public actor UserProgressModelActor {
                 intervalDays: item.intervalDays,
                 nextReviewDate: item.nextReviewDate,
                 lastReviewDate: item.lastReviewDate,
-                totalReviews: item.totalReviews
+                totalReviews: item.totalReviews,
+                needsReview: item.needsReview,
+                mistakeCount: item.mistakeCount,
+                sourceDeckId: item.sourceDeckId,
+                sourceNodeId: item.sourceNodeId
             )
         }
+    }
+
+    public func fetchAllProgress() throws -> [UserWordProgressData] {
+        try fetchAllProgressData()
     }
 
     public func fetchAllMasteryLevels() throws -> [Int64: Int] {
