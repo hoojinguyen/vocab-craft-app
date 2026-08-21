@@ -27,7 +27,8 @@ def generate_pbxproj():
         "VocabCraftApp/Core/Database/SharedAppGroupContainer.swift",
         "VocabCraftApp/Core/Database/SwiftDataModels.swift",
         "VocabCraftApp/Core/Database/DatasetModels.swift",
-        "VocabCraftApp/Core/SRS/SRSEngine.swift"
+        "VocabCraftApp/Core/SRS/SRSEngine.swift",
+        "VocabCraftApp/Domain/Protocols/DatasetDataSourceProtocol.swift"
     ]
 
     pbx_build_files = []
