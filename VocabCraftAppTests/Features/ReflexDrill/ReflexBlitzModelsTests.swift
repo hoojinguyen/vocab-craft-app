@@ -6,10 +6,10 @@ final class ReflexBlitzModelsTests: XCTestCase {
         let sentence = "Her fame proved to be ephemeral in the modern era."
         let lemma = "ephemeral"
         let cloze = ReflexClozeFormatter.formatCloze(sentenceEn: sentence, lemma: lemma)
-        
+
         XCTAssertEqual(cloze, "Her fame proved to be [ _________ ] in the modern era.")
     }
-    
+
     func testClozeSentenceGeneration_caseInsensitiveAndEmptyHandling() {
         let sentence = "Ephemeral moments define life. Yes, EPHEMERAL."
         let lemma = "ephemeral"
@@ -19,7 +19,7 @@ final class ReflexBlitzModelsTests: XCTestCase {
         XCTAssertEqual(ReflexClozeFormatter.formatCloze(sentenceEn: "", lemma: "test"), "")
         XCTAssertEqual(ReflexClozeFormatter.formatCloze(sentenceEn: "Hello world", lemma: ""), "Hello world")
     }
-    
+
     func testSpeedTierClassification() {
         XCTAssertEqual(ReflexSpeedTier.from(responseTimeMs: 1800, usedHint: false), .flash)
         XCTAssertEqual(ReflexSpeedTier.from(responseTimeMs: 2499, usedHint: false), .flash)
@@ -30,7 +30,7 @@ final class ReflexBlitzModelsTests: XCTestCase {
         XCTAssertEqual(ReflexSpeedTier.from(responseTimeMs: 6000, usedHint: false), .needsPractice)
         XCTAssertEqual(ReflexSpeedTier.from(responseTimeMs: 6500, usedHint: false), .needsPractice)
     }
-    
+
     func testWordItemInitialization() {
         let item = ReflexBlitzWordItem(
             id: 42,
@@ -40,7 +40,7 @@ final class ReflexBlitzModelsTests: XCTestCase {
             exampleSentenceEn: "It was pure serendipity that we met.",
             exampleSentenceVi: "Thật là một sự tình cờ may mắn khi chúng tôi gặp nhau."
         )
-        
+
         XCTAssertEqual(item.id, 42)
         XCTAssertEqual(item.lemma, "Serendipity")
         XCTAssertEqual(item.pos, "n")
@@ -50,7 +50,7 @@ final class ReflexBlitzModelsTests: XCTestCase {
         XCTAssertEqual(item.clozeSentenceEn, "It was pure [ _________ ] that we met.")
         XCTAssertEqual(item.initialLetterHint, "s... • n.")
     }
-    
+
     func testAttemptModelPropertiesAndSpeedTier() {
         let attemptId = UUID()
         let now = Date()
@@ -63,7 +63,7 @@ final class ReflexBlitzModelsTests: XCTestCase {
             isCorrect: true,
             timestamp: now
         )
-        
+
         XCTAssertEqual(attempt.id, attemptId)
         XCTAssertEqual(attempt.wordId, 10)
         XCTAssertEqual(attempt.lemma, "resilience")
@@ -73,14 +73,14 @@ final class ReflexBlitzModelsTests: XCTestCase {
         XCTAssertEqual(attempt.timestamp, now)
         XCTAssertEqual(attempt.speedTier, .flash)
     }
-    
+
     func testSessionSummaryCalculations() {
         let attempts = [
             ReflexBlitzAttempt(id: UUID(), wordId: 1, lemma: "ephemeral", responseTimeMs: 1500, usedHint: false, isCorrect: true, timestamp: Date()),
             ReflexBlitzAttempt(id: UUID(), wordId: 2, lemma: "serendipity", responseTimeMs: 2200, usedHint: false, isCorrect: true, timestamp: Date()),
             ReflexBlitzAttempt(id: UUID(), wordId: 3, lemma: "ubiquitous", responseTimeMs: 6200, usedHint: true, isCorrect: false, timestamp: Date())
         ]
-        
+
         let summary = ReflexBlitzSessionSummary.create(from: attempts, maxCombo: 2)
         XCTAssertEqual(summary.totalWords, 3)
         XCTAssertEqual(summary.correctWords, 2)
@@ -90,20 +90,20 @@ final class ReflexBlitzModelsTests: XCTestCase {
         XCTAssertEqual(summary.weakWordAttempts.first?.lemma, "ubiquitous")
         XCTAssertEqual(summary.speedRating, "🌱 Steady Learner")
     }
-    
+
     func testSessionSummaryCalculations_perfectReflexMaster() {
         let attempts = [
             ReflexBlitzAttempt(id: UUID(), wordId: 1, lemma: "ephemeral", responseTimeMs: 1500, usedHint: false, isCorrect: true, timestamp: Date()),
             ReflexBlitzAttempt(id: UUID(), wordId: 2, lemma: "serendipity", responseTimeMs: 2200, usedHint: false, isCorrect: true, timestamp: Date())
         ]
-        
+
         let summary = ReflexBlitzSessionSummary.create(from: attempts, maxCombo: 2)
         XCTAssertEqual(summary.totalWords, 2)
         XCTAssertEqual(summary.correctWords, 2)
         XCTAssertEqual(summary.weakWordAttempts.count, 0)
         XCTAssertEqual(summary.speedRating, "⚡️ Reflex Master")
     }
-    
+
     func testSessionSummaryCalculations_swiftReflex() {
         let attempts = [
             ReflexBlitzAttempt(id: UUID(), wordId: 1, lemma: "a", responseTimeMs: 2000, usedHint: false, isCorrect: true, timestamp: Date()),
@@ -121,14 +121,14 @@ final class ReflexBlitzModelsTests: XCTestCase {
         XCTAssertEqual(summary.weakWordAttempts.count, 1)
         XCTAssertEqual(summary.weakWordAttempts.first?.lemma, "d")
     }
-    
+
     func testSessionSummaryCalculations_steadyLearnerAndEmpty() {
         let emptySummary = ReflexBlitzSessionSummary.create(from: [], maxCombo: 0)
         XCTAssertEqual(emptySummary.totalWords, 0)
         XCTAssertEqual(emptySummary.correctWords, 0)
         XCTAssertEqual(emptySummary.averageResponseTimeMs, 0)
         XCTAssertEqual(emptySummary.speedRating, "🌱 Steady Learner")
-        
+
         let slowAttempts = [
             ReflexBlitzAttempt(id: UUID(), wordId: 1, lemma: "slow", responseTimeMs: 5000, usedHint: false, isCorrect: true, timestamp: Date()),
             ReflexBlitzAttempt(id: UUID(), wordId: 2, lemma: "slower", responseTimeMs: 7000, usedHint: true, isCorrect: false, timestamp: Date())
@@ -176,12 +176,12 @@ final class ReflexBlitzModelsTests: XCTestCase {
         XCTAssertEqual(ReflexBlitzMode.listening.timeLimitSeconds, 5.5)
         XCTAssertEqual(ReflexBlitzMode.speaking.timeLimitSeconds, 6.0)
         XCTAssertEqual(ReflexBlitzMode.typing.timeLimitSeconds, 7.5)
-        
+
         XCTAssertEqual(ReflexBlitzMode.speaking.title, "Luyện nói")
         XCTAssertEqual(ReflexBlitzMode.typing.title, "Gõ từ")
         XCTAssertEqual(ReflexBlitzMode.multipleChoice.title, "Trắc nghiệm")
         XCTAssertEqual(ReflexBlitzMode.listening.title, "Phản xạ nghe")
-        
+
         XCTAssertEqual(ReflexBlitzMode.speaking.id, "speaking")
         XCTAssertEqual(ReflexBlitzMode.allCases.count, 4)
     }
@@ -221,7 +221,7 @@ final class ReflexBlitzModelsTests: XCTestCase {
         XCTAssertEqual(options.count, 4)
         XCTAssertEqual(options.filter { $0.isCorrect }.count, 1)
         XCTAssertTrue(options.contains { $0.text == target.lemma && $0.isCorrect })
-        
+
         let uniqueTexts = Set(options.map { $0.text })
         XCTAssertEqual(uniqueTexts.count, 4, "Options must not have duplicates")
     }
@@ -233,7 +233,7 @@ final class ReflexBlitzModelsTests: XCTestCase {
         XCTAssertEqual(options.count, 4)
         XCTAssertEqual(options.filter { $0.isCorrect }.count, 1)
         XCTAssertTrue(options.contains { $0.text == target.definitionVi && $0.isCorrect })
-        
+
         let uniqueTexts = Set(options.map { $0.text })
         XCTAssertEqual(uniqueTexts.count, 4, "Options must not have duplicates")
     }
@@ -277,4 +277,3 @@ final class ReflexBlitzModelsTests: XCTestCase {
         }
     }
 }
-

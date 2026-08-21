@@ -1,8 +1,7 @@
-import XCTest
 @testable import VocabCraftApp
+import XCTest
 
 final class SpeechKitModelTests: XCTestCase {
-
     // MARK: - WordMatchStatus Tests
 
     func testWordMatchStatus_rawValuesAndCodable() throws {

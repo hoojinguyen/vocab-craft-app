@@ -69,4 +69,3 @@ final class VocabularyViewTests: XCTestCase {
         XCTAssertEqual(vm.wordItems[0].masteryLevel, 4)
     }
 }
-

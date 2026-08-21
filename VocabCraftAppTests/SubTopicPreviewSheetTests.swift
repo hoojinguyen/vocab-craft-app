@@ -58,8 +58,8 @@ final class SubTopicPreviewSheetTests: XCTestCase {
             state: .completed,
             words: [word]
         )
-        let sheet = SubTopicPreviewSheet(node: node, onStartDrill: {}, onToggleVault: { w in
-            toggledWord = w
+        let sheet = SubTopicPreviewSheet(node: node, onStartDrill: {}, onToggleVault: { wordItem in
+            toggledWord = wordItem
         })
 
         sheet.onToggleVault(word)

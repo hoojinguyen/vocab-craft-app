@@ -1,5 +1,5 @@
-import XCTest
 @testable import VocabCraftApp
+import XCTest
 
 private final class AtomicCounter: @unchecked Sendable {
     private let lock = NSLock()
@@ -19,7 +19,6 @@ private final class AtomicCounter: @unchecked Sendable {
 }
 
 final class SilenceDetectorTests: XCTestCase {
-
     func testSilenceDetector_firesAfterDuration_whenNoActivity() async {
         let expectation = expectation(description: "Silence detected")
         let detector = SilenceDetector(silenceDuration: .milliseconds(100)) {

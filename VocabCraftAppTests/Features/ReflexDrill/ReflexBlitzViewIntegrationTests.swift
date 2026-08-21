@@ -486,4 +486,3 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         )
     }
 }
-

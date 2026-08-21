@@ -634,4 +634,3 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         XCTAssertEqual(weakAttempt.definitionVi, "Kiên cường")
     }
 }
-

@@ -1,8 +1,7 @@
-import XCTest
 @testable import VocabCraftApp
+import XCTest
 
 final class StringNormalizerTests: XCTestCase {
-
     // MARK: - Basic Normalization Tests
 
     func testNormalize_lowercaseAndTrimming() {

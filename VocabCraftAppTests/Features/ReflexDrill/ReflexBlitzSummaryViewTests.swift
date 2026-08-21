@@ -1,6 +1,6 @@
 import SwiftUI
-import XCTest
 @testable import VocabCraftApp
+import XCTest
 
 final class ReflexBlitzSummaryViewTests: XCTestCase {
     @MainActor

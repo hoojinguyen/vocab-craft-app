@@ -136,4 +136,3 @@ private final class SheetAttemptRepository: QuickReflexAttemptRepositoryProtocol
         nil
     }
 }
-

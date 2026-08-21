@@ -349,5 +349,3 @@ final class ContinuousReflexSpeechServiceTests: XCTestCase {
         service.stopSession()
     }
 }
-
-

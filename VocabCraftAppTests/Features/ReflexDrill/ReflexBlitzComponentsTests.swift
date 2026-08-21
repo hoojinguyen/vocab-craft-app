@@ -1,6 +1,6 @@
 import SwiftUI
-import XCTest
 @testable import VocabCraftApp
+import XCTest
 
 final class ReflexBlitzComponentsTests: XCTestCase {
     @MainActor
@@ -890,6 +890,3 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertNotNil(cardView.body)
     }
 }
-
-
-

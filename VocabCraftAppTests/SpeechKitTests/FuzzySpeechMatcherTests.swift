@@ -1,8 +1,7 @@
-import XCTest
 @testable import VocabCraftApp
+import XCTest
 
 final class FuzzySpeechMatcherTests: XCTestCase {
-
     // MARK: - Levenshtein Distance Tests
 
     func testLevenshteinDistance_identicalStrings() {

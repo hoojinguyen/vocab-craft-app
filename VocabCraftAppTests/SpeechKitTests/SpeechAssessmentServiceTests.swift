@@ -1,5 +1,5 @@
-import XCTest
 @testable import VocabCraftApp
+import XCTest
 
 // MARK: - Mock Speech Recognition Engine
 
@@ -83,7 +83,6 @@ private final class SafeBoolBox: @unchecked Sendable {
 
 @MainActor
 final class SpeechAssessmentServiceTests: XCTestCase {
-
     var mockEngine: MockSpeechRecognitionEngine!
     var service: SpeechAssessmentService!
 

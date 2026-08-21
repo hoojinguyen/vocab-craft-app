@@ -149,4 +149,3 @@ final class WidgetIntentsTests: XCTestCase {
         XCTAssertEqual(fetched?.masteryLevel, 2)
     }
 }
-
