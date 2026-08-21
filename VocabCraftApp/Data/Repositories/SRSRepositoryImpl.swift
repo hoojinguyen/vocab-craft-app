@@ -70,4 +70,11 @@ public final class SRSRepositoryImpl: SRSRepositoryProtocol {
         context.insert(log)
         try context.save()
     }
+
+    public func resetAllProgress() async throws {
+        guard let context = modelContext else { return }
+        try context.delete(model: UserWordProgress.self)
+        try context.delete(model: ReflexSessionLog.self)
+        try context.save()
+    }
 }

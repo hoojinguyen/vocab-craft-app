@@ -112,6 +112,7 @@
 		3000B1DEE633B1C8F81E /* SRSEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B1DEE633B1C8F81E /* SRSEngineTests.swift */; };
 		3000B21282A5513A6144 /* Color+VocabCraft.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B21282A5513A6144 /* Color+VocabCraft.swift */; };
 		3000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift */; };
+		3000D0020000000000000002 /* ResetUserProgressUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000D0020000000000000002 /* ResetUserProgressUseCase.swift */; };
 		3000B5772208CF9770FA /* StudySessionViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B5772208CF9770FA /* StudySessionViewModelTests.swift */; };
 		3000B63A5CC107F07807 /* SuggestedWordsCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B63A5CC107F07807 /* SuggestedWordsCardView.swift */; };
 		3000B8BA7058BCC04544 /* MobileSearchViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B8BA7058BCC04544 /* MobileSearchViewTests.swift */; };
@@ -120,6 +121,7 @@
 		3000BEA090FB6DD9E928 /* TextToSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000BEA090FB6DD9E928 /* TextToSpeechService.swift */; };
 		3000FB030000000000000001 /* SoundEffectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FB030000000000000001 /* SoundEffectService.swift */; };
 		3000D0010000000000000001 /* DomainEntitiesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000D0010000000000000001 /* DomainEntitiesTests.swift */; };
+		3000D0020000000000000001 /* UserProgressModelActorConcurrencyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000D0020000000000000001 /* UserProgressModelActorConcurrencyTests.swift */; };
 		3000C27C11DD5CE9F2EC /* TopicDeckModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C27C11DD5CE9F2EC /* TopicDeckModels.swift */; };
 		3000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift */; };
 		3000C94DD80FE52023FA /* NextWordIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C94DD80FE52023FA /* NextWordIntent.swift */; };
@@ -317,6 +319,7 @@
 		2000B1DEE633B1C8F81E /* SRSEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SRSEngineTests.swift; sourceTree = "<group>"; };
 		2000B21282A5513A6144 /* Color+VocabCraft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+VocabCraft.swift"; sourceTree = "<group>"; };
 		2000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvaluateSRSUseCase.swift; sourceTree = "<group>"; };
+		2000D0020000000000000002 /* ResetUserProgressUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetUserProgressUseCase.swift; sourceTree = "<group>"; };
 		2000B5772208CF9770FA /* StudySessionViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudySessionViewModelTests.swift; sourceTree = "<group>"; };
 		2000B63A5CC107F07807 /* SuggestedWordsCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestedWordsCardView.swift; sourceTree = "<group>"; };
 		2000B8BA7058BCC04544 /* MobileSearchViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileSearchViewTests.swift; sourceTree = "<group>"; };
@@ -325,6 +328,7 @@
 		2000BEA090FB6DD9E928 /* TextToSpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextToSpeechService.swift; sourceTree = "<group>"; };
 		2000FB030000000000000001 /* SoundEffectService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundEffectService.swift; sourceTree = "<group>"; };
 		2000D0010000000000000001 /* DomainEntitiesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DomainEntitiesTests.swift; sourceTree = "<group>"; };
+		2000D0020000000000000001 /* UserProgressModelActorConcurrencyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProgressModelActorConcurrencyTests.swift; sourceTree = "<group>"; };
 		2000C27C11DD5CE9F2EC /* TopicDeckModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicDeckModels.swift; sourceTree = "<group>"; };
 		2000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvaluateSRSUseCaseTests.swift; sourceTree = "<group>"; };
 		2000C94DD80FE52023FA /* NextWordIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextWordIntent.swift; sourceTree = "<group>"; };
@@ -629,6 +633,7 @@
 			children = (
 				2000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift */,
 				200001F55FA2F8FA1668 /* FetchVocabularyUseCase.swift */,
+				2000D0020000000000000002 /* ResetUserProgressUseCase.swift */,
 			);
 			path = UseCases;
 			sourceTree = "<group>";
@@ -733,6 +738,7 @@
 				2000FAC198AA799A3AC5 /* SwiftDataModelsTests.swift */,
 				2000E3AFED7A38ECFE12 /* TopicDeckDetailViewTests.swift */,
 				2000D0010000000000000001 /* DomainEntitiesTests.swift */,
+				2000D0020000000000000001 /* UserProgressModelActorConcurrencyTests.swift */,
 				20006C3205A7C09C3ED0 /* TopicDeckModelsTests.swift */,
 				2000CD9B3F3B4D5FDBA7 /* UserSettingsStoreTests.swift */,
 				200008F45FA2F8FA1668 /* VocabularyFilterServiceTests.swift */,
@@ -1164,6 +1170,7 @@
 				3000A91CFCCE87349186 /* VocabularyRepositoryProtocol.swift in Sources */,
 				3000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift in Sources */,
 				300001F55FA2F8FA1668 /* FetchVocabularyUseCase.swift in Sources */,
+				3000D0020000000000000002 /* ResetUserProgressUseCase.swift in Sources */,
 				30008990938AED4AD135 /* HomepageViewModel.swift in Sources */,
 				30005B77B1A1EFC9EA05 /* ActionCardsGrid.swift in Sources */,
 				30003F92B199F9827BCA /* CEFRDistributionCard.swift in Sources */,
@@ -1278,6 +1285,7 @@
 				3000FAC198AA799A3AC5 /* SwiftDataModelsTests.swift in Sources */,
 				3000E3AFED7A38ECFE12 /* TopicDeckDetailViewTests.swift in Sources */,
 				3000D0010000000000000001 /* DomainEntitiesTests.swift in Sources */,
+				3000D0020000000000000001 /* UserProgressModelActorConcurrencyTests.swift in Sources */,
 				30006C3205A7C09C3ED0 /* TopicDeckModelsTests.swift in Sources */,
 				3000CD9B3F3B4D5FDBA7 /* UserSettingsStoreTests.swift in Sources */,
 				3000B8D5FB4EC872D73A /* VocabularyViewModelTests.swift in Sources */,

@@ -1,7 +1,7 @@
 import Foundation
 import SwiftData
 
-public struct UserProgressSummary: Sendable {
+public struct UserProgressSummary: Sendable, Equatable {
     public let masteryLevel: Int
     public let isBookmarked: Bool
 
@@ -11,14 +11,63 @@ public struct UserProgressSummary: Sendable {
     }
 }
 
+public struct UserWordProgressData: Sendable, Equatable {
+    public let wordId: Int64
+    public let cefrLevel: String
+    public let masteryLevel: Int
+    public let isBookmarked: Bool
+    public let easeFactor: Double
+    public let intervalDays: Int
+    public let nextReviewDate: Date
+    public let lastReviewDate: Date
+    public let totalReviews: Int
+
+    public init(
+        wordId: Int64,
+        cefrLevel: String = "A1",
+        masteryLevel: Int = 0,
+        isBookmarked: Bool = false,
+        easeFactor: Double = 2.5,
+        intervalDays: Int = 1,
+        nextReviewDate: Date = Date(),
+        lastReviewDate: Date = Date(),
+        totalReviews: Int = 0
+    ) {
+        self.wordId = wordId
+        self.cefrLevel = cefrLevel
+        self.masteryLevel = masteryLevel
+        self.isBookmarked = isBookmarked
+        self.easeFactor = easeFactor
+        self.intervalDays = intervalDays
+        self.nextReviewDate = nextReviewDate
+        self.lastReviewDate = lastReviewDate
+        self.totalReviews = totalReviews
+    }
+}
+
 @ModelActor
 public actor UserProgressModelActor {
-    public func getProgress(wordId: Int64) throws -> UserWordProgress? {
+    private func fetchEntity(wordId: Int64) throws -> UserWordProgress? {
         var descriptor = FetchDescriptor<UserWordProgress>(
             predicate: #Predicate { $0.wordId == wordId }
         )
         descriptor.fetchLimit = 1
         return try modelContext.fetch(descriptor).first
+    }
+
+    public func getProgressData(wordId: Int64) throws -> UserWordProgressData? {
+        guard let item = try fetchEntity(wordId: wordId) else { return nil }
+        return UserWordProgressData(
+            wordId: item.wordId,
+            cefrLevel: item.cefrLevel,
+            masteryLevel: item.masteryLevel,
+            isBookmarked: item.isBookmarked,
+            easeFactor: item.easeFactor,
+            intervalDays: item.intervalDays,
+            nextReviewDate: item.nextReviewDate,
+            lastReviewDate: item.lastReviewDate,
+            totalReviews: item.totalReviews
+        )
     }
 
     public func saveProgress(
@@ -32,7 +81,7 @@ public actor UserProgressModelActor {
         intervalDays: Int = 1,
         totalReviews: Int = 0
     ) throws {
-        if let existing = try getProgress(wordId: wordId) {
+        if let existing = try fetchEntity(wordId: wordId) {
             existing.cefrLevel = cefrLevel
             existing.masteryLevel = masteryLevel
             existing.isBookmarked = isBookmarked
@@ -58,9 +107,22 @@ public actor UserProgressModelActor {
         try modelContext.save()
     }
 
-    public func fetchAllProgress() throws -> [UserWordProgress] {
+    public func fetchAllProgressData() throws -> [UserWordProgressData] {
         let descriptor = FetchDescriptor<UserWordProgress>()
-        return try modelContext.fetch(descriptor)
+        let items = try modelContext.fetch(descriptor)
+        return items.map { item in
+            UserWordProgressData(
+                wordId: item.wordId,
+                cefrLevel: item.cefrLevel,
+                masteryLevel: item.masteryLevel,
+                isBookmarked: item.isBookmarked,
+                easeFactor: item.easeFactor,
+                intervalDays: item.intervalDays,
+                nextReviewDate: item.nextReviewDate,
+                lastReviewDate: item.lastReviewDate,
+                totalReviews: item.totalReviews
+            )
+        }
     }
 
     public func fetchAllMasteryLevels() throws -> [Int64: Int] {
@@ -85,6 +147,13 @@ public actor UserProgressModelActor {
             map[item.wordId] = UserProgressSummary(masteryLevel: item.masteryLevel, isBookmarked: item.isBookmarked)
         }
         return map
+    }
+
+    public func resetAllProgress() throws {
+        try modelContext.delete(model: UserWordProgress.self)
+        try modelContext.delete(model: ReflexSessionLog.self)
+        try modelContext.delete(model: QuickReflexAttemptRecord.self)
+        try modelContext.save()
     }
 
     public func logDrillRecord(drillId: Int64, responseTimeMs: Int, accuracyScore: Double) throws {

@@ -34,4 +34,5 @@ public protocol SRSRepositoryProtocol: AnyObject {
     func getProgress(wordId: Int64) async throws -> SRSProgressItem?
     func saveProgress(_ item: SRSProgressItem) async throws
     func logReflexSession(drillId: Int64, responseTimeMs: Int, accuracyScore: Double) async throws
+    func resetAllProgress() async throws
 }

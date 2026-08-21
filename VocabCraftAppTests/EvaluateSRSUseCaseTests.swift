@@ -6,6 +6,7 @@ import XCTest
 @MainActor
 final class MockSRSRepository: SRSRepositoryProtocol {
     var savedProgress: SRSProgressItem?
+    var resetAllProgressCalled = false
 
     func getProgress(wordId: Int64) async throws -> SRSProgressItem? {
         return nil
@@ -17,6 +18,10 @@ final class MockSRSRepository: SRSRepositoryProtocol {
 
     func logReflexSession(drillId: Int64, responseTimeMs: Int, accuracyScore: Double) async throws {
         // no-op for test
+    }
+
+    func resetAllProgress() async throws {
+        resetAllProgressCalled = true
     }
 }
 

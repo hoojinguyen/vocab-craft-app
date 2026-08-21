@@ -17,6 +17,7 @@ public final class AppContainer {
 
     public let fetchVocabularyUseCase: FetchVocabularyUseCaseProtocol
     public let evaluateSRSUseCase: EvaluateSRSUseCaseProtocol
+    public let resetUserProgressUseCase: ResetUserProgressUseCaseProtocol
 
     public let userSettingsStore: UserSettingsStore
     public let appRouter: AppRouter
@@ -34,10 +35,12 @@ public final class AppContainer {
         self.datasetEngine = datasetEngine
         self.modelContainer = modelContainer
 
+        let progressActor: UserProgressModelActor? = modelContainer.map { UserProgressModelActor(modelContainer: $0) }
+
         let shouldMock = useMockData ?? (datasetEngine == nil)
         let vocabRepo: VocabularyRepositoryProtocol = shouldMock
             ? MockVocabularyRepository()
-            : VocabularyRepositoryImpl(datasetEngine: datasetEngine)
+            : VocabularyRepositoryImpl(datasetEngine: datasetEngine, progressActor: progressActor)
         let srsRepo = SRSRepositoryImpl(modelContext: modelContainer?.mainContext)
         let quickReflexAttemptRepo = QuickReflexAttemptRepositoryImpl(modelContext: modelContainer?.mainContext)
 
@@ -51,6 +54,7 @@ public final class AppContainer {
 
         self.fetchVocabularyUseCase = FetchVocabularyUseCase(repository: vocabRepo)
         self.evaluateSRSUseCase = EvaluateSRSUseCase(srsRepository: srsRepo)
+        self.resetUserProgressUseCase = ResetUserProgressUseCase(srsRepository: srsRepo)
 
         self.userSettingsStore = userSettingsStore ?? UserSettingsStore()
         self.appRouter = appRouter ?? AppRouter()
