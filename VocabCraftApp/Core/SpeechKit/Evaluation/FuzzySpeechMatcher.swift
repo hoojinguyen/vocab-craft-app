@@ -3,7 +3,6 @@ import Foundation
 /// Speech evaluation engine that computes Levenshtein distance, similarity ratios,
 /// and token sequence alignments for accent-tolerant speech grading.
 public enum FuzzySpeechMatcher {
-
     // MARK: - Levenshtein Distance
 
     /// Computes standard Levenshtein edit distance between two strings.
@@ -12,54 +11,54 @@ public enum FuzzySpeechMatcher {
     ///   - s1: First string.
     ///   - s2: Second string.
     /// - Returns: Minimum number of single-character edits (insertions, deletions, substitutions).
-    public static func levenshteinDistance(_ s1: String, _ s2: String) -> Int {
-        if s1 == s2 { return 0 }
-        if s1.isEmpty { return s2.count }
-        if s2.isEmpty { return s1.count }
+    public static func levenshteinDistance(_ first: String, _ second: String) -> Int {
+        if first == second { return 0 }
+        if first.isEmpty { return second.count }
+        if second.isEmpty { return first.count }
 
-        let a1 = Array(s1)
-        let a2 = Array(s2)
-        let m = a1.count
-        let n = a2.count
+        let firstChars = Array(first)
+        let secondChars = Array(second)
+        let firstCount = firstChars.count
+        let secondCount = secondChars.count
 
-        var previousRow = Array(0...n)
-        var currentRow = Array(repeating: 0, count: n + 1)
+        var previousRow = Array(0...secondCount)
+        var currentRow = Array(repeating: 0, count: secondCount + 1)
 
-        for i in 1...m {
+        for i in 1...firstCount {
             currentRow[0] = i
-            for j in 1...n {
-                if a1[i - 1] == a2[j - 1] {
-                    currentRow[j] = previousRow[j - 1]
+            for targetIndex in 1...secondCount {
+                if firstChars[i - 1] == secondChars[targetIndex - 1] {
+                    currentRow[targetIndex] = previousRow[targetIndex - 1]
                 } else {
-                    currentRow[j] = 1 + min(
-                        previousRow[j],     // deletion
-                        currentRow[j - 1],  // insertion
-                        previousRow[j - 1]  // substitution
+                    currentRow[targetIndex] = 1 + min(
+                        previousRow[targetIndex],     // deletion
+                        currentRow[targetIndex - 1],  // insertion
+                        previousRow[targetIndex - 1]  // substitution
                     )
                 }
             }
             previousRow = currentRow
         }
 
-        return previousRow[n]
+        return previousRow[secondCount]
     }
 
     // MARK: - Similarity Ratio
 
     /// Computes the normalized similarity ratio between two strings from 0.0 to 1.0.
     ///
-    /// Formula: `1.0 - (levenshteinDistance(s1, s2) / max(len(s1), len(s2)))`
+    /// Formula: `1.0 - (levenshteinDistance(first, second) / max(len(first), len(second)))`
     ///
     /// - Parameters:
-    ///   - s1: First string.
-    ///   - s2: Second string.
+    ///   - first: First string.
+    ///   - second: Second string.
     /// - Returns: Similarity ratio between 0.0 (completely dissimilar) and 1.0 (exact match).
-    public static func similarityRatio(_ s1: String, _ s2: String) -> Double {
-        if s1 == s2 { return 1.0 }
-        let maxLen = max(s1.count, s2.count)
+    public static func similarityRatio(_ first: String, _ second: String) -> Double {
+        if first == second { return 1.0 }
+        let maxLen = max(first.count, second.count)
         guard maxLen > 0 else { return 1.0 }
 
-        let distance = levenshteinDistance(s1, s2)
+        let distance = levenshteinDistance(first, second)
         let ratio = 1.0 - (Double(distance) / Double(maxLen))
         return max(0.0, min(1.0, ratio))
     }

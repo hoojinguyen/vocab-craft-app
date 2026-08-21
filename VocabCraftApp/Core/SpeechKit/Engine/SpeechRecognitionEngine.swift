@@ -1,6 +1,6 @@
+import AVFoundation
 import Foundation
 import Speech
-import AVFoundation
 
 /// Protocol defining the interface for the acoustic speech recognition engine.
 public protocol SpeechRecognitionEngineProtocol: AnyObject, Sendable {
@@ -105,18 +105,36 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
         }
 
         #if targetEnvironment(simulator)
+        startSimulatorTask(
+            phrases: contextualPhrases,
+            onPartialResult: onPartialResult,
+            onFinalResult: onFinalResult
+        )
+        #else
+        try startDeviceRecognition(
+            contextualPhrases: contextualPhrases,
+            onPartialResult: onPartialResult,
+            onFinalResult: onFinalResult,
+            onError: onError
+        )
+        #endif
+    }
+
+    #if targetEnvironment(simulator)
+    private func startSimulatorTask(
+        phrases: [String],
+        onPartialResult: @escaping @Sendable (String) -> Void,
+        onFinalResult: @escaping @Sendable (String) -> Void
+    ) {
         _isRecording = true
         let sessionId = UUID()
         self.currentSessionId = sessionId
-        let phrases = contextualPhrases
 
         simulationTask?.cancel()
         simulationTask = Task { [weak self] in
             guard let self = self else { return }
             try? await Task.sleep(for: .milliseconds(400))
-            guard self.isSessionActiveAndRecording(sessionId: sessionId) else {
-                return
-            }
+            guard self.isSessionActiveAndRecording(sessionId: sessionId) else { return }
 
             let target = phrases.first ?? "Sample utterance"
             let words = target.split(separator: " ")
@@ -126,107 +144,157 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
             }
 
             try? await Task.sleep(for: .milliseconds(600))
-            guard self.isSessionActiveAndRecording(sessionId: sessionId) else {
-                return
-            }
+            guard self.isSessionActiveAndRecording(sessionId: sessionId) else { return }
 
             onFinalResult(target)
         }
-        #else
+    }
+    #else
+    private struct RecognitionHandlers: Sendable {
+        let onPartialResult: @Sendable (String) -> Void
+        let onFinalResult: @Sendable (String) -> Void
+        let onError: @Sendable (Error) -> Void
+    }
+
+    private func startDeviceRecognition(
+        contextualPhrases: [String],
+        onPartialResult: @escaping @Sendable (String) -> Void,
+        onFinalResult: @escaping @Sendable (String) -> Void,
+        onError: @escaping @Sendable (Error) -> Void
+    ) throws {
         guard let recognizer = speechRecognizer, recognizer.isAvailable else {
             throw SpeechKitError.recognizerUnavailable
         }
 
-        let supportsOnDevice = recognizer.supportsOnDeviceRecognition
-
         do {
             #if os(iOS)
-            let audioSession = AVAudioSession.sharedInstance()
-            do {
-                try audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.defaultToSpeaker, .allowBluetoothHFP])
-                try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
-            } catch {
-                throw SpeechKitError.audioSessionConfigurationFailed
-            }
+            try configureAudioSession()
             #endif
 
-            let request = SFSpeechAudioBufferRecognitionRequest()
-            request.requiresOnDeviceRecognition = supportsOnDevice
-            request.shouldReportPartialResults = true
-            if !contextualPhrases.isEmpty {
-                request.contextualStrings = contextualPhrases
-            }
-
-            #if os(iOS)
-            if #available(iOS 16.0, *) {
-                request.addsPunctuation = false
-            }
-            #elseif os(macOS)
-            if #available(macOS 13.0, *) {
-                request.addsPunctuation = false
-            }
-            #endif
-
+            let request = makeRecognitionRequest(
+                supportsOnDevice: recognizer.supportsOnDeviceRecognition,
+                contextualPhrases: contextualPhrases
+            )
             self.recognitionRequest = request
 
-            let engine = AVAudioEngine()
+            let engine = try setupAudioEngine(for: request)
             self.audioEngine = engine
-            let inputNode = engine.inputNode
-            inputNode.removeTap(onBus: 0)
-
-            let recordingFormat = inputNode.outputFormat(forBus: 0)
-
-            guard recordingFormat.sampleRate > 0, recordingFormat.channelCount > 0 else {
-                throw SpeechKitError.audioBufferCreationFailed
-            }
-
-            inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self] buffer, _ in
-                guard buffer.frameLength > 0 else { return }
-                self?.recognitionRequest?.append(buffer)
-            }
-
-            engine.prepare()
-            do {
-                try engine.start()
-            } catch {
-                throw SpeechKitError.audioSessionConfigurationFailed
-            }
 
             let sessionId = UUID()
             self.currentSessionId = sessionId
 
-            self.recognitionTask = recognizer.recognitionTask(with: request) { [weak self] result, error in
-                guard let self else { return }
-                self.lock.lock()
-                guard self.currentSessionId == sessionId, self._isRecording else {
-                    self.lock.unlock()
-                    return
-                }
-                self.lock.unlock()
+            let handlers = RecognitionHandlers(
+                onPartialResult: onPartialResult,
+                onFinalResult: onFinalResult,
+                onError: onError
+            )
 
-                if let result {
-                    let transcription = result.bestTranscription.formattedString
-                    if result.isFinal {
-                        onFinalResult(transcription)
-                    } else {
-                        onPartialResult(transcription)
-                    }
-                }
-                if let error {
-                    let nsError = error as NSError
-                    if nsError.code != 216 { // 216 = canceled on stop
-                        onError(error)
-                    }
-                }
-            }
+            self.recognitionTask = makeRecognitionTask(
+                recognizer: recognizer,
+                request: request,
+                sessionId: sessionId,
+                handlers: handlers
+            )
 
             _isRecording = true
         } catch {
             stopInternal()
             throw error
         }
-        #endif
     }
+
+    #if os(iOS)
+    private func configureAudioSession() throws {
+        let audioSession = AVAudioSession.sharedInstance()
+        do {
+            try audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.defaultToSpeaker, .allowBluetoothHFP])
+            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+        } catch {
+            throw SpeechKitError.audioSessionConfigurationFailed
+        }
+    }
+    #endif
+
+    private func makeRecognitionRequest(
+        supportsOnDevice: Bool,
+        contextualPhrases: [String]
+    ) -> SFSpeechAudioBufferRecognitionRequest {
+        let request = SFSpeechAudioBufferRecognitionRequest()
+        request.requiresOnDeviceRecognition = supportsOnDevice
+        request.shouldReportPartialResults = true
+        if !contextualPhrases.isEmpty {
+            request.contextualStrings = contextualPhrases
+        }
+        #if os(iOS)
+        if #available(iOS 16.0, *) {
+            request.addsPunctuation = false
+        }
+        #elseif os(macOS)
+        if #available(macOS 13.0, *) {
+            request.addsPunctuation = false
+        }
+        #endif
+        return request
+    }
+
+    private func setupAudioEngine(
+        for request: SFSpeechAudioBufferRecognitionRequest
+    ) throws -> AVAudioEngine {
+        let engine = AVAudioEngine()
+        let inputNode = engine.inputNode
+        inputNode.removeTap(onBus: 0)
+
+        let recordingFormat = inputNode.outputFormat(forBus: 0)
+        guard recordingFormat.sampleRate > 0, recordingFormat.channelCount > 0 else {
+            throw SpeechKitError.audioBufferCreationFailed
+        }
+
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self] buffer, _ in
+            guard buffer.frameLength > 0 else { return }
+            self?.recognitionRequest?.append(buffer)
+        }
+
+        engine.prepare()
+        do {
+            try engine.start()
+            return engine
+        } catch {
+            throw SpeechKitError.audioSessionConfigurationFailed
+        }
+    }
+
+    private func makeRecognitionTask(
+        recognizer: SFSpeechRecognizer,
+        request: SFSpeechAudioBufferRecognitionRequest,
+        sessionId: UUID,
+        handlers: RecognitionHandlers
+    ) -> SFSpeechRecognitionTask {
+        recognizer.recognitionTask(with: request) { [weak self] result, error in
+            guard let self else { return }
+            self.lock.lock()
+            guard self.currentSessionId == sessionId, self._isRecording else {
+                self.lock.unlock()
+                return
+            }
+            self.lock.unlock()
+
+            if let result {
+                let transcription = result.bestTranscription.formattedString
+                if result.isFinal {
+                    handlers.onFinalResult(transcription)
+                } else {
+                    handlers.onPartialResult(transcription)
+                }
+            }
+            if let error {
+                let nsError = error as NSError
+                if nsError.code != 216 { // 216 = canceled on stop
+                    handlers.onError(error)
+                }
+            }
+        }
+    }
+    #endif
 
     /// Stops audio capture and finalizes the current recognition session.
     public func stop() {

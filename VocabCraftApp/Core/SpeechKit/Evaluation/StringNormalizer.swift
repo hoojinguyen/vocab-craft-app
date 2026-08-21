@@ -6,7 +6,6 @@ import Foundation
 /// (supporting standard and curly apostrophes), digit-to-word conversions, punctuation stripping,
 /// and word tokenization.
 public enum StringNormalizer {
-
     // MARK: - Contraction Mappings
 
     private static let contractionMappings: [(regex: NSRegularExpression, replacement: String)] = {

@@ -5,7 +5,6 @@ import Foundation
 /// Designed to tolerate ESL accent variations, omitted words, and extraneous filler words ("um", "ah", "like")
 /// without desynchronizing subsequent target word matching.
 public enum SequenceAligner {
-
     /// Aligns spoken tokens against target tokens in left-to-right order.
     ///
     /// - Parameters:
@@ -32,55 +31,55 @@ public enum SequenceAligner {
             }
         }
 
-        let m = targetTokens.count
-        let n = spokenTokens.count
+        let targetCount = targetTokens.count
+        let spokenCount = spokenTokens.count
 
         // Precompute similarity matrix between targetTokens and spokenTokens
-        var simMatrix = Array(repeating: Array(repeating: 0.0, count: n), count: m)
-        for i in 0..<m {
-            for j in 0..<n {
-                simMatrix[i][j] = FuzzySpeechMatcher.similarityRatio(targetTokens[i], spokenTokens[j])
+        var simMatrix = Array(repeating: Array(repeating: 0.0, count: spokenCount), count: targetCount)
+        for i in 0..<targetCount {
+            for spokenCol in 0..<spokenCount {
+                simMatrix[i][spokenCol] = FuzzySpeechMatcher.similarityRatio(targetTokens[i], spokenTokens[spokenCol])
             }
         }
 
-        // DP table: dp[i][j] stores the maximum cumulative similarity score
+        // DP table: dpTable[i][j] stores the maximum cumulative similarity score
         // aligning targetTokens[0..<i] with spokenTokens[0..<j]
-        var dp = Array(repeating: Array(repeating: 0.0, count: n + 1), count: m + 1)
+        var dpTable = Array(repeating: Array(repeating: 0.0, count: spokenCount + 1), count: targetCount + 1)
 
-        for i in 1...m {
-            for j in 1...n {
-                var best = max(dp[i - 1][j], dp[i][j - 1])
-                let sim = simMatrix[i - 1][j - 1]
+        for i in 1...targetCount {
+            for spokenIndex in 1...spokenCount {
+                var best = max(dpTable[i - 1][spokenIndex], dpTable[i][spokenIndex - 1])
+                let sim = simMatrix[i - 1][spokenIndex - 1]
                 if sim >= fuzzyThreshold {
-                    let matchScore = dp[i - 1][j - 1] + sim
+                    let matchScore = dpTable[i - 1][spokenIndex - 1] + sim
                     if matchScore > best {
                         best = matchScore
                     }
                 }
-                dp[i][j] = best
+                dpTable[i][spokenIndex] = best
             }
         }
 
         // Backtracking to find aligned pairs (targetIndex -> spokenIndex)
         var targetToSpoken: [Int: Int] = [:]
-        var i = m
-        var j = n
+        var targetIdx = targetCount
+        var spokenIdx = spokenCount
 
-        while i > 0 && j > 0 {
-            let sim = simMatrix[i - 1][j - 1]
-            let matchScore = dp[i - 1][j - 1] + sim
+        while targetIdx > 0 && spokenIdx > 0 {
+            let sim = simMatrix[targetIdx - 1][spokenIdx - 1]
+            let matchScore = dpTable[targetIdx - 1][spokenIdx - 1] + sim
 
-            if sim >= fuzzyThreshold && abs(dp[i][j] - matchScore) < 1e-9 {
-                // Matched targetTokens[i-1] with spokenTokens[j-1]
-                targetToSpoken[i - 1] = j - 1
-                i -= 1
-                j -= 1
-            } else if dp[i][j - 1] >= dp[i - 1][j] {
-                // Spoken token j-1 was filler/extra or better skipped
-                j -= 1
+            if sim >= fuzzyThreshold && abs(dpTable[targetIdx][spokenIdx] - matchScore) < 1e-9 {
+                // Matched targetTokens[targetIdx-1] with spokenTokens[spokenIdx-1]
+                targetToSpoken[targetIdx - 1] = spokenIdx - 1
+                targetIdx -= 1
+                spokenIdx -= 1
+            } else if dpTable[targetIdx][spokenIdx - 1] >= dpTable[targetIdx - 1][spokenIdx] {
+                // Spoken token spokenIdx-1 was filler/extra or better skipped
+                spokenIdx -= 1
             } else {
-                // Target token i-1 was missing/omitted
-                i -= 1
+                // Target token targetIdx-1 was missing/omitted
+                targetIdx -= 1
             }
         }
 

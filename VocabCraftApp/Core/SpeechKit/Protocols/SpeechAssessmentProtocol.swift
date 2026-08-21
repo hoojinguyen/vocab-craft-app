@@ -5,6 +5,7 @@ public protocol SpeechAssessmentProtocol: AnyObject {
     var isListening: Bool { get }
     var currentEvaluation: SpeechEvaluationResult? { get }
 
+    // swiftlint:disable:next function_parameter_count
     func startAssessing(
         targetSentence: String,
         toleranceThreshold: Double,
