@@ -7,7 +7,7 @@ public struct QuickReflexPromptFactory: Sendable {
         let firstLetter = String(word.lemma.prefix(1)).lowercased()
         let clozePrompt = Self.makeClozeSentence(lemma: word.lemma, sentence: word.exampleSentenceEn)
         let recallWordPromptText = clozePrompt ?? word.definition
-        
+
         let recallWord = QuickReflexStagePrompt(
             phase: .recallWord,
             promptText: recallWordPromptText,
@@ -23,7 +23,7 @@ public struct QuickReflexPromptFactory: Sendable {
         } else {
             recallCollocationPromptText = word.definition
         }
-        
+
         let recallCollocation = QuickReflexStagePrompt(
             phase: .recallCollocation,
             promptText: recallCollocationPromptText,
@@ -41,7 +41,7 @@ public struct QuickReflexPromptFactory: Sendable {
         } else {
             usePrompt = AppStrings.Reflex.quickUsePrompt(word.lemma)
         }
-        
+
         let produceSentence = QuickReflexStagePrompt(
             phase: .produceSentence,
             promptText: usePrompt,

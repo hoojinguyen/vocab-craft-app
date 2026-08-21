@@ -115,7 +115,7 @@ public struct TopicDeckDetailView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "play.fill")
                                 .font(.system(size: 13, weight: .bold))
-                            
+
                             let activeNodeTitle = viewModel.nodes.first(where: { $0.state == .active })?.title.uppercased() ?? String(localized: "vocabulary.startNodeDefaultTitle")
                             Text(AppStrings.Vocabulary.startLearningNode(activeNodeTitle))
                                 .font(.system(size: 13, weight: .bold))
@@ -250,7 +250,7 @@ public struct TopicDeckDetailView: View {
         }
 #endif
     }
-    
+
     private func nodeIconColor(for state: NodeState) -> Color {
         switch state {
         case .active: return Color.vocabPeach

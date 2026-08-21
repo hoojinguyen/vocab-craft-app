@@ -253,10 +253,14 @@ public final class QuickReflexDrillViewModel {
     public func speakModelSentence() {
         ttsService.speak(text: prompts.modelSentenceEn)
     }
+}
 
+// MARK: - Session Control & Lifecycle
+
+extension QuickReflexDrillViewModel {
     /// Excludes inactive app time from the current phase and prevents background hint delivery.
     public func pause() {
-        guard (canAnswerCurrentPhase || state.phase == .shadowModel), !state.isPaused else { return }
+        guard canAnswerCurrentPhase || state.phase == .shadowModel, !state.isPaused else { return }
         elapsedBeforePauseMs += liveElapsedTimeMs()
         state.isPaused = true
         stopListeningAndTimers()

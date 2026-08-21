@@ -5,14 +5,14 @@ public enum CollocationExtractor {
         if let explicit = word.collocationEn?.trimmingCharacters(in: .whitespacesAndNewlines), !explicit.isEmpty {
             return explicit
         }
-        
+
         let example = word.exampleSentenceEn.trimmingCharacters(in: .whitespacesAndNewlines)
         if !example.isEmpty {
             if let chunk = extractChunk(lemma: word.lemma, from: example) {
                 return chunk
             }
         }
-        
+
         return ruleBasedFallback(lemma: word.lemma, pos: word.pos)
     }
 
@@ -22,7 +22,7 @@ public enum CollocationExtractor {
         guard let index = tokens.firstIndex(where: { $0.caseInsensitiveCompare(lemma) == .orderedSame }) else {
             return nil
         }
-        
+
         let start = max(0, index - 1)
         let end = min(tokens.count, index + 2)
         let chunk = tokens[start..<end].joined(separator: " ")

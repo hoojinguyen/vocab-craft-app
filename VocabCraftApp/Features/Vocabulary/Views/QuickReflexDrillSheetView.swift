@@ -3,83 +3,6 @@ import SwiftUI
 import UIKit
 #endif
 
-/// Display decisions shared by the productive-recall stage card and its focused tests.
-public struct QuickReflexDrillPhaseConfiguration: Equatable, Sendable {
-    public let phase: QuickReflexPhase
-    public let inputMode: QuickReflexInputMode
-
-    public init(phase: QuickReflexPhase, inputMode: QuickReflexInputMode) {
-        self.phase = phase
-        self.inputMode = inputMode
-    }
-
-    public var hidesLemma: Bool { phase == .recallWord }
-    public var showsTypingFallback: Bool { inputMode == .typing }
-    public var stageNumber: Int {
-        switch phase {
-        case .recallWord:
-            1
-        case .recallCollocation:
-            2
-        case .produceSentence, .shadowModel, .result:
-            3
-        }
-    }
-}
-
-public enum QuickReflexTimeDelta: Equatable, Sendable {
-    case saved(milliseconds: Int)
-    case slower(milliseconds: Int)
-    case unchanged
-}
-
-public struct QuickReflexTimeComparison: Equatable, Sendable {
-    public let recallWordDelta: QuickReflexTimeDelta
-    public let collocationDelta: QuickReflexTimeDelta
-    public let produceSentenceDelta: QuickReflexTimeDelta
-
-    // Backward-compatible accessors
-    public var retrieveDelta: QuickReflexTimeDelta { recallWordDelta }
-    public var useDelta: QuickReflexTimeDelta { produceSentenceDelta }
-
-    public init(
-        currentRecallWordTimeMs: Int,
-        previousRecallWordTimeMs: Int,
-        currentCollocationTimeMs: Int = 0,
-        previousCollocationTimeMs: Int = 0,
-        currentProduceSentenceTimeMs: Int,
-        previousProduceSentenceTimeMs: Int
-    ) {
-        recallWordDelta = Self.delta(current: currentRecallWordTimeMs, previous: previousRecallWordTimeMs)
-        collocationDelta = Self.delta(current: currentCollocationTimeMs, previous: previousCollocationTimeMs)
-        produceSentenceDelta = Self.delta(current: currentProduceSentenceTimeMs, previous: previousProduceSentenceTimeMs)
-    }
-
-    public init(currentRetrieveTimeMs: Int, previousRetrieveTimeMs: Int, currentUseTimeMs: Int, previousUseTimeMs: Int) {
-        self.init(
-            currentRecallWordTimeMs: currentRetrieveTimeMs,
-            previousRecallWordTimeMs: previousRetrieveTimeMs,
-            currentCollocationTimeMs: 0,
-            previousCollocationTimeMs: 0,
-            currentProduceSentenceTimeMs: currentUseTimeMs,
-            previousProduceSentenceTimeMs: previousUseTimeMs
-        )
-    }
-
-    private static func delta(current: Int, previous: Int) -> QuickReflexTimeDelta {
-        if previous == 0 && current > 0 {
-            return .unchanged
-        }
-        if current < previous {
-            return .saved(milliseconds: previous - current)
-        }
-        if current > previous {
-            return .slower(milliseconds: current - previous)
-        }
-        return .unchanged
-    }
-}
-
 public struct QuickReflexDrillSheetView: View {
     @State private var viewModel: QuickReflexDrillViewModel
     @State private var typedAnswer = ""
@@ -122,7 +45,13 @@ public struct QuickReflexDrillSheetView: View {
             Color.vocabCanvas.ignoresSafeArea()
 
             if viewModel.state.phase == .result {
-                resultCard
+                QuickReflexResultCardView(
+                    viewModel: viewModel,
+                    latestSuccessfulAttempt: latestSuccessfulAttempt,
+                    isFinishing: isFinishing,
+                    onClose: close,
+                    onFinish: finish
+                )
             } else {
                 stageContent
             }
@@ -187,7 +116,11 @@ public struct QuickReflexDrillSheetView: View {
             .padding(.vertical, 12)
         }
     }
+}
 
+// MARK: - Stage Subviews & Phase Cards
+
+extension QuickReflexDrillSheetView {
     private var header: some View {
         HStack {
             Button(action: close) {
@@ -538,204 +471,6 @@ public struct QuickReflexDrillSheetView: View {
         .accessibilityLabel(AppStrings.Reflex.quickTypingFallback)
     }
 
-    private var resultCard: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                header
-
-                VStack(alignment: .leading, spacing: 20) {
-                    Text(AppStrings.Reflex.quickResultsTitle)
-                        .font(.system(.title2, design: .rounded, weight: .bold))
-                        .foregroundStyle(Color.vocabInk)
-                        .accessibilityAddTraits(.isHeader)
-
-                    resultRow(title: AppStrings.Reflex.quickStage1Title, succeeded: viewModel.state.recallWordSucceeded, timeMs: viewModel.state.recallWordTimeMs)
-                    resultRow(title: AppStrings.Reflex.quickStage2Title, succeeded: viewModel.state.collocationSucceeded, timeMs: viewModel.state.collocationTimeMs)
-                    resultRow(title: AppStrings.Reflex.quickStage3Title, succeeded: viewModel.state.produceSentenceSucceeded, timeMs: viewModel.state.produceSentenceTimeMs)
-
-                    if let shadowScore = viewModel.state.shadowPronunciationScore {
-                        HStack(spacing: 12) {
-                            Image(systemName: shadowScore >= 0.75 ? "waveform.badge.checkmark" : "waveform")
-                                .font(.title3)
-                                .foregroundStyle(shadowScore >= 0.75 ? Color.vocabMint : Color.vocabPeach)
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text(AppStrings.Reflex.quickShadowCardTitle)
-                                    .font(.subheadline.weight(.bold))
-                                    .foregroundStyle(Color.vocabInk)
-                                Text(AppStrings.Reflex.quickShadowScoreLabel(Int(shadowScore * 100)))
-                                    .font(.caption)
-                                    .foregroundStyle(Color.vocabMuted)
-                            }
-                            Spacer()
-                            Text("\(Int(shadowScore * 100))%")
-                                .font(.caption.monospacedDigit().weight(.bold))
-                                .foregroundStyle(shadowScore >= 0.75 ? Color.vocabMint : Color.vocabPeach)
-                        }
-                        .padding(14)
-                        .background(Color.vocabCanvas)
-                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    }
-
-                    if let revealedTargetExpression = viewModel.state.revealedTargetExpression {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(AppStrings.Reflex.quickRevealedAnswer)
-                                .font(.caption.weight(.bold))
-                                .foregroundStyle(Color.vocabMuted)
-                            Text(revealedTargetExpression)
-                                .font(.system(.title3, design: .rounded, weight: .bold))
-                                .foregroundStyle(Color.vocabHeroAccent)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(14)
-                        .background(Color.vocabHeroAccent.opacity(0.08))
-                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    }
-
-                    if let latestSuccessfulAttempt {
-                        previousAttemptComparison(latestSuccessfulAttempt)
-                    }
-
-                    Text(AppStrings.Reflex.quickConfidenceQuestion)
-                        .font(.headline.weight(.bold))
-                        .foregroundStyle(Color.vocabInk)
-
-                    VStack(spacing: 12) {
-                        Button(action: { finish(confidence: .comfortable) }) {
-                            Text(AppStrings.Reflex.quickComfortable)
-                                .frame(maxWidth: .infinity, minHeight: 48)
-                        }
-                        .buttonStyle(PrimaryDrillButtonStyle())
-
-                        Button(action: { finish(confidence: .uncertain) }) {
-                            Text(AppStrings.Reflex.quickUncertain)
-                                .frame(maxWidth: .infinity, minHeight: 48)
-                        }
-                        .buttonStyle(SecondaryDrillButtonStyle())
-                    }
-                    .disabled(isFinishing)
-
-                    if let errorMessage = viewModel.state.errorMessage {
-                        Text(errorMessage)
-                            .font(.footnote.weight(.medium))
-                            .foregroundStyle(Color.vocabCoral)
-                            .multilineTextAlignment(.center)
-                            .frame(maxWidth: .infinity)
-                    }
-
-                    if isFinishing {
-                        ProgressView(AppStrings.Reflex.quickSaving)
-                            .frame(maxWidth: .infinity)
-                    }
-                }
-                .padding(20)
-                .background(Color.vocabSurfaceCard)
-                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(Color.vocabHairline, lineWidth: 1))
-            }
-            .padding(20)
-        }
-    }
-
-    private func resultRow(title: LocalizedStringKey, succeeded: Bool, timeMs: Int) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: succeeded ? "checkmark.circle.fill" : "xmark.circle.fill")
-                .font(.title3)
-                .foregroundStyle(succeeded ? Color.vocabMint : Color.vocabCoral)
-            VStack(alignment: .leading, spacing: 3) {
-                Text(title)
-                    .font(.subheadline.weight(.bold))
-                    .foregroundStyle(Color.vocabInk)
-                Text(succeeded ? AppStrings.Reflex.quickSucceeded : AppStrings.Reflex.quickNeedsPractice)
-                    .font(.caption)
-                    .foregroundStyle(Color.vocabMuted)
-            }
-            Spacer()
-            Text(formattedTime(timeMs))
-                .font(.caption.monospacedDigit())
-                .foregroundStyle(Color.vocabMuted)
-        }
-        .padding(14)
-        .background(Color.vocabCanvas)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-    }
-
-    private func previousAttemptComparison(_ attempt: QuickReflexAttempt) -> some View {
-        let comparison = QuickReflexTimeComparison(
-            currentRecallWordTimeMs: viewModel.state.recallWordTimeMs,
-            previousRecallWordTimeMs: attempt.recallWordTimeMs,
-            currentCollocationTimeMs: viewModel.state.collocationTimeMs,
-            previousCollocationTimeMs: attempt.collocationTimeMs,
-            currentProduceSentenceTimeMs: viewModel.state.produceSentenceTimeMs,
-            previousProduceSentenceTimeMs: attempt.produceSentenceTimeMs
-        )
-        return VStack(alignment: .leading, spacing: 8) {
-            Text(AppStrings.Reflex.quickPreviousAttempt)
-                .font(.caption.weight(.bold))
-                .foregroundStyle(Color.vocabMuted)
-            timeComparisonRow(
-                title: AppStrings.Reflex.quickStage1Title,
-                current: viewModel.state.recallWordTimeMs,
-                previous: attempt.recallWordTimeMs,
-                delta: comparison.recallWordDelta
-            )
-            if attempt.collocationTimeMs > 0 || viewModel.state.collocationTimeMs > 0 {
-                timeComparisonRow(
-                    title: AppStrings.Reflex.quickStage2Title,
-                    current: viewModel.state.collocationTimeMs,
-                    previous: attempt.collocationTimeMs,
-                    delta: comparison.collocationDelta
-                )
-            }
-            timeComparisonRow(
-                title: AppStrings.Reflex.quickStage3Title,
-                current: viewModel.state.produceSentenceTimeMs,
-                previous: attempt.produceSentenceTimeMs,
-                delta: comparison.produceSentenceDelta
-            )
-        }
-        .font(.subheadline)
-        .foregroundStyle(Color.vocabInk)
-        .padding(14)
-        .background(Color.vocabHeroAccent.opacity(0.08))
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-    }
-
-    private func timeComparisonRow(title: LocalizedStringKey, current: Int, previous: Int, delta: QuickReflexTimeDelta) -> some View {
-        HStack {
-            Text(title)
-            Spacer()
-            Text(AppStrings.Reflex.quickCurrentAttempt)
-            Text(formattedTime(current)).monospacedDigit()
-            Text(AppStrings.Reflex.quickPreviousAttempt)
-            Text(formattedTime(previous)).monospacedDigit()
-            Text(timeDeltaLabel(delta))
-                .foregroundStyle(deltaColor(delta))
-        }
-        .font(.caption)
-    }
-
-    private func timeDeltaLabel(_ delta: QuickReflexTimeDelta) -> String {
-        switch delta {
-        case let .saved(milliseconds):
-            AppStrings.Reflex.quickTimeSaved(formattedTime(milliseconds))
-        case let .slower(milliseconds):
-            AppStrings.Reflex.quickTimeSlower(formattedTime(milliseconds))
-        case .unchanged:
-            String(localized: "reflex.quickTimeUnchanged")
-        }
-    }
-
-    private func deltaColor(_ delta: QuickReflexTimeDelta) -> Color {
-        switch delta {
-        case .saved:
-            .vocabMint
-        case .slower:
-            .vocabCoral
-        case .unchanged:
-            .vocabMuted
-        }
-    }
-
     private func submitTypedAnswer() {
         let answer = typedAnswer
         typedAnswer = ""
@@ -789,8 +524,9 @@ public struct QuickReflexDrillSheetView: View {
     }
 }
 
-private struct PrimaryDrillButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
+public struct PrimaryDrillButtonStyle: ButtonStyle {
+    public init() {}
+    public func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.headline.weight(.bold))
             .foregroundStyle(.white)
@@ -800,8 +536,9 @@ private struct PrimaryDrillButtonStyle: ButtonStyle {
     }
 }
 
-private struct SecondaryDrillButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
+public struct SecondaryDrillButtonStyle: ButtonStyle {
+    public init() {}
+    public func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.subheadline.weight(.semibold))
             .foregroundStyle(Color.vocabHeroAccent)
@@ -810,4 +547,3 @@ private struct SecondaryDrillButtonStyle: ButtonStyle {
             .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Color.vocabHeroAccent.opacity(0.25), lineWidth: 1))
     }
 }
-
