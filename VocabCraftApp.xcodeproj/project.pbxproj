@@ -245,6 +245,7 @@
 		3000BD63CD357E6C40946A22 /* VocabularyRedesignViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20007E55541F5512575FD0A2 /* VocabularyRedesignViewTests.swift */; };
 		3000BCE67B0F11C503E6B6C8 /* MasteryEvaluationPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200092F29393C7015F46E856 /* MasteryEvaluationPolicyTests.swift */; };
 		3000CF51270269D5A306B87F /* MixedReflexQueueUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200029669BD90743CF25BA89 /* MixedReflexQueueUseCaseTests.swift */; };
+		3000EC15B0A5EB95ADF1512D /* SampleVaultDataSeeder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20007FB33F44CBD57B3849BA /* SampleVaultDataSeeder.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -511,6 +512,7 @@
 		20007E55541F5512575FD0A2 /* VocabularyRedesignViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftAppTests/Features/Vocabulary/VocabularyRedesignViewTests.swift"; sourceTree = SOURCE_ROOT; };
 		200092F29393C7015F46E856 /* MasteryEvaluationPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftAppTests/Domain/MasteryEvaluationPolicyTests.swift"; sourceTree = SOURCE_ROOT; };
 		200029669BD90743CF25BA89 /* MixedReflexQueueUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftAppTests/Domain/MixedReflexQueueUseCaseTests.swift"; sourceTree = SOURCE_ROOT; };
+		20007FB33F44CBD57B3849BA /* SampleVaultDataSeeder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftApp/Core/Database/SampleData/SampleVaultDataSeeder.swift"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -771,7 +773,8 @@
 				20004362B96237B4551B1A34 /* GenerateMixedReflexQueueUseCase.swift */,
 				2000AF6DF06714502376CF1B /* RecordMixedDrillAttemptUseCase.swift */,
 				20000D4EAE1910F9FC5647B7 /* MixedReflexDrillItem.swift */,
-				2000BF5725ADD833DCC27762 /* VaultWordItem.swift */,);
+				2000BF5725ADD833DCC27762 /* VaultWordItem.swift */,
+				20007FB33F44CBD57B3849BA /* SampleVaultDataSeeder.swift */,);
 			path = VocabCraftApp;
 			sourceTree = "<group>";
 		};
@@ -1592,7 +1595,8 @@
 				30009816D221BA4D45C39F83 /* GenerateMixedReflexQueueUseCase.swift in Sources */,
 				3000D768B438C9AF3E3F476E /* RecordMixedDrillAttemptUseCase.swift in Sources */,
 				30006AF381456207EDA7D11A /* MixedReflexDrillItem.swift in Sources */,
-				3000645D91F5AB122480F475 /* VaultWordItem.swift in Sources */,);
+				3000645D91F5AB122480F475 /* VaultWordItem.swift in Sources */,
+				3000EC15B0A5EB95ADF1512D /* SampleVaultDataSeeder.swift in Sources */,);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		100000402D50000000000002 /* Sources */ = {

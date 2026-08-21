@@ -132,6 +132,7 @@ public struct VocabularyView: View {
                 vaultVM = appContainer.makePersonalVaultViewModel()
             }
             await setupAutomationState()
+            await SampleVaultDataSeeder.seedIfEmpty(repository: appContainer.userProgressRepository)
             if let vm = vaultVM, vm.vaultWords.isEmpty && !vm.isLoading {
                 await vm.loadData()
             }
@@ -406,13 +407,6 @@ public struct VocabularyView: View {
     }
 
     private func seedSampleUserProgress() async {
-        let repo = appContainer.userProgressRepository
-        try? await repo.saveProgress(wordId: 1, cefrLevel: "B1", masteryLevel: 3, isBookmarked: false, needsReview: false, mistakeCount: 0, sourceDeckId: "deck_daily", sourceNodeId: "stage_daily_1")
-        try? await repo.saveProgress(wordId: 2, cefrLevel: "B1", masteryLevel: 1, isBookmarked: true, needsReview: true, mistakeCount: 2, sourceDeckId: "deck_daily", sourceNodeId: "stage_daily_1")
-        try? await repo.saveProgress(wordId: 3, cefrLevel: "B2", masteryLevel: 4, isBookmarked: false, needsReview: false, mistakeCount: 0, sourceDeckId: "deck_daily", sourceNodeId: "stage_daily_1")
-        try? await repo.saveProgress(wordId: 4, cefrLevel: "A2", masteryLevel: 5, isBookmarked: true, needsReview: false, mistakeCount: 0, sourceDeckId: "deck_daily", sourceNodeId: "stage_daily_1")
-        try? await repo.saveProgress(wordId: 5, cefrLevel: "B1", masteryLevel: 2, isBookmarked: false, needsReview: true, mistakeCount: 1, sourceDeckId: "deck_daily", sourceNodeId: "stage_daily_1")
-        try? await repo.saveProgress(wordId: 6, cefrLevel: "B2", masteryLevel: 5, isBookmarked: false, needsReview: false, mistakeCount: 0, sourceDeckId: "deck_daily", sourceNodeId: "stage_daily_1")
-        try? await repo.saveProgress(wordId: 7, cefrLevel: "A2", masteryLevel: 4, isBookmarked: true, needsReview: false, mistakeCount: 0, sourceDeckId: "deck_daily", sourceNodeId: "stage_daily_1")
+        await SampleVaultDataSeeder.seed(repository: appContainer.userProgressRepository)
     }
 }

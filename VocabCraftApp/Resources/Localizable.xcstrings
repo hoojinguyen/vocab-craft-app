@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "vi",
   "strings" : {
+    " [ ______ ] " : {
+
+    },
     " 🔍" : {
 
     },
@@ -51,7 +54,13 @@
     "%@ • Từ tiếp theo" : {
 
     },
+    "%@ đã chọn" : {
+
+    },
     "%@ từ chưa chính xác" : {
+
+    },
+    "%@ từ trong danh sách" : {
 
     },
     "%@ từ vựng cốt lõi" : {
@@ -81,6 +90,9 @@
 
     },
     "%@%%" : {
+
+    },
+    "%@x" : {
 
     },
     "•" : {
@@ -175,19 +187,28 @@
     "Chính xác! +10 XP" : {
 
     },
+    "Chọn nghĩa tiếng Việt chính xác của từ vừa nghe" : {
+
+    },
     "Chọn nghĩa tiếng Việt của từ vừa nghe" : {
 
     },
     "Chọn phương pháp phản xạ hôm nay" : {
 
     },
-    "Chưa có từ vựng nào" : {
+    "Chưa có từ vựng" : {
 
     },
     "Chưa đúng" : {
 
     },
     "Chưa nhớ" : {
+
+    },
+    "Chuỗi: %@/3" : {
+
+    },
+    "Chuyển sang gõ từ" : {
 
     },
     "common.back" : {
@@ -482,10 +503,16 @@
     "Đã chọn: %@" : {
 
     },
+    "Đã luyện lại" : {
+
+    },
     "Đã nhập: %@" : {
 
     },
     "Đã nhớ" : {
+
+    },
+    "Đã thuộc" : {
 
     },
     "Đã tự động thêm vào Kho cá nhân để bạn ôn tập lại." : {
@@ -514,6 +541,12 @@
     "Đang lắng nghe phát âm..." : {
 
     },
+    "Danh sách từ đã luyện (%@)" : {
+
+    },
+    "Danh sách từ vựng" : {
+
+    },
     "Đáp án: %@" : {
 
     },
@@ -521,6 +554,9 @@
 
     },
     "Đóng" : {
+
+    },
+    "Đúng" : {
 
     },
     "Ex: “%@”" : {
@@ -558,7 +594,7 @@
     "Hoàn thành & Lưu tiến độ" : {
 
     },
-    "Hoàn thành các chặng trong Bộ Từ Chủ Đề để nạp từ vựng mới vào kho cá nhân của bạn." : {
+    "Hoàn thành bài luyện tập phản xạ ngẫu nhiên" : {
 
     },
     "Hoàn Thành Ôn Tập!" : {
@@ -910,7 +946,19 @@
         }
       }
     },
+    "Kho từ" : {
+
+    },
+    "Kho từ của bạn" : {
+
+    },
     "Không có từ yếu nào!" : {
+
+    },
+    "Không tìm thấy từ vựng nào trong danh mục này." : {
+
+    },
+    "Không tìm thấy từ vựng nào trong mục này." : {
 
     },
     "Luyện lại %@ từ chưa thuộc" : {
@@ -919,10 +967,22 @@
     "Luyện phản xạ tốc độ" : {
 
     },
+    "Luyện tập" : {
+
+    },
+    "Luyện tập lại" : {
+
+    },
     "Luyện tập lại Chặng này" : {
 
     },
+    "LUYỆN TẬP PHẢN XẠ" : {
+
+    },
     "Mỗi từ có giới hạn đếm ngược riêng biệt để tạo phản xạ vô điều kiện." : {
+
+    },
+    "Nạp từ vựng hoặc luyện tập để xem thẻ từ tại đây." : {
 
     },
     "Nghe lại phát âm" : {
@@ -944,6 +1004,9 @@
 
     },
     "Phát âm" : {
+
+    },
+    "Quay lại" : {
 
     },
     "REFLEX BLITZ" : {
@@ -3574,6 +3637,9 @@
 
     },
     "Testing..." : {
+
+    },
+    "Tiến độ của các từ chưa hoàn thành sẽ không được lưu vào phiên này." : {
 
     },
     "Toàn bộ từ vựng đều trong trạng thái ghi nhớ tốt." : {
