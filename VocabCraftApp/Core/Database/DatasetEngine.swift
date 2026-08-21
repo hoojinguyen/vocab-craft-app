@@ -277,6 +277,66 @@ public final class DatasetEngine: DatasetDataSourceProtocol {
         return results
     }
 
+    public func fetchTopicDecksSummary() -> [TopicDeckSummaryRecord] {
+        guard let db = db else { return [] }
+        let query = """
+            SELECT d.id, d.title, d.icon_name, d.badge_color_hex, d.sort_order,
+                   COUNT(nw.word_id) AS total_words
+            FROM topic_decks d
+            LEFT JOIN topic_nodes n ON d.id = n.deck_id
+            LEFT JOIN node_words nw ON n.id = nw.node_id
+            GROUP BY d.id
+            ORDER BY d.sort_order ASC;
+        """
+        var statement: OpaquePointer?
+        if sqlite3_prepare_v2(db, query, -1, &statement, nil) != SQLITE_OK {
+            return []
+        }
+        defer { sqlite3_finalize(statement) }
+
+        var results: [TopicDeckSummaryRecord] = []
+        while sqlite3_step(statement) == SQLITE_ROW {
+            let id = columnText(statement, 0)
+            let title = columnText(statement, 1)
+            let iconName = columnText(statement, 2)
+            let badgeColorHex = columnText(statement, 3)
+            let sortOrder = Int(sqlite3_column_int(statement, 4))
+            let totalWords = Int(sqlite3_column_int(statement, 5))
+
+            results.append(TopicDeckSummaryRecord(
+                id: id,
+                title: title,
+                iconName: iconName,
+                badgeColorHex: badgeColorHex,
+                sortOrder: sortOrder,
+                totalWords: totalWords
+            ))
+        }
+        return results
+    }
+
+    public func fetchDeckWordIdsMap() -> [String: [Int64]] {
+        guard let db = db else { return [:] }
+        let query = """
+            SELECT n.deck_id, nw.word_id
+            FROM topic_nodes n
+            JOIN node_words nw ON n.id = nw.node_id;
+        """
+        var statement: OpaquePointer?
+        if sqlite3_prepare_v2(db, query, -1, &statement, nil) != SQLITE_OK {
+            return [:]
+        }
+        defer { sqlite3_finalize(statement) }
+
+        var map: [String: [Int64]] = [:]
+        while sqlite3_step(statement) == SQLITE_ROW {
+            let deckId = columnText(statement, 0)
+            let wordId = sqlite3_column_int64(statement, 1)
+            map[deckId, default: []].append(wordId)
+        }
+        return map
+    }
+
     public func fetchSubTopicNodes(deckId: String) -> [SubTopicNodeRecord] {
         guard let db = db else { return [] }
         let query = """

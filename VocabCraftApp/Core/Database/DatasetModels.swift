@@ -96,3 +96,22 @@ public struct SubTopicNodeRecord: Identifiable, Equatable, Sendable {
         self.sortOrder = sortOrder
     }
 }
+
+public struct TopicDeckSummaryRecord: Sendable, Equatable {
+    public let id: String
+    public let title: String
+    public let iconName: String
+    public let badgeColorHex: String
+    public let sortOrder: Int
+    public let totalWords: Int
+
+    public init(id: String, title: String, iconName: String, badgeColorHex: String, sortOrder: Int, totalWords: Int) {
+        self.id = id
+        self.title = title
+        self.iconName = iconName
+        self.badgeColorHex = badgeColorHex
+        self.sortOrder = sortOrder
+        self.totalWords = totalWords
+    }
+}
+

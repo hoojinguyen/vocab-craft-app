@@ -47,6 +47,18 @@ final class MockDatasetDataSource: DatasetDataSourceProtocol {
         ]
     }
 
+    func fetchTopicDecksSummary() -> [TopicDeckSummaryRecord] {
+        [
+            TopicDeckSummaryRecord(id: "deck1", title: "Technology", iconName: "cpu", badgeColorHex: "#00FF00", sortOrder: 1, totalWords: 2)
+        ]
+    }
+
+    func fetchDeckWordIdsMap() -> [String: [Int64]] {
+        [
+            "deck1": [1, 2]
+        ]
+    }
+
     func fetchSubTopicNodes(deckId: String) -> [SubTopicNodeRecord] {
         if deckId == "deck1" {
             return [
@@ -67,6 +79,17 @@ final class MockDatasetDataSource: DatasetDataSourceProtocol {
 @Suite("DatasetDataSource Protocol Tests")
 @MainActor
 struct DatasetDataSourceTests {
+    @Test("Topic decks summary aggregation and deck word ids map")
+    func testFetchTopicDecksSummaryAggregation() async throws {
+        let mock = MockVocabularyDataSource.shared
+        let summaries = mock.fetchTopicDecksSummary()
+        #expect(!summaries.isEmpty)
+        #expect(summaries[0].totalWords > 0)
+
+        let wordMap = mock.fetchDeckWordIdsMap()
+        #expect(!wordMap.isEmpty)
+    }
+
     @Test("VocabularyRepositoryImpl successfully operates via DatasetDataSourceProtocol mock")
     func testRepositoryWithMockDataSource() async throws {
         let mockSource = MockDatasetDataSource()

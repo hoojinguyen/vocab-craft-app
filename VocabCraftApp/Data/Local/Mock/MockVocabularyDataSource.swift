@@ -102,5 +102,26 @@ public struct MockVocabularyDataSource: Sendable {
         )
     ]
 
+    public func fetchTopicDecksSummary() -> [TopicDeckSummaryRecord] {
+        return mockTopicDecks.map { deck in
+            TopicDeckSummaryRecord(
+                id: deck.id,
+                title: deck.title,
+                iconName: deck.iconName,
+                badgeColorHex: deck.badgeColorHex,
+                sortOrder: 1,
+                totalWords: deck.wordCount
+            )
+        }
+    }
+
+    public func fetchDeckWordIdsMap() -> [String: [Int64]] {
+        return [
+            "ielts_academic": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            "business_tech": [11, 12, 13, 14, 15]
+        ]
+    }
+
     public init() {}
 }
+

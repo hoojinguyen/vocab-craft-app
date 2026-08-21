@@ -12,6 +12,8 @@ public protocol DatasetDataSourceProtocol: AnyObject {
 
     // Topic Decks
     func fetchTopicDecks() -> [TopicDeckRecord]
+    func fetchTopicDecksSummary() -> [TopicDeckSummaryRecord]
+    func fetchDeckWordIdsMap() -> [String: [Int64]]
     func fetchSubTopicNodes(deckId: String) -> [SubTopicNodeRecord]
     func fetchWordsForNode(nodeId: String) -> [WordRecord]
 }

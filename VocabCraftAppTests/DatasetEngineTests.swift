@@ -79,6 +79,46 @@ final class DatasetEngineTests: XCTestCase {
             """
             INSERT INTO reflex_drills (id, sentence_id, drill_type, prompt_text, correct_answer, distractors_json, target_time_ms)
             VALUES (100, 10, 'translate', 'Cô ấy ăn một quả táo mỗi sáng.', 'She eats an apple every morning.', '["She ate an apple", "He eats an apple"]', 2500);
+            """,
+            """
+            CREATE TABLE topic_decks (
+                id TEXT PRIMARY KEY,
+                title TEXT NOT NULL,
+                icon_name TEXT NOT NULL,
+                badge_color_hex TEXT NOT NULL,
+                sort_order INTEGER NOT NULL
+            );
+            """,
+            """
+            CREATE TABLE topic_nodes (
+                id TEXT PRIMARY KEY,
+                deck_id TEXT NOT NULL,
+                title TEXT NOT NULL,
+                icon_name TEXT NOT NULL,
+                sort_order INTEGER NOT NULL,
+                FOREIGN KEY (deck_id) REFERENCES topic_decks (id) ON DELETE CASCADE
+            );
+            """,
+            """
+            CREATE TABLE node_words (
+                node_id TEXT NOT NULL,
+                word_id INTEGER NOT NULL,
+                PRIMARY KEY (node_id, word_id),
+                FOREIGN KEY (node_id) REFERENCES topic_nodes (id) ON DELETE CASCADE,
+                FOREIGN KEY (word_id) REFERENCES words (id) ON DELETE CASCADE
+            );
+            """,
+            """
+            INSERT INTO topic_decks (id, title, icon_name, badge_color_hex, sort_order)
+            VALUES ('ielts_deck', 'IELTS Academic', 'book.fill', '#3B82F6', 1);
+            """,
+            """
+            INSERT INTO topic_nodes (id, deck_id, title, icon_name, sort_order)
+            VALUES ('node_1', 'ielts_deck', 'Academic Vocab 1', 'doc.text', 1);
+            """,
+            """
+            INSERT INTO node_words (node_id, word_id)
+            VALUES ('node_1', 1);
             """
         ]
 
@@ -180,6 +220,29 @@ final class DatasetEngineTests: XCTestCase {
         XCTAssertEqual(word?.lemma, "apple")
     }
 
+    func testFetchTopicDecksSummary() {
+        guard let engine = DatasetEngine(dbPath: testDbPath) else {
+            XCTFail("Failed to initialize DatasetEngine")
+            return
+        }
+
+        let summaries = engine.fetchTopicDecksSummary()
+        XCTAssertEqual(summaries.count, 1)
+        XCTAssertEqual(summaries.first?.id, "ielts_deck")
+        XCTAssertEqual(summaries.first?.title, "IELTS Academic")
+        XCTAssertEqual(summaries.first?.totalWords, 1)
+    }
+
+    func testFetchDeckWordIdsMap() {
+        guard let engine = DatasetEngine(dbPath: testDbPath) else {
+            XCTFail("Failed to initialize DatasetEngine")
+            return
+        }
+
+        let map = engine.fetchDeckWordIdsMap()
+        XCTAssertEqual(map["ielts_deck"], [1])
+    }
+
     func testDatasetEngineWithMainDatasetFileIfAvailable() {
         let mainDbPath = "/Users/hoojinguyen/Hooji/antigravity/EnglishDataset/data/output/english_dataset.db"
         if FileManager.default.fileExists(atPath: mainDbPath) {
@@ -191,3 +254,4 @@ final class DatasetEngineTests: XCTestCase {
         }
     }
 }
+

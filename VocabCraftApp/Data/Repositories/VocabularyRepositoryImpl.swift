@@ -109,40 +109,32 @@ public final class VocabularyRepositoryImpl: VocabularyRepositoryProtocol {
     /// Fetches available topic decks and their associated subtopic nodes.
     public func fetchTopicDecks() async throws -> [TopicDeck] {
         guard let engine = datasetEngine else { return MockVocabularyDataSource.shared.mockTopicDecks }
-        let records = engine.fetchTopicDecks()
-        if records.isEmpty {
+        let summaries = engine.fetchTopicDecksSummary()
+        if summaries.isEmpty {
             return MockVocabularyDataSource.shared.mockTopicDecks
         }
 
+        let deckWordMap = engine.fetchDeckWordIdsMap()
         let masteryMap = (try? await progressActor?.fetchAllMasteryLevels()) ?? [:]
 
-        var decks: [TopicDeck] = []
-        for r in records {
-            // Need to compute wordCount and completionPercentage
-            let nodeRecords = engine.fetchSubTopicNodes(deckId: r.id)
-            var totalWords = 0
+        return summaries.map { r in
+            let wordIds = deckWordMap[r.id] ?? []
+            let totalWords = r.totalWords > 0 ? r.totalWords : wordIds.count
             var learnedWords = 0
-
-            for nodeRecord in nodeRecords {
-                let wordRecords = engine.fetchWordsForNode(nodeId: nodeRecord.id)
-                totalWords += wordRecords.count
-
-                for wordRecord in wordRecords where (masteryMap[wordRecord.id] ?? 0) >= 5 {
-                    learnedWords += 1
-                }
+            for wordId in wordIds where (masteryMap[wordId] ?? 0) >= 5 {
+                learnedWords += 1
             }
-
             let percentage = totalWords > 0 ? Double(learnedWords) / Double(totalWords) : 0.0
-            decks.append(TopicDeck(
+
+            return TopicDeck(
                 id: r.id,
                 title: r.title,
                 wordCount: totalWords,
                 completionPercentage: percentage,
                 badgeColorHex: r.badgeColorHex,
                 iconName: r.iconName
-            ))
+            )
         }
-        return decks
     }
 
     /// Fetches the nodes for a specific topic deck.
