@@ -81,6 +81,7 @@ public final class HomepageViewModel {
     }
 
     public func loadData() async {
+        guard state.suggestedWords.isEmpty else { return }
         guard let useCase = fetchVocabularyUseCase else { return }
         do {
             let fetchedWords = try await useCase.executeFetchWords(limit: 10)

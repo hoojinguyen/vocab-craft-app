@@ -3,7 +3,7 @@ import Foundation
 /// Entity representing a daily recommended vocabulary word.
 public struct SuggestedWord: Identifiable, Equatable, Hashable, Sendable {
     public let id: String
-    public let lemma: String
+    public var lemma: String
     public let pos: String
     public let ipaUs: String
     public let cefrLevel: String

@@ -9,11 +9,6 @@ public struct HomepageView: View {
     @Environment(\.appContainer) private var appContainer
     @Environment(\.appRouter) private var appRouter
 
-    private var reflexBlitzViewId: String {
-        guard let vm = reflexBlitzVM else { return "default" }
-        return "\(vm.selectedMode.rawValue)-\(vm.phase)-\(vm.cardPhase)"
-    }
-
     @MainActor
     public init(viewModel: HomepageViewModel) {
         self._viewModel = State(initialValue: viewModel)
@@ -86,7 +81,6 @@ public struct HomepageView: View {
                     reflexBlitzVM = nil
                     router.navigateToHome()
                 })
-                .id(reflexBlitzViewId)
             case .settings:
                 SettingsView(viewModel: settingsVM ?? appContainer.makeSettingsViewModel())
             }
