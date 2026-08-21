@@ -1071,17 +1071,17 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1540;
-				LastUpgradeCheck = 1600;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					600000012D50000000000000 = {
-						CreatedOnToolsVersion = 15.4;
+						CreatedOnToolsVersion = 26.6;
 					};
 					600000022D50000000000000 = {
-						CreatedOnToolsVersion = 15.4;
+						CreatedOnToolsVersion = 26.6;
 					};
 					600000032D50000000000000 = {
-						CreatedOnToolsVersion = 15.4;
+						CreatedOnToolsVersion = 26.6;
 						TestTargetID = 600000012D50000000000000;
 					};
 				};

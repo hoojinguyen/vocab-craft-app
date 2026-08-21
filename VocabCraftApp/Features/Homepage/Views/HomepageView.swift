@@ -132,4 +132,3 @@ public struct HomepageView: View {
         .environment(\.locale, appContainer.userSettingsStore.appLocale ?? .autoupdatingCurrent)
     }
 }
-

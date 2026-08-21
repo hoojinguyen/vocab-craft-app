@@ -63,4 +63,3 @@ final class SettingsViewModelTests: XCTestCase {
         XCTAssertTrue(mockUseCase.didCallReset)
     }
 }
-
