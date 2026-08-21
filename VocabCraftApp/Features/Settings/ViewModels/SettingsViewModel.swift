@@ -7,12 +7,18 @@ public final class SettingsViewModel {
     public var isPlayingAudio: Bool = false
     public var cacheSizeString: String = "12.4 MB"
     private let ttsService: TextToSpeechProtocol
+    private let resetProgressUseCase: ResetUserProgressUseCaseProtocol?
 
     private var audioTask: Task<Void, Never>?
 
-    public init(store: UserSettingsStore, ttsService: TextToSpeechProtocol) {
+    public init(
+        store: UserSettingsStore,
+        ttsService: TextToSpeechProtocol,
+        resetProgressUseCase: ResetUserProgressUseCaseProtocol? = nil
+    ) {
         self.store = store
         self.ttsService = ttsService
+        self.resetProgressUseCase = resetProgressUseCase
     }
 
     public func playAudioPreview() {
@@ -33,8 +39,8 @@ public final class SettingsViewModel {
         cacheSizeString = "0.0 MB"
     }
 
-    public func resetSRSProgress() {
-        // Resets SRS progress without touching user notification settings
+    public func resetSRSProgress() async {
         store.dailyGoalCount = 15
+        try? await resetProgressUseCase?.executeResetAllProgress()
     }
 }

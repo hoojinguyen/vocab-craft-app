@@ -11,7 +11,6 @@ public struct HomepageState: Equatable {
     public var retentionPercentage: Double
     public var unreadNotifications: Bool
     public var searchText: String
-    public var selectedTab: TabItem
     public var suggestedWords: [SuggestedWord]
     public var currentSuggestedWordIndex: Int
 
@@ -24,7 +23,6 @@ public struct HomepageState: Equatable {
         retentionPercentage: Double = 0.85,
         unreadNotifications: Bool = true,
         searchText: String = "",
-        selectedTab: TabItem = .home,
         suggestedWords: [SuggestedWord] = [],
         currentSuggestedWordIndex: Int? = nil
     ) {
@@ -36,7 +34,6 @@ public struct HomepageState: Equatable {
         self.retentionPercentage = retentionPercentage
         self.unreadNotifications = unreadNotifications
         self.searchText = searchText
-        self.selectedTab = selectedTab
         self.suggestedWords = suggestedWords
 
         // Randomize initial suggested word index on each app launch if not explicitly set
@@ -58,11 +55,6 @@ public final class HomepageViewModel {
     public var searchText: String {
         get { state.searchText }
         set { state.searchText = newValue }
-    }
-
-    public var selectedTab: TabItem {
-        get { state.selectedTab }
-        set { state.selectedTab = newValue }
     }
 
     public var currentSuggestedWordIndex: Int {
@@ -118,10 +110,6 @@ public final class HomepageViewModel {
 
     public func speakSuggestedWord(_ word: SuggestedWord) {
         ttsService.speak(text: word.lemma)
-    }
-
-    public func selectTab(_ tab: TabItem) {
-        state.selectedTab = tab
     }
 
     public func updateSearchText(_ text: String) {

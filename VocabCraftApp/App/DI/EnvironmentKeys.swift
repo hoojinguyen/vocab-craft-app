@@ -24,8 +24,8 @@ public extension EnvironmentValues {
     }
 
     @MainActor
-    var appRouter: AppRouter? {
-        get { self[AppRouterKey.self] }
+    var appRouter: AppRouter {
+        get { self[AppRouterKey.self] ?? appContainer.appRouter }
         set { self[AppRouterKey.self] = newValue }
     }
 

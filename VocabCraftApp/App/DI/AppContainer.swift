@@ -98,7 +98,8 @@ public final class AppContainer {
     public func makeSettingsViewModel() -> SettingsViewModel {
         SettingsViewModel(
             store: userSettingsStore,
-            ttsService: ttsService
+            ttsService: ttsService,
+            resetProgressUseCase: resetUserProgressUseCase
         )
     }
 

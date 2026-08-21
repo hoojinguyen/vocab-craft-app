@@ -333,7 +333,9 @@ public struct SettingsView: View {
         .alert(AppStrings.Settings.resetConfirmTitle, isPresented: $showResetAlert) {
             Button(AppStrings.Common.cancel, role: .cancel) {}
             Button(AppStrings.Common.reset, role: .destructive) {
-                viewModel.resetSRSProgress()
+                Task {
+                    await viewModel.resetSRSProgress()
+                }
             }
         } message: {
             Text(AppStrings.Settings.resetConfirmMessage)
