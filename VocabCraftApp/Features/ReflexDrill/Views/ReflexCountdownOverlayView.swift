@@ -44,28 +44,30 @@ public struct ReflexCountdownOverlayView: View {
                 .overlay(Color.black.opacity(0.6))
                 .ignoresSafeArea()
 
+            // swiftlint:disable:next empty_count
+            let isCountingDown = count > 0
             VStack(spacing: 20) {
                 // Modality Icon with hierarchical rendering & pulse
                 Image(systemName: modeIconName)
                     .font(.system(size: 38, weight: .semibold))
                     .symbolRenderingMode(.hierarchical)
                     .foregroundStyle(Color.vocabPeach)
-                    .symbolEffect(.pulse, options: .repeating, isActive: count > 0)
+                    .symbolEffect(.pulse, options: .repeating, isActive: isCountingDown)
                     .padding(.bottom, 8)
 
                 // Large Fitness-style Countdown Number
-                Text(count > 0 ? "\(count)" : "GO!")
+                Text(isCountingDown ? "\(count)" : "GO!")
                     .font(.system(size: 88, weight: .heavy, design: .rounded))
                     .foregroundStyle(
                         LinearGradient(
-                            colors: count > 0 ? [Color.vocabPeach, Color.vocabPeach.opacity(0.85)] : [Color.vocabMint, Color.vocabMint.opacity(0.9)],
+                            colors: isCountingDown ? [Color.vocabPeach, Color.vocabPeach.opacity(0.85)] : [Color.vocabMint, Color.vocabMint.opacity(0.9)],
                             startPoint: .top,
                             endPoint: .bottom
                         )
                     )
-                    .scaleEffect(count > 0 ? 1.0 : 1.25)
+                    .scaleEffect(isCountingDown ? 1.0 : 1.25)
                     .animation(.spring(response: 0.35, dampingFraction: 0.55), value: count)
-                    .accessibilityLabel(count > 0 ? "Đếm ngược \(count)" : "Bắt đầu!")
+                    .accessibilityLabel(isCountingDown ? "Đếm ngược \(count)" : "Bắt đầu!")
 
                 // Contextual Modality Instruction Text
                 Text(modePromptText)
@@ -76,7 +78,7 @@ public struct ReflexCountdownOverlayView: View {
             }
             .accessibilityElement(children: .combine)
         }
+        // swiftlint:disable:next empty_count
         .sensoryFeedback(.impact(weight: count > 0 ? .medium : .heavy), trigger: count)
     }
 }
-

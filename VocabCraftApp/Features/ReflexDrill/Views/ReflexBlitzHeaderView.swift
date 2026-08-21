@@ -181,9 +181,7 @@ public struct ReflexBlitzHeaderView: View {
                         .frame(height: 4.5)
 
                     TimelineView(.animation(paused: !isTimerActive)) { timeline in
-                        let elapsed = isTimerActive && wordStartTime != nil
-                            ? timeline.date.timeIntervalSince(wordStartTime!)
-                            : (fractionRemaining > 0 ? (1.0 - fractionRemaining) * timeLimitSeconds : timeLimitSeconds)
+                        let elapsed = elapsedTime(at: timeline.date)
                         let currentFraction = isTimerActive
                             ? max(0.0, min(1.0, 1.0 - elapsed / max(1.0, timeLimitSeconds)))
                             : fractionRemaining
@@ -201,11 +199,21 @@ public struct ReflexBlitzHeaderView: View {
                 }
             }
             .frame(height: 4.5)
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Thời gian còn lại")
-            .accessibilityValue("\(Int(fractionRemaining * 100))%")
         }
         .padding(.horizontal)
+        .padding(.top, 4)
+        .padding(.bottom, 6)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Thời gian còn lại")
+        .accessibilityValue("\(Int(fractionRemaining * 100))%")
+    }
+
+    private func elapsedTime(at date: Date) -> Double {
+        if isTimerActive, let startTime = wordStartTime {
+            return date.timeIntervalSince(startTime)
+        } else {
+            return fractionRemaining > 0 ? (1.0 - fractionRemaining) * timeLimitSeconds : timeLimitSeconds
+        }
     }
 
     public func segmentColor(for index: Int) -> Color {
@@ -218,6 +226,4 @@ public struct ReflexBlitzHeaderView: View {
         }
     }
 
-
 }
-

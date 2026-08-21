@@ -259,9 +259,12 @@ public final class ReflexDrillViewModel {
             isCorrect = isCorrectAnswer(userText: answer, targetText: drill.correctAnswer)
         }
 
-        let responseTime = (speechEvaluationResult?.durationMs ?? 0) > 0
-            ? speechEvaluationResult!.durationMs
-            : state.elapsedTimeMs
+        let responseTime: Int
+        if let durationMs = speechEvaluationResult?.durationMs, durationMs > 0 {
+            responseTime = durationMs
+        } else {
+            responseTime = state.elapsedTimeMs
+        }
 
         let result = evaluateSRSUseCase.evaluateResponse(
             currentMastery: state.currentMastery,

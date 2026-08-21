@@ -280,7 +280,11 @@ public final class ReflexBlitzViewModel {
             handleTimeout()
         }
     }
+}
 
+// MARK: - Answer Submission & Response Handling
+
+extension ReflexBlitzViewModel {
     public func selectOption(_ option: ReflexBlitzOption) {
         guard phase == .drilling, cardPhase == .activeCountdown, let word = currentWord else { return }
         hintTimerTask?.cancel()
@@ -506,7 +510,11 @@ public final class ReflexBlitzViewModel {
             ttsService.speak(text: word.lemma, rate: 0.5, locale: "en-US")
         }
     }
+}
 
+// MARK: - Session Control & Deep Link Configuration
+
+extension ReflexBlitzViewModel {
     public func advanceToNextWord() {
         guard phase == .drilling else { return }
         let nextIndex = currentWordIndex + 1
@@ -622,5 +630,3 @@ public final class ReflexBlitzViewModel {
         }
     }
 }
-
-

@@ -104,49 +104,58 @@ public struct ReflexBlitzSummaryView: View {
         .accessibilityLabel("\(cleanRatingTitle). Hoàn thành phiên phản xạ Blitz.")
     }
 
+    private struct MetricCardItem {
+        let icon: String
+        let isMulticolor: Bool
+        let accentColor: Color
+        let value: String
+        let title: String
+        let accessibilityLabel: String
+    }
+
     // MARK: - Bento Metrics Grid
     private var bentoMetricsGrid: some View {
         HStack(spacing: 12) {
-            metricCard(
+            metricCard(MetricCardItem(
                 icon: "speedometer",
                 isMulticolor: false,
                 accentColor: .vocabHeroAccent,
                 value: formattedAvgTime,
                 title: "Tốc độ TB",
                 accessibilityLabel: "Tốc độ trung bình: \(formattedAvgTime)"
-            )
+            ))
 
-            metricCard(
+            metricCard(MetricCardItem(
                 icon: "target",
                 isMulticolor: false,
                 accentColor: .vocabMint,
                 value: "\(summary.correctWords)/\(summary.totalWords)",
                 title: "Độ chính xác",
                 accessibilityLabel: "Độ chính xác: \(summary.correctWords) trên \(summary.totalWords) từ"
-            )
+            ))
 
-            metricCard(
+            metricCard(MetricCardItem(
                 icon: "flame.fill",
                 isMulticolor: true,
                 accentColor: .vocabPeach,
                 value: "x\(summary.maxComboStreak)",
                 title: "Max Combo",
                 accessibilityLabel: "Chuỗi combo tối đa: \(summary.maxComboStreak)"
-            )
+            ))
         }
         .padding(.horizontal)
     }
 
-    private func metricCard(icon: String, isMulticolor: Bool, accentColor: Color, value: String, title: String, accessibilityLabel: String) -> some View {
+    private func metricCard(_ item: MetricCardItem) -> some View {
         VStack(spacing: 8) {
             Group {
-                if isMulticolor {
-                    Image(systemName: icon)
+                if item.isMulticolor {
+                    Image(systemName: item.icon)
                         .symbolRenderingMode(.multicolor)
                 } else {
-                    Image(systemName: icon)
+                    Image(systemName: item.icon)
                         .symbolRenderingMode(.hierarchical)
-                        .foregroundStyle(accentColor)
+                        .foregroundStyle(item.accentColor)
                 }
             }
             .font(.system(size: 20, weight: .semibold))
@@ -155,17 +164,17 @@ public struct ReflexBlitzSummaryView: View {
             .clipShape(Circle())
             .overlay(
                 Circle()
-                    .stroke(accentColor.opacity(0.2), lineWidth: 0.8)
+                    .stroke(item.accentColor.opacity(0.2), lineWidth: 0.8)
             )
             .accessibilityHidden(true)
 
-            Text(value)
+            Text(item.value)
                 .font(.title3.weight(.bold))
                 .fontDesign(.rounded)
                 .monospacedDigit()
                 .foregroundColor(.vocabInk)
 
-            Text(title)
+            Text(item.title)
                 .font(.caption2.weight(.medium))
                 .foregroundColor(.vocabMuted)
         }
@@ -179,7 +188,7 @@ public struct ReflexBlitzSummaryView: View {
                 .stroke(Color.vocabHairline.opacity(0.7), lineWidth: 1)
         )
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(accessibilityLabel)
+        .accessibilityLabel(item.accessibilityLabel)
     }
 
     // MARK: - Weak Words Section

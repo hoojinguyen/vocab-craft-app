@@ -188,7 +188,19 @@ public struct ReflexBlitzCardView: View {
     public var body: some View {
         VStack(spacing: 18) {
             if isReviewed {
-                reviewedContentView
+                ReflexBlitzCardReviewedView(
+                    word: word,
+                    mode: mode,
+                    isReviewed: isReviewed,
+                    isResultCorrect: isResultCorrect,
+                    isResultTimeout: isResultTimeout,
+                    options: options,
+                    reviewResult: reviewResult,
+                    selectedOptionText: selectedOptionText,
+                    clozeParts: clozeParts,
+                    displayedSentence: displayedSentence,
+                    onReplayAudio: onReplayAudio
+                )
             } else {
                 activeCountdownContentView
             }
@@ -216,9 +228,11 @@ public struct ReflexBlitzCardView: View {
             }
         }
     }
+}
 
-    // MARK: - Active Countdown Content
+// MARK: - Active Countdown Subviews
 
+extension ReflexBlitzCardView {
     @ViewBuilder
     private var activeCountdownContentView: some View {
         switch mode {
@@ -326,153 +340,6 @@ public struct ReflexBlitzCardView: View {
 
         activeOptionsGrid
     }
-
-    // MARK: - Reviewed Content
-
-    @ViewBuilder
-    private var reviewedContentView: some View {
-        VStack(spacing: 14) {
-            // Status Header Badge
-            HStack(spacing: 6) {
-                Image(systemName: isResultCorrect ? "checkmark.circle.fill" : (isResultTimeout ? "clock.badge.exclamationmark.fill" : "xmark.circle.fill"))
-                    .font(.subheadline.bold())
-                    .symbolRenderingMode(.hierarchical)
-                    .symbolEffect(.bounce, value: isReviewed)
-
-                Text(isResultCorrect ? "Chính xác!" : (isResultTimeout ? "Hết thời gian!" : "Chưa chính xác"))
-                    .font(.subheadline.bold())
-                    .fontDesign(.rounded)
-            }
-
-            .foregroundColor(isResultCorrect ? .vocabMint : .vocabCoral)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 6)
-            .background((isResultCorrect ? Color.vocabMint : Color.vocabCoral).opacity(0.12))
-            .clipShape(Capsule())
-            .overlay(
-                Capsule()
-                    .stroke((isResultCorrect ? Color.vocabMint : Color.vocabCoral).opacity(0.25), lineWidth: 0.8)
-            )
-
-            // Target Lemma, POS, IPA, Audio Speaker Button
-            VStack(spacing: 6) {
-                HStack(alignment: .center, spacing: 10) {
-                    Text(word.lemma)
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
-                        .foregroundColor(.vocabInk)
-
-                    if !word.pos.isEmpty {
-                        Text(word.pos.uppercased())
-                            .font(.caption2.weight(.bold))
-                            .fontDesign(.rounded)
-                            .foregroundColor(.vocabHeroAccent)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 3)
-                            .background(Color.vocabHeroAccent.opacity(0.12))
-                            .clipShape(Capsule())
-                    }
-
-                    if let onReplayAudio = onReplayAudio {
-                        Button(action: onReplayAudio) {
-                            Image(systemName: "speaker.wave.2.fill")
-                                .font(.system(size: 15, weight: .semibold))
-                                .symbolRenderingMode(.hierarchical)
-                                .foregroundColor(.vocabHeroAccent)
-                                .frame(width: 36, height: 36)
-                                .background(.ultraThinMaterial)
-                                .clipShape(Circle())
-                                .overlay(
-                                    Circle()
-                                        .stroke(Color.vocabHeroAccent.opacity(0.2), lineWidth: 0.8)
-                                )
-                        }
-                        .buttonStyle(BentoCardButtonStyle())
-                        .accessibilityLabel("Phát âm lại từ")
-                    }
-                }
-
-                if !word.ipa.isEmpty {
-                    Text(word.ipa)
-                        .font(.subheadline.monospaced())
-                        .foregroundColor(.vocabMuted)
-                        .accessibilityLabel("Phiên âm IPA: \(word.ipa)")
-                }
-
-                Text(word.definitionVi)
-                    .font(.headline.weight(.semibold))
-                    .foregroundColor(.vocabInk)
-                    .multilineTextAlignment(.center)
-                    .padding(.top, 2)
-            }
-
-            dividerLine
-
-            // Completed Context Sentence with Highlighted Target Word & Vietnamese translation
-            VStack(spacing: 6) {
-                sentenceView
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(5)
-                    .padding(.horizontal, 8)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                if !word.exampleSentenceVi.isEmpty {
-                    Text(word.exampleSentenceVi)
-                        .font(.subheadline)
-                        .foregroundColor(.vocabMuted)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 8)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            }
-
-            // Options feedback or speech/typing feedback
-            if mode == .multipleChoice && !options.isEmpty {
-                dividerLine
-                reviewedOptionsGrid
-            } else if mode == .listening {
-                // For Listening mode in Reviewed state: Show compact result chip to avoid truncation
-                HStack(spacing: 6) {
-                    Image(systemName: isResultCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
-                        .font(.caption)
-                        .symbolRenderingMode(.hierarchical)
-                    Text("Đã chọn: \(selectedOptionText ?? word.definitionVi)")
-                        .font(.caption.bold())
-                }
-                .foregroundColor(isResultCorrect ? .vocabMint : .vocabCoral)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background((isResultCorrect ? Color.vocabMint : Color.vocabCoral).opacity(0.12))
-                .clipShape(Capsule())
-            } else if mode == .speaking, let spoken = reviewResult?.recognizedSpoken, !spoken.isEmpty {
-                HStack(spacing: 6) {
-                    Image(systemName: "waveform")
-                        .font(.caption)
-                        .symbolRenderingMode(.hierarchical)
-                    Text("Nhận diện: \(spoken)")
-                        .font(.caption.bold())
-                }
-                .foregroundColor(.vocabMint)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(Color.vocabMint.opacity(0.12))
-                .clipShape(Capsule())
-            } else if mode == .typing, let typed = reviewResult?.typedText, !typed.isEmpty {
-                HStack(spacing: 6) {
-                    Image(systemName: "keyboard")
-                        .font(.caption)
-                        .symbolRenderingMode(.hierarchical)
-                    Text("Đã nhập: \(typed)")
-                        .font(.caption.bold())
-                }
-                .foregroundColor(isResultCorrect ? .vocabMint : .vocabCoral)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background((isResultCorrect ? Color.vocabMint : Color.vocabCoral).opacity(0.12))
-                .clipShape(Capsule())
-            }
-        }
-    }
-
 
     // MARK: - Subviews & Areas
 
@@ -677,82 +544,6 @@ public struct ReflexBlitzCardView: View {
     }
 
     @ViewBuilder
-    private var reviewedOptionsGrid: some View {
-        let isMultipleChoice = mode == .multipleChoice
-        let gridColumns = isMultipleChoice
-            ? [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)]
-            : [GridItem(.flexible())]
-
-        LazyVGrid(columns: gridColumns, spacing: 10) {
-            ForEach(Array(options.enumerated()), id: \.element.id) { index, option in
-                let isSelected = (option.text == selectedOptionText)
-                let isCorrect = option.isCorrect
-
-                HStack(spacing: 8) {
-                    Text(optionLetter(for: index))
-                        .font(.caption2.weight(.bold))
-                        .fontDesign(.rounded)
-                        .foregroundColor(
-                            isSelected
-                                ? (isCorrect ? .vocabMint : .vocabCoral)
-                                : (isCorrect ? .vocabMint : .vocabMuted)
-                        )
-                        .frame(width: 22, height: 22)
-                        .background(
-                            (isSelected
-                                ? (isCorrect ? Color.vocabMint : Color.vocabCoral)
-                                : (isCorrect ? Color.vocabMint : Color.vocabMuted)
-                            ).opacity(0.15)
-                        )
-                        .clipShape(Circle())
-
-                    Text(option.text)
-                        .font(isMultipleChoice ? .subheadline.weight(.semibold) : .subheadline)
-                        .foregroundColor(
-                            isSelected
-                                ? (isCorrect ? .vocabMint : .vocabCoral)
-                                : (isCorrect ? .vocabMint : .vocabInk.opacity(0.6))
-                        )
-                        .multilineTextAlignment(.leading)
-                        .lineLimit(2)
-
-                    Spacer(minLength: 0)
-
-                    if isSelected {
-                        Image(systemName: isCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
-                            .symbolRenderingMode(.hierarchical)
-                            .foregroundColor(isCorrect ? .vocabMint : .vocabCoral)
-                            .font(.subheadline)
-                    } else if isCorrect {
-                        Image(systemName: "checkmark.circle.fill")
-                            .symbolRenderingMode(.hierarchical)
-                            .foregroundColor(.vocabMint)
-                            .font(.subheadline)
-                    }
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 10)
-                .frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
-                .background(
-                    isSelected
-                        ? (isCorrect ? Color.vocabMint.opacity(0.12) : Color.vocabCoral.opacity(0.12))
-                        : (isCorrect ? Color.vocabMint.opacity(0.08) : Color.vocabCanvas.opacity(0.5))
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .stroke(
-                            isSelected
-                                ? (isCorrect ? Color.vocabMint : Color.vocabCoral)
-                                : (isCorrect ? Color.vocabMint : Color.vocabHairline.opacity(0.4)),
-                            lineWidth: isSelected || isCorrect ? 1.5 : 1
-                        )
-                )
-            }
-        }
-    }
-
-    @ViewBuilder
     private var typingInputDockView: some View {
         HStack(spacing: 10) {
             TextField("Gõ từ tiếng Anh...", text: $keyboardInputText)
@@ -862,4 +653,3 @@ public struct ReflexBlitzCardView: View {
         .accessibilityLabel(liveTranscript.isEmpty ? "Đang chờ phát âm..." : "Nhận diện giọng nói: \(liveTranscript)")
     }
 }
-

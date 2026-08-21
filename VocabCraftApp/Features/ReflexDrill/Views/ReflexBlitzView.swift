@@ -35,7 +35,6 @@ public struct ReflexBlitzView: View {
                 )
                 .transition(.opacity)
 
-
             case .summary:
                 if let summary = viewModel.sessionSummary {
                     ReflexBlitzSummaryView(
@@ -175,4 +174,3 @@ public struct ReflexBlitzView: View {
         typingInput = ""
     }
 }
-

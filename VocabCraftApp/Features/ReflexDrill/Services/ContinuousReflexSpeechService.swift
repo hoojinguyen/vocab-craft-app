@@ -413,9 +413,21 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
         defer { lock.unlock() }
         return _isSessionActive && currentSessionId == sessionId
     }
+}
 
+// MARK: - Audio Stream & Speech Recognition Pipeline
+
+extension ContinuousReflexSpeechService {
     private func startAudioStream() {
         #if targetEnvironment(simulator) || os(macOS)
+        startSimulatorAudioStream()
+        #else
+        startDeviceAudioStream()
+        #endif
+    }
+
+    #if targetEnvironment(simulator) || os(macOS)
+    private func startSimulatorAudioStream() {
         lock.lock()
         simulationTask?.cancel()
         let sessionId = currentSessionId
@@ -429,91 +441,29 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
             }
         }
         lock.unlock()
-        #else
+    }
+    #else
+    private func startDeviceAudioStream() {
         do {
             #if os(iOS)
-            let audioSession = AVAudioSession.sharedInstance()
-            try audioSession.setCategory(.playAndRecord, mode: .spokenAudio, options: [.defaultToSpeaker, .allowBluetoothHFP, .allowBluetoothA2DP])
-            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+            try configureAudioSession()
             #endif
 
             let engine = AVAudioEngine()
-            let request = SFSpeechAudioBufferRecognitionRequest()
-            request.shouldReportPartialResults = true
-            request.taskHint = .confirmation
+            let request = buildRecognitionRequest()
 
             lock.lock()
-            if !sessionContextualPhrases.isEmpty {
-                request.contextualStrings = Array(Set(sessionContextualPhrases.filter { !$0.isEmpty }))
-            }
             self.audioEngine = engine
             self.recognitionRequest = request
             let sessionId = currentSessionId
             lock.unlock()
 
-            #if os(iOS)
-            if #available(iOS 16.0, *) {
-                request.addsPunctuation = false
-            }
-            #endif
-
-            let inputNode = engine.inputNode
-            inputNode.removeTap(onBus: 0)
-            let recordingFormat = inputNode.outputFormat(forBus: 0)
-
-            guard recordingFormat.sampleRate > 0 && recordingFormat.channelCount > 0 else {
-                let error = NSError(
-                    domain: "ContinuousReflexSpeech",
-                    code: 400,
-                    userInfo: [NSLocalizedDescriptionKey: "Invalid microphone sample rate or format."]
-                )
-                dispatchError(error)
-                return
-            }
-
-            inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self] buffer, _ in
-                guard let self = self else { return }
-                self.lock.lock()
-                let muted = self._isRecognitionMuted
-                let req = self.recognitionRequest
-                self.lock.unlock()
-                guard !muted else { return }
-                req?.append(buffer)
-            }
+            try setupAudioEngineTap(engine: engine, request: request)
 
             engine.prepare()
             try engine.start()
-            let task = speechRecognizer?.recognitionTask(with: request) { [weak self] result, error in
-                guard let self = self else { return }
-                if let error = error {
-                    let nsError = error as NSError
-                    if nsError.code != 216 { // 216 = canceled on stop
-                        self.dispatchError(error)
-                    }
-                    return
-                }
 
-                self.lock.lock()
-                guard self._isSessionActive, self.currentSessionId == sessionId, !self._isRecognitionMuted else {
-                    self.lock.unlock()
-                    return
-                }
-
-                if let result = result {
-                    let spoken = result.bestTranscription.formattedString
-                    self._currentTranscript = spoken
-                    let offset = self.transcriptOffset
-                    let target = self.currentTargetLemma
-                    self.lock.unlock()
-
-                    let newSpoken = self.extractNewlySpoken(from: spoken, offset: offset)
-                        .trimmingCharacters(in: .whitespacesAndNewlines)
-                    self.dispatchTranscriptUpdate(newSpoken)
-                    self.evaluateSpokenText(spoken: spoken, target: target, offset: offset)
-                } else {
-                    self.lock.unlock()
-                }
-            }
+            let task = makeContinuousRecognitionTask(request: request, sessionId: sessionId)
 
             lock.lock()
             self.recognitionTask = task
@@ -521,8 +471,99 @@ public final class ContinuousReflexSpeechService: ContinuousReflexSpeechProtocol
         } catch {
             dispatchError(error)
         }
-        #endif
     }
+
+    #if os(iOS)
+    private func configureAudioSession() throws {
+        let audioSession = AVAudioSession.sharedInstance()
+        try audioSession.setCategory(.playAndRecord, mode: .spokenAudio, options: [.defaultToSpeaker, .allowBluetoothHFP, .allowBluetoothA2DP])
+        try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+    }
+    #endif
+
+    private func buildRecognitionRequest() -> SFSpeechAudioBufferRecognitionRequest {
+        let request = SFSpeechAudioBufferRecognitionRequest()
+        request.shouldReportPartialResults = true
+        request.taskHint = .confirmation
+
+        lock.lock()
+        if !sessionContextualPhrases.isEmpty {
+            request.contextualStrings = Array(Set(sessionContextualPhrases.filter { !$0.isEmpty }))
+        }
+        lock.unlock()
+
+        #if os(iOS)
+        if #available(iOS 16.0, *) {
+            request.addsPunctuation = false
+        }
+        #endif
+        return request
+    }
+
+    private func setupAudioEngineTap(
+        engine: AVAudioEngine,
+        request: SFSpeechAudioBufferRecognitionRequest
+    ) throws {
+        let inputNode = engine.inputNode
+        inputNode.removeTap(onBus: 0)
+        let recordingFormat = inputNode.outputFormat(forBus: 0)
+
+        guard recordingFormat.sampleRate > 0 && recordingFormat.channelCount > 0 else {
+            throw NSError(
+                domain: "ContinuousReflexSpeech",
+                code: 400,
+                userInfo: [NSLocalizedDescriptionKey: "Invalid microphone sample rate or format."]
+            )
+        }
+
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self] buffer, _ in
+            guard let self = self else { return }
+            self.lock.lock()
+            let muted = self._isRecognitionMuted
+            let req = self.recognitionRequest
+            self.lock.unlock()
+            guard !muted else { return }
+            req?.append(buffer)
+        }
+    }
+
+    private func makeContinuousRecognitionTask(
+        request: SFSpeechAudioBufferRecognitionRequest,
+        sessionId: UUID
+    ) -> SFSpeechRecognitionTask? {
+        speechRecognizer?.recognitionTask(with: request) { [weak self] result, error in
+            guard let self = self else { return }
+            if let error = error {
+                let nsError = error as NSError
+                if nsError.code != 216 { // 216 = canceled on stop
+                    self.dispatchError(error)
+                }
+                return
+            }
+
+            self.lock.lock()
+            guard self._isSessionActive, self.currentSessionId == sessionId, !self._isRecognitionMuted else {
+                self.lock.unlock()
+                return
+            }
+
+            if let result = result {
+                let spoken = result.bestTranscription.formattedString
+                self._currentTranscript = spoken
+                let offset = self.transcriptOffset
+                let target = self.currentTargetLemma
+                self.lock.unlock()
+
+                let newSpoken = self.extractNewlySpoken(from: spoken, offset: offset)
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                self.dispatchTranscriptUpdate(newSpoken)
+                self.evaluateSpokenText(spoken: spoken, target: target, offset: offset)
+            } else {
+                self.lock.unlock()
+            }
+        }
+    }
+    #endif
 
     private func evaluateSpokenText(spoken: String, target: String, offset: Int) {
         guard !target.isEmpty else { return }
