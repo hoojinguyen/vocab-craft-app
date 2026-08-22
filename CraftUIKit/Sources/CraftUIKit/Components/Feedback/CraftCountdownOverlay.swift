@@ -92,6 +92,7 @@ public struct CraftCountdownOverlay: View {
 
             // 0.85s delay per count
             try? await Task.sleep(nanoseconds: 850_000_000)
+            guard !Task.isCancelled else { return }
         }
 
         // Final GO!
@@ -101,6 +102,7 @@ public struct CraftCountdownOverlay: View {
 
         // 0.65s delay on GO before completion
         try? await Task.sleep(nanoseconds: 650_000_000)
+        guard !Task.isCancelled else { return }
         onFinish()
     }
 

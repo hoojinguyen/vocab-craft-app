@@ -52,6 +52,7 @@ public struct CraftSparkleView: View {
     @State private var animationStartDate: Date?
     @State private var isRunning: Bool = false
     @State private var staticOpacity: Double = 0.0
+    @State private var containerSize: CGSize = CGSize(width: 300, height: 300)
 
     public init(
         isTriggered: Binding<Bool>,
@@ -80,56 +81,63 @@ public struct CraftSparkleView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .allowsHitTesting(false)
-            .onChange(of: isTriggered) { _, triggered in
-                if triggered {
-                    startAnimation(in: geometry.size)
+            .onAppear {
+                if geometry.size.width > 0 && geometry.size.height > 0 {
+                    containerSize = geometry.size
                 }
             }
-            .onAppear {
-                if isTriggered {
-                    startAnimation(in: geometry.size)
+            .onChange(of: geometry.size) { _, newSize in
+                if newSize.width > 0 && newSize.height > 0 {
+                    containerSize = newSize
                 }
             }
         }
-    }
-
-    // MARK: - Animation Lifecycle
-
-    private func startAnimation(in size: CGSize) {
-        if reduceMotion {
-            isRunning = true
-            withAnimation(.easeIn(duration: 0.2)) {
-                staticOpacity = 1.0
+        .task(id: isTriggered) {
+            guard isTriggered else {
+                isRunning = false
+                particles.removeAll()
+                animationStartDate = nil
+                staticOpacity = 0.0
+                return
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+
+            if reduceMotion {
+                isRunning = true
+                withAnimation(.easeIn(duration: 0.2)) {
+                    staticOpacity = 1.0
+                }
+                try? await Task.sleep(nanoseconds: 1_200_000_000)
+                guard !Task.isCancelled else { return }
                 withAnimation(.easeOut(duration: 0.3)) {
                     staticOpacity = 0.0
                 }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-                    isRunning = false
-                    isTriggered = false
-                }
+                try? await Task.sleep(nanoseconds: 350_000_000)
+                guard !Task.isCancelled else { return }
+                isRunning = false
+                isTriggered = false
+            } else {
+                particles = generateParticles(in: containerSize)
+                animationStartDate = Date()
+                isRunning = true
+
+                let duration: Double = style == .sparkles ? 1.4 : 2.2
+                try? await Task.sleep(nanoseconds: UInt64(duration * 1_000_000_000))
+                guard !Task.isCancelled else { return }
+                isRunning = false
+                particles.removeAll()
+                animationStartDate = nil
+                isTriggered = false
             }
-            return
-        }
-
-        particles = generateParticles(in: size)
-        animationStartDate = Date()
-        isRunning = true
-
-        let duration: Double = style == .sparkles ? 1.4 : 2.2
-        DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
-            isRunning = false
-            particles.removeAll()
-            animationStartDate = nil
-            isTriggered = false
         }
     }
 
     // MARK: - Particle Generation
 
     private func generateParticles(in size: CGSize) -> [FXParticle] {
-        let center = CGPoint(x: size.width / 2, y: size.height / 2)
+        let center = CGPoint(
+            x: size.width > 0 ? size.width / 2 : 150,
+            y: size.height > 0 ? size.height / 2 : 150
+        )
         let colors = palette(for: style)
 
         return (0..<particleCount).map { i in
@@ -226,10 +234,18 @@ public struct CraftSparkleView: View {
 
         for particle in particles {
             let t = CGFloat(elapsed)
-            // Position with velocity, drag, and gravity
-            let dragMultiplier = pow(particle.drag, t * 60)
-            let currentX = particle.x + (particle.vx * dragMultiplier) * t
-            let currentY = particle.y + (particle.vy * dragMultiplier) * t + (0.5 * particle.gravity * t * t)
+            // Monotonic outward displacement under continuous drag decay:
+            // \int_0^t e^{-k \tau} d\tau = (1 - drag^{60t}) / (-ln(drag) * 60)
+            let decayRate = -log(particle.drag) * 60
+            let integratedTime: CGFloat
+            if decayRate > 0.0001 {
+                integratedTime = (1.0 - pow(particle.drag, t * 60)) / decayRate
+            } else {
+                integratedTime = t
+            }
+
+            let currentX = particle.x + particle.vx * integratedTime
+            let currentY = particle.y + particle.vy * integratedTime + (0.5 * particle.gravity * t * t)
 
             let currentRotation = particle.rotation + particle.rotationSpeed * t
             let flipScale = style == .confetti ? abs(cos(CGFloat(particle.flipProgress) + particle.flipSpeed * t)) : 1.0
