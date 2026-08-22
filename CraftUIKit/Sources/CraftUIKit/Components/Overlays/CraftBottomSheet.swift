@@ -44,7 +44,7 @@ public struct CraftBottomSheet<Content: View>: View {
             // Drag Indicator
             Capsule()
                 .fill(theme.colors.borderDefault)
-                .frame(width: 36, height: 5)
+                .frame(width: 36, height: 4)
                 .padding(.top, theme.spacing.sm)
                 .padding(.bottom, theme.spacing.xs)
 
@@ -54,7 +54,7 @@ public struct CraftBottomSheet<Content: View>: View {
                     CraftText(title, style: .headline, color: theme.colors.textPrimary)
                     Spacer()
                     Button(action: dismissSheet) {
-                        CraftIcon("xmark.circle.fill", size: .md, color: theme.colors.textMuted)
+                        CraftIcon(.wrongCircle, size: .md, color: theme.colors.textMuted)
                     }
                     .buttonStyle(PlainButtonStyle())
                     .accessibilityLabel("Dismiss")
@@ -186,5 +186,26 @@ public extension View {
                 sheetContent: content
             )
         )
+    }
+}
+
+#Preview("CraftBottomSheet") {
+    @Previewable @State var isPresented = true
+    
+    return VStack {
+        Button("Show Sheet") {
+            isPresented = true
+        }
+    }
+    .craftBottomSheet(
+        isPresented: $isPresented,
+        title: "Preview Sheet",
+        detents: [.medium, .large]
+    ) {
+        VStack(spacing: 16) {
+            Text("Sheet Content Goes Here")
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Spacer()
+        }
     }
 }

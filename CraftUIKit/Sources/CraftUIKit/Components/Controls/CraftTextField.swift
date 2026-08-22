@@ -133,7 +133,7 @@ public struct CraftTextField: View {
                         isPasswordVisible.toggle()
                     }) {
                         CraftIcon(
-                            isPasswordVisible ? "eye.slash.fill" : "eye.fill",
+                            isPasswordVisible ? CraftSymbol.eyeSlash.rawValue : CraftSymbol.eye.rawValue,
                             size: .md,
                             color: theme.colors.textMuted
                         )
@@ -145,7 +145,7 @@ public struct CraftTextField: View {
                     Button(action: {
                         text.wrappedValue = ""
                     }) {
-                        CraftIcon("xmark.circle.fill", size: .sm, color: theme.colors.textMuted)
+                        CraftIcon(.wrongCircle, size: .sm, color: theme.colors.textMuted)
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("Clear text")
@@ -173,7 +173,7 @@ public struct CraftTextField: View {
             // Feedback: Error or Helper Text
             if let errorMessageKey, hasError {
                 HStack(spacing: theme.spacing.xs) {
-                    CraftIcon("exclamationmark.circle.fill", size: .sm, color: theme.colors.statusDanger)
+                    CraftIcon(.danger, size: .sm, color: theme.colors.statusDanger)
                     Text(errorMessageKey)
                         .font(theme.typography.caption)
                         .foregroundStyle(theme.colors.statusDanger)
@@ -181,7 +181,7 @@ public struct CraftTextField: View {
                 .transition(.opacity)
             } else if let rawErrorMessage, hasError {
                 HStack(spacing: theme.spacing.xs) {
-                    CraftIcon("exclamationmark.circle.fill", size: .sm, color: theme.colors.statusDanger)
+                    CraftIcon(.danger, size: .sm, color: theme.colors.statusDanger)
                     Text(rawErrorMessage)
                         .font(theme.typography.caption)
                         .foregroundStyle(theme.colors.statusDanger)
@@ -224,5 +224,47 @@ public struct CraftTextField: View {
             return 1.5
         }
         return 1.0
+    }
+}
+
+#Preview("CraftTextField") {
+    @Previewable @State var text1 = ""
+    @Previewable @State var text2 = "user@example.com"
+    @Previewable @State var text3 = "wrong_password"
+    @Previewable @State var text4 = "secret123"
+    
+    return ScrollView {
+        VStack(spacing: 24) {
+            CraftTextField(
+                placeholder: "Enter username...",
+                text: $text1,
+                label: "Username"
+            )
+            
+            CraftTextField(
+                placeholder: "Email address",
+                text: $text2,
+                label: "Email",
+                leadingIcon: "envelope"
+            )
+            
+            CraftTextField(
+                placeholder: "Password",
+                text: $text3,
+                label: "Password",
+                errorMessage: "Password must be at least 8 characters",
+                isSecure: true
+            )
+            
+            CraftTextField(
+                placeholder: "Password",
+                text: $text4,
+                label: "Secure Field",
+                helperText: "Must contain numbers and symbols",
+                leadingIcon: "lock",
+                isSecure: true
+            )
+        }
+        .padding()
     }
 }

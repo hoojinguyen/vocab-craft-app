@@ -112,7 +112,7 @@ public struct CraftStepper: View {
                     decrement()
                 }) {
                     CraftIcon(
-                        "minus",
+                        .minus,
                         size: .sm,
                         color: canDecrement ? theme.colors.textPrimary : theme.colors.textMuted
                     )
@@ -158,7 +158,7 @@ public struct CraftStepper: View {
                     increment()
                 }) {
                     CraftIcon(
-                        "plus",
+                        .add,
                         size: .sm,
                         color: canIncrement ? theme.colors.textPrimary : theme.colors.textMuted
                     )
@@ -209,5 +209,36 @@ public struct CraftStepper: View {
             return Text("\(value.wrappedValue) \(rawUnit)")
         }
         return Text("\(value.wrappedValue)")
+    }
+}
+
+#Preview("CraftStepper") {
+    @Previewable @State var value1 = 5
+    @Previewable @State var value2 = 25
+    @Previewable @State var value3 = 10
+    
+    return ScrollView {
+        VStack(spacing: 32) {
+            CraftStepper(
+                value: $value1,
+                range: 0...10
+            )
+            
+            CraftStepper(
+                value: $value2,
+                range: 0...100,
+                step: 5,
+                label: "Daily Goal"
+            )
+            
+            CraftStepper(
+                value: $value3,
+                range: 5...60,
+                step: 5,
+                unit: "mins",
+                label: "Study Duration"
+            )
+        }
+        .padding()
     }
 }

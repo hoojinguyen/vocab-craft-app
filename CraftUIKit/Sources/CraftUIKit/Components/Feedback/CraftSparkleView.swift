@@ -203,23 +203,21 @@ public struct CraftSparkleView: View {
         switch style {
         case .sparkles:
             return [
-                Color(hex: 0xF59E0B), // Gold
-                Color(hex: 0xFCD34D), // Light Gold
-                Color(hex: 0x6366F1), // Indigo
-                Color(hex: 0x8B5CF6), // Violet
-                Color(hex: 0x10B981), // Emerald
-                Color(hex: 0xEC4899), // Pink
+                theme.colors.accent,           // Gold
+                theme.colors.accent.opacity(0.7), // Light Gold
+                theme.colors.brandPrimary,      // Brand
+                theme.colors.statusSuccess,     // Green
+                theme.colors.brandSecondary,    // Amber
                 Color.white
             ]
         case .confetti:
             return [
-                Color(hex: 0xEF4444), // Red
-                Color(hex: 0xF59E0B), // Amber
-                Color(hex: 0x10B981), // Emerald
-                Color(hex: 0x06B6D4), // Cyan
-                Color(hex: 0x6366F1), // Indigo
-                Color(hex: 0x8B5CF6), // Purple
-                Color(hex: 0xEC4899)  // Pink
+                theme.colors.statusDanger,      // Red
+                theme.colors.accent,            // Amber
+                theme.colors.statusSuccess,     // Green
+                theme.colors.statusInfo,        // Blue
+                theme.colors.brandPrimary,      // Brand
+                theme.colors.brandSecondary,    // Secondary
             ]
         }
     }
@@ -315,9 +313,12 @@ public struct CraftSparkleView: View {
 
     private var reduceMotionFallback: some View {
         HStack(spacing: theme.spacing.xs) {
-            Image(systemName: style == .sparkles ? "sparkles" : "party.popper.fill")
-                .font(.system(size: 24, weight: .bold))
-                .foregroundColor(theme.colors.accent)
+            CraftIcon(
+                style == .sparkles ? CraftSymbol.sparkles.rawValue : CraftSymbol.partyPopper.rawValue,
+                size: .lg,
+                color: theme.colors.accent,
+                weight: .bold
+            )
             Text(style == .sparkles ? "Sparkle!" : "Celebration!")
                 .font(theme.typography.headline)
                 .foregroundColor(theme.colors.textPrimary)

@@ -9,13 +9,17 @@ public enum CraftToastStyle: String, Sendable, CaseIterable {
     case warning
     case danger
 
-    public var defaultIconName: String {
+    public var defaultSymbol: CraftSymbol {
         switch self {
-        case .info: return "info.circle.fill"
-        case .success: return "checkmark.circle.fill"
-        case .warning: return "exclamationmark.triangle.fill"
-        case .danger: return "xmark.circle.fill"
+        case .info: return .info
+        case .success: return .checkmarkCircle
+        case .warning: return .warning
+        case .danger: return .wrongCircle
         }
+    }
+
+    public var defaultIconName: String {
+        defaultSymbol.rawValue
     }
 }
 
@@ -93,7 +97,7 @@ public struct CraftToast: View {
 
             if let onDismiss {
                 Button(action: onDismiss) {
-                    CraftIcon("xmark", size: .sm, color: theme.colors.textMuted)
+                    CraftIcon(.close, size: .sm, color: theme.colors.textMuted)
                 }
                 .buttonStyle(PlainButtonStyle())
                 .accessibilityLabel("Dismiss")
@@ -220,4 +224,33 @@ public extension View {
         let data = item.wrappedValue ?? CraftToastData(message: "")
         return modifier(CraftToastModifier(isPresented: isPresented, data: data, position: position))
     }
+}
+
+#Preview("CraftToast") {
+    @Previewable @State var showInfo = false
+    @Previewable @State var showSuccess = false
+    
+    return ScrollView {
+        VStack(spacing: 24) {
+            Button("Show Info Toast") { showInfo = true }
+            Button("Show Success Toast") { showSuccess = true }
+            
+            Divider()
+            
+            CraftToast(message: "Static preview warning", title: "Warning", style: .warning)
+            CraftToast(message: "Static preview danger", style: .danger)
+        }
+        .padding()
+    }
+    .craftToast(
+        isPresented: $showInfo,
+        message: "This is an info toast",
+        style: .info
+    )
+    .craftToast(
+        isPresented: $showSuccess,
+        message: "Action completed successfully!",
+        style: .success,
+        position: .bottom
+    )
 }

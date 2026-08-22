@@ -59,14 +59,12 @@ public struct CraftCountdownOverlay: View {
                             style: .displayLarge,
                             color: theme.colors.statusSuccess
                         )
-                        .font(.system(size: 72, weight: .black, design: .rounded))
                     } else {
                         CraftText(
                             "\(currentCount)",
                             style: .displayLarge,
                             color: theme.colors.brandPrimary
                         )
-                        .font(.system(size: 96, weight: .heavy, design: .rounded))
                     }
                 }
                 .scaleEffect(reduceMotion ? 1.0 : scale)

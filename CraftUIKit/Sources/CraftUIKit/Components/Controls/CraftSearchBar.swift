@@ -48,7 +48,7 @@ public struct CraftSearchBar: View {
             // Search Input Pill
             HStack(spacing: theme.spacing.sm) {
                 CraftIcon(
-                    "magnifyingglass",
+                    .search,
                     size: .md,
                     color: isFocused ? theme.colors.borderFocus : theme.colors.textMuted
                 )
@@ -75,7 +75,7 @@ public struct CraftSearchBar: View {
                     Button(action: {
                         text.wrappedValue = ""
                     }) {
-                        CraftIcon("xmark.circle.fill", size: .sm, color: theme.colors.textMuted)
+                        CraftIcon(.wrongCircle, size: .sm, color: theme.colors.textMuted)
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("Clear search")
@@ -114,5 +114,25 @@ public struct CraftSearchBar: View {
             }
         }
         .animation(theme.animations.springSnappy, value: isFocused)
+    }
+}
+
+#Preview("CraftSearchBar") {
+    @Previewable @State var emptyText = ""
+    @Previewable @State var filledText = "SwiftUI"
+    
+    return ScrollView {
+        VStack(spacing: 24) {
+            CraftSearchBar(
+                text: $emptyText,
+                placeholder: "Search vocabulary..."
+            )
+            
+            CraftSearchBar(
+                text: $filledText,
+                onCancel: { filledText = "" }
+            )
+        }
+        .padding()
     }
 }
