@@ -158,13 +158,21 @@ public struct CraftChoiceCard: View {
     private var trailingIndicator: some View {
         switch state {
         case .correct:
-            Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 20, weight: .semibold))
-                .foregroundStyle(theme.colors.statusSuccess)
+            CraftIcon(
+                .checkmarkCircle,
+                size: .lg,
+                color: theme.colors.statusSuccess,
+                renderingMode: .hierarchical,
+                weight: .bold
+            )
         case .wrong:
-            Image(systemName: "xmark.circle.fill")
-                .font(.system(size: 20, weight: .semibold))
-                .foregroundStyle(theme.colors.statusDanger)
+            CraftIcon(
+                .wrongCircle,
+                size: .lg,
+                color: theme.colors.statusDanger,
+                renderingMode: .hierarchical,
+                weight: .bold
+            )
         case .idle, .selected, .disabled:
             EmptyView()
         }
@@ -190,11 +198,11 @@ public struct CraftChoiceCard: View {
         case .idle, .disabled:
             return theme.colors.surfaceCard
         case .selected:
-            return theme.colors.brandPrimary.opacity(0.08)
+            return theme.colors.brandPrimary.opacity(0.16)
         case .correct:
-            return theme.colors.statusSuccess.opacity(0.12)
+            return theme.colors.statusSuccess.opacity(0.16)
         case .wrong:
-            return theme.colors.statusDanger.opacity(0.12)
+            return theme.colors.statusDanger.opacity(0.16)
         }
     }
 

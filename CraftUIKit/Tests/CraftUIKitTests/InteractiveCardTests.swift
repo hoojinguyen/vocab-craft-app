@@ -121,6 +121,31 @@ final class InteractiveCardTests: XCTestCase {
         XCTAssertTrue(tapped)
     }
 
+    func testChoiceCardStateIndicators() {
+        var tapped = false
+        let correctCard = CraftChoiceCard(
+            prefix: "A",
+            title: "Selected Option",
+            state: .correct
+        ) {
+            tapped = true
+        }
+        XCTAssertEqual(correctCard.prefix, "A")
+        XCTAssertEqual(correctCard.title, "Selected Option")
+        XCTAssertEqual(correctCard.state, .correct)
+        XCTAssertNotNil(correctCard.body)
+        correctCard.action()
+        XCTAssertTrue(tapped)
+
+        let wrongCard = CraftChoiceCard(
+            prefix: "B",
+            title: "Wrong Option",
+            state: .wrong
+        ) {}
+        XCTAssertEqual(wrongCard.state, .wrong)
+        XCTAssertNotNil(wrongCard.body)
+    }
+
     // MARK: - CraftFlipCard Tests
 
     func testFlipCardBinding() {
