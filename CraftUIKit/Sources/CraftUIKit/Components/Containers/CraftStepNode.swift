@@ -38,6 +38,9 @@ private struct VerticalDashedLine: Shape {
 /// title and optional subtitle, with minimum 44pt touch target HIG compliance.
 public struct CraftStepNode: View {
     @Environment(\.craftTheme) private var theme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @ScaledMetric(relativeTo: .body) private var indicatorDimension: CGFloat = 36
+    @State private var isPulsing = false
 
     private let titleKey: LocalizedStringKey?
     private let rawTitle: String?
@@ -110,7 +113,7 @@ public struct CraftStepNode: View {
             // Indicator Column (Badge + Connector)
             VStack(spacing: 0) {
                 badgeView
-                    .frame(width: 36, height: 36)
+                    .frame(width: indicatorDimension, height: indicatorDimension)
 
                 if !isLast {
                     connectorView
@@ -118,7 +121,7 @@ public struct CraftStepNode: View {
                         .frame(minHeight: 24)
                 }
             }
-            .frame(width: 36)
+            .frame(width: indicatorDimension)
 
             // Text Information Column
             VStack(alignment: .leading, spacing: theme.spacing.xs) {
@@ -126,12 +129,12 @@ public struct CraftStepNode: View {
                     Text(titleKey)
                         .font(theme.typography.headline)
                         .foregroundStyle(titleColor)
-                        .frame(minHeight: 36, alignment: .leading)
+                        .frame(minHeight: max(36, indicatorDimension), alignment: .leading)
                 } else if let rawTitle {
                     Text(rawTitle)
                         .font(theme.typography.headline)
                         .foregroundStyle(titleColor)
-                        .frame(minHeight: 36, alignment: .leading)
+                        .frame(minHeight: max(36, indicatorDimension), alignment: .leading)
                 }
 
                 if let subtitleKey {
@@ -167,10 +170,17 @@ public struct CraftStepNode: View {
                     .foregroundStyle(.white)
 
             case .active:
-                // Glowing outer ring
+                // Glowing outer breathing ring
                 Circle()
-                    .stroke(theme.colors.brandPrimary.opacity(0.3), lineWidth: 4)
-                    .frame(width: 36, height: 36)
+                    .stroke(theme.colors.brandPrimary.opacity(isPulsing ? 0.45 : 0.2), lineWidth: isPulsing ? 4.5 : 3.0)
+                    .frame(width: indicatorDimension, height: indicatorDimension)
+                    .scaleEffect(isPulsing && !reduceMotion ? 1.05 : 1.0)
+                    .onAppear {
+                        guard !reduceMotion else { return }
+                        withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
+                            isPulsing = true
+                        }
+                    }
 
                 // Inner filled badge
                 Circle()

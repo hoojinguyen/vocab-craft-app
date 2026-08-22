@@ -74,6 +74,7 @@ public struct CraftPill: View {
                     Text("\(count)")
                         .font(theme.typography.caption)
                         .fontWeight(.bold)
+                        .contentTransition(.numericText())
                         .padding(.horizontal, theme.spacing.sm)
                         .padding(.vertical, theme.spacing.xs)
                         .background(countBadgeBackground)

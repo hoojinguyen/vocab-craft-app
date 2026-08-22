@@ -6,6 +6,8 @@ import SwiftUI
 /// trailing slot, and optional chevron with tactile press interaction.
 public struct CraftListRow<TrailingContent: View>: View {
     @Environment(\.craftTheme) private var theme
+    @ScaledMetric(relativeTo: .body) private var iconContainerSize: CGFloat = 36
+    @ScaledMetric(relativeTo: .body) private var rowMinHeight: CGFloat = 56
 
     private let titleKey: LocalizedStringKey?
     private let rawTitle: String?
@@ -79,7 +81,7 @@ public struct CraftListRow<TrailingContent: View>: View {
                 ZStack {
                     RoundedRectangle(cornerRadius: theme.radii.sm)
                         .fill(bg)
-                        .frame(width: 36, height: 36)
+                        .frame(width: iconContainerSize, height: iconContainerSize)
 
                     CraftIcon(iconName, size: .md, color: fg)
                 }
@@ -111,7 +113,7 @@ public struct CraftListRow<TrailingContent: View>: View {
         }
         .padding(.horizontal, theme.spacing.base)
         .padding(.vertical, theme.spacing.sm)
-        .frame(minHeight: 56)
+        .frame(minHeight: max(44, rowMinHeight))
         .contentShape(Rectangle())
 
         if let action {

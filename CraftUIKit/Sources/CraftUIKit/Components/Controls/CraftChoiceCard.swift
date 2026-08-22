@@ -129,6 +129,17 @@ public struct CraftChoiceCard: View {
         .accessibilityValue(accessibilityValueDescription)
         .accessibilityAddTraits(state == .selected ? [.isButton, .isSelected] : [.isButton])
         .onChange(of: state) { _, newState in
+            #if os(iOS)
+            if newState == .correct {
+                let generator = UINotificationFeedbackGenerator()
+                generator.prepare()
+                generator.notificationOccurred(.success)
+            } else if newState == .wrong {
+                let generator = UINotificationFeedbackGenerator()
+                generator.prepare()
+                generator.notificationOccurred(.error)
+            }
+            #endif
             if newState == .wrong && !reduceMotion {
                 withAnimation(.linear(duration: 0.35)) {
                     shakeCount += 1
