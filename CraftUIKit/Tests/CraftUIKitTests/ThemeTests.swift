@@ -52,6 +52,7 @@ final class ThemeTests: XCTestCase {
             var shadows: CraftShadowTokens = CraftDefaultShadowTokens()
             var gradients: CraftGradientTokens = CraftDefaultGradientTokens()
             var animations: CraftAnimationTokens = CraftDefaultAnimationTokens()
+            var opacities: CraftOpacityTokens = CraftDefaultOpacityTokens()
         }
 
         let customTheme = CustomTheme()

@@ -12,4 +12,5 @@ public protocol CraftTheme: Sendable {
     var shadows: CraftShadowTokens { get }
     var gradients: CraftGradientTokens { get }
     var animations: CraftAnimationTokens { get }
+    var opacities: CraftOpacityTokens { get }
 }

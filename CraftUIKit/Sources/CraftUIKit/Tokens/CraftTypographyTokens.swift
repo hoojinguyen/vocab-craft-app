@@ -5,6 +5,7 @@ import SwiftUI
 /// Enumeration of standardized typography scale styles in CraftUIKit.
 public enum CraftTypographyStyle: String, Sendable, CaseIterable {
     case displayLarge
+    case displayHero
     case titleLarge
     case titleMedium
     case headline
@@ -19,6 +20,7 @@ public enum CraftTypographyStyle: String, Sendable, CaseIterable {
 /// Typography scale tokens defining fonts for titles, body, and labels.
 public protocol CraftTypographyTokens: Sendable {
     var displayLarge: Font { get }
+    var displayHero: Font { get }
     var titleLarge: Font { get }
     var titleMedium: Font { get }
     var headline: Font { get }
@@ -34,6 +36,7 @@ public extension CraftTypographyTokens {
     func font(for style: CraftTypographyStyle) -> Font {
         switch style {
         case .displayLarge: return displayLarge
+        case .displayHero: return displayHero
         case .titleLarge: return titleLarge
         case .titleMedium: return titleMedium
         case .headline: return headline
@@ -50,6 +53,7 @@ public extension CraftTypographyTokens {
 /// Default typography tokens using Apple System Font scale.
 public struct CraftDefaultTypographyTokens: CraftTypographyTokens {
     public var displayLarge: Font
+    public var displayHero: Font
     public var titleLarge: Font
     public var titleMedium: Font
     public var headline: Font
@@ -60,6 +64,7 @@ public struct CraftDefaultTypographyTokens: CraftTypographyTokens {
 
     public init(
         displayLarge: Font = .system(.largeTitle, design: .rounded, weight: .bold),
+        displayHero: Font = .system(size: 72, weight: .black, design: .rounded),
         titleLarge: Font = .system(.title, design: .default, weight: .bold),
         titleMedium: Font = .system(.title2, design: .default, weight: .semibold),
         headline: Font = .system(.headline, design: .default, weight: .semibold),
@@ -69,6 +74,7 @@ public struct CraftDefaultTypographyTokens: CraftTypographyTokens {
         caption: Font = .system(.caption, design: .default, weight: .regular)
     ) {
         self.displayLarge = displayLarge
+        self.displayHero = displayHero
         self.titleLarge = titleLarge
         self.titleMedium = titleMedium
         self.headline = headline

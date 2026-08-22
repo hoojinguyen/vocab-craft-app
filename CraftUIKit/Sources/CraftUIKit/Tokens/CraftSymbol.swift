@@ -60,6 +60,16 @@ public enum CraftSymbol: String, Sendable, CaseIterable, Equatable, Hashable {
     case danger = "exclamationmark.circle.fill"
     case help = "questionmark.circle.fill"
 
+    // MARK: Visibility
+    case eye = "eye.fill"
+    case eyeSlash = "eye.slash.fill"
+
+    // MARK: Math & Operators
+    case minus = "minus"
+
+    // MARK: Celebration
+    case partyPopper = "party.popper.fill"
+
     /// Underlying SF Symbol system name.
     public var systemName: String {
         rawValue
