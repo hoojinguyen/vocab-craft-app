@@ -9,6 +9,7 @@ public enum CraftButtonVariant: String, Sendable, CaseIterable {
     case outline
     case ghost
     case danger
+    case tactile
 }
 
 /// Standardized sizes for Craft buttons.
@@ -107,10 +108,20 @@ public struct CraftButtonStyle: ButtonStyle {
         .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
         .overlay(borderOverlay(isPressed: configuration.isPressed))
         .opacity(isEnabled ? 1.0 : 0.5)
-        .scaleEffect(configuration.isPressed && !reduceMotion ? 0.97 : 1.0)
+        .offset(y: variant == .tactile && configuration.isPressed ? 3 : 0)
+        .scaleEffect(scaleEffect(isPressed: configuration.isPressed))
         .animation(theme.animations.springSnappy, value: configuration.isPressed)
         .frame(minHeight: 44)
         .contentShape(Rectangle())
+        .onChange(of: configuration.isPressed) { _, isPressed in
+            #if os(iOS)
+            if isPressed && variant == .tactile {
+                let generator = UIImpactFeedbackGenerator(style: .medium)
+                generator.prepare()
+                generator.impactOccurred()
+            }
+            #endif
+        }
     }
 
     private var cornerRadius: CGFloat {
@@ -121,9 +132,19 @@ public struct CraftButtonStyle: ButtonStyle {
         }
     }
 
+    private func scaleEffect(isPressed: Bool) -> CGFloat {
+        guard isPressed && !reduceMotion else { return 1.0 }
+        switch variant {
+        case .tactile:
+            return 0.99
+        default:
+            return 0.97
+        }
+    }
+
     private func foregroundColor(isPressed: Bool) -> Color {
         switch variant {
-        case .primary:
+        case .primary, .tactile:
             return theme.colors.textInverse
         case .secondary:
             return theme.colors.textPrimary
@@ -150,6 +171,26 @@ public struct CraftButtonStyle: ButtonStyle {
         case .danger:
             theme.colors.statusDanger
                 .opacity(isPressed ? 0.85 : 1.0)
+        case .tactile:
+            ZStack {
+                // Bottom 3D Lip/Bevel
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(theme.colors.brandSecondary)
+                    .offset(y: isPressed ? 0 : 4)
+
+                // Top Tactile Surface
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                theme.colors.brandPrimary,
+                                theme.colors.brandPrimary.opacity(0.92)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+            }
         }
     }
 
@@ -161,6 +202,12 @@ public struct CraftButtonStyle: ButtonStyle {
                 .strokeBorder(
                     theme.colors.borderDefault,
                     lineWidth: 1.5
+                )
+        case .tactile:
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .strokeBorder(
+                    Color.white.opacity(0.2),
+                    lineWidth: 1
                 )
         case .primary, .secondary, .ghost, .danger:
             EmptyView()
@@ -190,6 +237,10 @@ public extension ButtonStyle where Self == CraftButtonStyle {
     static func craftDanger(size: CraftButtonSize = .md, isLoading: Bool = false) -> CraftButtonStyle {
         CraftButtonStyle(variant: .danger, size: size, isLoading: isLoading)
     }
+
+    static func craftTactile(size: CraftButtonSize = .md, isLoading: Bool = false) -> CraftButtonStyle {
+        CraftButtonStyle(variant: .tactile, size: size, isLoading: isLoading)
+    }
 }
 
 // MARK: - CraftButton View
@@ -206,6 +257,9 @@ public struct CraftButton: View {
     public let variant: CraftButtonVariant
     public let size: CraftButtonSize
     public let isLoading: Bool
+    public let isUppercase: Bool
+    public let tracking: CGFloat?
+    public let isFullWidth: Bool
     public let action: () -> Void
 
     public var title: String? {
@@ -219,6 +273,9 @@ public struct CraftButton: View {
         variant: CraftButtonVariant = .primary,
         size: CraftButtonSize = .md,
         isLoading: Bool = false,
+        isUppercase: Bool = false,
+        tracking: CGFloat? = nil,
+        isFullWidth: Bool = false,
         action: @escaping () -> Void
     ) {
         self.titleKey = nil
@@ -229,6 +286,9 @@ public struct CraftButton: View {
         self.variant = variant
         self.size = size
         self.isLoading = isLoading
+        self.isUppercase = isUppercase
+        self.tracking = tracking
+        self.isFullWidth = isFullWidth
         self.action = action
     }
 
@@ -239,6 +299,9 @@ public struct CraftButton: View {
         variant: CraftButtonVariant = .primary,
         size: CraftButtonSize = .md,
         isLoading: Bool = false,
+        isUppercase: Bool = false,
+        tracking: CGFloat? = nil,
+        isFullWidth: Bool = false,
         action: @escaping () -> Void
     ) {
         self.titleKey = titleKey
@@ -249,6 +312,9 @@ public struct CraftButton: View {
         self.variant = variant
         self.size = size
         self.isLoading = isLoading
+        self.isUppercase = isUppercase
+        self.tracking = tracking
+        self.isFullWidth = isFullWidth
         self.action = action
     }
 
@@ -259,6 +325,9 @@ public struct CraftButton: View {
         variant: CraftButtonVariant = .primary,
         size: CraftButtonSize = .md,
         isLoading: Bool = false,
+        isUppercase: Bool = false,
+        tracking: CGFloat? = nil,
+        isFullWidth: Bool = false,
         action: @escaping () -> Void
     ) {
         self.titleKey = nil
@@ -269,6 +338,9 @@ public struct CraftButton: View {
         self.variant = variant
         self.size = size
         self.isLoading = isLoading
+        self.isUppercase = isUppercase
+        self.tracking = tracking
+        self.isFullWidth = isFullWidth
         self.action = action
     }
 
@@ -282,23 +354,34 @@ public struct CraftButton: View {
                     CraftIcon(iconName, size: size.iconSize)
                 }
 
-                if let titleKey {
-                    Text(titleKey)
-                } else if let rawTitle {
-                    if isVerbatim {
-                        Text(verbatim: rawTitle)
-                    } else {
-                        Text(rawTitle)
-                    }
-                }
+                titleView
 
                 if let iconName, iconPosition == .trailing, !isLoading {
                     CraftIcon(iconName, size: size.iconSize)
                 }
             }
+            .frame(maxWidth: isFullWidth ? .infinity : nil)
         }
         .buttonStyle(CraftButtonStyle(variant: variant, size: size, isLoading: isLoading))
         .disabled(isLoading)
+    }
+
+    @ViewBuilder
+    private var titleView: some View {
+        if let titleKey {
+            Text(titleKey)
+                .textCase(isUppercase ? .uppercase : nil)
+                .tracking(tracking ?? 0)
+        } else if let rawTitle {
+            if isVerbatim {
+                Text(verbatim: isUppercase ? rawTitle.uppercased() : rawTitle)
+                    .tracking(tracking ?? 0)
+            } else {
+                Text(rawTitle)
+                    .textCase(isUppercase ? .uppercase : nil)
+                    .tracking(tracking ?? 0)
+            }
+        }
     }
 }
 

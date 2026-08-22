@@ -72,6 +72,21 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertNotNil(trailingIconBtn.body)
     }
 
+    func testButtonTactileVariant() {
+        let button = CraftButton("PRACTICE", variant: .tactile, size: .lg, isUppercase: true, tracking: 1.2, isFullWidth: true) {}
+        XCTAssertEqual(button.variant, .tactile)
+        XCTAssertEqual(button.size, .lg)
+        XCTAssertTrue(button.isUppercase)
+        XCTAssertEqual(button.tracking, 1.2)
+        XCTAssertTrue(button.isFullWidth)
+        XCTAssertNotNil(button.body)
+    }
+
+    func testButtonTactileNativeStyle() {
+        let view = Button("Practice") {}.buttonStyle(.craftTactile())
+        XCTAssertNotNil(view)
+    }
+
     func testNativeButtonStyles() {
         let view = VStack {
             Button("Primary") {}.buttonStyle(.craftPrimary())
@@ -79,6 +94,7 @@ final class ControlComponentTests: XCTestCase {
             Button("Outline") {}.buttonStyle(.craftOutline())
             Button("Ghost") {}.buttonStyle(.craftGhost())
             Button("Danger") {}.buttonStyle(.craftDanger())
+            Button("Tactile") {}.buttonStyle(.craftTactile())
         }
         XCTAssertNotNil(view)
     }
