@@ -102,6 +102,25 @@ final class InteractiveCardTests: XCTestCase {
         }
     }
 
+    func testChoiceCardLocalization() {
+        var tapped = false
+        let card = CraftChoiceCard(
+            prefix: LocalizedStringKey("prefix_key"),
+            title: LocalizedStringKey("title_key"),
+            subtitle: LocalizedStringKey("subtitle_key"),
+            state: .selected
+        ) {
+            tapped = true
+        }
+        XCTAssertNil(card.prefix)
+        XCTAssertNil(card.title)
+        XCTAssertNil(card.subtitle)
+        XCTAssertEqual(card.state, .selected)
+        XCTAssertNotNil(card.body)
+        card.action()
+        XCTAssertTrue(tapped)
+    }
+
     // MARK: - CraftFlipCard Tests
 
     func testFlipCardBinding() {

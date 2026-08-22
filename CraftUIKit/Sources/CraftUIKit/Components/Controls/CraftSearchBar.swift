@@ -1,7 +1,4 @@
 import SwiftUI
-#if os(iOS)
-import UIKit
-#endif
 
 // MARK: - CraftSearchBar Component
 
@@ -11,9 +8,14 @@ public struct CraftSearchBar: View {
     @FocusState private var isFocused: Bool
 
     public var text: Binding<String>
-    public let placeholder: String
+    private let placeholderKey: LocalizedStringKey?
+    private let rawPlaceholder: String?
     public let onCancel: (() -> Void)?
     public let onSubmit: (() -> Void)?
+
+    public var placeholder: String {
+        rawPlaceholder ?? "Search..."
+    }
 
     public init(
         text: Binding<String>,
@@ -22,7 +24,21 @@ public struct CraftSearchBar: View {
         onSubmit: (() -> Void)? = nil
     ) {
         self.text = text
-        self.placeholder = placeholder
+        self.placeholderKey = nil
+        self.rawPlaceholder = placeholder
+        self.onCancel = onCancel
+        self.onSubmit = onSubmit
+    }
+
+    public init(
+        text: Binding<String>,
+        placeholder: LocalizedStringKey,
+        onCancel: (() -> Void)? = nil,
+        onSubmit: (() -> Void)? = nil
+    ) {
+        self.text = text
+        self.placeholderKey = placeholder
+        self.rawPlaceholder = nil
         self.onCancel = onCancel
         self.onSubmit = onSubmit
     }
@@ -37,21 +53,26 @@ public struct CraftSearchBar: View {
                     color: isFocused ? theme.colors.borderFocus : theme.colors.textMuted
                 )
 
-                TextField(placeholder, text: text)
-                    .font(theme.typography.bodyMedium)
-                    .foregroundColor(theme.colors.textPrimary)
-                    .focused($isFocused)
-                    .onSubmit {
-                        onSubmit?()
-                    }
+                if let placeholderKey {
+                    TextField(placeholderKey, text: text)
+                        .font(theme.typography.bodyMedium)
+                        .foregroundStyle(theme.colors.textPrimary)
+                        .focused($isFocused)
+                        .onSubmit {
+                            onSubmit?()
+                        }
+                } else {
+                    TextField(placeholder, text: text)
+                        .font(theme.typography.bodyMedium)
+                        .foregroundStyle(theme.colors.textPrimary)
+                        .focused($isFocused)
+                        .onSubmit {
+                            onSubmit?()
+                        }
+                }
 
                 if !text.wrappedValue.isEmpty {
                     Button(action: {
-                        #if os(iOS)
-                        let generator = UIImpactFeedbackGenerator(style: .light)
-                        generator.prepare()
-                        generator.impactOccurred()
-                        #endif
                         text.wrappedValue = ""
                     }) {
                         CraftIcon("xmark.circle.fill", size: .sm, color: theme.colors.textMuted)
@@ -87,7 +108,7 @@ public struct CraftSearchBar: View {
                 }) {
                     Text("Cancel")
                         .font(theme.typography.bodyMedium)
-                        .foregroundColor(theme.colors.brandPrimary)
+                        .foregroundStyle(theme.colors.brandPrimary)
                 }
                 .transition(.move(edge: .trailing).combined(with: .opacity))
             }

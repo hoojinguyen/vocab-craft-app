@@ -1,7 +1,4 @@
 import SwiftUI
-#if os(iOS)
-import UIKit
-#endif
 
 // MARK: - CraftStepper Component
 
@@ -13,8 +10,13 @@ public struct CraftStepper: View {
     public var value: Binding<Int>
     public var range: ClosedRange<Int>
     public var step: Int
-    public var unit: String?
-    public var label: String?
+    private let rawUnit: String?
+    private let unitKey: LocalizedStringKey?
+    private let rawLabel: String?
+    private let labelKey: LocalizedStringKey?
+
+    public var unit: String? { rawUnit }
+    public var label: String? { rawLabel }
 
     public init(
         value: Binding<Int>,
@@ -26,8 +28,41 @@ public struct CraftStepper: View {
         self.value = value
         self.range = range
         self.step = step
-        self.unit = unit
-        self.label = label
+        self.rawUnit = unit
+        self.unitKey = nil
+        self.rawLabel = label
+        self.labelKey = nil
+    }
+
+    public init(
+        value: Binding<Int>,
+        range: ClosedRange<Int> = 0...100,
+        step: Int = 1,
+        unit: LocalizedStringKey? = nil,
+        label: LocalizedStringKey
+    ) {
+        self.value = value
+        self.range = range
+        self.step = step
+        self.rawUnit = nil
+        self.unitKey = unit
+        self.rawLabel = nil
+        self.labelKey = label
+    }
+
+    public init(
+        value: Binding<Int>,
+        range: ClosedRange<Int> = 0...100,
+        step: Int = 1,
+        unit: LocalizedStringKey
+    ) {
+        self.value = value
+        self.range = range
+        self.step = step
+        self.rawUnit = nil
+        self.unitKey = unit
+        self.rawLabel = nil
+        self.labelKey = nil
     }
 
     /// Whether the value can be incremented further within range.
@@ -56,10 +91,16 @@ public struct CraftStepper: View {
 
     public var body: some View {
         HStack {
-            if let label, !label.isEmpty {
-                Text(label)
+            if let labelKey {
+                Text(labelKey)
                     .font(theme.typography.bodyLarge)
-                    .foregroundColor(theme.colors.textPrimary)
+                    .foregroundStyle(theme.colors.textPrimary)
+
+                Spacer()
+            } else if let rawLabel, !rawLabel.isEmpty {
+                Text(rawLabel)
+                    .font(theme.typography.bodyLarge)
+                    .foregroundStyle(theme.colors.textPrimary)
 
                 Spacer()
             }
@@ -68,11 +109,6 @@ public struct CraftStepper: View {
             HStack(spacing: 0) {
                 // Decrement Button
                 Button(action: {
-                    #if os(iOS)
-                    let generator = UIImpactFeedbackGenerator(style: .light)
-                    generator.prepare()
-                    generator.impactOccurred()
-                    #endif
                     decrement()
                 }) {
                     CraftIcon(
@@ -83,9 +119,8 @@ public struct CraftStepper: View {
                     .frame(width: 44, height: 44)
                     .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.craftPress(scale: 0.92))
                 .disabled(!canDecrement)
-                .craftPressEffect(scale: 0.92)
                 .accessibilityLabel("Decrease")
 
                 // Divider
@@ -97,12 +132,17 @@ public struct CraftStepper: View {
                 HStack(spacing: 4) {
                     Text("\(value.wrappedValue)")
                         .font(theme.typography.headline)
-                        .foregroundColor(theme.colors.textPrimary)
+                        .monospacedDigit()
+                        .foregroundStyle(theme.colors.textPrimary)
 
-                    if let unit, !unit.isEmpty {
-                        Text(unit)
+                    if let unitKey {
+                        Text(unitKey)
                             .font(theme.typography.label)
-                            .foregroundColor(theme.colors.textSecondary)
+                            .foregroundStyle(theme.colors.textSecondary)
+                    } else if let rawUnit, !rawUnit.isEmpty {
+                        Text(rawUnit)
+                            .font(theme.typography.label)
+                            .foregroundStyle(theme.colors.textSecondary)
                     }
                 }
                 .frame(minWidth: 64)
@@ -115,11 +155,6 @@ public struct CraftStepper: View {
 
                 // Increment Button
                 Button(action: {
-                    #if os(iOS)
-                    let generator = UIImpactFeedbackGenerator(style: .light)
-                    generator.prepare()
-                    generator.impactOccurred()
-                    #endif
                     increment()
                 }) {
                     CraftIcon(
@@ -130,9 +165,8 @@ public struct CraftStepper: View {
                     .frame(width: 44, height: 44)
                     .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.craftPress(scale: 0.92))
                 .disabled(!canIncrement)
-                .craftPressEffect(scale: 0.92)
                 .accessibilityLabel("Increase")
             }
             .frame(height: 44)
@@ -143,6 +177,37 @@ public struct CraftStepper: View {
                     .strokeBorder(theme.colors.borderDefault, lineWidth: 1)
             )
             .opacity(isEnabled ? 1.0 : 0.5)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(accessibilityLabelContent)
+            .accessibilityValue(accessibilityValueContent)
+            .accessibilityAdjustableAction { direction in
+                switch direction {
+                case .increment:
+                    increment()
+                case .decrement:
+                    decrement()
+                @unknown default:
+                    break
+                }
+            }
         }
+    }
+
+    private var accessibilityLabelContent: Text {
+        if let labelKey {
+            return Text(labelKey)
+        } else if let rawLabel, !rawLabel.isEmpty {
+            return Text(rawLabel)
+        }
+        return Text("Stepper")
+    }
+
+    private var accessibilityValueContent: Text {
+        if let unitKey {
+            return Text("\(value.wrappedValue) ") + Text(unitKey)
+        } else if let rawUnit, !rawUnit.isEmpty {
+            return Text("\(value.wrappedValue) \(rawUnit)")
+        }
+        return Text("\(value.wrappedValue)")
     }
 }

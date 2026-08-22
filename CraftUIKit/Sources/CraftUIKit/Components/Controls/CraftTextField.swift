@@ -1,7 +1,4 @@
 import SwiftUI
-#if os(iOS)
-import UIKit
-#endif
 
 // MARK: - CraftTextField Component
 
@@ -13,18 +10,30 @@ public struct CraftTextField: View {
     @FocusState private var isFocused: Bool
     @State private var isPasswordVisible: Bool = false
 
-    public let placeholder: String
+    private let placeholderKey: LocalizedStringKey?
+    private let rawPlaceholder: String?
+    private let labelKey: LocalizedStringKey?
+    private let rawLabel: String?
+    private let helperTextKey: LocalizedStringKey?
+    private let rawHelperText: String?
+    private let errorMessageKey: LocalizedStringKey?
+    private let rawErrorMessage: String?
+
+    public var placeholder: String { rawPlaceholder ?? "" }
     public var text: Binding<String>
-    public let label: String?
-    public let helperText: String?
-    public let errorMessage: String?
+    public var label: String? { rawLabel }
+    public var helperText: String? { rawHelperText }
+    public var errorMessage: String? { rawErrorMessage }
     public let leadingIcon: String?
     public let isSecure: Bool
     public let showClearButton: Bool
 
     /// Indicates whether the text field is in an error state.
     public var hasError: Bool {
-        if let errorMessage, !errorMessage.isEmpty {
+        if let rawErrorMessage, !rawErrorMessage.isEmpty {
+            return true
+        }
+        if errorMessageKey != nil {
             return true
         }
         return false
@@ -40,11 +49,39 @@ public struct CraftTextField: View {
         isSecure: Bool = false,
         showClearButton: Bool = true
     ) {
-        self.placeholder = placeholder
+        self.placeholderKey = nil
+        self.rawPlaceholder = placeholder
         self.text = text
-        self.label = label
-        self.helperText = helperText
-        self.errorMessage = errorMessage
+        self.labelKey = nil
+        self.rawLabel = label
+        self.helperTextKey = nil
+        self.rawHelperText = helperText
+        self.errorMessageKey = nil
+        self.rawErrorMessage = errorMessage
+        self.leadingIcon = leadingIcon
+        self.isSecure = isSecure
+        self.showClearButton = showClearButton
+    }
+
+    public init(
+        _ placeholderKey: LocalizedStringKey,
+        text: Binding<String>,
+        label: LocalizedStringKey? = nil,
+        helperText: LocalizedStringKey? = nil,
+        errorMessage: LocalizedStringKey? = nil,
+        leadingIcon: String? = nil,
+        isSecure: Bool = false,
+        showClearButton: Bool = true
+    ) {
+        self.placeholderKey = placeholderKey
+        self.rawPlaceholder = nil
+        self.text = text
+        self.labelKey = label
+        self.rawLabel = nil
+        self.helperTextKey = helperText
+        self.rawHelperText = nil
+        self.errorMessageKey = errorMessage
+        self.rawErrorMessage = nil
         self.leadingIcon = leadingIcon
         self.isSecure = isSecure
         self.showClearButton = showClearButton
@@ -53,10 +90,14 @@ public struct CraftTextField: View {
     public var body: some View {
         VStack(alignment: .leading, spacing: theme.spacing.xs) {
             // Optional Label
-            if let label, !label.isEmpty {
-                Text(label)
+            if let labelKey {
+                Text(labelKey)
                     .font(theme.typography.label)
-                    .foregroundColor(theme.colors.textSecondary)
+                    .foregroundStyle(theme.colors.textSecondary)
+            } else if let rawLabel, !rawLabel.isEmpty {
+                Text(rawLabel)
+                    .font(theme.typography.label)
+                    .foregroundStyle(theme.colors.textSecondary)
             }
 
             // Input Field Container
@@ -69,23 +110,26 @@ public struct CraftTextField: View {
                 // Text Input
                 Group {
                     if isSecure && !isPasswordVisible {
-                        SecureField(placeholder, text: text)
+                        if let placeholderKey {
+                            SecureField(placeholderKey, text: text)
+                        } else {
+                            SecureField(placeholder, text: text)
+                        }
                     } else {
-                        TextField(placeholder, text: text)
+                        if let placeholderKey {
+                            TextField(placeholderKey, text: text)
+                        } else {
+                            TextField(placeholder, text: text)
+                        }
                     }
                 }
                 .font(theme.typography.bodyLarge)
-                .foregroundColor(theme.colors.textPrimary)
+                .foregroundStyle(theme.colors.textPrimary)
                 .focused($isFocused)
 
                 // Trailing Actions (Password Visibility / Clear Button)
                 if isSecure {
                     Button(action: {
-                        #if os(iOS)
-                        let generator = UIImpactFeedbackGenerator(style: .light)
-                        generator.prepare()
-                        generator.impactOccurred()
-                        #endif
                         isPasswordVisible.toggle()
                     }) {
                         CraftIcon(
@@ -95,6 +139,7 @@ public struct CraftTextField: View {
                         )
                     }
                     .buttonStyle(.plain)
+                    .sensoryFeedback(.selection, trigger: isPasswordVisible)
                     .accessibilityLabel(isPasswordVisible ? "Hide password" : "Show password")
                 } else if showClearButton && !text.wrappedValue.isEmpty {
                     Button(action: {
@@ -107,6 +152,7 @@ public struct CraftTextField: View {
                 }
             }
             .padding(.horizontal, theme.spacing.md)
+            .padding(.vertical, theme.spacing.xs)
             .frame(minHeight: 44)
             .background(theme.colors.surfaceCard)
             .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
@@ -125,18 +171,30 @@ public struct CraftTextField: View {
             .animation(theme.animations.springSnappy, value: hasError)
 
             // Feedback: Error or Helper Text
-            if let errorMessage, hasError {
+            if let errorMessageKey, hasError {
                 HStack(spacing: theme.spacing.xs) {
                     CraftIcon("exclamationmark.circle.fill", size: .sm, color: theme.colors.statusDanger)
-                    Text(errorMessage)
+                    Text(errorMessageKey)
                         .font(theme.typography.caption)
-                        .foregroundColor(theme.colors.statusDanger)
+                        .foregroundStyle(theme.colors.statusDanger)
                 }
                 .transition(.opacity)
-            } else if let helperText, !helperText.isEmpty {
-                Text(helperText)
+            } else if let rawErrorMessage, hasError {
+                HStack(spacing: theme.spacing.xs) {
+                    CraftIcon("exclamationmark.circle.fill", size: .sm, color: theme.colors.statusDanger)
+                    Text(rawErrorMessage)
+                        .font(theme.typography.caption)
+                        .foregroundStyle(theme.colors.statusDanger)
+                }
+                .transition(.opacity)
+            } else if let helperTextKey {
+                Text(helperTextKey)
                     .font(theme.typography.caption)
-                    .foregroundColor(theme.colors.textMuted)
+                    .foregroundStyle(theme.colors.textMuted)
+            } else if let rawHelperText, !rawHelperText.isEmpty {
+                Text(rawHelperText)
+                    .font(theme.typography.caption)
+                    .foregroundStyle(theme.colors.textMuted)
             }
         }
     }

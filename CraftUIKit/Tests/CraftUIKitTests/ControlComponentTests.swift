@@ -166,6 +166,23 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertNotNil(errorField.body)
     }
 
+    func testTextFieldLocalization() {
+        var text = "Localized Value"
+        let localizedField = CraftTextField(
+            LocalizedStringKey("placeholder_key"),
+            text: Binding(get: { text }, set: { text = $0 }),
+            label: LocalizedStringKey("label_key"),
+            helperText: LocalizedStringKey("helper_key"),
+            errorMessage: LocalizedStringKey("error_key"),
+            leadingIcon: "envelope.fill",
+            isSecure: true
+        )
+        XCTAssertTrue(localizedField.hasError)
+        XCTAssertTrue(localizedField.isSecure)
+        XCTAssertEqual(localizedField.leadingIcon, "envelope.fill")
+        XCTAssertNotNil(localizedField.body)
+    }
+
     // MARK: - CraftSearchBar Tests
 
     func testSearchBarInit() {
@@ -184,6 +201,15 @@ final class ControlComponentTests: XCTestCase {
         var query = ""
         let searchBar = CraftSearchBar(text: Binding(get: { query }, set: { query = $0 }))
         XCTAssertEqual(searchBar.placeholder, "Search...")
+        XCTAssertNotNil(searchBar.body)
+    }
+
+    func testSearchBarLocalization() {
+        var query = ""
+        let searchBar = CraftSearchBar(
+            text: Binding(get: { query }, set: { query = $0 }),
+            placeholder: LocalizedStringKey("search_placeholder")
+        )
         XCTAssertNotNil(searchBar.body)
     }
 
@@ -210,6 +236,21 @@ final class ControlComponentTests: XCTestCase {
         let view = Toggle("Sound Effects", isOn: Binding(get: { isOn }, set: { isOn = $0 }))
             .toggleStyle(.craft)
         XCTAssertNotNil(view)
+    }
+
+    func testToggleLocalization() {
+        var isOn = true
+        let toggle = CraftToggle(
+            isOn: Binding(get: { isOn }, set: { isOn = $0 }),
+            title: LocalizedStringKey("toggle_title"),
+            subtitle: LocalizedStringKey("toggle_subtitle"),
+            iconName: "bell.fill"
+        )
+        XCTAssertTrue(toggle.isOn.wrappedValue)
+        XCTAssertNil(toggle.title)
+        XCTAssertNil(toggle.subtitle)
+        XCTAssertEqual(toggle.iconName, "bell.fill")
+        XCTAssertNotNil(toggle.body)
     }
 
     // MARK: - CraftStepper Tests
@@ -257,6 +298,21 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertEqual(value, 0)
     }
 
+    func testStepperLocalization() {
+        var value = 5
+        let stepper = CraftStepper(
+            value: Binding(get: { value }, set: { value = $0 }),
+            range: 1...10,
+            step: 1,
+            unit: LocalizedStringKey("stepper_unit"),
+            label: LocalizedStringKey("stepper_label")
+        )
+        XCTAssertNil(stepper.unit)
+        XCTAssertNil(stepper.label)
+        XCTAssertEqual(stepper.value.wrappedValue, 5)
+        XCTAssertNotNil(stepper.body)
+    }
+
     // MARK: - CraftPill / CraftFilterChip Tests
 
     func testPillInitAndProperties() {
@@ -288,5 +344,24 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertEqual(chip.title, "Grammar")
         XCTAssertFalse(chip.isSelected)
         XCTAssertNotNil(chip.body)
+    }
+
+    func testPillLocalization() {
+        var tapped = false
+        let pill = CraftPill(
+            LocalizedStringKey("pill_title"),
+            iconName: "star",
+            count: 10,
+            isSelected: true
+        ) {
+            tapped = true
+        }
+        XCTAssertNil(pill.title)
+        XCTAssertEqual(pill.iconName, "star")
+        XCTAssertEqual(pill.count, 10)
+        XCTAssertTrue(pill.isSelected)
+        XCTAssertNotNil(pill.body)
+        pill.action()
+        XCTAssertTrue(tapped)
     }
 }

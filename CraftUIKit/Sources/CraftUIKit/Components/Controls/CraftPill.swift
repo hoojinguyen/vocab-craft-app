@@ -1,7 +1,4 @@
 import SwiftUI
-#if os(iOS)
-import UIKit
-#endif
 
 // MARK: - CraftPill / CraftFilterChip Component
 
@@ -10,11 +7,16 @@ public struct CraftPill: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.isEnabled) private var isEnabled
 
-    public let title: String
+    private let titleKey: LocalizedStringKey?
+    private let rawTitle: String?
     public let iconName: String?
     public let count: Int?
     public let isSelected: Bool
     public let action: () -> Void
+
+    public var title: String? {
+        rawTitle
+    }
 
     public init(
         _ title: String,
@@ -23,7 +25,23 @@ public struct CraftPill: View {
         isSelected: Bool = false,
         action: @escaping () -> Void
     ) {
-        self.title = title
+        self.titleKey = nil
+        self.rawTitle = title
+        self.iconName = iconName
+        self.count = count
+        self.isSelected = isSelected
+        self.action = action
+    }
+
+    public init(
+        _ titleKey: LocalizedStringKey,
+        iconName: String? = nil,
+        count: Int? = nil,
+        isSelected: Bool = false,
+        action: @escaping () -> Void
+    ) {
+        self.titleKey = titleKey
+        self.rawTitle = nil
         self.iconName = iconName
         self.count = count
         self.isSelected = isSelected
@@ -31,14 +49,7 @@ public struct CraftPill: View {
     }
 
     public var body: some View {
-        Button(action: {
-            #if os(iOS)
-            let generator = UIImpactFeedbackGenerator(style: .light)
-            generator.prepare()
-            generator.impactOccurred()
-            #endif
-            action()
-        }) {
+        Button(action: action) {
             HStack(spacing: theme.spacing.xs) {
                 // Leading Icon Slot
                 if let iconName {
@@ -46,10 +57,17 @@ public struct CraftPill: View {
                 }
 
                 // Label Text
-                Text(title)
-                    .font(theme.typography.label)
-                    .fontWeight(isSelected ? .semibold : .regular)
-                    .foregroundColor(foregroundColor)
+                if let titleKey {
+                    Text(titleKey)
+                        .font(theme.typography.label)
+                        .fontWeight(isSelected ? .semibold : .regular)
+                        .foregroundStyle(foregroundColor)
+                } else if let rawTitle {
+                    Text(rawTitle)
+                        .font(theme.typography.label)
+                        .fontWeight(isSelected ? .semibold : .regular)
+                        .foregroundStyle(foregroundColor)
+                }
 
                 // Optional Count Badge
                 if let count {
@@ -59,7 +77,7 @@ public struct CraftPill: View {
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
                         .background(countBadgeBackground)
-                        .foregroundColor(countBadgeForeground)
+                        .foregroundStyle(countBadgeForeground)
                         .clipShape(Capsule())
                 }
             }
@@ -74,9 +92,9 @@ public struct CraftPill: View {
             .frame(minHeight: 44)
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-        .craftPressEffect(scale: 0.95)
+        .buttonStyle(.craftPress(scale: 0.95))
         .opacity(isEnabled ? 1.0 : 0.5)
+        .accessibilityElement(children: .combine)
         .accessibilityAddTraits(isSelected ? [.isSelected, .isButton] : [.isButton])
     }
 

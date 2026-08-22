@@ -1,7 +1,4 @@
 import SwiftUI
-#if os(iOS)
-import UIKit
-#endif
 
 // MARK: - Choice State
 
@@ -24,9 +21,16 @@ public struct CraftChoiceCard: View {
 
     @State private var shakeCount: CGFloat = 0
 
-    public let prefix: String?
-    public let title: String
-    public let subtitle: String?
+    private let prefixKey: LocalizedStringKey?
+    private let rawPrefix: String?
+    private let titleKey: LocalizedStringKey?
+    private let rawTitle: String?
+    private let subtitleKey: LocalizedStringKey?
+    private let rawSubtitle: String?
+
+    public var prefix: String? { rawPrefix }
+    public var title: String? { rawTitle }
+    public var subtitle: String? { rawSubtitle }
     public let state: CraftChoiceState
     public let action: () -> Void
 
@@ -37,9 +41,29 @@ public struct CraftChoiceCard: View {
         state: CraftChoiceState = .idle,
         action: @escaping () -> Void
     ) {
-        self.prefix = prefix
-        self.title = title
-        self.subtitle = subtitle
+        self.prefixKey = nil
+        self.rawPrefix = prefix
+        self.titleKey = nil
+        self.rawTitle = title
+        self.subtitleKey = nil
+        self.rawSubtitle = subtitle
+        self.state = state
+        self.action = action
+    }
+
+    public init(
+        prefix: LocalizedStringKey? = nil,
+        title: LocalizedStringKey,
+        subtitle: LocalizedStringKey? = nil,
+        state: CraftChoiceState = .idle,
+        action: @escaping () -> Void
+    ) {
+        self.prefixKey = prefix
+        self.rawPrefix = nil
+        self.titleKey = title
+        self.rawTitle = nil
+        self.subtitleKey = subtitle
+        self.rawSubtitle = nil
         self.state = state
         self.action = action
     }
@@ -47,28 +71,35 @@ public struct CraftChoiceCard: View {
     public var body: some View {
         Button(action: {
             guard state != .disabled else { return }
-            #if os(iOS)
-            let generator = UIImpactFeedbackGenerator(style: .light)
-            generator.prepare()
-            generator.impactOccurred()
-            #endif
             action()
         }) {
             HStack(spacing: theme.spacing.md) {
-                if let prefix {
-                    prefixBadge(prefix)
+                if prefixKey != nil || rawPrefix != nil {
+                    prefixBadge
                 }
 
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    Text(title)
-                        .font(theme.typography.headline)
-                        .foregroundColor(theme.colors.textPrimary)
-                        .multilineTextAlignment(.leading)
+                    if let titleKey {
+                        Text(titleKey)
+                            .font(theme.typography.headline)
+                            .foregroundStyle(theme.colors.textPrimary)
+                            .multilineTextAlignment(.leading)
+                    } else if let rawTitle {
+                        Text(rawTitle)
+                            .font(theme.typography.headline)
+                            .foregroundStyle(theme.colors.textPrimary)
+                            .multilineTextAlignment(.leading)
+                    }
 
-                    if let subtitle {
-                        Text(subtitle)
+                    if let subtitleKey {
+                        Text(subtitleKey)
                             .font(theme.typography.bodyMedium)
-                            .foregroundColor(theme.colors.textSecondary)
+                            .foregroundStyle(theme.colors.textSecondary)
+                            .multilineTextAlignment(.leading)
+                    } else if let rawSubtitle {
+                        Text(rawSubtitle)
+                            .font(theme.typography.bodyMedium)
+                            .foregroundStyle(theme.colors.textSecondary)
                             .multilineTextAlignment(.leading)
                     }
                 }
@@ -92,9 +123,11 @@ public struct CraftChoiceCard: View {
             .frame(minHeight: 44)
             .contentShape(Rectangle())
         }
-        .buttonStyle(PlainButtonStyle())
-        .craftPressEffect(scale: state == .disabled ? 1.0 : 0.98)
+        .buttonStyle(.craftPress(scale: state == .disabled ? 1.0 : 0.98))
         .disabled(state == .disabled)
+        .accessibilityElement(children: .combine)
+        .accessibilityValue(accessibilityValueDescription)
+        .accessibilityAddTraits(state == .selected ? [.isButton, .isSelected] : [.isButton])
         .onChange(of: state) { _, newState in
             if newState == .wrong && !reduceMotion {
                 withAnimation(.linear(duration: 0.35)) {
@@ -105,14 +138,20 @@ public struct CraftChoiceCard: View {
     }
 
     @ViewBuilder
-    private func prefixBadge(_ text: String) -> some View {
-        Text(text)
-            .font(theme.typography.headline)
-            .fontWeight(.semibold)
-            .foregroundColor(prefixForegroundColor)
-            .frame(width: 32, height: 32)
-            .background(prefixBackgroundColor)
-            .clipShape(RoundedRectangle(cornerRadius: theme.radii.sm))
+    private var prefixBadge: some View {
+        Group {
+            if let prefixKey {
+                Text(prefixKey)
+            } else if let rawPrefix {
+                Text(rawPrefix)
+            }
+        }
+        .font(theme.typography.headline)
+        .fontWeight(.semibold)
+        .foregroundStyle(prefixForegroundColor)
+        .frame(width: 32, height: 32)
+        .background(prefixBackgroundColor)
+        .clipShape(RoundedRectangle(cornerRadius: theme.radii.sm))
     }
 
     @ViewBuilder
@@ -121,13 +160,28 @@ public struct CraftChoiceCard: View {
         case .correct:
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 20, weight: .semibold))
-                .foregroundColor(theme.colors.statusSuccess)
+                .foregroundStyle(theme.colors.statusSuccess)
         case .wrong:
             Image(systemName: "xmark.circle.fill")
                 .font(.system(size: 20, weight: .semibold))
-                .foregroundColor(theme.colors.statusDanger)
+                .foregroundStyle(theme.colors.statusDanger)
         case .idle, .selected, .disabled:
             EmptyView()
+        }
+    }
+
+    private var accessibilityValueDescription: String {
+        switch state {
+        case .idle:
+            return ""
+        case .selected:
+            return "Selected"
+        case .correct:
+            return "Correct Answer"
+        case .wrong:
+            return "Incorrect Answer"
+        case .disabled:
+            return "Disabled"
         }
     }
 
