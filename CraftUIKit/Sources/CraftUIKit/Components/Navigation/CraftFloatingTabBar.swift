@@ -15,7 +15,7 @@ public protocol CraftTabItemProtocol: Identifiable, Equatable, Sendable where ID
 // MARK: - CraftFloatingTabBar Component
 
 /// A floating liquid-glass navigation bar featuring animated sliding tab indicators,
-/// spring transitions, safe area handling, minimum 44pt touch targets, and an optional elevated FAB slot.
+/// spring transitions, safe area handling, minimum 44pt touch targets, and an integrated tactile action button.
 public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
     @Environment(\.craftTheme) private var theme
     @Namespace private var tabNamespace
@@ -57,7 +57,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                     tabButton(for: item)
                 }
 
-                centerFAB(action: centerAction)
+                centerActionButton(action: centerAction)
 
                 ForEach(trailingItems) { item in
                     tabButton(for: item)
@@ -101,9 +101,13 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
             }
         } label: {
             VStack(spacing: 3) {
-                Image(systemName: item.symbol)
-                    .font(.system(size: 18, weight: isSelected ? .semibold : .regular))
-                    .symbolVariant(isSelected ? .fill : .none)
+                CraftIcon(
+                    item.symbol,
+                    size: .md,
+                    color: isSelected ? theme.colors.brandPrimary : theme.colors.textMuted,
+                    renderingMode: isSelected ? .hierarchical : .monochrome,
+                    weight: isSelected ? .bold : .medium
+                )
 
                 Text(item.title)
                     .font(theme.typography.caption)
@@ -130,10 +134,10 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
         .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : [.isButton])
     }
 
-    // MARK: - Center Elevated FAB
+    // MARK: - Center Action Button
 
     @ViewBuilder
-    private func centerFAB(action: @escaping () -> Void) -> some View {
+    private func centerActionButton(action: @escaping () -> Void) -> some View {
         Button {
             #if os(iOS)
             let generator = UIImpactFeedbackGenerator(style: .medium)
@@ -144,19 +148,23 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
         } label: {
             ZStack {
                 Circle()
-                    .fill(theme.gradients.brandHero)
-                    .frame(width: 48, height: 48)
-                    .craftShadow(theme.shadows.md)
+                    .fill(theme.colors.brandPrimary)
+                    .frame(width: 44, height: 44)
+                    .craftShadow(theme.shadows.sm)
 
                 VStack(spacing: 2) {
-                    Image(systemName: centerSymbol)
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(.white)
+                    CraftIcon(
+                        centerSymbol,
+                        size: .md,
+                        color: theme.colors.textInverse,
+                        renderingMode: .monochrome,
+                        weight: .bold
+                    )
 
                     if let centerTitle, !centerTitle.isEmpty {
                         Text(centerTitle)
                             .font(.system(size: 9, weight: .bold))
-                            .foregroundColor(.white)
+                            .foregroundColor(theme.colors.textInverse)
                             .lineLimit(1)
                     }
                 }
@@ -165,7 +173,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
             .contentShape(Circle())
         }
         .buttonStyle(.plain)
-        .craftPressEffect(scale: 0.90)
+        .craftPressEffect(scale: 0.92)
         .accessibilityLabel(centerTitle ?? "Action")
         .accessibilityAddTraits(.isButton)
     }
