@@ -23,12 +23,30 @@ public struct CraftIconButton: View {
     @Environment(\.craftTheme) private var theme
 
     public let iconName: String
+    public let symbol: CraftSymbol?
     public let size: CraftIconSize
     public let shape: CraftIconButtonShape
     public let variant: CraftIconButtonVariant
     public let accessibilityLabel: String
     public let minTouchTarget: CGFloat = 44
     public let action: () -> Void
+
+    public init(
+        symbol: CraftSymbol,
+        size: CraftIconSize = .md,
+        shape: CraftIconButtonShape = .circle,
+        variant: CraftIconButtonVariant = .subtle,
+        accessibilityLabel: String,
+        action: @escaping () -> Void
+    ) {
+        self.symbol = symbol
+        self.iconName = symbol.rawValue
+        self.size = size
+        self.shape = shape
+        self.variant = variant
+        self.accessibilityLabel = accessibilityLabel
+        self.action = action
+    }
 
     public init(
         iconName: String,
@@ -38,6 +56,7 @@ public struct CraftIconButton: View {
         accessibilityLabel: String,
         action: @escaping () -> Void
     ) {
+        self.symbol = CraftSymbol(rawValue: iconName)
         self.iconName = iconName
         self.size = size
         self.shape = shape
@@ -55,11 +74,22 @@ public struct CraftIconButton: View {
         }
     }
 
+    private var cornerRadius: CGFloat {
+        switch size {
+        case .sm: return theme.radii.sm
+        case .md: return theme.radii.sm
+        case .lg: return theme.radii.md
+        case .xl: return theme.radii.lg
+        }
+    }
+
     private var foregroundColor: Color {
         switch variant {
         case .filled:
-            return .white
-        case .subtle, .outline, .ghost:
+            return theme.colors.textInverse
+        case .subtle:
+            return theme.colors.brandPrimary
+        case .outline, .ghost:
             return theme.colors.textPrimary
         }
     }
@@ -69,7 +99,13 @@ public struct CraftIconButton: View {
             ZStack {
                 backgroundShapeView
 
-                CraftIcon(iconName, size: size, color: foregroundColor)
+                CraftIcon(
+                    iconName,
+                    size: size,
+                    color: foregroundColor,
+                    renderingMode: variant == .filled ? .monochrome : .hierarchical,
+                    weight: .semibold
+                )
             }
             .frame(width: visualDimension, height: visualDimension)
             .frame(minWidth: minTouchTarget, minHeight: minTouchTarget)
@@ -87,7 +123,7 @@ public struct CraftIconButton: View {
             case .filled:
                 Circle().fill(theme.colors.brandPrimary)
             case .subtle:
-                Circle().fill(theme.colors.surfaceSubtle)
+                Circle().fill(theme.colors.brandPrimary.opacity(0.12))
             case .outline:
                 Circle().strokeBorder(theme.colors.borderDefault, lineWidth: 1)
             case .ghost:
@@ -96,11 +132,11 @@ public struct CraftIconButton: View {
         case .square:
             switch variant {
             case .filled:
-                RoundedRectangle(cornerRadius: theme.radii.md).fill(theme.colors.brandPrimary)
+                RoundedRectangle(cornerRadius: cornerRadius).fill(theme.colors.brandPrimary)
             case .subtle:
-                RoundedRectangle(cornerRadius: theme.radii.md).fill(theme.colors.surfaceSubtle)
+                RoundedRectangle(cornerRadius: cornerRadius).fill(theme.colors.brandPrimary.opacity(0.12))
             case .outline:
-                RoundedRectangle(cornerRadius: theme.radii.md).strokeBorder(theme.colors.borderDefault, lineWidth: 1)
+                RoundedRectangle(cornerRadius: cornerRadius).strokeBorder(theme.colors.borderDefault, lineWidth: 1)
             case .ghost:
                 Color.clear
             }

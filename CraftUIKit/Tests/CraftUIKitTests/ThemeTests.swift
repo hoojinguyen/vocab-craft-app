@@ -11,6 +11,17 @@ final class ThemeTests: XCTestCase {
         XCTAssertNotNil(theme.colors.canvasBackground)
     }
 
+    func testCraftDefaultPaletteAntiSlopValues() {
+        let colors = CraftDefaultColorTokens()
+        XCTAssertEqual(colors.brandPrimary, Color(hex: 0xE06D3B))
+        XCTAssertEqual(colors.brandSecondary, Color(hex: 0xD97706))
+        XCTAssertEqual(colors.accent, Color(hex: 0xF59E0B))
+
+        let gradients = CraftDefaultGradientTokens()
+        XCTAssertNotNil(gradients.brandHero)
+        XCTAssertNotNil(gradients.surfaceGlass)
+    }
+
     func testCustomThemeOverrides() {
         struct CustomColors: CraftColorTokens {
             var canvasBackground: Color = .black

@@ -52,6 +52,17 @@ final class AtomComponentTests: XCTestCase {
 
     // MARK: - CraftIcon & CraftIconSize Tests
 
+    func testCraftSymbolCasesAndRawValues() {
+        XCTAssertEqual(CraftSymbol.home.rawValue, "house")
+        XCTAssertEqual(CraftSymbol.study.rawValue, "character.book.closed")
+        XCTAssertEqual(CraftSymbol.search.rawValue, "magnifyingglass")
+        XCTAssertEqual(CraftSymbol.checkmarkCircle.rawValue, "checkmark.circle.fill")
+        XCTAssertEqual(CraftSymbol.wrongCircle.rawValue, "xmark.circle.fill")
+        XCTAssertEqual(CraftSymbol.sparkles.rawValue, "sparkles")
+        XCTAssertEqual(CraftSymbol.streak.rawValue, "flame.fill")
+        XCTAssertFalse(CraftSymbol.allCases.isEmpty)
+    }
+
     func testIconSizeTokens() {
         XCTAssertEqual(CraftIconSize.sm.pointSize, 14)
         XCTAssertEqual(CraftIconSize.md.pointSize, 18)
@@ -72,8 +83,30 @@ final class AtomComponentTests: XCTestCase {
         let defaultIcon = CraftIcon("sparkles")
         XCTAssertEqual(defaultIcon.name, "sparkles")
         XCTAssertEqual(defaultIcon.size, .md)
+        XCTAssertEqual(defaultIcon.renderingMode, .hierarchical)
+        XCTAssertEqual(defaultIcon.weight, .semibold)
         XCTAssertNil(defaultIcon.color)
         XCTAssertNil(defaultIcon.accessibilityLabel)
+    }
+
+    func testCraftIconWithSymbolAndRenderingMode() {
+        let icon = CraftIcon(.study, size: .lg, color: .orange, renderingMode: .hierarchical, weight: .bold, accessibilityLabel: "Study Deck")
+        XCTAssertEqual(icon.name, "character.book.closed")
+        XCTAssertEqual(icon.symbol, .study)
+        XCTAssertEqual(icon.size, .lg)
+        XCTAssertEqual(icon.color, .orange)
+        XCTAssertEqual(icon.renderingMode, .hierarchical)
+        XCTAssertEqual(icon.weight, .bold)
+        XCTAssertEqual(icon.accessibilityLabel, "Study Deck")
+        XCTAssertNotNil(icon.body)
+    }
+
+    func testCraftIconRenderingModes() {
+        for mode in [CraftIconRenderingMode.hierarchical, .monochrome, .multicolor] {
+            let icon = CraftIcon("star.fill", renderingMode: mode)
+            XCTAssertEqual(icon.renderingMode, mode)
+            XCTAssertNotNil(icon.body)
+        }
     }
 
     // MARK: - CraftIconButton Tests
@@ -100,6 +133,26 @@ final class AtomComponentTests: XCTestCase {
 
         button.action()
         XCTAssertTrue(actionExecuted)
+    }
+
+    func testIconButtonWithCraftSymbol() {
+        var tapped = false
+        let btn = CraftIconButton(
+            symbol: .bookmark,
+            size: .lg,
+            shape: .square,
+            variant: .filled,
+            accessibilityLabel: "Save Bookmark"
+        ) {
+            tapped = true
+        }
+        XCTAssertEqual(btn.iconName, "bookmark")
+        XCTAssertEqual(btn.symbol, .bookmark)
+        XCTAssertEqual(btn.size, .lg)
+        XCTAssertEqual(btn.shape, .square)
+        XCTAssertNotNil(btn.body)
+        btn.action()
+        XCTAssertTrue(tapped)
     }
 
     func testIconButtonShapesAndVariants() {

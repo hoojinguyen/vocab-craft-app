@@ -25,12 +25,12 @@ public struct CraftDefaultGradientTokens: CraftGradientTokens {
 
     public init(
         brandHero: LinearGradient = LinearGradient(
-            colors: [Color(hex: 0x6366F1), Color(hex: 0x8B5CF6)],
+            colors: [Color(hex: 0xE06D3B), Color(hex: 0xEA580C)],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         ),
         surfaceGlass: LinearGradient = LinearGradient(
-            colors: [Color.white.opacity(0.15), Color.white.opacity(0.05)],
+            colors: [Color.white.opacity(0.20), Color.white.opacity(0.06)],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         ),
