@@ -215,6 +215,13 @@ private struct CraftCatalogContentView: View {
     @State private var isDangerDialogPresented: Bool = false
     @State private var bentoCardTapped: String? = nil
 
+    // Audio & Motion FX States
+    @State private var isWaveformRecording: Bool = false
+    @State private var isSparkleTriggered: Bool = false
+    @State private var isConfettiTriggered: Bool = false
+    @State private var isCountdownPresented: Bool = false
+    @State private var waveformLevels: [CGFloat] = [0.1, 0.3, 0.6, 0.9, 0.7, 0.4, 0.8, 0.5, 0.2, 0.6, 0.85, 0.4, 0.7, 0.3, 0.5, 0.2]
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -248,6 +255,9 @@ private struct CraftCatalogContentView: View {
 
                     // Section 9: Toasts, Sheets & Dialogs
                     overlaysSection
+
+                    // Section 10: Audio Visualizer & Motion FX
+                    audioMotionFxSection
                 }
                 .padding(.horizontal, theme.spacing.base)
                 .padding(.vertical, theme.spacing.lg)
@@ -258,7 +268,18 @@ private struct CraftCatalogContentView: View {
             .navigationBarTitleDisplayMode(.inline)
             #endif
         }
-        // Overlays Attached to Root
+        // Overlays & Motion FX Attached to Root
+        .craftSparkle(isTriggered: $isSparkleTriggered, particleCount: 25)
+        .craftConfetti(isTriggered: $isConfettiTriggered, particleCount: 35)
+        .craftCountdown(
+            isPresented: $isCountdownPresented,
+            startNumber: 3,
+            title: "Speed Challenge Countdown",
+            goText: "GO!"
+        ) {
+            toastStyle = .success
+            isToastPresented = true
+        }
         .craftToast(
             isPresented: $isToastPresented,
             message: "Action completed successfully!",
@@ -991,6 +1012,87 @@ private struct CraftCatalogContentView: View {
                         size: .md
                     ) {
                         isDangerDialogPresented = true
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+            }
+        }
+    }
+
+    // MARK: - 10. Audio Visualizer & Motion FX Section
+
+    private var audioMotionFxSection: some View {
+        CraftCard(style: .elevated) {
+            VStack(alignment: .leading, spacing: theme.spacing.base) {
+                sectionHeader(title: "10. Audio & Motion FX", iconName: "waveform.badge.mic")
+
+                // Waveform Visualizer
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    HStack {
+                        CraftText("CraftWaveformView", style: .headline)
+                        Spacer()
+                        Toggle("Recording Glow", isOn: $isWaveformRecording)
+                            .labelsHidden()
+                            .toggleStyle(.craft)
+                    }
+
+                    HStack {
+                        CraftWaveformView(
+                            audioLevels: waveformLevels,
+                            barCount: 16,
+                            isRecording: isWaveformRecording
+                        )
+
+                        Spacer()
+
+                        CraftButton("Randomize", iconName: "dice.fill", variant: .outline, size: .sm) {
+                            waveformLevels = (0..<16).map { _ in CGFloat.random(in: 0.05...1.0) }
+                        }
+                    }
+                }
+
+                CraftDivider()
+
+                // Sparkles & Confetti Burst
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("Celebration FX (Sparkles & Confetti)", style: .headline)
+
+                    HStack(spacing: theme.spacing.sm) {
+                        CraftButton(
+                            "Sparkle Burst",
+                            iconName: "sparkles",
+                            variant: .primary,
+                            size: .md
+                        ) {
+                            isSparkleTriggered = true
+                        }
+                        .frame(maxWidth: .infinity)
+
+                        CraftButton(
+                            "Confetti Blast",
+                            iconName: "party.popper.fill",
+                            variant: .secondary,
+                            size: .md
+                        ) {
+                            isConfettiTriggered = true
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                }
+
+                CraftDivider()
+
+                // Countdown Modal
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("Countdown Overlay Modal", style: .headline)
+
+                    CraftButton(
+                        "Launch 3-2-1 Countdown",
+                        iconName: "timer",
+                        variant: .outline,
+                        size: .md
+                    ) {
+                        isCountdownPresented = true
                     }
                     .frame(maxWidth: .infinity)
                 }
