@@ -55,6 +55,13 @@ public enum CatalogTabItem: String, CaseIterable, Identifiable, CraftTabItemProt
     }
 }
 
+private struct CatalogChipItem: Identifiable {
+    var id: String { title }
+    let title: String
+    let iconName: String
+    let count: Int
+}
+
 // MARK: - Custom Emerald Theme
 
 /// Custom Emerald & Teal theme demonstrating CraftUIKit's customizable theming engine.
@@ -221,7 +228,6 @@ private struct CraftCatalogContentView: View {
     @State private var errorInput: String = "Invalid Email"
     @State private var toggleNotifications: Bool = true
     @State private var toggleHaptics: Bool = true
-    @State private var toggleDarkMode: Bool = false
     @State private var stepperValue: Int = 12
     @State private var progressValue: Double = 0.65
 
@@ -262,47 +268,82 @@ private struct CraftCatalogContentView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: theme.spacing.lg) {
-                    // Header / Controls Bar
-                    headerThemeBar
+                    CatalogThemeHeaderView(
+                        selectedThemeType: $selectedThemeType,
+                        selectedColorScheme: $selectedColorScheme
+                    )
 
-                    // Section 1: Typography & Icons
-                    typographyIconsSection
+                    CatalogTypographySection(iconButtonCounter: $iconButtonCounter)
 
-                    // Section 2: Badges & Pills
-                    badgesPillsSection
+                    CatalogBadgesPillsSection(selectedPills: $selectedPills)
 
-                    // Section 3: Buttons
-                    buttonsSection
+                    CatalogButtonsSection(isButtonLoading: $isButtonLoading)
 
-                    // Section 4: TextFields & SearchBar
-                    textFieldsSection
+                    CatalogTextFieldsSection(
+                        searchQuery: $searchQuery,
+                        textInput: $textInput,
+                        passwordInput: $passwordInput,
+                        errorInput: $errorInput
+                    )
 
-                    // Section 5: Stepper & Toggles
-                    stepperTogglesSection
+                    CatalogStepperTogglesSection(
+                        stepperValue: $stepperValue,
+                        toggleNotifications: $toggleNotifications,
+                        toggleHaptics: $toggleHaptics
+                    )
 
-                    // Section 6: Cards & Bento Grid
-                    cardsBentoSection
+                    CatalogCardsBentoSection(bentoCardTapped: $bentoCardTapped)
 
-                    // Section 7: Progress Bars & Rings
-                    progressSection
+                    CatalogProgressSection(progressValue: $progressValue)
 
-                    // Section 8: List Rows & Empty State
-                    listRowsEmptyStateSection
+                    CatalogListRowsEmptySection {
+                        toastStyle = .info
+                        isToastPresented = true
+                    }
 
-                    // Section 9: Toasts, Sheets & Dialogs
-                    overlaysSection
+                    CatalogOverlaysSection(
+                        toastStyle: $toastStyle,
+                        toastPosition: $toastPosition,
+                        isToastPresented: $isToastPresented,
+                        isBottomSheetPresented: $isBottomSheetPresented,
+                        isConfirmDialogPresented: $isConfirmDialogPresented,
+                        isDangerDialogPresented: $isDangerDialogPresented
+                    )
 
-                    // Section 10: Segmented Distribution Bar & Step Roadmap Nodes
-                    metricsProgressionSection
+                    CatalogMetricsProgressionSection(
+                        masteredCount: $masteredCount,
+                        reviewingCount: $reviewingCount,
+                        learningCount: $learningCount,
+                        selectedRoadmapStep: $selectedRoadmapStep
+                    )
 
-                    // Section 11: 3D Flip Card & Multiple-Choice Quiz Cards
-                    interactiveCardsSection
+                    CatalogInteractiveCardsSection(
+                        isCardFlipped: $isCardFlipped,
+                        flipAxis: $flipAxis,
+                        selectedQuizChoice: $selectedQuizChoice,
+                        isQuizSubmitted: $isQuizSubmitted,
+                        onSubmitQuiz: submitQuiz,
+                        onResetQuiz: resetQuiz
+                    )
 
-                    // Section 12: Floating Liquid Glass TabBar
-                    navigationSection
+                    CatalogNavigationSection(
+                        selectedTab: $selectedTab,
+                        showCenterFAB: $showCenterFAB,
+                        fabTapCount: $fabTapCount,
+                        onFabTap: {
+                            fabTapCount += 1
+                            toastStyle = .success
+                            isToastPresented = true
+                        }
+                    )
 
-                    // Section 13: Audio Visualizer & Motion FX
-                    audioMotionFxSection
+                    CatalogAudioMotionSection(
+                        waveformLevels: $waveformLevels,
+                        isWaveformRecording: $isWaveformRecording,
+                        isSparkleTriggered: $isSparkleTriggered,
+                        isConfettiTriggered: $isConfettiTriggered,
+                        isCountdownPresented: $isCountdownPresented
+                    )
                 }
                 .padding(.horizontal, theme.spacing.base)
                 .padding(.vertical, theme.spacing.lg)
@@ -313,7 +354,6 @@ private struct CraftCatalogContentView: View {
             .navigationBarTitleDisplayMode(.inline)
             #endif
         }
-        // Overlays & Motion FX Attached to Root
         .craftSparkle(isTriggered: $isSparkleTriggered, particleCount: 25)
         .craftConfetti(isTriggered: $isConfettiTriggered, particleCount: 35)
         .craftCountdown(
@@ -379,9 +419,33 @@ private struct CraftCatalogContentView: View {
         )
     }
 
-    // MARK: - 0. Header / Theme Switcher Bar
+    private func submitQuiz() {
+        guard selectedQuizChoice != nil else { return }
+        isQuizSubmitted = true
+        if selectedQuizChoice == "B" {
+            isConfettiTriggered = true
+            toastStyle = .success
+            isToastPresented = true
+        } else {
+            toastStyle = .danger
+            isToastPresented = true
+        }
+    }
 
-    private var headerThemeBar: some View {
+    private func resetQuiz() {
+        selectedQuizChoice = nil
+        isQuizSubmitted = false
+    }
+}
+
+// MARK: - Section 0: Theme Header
+
+private struct CatalogThemeHeaderView: View {
+    @Environment(\.craftTheme) private var theme
+    @Binding var selectedThemeType: CatalogThemeType
+    @Binding var selectedColorScheme: CatalogColorScheme
+
+    var body: some View {
         CraftCard(style: .elevated) {
             VStack(alignment: .leading, spacing: theme.spacing.sm) {
                 HStack {
@@ -415,15 +479,19 @@ private struct CraftCatalogContentView: View {
             }
         }
     }
+}
 
-    // MARK: - 1. Typography & Icons Section
+// MARK: - Section 1: Typography & Icons
 
-    private var typographyIconsSection: some View {
+private struct CatalogTypographySection: View {
+    @Environment(\.craftTheme) private var theme
+    @Binding var iconButtonCounter: Int
+
+    var body: some View {
         CraftCard(style: .elevated) {
             VStack(alignment: .leading, spacing: theme.spacing.base) {
-                sectionHeader(title: "1. Typography & Icons", iconName: "textformat")
+                CatalogSectionHeader(title: "1. Typography & Icons", iconName: "textformat")
 
-                // Typography Styles
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     CraftText("Display Large", style: .displayLarge)
                     CraftText("Title Large", style: .titleLarge)
@@ -437,7 +505,6 @@ private struct CraftCatalogContentView: View {
 
                 CraftDivider()
 
-                // Icon Scales
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     CraftText("CraftIcon Scales", style: .headline)
                     HStack(spacing: theme.spacing.lg) {
@@ -462,7 +529,6 @@ private struct CraftCatalogContentView: View {
 
                 CraftDivider()
 
-                // Icon Buttons
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     HStack {
                         CraftText("CraftIconButton Variants & Shapes", style: .headline)
@@ -480,49 +546,36 @@ private struct CraftCatalogContentView: View {
                         CraftIconButton(iconName: "square.and.arrow.up", size: .md, shape: .circle, variant: .outline) {
                             iconButtonCounter += 1
                         }
-                        CraftIconButton(iconName: "ellipsis", size: .md, shape: .circle, variant: .ghost) {
+                        CraftIconButton(iconName: "trash.fill", size: .md, shape: .square, variant: .ghost) {
                             iconButtonCounter += 1
                         }
-
-                        Spacer()
-
-                        CraftIconButton(iconName: "play.fill", size: .md, shape: .square, variant: .filled) {
-                            iconButtonCounter += 1
-                        }
-                        CraftIconButton(iconName: "pause.fill", size: .md, shape: .square, variant: .subtle) {
-                            iconButtonCounter += 1
-                        }
-                        CraftIconButton(iconName: "slider.horizontal.3", size: .md, shape: .square, variant: .outline) {
-                            iconButtonCounter += 1
-                        }
-                    }
-                }
-
-                CraftDivider()
-
-                // Spinners
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText("CraftSpinner Scales", style: .headline)
-                    HStack(spacing: theme.spacing.lg) {
-                        CraftSpinner(size: .sm)
-                        CraftSpinner(size: .md)
-                        CraftSpinner(size: .lg)
-                        CraftSpinner(size: .xl)
                     }
                 }
             }
         }
     }
+}
 
-    // MARK: - 2. Badges & Pills Section
+// MARK: - Section 2: Badges & Pills
 
-    private var badgesPillsSection: some View {
+private struct CatalogBadgesPillsSection: View {
+    @Environment(\.craftTheme) private var theme
+    @Binding var selectedPills: Set<String>
+
+    private let filterChips: [CatalogChipItem] = [
+        CatalogChipItem(title: "Vocabulary", iconName: "character.book.closed.fill", count: 14),
+        CatalogChipItem(title: "Grammar", iconName: "doc.text.fill", count: 8),
+        CatalogChipItem(title: "Listening", iconName: "headphones", count: 22),
+        CatalogChipItem(title: "Idioms", iconName: "quote.bubble.fill", count: 5),
+        CatalogChipItem(title: "Favorites", iconName: "heart.fill", count: 3)
+    ]
+
+    var body: some View {
         CraftCard(style: .elevated) {
             VStack(alignment: .leading, spacing: theme.spacing.base) {
-                sectionHeader(title: "2. Badges & Pills", iconName: "tag.fill")
+                CatalogSectionHeader(title: "2. Badges & Chips", iconName: "tag.fill")
 
-                // Badge Variants & Tones
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                VStack(alignment: .leading, spacing: theme.spacing.sm) {
                     CraftText("CraftBadge Variants & Tones", style: .headline)
 
                     // Solid
@@ -559,28 +612,20 @@ private struct CraftCatalogContentView: View {
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     CraftText("CraftPill / Filter Chips (Interactive Selection)", style: .headline)
 
-                    let chips = [
-                        ("Vocabulary", "character.book.closed.fill", 14),
-                        ("Grammar", "doc.text.fill", 8),
-                        ("Listening", "headphones", 22),
-                        ("Idioms", "quote.bubble.fill", 5),
-                        ("Favorites", "heart.fill", 3)
-                    ]
-
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: theme.spacing.xs) {
-                            ForEach(chips, id: \.0) { title, icon, count in
-                                let isSelected = selectedPills.contains(title)
+                            ForEach(filterChips) { item in
+                                let isSelected = selectedPills.contains(item.title)
                                 CraftPill(
-                                    title,
-                                    iconName: icon,
-                                    count: count,
+                                    item.title,
+                                    iconName: item.iconName,
+                                    count: item.count,
                                     isSelected: isSelected
                                 ) {
                                     if isSelected {
-                                        selectedPills.remove(title)
+                                        selectedPills.remove(item.title)
                                     } else {
-                                        selectedPills.insert(title)
+                                        selectedPills.insert(item.title)
                                     }
                                 }
                             }
@@ -590,13 +635,18 @@ private struct CraftCatalogContentView: View {
             }
         }
     }
+}
 
-    // MARK: - 3. Buttons Section
+// MARK: - Section 3: Buttons
 
-    private var buttonsSection: some View {
+private struct CatalogButtonsSection: View {
+    @Environment(\.craftTheme) private var theme
+    @Binding var isButtonLoading: Bool
+
+    var body: some View {
         CraftCard(style: .elevated) {
             VStack(alignment: .leading, spacing: theme.spacing.base) {
-                sectionHeader(title: "3. Buttons", iconName: "hand.tap.fill")
+                CatalogSectionHeader(title: "3. Buttons", iconName: "hand.tap.fill")
 
                 HStack {
                     CraftText("Variants & Loading State", style: .headline)
@@ -606,7 +656,6 @@ private struct CraftCatalogContentView: View {
                         .toggleStyle(.craft)
                 }
 
-                // All Variants
                 VStack(spacing: theme.spacing.xs) {
                     CraftButton(
                         "Primary Action",
@@ -661,7 +710,6 @@ private struct CraftCatalogContentView: View {
 
                 CraftDivider()
 
-                // Sizes
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     CraftText("Button Sizes (sm, md, lg)", style: .headline)
                     HStack(spacing: theme.spacing.sm) {
@@ -674,15 +722,22 @@ private struct CraftCatalogContentView: View {
             }
         }
     }
+}
 
-    // MARK: - 4. TextFields & SearchBar Section
+// MARK: - Section 4: TextFields & SearchBar
 
-    private var textFieldsSection: some View {
+private struct CatalogTextFieldsSection: View {
+    @Environment(\.craftTheme) private var theme
+    @Binding var searchQuery: String
+    @Binding var textInput: String
+    @Binding var passwordInput: String
+    @Binding var errorInput: String
+
+    var body: some View {
         CraftCard(style: .elevated) {
             VStack(alignment: .leading, spacing: theme.spacing.base) {
-                sectionHeader(title: "4. TextFields & SearchBar", iconName: "pencil.and.list.clipboard")
+                CatalogSectionHeader(title: "4. TextFields & SearchBar", iconName: "pencil.and.list.clipboard")
 
-                // Search Bar
                 CraftText("CraftSearchBar", style: .headline)
                 CraftSearchBar(
                     text: $searchQuery,
@@ -692,7 +747,6 @@ private struct CraftCatalogContentView: View {
 
                 CraftDivider()
 
-                // Standard TextField
                 CraftTextField(
                     placeholder: "e.g. Vocabulary Craft",
                     text: $textInput,
@@ -701,7 +755,6 @@ private struct CraftCatalogContentView: View {
                     leadingIcon: "folder.fill"
                 )
 
-                // Password / Secure TextField
                 CraftTextField(
                     placeholder: "Enter account password",
                     text: $passwordInput,
@@ -710,7 +763,6 @@ private struct CraftCatalogContentView: View {
                     isSecure: true
                 )
 
-                // Error State TextField
                 CraftTextField(
                     placeholder: "Enter user email",
                     text: $errorInput,
@@ -721,15 +773,21 @@ private struct CraftCatalogContentView: View {
             }
         }
     }
+}
 
-    // MARK: - 5. Stepper & Toggles Section
+// MARK: - Section 5: Stepper & Toggles
 
-    private var stepperTogglesSection: some View {
+private struct CatalogStepperTogglesSection: View {
+    @Environment(\.craftTheme) private var theme
+    @Binding var stepperValue: Int
+    @Binding var toggleNotifications: Bool
+    @Binding var toggleHaptics: Bool
+
+    var body: some View {
         CraftCard(style: .elevated) {
             VStack(alignment: .leading, spacing: theme.spacing.base) {
-                sectionHeader(title: "5. Stepper & Toggles", iconName: "switch.2")
+                CatalogSectionHeader(title: "5. Stepper & Toggles", iconName: "switch.2")
 
-                // Stepper
                 CraftStepper(
                     value: $stepperValue,
                     range: 1...50,
@@ -740,7 +798,6 @@ private struct CraftCatalogContentView: View {
 
                 CraftDivider()
 
-                // Toggles
                 VStack(spacing: theme.spacing.xs) {
                     CraftToggle(
                         isOn: $toggleNotifications,
@@ -761,16 +818,19 @@ private struct CraftCatalogContentView: View {
             }
         }
     }
+}
 
-    // MARK: - 6. Cards & Bento Grid Section
+// MARK: - Section 6: Cards & Bento Grid
 
-    private var cardsBentoSection: some View {
+private struct CatalogCardsBentoSection: View {
+    @Environment(\.craftTheme) private var theme
+    @Binding var bentoCardTapped: String?
+
+    var body: some View {
         VStack(alignment: .leading, spacing: theme.spacing.base) {
-            sectionHeader(title: "6. Cards & Bento Grid", iconName: "square.grid.2x2.fill")
+            CatalogSectionHeader(title: "6. Cards & Bento Grid", iconName: "square.grid.2x2.fill")
 
-            // Bento Grid
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: theme.spacing.base) {
-                // Card 1: Flat
                 CraftCard(style: .flat, isPressable: true, action: { bentoCardTapped = "Flat Card" }) {
                     VStack(alignment: .leading, spacing: theme.spacing.xs) {
                         CraftBadge("Flat Style", tone: .primary)
@@ -779,7 +839,6 @@ private struct CraftCatalogContentView: View {
                     }
                 }
 
-                // Card 2: Elevated
                 CraftCard(style: .elevated, isPressable: true, action: { bentoCardTapped = "Elevated Card" }) {
                     VStack(alignment: .leading, spacing: theme.spacing.xs) {
                         CraftBadge("Elevated", tone: .success)
@@ -788,7 +847,6 @@ private struct CraftCatalogContentView: View {
                     }
                 }
 
-                // Card 3: Outlined
                 CraftCard(style: .outlined, isPressable: true, action: { bentoCardTapped = "Outlined Card" }) {
                     VStack(alignment: .leading, spacing: theme.spacing.xs) {
                         CraftBadge("Outlined", tone: .warning)
@@ -797,7 +855,6 @@ private struct CraftCatalogContentView: View {
                     }
                 }
 
-                // Card 4: Gradient
                 CraftCard(style: .gradient, isPressable: true, action: { bentoCardTapped = "Gradient Card" }) {
                     VStack(alignment: .leading, spacing: theme.spacing.xs) {
                         CraftBadge("Hero Gradient", variant: .solid, tone: .neutral)
@@ -812,15 +869,19 @@ private struct CraftCatalogContentView: View {
             }
         }
     }
+}
 
-    // MARK: - 7. Progress Bars & Rings Section
+// MARK: - Section 7: Progress & Rings
 
-    private var progressSection: some View {
+private struct CatalogProgressSection: View {
+    @Environment(\.craftTheme) private var theme
+    @Binding var progressValue: Double
+
+    var body: some View {
         CraftCard(style: .elevated) {
             VStack(alignment: .leading, spacing: theme.spacing.base) {
-                sectionHeader(title: "7. Progress Bars & Rings", iconName: "chart.bar.fill")
+                CatalogSectionHeader(title: "7. Progress Bars & Rings", iconName: "chart.bar.fill")
 
-                // Progress Bar
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     HStack {
                         CraftText("CraftProgressBar (\(Int(progressValue * 100))%)", style: .headline)
@@ -836,7 +897,6 @@ private struct CraftCatalogContentView: View {
 
                 CraftDivider()
 
-                // Stepped Progress Bar
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     CraftText("Stepped Progress (Step 3 of 5)", style: .headline)
                     CraftProgressBar(currentStep: 3, totalSteps: 5, height: 8)
@@ -844,7 +904,6 @@ private struct CraftCatalogContentView: View {
 
                 CraftDivider()
 
-                // Progress Rings
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     CraftText("CraftProgressRing", style: .headline)
 
@@ -866,15 +925,19 @@ private struct CraftCatalogContentView: View {
             }
         }
     }
+}
 
-    // MARK: - 8. List Rows & Empty State Section
+// MARK: - Section 8: List Rows & Empty State
 
-    private var listRowsEmptyStateSection: some View {
+private struct CatalogListRowsEmptySection: View {
+    @Environment(\.craftTheme) private var theme
+    let onEmptyAction: () -> Void
+
+    var body: some View {
         CraftCard(style: .elevated) {
             VStack(alignment: .leading, spacing: theme.spacing.base) {
-                sectionHeader(title: "8. List Rows & Empty State", iconName: "list.bullet.rectangle.fill")
+                CatalogSectionHeader(title: "8. List Rows & Empty State", iconName: "list.bullet.rectangle.fill")
 
-                // List Rows
                 VStack(spacing: 0) {
                     CraftListRow(
                         title: "Mastered Words",
@@ -913,7 +976,6 @@ private struct CraftCatalogContentView: View {
 
                 CraftDivider()
 
-                // Empty State Demo
                 CraftText("CraftEmptyState Placeholder", style: .headline)
                 CraftCard(style: .outlined) {
                     CraftEmptyState(
@@ -921,24 +983,31 @@ private struct CraftCatalogContentView: View {
                         title: "No Completed Quizzes",
                         message: "Take your first daily vocabulary sprint to unlock performance analytics and progress tracking.",
                         buttonTitle: "Start Sprint",
-                        buttonIcon: "play.fill"
-                    ) {
-                        toastStyle = .info
-                        isToastPresented = true
-                    }
+                        buttonIcon: "play.fill",
+                        buttonAction: onEmptyAction
+                    )
                 }
             }
         }
     }
+}
 
-    // MARK: - 9. Overlays Section
+// MARK: - Section 9: Overlays
 
-    private var overlaysSection: some View {
+private struct CatalogOverlaysSection: View {
+    @Environment(\.craftTheme) private var theme
+    @Binding var toastStyle: CraftToastStyle
+    @Binding var toastPosition: CraftToastPosition
+    @Binding var isToastPresented: Bool
+    @Binding var isBottomSheetPresented: Bool
+    @Binding var isConfirmDialogPresented: Bool
+    @Binding var isDangerDialogPresented: Bool
+
+    var body: some View {
         CraftCard(style: .elevated) {
             VStack(alignment: .leading, spacing: theme.spacing.base) {
-                sectionHeader(title: "9. Feedback & Overlays", iconName: "bell.and.waves.left.and.right.fill")
+                CatalogSectionHeader(title: "9. Feedback & Overlays", iconName: "bell.and.waves.left.and.right.fill")
 
-                // Toast Trigger Options
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     CraftText("CraftToast Triggers", style: .headline)
 
@@ -974,7 +1043,6 @@ private struct CraftCatalogContentView: View {
 
                 CraftDivider()
 
-                // Modal Overlays Triggers
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     CraftText("Modals & Dialogs", style: .headline)
 
@@ -1013,15 +1081,22 @@ private struct CraftCatalogContentView: View {
             }
         }
     }
+}
 
-    // MARK: - 10. Metrics & Progression Section
+// MARK: - Section 10: Metrics & Progression
 
-    private var metricsProgressionSection: some View {
+private struct CatalogMetricsProgressionSection: View {
+    @Environment(\.craftTheme) private var theme
+    @Binding var masteredCount: Double
+    @Binding var reviewingCount: Double
+    @Binding var learningCount: Double
+    @Binding var selectedRoadmapStep: Int
+
+    var body: some View {
         CraftCard(style: .elevated) {
             VStack(alignment: .leading, spacing: theme.spacing.base) {
-                sectionHeader(title: "10. Segmented Distribution Bar & Step Roadmap", iconName: "chart.pie.fill")
+                CatalogSectionHeader(title: "10. Segmented Distribution Bar & Step Roadmap", iconName: "chart.pie.fill")
 
-                // Segmented Distribution Bar
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     HStack {
                         CraftText("CraftSegmentedBar (Distribution)", style: .headline)
@@ -1052,7 +1127,6 @@ private struct CraftCatalogContentView: View {
 
                 CraftDivider()
 
-                // Step Roadmap Nodes
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     HStack {
                         CraftText("CraftStepNode (Interactive Roadmap)", style: .headline)
@@ -1098,15 +1172,24 @@ private struct CraftCatalogContentView: View {
             }
         }
     }
+}
 
-    // MARK: - 11. 3D Flip Card & Quiz Cards Section
+// MARK: - Section 11: 3D Flip Card & Quiz Cards
 
-    private var interactiveCardsSection: some View {
+private struct CatalogInteractiveCardsSection: View {
+    @Environment(\.craftTheme) private var theme
+    @Binding var isCardFlipped: Bool
+    @Binding var flipAxis: Axis
+    @Binding var selectedQuizChoice: String?
+    @Binding var isQuizSubmitted: Bool
+    let onSubmitQuiz: () -> Void
+    let onResetQuiz: () -> Void
+
+    var body: some View {
         CraftCard(style: .elevated) {
             VStack(alignment: .leading, spacing: theme.spacing.base) {
-                sectionHeader(title: "11. 3D Flip Card & Quiz Cards", iconName: "rectangle.portrait.on.rectangle.portrait.angled")
+                CatalogSectionHeader(title: "11. 3D Flip Card & Quiz Cards", iconName: "rectangle.portrait.on.rectangle.portrait.angled")
 
-                // 3D Flip Card Demo
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     HStack {
                         CraftText("CraftFlipCard (3D Double-Sided)", style: .headline)
@@ -1120,7 +1203,6 @@ private struct CraftCatalogContentView: View {
                     }
 
                     CraftFlipCard(isFlipped: $isCardFlipped, axis: flipAxis) {
-                        // Front Face
                         CraftCard(style: .outlined) {
                             VStack(spacing: theme.spacing.sm) {
                                 HStack {
@@ -1148,7 +1230,6 @@ private struct CraftCatalogContentView: View {
                             isCardFlipped.toggle()
                         }
                     } back: {
-                        // Back Face
                         CraftCard(style: .gradient) {
                             VStack(spacing: theme.spacing.sm) {
                                 HStack {
@@ -1184,17 +1265,14 @@ private struct CraftCatalogContentView: View {
 
                 CraftDivider()
 
-                // Multiple Choice Quiz Card Demo
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     HStack {
                         CraftText("CraftChoiceCard (Quiz Interaction)", style: .headline)
                         Spacer()
                         if isQuizSubmitted {
-                            Button("Reset") {
-                                resetQuiz()
-                            }
-                            .font(theme.typography.caption)
-                            .foregroundColor(theme.colors.brandPrimary)
+                            Button("Reset", action: onResetQuiz)
+                                .font(theme.typography.caption)
+                                .foregroundColor(theme.colors.brandPrimary)
                         }
                     }
 
@@ -1244,10 +1322,9 @@ private struct CraftCatalogContentView: View {
                             "Submit Answer",
                             iconName: "checkmark.circle.fill",
                             variant: .primary,
-                            size: .md
-                        ) {
-                            submitQuiz()
-                        }
+                            size: .md,
+                            action: onSubmitQuiz
+                        )
                         .frame(maxWidth: .infinity)
                         .disabled(selectedQuizChoice == nil)
                         .padding(.top, theme.spacing.xs)
@@ -1256,7 +1333,6 @@ private struct CraftCatalogContentView: View {
 
                 CraftDivider()
 
-                // Static Choice States Showcase
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     CraftText("Choice Card State Matrix", style: .headline)
 
@@ -1274,12 +1350,39 @@ private struct CraftCatalogContentView: View {
         }
     }
 
-    // MARK: - 12. Floating Liquid Glass TabBar Section
+    private func selectChoice(_ choice: String) {
+        guard !isQuizSubmitted else { return }
+        selectedQuizChoice = choice
+    }
 
-    private var navigationSection: some View {
+    private func choiceState(for choice: String) -> CraftChoiceState {
+        if !isQuizSubmitted {
+            return selectedQuizChoice == choice ? .selected : .idle
+        }
+
+        if choice == "B" {
+            return .correct
+        } else if selectedQuizChoice == choice {
+            return .wrong
+        } else {
+            return .disabled
+        }
+    }
+}
+
+// MARK: - Section 12: Floating TabBar
+
+private struct CatalogNavigationSection: View {
+    @Environment(\.craftTheme) private var theme
+    @Binding var selectedTab: CatalogTabItem
+    @Binding var showCenterFAB: Bool
+    @Binding var fabTapCount: Int
+    let onFabTap: () -> Void
+
+    var body: some View {
         CraftCard(style: .elevated) {
             VStack(alignment: .leading, spacing: theme.spacing.base) {
-                sectionHeader(title: "12. Floating Liquid Glass TabBar", iconName: "dock.rectangle")
+                CatalogSectionHeader(title: "12. Floating Liquid Glass TabBar", iconName: "dock.rectangle")
 
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     CraftText("Active Navigation Canvas", style: .headline)
@@ -1299,11 +1402,7 @@ private struct CraftCatalogContentView: View {
                         CraftFloatingTabBar(
                             selectedItem: $selectedTab,
                             items: CatalogTabItem.allCases,
-                            centerAction: showCenterFAB ? {
-                                fabTapCount += 1
-                                toastStyle = .success
-                                isToastPresented = true
-                            } : nil,
+                            centerAction: showCenterFAB ? onFabTap : nil,
                             centerSymbol: "plus",
                             centerTitle: "Add"
                         )
@@ -1313,14 +1412,12 @@ private struct CraftCatalogContentView: View {
 
                 CraftDivider()
 
-                HStack {
-                    CraftToggle(
-                        isOn: $showCenterFAB,
-                        title: "Center Elevated FAB",
-                        subtitle: "Displays elevated circular action button in middle slot",
-                        iconName: "plus.circle.fill"
-                    )
-                }
+                CraftToggle(
+                    isOn: $showCenterFAB,
+                    title: "Center Elevated FAB",
+                    subtitle: "Displays elevated circular action button in middle slot",
+                    iconName: "plus.circle.fill"
+                )
 
                 if fabTapCount > 0 {
                     CraftText("Center FAB tapped \(fabTapCount) times", style: .caption, color: theme.colors.brandPrimary)
@@ -1328,15 +1425,23 @@ private struct CraftCatalogContentView: View {
             }
         }
     }
+}
 
-    // MARK: - 13. Audio Visualizer & Motion FX Section
+// MARK: - Section 13: Audio Visualizer & Motion FX
 
-    private var audioMotionFxSection: some View {
+private struct CatalogAudioMotionSection: View {
+    @Environment(\.craftTheme) private var theme
+    @Binding var waveformLevels: [CGFloat]
+    @Binding var isWaveformRecording: Bool
+    @Binding var isSparkleTriggered: Bool
+    @Binding var isConfettiTriggered: Bool
+    @Binding var isCountdownPresented: Bool
+
+    var body: some View {
         CraftCard(style: .elevated) {
             VStack(alignment: .leading, spacing: theme.spacing.base) {
-                sectionHeader(title: "13. Audio & Motion FX", iconName: "waveform.badge.mic")
+                CatalogSectionHeader(title: "13. Audio & Motion FX", iconName: "waveform.badge.mic")
 
-                // Waveform Visualizer
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     HStack {
                         CraftText("CraftWaveformView (Audio Visualizer)", style: .headline)
@@ -1363,7 +1468,6 @@ private struct CraftCatalogContentView: View {
 
                 CraftDivider()
 
-                // Sparkles & Confetti Burst
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     CraftText("Celebration FX (Sparkles & Confetti)", style: .headline)
 
@@ -1392,7 +1496,6 @@ private struct CraftCatalogContentView: View {
 
                 CraftDivider()
 
-                // Countdown Modal
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     CraftText("Countdown Overlay Modal", style: .headline)
 
@@ -1409,47 +1512,16 @@ private struct CraftCatalogContentView: View {
             }
         }
     }
+}
 
-    // MARK: - Helpers & Quiz Logic
+// MARK: - Section Header Helper
 
-    private func selectChoice(_ choice: String) {
-        guard !isQuizSubmitted else { return }
-        selectedQuizChoice = choice
-    }
+private struct CatalogSectionHeader: View {
+    @Environment(\.craftTheme) private var theme
+    let title: String
+    let iconName: String
 
-    private func choiceState(for choice: String) -> CraftChoiceState {
-        if !isQuizSubmitted {
-            return selectedQuizChoice == choice ? .selected : .idle
-        }
-
-        if choice == "B" {
-            return .correct
-        } else if selectedQuizChoice == choice {
-            return .wrong
-        } else {
-            return .disabled
-        }
-    }
-
-    private func submitQuiz() {
-        guard selectedQuizChoice != nil else { return }
-        isQuizSubmitted = true
-        if selectedQuizChoice == "B" {
-            isConfettiTriggered = true
-            toastStyle = .success
-            isToastPresented = true
-        } else {
-            toastStyle = .danger
-            isToastPresented = true
-        }
-    }
-
-    private func resetQuiz() {
-        selectedQuizChoice = nil
-        isQuizSubmitted = false
-    }
-
-    private func sectionHeader(title: String, iconName: String) -> some View {
+    var body: some View {
         HStack(spacing: theme.spacing.xs) {
             CraftIcon(iconName, size: .md, color: theme.colors.brandPrimary)
             CraftText(title, style: .titleMedium, color: theme.colors.textPrimary)
