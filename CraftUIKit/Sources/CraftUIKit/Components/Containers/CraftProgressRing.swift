@@ -12,6 +12,7 @@ public struct CraftProgressRing<CenterContent: View>: View {
     public let tintColor: Color?
     public let trackColor: Color?
     public let animated: Bool
+    public let accessibilityLabel: String
     public let centerContent: CenterContent
 
     /// Clamped progress value guaranteed to be in the [0.0, 1.0] range.
@@ -26,6 +27,7 @@ public struct CraftProgressRing<CenterContent: View>: View {
         tintColor: Color? = nil,
         trackColor: Color? = nil,
         animated: Bool = true,
+        accessibilityLabel: String = "Progress",
         @ViewBuilder centerContent: () -> CenterContent
     ) {
         self.progress = progress
@@ -34,6 +36,7 @@ public struct CraftProgressRing<CenterContent: View>: View {
         self.tintColor = tintColor
         self.trackColor = trackColor
         self.animated = animated
+        self.accessibilityLabel = accessibilityLabel
         self.centerContent = centerContent()
     }
 
@@ -61,7 +64,7 @@ public struct CraftProgressRing<CenterContent: View>: View {
         }
         .frame(width: size, height: size)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Progress")
+        .accessibilityLabel(accessibilityLabel)
         .accessibilityValue("\(Int(clampedProgress * 100)) percent")
     }
 }
@@ -76,7 +79,8 @@ public extension CraftProgressRing where CenterContent == Text {
         size: CGFloat = 80,
         tintColor: Color? = nil,
         trackColor: Color? = nil,
-        animated: Bool = true
+        animated: Bool = true,
+        accessibilityLabel: String = "Progress"
     ) {
         let percentage = Int((min(max(progress, 0.0), 1.0) * 100).rounded())
         self.init(
@@ -85,9 +89,13 @@ public extension CraftProgressRing where CenterContent == Text {
             size: size,
             tintColor: tintColor,
             trackColor: trackColor,
-            animated: animated
+            animated: animated,
+            accessibilityLabel: accessibilityLabel
         ) {
             Text("\(percentage)%")
+                .font(.system(size: max(size * 0.22, 12), weight: .semibold, design: .rounded))
+                .monospacedDigit()
         }
     }
 }
+

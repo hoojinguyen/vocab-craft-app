@@ -26,6 +26,16 @@ final class MetricsProgressionTests: XCTestCase {
 
         XCTAssertEqual(itemA, itemB)
         XCTAssertNotEqual(itemA, itemC)
+        XCTAssertEqual(itemA.hashValue, itemB.hashValue)
+    }
+
+    func testSegmentItemLocalization() {
+        let item = CraftSegmentItem(id: "loc-1", label: LocalizedStringKey("segment_key"), value: 50, color: .purple)
+        XCTAssertEqual(item.id, "loc-1")
+        XCTAssertEqual(item.label, "")
+        XCTAssertNotNil(item.localizedLabel)
+        XCTAssertEqual(item.value, 50)
+        XCTAssertEqual(item.color, .purple)
     }
 
     // MARK: - CraftSegmentedBar Tests
@@ -93,6 +103,16 @@ final class MetricsProgressionTests: XCTestCase {
         XCTAssertNotNil(bar.body)
     }
 
+    func testSegmentedBarWithLocalizedItems() {
+        let items = [
+            CraftSegmentItem(label: LocalizedStringKey("known"), value: 60, color: .green),
+            CraftSegmentItem(label: LocalizedStringKey("learning"), value: 40, color: .yellow)
+        ]
+        let bar = CraftSegmentedBar(items: items)
+        XCTAssertEqual(bar.totalValue, 100)
+        XCTAssertNotNil(bar.body)
+    }
+
     // MARK: - CraftStepState Tests
 
     func testStepStateCases() {
@@ -156,4 +176,25 @@ final class MetricsProgressionTests: XCTestCase {
         XCTAssertTrue(upcomingNode.isLast)
         XCTAssertNotNil(upcomingNode.body)
     }
+
+    func testStepNodeLocalization() {
+        var tapped = false
+        let node = CraftStepNode(
+            title: LocalizedStringKey("step_title_key"),
+            subtitle: LocalizedStringKey("step_subtitle_key"),
+            state: .active,
+            stepNumber: 2,
+            isLast: false,
+            onTap: { tapped = true }
+        )
+        XCTAssertEqual(node.title, "")
+        XCTAssertNil(node.subtitle)
+        XCTAssertEqual(node.state, .active)
+        XCTAssertEqual(node.stepNumber, 2)
+        XCTAssertNotNil(node.body)
+
+        node.onTap?()
+        XCTAssertTrue(tapped)
+    }
 }
+

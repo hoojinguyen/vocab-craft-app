@@ -3,8 +3,10 @@ import SwiftUI
 // MARK: - Shimmer Modifier
 
 /// A view modifier that sweeps an animated gradient across the view, indicating a loading skeleton state.
+/// Respects accessibility reduce motion and adapts seamlessly to dark mode.
 public struct CraftShimmerModifier: ViewModifier {
     @Environment(\.craftTheme) private var theme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var phase: CGFloat = -1.0
 
     public let isActive: Bool
@@ -24,23 +26,25 @@ public struct CraftShimmerModifier: ViewModifier {
                     GeometryReader { proxy in
                         let width = proxy.size.width
                         let height = proxy.size.height
+                        let highlightColor = theme.colors.surfaceElevated.opacity(0.5)
 
                         LinearGradient(
                             stops: [
                                 .init(color: .clear, location: 0.0),
-                                .init(color: Color.white.opacity(0.4), location: 0.5),
+                                .init(color: highlightColor, location: 0.5),
                                 .init(color: .clear, location: 1.0)
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
                         .frame(width: max(width * 1.5, 100), height: max(height * 1.5, 100))
-                        .offset(x: phase * (width + 100))
+                        .offset(x: reduceMotion ? 0 : phase * (width + 100))
                         .blendMode(.screen)
                         .mask(content)
                     }
                 )
                 .onAppear {
+                    guard !reduceMotion else { return }
                     withAnimation(
                         .linear(duration: duration)
                         .repeatForever(autoreverses: bounce)
@@ -68,3 +72,4 @@ public extension View {
         modifier(CraftShimmerModifier(isActive: isActive, duration: duration, bounce: bounce))
     }
 }
+

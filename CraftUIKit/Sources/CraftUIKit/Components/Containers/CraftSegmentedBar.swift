@@ -3,11 +3,20 @@ import SwiftUI
 // MARK: - CraftSegmentItem Model
 
 /// Represents an individual segment item within a `CraftSegmentedBar`.
-public struct CraftSegmentItem: Identifiable, Sendable, Equatable, Hashable {
+public struct CraftSegmentItem: Identifiable, @unchecked Sendable, Equatable, Hashable {
     public let id: String
-    public let label: String
+    private let labelKey: LocalizedStringKey?
+    private let rawLabel: String?
     public let value: Double
     public let color: Color
+
+    public var label: String {
+        rawLabel ?? ""
+    }
+
+    public var localizedLabel: LocalizedStringKey? {
+        labelKey
+    }
 
     public init(
         id: String = UUID().uuidString,
@@ -16,9 +25,34 @@ public struct CraftSegmentItem: Identifiable, Sendable, Equatable, Hashable {
         color: Color
     ) {
         self.id = id
-        self.label = label
+        self.labelKey = nil
+        self.rawLabel = label
         self.value = value
         self.color = color
+    }
+
+    public init(
+        id: String = UUID().uuidString,
+        label: LocalizedStringKey,
+        value: Double,
+        color: Color
+    ) {
+        self.id = id
+        self.labelKey = label
+        self.rawLabel = nil
+        self.value = value
+        self.color = color
+    }
+
+    public static func == (lhs: CraftSegmentItem, rhs: CraftSegmentItem) -> Bool {
+        lhs.id == rhs.id && lhs.rawLabel == rhs.rawLabel && lhs.value == rhs.value && lhs.color == rhs.color
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(rawLabel)
+        hasher.combine(value)
+        hasher.combine(color)
     }
 }
 
@@ -124,16 +158,24 @@ public struct CraftSegmentedBar: View {
                 .fill(item.color)
                 .frame(width: 8, height: 8)
 
-            Text(item.label)
-                .font(theme.typography.caption)
-                .foregroundColor(theme.colors.textSecondary)
-                .lineLimit(1)
+            if let labelKey = item.localizedLabel {
+                Text(labelKey)
+                    .font(theme.typography.caption)
+                    .foregroundStyle(theme.colors.textSecondary)
+                    .lineLimit(1)
+            } else {
+                Text(item.label)
+                    .font(theme.typography.caption)
+                    .foregroundStyle(theme.colors.textSecondary)
+                    .lineLimit(1)
+            }
 
             if showPercentages {
                 Text("\(Int(round(percentage(for: item))))%")
                     .font(theme.typography.caption)
                     .fontWeight(.semibold)
-                    .foregroundColor(theme.colors.textPrimary)
+                    .monospacedDigit()
+                    .foregroundStyle(theme.colors.textPrimary)
             }
         }
         .padding(.horizontal, theme.spacing.sm)
@@ -148,7 +190,9 @@ public struct CraftSegmentedBar: View {
         }
         return items.map { item in
             let pct = Int(round(percentage(for: item)))
-            return "\(item.label): \(pct)%"
+            let labelText = item.label.isEmpty ? "Segment" : item.label
+            return "\(labelText): \(pct)%"
         }.joined(separator: ", ")
     }
 }
+

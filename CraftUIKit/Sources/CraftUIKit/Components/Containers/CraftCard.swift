@@ -56,20 +56,13 @@ public struct CraftCard<Content: View>: View {
             .modifier(ShadowModifier(style: style, theme: theme))
 
         if isPressable || action != nil {
-            if let action {
-                Button(action: action) {
-                    cardBody
-                }
-                .buttonStyle(PlainButtonStyle())
-                .craftPressEffect()
-                .frame(minHeight: 44)
-                .contentShape(Rectangle())
-            } else {
+            Button(action: { action?() }) {
                 cardBody
-                    .craftPressEffect()
-                    .frame(minHeight: 44)
-                    .contentShape(Rectangle())
             }
+            .buttonStyle(.craftPress(scale: 0.98))
+            .frame(minHeight: 44)
+            .contentShape(Rectangle())
+            .accessibilityAddTraits(.isButton)
         } else {
             cardBody
         }
@@ -79,9 +72,9 @@ public struct CraftCard<Content: View>: View {
     private func backgroundView(radius: CGFloat) -> some View {
         switch style {
         case .flat:
-            theme.colors.surfaceCard
+            theme.colors.surfaceSubtle
         case .elevated:
-            theme.colors.surfaceCard
+            theme.colors.surfaceElevated
         case .outlined:
             theme.colors.surfaceCard
         case .gradient:
@@ -93,7 +86,7 @@ public struct CraftCard<Content: View>: View {
     private func borderOverlay(radius: CGFloat) -> some View {
         if style == .outlined {
             RoundedRectangle(cornerRadius: radius)
-                .strokeBorder(theme.colors.borderDefault, lineWidth: 1)
+                .strokeBorder(theme.colors.hairline, lineWidth: 1)
         } else {
             EmptyView()
         }
@@ -112,3 +105,4 @@ private struct ShadowModifier: ViewModifier {
         }
     }
 }
+

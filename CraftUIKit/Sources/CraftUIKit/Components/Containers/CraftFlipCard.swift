@@ -1,12 +1,9 @@
 import SwiftUI
-#if os(iOS)
-import UIKit
-#endif
 
 // MARK: - CraftFlipCard Component
 
 /// An interactive 3D container component that flips between a front and back view
-/// with double-sided rendering, back-face culling, spring physics, and tactile haptic feedback.
+/// with double-sided rendering, back-face culling, spring physics, and sensory feedback.
 public struct CraftFlipCard<Front: View, Back: View>: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -49,12 +46,9 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
                 )
         }
         .animation(theme.animations.springSmooth, value: isFlipped)
-        .onChange(of: isFlipped) { _, _ in
-            #if os(iOS)
-            let generator = UIImpactFeedbackGenerator(style: .medium)
-            generator.prepare()
-            generator.impactOccurred()
-            #endif
+        .sensoryFeedback(.impact(weight: .medium), trigger: isFlipped)
+        .accessibilityAction(named: "Flip card") {
+            isFlipped.toggle()
         }
     }
 
@@ -67,3 +61,4 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
         }
     }
 }
+

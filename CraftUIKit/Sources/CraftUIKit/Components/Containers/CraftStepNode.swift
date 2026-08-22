@@ -1,7 +1,4 @@
 import SwiftUI
-#if os(iOS)
-import UIKit
-#endif
 
 // MARK: - Step State Enum
 
@@ -42,8 +39,13 @@ private struct VerticalDashedLine: Shape {
 public struct CraftStepNode: View {
     @Environment(\.craftTheme) private var theme
 
-    public let title: String
-    public let subtitle: String?
+    private let titleKey: LocalizedStringKey?
+    private let rawTitle: String?
+    private let subtitleKey: LocalizedStringKey?
+    private let rawSubtitle: String?
+
+    public var title: String { rawTitle ?? "" }
+    public var subtitle: String? { rawSubtitle }
     public let state: CraftStepState
     public let stepNumber: Int?
     public let isLast: Bool
@@ -57,8 +59,28 @@ public struct CraftStepNode: View {
         isLast: Bool = false,
         onTap: (() -> Void)? = nil
     ) {
-        self.title = title
-        self.subtitle = subtitle
+        self.titleKey = nil
+        self.rawTitle = title
+        self.subtitleKey = nil
+        self.rawSubtitle = subtitle
+        self.state = state
+        self.stepNumber = stepNumber
+        self.isLast = isLast
+        self.onTap = onTap
+    }
+
+    public init(
+        title: LocalizedStringKey,
+        subtitle: LocalizedStringKey? = nil,
+        state: CraftStepState,
+        stepNumber: Int? = nil,
+        isLast: Bool = false,
+        onTap: (() -> Void)? = nil
+    ) {
+        self.titleKey = title
+        self.rawTitle = nil
+        self.subtitleKey = subtitle
+        self.rawSubtitle = nil
         self.state = state
         self.stepNumber = stepNumber
         self.isLast = isLast
@@ -68,18 +90,10 @@ public struct CraftStepNode: View {
     public var body: some View {
         Group {
             if let onTap {
-                Button(action: {
-                    #if os(iOS)
-                    let generator = UIImpactFeedbackGenerator(style: .light)
-                    generator.prepare()
-                    generator.impactOccurred()
-                    #endif
-                    onTap()
-                }) {
+                Button(action: onTap) {
                     contentLayout
                 }
-                .buttonStyle(.plain)
-                .craftPressEffect(scale: 0.98)
+                .buttonStyle(.craftPress(scale: 0.98))
             } else {
                 contentLayout
             }
@@ -108,15 +122,27 @@ public struct CraftStepNode: View {
 
             // Text Information Column
             VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                Text(title)
-                    .font(theme.typography.headline)
-                    .foregroundColor(titleColor)
-                    .frame(minHeight: 36, alignment: .leading)
+                if let titleKey {
+                    Text(titleKey)
+                        .font(theme.typography.headline)
+                        .foregroundStyle(titleColor)
+                        .frame(minHeight: 36, alignment: .leading)
+                } else if let rawTitle {
+                    Text(rawTitle)
+                        .font(theme.typography.headline)
+                        .foregroundStyle(titleColor)
+                        .frame(minHeight: 36, alignment: .leading)
+                }
 
-                if let subtitle {
-                    Text(subtitle)
+                if let subtitleKey {
+                    Text(subtitleKey)
                         .font(theme.typography.bodyMedium)
-                        .foregroundColor(subtitleColor)
+                        .foregroundStyle(subtitleColor)
+                        .padding(.bottom, isLast ? 0 : theme.spacing.sm)
+                } else if let rawSubtitle {
+                    Text(rawSubtitle)
+                        .font(theme.typography.bodyMedium)
+                        .foregroundStyle(subtitleColor)
                         .padding(.bottom, isLast ? 0 : theme.spacing.sm)
                 }
             }
@@ -138,7 +164,7 @@ public struct CraftStepNode: View {
                     .frame(width: 28, height: 28)
                 Image(systemName: "checkmark")
                     .font(.system(size: 13, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
 
             case .active:
                 // Glowing outer ring
@@ -154,7 +180,7 @@ public struct CraftStepNode: View {
                 if let stepNumber {
                     Text("\(stepNumber)")
                         .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                 } else {
                     Circle()
                         .fill(Color.white)
@@ -171,7 +197,7 @@ public struct CraftStepNode: View {
                     )
                 Image(systemName: "lock.fill")
                     .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(theme.colors.textMuted)
+                    .foregroundStyle(theme.colors.textMuted)
 
             case .upcoming:
                 Circle()
@@ -184,7 +210,7 @@ public struct CraftStepNode: View {
                 if let stepNumber {
                     Text("\(stepNumber)")
                         .font(.system(size: 12, weight: .semibold))
-                        .foregroundColor(theme.colors.textSecondary)
+                        .foregroundStyle(theme.colors.textSecondary)
                 } else {
                     Circle()
                         .fill(theme.colors.textMuted)
@@ -229,7 +255,7 @@ public struct CraftStepNode: View {
     }
 
     private var accessibilityLabelText: String {
-        var label = title
+        var label = title.isEmpty ? "Step" : title
         if let stepNumber {
             label = "Step \(stepNumber): \(label)"
         }
@@ -240,3 +266,4 @@ public struct CraftStepNode: View {
         return label
     }
 }
+

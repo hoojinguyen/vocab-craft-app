@@ -7,14 +7,21 @@ import SwiftUI
 public struct CraftListRow<TrailingContent: View>: View {
     @Environment(\.craftTheme) private var theme
 
-    public let title: String
-    public let subtitle: String?
+    private let titleKey: LocalizedStringKey?
+    private let rawTitle: String?
+    private let subtitleKey: LocalizedStringKey?
+    private let rawSubtitle: String?
+
+    public var title: String { rawTitle ?? "" }
+    public var subtitle: String? { rawSubtitle }
     public let iconName: String?
     public let iconColor: Color?
     public let iconBackgroundColor: Color?
     public let showChevron: Bool
     public let action: (() -> Void)?
     public let trailingContent: TrailingContent
+
+    // MARK: - Generic Initializers (String)
 
     public init(
         title: String,
@@ -26,8 +33,34 @@ public struct CraftListRow<TrailingContent: View>: View {
         action: (() -> Void)? = nil,
         @ViewBuilder trailing: () -> TrailingContent
     ) {
-        self.title = title
-        self.subtitle = subtitle
+        self.titleKey = nil
+        self.rawTitle = title
+        self.subtitleKey = nil
+        self.rawSubtitle = subtitle
+        self.iconName = iconName
+        self.iconColor = iconColor
+        self.iconBackgroundColor = iconBackgroundColor
+        self.showChevron = showChevron
+        self.action = action
+        self.trailingContent = trailing()
+    }
+
+    // MARK: - Generic Initializers (LocalizedStringKey)
+
+    public init(
+        title: LocalizedStringKey,
+        subtitle: LocalizedStringKey? = nil,
+        iconName: String? = nil,
+        iconColor: Color? = nil,
+        iconBackgroundColor: Color? = nil,
+        showChevron: Bool = false,
+        action: (() -> Void)? = nil,
+        @ViewBuilder trailing: () -> TrailingContent
+    ) {
+        self.titleKey = title
+        self.rawTitle = nil
+        self.subtitleKey = subtitle
+        self.rawSubtitle = nil
         self.iconName = iconName
         self.iconColor = iconColor
         self.iconBackgroundColor = iconBackgroundColor
@@ -54,10 +87,16 @@ public struct CraftListRow<TrailingContent: View>: View {
 
             // Title and Subtitle
             VStack(alignment: .leading, spacing: theme.spacing.xs / 2) {
-                CraftText(title, style: .headline, color: theme.colors.textPrimary)
+                if let titleKey {
+                    CraftText(titleKey, style: .headline, color: theme.colors.textPrimary)
+                } else if let rawTitle {
+                    CraftText(rawTitle, style: .headline, color: theme.colors.textPrimary)
+                }
 
-                if let subtitle, !subtitle.isEmpty {
-                    CraftText(subtitle, style: .caption, color: theme.colors.textSecondary)
+                if let subtitleKey {
+                    CraftText(subtitleKey, style: .caption, color: theme.colors.textSecondary)
+                } else if let rawSubtitle, !rawSubtitle.isEmpty {
+                    CraftText(rawSubtitle, style: .caption, color: theme.colors.textSecondary)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -79,8 +118,7 @@ public struct CraftListRow<TrailingContent: View>: View {
             Button(action: action) {
                 rowContent
             }
-            .buttonStyle(PlainButtonStyle())
-            .craftPressEffect()
+            .buttonStyle(.craftPress(scale: 0.98))
         } else {
             rowContent
         }
@@ -111,4 +149,27 @@ public extension CraftListRow where TrailingContent == EmptyView {
             EmptyView()
         }
     }
+
+    init(
+        title: LocalizedStringKey,
+        subtitle: LocalizedStringKey? = nil,
+        iconName: String? = nil,
+        iconColor: Color? = nil,
+        iconBackgroundColor: Color? = nil,
+        showChevron: Bool = true,
+        action: (() -> Void)? = nil
+    ) {
+        self.init(
+            title: title,
+            subtitle: subtitle,
+            iconName: iconName,
+            iconColor: iconColor,
+            iconBackgroundColor: iconBackgroundColor,
+            showChevron: showChevron,
+            action: action
+        ) {
+            EmptyView()
+        }
+    }
 }
+

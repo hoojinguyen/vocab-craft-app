@@ -52,6 +52,23 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertNotNil(card.body)
     }
 
+    func testCardCustomGradient() {
+        let gradient = LinearGradient(
+            colors: [.blue, .purple],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        let card = CraftCard(
+            style: .gradient,
+            customGradient: gradient
+        ) {
+            Text("Gradient Card")
+        }
+        XCTAssertEqual(card.style, .gradient)
+        XCTAssertNotNil(card.customGradient)
+        XCTAssertNotNil(card.body)
+    }
+
     // MARK: - CraftProgressBar Tests
 
     func testProgressBarClamping() {
@@ -103,7 +120,19 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertEqual(ringNormal.clampedProgress, 0.75, accuracy: 0.001)
         XCTAssertEqual(ringNormal.lineWidth, 10)
         XCTAssertEqual(ringNormal.size, 100)
+        XCTAssertEqual(ringNormal.accessibilityLabel, "Progress")
         XCTAssertNotNil(ringNormal.body)
+    }
+
+    func testProgressRingCustomAccessibilityLabel() {
+        let ring = CraftProgressRing(
+            progress: 0.5,
+            accessibilityLabel: "Daily Mastery Target"
+        ) {
+            Text("50%")
+        }
+        XCTAssertEqual(ring.accessibilityLabel, "Daily Mastery Target")
+        XCTAssertNotNil(ring.body)
     }
 
     func testProgressRingCustomCenterContent() {
@@ -154,6 +183,25 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertNotNil(row.body)
     }
 
+    func testListRowLocalization() {
+        var actionTriggered = false
+        let row = CraftListRow(
+            title: LocalizedStringKey("row_title_key"),
+            subtitle: LocalizedStringKey("row_subtitle_key"),
+            iconName: "book.fill",
+            showChevron: true,
+            action: { actionTriggered = true }
+        )
+        XCTAssertEqual(row.title, "")
+        XCTAssertNil(row.subtitle)
+        XCTAssertEqual(row.iconName, "book.fill")
+        XCTAssertTrue(row.showChevron)
+        XCTAssertNotNil(row.body)
+
+        row.action?()
+        XCTAssertTrue(actionTriggered)
+    }
+
     // MARK: - CraftEmptyState Tests
 
     func testEmptyStateWithIconAndButton() {
@@ -188,6 +236,46 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertEqual(emptyState.title, "No Results")
         XCTAssertEqual(emptyState.message, "Try searching something else.")
         XCTAssertNotNil(emptyState.body)
+    }
+
+    func testDefaultEmptyStateIllustrationView() {
+        let illustration = CraftDefaultEmptyStateIllustration(iconName: "star.fill")
+        XCTAssertEqual(illustration.iconName, "star.fill")
+        XCTAssertNotNil(illustration.body)
+    }
+
+    func testEmptyStateLocalization() {
+        var buttonTapped = false
+        let emptyState = CraftEmptyState(
+            iconName: "tray.fill",
+            title: LocalizedStringKey("empty_title_key"),
+            message: LocalizedStringKey("empty_message_key"),
+            buttonTitle: LocalizedStringKey("empty_action_key"),
+            buttonIcon: "plus",
+            buttonAction: { buttonTapped = true }
+        )
+
+        XCTAssertEqual(emptyState.title, "")
+        XCTAssertNil(emptyState.message)
+        XCTAssertEqual(emptyState.iconName, "tray.fill")
+        XCTAssertNil(emptyState.buttonTitle)
+        XCTAssertEqual(emptyState.buttonIcon, "plus")
+        XCTAssertNotNil(emptyState.body)
+
+        emptyState.buttonAction?()
+        XCTAssertTrue(buttonTapped)
+    }
+
+    // MARK: - CraftShimmerModifier Tests
+
+    func testShimmerModifier() {
+        let shimmeringView = Text("Loading Skeleton")
+            .craftShimmer(isActive: true, duration: 2.0, bounce: true)
+        XCTAssertNotNil(shimmeringView)
+
+        let inactiveView = Text("Static Skeleton")
+            .craftShimmer(isActive: false)
+        XCTAssertNotNil(inactiveView)
     }
 
     // MARK: - CraftToast Tests
@@ -330,3 +418,4 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertNotNil(view)
     }
 }
+
