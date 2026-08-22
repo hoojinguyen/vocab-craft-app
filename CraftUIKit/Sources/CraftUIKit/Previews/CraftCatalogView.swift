@@ -796,6 +796,57 @@ private struct CraftCatalogContentView: View {
                         }
                     }
                 }
+
+                CraftDivider()
+
+                // Segmented Metric Bar
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("CraftSegmentedBar", style: .headline)
+
+                    CraftSegmentedBar(
+                        items: [
+                            CraftSegmentItem(id: "1", label: "Mastered", value: 45, color: theme.colors.statusSuccess),
+                            CraftSegmentItem(id: "2", label: "Reviewing", value: 30, color: theme.colors.brandPrimary),
+                            CraftSegmentItem(id: "3", label: "Learning", value: 25, color: theme.colors.statusWarning)
+                        ],
+                        height: 10
+                    )
+                }
+
+                CraftDivider()
+
+                // Step Roadmap Nodes
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("CraftStepNode (Roadmap)", style: .headline)
+
+                    VStack(spacing: 0) {
+                        CraftStepNode(
+                            title: "Foundations",
+                            subtitle: "Core vocabulary & phonetics completed",
+                            state: .completed,
+                            stepNumber: 1
+                        )
+                        CraftStepNode(
+                            title: "Intermediate Grammar",
+                            subtitle: "Sentence structure & common idioms",
+                            state: .active,
+                            stepNumber: 2
+                        )
+                        CraftStepNode(
+                            title: "Advanced Nuances",
+                            subtitle: "Subtle connotations & formal registers",
+                            state: .upcoming,
+                            stepNumber: 3
+                        )
+                        CraftStepNode(
+                            title: "Mastery Certification",
+                            subtitle: "Comprehensive assessment",
+                            state: .locked,
+                            stepNumber: 4,
+                            isLast: true
+                        )
+                    }
+                }
             }
         }
     }
