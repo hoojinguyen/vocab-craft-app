@@ -53,6 +53,13 @@ public enum CatalogTabItem: String, CaseIterable, Identifiable, CraftTabItemProt
         case .profile: return "person.crop.circle"
         }
     }
+
+    public var badgeCount: Int? {
+        switch self {
+        case .practice: return 3
+        default: return nil
+        }
+    }
 }
 
 /// Interactive preset options for demonstrating domain-specific `CraftEmptyState` illustrations and copy.
@@ -837,6 +844,18 @@ private struct CatalogButtonsSection: View {
 
                 VStack(spacing: theme.spacing.xs) {
                     CraftButton(
+                        "PRACTICE (Tactile 3D CTA)",
+                        iconName: "bolt.fill",
+                        iconPosition: .trailing,
+                        variant: .tactile,
+                        size: .lg,
+                        isLoading: isButtonLoading,
+                        isUppercase: true,
+                        tracking: 1.2,
+                        isFullWidth: true
+                    ) {}
+
+                    CraftButton(
                         "Primary Action",
                         iconName: "arrow.right",
                         iconPosition: .trailing,
@@ -959,10 +978,14 @@ private struct CatalogTextFieldsSection: View {
             VStack(alignment: .leading, spacing: theme.spacing.base) {
                 CatalogSectionHeader(title: "4. TextFields & SearchBar", iconName: "pencil.and.list.clipboard")
 
-                CraftText("CraftSearchBar", style: .headline)
+                CraftText("CraftSearchBar (Standard & Recessed Glass)", style: .headline)
                 CraftSearchBar(
                     text: $searchQuery,
                     placeholder: "Search vocabulary, lessons, tags...",
+                    style: .recessed,
+                    shape: .roundedRectangle(radius: 14),
+                    trailingIcon: "slider.horizontal.3",
+                    trailingAction: {},
                     onCancel: { searchQuery = "" }
                 )
 
