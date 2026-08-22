@@ -79,6 +79,26 @@ public struct CraftBottomSheet<Content: View>: View {
                 topTrailingRadius: theme.radii.xl
             )
         )
+        .overlay(
+            UnevenRoundedRectangle(
+                topLeadingRadius: theme.radii.xl,
+                bottomLeadingRadius: 0,
+                bottomTrailingRadius: 0,
+                topTrailingRadius: theme.radii.xl
+            )
+            .strokeBorder(
+                LinearGradient(
+                    stops: [
+                        .init(color: .craftDynamic(light: Color.white.opacity(0.8), dark: Color.white.opacity(0.18)), location: 0.0),
+                        .init(color: theme.colors.borderDefault.opacity(0.4), location: 0.5),
+                        .init(color: theme.colors.hairline, location: 1.0)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                ),
+                lineWidth: 1
+            )
+        )
         .craftShadow(theme.shadows.xl)
         .offset(y: max(0, dragTranslation))
         .gesture(

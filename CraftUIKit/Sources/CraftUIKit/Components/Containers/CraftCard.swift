@@ -84,10 +84,25 @@ public struct CraftCard<Content: View>: View {
 
     @ViewBuilder
     private func borderOverlay(radius: CGFloat) -> some View {
-        if style == .outlined {
+        switch style {
+        case .outlined:
             RoundedRectangle(cornerRadius: radius)
-                .strokeBorder(theme.colors.hairline, lineWidth: 1)
-        } else {
+                .strokeBorder(theme.colors.borderDefault, lineWidth: 1)
+        case .elevated:
+            RoundedRectangle(cornerRadius: radius)
+                .strokeBorder(
+                    LinearGradient(
+                        stops: [
+                            .init(color: .craftDynamic(light: Color.white.opacity(0.7), dark: Color.white.opacity(0.16)), location: 0.0),
+                            .init(color: .craftDynamic(light: theme.colors.hairline.opacity(0.4), dark: Color.white.opacity(0.04)), location: 0.5),
+                            .init(color: .clear, location: 1.0)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
+        case .flat, .gradient:
             EmptyView()
         }
     }
