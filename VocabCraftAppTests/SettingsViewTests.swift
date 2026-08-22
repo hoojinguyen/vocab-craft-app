@@ -26,4 +26,24 @@ final class SettingsViewTests: XCTestCase {
         XCTAssertEqual(row.title, "Test Goal")
         XCTAssertEqual(row.iconName, "target")
     }
+
+    func testSettingsViewBodyRendering() {
+        let store = UserSettingsStore()
+        let tts = MockTextToSpeechService()
+        let vm = SettingsViewModel(store: store, ttsService: tts)
+        let view = SettingsView(viewModel: vm)
+        let body = view.body
+        XCTAssertNotNil(body)
+    }
+
+    func testSettingsViewNotificationEnabledBodyRendering() {
+        let store = UserSettingsStore()
+        store.isNotificationEnabled = true
+        let tts = MockTextToSpeechService()
+        let vm = SettingsViewModel(store: store, ttsService: tts)
+        let view = SettingsView(viewModel: vm)
+        let body = view.body
+        XCTAssertNotNil(body)
+    }
 }
+

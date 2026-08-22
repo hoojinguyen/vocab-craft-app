@@ -1,6 +1,8 @@
+import CraftUIKit
 import SwiftUI
 
 public struct SettingsView: View {
+    @Environment(\.craftTheme) private var theme
     @Bindable public var viewModel: SettingsViewModel
     @State private var showResetAlert: Bool = false
     @State private var showGoalInputAlert: Bool = false
@@ -16,74 +18,34 @@ public struct SettingsView: View {
             Section {
                 ProfileHeaderCard()
             }
-            .listRowBackground(Color.vocabSurfaceCard)
+            .listRowBackground(theme.colors.surfaceCard)
 
             // Learning & SRS Section
             Section(header: sectionHeader(AppStrings.Settings.sectionLearningSRS)) {
-                SettingsRowView(
+                CraftListRow(
+                    title: String(localized: "settings.dailyGoal", defaultValue: "Daily Goal", bundle: .module),
                     iconName: "target",
                     iconColor: .vocabHeroAccent,
-                    title: AppStrings.Settings.dailyGoal
+                    iconBackgroundColor: Color.vocabHeroAccent.opacity(0.15)
                 ) {
-                    HStack(spacing: 0) {
-                        Button(action: {
-                            if viewModel.store.dailyGoalCount > 5 {
-                                viewModel.store.dailyGoalCount -= 5
-                            }
-                        }) {
-                            Image(systemName: "minus")
-                                .font(.system(size: 12, weight: .bold))
-                                .foregroundColor(.vocabHeroAccent)
-                                .frame(width: 32, height: 30)
-                                .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.borderless)
-
-                        Divider()
-                            .frame(height: 14)
-                            .opacity(0.35)
-
-                        Button(action: {
-                            goalInputText = "\(viewModel.store.dailyGoalCount)"
-                            showGoalInputAlert = true
-                        }) {
-                            (Text("\(viewModel.store.dailyGoalCount) ") + Text(AppStrings.Common.wordUnit))
-                                .font(.caption.weight(.bold))
-                                .fontDesign(.rounded)
-                                .monospacedDigit()
-                                .foregroundColor(.vocabHeroAccent)
-                                .frame(minWidth: 50)
-                                .frame(height: 30)
-                                .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.borderless)
-
-                        Divider()
-                            .frame(height: 14)
-                            .opacity(0.35)
-
-                        Button(action: {
-                            if viewModel.store.dailyGoalCount < 100 {
-                                viewModel.store.dailyGoalCount += 5
-                            }
-                        }) {
-                            Image(systemName: "plus")
-                                .font(.system(size: 12, weight: .bold))
-                                .foregroundColor(.vocabHeroAccent)
-                                .frame(width: 32, height: 30)
-                                .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.borderless)
+                    CraftStepper(
+                        value: $viewModel.store.dailyGoalCount,
+                        range: 5...100,
+                        step: 5,
+                        unit: String(localized: "common.wordUnit", defaultValue: "words", bundle: .module)
+                    )
+                    .onTapGesture(count: 2) {
+                        goalInputText = "\(viewModel.store.dailyGoalCount)"
+                        showGoalInputAlert = true
                     }
-                    .background(Color.vocabHeroAccent.opacity(0.12))
-                    .clipShape(Capsule())
-                    .overlay(Capsule().stroke(Color.vocabHeroAccent.opacity(0.25), lineWidth: 0.8))
                 }
+                .listRowInsets(EdgeInsets())
 
-                SettingsRowView(
+                CraftListRow(
+                    title: String(localized: "settings.reminderNotification", defaultValue: "Review Reminders", bundle: .module),
                     iconName: "bell.fill",
                     iconColor: .vocabHeroAccent,
-                    title: AppStrings.Settings.reminderNotification
+                    iconBackgroundColor: Color.vocabHeroAccent.opacity(0.15)
                 ) {
                     Toggle("", isOn: Binding(
                         get: { viewModel.store.isNotificationEnabled },
@@ -93,13 +55,17 @@ public struct SettingsView: View {
                             }
                         }
                     ))
+                    .labelsHidden()
+                    .toggleStyle(.craft)
                 }
+                .listRowInsets(EdgeInsets())
 
                 if viewModel.store.isNotificationEnabled {
-                    SettingsRowView(
+                    CraftListRow(
+                        title: String(localized: "settings.reminderTime", defaultValue: "Reminder Time", bundle: .module),
                         iconName: "clock.fill",
                         iconColor: .vocabHeroAccent,
-                        title: AppStrings.Settings.reminderTime
+                        iconBackgroundColor: Color.vocabHeroAccent.opacity(0.15)
                     ) {
                         DatePicker(
                             "",
@@ -109,32 +75,34 @@ public struct SettingsView: View {
                         .labelsHidden()
                         .tint(.vocabHeroAccent)
                     }
+                    .listRowInsets(EdgeInsets())
                     .transition(.opacity.combined(with: .move(edge: .top)))
                 }
 
-                Button(role: .destructive, action: {
-                    showResetAlert = true
-                }) {
-                    SettingsRowView(
-                        iconName: "arrow.triangle.2.circlepath",
-                        iconColor: .vocabCoral,
-                        title: AppStrings.Settings.resetSRS,
-                        subtitle: AppStrings.Settings.resetSRSSubtitle
-                    ) {
-                        Image(systemName: "chevron.right")
-                            .font(.caption.weight(.bold))
-                            .foregroundColor(.vocabCoral.opacity(0.7))
+                CraftListRow(
+                    title: String(localized: "settings.resetSRS", defaultValue: "Reset SRS Progress", bundle: .module),
+                    subtitle: String(localized: "settings.resetSRSSubtitle", defaultValue: "Reset all studied words", bundle: .module),
+                    iconName: "arrow.triangle.2.circlepath",
+                    iconColor: .vocabCoral,
+                    iconBackgroundColor: Color.vocabCoral.opacity(0.15),
+                    showChevron: true,
+                    action: {
+                        showResetAlert = true
                     }
+                ) {
+                    EmptyView()
                 }
+                .listRowInsets(EdgeInsets())
             }
-            .listRowBackground(Color.vocabSurfaceCard)
+            .listRowBackground(theme.colors.surfaceCard)
 
             // Audio & TTS Section
             Section(header: sectionHeader(AppStrings.Settings.sectionAudioTTS)) {
-                SettingsRowView(
+                CraftListRow(
+                    title: String(localized: "settings.englishVoice", defaultValue: "English TTS Accent", bundle: .module),
                     iconName: "speaker.wave.2.fill",
                     iconColor: .vocabPeach,
-                    title: AppStrings.Settings.englishVoice
+                    iconBackgroundColor: Color.vocabPeach.opacity(0.15)
                 ) {
                     Picker("", selection: $viewModel.store.ttsVoiceGender) {
                         Text(AppStrings.Settings.voiceUS).tag("US")
@@ -143,67 +111,64 @@ public struct SettingsView: View {
                     .pickerStyle(.segmented)
                     .frame(width: 140)
                 }
+                .listRowInsets(EdgeInsets())
 
                 VStack(alignment: .leading, spacing: 8) {
-                    SettingsRowView(
+                    CraftListRow(
+                        title: String(localized: "settings.speechSpeed", defaultValue: "Speech Speed", bundle: .module),
                         iconName: "speedometer",
                         iconColor: .vocabPeach,
-                        title: AppStrings.Settings.speechSpeed
+                        iconBackgroundColor: Color.vocabPeach.opacity(0.15)
                     ) {
-                        Text(String(format: "%.2fx", viewModel.store.ttsSpeed))
-                            .font(.caption.weight(.bold))
-                            .fontDesign(.rounded)
-                            .monospacedDigit()
-                            .foregroundColor(.vocabPeach)
-                            .padding(.horizontal, 9)
-                            .padding(.vertical, 3)
-                            .background(
-                                Capsule()
-                                    .fill(Color.vocabPeach.opacity(0.14))
-                                    .overlay(Capsule().stroke(Color.vocabPeach.opacity(0.25), lineWidth: 0.8))
-                            )
+                        CraftBadge(
+                            String(format: "%.2fx", viewModel.store.ttsSpeed),
+                            variant: .subtle,
+                            tone: .warning,
+                            size: .sm
+                        )
                     }
 
                     Slider(value: $viewModel.store.ttsSpeed, in: 0.5...1.5, step: 0.05)
                         .tint(.vocabPeach)
-                        .padding(.horizontal, 2)
+                        .padding(.horizontal, theme.spacing.base)
                 }
                 .padding(.vertical, 2)
+                .listRowInsets(EdgeInsets())
 
-                Button(action: {
-                    viewModel.playAudioPreview()
-                }) {
-                    SettingsRowView(
-                        iconName: viewModel.isPlayingAudio ? "speaker.wave.3.fill" : "play.circle.fill",
-                        iconColor: .vocabPeach,
-                        title: viewModel.isPlayingAudio ? AppStrings.Settings.playingAudio : AppStrings.Settings.testTTS
-                    ) {
-                        HStack(spacing: 6) {
-                            if viewModel.isPlayingAudio {
-                                HStack(spacing: 2) {
-                                    ForEach(0..<4) { i in
-                                        RoundedRectangle(cornerRadius: 1)
-                                            .fill(Color.vocabPeach)
-                                            .frame(width: 2.5, height: CGFloat([10, 18, 14, 8][i]))
-                                    }
-                                }
-                                .padding(.trailing, 2)
+                CraftListRow(
+                    title: viewModel.isPlayingAudio
+                        ? String(localized: "settings.playingAudio", defaultValue: "Playing preview...", bundle: .module)
+                        : String(localized: "settings.testTTS", defaultValue: "Test Speech Pronunciation", bundle: .module),
+                    iconName: viewModel.isPlayingAudio ? "speaker.wave.3.fill" : "play.circle.fill",
+                    iconColor: .vocabPeach,
+                    iconBackgroundColor: Color.vocabPeach.opacity(0.15),
+                    showChevron: !viewModel.isPlayingAudio,
+                    action: {
+                        viewModel.playAudioPreview()
+                    }
+                ) {
+                    if viewModel.isPlayingAudio {
+                        HStack(spacing: 2) {
+                            ForEach(0..<4) { i in
+                                RoundedRectangle(cornerRadius: 1)
+                                    .fill(Color.vocabPeach)
+                                    .frame(width: 2.5, height: CGFloat([10, 18, 14, 8][i]))
                             }
-                            Image(systemName: "chevron.right")
-                                .font(.caption.weight(.bold))
-                                .foregroundColor(.vocabMuted)
                         }
+                        .padding(.trailing, 2)
                     }
                 }
+                .listRowInsets(EdgeInsets())
             }
-            .listRowBackground(Color.vocabSurfaceCard)
+            .listRowBackground(theme.colors.surfaceCard)
 
             // Appearance & Experience Section
             Section(header: sectionHeader(AppStrings.Settings.sectionAppearance)) {
-                SettingsRowView(
+                CraftListRow(
+                    title: String(localized: "settings.appTheme", defaultValue: "App Theme", bundle: .module),
                     iconName: "paintpalette.fill",
                     iconColor: .vocabLavender,
-                    title: AppStrings.Settings.appTheme
+                    iconBackgroundColor: Color.vocabLavender.opacity(0.15)
                 ) {
                     Picker("", selection: $viewModel.store.appTheme) {
                         Text(AppStrings.Settings.themeDark).tag("dark")
@@ -213,31 +178,41 @@ public struct SettingsView: View {
                     .pickerStyle(.segmented)
                     .frame(width: 170)
                 }
+                .listRowInsets(EdgeInsets())
 
-                SettingsRowView(
+                CraftListRow(
+                    title: String(localized: "settings.haptics", defaultValue: "Haptic Feedback", bundle: .module),
                     iconName: "hand.tap.fill",
                     iconColor: .vocabLavender,
-                    title: AppStrings.Settings.haptics
+                    iconBackgroundColor: Color.vocabLavender.opacity(0.15)
                 ) {
                     Toggle("", isOn: $viewModel.store.isHapticsEnabled)
+                        .labelsHidden()
+                        .toggleStyle(.craft)
                 }
+                .listRowInsets(EdgeInsets())
 
-                SettingsRowView(
+                CraftListRow(
+                    title: String(localized: "settings.soundEffects", defaultValue: "Sound Effects", bundle: .module),
                     iconName: "waveform",
                     iconColor: .vocabLavender,
-                    title: AppStrings.Settings.soundEffects
+                    iconBackgroundColor: Color.vocabLavender.opacity(0.15)
                 ) {
                     Toggle("", isOn: $viewModel.store.isSoundEffectsEnabled)
+                        .labelsHidden()
+                        .toggleStyle(.craft)
                 }
+                .listRowInsets(EdgeInsets())
             }
-            .listRowBackground(Color.vocabSurfaceCard)
+            .listRowBackground(theme.colors.surfaceCard)
 
             // Language & Region Section
             Section(header: sectionHeader(AppStrings.Settings.sectionLanguage)) {
-                SettingsRowView(
+                CraftListRow(
+                    title: String(localized: "settings.appLanguage", defaultValue: "App Language", bundle: .module),
                     iconName: "globe",
                     iconColor: .vocabHeroTeal,
-                    title: AppStrings.Settings.appLanguage
+                    iconBackgroundColor: Color.vocabHeroTeal.opacity(0.15)
                 ) {
                     Picker("", selection: $viewModel.store.appLanguage) {
                         Text(AppStrings.Settings.langSystem).tag("system")
@@ -247,57 +222,60 @@ public struct SettingsView: View {
                     .pickerStyle(.menu)
                     .tint(.vocabHeroTeal)
                 }
+                .listRowInsets(EdgeInsets())
             }
-            .listRowBackground(Color.vocabSurfaceCard)
+            .listRowBackground(theme.colors.surfaceCard)
 
             // App Data & About Section
             Section(header: sectionHeader(AppStrings.Settings.sectionAppData)) {
-                SettingsRowView(
+                CraftListRow(
+                    title: String(localized: "settings.icloudSync", defaultValue: "iCloud Sync", bundle: .module),
                     iconName: "icloud.fill",
                     iconColor: .vocabMuted,
-                    title: AppStrings.Settings.icloudSync
+                    iconBackgroundColor: Color.vocabMuted.opacity(0.15)
                 ) {
-                    Text(AppStrings.Settings.synced)
-                        .font(.caption2.weight(.bold))
-                        .fontDesign(.rounded)
-                        .foregroundColor(.vocabMint)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 3)
-                        .background(
-                            Capsule()
-                                .fill(Color.vocabMint.opacity(0.14))
-                                .overlay(Capsule().stroke(Color.vocabMint.opacity(0.25), lineWidth: 0.8))
-                        )
+                    CraftBadge(
+                        String(localized: "settings.synced", defaultValue: "Synced", bundle: .module),
+                        iconName: "checkmark",
+                        variant: .subtle,
+                        tone: .success,
+                        size: .sm
+                    )
                 }
+                .listRowInsets(EdgeInsets())
 
-                Button(action: {
-                    viewModel.clearCache()
-                }) {
-                    SettingsRowView(
-                        iconName: "trash.fill",
-                        iconColor: .vocabMuted,
-                        title: AppStrings.Settings.clearCache
-                    ) {
-                        Text(viewModel.cacheSizeString)
-                            .font(.caption.weight(.semibold))
-                            .fontDesign(.rounded)
-                            .monospacedDigit()
-                            .foregroundColor(.vocabMuted)
+                CraftListRow(
+                    title: String(localized: "settings.clearCache", defaultValue: "Clear Cache", bundle: .module),
+                    iconName: "trash.fill",
+                    iconColor: .vocabMuted,
+                    iconBackgroundColor: Color.vocabMuted.opacity(0.15),
+                    action: {
+                        viewModel.clearCache()
                     }
+                ) {
+                    CraftText(
+                        viewModel.cacheSizeString,
+                        style: .label,
+                        color: theme.colors.textMuted
+                    )
                 }
+                .listRowInsets(EdgeInsets())
 
-                SettingsRowView(
+                CraftListRow(
+                    title: String(localized: "settings.appVersion", defaultValue: "App Version", bundle: .module),
                     iconName: "info.circle.fill",
                     iconColor: .vocabMuted,
-                    title: AppStrings.Settings.appVersion
+                    iconBackgroundColor: Color.vocabMuted.opacity(0.15)
                 ) {
-                    Text("v1.2.0 (Build 42)")
-                        .font(.footnote.weight(.medium))
-                        .fontDesign(.rounded)
-                        .foregroundColor(.vocabMuted)
+                    CraftText(
+                        "v1.2.0 (Build 42)",
+                        style: .label,
+                        color: theme.colors.textMuted
+                    )
                 }
+                .listRowInsets(EdgeInsets())
             }
-            .listRowBackground(Color.vocabSurfaceCard)
+            .listRowBackground(theme.colors.surfaceCard)
         }
         #if os(iOS)
         .listStyle(.insetGrouped)
@@ -305,7 +283,7 @@ public struct SettingsView: View {
         .listStyle(.sidebar)
         #endif
         .scrollContentBackground(.hidden)
-        .background(Color.vocabCanvas)
+        .background(theme.colors.canvasBackground)
         .safeAreaInset(edge: .bottom) {
             Color.clear.frame(height: 115)
         }
