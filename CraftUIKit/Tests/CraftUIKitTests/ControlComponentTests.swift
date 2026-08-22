@@ -58,6 +58,52 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertNotNil(view)
     }
 
+    // MARK: - CraftInteractiveButtonStyle Tests
+
+    func testInteractiveButtonStyleInstantiation() {
+        let defaultStyle = CraftInteractiveButtonStyle()
+        XCTAssertEqual(defaultStyle.scale, 0.97)
+        XCTAssertEqual(defaultStyle.opacity, 1.0)
+
+        let customStyle = CraftInteractiveButtonStyle(scale: 0.92, opacity: 0.85)
+        XCTAssertEqual(customStyle.scale, 0.92)
+        XCTAssertEqual(customStyle.opacity, 0.85)
+    }
+
+    func testInteractiveButtonStyleConvenience() {
+        let defaultStyle: CraftInteractiveButtonStyle = .craftPress()
+        XCTAssertEqual(defaultStyle.scale, 0.97)
+        XCTAssertEqual(defaultStyle.opacity, 1.0)
+
+        let customStyle: CraftInteractiveButtonStyle = .craftPress(scale: 0.94, opacity: 0.8)
+        XCTAssertEqual(customStyle.scale, 0.94)
+        XCTAssertEqual(customStyle.opacity, 0.8)
+    }
+
+    func testInteractiveButtonStyleApplication() {
+        let button = Button("Interactive Button") {}
+            .buttonStyle(.craftPress())
+        XCTAssertNotNil(button)
+
+        let customButton = Button("Interactive Button Custom") {}
+            .buttonStyle(.craftPress(scale: 0.92, opacity: 0.85))
+        XCTAssertNotNil(customButton)
+    }
+
+    func testCraftPressEffectViewModifier() {
+        let view = Text("Press Me")
+            .craftPressEffect()
+        XCTAssertNotNil(view)
+
+        let customView = Text("Press Me Custom")
+            .craftPressEffect(scale: 0.93, opacity: 0.9, hapticFeedback: false)
+        XCTAssertNotNil(customView)
+
+        let explicitModifier = Text("Press Modifier")
+            .modifier(CraftPressEffectModifier(scale: 0.95, opacity: 0.8, hapticFeedback: true))
+        XCTAssertNotNil(explicitModifier)
+    }
+
     // MARK: - CraftTextField Tests
 
     func testTextFieldInitAndProperties() {
