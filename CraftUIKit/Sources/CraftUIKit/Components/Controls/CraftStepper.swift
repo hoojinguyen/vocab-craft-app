@@ -86,6 +86,7 @@ public struct CraftStepper: View {
                 .buttonStyle(.plain)
                 .disabled(!canDecrement)
                 .craftPressEffect(scale: 0.92)
+                .accessibilityLabel("Decrease")
 
                 // Divider
                 Rectangle()
@@ -132,6 +133,7 @@ public struct CraftStepper: View {
                 .buttonStyle(.plain)
                 .disabled(!canIncrement)
                 .craftPressEffect(scale: 0.92)
+                .accessibilityLabel("Increase")
             }
             .frame(height: 44)
             .background(theme.colors.surfaceSubtle)

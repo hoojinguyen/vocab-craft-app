@@ -71,8 +71,8 @@ public struct CraftPill: View {
                 Capsule()
                     .strokeBorder(borderColor, lineWidth: isSelected ? 1.5 : 1.0)
             )
-            .contentShape(Rectangle())
             .frame(minHeight: 44)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .craftPressEffect(scale: 0.95)

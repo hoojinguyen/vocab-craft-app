@@ -102,8 +102,8 @@ public struct CraftButtonStyle: ButtonStyle {
         .opacity(isEnabled ? 1.0 : 0.5)
         .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
         .animation(theme.animations.springSnappy, value: configuration.isPressed)
-        .contentShape(Rectangle())
         .frame(minHeight: 44)
+        .contentShape(Rectangle())
     }
 
     private var cornerRadius: CGFloat {

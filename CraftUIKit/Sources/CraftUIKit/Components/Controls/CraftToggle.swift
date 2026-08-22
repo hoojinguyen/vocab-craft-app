@@ -41,10 +41,11 @@ public struct CraftToggleStyle: ToggleStyle {
                     .shadow(color: Color.black.opacity(0.12), radius: 2, x: 0, y: 1)
             }
             .frame(width: 50, height: 30)
-            .contentShape(Rectangle())
             .frame(minWidth: 44, minHeight: 44)
+            .contentShape(Rectangle())
             .opacity(isEnabled ? 1.0 : 0.5)
             .onTapGesture {
+                guard isEnabled else { return }
                 #if os(iOS)
                 let generator = UIImpactFeedbackGenerator(style: .light)
                 generator.prepare()
@@ -120,5 +121,6 @@ public struct CraftToggle: View {
         }
         .padding(.vertical, theme.spacing.xs)
         .frame(minHeight: 44)
+        .accessibilityElement(children: .combine)
     }
 }
