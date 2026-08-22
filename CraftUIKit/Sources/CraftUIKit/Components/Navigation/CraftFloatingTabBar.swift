@@ -10,6 +10,13 @@ public protocol CraftTabItemProtocol: Identifiable, Equatable, Sendable where ID
     var id: ID { get }
     var title: String { get }
     var symbol: String { get }
+    var badgeCount: Int? { get }
+}
+
+public extension CraftTabItemProtocol {
+    var badgeCount: Int? {
+        nil
+    }
 }
 
 // MARK: - CraftFloatingTabBar Component
@@ -68,14 +75,24 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                 }
             }
         }
-        .padding(.horizontal, theme.spacing.sm)
+        .padding(.horizontal, theme.spacing.xs)
         .padding(.vertical, theme.spacing.xs)
         .background {
             Capsule()
                 .fill(.ultraThinMaterial)
                 .overlay(
                     Capsule()
-                        .strokeBorder(theme.colors.hairline, lineWidth: 1)
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.25),
+                                    Color.white.opacity(0.05)
+                                ],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            ),
+                            lineWidth: 1
+                        )
                 )
         }
         .craftShadow(theme.shadows.lg)
@@ -100,29 +117,46 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                 selectedItem = item
             }
         } label: {
-            VStack(spacing: theme.spacing.xs) {
-                CraftIcon(
-                    item.symbol,
-                    size: .md,
-                    color: isSelected ? theme.colors.brandPrimary : theme.colors.textMuted,
-                    renderingMode: isSelected ? .hierarchical : .monochrome,
-                    weight: isSelected ? .bold : .medium
-                )
+            VStack(spacing: 3) {
+                ZStack(alignment: .topTrailing) {
+                    CraftIcon(
+                        item.symbol,
+                        size: .md,
+                        color: isSelected ? theme.colors.brandPrimary : theme.colors.textMuted,
+                        renderingMode: isSelected ? .hierarchical : .monochrome,
+                        weight: isSelected ? .bold : .medium
+                    )
+
+                    if let badgeCount = item.badgeCount, badgeCount > 0 {
+                        Text("\(min(badgeCount, 99))")
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 1)
+                            .background(theme.colors.statusDanger)
+                            .clipShape(Capsule())
+                            .offset(x: 8, y: -4)
+                    }
+                }
 
                 Text(item.title)
                     .font(theme.typography.caption)
                     .fontWeight(isSelected ? .semibold : .regular)
                     .lineLimit(1)
             }
-            .foregroundColor(isSelected ? theme.colors.brandPrimary : theme.colors.textMuted)
+            .foregroundColor(isSelected ? theme.colors.textPrimary : theme.colors.textMuted)
             .frame(maxWidth: .infinity)
-            .frame(minHeight: 44)
-            .padding(.vertical, theme.spacing.xs)
+            .frame(minHeight: 46)
+            .padding(.vertical, 6)
             .padding(.horizontal, theme.spacing.xs)
             .background {
                 if isSelected {
-                    Capsule()
-                        .fill(theme.colors.brandPrimary.opacity(0.12))
+                    RoundedRectangle(cornerRadius: 18)
+                        .fill(theme.colors.surfaceElevated.opacity(0.85))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 18)
+                                .strokeBorder(theme.colors.hairline, lineWidth: 1)
+                        )
                         .matchedGeometryEffect(id: "activeTabIndicator", in: tabNamespace)
                 }
             }

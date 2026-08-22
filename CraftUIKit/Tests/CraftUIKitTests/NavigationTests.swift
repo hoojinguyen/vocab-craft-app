@@ -88,11 +88,31 @@ final class NavigationTests: XCTestCase {
         XCTAssertNotNil(fabBar.body)
     }
 
+    func testFloatingTabBarWithBadge() {
+        struct BadgeTab: CraftTabItemProtocol {
+            let id: String
+            let title: String
+            let symbol: String
+            var badgeCount: Int? = 3
+        }
+
+        var selected = BadgeTab(id: "library", title: "Library", symbol: "books.vertical", badgeCount: 5)
+        let items = [
+            BadgeTab(id: "home", title: "Home", symbol: "house", badgeCount: nil),
+            selected
+        ]
+        let bar = CraftFloatingTabBar(selectedItem: Binding(get: { selected }, set: { selected = $0 }), items: items)
+        XCTAssertEqual(bar.items[0].badgeCount, nil)
+        XCTAssertEqual(bar.items[1].badgeCount, 5)
+        XCTAssertNotNil(bar.body)
+    }
+
     func testTabProtocolProperties() {
         let tab = SampleTab(id: 42, title: "Vocabulary", symbol: "character.book.closed")
         XCTAssertEqual(tab.id, 42)
         XCTAssertEqual(tab.title, "Vocabulary")
         XCTAssertEqual(tab.symbol, "character.book.closed")
+        XCTAssertNil(tab.badgeCount)
     }
 
     func testTabEqualityAndConformances() {
