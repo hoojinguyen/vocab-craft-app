@@ -537,16 +537,16 @@ private struct CatalogTypographySection: View {
                     }
 
                     HStack(spacing: theme.spacing.sm) {
-                        CraftIconButton(iconName: "heart.fill", size: .md, shape: .circle, variant: .filled) {
+                        CraftIconButton(iconName: "heart.fill", size: .md, shape: .circle, variant: .filled, accessibilityLabel: "Favorite") {
                             iconButtonCounter += 1
                         }
-                        CraftIconButton(iconName: "bookmark.fill", size: .md, shape: .circle, variant: .subtle) {
+                        CraftIconButton(iconName: "bookmark.fill", size: .md, shape: .circle, variant: .subtle, accessibilityLabel: "Bookmark") {
                             iconButtonCounter += 1
                         }
-                        CraftIconButton(iconName: "square.and.arrow.up", size: .md, shape: .circle, variant: .outline) {
+                        CraftIconButton(iconName: "square.and.arrow.up", size: .md, shape: .circle, variant: .outline, accessibilityLabel: "Share") {
                             iconButtonCounter += 1
                         }
-                        CraftIconButton(iconName: "trash.fill", size: .md, shape: .square, variant: .ghost) {
+                        CraftIconButton(iconName: "trash.fill", size: .md, shape: .square, variant: .ghost, accessibilityLabel: "Delete") {
                             iconButtonCounter += 1
                         }
                     }

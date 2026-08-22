@@ -30,11 +30,17 @@ public enum CraftBadgeSize: String, Sendable, CaseIterable {
 public struct CraftBadge: View {
     @Environment(\.craftTheme) private var theme
 
-    public let title: String
+    private let titleKey: LocalizedStringKey?
+    private let rawTitle: String?
+    private let isVerbatim: Bool
     public let iconName: String?
     public let variant: CraftBadgeVariant
     public let tone: CraftBadgeTone
     public let size: CraftBadgeSize
+
+    public var title: String? {
+        rawTitle
+    }
 
     public init(
         _ title: String,
@@ -43,7 +49,41 @@ public struct CraftBadge: View {
         tone: CraftBadgeTone = .primary,
         size: CraftBadgeSize = .md
     ) {
-        self.title = title
+        self.titleKey = nil
+        self.rawTitle = title
+        self.isVerbatim = false
+        self.iconName = iconName
+        self.variant = variant
+        self.tone = tone
+        self.size = size
+    }
+
+    public init(
+        _ titleKey: LocalizedStringKey,
+        iconName: String? = nil,
+        variant: CraftBadgeVariant = .subtle,
+        tone: CraftBadgeTone = .primary,
+        size: CraftBadgeSize = .md
+    ) {
+        self.titleKey = titleKey
+        self.rawTitle = nil
+        self.isVerbatim = false
+        self.iconName = iconName
+        self.variant = variant
+        self.tone = tone
+        self.size = size
+    }
+
+    public init(
+        verbatim title: String,
+        iconName: String? = nil,
+        variant: CraftBadgeVariant = .subtle,
+        tone: CraftBadgeTone = .primary,
+        size: CraftBadgeSize = .md
+    ) {
+        self.titleKey = nil
+        self.rawTitle = title
+        self.isVerbatim = true
         self.iconName = iconName
         self.variant = variant
         self.tone = tone
@@ -95,24 +135,30 @@ public struct CraftBadge: View {
         }
     }
 
-    private var iconSize: CGFloat {
-        switch size {
-        case .sm: return 10
-        case .md: return 12
-        }
-    }
-
     public var body: some View {
         HStack(spacing: 4) {
             if let iconName {
                 Image(systemName: iconName)
-                    .font(.system(size: iconSize, weight: .semibold))
+                    .font(font.weight(.semibold))
+                    .accessibilityHidden(true)
             }
-            Text(title)
-                .font(font)
-                .fontWeight(.semibold)
+            if let titleKey {
+                Text(titleKey)
+                    .font(font)
+                    .fontWeight(.semibold)
+            } else if let rawTitle {
+                if isVerbatim {
+                    Text(verbatim: rawTitle)
+                        .font(font)
+                        .fontWeight(.semibold)
+                } else {
+                    Text(rawTitle)
+                        .font(font)
+                        .fontWeight(.semibold)
+                }
+            }
         }
-        .foregroundColor(foregroundColor)
+        .foregroundStyle(foregroundColor)
         .padding(.horizontal, horizontalPadding)
         .padding(.vertical, verticalPadding)
         .background(backgroundView)

@@ -24,6 +24,18 @@ final class AtomComponentTests: XCTestCase {
         XCTAssertEqual(defaultBadge.size, .md)
     }
 
+    func testBadgeLocalizedAndVerbatim() {
+        let localizedBadge = CraftBadge(LocalizedStringKey("badge_new"), iconName: "sparkles", variant: .solid)
+        XCTAssertNil(localizedBadge.title)
+        XCTAssertEqual(localizedBadge.iconName, "sparkles")
+        XCTAssertNotNil(localizedBadge.body)
+
+        let verbatimBadge = CraftBadge(verbatim: "LEVEL 5", variant: .outline, tone: .warning, size: .sm)
+        XCTAssertEqual(verbatimBadge.title, "LEVEL 5")
+        XCTAssertEqual(verbatimBadge.tone, .warning)
+        XCTAssertNotNil(verbatimBadge.body)
+    }
+
     func testBadgeVariantsAndTones() {
         for variant in CraftBadgeVariant.allCases {
             for tone in CraftBadgeTone.allCases {
@@ -48,10 +60,11 @@ final class AtomComponentTests: XCTestCase {
     }
 
     func testIconInit() {
-        let icon = CraftIcon("star.fill", size: .lg, color: .yellow)
+        let icon = CraftIcon("star.fill", size: .lg, color: .yellow, accessibilityLabel: "Favorite")
         XCTAssertEqual(icon.name, "star.fill")
         XCTAssertEqual(icon.size, .lg)
         XCTAssertEqual(icon.color, .yellow)
+        XCTAssertEqual(icon.accessibilityLabel, "Favorite")
         XCTAssertNotNil(icon.body)
     }
 
@@ -60,6 +73,7 @@ final class AtomComponentTests: XCTestCase {
         XCTAssertEqual(defaultIcon.name, "sparkles")
         XCTAssertEqual(defaultIcon.size, .md)
         XCTAssertNil(defaultIcon.color)
+        XCTAssertNil(defaultIcon.accessibilityLabel)
     }
 
     // MARK: - CraftIconButton Tests
@@ -96,11 +110,13 @@ final class AtomComponentTests: XCTestCase {
                         iconName: "plus",
                         size: size,
                         shape: shape,
-                        variant: variant
+                        variant: variant,
+                        accessibilityLabel: "Add item"
                     ) {}
                     XCTAssertEqual(btn.shape, shape)
                     XCTAssertEqual(btn.variant, variant)
                     XCTAssertEqual(btn.size, size)
+                    XCTAssertEqual(btn.accessibilityLabel, "Add item")
                     XCTAssertNotNil(btn.body)
                 }
             }
@@ -173,6 +189,19 @@ final class AtomComponentTests: XCTestCase {
         XCTAssertEqual(text.lineLimit, 2)
         XCTAssertEqual(text.textAlignment, .center)
         XCTAssertNotNil(text.body)
+    }
+
+    func testCraftTextLocalizationAndVerbatim() {
+        let keyText = CraftText(LocalizedStringKey("welcome_message"), style: .headline)
+        XCTAssertNil(keyText.text)
+        XCTAssertEqual(keyText.style, .headline)
+        XCTAssertNotNil(keyText.body)
+
+        let verbatimText = CraftText(verbatim: "Hello World", style: .bodyLarge, color: .blue)
+        XCTAssertEqual(verbatimText.text, "Hello World")
+        XCTAssertEqual(verbatimText.style, .bodyLarge)
+        XCTAssertEqual(verbatimText.color, .blue)
+        XCTAssertNotNil(verbatimText.body)
     }
 
     // MARK: - View Modifiers Application Tests

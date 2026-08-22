@@ -1,7 +1,4 @@
 import SwiftUI
-#if os(iOS)
-import UIKit
-#endif
 
 // MARK: - Icon Button Enums
 
@@ -29,7 +26,7 @@ public struct CraftIconButton: View {
     public let size: CraftIconSize
     public let shape: CraftIconButtonShape
     public let variant: CraftIconButtonVariant
-    public let accessibilityLabel: String?
+    public let accessibilityLabel: String
     public let minTouchTarget: CGFloat = 44
     public let action: () -> Void
 
@@ -38,7 +35,7 @@ public struct CraftIconButton: View {
         size: CraftIconSize = .md,
         shape: CraftIconButtonShape = .circle,
         variant: CraftIconButtonVariant = .subtle,
-        accessibilityLabel: String? = nil,
+        accessibilityLabel: String,
         action: @escaping () -> Void
     ) {
         self.iconName = iconName
@@ -68,14 +65,7 @@ public struct CraftIconButton: View {
     }
 
     public var body: some View {
-        Button(action: {
-            #if os(iOS)
-            let generator = UIImpactFeedbackGenerator(style: .light)
-            generator.prepare()
-            generator.impactOccurred()
-            #endif
-            action()
-        }) {
+        Button(action: action) {
             ZStack {
                 backgroundShapeView
 
@@ -85,9 +75,8 @@ public struct CraftIconButton: View {
             .frame(minWidth: minTouchTarget, minHeight: minTouchTarget)
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-        .craftPressEffect(scale: 0.94)
-        .accessibilityLabel(accessibilityLabel ?? iconName)
+        .buttonStyle(.craftPress(scale: 0.94))
+        .accessibilityLabel(accessibilityLabel)
     }
 
     @ViewBuilder

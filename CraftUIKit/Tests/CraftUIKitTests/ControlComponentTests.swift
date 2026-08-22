@@ -47,6 +47,31 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertTrue(actionFired)
     }
 
+    func testButtonLocalizationAndVerbatim() {
+        let localizedButton = CraftButton(LocalizedStringKey("start_quiz"), variant: .primary) {}
+        XCTAssertNil(localizedButton.title)
+        XCTAssertEqual(localizedButton.variant, .primary)
+        XCTAssertNotNil(localizedButton.body)
+
+        let verbatimButton = CraftButton(verbatim: "Custom Action", variant: .outline, size: .sm) {}
+        XCTAssertEqual(verbatimButton.title, "Custom Action")
+        XCTAssertEqual(verbatimButton.variant, .outline)
+        XCTAssertEqual(verbatimButton.size, .sm)
+        XCTAssertNotNil(verbatimButton.body)
+    }
+
+    func testButtonIconPositions() {
+        let leadingIconBtn = CraftButton("Next", iconName: "arrow.forward", iconPosition: .leading) {}
+        XCTAssertEqual(leadingIconBtn.iconPosition, .leading)
+        XCTAssertEqual(leadingIconBtn.iconName, "arrow.forward")
+        XCTAssertNotNil(leadingIconBtn.body)
+
+        let trailingIconBtn = CraftButton("Next", iconName: "arrow.right", iconPosition: .trailing) {}
+        XCTAssertEqual(trailingIconBtn.iconPosition, .trailing)
+        XCTAssertEqual(trailingIconBtn.iconName, "arrow.right")
+        XCTAssertNotNil(trailingIconBtn.body)
+    }
+
     func testNativeButtonStyles() {
         let view = VStack {
             Button("Primary") {}.buttonStyle(.craftPrimary())

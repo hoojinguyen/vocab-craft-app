@@ -1,7 +1,4 @@
 import SwiftUI
-#if os(iOS)
-import UIKit
-#endif
 
 // MARK: - Button Enums
 
@@ -69,6 +66,7 @@ public enum CraftButtonIconPosition: String, Sendable, CaseIterable {
 public struct CraftButtonStyle: ButtonStyle {
     @Environment(\.craftTheme) private var theme
     @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     public let variant: CraftButtonVariant
     public let size: CraftButtonSize
@@ -84,6 +82,14 @@ public struct CraftButtonStyle: ButtonStyle {
         self.isLoading = isLoading
     }
 
+    private var verticalPadding: CGFloat {
+        switch size {
+        case .sm: return 6
+        case .md: return 10
+        case .lg: return 14
+        }
+    }
+
     public func makeBody(configuration: Configuration) -> some View {
         HStack(spacing: theme.spacing.xs) {
             if isLoading {
@@ -91,16 +97,17 @@ public struct CraftButtonStyle: ButtonStyle {
             }
             configuration.label
                 .font(theme.typography.font(for: size.typographyStyle))
-                .foregroundColor(foregroundColor(isPressed: configuration.isPressed))
+                .foregroundStyle(foregroundColor(isPressed: configuration.isPressed))
                 .opacity(isLoading ? 0.8 : 1.0)
         }
-        .frame(height: size.height)
+        .padding(.vertical, verticalPadding)
         .padding(.horizontal, size.horizontalPadding)
+        .frame(minHeight: size.height)
         .background(backgroundView(isPressed: configuration.isPressed))
         .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
         .overlay(borderOverlay(isPressed: configuration.isPressed))
         .opacity(isEnabled ? 1.0 : 0.5)
-        .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
+        .scaleEffect(configuration.isPressed && !reduceMotion ? 0.97 : 1.0)
         .animation(theme.animations.springSnappy, value: configuration.isPressed)
         .frame(minHeight: 44)
         .contentShape(Rectangle())
@@ -191,13 +198,19 @@ public extension ButtonStyle where Self == CraftButtonStyle {
 public struct CraftButton: View {
     @Environment(\.craftTheme) private var theme
 
-    public let title: String
+    private let titleKey: LocalizedStringKey?
+    private let rawTitle: String?
+    private let isVerbatim: Bool
     public let iconName: String?
     public let iconPosition: CraftButtonIconPosition
     public let variant: CraftButtonVariant
     public let size: CraftButtonSize
     public let isLoading: Bool
     public let action: () -> Void
+
+    public var title: String? {
+        rawTitle
+    }
 
     public init(
         _ title: String,
@@ -208,7 +221,49 @@ public struct CraftButton: View {
         isLoading: Bool = false,
         action: @escaping () -> Void
     ) {
-        self.title = title
+        self.titleKey = nil
+        self.rawTitle = title
+        self.isVerbatim = false
+        self.iconName = iconName
+        self.iconPosition = iconPosition
+        self.variant = variant
+        self.size = size
+        self.isLoading = isLoading
+        self.action = action
+    }
+
+    public init(
+        _ titleKey: LocalizedStringKey,
+        iconName: String? = nil,
+        iconPosition: CraftButtonIconPosition = .leading,
+        variant: CraftButtonVariant = .primary,
+        size: CraftButtonSize = .md,
+        isLoading: Bool = false,
+        action: @escaping () -> Void
+    ) {
+        self.titleKey = titleKey
+        self.rawTitle = nil
+        self.isVerbatim = false
+        self.iconName = iconName
+        self.iconPosition = iconPosition
+        self.variant = variant
+        self.size = size
+        self.isLoading = isLoading
+        self.action = action
+    }
+
+    public init(
+        verbatim title: String,
+        iconName: String? = nil,
+        iconPosition: CraftButtonIconPosition = .leading,
+        variant: CraftButtonVariant = .primary,
+        size: CraftButtonSize = .md,
+        isLoading: Bool = false,
+        action: @escaping () -> Void
+    ) {
+        self.titleKey = nil
+        self.rawTitle = title
+        self.isVerbatim = true
         self.iconName = iconName
         self.iconPosition = iconPosition
         self.variant = variant
@@ -220,11 +275,6 @@ public struct CraftButton: View {
     public var body: some View {
         Button(action: {
             guard !isLoading else { return }
-            #if os(iOS)
-            let generator = UIImpactFeedbackGenerator(style: .light)
-            generator.prepare()
-            generator.impactOccurred()
-            #endif
             action()
         }) {
             HStack(spacing: theme.spacing.xs) {
@@ -232,7 +282,15 @@ public struct CraftButton: View {
                     CraftIcon(iconName, size: size.iconSize)
                 }
 
-                Text(title)
+                if let titleKey {
+                    Text(titleKey)
+                } else if let rawTitle {
+                    if isVerbatim {
+                        Text(verbatim: rawTitle)
+                    } else {
+                        Text(rawTitle)
+                    }
+                }
 
                 if let iconName, iconPosition == .trailing, !isLoading {
                     CraftIcon(iconName, size: size.iconSize)

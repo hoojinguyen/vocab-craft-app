@@ -5,6 +5,7 @@ import SwiftUI
 /// A smooth activity spinner indicator styled with brand theme colors and standardized sizing.
 public struct CraftSpinner: View {
     @Environment(\.craftTheme) private var theme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isAnimating = false
 
     public let size: CraftIconSize
@@ -38,14 +39,18 @@ public struct CraftSpinner: View {
                 style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
             )
             .frame(width: size.pointSize, height: size.pointSize)
-            .rotationEffect(.degrees(isAnimating ? 360 : 0))
+            .rotationEffect(.degrees(isAnimating && !reduceMotion ? 360 : 0))
             .onAppear {
+                guard !reduceMotion else { return }
                 withAnimation(
                     .linear(duration: 0.8)
                     .repeatForever(autoreverses: false)
                 ) {
                     isAnimating = true
                 }
+            }
+            .accessibilityRepresentation {
+                ProgressView()
             }
     }
 }

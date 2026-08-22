@@ -29,20 +29,31 @@ public struct CraftIcon: View {
     public let name: String
     public let size: CraftIconSize
     public let color: Color?
+    public let accessibilityLabel: String?
 
     public init(
         _ name: String,
         size: CraftIconSize = .md,
-        color: Color? = nil
+        color: Color? = nil,
+        accessibilityLabel: String? = nil
     ) {
         self.name = name
         self.size = size
         self.color = color
+        self.accessibilityLabel = accessibilityLabel
     }
 
     public var body: some View {
-        Image(systemName: name)
-            .font(.system(size: size.pointSize))
-            .foregroundColor(color ?? theme.colors.textPrimary)
+        Group {
+            if let accessibilityLabel {
+                Image(systemName: name)
+                    .accessibilityLabel(accessibilityLabel)
+            } else {
+                Image(systemName: name)
+                    .accessibilityHidden(true)
+            }
+        }
+        .font(.system(size: size.pointSize))
+        .foregroundStyle(color ?? theme.colors.textPrimary)
     }
 }
