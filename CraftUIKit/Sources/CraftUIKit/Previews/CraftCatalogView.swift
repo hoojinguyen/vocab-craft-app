@@ -463,7 +463,7 @@ private struct CatalogThemeHeaderView: View {
 
                 CraftDivider()
 
-                HStack(spacing: theme.spacing.base) {
+                VStack(alignment: .leading, spacing: theme.spacing.sm) {
                     VStack(alignment: .leading, spacing: theme.spacing.xs) {
                         CraftText("Theme", style: .label, color: theme.colors.textSecondary)
                         Picker("Theme", selection: $selectedThemeType) {
@@ -510,10 +510,23 @@ private struct CatalogTypographySection: View {
                     CraftText("Label Style", style: .label, color: theme.colors.textMuted)
                     CraftText("Caption helper text style", style: .caption, color: theme.colors.textMuted)
 
-                    Text("SwiftUI Text with .craftTypography(.titleMedium)")
-                        .craftTypography(.titleMedium)
-                        .foregroundColor(theme.colors.brandPrimary)
-                        .padding(.top, theme.spacing.xs)
+                    VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                        HStack(spacing: 6) {
+                            CraftText("Modifier Demo:", style: .caption, color: theme.colors.textMuted)
+                            Text(".craftTypography(.titleMedium)")
+                                .font(.system(.caption, design: .monospaced, weight: .semibold))
+                                .foregroundStyle(theme.colors.brandSecondary)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(theme.colors.surfaceSubtle)
+                                .clipShape(RoundedRectangle(cornerRadius: theme.radii.xs))
+                        }
+
+                        Text("SwiftUI Text Integration Preview")
+                            .craftTypography(.titleMedium)
+                            .foregroundStyle(theme.colors.brandPrimary)
+                    }
+                    .padding(.top, theme.spacing.xs)
                 }
 
                 CraftDivider()
