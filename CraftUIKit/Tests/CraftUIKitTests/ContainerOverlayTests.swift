@@ -204,6 +204,34 @@ final class ContainerOverlayTests: XCTestCase {
 
     // MARK: - CraftEmptyState Tests
 
+    func testEmptyStateWithCraftSymbol() {
+        var buttonTapped = false
+        let emptyState = CraftEmptyState(
+            symbol: .study,
+            title: "No Study Cards",
+            message: "Create your first vocabulary card to start reviewing.",
+            buttonTitle: "Add Word",
+            buttonSymbol: .add,
+            buttonAction: { buttonTapped = true }
+        )
+
+        XCTAssertEqual(emptyState.title, "No Study Cards")
+        XCTAssertEqual(emptyState.message, "Create your first vocabulary card to start reviewing.")
+        XCTAssertEqual(emptyState.iconName, "character.book.closed")
+        XCTAssertEqual(emptyState.buttonTitle, "Add Word")
+        XCTAssertEqual(emptyState.buttonIcon, "plus")
+        XCTAssertNotNil(emptyState.body)
+
+        emptyState.buttonAction?()
+        XCTAssertTrue(buttonTapped)
+    }
+
+    func testDefaultEmptyStateIllustrationWithSymbol() {
+        let illustration = CraftDefaultEmptyStateIllustration(symbol: .bookmark)
+        XCTAssertEqual(illustration.iconName, "bookmark")
+        XCTAssertNotNil(illustration.body)
+    }
+
     func testEmptyStateWithIconAndButton() {
         var buttonTapped = false
         let emptyState = CraftEmptyState(

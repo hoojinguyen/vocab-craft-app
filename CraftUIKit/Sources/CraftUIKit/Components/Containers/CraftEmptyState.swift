@@ -2,23 +2,48 @@ import SwiftUI
 
 // MARK: - Default Empty State Illustration
 
-/// A standard circular badge illustration for default empty state views.
+/// A refined 3-tier layered squircle badge illustration with subtle depth for empty state views.
 public struct CraftDefaultEmptyStateIllustration: View {
     @Environment(\.craftTheme) private var theme
     public let iconName: String
+    public let symbol: CraftSymbol?
 
-    public init(iconName: String = "sparkles") {
+    public init(symbol: CraftSymbol = .study) {
+        self.symbol = symbol
+        self.iconName = symbol.rawValue
+    }
+
+    public init(iconName: String = "character.book.closed") {
+        self.symbol = CraftSymbol(rawValue: iconName)
         self.iconName = iconName
     }
 
     public var body: some View {
         ZStack {
-            Circle()
+            // Layer 1: Outer soft squircle container
+            RoundedRectangle(cornerRadius: theme.radii.xl, style: .continuous)
                 .fill(theme.colors.surfaceSubtle)
-                .frame(width: 72, height: 72)
+                .frame(width: 88, height: 88)
+                .overlay(
+                    RoundedRectangle(cornerRadius: theme.radii.xl, style: .continuous)
+                        .strokeBorder(theme.colors.borderDefault.opacity(0.6), lineWidth: 1)
+                )
 
-            CraftIcon(iconName, size: .xl, color: theme.colors.brandPrimary)
+            // Layer 2: Inner accent pill badge
+            RoundedRectangle(cornerRadius: theme.radii.lg, style: .continuous)
+                .fill(theme.colors.brandPrimary.opacity(0.12))
+                .frame(width: 56, height: 56)
+
+            // Layer 3: Hierarchical focal icon
+            CraftIcon(
+                iconName,
+                size: .lg,
+                color: theme.colors.brandPrimary,
+                renderingMode: .hierarchical,
+                weight: .bold
+            )
         }
+        .craftShadow(theme.shadows.sm)
     }
 }
 
@@ -205,7 +230,25 @@ public struct CraftEmptyState<Illustration: View>: View {
 
 public extension CraftEmptyState where Illustration == CraftDefaultEmptyStateIllustration {
     init(
-        iconName: String = "sparkles",
+        symbol: CraftSymbol = .study,
+        title: String,
+        message: String? = nil,
+        buttonTitle: String? = nil,
+        buttonSymbol: CraftSymbol? = nil,
+        buttonAction: (() -> Void)? = nil
+    ) {
+        self.init(
+            iconName: symbol.rawValue,
+            title: title,
+            message: message,
+            buttonTitle: buttonTitle,
+            buttonIcon: buttonSymbol?.rawValue,
+            buttonAction: buttonAction
+        )
+    }
+
+    init(
+        iconName: String = "character.book.closed",
         title: String,
         message: String? = nil,
         buttonTitle: String? = nil,
@@ -225,7 +268,25 @@ public extension CraftEmptyState where Illustration == CraftDefaultEmptyStateIll
     }
 
     init(
-        iconName: String = "sparkles",
+        symbol: CraftSymbol = .study,
+        title: LocalizedStringKey,
+        message: LocalizedStringKey? = nil,
+        buttonTitle: LocalizedStringKey? = nil,
+        buttonSymbol: CraftSymbol? = nil,
+        buttonAction: (() -> Void)? = nil
+    ) {
+        self.init(
+            iconName: symbol.rawValue,
+            title: title,
+            message: message,
+            buttonTitle: buttonTitle,
+            buttonIcon: buttonSymbol?.rawValue,
+            buttonAction: buttonAction
+        )
+    }
+
+    init(
+        iconName: String = "character.book.closed",
         title: LocalizedStringKey,
         message: LocalizedStringKey? = nil,
         buttonTitle: LocalizedStringKey? = nil,
