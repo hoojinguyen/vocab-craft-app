@@ -210,6 +210,25 @@ final class ControlComponentTests: XCTestCase {
 
         XCTAssertEqual(searchBar.text.wrappedValue, "swift")
         XCTAssertEqual(searchBar.placeholder, "Search vocabulary...")
+        XCTAssertEqual(searchBar.style, .standard)
+        XCTAssertEqual(searchBar.shape, .capsule)
+        XCTAssertNil(searchBar.trailingIcon)
+        XCTAssertNotNil(searchBar.body)
+    }
+
+    func testSearchBarRecessedStyleAndShape() {
+        var query = "vocab"
+        let searchBar = CraftSearchBar(
+            text: Binding(get: { query }, set: { query = $0 }),
+            placeholder: "Search words",
+            style: .recessed,
+            shape: .roundedRectangle(radius: 14),
+            trailingIcon: "slider.horizontal.3",
+            trailingAction: {}
+        )
+        XCTAssertEqual(searchBar.style, .recessed)
+        XCTAssertEqual(searchBar.shape, .roundedRectangle(radius: 14))
+        XCTAssertEqual(searchBar.trailingIcon, "slider.horizontal.3")
         XCTAssertNotNil(searchBar.body)
     }
 
