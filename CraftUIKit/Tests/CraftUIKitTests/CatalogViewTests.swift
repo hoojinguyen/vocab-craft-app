@@ -48,6 +48,23 @@ final class CatalogViewTests: XCTestCase {
         XCTAssertEqual(CatalogTabItem.profile.symbol, "person.crop.circle")
     }
 
+    func testCatalogEmptyStatePresetProperties() {
+        XCTAssertEqual(CatalogEmptyStatePreset.allCases.count, 3)
+        XCTAssertEqual(CatalogEmptyStatePreset.study.id, "Study Cards")
+        XCTAssertEqual(CatalogEmptyStatePreset.study.symbol, .study)
+        XCTAssertEqual(CatalogEmptyStatePreset.study.title, "No Study Cards")
+        XCTAssertEqual(CatalogEmptyStatePreset.study.buttonTitle, "Add Word")
+        XCTAssertEqual(CatalogEmptyStatePreset.study.buttonSymbol, .add)
+
+        XCTAssertEqual(CatalogEmptyStatePreset.search.symbol, .search)
+        XCTAssertEqual(CatalogEmptyStatePreset.search.title, "No Results Found")
+        XCTAssertEqual(CatalogEmptyStatePreset.search.buttonSymbol, .clear)
+
+        XCTAssertEqual(CatalogEmptyStatePreset.bookmark.symbol, .bookmark)
+        XCTAssertEqual(CatalogEmptyStatePreset.bookmark.title, "No Bookmarks Saved")
+        XCTAssertEqual(CatalogEmptyStatePreset.bookmark.buttonSymbol, .list)
+    }
+
     func testEmeraldThemeTokens() {
         let theme = CraftEmeraldTheme()
         XCTAssertEqual(theme.colors.brandPrimary, Color(hex: 0x10B981))

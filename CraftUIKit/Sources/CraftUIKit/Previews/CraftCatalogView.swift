@@ -55,6 +55,55 @@ public enum CatalogTabItem: String, CaseIterable, Identifiable, CraftTabItemProt
     }
 }
 
+/// Interactive preset options for demonstrating domain-specific `CraftEmptyState` illustrations and copy.
+public enum CatalogEmptyStatePreset: String, CaseIterable, Identifiable, Sendable {
+    case study = "Study Cards"
+    case search = "Search Results"
+    case bookmark = "Bookmarks"
+
+    public var id: String { rawValue }
+
+    public var symbol: CraftSymbol {
+        switch self {
+        case .study: return .study
+        case .search: return .search
+        case .bookmark: return .bookmark
+        }
+    }
+
+    public var title: String {
+        switch self {
+        case .study: return "No Study Cards"
+        case .search: return "No Results Found"
+        case .bookmark: return "No Bookmarks Saved"
+        }
+    }
+
+    public var message: String {
+        switch self {
+        case .study: return "Create your first vocabulary card to start reviewing."
+        case .search: return "No vocabulary words matched your query. Try broadening your keywords."
+        case .bookmark: return "Save challenging vocabulary words during quizzes to review them here later."
+        }
+    }
+
+    public var buttonTitle: String {
+        switch self {
+        case .study: return "Add Word"
+        case .search: return "Clear Search"
+        case .bookmark: return "Browse Words"
+        }
+    }
+
+    public var buttonSymbol: CraftSymbol {
+        switch self {
+        case .study: return .add
+        case .search: return .clear
+        case .bookmark: return .list
+        }
+    }
+}
+
 private struct CatalogChipItem: Identifiable {
     var id: String { title }
     let title: String
@@ -242,6 +291,9 @@ private struct CraftCatalogContentView: View {
     @State private var isDangerDialogPresented: Bool = false
     @State private var bentoCardTapped: String? = nil
 
+    // Phase 2: Section 8 - Empty State Presets
+    @State private var selectedEmptyPreset: CatalogEmptyStatePreset = .study
+
     // Phase 2: Section 10 - Metrics & Progression
     @State private var masteredCount: Double = 45
     @State private var reviewingCount: Double = 30
@@ -304,10 +356,13 @@ private struct CraftCatalogContentView: View {
 
                     CatalogProgressSection(progressValue: $progressValue)
 
-                    CatalogListRowsEmptySection {
-                        toastStyle = .info
-                        isToastPresented = true
-                    }
+                    CatalogListRowsEmptySection(
+                        selectedPreset: $selectedEmptyPreset,
+                        onEmptyAction: {
+                            toastStyle = .info
+                            isToastPresented = true
+                        }
+                    )
 
                     CatalogOverlaysSection(
                         toastStyle: $toastStyle,
@@ -498,7 +553,7 @@ private struct CatalogTypographySection: View {
     var body: some View {
         CraftCard(style: .elevated) {
             VStack(alignment: .leading, spacing: theme.spacing.base) {
-                CatalogSectionHeader(title: "1. Typography & Icons", iconName: "textformat")
+                CatalogSectionHeader(title: "1. Typography & SF Symbol Tokens", iconName: "textformat")
 
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     CraftText("Display Large", style: .displayLarge)
@@ -527,6 +582,25 @@ private struct CatalogTypographySection: View {
                             .foregroundStyle(theme.colors.brandPrimary)
                     }
                     .padding(.top, theme.spacing.xs)
+                }
+
+                CraftDivider()
+
+                // CraftSymbol Token Library Grid
+                VStack(alignment: .leading, spacing: theme.spacing.sm) {
+                    CraftText("CraftSymbol Design Tokens (SF Symbols 5+)", style: .headline)
+                    CraftText("Type-safe, curated domain icons with hierarchical rendering", style: .caption, color: theme.colors.textSecondary)
+
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: theme.spacing.sm) {
+                        symbolBadge(symbol: .study, label: "Study")
+                        symbolBadge(symbol: .practice, label: "Practice")
+                        symbolBadge(symbol: .mastery, label: "Mastery")
+                        symbolBadge(symbol: .sparkles, label: "Sparkles")
+                        symbolBadge(symbol: .streak, label: "Streak")
+                        symbolBadge(symbol: .bookmark, label: "Bookmark")
+                        symbolBadge(symbol: .trophy, label: "Trophy")
+                        symbolBadge(symbol: .lightbulb, label: "Insight")
+                    }
                 }
 
                 CraftDivider()
@@ -587,16 +661,16 @@ private struct CatalogTypographySection: View {
                     }
 
                     HStack(spacing: theme.spacing.sm) {
-                        CraftIconButton(iconName: "heart.fill", size: .md, shape: .circle, variant: .filled, accessibilityLabel: "Favorite") {
+                        CraftIconButton(symbol: .favoriteFill, size: .md, shape: .circle, variant: .filled, accessibilityLabel: "Favorite") {
                             iconButtonCounter += 1
                         }
-                        CraftIconButton(iconName: "bookmark.fill", size: .md, shape: .circle, variant: .subtle, accessibilityLabel: "Bookmark") {
+                        CraftIconButton(symbol: .bookmarkFill, size: .md, shape: .circle, variant: .subtle, accessibilityLabel: "Bookmark") {
                             iconButtonCounter += 1
                         }
-                        CraftIconButton(iconName: "square.and.arrow.up", size: .md, shape: .circle, variant: .outline, accessibilityLabel: "Share") {
+                        CraftIconButton(symbol: .share, size: .md, shape: .circle, variant: .outline, accessibilityLabel: "Share") {
                             iconButtonCounter += 1
                         }
-                        CraftIconButton(iconName: "trash.fill", size: .md, shape: .square, variant: .ghost, accessibilityLabel: "Delete") {
+                        CraftIconButton(symbol: .deleteFill, size: .md, shape: .square, variant: .ghost, accessibilityLabel: "Delete") {
                             iconButtonCounter += 1
                         }
                     }
@@ -604,9 +678,23 @@ private struct CatalogTypographySection: View {
             }
         }
     }
+
+    @ViewBuilder
+    private func symbolBadge(symbol: CraftSymbol, label: String) -> some View {
+        VStack(spacing: 4) {
+            CraftIcon(symbol, size: .md, color: theme.colors.brandPrimary, renderingMode: .hierarchical, weight: .semibold)
+            Text(label)
+                .font(theme.typography.caption)
+                .foregroundColor(theme.colors.textSecondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, theme.spacing.xs)
+        .background(theme.colors.surfaceSubtle)
+        .clipShape(RoundedRectangle(cornerRadius: theme.radii.sm))
+    }
 }
 
-// MARK: - Section 2: Badges & Pills
+// MARK: - Section 2: Badges & Chips
 
 private struct CatalogBadgesPillsSection: View {
     @Environment(\.craftTheme) private var theme
@@ -623,36 +711,60 @@ private struct CatalogBadgesPillsSection: View {
     var body: some View {
         CraftCard(style: .elevated) {
             VStack(alignment: .leading, spacing: theme.spacing.base) {
-                CatalogSectionHeader(title: "2. Badges & Chips", iconName: "tag.fill")
+                CatalogSectionHeader(title: "2. Badges & Chips (WCAG AAA Contrast)", iconName: "tag.fill")
 
                 VStack(alignment: .leading, spacing: theme.spacing.sm) {
-                    CraftText("CraftBadge Variants & Tones", style: .headline)
+                    HStack {
+                        CraftText("CraftBadge Variants & Tones", style: .headline)
+                        Spacer()
+                        CraftText("WCAG AAA Safe", style: .caption, color: theme.colors.statusSuccess)
+                    }
+
+                    CraftText("Solid warning badge automatically uses dynamic dark ink (#18181B) on amber for >9.5:1 contrast.", style: .caption, color: theme.colors.textMuted)
 
                     // Solid
-                    HStack(spacing: theme.spacing.xs) {
-                        CraftBadge("Primary", iconName: "sparkles", variant: .solid, tone: .primary)
-                        CraftBadge("Success", iconName: "checkmark", variant: .solid, tone: .success)
-                        CraftBadge("Warning", iconName: "exclamationmark.triangle", variant: .solid, tone: .warning)
-                        CraftBadge("Danger", iconName: "xmark.octagon", variant: .solid, tone: .danger)
-                        CraftBadge("Neutral", variant: .solid, tone: .neutral)
+                    VStack(alignment: .leading, spacing: 4) {
+                        CraftText("Solid Variant", style: .caption, color: theme.colors.textSecondary)
+                        HStack(spacing: theme.spacing.xs) {
+                            CraftBadge("Primary", symbol: .sparkles, variant: .solid, tone: .primary)
+                            CraftBadge("Success", symbol: .check, variant: .solid, tone: .success)
+                            CraftBadge("Warning", symbol: .warning, variant: .solid, tone: .warning)
+                            CraftBadge("Danger", symbol: .danger, variant: .solid, tone: .danger)
+                            CraftBadge("Neutral", symbol: .mastery, variant: .solid, tone: .neutral)
+                        }
                     }
 
                     // Subtle
-                    HStack(spacing: theme.spacing.xs) {
-                        CraftBadge("Primary", iconName: "sparkles", variant: .subtle, tone: .primary)
-                        CraftBadge("Success", iconName: "checkmark", variant: .subtle, tone: .success)
-                        CraftBadge("Warning", iconName: "exclamationmark.triangle", variant: .subtle, tone: .warning)
-                        CraftBadge("Danger", iconName: "xmark.octagon", variant: .subtle, tone: .danger)
-                        CraftBadge("Neutral", variant: .subtle, tone: .neutral)
+                    VStack(alignment: .leading, spacing: 4) {
+                        CraftText("Subtle Variant (1pt Stroke Highlight)", style: .caption, color: theme.colors.textSecondary)
+                        HStack(spacing: theme.spacing.xs) {
+                            CraftBadge("Primary", symbol: .sparkles, variant: .subtle, tone: .primary)
+                            CraftBadge("Success", symbol: .check, variant: .subtle, tone: .success)
+                            CraftBadge("Warning", symbol: .warning, variant: .subtle, tone: .warning)
+                            CraftBadge("Danger", symbol: .danger, variant: .subtle, tone: .danger)
+                            CraftBadge("Neutral", symbol: .mastery, variant: .subtle, tone: .neutral)
+                        }
                     }
 
                     // Outline
-                    HStack(spacing: theme.spacing.xs) {
-                        CraftBadge("Primary", iconName: "sparkles", variant: .outline, tone: .primary)
-                        CraftBadge("Success", iconName: "checkmark", variant: .outline, tone: .success)
-                        CraftBadge("Warning", iconName: "exclamationmark.triangle", variant: .outline, tone: .warning)
-                        CraftBadge("Danger", iconName: "xmark.octagon", variant: .outline, tone: .danger)
-                        CraftBadge("Neutral", variant: .outline, tone: .neutral)
+                    VStack(alignment: .leading, spacing: 4) {
+                        CraftText("Outline Variant", style: .caption, color: theme.colors.textSecondary)
+                        HStack(spacing: theme.spacing.xs) {
+                            CraftBadge("Primary", symbol: .sparkles, variant: .outline, tone: .primary)
+                            CraftBadge("Success", symbol: .check, variant: .outline, tone: .success)
+                            CraftBadge("Warning", symbol: .warning, variant: .outline, tone: .warning)
+                            CraftBadge("Danger", symbol: .danger, variant: .outline, tone: .danger)
+                            CraftBadge("Neutral", symbol: .mastery, variant: .outline, tone: .neutral)
+                        }
+                    }
+
+                    // Sizes
+                    VStack(alignment: .leading, spacing: 4) {
+                        CraftText("Size Comparison", style: .caption, color: theme.colors.textSecondary)
+                        HStack(spacing: theme.spacing.sm) {
+                            CraftBadge("Small (sm)", symbol: .streak, variant: .subtle, tone: .warning, size: .sm)
+                            CraftBadge("Medium (md)", symbol: .streak, variant: .subtle, tone: .warning, size: .md)
+                        }
                     }
                 }
 
@@ -800,13 +912,16 @@ private struct CatalogButtonsSection: View {
                         .buttonStyle(.craftPress())
 
                         Text("Modifier .craftPressEffect")
-                            .craftTypography(.label)
-                            .foregroundColor(theme.colors.brandPrimary)
+                            .font(theme.typography.label)
+                            .foregroundStyle(theme.colors.brandSecondary)
                             .padding(.horizontal, theme.spacing.base)
                             .padding(.vertical, theme.spacing.sm)
                             .background(theme.colors.surfaceSubtle)
                             .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
-                            .craftPressEffect()
+                            .craftPressEffect(scale: 0.94)
+                            .onTapGesture {
+                                customPressCount += 1
+                            }
                     }
                 }
             }
@@ -1052,12 +1167,13 @@ private struct CatalogProgressSection: View {
 
 private struct CatalogListRowsEmptySection: View {
     @Environment(\.craftTheme) private var theme
+    @Binding var selectedPreset: CatalogEmptyStatePreset
     let onEmptyAction: () -> Void
 
     var body: some View {
         CraftCard(style: .elevated) {
             VStack(alignment: .leading, spacing: theme.spacing.base) {
-                CatalogSectionHeader(title: "8. List Rows & Empty State", iconName: "list.bullet.rectangle.fill")
+                CatalogSectionHeader(title: "8. List Rows & Layered Squircle Empty States", iconName: "list.bullet.rectangle.fill")
 
                 VStack(spacing: 0) {
                     CraftListRow(
@@ -1067,7 +1183,7 @@ private struct CatalogListRowsEmptySection: View {
                         iconColor: theme.colors.statusSuccess,
                         showChevron: true
                     ) {
-                        CraftBadge("Level 4", tone: .success)
+                        CraftBadge("Level 4", symbol: .mastery, tone: .success)
                     }
 
                     CraftDivider()
@@ -1079,7 +1195,7 @@ private struct CatalogListRowsEmptySection: View {
                         iconColor: theme.colors.brandPrimary,
                         showChevron: true
                     ) {
-                        CraftBadge("18 due", variant: .solid, tone: .primary)
+                        CraftBadge("18 due", symbol: .sparkles, variant: .solid, tone: .primary)
                     }
 
                     CraftDivider()
@@ -1097,16 +1213,35 @@ private struct CatalogListRowsEmptySection: View {
 
                 CraftDivider()
 
-                CraftText("CraftEmptyState Placeholder", style: .headline)
-                CraftCard(style: .outlined) {
-                    CraftEmptyState(
-                        iconName: "tray.fill",
-                        title: "No Completed Quizzes",
-                        message: "Take your first daily vocabulary sprint to unlock performance analytics and progress tracking.",
-                        buttonTitle: "Start Sprint",
-                        buttonIcon: "play.fill",
-                        buttonAction: onEmptyAction
-                    )
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    HStack {
+                        CraftText("CraftEmptyState (3-Tier Layered Squircle)", style: .headline)
+                        Spacer()
+                        CraftText("Continuous Radii", style: .caption, color: theme.colors.brandPrimary)
+                    }
+
+                    CraftText("Features outer translucent squircle, inner accent pill, hierarchical focal icon, and domain symbol presets.", style: .caption, color: theme.colors.textMuted)
+
+                    Picker("Empty State Preset", selection: $selectedPreset) {
+                        ForEach(CatalogEmptyStatePreset.allCases) { preset in
+                            Text(preset.rawValue).tag(preset)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .padding(.top, theme.spacing.xs)
+
+                    CraftCard(style: .outlined) {
+                        CraftEmptyState(
+                            symbol: selectedPreset.symbol,
+                            title: selectedPreset.title,
+                            message: selectedPreset.message,
+                            buttonTitle: selectedPreset.buttonTitle,
+                            buttonSymbol: selectedPreset.buttonSymbol,
+                            buttonAction: onEmptyAction
+                        )
+                        .frame(maxWidth: .infinity)
+                    }
+                    .padding(.top, theme.spacing.xs)
                 }
             }
         }
@@ -1309,7 +1444,7 @@ private struct CatalogInteractiveCardsSection: View {
     var body: some View {
         CraftCard(style: .elevated) {
             VStack(alignment: .leading, spacing: theme.spacing.base) {
-                CatalogSectionHeader(title: "11. 3D Flip Card & Quiz Cards", iconName: "rectangle.portrait.on.rectangle.portrait.angled")
+                CatalogSectionHeader(title: "11. 3D Flip Card & Quiz Choice Cards", iconName: "rectangle.portrait.on.rectangle.portrait.angled")
 
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     HStack {
@@ -1327,9 +1462,9 @@ private struct CatalogInteractiveCardsSection: View {
                         CraftCard(style: .outlined) {
                             VStack(spacing: theme.spacing.sm) {
                                 HStack {
-                                    CraftBadge("Vocabulary Card", variant: .subtle, tone: .primary)
+                                    CraftBadge("Vocabulary Card", symbol: .study, variant: .subtle, tone: .primary)
                                     Spacer()
-                                    CraftIcon("speaker.wave.2.fill", size: .sm, color: theme.colors.brandPrimary)
+                                    CraftIcon(.audio, size: .sm, color: theme.colors.brandPrimary)
                                 }
 
                                 Spacer()
@@ -1340,7 +1475,7 @@ private struct CatalogInteractiveCardsSection: View {
                                 Spacer()
 
                                 HStack(spacing: theme.spacing.xs) {
-                                    CraftIcon("arrow.triangle.2.circlepath", size: .sm, color: theme.colors.textSecondary)
+                                    CraftIcon(.flip, size: .sm, color: theme.colors.textSecondary)
                                     CraftText("Tap to reveal definition", style: .caption, color: theme.colors.textSecondary)
                                 }
                             }
@@ -1354,9 +1489,9 @@ private struct CatalogInteractiveCardsSection: View {
                         CraftCard(style: .gradient) {
                             VStack(spacing: theme.spacing.sm) {
                                 HStack {
-                                    CraftBadge("Definition", variant: .solid, tone: .neutral)
+                                    CraftBadge("Definition", symbol: .sparkles, variant: .solid, tone: .neutral)
                                     Spacer()
-                                    CraftIcon("sparkles", size: .sm, color: .white)
+                                    CraftIcon(.sparkles, size: .sm, color: .white)
                                 }
 
                                 Spacer()
@@ -1371,7 +1506,7 @@ private struct CatalogInteractiveCardsSection: View {
                                 Spacer()
 
                                 HStack(spacing: theme.spacing.xs) {
-                                    CraftIcon("arrow.triangle.2.circlepath", size: .sm, color: .white.opacity(0.8))
+                                    CraftIcon(.flip, size: .sm, color: .white.opacity(0.8))
                                     CraftText("Tap to flip back", style: .caption, color: .white.opacity(0.8))
                                 }
                             }
@@ -1388,7 +1523,7 @@ private struct CatalogInteractiveCardsSection: View {
 
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     HStack {
-                        CraftText("CraftChoiceCard (Quiz Interaction)", style: .headline)
+                        CraftText("CraftChoiceCard (Quiz with Dual-Tone Indicators)", style: .headline)
                         Spacer()
                         if isQuizSubmitted {
                             Button("Reset", action: onResetQuiz)
@@ -1524,7 +1659,7 @@ private struct CatalogNavigationSection: View {
                             selectedItem: $selectedTab,
                             items: CatalogTabItem.allCases,
                             centerAction: showCenterFAB ? onFabTap : nil,
-                            centerSymbol: "plus",
+                            centerSymbol: CraftSymbol.add.rawValue,
                             centerTitle: "Add"
                         )
                         .padding(.bottom, theme.spacing.xs)
@@ -1535,13 +1670,13 @@ private struct CatalogNavigationSection: View {
 
                 CraftToggle(
                     isOn: $showCenterFAB,
-                    title: "Center Elevated FAB",
-                    subtitle: "Displays elevated circular action button in middle slot",
+                    title: "Integrated Center Action",
+                    subtitle: "Displays tactile circular action button inside liquid glass bar",
                     iconName: "plus.circle.fill"
                 )
 
                 if fabTapCount > 0 {
-                    CraftText("Center FAB tapped \(fabTapCount) times", style: .caption, color: theme.colors.brandPrimary)
+                    CraftText("Center action button tapped \(fabTapCount) times", style: .caption, color: theme.colors.brandPrimary)
                 }
             }
         }
@@ -1604,7 +1739,7 @@ private struct CatalogAudioMotionSection: View {
                         .frame(maxWidth: .infinity)
 
                         CraftButton(
-                            "Confetti Blast",
+                            "Confetti Cannon",
                             iconName: "party.popper.fill",
                             variant: .secondary,
                             size: .md
