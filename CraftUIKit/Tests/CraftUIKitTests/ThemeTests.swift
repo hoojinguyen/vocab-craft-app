@@ -85,11 +85,16 @@ final class ThemeTests: XCTestCase {
     func testTypographyTokens() {
         let typography = CraftDefaultTypographyTokens()
         XCTAssertNotNil(typography.displayLarge)
+        XCTAssertNotNil(typography.displayHero)
+        XCTAssertNotNil(typography.displaySerif)
         XCTAssertNotNil(typography.titleLarge)
         XCTAssertNotNil(typography.titleMedium)
         XCTAssertNotNil(typography.headline)
         XCTAssertNotNil(typography.bodyLarge)
         XCTAssertNotNil(typography.bodyMedium)
+        XCTAssertNotNil(typography.bodySerif)
+        XCTAssertNotNil(typography.phonetic)
+        XCTAssertNotNil(typography.metricRounded)
         XCTAssertNotNil(typography.label)
         XCTAssertNotNil(typography.caption)
 
@@ -101,19 +106,29 @@ final class ThemeTests: XCTestCase {
     func testDynamicTypographyScaleTokens() {
         let typography = CraftDefaultTypographyTokens()
         _ = typography.displayLarge
+        _ = typography.displayHero
+        _ = typography.displaySerif
         _ = typography.titleLarge
         _ = typography.titleMedium
         _ = typography.headline
         _ = typography.bodyLarge
         _ = typography.bodyMedium
+        _ = typography.bodySerif
+        _ = typography.phonetic
+        _ = typography.metricRounded
         _ = typography.label
         _ = typography.caption
         XCTAssertNotNil(typography.font(for: .displayLarge))
+        XCTAssertNotNil(typography.font(for: .displayHero))
+        XCTAssertNotNil(typography.font(for: .displaySerif))
         XCTAssertNotNil(typography.font(for: .titleLarge))
         XCTAssertNotNil(typography.font(for: .titleMedium))
         XCTAssertNotNil(typography.font(for: .headline))
         XCTAssertNotNil(typography.font(for: .bodyLarge))
         XCTAssertNotNil(typography.font(for: .bodyMedium))
+        XCTAssertNotNil(typography.font(for: .bodySerif))
+        XCTAssertNotNil(typography.font(for: .phonetic))
+        XCTAssertNotNil(typography.font(for: .metricRounded))
         XCTAssertNotNil(typography.font(for: .label))
         XCTAssertNotNil(typography.font(for: .caption))
     }

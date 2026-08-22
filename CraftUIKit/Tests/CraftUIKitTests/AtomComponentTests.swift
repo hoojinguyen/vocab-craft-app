@@ -281,6 +281,24 @@ final class AtomComponentTests: XCTestCase {
         XCTAssertNotNil(verbatimText.body)
     }
 
+    func testDomainTypographyStyles() {
+        let serifTitle = CraftText("Serendipity", style: .displaySerif)
+        XCTAssertEqual(serifTitle.style, .displaySerif)
+        XCTAssertNotNil(serifTitle.body)
+
+        let phoneticText = CraftText("/ˌser.ənˈdɪp.ə.ti/", style: .phonetic)
+        XCTAssertEqual(phoneticText.style, .phonetic)
+        XCTAssertNotNil(phoneticText.body)
+
+        let bodyEditorial = CraftText("Sample passage", style: .bodySerif)
+        XCTAssertEqual(bodyEditorial.style, .bodySerif)
+        XCTAssertNotNil(bodyEditorial.body)
+
+        let scoreMetric = CraftText("10,000 XP", style: .metricRounded)
+        XCTAssertEqual(scoreMetric.style, .metricRounded)
+        XCTAssertNotNil(scoreMetric.body)
+    }
+
     // MARK: - View Modifiers Application Tests
 
     func testModifiersCompileAndApply() {

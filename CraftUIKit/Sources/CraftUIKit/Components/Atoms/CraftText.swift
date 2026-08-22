@@ -67,7 +67,7 @@ public struct CraftText: View {
     }
 
     public var body: some View {
-        Group {
+        let textView = Group {
             if let textKey {
                 Text(textKey)
             } else if let rawText {
@@ -82,6 +82,12 @@ public struct CraftText: View {
         .foregroundStyle(color ?? theme.colors.textPrimary)
         .lineLimit(lineLimit)
         .multilineTextAlignment(textAlignment ?? .leading)
+
+        if style == .metricRounded {
+            textView.monospacedDigit()
+        } else {
+            textView
+        }
     }
 }
 
