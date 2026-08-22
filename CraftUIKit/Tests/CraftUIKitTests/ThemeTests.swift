@@ -86,6 +86,26 @@ final class ThemeTests: XCTestCase {
         }
     }
 
+    func testDynamicTypographyScaleTokens() {
+        let typography = CraftDefaultTypographyTokens()
+        _ = typography.displayLarge
+        _ = typography.titleLarge
+        _ = typography.titleMedium
+        _ = typography.headline
+        _ = typography.bodyLarge
+        _ = typography.bodyMedium
+        _ = typography.label
+        _ = typography.caption
+        XCTAssertNotNil(typography.font(for: .displayLarge))
+        XCTAssertNotNil(typography.font(for: .titleLarge))
+        XCTAssertNotNil(typography.font(for: .titleMedium))
+        XCTAssertNotNil(typography.font(for: .headline))
+        XCTAssertNotNil(typography.font(for: .bodyLarge))
+        XCTAssertNotNil(typography.font(for: .bodyMedium))
+        XCTAssertNotNil(typography.font(for: .label))
+        XCTAssertNotNil(typography.font(for: .caption))
+    }
+
     func testSpacingScaleTokens() {
         let spacing = CraftDefaultSpacingTokens()
         XCTAssertEqual(spacing.xs, 4)

@@ -113,13 +113,24 @@ final class AtomComponentTests: XCTestCase {
         let horizontalDivider = CraftDivider(axis: .horizontal, thickness: 1.0)
         XCTAssertEqual(horizontalDivider.axis, .horizontal)
         XCTAssertEqual(horizontalDivider.thickness, 1.0)
+        XCTAssertEqual(horizontalDivider.customThickness, 1.0)
         XCTAssertNotNil(horizontalDivider.body)
 
         let verticalDivider = CraftDivider(axis: .vertical, color: .gray, thickness: 2.0)
         XCTAssertEqual(verticalDivider.axis, .vertical)
         XCTAssertEqual(verticalDivider.thickness, 2.0)
+        XCTAssertEqual(verticalDivider.customThickness, 2.0)
         XCTAssertEqual(verticalDivider.color, .gray)
         XCTAssertNotNil(verticalDivider.body)
+    }
+
+    func testDividerDefaults() {
+        let defaultDivider = CraftDivider()
+        XCTAssertEqual(defaultDivider.axis, .horizontal)
+        XCTAssertNil(defaultDivider.thickness)
+        XCTAssertNil(defaultDivider.customThickness)
+        XCTAssertNil(defaultDivider.color)
+        XCTAssertNotNil(defaultDivider.body)
     }
 
     // MARK: - CraftSpinner Tests

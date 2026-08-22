@@ -2,30 +2,36 @@ import SwiftUI
 
 // MARK: - CraftDivider Component
 
-/// A standardized hairline divider component adapting to theme hairline color tokens.
+/// A standardized hairline divider component adapting to theme hairline color tokens and display scale.
 public struct CraftDivider: View {
     @Environment(\.craftTheme) private var theme
+    @Environment(\.displayScale) private var displayScale
 
     public let axis: Axis
     public let color: Color?
-    public let thickness: CGFloat
+    public let customThickness: CGFloat?
+
+    public var thickness: CGFloat? {
+        customThickness
+    }
 
     public init(
         axis: Axis = .horizontal,
         color: Color? = nil,
-        thickness: CGFloat = 1
+        thickness: CGFloat? = nil
     ) {
         self.axis = axis
         self.color = color
-        self.thickness = thickness
+        self.customThickness = thickness
     }
 
     public var body: some View {
+        let effectiveThickness = customThickness ?? (1.0 / displayScale)
         Rectangle()
             .fill(color ?? theme.colors.hairline)
             .frame(
-                width: axis == .vertical ? thickness : nil,
-                height: axis == .horizontal ? thickness : nil
+                width: axis == .vertical ? effectiveThickness : nil,
+                height: axis == .horizontal ? effectiveThickness : nil
             )
     }
 }

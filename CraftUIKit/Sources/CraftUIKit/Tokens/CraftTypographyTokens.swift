@@ -59,14 +59,14 @@ public struct CraftDefaultTypographyTokens: CraftTypographyTokens {
     public var caption: Font
 
     public init(
-        displayLarge: Font = .system(size: 32, weight: .bold, design: .default),
-        titleLarge: Font = .system(size: 24, weight: .bold, design: .default),
-        titleMedium: Font = .system(size: 18, weight: .semibold, design: .default),
-        headline: Font = .system(size: 16, weight: .semibold, design: .default),
-        bodyLarge: Font = .system(size: 16, weight: .regular, design: .default),
-        bodyMedium: Font = .system(size: 14, weight: .regular, design: .default),
-        label: Font = .system(size: 12, weight: .medium, design: .default),
-        caption: Font = .system(size: 11, weight: .regular, design: .default)
+        displayLarge: Font = .system(.largeTitle, design: .rounded, weight: .bold),
+        titleLarge: Font = .system(.title, design: .default, weight: .bold),
+        titleMedium: Font = .system(.title2, design: .default, weight: .semibold),
+        headline: Font = .system(.headline, design: .default, weight: .semibold),
+        bodyLarge: Font = .system(.body, design: .default, weight: .regular),
+        bodyMedium: Font = .system(.callout, design: .default, weight: .regular),
+        label: Font = .system(.subheadline, design: .default, weight: .medium),
+        caption: Font = .system(.caption, design: .default, weight: .regular)
     ) {
         self.displayLarge = displayLarge
         self.titleLarge = titleLarge
