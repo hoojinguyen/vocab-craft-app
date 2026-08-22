@@ -221,6 +221,8 @@ private struct CraftCatalogContentView: View {
     // Phase 1 Interactive States
     @State private var isButtonLoading: Bool = false
     @State private var iconButtonCounter: Int = 0
+    @State private var customPressCount: Int = 0
+    @State private var isShimmerActive: Bool = true
     @State private var selectedPills: Set<String> = ["Vocabulary", "Grammar"]
     @State private var searchQuery: String = ""
     @State private var textInput: String = "Design System"
@@ -277,7 +279,10 @@ private struct CraftCatalogContentView: View {
 
                     CatalogBadgesPillsSection(selectedPills: $selectedPills)
 
-                    CatalogButtonsSection(isButtonLoading: $isButtonLoading)
+                    CatalogButtonsSection(
+                        isButtonLoading: $isButtonLoading,
+                        customPressCount: $customPressCount
+                    )
 
                     CatalogTextFieldsSection(
                         searchQuery: $searchQuery,
@@ -292,7 +297,10 @@ private struct CraftCatalogContentView: View {
                         toggleHaptics: $toggleHaptics
                     )
 
-                    CatalogCardsBentoSection(bentoCardTapped: $bentoCardTapped)
+                    CatalogCardsBentoSection(
+                        bentoCardTapped: $bentoCardTapped,
+                        isShimmerActive: $isShimmerActive
+                    )
 
                     CatalogProgressSection(progressValue: $progressValue)
 
@@ -501,6 +509,11 @@ private struct CatalogTypographySection: View {
                     CraftText("Body Medium standard readability paragraph style.", style: .bodyMedium, color: theme.colors.textSecondary)
                     CraftText("Label Style", style: .label, color: theme.colors.textMuted)
                     CraftText("Caption helper text style", style: .caption, color: theme.colors.textMuted)
+
+                    Text("SwiftUI Text with .craftTypography(.titleMedium)")
+                        .craftTypography(.titleMedium)
+                        .foregroundColor(theme.colors.brandPrimary)
+                        .padding(.top, theme.spacing.xs)
                 }
 
                 CraftDivider()
@@ -522,6 +535,30 @@ private struct CatalogTypographySection: View {
                         }
                         VStack {
                             CraftIcon("star.fill", size: .xl, color: theme.colors.accent)
+                            CraftText("xl (32pt)", style: .caption, color: theme.colors.textMuted)
+                        }
+                    }
+                }
+
+                CraftDivider()
+
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("CraftSpinner Indicators", style: .headline)
+                    HStack(spacing: theme.spacing.lg) {
+                        VStack {
+                            CraftSpinner(size: .sm, color: theme.colors.brandPrimary)
+                            CraftText("sm (14pt)", style: .caption, color: theme.colors.textMuted)
+                        }
+                        VStack {
+                            CraftSpinner(size: .md, color: theme.colors.brandSecondary)
+                            CraftText("md (18pt)", style: .caption, color: theme.colors.textMuted)
+                        }
+                        VStack {
+                            CraftSpinner(size: .lg, color: theme.colors.accent)
+                            CraftText("lg (24pt)", style: .caption, color: theme.colors.textMuted)
+                        }
+                        VStack {
+                            CraftSpinner(size: .xl, color: theme.colors.statusSuccess)
                             CraftText("xl (32pt)", style: .caption, color: theme.colors.textMuted)
                         }
                     }
@@ -642,6 +679,7 @@ private struct CatalogBadgesPillsSection: View {
 private struct CatalogButtonsSection: View {
     @Environment(\.craftTheme) private var theme
     @Binding var isButtonLoading: Bool
+    @Binding var customPressCount: Int
 
     var body: some View {
         CraftCard(style: .elevated) {
@@ -711,13 +749,52 @@ private struct CatalogButtonsSection: View {
                 CraftDivider()
 
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText("Button Sizes (sm, md, lg)", style: .headline)
+                    CraftText("Button Sizes (sm, md, lg) & Disabled", style: .headline)
                     HStack(spacing: theme.spacing.sm) {
                         CraftButton("Small (32pt)", variant: .primary, size: .sm) {}
                         CraftButton("Medium (44pt)", variant: .primary, size: .md) {}
+                        CraftButton("Disabled", variant: .secondary, size: .md) {}
+                            .disabled(true)
                     }
                     CraftButton("Large Button (54pt)", iconName: "star.fill", variant: .primary, size: .lg) {}
                         .frame(maxWidth: .infinity)
+                }
+
+                CraftDivider()
+
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    HStack {
+                        CraftText("Interactive Press Effects (.craftPress & .craftPressEffect)", style: .headline)
+                        Spacer()
+                        if customPressCount > 0 {
+                            CraftText("Taps: \(customPressCount)", style: .caption, color: theme.colors.brandPrimary)
+                        }
+                    }
+
+                    HStack(spacing: theme.spacing.sm) {
+                        Button {
+                            customPressCount += 1
+                        } label: {
+                            HStack(spacing: theme.spacing.xs) {
+                                CraftIcon("hand.tap.fill", size: .sm, color: theme.colors.brandPrimary)
+                                CraftText("ButtonStyle .craftPress", style: .label, color: theme.colors.textPrimary)
+                            }
+                            .padding(.horizontal, theme.spacing.base)
+                            .padding(.vertical, theme.spacing.sm)
+                            .background(theme.colors.surfaceSubtle)
+                            .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
+                        }
+                        .buttonStyle(.craftPress())
+
+                        Text("Modifier .craftPressEffect")
+                            .craftTypography(.label)
+                            .foregroundColor(theme.colors.brandPrimary)
+                            .padding(.horizontal, theme.spacing.base)
+                            .padding(.vertical, theme.spacing.sm)
+                            .background(theme.colors.surfaceSubtle)
+                            .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
+                            .craftPressEffect()
+                    }
                 }
             }
         }
@@ -825,10 +902,11 @@ private struct CatalogStepperTogglesSection: View {
 private struct CatalogCardsBentoSection: View {
     @Environment(\.craftTheme) private var theme
     @Binding var bentoCardTapped: String?
+    @Binding var isShimmerActive: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: theme.spacing.base) {
-            CatalogSectionHeader(title: "6. Cards & Bento Grid", iconName: "square.grid.2x2.fill")
+            CatalogSectionHeader(title: "6. Cards, Bento Grid & Skeleton Shimmer", iconName: "square.grid.2x2.fill")
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: theme.spacing.base) {
                 CraftCard(style: .flat, isPressable: true, action: { bentoCardTapped = "Flat Card" }) {
@@ -866,6 +944,36 @@ private struct CatalogCardsBentoSection: View {
 
             if let bentoCardTapped {
                 CraftText("Last Pressed: \(bentoCardTapped)", style: .caption, color: theme.colors.brandPrimary)
+            }
+
+            CraftCard(style: .elevated) {
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    HStack {
+                        CraftText("Skeleton Card Loading (.craftShimmer)", style: .headline)
+                        Spacer()
+                        Toggle("Shimmer", isOn: $isShimmerActive)
+                            .labelsHidden()
+                            .toggleStyle(.craft)
+                    }
+
+                    HStack(spacing: theme.spacing.sm) {
+                        Circle()
+                            .fill(theme.colors.surfaceSubtle)
+                            .frame(width: 40, height: 40)
+
+                        VStack(alignment: .leading, spacing: 6) {
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(theme.colors.surfaceSubtle)
+                                .frame(width: 140, height: 14)
+
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(theme.colors.surfaceSubtle)
+                                .frame(width: 90, height: 10)
+                        }
+                    }
+                    .padding(.vertical, theme.spacing.xs)
+                    .craftShimmer(isActive: isShimmerActive)
+                }
             }
         }
     }
