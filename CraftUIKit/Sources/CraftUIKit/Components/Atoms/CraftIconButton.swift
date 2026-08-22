@@ -143,3 +143,16 @@ public struct CraftIconButton: View {
         }
     }
 }
+
+#Preview("CraftIconButton") {
+    VStack(spacing: 24) {
+        ForEach(CraftIconButtonVariant.allCases, id: \.self) { variant in
+            HStack(spacing: 16) {
+                CraftIconButton(iconName: "star.fill", variant: variant, accessibilityLabel: "Star", action: {})
+                CraftIconButton(iconName: "star.fill", variant: variant, accessibilityLabel: "Star Disabled", action: {})
+                    .disabled(true)
+            }
+        }
+    }
+    .padding()
+}

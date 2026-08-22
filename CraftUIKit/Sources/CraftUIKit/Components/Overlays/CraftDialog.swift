@@ -230,3 +230,31 @@ public extension View {
         modifier(CraftDialogModifier(isPresented: isPresented, dialogContent: content))
     }
 }
+
+#Preview("CraftDialog") {
+    @Previewable @State var showPrimary = false
+    @Previewable @State var showDanger = false
+    
+    return VStack(spacing: 24) {
+        Button("Show Primary Dialog") { showPrimary = true }
+        Button("Show Danger Dialog") { showDanger = true }
+    }
+    .craftDialog(
+        isPresented: $showPrimary,
+        title: "Save Changes",
+        message: "Are you sure you want to save?",
+        iconName: "checkmark.circle",
+        primaryButtonTitle: "Save",
+        primaryButtonVariant: .primary,
+        primaryAction: { }
+    )
+    .craftDialog(
+        isPresented: $showDanger,
+        title: "Delete Item",
+        message: "This cannot be undone.",
+        iconName: "exclamationmark.triangle",
+        primaryButtonTitle: "Delete",
+        primaryButtonVariant: .danger,
+        primaryAction: { }
+    )
+}

@@ -62,3 +62,23 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
     }
 }
 
+#Preview("CraftFlipCard") {
+    struct PreviewWrapper: View {
+        @State private var isFlipped = false
+        var body: some View {
+            CraftFlipCard(isFlipped: $isFlipped) {
+                CraftCard(style: .elevated) {
+                    Text("Front")
+                        .frame(maxWidth: .infinity, minHeight: 100)
+                }
+            } back: {
+                CraftCard(style: .outlined) {
+                    Text("Back")
+                        .frame(maxWidth: .infinity, minHeight: 100)
+                }
+            }
+            .padding()
+        }
+    }
+    return PreviewWrapper()
+}

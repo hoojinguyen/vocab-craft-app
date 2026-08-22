@@ -196,3 +196,23 @@ public struct CraftSegmentedBar: View {
     }
 }
 
+#Preview("CraftSegmentedBar") {
+    VStack(spacing: 24) {
+        CraftSegmentedBar(
+            items: [
+                CraftSegmentItem(label: "Correct", value: 10, color: .green),
+                CraftSegmentItem(label: "Wrong", value: 5, color: .red)
+            ]
+        )
+        
+        CraftSegmentedBar(
+            items: [
+                CraftSegmentItem(label: "A", value: 30, color: .blue),
+                CraftSegmentItem(label: "B", value: 30, color: .purple),
+                CraftSegmentItem(label: "C", value: 40, color: .orange)
+            ]
+        )
+    }
+    .padding()
+}
+

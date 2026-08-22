@@ -106,3 +106,23 @@ private struct ShadowModifier: ViewModifier {
     }
 }
 
+#Preview("CraftCard") {
+    ScrollView {
+        VStack(spacing: 24) {
+            CraftCard(style: .flat) {
+                Text("Flat Card")
+            }
+            CraftCard(style: .elevated) {
+                Text("Elevated Card")
+            }
+            CraftCard(style: .outlined) {
+                Text("Outlined Card")
+            }
+            CraftCard(style: .gradient) {
+                Text("Gradient Card")
+                    .foregroundStyle(.white)
+            }
+        }
+        .padding()
+    }
+}

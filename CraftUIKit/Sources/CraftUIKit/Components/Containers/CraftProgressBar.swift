@@ -86,3 +86,14 @@ public struct CraftProgressBar: View {
         .accessibilityValue("\(Int(clampedProgress * 100)) percent")
     }
 }
+
+#Preview("CraftProgressBar") {
+    VStack(spacing: 24) {
+        CraftProgressBar(progress: 0.0)
+        CraftProgressBar(progress: 0.5)
+        CraftProgressBar(progress: 1.0)
+    }
+    .padding()
+}
+
+

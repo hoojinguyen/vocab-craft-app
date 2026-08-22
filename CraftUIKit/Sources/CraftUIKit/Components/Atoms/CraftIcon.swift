@@ -108,3 +108,21 @@ public struct CraftIcon: View {
         }
     }
 }
+
+#Preview("CraftIcon") {
+    VStack(spacing: 24) {
+        HStack(spacing: 16) {
+            CraftIcon("star.fill", size: .sm)
+            CraftIcon("star.fill", size: .md)
+            CraftIcon("star.fill", size: .lg)
+            CraftIcon("star.fill", size: .xl)
+        }
+        
+        HStack(spacing: 16) {
+            CraftIcon("heart.fill", size: .xl, renderingMode: .monochrome)
+            CraftIcon("heart.fill", size: .xl, renderingMode: .hierarchical)
+            CraftIcon("sparkles", size: .xl, renderingMode: .multicolor)
+        }
+    }
+    .padding()
+}

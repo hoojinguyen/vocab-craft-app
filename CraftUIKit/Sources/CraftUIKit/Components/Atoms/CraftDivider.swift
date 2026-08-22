@@ -35,3 +35,21 @@ public struct CraftDivider: View {
             )
     }
 }
+
+#Preview("CraftDivider") {
+    VStack(spacing: 24) {
+        VStack(spacing: 8) {
+            Text("Above")
+            CraftDivider()
+            Text("Below")
+        }
+        
+        HStack(spacing: 16) {
+            Text("Left")
+            CraftDivider(axis: .vertical)
+            Text("Right")
+        }
+        .frame(height: 50)
+    }
+    .padding()
+}

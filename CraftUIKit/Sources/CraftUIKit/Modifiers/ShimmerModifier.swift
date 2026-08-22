@@ -73,3 +73,32 @@ public extension View {
     }
 }
 
+
+#Preview("ShimmerModifier") {
+    VStack(spacing: 24) {
+        RoundedRectangle(cornerRadius: 12)
+            .fill(Color.gray.opacity(0.2))
+            .frame(height: 100)
+            .craftShimmer(isActive: true)
+            
+        HStack(spacing: 16) {
+            Circle()
+                .fill(Color.gray.opacity(0.2))
+                .frame(width: 60, height: 60)
+                .craftShimmer(isActive: true, bounce: true)
+                
+            VStack(alignment: .leading, spacing: 8) {
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Color.gray.opacity(0.2))
+                    .frame(width: 160, height: 16)
+                    
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Color.gray.opacity(0.2))
+                    .frame(width: 100, height: 16)
+            }
+            .craftShimmer(isActive: true)
+            Spacer()
+        }
+    }
+    .padding()
+}

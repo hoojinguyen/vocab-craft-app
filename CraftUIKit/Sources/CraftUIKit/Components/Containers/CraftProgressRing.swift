@@ -99,3 +99,14 @@ public extension CraftProgressRing where CenterContent == Text {
     }
 }
 
+#Preview("CraftProgressRing") {
+    VStack(spacing: 24) {
+        HStack(spacing: 24) {
+            CraftProgressRing(progress: 0.25)
+            CraftProgressRing(progress: 0.50)
+            CraftProgressRing(progress: 0.75)
+        }
+    }
+    .padding()
+}
+

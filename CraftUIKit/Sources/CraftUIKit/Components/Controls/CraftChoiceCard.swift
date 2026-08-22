@@ -277,3 +277,43 @@ private struct ChoiceShakeEffect: GeometryEffect {
         return ProjectionTransform(CGAffineTransform(translationX: translation, y: 0))
     }
 }
+
+#Preview("CraftChoiceCard") {
+    ScrollView {
+        VStack(spacing: 16) {
+            CraftChoiceCard(
+                prefix: "A",
+                title: "Idle State",
+                subtitle: "This is the default state",
+                state: .idle
+            ) {}
+            
+            CraftChoiceCard(
+                prefix: "B",
+                title: "Selected State",
+                subtitle: "Currently selected option",
+                state: .selected
+            ) {}
+            
+            CraftChoiceCard(
+                prefix: "C",
+                title: "Correct Answer",
+                state: .correct
+            ) {}
+            
+            CraftChoiceCard(
+                prefix: "D",
+                title: "Incorrect Answer",
+                subtitle: "Shake animation plays on appear",
+                state: .wrong
+            ) {}
+            
+            CraftChoiceCard(
+                prefix: "E",
+                title: "Disabled Option",
+                state: .disabled
+            ) {}
+        }
+        .padding()
+    }
+}

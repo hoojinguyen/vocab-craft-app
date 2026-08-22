@@ -306,4 +306,22 @@ public extension CraftEmptyState where Illustration == CraftDefaultEmptyStateIll
     }
 }
 
-
+#Preview("CraftEmptyState") {
+    ScrollView {
+        VStack(spacing: 48) {
+            CraftEmptyState(
+                iconName: "star.fill",
+                title: "No Favorites",
+                message: "You haven't favorited anything yet.",
+                buttonTitle: "Explore",
+                buttonAction: {}
+            )
+            
+            CraftEmptyState(
+                iconName: "folder",
+                title: "Empty Folder"
+            )
+        }
+        .padding()
+    }
+}

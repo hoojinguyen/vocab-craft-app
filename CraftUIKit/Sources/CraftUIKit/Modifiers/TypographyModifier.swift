@@ -29,3 +29,20 @@ public extension View {
         modifier(CraftTypographyModifier(style))
     }
 }
+
+#Preview("TypographyModifier") {
+    ScrollView {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Display Large").craftTypography(.displayLarge)
+            Text("Display Hero").craftTypography(.displayHero)
+            Text("Title Large").craftTypography(.titleLarge)
+            Text("Title Medium").craftTypography(.titleMedium)
+            Text("Headline").craftTypography(.headline)
+            Text("Body Large").craftTypography(.bodyLarge)
+            Text("Body Medium").craftTypography(.bodyMedium)
+            Text("Label").craftTypography(.label)
+            Text("Caption").craftTypography(.caption)
+        }
+        .padding()
+    }
+}

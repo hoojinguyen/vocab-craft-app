@@ -84,3 +84,14 @@ public struct CraftText: View {
         .multilineTextAlignment(textAlignment ?? .leading)
     }
 }
+
+#Preview("CraftText") {
+    ScrollView {
+        VStack(alignment: .leading, spacing: 16) {
+            ForEach(CraftTypographyStyle.allCases, id: \.self) { style in
+                CraftText(style.rawValue, style: style)
+            }
+        }
+        .padding()
+    }
+}

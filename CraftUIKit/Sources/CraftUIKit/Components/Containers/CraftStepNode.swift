@@ -267,3 +267,32 @@ public struct CraftStepNode: View {
     }
 }
 
+#Preview("CraftStepNode") {
+    VStack(spacing: 0) {
+        CraftStepNode(
+            title: "Completed Step",
+            subtitle: "This is done",
+            state: .completed,
+            stepNumber: 1
+        )
+        CraftStepNode(
+            title: "Active Step",
+            subtitle: "Currently working on this",
+            state: .active,
+            stepNumber: 2
+        )
+        CraftStepNode(
+            title: "Upcoming Step",
+            state: .upcoming,
+            stepNumber: 3
+        )
+        CraftStepNode(
+            title: "Locked Step",
+            state: .locked,
+            stepNumber: 4,
+            isLast: true
+        )
+    }
+    .padding()
+}
+

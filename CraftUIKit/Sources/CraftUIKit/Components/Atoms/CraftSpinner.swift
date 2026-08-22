@@ -54,3 +54,15 @@ public struct CraftSpinner: View {
             }
     }
 }
+
+#Preview("CraftSpinner") {
+    VStack(spacing: 24) {
+        HStack(spacing: 16) {
+            CraftSpinner(size: .sm)
+            CraftSpinner(size: .md)
+            CraftSpinner(size: .lg)
+            CraftSpinner(size: .xl)
+        }
+    }
+    .padding()
+}

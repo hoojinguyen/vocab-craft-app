@@ -78,3 +78,22 @@ public extension View {
         .buttonStyle(.craftPress(scale: scale, opacity: opacity))
     }
 }
+
+#Preview("PressEffectModifier") {
+    VStack(spacing: 32) {
+        Button("Default Press Effect") { }
+            .padding()
+            .background(Color.blue)
+            .foregroundColor(.white)
+            .cornerRadius(8)
+            .craftPressEffect()
+            
+        Button("Heavy Scale Press Effect") { }
+            .padding()
+            .background(Color.green)
+            .foregroundColor(.white)
+            .cornerRadius(8)
+            .craftPressEffect(scale: 0.85, opacity: 0.8)
+    }
+    .padding()
+}
