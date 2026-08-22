@@ -36,6 +36,25 @@ public enum CatalogColorScheme: String, CaseIterable, Identifiable, Sendable {
     }
 }
 
+/// Demo tab item model for showcasing `CraftFloatingTabBar`.
+public enum CatalogTabItem: String, CaseIterable, Identifiable, CraftTabItemProtocol {
+    case home = "Home"
+    case study = "Study"
+    case practice = "Practice"
+    case profile = "Profile"
+
+    public var id: String { rawValue }
+    public var title: String { rawValue }
+    public var symbol: String {
+        switch self {
+        case .home: return "house"
+        case .study: return "character.book.closed"
+        case .practice: return "bolt.fill"
+        case .profile: return "person.crop.circle"
+        }
+    }
+}
+
 // MARK: - Custom Emerald Theme
 
 /// Custom Emerald & Teal theme demonstrating CraftUIKit's customizable theming engine.
@@ -192,7 +211,7 @@ private struct CraftCatalogContentView: View {
     @Binding var selectedThemeType: CatalogThemeType
     @Binding var selectedColorScheme: CatalogColorScheme
 
-    // Interactive States
+    // Phase 1 Interactive States
     @State private var isButtonLoading: Bool = false
     @State private var iconButtonCounter: Int = 0
     @State private var selectedPills: Set<String> = ["Vocabulary", "Grammar"]
@@ -215,7 +234,24 @@ private struct CraftCatalogContentView: View {
     @State private var isDangerDialogPresented: Bool = false
     @State private var bentoCardTapped: String? = nil
 
-    // Audio & Motion FX States
+    // Phase 2: Section 10 - Metrics & Progression
+    @State private var masteredCount: Double = 45
+    @State private var reviewingCount: Double = 30
+    @State private var learningCount: Double = 25
+    @State private var selectedRoadmapStep: Int = 2
+
+    // Phase 2: Section 11 - 3D Flip Card & Multiple Choice Quiz
+    @State private var isCardFlipped: Bool = false
+    @State private var flipAxis: Axis = .horizontal
+    @State private var selectedQuizChoice: String? = nil
+    @State private var isQuizSubmitted: Bool = false
+
+    // Phase 2: Section 12 - Navigation TabBar
+    @State private var selectedTab: CatalogTabItem = .home
+    @State private var showCenterFAB: Bool = true
+    @State private var fabTapCount: Int = 0
+
+    // Phase 2: Section 13 - Audio & Motion FX States
     @State private var isWaveformRecording: Bool = false
     @State private var isSparkleTriggered: Bool = false
     @State private var isConfettiTriggered: Bool = false
@@ -232,7 +268,7 @@ private struct CraftCatalogContentView: View {
                     // Section 1: Typography & Icons
                     typographyIconsSection
 
-                    // Section 2: Badges & Tags
+                    // Section 2: Badges & Pills
                     badgesPillsSection
 
                     // Section 3: Buttons
@@ -256,7 +292,16 @@ private struct CraftCatalogContentView: View {
                     // Section 9: Toasts, Sheets & Dialogs
                     overlaysSection
 
-                    // Section 10: Audio Visualizer & Motion FX
+                    // Section 10: Segmented Distribution Bar & Step Roadmap Nodes
+                    metricsProgressionSection
+
+                    // Section 11: 3D Flip Card & Multiple-Choice Quiz Cards
+                    interactiveCardsSection
+
+                    // Section 12: Floating Liquid Glass TabBar
+                    navigationSection
+
+                    // Section 13: Audio Visualizer & Motion FX
                     audioMotionFxSection
                 }
                 .padding(.horizontal, theme.spacing.base)
@@ -279,6 +324,7 @@ private struct CraftCatalogContentView: View {
         ) {
             toastStyle = .success
             isToastPresented = true
+            isConfettiTriggered = true
         }
         .craftToast(
             isPresented: $isToastPresented,
@@ -817,57 +863,6 @@ private struct CraftCatalogContentView: View {
                         }
                     }
                 }
-
-                CraftDivider()
-
-                // Segmented Metric Bar
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText("CraftSegmentedBar", style: .headline)
-
-                    CraftSegmentedBar(
-                        items: [
-                            CraftSegmentItem(id: "1", label: "Mastered", value: 45, color: theme.colors.statusSuccess),
-                            CraftSegmentItem(id: "2", label: "Reviewing", value: 30, color: theme.colors.brandPrimary),
-                            CraftSegmentItem(id: "3", label: "Learning", value: 25, color: theme.colors.statusWarning)
-                        ],
-                        height: 10
-                    )
-                }
-
-                CraftDivider()
-
-                // Step Roadmap Nodes
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText("CraftStepNode (Roadmap)", style: .headline)
-
-                    VStack(spacing: 0) {
-                        CraftStepNode(
-                            title: "Foundations",
-                            subtitle: "Core vocabulary & phonetics completed",
-                            state: .completed,
-                            stepNumber: 1
-                        )
-                        CraftStepNode(
-                            title: "Intermediate Grammar",
-                            subtitle: "Sentence structure & common idioms",
-                            state: .active,
-                            stepNumber: 2
-                        )
-                        CraftStepNode(
-                            title: "Advanced Nuances",
-                            subtitle: "Subtle connotations & formal registers",
-                            state: .upcoming,
-                            stepNumber: 3
-                        )
-                        CraftStepNode(
-                            title: "Mastery Certification",
-                            subtitle: "Comprehensive assessment",
-                            state: .locked,
-                            stepNumber: 4,
-                            isLast: true
-                        )
-                    }
-                }
             }
         }
     }
@@ -1019,17 +1014,332 @@ private struct CraftCatalogContentView: View {
         }
     }
 
-    // MARK: - 10. Audio Visualizer & Motion FX Section
+    // MARK: - 10. Metrics & Progression Section
+
+    private var metricsProgressionSection: some View {
+        CraftCard(style: .elevated) {
+            VStack(alignment: .leading, spacing: theme.spacing.base) {
+                sectionHeader(title: "10. Segmented Distribution Bar & Step Roadmap", iconName: "chart.pie.fill")
+
+                // Segmented Distribution Bar
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    HStack {
+                        CraftText("CraftSegmentedBar (Distribution)", style: .headline)
+                        Spacer()
+                        Button("Randomize") {
+                            withAnimation(theme.animations.springSmooth) {
+                                masteredCount = Double.random(in: 20...60).rounded()
+                                reviewingCount = Double.random(in: 15...40).rounded()
+                                learningCount = Double.random(in: 10...30).rounded()
+                            }
+                        }
+                        .font(theme.typography.caption)
+                        .foregroundColor(theme.colors.brandPrimary)
+                    }
+
+                    CraftSegmentedBar(
+                        items: [
+                            CraftSegmentItem(id: "1", label: "Mastered", value: masteredCount, color: theme.colors.statusSuccess),
+                            CraftSegmentItem(id: "2", label: "Reviewing", value: reviewingCount, color: theme.colors.brandPrimary),
+                            CraftSegmentItem(id: "3", label: "Learning", value: learningCount, color: theme.colors.statusWarning)
+                        ],
+                        height: 12,
+                        cornerRadius: 6,
+                        showLegend: true,
+                        showPercentages: true
+                    )
+                }
+
+                CraftDivider()
+
+                // Step Roadmap Nodes
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    HStack {
+                        CraftText("CraftStepNode (Interactive Roadmap)", style: .headline)
+                        Spacer()
+                        CraftText("Step \(selectedRoadmapStep) of 4 Selected", style: .caption, color: theme.colors.brandPrimary)
+                    }
+
+                    VStack(spacing: 0) {
+                        CraftStepNode(
+                            title: "Foundations & Phonetics",
+                            subtitle: "Alphabet, pronunciation rules, and 200 base words",
+                            state: selectedRoadmapStep > 1 ? .completed : (selectedRoadmapStep == 1 ? .active : .upcoming),
+                            stepNumber: 1,
+                            onTap: { selectedRoadmapStep = 1 }
+                        )
+
+                        CraftStepNode(
+                            title: "Intermediate Lexicon",
+                            subtitle: "Collocations, phrasal verbs, and daily situational dialogues",
+                            state: selectedRoadmapStep > 2 ? .completed : (selectedRoadmapStep == 2 ? .active : .upcoming),
+                            stepNumber: 2,
+                            onTap: { selectedRoadmapStep = 2 }
+                        )
+
+                        CraftStepNode(
+                            title: "Advanced Idioms & Nuance",
+                            subtitle: "Metaphors, formal registers, and rhetoric structures",
+                            state: selectedRoadmapStep > 3 ? .completed : (selectedRoadmapStep == 3 ? .active : .locked),
+                            stepNumber: 3,
+                            onTap: { selectedRoadmapStep = 3 }
+                        )
+
+                        CraftStepNode(
+                            title: "Fluency Mastery Certification",
+                            subtitle: "Comprehensive assessment sprint and final review",
+                            state: selectedRoadmapStep == 4 ? .active : .locked,
+                            stepNumber: 4,
+                            isLast: true,
+                            onTap: { selectedRoadmapStep = 4 }
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: - 11. 3D Flip Card & Quiz Cards Section
+
+    private var interactiveCardsSection: some View {
+        CraftCard(style: .elevated) {
+            VStack(alignment: .leading, spacing: theme.spacing.base) {
+                sectionHeader(title: "11. 3D Flip Card & Quiz Cards", iconName: "rectangle.portrait.on.rectangle.portrait.angled")
+
+                // 3D Flip Card Demo
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    HStack {
+                        CraftText("CraftFlipCard (3D Double-Sided)", style: .headline)
+                        Spacer()
+                        Picker("Axis", selection: $flipAxis) {
+                            Text("Horizontal").tag(Axis.horizontal)
+                            Text("Vertical").tag(Axis.vertical)
+                        }
+                        .pickerStyle(.segmented)
+                        .frame(width: 160)
+                    }
+
+                    CraftFlipCard(isFlipped: $isCardFlipped, axis: flipAxis) {
+                        // Front Face
+                        CraftCard(style: .outlined) {
+                            VStack(spacing: theme.spacing.sm) {
+                                HStack {
+                                    CraftBadge("Vocabulary Card", variant: .subtle, tone: .primary)
+                                    Spacer()
+                                    CraftIcon("speaker.wave.2.fill", size: .sm, color: theme.colors.brandPrimary)
+                                }
+
+                                Spacer()
+
+                                CraftText("Ephemeral", style: .displayLarge, color: theme.colors.textPrimary)
+                                CraftText("/ɪˈfem.ər.əl/", style: .label, color: theme.colors.textMuted)
+
+                                Spacer()
+
+                                HStack(spacing: theme.spacing.xs) {
+                                    CraftIcon("arrow.triangle.2.circlepath", size: .sm, color: theme.colors.textSecondary)
+                                    CraftText("Tap to reveal definition", style: .caption, color: theme.colors.textSecondary)
+                                }
+                            }
+                            .frame(height: 160)
+                            .frame(maxWidth: .infinity)
+                        }
+                        .onTapGesture {
+                            isCardFlipped.toggle()
+                        }
+                    } back: {
+                        // Back Face
+                        CraftCard(style: .gradient) {
+                            VStack(spacing: theme.spacing.sm) {
+                                HStack {
+                                    CraftBadge("Definition", variant: .solid, tone: .neutral)
+                                    Spacer()
+                                    CraftIcon("sparkles", size: .sm, color: .white)
+                                }
+
+                                Spacer()
+
+                                CraftText("Lasting for a very short time; transitory; fleeting.", style: .headline, color: .white)
+                                    .multilineTextAlignment(.center)
+
+                                CraftText("\"Fame in the digital age can be remarkably ephemeral.\"", style: .caption, color: .white.opacity(0.85))
+                                    .italic()
+                                    .multilineTextAlignment(.center)
+
+                                Spacer()
+
+                                HStack(spacing: theme.spacing.xs) {
+                                    CraftIcon("arrow.triangle.2.circlepath", size: .sm, color: .white.opacity(0.8))
+                                    CraftText("Tap to flip back", style: .caption, color: .white.opacity(0.8))
+                                }
+                            }
+                            .frame(height: 160)
+                            .frame(maxWidth: .infinity)
+                        }
+                        .onTapGesture {
+                            isCardFlipped.toggle()
+                        }
+                    }
+                }
+
+                CraftDivider()
+
+                // Multiple Choice Quiz Card Demo
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    HStack {
+                        CraftText("CraftChoiceCard (Quiz Interaction)", style: .headline)
+                        Spacer()
+                        if isQuizSubmitted {
+                            Button("Reset") {
+                                resetQuiz()
+                            }
+                            .font(theme.typography.caption)
+                            .foregroundColor(theme.colors.brandPrimary)
+                        }
+                    }
+
+                    CraftText("What is the closest synonym for 'Ephemeral'?", style: .bodyMedium, color: theme.colors.textSecondary)
+                        .padding(.bottom, theme.spacing.xs)
+
+                    VStack(spacing: theme.spacing.sm) {
+                        CraftChoiceCard(
+                            prefix: "A",
+                            title: "Permanent",
+                            subtitle: "Enduring and perpetual across eras",
+                            state: choiceState(for: "A")
+                        ) {
+                            selectChoice("A")
+                        }
+
+                        CraftChoiceCard(
+                            prefix: "B",
+                            title: "Transitory",
+                            subtitle: "Fleeting and brief in existence",
+                            state: choiceState(for: "B")
+                        ) {
+                            selectChoice("B")
+                        }
+
+                        CraftChoiceCard(
+                            prefix: "C",
+                            title: "Immutable",
+                            subtitle: "Completely rigid and unchangeable",
+                            state: choiceState(for: "C")
+                        ) {
+                            selectChoice("C")
+                        }
+
+                        CraftChoiceCard(
+                            prefix: "D",
+                            title: "Dormant",
+                            subtitle: "Temporarily inactive or asleep",
+                            state: choiceState(for: "D")
+                        ) {
+                            selectChoice("D")
+                        }
+                    }
+
+                    if !isQuizSubmitted {
+                        CraftButton(
+                            "Submit Answer",
+                            iconName: "checkmark.circle.fill",
+                            variant: .primary,
+                            size: .md
+                        ) {
+                            submitQuiz()
+                        }
+                        .frame(maxWidth: .infinity)
+                        .disabled(selectedQuizChoice == nil)
+                        .padding(.top, theme.spacing.xs)
+                    }
+                }
+
+                CraftDivider()
+
+                // Static Choice States Showcase
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("Choice Card State Matrix", style: .headline)
+
+                    HStack(spacing: theme.spacing.xs) {
+                        CraftChoiceCard(prefix: "1", title: "Idle", state: .idle) {}
+                        CraftChoiceCard(prefix: "2", title: "Selected", state: .selected) {}
+                    }
+
+                    HStack(spacing: theme.spacing.xs) {
+                        CraftChoiceCard(prefix: "3", title: "Correct", state: .correct) {}
+                        CraftChoiceCard(prefix: "4", title: "Wrong", state: .wrong) {}
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: - 12. Floating Liquid Glass TabBar Section
+
+    private var navigationSection: some View {
+        CraftCard(style: .elevated) {
+            VStack(alignment: .leading, spacing: theme.spacing.base) {
+                sectionHeader(title: "12. Floating Liquid Glass TabBar", iconName: "dock.rectangle")
+
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("Active Navigation Canvas", style: .headline)
+
+                    ZStack {
+                        RoundedRectangle(cornerRadius: theme.radii.lg)
+                            .fill(theme.colors.surfaceSubtle.opacity(0.4))
+                            .frame(height: 130)
+
+                        VStack(spacing: theme.spacing.xs) {
+                            CraftIcon(selectedTab.symbol, size: .xl, color: theme.colors.brandPrimary)
+                            CraftText("Active: \(selectedTab.title) Screen", style: .headline, color: theme.colors.textPrimary)
+                            CraftText("Liquid glass capsule with spring sliding indicator", style: .caption, color: theme.colors.textMuted)
+                        }
+                    }
+                    .overlay(alignment: .bottom) {
+                        CraftFloatingTabBar(
+                            selectedItem: $selectedTab,
+                            items: CatalogTabItem.allCases,
+                            centerAction: showCenterFAB ? {
+                                fabTapCount += 1
+                                toastStyle = .success
+                                isToastPresented = true
+                            } : nil,
+                            centerSymbol: "plus",
+                            centerTitle: "Add"
+                        )
+                        .padding(.bottom, theme.spacing.xs)
+                    }
+                }
+
+                CraftDivider()
+
+                HStack {
+                    CraftToggle(
+                        isOn: $showCenterFAB,
+                        title: "Center Elevated FAB",
+                        subtitle: "Displays elevated circular action button in middle slot",
+                        iconName: "plus.circle.fill"
+                    )
+                }
+
+                if fabTapCount > 0 {
+                    CraftText("Center FAB tapped \(fabTapCount) times", style: .caption, color: theme.colors.brandPrimary)
+                }
+            }
+        }
+    }
+
+    // MARK: - 13. Audio Visualizer & Motion FX Section
 
     private var audioMotionFxSection: some View {
         CraftCard(style: .elevated) {
             VStack(alignment: .leading, spacing: theme.spacing.base) {
-                sectionHeader(title: "10. Audio & Motion FX", iconName: "waveform.badge.mic")
+                sectionHeader(title: "13. Audio & Motion FX", iconName: "waveform.badge.mic")
 
                 // Waveform Visualizer
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     HStack {
-                        CraftText("CraftWaveformView", style: .headline)
+                        CraftText("CraftWaveformView (Audio Visualizer)", style: .headline)
                         Spacer()
                         Toggle("Recording Glow", isOn: $isWaveformRecording)
                             .labelsHidden()
@@ -1100,7 +1410,44 @@ private struct CraftCatalogContentView: View {
         }
     }
 
-    // MARK: - Helpers
+    // MARK: - Helpers & Quiz Logic
+
+    private func selectChoice(_ choice: String) {
+        guard !isQuizSubmitted else { return }
+        selectedQuizChoice = choice
+    }
+
+    private func choiceState(for choice: String) -> CraftChoiceState {
+        if !isQuizSubmitted {
+            return selectedQuizChoice == choice ? .selected : .idle
+        }
+
+        if choice == "B" {
+            return .correct
+        } else if selectedQuizChoice == choice {
+            return .wrong
+        } else {
+            return .disabled
+        }
+    }
+
+    private func submitQuiz() {
+        guard selectedQuizChoice != nil else { return }
+        isQuizSubmitted = true
+        if selectedQuizChoice == "B" {
+            isConfettiTriggered = true
+            toastStyle = .success
+            isToastPresented = true
+        } else {
+            toastStyle = .danger
+            isToastPresented = true
+        }
+    }
+
+    private func resetQuiz() {
+        selectedQuizChoice = nil
+        isQuizSubmitted = false
+    }
 
     private func sectionHeader(title: String, iconName: String) -> some View {
         HStack(spacing: theme.spacing.xs) {
