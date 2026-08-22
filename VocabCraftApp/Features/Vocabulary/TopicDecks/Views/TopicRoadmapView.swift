@@ -1,5 +1,5 @@
-import SwiftUI
 import CraftUIKit
+import SwiftUI
 
 /// Vertical timeline roadmap view displaying sequential subtopic stages (.completed, .active, .locked).
 public struct TopicRoadmapView: View {

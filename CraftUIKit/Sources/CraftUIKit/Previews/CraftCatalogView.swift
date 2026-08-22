@@ -568,10 +568,23 @@ private struct CatalogTypographySection: View {
                     CraftText("Label Style", style: .label, color: theme.colors.textMuted)
                     CraftText("Caption helper text style", style: .caption, color: theme.colors.textMuted)
 
+                    CraftDivider()
+                        .padding(.vertical, 4)
+
+                    // Domain-Specific Typography Axes
+                    CraftText("SF Design Axes (Domain Specialized)", style: .headline)
+                    CraftText("Serendipity", style: .displaySerif, color: theme.colors.brandPrimary)
+                    CraftText("/ˌser.ənˈdɪp.ə.ti/", style: .phonetic, color: theme.colors.textSecondary)
+                    CraftText("Finding valuable or agreeable things not sought for.", style: .bodySerif, color: theme.colors.textPrimary)
+                    HStack(spacing: 8) {
+                        CraftText("Score: 9,850 XP", style: .metricRounded, color: theme.colors.accent)
+                        CraftBadge("Top 1%", symbol: .trophy, variant: .solid, tone: .warning, size: .sm)
+                    }
+
                     VStack(alignment: .leading, spacing: theme.spacing.xs) {
                         HStack(spacing: 6) {
                             CraftText("Modifier Demo:", style: .caption, color: theme.colors.textMuted)
-                            Text(".craftTypography(.titleMedium)")
+                            Text(".craftTypography(.displaySerif)")
                                 .font(.system(.caption, design: .monospaced, weight: .semibold))
                                 .foregroundStyle(theme.colors.brandSecondary)
                                 .padding(.horizontal, 6)

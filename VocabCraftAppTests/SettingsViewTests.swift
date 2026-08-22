@@ -46,4 +46,3 @@ final class SettingsViewTests: XCTestCase {
         XCTAssertNotNil(body)
     }
 }
-

@@ -1,5 +1,5 @@
-import SwiftUI
 import CraftUIKit
+import SwiftUI
 
 public struct CEFRDistributionCard: View {
     @Environment(\.craftTheme) private var theme
