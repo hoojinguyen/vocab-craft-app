@@ -24,16 +24,40 @@ final class AtomComponentTests: XCTestCase {
         XCTAssertEqual(defaultBadge.size, .md)
     }
 
+    func testBadgeWithCraftSymbol() {
+        let badge = CraftBadge("MASTERED", symbol: .mastery, variant: .solid, tone: .success, size: .sm)
+        XCTAssertEqual(badge.title, "MASTERED")
+        XCTAssertEqual(badge.iconName, "medal.fill")
+        XCTAssertEqual(badge.symbol, .mastery)
+        XCTAssertEqual(badge.variant, .solid)
+        XCTAssertEqual(badge.tone, .success)
+        XCTAssertEqual(badge.size, .sm)
+        XCTAssertNotNil(badge.body)
+    }
+
     func testBadgeLocalizedAndVerbatim() {
         let localizedBadge = CraftBadge(LocalizedStringKey("badge_new"), iconName: "sparkles", variant: .solid)
         XCTAssertNil(localizedBadge.title)
         XCTAssertEqual(localizedBadge.iconName, "sparkles")
         XCTAssertNotNil(localizedBadge.body)
 
+        let localizedSymbolBadge = CraftBadge(LocalizedStringKey("badge_new"), symbol: .sparkles, variant: .solid)
+        XCTAssertNil(localizedSymbolBadge.title)
+        XCTAssertEqual(localizedSymbolBadge.symbol, .sparkles)
+        XCTAssertEqual(localizedSymbolBadge.iconName, "sparkles")
+        XCTAssertNotNil(localizedSymbolBadge.body)
+
         let verbatimBadge = CraftBadge(verbatim: "LEVEL 5", variant: .outline, tone: .warning, size: .sm)
         XCTAssertEqual(verbatimBadge.title, "LEVEL 5")
         XCTAssertEqual(verbatimBadge.tone, .warning)
         XCTAssertNotNil(verbatimBadge.body)
+
+        let verbatimSymbolBadge = CraftBadge(verbatim: "STREAK", symbol: .streak, variant: .solid, tone: .warning, size: .sm)
+        XCTAssertEqual(verbatimSymbolBadge.title, "STREAK")
+        XCTAssertEqual(verbatimSymbolBadge.symbol, .streak)
+        XCTAssertEqual(verbatimSymbolBadge.iconName, "flame.fill")
+        XCTAssertEqual(verbatimSymbolBadge.tone, .warning)
+        XCTAssertNotNil(verbatimSymbolBadge.body)
     }
 
     func testBadgeVariantsAndTones() {

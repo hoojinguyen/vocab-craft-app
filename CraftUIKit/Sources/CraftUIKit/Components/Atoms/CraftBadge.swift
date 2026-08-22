@@ -26,7 +26,8 @@ public enum CraftBadgeSize: String, Sendable, CaseIterable {
 
 // MARK: - CraftBadge Component
 
-/// A standardized badge and tag component displaying status, categories, or counts.
+/// A standardized badge and tag component displaying status, categories, or counts
+/// with WCAG AAA contrast assurance and hierarchical icon rendering.
 public struct CraftBadge: View {
     @Environment(\.craftTheme) private var theme
 
@@ -34,12 +35,30 @@ public struct CraftBadge: View {
     private let rawTitle: String?
     private let isVerbatim: Bool
     public let iconName: String?
+    public let symbol: CraftSymbol?
     public let variant: CraftBadgeVariant
     public let tone: CraftBadgeTone
     public let size: CraftBadgeSize
 
     public var title: String? {
         rawTitle
+    }
+
+    public init(
+        _ title: String,
+        symbol: CraftSymbol,
+        variant: CraftBadgeVariant = .subtle,
+        tone: CraftBadgeTone = .primary,
+        size: CraftBadgeSize = .md
+    ) {
+        self.titleKey = nil
+        self.rawTitle = title
+        self.isVerbatim = false
+        self.symbol = symbol
+        self.iconName = symbol.rawValue
+        self.variant = variant
+        self.tone = tone
+        self.size = size
     }
 
     public init(
@@ -52,7 +71,25 @@ public struct CraftBadge: View {
         self.titleKey = nil
         self.rawTitle = title
         self.isVerbatim = false
+        self.symbol = iconName.flatMap { CraftSymbol(rawValue: $0) }
         self.iconName = iconName
+        self.variant = variant
+        self.tone = tone
+        self.size = size
+    }
+
+    public init(
+        _ titleKey: LocalizedStringKey,
+        symbol: CraftSymbol,
+        variant: CraftBadgeVariant = .subtle,
+        tone: CraftBadgeTone = .primary,
+        size: CraftBadgeSize = .md
+    ) {
+        self.titleKey = titleKey
+        self.rawTitle = nil
+        self.isVerbatim = false
+        self.symbol = symbol
+        self.iconName = symbol.rawValue
         self.variant = variant
         self.tone = tone
         self.size = size
@@ -68,7 +105,25 @@ public struct CraftBadge: View {
         self.titleKey = titleKey
         self.rawTitle = nil
         self.isVerbatim = false
+        self.symbol = iconName.flatMap { CraftSymbol(rawValue: $0) }
         self.iconName = iconName
+        self.variant = variant
+        self.tone = tone
+        self.size = size
+    }
+
+    public init(
+        verbatim title: String,
+        symbol: CraftSymbol,
+        variant: CraftBadgeVariant = .subtle,
+        tone: CraftBadgeTone = .primary,
+        size: CraftBadgeSize = .md
+    ) {
+        self.titleKey = nil
+        self.rawTitle = title
+        self.isVerbatim = true
+        self.symbol = symbol
+        self.iconName = symbol.rawValue
         self.variant = variant
         self.tone = tone
         self.size = size
@@ -84,6 +139,7 @@ public struct CraftBadge: View {
         self.titleKey = nil
         self.rawTitle = title
         self.isVerbatim = true
+        self.symbol = iconName.flatMap { CraftSymbol(rawValue: $0) }
         self.iconName = iconName
         self.variant = variant
         self.tone = tone
@@ -108,6 +164,10 @@ public struct CraftBadge: View {
     private var foregroundColor: Color {
         switch variant {
         case .solid:
+            // High contrast assurance: Warning (yellow/amber) needs dark ink, not white
+            if tone == .warning {
+                return Color(hex: 0x18181B)
+            }
             return .white
         case .subtle, .outline:
             return toneColor
@@ -138,9 +198,13 @@ public struct CraftBadge: View {
     public var body: some View {
         HStack(spacing: 4) {
             if let iconName {
-                Image(systemName: iconName)
-                    .font(font.weight(.semibold))
-                    .accessibilityHidden(true)
+                CraftIcon(
+                    iconName,
+                    size: size == .sm ? .sm : .md,
+                    color: foregroundColor,
+                    renderingMode: variant == .solid ? .monochrome : .hierarchical,
+                    weight: .bold
+                )
             }
             if let titleKey {
                 Text(titleKey)
@@ -170,7 +234,12 @@ public struct CraftBadge: View {
         case .solid:
             Capsule().fill(toneColor)
         case .subtle:
-            Capsule().fill(toneColor.opacity(0.15))
+            Capsule()
+                .fill(toneColor.opacity(0.14))
+                .overlay(
+                    Capsule()
+                        .strokeBorder(toneColor.opacity(0.24), lineWidth: 1)
+                )
         case .outline:
             Capsule().strokeBorder(toneColor, lineWidth: 1)
         }
