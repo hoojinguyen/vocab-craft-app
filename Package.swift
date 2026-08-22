@@ -17,9 +17,15 @@ let package = Package(
             targets: ["VocabCraftWidgetExtension"]
         )
     ],
+    dependencies: [
+        .package(path: "CraftUIKit")
+    ],
     targets: [
         .target(
             name: "VocabCraftApp",
+            dependencies: [
+                .product(name: "CraftUIKit", package: "CraftUIKit")
+            ],
             path: "VocabCraftApp",
             exclude: [
                 "App/Info.plist",
