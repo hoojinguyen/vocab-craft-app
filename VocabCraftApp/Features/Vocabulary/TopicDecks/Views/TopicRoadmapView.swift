@@ -1,4 +1,5 @@
 import SwiftUI
+import CraftUIKit
 
 /// Vertical timeline roadmap view displaying sequential subtopic stages (.completed, .active, .locked).
 public struct TopicRoadmapView: View {
@@ -162,178 +163,35 @@ public struct TopicRoadmapView: View {
                     .padding(.top, 40)
             } else {
                 ForEach(Array(viewModel.stages.enumerated()), id: \.element.id) { index, stage in
-                    VStack(alignment: .leading, spacing: 0) {
-                        HStack(spacing: 14) {
-                            // Node Circle Icon
-                            nodeCircleIcon(stage: stage, index: index)
-
-                            // Node Card
-                            Button(action: {
-                                onStageSelected?(stage)
-                            }) {
-                                HStack {
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        HStack(spacing: 6) {
-                                            Image(systemName: stage.iconName)
-                                                .font(.system(size: 15, weight: .bold))
-                                                .foregroundColor(nodeIconColor(for: stage.state))
-
-                                            Text(stage.title)
-                                                .font(.system(size: 15, weight: .bold))
-                                                .foregroundColor(Color.vocabInk)
-                                        }
-
-                                        let learnedCount = stage.state == .completed ? stage.words.count : 0
-                                        Text(AppStrings.Vocabulary.wordsMasteredCountLabel(current: learnedCount, total: stage.words.count))
-                                            .font(.system(size: 12, weight: .medium))
-                                            .foregroundColor(Color.vocabMuted)
-                                    }
-
-                                    Spacer()
-
-                                    Image(systemName: "chevron.right")
-                                        .font(.system(size: 14, weight: .semibold))
-                                        .foregroundColor(stage.state == .active ? Color.vocabPeach : Color.vocabMuted)
-                                }
-                                .padding(14)
-                                .background(nodeCardBackground(for: stage.state))
-                                .cornerRadius(14)
-                                .overlay(nodeCardBorder(for: stage.state))
-                                .shadow(
-                                    color: stage.state == .active ? Color.vocabPeach.opacity(0.18) : (stage.state == .completed ? Color.vocabMint.opacity(0.06) : Color.clear),
-                                    radius: stage.state == .active ? 8 : 4,
-                                    x: 0,
-                                    y: stage.state == .active ? 4 : 2
-                                )
-                                .contentShape(Rectangle())
-                            }
-                            .buttonStyle(BentoCardButtonStyle())
-                            .disabled(stage.state == .locked)
-                        }
-
-                        // Connecting Vertical Line
-                        if index < viewModel.stages.count - 1 {
-                            HStack {
-                                connectingLine(state: stage.state)
-                                    .padding(.leading, 22)
-                            }
-                        }
-                    }
+                    let learnedCount = stage.state == .completed ? stage.words.count : 0
+                    CraftStepNode(
+                        title: stage.title,
+                        subtitle: AppStrings.Vocabulary.wordsMasteredCountText(current: learnedCount, total: stage.words.count),
+                        state: stage.state.craftStepState,
+                        stepNumber: index + 1,
+                        isLast: index == viewModel.stages.count - 1,
+                        onTap: stage.state != .locked ? {
+                            onStageSelected?(stage)
+                        } : nil
+                    )
                 }
             }
         }
         .padding(.horizontal, 20)
     }
+}
 
-    private func nodeIconColor(for state: StageState) -> Color {
-        switch state {
-        case .active: return Color.vocabPeach
-        case .completed: return Color.vocabMint
-        case .locked: return Color.vocabMuted
-        }
-    }
+// MARK: - State Mapping
 
-    @ViewBuilder
-    private func nodeCircleIcon(stage: SubTopicStage, index: Int) -> some View {
-        ZStack {
-            switch stage.state {
-            case .completed:
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [Color.vocabMint, Color(hex: "34D399")],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 48, height: 48)
-                    .shadow(color: Color.vocabMint.opacity(0.35), radius: 5, x: 0, y: 3)
-
-                Image(systemName: "checkmark")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(.white)
-
-            case .active:
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [Color.vocabPeach, Color(hex: "FA9938")],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 48, height: 48)
-                    .shadow(color: Color.vocabPeach.opacity(0.4), radius: 6, x: 0, y: 3)
-
-                Text("\(index + 1)")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(.white)
-
-            case .locked:
-                Circle()
-                    .fill(Color.vocabSurfaceSoft)
-                    .frame(width: 48, height: 48)
-
-                Image(systemName: "lock.fill")
-                    .font(.system(size: 16))
-                    .foregroundColor(Color.vocabMuted)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func nodeCardBorder(for state: StageState) -> some View {
-        switch state {
-        case .active:
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(
-                    LinearGradient(
-                        colors: [Color.vocabPeach, Color(hex: "FA9938")],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    ),
-                    lineWidth: 2
-                )
+private extension StageState {
+    var craftStepState: CraftStepState {
+        switch self {
         case .completed:
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(Color.vocabMint.opacity(0.35), lineWidth: 1.2)
-        case .locked:
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(Color.vocabHairline, lineWidth: 1)
-        }
-    }
-
-    private func nodeCardBackground(for state: StageState) -> Color {
-        switch state {
+            return .completed
         case .active:
-            return Color.vocabPeach.opacity(0.04)
-        case .completed, .locked:
-            return Color.vocabSurfaceCard
-        }
-    }
-
-    @ViewBuilder
-    private func connectingLine(state: StageState) -> some View {
-        if state == .completed {
-            LinearGradient(
-                colors: [Color.vocabMint, Color(hex: "34D399")],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .frame(width: 4, height: 28)
-            .cornerRadius(2)
-        } else if state == .active {
-            LinearGradient(
-                colors: [Color.vocabPeach, Color.vocabHairline],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .frame(width: 4, height: 28)
-            .cornerRadius(2)
-        } else {
-            RoundedRectangle(cornerRadius: 2)
-                .fill(Color.vocabHairline)
-                .frame(width: 4, height: 28)
+            return .active
+        case .locked:
+            return .locked
         }
     }
 }

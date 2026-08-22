@@ -1,6 +1,9 @@
 import SwiftUI
+import CraftUIKit
 
 public struct CEFRDistributionCard: View {
+    @Environment(\.craftTheme) private var theme
+
     public let a1a2Count: Int
     public let b1b2Count: Int
     public let c1c2Count: Int
@@ -16,22 +19,6 @@ public struct CEFRDistributionCard: View {
         self.b1b2Count = b1b2Count
         self.c1c2Count = c1c2Count
         self.onDetailTap = onDetailTap
-    }
-
-    private var totalCount: Int {
-        max(a1a2Count + b1b2Count + c1c2Count, 1)
-    }
-
-    private var a1a2Ratio: CGFloat {
-        CGFloat(a1a2Count) / CGFloat(totalCount)
-    }
-
-    private var b1b2Ratio: CGFloat {
-        CGFloat(b1b2Count) / CGFloat(totalCount)
-    }
-
-    private var c1c2Ratio: CGFloat {
-        CGFloat(c1c2Count) / CGFloat(totalCount)
     }
 
     public var body: some View {
@@ -72,51 +59,16 @@ public struct CEFRDistributionCard: View {
                 }
             }
 
-            // Tri-color Segmented Progress Bar
-            GeometryReader { geometry in
-                let width = geometry.size.width
-                HStack(spacing: 3) {
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(Color.vocabMint)
-                        .frame(width: max(width * a1a2Ratio - 2, 4))
-
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(Color.vocabPeach)
-                        .frame(width: max(width * b1b2Ratio - 2, 4))
-
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(Color.vocabLavender)
-                        .frame(width: max(width * c1c2Ratio - 2, 4))
-                }
-            }
-            .frame(height: 8)
-            .clipShape(Capsule())
-
-            // Legend / breakdown
-            HStack(spacing: 12) {
-                CEFRLegendItem(
-                    title: "A1-A2",
-                    count: a1a2Count,
-                    color: Color.vocabMint
-                )
-
-                Spacer()
-
-                CEFRLegendItem(
-                    title: "B1-B2",
-                    count: b1b2Count,
-                    color: Color.vocabPeach
-                )
-
-                Spacer()
-
-                CEFRLegendItem(
-                    title: "C1-C2",
-                    count: c1c2Count,
-                    color: Color.vocabLavender
-                )
-            }
-            .font(.system(size: 12))
+            // Segmented Progress Bar & Legend
+            CraftSegmentedBar(
+                items: [
+                    CraftSegmentItem(id: "a1a2", label: "A1-A2", value: Double(a1a2Count), color: theme.colors.statusSuccess),
+                    CraftSegmentItem(id: "b1b2", label: "B1-B2", value: Double(b1b2Count), color: theme.colors.statusWarning),
+                    CraftSegmentItem(id: "c1c2", label: "C1-C2", value: Double(c1c2Count), color: theme.colors.brandPrimary)
+                ],
+                showLegend: true,
+                showPercentages: true
+            )
         }
         .padding(18)
         .background(Color.vocabSurfaceCard)
@@ -127,29 +79,5 @@ public struct CEFRDistributionCard: View {
         )
         .shadow(color: Color.black.opacity(0.03), radius: 6, x: 0, y: 3)
         .padding(.horizontal)
-    }
-}
-
-private struct CEFRLegendItem: View {
-    let title: String
-    let count: Int
-    let color: Color
-
-    var body: some View {
-        HStack(spacing: 4) {
-            Circle()
-                .fill(color)
-                .frame(width: 6, height: 6)
-
-            Text(title)
-                .font(.system(size: 11, weight: .medium))
-                .foregroundColor(Color.vocabMuted)
-
-            (Text("\(count) ") + Text(AppStrings.Common.wordUnit))
-                .font(.system(size: 11, weight: .bold, design: .rounded))
-                .monospacedDigit()
-                .foregroundColor(Color.vocabInk)
-        }
-        .lineLimit(1)
     }
 }

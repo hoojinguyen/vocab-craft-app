@@ -124,6 +124,9 @@ public enum AppStrings {
         public static func wordsMasteredCountLabel(current: Int, total: Int) -> LocalizedStringKey {
             LocalizedStringKey("vocabulary.wordsMasteredCountLabel \(current) \(total)")
         }
+        public static func wordsMasteredCountText(current: Int, total: Int) -> String {
+            String(format: String(localized: "vocabulary.wordsMasteredCountLabel %lld %lld", defaultValue: "%lld/%lld words mastered", bundle: .module), current, total)
+        }
     }
 
     // MARK: - Reflex Drill View
