@@ -166,7 +166,7 @@ public struct CraftBadge: View {
         case .solid:
             // High contrast assurance: Warning (yellow/amber) needs dark ink, not white
             if tone == .warning {
-                return Color(hex: 0x18181B)
+                return theme.colors.textPrimary
             }
             return .white
         case .subtle, .outline:
@@ -176,14 +176,14 @@ public struct CraftBadge: View {
 
     private var horizontalPadding: CGFloat {
         switch size {
-        case .sm: return 6
+        case .sm: return 8
         case .md: return 8
         }
     }
 
     private var verticalPadding: CGFloat {
         switch size {
-        case .sm: return 2
+        case .sm: return 4
         case .md: return 4
         }
     }
@@ -243,5 +243,30 @@ public struct CraftBadge: View {
         case .outline:
             Capsule().strokeBorder(toneColor, lineWidth: 1)
         }
+    }
+}
+
+#Preview("CraftBadge") {
+    ScrollView {
+        VStack(spacing: 24) {
+            ForEach(CraftBadgeVariant.allCases, id: \.self) { variant in
+                VStack(spacing: 8) {
+                    Text(variant.rawValue.capitalized)
+                        .font(.headline)
+                    
+                    HStack(spacing: 8) {
+                        ForEach(CraftBadgeTone.allCases, id: \.self) { tone in
+                            CraftBadge(tone.rawValue.capitalized, iconName: "star.fill", variant: variant, tone: tone, size: .md)
+                        }
+                    }
+                    HStack(spacing: 8) {
+                        ForEach(CraftBadgeTone.allCases, id: \.self) { tone in
+                            CraftBadge(tone.rawValue.capitalized, iconName: "star.fill", variant: variant, tone: tone, size: .sm)
+                        }
+                    }
+                }
+            }
+        }
+        .padding()
     }
 }

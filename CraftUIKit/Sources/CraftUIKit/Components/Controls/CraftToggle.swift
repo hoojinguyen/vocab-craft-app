@@ -27,7 +27,7 @@ public struct CraftToggleStyle: ToggleStyle {
                     // Track
                     Capsule()
                         .fill(configuration.isOn ? theme.colors.brandPrimary : theme.colors.surfaceSubtle)
-                        .frame(width: 50, height: 30)
+                        .frame(width: 48, height: 28)
                         .overlay(
                             Capsule()
                                 .strokeBorder(
@@ -39,11 +39,11 @@ public struct CraftToggleStyle: ToggleStyle {
                     // Thumb
                     Circle()
                         .fill(Color.white)
-                        .frame(width: 24, height: 24)
+                        .frame(width: 22, height: 22)
                         .padding(3)
                         .shadow(color: Color.black.opacity(0.12), radius: 2, x: 0, y: 1)
                 }
-                .frame(width: 50, height: 30)
+                .frame(width: 48, height: 28)
             }
             .frame(minHeight: 44)
             .contentShape(Rectangle())
@@ -124,7 +124,7 @@ public struct CraftToggle: View {
                     )
                 }
 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     if let titleKey {
                         Text(titleKey)
                             .font(theme.typography.bodyLarge)
@@ -153,7 +153,7 @@ public struct CraftToggle: View {
                     // Track
                     Capsule()
                         .fill(isOn.wrappedValue ? theme.colors.brandPrimary : theme.colors.surfaceSubtle)
-                        .frame(width: 50, height: 30)
+                        .frame(width: 48, height: 28)
                         .overlay(
                             Capsule()
                                 .strokeBorder(
@@ -165,11 +165,11 @@ public struct CraftToggle: View {
                     // Thumb
                     Circle()
                         .fill(Color.white)
-                        .frame(width: 24, height: 24)
+                        .frame(width: 22, height: 22)
                         .padding(3)
                         .shadow(color: Color.black.opacity(0.12), radius: 2, x: 0, y: 1)
                 }
-                .frame(width: 50, height: 30)
+                .frame(width: 48, height: 28)
             }
             .padding(.vertical, theme.spacing.xs)
             .frame(minHeight: 44)
@@ -181,5 +181,40 @@ public struct CraftToggle: View {
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(isOn.wrappedValue ? [.isButton, .isSelected] : [.isButton])
         .accessibilityValue(isOn.wrappedValue ? "On" : "Off")
+    }
+}
+
+#Preview("CraftToggle") {
+    @Previewable @State var isOn1 = false
+    @Previewable @State var isOn2 = true
+    @Previewable @State var isOn3 = true
+    
+    return ScrollView {
+        VStack(spacing: 24) {
+            CraftToggle(
+                isOn: $isOn1,
+                title: "Basic Toggle Off"
+            )
+            
+            CraftToggle(
+                isOn: $isOn2,
+                title: "Basic Toggle On"
+            )
+            
+            CraftToggle(
+                isOn: $isOn3,
+                title: "Notifications",
+                subtitle: "Receive daily practice reminders",
+                iconName: "bell"
+            )
+            
+            CraftToggle(
+                isOn: .constant(true),
+                title: "Disabled State",
+                subtitle: "This toggle cannot be changed"
+            )
+            .disabled(true)
+        }
+        .padding()
     }
 }

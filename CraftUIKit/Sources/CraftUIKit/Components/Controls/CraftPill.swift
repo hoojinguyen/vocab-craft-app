@@ -74,15 +74,15 @@ public struct CraftPill: View {
                     Text("\(count)")
                         .font(theme.typography.caption)
                         .fontWeight(.bold)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
+                        .padding(.horizontal, theme.spacing.sm)
+                        .padding(.vertical, theme.spacing.xs)
                         .background(countBadgeBackground)
                         .foregroundStyle(countBadgeForeground)
                         .clipShape(Capsule())
                 }
             }
             .padding(.horizontal, theme.spacing.md)
-            .padding(.vertical, 6)
+            .padding(.vertical, theme.spacing.sm)
             .background(backgroundFill)
             .clipShape(Capsule())
             .overlay(
@@ -138,3 +138,28 @@ public struct CraftPill: View {
 
 /// Semantic alias for filter chip use cases.
 public typealias CraftFilterChip = CraftPill
+
+#Preview("CraftPill") {
+    @Previewable @State var isSelected1 = false
+    @Previewable @State var isSelected2 = true
+    
+    return ScrollView {
+        VStack(spacing: 24) {
+            HStack {
+                CraftPill("Unselected", isSelected: isSelected1) { isSelected1.toggle() }
+                CraftPill("Selected", isSelected: isSelected2) { isSelected2.toggle() }
+            }
+            
+            HStack {
+                CraftPill("With Icon", iconName: "star", isSelected: false) {}
+                CraftPill("Selected Icon", iconName: "heart.fill", isSelected: true) {}
+            }
+            
+            HStack {
+                CraftPill("Categories", count: 12) {}
+                CraftPill("Filters", iconName: "line.3.horizontal.decrease", count: 3, isSelected: true) {}
+            }
+        }
+        .padding()
+    }
+}

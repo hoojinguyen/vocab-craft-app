@@ -100,7 +100,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                 selectedItem = item
             }
         } label: {
-            VStack(spacing: 3) {
+            VStack(spacing: theme.spacing.xs) {
                 CraftIcon(
                     item.symbol,
                     size: .md,
@@ -152,7 +152,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                     .frame(width: 44, height: 44)
                     .craftShadow(theme.shadows.sm)
 
-                VStack(spacing: 2) {
+                VStack(spacing: theme.spacing.xs) {
                     CraftIcon(
                         centerSymbol,
                         size: .md,
@@ -163,7 +163,8 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
 
                     if let centerTitle, !centerTitle.isEmpty {
                         Text(centerTitle)
-                            .font(.system(size: 9, weight: .bold))
+                            .font(theme.typography.caption)
+                            .fontWeight(.bold)
                             .foregroundColor(theme.colors.textInverse)
                             .lineLimit(1)
                     }
@@ -178,3 +179,32 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
         .accessibilityAddTraits(.isButton)
     }
 }
+
+private struct _PreviewTab: CraftTabItemProtocol {
+    let id: String
+    let title: String
+    let symbol: String
+}
+
+#Preview("CraftFloatingTabBar") {
+    @Previewable @State var selected = _PreviewTab(id: "home", title: "Home", symbol: "house")
+    
+    let tabs = [
+        _PreviewTab(id: "home", title: "Home", symbol: "house"),
+        _PreviewTab(id: "search", title: "Search", symbol: "magnifyingglass"),
+        _PreviewTab(id: "library", title: "Library", symbol: "books.vertical"),
+        _PreviewTab(id: "profile", title: "Profile", symbol: "person")
+    ]
+    
+    ZStack(alignment: .bottom) {
+        Color.gray.opacity(0.1)
+            .ignoresSafeArea()
+        CraftFloatingTabBar(
+            selectedItem: $selected,
+            items: tabs,
+            centerAction: { },
+            centerSymbol: "plus"
+        )
+    }
+}
+

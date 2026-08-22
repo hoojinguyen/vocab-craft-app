@@ -111,7 +111,7 @@ public struct CraftListRow<TrailingContent: View>: View {
         }
         .padding(.horizontal, theme.spacing.base)
         .padding(.vertical, theme.spacing.sm)
-        .frame(minHeight: 52)
+        .frame(minHeight: 56)
         .contentShape(Rectangle())
 
         if let action {
@@ -170,6 +170,30 @@ public extension CraftListRow where TrailingContent == EmptyView {
         ) {
             EmptyView()
         }
+    }
+}
+
+#Preview("CraftListRow") {
+    VStack(spacing: 0) {
+        CraftListRow(
+            title: "Settings",
+            subtitle: "App preferences",
+            iconName: "gear",
+            showChevron: true,
+            action: {}
+        )
+        
+        CraftListRow(
+            title: "Profile",
+            iconName: "person.fill",
+            showChevron: false
+        ) {
+            CraftBadge("Pro", iconName: "star.fill", tone: .primary, size: .sm)
+        }
+        
+        CraftListRow(
+            title: "Minimal Row"
+        )
     }
 }
 

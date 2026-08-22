@@ -21,10 +21,10 @@ final class FeedbackFXTests: XCTestCase {
     func testWaveformDefaultProperties() {
         let view = CraftWaveformView()
         XCTAssertEqual(view.barCount, 16)
-        XCTAssertEqual(view.spacing, 3)
+        XCTAssertEqual(view.spacing, 4)
         XCTAssertEqual(view.minHeight, 4)
         XCTAssertEqual(view.maxHeight, 40)
-        XCTAssertEqual(view.barWidth, 3.5)
+        XCTAssertEqual(view.barWidth, 4)
         XCTAssertFalse(view.isRecording)
         XCTAssertNil(view.activeColor)
         XCTAssertNil(view.inactiveColor)

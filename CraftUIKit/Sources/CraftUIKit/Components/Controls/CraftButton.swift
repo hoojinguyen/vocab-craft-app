@@ -84,9 +84,9 @@ public struct CraftButtonStyle: ButtonStyle {
 
     private var verticalPadding: CGFloat {
         switch size {
-        case .sm: return 6
-        case .md: return 10
-        case .lg: return 14
+        case .sm: return 8
+        case .md: return 12
+        case .lg: return 16
         }
     }
 
@@ -299,5 +299,39 @@ public struct CraftButton: View {
         }
         .buttonStyle(CraftButtonStyle(variant: variant, size: size, isLoading: isLoading))
         .disabled(isLoading)
+    }
+}
+
+#Preview("CraftButton") {
+    ScrollView {
+        VStack(spacing: 24) {
+            // Variants
+            VStack(spacing: 12) {
+                Text("Variants (MD)").font(.headline)
+                CraftButton("Primary", variant: .primary) {}
+                CraftButton("Secondary", variant: .secondary) {}
+                CraftButton("Outline", variant: .outline) {}
+                CraftButton("Ghost", variant: .ghost) {}
+                CraftButton("Danger", variant: .danger) {}
+            }
+            
+            // Sizes
+            VStack(spacing: 12) {
+                Text("Sizes").font(.headline)
+                CraftButton("Small", size: .sm) {}
+                CraftButton("Medium", size: .md) {}
+                CraftButton("Large", size: .lg) {}
+            }
+            
+            // States & Icons
+            VStack(spacing: 12) {
+                Text("States & Icons").font(.headline)
+                CraftButton("Loading", isLoading: true) {}
+                CraftButton("Leading Icon", iconName: "star", iconPosition: .leading) {}
+                CraftButton("Trailing Icon", iconName: "arrow.right", iconPosition: .trailing) {}
+                CraftButton("Disabled") {}.disabled(true)
+            }
+        }
+        .padding()
     }
 }

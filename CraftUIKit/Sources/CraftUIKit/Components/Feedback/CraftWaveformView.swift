@@ -23,10 +23,10 @@ public struct CraftWaveformView: View {
     public init(
         audioLevels: [CGFloat] = [],
         barCount: Int = 16,
-        spacing: CGFloat = 3,
+        spacing: CGFloat = 4,
         minHeight: CGFloat = 4,
         maxHeight: CGFloat = 40,
-        barWidth: CGFloat = 3.5,
+        barWidth: CGFloat = 4,
         isRecording: Bool = false,
         activeColor: Color? = nil,
         inactiveColor: Color? = nil
