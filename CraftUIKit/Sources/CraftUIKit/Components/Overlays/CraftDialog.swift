@@ -85,12 +85,14 @@ public struct CraftDialog<CustomContent: View>: View {
                 )
                 .frame(maxWidth: .infinity)
 
-                if let cancelButtonTitle, let cancelAction {
+                if let cancelButtonTitle {
                     CraftButton(
                         cancelButtonTitle,
                         variant: .ghost,
                         size: .md,
-                        action: cancelAction
+                        action: {
+                            cancelAction?()
+                        }
                     )
                     .frame(maxWidth: .infinity)
                 }
@@ -209,12 +211,12 @@ public extension View {
                         }
                     },
                     cancelButtonTitle: cancelButtonTitle,
-                    cancelAction: {
+                    cancelAction: cancelButtonTitle != nil ? {
                         cancelAction?()
                         withAnimation {
                             isPresented.wrappedValue = false
                         }
-                    }
+                    } : nil
                 )
             }
         )

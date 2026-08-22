@@ -94,6 +94,21 @@ public struct CraftEmptyState<Illustration: View>: View {
 
 // MARK: - Convenience Inits
 
+private struct DefaultEmptyStateIcon: View {
+    @Environment(\.craftTheme) private var theme
+    let iconName: String
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(theme.colors.surfaceSubtle)
+                .frame(width: 72, height: 72)
+
+            CraftIcon(iconName, size: .xl, color: theme.colors.brandPrimary)
+        }
+    }
+}
+
 public extension CraftEmptyState where Illustration == AnyView {
     init(
         iconName: String,
@@ -109,14 +124,7 @@ public extension CraftEmptyState where Illustration == AnyView {
         self.buttonTitle = buttonTitle
         self.buttonIcon = buttonIcon
         self.buttonAction = buttonAction
-        self.illustration = AnyView(
-            ZStack {
-                Circle()
-                    .fill(Color.craftDynamic(light: Color(hex: 0xEEF2FF), dark: Color(hex: 0x312E81)))
-                    .frame(width: 72, height: 72)
-
-                CraftIcon(iconName, size: .xl, color: Color(hex: 0x6366F1))
-            }
-        )
+        self.illustration = AnyView(DefaultEmptyStateIcon(iconName: iconName))
     }
 }
+

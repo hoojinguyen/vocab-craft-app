@@ -60,6 +60,9 @@ public struct CraftProgressRing<CenterContent: View>: View {
             centerContent
         }
         .frame(width: size, height: size)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Progress")
+        .accessibilityValue("\(Int(clampedProgress * 100)) percent")
     }
 }
 

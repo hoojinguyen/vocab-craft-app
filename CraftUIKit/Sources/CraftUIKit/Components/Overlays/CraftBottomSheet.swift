@@ -57,6 +57,7 @@ public struct CraftBottomSheet<Content: View>: View {
                         CraftIcon("xmark.circle.fill", size: .md, color: theme.colors.textMuted)
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .accessibilityLabel("Dismiss")
                     .frame(minWidth: 44, minHeight: 44)
                 }
                 .padding(.horizontal, theme.spacing.base)

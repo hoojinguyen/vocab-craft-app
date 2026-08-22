@@ -96,6 +96,7 @@ public struct CraftToast: View {
                     CraftIcon("xmark", size: .sm, color: theme.colors.textMuted)
                 }
                 .buttonStyle(PlainButtonStyle())
+                .accessibilityLabel("Dismiss")
                 .frame(minWidth: 44, minHeight: 44)
             }
         }
@@ -161,7 +162,7 @@ public struct CraftToastModifier: ViewModifier {
                 }
                 .padding(position == .top ? .top : .bottom, theme.spacing.sm)
                 .zIndex(9999)
-                .task(id: isPresented) {
+                .task(id: "\(isPresented)-\(data.id)") {
                     if isPresented {
                         try? await Task.sleep(nanoseconds: UInt64(data.duration * 1_000_000_000))
                         withAnimation(theme.animations.springSmooth) {

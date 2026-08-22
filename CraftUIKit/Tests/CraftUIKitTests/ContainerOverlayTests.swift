@@ -309,4 +309,24 @@ final class ContainerOverlayTests: XCTestCase {
             )
         XCTAssertNotNil(view)
     }
+
+    func testDialogWithoutCancelButton() {
+        let dialog = CraftDialog(
+            title: "Information",
+            message: "Operation completed successfully.",
+            primaryButtonTitle: "OK",
+            primaryAction: { },
+            cancelButtonTitle: nil
+        )
+        XCTAssertNil(dialog.cancelButtonTitle)
+        XCTAssertNil(dialog.cancelAction)
+        XCTAssertNotNil(dialog.body)
+    }
+
+    func testToastItemBinding() {
+        var toastData: CraftToastData? = CraftToastData(message: "Item toast")
+        let view = Text("Host View")
+            .craftToast(item: Binding(get: { toastData }, set: { toastData = $0 }))
+        XCTAssertNotNil(view)
+    }
 }
