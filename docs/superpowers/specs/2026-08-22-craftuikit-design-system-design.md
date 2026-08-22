@@ -59,13 +59,23 @@ CraftUIKit/
 │       │   │   ├── CraftSearchBar.swift        // Dedicated search bar with auto clear
 │       │   │   ├── CraftToggle.swift           // Custom styled toggle switch
 │       │   │   ├── CraftStepper.swift          // [-] [Value] [+] counter control
-│       │   │   └── CraftPill.swift             // Selectable filter chip / pill
+│       │   │   ├── CraftPill.swift             // Selectable filter chip / pill
+│       │   │   └── CraftChoiceCard.swift       // (Phase 2) Quiz/Option selection card (Idle, Correct, Wrong)
 │       │   ├── Containers/
 │       │   │   ├── CraftCard.swift             // Flat, Elevated, Outlined, Gradient, Pressable
 │       │   │   ├── CraftProgressBar.swift      // Linear & segmented progress bar
 │       │   │   ├── CraftProgressRing.swift     // Circular gauge indicator
+│       │   │   ├── CraftSegmentedBar.swift     // (Phase 2) Multi-color ratio distribution bar
+│       │   │   ├── CraftFlipCard.swift         // (Phase 2) 3D Flip container with front/back slots
+│       │   │   ├── CraftStepNode.swift         // (Phase 2) Roadmap / timeline step node
 │       │   │   ├── CraftListRow.swift          // Standardized settings / list item row
 │       │   │   └── CraftEmptyState.swift       // Illustration/icon + title + description + CTA
+│       │   ├── Navigation/
+│       │   │   └── CraftFloatingTabBar.swift   // (Phase 2) Liquid Glass floating tab bar
+│       │   ├── Feedback/
+│       │   │   ├── CraftWaveformView.swift     // (Phase 2) Audio frequency / level visualizer
+│       │   │   ├── CraftSparkleView.swift      // (Phase 2) Particle confetti / sparkle celebration FX
+│       │   │   └── CraftCountdownOverlay.swift // (Phase 2) 3-2-1 Countdown overlay animation
 │       │   └── Overlays/
 │       │       ├── CraftToast.swift            // Floating HUD toast alert
 │       │       ├── CraftBottomSheet.swift      // Grabber sheet container
@@ -126,7 +136,7 @@ All colors dynamically adjust between Light and Dark modes:
 
 ---
 
-## 4. Component Library (Phase 1 Scope)
+## 4. Phase 1: Core Foundation & Primitive Components
 
 ### 4.1 Atoms
 1. **`CraftText`:** Renders text using typography tokens, scaling automatically with Dynamic Type.
@@ -165,13 +175,148 @@ All colors dynamically adjust between Light and Dark modes:
 
 ---
 
-## 5. App Integration & Migration Strategy
+## 5. Phase 2: Specialized, Interactive & Motion-Heavy Components
 
-### 5.1 Step 1: Package Dependency Setup
+### 5.1 `CraftSegmentedBar` (Multi-Segment Ratio Bar)
+- **Purpose:** Visualizes multi-group data distributions (e.g. CEFR A1-C2 proficiency distribution, storage usage, topic completion).
+- **API Design:**
+  ```swift
+  public struct CraftSegmentItem: Identifiable, Sendable {
+      public let id: String
+      public let label: String
+      public let value: Double
+      public let color: Color
+  }
+
+  public struct CraftSegmentedBar: View {
+      public init(
+          items: [CraftSegmentItem],
+          height: CGFloat = 8,
+          cornerRadius: CGFloat = 4,
+          showLegend: Bool = true
+      )
+  }
+  ```
+- **Behavior:** Smooth spring animation on value updates, proportion computation with safe fallbacks, optional legend chips with percentages.
+
+### 5.2 `CraftFlipCard` (3D Interactive Flip Container)
+- **Purpose:** Flashcards and reveal mechanics with tactile 3D perspective rotation.
+- **API Design:**
+  ```swift
+  public struct CraftFlipCard<Front: View, Back: View>: View {
+      @Binding public var isFlipped: Bool
+      public init(
+          isFlipped: Binding<Bool>,
+          axis: Axis = .horizontal,
+          @ViewBuilder front: () -> Front,
+          @ViewBuilder back: () -> Back
+      )
+  }
+  ```
+- **Behavior:** Uses `.rotation3DEffect(.degrees(isFlipped ? 180 : 0), axis: ...)` with back-face culling, double-sided render, and haptic feedback on flip.
+
+### 5.3 `CraftChoiceCard` (Multiple-Choice Quiz Option)
+- **Purpose:** Interactive option card for quiz, reflex challenge, and questionnaire screens.
+- **States:**
+  - `.idle`: Default surface card with subtle border.
+  - `.selected`: Accent border + indicator fill.
+  - `.correct`: Status success green background + checkmark + spring scale pop.
+  - `.wrong`: Status danger red background + `xmark` + horizontal shake animation modifier.
+  - `.disabled`: Dimmed opacity, taps ignored.
+- **API Design:**
+  ```swift
+  public enum CraftChoiceState {
+      case idle, selected, correct, wrong, disabled
+  }
+
+  public struct CraftChoiceCard: View {
+      public init(
+          prefix: String? = "A",
+          title: String,
+          subtitle: String? = nil,
+          state: CraftChoiceState = .idle,
+          action: @escaping () -> Void
+      )
+  }
+  ```
+
+### 5.4 `CraftStepNode` (Roadmap & Timeline Milestone Indicator)
+- **Purpose:** Visual progression milestones for learning roadmaps, onboarding steps, and multi-stage processes.
+- **States:** `.completed` (filled checkmark), `.active` (pulsing glow ring with theme accent), `.locked` (padlock icon), `.upcoming`.
+- **API Design:**
+  ```swift
+  public struct CraftStepNode: View {
+      public init(
+          title: String,
+          subtitle: String? = nil,
+          state: CraftStepState,
+          isLast: Bool = false,
+          onTap: (() -> Void)? = nil
+      )
+  }
+  ```
+- **Behavior:** Connects sequential nodes with solid (completed/active) or dashed (locked) lines.
+
+### 5.5 `CraftFloatingTabBar` (Liquid Glass Floating Navigation)
+- **Purpose:** Reusable floating navigation bar with glassmorphic material blur.
+- **API Design:**
+  ```swift
+  public struct CraftFloatingTabBar<Item: Identifiable & Equatable>: View {
+      @Binding public var selectedItem: Item
+      public let items: [Item]
+      public let centerAction: (() -> Void)?
+  }
+  ```
+- **Behavior:** Sliding active indicator pill using `matchedGeometryEffect`, spring bounce on tab change, safe area padding, and center Floating Action Button (FAB) slot.
+
+### 5.6 `CraftWaveformView` (Audio Frequency / Speech Visualizer)
+- **Purpose:** Real-time audio waveform and microphone level visualization.
+- **API Design:**
+  ```swift
+  public struct CraftWaveformView: View {
+      public init(
+          audioLevels: [CGFloat],
+          barCount: Int = 16,
+          spacing: CGFloat = 3,
+          isRecording: Bool = false
+      )
+  }
+  ```
+- **Behavior:** Smooth spring interpolation across normalized levels (0.0 to 1.0) with breathing pulse glow during active recording.
+
+### 5.7 `CraftSparkleView` & `CraftConfettiView` (Celebration FX)
+- **Purpose:** Particle celebration overlay on drill completion, streak milestones, or level up.
+- **API Design:**
+  ```swift
+  public extension View {
+      func craftConfetti(isTriggered: Binding<Bool>, particleCount: Int = 30) -> some View
+      func craftSparkle(isTriggered: Binding<Bool>) -> some View
+  }
+  ```
+- **Behavior:** Canvas-based or SwiftUI particle animation, respects `Reduce Motion` accessibility setting.
+
+### 5.8 `CraftCountdownOverlay` (3-2-1 Countdown Animation)
+- **Purpose:** Fullscreen dramatic countdown before starting speed drills or reflex challenges.
+- **API Design:**
+  ```swift
+  public struct CraftCountdownOverlay: View {
+      public init(
+          startNumber: Int = 3,
+          onFinish: @escaping () -> Void
+      )
+  }
+  ```
+- **Behavior:** Numbers scale up from `0.3` to `1.2` then settle with spring bounce, haptic tick on each count, and trigger `onFinish()` on "GO!".
+
+---
+
+## 6. App Integration & Migration Strategy
+
+### 6.1 Step 1: Package Dependency Setup
 1. Create `CraftUIKit` folder with its `Package.swift`.
 2. Add `CraftUIKit` as local package dependency in root `Package.swift` and `VocabCraftApp.xcodeproj`.
 
-### 5.2 Step 2: Define `VocabTheme`
+### 6.2 Step 2: Define `VocabTheme`
 In `VocabCraftApp/Core/DesignSystem/VocabTheme.swift`:
 ```swift
 import CraftUIKit
@@ -190,7 +335,7 @@ public struct VocabTheme: CraftTheme {
 }
 ```
 
-### 5.3 Step 3: Root Injection
+### 6.3 Step 3: Root Injection
 In `VocabCraftApp.swift`:
 ```swift
 WindowGroup {
@@ -199,23 +344,27 @@ WindowGroup {
 }
 ```
 
-### 5.4 Step 4: Incremental Screen Refactoring (Zero Downtime)
-1. **Settings Screen:** Replace ad-hoc rows in `SettingsView.swift` with `CraftListRow`, `CraftStepper`, `CraftToggle`.
-2. **Homepage & Search:** Replace action buttons, bento cards, and search bar with `CraftCard`, `CraftSearchBar`, `CraftButton`.
-3. **Vocabulary & Vault:** Adopt `CraftFilterChip`, `CraftProgressBar`, `CraftEmptyState`.
-4. **Phase 2 Components:** Implement specialized drill/quiz/roadmap components as needed.
+### 6.4 Step 4: Incremental Screen Refactoring (Zero Downtime)
+1. **Phase 1 Migration:**
+   - **Settings Screen:** Replace ad-hoc rows in `SettingsView.swift` with `CraftListRow`, `CraftStepper`, `CraftToggle`.
+   - **Homepage & Search:** Replace action buttons, bento cards, and search bar with `CraftCard`, `CraftSearchBar`, `CraftButton`, `CraftBadge`.
+   - **Vocabulary & Vault:** Adopt `CraftFilterChip`, `CraftProgressBar`, `CraftEmptyState`.
+2. **Phase 2 Migration:**
+   - **Roadmap & Progression:** Replace timeline nodes in `TopicRoadmapView.swift` with `CraftStepNode`.
+   - **Flashcards & Drills:** Adopt `CraftFlipCard` in study sessions and `CraftChoiceCard` in reflex challenges.
+   - **Metrics & Overlays:** Replace CEFR distribution bar with `CraftSegmentedBar`, and audio/speech views with `CraftWaveformView` & `CraftSparkleView`.
 
 ---
 
-## 6. Verification & Testing Plan
+## 7. Verification & Testing Plan
 
-### 6.1 Automated Unit Tests
+### 7.1 Automated Unit Tests
 - `CraftUIKitTests`:
-  - Token conformance tests (colors, typography, spacing).
+  - Token conformance tests (colors, typography, spacing, shadows, gradients).
   - Environment injection tests (verifying default theme fallback and custom theme overrides).
-  - Component state tests (button loading state, textfield focus/error bindings).
+  - Component state tests (button loading state, textfield focus/error bindings, choice card states).
 
-### 6.2 Visual Verification via `CraftCatalogView`
+### 7.2 Visual Verification via `CraftCatalogView`
 - Interactive catalog view previewable in Xcode Previews and runnable as a test harness.
 - Live theme-switching toggle (Default Slate Theme <-> VocabCraft Theme <-> Dark/Light Mode).
-- Interactive validation of buttons, inputs, cards, toasts, and steppers.
+- Interactive validation of buttons, inputs, cards, toasts, steppers, flip cards, and segmented bars.
