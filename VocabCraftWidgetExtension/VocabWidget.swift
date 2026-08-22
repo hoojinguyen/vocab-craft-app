@@ -1,7 +1,7 @@
 import SwiftData
 import SwiftUI
 import WidgetKit
-#if canImport(VocabCraftApp)
+#if SWIFT_PACKAGE
 import VocabCraftApp
 #endif
 

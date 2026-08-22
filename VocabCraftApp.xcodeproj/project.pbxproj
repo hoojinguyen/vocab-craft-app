@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3000A1A2A3A4A5A6A7A8A9A0 /* VocabTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A2A3A4A5A6A7A8A9A0 /* VocabTheme.swift */; };
+		3000B1B2B3B4B5B6B7B8B9B0 /* VocabThemeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B1B2B3B4B5B6B7B8B9B0 /* VocabThemeTests.swift */; };
+		900000000000000000000003 /* CraftUIKit in Frameworks */ = {isa = PBXBuildFile; productRef = 900000000000000000000002 /* CraftUIKit */; };
+		900000000000000000000004 /* CraftUIKit in Frameworks */ = {isa = PBXBuildFile; productRef = 900000000000000000000002 /* CraftUIKit */; };
 		300000402D50000000000002 /* VocabCraftWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 200000402D50000000000000 /* VocabCraftWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		300000F998DADC8DCE5F /* QuickReflexPromptFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200000F998DADC8DCE5F /* QuickReflexPromptFactory.swift */; };
 		3000012783F4464470E8 /* StageChallenge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000012783F4464470E8 /* StageChallenge.swift */; };
@@ -513,6 +517,8 @@
 		200092F29393C7015F46E856 /* MasteryEvaluationPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftAppTests/Domain/MasteryEvaluationPolicyTests.swift"; sourceTree = SOURCE_ROOT; };
 		200029669BD90743CF25BA89 /* MixedReflexQueueUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftAppTests/Domain/MixedReflexQueueUseCaseTests.swift"; sourceTree = SOURCE_ROOT; };
 		20007FB33F44CBD57B3849BA /* SampleVaultDataSeeder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftApp/Core/Database/SampleData/SampleVaultDataSeeder.swift"; sourceTree = SOURCE_ROOT; };
+		2000A1A2A3A4A5A6A7A8A9A0 /* VocabTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabTheme.swift"; sourceTree = "<group>"; };
+		2000B1B2B3B4B5B6B7B8B9B0 /* VocabThemeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabThemeTests.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -520,6 +526,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				900000000000000000000003 /* CraftUIKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -534,6 +541,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				900000000000000000000004 /* CraftUIKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -564,6 +572,7 @@
 			isa = PBXGroup;
 			children = (
 				2000D052EA676149B3D6 /* ColorTokensTests.swift */,
+				2000B1B2B3B4B5B6B7B8B9B0 /* VocabThemeTests.swift */,
 			);
 			path = DesignSystem;
 			sourceTree = "<group>";
@@ -678,6 +687,7 @@
 			isa = PBXGroup;
 			children = (
 				2000B21282A5513A6144 /* Color+VocabCraft.swift */,
+				2000A1A2A3A4A5A6A7A8A9A0 /* VocabTheme.swift */,
 				2000F3EB39E8AC94F8B1 /* SRSSparkleEffectView.swift */,
 				200098C80917F59AB1AB /* VocabMicControlHubView.swift */,
 				20004AA2997CC609FCB8 /* VocabSpeechVisualizerView.swift */,
@@ -1356,6 +1366,9 @@
 			dependencies = (
 			);
 			name = VocabCraftApp;
+			packageProductDependencies = (
+				900000000000000000000002 /* CraftUIKit */,
+			);
 			productName = VocabCraftApp;
 			productReference = 200000002D50000000000000 /* VocabCraftApp.app */;
 			productType = "com.apple.product-type.application";
@@ -1389,6 +1402,9 @@
 				800000502D50000000000001 /* PBXTargetDependency */,
 			);
 			name = VocabCraftAppTests;
+			packageProductDependencies = (
+				900000000000000000000002 /* CraftUIKit */,
+			);
 			productName = VocabCraftAppTests;
 			productReference = 200000502D50000000000000 /* VocabCraftAppTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -1425,6 +1441,9 @@
 				Base,
 			);
 			mainGroup = 400000002D50000000000000;
+			packageReferences = (
+				900000000000000000000001 /* XCLocalSwiftPackageReference "CraftUIKit" */,
+			);
 			productRefGroup = 400000092D50000000000000 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -1435,6 +1454,21 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		900000000000000000000001 /* XCLocalSwiftPackageReference "CraftUIKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = CraftUIKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		900000000000000000000002 /* CraftUIKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 900000000000000000000001 /* XCLocalSwiftPackageReference "CraftUIKit" */;
+			productName = CraftUIKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin PBXResourcesBuildPhase section */
 		100000032D50000000000000 /* Resources */ = {
@@ -1470,6 +1504,7 @@
 				30009AC1BB7654E455DF /* SwiftDataModels.swift in Sources */,
 				3000928AAF987BEB4203 /* UserSettingsStore.swift in Sources */,
 				3000B21282A5513A6144 /* Color+VocabCraft.swift in Sources */,
+				3000A1A2A3A4A5A6A7A8A9A0 /* VocabTheme.swift in Sources */,
 				3000F3EB39E8AC94F8B1 /* SRSSparkleEffectView.swift in Sources */,
 				300098C80917F59AB1AB /* VocabMicControlHubView.swift in Sources */,
 				30004AA2997CC609FCB8 /* VocabSpeechVisualizerView.swift in Sources */,
@@ -1634,6 +1669,7 @@
 				3000BD895DED76C5E5D2 /* DatasetDataSourceTests.swift in Sources */,
 				300055893DED0D8FA1E3 /* DatasetEngineTests.swift in Sources */,
 				3000D052EA676149B3D6 /* ColorTokensTests.swift in Sources */,
+				3000B1B2B3B4B5B6B7B8B9B0 /* VocabThemeTests.swift in Sources */,
 				3000257F4D2FD33D16E6 /* VocabularyDomainEntitiesTests.swift in Sources */,
 				3000496889722C6A9765 /* VocabularyUseCasesTests.swift in Sources */,
 				3000D1459B6F5FD76CEA /* DomainEntitiesTests.swift in Sources */,

@@ -4,4 +4,8 @@
    <FileRef
       location = "group:VocabCraftApp.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:CraftUIKit">
+   </FileRef>
 </Workspace>
+
