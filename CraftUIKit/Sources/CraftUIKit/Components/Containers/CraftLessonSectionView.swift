@@ -15,13 +15,13 @@ public struct NodeAnchorPreferenceKey: PreferenceKey {
 
 // MARK: - CraftLessonSectionView
 
-/// An organism container view representing an entire learning path section / unit.
+/// An organism container view representing an entire learning path section / unit portal.
 ///
 /// Encapsulates:
-/// 1. Section Header Card with level tag, title, subtitle, and progress metrics.
-/// 2. Rows of lesson nodes laid out according to the configured `RowPattern`.
-/// 3. Bézier curve connectors drawn between sequential nodes using scoped `NodeAnchorPreferenceKey`
-///    anchors resolved within the section boundary.
+/// 1. Unit Portal Gateway Header with level badge capsule, unit title, subtitle, progress metrics,
+///    mini progress bar, and decorative trailing watermark icon.
+/// 2. Serpentine single-node offset rows dynamically laid out using `section.winding`.
+/// 3. Smart Bézier curve connectors linking adjacent nodes with inferred tactile styles (`solid`, `breathing`, `dashed`, `muted`).
 public struct CraftLessonSectionView: View {
     public let section: LessonSection
     public let rowPattern: RowPattern
@@ -29,8 +29,28 @@ public struct CraftLessonSectionView: View {
 
     @Environment(\.craftTheme) private var theme
 
-    // MARK: - Initializer
+    // MARK: - Initializers
 
+    /// Creates a lesson section view with serpentine winding and optional tap handler.
+    ///
+    /// - Parameters:
+    ///   - section: The `LessonSection` presentation model.
+    ///   - onNodeTap: Optional closure invoked when any lesson node within the section is tapped.
+    public init(
+        section: LessonSection,
+        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil
+    ) {
+        self.section = section
+        self.rowPattern = .standard
+        self.onNodeTap = onNodeTap
+    }
+
+    /// Creates a lesson section view supporting custom row patterns for backward compatibility.
+    ///
+    /// - Parameters:
+    ///   - section: The `LessonSection` presentation model.
+    ///   - rowPattern: Layout row pattern (defaults to `.standard`).
+    ///   - onNodeTap: Optional closure invoked when any lesson node within the section is tapped.
     public init(
         section: LessonSection,
         rowPattern: RowPattern = .standard,
@@ -44,18 +64,16 @@ public struct CraftLessonSectionView: View {
     // MARK: - Body
 
     public var body: some View {
-        let rows = rowPattern.split(nodes: section.nodes)
-
         VStack(spacing: theme.spacing.lg) {
             if hasHeaderContent {
                 sectionHeaderView
             }
 
             VStack(spacing: theme.spacing.lg) {
-                ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
+                ForEach(Array(section.nodes.enumerated()), id: \.element.id) { index, node in
                     CraftLessonRow(
-                        nodes: row.nodes,
-                        arrangement: row.arrangement,
+                        node: node,
+                        offsetRatio: section.winding.offsetRatio(for: index),
                         onNodeTap: onNodeTap
                     )
                 }
@@ -73,18 +91,34 @@ public struct CraftLessonSectionView: View {
     // MARK: - Header Visibility
 
     private var hasHeaderContent: Bool {
-        !section.title.isEmpty || section.subtitle != nil || section.level != nil || section.progress != nil
+        !section.title.isEmpty ||
+        section.subtitle != nil ||
+        section.level != nil ||
+        section.progressText != nil ||
+        section.progress != nil ||
+        section.progressValue != nil ||
+        section.bannerIcon != nil
     }
 
-    // MARK: - Section Header View
+    // MARK: - Unit Portal Gateway Header View
 
     private var sectionHeaderView: some View {
-        VStack(alignment: .leading, spacing: theme.spacing.xs) {
-            HStack(alignment: .center) {
-                if let level = section.level, !level.isEmpty {
-                    Text(level)
-                        .font(.caption.smallCaps())
-                        .fontWeight(.bold)
+        ZStack(alignment: .topTrailing) {
+            // Trailing Watermark SF Symbol
+            if let bannerIcon = section.bannerIcon, !bannerIcon.isEmpty {
+                Image(systemName: bannerIcon)
+                    .font(.system(size: 40, weight: .bold))
+                    .foregroundStyle(theme.colors.brandPrimary.opacity(0.15))
+                    .padding(.top, theme.spacing.base)
+                    .padding(.trailing, theme.spacing.base)
+                    .accessibilityHidden(true)
+            }
+
+            VStack(alignment: .leading, spacing: theme.spacing.sm) {
+                // Top Row: Level Badge & Progress Pill
+                HStack(alignment: .center) {
+                    Text(section.level ?? "UNIT")
+                        .font(.caption.smallCaps().bold())
                         .foregroundStyle(theme.colors.brandPrimary)
                         .padding(.horizontal, theme.spacing.xs * 1.5)
                         .padding(.vertical, theme.spacing.xs / 2)
@@ -92,38 +126,63 @@ public struct CraftLessonSectionView: View {
                             Capsule()
                                 .fill(theme.colors.brandPrimary.opacity(0.12))
                         )
+
+                    Spacer()
+
+                    if let progress = section.progressText ?? section.progress, !progress.isEmpty {
+                        Text(progress)
+                            .font(theme.typography.label)
+                            .monospacedDigit()
+                            .fontDesign(.rounded)
+                            .foregroundStyle(theme.colors.textSecondary)
+                    }
                 }
 
-                Spacer()
+                // Center Content: Title & Subtitle
+                VStack(alignment: .leading, spacing: theme.spacing.xs / 2) {
+                    if !section.title.isEmpty {
+                        Text(section.title)
+                            .font(theme.typography.titleMedium.bold())
+                            .foregroundStyle(theme.colors.textPrimary)
+                    }
 
-                if let progress = section.progress, !progress.isEmpty {
-                    Text(progress)
-                        .font(theme.typography.label)
-                        .monospacedDigit()
-                        .fontDesign(.rounded)
-                        .foregroundStyle(theme.colors.textSecondary)
+                    if let subtitle = section.subtitle, !subtitle.isEmpty {
+                        Text(subtitle)
+                            .font(theme.typography.bodyMedium)
+                            .foregroundStyle(theme.colors.textSecondary)
+                    }
+                }
+
+                // Bottom Row: Mini Progress Bar
+                if let progressValue = section.progressValue {
+                    CraftProgressBar(
+                        progress: progressValue,
+                        height: 4,
+                        tintColor: theme.colors.brandPrimary,
+                        trackColor: theme.colors.surfaceSubtle,
+                        cornerRadius: 2,
+                        animated: true
+                    )
+                    .padding(.top, theme.spacing.xs / 2)
                 }
             }
-
-            if !section.title.isEmpty {
-                Text(section.title)
-                    .font(theme.typography.titleMedium)
-                    .foregroundStyle(theme.colors.textPrimary)
-            }
-
-            if let subtitle = section.subtitle, !subtitle.isEmpty {
-                Text(subtitle)
-                    .font(theme.typography.bodyMedium)
-                    .foregroundStyle(theme.colors.textSecondary)
-            }
+            .padding(theme.spacing.base)
         }
-        .padding(theme.spacing.base)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(theme.colors.surfaceCard)
-        .clipShape(RoundedRectangle(cornerRadius: theme.radii.lg))
+        .background(
+            LinearGradient(
+                colors: [
+                    theme.colors.brandPrimary.opacity(0.06),
+                    theme.colors.surfaceCard
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
+        .clipShape(RoundedRectangle(cornerRadius: theme.radii.xl))
         .overlay(
-            RoundedRectangle(cornerRadius: theme.radii.lg)
-                .strokeBorder(theme.colors.borderDefault.opacity(0.5), lineWidth: 1)
+            RoundedRectangle(cornerRadius: theme.radii.xl)
+                .strokeBorder(theme.colors.hairline, lineWidth: 1)
         )
         .craftShadow(theme.shadows.sm)
         .accessibilityElement(children: .combine)
@@ -142,12 +201,9 @@ public struct CraftLessonSectionView: View {
                    let toAnchor = preferences[toNode.id] {
                     let fromPoint = geometry[fromAnchor]
                     let toPoint = geometry[toAnchor]
+                    let style = SmartConnectorStyle.infer(from: fromNode.state, to: toNode.state)
 
-                    if fromNode.state == .active && (toNode.state == .upcoming || toNode.state == .locked || toNode.state == .bonus) {
-                        BreathingConnectorView(from: fromPoint, to: toPoint)
-                    } else {
-                        CraftStyledConnector(from: fromPoint, to: toPoint, style: section.connectorStyle)
-                    }
+                    CraftSmartConnector(from: fromPoint, to: toPoint, style: style)
                 }
             }
         }
@@ -156,7 +212,7 @@ public struct CraftLessonSectionView: View {
 
 // MARK: - Preview
 
-#Preview("CraftLessonSectionView") {
+#Preview("CraftLessonSectionView Portal") {
     ScrollView {
         CraftLessonSectionView(
             section: LessonSection(
@@ -164,7 +220,9 @@ public struct CraftLessonSectionView: View {
                 title: "Unit 1: Essential Vocabulary",
                 subtitle: "Master common daily greetings and phrases",
                 level: "LEVEL 1",
-                progress: "3/7",
+                progressText: "3/7 HOÀN THÀNH",
+                progressValue: 0.43,
+                bannerIcon: "sparkles",
                 nodes: [
                     LessonNodeModel(id: "n1", title: "Greetings", iconName: "hand.wave.fill", state: .completed),
                     LessonNodeModel(id: "n2", title: "Introductions", iconName: "person.fill", state: .completed),
@@ -174,9 +232,8 @@ public struct CraftLessonSectionView: View {
                     LessonNodeModel(id: "n6", title: "Time", iconName: "clock.fill", state: .locked),
                     LessonNodeModel(id: "n7", title: "Mastery Challenge", iconName: "crown.fill", state: .bonus, badgeText: "HOT")
                 ],
-                connectorStyle: .dashed
-            ),
-            rowPattern: .standard
+                winding: .standard
+            )
         )
         .padding(.vertical)
     }

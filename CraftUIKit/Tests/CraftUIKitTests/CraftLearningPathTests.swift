@@ -821,6 +821,117 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertEqual(tappedNode?.id, "tap_1")
     }
 
+    // MARK: - Task 4: Serpentine Row & Unit Portal Tests
+
+    func testCraftLessonRowOffsetCalculation() {
+        let node = LessonNodeModel(id: "n1", title: "Intro", state: .completed)
+        let row = CraftLessonRow(node: node, offsetRatio: -0.4)
+        XCTAssertEqual(row.node.id, "n1")
+        XCTAssertEqual(row.offsetRatio, -0.4, accuracy: 0.01)
+    }
+
+    func testCraftLessonRowSerpentineInitializationAndEquatability() {
+        let node1 = LessonNodeModel(id: "n1", title: "Greetings", state: .active)
+        let node2 = LessonNodeModel(id: "n2", title: "Numbers", state: .upcoming)
+
+        let row1 = CraftLessonRow(node: node1, offsetRatio: -0.55)
+        let row2 = CraftLessonRow(node: node1, offsetRatio: -0.55)
+        let row3 = CraftLessonRow(node: node1, offsetRatio: 0.25)
+        let row4 = CraftLessonRow(node: node2, offsetRatio: -0.55)
+
+        XCTAssertEqual(row1, row2)
+        XCTAssertNotEqual(row1, row3)
+        XCTAssertNotEqual(row1, row4)
+
+        XCTAssertEqual(row1.node, node1)
+        XCTAssertEqual(row1.offsetRatio, -0.55, accuracy: 0.001)
+
+        // Single-node backward compatibility helper
+        XCTAssertEqual(row1.nodes.count, 1)
+        XCTAssertEqual(row1.nodes.first, node1)
+    }
+
+    func testCraftLessonRowTapCallbackWithSingleNode() {
+        var tapped: LessonNodeModel?
+        let node = LessonNodeModel(id: "tap_node", title: "Tap Me", state: .active)
+        let row = CraftLessonRow(node: node, offsetRatio: 0.4) { selected in
+            tapped = selected
+        }
+        XCTAssertNotNil(row)
+        row.onNodeTap?(node)
+        XCTAssertEqual(tapped?.id, "tap_node")
+    }
+
+    func testCraftLessonSectionViewUnitPortalHeaderCard() {
+        let node1 = LessonNodeModel(id: "n1", title: "Basics", state: .completed)
+        let node2 = LessonNodeModel(id: "n2", title: "Phrases", state: .active)
+
+        let section = LessonSection(
+            id: "sec_portal",
+            title: "Unit 1: Essential Foundations",
+            subtitle: "Master everyday vocabulary and phrases",
+            level: "UNIT 1",
+            progressText: "4/8 HOÀN THÀNH",
+            progressValue: 0.5,
+            bannerIcon: "sparkles",
+            nodes: [node1, node2],
+            winding: .standard
+        )
+
+        var tappedNode: LessonNodeModel?
+        let sectionView = CraftLessonSectionView(section: section) { node in
+            tappedNode = node
+        }
+
+        XCTAssertNotNil(sectionView)
+        XCTAssertEqual(sectionView.section.id, "sec_portal")
+        XCTAssertEqual(sectionView.section.title, "Unit 1: Essential Foundations")
+        XCTAssertEqual(sectionView.section.subtitle, "Master everyday vocabulary and phrases")
+        XCTAssertEqual(sectionView.section.level, "UNIT 1")
+        XCTAssertEqual(sectionView.section.progressText, "4/8 HOÀN THÀNH")
+        XCTAssertEqual(sectionView.section.progressValue, 0.5)
+        XCTAssertEqual(sectionView.section.bannerIcon, "sparkles")
+        XCTAssertEqual(sectionView.section.nodes.count, 2)
+        XCTAssertEqual(sectionView.section.winding, .standard)
+
+        sectionView.onNodeTap?(node2)
+        XCTAssertEqual(tappedNode?.id, "n2")
+    }
+
+    func testCraftLessonSectionViewWindingOffsetsAndInferredConnectors() {
+        let nodes = (0..<4).map {
+            LessonNodeModel(
+                id: "w_node_\($0)",
+                title: "Lesson \($0)",
+                state: $0 == 0 ? .completed : ($0 == 1 ? .active : .upcoming)
+            )
+        }
+        let section = LessonSection(
+            id: "sec_winding",
+            title: "Serpentine Section",
+            nodes: nodes,
+            winding: .gentle
+        )
+
+        let sectionView = CraftLessonSectionView(section: section)
+        XCTAssertNotNil(sectionView)
+        XCTAssertEqual(sectionView.section.winding, .gentle)
+        XCTAssertEqual(sectionView.section.winding.offsetRatio(for: 0), 0.0, accuracy: 0.001)
+        XCTAssertEqual(sectionView.section.winding.offsetRatio(for: 1), -0.25, accuracy: 0.001)
+        XCTAssertEqual(sectionView.section.winding.offsetRatio(for: 2), -0.35, accuracy: 0.001)
+        XCTAssertEqual(sectionView.section.winding.offsetRatio(for: 3), -0.15, accuracy: 0.001)
+
+        // Check inferred connector styles between consecutive pairs
+        let style01 = SmartConnectorStyle.infer(from: nodes[0].state, to: nodes[1].state)
+        XCTAssertEqual(style01, .breathing)
+
+        let style12 = SmartConnectorStyle.infer(from: nodes[1].state, to: nodes[2].state)
+        XCTAssertEqual(style12, .dashed)
+
+        let style23 = SmartConnectorStyle.infer(from: nodes[2].state, to: nodes[3].state)
+        XCTAssertEqual(style23, .muted)
+    }
+
     // MARK: - NodeAnchorPreferenceKey Tests
 
     func testNodeAnchorPreferenceKeyDefaultValueAndReduce() {
