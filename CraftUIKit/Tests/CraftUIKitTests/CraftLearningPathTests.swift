@@ -429,6 +429,71 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertNotNil(glow)
     }
 
+    // MARK: - CraftSmartConnector Tests
+
+    func testCraftSmartConnectorInstantiationForAllStyles() {
+        let from = CGPoint(x: 100, y: 150)
+        let to = CGPoint(x: 200, y: 350)
+
+        for style in SmartConnectorStyle.allCases {
+            let connector = CraftSmartConnector(from: from, to: to, style: style)
+            XCTAssertNotNil(connector)
+            XCTAssertEqual(connector.from, from)
+            XCTAssertEqual(connector.to, to)
+            XCTAssertEqual(connector.style, style)
+            XCTAssertNil(connector.customColor)
+
+            let customConnector = CraftSmartConnector(from: from, to: to, style: style, customColor: .purple)
+            XCTAssertNotNil(customConnector)
+            XCTAssertEqual(customConnector.customColor, .purple)
+        }
+    }
+
+    func testCraftSmartConnectorEquatability() {
+        let from1 = CGPoint(x: 50, y: 50)
+        let to1 = CGPoint(x: 150, y: 200)
+        let from2 = CGPoint(x: 60, y: 60)
+
+        let conn1 = CraftSmartConnector(from: from1, to: to1, style: .solid)
+        let conn2 = CraftSmartConnector(from: from1, to: to1, style: .solid)
+        let conn3 = CraftSmartConnector(from: from1, to: to1, style: .breathing)
+        let conn4 = CraftSmartConnector(from: from2, to: to1, style: .solid)
+        let conn5 = CraftSmartConnector(from: from1, to: to1, style: .solid, customColor: .red)
+        let conn6 = CraftSmartConnector(from: from1, to: to1, style: .solid, customColor: .red)
+
+        XCTAssertEqual(conn1, conn2)
+        XCTAssertNotEqual(conn1, conn3)
+        XCTAssertNotEqual(conn1, conn4)
+        XCTAssertNotEqual(conn1, conn5)
+        XCTAssertEqual(conn5, conn6)
+    }
+
+    func testCraftNodeConnectorBezierCurveContinuityAndBoundingBox() {
+        // Offset S-curve left to right
+        let connectorLR = CraftNodeConnector(
+            from: CGPoint(x: 100, y: 100),
+            to: CGPoint(x: 300, y: 500)
+        )
+        let pathLR = connectorLR.path(in: CGRect(x: 0, y: 0, width: 400, height: 600))
+        XCTAssertFalse(pathLR.isEmpty)
+        XCTAssertEqual(pathLR.boundingRect.minX, 100, accuracy: 1.0)
+        XCTAssertEqual(pathLR.boundingRect.maxX, 300, accuracy: 1.0)
+        XCTAssertEqual(pathLR.boundingRect.minY, 100, accuracy: 1.0)
+        XCTAssertEqual(pathLR.boundingRect.maxY, 500, accuracy: 1.0)
+
+        // Offset S-curve right to left
+        let connectorRL = CraftNodeConnector(
+            from: CGPoint(x: 300, y: 100),
+            to: CGPoint(x: 100, y: 500)
+        )
+        let pathRL = connectorRL.path(in: CGRect(x: 0, y: 0, width: 400, height: 600))
+        XCTAssertFalse(pathRL.isEmpty)
+        XCTAssertEqual(pathRL.boundingRect.minX, 100, accuracy: 1.0)
+        XCTAssertEqual(pathRL.boundingRect.maxX, 300, accuracy: 1.0)
+        XCTAssertEqual(pathRL.boundingRect.minY, 100, accuracy: 1.0)
+        XCTAssertEqual(pathRL.boundingRect.maxY, 500, accuracy: 1.0)
+    }
+
     // MARK: - LessonNode VoiceOver and CraftLessonNode Tests
 
     func testLessonNodeVoiceOverLabelFormatting() {
