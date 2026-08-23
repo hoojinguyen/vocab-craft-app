@@ -1,3 +1,4 @@
+import CraftUIKit
 import SwiftUI
 
 public struct HeaderView: View {
@@ -6,6 +7,7 @@ public struct HeaderView: View {
     public let dailyGoalProgress: Double
     public let unreadNotifications: Bool
     public var onAvatarTap: (() -> Void)?
+    public var onStreakTap: (() -> Void)?
     public var onNotificationTap: (() -> Void)?
 
     public init(
@@ -14,6 +16,7 @@ public struct HeaderView: View {
         dailyGoalProgress: Double,
         unreadNotifications: Bool,
         onAvatarTap: (() -> Void)? = nil,
+        onStreakTap: (() -> Void)? = nil,
         onNotificationTap: (() -> Void)? = nil
     ) {
         self.userName = userName
@@ -21,6 +24,7 @@ public struct HeaderView: View {
         self.dailyGoalProgress = dailyGoalProgress
         self.unreadNotifications = unreadNotifications
         self.onAvatarTap = onAvatarTap
+        self.onStreakTap = onStreakTap
         self.onNotificationTap = onNotificationTap
     }
 
@@ -84,19 +88,13 @@ public struct HeaderView: View {
             Spacer(minLength: 4)
 
             // Streak Flame Pill Badge
-            HStack(spacing: 4) {
-                Image(systemName: "flame.fill")
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundColor(.vocabCoral)
-                Text("\(streakDays)")
-                    .font(.system(size: 13, weight: .bold, design: .rounded))
-                    .monospacedDigit()
-                    .foregroundColor(.vocabCoral)
-            }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(Color.vocabCoral.opacity(0.12))
-            .clipShape(Capsule())
+            CraftStreakBadge(
+                count: streakDays,
+                tier: CraftStreakTier.tier(for: streakDays),
+                isCompletedToday: dailyGoalProgress >= 1.0,
+                size: .sm,
+                onTap: onStreakTap
+            )
 
             // Notification Bell Button with 44x44pt touch target
             ZStack(alignment: .topTrailing) {

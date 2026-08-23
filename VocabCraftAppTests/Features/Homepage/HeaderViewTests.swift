@@ -18,6 +18,7 @@ final class HeaderViewTests: XCTestCase {
 
     func testHeaderViewCallbacks() {
         var avatarTapped = false
+        var streakTapped = false
         var notificationTapped = false
 
         let view = HeaderView(
@@ -26,16 +27,20 @@ final class HeaderViewTests: XCTestCase {
             dailyGoalProgress: 0.50,
             unreadNotifications: false,
             onAvatarTap: { avatarTapped = true },
+            onStreakTap: { streakTapped = true },
             onNotificationTap: { notificationTapped = true }
         )
 
         XCTAssertNotNil(view.onAvatarTap)
+        XCTAssertNotNil(view.onStreakTap)
         XCTAssertNotNil(view.onNotificationTap)
 
         view.onAvatarTap?()
+        view.onStreakTap?()
         view.onNotificationTap?()
 
         XCTAssertTrue(avatarTapped)
+        XCTAssertTrue(streakTapped)
         XCTAssertTrue(notificationTapped)
     }
 }
