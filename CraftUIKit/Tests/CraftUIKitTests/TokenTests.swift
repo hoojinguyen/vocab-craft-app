@@ -105,5 +105,41 @@ final class TokenTests: XCTestCase {
         XCTAssertEqual(theme.spacing.pathEdgeInset, 24.0)
         XCTAssertEqual(theme.spacing.pathRowSpacing, 64.0)
     }
+
+    func testDepthTokens() {
+        let depths = CraftDefaultDepthTokens()
+        XCTAssertEqual(depths.depthSm, 2)
+        XCTAssertEqual(depths.depthMd, 4)
+        XCTAssertEqual(depths.depthLg, 6)
+        XCTAssertNotNil(depths.topHighlight)
+    }
+
+    func testCustomDepthTokens() {
+        struct CustomDepths: CraftDepthTokens {
+            var depthSm: CGFloat = 3
+            var depthMd: CGFloat = 5
+            var depthLg: CGFloat = 7
+            var topHighlight: LinearGradient = LinearGradient(
+                colors: [.white, .clear],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        }
+
+        let custom = CustomDepths()
+        XCTAssertEqual(custom.depthSm, 3)
+        XCTAssertEqual(custom.depthMd, 5)
+        XCTAssertEqual(custom.depthLg, 7)
+        XCTAssertNotNil(custom.topHighlight)
+    }
+
+    func testDepthTokensInTheme() {
+        let theme = CraftDefaultTheme()
+        XCTAssertEqual(theme.depths.depthSm, 2)
+        XCTAssertEqual(theme.depths.depthMd, 4)
+        XCTAssertEqual(theme.depths.depthLg, 6)
+        XCTAssertNotNil(theme.depths.topHighlight)
+    }
 }
+
 

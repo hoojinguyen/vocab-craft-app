@@ -9,6 +9,10 @@ final class ThemeTests: XCTestCase {
         XCTAssertEqual(theme.radii.md, 12)
         XCTAssertNotNil(theme.colors.brandPrimary)
         XCTAssertNotNil(theme.colors.canvasBackground)
+        XCTAssertEqual(theme.depths.depthSm, 2)
+        XCTAssertEqual(theme.depths.depthMd, 4)
+        XCTAssertEqual(theme.depths.depthLg, 6)
+        XCTAssertNotNil(theme.depths.topHighlight)
     }
 
     func testCraftDefaultPaletteAntiSlopValues() {
@@ -53,11 +57,13 @@ final class ThemeTests: XCTestCase {
             var gradients: CraftGradientTokens = CraftDefaultGradientTokens()
             var animations: CraftAnimationTokens = CraftDefaultAnimationTokens()
             var opacities: CraftOpacityTokens = CraftDefaultOpacityTokens()
+            var depths: CraftDepthTokens = CraftDefaultDepthTokens()
         }
 
         let customTheme = CustomTheme()
         XCTAssertEqual(customTheme.colors.brandPrimary, Color.purple)
         XCTAssertEqual(customTheme.colors.canvasBackground, Color.black)
+        XCTAssertEqual(customTheme.depths.depthSm, 2)
     }
 
     func testDefaultColorTokensCompleteness() {

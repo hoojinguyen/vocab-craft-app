@@ -87,15 +87,15 @@ public struct CraftDefaultTypographyTokens: CraftTypographyTokens {
         displayLarge: Font = .system(.largeTitle, design: .rounded, weight: .bold),
         displayHero: Font = .system(size: 72, weight: .black, design: .rounded),
         displaySerif: Font = .system(.largeTitle, design: .serif, weight: .bold),
-        titleLarge: Font = .system(.title, design: .default, weight: .bold),
-        titleMedium: Font = .system(.title2, design: .default, weight: .semibold),
-        headline: Font = .system(.headline, design: .default, weight: .semibold),
+        titleLarge: Font = .system(.title, design: .rounded, weight: .bold),
+        titleMedium: Font = .system(.title2, design: .rounded, weight: .semibold),
+        headline: Font = .system(.headline, design: .rounded, weight: .semibold),
         bodyLarge: Font = .system(.body, design: .default, weight: .regular),
         bodyMedium: Font = .system(.callout, design: .default, weight: .regular),
         bodySerif: Font = .system(.body, design: .serif, weight: .regular),
         phonetic: Font = .system(.callout, design: .monospaced, weight: .regular),
         metricRounded: Font = .system(.title2, design: .rounded, weight: .bold),
-        label: Font = .system(.subheadline, design: .default, weight: .medium),
+        label: Font = .system(.subheadline, design: .rounded, weight: .medium),
         caption: Font = .system(.caption, design: .default, weight: .regular)
     ) {
         self.displayLarge = displayLarge
