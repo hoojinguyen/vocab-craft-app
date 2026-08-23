@@ -786,6 +786,218 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertEqual(partialWave[2].arrangement, .single)
     }
 
+    // MARK: - Snake Row Layout and Node Slot Tests
+
+    func testNodeSlotCasesRawValuesAndXRatios() {
+        XCTAssertEqual(NodeSlot.allCases.count, 3)
+        XCTAssertTrue(NodeSlot.allCases.contains(.center))
+        XCTAssertTrue(NodeSlot.allCases.contains(.left))
+        XCTAssertTrue(NodeSlot.allCases.contains(.right))
+
+        XCTAssertEqual(NodeSlot.left.rawValue, "left")
+        XCTAssertEqual(NodeSlot.center.rawValue, "center")
+        XCTAssertEqual(NodeSlot.right.rawValue, "right")
+
+        XCTAssertEqual(NodeSlot.left.xRatio, 0.26, accuracy: 0.001)
+        XCTAssertEqual(NodeSlot.center.xRatio, 0.50, accuracy: 0.001)
+        XCTAssertEqual(NodeSlot.right.xRatio, 0.74, accuracy: 0.001)
+
+        XCTAssertEqual(NodeSlot.left, NodeSlot.left)
+        XCTAssertNotEqual(NodeSlot.left, NodeSlot.right)
+        XCTAssertNotEqual(NodeSlot.center, NodeSlot.left)
+
+        let set: Set<NodeSlot> = [.left, .center, .right, .left]
+        XCTAssertEqual(set.count, 3)
+    }
+
+    func testPositionedLessonNodePropertiesAndEquatability() {
+        let node1 = LessonNodeModel(id: "n1", title: "Lesson 1", state: .completed)
+        let node2 = LessonNodeModel(id: "n2", title: "Lesson 2", state: .active)
+
+        let pNode1 = PositionedLessonNode(node: node1, slot: .center, traversalIndex: 0)
+        let pNode1Duplicate = PositionedLessonNode(node: node1, slot: .center, traversalIndex: 0)
+        let pNode2 = PositionedLessonNode(node: node2, slot: .left, traversalIndex: 1)
+
+        XCTAssertEqual(pNode1.id, "n1")
+        XCTAssertEqual(pNode1.node, node1)
+        XCTAssertEqual(pNode1.slot, .center)
+        XCTAssertEqual(pNode1.traversalIndex, 0)
+
+        XCTAssertEqual(pNode1, pNode1Duplicate)
+        XCTAssertNotEqual(pNode1, pNode2)
+    }
+
+    func testSnakeRowLayoutPropertiesAndEquatability() {
+        let pNode1 = PositionedLessonNode(
+            node: LessonNodeModel(id: "n1", title: "L1"),
+            slot: .center,
+            traversalIndex: 0
+        )
+        let pNode2 = PositionedLessonNode(
+            node: LessonNodeModel(id: "n2", title: "L2"),
+            slot: .left,
+            traversalIndex: 1
+        )
+
+        let layout1 = SnakeRowLayout(id: "row_0", rowIndex: 0, nodes: [pNode1])
+        let layout1Copy = SnakeRowLayout(id: "row_0", rowIndex: 0, nodes: [pNode1])
+        let layout2 = SnakeRowLayout(id: "row_1", rowIndex: 1, nodes: [pNode2])
+
+        XCTAssertEqual(layout1.id, "row_0")
+        XCTAssertEqual(layout1.rowIndex, 0)
+        XCTAssertEqual(layout1.nodes.count, 1)
+        XCTAssertEqual(layout1.nodes.first, pNode1)
+
+        XCTAssertEqual(layout1, layout1Copy)
+        XCTAssertNotEqual(layout1, layout2)
+    }
+
+    func testSnakeRowLayoutStandardPattern() {
+        let nodes = (0..<6).map {
+            LessonNodeModel(id: "node_\($0)", title: "Lesson \($0)")
+        }
+        let rows = RowPattern.standard.layoutRows(nodes: nodes)
+
+        // Row 0 (Count 1): Center
+        XCTAssertEqual(rows.count, 4)
+        XCTAssertEqual(rows[0].id, "row_0")
+        XCTAssertEqual(rows[0].rowIndex, 0)
+        XCTAssertEqual(rows[0].nodes.count, 1)
+        XCTAssertEqual(rows[0].nodes[0].slot, .center)
+        XCTAssertEqual(rows[0].nodes[0].traversalIndex, 0)
+        XCTAssertEqual(rows[0].nodes[0].node.id, "node_0")
+
+        // Row 1 (Count 2): Right then Left (traversal: Right first (1), then Left (2))
+        XCTAssertEqual(rows[1].id, "row_1")
+        XCTAssertEqual(rows[1].rowIndex, 1)
+        XCTAssertEqual(rows[1].nodes.count, 2)
+        XCTAssertEqual(rows[1].nodes[0].slot, .left)
+        XCTAssertEqual(rows[1].nodes[1].slot, .right)
+        XCTAssertEqual(rows[1].nodes[1].traversalIndex, 1) // First visited in row 1
+        XCTAssertEqual(rows[1].nodes[1].node.id, "node_1")
+        XCTAssertEqual(rows[1].nodes[0].traversalIndex, 2) // Second visited in row 1
+        XCTAssertEqual(rows[1].nodes[0].node.id, "node_2")
+
+        // Row 2 (Count 1): Center
+        XCTAssertEqual(rows[2].id, "row_2")
+        XCTAssertEqual(rows[2].rowIndex, 2)
+        XCTAssertEqual(rows[2].nodes.count, 1)
+        XCTAssertEqual(rows[2].nodes[0].slot, .center)
+        XCTAssertEqual(rows[2].nodes[0].traversalIndex, 3)
+        XCTAssertEqual(rows[2].nodes[0].node.id, "node_3")
+
+        // Row 3 (Count 2): Right then Left (traversal: Right first (4), then Left (5))
+        XCTAssertEqual(rows[3].id, "row_3")
+        XCTAssertEqual(rows[3].rowIndex, 3)
+        XCTAssertEqual(rows[3].nodes.count, 2)
+        XCTAssertEqual(rows[3].nodes[0].slot, .left)
+        XCTAssertEqual(rows[3].nodes[1].slot, .right)
+        XCTAssertEqual(rows[3].nodes[1].traversalIndex, 4)
+        XCTAssertEqual(rows[3].nodes[1].node.id, "node_4")
+        XCTAssertEqual(rows[3].nodes[0].traversalIndex, 5)
+        XCTAssertEqual(rows[3].nodes[0].node.id, "node_5")
+    }
+
+    func testSnakeRowLayoutSingleNodeAndEmpty() {
+        let emptyRows = RowPattern.standard.layoutRows(nodes: [])
+        XCTAssertTrue(emptyRows.isEmpty)
+
+        let singleNode = [LessonNodeModel(id: "n0", title: "Intro")]
+        let singleRows = RowPattern.standard.layoutRows(nodes: singleNode)
+        XCTAssertEqual(singleRows.count, 1)
+        XCTAssertEqual(singleRows[0].id, "row_0")
+        XCTAssertEqual(singleRows[0].rowIndex, 0)
+        XCTAssertEqual(singleRows[0].nodes.count, 1)
+        XCTAssertEqual(singleRows[0].nodes[0].slot, .center)
+        XCTAssertEqual(singleRows[0].nodes[0].traversalIndex, 0)
+        XCTAssertEqual(singleRows[0].nodes[0].node.id, "n0")
+    }
+
+    func testSnakeRowLayoutWavePattern() {
+        let nodes = (0..<8).map {
+            LessonNodeModel(id: "wave_\($0)", title: "Wave \($0)")
+        }
+        let rows = RowPattern.wave.layoutRows(nodes: nodes)
+
+        // Wave is [1, 2, 3, 2] -> sum = 8 nodes -> exactly 4 rows
+        XCTAssertEqual(rows.count, 4)
+
+        // Row 0: 1 node @ center (traversal index 0)
+        XCTAssertEqual(rows[0].nodes.count, 1)
+        XCTAssertEqual(rows[0].nodes[0].slot, .center)
+        XCTAssertEqual(rows[0].nodes[0].traversalIndex, 0)
+
+        // Row 1: 2 nodes @ left, right (traversal right=1, left=2)
+        XCTAssertEqual(rows[1].nodes.count, 2)
+        XCTAssertEqual(rows[1].nodes[0].slot, .left)
+        XCTAssertEqual(rows[1].nodes[1].slot, .right)
+        XCTAssertEqual(rows[1].nodes[1].traversalIndex, 1)
+        XCTAssertEqual(rows[1].nodes[0].traversalIndex, 2)
+
+        // Row 2: 3 nodes @ left, center, right (traversal left=3, center=4, right=5)
+        XCTAssertEqual(rows[2].nodes.count, 3)
+        XCTAssertEqual(rows[2].nodes[0].slot, .left)
+        XCTAssertEqual(rows[2].nodes[1].slot, .center)
+        XCTAssertEqual(rows[2].nodes[2].slot, .right)
+        XCTAssertEqual(rows[2].nodes[0].traversalIndex, 3)
+        XCTAssertEqual(rows[2].nodes[1].traversalIndex, 4)
+        XCTAssertEqual(rows[2].nodes[2].traversalIndex, 5)
+
+        // Row 3: 2 nodes @ left, right (traversal right=6, left=7)
+        XCTAssertEqual(rows[3].nodes.count, 2)
+        XCTAssertEqual(rows[3].nodes[0].slot, .left)
+        XCTAssertEqual(rows[3].nodes[1].slot, .right)
+        XCTAssertEqual(rows[3].nodes[1].traversalIndex, 6)
+        XCTAssertEqual(rows[3].nodes[0].traversalIndex, 7)
+    }
+
+    func testSnakeRowLayoutCustomPatternAndEdgeCases() {
+        let nodes = (0..<6).map {
+            LessonNodeModel(id: "c_\($0)", title: "Custom \($0)")
+        }
+
+        // Custom [3, 1, 2]
+        let customRows = RowPattern.custom([3, 1, 2]).layoutRows(nodes: nodes)
+        XCTAssertEqual(customRows.count, 3)
+        XCTAssertEqual(customRows[0].nodes.count, 3)
+        XCTAssertEqual(customRows[0].nodes[0].slot, .left)
+        XCTAssertEqual(customRows[0].nodes[1].slot, .center)
+        XCTAssertEqual(customRows[0].nodes[2].slot, .right)
+
+        XCTAssertEqual(customRows[1].nodes.count, 1)
+        XCTAssertEqual(customRows[1].nodes[0].slot, .center)
+        XCTAssertEqual(customRows[1].nodes[0].traversalIndex, 3)
+
+        XCTAssertEqual(customRows[2].nodes.count, 2)
+        XCTAssertEqual(customRows[2].nodes[0].slot, .left)
+        XCTAssertEqual(customRows[2].nodes[1].slot, .right)
+        XCTAssertEqual(customRows[2].nodes[1].traversalIndex, 4)
+        XCTAssertEqual(customRows[2].nodes[0].traversalIndex, 5)
+
+        // Custom empty defaults to 1 per row
+        let fallbackRows = RowPattern.custom([]).layoutRows(nodes: nodes)
+        XCTAssertEqual(fallbackRows.count, 6)
+        for (i, row) in fallbackRows.enumerated() {
+            XCTAssertEqual(row.nodes.count, 1)
+            XCTAssertEqual(row.nodes[0].slot, .center)
+            XCTAssertEqual(row.nodes[0].traversalIndex, i)
+        }
+
+        // Partial row at end
+        let partialNodes = (0..<2).map {
+            LessonNodeModel(id: "p_\($0)", title: "Partial \($0)")
+        }
+        // Standard pattern [1, 2]: row 0 takes 1 node, row 1 has 1 node left (instead of 2)
+        let partialRows = RowPattern.standard.layoutRows(nodes: partialNodes)
+        XCTAssertEqual(partialRows.count, 2)
+        XCTAssertEqual(partialRows[0].nodes.count, 1)
+        XCTAssertEqual(partialRows[0].nodes[0].slot, .center)
+        XCTAssertEqual(partialRows[0].nodes[0].traversalIndex, 0)
+        XCTAssertEqual(partialRows[1].nodes.count, 1)
+        XCTAssertEqual(partialRows[1].nodes[0].slot, .center)
+        XCTAssertEqual(partialRows[1].nodes[0].traversalIndex, 1)
+    }
+
     // MARK: - CraftLessonRow View Tests
 
     func testCraftLessonRowInstantiationAndEquatability() {

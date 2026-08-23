@@ -221,6 +221,87 @@ public enum RowPattern: Sendable, Equatable {
 
         return result
     }
+
+    /// Lays out an ordered array of lesson nodes into snake grid rows with slot assignments and traversal indices.
+    ///
+    /// - Parameter nodes: The lesson nodes in traversal sequence order.
+    /// - Returns: An array of `SnakeRowLayout` containing positioned nodes sorted left-to-right.
+    public func layoutRows(nodes: [LessonNodeModel]) -> [SnakeRowLayout] {
+        guard !nodes.isEmpty else { return [] }
+
+        let counts: [Int] = switch self {
+        case .standard:
+            [1, 2]
+        case .wave:
+            [1, 2, 3, 2]
+        case .custom(let customCounts):
+            customCounts.filter { $0 > 0 }.isEmpty ? [1] : customCounts.filter { $0 > 0 }
+        }
+
+        var layouts: [SnakeRowLayout] = []
+        var currentIndex = 0
+        var patternIndex = 0
+        var rowIndex = 0
+
+        while currentIndex < nodes.count {
+            let targetCount = counts[patternIndex % counts.count]
+            let endIndex = min(currentIndex + targetCount, nodes.count)
+            let rowNodes = Array(nodes[currentIndex..<endIndex])
+
+            let positionedNodes: [PositionedLessonNode]
+            switch rowNodes.count {
+            case 1:
+                positionedNodes = [
+                    PositionedLessonNode(
+                        node: rowNodes[0],
+                        slot: .center,
+                        traversalIndex: currentIndex
+                    )
+                ]
+            case 2:
+                let rightNode = PositionedLessonNode(
+                    node: rowNodes[0],
+                    slot: .right,
+                    traversalIndex: currentIndex
+                )
+                let leftNode = PositionedLessonNode(
+                    node: rowNodes[1],
+                    slot: .left,
+                    traversalIndex: currentIndex + 1
+                )
+                positionedNodes = [leftNode, rightNode]
+            case 3:
+                let leftNode = PositionedLessonNode(
+                    node: rowNodes[0],
+                    slot: .left,
+                    traversalIndex: currentIndex
+                )
+                let centerNode = PositionedLessonNode(
+                    node: rowNodes[1],
+                    slot: .center,
+                    traversalIndex: currentIndex + 1
+                )
+                let rightNode = PositionedLessonNode(
+                    node: rowNodes[2],
+                    slot: .right,
+                    traversalIndex: currentIndex + 2
+                )
+                positionedNodes = [leftNode, centerNode, rightNode]
+            default:
+                positionedNodes = rowNodes.enumerated().map { idx, node in
+                    let slot: NodeSlot = if idx == 0 { .left } else if idx == rowNodes.count - 1 { .right } else { .center }
+                    return PositionedLessonNode(node: node, slot: slot, traversalIndex: currentIndex + idx)
+                }
+            }
+
+            layouts.append(SnakeRowLayout(id: "row_\(rowIndex)", rowIndex: rowIndex, nodes: positionedNodes))
+            currentIndex = endIndex
+            patternIndex += 1
+            rowIndex += 1
+        }
+
+        return layouts
+    }
 }
 
 // MARK: - LessonRowArrangement
@@ -230,5 +311,55 @@ public enum LessonRowArrangement: Sendable, Equatable {
     case single             // 1 node, centered
     case pair               // 2 nodes, spread left-right
     case triple             // 3 nodes, evenly distributed
+}
+
+// MARK: - NodeSlot
+
+/// Semantic horizontal slot position of a lesson node within a snake learning path row.
+public enum NodeSlot: String, Sendable, Equatable, Hashable, CaseIterable {
+    case center
+    case left
+    case right
+
+    /// Horizontal anchor ratio (0.0 to 1.0) relative to container width.
+    public var xRatio: CGFloat {
+        switch self {
+        case .left: 0.26
+        case .center: 0.50
+        case .right: 0.74
+        }
+    }
+}
+
+// MARK: - PositionedLessonNode
+
+/// A lesson node mapped to a specific slot position and global traversal order.
+public struct PositionedLessonNode: Identifiable, Sendable, Equatable, Hashable {
+    public let node: LessonNodeModel
+    public let slot: NodeSlot
+    public let traversalIndex: Int
+
+    public var id: String { node.id }
+
+    public init(node: LessonNodeModel, slot: NodeSlot, traversalIndex: Int) {
+        self.node = node
+        self.slot = slot
+        self.traversalIndex = traversalIndex
+    }
+}
+
+// MARK: - SnakeRowLayout
+
+/// Layout structure representing a single horizontal row on the snake journey map.
+public struct SnakeRowLayout: Identifiable, Sendable, Equatable, Hashable {
+    public let id: String
+    public let rowIndex: Int
+    public let nodes: [PositionedLessonNode]
+
+    public init(id: String, rowIndex: Int, nodes: [PositionedLessonNode]) {
+        self.id = id
+        self.rowIndex = rowIndex
+        self.nodes = nodes
+    }
 }
 
