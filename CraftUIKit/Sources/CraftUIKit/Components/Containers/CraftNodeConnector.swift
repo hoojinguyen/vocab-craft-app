@@ -247,3 +247,129 @@ public struct CraftStyledConnector: View {
         .accessibilityHidden(true)
     }
 }
+
+// MARK: - CraftSnakeDottedSegmentView
+
+/// Renders a single vector dotted snake path segment with round caps and progressive theme coloring.
+public struct CraftSnakeDottedSegmentView: View {
+    public let segment: SnakePathSegmentGeometry
+    public let fromState: LessonNodeState
+    public let toState: LessonNodeState
+    public var dotDiameter: CGFloat?
+    public var dotSpacing: CGFloat?
+    public var customColor: Color?
+
+    @Environment(\.craftTheme) private var theme
+
+    public init(
+        segment: SnakePathSegmentGeometry,
+        fromState: LessonNodeState,
+        toState: LessonNodeState,
+        dotDiameter: CGFloat? = nil,
+        dotSpacing: CGFloat? = nil,
+        customColor: Color? = nil
+    ) {
+        self.segment = segment
+        self.fromState = fromState
+        self.toState = toState
+        self.dotDiameter = dotDiameter
+        self.dotSpacing = dotSpacing
+        self.customColor = customColor
+    }
+
+    private var segmentColor: Color {
+        if let customColor {
+            return customColor
+        }
+        if fromState == .completed && toState == .completed {
+            return theme.colors.pathCompleted
+        } else if fromState == .completed && (toState == .active || toState == .inProgress) {
+            return theme.colors.pathActive
+        } else if fromState == .active || fromState == .inProgress || fromState == .upcoming {
+            return theme.colors.pathUpcoming
+        } else {
+            return theme.colors.pathLocked
+        }
+    }
+
+    public var body: some View {
+        let diameter = dotDiameter ?? theme.spacing.pathDotDiameter
+        let spacing = dotSpacing ?? theme.spacing.pathDotSpacing
+        segment.buildPath()
+            .stroke(
+                segmentColor,
+                style: StrokeStyle(
+                    lineWidth: diameter,
+                    lineCap: .round,
+                    lineJoin: .round,
+                    dash: [0, diameter + spacing]
+                )
+            )
+            .accessibilityHidden(true)
+    }
+}
+
+// MARK: - CraftSnakeConnectorLayer
+
+/// Container layer rendering progressive colored vector dotted snake connectors between anchored nodes.
+public struct CraftSnakeConnectorLayer: View {
+    public let nodes: [LessonNodeModel]
+    public let preferences: NodeAnchorPreferenceKey.Value
+    public let geometry: GeometryProxy
+    public var turnRadius: CGFloat?
+    public var edgeInset: CGFloat?
+    public var dotDiameter: CGFloat?
+    public var dotSpacing: CGFloat?
+
+    @Environment(\.craftTheme) private var theme
+
+    public init(
+        nodes: [LessonNodeModel],
+        preferences: NodeAnchorPreferenceKey.Value,
+        geometry: GeometryProxy,
+        turnRadius: CGFloat? = nil,
+        edgeInset: CGFloat? = nil,
+        dotDiameter: CGFloat? = nil,
+        dotSpacing: CGFloat? = nil
+    ) {
+        self.nodes = nodes
+        self.preferences = preferences
+        self.geometry = geometry
+        self.turnRadius = turnRadius
+        self.edgeInset = edgeInset
+        self.dotDiameter = dotDiameter
+        self.dotSpacing = dotSpacing
+    }
+
+    public var body: some View {
+        if nodes.count > 1 {
+            ForEach(0..<(nodes.count - 1), id: \.self) { index in
+                let fromNode = nodes[index]
+                let toNode = nodes[index + 1]
+
+                if let fromAnchor = preferences[fromNode.id],
+                   let toAnchor = preferences[toNode.id] {
+                    let fromPoint = geometry[fromAnchor]
+                    let toPoint = geometry[toAnchor]
+                    let radius = turnRadius ?? theme.spacing.pathTurnRadius
+                    let inset = edgeInset ?? theme.spacing.pathEdgeInset
+                    let segment = SnakePathGeometry.createSegment(
+                        from: fromPoint,
+                        to: toPoint,
+                        containerWidth: geometry.size.width,
+                        turnRadius: radius,
+                        edgeInset: inset
+                    )
+
+                    CraftSnakeDottedSegmentView(
+                        segment: segment,
+                        fromState: fromNode.state,
+                        toState: toNode.state,
+                        dotDiameter: dotDiameter,
+                        dotSpacing: dotSpacing
+                    )
+                }
+            }
+        }
+    }
+}

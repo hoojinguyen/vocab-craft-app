@@ -2072,6 +2072,249 @@ final class CraftLearningPathTests: XCTestCase {
         let catalog = CraftCatalogView()
         XCTAssertNotNil(catalog.body)
     }
+
+    // MARK: - Task 3: Hairpin Arcs Geometry & Snake Dotted Path Renderer Tests
+
+    func testSnakePathSegmentTypeCases() {
+        let horizontal = SnakePathSegmentType.horizontal
+        let rightHairpin = SnakePathSegmentType.rightHairpin
+        let leftHairpin = SnakePathSegmentType.leftHairpin
+
+        XCTAssertEqual(horizontal.rawValue, "horizontal")
+        XCTAssertEqual(rightHairpin.rawValue, "rightHairpin")
+        XCTAssertEqual(leftHairpin.rawValue, "leftHairpin")
+        XCTAssertEqual(horizontal, .horizontal)
+        XCTAssertEqual(rightHairpin, .rightHairpin)
+        XCTAssertEqual(leftHairpin, .leftHairpin)
+        XCTAssertNotEqual(horizontal, rightHairpin)
+        XCTAssertNotEqual(rightHairpin, leftHairpin)
+    }
+
+    func testSnakePathGeometrySegmentCalculations() {
+        let p1 = CGPoint(x: 280, y: 100) // Right node
+        let p2 = CGPoint(x: 100, y: 100) // Left node
+        let horizontalSeg = SnakePathGeometry.createSegment(
+            from: p1,
+            to: p2,
+            containerWidth: 380,
+            turnRadius: 32,
+            edgeInset: 28
+        )
+        XCTAssertEqual(horizontalSeg.type, .horizontal)
+        XCTAssertEqual(horizontalSeg.from, p1)
+        XCTAssertEqual(horizontalSeg.to, p2)
+        XCTAssertEqual(horizontalSeg.turnRadius, 32)
+        XCTAssertEqual(horizontalSeg.turnX, 280)
+
+        // Near horizontal (dy < 15)
+        let pNear1 = CGPoint(x: 100, y: 100)
+        let pNear2 = CGPoint(x: 280, y: 110)
+        let nearHorizontalSeg = SnakePathGeometry.createSegment(
+            from: pNear1,
+            to: pNear2,
+            containerWidth: 380,
+            turnRadius: 32,
+            edgeInset: 28
+        )
+        XCTAssertEqual(nearHorizontalSeg.type, .horizontal)
+
+        // Right hairpin: to.x >= from.x
+        let pCenter = CGPoint(x: 190, y: 50)
+        let pRight = CGPoint(x: 280, y: 150)
+        let rightHairpinSeg = SnakePathGeometry.createSegment(
+            from: pCenter,
+            to: pRight,
+            containerWidth: 380,
+            turnRadius: 32,
+            edgeInset: 28
+        )
+        XCTAssertEqual(rightHairpinSeg.type, .rightHairpin)
+        XCTAssertEqual(rightHairpinSeg.turnX, 352) // 380 - 28
+
+        // Right hairpin: from.x <= containerWidth * 0.55 (e.g. from left node down)
+        let pLeftToRight = CGPoint(x: 100, y: 50)
+        let pLeftToLeft = CGPoint(x: 100, y: 150)
+        let rightHairpinFromLeft = SnakePathGeometry.createSegment(
+            from: pLeftToRight,
+            to: pLeftToLeft,
+            containerWidth: 380,
+            turnRadius: 32,
+            edgeInset: 28
+        )
+        XCTAssertEqual(rightHairpinFromLeft.type, .rightHairpin)
+
+        // Left hairpin: to.x < from.x and from.x > containerWidth * 0.55
+        let pFromRight = CGPoint(x: 280, y: 100)
+        let pToCenter = CGPoint(x: 190, y: 200)
+        let leftHairpinSeg = SnakePathGeometry.createSegment(
+            from: pFromRight,
+            to: pToCenter,
+            containerWidth: 380,
+            turnRadius: 32,
+            edgeInset: 28
+        )
+        XCTAssertEqual(leftHairpinSeg.type, .leftHairpin)
+        XCTAssertEqual(leftHairpinSeg.turnX, 28) // edgeInset
+    }
+
+    func testSnakePathDrawingProducesNonEmptyPath() {
+        let seg = SnakePathSegmentGeometry(
+            from: CGPoint(x: 190, y: 50),
+            to: CGPoint(x: 280, y: 150),
+            type: .rightHairpin,
+            turnRadius: 32,
+            turnX: 352
+        )
+        let path = seg.buildPath()
+        XCTAssertFalse(path.isEmpty)
+        XCTAssertEqual(path.boundingRect.minX, 190, accuracy: 1.0)
+        XCTAssertEqual(path.boundingRect.maxX, 352, accuracy: 1.0)
+        XCTAssertEqual(path.boundingRect.minY, 50, accuracy: 1.0)
+        XCTAssertEqual(path.boundingRect.maxY, 150, accuracy: 1.0)
+
+        // Horizontal buildPath
+        let hSeg = SnakePathSegmentGeometry(
+            from: CGPoint(x: 100, y: 100),
+            to: CGPoint(x: 280, y: 100),
+            type: .horizontal,
+            turnRadius: 32,
+            turnX: 100
+        )
+        let hPath = hSeg.buildPath()
+        XCTAssertFalse(hPath.isEmpty)
+        XCTAssertEqual(hPath.boundingRect.minX, 100, accuracy: 1.0)
+        XCTAssertEqual(hPath.boundingRect.maxX, 280, accuracy: 1.0)
+
+        // Left Hairpin buildPath
+        let lSeg = SnakePathSegmentGeometry(
+            from: CGPoint(x: 280, y: 100),
+            to: CGPoint(x: 190, y: 200),
+            type: .leftHairpin,
+            turnRadius: 32,
+            turnX: 28
+        )
+        let lPath = lSeg.buildPath()
+        XCTAssertFalse(lPath.isEmpty)
+        XCTAssertEqual(lPath.boundingRect.minX, 28, accuracy: 1.0)
+        XCTAssertEqual(lPath.boundingRect.maxX, 280, accuracy: 1.0)
+
+        // Small turn radius clamped to min 4
+        let smallRadiusSeg = SnakePathSegmentGeometry(
+            from: CGPoint(x: 100, y: 50),
+            to: CGPoint(x: 200, y: 150),
+            type: .rightHairpin,
+            turnRadius: 1.0,
+            turnX: 250
+        )
+        let smallPath = smallRadiusSeg.buildPath()
+        XCTAssertFalse(smallPath.isEmpty)
+    }
+
+    func testSnakePathSegmentGeometryEquatability() {
+        let seg1 = SnakePathSegmentGeometry(
+            from: CGPoint(x: 100, y: 100),
+            to: CGPoint(x: 200, y: 200),
+            type: .rightHairpin,
+            turnRadius: 32,
+            turnX: 300
+        )
+        let seg2 = SnakePathSegmentGeometry(
+            from: CGPoint(x: 100, y: 100),
+            to: CGPoint(x: 200, y: 200),
+            type: .rightHairpin,
+            turnRadius: 32,
+            turnX: 300
+        )
+        let seg3 = SnakePathSegmentGeometry(
+            from: CGPoint(x: 100, y: 100),
+            to: CGPoint(x: 200, y: 200),
+            type: .leftHairpin,
+            turnRadius: 32,
+            turnX: 28
+        )
+
+        XCTAssertEqual(seg1, seg2)
+        XCTAssertNotEqual(seg1, seg3)
+    }
+
+    func testCraftSnakeDottedSegmentViewInstantiation() {
+        let seg = SnakePathSegmentGeometry(
+            from: CGPoint(x: 100, y: 100),
+            to: CGPoint(x: 200, y: 200),
+            type: .rightHairpin,
+            turnRadius: 32,
+            turnX: 300
+        )
+
+        let viewCompleted = CraftSnakeDottedSegmentView(
+            segment: seg,
+            fromState: .completed,
+            toState: .completed
+        )
+        XCTAssertNotNil(viewCompleted.body)
+
+        let viewActive = CraftSnakeDottedSegmentView(
+            segment: seg,
+            fromState: .completed,
+            toState: .active
+        )
+        XCTAssertNotNil(viewActive.body)
+
+        let viewUpcoming = CraftSnakeDottedSegmentView(
+            segment: seg,
+            fromState: .active,
+            toState: .upcoming
+        )
+        XCTAssertNotNil(viewUpcoming.body)
+
+        let viewLocked = CraftSnakeDottedSegmentView(
+            segment: seg,
+            fromState: .upcoming,
+            toState: .locked
+        )
+        XCTAssertNotNil(viewLocked.body)
+
+        let customView = CraftSnakeDottedSegmentView(
+            segment: seg,
+            fromState: .locked,
+            toState: .locked,
+            dotDiameter: 6.0,
+            dotSpacing: 8.0,
+            customColor: .purple
+        )
+        XCTAssertNotNil(customView.body)
+        XCTAssertEqual(customView.dotDiameter, 6.0)
+        XCTAssertEqual(customView.dotSpacing, 8.0)
+        XCTAssertEqual(customView.customColor, .purple)
+    }
+
+    func testCraftSnakeConnectorLayerWithNodes() {
+        let node1 = LessonNodeModel(id: "n1", title: "1", state: .completed)
+        let node2 = LessonNodeModel(id: "n2", title: "2", state: .active)
+        let node3 = LessonNodeModel(id: "n3", title: "3", state: .upcoming)
+
+        let layer = GeometryReader { geo in
+            CraftSnakeConnectorLayer(
+                nodes: [node1, node2, node3],
+                preferences: [:],
+                geometry: geo,
+                turnRadius: 32,
+                edgeInset: 28,
+                dotDiameter: 5,
+                dotSpacing: 7
+            )
+        }
+        XCTAssertNotNil(layer)
+
+        let singleNodeLayer = GeometryReader { geo in
+            CraftSnakeConnectorLayer(
+                nodes: [node1],
+                preferences: [:],
+                geometry: geo
+            )
+        }
+        XCTAssertNotNil(singleNodeLayer)
+    }
 }
 
 
