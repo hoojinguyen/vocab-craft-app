@@ -547,6 +547,7 @@ private struct CraftCatalogContentView: View {
     @State private var selectedStreakPreset: CatalogStreakTierPreset = .blaze
     @State private var isStreakCompletedToday: Bool = false
     @State private var isStreakCelebrationPresented: Bool = false
+    @State private var streakCardStyle: CraftCardStyle = .tactile3D
 
     // Learning Journey Path States
     @State private var selectedRowPatternPreset: CatalogRowPatternPreset = .standard
@@ -652,6 +653,7 @@ private struct CraftCatalogContentView: View {
                         selectedPreset: $selectedStreakPreset,
                         isCompletedToday: $isStreakCompletedToday,
                         isCelebrationPresented: $isStreakCelebrationPresented,
+                        cardStyle: $streakCardStyle,
                         onBadgeTap: {
                             isStreakCelebrationPresented = true
                         },
@@ -857,6 +859,12 @@ private struct CatalogThemeHeaderView: View {
                         }
                         .pickerStyle(.segmented)
                     }
+
+                    HStack(spacing: theme.spacing.sm) {
+                        CraftBadge("3D Depth Engine", symbol: .sparkles, variant: .subtle, tone: .primary, size: .sm)
+                        CraftText("sm: \(Int(theme.depths.depthSm))pt • md: \(Int(theme.depths.depthMd))pt • lg: \(Int(theme.depths.depthLg))pt", style: .caption, color: theme.colors.textSecondary)
+                    }
+                    .padding(.top, 2)
                 }
             }
         }
@@ -875,13 +883,14 @@ private struct CatalogTypographySection: View {
                 CatalogSectionHeader(title: "1. Typography & SF Symbol Tokens", iconName: "textformat")
 
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText("Display Large", style: .displayLarge)
-                    CraftText("Title Large", style: .titleLarge)
-                    CraftText("Title Medium", style: .titleMedium)
-                    CraftText("Headline Text", style: .headline)
+                    CraftText("Display Hero (72pt Black)", style: .displayHero, color: theme.colors.brandPrimary)
+                    CraftText("Display Large (Rounded)", style: .displayLarge)
+                    CraftText("Title Large (Rounded)", style: .titleLarge)
+                    CraftText("Title Medium (Rounded)", style: .titleMedium)
+                    CraftText("Headline Text (Rounded)", style: .headline)
                     CraftText("Body Large Typography Scale", style: .bodyLarge)
                     CraftText("Body Medium standard readability paragraph style.", style: .bodyMedium, color: theme.colors.textSecondary)
-                    CraftText("Label Style", style: .label, color: theme.colors.textMuted)
+                    CraftText("Label Style (Rounded)", style: .label, color: theme.colors.textMuted)
                     CraftText("Caption helper text style", style: .caption, color: theme.colors.textMuted)
 
                     CraftDivider()
@@ -1218,14 +1227,28 @@ private struct CatalogButtonsSection: View {
                 CraftDivider()
 
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText("Button Sizes (sm, md, lg) & Disabled", style: .headline)
+                    CraftText("3D Tactile Scale & Disabled State", style: .headline)
+                    HStack(spacing: theme.spacing.sm) {
+                        CraftButton("Tactile sm", variant: .tactile, size: .sm) {}
+                        CraftButton("Tactile md", variant: .tactile, size: .md) {}
+                        CraftButton("Disabled", variant: .tactile, size: .md) {}
+                            .disabled(true)
+                    }
+                    CraftButton("Large 3D Tactile Action", iconName: "star.fill", variant: .tactile, size: .lg) {}
+                        .frame(maxWidth: .infinity)
+                }
+
+                CraftDivider()
+
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("Standard Buttons & Disabled State", style: .headline)
                     HStack(spacing: theme.spacing.sm) {
                         CraftButton("Small (32pt)", variant: .primary, size: .sm) {}
                         CraftButton("Medium (44pt)", variant: .primary, size: .md) {}
                         CraftButton("Disabled", variant: .secondary, size: .md) {}
                             .disabled(true)
                     }
-                    CraftButton("Large Button (54pt)", iconName: "star.fill", variant: .primary, size: .lg) {}
+                    CraftButton("Large Primary (54pt)", iconName: "star.fill", variant: .primary, size: .lg) {}
                         .frame(maxWidth: .infinity)
                 }
 
@@ -1384,10 +1407,24 @@ private struct CatalogCardsBentoSection: View {
         VStack(alignment: .leading, spacing: theme.spacing.base) {
             CatalogSectionHeader(title: "6. Cards, Bento Grid & Skeleton Shimmer", iconName: "square.grid.2x2.fill")
 
+            // Hero Tactile 3D Card Showcase
+            CraftCard(style: .tactile3D, isPressable: true, action: { bentoCardTapped = "Tactile 3D Hero Card" }) {
+                HStack {
+                    VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                        CraftBadge("New: Tactile 3D", symbol: .sparkles, variant: .solid, tone: .primary)
+                        CraftText("Physical Tactile 3D Container", style: .headline)
+                        CraftText("Bottom extrusion bevel (\(Int(theme.depths.depthMd))pt), top specular highlight, and interactive mechanical depress physics.", style: .caption, color: theme.colors.textSecondary)
+                    }
+                    Spacer()
+                    CraftIcon(.sparkles, size: .xl, color: theme.colors.brandPrimary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: theme.spacing.base) {
                 CraftCard(style: .flat, isPressable: true, action: { bentoCardTapped = "Flat Card" }) {
                     VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                        CraftBadge("Flat Style", tone: .primary)
+                        CraftBadge("Flat Style", tone: .neutral)
                         CraftText("Standard Flat", style: .headline)
                         CraftText("Subtle surface background", style: .caption, color: theme.colors.textSecondary)
                     }
@@ -1796,7 +1833,7 @@ private struct CatalogInteractiveCardsSection: View {
 
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     HStack {
-                        CraftText("CraftFlipCard (3D Double-Sided)", style: .headline)
+                        CraftText("CraftFlipCard (3D Double-Sided with Specular Glare)", style: .headline)
                         Spacer()
                         Picker("Axis", selection: $flipAxis) {
                             Text("Horizontal").tag(Axis.horizontal)
@@ -1806,7 +1843,12 @@ private struct CatalogInteractiveCardsSection: View {
                         .frame(width: 160)
                     }
 
-                    CraftFlipCard(isFlipped: $isCardFlipped, axis: flipAxis) {
+                    CraftFlipCard(
+                        isFlipped: $isCardFlipped,
+                        axis: flipAxis,
+                        edgeThickness: 3,
+                        showSpecularGlare: true
+                    ) {
                         CraftCard(style: .outlined) {
                             VStack(spacing: theme.spacing.sm) {
                                 HStack {
@@ -1817,14 +1859,14 @@ private struct CatalogInteractiveCardsSection: View {
 
                                 Spacer()
 
-                                CraftText("Ephemeral", style: .displayLarge, color: theme.colors.textPrimary)
-                                CraftText("/ɪˈfem.ər.əl/", style: .label, color: theme.colors.textMuted)
+                                CraftText("Ephemeral", style: .displaySerif, color: theme.colors.textPrimary)
+                                CraftText("/ɪˈfem.ər.əl/", style: .phonetic, color: theme.colors.textSecondary)
 
                                 Spacer()
 
                                 HStack(spacing: theme.spacing.xs) {
                                     CraftIcon(.flip, size: .sm, color: theme.colors.textSecondary)
-                                    CraftText("Tap to reveal definition", style: .caption, color: theme.colors.textSecondary)
+                                    CraftText("Tap to reveal definition (3D Flip)", style: .caption, color: theme.colors.textSecondary)
                                 }
                             }
                             .frame(height: 160)
@@ -1871,7 +1913,7 @@ private struct CatalogInteractiveCardsSection: View {
 
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     HStack {
-                        CraftText("CraftChoiceCard (Quiz with Dual-Tone Indicators)", style: .headline)
+                        CraftText("CraftChoiceCard (3D Quiz with Embossed Badges)", style: .headline)
                         Spacer()
                         if isQuizSubmitted {
                             Button("Reset", action: onResetQuiz)
@@ -1925,7 +1967,7 @@ private struct CatalogInteractiveCardsSection: View {
                         CraftButton(
                             "Submit Answer",
                             iconName: "checkmark.circle.fill",
-                            variant: .primary,
+                            variant: .tactile,
                             size: .md,
                             action: onSubmitQuiz
                         )
@@ -1938,7 +1980,8 @@ private struct CatalogInteractiveCardsSection: View {
                 CraftDivider()
 
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText("Choice Card State Matrix", style: .headline)
+                    CraftText("Choice Card 3D State Matrix", style: .headline)
+                    CraftText("Embossed prefix badges, 3D bottom bevels, and mechanical depress physics.", style: .caption, color: theme.colors.textSecondary)
 
                     HStack(spacing: theme.spacing.xs) {
                         CraftChoiceCard(prefix: "1", title: "Idle", state: .idle) {}
@@ -1949,6 +1992,8 @@ private struct CatalogInteractiveCardsSection: View {
                         CraftChoiceCard(prefix: "3", title: "Correct", state: .correct) {}
                         CraftChoiceCard(prefix: "4", title: "Wrong", state: .wrong) {}
                     }
+
+                    CraftChoiceCard(prefix: "5", title: "Disabled State", subtitle: "Inactive option", state: .disabled) {}
                 }
             }
         }
@@ -2125,6 +2170,7 @@ private struct CatalogStreakSection: View {
     @Binding var selectedPreset: CatalogStreakTierPreset
     @Binding var isCompletedToday: Bool
     @Binding var isCelebrationPresented: Bool
+    @Binding var cardStyle: CraftCardStyle
     let onBadgeTap: () -> Void
     let onFreezeTap: () -> Void
 
@@ -2140,6 +2186,15 @@ private struct CatalogStreakSection: View {
                         ForEach(CatalogStreakTierPreset.allCases) { preset in
                             Text(preset.rawValue).tag(preset)
                         }
+                    }
+                    .pickerStyle(.segmented)
+
+                    CraftText("Bento Card Container Style", style: .label, color: theme.colors.textSecondary)
+                    Picker("Card Style", selection: $cardStyle) {
+                        Text("Tactile 3D").tag(CraftCardStyle.tactile3D)
+                        Text("Outlined").tag(CraftCardStyle.outlined)
+                        Text("Elevated").tag(CraftCardStyle.elevated)
+                        Text("Flat").tag(CraftCardStyle.flat)
                     }
                     .pickerStyle(.segmented)
 
@@ -2161,7 +2216,7 @@ private struct CatalogStreakSection: View {
                         Spacer()
                         CraftText("Tap to celebrate", style: .caption, color: theme.colors.brandPrimary)
                     }
-                    CraftText("Compact flame pills with monospaced counter and breathing animation when pending.", style: .caption, color: theme.colors.textSecondary)
+                    CraftText("Embossed flame pills with metricRounded counter and breathing animation when pending.", style: .caption, color: theme.colors.textSecondary)
 
                     HStack(spacing: theme.spacing.lg) {
                         VStack(alignment: .leading, spacing: 4) {
@@ -2194,11 +2249,11 @@ private struct CatalogStreakSection: View {
                 // Live Preview: CraftStreakCard
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     CraftText("CraftStreakCard (7-Day Bento Widget)", style: .headline)
-                    CraftText("Weekly cycle nodes, freeze shields, and milestone progress bar.", style: .caption, color: theme.colors.textSecondary)
+                    CraftText("3D tactile day nodes with bottom rim bevels, freeze shields, and milestone progress bar.", style: .caption, color: theme.colors.textSecondary)
 
                     CraftStreakCard(
                         data: streakData,
-                        cardStyle: .outlined,
+                        cardStyle: cardStyle,
                         onFreezeTap: onFreezeTap,
                         onMilestoneTap: {
                             isCelebrationPresented = true
@@ -2212,12 +2267,12 @@ private struct CatalogStreakSection: View {
                 // Modal Celebration Sheet Trigger
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     CraftText("CraftStreakCelebrationSheet (Milestone Modal)", style: .headline)
-                    CraftText("Hero flame pop-in, count-up animation, and particle bursts.", style: .caption, color: theme.colors.textSecondary)
+                    CraftText("Hero flame pop-in, count-up animation, 3D tactile day nodes, and tactile 3D action button.", style: .caption, color: theme.colors.textSecondary)
 
                     CraftButton(
                         "Preview Celebration Modal (\(selectedPreset.days) Days)",
                         iconName: "party.popper.fill",
-                        variant: .primary,
+                        variant: .tactile,
                         size: .md,
                         isFullWidth: true
                     ) {

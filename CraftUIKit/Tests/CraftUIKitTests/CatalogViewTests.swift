@@ -161,18 +161,7 @@ final class CatalogViewTests: XCTestCase {
     }
 
     func testTypographyModifierAllStyles() {
-        let styles: [CraftTypographyStyle] = [
-            .displayLarge,
-            .titleLarge,
-            .titleMedium,
-            .headline,
-            .bodyLarge,
-            .bodyMedium,
-            .label,
-            .caption
-        ]
-
-        for style in styles {
+        for style in CraftTypographyStyle.allCases {
             let mod = CraftTypographyModifier(style)
             XCTAssertEqual(mod.style, style)
 
@@ -180,5 +169,65 @@ final class CatalogViewTests: XCTestCase {
                 .craftTypography(style)
             XCTAssertNotNil(view)
         }
+    }
+
+    func testCatalogRowPatternPresets() {
+        XCTAssertEqual(CatalogRowPatternPreset.allCases.count, 4)
+        XCTAssertEqual(CatalogRowPatternPreset.standard.id, "Standard (1-2-1)")
+        XCTAssertEqual(CatalogRowPatternPreset.wave.id, "Wave (1-2-3-2-1)")
+        XCTAssertEqual(CatalogRowPatternPreset.linear.id, "Linear (1-1-1)")
+        XCTAssertEqual(CatalogRowPatternPreset.pairs.id, "Pairs (2-2)")
+
+        XCTAssertEqual(CatalogRowPatternPreset.standard.pattern, .standard)
+        XCTAssertEqual(CatalogRowPatternPreset.wave.pattern, .wave)
+        XCTAssertEqual(CatalogRowPatternPreset.linear.pattern, .custom([1]))
+        XCTAssertEqual(CatalogRowPatternPreset.pairs.pattern, .custom([2]))
+    }
+
+    func testCatalogWindingPresets() {
+        XCTAssertEqual(CatalogWindingPreset.allCases.count, 3)
+        XCTAssertEqual(CatalogWindingPreset.standard.id, "Standard")
+        XCTAssertEqual(CatalogWindingPreset.gentle.id, "Gentle")
+        XCTAssertEqual(CatalogWindingPreset.linear.id, "Linear")
+
+        XCTAssertEqual(CatalogWindingPreset.standard.winding, .standard)
+        XCTAssertEqual(CatalogWindingPreset.gentle.winding, .gentle)
+        XCTAssertEqual(CatalogWindingPreset.linear.winding, .linear)
+    }
+
+    func testCatalogLearningPathMockData() {
+        let sections = CatalogLearningPathMockData.defaultSections
+        XCTAssertEqual(sections.count, 2)
+
+        let section1 = sections[0]
+        XCTAssertEqual(section1.id, "sec_1")
+        XCTAssertEqual(section1.title, "Unit 1: Khởi đầu (Foundations)")
+        XCTAssertEqual(section1.nodes.count, 6)
+        XCTAssertEqual(section1.nodes[0].state, .completed)
+        XCTAssertEqual(section1.nodes[0].stars, 3)
+        XCTAssertEqual(section1.nodes[2].state, .active)
+        XCTAssertEqual(section1.nodes[2].progress, 0.6)
+        XCTAssertEqual(section1.nodes[4].kind, .checkpoint)
+        XCTAssertEqual(section1.nodes[4].badgeText, "HOT")
+        XCTAssertEqual(section1.nodes[5].kind, .treasureChest)
+        XCTAssertEqual(section1.nodes[5].xpReward, 100)
+
+        let section2 = sections[1]
+        XCTAssertEqual(section2.id, "sec_2")
+        XCTAssertEqual(section2.title, "Unit 2: Giao tiếp Hàng ngày (Daily Conversations)")
+        XCTAssertEqual(section2.nodes.count, 4)
+        XCTAssertEqual(section2.nodes[0].state, .locked)
+        XCTAssertEqual(section2.nodes[3].kind, .treasureChest)
+    }
+
+    func testEmeraldThemeDepthsAndTokens() {
+        let theme = CraftEmeraldTheme()
+        XCTAssertEqual(theme.depths.depthSm, 2)
+        XCTAssertEqual(theme.depths.depthMd, 4)
+        XCTAssertEqual(theme.depths.depthLg, 6)
+        XCTAssertNotNil(theme.depths.topHighlight)
+        XCTAssertNotNil(theme.gradients.surfaceGlass)
+        XCTAssertNotNil(theme.gradients.accentShine)
+        XCTAssertNotNil(theme.gradients.fadeBottom)
     }
 }
