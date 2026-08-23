@@ -298,14 +298,16 @@ public struct CraftLessonNode: View, Equatable {
     // MARK: - Body
 
     public var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 0) {
             if model.state == .active {
                 ActiveCalloutBubble(text: calloutText ?? "TIẾP TỤC")
+                    .padding(.bottom, 6)
             }
 
             tactileNodeAtom
 
             nodeLabels
+                .padding(.top, 6)
         }
         .sensoryFeedback(.impact(weight: .medium), trigger: tapTrigger)
         .sensoryFeedback(.success, trigger: completionTrigger)
@@ -509,7 +511,7 @@ public struct CraftLessonNode: View, Equatable {
                 // Static Soft Aura Disc (Background Cushion)
                 if isCheckpoint {
                     HexagonShape()
-                        .fill(theme.colors.brandPrimary.opacity(0.12))
+                        .fill(theme.colors.pathHaloGlow.opacity(0.6))
                         .frame(width: nodeDiameter + 24, height: nodeDiameter + 24)
                     HexagonShape()
                         .stroke(theme.colors.brandPrimary.opacity(0.30), lineWidth: 2)
@@ -519,12 +521,12 @@ public struct CraftLessonNode: View, Equatable {
                         .fill(
                             RadialGradient(
                                 colors: [
-                                    theme.colors.brandPrimary.opacity(0.16),
-                                    theme.colors.brandPrimary.opacity(0.06),
+                                    theme.colors.pathHaloGlow,
+                                    theme.colors.pathHaloGlow.opacity(0.3),
                                     Color.clear
                                 ],
                                 center: .center,
-                                startRadius: nodeDiameter * 0.3,
+                                startRadius: nodeDiameter * 0.25,
                                 endRadius: (nodeDiameter + 24) * 0.5
                             )
                         )
@@ -537,10 +539,10 @@ public struct CraftLessonNode: View, Equatable {
         } else {
             PhaseAnimator(GlowPhase.allCases) { phase in
                 ZStack {
-                    // 1. Soft Ambient Aura Disc (Background Cushion)
+                    // 1. Soft Pastel Circular Halo Cushion
                     if isCheckpoint {
                         HexagonShape()
-                            .fill(theme.colors.brandPrimary.opacity(phase == .glowing ? 0.16 : 0.08))
+                            .fill(theme.colors.pathHaloGlow.opacity(phase == .glowing ? 0.9 : 0.45))
                             .frame(width: nodeDiameter + 26, height: nodeDiameter + 26)
                             .scaleEffect(phase == .glowing ? 1.04 : 0.98)
                     } else {
@@ -548,8 +550,8 @@ public struct CraftLessonNode: View, Equatable {
                             .fill(
                                 RadialGradient(
                                     colors: [
-                                        theme.colors.brandPrimary.opacity(phase == .glowing ? 0.20 : 0.12),
-                                        theme.colors.brandPrimary.opacity(phase == .glowing ? 0.08 : 0.03),
+                                        theme.colors.pathHaloGlow.opacity(phase == .glowing ? 1.0 : 0.6),
+                                        theme.colors.pathHaloGlow.opacity(phase == .glowing ? 0.4 : 0.15),
                                         Color.clear
                                     ],
                                     center: .center,
@@ -580,7 +582,7 @@ public struct CraftLessonNode: View, Equatable {
                             .scaleEffect(phase == .glowing ? 1.08 : 1.0)
                     }
 
-                    // 3. Proximity Delicate Ring
+                    // 3. Delicate Proximity Breathing Ring
                     if isCheckpoint {
                         HexagonShape()
                             .stroke(
@@ -702,7 +704,7 @@ public struct CraftLessonNode: View, Equatable {
                 .padding(.top, 1)
             }
         }
-        .frame(maxWidth: nodeDiameter + 48)
+        .frame(maxWidth: 120)
     }
 
     // MARK: - Badge Overlay

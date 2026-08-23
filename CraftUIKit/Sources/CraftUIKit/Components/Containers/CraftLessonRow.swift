@@ -15,14 +15,17 @@ private struct RowWidthPreferenceKey: PreferenceKey {
 
 // MARK: - CraftLessonRow Molecule View
 
-/// A molecule view representing a single horizontal row within a serpentine learning path section.
+/// A molecule view representing a single horizontal row within a serpentine or snake learning path section.
 ///
-/// Lays out an individual `CraftLessonNode` offset horizontally according to `offsetRatio` (-1.0 to 1.0)
-/// to form continuous organic winding S-curves down the learning path.
+/// Lays out `CraftLessonNode` instances horizontally according to either:
+/// 1. `SnakeRowLayout` with slot anchor offsets (`.center` at 50%, `.left` at 26%, `.right` at 74%).
+/// 2. `offsetRatio` (-1.0 to 1.0) forming organic S-curves.
+/// 3. Legacy multi-node arrangements (`.single`, `.pair`, `.triple`).
 ///
-/// Emits `NodeAnchorPreferenceKey` center coordinates for smart Bézier connector linking
+/// Emits `NodeAnchorPreferenceKey` center coordinates for smart Bézier / hairpin connector linking
 /// and conforms to `Equatable` to minimize view update overhead.
 public struct CraftLessonRow: View, Equatable {
+    public let rowLayout: SnakeRowLayout?
     public let node: LessonNodeModel
     public let offsetRatio: CGFloat
     public let onNodeTap: (@Sendable (LessonNodeModel) -> Void)?
@@ -37,6 +40,27 @@ public struct CraftLessonRow: View, Equatable {
 
     // MARK: - Initializers
 
+    /// Creates a snake grid row layout with slot-positioned nodes.
+    ///
+    /// - Parameters:
+    ///   - rowLayout: The `SnakeRowLayout` defining positioned nodes for this row.
+    ///   - onNodeTap: Optional closure invoked when a node is tapped.
+    public init(
+        rowLayout: SnakeRowLayout,
+        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil
+    ) {
+        self.rowLayout = rowLayout
+        self.onNodeTap = onNodeTap
+        self.nodes = rowLayout.nodes.map(\.node)
+        self.node = rowLayout.nodes.first?.node ?? LessonNodeModel(id: "empty", title: "")
+        self.offsetRatio = 0.0
+        self.arrangement = switch rowLayout.nodes.count {
+        case 1: .single
+        case 2: .pair
+        default: .triple
+        }
+    }
+
     /// Creates a single-node serpentine offset row.
     ///
     /// - Parameters:
@@ -48,6 +72,7 @@ public struct CraftLessonRow: View, Equatable {
         offsetRatio: CGFloat = 0.0,
         onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil
     ) {
+        self.rowLayout = nil
         self.node = node
         self.offsetRatio = offsetRatio
         self.onNodeTap = onNodeTap
@@ -61,6 +86,7 @@ public struct CraftLessonRow: View, Equatable {
         arrangement: LessonRowArrangement = .single,
         onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil
     ) {
+        self.rowLayout = nil
         self.node = nodes.first ?? LessonNodeModel(id: "empty", title: "")
         self.offsetRatio = 0.0
         self.onNodeTap = onNodeTap
@@ -71,6 +97,7 @@ public struct CraftLessonRow: View, Equatable {
     // MARK: - Equatable Conformance
 
     public static func == (lhs: CraftLessonRow, rhs: CraftLessonRow) -> Bool {
+        lhs.rowLayout == rhs.rowLayout &&
         lhs.node == rhs.node &&
         abs(lhs.offsetRatio - rhs.offsetRatio) < 0.0001 &&
         lhs.nodes == rhs.nodes &&
@@ -80,10 +107,46 @@ public struct CraftLessonRow: View, Equatable {
     // MARK: - Body
 
     public var body: some View {
-        if nodes.count > 1 && arrangement != .single {
+        if let rowLayout = rowLayout {
+            snakeLayout(rowLayout)
+        } else if nodes.count > 1 && arrangement != .single {
             legacyLayout
         } else {
             serpentineLayout
+        }
+    }
+
+    // MARK: - Snake Row Layout
+
+    private func snakeLayout(_ layout: SnakeRowLayout) -> some View {
+        ZStack(alignment: .top) {
+            ForEach(layout.nodes) { pNode in
+                let xOffset = measuredWidth * (pNode.slot.xRatio - 0.50)
+                CraftLessonNode(
+                    model: pNode.node,
+                    onTap: onNodeTap != nil ? { onNodeTap?(pNode.node) } : nil
+                )
+                .id(pNode.node.id)
+                .alignmentGuide(HorizontalAlignment.center) { d in
+                    d[HorizontalAlignment.center] - xOffset
+                }
+                .anchorPreference(key: NodeAnchorPreferenceKey.self, value: .center) { anchor in
+                    [pNode.node.id: anchor]
+                }
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, theme.spacing.pathRowSpacing * 0.1)
+        .background(
+            GeometryReader { geo in
+                Color.clear
+                    .preference(key: RowWidthPreferenceKey.self, value: geo.size.width)
+            }
+        )
+        .onPreferenceChange(RowWidthPreferenceKey.self) { width in
+            if width > 0 {
+                measuredWidth = width
+            }
         }
     }
 

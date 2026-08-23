@@ -2315,6 +2315,147 @@ final class CraftLearningPathTests: XCTestCase {
         }
         XCTAssertNotNil(singleNodeLayer)
     }
+
+    // MARK: - Task 4: CraftLessonRow Snake Grid & Node Aesthetics Tests
+
+    func testCraftLessonRowSnakeRowLayoutSingleNode() {
+        let node = LessonNodeModel(id: "snake_n1", title: "Center Lesson", iconName: "star.fill", state: .active)
+        let pNode = PositionedLessonNode(node: node, slot: .center, traversalIndex: 0)
+        let layout = SnakeRowLayout(id: "row_single", rowIndex: 0, nodes: [pNode])
+
+        var tapped: LessonNodeModel?
+        let row = CraftLessonRow(rowLayout: layout) { selected in
+            tapped = selected
+        }
+
+        XCTAssertNotNil(row)
+        XCTAssertEqual(row.rowLayout?.id, "row_single")
+        XCTAssertEqual(row.nodes.count, 1)
+        XCTAssertEqual(row.nodes.first?.id, "snake_n1")
+        XCTAssertEqual(row.node.id, "snake_n1")
+        XCTAssertEqual(row.arrangement, .single)
+        XCTAssertNotNil(row.body)
+
+        row.onNodeTap?(node)
+        XCTAssertEqual(tapped?.id, "snake_n1")
+    }
+
+    func testCraftLessonRowSnakeRowLayoutPairNodes() {
+        let nodeL = LessonNodeModel(id: "snake_left", title: "Left Lesson", state: .completed)
+        let nodeR = LessonNodeModel(id: "snake_right", title: "Right Lesson", state: .upcoming)
+        let pNodeL = PositionedLessonNode(node: nodeL, slot: .left, traversalIndex: 2)
+        let pNodeR = PositionedLessonNode(node: nodeR, slot: .right, traversalIndex: 1)
+        let layout = SnakeRowLayout(id: "row_pair", rowIndex: 1, nodes: [pNodeL, pNodeR])
+
+        let row = CraftLessonRow(rowLayout: layout)
+
+        XCTAssertNotNil(row)
+        XCTAssertEqual(row.rowLayout?.id, "row_pair")
+        XCTAssertEqual(row.nodes.count, 2)
+        XCTAssertEqual(row.nodes[0].id, "snake_left")
+        XCTAssertEqual(row.nodes[1].id, "snake_right")
+        XCTAssertEqual(row.arrangement, .pair)
+        XCTAssertNotNil(row.body)
+    }
+
+    func testCraftLessonRowSnakeRowLayoutTripleNodes() {
+        let nodeL = LessonNodeModel(id: "trip_l", title: "Left", state: .completed)
+        let nodeC = LessonNodeModel(id: "trip_c", title: "Center", state: .active)
+        let nodeR = LessonNodeModel(id: "trip_r", title: "Right", state: .upcoming)
+        let pNodeL = PositionedLessonNode(node: nodeL, slot: .left, traversalIndex: 3)
+        let pNodeC = PositionedLessonNode(node: nodeC, slot: .center, traversalIndex: 4)
+        let pNodeR = PositionedLessonNode(node: nodeR, slot: .right, traversalIndex: 5)
+        let layout = SnakeRowLayout(id: "row_triple", rowIndex: 2, nodes: [pNodeL, pNodeC, pNodeR])
+
+        let row = CraftLessonRow(rowLayout: layout)
+
+        XCTAssertNotNil(row)
+        XCTAssertEqual(row.rowLayout?.id, "row_triple")
+        XCTAssertEqual(row.nodes.count, 3)
+        XCTAssertEqual(row.arrangement, .triple)
+        XCTAssertNotNil(row.body)
+    }
+
+    func testCraftLessonRowSnakeRowLayoutEquatability() {
+        let node1 = LessonNodeModel(id: "eq_1", title: "Eq 1")
+        let pNode1 = PositionedLessonNode(node: node1, slot: .center, traversalIndex: 0)
+        let layout1 = SnakeRowLayout(id: "row_0", rowIndex: 0, nodes: [pNode1])
+        let layout1Copy = SnakeRowLayout(id: "row_0", rowIndex: 0, nodes: [pNode1])
+
+        let node2 = LessonNodeModel(id: "eq_2", title: "Eq 2")
+        let pNode2 = PositionedLessonNode(node: node2, slot: .left, traversalIndex: 1)
+        let layout2 = SnakeRowLayout(id: "row_1", rowIndex: 1, nodes: [pNode2])
+
+        let row1 = CraftLessonRow(rowLayout: layout1)
+        let row1Copy = CraftLessonRow(rowLayout: layout1Copy)
+        let row2 = CraftLessonRow(rowLayout: layout2)
+        let rowLegacy = CraftLessonRow(node: node1, offsetRatio: 0.0)
+
+        XCTAssertEqual(row1, row1Copy)
+        XCTAssertNotEqual(row1, row2)
+        XCTAssertNotEqual(row1, rowLegacy)
+    }
+
+    func testCraftLessonNodeAestheticsAndLabelStack() {
+        let fullNode = LessonNodeModel(
+            id: "aesthetic_node",
+            title: "Advanced Grammar",
+            subtitle: "10 bài học • 3 phút",
+            iconName: "crown.fill",
+            state: .active,
+            kind: .checkpoint,
+            progress: 0.8,
+            xpReward: 50,
+            estimatedMinutes: 3,
+            stars: 3,
+            badgeCount: 2,
+            badgeText: "HOT"
+        )
+
+        var didTap = false
+        let nodeView = CraftLessonNode(
+            model: fullNode,
+            calloutText: "TIẾP TỤC",
+            onTap: { didTap = true }
+        )
+
+        XCTAssertNotNil(nodeView)
+        XCTAssertNotNil(nodeView.body)
+        XCTAssertEqual(nodeView.model.id, "aesthetic_node")
+        XCTAssertEqual(nodeView.calloutText, "TIẾP TỤC")
+        XCTAssertEqual(nodeView.nodeDiameter, 64)
+        XCTAssertEqual(nodeView.iconSize, 26)
+        XCTAssertEqual(nodeView.metadataText, "10 bài học • 3 phút")
+        XCTAssertEqual(nodeView.accessibilityTraits, .isButton)
+        XCTAssertTrue(nodeView.accessibilityLabelText.contains("Advanced Grammar"))
+        XCTAssertTrue(nodeView.accessibilityLabelText.contains("50 XP"))
+        XCTAssertEqual(nodeView.accessibilityHintText, "Double tap to continue")
+
+        nodeView.onTap?()
+        XCTAssertTrue(didTap)
+    }
+
+    func testCraftLessonNodeAccessibilityTraitsAndLabelsAllStates() {
+        let completed = CraftLessonNode(model: LessonNodeModel(id: "c", title: "Done", state: .completed, stars: 2))
+        XCTAssertEqual(completed.accessibilityTraits, .isButton)
+        XCTAssertEqual(completed.accessibilityHintText, "Double tap to review")
+        XCTAssertTrue(completed.accessibilityLabelText.contains("Done, Completed"))
+
+        let active = CraftLessonNode(model: LessonNodeModel(id: "a", title: "Current", state: .active, progress: 0.5))
+        XCTAssertEqual(active.accessibilityTraits, .isButton)
+        XCTAssertEqual(active.accessibilityHintText, "Double tap to continue")
+        XCTAssertTrue(active.accessibilityLabelText.contains("Current lesson. 50% complete"))
+
+        let locked = CraftLessonNode(model: LessonNodeModel(id: "l", title: "Locked", state: .locked))
+        XCTAssertEqual(locked.accessibilityTraits, .notEnabled)
+        XCTAssertEqual(locked.accessibilityHintText, "Complete previous lessons to unlock")
+        XCTAssertTrue(locked.accessibilityLabelText.contains("Locked"))
+
+        let bonus = CraftLessonNode(model: LessonNodeModel(id: "b", title: "Bonus", state: .bonus, xpReward: 100))
+        XCTAssertEqual(bonus.accessibilityTraits, .isButton)
+        XCTAssertEqual(bonus.accessibilityHintText, "Double tap to start")
+        XCTAssertTrue(bonus.accessibilityLabelText.contains("Bonus Lesson: Bonus. Reward: 100 XP"))
+    }
 }
 
 
