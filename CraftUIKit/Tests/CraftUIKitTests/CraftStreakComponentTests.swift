@@ -102,4 +102,104 @@ final class CraftStreakComponentTests: XCTestCase {
         XCTAssertEqual(badge.customAccessibilityHint, customHint)
         XCTAssertNotNil(badge.body)
     }
+
+    // MARK: - CraftStreakCard Tests
+
+    func testCraftStreakCardRendering() {
+        let mockDays: [CraftStreakDay] = [
+            .init(id: "1", weekdaySymbol: "T2", status: .completed),
+            .init(id: "2", weekdaySymbol: "T3", status: .completed),
+            .init(id: "3", weekdaySymbol: "T4", status: .frozen),
+            .init(id: "4", weekdaySymbol: "T5", status: .pending, isToday: true),
+            .init(id: "5", weekdaySymbol: "T6", status: .upcoming),
+            .init(id: "6", weekdaySymbol: "T7", status: .upcoming),
+            .init(id: "7", weekdaySymbol: "CN", status: .upcoming)
+        ]
+        let streakData = CraftStreakData(
+            currentStreak: 14,
+            bestStreak: 30,
+            freezeTokens: 2,
+            maxFreezeTokens: 3,
+            nextMilestoneDays: 21,
+            isCompletedToday: false,
+            weekDays: mockDays
+        )
+        let card = CraftStreakCard(data: streakData)
+        XCTAssertNotNil(card.body)
+        XCTAssertEqual(card.data.currentStreak, 14)
+        XCTAssertEqual(card.data.bestStreak, 30)
+        XCTAssertEqual(card.data.freezeTokens, 2)
+        XCTAssertEqual(card.data.maxFreezeTokens, 3)
+        XCTAssertEqual(card.data.nextMilestoneDays, 21)
+        XCTAssertEqual(card.data.weekDays.count, 7)
+    }
+
+    func testCraftStreakCardTapCallbacks() {
+        var didTapFreeze = false
+        var didTapMilestone = false
+
+        let streakData = CraftStreakData(
+            currentStreak: 7,
+            bestStreak: 14,
+            freezeTokens: 1,
+            maxFreezeTokens: 2,
+            nextMilestoneDays: 14
+        )
+
+        let card = CraftStreakCard(
+            data: streakData,
+            onFreezeTap: { didTapFreeze = true },
+            onMilestoneTap: { didTapMilestone = true }
+        )
+
+        XCTAssertNotNil(card.body)
+        XCTAssertNotNil(card.onFreezeTap)
+        XCTAssertNotNil(card.onMilestoneTap)
+
+        card.onFreezeTap?()
+        XCTAssertTrue(didTapFreeze)
+
+        card.onMilestoneTap?()
+        XCTAssertTrue(didTapMilestone)
+    }
+
+    func testCraftStreakCardAllTiersAndStatuses() {
+        let allStatuses: [CraftStreakDayStatus] = [.completed, .pending, .frozen, .missed, .upcoming]
+        let days = allStatuses.enumerated().map { idx, status in
+            CraftStreakDay(id: "\(idx)", weekdaySymbol: "D\(idx)", status: status, isToday: status == .pending)
+        }
+
+        let tiersToTest: [Int] = [3, 14, 45] // starter, blaze, legendary
+        for streakCount in tiersToTest {
+            let data = CraftStreakData(
+                currentStreak: streakCount,
+                bestStreak: 60,
+                freezeTokens: 3,
+                maxFreezeTokens: 3,
+                nextMilestoneDays: streakCount + 7,
+                isCompletedToday: streakCount % 2 == 0,
+                weekDays: days
+            )
+
+            let card = CraftStreakCard(data: data)
+            XCTAssertNotNil(card.body)
+            XCTAssertEqual(card.data.tier, CraftStreakTier.tier(for: streakCount))
+        }
+    }
+
+    func testCraftStreakCardCustomAccessibility() {
+        let customLabel = "Custom streak card label"
+        let customHint = "Custom streak card hint"
+        let streakData = CraftStreakData(currentStreak: 5, bestStreak: 10)
+
+        let card = CraftStreakCard(
+            data: streakData,
+            accessibilityLabel: customLabel,
+            accessibilityHint: customHint
+        )
+
+        XCTAssertEqual(card.customAccessibilityLabel, customLabel)
+        XCTAssertEqual(card.customAccessibilityHint, customHint)
+        XCTAssertNotNil(card.body)
+    }
 }
