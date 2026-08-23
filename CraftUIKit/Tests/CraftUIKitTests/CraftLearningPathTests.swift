@@ -23,6 +23,20 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertEqual(LessonNodeState.bonus.rawValue, "bonus")
     }
 
+    // MARK: - LessonNodeKind Tests
+
+    func testLessonNodeKindCasesAndRawValues() {
+        XCTAssertEqual(LessonNodeKind.allCases.count, 3)
+        XCTAssertEqual(LessonNodeKind.allCases, [
+            .standard,
+            .checkpoint,
+            .treasureChest
+        ])
+        XCTAssertEqual(LessonNodeKind.standard.rawValue, "standard")
+        XCTAssertEqual(LessonNodeKind.checkpoint.rawValue, "checkpoint")
+        XCTAssertEqual(LessonNodeKind.treasureChest.rawValue, "treasureChest")
+    }
+
     // MARK: - LessonNodeModel Tests
 
     func testModelInitializationAndEquatability() {
@@ -71,6 +85,158 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertEqual(set.count, 2)
     }
 
+    func testLessonNodeModelEnhancedFieldsAndDefaults() {
+        let defaultNode = LessonNodeModel(
+            id: "default_node",
+            title: "Greetings"
+        )
+
+        XCTAssertEqual(defaultNode.id, "default_node")
+        XCTAssertEqual(defaultNode.title, "Greetings")
+        XCTAssertNil(defaultNode.subtitle)
+        XCTAssertEqual(defaultNode.iconName, "book.fill")
+        XCTAssertEqual(defaultNode.state, .upcoming)
+        XCTAssertEqual(defaultNode.kind, .standard)
+        XCTAssertNil(defaultNode.progress)
+        XCTAssertNil(defaultNode.xpReward)
+        XCTAssertNil(defaultNode.estimatedMinutes)
+        XCTAssertNil(defaultNode.stars)
+        XCTAssertNil(defaultNode.badgeCount)
+        XCTAssertNil(defaultNode.badgeText)
+
+        let fullNode = LessonNodeModel(
+            id: "full_node",
+            title: "Boss Challenge",
+            subtitle: "15 từ mới • 4 phút",
+            iconName: "crown.fill",
+            state: .active,
+            kind: .checkpoint,
+            progress: 0.75,
+            xpReward: 50,
+            estimatedMinutes: 4,
+            stars: 3,
+            badgeCount: 1,
+            badgeText: "HOT"
+        )
+
+        XCTAssertEqual(fullNode.subtitle, "15 từ mới • 4 phút")
+        XCTAssertEqual(fullNode.kind, .checkpoint)
+        XCTAssertEqual(fullNode.xpReward, 50)
+        XCTAssertEqual(fullNode.estimatedMinutes, 4)
+        XCTAssertEqual(fullNode.stars, 3)
+
+        let treasureNode = LessonNodeModel(
+            id: "chest_node",
+            title: "Milestone Chest",
+            iconName: "gift.fill",
+            state: .completed,
+            kind: .treasureChest,
+            xpReward: 100
+        )
+        XCTAssertEqual(treasureNode.kind, .treasureChest)
+        XCTAssertEqual(treasureNode.xpReward, 100)
+
+        // Equatable and Hashable with new fields
+        let fullNodeCopy = LessonNodeModel(
+            id: "full_node",
+            title: "Boss Challenge",
+            subtitle: "15 từ mới • 4 phút",
+            iconName: "crown.fill",
+            state: .active,
+            kind: .checkpoint,
+            progress: 0.75,
+            xpReward: 50,
+            estimatedMinutes: 4,
+            stars: 3,
+            badgeCount: 1,
+            badgeText: "HOT"
+        )
+        XCTAssertEqual(fullNode, fullNodeCopy)
+
+        let set: Set<LessonNodeModel> = [defaultNode, fullNode, treasureNode, fullNodeCopy]
+        XCTAssertEqual(set.count, 3)
+    }
+
+    // MARK: - SerpentineWinding Tests
+
+    func testSerpentineWindingOffsetRatios() {
+        let standard = SerpentineWinding.standard
+        let expectedStandard: [CGFloat] = [0.0, -0.40, -0.55, -0.25, 0.0, 0.25, 0.55, 0.40]
+        for (i, expected) in expectedStandard.enumerated() {
+            XCTAssertEqual(standard.offsetRatio(for: i), expected, accuracy: 0.001)
+        }
+        // Test wrap-around
+        XCTAssertEqual(standard.offsetRatio(for: 8), 0.0, accuracy: 0.001)
+        XCTAssertEqual(standard.offsetRatio(for: 9), -0.40, accuracy: 0.001)
+        XCTAssertEqual(standard.offsetRatio(for: 15), 0.40, accuracy: 0.001)
+        // Test negative index safety
+        XCTAssertEqual(standard.offsetRatio(for: -1), 0.0, accuracy: 0.001)
+
+        let gentle = SerpentineWinding.gentle
+        let expectedGentle: [CGFloat] = [0.0, -0.25, -0.35, -0.15, 0.0, 0.15, 0.35, 0.25]
+        for (i, expected) in expectedGentle.enumerated() {
+            XCTAssertEqual(gentle.offsetRatio(for: i), expected, accuracy: 0.001)
+        }
+        XCTAssertEqual(gentle.offsetRatio(for: 8), 0.0, accuracy: 0.001)
+
+        let linear = SerpentineWinding.linear
+        XCTAssertEqual(linear.offsetRatio(for: 0), 0.0, accuracy: 0.001)
+        XCTAssertEqual(linear.offsetRatio(for: 5), 0.0, accuracy: 0.001)
+
+        let custom = SerpentineWinding.custom([0.1, -0.2, 0.3])
+        XCTAssertEqual(custom.offsetRatio(for: 0), 0.1, accuracy: 0.001)
+        XCTAssertEqual(custom.offsetRatio(for: 1), -0.2, accuracy: 0.001)
+        XCTAssertEqual(custom.offsetRatio(for: 2), 0.3, accuracy: 0.001)
+        XCTAssertEqual(custom.offsetRatio(for: 3), 0.1, accuracy: 0.001)
+
+        let emptyCustom = SerpentineWinding.custom([])
+        XCTAssertEqual(emptyCustom.offsetRatio(for: 0), 0.0, accuracy: 0.001)
+        XCTAssertEqual(emptyCustom.offsetRatio(for: 4), 0.0, accuracy: 0.001)
+    }
+
+    func testSerpentineWindingEquatability() {
+        XCTAssertEqual(SerpentineWinding.standard, .standard)
+        XCTAssertEqual(SerpentineWinding.gentle, .gentle)
+        XCTAssertEqual(SerpentineWinding.linear, .linear)
+        XCTAssertEqual(SerpentineWinding.custom([0.5, -0.5]), .custom([0.5, -0.5]))
+        XCTAssertNotEqual(SerpentineWinding.standard, .gentle)
+        XCTAssertNotEqual(SerpentineWinding.custom([0.5]), .custom([0.6]))
+    }
+
+    // MARK: - SmartConnectorStyle Tests
+
+    func testSmartConnectorStyleCasesAndRawValues() {
+        XCTAssertEqual(SmartConnectorStyle.allCases.count, 4)
+        XCTAssertEqual(SmartConnectorStyle.allCases, [.solid, .breathing, .dashed, .muted])
+        XCTAssertEqual(SmartConnectorStyle.solid.rawValue, "solid")
+        XCTAssertEqual(SmartConnectorStyle.breathing.rawValue, "breathing")
+        XCTAssertEqual(SmartConnectorStyle.dashed.rawValue, "dashed")
+        XCTAssertEqual(SmartConnectorStyle.muted.rawValue, "muted")
+    }
+
+    func testSmartConnectorStyleInference() {
+        // Solid: completed -> completed
+        XCTAssertEqual(SmartConnectorStyle.infer(from: .completed, to: .completed), .solid)
+
+        // Breathing: completed -> active, completed -> inProgress
+        XCTAssertEqual(SmartConnectorStyle.infer(from: .completed, to: .active), .breathing)
+        XCTAssertEqual(SmartConnectorStyle.infer(from: .completed, to: .inProgress), .breathing)
+
+        // Dashed: active -> upcoming, active -> bonus, inProgress -> upcoming, inProgress -> bonus
+        XCTAssertEqual(SmartConnectorStyle.infer(from: .active, to: .upcoming), .dashed)
+        XCTAssertEqual(SmartConnectorStyle.infer(from: .active, to: .bonus), .dashed)
+        XCTAssertEqual(SmartConnectorStyle.infer(from: .inProgress, to: .upcoming), .dashed)
+        XCTAssertEqual(SmartConnectorStyle.infer(from: .inProgress, to: .bonus), .dashed)
+
+        // Muted / Fallback: all other combinations
+        XCTAssertEqual(SmartConnectorStyle.infer(from: .upcoming, to: .upcoming), .muted)
+        XCTAssertEqual(SmartConnectorStyle.infer(from: .upcoming, to: .locked), .muted)
+        XCTAssertEqual(SmartConnectorStyle.infer(from: .locked, to: .locked), .muted)
+        XCTAssertEqual(SmartConnectorStyle.infer(from: .completed, to: .locked), .muted)
+        XCTAssertEqual(SmartConnectorStyle.infer(from: .active, to: .locked), .muted)
+        XCTAssertEqual(SmartConnectorStyle.infer(from: .bonus, to: .locked), .muted)
+    }
+
     // MARK: - ConnectorStyle Tests
 
     func testConnectorStyleEquatability() {
@@ -98,8 +264,11 @@ final class CraftLearningPathTests: XCTestCase {
             title: "Unit 1: Foundations",
             subtitle: "Getting Started",
             level: "BEGINNER",
-            progress: "1/10",
+            progressText: "1/10",
+            progressValue: 0.1,
+            bannerIcon: "flag.fill",
             nodes: [node],
+            winding: .gentle,
             connectorStyle: .solid
         )
 
@@ -107,9 +276,13 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertEqual(section.title, "Unit 1: Foundations")
         XCTAssertEqual(section.subtitle, "Getting Started")
         XCTAssertEqual(section.level, "BEGINNER")
+        XCTAssertEqual(section.progressText, "1/10")
         XCTAssertEqual(section.progress, "1/10")
+        XCTAssertEqual(section.progressValue, 0.1)
+        XCTAssertEqual(section.bannerIcon, "flag.fill")
         XCTAssertEqual(section.nodes.count, 1)
         XCTAssertEqual(section.nodes.first, node)
+        XCTAssertEqual(section.winding, .gentle)
         XCTAssertEqual(section.connectorStyle, .solid)
     }
 
@@ -124,8 +297,12 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertEqual(section.title, "Unit Default")
         XCTAssertNil(section.subtitle)
         XCTAssertNil(section.level)
+        XCTAssertNil(section.progressText)
         XCTAssertNil(section.progress)
+        XCTAssertNil(section.progressValue)
+        XCTAssertNil(section.bannerIcon)
         XCTAssertEqual(section.nodes, [])
+        XCTAssertEqual(section.winding, .standard)
         XCTAssertEqual(section.connectorStyle, .dashed)
     }
 

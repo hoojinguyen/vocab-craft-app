@@ -13,34 +13,108 @@ public enum LessonNodeState: String, Sendable, Equatable, Hashable, CaseIterable
     case bonus          // Optional/reward — gold accent, star badge
 }
 
+// MARK: - LessonNodeKind
+
+/// Semantic type/tier of a lesson node in the tactile learning path.
+public enum LessonNodeKind: String, Sendable, Equatable, Hashable, CaseIterable {
+    case standard       // Standard circular lesson node
+    case checkpoint     // Mid-unit or boss exam node
+    case treasureChest  // End-of-unit milestone reward chest
+}
+
 // MARK: - LessonNodeModel
 
 /// Presentation DTO representing a single lesson node within a learning path section.
 public struct LessonNodeModel: Identifiable, Sendable, Equatable, Hashable {
     public let id: String
     public let title: String
+    public let subtitle: String?
     public let iconName: String
     public let state: LessonNodeState
+    public let kind: LessonNodeKind
     public let progress: Double?
+    public let xpReward: Int?
+    public let estimatedMinutes: Int?
+    public let stars: Int?
     public let badgeCount: Int?
     public let badgeText: String?
 
     public init(
         id: String,
         title: String,
-        iconName: String,
-        state: LessonNodeState,
+        subtitle: String? = nil,
+        iconName: String = "book.fill",
+        state: LessonNodeState = .upcoming,
+        kind: LessonNodeKind = .standard,
         progress: Double? = nil,
+        xpReward: Int? = nil,
+        estimatedMinutes: Int? = nil,
+        stars: Int? = nil,
         badgeCount: Int? = nil,
         badgeText: String? = nil
     ) {
         self.id = id
         self.title = title
+        self.subtitle = subtitle
         self.iconName = iconName
         self.state = state
+        self.kind = kind
         self.progress = progress
+        self.xpReward = xpReward
+        self.estimatedMinutes = estimatedMinutes
+        self.stars = stars
         self.badgeCount = badgeCount
         self.badgeText = badgeText
+    }
+}
+
+// MARK: - SerpentineWinding
+
+/// Continuous horizontal winding layout algorithm for serpentine path node positioning.
+public enum SerpentineWinding: Sendable, Equatable, Hashable {
+    case standard           // Sequence: [0.0, -0.40, -0.55, -0.25, 0.0, 0.25, 0.55, 0.40]
+    case gentle             // Sequence: [0.0, -0.25, -0.35, -0.15, 0.0, 0.15, 0.35, 0.25]
+    case linear             // Sequence: [0.0]
+    case custom([CGFloat])  // User-defined offset ratios (-1.0 to 1.0)
+
+    /// Calculates the horizontal offset ratio (-1.0 to 1.0) relative to column center for a node at a given index.
+    public func offsetRatio(for index: Int) -> CGFloat {
+        let sequence: [CGFloat] = switch self {
+        case .standard:
+            [0.0, -0.40, -0.55, -0.25, 0.0, 0.25, 0.55, 0.40]
+        case .gentle:
+            [0.0, -0.25, -0.35, -0.15, 0.0, 0.15, 0.35, 0.25]
+        case .linear:
+            [0.0]
+        case .custom(let customSeq):
+            customSeq.isEmpty ? [0.0] : customSeq
+        }
+        let positiveIndex = max(0, index)
+        return sequence[positiveIndex % sequence.count]
+    }
+}
+
+// MARK: - SmartConnectorStyle
+
+/// Contextual connection style inferred dynamically between adjacent nodes on the learning path.
+public enum SmartConnectorStyle: String, Sendable, Equatable, Hashable, CaseIterable {
+    case solid
+    case breathing
+    case dashed
+    case muted
+
+    /// Automatically infers the connector style linking two sequential lesson nodes based on their states.
+    public static func infer(from fromState: LessonNodeState, to toState: LessonNodeState) -> SmartConnectorStyle {
+        switch (fromState, toState) {
+        case (.completed, .completed):
+            return .solid
+        case (.completed, .active), (.completed, .inProgress):
+            return .breathing
+        case (.active, .upcoming), (.active, .bonus), (.inProgress, .upcoming), (.inProgress, .bonus):
+            return .dashed
+        default:
+            return .muted
+        }
     }
 }
 
@@ -56,15 +130,23 @@ public enum ConnectorStyle: Sendable, Equatable {
 
 // MARK: - LessonSection
 
-/// Presentation DTO aggregating a discrete module or unit with its child nodes and connector styling.
+/// Presentation DTO aggregating a discrete module or unit with its child nodes, winding layout, and connector styling.
 public struct LessonSection: Identifiable, Sendable, Equatable {
     public let id: String
     public let title: String
     public let subtitle: String?
     public let level: String?
-    public let progress: String?
+    public let progressText: String?
+    public let progressValue: Double?
+    public let bannerIcon: String?
     public let nodes: [LessonNodeModel]
+    public let winding: SerpentineWinding
     public let connectorStyle: ConnectorStyle
+
+    /// Backward-compatibility accessor for `progressText`.
+    public var progress: String? {
+        progressText
+    }
 
     public init(
         id: String,
@@ -72,15 +154,22 @@ public struct LessonSection: Identifiable, Sendable, Equatable {
         subtitle: String? = nil,
         level: String? = nil,
         progress: String? = nil,
+        progressText: String? = nil,
+        progressValue: Double? = nil,
+        bannerIcon: String? = nil,
         nodes: [LessonNodeModel],
+        winding: SerpentineWinding = .standard,
         connectorStyle: ConnectorStyle = .dashed
     ) {
         self.id = id
         self.title = title
         self.subtitle = subtitle
         self.level = level
-        self.progress = progress
+        self.progressText = progressText ?? progress
+        self.progressValue = progressValue
+        self.bannerIcon = bannerIcon
         self.nodes = nodes
+        self.winding = winding
         self.connectorStyle = connectorStyle
     }
 }
