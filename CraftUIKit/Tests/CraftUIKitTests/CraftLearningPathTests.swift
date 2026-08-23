@@ -1485,6 +1485,203 @@ final class CraftLearningPathTests: XCTestCase {
         sheet.onDismiss?()
         XCTAssertTrue(dismissInvoked)
     }
+
+    // MARK: - Task 6: Root Container Integration, Sheet Wiring & Auto-Scroll Tests
+
+    func testLearningPathInitializationWithWindingAndSheetProperties() {
+        let node = LessonNodeModel(
+            id: "n1",
+            title: "Basics",
+            subtitle: "10 words • 3 min",
+            iconName: "book.fill",
+            state: .active,
+            kind: .standard,
+            progress: 0.4,
+            xpReward: 25,
+            estimatedMinutes: 3,
+            stars: 2
+        )
+        let section = LessonSection(
+            id: "sec_1",
+            title: "Unit 1: Essentials",
+            nodes: [node],
+            winding: .gentle
+        )
+
+        var startedNode: LessonNodeModel?
+        var tappedNode: LessonNodeModel?
+
+        let path = CraftLearningPath(
+            sections: [section],
+            winding: .gentle,
+            onNodeTap: { tapped in tappedNode = tapped },
+            onStartLesson: { started in startedNode = started },
+            showDetailModal: true,
+            scrollToActive: true,
+            showCelebration: true
+        )
+
+        XCTAssertEqual(path.sections.count, 1)
+        XCTAssertEqual(path.sections.first?.id, "sec_1")
+        XCTAssertEqual(path.winding, .gentle)
+        XCTAssertEqual(path.rowPattern, .standard)
+        XCTAssertTrue(path.showDetailModal)
+        XCTAssertTrue(path.scrollToActive)
+        XCTAssertTrue(path.showCelebration)
+        XCTAssertNotNil(path.onNodeTap)
+        XCTAssertNotNil(path.onStartLesson)
+
+        path.onNodeTap?(node)
+        XCTAssertEqual(tappedNode?.id, "n1")
+
+        path.onStartLesson?(node)
+        XCTAssertEqual(startedNode?.id, "n1")
+    }
+
+    func testLearningPathSingleSectionInitWithWindingAndDefaults() {
+        let node = LessonNodeModel(id: "n_single", title: "Single Node", state: .upcoming)
+        let section = LessonSection(id: "sec_single", title: "Single Section", nodes: [node])
+
+        let path = CraftLearningPath(
+            section: section,
+            winding: .linear,
+            showDetailModal: false
+        )
+
+        XCTAssertEqual(path.sections.count, 1)
+        XCTAssertEqual(path.winding, .linear)
+        XCTAssertFalse(path.showDetailModal)
+        XCTAssertTrue(path.scrollToActive)
+        XCTAssertTrue(path.showCelebration)
+        XCTAssertNil(path.onNodeTap)
+        XCTAssertNil(path.onStartLesson)
+    }
+
+    func testLearningPathActiveNodeResolutionWithEnhancedSections() {
+        let completedNode = LessonNodeModel(
+            id: "u1_n1",
+            title: "Intro",
+            state: .completed,
+            kind: .standard,
+            xpReward: 20
+        )
+        let checkpointNode = LessonNodeModel(
+            id: "u1_cp",
+            title: "Checkpoint Boss",
+            state: .completed,
+            kind: .checkpoint,
+            xpReward: 80
+        )
+        let activeNode = LessonNodeModel(
+            id: "u2_n1",
+            title: "Greetings",
+            subtitle: "15 words • 5 min",
+            state: .active,
+            kind: .standard,
+            progress: 0.6,
+            xpReward: 30,
+            estimatedMinutes: 5
+        )
+        let treasureNode = LessonNodeModel(
+            id: "u2_chest",
+            title: "Milestone Chest",
+            state: .bonus,
+            kind: .treasureChest,
+            xpReward: 100
+        )
+
+        let section1 = LessonSection(
+            id: "sec_1",
+            title: "Unit 1: Foundations",
+            nodes: [completedNode, checkpointNode],
+            winding: .standard
+        )
+        let section2 = LessonSection(
+            id: "sec_2",
+            title: "Unit 2: Daily Dialogues",
+            nodes: [activeNode, treasureNode],
+            winding: .gentle
+        )
+
+        let path = CraftLearningPath(sections: [section1, section2], winding: .gentle)
+        XCTAssertEqual(path.activeNodeID, "u2_n1")
+        XCTAssertFalse(path.isEmpty)
+    }
+
+    func testLearningPathBackwardCompatibleRowPatternInitializers() {
+        let node = LessonNodeModel(id: "n_compat", title: "Compat", state: .active)
+        let section = LessonSection(id: "sec_compat", title: "Compat Section", nodes: [node])
+
+        var tapped: LessonNodeModel?
+        var started: LessonNodeModel?
+
+        // Multi-section rowPattern init
+        let multiPath = CraftLearningPath(
+            sections: [section],
+            rowPattern: .wave,
+            onNodeTap: { tapped = $0 },
+            onStartLesson: { started = $0 },
+            showDetailModal: true,
+            scrollToActive: false,
+            showCelebration: false
+        )
+        XCTAssertEqual(multiPath.rowPattern, .wave)
+        XCTAssertEqual(multiPath.winding, .standard)
+        XCTAssertFalse(multiPath.scrollToActive)
+        XCTAssertFalse(multiPath.showCelebration)
+        XCTAssertTrue(multiPath.showDetailModal)
+
+        multiPath.onNodeTap?(node)
+        XCTAssertEqual(tapped?.id, "n_compat")
+
+        multiPath.onStartLesson?(node)
+        XCTAssertEqual(started?.id, "n_compat")
+
+        // Single section rowPattern init
+        let singlePath = CraftLearningPath(
+            section: section,
+            rowPattern: .custom([2, 1]),
+            showDetailModal: false
+        )
+        XCTAssertEqual(singlePath.sections.count, 1)
+        XCTAssertEqual(singlePath.rowPattern, .custom([2, 1]))
+        XCTAssertFalse(singlePath.showDetailModal)
+    }
+
+    func testLearningPathBodyRenderingAndEmptyState() {
+        // Populated path body
+        let node = LessonNodeModel(
+            id: "pop_node",
+            title: "Food & Drinks",
+            subtitle: "10 words",
+            state: .active,
+            kind: .checkpoint,
+            xpReward: 50
+        )
+        let section = LessonSection(
+            id: "pop_sec",
+            title: "Unit 3: Gastronomy",
+            level: "B1",
+            progressText: "2/5",
+            nodes: [node],
+            winding: .standard
+        )
+        let populatedPath = CraftLearningPath(
+            section: section,
+            winding: .standard,
+            onNodeTap: { _ in },
+            onStartLesson: { _ in },
+            showDetailModal: true,
+            scrollToActive: true,
+            showCelebration: true
+        )
+        XCTAssertNotNil(populatedPath.body)
+
+        // Empty path body
+        let emptyPath = CraftLearningPath(sections: [])
+        XCTAssertTrue(emptyPath.isEmpty)
+        XCTAssertNotNil(emptyPath.body)
+    }
 }
 
 

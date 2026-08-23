@@ -5,16 +5,20 @@ import SwiftUI
 /// A top-level organism container view rendering a complete gamified learning journey path.
 ///
 /// Encapsulates:
-/// 1. Auto-scrolling via `ScrollViewReader` to the `.active` node ID on initial render with smooth spring animation.
-/// 2. Modular `LazyVStack` rendering of multiple `CraftLessonSectionView` units.
-/// 3. Atmospheric brand gradient background wash.
-/// 4. Empty state placeholder using `ContentUnavailableView` when sections or nodes are empty.
-/// 5. Smooth scroll-driven parallax and scale transition effects on sections.
-/// 6. Optional celebratory confetti/sparkle overlay triggers on milestone completion.
+/// 1. Auto-scrolling via `ScrollViewReader` to the `.active` node ID on initial render with smooth spring animation after layout stabilization (300ms delay).
+/// 2. Modular `LazyVStack` rendering of multiple `CraftLessonSectionView` units with continuous Serpentine winding layout.
+/// 3. Interactive `CraftLessonDetailSheet` modal sheet presentation on unlocked node tap.
+/// 4. Atmospheric brand gradient background wash.
+/// 5. Empty state placeholder using `ContentUnavailableView` when sections or nodes are empty.
+/// 6. Smooth scroll-driven parallax and scale transition effects on sections.
+/// 7. Optional celebratory confetti/sparkle overlay triggers on milestone and reward completion.
 public struct CraftLearningPath: View {
     public let sections: [LessonSection]
+    public let winding: SerpentineWinding
     public let rowPattern: RowPattern
     public let onNodeTap: (@Sendable (LessonNodeModel) -> Void)?
+    public let onStartLesson: (@Sendable (LessonNodeModel) -> Void)?
+    public let showDetailModal: Bool
     public let scrollToActive: Bool
     public let showCelebration: Bool
 
@@ -22,21 +26,85 @@ public struct CraftLearningPath: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var celebrationTriggered: Bool = false
+    @State private var selectedNodeForDetail: LessonNodeModel? = nil
 
     // MARK: - Initializers
 
-    /// Creates a single-section learning path.
+    /// Creates a single-section learning path with serpentine winding layout.
     ///
     /// - Parameters:
     ///   - section: The `LessonSection` to display.
-    ///   - rowPattern: The pattern used to split nodes into rows (default: `.standard`).
+    ///   - winding: The continuous serpentine winding layout algorithm (default: `.standard`).
     ///   - onNodeTap: Optional closure invoked when any lesson node is tapped.
+    ///   - onStartLesson: Optional closure invoked when the user starts or resumes a lesson from the detail sheet modal.
+    ///   - showDetailModal: Whether tapping an unlocked node presents the `CraftLessonDetailSheet` modal (default: `true`).
     ///   - scrollToActive: Whether to automatically scroll to the active node upon appear (default: `true`).
-    ///   - showCelebration: Whether to display celebratory confetti when completed/bonus nodes are tapped (default: `true`).
+    ///   - showCelebration: Whether to display celebratory confetti when completed/bonus/treasure nodes are tapped (default: `true`).
     public init(
         section: LessonSection,
-        rowPattern: RowPattern = .standard,
+        winding: SerpentineWinding = .standard,
         onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        onStartLesson: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        showDetailModal: Bool = true,
+        scrollToActive: Bool = true,
+        showCelebration: Bool = true
+    ) {
+        self.init(
+            sections: [section],
+            winding: winding,
+            onNodeTap: onNodeTap,
+            onStartLesson: onStartLesson,
+            showDetailModal: showDetailModal,
+            scrollToActive: scrollToActive,
+            showCelebration: showCelebration
+        )
+    }
+
+    /// Creates a multi-section learning path with serpentine winding layout.
+    ///
+    /// - Parameters:
+    ///   - sections: Array of `LessonSection` models to display in order.
+    ///   - winding: The continuous serpentine winding layout algorithm (default: `.standard`).
+    ///   - onNodeTap: Optional closure invoked when any lesson node is tapped.
+    ///   - onStartLesson: Optional closure invoked when the user starts or resumes a lesson from the detail sheet modal.
+    ///   - showDetailModal: Whether tapping an unlocked node presents the `CraftLessonDetailSheet` modal (default: `true`).
+    ///   - scrollToActive: Whether to automatically scroll to the active node upon appear (default: `true`).
+    ///   - showCelebration: Whether to display celebratory confetti when completed/bonus/treasure nodes are tapped (default: `true`).
+    public init(
+        sections: [LessonSection],
+        winding: SerpentineWinding = .standard,
+        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        onStartLesson: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        showDetailModal: Bool = true,
+        scrollToActive: Bool = true,
+        showCelebration: Bool = true
+    ) {
+        self.sections = sections
+        self.winding = winding
+        self.rowPattern = .standard
+        self.onNodeTap = onNodeTap
+        self.onStartLesson = onStartLesson
+        self.showDetailModal = showDetailModal
+        self.scrollToActive = scrollToActive
+        self.showCelebration = showCelebration
+    }
+
+    /// Creates a single-section learning path supporting custom row patterns for backward compatibility.
+    ///
+    /// - Parameters:
+    ///   - section: The `LessonSection` to display.
+    ///   - rowPattern: The pattern used to split nodes into rows.
+    ///   - onNodeTap: Optional closure invoked when any lesson node is tapped.
+    ///   - onStartLesson: Optional closure invoked when the user starts or resumes a lesson from the detail sheet modal.
+    ///   - showDetailModal: Whether tapping an unlocked node presents the `CraftLessonDetailSheet` modal (default: `true`).
+    ///   - scrollToActive: Whether to automatically scroll to the active node upon appear (default: `true`).
+    ///   - showCelebration: Whether to display celebratory confetti when completed/bonus/treasure nodes are tapped (default: `true`).
+    public init(
+        section: LessonSection,
+        rowPattern: RowPattern,
+        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        onStartLesson: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        showDetailModal: Bool = true,
         scrollToActive: Bool = true,
         showCelebration: Bool = true
     ) {
@@ -44,29 +112,38 @@ public struct CraftLearningPath: View {
             sections: [section],
             rowPattern: rowPattern,
             onNodeTap: onNodeTap,
+            onStartLesson: onStartLesson,
+            showDetailModal: showDetailModal,
             scrollToActive: scrollToActive,
             showCelebration: showCelebration
         )
     }
 
-    /// Creates a multi-section learning path.
+    /// Creates a multi-section learning path supporting custom row patterns for backward compatibility.
     ///
     /// - Parameters:
     ///   - sections: Array of `LessonSection` models to display in order.
-    ///   - rowPattern: The pattern used to split nodes into rows (default: `.standard`).
+    ///   - rowPattern: The pattern used to split nodes into rows.
     ///   - onNodeTap: Optional closure invoked when any lesson node is tapped.
+    ///   - onStartLesson: Optional closure invoked when the user starts or resumes a lesson from the detail sheet modal.
+    ///   - showDetailModal: Whether tapping an unlocked node presents the `CraftLessonDetailSheet` modal (default: `true`).
     ///   - scrollToActive: Whether to automatically scroll to the active node upon appear (default: `true`).
-    ///   - showCelebration: Whether to display celebratory confetti when completed/bonus nodes are tapped (default: `true`).
+    ///   - showCelebration: Whether to display celebratory confetti when completed/bonus/treasure nodes are tapped (default: `true`).
     public init(
         sections: [LessonSection],
-        rowPattern: RowPattern = .standard,
+        rowPattern: RowPattern,
         onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        onStartLesson: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        showDetailModal: Bool = true,
         scrollToActive: Bool = true,
         showCelebration: Bool = true
     ) {
         self.sections = sections
+        self.winding = .standard
         self.rowPattern = rowPattern
         self.onNodeTap = onNodeTap
+        self.onStartLesson = onStartLesson
+        self.showDetailModal = showDetailModal
         self.scrollToActive = scrollToActive
         self.showCelebration = showCelebration
     }
@@ -100,6 +177,17 @@ public struct CraftLearningPath: View {
         }
         .background(backgroundWash)
         .craftConfetti(isTriggered: $celebrationTriggered)
+        .sheet(item: $selectedNodeForDetail) { node in
+            CraftLessonDetailSheet(
+                node: node,
+                onStart: handleStartLesson,
+                onDismiss: {
+                    selectedNodeForDetail = nil
+                }
+            )
+            .presentationDetents([.fraction(0.48), .medium, .large])
+            .presentationDragIndicator(.visible)
+        }
     }
 
     // MARK: - Scrollable Path View
@@ -111,7 +199,6 @@ public struct CraftLearningPath: View {
                     ForEach(sections) { section in
                         CraftLessonSectionView(
                             section: section,
-                            rowPattern: rowPattern,
                             onNodeTap: { node in
                                 handleNodeTap(node)
                             }
@@ -162,13 +249,21 @@ public struct CraftLearningPath: View {
         .ignoresSafeArea()
     }
 
-    // MARK: - Tap Handling
+    // MARK: - Tap & Sheet Handling
 
     private func handleNodeTap(_ node: LessonNodeModel) {
-        if showCelebration && (node.state == .completed || node.state == .bonus) {
+        if showCelebration && (node.state == .completed || node.state == .bonus || node.kind == .treasureChest) {
             celebrationTriggered = true
         }
+        if showDetailModal && node.state != .locked {
+            selectedNodeForDetail = node
+        }
         onNodeTap?(node)
+    }
+
+    private func handleStartLesson(_ node: LessonNodeModel) {
+        selectedNodeForDetail = nil
+        onStartLesson?(node)
     }
 }
 
@@ -182,13 +277,14 @@ public struct CraftLearningPath: View {
         level: "LEVEL 1",
         progress: "3/6",
         nodes: [
-            LessonNodeModel(id: "u1_n1", title: "Greetings", iconName: "hand.wave.fill", state: .completed),
-            LessonNodeModel(id: "u1_n2", title: "Introductions", iconName: "person.fill", state: .completed),
-            LessonNodeModel(id: "u1_n3", title: "Numbers", iconName: "number", state: .completed),
-            LessonNodeModel(id: "u1_n4", title: "Common Verbs", iconName: "flame.fill", state: .active, progress: 0.6, badgeCount: 2),
-            LessonNodeModel(id: "u1_n5", title: "Food & Drinks", iconName: "fork.knife", state: .upcoming),
-            LessonNodeModel(id: "u1_n6", title: "Mastery Quest", iconName: "crown.fill", state: .bonus, badgeText: "HOT")
+            LessonNodeModel(id: "u1_n1", title: "Greetings", subtitle: "10 words • 2 min", iconName: "hand.wave.fill", state: .completed, xpReward: 20),
+            LessonNodeModel(id: "u1_n2", title: "Introductions", subtitle: "12 words • 3 min", iconName: "person.fill", state: .completed, xpReward: 25),
+            LessonNodeModel(id: "u1_n3", title: "Numbers", subtitle: "15 words • 4 min", iconName: "number", state: .completed, xpReward: 20),
+            LessonNodeModel(id: "u1_n4", title: "Common Verbs", subtitle: "20 words • 5 min", iconName: "flame.fill", state: .active, progress: 0.6, xpReward: 30, estimatedMinutes: 5, badgeCount: 2),
+            LessonNodeModel(id: "u1_n5", title: "Food & Drinks", subtitle: "15 words • 4 min", iconName: "fork.knife", state: .upcoming, xpReward: 25, estimatedMinutes: 4),
+            LessonNodeModel(id: "u1_n6", title: "Mastery Quest", subtitle: "Boss Exam • 8 min", iconName: "crown.fill", state: .bonus, kind: .checkpoint, xpReward: 80, estimatedMinutes: 8, badgeText: "HOT")
         ],
+        winding: .standard,
         connectorStyle: .dashed
     )
 
@@ -199,20 +295,24 @@ public struct CraftLearningPath: View {
         level: "LEVEL 2",
         progress: "0/5",
         nodes: [
-            LessonNodeModel(id: "u2_n1", title: "Airport", iconName: "airplane", state: .locked),
-            LessonNodeModel(id: "u2_n2", title: "Hotel Check-In", iconName: "bed.double.fill", state: .locked),
-            LessonNodeModel(id: "u2_n3", title: "Directions", iconName: "map.fill", state: .locked),
-            LessonNodeModel(id: "u2_n4", title: "Transit", iconName: "tram.fill", state: .locked),
-            LessonNodeModel(id: "u2_n5", title: "Challenge", iconName: "star.fill", state: .locked)
+            LessonNodeModel(id: "u2_n1", title: "Airport", iconName: "airplane", state: .locked, xpReward: 30),
+            LessonNodeModel(id: "u2_n2", title: "Hotel Check-In", iconName: "bed.double.fill", state: .locked, xpReward: 30),
+            LessonNodeModel(id: "u2_n3", title: "Directions", iconName: "map.fill", state: .locked, xpReward: 30),
+            LessonNodeModel(id: "u2_n4", title: "Transit", iconName: "tram.fill", state: .locked, xpReward: 30),
+            LessonNodeModel(id: "u2_n5", title: "Milestone Reward", iconName: "gift.fill", state: .locked, kind: .treasureChest, xpReward: 150)
         ],
+        winding: .gentle,
         connectorStyle: .solid
     )
 
     CraftLearningPath(
         sections: [section1, section2],
-        rowPattern: .standard,
+        winding: .standard,
         onNodeTap: { node in
             print("Selected lesson: \(node.title)")
+        },
+        onStartLesson: { node in
+            print("Starting lesson: \(node.title)")
         }
     )
 }
