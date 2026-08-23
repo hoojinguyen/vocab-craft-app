@@ -7,13 +7,15 @@ public struct SettingsView: View {
     @State private var showResetAlert: Bool = false
     @State private var showGoalInputAlert: Bool = false
     @State private var goalInputText: String = ""
+    @State private var showCatalogSheet: Bool = ProcessInfo.processInfo.arguments.contains("-open-catalog")
 
     public init(viewModel: SettingsViewModel) {
         self.viewModel = viewModel
     }
 
     public var body: some View {
-        List {
+        ScrollViewReader { proxy in
+            List {
             // Profile Header
             Section {
                 ProfileHeaderCard()
@@ -276,7 +278,48 @@ public struct SettingsView: View {
                 .listRowInsets(EdgeInsets())
             }
             .listRowBackground(theme.colors.surfaceCard)
+
+            // Developer & Design System Section
+            Section(header: sectionHeader(AppStrings.Settings.sectionDeveloper)) {
+                CraftListRow(
+                    title: String(localized: "settings.craftCatalog", defaultValue: "CraftUIKit Catalog", bundle: .module),
+                    subtitle: String(localized: "settings.craftCatalogSubtitle", defaultValue: "Interactive component gallery & tokens", bundle: .module),
+                    iconName: "paintpalette.fill",
+                    iconColor: .vocabHeroTeal,
+                    iconBackgroundColor: Color.vocabHeroTeal.opacity(0.15),
+                    showChevron: true,
+                    action: {
+                        showCatalogSheet = true
+                    }
+                ) {
+                    EmptyView()
+                }
+                .listRowInsets(EdgeInsets())
+            }
+            .id("developer_section")
+            .listRowBackground(theme.colors.surfaceCard)
         }
+        .onAppear {
+            if ProcessInfo.processInfo.arguments.contains("-scroll-developer") {
+                Task { @MainActor in
+                    try? await Task.sleep(for: .milliseconds(300))
+                    withAnimation(.easeInOut(duration: 0.4)) {
+                        proxy.scrollTo("developer_section", anchor: .bottom)
+                    }
+                }
+            }
+        }
+        }
+        #if os(iOS)
+        .fullScreenCover(isPresented: $showCatalogSheet) {
+            CraftCatalogView()
+        }
+        #else
+        .sheet(isPresented: $showCatalogSheet) {
+            CraftCatalogView()
+                .frame(minWidth: 700, minHeight: 600)
+        }
+        #endif
         #if os(iOS)
         .listStyle(.insetGrouped)
         #else

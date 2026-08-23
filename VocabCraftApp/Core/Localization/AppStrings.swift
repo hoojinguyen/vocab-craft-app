@@ -295,6 +295,9 @@ public enum AppStrings {
         public static var profileBadge: LocalizedStringKey { "settings.profileBadge" }
         public static var voiceUS: LocalizedStringKey { "settings.voiceUS" }
         public static var voiceUK: LocalizedStringKey { "settings.voiceUK" }
+        public static var sectionDeveloper: LocalizedStringKey { "settings.sectionDeveloper" }
+        public static var craftCatalog: LocalizedStringKey { "settings.craftCatalog" }
+        public static var craftCatalogSubtitle: LocalizedStringKey { "settings.craftCatalogSubtitle" }
     }
 
     // MARK: - Search View

@@ -3310,6 +3310,57 @@
         }
       }
     },
+    "settings.sectionDeveloper" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Developer & Design System"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhà phát triển & Hệ thống Design"
+          }
+        }
+      }
+    },
+    "settings.craftCatalog" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CraftUIKit Catalog"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CraftUIKit Catalog"
+          }
+        }
+      }
+    },
+    "settings.craftCatalogSubtitle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interactive component gallery & tokens"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thư viện component & token tương tác"
+          }
+        }
+      }
+    },
     "settings.sectionAppData" : {
       "extractionState" : "stale",
       "localizations" : {

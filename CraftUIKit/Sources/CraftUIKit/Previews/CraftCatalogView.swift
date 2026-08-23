@@ -483,6 +483,7 @@ public struct CraftCatalogView: View {
 // MARK: - Catalog Content View
 
 private struct CraftCatalogContentView: View {
+    @Environment(\.dismiss) private var dismiss
     @Environment(\.craftTheme) private var theme
 
     @Binding var selectedThemeType: CatalogThemeType
@@ -554,21 +555,23 @@ private struct CraftCatalogContentView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: theme.spacing.lg) {
-                    CatalogThemeHeaderView(
-                        selectedThemeType: $selectedThemeType,
-                        selectedColorScheme: $selectedColorScheme
-                    )
+            ScrollViewReader { scrollProxy in
+                ScrollView {
+                    VStack(spacing: theme.spacing.lg) {
+                        CatalogThemeHeaderView(
+                            selectedThemeType: $selectedThemeType,
+                            selectedColorScheme: $selectedColorScheme
+                        )
 
-                    CatalogTypographySection(iconButtonCounter: $iconButtonCounter)
+                        CatalogTypographySection(iconButtonCounter: $iconButtonCounter)
 
-                    CatalogBadgesPillsSection(selectedPills: $selectedPills)
+                        CatalogBadgesPillsSection(selectedPills: $selectedPills)
 
-                    CatalogButtonsSection(
-                        isButtonLoading: $isButtonLoading,
-                        customPressCount: $customPressCount
-                    )
+                        CatalogButtonsSection(
+                            isButtonLoading: $isButtonLoading,
+                            customPressCount: $customPressCount
+                        )
+                        .id("buttons")
 
                     CatalogTextFieldsSection(
                         searchQuery: $searchQuery,
@@ -654,6 +657,7 @@ private struct CraftCatalogContentView: View {
                             isToastPresented = true
                         }
                     )
+                    .id("streak")
 
                     CatalogLearningPathSection(
                         selectedRowPatternPreset: $selectedRowPatternPreset,
@@ -677,15 +681,38 @@ private struct CraftCatalogContentView: View {
                             isToastPresented = true
                         }
                     )
+                    .id("learning_path")
                 }
                 .padding(.horizontal, theme.spacing.base)
                 .padding(.vertical, theme.spacing.lg)
+            }
+            .onAppear {
+                let args = ProcessInfo.processInfo.arguments
+                Task { @MainActor in
+                    try? await Task.sleep(for: .milliseconds(300))
+                    if args.contains("-catalog-scroll-buttons") {
+                        withAnimation { scrollProxy.scrollTo("buttons", anchor: .top) }
+                    } else if args.contains("-catalog-scroll-streak") {
+                        withAnimation { scrollProxy.scrollTo("streak", anchor: .top) }
+                    } else if args.contains("-catalog-scroll-path") {
+                        withAnimation { scrollProxy.scrollTo("learning_path", anchor: .top) }
+                    }
+                }
+            }
             }
             .background(theme.colors.canvasBackground.ignoresSafeArea())
             .navigationTitle("CraftUIKit Gallery")
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Close") {
+                        dismiss()
+                    }
+                    .font(.system(.body, design: .rounded, weight: .semibold))
+                }
+            }
         }
         .sheet(isPresented: $isStreakCelebrationPresented) {
             CraftStreakCelebrationSheet(

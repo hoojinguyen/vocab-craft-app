@@ -1364,6 +1364,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				800000402D50000000000001 /* PBXTargetDependency */,
 			);
 			name = VocabCraftApp;
 			packageProductDependencies = (
@@ -1824,7 +1825,7 @@
 				CODE_SIGN_ENTITLEMENTS = VocabCraftApp/App/VocabCraftApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEFINES_MODULE = YES;
+				DEFINES_MODULE = NO;
 				DEVELOPMENT_TEAM = 58TYVC4N97;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_TESTABILITY = YES;
