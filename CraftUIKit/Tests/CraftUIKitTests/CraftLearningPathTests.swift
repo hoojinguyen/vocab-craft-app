@@ -153,4 +153,94 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertEqual(arr3, .triple)
         XCTAssertNotEqual(arr1, arr2)
     }
+
+    // MARK: - Connector and Animation Tests
+
+    func testNodeConnectorPathGeneration() {
+        let connector = CraftNodeConnector(
+            from: CGPoint(x: 100, y: 100),
+            to: CGPoint(x: 200, y: 300)
+        )
+        let path = connector.path(in: CGRect(x: 0, y: 0, width: 300, height: 400))
+        XCTAssertFalse(path.isEmpty)
+        XCTAssertEqual(path.boundingRect.minX, 100, accuracy: 1.0)
+        XCTAssertEqual(path.boundingRect.maxX, 200, accuracy: 1.0)
+        XCTAssertEqual(path.boundingRect.minY, 100, accuracy: 1.0)
+        XCTAssertEqual(path.boundingRect.maxY, 300, accuracy: 1.0)
+    }
+
+    func testNodeConnectorStraightVerticalPath() {
+        let connector = CraftNodeConnector(
+            from: CGPoint(x: 150, y: 50),
+            to: CGPoint(x: 150, y: 250)
+        )
+        let path = connector.path(in: CGRect(x: 0, y: 0, width: 300, height: 300))
+        XCTAssertFalse(path.isEmpty)
+        XCTAssertEqual(path.boundingRect.minX, 150, accuracy: 1.0)
+        XCTAssertEqual(path.boundingRect.maxX, 150, accuracy: 1.0)
+        XCTAssertEqual(path.boundingRect.minY, 50, accuracy: 1.0)
+        XCTAssertEqual(path.boundingRect.maxY, 250, accuracy: 1.0)
+    }
+
+    func testAnimationPhases() {
+        XCTAssertEqual(BreathingPhase.allCases, [.rest, .inhale])
+        XCTAssertEqual(BreathingPhase.allCases.count, 2)
+
+        XCTAssertEqual(GlowPhase.allCases, [.normal, .glowing])
+        XCTAssertEqual(GlowPhase.allCases.count, 2)
+    }
+
+    func testConnectorViewsInstantiation() {
+        let from = CGPoint(x: 50, y: 50)
+        let to = CGPoint(x: 150, y: 200)
+
+        let breathing = BreathingConnectorView(from: from, to: to)
+        XCTAssertNotNil(breathing)
+
+        let dashed = CraftStyledConnector(from: from, to: to, style: .dashed)
+        XCTAssertNotNil(dashed)
+
+        let solid = CraftStyledConnector(from: from, to: to, style: .solid)
+        XCTAssertNotNil(solid)
+
+        let gradient = CraftStyledConnector(from: from, to: to, style: .gradient(from: .blue, to: .purple))
+        XCTAssertNotNil(gradient)
+
+        let animated = CraftStyledConnector(from: from, to: to, style: .animated)
+        XCTAssertNotNil(animated)
+
+        let customColorBreathing = BreathingConnectorView(from: from, to: to, color: .orange)
+        XCTAssertNotNil(customColorBreathing)
+
+        let customColorStyled = CraftStyledConnector(from: from, to: to, style: .solid, color: .green)
+        XCTAssertNotNil(customColorStyled)
+    }
+
+    func testNodeConnectorAnimatableData() {
+        var connector = CraftNodeConnector(
+            from: CGPoint(x: 10, y: 20),
+            to: CGPoint(x: 30, y: 40)
+        )
+        let data = connector.animatableData
+        XCTAssertEqual(data.first.first, 10)
+        XCTAssertEqual(data.first.second, 20)
+        XCTAssertEqual(data.second.first, 30)
+        XCTAssertEqual(data.second.second, 40)
+
+        connector.animatableData = AnimatablePair(
+            CGPoint(x: 50, y: 60).animatableData,
+            CGPoint(x: 70, y: 80).animatableData
+        )
+        XCTAssertEqual(connector.from, CGPoint(x: 50, y: 60))
+        XCTAssertEqual(connector.to, CGPoint(x: 70, y: 80))
+    }
+
+    func testAnimationHelperTokens() {
+        let breathing = Animation.craftBreathing
+        let glow = Animation.craftGlow
+        XCTAssertNotNil(breathing)
+        XCTAssertNotNil(glow)
+    }
 }
+
+
