@@ -16,6 +16,14 @@ public enum GlowPhase: String, CaseIterable, Sendable, Equatable, Hashable {
     case glowing
 }
 
+// MARK: - Bobbing Phase
+
+/// Phase states for continuous vertical oscillation on the active callout bubble.
+public enum BobbingPhase: String, CaseIterable, Sendable, Equatable, Hashable {
+    case high
+    case low
+}
+
 // MARK: - Animation Extensions
 
 public extension Animation {
@@ -27,5 +35,10 @@ public extension Animation {
     /// Easing animation used for continuous glowing pulse on active lesson nodes.
     static var craftGlow: Animation {
         .easeInOut(duration: 1.5)
+    }
+
+    /// Easing animation used for continuous vertical bobbing on active callout bubbles.
+    static var craftBobbing: Animation {
+        .easeInOut(duration: 1.2)
     }
 }

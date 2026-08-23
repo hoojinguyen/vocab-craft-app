@@ -367,6 +367,16 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertEqual(GlowPhase.allCases.count, 2)
     }
 
+    func testBobbingAnimationPhaseAndToken() {
+        XCTAssertEqual(BobbingPhase.allCases, [.high, .low])
+        XCTAssertEqual(BobbingPhase.allCases.count, 2)
+        XCTAssertEqual(BobbingPhase.high.rawValue, "high")
+        XCTAssertEqual(BobbingPhase.low.rawValue, "low")
+
+        let bobbing = Animation.craftBobbing
+        XCTAssertNotNil(bobbing)
+    }
+
     func testConnectorViewsInstantiation() {
         let from = CGPoint(x: 50, y: 50)
         let to = CGPoint(x: 150, y: 200)
@@ -511,6 +521,142 @@ final class CraftLearningPathTests: XCTestCase {
             XCTAssertEqual(nodeWithTap.model.id, "node_\(state.rawValue)")
             XCTAssertEqual(nodeWithTap.model.state, state)
         }
+    }
+
+    func testCraftLessonNodeDimensionsForAllStatesAndKinds() {
+        let completed = CraftLessonNode(model: LessonNodeModel(id: "1", title: "1", state: .completed))
+        let active = CraftLessonNode(model: LessonNodeModel(id: "2", title: "2", state: .active))
+        let inProgress = CraftLessonNode(model: LessonNodeModel(id: "3", title: "3", state: .inProgress))
+        let upcoming = CraftLessonNode(model: LessonNodeModel(id: "4", title: "4", state: .upcoming))
+        let locked = CraftLessonNode(model: LessonNodeModel(id: "5", title: "5", state: .locked))
+        let bonus = CraftLessonNode(model: LessonNodeModel(id: "6", title: "6", state: .bonus))
+
+        XCTAssertEqual(completed.nodeDiameter, 52)
+        XCTAssertEqual(active.nodeDiameter, 64)
+        XCTAssertEqual(inProgress.nodeDiameter, 56)
+        XCTAssertEqual(upcoming.nodeDiameter, 48)
+        XCTAssertEqual(locked.nodeDiameter, 48)
+        XCTAssertEqual(bonus.nodeDiameter, 56)
+
+        XCTAssertEqual(completed.iconSize, 20)
+        XCTAssertEqual(active.iconSize, 26)
+        XCTAssertEqual(inProgress.iconSize, 22)
+        XCTAssertEqual(upcoming.iconSize, 18)
+        XCTAssertEqual(locked.iconSize, 18)
+        XCTAssertEqual(bonus.iconSize, 22)
+
+        // Kind variants
+        let checkpoint = CraftLessonNode(model: LessonNodeModel(id: "cp", title: "Checkpoint", state: .active, kind: .checkpoint))
+        let treasure = CraftLessonNode(model: LessonNodeModel(id: "tc", title: "Treasure", state: .completed, kind: .treasureChest))
+        XCTAssertEqual(checkpoint.model.kind, .checkpoint)
+        XCTAssertEqual(treasure.model.kind, .treasureChest)
+    }
+
+    func testCraftLessonNodeVoiceOverDescriptionsWithXPReward() {
+        let activeWithXP = LessonNodeModel(
+            id: "act_xp",
+            title: "Daily Greetings",
+            state: .active,
+            progress: 0.65,
+            xpReward: 25
+        )
+        let activeNode = CraftLessonNode(model: activeWithXP)
+        XCTAssertEqual(activeNode.accessibilityLabelText, "Lesson: Daily Greetings, Current lesson. 65% complete. Reward: 25 XP")
+        XCTAssertEqual(activeNode.accessibilityHintText, "Double tap to continue")
+
+        let completedWithXP = LessonNodeModel(
+            id: "comp_xp",
+            title: "Basics",
+            state: .completed,
+            xpReward: 10
+        )
+        let compNode = CraftLessonNode(model: completedWithXP)
+        XCTAssertEqual(compNode.accessibilityLabelText, "Lesson: Basics, Completed. Reward: 10 XP")
+
+        let lockedWithXP = LessonNodeModel(
+            id: "lock_xp",
+            title: "Verbs",
+            state: .locked,
+            xpReward: 20
+        )
+        let lockedNode = CraftLessonNode(model: lockedWithXP)
+        XCTAssertEqual(lockedNode.accessibilityLabelText, "Lesson: Verbs, Locked. Reward: 20 XP")
+
+        let bonusWithXP = LessonNodeModel(
+            id: "bonus_xp",
+            title: "Mastery Challenge",
+            state: .bonus,
+            xpReward: 50
+        )
+        let bonusNode = CraftLessonNode(model: bonusWithXP)
+        XCTAssertEqual(bonusNode.accessibilityLabelText, "Bonus Lesson: Mastery Challenge. Reward: 50 XP")
+    }
+
+    func testActiveCalloutBubbleInstantiationAndVariants() {
+        let defaultBubble = ActiveCalloutBubble()
+        XCTAssertEqual(defaultBubble.text, "TIẾP TỤC")
+
+        let customBubble = ActiveCalloutBubble("START")
+        XCTAssertEqual(customBubble.text, "START")
+
+        let paramBubble = ActiveCalloutBubble(text: "START NOW")
+        XCTAssertEqual(paramBubble.text, "START NOW")
+
+        let nodeWithCallout = CraftLessonNode(
+            model: LessonNodeModel(id: "c1", title: "Node", state: .active),
+            calloutText: "START"
+        )
+        XCTAssertEqual(nodeWithCallout.calloutText, "START")
+    }
+
+    func testTactileShapesAndButtonStyle() {
+        let hexagon = HexagonShape()
+        let rect = CGRect(x: 0, y: 0, width: 100, height: 100)
+        let hexPath = hexagon.path(in: rect)
+        XCTAssertFalse(hexPath.isEmpty)
+
+        let insetHex = hexagon.inset(by: 2)
+        let insetHexPath = insetHex.path(in: rect)
+        XCTAssertFalse(insetHexPath.isEmpty)
+
+        let diamond = DiamondShape()
+        let diamondPath = diamond.path(in: rect)
+        XCTAssertFalse(diamondPath.isEmpty)
+
+        let insetDiamond = diamond.inset(by: 2)
+        let insetDiamondPath = insetDiamond.path(in: rect)
+        XCTAssertFalse(insetDiamondPath.isEmpty)
+
+        let caret = CaretDownShape()
+        let caretPath = caret.path(in: CGRect(x: 0, y: 0, width: 10, height: 6))
+        XCTAssertFalse(caretPath.isEmpty)
+
+        let buttonStyle = TactileNodeButtonStyle(isLocked: false, depth: 4)
+        XCTAssertFalse(buttonStyle.isLocked)
+        XCTAssertEqual(buttonStyle.depth, 4)
+    }
+
+    func testCraftLessonNodeMetadataFormatting() {
+        let nodeWithSubtitle = CraftLessonNode(
+            model: LessonNodeModel(id: "m1", title: "Test", subtitle: "10 words • 2 min", xpReward: 50)
+        )
+        XCTAssertEqual(nodeWithSubtitle.metadataText, "10 words • 2 min")
+
+        let nodeWithXPOnly = CraftLessonNode(
+            model: LessonNodeModel(id: "m2", title: "Test", xpReward: 30)
+        )
+        XCTAssertEqual(nodeWithXPOnly.metadataText, "+30 XP")
+
+        let nodeWithNeither = CraftLessonNode(
+            model: LessonNodeModel(id: "m3", title: "Test")
+        )
+        XCTAssertNil(nodeWithNeither.metadataText)
+    }
+
+    func testTactileNodeButtonStyleLocked() {
+        let lockedStyle = TactileNodeButtonStyle(isLocked: true, depth: 4)
+        XCTAssertTrue(lockedStyle.isLocked)
+        XCTAssertEqual(lockedStyle.depth, 4)
     }
 
     // MARK: - Row Splitting Algorithm Tests
