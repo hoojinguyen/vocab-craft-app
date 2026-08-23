@@ -44,6 +44,12 @@ public struct CraftStreakCard: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabelString)
         .accessibilityHint(accessibilityHintString)
+        .accessibilityActionIf(onFreezeTap != nil, named: "Xem khiên bảo vệ") {
+            onFreezeTap?()
+        }
+        .accessibilityActionIf(onMilestoneTap != nil, named: "Xem mốc thưởng") {
+            onMilestoneTap?()
+        }
         .onAppear {
             updatePulseAnimation()
         }
@@ -325,14 +331,34 @@ public struct CraftStreakCard: View {
         if let customAccessibilityHint {
             return customAccessibilityHint
         }
-        var hints: [String] = []
+        var actions: [String] = []
         if onFreezeTap != nil {
-            hints.append("Chạm hai lần để xem thông tin khiên bảo vệ.")
+            actions.append("'Xem khiên bảo vệ'")
         }
         if onMilestoneTap != nil {
-            hints.append("Chạm hai lần để xem chi tiết mốc thưởng.")
+            actions.append("'Xem mốc thưởng'")
         }
-        return hints.isEmpty ? "Hiển thị tổng quan chuỗi ngày học trong tuần." : hints.joined(separator: " ")
+        if !actions.isEmpty {
+            return "Vuốt lên hoặc xuống để chọn tác vụ \(actions.joined(separator: " hoặc "))."
+        }
+        return "Hiển thị tổng quan chuỗi ngày học trong tuần."
+    }
+}
+
+// MARK: - Accessibility Helper
+
+private extension View {
+    @ViewBuilder
+    func accessibilityActionIf(
+        _ condition: Bool,
+        named name: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        if condition {
+            self.accessibilityAction(named: Text(name), action)
+        } else {
+            self
+        }
     }
 }
 
