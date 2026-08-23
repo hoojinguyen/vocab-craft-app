@@ -1249,4 +1249,242 @@ final class CraftLearningPathTests: XCTestCase {
         let path = CraftLearningPath(section: section, onNodeTap: sendableNodeTap)
         XCTAssertNotNil(path)
     }
+
+    // MARK: - Task 5: CraftLessonDetailSheet Tests
+
+    func testLessonDetailSheetInstantiation() {
+        let node = LessonNodeModel(
+            id: "sheet_node_1",
+            title: "Daily Food & Drinks",
+            subtitle: "15 từ mới • 4 phút",
+            iconName: "cup.and.saucer.fill",
+            state: .active,
+            kind: .standard,
+            progress: 0.5,
+            xpReward: 25,
+            estimatedMinutes: 4
+        )
+
+        var startedNode: LessonNodeModel?
+        var didDismiss = false
+
+        let sheet = CraftLessonDetailSheet(
+            node: node,
+            onStart: { started in startedNode = started },
+            onDismiss: { didDismiss = true }
+        )
+
+        XCTAssertNotNil(sheet)
+        XCTAssertEqual(sheet.node.id, "sheet_node_1")
+        XCTAssertEqual(sheet.node.title, "Daily Food & Drinks")
+
+        sheet.onStart?(node)
+        XCTAssertEqual(startedNode?.id, "sheet_node_1")
+
+        sheet.onDismiss?()
+        XCTAssertTrue(didDismiss)
+    }
+
+    func testLessonDetailSheetCTAResolutionAllStates() {
+        // 1. Active State
+        let activeNode = LessonNodeModel(id: "act", title: "Active Lesson", state: .active)
+        let activeSheet = CraftLessonDetailSheet(node: activeNode)
+        XCTAssertEqual(activeSheet.ctaTitle, "BẮT ĐẦU HỌC")
+        XCTAssertEqual(activeSheet.ctaVariant, .primary)
+        XCTAssertFalse(activeSheet.isCtaDisabled)
+
+        // 2. Upcoming State
+        let upcomingNode = LessonNodeModel(id: "up", title: "Upcoming Lesson", state: .upcoming)
+        let upcomingSheet = CraftLessonDetailSheet(node: upcomingNode)
+        XCTAssertEqual(upcomingSheet.ctaTitle, "BẮT ĐẦU HỌC")
+        XCTAssertEqual(upcomingSheet.ctaVariant, .primary)
+        XCTAssertFalse(upcomingSheet.isCtaDisabled)
+
+        // 3. InProgress State (with progress)
+        let inProgressNode = LessonNodeModel(id: "prog", title: "In Progress Lesson", state: .inProgress, progress: 0.65)
+        let inProgressSheet = CraftLessonDetailSheet(node: inProgressNode)
+        XCTAssertEqual(inProgressSheet.ctaTitle, "TIẾP TỤC HỌC (65%)")
+        XCTAssertEqual(inProgressSheet.ctaVariant, .primary)
+        XCTAssertFalse(inProgressSheet.isCtaDisabled)
+
+        // 3b. InProgress State (nil progress)
+        let inProgressNilNode = LessonNodeModel(id: "prog_nil", title: "In Progress Nil", state: .inProgress)
+        let inProgressNilSheet = CraftLessonDetailSheet(node: inProgressNilNode)
+        XCTAssertEqual(inProgressNilSheet.ctaTitle, "TIẾP TỤC HỌC (0%)")
+        XCTAssertEqual(inProgressNilSheet.ctaVariant, .primary)
+        XCTAssertFalse(inProgressNilSheet.isCtaDisabled)
+
+        // 4. Completed State
+        let completedNode = LessonNodeModel(id: "comp", title: "Completed Lesson", state: .completed)
+        let completedSheet = CraftLessonDetailSheet(node: completedNode)
+        XCTAssertEqual(completedSheet.ctaTitle, "ÔN TẬP LẠI (+5 XP)")
+        XCTAssertEqual(completedSheet.ctaVariant, .secondary)
+        XCTAssertFalse(completedSheet.isCtaDisabled)
+
+        // 5. Bonus State
+        let bonusNode = LessonNodeModel(id: "bon", title: "Bonus Challenge", state: .bonus)
+        let bonusSheet = CraftLessonDetailSheet(node: bonusNode)
+        XCTAssertEqual(bonusSheet.ctaTitle, "CHINH PHỤC THỬ THÁCH")
+        XCTAssertEqual(bonusSheet.ctaVariant, .primary)
+        XCTAssertFalse(bonusSheet.isCtaDisabled)
+
+        // 6. Locked State
+        let lockedNode = LessonNodeModel(id: "lock", title: "Locked Lesson", state: .locked)
+        let lockedSheet = CraftLessonDetailSheet(node: lockedNode)
+        XCTAssertEqual(lockedSheet.ctaTitle, "BÀI HỌC ĐANG KHÓA")
+        XCTAssertEqual(lockedSheet.ctaVariant, .secondary)
+        XCTAssertTrue(lockedSheet.isCtaDisabled)
+    }
+
+    func testLessonDetailSheetMetricsFormatting() {
+        // Custom values
+        let nodeWithValues = LessonNodeModel(
+            id: "m1",
+            title: "Travel Vocabulary",
+            subtitle: "20 từ vựng du lịch",
+            state: .active,
+            xpReward: 35,
+            estimatedMinutes: 8
+        )
+        let sheetWithValues = CraftLessonDetailSheet(node: nodeWithValues)
+        XCTAssertEqual(sheetWithValues.formattedXPReward, "+35 XP")
+        XCTAssertEqual(sheetWithValues.formattedDuration, "⏱ 8 phút")
+        XCTAssertEqual(sheetWithValues.formattedVocabularyCount, "20 từ vựng du lịch")
+        XCTAssertEqual(sheetWithValues.statusBadgeTitle, "Active")
+        XCTAssertEqual(sheetWithValues.statusBadgeTone, .primary)
+
+        // Default fallbacks
+        let defaultNode = LessonNodeModel(id: "m2", title: "Default Lesson", state: .completed)
+        let defaultSheet = CraftLessonDetailSheet(node: defaultNode)
+        XCTAssertEqual(defaultSheet.formattedXPReward, "+20 XP")
+        XCTAssertEqual(defaultSheet.formattedDuration, "⏱ 5 phút")
+        XCTAssertEqual(defaultSheet.formattedVocabularyCount, "15 từ vựng mới")
+        XCTAssertEqual(defaultSheet.statusBadgeTitle, "Completed")
+        XCTAssertEqual(defaultSheet.statusBadgeTone, .success)
+
+        // Status badge tones for other states
+        let lockedSheet = CraftLessonDetailSheet(node: LessonNodeModel(id: "l", title: "L", state: .locked))
+        XCTAssertEqual(lockedSheet.statusBadgeTone, .neutral)
+
+        let upcomingSheet = CraftLessonDetailSheet(node: LessonNodeModel(id: "u", title: "U", state: .upcoming))
+        XCTAssertEqual(upcomingSheet.statusBadgeTone, .neutral)
+
+        let bonusSheet = CraftLessonDetailSheet(node: LessonNodeModel(id: "b", title: "B", state: .bonus))
+        XCTAssertEqual(bonusSheet.statusBadgeTone, .warning)
+
+        let inProgressSheet = CraftLessonDetailSheet(node: LessonNodeModel(id: "p", title: "P", state: .inProgress))
+        XCTAssertEqual(inProgressSheet.statusBadgeTone, .primary)
+    }
+
+    func testLessonDetailSheetCheckpointAndTreasureChestNodes() {
+        let cpNode = LessonNodeModel(
+            id: "cp_sheet",
+            title: "Checkpoint Battle",
+            iconName: "crown.fill",
+            state: .active,
+            kind: .checkpoint,
+            xpReward: 100,
+            estimatedMinutes: 10
+        )
+        let cpSheet = CraftLessonDetailSheet(node: cpNode)
+        XCTAssertEqual(cpSheet.node.kind, .checkpoint)
+        XCTAssertEqual(cpSheet.formattedXPReward, "+100 XP")
+        XCTAssertEqual(cpSheet.formattedDuration, "⏱ 10 phút")
+
+        let tcNode = LessonNodeModel(
+            id: "tc_sheet",
+            title: "Treasure Island",
+            iconName: "gift.fill",
+            state: .bonus,
+            kind: .treasureChest,
+            xpReward: 150
+        )
+        let tcSheet = CraftLessonDetailSheet(node: tcNode)
+        XCTAssertEqual(tcSheet.node.kind, .treasureChest)
+        XCTAssertEqual(tcSheet.formattedXPReward, "+150 XP")
+    }
+
+    func testLessonDetailSheetBodyRenderingForAllStates() {
+        for state in LessonNodeState.allCases {
+            let node = LessonNodeModel(
+                id: "body_test_\(state.rawValue)",
+                title: "Body Test \(state.rawValue)",
+                subtitle: "Subtitle for \(state.rawValue)",
+                iconName: "book.fill",
+                state: state,
+                progress: 0.5,
+                xpReward: 30,
+                estimatedMinutes: 5
+            )
+            let sheet = CraftLessonDetailSheet(
+                node: node,
+                onStart: { _ in },
+                onDismiss: { }
+            )
+            XCTAssertNotNil(sheet.body)
+        }
+    }
+
+    func testLessonDetailSheetBodyWithKindsAndSubtitles() {
+        let checkpointNode = LessonNodeModel(
+            id: "cp_body",
+            title: "Checkpoint Boss",
+            iconName: "",
+            state: .active,
+            kind: .checkpoint
+        )
+        let cpSheet = CraftLessonDetailSheet(node: checkpointNode)
+        XCTAssertNotNil(cpSheet.body)
+
+        let treasureChestNode = LessonNodeModel(
+            id: "tc_body",
+            title: "Treasure Chest",
+            iconName: "",
+            state: .bonus,
+            kind: .treasureChest
+        )
+        let tcSheet = CraftLessonDetailSheet(node: treasureChestNode)
+        XCTAssertNotNil(tcSheet.body)
+
+        let emptySubtitleNode = LessonNodeModel(
+            id: "empty_sub",
+            title: "Empty Subtitle",
+            subtitle: nil,
+            state: .upcoming
+        )
+        let emptySubSheet = CraftLessonDetailSheet(node: emptySubtitleNode)
+        XCTAssertNotNil(emptySubSheet.body)
+    }
+
+    func testLessonDetailSheetActionCallbacksExecution() {
+        var startInvokedWith: LessonNodeModel?
+        var dismissInvoked = false
+
+        let node = LessonNodeModel(
+            id: "callback_node",
+            title: "Callback Test",
+            state: .active
+        )
+
+        let sendableStart: @Sendable (LessonNodeModel) -> Void = { n in
+            startInvokedWith = n
+        }
+        let sendableDismiss: @Sendable () -> Void = {
+            dismissInvoked = true
+        }
+
+        let sheet = CraftLessonDetailSheet(
+            node: node,
+            onStart: sendableStart,
+            onDismiss: sendableDismiss
+        )
+
+        sheet.onStart?(node)
+        XCTAssertEqual(startInvokedWith?.id, "callback_node")
+
+        sheet.onDismiss?()
+        XCTAssertTrue(dismissInvoked)
+    }
 }
+
+
