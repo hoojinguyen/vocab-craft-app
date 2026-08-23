@@ -138,6 +138,20 @@ Renders a `CraftNodeConnector` with one of 4 styles:
 - **Gradient**: `LinearGradient` stroke with custom from/to colors
 - **Animated**: `TimelineView(.animation)` + `Canvas` drawing 3 dots flowing along the Bézier path at ~0.5 cycles/sec. Guarded by environment flag `prefersReducedConnectorAnimation` for performance on older devices.
 
+### ✨ Signature Detail: "Breathing Path"
+
+The connector between the active node and the next upcoming node subtly "breathes" — stroke width oscillates 2pt↔3pt on a slow ~2s cycle. This creates a living, inviting feel that draws the user forward. No other learning path app does this.
+
+```swift
+// Breathing connector: active → next node only
+.stroke(
+    theme.colors.brandPrimary.opacity(0.4),
+    lineWidth: breathingWidth  // animates 2.0 ↔ 3.0, springSmooth, 2s cycle
+)
+```
+
+Reduce Motion fallback: static 2.5pt stroke, no animation.
+
 ---
 
 ## 3. Atoms — `CraftLessonNode.swift`
@@ -148,8 +162,8 @@ Individual circular node view.
 
 | State | Size | Background | Border/Ring | Icon | Extra |
 |-------|------|-----------|-------------|------|-------|
-| `completed` | 52pt | `statusSuccess` | none | `checkmark` white | — |
-| `active` | 64pt | `brandPrimary` | Outer glow ring 72pt, pulsing scale 1.0↔1.08, opacity 0.2↔0.45 | Custom icon, white | Glow shadow |
+| `completed` | 52pt | `statusSuccess` | none | `checkmark` white, `.symbolEffect(.bounce)` on completion | Elevation shadow |
+| `active` | 64pt | `brandPrimary` subtle gradient (top-leading → bottom-trailing, 100%→85% opacity) | Outer glow ring 72pt, pulsing scale 1.0↔1.08, opacity 0.2↔0.45 | Custom icon, white, `.symbolEffect(.pulse.byLayer)` | Glow shadow `brandPrimary.opacity(0.25)` radius 12 |
 | `inProgress` | 56pt | `surfaceElevated` | Progress ring arc overlay (lineWidth: 3) | Custom icon, brand color | Shows progress |
 | `upcoming` | 48pt | `surfaceSubtle` | `borderDefault` 1.5pt stroke | Custom icon, `textMuted` | — |
 | `locked` | 48pt | `surfaceSubtle` | `borderDefault` 1.5pt stroke | `lock.fill`, `textMuted` | Opacity 0.6 |
@@ -158,10 +172,18 @@ Individual circular node view.
 ### Badge Count
 
 When `badgeCount != nil`: 18pt circle at top-trailing, `statusDanger` fill, white bold text.
+Badge text uses `.font(.system(size: 11, weight: .bold, design: .rounded)).monospacedDigit()`.
+Badge animates `.springBouncy` scale 1.0→1.3→1.0 when `badgeCount` changes.
 
 ### Label
 
-`theme.typography.bodyMedium` text below node, `textPrimary` for most states, `textMuted` for locked.
+Node labels use `theme.typography.bodyMedium` with `.fontDesign(.rounded)` for gamified friendly feel.
+Color: `textPrimary` for most states, `textMuted` for locked.
+
+### Section Header Typography
+
+- Level label (e.g. "BEGINNER"): `.font(.caption.smallCaps())`, `textSecondary`
+- Progress text (e.g. "2/48"): `.monospacedDigit().fontDesign(.rounded)`
 
 ### Interaction
 
@@ -169,6 +191,15 @@ When `badgeCount != nil`: 18pt circle at top-trailing, `statusDanger` fill, whit
 - Locked: button disabled, shows lock icon
 - Press effect: `.buttonStyle(.craftPress(scale: 0.93))`
 - Sizes: `@ScaledMetric(relativeTo: .body)` for Dynamic Type
+
+### Haptic Feedback
+
+```swift
+.sensoryFeedback(.impact(weight: .light), trigger: tapTrigger)       // Node tap
+.sensoryFeedback(.success, trigger: completionTrigger)                // Lesson complete
+.sensoryFeedback(.error, trigger: lockedAttemptTrigger)               // Locked node tap attempt
+.sensoryFeedback(.selection, trigger: badgeCount)                     // Badge appears/changes
+```
 
 ### API
 
@@ -221,10 +252,39 @@ Top-level container assembling the full scrollable journey.
 
 ### Internal Structure
 
-1. **Section header** — CraftCard-style card showing level, title, progress
+1. **Section header** — CraftCard-style card using `.clipShape(RoundedRectangle(cornerRadius: theme.radii.lg))`, showing level (`.smallCaps()`), title, progress (`.monospacedDigit()`)
 2. **VStack** of `CraftLessonRow` views
-3. **Connector overlay** — `PreferenceKey` collects node center positions via `.anchorPreference`; parent reads these in `overlayPreferenceValue` to draw `CraftStyledConnector` between consecutive nodes
+3. **Connector overlay** — `PreferenceKey` collects node center positions via `.anchorPreference`; parent reads these in `overlayPreferenceValue` to draw `CraftStyledConnector` between consecutive nodes. Note: `GeometryReader` is scoped strictly to this overlay — not used for basic layout.
 4. **ScrollViewReader** — Auto-scrolls to first `.active` node on appear (0.3s delay)
+5. **Background** — Subtle gradient wash for atmospheric depth:
+   ```swift
+   LinearGradient(
+       colors: [theme.colors.canvasBackground, theme.colors.brandPrimary.opacity(0.03)],
+       startPoint: .top, endPoint: .bottom
+   )
+   ```
+
+### Empty State
+
+When `section.nodes.isEmpty`:
+```swift
+ContentUnavailableView(
+    "No lessons yet",
+    systemImage: CraftSymbol.study.rawValue,
+    description: Text("Lessons will appear here when available")
+)
+```
+
+### Scroll-Driven Effects
+
+Nodes fade/scale as they scroll into view:
+```swift
+.scrollTransition(.animated) { content, phase in
+    content
+        .opacity(1 - abs(phase.value) * 0.3)
+        .scaleEffect(1 - abs(phase.value) * 0.05)
+}
+```
 
 ### PreferenceKey for Node Positions
 
@@ -266,9 +326,13 @@ Extracted animation helpers for maintainability.
 | Animation | Trigger | Detail | Reduce Motion Fallback |
 |-----------|---------|--------|----------------------|
 | Active Glow Pulse | state == `.active` | Ring scale 1.0↔1.08, opacity 0.2↔0.45, `springBouncy` repeating | Static highlighted border |
+| Active Icon Pulse | state == `.active` | `.symbolEffect(.pulse.byLayer)` on SF Symbol | No effect |
 | Node Appear Stagger | ScrollView entry | Scale 0.3→1.0 + fade, delay = index × 0.08s, `springSmooth` | Instant appear |
+| Scroll Transition | Scroll position | `.scrollTransition` opacity 0.7↔1.0, scale 0.95↔1.0 | No effect |
 | Completion Confetti | active→completed | Reuse `CraftSparkleView(.confetti)` overlay on completed node | Static "✓" text badge |
+| Completion Icon Bounce | active→completed | `.symbolEffect(.bounce)` on checkmark icon | No effect |
 | Path Fill Sweep | Node completes | Connector animates dashed→solid with gradient sweep | Instant style change |
+| Breathing Path | active→next connector | Stroke width 2pt↔3pt, ~2s cycle, `springSmooth` | Static 2.5pt stroke |
 | Badge Bounce | badgeCount changes | Scale 1.0→1.3→1.0, `springBouncy` | No animation |
 | Bonus Shimmer | state == `.bonus` | Reuse existing `ShimmerModifier`, gold sweep | Static gold border |
 
