@@ -38,11 +38,11 @@ final class TokenTests: XCTestCase {
 
     func testLearningPathSpacingTokens() {
         let spacing = CraftDefaultSpacingTokens()
-        XCTAssertEqual(spacing.pathDotDiameter, 5.0)
-        XCTAssertEqual(spacing.pathDotSpacing, 7.0)
-        XCTAssertEqual(spacing.pathTurnRadius, 32.0)
-        XCTAssertEqual(spacing.pathEdgeInset, 28.0)
-        XCTAssertEqual(spacing.pathRowSpacing, 60.0)
+        XCTAssertEqual(spacing.pathDotDiameter, 4.5)
+        XCTAssertEqual(spacing.pathDotSpacing, 8.0)
+        XCTAssertEqual(spacing.pathTurnRadius, 36.0)
+        XCTAssertEqual(spacing.pathEdgeInset, 24.0)
+        XCTAssertEqual(spacing.pathRowSpacing, 64.0)
     }
 
     func testLearningPathProtocolExtensionDefaults() {
@@ -85,11 +85,11 @@ final class TokenTests: XCTestCase {
         XCTAssertEqual(customColors.pathHaloGlow, Color(hex: 0x123456).opacity(0.20))
 
         let customSpacing = CustomSpacing()
-        XCTAssertEqual(customSpacing.pathDotDiameter, 5.0)
-        XCTAssertEqual(customSpacing.pathDotSpacing, 7.0)
-        XCTAssertEqual(customSpacing.pathTurnRadius, 32.0)
-        XCTAssertEqual(customSpacing.pathEdgeInset, 28.0)
-        XCTAssertEqual(customSpacing.pathRowSpacing, 60.0)
+        XCTAssertEqual(customSpacing.pathDotDiameter, 4.5)
+        XCTAssertEqual(customSpacing.pathDotSpacing, 8.0)
+        XCTAssertEqual(customSpacing.pathTurnRadius, 36.0)
+        XCTAssertEqual(customSpacing.pathEdgeInset, 24.0)
+        XCTAssertEqual(customSpacing.pathRowSpacing, 64.0)
     }
 
     func testLearningPathTokensInTheme() {
@@ -99,11 +99,11 @@ final class TokenTests: XCTestCase {
         XCTAssertNotNil(theme.colors.pathUpcoming)
         XCTAssertNotNil(theme.colors.pathLocked)
         XCTAssertNotNil(theme.colors.pathHaloGlow)
-        XCTAssertEqual(theme.spacing.pathDotDiameter, 5.0)
-        XCTAssertEqual(theme.spacing.pathDotSpacing, 7.0)
-        XCTAssertEqual(theme.spacing.pathTurnRadius, 32.0)
-        XCTAssertEqual(theme.spacing.pathEdgeInset, 28.0)
-        XCTAssertEqual(theme.spacing.pathRowSpacing, 60.0)
+        XCTAssertEqual(theme.spacing.pathDotDiameter, 4.5)
+        XCTAssertEqual(theme.spacing.pathDotSpacing, 8.0)
+        XCTAssertEqual(theme.spacing.pathTurnRadius, 36.0)
+        XCTAssertEqual(theme.spacing.pathEdgeInset, 24.0)
+        XCTAssertEqual(theme.spacing.pathRowSpacing, 64.0)
     }
 }
 

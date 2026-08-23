@@ -43,32 +43,26 @@ public struct SnakePathSegmentGeometry: Sendable, Equatable {
         case .horizontal:
             path.addLine(to: to)
         case .rightHairpin:
-            let topTurnX = max(from.x, turnX - r)
-            path.addLine(to: CGPoint(x: topTurnX, y: from.y))
             path.addArc(
                 tangent1End: CGPoint(x: turnX, y: from.y),
-                tangent2End: CGPoint(x: turnX, y: from.y + r),
+                tangent2End: CGPoint(x: turnX, y: to.y),
                 radius: r
             )
-            path.addLine(to: CGPoint(x: turnX, y: to.y - r))
             path.addArc(
                 tangent1End: CGPoint(x: turnX, y: to.y),
-                tangent2End: CGPoint(x: turnX - r, y: to.y),
+                tangent2End: CGPoint(x: to.x, y: to.y),
                 radius: r
             )
             path.addLine(to: to)
         case .leftHairpin:
-            let topTurnX = min(from.x, turnX + r)
-            path.addLine(to: CGPoint(x: topTurnX, y: from.y))
             path.addArc(
                 tangent1End: CGPoint(x: turnX, y: from.y),
-                tangent2End: CGPoint(x: turnX, y: from.y + r),
+                tangent2End: CGPoint(x: turnX, y: to.y),
                 radius: r
             )
-            path.addLine(to: CGPoint(x: turnX, y: to.y - r))
             path.addArc(
                 tangent1End: CGPoint(x: turnX, y: to.y),
-                tangent2End: CGPoint(x: turnX + r, y: to.y),
+                tangent2End: CGPoint(x: to.x, y: to.y),
                 radius: r
             )
             path.addLine(to: to)
@@ -98,16 +92,17 @@ public struct SnakePathGeometry {
             )
         }
 
-        if to.x >= from.x || from.x <= containerWidth * 0.55 {
-            let rightTurnX = containerWidth - edgeInset
-            return SnakePathSegmentGeometry(
-                from: from,
-                to: to,
-                type: .rightHairpin,
-                turnRadius: turnRadius,
-                turnX: rightTurnX
-            )
+        let isLeftTurn: Bool
+        if from.x < containerWidth * 0.40 {
+            isLeftTurn = true
+        } else if from.x > containerWidth * 0.60 {
+            isLeftTurn = false
         } else {
+            // Starting from Center node
+            isLeftTurn = (to.x < from.x)
+        }
+
+        if isLeftTurn {
             let leftTurnX = edgeInset
             return SnakePathSegmentGeometry(
                 from: from,
@@ -115,6 +110,15 @@ public struct SnakePathGeometry {
                 type: .leftHairpin,
                 turnRadius: turnRadius,
                 turnX: leftTurnX
+            )
+        } else {
+            let rightTurnX = containerWidth - edgeInset
+            return SnakePathSegmentGeometry(
+                from: from,
+                to: to,
+                type: .rightHairpin,
+                turnRadius: turnRadius,
+                turnX: rightTurnX
             )
         }
     }

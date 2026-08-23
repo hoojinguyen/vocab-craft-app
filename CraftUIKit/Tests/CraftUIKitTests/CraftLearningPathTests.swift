@@ -2118,7 +2118,7 @@ final class CraftLearningPathTests: XCTestCase {
         )
         XCTAssertEqual(nearHorizontalSeg.type, .horizontal)
 
-        // Right hairpin: to.x >= from.x
+        // Right hairpin: from Center to Right
         let pCenter = CGPoint(x: 190, y: 50)
         let pRight = CGPoint(x: 280, y: 150)
         let rightHairpinSeg = SnakePathGeometry.createSegment(
@@ -2131,30 +2131,43 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertEqual(rightHairpinSeg.type, .rightHairpin)
         XCTAssertEqual(rightHairpinSeg.turnX, 352) // 380 - 28
 
-        // Right hairpin: from.x <= containerWidth * 0.55 (e.g. from left node down)
-        let pLeftToRight = CGPoint(x: 100, y: 50)
-        let pLeftToLeft = CGPoint(x: 100, y: 150)
-        let rightHairpinFromLeft = SnakePathGeometry.createSegment(
-            from: pLeftToRight,
-            to: pLeftToLeft,
+        // Left hairpin: from Left node down to Center
+        let pLeft = CGPoint(x: 100, y: 50)
+        let pCenterBelow = CGPoint(x: 190, y: 150)
+        let leftHairpinFromLeft = SnakePathGeometry.createSegment(
+            from: pLeft,
+            to: pCenterBelow,
             containerWidth: 380,
             turnRadius: 32,
             edgeInset: 28
         )
-        XCTAssertEqual(rightHairpinFromLeft.type, .rightHairpin)
+        XCTAssertEqual(leftHairpinFromLeft.type, .leftHairpin)
+        XCTAssertEqual(leftHairpinFromLeft.turnX, 28) // edgeInset
 
-        // Left hairpin: to.x < from.x and from.x > containerWidth * 0.55
+        // Left hairpin: from Center to Left (going down)
+        let pLeftBelow = CGPoint(x: 100, y: 150)
+        let pCenterToLeft = SnakePathGeometry.createSegment(
+            from: pCenter,
+            to: pLeftBelow,
+            containerWidth: 380,
+            turnRadius: 32,
+            edgeInset: 28
+        )
+        XCTAssertEqual(pCenterToLeft.type, .leftHairpin)
+        XCTAssertEqual(pCenterToLeft.turnX, 28)
+
+        // Right hairpin: from Right node down to Center
         let pFromRight = CGPoint(x: 280, y: 100)
         let pToCenter = CGPoint(x: 190, y: 200)
-        let leftHairpinSeg = SnakePathGeometry.createSegment(
+        let rightHairpinFromRight = SnakePathGeometry.createSegment(
             from: pFromRight,
             to: pToCenter,
             containerWidth: 380,
             turnRadius: 32,
             edgeInset: 28
         )
-        XCTAssertEqual(leftHairpinSeg.type, .leftHairpin)
-        XCTAssertEqual(leftHairpinSeg.turnX, 28) // edgeInset
+        XCTAssertEqual(rightHairpinFromRight.type, .rightHairpin)
+        XCTAssertEqual(rightHairpinFromRight.turnX, 352) // 380 - 28
     }
 
     func testSnakePathDrawingProducesNonEmptyPath() {
