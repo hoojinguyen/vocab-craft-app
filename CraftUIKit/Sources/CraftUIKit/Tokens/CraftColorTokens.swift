@@ -41,12 +41,26 @@ public protocol CraftColorTokens: Sendable {
     var streakFreeze: Color { get }
     var streakPending: Color { get }
     var streakGlow: Color { get }
+
+    // Learning Path
+    var pathCompleted: Color { get }
+    var pathActive: Color { get }
+    var pathUpcoming: Color { get }
+    var pathLocked: Color { get }
+    var pathHaloGlow: Color { get }
 }
 
 public extension CraftColorTokens {
     var streakFreeze: Color { Color(hex: 0x38BDF8) }
     var streakPending: Color { Color(hex: 0x94A3B8) }
     var streakGlow: Color { Color(hex: 0xF59E0B).opacity(0.35) }
+
+    // Learning Path Defaults
+    var pathCompleted: Color { statusSuccess }
+    var pathActive: Color { brandPrimary }
+    var pathUpcoming: Color { .craftDynamic(light: Color(hex: 0xCBD5E1), dark: Color(hex: 0x475569)) }
+    var pathLocked: Color { .craftDynamic(light: Color(hex: 0xE2E8F0), dark: Color(hex: 0x27272A)) }
+    var pathHaloGlow: Color { brandPrimary.opacity(0.20) }
 }
 
 // MARK: - Default Implementation
@@ -86,6 +100,13 @@ public struct CraftDefaultColorTokens: CraftColorTokens {
     public var streakPending: Color
     public var streakGlow: Color
 
+    // Learning Path
+    public var pathCompleted: Color
+    public var pathActive: Color
+    public var pathUpcoming: Color
+    public var pathLocked: Color
+    public var pathHaloGlow: Color
+
     public init(
         canvasBackground: Color = .craftDynamic(light: Color(hex: 0xFAFAF8), dark: Color(hex: 0x121214)),
         surfaceCard: Color = .craftDynamic(light: Color(hex: 0xFFFFFF), dark: Color(hex: 0x1C1C1E)),
@@ -107,7 +128,12 @@ public struct CraftDefaultColorTokens: CraftColorTokens {
         statusInfo: Color = Color(hex: 0x0284C7),
         streakFreeze: Color = Color(hex: 0x38BDF8),
         streakPending: Color = Color(hex: 0x94A3B8),
-        streakGlow: Color = Color(hex: 0xF59E0B).opacity(0.35)
+        streakGlow: Color = Color(hex: 0xF59E0B).opacity(0.35),
+        pathCompleted: Color = Color(hex: 0x10B981),
+        pathActive: Color = Color(hex: 0xE06D3B),
+        pathUpcoming: Color = .craftDynamic(light: Color(hex: 0xCBD5E1), dark: Color(hex: 0x475569)),
+        pathLocked: Color = .craftDynamic(light: Color(hex: 0xE2E8F0), dark: Color(hex: 0x27272A)),
+        pathHaloGlow: Color = Color(hex: 0xE06D3B).opacity(0.20)
     ) {
         self.canvasBackground = canvasBackground
         self.surfaceCard = surfaceCard
@@ -130,6 +156,11 @@ public struct CraftDefaultColorTokens: CraftColorTokens {
         self.streakFreeze = streakFreeze
         self.streakPending = streakPending
         self.streakGlow = streakGlow
+        self.pathCompleted = pathCompleted
+        self.pathActive = pathActive
+        self.pathUpcoming = pathUpcoming
+        self.pathLocked = pathLocked
+        self.pathHaloGlow = pathHaloGlow
     }
 }
 
