@@ -65,6 +65,31 @@ final class CatalogViewTests: XCTestCase {
         XCTAssertEqual(CatalogEmptyStatePreset.bookmark.buttonSymbol, .list)
     }
 
+    func testCatalogStreakTierPresetProperties() {
+        XCTAssertEqual(CatalogStreakTierPreset.allCases.count, 3)
+
+        let starter = CatalogStreakTierPreset.starter
+        XCTAssertEqual(starter.id, "Starter (3d)")
+        XCTAssertEqual(starter.days, 3)
+        XCTAssertEqual(starter.tier, .starter)
+        XCTAssertEqual(starter.bestStreak, 7)
+        XCTAssertEqual(starter.nextMilestone, 7)
+
+        let blaze = CatalogStreakTierPreset.blaze
+        XCTAssertEqual(blaze.id, "Blaze (14d)")
+        XCTAssertEqual(blaze.days, 14)
+        XCTAssertEqual(blaze.tier, .blaze)
+        XCTAssertEqual(blaze.bestStreak, 30)
+        XCTAssertEqual(blaze.nextMilestone, 21)
+
+        let legendary = CatalogStreakTierPreset.legendary
+        XCTAssertEqual(legendary.id, "Legendary (45d)")
+        XCTAssertEqual(legendary.days, 45)
+        XCTAssertEqual(legendary.tier, .legendary)
+        XCTAssertEqual(legendary.bestStreak, 60)
+        XCTAssertEqual(legendary.nextMilestone, 50)
+    }
+
     func testEmeraldThemeTokens() {
         let theme = CraftEmeraldTheme()
         XCTAssertEqual(theme.colors.brandPrimary, Color(hex: 0x10B981))

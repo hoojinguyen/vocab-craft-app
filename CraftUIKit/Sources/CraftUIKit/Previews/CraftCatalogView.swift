@@ -111,6 +111,47 @@ public enum CatalogEmptyStatePreset: String, CaseIterable, Identifiable, Sendabl
     }
 }
 
+/// Interactive preset options for showcasing Streak Gamification tiers.
+public enum CatalogStreakTierPreset: String, CaseIterable, Identifiable, Sendable {
+    case starter = "Starter (3d)"
+    case blaze = "Blaze (14d)"
+    case legendary = "Legendary (45d)"
+
+    public var id: String { rawValue }
+
+    public var days: Int {
+        switch self {
+        case .starter: return 3
+        case .blaze: return 14
+        case .legendary: return 45
+        }
+    }
+
+    public var tier: CraftStreakTier {
+        switch self {
+        case .starter: return .starter
+        case .blaze: return .blaze
+        case .legendary: return .legendary
+        }
+    }
+
+    public var nextMilestone: Int {
+        switch self {
+        case .starter: return 7
+        case .blaze: return 21
+        case .legendary: return 50
+        }
+    }
+
+    public var bestStreak: Int {
+        switch self {
+        case .starter: return 7
+        case .blaze: return 30
+        case .legendary: return 60
+        }
+    }
+}
+
 private struct CatalogChipItem: Identifiable {
     var id: String { title }
     let title: String
@@ -328,6 +369,11 @@ private struct CraftCatalogContentView: View {
     @State private var isCountdownPresented: Bool = false
     @State private var waveformLevels: [CGFloat] = [0.1, 0.3, 0.6, 0.9, 0.7, 0.4, 0.8, 0.5, 0.2, 0.6, 0.85, 0.4, 0.7, 0.3, 0.5, 0.2]
 
+    // Streak Gamification States
+    @State private var selectedStreakPreset: CatalogStreakTierPreset = .blaze
+    @State private var isStreakCompletedToday: Bool = false
+    @State private var isStreakCelebrationPresented: Bool = false
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -417,6 +463,19 @@ private struct CraftCatalogContentView: View {
                         isConfettiTriggered: $isConfettiTriggered,
                         isCountdownPresented: $isCountdownPresented
                     )
+
+                    CatalogStreakSection(
+                        selectedPreset: $selectedStreakPreset,
+                        isCompletedToday: $isStreakCompletedToday,
+                        isCelebrationPresented: $isStreakCelebrationPresented,
+                        onBadgeTap: {
+                            isStreakCelebrationPresented = true
+                        },
+                        onFreezeTap: {
+                            toastStyle = .info
+                            isToastPresented = true
+                        }
+                    )
                 }
                 .padding(.horizontal, theme.spacing.base)
                 .padding(.vertical, theme.spacing.lg)
@@ -426,6 +485,25 @@ private struct CraftCatalogContentView: View {
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
+        }
+        .sheet(isPresented: $isStreakCelebrationPresented) {
+            CraftStreakCelebrationSheet(
+                currentStreak: selectedStreakPreset.days,
+                previousStreak: max(0, selectedStreakPreset.days - 1),
+                weekDays: [
+                    CraftStreakDay(id: "1", weekdaySymbol: "T2", status: .completed),
+                    CraftStreakDay(id: "2", weekdaySymbol: "T3", status: selectedStreakPreset == .starter ? .missed : .completed),
+                    CraftStreakDay(id: "3", weekdaySymbol: "T4", status: selectedStreakPreset == .blaze ? .frozen : .completed),
+                    CraftStreakDay(id: "4", weekdaySymbol: "T5", status: isStreakCompletedToday ? .completed : .pending, isToday: true),
+                    CraftStreakDay(id: "5", weekdaySymbol: "T6", status: .upcoming),
+                    CraftStreakDay(id: "6", weekdaySymbol: "T7", status: .upcoming),
+                    CraftStreakDay(id: "7", weekdaySymbol: "CN", status: .upcoming)
+                ],
+                onContinue: {
+                    isStreakCelebrationPresented = false
+                }
+            )
+            .presentationDetents([.medium, .large])
         }
         .craftSparkle(isTriggered: $isSparkleTriggered, particleCount: 25)
         .craftConfetti(isTriggered: $isConfettiTriggered, particleCount: 35)
@@ -1805,6 +1883,165 @@ private struct CatalogAudioMotionSection: View {
                     .frame(maxWidth: .infinity)
                 }
             }
+        }
+    }
+}
+
+// MARK: - Section 14: Streak Gamification System
+
+private struct CatalogStreakSection: View {
+    @Environment(\.craftTheme) private var theme
+    @Binding var selectedPreset: CatalogStreakTierPreset
+    @Binding var isCompletedToday: Bool
+    @Binding var isCelebrationPresented: Bool
+    let onBadgeTap: () -> Void
+    let onFreezeTap: () -> Void
+
+    var body: some View {
+        CraftCard(style: .elevated) {
+            VStack(alignment: .leading, spacing: theme.spacing.base) {
+                CatalogSectionHeader(title: "14. Streak Gamification System", iconName: CraftSymbol.streak.rawValue)
+
+                // Interactive Controls
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("Streak Tier Selection", style: .headline)
+                    Picker("Streak Tier", selection: $selectedPreset) {
+                        ForEach(CatalogStreakTierPreset.allCases) { preset in
+                            Text(preset.rawValue).tag(preset)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+
+                    CraftToggle(
+                        isOn: $isCompletedToday,
+                        title: "Goal Completed Today",
+                        subtitle: "Toggles active vs. pending dashed/breathing state",
+                        iconName: "checkmark.circle.fill"
+                    )
+                    .padding(.top, theme.spacing.xs)
+                }
+
+                CraftDivider()
+
+                // Live Preview: CraftStreakBadge (.sm & .md)
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    HStack {
+                        CraftText("CraftStreakBadge (Navigation & Header)", style: .headline)
+                        Spacer()
+                        CraftText("Tap to celebrate", style: .caption, color: theme.colors.brandPrimary)
+                    }
+                    CraftText("Compact flame pills with monospaced counter and breathing animation when pending.", style: .caption, color: theme.colors.textSecondary)
+
+                    HStack(spacing: theme.spacing.lg) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            CraftText("Small (32pt)", style: .caption, color: theme.colors.textMuted)
+                            CraftStreakBadge(
+                                count: selectedPreset.days,
+                                tier: selectedPreset.tier,
+                                isCompletedToday: isCompletedToday,
+                                size: .sm,
+                                onTap: onBadgeTap
+                            )
+                        }
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            CraftText("Medium (40pt)", style: .caption, color: theme.colors.textMuted)
+                            CraftStreakBadge(
+                                count: selectedPreset.days,
+                                tier: selectedPreset.tier,
+                                isCompletedToday: isCompletedToday,
+                                size: .md,
+                                onTap: onBadgeTap
+                            )
+                        }
+                    }
+                    .padding(.top, 2)
+                }
+
+                CraftDivider()
+
+                // Live Preview: CraftStreakCard
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("CraftStreakCard (7-Day Bento Widget)", style: .headline)
+                    CraftText("Weekly cycle nodes, freeze shields, and milestone progress bar.", style: .caption, color: theme.colors.textSecondary)
+
+                    CraftStreakCard(
+                        data: streakData,
+                        cardStyle: .outlined,
+                        onFreezeTap: onFreezeTap,
+                        onMilestoneTap: {
+                            isCelebrationPresented = true
+                        }
+                    )
+                    .padding(.top, 2)
+                }
+
+                CraftDivider()
+
+                // Modal Celebration Sheet Trigger
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("CraftStreakCelebrationSheet (Milestone Modal)", style: .headline)
+                    CraftText("Hero flame pop-in, count-up animation, and particle bursts.", style: .caption, color: theme.colors.textSecondary)
+
+                    CraftButton(
+                        "Preview Celebration Modal (\(selectedPreset.days) Days)",
+                        iconName: "party.popper.fill",
+                        variant: .primary,
+                        size: .md,
+                        isFullWidth: true
+                    ) {
+                        isCelebrationPresented = true
+                    }
+                    .padding(.top, theme.spacing.xs)
+                }
+            }
+        }
+    }
+
+    private var streakData: CraftStreakData {
+        CraftStreakData(
+            currentStreak: selectedPreset.days,
+            bestStreak: selectedPreset.bestStreak,
+            freezeTokens: 2,
+            maxFreezeTokens: 3,
+            nextMilestoneDays: selectedPreset.nextMilestone,
+            isCompletedToday: isCompletedToday,
+            weekDays: sampleWeekDays
+        )
+    }
+
+    private var sampleWeekDays: [CraftStreakDay] {
+        switch selectedPreset {
+        case .starter:
+            return [
+                CraftStreakDay(id: "1", weekdaySymbol: "T2", status: .completed),
+                CraftStreakDay(id: "2", weekdaySymbol: "T3", status: .missed),
+                CraftStreakDay(id: "3", weekdaySymbol: "T4", status: .completed),
+                CraftStreakDay(id: "4", weekdaySymbol: "T5", status: isCompletedToday ? .completed : .pending, isToday: true),
+                CraftStreakDay(id: "5", weekdaySymbol: "T6", status: .upcoming),
+                CraftStreakDay(id: "6", weekdaySymbol: "T7", status: .upcoming),
+                CraftStreakDay(id: "7", weekdaySymbol: "CN", status: .upcoming)
+            ]
+        case .blaze:
+            return [
+                CraftStreakDay(id: "1", weekdaySymbol: "T2", status: .completed),
+                CraftStreakDay(id: "2", weekdaySymbol: "T3", status: .completed),
+                CraftStreakDay(id: "3", weekdaySymbol: "T4", status: .frozen),
+                CraftStreakDay(id: "4", weekdaySymbol: "T5", status: isCompletedToday ? .completed : .pending, isToday: true),
+                CraftStreakDay(id: "5", weekdaySymbol: "T6", status: .upcoming),
+                CraftStreakDay(id: "6", weekdaySymbol: "T7", status: .upcoming),
+                CraftStreakDay(id: "7", weekdaySymbol: "CN", status: .upcoming)
+            ]
+        case .legendary:
+            return [
+                CraftStreakDay(id: "1", weekdaySymbol: "T2", status: .completed),
+                CraftStreakDay(id: "2", weekdaySymbol: "T3", status: .completed),
+                CraftStreakDay(id: "3", weekdaySymbol: "T4", status: .completed),
+                CraftStreakDay(id: "4", weekdaySymbol: "T5", status: isCompletedToday ? .completed : .pending, isToday: true),
+                CraftStreakDay(id: "5", weekdaySymbol: "T6", status: .upcoming),
+                CraftStreakDay(id: "6", weekdaySymbol: "T7", status: .upcoming),
+                CraftStreakDay(id: "7", weekdaySymbol: "CN", status: .upcoming)
+            ]
         }
     }
 }
