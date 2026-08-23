@@ -193,7 +193,8 @@ public struct CraftLearningPath: View {
     // MARK: - Scrollable Path View
 
     private var scrollableView: some View {
-        ScrollViewReader { proxy in
+        let isReducedMotion = reduceMotion
+        return ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: theme.spacing.xxl) {
                     ForEach(sections) { section in
@@ -205,8 +206,8 @@ public struct CraftLearningPath: View {
                         )
                         .scrollTransition(.animated) { content, phase in
                             content
-                                .opacity(reduceMotion ? 1.0 : (1.0 - abs(phase.value) * 0.25))
-                                .scaleEffect(reduceMotion ? 1.0 : (1.0 - abs(phase.value) * 0.04))
+                                .opacity(isReducedMotion ? 1.0 : (1.0 - abs(phase.value) * 0.25))
+                                .scaleEffect(isReducedMotion ? 1.0 : (1.0 - abs(phase.value) * 0.04))
                         }
                     }
                 }
@@ -217,7 +218,7 @@ public struct CraftLearningPath: View {
                 // Delay 300ms to allow LazyVStack layout and child geometry to stabilize before animating scroll
                 try? await Task.sleep(nanoseconds: 300_000_000)
                 guard !Task.isCancelled else { return }
-                withAnimation(reduceMotion ? .default : .spring(response: 0.5, dampingFraction: 0.8)) {
+                withAnimation(isReducedMotion ? .default : .spring(response: 0.5, dampingFraction: 0.8)) {
                     proxy.scrollTo(targetID, anchor: .center)
                 }
             }

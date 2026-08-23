@@ -1682,6 +1682,144 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertTrue(emptyPath.isEmpty)
         XCTAssertNotNil(emptyPath.body)
     }
+
+    // MARK: - Catalog Winding and Showcase Tests
+
+    func testCatalogWindingPresetCasesAndProperties() {
+        XCTAssertEqual(CatalogWindingPreset.allCases.count, 3)
+        XCTAssertEqual(CatalogWindingPreset.allCases, [.standard, .gentle, .linear])
+        XCTAssertEqual(CatalogWindingPreset.standard.rawValue, "Standard")
+        XCTAssertEqual(CatalogWindingPreset.gentle.rawValue, "Gentle")
+        XCTAssertEqual(CatalogWindingPreset.linear.rawValue, "Linear")
+        XCTAssertEqual(CatalogWindingPreset.standard.winding, .standard)
+        XCTAssertEqual(CatalogWindingPreset.gentle.winding, .gentle)
+        XCTAssertEqual(CatalogWindingPreset.linear.winding, .linear)
+    }
+
+    func testCatalogLearningPathMockDataVietnameseCurriculum() {
+        let sections = CatalogLearningPathMockData.defaultSections
+        XCTAssertEqual(sections.count, 2)
+
+        // Section 1
+        let sec1 = sections[0]
+        XCTAssertEqual(sec1.id, "sec_1")
+        XCTAssertEqual(sec1.title, "Unit 1: Khởi đầu (Foundations)")
+        XCTAssertEqual(sec1.level, "BEGINNER • LEVEL 1")
+        XCTAssertEqual(sec1.bannerIcon, "sparkles")
+        XCTAssertEqual(sec1.progressValue, 0.5)
+        XCTAssertEqual(sec1.nodes.count, 6)
+
+        // Section 1 Nodes
+        let s1n1 = sec1.nodes[0]
+        XCTAssertEqual(s1n1.id, "u1_n1")
+        XCTAssertEqual(s1n1.title, "Chào hỏi & Làm quen")
+        XCTAssertEqual(s1n1.iconName, "hand.wave.fill")
+        XCTAssertEqual(s1n1.state, .completed)
+        XCTAssertEqual(s1n1.kind, .standard)
+        XCTAssertEqual(s1n1.subtitle, "10 từ mới • 3m")
+        XCTAssertEqual(s1n1.xpReward, 15)
+        XCTAssertEqual(s1n1.stars, 3)
+
+        let s1n2 = sec1.nodes[1]
+        XCTAssertEqual(s1n2.id, "u1_n2")
+        XCTAssertEqual(s1n2.title, "Bảng chữ cái & Phát âm")
+        XCTAssertEqual(s1n2.iconName, "textformat")
+        XCTAssertEqual(s1n2.state, .completed)
+        XCTAssertEqual(s1n2.kind, .standard)
+        XCTAssertEqual(s1n2.subtitle, "12 ký tự • 4m")
+        XCTAssertEqual(s1n2.xpReward, 20)
+        XCTAssertEqual(s1n2.stars, 3)
+
+        let s1n3 = sec1.nodes[2]
+        XCTAssertEqual(s1n3.id, "u1_n3")
+        XCTAssertEqual(s1n3.title, "Số đếm & Thời gian")
+        XCTAssertEqual(s1n3.iconName, "number")
+        XCTAssertEqual(s1n3.state, .active)
+        XCTAssertEqual(s1n3.kind, .standard)
+        XCTAssertEqual(s1n3.progress, 0.6)
+        XCTAssertEqual(s1n3.subtitle, "15 từ vựng • 5m")
+        XCTAssertEqual(s1n3.xpReward, 25)
+        XCTAssertEqual(s1n3.badgeCount, 2)
+
+        let s1n4 = sec1.nodes[3]
+        XCTAssertEqual(s1n4.id, "u1_n4")
+        XCTAssertEqual(s1n4.title, "Từ vựng Đồ ăn & Đồ uống")
+        XCTAssertEqual(s1n4.iconName, "fork.knife")
+        XCTAssertEqual(s1n4.state, .upcoming)
+        XCTAssertEqual(s1n4.kind, .standard)
+        XCTAssertEqual(s1n4.subtitle, "18 từ vựng • 5m")
+        XCTAssertEqual(s1n4.xpReward, 25)
+
+        let s1n5 = sec1.nodes[4]
+        XCTAssertEqual(s1n5.id, "u1_n5")
+        XCTAssertEqual(s1n5.title, "Thử thách Ngữ pháp Checkpoint")
+        XCTAssertEqual(s1n5.iconName, "crown.fill")
+        XCTAssertEqual(s1n5.state, .bonus)
+        XCTAssertEqual(s1n5.kind, .checkpoint)
+        XCTAssertEqual(s1n5.subtitle, "Bài kiểm tra nhanh")
+        XCTAssertEqual(s1n5.xpReward, 50)
+        XCTAssertEqual(s1n5.badgeText, "HOT")
+
+        let s1n6 = sec1.nodes[5]
+        XCTAssertEqual(s1n6.id, "u1_n6")
+        XCTAssertEqual(s1n6.title, "Rương Báu Hoàn Thành Chặng 1")
+        XCTAssertEqual(s1n6.iconName, "gift.fill")
+        XCTAssertEqual(s1n6.state, .bonus)
+        XCTAssertEqual(s1n6.kind, .treasureChest)
+        XCTAssertEqual(s1n6.subtitle, "Mở khóa phần thưởng")
+        XCTAssertEqual(s1n6.xpReward, 100)
+
+        // Section 2
+        let sec2 = sections[1]
+        XCTAssertEqual(sec2.id, "sec_2")
+        XCTAssertEqual(sec2.title, "Unit 2: Giao tiếp Hàng ngày (Daily Conversations)")
+        XCTAssertEqual(sec2.level, "INTERMEDIATE • LEVEL 2")
+        XCTAssertEqual(sec2.bannerIcon, "bubble.left.and.bubble.right.fill")
+        XCTAssertEqual(sec2.progressValue, 0.0)
+        XCTAssertEqual(sec2.nodes.count, 4)
+
+        // Section 2 Nodes
+        let s2n1 = sec2.nodes[0]
+        XCTAssertEqual(s2n1.id, "u2_n1")
+        XCTAssertEqual(s2n1.title, "Hỏi đường & Di chuyển")
+        XCTAssertEqual(s2n1.iconName, "map.fill")
+        XCTAssertEqual(s2n1.state, .locked)
+        XCTAssertEqual(s2n1.kind, .standard)
+        XCTAssertEqual(s2n1.subtitle, "15 từ mới • 5m")
+        XCTAssertEqual(s2n1.xpReward, 30)
+
+        let s2n2 = sec2.nodes[1]
+        XCTAssertEqual(s2n2.id, "u2_n2")
+        XCTAssertEqual(s2n2.title, "Mua sắm & Giá cả")
+        XCTAssertEqual(s2n2.iconName, "cart.fill")
+        XCTAssertEqual(s2n2.state, .locked)
+        XCTAssertEqual(s2n2.kind, .standard)
+        XCTAssertEqual(s2n2.subtitle, "20 từ mới • 6m")
+        XCTAssertEqual(s2n2.xpReward, 30)
+
+        let s2n3 = sec2.nodes[2]
+        XCTAssertEqual(s2n3.id, "u2_n3")
+        XCTAssertEqual(s2n3.title, "Khách sạn & Du lịch")
+        XCTAssertEqual(s2n3.iconName, "bed.double.fill")
+        XCTAssertEqual(s2n3.state, .locked)
+        XCTAssertEqual(s2n3.kind, .standard)
+        XCTAssertEqual(s2n3.subtitle, "18 từ mới • 5m")
+        XCTAssertEqual(s2n3.xpReward, 35)
+
+        let s2n4 = sec2.nodes[3]
+        XCTAssertEqual(s2n4.id, "u2_n4")
+        XCTAssertEqual(s2n4.title, "Rương Báu Hoàn Thành Chặng 2")
+        XCTAssertEqual(s2n4.iconName, "gift.fill")
+        XCTAssertEqual(s2n4.state, .bonus)
+        XCTAssertEqual(s2n4.kind, .treasureChest)
+        XCTAssertEqual(s2n4.subtitle, "Mở khóa phần thưởng")
+        XCTAssertEqual(s2n4.xpReward, 150)
+    }
+
+    func testCraftCatalogViewInstantiation() {
+        let catalog = CraftCatalogView()
+        XCTAssertNotNil(catalog.body)
+    }
 }
 
 

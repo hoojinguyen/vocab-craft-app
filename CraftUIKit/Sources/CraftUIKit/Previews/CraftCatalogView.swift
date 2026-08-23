@@ -171,41 +171,149 @@ public enum CatalogRowPatternPreset: String, CaseIterable, Identifiable, Sendabl
     }
 }
 
-private enum CatalogLearningPathMockData {
-    static var defaultSections: [LessonSection] {
+/// Interactive preset options for SerpentineWinding in the catalog.
+public enum CatalogWindingPreset: String, CaseIterable, Identifiable, Sendable {
+    case standard = "Standard"
+    case gentle = "Gentle"
+    case linear = "Linear"
+
+    public var id: String { rawValue }
+
+    public var winding: SerpentineWinding {
+        switch self {
+        case .standard: return .standard
+        case .gentle: return .gentle
+        case .linear: return .linear
+        }
+    }
+}
+
+public enum CatalogLearningPathMockData {
+    public static var defaultSections: [LessonSection] {
         let section1Nodes = [
-            LessonNodeModel(id: "u1_n1", title: "Alphabet", iconName: "textformat", state: .completed),
-            LessonNodeModel(id: "u1_n2", title: "Phonics", iconName: "waveform", state: .completed),
-            LessonNodeModel(id: "u1_n3", title: "Common Nouns", iconName: "sparkles", state: .active, progress: 0.75, badgeCount: 1),
-            LessonNodeModel(id: "u1_n4", title: "Verbs", iconName: "figure.run", state: .upcoming),
-            LessonNodeModel(id: "u1_n5", title: "Challenge", iconName: "crown.fill", state: .bonus, badgeText: "HOT"),
-            LessonNodeModel(id: "u1_n6", title: "Adjectives", iconName: "paintpalette.fill", state: .locked)
+            LessonNodeModel(
+                id: "u1_n1",
+                title: "Chào hỏi & Làm quen",
+                subtitle: "10 từ mới • 3m",
+                iconName: "hand.wave.fill",
+                state: .completed,
+                kind: .standard,
+                xpReward: 15,
+                stars: 3
+            ),
+            LessonNodeModel(
+                id: "u1_n2",
+                title: "Bảng chữ cái & Phát âm",
+                subtitle: "12 ký tự • 4m",
+                iconName: "textformat",
+                state: .completed,
+                kind: .standard,
+                xpReward: 20,
+                stars: 3
+            ),
+            LessonNodeModel(
+                id: "u1_n3",
+                title: "Số đếm & Thời gian",
+                subtitle: "15 từ vựng • 5m",
+                iconName: "number",
+                state: .active,
+                kind: .standard,
+                progress: 0.6,
+                xpReward: 25,
+                badgeCount: 2
+            ),
+            LessonNodeModel(
+                id: "u1_n4",
+                title: "Từ vựng Đồ ăn & Đồ uống",
+                subtitle: "18 từ vựng • 5m",
+                iconName: "fork.knife",
+                state: .upcoming,
+                kind: .standard,
+                xpReward: 25
+            ),
+            LessonNodeModel(
+                id: "u1_n5",
+                title: "Thử thách Ngữ pháp Checkpoint",
+                subtitle: "Bài kiểm tra nhanh",
+                iconName: "crown.fill",
+                state: .bonus,
+                kind: .checkpoint,
+                xpReward: 50,
+                badgeText: "HOT"
+            ),
+            LessonNodeModel(
+                id: "u1_n6",
+                title: "Rương Báu Hoàn Thành Chặng 1",
+                subtitle: "Mở khóa phần thưởng",
+                iconName: "gift.fill",
+                state: .bonus,
+                kind: .treasureChest,
+                xpReward: 100
+            )
         ]
 
         let section2Nodes = [
-            LessonNodeModel(id: "u2_n1", title: "Greetings", iconName: "quote.bubble.fill", state: .locked),
-            LessonNodeModel(id: "u2_n2", title: "Ordering Food", iconName: "cup.and.saucer.fill", state: .locked),
-            LessonNodeModel(id: "u2_n3", title: "Directions", iconName: "map.fill", state: .locked),
-            LessonNodeModel(id: "u2_n4", title: "Travel Boss", iconName: "trophy.fill", state: .bonus)
+            LessonNodeModel(
+                id: "u2_n1",
+                title: "Hỏi đường & Di chuyển",
+                subtitle: "15 từ mới • 5m",
+                iconName: "map.fill",
+                state: .locked,
+                kind: .standard,
+                xpReward: 30
+            ),
+            LessonNodeModel(
+                id: "u2_n2",
+                title: "Mua sắm & Giá cả",
+                subtitle: "20 từ mới • 6m",
+                iconName: "cart.fill",
+                state: .locked,
+                kind: .standard,
+                xpReward: 30
+            ),
+            LessonNodeModel(
+                id: "u2_n3",
+                title: "Khách sạn & Du lịch",
+                subtitle: "18 từ mới • 5m",
+                iconName: "bed.double.fill",
+                state: .locked,
+                kind: .standard,
+                xpReward: 35
+            ),
+            LessonNodeModel(
+                id: "u2_n4",
+                title: "Rương Báu Hoàn Thành Chặng 2",
+                subtitle: "Mở khóa phần thưởng",
+                iconName: "gift.fill",
+                state: .bonus,
+                kind: .treasureChest,
+                xpReward: 150
+            )
         ]
 
         return [
             LessonSection(
                 id: "sec_1",
-                title: "Unit 1: Fundamentals",
-                subtitle: "Master basic vocabulary and sentence structures",
-                level: "BEGINNER",
-                progress: "2/6",
+                title: "Unit 1: Khởi đầu (Foundations)",
+                subtitle: "Nắm vững ngữ âm và các mẫu câu cơ bản",
+                level: "BEGINNER • LEVEL 1",
+                progressText: "2/6",
+                progressValue: 0.5,
+                bannerIcon: "sparkles",
                 nodes: section1Nodes,
+                winding: .standard,
                 connectorStyle: .dashed
             ),
             LessonSection(
                 id: "sec_2",
-                title: "Unit 2: Conversation",
-                subtitle: "Real-world dialogues and practical scenarios",
-                level: "INTERMEDIATE",
-                progress: "0/4",
+                title: "Unit 2: Giao tiếp Hàng ngày (Daily Conversations)",
+                subtitle: "Tình huống giao tiếp thực tế và ứng dụng",
+                level: "INTERMEDIATE • LEVEL 2",
+                progressText: "0/4",
+                progressValue: 0.0,
+                bannerIcon: "bubble.left.and.bubble.right.fill",
                 nodes: section2Nodes,
+                winding: .gentle,
                 connectorStyle: .solid
             )
         ]
@@ -435,7 +543,7 @@ private struct CraftCatalogContentView: View {
     @State private var isStreakCelebrationPresented: Bool = false
 
     // Learning Journey Path States
-    @State private var selectedLearningPattern: CatalogRowPatternPreset = .standard
+    @State private var selectedWindingPreset: CatalogWindingPreset = .standard
     @State private var showLearningCelebration: Bool = true
     @State private var scrollToActiveNode: Bool = false
     @State private var selectedLearningNodeID: String = "u1_n3"
@@ -545,13 +653,23 @@ private struct CraftCatalogContentView: View {
                     )
 
                     CatalogLearningPathSection(
-                        selectedPatternPreset: $selectedLearningPattern,
+                        selectedWindingPreset: $selectedWindingPreset,
                         showCelebration: $showLearningCelebration,
                         scrollToActive: $scrollToActiveNode,
                         sections: $learningSections,
                         selectedNodeID: $selectedLearningNodeID,
                         onNodeSelected: { node in
                             toastStyle = .info
+                            isToastPresented = true
+                        },
+                        onStartLesson: { node in
+                            toastStyle = .success
+                            isConfettiTriggered = true
+                            isToastPresented = true
+                        },
+                        onTriggerCelebration: {
+                            isConfettiTriggered = true
+                            toastStyle = .success
                             isToastPresented = true
                         }
                     )
@@ -2129,12 +2247,14 @@ private struct CatalogStreakSection: View {
 
 private struct CatalogLearningPathSection: View {
     @Environment(\.craftTheme) private var theme
-    @Binding var selectedPatternPreset: CatalogRowPatternPreset
+    @Binding var selectedWindingPreset: CatalogWindingPreset
     @Binding var showCelebration: Bool
     @Binding var scrollToActive: Bool
     @Binding var sections: [LessonSection]
     @Binding var selectedNodeID: String
     let onNodeSelected: (LessonNodeModel) -> Void
+    let onStartLesson: (LessonNodeModel) -> Void
+    let onTriggerCelebration: () -> Void
 
     private var allNodes: [LessonNodeModel] {
         sections.flatMap(\.nodes)
@@ -2150,16 +2270,16 @@ private struct CatalogLearningPathSection: View {
                 CatalogSectionHeader(title: "15. Gamified Learning Journey Path", iconName: "map.fill")
 
                 CraftText(
-                    "Duolingo-style organic serpentine lesson roadmap with dynamic row patterns, breathing connectors, accessibility hints, and milestone celebration FX.",
+                    "Duolingo-style tactile serpentine learning journey path with continuous winding layout, smart breathing connectors, 3D button press physics, and milestone detail sheets.",
                     style: .caption,
                     color: theme.colors.textSecondary
                 )
 
                 // Interactive Controls
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText("Row Layout Pattern", style: .headline)
-                    Picker("Row Pattern", selection: $selectedPatternPreset) {
-                        ForEach(CatalogRowPatternPreset.allCases) { preset in
+                    CraftText("Serpentine Winding Pattern", style: .headline)
+                    Picker("Winding Pattern", selection: $selectedWindingPreset) {
+                        ForEach(CatalogWindingPreset.allCases) { preset in
                             Text(preset.rawValue).tag(preset)
                         }
                     }
@@ -2169,7 +2289,7 @@ private struct CatalogLearningPathSection: View {
                         CraftToggle(
                             isOn: $showCelebration,
                             title: "Confetti Celebration",
-                            subtitle: "Celebrate completed/bonus taps",
+                            subtitle: "Celebrate completed/reward taps",
                             iconName: "party.popper.fill"
                         )
                     }
@@ -2178,32 +2298,64 @@ private struct CatalogLearningPathSection: View {
 
                 CraftDivider()
 
-                // Node State Inspector & Modifier
+                // Node State & Kind Inspector & Modifier
                 if let node = selectedNode {
                     VStack(alignment: .leading, spacing: theme.spacing.xs) {
                         HStack {
-                            CraftText("Node Inspector: \(node.title)", style: .headline)
+                            VStack(alignment: .leading, spacing: 2) {
+                                CraftText("Node Inspector: \(node.title)", style: .headline)
+                                if let subtitle = node.subtitle {
+                                    CraftText(subtitle, style: .caption, color: theme.colors.textSecondary)
+                                }
+                            }
                             Spacer()
-                            CraftBadge(
-                                node.state.rawValue.capitalized,
-                                symbol: badgeSymbol(for: node.state),
-                                variant: .subtle,
-                                tone: badgeTone(for: node.state),
-                                size: .sm
-                            )
+                            HStack(spacing: theme.spacing.xs) {
+                                CraftBadge(
+                                    node.kind.rawValue.capitalized,
+                                    symbol: kindSymbol(for: node.kind),
+                                    variant: .subtle,
+                                    tone: kindTone(for: node.kind),
+                                    size: .sm
+                                )
+                                CraftBadge(
+                                    node.state.rawValue.capitalized,
+                                    symbol: badgeSymbol(for: node.state),
+                                    variant: .subtle,
+                                    tone: badgeTone(for: node.state),
+                                    size: .sm
+                                )
+                            }
                         }
 
                         // State Switcher
-                        Picker("Node State", selection: Binding(
-                            get: { node.state },
-                            set: { updateNodeState(nodeID: node.id, newState: $0) }
-                        )) {
-                            ForEach(LessonNodeState.allCases, id: \.self) { state in
-                                Text(state.rawValue.capitalized).tag(state)
+                        VStack(alignment: .leading, spacing: 4) {
+                            CraftText("Node State", style: .label, color: theme.colors.textSecondary)
+                            Picker("Node State", selection: Binding(
+                                get: { node.state },
+                                set: { updateNodeState(nodeID: node.id, newState: $0) }
+                            )) {
+                                ForEach(LessonNodeState.allCases, id: \.self) { state in
+                                    Text(state.rawValue.capitalized).tag(state)
+                                }
                             }
+                            .pickerStyle(.segmented)
                         }
-                        .pickerStyle(.segmented)
-                        .padding(.vertical, 4)
+                        .padding(.top, 2)
+
+                        // Kind Switcher
+                        VStack(alignment: .leading, spacing: 4) {
+                            CraftText("Node Kind", style: .label, color: theme.colors.textSecondary)
+                            Picker("Node Kind", selection: Binding(
+                                get: { node.kind },
+                                set: { updateNodeKind(nodeID: node.id, newKind: $0) }
+                            )) {
+                                ForEach(LessonNodeKind.allCases, id: \.self) { kind in
+                                    Text(kind.rawValue.capitalized).tag(kind)
+                                }
+                            }
+                            .pickerStyle(.segmented)
+                        }
+                        .padding(.top, 2)
 
                         // Progress Slider if active or inProgress
                         if node.state == .active || node.state == .inProgress {
@@ -2222,30 +2374,42 @@ private struct CatalogLearningPathSection: View {
                                 )
                                 .tint(theme.colors.brandPrimary)
                             }
+                            .padding(.top, 2)
                         }
 
                         // Quick Actions
-                        HStack(spacing: theme.spacing.sm) {
-                            CraftButton(
-                                "Complete Lesson",
-                                iconName: "checkmark.circle.fill",
-                                variant: .primary,
-                                size: .sm
-                            ) {
-                                completeCurrentLesson(nodeID: node.id)
+                        VStack(spacing: theme.spacing.xs) {
+                            HStack(spacing: theme.spacing.sm) {
+                                CraftButton(
+                                    "Complete Lesson",
+                                    iconName: "checkmark.circle.fill",
+                                    variant: .primary,
+                                    size: .sm
+                                ) {
+                                    completeCurrentLesson(nodeID: node.id)
+                                }
+                                .frame(maxWidth: .infinity)
+
+                                CraftButton(
+                                    "Reset Path",
+                                    iconName: "arrow.counterclockwise",
+                                    variant: .outline,
+                                    size: .sm
+                                ) {
+                                    sections = CatalogLearningPathMockData.defaultSections
+                                    selectedNodeID = "u1_n3"
+                                }
+                                .frame(maxWidth: .infinity)
                             }
-                            .frame(maxWidth: .infinity)
 
                             CraftButton(
-                                "Reset Path",
-                                iconName: "arrow.counterclockwise",
-                                variant: .outline,
+                                "Trigger Celebration",
+                                iconName: "party.popper.fill",
+                                variant: .secondary,
                                 size: .sm
                             ) {
-                                sections = CatalogLearningPathMockData.defaultSections
-                                selectedNodeID = "u1_n3"
+                                onTriggerCelebration()
                             }
-                            .frame(maxWidth: .infinity)
                         }
                         .padding(.top, 4)
                     }
@@ -2258,20 +2422,24 @@ private struct CatalogLearningPathSection: View {
                     HStack {
                         CraftText("Interactive Path Preview", style: .headline)
                         Spacer()
-                        CraftText("Tap any node to inspect", style: .caption, color: theme.colors.brandPrimary)
+                        CraftText("Tap any node to inspect & view detail", style: .caption, color: theme.colors.brandPrimary)
                     }
 
                     CraftLearningPath(
                         sections: sections,
-                        rowPattern: selectedPatternPreset.pattern,
+                        winding: selectedWindingPreset.winding,
                         onNodeTap: { tapped in
                             selectedNodeID = tapped.id
                             onNodeSelected(tapped)
                         },
+                        onStartLesson: { started in
+                            onStartLesson(started)
+                        },
+                        showDetailModal: true,
                         scrollToActive: scrollToActive,
                         showCelebration: showCelebration
                     )
-                    .frame(height: 480)
+                    .frame(height: 520)
                     .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
                     .overlay(
                         RoundedRectangle(cornerRadius: theme.radii.md)
@@ -2304,16 +2472,80 @@ private struct CatalogLearningPathSection: View {
         }
     }
 
+    private func kindSymbol(for kind: LessonNodeKind) -> CraftSymbol {
+        switch kind {
+        case .standard: return .study
+        case .checkpoint: return .trophy
+        case .treasureChest: return .sparkles
+        }
+    }
+
+    private func kindTone(for kind: LessonNodeKind) -> CraftBadgeTone {
+        switch kind {
+        case .standard: return .neutral
+        case .checkpoint: return .warning
+        case .treasureChest: return .success
+        }
+    }
+
     private func updateNodeState(nodeID: String, newState: LessonNodeState) {
+        sections = sections.map { section in
+            let updatedNodes = section.nodes.map { node in
+                if node.id == nodeID {
+                    let updatedProgress: Double? = switch newState {
+                    case .completed: 1.0
+                    case .active, .inProgress: node.progress ?? 0.5
+                    case .upcoming, .locked, .bonus: nil
+                    }
+                    return LessonNodeModel(
+                        id: node.id,
+                        title: node.title,
+                        subtitle: node.subtitle,
+                        iconName: node.iconName,
+                        state: newState,
+                        kind: node.kind,
+                        progress: updatedProgress,
+                        xpReward: node.xpReward,
+                        estimatedMinutes: node.estimatedMinutes,
+                        stars: node.stars,
+                        badgeCount: node.badgeCount,
+                        badgeText: node.badgeText
+                    )
+                }
+                return node
+            }
+            let completedCount = updatedNodes.filter { $0.state == .completed }.count
+            let progressVal = updatedNodes.isEmpty ? 0.0 : Double(completedCount) / Double(updatedNodes.count)
+            return LessonSection(
+                id: section.id,
+                title: section.title,
+                subtitle: section.subtitle,
+                level: section.level,
+                progressText: "\(completedCount)/\(updatedNodes.count)",
+                progressValue: progressVal,
+                bannerIcon: section.bannerIcon,
+                nodes: updatedNodes,
+                winding: section.winding,
+                connectorStyle: section.connectorStyle
+            )
+        }
+    }
+
+    private func updateNodeKind(nodeID: String, newKind: LessonNodeKind) {
         sections = sections.map { section in
             let updatedNodes = section.nodes.map { node in
                 if node.id == nodeID {
                     return LessonNodeModel(
                         id: node.id,
                         title: node.title,
+                        subtitle: node.subtitle,
                         iconName: node.iconName,
-                        state: newState,
-                        progress: newState == .completed ? 1.0 : (newState == .active || newState == .inProgress ? (node.progress ?? 0.5) : nil),
+                        state: node.state,
+                        kind: newKind,
+                        progress: node.progress,
+                        xpReward: node.xpReward,
+                        estimatedMinutes: node.estimatedMinutes,
+                        stars: node.stars,
                         badgeCount: node.badgeCount,
                         badgeText: node.badgeText
                     )
@@ -2325,8 +2557,11 @@ private struct CatalogLearningPathSection: View {
                 title: section.title,
                 subtitle: section.subtitle,
                 level: section.level,
-                progress: calculateSectionProgress(nodes: updatedNodes),
+                progressText: section.progressText,
+                progressValue: section.progressValue,
+                bannerIcon: section.bannerIcon,
                 nodes: updatedNodes,
+                winding: section.winding,
                 connectorStyle: section.connectorStyle
             )
         }
@@ -2339,9 +2574,14 @@ private struct CatalogLearningPathSection: View {
                     return LessonNodeModel(
                         id: node.id,
                         title: node.title,
+                        subtitle: node.subtitle,
                         iconName: node.iconName,
                         state: node.state,
+                        kind: node.kind,
                         progress: newProgress,
+                        xpReward: node.xpReward,
+                        estimatedMinutes: node.estimatedMinutes,
+                        stars: node.stars,
                         badgeCount: node.badgeCount,
                         badgeText: node.badgeText
                     )
@@ -2353,8 +2593,11 @@ private struct CatalogLearningPathSection: View {
                 title: section.title,
                 subtitle: section.subtitle,
                 level: section.level,
-                progress: calculateSectionProgress(nodes: updatedNodes),
+                progressText: section.progressText,
+                progressValue: section.progressValue,
+                bannerIcon: section.bannerIcon,
                 nodes: updatedNodes,
+                winding: section.winding,
                 connectorStyle: section.connectorStyle
             )
         }
@@ -2377,11 +2620,6 @@ private struct CatalogLearningPathSection: View {
             updateNodeState(nodeID: nextID, newState: .active)
             selectedNodeID = nextID
         }
-    }
-
-    private func calculateSectionProgress(nodes: [LessonNodeModel]) -> String {
-        let completedCount = nodes.filter { $0.state == .completed }.count
-        return "\(completedCount)/\(nodes.count)"
     }
 }
 
