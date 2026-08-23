@@ -3,4 +3,6 @@
 build/
 xcuserdata/
 .superpowers/
+.build-benchmark/
+
 
