@@ -25,7 +25,7 @@ public struct NodeAnchorPreferenceKey: PreferenceKey {
 public struct CraftLessonSectionView: View {
     public let section: LessonSection
     public let rowPattern: RowPattern
-    public let onNodeTap: ((LessonNodeModel) -> Void)?
+    public let onNodeTap: (@Sendable (LessonNodeModel) -> Void)?
 
     @Environment(\.craftTheme) private var theme
 
@@ -34,7 +34,7 @@ public struct CraftLessonSectionView: View {
     public init(
         section: LessonSection,
         rowPattern: RowPattern = .standard,
-        onNodeTap: ((LessonNodeModel) -> Void)? = nil
+        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil
     ) {
         self.section = section
         self.rowPattern = rowPattern
@@ -143,7 +143,7 @@ public struct CraftLessonSectionView: View {
                     let fromPoint = geometry[fromAnchor]
                     let toPoint = geometry[toAnchor]
 
-                    if fromNode.state == .active && (toNode.state == .upcoming || toNode.state == .locked) {
+                    if fromNode.state == .active && (toNode.state == .upcoming || toNode.state == .locked || toNode.state == .bonus) {
                         BreathingConnectorView(from: fromPoint, to: toPoint)
                     } else {
                         CraftStyledConnector(from: fromPoint, to: toPoint, style: section.connectorStyle)

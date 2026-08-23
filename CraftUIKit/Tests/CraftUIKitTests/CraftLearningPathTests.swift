@@ -720,8 +720,34 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertFalse(path.showCelebration)
         XCTAssertEqual(path.sections[0].connectorStyle, .gradient(from: .blue, to: .purple))
     }
+
+    func testActiveToBonusConnectorSection() {
+        let activeNode = LessonNodeModel(id: "n_act", title: "Active Lesson", iconName: "flame.fill", state: .active)
+        let bonusNode = LessonNodeModel(id: "n_bon", title: "Bonus Challenge", iconName: "crown.fill", state: .bonus)
+        let section = LessonSection(id: "sec_act_bonus", title: "Bonus Section", nodes: [activeNode, bonusNode])
+
+        let sectionView = CraftLessonSectionView(section: section)
+        XCTAssertNotNil(sectionView)
+        XCTAssertEqual(sectionView.section.nodes.count, 2)
+        XCTAssertEqual(sectionView.section.nodes[0].state, .active)
+        XCTAssertEqual(sectionView.section.nodes[1].state, .bonus)
+    }
+
+    func testSendableCallbacks() {
+        let sendableTap: @Sendable () -> Void = {}
+        let node = LessonNodeModel(id: "sendable_node", title: "Node", iconName: "star", state: .active)
+        let lessonNode = CraftLessonNode(model: node, onTap: sendableTap)
+        XCTAssertNotNil(lessonNode)
+
+        let sendableNodeTap: @Sendable (LessonNodeModel) -> Void = { _ in }
+        let row = CraftLessonRow(nodes: [node], arrangement: .single, onNodeTap: sendableNodeTap)
+        XCTAssertNotNil(row)
+
+        let section = LessonSection(id: "sec_sendable", title: "Section", nodes: [node])
+        let sectionView = CraftLessonSectionView(section: section, onNodeTap: sendableNodeTap)
+        XCTAssertNotNil(sectionView)
+
+        let path = CraftLearningPath(section: section, onNodeTap: sendableNodeTap)
+        XCTAssertNotNil(path)
+    }
 }
-
-
-
-

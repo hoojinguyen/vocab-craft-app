@@ -14,7 +14,7 @@ import SwiftUI
 public struct CraftLearningPath: View {
     public let sections: [LessonSection]
     public let rowPattern: RowPattern
-    public let onNodeTap: ((LessonNodeModel) -> Void)?
+    public let onNodeTap: (@Sendable (LessonNodeModel) -> Void)?
     public let scrollToActive: Bool
     public let showCelebration: Bool
 
@@ -36,7 +36,7 @@ public struct CraftLearningPath: View {
     public init(
         section: LessonSection,
         rowPattern: RowPattern = .standard,
-        onNodeTap: ((LessonNodeModel) -> Void)? = nil,
+        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
         scrollToActive: Bool = true,
         showCelebration: Bool = true
     ) {
@@ -60,7 +60,7 @@ public struct CraftLearningPath: View {
     public init(
         sections: [LessonSection],
         rowPattern: RowPattern = .standard,
-        onNodeTap: ((LessonNodeModel) -> Void)? = nil,
+        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
         scrollToActive: Bool = true,
         showCelebration: Bool = true
     ) {
@@ -127,6 +127,7 @@ public struct CraftLearningPath: View {
             }
             .task {
                 guard scrollToActive, let targetID = activeNodeID else { return }
+                // Delay 300ms to allow LazyVStack layout and child geometry to stabilize before animating scroll
                 try? await Task.sleep(nanoseconds: 300_000_000)
                 guard !Task.isCancelled else { return }
                 withAnimation(reduceMotion ? .default : .spring(response: 0.5, dampingFraction: 0.8)) {

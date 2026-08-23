@@ -14,7 +14,7 @@ import SwiftUI
 public struct CraftLessonRow: View, Equatable {
     public let nodes: [LessonNodeModel]
     public let arrangement: LessonRowArrangement
-    public let onNodeTap: ((LessonNodeModel) -> Void)?
+    public let onNodeTap: (@Sendable (LessonNodeModel) -> Void)?
 
     @Environment(\.craftTheme) private var theme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -24,7 +24,7 @@ public struct CraftLessonRow: View, Equatable {
     public init(
         nodes: [LessonNodeModel],
         arrangement: LessonRowArrangement,
-        onNodeTap: ((LessonNodeModel) -> Void)? = nil
+        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil
     ) {
         self.nodes = nodes
         self.arrangement = arrangement

@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - Accessibility Traits Extension
 
-public extension AccessibilityTraits {
+extension AccessibilityTraits {
     /// Inactive element representation with no interactive button traits.
     static let notEnabled: AccessibilityTraits = []
 }
@@ -16,7 +16,7 @@ public extension AccessibilityTraits {
 /// and full HIG / VoiceOver accessibility compliance.
 public struct CraftLessonNode: View, Equatable {
     public let model: LessonNodeModel
-    public let onTap: (() -> Void)?
+    public let onTap: (@Sendable () -> Void)?
 
     @Environment(\.craftTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -30,7 +30,7 @@ public struct CraftLessonNode: View, Equatable {
 
     public init(
         model: LessonNodeModel,
-        onTap: (() -> Void)? = nil
+        onTap: (@Sendable () -> Void)? = nil
     ) {
         self.model = model
         self.onTap = onTap
