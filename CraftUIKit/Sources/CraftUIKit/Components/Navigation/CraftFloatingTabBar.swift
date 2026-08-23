@@ -19,6 +19,38 @@ public extension CraftTabItemProtocol {
     }
 }
 
+// MARK: - Tactile FAB Button Style
+
+/// Tactile 3D button style for floating action button in `CraftFloatingTabBar`.
+public struct CraftTactileFABButtonStyle: ButtonStyle {
+    public let depth: CGFloat
+    @Environment(\.craftTheme) private var theme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    public init(depth: CGFloat = 4) {
+        self.depth = depth
+    }
+
+    public func makeBody(configuration: Configuration) -> some View {
+        let isPressed = configuration.isPressed
+        let depressOffset = isPressed ? depth : 0
+
+        ZStack {
+            // Bottom 3D Bevel / Extrusion Lip
+            Circle()
+                .fill(theme.colors.brandSecondary)
+                .offset(y: depth)
+
+            // Top Tactile Face
+            configuration.label
+                .offset(y: depressOffset)
+        }
+        .padding(.bottom, depth)
+        .scaleEffect(isPressed && !reduceMotion ? 0.96 : 1.0)
+        .animation(theme.animations.springSnappy, value: isPressed)
+    }
+}
+
 // MARK: - CraftFloatingTabBar Component
 
 /// A floating liquid-glass navigation bar featuring animated sliding tab indicators,
@@ -85,7 +117,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                         .strokeBorder(
                             LinearGradient(
                                 colors: [
-                                    Color.white.opacity(0.25),
+                                    Color.white.opacity(0.35),
                                     Color.white.opacity(0.05)
                                 ],
                                 startPoint: .top,
@@ -93,6 +125,10 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                             ),
                             lineWidth: 1
                         )
+                )
+                .overlay(
+                    Capsule()
+                        .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
                 )
         }
         .craftShadow(theme.shadows.lg)
@@ -129,7 +165,8 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
 
                     if let badgeCount = item.badgeCount, badgeCount > 0 {
                         Text("\(min(badgeCount, 99))")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.system(size: 9, weight: .bold, design: .rounded))
+                            .monospacedDigit()
                             .foregroundColor(.white)
                             .padding(.horizontal, 4)
                             .padding(.vertical, 1)
@@ -157,13 +194,16 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                             RoundedRectangle(cornerRadius: 18)
                                 .strokeBorder(theme.colors.hairline, lineWidth: 1)
                         )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 18)
+                                .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
+                        )
                         .matchedGeometryEffect(id: "activeTabIndicator", in: tabNamespace)
                 }
             }
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
-        .craftPressEffect(scale: 0.95)
+        .buttonStyle(.craftPress(scale: 0.95))
         .accessibilityLabel(item.title)
         .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : [.isButton])
     }
@@ -181,12 +221,17 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
             action()
         } label: {
             ZStack {
+                // Top Surface Disc with Brand Hero Gradient & Top Highlight Stroke
                 Circle()
-                    .fill(theme.colors.brandPrimary)
-                    .frame(width: 44, height: 44)
+                    .fill(theme.gradients.brandHero)
+                    .frame(width: 48, height: 48)
+                    .overlay(
+                        Circle()
+                            .strokeBorder(theme.depths.topHighlight, lineWidth: 1.5)
+                    )
                     .craftShadow(theme.shadows.sm)
 
-                VStack(spacing: theme.spacing.xs) {
+                VStack(spacing: 2) {
                     CraftIcon(
                         centerSymbol,
                         size: .md,
@@ -204,11 +249,11 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                     }
                 }
             }
-            .frame(minWidth: 44, minHeight: 44)
+            .frame(width: 48, height: 48)
             .contentShape(Circle())
         }
-        .buttonStyle(.plain)
-        .craftPressEffect(scale: 0.92)
+        .buttonStyle(CraftTactileFABButtonStyle(depth: theme.depths.depthMd))
+        .frame(minWidth: 44, minHeight: 44)
         .accessibilityLabel(centerTitle ?? "Action")
         .accessibilityAddTraits(.isButton)
     }

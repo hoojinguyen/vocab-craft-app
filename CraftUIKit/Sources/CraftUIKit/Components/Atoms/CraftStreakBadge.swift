@@ -119,6 +119,11 @@ public struct CraftStreakBadge: View {
         .background(pillBackground)
         .clipShape(Capsule())
         .overlay(pillBorder)
+        .overlay(
+            Capsule()
+                .strokeBorder(theme.depths.topHighlight, lineWidth: 1.0)
+        )
+        .craftShadow(isCompletedToday ? theme.shadows.sm : CraftShadow(color: .clear, radius: 0))
         .scaleEffect(!reduceMotion && !isCompletedToday && isPulsing ? 1.04 : 1.0)
         .opacity(!reduceMotion && !isCompletedToday && isPulsing ? 0.90 : 1.0)
         .onAppear {

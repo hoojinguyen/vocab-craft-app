@@ -99,6 +99,10 @@ public struct CraftStreakCelebrationSheet: View {
             RoundedRectangle(cornerRadius: theme.radii.xl)
                 .strokeBorder(theme.colors.borderDefault.opacity(0.4), lineWidth: 1)
         )
+        .overlay(
+            RoundedRectangle(cornerRadius: theme.radii.xl)
+                .strokeBorder(theme.depths.topHighlight, lineWidth: 1.5)
+        )
         .craftShadow(theme.shadows.xl)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabelString)
@@ -115,7 +119,7 @@ public struct CraftStreakCelebrationSheet: View {
             ZStack {
                 // Outer subtle glow halo
                 Circle()
-                    .fill(tierBaseColor.opacity(0.12))
+                    .fill(tierBaseColor.opacity(0.15))
                     .frame(width: 120, height: 120)
                     .blur(radius: 8)
 
@@ -132,6 +136,11 @@ public struct CraftStreakCelebrationSheet: View {
                         )
                     )
                     .frame(width: 104, height: 104)
+                    .overlay(
+                        Circle()
+                            .strokeBorder(theme.depths.topHighlight, lineWidth: 1.5)
+                    )
+                    .craftShadow(theme.shadows.md)
 
                 // Large Flame Icon with Tier Gradient
                 Image(systemName: CraftSymbol.streak.rawValue)
@@ -144,7 +153,7 @@ public struct CraftStreakCelebrationSheet: View {
             // Animated Streak Counter
             HStack(alignment: .firstTextBaseline, spacing: 4) {
                 Text("\(displayedStreak)")
-                    .font(.system(size: 48, weight: .black, design: .rounded))
+                    .font(theme.typography.displayHero)
                     .monospacedDigit()
                     .foregroundStyle(theme.colors.textPrimary)
 
@@ -214,7 +223,7 @@ public struct CraftStreakCelebrationSheet: View {
                 ForEach(weekDays) { day in
                     VStack(spacing: 4) {
                         Text(day.weekdaySymbol)
-                            .font(.caption2)
+                            .font(theme.typography.caption)
                             .fontWeight(day.isToday ? .bold : .medium)
                             .foregroundStyle(day.isToday ? theme.colors.textPrimary : theme.colors.textMuted)
 
@@ -227,6 +236,10 @@ public struct CraftStreakCelebrationSheet: View {
             .padding(.horizontal, theme.spacing.xs)
             .background(theme.colors.surfaceSubtle.opacity(0.5))
             .clipShape(RoundedRectangle(cornerRadius: theme.radii.lg))
+            .overlay(
+                RoundedRectangle(cornerRadius: theme.radii.lg)
+                    .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
+            )
         }
         .opacity(reduceMotion ? 1.0 : contentOpacity)
     }
@@ -234,51 +247,91 @@ public struct CraftStreakCelebrationSheet: View {
     @ViewBuilder
     private func dayNode(for day: CraftStreakDay) -> some View {
         let size: CGFloat = 28
+        let depth = theme.depths.depthSm
+
         ZStack {
             if day.isToday || day.status == .completed {
-                Circle()
-                    .fill(tierGradient)
-                    .frame(width: size, height: size)
-                    .overlay(
-                        Image(systemName: CraftSymbol.streak.rawValue)
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundStyle(.white)
-                    )
-                    .craftShadow(theme.shadows.sm)
+                ZStack {
+                    // 3D bottom rim
+                    Circle()
+                        .fill(tierRimColor)
+                        .frame(width: size, height: size)
+                        .offset(y: depth)
+
+                    // Top face
+                    Circle()
+                        .fill(tierGradient)
+                        .frame(width: size, height: size)
+                        .overlay(
+                            Circle()
+                                .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
+                        )
+                        .overlay(
+                            Image(systemName: CraftSymbol.streak.rawValue)
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundStyle(.white)
+                        )
+                }
+                .frame(width: size, height: size + depth)
+                .craftShadow(theme.shadows.sm)
             } else {
                 switch day.status {
                 case .frozen:
-                    Circle()
-                        .fill(theme.colors.streakFreeze.opacity(0.14))
-                        .frame(width: size, height: size)
-                        .overlay(
-                            Image(systemName: "snowflake")
-                                .font(.system(size: 11, weight: .bold))
-                                .foregroundStyle(theme.colors.streakFreeze)
-                        )
+                    ZStack {
+                        Circle()
+                            .fill(theme.colors.streakFreeze.opacity(0.35))
+                            .frame(width: size, height: size)
+                            .offset(y: depth)
+
+                        Circle()
+                            .fill(theme.colors.streakFreeze.opacity(0.14))
+                            .frame(width: size, height: size)
+                            .overlay(
+                                Circle()
+                                    .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
+                            )
+                            .overlay(
+                                Image(systemName: "snowflake")
+                                    .font(.system(size: 11, weight: .bold))
+                                    .foregroundStyle(theme.colors.streakFreeze)
+                            )
+                    }
+                    .frame(width: size, height: size + depth)
+
                 case .missed:
                     Circle()
                         .fill(theme.colors.surfaceSubtle)
                         .frame(width: size, height: size)
                         .overlay(
                             Circle()
+                                .strokeBorder(theme.colors.borderDefault.opacity(0.4), lineWidth: 0.5)
+                        )
+                        .overlay(
+                            Circle()
                                 .fill(theme.colors.textMuted.opacity(0.4))
                                 .frame(width: 4, height: 4)
                         )
+
                 case .upcoming:
                     Circle()
                         .strokeBorder(theme.colors.borderDefault.opacity(0.7), lineWidth: 1.0)
                         .frame(width: size, height: size)
+
                 case .pending:
                     Circle()
                         .strokeBorder(theme.colors.streakPending, style: StrokeStyle(lineWidth: 1.2, dash: [3, 2]))
                         .frame(width: size, height: size)
+                        .overlay(
+                            Circle()
+                                .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
+                        )
+
                 case .completed:
                     EmptyView()
                 }
             }
         }
-        .frame(width: size, height: size)
+        .frame(width: size, height: size + depth)
     }
 
     // MARK: - Continue Action Button
@@ -288,7 +341,7 @@ public struct CraftStreakCelebrationSheet: View {
             "Tiếp tục học",
             iconName: CraftSymbol.chevronRight.rawValue,
             iconPosition: .trailing,
-            variant: .primary,
+            variant: .tactile,
             size: .lg,
             isFullWidth: true,
             action: onContinue
@@ -366,6 +419,17 @@ public struct CraftStreakCelebrationSheet: View {
             return theme.colors.accent
         case .legendary:
             return Color(hex: 0x8B5CF6)
+        }
+    }
+
+    private var tierRimColor: Color {
+        switch tier {
+        case .starter:
+            return Color(hex: 0xC2410C)
+        case .blaze:
+            return Color(hex: 0xB45309)
+        case .legendary:
+            return Color(hex: 0x6D28D9)
         }
     }
 

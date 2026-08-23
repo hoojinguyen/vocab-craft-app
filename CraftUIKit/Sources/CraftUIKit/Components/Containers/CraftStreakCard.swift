@@ -75,7 +75,7 @@ public struct CraftStreakCard: View {
             VStack(alignment: .leading, spacing: 2) {
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
                     Text("\(data.currentStreak)")
-                        .font(.system(.title2, design: .rounded, weight: .bold))
+                        .font(theme.typography.metricRounded)
                         .monospacedDigit()
                         .foregroundStyle(theme.colors.textPrimary)
 
@@ -111,13 +111,13 @@ public struct CraftStreakCard: View {
             ForEach(data.weekDays) { day in
                 VStack(spacing: theme.spacing.xs) {
                     Text(day.weekdaySymbol)
-                        .font(.caption2)
+                        .font(theme.typography.caption)
                         .fontWeight(day.isToday ? .bold : .medium)
                         .foregroundStyle(day.isToday ? theme.colors.textPrimary : theme.colors.textMuted)
 
                     dayStatusNode(for: day)
                 }
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity, minHeight: 44)
             }
         }
     }
@@ -125,19 +125,34 @@ public struct CraftStreakCard: View {
     @ViewBuilder
     private func dayStatusNode(for day: CraftStreakDay) -> some View {
         let nodeSize: CGFloat = 36
+        let depth = theme.depths.depthSm
 
         ZStack {
             switch day.status {
             case .completed:
-                Circle()
-                    .fill(tierGradient)
-                    .frame(width: nodeSize, height: nodeSize)
-                    .overlay(
-                        Image(systemName: CraftSymbol.streak.rawValue)
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundStyle(.white)
-                    )
-                    .craftShadow(theme.shadows.sm)
+                ZStack {
+                    // Bottom 3D Rim
+                    Circle()
+                        .fill(tierRimColor)
+                        .frame(width: nodeSize, height: nodeSize)
+                        .offset(y: depth)
+
+                    // Top Face
+                    Circle()
+                        .fill(tierGradient)
+                        .frame(width: nodeSize, height: nodeSize)
+                        .overlay(
+                            Circle()
+                                .strokeBorder(theme.depths.topHighlight, lineWidth: 1.0)
+                        )
+                        .overlay(
+                            Image(systemName: CraftSymbol.streak.rawValue)
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundStyle(.white)
+                        )
+                }
+                .frame(width: nodeSize, height: nodeSize + depth)
+                .craftShadow(theme.shadows.sm)
 
             case .pending:
                 Circle()
@@ -150,27 +165,49 @@ public struct CraftStreakCard: View {
                                 style: StrokeStyle(lineWidth: 1.5, dash: day.isToday ? [4, 3] : [3, 3])
                             )
                     )
+                    .overlay(
+                        Circle()
+                            .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
+                    )
                     .scaleEffect(!reduceMotion && day.isToday && isPulsing ? 1.06 : 1.0)
                     .opacity(!reduceMotion && day.isToday && isPulsing ? 0.90 : 1.0)
 
             case .frozen:
-                Circle()
-                    .fill(theme.colors.streakFreeze.opacity(0.14))
-                    .frame(width: nodeSize, height: nodeSize)
-                    .overlay(
-                        Circle()
-                            .strokeBorder(theme.colors.streakFreeze.opacity(0.35), lineWidth: 1.0)
-                    )
-                    .overlay(
-                        Image(systemName: "snowflake")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundStyle(theme.colors.streakFreeze)
-                    )
+                ZStack {
+                    // Bottom 3D Freeze Rim
+                    Circle()
+                        .fill(theme.colors.streakFreeze.opacity(0.35))
+                        .frame(width: nodeSize, height: nodeSize)
+                        .offset(y: depth)
+
+                    // Top Face
+                    Circle()
+                        .fill(theme.colors.streakFreeze.opacity(0.14))
+                        .frame(width: nodeSize, height: nodeSize)
+                        .overlay(
+                            Circle()
+                                .strokeBorder(theme.depths.topHighlight, lineWidth: 1.0)
+                        )
+                        .overlay(
+                            Circle()
+                                .strokeBorder(theme.colors.streakFreeze.opacity(0.35), lineWidth: 1.0)
+                        )
+                        .overlay(
+                            Image(systemName: "snowflake")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundStyle(theme.colors.streakFreeze)
+                        )
+                }
+                .frame(width: nodeSize, height: nodeSize + depth)
 
             case .missed:
                 Circle()
                     .fill(theme.colors.surfaceSubtle)
                     .frame(width: nodeSize, height: nodeSize)
+                    .overlay(
+                        Circle()
+                            .strokeBorder(theme.colors.borderDefault.opacity(0.4), lineWidth: 0.5)
+                    )
                     .overlay(
                         Circle()
                             .fill(theme.colors.textMuted.opacity(0.35))
@@ -184,7 +221,7 @@ public struct CraftStreakCard: View {
                     .background(Circle().fill(theme.colors.surfaceSubtle.opacity(0.25)))
             }
         }
-        .frame(width: nodeSize, height: nodeSize)
+        .frame(width: nodeSize, height: nodeSize + depth)
     }
 
     // MARK: - Footer Row
@@ -201,7 +238,7 @@ public struct CraftStreakCard: View {
                         freezeBadge
                     }
                     .buttonStyle(.craftPress(scale: 0.96))
-                    .frame(minHeight: 44)
+                    .frame(minWidth: 44, minHeight: 44)
                     .contentShape(Rectangle())
                     .accessibilityAddTraits(.isButton)
                 } else {
@@ -218,7 +255,7 @@ public struct CraftStreakCard: View {
                             milestoneProgressSection
                         }
                         .buttonStyle(.craftPress(scale: 0.98))
-                        .frame(minHeight: 44)
+                        .frame(minWidth: 44, minHeight: 44)
                         .contentShape(Rectangle())
                         .accessibilityAddTraits(.isButton)
                     } else {
@@ -243,7 +280,7 @@ public struct CraftStreakCard: View {
     private var milestoneProgressSection: some View {
         VStack(alignment: .trailing, spacing: 4) {
             Text(milestoneDescriptionText)
-                .font(.caption2)
+                .font(theme.typography.caption)
                 .foregroundStyle(theme.colors.textSecondary)
                 .lineLimit(1)
 
@@ -266,6 +303,17 @@ public struct CraftStreakCard: View {
             return "Chuỗi rực lửa"
         case .legendary:
             return "Chuỗi huyền thoại"
+        }
+    }
+
+    private var tierRimColor: Color {
+        switch data.tier {
+        case .starter:
+            return Color(hex: 0xC2410C)
+        case .blaze:
+            return Color(hex: 0xB45309)
+        case .legendary:
+            return Color(hex: 0x6D28D9)
         }
     }
 

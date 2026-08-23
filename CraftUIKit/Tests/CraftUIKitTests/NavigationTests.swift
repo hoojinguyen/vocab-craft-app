@@ -123,4 +123,37 @@ final class NavigationTests: XCTestCase {
         XCTAssertEqual(tabA, tabB)
         XCTAssertNotEqual(tabA, tabC)
     }
+
+    func testCraftTactileFABButtonStyleInitialization() {
+        let styleDefault = CraftTactileFABButtonStyle()
+        XCTAssertEqual(styleDefault.depth, 4)
+
+        let styleCustom = CraftTactileFABButtonStyle(depth: 6)
+        XCTAssertEqual(styleCustom.depth, 6)
+    }
+
+    func testFloatingTabBarEvenOddItemSplits() {
+        let oddTabs = [
+            CustomStringTab(id: "1", title: "One", symbol: "1.circle"),
+            CustomStringTab(id: "2", title: "Two", symbol: "2.circle"),
+            CustomStringTab(id: "3", title: "Three", symbol: "3.circle"),
+            CustomStringTab(id: "4", title: "Four", symbol: "4.circle"),
+            CustomStringTab(id: "5", title: "Five", symbol: "5.circle")
+        ]
+        var selected = oddTabs[0]
+        let binding = Binding(get: { selected }, set: { selected = $0 })
+
+        var fabTriggered = false
+        let bar = CraftFloatingTabBar(
+            selectedItem: binding,
+            items: oddTabs,
+            centerAction: { fabTriggered = true },
+            centerSymbol: "sparkles",
+            centerTitle: "AI"
+        )
+        XCTAssertNotNil(bar.body)
+        XCTAssertNotNil(bar.centerAction)
+        bar.centerAction?()
+        XCTAssertTrue(fabTriggered)
+    }
 }

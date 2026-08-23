@@ -295,4 +295,70 @@ final class CraftStreakComponentTests: XCTestCase {
         XCTAssertEqual(sheet.customAccessibilityHint, customHint)
         XCTAssertNotNil(sheet.body)
     }
+
+    // MARK: - 3D Tactile & Bento Dashboard Integration Tests
+
+    func testCraftStreakCardTactile3DStyle() {
+        let streakData = CraftStreakData(
+            currentStreak: 21,
+            bestStreak: 45,
+            freezeTokens: 2,
+            maxFreezeTokens: 3,
+            nextMilestoneDays: 30,
+            isCompletedToday: true
+        )
+        let tactileCard = CraftStreakCard(data: streakData, cardStyle: .tactile3D)
+        XCTAssertEqual(tactileCard.cardStyle, .tactile3D)
+        XCTAssertNotNil(tactileCard.body)
+    }
+
+    func testCraftStreakCardDayNodeStatusesComprehensive() {
+        let days: [CraftStreakDay] = [
+            .init(id: "1", weekdaySymbol: "T2", status: .completed, isToday: false),
+            .init(id: "2", weekdaySymbol: "T3", status: .frozen, isToday: false),
+            .init(id: "3", weekdaySymbol: "T4", status: .missed, isToday: false),
+            .init(id: "4", weekdaySymbol: "T5", status: .pending, isToday: true),
+            .init(id: "5", weekdaySymbol: "T6", status: .upcoming, isToday: false),
+            .init(id: "6", weekdaySymbol: "T7", status: .upcoming, isToday: false),
+            .init(id: "7", weekdaySymbol: "CN", status: .upcoming, isToday: false)
+        ]
+        let data = CraftStreakData(
+            currentStreak: 12,
+            bestStreak: 20,
+            freezeTokens: 1,
+            maxFreezeTokens: 3,
+            nextMilestoneDays: 14,
+            isCompletedToday: false,
+            weekDays: days
+        )
+        let card = CraftStreakCard(data: data)
+        XCTAssertNotNil(card.body)
+        XCTAssertEqual(card.data.weekDays.count, 7)
+        XCTAssertEqual(card.data.weekDays[0].status, .completed)
+        XCTAssertEqual(card.data.weekDays[1].status, .frozen)
+        XCTAssertEqual(card.data.weekDays[2].status, .missed)
+        XCTAssertEqual(card.data.weekDays[3].status, .pending)
+        XCTAssertTrue(card.data.weekDays[3].isToday)
+        XCTAssertEqual(card.data.weekDays[4].status, .upcoming)
+    }
+
+    func testCraftStreakCelebrationSheetAllMilestoneBranches() {
+        let milestones = [7, 14, 21, 30, 50, 60, 90, 100, 180, 365, 150]
+        for m in milestones {
+            let sheet = CraftStreakCelebrationSheet(
+                currentStreak: m,
+                previousStreak: m - 1,
+                onContinue: {}
+            )
+            XCTAssertTrue(sheet.isMilestone, "Streak \(m) should be recognized as a milestone")
+        }
+
+        // Tier change milestone (e.g. from 6 starter to 7 blaze, or 29 blaze to 30 legendary)
+        let tierChangeSheet = CraftStreakCelebrationSheet(
+            currentStreak: 7,
+            previousStreak: 6,
+            onContinue: {}
+        )
+        XCTAssertTrue(tierChangeSheet.isMilestone)
+    }
 }
