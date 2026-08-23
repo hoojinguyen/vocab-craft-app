@@ -69,6 +69,38 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertNotNil(card.body)
     }
 
+    func testCardTactile3DStyle() {
+        var tapped = false
+        let card = CraftCard(style: .tactile3D, isPressable: true, action: {
+            tapped = true
+        }) {
+            Text("Tactile 3D Card")
+        }
+        XCTAssertEqual(card.style, .tactile3D)
+        XCTAssertTrue(card.isPressable)
+        XCTAssertNotNil(card.body)
+        card.action?()
+        XCTAssertTrue(tapped)
+    }
+
+    func testCardTactile3DNonPressable() {
+        let card = CraftCard(style: .tactile3D, isPressable: false) {
+            Text("Non-pressable Tactile 3D")
+        }
+        XCTAssertEqual(card.style, .tactile3D)
+        XCTAssertFalse(card.isPressable)
+        XCTAssertNotNil(card.body)
+    }
+
+    func testTactileCardButtonStyle() {
+        let buttonStyle = CraftTactileCardButtonStyle(depth: 4, radius: 16, bottomColor: .gray)
+        XCTAssertEqual(buttonStyle.depth, 4)
+        XCTAssertEqual(buttonStyle.radius, 16)
+        let button = Button("Tactile Button") {}
+            .buttonStyle(buttonStyle)
+        XCTAssertNotNil(button)
+    }
+
     // MARK: - CraftProgressBar Tests
 
     func testProgressBarClamping() {

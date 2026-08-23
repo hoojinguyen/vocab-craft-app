@@ -220,4 +220,57 @@ final class InteractiveCardTests: XCTestCase {
         XCTAssertNotNil(flipCard.back)
         XCTAssertNotNil(flipCard.body)
     }
+
+    func testFlipCardSpecularGlareAndEdgeThickness() {
+        var flipped = false
+        let binding = Binding(get: { flipped }, set: { flipped = $0 })
+        let flipCard = CraftFlipCard(
+            isFlipped: binding,
+            axis: .horizontal,
+            edgeThickness: 3,
+            showSpecularGlare: true,
+            cornerRadius: 20
+        ) {
+            Text("Front Card")
+        } back: {
+            Text("Back Card")
+        }
+
+        XCTAssertEqual(flipCard.edgeThickness, 3)
+        XCTAssertTrue(flipCard.showSpecularGlare)
+        XCTAssertEqual(flipCard.cornerRadius, 20)
+        XCTAssertEqual(flipCard.axis, .horizontal)
+        XCTAssertNotNil(flipCard.body)
+    }
+
+    func testSpecularGlareModifierAnimatableData() {
+        var modifier = CraftSpecularGlareModifier(progress: 0.25, axis: .horizontal, cornerRadius: 16, isEnabled: true)
+        XCTAssertEqual(modifier.animatableData, 0.25, accuracy: 0.001)
+
+        modifier.animatableData = 0.75
+        XCTAssertEqual(modifier.animatableData, 0.75, accuracy: 0.001)
+
+        let modifiedView = Text("Glossy Card").modifier(modifier)
+        XCTAssertNotNil(modifiedView)
+    }
+
+    func testFlipCardVerticalAxisWithSpecularDisabled() {
+        var flipped = true
+        let binding = Binding(get: { flipped }, set: { flipped = $0 })
+        let flipCard = CraftFlipCard(
+            isFlipped: binding,
+            axis: .vertical,
+            edgeThickness: 0,
+            showSpecularGlare: false
+        ) {
+            Text("No Glare Front")
+        } back: {
+            Text("No Glare Back")
+        }
+
+        XCTAssertEqual(flipCard.edgeThickness, 0)
+        XCTAssertFalse(flipCard.showSpecularGlare)
+        XCTAssertEqual(flipCard.axis, .vertical)
+        XCTAssertNotNil(flipCard.body)
+    }
 }

@@ -8,11 +8,65 @@ public enum CraftCardStyle: String, Sendable, CaseIterable {
     case elevated
     case outlined
     case gradient
+    case tactile3D
+}
+
+// MARK: - Tactile Card Button Style
+
+/// Button style providing tactile 3D mechanical press feedback with bottom extrusion depression.
+public struct CraftTactileCardButtonStyle: ButtonStyle {
+    public let depth: CGFloat
+    public let radius: CGFloat
+    public let bottomColor: Color
+    @Environment(\.craftTheme) private var theme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    public init(depth: CGFloat = 4, radius: CGFloat = 16, bottomColor: Color = .clear) {
+        self.depth = depth
+        self.radius = radius
+        self.bottomColor = bottomColor
+    }
+
+    public func makeBody(configuration: Configuration) -> some View {
+        let isPressed = configuration.isPressed
+        let depressOffset = isPressed ? depth : 0
+
+        ZStack {
+            // Bottom 3D Bevel / Extrusion
+            RoundedRectangle(cornerRadius: radius)
+                .fill(bottomColor)
+                .offset(y: depth)
+
+            // Top Card Face
+            configuration.label
+                .offset(y: depressOffset)
+        }
+        .padding(.bottom, depth)
+        .scaleEffect(isPressed && !reduceMotion ? 0.99 : 1.0)
+        .animation(theme.animations.springSnappy, value: isPressed)
+        .onChange(of: configuration.isPressed) { _, pressed in
+            #if os(iOS)
+            if pressed {
+                let generator = UIImpactFeedbackGenerator(style: .light)
+                generator.prepare()
+                generator.impactOccurred()
+            }
+            #endif
+        }
+    }
+}
+
+// MARK: - ButtonStyle Extension
+
+public extension ButtonStyle where Self == CraftTactileCardButtonStyle {
+    static func craftTactileCard(depth: CGFloat = 4, radius: CGFloat = 16, bottomColor: Color = .clear) -> CraftTactileCardButtonStyle {
+        CraftTactileCardButtonStyle(depth: depth, radius: radius, bottomColor: bottomColor)
+    }
 }
 
 // MARK: - CraftCard Component
 
-/// A flexible, theme-driven container card supporting flat, elevated, outlined, and gradient styles,
+/// A flexible, theme-driven container card supporting flat, elevated, outlined, gradient, and tactile3D styles,
 /// with optional tactile press effects for interactive cards (such as Bento grid layouts).
 public struct CraftCard<Content: View>: View {
     @Environment(\.craftTheme) private var theme
@@ -46,8 +100,9 @@ public struct CraftCard<Content: View>: View {
     public var body: some View {
         let radius = cornerRadius ?? theme.radii.lg
         let contentPadding = padding ?? theme.spacing.base
+        let depth = (style == .tactile3D) ? theme.depths.depthMd : 0
 
-        let cardBody = content
+        let cardFace = content
             .padding(contentPadding)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(backgroundView(radius: radius))
@@ -56,15 +111,38 @@ public struct CraftCard<Content: View>: View {
             .modifier(ShadowModifier(style: style, theme: theme))
 
         if isPressable || action != nil {
-            Button(action: { action?() }) {
-                cardBody
+            if style == .tactile3D {
+                Button(action: { action?() }) {
+                    cardFace
+                }
+                .buttonStyle(CraftTactileCardButtonStyle(depth: depth, radius: radius, bottomColor: theme.colors.borderDefault))
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
+                .accessibilityAddTraits(.isButton)
+            } else {
+                Button(action: { action?() }) {
+                    cardFace
+                }
+                .buttonStyle(.craftPress(scale: 0.98))
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
+                .accessibilityAddTraits(.isButton)
             }
-            .buttonStyle(.craftPress(scale: 0.98))
-            .frame(minHeight: 44)
-            .contentShape(Rectangle())
-            .accessibilityAddTraits(.isButton)
         } else {
-            cardBody
+            if style == .tactile3D {
+                ZStack {
+                    // Bottom 3D Lip / Extrusion
+                    RoundedRectangle(cornerRadius: radius)
+                        .fill(theme.colors.borderDefault)
+                        .offset(y: depth)
+
+                    // Top Card Face
+                    cardFace
+                }
+                .padding(.bottom, depth)
+            } else {
+                cardFace
+            }
         }
     }
 
@@ -79,6 +157,8 @@ public struct CraftCard<Content: View>: View {
             theme.colors.surfaceCard
         case .gradient:
             customGradient ?? theme.gradients.brandHero
+        case .tactile3D:
+            theme.colors.surfaceCard
         }
     }
 
@@ -102,6 +182,13 @@ public struct CraftCard<Content: View>: View {
                     ),
                     lineWidth: 1
                 )
+        case .tactile3D:
+            ZStack {
+                RoundedRectangle(cornerRadius: radius)
+                    .strokeBorder(theme.colors.borderDefault, lineWidth: 1)
+                RoundedRectangle(cornerRadius: radius)
+                    .strokeBorder(theme.depths.topHighlight, lineWidth: 1)
+            }
         case .flat, .gradient:
             EmptyView()
         }
@@ -136,6 +223,9 @@ private struct ShadowModifier: ViewModifier {
             CraftCard(style: .gradient) {
                 Text("Gradient Card")
                     .foregroundStyle(.white)
+            }
+            CraftCard(style: .tactile3D, isPressable: true) {
+                Text("Tactile 3D Card")
             }
         }
         .padding()
