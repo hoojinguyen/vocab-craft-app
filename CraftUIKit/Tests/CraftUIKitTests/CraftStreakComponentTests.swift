@@ -202,4 +202,97 @@ final class CraftStreakComponentTests: XCTestCase {
         XCTAssertEqual(card.customAccessibilityHint, customHint)
         XCTAssertNotNil(card.body)
     }
+
+    // MARK: - CraftStreakCelebrationSheet Tests
+
+    func testCraftStreakCelebrationSheetRendering() {
+        let sheet = CraftStreakCelebrationSheet(
+            currentStreak: 14,
+            previousStreak: 13,
+            weekDays: [],
+            onContinue: {}
+        )
+        XCTAssertNotNil(sheet.body)
+        XCTAssertEqual(sheet.currentStreak, 14)
+        XCTAssertEqual(sheet.previousStreak, 13)
+        XCTAssertEqual(sheet.tier, .blaze)
+        XCTAssertTrue(sheet.weekDays.isEmpty)
+    }
+
+    func testCraftStreakCelebrationSheetWithWeekDays() {
+        let mockDays: [CraftStreakDay] = [
+            .init(id: "1", weekdaySymbol: "T2", status: .completed),
+            .init(id: "2", weekdaySymbol: "T3", status: .completed),
+            .init(id: "3", weekdaySymbol: "T4", status: .completed),
+            .init(id: "4", weekdaySymbol: "T5", status: .completed, isToday: true),
+            .init(id: "5", weekdaySymbol: "T6", status: .upcoming),
+            .init(id: "6", weekdaySymbol: "T7", status: .upcoming),
+            .init(id: "7", weekdaySymbol: "CN", status: .upcoming)
+        ]
+        let sheet = CraftStreakCelebrationSheet(
+            currentStreak: 4,
+            previousStreak: 3,
+            weekDays: mockDays,
+            onContinue: {}
+        )
+        XCTAssertNotNil(sheet.body)
+        XCTAssertEqual(sheet.weekDays.count, 7)
+        XCTAssertEqual(sheet.tier, .starter)
+    }
+
+    func testCraftStreakCelebrationSheetContinueCallback() {
+        var didContinue = false
+        let sheet = CraftStreakCelebrationSheet(
+            currentStreak: 30,
+            previousStreak: 29,
+            weekDays: [],
+            onContinue: {
+                didContinue = true
+            }
+        )
+        XCTAssertNotNil(sheet.body)
+        XCTAssertEqual(sheet.tier, .legendary)
+        sheet.onContinue()
+        XCTAssertTrue(didContinue)
+    }
+
+    func testCraftStreakCelebrationSheetMilestones() {
+        let milestone7 = CraftStreakCelebrationSheet(
+            currentStreak: 7,
+            previousStreak: 6,
+            onContinue: {}
+        )
+        XCTAssertEqual(milestone7.tier, .blaze)
+        XCTAssertTrue(milestone7.isMilestone)
+
+        let milestone30 = CraftStreakCelebrationSheet(
+            currentStreak: 30,
+            previousStreak: 29,
+            onContinue: {}
+        )
+        XCTAssertEqual(milestone30.tier, .legendary)
+        XCTAssertTrue(milestone30.isMilestone)
+
+        let regularDay = CraftStreakCelebrationSheet(
+            currentStreak: 8,
+            previousStreak: 7,
+            onContinue: {}
+        )
+        XCTAssertFalse(regularDay.isMilestone)
+    }
+
+    func testCraftStreakCelebrationSheetCustomAccessibility() {
+        let customLabel = "Custom celebration label"
+        let customHint = "Custom celebration hint"
+        let sheet = CraftStreakCelebrationSheet(
+            currentStreak: 10,
+            previousStreak: 9,
+            accessibilityLabel: customLabel,
+            accessibilityHint: customHint,
+            onContinue: {}
+        )
+        XCTAssertEqual(sheet.customAccessibilityLabel, customLabel)
+        XCTAssertEqual(sheet.customAccessibilityHint, customHint)
+        XCTAssertNotNil(sheet.body)
+    }
 }
