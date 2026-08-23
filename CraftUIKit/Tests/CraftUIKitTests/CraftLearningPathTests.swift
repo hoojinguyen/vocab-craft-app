@@ -2721,6 +2721,68 @@ final class CraftLearningPathTests: XCTestCase {
         let sec1Layouts = sec1.rowPattern.layoutRows(nodes: sec1.nodes)
         XCTAssertEqual(sec1Layouts.count, 4) // [1], [2], [1], [2]
     }
+
+    // MARK: - Task 3: 3D Tactile Lesson Nodes & Star Rating Tests
+
+    func testCraftLessonNode3DPedestalAndStarRatingRendering() {
+        // Test 1, 2, 3 stars on completed nodes
+        for stars in 1...3 {
+            let model = LessonNodeModel(
+                id: "star_node_\(stars)",
+                title: "Lesson \(stars)",
+                subtitle: "\(stars) stars earned",
+                state: .completed,
+                stars: stars
+            )
+            let node = CraftLessonNode(model: model)
+            XCTAssertNotNil(node.body)
+            XCTAssertEqual(node.model.stars, stars)
+            XCTAssertEqual(node.nodeDiameter, 52)
+            XCTAssertEqual(node.accessibilityTraits, .isButton)
+            XCTAssertEqual(node.accessibilityHintText, "Double tap to review")
+        }
+
+        // Test completed node with 0 / nil stars
+        let noStarModel = LessonNodeModel(
+            id: "no_star_node",
+            title: "Lesson No Star",
+            state: .completed,
+            stars: nil
+        )
+        let noStarNode = CraftLessonNode(model: noStarModel)
+        XCTAssertNil(noStarNode.model.stars)
+        XCTAssertNotNil(noStarNode.body)
+    }
+
+    func testCraftLessonNodeStateTransitionsAndKindVariations() {
+        let states: [LessonNodeState] = [.completed, .active, .inProgress, .upcoming, .locked, .bonus]
+        let kinds: [LessonNodeKind] = [.standard, .checkpoint, .treasureChest]
+
+        for kind in kinds {
+            for state in states {
+                let model = LessonNodeModel(
+                    id: "node_\(kind.rawValue)_\(state.rawValue)",
+                    title: "\(kind.rawValue) \(state.rawValue)",
+                    state: state,
+                    kind: kind,
+                    progress: state == .inProgress || state == .active ? 0.42 : nil,
+                    xpReward: 30
+                )
+                let node = CraftLessonNode(model: model)
+                XCTAssertNotNil(node.body)
+                XCTAssertEqual(node.model.kind, kind)
+                XCTAssertEqual(node.model.state, state)
+                XCTAssertFalse(node.accessibilityLabelText.isEmpty)
+
+                if state == .locked {
+                    XCTAssertEqual(node.accessibilityTraits, .notEnabled)
+                    XCTAssertEqual(node.accessibilityHintText, "Complete previous lessons to unlock")
+                } else {
+                    XCTAssertEqual(node.accessibilityTraits, .isButton)
+                }
+            }
+        }
+    }
 }
 
 

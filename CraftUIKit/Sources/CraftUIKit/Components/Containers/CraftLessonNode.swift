@@ -335,7 +335,7 @@ public struct CraftLessonNode: View, Equatable {
             ZStack {
                 // Bottom Rim (Extrusion shadow/bevel)
                 bottomRimView
-                    .offset(y: model.state == .locked ? 0 : 5)
+                    .offset(y: model.state == .locked ? 0 : theme.depths.depthMd)
 
                 // Top Face Button
                 Button {
@@ -344,9 +344,9 @@ public struct CraftLessonNode: View, Equatable {
                 } label: {
                     topFaceView
                 }
-                .buttonStyle(TactileNodeButtonStyle(isLocked: model.state == .locked, depth: 4))
+                .buttonStyle(TactileNodeButtonStyle(isLocked: model.state == .locked, depth: theme.depths.depthMd))
             }
-            .frame(width: nodeDiameter, height: nodeDiameter + (model.state == .locked ? 0 : 5))
+            .frame(width: nodeDiameter, height: nodeDiameter + (model.state == .locked ? 0 : theme.depths.depthMd))
         }
         .frame(minWidth: 44, minHeight: 44)
     }
@@ -454,29 +454,13 @@ public struct CraftLessonNode: View, Equatable {
         case .checkpoint:
             HexagonShape()
                 .strokeBorder(
-                    LinearGradient(
-                        colors: [
-                            Color.white.opacity(0.35),
-                            Color.white.opacity(0.08),
-                            Color.clear
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    ),
+                    theme.depths.topHighlight,
                     lineWidth: 1.5
                 )
         case .standard, .treasureChest:
             Circle()
                 .strokeBorder(
-                    LinearGradient(
-                        colors: [
-                            Color.white.opacity(0.35),
-                            Color.white.opacity(0.08),
-                            Color.clear
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    ),
+                    theme.depths.topHighlight,
                     lineWidth: 1.5
                 )
         }
@@ -649,23 +633,46 @@ public struct CraftLessonNode: View, Equatable {
 
             if let metadata = metadataText {
                 Text(metadata)
-                    .font(.caption2)
+                    .font(.system(.caption2, design: .rounded, weight: .medium))
                     .foregroundStyle(theme.colors.textSecondary)
                     .lineLimit(1)
             }
 
             if model.state == .completed, let starCount = model.stars, starCount > 0 {
-                HStack(spacing: 2) {
-                    ForEach(0..<min(max(starCount, 0), 3), id: \.self) { _ in
-                        Image(systemName: "star.fill")
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundStyle(theme.colors.accent)
-                    }
-                }
-                .padding(.top, 1)
+                starRatingView(count: starCount)
             }
         }
         .frame(maxWidth: 120)
+    }
+
+    // MARK: - 3D Star Rating
+
+    private func starRatingView(count: Int) -> some View {
+        let clampedStars = min(max(count, 0), 3)
+        return HStack(spacing: 3) {
+            ForEach(0..<clampedStars, id: \.self) { _ in
+                Image(systemName: "star.fill")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [
+                                Color(hex: 0xFDE047),
+                                Color(hex: 0xEAB308),
+                                Color(hex: 0xCA8A04)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .shadow(color: Color(hex: 0x854D0E).opacity(0.6), radius: 0, x: 0, y: 1.2)
+                    .overlay {
+                        Image(systemName: "star.fill")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(theme.depths.topHighlight)
+                    }
+            }
+        }
+        .padding(.top, 2)
     }
 
     // MARK: - Badge Overlay

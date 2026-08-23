@@ -196,5 +196,24 @@ final class MetricsProgressionTests: XCTestCase {
         node.onTap?()
         XCTAssertTrue(tapped)
     }
+
+    func testCraftStepNode3DPedestalExtrusionAndAccessibility() {
+        for state in CraftStepState.allCases {
+            let node = CraftStepNode(
+                title: "Step \(state.rawValue)",
+                subtitle: "Subtitle for \(state.rawValue)",
+                state: state,
+                stepNumber: 1,
+                isLast: state == .upcoming,
+                onTap: state == .locked ? nil : { }
+            )
+            XCTAssertNotNil(node.body)
+            XCTAssertEqual(node.state, state)
+            XCTAssertEqual(node.stepNumber, 1)
+            XCTAssertEqual(node.title, "Step \(state.rawValue)")
+            XCTAssertEqual(node.subtitle, "Subtitle for \(state.rawValue)")
+            XCTAssertEqual(node.isLast, state == .upcoming)
+        }
+    }
 }
 

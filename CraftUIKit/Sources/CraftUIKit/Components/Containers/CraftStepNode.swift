@@ -162,12 +162,28 @@ public struct CraftStepNode: View {
         ZStack {
             switch state {
             case .completed:
-                Circle()
-                    .fill(theme.colors.statusSuccess)
-                    .frame(width: 28, height: 28)
-                Image(systemName: "checkmark")
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundStyle(.white)
+                ZStack {
+                    // 3D Pedestal Bottom Rim
+                    Circle()
+                        .fill(Color(hex: 0x059669))
+                        .frame(width: 28, height: 28)
+                        .offset(y: theme.depths.depthSm)
+
+                    // Top Face
+                    Circle()
+                        .fill(theme.colors.statusSuccess)
+                        .frame(width: 28, height: 28)
+
+                    // Top Highlight Stroke
+                    Circle()
+                        .strokeBorder(theme.depths.topHighlight, lineWidth: 1.0)
+                        .frame(width: 28, height: 28)
+
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundStyle(.white)
+                }
+                .frame(width: 28, height: 28 + theme.depths.depthSm)
 
             case .active:
                 // Glowing outer breathing ring
@@ -182,20 +198,35 @@ public struct CraftStepNode: View {
                         }
                     }
 
-                // Inner filled badge
-                Circle()
-                    .fill(theme.colors.brandPrimary)
-                    .frame(width: 26, height: 26)
-
-                if let stepNumber {
-                    Text("\(stepNumber)")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundStyle(.white)
-                } else {
+                // 3D Pedestal Inner Badge
+                ZStack {
+                    // Bottom Rim
                     Circle()
-                        .fill(Color.white)
-                        .frame(width: 8, height: 8)
+                        .fill(Color(hex: 0xC2410C))
+                        .frame(width: 26, height: 26)
+                        .offset(y: theme.depths.depthSm)
+
+                    // Top Face
+                    Circle()
+                        .fill(theme.colors.brandPrimary)
+                        .frame(width: 26, height: 26)
+
+                    // Top Highlight Stroke
+                    Circle()
+                        .strokeBorder(theme.depths.topHighlight, lineWidth: 1.0)
+                        .frame(width: 26, height: 26)
+
+                    if let stepNumber {
+                        Text("\(stepNumber)")
+                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white)
+                    } else {
+                        Circle()
+                            .fill(Color.white)
+                            .frame(width: 8, height: 8)
+                    }
                 }
+                .frame(width: 26, height: 26 + theme.depths.depthSm)
 
             case .locked:
                 Circle()
@@ -205,27 +236,41 @@ public struct CraftStepNode: View {
                         Circle()
                             .strokeBorder(theme.colors.borderDefault, lineWidth: 1.5)
                     )
-                Image(systemName: "lock.fill")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(theme.colors.textMuted)
+                    .overlay {
+                        Image(systemName: "lock.fill")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(theme.colors.textMuted)
+                    }
 
             case .upcoming:
-                Circle()
-                    .fill(theme.colors.surfaceSubtle)
-                    .frame(width: 28, height: 28)
-                    .overlay(
-                        Circle()
-                            .strokeBorder(theme.colors.borderDefault, lineWidth: 1.5)
-                    )
-                if let stepNumber {
-                    Text("\(stepNumber)")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(theme.colors.textSecondary)
-                } else {
+                ZStack {
+                    // Bottom Rim subtle depth
                     Circle()
-                        .fill(theme.colors.textMuted)
-                        .frame(width: 8, height: 8)
+                        .fill(theme.colors.borderDefault)
+                        .frame(width: 28, height: 28)
+                        .offset(y: 1.5)
+
+                    // Top Face
+                    Circle()
+                        .fill(theme.colors.surfaceSubtle)
+                        .frame(width: 28, height: 28)
+
+                    // Border
+                    Circle()
+                        .strokeBorder(theme.colors.borderDefault, lineWidth: 1.5)
+                        .frame(width: 28, height: 28)
+
+                    if let stepNumber {
+                        Text("\(stepNumber)")
+                            .font(.system(size: 12, weight: .semibold, design: .rounded))
+                            .foregroundStyle(theme.colors.textSecondary)
+                    } else {
+                        Circle()
+                            .fill(theme.colors.textMuted)
+                            .frame(width: 8, height: 8)
+                    }
                 }
+                .frame(width: 28, height: 29.5)
             }
         }
     }
