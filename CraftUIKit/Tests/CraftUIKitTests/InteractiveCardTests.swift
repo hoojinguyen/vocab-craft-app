@@ -146,6 +146,27 @@ final class InteractiveCardTests: XCTestCase {
         XCTAssertNotNil(wrongCard.body)
     }
 
+    func testChoiceCardAllStatesWithTheme() {
+        let theme = CraftDefaultTheme()
+        for state in CraftChoiceState.allCases {
+            let card = CraftChoiceCard(
+                prefix: "A",
+                title: "Card in \(state.rawValue)",
+                subtitle: "Subtitle for \(state.rawValue)",
+                state: state
+            ) {}
+            XCTAssertNotNil(card.body)
+            let view = card.craftTheme(theme)
+            XCTAssertNotNil(view)
+        }
+    }
+
+    func testChoiceCardShakeEffectGeometry() {
+        let effect = ChoiceShakeEffect(shakes: 1.0, amount: 8, shakesPerUnit: 3)
+        let transform = effect.effectValue(size: CGSize(width: 200, height: 50))
+        XCTAssertNotNil(transform)
+    }
+
     // MARK: - CraftFlipCard Tests
 
     func testFlipCardBinding() {

@@ -82,9 +82,24 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertNotNil(button.body)
     }
 
+    func testButtonTactileAllSizes() {
+        for size in CraftButtonSize.allCases {
+            let button = CraftButton("TACTILE", variant: .tactile, size: size) {}
+            XCTAssertEqual(button.variant, .tactile)
+            XCTAssertEqual(button.size, size)
+            XCTAssertNotNil(button.body)
+        }
+    }
+
     func testButtonTactileNativeStyle() {
         let view = Button("Practice") {}.buttonStyle(.craftTactile())
         XCTAssertNotNil(view)
+
+        let smView = Button("Small Tactile") {}.buttonStyle(.craftTactile(size: .sm))
+        XCTAssertNotNil(smView)
+
+        let lgLoadingView = Button("Large Tactile Loading") {}.buttonStyle(.craftTactile(size: .lg, isLoading: true))
+        XCTAssertNotNil(lgLoadingView)
     }
 
     func testNativeButtonStyles() {

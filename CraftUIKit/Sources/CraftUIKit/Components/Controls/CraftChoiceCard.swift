@@ -14,7 +14,7 @@ public enum CraftChoiceState: String, Sendable, Equatable, Hashable, CaseIterabl
 // MARK: - CraftChoiceCard Component
 
 /// A quiz option card supporting prefix badges (e.g. A/B/C/D), title, subtitle,
-/// status indicators, spring bounce animations, and horizontal shake feedback.
+/// status indicators, 3D tactile bottom bevel, spring bounce animations, and horizontal shake feedback.
 public struct CraftChoiceCard: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -73,58 +73,14 @@ public struct CraftChoiceCard: View {
             guard state != .disabled else { return }
             action()
         }) {
-            HStack(spacing: theme.spacing.md) {
-                if prefixKey != nil || rawPrefix != nil {
-                    prefixBadge
-                }
-
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    if let titleKey {
-                        Text(titleKey)
-                            .font(theme.typography.headline)
-                            .foregroundStyle(theme.colors.textPrimary)
-                            .multilineTextAlignment(.leading)
-                    } else if let rawTitle {
-                        Text(rawTitle)
-                            .font(theme.typography.headline)
-                            .foregroundStyle(theme.colors.textPrimary)
-                            .multilineTextAlignment(.leading)
-                    }
-
-                    if let subtitleKey {
-                        Text(subtitleKey)
-                            .font(theme.typography.bodyMedium)
-                            .foregroundStyle(theme.colors.textSecondary)
-                            .multilineTextAlignment(.leading)
-                    } else if let rawSubtitle {
-                        Text(rawSubtitle)
-                            .font(theme.typography.bodyMedium)
-                            .foregroundStyle(theme.colors.textSecondary)
-                            .multilineTextAlignment(.leading)
-                    }
-                }
-
-                Spacer(minLength: theme.spacing.sm)
-
-                trailingIndicator
-            }
-            .padding(theme.spacing.base)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(backgroundColor)
-            .clipShape(RoundedRectangle(cornerRadius: theme.radii.lg))
-            .overlay(
-                RoundedRectangle(cornerRadius: theme.radii.lg)
-                    .strokeBorder(borderColor, lineWidth: borderWidth)
-            )
-            .scaleEffect(state == .correct && !reduceMotion ? 1.02 : 1.0)
-            .modifier(ChoiceShakeEffect(shakes: shakeCount))
-            .animation(theme.animations.springBouncy, value: state)
-            .opacity(state == .disabled ? 0.5 : 1.0)
-            .frame(minHeight: 44)
-            .contentShape(Rectangle())
+            cardSurface
         }
-        .buttonStyle(.craftPress(scale: state == .disabled ? 1.0 : 0.98))
+        .buttonStyle(CraftChoiceCardButtonStyle(state: state, depth: theme.depths.depthMd))
         .disabled(state == .disabled)
+        .scaleEffect(state == .correct && !reduceMotion ? 1.02 : 1.0)
+        .modifier(ChoiceShakeEffect(shakes: shakeCount))
+        .animation(theme.animations.springBouncy, value: state)
+        .opacity(state == .disabled ? 0.5 : 1.0)
         .accessibilityElement(children: .combine)
         .accessibilityValue(accessibilityValueDescription)
         .accessibilityAddTraits(state == .selected ? [.isButton, .isSelected] : [.isButton])
@@ -148,21 +104,96 @@ public struct CraftChoiceCard: View {
         }
     }
 
+    private var cardSurface: some View {
+        HStack(spacing: theme.spacing.md) {
+            if prefixKey != nil || rawPrefix != nil {
+                prefixBadge
+            }
+
+            VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                if let titleKey {
+                    Text(titleKey)
+                        .font(theme.typography.headline)
+                        .foregroundStyle(theme.colors.textPrimary)
+                        .multilineTextAlignment(.leading)
+                } else if let rawTitle {
+                    Text(rawTitle)
+                        .font(theme.typography.headline)
+                        .foregroundStyle(theme.colors.textPrimary)
+                        .multilineTextAlignment(.leading)
+                }
+
+                if let subtitleKey {
+                    Text(subtitleKey)
+                        .font(theme.typography.bodyMedium)
+                        .foregroundStyle(theme.colors.textSecondary)
+                        .multilineTextAlignment(.leading)
+                } else if let rawSubtitle {
+                    Text(rawSubtitle)
+                        .font(theme.typography.bodyMedium)
+                        .foregroundStyle(theme.colors.textSecondary)
+                        .multilineTextAlignment(.leading)
+                }
+            }
+
+            Spacer(minLength: theme.spacing.sm)
+
+            trailingIndicator
+        }
+        .padding(theme.spacing.base)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(backgroundColor)
+        .clipShape(RoundedRectangle(cornerRadius: theme.radii.lg))
+        .overlay(
+            RoundedRectangle(cornerRadius: theme.radii.lg)
+                .strokeBorder(borderColor, lineWidth: borderWidth)
+        )
+        .overlay(topHighlightOverlay)
+        .frame(minHeight: 44)
+        .contentShape(Rectangle())
+    }
+
+    @ViewBuilder
+    private var topHighlightOverlay: some View {
+        if state != .disabled {
+            RoundedRectangle(cornerRadius: theme.radii.lg)
+                .strokeBorder(
+                    theme.depths.topHighlight,
+                    lineWidth: 1
+                )
+        }
+    }
+
     @ViewBuilder
     private var prefixBadge: some View {
-        Group {
-            if let prefixKey {
-                Text(prefixKey)
-            } else if let rawPrefix {
-                Text(rawPrefix)
+        ZStack {
+            // Embossed 3D bottom bevel / rim
+            if state != .disabled {
+                RoundedRectangle(cornerRadius: theme.radii.sm)
+                    .fill(prefixBottomRimColor)
+                    .offset(y: 2)
             }
+
+            // Top surface
+            Group {
+                if let prefixKey {
+                    Text(prefixKey)
+                } else if let rawPrefix {
+                    Text(rawPrefix)
+                }
+            }
+            .font(theme.typography.headline)
+            .fontWeight(.bold)
+            .foregroundStyle(prefixForegroundColor)
+            .frame(width: 32, height: 32)
+            .background(prefixBackgroundColor)
+            .clipShape(RoundedRectangle(cornerRadius: theme.radii.sm))
+            .overlay(
+                RoundedRectangle(cornerRadius: theme.radii.sm)
+                    .strokeBorder(prefixBorderStroke, lineWidth: 1)
+            )
         }
-        .font(theme.typography.headline)
-        .fontWeight(.semibold)
-        .foregroundStyle(prefixForegroundColor)
-        .frame(width: 32, height: 32)
-        .background(prefixBackgroundColor)
-        .clipShape(RoundedRectangle(cornerRadius: theme.radii.sm))
+        .frame(width: 32, height: 34)
     }
 
     @ViewBuilder
@@ -209,11 +240,11 @@ public struct CraftChoiceCard: View {
         case .idle, .disabled:
             return theme.colors.surfaceCard
         case .selected:
-            return theme.colors.brandPrimary.opacity(0.16)
+            return theme.colors.brandPrimary.opacity(0.12)
         case .correct:
-            return theme.colors.statusSuccess.opacity(0.16)
+            return theme.colors.statusSuccess.opacity(0.12)
         case .wrong:
-            return theme.colors.statusDanger.opacity(0.16)
+            return theme.colors.statusDanger.opacity(0.12)
         }
     }
 
@@ -268,22 +299,109 @@ public struct CraftChoiceCard: View {
             return theme.colors.surfaceSubtle.opacity(0.5)
         }
     }
+
+    private var prefixBottomRimColor: Color {
+        switch state {
+        case .idle:
+            return theme.colors.borderDefault
+        case .selected:
+            return theme.colors.brandSecondary
+        case .correct:
+            return Color(hex: 0x059669)
+        case .wrong:
+            return Color(hex: 0xDC2626)
+        case .disabled:
+            return .clear
+        }
+    }
+
+    private var prefixBorderStroke: Color {
+        switch state {
+        case .idle:
+            return theme.colors.borderDefault.opacity(0.6)
+        case .selected, .correct, .wrong:
+            return Color.white.opacity(0.3)
+        case .disabled:
+            return .clear
+        }
+    }
+}
+
+// MARK: - Choice Card ButtonStyle
+
+public struct CraftChoiceCardButtonStyle: ButtonStyle {
+    public let state: CraftChoiceState
+    public let depth: CGFloat
+    @Environment(\.craftTheme) private var theme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    public init(state: CraftChoiceState = .idle, depth: CGFloat = 4) {
+        self.state = state
+        self.depth = depth
+    }
+
+    public func makeBody(configuration: Configuration) -> some View {
+        let isPressed = configuration.isPressed && state != .disabled
+        let depressOffset = isPressed ? depth : 0
+
+        ZStack {
+            if state != .disabled {
+                // Bottom 3D Bevel / Lip
+                RoundedRectangle(cornerRadius: theme.radii.lg)
+                    .fill(bottomLipColor)
+                    .offset(y: depth)
+            }
+
+            // Top Card Face
+            configuration.label
+                .offset(y: depressOffset)
+        }
+        .padding(.bottom, state == .disabled ? 0 : depth)
+        .scaleEffect(isPressed && !reduceMotion ? 0.99 : 1.0)
+        .animation(theme.animations.springSnappy, value: isPressed)
+        .frame(minHeight: 44)
+        .contentShape(Rectangle())
+        .onChange(of: configuration.isPressed) { _, pressed in
+            #if os(iOS)
+            if pressed && state != .disabled {
+                let generator = UIImpactFeedbackGenerator(style: .light)
+                generator.prepare()
+                generator.impactOccurred()
+            }
+            #endif
+        }
+    }
+
+    private var bottomLipColor: Color {
+        switch state {
+        case .idle:
+            return theme.colors.borderDefault
+        case .selected:
+            return theme.colors.brandSecondary
+        case .correct:
+            return Color(hex: 0x059669)
+        case .wrong:
+            return Color(hex: 0xDC2626)
+        case .disabled:
+            return .clear
+        }
+    }
 }
 
 // MARK: - Choice Shake Effect
 
-private struct ChoiceShakeEffect: GeometryEffect {
-    var amount: CGFloat = 8
-    var shakesPerUnit = 3
-    var animatableData: CGFloat
+public struct ChoiceShakeEffect: GeometryEffect {
+    public var amount: CGFloat = 8
+    public var shakesPerUnit = 3
+    public var animatableData: CGFloat
 
-    init(shakes: CGFloat, amount: CGFloat = 8, shakesPerUnit: Int = 3) {
+    public init(shakes: CGFloat, amount: CGFloat = 8, shakesPerUnit: Int = 3) {
         self.animatableData = shakes
         self.amount = amount
         self.shakesPerUnit = shakesPerUnit
     }
 
-    func effectValue(size: CGSize) -> ProjectionTransform {
+    public func effectValue(size: CGSize) -> ProjectionTransform {
         let translation = amount * sin(animatableData * .pi * CGFloat(shakesPerUnit))
         return ProjectionTransform(CGAffineTransform(translationX: translation, y: 0))
     }

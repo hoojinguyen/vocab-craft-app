@@ -92,25 +92,40 @@ public struct CraftButtonStyle: ButtonStyle {
     }
 
     public func makeBody(configuration: Configuration) -> some View {
-        HStack(spacing: theme.spacing.xs) {
-            if isLoading {
-                CraftSpinner(size: size.iconSize, color: foregroundColor(isPressed: configuration.isPressed))
+        let isPressed = configuration.isPressed
+        let bottomLipOffset = theme.depths.depthMd
+        let depressOffset = (variant == .tactile && isPressed) ? bottomLipOffset : 0
+
+        ZStack {
+            if variant == .tactile {
+                // Bottom 3D Lip/Bevel
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(theme.colors.brandSecondary)
+                    .offset(y: bottomLipOffset)
             }
-            configuration.label
-                .font(theme.typography.font(for: size.typographyStyle))
-                .foregroundStyle(foregroundColor(isPressed: configuration.isPressed))
-                .opacity(isLoading ? 0.8 : 1.0)
+
+            // Top Tactile Surface & Content
+            HStack(spacing: theme.spacing.xs) {
+                if isLoading {
+                    CraftSpinner(size: size.iconSize, color: foregroundColor(isPressed: isPressed))
+                }
+                configuration.label
+                    .font(theme.typography.font(for: size.typographyStyle))
+                    .foregroundStyle(foregroundColor(isPressed: isPressed))
+                    .opacity(isLoading ? 0.8 : 1.0)
+            }
+            .padding(.vertical, verticalPadding)
+            .padding(.horizontal, size.horizontalPadding)
+            .frame(minHeight: size.height)
+            .background(backgroundSurface(isPressed: isPressed))
+            .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+            .overlay(borderOverlay(isPressed: isPressed))
+            .offset(y: depressOffset)
         }
-        .padding(.vertical, verticalPadding)
-        .padding(.horizontal, size.horizontalPadding)
-        .frame(minHeight: size.height)
-        .background(backgroundView(isPressed: configuration.isPressed))
-        .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
-        .overlay(borderOverlay(isPressed: configuration.isPressed))
+        .padding(.bottom, variant == .tactile ? bottomLipOffset : 0)
         .opacity(isEnabled ? 1.0 : 0.5)
-        .offset(y: variant == .tactile && configuration.isPressed ? 3 : 0)
-        .scaleEffect(scaleEffect(isPressed: configuration.isPressed))
-        .animation(theme.animations.springSnappy, value: configuration.isPressed)
+        .scaleEffect(scaleEffect(isPressed: isPressed))
+        .animation(theme.animations.springSnappy, value: isPressed)
         .frame(minHeight: 44)
         .contentShape(Rectangle())
         .onChange(of: configuration.isPressed) { _, isPressed in
@@ -158,7 +173,7 @@ public struct CraftButtonStyle: ButtonStyle {
     }
 
     @ViewBuilder
-    private func backgroundView(isPressed: Bool) -> some View {
+    private func backgroundSurface(isPressed: Bool) -> some View {
         switch variant {
         case .primary:
             theme.colors.brandPrimary
@@ -172,25 +187,14 @@ public struct CraftButtonStyle: ButtonStyle {
             theme.colors.statusDanger
                 .opacity(isPressed ? 0.85 : 1.0)
         case .tactile:
-            ZStack {
-                // Bottom 3D Lip/Bevel
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(theme.colors.brandSecondary)
-                    .offset(y: isPressed ? 0 : 4)
-
-                // Top Tactile Surface
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                theme.colors.brandPrimary,
-                                theme.colors.brandPrimary.opacity(0.92)
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-            }
+            LinearGradient(
+                colors: [
+                    theme.colors.brandPrimary,
+                    theme.colors.brandPrimary.opacity(0.92)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
         }
     }
 
@@ -206,7 +210,7 @@ public struct CraftButtonStyle: ButtonStyle {
         case .tactile:
             RoundedRectangle(cornerRadius: cornerRadius)
                 .strokeBorder(
-                    Color.white.opacity(0.2),
+                    theme.depths.topHighlight,
                     lineWidth: 1
                 )
         case .primary, .secondary, .ghost, .danger:
