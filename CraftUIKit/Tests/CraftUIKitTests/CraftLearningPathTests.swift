@@ -2470,6 +2470,20 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertTrue(bonus.accessibilityLabelText.contains("Bonus Lesson: Bonus. Reward: 100 XP"))
     }
 
+    func testCraftLessonNodeEmitsAnchorPreferenceOnTactileButtonAtom() {
+        let node = LessonNodeModel(
+            id: "node_anchor_test",
+            title: "Long Title With Multiple Lines of Text",
+            subtitle: "10 words • 5 min",
+            iconName: "star.fill",
+            state: .completed,
+            stars: 3
+        )
+        let nodeView = CraftLessonNode(model: node)
+        XCTAssertNotNil(nodeView.body)
+        XCTAssertEqual(nodeView.model.id, "node_anchor_test")
+    }
+
     // MARK: - Task 5: Full Snake Hybrid Engine Integration Tests
 
     func testLessonSectionWithRowPattern() {

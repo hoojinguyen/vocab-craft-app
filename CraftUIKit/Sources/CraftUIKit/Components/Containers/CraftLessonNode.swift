@@ -305,6 +305,9 @@ public struct CraftLessonNode: View, Equatable {
             }
 
             tactileNodeAtom
+                .anchorPreference(key: NodeAnchorPreferenceKey.self, value: .center) { anchor in
+                    [model.id: anchor]
+                }
 
             nodeLabels
                 .padding(.top, 6)

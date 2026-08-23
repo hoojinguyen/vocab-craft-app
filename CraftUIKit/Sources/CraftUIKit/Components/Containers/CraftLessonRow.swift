@@ -130,9 +130,6 @@ public struct CraftLessonRow: View, Equatable {
                 .alignmentGuide(HorizontalAlignment.center) { d in
                     d[HorizontalAlignment.center] - xOffset
                 }
-                .anchorPreference(key: NodeAnchorPreferenceKey.self, value: .center) { anchor in
-                    [pNode.node.id: anchor]
-                }
             }
         }
         .frame(maxWidth: .infinity)
@@ -165,9 +162,6 @@ public struct CraftLessonRow: View, Equatable {
             .id(node.id)
             .alignmentGuide(HorizontalAlignment.center) { d in
                 d[HorizontalAlignment.center] - xOffset
-            }
-            .anchorPreference(key: NodeAnchorPreferenceKey.self, value: .center) { anchor in
-                [node.id: anchor]
             }
         }
         .frame(maxWidth: .infinity)
@@ -236,9 +230,6 @@ public struct CraftLessonRow: View, Equatable {
             onTap: onNodeTap != nil ? { onNodeTap?(node) } : nil
         )
         .id(node.id)
-        .anchorPreference(key: NodeAnchorPreferenceKey.self, value: .center) { anchor in
-            [node.id: anchor]
-        }
     }
 }
 
