@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "created_at": "2026-08-23T16:34:48.006795+00:00",
+  "type": "compilation-diagnostics",
+  "build": {
+    "entrypoint": "project",
+    "path": "VocabCraftApp.xcodeproj",
+    "scheme": "VocabCraftApp",
+    "configuration": "Debug",
+    "destination": "platform=iOS Simulator,name=iPhone 17"
+  },
+  "threshold_ms": 100,
+  "build_duration_seconds": 3.085,
+  "build_success": false,
+  "raw_log_path": ".build-benchmark/20260823T163444Z-vocabcraftapp-diagnostics.log",
+  "warnings": [],
+  "summary": {
+    "total_warnings": 0,
+    "function_body_warnings": 0,
+    "expression_warnings": 0,
+    "slowest_ms": 0
+  }
+}

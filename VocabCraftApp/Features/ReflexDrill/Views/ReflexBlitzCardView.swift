@@ -264,6 +264,20 @@ extension ReflexBlitzCardView {
         activeOptionsGrid
     }
 
+    private var audioVisualizerGradient: LinearGradient {
+        LinearGradient(
+            colors: [Color.vocabHeroAccent, Color.vocabHeroAccent.opacity(0.6)],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+    }
+
+    private func listeningWaveformHeight(for index: Int) -> CGFloat {
+        let offset: Int = index * 6 + (elapsedTimeMs / 60)
+        let dynamicHeight: Int = 10 + (offset % 22)
+        return CGFloat(dynamicHeight)
+    }
+
     @ViewBuilder
     private var activeListeningContent: some View {
         // Listening mode stimulus: Hero Audio Player Widget + Replay cue (Lemma & Cloze hidden!)
@@ -272,16 +286,10 @@ extension ReflexBlitzCardView {
             HStack(spacing: 6) {
                 ForEach(0..<11, id: \.self) { index in
                     Capsule()
-                        .fill(
-                            LinearGradient(
-                                colors: [Color.vocabHeroAccent, Color.vocabHeroAccent.opacity(0.6)],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
+                        .fill(audioVisualizerGradient)
                         .frame(
                             width: 3.5,
-                            height: CGFloat(10 + ((index * 6 + (elapsedTimeMs / 60)) % 22))
+                            height: listeningWaveformHeight(for: index)
                         )
                         .animation(.easeInOut(duration: 0.1), value: elapsedTimeMs)
                 }
@@ -410,39 +418,46 @@ extension ReflexBlitzCardView {
         }
     }
 
+    private func reviewedClozeText(parts: ClozeSentenceParts) -> Text {
+        let prefixText = Text(parts.prefix)
+            .font(.title3.weight(.medium))
+            .fontDesign(.serif)
+            .foregroundColor(.vocabInk)
+        let slotColor: Color = isResultCorrect ? .vocabMint : .vocabCoral
+        let slotText = Text(parts.slot)
+            .font(.title3.weight(.bold))
+            .fontDesign(.serif)
+            .foregroundColor(slotColor)
+        let suffixText = Text(parts.suffix)
+            .font(.title3.weight(.medium))
+            .fontDesign(.serif)
+            .foregroundColor(.vocabInk)
+        return prefixText + slotText + suffixText
+    }
+
+    private func activeClozeText(parts: ClozeSentenceParts) -> Text {
+        let prefixText = Text(parts.prefix)
+            .font(.title3.weight(.medium))
+            .fontDesign(.serif)
+            .foregroundColor(.vocabInk)
+        let slotText = Text(parts.slot)
+            .font(.title3.bold())
+            .fontDesign(.monospaced)
+            .foregroundColor(slotTextColor)
+        let suffixText = Text(parts.suffix)
+            .font(.title3.weight(.medium))
+            .fontDesign(.serif)
+            .foregroundColor(.vocabInk)
+        return prefixText + slotText + suffixText
+    }
+
     @ViewBuilder
     private var sentenceView: some View {
         if let parts = clozeParts {
             if isReviewed {
-                Text(parts.prefix)
-                    .font(.title3.weight(.medium))
-                    .fontDesign(.serif)
-                    .foregroundColor(.vocabInk)
-                +
-                Text(parts.slot)
-                    .font(.title3.weight(.bold))
-                    .fontDesign(.serif)
-                    .foregroundColor(isResultCorrect ? .vocabMint : .vocabCoral)
-                +
-                Text(parts.suffix)
-                    .font(.title3.weight(.medium))
-                    .fontDesign(.serif)
-                    .foregroundColor(.vocabInk)
+                reviewedClozeText(parts: parts)
             } else {
-                Text(parts.prefix)
-                    .font(.title3.weight(.medium))
-                    .fontDesign(.serif)
-                    .foregroundColor(.vocabInk)
-                +
-                Text(parts.slot)
-                    .font(.title3.bold())
-                    .fontDesign(.monospaced)
-                    .foregroundColor(slotTextColor)
-                +
-                Text(parts.suffix)
-                    .font(.title3.weight(.medium))
-                    .fontDesign(.serif)
-                    .foregroundColor(.vocabInk)
+                activeClozeText(parts: parts)
             }
         } else {
             Text(displayedSentence)
@@ -580,20 +595,32 @@ extension ReflexBlitzCardView {
         }
     }
 
+    private var dockWaveformColor: Color {
+        if isResultCorrect {
+            return .vocabMint
+        } else if isResultTimeout {
+            return .vocabCoral
+        } else {
+            return timerStrokeColor
+        }
+    }
+
+    private func dockWaveformHeight(for index: Int) -> CGFloat {
+        let offset: Int = index * 5 + (elapsedTimeMs / 70)
+        let dynamicHeight: Int = 8 + (offset % 16)
+        return CGFloat(dynamicHeight)
+    }
+
     @ViewBuilder
     private var livingAudioDockView: some View {
         VStack(spacing: 8) {
             HStack(spacing: 5) {
                 ForEach(0..<9, id: \.self) { index in
                     Capsule()
-                        .fill(
-                            isResultCorrect
-                                ? Color.vocabMint
-                                : (isResultTimeout ? Color.vocabCoral : timerStrokeColor)
-                        )
+                        .fill(dockWaveformColor)
                         .frame(
                             width: 3.5,
-                            height: CGFloat(8 + ((index * 5 + (elapsedTimeMs / 70)) % 16))
+                            height: dockWaveformHeight(for: index)
                         )
                         .animation(.easeInOut(duration: 0.12), value: elapsedTimeMs)
                 }

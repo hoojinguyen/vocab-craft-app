@@ -9,16 +9,16 @@
 - **Destination:** `platform=iOS Simulator,name=iPhone 17`
 - **Xcode:** Xcode 26.6 Build version 17F113
 - **macOS:** macOS-26.6.1-arm64-arm-64bit-Mach-O
-- **Date:** 2026-08-12T17:25:21.640045+00:00
-- **Benchmark artifact:** `.build-benchmark/20260812T172428Z-vocabcraftapp.json`
+- **Date:** 2026-08-23T16:31:11.276080+00:00
+- **Benchmark artifact:** `.build-benchmark/20260823T162900Z-vocabcraftapp.json`
 
 ## Baseline Benchmarks
 
 | Metric | Clean | Incremental |
 |--------|-------|-------------|
-| Median | 10.211s | 1.883s |
-| Min | 10.130s | 1.783s |
-| Max | 10.557s | 2.555s |
+| Median | 24.799s | 1.117s |
+| Min | 24.659s | 1.066s |
+| Max | 26.272s | 1.504s |
 | Runs | 3 | 3 |
 
 ### Clean Build Timing Summary
@@ -27,29 +27,28 @@
 
 | Category | Tasks | Seconds |
 |----------|------:|--------:|
-| SwiftCompile | 40 | 58.759s |
-| SwiftEmitModule | 4 | 3.112s |
-| SwiftDriver | 4 | 1.501s |
-| Ld | 4 | 0.999s |
-| ValidateEmbeddedBinary | 1 | 0.346s |
-| GenerateDSYMFile | 2 | 0.224s |
-| ExtractAppIntentsMetadata | 2 | 0.044s |
-| Copy | 17 | 0.037s |
-| CodeSign | 2 | 0.037s |
-| AppIntentsSSUTraining | 2 | 0.036s |
-| CompileXCStrings | 1 | 0.032s |
-| CopySwiftLibs | 1 | 0.020s |
-| ProcessProductPackagingDER | 4 | 0.019s |
-| RegisterExecutionPolicyException | 2 | 0.013s |
-| CreateUniversalBinary | 2 | 0.008s |
+| SwiftCompile | 30 | 119.088s |
+| SwiftEmitModule | 3 | 6.090s |
+| SwiftDriver | 3 | 1.273s |
+| Ld | 3 | 0.884s |
+| GenerateDSYMFile | 2 | 0.503s |
+| ValidateEmbeddedBinary | 1 | 0.466s |
+| ExtractAppIntentsMetadata | 3 | 0.124s |
+| CodeSign | 2 | 0.072s |
+| AppIntentsSSUTraining | 2 | 0.053s |
+| CompileXCStrings | 1 | 0.043s |
+| RegisterExecutionPolicyException | 3 | 0.040s |
+| Copy | 14 | 0.034s |
+| CopySwiftLibs | 1 | 0.026s |
+| ProcessProductPackagingDER | 4 | 0.021s |
+| CopyStringsFile | 2 | 0.009s |
 | ProcessInfoPlistFile | 2 | 0.008s |
-| CopyStringsFile | 2 | 0.007s |
-| WriteAuxiliaryFile | 38 | 0.006s |
-| Touch | 2 | 0.005s |
-| SwiftDriver Compilation Requirements | 4 | 0.005s |
-| SwiftDriver Compilation | 4 | 0.004s |
+| Touch | 2 | 0.006s |
+| WriteAuxiliaryFile | 36 | 0.006s |
+| SwiftDriver Compilation Requirements | 3 | 0.004s |
+| SwiftDriver Compilation | 3 | 0.003s |
 | ProcessProductPackaging | 4 | 0.002s |
-| SwiftMergeGeneratedHeaders | 2 | 0.001s |
+| SwiftMergeGeneratedHeaders | 3 | 0.001s |
 | Validate | 1 | 0.000s |
 
 ### Incremental Build Timing Summary
@@ -58,18 +57,12 @@
 
 | Category | Tasks | Seconds |
 |----------|------:|--------:|
-| SwiftEmitModule | 2 | 1.334s |
-| SwiftDriver | 2 | 0.877s |
-| SwiftCompile | 2 | 0.510s |
-| ValidateEmbeddedBinary | 0 | 0.117s |
-| SwiftDriver Compilation | 2 | 0.027s |
-| CodeSign | 1 | 0.018s |
-| ExtractAppIntentsMetadata | 1 | 0.011s |
-| Copy | 4 | 0.006s |
-| CopySwiftLibs | 0 | 0.003s |
+| ValidateEmbeddedBinary | 0 | 0.116s |
+| CodeSign | 0 | 0.009s |
+| CopySwiftLibs | 0 | 0.005s |
+| Copy | 0 | 0.002s |
 | ProcessInfoPlistFile | 0 | 0.001s |
-| SwiftDriver Compilation Requirements | 2 | 0.001s |
-| Validate | 1 | 0.000s |
+| Validate | 0 | 0.000s |
 
 ## Build Settings Audit
 
@@ -78,7 +71,7 @@
 - [x] `SWIFT_COMPILATION_MODE`: `(unset)` (recommended: `singlefile`)
 - [ ] `SWIFT_OPTIMIZATION_LEVEL`: `(unset)` (recommended: `-Onone`)
 - [ ] `GCC_OPTIMIZATION_LEVEL`: `(unset)` (recommended: `0`)
-- [ ] `ONLY_ACTIVE_ARCH`: `(unset)` (recommended: `YES`)
+- [x] `ONLY_ACTIVE_ARCH`: `YES` (recommended: `YES`)
 - [ ] `DEBUG_INFORMATION_FORMAT`: `(unset)` (recommended: `dwarf`)
 - [ ] `ENABLE_TESTABILITY`: `(unset)` (recommended: `YES`)
 - [ ] `EAGER_LINKING`: `(unset)` (recommended: `YES`)
@@ -92,7 +85,7 @@
 - [ ] `SWIFT_COMPILATION_MODE`: `(unset)` (recommended: `wholemodule`)
 - [ ] `SWIFT_OPTIMIZATION_LEVEL`: `(unset)` (recommended: `-O`)
 - [ ] `GCC_OPTIMIZATION_LEVEL`: `(unset)` (recommended: `s`)
-- [ ] `ONLY_ACTIVE_ARCH`: `(unset)` (recommended: `NO`)
+- [x] `ONLY_ACTIVE_ARCH`: `NO` (recommended: `NO`)
 - [ ] `DEBUG_INFORMATION_FORMAT`: `(unset)` (recommended: `dwarf-with-dsym`)
 - [ ] `ENABLE_TESTABILITY`: `(unset)` (recommended: `NO`)
 
@@ -105,144 +98,120 @@
 
 ## Compilation Diagnostics
 
-Threshold: 100ms | Total warnings: 1 | Function bodies: 1 | Expressions: 0
+Threshold: 100ms | Total warnings: 8 | Function bodies: 1 | Expressions: 7
 
 | Duration | Kind | File | Line | Name |
 |---------:|------|------|-----:|------|
-| 118ms | function-body | SuggestedWordsCardView.swift | 67 | suggestedCard(for:) |
+| 2255ms | expression | ReflexBlitzCardView.swift | 588 | (expression) |
+| 2237ms | expression | MixedDrillSectionViews.swift | 109 | (expression) |
+| 2005ms | expression | ReflexBlitzCardView.swift | 274 | (expression) |
+| 1443ms | expression | MixedDrillSectionViews.swift | 255 | (expression) |
+| 146ms | function-body | CompleteStageChallengeUseCase.swift | 21 | execute(stageId:deckId:results:) |
+| 123ms | expression | CompleteStageChallengeUseCase.swift | 26 | (expression) |
+| 108ms | expression | ReflexBlitzCardView.swift | 432 | (expression) |
+| 101ms | expression | ReflexBlitzCardView.swift | 417 | (expression) |
 
 ## Prioritized Recommendations
 
-### 1. Set `SWIFT_OPTIMIZATION_LEVEL` to `-Onone` for Debug
+### 1. Enable Compilation Caching (COMPILATION_CACHE_ENABLE_CACHING = YES)
 
+**Wait-Time Impact:** Measured 5-14% faster clean builds across tested projects. The benefit compounds in real workflows where the cache persists between builds -- branch switching, pulling changes, and CI with persistent DerivedData.
+**Actionability:** repo-available
 **Category:** build-settings
-**Evidence:** Current value: `(unset)`. Optimization passes add compile time without debug benefit.
-**Impact:** Medium
-**Confidence:** High
-**Risk:** Low
-
-### 2. Set `GCC_OPTIMIZATION_LEVEL` to `0` for Debug
-
-**Category:** build-settings
-**Evidence:** Current value: `(unset)`. C/ObjC optimization adds compile time without debug benefit.
-**Impact:** Medium
-**Confidence:** High
-**Risk:** Low
-
-### 3. Set `ONLY_ACTIVE_ARCH` to `YES` for Debug
-
-**Category:** build-settings
-**Evidence:** Current value: `(unset)`. Building all architectures multiplies compile and link time.
-**Impact:** Medium
-**Confidence:** High
-**Risk:** Low
-
-### 4. Set `DEBUG_INFORMATION_FORMAT` to `dwarf` for Debug
-
-**Category:** build-settings
-**Evidence:** Current value: `(unset)`. dwarf-with-dsym generates a separate dSYM, adding overhead.
-**Impact:** Medium
-**Confidence:** High
-**Risk:** Low
-
-### 5. Set `ENABLE_TESTABILITY` to `YES` for Debug
-
-**Category:** build-settings
-**Evidence:** Current value: `(unset)`. Required for @testable import during development.
-**Impact:** Medium
-**Confidence:** High
-**Risk:** Low
-
-### 6. Set `EAGER_LINKING` to `YES` for Debug
-
-**Category:** build-settings
-**Evidence:** Current value: `(unset)`. Allows linker to start before all compilation finishes, reducing wall-clock time.
-**Impact:** Medium
-**Confidence:** High
-**Risk:** Low
-
-### 7. Enable `COMPILATION_CACHE_ENABLE_CACHING = YES`
-
-**Category:** build-settings
-**Evidence:** Current value: `(unset)`. Caches compilation results so repeat builds of unchanged inputs are served from cache. Measured 5-14% faster clean builds across tested projects; benefit compounds during branch switching and pulling changes.
+**Evidence:** COMPILATION_CACHE_ENABLE_CACHING is currently unset in VocabCraftApp.xcodeproj.
 **Impact:** High
 **Confidence:** High
 **Risk:** Low
+**Scope:** VocabCraftApp.xcodeproj (All Configurations)
 
-### 8. Set `SWIFT_COMPILATION_MODE` to `wholemodule` for Release
+### 2. Set DEBUG_INFORMATION_FORMAT to "dwarf" for Debug
 
+**Wait-Time Impact:** Expected to reduce your Debug clean build by approximately 0.5 seconds by eliminating dSYM generation overhead.
+**Actionability:** repo-available
 **Category:** build-settings
-**Evidence:** Current value: `(unset)`. Whole-module optimization produces faster runtime code.
+**Evidence:** DEBUG_INFORMATION_FORMAT is unset for Debug, causing Xcode to run GenerateDSYMFile tasks (taking ~0.50s per build in timing summaries).
 **Impact:** Medium
 **Confidence:** High
 **Risk:** Low
+**Scope:** VocabCraftApp.xcodeproj (Debug Configuration)
 
-### 9. Set `SWIFT_OPTIMIZATION_LEVEL` to `-O` for Release
+### 3. Set EAGER_LINKING to "YES" for Debug
 
+**Wait-Time Impact:** Impact on wait time is uncertain -- re-benchmark after applying to confirm.
+**Actionability:** repo-available
 **Category:** build-settings
-**Evidence:** Current value: `(unset)`. Optimized binaries for production (-Osize also acceptable).
+**Evidence:** EAGER_LINKING is unset. Eager linking allows the linker to begin emitting Mach-O output as soon as dependent TBDs are available rather than waiting for all object files.
 **Impact:** Medium
 **Confidence:** High
 **Risk:** Low
+**Scope:** VocabCraftApp.xcodeproj (Debug Configuration)
 
-### 10. Set `GCC_OPTIMIZATION_LEVEL` to `s` for Release
+### 4. Align Standard Debug & Release Compiler Settings in Project
 
+**Wait-Time Impact:** No wait-time improvement expected. The benefit is deterministic builds, explicit compiler intent, and preventing module variant drift.
+**Actionability:** repo-available
 **Category:** build-settings
-**Evidence:** Current value: `(unset)`. Optimizes C/ObjC for size in release.
+**Evidence:** SWIFT_OPTIMIZATION_LEVEL, GCC_OPTIMIZATION_LEVEL, ENABLE_TESTABILITY, and SWIFT_COMPILATION_MODE are unset at the project level, relying on implicit Xcode defaults.
 **Impact:** Medium
 **Confidence:** High
 **Risk:** Low
+**Scope:** VocabCraftApp.xcodeproj (Debug and Release Configurations)
 
-### 11. Set `ONLY_ACTIVE_ARCH` to `NO` for Release
+### 5. Refactor Severe Type-Checking Hotspots in ReflexBlitzCardView.swift (>4.4s compile work)
 
-**Category:** build-settings
-**Evidence:** Current value: `(unset)`. Release builds must include all architectures for distribution.
-**Impact:** Medium
+**Wait-Time Impact:** Reduces parallel compile work by ~4.5s and expected to reduce wait time if ReflexBlitzCardView is on the compile critical path.
+**Actionability:** repo-available
+**Category:** compilation
+**Evidence:** diagnose_compilation identified 4 expressions in ReflexBlitzCardView.swift taking over 4,469ms combined (line 588 took 2255ms, line 274 took 2005ms, line 432 took 108ms, line 417 took 101ms) due to un-typed integer modulo arithmetic within Capsule.frame modifiers, complex nested ternaries in .fill(), and Text concatenation chains.
+**Impact:** High
 **Confidence:** High
 **Risk:** Low
+**Scope:** VocabCraftApp/Features/ReflexDrill/Views/ReflexBlitzCardView.swift
 
-### 12. Set `DEBUG_INFORMATION_FORMAT` to `dwarf-with-dsym` for Release
+### 6. Refactor Severe Type-Checking Hotspots in MixedDrillSectionViews.swift (>3.6s compile work)
 
-**Category:** build-settings
-**Evidence:** Current value: `(unset)`. dSYM bundles are needed for crash symbolication.
-**Impact:** Medium
+**Wait-Time Impact:** Reduces parallel compile work by ~3.7s and expected to reduce wait time if MixedDrillSectionViews is on the compile critical path.
+**Actionability:** repo-available
+**Category:** compilation
+**Evidence:** diagnose_compilation identified 2 expressions in MixedDrillSectionViews.swift taking 3,680ms combined (line 109 took 2237ms, line 255 took 1443ms) due to inline dynamic waveform height modulo arithmetic inside SwiftUI view builder ForEach hierarchies.
+**Impact:** High
 **Confidence:** High
 **Risk:** Low
+**Scope:** VocabCraftApp/Features/Vocabulary/Views/Components/MixedDrillSectionViews.swift
 
-### 13. Set `ENABLE_TESTABILITY` to `NO` for Release
+### 7. Refactor Arithmetic Type-Checking Hotspot in CompleteStageChallengeUseCase.swift
 
-**Category:** build-settings
-**Evidence:** Current value: `(unset)`. Removes internal-symbol export overhead from release builds.
-**Impact:** Medium
+**Wait-Time Impact:** Reduces parallel compile work by ~0.27s (unlikely to noticeably reduce wall-clock wait time on its own, but cleans up type inference).
+**Actionability:** repo-available
+**Category:** compilation
+**Evidence:** diagnose_compilation identified function body execute(stageId:deckId:results:) (146ms) and line 26 (123ms) due to complex inline ternary with multiple Double conversions for score calculation.
+**Impact:** Low
 **Confidence:** High
 **Risk:** Low
+**Scope:** VocabCraftApp/Domain/UseCases/CompleteStageChallengeUseCase.swift
 
 
 ## Approval Checklist
 
-- [x] **1. Set `SWIFT_OPTIMIZATION_LEVEL` to `-Onone` for Debug** -- Impact: Medium | Risk: Low
-- [x] **2. Set `GCC_OPTIMIZATION_LEVEL` to `0` for Debug** -- Impact: Medium | Risk: Low
-- [x] **3. Set `ONLY_ACTIVE_ARCH` to `YES` for Debug** -- Impact: Medium | Risk: Low
-- [x] **4. Set `DEBUG_INFORMATION_FORMAT` to `dwarf` for Debug** -- Impact: Medium | Risk: Low
-- [x] **5. Set `ENABLE_TESTABILITY` to `YES` for Debug** -- Impact: Medium | Risk: Low
-- [x] **6. Set `EAGER_LINKING` to `YES` for Debug** -- Impact: Medium | Risk: Low
-- [x] **7. Enable `COMPILATION_CACHE_ENABLE_CACHING = YES`** -- Impact: High | Risk: Low
-- [x] **8. Set `SWIFT_COMPILATION_MODE` to `wholemodule` for Release** -- Impact: Medium | Risk: Low
-- [x] **9. Set `SWIFT_OPTIMIZATION_LEVEL` to `-O` for Release** -- Impact: Medium | Risk: Low
-- [x] **10. Set `GCC_OPTIMIZATION_LEVEL` to `s` for Release** -- Impact: Medium | Risk: Low
-- [x] **11. Set `ONLY_ACTIVE_ARCH` to `NO` for Release** -- Impact: Medium | Risk: Low
-- [x] **12. Set `DEBUG_INFORMATION_FORMAT` to `dwarf-with-dsym` for Release** -- Impact: Medium | Risk: Low
-- [x] **13. Set `ENABLE_TESTABILITY` to `NO` for Release** -- Impact: Medium | Risk: Low
-- [x] **14. Refactor Type-Checking Hotspot in `SuggestedWordsCardView.swift`** -- Impact: Low | Risk: Low
+- [x] **1. Enable Compilation Caching (COMPILATION_CACHE_ENABLE_CACHING = YES)** -- Impact: Measured 5-14% faster clean builds across tested projects. The benefit compounds in real workflows where the cache persists between builds -- branch switching, pulling changes, and CI with persistent DerivedData. | Actionability: repo-available | Risk: Low
+- [x] **2. Set DEBUG_INFORMATION_FORMAT to "dwarf" for Debug** -- Impact: Expected to reduce your Debug clean build by approximately 0.5 seconds by eliminating dSYM generation overhead. | Actionability: repo-available | Risk: Low
+- [x] **3. Set EAGER_LINKING to "YES" for Debug** -- Impact: Impact on wait time is uncertain -- re-benchmark after applying to confirm. | Actionability: repo-available | Risk: Low
+- [x] **4. Align Standard Debug & Release Compiler Settings in Project** -- Impact: No wait-time improvement expected. The benefit is deterministic builds, explicit compiler intent, and preventing module variant drift. | Actionability: repo-available | Risk: Low
+- [x] **5. Refactor Severe Type-Checking Hotspots in ReflexBlitzCardView.swift (>4.4s compile work)** -- Impact: Reduces parallel compile work by ~4.5s and expected to reduce wait time if ReflexBlitzCardView is on the compile critical path. | Actionability: repo-available | Risk: Low
+- [x] **6. Refactor Severe Type-Checking Hotspots in MixedDrillSectionViews.swift (>3.6s compile work)** -- Impact: Reduces parallel compile work by ~3.7s and expected to reduce wait time if MixedDrillSectionViews is on the compile critical path. | Actionability: repo-available | Risk: Low
+- [x] **7. Refactor Arithmetic Type-Checking Hotspot in CompleteStageChallengeUseCase.swift** -- Impact: Reduces parallel compile work by ~0.27s (unlikely to noticeably reduce wall-clock wait time on its own, but cleans up type inference). | Actionability: repo-available | Risk: Low
 
 ## Verification Results
 
-- **Post-Change Clean Build Median:** **2.439s** (was 10.211s) -- **7.772s faster (76.1% reduction)**
-- **Post-Change Incremental Build Median:** **1.654s** (was 1.883s) -- **0.229s faster (12.2% reduction)**
-- **Post-Change Cached Clean Median:** **8.642s** (compilation cache active)
-- **Benchmark Artifact:** `.build-benchmark/20260812T172635Z-vocabcraftapp.json`
+- **Baseline Clean Build Median:** **24.799s**
+- **Post-Change Clean Build Median:** **3.722s** -- **21.077s faster (85.0% reduction)**
+- **Baseline Incremental (Zero-Change) Median:** **1.117s**
+- **Post-Change Incremental (Zero-Change) Median:** **1.041s** -- **0.076s faster (6.8% reduction)**
+- **Post-Change Cached Clean Median:** **18.111s** (compilation cache active across cold DerivedData rebuilds)
+- **Compilation Diagnostics:** **0 warnings** above 100ms threshold (was 8 warnings taking >8.2s of type checking)
+- **Unit Test Suite:** **46/46 tests passed** across 11 test suites
+- **Post-Change Benchmark Artifact:** `.build-benchmark/20260823T163731Z-vocabcraftapp.json`
 
 ### Summary
-Your clean build now takes **2.439s** (was 10.211s) -- **7.772s faster**.
-Your incremental build now takes **1.654s** (was 1.883s) -- **0.229s faster**.
-
+Your clean build now takes **3.722s** (was 24.799s) -- **21.077s faster (85.0% faster)**.
+Your zero-change build now takes **1.041s** (was 1.117s) -- **0.076s faster**.

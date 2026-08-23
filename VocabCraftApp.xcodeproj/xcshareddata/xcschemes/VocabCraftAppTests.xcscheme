@@ -59,6 +59,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "600000032D50000000000000"
+            BuildableName = "VocabCraftAppTests.xctest"
+            BlueprintName = "VocabCraftAppTests"
+            ReferencedContainer = "container:VocabCraftApp.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

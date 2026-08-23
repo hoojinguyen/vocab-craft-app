@@ -19,11 +19,21 @@ public final class CompleteStageChallengeUseCase: CompleteStageChallengeUseCaseP
     }
 
     public func execute(stageId: String, deckId: String, results: [WordChallengeResult]) async throws -> StageCompletionSummary {
-        let totalQuestions = results.count
-        let correctCount = results.filter(\.isCorrect).count
-        let weakWordIds = results.filter { !$0.isCorrect }.map(\.wordId)
-        let xpEarned = correctCount * 10
-        let score = results.isEmpty ? 0 : Int((Double(correctCount) / Double(results.count)) * 100)
+        let totalQuestions: Int = results.count
+        let correctCount: Int = results.reduce(into: 0) { count, res in
+            if res.isCorrect { count += 1 }
+        }
+        let weakWordIds: [Int64] = results.compactMap { res in
+            res.isCorrect ? nil : res.wordId
+        }
+        let xpEarned: Int = correctCount * 10
+        let score: Int
+        if totalQuestions > 0 {
+            let ratio: Double = Double(correctCount) / Double(totalQuestions)
+            score = Int(ratio * 100.0)
+        } else {
+            score = 0
+        }
 
         // Save completed stage progress
         try await stageRepo.saveStageProgress(

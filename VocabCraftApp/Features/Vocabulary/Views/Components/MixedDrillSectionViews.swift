@@ -93,6 +93,12 @@ public struct MixedDrillSpeakingSection: View {
         self.onSwitchToKeyboard = onSwitchToKeyboard
     }
 
+    private func speechWaveformHeight(for index: Int) -> CGFloat {
+        let offset: Int = index * 5 + (elapsedTimeMs / 60)
+        let dynamicHeight: Int = 8 + (offset % 18)
+        return CGFloat(dynamicHeight)
+    }
+
     public var body: some View {
         VStack(spacing: 14) {
             MixedDrillPromptHeader(word: word)
@@ -108,7 +114,7 @@ public struct MixedDrillSpeakingSection: View {
                     ForEach(0..<9, id: \.self) { idx in
                         Capsule()
                             .fill(Color.vocabMint)
-                            .frame(width: 3.5, height: CGFloat(8 + ((idx * 5 + (elapsedTimeMs / 60)) % 18)))
+                            .frame(width: 3.5, height: speechWaveformHeight(for: idx))
                             .animation(.easeInOut(duration: 0.1), value: elapsedTimeMs)
                     }
                 }
@@ -247,6 +253,12 @@ public struct MixedDrillListeningSection: View {
         self.onSelectOption = onSelectOption
     }
 
+    private func listeningWaveformHeight(for index: Int) -> CGFloat {
+        let offset: Int = index * 6 + (elapsedTimeMs / 60)
+        let dynamicHeight: Int = 8 + (offset % 22)
+        return CGFloat(dynamicHeight)
+    }
+
     public var body: some View {
         VStack(spacing: 12) {
             VStack(spacing: 12) {
@@ -254,7 +266,7 @@ public struct MixedDrillListeningSection: View {
                     ForEach(0..<11, id: \.self) { idx in
                         Capsule()
                             .fill(Color.vocabHeroAccent)
-                            .frame(width: 3.5, height: CGFloat(8 + ((idx * 6 + (elapsedTimeMs / 60)) % 22)))
+                            .frame(width: 3.5, height: listeningWaveformHeight(for: idx))
                             .animation(.easeInOut(duration: 0.1), value: elapsedTimeMs)
                     }
                 }
