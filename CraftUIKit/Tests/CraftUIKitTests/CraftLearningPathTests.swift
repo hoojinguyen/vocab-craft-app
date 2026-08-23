@@ -241,6 +241,100 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertNotNil(breathing)
         XCTAssertNotNil(glow)
     }
+
+    // MARK: - LessonNode VoiceOver and CraftLessonNode Tests
+
+    func testLessonNodeVoiceOverLabelFormatting() {
+        let completedNode = LessonNodeModel(id: "1", title: "Intro", iconName: "star", state: .completed)
+        let activeNode = LessonNodeModel(id: "2", title: "Grammar", iconName: "book", state: .active, progress: 0.6)
+        let lockedNode = LessonNodeModel(id: "3", title: "Verbs", iconName: "lock", state: .locked)
+
+        XCTAssertEqual(completedNode.state, .completed)
+        XCTAssertEqual(activeNode.progress, 0.6)
+        XCTAssertEqual(lockedNode.state, .locked)
+    }
+
+    func testCraftLessonNodeVoiceOverAccessibilityDescriptions() {
+        let completed = LessonNodeModel(id: "1", title: "Intro", iconName: "star", state: .completed)
+        let completedNode = CraftLessonNode(model: completed)
+        XCTAssertEqual(completedNode.accessibilityLabelText, "Lesson: Intro, Completed")
+        XCTAssertEqual(completedNode.accessibilityHintText, "Double tap to review")
+        XCTAssertEqual(completedNode.accessibilityTraits, .isButton)
+
+        let activeWithProgress = LessonNodeModel(id: "2", title: "Grammar", iconName: "book", state: .active, progress: 0.6)
+        let activeNode = CraftLessonNode(model: activeWithProgress)
+        XCTAssertEqual(activeNode.accessibilityLabelText, "Lesson: Grammar, Current lesson. 60% complete")
+        XCTAssertEqual(activeNode.accessibilityHintText, "Double tap to continue")
+        XCTAssertEqual(activeNode.accessibilityTraits, .isButton)
+
+        let activeWithoutProgress = LessonNodeModel(id: "2b", title: "Grammar", iconName: "book", state: .active)
+        let activeNode2 = CraftLessonNode(model: activeWithoutProgress)
+        XCTAssertEqual(activeNode2.accessibilityLabelText, "Lesson: Grammar, Current lesson")
+        XCTAssertEqual(activeNode2.accessibilityHintText, "Double tap to continue")
+
+        let inProgress = LessonNodeModel(id: "3", title: "Phrases", iconName: "quote.bubble", state: .inProgress, progress: 0.45)
+        let inProgressNode = CraftLessonNode(model: inProgress)
+        XCTAssertEqual(inProgressNode.accessibilityLabelText, "Lesson: Phrases, In progress. 45% complete")
+        XCTAssertEqual(inProgressNode.accessibilityHintText, "Double tap to continue")
+        XCTAssertEqual(inProgressNode.accessibilityTraits, .isButton)
+
+        let inProgressNoVal = LessonNodeModel(id: "3b", title: "Phrases", iconName: "quote.bubble", state: .inProgress)
+        let inProgressNode2 = CraftLessonNode(model: inProgressNoVal)
+        XCTAssertEqual(inProgressNode2.accessibilityLabelText, "Lesson: Phrases, In progress")
+        XCTAssertEqual(inProgressNode2.accessibilityHintText, "Double tap to continue")
+
+        let upcoming = LessonNodeModel(id: "4", title: "Vocabulary", iconName: "character.book.closed", state: .upcoming)
+        let upcomingNode = CraftLessonNode(model: upcoming)
+        XCTAssertEqual(upcomingNode.accessibilityLabelText, "Lesson: Vocabulary, Upcoming lesson")
+        XCTAssertEqual(upcomingNode.accessibilityHintText, "Double tap to start")
+        XCTAssertEqual(upcomingNode.accessibilityTraits, .isButton)
+
+        let locked = LessonNodeModel(id: "5", title: "Verbs", iconName: "lock", state: .locked)
+        let lockedNode = CraftLessonNode(model: locked)
+        XCTAssertEqual(lockedNode.accessibilityLabelText, "Lesson: Verbs, Locked")
+        XCTAssertEqual(lockedNode.accessibilityHintText, "Complete previous lessons to unlock")
+        XCTAssertEqual(lockedNode.accessibilityTraits, .notEnabled)
+
+        let bonus = LessonNodeModel(id: "6", title: "Mastery Challenge", iconName: "crown.fill", state: .bonus)
+        let bonusNode = CraftLessonNode(model: bonus)
+        XCTAssertEqual(bonusNode.accessibilityLabelText, "Bonus Lesson: Mastery Challenge")
+        XCTAssertEqual(bonusNode.accessibilityHintText, "Double tap to start")
+        XCTAssertEqual(bonusNode.accessibilityTraits, .isButton)
+    }
+
+    func testCraftLessonNodeEquatability() {
+        let model1 = LessonNodeModel(id: "1", title: "Intro", iconName: "star", state: .completed)
+        let model2 = LessonNodeModel(id: "1", title: "Intro", iconName: "star", state: .completed)
+        let model3 = LessonNodeModel(id: "2", title: "Grammar", iconName: "book", state: .active)
+
+        let node1 = CraftLessonNode(model: model1, onTap: { print("1") })
+        let node2 = CraftLessonNode(model: model2, onTap: { print("2") })
+        let node3 = CraftLessonNode(model: model3)
+
+        XCTAssertEqual(node1, node2)
+        XCTAssertNotEqual(node1, node3)
+    }
+
+    func testCraftLessonNodeInstantiationAllStates() {
+        for state in LessonNodeState.allCases {
+            let model = LessonNodeModel(
+                id: "node_\(state.rawValue)",
+                title: "Test \(state.rawValue)",
+                iconName: "circle.fill",
+                state: state,
+                progress: 0.5,
+                badgeCount: 3,
+                badgeText: "NEW"
+            )
+            let nodeWithTap = CraftLessonNode(model: model) { }
+            let nodeWithoutTap = CraftLessonNode(model: model)
+
+            XCTAssertNotNil(nodeWithTap)
+            XCTAssertNotNil(nodeWithoutTap)
+            XCTAssertEqual(nodeWithTap.model.id, "node_\(state.rawValue)")
+            XCTAssertEqual(nodeWithTap.model.state, state)
+        }
+    }
 }
 
 
