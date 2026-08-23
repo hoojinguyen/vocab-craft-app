@@ -646,6 +646,80 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertEqual(path.rowPattern, .custom([2]))
         XCTAssertEqual(path.activeNodeID, "s2_n1")
     }
+
+    // MARK: - Full Integration Suite Tests
+
+    func testFullLearningPathSuite() {
+        let mockNodes = [
+            LessonNodeModel(id: "n1", title: "Alphabet", iconName: "textformat", state: .completed),
+            LessonNodeModel(id: "n2", title: "Phonics", iconName: "waveform", state: .completed),
+            LessonNodeModel(id: "n3", title: "Common Nouns", iconName: "sparkles", state: .active, progress: 0.75, badgeCount: 1),
+            LessonNodeModel(id: "n4", title: "Verbs", iconName: "figure.run", state: .upcoming),
+            LessonNodeModel(id: "n5", title: "Challenge", iconName: "crown.fill", state: .bonus),
+            LessonNodeModel(id: "n6", title: "Adjectives", iconName: "paintpalette.fill", state: .locked)
+        ]
+        let section1 = LessonSection(id: "sec_1", title: "Unit 1: Fundamentals", level: "BEGINNER", progress: "2/6", nodes: mockNodes)
+        let section2 = LessonSection(id: "sec_2", title: "Unit 2: Conversation", level: "INTERMEDIATE", progress: "0/6", nodes: mockNodes.map {
+            LessonNodeModel(id: "sec2_\($0.id)", title: $0.title, iconName: $0.iconName, state: .locked)
+        })
+
+        var tappedNode: LessonNodeModel?
+        let learningPath = CraftLearningPath(
+            sections: [section1, section2],
+            rowPattern: .standard,
+            onNodeTap: { node in
+                tappedNode = node
+            },
+            scrollToActive: true,
+            showCelebration: true
+        )
+
+        XCTAssertEqual(learningPath.sections.count, 2)
+        XCTAssertEqual(learningPath.sections[0].id, "sec_1")
+        XCTAssertEqual(learningPath.sections[0].title, "Unit 1: Fundamentals")
+        XCTAssertEqual(learningPath.sections[0].level, "BEGINNER")
+        XCTAssertEqual(learningPath.sections[0].progress, "2/6")
+        XCTAssertEqual(learningPath.sections[0].nodes.count, 6)
+
+        XCTAssertEqual(learningPath.sections[1].id, "sec_2")
+        XCTAssertEqual(learningPath.sections[1].title, "Unit 2: Conversation")
+        XCTAssertEqual(learningPath.sections[1].level, "INTERMEDIATE")
+        XCTAssertEqual(learningPath.sections[1].progress, "0/6")
+        XCTAssertEqual(learningPath.sections[1].nodes.count, 6)
+
+        XCTAssertEqual(learningPath.rowPattern, .standard)
+        XCTAssertEqual(learningPath.activeNodeID, "n3")
+        XCTAssertTrue(learningPath.scrollToActive)
+        XCTAssertTrue(learningPath.showCelebration)
+        XCTAssertFalse(learningPath.isEmpty)
+
+        // Tap simulation
+        learningPath.onNodeTap?(mockNodes[2])
+        XCTAssertEqual(tappedNode?.id, "n3")
+        XCTAssertEqual(tappedNode?.progress, 0.75)
+        XCTAssertEqual(tappedNode?.badgeCount, 1)
+    }
+
+    func testFullLearningPathWavePatternSuite() {
+        let nodes = (1...6).map {
+            LessonNodeModel(id: "node_\($0)", title: "Lesson \($0)", iconName: "star.fill", state: $0 == 1 ? .completed : ($0 == 2 ? .active : .locked))
+        }
+        let section = LessonSection(id: "sec_wave_suite", title: "Wave Pattern Section", subtitle: "Dynamic Layout", level: "A2", progress: "1/6", nodes: nodes, connectorStyle: .gradient(from: .blue, to: .purple))
+
+        let path = CraftLearningPath(
+            section: section,
+            rowPattern: .wave,
+            scrollToActive: false,
+            showCelebration: false
+        )
+
+        XCTAssertEqual(path.sections.count, 1)
+        XCTAssertEqual(path.rowPattern, .wave)
+        XCTAssertEqual(path.activeNodeID, "node_2")
+        XCTAssertFalse(path.scrollToActive)
+        XCTAssertFalse(path.showCelebration)
+        XCTAssertEqual(path.sections[0].connectorStyle, .gradient(from: .blue, to: .purple))
+    }
 }
 
 

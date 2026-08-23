@@ -152,6 +152,66 @@ public enum CatalogStreakTierPreset: String, CaseIterable, Identifiable, Sendabl
     }
 }
 
+/// Interactive preset options for RowPattern in the catalog.
+public enum CatalogRowPatternPreset: String, CaseIterable, Identifiable, Sendable {
+    case standard = "Standard (1-2-1)"
+    case wave = "Wave (1-2-3-2-1)"
+    case linear = "Linear (1-1-1)"
+    case pairs = "Pairs (2-2)"
+
+    public var id: String { rawValue }
+
+    public var pattern: RowPattern {
+        switch self {
+        case .standard: return .standard
+        case .wave: return .wave
+        case .linear: return .custom([1])
+        case .pairs: return .custom([2])
+        }
+    }
+}
+
+private enum CatalogLearningPathMockData {
+    static var defaultSections: [LessonSection] {
+        let section1Nodes = [
+            LessonNodeModel(id: "u1_n1", title: "Alphabet", iconName: "textformat", state: .completed),
+            LessonNodeModel(id: "u1_n2", title: "Phonics", iconName: "waveform", state: .completed),
+            LessonNodeModel(id: "u1_n3", title: "Common Nouns", iconName: "sparkles", state: .active, progress: 0.75, badgeCount: 1),
+            LessonNodeModel(id: "u1_n4", title: "Verbs", iconName: "figure.run", state: .upcoming),
+            LessonNodeModel(id: "u1_n5", title: "Challenge", iconName: "crown.fill", state: .bonus, badgeText: "HOT"),
+            LessonNodeModel(id: "u1_n6", title: "Adjectives", iconName: "paintpalette.fill", state: .locked)
+        ]
+
+        let section2Nodes = [
+            LessonNodeModel(id: "u2_n1", title: "Greetings", iconName: "quote.bubble.fill", state: .locked),
+            LessonNodeModel(id: "u2_n2", title: "Ordering Food", iconName: "cup.and.saucer.fill", state: .locked),
+            LessonNodeModel(id: "u2_n3", title: "Directions", iconName: "map.fill", state: .locked),
+            LessonNodeModel(id: "u2_n4", title: "Travel Boss", iconName: "trophy.fill", state: .bonus)
+        ]
+
+        return [
+            LessonSection(
+                id: "sec_1",
+                title: "Unit 1: Fundamentals",
+                subtitle: "Master basic vocabulary and sentence structures",
+                level: "BEGINNER",
+                progress: "2/6",
+                nodes: section1Nodes,
+                connectorStyle: .dashed
+            ),
+            LessonSection(
+                id: "sec_2",
+                title: "Unit 2: Conversation",
+                subtitle: "Real-world dialogues and practical scenarios",
+                level: "INTERMEDIATE",
+                progress: "0/4",
+                nodes: section2Nodes,
+                connectorStyle: .solid
+            )
+        ]
+    }
+}
+
 private struct CatalogChipItem: Identifiable {
     var id: String { title }
     let title: String
@@ -374,6 +434,13 @@ private struct CraftCatalogContentView: View {
     @State private var isStreakCompletedToday: Bool = false
     @State private var isStreakCelebrationPresented: Bool = false
 
+    // Learning Journey Path States
+    @State private var selectedLearningPattern: CatalogRowPatternPreset = .standard
+    @State private var showLearningCelebration: Bool = true
+    @State private var scrollToActiveNode: Bool = false
+    @State private var selectedLearningNodeID: String = "u1_n3"
+    @State private var learningSections: [LessonSection] = CatalogLearningPathMockData.defaultSections
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -472,6 +539,18 @@ private struct CraftCatalogContentView: View {
                             isStreakCelebrationPresented = true
                         },
                         onFreezeTap: {
+                            toastStyle = .info
+                            isToastPresented = true
+                        }
+                    )
+
+                    CatalogLearningPathSection(
+                        selectedPatternPreset: $selectedLearningPattern,
+                        showCelebration: $showLearningCelebration,
+                        scrollToActive: $scrollToActiveNode,
+                        sections: $learningSections,
+                        selectedNodeID: $selectedLearningNodeID,
+                        onNodeSelected: { node in
                             toastStyle = .info
                             isToastPresented = true
                         }
@@ -2043,6 +2122,266 @@ private struct CatalogStreakSection: View {
                 CraftStreakDay(id: "7", weekdaySymbol: "CN", status: .upcoming)
             ]
         }
+    }
+}
+
+// MARK: - Section 15: Gamified Learning Journey Path
+
+private struct CatalogLearningPathSection: View {
+    @Environment(\.craftTheme) private var theme
+    @Binding var selectedPatternPreset: CatalogRowPatternPreset
+    @Binding var showCelebration: Bool
+    @Binding var scrollToActive: Bool
+    @Binding var sections: [LessonSection]
+    @Binding var selectedNodeID: String
+    let onNodeSelected: (LessonNodeModel) -> Void
+
+    private var allNodes: [LessonNodeModel] {
+        sections.flatMap(\.nodes)
+    }
+
+    private var selectedNode: LessonNodeModel? {
+        allNodes.first(where: { $0.id == selectedNodeID }) ?? allNodes.first
+    }
+
+    var body: some View {
+        CraftCard(style: .elevated) {
+            VStack(alignment: .leading, spacing: theme.spacing.base) {
+                CatalogSectionHeader(title: "15. Gamified Learning Journey Path", iconName: "map.fill")
+
+                CraftText(
+                    "Duolingo-style organic serpentine lesson roadmap with dynamic row patterns, breathing connectors, accessibility hints, and milestone celebration FX.",
+                    style: .caption,
+                    color: theme.colors.textSecondary
+                )
+
+                // Interactive Controls
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("Row Layout Pattern", style: .headline)
+                    Picker("Row Pattern", selection: $selectedPatternPreset) {
+                        ForEach(CatalogRowPatternPreset.allCases) { preset in
+                            Text(preset.rawValue).tag(preset)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+
+                    HStack(spacing: theme.spacing.md) {
+                        CraftToggle(
+                            isOn: $showCelebration,
+                            title: "Confetti Celebration",
+                            subtitle: "Celebrate completed/bonus taps",
+                            iconName: "party.popper.fill"
+                        )
+                    }
+                    .padding(.top, theme.spacing.xs)
+                }
+
+                CraftDivider()
+
+                // Node State Inspector & Modifier
+                if let node = selectedNode {
+                    VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                        HStack {
+                            CraftText("Node Inspector: \(node.title)", style: .headline)
+                            Spacer()
+                            CraftBadge(
+                                node.state.rawValue.capitalized,
+                                symbol: badgeSymbol(for: node.state),
+                                variant: .subtle,
+                                tone: badgeTone(for: node.state),
+                                size: .sm
+                            )
+                        }
+
+                        // State Switcher
+                        Picker("Node State", selection: Binding(
+                            get: { node.state },
+                            set: { updateNodeState(nodeID: node.id, newState: $0) }
+                        )) {
+                            ForEach(LessonNodeState.allCases, id: \.self) { state in
+                                Text(state.rawValue.capitalized).tag(state)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                        .padding(.vertical, 4)
+
+                        // Progress Slider if active or inProgress
+                        if node.state == .active || node.state == .inProgress {
+                            VStack(alignment: .leading, spacing: 2) {
+                                HStack {
+                                    CraftText("Progress: \(Int((node.progress ?? 0.0) * 100))%", style: .caption, color: theme.colors.textSecondary)
+                                    Spacer()
+                                }
+                                Slider(
+                                    value: Binding(
+                                        get: { node.progress ?? 0.0 },
+                                        set: { updateNodeProgress(nodeID: node.id, newProgress: $0) }
+                                    ),
+                                    in: 0.0...1.0,
+                                    step: 0.05
+                                )
+                                .tint(theme.colors.brandPrimary)
+                            }
+                        }
+
+                        // Quick Actions
+                        HStack(spacing: theme.spacing.sm) {
+                            CraftButton(
+                                "Complete Lesson",
+                                iconName: "checkmark.circle.fill",
+                                variant: .primary,
+                                size: .sm
+                            ) {
+                                completeCurrentLesson(nodeID: node.id)
+                            }
+                            .frame(maxWidth: .infinity)
+
+                            CraftButton(
+                                "Reset Path",
+                                iconName: "arrow.counterclockwise",
+                                variant: .outline,
+                                size: .sm
+                            ) {
+                                sections = CatalogLearningPathMockData.defaultSections
+                                selectedNodeID = "u1_n3"
+                            }
+                            .frame(maxWidth: .infinity)
+                        }
+                        .padding(.top, 4)
+                    }
+
+                    CraftDivider()
+                }
+
+                // Live Preview: Embedded CraftLearningPath
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    HStack {
+                        CraftText("Interactive Path Preview", style: .headline)
+                        Spacer()
+                        CraftText("Tap any node to inspect", style: .caption, color: theme.colors.brandPrimary)
+                    }
+
+                    CraftLearningPath(
+                        sections: sections,
+                        rowPattern: selectedPatternPreset.pattern,
+                        onNodeTap: { tapped in
+                            selectedNodeID = tapped.id
+                            onNodeSelected(tapped)
+                        },
+                        scrollToActive: scrollToActive,
+                        showCelebration: showCelebration
+                    )
+                    .frame(height: 480)
+                    .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: theme.radii.md)
+                            .stroke(theme.colors.borderDefault, lineWidth: 1)
+                    )
+                }
+            }
+        }
+    }
+
+    private func badgeSymbol(for state: LessonNodeState) -> CraftSymbol {
+        switch state {
+        case .completed: return .study
+        case .active: return .sparkles
+        case .inProgress: return .practice
+        case .upcoming: return .study
+        case .locked: return .bookmark
+        case .bonus: return .trophy
+        }
+    }
+
+    private func badgeTone(for state: LessonNodeState) -> CraftBadgeTone {
+        switch state {
+        case .completed: return .success
+        case .active: return .primary
+        case .inProgress: return .primary
+        case .upcoming: return .neutral
+        case .locked: return .neutral
+        case .bonus: return .warning
+        }
+    }
+
+    private func updateNodeState(nodeID: String, newState: LessonNodeState) {
+        sections = sections.map { section in
+            let updatedNodes = section.nodes.map { node in
+                if node.id == nodeID {
+                    return LessonNodeModel(
+                        id: node.id,
+                        title: node.title,
+                        iconName: node.iconName,
+                        state: newState,
+                        progress: newState == .completed ? 1.0 : (newState == .active || newState == .inProgress ? (node.progress ?? 0.5) : nil),
+                        badgeCount: node.badgeCount,
+                        badgeText: node.badgeText
+                    )
+                }
+                return node
+            }
+            return LessonSection(
+                id: section.id,
+                title: section.title,
+                subtitle: section.subtitle,
+                level: section.level,
+                progress: calculateSectionProgress(nodes: updatedNodes),
+                nodes: updatedNodes,
+                connectorStyle: section.connectorStyle
+            )
+        }
+    }
+
+    private func updateNodeProgress(nodeID: String, newProgress: Double) {
+        sections = sections.map { section in
+            let updatedNodes = section.nodes.map { node in
+                if node.id == nodeID {
+                    return LessonNodeModel(
+                        id: node.id,
+                        title: node.title,
+                        iconName: node.iconName,
+                        state: node.state,
+                        progress: newProgress,
+                        badgeCount: node.badgeCount,
+                        badgeText: node.badgeText
+                    )
+                }
+                return node
+            }
+            return LessonSection(
+                id: section.id,
+                title: section.title,
+                subtitle: section.subtitle,
+                level: section.level,
+                progress: calculateSectionProgress(nodes: updatedNodes),
+                nodes: updatedNodes,
+                connectorStyle: section.connectorStyle
+            )
+        }
+    }
+
+    private func completeCurrentLesson(nodeID: String) {
+        updateNodeState(nodeID: nodeID, newState: .completed)
+        var foundCurrent = false
+        var nextNodeID: String? = nil
+        for node in allNodes {
+            if foundCurrent && (node.state == .upcoming || node.state == .locked) {
+                nextNodeID = node.id
+                break
+            }
+            if node.id == nodeID {
+                foundCurrent = true
+            }
+        }
+        if let nextID = nextNodeID {
+            updateNodeState(nodeID: nextID, newState: .active)
+            selectedNodeID = nextID
+        }
+    }
+
+    private func calculateSectionProgress(nodes: [LessonNodeModel]) -> String {
+        let completedCount = nodes.filter { $0.state == .completed }.count
+        return "\(completedCount)/\(nodes.count)"
     }
 }
 
