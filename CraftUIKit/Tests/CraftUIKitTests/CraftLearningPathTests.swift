@@ -548,6 +548,104 @@ final class CraftLearningPathTests: XCTestCase {
         let viewWithSubtitle = CraftLessonSectionView(section: sectionWithSubtitle)
         XCTAssertEqual(viewWithSubtitle.section.subtitle, "Sub text")
     }
+
+    // MARK: - CraftLearningPath Container Tests
+
+    func testLearningPathInstantiationAndEmptySection() {
+        let emptySection = LessonSection(id: "empty", title: "Empty", nodes: [])
+        let emptyPath = CraftLearningPath(section: emptySection)
+        XCTAssertNotNil(emptyPath)
+        XCTAssertEqual(emptyPath.sections.count, 1)
+        XCTAssertTrue(emptyPath.sections[0].nodes.isEmpty)
+
+        let multiSectionPath = CraftLearningPath(sections: [emptySection, emptySection])
+        XCTAssertEqual(multiSectionPath.sections.count, 2)
+    }
+
+    func testLearningPathInitializersAndDefaultParameters() {
+        let node = LessonNodeModel(id: "n1", title: "Node 1", iconName: "star", state: .active)
+        let section = LessonSection(id: "s1", title: "Section 1", nodes: [node])
+
+        // Single section init defaults
+        let singlePath = CraftLearningPath(section: section)
+        XCTAssertEqual(singlePath.sections.count, 1)
+        XCTAssertEqual(singlePath.sections.first?.id, "s1")
+        XCTAssertEqual(singlePath.rowPattern, .standard)
+        XCTAssertTrue(singlePath.scrollToActive)
+        XCTAssertTrue(singlePath.showCelebration)
+        XCTAssertNil(singlePath.onNodeTap)
+
+        // Multi-section custom init
+        var tapCount = 0
+        let multiPath = CraftLearningPath(
+            sections: [section],
+            rowPattern: .wave,
+            onNodeTap: { _ in tapCount += 1 },
+            scrollToActive: false,
+            showCelebration: false
+        )
+        XCTAssertEqual(multiPath.sections.count, 1)
+        XCTAssertEqual(multiPath.rowPattern, .wave)
+        XCTAssertFalse(multiPath.scrollToActive)
+        XCTAssertFalse(multiPath.showCelebration)
+        XCTAssertNotNil(multiPath.onNodeTap)
+
+        multiPath.onNodeTap?(node)
+        XCTAssertEqual(tapCount, 1)
+    }
+
+    func testLearningPathActiveNodeResolution() {
+        let completed = LessonNodeModel(id: "c1", title: "C1", iconName: "star", state: .completed)
+        let active = LessonNodeModel(id: "a1", title: "A1", iconName: "book", state: .active)
+        let upcoming = LessonNodeModel(id: "u1", title: "U1", iconName: "lock", state: .upcoming)
+
+        let section1 = LessonSection(id: "s1", title: "S1", nodes: [completed])
+        let section2 = LessonSection(id: "s2", title: "S2", nodes: [active, upcoming])
+
+        let path = CraftLearningPath(sections: [section1, section2])
+        XCTAssertEqual(path.activeNodeID, "a1")
+
+        let noActivePath = CraftLearningPath(sections: [section1])
+        XCTAssertNil(noActivePath.activeNodeID)
+
+        let emptyPath = CraftLearningPath(sections: [])
+        XCTAssertNil(emptyPath.activeNodeID)
+    }
+
+    func testLearningPathEmptyStateCondition() {
+        let emptyPath1 = CraftLearningPath(sections: [])
+        XCTAssertTrue(emptyPath1.isEmpty)
+
+        let emptySection = LessonSection(id: "s_empty", title: "Empty", nodes: [])
+        let emptyPath2 = CraftLearningPath(sections: [emptySection, emptySection])
+        XCTAssertTrue(emptyPath2.isEmpty)
+
+        let populatedNode = LessonNodeModel(id: "p1", title: "P1", iconName: "star", state: .upcoming)
+        let populatedSection = LessonSection(id: "s_pop", title: "Pop", nodes: [populatedNode])
+        let populatedPath = CraftLearningPath(sections: [emptySection, populatedSection])
+        XCTAssertFalse(populatedPath.isEmpty)
+    }
+
+    func testLearningPathMultiSectionHierarchy() {
+        let sec1Nodes = [
+            LessonNodeModel(id: "s1_n1", title: "S1 N1", iconName: "star", state: .completed),
+            LessonNodeModel(id: "s1_n2", title: "S1 N2", iconName: "star", state: .completed)
+        ]
+        let sec2Nodes = [
+            LessonNodeModel(id: "s2_n1", title: "S2 N1", iconName: "book", state: .active),
+            LessonNodeModel(id: "s2_n2", title: "S2 N2", iconName: "lock", state: .locked)
+        ]
+
+        let section1 = LessonSection(id: "sec_1", title: "Unit 1", nodes: sec1Nodes, connectorStyle: .solid)
+        let section2 = LessonSection(id: "sec_2", title: "Unit 2", nodes: sec2Nodes, connectorStyle: .dashed)
+
+        let path = CraftLearningPath(sections: [section1, section2], rowPattern: .custom([2]))
+        XCTAssertEqual(path.sections.count, 2)
+        XCTAssertEqual(path.sections[0].nodes.count, 2)
+        XCTAssertEqual(path.sections[1].nodes.count, 2)
+        XCTAssertEqual(path.rowPattern, .custom([2]))
+        XCTAssertEqual(path.activeNodeID, "s2_n1")
+    }
 }
 
 
