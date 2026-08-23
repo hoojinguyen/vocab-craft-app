@@ -1816,6 +1816,46 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertEqual(s2n4.xpReward, 150)
     }
 
+    func testActiveNodeWithWarmRadiantHaloRendering() {
+        let activeStandard = LessonNodeModel(
+            id: "act_std",
+            title: "Common Verbs",
+            subtitle: "20 words • 5 min",
+            iconName: "flame.fill",
+            state: .active,
+            kind: .standard,
+            progress: 0.6,
+            xpReward: 30,
+            badgeCount: 2
+        )
+        let nodeView = CraftLessonNode(model: activeStandard, calloutText: "TIẾP TỤC")
+        XCTAssertNotNil(nodeView.body)
+        XCTAssertEqual(nodeView.calloutText, "TIẾP TỤC")
+        XCTAssertEqual(nodeView.model.state, .active)
+
+        let activeCheckpoint = LessonNodeModel(
+            id: "act_cp",
+            title: "Unit Exam",
+            iconName: "crown.fill",
+            state: .active,
+            kind: .checkpoint,
+            progress: 0.8,
+            xpReward: 100
+        )
+        let checkpointNodeView = CraftLessonNode(model: activeCheckpoint)
+        XCTAssertNotNil(checkpointNodeView.body)
+    }
+
+    func testBreathingConnectorViewWithGradient() {
+        let from = CGPoint(x: 100, y: 150)
+        let to = CGPoint(x: 180, y: 300)
+        let breathing = BreathingConnectorView(from: from, to: to)
+        XCTAssertNotNil(breathing.body)
+
+        let customBreathing = BreathingConnectorView(from: from, to: to, color: .orange)
+        XCTAssertNotNil(customBreathing.body)
+    }
+
     func testCraftCatalogViewInstantiation() {
         let catalog = CraftCatalogView()
         XCTAssertNotNil(catalog.body)

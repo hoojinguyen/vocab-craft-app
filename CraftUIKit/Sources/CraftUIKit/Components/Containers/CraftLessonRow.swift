@@ -94,18 +94,18 @@ public struct CraftLessonRow: View, Equatable {
         let clampedRatio = min(max(offsetRatio, -1.0), 1.0)
         let xOffset = clampedRatio * (maxShift > 0 ? maxShift : 100)
 
-        return HStack {
-            Spacer()
+        return ZStack(alignment: .center) {
             CraftLessonNode(
                 model: node,
                 onTap: onNodeTap != nil ? { onNodeTap?(node) } : nil
             )
             .id(node.id)
-            .offset(x: xOffset)
+            .alignmentGuide(HorizontalAlignment.center) { d in
+                d[HorizontalAlignment.center] - xOffset
+            }
             .anchorPreference(key: NodeAnchorPreferenceKey.self, value: .center) { anchor in
                 [node.id: anchor]
             }
-            Spacer()
         }
         .frame(maxWidth: .infinity)
         .background(

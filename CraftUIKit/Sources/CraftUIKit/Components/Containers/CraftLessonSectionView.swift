@@ -78,7 +78,7 @@ public struct CraftLessonSectionView: View {
                     )
                 }
             }
-            .overlayPreferenceValue(NodeAnchorPreferenceKey.self) { preferences in
+            .backgroundPreferenceValue(NodeAnchorPreferenceKey.self) { preferences in
                 GeometryReader { geometry in
                     connectorLayer(preferences: preferences, geometry: geometry)
                 }

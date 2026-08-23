@@ -146,13 +146,22 @@ public struct ActiveCalloutBubble: View {
                 .padding(.vertical, 4)
                 .background(
                     Capsule()
-                        .fill(theme.colors.brandPrimary)
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    theme.colors.brandPrimary,
+                                    theme.colors.brandPrimary.opacity(0.92)
+                                ],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
                 )
                 .overlay(
                     Capsule()
-                        .strokeBorder(Color.white.opacity(0.3), lineWidth: 1)
+                        .strokeBorder(Color.white.opacity(0.35), lineWidth: 1)
                 )
-                .shadow(color: theme.colors.brandPrimary.opacity(0.3), radius: 4, x: 0, y: 2)
+                .shadow(color: theme.colors.brandPrimary.opacity(0.35), radius: 6, x: 0, y: 3)
 
             CaretDownShape()
                 .fill(theme.colors.brandPrimary)
@@ -496,34 +505,98 @@ public struct CraftLessonNode: View, Equatable {
     private var activeGlowRing: some View {
         let isCheckpoint = model.kind == .checkpoint
         if reduceMotion {
-            if isCheckpoint {
-                HexagonShape()
-                    .stroke(theme.colors.brandPrimary.opacity(0.35), lineWidth: 3)
-                    .frame(width: nodeDiameter + 10, height: nodeDiameter + 10)
-            } else {
-                Circle()
-                    .stroke(theme.colors.brandPrimary.opacity(0.35), lineWidth: 3)
-                    .frame(width: nodeDiameter + 10, height: nodeDiameter + 10)
+            ZStack {
+                // Static Soft Aura Disc (Background Cushion)
+                if isCheckpoint {
+                    HexagonShape()
+                        .fill(theme.colors.brandPrimary.opacity(0.12))
+                        .frame(width: nodeDiameter + 24, height: nodeDiameter + 24)
+                    HexagonShape()
+                        .stroke(theme.colors.brandPrimary.opacity(0.30), lineWidth: 2)
+                        .frame(width: nodeDiameter + 12, height: nodeDiameter + 12)
+                } else {
+                    Circle()
+                        .fill(
+                            RadialGradient(
+                                colors: [
+                                    theme.colors.brandPrimary.opacity(0.16),
+                                    theme.colors.brandPrimary.opacity(0.06),
+                                    Color.clear
+                                ],
+                                center: .center,
+                                startRadius: nodeDiameter * 0.3,
+                                endRadius: (nodeDiameter + 24) * 0.5
+                            )
+                        )
+                        .frame(width: nodeDiameter + 24, height: nodeDiameter + 24)
+                    Circle()
+                        .stroke(theme.colors.brandPrimary.opacity(0.30), lineWidth: 2)
+                        .frame(width: nodeDiameter + 12, height: nodeDiameter + 12)
+                }
             }
         } else {
             PhaseAnimator(GlowPhase.allCases) { phase in
-                Group {
+                ZStack {
+                    // 1. Soft Ambient Aura Disc (Background Cushion)
+                    if isCheckpoint {
+                        HexagonShape()
+                            .fill(theme.colors.brandPrimary.opacity(phase == .glowing ? 0.16 : 0.08))
+                            .frame(width: nodeDiameter + 26, height: nodeDiameter + 26)
+                            .scaleEffect(phase == .glowing ? 1.04 : 0.98)
+                    } else {
+                        Circle()
+                            .fill(
+                                RadialGradient(
+                                    colors: [
+                                        theme.colors.brandPrimary.opacity(phase == .glowing ? 0.20 : 0.12),
+                                        theme.colors.brandPrimary.opacity(phase == .glowing ? 0.08 : 0.03),
+                                        Color.clear
+                                    ],
+                                    center: .center,
+                                    startRadius: nodeDiameter * 0.25,
+                                    endRadius: (nodeDiameter + 26) * 0.5
+                                )
+                            )
+                            .frame(width: nodeDiameter + 26, height: nodeDiameter + 26)
+                            .scaleEffect(phase == .glowing ? 1.05 : 0.98)
+                    }
+
+                    // 2. Pulsing Breathing Halo Outer Ring
                     if isCheckpoint {
                         HexagonShape()
                             .stroke(
-                                theme.colors.brandPrimary.opacity(phase == .glowing ? 0.45 : 0.2),
-                                lineWidth: 3
+                                theme.colors.brandPrimary.opacity(phase == .glowing ? 0.45 : 0.20),
+                                lineWidth: phase == .glowing ? 2.5 : 1.5
                             )
+                            .frame(width: nodeDiameter + 14, height: nodeDiameter + 14)
+                            .scaleEffect(phase == .glowing ? 1.08 : 1.0)
                     } else {
                         Circle()
                             .stroke(
-                                theme.colors.brandPrimary.opacity(phase == .glowing ? 0.45 : 0.2),
-                                lineWidth: 3
+                                theme.colors.brandPrimary.opacity(phase == .glowing ? 0.45 : 0.20),
+                                lineWidth: phase == .glowing ? 2.5 : 1.5
                             )
+                            .frame(width: nodeDiameter + 14, height: nodeDiameter + 14)
+                            .scaleEffect(phase == .glowing ? 1.08 : 1.0)
+                    }
+
+                    // 3. Proximity Delicate Ring
+                    if isCheckpoint {
+                        HexagonShape()
+                            .stroke(
+                                theme.colors.brandPrimary.opacity(phase == .glowing ? 0.25 : 0.12),
+                                lineWidth: 1
+                            )
+                            .frame(width: nodeDiameter + 6, height: nodeDiameter + 6)
+                    } else {
+                        Circle()
+                            .stroke(
+                                theme.colors.brandPrimary.opacity(phase == .glowing ? 0.25 : 0.12),
+                                lineWidth: 1
+                            )
+                            .frame(width: nodeDiameter + 6, height: nodeDiameter + 6)
                     }
                 }
-                .frame(width: nodeDiameter + 12, height: nodeDiameter + 12)
-                .scaleEffect(phase == .glowing ? 1.08 : 1.0)
             } animation: { _ in
                 .craftGlow
             }

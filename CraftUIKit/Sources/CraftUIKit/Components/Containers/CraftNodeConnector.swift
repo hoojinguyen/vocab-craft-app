@@ -50,26 +50,36 @@ public struct BreathingConnectorView: View {
         self.color = color
     }
 
-    public var body: some View {
-        let strokeColor = color ?? theme.colors.brandPrimary
+    private var connectorGradient: LinearGradient {
+        LinearGradient(
+            colors: [
+                color ?? theme.colors.statusSuccess,
+                color ?? theme.colors.brandPrimary
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+    }
 
+    public var body: some View {
         Group {
             if reduceMotion {
                 CraftNodeConnector(from: from, to: to)
                     .stroke(
-                        strokeColor.opacity(0.6),
-                        style: StrokeStyle(lineWidth: 3.0, lineCap: .round)
+                        connectorGradient,
+                        style: StrokeStyle(lineWidth: 3.5, lineCap: .round)
                     )
             } else {
                 PhaseAnimator(BreathingPhase.allCases) { phase in
                     CraftNodeConnector(from: from, to: to)
                         .stroke(
-                            strokeColor.opacity(phase == .inhale ? 0.8 : 0.4),
+                            connectorGradient,
                             style: StrokeStyle(
-                                lineWidth: phase == .inhale ? 3.5 : 2.5,
+                                lineWidth: phase == .inhale ? 4.0 : 3.0,
                                 lineCap: .round
                             )
                         )
+                        .opacity(phase == .inhale ? 0.95 : 0.6)
                 } animation: { _ in
                     .craftBreathing
                 }
