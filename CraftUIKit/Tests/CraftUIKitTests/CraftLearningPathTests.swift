@@ -335,6 +335,103 @@ final class CraftLearningPathTests: XCTestCase {
             XCTAssertEqual(nodeWithTap.model.state, state)
         }
     }
+
+    // MARK: - Row Splitting Algorithm Tests
+
+    func testRowPatternSplitting() {
+        let nodes = (0..<7).map { LessonNodeModel(id: "node_\($0)", title: "Lesson \($0)", iconName: "star", state: .upcoming) }
+
+        let standardRows = RowPattern.standard.split(nodes: nodes)
+        XCTAssertEqual(standardRows.count, 5) // [1], [2], [1], [2], [1]
+        XCTAssertEqual(standardRows[0].arrangement, .single)
+        XCTAssertEqual(standardRows[0].nodes.count, 1)
+        XCTAssertEqual(standardRows[1].arrangement, .pair)
+        XCTAssertEqual(standardRows[1].nodes.count, 2)
+        XCTAssertEqual(standardRows[2].arrangement, .single)
+        XCTAssertEqual(standardRows[2].nodes.count, 1)
+        XCTAssertEqual(standardRows[3].arrangement, .pair)
+        XCTAssertEqual(standardRows[3].nodes.count, 2)
+        XCTAssertEqual(standardRows[4].arrangement, .single)
+        XCTAssertEqual(standardRows[4].nodes.count, 1)
+
+        let waveRows = RowPattern.wave.split(nodes: (0..<9).map { LessonNodeModel(id: "w_\($0)", title: "\($0)", iconName: "star", state: .upcoming) })
+        // [1], [2], [3], [2], [1]
+        XCTAssertEqual(waveRows.map(\.nodes.count), [1, 2, 3, 2, 1])
+        XCTAssertEqual(waveRows[0].arrangement, .single)
+        XCTAssertEqual(waveRows[1].arrangement, .pair)
+        XCTAssertEqual(waveRows[2].arrangement, .triple)
+        XCTAssertEqual(waveRows[3].arrangement, .pair)
+        XCTAssertEqual(waveRows[4].arrangement, .single)
+    }
+
+    func testRowPatternSplittingEdgeCases() {
+        // Empty nodes
+        let emptyRows = RowPattern.standard.split(nodes: [])
+        XCTAssertTrue(emptyRows.isEmpty)
+
+        // Custom pattern
+        let customNodes = (0..<6).map { LessonNodeModel(id: "c_\($0)", title: "C\($0)", iconName: "star", state: .upcoming) }
+        let customRows = RowPattern.custom([3, 1, 2]).split(nodes: customNodes)
+        XCTAssertEqual(customRows.count, 3)
+        XCTAssertEqual(customRows[0].nodes.count, 3)
+        XCTAssertEqual(customRows[0].arrangement, .triple)
+        XCTAssertEqual(customRows[1].nodes.count, 1)
+        XCTAssertEqual(customRows[1].arrangement, .single)
+        XCTAssertEqual(customRows[2].nodes.count, 2)
+        XCTAssertEqual(customRows[2].arrangement, .pair)
+
+        // Custom pattern with invalid/empty counts defaults gracefully
+        let fallbackRows = RowPattern.custom([]).split(nodes: customNodes)
+        XCTAssertEqual(fallbackRows.count, 6)
+        XCTAssertEqual(fallbackRows.map(\.nodes.count), [1, 1, 1, 1, 1, 1])
+
+        // Partial row at the end adjusts arrangement to actual node count
+        let partialNodes = (0..<4).map { LessonNodeModel(id: "p_\($0)", title: "P\($0)", iconName: "star", state: .upcoming) }
+        // Wave pattern wants [1, 2, 3] -> 1st row has 1 (.single), 2nd row has 2 (.pair), 3rd row has 1 remaining (.single instead of .triple)
+        let partialWave = RowPattern.wave.split(nodes: partialNodes)
+        XCTAssertEqual(partialWave.count, 3)
+        XCTAssertEqual(partialWave[0].nodes.count, 1)
+        XCTAssertEqual(partialWave[0].arrangement, .single)
+        XCTAssertEqual(partialWave[1].nodes.count, 2)
+        XCTAssertEqual(partialWave[1].arrangement, .pair)
+        XCTAssertEqual(partialWave[2].nodes.count, 1)
+        XCTAssertEqual(partialWave[2].arrangement, .single)
+    }
+
+    // MARK: - CraftLessonRow View Tests
+
+    func testCraftLessonRowInstantiationAndEquatability() {
+        let nodeA = LessonNodeModel(id: "a", title: "A", iconName: "star", state: .completed)
+        let nodeB = LessonNodeModel(id: "b", title: "B", iconName: "book", state: .active)
+        let nodeC = LessonNodeModel(id: "c", title: "C", iconName: "lock", state: .locked)
+
+        let row1 = CraftLessonRow(nodes: [nodeA], arrangement: .single)
+        let row2 = CraftLessonRow(nodes: [nodeA], arrangement: .single)
+        let row3 = CraftLessonRow(nodes: [nodeA, nodeB], arrangement: .pair)
+        let row4 = CraftLessonRow(nodes: [nodeA, nodeB, nodeC], arrangement: .triple)
+
+        XCTAssertEqual(row1, row2)
+        XCTAssertNotEqual(row1, row3)
+        XCTAssertNotEqual(row3, row4)
+
+        XCTAssertEqual(row1.nodes.count, 1)
+        XCTAssertEqual(row1.arrangement, .single)
+        XCTAssertEqual(row3.nodes.count, 2)
+        XCTAssertEqual(row3.arrangement, .pair)
+        XCTAssertEqual(row4.nodes.count, 3)
+        XCTAssertEqual(row4.arrangement, .triple)
+    }
+
+    func testCraftLessonRowTapCallback() {
+        var tappedNode: LessonNodeModel?
+        let node = LessonNodeModel(id: "tap_1", title: "Tap Test", iconName: "star", state: .active)
+        let row = CraftLessonRow(nodes: [node], arrangement: .single) { selected in
+            tappedNode = selected
+        }
+        XCTAssertNotNil(row)
+        row.onNodeTap?(node)
+        XCTAssertEqual(tappedNode?.id, "tap_1")
+    }
 }
 
 

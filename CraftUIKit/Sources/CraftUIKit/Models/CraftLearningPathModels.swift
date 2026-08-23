@@ -86,12 +86,52 @@ public struct LessonSection: Identifiable, Sendable, Equatable {
 }
 
 // MARK: - RowPattern
-
+ 
 /// Layout pattern determining how sequential lesson nodes are grouped across rows.
 public enum RowPattern: Sendable, Equatable {
     case standard           // [1, 2, 1, 2, ...]
     case wave               // [1, 2, 3, 2, 1, 2, 3, ...]
     case custom([Int])      // User-defined row counts
+
+    /// Splits an ordered array of lesson nodes into discrete rows, pairing each row slice
+    /// with its corresponding horizontal layout arrangement.
+    ///
+    /// - Parameter nodes: The lesson nodes to partition.
+    /// - Returns: An array of tuples containing the row's nodes and the calculated `LessonRowArrangement`.
+    public func split(nodes: [LessonNodeModel]) -> [(nodes: [LessonNodeModel], arrangement: LessonRowArrangement)] {
+        guard !nodes.isEmpty else { return [] }
+
+        let counts: [Int] = switch self {
+        case .standard:
+            [1, 2]
+        case .wave:
+            [1, 2, 3, 2]
+        case .custom(let customCounts):
+            customCounts.filter { $0 > 0 }.isEmpty ? [1] : customCounts.filter { $0 > 0 }
+        }
+
+        var result: [(nodes: [LessonNodeModel], arrangement: LessonRowArrangement)] = []
+        var currentIndex = 0
+        var patternIndex = 0
+
+        while currentIndex < nodes.count {
+            let targetCount = counts[patternIndex % counts.count]
+            let endIndex = min(currentIndex + targetCount, nodes.count)
+            let rowNodes = Array(nodes[currentIndex..<endIndex])
+
+            let arrangement: LessonRowArrangement = switch rowNodes.count {
+            case 1: .single
+            case 2: .pair
+            default: .triple
+            }
+
+            result.append((nodes: rowNodes, arrangement: arrangement))
+            currentIndex = endIndex
+            patternIndex += 1
+        }
+
+        return result
+    }
 }
 
 // MARK: - LessonRowArrangement
@@ -102,3 +142,4 @@ public enum LessonRowArrangement: Sendable, Equatable {
     case pair               // 2 nodes, spread left-right
     case triple             // 3 nodes, evenly distributed
 }
+
