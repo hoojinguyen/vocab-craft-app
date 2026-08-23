@@ -2456,6 +2456,244 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertEqual(bonus.accessibilityHintText, "Double tap to start")
         XCTAssertTrue(bonus.accessibilityLabelText.contains("Bonus Lesson: Bonus. Reward: 100 XP"))
     }
+
+    // MARK: - Task 5: Full Snake Hybrid Engine Integration Tests
+
+    func testLessonSectionWithRowPattern() {
+        let node = LessonNodeModel(id: "n1", title: "Test", state: .completed)
+        let defaultSection = LessonSection(id: "s_default", title: "Default", nodes: [node])
+        XCTAssertEqual(defaultSection.rowPattern, .standard)
+
+        let waveSection = LessonSection(
+            id: "s_wave",
+            title: "Wave Section",
+            nodes: [node],
+            rowPattern: .wave
+        )
+        XCTAssertEqual(waveSection.rowPattern, .wave)
+
+        let customSection = LessonSection(
+            id: "s_custom",
+            title: "Custom Section",
+            nodes: [node],
+            rowPattern: .custom([2, 1])
+        )
+        XCTAssertEqual(customSection.rowPattern, .custom([2, 1]))
+    }
+
+    func testCraftLessonSectionViewSnakeHybridRowLayoutPartitioning() {
+        let nodes = (1...6).map {
+            LessonNodeModel(id: "node_\($0)", title: "Lesson \($0)", state: $0 <= 2 ? .completed : ($0 == 3 ? .active : .upcoming))
+        }
+        let section = LessonSection(
+            id: "sec_snake",
+            title: "Snake Unit",
+            nodes: nodes,
+            rowPattern: .standard
+        )
+
+        var tappedNode: LessonNodeModel?
+        let sectionView = CraftLessonSectionView(section: section) { tapped in
+            tappedNode = tapped
+        }
+
+        XCTAssertNotNil(sectionView)
+        XCTAssertEqual(sectionView.section.id, "sec_snake")
+        XCTAssertEqual(sectionView.rowPattern, .standard)
+
+        // Partition with standard pattern [1, 2] -> 4 rows for 6 nodes
+        let layouts = sectionView.rowPattern.layoutRows(nodes: section.nodes)
+        XCTAssertEqual(layouts.count, 4)
+
+        // Row 0: 1 node (center)
+        XCTAssertEqual(layouts[0].nodes.count, 1)
+        XCTAssertEqual(layouts[0].nodes[0].node.id, "node_1")
+        XCTAssertEqual(layouts[0].nodes[0].slot, NodeSlot.center)
+        XCTAssertEqual(layouts[0].nodes[0].traversalIndex, 0)
+
+        // Row 1: 2 nodes (left, right)
+        XCTAssertEqual(layouts[1].nodes.count, 2)
+        XCTAssertEqual(layouts[1].nodes[0].node.id, "node_3")
+        XCTAssertEqual(layouts[1].nodes[0].slot, NodeSlot.left)
+        XCTAssertEqual(layouts[1].nodes[0].traversalIndex, 2)
+        XCTAssertEqual(layouts[1].nodes[1].node.id, "node_2")
+        XCTAssertEqual(layouts[1].nodes[1].slot, NodeSlot.right)
+        XCTAssertEqual(layouts[1].nodes[1].traversalIndex, 1)
+
+        // Row 2: 1 node (center)
+        XCTAssertEqual(layouts[2].nodes.count, 1)
+        XCTAssertEqual(layouts[2].nodes[0].node.id, "node_4")
+        XCTAssertEqual(layouts[2].nodes[0].slot, NodeSlot.center)
+        XCTAssertEqual(layouts[2].nodes[0].traversalIndex, 3)
+
+        // Row 3: 2 nodes (left, right)
+        XCTAssertEqual(layouts[3].nodes.count, 2)
+        XCTAssertEqual(layouts[3].nodes[0].node.id, "node_6")
+        XCTAssertEqual(layouts[3].nodes[0].slot, NodeSlot.left)
+        XCTAssertEqual(layouts[3].nodes[0].traversalIndex, 5)
+        XCTAssertEqual(layouts[3].nodes[1].node.id, "node_5")
+        XCTAssertEqual(layouts[3].nodes[1].slot, NodeSlot.right)
+        XCTAssertEqual(layouts[3].nodes[1].traversalIndex, 4)
+
+        // Test tap handling
+        sectionView.onNodeTap?(nodes[2])
+        XCTAssertEqual(tappedNode?.id, "node_3")
+
+        // View body rendering
+        XCTAssertNotNil(sectionView.body)
+    }
+
+    func testCraftLessonSectionViewWaveRowLayoutPartitioning() {
+        let nodes = (1...8).map {
+            LessonNodeModel(id: "w_node_\($0)", title: "Wave \($0)", state: .upcoming)
+        }
+        let section = LessonSection(
+            id: "sec_wave_snake",
+            title: "Wave Snake Unit",
+            nodes: nodes,
+            rowPattern: .wave
+        )
+
+        let sectionView = CraftLessonSectionView(section: section, rowPattern: .wave)
+        XCTAssertEqual(sectionView.rowPattern, RowPattern.wave)
+
+        // Wave pattern [1, 2, 3, 2] -> 4 rows for 8 nodes
+        let layouts = sectionView.rowPattern.layoutRows(nodes: section.nodes)
+        XCTAssertEqual(layouts.count, 4)
+
+        // Row 0: 1 node (center)
+        XCTAssertEqual(layouts[0].nodes.count, 1)
+        XCTAssertEqual(layouts[0].nodes[0].slot, NodeSlot.center)
+        XCTAssertEqual(layouts[0].nodes[0].traversalIndex, 0)
+
+        // Row 1: 2 nodes (left, right)
+        XCTAssertEqual(layouts[1].nodes.count, 2)
+        XCTAssertEqual(layouts[1].nodes[0].slot, NodeSlot.left)
+        XCTAssertEqual(layouts[1].nodes[1].slot, NodeSlot.right)
+
+        // Row 2: 3 nodes (left, center, right)
+        XCTAssertEqual(layouts[2].nodes.count, 3)
+        XCTAssertEqual(layouts[2].nodes[0].slot, NodeSlot.left)
+        XCTAssertEqual(layouts[2].nodes[1].slot, NodeSlot.center)
+        XCTAssertEqual(layouts[2].nodes[2].slot, NodeSlot.right)
+
+        // Row 3: 2 nodes (left, right)
+        XCTAssertEqual(layouts[3].nodes.count, 2)
+        XCTAssertEqual(layouts[3].nodes[0].slot, NodeSlot.left)
+        XCTAssertEqual(layouts[3].nodes[1].slot, NodeSlot.right)
+    }
+
+    func testCraftLearningPathSnakeHybridIntegrationMultiSection() {
+        let sec1Nodes = [
+            LessonNodeModel(id: "s1_n1", title: "S1 N1", state: .completed),
+            LessonNodeModel(id: "s1_n2", title: "S1 N2", state: .completed),
+            LessonNodeModel(id: "s1_n3", title: "S1 N3", state: .active, progress: 0.5)
+        ]
+        let sec2Nodes = [
+            LessonNodeModel(id: "s2_n1", title: "S2 N1", state: .locked),
+            LessonNodeModel(id: "s2_n2", title: "S2 N2", state: .locked),
+            LessonNodeModel(id: "s2_n3", title: "S2 N3", state: .locked, kind: .treasureChest)
+        ]
+
+        let section1 = LessonSection(
+            id: "sec_1",
+            title: "Section 1",
+            nodes: sec1Nodes,
+            rowPattern: .standard
+        )
+        let section2 = LessonSection(
+            id: "sec_2",
+            title: "Section 2",
+            nodes: sec2Nodes,
+            rowPattern: .wave
+        )
+
+        var tapped: LessonNodeModel?
+        var started: LessonNodeModel?
+        let path = CraftLearningPath(
+            sections: [section1, section2],
+            onNodeTap: { tapped = $0 },
+            onStartLesson: { started = $0 },
+            showDetailModal: true,
+            scrollToActive: true,
+            showCelebration: true
+        )
+
+        XCTAssertFalse(path.isEmpty)
+        XCTAssertEqual(path.sections.count, 2)
+        XCTAssertEqual(path.activeNodeID, "s1_n3")
+        XCTAssertTrue(path.scrollToActive)
+        XCTAssertTrue(path.showCelebration)
+        XCTAssertTrue(path.showDetailModal)
+
+        path.onNodeTap?(sec1Nodes[2])
+        XCTAssertEqual(tapped?.id, "s1_n3")
+
+        path.onStartLesson?(sec1Nodes[2])
+        XCTAssertEqual(started?.id, "s1_n3")
+
+        XCTAssertNotNil(path.body)
+    }
+
+    func testCraftLearningPathActiveNodeResolutionAcrossSections() {
+        let allCompletedSection = LessonSection(
+            id: "s_done",
+            title: "Done",
+            nodes: [
+                LessonNodeModel(id: "d1", title: "D1", state: .completed),
+                LessonNodeModel(id: "d2", title: "D2", state: .completed)
+            ]
+        )
+        let activeSection = LessonSection(
+            id: "s_act",
+            title: "Active",
+            nodes: [
+                LessonNodeModel(id: "a1", title: "A1", state: .active)
+            ]
+        )
+        let lockedSection = LessonSection(
+            id: "s_lock",
+            title: "Locked",
+            nodes: [
+                LessonNodeModel(id: "l1", title: "L1", state: .locked)
+            ]
+        )
+
+        let path1 = CraftLearningPath(sections: [allCompletedSection, activeSection, lockedSection])
+        XCTAssertEqual(path1.activeNodeID, "a1")
+
+        let path2 = CraftLearningPath(sections: [allCompletedSection, lockedSection])
+        XCTAssertNil(path2.activeNodeID)
+
+        let path3 = CraftLearningPath(sections: [])
+        XCTAssertNil(path3.activeNodeID)
+        XCTAssertTrue(path3.isEmpty)
+    }
+
+    func testCraftCatalogMockDataSnakeHybridIntegrity() {
+        let sections = CatalogLearningPathMockData.defaultSections
+        XCTAssertEqual(sections.count, 2)
+
+        let sec1 = sections[0]
+        XCTAssertEqual(sec1.id, "sec_1")
+        XCTAssertEqual(sec1.nodes.count, 6)
+        XCTAssertEqual(sec1.nodes.filter { $0.state == .completed }.count, 2)
+        XCTAssertEqual(sec1.nodes.filter { $0.state == .active }.count, 1)
+        XCTAssertEqual(sec1.nodes.filter { $0.state == .upcoming }.count, 1)
+        XCTAssertEqual(sec1.nodes.filter { $0.state == .bonus }.count, 2)
+        XCTAssertEqual(sec1.nodes.filter { $0.kind == .checkpoint }.count, 1)
+        XCTAssertEqual(sec1.nodes.filter { $0.kind == .treasureChest }.count, 1)
+
+        let sec2 = sections[1]
+        XCTAssertEqual(sec2.id, "sec_2")
+        XCTAssertEqual(sec2.nodes.count, 4)
+        XCTAssertEqual(sec2.nodes.filter { $0.state == .locked }.count, 3)
+        XCTAssertEqual(sec2.nodes.filter { $0.kind == .treasureChest }.count, 1)
+
+        // Verify layout partitioning
+        let sec1Layouts = sec1.rowPattern.layoutRows(nodes: sec1.nodes)
+        XCTAssertEqual(sec1Layouts.count, 4) // [1], [2], [1], [2]
+    }
 }
 
 

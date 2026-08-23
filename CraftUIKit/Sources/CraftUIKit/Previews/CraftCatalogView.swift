@@ -302,7 +302,8 @@ public enum CatalogLearningPathMockData {
                 bannerIcon: "sparkles",
                 nodes: section1Nodes,
                 winding: .standard,
-                connectorStyle: .dashed
+                connectorStyle: .dashed,
+                rowPattern: .standard
             ),
             LessonSection(
                 id: "sec_2",
@@ -314,7 +315,8 @@ public enum CatalogLearningPathMockData {
                 bannerIcon: "bubble.left.and.bubble.right.fill",
                 nodes: section2Nodes,
                 winding: .gentle,
-                connectorStyle: .solid
+                connectorStyle: .solid,
+                rowPattern: .wave
             )
         ]
     }
@@ -543,6 +545,7 @@ private struct CraftCatalogContentView: View {
     @State private var isStreakCelebrationPresented: Bool = false
 
     // Learning Journey Path States
+    @State private var selectedRowPatternPreset: CatalogRowPatternPreset = .standard
     @State private var selectedWindingPreset: CatalogWindingPreset = .standard
     @State private var showLearningCelebration: Bool = true
     @State private var scrollToActiveNode: Bool = false
@@ -653,6 +656,7 @@ private struct CraftCatalogContentView: View {
                     )
 
                     CatalogLearningPathSection(
+                        selectedRowPatternPreset: $selectedRowPatternPreset,
                         selectedWindingPreset: $selectedWindingPreset,
                         showCelebration: $showLearningCelebration,
                         scrollToActive: $scrollToActiveNode,
@@ -2247,6 +2251,7 @@ private struct CatalogStreakSection: View {
 
 private struct CatalogLearningPathSection: View {
     @Environment(\.craftTheme) private var theme
+    @Binding var selectedRowPatternPreset: CatalogRowPatternPreset
     @Binding var selectedWindingPreset: CatalogWindingPreset
     @Binding var showCelebration: Bool
     @Binding var scrollToActive: Bool
@@ -2270,14 +2275,22 @@ private struct CatalogLearningPathSection: View {
                 CatalogSectionHeader(title: "15. Gamified Learning Journey Path", iconName: "map.fill")
 
                 CraftText(
-                    "Duolingo-style tactile serpentine learning journey path with continuous winding layout, smart breathing connectors, 3D button press physics, and milestone detail sheets.",
+                    "Tactile snake hybrid learning journey path with multi-node row patterns (standard 1-2-1, wave 1-2-3-2-1), progressive vector dotted connectors, 3D tactile button physics, and milestone detail sheets.",
                     style: .caption,
                     color: theme.colors.textSecondary
                 )
 
                 // Interactive Controls
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText("Serpentine Winding Pattern", style: .headline)
+                    CraftText("Snake Hybrid Row Pattern", style: .headline)
+                    Picker("Row Pattern", selection: $selectedRowPatternPreset) {
+                        ForEach(CatalogRowPatternPreset.allCases) { preset in
+                            Text(preset.rawValue).tag(preset)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+
+                    CraftText("Serpentine Winding Pattern (Fallback)", style: .label, color: theme.colors.textSecondary)
                     Picker("Winding Pattern", selection: $selectedWindingPreset) {
                         ForEach(CatalogWindingPreset.allCases) { preset in
                             Text(preset.rawValue).tag(preset)
@@ -2428,6 +2441,7 @@ private struct CatalogLearningPathSection: View {
                     CraftLearningPath(
                         sections: sections,
                         winding: selectedWindingPreset.winding,
+                        rowPattern: selectedRowPatternPreset.pattern,
                         onNodeTap: { tapped in
                             selectedNodeID = tapped.id
                             onNodeSelected(tapped)
@@ -2526,7 +2540,8 @@ private struct CatalogLearningPathSection: View {
                 bannerIcon: section.bannerIcon,
                 nodes: updatedNodes,
                 winding: section.winding,
-                connectorStyle: section.connectorStyle
+                connectorStyle: section.connectorStyle,
+                rowPattern: section.rowPattern
             )
         }
     }
@@ -2562,7 +2577,8 @@ private struct CatalogLearningPathSection: View {
                 bannerIcon: section.bannerIcon,
                 nodes: updatedNodes,
                 winding: section.winding,
-                connectorStyle: section.connectorStyle
+                connectorStyle: section.connectorStyle,
+                rowPattern: section.rowPattern
             )
         }
     }
@@ -2598,7 +2614,8 @@ private struct CatalogLearningPathSection: View {
                 bannerIcon: section.bannerIcon,
                 nodes: updatedNodes,
                 winding: section.winding,
-                connectorStyle: section.connectorStyle
+                connectorStyle: section.connectorStyle,
+                rowPattern: section.rowPattern
             )
         }
     }

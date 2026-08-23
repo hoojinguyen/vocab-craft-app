@@ -20,8 +20,8 @@ public struct NodeAnchorPreferenceKey: PreferenceKey {
 /// Encapsulates:
 /// 1. Unit Portal Gateway Header with level badge capsule, unit title, subtitle, progress metrics,
 ///    mini progress bar, and decorative trailing watermark icon.
-/// 2. Serpentine single-node offset rows dynamically laid out using `section.winding`.
-/// 3. Smart Bézier curve connectors linking adjacent nodes with inferred tactile styles (`solid`, `breathing`, `dashed`, `muted`).
+/// 2. Snake hybrid multi-node rows dynamically partitioned using `section.rowPattern.layoutRows(nodes:)`.
+/// 3. Continuous vector dotted snake connectors (`CraftSnakeConnectorLayer`) with hairpin turns and state-based coloring.
 public struct CraftLessonSectionView: View {
     public let section: LessonSection
     public let rowPattern: RowPattern
@@ -31,7 +31,7 @@ public struct CraftLessonSectionView: View {
 
     // MARK: - Initializers
 
-    /// Creates a lesson section view with serpentine winding and optional tap handler.
+    /// Creates a lesson section view with snake hybrid layout and optional tap handler.
     ///
     /// - Parameters:
     ///   - section: The `LessonSection` presentation model.
@@ -41,7 +41,7 @@ public struct CraftLessonSectionView: View {
         onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil
     ) {
         self.section = section
-        self.rowPattern = .standard
+        self.rowPattern = section.rowPattern
         self.onNodeTap = onNodeTap
     }
 
@@ -61,6 +61,12 @@ public struct CraftLessonSectionView: View {
         self.onNodeTap = onNodeTap
     }
 
+    // MARK: - Computed Properties
+
+    private var rowLayouts: [SnakeRowLayout] {
+        rowPattern.layoutRows(nodes: section.nodes)
+    }
+
     // MARK: - Body
 
     public var body: some View {
@@ -69,18 +75,21 @@ public struct CraftLessonSectionView: View {
                 sectionHeaderView
             }
 
-            VStack(spacing: theme.spacing.lg) {
-                ForEach(Array(section.nodes.enumerated()), id: \.element.id) { index, node in
+            VStack(spacing: theme.spacing.pathRowSpacing) {
+                ForEach(rowLayouts) { rowLayout in
                     CraftLessonRow(
-                        node: node,
-                        offsetRatio: section.winding.offsetRatio(for: index),
+                        rowLayout: rowLayout,
                         onNodeTap: onNodeTap
                     )
                 }
             }
             .backgroundPreferenceValue(NodeAnchorPreferenceKey.self) { preferences in
                 GeometryReader { geometry in
-                    connectorLayer(preferences: preferences, geometry: geometry)
+                    CraftSnakeConnectorLayer(
+                        nodes: section.nodes,
+                        preferences: preferences,
+                        geometry: geometry
+                    )
                 }
                 .allowsHitTesting(false)
             }
@@ -187,27 +196,6 @@ public struct CraftLessonSectionView: View {
         .craftShadow(theme.shadows.sm)
         .accessibilityElement(children: .combine)
     }
-
-    // MARK: - Connector Layer
-
-    @ViewBuilder
-    private func connectorLayer(preferences: NodeAnchorPreferenceKey.Value, geometry: GeometryProxy) -> some View {
-        if section.nodes.count > 1 {
-            ForEach(0..<(section.nodes.count - 1), id: \.self) { index in
-                let fromNode = section.nodes[index]
-                let toNode = section.nodes[index + 1]
-
-                if let fromAnchor = preferences[fromNode.id],
-                   let toAnchor = preferences[toNode.id] {
-                    let fromPoint = geometry[fromAnchor]
-                    let toPoint = geometry[toAnchor]
-                    let style = SmartConnectorStyle.infer(from: fromNode.state, to: toNode.state)
-
-                    CraftSmartConnector(from: fromPoint, to: toPoint, style: style)
-                }
-            }
-        }
-    }
 }
 
 // MARK: - Preview
@@ -224,15 +212,15 @@ public struct CraftLessonSectionView: View {
                 progressValue: 0.43,
                 bannerIcon: "sparkles",
                 nodes: [
-                    LessonNodeModel(id: "n1", title: "Greetings", iconName: "hand.wave.fill", state: .completed),
-                    LessonNodeModel(id: "n2", title: "Introductions", iconName: "person.fill", state: .completed),
-                    LessonNodeModel(id: "n3", title: "Numbers", iconName: "number", state: .completed),
-                    LessonNodeModel(id: "n4", title: "Colors", iconName: "paintpalette.fill", state: .active, progress: 0.65, badgeCount: 2),
-                    LessonNodeModel(id: "n5", title: "Food & Drinks", iconName: "fork.knife", state: .upcoming),
-                    LessonNodeModel(id: "n6", title: "Time", iconName: "clock.fill", state: .locked),
-                    LessonNodeModel(id: "n7", title: "Mastery Challenge", iconName: "crown.fill", state: .bonus, badgeText: "HOT")
+                    LessonNodeModel(id: "n1", title: "Greetings", subtitle: "10 words • 2 min", iconName: "hand.wave.fill", state: .completed, xpReward: 20, stars: 3),
+                    LessonNodeModel(id: "n2", title: "Introductions", subtitle: "12 words • 3 min", iconName: "person.fill", state: .completed, xpReward: 25, stars: 3),
+                    LessonNodeModel(id: "n3", title: "Numbers", subtitle: "15 words • 4 min", iconName: "number", state: .completed, xpReward: 20, stars: 3),
+                    LessonNodeModel(id: "n4", title: "Colors", subtitle: "8 words • 2 min", iconName: "paintpalette.fill", state: .active, progress: 0.65, xpReward: 30, badgeCount: 2),
+                    LessonNodeModel(id: "n5", title: "Food & Drinks", subtitle: "14 words • 4 min", iconName: "fork.knife", state: .upcoming, xpReward: 25),
+                    LessonNodeModel(id: "n6", title: "Time", subtitle: "12 words • 3 min", iconName: "clock.fill", state: .locked, xpReward: 30),
+                    LessonNodeModel(id: "n7", title: "Mastery Challenge", subtitle: "Boss Exam", iconName: "crown.fill", state: .bonus, kind: .checkpoint, xpReward: 80, badgeText: "HOT")
                 ],
-                winding: .standard
+                rowPattern: .standard
             )
         )
         .padding(.vertical)

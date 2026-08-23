@@ -130,7 +130,7 @@ public enum ConnectorStyle: Sendable, Equatable {
 
 // MARK: - LessonSection
 
-/// Presentation DTO aggregating a discrete module or unit with its child nodes, winding layout, and connector styling.
+/// Presentation DTO aggregating a discrete module or unit with its child nodes, winding layout, connector styling, and snake row pattern.
 public struct LessonSection: Identifiable, Sendable, Equatable {
     public let id: String
     public let title: String
@@ -142,6 +142,7 @@ public struct LessonSection: Identifiable, Sendable, Equatable {
     public let nodes: [LessonNodeModel]
     public let winding: SerpentineWinding
     public let connectorStyle: ConnectorStyle
+    public let rowPattern: RowPattern
 
     /// Backward-compatibility accessor for `progressText`.
     public var progress: String? {
@@ -159,7 +160,8 @@ public struct LessonSection: Identifiable, Sendable, Equatable {
         bannerIcon: String? = nil,
         nodes: [LessonNodeModel],
         winding: SerpentineWinding = .standard,
-        connectorStyle: ConnectorStyle = .dashed
+        connectorStyle: ConnectorStyle = .dashed,
+        rowPattern: RowPattern = .standard
     ) {
         self.id = id
         self.title = title
@@ -171,6 +173,7 @@ public struct LessonSection: Identifiable, Sendable, Equatable {
         self.nodes = nodes
         self.winding = winding
         self.connectorStyle = connectorStyle
+        self.rowPattern = rowPattern
     }
 }
 
