@@ -531,7 +531,7 @@ public struct CraftLessonNode: View, Equatable {
         } else {
             PhaseAnimator(GlowPhase.allCases) { phase in
                 ZStack {
-                    // 1. Soft Pastel Solid Cushion Disc (Background Fill)
+                    // Soft Pastel Solid Cushion Disc (Background Fill & Outer Rim)
                     if isCheckpoint {
                         HexagonShape()
                             .fill(theme.colors.pathHaloGlow.opacity(phase == .glowing ? 1.0 : 0.75))
@@ -545,13 +545,6 @@ public struct CraftLessonNode: View, Equatable {
                             )
                             .frame(width: nodeDiameter + 24, height: nodeDiameter + 24)
                             .scaleEffect(phase == .glowing ? 1.04 : 0.98)
-
-                        HexagonShape()
-                            .stroke(
-                                theme.colors.brandPrimary.opacity(phase == .glowing ? 0.20 : 0.10),
-                                lineWidth: 1.0
-                            )
-                            .frame(width: nodeDiameter + 12, height: nodeDiameter + 12)
                     } else {
                         Circle()
                             .fill(theme.colors.pathHaloGlow.opacity(phase == .glowing ? 1.0 : 0.75))
@@ -565,13 +558,6 @@ public struct CraftLessonNode: View, Equatable {
                             )
                             .frame(width: nodeDiameter + 24, height: nodeDiameter + 24)
                             .scaleEffect(phase == .glowing ? 1.04 : 0.98)
-
-                        Circle()
-                            .stroke(
-                                theme.colors.brandPrimary.opacity(phase == .glowing ? 0.20 : 0.10),
-                                lineWidth: 1.0
-                            )
-                            .frame(width: nodeDiameter + 12, height: nodeDiameter + 12)
                     }
                 }
             } animation: { _ in
