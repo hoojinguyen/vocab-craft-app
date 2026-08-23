@@ -105,6 +105,9 @@ public struct CraftLessonRow: View, Equatable {
             model: node,
             onTap: onNodeTap != nil ? { onNodeTap?(node) } : nil
         )
+        .anchorPreference(key: NodeAnchorPreferenceKey.self, value: .center) { anchor in
+            [node.id: anchor]
+        }
     }
 }
 

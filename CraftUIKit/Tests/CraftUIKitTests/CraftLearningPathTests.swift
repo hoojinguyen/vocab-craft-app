@@ -432,6 +432,124 @@ final class CraftLearningPathTests: XCTestCase {
         row.onNodeTap?(node)
         XCTAssertEqual(tappedNode?.id, "tap_1")
     }
+
+    // MARK: - NodeAnchorPreferenceKey Tests
+
+    func testNodeAnchorPreferenceKeyDefaultValueAndReduce() {
+        XCTAssertTrue(NodeAnchorPreferenceKey.defaultValue.isEmpty)
+
+        var current: NodeAnchorPreferenceKey.Value = [:]
+        // Test reduce with mock logic if Anchor cannot be instantiated directly without GeometryReader
+        NodeAnchorPreferenceKey.reduce(value: &current, nextValue: { [:] })
+        XCTAssertTrue(current.isEmpty)
+    }
+
+    // MARK: - CraftLessonSectionView Tests
+
+    func testSectionViewInstantiation() {
+        let nodes = [
+            LessonNodeModel(id: "s1_n1", title: "Start", iconName: "play.fill", state: .completed),
+            LessonNodeModel(id: "s1_n2", title: "Practice", iconName: "pencil", state: .active),
+            LessonNodeModel(id: "s1_n3", title: "Review", iconName: "checkmark", state: .upcoming)
+        ]
+        let section = LessonSection(
+            id: "sec_test",
+            title: "Basics",
+            subtitle: "Getting Started with Greetings",
+            level: "A1",
+            progress: "2/3",
+            nodes: nodes,
+            connectorStyle: .dashed
+        )
+        let sectionView = CraftLessonSectionView(section: section, rowPattern: .standard)
+        XCTAssertNotNil(sectionView)
+        XCTAssertEqual(sectionView.section.id, "sec_test")
+        XCTAssertEqual(sectionView.section.title, "Basics")
+        XCTAssertEqual(sectionView.section.subtitle, "Getting Started with Greetings")
+        XCTAssertEqual(sectionView.section.level, "A1")
+        XCTAssertEqual(sectionView.section.progress, "2/3")
+        XCTAssertEqual(sectionView.rowPattern, .standard)
+    }
+
+    func testSectionViewWithCustomPatternAndTapHandler() {
+        var tappedNode: LessonNodeModel?
+        let nodes = [
+            LessonNodeModel(id: "n1", title: "Node 1", iconName: "star", state: .completed),
+            LessonNodeModel(id: "n2", title: "Node 2", iconName: "star", state: .active),
+            LessonNodeModel(id: "n3", title: "Node 3", iconName: "star", state: .locked),
+            LessonNodeModel(id: "n4", title: "Node 4", iconName: "star", state: .bonus)
+        ]
+        let section = LessonSection(id: "sec_wave", title: "Wave Unit", nodes: nodes, connectorStyle: .solid)
+        let sectionView = CraftLessonSectionView(
+            section: section,
+            rowPattern: .wave
+        ) { node in
+            tappedNode = node
+        }
+
+        XCTAssertNotNil(sectionView)
+        XCTAssertEqual(sectionView.section.nodes.count, 4)
+        XCTAssertEqual(sectionView.section.connectorStyle, .solid)
+        XCTAssertEqual(sectionView.rowPattern, .wave)
+
+        sectionView.onNodeTap?(nodes[1])
+        XCTAssertEqual(tappedNode?.id, "n2")
+    }
+
+    func testSectionViewMinimalHeader() {
+        let section = LessonSection(id: "sec_minimal", title: "Minimal Unit", nodes: [])
+        let sectionView = CraftLessonSectionView(section: section)
+
+        XCTAssertNotNil(sectionView)
+        XCTAssertEqual(sectionView.section.title, "Minimal Unit")
+        XCTAssertNil(sectionView.section.level)
+        XCTAssertNil(sectionView.section.subtitle)
+        XCTAssertNil(sectionView.section.progress)
+        XCTAssertTrue(sectionView.section.nodes.isEmpty)
+        XCTAssertEqual(sectionView.rowPattern, .standard)
+    }
+
+    func testSectionViewSingleNode() {
+        let single = LessonNodeModel(id: "single_1", title: "Only Node", iconName: "star", state: .active)
+        let section = LessonSection(id: "sec_single", title: "Single Node Section", nodes: [single])
+        let sectionView = CraftLessonSectionView(section: section, rowPattern: .standard)
+
+        XCTAssertNotNil(sectionView)
+        XCTAssertEqual(sectionView.section.nodes.count, 1)
+    }
+
+    func testSectionViewWithDifferentConnectorStyles() {
+        let nodes = [
+            LessonNodeModel(id: "c1", title: "Node 1", iconName: "star", state: .completed),
+            LessonNodeModel(id: "c2", title: "Node 2", iconName: "pencil", state: .upcoming)
+        ]
+
+        let dashedSection = LessonSection(id: "s_dash", title: "Dashed", nodes: nodes, connectorStyle: .dashed)
+        let solidSection = LessonSection(id: "s_solid", title: "Solid", nodes: nodes, connectorStyle: .solid)
+        let gradientSection = LessonSection(id: "s_grad", title: "Gradient", nodes: nodes, connectorStyle: .gradient(from: .blue, to: .green))
+        let animatedSection = LessonSection(id: "s_anim", title: "Animated", nodes: nodes, connectorStyle: .animated)
+
+        XCTAssertEqual(CraftLessonSectionView(section: dashedSection).section.connectorStyle, .dashed)
+        XCTAssertEqual(CraftLessonSectionView(section: solidSection).section.connectorStyle, .solid)
+        XCTAssertEqual(CraftLessonSectionView(section: gradientSection).section.connectorStyle, .gradient(from: .blue, to: .green))
+        XCTAssertEqual(CraftLessonSectionView(section: animatedSection).section.connectorStyle, .animated)
+    }
+
+    func testSectionViewHeaderVariants() {
+        let sectionWithLevel = LessonSection(id: "s_lvl", title: "Title", level: "B1", nodes: [])
+        let viewWithLevel = CraftLessonSectionView(section: sectionWithLevel)
+        XCTAssertEqual(viewWithLevel.section.level, "B1")
+
+        let sectionWithProgress = LessonSection(id: "s_prog", title: "Title", progress: "4/10", nodes: [])
+        let viewWithProgress = CraftLessonSectionView(section: sectionWithProgress)
+        XCTAssertEqual(viewWithProgress.section.progress, "4/10")
+
+        let sectionWithSubtitle = LessonSection(id: "s_sub", title: "Title", subtitle: "Sub text", nodes: [])
+        let viewWithSubtitle = CraftLessonSectionView(section: sectionWithSubtitle)
+        XCTAssertEqual(viewWithSubtitle.section.subtitle, "Sub text")
+    }
 }
+
+
 
 
