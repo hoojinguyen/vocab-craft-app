@@ -36,6 +36,17 @@ public protocol CraftColorTokens: Sendable {
     var statusWarning: Color { get }
     var statusDanger: Color { get }
     var statusInfo: Color { get }
+
+    // Streak System
+    var streakFreeze: Color { get }
+    var streakPending: Color { get }
+    var streakGlow: Color { get }
+}
+
+public extension CraftColorTokens {
+    var streakFreeze: Color { Color(hex: 0x38BDF8) }
+    var streakPending: Color { Color(hex: 0x94A3B8) }
+    var streakGlow: Color { Color(hex: 0xF59E0B).opacity(0.35) }
 }
 
 // MARK: - Default Implementation
@@ -70,6 +81,11 @@ public struct CraftDefaultColorTokens: CraftColorTokens {
     public var statusDanger: Color
     public var statusInfo: Color
 
+    // Streak System
+    public var streakFreeze: Color
+    public var streakPending: Color
+    public var streakGlow: Color
+
     public init(
         canvasBackground: Color = .craftDynamic(light: Color(hex: 0xFAFAF8), dark: Color(hex: 0x121214)),
         surfaceCard: Color = .craftDynamic(light: Color(hex: 0xFFFFFF), dark: Color(hex: 0x1C1C1E)),
@@ -88,7 +104,10 @@ public struct CraftDefaultColorTokens: CraftColorTokens {
         statusSuccess: Color = Color(hex: 0x10B981),
         statusWarning: Color = Color(hex: 0xF59E0B),
         statusDanger: Color = Color(hex: 0xEF4444),
-        statusInfo: Color = Color(hex: 0x0284C7)
+        statusInfo: Color = Color(hex: 0x0284C7),
+        streakFreeze: Color = Color(hex: 0x38BDF8),
+        streakPending: Color = Color(hex: 0x94A3B8),
+        streakGlow: Color = Color(hex: 0xF59E0B).opacity(0.35)
     ) {
         self.canvasBackground = canvasBackground
         self.surfaceCard = surfaceCard
@@ -108,6 +127,9 @@ public struct CraftDefaultColorTokens: CraftColorTokens {
         self.statusWarning = statusWarning
         self.statusDanger = statusDanger
         self.statusInfo = statusInfo
+        self.streakFreeze = streakFreeze
+        self.streakPending = streakPending
+        self.streakGlow = streakGlow
     }
 }
 
