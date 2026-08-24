@@ -16,3 +16,9 @@ public protocol CraftTheme: Sendable {
     var depths: CraftDepthTokens { get }
 }
 
+public extension CraftTheme {
+    var depths: CraftDepthTokens {
+        CraftDefaultDepthTokens()
+    }
+}
+

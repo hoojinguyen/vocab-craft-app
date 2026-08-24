@@ -124,6 +124,7 @@ public struct VocabTheme: CraftTheme {
     public var gradients: CraftGradientTokens
     public var animations: CraftAnimationTokens
     public var opacities: CraftOpacityTokens
+    public var depths: CraftDepthTokens
 
     public init(
         colors: CraftColorTokens = VocabColorTokens(),
@@ -133,7 +134,8 @@ public struct VocabTheme: CraftTheme {
         shadows: CraftShadowTokens = CraftDefaultShadowTokens(),
         gradients: CraftGradientTokens = VocabGradientTokens(),
         animations: CraftAnimationTokens = CraftDefaultAnimationTokens(),
-        opacities: CraftOpacityTokens = CraftDefaultOpacityTokens()
+        opacities: CraftOpacityTokens = CraftDefaultOpacityTokens(),
+        depths: CraftDepthTokens = CraftDefaultDepthTokens()
     ) {
         self.colors = colors
         self.typography = typography
@@ -143,5 +145,6 @@ public struct VocabTheme: CraftTheme {
         self.gradients = gradients
         self.animations = animations
         self.opacities = opacities
+        self.depths = depths
     }
 }

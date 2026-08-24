@@ -43,6 +43,7 @@ final class VocabThemeTests: XCTestCase {
         XCTAssertNotNil(theme.shadows)
         XCTAssertNotNil(theme.gradients)
         XCTAssertNotNil(theme.animations)
+        XCTAssertNotNil(theme.depths)
     }
 
     func testVocabThemeCustomInitialization() {
