@@ -210,15 +210,21 @@ public struct CraftBadge: View {
                 Text(titleKey)
                     .font(font)
                     .fontWeight(.semibold)
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
             } else if let rawTitle {
                 if isVerbatim {
                     Text(verbatim: rawTitle)
                         .font(font)
                         .fontWeight(.semibold)
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
                 } else {
                     Text(rawTitle)
                         .font(font)
                         .fontWeight(.semibold)
+                        .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
                 }
             }
         }

@@ -7,7 +7,11 @@ public struct CraftToggleStyle: ToggleStyle {
     @Environment(\.craftTheme) private var theme
     @Environment(\.isEnabled) private var isEnabled
 
-    public init() {}
+    public let showsLabel: Bool
+
+    public init(showsLabel: Bool = true) {
+        self.showsLabel = showsLabel
+    }
 
     public func makeBody(configuration: Configuration) -> some View {
         Button(action: {
@@ -16,50 +20,83 @@ public struct CraftToggleStyle: ToggleStyle {
                 configuration.isOn.toggle()
             }
         }) {
-            HStack {
-                configuration.label
-                    .font(theme.typography.bodyLarge)
-                    .foregroundStyle(theme.colors.textPrimary)
+            if showsLabel {
+                HStack {
+                    configuration.label
+                        .font(theme.typography.bodyLarge)
+                        .foregroundStyle(theme.colors.textPrimary)
 
-                Spacer()
+                    Spacer()
 
-                ZStack(alignment: configuration.isOn ? .trailing : .leading) {
-                    // Track
-                    Capsule()
-                        .fill(configuration.isOn ? theme.colors.brandPrimary : theme.colors.surfaceSubtle)
-                        .frame(width: 48, height: 28)
-                        .overlay(
-                            Capsule()
-                                .strokeBorder(
-                                    configuration.isOn ? Color.clear : theme.colors.borderDefault,
-                                    lineWidth: 1
-                                )
-                        )
-
-                    // Thumb
-                    Circle()
-                        .fill(Color.white)
-                        .frame(width: 22, height: 22)
-                        .padding(3)
-                        .shadow(color: Color.black.opacity(0.12), radius: 2, x: 0, y: 1)
+                    switchControl(isOn: configuration.isOn)
                 }
-                .frame(width: 48, height: 28)
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
+            } else {
+                switchControl(isOn: configuration.isOn)
+                    .frame(minWidth: 44, minHeight: 44)
+                    .contentShape(Rectangle())
             }
-            .frame(minHeight: 44)
-            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .opacity(isEnabled ? 1.0 : 0.5)
         .sensoryFeedback(.selection, trigger: configuration.isOn)
+    }
+
+    @ViewBuilder
+    private func switchControl(isOn: Bool) -> some View {
+        ZStack(alignment: isOn ? .trailing : .leading) {
+            // Track
+            Capsule()
+                .fill(isOn ? theme.colors.brandPrimary : theme.colors.surfaceSubtle)
+                .frame(width: 48, height: 28)
+                .overlay(
+                    Capsule()
+                        .strokeBorder(
+                            isOn ? Color.clear : theme.colors.borderDefault,
+                            lineWidth: 1
+                        )
+                )
+
+            // Thumb
+            Circle()
+                .fill(Color.white)
+                .frame(width: 22, height: 22)
+                .padding(3)
+                .shadow(color: Color.black.opacity(0.12), radius: 2, x: 0, y: 1)
+        }
+        .frame(width: 48, height: 28)
     }
 }
 
 // MARK: - ToggleStyle Extension
 
 public extension ToggleStyle where Self == CraftToggleStyle {
-    /// Applies the standard theme-colored Craft toggle style.
+    /// Applies the standard theme-colored Craft toggle style with full row label and switch.
     static var craft: CraftToggleStyle {
-        CraftToggleStyle()
+        CraftToggleStyle(showsLabel: true)
+    }
+
+    /// Applies a standalone switch-only Craft toggle style without label or row spacer.
+    static var craftSwitch: CraftToggleStyle {
+        CraftToggleStyle(showsLabel: false)
+    }
+}
+
+// MARK: - Standalone CraftSwitch Component
+
+/// A standalone theme-colored switch control without row label.
+public struct CraftSwitch: View {
+    @Binding public var isOn: Bool
+
+    public init(isOn: Binding<Bool>) {
+        self._isOn = isOn
+    }
+
+    public var body: some View {
+        Toggle("", isOn: $isOn)
+            .labelsHidden()
+            .toggleStyle(.craftSwitch)
     }
 }
 

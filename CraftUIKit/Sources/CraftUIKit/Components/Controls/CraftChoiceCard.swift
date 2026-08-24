@@ -114,13 +114,13 @@ public struct CraftChoiceCard: View {
                 if let titleKey {
                     Text(titleKey)
                         .font(theme.typography.headline)
-                        .foregroundStyle(theme.colors.textPrimary)
+                        .foregroundStyle(titleColor)
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)
                 } else if let rawTitle {
                     Text(rawTitle)
                         .font(theme.typography.headline)
-                        .foregroundStyle(theme.colors.textPrimary)
+                        .foregroundStyle(titleColor)
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)
                 }
@@ -128,12 +128,12 @@ public struct CraftChoiceCard: View {
                 if let subtitleKey {
                     Text(subtitleKey)
                         .font(theme.typography.bodyMedium)
-                        .foregroundStyle(theme.colors.textSecondary)
+                        .foregroundStyle(subtitleColor)
                         .multilineTextAlignment(.leading)
                 } else if let rawSubtitle {
                     Text(rawSubtitle)
                         .font(theme.typography.bodyMedium)
-                        .foregroundStyle(theme.colors.textSecondary)
+                        .foregroundStyle(subtitleColor)
                         .multilineTextAlignment(.leading)
                 }
             }
@@ -202,21 +202,23 @@ public struct CraftChoiceCard: View {
     private var trailingIndicator: some View {
         switch state {
         case .correct:
-            CraftIcon(
-                .checkmarkCircle,
-                size: .lg,
-                color: theme.colors.statusSuccess,
-                renderingMode: .hierarchical,
-                weight: .bold
-            )
+            ZStack {
+                Circle()
+                    .fill(theme.colors.statusSuccess)
+                    .frame(width: 26, height: 26)
+                Image(systemName: "checkmark")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(.white)
+            }
         case .wrong:
-            CraftIcon(
-                .wrongCircle,
-                size: .lg,
-                color: theme.colors.statusDanger,
-                renderingMode: .hierarchical,
-                weight: .bold
-            )
+            ZStack {
+                Circle()
+                    .fill(theme.colors.statusDanger)
+                    .frame(width: 26, height: 26)
+                Image(systemName: "xmark")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(.white)
+            }
         case .idle, .selected, .disabled:
             EmptyView()
         }
@@ -234,6 +236,30 @@ public struct CraftChoiceCard: View {
             return "Incorrect Answer"
         case .disabled:
             return "Disabled"
+        }
+    }
+
+    private var titleColor: Color {
+        switch state {
+        case .idle:
+            return theme.colors.textPrimary
+        case .selected:
+            return theme.colors.brandPrimary
+        case .correct:
+            return theme.colors.statusSuccess
+        case .wrong:
+            return theme.colors.statusDanger
+        case .disabled:
+            return theme.colors.textMuted
+        }
+    }
+
+    private var subtitleColor: Color {
+        switch state {
+        case .idle, .selected, .correct, .wrong:
+            return theme.colors.textSecondary
+        case .disabled:
+            return theme.colors.textMuted
         }
     }
 

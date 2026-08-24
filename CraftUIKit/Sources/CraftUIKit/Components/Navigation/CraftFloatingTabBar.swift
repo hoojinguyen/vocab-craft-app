@@ -35,19 +35,16 @@ public struct CraftTactileFABButtonStyle: ButtonStyle {
         let isPressed = configuration.isPressed
         let depressOffset = isPressed ? depth : 0
 
-        ZStack {
-            // Bottom 3D Bevel / Extrusion Lip
-            Circle()
-                .fill(theme.colors.brandSecondary)
-                .offset(y: depth)
-
-            // Top Tactile Face
-            configuration.label
-                .offset(y: depressOffset)
-        }
-        .padding(.bottom, depth)
-        .scaleEffect(isPressed && !reduceMotion ? 0.96 : 1.0)
-        .animation(theme.animations.springSnappy, value: isPressed)
+        configuration.label
+            .offset(y: depressOffset)
+            .background {
+                Circle()
+                    .fill(theme.colors.brandSecondary)
+                    .offset(y: depth)
+            }
+            .padding(.bottom, depth)
+            .scaleEffect(isPressed && !reduceMotion ? 0.96 : 1.0)
+            .animation(theme.animations.springSnappy, value: isPressed)
     }
 }
 

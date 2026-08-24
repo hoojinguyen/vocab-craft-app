@@ -1066,9 +1066,13 @@ private struct CatalogBadgesPillsSection: View {
                     CraftText("Solid warning badge automatically uses dynamic dark ink (#18181B) on amber for >9.5:1 contrast.", style: .caption, color: theme.colors.textMuted)
 
                     // Solid
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 6) {
                         CraftText("Solid Variant", style: .caption, color: theme.colors.textSecondary)
-                        HStack(spacing: theme.spacing.xs) {
+                        LazyVGrid(
+                            columns: [GridItem(.adaptive(minimum: 95, maximum: 160), spacing: theme.spacing.xs)],
+                            alignment: .leading,
+                            spacing: theme.spacing.xs
+                        ) {
                             CraftBadge("Primary", symbol: .sparkles, variant: .solid, tone: .primary)
                             CraftBadge("Success", symbol: .check, variant: .solid, tone: .success)
                             CraftBadge("Warning", symbol: .warning, variant: .solid, tone: .warning)
@@ -1078,9 +1082,13 @@ private struct CatalogBadgesPillsSection: View {
                     }
 
                     // Subtle
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 6) {
                         CraftText("Subtle Variant (1pt Stroke Highlight)", style: .caption, color: theme.colors.textSecondary)
-                        HStack(spacing: theme.spacing.xs) {
+                        LazyVGrid(
+                            columns: [GridItem(.adaptive(minimum: 95, maximum: 160), spacing: theme.spacing.xs)],
+                            alignment: .leading,
+                            spacing: theme.spacing.xs
+                        ) {
                             CraftBadge("Primary", symbol: .sparkles, variant: .subtle, tone: .primary)
                             CraftBadge("Success", symbol: .check, variant: .subtle, tone: .success)
                             CraftBadge("Warning", symbol: .warning, variant: .subtle, tone: .warning)
@@ -1090,9 +1098,13 @@ private struct CatalogBadgesPillsSection: View {
                     }
 
                     // Outline
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 6) {
                         CraftText("Outline Variant", style: .caption, color: theme.colors.textSecondary)
-                        HStack(spacing: theme.spacing.xs) {
+                        LazyVGrid(
+                            columns: [GridItem(.adaptive(minimum: 95, maximum: 160), spacing: theme.spacing.xs)],
+                            alignment: .leading,
+                            spacing: theme.spacing.xs
+                        ) {
                             CraftBadge("Primary", symbol: .sparkles, variant: .outline, tone: .primary)
                             CraftBadge("Success", symbol: .check, variant: .outline, tone: .success)
                             CraftBadge("Warning", symbol: .warning, variant: .outline, tone: .warning)
@@ -1102,7 +1114,7 @@ private struct CatalogBadgesPillsSection: View {
                     }
 
                     // Sizes
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 6) {
                         CraftText("Size Comparison", style: .caption, color: theme.colors.textSecondary)
                         HStack(spacing: theme.spacing.sm) {
                             CraftBadge("Small (sm)", symbol: .streak, variant: .subtle, tone: .warning, size: .sm)
@@ -1157,9 +1169,7 @@ private struct CatalogButtonsSection: View {
                 HStack {
                     CraftText("Variants & Loading State", style: .headline)
                     Spacer()
-                    Toggle("Loading State", isOn: $isButtonLoading)
-                        .labelsHidden()
-                        .toggleStyle(.craft)
+                    CraftSwitch(isOn: $isButtonLoading)
                 }
 
                 VStack(spacing: theme.spacing.xs) {
@@ -1473,9 +1483,7 @@ private struct CatalogCardsBentoSection: View {
                     HStack {
                         CraftText("Skeleton Card Loading (.craftShimmer)", style: .headline)
                         Spacer()
-                        Toggle("Shimmer", isOn: $isShimmerActive)
-                            .labelsHidden()
-                            .toggleStyle(.craft)
+                        CraftSwitch(isOn: $isShimmerActive)
                     }
 
                     HStack(spacing: theme.spacing.sm) {
@@ -2041,18 +2049,21 @@ private struct CatalogNavigationSection: View {
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     CraftText("Active Navigation Canvas", style: .headline)
 
-                    ZStack {
+                    ZStack(alignment: .bottom) {
                         RoundedRectangle(cornerRadius: theme.radii.lg)
                             .fill(theme.colors.surfaceSubtle.opacity(0.4))
-                            .frame(height: 130)
+                            .frame(height: 200)
 
                         VStack(spacing: theme.spacing.xs) {
+                            Spacer()
                             CraftIcon(selectedTab.symbol, size: .xl, color: theme.colors.brandPrimary)
                             CraftText("Active: \(selectedTab.title) Screen", style: .headline, color: theme.colors.textPrimary)
                             CraftText("Liquid glass capsule with spring sliding indicator", style: .caption, color: theme.colors.textMuted)
+                            Spacer()
                         }
-                    }
-                    .overlay(alignment: .bottom) {
+                        .padding(.bottom, 68)
+                        .frame(height: 200)
+
                         CraftFloatingTabBar(
                             selectedItem: $selectedTab,
                             items: CatalogTabItem.allCases,
@@ -2100,9 +2111,7 @@ private struct CatalogAudioMotionSection: View {
                     HStack {
                         CraftText("CraftWaveformView (Audio Visualizer)", style: .headline)
                         Spacer()
-                        Toggle("Recording Glow", isOn: $isWaveformRecording)
-                            .labelsHidden()
-                            .toggleStyle(.craft)
+                        CraftSwitch(isOn: $isWaveformRecording)
                     }
 
                     HStack {
@@ -2127,7 +2136,7 @@ private struct CatalogAudioMotionSection: View {
 
                     HStack(spacing: theme.spacing.sm) {
                         CraftButton(
-                            "Sparkle Burst",
+                            "Sparkles",
                             iconName: "sparkles",
                             variant: .primary,
                             size: .md
@@ -2137,7 +2146,7 @@ private struct CatalogAudioMotionSection: View {
                         .frame(maxWidth: .infinity)
 
                         CraftButton(
-                            "Confetti Cannon",
+                            "Confetti",
                             iconName: "party.popper.fill",
                             variant: .secondary,
                             size: .md
