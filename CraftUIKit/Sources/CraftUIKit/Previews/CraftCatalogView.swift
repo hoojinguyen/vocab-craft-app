@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - Catalog Theme Models
+// MARK: - Catalog Theme & Option Models
 
 /// Available themes for the CraftUIKit interactive catalog gallery.
 public enum CatalogThemeType: String, CaseIterable, Identifiable, Sendable {
@@ -32,6 +32,21 @@ public enum CatalogColorScheme: String, CaseIterable, Identifiable, Sendable {
         case .system: return nil
         case .light: return .light
         case .dark: return .dark
+        }
+    }
+}
+
+/// Language options for testing localized strings and string catalogs across the gallery.
+public enum CatalogLanguage: String, CaseIterable, Identifiable, Sendable {
+    case english = "English"
+    case vietnamese = "Tiếng Việt"
+
+    public var id: String { rawValue }
+
+    public var code: String {
+        switch self {
+        case .english: return "en"
+        case .vietnamese: return "vi"
         }
     }
 }
@@ -322,13 +337,6 @@ public enum CatalogLearningPathMockData {
     }
 }
 
-private struct CatalogChipItem: Identifiable {
-    var id: String { title }
-    let title: String
-    let iconName: String
-    let count: Int
-}
-
 // MARK: - Custom Emerald Theme
 
 /// Custom Emerald & Teal theme demonstrating CraftUIKit's customizable theming engine.
@@ -342,6 +350,7 @@ public struct CraftEmeraldTheme: CraftTheme {
     public var animations: CraftAnimationTokens
     public var opacities: CraftOpacityTokens
     public var depths: CraftDepthTokens
+    public var glass: CraftGlassTokens
 
     public init(
         colors: CraftColorTokens = CraftEmeraldColorTokens(),
@@ -352,7 +361,8 @@ public struct CraftEmeraldTheme: CraftTheme {
         gradients: CraftGradientTokens = CraftEmeraldGradientTokens(),
         animations: CraftAnimationTokens = CraftDefaultAnimationTokens(),
         opacities: CraftOpacityTokens = CraftDefaultOpacityTokens(),
-        depths: CraftDepthTokens = CraftDefaultDepthTokens()
+        depths: CraftDepthTokens = CraftDefaultDepthTokens(),
+        glass: CraftGlassTokens = CraftDefaultGlassTokens()
     ) {
         self.colors = colors
         self.typography = typography
@@ -363,6 +373,7 @@ public struct CraftEmeraldTheme: CraftTheme {
         self.animations = animations
         self.opacities = opacities
         self.depths = depths
+        self.glass = glass
     }
 }
 
@@ -470,16 +481,22 @@ public struct CraftEmeraldGradientTokens: CraftGradientTokens {
 public struct CraftCatalogView: View {
     @State private var selectedThemeType: CatalogThemeType = .defaultSlate
     @State private var selectedColorScheme: CatalogColorScheme = .system
+    @State private var selectedSurfaceStyle: CraftSurfaceStyle = .elevated
+    @State private var selectedLanguage: CatalogLanguage = .english
 
     public init() {}
 
     public var body: some View {
         CraftCatalogContentView(
             selectedThemeType: $selectedThemeType,
-            selectedColorScheme: $selectedColorScheme
+            selectedColorScheme: $selectedColorScheme,
+            selectedSurfaceStyle: $selectedSurfaceStyle,
+            selectedLanguage: $selectedLanguage
         )
         .craftTheme(selectedThemeType.theme)
+        .craftSurfaceStyle(selectedSurfaceStyle)
         .preferredColorScheme(selectedColorScheme.colorScheme)
+        .environment(\.locale, Locale(identifier: selectedLanguage.code))
     }
 }
 
@@ -491,8 +508,10 @@ private struct CraftCatalogContentView: View {
 
     @Binding var selectedThemeType: CatalogThemeType
     @Binding var selectedColorScheme: CatalogColorScheme
+    @Binding var selectedSurfaceStyle: CraftSurfaceStyle
+    @Binding var selectedLanguage: CatalogLanguage
 
-    // Phase 1 Interactive States
+    // Interactive States
     @State private var isButtonLoading: Bool = false
     @State private var iconButtonCounter: Int = 0
     @State private var customPressCount: Int = 0
@@ -510,46 +529,48 @@ private struct CraftCatalogContentView: View {
     // Overlays
     @State private var isToastPresented: Bool = false
     @State private var toastStyle: CraftToastStyle = .success
+    @State private var toastSurfaceStyle: CraftSurfaceStyle = .elevated
     @State private var toastPosition: CraftToastPosition = .top
     @State private var isBottomSheetPresented: Bool = false
     @State private var isConfirmDialogPresented: Bool = false
     @State private var isDangerDialogPresented: Bool = false
+    @State private var isGlassDialogPresented: Bool = false
     @State private var bentoCardTapped: String? = nil
 
-    // Phase 2: Section 8 - Empty State Presets
+    // Section 8 - Empty State Presets
     @State private var selectedEmptyPreset: CatalogEmptyStatePreset = .study
 
-    // Phase 2: Section 10 - Metrics & Progression
+    // Section 10 - Metrics & Progression
     @State private var masteredCount: Double = 45
     @State private var reviewingCount: Double = 30
     @State private var learningCount: Double = 25
     @State private var selectedRoadmapStep: Int = 2
 
-    // Phase 2: Section 11 - 3D Flip Card & Multiple Choice Quiz
+    // Section 11 - 3D Flip Card & Multiple Choice Quiz
     @State private var isCardFlipped: Bool = false
     @State private var flipAxis: Axis = .horizontal
     @State private var selectedQuizChoice: String? = nil
     @State private var isQuizSubmitted: Bool = false
 
-    // Phase 2: Section 12 - Navigation TabBar
+    // Section 12 - Navigation TabBar
     @State private var selectedTab: CatalogTabItem = .home
     @State private var showCenterFAB: Bool = true
     @State private var fabTapCount: Int = 0
 
-    // Phase 2: Section 13 - Audio & Motion FX States
+    // Section 13 - Audio & Motion FX States
     @State private var isWaveformRecording: Bool = false
     @State private var isSparkleTriggered: Bool = false
     @State private var isConfettiTriggered: Bool = false
     @State private var isCountdownPresented: Bool = false
     @State private var waveformLevels: [CGFloat] = [0.1, 0.3, 0.6, 0.9, 0.7, 0.4, 0.8, 0.5, 0.2, 0.6, 0.85, 0.4, 0.7, 0.3, 0.5, 0.2]
 
-    // Streak Gamification States
+    // Universal Activity & Streak Tracker States
     @State private var selectedStreakPreset: CatalogStreakTierPreset = .blaze
     @State private var isStreakCompletedToday: Bool = false
-    @State private var isStreakCelebrationPresented: Bool = false
+    @State private var isCelebrationSheetPresented: Bool = false
     @State private var streakCardStyle: CraftCardStyle = .tactile3D
 
-    // Learning Journey Path States
+    // Universal Journey Path States
     @State private var selectedRowPatternPreset: CatalogRowPatternPreset = .standard
     @State private var selectedWindingPreset: CatalogWindingPreset = .standard
     @State private var showLearningCelebration: Bool = true
@@ -562,148 +583,144 @@ private struct CraftCatalogContentView: View {
             ScrollViewReader { scrollProxy in
                 ScrollView {
                     VStack(spacing: theme.spacing.lg) {
+                        // Section 0: Theme, Appearance, Surface Style & Language Toolbar
                         CatalogThemeHeaderView(
                             selectedThemeType: $selectedThemeType,
-                            selectedColorScheme: $selectedColorScheme
+                            selectedColorScheme: $selectedColorScheme,
+                            selectedSurfaceStyle: $selectedSurfaceStyle,
+                            selectedLanguage: $selectedLanguage
                         )
 
-                        CatalogTypographySection(iconButtonCounter: $iconButtonCounter)
+                        // a. Tokens & Theming Section
+                        CatalogTokensThemingSection()
 
-                        CatalogBadgesPillsSection(selectedPills: $selectedPills)
+                        // b. Atoms Section
+                        CatalogAtomsSection(
+                            iconButtonCounter: $iconButtonCounter,
+                            selectedLanguage: selectedLanguage
+                        )
 
-                        CatalogButtonsSection(
+                        // c. Controls Section
+                        CatalogControlsSection(
                             isButtonLoading: $isButtonLoading,
-                            customPressCount: $customPressCount
+                            customPressCount: $customPressCount,
+                            searchQuery: $searchQuery,
+                            textInput: $textInput,
+                            passwordInput: $passwordInput,
+                            errorInput: $errorInput,
+                            stepperValue: $stepperValue,
+                            toggleNotifications: $toggleNotifications,
+                            toggleHaptics: $toggleHaptics,
+                            selectedPills: $selectedPills,
+                            selectedQuizChoice: $selectedQuizChoice,
+                            isQuizSubmitted: $isQuizSubmitted,
+                            onSubmitQuiz: submitQuiz,
+                            onResetQuiz: resetQuiz
                         )
                         .id("buttons")
 
-                    CatalogTextFieldsSection(
-                        searchQuery: $searchQuery,
-                        textInput: $textInput,
-                        passwordInput: $passwordInput,
-                        errorInput: $errorInput
-                    )
+                        // d. Containers & Overlays Section
+                        CatalogContainersOverlaysSection(
+                            bentoCardTapped: $bentoCardTapped,
+                            isShimmerActive: $isShimmerActive,
+                            progressValue: $progressValue,
+                            selectedEmptyPreset: $selectedEmptyPreset,
+                            masteredCount: $masteredCount,
+                            reviewingCount: $reviewingCount,
+                            learningCount: $learningCount,
+                            selectedRoadmapStep: $selectedRoadmapStep,
+                            isCardFlipped: $isCardFlipped,
+                            flipAxis: $flipAxis,
+                            selectedTab: $selectedTab,
+                            showCenterFAB: $showCenterFAB,
+                            fabTapCount: $fabTapCount,
+                            toastStyle: $toastStyle,
+                            toastSurfaceStyle: $toastSurfaceStyle,
+                            toastPosition: $toastPosition,
+                            isToastPresented: $isToastPresented,
+                            isBottomSheetPresented: $isBottomSheetPresented,
+                            isConfirmDialogPresented: $isConfirmDialogPresented,
+                            isDangerDialogPresented: $isDangerDialogPresented,
+                            isGlassDialogPresented: $isGlassDialogPresented,
+                            onEmptyAction: {
+                                toastStyle = .info
+                                toastSurfaceStyle = .elevated
+                                isToastPresented = true
+                            },
+                            onFabTap: {
+                                fabTapCount += 1
+                                toastStyle = .success
+                                toastSurfaceStyle = .glass
+                                isToastPresented = true
+                            }
+                        )
 
-                    CatalogStepperTogglesSection(
-                        stepperValue: $stepperValue,
-                        toggleNotifications: $toggleNotifications,
-                        toggleHaptics: $toggleHaptics
-                    )
+                        // e. Universal Journey Path Section
+                        CatalogJourneyPathSection(
+                            selectedRowPatternPreset: $selectedRowPatternPreset,
+                            selectedWindingPreset: $selectedWindingPreset,
+                            showCelebration: $showLearningCelebration,
+                            scrollToActive: $scrollToActiveNode,
+                            sections: $learningSections,
+                            selectedNodeID: $selectedLearningNodeID,
+                            onNodeSelected: { node in
+                                toastStyle = .info
+                                toastSurfaceStyle = .elevated
+                                isToastPresented = true
+                            },
+                            onStartLesson: { node in
+                                toastStyle = .success
+                                toastSurfaceStyle = .glass
+                                isConfettiTriggered = true
+                                isToastPresented = true
+                            },
+                            onTriggerCelebration: {
+                                isConfettiTriggered = true
+                                toastStyle = .success
+                                toastSurfaceStyle = .glass
+                                isToastPresented = true
+                            }
+                        )
+                        .id("learning_path")
 
-                    CatalogCardsBentoSection(
-                        bentoCardTapped: $bentoCardTapped,
-                        isShimmerActive: $isShimmerActive
-                    )
-
-                    CatalogProgressSection(progressValue: $progressValue)
-
-                    CatalogListRowsEmptySection(
-                        selectedPreset: $selectedEmptyPreset,
-                        onEmptyAction: {
-                            toastStyle = .info
-                            isToastPresented = true
-                        }
-                    )
-
-                    CatalogOverlaysSection(
-                        toastStyle: $toastStyle,
-                        toastPosition: $toastPosition,
-                        isToastPresented: $isToastPresented,
-                        isBottomSheetPresented: $isBottomSheetPresented,
-                        isConfirmDialogPresented: $isConfirmDialogPresented,
-                        isDangerDialogPresented: $isDangerDialogPresented
-                    )
-
-                    CatalogMetricsProgressionSection(
-                        masteredCount: $masteredCount,
-                        reviewingCount: $reviewingCount,
-                        learningCount: $learningCount,
-                        selectedRoadmapStep: $selectedRoadmapStep
-                    )
-
-                    CatalogInteractiveCardsSection(
-                        isCardFlipped: $isCardFlipped,
-                        flipAxis: $flipAxis,
-                        selectedQuizChoice: $selectedQuizChoice,
-                        isQuizSubmitted: $isQuizSubmitted,
-                        onSubmitQuiz: submitQuiz,
-                        onResetQuiz: resetQuiz
-                    )
-
-                    CatalogNavigationSection(
-                        selectedTab: $selectedTab,
-                        showCenterFAB: $showCenterFAB,
-                        fabTapCount: $fabTapCount,
-                        onFabTap: {
-                            fabTapCount += 1
-                            toastStyle = .success
-                            isToastPresented = true
-                        }
-                    )
-
-                    CatalogAudioMotionSection(
-                        waveformLevels: $waveformLevels,
-                        isWaveformRecording: $isWaveformRecording,
-                        isSparkleTriggered: $isSparkleTriggered,
-                        isConfettiTriggered: $isConfettiTriggered,
-                        isCountdownPresented: $isCountdownPresented
-                    )
-
-                    CatalogStreakSection(
-                        selectedPreset: $selectedStreakPreset,
-                        isCompletedToday: $isStreakCompletedToday,
-                        isCelebrationPresented: $isStreakCelebrationPresented,
-                        cardStyle: $streakCardStyle,
-                        onBadgeTap: {
-                            isStreakCelebrationPresented = true
-                        },
-                        onFreezeTap: {
-                            toastStyle = .info
-                            isToastPresented = true
-                        }
-                    )
-                    .id("streak")
-
-                    CatalogLearningPathSection(
-                        selectedRowPatternPreset: $selectedRowPatternPreset,
-                        selectedWindingPreset: $selectedWindingPreset,
-                        showCelebration: $showLearningCelebration,
-                        scrollToActive: $scrollToActiveNode,
-                        sections: $learningSections,
-                        selectedNodeID: $selectedLearningNodeID,
-                        onNodeSelected: { node in
-                            toastStyle = .info
-                            isToastPresented = true
-                        },
-                        onStartLesson: { node in
-                            toastStyle = .success
-                            isConfettiTriggered = true
-                            isToastPresented = true
-                        },
-                        onTriggerCelebration: {
-                            isConfettiTriggered = true
-                            toastStyle = .success
-                            isToastPresented = true
-                        }
-                    )
-                    .id("learning_path")
+                        // f. Universal Activity & Streak Tracker Section
+                        CatalogActivityStreakSection(
+                            selectedPreset: $selectedStreakPreset,
+                            isCompletedToday: $isStreakCompletedToday,
+                            isCelebrationPresented: $isCelebrationSheetPresented,
+                            cardStyle: $streakCardStyle,
+                            waveformLevels: $waveformLevels,
+                            isWaveformRecording: $isWaveformRecording,
+                            isSparkleTriggered: $isSparkleTriggered,
+                            isConfettiTriggered: $isConfettiTriggered,
+                            isCountdownPresented: $isCountdownPresented,
+                            onBadgeTap: {
+                                isCelebrationSheetPresented = true
+                            },
+                            onFreezeTap: {
+                                toastStyle = .info
+                                toastSurfaceStyle = .glass
+                                isToastPresented = true
+                            }
+                        )
+                        .id("streak")
+                    }
+                    .padding(.horizontal, theme.spacing.base)
+                    .padding(.vertical, theme.spacing.lg)
                 }
-                .padding(.horizontal, theme.spacing.base)
-                .padding(.vertical, theme.spacing.lg)
-            }
-            .onAppear {
-                let args = ProcessInfo.processInfo.arguments
-                Task { @MainActor in
-                    try? await Task.sleep(for: .milliseconds(300))
-                    if args.contains("-catalog-scroll-buttons") {
-                        withAnimation { scrollProxy.scrollTo("buttons", anchor: .top) }
-                    } else if args.contains("-catalog-scroll-streak") {
-                        withAnimation { scrollProxy.scrollTo("streak", anchor: .top) }
-                    } else if args.contains("-catalog-scroll-path") {
-                        withAnimation { scrollProxy.scrollTo("learning_path", anchor: .top) }
+                .onAppear {
+                    let args = ProcessInfo.processInfo.arguments
+                    Task { @MainActor in
+                        try? await Task.sleep(for: .milliseconds(300))
+                        if args.contains("-catalog-scroll-buttons") {
+                            withAnimation { scrollProxy.scrollTo("buttons", anchor: .top) }
+                        } else if args.contains("-catalog-scroll-streak") {
+                            withAnimation { scrollProxy.scrollTo("streak", anchor: .top) }
+                        } else if args.contains("-catalog-scroll-path") {
+                            withAnimation { scrollProxy.scrollTo("learning_path", anchor: .top) }
+                        }
                     }
                 }
-            }
             }
             .background(theme.colors.canvasBackground.ignoresSafeArea())
             .navigationTitle("CraftUIKit Gallery")
@@ -721,21 +738,21 @@ private struct CraftCatalogContentView: View {
                 }
             }
         }
-        .sheet(isPresented: $isStreakCelebrationPresented) {
-            CraftStreakCelebrationSheet(
-                currentStreak: selectedStreakPreset.days,
-                previousStreak: max(0, selectedStreakPreset.days - 1),
-                weekDays: [
-                    CraftStreakDay(id: "1", weekdaySymbol: "T2", status: .completed),
-                    CraftStreakDay(id: "2", weekdaySymbol: "T3", status: selectedStreakPreset == .starter ? .missed : .completed),
-                    CraftStreakDay(id: "3", weekdaySymbol: "T4", status: selectedStreakPreset == .blaze ? .frozen : .completed),
-                    CraftStreakDay(id: "4", weekdaySymbol: "T5", status: isStreakCompletedToday ? .completed : .pending, isToday: true),
-                    CraftStreakDay(id: "5", weekdaySymbol: "T6", status: .upcoming),
-                    CraftStreakDay(id: "6", weekdaySymbol: "T7", status: .upcoming),
-                    CraftStreakDay(id: "7", weekdaySymbol: "CN", status: .upcoming)
+        .sheet(isPresented: $isCelebrationSheetPresented) {
+            CraftCelebrationSheet(
+                currentValue: selectedStreakPreset.days,
+                previousValue: max(0, selectedStreakPreset.days - 1),
+                cycleDays: [
+                    CraftActivityDay(id: "1", weekdaySymbol: "T2", status: .completed),
+                    CraftActivityDay(id: "2", weekdaySymbol: "T3", status: selectedStreakPreset == .starter ? .missed : .completed),
+                    CraftActivityDay(id: "3", weekdaySymbol: "T4", status: selectedStreakPreset == .blaze ? .saved : .completed),
+                    CraftActivityDay(id: "4", weekdaySymbol: "T5", status: isStreakCompletedToday ? .completed : .pending, isToday: true),
+                    CraftActivityDay(id: "5", weekdaySymbol: "T6", status: .upcoming),
+                    CraftActivityDay(id: "6", weekdaySymbol: "T7", status: .upcoming),
+                    CraftActivityDay(id: "7", weekdaySymbol: "CN", status: .upcoming)
                 ],
                 onContinue: {
-                    isStreakCelebrationPresented = false
+                    isCelebrationSheetPresented = false
                 }
             )
             .presentationDetents([.medium, .large])
@@ -749,6 +766,7 @@ private struct CraftCatalogContentView: View {
             goText: "GO!"
         ) {
             toastStyle = .success
+            toastSurfaceStyle = .glass
             isToastPresented = true
             isConfettiTriggered = true
         }
@@ -758,6 +776,7 @@ private struct CraftCatalogContentView: View {
             title: "Craft Toast Notification",
             iconName: toastStyle.defaultIconName,
             style: toastStyle,
+            surfaceStyle: toastSurfaceStyle,
             duration: 3.0,
             position: toastPosition
         )
@@ -782,13 +801,14 @@ private struct CraftCatalogContentView: View {
             title: "Confirm Action",
             message: "Would you like to apply these changes to your CraftUIKit workspace?",
             iconName: "questionmark.circle.fill",
-            primaryButtonTitle: "Confirm",
+            primaryButtonTitle: CraftLocalized.string("craft.action.confirm", language: selectedLanguage.code),
             primaryButtonVariant: .primary,
             primaryAction: {
                 toastStyle = .success
+                toastSurfaceStyle = .elevated
                 isToastPresented = true
             },
-            cancelButtonTitle: "Cancel"
+            cancelButtonTitle: CraftLocalized.string("craft.action.cancel", language: selectedLanguage.code)
         )
         .craftDialog(
             isPresented: $isDangerDialogPresented,
@@ -799,9 +819,26 @@ private struct CraftCatalogContentView: View {
             primaryButtonVariant: .danger,
             primaryAction: {
                 toastStyle = .danger
+                toastSurfaceStyle = .elevated
                 isToastPresented = true
             },
-            cancelButtonTitle: "Cancel"
+            cancelButtonTitle: CraftLocalized.string("craft.action.cancel", language: selectedLanguage.code)
+        )
+        .craftDialog(
+            isPresented: $isGlassDialogPresented,
+            title: "Liquid Glass Dialog",
+            message: "Translucent backdrop and frosted material surface with specular reflection.",
+            iconName: "sparkles",
+            primaryButtonTitle: CraftLocalized.string("craft.action.confirm", language: selectedLanguage.code),
+            primaryButtonVariant: .primary,
+            primaryAction: {
+                toastStyle = .success
+                toastSurfaceStyle = .glass
+                isToastPresented = true
+            },
+            cancelButtonTitle: CraftLocalized.string("craft.action.close", language: selectedLanguage.code),
+            style: .glass,
+            backdrop: .material
         )
     }
 
@@ -811,9 +848,11 @@ private struct CraftCatalogContentView: View {
         if selectedQuizChoice == "B" {
             isConfettiTriggered = true
             toastStyle = .success
+            toastSurfaceStyle = .glass
             isToastPresented = true
         } else {
             toastStyle = .danger
+            toastSurfaceStyle = .elevated
             isToastPresented = true
         }
     }
@@ -824,26 +863,29 @@ private struct CraftCatalogContentView: View {
     }
 }
 
-// MARK: - Section 0: Theme Header
+// MARK: - Section 0: Theme, Appearance, Surface Style & Language Header
 
 private struct CatalogThemeHeaderView: View {
     @Environment(\.craftTheme) private var theme
     @Binding var selectedThemeType: CatalogThemeType
     @Binding var selectedColorScheme: CatalogColorScheme
+    @Binding var selectedSurfaceStyle: CraftSurfaceStyle
+    @Binding var selectedLanguage: CatalogLanguage
 
     var body: some View {
         CraftCard(style: .elevated) {
-            VStack(alignment: .leading, spacing: theme.spacing.sm) {
+            VStack(alignment: .leading, spacing: theme.spacing.base) {
                 HStack {
                     CraftIcon("paintbrush.fill", size: .md, color: theme.colors.brandPrimary)
-                    CraftText("Design System Theme & Appearance", style: .headline, color: theme.colors.textPrimary)
+                    CraftText("Theme, Surface Style & Localization", style: .headline, color: theme.colors.textPrimary)
                 }
 
                 CraftDivider()
 
                 VStack(alignment: .leading, spacing: theme.spacing.sm) {
+                    // Theme Picker
                     VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                        CraftText("Theme", style: .label, color: theme.colors.textSecondary)
+                        CraftText("Theme Palette", style: .label, color: theme.colors.textSecondary)
                         Picker("Theme", selection: $selectedThemeType) {
                             ForEach(CatalogThemeType.allCases) { type in
                                 Text(type.rawValue).tag(type)
@@ -852,6 +894,7 @@ private struct CatalogThemeHeaderView: View {
                         .pickerStyle(.segmented)
                     }
 
+                    // Appearance Scheme Picker
                     VStack(alignment: .leading, spacing: theme.spacing.xs) {
                         CraftText("Color Scheme", style: .label, color: theme.colors.textSecondary)
                         Picker("Appearance", selection: $selectedColorScheme) {
@@ -862,8 +905,30 @@ private struct CatalogThemeHeaderView: View {
                         .pickerStyle(.segmented)
                     }
 
+                    // Surface Style Selector Toolbar
+                    VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                        CraftText("Global Surface Style", style: .label, color: theme.colors.textSecondary)
+                        Picker("Surface Style", selection: $selectedSurfaceStyle) {
+                            ForEach(CraftSurfaceStyle.allCases, id: \.self) { style in
+                                Text(style.rawValue.capitalized).tag(style)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                    }
+
+                    // Language Selector Toolbar
+                    VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                        CraftText("Showcase Language", style: .label, color: theme.colors.textSecondary)
+                        Picker("Language", selection: $selectedLanguage) {
+                            ForEach(CatalogLanguage.allCases) { lang in
+                                Text(lang.rawValue).tag(lang)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                    }
+
                     HStack(spacing: theme.spacing.sm) {
-                        CraftBadge("3D Depth Engine", symbol: .sparkles, variant: .subtle, tone: .primary, size: .sm)
+                        CraftBadge("Depth Engine", symbol: .sparkles, variant: .subtle, tone: .primary, size: .sm)
                         CraftText("sm: \(Int(theme.depths.depthSm))pt • md: \(Int(theme.depths.depthMd))pt • lg: \(Int(theme.depths.depthLg))pt", style: .caption, color: theme.colors.textSecondary)
                     }
                     .padding(.top, 2)
@@ -873,18 +938,73 @@ private struct CatalogThemeHeaderView: View {
     }
 }
 
-// MARK: - Section 1: Typography & Icons
+// MARK: - Section 1: Tokens & Theming Showcase
 
-private struct CatalogTypographySection: View {
+private struct CatalogTokensThemingSection: View {
     @Environment(\.craftTheme) private var theme
-    @Binding var iconButtonCounter: Int
 
     var body: some View {
         CraftCard(style: .elevated) {
             VStack(alignment: .leading, spacing: theme.spacing.base) {
-                CatalogSectionHeader(title: "1. Typography & SF Symbol Tokens", iconName: "textformat")
+                CatalogSectionHeader(title: "1. Tokens & Theming Engine", iconName: "slider.horizontal.3")
 
+                // Color Tokens Swatches
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("Semantic Color Tokens Palette", style: .headline)
+                    CraftText("Dynamic light/dark contrast compliant tokens with zero hardcoded values.", style: .caption, color: theme.colors.textMuted)
+
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: theme.spacing.xs) {
+                        colorSwatch(title: "brandPrimary", color: theme.colors.brandPrimary)
+                        colorSwatch(title: "brandSecondary", color: theme.colors.brandSecondary)
+                        colorSwatch(title: "accent", color: theme.colors.accent)
+                        colorSwatch(title: "surfaceCard", color: theme.colors.surfaceCard)
+                        colorSwatch(title: "surfaceElevated", color: theme.colors.surfaceElevated)
+                        colorSwatch(title: "surfaceSubtle", color: theme.colors.surfaceSubtle)
+                        colorSwatch(title: "textPrimary", color: theme.colors.textPrimary)
+                        colorSwatch(title: "textSecondary", color: theme.colors.textSecondary)
+                        colorSwatch(title: "borderDefault", color: theme.colors.borderDefault)
+                        colorSwatch(title: "borderFocus", color: theme.colors.borderFocus)
+                        colorSwatch(title: "statusSuccess", color: theme.colors.statusSuccess)
+                        colorSwatch(title: "statusDanger", color: theme.colors.statusDanger)
+                    }
+                }
+
+                CraftDivider()
+
+                // Depth & Glass Tokens
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("Depth & Liquid Glass Tokens", style: .headline)
+
+                    HStack(spacing: theme.spacing.sm) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            CraftText("3D Depth Extrusions", style: .label, color: theme.colors.textSecondary)
+                            CraftText("• sm: \(Int(theme.depths.depthSm))pt (Day Nodes, Pills)", style: .caption, color: theme.colors.textMuted)
+                            CraftText("• md: \(Int(theme.depths.depthMd))pt (Cards, Path Nodes)", style: .caption, color: theme.colors.textMuted)
+                            CraftText("• lg: \(Int(theme.depths.depthLg))pt (Hero Buttons)", style: .caption, color: theme.colors.textMuted)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(theme.spacing.sm)
+                        .background(theme.colors.surfaceSubtle)
+                        .clipShape(RoundedRectangle(cornerRadius: theme.radii.sm))
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            CraftText("Glass Engine", style: .label, color: theme.colors.textSecondary)
+                            CraftText("• Tint Opacity: \(String(format: "%.2f", theme.glass.tintOpacity))", style: .caption, color: theme.colors.textMuted)
+                            CraftText("• Material: UltraThin Material", style: .caption, color: theme.colors.textMuted)
+                            CraftText("• Specular Gradient Stroke", style: .caption, color: theme.colors.textMuted)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(theme.spacing.sm)
+                        .background(theme.colors.surfaceSubtle)
+                        .clipShape(RoundedRectangle(cornerRadius: theme.radii.sm))
+                    }
+                }
+
+                CraftDivider()
+
+                // Typography Scales
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("Typography Scales & Specialized Axes", style: .headline)
                     CraftText("Display Hero (72pt Black)", style: .displayHero, color: theme.colors.brandPrimary)
                     CraftText("Display Large (Rounded)", style: .displayLarge)
                     CraftText("Title Large (Rounded)", style: .titleLarge)
@@ -898,8 +1018,7 @@ private struct CatalogTypographySection: View {
                     CraftDivider()
                         .padding(.vertical, 4)
 
-                    // Domain-Specific Typography Axes
-                    CraftText("SF Design Axes (Domain Specialized)", style: .headline)
+                    CraftText("Domain Specialized Axes", style: .headline)
                     CraftText("Serendipity", style: .displaySerif, color: theme.colors.brandPrimary)
                     CraftText("/ˌser.ənˈdɪp.ə.ti/", style: .phonetic, color: theme.colors.textSecondary)
                     CraftText("Finding valuable or agreeable things not sought for.", style: .bodySerif, color: theme.colors.textPrimary)
@@ -907,29 +1026,11 @@ private struct CatalogTypographySection: View {
                         CraftText("Score: 9,850 XP", style: .metricRounded, color: theme.colors.accent)
                         CraftBadge("Top 1%", symbol: .trophy, variant: .solid, tone: .warning, size: .sm)
                     }
-
-                    VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                        HStack(spacing: 6) {
-                            CraftText("Modifier Demo:", style: .caption, color: theme.colors.textMuted)
-                            Text(".craftTypography(.displaySerif)")
-                                .font(.system(.caption, design: .monospaced, weight: .semibold))
-                                .foregroundStyle(theme.colors.brandSecondary)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(theme.colors.surfaceSubtle)
-                                .clipShape(RoundedRectangle(cornerRadius: theme.radii.xs))
-                        }
-
-                        Text("SwiftUI Text Integration Preview")
-                            .craftTypography(.titleMedium)
-                            .foregroundStyle(theme.colors.brandPrimary)
-                    }
-                    .padding(.top, theme.spacing.xs)
                 }
 
                 CraftDivider()
 
-                // CraftSymbol Token Library Grid
+                // SF Symbol Tokens Grid
                 VStack(alignment: .leading, spacing: theme.spacing.sm) {
                     CraftText("CraftSymbol Design Tokens (SF Symbols 5+)", style: .headline)
                     CraftText("Type-safe, curated domain icons with hierarchical rendering", style: .caption, color: theme.colors.textSecondary)
@@ -945,33 +1046,157 @@ private struct CatalogTypographySection: View {
                         symbolBadge(symbol: .lightbulb, label: "Insight")
                     }
                 }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func colorSwatch(title: String, color: Color) -> some View {
+        VStack(spacing: 4) {
+            RoundedRectangle(cornerRadius: 6)
+                .fill(color)
+                .frame(height: 24)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(theme.colors.borderDefault.opacity(0.5), lineWidth: 0.5)
+                )
+
+            Text(title)
+                .font(.system(size: 9, weight: .medium, design: .monospaced))
+                .lineLimit(1)
+                .foregroundColor(theme.colors.textSecondary)
+        }
+    }
+
+    @ViewBuilder
+    private func symbolBadge(symbol: CraftSymbol, label: String) -> some View {
+        VStack(spacing: 4) {
+            CraftIcon(symbol, size: .md, color: theme.colors.brandPrimary, renderingMode: .hierarchical, weight: .semibold)
+            Text(label)
+                .font(theme.typography.caption)
+                .foregroundColor(theme.colors.textSecondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, theme.spacing.xs)
+        .background(theme.colors.surfaceSubtle)
+        .clipShape(RoundedRectangle(cornerRadius: theme.radii.sm))
+    }
+}
+
+// MARK: - Section 2: Atoms Showcase
+
+private struct CatalogAtomsSection: View {
+    @Environment(\.craftTheme) private var theme
+    @Binding var iconButtonCounter: Int
+    let selectedLanguage: CatalogLanguage
+
+    private var markdownSample: AttributedString {
+        (try? AttributedString(markdown: "Rich **Markdown** with *italics*, ~~strikethrough~~, and `inline code` formatted text.")) ?? AttributedString("Markdown Text")
+    }
+
+    var body: some View {
+        CraftCard(style: .elevated) {
+            VStack(alignment: .leading, spacing: theme.spacing.base) {
+                CatalogSectionHeader(title: "2. Atoms (Text, Badges, IconButtons, Dividers, Spinners)", iconName: "atom")
+
+                // CraftText Atom Showcase
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("CraftText Rich Formats & Tracking", style: .headline)
+                    CraftText(markdownSample, style: .bodyMedium, color: theme.colors.textPrimary)
+
+                    CraftText("EXPANDED TRACKING (2.0pt)", style: .label, color: theme.colors.brandPrimary, tracking: 2.0)
+                    CraftText("Line-spaced text block with 8pt line spacing for enhanced readability across multi-line educational explanations.", style: .bodyMedium, color: theme.colors.textSecondary, lineSpacing: 8)
+                }
 
                 CraftDivider()
 
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText("CraftIcon Scales", style: .headline)
-                    HStack(spacing: theme.spacing.lg) {
-                        VStack {
-                            CraftIcon("star.fill", size: .sm, color: theme.colors.accent)
-                            CraftText("sm (14pt)", style: .caption, color: theme.colors.textMuted)
+                // CraftBadge 5 Surface Styles, Shapes & Tints
+                VStack(alignment: .leading, spacing: theme.spacing.sm) {
+                    CraftText("CraftBadge (5 Surface Styles, Shapes & Custom Tints)", style: .headline)
+
+                    // 5 Surface Styles
+                    VStack(alignment: .leading, spacing: 6) {
+                        CraftText("Surface Styles", style: .caption, color: theme.colors.textSecondary)
+                        HStack(spacing: theme.spacing.xs) {
+                            CraftBadge("Flat", symbol: .study, style: .flat)
+                            CraftBadge("Elevated", symbol: .mastery, tone: .success, style: .elevated)
+                            CraftBadge("Outlined", symbol: .bookmark, tone: .warning, style: .outlined)
+                            CraftBadge("Tactile 3D", symbol: .streak, tone: .danger, style: .tactile3D)
+                            CraftBadge("Glass", symbol: .sparkles, tone: .primary, style: .glass)
                         }
-                        VStack {
-                            CraftIcon("star.fill", size: .md, color: theme.colors.accent)
-                            CraftText("md (18pt)", style: .caption, color: theme.colors.textMuted)
-                        }
-                        VStack {
-                            CraftIcon("star.fill", size: .lg, color: theme.colors.accent)
-                            CraftText("lg (24pt)", style: .caption, color: theme.colors.textMuted)
-                        }
-                        VStack {
-                            CraftIcon("star.fill", size: .xl, color: theme.colors.accent)
-                            CraftText("xl (32pt)", style: .caption, color: theme.colors.textMuted)
+                    }
+
+                    // Shapes & Custom Tints
+                    VStack(alignment: .leading, spacing: 6) {
+                        CraftText("Shapes & Custom Tint Overrides", style: .caption, color: theme.colors.textSecondary)
+                        HStack(spacing: theme.spacing.xs) {
+                            CraftBadge("Capsule", shape: .capsule, customTint: Color.purple)
+                            CraftBadge("Rounded (8pt)", shape: .roundedRectangle(radius: 8), customTint: Color.teal)
+                            CraftBadge("Pink Solid", variant: .solid, shape: .capsule, customTint: Color.pink)
+                            CraftBadge("Small (sm)", size: .sm, customTint: Color.orange)
                         }
                     }
                 }
 
                 CraftDivider()
 
+                // CraftIconButton 5 Surface Styles, Shapes & 44pt Touch Targets
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    HStack {
+                        CraftText("CraftIconButton (5 Styles, Shapes & 44pt Touch Target)", style: .headline)
+                        Spacer()
+                        CraftText("Taps: \(iconButtonCounter)", style: .caption, color: theme.colors.brandPrimary)
+                    }
+
+                    HStack(spacing: theme.spacing.sm) {
+                        CraftIconButton(symbol: .favoriteFill, size: .md, shape: .circle, style: .glass, accessibilityLabel: "Favorite") {
+                            iconButtonCounter += 1
+                        }
+                        CraftIconButton(symbol: .bookmarkFill, size: .md, shape: .circle, style: .tactile3D, accessibilityLabel: "Bookmark") {
+                            iconButtonCounter += 1
+                        }
+                        CraftIconButton(symbol: .share, size: .md, shape: .square, style: .elevated, accessibilityLabel: "Share") {
+                            iconButtonCounter += 1
+                        }
+                        CraftIconButton(symbol: .deleteFill, size: .md, shape: .roundedRectangle(radius: 8), style: .outlined, customTint: theme.colors.statusDanger, accessibilityLabel: "Delete") {
+                            iconButtonCounter += 1
+                        }
+                        CraftIconButton(symbol: .settings, size: .md, shape: .circle, variant: .ghost, accessibilityLabel: "Settings") {
+                            iconButtonCounter += 1
+                        }
+                    }
+                }
+
+                CraftDivider()
+
+                // CraftDivider Styles
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("CraftDivider (Solid, Dashed & Gradient)", style: .headline)
+
+                    VStack(spacing: 8) {
+                        HStack {
+                            CraftText("Solid Hairline", style: .caption, color: theme.colors.textMuted)
+                            Spacer()
+                        }
+                        CraftDivider(style: .solid)
+
+                        HStack {
+                            CraftText("Dashed (6pt dash, 4pt gap)", style: .caption, color: theme.colors.textMuted)
+                            Spacer()
+                        }
+                        CraftDivider(style: .dashed(dash: 6, gap: 4))
+
+                        HStack {
+                            CraftText("Brand Hero Gradient", style: .caption, color: theme.colors.textMuted)
+                            Spacer()
+                        }
+                        CraftDivider(style: .gradient(theme.gradients.brandHero))
+                    }
+                }
+
+                CraftDivider()
+
+                // CraftSpinner Scales
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     CraftText("CraftSpinner Indicators", style: .headline)
                     HStack(spacing: theme.spacing.lg) {
@@ -993,1019 +1218,173 @@ private struct CatalogTypographySection: View {
                         }
                     }
                 }
-
-                CraftDivider()
-
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    HStack {
-                        CraftText("CraftIconButton Variants & Shapes", style: .headline)
-                        Spacer()
-                        CraftText("Taps: \(iconButtonCounter)", style: .caption, color: theme.colors.brandPrimary)
-                    }
-
-                    HStack(spacing: theme.spacing.sm) {
-                        CraftIconButton(symbol: .favoriteFill, size: .md, shape: .circle, variant: .filled, accessibilityLabel: "Favorite") {
-                            iconButtonCounter += 1
-                        }
-                        CraftIconButton(symbol: .bookmarkFill, size: .md, shape: .circle, variant: .subtle, accessibilityLabel: "Bookmark") {
-                            iconButtonCounter += 1
-                        }
-                        CraftIconButton(symbol: .share, size: .md, shape: .circle, variant: .outline, accessibilityLabel: "Share") {
-                            iconButtonCounter += 1
-                        }
-                        CraftIconButton(symbol: .deleteFill, size: .md, shape: .square, variant: .ghost, accessibilityLabel: "Delete") {
-                            iconButtonCounter += 1
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func symbolBadge(symbol: CraftSymbol, label: String) -> some View {
-        VStack(spacing: 4) {
-            CraftIcon(symbol, size: .md, color: theme.colors.brandPrimary, renderingMode: .hierarchical, weight: .semibold)
-            Text(label)
-                .font(theme.typography.caption)
-                .foregroundColor(theme.colors.textSecondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, theme.spacing.xs)
-        .background(theme.colors.surfaceSubtle)
-        .clipShape(RoundedRectangle(cornerRadius: theme.radii.sm))
-    }
-}
-
-// MARK: - Section 2: Badges & Chips
-
-private struct CatalogBadgesPillsSection: View {
-    @Environment(\.craftTheme) private var theme
-    @Binding var selectedPills: Set<String>
-
-    private let filterChips: [CatalogChipItem] = [
-        CatalogChipItem(title: "Vocabulary", iconName: "character.book.closed.fill", count: 14),
-        CatalogChipItem(title: "Grammar", iconName: "doc.text.fill", count: 8),
-        CatalogChipItem(title: "Listening", iconName: "headphones", count: 22),
-        CatalogChipItem(title: "Idioms", iconName: "quote.bubble.fill", count: 5),
-        CatalogChipItem(title: "Favorites", iconName: "heart.fill", count: 3)
-    ]
-
-    var body: some View {
-        CraftCard(style: .elevated) {
-            VStack(alignment: .leading, spacing: theme.spacing.base) {
-                CatalogSectionHeader(title: "2. Badges & Chips (WCAG AAA Contrast)", iconName: "tag.fill")
-
-                VStack(alignment: .leading, spacing: theme.spacing.sm) {
-                    HStack {
-                        CraftText("CraftBadge Variants & Tones", style: .headline)
-                        Spacer()
-                        CraftText("WCAG AAA Safe", style: .caption, color: theme.colors.statusSuccess)
-                    }
-
-                    CraftText("Solid warning badge automatically uses dynamic dark ink (#18181B) on amber for >9.5:1 contrast.", style: .caption, color: theme.colors.textMuted)
-
-                    // Solid
-                    VStack(alignment: .leading, spacing: 6) {
-                        CraftText("Solid Variant", style: .caption, color: theme.colors.textSecondary)
-                        LazyVGrid(
-                            columns: [GridItem(.adaptive(minimum: 95, maximum: 160), spacing: theme.spacing.xs)],
-                            alignment: .leading,
-                            spacing: theme.spacing.xs
-                        ) {
-                            CraftBadge("Primary", symbol: .sparkles, variant: .solid, tone: .primary)
-                            CraftBadge("Success", symbol: .check, variant: .solid, tone: .success)
-                            CraftBadge("Warning", symbol: .warning, variant: .solid, tone: .warning)
-                            CraftBadge("Danger", symbol: .danger, variant: .solid, tone: .danger)
-                            CraftBadge("Neutral", symbol: .mastery, variant: .solid, tone: .neutral)
-                        }
-                    }
-
-                    // Subtle
-                    VStack(alignment: .leading, spacing: 6) {
-                        CraftText("Subtle Variant (1pt Stroke Highlight)", style: .caption, color: theme.colors.textSecondary)
-                        LazyVGrid(
-                            columns: [GridItem(.adaptive(minimum: 95, maximum: 160), spacing: theme.spacing.xs)],
-                            alignment: .leading,
-                            spacing: theme.spacing.xs
-                        ) {
-                            CraftBadge("Primary", symbol: .sparkles, variant: .subtle, tone: .primary)
-                            CraftBadge("Success", symbol: .check, variant: .subtle, tone: .success)
-                            CraftBadge("Warning", symbol: .warning, variant: .subtle, tone: .warning)
-                            CraftBadge("Danger", symbol: .danger, variant: .subtle, tone: .danger)
-                            CraftBadge("Neutral", symbol: .mastery, variant: .subtle, tone: .neutral)
-                        }
-                    }
-
-                    // Outline
-                    VStack(alignment: .leading, spacing: 6) {
-                        CraftText("Outline Variant", style: .caption, color: theme.colors.textSecondary)
-                        LazyVGrid(
-                            columns: [GridItem(.adaptive(minimum: 95, maximum: 160), spacing: theme.spacing.xs)],
-                            alignment: .leading,
-                            spacing: theme.spacing.xs
-                        ) {
-                            CraftBadge("Primary", symbol: .sparkles, variant: .outline, tone: .primary)
-                            CraftBadge("Success", symbol: .check, variant: .outline, tone: .success)
-                            CraftBadge("Warning", symbol: .warning, variant: .outline, tone: .warning)
-                            CraftBadge("Danger", symbol: .danger, variant: .outline, tone: .danger)
-                            CraftBadge("Neutral", symbol: .mastery, variant: .outline, tone: .neutral)
-                        }
-                    }
-
-                    // Sizes
-                    VStack(alignment: .leading, spacing: 6) {
-                        CraftText("Size Comparison", style: .caption, color: theme.colors.textSecondary)
-                        HStack(spacing: theme.spacing.sm) {
-                            CraftBadge("Small (sm)", symbol: .streak, variant: .subtle, tone: .warning, size: .sm)
-                            CraftBadge("Medium (md)", symbol: .streak, variant: .subtle, tone: .warning, size: .md)
-                        }
-                    }
-                }
-
-                CraftDivider()
-
-                // Filter Chips / Pills
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText("CraftPill / Filter Chips (Interactive Selection)", style: .headline)
-
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: theme.spacing.xs) {
-                            ForEach(filterChips) { item in
-                                let isSelected = selectedPills.contains(item.title)
-                                CraftPill(
-                                    item.title,
-                                    iconName: item.iconName,
-                                    count: item.count,
-                                    isSelected: isSelected
-                                ) {
-                                    if isSelected {
-                                        selectedPills.remove(item.title)
-                                    } else {
-                                        selectedPills.insert(item.title)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
             }
         }
     }
 }
 
-// MARK: - Section 3: Buttons
+// MARK: - Section 3: Controls Showcase
 
-private struct CatalogButtonsSection: View {
+private struct CatalogControlsSection: View {
     @Environment(\.craftTheme) private var theme
     @Binding var isButtonLoading: Bool
     @Binding var customPressCount: Int
-
-    var body: some View {
-        CraftCard(style: .elevated) {
-            VStack(alignment: .leading, spacing: theme.spacing.base) {
-                CatalogSectionHeader(title: "3. Buttons", iconName: "hand.tap.fill")
-
-                HStack {
-                    CraftText("Variants & Loading State", style: .headline)
-                    Spacer()
-                    CraftSwitch(isOn: $isButtonLoading)
-                }
-
-                VStack(spacing: theme.spacing.xs) {
-                    CraftButton(
-                        "PRACTICE (Tactile 3D CTA)",
-                        iconName: "bolt.fill",
-                        iconPosition: .trailing,
-                        variant: .tactile,
-                        size: .lg,
-                        isLoading: isButtonLoading,
-                        isUppercase: true,
-                        tracking: 1.2,
-                        isFullWidth: true
-                    ) {}
-
-                    CraftButton(
-                        "Primary Action",
-                        iconName: "arrow.right",
-                        iconPosition: .trailing,
-                        variant: .primary,
-                        size: .md,
-                        isLoading: isButtonLoading
-                    ) {}
-                    .frame(maxWidth: .infinity)
-
-                    CraftButton(
-                        "Secondary Action",
-                        iconName: "slider.horizontal.3",
-                        iconPosition: .leading,
-                        variant: .secondary,
-                        size: .md,
-                        isLoading: isButtonLoading
-                    ) {}
-                    .frame(maxWidth: .infinity)
-
-                    CraftButton(
-                        "Outline Action",
-                        iconName: "square.and.arrow.down",
-                        iconPosition: .leading,
-                        variant: .outline,
-                        size: .md,
-                        isLoading: isButtonLoading
-                    ) {}
-                    .frame(maxWidth: .infinity)
-
-                    CraftButton(
-                        "Ghost Action",
-                        iconName: "sparkles",
-                        iconPosition: .leading,
-                        variant: .ghost,
-                        size: .md,
-                        isLoading: isButtonLoading
-                    ) {}
-                    .frame(maxWidth: .infinity)
-
-                    CraftButton(
-                        "Danger Action",
-                        iconName: "trash.fill",
-                        iconPosition: .leading,
-                        variant: .danger,
-                        size: .md,
-                        isLoading: isButtonLoading
-                    ) {}
-                    .frame(maxWidth: .infinity)
-                }
-
-                CraftDivider()
-
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText("3D Tactile Scale & Disabled State", style: .headline)
-                    HStack(spacing: theme.spacing.sm) {
-                        CraftButton("Tactile sm", variant: .tactile, size: .sm) {}
-                        CraftButton("Tactile md", variant: .tactile, size: .md) {}
-                        CraftButton("Disabled", variant: .tactile, size: .md) {}
-                            .disabled(true)
-                    }
-                    CraftButton("Large 3D Tactile Action", iconName: "star.fill", variant: .tactile, size: .lg) {}
-                        .frame(maxWidth: .infinity)
-                }
-
-                CraftDivider()
-
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText("Standard Buttons & Disabled State", style: .headline)
-                    HStack(spacing: theme.spacing.sm) {
-                        CraftButton("Small (32)", variant: .primary, size: .sm) {}
-                        CraftButton("Medium (44)", variant: .primary, size: .md) {}
-                        CraftButton("Disabled", variant: .secondary, size: .md) {}
-                            .disabled(true)
-                    }
-                    CraftButton("Large Primary (54pt)", iconName: "star.fill", variant: .primary, size: .lg) {}
-                        .frame(maxWidth: .infinity)
-                }
-
-                CraftDivider()
-
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    HStack {
-                        CraftText("Interactive Press Effects", style: .headline)
-                        Spacer()
-                        if customPressCount > 0 {
-                            CraftText("Taps: \(customPressCount)", style: .caption, color: theme.colors.brandPrimary)
-                        }
-                    }
-
-                    VStack(spacing: theme.spacing.sm) {
-                        Button {
-                            customPressCount += 1
-                        } label: {
-                            HStack(spacing: theme.spacing.xs) {
-                                CraftIcon("hand.tap.fill", size: .sm, color: theme.colors.brandPrimary)
-                                CraftText("ButtonStyle .craftPress()", style: .label, color: theme.colors.textPrimary)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.horizontal, theme.spacing.base)
-                            .padding(.vertical, theme.spacing.sm)
-                            .background(theme.colors.surfaceSubtle)
-                            .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
-                        }
-                        .buttonStyle(.craftPress())
-
-                        Button {
-                            customPressCount += 1
-                        } label: {
-                            HStack(spacing: theme.spacing.xs) {
-                                CraftIcon("sparkle", size: .sm, color: theme.colors.brandSecondary)
-                                Text("Modifier .craftPressEffect()")
-                                    .font(theme.typography.label)
-                                    .foregroundStyle(theme.colors.brandSecondary)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.horizontal, theme.spacing.base)
-                            .padding(.vertical, theme.spacing.sm)
-                            .background(theme.colors.surfaceSubtle)
-                            .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
-                        }
-                        .buttonStyle(.plain)
-                        .craftPressEffect(scale: 0.94)
-                    }
-                }
-            }
-        }
-    }
-}
-
-// MARK: - Section 4: TextFields & SearchBar
-
-private struct CatalogTextFieldsSection: View {
-    @Environment(\.craftTheme) private var theme
     @Binding var searchQuery: String
     @Binding var textInput: String
     @Binding var passwordInput: String
     @Binding var errorInput: String
-
-    var body: some View {
-        CraftCard(style: .elevated) {
-            VStack(alignment: .leading, spacing: theme.spacing.base) {
-                CatalogSectionHeader(title: "4. TextFields & SearchBar", iconName: "pencil.and.list.clipboard")
-
-                CraftText("CraftSearchBar (Standard & Recessed Glass)", style: .headline)
-                CraftSearchBar(
-                    text: $searchQuery,
-                    placeholder: "Search vocabulary, lessons, tags...",
-                    style: .recessed,
-                    shape: .roundedRectangle(radius: 14),
-                    trailingIcon: "slider.horizontal.3",
-                    trailingAction: {},
-                    onCancel: { searchQuery = "" }
-                )
-
-                CraftDivider()
-
-                CraftTextField(
-                    placeholder: "e.g. Vocabulary Craft",
-                    text: $textInput,
-                    label: "Project Title",
-                    helperText: "Enter a descriptive name for your study set",
-                    leadingIcon: "folder.fill"
-                )
-
-                CraftTextField(
-                    placeholder: "Enter account password",
-                    text: $passwordInput,
-                    label: "Password Input (With Visibility Toggle)",
-                    leadingIcon: "lock.fill",
-                    isSecure: true
-                )
-
-                CraftTextField(
-                    placeholder: "Enter user email",
-                    text: $errorInput,
-                    label: "Email (Error Feedback State)",
-                    errorMessage: errorInput.contains("@") ? nil : "Please provide a valid email address.",
-                    leadingIcon: "envelope.fill"
-                )
-            }
-        }
-    }
-}
-
-// MARK: - Section 5: Stepper & Toggles
-
-private struct CatalogStepperTogglesSection: View {
-    @Environment(\.craftTheme) private var theme
     @Binding var stepperValue: Int
     @Binding var toggleNotifications: Bool
     @Binding var toggleHaptics: Bool
-
-    var body: some View {
-        CraftCard(style: .elevated) {
-            VStack(alignment: .leading, spacing: theme.spacing.base) {
-                CatalogSectionHeader(title: "5. Stepper & Toggles", iconName: "switch.2")
-
-                CraftStepper(
-                    value: $stepperValue,
-                    range: 1...50,
-                    step: 1,
-                    unit: "words/day",
-                    label: "Daily Goal"
-                )
-
-                CraftDivider()
-
-                VStack(spacing: theme.spacing.xs) {
-                    CraftToggle(
-                        isOn: $toggleNotifications,
-                        title: "Push Notifications",
-                        subtitle: "Receive daily review reminders and streak alerts",
-                        iconName: "bell.badge.fill"
-                    )
-
-                    CraftDivider()
-
-                    CraftToggle(
-                        isOn: $toggleHaptics,
-                        title: "Haptic Feedback",
-                        subtitle: "Provide tactile responses for card swipes and taps",
-                        iconName: "waveform"
-                    )
-                }
-            }
-        }
-    }
-}
-
-// MARK: - Section 6: Cards & Bento Grid
-
-private struct CatalogCardsBentoSection: View {
-    @Environment(\.craftTheme) private var theme
-    @Binding var bentoCardTapped: String?
-    @Binding var isShimmerActive: Bool
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: theme.spacing.base) {
-            CatalogSectionHeader(title: "6. Cards, Bento Grid & Skeleton Shimmer", iconName: "square.grid.2x2.fill")
-
-            // Hero Tactile 3D Card Showcase
-            CraftCard(style: .tactile3D, isPressable: true, action: { bentoCardTapped = "Tactile 3D Hero Card" }) {
-                HStack {
-                    VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                        CraftBadge("New: Tactile 3D", symbol: .sparkles, variant: .solid, tone: .primary)
-                        CraftText("Physical Tactile 3D Container", style: .headline)
-                        CraftText("Bottom extrusion bevel (\(Int(theme.depths.depthMd))pt), top specular highlight, and interactive mechanical depress physics.", style: .caption, color: theme.colors.textSecondary)
-                    }
-                    Spacer()
-                    CraftIcon(.sparkles, size: .xl, color: theme.colors.brandPrimary)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: theme.spacing.base) {
-                CraftCard(style: .flat, isPressable: true, action: { bentoCardTapped = "Flat Card" }) {
-                    VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                        CraftBadge("Flat Style", tone: .neutral)
-                        CraftText("Standard Flat", style: .headline)
-                        CraftText("Subtle surface background", style: .caption, color: theme.colors.textSecondary)
-                    }
-                }
-
-                CraftCard(style: .elevated, isPressable: true, action: { bentoCardTapped = "Elevated Card" }) {
-                    VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                        CraftBadge("Elevated", tone: .success)
-                        CraftText("Elevated Shadow", style: .headline)
-                        CraftText("Layered depth surface", style: .caption, color: theme.colors.textSecondary)
-                    }
-                }
-
-                CraftCard(style: .outlined, isPressable: true, action: { bentoCardTapped = "Outlined Card" }) {
-                    VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                        CraftBadge("Outlined", tone: .warning)
-                        CraftText("Border Outlined", style: .headline)
-                        CraftText("Explicit outline boundary", style: .caption, color: theme.colors.textSecondary)
-                    }
-                }
-
-                CraftCard(style: .gradient, isPressable: true, action: { bentoCardTapped = "Gradient Card" }) {
-                    VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                        CraftBadge("Hero Gradient", variant: .solid, tone: .neutral)
-                        CraftText("Brand Hero", style: .headline, color: .white)
-                        CraftText("Vibrant accent gradient", style: .caption, color: .white.opacity(0.85))
-                    }
-                }
-            }
-
-            if let bentoCardTapped {
-                CraftText("Last Pressed: \(bentoCardTapped)", style: .caption, color: theme.colors.brandPrimary)
-            }
-
-            CraftCard(style: .elevated) {
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    HStack {
-                        CraftText("Skeleton Card Loading (.craftShimmer)", style: .headline)
-                        Spacer()
-                        CraftSwitch(isOn: $isShimmerActive)
-                    }
-
-                    HStack(spacing: theme.spacing.sm) {
-                        Circle()
-                            .fill(theme.colors.surfaceSubtle)
-                            .frame(width: 40, height: 40)
-
-                        VStack(alignment: .leading, spacing: 6) {
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(theme.colors.surfaceSubtle)
-                                .frame(width: 140, height: 14)
-
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(theme.colors.surfaceSubtle)
-                                .frame(width: 90, height: 10)
-                        }
-                    }
-                    .padding(.vertical, theme.spacing.xs)
-                    .craftShimmer(isActive: isShimmerActive)
-                }
-            }
-        }
-    }
-}
-
-// MARK: - Section 7: Progress & Rings
-
-private struct CatalogProgressSection: View {
-    @Environment(\.craftTheme) private var theme
-    @Binding var progressValue: Double
-
-    var body: some View {
-        CraftCard(style: .elevated) {
-            VStack(alignment: .leading, spacing: theme.spacing.base) {
-                CatalogSectionHeader(title: "7. Progress Bars & Rings", iconName: "chart.bar.fill")
-
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    HStack {
-                        CraftText("CraftProgressBar (\(Int(progressValue * 100))%)", style: .headline)
-                        Spacer()
-                        Button("-10%") { progressValue = max(0, progressValue - 0.1) }
-                            .font(theme.typography.caption)
-                        Button("+10%") { progressValue = min(1.0, progressValue + 0.1) }
-                            .font(theme.typography.caption)
-                    }
-
-                    CraftProgressBar(progress: progressValue, height: 10)
-                }
-
-                CraftDivider()
-
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText("Stepped Progress (Step 3 of 5)", style: .headline)
-                    CraftProgressBar(currentStep: 3, totalSteps: 5, height: 8)
-                }
-
-                CraftDivider()
-
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText("CraftProgressRing", style: .headline)
-
-                    HStack(spacing: theme.spacing.xl) {
-                        CraftProgressRing(progress: progressValue, lineWidth: 8, size: 76)
-
-                        CraftProgressRing(progress: 0.85, lineWidth: 8, size: 76, tintColor: theme.colors.statusSuccess) {
-                            VStack(spacing: 2) {
-                                CraftIcon("flame.fill", size: .sm, color: theme.colors.statusWarning)
-                                CraftText("85%", style: .caption, color: theme.colors.textPrimary)
-                            }
-                        }
-
-                        CraftProgressRing(progress: 0.42, lineWidth: 8, size: 76, tintColor: theme.colors.statusInfo) {
-                            CraftIcon("bolt.fill", size: .md, color: theme.colors.statusInfo)
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-// MARK: - Section 8: List Rows & Empty State
-
-private struct CatalogListRowsEmptySection: View {
-    @Environment(\.craftTheme) private var theme
-    @Binding var selectedPreset: CatalogEmptyStatePreset
-    let onEmptyAction: () -> Void
-
-    var body: some View {
-        CraftCard(style: .elevated) {
-            VStack(alignment: .leading, spacing: theme.spacing.base) {
-                CatalogSectionHeader(title: "8. List Rows & Layered Squircle Empty States", iconName: "list.bullet.rectangle.fill")
-
-                VStack(spacing: 0) {
-                    CraftListRow(
-                        title: "Mastered Words",
-                        subtitle: "142 vocabulary items fully retained",
-                        iconName: "checkmark.seal.fill",
-                        iconColor: theme.colors.statusSuccess,
-                        showChevron: true
-                    ) {
-                        CraftBadge("Level 4", symbol: .mastery, tone: .success)
-                    }
-
-                    CraftDivider()
-
-                    CraftListRow(
-                        title: "Spaced Repetition Deck",
-                        subtitle: "18 cards scheduled for review today",
-                        iconName: "clock.arrow.circlepath",
-                        iconColor: theme.colors.brandPrimary,
-                        showChevron: true
-                    ) {
-                        CraftBadge("18 due", symbol: .sparkles, variant: .solid, tone: .primary)
-                    }
-
-                    CraftDivider()
-
-                    CraftListRow(
-                        title: "Grammar Rules",
-                        subtitle: "Conditionals, subjunctive, and tenses",
-                        iconName: "book.pages.fill",
-                        iconColor: theme.colors.accent,
-                        showChevron: true
-                    )
-                }
-                .background(theme.colors.surfaceCard)
-                .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
-
-                CraftDivider()
-
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    HStack {
-                        CraftText("CraftEmptyState (3-Tier Layered Squircle)", style: .headline)
-                        Spacer()
-                        CraftText("Continuous Radii", style: .caption, color: theme.colors.brandPrimary)
-                    }
-
-                    CraftText("Features outer translucent squircle, inner accent pill, hierarchical focal icon, and domain symbol presets.", style: .caption, color: theme.colors.textMuted)
-
-                    Picker("Empty State Preset", selection: $selectedPreset) {
-                        ForEach(CatalogEmptyStatePreset.allCases) { preset in
-                            Text(preset.rawValue).tag(preset)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    .padding(.top, theme.spacing.xs)
-
-                    CraftCard(style: .outlined) {
-                        CraftEmptyState(
-                            symbol: selectedPreset.symbol,
-                            title: selectedPreset.title,
-                            message: selectedPreset.message,
-                            buttonTitle: selectedPreset.buttonTitle,
-                            buttonSymbol: selectedPreset.buttonSymbol,
-                            buttonAction: onEmptyAction
-                        )
-                        .frame(maxWidth: .infinity)
-                    }
-                    .padding(.top, theme.spacing.xs)
-                }
-            }
-        }
-    }
-}
-
-// MARK: - Section 9: Overlays
-
-private struct CatalogOverlaysSection: View {
-    @Environment(\.craftTheme) private var theme
-    @Binding var toastStyle: CraftToastStyle
-    @Binding var toastPosition: CraftToastPosition
-    @Binding var isToastPresented: Bool
-    @Binding var isBottomSheetPresented: Bool
-    @Binding var isConfirmDialogPresented: Bool
-    @Binding var isDangerDialogPresented: Bool
-
-    var body: some View {
-        CraftCard(style: .elevated) {
-            VStack(alignment: .leading, spacing: theme.spacing.base) {
-                CatalogSectionHeader(title: "9. Feedback & Overlays", iconName: "bell.and.waves.left.and.right.fill")
-
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText("CraftToast Triggers", style: .headline)
-
-                    HStack(spacing: theme.spacing.xs) {
-                        CraftButton("Info Toast", variant: .outline, size: .sm) {
-                            toastStyle = .info
-                            isToastPresented = true
-                        }
-
-                        CraftButton("Success", variant: .outline, size: .sm) {
-                            toastStyle = .success
-                            isToastPresented = true
-                        }
-
-                        CraftButton("Warning", variant: .outline, size: .sm) {
-                            toastStyle = .warning
-                            isToastPresented = true
-                        }
-
-                        CraftButton("Danger", variant: .outline, size: .sm) {
-                            toastStyle = .danger
-                            isToastPresented = true
-                        }
-                    }
-
-                    Picker("Toast Placement", selection: $toastPosition) {
-                        Text("Top HUD").tag(CraftToastPosition.top)
-                        Text("Bottom HUD").tag(CraftToastPosition.bottom)
-                    }
-                    .pickerStyle(.segmented)
-                    .padding(.top, theme.spacing.xs)
-                }
-
-                CraftDivider()
-
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText("Modals & Dialogs", style: .headline)
-
-                    HStack(spacing: theme.spacing.sm) {
-                        CraftButton(
-                            "Bottom Sheet",
-                            iconName: "arrow.up.doc.fill",
-                            variant: .secondary,
-                            size: .md
-                        ) {
-                            isBottomSheetPresented = true
-                        }
-                        .frame(maxWidth: .infinity)
-
-                        CraftButton(
-                            "Confirm",
-                            iconName: "checkmark.circle.fill",
-                            variant: .primary,
-                            size: .md
-                        ) {
-                            isConfirmDialogPresented = true
-                        }
-                        .frame(maxWidth: .infinity)
-                    }
-
-                    CraftButton(
-                        "Danger Dialog",
-                        iconName: "trash.fill",
-                        variant: .danger,
-                        size: .md
-                    ) {
-                        isDangerDialogPresented = true
-                    }
-                    .frame(maxWidth: .infinity)
-                }
-            }
-        }
-    }
-}
-
-// MARK: - Section 10: Metrics & Progression
-
-private struct CatalogMetricsProgressionSection: View {
-    @Environment(\.craftTheme) private var theme
-    @Binding var masteredCount: Double
-    @Binding var reviewingCount: Double
-    @Binding var learningCount: Double
-    @Binding var selectedRoadmapStep: Int
-
-    var body: some View {
-        CraftCard(style: .elevated) {
-            VStack(alignment: .leading, spacing: theme.spacing.base) {
-                CatalogSectionHeader(title: "10. Segmented Distribution Bar & Step Roadmap", iconName: "chart.pie.fill")
-
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    HStack {
-                        CraftText("CraftSegmentedBar (Distribution)", style: .headline)
-                        Spacer()
-                        Button("Randomize") {
-                            withAnimation(theme.animations.springSmooth) {
-                                masteredCount = Double.random(in: 20...60).rounded()
-                                reviewingCount = Double.random(in: 15...40).rounded()
-                                learningCount = Double.random(in: 10...30).rounded()
-                            }
-                        }
-                        .font(theme.typography.caption)
-                        .foregroundColor(theme.colors.brandPrimary)
-                    }
-
-                    CraftSegmentedBar(
-                        items: [
-                            CraftSegmentItem(id: "1", label: "Mastered", value: masteredCount, color: theme.colors.statusSuccess),
-                            CraftSegmentItem(id: "2", label: "Reviewing", value: reviewingCount, color: theme.colors.brandPrimary),
-                            CraftSegmentItem(id: "3", label: "Learning", value: learningCount, color: theme.colors.statusWarning)
-                        ],
-                        height: 12,
-                        cornerRadius: 6,
-                        showLegend: true,
-                        showPercentages: true
-                    )
-                }
-
-                CraftDivider()
-
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    HStack {
-                        CraftText("CraftStepNode (Interactive Roadmap)", style: .headline)
-                        Spacer()
-                        CraftText("Step \(selectedRoadmapStep) of 4 Selected", style: .caption, color: theme.colors.brandPrimary)
-                    }
-
-                    VStack(spacing: 0) {
-                        CraftStepNode(
-                            title: "Foundations & Phonetics",
-                            subtitle: "Alphabet, pronunciation rules, and 200 base words",
-                            state: selectedRoadmapStep > 1 ? .completed : (selectedRoadmapStep == 1 ? .active : .upcoming),
-                            stepNumber: 1,
-                            onTap: { selectedRoadmapStep = 1 }
-                        )
-
-                        CraftStepNode(
-                            title: "Intermediate Lexicon",
-                            subtitle: "Collocations, phrasal verbs, and daily situational dialogues",
-                            state: selectedRoadmapStep > 2 ? .completed : (selectedRoadmapStep == 2 ? .active : .upcoming),
-                            stepNumber: 2,
-                            onTap: { selectedRoadmapStep = 2 }
-                        )
-
-                        CraftStepNode(
-                            title: "Advanced Idioms & Nuance",
-                            subtitle: "Metaphors, formal registers, and rhetoric structures",
-                            state: selectedRoadmapStep > 3 ? .completed : (selectedRoadmapStep == 3 ? .active : .locked),
-                            stepNumber: 3,
-                            onTap: { selectedRoadmapStep = 3 }
-                        )
-
-                        CraftStepNode(
-                            title: "Fluency Mastery Certification",
-                            subtitle: "Comprehensive assessment sprint and final review",
-                            state: selectedRoadmapStep == 4 ? .active : .locked,
-                            stepNumber: 4,
-                            isLast: true,
-                            onTap: { selectedRoadmapStep = 4 }
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-// MARK: - Section 11: 3D Flip Card & Quiz Cards
-
-private struct CatalogInteractiveCardsSection: View {
-    @Environment(\.craftTheme) private var theme
-    @Binding var isCardFlipped: Bool
-    @Binding var flipAxis: Axis
+    @Binding var selectedPills: Set<String>
     @Binding var selectedQuizChoice: String?
     @Binding var isQuizSubmitted: Bool
     let onSubmitQuiz: () -> Void
     let onResetQuiz: () -> Void
 
+    private let filterChips = [
+        ("Vocabulary", "character.book.closed.fill", 14),
+        ("Grammar", "doc.text.fill", 8),
+        ("Listening", "headphones", 22),
+        ("Idioms", "quote.bubble.fill", 5)
+    ]
+
     var body: some View {
         CraftCard(style: .elevated) {
             VStack(alignment: .leading, spacing: theme.spacing.base) {
-                CatalogSectionHeader(title: "11. 3D Flip Card & Quiz Choice Cards", iconName: "rectangle.portrait.on.rectangle.portrait.angled")
+                CatalogSectionHeader(title: "3. Controls (Buttons, Quiz Choice, Inputs, Toggles, Pills)", iconName: "hand.tap.fill")
 
+                // CraftButton 5 Surface Styles & Custom Gradients
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     HStack {
-                        CraftText("CraftFlipCard (3D Double-Sided with Specular Glare)", style: .headline)
+                        CraftText("CraftButton (5 Surface Styles & Loading States)", style: .headline)
                         Spacer()
-                        Picker("Axis", selection: $flipAxis) {
-                            Text("Horizontal").tag(Axis.horizontal)
-                            Text("Vertical").tag(Axis.vertical)
-                        }
-                        .pickerStyle(.segmented)
-                        .frame(width: 160)
+                        CraftSwitch(isOn: $isButtonLoading)
                     }
 
-                    CraftFlipCard(
-                        isFlipped: $isCardFlipped,
-                        axis: flipAxis,
-                        edgeThickness: 3,
-                        showSpecularGlare: true
-                    ) {
-                        CraftCard(style: .outlined) {
-                            VStack(spacing: theme.spacing.sm) {
-                                HStack {
-                                    CraftBadge("Vocabulary Card", symbol: .study, variant: .subtle, tone: .primary)
-                                    Spacer()
-                                    CraftIcon(.audio, size: .sm, color: theme.colors.brandPrimary)
-                                }
+                    VStack(spacing: theme.spacing.xs) {
+                        CraftButton(
+                            "TACTILE 3D BUTTON",
+                            iconName: "bolt.fill",
+                            iconPosition: .trailing,
+                            variant: .tactile,
+                            size: .lg,
+                            isLoading: isButtonLoading,
+                            isUppercase: true,
+                            tracking: 1.2,
+                            isFullWidth: true
+                        ) {}
 
-                                Spacer()
-
-                                CraftText("Ephemeral", style: .displaySerif, color: theme.colors.textPrimary)
-                                CraftText("/ɪˈfem.ər.əl/", style: .phonetic, color: theme.colors.textSecondary)
-
-                                Spacer()
-
-                                HStack(spacing: theme.spacing.xs) {
-                                    CraftIcon(.flip, size: .sm, color: theme.colors.textSecondary)
-                                    CraftText("Tap to reveal definition (3D Flip)", style: .caption, color: theme.colors.textSecondary)
-                                }
-                            }
-                            .frame(height: 160)
-                            .frame(maxWidth: .infinity)
+                        HStack(spacing: theme.spacing.xs) {
+                            CraftButton("Elevated", variant: .primary, size: .md, isLoading: isButtonLoading, style: .elevated) {}
+                                .frame(maxWidth: .infinity)
+                            CraftButton("Glass Frosted", variant: .primary, size: .md, isLoading: isButtonLoading, style: .glass) {}
+                                .frame(maxWidth: .infinity)
                         }
-                        .onTapGesture {
-                            isCardFlipped.toggle()
+
+                        HStack(spacing: theme.spacing.xs) {
+                            CraftButton("Outlined", variant: .outline, size: .md, isLoading: isButtonLoading, style: .outlined) {}
+                                .frame(maxWidth: .infinity)
+                            CraftButton("Flat Subtle", variant: .secondary, size: .md, isLoading: isButtonLoading, style: .flat) {}
+                                .frame(maxWidth: .infinity)
                         }
-                    } back: {
-                        CraftCard(style: .gradient) {
-                            VStack(spacing: theme.spacing.sm) {
-                                HStack {
-                                    CraftBadge("Definition", symbol: .sparkles, variant: .solid, tone: .neutral)
-                                    Spacer()
-                                    CraftIcon(.sparkles, size: .sm, color: .white)
-                                }
 
-                                Spacer()
-
-                                CraftText("Lasting for a very short time; transitory; fleeting.", style: .headline, color: .white)
-                                    .multilineTextAlignment(.center)
-
-                                CraftText("\"Fame in the digital age can be remarkably ephemeral.\"", style: .caption, color: .white.opacity(0.85))
-                                    .italic()
-                                    .multilineTextAlignment(.center)
-
-                                Spacer()
-
-                                HStack(spacing: theme.spacing.xs) {
-                                    CraftIcon(.flip, size: .sm, color: .white.opacity(0.8))
-                                    CraftText("Tap to flip back", style: .caption, color: .white.opacity(0.8))
-                                }
-                            }
-                            .frame(height: 160)
-                            .frame(maxWidth: .infinity)
-                        }
-                        .onTapGesture {
-                            isCardFlipped.toggle()
-                        }
+                        CraftButton(
+                            "Sunset Accent Gradient",
+                            iconName: "sparkles",
+                            variant: .primary,
+                            size: .md,
+                            isLoading: isButtonLoading,
+                            customGradient: theme.gradients.accentShine
+                        ) {}
+                        .frame(maxWidth: .infinity)
                     }
                 }
 
                 CraftDivider()
 
+                // CraftChoiceCard 5 Surface Styles & Quiz Simulation
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     HStack {
-                        CraftText("CraftChoiceCard (3D Quiz with Embossed Badges)", style: .headline)
+                        CraftText("CraftChoiceCard (5 Styles, Feedback & Zero Hex Colors)", style: .headline)
                         Spacer()
                         if isQuizSubmitted {
-                            Button("Reset", action: onResetQuiz)
+                            Button("Reset Quiz", action: onResetQuiz)
                                 .font(theme.typography.caption)
                                 .foregroundColor(theme.colors.brandPrimary)
                         }
                     }
 
                     CraftText("What is the closest synonym for 'Ephemeral'?", style: .bodyMedium, color: theme.colors.textSecondary)
-                        .padding(.bottom, theme.spacing.xs)
 
                     VStack(spacing: theme.spacing.sm) {
-                        CraftChoiceCard(
-                            prefix: "A",
-                            title: "Permanent",
-                            subtitle: "Enduring and perpetual across eras",
-                            state: choiceState(for: "A")
-                        ) {
+                        CraftChoiceCard(prefix: "A", title: "Permanent", subtitle: "Enduring and perpetual across eras", state: choiceState(for: "A"), style: .tactile3D) {
                             selectChoice("A")
                         }
-
-                        CraftChoiceCard(
-                            prefix: "B",
-                            title: "Transitory",
-                            subtitle: "Fleeting and brief in existence",
-                            state: choiceState(for: "B")
-                        ) {
+                        CraftChoiceCard(prefix: "B", title: "Transitory", subtitle: "Fleeting and brief in existence", state: choiceState(for: "B"), style: .glass) {
                             selectChoice("B")
                         }
-
-                        CraftChoiceCard(
-                            prefix: "C",
-                            title: "Immutable",
-                            subtitle: "Completely rigid and unchangeable",
-                            state: choiceState(for: "C")
-                        ) {
+                        CraftChoiceCard(prefix: "C", title: "Immutable", subtitle: "Completely rigid and unchangeable", state: choiceState(for: "C"), style: .elevated) {
                             selectChoice("C")
                         }
-
-                        CraftChoiceCard(
-                            prefix: "D",
-                            title: "Dormant",
-                            subtitle: "Temporarily inactive or asleep",
-                            state: choiceState(for: "D")
-                        ) {
+                        CraftChoiceCard(prefix: "D", title: "Dormant", subtitle: "Temporarily inactive or asleep", state: choiceState(for: "D"), style: .outlined) {
                             selectChoice("D")
                         }
                     }
 
                     if !isQuizSubmitted {
-                        CraftButton(
-                            "Submit Answer",
-                            iconName: "checkmark.circle.fill",
-                            variant: .tactile,
-                            size: .md,
-                            action: onSubmitQuiz
-                        )
-                        .frame(maxWidth: .infinity)
-                        .disabled(selectedQuizChoice == nil)
-                        .padding(.top, theme.spacing.xs)
+                        CraftButton("Submit Answer", iconName: "checkmark.circle.fill", variant: .tactile, size: .md, action: onSubmitQuiz)
+                            .frame(maxWidth: .infinity)
+                            .disabled(selectedQuizChoice == nil)
+                            .padding(.top, theme.spacing.xs)
                     }
                 }
 
                 CraftDivider()
 
-                VStack(alignment: .leading, spacing: theme.spacing.sm) {
-                    CraftText("Choice Card 3D State Matrix", style: .headline)
-                    CraftText("Embossed prefix badges, 3D bottom bevels, and mechanical depress physics.", style: .caption, color: theme.colors.textSecondary)
+                // CraftTextField & CraftSearchBar
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("CraftTextField (Standard, Recessed, Underlined, Glass)", style: .headline)
 
-                    VStack(spacing: theme.spacing.sm) {
-                        CraftChoiceCard(prefix: "1", title: "Idle State", subtitle: "Tap to select this option", state: .idle) {}
-                        CraftChoiceCard(prefix: "2", title: "Selected State", subtitle: "Active choice with brand bevel", state: .selected) {}
-                        CraftChoiceCard(prefix: "3", title: "Correct Answer", subtitle: "Validated correct with emerald 3D bevel", state: .correct) {}
-                        CraftChoiceCard(prefix: "4", title: "Wrong Answer", subtitle: "Incorrect selection with shake FX", state: .wrong) {}
-                        CraftChoiceCard(prefix: "5", title: "Disabled State", subtitle: "Inactive option during review", state: .disabled) {}
+                    CraftTextField(placeholder: "Standard with leading icon", text: $textInput, label: "Standard Field", leadingIcon: "folder.fill", style: .standard)
+                    CraftTextField(placeholder: "Recessed field style", text: $textInput, label: "Recessed Field", leadingIcon: "pencil", style: .recessed)
+                    CraftTextField(placeholder: "Underlined minimal field", text: $textInput, label: "Underlined Field", leadingIcon: "character.cursor.ibeam", style: .underlined)
+                    CraftTextField(placeholder: "Liquid glass input field", text: $textInput, label: "Glass Field", leadingIcon: "sparkles", style: .glass)
+                    CraftTextField(placeholder: "Enter password", text: $passwordInput, label: "Secure Input", leadingIcon: "lock.fill", isSecure: true)
+                    CraftTextField(placeholder: "Enter email", text: $errorInput, label: "Error State", errorMessage: errorInput.contains("@") ? nil : "Invalid email address format", leadingIcon: "envelope.fill")
+
+                    CraftDivider()
+
+                    CraftText("CraftSearchBar (Standard, Recessed & Glass)", style: .headline)
+                    CraftSearchBar(text: $searchQuery, placeholder: "Search vocabulary, cards, tags...", style: .recessed, shape: .roundedRectangle(radius: 14), trailingIcon: "slider.horizontal.3", trailingAction: {}, onCancel: { searchQuery = "" })
+                    CraftSearchBar(text: $searchQuery, placeholder: "Glass capsule search...", style: .glass, shape: .capsule, onCancel: { searchQuery = "" })
+                }
+
+                CraftDivider()
+
+                // CraftPill & CraftStepper & CraftToggle
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("CraftPill (5 Surface Styles Multi-Select)", style: .headline)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: theme.spacing.xs) {
+                            ForEach(filterChips, id: \.0) { chip in
+                                let isSelected = selectedPills.contains(chip.0)
+                                CraftPill(chip.0, iconName: chip.1, count: chip.2, isSelected: isSelected, style: .glass) {
+                                    if isSelected { selectedPills.remove(chip.0) } else { selectedPills.insert(chip.0) }
+                                }
+                            }
+                        }
+                    }
+
+                    CraftDivider()
+
+                    CraftStepper(value: $stepperValue, range: 1...50, step: 1, unit: "words/day", label: "Daily Vocabulary Goal")
+
+                    CraftDivider()
+
+                    VStack(spacing: theme.spacing.xs) {
+                        CraftToggle(isOn: $toggleNotifications, title: "Push Notifications", subtitle: "Receive daily review reminders and streak alerts", iconName: "bell.badge.fill")
+                        CraftToggle(isOn: $toggleHaptics, title: "Haptic Feedback", subtitle: "Provide tactile responses for card swipes and taps", iconName: "waveform")
                     }
                 }
             }
@@ -2021,7 +1400,6 @@ private struct CatalogInteractiveCardsSection: View {
         if !isQuizSubmitted {
             return selectedQuizChoice == choice ? .selected : .idle
         }
-
         if choice == "B" {
             return .correct
         } else if selectedQuizChoice == choice {
@@ -2032,323 +1410,294 @@ private struct CatalogInteractiveCardsSection: View {
     }
 }
 
-// MARK: - Section 12: Floating TabBar
+// MARK: - Section 4: Containers & Overlays Showcase
 
-private struct CatalogNavigationSection: View {
+private struct CatalogContainersOverlaysSection: View {
     @Environment(\.craftTheme) private var theme
+    @Binding var bentoCardTapped: String?
+    @Binding var isShimmerActive: Bool
+    @Binding var progressValue: Double
+    @Binding var selectedEmptyPreset: CatalogEmptyStatePreset
+    @Binding var masteredCount: Double
+    @Binding var reviewingCount: Double
+    @Binding var learningCount: Double
+    @Binding var selectedRoadmapStep: Int
+    @Binding var isCardFlipped: Bool
+    @Binding var flipAxis: Axis
     @Binding var selectedTab: CatalogTabItem
     @Binding var showCenterFAB: Bool
     @Binding var fabTapCount: Int
+    @Binding var toastStyle: CraftToastStyle
+    @Binding var toastSurfaceStyle: CraftSurfaceStyle
+    @Binding var toastPosition: CraftToastPosition
+    @Binding var isToastPresented: Bool
+    @Binding var isBottomSheetPresented: Bool
+    @Binding var isConfirmDialogPresented: Bool
+    @Binding var isDangerDialogPresented: Bool
+    @Binding var isGlassDialogPresented: Bool
+    let onEmptyAction: () -> Void
     let onFabTap: () -> Void
 
     var body: some View {
-        CraftCard(style: .elevated) {
-            VStack(alignment: .leading, spacing: theme.spacing.base) {
-                CatalogSectionHeader(title: "12. Floating Liquid Glass TabBar", iconName: "dock.rectangle")
+        VStack(alignment: .leading, spacing: theme.spacing.base) {
+            CatalogSectionHeader(title: "4. Containers & Overlays (Cards, FlipCard, Rows, Dialogs, Toasts, TabBar)", iconName: "square.stack.3d.up.fill")
 
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText("Active Navigation Canvas", style: .headline)
-
-                    ZStack(alignment: .bottom) {
-                        RoundedRectangle(cornerRadius: theme.radii.lg)
-                            .fill(theme.colors.surfaceSubtle.opacity(0.4))
-                            .frame(height: 200)
-
-                        VStack(spacing: theme.spacing.xs) {
-                            Spacer()
-                            CraftIcon(selectedTab.symbol, size: .xl, color: theme.colors.brandPrimary)
-                            CraftText("Active: \(selectedTab.title) Screen", style: .headline, color: theme.colors.textPrimary)
-                            CraftText("Liquid glass capsule with spring sliding indicator", style: .caption, color: theme.colors.textMuted)
-                            Spacer()
+            // CraftCard 5 Surface Styles Bento Grid
+            VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                CraftCard(style: .tactile3D, isPressable: true, action: { bentoCardTapped = "Tactile 3D Hero Card" }) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                            CraftBadge("Tactile 3D", symbol: .sparkles, variant: .solid, tone: .primary)
+                            CraftText("Physical Tactile 3D Container", style: .headline)
+                            CraftText("Extruded bevel, top specular highlight, and interactive mechanical press.", style: .caption, color: theme.colors.textSecondary)
                         }
-                        .padding(.bottom, 68)
-                        .frame(height: 200)
-
-                        CraftFloatingTabBar(
-                            selectedItem: $selectedTab,
-                            items: CatalogTabItem.allCases,
-                            centerAction: showCenterFAB ? onFabTap : nil,
-                            centerSymbol: CraftSymbol.add.rawValue,
-                            centerTitle: "Add"
-                        )
-                        .padding(.bottom, theme.spacing.xs)
+                        Spacer()
+                        CraftIcon(.sparkles, size: .xl, color: theme.colors.brandPrimary)
                     }
                 }
 
-                CraftDivider()
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: theme.spacing.sm) {
+                    CraftCard(style: .glass, isPressable: true, action: { bentoCardTapped = "Frosted Glass Card" }) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            CraftBadge("Glass Frosted", tone: .primary, style: .glass)
+                            CraftText("Frosted Glass", style: .headline)
+                            CraftText("Material blur & refraction", style: .caption, color: theme.colors.textSecondary)
+                        }
+                    }
 
-                CraftToggle(
-                    isOn: $showCenterFAB,
-                    title: "Integrated Center Action",
-                    subtitle: "Displays tactile circular action button inside liquid glass bar",
-                    iconName: "plus.circle.fill"
-                )
+                    CraftCard(style: .elevated, isPressable: true, action: { bentoCardTapped = "Elevated Card" }) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            CraftBadge("Elevated", tone: .success)
+                            CraftText("Elevated Shadow", style: .headline)
+                            CraftText("Layered depth shadow", style: .caption, color: theme.colors.textSecondary)
+                        }
+                    }
 
-                if fabTapCount > 0 {
-                    CraftText("Center action button tapped \(fabTapCount) times", style: .caption, color: theme.colors.brandPrimary)
+                    CraftCard(style: .outlined, isPressable: true, action: { bentoCardTapped = "Outlined Card" }) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            CraftBadge("Outlined", tone: .warning)
+                            CraftText("Border Outlined", style: .headline)
+                            CraftText("Crisp stroke boundary", style: .caption, color: theme.colors.textSecondary)
+                        }
+                    }
+
+                    CraftCard(style: .flat, isPressable: true, action: { bentoCardTapped = "Flat Card" }) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            CraftBadge("Flat", tone: .neutral)
+                            CraftText("Flat Subtle", style: .headline)
+                            CraftText("Subtle surface fill", style: .caption, color: theme.colors.textSecondary)
+                        }
+                    }
+                }
+
+                if let bentoCardTapped {
+                    CraftText("Last Pressed: \(bentoCardTapped)", style: .caption, color: theme.colors.brandPrimary)
                 }
             }
-        }
-    }
-}
 
-// MARK: - Section 13: Audio Visualizer & Motion FX
-
-private struct CatalogAudioMotionSection: View {
-    @Environment(\.craftTheme) private var theme
-    @Binding var waveformLevels: [CGFloat]
-    @Binding var isWaveformRecording: Bool
-    @Binding var isSparkleTriggered: Bool
-    @Binding var isConfettiTriggered: Bool
-    @Binding var isCountdownPresented: Bool
-
-    var body: some View {
-        CraftCard(style: .elevated) {
-            VStack(alignment: .leading, spacing: theme.spacing.base) {
-                CatalogSectionHeader(title: "13. Audio & Motion FX", iconName: "waveform.badge.mic")
-
+            // CraftFlipCard 3D Double Sided
+            CraftCard(style: .elevated) {
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     HStack {
-                        CraftText("CraftWaveformView (Audio Visualizer)", style: .headline)
+                        CraftText("CraftFlipCard (3D Double-Sided with Specular Glare)", style: .headline)
                         Spacer()
-                        CraftSwitch(isOn: $isWaveformRecording)
-                    }
-
-                    HStack {
-                        CraftWaveformView(
-                            audioLevels: waveformLevels,
-                            barCount: 16,
-                            isRecording: isWaveformRecording
-                        )
-
-                        Spacer()
-
-                        CraftButton("Randomize", iconName: "dice.fill", variant: .outline, size: .sm) {
-                            waveformLevels = (0..<16).map { _ in CGFloat.random(in: 0.05...1.0) }
+                        Picker("Axis", selection: $flipAxis) {
+                            Text("Horizontal").tag(Axis.horizontal)
+                            Text("Vertical").tag(Axis.vertical)
                         }
+                        .pickerStyle(.segmented)
+                        .frame(width: 160)
                     }
-                }
 
-                CraftDivider()
-
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText("Celebration FX (Sparkles & Confetti)", style: .headline)
-
-                    HStack(spacing: theme.spacing.sm) {
-                        CraftButton(
-                            "Sparkles",
-                            iconName: "sparkles",
-                            variant: .primary,
-                            size: .md
-                        ) {
-                            isSparkleTriggered = true
+                    CraftFlipCard(isFlipped: $isCardFlipped, axis: flipAxis, edgeThickness: 3, showSpecularGlare: true) {
+                        CraftCard(style: .outlined) {
+                            VStack(spacing: theme.spacing.sm) {
+                                HStack {
+                                    CraftBadge("Vocabulary Card", symbol: .study, variant: .subtle, tone: .primary)
+                                    Spacer()
+                                    CraftIcon(.audio, size: .sm, color: theme.colors.brandPrimary)
+                                }
+                                Spacer()
+                                CraftText("Ephemeral", style: .displaySerif, color: theme.colors.textPrimary)
+                                CraftText("/ɪˈfem.ər.əl/", style: .phonetic, color: theme.colors.textSecondary)
+                                Spacer()
+                                HStack(spacing: 4) {
+                                    CraftIcon(.flip, size: .sm, color: theme.colors.textSecondary)
+                                    CraftText("Tap to reveal definition (3D Flip)", style: .caption, color: theme.colors.textSecondary)
+                                }
+                            }
+                            .frame(height: 140)
+                            .frame(maxWidth: .infinity)
                         }
-                        .frame(maxWidth: .infinity)
-
-                        CraftButton(
-                            "Confetti",
-                            iconName: "party.popper.fill",
-                            variant: .secondary,
-                            size: .md
-                        ) {
-                            isConfettiTriggered = true
+                        .onTapGesture { isCardFlipped.toggle() }
+                    } back: {
+                        CraftCard(style: .gradient) {
+                            VStack(spacing: theme.spacing.sm) {
+                                HStack {
+                                    CraftBadge("Definition", symbol: .sparkles, variant: .solid, tone: .neutral)
+                                    Spacer()
+                                    CraftIcon(.sparkles, size: .sm, color: .white)
+                                }
+                                Spacer()
+                                CraftText("Lasting for a very short time; transitory; fleeting.", style: .headline, color: .white)
+                                    .multilineTextAlignment(.center)
+                                Spacer()
+                                HStack(spacing: 4) {
+                                    CraftIcon(.flip, size: .sm, color: .white.opacity(0.8))
+                                    CraftText("Tap to flip back", style: .caption, color: .white.opacity(0.8))
+                                }
+                            }
+                            .frame(height: 140)
+                            .frame(maxWidth: .infinity)
                         }
-                        .frame(maxWidth: .infinity)
+                        .onTapGesture { isCardFlipped.toggle() }
                     }
-                }
-
-                CraftDivider()
-
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText("Countdown Overlay Modal", style: .headline)
-
-                    CraftButton(
-                        "Launch 3-2-1 Countdown",
-                        iconName: "timer",
-                        variant: .outline,
-                        size: .md
-                    ) {
-                        isCountdownPresented = true
-                    }
-                    .frame(maxWidth: .infinity)
                 }
             }
-        }
-    }
-}
 
-// MARK: - Section 14: Streak Gamification System
+            // CraftListRow & CraftEmptyState
+            CraftCard(style: .elevated) {
+                VStack(alignment: .leading, spacing: theme.spacing.base) {
+                    CraftText("CraftListRow Components", style: .headline)
+                    VStack(spacing: 0) {
+                        CraftListRow(title: "Mastered Words", subtitle: "142 vocabulary items fully retained", iconName: "checkmark.seal.fill", iconColor: theme.colors.statusSuccess, showChevron: true) {
+                            CraftBadge("Level 4", symbol: .mastery, tone: .success)
+                        }
+                        CraftDivider()
+                        CraftListRow(title: "Spaced Repetition Deck", subtitle: "18 cards scheduled for review today", iconName: "clock.arrow.circlepath", iconColor: theme.colors.brandPrimary, showChevron: true) {
+                            CraftBadge("18 due", symbol: .sparkles, variant: .solid, tone: .primary)
+                        }
+                    }
+                    .background(theme.colors.surfaceCard)
+                    .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
 
-private struct CatalogStreakSection: View {
-    @Environment(\.craftTheme) private var theme
-    @Binding var selectedPreset: CatalogStreakTierPreset
-    @Binding var isCompletedToday: Bool
-    @Binding var isCelebrationPresented: Bool
-    @Binding var cardStyle: CraftCardStyle
-    let onBadgeTap: () -> Void
-    let onFreezeTap: () -> Void
+                    CraftDivider()
 
-    var body: some View {
-        CraftCard(style: .elevated) {
-            VStack(alignment: .leading, spacing: theme.spacing.base) {
-                CatalogSectionHeader(title: "14. Streak Gamification System", iconName: CraftSymbol.streak.rawValue)
-
-                // Interactive Controls
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText("Streak Tier Selection", style: .headline)
-                    Picker("Streak Tier", selection: $selectedPreset) {
-                        ForEach(CatalogStreakTierPreset.allCases) { preset in
+                    CraftText("CraftEmptyState (Layered Squircle Illustrations)", style: .headline)
+                    Picker("Empty State Preset", selection: $selectedEmptyPreset) {
+                        ForEach(CatalogEmptyStatePreset.allCases) { preset in
                             Text(preset.rawValue).tag(preset)
                         }
                     }
                     .pickerStyle(.segmented)
 
-                    CraftText("Bento Card Container Style", style: .label, color: theme.colors.textSecondary)
-                    Picker("Card Style", selection: $cardStyle) {
-                        Text("Tactile 3D").tag(CraftCardStyle.tactile3D)
-                        Text("Outlined").tag(CraftCardStyle.outlined)
-                        Text("Elevated").tag(CraftCardStyle.elevated)
-                        Text("Flat").tag(CraftCardStyle.flat)
+                    CraftCard(style: .outlined) {
+                        CraftEmptyState(symbol: selectedEmptyPreset.symbol, title: selectedEmptyPreset.title, message: selectedEmptyPreset.message, buttonTitle: selectedEmptyPreset.buttonTitle, buttonSymbol: selectedEmptyPreset.buttonSymbol, buttonAction: onEmptyAction)
+                            .frame(maxWidth: .infinity)
                     }
-                    .pickerStyle(.segmented)
+                }
+            }
 
-                    CraftToggle(
-                        isOn: $isCompletedToday,
-                        title: "Goal Completed Today",
-                        subtitle: "Toggles active vs. pending dashed/breathing state",
-                        iconName: "checkmark.circle.fill"
+            // Progress, Rings & Segmented Bar
+            CraftCard(style: .elevated) {
+                VStack(alignment: .leading, spacing: theme.spacing.base) {
+                    CraftText("CraftProgressBar & CraftProgressRing", style: .headline)
+                    CraftProgressBar(progress: progressValue, height: 10)
+                    CraftProgressBar(currentStep: 3, totalSteps: 5, height: 8)
+
+                    HStack(spacing: theme.spacing.xl) {
+                        CraftProgressRing(progress: progressValue, lineWidth: 8, size: 70)
+                        CraftProgressRing(progress: 0.85, lineWidth: 8, size: 70, tintColor: theme.colors.statusSuccess) {
+                            CraftIcon("flame.fill", size: .sm, color: theme.colors.statusWarning)
+                        }
+                        CraftProgressRing(progress: 0.45, lineWidth: 8, size: 70, tintColor: theme.colors.statusInfo) {
+                            CraftIcon("bolt.fill", size: .sm, color: theme.colors.statusInfo)
+                        }
+                    }
+
+                    CraftDivider()
+
+                    CraftText("CraftSegmentedBar Distribution", style: .headline)
+                    CraftSegmentedBar(
+                        items: [
+                            CraftSegmentItem(id: "1", label: "Mastered", value: masteredCount, color: theme.colors.statusSuccess),
+                            CraftSegmentItem(id: "2", label: "Reviewing", value: reviewingCount, color: theme.colors.brandPrimary),
+                            CraftSegmentItem(id: "3", label: "Learning", value: learningCount, color: theme.colors.statusWarning)
+                        ],
+                        height: 12,
+                        cornerRadius: 6,
+                        showLegend: true,
+                        showPercentages: true
                     )
-                    .padding(.top, theme.spacing.xs)
                 }
+            }
 
-                CraftDivider()
-
-                // Live Preview: CraftStreakBadge (.sm & .md)
+            // Step Roadmap
+            CraftCard(style: .elevated) {
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    HStack {
-                        CraftText("CraftStreakBadge (Navigation & Header)", style: .headline)
-                        Spacer()
-                        CraftText("Tap to celebrate", style: .caption, color: theme.colors.brandPrimary)
+                    CraftText("CraftStepNode (Interactive Roadmap)", style: .headline)
+                    VStack(spacing: 0) {
+                        CraftStepNode(title: "Foundations & Phonetics", subtitle: "Alphabet and pronunciation rules", state: selectedRoadmapStep > 1 ? .completed : (selectedRoadmapStep == 1 ? .active : .upcoming), stepNumber: 1, onTap: { selectedRoadmapStep = 1 })
+                        CraftStepNode(title: "Intermediate Lexicon", subtitle: "Collocations & dialogues", state: selectedRoadmapStep > 2 ? .completed : (selectedRoadmapStep == 2 ? .active : .upcoming), stepNumber: 2, onTap: { selectedRoadmapStep = 2 })
+                        CraftStepNode(title: "Advanced Mastery", subtitle: "Idioms & nuance", state: selectedRoadmapStep == 3 ? .active : .locked, stepNumber: 3, isLast: true, onTap: { selectedRoadmapStep = 3 })
                     }
-                    CraftText("Embossed flame pills with metricRounded counter and breathing animation when pending.", style: .caption, color: theme.colors.textSecondary)
-
-                    HStack(spacing: theme.spacing.lg) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            CraftText("Small (32pt)", style: .caption, color: theme.colors.textMuted)
-                            CraftStreakBadge(
-                                count: selectedPreset.days,
-                                tier: selectedPreset.tier,
-                                isCompletedToday: isCompletedToday,
-                                size: .sm,
-                                onTap: onBadgeTap
-                            )
-                        }
-
-                        VStack(alignment: .leading, spacing: 4) {
-                            CraftText("Medium (40pt)", style: .caption, color: theme.colors.textMuted)
-                            CraftStreakBadge(
-                                count: selectedPreset.days,
-                                tier: selectedPreset.tier,
-                                isCompletedToday: isCompletedToday,
-                                size: .md,
-                                onTap: onBadgeTap
-                            )
-                        }
-                    }
-                    .padding(.top, 2)
                 }
+            }
 
-                CraftDivider()
+            // Dialogs & Toasts Controls
+            CraftCard(style: .elevated) {
+                VStack(alignment: .leading, spacing: theme.spacing.base) {
+                    CraftText("CraftDialog & CraftToast Overlays", style: .headline)
 
-                // Live Preview: CraftStreakCard
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText("CraftStreakCard (7-Day Bento Widget)", style: .headline)
-                    CraftText("3D tactile day nodes with bottom rim bevels, freeze shields, and milestone progress bar.", style: .caption, color: theme.colors.textSecondary)
-
-                    CraftStreakCard(
-                        data: streakData,
-                        cardStyle: cardStyle,
-                        onFreezeTap: onFreezeTap,
-                        onMilestoneTap: {
-                            isCelebrationPresented = true
+                    HStack(spacing: theme.spacing.xs) {
+                        CraftButton("Info Toast", variant: .outline, size: .sm) {
+                            toastStyle = .info
+                            toastSurfaceStyle = .elevated
+                            isToastPresented = true
                         }
-                    )
-                    .padding(.top, 2)
-                }
-
-                CraftDivider()
-
-                // Modal Celebration Sheet Trigger
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText("CraftStreakCelebrationSheet (Milestone Modal)", style: .headline)
-                    CraftText("Hero flame pop-in, count-up animation, 3D tactile day nodes, and tactile 3D action button.", style: .caption, color: theme.colors.textSecondary)
-
-                    CraftButton(
-                        "Preview Celebration Modal (\(selectedPreset.days) Days)",
-                        iconName: "party.popper.fill",
-                        variant: .tactile,
-                        size: .md,
-                        isFullWidth: true
-                    ) {
-                        isCelebrationPresented = true
+                        CraftButton("Glass Toast", variant: .outline, size: .sm) {
+                            toastStyle = .success
+                            toastSurfaceStyle = .glass
+                            isToastPresented = true
+                        }
+                        CraftButton("Danger Toast", variant: .outline, size: .sm) {
+                            toastStyle = .danger
+                            toastSurfaceStyle = .elevated
+                            isToastPresented = true
+                        }
                     }
-                    .padding(.top, theme.spacing.xs)
+
+                    HStack(spacing: theme.spacing.xs) {
+                        CraftButton("Confirm Dialog", variant: .primary, size: .sm) { isConfirmDialogPresented = true }
+                            .frame(maxWidth: .infinity)
+                        CraftButton("Glass Modal", variant: .secondary, size: .sm) { isGlassDialogPresented = true }
+                            .frame(maxWidth: .infinity)
+                        CraftButton("Bottom Sheet", variant: .outline, size: .sm) { isBottomSheetPresented = true }
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+            }
+
+            // CraftFloatingTabBar
+            CraftCard(style: .elevated) {
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("CraftFloatingTabBar (Liquid Glass Capsule)", style: .headline)
+                    ZStack(alignment: .bottom) {
+                        RoundedRectangle(cornerRadius: theme.radii.lg)
+                            .fill(theme.colors.surfaceSubtle.opacity(0.4))
+                            .frame(height: 160)
+
+                        VStack(spacing: 4) {
+                            Spacer()
+                            CraftIcon(selectedTab.symbol, size: .lg, color: theme.colors.brandPrimary)
+                            CraftText("Active: \(selectedTab.title) Screen", style: .headline, color: theme.colors.textPrimary)
+                            Spacer()
+                        }
+                        .padding(.bottom, 60)
+                        .frame(height: 160)
+
+                        CraftFloatingTabBar(selectedItem: $selectedTab, items: CatalogTabItem.allCases, centerAction: showCenterFAB ? onFabTap : nil, centerSymbol: CraftSymbol.add.rawValue, centerTitle: "Add")
+                            .padding(.bottom, 4)
+                    }
                 }
             }
         }
     }
-
-    private var streakData: CraftStreakData {
-        CraftStreakData(
-            currentStreak: selectedPreset.days,
-            bestStreak: selectedPreset.bestStreak,
-            freezeTokens: 2,
-            maxFreezeTokens: 3,
-            nextMilestoneDays: selectedPreset.nextMilestone,
-            isCompletedToday: isCompletedToday,
-            weekDays: sampleWeekDays
-        )
-    }
-
-    private var sampleWeekDays: [CraftStreakDay] {
-        switch selectedPreset {
-        case .starter:
-            return [
-                CraftStreakDay(id: "1", weekdaySymbol: "T2", status: .completed),
-                CraftStreakDay(id: "2", weekdaySymbol: "T3", status: .missed),
-                CraftStreakDay(id: "3", weekdaySymbol: "T4", status: .completed),
-                CraftStreakDay(id: "4", weekdaySymbol: "T5", status: isCompletedToday ? .completed : .pending, isToday: true),
-                CraftStreakDay(id: "5", weekdaySymbol: "T6", status: .upcoming),
-                CraftStreakDay(id: "6", weekdaySymbol: "T7", status: .upcoming),
-                CraftStreakDay(id: "7", weekdaySymbol: "CN", status: .upcoming)
-            ]
-        case .blaze:
-            return [
-                CraftStreakDay(id: "1", weekdaySymbol: "T2", status: .completed),
-                CraftStreakDay(id: "2", weekdaySymbol: "T3", status: .completed),
-                CraftStreakDay(id: "3", weekdaySymbol: "T4", status: .frozen),
-                CraftStreakDay(id: "4", weekdaySymbol: "T5", status: isCompletedToday ? .completed : .pending, isToday: true),
-                CraftStreakDay(id: "5", weekdaySymbol: "T6", status: .upcoming),
-                CraftStreakDay(id: "6", weekdaySymbol: "T7", status: .upcoming),
-                CraftStreakDay(id: "7", weekdaySymbol: "CN", status: .upcoming)
-            ]
-        case .legendary:
-            return [
-                CraftStreakDay(id: "1", weekdaySymbol: "T2", status: .completed),
-                CraftStreakDay(id: "2", weekdaySymbol: "T3", status: .completed),
-                CraftStreakDay(id: "3", weekdaySymbol: "T4", status: .completed),
-                CraftStreakDay(id: "4", weekdaySymbol: "T5", status: isCompletedToday ? .completed : .pending, isToday: true),
-                CraftStreakDay(id: "5", weekdaySymbol: "T6", status: .upcoming),
-                CraftStreakDay(id: "6", weekdaySymbol: "T7", status: .upcoming),
-                CraftStreakDay(id: "7", weekdaySymbol: "CN", status: .upcoming)
-            ]
-        }
-    }
 }
 
-// MARK: - Section 15: Gamified Learning Journey Path
+// MARK: - Section 5: Universal Journey Path Showcase
 
-private struct CatalogLearningPathSection: View {
+private struct CatalogJourneyPathSection: View {
     @Environment(\.craftTheme) private var theme
     @Binding var selectedRowPatternPreset: CatalogRowPatternPreset
     @Binding var selectedWindingPreset: CatalogWindingPreset
@@ -2360,182 +1709,79 @@ private struct CatalogLearningPathSection: View {
     let onStartLesson: (LessonNodeModel) -> Void
     let onTriggerCelebration: () -> Void
 
-    private var allNodes: [LessonNodeModel] {
-        sections.flatMap(\.nodes)
-    }
-
-    private var selectedNode: LessonNodeModel? {
-        allNodes.first(where: { $0.id == selectedNodeID }) ?? allNodes.first
-    }
+    private let sampleShapes: [CraftNodeShape] = [.circle, .hexagon, .diamond, .squircle, .star]
+    private let sampleSurfaceStyles: [CraftSurfaceStyle] = [.tactile3D, .glass, .elevated, .outlined, .flat]
 
     var body: some View {
         CraftCard(style: .elevated) {
             VStack(alignment: .leading, spacing: theme.spacing.base) {
-                CatalogSectionHeader(title: "15. Gamified Learning Journey Path", iconName: "map.fill")
+                CatalogSectionHeader(title: "5. Universal Journey Path (5 Shapes, 5 Surfaces, Halo Glow, Portal)", iconName: "map.fill")
 
-                CraftText(
-                    "Tactile snake hybrid learning journey path with multi-node row patterns (standard 1-2-1, wave 1-2-3-2-1), progressive vector dotted connectors, 3D tactile button physics, and milestone detail sheets.",
-                    style: .caption,
-                    color: theme.colors.textSecondary
-                )
+                // CraftPathNode 5 Shapes x 5 Surface Styles Showcase Matrix
+                VStack(alignment: .leading, spacing: theme.spacing.sm) {
+                    CraftText("CraftPathNode Matrix (5 Geometric Shapes & 5 Surface Styles)", style: .headline)
+                    CraftText("Showcasing Circle, Hexagon, Diamond, Squircle, and Star shapes paired with tactile3D, glass, elevated, outlined, and flat surfaces.", style: .caption, color: theme.colors.textSecondary)
 
-                // Interactive Controls
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: theme.spacing.md) {
+                            ForEach(0..<sampleShapes.count, id: \.self) { idx in
+                                let shape = sampleShapes[idx]
+                                let style = sampleSurfaceStyles[idx]
+                                let model = CraftPathNodeModel(
+                                    id: "matrix_node_\(idx)",
+                                    title: "\(shape.rawValue.capitalized)",
+                                    subtitle: "\(style.rawValue)",
+                                    state: idx == 1 ? .active : (idx == 0 ? .completed : (idx == 4 ? .bonus : .inProgress)),
+                                    shape: shape,
+                                    surfaceStyle: style,
+                                    icon: .system(idx == 4 ? "star.fill" : "book.fill"),
+                                    progress: idx == 3 ? 0.65 : nil,
+                                    stars: idx == 0 ? 3 : nil
+                                )
+
+                                VStack(spacing: 4) {
+                                    CraftPathNode(model: model, calloutText: "START")
+                                }
+                            }
+                        }
+                        .padding(.vertical, theme.spacing.sm)
+                        .padding(.horizontal, theme.spacing.xs)
+                    }
+                }
+
+                CraftDivider()
+
+                // Section Header Portal View Showcase
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText("Snake Hybrid Row Pattern", style: .headline)
+                    CraftText("Section Header Portal (Unit Header)", style: .headline)
+                    CraftJourneySectionView(
+                        section: CraftJourneySection(
+                            id: "portal_preview",
+                            title: "Unit 1: Foundations & Phonetics",
+                            subtitle: "Master English phonetics and 200 high-frequency core words",
+                            levelText: "BEGINNER • LEVEL 1",
+                            progressText: "4/8 Complete",
+                            progressValue: 0.5,
+                            bannerIcon: .system("sparkles"),
+                            nodes: [
+                                CraftPathNodeModel(id: "p1", title: "Phonetics", state: .completed, shape: .circle, surfaceStyle: .tactile3D, stars: 3),
+                                CraftPathNodeModel(id: "p2", title: "Greetings", state: .active, shape: .squircle, surfaceStyle: .tactile3D)
+                            ]
+                        )
+                    )
+                }
+
+                CraftDivider()
+
+                // Interactive Learning Path
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("Interactive Multi-Node Path & Snake Connectors", style: .headline)
                     Picker("Row Pattern", selection: $selectedRowPatternPreset) {
                         ForEach(CatalogRowPatternPreset.allCases) { preset in
                             Text(preset.rawValue).tag(preset)
                         }
                     }
                     .pickerStyle(.segmented)
-
-                    CraftText("Serpentine Winding Pattern (Fallback)", style: .label, color: theme.colors.textSecondary)
-                    Picker("Winding Pattern", selection: $selectedWindingPreset) {
-                        ForEach(CatalogWindingPreset.allCases) { preset in
-                            Text(preset.rawValue).tag(preset)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-
-                    HStack(spacing: theme.spacing.md) {
-                        CraftToggle(
-                            isOn: $showCelebration,
-                            title: "Confetti Celebration",
-                            subtitle: "Celebrate completed/reward taps",
-                            iconName: "party.popper.fill"
-                        )
-                    }
-                    .padding(.top, theme.spacing.xs)
-                }
-
-                CraftDivider()
-
-                // Node State & Kind Inspector & Modifier
-                if let node = selectedNode {
-                    VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 2) {
-                                CraftText("Node Inspector: \(node.title)", style: .headline)
-                                if let subtitle = node.subtitle {
-                                    CraftText(subtitle, style: .caption, color: theme.colors.textSecondary)
-                                }
-                            }
-                            Spacer()
-                            HStack(spacing: theme.spacing.xs) {
-                                CraftBadge(
-                                    node.kind.rawValue.capitalized,
-                                    symbol: kindSymbol(for: node.kind),
-                                    variant: .subtle,
-                                    tone: kindTone(for: node.kind),
-                                    size: .sm
-                                )
-                                CraftBadge(
-                                    node.state.rawValue.capitalized,
-                                    symbol: badgeSymbol(for: node.state),
-                                    variant: .subtle,
-                                    tone: badgeTone(for: node.state),
-                                    size: .sm
-                                )
-                            }
-                        }
-
-                        // State Switcher
-                        VStack(alignment: .leading, spacing: 4) {
-                            CraftText("Node State", style: .label, color: theme.colors.textSecondary)
-                            Picker("Node State", selection: Binding(
-                                get: { node.state },
-                                set: { updateNodeState(nodeID: node.id, newState: $0) }
-                            )) {
-                                ForEach(LessonNodeState.allCases, id: \.self) { state in
-                                    Text(state.rawValue.capitalized).tag(state)
-                                }
-                            }
-                            .pickerStyle(.segmented)
-                        }
-                        .padding(.top, 2)
-
-                        // Kind Switcher
-                        VStack(alignment: .leading, spacing: 4) {
-                            CraftText("Node Kind", style: .label, color: theme.colors.textSecondary)
-                            Picker("Node Kind", selection: Binding(
-                                get: { node.kind },
-                                set: { updateNodeKind(nodeID: node.id, newKind: $0) }
-                            )) {
-                                ForEach(LessonNodeKind.allCases, id: \.self) { kind in
-                                    Text(kind.rawValue.capitalized).tag(kind)
-                                }
-                            }
-                            .pickerStyle(.segmented)
-                        }
-                        .padding(.top, 2)
-
-                        // Progress Slider if active or inProgress
-                        if node.state == .active || node.state == .inProgress {
-                            VStack(alignment: .leading, spacing: 2) {
-                                HStack {
-                                    CraftText("Progress: \(Int((node.progress ?? 0.0) * 100))%", style: .caption, color: theme.colors.textSecondary)
-                                    Spacer()
-                                }
-                                Slider(
-                                    value: Binding(
-                                        get: { node.progress ?? 0.0 },
-                                        set: { updateNodeProgress(nodeID: node.id, newProgress: $0) }
-                                    ),
-                                    in: 0.0...1.0,
-                                    step: 0.05
-                                )
-                                .tint(theme.colors.brandPrimary)
-                            }
-                            .padding(.top, 2)
-                        }
-
-                        // Quick Actions
-                        VStack(spacing: theme.spacing.xs) {
-                            HStack(spacing: theme.spacing.sm) {
-                                CraftButton(
-                                    "Complete Lesson",
-                                    iconName: "checkmark.circle.fill",
-                                    variant: .primary,
-                                    size: .sm
-                                ) {
-                                    completeCurrentLesson(nodeID: node.id)
-                                }
-                                .frame(maxWidth: .infinity)
-
-                                CraftButton(
-                                    "Reset Path",
-                                    iconName: "arrow.counterclockwise",
-                                    variant: .outline,
-                                    size: .sm
-                                ) {
-                                    sections = CatalogLearningPathMockData.defaultSections
-                                    selectedNodeID = "u1_n3"
-                                }
-                                .frame(maxWidth: .infinity)
-                            }
-
-                            CraftButton(
-                                "Trigger Celebration",
-                                iconName: "party.popper.fill",
-                                variant: .secondary,
-                                size: .sm
-                            ) {
-                                onTriggerCelebration()
-                            }
-                        }
-                        .padding(.top, 4)
-                    }
-
-                    CraftDivider()
-                }
-
-                // Live Preview: Embedded CraftLearningPath
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    HStack {
-                        CraftText("Interactive Path Preview", style: .headline)
-                        Spacer()
-                        CraftText("Tap any node to inspect & view detail", style: .caption, color: theme.colors.brandPrimary)
-                    }
 
                     CraftLearningPath(
                         sections: sections,
@@ -2545,14 +1791,12 @@ private struct CatalogLearningPathSection: View {
                             selectedNodeID = tapped.id
                             onNodeSelected(tapped)
                         },
-                        onStartLesson: { started in
-                            onStartLesson(started)
-                        },
+                        onStartLesson: onStartLesson,
                         showDetailModal: true,
                         scrollToActive: scrollToActive,
                         showCelebration: showCelebration
                     )
-                    .frame(height: 520)
+                    .frame(height: 480)
                     .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
                     .overlay(
                         RoundedRectangle(cornerRadius: theme.radii.md)
@@ -2562,180 +1806,134 @@ private struct CatalogLearningPathSection: View {
             }
         }
     }
+}
 
-    private func badgeSymbol(for state: LessonNodeState) -> CraftSymbol {
-        switch state {
-        case .completed: return .study
-        case .active: return .sparkles
-        case .inProgress: return .practice
-        case .upcoming: return .study
-        case .locked: return .bookmark
-        case .bonus: return .trophy
-        }
-    }
+// MARK: - Section 6: Universal Activity & Streak Tracker Showcase
 
-    private func badgeTone(for state: LessonNodeState) -> CraftBadgeTone {
-        switch state {
-        case .completed: return .success
-        case .active: return .primary
-        case .inProgress: return .primary
-        case .upcoming: return .neutral
-        case .locked: return .neutral
-        case .bonus: return .warning
-        }
-    }
+private struct CatalogActivityStreakSection: View {
+    @Environment(\.craftTheme) private var theme
+    @Binding var selectedPreset: CatalogStreakTierPreset
+    @Binding var isCompletedToday: Bool
+    @Binding var isCelebrationPresented: Bool
+    @Binding var cardStyle: CraftCardStyle
+    @Binding var waveformLevels: [CGFloat]
+    @Binding var isWaveformRecording: Bool
+    @Binding var isSparkleTriggered: Bool
+    @Binding var isConfettiTriggered: Bool
+    @Binding var isCountdownPresented: Bool
+    let onBadgeTap: () -> Void
+    let onFreezeTap: () -> Void
 
-    private func kindSymbol(for kind: LessonNodeKind) -> CraftSymbol {
-        switch kind {
-        case .standard: return .study
-        case .checkpoint: return .trophy
-        case .treasureChest: return .sparkles
-        }
-    }
+    var body: some View {
+        CraftCard(style: .elevated) {
+            VStack(alignment: .leading, spacing: theme.spacing.base) {
+                CatalogSectionHeader(title: "6. Universal Activity & Streak Tracker (7-Day Bento & Celebration Modal)", iconName: CraftSymbol.streak.rawValue)
 
-    private func kindTone(for kind: LessonNodeKind) -> CraftBadgeTone {
-        switch kind {
-        case .standard: return .neutral
-        case .checkpoint: return .warning
-        case .treasureChest: return .success
-        }
-    }
-
-    private func updateNodeState(nodeID: String, newState: LessonNodeState) {
-        sections = sections.map { section in
-            let updatedNodes = section.nodes.map { node in
-                if node.id == nodeID {
-                    let updatedProgress: Double? = switch newState {
-                    case .completed: 1.0
-                    case .active, .inProgress: node.progress ?? 0.5
-                    case .upcoming, .locked, .bonus: nil
+                // Streak Controls
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("Streak Tier Preset", style: .headline)
+                    Picker("Streak Tier", selection: $selectedPreset) {
+                        ForEach(CatalogStreakTierPreset.allCases) { preset in
+                            Text(preset.rawValue).tag(preset)
+                        }
                     }
-                    return LessonNodeModel(
-                        id: node.id,
-                        title: node.title,
-                        subtitle: node.subtitle,
-                        iconName: node.iconName,
-                        state: newState,
-                        kind: node.kind,
-                        progress: updatedProgress,
-                        xpReward: node.xpReward,
-                        estimatedMinutes: node.estimatedMinutes,
-                        stars: node.stars,
-                        badgeCount: node.badgeCount,
-                        badgeText: node.badgeText
+                    .pickerStyle(.segmented)
+
+                    CraftToggle(isOn: $isCompletedToday, title: "Goal Completed Today", subtitle: "Toggles active flame vs. pending breathing pulse node", iconName: "checkmark.circle.fill")
+                }
+
+                CraftDivider()
+
+                // CraftStreakBadge
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    HStack {
+                        CraftText("CraftStreakBadge Indicators", style: .headline)
+                        Spacer()
+                        CraftText("Tap to celebrate", style: .caption, color: theme.colors.brandPrimary)
+                    }
+
+                    HStack(spacing: theme.spacing.lg) {
+                        CraftStreakBadge(count: selectedPreset.days, tier: selectedPreset.tier, isCompletedToday: isCompletedToday, size: .sm, onTap: onBadgeTap)
+                        CraftStreakBadge(count: selectedPreset.days, tier: selectedPreset.tier, isCompletedToday: isCompletedToday, size: .md, onTap: onBadgeTap)
+                    }
+                }
+
+                CraftDivider()
+
+                // Universal 7-Day Bento Card
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("CraftActivityTrackerCard (7-Day Bento Dashboard Widget)", style: .headline)
+                    CraftText("Zero hardcoded colors/strings, 3D day nodes, freeze shield tokens, and milestone progress bar.", style: .caption, color: theme.colors.textSecondary)
+
+                    CraftActivityTrackerCard(
+                        data: CraftActivityTrackerData(
+                            currentValue: selectedPreset.days,
+                            bestRecord: selectedPreset.bestStreak,
+                            tier: selectedPreset.tier == .starter ? .starter : (selectedPreset.tier == .blaze ? .blaze : .legendary),
+                            shieldTokens: 2,
+                            maxShieldTokens: 3,
+                            nextMilestone: selectedPreset.nextMilestone,
+                            isCompletedToday: isCompletedToday,
+                            cycleDays: sampleDays
+                        ),
+                        cardStyle: .tactile3D,
+                        onShieldTap: onFreezeTap,
+                        onMilestoneTap: { isCelebrationPresented = true }
                     )
                 }
-                return node
+
+                CraftDivider()
+
+                // Celebration Sheet Modal Trigger
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("CraftCelebrationSheet Modal Trigger", style: .headline)
+                    CraftButton("Launch Celebration Modal (\(selectedPreset.days) Days)", iconName: "party.popper.fill", variant: .tactile, size: .md, isFullWidth: true) {
+                        isCelebrationPresented = true
+                    }
+                }
+
+                CraftDivider()
+
+                // Audio Visualizer & Motion FX
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    HStack {
+                        CraftText("CraftWaveformView & Celebration FX", style: .headline)
+                        Spacer()
+                        CraftSwitch(isOn: $isWaveformRecording)
+                    }
+
+                    HStack {
+                        CraftWaveformView(audioLevels: waveformLevels, barCount: 16, isRecording: isWaveformRecording)
+                        Spacer()
+                        CraftButton("Randomize", iconName: "dice.fill", variant: .outline, size: .sm) {
+                            waveformLevels = (0..<16).map { _ in CGFloat.random(in: 0.05...1.0) }
+                        }
+                    }
+
+                    HStack(spacing: theme.spacing.sm) {
+                        CraftButton("Sparkles", iconName: "sparkles", variant: .primary, size: .sm) { isSparkleTriggered = true }
+                            .frame(maxWidth: .infinity)
+                        CraftButton("Confetti", iconName: "party.popper.fill", variant: .secondary, size: .sm) { isConfettiTriggered = true }
+                            .frame(maxWidth: .infinity)
+                        CraftButton("3-2-1 Countdown", iconName: "timer", variant: .outline, size: .sm) { isCountdownPresented = true }
+                            .frame(maxWidth: .infinity)
+                    }
+                    .padding(.top, 4)
+                }
             }
-            let completedCount = updatedNodes.filter { $0.state == .completed }.count
-            let progressVal = updatedNodes.isEmpty ? 0.0 : Double(completedCount) / Double(updatedNodes.count)
-            return LessonSection(
-                id: section.id,
-                title: section.title,
-                subtitle: section.subtitle,
-                level: section.level,
-                progressText: "\(completedCount)/\(updatedNodes.count)",
-                progressValue: progressVal,
-                bannerIcon: section.bannerIcon,
-                nodes: updatedNodes,
-                winding: section.winding,
-                connectorStyle: section.connectorStyle,
-                rowPattern: section.rowPattern
-            )
         }
     }
 
-    private func updateNodeKind(nodeID: String, newKind: LessonNodeKind) {
-        sections = sections.map { section in
-            let updatedNodes = section.nodes.map { node in
-                if node.id == nodeID {
-                    return LessonNodeModel(
-                        id: node.id,
-                        title: node.title,
-                        subtitle: node.subtitle,
-                        iconName: node.iconName,
-                        state: node.state,
-                        kind: newKind,
-                        progress: node.progress,
-                        xpReward: node.xpReward,
-                        estimatedMinutes: node.estimatedMinutes,
-                        stars: node.stars,
-                        badgeCount: node.badgeCount,
-                        badgeText: node.badgeText
-                    )
-                }
-                return node
-            }
-            return LessonSection(
-                id: section.id,
-                title: section.title,
-                subtitle: section.subtitle,
-                level: section.level,
-                progressText: section.progressText,
-                progressValue: section.progressValue,
-                bannerIcon: section.bannerIcon,
-                nodes: updatedNodes,
-                winding: section.winding,
-                connectorStyle: section.connectorStyle,
-                rowPattern: section.rowPattern
-            )
-        }
-    }
-
-    private func updateNodeProgress(nodeID: String, newProgress: Double) {
-        sections = sections.map { section in
-            let updatedNodes = section.nodes.map { node in
-                if node.id == nodeID {
-                    return LessonNodeModel(
-                        id: node.id,
-                        title: node.title,
-                        subtitle: node.subtitle,
-                        iconName: node.iconName,
-                        state: node.state,
-                        kind: node.kind,
-                        progress: newProgress,
-                        xpReward: node.xpReward,
-                        estimatedMinutes: node.estimatedMinutes,
-                        stars: node.stars,
-                        badgeCount: node.badgeCount,
-                        badgeText: node.badgeText
-                    )
-                }
-                return node
-            }
-            return LessonSection(
-                id: section.id,
-                title: section.title,
-                subtitle: section.subtitle,
-                level: section.level,
-                progressText: section.progressText,
-                progressValue: section.progressValue,
-                bannerIcon: section.bannerIcon,
-                nodes: updatedNodes,
-                winding: section.winding,
-                connectorStyle: section.connectorStyle,
-                rowPattern: section.rowPattern
-            )
-        }
-    }
-
-    private func completeCurrentLesson(nodeID: String) {
-        updateNodeState(nodeID: nodeID, newState: .completed)
-        var foundCurrent = false
-        var nextNodeID: String? = nil
-        for node in allNodes {
-            if foundCurrent && (node.state == .upcoming || node.state == .locked) {
-                nextNodeID = node.id
-                break
-            }
-            if node.id == nodeID {
-                foundCurrent = true
-            }
-        }
-        if let nextID = nextNodeID {
-            updateNodeState(nodeID: nextID, newState: .active)
-            selectedNodeID = nextID
-        }
+    private var sampleDays: [CraftActivityDay] {
+        [
+            CraftActivityDay(id: "1", weekdaySymbol: "T2", status: .completed),
+            CraftActivityDay(id: "2", weekdaySymbol: "T3", status: selectedPreset == .starter ? .missed : .completed),
+            CraftActivityDay(id: "3", weekdaySymbol: "T4", status: selectedPreset == .blaze ? .saved : .completed),
+            CraftActivityDay(id: "4", weekdaySymbol: "T5", status: isCompletedToday ? .completed : .pending, isToday: true),
+            CraftActivityDay(id: "5", weekdaySymbol: "T6", status: .upcoming),
+            CraftActivityDay(id: "6", weekdaySymbol: "T7", status: .upcoming),
+            CraftActivityDay(id: "7", weekdaySymbol: "CN", status: .upcoming)
+        ]
     }
 }
 

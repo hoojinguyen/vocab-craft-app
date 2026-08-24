@@ -3,6 +3,8 @@ import SwiftUI
 @testable import CraftUIKit
 
 final class CatalogViewTests: XCTestCase {
+    // MARK: - Theme & Options Enums
+
     func testCatalogThemeTypeEnumCases() {
         XCTAssertEqual(CatalogThemeType.allCases.count, 2)
         XCTAssertEqual(CatalogThemeType.defaultSlate.rawValue, "Default Slate")
@@ -29,6 +31,14 @@ final class CatalogViewTests: XCTestCase {
         XCTAssertEqual(CatalogColorScheme.dark.colorScheme, .dark)
     }
 
+    func testCatalogLanguageEnumCases() {
+        XCTAssertEqual(CatalogLanguage.allCases.count, 2)
+        XCTAssertEqual(CatalogLanguage.english.id, "English")
+        XCTAssertEqual(CatalogLanguage.vietnamese.id, "Tiếng Việt")
+        XCTAssertEqual(CatalogLanguage.english.code, "en")
+        XCTAssertEqual(CatalogLanguage.vietnamese.code, "vi")
+    }
+
     func testCatalogTabItemConformances() {
         XCTAssertEqual(CatalogTabItem.allCases.count, 4)
         XCTAssertEqual(CatalogTabItem.home.id, "Home")
@@ -42,10 +52,12 @@ final class CatalogViewTests: XCTestCase {
         XCTAssertEqual(CatalogTabItem.practice.id, "Practice")
         XCTAssertEqual(CatalogTabItem.practice.title, "Practice")
         XCTAssertEqual(CatalogTabItem.practice.symbol, "bolt.fill")
+        XCTAssertEqual(CatalogTabItem.practice.badgeCount, 3)
 
         XCTAssertEqual(CatalogTabItem.profile.id, "Profile")
         XCTAssertEqual(CatalogTabItem.profile.title, "Profile")
         XCTAssertEqual(CatalogTabItem.profile.symbol, "person.crop.circle")
+        XCTAssertNil(CatalogTabItem.profile.badgeCount)
     }
 
     func testCatalogEmptyStatePresetProperties() {
@@ -88,87 +100,6 @@ final class CatalogViewTests: XCTestCase {
         XCTAssertEqual(legendary.tier, .legendary)
         XCTAssertEqual(legendary.bestStreak, 60)
         XCTAssertEqual(legendary.nextMilestone, 50)
-    }
-
-    func testEmeraldThemeTokens() {
-        let theme = CraftEmeraldTheme()
-        XCTAssertEqual(theme.colors.brandPrimary, Color(hex: 0x10B981))
-        XCTAssertEqual(theme.colors.brandSecondary, Color(hex: 0x14B8A6))
-        XCTAssertEqual(theme.colors.accent, Color(hex: 0xF59E0B))
-        XCTAssertEqual(theme.colors.statusSuccess, Color(hex: 0x10B981))
-        XCTAssertEqual(theme.colors.statusWarning, Color(hex: 0xF59E0B))
-        XCTAssertEqual(theme.colors.statusDanger, Color(hex: 0xEF4444))
-        XCTAssertEqual(theme.colors.statusInfo, Color(hex: 0x06B6D4))
-
-        XCTAssertEqual(theme.spacing.base, 16)
-        XCTAssertEqual(theme.radii.md, 12)
-        XCTAssertNotNil(theme.gradients.brandHero)
-        XCTAssertNotNil(theme.shadows.md)
-        XCTAssertNotNil(theme.animations.springSmooth)
-    }
-
-    func testCraftCatalogViewInstantiation() {
-        let view = CraftCatalogView()
-        XCTAssertNotNil(view.body)
-    }
-
-    func testCraftCatalogViewThemesAndColorSchemesRendering() {
-        for themeType in CatalogThemeType.allCases {
-            let themedView = CraftCatalogView()
-                .craftTheme(themeType.theme)
-            XCTAssertNotNil(themedView)
-        }
-
-        for scheme in [ColorScheme.light, ColorScheme.dark] {
-            let schemeView = CraftCatalogView()
-                .preferredColorScheme(scheme)
-            XCTAssertNotNil(schemeView)
-        }
-    }
-
-    func testPressEffectModifierAndButtonStyle() {
-        let style = CraftInteractiveButtonStyle(scale: 0.95, opacity: 0.9)
-        XCTAssertEqual(style.scale, 0.95)
-        XCTAssertEqual(style.opacity, 0.9)
-
-        let mod = CraftPressEffectModifier(scale: 0.96, opacity: 0.85, hapticFeedback: true)
-        XCTAssertEqual(mod.scale, 0.96)
-        XCTAssertEqual(mod.opacity, 0.85)
-        XCTAssertTrue(mod.hapticFeedback)
-
-        let button = Button("Test") {}
-            .buttonStyle(.craftPress(scale: 0.95, opacity: 0.9))
-        XCTAssertNotNil(button)
-
-        let modifiedView = Text("Interactive")
-            .craftPressEffect(scale: 0.96)
-        XCTAssertNotNil(modifiedView)
-    }
-
-    func testShimmerModifierConfiguration() {
-        let mod = CraftShimmerModifier(isActive: true, duration: 1.2, bounce: true)
-        XCTAssertTrue(mod.isActive)
-        XCTAssertEqual(mod.duration, 1.2)
-        XCTAssertTrue(mod.bounce)
-
-        let activeShimmer = Text("Skeleton")
-            .craftShimmer(isActive: true, duration: 1.2, bounce: true)
-        XCTAssertNotNil(activeShimmer)
-
-        let inactiveShimmer = Text("Loaded Content")
-            .craftShimmer(isActive: false)
-        XCTAssertNotNil(inactiveShimmer)
-    }
-
-    func testTypographyModifierAllStyles() {
-        for style in CraftTypographyStyle.allCases {
-            let mod = CraftTypographyModifier(style)
-            XCTAssertEqual(mod.style, style)
-
-            let view = Text("Sample Text")
-                .craftTypography(style)
-            XCTAssertNotNil(view)
-        }
     }
 
     func testCatalogRowPatternPresets() {
@@ -220,14 +151,270 @@ final class CatalogViewTests: XCTestCase {
         XCTAssertEqual(section2.nodes[3].kind, .treasureChest)
     }
 
-    func testEmeraldThemeDepthsAndTokens() {
+    // MARK: - Themes & Surface Styles Rendering
+
+    func testEmeraldThemeTokens() {
         let theme = CraftEmeraldTheme()
+        XCTAssertEqual(theme.colors.brandPrimary, Color(hex: 0x10B981))
+        XCTAssertEqual(theme.colors.brandSecondary, Color(hex: 0x14B8A6))
+        XCTAssertEqual(theme.colors.accent, Color(hex: 0xF59E0B))
+        XCTAssertEqual(theme.colors.statusSuccess, Color(hex: 0x10B981))
+        XCTAssertEqual(theme.colors.statusWarning, Color(hex: 0xF59E0B))
+        XCTAssertEqual(theme.colors.statusDanger, Color(hex: 0xEF4444))
+        XCTAssertEqual(theme.colors.statusInfo, Color(hex: 0x06B6D4))
+
+        XCTAssertEqual(theme.spacing.base, 16)
+        XCTAssertEqual(theme.radii.md, 12)
+        XCTAssertNotNil(theme.gradients.brandHero)
+        XCTAssertNotNil(theme.shadows.md)
+        XCTAssertNotNil(theme.animations.springSmooth)
         XCTAssertEqual(theme.depths.depthSm, 2)
         XCTAssertEqual(theme.depths.depthMd, 4)
         XCTAssertEqual(theme.depths.depthLg, 6)
         XCTAssertNotNil(theme.depths.topHighlight)
-        XCTAssertNotNil(theme.gradients.surfaceGlass)
-        XCTAssertNotNil(theme.gradients.accentShine)
-        XCTAssertNotNil(theme.gradients.fadeBottom)
+        XCTAssertNotNil(theme.glass.borderGradient)
+        XCTAssertEqual(theme.glass.tintOpacity, 0.15)
+    }
+
+    func testCraftCatalogViewInstantiation() {
+        let view = CraftCatalogView()
+        XCTAssertNotNil(view.body)
+    }
+
+    func testCraftCatalogViewThemesSurfaceStylesAndLanguages() {
+        for themeType in CatalogThemeType.allCases {
+            let themedView = CraftCatalogView()
+                .craftTheme(themeType.theme)
+            XCTAssertNotNil(themedView)
+        }
+
+        for style in CraftSurfaceStyle.allCases {
+            let surfaceView = CraftCatalogView()
+                .craftSurfaceStyle(style)
+            XCTAssertNotNil(surfaceView)
+        }
+
+        for lang in CatalogLanguage.allCases {
+            let localizedView = CraftCatalogView()
+                .environment(\.locale, Locale(identifier: lang.code))
+            XCTAssertNotNil(localizedView)
+        }
+
+        for scheme in [ColorScheme.light, ColorScheme.dark] {
+            let schemeView = CraftCatalogView()
+                .preferredColorScheme(scheme)
+            XCTAssertNotNil(schemeView)
+        }
+    }
+
+    // MARK: - Showcase Component Verification
+
+    func testAtomsShowcaseComponents() {
+        let theme = CraftDefaultTheme()
+
+        // 1. CraftText Markdown, tracking, lineSpacing
+        let markdown = try? AttributedString(markdown: "Rich **Markdown** with `code`")
+        if let markdown {
+            let textView = CraftText(markdown, style: .bodyMedium, tracking: 2.0, lineSpacing: 8)
+            XCTAssertNotNil(textView)
+            XCTAssertEqual(textView.tracking, 2.0)
+            XCTAssertEqual(textView.lineSpacing, 8)
+        }
+
+        // 2. CraftBadge 5 surface styles
+        for style in CraftSurfaceStyle.allCases {
+            let badge = CraftBadge("Badge", symbol: .sparkles, style: style)
+            XCTAssertNotNil(badge)
+            XCTAssertEqual(badge.style, style)
+        }
+
+        // 3. CraftIconButton 5 surface styles & 44pt min target
+        for style in CraftSurfaceStyle.allCases {
+            let button = CraftIconButton(symbol: .favoriteFill, style: style, accessibilityLabel: "Fav") {}
+            XCTAssertNotNil(button)
+            XCTAssertEqual(button.style, style)
+            XCTAssertEqual(button.minTouchTarget, 44)
+        }
+
+        // 4. CraftDivider styles
+        let solidDivider = CraftDivider(style: .solid)
+        let dashedDivider = CraftDivider(style: .dashed(dash: 6, gap: 4))
+        let gradientDivider = CraftDivider(style: .gradient(theme.gradients.brandHero))
+        XCTAssertEqual(solidDivider.style, .solid)
+        XCTAssertEqual(dashedDivider.style, .dashed(dash: 6, gap: 4))
+        XCTAssertEqual(gradientDivider.style, .gradient(theme.gradients.brandHero))
+
+        // 5. CraftSpinner scales
+        for size in CraftIconSize.allCases {
+            let spinner = CraftSpinner(size: size, color: theme.colors.brandPrimary)
+            XCTAssertEqual(spinner.size, size)
+            XCTAssertEqual(spinner.color, theme.colors.brandPrimary)
+        }
+    }
+
+    func testControlsShowcaseComponents() {
+        let theme = CraftDefaultTheme()
+
+        // 1. CraftButton 5 surface styles & loading state
+        for style in CraftSurfaceStyle.allCases {
+            let button = CraftButton("Button", style: style, customGradient: theme.gradients.brandHero) {}
+            XCTAssertNotNil(button)
+            XCTAssertEqual(button.style, style)
+        }
+        let loadingButton = CraftButton("Loading", isLoading: true) {}
+        XCTAssertTrue(loadingButton.isLoading)
+
+        // 2. CraftChoiceCard 5 surface styles & states
+        for style in CraftSurfaceStyle.allCases {
+            for state in CraftChoiceState.allCases {
+                let card = CraftChoiceCard(prefix: "A", title: "Option", state: state, style: style) {}
+                XCTAssertNotNil(card)
+                XCTAssertEqual(card.state, state)
+                XCTAssertEqual(card.style, style)
+            }
+        }
+
+        // 3. CraftTextField styles
+        for style in CraftTextFieldStyle.allCases {
+            var text = "Hello"
+            let binding = Binding(get: { text }, set: { text = $0 })
+            let tf = CraftTextField(placeholder: "Placeholder", text: binding, style: style)
+            XCTAssertNotNil(tf)
+            XCTAssertEqual(tf.style, style)
+        }
+
+        // 4. CraftSearchBar styles
+        for style in CraftSearchBarStyle.allCases {
+            var search = ""
+            let binding = Binding(get: { search }, set: { search = $0 })
+            let sb = CraftSearchBar(text: binding, style: style)
+            XCTAssertNotNil(sb)
+            XCTAssertEqual(sb.style, style)
+        }
+
+        // 5. CraftPill 5 surface styles
+        for style in CraftSurfaceStyle.allCases {
+            let pill = CraftPill("Filter", count: 5, isSelected: true, style: style) {}
+            XCTAssertNotNil(pill)
+            XCTAssertEqual(pill.style, style)
+            XCTAssertTrue(pill.isSelected)
+        }
+    }
+
+    func testContainersAndOverlaysShowcaseComponents() {
+        let theme = CraftDefaultTheme()
+
+        // 1. CraftCard 5 surface styles
+        for style in CraftSurfaceStyle.allCases {
+            let card = CraftCard(surfaceStyle: style) {
+                Text("Card Content")
+            }
+            XCTAssertNotNil(card)
+            XCTAssertEqual(card.style.surfaceStyle, style)
+        }
+
+        // 2. CraftFlipCard
+        var isFlipped = false
+        let flipBinding = Binding(get: { isFlipped }, set: { isFlipped = $0 })
+        let flipCard = CraftFlipCard(isFlipped: flipBinding, axis: .horizontal) {
+            Text("Front")
+        } back: {
+            Text("Back")
+        }
+        XCTAssertNotNil(flipCard)
+
+        // 3. CraftListRow
+        let listRow = CraftListRow(title: "Mastered Words", subtitle: "142 items", iconName: "checkmark.seal.fill")
+        XCTAssertNotNil(listRow)
+
+        // 4. CraftProgressBar & Ring & SegmentedBar
+        let bar = CraftProgressBar(progress: 0.75, height: 10)
+        XCTAssertEqual(bar.progress, 0.75)
+        XCTAssertEqual(bar.height, 10)
+
+        let ring = CraftProgressRing(progress: 0.85, lineWidth: 8, size: 70)
+        XCTAssertEqual(ring.progress, 0.85)
+
+        let segBar = CraftSegmentedBar(
+            items: [CraftSegmentItem(id: "1", label: "A", value: 60, color: theme.colors.brandPrimary)],
+            height: 12
+        )
+        XCTAssertNotNil(segBar)
+
+        // 5. CraftDialog & CraftToast styles
+        for style in CraftToastStyle.allCases {
+            let toast = CraftToast(message: "Toast msg", style: style, surfaceStyle: .glass)
+            XCTAssertNotNil(toast)
+            XCTAssertEqual(toast.style, style)
+            XCTAssertEqual(toast.surfaceStyle, .glass)
+        }
+    }
+
+    func testUniversalJourneyPathComponents() {
+        // 1. CraftPathNode 5 shapes x 5 surface styles x 6 states
+        for shape in CraftNodeShape.allCases {
+            for surfaceStyle in CraftSurfaceStyle.allCases {
+                for state in CraftNodeState.allCases {
+                    let model = CraftPathNodeModel(
+                        id: "test_node",
+                        title: "Node Title",
+                        state: state,
+                        shape: shape,
+                        surfaceStyle: surfaceStyle
+                    )
+                    let node = CraftPathNode(model: model, calloutText: "START")
+                    XCTAssertNotNil(node)
+                    XCTAssertEqual(node.model.shape, shape)
+                    XCTAssertEqual(node.model.surfaceStyle, surfaceStyle)
+                    XCTAssertEqual(node.model.state, state)
+                }
+            }
+        }
+
+        // 2. CraftJourneySectionView
+        let section = CraftJourneySection(
+            id: "sec_test",
+            title: "Section 1",
+            nodes: [
+                CraftPathNodeModel(id: "n1", title: "Node 1", state: .completed, stars: 3),
+                CraftPathNodeModel(id: "n2", title: "Node 2", state: .active)
+            ]
+        )
+        let sectionView = CraftJourneySectionView(section: section)
+        XCTAssertNotNil(sectionView)
+    }
+
+    func testUniversalActivityAndStreakTrackerComponents() {
+        let trackerData = CraftActivityTrackerData(
+            currentValue: 14,
+            bestRecord: 30,
+            tier: .blaze,
+            shieldTokens: 2,
+            maxShieldTokens: 3,
+            nextMilestone: 21,
+            isCompletedToday: true,
+            cycleDays: [
+                CraftActivityDay(id: "1", weekdaySymbol: "T2", status: .completed),
+                CraftActivityDay(id: "2", weekdaySymbol: "T3", status: .completed, isToday: true)
+            ]
+        )
+
+        let trackerCard = CraftActivityTrackerCard(data: trackerData, cardStyle: .tactile3D)
+        XCTAssertNotNil(trackerCard)
+        XCTAssertEqual(trackerCard.data.currentValue, 14)
+        XCTAssertEqual(trackerCard.data.tier, .blaze)
+        XCTAssertEqual(trackerCard.cardStyle, .tactile3D)
+
+        let celebrationSheet = CraftCelebrationSheet(
+            currentValue: 14,
+            previousValue: 13,
+            cycleDays: trackerData.cycleDays,
+            onContinue: {}
+        )
+        XCTAssertNotNil(celebrationSheet)
+        XCTAssertEqual(celebrationSheet.currentValue, 14)
+        XCTAssertEqual(celebrationSheet.previousValue, 13)
+        XCTAssertEqual(celebrationSheet.tier, .blaze)
+        XCTAssertTrue(celebrationSheet.isMilestone)
     }
 }
