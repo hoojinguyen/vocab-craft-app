@@ -32,6 +32,7 @@ public struct CraftChoiceCard: View {
     public var title: String? { rawTitle }
     public var subtitle: String? { rawSubtitle }
     public let state: CraftChoiceState
+    public let style: CraftSurfaceStyle
     public let action: () -> Void
 
     public init(
@@ -39,6 +40,7 @@ public struct CraftChoiceCard: View {
         title: String,
         subtitle: String? = nil,
         state: CraftChoiceState = .idle,
+        style: CraftSurfaceStyle = .tactile3D,
         action: @escaping () -> Void
     ) {
         self.prefixKey = nil
@@ -48,6 +50,7 @@ public struct CraftChoiceCard: View {
         self.subtitleKey = nil
         self.rawSubtitle = subtitle
         self.state = state
+        self.style = style
         self.action = action
     }
 
@@ -56,6 +59,7 @@ public struct CraftChoiceCard: View {
         title: LocalizedStringKey,
         subtitle: LocalizedStringKey? = nil,
         state: CraftChoiceState = .idle,
+        style: CraftSurfaceStyle = .tactile3D,
         action: @escaping () -> Void
     ) {
         self.prefixKey = prefix
@@ -65,6 +69,7 @@ public struct CraftChoiceCard: View {
         self.subtitleKey = subtitle
         self.rawSubtitle = nil
         self.state = state
+        self.style = style
         self.action = action
     }
 
@@ -75,7 +80,7 @@ public struct CraftChoiceCard: View {
         }) {
             cardSurface
         }
-        .buttonStyle(CraftChoiceCardButtonStyle(state: state, depth: theme.depths.depthMd))
+        .buttonStyle(CraftChoiceCardButtonStyle(state: state, style: style, depth: theme.depths.depthMd))
         .disabled(state == .disabled)
         .scaleEffect(state == .correct && !reduceMotion ? 1.02 : 1.0)
         .modifier(ChoiceShakeEffect(shakes: shakeCount))
@@ -105,7 +110,7 @@ public struct CraftChoiceCard: View {
     }
 
     private var cardSurface: some View {
-        HStack(spacing: theme.spacing.md) {
+        let content = HStack(spacing: theme.spacing.md) {
             if prefixKey != nil || rawPrefix != nil {
                 prefixBadge
             }
@@ -146,20 +151,33 @@ public struct CraftChoiceCard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: theme.radii.lg))
-        .overlay(
-            RoundedRectangle(cornerRadius: theme.radii.lg)
-                .strokeBorder(borderColor, lineWidth: borderWidth)
-        )
+        .overlay(cardBorderOverlay)
         .overlay(topHighlightOverlay)
         .frame(minHeight: 44)
         .contentShape(Rectangle())
+
+        return applyCardShadow(content)
     }
 
     @ViewBuilder
     private var cardBackground: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: theme.radii.lg)
-                .fill(theme.colors.surfaceCard)
+            switch style {
+            case .glass:
+                RoundedRectangle(cornerRadius: theme.radii.lg)
+                    .fill(.ultraThinMaterial)
+                RoundedRectangle(cornerRadius: theme.radii.lg)
+                    .fill(theme.colors.surfaceCard.opacity(theme.glass.tintOpacity))
+            case .flat:
+                RoundedRectangle(cornerRadius: theme.radii.lg)
+                    .fill(theme.colors.surfaceSubtle)
+            case .elevated:
+                RoundedRectangle(cornerRadius: theme.radii.lg)
+                    .fill(theme.colors.surfaceElevated)
+            case .outlined, .tactile3D:
+                RoundedRectangle(cornerRadius: theme.radii.lg)
+                    .fill(theme.colors.surfaceCard)
+            }
 
             if state != .idle && state != .disabled {
                 RoundedRectangle(cornerRadius: theme.radii.lg)
@@ -182,13 +200,58 @@ public struct CraftChoiceCard: View {
     }
 
     @ViewBuilder
+    private var cardBorderOverlay: some View {
+        if state != .idle && state != .disabled {
+            RoundedRectangle(cornerRadius: theme.radii.lg)
+                .strokeBorder(borderColor, lineWidth: borderWidth)
+        } else {
+            switch style {
+            case .flat:
+                EmptyView()
+            case .elevated:
+                RoundedRectangle(cornerRadius: theme.radii.lg)
+                    .strokeBorder(
+                        LinearGradient(
+                            stops: [
+                                .init(color: .craftDynamic(light: Color.white.opacity(0.7), dark: Color.white.opacity(0.16)), location: 0.0),
+                                .init(color: .craftDynamic(light: theme.colors.hairline.opacity(0.4), dark: Color.white.opacity(0.04)), location: 0.5),
+                                .init(color: .clear, location: 1.0)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1
+                    )
+            case .outlined, .tactile3D:
+                RoundedRectangle(cornerRadius: theme.radii.lg)
+                    .strokeBorder(borderColor, lineWidth: borderWidth)
+            case .glass:
+                RoundedRectangle(cornerRadius: theme.radii.lg)
+                    .strokeBorder(theme.glass.borderGradient, lineWidth: 1)
+            }
+        }
+    }
+
+    @ViewBuilder
     private var topHighlightOverlay: some View {
-        if state != .disabled {
+        if state != .disabled && (style == .tactile3D || style == .glass) {
             RoundedRectangle(cornerRadius: theme.radii.lg)
                 .strokeBorder(
                     theme.depths.topHighlight,
-                    lineWidth: 1
+                    lineWidth: style == .glass ? 0.8 : 1
                 )
+        }
+    }
+
+    @ViewBuilder
+    private func applyCardShadow<V: View>(_ view: V) -> some View {
+        switch style {
+        case .elevated:
+            view.craftShadow(theme.shadows.md)
+        case .glass:
+            view.craftShadow(theme.shadows.sm)
+        case .flat, .outlined, .tactile3D:
+            view
         }
     }
 
@@ -255,13 +318,13 @@ public struct CraftChoiceCard: View {
         case .idle:
             return ""
         case .selected:
-            return "Selected"
+            return CraftLocalized.string("craft.choice.selected")
         case .correct:
-            return "Correct Answer"
+            return CraftLocalized.string("craft.choice.correct")
         case .wrong:
-            return "Incorrect Answer"
+            return CraftLocalized.string("craft.choice.wrong")
         case .disabled:
-            return "Disabled"
+            return CraftLocalized.string("craft.choice.disabled")
         }
     }
 
@@ -344,9 +407,9 @@ public struct CraftChoiceCard: View {
         case .selected:
             return theme.colors.brandSecondary
         case .correct:
-            return Color(hex: 0x059669)
+            return theme.colors.statusSuccess
         case .wrong:
-            return Color(hex: 0xDC2626)
+            return theme.colors.statusDanger
         case .disabled:
             return .clear
         }
@@ -368,30 +431,33 @@ public struct CraftChoiceCard: View {
 
 public struct CraftChoiceCardButtonStyle: ButtonStyle {
     public let state: CraftChoiceState
+    public let style: CraftSurfaceStyle
     public let depth: CGFloat
     @Environment(\.craftTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    public init(state: CraftChoiceState = .idle, depth: CGFloat = 4) {
+    public init(state: CraftChoiceState = .idle, style: CraftSurfaceStyle = .tactile3D, depth: CGFloat = 4) {
         self.state = state
+        self.style = style
         self.depth = depth
     }
 
     public func makeBody(configuration: Configuration) -> some View {
         let isPressed = configuration.isPressed && state != .disabled
-        let depressOffset = isPressed ? depth : 0
+        let isTactile = style == .tactile3D
+        let depressOffset = (isPressed && isTactile) ? depth : 0
 
         configuration.label
             .offset(y: depressOffset)
             .background {
-                if state != .disabled {
+                if state != .disabled && isTactile {
                     RoundedRectangle(cornerRadius: theme.radii.lg)
                         .fill(bottomLipColor)
                         .offset(y: depth)
                 }
             }
-            .padding(.bottom, state == .disabled ? 0 : depth)
-            .scaleEffect(isPressed && !reduceMotion ? 0.99 : 1.0)
+            .padding(.bottom, (state == .disabled || !isTactile) ? 0 : depth)
+            .scaleEffect(isPressed && !reduceMotion ? (isTactile ? 0.99 : 0.98) : 1.0)
             .animation(theme.animations.springSnappy, value: isPressed)
             .frame(minHeight: 44)
             .contentShape(Rectangle())
@@ -413,9 +479,9 @@ public struct CraftChoiceCardButtonStyle: ButtonStyle {
         case .selected:
             return theme.colors.brandSecondary
         case .correct:
-            return Color(hex: 0x059669)
+            return theme.colors.statusSuccess
         case .wrong:
-            return Color(hex: 0xDC2626)
+            return theme.colors.statusDanger
         case .disabled:
             return .clear
         }

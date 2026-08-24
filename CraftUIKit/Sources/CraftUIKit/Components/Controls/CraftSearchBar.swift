@@ -6,6 +6,7 @@ import SwiftUI
 public enum CraftSearchBarStyle: String, Sendable, CaseIterable {
     case standard
     case recessed
+    case glass
 }
 
 /// Border geometry shape for CraftSearchBar.
@@ -112,7 +113,7 @@ public struct CraftSearchBar: View {
                         CraftIcon(.wrongCircle, size: .sm, color: theme.colors.textMuted)
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("Clear search")
+                    .accessibilityLabel(CraftLocalized.string("craft.search.clearA11y"))
                 }
 
                 if let trailingIcon, let trailingAction {
@@ -129,7 +130,7 @@ public struct CraftSearchBar: View {
             .clipShape(searchShape)
             .overlay(borderOverlay)
             .shadow(
-                color: isFocused ? theme.colors.borderFocus.opacity(style == .recessed ? 0.25 : 0.12) : Color.clear,
+                color: isFocused ? theme.colors.borderFocus.opacity(style == .recessed ? 0.25 : 0.12) : (style == .glass ? Color.black.opacity(0.04) : Color.clear),
                 radius: style == .recessed ? 6 : 4,
                 x: 0,
                 y: 0
@@ -142,7 +143,7 @@ public struct CraftSearchBar: View {
                     isFocused = false
                     onCancel?()
                 }) {
-                    Text("Cancel")
+                    Text(CraftLocalized.string("craft.action.cancel"))
                         .font(theme.typography.bodyMedium)
                         .foregroundStyle(theme.colors.brandPrimary)
                 }
@@ -169,6 +170,11 @@ public struct CraftSearchBar: View {
                     endPoint: .bottom
                 )
             }
+        case .glass:
+            ZStack {
+                searchShape.fill(.ultraThinMaterial)
+                searchShape.fill(theme.colors.surfaceCard.opacity(theme.glass.tintOpacity))
+            }
         }
     }
 
@@ -183,16 +189,39 @@ public struct CraftSearchBar: View {
 
     @ViewBuilder
     private var borderOverlay: some View {
-        let strokeColor = isFocused ? theme.colors.borderFocus : (style == .recessed ? theme.colors.hairline : theme.colors.borderDefault)
         let strokeWidth: CGFloat = isFocused ? 1.5 : 1.0
 
+        if isFocused {
+            shapeStroke(color: theme.colors.borderFocus, width: strokeWidth)
+        } else {
+            switch style {
+            case .standard:
+                shapeStroke(color: theme.colors.borderDefault, width: strokeWidth)
+            case .recessed:
+                shapeStroke(color: theme.colors.hairline, width: strokeWidth)
+            case .glass:
+                shapeStroke(gradient: theme.glass.borderGradient, width: strokeWidth)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func shapeStroke(color: Color, width: CGFloat) -> some View {
         switch shape {
         case .capsule:
-            Capsule()
-                .strokeBorder(strokeColor, lineWidth: strokeWidth)
+            Capsule().strokeBorder(color, lineWidth: width)
         case .roundedRectangle(let radius):
-            RoundedRectangle(cornerRadius: radius)
-                .strokeBorder(strokeColor, lineWidth: strokeWidth)
+            RoundedRectangle(cornerRadius: radius).strokeBorder(color, lineWidth: width)
+        }
+    }
+
+    @ViewBuilder
+    private func shapeStroke(gradient: LinearGradient, width: CGFloat) -> some View {
+        switch shape {
+        case .capsule:
+            Capsule().strokeBorder(gradient, lineWidth: width)
+        case .roundedRectangle(let radius):
+            RoundedRectangle(cornerRadius: radius).strokeBorder(gradient, lineWidth: width)
         }
     }
 }

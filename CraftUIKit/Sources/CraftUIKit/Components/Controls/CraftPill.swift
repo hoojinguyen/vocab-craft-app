@@ -6,16 +6,23 @@ import SwiftUI
 public struct CraftPill: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.craftSurfaceStyle) private var envStyle
 
     private let titleKey: LocalizedStringKey?
     private let rawTitle: String?
     public let iconName: String?
     public let count: Int?
     public let isSelected: Bool
+    public let style: CraftSurfaceStyle?
+    public let customTint: Color?
     public let action: () -> Void
 
     public var title: String? {
         rawTitle
+    }
+
+    public var resolvedStyle: CraftSurfaceStyle {
+        style ?? envStyle
     }
 
     public init(
@@ -23,6 +30,8 @@ public struct CraftPill: View {
         iconName: String? = nil,
         count: Int? = nil,
         isSelected: Bool = false,
+        style: CraftSurfaceStyle? = nil,
+        customTint: Color? = nil,
         action: @escaping () -> Void
     ) {
         self.titleKey = nil
@@ -30,6 +39,8 @@ public struct CraftPill: View {
         self.iconName = iconName
         self.count = count
         self.isSelected = isSelected
+        self.style = style
+        self.customTint = customTint
         self.action = action
     }
 
@@ -38,6 +49,8 @@ public struct CraftPill: View {
         iconName: String? = nil,
         count: Int? = nil,
         isSelected: Bool = false,
+        style: CraftSurfaceStyle? = nil,
+        customTint: Color? = nil,
         action: @escaping () -> Void
     ) {
         self.titleKey = titleKey
@@ -45,53 +58,54 @@ public struct CraftPill: View {
         self.iconName = iconName
         self.count = count
         self.isSelected = isSelected
+        self.style = style
+        self.customTint = customTint
         self.action = action
     }
 
     public var body: some View {
         Button(action: action) {
-            HStack(spacing: theme.spacing.xs) {
-                // Leading Icon Slot
-                if let iconName {
-                    CraftIcon(iconName, size: .sm, color: foregroundColor)
-                }
+            applyShadow(
+                HStack(spacing: theme.spacing.xs) {
+                    // Leading Icon Slot
+                    if let iconName {
+                        CraftIcon(iconName, size: .sm, color: foregroundColor)
+                    }
 
-                // Label Text
-                if let titleKey {
-                    Text(titleKey)
-                        .font(theme.typography.label)
-                        .fontWeight(isSelected ? .semibold : .regular)
-                        .foregroundStyle(foregroundColor)
-                } else if let rawTitle {
-                    Text(rawTitle)
-                        .font(theme.typography.label)
-                        .fontWeight(isSelected ? .semibold : .regular)
-                        .foregroundStyle(foregroundColor)
-                }
+                    // Label Text
+                    if let titleKey {
+                        Text(titleKey)
+                            .font(theme.typography.label)
+                            .fontWeight(isSelected ? .semibold : .regular)
+                            .foregroundStyle(foregroundColor)
+                    } else if let rawTitle {
+                        Text(rawTitle)
+                            .font(theme.typography.label)
+                            .fontWeight(isSelected ? .semibold : .regular)
+                            .foregroundStyle(foregroundColor)
+                    }
 
-                // Optional Count Badge
-                if let count {
-                    Text("\(count)")
-                        .font(theme.typography.caption)
-                        .fontWeight(.bold)
-                        .contentTransition(.numericText())
-                        .padding(.horizontal, theme.spacing.sm)
-                        .padding(.vertical, theme.spacing.xs)
-                        .background(countBadgeBackground)
-                        .foregroundStyle(countBadgeForeground)
-                        .clipShape(Capsule())
+                    // Optional Count Badge
+                    if let count {
+                        Text("\(count)")
+                            .font(theme.typography.caption)
+                            .fontWeight(.bold)
+                            .contentTransition(.numericText())
+                            .padding(.horizontal, theme.spacing.sm)
+                            .padding(.vertical, theme.spacing.xs)
+                            .background(countBadgeBackground)
+                            .foregroundStyle(countBadgeForeground)
+                            .clipShape(Capsule())
+                    }
                 }
-            }
-            .padding(.horizontal, theme.spacing.md)
-            .padding(.vertical, theme.spacing.sm)
-            .background(backgroundFill)
-            .clipShape(Capsule())
-            .overlay(
-                Capsule()
-                    .strokeBorder(borderColor, lineWidth: isSelected ? 1.5 : 1.0)
+                .padding(.horizontal, theme.spacing.md)
+                .padding(.vertical, theme.spacing.sm)
+                .background(backgroundFill)
+                .clipShape(Capsule())
+                .overlay(borderOverlay)
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
             )
-            .frame(minHeight: 44)
-            .contentShape(Rectangle())
         }
         .buttonStyle(.craftPress(scale: 0.95))
         .opacity(isEnabled ? 1.0 : 0.5)
@@ -101,28 +115,97 @@ public struct CraftPill: View {
 
     private var foregroundColor: Color {
         if isSelected {
-            return theme.colors.brandPrimary
+            return customTint ?? theme.colors.brandPrimary
         }
         return theme.colors.textSecondary
     }
 
-    private var backgroundFill: Color {
+    @ViewBuilder
+    private var backgroundFill: some View {
+        let activeColor = customTint ?? theme.colors.brandPrimary
         if isSelected {
-            return theme.colors.brandPrimary.opacity(0.12)
+            if resolvedStyle == .glass {
+                ZStack {
+                    Capsule().fill(.ultraThinMaterial)
+                    Capsule().fill(activeColor.opacity(0.18))
+                }
+            } else {
+                activeColor.opacity(0.12)
+            }
+        } else {
+            switch resolvedStyle {
+            case .glass:
+                ZStack {
+                    Capsule().fill(.ultraThinMaterial)
+                    Capsule().fill(theme.colors.surfaceCard.opacity(theme.glass.tintOpacity))
+                }
+            case .flat:
+                theme.colors.surfaceSubtle
+            case .elevated:
+                theme.colors.surfaceElevated
+            case .outlined, .tactile3D:
+                theme.colors.surfaceCard
+            }
         }
-        return theme.colors.surfaceSubtle
     }
 
-    private var borderColor: Color {
+    @ViewBuilder
+    private var borderOverlay: some View {
+        let activeColor = customTint ?? theme.colors.brandPrimary
         if isSelected {
-            return theme.colors.brandPrimary
+            if resolvedStyle == .glass {
+                ZStack {
+                    Capsule().strokeBorder(theme.glass.borderGradient, lineWidth: 1.5)
+                    Capsule().strokeBorder(activeColor.opacity(0.4), lineWidth: 1.5)
+                }
+            } else {
+                Capsule().strokeBorder(activeColor, lineWidth: 1.5)
+            }
+        } else {
+            switch resolvedStyle {
+            case .flat:
+                Capsule().strokeBorder(theme.colors.borderDefault, lineWidth: 1.0)
+            case .elevated:
+                Capsule().strokeBorder(
+                    LinearGradient(
+                        stops: [
+                            .init(color: .craftDynamic(light: Color.white.opacity(0.7), dark: Color.white.opacity(0.16)), location: 0.0),
+                            .init(color: .craftDynamic(light: theme.colors.hairline.opacity(0.4), dark: Color.white.opacity(0.04)), location: 0.5),
+                            .init(color: .clear, location: 1.0)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1.0
+                )
+            case .outlined:
+                Capsule().strokeBorder(theme.colors.borderDefault, lineWidth: 1.0)
+            case .tactile3D:
+                ZStack {
+                    Capsule().strokeBorder(theme.colors.borderDefault, lineWidth: 1.0)
+                    Capsule().strokeBorder(theme.depths.topHighlight, lineWidth: 1.0)
+                }
+            case .glass:
+                Capsule().strokeBorder(theme.glass.borderGradient, lineWidth: 1.0)
+            }
         }
-        return theme.colors.borderDefault
+    }
+
+    @ViewBuilder
+    private func applyShadow<V: View>(_ view: V) -> some View {
+        switch resolvedStyle {
+        case .elevated:
+            view.craftShadow(theme.shadows.sm)
+        case .glass:
+            view.craftShadow(theme.shadows.sm)
+        case .flat, .outlined, .tactile3D:
+            view
+        }
     }
 
     private var countBadgeBackground: Color {
         if isSelected {
-            return theme.colors.brandPrimary
+            return customTint ?? theme.colors.brandPrimary
         }
         return theme.colors.borderDefault
     }

@@ -1,5 +1,15 @@
 import SwiftUI
 
+// MARK: - TextField Style
+
+/// Visual style variants for `CraftTextField`.
+public enum CraftTextFieldStyle: String, Sendable, Equatable, CaseIterable {
+    case standard
+    case recessed
+    case underlined
+    case glass
+}
+
 // MARK: - CraftTextField Component
 
 /// A refined, accessible text input field supporting focus glow, error states, helper text, and icon slots.
@@ -27,6 +37,7 @@ public struct CraftTextField: View {
     public let leadingIcon: String?
     public let isSecure: Bool
     public let showClearButton: Bool
+    public let style: CraftTextFieldStyle
 
     /// Indicates whether the text field is in an error state.
     public var hasError: Bool {
@@ -47,7 +58,8 @@ public struct CraftTextField: View {
         errorMessage: String? = nil,
         leadingIcon: String? = nil,
         isSecure: Bool = false,
-        showClearButton: Bool = true
+        showClearButton: Bool = true,
+        style: CraftTextFieldStyle = .standard
     ) {
         self.placeholderKey = nil
         self.rawPlaceholder = placeholder
@@ -61,6 +73,7 @@ public struct CraftTextField: View {
         self.leadingIcon = leadingIcon
         self.isSecure = isSecure
         self.showClearButton = showClearButton
+        self.style = style
     }
 
     public init(
@@ -71,7 +84,8 @@ public struct CraftTextField: View {
         errorMessage: LocalizedStringKey? = nil,
         leadingIcon: String? = nil,
         isSecure: Bool = false,
-        showClearButton: Bool = true
+        showClearButton: Bool = true,
+        style: CraftTextFieldStyle = .standard
     ) {
         self.placeholderKey = placeholderKey
         self.rawPlaceholder = nil
@@ -85,6 +99,7 @@ public struct CraftTextField: View {
         self.leadingIcon = leadingIcon
         self.isSecure = isSecure
         self.showClearButton = showClearButton
+        self.style = style
     }
 
     public var body: some View {
@@ -148,21 +163,18 @@ public struct CraftTextField: View {
                         CraftIcon(.wrongCircle, size: .sm, color: theme.colors.textMuted)
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("Clear text")
+                    .accessibilityLabel(CraftLocalized.string("craft.search.clearA11y"))
                 }
             }
-            .padding(.horizontal, theme.spacing.md)
+            .padding(.horizontal, style == .underlined ? 0 : theme.spacing.md)
             .padding(.vertical, theme.spacing.xs)
             .frame(minHeight: 44)
-            .background(theme.colors.surfaceCard)
-            .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
-            .overlay(
-                RoundedRectangle(cornerRadius: theme.radii.md)
-                    .strokeBorder(borderColor, lineWidth: borderWidth)
-            )
+            .background(inputBackground)
+            .clipShape(inputClipShape)
+            .overlay(inputBorderOverlay)
             .shadow(
-                color: isFocused ? theme.colors.borderFocus.opacity(0.12) : Color.clear,
-                radius: 4,
+                color: isFocused ? theme.colors.borderFocus.opacity(style == .recessed ? 0.25 : 0.12) : Color.clear,
+                radius: style == .recessed ? 6 : 4,
                 x: 0,
                 y: 0
             )
@@ -196,6 +208,69 @@ public struct CraftTextField: View {
                     .font(theme.typography.caption)
                     .foregroundStyle(theme.colors.textMuted)
             }
+        }
+    }
+
+    @ViewBuilder
+    private var inputBackground: some View {
+        switch style {
+        case .standard:
+            theme.colors.surfaceCard
+        case .recessed:
+            ZStack {
+                theme.colors.surfaceSubtle.opacity(0.6)
+                LinearGradient(
+                    colors: [
+                        Color.black.opacity(0.15),
+                        Color.clear
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            }
+        case .underlined:
+            Color.clear
+        case .glass:
+            ZStack {
+                RoundedRectangle(cornerRadius: theme.radii.md)
+                    .fill(.ultraThinMaterial)
+                RoundedRectangle(cornerRadius: theme.radii.md)
+                    .fill(theme.colors.surfaceCard.opacity(theme.glass.tintOpacity))
+            }
+        }
+    }
+
+    private var inputClipShape: some Shape {
+        if style == .underlined {
+            return AnyShape(Rectangle())
+        } else {
+            return AnyShape(RoundedRectangle(cornerRadius: theme.radii.md))
+        }
+    }
+
+    @ViewBuilder
+    private var inputBorderOverlay: some View {
+        if style == .underlined {
+            VStack {
+                Spacer()
+                Rectangle()
+                    .fill(borderColor)
+                    .frame(height: borderWidth)
+            }
+        } else if style == .glass {
+            if isFocused {
+                RoundedRectangle(cornerRadius: theme.radii.md)
+                    .strokeBorder(theme.colors.borderFocus, lineWidth: borderWidth)
+            } else {
+                RoundedRectangle(cornerRadius: theme.radii.md)
+                    .strokeBorder(theme.glass.borderGradient, lineWidth: borderWidth)
+            }
+        } else if style == .recessed {
+            RoundedRectangle(cornerRadius: theme.radii.md)
+                .strokeBorder(isFocused ? theme.colors.borderFocus : theme.colors.hairline, lineWidth: borderWidth)
+        } else {
+            RoundedRectangle(cornerRadius: theme.radii.md)
+                .strokeBorder(borderColor, lineWidth: borderWidth)
         }
     }
 

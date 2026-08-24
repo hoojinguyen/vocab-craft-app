@@ -8,9 +8,20 @@ public struct CraftToggleStyle: ToggleStyle {
     @Environment(\.isEnabled) private var isEnabled
 
     public let showsLabel: Bool
+    public let activeTint: Color?
+    public let inactiveTint: Color?
+    public let style: CraftSurfaceStyle
 
-    public init(showsLabel: Bool = true) {
+    public init(
+        showsLabel: Bool = true,
+        activeTint: Color? = nil,
+        inactiveTint: Color? = nil,
+        style: CraftSurfaceStyle = .flat
+    ) {
         self.showsLabel = showsLabel
+        self.activeTint = activeTint
+        self.inactiveTint = inactiveTint
+        self.style = style
     }
 
     public func makeBody(configuration: Configuration) -> some View {
@@ -47,16 +58,30 @@ public struct CraftToggleStyle: ToggleStyle {
     private func switchControl(isOn: Bool) -> some View {
         ZStack(alignment: isOn ? .trailing : .leading) {
             // Track
-            Capsule()
-                .fill(isOn ? theme.colors.brandPrimary : theme.colors.surfaceSubtle)
-                .frame(width: 48, height: 28)
-                .overlay(
-                    Capsule()
-                        .strokeBorder(
-                            isOn ? Color.clear : theme.colors.borderDefault,
-                            lineWidth: 1
-                        )
-                )
+            if style == .glass && !isOn && inactiveTint == nil {
+                Capsule()
+                    .fill(.ultraThinMaterial)
+                    .frame(width: 48, height: 28)
+                    .overlay(
+                        Capsule()
+                            .fill(theme.colors.surfaceSubtle.opacity(theme.glass.tintOpacity))
+                    )
+                    .overlay(
+                        Capsule()
+                            .strokeBorder(theme.glass.borderGradient, lineWidth: 1)
+                    )
+            } else {
+                Capsule()
+                    .fill(trackFill(isOn: isOn))
+                    .frame(width: 48, height: 28)
+                    .overlay(
+                        Capsule()
+                            .strokeBorder(
+                                trackBorder(isOn: isOn),
+                                lineWidth: 1
+                            )
+                    )
+            }
 
             // Thumb
             Circle()
@@ -66,6 +91,22 @@ public struct CraftToggleStyle: ToggleStyle {
                 .shadow(color: Color.black.opacity(0.12), radius: 2, x: 0, y: 1)
         }
         .frame(width: 48, height: 28)
+    }
+
+    private func trackFill(isOn: Bool) -> Color {
+        if isOn {
+            return activeTint ?? theme.colors.brandPrimary
+        } else {
+            return inactiveTint ?? theme.colors.surfaceSubtle
+        }
+    }
+
+    private func trackBorder(isOn: Bool) -> Color {
+        if isOn {
+            return Color.clear
+        } else {
+            return theme.colors.borderDefault
+        }
     }
 }
 
@@ -77,9 +118,27 @@ public extension ToggleStyle where Self == CraftToggleStyle {
         CraftToggleStyle(showsLabel: true)
     }
 
+    /// Applies a customizable theme-colored Craft toggle style with full row label and switch.
+    static func craft(
+        activeTint: Color? = nil,
+        inactiveTint: Color? = nil,
+        style: CraftSurfaceStyle = .flat
+    ) -> CraftToggleStyle {
+        CraftToggleStyle(showsLabel: true, activeTint: activeTint, inactiveTint: inactiveTint, style: style)
+    }
+
     /// Applies a standalone switch-only Craft toggle style without label or row spacer.
     static var craftSwitch: CraftToggleStyle {
         CraftToggleStyle(showsLabel: false)
+    }
+
+    /// Applies a customizable standalone switch-only Craft toggle style.
+    static func craftSwitch(
+        activeTint: Color? = nil,
+        inactiveTint: Color? = nil,
+        style: CraftSurfaceStyle = .flat
+    ) -> CraftToggleStyle {
+        CraftToggleStyle(showsLabel: false, activeTint: activeTint, inactiveTint: inactiveTint, style: style)
     }
 }
 
@@ -88,15 +147,26 @@ public extension ToggleStyle where Self == CraftToggleStyle {
 /// A standalone theme-colored switch control without row label.
 public struct CraftSwitch: View {
     @Binding public var isOn: Bool
+    public let activeTint: Color?
+    public let inactiveTint: Color?
+    public let style: CraftSurfaceStyle
 
-    public init(isOn: Binding<Bool>) {
+    public init(
+        isOn: Binding<Bool>,
+        activeTint: Color? = nil,
+        inactiveTint: Color? = nil,
+        style: CraftSurfaceStyle = .flat
+    ) {
         self._isOn = isOn
+        self.activeTint = activeTint
+        self.inactiveTint = inactiveTint
+        self.style = style
     }
 
     public var body: some View {
         Toggle("", isOn: $isOn)
             .labelsHidden()
-            .toggleStyle(.craftSwitch)
+            .toggleStyle(.craftSwitch(activeTint: activeTint, inactiveTint: inactiveTint, style: style))
     }
 }
 
@@ -113,6 +183,9 @@ public struct CraftToggle: View {
     private let subtitleKey: LocalizedStringKey?
     private let rawSubtitle: String?
     public let iconName: String?
+    public let activeTint: Color?
+    public let inactiveTint: Color?
+    public let style: CraftSurfaceStyle
 
     public var title: String? { rawTitle }
     public var subtitle: String? { rawSubtitle }
@@ -121,7 +194,10 @@ public struct CraftToggle: View {
         isOn: Binding<Bool>,
         title: String,
         subtitle: String? = nil,
-        iconName: String? = nil
+        iconName: String? = nil,
+        activeTint: Color? = nil,
+        inactiveTint: Color? = nil,
+        style: CraftSurfaceStyle = .flat
     ) {
         self.isOn = isOn
         self.titleKey = nil
@@ -129,13 +205,19 @@ public struct CraftToggle: View {
         self.subtitleKey = nil
         self.rawSubtitle = subtitle
         self.iconName = iconName
+        self.activeTint = activeTint
+        self.inactiveTint = inactiveTint
+        self.style = style
     }
 
     public init(
         isOn: Binding<Bool>,
         title: LocalizedStringKey,
         subtitle: LocalizedStringKey? = nil,
-        iconName: String? = nil
+        iconName: String? = nil,
+        activeTint: Color? = nil,
+        inactiveTint: Color? = nil,
+        style: CraftSurfaceStyle = .flat
     ) {
         self.isOn = isOn
         self.titleKey = title
@@ -143,6 +225,9 @@ public struct CraftToggle: View {
         self.subtitleKey = subtitle
         self.rawSubtitle = nil
         self.iconName = iconName
+        self.activeTint = activeTint
+        self.inactiveTint = inactiveTint
+        self.style = style
     }
 
     public var body: some View {
@@ -157,7 +242,7 @@ public struct CraftToggle: View {
                     CraftIcon(
                         iconName,
                         size: .lg,
-                        color: isOn.wrappedValue ? theme.colors.brandPrimary : theme.colors.textMuted
+                        color: isOn.wrappedValue ? (activeTint ?? theme.colors.brandPrimary) : theme.colors.textMuted
                     )
                 }
 
@@ -188,16 +273,30 @@ public struct CraftToggle: View {
                 // Switch Visual Indicator
                 ZStack(alignment: isOn.wrappedValue ? .trailing : .leading) {
                     // Track
-                    Capsule()
-                        .fill(isOn.wrappedValue ? theme.colors.brandPrimary : theme.colors.surfaceSubtle)
-                        .frame(width: 48, height: 28)
-                        .overlay(
-                            Capsule()
-                                .strokeBorder(
-                                    isOn.wrappedValue ? Color.clear : theme.colors.borderDefault,
-                                    lineWidth: 1
-                                )
-                        )
+                    if style == .glass && !isOn.wrappedValue && inactiveTint == nil {
+                        Capsule()
+                            .fill(.ultraThinMaterial)
+                            .frame(width: 48, height: 28)
+                            .overlay(
+                                Capsule()
+                                    .fill(theme.colors.surfaceSubtle.opacity(theme.glass.tintOpacity))
+                            )
+                            .overlay(
+                                Capsule()
+                                    .strokeBorder(theme.glass.borderGradient, lineWidth: 1)
+                            )
+                    } else {
+                        Capsule()
+                            .fill(isOn.wrappedValue ? (activeTint ?? theme.colors.brandPrimary) : (inactiveTint ?? theme.colors.surfaceSubtle))
+                            .frame(width: 48, height: 28)
+                            .overlay(
+                                Capsule()
+                                    .strokeBorder(
+                                        isOn.wrappedValue ? Color.clear : theme.colors.borderDefault,
+                                        lineWidth: 1
+                                    )
+                            )
+                    }
 
                     // Thumb
                     Circle()

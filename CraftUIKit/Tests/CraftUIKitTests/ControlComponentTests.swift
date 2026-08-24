@@ -414,4 +414,277 @@ final class ControlComponentTests: XCTestCase {
         pill.action()
         XCTAssertTrue(tapped)
     }
+
+    // MARK: - Upgraded Controls Surface Styles & Zero Hardcoding Tests
+
+    func testButtonSurfaceStylesAndCustomGradients() {
+        let gradient = LinearGradient(
+            colors: [.blue, .purple],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        let glassButton = CraftButton(
+            "Glass Button",
+            variant: .primary,
+            style: .glass,
+            customTint: .blue,
+            customGradient: gradient
+        ) {}
+
+        XCTAssertEqual(glassButton.style, .glass)
+        XCTAssertEqual(glassButton.customTint, .blue)
+        XCTAssertNotNil(glassButton.customGradient)
+        XCTAssertNotNil(glassButton.body)
+
+        // Test all 5 surface styles rendering on CraftButton
+        for surfaceStyle in CraftSurfaceStyle.allCases {
+            let btn = CraftButton(
+                "Style \(surfaceStyle.rawValue)",
+                style: surfaceStyle,
+                customTint: .teal
+            ) {}
+            XCTAssertEqual(btn.style, surfaceStyle)
+            XCTAssertNotNil(btn.body)
+        }
+
+        // Test native button styles with style and gradient
+        let nativeGlass = Button("Native Glass") {}.buttonStyle(.craftGlass(customTint: .pink, customGradient: gradient))
+        XCTAssertNotNil(nativeGlass)
+
+        let nativePrimaryStyled = Button("Native Styled") {}.buttonStyle(.craftPrimary(style: .elevated, customTint: .indigo))
+        XCTAssertNotNil(nativePrimaryStyled)
+    }
+
+    func testButtonLoadingAccessibility() {
+        let loadingBtn = CraftButton("Submit", isLoading: true) {}
+        XCTAssertTrue(loadingBtn.isLoading)
+        XCTAssertNotNil(loadingBtn.body)
+
+        let localizedLoadingBtn = CraftButton(LocalizedStringKey("submit_key"), isLoading: true) {}
+        XCTAssertTrue(localizedLoadingBtn.isLoading)
+        XCTAssertNotNil(localizedLoadingBtn.body)
+
+        let loadingString = CraftLocalized.string("craft.button.loadingA11y")
+        XCTAssertEqual(loadingString, "Loading")
+        let viLoadingString = CraftLocalized.string("craft.button.loadingA11y", language: "vi")
+        XCTAssertEqual(viLoadingString, "Đang tải")
+    }
+
+    func testChoiceCardAllFiveSurfaceStyles() {
+        for style in CraftSurfaceStyle.allCases {
+            for state in CraftChoiceState.allCases {
+                let card = CraftChoiceCard(
+                    prefix: "A",
+                    title: "Choice in \(style.rawValue)",
+                    subtitle: "Subtitle for \(state.rawValue)",
+                    state: state,
+                    style: style
+                ) {}
+                XCTAssertEqual(card.style, style)
+                XCTAssertEqual(card.state, state)
+                XCTAssertNotNil(card.body)
+            }
+        }
+    }
+
+    func testChoiceCardZeroHardcodingAndLocalization() {
+        let selectedA11y = CraftLocalized.string("craft.choice.selected")
+        XCTAssertEqual(selectedA11y, "Selected")
+
+        let correctA11y = CraftLocalized.string("craft.choice.correct")
+        XCTAssertEqual(correctA11y, "Correct Answer")
+
+        let wrongA11y = CraftLocalized.string("craft.choice.wrong")
+        XCTAssertEqual(wrongA11y, "Incorrect Answer")
+
+        let disabledA11y = CraftLocalized.string("craft.choice.disabled")
+        XCTAssertEqual(disabledA11y, "Disabled")
+
+        // Test Vietnamese localization
+        XCTAssertEqual(CraftLocalized.string("craft.choice.selected", language: "vi"), "Đã chọn")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.correct", language: "vi"), "Đáp án đúng")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.wrong", language: "vi"), "Đáp án chưa đúng")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.disabled", language: "vi"), "Vô hiệu hóa")
+    }
+
+    func testTextFieldStylesEnumAndRendering() {
+        XCTAssertEqual(CraftTextFieldStyle.allCases.count, 4)
+        XCTAssertTrue(CraftTextFieldStyle.allCases.contains(.standard))
+        XCTAssertTrue(CraftTextFieldStyle.allCases.contains(.recessed))
+        XCTAssertTrue(CraftTextFieldStyle.allCases.contains(.underlined))
+        XCTAssertTrue(CraftTextFieldStyle.allCases.contains(.glass))
+
+        for style in CraftTextFieldStyle.allCases {
+            var text = "Test Input"
+            let field = CraftTextField(
+                placeholder: "Placeholder",
+                text: Binding(get: { text }, set: { text = $0 }),
+                label: "Label",
+                helperText: "Helper",
+                errorMessage: nil,
+                leadingIcon: "magnifyingglass",
+                isSecure: false,
+                style: style
+            )
+            XCTAssertEqual(field.style, style)
+            XCTAssertNotNil(field.body)
+
+            let secureField = CraftTextField(
+                placeholder: "Secure",
+                text: Binding(get: { text }, set: { text = $0 }),
+                isSecure: true,
+                style: style
+            )
+            XCTAssertEqual(secureField.style, style)
+            XCTAssertNotNil(secureField.body)
+
+            let errorField = CraftTextField(
+                placeholder: "Error",
+                text: Binding(get: { text }, set: { text = $0 }),
+                errorMessage: "Invalid",
+                style: style
+            )
+            XCTAssertEqual(errorField.style, style)
+            XCTAssertNotNil(errorField.body)
+        }
+    }
+
+    func testTextFieldLocalizedConstructorsWithStyle() {
+        var text = ""
+        let localizedField = CraftTextField(
+            LocalizedStringKey("search_key"),
+            text: Binding(get: { text }, set: { text = $0 }),
+            label: LocalizedStringKey("label_key"),
+            style: .glass
+        )
+        XCTAssertEqual(localizedField.style, .glass)
+        XCTAssertNotNil(localizedField.body)
+    }
+
+    func testToggleCustomTintsAndSurfaceStyles() {
+        var isOn = true
+        let toggle = CraftToggle(
+            isOn: Binding(get: { isOn }, set: { isOn = $0 }),
+            title: "Custom Tint Toggle",
+            subtitle: "Subtitle",
+            iconName: "flame",
+            activeTint: .orange,
+            inactiveTint: .gray,
+            style: .glass
+        )
+        XCTAssertEqual(toggle.activeTint, .orange)
+        XCTAssertEqual(toggle.inactiveTint, .gray)
+        XCTAssertEqual(toggle.style, .glass)
+        XCTAssertNotNil(toggle.body)
+
+        // Test standalone switch with custom tints
+        let craftSwitch = CraftSwitch(
+            isOn: Binding(get: { isOn }, set: { isOn = $0 }),
+            activeTint: .purple,
+            inactiveTint: .blue,
+            style: .glass
+        )
+        XCTAssertEqual(craftSwitch.activeTint, .purple)
+        XCTAssertEqual(craftSwitch.inactiveTint, .blue)
+        XCTAssertEqual(craftSwitch.style, .glass)
+        XCTAssertNotNil(craftSwitch.body)
+
+        // Test ToggleStyle convenience functions
+        let customStyleView = Toggle("Label", isOn: Binding(get: { isOn }, set: { isOn = $0 }))
+            .toggleStyle(.craft(activeTint: .pink, inactiveTint: .yellow, style: .glass))
+        XCTAssertNotNil(customStyleView)
+
+        let switchStyleView = Toggle("Switch", isOn: Binding(get: { isOn }, set: { isOn = $0 }))
+            .toggleStyle(.craftSwitch(activeTint: .green, inactiveTint: .gray, style: .glass))
+        XCTAssertNotNil(switchStyleView)
+    }
+
+    func testSearchBarGlassStyleAndLocalization() {
+        XCTAssertEqual(CraftSearchBarStyle.allCases.count, 3)
+        XCTAssertTrue(CraftSearchBarStyle.allCases.contains(.standard))
+        XCTAssertTrue(CraftSearchBarStyle.allCases.contains(.recessed))
+        XCTAssertTrue(CraftSearchBarStyle.allCases.contains(.glass))
+
+        var query = "iOS"
+        let glassSearchBar = CraftSearchBar(
+            text: Binding(get: { query }, set: { query = $0 }),
+            placeholder: "Search glass...",
+            style: .glass,
+            shape: .capsule,
+            onCancel: {}
+        )
+        XCTAssertEqual(glassSearchBar.style, .glass)
+        XCTAssertNotNil(glassSearchBar.body)
+
+        let roundedGlassSearchBar = CraftSearchBar(
+            text: Binding(get: { query }, set: { query = $0 }),
+            placeholder: "Search rounded...",
+            style: .glass,
+            shape: .roundedRectangle(radius: 16),
+            onCancel: {}
+        )
+        XCTAssertEqual(roundedGlassSearchBar.style, .glass)
+        XCTAssertNotNil(roundedGlassSearchBar.body)
+
+        // Verify localized cancel & clear
+        XCTAssertEqual(CraftLocalized.string("craft.action.cancel"), "Cancel")
+        XCTAssertEqual(CraftLocalized.string("craft.action.cancel", language: "vi"), "Hủy")
+        XCTAssertEqual(CraftLocalized.string("craft.search.clearA11y"), "Clear search")
+        XCTAssertEqual(CraftLocalized.string("craft.search.clearA11y", language: "vi"), "Xóa tìm kiếm")
+    }
+
+    func testPillSurfaceStylesAndCustomTint() {
+        for style in CraftSurfaceStyle.allCases {
+            var selected = false
+            let pill = CraftPill(
+                "Style \(style.rawValue)",
+                iconName: "tag",
+                count: 5,
+                isSelected: selected,
+                style: style,
+                customTint: .indigo
+            ) {
+                selected.toggle()
+            }
+            XCTAssertEqual(pill.style, style)
+            XCTAssertEqual(pill.customTint, .indigo)
+            XCTAssertEqual(pill.resolvedStyle, style)
+            XCTAssertNotNil(pill.body)
+
+            // Test selected state
+            let selectedPill = CraftPill(
+                "Selected \(style.rawValue)",
+                isSelected: true,
+                style: style,
+                customTint: .cyan
+            ) {}
+            XCTAssertTrue(selectedPill.isSelected)
+            XCTAssertEqual(selectedPill.style, style)
+            XCTAssertEqual(selectedPill.customTint, .cyan)
+            XCTAssertNotNil(selectedPill.body)
+        }
+    }
+
+    func testStepperSurfaceStylesAndLocalization() {
+        for style in CraftSurfaceStyle.allCases {
+            var val = 5
+            let stepper = CraftStepper(
+                value: Binding(get: { val }, set: { val = $0 }),
+                range: 0...20,
+                step: 1,
+                unit: "pts",
+                label: "Score",
+                style: style
+            )
+            XCTAssertEqual(stepper.style, style)
+            XCTAssertEqual(stepper.resolvedStyle, style)
+            XCTAssertNotNil(stepper.body)
+        }
+
+        // Verify localized increase & decrease strings
+        XCTAssertEqual(CraftLocalized.string("craft.stepper.increaseA11y"), "Increase")
+        XCTAssertEqual(CraftLocalized.string("craft.stepper.increaseA11y", language: "vi"), "Tăng")
+        XCTAssertEqual(CraftLocalized.string("craft.stepper.decreaseA11y"), "Decrease")
+        XCTAssertEqual(CraftLocalized.string("craft.stepper.decreaseA11y", language: "vi"), "Giảm")
+    }
 }

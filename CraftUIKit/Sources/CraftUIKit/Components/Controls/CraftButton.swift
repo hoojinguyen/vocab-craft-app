@@ -68,19 +68,33 @@ public struct CraftButtonStyle: ButtonStyle {
     @Environment(\.craftTheme) private var theme
     @Environment(\.isEnabled) private var isEnabled
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.craftSurfaceStyle) private var environmentStyle
 
     public let variant: CraftButtonVariant
     public let size: CraftButtonSize
     public let isLoading: Bool
+    public let style: CraftSurfaceStyle?
+    public let customTint: Color?
+    public let customGradient: LinearGradient?
 
     public init(
         variant: CraftButtonVariant = .primary,
         size: CraftButtonSize = .md,
-        isLoading: Bool = false
+        isLoading: Bool = false,
+        style: CraftSurfaceStyle? = nil,
+        customTint: Color? = nil,
+        customGradient: LinearGradient? = nil
     ) {
         self.variant = variant
         self.size = size
         self.isLoading = isLoading
+        self.style = style
+        self.customTint = customTint
+        self.customGradient = customGradient
+    }
+
+    public var resolvedStyle: CraftSurfaceStyle {
+        style ?? environmentStyle
     }
 
     private var verticalPadding: CGFloat {
@@ -93,10 +107,11 @@ public struct CraftButtonStyle: ButtonStyle {
 
     public func makeBody(configuration: Configuration) -> some View {
         let isPressed = configuration.isPressed
+        let isTactile = (variant == .tactile || resolvedStyle == .tactile3D)
         let bottomLipOffset = isEnabled ? theme.depths.depthMd : 0
-        let depressOffset = (variant == .tactile && isPressed && isEnabled) ? bottomLipOffset : 0
+        let depressOffset = (isTactile && isPressed && isEnabled) ? bottomLipOffset : 0
 
-        HStack(spacing: theme.spacing.xs) {
+        let baseButton = HStack(spacing: theme.spacing.xs) {
             if isLoading {
                 CraftSpinner(size: size.iconSize, color: foregroundColor(isPressed: isPressed))
             }
@@ -114,27 +129,29 @@ public struct CraftButtonStyle: ButtonStyle {
         .overlay(borderOverlay(isPressed: isPressed))
         .offset(y: depressOffset)
         .background {
-            if variant == .tactile {
+            if isTactile {
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .fill(isEnabled ? theme.colors.brandSecondary : theme.colors.borderDefault.opacity(0.5))
                     .offset(y: bottomLipOffset)
             }
         }
-        .padding(.bottom, variant == .tactile ? bottomLipOffset : 0)
+        .padding(.bottom, isTactile ? bottomLipOffset : 0)
         .opacity(isEnabled ? 1.0 : 0.5)
-        .scaleEffect(scaleEffect(isPressed: isPressed))
+        .scaleEffect(scaleEffect(isPressed: isPressed, isTactile: isTactile))
         .animation(theme.animations.springSnappy, value: isPressed)
         .frame(minHeight: 44)
         .contentShape(Rectangle())
         .onChange(of: configuration.isPressed) { _, isPressed in
             #if os(iOS)
-            if isPressed && variant == .tactile && isEnabled {
+            if isPressed && isTactile && isEnabled {
                 let generator = UIImpactFeedbackGenerator(style: .medium)
                 generator.prepare()
                 generator.impactOccurred()
             }
             #endif
         }
+
+        return applyShadow(baseButton)
     }
 
     private var cornerRadius: CGFloat {
@@ -145,17 +162,27 @@ public struct CraftButtonStyle: ButtonStyle {
         }
     }
 
-    private func scaleEffect(isPressed: Bool) -> CGFloat {
+    private func scaleEffect(isPressed: Bool, isTactile: Bool) -> CGFloat {
         guard isPressed && !reduceMotion else { return 1.0 }
-        switch variant {
-        case .tactile:
+        if isTactile {
             return 0.99
-        default:
-            return 0.97
         }
+        return 0.97
     }
 
     private func foregroundColor(isPressed: Bool) -> Color {
+        if resolvedStyle == .glass {
+            if let customTint {
+                return customTint
+            }
+            return theme.colors.textPrimary
+        }
+        if let customTint, variant == .outline {
+            return customTint
+        }
+        if customTint != nil || customGradient != nil {
+            return theme.colors.textInverse
+        }
         switch variant {
         case .primary, .tactile:
             return theme.colors.textInverse
@@ -172,47 +199,107 @@ public struct CraftButtonStyle: ButtonStyle {
 
     @ViewBuilder
     private func backgroundSurface(isPressed: Bool) -> some View {
-        switch variant {
-        case .primary:
-            theme.colors.brandPrimary
+        if resolvedStyle == .glass {
+            ZStack {
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(.ultraThinMaterial)
+                if let customGradient {
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .fill(customGradient)
+                } else if let customTint {
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .fill(customTint.opacity(theme.glass.tintOpacity))
+                } else {
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .fill(theme.colors.surfaceCard.opacity(theme.glass.tintOpacity))
+                }
+            }
+        } else if let customGradient {
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .fill(customGradient)
                 .opacity(isPressed ? 0.85 : 1.0)
-        case .secondary:
-            theme.colors.surfaceSubtle
-                .opacity(isPressed ? 0.75 : 1.0)
-        case .outline, .ghost:
-            Color.clear
-        case .danger:
-            theme.colors.statusDanger
+        } else if let customTint {
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .fill(customTint)
                 .opacity(isPressed ? 0.85 : 1.0)
-        case .tactile:
-            LinearGradient(
-                colors: [
-                    theme.colors.brandPrimary,
-                    theme.colors.brandPrimary.opacity(0.92)
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
+        } else {
+            switch variant {
+            case .primary:
+                theme.colors.brandPrimary
+                    .opacity(isPressed ? 0.85 : 1.0)
+            case .secondary:
+                theme.colors.surfaceSubtle
+                    .opacity(isPressed ? 0.75 : 1.0)
+            case .outline, .ghost:
+                Color.clear
+            case .danger:
+                theme.colors.statusDanger
+                    .opacity(isPressed ? 0.85 : 1.0)
+            case .tactile:
+                LinearGradient(
+                    colors: [
+                        theme.colors.brandPrimary,
+                        theme.colors.brandPrimary.opacity(0.92)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            }
         }
     }
 
     @ViewBuilder
     private func borderOverlay(isPressed: Bool) -> some View {
-        switch variant {
-        case .outline:
+        if resolvedStyle == .glass {
+            ZStack {
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .strokeBorder(theme.glass.borderGradient, lineWidth: 1)
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
+            }
+        } else if resolvedStyle == .elevated {
             RoundedRectangle(cornerRadius: cornerRadius)
                 .strokeBorder(
-                    theme.colors.borderDefault,
-                    lineWidth: 1.5
-                )
-        case .tactile:
-            RoundedRectangle(cornerRadius: cornerRadius)
-                .strokeBorder(
-                    theme.depths.topHighlight,
+                    LinearGradient(
+                        stops: [
+                            .init(color: .craftDynamic(light: Color.white.opacity(0.7), dark: Color.white.opacity(0.16)), location: 0.0),
+                            .init(color: .craftDynamic(light: theme.colors.hairline.opacity(0.4), dark: Color.white.opacity(0.04)), location: 0.5),
+                            .init(color: .clear, location: 1.0)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
                     lineWidth: 1
                 )
-        case .primary, .secondary, .ghost, .danger:
-            EmptyView()
+        } else {
+            switch variant {
+            case .outline:
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .strokeBorder(
+                        customTint ?? theme.colors.borderDefault,
+                        lineWidth: 1.5
+                    )
+            case .tactile:
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .strokeBorder(
+                        theme.depths.topHighlight,
+                        lineWidth: 1
+                    )
+            case .primary, .secondary, .ghost, .danger:
+                EmptyView()
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func applyShadow<V: View>(_ view: V) -> some View {
+        switch resolvedStyle {
+        case .elevated:
+            view.craftShadow(theme.shadows.md)
+        case .glass:
+            view.craftShadow(theme.shadows.sm)
+        case .flat, .outlined, .tactile3D:
+            view
         }
     }
 }
@@ -220,28 +307,73 @@ public struct CraftButtonStyle: ButtonStyle {
 // MARK: - ButtonStyle Convenience Extensions
 
 public extension ButtonStyle where Self == CraftButtonStyle {
-    static func craftPrimary(size: CraftButtonSize = .md, isLoading: Bool = false) -> CraftButtonStyle {
-        CraftButtonStyle(variant: .primary, size: size, isLoading: isLoading)
+    static func craftPrimary(
+        size: CraftButtonSize = .md,
+        isLoading: Bool = false,
+        style: CraftSurfaceStyle? = nil,
+        customTint: Color? = nil,
+        customGradient: LinearGradient? = nil
+    ) -> CraftButtonStyle {
+        CraftButtonStyle(variant: .primary, size: size, isLoading: isLoading, style: style, customTint: customTint, customGradient: customGradient)
     }
 
-    static func craftSecondary(size: CraftButtonSize = .md, isLoading: Bool = false) -> CraftButtonStyle {
-        CraftButtonStyle(variant: .secondary, size: size, isLoading: isLoading)
+    static func craftSecondary(
+        size: CraftButtonSize = .md,
+        isLoading: Bool = false,
+        style: CraftSurfaceStyle? = nil,
+        customTint: Color? = nil,
+        customGradient: LinearGradient? = nil
+    ) -> CraftButtonStyle {
+        CraftButtonStyle(variant: .secondary, size: size, isLoading: isLoading, style: style, customTint: customTint, customGradient: customGradient)
     }
 
-    static func craftOutline(size: CraftButtonSize = .md, isLoading: Bool = false) -> CraftButtonStyle {
-        CraftButtonStyle(variant: .outline, size: size, isLoading: isLoading)
+    static func craftOutline(
+        size: CraftButtonSize = .md,
+        isLoading: Bool = false,
+        style: CraftSurfaceStyle? = nil,
+        customTint: Color? = nil,
+        customGradient: LinearGradient? = nil
+    ) -> CraftButtonStyle {
+        CraftButtonStyle(variant: .outline, size: size, isLoading: isLoading, style: style, customTint: customTint, customGradient: customGradient)
     }
 
-    static func craftGhost(size: CraftButtonSize = .md, isLoading: Bool = false) -> CraftButtonStyle {
-        CraftButtonStyle(variant: .ghost, size: size, isLoading: isLoading)
+    static func craftGhost(
+        size: CraftButtonSize = .md,
+        isLoading: Bool = false,
+        style: CraftSurfaceStyle? = nil,
+        customTint: Color? = nil,
+        customGradient: LinearGradient? = nil
+    ) -> CraftButtonStyle {
+        CraftButtonStyle(variant: .ghost, size: size, isLoading: isLoading, style: style, customTint: customTint, customGradient: customGradient)
     }
 
-    static func craftDanger(size: CraftButtonSize = .md, isLoading: Bool = false) -> CraftButtonStyle {
-        CraftButtonStyle(variant: .danger, size: size, isLoading: isLoading)
+    static func craftDanger(
+        size: CraftButtonSize = .md,
+        isLoading: Bool = false,
+        style: CraftSurfaceStyle? = nil,
+        customTint: Color? = nil,
+        customGradient: LinearGradient? = nil
+    ) -> CraftButtonStyle {
+        CraftButtonStyle(variant: .danger, size: size, isLoading: isLoading, style: style, customTint: customTint, customGradient: customGradient)
     }
 
-    static func craftTactile(size: CraftButtonSize = .md, isLoading: Bool = false) -> CraftButtonStyle {
-        CraftButtonStyle(variant: .tactile, size: size, isLoading: isLoading)
+    static func craftTactile(
+        size: CraftButtonSize = .md,
+        isLoading: Bool = false,
+        style: CraftSurfaceStyle? = nil,
+        customTint: Color? = nil,
+        customGradient: LinearGradient? = nil
+    ) -> CraftButtonStyle {
+        CraftButtonStyle(variant: .tactile, size: size, isLoading: isLoading, style: style, customTint: customTint, customGradient: customGradient)
+    }
+
+    static func craftGlass(
+        size: CraftButtonSize = .md,
+        isLoading: Bool = false,
+        customTint: Color? = nil,
+        customGradient: LinearGradient? = nil
+    ) -> CraftButtonStyle {
+        CraftButtonStyle(variant: .primary, size: size, isLoading: isLoading, style: .glass, customTint: customTint, customGradient: customGradient)
     }
 }
 
@@ -262,6 +394,9 @@ public struct CraftButton: View {
     public let isUppercase: Bool
     public let tracking: CGFloat?
     public let isFullWidth: Bool
+    public let style: CraftSurfaceStyle?
+    public let customTint: Color?
+    public let customGradient: LinearGradient?
     public let action: () -> Void
 
     public var title: String? {
@@ -278,6 +413,9 @@ public struct CraftButton: View {
         isUppercase: Bool = false,
         tracking: CGFloat? = nil,
         isFullWidth: Bool = false,
+        style: CraftSurfaceStyle? = nil,
+        customTint: Color? = nil,
+        customGradient: LinearGradient? = nil,
         action: @escaping () -> Void
     ) {
         self.titleKey = nil
@@ -291,6 +429,9 @@ public struct CraftButton: View {
         self.isUppercase = isUppercase
         self.tracking = tracking
         self.isFullWidth = isFullWidth
+        self.style = style
+        self.customTint = customTint
+        self.customGradient = customGradient
         self.action = action
     }
 
@@ -304,6 +445,9 @@ public struct CraftButton: View {
         isUppercase: Bool = false,
         tracking: CGFloat? = nil,
         isFullWidth: Bool = false,
+        style: CraftSurfaceStyle? = nil,
+        customTint: Color? = nil,
+        customGradient: LinearGradient? = nil,
         action: @escaping () -> Void
     ) {
         self.titleKey = titleKey
@@ -317,6 +461,9 @@ public struct CraftButton: View {
         self.isUppercase = isUppercase
         self.tracking = tracking
         self.isFullWidth = isFullWidth
+        self.style = style
+        self.customTint = customTint
+        self.customGradient = customGradient
         self.action = action
     }
 
@@ -330,6 +477,9 @@ public struct CraftButton: View {
         isUppercase: Bool = false,
         tracking: CGFloat? = nil,
         isFullWidth: Bool = false,
+        style: CraftSurfaceStyle? = nil,
+        customTint: Color? = nil,
+        customGradient: LinearGradient? = nil,
         action: @escaping () -> Void
     ) {
         self.titleKey = nil
@@ -343,6 +493,9 @@ public struct CraftButton: View {
         self.isUppercase = isUppercase
         self.tracking = tracking
         self.isFullWidth = isFullWidth
+        self.style = style
+        self.customTint = customTint
+        self.customGradient = customGradient
         self.action = action
     }
 
@@ -364,8 +517,18 @@ public struct CraftButton: View {
             }
             .frame(maxWidth: isFullWidth ? .infinity : nil)
         }
-        .buttonStyle(CraftButtonStyle(variant: variant, size: size, isLoading: isLoading))
+        .buttonStyle(
+            CraftButtonStyle(
+                variant: variant,
+                size: size,
+                isLoading: isLoading,
+                style: style,
+                customTint: customTint,
+                customGradient: customGradient
+            )
+        )
         .disabled(isLoading)
+        .accessibilityValue(isLoading ? CraftLocalized.string("craft.button.loadingA11y") : "")
     }
 
     @ViewBuilder
