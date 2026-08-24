@@ -2,7 +2,8 @@ import SwiftUI
 
 // MARK: - CraftSpinner Component
 
-/// A smooth activity spinner indicator styled with brand theme colors and standardized sizing.
+/// A smooth activity spinner indicator styled with brand theme colors, standardized sizing,
+/// customizable stroke width, and accessibility reduce motion support.
 public struct CraftSpinner: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -41,17 +42,28 @@ public struct CraftSpinner: View {
             .frame(width: size.pointSize, height: size.pointSize)
             .rotationEffect(.degrees(isAnimating && !reduceMotion ? 360 : 0))
             .onAppear {
-                guard !reduceMotion else { return }
-                withAnimation(
-                    .linear(duration: 0.8)
-                    .repeatForever(autoreverses: false)
-                ) {
-                    isAnimating = true
+                startAnimationIfNeeded()
+            }
+            .onChange(of: reduceMotion) { _, newValue in
+                if !newValue {
+                    startAnimationIfNeeded()
+                } else {
+                    isAnimating = false
                 }
             }
             .accessibilityRepresentation {
                 ProgressView()
             }
+    }
+
+    private func startAnimationIfNeeded() {
+        guard !reduceMotion else { return }
+        withAnimation(
+            .linear(duration: 0.8)
+            .repeatForever(autoreverses: false)
+        ) {
+            isAnimating = true
+        }
     }
 }
 
@@ -63,6 +75,11 @@ public struct CraftSpinner: View {
             CraftSpinner(size: .lg)
             CraftSpinner(size: .xl)
         }
+        HStack(spacing: 16) {
+            CraftSpinner(size: .md, color: .orange, lineWidth: 4)
+            CraftSpinner(size: .lg, color: .purple, lineWidth: 1.5)
+        }
     }
     .padding()
 }
+

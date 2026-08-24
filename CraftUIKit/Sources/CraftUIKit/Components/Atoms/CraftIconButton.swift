@@ -3,9 +3,14 @@ import SwiftUI
 // MARK: - Icon Button Enums
 
 /// Shape options for icon buttons.
-public enum CraftIconButtonShape: String, Sendable, CaseIterable {
+public enum CraftIconButtonShape: Sendable, Equatable {
     case circle
     case square
+    case roundedRectangle(radius: CGFloat)
+
+    public static var allCases: [CraftIconButtonShape] {
+        [.circle, .square, .roundedRectangle(radius: 8)]
+    }
 }
 
 /// Visual style variants for icon buttons.
@@ -18,15 +23,19 @@ public enum CraftIconButtonVariant: String, Sendable, CaseIterable {
 
 // MARK: - CraftIconButton Component
 
-/// A tactile icon button meeting Apple HIG 44pt minimum touch target requirements.
+/// A tactile icon button meeting Apple HIG 44pt minimum touch target requirements,
+/// supporting surface styles, custom shapes, and arbitrary tints.
 public struct CraftIconButton: View {
     @Environment(\.craftTheme) private var theme
+    @Environment(\.craftSurfaceStyle) private var environmentSurfaceStyle
 
     public let iconName: String
     public let symbol: CraftSymbol?
     public let size: CraftIconSize
     public let shape: CraftIconButtonShape
     public let variant: CraftIconButtonVariant
+    public let style: CraftSurfaceStyle?
+    public let customTint: Color?
     public let accessibilityLabel: String
     public let minTouchTarget: CGFloat = 44
     public let action: () -> Void
@@ -36,6 +45,8 @@ public struct CraftIconButton: View {
         size: CraftIconSize = .md,
         shape: CraftIconButtonShape = .circle,
         variant: CraftIconButtonVariant = .subtle,
+        style: CraftSurfaceStyle? = nil,
+        customTint: Color? = nil,
         accessibilityLabel: String,
         action: @escaping () -> Void
     ) {
@@ -44,6 +55,8 @@ public struct CraftIconButton: View {
         self.size = size
         self.shape = shape
         self.variant = variant
+        self.style = style
+        self.customTint = customTint
         self.accessibilityLabel = accessibilityLabel
         self.action = action
     }
@@ -53,6 +66,8 @@ public struct CraftIconButton: View {
         size: CraftIconSize = .md,
         shape: CraftIconButtonShape = .circle,
         variant: CraftIconButtonVariant = .subtle,
+        style: CraftSurfaceStyle? = nil,
+        customTint: Color? = nil,
         accessibilityLabel: String,
         action: @escaping () -> Void
     ) {
@@ -61,8 +76,14 @@ public struct CraftIconButton: View {
         self.size = size
         self.shape = shape
         self.variant = variant
+        self.style = style
+        self.customTint = customTint
         self.accessibilityLabel = accessibilityLabel
         self.action = action
+    }
+
+    public var effectiveTint: Color {
+        customTint ?? theme.colors.brandPrimary
     }
 
     private var visualDimension: CGFloat {
@@ -84,30 +105,41 @@ public struct CraftIconButton: View {
     }
 
     private var foregroundColor: Color {
+        if style != nil {
+            return effectiveTint
+        }
         switch variant {
         case .filled:
             return theme.colors.textInverse
         case .subtle:
-            return theme.colors.brandPrimary
+            return effectiveTint
         case .outline, .ghost:
-            return theme.colors.textPrimary
+            return customTint ?? theme.colors.textPrimary
         }
+    }
+
+    private var resolvedSurfaceStyle: CraftSurfaceStyle? {
+        if let style {
+            return style
+        }
+        if variant == .subtle && environmentSurfaceStyle != .flat {
+            return environmentSurfaceStyle
+        }
+        return nil
     }
 
     public var body: some View {
         Button(action: action) {
-            ZStack {
-                backgroundShapeView
-
+            surfaceDecorated(
                 CraftIcon(
                     iconName,
                     size: size,
                     color: foregroundColor,
-                    renderingMode: variant == .filled ? .monochrome : .hierarchical,
+                    renderingMode: (variant == .filled && style == nil) ? .monochrome : .hierarchical,
                     weight: .semibold
                 )
-            }
-            .frame(width: visualDimension, height: visualDimension)
+                .frame(width: visualDimension, height: visualDimension)
+            )
             .frame(minWidth: minTouchTarget, minHeight: minTouchTarget)
             .contentShape(Rectangle())
         }
@@ -116,30 +148,73 @@ public struct CraftIconButton: View {
     }
 
     @ViewBuilder
+    private func surfaceDecorated<V: View>(_ content: V) -> some View {
+        if let surfaceStyle = resolvedSurfaceStyle {
+            switch shape {
+            case .circle:
+                content.craftSurface(
+                    style: surfaceStyle,
+                    shape: Circle(),
+                    customTint: surfaceTint(for: surfaceStyle)
+                )
+            case .square:
+                content.craftSurface(
+                    style: surfaceStyle,
+                    shape: RoundedRectangle(cornerRadius: cornerRadius),
+                    customTint: surfaceTint(for: surfaceStyle)
+                )
+            case .roundedRectangle(let radius):
+                content.craftSurface(
+                    style: surfaceStyle,
+                    shape: RoundedRectangle(cornerRadius: radius),
+                    customTint: surfaceTint(for: surfaceStyle)
+                )
+            }
+        } else {
+            ZStack {
+                backgroundShapeView
+                content
+            }
+        }
+    }
+
+    private func surfaceTint(for style: CraftSurfaceStyle) -> Color? {
+        if let customTint {
+            return customTint
+        }
+        switch style {
+        case .glass:
+            return effectiveTint
+        case .flat:
+            return variant == .filled ? effectiveTint : effectiveTint.opacity(0.12)
+        case .elevated, .outlined, .tactile3D:
+            return variant == .filled ? effectiveTint : nil
+        }
+    }
+
+    @ViewBuilder
     private var backgroundShapeView: some View {
         switch shape {
         case .circle:
-            switch variant {
-            case .filled:
-                Circle().fill(theme.colors.brandPrimary)
-            case .subtle:
-                Circle().fill(theme.colors.brandPrimary.opacity(0.12))
-            case .outline:
-                Circle().strokeBorder(theme.colors.borderDefault, lineWidth: 1)
-            case .ghost:
-                Color.clear
-            }
+            renderLegacyShape(Circle(), tint: effectiveTint)
         case .square:
-            switch variant {
-            case .filled:
-                RoundedRectangle(cornerRadius: cornerRadius).fill(theme.colors.brandPrimary)
-            case .subtle:
-                RoundedRectangle(cornerRadius: cornerRadius).fill(theme.colors.brandPrimary.opacity(0.12))
-            case .outline:
-                RoundedRectangle(cornerRadius: cornerRadius).strokeBorder(theme.colors.borderDefault, lineWidth: 1)
-            case .ghost:
-                Color.clear
-            }
+            renderLegacyShape(RoundedRectangle(cornerRadius: cornerRadius), tint: effectiveTint)
+        case .roundedRectangle(let radius):
+            renderLegacyShape(RoundedRectangle(cornerRadius: radius), tint: effectiveTint)
+        }
+    }
+
+    @ViewBuilder
+    private func renderLegacyShape<S: InsettableShape>(_ s: S, tint: Color) -> some View {
+        switch variant {
+        case .filled:
+            s.fill(tint)
+        case .subtle:
+            s.fill(tint.opacity(0.12))
+        case .outline:
+            s.strokeBorder(theme.colors.borderDefault, lineWidth: 1)
+        case .ghost:
+            Color.clear
         }
     }
 }
@@ -153,6 +228,13 @@ public struct CraftIconButton: View {
                     .disabled(true)
             }
         }
+
+        HStack(spacing: 16) {
+            CraftIconButton(iconName: "sparkles", style: .glass, accessibilityLabel: "Glass", action: {})
+            CraftIconButton(iconName: "flame.fill", style: .tactile3D, accessibilityLabel: "Tactile", action: {})
+            CraftIconButton(iconName: "heart.fill", shape: .roundedRectangle(radius: 12), customTint: .pink, accessibilityLabel: "Heart", action: {})
+        }
     }
     .padding()
 }
+

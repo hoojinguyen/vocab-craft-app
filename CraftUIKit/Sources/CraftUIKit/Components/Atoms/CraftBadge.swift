@@ -2,6 +2,12 @@ import SwiftUI
 
 // MARK: - Badge Enums
 
+/// Shape options for badges.
+public enum CraftBadgeShape: Sendable, Equatable {
+    case capsule
+    case roundedRectangle(radius: CGFloat)
+}
+
 /// Visual style variants for badges.
 public enum CraftBadgeVariant: String, Sendable, CaseIterable {
     case solid
@@ -27,9 +33,10 @@ public enum CraftBadgeSize: String, Sendable, CaseIterable {
 // MARK: - CraftBadge Component
 
 /// A standardized badge and tag component displaying status, categories, or counts
-/// with WCAG AAA contrast assurance and hierarchical icon rendering.
+/// with WCAG AAA contrast assurance, surface styles, custom shapes, and hierarchical icon rendering.
 public struct CraftBadge: View {
     @Environment(\.craftTheme) private var theme
+    @Environment(\.craftSurfaceStyle) private var environmentSurfaceStyle
 
     private let titleKey: LocalizedStringKey?
     private let rawTitle: String?
@@ -39,6 +46,9 @@ public struct CraftBadge: View {
     public let variant: CraftBadgeVariant
     public let tone: CraftBadgeTone
     public let size: CraftBadgeSize
+    public let style: CraftSurfaceStyle?
+    public let shape: CraftBadgeShape
+    public let customTint: Color?
 
     public var title: String? {
         rawTitle
@@ -49,7 +59,10 @@ public struct CraftBadge: View {
         symbol: CraftSymbol,
         variant: CraftBadgeVariant = .subtle,
         tone: CraftBadgeTone = .primary,
-        size: CraftBadgeSize = .md
+        size: CraftBadgeSize = .md,
+        style: CraftSurfaceStyle? = nil,
+        shape: CraftBadgeShape = .capsule,
+        customTint: Color? = nil
     ) {
         self.titleKey = nil
         self.rawTitle = title
@@ -59,6 +72,9 @@ public struct CraftBadge: View {
         self.variant = variant
         self.tone = tone
         self.size = size
+        self.style = style
+        self.shape = shape
+        self.customTint = customTint
     }
 
     public init(
@@ -66,7 +82,10 @@ public struct CraftBadge: View {
         iconName: String? = nil,
         variant: CraftBadgeVariant = .subtle,
         tone: CraftBadgeTone = .primary,
-        size: CraftBadgeSize = .md
+        size: CraftBadgeSize = .md,
+        style: CraftSurfaceStyle? = nil,
+        shape: CraftBadgeShape = .capsule,
+        customTint: Color? = nil
     ) {
         self.titleKey = nil
         self.rawTitle = title
@@ -76,6 +95,9 @@ public struct CraftBadge: View {
         self.variant = variant
         self.tone = tone
         self.size = size
+        self.style = style
+        self.shape = shape
+        self.customTint = customTint
     }
 
     public init(
@@ -83,7 +105,10 @@ public struct CraftBadge: View {
         symbol: CraftSymbol,
         variant: CraftBadgeVariant = .subtle,
         tone: CraftBadgeTone = .primary,
-        size: CraftBadgeSize = .md
+        size: CraftBadgeSize = .md,
+        style: CraftSurfaceStyle? = nil,
+        shape: CraftBadgeShape = .capsule,
+        customTint: Color? = nil
     ) {
         self.titleKey = titleKey
         self.rawTitle = nil
@@ -93,6 +118,9 @@ public struct CraftBadge: View {
         self.variant = variant
         self.tone = tone
         self.size = size
+        self.style = style
+        self.shape = shape
+        self.customTint = customTint
     }
 
     public init(
@@ -100,7 +128,10 @@ public struct CraftBadge: View {
         iconName: String? = nil,
         variant: CraftBadgeVariant = .subtle,
         tone: CraftBadgeTone = .primary,
-        size: CraftBadgeSize = .md
+        size: CraftBadgeSize = .md,
+        style: CraftSurfaceStyle? = nil,
+        shape: CraftBadgeShape = .capsule,
+        customTint: Color? = nil
     ) {
         self.titleKey = titleKey
         self.rawTitle = nil
@@ -110,6 +141,9 @@ public struct CraftBadge: View {
         self.variant = variant
         self.tone = tone
         self.size = size
+        self.style = style
+        self.shape = shape
+        self.customTint = customTint
     }
 
     public init(
@@ -117,7 +151,10 @@ public struct CraftBadge: View {
         symbol: CraftSymbol,
         variant: CraftBadgeVariant = .subtle,
         tone: CraftBadgeTone = .primary,
-        size: CraftBadgeSize = .md
+        size: CraftBadgeSize = .md,
+        style: CraftSurfaceStyle? = nil,
+        shape: CraftBadgeShape = .capsule,
+        customTint: Color? = nil
     ) {
         self.titleKey = nil
         self.rawTitle = title
@@ -127,6 +164,9 @@ public struct CraftBadge: View {
         self.variant = variant
         self.tone = tone
         self.size = size
+        self.style = style
+        self.shape = shape
+        self.customTint = customTint
     }
 
     public init(
@@ -134,7 +174,10 @@ public struct CraftBadge: View {
         iconName: String? = nil,
         variant: CraftBadgeVariant = .subtle,
         tone: CraftBadgeTone = .primary,
-        size: CraftBadgeSize = .md
+        size: CraftBadgeSize = .md,
+        style: CraftSurfaceStyle? = nil,
+        shape: CraftBadgeShape = .capsule,
+        customTint: Color? = nil
     ) {
         self.titleKey = nil
         self.rawTitle = title
@@ -144,6 +187,13 @@ public struct CraftBadge: View {
         self.variant = variant
         self.tone = tone
         self.size = size
+        self.style = style
+        self.shape = shape
+        self.customTint = customTint
+    }
+
+    public var effectiveToneColor: Color {
+        customTint ?? toneColor
     }
 
     private var toneColor: Color {
@@ -162,15 +212,20 @@ public struct CraftBadge: View {
     }
 
     private var foregroundColor: Color {
+        if style != nil {
+            return effectiveToneColor
+        }
         switch variant {
         case .solid:
-            // High contrast assurance: Warning (yellow/amber) needs dark ink, not white
+            if customTint != nil {
+                return .white
+            }
             if tone == .warning {
                 return theme.colors.textPrimary
             }
             return .white
         case .subtle, .outline:
-            return toneColor
+            return effectiveToneColor
         }
     }
 
@@ -195,14 +250,24 @@ public struct CraftBadge: View {
         }
     }
 
+    private var resolvedSurfaceStyle: CraftSurfaceStyle? {
+        if let style {
+            return style
+        }
+        if variant == .subtle && environmentSurfaceStyle != .flat {
+            return environmentSurfaceStyle
+        }
+        return nil
+    }
+
     public var body: some View {
-        HStack(spacing: 4) {
+        let content = HStack(spacing: 4) {
             if let iconName {
                 CraftIcon(
                     iconName,
                     size: size == .sm ? .sm : .md,
                     color: foregroundColor,
-                    renderingMode: variant == .solid ? .monochrome : .hierarchical,
+                    renderingMode: (variant == .solid && style == nil) ? .monochrome : .hierarchical,
                     weight: .bold
                 )
             }
@@ -231,23 +296,64 @@ public struct CraftBadge: View {
         .foregroundStyle(foregroundColor)
         .padding(.horizontal, horizontalPadding)
         .padding(.vertical, verticalPadding)
-        .background(backgroundView)
+
+        surfaceDecorated(content)
     }
 
     @ViewBuilder
-    private var backgroundView: some View {
+    private func surfaceDecorated<V: View>(_ content: V) -> some View {
+        if let surfaceStyle = resolvedSurfaceStyle {
+            switch shape {
+            case .capsule:
+                content.craftSurface(
+                    style: surfaceStyle,
+                    shape: Capsule(),
+                    customTint: surfaceTint(for: surfaceStyle)
+                )
+            case .roundedRectangle(let radius):
+                content.craftSurface(
+                    style: surfaceStyle,
+                    shape: RoundedRectangle(cornerRadius: radius),
+                    customTint: surfaceTint(for: surfaceStyle)
+                )
+            }
+        } else {
+            switch shape {
+            case .capsule:
+                content.background(legacyBackground(Capsule()))
+            case .roundedRectangle(let radius):
+                content.background(legacyBackground(RoundedRectangle(cornerRadius: radius)))
+            }
+        }
+    }
+
+    private func surfaceTint(for style: CraftSurfaceStyle) -> Color? {
+        if let customTint {
+            return customTint
+        }
+        switch style {
+        case .glass:
+            return effectiveToneColor
+        case .flat:
+            return variant == .solid ? effectiveToneColor : effectiveToneColor.opacity(0.14)
+        case .elevated, .outlined, .tactile3D:
+            return variant == .solid ? effectiveToneColor : nil
+        }
+    }
+
+    @ViewBuilder
+    private func legacyBackground<S: InsettableShape>(_ shape: S) -> some View {
         switch variant {
         case .solid:
-            Capsule().fill(toneColor)
+            shape.fill(effectiveToneColor)
         case .subtle:
-            Capsule()
-                .fill(toneColor.opacity(0.14))
+            shape
+                .fill(effectiveToneColor.opacity(0.14))
                 .overlay(
-                    Capsule()
-                        .strokeBorder(toneColor.opacity(0.24), lineWidth: 1)
+                    shape.strokeBorder(effectiveToneColor.opacity(0.24), lineWidth: 1)
                 )
         case .outline:
-            Capsule().strokeBorder(toneColor, lineWidth: 1)
+            shape.strokeBorder(effectiveToneColor, lineWidth: 1)
         }
     }
 }
@@ -272,7 +378,19 @@ public struct CraftBadge: View {
                     }
                 }
             }
+
+            VStack(spacing: 8) {
+                Text("Surface Styles")
+                    .font(.headline)
+                HStack(spacing: 8) {
+                    CraftBadge("Glass", symbol: .sparkles, tone: .primary, style: .glass)
+                    CraftBadge("Elevated", symbol: .mastery, tone: .success, style: .elevated)
+                    CraftBadge("Tactile", symbol: .streak, tone: .warning, style: .tactile3D)
+                    CraftBadge("Rounded", shape: .roundedRectangle(radius: 6), customTint: .purple)
+                }
+            }
         }
         .padding()
     }
 }
+
