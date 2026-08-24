@@ -1,7 +1,4 @@
 import SwiftUI
-#if os(iOS)
-import UIKit
-#endif
 
 // MARK: - Tab Item Protocol
 
@@ -106,6 +103,10 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
     private let centerTitleKey: LocalizedStringKey?
     private let rawCenterTitle: String?
 
+    // Pre-computed item partitions to avoid array allocations on every view body re-evaluation
+    private let leadingItems: [Item]
+    private let trailingItems: [Item]
+
     public var centerTitle: String? { rawCenterTitle }
 
     public init(
@@ -123,6 +124,10 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
         self.centerSymbol = centerSymbol
         self.centerTitleKey = nil
         self.rawCenterTitle = centerTitle
+
+        let mid = items.count / 2
+        self.leadingItems = Array(items.prefix(mid))
+        self.trailingItems = Array(items.suffix(from: mid))
     }
 
     public init(
@@ -140,33 +145,47 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
         self.centerSymbol = centerSymbol
         self.centerTitleKey = centerTitleKey
         self.rawCenterTitle = nil
-    }
 
-    private var leadingItems: [Item] {
         let mid = items.count / 2
-        return Array(items.prefix(mid))
-    }
-
-    private var trailingItems: [Item] {
-        let mid = items.count / 2
-        return Array(items.suffix(from: mid))
+        self.leadingItems = Array(items.prefix(mid))
+        self.trailingItems = Array(items.suffix(from: mid))
     }
 
     public var body: some View {
         HStack(spacing: theme.spacing.xs) {
             if let centerAction {
                 ForEach(leadingItems) { item in
-                    tabButton(for: item)
+                    CraftTabButton(
+                        item: item,
+                        isSelected: selectedItem.id == item.id,
+                        namespace: tabNamespace,
+                        onSelect: { select(item) }
+                    )
                 }
 
-                centerActionButton(action: centerAction)
+                CraftCenterActionButton(
+                    symbol: centerSymbol,
+                    titleKey: centerTitleKey,
+                    title: rawCenterTitle,
+                    action: centerAction
+                )
 
                 ForEach(trailingItems) { item in
-                    tabButton(for: item)
+                    CraftTabButton(
+                        item: item,
+                        isSelected: selectedItem.id == item.id,
+                        namespace: tabNamespace,
+                        onSelect: { select(item) }
+                    )
                 }
             } else {
                 ForEach(items) { item in
-                    tabButton(for: item)
+                    CraftTabButton(
+                        item: item,
+                        isSelected: selectedItem.id == item.id,
+                        namespace: tabNamespace,
+                        onSelect: { select(item) }
+                    )
                 }
             }
         }
@@ -179,6 +198,13 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
         .padding(.horizontal, theme.spacing.base)
         .padding(.bottom, theme.spacing.sm)
         .accessibilityElement(children: .contain)
+        .sensoryFeedback(.selection, trigger: selectedItem.id)
+    }
+
+    private func select(_ item: Item) {
+        withAnimation(theme.animations.springSnappy) {
+            selectedItem = item
+        }
     }
 
     // MARK: - Background
@@ -243,23 +269,21 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                 .fill(theme.colors.surfaceSubtle)
         }
     }
+}
 
-    // MARK: - Tab Item Button
+// MARK: - Dedicated Tab Item Button Subview
 
-    @ViewBuilder
-    private func tabButton(for item: Item) -> some View {
-        let isSelected = selectedItem.id == item.id
+/// Isolated tab button view enabling SwiftUI's Attribute Graph to bypass unaffected tabs during selection changes.
+private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
+    @Environment(\.craftTheme) private var theme
 
-        Button {
-            #if os(iOS)
-            let generator = UISelectionFeedbackGenerator()
-            generator.prepare()
-            generator.selectionChanged()
-            #endif
-            withAnimation(theme.animations.springSnappy) {
-                selectedItem = item
-            }
-        } label: {
+    let item: Item
+    let isSelected: Bool
+    let namespace: Namespace.ID
+    let onSelect: () -> Void
+
+    var body: some View {
+        Button(action: onSelect) {
             VStack(spacing: 3) {
                 ZStack(alignment: .topTrailing) {
                     CraftIcon(
@@ -312,7 +336,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                             RoundedRectangle(cornerRadius: 18)
                                 .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
                         )
-                        .matchedGeometryEffect(id: "activeTabIndicator", in: tabNamespace)
+                        .matchedGeometryEffect(id: "activeTabIndicator", in: namespace)
                 }
             }
             .contentShape(Rectangle())
@@ -321,17 +345,23 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
         .accessibilityLabel(item.title)
         .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : [.isButton])
     }
+}
 
-    // MARK: - Center Action Button
+// MARK: - Dedicated Center Action Button Subview
 
-    @ViewBuilder
-    private func centerActionButton(action: @escaping () -> Void) -> some View {
+/// Isolated tactile action button view located at the center of the tab bar.
+private struct CraftCenterActionButton: View {
+    @Environment(\.craftTheme) private var theme
+    @State private var triggerHapticCount = 0
+
+    let symbol: String
+    let titleKey: LocalizedStringKey?
+    let title: String?
+    let action: () -> Void
+
+    var body: some View {
         Button {
-            #if os(iOS)
-            let generator = UIImpactFeedbackGenerator(style: .medium)
-            generator.prepare()
-            generator.impactOccurred()
-            #endif
+            triggerHapticCount += 1
             action()
         } label: {
             ZStack {
@@ -347,21 +377,21 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
 
                 VStack(spacing: 2) {
                     CraftIcon(
-                        centerSymbol,
+                        symbol,
                         size: .md,
                         color: theme.colors.textInverse,
                         renderingMode: .monochrome,
                         weight: .bold
                     )
 
-                    if let centerTitleKey {
-                        Text(centerTitleKey)
+                    if let titleKey {
+                        Text(titleKey)
                             .font(theme.typography.caption)
                             .fontWeight(.bold)
                             .foregroundColor(theme.colors.textInverse)
                             .lineLimit(1)
-                    } else if let centerTitle, !centerTitle.isEmpty {
-                        Text(centerTitle)
+                    } else if let title, !title.isEmpty {
+                        Text(title)
                             .font(theme.typography.caption)
                             .fontWeight(.bold)
                             .foregroundColor(theme.colors.textInverse)
@@ -374,8 +404,9 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
         }
         .buttonStyle(CraftTactileFABButtonStyle(depth: theme.depths.depthMd))
         .frame(minWidth: 44, minHeight: 44)
-        .accessibilityLabel(centerTitle ?? "Action")
+        .accessibilityLabel(title ?? "Action")
         .accessibilityAddTraits(.isButton)
+        .sensoryFeedback(.impact(weight: .medium), trigger: triggerHapticCount)
     }
 }
 
