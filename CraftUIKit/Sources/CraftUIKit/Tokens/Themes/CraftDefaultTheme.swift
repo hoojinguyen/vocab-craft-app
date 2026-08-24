@@ -13,6 +13,7 @@ public struct CraftDefaultTheme: CraftTheme {
     public var animations: CraftAnimationTokens
     public var opacities: CraftOpacityTokens
     public var depths: CraftDepthTokens
+    public var glass: CraftGlassTokens
 
     public init(
         colors: CraftColorTokens = CraftDefaultColorTokens(),
@@ -23,7 +24,8 @@ public struct CraftDefaultTheme: CraftTheme {
         gradients: CraftGradientTokens = CraftDefaultGradientTokens(),
         animations: CraftAnimationTokens = CraftDefaultAnimationTokens(),
         opacities: CraftOpacityTokens = CraftDefaultOpacityTokens(),
-        depths: CraftDepthTokens = CraftDefaultDepthTokens()
+        depths: CraftDepthTokens = CraftDefaultDepthTokens(),
+        glass: CraftGlassTokens = CraftDefaultGlassTokens()
     ) {
         self.colors = colors
         self.typography = typography
@@ -34,5 +36,6 @@ public struct CraftDefaultTheme: CraftTheme {
         self.animations = animations
         self.opacities = opacities
         self.depths = depths
+        self.glass = glass
     }
 }

@@ -14,11 +14,16 @@ public protocol CraftTheme: Sendable {
     var animations: CraftAnimationTokens { get }
     var opacities: CraftOpacityTokens { get }
     var depths: CraftDepthTokens { get }
+    var glass: CraftGlassTokens { get }
 }
 
 public extension CraftTheme {
     var depths: CraftDepthTokens {
         CraftDefaultDepthTokens()
+    }
+
+    var glass: CraftGlassTokens {
+        CraftDefaultGlassTokens()
     }
 }
 
