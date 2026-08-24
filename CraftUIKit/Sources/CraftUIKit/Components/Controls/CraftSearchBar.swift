@@ -15,6 +15,21 @@ public enum CraftSearchBarShape: Sendable, Equatable {
     case roundedRectangle(radius: CGFloat)
 }
 
+// MARK: - Backing Shape
+
+private struct CraftSearchBarBackingShape: Shape {
+    let shape: CraftSearchBarShape
+
+    func path(in rect: CGRect) -> Path {
+        switch shape {
+        case .capsule:
+            return Capsule().path(in: rect)
+        case .roundedRectangle(let radius):
+            return RoundedRectangle(cornerRadius: radius).path(in: rect)
+        }
+    }
+}
+
 // MARK: - CraftSearchBar Component
 
 /// A pill or rounded search input bar with focus glow, clear action button, and optional trailing actions.
@@ -178,13 +193,8 @@ public struct CraftSearchBar: View {
         }
     }
 
-    private var searchShape: some Shape {
-        switch shape {
-        case .capsule:
-            return AnyShape(Capsule())
-        case .roundedRectangle(let radius):
-            return AnyShape(RoundedRectangle(cornerRadius: radius))
-        }
+    private var searchShape: CraftSearchBarBackingShape {
+        CraftSearchBarBackingShape(shape: shape)
     }
 
     @ViewBuilder

@@ -129,6 +129,9 @@ public struct CraftStreakBadge: View {
         .onAppear {
             updatePulseAnimation()
         }
+        .onDisappear {
+            isPulsing = false
+        }
         .onChange(of: isCompletedToday) { _, _ in
             updatePulseAnimation()
         }

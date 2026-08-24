@@ -54,7 +54,7 @@ public struct CraftJourneyRow<NodePayload: Sendable>: View {
             }
         )
         .onPreferenceChange(JourneyRowWidthPreferenceKey.self) { width in
-            if width > 0 {
+            if width > 0 && abs(width - measuredWidth) > 0.5 {
                 measuredWidth = width
             }
         }

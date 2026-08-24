@@ -19,12 +19,12 @@ public struct CraftSegmentItem: Identifiable, @unchecked Sendable, Equatable, Ha
     }
 
     public init(
-        id: String = UUID().uuidString,
+        id: String? = nil,
         label: String,
         value: Double,
         color: Color
     ) {
-        self.id = id
+        self.id = id ?? label
         self.labelKey = nil
         self.rawLabel = label
         self.value = value
@@ -32,12 +32,12 @@ public struct CraftSegmentItem: Identifiable, @unchecked Sendable, Equatable, Ha
     }
 
     public init(
-        id: String = UUID().uuidString,
+        id: String? = nil,
         label: LocalizedStringKey,
         value: Double,
         color: Color
     ) {
-        self.id = id
+        self.id = id ?? String(describing: label)
         self.labelKey = label
         self.rawLabel = nil
         self.value = value

@@ -56,6 +56,9 @@ public struct CraftActivityTrackerCard: View {
         .onAppear {
             updatePulseAnimation()
         }
+        .onDisappear {
+            isPulsing = false
+        }
         .onChange(of: reduceMotion) { _, _ in
             updatePulseAnimation()
         }

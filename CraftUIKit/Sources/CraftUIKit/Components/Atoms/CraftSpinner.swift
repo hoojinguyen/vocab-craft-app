@@ -44,6 +44,9 @@ public struct CraftSpinner: View {
             .onAppear {
                 startAnimationIfNeeded()
             }
+            .onDisappear {
+                isAnimating = false
+            }
             .onChange(of: reduceMotion) { _, newValue in
                 if !newValue {
                     startAnimationIfNeeded()
@@ -58,6 +61,7 @@ public struct CraftSpinner: View {
 
     private func startAnimationIfNeeded() {
         guard !reduceMotion else { return }
+        isAnimating = false
         withAnimation(
             .linear(duration: 0.8)
             .repeatForever(autoreverses: false)

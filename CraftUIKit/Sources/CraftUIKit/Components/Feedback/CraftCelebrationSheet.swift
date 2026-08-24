@@ -114,8 +114,8 @@ public struct CraftCelebrationSheet: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabelString)
         .accessibilityHint(accessibilityHintString)
-        .onAppear {
-            triggerAppearSequence()
+        .task {
+            await triggerAppearSequence()
         }
     }
 
@@ -372,7 +372,8 @@ public struct CraftCelebrationSheet: View {
 
     // MARK: - Animation & Lifecycle Sequence
 
-    private func triggerAppearSequence() {
+    @MainActor
+    private func triggerAppearSequence() async {
         #if os(iOS)
         let impact = UIImpactFeedbackGenerator(style: .medium)
         impact.prepare()
@@ -399,20 +400,21 @@ public struct CraftCelebrationSheet: View {
         }
 
         if previousValue < currentValue {
-            Task { @MainActor in
-                try? await Task.sleep(nanoseconds: 200_000_000)
-                guard !Task.isCancelled else { return }
+            try? await Task.sleep(nanoseconds: 200_000_000)
+            guard !Task.isCancelled else { return }
 
-                let stepDelay = max(30_000_000, 400_000_000 / UInt64(max(1, currentValue - previousValue)))
-                for val in (previousValue + 1)...currentValue {
-                    displayedValue = val
-                    #if os(iOS)
-                    let selectionFeedback = UISelectionFeedbackGenerator()
-                    selectionFeedback.selectionChanged()
-                    #endif
-                    try? await Task.sleep(nanoseconds: stepDelay)
-                    guard !Task.isCancelled else { return }
-                }
+            let stepDelay = max(30_000_000, 400_000_000 / UInt64(max(1, currentValue - previousValue)))
+            #if os(iOS)
+            let selectionFeedback = UISelectionFeedbackGenerator()
+            selectionFeedback.prepare()
+            #endif
+            for val in (previousValue + 1)...currentValue {
+                displayedValue = val
+                #if os(iOS)
+                selectionFeedback.selectionChanged()
+                #endif
+                try? await Task.sleep(nanoseconds: stepDelay)
+                guard !Task.isCancelled else { return }
             }
         } else {
             displayedValue = currentValue

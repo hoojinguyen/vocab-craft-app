@@ -466,5 +466,25 @@ final class AtomComponentTests: XCTestCase {
 
         XCTAssertNotNil(view)
     }
+
+    func testCraftDividerDashedShapeRendering() {
+        let divider = CraftDivider(axis: .horizontal, style: .dashed(dash: 4, gap: 2))
+        XCTAssertNotNil(divider.body)
+
+        let verticalDivider = CraftDivider(axis: .vertical, style: .dashed(dash: 6, gap: 3))
+        XCTAssertNotNil(verticalDivider.body)
+    }
+
+    func testCraftSpinnerRenderingAndBody() {
+        let spinner = CraftSpinner(size: .md, color: .blue, lineWidth: 3)
+        XCTAssertNotNil(spinner.body)
+    }
+
+    func testCraftStreakBadgePulsingAndBody() {
+        let badge = CraftStreakBadge(count: 5, isCompletedToday: false)
+        XCTAssertNotNil(badge.body)
+        let completedBadge = CraftStreakBadge(count: 7, isCompletedToday: true)
+        XCTAssertNotNil(completedBadge.body)
+    }
 }
 

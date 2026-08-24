@@ -197,6 +197,9 @@ public struct CraftStepNode: View {
                             isPulsing = true
                         }
                     }
+                    .onDisappear {
+                        isPulsing = false
+                    }
 
                 // 3D Pedestal Inner Badge
                 ZStack {

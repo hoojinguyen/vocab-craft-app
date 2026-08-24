@@ -10,6 +10,21 @@ public enum CraftTextFieldStyle: String, Sendable, Equatable, CaseIterable {
     case glass
 }
 
+// MARK: - TextField Clip Shape
+
+private struct CraftTextFieldClipShape: Shape {
+    let isUnderlined: Bool
+    let cornerRadius: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        if isUnderlined {
+            return Rectangle().path(in: rect)
+        } else {
+            return RoundedRectangle(cornerRadius: cornerRadius).path(in: rect)
+        }
+    }
+}
+
 // MARK: - CraftTextField Component
 
 /// A refined, accessible text input field supporting focus glow, error states, helper text, and icon slots.
@@ -240,12 +255,8 @@ public struct CraftTextField: View {
         }
     }
 
-    private var inputClipShape: some Shape {
-        if style == .underlined {
-            return AnyShape(Rectangle())
-        } else {
-            return AnyShape(RoundedRectangle(cornerRadius: theme.radii.md))
-        }
+    private var inputClipShape: CraftTextFieldClipShape {
+        CraftTextFieldClipShape(isUnderlined: style == .underlined, cornerRadius: theme.radii.md)
     }
 
     @ViewBuilder

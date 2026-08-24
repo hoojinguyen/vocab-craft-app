@@ -15,6 +15,7 @@ final class MetricsProgressionTests: XCTestCase {
 
         let itemAutoId = CraftSegmentItem(label: "Learning", value: 30, color: .blue)
         XCTAssertFalse(itemAutoId.id.isEmpty)
+        XCTAssertEqual(itemAutoId.id, "Learning")
         XCTAssertEqual(itemAutoId.label, "Learning")
         XCTAssertEqual(itemAutoId.value, 30)
     }

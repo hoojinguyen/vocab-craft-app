@@ -59,8 +59,8 @@ public struct CraftWaveformView: View {
         return minHeight + (maxHeight - minHeight) * clamped
     }
 
-    private var averageLevelPercentage: Int {
-        let sum: CGFloat = normalizedLevels.reduce(CGFloat(0), +)
+    private func averageLevelPercentage(for levels: [CGFloat]) -> Int {
+        let sum: CGFloat = levels.reduce(CGFloat(0), +)
         let count = CGFloat(max(1, barCount))
         return Int((sum / count) * 100)
     }
@@ -97,6 +97,9 @@ public struct CraftWaveformView: View {
                 }
             }
         }
+        .onDisappear {
+            pulseGlow = false
+        }
         .onChange(of: isRecording) { _, newValue in
             if newValue && !reduceMotion {
                 withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) {
@@ -108,7 +111,7 @@ public struct CraftWaveformView: View {
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(isRecording ? "Audio waveform recording active" : "Audio waveform visualizer")
-        .accessibilityValue("\(averageLevelPercentage) percent average audio level")
+        .accessibilityValue("\(averageLevelPercentage(for: currentLevels)) percent average audio level")
     }
 }
 

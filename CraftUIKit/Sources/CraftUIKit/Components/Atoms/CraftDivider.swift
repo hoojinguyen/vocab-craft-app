@@ -21,6 +21,27 @@ public enum CraftDividerStyle: Sendable, Equatable {
     }
 }
 
+// MARK: - Dashed Line Shape
+
+private struct DashedLineShape: Shape {
+    let axis: Axis
+    let effectiveThickness: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        if axis == .horizontal {
+            let y = effectiveThickness / 2
+            path.move(to: CGPoint(x: rect.minX, y: y))
+            path.addLine(to: CGPoint(x: rect.maxX, y: y))
+        } else {
+            let x = effectiveThickness / 2
+            path.move(to: CGPoint(x: x, y: rect.minY))
+            path.addLine(to: CGPoint(x: x, y: rect.maxY))
+        }
+        return path
+    }
+}
+
 // MARK: - CraftDivider Component
 
 /// A standardized hairline divider component adapting to theme hairline color tokens,
@@ -63,25 +84,15 @@ public struct CraftDivider: View {
                     height: axis == .horizontal ? effectiveThickness : nil
                 )
         case .dashed(let dash, let gap):
-            GeometryReader { geometry in
-                Path { path in
-                    if axis == .horizontal {
-                        path.move(to: CGPoint(x: 0, y: effectiveThickness / 2))
-                        path.addLine(to: CGPoint(x: geometry.size.width, y: effectiveThickness / 2))
-                    } else {
-                        path.move(to: CGPoint(x: effectiveThickness / 2, y: 0))
-                        path.addLine(to: CGPoint(x: effectiveThickness / 2, y: geometry.size.height))
-                    }
-                }
+            DashedLineShape(axis: axis, effectiveThickness: effectiveThickness)
                 .stroke(
                     effectiveColor,
                     style: StrokeStyle(lineWidth: effectiveThickness, dash: [dash, gap])
                 )
-            }
-            .frame(
-                width: axis == .vertical ? effectiveThickness : nil,
-                height: axis == .horizontal ? effectiveThickness : nil
-            )
+                .frame(
+                    width: axis == .vertical ? effectiveThickness : nil,
+                    height: axis == .horizontal ? effectiveThickness : nil
+                )
         case .gradient(let linearGradient):
             Rectangle()
                 .fill(linearGradient)
