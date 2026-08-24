@@ -1,6 +1,55 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "" : {
+
+    },
+    "%lld" : {
+
+    },
+    "%lld " : {
+
+    },
+    "%lld %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld %2$@"
+          }
+        }
+      }
+    },
+    "%lld percent" : {
+
+    },
+    "%lld percent average audio level" : {
+
+    },
+    "%lld%%" : {
+
+    },
+    "Appearance" : {
+
+    },
+    "Audio waveform recording active" : {
+
+    },
+    "Audio waveform visualizer" : {
+
+    },
+    "Axis" : {
+
+    },
+    "Bài học đang bị khóa" : {
+
+    },
+    "Celebration!" : {
+
+    },
+    "Close" : {
+
+    },
     "craft.action.cancel" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -901,6 +950,72 @@
           }
         }
       }
+    },
+    "CraftUIKit Gallery" : {
+
+    },
+    "Double tap to select this step" : {
+
+    },
+    "Flip card" : {
+
+    },
+    "Hide password" : {
+
+    },
+    "Horizontal" : {
+
+    },
+    "Language" : {
+
+    },
+    "Nhấn đúp để bắt đầu học" : {
+
+    },
+    "Nhấn đúp để đóng thông tin bài học" : {
+
+    },
+    "No Lessons Available" : {
+
+    },
+    "Off" : {
+
+    },
+    "On" : {
+
+    },
+    "Progress" : {
+
+    },
+    "Reset Quiz" : {
+
+    },
+    "Segmented metric bar" : {
+
+    },
+    "Show password" : {
+
+    },
+    "Sparkle!" : {
+
+    },
+    "Stepper" : {
+
+    },
+    "Theme" : {
+
+    },
+    "There are no lesson sections available in this learning path." : {
+
+    },
+    "Trailing action" : {
+
+    },
+    "Trigger Confetti" : {
+
+    },
+    "Vertical" : {
+
     }
   },
   "version" : "1.0"
