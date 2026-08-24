@@ -115,11 +115,13 @@ public struct CraftChoiceCard: View {
                     Text(titleKey)
                         .font(theme.typography.headline)
                         .foregroundStyle(theme.colors.textPrimary)
+                        .lineLimit(2)
                         .multilineTextAlignment(.leading)
                 } else if let rawTitle {
                     Text(rawTitle)
                         .font(theme.typography.headline)
                         .foregroundStyle(theme.colors.textPrimary)
+                        .lineLimit(2)
                         .multilineTextAlignment(.leading)
                 }
 
@@ -344,32 +346,29 @@ public struct CraftChoiceCardButtonStyle: ButtonStyle {
         let isPressed = configuration.isPressed && state != .disabled
         let depressOffset = isPressed ? depth : 0
 
-        ZStack {
-            if state != .disabled {
-                // Bottom 3D Bevel / Lip
-                RoundedRectangle(cornerRadius: theme.radii.lg)
-                    .fill(bottomLipColor)
-                    .offset(y: depth)
+        configuration.label
+            .offset(y: depressOffset)
+            .background {
+                if state != .disabled {
+                    RoundedRectangle(cornerRadius: theme.radii.lg)
+                        .fill(bottomLipColor)
+                        .offset(y: depth)
+                }
             }
-
-            // Top Card Face
-            configuration.label
-                .offset(y: depressOffset)
-        }
-        .padding(.bottom, state == .disabled ? 0 : depth)
-        .scaleEffect(isPressed && !reduceMotion ? 0.99 : 1.0)
-        .animation(theme.animations.springSnappy, value: isPressed)
-        .frame(minHeight: 44)
-        .contentShape(Rectangle())
-        .onChange(of: configuration.isPressed) { _, pressed in
-            #if os(iOS)
-            if pressed && state != .disabled {
-                let generator = UIImpactFeedbackGenerator(style: .light)
-                generator.prepare()
-                generator.impactOccurred()
+            .padding(.bottom, state == .disabled ? 0 : depth)
+            .scaleEffect(isPressed && !reduceMotion ? 0.99 : 1.0)
+            .animation(theme.animations.springSnappy, value: isPressed)
+            .frame(minHeight: 44)
+            .contentShape(Rectangle())
+            .onChange(of: configuration.isPressed) { _, pressed in
+                #if os(iOS)
+                if pressed && state != .disabled {
+                    let generator = UIImpactFeedbackGenerator(style: .light)
+                    generator.prepare()
+                    generator.impactOccurred()
+                }
+                #endif
             }
-            #endif
-        }
     }
 
     private var bottomLipColor: Color {

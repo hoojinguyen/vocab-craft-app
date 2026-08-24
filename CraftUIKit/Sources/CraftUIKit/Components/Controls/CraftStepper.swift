@@ -90,19 +90,23 @@ public struct CraftStepper: View {
     }
 
     public var body: some View {
-        HStack {
+        HStack(spacing: theme.spacing.sm) {
             if let labelKey {
                 Text(labelKey)
                     .font(theme.typography.bodyLarge)
                     .foregroundStyle(theme.colors.textPrimary)
+                    .lineLimit(2)
+                    .layoutPriority(0)
 
-                Spacer()
+                Spacer(minLength: theme.spacing.xs)
             } else if let rawLabel, !rawLabel.isEmpty {
                 Text(rawLabel)
                     .font(theme.typography.bodyLarge)
                     .foregroundStyle(theme.colors.textPrimary)
+                    .lineLimit(2)
+                    .layoutPriority(0)
 
-                Spacer()
+                Spacer(minLength: theme.spacing.xs)
             }
 
             // Stepper Control Group
@@ -134,18 +138,21 @@ public struct CraftStepper: View {
                         .font(theme.typography.headline)
                         .monospacedDigit()
                         .foregroundStyle(theme.colors.textPrimary)
+                        .lineLimit(1)
 
                     if let unitKey {
                         Text(unitKey)
                             .font(theme.typography.label)
                             .foregroundStyle(theme.colors.textSecondary)
+                            .lineLimit(1)
                     } else if let rawUnit, !rawUnit.isEmpty {
                         Text(rawUnit)
                             .font(theme.typography.label)
                             .foregroundStyle(theme.colors.textSecondary)
+                            .lineLimit(1)
                     }
                 }
-                .frame(minWidth: 64)
+                .fixedSize(horizontal: true, vertical: false)
                 .padding(.horizontal, theme.spacing.sm)
 
                 // Divider

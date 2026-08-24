@@ -2,8 +2,8 @@ import AppIntents
 import Foundation
 import SwiftData
 import WidgetKit
-#if canImport(VocabCraftApp)
-import VocabCraftApp
+#if !WIDGET_EXTENSION && canImport(VocabCraftApp)
+@testable import VocabCraftApp
 #endif
 
 public struct MarkLearnedIntent: AppIntent {

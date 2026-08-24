@@ -1,8 +1,8 @@
 import SwiftData
 import SwiftUI
 import WidgetKit
-#if canImport(VocabCraftApp)
-import VocabCraftApp
+#if !WIDGET_EXTENSION && canImport(VocabCraftApp)
+@testable import VocabCraftApp
 #endif
 
 public enum WidgetContainerHolder {

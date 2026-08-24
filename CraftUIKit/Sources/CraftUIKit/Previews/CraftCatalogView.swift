@@ -709,6 +709,8 @@ private struct CraftCatalogContentView: View {
             .navigationTitle("CraftUIKit Gallery")
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(theme.colors.canvasBackground, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
             #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -1243,8 +1245,8 @@ private struct CatalogButtonsSection: View {
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     CraftText("Standard Buttons & Disabled State", style: .headline)
                     HStack(spacing: theme.spacing.sm) {
-                        CraftButton("Small (32pt)", variant: .primary, size: .sm) {}
-                        CraftButton("Medium (44pt)", variant: .primary, size: .md) {}
+                        CraftButton("Small (32)", variant: .primary, size: .sm) {}
+                        CraftButton("Medium (44)", variant: .primary, size: .md) {}
                         CraftButton("Disabled", variant: .secondary, size: .md) {}
                             .disabled(true)
                     }
@@ -1256,21 +1258,22 @@ private struct CatalogButtonsSection: View {
 
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     HStack {
-                        CraftText("Interactive Press Effects (.craftPress & .craftPressEffect)", style: .headline)
+                        CraftText("Interactive Press Effects", style: .headline)
                         Spacer()
                         if customPressCount > 0 {
                             CraftText("Taps: \(customPressCount)", style: .caption, color: theme.colors.brandPrimary)
                         }
                     }
 
-                    HStack(spacing: theme.spacing.sm) {
+                    VStack(spacing: theme.spacing.sm) {
                         Button {
                             customPressCount += 1
                         } label: {
                             HStack(spacing: theme.spacing.xs) {
                                 CraftIcon("hand.tap.fill", size: .sm, color: theme.colors.brandPrimary)
-                                CraftText("ButtonStyle .craftPress", style: .label, color: theme.colors.textPrimary)
+                                CraftText("ButtonStyle .craftPress()", style: .label, color: theme.colors.textPrimary)
                             }
+                            .frame(maxWidth: .infinity)
                             .padding(.horizontal, theme.spacing.base)
                             .padding(.vertical, theme.spacing.sm)
                             .background(theme.colors.surfaceSubtle)
@@ -1278,17 +1281,23 @@ private struct CatalogButtonsSection: View {
                         }
                         .buttonStyle(.craftPress())
 
-                        Text("Modifier .craftPressEffect")
-                            .font(theme.typography.label)
-                            .foregroundStyle(theme.colors.brandSecondary)
+                        Button {
+                            customPressCount += 1
+                        } label: {
+                            HStack(spacing: theme.spacing.xs) {
+                                CraftIcon("sparkle", size: .sm, color: theme.colors.brandSecondary)
+                                Text("Modifier .craftPressEffect()")
+                                    .font(theme.typography.label)
+                                    .foregroundStyle(theme.colors.brandSecondary)
+                            }
+                            .frame(maxWidth: .infinity)
                             .padding(.horizontal, theme.spacing.base)
                             .padding(.vertical, theme.spacing.sm)
                             .background(theme.colors.surfaceSubtle)
                             .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
-                            .craftPressEffect(scale: 0.94)
-                            .onTapGesture {
-                                customPressCount += 1
-                            }
+                        }
+                        .buttonStyle(.plain)
+                        .craftPressEffect(scale: 0.94)
                     }
                 }
             }
@@ -1369,7 +1378,7 @@ private struct CatalogStepperTogglesSection: View {
                     range: 1...50,
                     step: 1,
                     unit: "words/day",
-                    label: "Daily Learning Goal"
+                    label: "Daily Goal"
                 )
 
                 CraftDivider()
@@ -1699,8 +1708,8 @@ private struct CatalogOverlaysSection: View {
                         .frame(maxWidth: .infinity)
 
                         CraftButton(
-                            "Confirm Dialog",
-                            iconName: "questionmark.circle.fill",
+                            "Confirm",
+                            iconName: "checkmark.circle.fill",
                             variant: .primary,
                             size: .md
                         ) {
@@ -1710,7 +1719,7 @@ private struct CatalogOverlaysSection: View {
                     }
 
                     CraftButton(
-                        "Trigger Danger Dialog",
+                        "Danger Dialog",
                         iconName: "trash.fill",
                         variant: .danger,
                         size: .md
@@ -1979,21 +1988,17 @@ private struct CatalogInteractiveCardsSection: View {
 
                 CraftDivider()
 
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                VStack(alignment: .leading, spacing: theme.spacing.sm) {
                     CraftText("Choice Card 3D State Matrix", style: .headline)
                     CraftText("Embossed prefix badges, 3D bottom bevels, and mechanical depress physics.", style: .caption, color: theme.colors.textSecondary)
 
-                    HStack(spacing: theme.spacing.xs) {
-                        CraftChoiceCard(prefix: "1", title: "Idle", state: .idle) {}
-                        CraftChoiceCard(prefix: "2", title: "Selected", state: .selected) {}
+                    VStack(spacing: theme.spacing.sm) {
+                        CraftChoiceCard(prefix: "1", title: "Idle State", subtitle: "Tap to select this option", state: .idle) {}
+                        CraftChoiceCard(prefix: "2", title: "Selected State", subtitle: "Active choice with brand bevel", state: .selected) {}
+                        CraftChoiceCard(prefix: "3", title: "Correct Answer", subtitle: "Validated correct with emerald 3D bevel", state: .correct) {}
+                        CraftChoiceCard(prefix: "4", title: "Wrong Answer", subtitle: "Incorrect selection with shake FX", state: .wrong) {}
+                        CraftChoiceCard(prefix: "5", title: "Disabled State", subtitle: "Inactive option during review", state: .disabled) {}
                     }
-
-                    HStack(spacing: theme.spacing.xs) {
-                        CraftChoiceCard(prefix: "3", title: "Correct", state: .correct) {}
-                        CraftChoiceCard(prefix: "4", title: "Wrong", state: .wrong) {}
-                    }
-
-                    CraftChoiceCard(prefix: "5", title: "Disabled State", subtitle: "Inactive option", state: .disabled) {}
                 }
             }
         }

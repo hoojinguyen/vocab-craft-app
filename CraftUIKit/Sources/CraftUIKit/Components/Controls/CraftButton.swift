@@ -93,34 +93,32 @@ public struct CraftButtonStyle: ButtonStyle {
 
     public func makeBody(configuration: Configuration) -> some View {
         let isPressed = configuration.isPressed
-        let bottomLipOffset = theme.depths.depthMd
-        let depressOffset = (variant == .tactile && isPressed) ? bottomLipOffset : 0
+        let bottomLipOffset = isEnabled ? theme.depths.depthMd : 0
+        let depressOffset = (variant == .tactile && isPressed && isEnabled) ? bottomLipOffset : 0
 
-        ZStack {
+        HStack(spacing: theme.spacing.xs) {
+            if isLoading {
+                CraftSpinner(size: size.iconSize, color: foregroundColor(isPressed: isPressed))
+            }
+            configuration.label
+                .font(theme.typography.font(for: size.typographyStyle))
+                .foregroundStyle(foregroundColor(isPressed: isPressed))
+                .lineLimit(1)
+                .opacity(isLoading ? 0.8 : 1.0)
+        }
+        .padding(.vertical, verticalPadding)
+        .padding(.horizontal, size.horizontalPadding)
+        .frame(minHeight: size.height)
+        .background(backgroundSurface(isPressed: isPressed))
+        .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+        .overlay(borderOverlay(isPressed: isPressed))
+        .offset(y: depressOffset)
+        .background {
             if variant == .tactile {
-                // Bottom 3D Lip/Bevel
                 RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(theme.colors.brandSecondary)
+                    .fill(isEnabled ? theme.colors.brandSecondary : theme.colors.borderDefault.opacity(0.5))
                     .offset(y: bottomLipOffset)
             }
-
-            // Top Tactile Surface & Content
-            HStack(spacing: theme.spacing.xs) {
-                if isLoading {
-                    CraftSpinner(size: size.iconSize, color: foregroundColor(isPressed: isPressed))
-                }
-                configuration.label
-                    .font(theme.typography.font(for: size.typographyStyle))
-                    .foregroundStyle(foregroundColor(isPressed: isPressed))
-                    .opacity(isLoading ? 0.8 : 1.0)
-            }
-            .padding(.vertical, verticalPadding)
-            .padding(.horizontal, size.horizontalPadding)
-            .frame(minHeight: size.height)
-            .background(backgroundSurface(isPressed: isPressed))
-            .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
-            .overlay(borderOverlay(isPressed: isPressed))
-            .offset(y: depressOffset)
         }
         .padding(.bottom, variant == .tactile ? bottomLipOffset : 0)
         .opacity(isEnabled ? 1.0 : 0.5)
@@ -130,7 +128,7 @@ public struct CraftButtonStyle: ButtonStyle {
         .contentShape(Rectangle())
         .onChange(of: configuration.isPressed) { _, isPressed in
             #if os(iOS)
-            if isPressed && variant == .tactile {
+            if isPressed && variant == .tactile && isEnabled {
                 let generator = UIImpactFeedbackGenerator(style: .medium)
                 generator.prepare()
                 generator.impactOccurred()

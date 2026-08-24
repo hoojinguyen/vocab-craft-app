@@ -136,7 +136,7 @@ public struct CraftSegmentedBar: View {
             // Optional Legend Chips
             if showLegend && !items.isEmpty {
                 LazyVGrid(
-                    columns: [GridItem(.adaptive(minimum: 90, maximum: 240), spacing: theme.spacing.xs)],
+                    columns: [GridItem(.adaptive(minimum: 120, maximum: 240), spacing: theme.spacing.xs)],
                     alignment: .leading,
                     spacing: theme.spacing.xs
                 ) {
@@ -163,11 +163,13 @@ public struct CraftSegmentedBar: View {
                     .font(theme.typography.caption)
                     .foregroundStyle(theme.colors.textSecondary)
                     .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
             } else {
                 Text(item.label)
                     .font(theme.typography.caption)
                     .foregroundStyle(theme.colors.textSecondary)
                     .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
             }
 
             if showPercentages {
@@ -176,6 +178,8 @@ public struct CraftSegmentedBar: View {
                     .fontWeight(.semibold)
                     .monospacedDigit()
                     .foregroundStyle(theme.colors.textPrimary)
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
             }
         }
         .padding(.horizontal, theme.spacing.sm)
