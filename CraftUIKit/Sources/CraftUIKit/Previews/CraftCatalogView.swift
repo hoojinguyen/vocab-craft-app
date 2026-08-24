@@ -908,12 +908,50 @@ private struct CatalogThemeHeaderView: View {
                     // Surface Style Selector Toolbar
                     VStack(alignment: .leading, spacing: theme.spacing.xs) {
                         CraftText("Global Surface Style", style: .label, color: theme.colors.textSecondary)
-                        Picker("Surface Style", selection: $selectedSurfaceStyle) {
-                            ForEach(CraftSurfaceStyle.allCases, id: \.self) { style in
-                                Text(style.rawValue.capitalized).tag(style)
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: theme.spacing.xs) {
+                                ForEach(CraftSurfaceStyle.allCases, id: \.self) { style in
+                                    Button(action: {
+                                        withAnimation(theme.animations.springSmooth) {
+                                            selectedSurfaceStyle = style
+                                        }
+                                    }) {
+                                        HStack(spacing: 6) {
+                                            if selectedSurfaceStyle == style {
+                                                Image(systemName: "checkmark")
+                                                    .font(.system(size: 11, weight: .bold))
+                                            }
+                                            Text(style.rawValue.capitalized)
+                                                .font(.system(.subheadline, design: .rounded, weight: selectedSurfaceStyle == style ? .bold : .medium))
+                                        }
+                                        .padding(.horizontal, 14)
+                                        .padding(.vertical, 8)
+                                        .background(
+                                            selectedSurfaceStyle == style
+                                                ? theme.colors.brandPrimary
+                                                : theme.colors.surfaceSubtle
+                                        )
+                                        .foregroundStyle(
+                                            selectedSurfaceStyle == style
+                                                ? Color.white
+                                                : theme.colors.textPrimary
+                                        )
+                                        .clipShape(Capsule())
+                                        .overlay(
+                                            Capsule()
+                                                .strokeBorder(
+                                                    selectedSurfaceStyle == style
+                                                        ? theme.colors.brandPrimary
+                                                        : theme.colors.borderDefault,
+                                                    lineWidth: 1
+                                                )
+                                        )
+                                    }
+                                    .buttonStyle(.plain)
+                                }
                             }
+                            .padding(.vertical, 2)
                         }
-                        .pickerStyle(.segmented)
                     }
 
                     // Language Selector Toolbar
@@ -953,7 +991,7 @@ private struct CatalogTokensThemingSection: View {
                     CraftText("Semantic Color Tokens Palette", style: .headline)
                     CraftText("Dynamic light/dark contrast compliant tokens with zero hardcoded values.", style: .caption, color: theme.colors.textMuted)
 
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: theme.spacing.xs) {
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: theme.spacing.xs) {
                         colorSwatch(title: "brandPrimary", color: theme.colors.brandPrimary)
                         colorSwatch(title: "brandSecondary", color: theme.colors.brandSecondary)
                         colorSwatch(title: "accent", color: theme.colors.accent)
@@ -1117,23 +1155,29 @@ private struct CatalogAtomsSection: View {
                     // 5 Surface Styles
                     VStack(alignment: .leading, spacing: 6) {
                         CraftText("Surface Styles", style: .caption, color: theme.colors.textSecondary)
-                        HStack(spacing: theme.spacing.xs) {
-                            CraftBadge("Flat", symbol: .study, style: .flat)
-                            CraftBadge("Elevated", symbol: .mastery, tone: .success, style: .elevated)
-                            CraftBadge("Outlined", symbol: .bookmark, tone: .warning, style: .outlined)
-                            CraftBadge("Tactile 3D", symbol: .streak, tone: .danger, style: .tactile3D)
-                            CraftBadge("Glass", symbol: .sparkles, tone: .primary, style: .glass)
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: theme.spacing.xs) {
+                                CraftBadge("Flat", symbol: .study, style: .flat)
+                                CraftBadge("Elevated", symbol: .mastery, tone: .success, style: .elevated)
+                                CraftBadge("Outlined", symbol: .bookmark, tone: .warning, style: .outlined)
+                                CraftBadge("Tactile 3D", symbol: .streak, tone: .danger, style: .tactile3D)
+                                CraftBadge("Glass", symbol: .sparkles, tone: .primary, style: .glass)
+                            }
+                            .padding(.vertical, 2)
                         }
                     }
 
                     // Shapes & Custom Tints
                     VStack(alignment: .leading, spacing: 6) {
                         CraftText("Shapes & Custom Tint Overrides", style: .caption, color: theme.colors.textSecondary)
-                        HStack(spacing: theme.spacing.xs) {
-                            CraftBadge("Capsule", shape: .capsule, customTint: Color.purple)
-                            CraftBadge("Rounded (8pt)", shape: .roundedRectangle(radius: 8), customTint: Color.teal)
-                            CraftBadge("Pink Solid", variant: .solid, shape: .capsule, customTint: Color.pink)
-                            CraftBadge("Small (sm)", size: .sm, customTint: Color.orange)
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: theme.spacing.xs) {
+                                CraftBadge("Capsule", shape: .capsule, customTint: Color.purple)
+                                CraftBadge("Rounded (8pt)", shape: .roundedRectangle(radius: 8), customTint: Color.teal)
+                                CraftBadge("Pink Solid", variant: .solid, shape: .capsule, customTint: Color.pink)
+                                CraftBadge("Small (sm)", size: .sm, customTint: Color.orange)
+                            }
+                            .padding(.vertical, 2)
                         }
                     }
                 }
@@ -1497,16 +1541,18 @@ private struct CatalogContainersOverlaysSection: View {
 
             // CraftFlipCard 3D Double Sided
             CraftCard(style: .elevated) {
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                VStack(alignment: .leading, spacing: theme.spacing.sm) {
+                    CraftText("CraftFlipCard (3D Double-Sided with Specular Glare)", style: .headline)
+
                     HStack {
-                        CraftText("CraftFlipCard (3D Double-Sided with Specular Glare)", style: .headline)
+                        CraftText("Rotation Axis", style: .caption, color: theme.colors.textSecondary)
                         Spacer()
                         Picker("Axis", selection: $flipAxis) {
                             Text("Horizontal").tag(Axis.horizontal)
                             Text("Vertical").tag(Axis.vertical)
                         }
                         .pickerStyle(.segmented)
-                        .frame(width: 160)
+                        .frame(width: 170)
                     }
 
                     CraftFlipCard(isFlipped: $isCardFlipped, axis: flipAxis, edgeThickness: 3, showSpecularGlare: true) {
@@ -1574,12 +1620,34 @@ private struct CatalogContainersOverlaysSection: View {
                     CraftDivider()
 
                     CraftText("CraftEmptyState (Layered Squircle Illustrations)", style: .headline)
-                    Picker("Empty State Preset", selection: $selectedEmptyPreset) {
-                        ForEach(CatalogEmptyStatePreset.allCases) { preset in
-                            Text(preset.rawValue).tag(preset)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: theme.spacing.xs) {
+                            ForEach(CatalogEmptyStatePreset.allCases) { preset in
+                                Button(action: {
+                                    withAnimation(theme.animations.springSmooth) {
+                                        selectedEmptyPreset = preset
+                                    }
+                                }) {
+                                    Text(preset.rawValue)
+                                        .font(.system(.caption, design: .rounded, weight: selectedEmptyPreset == preset ? .bold : .medium))
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 6)
+                                        .background(selectedEmptyPreset == preset ? theme.colors.brandPrimary : theme.colors.surfaceSubtle)
+                                        .foregroundStyle(selectedEmptyPreset == preset ? Color.white : theme.colors.textPrimary)
+                                        .clipShape(Capsule())
+                                        .overlay(
+                                            Capsule()
+                                                .strokeBorder(
+                                                    selectedEmptyPreset == preset ? theme.colors.brandPrimary : theme.colors.borderDefault,
+                                                    lineWidth: 1
+                                                )
+                                        )
+                                }
+                                .buttonStyle(.plain)
+                            }
                         }
+                        .padding(.vertical, 2)
                     }
-                    .pickerStyle(.segmented)
 
                     CraftCard(style: .outlined) {
                         CraftEmptyState(symbol: selectedEmptyPreset.symbol, title: selectedEmptyPreset.title, message: selectedEmptyPreset.message, buttonTitle: selectedEmptyPreset.buttonTitle, buttonSymbol: selectedEmptyPreset.buttonSymbol, buttonAction: onEmptyAction)
@@ -1776,12 +1844,34 @@ private struct CatalogJourneyPathSection: View {
                 // Interactive Learning Path
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     CraftText("Interactive Multi-Node Path & Snake Connectors", style: .headline)
-                    Picker("Row Pattern", selection: $selectedRowPatternPreset) {
-                        ForEach(CatalogRowPatternPreset.allCases) { preset in
-                            Text(preset.rawValue).tag(preset)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: theme.spacing.xs) {
+                            ForEach(CatalogRowPatternPreset.allCases) { preset in
+                                Button(action: {
+                                    withAnimation(theme.animations.springSmooth) {
+                                        selectedRowPatternPreset = preset
+                                    }
+                                }) {
+                                    Text(preset.rawValue)
+                                        .font(.system(.caption, design: .rounded, weight: selectedRowPatternPreset == preset ? .bold : .medium))
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 6)
+                                        .background(selectedRowPatternPreset == preset ? theme.colors.brandPrimary : theme.colors.surfaceSubtle)
+                                        .foregroundStyle(selectedRowPatternPreset == preset ? Color.white : theme.colors.textPrimary)
+                                        .clipShape(Capsule())
+                                        .overlay(
+                                            Capsule()
+                                                .strokeBorder(
+                                                    selectedRowPatternPreset == preset ? theme.colors.brandPrimary : theme.colors.borderDefault,
+                                                    lineWidth: 1
+                                                )
+                                        )
+                                }
+                                .buttonStyle(.plain)
+                            }
                         }
+                        .padding(.vertical, 2)
                     }
-                    .pickerStyle(.segmented)
 
                     CraftLearningPath(
                         sections: sections,
@@ -1832,12 +1922,34 @@ private struct CatalogActivityStreakSection: View {
                 // Streak Controls
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     CraftText("Streak Tier Preset", style: .headline)
-                    Picker("Streak Tier", selection: $selectedPreset) {
-                        ForEach(CatalogStreakTierPreset.allCases) { preset in
-                            Text(preset.rawValue).tag(preset)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: theme.spacing.xs) {
+                            ForEach(CatalogStreakTierPreset.allCases) { preset in
+                                Button(action: {
+                                    withAnimation(theme.animations.springSmooth) {
+                                        selectedPreset = preset
+                                    }
+                                }) {
+                                    Text(preset.rawValue)
+                                        .font(.system(.caption, design: .rounded, weight: selectedPreset == preset ? .bold : .medium))
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 6)
+                                        .background(selectedPreset == preset ? theme.colors.brandPrimary : theme.colors.surfaceSubtle)
+                                        .foregroundStyle(selectedPreset == preset ? Color.white : theme.colors.textPrimary)
+                                        .clipShape(Capsule())
+                                        .overlay(
+                                            Capsule()
+                                                .strokeBorder(
+                                                    selectedPreset == preset ? theme.colors.brandPrimary : theme.colors.borderDefault,
+                                                    lineWidth: 1
+                                                )
+                                        )
+                                }
+                                .buttonStyle(.plain)
+                            }
                         }
+                        .padding(.vertical, 2)
                     }
-                    .pickerStyle(.segmented)
 
                     CraftToggle(isOn: $isCompletedToday, title: "Goal Completed Today", subtitle: "Toggles active flame vs. pending breathing pulse node", iconName: "checkmark.circle.fill")
                 }
