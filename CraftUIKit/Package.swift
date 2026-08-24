@@ -3,6 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "CraftUIKit",
+    defaultLocalization: "en",
     platforms: [
         .iOS(.v17),
         .macOS(.v14)
@@ -18,7 +19,10 @@ let package = Package(
         .target(
             name: "CraftUIKit",
             dependencies: [],
-            path: "Sources/CraftUIKit"
+            path: "Sources/CraftUIKit",
+            resources: [
+                .process("Resources")
+            ]
         ),
         .testTarget(
             name: "CraftUIKitTests",
