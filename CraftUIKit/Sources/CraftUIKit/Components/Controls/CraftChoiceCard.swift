@@ -144,7 +144,7 @@ public struct CraftChoiceCard: View {
         }
         .padding(theme.spacing.base)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(backgroundColor)
+        .background(cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: theme.radii.lg))
         .overlay(
             RoundedRectangle(cornerRadius: theme.radii.lg)
@@ -153,6 +153,32 @@ public struct CraftChoiceCard: View {
         .overlay(topHighlightOverlay)
         .frame(minHeight: 44)
         .contentShape(Rectangle())
+    }
+
+    @ViewBuilder
+    private var cardBackground: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: theme.radii.lg)
+                .fill(theme.colors.surfaceCard)
+
+            if state != .idle && state != .disabled {
+                RoundedRectangle(cornerRadius: theme.radii.lg)
+                    .fill(stateTintOverlay)
+            }
+        }
+    }
+
+    private var stateTintOverlay: Color {
+        switch state {
+        case .idle, .disabled:
+            return .clear
+        case .selected:
+            return theme.colors.brandPrimary.opacity(0.08)
+        case .correct:
+            return theme.colors.statusSuccess.opacity(0.10)
+        case .wrong:
+            return theme.colors.statusDanger.opacity(0.10)
+        }
     }
 
     @ViewBuilder
@@ -241,14 +267,10 @@ public struct CraftChoiceCard: View {
 
     private var titleColor: Color {
         switch state {
-        case .idle:
+        case .idle, .correct, .wrong:
             return theme.colors.textPrimary
         case .selected:
             return theme.colors.brandPrimary
-        case .correct:
-            return theme.colors.statusSuccess
-        case .wrong:
-            return theme.colors.statusDanger
         case .disabled:
             return theme.colors.textMuted
         }
@@ -260,19 +282,6 @@ public struct CraftChoiceCard: View {
             return theme.colors.textSecondary
         case .disabled:
             return theme.colors.textMuted
-        }
-    }
-
-    private var backgroundColor: Color {
-        switch state {
-        case .idle, .disabled:
-            return theme.colors.surfaceCard
-        case .selected:
-            return theme.colors.brandPrimary.opacity(0.12)
-        case .correct:
-            return theme.colors.statusSuccess.opacity(0.12)
-        case .wrong:
-            return theme.colors.statusDanger.opacity(0.12)
         }
     }
 
