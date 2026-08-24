@@ -3,7 +3,7 @@ import SwiftUI
 @testable import CraftUIKit
 
 final class CraftStreakModelTests: XCTestCase {
-    // MARK: - CraftStreakTier Tests
+    // MARK: - CraftStreakTier & CraftActivityTier Tests
 
     func testStreakTierThresholds() {
         XCTAssertEqual(CraftStreakTier.tier(for: -1), .starter)
@@ -24,7 +24,16 @@ final class CraftStreakModelTests: XCTestCase {
         XCTAssertEqual(CraftStreakTier.legendary.rawValue, "legendary")
     }
 
-    // MARK: - CraftStreakDayStatus Tests
+    func testActivityTierThresholdsAndCases() {
+        XCTAssertEqual(CraftActivityTier.tier(for: 0), .starter)
+        XCTAssertEqual(CraftActivityTier.tier(for: 6), .starter)
+        XCTAssertEqual(CraftActivityTier.tier(for: 7), .blaze)
+        XCTAssertEqual(CraftActivityTier.tier(for: 29), .blaze)
+        XCTAssertEqual(CraftActivityTier.tier(for: 30), .legendary)
+        XCTAssertEqual(CraftActivityTier.allCases, [.starter, .blaze, .legendary])
+    }
+
+    // MARK: - CraftStreakDayStatus & CraftActivityDayStatus Tests
 
     func testStreakDayStatusCasesAndRawValues() {
         XCTAssertEqual(CraftStreakDayStatus.allCases, [.completed, .pending, .frozen, .missed, .upcoming])
@@ -35,7 +44,16 @@ final class CraftStreakModelTests: XCTestCase {
         XCTAssertEqual(CraftStreakDayStatus.upcoming.rawValue, "upcoming")
     }
 
-    // MARK: - CraftStreakDay Tests
+    func testActivityDayStatusCasesAndRawValues() {
+        XCTAssertEqual(CraftActivityDayStatus.allCases, [.completed, .pending, .saved, .missed, .upcoming])
+        XCTAssertEqual(CraftActivityDayStatus.completed.rawValue, "completed")
+        XCTAssertEqual(CraftActivityDayStatus.pending.rawValue, "pending")
+        XCTAssertEqual(CraftActivityDayStatus.saved.rawValue, "saved")
+        XCTAssertEqual(CraftActivityDayStatus.missed.rawValue, "missed")
+        XCTAssertEqual(CraftActivityDayStatus.upcoming.rawValue, "upcoming")
+    }
+
+    // MARK: - CraftStreakDay & CraftActivityDay Tests
 
     func testStreakDayInitialization() {
         let day1 = CraftStreakDay(id: "2026-08-23", weekdaySymbol: "T2", status: .completed, isToday: true)
@@ -60,7 +78,20 @@ final class CraftStreakModelTests: XCTestCase {
         XCTAssertNotEqual(dayA, dayC)
     }
 
-    // MARK: - CraftStreakData Tests
+    func testActivityDayInitializationAndEquality() {
+        let day1 = CraftActivityDay(id: "d1", weekdaySymbol: "Mon", status: .completed, isToday: true)
+        let day2 = CraftActivityDay(id: "d1", weekdaySymbol: "Mon", status: .completed, isToday: true)
+        let day3 = CraftActivityDay(id: "d2", weekdaySymbol: "Tue", status: .saved)
+
+        XCTAssertEqual(day1, day2)
+        XCTAssertNotEqual(day1, day3)
+        XCTAssertEqual(day1.id, "d1")
+        XCTAssertEqual(day1.weekdaySymbol, "Mon")
+        XCTAssertEqual(day1.status, .completed)
+        XCTAssertTrue(day1.isToday)
+    }
+
+    // MARK: - CraftStreakData & CraftActivityTrackerData Tests
 
     func testMilestoneProgressCalculation() {
         let streakData = CraftStreakData(
@@ -147,5 +178,107 @@ final class CraftStreakModelTests: XCTestCase {
 
         XCTAssertEqual(data1, data2)
         XCTAssertNotEqual(data1, data3)
+    }
+
+    func testActivityTrackerDataDefaultsAndCustomValues() {
+        let defaultData = CraftActivityTrackerData(
+            currentValue: 5,
+            bestRecord: 10
+        )
+        XCTAssertEqual(defaultData.currentValue, 5)
+        XCTAssertEqual(defaultData.bestRecord, 10)
+        XCTAssertNil(defaultData.unitKey)
+        XCTAssertEqual(defaultData.unit, "days")
+        XCTAssertEqual(defaultData.tier, .starter)
+        XCTAssertEqual(defaultData.shieldTokens, 2)
+        XCTAssertEqual(defaultData.maxShieldTokens, 3)
+        XCTAssertEqual(defaultData.nextMilestone, 21)
+        XCTAssertFalse(defaultData.isCompletedToday)
+        XCTAssertEqual(defaultData.cycleDays, [])
+        XCTAssertNil(defaultData.subtitle)
+        XCTAssertEqual(defaultData.milestoneProgress, 5.0 / 21.0, accuracy: 0.001)
+
+        let customData = CraftActivityTrackerData(
+            currentValue: 30,
+            bestRecord: 30,
+            unitKey: "custom.unit",
+            unit: "hours",
+            tier: .legendary,
+            shieldTokens: 3,
+            maxShieldTokens: 5,
+            nextMilestone: 50,
+            isCompletedToday: true,
+            cycleDays: [CraftActivityDay(id: "1", weekdaySymbol: "Mon", status: .completed)],
+            subtitle: "30-hour milestone"
+        )
+        XCTAssertEqual(customData.currentValue, 30)
+        XCTAssertEqual(customData.unitKey, "custom.unit")
+        XCTAssertEqual(customData.unit, "hours")
+        XCTAssertEqual(customData.tier, .legendary)
+        XCTAssertEqual(customData.shieldTokens, 3)
+        XCTAssertEqual(customData.maxShieldTokens, 5)
+        XCTAssertEqual(customData.nextMilestone, 50)
+        XCTAssertTrue(customData.isCompletedToday)
+        XCTAssertEqual(customData.cycleDays.count, 1)
+        XCTAssertEqual(customData.subtitle, "30-hour milestone")
+        XCTAssertEqual(customData.milestoneProgress, 0.6, accuracy: 0.001)
+    }
+
+    // MARK: - Conversions Between Streak & Activity Models
+
+    func testStreakStatusToActivityStatusConversion() {
+        XCTAssertEqual(CraftStreakDayStatus.completed.asActivityStatus, .completed)
+        XCTAssertEqual(CraftStreakDayStatus.pending.asActivityStatus, .pending)
+        XCTAssertEqual(CraftStreakDayStatus.frozen.asActivityStatus, .saved)
+        XCTAssertEqual(CraftStreakDayStatus.missed.asActivityStatus, .missed)
+        XCTAssertEqual(CraftStreakDayStatus.upcoming.asActivityStatus, .upcoming)
+
+        XCTAssertEqual(CraftStreakDayStatus(activityStatus: .completed), .completed)
+        XCTAssertEqual(CraftStreakDayStatus(activityStatus: .pending), .pending)
+        XCTAssertEqual(CraftStreakDayStatus(activityStatus: .saved), .frozen)
+        XCTAssertEqual(CraftStreakDayStatus(activityStatus: .missed), .missed)
+        XCTAssertEqual(CraftStreakDayStatus(activityStatus: .upcoming), .upcoming)
+    }
+
+    func testStreakDayToActivityDayConversion() {
+        let streakDay = CraftStreakDay(id: "sd1", weekdaySymbol: "T2", status: .frozen, isToday: true)
+        let activityDay = streakDay.asActivityDay
+
+        XCTAssertEqual(activityDay.id, "sd1")
+        XCTAssertEqual(activityDay.weekdaySymbol, "T2")
+        XCTAssertEqual(activityDay.status, .saved)
+        XCTAssertTrue(activityDay.isToday)
+
+        let convertedBack = CraftStreakDay(activityDay: activityDay)
+        XCTAssertEqual(convertedBack, streakDay)
+    }
+
+    func testStreakDataToActivityTrackerDataConversion() {
+        let streakData = CraftStreakData(
+            currentStreak: 15,
+            bestStreak: 25,
+            freezeTokens: 2,
+            maxFreezeTokens: 3,
+            nextMilestoneDays: 30,
+            isCompletedToday: true,
+            weekDays: [
+                CraftStreakDay(id: "1", weekdaySymbol: "T2", status: .completed),
+                CraftStreakDay(id: "2", weekdaySymbol: "T3", status: .frozen)
+            ],
+            subtitle: "Halfway there!"
+        )
+
+        let activityData = streakData.asActivityTrackerData
+        XCTAssertEqual(activityData.currentValue, 15)
+        XCTAssertEqual(activityData.bestRecord, 25)
+        XCTAssertEqual(activityData.shieldTokens, 2)
+        XCTAssertEqual(activityData.maxShieldTokens, 3)
+        XCTAssertEqual(activityData.nextMilestone, 30)
+        XCTAssertTrue(activityData.isCompletedToday)
+        XCTAssertEqual(activityData.cycleDays.count, 2)
+        XCTAssertEqual(activityData.cycleDays[0].status, .completed)
+        XCTAssertEqual(activityData.cycleDays[1].status, .saved)
+        XCTAssertEqual(activityData.subtitle, "Halfway there!")
+        XCTAssertEqual(activityData.milestoneProgress, 0.5, accuracy: 0.001)
     }
 }

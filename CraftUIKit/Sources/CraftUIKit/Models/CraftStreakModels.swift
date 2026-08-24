@@ -3,27 +3,8 @@ import SwiftUI
 
 // MARK: - CraftStreakTier
 
-/// Visual and progression tier of the Streak system.
-public enum CraftStreakTier: String, Sendable, CaseIterable, Equatable {
-    case starter   // 0 - 6 days (Warm Coral / Base)
-    case blaze     // 7 - 29 days (Blazing Flame / Gold)
-    case legendary // 30+ days (Legendary Aura / Multicolored)
-
-    /// Evaluates the streak tier based on consecutive days count.
-    ///
-    /// - Parameter days: Number of consecutive streak days.
-    /// - Returns: Corresponding `CraftStreakTier`.
-    public static func tier(for days: Int) -> CraftStreakTier {
-        switch days {
-        case ..<7:
-            return .starter
-        case 7...29:
-            return .blaze
-        default:
-            return .legendary
-        }
-    }
-}
+/// Visual and progression tier of the Streak system (typealias to `CraftActivityTier`).
+public typealias CraftStreakTier = CraftActivityTier
 
 // MARK: - CraftStreakDayStatus
 
@@ -34,6 +15,28 @@ public enum CraftStreakDayStatus: String, Sendable, CaseIterable, Equatable {
     case frozen    // Streak protected by a freeze shield
     case missed    // Day elapsed without meeting the goal
     case upcoming  // Future day in the weekly cycle
+
+    /// Converts to the generic activity day status.
+    public var asActivityStatus: CraftActivityDayStatus {
+        switch self {
+        case .completed: return .completed
+        case .pending: return .pending
+        case .frozen: return .saved
+        case .missed: return .missed
+        case .upcoming: return .upcoming
+        }
+    }
+
+    /// Creates a streak day status from a generic activity day status.
+    public init(activityStatus: CraftActivityDayStatus) {
+        switch activityStatus {
+        case .completed: self = .completed
+        case .pending: self = .pending
+        case .saved: self = .frozen
+        case .missed: self = .missed
+        case .upcoming: self = .upcoming
+        }
+    }
 }
 
 // MARK: - CraftStreakDay
@@ -55,6 +58,24 @@ public struct CraftStreakDay: Identifiable, Sendable, Equatable {
         self.weekdaySymbol = weekdaySymbol
         self.status = status
         self.isToday = isToday
+    }
+
+    /// Converts to generic `CraftActivityDay`.
+    public var asActivityDay: CraftActivityDay {
+        CraftActivityDay(
+            id: id,
+            weekdaySymbol: weekdaySymbol,
+            status: status.asActivityStatus,
+            isToday: isToday
+        )
+    }
+
+    /// Creates from generic `CraftActivityDay`.
+    public init(activityDay: CraftActivityDay) {
+        self.id = activityDay.id
+        self.weekdaySymbol = activityDay.weekdaySymbol
+        self.status = CraftStreakDayStatus(activityStatus: activityDay.status)
+        self.isToday = activityDay.isToday
     }
 }
 
@@ -101,5 +122,22 @@ public struct CraftStreakData: Sendable, Equatable {
         self.isCompletedToday = isCompletedToday
         self.weekDays = weekDays
         self.subtitle = subtitle
+    }
+
+    /// Converts to universal `CraftActivityTrackerData`.
+    public var asActivityTrackerData: CraftActivityTrackerData {
+        CraftActivityTrackerData(
+            currentValue: currentStreak,
+            bestRecord: bestStreak,
+            unitKey: "craft.streak.daysUnit",
+            unit: "ngày",
+            tier: tier,
+            shieldTokens: freezeTokens,
+            maxShieldTokens: maxFreezeTokens,
+            nextMilestone: nextMilestoneDays,
+            isCompletedToday: isCompletedToday,
+            cycleDays: weekDays.map(\.asActivityDay),
+            subtitle: subtitle
+        )
     }
 }

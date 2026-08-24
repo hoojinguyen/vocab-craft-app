@@ -188,6 +188,23 @@
         }
       }
     },
+    "craft.journey.challengeLesson" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CHINH PHỤC THỬ THÁCH"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CHINH PHỤC THỬ THÁCH"
+          }
+        }
+      }
+    },
     "craft.journey.completedA11y" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -222,6 +239,23 @@
         }
       }
     },
+    "craft.journey.continueLesson" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TIẾP TỤC HỌC (%lld%%)"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TIẾP TỤC HỌC (%lld%%)"
+          }
+        }
+      }
+    },
     "craft.journey.currentA11y" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -252,6 +286,193 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Đang khóa"
+          }
+        }
+      }
+    },
+    "craft.journey.lockedLesson" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BÀI HỌC ĐANG KHÓA"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BÀI HỌC ĐANG KHÓA"
+          }
+        }
+      }
+    },
+    "craft.journey.minutesUnit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld phút"
+          }
+        }
+      }
+    },
+    "craft.journey.noLessons" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Lessons Available"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa có bài học nào"
+          }
+        }
+      }
+    },
+    "craft.journey.noLessonsDesc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There are no lesson sections available in this learning path."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hiện chưa có bài học nào trong lộ trình này."
+          }
+        }
+      }
+    },
+    "craft.journey.objective1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nắm vững phát âm chuẩn và ý nghĩa từ vựng trọng tâm"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nắm vững phát âm chuẩn và ý nghĩa từ vựng trọng tâm"
+          }
+        }
+      }
+    },
+    "craft.journey.objective2" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thực hành phản xạ câu qua bài tập tương tác Spaced Repetition"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thực hành phản xạ câu qua bài tập tương tác Spaced Repetition"
+          }
+        }
+      }
+    },
+    "craft.journey.objective3" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tích lũy %@ và duy trì chuỗi Streak học tập"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tích lũy %@ và duy trì chuỗi Streak học tập"
+          }
+        }
+      }
+    },
+    "craft.journey.objectives" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mục tiêu bài học"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mục tiêu bài học"
+          }
+        }
+      }
+    },
+    "craft.journey.reviewLesson" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ÔN TẬP LẠI (+%lld XP)"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ÔN TẬP LẠI (+%lld XP)"
+          }
+        }
+      }
+    },
+    "craft.journey.startLesson" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BẮT ĐẦU HỌC"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BẮT ĐẦU HỌC"
+          }
+        }
+      }
+    },
+    "craft.journey.wordsUnit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld từ vựng mới"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld từ vựng mới"
           }
         }
       }
@@ -341,6 +562,40 @@
         }
       }
     },
+    "craft.streak.celebrationTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chuỗi ngày rực lửa!"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chuỗi ngày rực lửa!"
+          }
+        }
+      }
+    },
+    "craft.streak.continueAction" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiếp tục học"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiếp tục học"
+          }
+        }
+      }
+    },
     "craft.streak.daysUnit" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -371,6 +626,159 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld/%lld Khiên"
+          }
+        }
+      }
+    },
+    "craft.streak.milestoneReached" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đạt mốc %lld ngày!"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đạt mốc %lld ngày!"
+          }
+        }
+      }
+    },
+    "craft.streak.milestoneRemaining" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Còn %lld ngày đến mốc %lld"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Còn %lld ngày đến mốc %lld"
+          }
+        }
+      }
+    },
+    "craft.streak.milestoneTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cột mốc %lld ngày!"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cột mốc %lld ngày!"
+          }
+        }
+      }
+    },
+    "craft.streak.msgBlaze" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Phong độ tuyệt vời! Ngọn lửa học tập của bạn đang rực sáng."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Phong độ tuyệt vời! Ngọn lửa học tập của bạn đang rực sáng."
+          }
+        }
+      }
+    },
+    "craft.streak.msgBlazeMilestone" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đẳng cấp! Bạn đã đạt chuỗi rực lửa, tiếp tục duy trì đà tiến bộ này!"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đẳng cấp! Bạn đã đạt chuỗi rực lửa, tiếp tục duy trì đà tiến bộ này!"
+          }
+        }
+      }
+    },
+    "craft.streak.msgLegendary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không thể ngăn cản! Bạn là tấm gương học tập đầy cảm hứng."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không thể ngăn cản! Bạn là tấm gương học tập đầy cảm hứng."
+          }
+        }
+      }
+    },
+    "craft.streak.msgLegendaryMilestone" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Huyền thoại! Bạn đã chinh phục cột mốc đỉnh cao với sự kiên trì phi thường!"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Huyền thoại! Bạn đã chinh phục cột mốc đỉnh cao với sự kiên trì phi thường!"
+          }
+        }
+      }
+    },
+    "craft.streak.msgStarter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tuyệt vời! Bạn đang xây dựng một thói quen học tập vững chắc."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tuyệt vời! Bạn đang xây dựng một thói quen học tập vững chắc."
+          }
+        }
+      }
+    },
+    "craft.streak.msgStarter1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Khởi đầu tuyệt vời! Hãy duy trì thói quen học mỗi ngày nhé."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Khởi đầu tuyệt vời! Hãy duy trì thói quen học mỗi ngày nhé."
           }
         }
       }
@@ -422,6 +830,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Chuỗi khởi đầu"
+          }
+        }
+      }
+    },
+    "craft.streak.todayCompleted" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hôm nay đã hoàn thành"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hôm nay đã hoàn thành"
+          }
+        }
+      }
+    },
+    "craft.streak.todayPending" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hôm nay chưa hoàn thành"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hôm nay chưa hoàn thành"
+          }
+        }
+      }
+    },
+    "craft.streak.viewMilestoneAction" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xem mốc thưởng"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xem mốc thưởng"
+          }
+        }
+      }
+    },
+    "craft.streak.viewShieldAction" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xem khiên bảo vệ"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xem khiên bảo vệ"
           }
         }
       }

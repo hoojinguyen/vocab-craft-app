@@ -361,4 +361,152 @@ final class CraftStreakComponentTests: XCTestCase {
         )
         XCTAssertTrue(tierChangeSheet.isMilestone)
     }
+
+
+    // MARK: - Task 6: CraftActivityTrackerCard & CraftCelebrationSheet Tests
+
+    func testCraftActivityTrackerCardRenderingAndTiers() {
+        let statuses: [CraftActivityDayStatus] = [.completed, .pending, .saved, .missed, .upcoming]
+        let days = statuses.enumerated().map { idx, status in
+            CraftActivityDay(id: "\(idx)", weekdaySymbol: "D\(idx)", status: status, isToday: status == .pending)
+        }
+
+        let activityData = CraftActivityTrackerData(
+            currentValue: 14,
+            bestRecord: 25,
+            unitKey: "craft.streak.daysUnit",
+            unit: "days",
+            tier: .blaze,
+            shieldTokens: 2,
+            maxShieldTokens: 3,
+            nextMilestone: 21,
+            isCompletedToday: false,
+            cycleDays: days
+        )
+
+        let card = CraftActivityTrackerCard(data: activityData)
+        XCTAssertNotNil(card.body)
+        XCTAssertEqual(card.data.currentValue, 14)
+        XCTAssertEqual(card.data.bestRecord, 25)
+        XCTAssertEqual(card.data.tier, .blaze)
+        XCTAssertEqual(card.data.shieldTokens, 2)
+        XCTAssertEqual(card.data.maxShieldTokens, 3)
+        XCTAssertEqual(card.data.cycleDays.count, 5)
+    }
+
+    func testCraftActivityTrackerCardTapCallbacks() {
+        var didTapShield = false
+        var didTapMilestone = false
+
+        let data = CraftActivityTrackerData(
+            currentValue: 7,
+            bestRecord: 14,
+            shieldTokens: 1,
+            maxShieldTokens: 2,
+            nextMilestone: 14
+        )
+
+        let card = CraftActivityTrackerCard(
+            data: data,
+            onShieldTap: { didTapShield = true },
+            onMilestoneTap: { didTapMilestone = true }
+        )
+
+        XCTAssertNotNil(card.body)
+        XCTAssertNotNil(card.onShieldTap)
+        XCTAssertNotNil(card.onMilestoneTap)
+
+        card.onShieldTap?()
+        XCTAssertTrue(didTapShield)
+
+        card.onMilestoneTap?()
+        XCTAssertTrue(didTapMilestone)
+    }
+
+    func testCraftActivityTrackerCardStyles() {
+        let data = CraftActivityTrackerData(
+            currentValue: 10,
+            bestRecord: 20
+        )
+
+        for style in CraftCardStyle.allCases {
+            let card = CraftActivityTrackerCard(data: data, cardStyle: style)
+            XCTAssertEqual(card.cardStyle, style)
+            XCTAssertNotNil(card.body)
+        }
+    }
+
+    func testCraftActivityTrackerCardCustomAccessibility() {
+        let customLabel = "Custom activity card label"
+        let customHint = "Custom activity card hint"
+        let data = CraftActivityTrackerData(currentValue: 8, bestRecord: 12)
+
+        let card = CraftActivityTrackerCard(
+            data: data,
+            accessibilityLabel: customLabel,
+            accessibilityHint: customHint
+        )
+
+        XCTAssertEqual(card.customAccessibilityLabel, customLabel)
+        XCTAssertEqual(card.customAccessibilityHint, customHint)
+        XCTAssertNotNil(card.body)
+    }
+
+    func testCraftCelebrationSheetRenderingAndMilestoneDetection() {
+        let sheetMilestone = CraftCelebrationSheet(
+            currentValue: 30,
+            previousValue: 29,
+            unitKey: "craft.streak.daysUnit",
+            unit: "days",
+            cycleDays: [CraftActivityDay(id: "1", weekdaySymbol: "Mon", status: .completed)],
+            onContinue: {}
+        )
+
+        XCTAssertNotNil(sheetMilestone.body)
+        XCTAssertEqual(sheetMilestone.currentValue, 30)
+        XCTAssertEqual(sheetMilestone.previousValue, 29)
+        XCTAssertEqual(sheetMilestone.tier, .legendary)
+        XCTAssertTrue(sheetMilestone.isMilestone)
+        XCTAssertEqual(sheetMilestone.cycleDays.count, 1)
+
+        let sheetRegular = CraftCelebrationSheet(
+            currentValue: 8,
+            previousValue: 7,
+            onContinue: {}
+        )
+        XCTAssertFalse(sheetRegular.isMilestone)
+        XCTAssertEqual(sheetRegular.tier, .blaze)
+    }
+
+    func testCraftCelebrationSheetContinueCallback() {
+        var didContinue = false
+        let sheet = CraftCelebrationSheet(
+            currentValue: 10,
+            previousValue: 9,
+            onContinue: {
+                didContinue = true
+            }
+        )
+
+        XCTAssertNotNil(sheet.body)
+        sheet.onContinue()
+        XCTAssertTrue(didContinue)
+    }
+
+    func testCraftCelebrationSheetCustomAccessibility() {
+        let customLabel = "Custom universal celebration label"
+        let customHint = "Custom universal celebration hint"
+        let sheet = CraftCelebrationSheet(
+            currentValue: 14,
+            previousValue: 13,
+            accessibilityLabel: customLabel,
+            accessibilityHint: customHint,
+            onContinue: {}
+        )
+
+        XCTAssertEqual(sheet.customAccessibilityLabel, customLabel)
+        XCTAssertEqual(sheet.customAccessibilityHint, customHint)
+        XCTAssertNotNil(sheet.body)
+    }
+
 }

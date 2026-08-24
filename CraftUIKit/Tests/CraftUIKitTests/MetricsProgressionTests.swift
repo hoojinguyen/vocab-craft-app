@@ -215,5 +215,65 @@ final class MetricsProgressionTests: XCTestCase {
             XCTAssertEqual(node.isLast, state == .upcoming)
         }
     }
-}
 
+
+    // MARK: - Task 6: Generic Journey & Activity Metrics Progression Tests
+
+    func testGenericJourneyPathMetricsProgression() {
+        let node1 = CraftPathNodeModel(
+            id: "m_1",
+            title: "Intro",
+            state: .completed,
+            stars: 3,
+            metricText: "50 XP"
+        )
+        let node2 = CraftPathNodeModel(
+            id: "m_2",
+            title: "Practice",
+            state: .inProgress,
+            progress: 0.6,
+            metricText: "25 XP"
+        )
+        let node3 = CraftPathNodeModel(
+            id: "m_3",
+            title: "Exam",
+            state: .upcoming,
+            metricText: "100 XP"
+        )
+
+        let section = CraftJourneySection(
+            id: "sec_metrics",
+            title: "Metric Module",
+            subtitle: "Tracking XP and completion",
+            levelText: "UNIT 1",
+            progressText: "1/3 Complete",
+            progressValue: 1.0 / 3.0,
+            nodes: [node1, node2, node3]
+        )
+
+        XCTAssertEqual(section.nodes.count, 3)
+        XCTAssertEqual(section.progressValue ?? 0, 1.0 / 3.0, accuracy: 0.001)
+        XCTAssertEqual(node1.stars, 3)
+        XCTAssertEqual(node2.progress ?? 0, 0.6, accuracy: 0.001)
+        XCTAssertEqual(node3.metricText, "100 XP")
+    }
+
+    func testActivityTrackerDataMetricsCalculations() {
+        let tracker = CraftActivityTrackerData(
+            currentValue: 18,
+            bestRecord: 30,
+            unitKey: "craft.streak.daysUnit",
+            unit: "days",
+            shieldTokens: 3,
+            maxShieldTokens: 3,
+            nextMilestone: 21,
+            isCompletedToday: true
+        )
+
+        XCTAssertEqual(tracker.milestoneProgress, 18.0 / 21.0, accuracy: 0.001)
+        XCTAssertEqual(tracker.tier, .blaze)
+        XCTAssertTrue(tracker.isCompletedToday)
+        XCTAssertEqual(tracker.shieldTokens, 3)
+    }
+
+}

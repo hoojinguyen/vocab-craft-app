@@ -34,16 +34,16 @@ public struct CraftLessonDetailSheet: View {
     public var ctaTitle: String {
         switch node.state {
         case .active, .upcoming:
-            return "BẮT ĐẦU HỌC"
+            return CraftLocalized.string("craft.journey.startLesson", comment: "BẮT ĐẦU HỌC")
         case .inProgress:
             let percentage = Int(((node.progress ?? 0) * 100).rounded())
-            return "TIẾP TỤC HỌC (\(percentage)%)"
+            return CraftLocalized.format("craft.journey.continueLesson", percentage)
         case .completed:
-            return "ÔN TẬP LẠI (+5 XP)"
+            return CraftLocalized.format("craft.journey.reviewLesson", 5)
         case .bonus:
-            return "CHINH PHỤC THỬ THÁCH"
+            return CraftLocalized.string("craft.journey.challengeLesson", comment: "CHINH PHỤC THỬ THÁCH")
         case .locked:
-            return "BÀI HỌC ĐANG KHÓA"
+            return CraftLocalized.string("craft.journey.lockedLesson", comment: "BÀI HỌC ĐANG KHÓA")
         }
     }
 
@@ -149,7 +149,7 @@ public struct CraftLessonDetailSheet: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Đóng")
+                .accessibilityLabel(CraftLocalized.string("craft.action.close"))
                 .accessibilityHint("Nhấn đúp để đóng thông tin bài học")
             }
             .padding(.horizontal, theme.spacing.base)
@@ -274,7 +274,7 @@ public struct CraftLessonDetailSheet: View {
 
                 if node.state == .upcoming || node.state == .locked {
                     HexagonShape()
-                        .strokeBorder(theme.colors.borderDefault, lineWidth: 1.5)
+                        .stroke(theme.colors.borderDefault, lineWidth: 1.5)
                 }
             }
         case .standard:
@@ -294,7 +294,7 @@ public struct CraftLessonDetailSheet: View {
 
                 if node.state == .upcoming || node.state == .locked {
                     Circle()
-                        .strokeBorder(theme.colors.borderDefault, lineWidth: 1.5)
+                        .stroke(theme.colors.borderDefault, lineWidth: 1.5)
                 }
             }
         case .treasureChest:
@@ -308,7 +308,7 @@ public struct CraftLessonDetailSheet: View {
         switch node.kind {
         case .checkpoint:
             HexagonShape()
-                .strokeBorder(
+                .stroke(
                     LinearGradient(
                         colors: [
                             Color.white.opacity(0.35),
@@ -322,7 +322,7 @@ public struct CraftLessonDetailSheet: View {
                 )
         case .standard, .treasureChest:
             Circle()
-                .strokeBorder(
+                .stroke(
                     LinearGradient(
                         colors: [
                             Color.white.opacity(0.35),
@@ -340,19 +340,19 @@ public struct CraftLessonDetailSheet: View {
     private var rimColor: Color {
         switch node.kind {
         case .treasureChest:
-            return Color(hex: 0xD97706)
+            return theme.colors.accent.opacity(0.85)
         case .standard, .checkpoint:
             switch node.state {
             case .completed:
-                return Color(hex: 0x059669)
+                return theme.colors.statusSuccess.opacity(0.85)
             case .active:
-                return Color(hex: 0xC2410C)
+                return theme.colors.brandPrimary.opacity(0.85)
             case .inProgress, .upcoming:
                 return theme.colors.borderDefault
             case .locked:
                 return theme.colors.surfaceSubtle
             case .bonus:
-                return Color(hex: 0xD97706)
+                return theme.colors.accent.opacity(0.85)
             }
         }
     }
@@ -403,7 +403,7 @@ public struct CraftLessonDetailSheet: View {
             // Duration Chip
             metricChip(
                 icon: "clock.fill",
-                title: "\(node.estimatedMinutes ?? 5) phút",
+                title: formattedDuration,
                 tintColor: theme.colors.brandPrimary,
                 backgroundColor: theme.colors.brandPrimary.opacity(0.12)
             )
@@ -444,7 +444,7 @@ public struct CraftLessonDetailSheet: View {
         .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
         .overlay(
             RoundedRectangle(cornerRadius: theme.radii.md)
-                .strokeBorder(theme.colors.borderDefault.opacity(0.5), lineWidth: 1)
+                .stroke(theme.colors.borderDefault.opacity(0.5), lineWidth: 1)
         )
     }
 
@@ -458,15 +458,15 @@ public struct CraftLessonDetailSheet: View {
                         .font(.system(size: 15, weight: .bold))
                         .foregroundStyle(theme.colors.brandPrimary)
 
-                    Text("Mục tiêu bài học")
+                    Text(CraftLocalized.string("craft.journey.objectives"))
                         .font(theme.typography.headline)
                         .foregroundStyle(theme.colors.textPrimary)
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
-                    objectiveRow(icon: "checkmark.circle.fill", text: "Nắm vững phát âm chuẩn và ý nghĩa từ vựng trọng tâm")
-                    objectiveRow(icon: "checkmark.circle.fill", text: "Thực hành phản xạ câu qua bài tập tương tác Spaced Repetition")
-                    objectiveRow(icon: "checkmark.circle.fill", text: "Tích lũy \(formattedXPReward) và duy trì chuỗi Streak học tập")
+                    objectiveRow(icon: "checkmark.circle.fill", text: CraftLocalized.string("craft.journey.objective1"))
+                    objectiveRow(icon: "checkmark.circle.fill", text: CraftLocalized.string("craft.journey.objective2"))
+                    objectiveRow(icon: "checkmark.circle.fill", text: CraftLocalized.format("craft.journey.objective3", formattedXPReward))
                 }
             }
         }
@@ -528,51 +528,4 @@ public struct CraftLessonDetailSheet: View {
         generator.impactOccurred()
         #endif
     }
-}
-
-// MARK: - Preview
-
-#Preview("CraftLessonDetailSheet - Active") {
-    CraftLessonDetailSheet(
-        node: LessonNodeModel(
-            id: "preview_active",
-            title: "Daily Food & Drinks",
-            subtitle: "15 từ mới • 4 phút",
-            iconName: "cup.and.saucer.fill",
-            state: .active,
-            progress: 0.45,
-            xpReward: 30,
-            estimatedMinutes: 4
-        )
-    )
-}
-
-#Preview("CraftLessonDetailSheet - Checkpoint") {
-    CraftLessonDetailSheet(
-        node: LessonNodeModel(
-            id: "preview_cp",
-            title: "Mastery Checkpoint",
-            subtitle: "25 câu hỏi tổng hợp",
-            iconName: "crown.fill",
-            state: .inProgress,
-            kind: .checkpoint,
-            progress: 0.75,
-            xpReward: 80,
-            estimatedMinutes: 8
-        )
-    )
-}
-
-#Preview("CraftLessonDetailSheet - Locked") {
-    CraftLessonDetailSheet(
-        node: LessonNodeModel(
-            id: "preview_locked",
-            title: "Advanced Travel Phrases",
-            subtitle: "20 từ vựng nâng cao",
-            iconName: "airplane",
-            state: .locked,
-            xpReward: 50,
-            estimatedMinutes: 6
-        )
-    )
 }

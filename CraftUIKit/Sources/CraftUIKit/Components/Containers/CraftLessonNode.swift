@@ -415,7 +415,7 @@ public struct CraftLessonNode: View, Equatable {
 
                 if model.state == .upcoming || model.state == .locked {
                     HexagonShape()
-                        .strokeBorder(theme.colors.borderDefault, lineWidth: 1.5)
+                        .stroke(theme.colors.borderDefault, lineWidth: 1.5)
                 }
             }
         case .standard:
@@ -436,7 +436,7 @@ public struct CraftLessonNode: View, Equatable {
 
                 if model.state == .upcoming || model.state == .locked {
                     Circle()
-                        .strokeBorder(theme.colors.borderDefault, lineWidth: 1.5)
+                        .stroke(theme.colors.borderDefault, lineWidth: 1.5)
                 }
             }
         case .treasureChest:
@@ -453,13 +453,13 @@ public struct CraftLessonNode: View, Equatable {
         switch model.kind {
         case .checkpoint:
             HexagonShape()
-                .strokeBorder(
+                .stroke(
                     theme.depths.topHighlight,
                     lineWidth: 1.5
                 )
         case .standard, .treasureChest:
             Circle()
-                .strokeBorder(
+                .stroke(
                     theme.depths.topHighlight,
                     lineWidth: 1.5
                 )
@@ -471,19 +471,19 @@ public struct CraftLessonNode: View, Equatable {
     private var rimColor: Color {
         switch model.kind {
         case .treasureChest:
-            return Color(hex: 0xD97706)
+            return theme.colors.accent.opacity(0.85)
         case .standard, .checkpoint:
             switch model.state {
             case .completed:
-                return Color(hex: 0x059669)
+                return theme.colors.statusSuccess.opacity(0.85)
             case .active:
-                return Color(hex: 0xC2410C)
+                return theme.colors.brandPrimary.opacity(0.85)
             case .inProgress, .upcoming:
                 return theme.colors.borderDefault
             case .locked:
                 return theme.colors.surfaceSubtle
             case .bonus:
-                return Color(hex: 0xD97706)
+                return theme.colors.accent.opacity(0.85)
             }
         }
     }
@@ -493,33 +493,32 @@ public struct CraftLessonNode: View, Equatable {
     @ViewBuilder
     private var activeGlowRing: some View {
         let isCheckpoint = model.kind == .checkpoint
+        let haloSize = nodeDiameter + 24
         if reduceMotion {
             ZStack {
-                // Static Soft Aura Disc (Background Cushion)
                 if isCheckpoint {
                     HexagonShape()
                         .fill(theme.colors.pathHaloGlow)
-                        .frame(width: nodeDiameter + 24, height: nodeDiameter + 24)
+                        .frame(width: haloSize, height: haloSize)
                     HexagonShape()
                         .stroke(theme.colors.brandPrimary.opacity(0.25), lineWidth: 1.5)
-                        .frame(width: nodeDiameter + 24, height: nodeDiameter + 24)
+                        .frame(width: haloSize, height: haloSize)
                 } else {
                     Circle()
                         .fill(theme.colors.pathHaloGlow)
-                        .frame(width: nodeDiameter + 24, height: nodeDiameter + 24)
+                        .frame(width: haloSize, height: haloSize)
                     Circle()
                         .stroke(theme.colors.brandPrimary.opacity(0.25), lineWidth: 1.5)
-                        .frame(width: nodeDiameter + 24, height: nodeDiameter + 24)
+                        .frame(width: haloSize, height: haloSize)
                 }
             }
         } else {
             PhaseAnimator(GlowPhase.allCases) { phase in
                 ZStack {
-                    // Soft Pastel Solid Cushion Disc (Background Fill & Outer Rim)
                     if isCheckpoint {
                         HexagonShape()
                             .fill(theme.colors.pathHaloGlow.opacity(phase == .glowing ? 1.0 : 0.75))
-                            .frame(width: nodeDiameter + 24, height: nodeDiameter + 24)
+                            .frame(width: haloSize, height: haloSize)
                             .scaleEffect(phase == .glowing ? 1.04 : 0.98)
 
                         HexagonShape()
@@ -527,12 +526,12 @@ public struct CraftLessonNode: View, Equatable {
                                 theme.colors.brandPrimary.opacity(phase == .glowing ? 0.35 : 0.18),
                                 lineWidth: 1.5
                             )
-                            .frame(width: nodeDiameter + 24, height: nodeDiameter + 24)
+                            .frame(width: haloSize, height: haloSize)
                             .scaleEffect(phase == .glowing ? 1.04 : 0.98)
                     } else {
                         Circle()
                             .fill(theme.colors.pathHaloGlow.opacity(phase == .glowing ? 1.0 : 0.75))
-                            .frame(width: nodeDiameter + 24, height: nodeDiameter + 24)
+                            .frame(width: haloSize, height: haloSize)
                             .scaleEffect(phase == .glowing ? 1.04 : 0.98)
 
                         Circle()
@@ -540,7 +539,7 @@ public struct CraftLessonNode: View, Equatable {
                                 theme.colors.brandPrimary.opacity(phase == .glowing ? 0.35 : 0.18),
                                 lineWidth: 1.5
                             )
-                            .frame(width: nodeDiameter + 24, height: nodeDiameter + 24)
+                            .frame(width: haloSize, height: haloSize)
                             .scaleEffect(phase == .glowing ? 1.04 : 0.98)
                     }
                 }
@@ -653,18 +652,8 @@ public struct CraftLessonNode: View, Equatable {
             ForEach(0..<clampedStars, id: \.self) { _ in
                 Image(systemName: "star.fill")
                     .font(.system(size: 11, weight: .bold))
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [
-                                Color(hex: 0xFDE047),
-                                Color(hex: 0xEAB308),
-                                Color(hex: 0xCA8A04)
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-                    .shadow(color: Color(hex: 0x854D0E).opacity(0.6), radius: 0, x: 0, y: 1.2)
+                    .foregroundStyle(theme.gradients.accentShine)
+                    .shadow(color: theme.colors.accent.opacity(0.5), radius: 0, x: 0, y: 1.2)
                     .overlay {
                         Image(systemName: "star.fill")
                             .font(.system(size: 11, weight: .bold))
@@ -718,80 +707,4 @@ public struct CraftLessonNode: View, Equatable {
             tapTrigger.toggle()
         }
     }
-}
-
-// MARK: - Preview
-
-#Preview("CraftLessonNode States & Kinds") {
-    VStack(spacing: 32) {
-        HStack(spacing: 24) {
-            CraftLessonNode(
-                model: LessonNodeModel(
-                    id: "1",
-                    title: "Basics 1",
-                    subtitle: "5 new words",
-                    iconName: "book.fill",
-                    state: .completed,
-                    stars: 3
-                )
-            )
-
-            CraftLessonNode(
-                model: LessonNodeModel(
-                    id: "2",
-                    title: "Basics 2",
-                    iconName: "flame.fill",
-                    state: .active,
-                    progress: 0.6,
-                    xpReward: 25,
-                    badgeCount: 3
-                )
-            )
-
-            CraftLessonNode(
-                model: LessonNodeModel(
-                    id: "3",
-                    title: "Checkpoint Boss",
-                    iconName: "crown.fill",
-                    state: .inProgress,
-                    kind: .checkpoint,
-                    progress: 0.4,
-                    xpReward: 50
-                )
-            )
-        }
-
-        HStack(spacing: 24) {
-            CraftLessonNode(
-                model: LessonNodeModel(
-                    id: "4",
-                    title: "Grammar",
-                    iconName: "pencil",
-                    state: .upcoming,
-                    xpReward: 20
-                )
-            )
-
-            CraftLessonNode(
-                model: LessonNodeModel(
-                    id: "5",
-                    title: "Advanced",
-                    iconName: "lock",
-                    state: .locked
-                )
-            )
-
-            CraftLessonNode(
-                model: LessonNodeModel(
-                    id: "6",
-                    title: "Reward Chest",
-                    state: .bonus,
-                    kind: .treasureChest,
-                    xpReward: 100,
-                    badgeText: "HOT"
-                )
-            )
-        }
-    }
-    .padding()
 }

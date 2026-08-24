@@ -182,7 +182,7 @@ public struct CraftStreakBadge: View {
         case .blaze:
             return theme.colors.accent
         case .legendary:
-            return Color(hex: 0x8B5CF6)
+            return theme.colors.statusDanger
         }
     }
 
@@ -213,46 +213,5 @@ public struct CraftStreakBadge: View {
             return customAccessibilityHint
         }
         return onTap != nil ? "Chạm hai lần để xem chi tiết chuỗi ngày." : ""
-    }
-}
-
-// MARK: - Previews
-
-#Preview("CraftStreakBadge") {
-    ScrollView {
-        VStack(spacing: 28) {
-            Text("Completed Today")
-                .font(.headline)
-
-            HStack(spacing: 16) {
-                CraftStreakBadge(count: 3, tier: .starter, isCompletedToday: true, size: .sm)
-                CraftStreakBadge(count: 14, tier: .blaze, isCompletedToday: true, size: .sm)
-                CraftStreakBadge(count: 45, tier: .legendary, isCompletedToday: true, size: .sm)
-            }
-
-            HStack(spacing: 16) {
-                CraftStreakBadge(count: 3, tier: .starter, isCompletedToday: true, size: .md)
-                CraftStreakBadge(count: 14, tier: .blaze, isCompletedToday: true, size: .md)
-                CraftStreakBadge(count: 45, tier: .legendary, isCompletedToday: true, size: .md)
-            }
-
-            Divider()
-
-            Text("Pending Today (Breathing & Dashed)")
-                .font(.headline)
-
-            HStack(spacing: 16) {
-                CraftStreakBadge(count: 3, tier: .starter, isCompletedToday: false, size: .sm)
-                CraftStreakBadge(count: 14, tier: .blaze, isCompletedToday: false, size: .sm)
-                CraftStreakBadge(count: 45, tier: .legendary, isCompletedToday: false, size: .sm)
-            }
-
-            HStack(spacing: 16) {
-                CraftStreakBadge(count: 3, tier: .starter, isCompletedToday: false, size: .md)
-                CraftStreakBadge(count: 14, tier: .blaze, isCompletedToday: false, size: .md)
-                CraftStreakBadge(count: 45, tier: .legendary, isCompletedToday: false, size: .md)
-            }
-        }
-        .padding()
     }
 }

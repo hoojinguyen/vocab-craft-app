@@ -2783,6 +2783,352 @@ final class CraftLearningPathTests: XCTestCase {
             }
         }
     }
+
+
+    // MARK: - Task 6: Generic Journey Path Primitives Tests
+
+    func testCraftNodeStateAllCasesAndProperties() {
+        XCTAssertEqual(CraftNodeState.allCases.count, 6)
+        XCTAssertEqual(CraftNodeState.allCases, [.completed, .active, .inProgress, .upcoming, .locked, .bonus])
+        XCTAssertEqual(CraftNodeState.completed.rawValue, "completed")
+        XCTAssertEqual(CraftNodeState.active.rawValue, "active")
+        XCTAssertEqual(CraftNodeState.inProgress.rawValue, "inProgress")
+        XCTAssertEqual(CraftNodeState.upcoming.rawValue, "upcoming")
+        XCTAssertEqual(CraftNodeState.locked.rawValue, "locked")
+        XCTAssertEqual(CraftNodeState.bonus.rawValue, "bonus")
+    }
+
+    func testCraftNodeShapeAllCasesAndRawValues() {
+        XCTAssertEqual(CraftNodeShape.allCases.count, 5)
+        XCTAssertEqual(CraftNodeShape.allCases, [.circle, .hexagon, .diamond, .squircle, .star])
+        XCTAssertEqual(CraftNodeShape.circle.rawValue, "circle")
+        XCTAssertEqual(CraftNodeShape.hexagon.rawValue, "hexagon")
+        XCTAssertEqual(CraftNodeShape.diamond.rawValue, "diamond")
+        XCTAssertEqual(CraftNodeShape.squircle.rawValue, "squircle")
+        XCTAssertEqual(CraftNodeShape.star.rawValue, "star")
+    }
+
+    func testCraftNodeIconInitAndStringLiteral() {
+        let systemIcon: CraftNodeIcon = "star.fill"
+        XCTAssertEqual(systemIcon.name, "star.fill")
+        XCTAssertTrue(systemIcon.isSystem)
+
+        let customAssetIcon = CraftNodeIcon.asset("custom_shield")
+        XCTAssertEqual(customAssetIcon.name, "custom_shield")
+        XCTAssertFalse(customAssetIcon.isSystem)
+
+        let explicitSystemIcon = CraftNodeIcon.system("flame.fill")
+        XCTAssertEqual(explicitSystemIcon.name, "flame.fill")
+        XCTAssertTrue(explicitSystemIcon.isSystem)
+
+        XCTAssertEqual(systemIcon, CraftNodeIcon(name: "star.fill", isSystem: true))
+        XCTAssertNotEqual(systemIcon, customAssetIcon)
+    }
+
+    func testStarShapeAndSquircleShapePathGeneration() {
+        let star = StarShape()
+        let rect = CGRect(x: 0, y: 0, width: 100, height: 100)
+        let starPath = star.path(in: rect)
+        XCTAssertFalse(starPath.isEmpty)
+
+        let insetStar = star.inset(by: 4)
+        let insetStarPath = insetStar.path(in: rect)
+        XCTAssertFalse(insetStarPath.isEmpty)
+
+        let squircle = SquircleShape(cornerRadius: 16)
+        let squirclePath = squircle.path(in: rect)
+        XCTAssertFalse(squirclePath.isEmpty)
+
+        let insetSquircle = squircle.inset(by: 2)
+        let insetSquirclePath = insetSquircle.path(in: rect)
+        XCTAssertFalse(insetSquirclePath.isEmpty)
+    }
+
+    func testCraftPathNodeModelInitDefaultsAndPayload() {
+        let defaultNode = CraftPathNodeModel(
+            id: "path_node_1",
+            title: "Journey Step 1"
+        )
+        XCTAssertEqual(defaultNode.id, "path_node_1")
+        XCTAssertEqual(defaultNode.title, "Journey Step 1")
+        XCTAssertNil(defaultNode.titleKey)
+        XCTAssertNil(defaultNode.subtitle)
+        XCTAssertNil(defaultNode.subtitleKey)
+        XCTAssertEqual(defaultNode.state, .upcoming)
+        XCTAssertEqual(defaultNode.shape, .circle)
+        XCTAssertEqual(defaultNode.surfaceStyle, .tactile3D)
+        XCTAssertEqual(defaultNode.icon.name, "book.fill")
+        XCTAssertTrue(defaultNode.icon.isSystem)
+        XCTAssertNil(defaultNode.progress)
+        XCTAssertNil(defaultNode.badgeText)
+        XCTAssertNil(defaultNode.badgeCount)
+        XCTAssertNil(defaultNode.stars)
+        XCTAssertNil(defaultNode.metricText)
+
+        struct CustomQuestData: Sendable, Equatable, Hashable {
+            let questType: String
+            let rewardXP: Int
+        }
+
+        let customNode = CraftPathNodeModel(
+            id: "quest_1",
+            title: "Dragon Quest",
+            titleKey: "quest.dragon.title",
+            subtitle: "Defeat the guardian",
+            subtitleKey: "quest.dragon.sub",
+            state: .active,
+            shape: .star,
+            surfaceStyle: .glass,
+            icon: .system("crown.fill"),
+            progress: 0.5,
+            badgeText: "EPIC",
+            badgeCount: 1,
+            stars: 3,
+            metricText: "500 XP",
+            customPayload: CustomQuestData(questType: "Boss", rewardXP: 500)
+        )
+
+        XCTAssertEqual(customNode.shape, .star)
+        XCTAssertEqual(customNode.surfaceStyle, .glass)
+        XCTAssertEqual(customNode.customPayload?.questType, "Boss")
+        XCTAssertEqual(customNode.customPayload?.rewardXP, 500)
+        XCTAssertEqual(customNode.metricText, "500 XP")
+    }
+
+    func testCraftPathNodeModelEquatableAndHashable() {
+        let node1 = CraftPathNodeModel(
+            id: "node_1",
+            title: "Step 1",
+            state: .active,
+            shape: .hexagon,
+            surfaceStyle: .elevated,
+            icon: "star.fill"
+        )
+        let node2 = CraftPathNodeModel(
+            id: "node_1",
+            title: "Step 1",
+            state: .active,
+            shape: .hexagon,
+            surfaceStyle: .elevated,
+            icon: "star.fill"
+        )
+        let node3 = CraftPathNodeModel(
+            id: "node_2",
+            title: "Step 2",
+            state: .locked,
+            shape: .diamond,
+            surfaceStyle: .flat,
+            icon: "lock.fill"
+        )
+
+        XCTAssertEqual(node1, node2)
+        XCTAssertNotEqual(node1, node3)
+
+        let set: Set<CraftPathNodeModel<CraftEmptyPayload>> = [node1, node2, node3]
+        XCTAssertEqual(set.count, 2)
+    }
+
+    func testCraftJourneySectionInitAndEquatable() {
+        let node = CraftPathNodeModel(id: "n1", title: "Node 1", state: .completed)
+        let section = CraftJourneySection(
+            id: "journey_sec_1",
+            title: "Chapter 1",
+            subtitle: "The Beginning",
+            levelText: "CH 1",
+            progressText: "1/5",
+            progressValue: 0.2,
+            bannerIcon: "flag.fill",
+            nodes: [node],
+            winding: .gentle,
+            connectorStyle: .solid,
+            rowPattern: .standard
+        )
+
+        XCTAssertEqual(section.id, "journey_sec_1")
+        XCTAssertEqual(section.title, "Chapter 1")
+        XCTAssertEqual(section.subtitle, "The Beginning")
+        XCTAssertEqual(section.levelText, "CH 1")
+        XCTAssertEqual(section.progressText, "1/5")
+        XCTAssertEqual(section.progressValue, 0.2)
+        XCTAssertEqual(section.bannerIcon?.name, "flag.fill")
+        XCTAssertEqual(section.nodes.count, 1)
+        XCTAssertEqual(section.winding, .gentle)
+        XCTAssertEqual(section.connectorStyle, .solid)
+        XCTAssertEqual(section.rowPattern, .standard)
+    }
+
+    func testJourneyRowLayoutAndPositionedJourneyNode() {
+        let node = CraftPathNodeModel(id: "p_1", title: "Positioned", state: .active)
+        let pNode = PositionedJourneyNode(node: node, slot: .center, traversalIndex: 0)
+
+        XCTAssertEqual(pNode.id, "p_1")
+        XCTAssertEqual(pNode.slot, .center)
+        XCTAssertEqual(pNode.traversalIndex, 0)
+        XCTAssertEqual(pNode.node, node)
+
+        let rowLayout = JourneyRowLayout(id: "j_row_0", rowIndex: 0, nodes: [pNode])
+        XCTAssertEqual(rowLayout.id, "j_row_0")
+        XCTAssertEqual(rowLayout.rowIndex, 0)
+        XCTAssertEqual(rowLayout.nodes.count, 1)
+        XCTAssertEqual(rowLayout.nodes.first, pNode)
+    }
+
+    func testRowPatternLayoutJourneyRows() {
+        let nodes: [CraftPathNodeModel<CraftEmptyPayload>] = (0..<7).map {
+            CraftPathNodeModel(id: "jn_\($0)", title: "Step \($0)", state: .upcoming)
+        }
+
+        let layouts = RowPattern.standard.layoutJourneyRows(nodes: nodes)
+        XCTAssertEqual(layouts.count, 5) // [1], [2], [1], [2], [1]
+        XCTAssertEqual(layouts[0].nodes.count, 1)
+        XCTAssertEqual(layouts[0].nodes[0].slot, .center)
+        XCTAssertEqual(layouts[1].nodes.count, 2)
+        XCTAssertEqual(layouts[1].nodes[0].slot, .left)
+        XCTAssertEqual(layouts[1].nodes[1].slot, .right)
+
+        let waveLayouts = RowPattern.wave.layoutJourneyRows(nodes: (0..<6).map {
+            CraftPathNodeModel(id: "wn_\($0)", title: "Wave \($0)")
+        })
+        XCTAssertEqual(waveLayouts.map { $0.nodes.count }, [1, 2, 3])
+        XCTAssertEqual(waveLayouts[2].nodes.map(\.slot), [.left, .center, .right])
+    }
+
+    func testCraftPathNodeAllShapesAndSurfaceStylesRendering() {
+        for shape in CraftNodeShape.allCases {
+            for surface in CraftSurfaceStyle.allCases {
+                for state in CraftNodeState.allCases {
+                    let model = CraftPathNodeModel(
+                        id: "test_\(shape.rawValue)_\(surface.rawValue)_\(state.rawValue)",
+                        title: "Test Node",
+                        subtitle: "Subtitle",
+                        state: state,
+                        shape: shape,
+                        surfaceStyle: surface,
+                        icon: "star.fill",
+                        progress: state == .inProgress ? 0.5 : nil,
+                        badgeText: "HOT",
+                        badgeCount: 2,
+                        stars: state == .completed ? 3 : nil,
+                        metricText: "+50 XP"
+                    )
+                    let node = CraftPathNode(model: model) { _ in }
+                    XCTAssertNotNil(node.body)
+                    XCTAssertEqual(node.model.shape, shape)
+                    XCTAssertEqual(node.model.surfaceStyle, surface)
+                    XCTAssertEqual(node.model.state, state)
+                }
+            }
+        }
+    }
+
+    func testCraftPathNodeAccessibilityAndDimensions() {
+        let completed = CraftPathNode(model: CraftPathNodeModel(id: "c", title: "C", state: .completed))
+        let active = CraftPathNode(model: CraftPathNodeModel(id: "a", title: "A", state: .active, progress: 0.7))
+        let inProgress = CraftPathNode(model: CraftPathNodeModel(id: "p", title: "P", state: .inProgress, progress: 0.3))
+        let upcoming = CraftPathNode(model: CraftPathNodeModel(id: "u", title: "U", state: .upcoming))
+        let locked = CraftPathNode(model: CraftPathNodeModel(id: "l", title: "L", state: .locked))
+        let bonus = CraftPathNode(model: CraftPathNodeModel(id: "b", title: "B", state: .bonus, metricText: "+100 XP"))
+
+        XCTAssertEqual(completed.nodeDiameter, 52)
+        XCTAssertEqual(active.nodeDiameter, 64)
+        XCTAssertEqual(inProgress.nodeDiameter, 56)
+        XCTAssertEqual(upcoming.nodeDiameter, 48)
+        XCTAssertEqual(locked.nodeDiameter, 48)
+        XCTAssertEqual(bonus.nodeDiameter, 56)
+
+        XCTAssertTrue(completed.accessibilityTraits.contains(.isButton))
+        XCTAssertFalse(locked.accessibilityTraits.contains(.isButton))
+        XCTAssertEqual(completed.accessibilityHintText, "Double tap to review")
+        XCTAssertEqual(active.accessibilityHintText, "Double tap to continue")
+        XCTAssertEqual(locked.accessibilityHintText, "Complete previous lessons to unlock")
+
+        XCTAssertTrue(active.accessibilityLabelText.contains("70% complete"))
+        XCTAssertTrue(bonus.accessibilityLabelText.contains("+100 XP"))
+    }
+
+    func testCraftJourneySectionViewRendering() {
+        let nodes = (0..<5).map {
+            CraftPathNodeModel(id: "n_\($0)", title: "Step \($0)", state: $0 == 0 ? .completed : ($0 == 1 ? .active : .upcoming))
+        }
+        let section = CraftJourneySection(
+            id: "j_sec_1",
+            title: "Foundation Section",
+            subtitle: "Complete all steps",
+            levelText: "STAGE 1",
+            progressText: "1/5",
+            progressValue: 0.2,
+            bannerIcon: "sparkles",
+            nodes: nodes
+        )
+
+        var tappedNodeId: String?
+        let sectionView = CraftJourneySectionView(section: section) { tapped in
+            tappedNodeId = tapped.id
+        }
+
+        XCTAssertNotNil(sectionView.body)
+        XCTAssertEqual(sectionView.section.id, "j_sec_1")
+        XCTAssertEqual(sectionView.section.nodes.count, 5)
+        XCTAssertNil(tappedNodeId)
+    }
+
+    func testLessonNodeModelAsPathNodeMapping() {
+        let lesson = LessonNodeModel(
+            id: "les_1",
+            title: "Lesson Title",
+            subtitle: "5 words • 2 min",
+            iconName: "book.fill",
+            state: .active,
+            kind: .checkpoint,
+            progress: 0.8,
+            xpReward: 40,
+            estimatedMinutes: 5,
+            stars: 3,
+            badgeCount: 2,
+            badgeText: "HOT"
+        )
+
+        let pathNode = lesson.asPathNode
+        XCTAssertEqual(pathNode.id, "les_1")
+        XCTAssertEqual(pathNode.title, "Lesson Title")
+        XCTAssertEqual(pathNode.subtitle, "5 words • 2 min")
+        XCTAssertEqual(pathNode.state, .active)
+        XCTAssertEqual(pathNode.shape, .hexagon)
+        XCTAssertEqual(pathNode.surfaceStyle, .tactile3D)
+        XCTAssertEqual(pathNode.icon.name, "book.fill")
+        XCTAssertEqual(pathNode.progress, 0.8)
+        XCTAssertEqual(pathNode.stars, 3)
+        XCTAssertEqual(pathNode.badgeCount, 2)
+        XCTAssertEqual(pathNode.badgeText, "HOT")
+        XCTAssertEqual(pathNode.metricText, "Reward: 40 XP")
+        XCTAssertEqual(pathNode.customPayload?.xpReward, 40)
+        XCTAssertEqual(pathNode.customPayload?.estimatedMinutes, 5)
+        XCTAssertEqual(pathNode.customPayload?.kind, .checkpoint)
+    }
+
+    func testLessonSectionAsJourneySectionMapping() {
+        let lesson = LessonNodeModel(id: "l1", title: "L1", state: .completed)
+        let section = LessonSection(
+            id: "sec_map",
+            title: "Unit Mapping",
+            subtitle: "Test Subtitle",
+            level: "LEVEL 3",
+            progressText: "1/1",
+            progressValue: 1.0,
+            bannerIcon: "trophy.fill",
+            nodes: [lesson]
+        )
+
+        let journeySection = section.asJourneySection
+        XCTAssertEqual(journeySection.id, "sec_map")
+        XCTAssertEqual(journeySection.title, "Unit Mapping")
+        XCTAssertEqual(journeySection.subtitle, "Test Subtitle")
+        XCTAssertEqual(journeySection.levelText, "LEVEL 3")
+        XCTAssertEqual(journeySection.progressText, "1/1")
+        XCTAssertEqual(journeySection.progressValue, 1.0)
+        XCTAssertEqual(journeySection.bannerIcon?.name, "trophy.fill")
+        XCTAssertEqual(journeySection.nodes.count, 1)
+        XCTAssertEqual(journeySection.nodes[0].id, "l1")
+    }
+
 }
-
-

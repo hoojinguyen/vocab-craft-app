@@ -4,14 +4,7 @@ import SwiftUI
 // MARK: - LessonNodeState
 
 /// Visual and progression state for an individual lesson node in the learning path.
-public enum LessonNodeState: String, Sendable, Equatable, Hashable, CaseIterable {
-    case completed      // Finished — checkmark, statusSuccess
-    case active         // Current lesson — large glow ring, brandPrimary, pulsing
-    case inProgress     // Started not finished — progress ring overlay
-    case upcoming       // Next available — gray, tappable but muted
-    case locked         // Not unlocked — padlock, dimmed, not tappable
-    case bonus          // Optional/reward — gold accent, star badge
-}
+public typealias LessonNodeState = CraftNodeState
 
 // MARK: - LessonNodeKind
 
@@ -20,6 +13,21 @@ public enum LessonNodeKind: String, Sendable, Equatable, Hashable, CaseIterable 
     case standard       // Standard circular lesson node
     case checkpoint     // Mid-unit or boss exam node
     case treasureChest  // End-of-unit milestone reward chest
+}
+
+// MARK: - LessonNodePayload
+
+/// Payload carried by lesson nodes when mapped onto generic journey models.
+public struct LessonNodePayload: Sendable, Equatable, Hashable {
+    public let xpReward: Int?
+    public let estimatedMinutes: Int?
+    public let kind: LessonNodeKind
+
+    public init(xpReward: Int? = nil, estimatedMinutes: Int? = nil, kind: LessonNodeKind = .standard) {
+        self.xpReward = xpReward
+        self.estimatedMinutes = estimatedMinutes
+        self.kind = kind
+    }
 }
 
 // MARK: - LessonNodeModel
@@ -65,6 +73,34 @@ public struct LessonNodeModel: Identifiable, Sendable, Equatable, Hashable {
         self.stars = stars
         self.badgeCount = badgeCount
         self.badgeText = badgeText
+    }
+
+    /// Converts to generic `CraftPathNodeModel`.
+    public var asPathNode: CraftPathNodeModel<LessonNodePayload> {
+        let shape: CraftNodeShape = switch kind {
+        case .checkpoint: .hexagon
+        case .standard, .treasureChest: .circle
+        }
+        let metricText: String? = if let xp = xpReward {
+            "Reward: \(xp) XP"
+        } else {
+            nil
+        }
+        return CraftPathNodeModel(
+            id: id,
+            title: title,
+            subtitle: subtitle,
+            state: state,
+            shape: shape,
+            surfaceStyle: .tactile3D,
+            icon: CraftNodeIcon(name: iconName, isSystem: true),
+            progress: progress,
+            badgeText: badgeText,
+            badgeCount: badgeCount,
+            stars: stars,
+            metricText: metricText,
+            customPayload: LessonNodePayload(xpReward: xpReward, estimatedMinutes: estimatedMinutes, kind: kind)
+        )
     }
 }
 
@@ -175,6 +211,23 @@ public struct LessonSection: Identifiable, Sendable, Equatable {
         self.connectorStyle = connectorStyle
         self.rowPattern = rowPattern
     }
+
+    /// Converts to generic `CraftJourneySection`.
+    public var asJourneySection: CraftJourneySection<LessonNodePayload> {
+        CraftJourneySection(
+            id: id,
+            title: title,
+            subtitle: subtitle,
+            levelText: level,
+            progressText: progressText,
+            progressValue: progressValue,
+            bannerIcon: bannerIcon.map { CraftNodeIcon(name: $0, isSystem: true) },
+            nodes: nodes.map(\.asPathNode),
+            winding: winding,
+            connectorStyle: connectorStyle,
+            rowPattern: rowPattern
+        )
+    }
 }
 
 // MARK: - RowPattern
@@ -187,9 +240,6 @@ public enum RowPattern: Sendable, Equatable {
 
     /// Splits an ordered array of lesson nodes into discrete rows, pairing each row slice
     /// with its corresponding horizontal layout arrangement.
-    ///
-    /// - Parameter nodes: The lesson nodes to partition.
-    /// - Returns: An array of tuples containing the row's nodes and the calculated `LessonRowArrangement`.
     public func split(nodes: [LessonNodeModel]) -> [(nodes: [LessonNodeModel], arrangement: LessonRowArrangement)] {
         guard !nodes.isEmpty else { return [] }
 
@@ -226,9 +276,6 @@ public enum RowPattern: Sendable, Equatable {
     }
 
     /// Lays out an ordered array of lesson nodes into snake grid rows with slot assignments and traversal indices.
-    ///
-    /// - Parameter nodes: The lesson nodes in traversal sequence order.
-    /// - Returns: An array of `SnakeRowLayout` containing positioned nodes sorted left-to-right.
     public func layoutRows(nodes: [LessonNodeModel]) -> [SnakeRowLayout] {
         guard !nodes.isEmpty else { return [] }
 
@@ -365,4 +412,3 @@ public struct SnakeRowLayout: Identifiable, Sendable, Equatable, Hashable {
         self.nodes = nodes
     }
 }
-
