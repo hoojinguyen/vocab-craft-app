@@ -273,4 +273,22 @@ final class InteractiveCardTests: XCTestCase {
         XCTAssertEqual(flipCard.axis, .vertical)
         XCTAssertNotNil(flipCard.body)
     }
+
+    func testFlipCardPerspectiveAndCustomAnimation() {
+        var flipped = false
+        let binding = Binding(get: { flipped }, set: { flipped = $0 })
+        let flipCard = CraftFlipCard(
+            isFlipped: binding,
+            perspective: 0.75,
+            animation: .spring(response: 0.4, dampingFraction: 0.8)
+        ) {
+            Text("Custom Front")
+        } back: {
+            Text("Custom Back")
+        }
+
+        XCTAssertEqual(flipCard.perspective, 0.75)
+        XCTAssertNotNil(flipCard.animation)
+        XCTAssertNotNil(flipCard.body)
+    }
 }

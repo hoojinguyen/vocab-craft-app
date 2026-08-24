@@ -26,6 +26,48 @@ final class ContainerOverlayTests: XCTestCase {
         }
     }
 
+    func testCardGlassStyle() {
+        let card = CraftCard(style: .glass, isPressable: false) {
+            Text("Frosted Glass Content")
+        }
+        XCTAssertEqual(card.style, .glass)
+        XCTAssertEqual(card.style.surfaceStyle, .glass)
+        XCTAssertNotNil(card.body)
+    }
+
+    func testCardSurfaceStyleMapping() {
+        XCTAssertEqual(CraftCardStyle.flat.surfaceStyle, .flat)
+        XCTAssertEqual(CraftCardStyle.elevated.surfaceStyle, .elevated)
+        XCTAssertEqual(CraftCardStyle.outlined.surfaceStyle, .outlined)
+        XCTAssertEqual(CraftCardStyle.tactile3D.surfaceStyle, .tactile3D)
+        XCTAssertEqual(CraftCardStyle.glass.surfaceStyle, .glass)
+        XCTAssertNil(CraftCardStyle.gradient.surfaceStyle)
+
+        XCTAssertEqual(CraftCardStyle(surfaceStyle: .flat), .flat)
+        XCTAssertEqual(CraftCardStyle(surfaceStyle: .elevated), .elevated)
+        XCTAssertEqual(CraftCardStyle(surfaceStyle: .outlined), .outlined)
+        XCTAssertEqual(CraftCardStyle(surfaceStyle: .tactile3D), .tactile3D)
+        XCTAssertEqual(CraftCardStyle(surfaceStyle: .glass), .glass)
+    }
+
+    func testCardSurfaceStyleConvenienceInit() {
+        let card = CraftCard(surfaceStyle: .glass, isPressable: true) {
+            Text("Surface Style Card")
+        }
+        XCTAssertEqual(card.style, .glass)
+        XCTAssertTrue(card.isPressable)
+        XCTAssertNotNil(card.body)
+    }
+
+    func testCardCustomSolidTint() {
+        let card = CraftCard(style: .glass, customTint: .purple) {
+            Text("Tinted Glass")
+        }
+        XCTAssertEqual(card.style, .glass)
+        XCTAssertEqual(card.customTint, .purple)
+        XCTAssertNotNil(card.body)
+    }
+
     func testCardPressableAction() {
         var tapped = false
         let card = CraftCard(style: .flat, isPressable: true, action: {
@@ -223,7 +265,9 @@ final class ContainerOverlayTests: XCTestCase {
             iconName: "book.fill",
             showChevron: true,
             action: { actionTriggered = true }
-        )
+        ) {
+            Text("Active")
+        }
         XCTAssertEqual(row.title, "")
         XCTAssertNil(row.subtitle)
         XCTAssertEqual(row.iconName, "book.fill")
@@ -346,12 +390,14 @@ final class ContainerOverlayTests: XCTestCase {
             message: "Word added to favorites",
             iconName: "heart.fill",
             style: .success,
+            surfaceStyle: .glass,
             duration: 4.0
         )
         XCTAssertEqual(toast.title, "Saved")
         XCTAssertEqual(toast.message, "Word added to favorites")
         XCTAssertEqual(toast.iconName, "heart.fill")
         XCTAssertEqual(toast.style, .success)
+        XCTAssertEqual(toast.surfaceStyle, .glass)
         XCTAssertEqual(toast.duration, 4.0)
     }
 
@@ -360,13 +406,38 @@ final class ContainerOverlayTests: XCTestCase {
             let toastView = CraftToast(
                 message: "Test message",
                 title: "Alert",
-                style: style
+                style: style,
+                surfaceStyle: .elevated
             )
             XCTAssertEqual(toastView.style, style)
             XCTAssertEqual(toastView.title, "Alert")
             XCTAssertEqual(toastView.message, "Test message")
+            XCTAssertEqual(toastView.surfaceStyle, .elevated)
             XCTAssertNotNil(toastView.body)
         }
+    }
+
+    func testToastGlassSurfaceStyle() {
+        let toast = CraftToast(
+            message: "Glass toast notification",
+            title: "Glass Title",
+            style: .info,
+            surfaceStyle: .glass
+        )
+        XCTAssertEqual(toast.surfaceStyle, .glass)
+        XCTAssertNotNil(toast.body)
+    }
+
+    func testToastLocalizedStringKeyInit() {
+        let toast = CraftToast(
+            messageKey: LocalizedStringKey("toast_msg_key"),
+            titleKey: LocalizedStringKey("toast_title_key"),
+            style: .warning,
+            surfaceStyle: .glass
+        )
+        XCTAssertEqual(toast.style, .warning)
+        XCTAssertEqual(toast.surfaceStyle, .glass)
+        XCTAssertNotNil(toast.body)
     }
 
     func testToastViewModifier() {
@@ -376,8 +447,16 @@ final class ContainerOverlayTests: XCTestCase {
                 isPresented: Binding(get: { isPresented }, set: { isPresented = $0 }),
                 message: "Quick notification",
                 style: .info,
+                surfaceStyle: .glass,
                 position: .top
             )
+        XCTAssertNotNil(view)
+    }
+
+    func testToastItemBinding() {
+        var toastData: CraftToastData? = CraftToastData(message: "Item toast", surfaceStyle: .glass)
+        let view = Text("Host View")
+            .craftToast(item: Binding(get: { toastData }, set: { toastData = $0 }))
         XCTAssertNotNil(view)
     }
 
@@ -399,18 +478,63 @@ final class ContainerOverlayTests: XCTestCase {
         var isPresented = true
         let sheet = CraftBottomSheet(
             isPresented: Binding(get: { isPresented }, set: { isPresented = $0 }),
-            title: "Options"
+            title: "Options",
+            style: .glass
         ) {
             Text("Sheet Content")
         }
         XCTAssertEqual(sheet.title, "Options")
+        XCTAssertEqual(sheet.style, .glass)
         XCTAssertNotNil(sheet.body)
 
         let hostView = Text("Host View")
-            .craftBottomSheet(isPresented: Binding(get: { isPresented }, set: { isPresented = $0 })) {
+            .craftBottomSheet(
+                isPresented: Binding(get: { isPresented }, set: { isPresented = $0 }),
+                style: .glass
+            ) {
                 Text("Content inside modifier")
             }
         XCTAssertNotNil(hostView)
+    }
+
+    func testBottomSheetLocalizedStringKeyInit() {
+        var isPresented = true
+        let sheet = CraftBottomSheet(
+            isPresented: Binding(get: { isPresented }, set: { isPresented = $0 }),
+            titleKey: LocalizedStringKey("sheet_title_key"),
+            style: .elevated
+        ) {
+            Text("Localized Sheet Content")
+        }
+        XCTAssertNil(sheet.title)
+        XCTAssertEqual(sheet.style, .elevated)
+        XCTAssertNotNil(sheet.body)
+
+        let hostView = Text("Host View")
+            .craftBottomSheet(
+                isPresented: Binding(get: { isPresented }, set: { isPresented = $0 }),
+                titleKey: LocalizedStringKey("sheet_title_key"),
+                style: .glass
+            ) {
+                Text("Sheet inside modifier")
+            }
+        XCTAssertNotNil(hostView)
+    }
+
+    func testBottomSheetSurfaceStyles() {
+        var isPresented = true
+        let styles: [CraftSurfaceStyle] = [.elevated, .glass, .outlined, .flat]
+        for style in styles {
+            let sheet = CraftBottomSheet(
+                isPresented: Binding(get: { isPresented }, set: { isPresented = $0 }),
+                title: "Style \(style.rawValue)",
+                style: style
+            ) {
+                Text("Content")
+            }
+            XCTAssertEqual(sheet.style, style)
+            XCTAssertNotNil(sheet.body)
+        }
     }
 
     // MARK: - CraftDialog Tests
@@ -427,7 +551,8 @@ final class ContainerOverlayTests: XCTestCase {
             primaryButtonVariant: .danger,
             primaryAction: { confirmed = true },
             cancelButtonTitle: "Cancel",
-            cancelAction: { cancelled = true }
+            cancelAction: { cancelled = true },
+            style: .glass
         )
 
         XCTAssertEqual(dialog.title, "Delete Deck?")
@@ -436,6 +561,7 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertEqual(dialog.primaryButtonTitle, "Delete")
         XCTAssertEqual(dialog.primaryButtonVariant, .danger)
         XCTAssertEqual(dialog.cancelButtonTitle, "Cancel")
+        XCTAssertEqual(dialog.style, .glass)
         XCTAssertNotNil(dialog.body)
 
         dialog.primaryAction()
@@ -445,7 +571,62 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertTrue(cancelled)
     }
 
-    func testDialogModifier() {
+    func testDialogDefaultLocalizedButtons() {
+        let dialog = CraftDialog(
+            title: "Default Actions",
+            primaryAction: {}
+        )
+        XCTAssertEqual(dialog.primaryButtonTitle, CraftLocalized.string("craft.action.confirm"))
+        XCTAssertEqual(dialog.cancelButtonTitle, CraftLocalized.string("craft.action.cancel"))
+        XCTAssertEqual(dialog.style, .elevated)
+        XCTAssertNotNil(dialog.body)
+    }
+
+    func testDialogLocalizedStringKeyInit() {
+        var confirmed = false
+        var cancelled = false
+
+        let dialog = CraftDialog(
+            titleKey: LocalizedStringKey("dialog_title_key"),
+            messageKey: LocalizedStringKey("dialog_msg_key"),
+            iconName: "info.circle",
+            primaryButtonTitleKey: LocalizedStringKey("dialog_confirm_key"),
+            primaryAction: { confirmed = true },
+            cancelButtonTitleKey: LocalizedStringKey("dialog_cancel_key"),
+            cancelAction: { cancelled = true },
+            style: .glass
+        )
+        XCTAssertEqual(dialog.title, "")
+        XCTAssertNil(dialog.message)
+        XCTAssertEqual(dialog.style, .glass)
+        XCTAssertNotNil(dialog.body)
+
+        dialog.primaryAction()
+        XCTAssertTrue(confirmed)
+
+        dialog.cancelAction?()
+        XCTAssertTrue(cancelled)
+    }
+
+    func testDialogSurfaceStyles() {
+        for style in CraftSurfaceStyle.allCases {
+            let dialog = CraftDialog(
+                title: "Style \(style.rawValue)",
+                primaryAction: {},
+                style: style
+            )
+            XCTAssertEqual(dialog.style, style)
+            XCTAssertNotNil(dialog.body)
+        }
+    }
+
+    func testDialogBackdropOptions() {
+        XCTAssertEqual(CraftDialogBackdrop.allCases.count, 2)
+        XCTAssertTrue(CraftDialogBackdrop.allCases.contains(.dimmed))
+        XCTAssertTrue(CraftDialogBackdrop.allCases.contains(.material))
+    }
+
+    func testDialogModifierWithBackdropAndStyle() {
         var isPresented = true
         let view = Text("Host View")
             .craftDialog(
@@ -453,7 +634,26 @@ final class ContainerOverlayTests: XCTestCase {
                 title: "Confirm Action",
                 message: "Are you sure?",
                 primaryButtonTitle: "Yes",
-                primaryAction: { }
+                primaryAction: { },
+                style: .glass,
+                backdrop: .material
+            )
+        XCTAssertNotNil(view)
+    }
+
+    func testDialogModifierWithLocalizedKeys() {
+        var isPresented = true
+        let view = Text("Host View")
+            .craftDialog(
+                isPresented: Binding(get: { isPresented }, set: { isPresented = $0 }),
+                titleKey: LocalizedStringKey("dialog_title"),
+                messageKey: LocalizedStringKey("dialog_msg"),
+                primaryButtonTitleKey: LocalizedStringKey("dialog_confirm"),
+                primaryAction: { },
+                cancelButtonTitleKey: LocalizedStringKey("dialog_cancel"),
+                cancelAction: { },
+                style: .glass,
+                backdrop: .material
             )
         XCTAssertNotNil(view)
     }
@@ -470,12 +670,4 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertNil(dialog.cancelAction)
         XCTAssertNotNil(dialog.body)
     }
-
-    func testToastItemBinding() {
-        var toastData: CraftToastData? = CraftToastData(message: "Item toast")
-        let view = Text("Host View")
-            .craftToast(item: Binding(get: { toastData }, set: { toastData = $0 }))
-        XCTAssertNotNil(view)
-    }
 }
-

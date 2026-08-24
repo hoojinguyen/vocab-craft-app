@@ -11,11 +11,52 @@ public protocol CraftTabItemProtocol: Identifiable, Equatable, Sendable where ID
     var title: String { get }
     var symbol: String { get }
     var badgeCount: Int? { get }
+    var titleKey: LocalizedStringKey? { get }
 }
 
 public extension CraftTabItemProtocol {
     var badgeCount: Int? {
         nil
+    }
+    var titleKey: LocalizedStringKey? {
+        nil
+    }
+}
+
+// MARK: - Standard Tab Item Model
+
+/// Concrete convenience implementation of `CraftTabItemProtocol`.
+public struct CraftTabItem: CraftTabItemProtocol {
+    public let id: String
+    public let title: String
+    public let titleKey: LocalizedStringKey?
+    public let symbol: String
+    public let badgeCount: Int?
+
+    public init(
+        id: String,
+        title: String,
+        symbol: String,
+        badgeCount: Int? = nil
+    ) {
+        self.id = id
+        self.title = title
+        self.titleKey = nil
+        self.symbol = symbol
+        self.badgeCount = badgeCount
+    }
+
+    public init(
+        id: String,
+        titleKey: LocalizedStringKey,
+        symbol: String,
+        badgeCount: Int? = nil
+    ) {
+        self.id = id
+        self.title = ""
+        self.titleKey = titleKey
+        self.symbol = symbol
+        self.badgeCount = badgeCount
     }
 }
 
@@ -50,30 +91,55 @@ public struct CraftTactileFABButtonStyle: ButtonStyle {
 
 // MARK: - CraftFloatingTabBar Component
 
-/// A floating liquid-glass navigation bar featuring animated sliding tab indicators,
-/// spring transitions, safe area handling, minimum 44pt touch targets, and an integrated tactile action button.
+/// A floating navigation bar featuring animated sliding tab indicators,
+/// spring transitions, safe area handling, minimum 44pt touch targets, theme-driven surface styles,
+/// and an integrated tactile action button.
 public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
     @Environment(\.craftTheme) private var theme
     @Namespace private var tabNamespace
 
     @Binding public var selectedItem: Item
     public let items: [Item]
+    public let style: CraftSurfaceStyle
     public let centerAction: (() -> Void)?
     public let centerSymbol: String
-    public let centerTitle: String?
+    private let centerTitleKey: LocalizedStringKey?
+    private let rawCenterTitle: String?
+
+    public var centerTitle: String? { rawCenterTitle }
 
     public init(
         selectedItem: Binding<Item>,
         items: [Item],
+        style: CraftSurfaceStyle = .glass,
         centerAction: (() -> Void)? = nil,
         centerSymbol: String = "plus",
         centerTitle: String? = nil
     ) {
         self._selectedItem = selectedItem
         self.items = items
+        self.style = style
         self.centerAction = centerAction
         self.centerSymbol = centerSymbol
-        self.centerTitle = centerTitle
+        self.centerTitleKey = nil
+        self.rawCenterTitle = centerTitle
+    }
+
+    public init(
+        selectedItem: Binding<Item>,
+        items: [Item],
+        style: CraftSurfaceStyle = .glass,
+        centerAction: (() -> Void)? = nil,
+        centerSymbol: String = "plus",
+        centerTitleKey: LocalizedStringKey
+    ) {
+        self._selectedItem = selectedItem
+        self.items = items
+        self.style = style
+        self.centerAction = centerAction
+        self.centerSymbol = centerSymbol
+        self.centerTitleKey = centerTitleKey
+        self.rawCenterTitle = nil
     }
 
     private var leadingItems: [Item] {
@@ -107,6 +173,20 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
         .padding(.horizontal, theme.spacing.xs)
         .padding(.vertical, theme.spacing.xs)
         .background {
+            tabBarBackground
+        }
+        .modifier(TabBarShadowModifier(style: style, theme: theme))
+        .padding(.horizontal, theme.spacing.base)
+        .padding(.bottom, theme.spacing.sm)
+        .accessibilityElement(children: .contain)
+    }
+
+    // MARK: - Background
+
+    @ViewBuilder
+    private var tabBarBackground: some View {
+        switch style {
+        case .glass:
             Capsule()
                 .fill(.ultraThinMaterial)
                 .overlay(
@@ -127,11 +207,41 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                     Capsule()
                         .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
                 )
+        case .elevated:
+            Capsule()
+                .fill(theme.colors.surfaceElevated)
+                .overlay(
+                    Capsule()
+                        .strokeBorder(theme.colors.borderDefault.opacity(0.5), lineWidth: 1)
+                )
+                .overlay(
+                    Capsule()
+                        .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
+                )
+        case .outlined:
+            Capsule()
+                .fill(theme.colors.surfaceCard)
+                .overlay(
+                    Capsule()
+                        .strokeBorder(theme.colors.borderDefault, lineWidth: 1)
+                )
+        case .tactile3D:
+            ZStack {
+                Capsule()
+                    .fill(theme.colors.borderDefault)
+                    .offset(y: theme.depths.depthSm)
+                Capsule()
+                    .fill(theme.colors.surfaceCard)
+                    .overlay(
+                        Capsule()
+                            .strokeBorder(theme.depths.topHighlight, lineWidth: 1)
+                    )
+            }
+            .padding(.bottom, theme.depths.depthSm)
+        case .flat:
+            Capsule()
+                .fill(theme.colors.surfaceSubtle)
         }
-        .craftShadow(theme.shadows.lg)
-        .padding(.horizontal, theme.spacing.base)
-        .padding(.bottom, theme.spacing.sm)
-        .accessibilityElement(children: .contain)
     }
 
     // MARK: - Tab Item Button
@@ -173,10 +283,17 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                     }
                 }
 
-                Text(item.title)
-                    .font(theme.typography.caption)
-                    .fontWeight(isSelected ? .semibold : .regular)
-                    .lineLimit(1)
+                if let titleKey = item.titleKey {
+                    Text(titleKey)
+                        .font(theme.typography.caption)
+                        .fontWeight(isSelected ? .semibold : .regular)
+                        .lineLimit(1)
+                } else {
+                    Text(item.title)
+                        .font(theme.typography.caption)
+                        .fontWeight(isSelected ? .semibold : .regular)
+                        .lineLimit(1)
+                }
             }
             .foregroundColor(isSelected ? theme.colors.textPrimary : theme.colors.textMuted)
             .frame(maxWidth: .infinity)
@@ -237,7 +354,13 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                         weight: .bold
                     )
 
-                    if let centerTitle, !centerTitle.isEmpty {
+                    if let centerTitleKey {
+                        Text(centerTitleKey)
+                            .font(theme.typography.caption)
+                            .fontWeight(.bold)
+                            .foregroundColor(theme.colors.textInverse)
+                            .lineLimit(1)
+                    } else if let centerTitle, !centerTitle.isEmpty {
                         Text(centerTitle)
                             .font(theme.typography.caption)
                             .fontWeight(.bold)
@@ -256,6 +379,20 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
     }
 }
 
+private struct TabBarShadowModifier: ViewModifier {
+    let style: CraftSurfaceStyle
+    let theme: CraftTheme
+
+    func body(content: Content) -> some View {
+        switch style {
+        case .glass, .elevated:
+            content.craftShadow(theme.shadows.lg)
+        case .flat, .outlined, .tactile3D:
+            content
+        }
+    }
+}
+
 private struct _PreviewTab: CraftTabItemProtocol {
     let id: String
     let title: String
@@ -264,23 +401,23 @@ private struct _PreviewTab: CraftTabItemProtocol {
 
 #Preview("CraftFloatingTabBar") {
     @Previewable @State var selected = _PreviewTab(id: "home", title: "Home", symbol: "house")
-    
+
     let tabs = [
         _PreviewTab(id: "home", title: "Home", symbol: "house"),
         _PreviewTab(id: "search", title: "Search", symbol: "magnifyingglass"),
         _PreviewTab(id: "library", title: "Library", symbol: "books.vertical"),
         _PreviewTab(id: "profile", title: "Profile", symbol: "person")
     ]
-    
+
     ZStack(alignment: .bottom) {
         Color.gray.opacity(0.1)
             .ignoresSafeArea()
         CraftFloatingTabBar(
             selectedItem: $selected,
             items: tabs,
+            style: .glass,
             centerAction: { },
             centerSymbol: "plus"
         )
     }
 }
-

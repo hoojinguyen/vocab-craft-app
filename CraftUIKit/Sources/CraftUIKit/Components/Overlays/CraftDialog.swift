@@ -1,44 +1,106 @@
 import SwiftUI
 
+// MARK: - Dialog Backdrop
+
+/// Backdrop appearance styles for modal dialog overlays.
+public enum CraftDialogBackdrop: Sendable, CaseIterable {
+    /// Standard semi-transparent dimmed overlay.
+    case dimmed
+    /// Frosted ultra-thin material blur backdrop with subtle dimming.
+    case material
+}
+
 // MARK: - CraftDialog Component
 
-/// A standardized modal dialog for confirmations, alerts, and critical user decisions.
+/// A standardized modal dialog for confirmations, alerts, and critical user decisions,
+/// supporting theme-driven surfaces (.elevated, .outlined, .glass), localization, and custom backdrops.
 public struct CraftDialog<CustomContent: View>: View {
     @Environment(\.craftTheme) private var theme
 
-    public let title: String
-    public let message: String?
+    private let titleKey: LocalizedStringKey?
+    private let rawTitle: String?
+    private let messageKey: LocalizedStringKey?
+    private let rawMessage: String?
+    private let primaryButtonTitleKey: LocalizedStringKey?
+    private let rawPrimaryButtonTitle: String?
+    private let cancelButtonTitleKey: LocalizedStringKey?
+    private let rawCancelButtonTitle: String?
+
+    public var title: String { rawTitle ?? "" }
+    public var message: String? { rawMessage }
+    public var primaryButtonTitle: String { rawPrimaryButtonTitle ?? CraftLocalized.string("craft.action.confirm") }
+    public var cancelButtonTitle: String? { rawCancelButtonTitle }
+
     public let iconName: String?
-    public let primaryButtonTitle: String
     public let primaryButtonVariant: CraftButtonVariant
     public let primaryAction: () -> Void
-    public let cancelButtonTitle: String?
     public let cancelAction: (() -> Void)?
+    public let style: CraftSurfaceStyle
     public let customContent: CustomContent
+
+    // MARK: - String Initializer
 
     public init(
         title: String,
         message: String? = nil,
         iconName: String? = nil,
-        primaryButtonTitle: String = "Confirm",
+        primaryButtonTitle: String = CraftLocalized.string("craft.action.confirm"),
         primaryButtonVariant: CraftButtonVariant = .primary,
         primaryAction: @escaping () -> Void,
-        cancelButtonTitle: String? = "Cancel",
+        cancelButtonTitle: String? = CraftLocalized.string("craft.action.cancel"),
         cancelAction: (() -> Void)? = nil,
+        style: CraftSurfaceStyle = .elevated,
         @ViewBuilder customContent: () -> CustomContent
     ) {
-        self.title = title
-        self.message = message
+        self.titleKey = nil
+        self.rawTitle = title
+        self.messageKey = nil
+        self.rawMessage = message
         self.iconName = iconName
-        self.primaryButtonTitle = primaryButtonTitle
+        self.primaryButtonTitleKey = nil
+        self.rawPrimaryButtonTitle = primaryButtonTitle
         self.primaryButtonVariant = primaryButtonVariant
         self.primaryAction = primaryAction
-        self.cancelButtonTitle = cancelButtonTitle
+        self.cancelButtonTitleKey = nil
+        self.rawCancelButtonTitle = cancelButtonTitle
         self.cancelAction = cancelAction
+        self.style = style
+        self.customContent = customContent()
+    }
+
+    // MARK: - LocalizedStringKey Initializer
+
+    public init(
+        titleKey: LocalizedStringKey,
+        messageKey: LocalizedStringKey? = nil,
+        iconName: String? = nil,
+        primaryButtonTitleKey: LocalizedStringKey? = nil,
+        primaryButtonVariant: CraftButtonVariant = .primary,
+        primaryAction: @escaping () -> Void,
+        cancelButtonTitleKey: LocalizedStringKey? = nil,
+        cancelAction: (() -> Void)? = nil,
+        style: CraftSurfaceStyle = .elevated,
+        @ViewBuilder customContent: () -> CustomContent
+    ) {
+        self.titleKey = titleKey
+        self.rawTitle = nil
+        self.messageKey = messageKey
+        self.rawMessage = nil
+        self.iconName = iconName
+        self.primaryButtonTitleKey = primaryButtonTitleKey
+        self.rawPrimaryButtonTitle = nil
+        self.primaryButtonVariant = primaryButtonVariant
+        self.primaryAction = primaryAction
+        self.cancelButtonTitleKey = cancelButtonTitleKey
+        self.rawCancelButtonTitle = nil
+        self.cancelAction = cancelAction
+        self.style = style
         self.customContent = customContent()
     }
 
     public var body: some View {
+        let shape = RoundedRectangle(cornerRadius: theme.radii.xl)
+
         VStack(spacing: theme.spacing.lg) {
             // Icon Badge
             if let iconName {
@@ -55,16 +117,32 @@ public struct CraftDialog<CustomContent: View>: View {
 
             // Title and Message
             VStack(spacing: theme.spacing.xs) {
-                CraftText(
-                    title,
-                    style: .headline,
-                    color: theme.colors.textPrimary,
-                    textAlignment: .center
-                )
-
-                if let message, !message.isEmpty {
+                if let titleKey {
                     CraftText(
-                        message,
+                        titleKey,
+                        style: .headline,
+                        color: theme.colors.textPrimary,
+                        textAlignment: .center
+                    )
+                } else if let rawTitle {
+                    CraftText(
+                        rawTitle,
+                        style: .headline,
+                        color: theme.colors.textPrimary,
+                        textAlignment: .center
+                    )
+                }
+
+                if let messageKey {
+                    CraftText(
+                        messageKey,
+                        style: .bodyMedium,
+                        color: theme.colors.textSecondary,
+                        textAlignment: .center
+                    )
+                } else if let rawMessage, !rawMessage.isEmpty {
+                    CraftText(
+                        rawMessage,
                         style: .bodyMedium,
                         color: theme.colors.textSecondary,
                         textAlignment: .center
@@ -77,15 +155,35 @@ public struct CraftDialog<CustomContent: View>: View {
 
             // Action Buttons
             VStack(spacing: theme.spacing.sm) {
-                CraftButton(
-                    primaryButtonTitle,
-                    variant: primaryButtonVariant,
-                    size: .md,
-                    action: primaryAction
-                )
-                .frame(maxWidth: .infinity)
+                if let primaryButtonTitleKey {
+                    CraftButton(
+                        primaryButtonTitleKey,
+                        variant: primaryButtonVariant,
+                        size: .md,
+                        action: primaryAction
+                    )
+                    .frame(maxWidth: .infinity)
+                } else {
+                    CraftButton(
+                        primaryButtonTitle,
+                        variant: primaryButtonVariant,
+                        size: .md,
+                        action: primaryAction
+                    )
+                    .frame(maxWidth: .infinity)
+                }
 
-                if let cancelButtonTitle {
+                if let cancelButtonTitleKey {
+                    CraftButton(
+                        cancelButtonTitleKey,
+                        variant: .ghost,
+                        size: .md,
+                        action: {
+                            cancelAction?()
+                        }
+                    )
+                    .frame(maxWidth: .infinity)
+                } else if let cancelButtonTitle {
                     CraftButton(
                         cancelButtonTitle,
                         variant: .ghost,
@@ -101,14 +199,70 @@ public struct CraftDialog<CustomContent: View>: View {
         }
         .padding(theme.spacing.lg)
         .frame(maxWidth: 340)
-        .background(theme.colors.surfaceCard)
-        .clipShape(RoundedRectangle(cornerRadius: theme.radii.xl))
-        .overlay(
-            RoundedRectangle(cornerRadius: theme.radii.xl)
-                .strokeBorder(theme.colors.borderDefault, lineWidth: 1)
-        )
-        .craftShadow(theme.shadows.xl)
+        .background(dialogBackground(shape: shape))
+        .clipShape(shape)
+        .overlay(dialogBorder(shape: shape))
+        .modifier(DialogShadowModifier(style: style, theme: theme))
         .padding(.horizontal, theme.spacing.lg)
+    }
+
+    @ViewBuilder
+    private func dialogBackground(shape: RoundedRectangle) -> some View {
+        switch style {
+        case .glass:
+            ZStack {
+                shape.fill(.ultraThinMaterial)
+                shape.fill(theme.colors.surfaceCard.opacity(theme.glass.tintOpacity))
+            }
+        case .outlined, .elevated, .tactile3D:
+            shape.fill(theme.colors.surfaceCard)
+        case .flat:
+            shape.fill(theme.colors.surfaceSubtle)
+        }
+    }
+
+    @ViewBuilder
+    private func dialogBorder(shape: RoundedRectangle) -> some View {
+        switch style {
+        case .glass:
+            ZStack {
+                shape.strokeBorder(theme.glass.borderGradient, lineWidth: 1)
+                shape.strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
+            }
+        case .outlined:
+            shape.strokeBorder(theme.colors.borderDefault, lineWidth: 1)
+        case .elevated:
+            shape.strokeBorder(
+                LinearGradient(
+                    stops: [
+                        .init(color: .craftDynamic(light: Color.white.opacity(0.8), dark: Color.white.opacity(0.18)), location: 0.0),
+                        .init(color: theme.colors.borderDefault.opacity(0.4), location: 0.5),
+                        .init(color: theme.colors.hairline, location: 1.0)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ),
+                lineWidth: 1
+            )
+        case .flat, .tactile3D:
+            EmptyView()
+        }
+    }
+}
+
+private struct DialogShadowModifier: ViewModifier {
+    let style: CraftSurfaceStyle
+    let theme: CraftTheme
+
+    func body(content: Content) -> some View {
+        switch style {
+        case .elevated:
+            content.craftShadow(theme.shadows.xl)
+        case .glass:
+            content.craftShadow(theme.shadows.lg)
+        case .flat, .outlined, .tactile3D:
+            content
+        }
     }
 }
 
@@ -119,11 +273,12 @@ public extension CraftDialog where CustomContent == EmptyView {
         title: String,
         message: String? = nil,
         iconName: String? = nil,
-        primaryButtonTitle: String = "Confirm",
+        primaryButtonTitle: String = CraftLocalized.string("craft.action.confirm"),
         primaryButtonVariant: CraftButtonVariant = .primary,
         primaryAction: @escaping () -> Void,
-        cancelButtonTitle: String? = "Cancel",
-        cancelAction: (() -> Void)? = nil
+        cancelButtonTitle: String? = CraftLocalized.string("craft.action.cancel"),
+        cancelAction: (() -> Void)? = nil,
+        style: CraftSurfaceStyle = .elevated
     ) {
         self.init(
             title: title,
@@ -133,7 +288,34 @@ public extension CraftDialog where CustomContent == EmptyView {
             primaryButtonVariant: primaryButtonVariant,
             primaryAction: primaryAction,
             cancelButtonTitle: cancelButtonTitle,
-            cancelAction: cancelAction
+            cancelAction: cancelAction,
+            style: style
+        ) {
+            EmptyView()
+        }
+    }
+
+    init(
+        titleKey: LocalizedStringKey,
+        messageKey: LocalizedStringKey? = nil,
+        iconName: String? = nil,
+        primaryButtonTitleKey: LocalizedStringKey? = nil,
+        primaryButtonVariant: CraftButtonVariant = .primary,
+        primaryAction: @escaping () -> Void,
+        cancelButtonTitleKey: LocalizedStringKey? = nil,
+        cancelAction: (() -> Void)? = nil,
+        style: CraftSurfaceStyle = .elevated
+    ) {
+        self.init(
+            titleKey: titleKey,
+            messageKey: messageKey,
+            iconName: iconName,
+            primaryButtonTitleKey: primaryButtonTitleKey,
+            primaryButtonVariant: primaryButtonVariant,
+            primaryAction: primaryAction,
+            cancelButtonTitleKey: cancelButtonTitleKey,
+            cancelAction: cancelAction,
+            style: style
         ) {
             EmptyView()
         }
@@ -145,13 +327,16 @@ public extension CraftDialog where CustomContent == EmptyView {
 public struct CraftDialogModifier<DialogBody: View>: ViewModifier {
     @Environment(\.craftTheme) private var theme
     @Binding public var isPresented: Bool
+    public let backdrop: CraftDialogBackdrop
     public let dialogContent: DialogBody
 
     public init(
         isPresented: Binding<Bool>,
+        backdrop: CraftDialogBackdrop = .dimmed,
         @ViewBuilder dialogContent: () -> DialogBody
     ) {
         self._isPresented = isPresented
+        self.backdrop = backdrop
         self.dialogContent = dialogContent()
     }
 
@@ -160,16 +345,25 @@ public struct CraftDialogModifier<DialogBody: View>: ViewModifier {
             content
 
             if isPresented {
-                // Dimmed Backdrop
-                Color.black.opacity(0.4)
-                    .ignoresSafeArea()
-                    .transition(.opacity)
-                    .onTapGesture {
-                        withAnimation(theme.animations.springSmooth) {
-                            isPresented = false
-                        }
+                // Backdrop
+                Group {
+                    switch backdrop {
+                    case .dimmed:
+                        Color.black.opacity(0.4)
+                    case .material:
+                        Rectangle()
+                            .fill(.ultraThinMaterial)
+                            .overlay(Color.black.opacity(0.25))
                     }
-                    .zIndex(999)
+                }
+                .ignoresSafeArea()
+                .transition(.opacity)
+                .onTapGesture {
+                    withAnimation(theme.animations.springSmooth) {
+                        isPresented = false
+                    }
+                }
+                .zIndex(999)
 
                 // Dialog Content
                 dialogContent
@@ -190,14 +384,16 @@ public extension View {
         title: String,
         message: String? = nil,
         iconName: String? = nil,
-        primaryButtonTitle: String = "Confirm",
+        primaryButtonTitle: String = CraftLocalized.string("craft.action.confirm"),
         primaryButtonVariant: CraftButtonVariant = .primary,
         primaryAction: @escaping () -> Void,
-        cancelButtonTitle: String? = "Cancel",
-        cancelAction: (() -> Void)? = nil
+        cancelButtonTitle: String? = CraftLocalized.string("craft.action.cancel"),
+        cancelAction: (() -> Void)? = nil,
+        style: CraftSurfaceStyle = .elevated,
+        backdrop: CraftDialogBackdrop = .dimmed
     ) -> some View {
         modifier(
-            CraftDialogModifier(isPresented: isPresented) {
+            CraftDialogModifier(isPresented: isPresented, backdrop: backdrop) {
                 CraftDialog(
                     title: title,
                     message: message,
@@ -216,7 +412,49 @@ public extension View {
                         withAnimation {
                             isPresented.wrappedValue = false
                         }
-                    } : nil
+                    } : nil,
+                    style: style
+                )
+            }
+        )
+    }
+
+    /// Presents a standardized localized confirmation/alert modal dialog over this view.
+    func craftDialog(
+        isPresented: Binding<Bool>,
+        titleKey: LocalizedStringKey,
+        messageKey: LocalizedStringKey? = nil,
+        iconName: String? = nil,
+        primaryButtonTitleKey: LocalizedStringKey? = nil,
+        primaryButtonVariant: CraftButtonVariant = .primary,
+        primaryAction: @escaping () -> Void,
+        cancelButtonTitleKey: LocalizedStringKey? = nil,
+        cancelAction: (() -> Void)? = nil,
+        style: CraftSurfaceStyle = .elevated,
+        backdrop: CraftDialogBackdrop = .dimmed
+    ) -> some View {
+        modifier(
+            CraftDialogModifier(isPresented: isPresented, backdrop: backdrop) {
+                CraftDialog(
+                    titleKey: titleKey,
+                    messageKey: messageKey,
+                    iconName: iconName,
+                    primaryButtonTitleKey: primaryButtonTitleKey,
+                    primaryButtonVariant: primaryButtonVariant,
+                    primaryAction: {
+                        primaryAction()
+                        withAnimation {
+                            isPresented.wrappedValue = false
+                        }
+                    },
+                    cancelButtonTitleKey: cancelButtonTitleKey,
+                    cancelAction: cancelButtonTitleKey != nil ? {
+                        cancelAction?()
+                        withAnimation {
+                            isPresented.wrappedValue = false
+                        }
+                    } : nil,
+                    style: style
                 )
             }
         )
@@ -225,19 +463,22 @@ public extension View {
     /// Presents a custom modal dialog container over this view.
     func craftDialog<CustomContent: View>(
         isPresented: Binding<Bool>,
+        backdrop: CraftDialogBackdrop = .dimmed,
         @ViewBuilder content: () -> CustomContent
     ) -> some View {
-        modifier(CraftDialogModifier(isPresented: isPresented, dialogContent: content))
+        modifier(CraftDialogModifier(isPresented: isPresented, backdrop: backdrop, dialogContent: content))
     }
 }
 
 #Preview("CraftDialog") {
     @Previewable @State var showPrimary = false
     @Previewable @State var showDanger = false
-    
+    @Previewable @State var showGlass = false
+
     return VStack(spacing: 24) {
         Button("Show Primary Dialog") { showPrimary = true }
         Button("Show Danger Dialog") { showDanger = true }
+        Button("Show Glass Dialog") { showGlass = true }
     }
     .craftDialog(
         isPresented: $showPrimary,
@@ -256,5 +497,13 @@ public extension View {
         primaryButtonTitle: "Delete",
         primaryButtonVariant: .danger,
         primaryAction: { }
+    )
+    .craftDialog(
+        isPresented: $showGlass,
+        title: "Liquid Glass Dialog",
+        message: "Translucent backdrop and frosted surface style.",
+        primaryAction: { },
+        style: .glass,
+        backdrop: .material
     )
 }

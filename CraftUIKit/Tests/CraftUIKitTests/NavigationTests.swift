@@ -26,6 +26,7 @@ final class NavigationTests: XCTestCase {
         let bar = CraftFloatingTabBar(selectedItem: binding, items: tabs)
         XCTAssertEqual(bar.selectedItem.id, 0)
         XCTAssertEqual(bar.items.count, 2)
+        XCTAssertEqual(bar.style, .glass)
         XCTAssertNil(bar.centerAction)
         XCTAssertEqual(bar.centerSymbol, "plus")
         XCTAssertNil(bar.centerTitle)
@@ -49,6 +50,7 @@ final class NavigationTests: XCTestCase {
         let bar = CraftFloatingTabBar(
             selectedItem: binding,
             items: tabs,
+            style: .glass,
             centerAction: {
                 centerActionExecuted = true
             },
@@ -59,9 +61,81 @@ final class NavigationTests: XCTestCase {
         XCTAssertNotNil(bar.centerAction)
         XCTAssertEqual(bar.centerSymbol, "plus.circle.fill")
         XCTAssertEqual(bar.centerTitle, "Add Word")
+        XCTAssertEqual(bar.style, .glass)
 
         bar.centerAction?()
         XCTAssertTrue(centerActionExecuted)
+    }
+
+    func testFloatingTabBarSurfaceStyles() {
+        let tabs = [
+            SampleTab(id: 0, title: "Home", symbol: "house"),
+            SampleTab(id: 1, title: "Settings", symbol: "gear")
+        ]
+        var selected = tabs[0]
+        let binding = Binding(get: { selected }, set: { selected = $0 })
+
+        for style in CraftSurfaceStyle.allCases {
+            let bar = CraftFloatingTabBar(
+                selectedItem: binding,
+                items: tabs,
+                style: style,
+                centerAction: {},
+                centerSymbol: "plus"
+            )
+            XCTAssertEqual(bar.style, style)
+            XCTAssertNotNil(bar.body)
+        }
+    }
+
+    func testFloatingTabBarLocalizedCenterTitle() {
+        let tabs = [
+            SampleTab(id: 0, title: "Home", symbol: "house"),
+            SampleTab(id: 1, title: "Settings", symbol: "gear")
+        ]
+        var selected = tabs[0]
+        let binding = Binding(get: { selected }, set: { selected = $0 })
+
+        let bar = CraftFloatingTabBar(
+            selectedItem: binding,
+            items: tabs,
+            style: .glass,
+            centerAction: {},
+            centerSymbol: "sparkles",
+            centerTitleKey: LocalizedStringKey("tab_center_title")
+        )
+        XCTAssertNil(bar.centerTitle)
+        XCTAssertNotNil(bar.body)
+    }
+
+    func testCraftTabItemModel() {
+        let item1 = CraftTabItem(id: "home", title: "Home", symbol: "house.fill", badgeCount: 2)
+        XCTAssertEqual(item1.id, "home")
+        XCTAssertEqual(item1.title, "Home")
+        XCTAssertNil(item1.titleKey)
+        XCTAssertEqual(item1.symbol, "house.fill")
+        XCTAssertEqual(item1.badgeCount, 2)
+
+        let item2 = CraftTabItem(id: "saved", titleKey: LocalizedStringKey("saved_key"), symbol: "bookmark.fill")
+        XCTAssertEqual(item2.id, "saved")
+        XCTAssertEqual(item2.title, "")
+        XCTAssertNotNil(item2.titleKey)
+        XCTAssertEqual(item2.symbol, "bookmark.fill")
+        XCTAssertNil(item2.badgeCount)
+    }
+
+    func testFloatingTabBarWithCraftTabItem() {
+        let tabs = [
+            CraftTabItem(id: "home", title: "Home", symbol: "house"),
+            CraftTabItem(id: "search", titleKey: LocalizedStringKey("search_key"), symbol: "magnifyingglass")
+        ]
+        var selected = tabs[0]
+        let bar = CraftFloatingTabBar(
+            selectedItem: Binding(get: { selected }, set: { selected = $0 }),
+            items: tabs,
+            style: .glass
+        )
+        XCTAssertNotNil(bar.body)
     }
 
     func testFloatingTabBarBodyRendering() {
@@ -81,6 +155,7 @@ final class NavigationTests: XCTestCase {
         let fabBar = CraftFloatingTabBar(
             selectedItem: binding,
             items: tabs,
+            style: .elevated,
             centerAction: {},
             centerSymbol: "plus",
             centerTitle: "Create"
@@ -113,6 +188,7 @@ final class NavigationTests: XCTestCase {
         XCTAssertEqual(tab.title, "Vocabulary")
         XCTAssertEqual(tab.symbol, "character.book.closed")
         XCTAssertNil(tab.badgeCount)
+        XCTAssertNil(tab.titleKey)
     }
 
     func testTabEqualityAndConformances() {

@@ -69,7 +69,7 @@ public struct CraftSpecularGlareModifier: AnimatableModifier {
 
 /// An interactive 3D container component that flips between a front and back view
 /// with double-sided rendering, back-face culling, simulated edge thickness, dynamic specular glare,
-/// spring physics, and sensory feedback.
+/// configurable perspective, custom spring physics, and sensory feedback.
 public struct CraftFlipCard<Front: View, Back: View>: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -79,6 +79,8 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
     public let edgeThickness: CGFloat
     public let showSpecularGlare: Bool
     public let cornerRadius: CGFloat
+    public let perspective: CGFloat
+    public let animation: Animation?
     public let front: Front
     public let back: Back
 
@@ -88,6 +90,8 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
         edgeThickness: CGFloat = 2,
         showSpecularGlare: Bool = true,
         cornerRadius: CGFloat = 16,
+        perspective: CGFloat = 0.5,
+        animation: Animation? = nil,
         @ViewBuilder front: () -> Front,
         @ViewBuilder back: () -> Back
     ) {
@@ -96,6 +100,8 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
         self.edgeThickness = edgeThickness
         self.showSpecularGlare = showSpecularGlare
         self.cornerRadius = cornerRadius
+        self.perspective = perspective
+        self.animation = animation
         self.front = front()
         self.back = back()
     }
@@ -134,7 +140,7 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
             .rotation3DEffect(
                 reduceMotion ? .zero : .degrees(isFlipped ? 180 : 0),
                 axis: rotationAxis,
-                perspective: 0.5
+                perspective: perspective
             )
 
             // Back Card Face with simulated edge thickness & specular glare
@@ -167,10 +173,10 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
             .rotation3DEffect(
                 reduceMotion ? .zero : .degrees(isFlipped ? 0 : -180),
                 axis: rotationAxis,
-                perspective: 0.5
+                perspective: perspective
             )
         }
-        .animation(theme.animations.springSmooth, value: isFlipped)
+        .animation(animation ?? theme.animations.springSmooth, value: isFlipped)
         .sensoryFeedback(.impact(weight: .medium), trigger: isFlipped)
         .accessibilityAction(named: "Flip card") {
             isFlipped.toggle()
@@ -191,7 +197,11 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
     struct PreviewWrapper: View {
         @State private var isFlipped = false
         var body: some View {
-            CraftFlipCard(isFlipped: $isFlipped) {
+            CraftFlipCard(
+                isFlipped: $isFlipped,
+                perspective: 0.6,
+                animation: .spring(response: 0.5, dampingFraction: 0.7)
+            ) {
                 CraftCard(style: .elevated) {
                     Text("Front")
                         .frame(maxWidth: .infinity, minHeight: 100)

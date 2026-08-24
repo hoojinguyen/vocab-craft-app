@@ -9,6 +9,30 @@ public enum CraftCardStyle: String, Sendable, CaseIterable {
     case outlined
     case gradient
     case tactile3D
+    case glass
+
+    /// Maps to the corresponding `CraftSurfaceStyle` if applicable.
+    public var surfaceStyle: CraftSurfaceStyle? {
+        switch self {
+        case .flat: return .flat
+        case .elevated: return .elevated
+        case .outlined: return .outlined
+        case .tactile3D: return .tactile3D
+        case .glass: return .glass
+        case .gradient: return nil
+        }
+    }
+
+    /// Initializes a `CraftCardStyle` from a `CraftSurfaceStyle`.
+    public init(surfaceStyle: CraftSurfaceStyle) {
+        switch surfaceStyle {
+        case .flat: self = .flat
+        case .elevated: self = .elevated
+        case .outlined: self = .outlined
+        case .tactile3D: self = .tactile3D
+        case .glass: self = .glass
+        }
+    }
 }
 
 // MARK: - Tactile Card Button Style
@@ -66,7 +90,7 @@ public extension ButtonStyle where Self == CraftTactileCardButtonStyle {
 
 // MARK: - CraftCard Component
 
-/// A flexible, theme-driven container card supporting flat, elevated, outlined, gradient, and tactile3D styles,
+/// A flexible, theme-driven container card supporting flat, elevated, outlined, gradient, tactile3D, and glass styles,
 /// with optional tactile press effects for interactive cards (such as Bento grid layouts).
 public struct CraftCard<Content: View>: View {
     @Environment(\.craftTheme) private var theme
@@ -75,6 +99,7 @@ public struct CraftCard<Content: View>: View {
     public let isPressable: Bool
     public let cornerRadius: CGFloat?
     public let padding: CGFloat?
+    public let customTint: Color?
     public let customGradient: LinearGradient?
     public let action: (() -> Void)?
     public let content: Content
@@ -84,6 +109,7 @@ public struct CraftCard<Content: View>: View {
         isPressable: Bool = false,
         cornerRadius: CGFloat? = nil,
         padding: CGFloat? = nil,
+        customTint: Color? = nil,
         customGradient: LinearGradient? = nil,
         action: (() -> Void)? = nil,
         @ViewBuilder content: () -> Content
@@ -92,9 +118,33 @@ public struct CraftCard<Content: View>: View {
         self.isPressable = isPressable || action != nil
         self.cornerRadius = cornerRadius
         self.padding = padding
+        self.customTint = customTint
         self.customGradient = customGradient
         self.action = action
         self.content = content()
+    }
+
+    /// Convenience initializer supporting `CraftSurfaceStyle`.
+    public init(
+        surfaceStyle: CraftSurfaceStyle,
+        isPressable: Bool = false,
+        cornerRadius: CGFloat? = nil,
+        padding: CGFloat? = nil,
+        customTint: Color? = nil,
+        customGradient: LinearGradient? = nil,
+        action: (() -> Void)? = nil,
+        @ViewBuilder content: () -> Content
+    ) {
+        self.init(
+            style: CraftCardStyle(surfaceStyle: surfaceStyle),
+            isPressable: isPressable,
+            cornerRadius: cornerRadius,
+            padding: padding,
+            customTint: customTint,
+            customGradient: customGradient,
+            action: action,
+            content: content
+        )
     }
 
     public var body: some View {
@@ -148,46 +198,68 @@ public struct CraftCard<Content: View>: View {
 
     @ViewBuilder
     private func backgroundView(radius: CGFloat) -> some View {
-        switch style {
-        case .flat:
-            theme.colors.surfaceSubtle
-        case .elevated:
-            theme.colors.surfaceElevated
-        case .outlined:
-            theme.colors.surfaceCard
-        case .gradient:
-            customGradient ?? theme.gradients.brandHero
-        case .tactile3D:
-            theme.colors.surfaceCard
+        let shape = RoundedRectangle(cornerRadius: radius)
+        if style == .glass {
+            ZStack {
+                shape.fill(.ultraThinMaterial)
+                if let customGradient {
+                    shape.fill(customGradient)
+                } else if let customTint {
+                    shape.fill(customTint.opacity(theme.glass.tintOpacity))
+                } else {
+                    shape.fill(theme.colors.surfaceCard.opacity(theme.glass.tintOpacity))
+                }
+            }
+        } else if let customGradient {
+            shape.fill(customGradient)
+        } else if let customTint {
+            shape.fill(customTint)
+        } else {
+            switch style {
+            case .flat:
+                shape.fill(theme.colors.surfaceSubtle)
+            case .elevated:
+                shape.fill(theme.colors.surfaceElevated)
+            case .outlined:
+                shape.fill(theme.colors.surfaceCard)
+            case .gradient:
+                shape.fill(theme.gradients.brandHero)
+            case .tactile3D:
+                shape.fill(theme.colors.surfaceCard)
+            case .glass:
+                EmptyView()
+            }
         }
     }
 
     @ViewBuilder
     private func borderOverlay(radius: CGFloat) -> some View {
+        let shape = RoundedRectangle(cornerRadius: radius)
         switch style {
         case .outlined:
-            RoundedRectangle(cornerRadius: radius)
-                .strokeBorder(theme.colors.borderDefault, lineWidth: 1)
+            shape.strokeBorder(theme.colors.borderDefault, lineWidth: 1)
         case .elevated:
-            RoundedRectangle(cornerRadius: radius)
-                .strokeBorder(
-                    LinearGradient(
-                        stops: [
-                            .init(color: .craftDynamic(light: Color.white.opacity(0.7), dark: Color.white.opacity(0.16)), location: 0.0),
-                            .init(color: .craftDynamic(light: theme.colors.hairline.opacity(0.4), dark: Color.white.opacity(0.04)), location: 0.5),
-                            .init(color: .clear, location: 1.0)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 1
-                )
+            shape.strokeBorder(
+                LinearGradient(
+                    stops: [
+                        .init(color: .craftDynamic(light: Color.white.opacity(0.7), dark: Color.white.opacity(0.16)), location: 0.0),
+                        .init(color: .craftDynamic(light: theme.colors.hairline.opacity(0.4), dark: Color.white.opacity(0.04)), location: 0.5),
+                        .init(color: .clear, location: 1.0)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ),
+                lineWidth: 1
+            )
         case .tactile3D:
             ZStack {
-                RoundedRectangle(cornerRadius: radius)
-                    .strokeBorder(theme.colors.borderDefault, lineWidth: 1)
-                RoundedRectangle(cornerRadius: radius)
-                    .strokeBorder(theme.depths.topHighlight, lineWidth: 1)
+                shape.strokeBorder(theme.colors.borderDefault, lineWidth: 1)
+                shape.strokeBorder(theme.depths.topHighlight, lineWidth: 1)
+            }
+        case .glass:
+            ZStack {
+                shape.strokeBorder(theme.glass.borderGradient, lineWidth: 1)
+                shape.strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
             }
         case .flat, .gradient:
             EmptyView()
@@ -200,9 +272,12 @@ private struct ShadowModifier: ViewModifier {
     let theme: CraftTheme
 
     func body(content: Content) -> some View {
-        if style == .elevated {
+        switch style {
+        case .elevated:
             content.craftShadow(theme.shadows.md)
-        } else {
+        case .glass:
+            content.craftShadow(theme.shadows.sm)
+        case .flat, .outlined, .gradient, .tactile3D:
             content
         }
     }
@@ -219,6 +294,9 @@ private struct ShadowModifier: ViewModifier {
             }
             CraftCard(style: .outlined) {
                 Text("Outlined Card")
+            }
+            CraftCard(style: .glass) {
+                Text("Glass Card")
             }
             CraftCard(style: .gradient) {
                 Text("Gradient Card")

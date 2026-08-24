@@ -36,6 +36,7 @@ public struct CraftToastData: Identifiable, Sendable, Equatable {
     public let message: String
     public let iconName: String?
     public let style: CraftToastStyle
+    public let surfaceStyle: CraftSurfaceStyle
     public let duration: TimeInterval
 
     public init(
@@ -44,6 +45,7 @@ public struct CraftToastData: Identifiable, Sendable, Equatable {
         message: String,
         iconName: String? = nil,
         style: CraftToastStyle = .info,
+        surfaceStyle: CraftSurfaceStyle = .elevated,
         duration: TimeInterval = 3.0
     ) {
         self.id = id
@@ -51,20 +53,27 @@ public struct CraftToastData: Identifiable, Sendable, Equatable {
         self.message = message
         self.iconName = iconName
         self.style = style
+        self.surfaceStyle = surfaceStyle
         self.duration = duration
     }
 }
 
 // MARK: - CraftToast Component
 
-/// A standalone HUD toast view displaying an icon, title, and message.
+/// A standalone HUD toast view displaying an icon, title, and message with customizable surface styling.
 public struct CraftToast: View {
     @Environment(\.craftTheme) private var theme
 
-    public let title: String?
-    public let message: String
+    private let titleKey: LocalizedStringKey?
+    private let rawTitle: String?
+    private let messageKey: LocalizedStringKey?
+    private let rawMessage: String?
+
+    public var title: String? { rawTitle }
+    public var message: String { rawMessage ?? "" }
     public let iconName: String?
     public let style: CraftToastStyle
+    public let surfaceStyle: CraftSurfaceStyle
     public let onDismiss: (() -> Void)?
 
     public init(
@@ -72,25 +81,56 @@ public struct CraftToast: View {
         title: String? = nil,
         iconName: String? = nil,
         style: CraftToastStyle = .info,
+        surfaceStyle: CraftSurfaceStyle = .elevated,
         onDismiss: (() -> Void)? = nil
     ) {
-        self.title = title
-        self.message = message
+        self.titleKey = nil
+        self.rawTitle = title
+        self.messageKey = nil
+        self.rawMessage = message
         self.iconName = iconName
         self.style = style
+        self.surfaceStyle = surfaceStyle
+        self.onDismiss = onDismiss
+    }
+
+    public init(
+        messageKey: LocalizedStringKey,
+        titleKey: LocalizedStringKey? = nil,
+        iconName: String? = nil,
+        style: CraftToastStyle = .info,
+        surfaceStyle: CraftSurfaceStyle = .elevated,
+        onDismiss: (() -> Void)? = nil
+    ) {
+        self.titleKey = titleKey
+        self.rawTitle = nil
+        self.messageKey = messageKey
+        self.rawMessage = nil
+        self.iconName = iconName
+        self.style = style
+        self.surfaceStyle = surfaceStyle
         self.onDismiss = onDismiss
     }
 
     public var body: some View {
+        let shape = RoundedRectangle(cornerRadius: theme.radii.lg)
+
         HStack(spacing: theme.spacing.sm) {
             let icon = iconName ?? style.defaultIconName
             CraftIcon(icon, size: .md, color: statusColor)
 
             VStack(alignment: .leading, spacing: 2) {
-                if let title, !title.isEmpty {
-                    CraftText(title, style: .headline, color: theme.colors.textPrimary)
+                if let titleKey {
+                    CraftText(titleKey, style: .headline, color: theme.colors.textPrimary)
+                } else if let rawTitle, !rawTitle.isEmpty {
+                    CraftText(rawTitle, style: .headline, color: theme.colors.textPrimary)
                 }
-                CraftText(message, style: .bodyMedium, color: theme.colors.textSecondary)
+
+                if let messageKey {
+                    CraftText(messageKey, style: .bodyMedium, color: theme.colors.textSecondary)
+                } else if let rawMessage, !rawMessage.isEmpty {
+                    CraftText(rawMessage, style: .bodyMedium, color: theme.colors.textSecondary)
+                }
             }
 
             Spacer(minLength: theme.spacing.xs)
@@ -100,20 +140,49 @@ public struct CraftToast: View {
                     CraftIcon(.close, size: .sm, color: theme.colors.textMuted)
                 }
                 .buttonStyle(PlainButtonStyle())
-                .accessibilityLabel("Dismiss")
+                .accessibilityLabel(CraftLocalized.string("craft.action.dismiss"))
                 .frame(minWidth: 44, minHeight: 44)
             }
         }
         .padding(.horizontal, theme.spacing.base)
         .padding(.vertical, theme.spacing.sm)
-        .background(theme.colors.surfaceElevated)
-        .clipShape(RoundedRectangle(cornerRadius: theme.radii.lg))
-        .overlay(
-            RoundedRectangle(cornerRadius: theme.radii.lg)
-                .strokeBorder(theme.colors.borderDefault, lineWidth: 1)
-        )
-        .craftShadow(theme.shadows.lg)
+        .background(toastBackground(shape: shape))
+        .clipShape(shape)
+        .overlay(toastBorder(shape: shape))
+        .modifier(ToastShadowModifier(surfaceStyle: surfaceStyle, theme: theme))
         .padding(.horizontal, theme.spacing.base)
+    }
+
+    @ViewBuilder
+    private func toastBackground(shape: RoundedRectangle) -> some View {
+        switch surfaceStyle {
+        case .glass:
+            ZStack {
+                shape.fill(.ultraThinMaterial)
+                shape.fill(theme.colors.surfaceCard.opacity(theme.glass.tintOpacity))
+            }
+        case .outlined, .tactile3D:
+            shape.fill(theme.colors.surfaceCard)
+        case .elevated:
+            shape.fill(theme.colors.surfaceElevated)
+        case .flat:
+            shape.fill(theme.colors.surfaceSubtle)
+        }
+    }
+
+    @ViewBuilder
+    private func toastBorder(shape: RoundedRectangle) -> some View {
+        switch surfaceStyle {
+        case .glass:
+            ZStack {
+                shape.strokeBorder(theme.glass.borderGradient, lineWidth: 1)
+                shape.strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
+            }
+        case .outlined, .elevated:
+            shape.strokeBorder(theme.colors.borderDefault, lineWidth: 1)
+        case .flat, .tactile3D:
+            EmptyView()
+        }
     }
 
     private var statusColor: Color {
@@ -122,6 +191,22 @@ public struct CraftToast: View {
         case .success: return theme.colors.statusSuccess
         case .warning: return theme.colors.statusWarning
         case .danger: return theme.colors.statusDanger
+        }
+    }
+}
+
+private struct ToastShadowModifier: ViewModifier {
+    let surfaceStyle: CraftSurfaceStyle
+    let theme: CraftTheme
+
+    func body(content: Content) -> some View {
+        switch surfaceStyle {
+        case .elevated:
+            content.craftShadow(theme.shadows.lg)
+        case .glass:
+            content.craftShadow(theme.shadows.sm)
+        case .flat, .outlined, .tactile3D:
+            content
         }
     }
 }
@@ -149,6 +234,7 @@ public struct CraftToastModifier: ViewModifier {
                         title: data.title,
                         iconName: data.iconName,
                         style: data.style,
+                        surfaceStyle: data.surfaceStyle,
                         onDismiss: {
                             withAnimation(theme.animations.springSmooth) {
                                 isPresented = false
@@ -199,6 +285,7 @@ public extension View {
         title: String? = nil,
         iconName: String? = nil,
         style: CraftToastStyle = .info,
+        surfaceStyle: CraftSurfaceStyle = .elevated,
         duration: TimeInterval = 3.0,
         position: CraftToastPosition = .top
     ) -> some View {
@@ -207,6 +294,7 @@ public extension View {
             message: message,
             iconName: iconName,
             style: style,
+            surfaceStyle: surfaceStyle,
             duration: duration
         )
         return craftToast(isPresented: isPresented, toast: data, position: position)
@@ -229,16 +317,19 @@ public extension View {
 #Preview("CraftToast") {
     @Previewable @State var showInfo = false
     @Previewable @State var showSuccess = false
-    
+    @Previewable @State var showGlass = false
+
     return ScrollView {
         VStack(spacing: 24) {
             Button("Show Info Toast") { showInfo = true }
             Button("Show Success Toast") { showSuccess = true }
-            
+            Button("Show Glass Toast") { showGlass = true }
+
             Divider()
-            
+
             CraftToast(message: "Static preview warning", title: "Warning", style: .warning)
             CraftToast(message: "Static preview danger", style: .danger)
+            CraftToast(message: "Static glass toast", title: "Glass", style: .info, surfaceStyle: .glass)
         }
         .padding()
     }
@@ -252,5 +343,12 @@ public extension View {
         message: "Action completed successfully!",
         style: .success,
         position: .bottom
+    )
+    .craftToast(
+        isPresented: $showGlass,
+        message: "Frosted Glass toast notification",
+        style: .info,
+        surfaceStyle: .glass,
+        position: .top
     )
 }
