@@ -169,7 +169,16 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
     }
 
     public var body: some View {
-        Group {
+        barContainer
+            .padding(.horizontal, theme.spacing.base)
+            .padding(.bottom, theme.spacing.xs)
+            .accessibilityElement(children: .contain)
+            .sensoryFeedback(.selection, trigger: selectedItem.id)
+    }
+
+    @ViewBuilder
+    private var barContainer: some View {
+        ZStack {
             if #available(iOS 26, macOS 26, *), style == .glass {
                 GlassEffectContainer(spacing: 8) {
                     barContent
@@ -186,17 +195,25 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                     }
                     .modifier(TabBarShadowModifier(style: style, theme: theme))
             }
+
+            if let centerAction {
+                CraftCenterActionButton(
+                    symbol: centerSymbol,
+                    titleKey: centerTitleKey,
+                    title: rawCenterTitle,
+                    style: style,
+                    position: centerPosition,
+                    action: centerAction
+                )
+                .zIndex(100)
+            }
         }
-        .padding(.horizontal, theme.spacing.base)
-        .padding(.bottom, theme.spacing.xs)
-        .accessibilityElement(children: .contain)
-        .sensoryFeedback(.selection, trigger: selectedItem.id)
     }
 
     @ViewBuilder
     private var barContent: some View {
         HStack(spacing: theme.spacing.xs) {
-            if let centerAction {
+            if centerAction != nil {
                 ForEach(leadingItems) { item in
                     CraftTabButton(
                         item: item,
@@ -207,14 +224,9 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                     )
                 }
 
-                CraftCenterActionButton(
-                    symbol: centerSymbol,
-                    titleKey: centerTitleKey,
-                    title: rawCenterTitle,
-                    style: style,
-                    position: centerPosition,
-                    action: centerAction
-                )
+                Color.clear
+                    .frame(width: centerPosition == .floating ? 56 : 42, height: 44)
+                    .accessibilityHidden(true)
 
                 ForEach(trailingItems) { item in
                     CraftTabButton(
@@ -455,10 +467,6 @@ private struct CraftCenterActionButton: View {
         position == .floating ? 56 : 42
     }
 
-    private var slotWidth: CGFloat {
-        position == .floating ? 56 : 42
-    }
-
     var body: some View {
         Group {
             if style == .glass {
@@ -467,8 +475,8 @@ private struct CraftCenterActionButton: View {
                 tactileFAB
             }
         }
-        .frame(width: slotWidth, height: 44)
-        .zIndex(2)
+        .offset(y: position == .floating ? -18 : 0)
+        .zIndex(100)
         .accessibilityLabel(accessibilityTitle)
         .accessibilityAddTraits(.isButton)
         .sensoryFeedback(.impact(weight: .medium), trigger: triggerHapticCount)
@@ -510,7 +518,6 @@ private struct CraftCenterActionButton: View {
             }
             .frame(width: circleDiameter, height: circleDiameter)
             .contentShape(Circle())
-            .offset(y: position == .floating ? -18 : 0)
         }
         .buttonStyle(.craftPress(scale: 0.93))
     }
@@ -529,7 +536,6 @@ private struct CraftCenterActionButton: View {
                         Circle()
                             .strokeBorder(theme.depths.topHighlight, lineWidth: position == .floating ? 1.8 : 1.5)
                     )
-                    .craftShadow(position == .floating ? theme.shadows.md : theme.shadows.sm)
 
                 CraftIcon(
                     symbol,
@@ -541,9 +547,8 @@ private struct CraftCenterActionButton: View {
             }
             .frame(width: circleDiameter, height: circleDiameter)
             .contentShape(Circle())
-            .offset(y: position == .floating ? -18 : 0)
         }
-        .buttonStyle(CraftTactileFABButtonStyle(depth: position == .floating ? theme.depths.depthLg : theme.depths.depthMd))
+        .buttonStyle(CraftTactileFABButtonStyle(depth: position == .floating ? 4 : 3))
     }
 
     private var accessibilityTitle: Text {
