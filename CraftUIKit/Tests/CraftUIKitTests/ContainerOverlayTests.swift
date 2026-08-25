@@ -694,4 +694,89 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertTrue(modifier.dismissOnBackdropTap)
         XCTAssertNotNil(modifier.onBackdropDismiss)
     }
+
+    func testDialogButtonLayoutAndCustomIconColor() {
+        let dialog = CraftDialog(
+            title: "Test Layout",
+            message: "Message",
+            iconName: "bell.fill",
+            iconColor: .orange,
+            primaryButtonTitle: "Confirm",
+            primaryButtonVariant: .primary,
+            primaryAction: {},
+            cancelButtonTitle: "Cancel",
+            cancelButtonVariant: .outline,
+            cancelAction: {},
+            style: .elevated,
+            buttonLayout: .horizontal
+        )
+
+        XCTAssertEqual(dialog.buttonLayout, .horizontal)
+        XCTAssertEqual(dialog.iconColor, .orange)
+        XCTAssertEqual(dialog.iconName, "bell.fill")
+        XCTAssertEqual(dialog.cancelButtonVariant, .outline)
+        XCTAssertNotNil(dialog.body)
+    }
+
+    func testDialogVerticalButtonLayout() {
+        let dialog = CraftDialog(
+            title: "Vertical Layout",
+            primaryAction: {},
+            buttonLayout: .vertical
+        )
+
+        XCTAssertEqual(dialog.buttonLayout, .vertical)
+        XCTAssertNil(dialog.cancelButtonVariant)
+        XCTAssertNotNil(dialog.body)
+    }
+
+    func testDialogCustomCancelButtonVariant() {
+        let dialog = CraftDialog(
+            title: "Custom Cancel",
+            primaryAction: {},
+            cancelButtonVariant: .danger
+        )
+
+        XCTAssertEqual(dialog.cancelButtonVariant, .danger)
+        XCTAssertNotNil(dialog.body)
+    }
+
+    func testDialogLocalizedStringKeyWithNewProperties() {
+        let dialog = CraftDialog(
+            titleKey: LocalizedStringKey("dialog_title"),
+            messageKey: LocalizedStringKey("dialog_msg"),
+            iconName: "trash.fill",
+            iconColor: .red,
+            primaryButtonTitleKey: LocalizedStringKey("dialog_confirm"),
+            primaryButtonVariant: .danger,
+            primaryAction: {},
+            cancelButtonTitleKey: LocalizedStringKey("dialog_cancel"),
+            cancelButtonVariant: .ghost,
+            cancelAction: {},
+            style: .glass,
+            buttonLayout: .vertical
+        )
+
+        XCTAssertEqual(dialog.buttonLayout, .vertical)
+        XCTAssertEqual(dialog.iconColor, .red)
+        XCTAssertEqual(dialog.cancelButtonVariant, .ghost)
+        XCTAssertNotNil(dialog.body)
+    }
+
+    func testDialogCustomContentWithNewProperties() {
+        let dialog = CraftDialog(
+            title: "Custom Content",
+            iconColor: .blue,
+            primaryAction: {},
+            cancelButtonVariant: .secondary,
+            buttonLayout: .automatic
+        ) {
+            Text("Extra details")
+        }
+
+        XCTAssertEqual(dialog.buttonLayout, .automatic)
+        XCTAssertEqual(dialog.iconColor, .blue)
+        XCTAssertEqual(dialog.cancelButtonVariant, .secondary)
+        XCTAssertNotNil(dialog.body)
+    }
 }

@@ -28,6 +28,7 @@ public enum CraftDialogButtonLayout: Sendable, CaseIterable {
 /// supporting theme-driven surfaces (.elevated, .outlined, .glass), localization, and custom backdrops.
 public struct CraftDialog<CustomContent: View>: View {
     @Environment(\.craftTheme) private var theme
+    @State private var hasAppeared: Bool = false
 
     private let titleKey: LocalizedStringKey?
     private let rawTitle: String?
@@ -44,11 +45,18 @@ public struct CraftDialog<CustomContent: View>: View {
     public var cancelButtonTitle: String? { rawCancelButtonTitle }
 
     public let iconName: String?
+    public let iconColor: Color?
     public let primaryButtonVariant: CraftButtonVariant
     public let primaryAction: () -> Void
+    public let cancelButtonVariant: CraftButtonVariant?
     public let cancelAction: (() -> Void)?
     public let style: CraftSurfaceStyle
+    public let buttonLayout: CraftDialogButtonLayout
     public let customContent: CustomContent
+
+    private var hasCancelButton: Bool {
+        cancelButtonTitleKey != nil || rawCancelButtonTitle != nil
+    }
 
     // MARK: - String Initializer
 
@@ -56,12 +64,15 @@ public struct CraftDialog<CustomContent: View>: View {
         title: String,
         message: String? = nil,
         iconName: String? = nil,
+        iconColor: Color? = nil,
         primaryButtonTitle: String = CraftLocalized.string("craft.action.confirm"),
         primaryButtonVariant: CraftButtonVariant = .primary,
         primaryAction: @escaping () -> Void,
         cancelButtonTitle: String? = CraftLocalized.string("craft.action.cancel"),
+        cancelButtonVariant: CraftButtonVariant? = nil,
         cancelAction: (() -> Void)? = nil,
         style: CraftSurfaceStyle = .elevated,
+        buttonLayout: CraftDialogButtonLayout = .automatic,
         @ViewBuilder customContent: () -> CustomContent
     ) {
         self.titleKey = nil
@@ -69,14 +80,17 @@ public struct CraftDialog<CustomContent: View>: View {
         self.messageKey = nil
         self.rawMessage = message
         self.iconName = iconName
+        self.iconColor = iconColor
         self.primaryButtonTitleKey = nil
         self.rawPrimaryButtonTitle = primaryButtonTitle
         self.primaryButtonVariant = primaryButtonVariant
         self.primaryAction = primaryAction
         self.cancelButtonTitleKey = nil
         self.rawCancelButtonTitle = cancelButtonTitle
+        self.cancelButtonVariant = cancelButtonVariant
         self.cancelAction = cancelAction
         self.style = style
+        self.buttonLayout = buttonLayout
         self.customContent = customContent()
     }
 
@@ -86,12 +100,15 @@ public struct CraftDialog<CustomContent: View>: View {
         titleKey: LocalizedStringKey,
         messageKey: LocalizedStringKey? = nil,
         iconName: String? = nil,
+        iconColor: Color? = nil,
         primaryButtonTitleKey: LocalizedStringKey? = nil,
         primaryButtonVariant: CraftButtonVariant = .primary,
         primaryAction: @escaping () -> Void,
         cancelButtonTitleKey: LocalizedStringKey? = nil,
+        cancelButtonVariant: CraftButtonVariant? = nil,
         cancelAction: (() -> Void)? = nil,
         style: CraftSurfaceStyle = .elevated,
+        buttonLayout: CraftDialogButtonLayout = .automatic,
         @ViewBuilder customContent: () -> CustomContent
     ) {
         self.titleKey = titleKey
@@ -99,14 +116,17 @@ public struct CraftDialog<CustomContent: View>: View {
         self.messageKey = messageKey
         self.rawMessage = nil
         self.iconName = iconName
+        self.iconColor = iconColor
         self.primaryButtonTitleKey = primaryButtonTitleKey
         self.rawPrimaryButtonTitle = nil
         self.primaryButtonVariant = primaryButtonVariant
         self.primaryAction = primaryAction
         self.cancelButtonTitleKey = cancelButtonTitleKey
         self.rawCancelButtonTitle = nil
+        self.cancelButtonVariant = cancelButtonVariant
         self.cancelAction = cancelAction
         self.style = style
+        self.buttonLayout = buttonLayout
         self.customContent = customContent()
     }
 
@@ -116,7 +136,7 @@ public struct CraftDialog<CustomContent: View>: View {
         VStack(spacing: theme.spacing.lg) {
             // Icon Badge
             if let iconName {
-                let badgeColor = primaryButtonVariant == .danger ? theme.colors.statusDanger : theme.colors.brandPrimary
+                let badgeColor = iconColor ?? (primaryButtonVariant == .danger ? theme.colors.statusDanger : theme.colors.brandPrimary)
 
                 ZStack {
                     Circle()
@@ -124,25 +144,22 @@ public struct CraftDialog<CustomContent: View>: View {
                         .frame(width: 56, height: 56)
 
                     CraftIcon(iconName, size: .lg, color: badgeColor)
+                        .symbolEffect(.bounce.byLayer, value: hasAppeared)
                 }
             }
 
             // Title and Message
             VStack(spacing: theme.spacing.xs) {
                 if let titleKey {
-                    CraftText(
-                        titleKey,
-                        style: .headline,
-                        color: theme.colors.textPrimary,
-                        textAlignment: .center
-                    )
+                    Text(titleKey)
+                        .font(.system(.title3, design: .rounded, weight: .bold))
+                        .foregroundStyle(theme.colors.textPrimary)
+                        .multilineTextAlignment(.center)
                 } else if let rawTitle {
-                    CraftText(
-                        rawTitle,
-                        style: .headline,
-                        color: theme.colors.textPrimary,
-                        textAlignment: .center
-                    )
+                    Text(rawTitle)
+                        .font(.system(.title3, design: .rounded, weight: .bold))
+                        .foregroundStyle(theme.colors.textPrimary)
+                        .multilineTextAlignment(.center)
                 }
 
                 if let messageKey {
@@ -166,48 +183,7 @@ public struct CraftDialog<CustomContent: View>: View {
             customContent
 
             // Action Buttons
-            VStack(spacing: theme.spacing.sm) {
-                if let primaryButtonTitleKey {
-                    CraftButton(
-                        primaryButtonTitleKey,
-                        variant: primaryButtonVariant,
-                        size: .md,
-                        action: primaryAction
-                    )
-                    .frame(maxWidth: .infinity)
-                } else {
-                    CraftButton(
-                        primaryButtonTitle,
-                        variant: primaryButtonVariant,
-                        size: .md,
-                        action: primaryAction
-                    )
-                    .frame(maxWidth: .infinity)
-                }
-
-                if let cancelButtonTitleKey {
-                    CraftButton(
-                        cancelButtonTitleKey,
-                        variant: .ghost,
-                        size: .md,
-                        action: {
-                            cancelAction?()
-                        }
-                    )
-                    .frame(maxWidth: .infinity)
-                } else if let cancelButtonTitle {
-                    CraftButton(
-                        cancelButtonTitle,
-                        variant: .ghost,
-                        size: .md,
-                        action: {
-                            cancelAction?()
-                        }
-                    )
-                    .frame(maxWidth: .infinity)
-                }
-            }
-            .frame(maxWidth: .infinity)
+            dialogActions
         }
         .padding(theme.spacing.lg)
         .frame(maxWidth: 340)
@@ -215,7 +191,104 @@ public struct CraftDialog<CustomContent: View>: View {
         .clipShape(shape)
         .overlay(dialogBorder(shape: shape))
         .modifier(DialogShadowModifier(style: style, theme: theme))
+        .accessibilityElement(children: .contain)
+        .accessibilityAddTraits(.isModal)
+        .sensoryFeedback(.warning, trigger: hasAppeared) { _, _ in
+            primaryButtonVariant == .danger
+        }
+        .onAppear {
+            hasAppeared = true
+        }
         .padding(.horizontal, theme.spacing.lg)
+    }
+
+    @ViewBuilder
+    private var primaryButtonView: some View {
+        if let primaryButtonTitleKey {
+            CraftButton(
+                primaryButtonTitleKey,
+                variant: primaryButtonVariant,
+                size: .md,
+                action: primaryAction
+            )
+            .frame(maxWidth: .infinity)
+        } else {
+            CraftButton(
+                primaryButtonTitle,
+                variant: primaryButtonVariant,
+                size: .md,
+                action: primaryAction
+            )
+            .frame(maxWidth: .infinity)
+        }
+    }
+
+    @ViewBuilder
+    private func cancelButtonView(variant: CraftButtonVariant) -> some View {
+        if let cancelButtonTitleKey {
+            CraftButton(
+                cancelButtonTitleKey,
+                variant: variant,
+                size: .md,
+                action: {
+                    cancelAction?()
+                }
+            )
+            .frame(maxWidth: .infinity)
+        } else if let cancelButtonTitle {
+            CraftButton(
+                cancelButtonTitle,
+                variant: variant,
+                size: .md,
+                action: {
+                    cancelAction?()
+                }
+            )
+            .frame(maxWidth: .infinity)
+        }
+    }
+
+    @ViewBuilder
+    private var horizontalActions: some View {
+        if hasCancelButton {
+            HStack(spacing: theme.spacing.sm) {
+                cancelButtonView(variant: cancelButtonVariant ?? .outline)
+                primaryButtonView
+            }
+            .frame(maxWidth: .infinity)
+        } else {
+            primaryButtonView
+        }
+    }
+
+    @ViewBuilder
+    private var verticalActions: some View {
+        VStack(spacing: theme.spacing.sm) {
+            primaryButtonView
+            if hasCancelButton {
+                cancelButtonView(variant: cancelButtonVariant ?? .ghost)
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    @ViewBuilder
+    private var dialogActions: some View {
+        switch buttonLayout {
+        case .automatic:
+            if hasCancelButton {
+                ViewThatFits(in: .horizontal) {
+                    horizontalActions
+                    verticalActions
+                }
+            } else {
+                primaryButtonView
+            }
+        case .horizontal:
+            horizontalActions
+        case .vertical:
+            verticalActions
+        }
     }
 
     @ViewBuilder
@@ -285,23 +358,29 @@ public extension CraftDialog where CustomContent == EmptyView {
         title: String,
         message: String? = nil,
         iconName: String? = nil,
+        iconColor: Color? = nil,
         primaryButtonTitle: String = CraftLocalized.string("craft.action.confirm"),
         primaryButtonVariant: CraftButtonVariant = .primary,
         primaryAction: @escaping () -> Void,
         cancelButtonTitle: String? = CraftLocalized.string("craft.action.cancel"),
+        cancelButtonVariant: CraftButtonVariant? = nil,
         cancelAction: (() -> Void)? = nil,
-        style: CraftSurfaceStyle = .elevated
+        style: CraftSurfaceStyle = .elevated,
+        buttonLayout: CraftDialogButtonLayout = .automatic
     ) {
         self.init(
             title: title,
             message: message,
             iconName: iconName,
+            iconColor: iconColor,
             primaryButtonTitle: primaryButtonTitle,
             primaryButtonVariant: primaryButtonVariant,
             primaryAction: primaryAction,
             cancelButtonTitle: cancelButtonTitle,
+            cancelButtonVariant: cancelButtonVariant,
             cancelAction: cancelAction,
-            style: style
+            style: style,
+            buttonLayout: buttonLayout
         ) {
             EmptyView()
         }
@@ -311,23 +390,29 @@ public extension CraftDialog where CustomContent == EmptyView {
         titleKey: LocalizedStringKey,
         messageKey: LocalizedStringKey? = nil,
         iconName: String? = nil,
+        iconColor: Color? = nil,
         primaryButtonTitleKey: LocalizedStringKey? = nil,
         primaryButtonVariant: CraftButtonVariant = .primary,
         primaryAction: @escaping () -> Void,
         cancelButtonTitleKey: LocalizedStringKey? = nil,
+        cancelButtonVariant: CraftButtonVariant? = nil,
         cancelAction: (() -> Void)? = nil,
-        style: CraftSurfaceStyle = .elevated
+        style: CraftSurfaceStyle = .elevated,
+        buttonLayout: CraftDialogButtonLayout = .automatic
     ) {
         self.init(
             titleKey: titleKey,
             messageKey: messageKey,
             iconName: iconName,
+            iconColor: iconColor,
             primaryButtonTitleKey: primaryButtonTitleKey,
             primaryButtonVariant: primaryButtonVariant,
             primaryAction: primaryAction,
             cancelButtonTitleKey: cancelButtonTitleKey,
+            cancelButtonVariant: cancelButtonVariant,
             cancelAction: cancelAction,
-            style: style
+            style: style,
+            buttonLayout: buttonLayout
         ) {
             EmptyView()
         }
