@@ -22,6 +22,7 @@ private extension CraftSpacingTokens {
 public struct CraftChoiceCard: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     @State private var shakeCount: CGFloat = 0
 
@@ -78,6 +79,27 @@ public struct CraftChoiceCard: View {
     }
 
     public var body: some View {
+        cardButton
+            .scaleEffect(state == .correct && !reduceMotion ? 1.02 : 1.0)
+            .modifier(ChoiceShakeEffect(shakes: shakeCount))
+            .animation(theme.animations.springBouncy, value: state)
+            .opacity(state == .disabled ? 0.5 : 1.0)
+            .accessibilityElement(children: .combine)
+            .accessibilityValue(accessibilityValueDescription)
+            .accessibilityAddTraits(state == .selected ? [.isButton, .isSelected] : [.isButton])
+            .sensoryFeedback(.selection, trigger: state) { (_: CraftChoiceState, new: CraftChoiceState) -> Bool in new == .selected }
+            .sensoryFeedback(.success, trigger: state) { (_: CraftChoiceState, new: CraftChoiceState) -> Bool in new == .correct }
+            .sensoryFeedback(.error, trigger: state) { (_: CraftChoiceState, new: CraftChoiceState) -> Bool in new == .wrong }
+            .onChange(of: state) { _, newState in
+                if newState == .wrong && !reduceMotion {
+                    withAnimation(.linear(duration: 0.35)) {
+                        shakeCount += 1
+                    }
+                }
+            }
+    }
+
+    private var cardButton: some View {
         Button(action: {
             guard state != .disabled else { return }
             action()
@@ -86,23 +108,6 @@ public struct CraftChoiceCard: View {
         }
         .buttonStyle(CraftChoiceCardButtonStyle(state: state, style: style, depth: theme.depths.depthMd))
         .disabled(state == .disabled)
-        .scaleEffect(state == .correct && !reduceMotion ? 1.02 : 1.0)
-        .modifier(ChoiceShakeEffect(shakes: shakeCount))
-        .animation(theme.animations.springBouncy, value: state)
-        .opacity(state == .disabled ? 0.5 : 1.0)
-        .accessibilityElement(children: .combine)
-        .accessibilityValue(accessibilityValueDescription)
-        .accessibilityAddTraits(state == .selected ? [.isButton, .isSelected] : [.isButton])
-        .sensoryFeedback(.selection, trigger: state == .selected)
-        .sensoryFeedback(.success, trigger: state == .correct)
-        .sensoryFeedback(.error, trigger: state == .wrong)
-        .onChange(of: state) { _, newState in
-            if newState == .wrong && !reduceMotion {
-                withAnimation(.linear(duration: 0.35)) {
-                    shakeCount += 1
-                }
-            }
-        }
     }
 
     private var cardSurface: some View {
@@ -162,10 +167,25 @@ public struct CraftChoiceCard: View {
         ZStack {
             switch style {
             case .glass:
-                RoundedRectangle(cornerRadius: theme.radii.lg)
-                    .fill(.ultraThinMaterial)
-                RoundedRectangle(cornerRadius: theme.radii.lg)
-                    .fill(theme.colors.surfaceCard.opacity(theme.glass.tintOpacity))
+                if #available(iOS 26, macOS 26, *) {
+                    if reduceTransparency {
+                        RoundedRectangle(cornerRadius: theme.radii.lg)
+                            .fill(theme.colors.surfaceCard)
+                    } else {
+                        RoundedRectangle(cornerRadius: theme.radii.lg)
+                            .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: theme.radii.lg))
+                    }
+                } else {
+                    if reduceTransparency {
+                        RoundedRectangle(cornerRadius: theme.radii.lg)
+                            .fill(theme.colors.surfaceCard)
+                    } else {
+                        RoundedRectangle(cornerRadius: theme.radii.lg)
+                            .fill(.ultraThinMaterial)
+                        RoundedRectangle(cornerRadius: theme.radii.lg)
+                            .fill(theme.colors.surfaceCard.opacity(theme.glass.tintOpacity))
+                    }
+                }
             case .flat:
                 RoundedRectangle(cornerRadius: theme.radii.lg)
                     .fill(theme.colors.surfaceSubtle)
@@ -241,12 +261,16 @@ public struct CraftChoiceCard: View {
 
     @ViewBuilder
     private var topHighlightOverlay: some View {
-        if state != .disabled && (style == .tactile3D || style == .glass) {
-            RoundedRectangle(cornerRadius: theme.radii.lg)
-                .strokeBorder(
-                    theme.depths.topHighlight,
-                    lineWidth: style == .glass ? 0.8 : 1
-                )
+        if state != .disabled {
+            if style == .tactile3D {
+                RoundedRectangle(cornerRadius: theme.radii.lg)
+                    .strokeBorder(theme.depths.topHighlight, lineWidth: 1)
+            } else if style == .glass {
+                if #unavailable(iOS 26, macOS 26) {
+                    RoundedRectangle(cornerRadius: theme.radii.lg)
+                        .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
+                }
+            }
         }
     }
 

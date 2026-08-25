@@ -1374,18 +1374,37 @@ private struct CatalogControlsSection: View {
 
                     CraftText("What is the closest synonym for 'Ephemeral'?", style: .bodyMedium, color: theme.colors.textSecondary)
 
-                    VStack(spacing: theme.spacing.sm) {
-                        CraftChoiceCard(prefix: "A", title: "Permanent", subtitle: "Enduring and perpetual across eras", state: choiceState(for: "A"), style: .tactile3D) {
-                            selectChoice("A")
+                    if #available(iOS 26, macOS 26, *) {
+                        GlassEffectContainer(spacing: theme.spacing.sm) {
+                            VStack(spacing: theme.spacing.sm) {
+                                CraftChoiceCard(prefix: "A", title: "Permanent", subtitle: "Enduring and perpetual across eras", state: choiceState(for: "A"), style: .tactile3D) {
+                                    selectChoice("A")
+                                }
+                                CraftChoiceCard(prefix: "B", title: "Transitory", subtitle: "Fleeting and brief in existence", state: choiceState(for: "B"), style: .glass) {
+                                    selectChoice("B")
+                                }
+                                CraftChoiceCard(prefix: "C", title: "Immutable", subtitle: "Completely rigid and unchangeable", state: choiceState(for: "C"), style: .elevated) {
+                                    selectChoice("C")
+                                }
+                                CraftChoiceCard(prefix: "D", title: "Dormant", subtitle: "Temporarily inactive or asleep", state: choiceState(for: "D"), style: .outlined) {
+                                    selectChoice("D")
+                                }
+                            }
                         }
-                        CraftChoiceCard(prefix: "B", title: "Transitory", subtitle: "Fleeting and brief in existence", state: choiceState(for: "B"), style: .glass) {
-                            selectChoice("B")
-                        }
-                        CraftChoiceCard(prefix: "C", title: "Immutable", subtitle: "Completely rigid and unchangeable", state: choiceState(for: "C"), style: .elevated) {
-                            selectChoice("C")
-                        }
-                        CraftChoiceCard(prefix: "D", title: "Dormant", subtitle: "Temporarily inactive or asleep", state: choiceState(for: "D"), style: .outlined) {
-                            selectChoice("D")
+                    } else {
+                        VStack(spacing: theme.spacing.sm) {
+                            CraftChoiceCard(prefix: "A", title: "Permanent", subtitle: "Enduring and perpetual across eras", state: choiceState(for: "A"), style: .tactile3D) {
+                                selectChoice("A")
+                            }
+                            CraftChoiceCard(prefix: "B", title: "Transitory", subtitle: "Fleeting and brief in existence", state: choiceState(for: "B"), style: .glass) {
+                                selectChoice("B")
+                            }
+                            CraftChoiceCard(prefix: "C", title: "Immutable", subtitle: "Completely rigid and unchangeable", state: choiceState(for: "C"), style: .elevated) {
+                                selectChoice("C")
+                            }
+                            CraftChoiceCard(prefix: "D", title: "Dormant", subtitle: "Temporarily inactive or asleep", state: choiceState(for: "D"), style: .outlined) {
+                                selectChoice("D")
+                            }
                         }
                     }
 

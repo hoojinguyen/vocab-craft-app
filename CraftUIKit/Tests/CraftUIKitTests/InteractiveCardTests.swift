@@ -203,6 +203,20 @@ final class InteractiveCardTests: XCTestCase {
         XCTAssertNotNil(wrongCard.body)
     }
 
+    func testChoiceCardGlassStyleAcrossStates() {
+        for state in CraftChoiceState.allCases {
+            let card = CraftChoiceCard(
+                prefix: "G",
+                title: "Glass Card \(state.rawValue)",
+                subtitle: "Liquid glass material option",
+                state: state,
+                style: .glass
+            ) {}
+            XCTAssertEqual(card.style, .glass)
+            XCTAssertNotNil(card.body)
+        }
+    }
+
     func testChoiceCardShakeEffectGeometry() {
         let effect = ChoiceShakeEffect(shakes: 1.0, amount: 8, shakesPerUnit: 3)
         let transform = effect.effectValue(size: CGSize(width: 200, height: 50))
