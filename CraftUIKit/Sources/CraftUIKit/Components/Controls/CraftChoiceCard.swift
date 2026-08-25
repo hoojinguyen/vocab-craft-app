@@ -288,35 +288,33 @@ public struct CraftChoiceCard: View {
 
     @ViewBuilder
     private var prefixBadge: some View {
-        ZStack {
-            // Embossed 3D bottom bevel / rim
+        Group {
+            if let prefixKey {
+                Text(prefixKey)
+            } else if let rawPrefix {
+                Text(rawPrefix)
+            }
+        }
+        .font(theme.typography.headline.bold())
+        .fontDesign(.rounded)
+        .foregroundStyle(prefixForegroundColor)
+        .frame(minWidth: 32, minHeight: 32)
+        .padding(.horizontal, 6)
+        .background(prefixBackgroundColor)
+        .clipShape(RoundedRectangle(cornerRadius: theme.radii.sm))
+        .overlay(
+            RoundedRectangle(cornerRadius: theme.radii.sm)
+                .strokeBorder(prefixBorderStroke, lineWidth: 1)
+        )
+        .background {
             if state != .disabled {
                 RoundedRectangle(cornerRadius: theme.radii.sm)
                     .fill(prefixBottomRimColor)
                     .offset(y: 2)
             }
-
-            // Top surface
-            Group {
-                if let prefixKey {
-                    Text(prefixKey)
-                } else if let rawPrefix {
-                    Text(rawPrefix)
-                }
-            }
-            .font(theme.typography.headline.bold())
-            .fontDesign(.rounded)
-            .foregroundStyle(prefixForegroundColor)
-            .frame(minWidth: 32, minHeight: 32)
-            .padding(.horizontal, 6)
-            .background(prefixBackgroundColor)
-            .clipShape(RoundedRectangle(cornerRadius: theme.radii.sm))
-            .overlay(
-                RoundedRectangle(cornerRadius: theme.radii.sm)
-                    .strokeBorder(prefixBorderStroke, lineWidth: 1)
-            )
         }
-        .frame(minWidth: 32, minHeight: 34)
+        .padding(.bottom, state != .disabled ? 2 : 0)
+        .fixedSize()
     }
 
     @ViewBuilder
