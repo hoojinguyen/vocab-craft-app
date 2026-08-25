@@ -10,6 +10,18 @@ public enum CraftDialogBackdrop: Sendable, CaseIterable {
     case material
 }
 
+// MARK: - Dialog Button Layout
+
+/// Layout arrangement options for dialog action buttons.
+public enum CraftDialogButtonLayout: Sendable, CaseIterable {
+    /// Automatically selects horizontal or vertical layout based on available space and labels.
+    case automatic
+    /// Forces side-by-side horizontal button layout.
+    case horizontal
+    /// Forces stacked vertical button layout.
+    case vertical
+}
+
 // MARK: - CraftDialog Component
 
 /// A standardized modal dialog for confirmations, alerts, and critical user decisions,
@@ -328,15 +340,21 @@ public struct CraftDialogModifier<DialogBody: View>: ViewModifier {
     @Environment(\.craftTheme) private var theme
     @Binding public var isPresented: Bool
     public let backdrop: CraftDialogBackdrop
+    public let dismissOnBackdropTap: Bool
+    public let onBackdropDismiss: (() -> Void)?
     public let dialogContent: DialogBody
 
     public init(
         isPresented: Binding<Bool>,
         backdrop: CraftDialogBackdrop = .dimmed,
+        dismissOnBackdropTap: Bool = true,
+        onBackdropDismiss: (() -> Void)? = nil,
         @ViewBuilder dialogContent: () -> DialogBody
     ) {
         self._isPresented = isPresented
         self.backdrop = backdrop
+        self.dismissOnBackdropTap = dismissOnBackdropTap
+        self.onBackdropDismiss = onBackdropDismiss
         self.dialogContent = dialogContent()
     }
 
@@ -359,6 +377,8 @@ public struct CraftDialogModifier<DialogBody: View>: ViewModifier {
                 .ignoresSafeArea()
                 .transition(.opacity)
                 .onTapGesture {
+                    guard dismissOnBackdropTap else { return }
+                    onBackdropDismiss?()
                     withAnimation(theme.animations.springSmooth) {
                         isPresented = false
                     }

@@ -670,4 +670,28 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertNil(dialog.cancelAction)
         XCTAssertNotNil(dialog.body)
     }
+
+    func testDialogButtonLayoutEnumCases() {
+        XCTAssertEqual(CraftDialogButtonLayout.allCases.count, 3)
+        XCTAssertTrue(CraftDialogButtonLayout.allCases.contains(.automatic))
+        XCTAssertTrue(CraftDialogButtonLayout.allCases.contains(.horizontal))
+        XCTAssertTrue(CraftDialogButtonLayout.allCases.contains(.vertical))
+    }
+
+    func testDialogModifierSmartBackdropTapCallback() {
+        var isPresented = true
+        var cancelled = false
+
+        let modifier = CraftDialogModifier(
+            isPresented: Binding(get: { isPresented }, set: { isPresented = $0 }),
+            backdrop: .dimmed,
+            dismissOnBackdropTap: true,
+            onBackdropDismiss: { cancelled = true }
+        ) {
+            Text("Dialog Body")
+        }
+
+        XCTAssertTrue(modifier.dismissOnBackdropTap)
+        XCTAssertNotNil(modifier.onBackdropDismiss)
+    }
 }
