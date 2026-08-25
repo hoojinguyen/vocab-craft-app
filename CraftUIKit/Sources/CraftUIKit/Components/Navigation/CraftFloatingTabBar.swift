@@ -159,6 +159,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                         item: item,
                         isSelected: selectedItem.id == item.id,
                         namespace: tabNamespace,
+                        barStyle: style,
                         onSelect: { select(item) }
                     )
                 }
@@ -175,6 +176,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                         item: item,
                         isSelected: selectedItem.id == item.id,
                         namespace: tabNamespace,
+                        barStyle: style,
                         onSelect: { select(item) }
                     )
                 }
@@ -184,6 +186,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                         item: item,
                         isSelected: selectedItem.id == item.id,
                         namespace: tabNamespace,
+                        barStyle: style,
                         onSelect: { select(item) }
                     )
                 }
@@ -276,15 +279,22 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
 /// Isolated tab button view enabling SwiftUI's Attribute Graph to bypass unaffected tabs during selection changes.
 private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
     @Environment(\.craftTheme) private var theme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     let item: Item
     let isSelected: Bool
     let namespace: Namespace.ID
+    let barStyle: CraftSurfaceStyle
     let onSelect: () -> Void
+
+    private var hasTitle: Bool {
+        if item.titleKey != nil { return true }
+        return !item.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
 
     var body: some View {
         Button(action: onSelect) {
-            VStack(spacing: 3) {
+            VStack(spacing: hasTitle ? 3 : 0) {
                 ZStack(alignment: .topTrailing) {
                     CraftIcon(
                         item.symbol,
@@ -311,39 +321,84 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
                     Text(titleKey)
                         .font(theme.typography.caption)
                         .fontWeight(isSelected ? .semibold : .regular)
+                        .foregroundColor(isSelected ? theme.colors.brandPrimary : theme.colors.textMuted)
                         .lineLimit(1)
-                } else {
+                } else if !item.title.isEmpty {
                     Text(item.title)
                         .font(theme.typography.caption)
                         .fontWeight(isSelected ? .semibold : .regular)
+                        .foregroundColor(isSelected ? theme.colors.brandPrimary : theme.colors.textMuted)
                         .lineLimit(1)
                 }
             }
-            .foregroundColor(isSelected ? theme.colors.textPrimary : theme.colors.textMuted)
             .frame(maxWidth: .infinity)
             .frame(minHeight: 46)
-            .padding(.vertical, 6)
+            .padding(.vertical, hasTitle ? 6 : 10)
             .padding(.horizontal, theme.spacing.xs)
             .background {
                 if isSelected {
-                    RoundedRectangle(cornerRadius: 18)
-                        .fill(theme.colors.surfaceElevated.opacity(0.85))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 18)
-                                .strokeBorder(theme.colors.hairline, lineWidth: 1)
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 18)
-                                .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
-                        )
+                    tabIndicatorBackground
                         .matchedGeometryEffect(id: "activeTabIndicator", in: namespace)
                 }
             }
             .contentShape(Rectangle())
         }
         .buttonStyle(.craftPress(scale: 0.95))
-        .accessibilityLabel(item.title)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityTitle)
         .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : [.isButton])
+    }
+
+    @ViewBuilder
+    private var tabIndicatorBackground: some View {
+        switch barStyle {
+        case .glass:
+            RoundedRectangle(cornerRadius: 18)
+                .fill(reduceTransparency ? AnyShapeStyle(theme.colors.surfaceCard) : AnyShapeStyle(theme.colors.brandPrimary.opacity(0.14)))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18)
+                        .strokeBorder(theme.colors.brandPrimary.opacity(0.25), lineWidth: 0.8)
+                )
+        case .elevated:
+            RoundedRectangle(cornerRadius: 18)
+                .fill(theme.colors.surfaceElevated.opacity(0.85))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18)
+                        .strokeBorder(theme.colors.hairline, lineWidth: 1)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18)
+                        .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
+                )
+        case .outlined:
+            RoundedRectangle(cornerRadius: 18)
+                .fill(theme.colors.surfaceCard)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18)
+                        .strokeBorder(theme.colors.borderDefault, lineWidth: 1)
+                )
+        case .tactile3D:
+            RoundedRectangle(cornerRadius: 18)
+                .fill(theme.colors.surfaceCard)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18)
+                        .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
+                )
+        case .flat:
+            RoundedRectangle(cornerRadius: 18)
+                .fill(theme.colors.surfaceCard)
+        }
+    }
+
+    private var accessibilityTitle: Text {
+        if let titleKey = item.titleKey {
+            return Text(titleKey)
+        } else if !item.title.isEmpty {
+            return Text(item.title)
+        } else {
+            let readable = item.symbol.replacingOccurrences(of: ".", with: " ").capitalized
+            return Text(readable)
+        }
     }
 }
 
