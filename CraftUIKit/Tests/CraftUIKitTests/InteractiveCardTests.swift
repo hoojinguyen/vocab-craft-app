@@ -66,6 +66,31 @@ final class InteractiveCardTests: XCTestCase {
         XCTAssertNotNil(card.body)
     }
 
+    func testChoiceCardMultiCharacterPrefixAndLongText() {
+        let card = CraftChoiceCard(
+            prefix: "10.",
+            title: "Very long vocabulary term spanning across multiple lines of text",
+            subtitle: "Comprehensive explanation detailing linguistic etymology and connotations",
+            state: .selected
+        ) {}
+
+        XCTAssertEqual(card.prefix, "10.")
+        XCTAssertEqual(card.title, "Very long vocabulary term spanning across multiple lines of text")
+        XCTAssertEqual(card.subtitle, "Comprehensive explanation detailing linguistic etymology and connotations")
+        XCTAssertNotNil(card.body)
+    }
+
+    func testChoiceCardLocalizedLongPrefix() {
+        let card = CraftChoiceCard(
+            prefix: LocalizedStringKey("choice.prefix.long"),
+            title: LocalizedStringKey("choice.title.long"),
+            subtitle: LocalizedStringKey("choice.subtitle.long"),
+            state: .idle
+        ) {}
+
+        XCTAssertNotNil(card.body)
+    }
+
     func testChoiceCardNilPrefix() {
         let card = CraftChoiceCard(
             prefix: nil,

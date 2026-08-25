@@ -11,6 +11,10 @@ public enum CraftChoiceState: String, Sendable, Equatable, Hashable, CaseIterabl
     case disabled
 }
 
+private extension CraftSpacingTokens {
+    var xxs: CGFloat { xs }
+}
+
 // MARK: - CraftChoiceCard Component
 
 /// A quiz option card supporting prefix badges (e.g. A/B/C/D), title, subtitle,
@@ -110,23 +114,24 @@ public struct CraftChoiceCard: View {
     }
 
     private var cardSurface: some View {
-        let content = HStack(spacing: theme.spacing.md) {
+        let content = HStack(alignment: .top, spacing: theme.spacing.md) {
             if prefixKey != nil || rawPrefix != nil {
                 prefixBadge
+                    .padding(.top, 1)
             }
 
-            VStack(alignment: .leading, spacing: theme.spacing.xs) {
+            VStack(alignment: .leading, spacing: theme.spacing.xxs) {
                 if let titleKey {
                     Text(titleKey)
                         .font(theme.typography.headline)
                         .foregroundStyle(titleColor)
-                        .lineLimit(2)
+                        .lineLimit(3)
                         .multilineTextAlignment(.leading)
                 } else if let rawTitle {
                     Text(rawTitle)
                         .font(theme.typography.headline)
                         .foregroundStyle(titleColor)
-                        .lineLimit(2)
+                        .lineLimit(3)
                         .multilineTextAlignment(.leading)
                 }
 
@@ -146,6 +151,7 @@ public struct CraftChoiceCard: View {
             Spacer(minLength: theme.spacing.sm)
 
             trailingIndicator
+                .padding(.top, 2)
         }
         .padding(theme.spacing.base)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -273,10 +279,11 @@ public struct CraftChoiceCard: View {
                     Text(rawPrefix)
                 }
             }
-            .font(theme.typography.headline)
-            .fontWeight(.bold)
+            .font(theme.typography.headline.bold())
+            .fontDesign(.rounded)
             .foregroundStyle(prefixForegroundColor)
-            .frame(width: 32, height: 32)
+            .frame(minWidth: 32, minHeight: 32)
+            .padding(.horizontal, 6)
             .background(prefixBackgroundColor)
             .clipShape(RoundedRectangle(cornerRadius: theme.radii.sm))
             .overlay(
@@ -284,7 +291,7 @@ public struct CraftChoiceCard: View {
                     .strokeBorder(prefixBorderStroke, lineWidth: 1)
             )
         }
-        .frame(width: 32, height: 34)
+        .frame(minWidth: 32, minHeight: 34)
     }
 
     @ViewBuilder
@@ -420,7 +427,7 @@ public struct CraftChoiceCard: View {
         case .idle:
             return theme.colors.borderDefault.opacity(0.6)
         case .selected, .correct, .wrong:
-            return Color.white.opacity(0.3)
+            return theme.colors.textInverse.opacity(0.35)
         case .disabled:
             return .clear
         }
