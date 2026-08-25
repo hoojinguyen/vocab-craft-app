@@ -173,14 +173,14 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
             if #available(iOS 26, macOS 26, *), style == .glass {
                 GlassEffectContainer(spacing: 8) {
                     barContent
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 6)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 5)
                         .glassEffect(.regular, in: .capsule)
                 }
             } else {
                 barContent
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 6)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
                     .background {
                         tabBarLegacyBackground
                     }
@@ -323,7 +323,7 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
 
     var body: some View {
         Button(action: onSelect) {
-            VStack(spacing: hasTitle ? 3 : 0) {
+            VStack(spacing: hasTitle ? 2 : 0) {
                 ZStack(alignment: .topTrailing) {
                     CraftIcon(
                         item.symbol,
@@ -361,9 +361,7 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
                 }
             }
             .frame(maxWidth: .infinity)
-            .frame(minHeight: 48)
-            .padding(.vertical, hasTitle ? 8 : 12)
-            .padding(.horizontal, 6)
+            .frame(height: 44)
             .background {
                 if isSelected {
                     tabIndicatorBackground
@@ -383,39 +381,39 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
     private var tabIndicatorBackground: some View {
         switch barStyle {
         case .glass:
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .fill(reduceTransparency ? AnyShapeStyle(theme.colors.surfaceCard) : AnyShapeStyle(theme.colors.brandPrimary.opacity(0.14)))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
                         .strokeBorder(theme.colors.brandPrimary.opacity(0.25), lineWidth: 0.8)
                 )
         case .elevated:
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .fill(theme.colors.surfaceElevated.opacity(0.85))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
                         .strokeBorder(theme.colors.hairline, lineWidth: 1)
                 )
                 .overlay(
-                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
                         .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
                 )
         case .outlined:
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .fill(theme.colors.surfaceCard)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
                         .strokeBorder(theme.colors.borderDefault, lineWidth: 1)
                 )
         case .tactile3D:
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .fill(theme.colors.surfaceCard)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
                         .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
                 )
         case .flat:
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .fill(theme.colors.surfaceCard)
         }
     }
@@ -453,8 +451,12 @@ private struct CraftCenterActionButton: View {
     let position: CraftCenterButtonPosition
     let action: () -> Void
 
-    private var buttonDiameter: CGFloat {
-        position == .floating ? 54 : 44
+    private var circleDiameter: CGFloat {
+        position == .floating ? 56 : 42
+    }
+
+    private var slotWidth: CGFloat {
+        position == .floating ? 56 : 42
     }
 
     var body: some View {
@@ -465,9 +467,8 @@ private struct CraftCenterActionButton: View {
                 tactileFAB
             }
         }
-        .frame(width: buttonDiameter, height: buttonDiameter)
-        .offset(y: position == .floating ? -14 : 0)
-        .zIndex(1)
+        .frame(width: slotWidth, height: 44)
+        .zIndex(2)
         .accessibilityLabel(accessibilityTitle)
         .accessibilityAddTraits(.isButton)
         .sensoryFeedback(.impact(weight: .medium), trigger: triggerHapticCount)
@@ -482,13 +483,13 @@ private struct CraftCenterActionButton: View {
             ZStack {
                 Circle()
                     .fill(theme.gradients.brandHero)
-                    .frame(width: buttonDiameter, height: buttonDiameter)
+                    .frame(width: circleDiameter, height: circleDiameter)
                     .overlay(
                         Circle()
                             .strokeBorder(
                                 LinearGradient(
                                     colors: [
-                                        Color.white.opacity(0.65),
+                                        Color.white.opacity(0.7),
                                         Color.white.opacity(0.15)
                                     ],
                                     startPoint: .top,
@@ -497,7 +498,7 @@ private struct CraftCenterActionButton: View {
                                 lineWidth: position == .floating ? 1.5 : 1.2
                             )
                     )
-                    .craftShadow(position == .floating ? theme.shadows.lg : theme.shadows.md)
+                    .craftShadow(position == .floating ? theme.shadows.lg : theme.shadows.sm)
 
                 CraftIcon(
                     symbol,
@@ -507,8 +508,9 @@ private struct CraftCenterActionButton: View {
                     weight: .bold
                 )
             }
-            .frame(width: buttonDiameter, height: buttonDiameter)
+            .frame(width: circleDiameter, height: circleDiameter)
             .contentShape(Circle())
+            .offset(y: position == .floating ? -18 : 0)
         }
         .buttonStyle(.craftPress(scale: 0.93))
     }
@@ -522,7 +524,7 @@ private struct CraftCenterActionButton: View {
             ZStack {
                 Circle()
                     .fill(theme.gradients.brandHero)
-                    .frame(width: buttonDiameter, height: buttonDiameter)
+                    .frame(width: circleDiameter, height: circleDiameter)
                     .overlay(
                         Circle()
                             .strokeBorder(theme.depths.topHighlight, lineWidth: position == .floating ? 1.8 : 1.5)
@@ -537,8 +539,9 @@ private struct CraftCenterActionButton: View {
                     weight: .bold
                 )
             }
-            .frame(width: buttonDiameter, height: buttonDiameter)
+            .frame(width: circleDiameter, height: circleDiameter)
             .contentShape(Circle())
+            .offset(y: position == .floating ? -18 : 0)
         }
         .buttonStyle(CraftTactileFABButtonStyle(depth: position == .floating ? theme.depths.depthLg : theme.depths.depthMd))
     }
