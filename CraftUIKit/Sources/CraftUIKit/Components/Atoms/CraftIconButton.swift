@@ -19,6 +19,7 @@ public enum CraftIconButtonVariant: String, Sendable, CaseIterable {
     case subtle
     case outline
     case ghost
+    case danger
 }
 
 // MARK: - CraftIconButton Component
@@ -115,6 +116,8 @@ public struct CraftIconButton: View {
             return effectiveTint
         case .outline, .ghost:
             return customTint ?? theme.colors.textPrimary
+        case .danger:
+            return theme.colors.textInverse
         }
     }
 
@@ -215,6 +218,8 @@ public struct CraftIconButton: View {
             s.strokeBorder(theme.colors.borderDefault, lineWidth: 1)
         case .ghost:
             Color.clear
+        case .danger:
+            s.fill(theme.colors.statusDanger)
         }
     }
 }

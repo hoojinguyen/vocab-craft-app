@@ -230,6 +230,15 @@ final class AtomComponentTests: XCTestCase {
         btn.action()
         XCTAssertTrue(tapped)
     }
+    func testIconButtonDangerVariant() {
+        let btn = CraftIconButton(
+            iconName: "trash.fill",
+            variant: .danger,
+            accessibilityLabel: "Delete"
+        ) {}
+        XCTAssertEqual(btn.variant, .danger)
+        XCTAssertEqual(CraftIconButtonVariant.allCases.contains(.danger), true)
+    }
 
     func testIconButtonShapesAndVariants() {
         for shape in CraftIconButtonShape.allCases {
