@@ -93,6 +93,8 @@ public struct CraftTactileFABButtonStyle: ButtonStyle {
 /// and an integrated tactile action button.
 public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
     @Environment(\.craftTheme) private var theme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Namespace private var tabNamespace
 
     @Binding public var selectedItem: Item
@@ -152,6 +154,32 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
     }
 
     public var body: some View {
+        Group {
+            if #available(iOS 26, macOS 26, *), style == .glass {
+                GlassEffectContainer(spacing: 8) {
+                    barContent
+                        .padding(.horizontal, theme.spacing.xs)
+                        .padding(.vertical, theme.spacing.xs)
+                        .glassEffect(.regular, in: .capsule)
+                }
+            } else {
+                barContent
+                    .padding(.horizontal, theme.spacing.xs)
+                    .padding(.vertical, theme.spacing.xs)
+                    .background {
+                        tabBarLegacyBackground
+                    }
+                    .modifier(TabBarShadowModifier(style: style, theme: theme))
+            }
+        }
+        .padding(.horizontal, theme.spacing.base)
+        .padding(.bottom, theme.spacing.xs)
+        .accessibilityElement(children: .contain)
+        .sensoryFeedback(.selection, trigger: selectedItem.id)
+    }
+
+    @ViewBuilder
+    private var barContent: some View {
         HStack(spacing: theme.spacing.xs) {
             if let centerAction {
                 ForEach(leadingItems) { item in
@@ -193,45 +221,29 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                 }
             }
         }
-        .padding(.horizontal, theme.spacing.xs)
-        .padding(.vertical, theme.spacing.xs)
-        .background {
-            tabBarBackground
-        }
-        .modifier(TabBarShadowModifier(style: style, theme: theme))
-        .padding(.horizontal, theme.spacing.base)
-        .padding(.bottom, theme.spacing.sm)
-        .accessibilityElement(children: .contain)
-        .sensoryFeedback(.selection, trigger: selectedItem.id)
     }
 
     private func select(_ item: Item) {
-        withAnimation(theme.animations.springSnappy) {
+        if reduceMotion {
             selectedItem = item
+        } else {
+            withAnimation(theme.animations.springSnappy) {
+                selectedItem = item
+            }
         }
     }
 
-    // MARK: - Background
+    // MARK: - Legacy / Non-Glass Background
 
     @ViewBuilder
-    private var tabBarBackground: some View {
+    private var tabBarLegacyBackground: some View {
         switch style {
         case .glass:
             Capsule()
-                .fill(.ultraThinMaterial)
+                .fill(reduceTransparency ? AnyShapeStyle(theme.colors.surfaceCard) : AnyShapeStyle(.ultraThinMaterial))
                 .overlay(
                     Capsule()
-                        .strokeBorder(
-                            LinearGradient(
-                                colors: [
-                                    Color.white.opacity(0.35),
-                                    Color.white.opacity(0.05)
-                                ],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            ),
-                            lineWidth: 1
-                        )
+                        .strokeBorder(theme.glass.borderGradient, lineWidth: 1)
                 )
                 .overlay(
                     Capsule()
