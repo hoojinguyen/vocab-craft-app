@@ -93,18 +93,10 @@ public struct CraftChoiceCard: View {
         .accessibilityElement(children: .combine)
         .accessibilityValue(accessibilityValueDescription)
         .accessibilityAddTraits(state == .selected ? [.isButton, .isSelected] : [.isButton])
+        .sensoryFeedback(.selection, trigger: state == .selected)
+        .sensoryFeedback(.success, trigger: state == .correct)
+        .sensoryFeedback(.error, trigger: state == .wrong)
         .onChange(of: state) { _, newState in
-            #if os(iOS)
-            if newState == .correct {
-                let generator = UINotificationFeedbackGenerator()
-                generator.prepare()
-                generator.notificationOccurred(.success)
-            } else if newState == .wrong {
-                let generator = UINotificationFeedbackGenerator()
-                generator.prepare()
-                generator.notificationOccurred(.error)
-            }
-            #endif
             if newState == .wrong && !reduceMotion {
                 withAnimation(.linear(duration: 0.35)) {
                     shakeCount += 1
@@ -197,11 +189,20 @@ public struct CraftChoiceCard: View {
         case .idle, .disabled:
             return .clear
         case .selected:
-            return theme.colors.brandPrimary.opacity(0.08)
+            return .craftDynamic(
+                light: theme.colors.brandPrimary.opacity(0.08),
+                dark: theme.colors.brandPrimary.opacity(0.16)
+            )
         case .correct:
-            return theme.colors.statusSuccess.opacity(0.10)
+            return .craftDynamic(
+                light: theme.colors.statusSuccess.opacity(0.10),
+                dark: theme.colors.statusSuccess.opacity(0.18)
+            )
         case .wrong:
-            return theme.colors.statusDanger.opacity(0.10)
+            return .craftDynamic(
+                light: theme.colors.statusDanger.opacity(0.10),
+                dark: theme.colors.statusDanger.opacity(0.18)
+            )
         }
     }
 
@@ -298,23 +299,11 @@ public struct CraftChoiceCard: View {
     private var trailingIndicator: some View {
         switch state {
         case .correct:
-            ZStack {
-                Circle()
-                    .fill(theme.colors.statusSuccess)
-                    .frame(width: 26, height: 26)
-                Image(systemName: "checkmark")
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundStyle(.white)
-            }
+            CraftIcon(.checkmarkCircle, size: .md, color: theme.colors.statusSuccess, renderingMode: .hierarchical)
+                .transition(.scale.combined(with: .opacity))
         case .wrong:
-            ZStack {
-                Circle()
-                    .fill(theme.colors.statusDanger)
-                    .frame(width: 26, height: 26)
-                Image(systemName: "xmark")
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundStyle(.white)
-            }
+            CraftIcon(.wrongCircle, size: .md, color: theme.colors.statusDanger, renderingMode: .hierarchical)
+                .transition(.scale.combined(with: .opacity))
         case .idle, .selected, .disabled:
             EmptyView()
         }
@@ -468,14 +457,8 @@ public struct CraftChoiceCardButtonStyle: ButtonStyle {
             .animation(theme.animations.springSnappy, value: isPressed)
             .frame(minHeight: 44)
             .contentShape(Rectangle())
-            .onChange(of: configuration.isPressed) { _, pressed in
-                #if os(iOS)
-                if pressed && state != .disabled {
-                    let generator = UIImpactFeedbackGenerator(style: .light)
-                    generator.prepare()
-                    generator.impactOccurred()
-                }
-                #endif
+            .sensoryFeedback(.impact(weight: .light), trigger: isPressed) { _, pressed in
+                pressed
             }
     }
 

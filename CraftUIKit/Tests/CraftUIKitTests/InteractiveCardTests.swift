@@ -186,6 +186,23 @@ final class InteractiveCardTests: XCTestCase {
         }
     }
 
+    func testChoiceCardAccessibilityAndHierarchicalIndicators() {
+        let idleCard = CraftChoiceCard(prefix: "A", title: "Option", state: .idle) {}
+        let selectedCard = CraftChoiceCard(prefix: "B", title: "Option", state: .selected) {}
+        let correctCard = CraftChoiceCard(prefix: "C", title: "Option", state: .correct) {}
+        let wrongCard = CraftChoiceCard(prefix: "D", title: "Option", state: .wrong) {}
+
+        XCTAssertEqual(idleCard.state, .idle)
+        XCTAssertEqual(selectedCard.state, .selected)
+        XCTAssertEqual(correctCard.state, .correct)
+        XCTAssertEqual(wrongCard.state, .wrong)
+
+        XCTAssertNotNil(idleCard.body)
+        XCTAssertNotNil(selectedCard.body)
+        XCTAssertNotNil(correctCard.body)
+        XCTAssertNotNil(wrongCard.body)
+    }
+
     func testChoiceCardShakeEffectGeometry() {
         let effect = ChoiceShakeEffect(shakes: 1.0, amount: 8, shakesPerUnit: 3)
         let transform = effect.effectValue(size: CGSize(width: 200, height: 50))
