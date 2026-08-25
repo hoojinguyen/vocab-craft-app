@@ -168,6 +168,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                     symbol: centerSymbol,
                     titleKey: centerTitleKey,
                     title: rawCenterTitle,
+                    style: style,
                     action: centerAction
                 )
 
@@ -404,7 +405,7 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
 
 // MARK: - Dedicated Center Action Button Subview
 
-/// Isolated tactile action button view located at the center of the tab bar.
+/// Isolated tactile / glass action button view located at the center of the tab bar.
 private struct CraftCenterActionButton: View {
     @Environment(\.craftTheme) private var theme
     @State private var triggerHapticCount = 0
@@ -412,15 +413,64 @@ private struct CraftCenterActionButton: View {
     let symbol: String
     let titleKey: LocalizedStringKey?
     let title: String?
+    let style: CraftSurfaceStyle
     let action: () -> Void
 
     var body: some View {
+        Group {
+            if style == .glass {
+                glassFAB
+            } else {
+                tactileFAB
+            }
+        }
+        .frame(minWidth: 44, minHeight: 44)
+        .accessibilityLabel(accessibilityTitle)
+        .accessibilityAddTraits(.isButton)
+        .sensoryFeedback(.impact(weight: .medium), trigger: triggerHapticCount)
+    }
+
+    @ViewBuilder
+    private var glassFAB: some View {
         Button {
             triggerHapticCount += 1
             action()
         } label: {
             ZStack {
-                // Top Surface Disc with Brand Hero Gradient & Top Highlight Stroke
+                Circle()
+                    .fill(theme.gradients.brandHero)
+                    .frame(width: 48, height: 48)
+                    .overlay(
+                        Circle()
+                            .strokeBorder(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(0.6),
+                                        Color.white.opacity(0.1)
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                ),
+                                lineWidth: 1.2
+                            )
+                    )
+                    .craftShadow(theme.shadows.md)
+
+                centerContent
+            }
+            .frame(width: 48, height: 48)
+            .contentShape(Circle())
+        }
+        .buttonStyle(.craftPress(scale: 0.94))
+    }
+
+    @ViewBuilder
+    private var tactileFAB: some View {
+        Button {
+            triggerHapticCount += 1
+            action()
+        } label: {
+            ZStack {
                 Circle()
                     .fill(theme.gradients.brandHero)
                     .frame(width: 48, height: 48)
@@ -430,38 +480,49 @@ private struct CraftCenterActionButton: View {
                     )
                     .craftShadow(theme.shadows.sm)
 
-                VStack(spacing: 2) {
-                    CraftIcon(
-                        symbol,
-                        size: .md,
-                        color: theme.colors.textInverse,
-                        renderingMode: .monochrome,
-                        weight: .bold
-                    )
-
-                    if let titleKey {
-                        Text(titleKey)
-                            .font(theme.typography.caption)
-                            .fontWeight(.bold)
-                            .foregroundColor(theme.colors.textInverse)
-                            .lineLimit(1)
-                    } else if let title, !title.isEmpty {
-                        Text(title)
-                            .font(theme.typography.caption)
-                            .fontWeight(.bold)
-                            .foregroundColor(theme.colors.textInverse)
-                            .lineLimit(1)
-                    }
-                }
+                centerContent
             }
             .frame(width: 48, height: 48)
             .contentShape(Circle())
         }
         .buttonStyle(CraftTactileFABButtonStyle(depth: theme.depths.depthMd))
-        .frame(minWidth: 44, minHeight: 44)
-        .accessibilityLabel(title ?? "Action")
-        .accessibilityAddTraits(.isButton)
-        .sensoryFeedback(.impact(weight: .medium), trigger: triggerHapticCount)
+    }
+
+    @ViewBuilder
+    private var centerContent: some View {
+        VStack(spacing: 2) {
+            CraftIcon(
+                symbol,
+                size: .md,
+                color: theme.colors.textInverse,
+                renderingMode: .monochrome,
+                weight: .bold
+            )
+
+            if let titleKey {
+                Text(titleKey)
+                    .font(theme.typography.caption)
+                    .fontWeight(.bold)
+                    .foregroundColor(theme.colors.textInverse)
+                    .lineLimit(1)
+            } else if let title, !title.isEmpty {
+                Text(title)
+                    .font(theme.typography.caption)
+                    .fontWeight(.bold)
+                    .foregroundColor(theme.colors.textInverse)
+                    .lineLimit(1)
+            }
+        }
+    }
+
+    private var accessibilityTitle: Text {
+        if let titleKey {
+            return Text(titleKey)
+        } else if let title, !title.isEmpty {
+            return Text(title)
+        } else {
+            return Text("Action")
+        }
     }
 }
 
