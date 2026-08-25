@@ -779,4 +779,72 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertEqual(dialog.cancelButtonVariant, .secondary)
         XCTAssertNotNil(dialog.body)
     }
+
+    // MARK: - View.craftDialog Extension Tests
+
+    func testViewCraftDialogStringExtensionWithNewParameters() {
+        var isPresented = true
+        var cancelled = false
+        let view = Text("Host View")
+            .craftDialog(
+                isPresented: Binding(get: { isPresented }, set: { isPresented = $0 }),
+                title: "Warning",
+                message: "Delete this permanently?",
+                iconName: "trash.fill",
+                iconColor: .red,
+                primaryButtonTitle: "Delete",
+                primaryButtonVariant: .danger,
+                primaryAction: {},
+                cancelButtonTitle: "Cancel",
+                cancelButtonVariant: .ghost,
+                cancelAction: { cancelled = true },
+                style: .elevated,
+                buttonLayout: .vertical,
+                backdrop: .material,
+                dismissOnBackdropTap: false
+            )
+        XCTAssertNotNil(view)
+        XCTAssertFalse(cancelled)
+    }
+
+    func testViewCraftDialogLocalizedExtensionWithNewParameters() {
+        var isPresented = true
+        var cancelled = false
+        let view = Text("Host View")
+            .craftDialog(
+                isPresented: Binding(get: { isPresented }, set: { isPresented = $0 }),
+                titleKey: LocalizedStringKey("dialog_title"),
+                messageKey: LocalizedStringKey("dialog_msg"),
+                iconName: "bell.fill",
+                iconColor: .orange,
+                primaryButtonTitleKey: LocalizedStringKey("dialog_confirm"),
+                primaryButtonVariant: .primary,
+                primaryAction: {},
+                cancelButtonTitleKey: LocalizedStringKey("dialog_cancel"),
+                cancelButtonVariant: .outline,
+                cancelAction: { cancelled = true },
+                style: .glass,
+                buttonLayout: .horizontal,
+                backdrop: .dimmed,
+                dismissOnBackdropTap: true
+            )
+        XCTAssertNotNil(view)
+        XCTAssertFalse(cancelled)
+    }
+
+    func testViewCraftDialogCustomContentExtensionWithNewParameters() {
+        var isPresented = true
+        var backdropDismissed = false
+        let view = Text("Host View")
+            .craftDialog(
+                isPresented: Binding(get: { isPresented }, set: { isPresented = $0 }),
+                backdrop: .material,
+                dismissOnBackdropTap: true,
+                onBackdropDismiss: { backdropDismissed = true }
+            ) {
+                Text("Custom Modal Dialog")
+            }
+        XCTAssertNotNil(view)
+        XCTAssertFalse(backdropDismissed)
+    }
 }

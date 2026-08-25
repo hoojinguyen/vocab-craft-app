@@ -489,20 +489,31 @@ public extension View {
         title: String,
         message: String? = nil,
         iconName: String? = nil,
+        iconColor: Color? = nil,
         primaryButtonTitle: String = CraftLocalized.string("craft.action.confirm"),
         primaryButtonVariant: CraftButtonVariant = .primary,
         primaryAction: @escaping () -> Void,
         cancelButtonTitle: String? = CraftLocalized.string("craft.action.cancel"),
+        cancelButtonVariant: CraftButtonVariant? = nil,
         cancelAction: (() -> Void)? = nil,
         style: CraftSurfaceStyle = .elevated,
-        backdrop: CraftDialogBackdrop = .dimmed
+        buttonLayout: CraftDialogButtonLayout = .automatic,
+        backdrop: CraftDialogBackdrop = .dimmed,
+        dismissOnBackdropTap: Bool? = nil
     ) -> some View {
-        modifier(
-            CraftDialogModifier(isPresented: isPresented, backdrop: backdrop) {
+        let resolvedDismissOnBackdropTap = dismissOnBackdropTap ?? (primaryButtonVariant != .danger)
+        return modifier(
+            CraftDialogModifier(
+                isPresented: isPresented,
+                backdrop: backdrop,
+                dismissOnBackdropTap: resolvedDismissOnBackdropTap,
+                onBackdropDismiss: cancelAction
+            ) {
                 CraftDialog(
                     title: title,
                     message: message,
                     iconName: iconName,
+                    iconColor: iconColor,
                     primaryButtonTitle: primaryButtonTitle,
                     primaryButtonVariant: primaryButtonVariant,
                     primaryAction: {
@@ -512,13 +523,15 @@ public extension View {
                         }
                     },
                     cancelButtonTitle: cancelButtonTitle,
+                    cancelButtonVariant: cancelButtonVariant,
                     cancelAction: cancelButtonTitle != nil ? {
                         cancelAction?()
                         withAnimation {
                             isPresented.wrappedValue = false
                         }
                     } : nil,
-                    style: style
+                    style: style,
+                    buttonLayout: buttonLayout
                 )
             }
         )
@@ -530,20 +543,31 @@ public extension View {
         titleKey: LocalizedStringKey,
         messageKey: LocalizedStringKey? = nil,
         iconName: String? = nil,
+        iconColor: Color? = nil,
         primaryButtonTitleKey: LocalizedStringKey? = nil,
         primaryButtonVariant: CraftButtonVariant = .primary,
         primaryAction: @escaping () -> Void,
         cancelButtonTitleKey: LocalizedStringKey? = nil,
+        cancelButtonVariant: CraftButtonVariant? = nil,
         cancelAction: (() -> Void)? = nil,
         style: CraftSurfaceStyle = .elevated,
-        backdrop: CraftDialogBackdrop = .dimmed
+        buttonLayout: CraftDialogButtonLayout = .automatic,
+        backdrop: CraftDialogBackdrop = .dimmed,
+        dismissOnBackdropTap: Bool? = nil
     ) -> some View {
-        modifier(
-            CraftDialogModifier(isPresented: isPresented, backdrop: backdrop) {
+        let resolvedDismissOnBackdropTap = dismissOnBackdropTap ?? (primaryButtonVariant != .danger)
+        return modifier(
+            CraftDialogModifier(
+                isPresented: isPresented,
+                backdrop: backdrop,
+                dismissOnBackdropTap: resolvedDismissOnBackdropTap,
+                onBackdropDismiss: cancelAction
+            ) {
                 CraftDialog(
                     titleKey: titleKey,
                     messageKey: messageKey,
                     iconName: iconName,
+                    iconColor: iconColor,
                     primaryButtonTitleKey: primaryButtonTitleKey,
                     primaryButtonVariant: primaryButtonVariant,
                     primaryAction: {
@@ -553,13 +577,15 @@ public extension View {
                         }
                     },
                     cancelButtonTitleKey: cancelButtonTitleKey,
+                    cancelButtonVariant: cancelButtonVariant,
                     cancelAction: cancelButtonTitleKey != nil ? {
                         cancelAction?()
                         withAnimation {
                             isPresented.wrappedValue = false
                         }
                     } : nil,
-                    style: style
+                    style: style,
+                    buttonLayout: buttonLayout
                 )
             }
         )
@@ -569,9 +595,19 @@ public extension View {
     func craftDialog<CustomContent: View>(
         isPresented: Binding<Bool>,
         backdrop: CraftDialogBackdrop = .dimmed,
+        dismissOnBackdropTap: Bool = true,
+        onBackdropDismiss: (() -> Void)? = nil,
         @ViewBuilder content: () -> CustomContent
     ) -> some View {
-        modifier(CraftDialogModifier(isPresented: isPresented, backdrop: backdrop, dialogContent: content))
+        modifier(
+            CraftDialogModifier(
+                isPresented: isPresented,
+                backdrop: backdrop,
+                dismissOnBackdropTap: dismissOnBackdropTap,
+                onBackdropDismiss: onBackdropDismiss,
+                dialogContent: content
+            )
+        )
     }
 }
 
