@@ -277,5 +277,38 @@ final class NavigationTests: XCTestCase {
             XCTAssertNotNil(bar.body)
         }
     }
+
+    func testFloatingTabBarCenterButtonPositions() {
+        let tabs = [
+            SampleTab(id: 0, title: "Home", symbol: "house"),
+            SampleTab(id: 1, title: "Settings", symbol: "gear")
+        ]
+        var selected = tabs[0]
+        let binding = Binding(get: { selected }, set: { selected = $0 })
+
+        // Floating FAB position
+        let floatingBar = CraftFloatingTabBar(
+            selectedItem: binding,
+            items: tabs,
+            style: .glass,
+            centerPosition: .floating,
+            centerAction: {},
+            centerSymbol: "plus"
+        )
+        XCTAssertEqual(floatingBar.centerPosition, .floating)
+        XCTAssertNotNil(floatingBar.body)
+
+        // Inline FAB position
+        let inlineBar = CraftFloatingTabBar(
+            selectedItem: binding,
+            items: tabs,
+            style: .glass,
+            centerPosition: .inline,
+            centerAction: {},
+            centerSymbol: "plus"
+        )
+        XCTAssertEqual(inlineBar.centerPosition, .inline)
+        XCTAssertNotNil(inlineBar.body)
+    }
 }
 
