@@ -232,4 +232,50 @@ final class NavigationTests: XCTestCase {
         bar.centerAction?()
         XCTAssertTrue(fabTriggered)
     }
+
+    func testFloatingTabBarIconOnlyTabItem() {
+        let iconOnlyTabs = [
+            CraftTabItem(id: "home", title: "", symbol: "house"),
+            CraftTabItem(id: "search", title: "", symbol: "magnifyingglass")
+        ]
+        var selected = iconOnlyTabs[0]
+        let binding = Binding(get: { selected }, set: { selected = $0 })
+        let bar = CraftFloatingTabBar(selectedItem: binding, items: iconOnlyTabs, style: .glass)
+        XCTAssertNotNil(bar.body)
+        XCTAssertEqual(bar.items[0].title, "")
+    }
+
+    func testFloatingTabBarAccessibilityWithLocalizedStringKey() {
+        let localizedTabs = [
+            CraftTabItem(id: "learn", titleKey: LocalizedStringKey("learn_tab"), symbol: "book.fill"),
+            CraftTabItem(id: "settings", titleKey: LocalizedStringKey("settings_tab"), symbol: "gearshape.fill")
+        ]
+        var selected = localizedTabs[0]
+        let binding = Binding(get: { selected }, set: { selected = $0 })
+        let bar = CraftFloatingTabBar(selectedItem: binding, items: localizedTabs)
+        XCTAssertNotNil(bar.body)
+    }
+
+    func testFloatingTabBarAllSurfaceStylesWithCenterAction() {
+        let tabs = [
+            SampleTab(id: 0, title: "Home", symbol: "house"),
+            SampleTab(id: 1, title: "Settings", symbol: "gear")
+        ]
+        var selected = tabs[0]
+        let binding = Binding(get: { selected }, set: { selected = $0 })
+
+        for style in CraftSurfaceStyle.allCases {
+            let bar = CraftFloatingTabBar(
+                selectedItem: binding,
+                items: tabs,
+                style: style,
+                centerAction: {},
+                centerSymbol: "plus",
+                centerTitle: "Add"
+            )
+            XCTAssertEqual(bar.style, style)
+            XCTAssertNotNil(bar.body)
+        }
+    }
 }
+
