@@ -1187,11 +1187,12 @@ private struct CatalogAtomsSection: View {
                 // CraftIconButton 5 Surface Styles, Shapes & 44pt Touch Targets
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     HStack {
-                        CraftText("CraftIconButton (5 Styles, Shapes & 44pt Touch Target)", style: .headline)
+                        CraftText("CraftIconButton (5 Styles, Shapes & States)", style: .headline)
                         Spacer()
                         CraftText("Taps: \(iconButtonCounter)", style: .caption, color: theme.colors.brandPrimary)
                     }
 
+                    // Styles Row
                     HStack(spacing: theme.spacing.sm) {
                         CraftIconButton(symbol: .favoriteFill, size: .md, shape: .circle, style: .glass, accessibilityLabel: "Favorite") {
                             iconButtonCounter += 1
@@ -1202,12 +1203,24 @@ private struct CatalogAtomsSection: View {
                         CraftIconButton(symbol: .share, size: .md, shape: .square, style: .elevated, accessibilityLabel: "Share") {
                             iconButtonCounter += 1
                         }
-                        CraftIconButton(symbol: .deleteFill, size: .md, shape: .roundedRectangle(radius: 8), style: .outlined, customTint: theme.colors.statusDanger, accessibilityLabel: "Delete") {
+                        CraftIconButton(symbol: .deleteFill, size: .md, shape: .roundedRectangle(radius: 8), variant: .danger, accessibilityLabel: "Delete") {
                             iconButtonCounter += 1
                         }
                         CraftIconButton(symbol: .settings, size: .md, shape: .circle, variant: .ghost, accessibilityLabel: "Settings") {
                             iconButtonCounter += 1
                         }
+                    }
+
+                    // States Row
+                    HStack(spacing: theme.spacing.sm) {
+                        CraftIconButton(symbol: .favoriteFill, size: .md, shape: .circle, isSelected: true, accessibilityLabel: "Favorite Active") {
+                            iconButtonCounter += 1
+                        }
+                        CraftIconButton(symbol: .bookmarkFill, size: .md, shape: .circle, isLoading: true, accessibilityLabel: "Loading") {}
+                        CraftIconButton(symbol: .audio, size: .md, shape: .square, accessibilityLabel: "Disabled") {
+                            iconButtonCounter += 1
+                        }
+                        .disabled(true)
                     }
                 }
 
