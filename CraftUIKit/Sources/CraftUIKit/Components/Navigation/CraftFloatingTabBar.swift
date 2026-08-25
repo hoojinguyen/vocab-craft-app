@@ -336,7 +336,7 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
                         .fontWeight(isSelected ? .semibold : .regular)
                         .foregroundColor(isSelected ? theme.colors.brandPrimary : theme.colors.textMuted)
                         .lineLimit(1)
-                } else if !item.title.isEmpty {
+                } else if hasTitle {
                     Text(item.title)
                         .font(theme.typography.caption)
                         .fontWeight(isSelected ? .semibold : .regular)
@@ -359,6 +359,7 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
         .buttonStyle(.craftPress(scale: 0.95))
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityTitle)
+        .accessibilityValue(accessibilityBadgeValue)
         .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : [.isButton])
     }
 
@@ -406,12 +407,19 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
     private var accessibilityTitle: Text {
         if let titleKey = item.titleKey {
             return Text(titleKey)
-        } else if !item.title.isEmpty {
+        } else if hasTitle {
             return Text(item.title)
         } else {
             let readable = item.symbol.replacingOccurrences(of: ".", with: " ").capitalized
             return Text(readable)
         }
+    }
+
+    private var accessibilityBadgeValue: String {
+        if let count = item.badgeCount, count > 0 {
+            return "\(count) new items"
+        }
+        return ""
     }
 }
 
