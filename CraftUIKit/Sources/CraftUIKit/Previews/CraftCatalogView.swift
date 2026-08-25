@@ -1741,6 +1741,11 @@ private struct CatalogContainersOverlaysSection: View {
                     HStack(spacing: theme.spacing.xs) {
                         CraftButton("Confirm Dialog", variant: .primary, size: .sm) { isConfirmDialogPresented = true }
                             .frame(maxWidth: .infinity)
+                        CraftButton("Danger Dialog", variant: .danger, size: .sm) { isDangerDialogPresented = true }
+                            .frame(maxWidth: .infinity)
+                    }
+
+                    HStack(spacing: theme.spacing.xs) {
                         CraftButton("Glass Modal", variant: .secondary, size: .sm) { isGlassDialogPresented = true }
                             .frame(maxWidth: .infinity)
                         CraftButton("Bottom Sheet", variant: .outline, size: .sm) { isBottomSheetPresented = true }

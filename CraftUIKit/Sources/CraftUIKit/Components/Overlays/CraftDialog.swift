@@ -612,39 +612,75 @@ public extension View {
 }
 
 #Preview("CraftDialog") {
-    @Previewable @State var showPrimary = false
+    @Previewable @State var showConfirmation = false
     @Previewable @State var showDanger = false
+    @Previewable @State var showInfo = false
     @Previewable @State var showGlass = false
 
-    return VStack(spacing: 24) {
-        Button("Show Primary Dialog") { showPrimary = true }
-        Button("Show Danger Dialog") { showDanger = true }
-        Button("Show Glass Dialog") { showGlass = true }
+    VStack(spacing: 16) {
+        CraftButton("Standard Confirmation", variant: .primary, size: .md) {
+            showConfirmation = true
+        }
+        CraftButton("Destructive (.danger)", variant: .danger, size: .md) {
+            showDanger = true
+        }
+        CraftButton("Informational (Single Action)", variant: .outline, size: .md) {
+            showInfo = true
+        }
+        CraftButton("Liquid Glass Dialog", variant: .secondary, size: .md, style: .glass) {
+            showGlass = true
+        }
     }
+    .padding(24)
     .craftDialog(
-        isPresented: $showPrimary,
-        title: "Save Changes",
-        message: "Are you sure you want to save?",
-        iconName: "checkmark.circle",
-        primaryButtonTitle: "Save",
+        isPresented: $showConfirmation,
+        title: "Save Vocabulary Set",
+        message: "Are you sure you want to save changes to 'Advanced GRE Words'?",
+        iconName: "checkmark.circle.fill",
+        primaryButtonTitle: "Save Set",
         primaryButtonVariant: .primary,
-        primaryAction: { }
+        primaryAction: {},
+        cancelButtonTitle: "Cancel",
+        buttonLayout: .automatic
     )
     .craftDialog(
         isPresented: $showDanger,
-        title: "Delete Item",
-        message: "This cannot be undone.",
-        iconName: "exclamationmark.triangle",
-        primaryButtonTitle: "Delete",
+        title: "Delete Study Deck?",
+        message: "This operation is irreversible. All 140 cards and review progress will be permanently deleted.",
+        iconName: "trash.fill",
+        iconColor: .red,
+        primaryButtonTitle: "Delete Forever",
         primaryButtonVariant: .danger,
-        primaryAction: { }
+        primaryAction: {},
+        cancelButtonTitle: "Keep Deck",
+        buttonLayout: .vertical,
+        dismissOnBackdropTap: false
+    )
+    .craftDialog(
+        isPresented: $showInfo,
+        title: "Streak Milestone Reached!",
+        message: "You've maintained your vocabulary study streak for 14 consecutive days.",
+        iconName: "flame.fill",
+        iconColor: .orange,
+        primaryButtonTitle: "Continue",
+        primaryButtonVariant: .primary,
+        primaryAction: {},
+        cancelButtonTitle: nil,
+        buttonLayout: .automatic
     )
     .craftDialog(
         isPresented: $showGlass,
         title: "Liquid Glass Dialog",
-        message: "Translucent backdrop and frosted surface style.",
-        primaryAction: { },
+        message: "Translucent backdrop with specular reflections and frosted glass surface.",
+        iconName: "sparkles",
+        iconColor: .cyan,
+        primaryButtonTitle: "Explore Glass",
+        primaryButtonVariant: .primary,
+        primaryAction: {},
+        cancelButtonTitle: "Dismiss",
+        cancelButtonVariant: .ghost,
         style: .glass,
+        buttonLayout: .automatic,
         backdrop: .material
     )
 }
