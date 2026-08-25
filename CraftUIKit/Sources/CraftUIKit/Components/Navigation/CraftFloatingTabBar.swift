@@ -558,8 +558,9 @@ private struct _PreviewTab: CraftTabItemProtocol {
     let symbol: String
 }
 
-#Preview("CraftFloatingTabBar") {
+#Preview("CraftFloatingTabBar - Glass & Icon-Only") {
     @Previewable @State var selected = _PreviewTab(id: "home", title: "Home", symbol: "house")
+    @Previewable @State var selectedIconOnly = _PreviewTab(id: "learn", title: "", symbol: "book.fill")
 
     let tabs = [
         _PreviewTab(id: "home", title: "Home", symbol: "house"),
@@ -568,15 +569,50 @@ private struct _PreviewTab: CraftTabItemProtocol {
         _PreviewTab(id: "profile", title: "Profile", symbol: "person")
     ]
 
-    ZStack(alignment: .bottom) {
-        Color.gray.opacity(0.1)
-            .ignoresSafeArea()
-        CraftFloatingTabBar(
-            selectedItem: $selected,
-            items: tabs,
-            style: .glass,
-            centerAction: { },
-            centerSymbol: "plus"
-        )
+    let iconOnlyTabs = [
+        _PreviewTab(id: "learn", title: "", symbol: "book.fill"),
+        _PreviewTab(id: "practice", title: "", symbol: "repeat"),
+        _PreviewTab(id: "rank", title: "", symbol: "trophy.fill"),
+        _PreviewTab(id: "account", title: "", symbol: "person.crop.circle")
+    ]
+
+    ScrollView {
+        VStack(spacing: 32) {
+            Text("Standard Liquid Glass with FAB")
+                .font(.headline)
+
+            CraftFloatingTabBar(
+                selectedItem: $selected,
+                items: tabs,
+                style: .glass,
+                centerAction: { },
+                centerSymbol: "plus",
+                centerTitle: "Add"
+            )
+
+            Text("Icon-Only Liquid Glass")
+                .font(.headline)
+
+            CraftFloatingTabBar(
+                selectedItem: $selectedIconOnly,
+                items: iconOnlyTabs,
+                style: .glass,
+                centerAction: { },
+                centerSymbol: "sparkles"
+            )
+
+            Text("Tactile 3D Surface Style")
+                .font(.headline)
+
+            CraftFloatingTabBar(
+                selectedItem: $selected,
+                items: tabs,
+                style: .tactile3D,
+                centerAction: { },
+                centerSymbol: "plus"
+            )
+        }
+        .padding(.vertical, 40)
     }
+    .background(Color.gray.opacity(0.12).ignoresSafeArea())
 }
