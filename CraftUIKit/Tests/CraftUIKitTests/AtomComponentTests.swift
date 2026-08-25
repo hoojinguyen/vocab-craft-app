@@ -240,6 +240,61 @@ final class AtomComponentTests: XCTestCase {
         XCTAssertEqual(CraftIconButtonVariant.allCases.contains(.danger), true)
     }
 
+    func testIconButtonStyleInstantiation() {
+        let style = CraftIconButtonStyle(
+            size: .md,
+            shape: .circle,
+            variant: .subtle,
+            style: .tactile3D,
+            customTint: nil,
+            isSelected: false,
+            isLoading: false
+        )
+        XCTAssertEqual(style.size, .md)
+        XCTAssertEqual(style.shape, .circle)
+        XCTAssertEqual(style.variant, .subtle)
+        XCTAssertEqual(style.style, .tactile3D)
+        XCTAssertFalse(style.isSelected)
+        XCTAssertFalse(style.isLoading)
+    }
+
+    func testIconButtonSelectedAndLoadingStates() {
+        var executed = false
+        let selectedBtn = CraftIconButton(
+            symbol: .favoriteFill,
+            isSelected: true,
+            accessibilityLabel: "Favorited"
+        ) {
+            executed = true
+        }
+        XCTAssertTrue(selectedBtn.isSelected)
+        XCTAssertFalse(selectedBtn.isLoading)
+        XCTAssertEqual(selectedBtn.accessibilityLabel, "Favorited")
+        XCTAssertNotNil(selectedBtn.body)
+
+        let loadingBtn = CraftIconButton(
+            iconName: "arrow.clockwise",
+            isLoading: true,
+            accessibilityLabel: "Refreshing",
+            accessibilityHint: "Fetches latest data"
+        ) {
+            executed = true
+        }
+        XCTAssertTrue(loadingBtn.isLoading)
+        XCTAssertEqual(loadingBtn.accessibilityHint, "Fetches latest data")
+        XCTAssertNotNil(loadingBtn.body)
+    }
+
+    func testIconButtonLocalizedStringKeyInit() {
+        let localizedBtn = CraftIconButton(
+            symbol: .settings,
+            accessibilityLabelKey: "craft.settings",
+            accessibilityHint: "Opens settings"
+        ) {}
+        XCTAssertEqual(localizedBtn.accessibilityLabelKey, "craft.settings")
+        XCTAssertNotNil(localizedBtn.body)
+    }
+
     func testIconButtonShapesAndVariants() {
         for shape in CraftIconButtonShape.allCases {
             for variant in CraftIconButtonVariant.allCases {
