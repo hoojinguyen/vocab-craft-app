@@ -1,4 +1,5 @@
 import SwiftUI
+import SpeechKit
 
 // MARK: - Reusable Speech Visualizer & Mic Control Hub Aliases
 public typealias ReflexSpeechVisualizerView = VocabSpeechVisualizerView

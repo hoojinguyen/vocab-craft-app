@@ -1,4 +1,5 @@
 import SwiftUI
+import SpeechKit
 
 private struct AppContainerKey: EnvironmentKey {
     static let defaultValue: AppContainer? = nil

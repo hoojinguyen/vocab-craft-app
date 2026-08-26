@@ -1,5 +1,5 @@
 import SwiftUI
-@_exported import SpeechKit
+import SpeechKit
 import CraftUIKit
 
 extension WordTokenResult {
@@ -18,6 +18,7 @@ extension WordTokenResult {
             id: "\(id)",
             targetWord: targetWord,
             status: craftStatus,
+            spokenWord: spokenWord,
             confidence: confidence
         )
     }

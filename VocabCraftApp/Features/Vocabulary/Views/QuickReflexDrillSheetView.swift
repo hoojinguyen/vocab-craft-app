@@ -1,4 +1,5 @@
 import SwiftUI
+import SpeechKit
 #if canImport(UIKit)
 import UIKit
 #endif

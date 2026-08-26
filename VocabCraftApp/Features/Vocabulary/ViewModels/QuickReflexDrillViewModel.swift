@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import SpeechKit
 
 /// Observable state for the 3-tier productive-recall quick reflex drill.
 public struct QuickReflexDrillState: Equatable, Sendable {

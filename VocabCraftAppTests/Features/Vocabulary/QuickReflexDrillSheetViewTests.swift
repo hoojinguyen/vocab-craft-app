@@ -1,5 +1,6 @@
 import SwiftUI
 @testable import VocabCraftApp
+import SpeechKit
 import XCTest
 
 final class QuickReflexDrillSheetViewTests: XCTestCase {

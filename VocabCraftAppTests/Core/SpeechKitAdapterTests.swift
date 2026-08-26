@@ -17,6 +17,7 @@ struct SpeechKitAdapterTests {
         let craftToken = token.asCraftSpeechWordToken
 
         #expect(craftToken.targetWord == "hello")
+        #expect(craftToken.spokenWord == "hello")
         #expect(craftToken.status == .matched)
         #expect(craftToken.confidence == 0.95)
     }
@@ -32,6 +33,7 @@ struct SpeechKitAdapterTests {
         let craftToken = token.asCraftSpeechWordToken
 
         #expect(craftToken.targetWord == "world")
+        #expect(craftToken.spokenWord == "word")
         #expect(craftToken.status == .fuzzy)
     }
 
@@ -46,6 +48,7 @@ struct SpeechKitAdapterTests {
         let craftToken = token.asCraftSpeechWordToken
 
         #expect(craftToken.targetWord == "swift")
+        #expect(craftToken.spokenWord == nil)
         #expect(craftToken.status == .mismatched)
         #expect(craftToken.confidence == nil)
     }
