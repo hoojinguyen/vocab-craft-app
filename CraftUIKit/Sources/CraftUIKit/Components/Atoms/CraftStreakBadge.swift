@@ -133,7 +133,8 @@ public struct CraftStreakBadge: View {
             content.craftSurface(
                 style: resolvedStyle,
                 shape: Capsule(),
-                customTint: surfaceTint(for: resolvedStyle)
+                customTint: surfaceTint(for: resolvedStyle),
+                depth: theme.depths.depthSm
             )
         } else {
             content
@@ -169,7 +170,7 @@ public struct CraftStreakBadge: View {
         case .outlined:
             return isCompletedToday ? tierBaseColor.opacity(0.08) : nil
         case .tactile3D:
-            return isCompletedToday ? tierBaseColor.opacity(0.10) : nil
+            return isCompletedToday ? tierBaseColor.opacity(0.12) : theme.colors.surfaceSubtle.opacity(0.50)
         }
     }
 

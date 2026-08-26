@@ -49,8 +49,7 @@ public struct CraftSurfaceModifier<S: Shape>: ViewModifier {
             surfaceFace
                 .offset(y: depressOffset)
                 .background {
-                    shape
-                        .fill(theme.colors.borderDefault)
+                    extrusionView
                         .offset(y: resolvedDepth)
                 }
                 .padding(.bottom, resolvedDepth)
@@ -60,7 +59,17 @@ public struct CraftSurfaceModifier<S: Shape>: ViewModifier {
         }
     }
 
-    // MARK: - Background View
+    // MARK: - Extrusion & Background Views
+
+    @ViewBuilder
+    private var extrusionView: some View {
+        ZStack {
+            shape.fill(theme.colors.borderDefault)
+            if let customTint {
+                shape.fill(customTint.opacity(0.35))
+            }
+        }
+    }
 
     @ViewBuilder
     private var backgroundView: some View {
@@ -73,6 +82,15 @@ public struct CraftSurfaceModifier<S: Shape>: ViewModifier {
                     shape.fill(customTint.opacity(theme.glass.tintOpacity))
                 } else {
                     shape.fill(theme.colors.surfaceCard.opacity(theme.glass.tintOpacity))
+                }
+            }
+        } else if resolvedStyle == .tactile3D {
+            ZStack {
+                shape.fill(theme.colors.surfaceCard)
+                if let customGradient {
+                    shape.fill(customGradient)
+                } else if let customTint {
+                    shape.fill(customTint)
                 }
             }
         } else {
@@ -120,10 +138,18 @@ public struct CraftSurfaceModifier<S: Shape>: ViewModifier {
         case .outlined:
             shape.stroke(theme.colors.borderDefault, lineWidth: 1)
         case .tactile3D:
-            ZStack {
-                shape.stroke(theme.colors.borderDefault, lineWidth: 1)
-                shape.stroke(theme.depths.topHighlight, lineWidth: 1)
-            }
+            shape.stroke(
+                LinearGradient(
+                    stops: [
+                        .init(color: .craftDynamic(light: Color.white.opacity(0.75), dark: Color.white.opacity(0.20)), location: 0.0),
+                        .init(color: theme.colors.borderDefault.opacity(0.6), location: 0.4),
+                        .init(color: theme.colors.borderDefault, location: 1.0)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                ),
+                lineWidth: 1
+            )
         case .glass:
             ZStack {
                 shape.stroke(theme.glass.borderGradient, lineWidth: 1)
