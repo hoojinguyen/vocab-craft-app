@@ -168,16 +168,20 @@ public struct CraftSpecularGlareModifier: AnimatableModifier {
 // MARK: - CraftFlipCard Component
 
 /// An interactive 3D container component that flips between a front and back view
-/// with double-sided rendering, back-face culling, simulated edge thickness, dynamic specular glare,
-/// configurable perspective, custom spring physics, and sensory feedback.
+/// with double-sided rendering, instantaneous back-face culling (zero ghosting),
+/// simulated edge thickness, adaptive specular glare, configurable perspective,
+/// built-in tap gestures, custom spring physics, and sensory feedback.
 public struct CraftFlipCard<Front: View, Back: View>: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
 
     @Binding public var isFlipped: Bool
     public let axis: Axis
     public let edgeThickness: CGFloat
     public let showSpecularGlare: Bool
+    public let showsHighlightBorder: Bool
+    public let isTapToFlipEnabled: Bool
     public let cornerRadius: CGFloat
     public let perspective: CGFloat
     public let animation: Animation?
@@ -189,8 +193,10 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
         axis: Axis = .horizontal,
         edgeThickness: CGFloat = 2,
         showSpecularGlare: Bool = true,
+        showsHighlightBorder: Bool = false,
+        isTapToFlipEnabled: Bool = true,
         cornerRadius: CGFloat = 16,
-        perspective: CGFloat = 0.5,
+        perspective: CGFloat = 0.45,
         animation: Animation? = nil,
         @ViewBuilder front: () -> Front,
         @ViewBuilder back: () -> Back
@@ -199,6 +205,8 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
         self.axis = axis
         self.edgeThickness = edgeThickness
         self.showSpecularGlare = showSpecularGlare
+        self.showsHighlightBorder = showsHighlightBorder
+        self.isTapToFlipEnabled = isTapToFlipEnabled
         self.cornerRadius = cornerRadius
         self.perspective = perspective
         self.animation = animation
@@ -208,9 +216,10 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
 
     public var body: some View {
         let progress = isFlipped ? 1.0 : 0.0
+        let effectiveAnimation = animation ?? theme.animations.springSmooth
 
         ZStack {
-            // Front Card Face with simulated edge thickness & specular glare
+            // Front Card Face with zero-ghosting backface culling & glare
             ZStack {
                 if edgeThickness > 0 && !reduceMotion {
                     RoundedRectangle(cornerRadius: cornerRadius)
@@ -222,28 +231,34 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
                 }
 
                 front
-                    .overlay(
-                        RoundedRectangle(cornerRadius: cornerRadius)
-                            .strokeBorder(theme.depths.topHighlight, lineWidth: 1)
-                    )
+                    .overlay {
+                        if showsHighlightBorder {
+                            RoundedRectangle(cornerRadius: cornerRadius)
+                                .strokeBorder(theme.depths.topHighlight, lineWidth: 1)
+                        }
+                    }
                     .modifier(
                         CraftSpecularGlareModifier(
                             progress: progress,
                             axis: axis,
                             cornerRadius: cornerRadius,
-                            isEnabled: showSpecularGlare && !reduceMotion
+                            isEnabled: showSpecularGlare && !reduceMotion,
+                            colorScheme: colorScheme
                         )
                     )
             }
-            .opacity(isFlipped ? 0 : 1)
-            .accessibilityHidden(isFlipped)
-            .rotation3DEffect(
-                reduceMotion ? .zero : .degrees(isFlipped ? 180 : 0),
-                axis: rotationAxis,
-                perspective: perspective
+            .modifier(
+                Craft3DFlipModifier(
+                    progress: progress,
+                    side: .front,
+                    axis: axis,
+                    perspective: perspective,
+                    reduceMotion: reduceMotion
+                )
             )
+            .accessibilityHidden(isFlipped)
 
-            // Back Card Face with simulated edge thickness & specular glare
+            // Back Card Face with zero-ghosting backface culling & glare
             ZStack {
                 if edgeThickness > 0 && !reduceMotion {
                     RoundedRectangle(cornerRadius: cornerRadius)
@@ -255,41 +270,53 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
                 }
 
                 back
-                    .overlay(
-                        RoundedRectangle(cornerRadius: cornerRadius)
-                            .strokeBorder(theme.depths.topHighlight, lineWidth: 1)
-                    )
+                    .overlay {
+                        if showsHighlightBorder {
+                            RoundedRectangle(cornerRadius: cornerRadius)
+                                .strokeBorder(theme.depths.topHighlight, lineWidth: 1)
+                        }
+                    }
                     .modifier(
                         CraftSpecularGlareModifier(
                             progress: progress,
                             axis: axis,
                             cornerRadius: cornerRadius,
-                            isEnabled: showSpecularGlare && !reduceMotion
+                            isEnabled: showSpecularGlare && !reduceMotion,
+                            colorScheme: colorScheme
                         )
                     )
             }
-            .opacity(isFlipped ? 1 : 0)
-            .accessibilityHidden(!isFlipped)
-            .rotation3DEffect(
-                reduceMotion ? .zero : .degrees(isFlipped ? 0 : -180),
-                axis: rotationAxis,
-                perspective: perspective
+            .modifier(
+                Craft3DFlipModifier(
+                    progress: progress,
+                    side: .back,
+                    axis: axis,
+                    perspective: perspective,
+                    reduceMotion: reduceMotion
+                )
             )
+            .accessibilityHidden(!isFlipped)
         }
-        .animation(animation ?? theme.animations.springSmooth, value: isFlipped)
+        .contentShape(RoundedRectangle(cornerRadius: cornerRadius))
+        .onTapGesture {
+            if isTapToFlipEnabled {
+                withAnimation(effectiveAnimation) {
+                    isFlipped.toggle()
+                }
+            }
+        }
+        .animation(effectiveAnimation, value: isFlipped)
         .sensoryFeedback(.impact(weight: .medium), trigger: isFlipped)
-        .accessibilityAction(named: "Flip card") {
-            isFlipped.toggle()
+        .accessibilityAction(
+            named: CraftLocalized.string(isFlipped ? "craft.flipcard.flipToFront" : "craft.flipcard.flipToBack")
+        ) {
+            withAnimation(effectiveAnimation) {
+                isFlipped.toggle()
+            }
         }
-    }
-
-    private var rotationAxis: (x: CGFloat, y: CGFloat, z: CGFloat) {
-        switch axis {
-        case .horizontal:
-            return (x: 0, y: 1, z: 0)
-        case .vertical:
-            return (x: 1, y: 0, z: 0)
-        }
+        .accessibilityHint(
+            CraftLocalized.string(isFlipped ? "craft.flipcard.backSideA11y" : "craft.flipcard.frontSideA11y")
+        )
     }
 }
 

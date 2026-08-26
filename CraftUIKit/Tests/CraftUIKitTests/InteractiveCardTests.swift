@@ -538,6 +538,31 @@ final class InteractiveCardTests: XCTestCase {
         XCTAssertFalse(backA11y.isEmpty)
     }
 
+    func testFlipCardModernizedInitializersAndFeatures() {
+        var flipped = false
+        let binding = Binding(get: { flipped }, set: { flipped = $0 })
+        let card = CraftFlipCard(
+            isFlipped: binding,
+            axis: .horizontal,
+            edgeThickness: 3,
+            showSpecularGlare: true,
+            showsHighlightBorder: false,
+            isTapToFlipEnabled: true,
+            cornerRadius: 16,
+            perspective: 0.45
+        ) {
+            Text("Front")
+        } back: {
+            Text("Back")
+        }
+
+        XCTAssertFalse(card.isFlipped)
+        XCTAssertEqual(card.showsHighlightBorder, false)
+        XCTAssertEqual(card.isTapToFlipEnabled, true)
+        XCTAssertEqual(card.perspective, 0.45)
+        XCTAssertNotNil(card.body)
+    }
+
     // MARK: - Craft3DFlipModifier Tests
 
     func test3DFlipModifierCullingAndDegrees() {
