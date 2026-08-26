@@ -1594,7 +1594,13 @@ private struct CatalogContainersOverlaysSection: View {
                         .frame(width: 170)
                     }
 
-                    CraftFlipCard(isFlipped: $isCardFlipped, axis: flipAxis, edgeThickness: 3, showSpecularGlare: true) {
+                    CraftFlipCard(
+                        isFlipped: $isCardFlipped,
+                        axis: flipAxis,
+                        edgeThickness: 3,
+                        showSpecularGlare: true,
+                        isTapToFlipEnabled: true
+                    ) {
                         CraftCard(style: .outlined) {
                             VStack(spacing: theme.spacing.sm) {
                                 HStack {
@@ -1614,7 +1620,6 @@ private struct CatalogContainersOverlaysSection: View {
                             .frame(height: 140)
                             .frame(maxWidth: .infinity)
                         }
-                        .onTapGesture { isCardFlipped.toggle() }
                     } back: {
                         CraftCard(style: .gradient) {
                             VStack(spacing: theme.spacing.sm) {
@@ -1635,7 +1640,6 @@ private struct CatalogContainersOverlaysSection: View {
                             .frame(height: 140)
                             .frame(maxWidth: .infinity)
                         }
-                        .onTapGesture { isCardFlipped.toggle() }
                     }
                 }
             }
