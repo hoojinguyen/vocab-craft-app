@@ -261,14 +261,14 @@ final class FeedbackComponentTests: XCTestCase {
         XCTAssertEqual(CraftLocalized.string("craft.feedback.info_title", language: "en"), "Explanation")
         XCTAssertEqual(CraftLocalized.string("craft.feedback.info_title", language: "vi"), "Giải thích")
 
-        XCTAssertEqual(CraftLocalized.string("craft.feedback.continue_action", language: "en"), "CONTINUE")
-        XCTAssertEqual(CraftLocalized.string("craft.feedback.continue_action", language: "vi"), "TIẾP TỤC")
+        XCTAssertEqual(CraftLocalized.string("craft.feedback.continue_action", language: "en"), "Continue")
+        XCTAssertEqual(CraftLocalized.string("craft.feedback.continue_action", language: "vi"), "Tiếp tục")
 
         // 2. Verify resolved accessibility properties across all statuses
         for status in CraftFeedbackStatus.allCases {
             let defaultSheet = CraftFeedbackSheet(status: status, onContinue: {})
             XCTAssertFalse(defaultSheet.resolvedTitle.isEmpty)
-            XCTAssertEqual(defaultSheet.resolvedActionTitle, "CONTINUE")
+            XCTAssertEqual(defaultSheet.resolvedActionTitle, "Continue")
             XCTAssertFalse(status.iconName.isEmpty)
             XCTAssertNotNil(defaultSheet.body)
         }
@@ -413,5 +413,32 @@ final class FeedbackComponentTests: XCTestCase {
                 .craftTheme(CraftDefaultTheme())
             XCTAssertNotNil(lightSheet)
         }
+    }
+
+    func testStyleDirectArgumentAndHintCard() {
+        for style in CraftSurfaceStyle.allCases {
+            let sheet = CraftFeedbackSheet(
+                status: .success,
+                title: "Direct Style Test",
+                message: "Testing style: \(style.rawValue)",
+                secondaryActionTitle: "Explain",
+                style: style,
+                onSecondaryAction: {},
+                onContinue: {}
+            ) {
+                CraftFeedbackHintCard("Helpful hint with accessible contrast")
+            }
+
+            XCTAssertEqual(sheet.style, style)
+            XCTAssertEqual(sheet.surfaceStyle, style)
+            XCTAssertEqual(sheet.resolvedSurfaceStyle, style)
+            XCTAssertNotNil(sheet.body)
+        }
+
+        let hintCard = CraftFeedbackHintCard("Custom Hint", icon: "sparkles", tint: .green)
+        XCTAssertEqual(hintCard.text, "Custom Hint")
+        XCTAssertEqual(hintCard.icon, "sparkles")
+        XCTAssertEqual(hintCard.tint, .green)
+        XCTAssertNotNil(hintCard.body)
     }
 }

@@ -373,8 +373,8 @@ final class LocalizationTests: XCTestCase {
         XCTAssertEqual(warningVi, "Gần đúng!")
         XCTAssertEqual(infoEn, "Explanation")
         XCTAssertEqual(infoVi, "Giải thích")
-        XCTAssertEqual(continueEn, "CONTINUE")
-        XCTAssertEqual(continueVi, "TIẾP TỤC")
+        XCTAssertEqual(continueEn, "Continue")
+        XCTAssertEqual(continueVi, "Tiếp tục")
     }
 
     // MARK: - Fallback and Missing Keys

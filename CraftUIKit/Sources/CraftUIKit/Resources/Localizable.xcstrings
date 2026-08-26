@@ -2006,13 +2006,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "CONTINUE"
+            "value": "Continue"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "TIẾP TỤC"
+            "value": "Tiếp tục"
           }
         }
       }

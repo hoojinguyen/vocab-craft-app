@@ -130,8 +130,7 @@ public struct CraftButtonStyle: ButtonStyle {
         .offset(y: depressOffset)
         .background {
             if isTactile {
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(isEnabled ? theme.colors.brandSecondary : theme.colors.borderDefault.opacity(0.5))
+                tactileLipBackground
                     .offset(y: bottomLipOffset)
             }
         }
@@ -152,6 +151,44 @@ public struct CraftButtonStyle: ButtonStyle {
         }
 
         return applyShadow(baseButton)
+    }
+
+    @ViewBuilder
+    private var tactileLipBackground: some View {
+        if !isEnabled {
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .fill(theme.colors.borderDefault.opacity(0.5))
+        } else if let customGradient {
+            ZStack {
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(customGradient)
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(Color.black.opacity(0.28))
+            }
+        } else if let customTint {
+            ZStack {
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(customTint)
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(Color.black.opacity(0.28))
+            }
+        } else {
+            switch variant {
+            case .primary, .tactile:
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(theme.colors.brandSecondary)
+            case .danger:
+                ZStack {
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .fill(theme.colors.statusDanger)
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .fill(Color.black.opacity(0.28))
+                }
+            case .secondary, .outline, .ghost:
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(theme.colors.borderDefault)
+            }
+        }
     }
 
     private var cornerRadius: CGFloat {

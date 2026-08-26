@@ -1995,7 +1995,7 @@ private struct CatalogContainersOverlaysSection: View {
                             title: selectedFeedbackPreset.title,
                             message: selectedFeedbackPreset.message,
                             secondaryActionTitle: selectedFeedbackPreset.secondaryActionTitle,
-                            surfaceStyle: selectedFeedbackPreset.surfaceStyle,
+                            style: selectedFeedbackPreset.surfaceStyle,
                             onSecondaryAction: {
                                 toastStyle = .warning
                                 toastSurfaceStyle = selectedFeedbackPreset.surfaceStyle ?? .elevated
@@ -2008,19 +2008,7 @@ private struct CatalogContainersOverlaysSection: View {
                             }
                         ) {
                             if selectedFeedbackPreset == .error {
-                                HStack(spacing: 6) {
-                                    CraftIcon("lightbulb.fill", size: .sm, color: .orange)
-                                    Text("Hint: Remember the Greek root 'phainomenon'.")
-                                        .font(theme.typography.caption)
-                                        .foregroundStyle(theme.colors.textSecondary)
-                                }
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 6)
-                                .craftSurface(
-                                    style: selectedFeedbackPreset.surfaceStyle ?? .flat,
-                                    shape: RoundedRectangle(cornerRadius: 8),
-                                    customTint: Color.orange.opacity(0.12)
-                                )
+                                CraftFeedbackHintCard("Hint: Remember the Greek root 'phainomenon'.")
                             }
                         }
                     }
