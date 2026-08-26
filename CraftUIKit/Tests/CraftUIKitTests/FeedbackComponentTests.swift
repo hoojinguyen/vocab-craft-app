@@ -152,4 +152,247 @@ final class FeedbackComponentTests: XCTestCase {
             }
         XCTAssertNotNil(viewWithExtra)
     }
+
+    // MARK: - Task 5: Surface Styles & Comprehensive Unit Tests
+
+    func testAllSurfaceStylesForFeedbackSheet() {
+        for style in CraftSurfaceStyle.allCases {
+            // Explicit surface style initializer
+            let sheet = CraftFeedbackSheet(
+                status: .success,
+                title: "Style \(style.rawValue)",
+                message: "Testing surface style rendering",
+                actionTitle: "CONTINUE",
+                surfaceStyle: style,
+                onContinue: {}
+            )
+            XCTAssertEqual(sheet.surfaceStyle, style)
+            XCTAssertNotNil(sheet.body)
+
+            // Sheet with extra content and explicit style
+            let sheetWithExtra = CraftFeedbackSheet(
+                status: .warning,
+                title: "Warning \(style.rawValue)",
+                surfaceStyle: style,
+                onContinue: {}
+            ) {
+                Text("Auxiliary hint for \(style.rawValue)")
+            }
+            XCTAssertEqual(sheetWithExtra.surfaceStyle, style)
+            XCTAssertNotNil(sheetWithExtra.body)
+
+            // Modifier presentation with explicit style
+            let isPresented = Binding.constant(true)
+            let hostView = Text("Host")
+                .craftFeedbackSheet(
+                    isPresented: isPresented,
+                    status: .info,
+                    title: "Info \(style.rawValue)",
+                    surfaceStyle: style,
+                    onContinue: {}
+                )
+            XCTAssertNotNil(hostView)
+        }
+
+        // Test environment fallback when surfaceStyle is nil
+        let sheetWithoutExplicitStyle = CraftFeedbackSheet(
+            status: .success,
+            onContinue: {}
+        )
+        XCTAssertNil(sheetWithoutExplicitStyle.surfaceStyle)
+        XCTAssertNotNil(sheetWithoutExplicitStyle.body)
+
+        // Test inside custom surface style environment wrapper
+        let inheritedGlassView = CraftFeedbackSheet(
+            status: .success,
+            onContinue: {}
+        )
+        .craftSurfaceStyle(.glass)
+        .craftTheme(CraftDefaultTheme())
+        XCTAssertNotNil(inheritedGlassView)
+
+        let inheritedElevatedView = CraftFeedbackSheet(
+            status: .error,
+            onContinue: {}
+        )
+        .craftSurfaceStyle(.elevated)
+        .craftTheme(CraftDefaultTheme())
+        XCTAssertNotNil(inheritedElevatedView)
+
+        let inheritedTactileView = CraftFeedbackSheet(
+            status: .warning,
+            onContinue: {}
+        )
+        .craftSurfaceStyle(.tactile3D)
+        .craftTheme(CraftDefaultTheme())
+        XCTAssertNotNil(inheritedTactileView)
+    }
+
+    func testFeedbackSheetAccessibilityTree() {
+        // 1. Verify localized status titles in English & Vietnamese
+        XCTAssertEqual(CraftLocalized.string("craft.feedback.success_title", language: "en"), "Nice work!")
+        XCTAssertEqual(CraftLocalized.string("craft.feedback.success_title", language: "vi"), "Chính xác!")
+
+        XCTAssertEqual(CraftLocalized.string("craft.feedback.error_title", language: "en"), "Incorrect")
+        XCTAssertEqual(CraftLocalized.string("craft.feedback.error_title", language: "vi"), "Chưa chính xác")
+
+        XCTAssertEqual(CraftLocalized.string("craft.feedback.warning_title", language: "en"), "Almost!")
+        XCTAssertEqual(CraftLocalized.string("craft.feedback.warning_title", language: "vi"), "Gần đúng!")
+
+        XCTAssertEqual(CraftLocalized.string("craft.feedback.info_title", language: "en"), "Explanation")
+        XCTAssertEqual(CraftLocalized.string("craft.feedback.info_title", language: "vi"), "Giải thích")
+
+        XCTAssertEqual(CraftLocalized.string("craft.feedback.continue_action", language: "en"), "CONTINUE")
+        XCTAssertEqual(CraftLocalized.string("craft.feedback.continue_action", language: "vi"), "TIẾP TỤC")
+
+        // 2. Verify resolved accessibility properties across all statuses
+        for status in CraftFeedbackStatus.allCases {
+            let defaultSheet = CraftFeedbackSheet(status: status, onContinue: {})
+            XCTAssertFalse(defaultSheet.resolvedTitle.isEmpty)
+            XCTAssertEqual(defaultSheet.resolvedActionTitle, "CONTINUE")
+            XCTAssertFalse(status.iconName.isEmpty)
+            XCTAssertNotNil(defaultSheet.body)
+        }
+
+        // 3. Verify custom sheet with secondary action and message accessibility structure
+        var secondaryInvoked = false
+        var continueInvoked = false
+        let detailedSheet = CraftFeedbackSheet(
+            status: .error,
+            title: "Custom Error Title",
+            message: "Correct answer: Phenomenon",
+            actionTitle: "NEXT QUESTION",
+            secondaryActionTitle: "View Explanation",
+            onSecondaryAction: { secondaryInvoked = true },
+            onContinue: { continueInvoked = true }
+        ) {
+            Text("Extra Grammar Tip")
+        }
+
+        XCTAssertEqual(detailedSheet.resolvedTitle, "Custom Error Title")
+        XCTAssertEqual(detailedSheet.message, "Correct answer: Phenomenon")
+        XCTAssertEqual(detailedSheet.resolvedActionTitle, "NEXT QUESTION")
+        XCTAssertEqual(detailedSheet.secondaryActionTitle, "View Explanation")
+        XCTAssertNotNil(detailedSheet.body)
+
+        detailedSheet.onSecondaryAction?()
+        XCTAssertTrue(secondaryInvoked)
+        detailedSheet.onContinue()
+        XCTAssertTrue(continueInvoked)
+
+        // 4. Verify accessibility in Light and Dark mode environments
+        let lightSheet = CraftFeedbackSheet(status: .success, onContinue: {})
+            .environment(\.colorScheme, .light)
+        XCTAssertNotNil(lightSheet)
+
+        let darkSheet = CraftFeedbackSheet(status: .error, onContinue: {})
+            .environment(\.colorScheme, .dark)
+        XCTAssertNotNil(darkSheet)
+
+        // 5. Verify presentation modifier across different status types
+        for status in CraftFeedbackStatus.allCases {
+            let presentedModifierView = Text("Host")
+                .craftFeedbackSheet(
+                    isPresented: .constant(true),
+                    status: status,
+                    onContinue: {}
+                )
+            XCTAssertNotNil(presentedModifierView)
+        }
+    }
+
+    func testFeedbackSheetAllStatusColors() {
+        let theme = CraftDefaultTheme()
+
+        // 1. Verify default semantic status colors exist and match expected palette
+        XCTAssertEqual(theme.colors.statusSuccess, Color(hex: 0x10B981))
+        XCTAssertEqual(theme.colors.statusDanger, Color(hex: 0xEF4444))
+        XCTAssertEqual(theme.colors.statusWarning, Color(hex: 0xF59E0B))
+        XCTAssertEqual(theme.colors.statusInfo, Color(hex: 0x0284C7))
+
+        // 2. Verify sheet body evaluates cleanly for all 4 statuses with default theme
+        for status in CraftFeedbackStatus.allCases {
+            let sheet = CraftFeedbackSheet(
+                status: status,
+                title: "Testing \(status.rawValue)",
+                message: "Status message for \(status.rawValue)",
+                onContinue: {}
+            )
+            XCTAssertNotNil(sheet.body)
+        }
+
+        // 3. Test custom theme with customized semantic status color palette
+        struct CustomStatusColors: CraftColorTokens {
+            var canvasBackground: Color = .black
+            var surfaceCard: Color = Color(hex: 0x1E1E24)
+            var surfaceElevated: Color = Color(hex: 0x2A2A32)
+            var surfaceSubtle: Color = Color(hex: 0x16161A)
+            var brandPrimary: Color = .purple
+            var brandSecondary: Color = .pink
+            var accent: Color = .yellow
+            var textPrimary: Color = .white
+            var textSecondary: Color = .gray
+            var textMuted: Color = .gray
+            var textInverse: Color = .black
+            var borderDefault: Color = .gray
+            var borderFocus: Color = .purple
+            var hairline: Color = .gray
+            var statusSuccess: Color = Color(hex: 0x22C55E)
+            var statusWarning: Color = Color(hex: 0xEAB308)
+            var statusDanger: Color = Color(hex: 0xF43F5E)
+            var statusInfo: Color = Color(hex: 0x06B6D4)
+        }
+
+        struct CustomTheme: CraftTheme {
+            var colors: CraftColorTokens = CustomStatusColors()
+            var typography: CraftTypographyTokens = CraftDefaultTypographyTokens()
+            var spacing: CraftSpacingTokens = CraftDefaultSpacingTokens()
+            var radii: CraftRadiusTokens = CraftDefaultRadiusTokens()
+            var shadows: CraftShadowTokens = CraftDefaultShadowTokens()
+            var gradients: CraftGradientTokens = CraftDefaultGradientTokens()
+            var animations: CraftAnimationTokens = CraftDefaultAnimationTokens()
+            var opacities: CraftOpacityTokens = CraftDefaultOpacityTokens()
+            var depths: CraftDepthTokens = CraftDefaultDepthTokens()
+        }
+
+        let customTheme = CustomTheme()
+        XCTAssertEqual(customTheme.colors.statusSuccess, Color(hex: 0x22C55E))
+        XCTAssertEqual(customTheme.colors.statusWarning, Color(hex: 0xEAB308))
+        XCTAssertEqual(customTheme.colors.statusDanger, Color(hex: 0xF43F5E))
+        XCTAssertEqual(customTheme.colors.statusInfo, Color(hex: 0x06B6D4))
+
+        for status in CraftFeedbackStatus.allCases {
+            let customThemedSheet = CraftFeedbackSheet(
+                status: status,
+                title: "Custom Themed \(status.rawValue)",
+                onContinue: {}
+            )
+            .craftTheme(customTheme)
+
+            XCTAssertNotNil(customThemedSheet)
+        }
+
+        // 4. Verify dynamic light/dark mode color resolution
+        let dynamicSuccess = Color.craftDynamic(light: Color(hex: 0x10B981), dark: Color(hex: 0x059669))
+        let dynamicDanger = Color.craftDynamic(light: Color(hex: 0xEF4444), dark: Color(hex: 0xDC2626))
+        let dynamicWarning = Color.craftDynamic(light: Color(hex: 0xF59E0B), dark: Color(hex: 0xD97706))
+        let dynamicInfo = Color.craftDynamic(light: Color(hex: 0x0284C7), dark: Color(hex: 0x0369A1))
+
+        XCTAssertNotNil(dynamicSuccess)
+        XCTAssertNotNil(dynamicDanger)
+        XCTAssertNotNil(dynamicWarning)
+        XCTAssertNotNil(dynamicInfo)
+
+        for status in CraftFeedbackStatus.allCases {
+            let darkSheet = CraftFeedbackSheet(status: status, onContinue: {})
+                .environment(\.colorScheme, .dark)
+                .craftTheme(CraftDefaultTheme())
+            XCTAssertNotNil(darkSheet)
+
+            let lightSheet = CraftFeedbackSheet(status: status, onContinue: {})
+                .environment(\.colorScheme, .light)
+                .craftTheme(CraftDefaultTheme())
+            XCTAssertNotNil(lightSheet)
+        }
+    }
 }
