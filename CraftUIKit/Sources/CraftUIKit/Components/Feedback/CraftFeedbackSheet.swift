@@ -110,6 +110,27 @@ public struct CraftFeedbackSheet<ExtraContent: View>: View {
         }
     }
 
+    private var semanticTint: Color {
+        switch status {
+        case .success:
+            return .craftDynamic(light: theme.colors.statusSuccess.opacity(0.16), dark: theme.colors.statusSuccess.opacity(0.24))
+        case .error:
+            return .craftDynamic(light: theme.colors.statusDanger.opacity(0.12), dark: theme.colors.statusDanger.opacity(0.22))
+        case .warning:
+            return .craftDynamic(light: theme.colors.statusWarning.opacity(0.14), dark: theme.colors.statusWarning.opacity(0.22))
+        case .info:
+            return .craftDynamic(light: theme.colors.statusInfo.opacity(0.12), dark: theme.colors.statusInfo.opacity(0.20))
+        }
+    }
+
+    public var accessibilityDescription: String {
+        if let message {
+            return "\(resolvedTitle), \(message). Action: \(resolvedActionTitle)"
+        } else {
+            return "\(resolvedTitle). Action: \(resolvedActionTitle)"
+        }
+    }
+
     // MARK: - Body
 
     public var body: some View {
@@ -120,15 +141,7 @@ public struct CraftFeedbackSheet<ExtraContent: View>: View {
             topTrailingRadius: theme.radii.xl
         )
 
-        VStack(alignment: .leading, spacing: theme.spacing.base) {
-            // Drag indicator handle
-            Capsule()
-                .fill(theme.colors.borderDefault.opacity(0.6))
-                .frame(width: 36, height: 4)
-                .frame(maxWidth: .infinity)
-                .padding(.top, theme.spacing.xs)
-                .accessibilityHidden(true)
-
+        let sheetContent = VStack(alignment: .leading, spacing: theme.spacing.base) {
             // Header row: Status Icon + Title + Secondary Action Button
             headerRow
 
@@ -166,9 +179,24 @@ public struct CraftFeedbackSheet<ExtraContent: View>: View {
         .clipShape(sheetShape)
         .overlay(surfaceBorder(shape: sheetShape))
         .modifier(FeedbackSheetShadowModifier(style: resolvedSurfaceStyle, theme: theme))
-        .accessibilityElement(children: .contain)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityDescription)
         .task {
             triggerFeedbackHaptics()
+        }
+
+        if resolvedSurfaceStyle == .tactile3D {
+            sheetContent
+                .background {
+                    ZStack {
+                        sheetShape.fill(theme.colors.borderDefault)
+                        sheetShape.fill(statusColor.opacity(0.35))
+                    }
+                    .offset(y: theme.depths.depthMd)
+                }
+                .padding(.bottom, theme.depths.depthMd)
+        } else {
+            sheetContent
         }
     }
 
@@ -206,14 +234,23 @@ public struct CraftFeedbackSheet<ExtraContent: View>: View {
         case .glass:
             ZStack {
                 shape.fill(.ultraThinMaterial)
-                shape.fill(theme.colors.surfaceCard.opacity(theme.glass.tintOpacity))
+                shape.fill(statusColor.opacity(theme.glass.tintOpacity))
             }
         case .outlined, .tactile3D:
-            shape.fill(theme.colors.surfaceCard)
+            ZStack {
+                shape.fill(theme.colors.surfaceCard)
+                shape.fill(semanticTint)
+            }
         case .elevated:
-            shape.fill(theme.colors.surfaceElevated)
+            ZStack {
+                shape.fill(theme.colors.surfaceElevated)
+                shape.fill(semanticTint)
+            }
         case .flat:
-            shape.fill(theme.colors.surfaceSubtle)
+            ZStack {
+                shape.fill(theme.colors.surfaceSubtle)
+                shape.fill(semanticTint)
+            }
         }
     }
 

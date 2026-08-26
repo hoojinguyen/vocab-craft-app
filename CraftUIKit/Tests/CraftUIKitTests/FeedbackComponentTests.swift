@@ -228,6 +228,25 @@ final class FeedbackComponentTests: XCTestCase {
         XCTAssertNotNil(inheritedTactileView)
     }
 
+    func testCraftFeedbackSheetAccessibilityDescription() {
+        let sheetWithoutMessage = CraftFeedbackSheet(
+            status: .success,
+            title: "Nice work!",
+            actionTitle: "CONTINUE",
+            onContinue: {}
+        )
+        XCTAssertEqual(sheetWithoutMessage.accessibilityDescription, "Nice work!. Action: CONTINUE")
+
+        let sheetWithMessage = CraftFeedbackSheet(
+            status: .error,
+            title: "Incorrect",
+            message: "Correct: Apple",
+            actionTitle: "NEXT QUESTION",
+            onContinue: {}
+        )
+        XCTAssertEqual(sheetWithMessage.accessibilityDescription, "Incorrect, Correct: Apple. Action: NEXT QUESTION")
+    }
+
     func testFeedbackSheetAccessibilityTree() {
         // 1. Verify localized status titles in English & Vietnamese
         XCTAssertEqual(CraftLocalized.string("craft.feedback.success_title", language: "en"), "Nice work!")
