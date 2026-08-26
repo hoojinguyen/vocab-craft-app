@@ -438,4 +438,23 @@ final class CatalogViewTests: XCTestCase {
             XCTAssertNotNil(celebrationSheet.body)
         }
     }
+
+    func testCatalogDialogLocalizedActionTitles() {
+        for lang in CatalogLanguage.allCases {
+            let confirmTitle = CraftLocalized.string("craft.common.action.confirm", language: lang.code)
+            let cancelTitle = CraftLocalized.string("craft.common.action.cancel", language: lang.code)
+            let closeTitle = CraftLocalized.string("craft.common.action.close", language: lang.code)
+
+            if lang == .english {
+                XCTAssertEqual(confirmTitle, "Confirm")
+                XCTAssertEqual(cancelTitle, "Cancel")
+                XCTAssertEqual(closeTitle, "Close")
+            } else if lang == .vietnamese {
+                XCTAssertEqual(confirmTitle, "Xác nhận")
+                XCTAssertEqual(cancelTitle, "Hủy")
+                XCTAssertEqual(closeTitle, "Đóng")
+            }
+        }
+    }
 }
+
