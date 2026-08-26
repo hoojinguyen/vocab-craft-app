@@ -19,7 +19,6 @@ public struct CraftWaveformView: View {
     public let inactiveColor: Color?
 
     @State private var pulseGlow: Bool = false
-    @State private var simulatedLevels: [CGFloat] = []
 
     public init(
         audioLevels: [CGFloat] = [],
@@ -54,14 +53,6 @@ public struct CraftWaveformView: View {
         return levels
     }
 
-    /// Effective audio levels taking live dynamic animation into account during recording.
-    public var effectiveLevels: [CGFloat] {
-        if isRecording && (audioLevels.isEmpty || !audioLevels.contains(where: { $0 > 0.05 })) && !simulatedLevels.isEmpty {
-            return simulatedLevels
-        }
-        return normalizedLevels
-    }
-
     /// Computes the visual height for a given normalized level.
     public func barHeight(for level: CGFloat) -> CGFloat {
         let clamped = min(max(level, 0.0), 1.0)
@@ -75,20 +66,24 @@ public struct CraftWaveformView: View {
     }
 
     public var body: some View {
-        let currentLevels = effectiveLevels
         let resolvedActiveColor = activeColor ?? theme.colors.brandPrimary
         let resolvedInactiveColor = inactiveColor ?? theme.colors.borderDefault
 
-        HStack(alignment: .center, spacing: spacing) {
-            ForEach(0..<barCount, id: \.self) { index in
-                let level = currentLevels[index]
-                let height = barHeight(for: level)
-                let isActiveBar = isRecording || level > 0.0
-
-                Capsule()
-                    .fill(isActiveBar ? resolvedActiveColor : resolvedInactiveColor)
-                    .frame(width: barWidth, height: height)
-                    .animation(reduceMotion ? .none : theme.animations.springSnappy, value: height)
+        Group {
+            if isRecording && !reduceMotion {
+                TimelineView(.animation) { timeline in
+                    renderBars(
+                        time: timeline.date.timeIntervalSinceReferenceDate,
+                        activeColor: resolvedActiveColor,
+                        inactiveColor: resolvedInactiveColor
+                    )
+                }
+            } else {
+                renderStaticBars(
+                    levels: normalizedLevels,
+                    activeColor: resolvedActiveColor,
+                    inactiveColor: resolvedInactiveColor
+                )
             }
         }
         .frame(height: maxHeight)
@@ -118,34 +113,56 @@ public struct CraftWaveformView: View {
                 pulseGlow = false
             }
         }
-        .task(id: isRecording) {
-            guard isRecording else {
-                simulatedLevels = []
-                return
-            }
-            // Seed initial wave shape
-            simulatedLevels = (0..<barCount).map { i in
-                let pos = Double(i) / Double(max(1, barCount - 1))
-                return CGFloat(sin(pos * .pi) * 0.4)
-            }
-            while !Task.isCancelled && isRecording {
-                try? await Task.sleep(for: .milliseconds(120))
-                guard !Task.isCancelled && isRecording else { break }
-                if !reduceMotion {
-                    withAnimation(theme.animations.springSnappy) {
-                        simulatedLevels = (0..<barCount).map { i in
-                            let pos = Double(i) / Double(max(1, barCount - 1))
-                            let centerBell = sin(pos * .pi)
-                            let randomFactor = Double.random(in: 0.25...1.0)
-                            return CGFloat(centerBell * randomFactor)
-                        }
-                    }
-                }
-            }
-        }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(isRecording ? CraftLocalized.string("craft.waveform.recording_active_a11y") : CraftLocalized.string("craft.waveform.visualizer_a11y"))
-        .accessibilityValue(CraftLocalized.format("craft.waveform.audio_level_format", averageLevelPercentage(for: currentLevels)))
+        .accessibilityValue(CraftLocalized.format("craft.waveform.audio_level_format", averageLevelPercentage(for: normalizedLevels)))
+    }
+
+    private func dynamicLevel(for index: Int, time: TimeInterval, baseLevels: [CGFloat]) -> CGFloat {
+        let normalizedPos = Double(index) / Double(max(1, barCount - 1))
+        let centerBell = sin(normalizedPos * .pi)
+
+        let wave1 = sin(time * 7.0 + Double(index) * 0.6)
+        let wave2 = cos(time * 11.0 - Double(index) * 0.9)
+        let oscillation = (wave1 * 0.6 + wave2 * 0.4 + 1.0) / 2.0
+
+        let inputLevel = index < baseLevels.count ? baseLevels[index] : 0
+        if inputLevel > 0.05 {
+            return inputLevel * CGFloat(0.45 + 0.55 * oscillation)
+        } else {
+            return CGFloat(centerBell * (0.25 + 0.75 * oscillation))
+        }
+    }
+
+    @ViewBuilder
+    private func renderBars(time: TimeInterval, activeColor: Color, inactiveColor: Color) -> some View {
+        let baseLevels = normalizedLevels
+        HStack(alignment: .center, spacing: spacing) {
+            ForEach(0..<barCount, id: \.self) { (index: Int) in
+                let level = dynamicLevel(for: index, time: time, baseLevels: baseLevels)
+                let height = barHeight(for: level)
+
+                Capsule()
+                    .fill(activeColor)
+                    .frame(width: barWidth, height: height)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func renderStaticBars(levels: [CGFloat], activeColor: Color, inactiveColor: Color) -> some View {
+        HStack(alignment: .center, spacing: spacing) {
+            ForEach(0..<barCount, id: \.self) { index in
+                let level = levels[index]
+                let height = barHeight(for: level)
+                let isActiveBar = isRecording || level > 0.0
+
+                Capsule()
+                    .fill(isActiveBar ? activeColor : inactiveColor)
+                    .frame(width: barWidth, height: height)
+                    .animation(reduceMotion ? .none : theme.animations.springSnappy, value: height)
+            }
+        }
     }
 }
 
