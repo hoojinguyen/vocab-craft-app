@@ -46,18 +46,15 @@ public struct CraftSurfaceModifier<S: Shape>: ViewModifier {
             .overlay(borderOverlay)
 
         if resolvedStyle == .tactile3D {
-            ZStack {
-                // Bottom 3D Bevel / Extrusion
-                shape
-                    .fill(theme.colors.borderDefault)
-                    .offset(y: resolvedDepth)
-
-                // Top Surface Face
-                surfaceFace
-                    .offset(y: depressOffset)
-            }
-            .padding(.bottom, resolvedDepth)
-            .animation(theme.animations.springSnappy, value: isPressed)
+            surfaceFace
+                .offset(y: depressOffset)
+                .background {
+                    shape
+                        .fill(theme.colors.borderDefault)
+                        .offset(y: resolvedDepth)
+                }
+                .padding(.bottom, resolvedDepth)
+                .animation(theme.animations.springSnappy, value: isPressed)
         } else {
             applyShadow(surfaceFace)
         }
