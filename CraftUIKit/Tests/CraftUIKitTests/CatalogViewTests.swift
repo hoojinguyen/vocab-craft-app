@@ -264,13 +264,16 @@ final class CatalogViewTests: XCTestCase {
         let loadingButton = CraftButton("Loading", isLoading: true) {}
         XCTAssertTrue(loadingButton.isLoading)
 
-        // 2. CraftChoiceCard 5 surface styles & states
+        // 2. CraftChoiceCard 5 surface styles & states & prefix styles
         for style in CraftSurfaceStyle.allCases {
             for state in CraftChoiceState.allCases {
-                let card = CraftChoiceCard(prefix: "A", title: "Option", state: state, style: style) {}
-                XCTAssertNotNil(card)
-                XCTAssertEqual(card.state, state)
-                XCTAssertEqual(card.style, style)
+                for prefixStyle in CraftChoicePrefixStyle.allCases {
+                    let card = CraftChoiceCard(prefix: "A", prefixStyle: prefixStyle, title: "Option", state: state, style: style) {}
+                    XCTAssertNotNil(card)
+                    XCTAssertEqual(card.state, state)
+                    XCTAssertEqual(card.style, style)
+                    XCTAssertEqual(card.prefixStyle, prefixStyle)
+                }
             }
         }
 
