@@ -18,7 +18,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(path: "CraftUIKit")
+        .package(path: "Packages/CraftUIKit")
     ],
     targets: [
         .target(

@@ -2018,7 +2018,7 @@
 /* Begin XCLocalSwiftPackageReference section */
 		900000000000000000000001 /* XCLocalSwiftPackageReference "CraftUIKit" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = CraftUIKit;
+			relativePath = Packages/CraftUIKit;
 		};
 /* End XCLocalSwiftPackageReference section */
 
