@@ -487,6 +487,18 @@ final class ControlComponentTests: XCTestCase {
         }
     }
 
+    func testCraftChoicePrefixStyleCases() {
+        let cardCircle = CraftChoiceCard(prefix: "A", prefixStyle: .circle, title: "Option A") {}
+        let cardMinimal = CraftChoiceCard(prefix: "B", prefixStyle: .minimal, title: "Option B") {}
+        let cardSquare = CraftChoiceCard(prefix: "C", prefixStyle: .roundedSquare, title: "Option C") {}
+        let cardNone = CraftChoiceCard(prefix: nil, prefixStyle: .none, title: "Option None") {}
+
+        XCTAssertEqual(cardCircle.prefixStyle, .circle)
+        XCTAssertEqual(cardMinimal.prefixStyle, .minimal)
+        XCTAssertEqual(cardSquare.prefixStyle, .roundedSquare)
+        XCTAssertEqual(cardNone.prefixStyle, .none)
+    }
+
     func testChoiceCardZeroHardcodingAndLocalization() {
         let selectedA11y = CraftLocalized.string("craft.choice.selected")
         XCTAssertEqual(selectedA11y, "Selected")

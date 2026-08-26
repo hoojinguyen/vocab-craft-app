@@ -11,6 +11,20 @@ public enum CraftChoiceState: String, Sendable, Equatable, Hashable, CaseIterabl
     case disabled
 }
 
+// MARK: - Choice Prefix Style
+
+/// Visual badge styling for choice option prefixes (e.g. A/B/C/D).
+public enum CraftChoicePrefixStyle: String, Sendable, Equatable, Hashable, CaseIterable {
+    /// Elegant circle badge with crisp baseline alignment (Default).
+    case circle
+    /// Soft squircle badge with subtle corner curvature.
+    case roundedSquare
+    /// Clean editorial typography with no bounding container or border.
+    case minimal
+    /// Completely hidden prefix badge (useful for survey and settings checklists).
+    case none
+}
+
 private extension CraftSpacingTokens {
     var xxs: CGFloat { xs }
 }
@@ -29,6 +43,7 @@ public struct CraftChoiceCard: View {
 
     private let prefixKey: LocalizedStringKey?
     private let rawPrefix: String?
+    public let prefixStyle: CraftChoicePrefixStyle
     private let titleKey: LocalizedStringKey?
     private let rawTitle: String?
     private let subtitleKey: LocalizedStringKey?
@@ -51,6 +66,7 @@ public struct CraftChoiceCard: View {
 
     public init(
         prefix: String? = "A",
+        prefixStyle: CraftChoicePrefixStyle = .circle,
         title: String,
         subtitle: String? = nil,
         state: CraftChoiceState = .idle,
@@ -59,6 +75,7 @@ public struct CraftChoiceCard: View {
     ) {
         self.prefixKey = nil
         self.rawPrefix = prefix
+        self.prefixStyle = prefixStyle
         self.titleKey = nil
         self.rawTitle = title
         self.subtitleKey = nil
@@ -70,6 +87,7 @@ public struct CraftChoiceCard: View {
 
     public init(
         prefix: LocalizedStringKey? = nil,
+        prefixStyle: CraftChoicePrefixStyle = .circle,
         title: LocalizedStringKey,
         subtitle: LocalizedStringKey? = nil,
         state: CraftChoiceState = .idle,
@@ -78,6 +96,7 @@ public struct CraftChoiceCard: View {
     ) {
         self.prefixKey = prefix
         self.rawPrefix = nil
+        self.prefixStyle = prefixStyle
         self.titleKey = title
         self.rawTitle = nil
         self.subtitleKey = subtitle
@@ -120,7 +139,7 @@ public struct CraftChoiceCard: View {
 
     private var cardSurface: some View {
         let content = HStack(alignment: .top, spacing: theme.spacing.md) {
-            if prefixKey != nil || rawPrefix != nil {
+            if prefixStyle != .none && (prefixKey != nil || rawPrefix != nil) {
                 prefixBadge
                     .padding(.top, 1)
             }
@@ -208,7 +227,7 @@ public struct CraftChoiceCard: View {
                     .fill(theme.colors.surfaceCard)
             }
 
-            if state != .idle && state != .disabled && (style != .glass || reduceTransparency) {
+            if state != .idle && state != .disabled {
                 RoundedRectangle(cornerRadius: theme.radii.lg)
                     .fill(stateTintOverlay)
             }
@@ -242,13 +261,13 @@ public struct CraftChoiceCard: View {
             )
         case .correct:
             return .craftDynamic(
-                light: theme.colors.statusSuccess.opacity(0.10),
-                dark: theme.colors.statusSuccess.opacity(0.18)
+                light: theme.colors.statusSuccess.opacity(0.08),
+                dark: theme.colors.statusSuccess.opacity(0.16)
             )
         case .wrong:
             return .craftDynamic(
-                light: theme.colors.statusDanger.opacity(0.10),
-                dark: theme.colors.statusDanger.opacity(0.18)
+                light: theme.colors.statusDanger.opacity(0.08),
+                dark: theme.colors.statusDanger.opacity(0.16)
             )
         }
     }
@@ -322,109 +341,96 @@ public struct CraftChoiceCard: View {
 
     @ViewBuilder
     private var prefixBadge: some View {
-        Group {
-            if let prefixKey {
-                Text(prefixKey)
-            } else if let rawPrefix {
-                Text(rawPrefix)
-            }
+        switch prefixStyle {
+        case .circle:
+            circlePrefixBadge
+        case .roundedSquare:
+            roundedSquarePrefixBadge
+        case .minimal:
+            minimalPrefixBadge
+        case .none:
+            EmptyView()
         }
-        .font(theme.typography.headline.bold())
-        .fontDesign(.rounded)
-        .foregroundStyle(prefixForegroundColor)
-        .frame(minWidth: 32, minHeight: 32)
-        .padding(.horizontal, 6)
-        .background(prefixBackground)
-        .clipShape(RoundedRectangle(cornerRadius: theme.radii.sm))
-        .overlay(prefixBorderOverlay)
-        .fixedSize()
     }
 
     @ViewBuilder
-    private var prefixBackground: some View {
-        switch style {
-        case .glass:
-            if #available(iOS 26, macOS 26, *) {
-                if reduceTransparency {
-                    prefixSolidBackground
-                } else {
-                    RoundedRectangle(cornerRadius: theme.radii.sm)
-                        .glassEffect(prefixGlassVariant, in: RoundedRectangle(cornerRadius: theme.radii.sm))
-                }
-            } else {
-                if reduceTransparency {
-                    prefixSolidBackground
-                } else {
-                    RoundedRectangle(cornerRadius: theme.radii.sm)
-                        .fill(.ultraThinMaterial)
-                        .overlay(prefixTintOverlay)
-                }
-            }
-        case .flat, .elevated, .outlined, .tactile3D:
-            prefixSolidBackground
+    private var prefixText: some View {
+        if let prefixKey {
+            Text(prefixKey)
+        } else if let rawPrefix {
+            Text(rawPrefix)
         }
     }
 
-    private var prefixSolidBackground: some View {
-        RoundedRectangle(cornerRadius: theme.radii.sm)
-            .fill(prefixBackgroundColor)
+    private var circlePrefixBadge: some View {
+        prefixText
+            .font(theme.typography.headline.bold())
+            .fontDesign(.rounded)
+            .foregroundStyle(prefixForegroundColor)
+            .padding(.horizontal, 4)
+            .frame(minWidth: 32, minHeight: 32)
+            .background(
+                Circle()
+                    .fill(prefixBackgroundColor)
+            )
+            .overlay(
+                Circle()
+                    .strokeBorder(prefixStrokeColor, lineWidth: 1)
+            )
+            .fixedSize()
     }
 
-    @available(iOS 26, macOS 26, *)
-    private var prefixGlassVariant: Glass {
+    private var roundedSquarePrefixBadge: some View {
+        prefixText
+            .font(theme.typography.headline.bold())
+            .fontDesign(.rounded)
+            .foregroundStyle(prefixForegroundColor)
+            .padding(.horizontal, 6)
+            .frame(minWidth: 32, minHeight: 32)
+            .background(
+                RoundedRectangle(cornerRadius: theme.radii.sm)
+                    .fill(prefixBackgroundColor)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: theme.radii.sm)
+                    .strokeBorder(prefixStrokeColor, lineWidth: 1)
+            )
+            .fixedSize()
+    }
+
+    private var minimalPrefixBadge: some View {
+        prefixText
+            .font(theme.typography.headline.bold())
+            .fontDesign(.rounded)
+            .foregroundStyle(minimalPrefixForegroundColor)
+            .fixedSize()
+    }
+
+    private var minimalPrefixForegroundColor: Color {
         switch state {
         case .idle:
-            return .regular
+            return theme.colors.textSecondary
         case .selected:
-            return .regular.tint(theme.colors.brandPrimary)
+            return theme.colors.brandPrimary
         case .correct:
-            return .regular.tint(theme.colors.statusSuccess)
+            return theme.colors.statusSuccess
         case .wrong:
-            return .regular.tint(theme.colors.statusDanger)
+            return theme.colors.statusDanger
         case .disabled:
-            return .clear
-        }
-    }
-
-    private var prefixTintOverlay: Color {
-        switch state {
-        case .idle, .disabled:
-            return .clear
-        case .selected:
-            return theme.colors.brandPrimary.opacity(0.18)
-        case .correct:
-            return theme.colors.statusSuccess.opacity(0.20)
-        case .wrong:
-            return theme.colors.statusDanger.opacity(0.20)
+            return theme.colors.textMuted
         }
     }
 
     private var prefixForegroundColor: Color {
-        switch style {
-        case .glass:
-            switch state {
-            case .idle:
-                return theme.colors.textPrimary
-            case .selected:
-                return theme.colors.brandPrimary
-            case .correct:
-                return theme.colors.statusSuccess
-            case .wrong:
-                return theme.colors.statusDanger
-            case .disabled:
-                return theme.colors.textMuted
-            }
-        case .flat, .elevated, .outlined, .tactile3D:
-            switch state {
-            case .idle:
-                return theme.colors.textPrimary
-            case .selected:
-                return theme.colors.textInverse
-            case .correct, .wrong:
-                return .white
-            case .disabled:
-                return theme.colors.textMuted
-            }
+        switch state {
+        case .idle:
+            return theme.colors.textPrimary
+        case .selected:
+            return theme.colors.textInverse
+        case .correct, .wrong:
+            return .white
+        case .disabled:
+            return theme.colors.textMuted
         }
     }
 
@@ -443,29 +449,10 @@ public struct CraftChoiceCard: View {
         }
     }
 
-    @ViewBuilder
-    private var prefixBorderOverlay: some View {
-        switch style {
-        case .glass:
-            RoundedRectangle(cornerRadius: theme.radii.sm)
-                .strokeBorder(theme.glass.borderGradient, lineWidth: 1)
-        case .flat:
-            if state == .idle {
-                EmptyView()
-            } else {
-                RoundedRectangle(cornerRadius: theme.radii.sm)
-                    .strokeBorder(prefixStrokeColor, lineWidth: 1)
-            }
-        case .elevated:
-            RoundedRectangle(cornerRadius: theme.radii.sm)
-                .strokeBorder(prefixStrokeColor.opacity(0.3), lineWidth: 1)
-        case .outlined, .tactile3D:
-            RoundedRectangle(cornerRadius: theme.radii.sm)
-                .strokeBorder(prefixStrokeColor, lineWidth: 1)
-        }
-    }
-
     private var prefixStrokeColor: Color {
+        if style == .flat && state == .idle {
+            return .clear
+        }
         switch state {
         case .idle:
             return theme.colors.borderDefault
@@ -632,73 +619,97 @@ public struct ChoiceShakeEffect: GeometryEffect {
     }
 }
 
-#Preview("CraftChoiceCard") {
-    ScrollView {
-        VStack(spacing: 24) {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Modern Tactile 3D (Default)")
-                    .font(.headline)
+private struct CraftChoiceCardPreviewContainer: View {
+    @State private var selectedStyle: CraftSurfaceStyle = .tactile3D
+    @State private var interactiveSelection: String = "B"
 
-                CraftChoiceCard(
-                    prefix: "A",
-                    title: "Idle State",
-                    subtitle: "This is the default tactile state",
-                    state: .idle
-                ) {}
-                
-                CraftChoiceCard(
-                    prefix: "B",
-                    title: "Selected State",
-                    subtitle: "Currently selected option",
-                    state: .selected
-                ) {}
-                
-                CraftChoiceCard(
-                    prefix: "C",
-                    title: "Correct Answer",
-                    state: .correct
-                ) {}
-                
-                CraftChoiceCard(
-                    prefix: "D",
-                    title: "Incorrect Answer",
-                    subtitle: "Shake animation plays on appear",
-                    state: .wrong
-                ) {}
-                
-                CraftChoiceCard(
-                    prefix: "E",
-                    title: "Disabled Option",
-                    state: .disabled
-                ) {}
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                // Style Switcher Segmented Control
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text("Surface Style")
+                            .font(.caption.bold())
+                            .foregroundStyle(.secondary)
+                            .textCase(.uppercase)
+                        Spacer()
+                        Text(styleDescription(for: selectedStyle))
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Picker("Surface Style", selection: $selectedStyle) {
+                        ForEach(CraftSurfaceStyle.allCases, id: \.self) { style in
+                            Text(style.rawValue.capitalized).tag(style)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                }
+                .padding(.bottom, 4)
+
+                // 5 States Rendered Dynamically in the Selected Style
+                VStack(alignment: .leading, spacing: 12) {
+                    CraftChoiceCard(
+                        prefix: "A",
+                        title: "Idle State",
+                        subtitle: "Default unselected option",
+                        state: interactiveSelection == "A" ? .selected : .idle,
+                        style: selectedStyle
+                    ) {
+                        interactiveSelection = "A"
+                    }
+
+                    CraftChoiceCard(
+                        prefix: "B",
+                        title: "Selected State",
+                        subtitle: "Currently selected option",
+                        state: interactiveSelection == "B" ? .selected : .idle,
+                        style: selectedStyle
+                    ) {
+                        interactiveSelection = "B"
+                    }
+
+                    CraftChoiceCard(
+                        prefix: "C",
+                        title: "Correct Answer",
+                        subtitle: "Validated correct state with bounce icon",
+                        state: .correct,
+                        style: selectedStyle
+                    ) {}
+
+                    CraftChoiceCard(
+                        prefix: "D",
+                        title: "Incorrect Answer",
+                        subtitle: "Validated error state with shake feedback",
+                        state: .wrong,
+                        style: selectedStyle
+                    ) {}
+
+                    CraftChoiceCard(
+                        prefix: "E",
+                        title: "Disabled Option",
+                        subtitle: "Non-interactive dimmed state",
+                        state: .disabled,
+                        style: selectedStyle
+                    ) {}
+                }
             }
-
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Liquid Glass Style")
-                    .font(.headline)
-
-                CraftChoiceCard(
-                    prefix: "A",
-                    title: "Glass Idle",
-                    state: .idle,
-                    style: .glass
-                ) {}
-
-                CraftChoiceCard(
-                    prefix: "B",
-                    title: "Glass Selected",
-                    state: .selected,
-                    style: .glass
-                ) {}
-
-                CraftChoiceCard(
-                    prefix: "C",
-                    title: "Glass Correct",
-                    state: .correct,
-                    style: .glass
-                ) {}
-            }
+            .padding()
         }
-        .padding()
     }
+
+    private func styleDescription(for style: CraftSurfaceStyle) -> String {
+        switch style {
+        case .tactile3D: return "3D Extrusion Bevel & Mechanical Press"
+        case .glass: return "Liquid Glass & Light Refraction"
+        case .elevated: return "Layered Elevation & Ambient Shadow"
+        case .outlined: return "Crisp Hairline Stroke"
+        case .flat: return "Subtle Solid Minimal"
+        }
+    }
+}
+
+#Preview("CraftChoiceCard") {
+    CraftChoiceCardPreviewContainer()
 }
