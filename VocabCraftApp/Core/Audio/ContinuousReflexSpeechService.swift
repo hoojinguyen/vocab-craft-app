@@ -1,6 +1,7 @@
 import AVFoundation
 import Foundation
 import Speech
+import SpeechKit
 
 public enum ReflexSpeechMatcher {
     /// Evaluates whether spoken text contains the target lemma or an acceptable phonetic / accent / inflection reflex match.

@@ -42,7 +42,7 @@ public struct SRSMemoryHeroCard: View {
                     )
                     .rotationEffect(.degrees(-90))
 
-                Text("\(Int(retentionPercentage * 100))%")
+                Text(verbatim: "\(Int(retentionPercentage * 100))%")
                     .font(.system(size: 13, weight: .bold, design: .rounded))
                     .monospacedDigit()
                     .foregroundColor(Color.vocabMint)

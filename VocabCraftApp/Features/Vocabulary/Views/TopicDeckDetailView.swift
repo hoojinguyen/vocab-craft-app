@@ -76,7 +76,7 @@ public struct TopicDeckDetailView: View {
                         Text(AppStrings.Vocabulary.progressTitle)
                             .font(.system(size: 13, weight: .medium))
                             .foregroundColor(Color.vocabMuted)
-                        + Text("\(percentage)%")
+                        + Text(verbatim: "\(percentage)%")
                             .font(.system(size: 13, weight: .bold, design: .rounded))
                             .monospacedDigit()
                             .foregroundColor(Color.vocabMint)

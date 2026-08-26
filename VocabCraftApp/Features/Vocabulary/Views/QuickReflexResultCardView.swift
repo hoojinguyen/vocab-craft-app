@@ -107,7 +107,7 @@ extension QuickReflexResultCardView {
                     .foregroundStyle(Color.vocabMuted)
             }
             Spacer()
-            Text("\(Int(score * 100))%")
+            Text(verbatim: "\(Int(score * 100))%")
                 .font(.caption.monospacedDigit().weight(.bold))
                 .foregroundStyle(score >= 0.75 ? Color.vocabMint : Color.vocabPeach)
         }

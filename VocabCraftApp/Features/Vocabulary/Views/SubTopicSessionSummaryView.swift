@@ -143,7 +143,7 @@ public struct SubTopicSessionSummaryView: View {
                         Text(AppStrings.Vocabulary.summaryAccuracy)
                             .font(.system(size: 10, weight: .bold))
                             .foregroundColor(Color.vocabMuted)
-                        Text("\(accuracyPercentage)%")
+                        Text(verbatim: "\(accuracyPercentage)%")
                             .font(.system(size: 22, weight: .bold))
                             .foregroundColor(isPassed ? Color.vocabMint : Color.vocabCoral)
                     }

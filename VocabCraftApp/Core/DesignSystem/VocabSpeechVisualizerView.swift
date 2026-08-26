@@ -1,6 +1,6 @@
-import SwiftUI
-import SpeechKit
 import CraftUIKit
+import SpeechKit
+import SwiftUI
 
 extension WordTokenResult {
     /// Adapts a headless SpeechKit evaluation token into a standardized CraftUIKit display token.
@@ -167,7 +167,7 @@ public struct VocabSpeechVisualizerView: View {
     @ViewBuilder
     private func evaluationBadge(_ eval: SpeechEvaluationResult) -> some View {
         HStack(spacing: 4) {
-            Text("⚡️ \(Int(eval.overallScore))%")
+            Text(verbatim: "⚡️ \(Int(eval.overallScore))%")
                 .font(.caption2.bold())
                 .foregroundColor(eval.isPassed ? .green : .orange)
         }

@@ -78,7 +78,7 @@ public struct HeaderView: View {
                 HStack(spacing: 4) {
                     (Text(AppStrings.Homepage.dailyGoal) + Text(":"))
                         .foregroundColor(Color.vocabMuted)
-                    Text("\(Int(dailyGoalProgress * 100))%")
+                    Text(verbatim: "\(Int(dailyGoalProgress * 100))%")
                         .fontWeight(.bold)
                         .foregroundColor(Color.vocabMint)
                 }

@@ -1,4 +1,5 @@
 import Foundation
+import SpeechKit
 
 public enum TargetExpressionMatcher {
     /// Matches only the target expression after case and punctuation normalization.
