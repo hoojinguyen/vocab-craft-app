@@ -126,6 +126,48 @@ public enum CatalogEmptyStatePreset: String, CaseIterable, Identifiable, Sendabl
     }
 }
 
+/// Interactive preset options for demonstrating `CraftFeedbackSheet` in the catalog.
+public enum CatalogFeedbackPreset: String, CaseIterable, Identifiable, Sendable {
+    case success = "Success"
+    case error = "Error"
+    case warning = "Warning"
+    case glass = "Liquid Glass"
+
+    public var id: String { rawValue }
+
+    public var status: CraftFeedbackStatus {
+        switch self {
+        case .success, .glass: return .success
+        case .error: return .error
+        case .warning: return .warning
+        }
+    }
+
+    public var title: String {
+        switch self {
+        case .success, .glass: return "Nice work!"
+        case .error: return "Incorrect"
+        case .warning: return "Almost!"
+        }
+    }
+
+    public var message: String? {
+        switch self {
+        case .success: return nil
+        case .error: return "Correct: It's a stressful job."
+        case .warning: return "Review the pronunciation of the last word."
+        case .glass: return "Liquid Glass assessment feedback."
+        }
+    }
+
+    public var surfaceStyle: CraftSurfaceStyle? {
+        switch self {
+        case .glass: return .glass
+        case .success, .error, .warning: return nil
+        }
+    }
+}
+
 /// Interactive preset options for showcasing Streak Gamification tiers.
 public enum CatalogStreakTierPreset: String, CaseIterable, Identifiable, Sendable {
     case starter = "Starter (3d)"
@@ -542,6 +584,10 @@ private struct CraftCatalogContentView: View {
     // Section 8 - Empty State Presets
     @State private var selectedEmptyPreset: CatalogEmptyStatePreset = .study
 
+    // CraftFeedbackSheet Preset & Presentation States
+    @State private var selectedFeedbackPreset: CatalogFeedbackPreset = .success
+    @State private var isFeedbackSheetPresented: Bool = false
+
     // Section 10 - Metrics & Progression
     @State private var masteredCount: Double = 45
     @State private var reviewingCount: Double = 30
@@ -646,6 +692,8 @@ private struct CraftCatalogContentView: View {
                             isConfirmDialogPresented: $isConfirmDialogPresented,
                             isDangerDialogPresented: $isDangerDialogPresented,
                             isGlassDialogPresented: $isGlassDialogPresented,
+                            selectedFeedbackPreset: $selectedFeedbackPreset,
+                            isFeedbackSheetPresented: $isFeedbackSheetPresented,
                             onEmptyAction: {
                                 toastStyle = .info
                                 toastSurfaceStyle = .elevated
@@ -658,6 +706,7 @@ private struct CraftCatalogContentView: View {
                                 isToastPresented = true
                             }
                         )
+                        .id("overlays")
 
                         // e. Universal Journey Path Section
                         CatalogJourneyPathSection(
@@ -756,6 +805,8 @@ private struct CraftCatalogContentView: View {
                             withAnimation { scrollProxy.scrollTo("streak", anchor: .top) }
                         } else if args.contains("-catalog-scroll-path") {
                             withAnimation { scrollProxy.scrollTo("learning_path", anchor: .top) }
+                        } else if args.contains("-catalog-scroll-feedback") || args.contains("-catalog-scroll-overlays") {
+                            withAnimation { scrollProxy.scrollTo("overlays", anchor: .top) }
                         }
                     }
                 }
@@ -881,6 +932,16 @@ private struct CraftCatalogContentView: View {
             cancelButtonTitle: CraftLocalized.string("craft.common.action.close", language: selectedLanguage.code),
             style: .glass,
             backdrop: .material
+        )
+        .craftFeedbackSheet(
+            isPresented: $isFeedbackSheetPresented,
+            status: selectedFeedbackPreset.status,
+            title: selectedFeedbackPreset.title,
+            message: selectedFeedbackPreset.message,
+            surfaceStyle: selectedFeedbackPreset.surfaceStyle,
+            onContinue: {
+                isFeedbackSheetPresented = false
+            }
         )
     }
 
@@ -1628,12 +1689,14 @@ private struct CatalogContainersOverlaysSection: View {
     @Binding var isConfirmDialogPresented: Bool
     @Binding var isDangerDialogPresented: Bool
     @Binding var isGlassDialogPresented: Bool
+    @Binding var selectedFeedbackPreset: CatalogFeedbackPreset
+    @Binding var isFeedbackSheetPresented: Bool
     let onEmptyAction: () -> Void
     let onFabTap: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: theme.spacing.base) {
-            CatalogSectionHeader(title: "4. Containers & Overlays (Cards, FlipCard, Rows, Dialogs, Toasts, TabBar)", iconName: "square.stack.3d.up.fill")
+            CatalogSectionHeader(title: "4. Containers & Overlays (Cards, FlipCard, Rows, Dialogs, Toasts, TabBar, Feedback Sheet)", iconName: "square.stack.3d.up.fill")
 
             // CraftCard 5 Surface Styles Bento Grid
             VStack(alignment: .leading, spacing: theme.spacing.xs) {
@@ -1890,6 +1953,67 @@ private struct CatalogContainersOverlaysSection: View {
                             .frame(maxWidth: .infinity)
                         CraftButton("Bottom Sheet", variant: .outline, size: .sm) { isBottomSheetPresented = true }
                             .frame(maxWidth: .infinity)
+                    }
+                }
+            }
+
+            // CraftFeedbackSheet Interactive Showcase
+            CraftCard(style: .elevated) {
+                VStack(alignment: .leading, spacing: theme.spacing.base) {
+                    CraftText("CraftFeedbackSheet (Assessment & Response Feedback)", style: .headline)
+                    CraftText("Interactive modal feedback bottom sheet with semantic status styling, tactile action button, sensory haptics, and Liquid Glass surfaces.", style: .caption, color: theme.colors.textSecondary)
+
+                    // Preset Switcher
+                    VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                        CraftText("Preset State", style: .label, color: theme.colors.textSecondary)
+                        Picker("Feedback Preset", selection: $selectedFeedbackPreset) {
+                            ForEach(CatalogFeedbackPreset.allCases) { preset in
+                                Text(preset.rawValue).tag(preset)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                    }
+
+                    // Inline Preview of Selected Preset
+                    CraftCard(style: selectedFeedbackPreset.surfaceStyle == .glass ? .glass : .outlined) {
+                        CraftFeedbackSheet(
+                            status: selectedFeedbackPreset.status,
+                            title: selectedFeedbackPreset.title,
+                            message: selectedFeedbackPreset.message,
+                            surfaceStyle: selectedFeedbackPreset.surfaceStyle,
+                            onContinue: {
+                                toastStyle = selectedFeedbackPreset.status == .error ? .danger : (selectedFeedbackPreset.status == .warning ? .warning : .success)
+                                toastSurfaceStyle = selectedFeedbackPreset.surfaceStyle ?? .elevated
+                                isToastPresented = true
+                            }
+                        )
+                    }
+
+                    // Presentation Trigger Buttons
+                    VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                        CraftText("Test Docked Sheet Presentation", style: .label, color: theme.colors.textSecondary)
+
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: theme.spacing.xs) {
+                            CraftButton("Success Sheet", iconName: "checkmark.circle.fill", variant: .tactile, size: .sm, customTint: theme.colors.statusSuccess) {
+                                selectedFeedbackPreset = .success
+                                isFeedbackSheetPresented = true
+                            }
+
+                            CraftButton("Error Sheet", iconName: "xmark.circle.fill", variant: .tactile, size: .sm, customTint: theme.colors.statusDanger) {
+                                selectedFeedbackPreset = .error
+                                isFeedbackSheetPresented = true
+                            }
+
+                            CraftButton("Warning Sheet", iconName: "exclamationmark.circle.fill", variant: .tactile, size: .sm, customTint: theme.colors.statusWarning) {
+                                selectedFeedbackPreset = .warning
+                                isFeedbackSheetPresented = true
+                            }
+
+                            CraftButton("Liquid Glass", iconName: "sparkles", variant: .tactile, size: .sm, customTint: theme.colors.brandPrimary) {
+                                selectedFeedbackPreset = .glass
+                                isFeedbackSheetPresented = true
+                            }
+                        }
                     }
                 }
             }

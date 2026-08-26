@@ -102,6 +102,38 @@ final class CatalogViewTests: XCTestCase {
         XCTAssertEqual(legendary.nextMilestone, 50)
     }
 
+    func testCatalogFeedbackPresetProperties() {
+        XCTAssertEqual(CatalogFeedbackPreset.allCases.count, 4)
+
+        let success = CatalogFeedbackPreset.success
+        XCTAssertEqual(success.id, "Success")
+        XCTAssertEqual(success.status, .success)
+        XCTAssertEqual(success.title, "Nice work!")
+        XCTAssertNil(success.message)
+        XCTAssertNil(success.surfaceStyle)
+
+        let error = CatalogFeedbackPreset.error
+        XCTAssertEqual(error.id, "Error")
+        XCTAssertEqual(error.status, .error)
+        XCTAssertEqual(error.title, "Incorrect")
+        XCTAssertEqual(error.message, "Correct: It's a stressful job.")
+        XCTAssertNil(error.surfaceStyle)
+
+        let warning = CatalogFeedbackPreset.warning
+        XCTAssertEqual(warning.id, "Warning")
+        XCTAssertEqual(warning.status, .warning)
+        XCTAssertEqual(warning.title, "Almost!")
+        XCTAssertEqual(warning.message, "Review the pronunciation of the last word.")
+        XCTAssertNil(warning.surfaceStyle)
+
+        let glass = CatalogFeedbackPreset.glass
+        XCTAssertEqual(glass.id, "Liquid Glass")
+        XCTAssertEqual(glass.status, .success)
+        XCTAssertEqual(glass.title, "Nice work!")
+        XCTAssertEqual(glass.message, "Liquid Glass assessment feedback.")
+        XCTAssertEqual(glass.surfaceStyle, .glass)
+    }
+
     func testCatalogRowPatternPresets() {
         XCTAssertEqual(CatalogRowPatternPreset.allCases.count, 4)
         XCTAssertEqual(CatalogRowPatternPreset.standard.id, "Standard (1-2-1)")
@@ -350,6 +382,22 @@ final class CatalogViewTests: XCTestCase {
             XCTAssertNotNil(toast)
             XCTAssertEqual(toast.style, style)
             XCTAssertEqual(toast.surfaceStyle, .glass)
+        }
+
+        // 6. CraftFeedbackSheet showcase presets
+        for preset in CatalogFeedbackPreset.allCases {
+            let sheet = CraftFeedbackSheet(
+                status: preset.status,
+                title: preset.title,
+                message: preset.message,
+                surfaceStyle: preset.surfaceStyle,
+                onContinue: {}
+            )
+            XCTAssertNotNil(sheet.body)
+            XCTAssertEqual(sheet.status, preset.status)
+            XCTAssertEqual(sheet.resolvedTitle, preset.title)
+            XCTAssertEqual(sheet.message, preset.message)
+            XCTAssertEqual(sheet.surfaceStyle, preset.surfaceStyle)
         }
     }
 
