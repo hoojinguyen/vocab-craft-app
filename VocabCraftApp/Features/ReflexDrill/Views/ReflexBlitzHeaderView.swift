@@ -122,10 +122,10 @@ public struct ReflexBlitzHeaderView: View {
                     )
                     .frame(minWidth: 44, minHeight: 44, alignment: .trailing)
                     .transition(.scale.combined(with: .opacity))
-                    .accessibilityLabel("Chuỗi combo \(comboStreak)")
+                    .accessibilityLabel(String(localized: "app.reflex.blitz.combo_streak_a11y_format", defaultValue: "Combo streak %lld"))
                 } else if showSkipInHeader {
                     Button(action: onSkip) {
-                        Text("Bỏ qua")
+                        Text(AppStrings.Common.skip)
                             .font(.caption.bold())
                             .foregroundColor(.vocabMuted)
                             .padding(.horizontal, 10)
@@ -135,7 +135,7 @@ public struct ReflexBlitzHeaderView: View {
                     }
                     .buttonStyle(BentoCardButtonStyle())
                     .frame(minWidth: 44, minHeight: 44, alignment: .trailing)
-                    .accessibilityLabel("Bỏ qua từ hiện tại")
+                    .accessibilityLabel(String(localized: "app.reflex.blitz.skip_current_a11y", defaultValue: "Skip current word"))
                 } else {
                     // Invisible 44x44 placeholder to keep center segmented bar mathematically centered
                     Color.clear

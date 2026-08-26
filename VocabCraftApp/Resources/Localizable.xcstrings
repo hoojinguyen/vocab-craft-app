@@ -1,6 +1,40 @@
 {
   "sourceLanguage" : "vi",
   "strings" : {
+    "app.reflex.blitz.combo_streak_a11y_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Combo streak %lld"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chuỗi combo %lld"
+          }
+        }
+      }
+    },
+    "app.reflex.blitz.skip_current_a11y" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip current word"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bỏ qua từ hiện tại"
+          }
+        }
+      }
+    },
     " [ ______ ] " : {
 
     },

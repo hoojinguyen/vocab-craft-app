@@ -114,7 +114,7 @@ public struct CraftStepProgressIndicator: View {
             // Segmented Interval Progress Capsules
             if !steps.isEmpty {
                 HStack(spacing: spacing) {
-                    ForEach(0..<steps.count, id: \.self) { index in
+                    ForEach(Array(steps.indices), id: \.self) { index in
                         Capsule()
                             .fill(color(for: steps[index]))
                             .frame(height: height)
