@@ -1,4 +1,27 @@
 import SwiftUI
+@_exported import SpeechKit
+import CraftUIKit
+
+extension WordTokenResult {
+    /// Adapts a headless SpeechKit evaluation token into a standardized CraftUIKit display token.
+    public var asCraftSpeechWordToken: CraftSpeechWordToken {
+        let craftStatus: CraftSpeechStatus
+        switch status {
+        case .exactMatch:
+            craftStatus = .matched
+        case .fuzzyMatch:
+            craftStatus = .fuzzy
+        case .missing:
+            craftStatus = .mismatched
+        }
+        return CraftSpeechWordToken(
+            id: "\(id)",
+            targetWord: targetWord,
+            status: craftStatus,
+            confidence: confidence
+        )
+    }
+}
 
 /// Shared speech visualizer component showing animated sound equalizer bars,
 /// live recognized speech text display, and word token highlight chips across voice features.
@@ -53,13 +76,13 @@ public struct VocabSpeechVisualizerView: View {
                     .transition(.scale.combined(with: .opacity))
             }
 
-            // Word Tokens Highlight or Recognized Speech Text Display
+            // Word Tokens Highlight using CraftUIKit flow layout and token chips
             if !tokens.isEmpty {
-                SpeechWordHighlightView(
-                    tokens: tokens,
-                    targetSentence: evaluationResult?.targetSentence ?? "",
-                    evaluationResult: evaluationResult
-                )
+                CraftSpeechWordFlowLayout(spacing: 8, lineSpacing: 8, alignment: .center) {
+                    ForEach(tokens) { token in
+                        CraftSpeechWordTokenView(token: token.asCraftSpeechWordToken)
+                    }
+                }
                 .frame(maxWidth: .infinity, minHeight: 44)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)

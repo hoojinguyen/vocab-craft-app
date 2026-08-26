@@ -7,6 +7,8 @@ public enum CraftSpeechWordStatus: String, Sendable, Equatable, CaseIterable {
     case mismatched
 }
 
+public typealias CraftSpeechStatus = CraftSpeechWordStatus
+
 public struct CraftSpeechWordToken: Identifiable, Sendable, Equatable {
     public let id: String
     public let targetWord: String

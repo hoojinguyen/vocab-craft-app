@@ -18,13 +18,15 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(path: "Packages/CraftUIKit")
+        .package(path: "Packages/CraftUIKit"),
+        .package(path: "Packages/SpeechKit")
     ],
     targets: [
         .target(
             name: "VocabCraftApp",
             dependencies: [
-                .product(name: "CraftUIKit", package: "CraftUIKit")
+                .product(name: "CraftUIKit", package: "CraftUIKit"),
+                .product(name: "SpeechKit", package: "SpeechKit")
             ],
             path: "VocabCraftApp",
             exclude: [
@@ -43,7 +45,12 @@ let package = Package(
         ),
         .testTarget(
             name: "VocabCraftAppTests",
-            dependencies: ["VocabCraftApp", "VocabCraftWidgetExtension"],
+            dependencies: [
+                "VocabCraftApp",
+                "VocabCraftWidgetExtension",
+                .product(name: "CraftUIKit", package: "CraftUIKit"),
+                .product(name: "SpeechKit", package: "SpeechKit")
+            ],
             path: "VocabCraftAppTests"
         )
     ]
