@@ -502,4 +502,26 @@ final class InteractiveCardTests: XCTestCase {
         XCTAssertNotNil(flipCard.animation)
         XCTAssertNotNil(flipCard.body)
     }
+
+    func testFlipCardLocalizationKeys() {
+        let flipToBackEn = CraftLocalized.string("craft.flipcard.flipToBack")
+        let flipToFrontEn = CraftLocalized.string("craft.flipcard.flipToFront")
+        let frontA11y = CraftLocalized.string("craft.flipcard.frontSideA11y")
+        let backA11y = CraftLocalized.string("craft.flipcard.backSideA11y")
+
+        XCTAssertEqual(flipToBackEn, "Flip to back")
+        XCTAssertEqual(flipToFrontEn, "Flip to front")
+        XCTAssertEqual(frontA11y, "Front of card")
+        XCTAssertEqual(backA11y, "Back of card")
+
+        XCTAssertEqual(CraftLocalized.string("craft.flipcard.flipToBack", language: "vi"), "Lật ra mặt sau")
+        XCTAssertEqual(CraftLocalized.string("craft.flipcard.flipToFront", language: "vi"), "Lật ra mặt trước")
+        XCTAssertEqual(CraftLocalized.string("craft.flipcard.frontSideA11y", language: "vi"), "Mặt trước của thẻ")
+        XCTAssertEqual(CraftLocalized.string("craft.flipcard.backSideA11y", language: "vi"), "Mặt sau của thẻ")
+
+        XCTAssertFalse(flipToBackEn.isEmpty)
+        XCTAssertFalse(flipToFrontEn.isEmpty)
+        XCTAssertFalse(frontA11y.isEmpty)
+        XCTAssertFalse(backA11y.isEmpty)
+    }
 }

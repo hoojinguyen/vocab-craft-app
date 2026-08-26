@@ -237,6 +237,74 @@
         }
       }
     },
+    "craft.flipcard.backSideA11y" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back of card"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mặt sau của thẻ"
+          }
+        }
+      }
+    },
+    "craft.flipcard.flipToBack" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flip to back"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lật ra mặt sau"
+          }
+        }
+      }
+    },
+    "craft.flipcard.flipToFront" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flip to front"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lật ra mặt trước"
+          }
+        }
+      }
+    },
+    "craft.flipcard.frontSideA11y" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Front of card"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mặt trước của thẻ"
+          }
+        }
+      }
+    },
     "craft.journey.challengeLesson" : {
       "extractionState" : "manual",
       "localizations" : {
