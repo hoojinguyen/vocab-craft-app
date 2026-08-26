@@ -96,4 +96,60 @@ final class FeedbackComponentTests: XCTestCase {
         XCTAssertEqual(explicitSheet.resolvedTitle, "Custom Title")
         XCTAssertEqual(explicitSheet.resolvedActionTitle, "Custom Action")
     }
+
+    func testCraftFeedbackSheetModifier() {
+        let dummyView = Text("Question Content")
+            .craftFeedbackSheet(
+                isPresented: .constant(true),
+                status: .success,
+                title: "Nice work!",
+                onContinue: {}
+            )
+        XCTAssertNotNil(dummyView)
+    }
+
+    func testCraftFeedbackSheetModifierWithExtraContent() {
+        var continued = false
+        var explained = false
+        let isPresentedBinding = Binding.constant(true)
+        let modifier = CraftFeedbackSheetModifier(
+            isPresented: isPresentedBinding,
+            status: .error,
+            title: "Incorrect",
+            message: "Correct: Apple",
+            actionTitle: "CONTINUE",
+            secondaryActionTitle: "Explain",
+            surfaceStyle: .glass,
+            onSecondaryAction: { explained = true },
+            onContinue: { continued = true },
+            extraContent: { Text("Explanation text") }
+        )
+        XCTAssertEqual(modifier.status, .error)
+        XCTAssertEqual(modifier.title, "Incorrect")
+        XCTAssertEqual(modifier.message, "Correct: Apple")
+        XCTAssertEqual(modifier.actionTitle, "CONTINUE")
+        XCTAssertEqual(modifier.secondaryActionTitle, "Explain")
+        XCTAssertEqual(modifier.surfaceStyle, .glass)
+        modifier.onContinue()
+        XCTAssertTrue(continued)
+        modifier.onSecondaryAction?()
+        XCTAssertTrue(explained)
+        XCTAssertNotNil(modifier.extraContent)
+
+        let viewWithExtra = Text("Question")
+            .craftFeedbackSheet(
+                isPresented: isPresentedBinding,
+                status: .error,
+                title: "Incorrect",
+                message: "Correct: Apple",
+                actionTitle: "CONTINUE",
+                secondaryActionTitle: "Explain",
+                surfaceStyle: .glass,
+                onSecondaryAction: { explained = true },
+                onContinue: { continued = true }
+            ) {
+                Text("Explanation text")
+            }
+        XCTAssertNotNil(viewWithExtra)
+    }
 }
