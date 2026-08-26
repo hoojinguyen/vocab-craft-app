@@ -92,7 +92,7 @@ public extension CraftProgressRing where CenterContent == Text {
             animated: animated,
             accessibilityLabel: accessibilityLabel
         ) {
-            Text("\(percentage)%")
+            Text(verbatim: "\(percentage)%")
                 .font(.system(size: max(size * 0.22, 12), weight: .semibold, design: .rounded))
                 .monospacedDigit()
         }

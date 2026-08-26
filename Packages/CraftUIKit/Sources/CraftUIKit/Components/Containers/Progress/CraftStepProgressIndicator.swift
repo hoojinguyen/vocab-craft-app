@@ -138,7 +138,7 @@ public struct CraftStepProgressIndicator: View {
     private var counterView: some View {
         switch counterStyle {
         case .ratio:
-            Text("\(displayStep) / \(totalSteps)")
+            Text(verbatim: "\(displayStep) / \(totalSteps)")
                 .font(theme.typography.caption)
                 .monospacedDigit()
                 .fontWeight(.bold)

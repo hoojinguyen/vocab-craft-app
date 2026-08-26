@@ -113,7 +113,7 @@ public struct CraftStreakBadge: View {
                 .symbolEffect(.pulse.byLayer, options: .repeating, isActive: !isCompletedToday && !reduceMotion)
 
             // Monospaced Digit Counter
-            Text("\(count)")
+            Text(verbatim: "\(count)")
                 .font(size.font)
                 .monospacedDigit()
                 .foregroundStyle(theme.colors.textPrimary)

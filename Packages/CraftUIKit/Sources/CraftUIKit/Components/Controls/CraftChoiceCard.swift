@@ -731,9 +731,9 @@ private struct CraftChoiceCardPreviewContainer: View {
                             .foregroundStyle(.secondary)
                     }
 
-                    Picker("Surface Style", selection: $selectedStyle) {
+                    Picker(selection: $selectedStyle, label: Text(verbatim: "Surface Style")) {
                         ForEach(CraftSurfaceStyle.allCases, id: \.self) { style in
-                            Text(style.rawValue.capitalized).tag(style)
+                            Text(verbatim: style.rawValue.capitalized).tag(style)
                         }
                     }
                     .pickerStyle(.segmented)
@@ -741,14 +741,14 @@ private struct CraftChoiceCardPreviewContainer: View {
 
                 // Prefix Style Switcher Segmented Control
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Prefix Style")
+                    Text(verbatim: "Prefix Style")
                         .font(.caption.bold())
                         .foregroundStyle(.secondary)
                         .textCase(.uppercase)
 
-                    Picker("Prefix Style", selection: $selectedPrefixStyle) {
+                    Picker(selection: $selectedPrefixStyle, label: Text(verbatim: "Prefix Style")) {
                         ForEach(CraftChoicePrefixStyle.allCases, id: \.self) { style in
-                            Text(style.rawValue.capitalized).tag(style)
+                            Text(verbatim: style.rawValue.capitalized).tag(style)
                         }
                     }
                     .pickerStyle(.segmented)
@@ -756,14 +756,14 @@ private struct CraftChoiceCardPreviewContainer: View {
 
                 // Text Alignment Switcher Segmented Control
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Text Alignment")
+                    Text(verbatim: "Text Alignment")
                         .font(.caption.bold())
                         .foregroundStyle(.secondary)
                         .textCase(.uppercase)
 
-                    Picker("Text Alignment", selection: $selectedAlignment) {
-                        Text("Leading").tag(TextAlignment.leading)
-                        Text("Center").tag(TextAlignment.center)
+                    Picker(selection: $selectedAlignment, label: Text(verbatim: "Text Alignment")) {
+                        Text(verbatim: "Leading").tag(TextAlignment.leading)
+                        Text(verbatim: "Center").tag(TextAlignment.center)
                     }
                     .pickerStyle(.segmented)
                 }
@@ -771,7 +771,7 @@ private struct CraftChoiceCardPreviewContainer: View {
 
                 // 5 States Rendered Dynamically in the Selected Style
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Standard Multi-Choice States")
+                    Text(verbatim: "Standard Multi-Choice States")
                         .font(.caption.bold())
                         .foregroundStyle(.secondary)
                         .textCase(.uppercase)
@@ -843,12 +843,12 @@ private struct CraftChoiceCardPreviewContainer: View {
                 // Dedicated Practice / Video Quiz Demo (Matching Reference Screenshot)
                 VStack(alignment: .leading, spacing: 12) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Practice / Video Quiz (Minimalist Centered)")
+                        Text(verbatim: "Practice / Video Quiz (Minimalist Centered)")
                             .font(.caption.bold())
                             .foregroundStyle(.secondary)
                             .textCase(.uppercase)
 
-                        Text("Select what you heard:")
+                        Text(verbatim: "Select what you heard:")
                             .font(.subheadline)
                             .foregroundStyle(.primary)
                     }

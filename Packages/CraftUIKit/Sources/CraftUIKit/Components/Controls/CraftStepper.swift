@@ -147,7 +147,7 @@ public struct CraftStepper: View {
 
                     // Value Display
                     HStack(spacing: 4) {
-                        Text("\(value.wrappedValue)")
+                        Text(verbatim: "\(value.wrappedValue)")
                             .font(theme.typography.headline)
                             .monospacedDigit()
                             .foregroundStyle(theme.colors.textPrimary)
@@ -286,11 +286,11 @@ public struct CraftStepper: View {
 
     private var accessibilityValueContent: Text {
         if let unitKey {
-            return Text("\(value.wrappedValue) ") + Text(unitKey)
+            return Text(verbatim: "\(value.wrappedValue) ") + Text(unitKey)
         } else if let rawUnit, !rawUnit.isEmpty {
-            return Text("\(value.wrappedValue) \(rawUnit)")
+            return Text(verbatim: "\(value.wrappedValue) \(rawUnit)")
         }
-        return Text("\(value.wrappedValue)")
+        return Text(verbatim: "\(value.wrappedValue)")
     }
 }
 

@@ -81,14 +81,18 @@ public extension View {
 
 #Preview("PressEffectModifier") {
     VStack(spacing: 32) {
-        Button("Default Press Effect") { }
+        Button { } label: {
+            Text(verbatim: "Default Press Effect")
+        }
             .padding()
             .background(Color.blue)
             .foregroundColor(.white)
             .cornerRadius(8)
             .craftPressEffect()
             
-        Button("Heavy Scale Press Effect") { }
+        Button { } label: {
+            Text(verbatim: "Heavy Scale Press Effect")
+        }
             .padding()
             .background(Color.green)
             .foregroundColor(.white)

@@ -408,8 +408,10 @@ private struct CraftConfettiPreview: View {
 
     var body: some View {
         VStack(spacing: 20) {
-            Button("Trigger Confetti") {
+            Button {
                 triggered = true
+            } label: {
+                Text(verbatim: "Trigger Confetti")
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

@@ -346,7 +346,7 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
                     )
 
                     if let badgeCount = item.badgeCount, badgeCount > 0 {
-                        Text("\(min(badgeCount, 99))")
+                        Text(verbatim: "\(min(badgeCount, 99))")
                             .font(.system(size: 9, weight: .bold, design: .rounded))
                             .monospacedDigit()
                             .foregroundColor(.white)

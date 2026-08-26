@@ -886,7 +886,7 @@ private struct CraftCatalogContentView: View {
                 }
             }
             .background(theme.colors.canvasBackground.ignoresSafeArea())
-            .navigationTitle("CraftUIKit Gallery")
+            .navigationTitle(Text(verbatim: "CraftUIKit Gallery"))
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(theme.colors.canvasBackground, for: .navigationBar)
@@ -894,7 +894,7 @@ private struct CraftCatalogContentView: View {
             #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") {
+                    Button(CraftLocalized.string("craft.common.action.close")) {
                         dismiss()
                     }
                     .font(.system(.body, design: .rounded, weight: .semibold))
@@ -1063,9 +1063,9 @@ private struct CatalogThemeHeaderView: View {
                     // Theme Picker
                     VStack(alignment: .leading, spacing: theme.spacing.xs) {
                         CraftText("Theme Palette", style: .label, color: theme.colors.textSecondary)
-                        Picker("Theme", selection: $selectedThemeType) {
+                        Picker(selection: $selectedThemeType, label: Text(verbatim: "Theme")) {
                             ForEach(CatalogThemeType.allCases) { type in
-                                Text(type.rawValue).tag(type)
+                                Text(verbatim: type.rawValue).tag(type)
                             }
                         }
                         .pickerStyle(.segmented)
@@ -1074,9 +1074,9 @@ private struct CatalogThemeHeaderView: View {
                     // Appearance Scheme Picker
                     VStack(alignment: .leading, spacing: theme.spacing.xs) {
                         CraftText("Color Scheme", style: .label, color: theme.colors.textSecondary)
-                        Picker("Appearance", selection: $selectedColorScheme) {
+                        Picker(selection: $selectedColorScheme, label: Text(verbatim: "Appearance")) {
                             ForEach(CatalogColorScheme.allCases) { scheme in
-                                Text(scheme.rawValue).tag(scheme)
+                                Text(verbatim: scheme.rawValue).tag(scheme)
                             }
                         }
                         .pickerStyle(.segmented)
@@ -1134,9 +1134,9 @@ private struct CatalogThemeHeaderView: View {
                     // Language Selector Toolbar
                     VStack(alignment: .leading, spacing: theme.spacing.xs) {
                         CraftText("Showcase Language", style: .label, color: theme.colors.textSecondary)
-                        Picker("Language", selection: $selectedLanguage) {
+                        Picker(selection: $selectedLanguage, label: Text(verbatim: "Language")) {
                             ForEach(CatalogLanguage.allCases) { lang in
-                                Text(lang.rawValue).tag(lang)
+                                Text(verbatim: lang.rawValue).tag(lang)
                             }
                         }
                         .pickerStyle(.segmented)
@@ -1553,18 +1553,20 @@ private struct CatalogControlsSection: View {
                         CraftText("CraftChoiceCard (5 Styles, Feedback & Zero Hex Colors)", style: .headline)
                         Spacer()
                         if isQuizSubmitted {
-                            Button("Reset Quiz", action: onResetQuiz)
-                                .font(theme.typography.caption)
-                                .foregroundColor(theme.colors.brandPrimary)
+                            Button(action: onResetQuiz) {
+                                Text(verbatim: "Reset Quiz")
+                            }
+                            .font(theme.typography.caption)
+                            .foregroundColor(theme.colors.brandPrimary)
                         }
                     }
 
                     // Interactive Prefix Style Picker
                     VStack(alignment: .leading, spacing: theme.spacing.xs) {
                         CraftText("Prefix Style", style: .label, color: theme.colors.textSecondary)
-                        Picker("Prefix Style", selection: $selectedChoicePrefixStyle) {
+                        Picker(selection: $selectedChoicePrefixStyle, label: Text(verbatim: "Prefix Style")) {
                             ForEach(CraftChoicePrefixStyle.allCases, id: \.self) { prefixStyle in
-                                Text(prefixStyleTitle(for: prefixStyle)).tag(prefixStyle)
+                                Text(verbatim: prefixStyleTitle(for: prefixStyle)).tag(prefixStyle)
                             }
                         }
                         .pickerStyle(.segmented)
@@ -1961,9 +1963,9 @@ private struct CatalogContainersOverlaysSection: View {
                     HStack {
                         CraftText("Rotation Axis", style: .caption, color: theme.colors.textSecondary)
                         Spacer()
-                        Picker("Axis", selection: $flipAxis) {
-                            Text("Horizontal").tag(Axis.horizontal)
-                            Text("Vertical").tag(Axis.vertical)
+                        Picker(selection: $flipAxis, label: Text(verbatim: "Axis")) {
+                            Text(verbatim: "Horizontal").tag(Axis.horizontal)
+                            Text(verbatim: "Vertical").tag(Axis.vertical)
                         }
                         .pickerStyle(.segmented)
                         .frame(width: 170)
@@ -2168,9 +2170,9 @@ private struct CatalogContainersOverlaysSection: View {
                     // Preset Switcher
                     VStack(alignment: .leading, spacing: theme.spacing.xs) {
                         CraftText("Preset State", style: .label, color: theme.colors.textSecondary)
-                        Picker("Feedback Preset", selection: $selectedFeedbackPreset) {
+                        Picker(selection: $selectedFeedbackPreset, label: Text(verbatim: "Feedback Preset")) {
                             ForEach(CatalogFeedbackPreset.allCases) { preset in
-                                Text(preset.rawValue).tag(preset)
+                                Text(verbatim: preset.rawValue).tag(preset)
                             }
                         }
                         .pickerStyle(.segmented)

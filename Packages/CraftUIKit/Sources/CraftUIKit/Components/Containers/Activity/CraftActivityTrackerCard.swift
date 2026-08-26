@@ -120,7 +120,7 @@ public struct CraftActivityTrackerCard: View {
             // Value & Tier Subtitle
             VStack(alignment: .leading, spacing: 2) {
                 HStack(alignment: .firstTextBaseline, spacing: 4) {
-                    Text("\(data.currentValue)")
+                    Text(verbatim: "\(data.currentValue)")
                         .font(theme.typography.metricRounded)
                         .monospacedDigit()
                         .foregroundStyle(isGradientCard ? Color.white : theme.colors.textPrimary)
@@ -229,7 +229,7 @@ public struct CraftActivityTrackerCard: View {
             .frame(minWidth: 44, minHeight: 44)
             .contentShape(Rectangle())
             .accessibilityAddTraits(.isButton)
-            .accessibilityLabel("\(day.weekdaySymbol), \(accessibilityDayStatusDescription(for: day.status))")
+            .accessibilityLabel(Text(verbatim: "\(day.weekdaySymbol), \(accessibilityDayStatusDescription(for: day.status))"))
             .accessibilityHint(CraftLocalized.string("craft.streak.day_inspect_hint"))
         } else {
             dayStatusNode(for: day)

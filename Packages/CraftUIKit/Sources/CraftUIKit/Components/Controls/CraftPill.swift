@@ -87,7 +87,7 @@ public struct CraftPill: View {
 
                     // Optional Count Badge
                     if let count {
-                        Text("\(count)")
+                        Text(verbatim: "\(count)")
                             .font(theme.typography.caption)
                             .fontWeight(.bold)
                             .contentTransition(.numericText())

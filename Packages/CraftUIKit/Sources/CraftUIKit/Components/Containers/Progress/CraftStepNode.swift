@@ -210,7 +210,7 @@ public struct CraftStepNode: View {
                         .frame(width: 26, height: 26)
 
                     if let stepNumber {
-                        Text("\(stepNumber)")
+                        Text(verbatim: "\(stepNumber)")
                             .font(.system(size: 12, weight: .bold, design: .rounded))
                             .foregroundStyle(.white)
                     } else {
@@ -254,7 +254,7 @@ public struct CraftStepNode: View {
                         .frame(width: 28, height: 28)
 
                     if let stepNumber {
-                        Text("\(stepNumber)")
+                        Text(verbatim: "\(stepNumber)")
                             .font(.system(size: 12, weight: .semibold, design: .rounded))
                             .foregroundStyle(theme.colors.textSecondary)
                     } else {

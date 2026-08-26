@@ -173,7 +173,7 @@ public struct CraftSegmentedBar: View {
             }
 
             if showPercentages {
-                Text("\(Int(round(percentage(for: item))))%")
+                Text(verbatim: "\(Int(round(percentage(for: item))))%")
                     .font(theme.typography.caption)
                     .fontWeight(.semibold)
                     .monospacedDigit()

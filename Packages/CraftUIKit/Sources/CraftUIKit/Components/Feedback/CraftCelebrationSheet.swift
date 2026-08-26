@@ -174,7 +174,7 @@ public struct CraftCelebrationSheet: View {
 
             // Animated Counter
             HStack(alignment: .firstTextBaseline, spacing: 4) {
-                Text("\(displayedValue)")
+                Text(verbatim: "\(displayedValue)")
                     .font(theme.typography.displayHero)
                     .monospacedDigit()
                     .contentTransition(.numericText(countsDown: false))

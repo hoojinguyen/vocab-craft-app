@@ -350,8 +350,10 @@ public extension View {
     @Previewable @State var isPresented = true
 
     return VStack {
-        Button("Show Sheet") {
+        Button {
             isPresented = true
+        } label: {
+            Text(verbatim: "Show Sheet")
         }
     }
     .craftBottomSheet(

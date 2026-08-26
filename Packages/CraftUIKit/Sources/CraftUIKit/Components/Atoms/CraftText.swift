@@ -125,7 +125,7 @@ public struct CraftText: View {
         } else if let attributedText {
             base = Text(attributedText)
         } else {
-            base = Text("")
+            base = Text(verbatim: "")
         }
 
         if let tracking {
