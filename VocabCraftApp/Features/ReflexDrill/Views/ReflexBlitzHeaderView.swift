@@ -1,3 +1,4 @@
+import CraftUIKit
 import SwiftUI
 
 public struct ReflexBlitzHeaderView: View {
@@ -23,33 +24,6 @@ public struct ReflexBlitzHeaderView: View {
             return .vocabPeach
         case .urgent:
             return .vocabCoral
-        }
-    }
-
-    private func dynamicTimerBarColor(for fraction: Double) -> Color {
-        if isTimerActive {
-            if fraction > (2.5 / 6.0) {
-                return .vocabHeroAccent
-            } else if fraction > (1.0 / 6.0) {
-                return .vocabPeach
-            } else {
-                return .vocabCoral
-            }
-        } else {
-            return timerBarColor
-        }
-    }
-
-    private var modeIconName: String {
-        switch mode {
-        case .speaking:
-            return "waveform.and.mic"
-        case .typing:
-            return "keyboard"
-        case .multipleChoice:
-            return "square.grid.2x2.fill"
-        case .listening:
-            return "headphones"
         }
     }
 
@@ -103,31 +77,28 @@ public struct ReflexBlitzHeaderView: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(BentoCardButtonStyle())
-                .accessibilityLabel("Đóng luyện tập")
+                .accessibilityLabel(CraftLocalized.string("craft.common.action.close"))
 
                 Spacer(minLength: 8)
 
                 // Center: Apple Fitness+ Segmented Progress Bar & Step Counter
-                VStack(spacing: 5) {
-                    // Segmented Interval Progress Bars
-                    HStack(spacing: 4) {
-                        ForEach(0..<max(1, totalCount), id: \.self) { index in
-                            Capsule()
-                                .fill(segmentColor(for: index))
-                                .frame(height: 4)
-                                .frame(maxWidth: .infinity)
-                                .animation(.spring(response: 0.3, dampingFraction: 0.7), value: currentIndex)
+                CraftStepProgressIndicator(
+                    steps: (0..<totalCount).map { index in
+                        if index < attempts.count {
+                            return .completed(isCorrect: attempts[index].isCorrect)
+                        } else if index == currentIndex {
+                            return .active
+                        } else {
+                            return .unreached
                         }
-                    }
-                    .frame(maxWidth: 160)
-
-                    // Step counter
-                    Text("\(currentIndex + 1) / \(totalCount)")
-                        .font(.caption2.monospacedDigit().weight(.bold))
-                        .foregroundColor(.vocabMuted)
-                }
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel("Tiến độ: từ \(currentIndex + 1) trên \(totalCount)")
+                    },
+                    currentStep: currentIndex,
+                    height: 4,
+                    spacing: 4,
+                    showCounter: true,
+                    counterStyle: .ratio
+                )
+                .frame(maxWidth: 160)
 
                 Spacer(minLength: 8)
 
@@ -174,46 +145,37 @@ public struct ReflexBlitzHeaderView: View {
             }
 
             // Smooth Linear Countdown Timer Bar Anchored Under Header
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                    Capsule()
-                        .fill(Color.vocabHairline.opacity(0.3))
-                        .frame(height: 4.5)
-
-                    TimelineView(.animation(paused: !isTimerActive)) { timeline in
-                        let elapsed = elapsedTime(at: timeline.date)
-                        let currentFraction = isTimerActive
-                            ? max(0.0, min(1.0, 1.0 - elapsed / max(1.0, timeLimitSeconds)))
-                            : fractionRemaining
-                        let barColor = dynamicTimerBarColor(for: currentFraction)
-
-                        Capsule()
-                            .fill(barColor)
-                            .frame(
-                                width: max(0, min(geo.size.width, geo.size.width * CGFloat(currentFraction))),
-                                height: 4.5
-                            )
-                            .shadow(color: barColor.opacity(barColor == .vocabCoral ? 0.6 : 0.25), radius: 5, x: 0, y: 0)
-                            .animation(.easeInOut(duration: 0.25), value: barColor)
-                    }
-                }
+            if isTimerActive {
+                CraftCountdownTimerBar(
+                    startDate: wordStartTime ?? Date(),
+                    timeLimit: timeLimitSeconds,
+                    isActive: isTimerActive,
+                    height: 4.5,
+                    colorConfig: CraftCountdownColorConfig(
+                        steady: .vocabHeroAccent,
+                        warning: .vocabPeach,
+                        urgent: .vocabCoral,
+                        trackColor: Color.vocabHairline.opacity(0.3),
+                        showGlow: true
+                    )
+                )
+            } else {
+                CraftCountdownTimerBar(
+                    progress: fractionRemaining,
+                    height: 4.5,
+                    colorConfig: CraftCountdownColorConfig(
+                        steady: .vocabHeroAccent,
+                        warning: .vocabPeach,
+                        urgent: .vocabCoral,
+                        trackColor: Color.vocabHairline.opacity(0.3),
+                        showGlow: true
+                    )
+                )
             }
-            .frame(height: 4.5)
         }
         .padding(.horizontal)
         .padding(.top, 4)
         .padding(.bottom, 6)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Thời gian còn lại")
-        .accessibilityValue("\(Int(fractionRemaining * 100))%")
-    }
-
-    private func elapsedTime(at date: Date) -> Double {
-        if isTimerActive, let startTime = wordStartTime {
-            return date.timeIntervalSince(startTime)
-        } else {
-            return fractionRemaining > 0 ? (1.0 - fractionRemaining) * timeLimitSeconds : timeLimitSeconds
-        }
     }
 
     public func segmentColor(for index: Int) -> Color {
@@ -225,5 +187,4 @@ public struct ReflexBlitzHeaderView: View {
             return Color.vocabHairline.opacity(0.4)
         }
     }
-
 }
