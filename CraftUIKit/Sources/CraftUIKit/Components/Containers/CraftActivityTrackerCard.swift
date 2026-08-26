@@ -502,23 +502,24 @@ public struct CraftActivityTrackerCard: View {
             actions.append("'\(CraftLocalized.string("craft.streak.viewMilestoneAction"))'")
         }
         if !actions.isEmpty {
-            return "Vuốt lên hoặc xuống để chọn tác vụ \(actions.joined(separator: " hoặc "))."
+            let actionsJoined = actions.joined(separator: ", ")
+            return CraftLocalized.format("craft.streak.cardA11yActionsFormat", actionsJoined)
         }
-        return "Hiển thị tổng quan chuỗi ngày học trong tuần."
+        return CraftLocalized.string("craft.streak.cardA11yHintOverview")
     }
 
     private func accessibilityDayStatusDescription(for status: CraftActivityDayStatus) -> String {
         switch status {
         case .completed:
-            return "Đã hoàn thành"
+            return CraftLocalized.string("craft.streak.dayStatusCompleted")
         case .pending:
-            return "Đang chờ hoàn thành"
+            return CraftLocalized.string("craft.streak.dayStatusPending")
         case .saved:
-            return "Đã dùng khiên bảo vệ"
+            return CraftLocalized.string("craft.streak.dayStatusSaved")
         case .missed:
-            return "Bỏ lỡ"
+            return CraftLocalized.string("craft.streak.dayStatusMissed")
         case .upcoming:
-            return "Chưa đến"
+            return CraftLocalized.string("craft.streak.dayStatusUpcoming")
         }
     }
 }

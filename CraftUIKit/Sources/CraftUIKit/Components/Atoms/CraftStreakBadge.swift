@@ -228,15 +228,18 @@ public struct CraftStreakBadge: View {
         if let customAccessibilityLabel {
             return customAccessibilityLabel
         }
-        let statusDescription = isCompletedToday ? "Hôm nay đã hoàn thành" : "Hôm nay chưa hoàn thành"
-        return "Chuỗi \(count) ngày học liên tiếp, Cấp độ \(tier.rawValue). \(statusDescription)."
+        let statusDescription = isCompletedToday
+            ? CraftLocalized.string("craft.streak.todayCompleted")
+            : CraftLocalized.string("craft.streak.todayPending")
+        let tierName = CraftLocalized.string("craft.streak.\(tier.localizationKey)")
+        return CraftLocalized.format("craft.streak.badgeA11yFormat", count, tierName, statusDescription)
     }
 
     private var accessibilityHintString: String {
         if let customAccessibilityHint {
             return customAccessibilityHint
         }
-        return onTap != nil ? "Chạm hai lần để xem chi tiết chuỗi ngày." : ""
+        return onTap != nil ? CraftLocalized.string("craft.streak.badgeA11yHint") : ""
     }
 }
 

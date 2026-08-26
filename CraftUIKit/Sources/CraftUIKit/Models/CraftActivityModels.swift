@@ -23,6 +23,15 @@ public enum CraftActivityTier: String, Sendable, CaseIterable, Equatable {
             return .legendary
         }
     }
+
+    /// Localization key segment for the tier.
+    public var localizationKey: String {
+        switch self {
+        case .starter: return "tierStarter"
+        case .blaze: return "tierBlaze"
+        case .legendary: return "tierLegendary"
+        }
+    }
 }
 
 // MARK: - CraftActivityDayStatus

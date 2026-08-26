@@ -662,6 +662,40 @@
         }
       }
     },
+    "craft.streak.badgeA11yFormat" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld-day study streak, %@ tier. %@"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chuỗi %lld ngày học liên tiếp, Cấp độ %@. %@"
+          }
+        }
+      }
+    },
+    "craft.streak.badgeA11yHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double tap to view streak details."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chạm hai lần để xem chi tiết chuỗi ngày."
+          }
+        }
+      }
+    },
     "craft.streak.bestRecord" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -679,13 +713,98 @@
         }
       }
     },
+    "craft.streak.cardA11yActionsFormat" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Swipe up or down to select actions: %@."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vuốt lên hoặc xuống để chọn tác vụ: %@."
+          }
+        }
+      }
+    },
+    "craft.streak.cardA11yHintOverview" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Displays weekly streak overview and activity status."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hiển thị tổng quan chuỗi ngày học trong tuần."
+          }
+        }
+      }
+    },
+    "craft.streak.celebrationA11yHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double tap to dismiss the celebration sheet and continue learning."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chạm hai lần vào nút Tiếp tục học để đóng màn hình chúc mừng."
+          }
+        }
+      }
+    },
+    "craft.streak.celebrationA11yMilestone" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Congratulations on reaching a milestone! %lld-day study streak. %@"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chúc mừng đạt cột mốc! Chuỗi %lld ngày học liên tiếp. %@"
+          }
+        }
+      }
+    },
+    "craft.streak.celebrationA11yRegular" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Congratulations! %lld-day study streak. %@"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chúc mừng! Chuỗi %lld ngày học liên tiếp. %@"
+          }
+        }
+      }
+    },
     "craft.streak.celebrationTitle" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Chuỗi ngày rực lửa!"
+            "value" : "Streak Extended!"
           }
         },
         "vi" : {
@@ -702,13 +821,115 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tiếp tục học"
+            "value" : "Continue Learning"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tiếp tục học"
+          }
+        }
+      }
+    },
+    "craft.streak.dayNodeA11yHint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double tap to inspect day details."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chạm hai lần để kiểm tra chi tiết ngày."
+          }
+        }
+      }
+    },
+    "craft.streak.dayStatusCompleted" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Completed"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã hoàn thành"
+          }
+        }
+      }
+    },
+    "craft.streak.dayStatusMissed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Missed"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bỏ lỡ"
+          }
+        }
+      }
+    },
+    "craft.streak.dayStatusPending" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pending"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đang chờ hoàn thành"
+          }
+        }
+      }
+    },
+    "craft.streak.dayStatusSaved" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Freeze shield used"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã dùng khiên bảo vệ"
+          }
+        }
+      }
+    },
+    "craft.streak.dayStatusUpcoming" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upcoming"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa đến"
           }
         }
       }
@@ -753,7 +974,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Đạt mốc %lld ngày!"
+            "value" : "Reached %lld-day milestone!"
           }
         },
         "vi" : {
@@ -770,7 +991,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Còn %lld ngày đến mốc %lld"
+            "value" : "%lld days until milestone %lld"
           }
         },
         "vi" : {
@@ -787,7 +1008,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cột mốc %lld ngày!"
+            "value" : "%lld-Day Milestone!"
           }
         },
         "vi" : {
@@ -804,7 +1025,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Phong độ tuyệt vời! Ngọn lửa học tập của bạn đang rực sáng."
+            "value" : "Great streak! Your learning flame is burning bright."
           }
         },
         "vi" : {
@@ -821,7 +1042,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Đẳng cấp! Bạn đã đạt chuỗi rực lửa, tiếp tục duy trì đà tiến bộ này!"
+            "value" : "Awesome! You've achieved a blaze streak, keep up the momentum!"
           }
         },
         "vi" : {
@@ -838,7 +1059,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Không thể ngăn cản! Bạn là tấm gương học tập đầy cảm hứng."
+            "value" : "Unstoppable! You are an inspiring example of consistency."
           }
         },
         "vi" : {
@@ -855,7 +1076,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Huyền thoại! Bạn đã chinh phục cột mốc đỉnh cao với sự kiên trì phi thường!"
+            "value" : "Legendary! You've reached a pinnacle milestone with extraordinary dedication!"
           }
         },
         "vi" : {
@@ -872,7 +1093,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tuyệt vời! Bạn đang xây dựng một thói quen học tập vững chắc."
+            "value" : "Great progress! You are building a solid learning habit."
           }
         },
         "vi" : {
@@ -889,7 +1110,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Khởi đầu tuyệt vời! Hãy duy trì thói quen học mỗi ngày nhé."
+            "value" : "Great start! Keep up the daily habit of learning."
           }
         },
         "vi" : {
@@ -957,7 +1178,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hôm nay đã hoàn thành"
+            "value" : "Completed for today"
           }
         },
         "vi" : {
@@ -974,7 +1195,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hôm nay chưa hoàn thành"
+            "value" : "Pending completion for today"
           }
         },
         "vi" : {
@@ -991,7 +1212,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Xem mốc thưởng"
+            "value" : "View milestone rewards"
           }
         },
         "vi" : {
@@ -1008,7 +1229,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Xem khiên bảo vệ"
+            "value" : "View freeze shields"
           }
         },
         "vi" : {

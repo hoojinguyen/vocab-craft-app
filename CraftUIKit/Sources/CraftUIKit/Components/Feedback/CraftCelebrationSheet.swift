@@ -371,8 +371,6 @@ public struct CraftCelebrationSheet: View {
     private var continueButton: some View {
         CraftButton(
             CraftLocalized.string("craft.streak.continueAction"),
-            iconName: CraftSymbol.chevronRight.rawValue,
-            iconPosition: .trailing,
             variant: .tactile,
             size: .lg,
             isFullWidth: true,
@@ -473,14 +471,14 @@ public struct CraftCelebrationSheet: View {
         if let customAccessibilityLabel {
             return customAccessibilityLabel
         }
-        let milestonePrefix = isMilestone ? "Chúc mừng đạt cột mốc! " : "Chúc mừng! "
-        return "\(milestonePrefix)Chuỗi \(currentValue) ngày học liên tiếp. Cấp độ \(tier.rawValue). \(motivationalMessage)"
+        let key = isMilestone ? "craft.streak.celebrationA11yMilestone" : "craft.streak.celebrationA11yRegular"
+        return CraftLocalized.format(key, currentValue, motivationalMessage)
     }
 
     private var accessibilityHintString: String {
         if let customAccessibilityHint {
             return customAccessibilityHint
         }
-        return "Chạm vào nút Tiếp tục học để đóng màn hình chúc mừng."
+        return CraftLocalized.string("craft.streak.celebrationA11yHint")
     }
 }
