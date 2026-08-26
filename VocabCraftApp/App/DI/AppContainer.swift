@@ -206,7 +206,7 @@ public final class AppContainer {
 
     public func makeHomepageViewModel() -> HomepageViewModel {
         HomepageViewModel(
-            fetchVocabularyUseCase: fetchVocabularyUseCase,
+            fetchLearningPathUseCase: fetchLearningPathUseCase,
             ttsService: ttsService
         )
     }

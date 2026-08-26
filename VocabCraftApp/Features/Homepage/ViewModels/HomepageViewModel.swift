@@ -1,129 +1,127 @@
+import CraftUIKit
 import Foundation
 import Observation
 
-/// State model for HomepageView
-public struct HomepageState: Equatable {
+@Observable
+@MainActor
+public final class HomepageViewModel {
     public var userName: String
     public var streakDays: Int
     public var dailyGoalProgress: Double
-    public var dueCardsCount: Int
-    public var totalWords: Int
-    public var retentionPercentage: Double
     public var unreadNotifications: Bool
-    public var searchText: String
-    public var suggestedWords: [SuggestedWord]
-    public var currentSuggestedWordIndex: Int
+    public var sections: [LessonSection]
+    public var selectedNode: LessonNodeModel?
+    public var isDetailSheetPresented: Bool
+    public var isLoading: Bool
+    public var errorMessage: String?
+
+    private let fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol?
+    private let ttsService: TextToSpeechProtocol?
 
     public init(
+        fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol? = nil,
+        ttsService: TextToSpeechProtocol? = nil,
         userName: String = "Hooji N.",
         streakDays: Int = 14,
         dailyGoalProgress: Double = 0.75,
-        dueCardsCount: Int = 24,
-        totalWords: Int = 1420,
-        retentionPercentage: Double = 0.85,
-        unreadNotifications: Bool = true,
-        searchText: String = "",
-        suggestedWords: [SuggestedWord] = [],
-        currentSuggestedWordIndex: Int? = nil
+        unreadNotifications: Bool = false,
+        sections: [LessonSection] = []
     ) {
+        self.fetchLearningPathUseCase = fetchLearningPathUseCase
+        self.ttsService = ttsService
         self.userName = userName
         self.streakDays = streakDays
         self.dailyGoalProgress = dailyGoalProgress
-        self.dueCardsCount = dueCardsCount
-        self.totalWords = totalWords
-        self.retentionPercentage = retentionPercentage
         self.unreadNotifications = unreadNotifications
-        self.searchText = searchText
-        self.suggestedWords = suggestedWords
+        self.sections = sections
+        self.selectedNode = nil
+        self.isDetailSheetPresented = false
+        self.isLoading = false
+        self.errorMessage = nil
+    }
 
-        // Randomize initial suggested word index on each app launch if not explicitly set
-        if let explicitIndex = currentSuggestedWordIndex, suggestedWords.indices.contains(explicitIndex) {
-            self.currentSuggestedWordIndex = explicitIndex
-        } else if !suggestedWords.isEmpty {
-            self.currentSuggestedWordIndex = Int.random(in: 0..<suggestedWords.count)
-        } else {
-            self.currentSuggestedWordIndex = 0
+    public func loadLearningPath() async {
+        guard let useCase = fetchLearningPathUseCase else { return }
+        isLoading = true
+        errorMessage = nil
+        do {
+            self.sections = try await useCase.execute()
+        } catch {
+            self.errorMessage = error.localizedDescription
+        }
+        isLoading = false
+    }
+
+    public func handleNodeTap(_ node: LessonNodeModel) {
+        guard node.state != .locked else { return }
+        self.selectedNode = node
+        self.isDetailSheetPresented = true
+    }
+
+    public func dismissDetailSheet() {
+        self.isDetailSheetPresented = false
+        self.selectedNode = nil
+    }
+
+    // MARK: - Backward Compatibility Helpers (for HomepageView transition)
+    public var suggestedWords: [SuggestedWord] = []
+    public var currentSuggestedWordIndex: Int = 0
+    public var dueCardsCount: Int = 24
+    public var totalWords: Int = 1420
+    public var retentionPercentage: Double = 0.85
+
+    public struct StateBridge: Equatable {
+        public var userName: String
+        public var streakDays: Int
+        public var dailyGoalProgress: Double
+        public var dueCardsCount: Int
+        public var totalWords: Int
+        public var retentionPercentage: Double
+        public var unreadNotifications: Bool
+
+        public init(
+            userName: String = "Hooji N.",
+            streakDays: Int = 14,
+            dailyGoalProgress: Double = 0.75,
+            dueCardsCount: Int = 24,
+            totalWords: Int = 1420,
+            retentionPercentage: Double = 0.85,
+            unreadNotifications: Bool = false
+        ) {
+            self.userName = userName
+            self.streakDays = streakDays
+            self.dailyGoalProgress = dailyGoalProgress
+            self.dueCardsCount = dueCardsCount
+            self.totalWords = totalWords
+            self.retentionPercentage = retentionPercentage
+            self.unreadNotifications = unreadNotifications
         }
     }
-}
 
-@MainActor
-@Observable
-public final class HomepageViewModel {
-    public private(set) var state: HomepageState
-
-    public var searchText: String {
-        get { state.searchText }
-        set { state.searchText = newValue }
-    }
-
-    public var currentSuggestedWordIndex: Int {
-        get { state.currentSuggestedWordIndex }
-        set { state.currentSuggestedWordIndex = newValue }
-    }
-
-    public var suggestedWords: [SuggestedWord] {
-        get { state.suggestedWords }
-        set { state.suggestedWords = newValue }
-    }
-
-    public let fetchVocabularyUseCase: FetchVocabularyUseCaseProtocol?
-    public let ttsService: TextToSpeechProtocol
-
-    public init(
-        initialState: HomepageState = HomepageState(),
-        fetchVocabularyUseCase: FetchVocabularyUseCaseProtocol? = nil,
-        ttsService: TextToSpeechProtocol? = nil
-    ) {
-        self.state = initialState
-        self.fetchVocabularyUseCase = fetchVocabularyUseCase
-        self.ttsService = ttsService ?? TextToSpeechService()
+    public var state: StateBridge {
+        StateBridge(
+            userName: userName,
+            streakDays: streakDays,
+            dailyGoalProgress: dailyGoalProgress,
+            dueCardsCount: dueCardsCount,
+            totalWords: totalWords,
+            retentionPercentage: retentionPercentage,
+            unreadNotifications: unreadNotifications
+        )
     }
 
     public func loadData() async {
-        guard state.suggestedWords.isEmpty else { return }
-        guard let useCase = fetchVocabularyUseCase else { return }
-        do {
-            let fetchedWords = try await useCase.executeFetchWords(limit: 10)
-            if !fetchedWords.isEmpty {
-                self.state.suggestedWords = fetchedWords.map { word in
-                    SuggestedWord(
-                        id: String(word.id),
-                        lemma: word.lemma,
-                        pos: word.pos ?? "noun",
-                        ipaUs: word.ipaUs ?? "",
-                        cefrLevel: word.cefrLevel ?? "A1",
-                        definitionVi: word.definitionVi ?? word.definitionEn ?? "",
-                        definitionEn: word.definitionEn ?? "",
-                        example: word.example ?? "",
-                        isBookmarked: false,
-                        topicTag: "Từ vựng nổi bật"
-                    )
-                }
-                if self.state.currentSuggestedWordIndex >= self.state.suggestedWords.count {
-                    self.state.currentSuggestedWordIndex = 0
-                }
-            }
-        } catch {
-            print("[HomepageViewModel] Failed to load data: \(error)")
-        }
+        await loadLearningPath()
     }
 
     public func speakSuggestedWord(_ word: SuggestedWord) {
-        ttsService.speak(text: word.lemma)
-    }
-
-    public func updateSearchText(_ text: String) {
-        state.searchText = text
+        ttsService?.speak(text: word.lemma)
     }
 
     public func toggleBookmarkSuggestedWord(id: String) {
-        if let index = state.suggestedWords.firstIndex(where: { $0.id == id }) {
-            state.suggestedWords[index].isBookmarked.toggle()
+        if let index = suggestedWords.firstIndex(where: { $0.id == id }) {
+            suggestedWords[index].isBookmarked.toggle()
         }
     }
-
-    public func performVoiceSearch() {
-        // Trigger voice search intent
-    }
 }
+

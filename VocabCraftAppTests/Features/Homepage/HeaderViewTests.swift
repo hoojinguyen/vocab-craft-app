@@ -14,6 +14,7 @@ final class HeaderViewTests: XCTestCase {
         XCTAssertEqual(view.streakDays, 14)
         XCTAssertEqual(view.dailyGoalProgress, 0.75)
         XCTAssertTrue(view.unreadNotifications)
+        XCTAssertNotNil(view.body)
     }
 
     func testHeaderViewCallbacks() {
@@ -42,5 +43,16 @@ final class HeaderViewTests: XCTestCase {
         XCTAssertTrue(avatarTapped)
         XCTAssertTrue(streakTapped)
         XCTAssertTrue(notificationTapped)
+    }
+
+    func testHeaderViewInitialsVariations() {
+        let multiWordView = HeaderView(userName: "John Doe", streakDays: 5, dailyGoalProgress: 1.0, unreadNotifications: false)
+        XCTAssertNotNil(multiWordView.body)
+
+        let singleWordView = HeaderView(userName: "Cher", streakDays: 0, dailyGoalProgress: 0.0, unreadNotifications: true)
+        XCTAssertNotNil(singleWordView.body)
+
+        let emptyNameView = HeaderView(userName: "   ", streakDays: 1, dailyGoalProgress: 0.2, unreadNotifications: false)
+        XCTAssertNotNil(emptyNameView.body)
     }
 }

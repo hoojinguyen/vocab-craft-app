@@ -71,19 +71,17 @@ public struct HeaderView: View {
 
             // Greeting & Goal Subtitle
             VStack(alignment: .leading, spacing: 2) {
-                Text(AppStrings.Homepage.greetingUser(userName))
+                Text(AppStrings.Home.greeting(name: userName))
                     .font(.system(size: 19, weight: .bold))
                     .foregroundColor(Color.vocabInk)
 
-                HStack(spacing: 4) {
-                    (Text(AppStrings.Homepage.dailyGoal) + Text(":"))
-                        .foregroundColor(Color.vocabMuted)
-                    Text(verbatim: "\(Int(dailyGoalProgress * 100))%")
-                        .fontWeight(.bold)
-                        .foregroundColor(Color.vocabMint)
-                }
-                .font(.system(size: 13, weight: .medium))
+                Text(AppStrings.Home.dailyGoal(percent: Int(dailyGoalProgress * 100)))
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(Color.vocabMuted)
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(AppStrings.Home.greeting(name: userName))
+            .accessibilityValue(AppStrings.Home.dailyGoal(percent: Int(dailyGoalProgress * 100)))
 
             Spacer(minLength: 4)
 

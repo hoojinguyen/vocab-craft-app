@@ -62,18 +62,11 @@ final class HomepageViewTests: XCTestCase {
         XCTAssertNotNil(homepage.body)
     }
 
-    func testHomepageViewModelLoadDataIdempotence() async {
+    func testHomepageViewModelLoadLearningPath() async {
         let container = AppContainer.mock
         let viewModel = container.makeHomepageViewModel()
 
-        // Initial load
-        await viewModel.loadData()
-        let initialCount = viewModel.suggestedWords.count
-        XCTAssertGreaterThan(initialCount, 0)
-
-        // Mutate state to verify second call is guarded and does not overwrite
-        viewModel.suggestedWords[0].lemma = "CustomGuardedWord"
-        await viewModel.loadData()
-        XCTAssertEqual(viewModel.suggestedWords[0].lemma, "CustomGuardedWord")
+        await viewModel.loadLearningPath()
+        XCTAssertFalse(viewModel.isLoading)
     }
 }

@@ -319,6 +319,9 @@ public enum AppStrings {
         public static func greeting(_ name: String) -> String {
             String(format: String(localized: "app.home.header.greeting_format", defaultValue: "Hello, %@", bundle: .module), name)
         }
+        public static func greeting(name: String) -> String {
+            greeting(name)
+        }
         public static func greetingKey(_ name: String) -> LocalizedStringKey {
             LocalizedStringKey("app.home.header.greeting_format \(name)")
         }

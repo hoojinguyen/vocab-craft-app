@@ -28,14 +28,10 @@ final class SuggestedWordsCardViewTests: XCTestCase {
         XCTAssertFalse(first.example.isEmpty)
     }
 
-    func testHomepageViewModelSuggestedWordsRandomization() {
+    func testHomepageViewModelSuggestedWords() {
         let vm = HomepageViewModel()
         XCTAssertEqual(vm.suggestedWords.count, 0)
-
-        // Explicit index initialization
-        let customState = HomepageState(currentSuggestedWordIndex: 0)
-        let customVM = HomepageViewModel(initialState: customState)
-        XCTAssertEqual(customVM.currentSuggestedWordIndex, 0)
+        XCTAssertEqual(vm.currentSuggestedWordIndex, 0)
     }
 
     func testToggleBookmarkSuggestedWord() {
