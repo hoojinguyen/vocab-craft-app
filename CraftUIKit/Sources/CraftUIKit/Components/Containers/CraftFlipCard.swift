@@ -1,5 +1,76 @@
 import SwiftUI
 
+// MARK: - Card Side & 3D Flip Modifier
+
+/// Identifies the active side of a 3D flip card face.
+public enum CraftCardSide: String, Sendable, CaseIterable {
+    case front
+    case back
+}
+
+/// An animatable view modifier providing true mathematical back-face culling and continuous 3D rotation.
+public struct Craft3DFlipModifier: AnimatableModifier {
+    public var progress: Double // 0.0 (front resting) -> 1.0 (back resting)
+    public let side: CraftCardSide
+    public let axis: Axis
+    public let perspective: CGFloat
+    public let reduceMotion: Bool
+
+    public var animatableData: Double {
+        get { progress }
+        set { progress = newValue }
+    }
+
+    public var isVisible: Bool {
+        if reduceMotion {
+            return side == .front ? progress < 0.5 : progress >= 0.5
+        }
+        return side == .front ? progress < 0.5 : progress >= 0.5
+    }
+
+    public var currentDegrees: Double {
+        if reduceMotion { return 0 }
+        switch side {
+        case .front:
+            return progress * 180.0
+        case .back:
+            return (progress - 1.0) * 180.0
+        }
+    }
+
+    public var rotationAxis: (x: CGFloat, y: CGFloat, z: CGFloat) {
+        switch axis {
+        case .horizontal: return (x: 0, y: 1, z: 0)
+        case .vertical: return (x: 1, y: 0, z: 0)
+        }
+    }
+
+    public init(
+        progress: Double,
+        side: CraftCardSide,
+        axis: Axis = .horizontal,
+        perspective: CGFloat = 0.45,
+        reduceMotion: Bool = false
+    ) {
+        self.progress = progress
+        self.side = side
+        self.axis = axis
+        self.perspective = perspective
+        self.reduceMotion = reduceMotion
+    }
+
+    public func body(content: Content) -> some View {
+        content
+            .opacity(isVisible ? 1.0 : 0.0)
+            .allowsHitTesting(isVisible)
+            .rotation3DEffect(
+                .degrees(currentDegrees),
+                axis: rotationAxis,
+                perspective: perspective
+            )
+    }
+}
+
 // MARK: - Specular Glare Modifier
 
 /// An animatable view modifier that sweeps a specular glare reflection gradient across the card surface during 3D rotation.

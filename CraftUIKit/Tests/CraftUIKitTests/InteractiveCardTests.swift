@@ -524,4 +524,42 @@ final class InteractiveCardTests: XCTestCase {
         XCTAssertFalse(frontA11y.isEmpty)
         XCTAssertFalse(backA11y.isEmpty)
     }
+
+    // MARK: - Craft3DFlipModifier Tests
+
+    func test3DFlipModifierCullingAndDegrees() {
+        // Front side at resting state (t = 0.0)
+        var frontModifier = Craft3DFlipModifier(progress: 0.0, side: .front, axis: .horizontal, perspective: 0.45, reduceMotion: false)
+        XCTAssertTrue(frontModifier.isVisible)
+        XCTAssertEqual(frontModifier.currentDegrees, 0.0, accuracy: 0.001)
+
+        // Front side just before midpoint (t = 0.49)
+        frontModifier.animatableData = 0.49
+        XCTAssertTrue(frontModifier.isVisible)
+        XCTAssertEqual(frontModifier.currentDegrees, 0.49 * 180.0, accuracy: 0.001)
+
+        // Front side at/past midpoint (t = 0.50, t = 0.80) -> must be hidden
+        frontModifier.animatableData = 0.50
+        XCTAssertFalse(frontModifier.isVisible)
+        frontModifier.animatableData = 0.80
+        XCTAssertFalse(frontModifier.isVisible)
+
+        // Back side at resting front state (t = 0.0) -> must be hidden
+        var backModifier = Craft3DFlipModifier(progress: 0.0, side: .back, axis: .horizontal, perspective: 0.45, reduceMotion: false)
+        XCTAssertFalse(backModifier.isVisible)
+
+        // Back side at/past midpoint (t = 0.50, t = 1.0) -> must be visible
+        backModifier.animatableData = 0.50
+        XCTAssertTrue(backModifier.isVisible)
+        XCTAssertEqual(backModifier.currentDegrees, (0.50 - 1.0) * 180.0, accuracy: 0.001)
+
+        backModifier.animatableData = 1.0
+        XCTAssertTrue(backModifier.isVisible)
+        XCTAssertEqual(backModifier.currentDegrees, 0.0, accuracy: 0.001)
+
+        // Reduce motion behavior
+        let reduceMotionModifier = Craft3DFlipModifier(progress: 0.2, side: .front, axis: .horizontal, perspective: 0.45, reduceMotion: true)
+        XCTAssertEqual(reduceMotionModifier.currentDegrees, 0.0)
+    }
 }
+
