@@ -1,4 +1,5 @@
 import SwiftUI
+import CraftUIKit
 
 public struct BentoCardButtonStyle: ButtonStyle {
     public init() {}
@@ -24,119 +25,31 @@ public struct ActionCardsGrid: View {
         self.onQueueTap = onQueueTap
     }
 
-    @State private var reflexTrigger = false
-    @State private var queueTrigger = false
-
     public var body: some View {
         HStack(spacing: 12) {
             // Quick Reflex Drill Card
-            Button(action: {
-                reflexTrigger.toggle()
-                onReflexTap()
-            }) {
-                VStack(alignment: .leading, spacing: 14) {
-                    HStack {
-                        HStack(spacing: 4) {
-                            Image(systemName: "bolt.fill")
-                                .font(.system(size: 10, weight: .bold))
-                            Text(AppStrings.Homepage.reflexBadge)
-                                .font(.caption.smallCaps())
-                                .fontWeight(.bold)
-                        }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.vocabPeach.opacity(0.18))
-                        .foregroundColor(Color.vocabPeach)
-                        .cornerRadius(10)
-
-                        Spacer()
-
-                        Image(systemName: "timer")
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(Color.vocabPeach)
-                    }
-
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(AppStrings.Homepage.reflexTitle)
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundColor(Color.vocabInk)
-                            .lineLimit(2)
-                            .frame(maxWidth: .infinity, minHeight: 40, alignment: .topLeading)
-
-                        Text(AppStrings.Homepage.practiceNow)
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(Color.vocabMuted)
-                    }
-                }
-                .padding(16)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                .background(Color.vocabSurfaceCard)
-                .cornerRadius(20)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.vocabHairline, lineWidth: 1.5)
-                )
-                .shadow(color: Color.black.opacity(0.03), radius: 6, x: 0, y: 3)
-            }
-            .buttonStyle(BentoCardButtonStyle())
-            .sensoryFeedback(.impact(weight: .light), trigger: reflexTrigger)
+            CraftActionCard(
+                title: AppStrings.Homepage.reflexTitle,
+                subtitle: AppStrings.Homepage.practiceNow,
+                iconName: "timer",
+                badgeKey: AppStrings.Homepage.reflexBadge,
+                badgeIcon: "bolt.fill",
+                accentColor: .vocabPeach,
+                showChevron: false,
+                action: onReflexTap
+            )
 
             // SRS Queue Card
-            Button(action: {
-                queueTrigger.toggle()
-                onQueueTap()
-            }) {
-                VStack(alignment: .leading, spacing: 14) {
-                    HStack {
-                        HStack(spacing: 4) {
-                            Image(systemName: "rectangle.stack.fill")
-                                .font(.system(size: 10, weight: .bold))
-                            HStack(spacing: 3) {
-                                Text("\(dueCardsCount)")
-                                Text(AppStrings.Common.wordUnit)
-                                    .textCase(.uppercase)
-                            }
-                            .font(.caption.smallCaps())
-                            .fontWeight(.bold)
-                            .monospacedDigit()
-                        }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.vocabLavender.opacity(0.18))
-                        .foregroundColor(Color.vocabLavender)
-                        .cornerRadius(10)
-
-                        Spacer()
-
-                        Image(systemName: "rectangle.stack.fill")
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(Color.vocabLavender)
-                    }
-
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(AppStrings.Homepage.vocabLibraryTitle)
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundColor(Color.vocabInk)
-                            .lineLimit(2)
-                            .frame(maxWidth: .infinity, minHeight: 40, alignment: .topLeading)
-
-                        Text(AppStrings.Homepage.dueCardsSubtitle(dueCardsCount))
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(Color.vocabMuted)
-                    }
-                }
-                .padding(16)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                .background(Color.vocabSurfaceCard)
-                .cornerRadius(20)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.vocabHairline, lineWidth: 1.5)
-                )
-                .shadow(color: Color.black.opacity(0.03), radius: 6, x: 0, y: 3)
-            }
-            .buttonStyle(BentoCardButtonStyle())
-            .sensoryFeedback(.impact(weight: .light), trigger: queueTrigger)
+            CraftActionCard(
+                title: AppStrings.Homepage.vocabLibraryTitle,
+                subtitle: AppStrings.Homepage.dueCardsSubtitle(dueCardsCount),
+                iconName: "rectangle.stack.fill",
+                badgeText: "\(dueCardsCount) \(AppStrings.Common.wordUnitText.uppercased())",
+                badgeIcon: "rectangle.stack.fill",
+                accentColor: .vocabLavender,
+                showChevron: false,
+                action: onQueueTap
+            )
         }
         .fixedSize(horizontal: false, vertical: true)
         .padding(.horizontal)

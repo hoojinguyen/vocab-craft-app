@@ -53,6 +53,7 @@ public struct CraftActionCard: View {
         subtitle: String? = nil,
         iconName: String? = nil,
         badgeText: String? = nil,
+        badgeKey: LocalizedStringKey? = nil,
         badgeIcon: String? = "stopwatch.fill",
         accentColor: Color? = nil,
         style: CraftSurfaceStyle? = nil,
@@ -67,7 +68,7 @@ public struct CraftActionCard: View {
         self.iconName = iconName
         self.symbol = iconName.flatMap { CraftSymbol(rawValue: $0) }
         self.badgeText = badgeText
-        self.badgeKey = nil
+        self.badgeKey = badgeKey
         self.badgeIcon = badgeIcon
         self.accentColor = accentColor
         self.explicitStyle = style
@@ -82,6 +83,7 @@ public struct CraftActionCard: View {
         subtitle: LocalizedStringKey? = nil,
         iconName: String? = nil,
         badgeText: String? = nil,
+        badgeKey: LocalizedStringKey? = nil,
         badgeIcon: String? = "stopwatch.fill",
         accentColor: Color? = nil,
         style: CraftSurfaceStyle? = nil,
@@ -96,7 +98,7 @@ public struct CraftActionCard: View {
         self.iconName = iconName
         self.symbol = iconName.flatMap { CraftSymbol(rawValue: $0) }
         self.badgeText = badgeText
-        self.badgeKey = nil
+        self.badgeKey = badgeKey
         self.badgeIcon = badgeIcon
         self.accentColor = accentColor
         self.explicitStyle = style
@@ -111,6 +113,7 @@ public struct CraftActionCard: View {
         subtitle: String? = nil,
         symbol: CraftSymbol,
         badgeText: String? = nil,
+        badgeKey: LocalizedStringKey? = nil,
         badgeIcon: String? = "stopwatch.fill",
         accentColor: Color? = nil,
         style: CraftSurfaceStyle? = nil,
@@ -125,7 +128,7 @@ public struct CraftActionCard: View {
         self.iconName = symbol.rawValue
         self.symbol = symbol
         self.badgeText = badgeText
-        self.badgeKey = nil
+        self.badgeKey = badgeKey
         self.badgeIcon = badgeIcon
         self.accentColor = accentColor
         self.explicitStyle = style

@@ -25,6 +25,9 @@ public enum AppStrings {
         public static var retry: LocalizedStringKey { "common.retry" }
         public static var close: LocalizedStringKey { "common.close" }
         public static var wordUnit: LocalizedStringKey { "common.wordUnit" }
+        public static var wordUnitText: String {
+            String(localized: "common.wordUnit", defaultValue: "words", bundle: .module)
+        }
         public static var delete: LocalizedStringKey { "common.delete" }
         public static var `continue`: LocalizedStringKey { "common.continue" }
         public static var skip: LocalizedStringKey { "common.skip" }
