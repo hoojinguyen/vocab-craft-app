@@ -5,7 +5,7 @@ import SwiftUI
 /// A versatile, theme-driven Bento Action Card component designed for mode selection,
 /// practice launchers, and dashboard navigation.
 ///
-/// Supports all 6 `CraftSurfaceStyle` variants (`.outlined`, `.tactile3D`, `.glass`, `.elevated`, `.flat`),
+/// Supports all 5 `CraftSurfaceStyle` variants (`.outlined`, `.tactile3D`, `.glass`, `.elevated`, `.flat`),
 /// tactile 3D physical extrusion, Apple Liquid Glass (iOS 26), dynamic accent color tinting,
 /// badges, icons, accessibility, and haptic feedback.
 public struct CraftActionCard: View {
@@ -179,7 +179,7 @@ public struct CraftActionCard: View {
             )
         )
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(accessibilityLabelString)
+        .modifier(ActionCardAccessibilityModifier(label: accessibilityLabelString))
         .accessibilityHint(CraftLocalized.string("craft.common.action.action"))
         .accessibilityAddTraits(.isButton)
     }
@@ -481,6 +481,21 @@ private struct ActionCardShadowModifier: ViewModifier {
         case .glass, .outlined:
             content.craftShadow(theme.shadows.sm)
         case .flat, .tactile3D:
+            content
+        }
+    }
+}
+
+// MARK: - Accessibility Modifier
+
+private struct ActionCardAccessibilityModifier: ViewModifier {
+    let label: String
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if !label.isEmpty {
+            content.accessibilityLabel(label)
+        } else {
             content
         }
     }

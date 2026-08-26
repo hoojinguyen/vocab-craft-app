@@ -1682,6 +1682,7 @@ private struct CatalogControlsSection: View {
 
 private struct CatalogContainersOverlaysSection: View {
     @Environment(\.craftTheme) private var theme
+    @State private var actionCardSurfaceStyle: CraftSurfaceStyle = .tactile3D
     @Binding var bentoCardTapped: String?
     @Binding var isShimmerActive: Bool
     @Binding var progressValue: Double
@@ -1710,7 +1711,7 @@ private struct CatalogContainersOverlaysSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: theme.spacing.base) {
-            CatalogSectionHeader(title: "4. Containers & Overlays (Cards, FlipCard, Rows, Dialogs, Toasts, TabBar, Feedback Sheet)", iconName: "square.stack.3d.up.fill")
+            CatalogSectionHeader(title: "4. Containers & Action Cards (Cards, ActionCards, FlipCard, Rows, Dialogs, Toasts, TabBar, Feedback Sheet)", iconName: "square.stack.3d.up.fill")
 
             // CraftCard 5 Surface Styles Bento Grid
             VStack(alignment: .leading, spacing: theme.spacing.xs) {
@@ -1762,6 +1763,133 @@ private struct CatalogContainersOverlaysSection: View {
 
                 if let bentoCardTapped {
                     CraftText("Last Pressed: \(bentoCardTapped)", style: .caption, color: theme.colors.brandPrimary)
+                }
+            }
+
+            // CraftActionCard 5 Surface Styles & Multi-Modality Bento Grid
+            CraftCard(style: .elevated) {
+                VStack(alignment: .leading, spacing: theme.spacing.base) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack {
+                            CraftText("CraftActionCard (Bento Action Cards & Mode Launchers)", style: .headline)
+                            Spacer()
+                            CraftBadge("5 Surface Styles", symbol: .sparkles, variant: .subtle, tone: .primary, size: .sm)
+                        }
+                        CraftText("Interactive Bento action cards designed for practice drills and learning modes with 3D mechanical press depression, Liquid Glass, badges, and custom accents.", style: .caption, color: theme.colors.textSecondary)
+                    }
+
+                    // Interactive Surface Style Switcher for Action Cards
+                    VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                        CraftText("Action Card Surface Style", style: .label, color: theme.colors.textSecondary)
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: theme.spacing.xs) {
+                                ForEach(CraftSurfaceStyle.allCases, id: \.self) { style in
+                                    Button(action: {
+                                        withAnimation(theme.animations.springSmooth) {
+                                            actionCardSurfaceStyle = style
+                                        }
+                                    }) {
+                                        HStack(spacing: 6) {
+                                            if actionCardSurfaceStyle == style {
+                                                Image(systemName: "checkmark")
+                                                    .font(.system(size: 11, weight: .bold))
+                                            }
+                                            Text(style.rawValue.capitalized)
+                                                .font(.system(.subheadline, design: .rounded, weight: actionCardSurfaceStyle == style ? .bold : .medium))
+                                        }
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 6)
+                                        .background(
+                                            actionCardSurfaceStyle == style
+                                                ? theme.colors.brandPrimary
+                                                : theme.colors.surfaceSubtle
+                                        )
+                                        .foregroundStyle(
+                                            actionCardSurfaceStyle == style
+                                                ? Color.white
+                                                : theme.colors.textPrimary
+                                        )
+                                        .clipShape(Capsule())
+                                        .overlay(
+                                            Capsule()
+                                                .strokeBorder(
+                                                    actionCardSurfaceStyle == style
+                                                        ? theme.colors.brandPrimary
+                                                        : theme.colors.borderDefault,
+                                                    lineWidth: 1
+                                                )
+                                        )
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                            .padding(.vertical, 2)
+                        }
+                    }
+
+                    // 4 Modality Cards 2x2 Bento Grid
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: theme.spacing.sm) {
+                        CraftActionCard(
+                            title: "Luyện phát âm",
+                            subtitle: "AI Speech Recognition & Voice Feedback",
+                            symbol: .mic,
+                            badgeText: "AI EVAL",
+                            badgeIcon: "sparkles",
+                            accentColor: Color(hex: 0x06B6D4),
+                            style: actionCardSurfaceStyle
+                        ) {
+                            bentoCardTapped = "Speaking Mode Action Card"
+                        }
+
+                        CraftActionCard(
+                            title: "Luyện phản xạ gõ",
+                            subtitle: "Timed typing drill & instant validation",
+                            symbol: .practice,
+                            badgeText: "6.0s",
+                            badgeIcon: "stopwatch.fill",
+                            accentColor: Color(hex: 0xF59E0B),
+                            style: actionCardSurfaceStyle
+                        ) {
+                            bentoCardTapped = "Typing Speed Drill Action Card"
+                        }
+
+                        CraftActionCard(
+                            title: "Trắc nghiệm nhanh",
+                            subtitle: "SRS 4-option contextual definition drill",
+                            symbol: .list,
+                            badgeText: "SRS x2",
+                            badgeIcon: "bolt.fill",
+                            accentColor: Color(hex: 0x8B5CF6),
+                            style: actionCardSurfaceStyle
+                        ) {
+                            bentoCardTapped = "Multiple Choice Action Card"
+                        }
+
+                        CraftActionCard(
+                            title: "Luyện nghe bắt từ",
+                            subtitle: "Native speaker phonetics & audio dictation",
+                            symbol: .audio,
+                            badgeText: "NATIVE",
+                            badgeIcon: "speaker.wave.3.fill",
+                            accentColor: Color(hex: 0x10B981),
+                            style: actionCardSurfaceStyle
+                        ) {
+                            bentoCardTapped = "Listening Audio Action Card"
+                        }
+                    }
+
+                    // Full-width Hero Action Card
+                    CraftActionCard(
+                        title: "Thử thách Đố vui Hàng ngày",
+                        subtitle: "Hoàn thành 20 câu hỏi phản xạ trong 2 phút để nhận token đóng băng chuỗi.",
+                        symbol: .streak,
+                        badgeText: "EXP x3",
+                        badgeIcon: "flame.fill",
+                        accentColor: Color(hex: 0xEC4899),
+                        style: actionCardSurfaceStyle
+                    ) {
+                        bentoCardTapped = "Daily Surge Challenge Hero Card"
+                    }
                 }
             }
 

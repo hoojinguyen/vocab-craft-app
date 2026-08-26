@@ -402,6 +402,65 @@ final class CatalogViewTests: XCTestCase {
             XCTAssertEqual(sheet.message, preset.message)
             XCTAssertEqual(sheet.surfaceStyle, preset.surfaceStyle)
         }
+
+        // 7. CraftActionCard showcase across all 5 surface styles and modalities
+        for style in CraftSurfaceStyle.allCases {
+            var actionTapped = false
+            let speakingCard = CraftActionCard(
+                title: "Luyện phát âm",
+                subtitle: "AI Speech Recognition & Voice Feedback",
+                symbol: .mic,
+                badgeText: "AI EVAL",
+                badgeIcon: "sparkles",
+                accentColor: Color(hex: 0x06B6D4),
+                style: style
+            ) {
+                actionTapped = true
+            }
+            XCTAssertNotNil(speakingCard.body)
+            XCTAssertEqual(speakingCard.resolvedStyle, style)
+            XCTAssertEqual(speakingCard.title, "Luyện phát âm")
+            XCTAssertEqual(speakingCard.symbol, .mic)
+            XCTAssertEqual(speakingCard.badgeText, "AI EVAL")
+            speakingCard.action()
+            XCTAssertTrue(actionTapped)
+
+            let typingCard = CraftActionCard(
+                title: "Luyện phản xạ gõ",
+                subtitle: "Timed typing drill & instant validation",
+                symbol: .practice,
+                badgeText: "6.0s",
+                badgeIcon: "stopwatch.fill",
+                accentColor: Color(hex: 0xF59E0B),
+                style: style
+            ) {}
+            XCTAssertNotNil(typingCard.body)
+            XCTAssertEqual(typingCard.resolvedStyle, style)
+
+            let quizCard = CraftActionCard(
+                title: "Trắc nghiệm nhanh",
+                subtitle: "SRS 4-option contextual definition drill",
+                symbol: .list,
+                badgeText: "SRS x2",
+                badgeIcon: "bolt.fill",
+                accentColor: Color(hex: 0x8B5CF6),
+                style: style
+            ) {}
+            XCTAssertNotNil(quizCard.body)
+            XCTAssertEqual(quizCard.resolvedStyle, style)
+
+            let audioCard = CraftActionCard(
+                title: "Luyện nghe bắt từ",
+                subtitle: "Native speaker phonetics & audio dictation",
+                symbol: .audio,
+                badgeText: "NATIVE",
+                badgeIcon: "speaker.wave.3.fill",
+                accentColor: Color(hex: 0x10B981),
+                style: style
+            ) {}
+            XCTAssertNotNil(audioCard.body)
+            XCTAssertEqual(audioCard.resolvedStyle, style)
+        }
     }
 
     func testUniversalJourneyPathComponents() {
