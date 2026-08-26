@@ -237,16 +237,10 @@ public struct CraftChoiceCard: View {
     @available(iOS 26, macOS 26, *)
     private var cardGlassVariant: Glass {
         switch state {
-        case .idle:
-            return .regular.interactive()
-        case .selected:
-            return .regular.tint(theme.colors.brandPrimary).interactive()
-        case .correct:
-            return .regular.tint(theme.colors.statusSuccess).interactive()
-        case .wrong:
-            return .regular.tint(theme.colors.statusDanger).interactive()
         case .disabled:
             return .clear
+        default:
+            return .regular.interactive()
         }
     }
 
@@ -618,7 +612,8 @@ public struct ChoiceShakeEffect: GeometryEffect {
 }
 
 private struct CraftChoiceCardPreviewContainer: View {
-    @State private var selectedStyle: CraftSurfaceStyle = .tactile3D
+    @State private var selectedStyle: CraftSurfaceStyle = .glass
+    @State private var selectedPrefixStyle: CraftChoicePrefixStyle = .circle
     @State private var interactiveSelection: String = "B"
 
     var body: some View {
@@ -644,56 +639,91 @@ private struct CraftChoiceCardPreviewContainer: View {
                     }
                     .pickerStyle(.segmented)
                 }
+
+                // Prefix Style Switcher Segmented Control
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Prefix Style")
+                        .font(.caption.bold())
+                        .foregroundStyle(.secondary)
+                        .textCase(.uppercase)
+
+                    Picker("Prefix Style", selection: $selectedPrefixStyle) {
+                        ForEach(CraftChoicePrefixStyle.allCases, id: \.self) { style in
+                            Text(style.rawValue.capitalized).tag(style)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                }
                 .padding(.bottom, 4)
 
                 // 5 States Rendered Dynamically in the Selected Style
-                VStack(alignment: .leading, spacing: 12) {
-                    CraftChoiceCard(
-                        prefix: "A",
-                        title: "Idle State",
-                        subtitle: "Default unselected option",
-                        state: interactiveSelection == "A" ? .selected : .idle,
-                        style: selectedStyle
-                    ) {
-                        interactiveSelection = "A"
-                    }
-
-                    CraftChoiceCard(
-                        prefix: "B",
-                        title: "Selected State",
-                        subtitle: "Currently selected option",
-                        state: interactiveSelection == "B" ? .selected : .idle,
-                        style: selectedStyle
-                    ) {
-                        interactiveSelection = "B"
-                    }
-
-                    CraftChoiceCard(
-                        prefix: "C",
-                        title: "Correct Answer",
-                        subtitle: "Validated correct state with bounce icon",
-                        state: .correct,
-                        style: selectedStyle
-                    ) {}
-
-                    CraftChoiceCard(
-                        prefix: "D",
-                        title: "Incorrect Answer",
-                        subtitle: "Validated error state with shake feedback",
-                        state: .wrong,
-                        style: selectedStyle
-                    ) {}
-
-                    CraftChoiceCard(
-                        prefix: "E",
-                        title: "Disabled Option",
-                        subtitle: "Non-interactive dimmed state",
-                        state: .disabled,
-                        style: selectedStyle
-                    ) {}
-                }
+                cardsList
             }
             .padding()
+        }
+    }
+
+    @ViewBuilder
+    private var cardsList: some View {
+        if #available(iOS 26, macOS 26, *), selectedStyle == .glass {
+            GlassEffectContainer(spacing: 12) {
+                cardsContent
+            }
+        } else {
+            cardsContent
+        }
+    }
+
+    private var cardsContent: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            CraftChoiceCard(
+                prefix: "A",
+                prefixStyle: selectedPrefixStyle,
+                title: "Idle State",
+                subtitle: "Default unselected option",
+                state: interactiveSelection == "A" ? .selected : .idle,
+                style: selectedStyle
+            ) {
+                interactiveSelection = "A"
+            }
+
+            CraftChoiceCard(
+                prefix: "B",
+                prefixStyle: selectedPrefixStyle,
+                title: "Selected State",
+                subtitle: "Currently selected option",
+                state: interactiveSelection == "B" ? .selected : .idle,
+                style: selectedStyle
+            ) {
+                interactiveSelection = "B"
+            }
+
+            CraftChoiceCard(
+                prefix: "C",
+                prefixStyle: selectedPrefixStyle,
+                title: "Correct Answer",
+                subtitle: "Validated correct state with bounce icon",
+                state: .correct,
+                style: selectedStyle
+            ) {}
+
+            CraftChoiceCard(
+                prefix: "D",
+                prefixStyle: selectedPrefixStyle,
+                title: "Incorrect Answer",
+                subtitle: "Validated error state with shake feedback",
+                state: .wrong,
+                style: selectedStyle
+            ) {}
+
+            CraftChoiceCard(
+                prefix: "E",
+                prefixStyle: selectedPrefixStyle,
+                title: "Disabled Option",
+                subtitle: "Non-interactive dimmed state",
+                state: .disabled,
+                style: selectedStyle
+            ) {}
         }
     }
 
