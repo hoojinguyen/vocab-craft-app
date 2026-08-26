@@ -75,7 +75,7 @@ public struct CraftCelebrationSheet: View {
                 particleCount: isMilestone ? 40 : 25
             )
 
-            VStack(spacing: theme.spacing.lg) {
+            VStack(spacing: theme.spacing.base) {
                 // Top Grab Handle Indicator
                 Capsule()
                     .fill(theme.colors.borderDefault)
@@ -83,10 +83,9 @@ public struct CraftCelebrationSheet: View {
                     .padding(.top, theme.spacing.xs)
                     .accessibilityHidden(true)
 
-                Spacer(minLength: theme.spacing.xs)
-
                 // Hero Flame & Count Up Section
                 heroFlameSection
+                    .padding(.top, 2)
 
                 // Motivational Text Section
                 motivationalTextSection
@@ -96,13 +95,13 @@ public struct CraftCelebrationSheet: View {
                     cycleTrackSection
                 }
 
-                Spacer(minLength: theme.spacing.sm)
+                Spacer(minLength: theme.spacing.xs)
 
                 // Continue Action Button
                 continueButton
             }
             .padding(.horizontal, theme.spacing.base)
-            .padding(.bottom, theme.spacing.xl)
+            .padding(.bottom, theme.spacing.base)
             .frame(maxWidth: .infinity)
         }
         .craftSurface(
@@ -203,6 +202,8 @@ public struct CraftCelebrationSheet: View {
                 .font(theme.typography.bodyMedium)
                 .foregroundStyle(theme.colors.textSecondary)
                 .multilineTextAlignment(.center)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, theme.spacing.sm)
         }
         .opacity(reduceMotion ? 1.0 : contentOpacity)

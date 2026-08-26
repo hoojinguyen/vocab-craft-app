@@ -787,7 +787,8 @@ private struct CraftCatalogContentView: View {
                     isCelebrationSheetPresented = false
                 }
             )
-            .presentationDetents([.medium, .large])
+            .presentationDetents([.fraction(0.74), .large])
+            .presentationDragIndicator(.visible)
         }
         .craftSparkle(isTriggered: $isSparkleTriggered, particleCount: 25)
         .craftConfetti(isTriggered: $isConfettiTriggered, particleCount: 35)
