@@ -1502,9 +1502,46 @@ private struct CatalogControlsSection: View {
 
                     CraftDivider()
 
-                    CraftText("CraftSearchBar (Standard, Recessed & Glass)", style: .headline)
-                    CraftSearchBar(text: $searchQuery, placeholder: "Search vocabulary, cards, tags...", style: .recessed, shape: .roundedRectangle(radius: 14), trailingIcon: "slider.horizontal.3", trailingAction: {}, onCancel: { searchQuery = "" })
-                    CraftSearchBar(text: $searchQuery, placeholder: "Glass capsule search...", style: .glass, shape: .capsule, onCancel: { searchQuery = "" })
+                    CraftText("CraftSearchBar (7 Styles, 3 Sizes, Haptics & Micro-Interactions)", style: .headline)
+
+                    CraftSearchBar(
+                        text: $searchQuery,
+                        placeholder: "Search in .flat style (md)...",
+                        size: .md,
+                        style: .flat,
+                        shape: .capsule,
+                        onCancel: { searchQuery = "" }
+                    )
+
+                    CraftSearchBar(
+                        text: $searchQuery,
+                        placeholder: "Search in .elevated style (lg)...",
+                        size: .lg,
+                        style: .elevated,
+                        shape: .roundedRectangle(radius: 16),
+                        trailingIcon: "slider.horizontal.3",
+                        trailingAction: {},
+                        onCancel: { searchQuery = "" }
+                    )
+
+                    CraftSearchBar(
+                        text: $searchQuery,
+                        placeholder: "Search in .tactile3D style (md)...",
+                        size: .md,
+                        style: .tactile3D,
+                        shape: .roundedRectangle(radius: 14),
+                        customTint: theme.colors.brandPrimary,
+                        onCancel: { searchQuery = "" }
+                    )
+
+                    CraftSearchBar(
+                        text: $searchQuery,
+                        placeholder: "Search in .glass style (sm)...",
+                        size: .sm,
+                        style: .glass,
+                        shape: .capsule,
+                        onCancel: { searchQuery = "" }
+                    )
                 }
 
                 CraftDivider()

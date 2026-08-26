@@ -456,5 +456,41 @@ final class CatalogViewTests: XCTestCase {
             }
         }
     }
+
+    func testCatalogSearchBarStylesAndSizes() {
+        var query = ""
+        let binding = Binding(get: { query }, set: { query = $0 })
+        for style in CraftSearchBarStyle.allCases {
+            for size in CraftSearchBarSize.allCases {
+                let sb = CraftSearchBar(
+                    text: binding,
+                    placeholder: "Search \(style.rawValue)...",
+                    size: size,
+                    style: style,
+                    shape: .capsule,
+                    customTint: .blue,
+                    trailingIcon: "slider.horizontal.3",
+                    trailingAction: {},
+                    isLoading: false,
+                    onCancel: { query = "" },
+                    onSubmit: {}
+                )
+                XCTAssertNotNil(sb.body)
+                XCTAssertEqual(sb.style, style)
+                XCTAssertEqual(sb.size, size)
+            }
+        }
+
+        let loadingSb = CraftSearchBar(
+            text: binding,
+            placeholder: "Loading...",
+            size: .md,
+            style: .elevated,
+            shape: .roundedRectangle(radius: 16),
+            isLoading: true
+        )
+        XCTAssertNotNil(loadingSb.body)
+        XCTAssertTrue(loadingSb.isLoading)
+    }
 }
 
