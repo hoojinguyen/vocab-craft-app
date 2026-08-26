@@ -259,6 +259,50 @@ public enum CatalogWindingPreset: String, CaseIterable, Identifiable, Sendable {
     }
 }
 
+/// Interactive preset options for showcasing Voice Match & Pronunciation Assessment.
+public enum CatalogVoiceMatchPreset: String, CaseIterable, Identifiable, Sendable {
+    case idle = "Idle"
+    case listening = "Listening"
+    case evaluatedSuccess = "Evaluated (95%)"
+    case evaluatedWarning = "Evaluated (60%)"
+
+    public var id: String { rawValue }
+
+    public var originText: String {
+        "It was a good job."
+    }
+
+    public var subtitle: String {
+        "Đó là một công việc tốt."
+    }
+
+    public var speechState: CraftSpeechState {
+        switch self {
+        case .idle:
+            return .idle
+        case .listening:
+            return .listening(audioLevels: [0.15, 0.45, 0.85, 0.6, 0.95, 0.7, 0.35, 0.5])
+        case .evaluatedSuccess:
+            return .evaluated(overallScore: 95)
+        case .evaluatedWarning:
+            return .evaluated(overallScore: 60)
+        }
+    }
+
+    public var actualText: String? {
+        switch self {
+        case .idle:
+            return nil
+        case .listening:
+            return "It was a"
+        case .evaluatedSuccess:
+            return "It was a good job"
+        case .evaluatedWarning:
+            return "It was nice job"
+        }
+    }
+}
+
 public enum CatalogLearningPathMockData {
     public static var defaultSections: [LessonSection] {
         let section1Nodes = [
@@ -641,6 +685,9 @@ private struct CraftCatalogContentView: View {
     @State private var selectedLearningNodeID: String = "u1_n3"
     @State private var learningSections: [LessonSection] = CatalogLearningPathMockData.defaultSections
 
+    // Section 7 - Voice Match & Pronunciation Assessment States
+    @State private var selectedVoicePreset: CatalogVoiceMatchPreset = .idle
+
     var body: some View {
         NavigationStack {
             ScrollViewReader { scrollProxy in
@@ -805,6 +852,17 @@ private struct CraftCatalogContentView: View {
                             }
                         )
                         .id("streak")
+
+                        // g. Voice Match & Pronunciation Assessment Section
+                        CatalogVoiceMatchSection(
+                            selectedPreset: $selectedVoicePreset,
+                            toastStyle: $toastStyle,
+                            toastSurfaceStyle: $toastSurfaceStyle,
+                            toastTitle: $toastTitle,
+                            toastMessage: $toastMessage,
+                            isToastPresented: $isToastPresented
+                        )
+                        .id("voice_match")
                     }
                     .padding(.horizontal, theme.spacing.base)
                     .padding(.vertical, theme.spacing.lg)
@@ -821,6 +879,8 @@ private struct CraftCatalogContentView: View {
                             withAnimation { scrollProxy.scrollTo("learning_path", anchor: .top) }
                         } else if args.contains("-catalog-scroll-feedback") || args.contains("-catalog-scroll-overlays") {
                             withAnimation { scrollProxy.scrollTo("overlays", anchor: .top) }
+                        } else if args.contains("-catalog-scroll-voice") {
+                            withAnimation { scrollProxy.scrollTo("voice_match", anchor: .top) }
                         }
                     }
                 }
@@ -2648,6 +2708,189 @@ private struct CatalogActivityStreakSection: View {
             CraftStreakDay(id: "6", weekdaySymbol: "T7", status: .upcoming),
             CraftStreakDay(id: "7", weekdaySymbol: "CN", status: .upcoming)
         ]
+    }
+}
+
+// MARK: - Section 7: Voice Match & Pronunciation Assessment Showcase
+
+private struct CatalogVoiceMatchSection: View {
+    @Environment(\.craftTheme) private var theme
+    @Binding var selectedPreset: CatalogVoiceMatchPreset
+    @Binding var toastStyle: CraftToastStyle
+    @Binding var toastSurfaceStyle: CraftSurfaceStyle
+    @Binding var toastTitle: String
+    @Binding var toastMessage: String
+    @Binding var isToastPresented: Bool
+
+    @State private var interactiveState: CraftSpeechState = .idle
+    @State private var interactiveActualText: String? = nil
+    @State private var isCustomInteractive: Bool = false
+
+    private var activeSpeechState: CraftSpeechState {
+        if isCustomInteractive {
+            return interactiveState
+        }
+        return selectedPreset.speechState
+    }
+
+    private var activeActualText: String? {
+        if isCustomInteractive {
+            return interactiveActualText
+        }
+        return selectedPreset.actualText
+    }
+
+    var body: some View {
+        CraftCard(style: .elevated) {
+            VStack(alignment: .leading, spacing: theme.spacing.base) {
+                CatalogSectionHeader(
+                    title: "7. Voice Match & Speech Evaluation (CraftVoiceMatchCard)",
+                    iconName: "waveform.badge.mic"
+                )
+
+                // Voice Preset Selector
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("Voice Evaluation State Presets", style: .headline)
+                    CraftText("Select a preset or tap the microphone in the live card to cycle states.", style: .caption, color: theme.colors.textSecondary)
+
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: theme.spacing.xs) {
+                            ForEach(CatalogVoiceMatchPreset.allCases) { preset in
+                                Button(action: {
+                                    withAnimation(theme.animations.springSmooth) {
+                                        isCustomInteractive = false
+                                        selectedPreset = preset
+                                    }
+                                }) {
+                                    Text(preset.rawValue)
+                                        .font(.system(.caption, design: .rounded, weight: (!isCustomInteractive && selectedPreset == preset) ? .bold : .medium))
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 6)
+                                        .background((!isCustomInteractive && selectedPreset == preset) ? theme.colors.brandPrimary : theme.colors.surfaceSubtle)
+                                        .foregroundStyle((!isCustomInteractive && selectedPreset == preset) ? Color.white : theme.colors.textPrimary)
+                                        .clipShape(Capsule())
+                                        .overlay(
+                                            Capsule()
+                                                .strokeBorder(
+                                                    (!isCustomInteractive && selectedPreset == preset) ? theme.colors.brandPrimary : theme.colors.borderDefault,
+                                                    lineWidth: 1
+                                                )
+                                        )
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                        .padding(.vertical, 2)
+                    }
+                }
+
+                CraftDivider()
+
+                // Live Interactive Voice Match Card
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    HStack {
+                        CraftText("Interactive Voice Match Card", style: .headline)
+                        Spacer()
+                        if isCustomInteractive {
+                            CraftBadge("Interactive Mode", symbol: .sparkles, variant: .solid, tone: .primary, size: .sm)
+                        }
+                    }
+
+                    CraftVoiceMatchCard(
+                        originText: selectedPreset.originText,
+                        actualText: activeActualText,
+                        subtitle: selectedPreset.subtitle,
+                        speechState: activeSpeechState,
+                        onTapMic: {
+                            handleMicTap()
+                        }
+                    )
+                }
+
+                CraftDivider()
+
+                // Individual Token Chips State Matrix
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("CraftSpeechWordToken Status Chips", style: .headline)
+                    CraftText("Visual feedback tokens with dynamic background and border tints across evaluation states.", style: .caption, color: theme.colors.textSecondary)
+
+                    CraftSpeechWordFlowLayout(spacing: theme.spacing.xs, lineSpacing: theme.spacing.xs) {
+                        CraftSpeechWordTokenView(token: CraftSpeechWordToken(targetWord: "matched", status: .matched, confidence: 0.98))
+                        CraftSpeechWordTokenView(token: CraftSpeechWordToken(targetWord: "fuzzy", status: .fuzzy, confidence: 0.65))
+                        CraftSpeechWordTokenView(token: CraftSpeechWordToken(targetWord: "mismatched", status: .mismatched, confidence: 0.2))
+                        CraftSpeechWordTokenView(token: CraftSpeechWordToken(targetWord: "pending", status: .pending))
+                    }
+                    .padding(.vertical, theme.spacing.xs)
+                }
+
+                CraftDivider()
+
+                // Tactile Mic Hub Matrix
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("CraftTactileMicHubView States", style: .headline)
+                    CraftText("Idle, listening breathing wave, analyzing spinner, and completed evaluation retry.", style: .caption, color: theme.colors.textSecondary)
+
+                    HStack(spacing: theme.spacing.lg) {
+                        VStack(spacing: theme.spacing.xs) {
+                            CraftTactileMicHubView(speechState: .idle, onTapMic: {})
+                            CraftText("Idle", style: .caption, color: theme.colors.textMuted)
+                        }
+                        .frame(maxWidth: .infinity)
+
+                        VStack(spacing: theme.spacing.xs) {
+                            CraftTactileMicHubView(speechState: .listening(audioLevels: [0.3, 0.7, 0.9]), onTapMic: {})
+                            CraftText("Listening", style: .caption, color: theme.colors.textMuted)
+                        }
+                        .frame(maxWidth: .infinity)
+
+                        VStack(spacing: theme.spacing.xs) {
+                            CraftTactileMicHubView(speechState: .processing, onTapMic: {})
+                            CraftText("Processing", style: .caption, color: theme.colors.textMuted)
+                        }
+                        .frame(maxWidth: .infinity)
+
+                        VStack(spacing: theme.spacing.xs) {
+                            CraftTactileMicHubView(speechState: .evaluated(overallScore: 92), onTapMic: {})
+                            CraftText("Retry", style: .caption, color: theme.colors.textMuted)
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                    .padding(.vertical, theme.spacing.xs)
+                }
+            }
+        }
+    }
+
+    private func handleMicTap() {
+        withAnimation(theme.animations.springSmooth) {
+            isCustomInteractive = true
+            switch interactiveState {
+            case .idle:
+                interactiveState = .listening(audioLevels: [0.2, 0.6, 0.85, 0.5, 0.9, 0.4])
+                interactiveActualText = "It was a"
+                toastTitle = "Listening Started"
+                toastMessage = "Simulated speech recognition active."
+                toastStyle = .info
+                toastSurfaceStyle = .glass
+                isToastPresented = true
+            case .listening:
+                interactiveState = .evaluated(overallScore: 95)
+                interactiveActualText = "It was a good job"
+                toastTitle = "Evaluation Complete"
+                toastMessage = "Overall Score: 95%"
+                toastStyle = .success
+                toastSurfaceStyle = .glass
+                isToastPresented = true
+            case .processing, .evaluated:
+                interactiveState = .idle
+                interactiveActualText = nil
+                toastTitle = "Reset to Idle"
+                toastMessage = "Ready for voice input."
+                toastStyle = .info
+                toastSurfaceStyle = .elevated
+                isToastPresented = true
+            }
+        }
     }
 }
 

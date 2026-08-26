@@ -602,5 +602,77 @@ final class CatalogViewTests: XCTestCase {
         XCTAssertNotNil(loadingSb.body)
         XCTAssertTrue(loadingSb.isLoading)
     }
+
+    // MARK: - Voice Match & Speech Evaluation Showcase Tests
+
+    func testCatalogVoiceMatchPresetProperties() {
+        XCTAssertEqual(CatalogVoiceMatchPreset.allCases.count, 4)
+
+        let idle = CatalogVoiceMatchPreset.idle
+        XCTAssertEqual(idle.id, "Idle")
+        XCTAssertEqual(idle.originText, "It was a good job.")
+        XCTAssertEqual(idle.subtitle, "Đó là một công việc tốt.")
+        XCTAssertEqual(idle.speechState, .idle)
+        XCTAssertNil(idle.actualText)
+
+        let listening = CatalogVoiceMatchPreset.listening
+        XCTAssertEqual(listening.id, "Listening")
+        XCTAssertEqual(listening.speechState, .listening(audioLevels: [0.15, 0.45, 0.85, 0.6, 0.95, 0.7, 0.35, 0.5]))
+        XCTAssertEqual(listening.actualText, "It was a")
+
+        let evalSuccess = CatalogVoiceMatchPreset.evaluatedSuccess
+        XCTAssertEqual(evalSuccess.id, "Evaluated (95%)")
+        XCTAssertEqual(evalSuccess.speechState, .evaluated(overallScore: 95))
+        XCTAssertEqual(evalSuccess.actualText, "It was a good job")
+
+        let evalWarning = CatalogVoiceMatchPreset.evaluatedWarning
+        XCTAssertEqual(evalWarning.id, "Evaluated (60%)")
+        XCTAssertEqual(evalWarning.speechState, .evaluated(overallScore: 60))
+        XCTAssertEqual(evalWarning.actualText, "It was nice job")
+    }
+
+    func testVoiceMatchShowcaseComponents() {
+        for preset in CatalogVoiceMatchPreset.allCases {
+            var micTapped = false
+            let card = CraftVoiceMatchCard(
+                originText: preset.originText,
+                actualText: preset.actualText,
+                subtitle: preset.subtitle,
+                speechState: preset.speechState,
+                onTapMic: { micTapped = true }
+            )
+            XCTAssertNotNil(card.body)
+            XCTAssertEqual(card.originText, preset.originText)
+            XCTAssertEqual(card.actualText, preset.actualText)
+            XCTAssertEqual(card.subtitle, preset.subtitle)
+            XCTAssertEqual(card.speechState, preset.speechState)
+            card.onTapMic()
+            XCTAssertTrue(micTapped)
+        }
+
+        // Test explicit tokens in card
+        let explicitTokens = [
+            CraftSpeechWordToken(targetWord: "It", status: .matched, confidence: 0.98),
+            CraftSpeechWordToken(targetWord: "was", status: .mismatched, confidence: 0.40)
+        ]
+        let cardWithTokens = CraftVoiceMatchCard(
+            originText: "It was",
+            explicitTokens: explicitTokens,
+            speechState: .evaluated(overallScore: 70),
+            onTapMic: {}
+        )
+        XCTAssertNotNil(cardWithTokens.body)
+        XCTAssertEqual(cardWithTokens.explicitTokens?.count, 2)
+
+        // Test all token status chip views
+        for status in CraftSpeechWordStatus.allCases {
+            let token = CraftSpeechWordToken(targetWord: "word", status: status, confidence: 0.85)
+            let chipView = CraftSpeechWordTokenView(token: token)
+            XCTAssertNotNil(chipView.body)
+            XCTAssertEqual(chipView.token.status, status)
+        }
+    }
 }
+
+
 

@@ -77,7 +77,7 @@ public struct CraftVoiceMatchCard: View {
                 Spacer()
 
                 if case let .evaluated(score) = speechState {
-                    HStack(spacing: 4) {
+                    HStack(spacing: theme.spacing.xs) {
                         Image(systemName: "bolt.fill")
                             .font(.caption2)
                         Text(CraftLocalized.format("craft.speech.score_format", Int(score)))
