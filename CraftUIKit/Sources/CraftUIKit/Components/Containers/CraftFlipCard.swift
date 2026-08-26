@@ -22,10 +22,7 @@ public struct Craft3DFlipModifier: AnimatableModifier {
     }
 
     public var isVisible: Bool {
-        if reduceMotion {
-            return side == .front ? progress < 0.5 : progress >= 0.5
-        }
-        return side == .front ? progress < 0.5 : progress >= 0.5
+        side == .front ? progress < 0.5 : progress >= 0.5
     }
 
     public var currentDegrees: Double {
