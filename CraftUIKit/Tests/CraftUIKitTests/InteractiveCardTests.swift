@@ -47,6 +47,46 @@ final class InteractiveCardTests: XCTestCase {
 
     // MARK: - CraftChoiceCard Tests
 
+    func testChoiceCardTextAlignmentDefaultAndCustom() {
+        let defaultCard = CraftChoiceCard(title: "Default Alignment") {}
+        XCTAssertEqual(defaultCard.textAlignment, .leading)
+
+        let centeredCard = CraftChoiceCard(
+            prefix: nil,
+            prefixStyle: .none,
+            title: "Centered Practice Option",
+            textAlignment: .center,
+            showsStatusIndicator: false
+        ) {}
+        XCTAssertEqual(centeredCard.textAlignment, .center)
+        XCTAssertEqual(centeredCard.prefixStyle, .none)
+        XCTAssertFalse(centeredCard.showsStatusIndicator)
+        XCTAssertNotNil(centeredCard.body)
+    }
+
+    func testChoiceCardLocalizedKeyWithTextAlignment() {
+        let localizedCard = CraftChoiceCard(
+            title: LocalizedStringKey("craft.choice.practice_title"),
+            textAlignment: .center,
+            showsStatusIndicator: false
+        ) {}
+        XCTAssertEqual(localizedCard.textAlignment, .center)
+        XCTAssertFalse(localizedCard.showsStatusIndicator)
+        XCTAssertNotNil(localizedCard.body)
+    }
+
+    func testChoiceCardSymbolInitializerWithTextAlignment() {
+        let symbolCard = CraftChoiceCard(
+            prefix: "A",
+            title: "Option with Symbol",
+            textAlignment: .trailing,
+            correctSymbol: .checkmarkCircle
+        ) {}
+        XCTAssertEqual(symbolCard.textAlignment, .trailing)
+        XCTAssertNotNil(symbolCard.body)
+    }
+
+
     func testChoiceCardInitializersAndStates() {
         var tapped = false
         let card = CraftChoiceCard(prefix: "A", title: "Option 1", state: .correct) {

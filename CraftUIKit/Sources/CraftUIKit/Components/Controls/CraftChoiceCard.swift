@@ -48,6 +48,7 @@ public struct CraftChoiceCard: View {
     private let rawTitle: String?
     private let subtitleKey: LocalizedStringKey?
     private let rawSubtitle: String?
+    public let textAlignment: TextAlignment
     private let explicitStyle: CraftSurfaceStyle?
     public let showsStatusIndicator: Bool
     public let correctIconName: String?
@@ -82,6 +83,7 @@ public struct CraftChoiceCard: View {
         prefixStyle: CraftChoicePrefixStyle = .circle,
         title: String,
         subtitle: String? = nil,
+        textAlignment: TextAlignment = .leading,
         state: CraftChoiceState = .idle,
         style: CraftSurfaceStyle? = nil,
         showsStatusIndicator: Bool = true,
@@ -96,6 +98,7 @@ public struct CraftChoiceCard: View {
         self.rawTitle = title
         self.subtitleKey = nil
         self.rawSubtitle = subtitle
+        self.textAlignment = textAlignment
         self.state = state
         self.explicitStyle = style
         self.showsStatusIndicator = showsStatusIndicator
@@ -109,6 +112,7 @@ public struct CraftChoiceCard: View {
         prefixStyle: CraftChoicePrefixStyle = .circle,
         title: LocalizedStringKey,
         subtitle: LocalizedStringKey? = nil,
+        textAlignment: TextAlignment = .leading,
         state: CraftChoiceState = .idle,
         style: CraftSurfaceStyle? = nil,
         showsStatusIndicator: Bool = true,
@@ -123,6 +127,7 @@ public struct CraftChoiceCard: View {
         self.rawTitle = nil
         self.subtitleKey = subtitle
         self.rawSubtitle = nil
+        self.textAlignment = textAlignment
         self.state = state
         self.explicitStyle = style
         self.showsStatusIndicator = showsStatusIndicator
@@ -136,6 +141,7 @@ public struct CraftChoiceCard: View {
         prefixStyle: CraftChoicePrefixStyle = .circle,
         title: String,
         subtitle: String? = nil,
+        textAlignment: TextAlignment = .leading,
         state: CraftChoiceState = .idle,
         style: CraftSurfaceStyle? = nil,
         showsStatusIndicator: Bool = true,
@@ -148,6 +154,7 @@ public struct CraftChoiceCard: View {
             prefixStyle: prefixStyle,
             title: title,
             subtitle: subtitle,
+            textAlignment: textAlignment,
             state: state,
             style: style,
             showsStatusIndicator: showsStatusIndicator,
@@ -189,50 +196,51 @@ public struct CraftChoiceCard: View {
         .disabled(state == .disabled)
     }
 
+    private var isCenteredLayout: Bool {
+        textAlignment == .center && (prefixStyle == .none || (prefixKey == nil && rawPrefix == nil)) && !showsStatusIndicator
+    }
+
+    private var contentHorizontalAlignment: HorizontalAlignment {
+        switch textAlignment {
+        case .leading:
+            return .leading
+        case .center:
+            return .center
+        case .trailing:
+            return .trailing
+        }
+    }
+
+    @ViewBuilder
     private var cardSurface: some View {
-        let content = HStack(alignment: hasSubtitle ? .top : .center, spacing: theme.spacing.md) {
-            if prefixStyle != .none && (prefixKey != nil || rawPrefix != nil) {
-                prefixBadge
-                    .padding(.top, hasSubtitle ? 1 : 0)
-            }
-
-            VStack(alignment: .leading, spacing: theme.spacing.xxs) {
-                if let titleKey {
-                    Text(titleKey)
-                        .font(theme.typography.headline)
-                        .foregroundStyle(titleColor)
-                        .lineLimit(3)
-                        .multilineTextAlignment(.leading)
-                } else if let rawTitle {
-                    Text(rawTitle)
-                        .font(theme.typography.headline)
-                        .foregroundStyle(titleColor)
-                        .lineLimit(3)
-                        .multilineTextAlignment(.leading)
+        let content = Group {
+            if isCenteredLayout {
+                VStack(alignment: .center, spacing: theme.spacing.xxs) {
+                    titleAndSubtitleContent
                 }
+                .frame(maxWidth: .infinity, alignment: .center)
+            } else {
+                HStack(alignment: hasSubtitle ? .top : .center, spacing: theme.spacing.md) {
+                    if prefixStyle != .none && (prefixKey != nil || rawPrefix != nil) {
+                        prefixBadge
+                            .padding(.top, hasSubtitle ? 1 : 0)
+                    }
 
-                if let subtitleKey {
-                    Text(subtitleKey)
-                        .font(theme.typography.bodyMedium)
-                        .foregroundStyle(subtitleColor)
-                        .multilineTextAlignment(.leading)
-                } else if let rawSubtitle, !rawSubtitle.isEmpty {
-                    Text(rawSubtitle)
-                        .font(theme.typography.bodyMedium)
-                        .foregroundStyle(subtitleColor)
-                        .multilineTextAlignment(.leading)
+                    VStack(alignment: contentHorizontalAlignment, spacing: theme.spacing.xxs) {
+                        titleAndSubtitleContent
+                    }
+
+                    Spacer(minLength: theme.spacing.sm)
+
+                    if showsStatusIndicator {
+                        trailingIndicator
+                            .padding(.top, hasSubtitle ? 2 : 0)
+                    }
                 }
-            }
-
-            Spacer(minLength: theme.spacing.sm)
-
-            if showsStatusIndicator {
-                trailingIndicator
-                    .padding(.top, hasSubtitle ? 2 : 0)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
         .padding(theme.spacing.base)
-        .frame(maxWidth: .infinity, alignment: .leading)
         .background(cardBackground)
         .clipShape(RoundedRectangle(cornerRadius: theme.radii.lg))
         .overlay(cardBorderOverlay)
@@ -241,8 +249,38 @@ public struct CraftChoiceCard: View {
         .frame(minHeight: 44)
         .contentShape(Rectangle())
 
-        return applyCardShadow(content)
+        applyCardShadow(content)
     }
+
+    @ViewBuilder
+    private var titleAndSubtitleContent: some View {
+        if let titleKey {
+            Text(titleKey)
+                .font(theme.typography.headline)
+                .foregroundStyle(titleColor)
+                .lineLimit(3)
+                .multilineTextAlignment(textAlignment)
+        } else if let rawTitle {
+            Text(rawTitle)
+                .font(theme.typography.headline)
+                .foregroundStyle(titleColor)
+                .lineLimit(3)
+                .multilineTextAlignment(textAlignment)
+        }
+
+        if let subtitleKey {
+            Text(subtitleKey)
+                .font(theme.typography.bodyMedium)
+                .foregroundStyle(subtitleColor)
+                .multilineTextAlignment(textAlignment)
+        } else if let rawSubtitle, !rawSubtitle.isEmpty {
+            Text(rawSubtitle)
+                .font(theme.typography.bodyMedium)
+                .foregroundStyle(subtitleColor)
+                .multilineTextAlignment(textAlignment)
+        }
+    }
+
 
     // MARK: - Card Background & Overlays
 
