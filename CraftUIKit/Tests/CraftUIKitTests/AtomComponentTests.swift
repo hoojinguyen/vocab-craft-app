@@ -575,5 +575,23 @@ final class AtomComponentTests: XCTestCase {
         XCTAssertEqual(CraftLocalized.string("craft.streak.badge_a11y_hint"), "Double tap to view streak details.")
         XCTAssertEqual(CraftLocalized.string("craft.streak.badge_a11y_hint", language: "vi"), "Chạm hai lần để xem chi tiết chuỗi ngày.")
     }
+
+    // MARK: - CraftPulsingAuraRing Tests
+
+    func testCraftPulsingAuraRingInit() {
+        let ring = CraftPulsingAuraRing(color: .orange, size: 36, lineWidth: 3.0)
+        XCTAssertEqual(ring.color, .orange)
+        XCTAssertEqual(ring.size, 36)
+        XCTAssertEqual(ring.lineWidth, 3.0)
+        XCTAssertNotNil(ring.body)
+    }
+
+    func testCraftPulsingAuraRingDefaults() {
+        let ring = CraftPulsingAuraRing(color: .blue)
+        XCTAssertEqual(ring.color, .blue)
+        XCTAssertEqual(ring.size, 28)
+        XCTAssertEqual(ring.lineWidth, 2.5)
+        XCTAssertNotNil(ring.body)
+    }
 }
 

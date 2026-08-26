@@ -7,7 +7,6 @@ import SwiftUI
 public struct CraftActivityTrackerCard: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.craftSurfaceStyle) private var environmentSurfaceStyle
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     public let data: CraftActivityTrackerData
     public let cardStyle: CraftCardStyle
@@ -19,8 +18,6 @@ public struct CraftActivityTrackerCard: View {
     public let onShieldTap: (() -> Void)?
     public let onMilestoneTap: (() -> Void)?
     public let onDayTap: ((CraftActivityDay) -> Void)?
-
-    @State private var isPulsing = false
 
     public init(
         data: CraftActivityTrackerData,
@@ -95,18 +92,6 @@ public struct CraftActivityTrackerCard: View {
         }
         .accessibilityActionIf(onMilestoneTap != nil, named: CraftLocalized.string("craft.streak.view_milestone_action")) {
             onMilestoneTap?()
-        }
-        .onAppear {
-            updatePulseAnimation()
-        }
-        .onDisappear {
-            isPulsing = false
-        }
-        .onChange(of: reduceMotion) { _, _ in
-            updatePulseAnimation()
-        }
-        .onChange(of: data.isCompletedToday) { _, _ in
-            updatePulseAnimation()
         }
     }
 
@@ -300,14 +285,12 @@ public struct CraftActivityTrackerCard: View {
                             )
                     )
                     .overlay {
-                        if day.isToday && !reduceMotion {
-                            Circle()
-                                .stroke(
-                                    (isGradientCard ? Color.white : tierBaseColor).opacity(isPulsing ? 0.7 : 0.0),
-                                    lineWidth: 2.5
-                                )
-                                .scaleEffect(isPulsing ? 1.25 : 1.0)
-                                .opacity(isPulsing ? 0.0 : 1.0)
+                        if day.isToday {
+                            CraftPulsingAuraRing(
+                                color: isGradientCard ? Color.white : tierBaseColor,
+                                size: nodeSize,
+                                lineWidth: 2.5
+                            )
                         }
                     }
 
@@ -514,18 +497,6 @@ public struct CraftActivityTrackerCard: View {
             return theme.colors.streakBlaze
         case .legendary:
             return theme.colors.streakLegendary
-        }
-    }
-
-    private func updatePulseAnimation() {
-        if !reduceMotion && !data.isCompletedToday {
-            withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
-                isPulsing = true
-            }
-        } else {
-            withAnimation(.easeOut(duration: 0.2)) {
-                isPulsing = false
-            }
         }
     }
 

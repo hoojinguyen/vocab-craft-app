@@ -7,7 +7,6 @@ import SwiftUI
 public struct CraftSpinner: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var isAnimating = false
 
     public let size: CraftIconSize
     public let color: Color?
@@ -33,6 +32,25 @@ public struct CraftSpinner: View {
     }
 
     public var body: some View {
+        Group {
+            if reduceMotion {
+                spinnerCircle
+            } else {
+                TimelineView(.animation) { timeline in
+                    let time = timeline.date.timeIntervalSinceReferenceDate
+                    let angle = (time.truncatingRemainder(dividingBy: 0.8) / 0.8) * 360.0
+
+                    spinnerCircle
+                        .rotationEffect(.degrees(angle))
+                }
+            }
+        }
+        .accessibilityRepresentation {
+            ProgressView()
+        }
+    }
+
+    private var spinnerCircle: some View {
         Circle()
             .trim(from: 0.15, to: 0.85)
             .stroke(
@@ -40,34 +58,6 @@ public struct CraftSpinner: View {
                 style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
             )
             .frame(width: size.pointSize, height: size.pointSize)
-            .rotationEffect(.degrees(isAnimating && !reduceMotion ? 360 : 0))
-            .onAppear {
-                startAnimationIfNeeded()
-            }
-            .onDisappear {
-                isAnimating = false
-            }
-            .onChange(of: reduceMotion) { _, newValue in
-                if !newValue {
-                    startAnimationIfNeeded()
-                } else {
-                    isAnimating = false
-                }
-            }
-            .accessibilityRepresentation {
-                ProgressView()
-            }
-    }
-
-    private func startAnimationIfNeeded() {
-        guard !reduceMotion else { return }
-        isAnimating = false
-        withAnimation(
-            .linear(duration: 0.8)
-            .repeatForever(autoreverses: false)
-        ) {
-            isAnimating = true
-        }
     }
 }
 

@@ -38,9 +38,7 @@ private struct VerticalDashedLine: Shape {
 /// title and optional subtitle, with minimum 44pt touch target HIG compliance.
 public struct CraftStepNode: View {
     @Environment(\.craftTheme) private var theme
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ScaledMetric(relativeTo: .body) private var indicatorDimension: CGFloat = 36
-    @State private var isPulsing = false
 
     private let titleKey: LocalizedStringKey?
     private let rawTitle: String?
@@ -187,19 +185,11 @@ public struct CraftStepNode: View {
 
             case .active:
                 // Glowing outer breathing ring
-                Circle()
-                    .stroke(theme.colors.brandPrimary.opacity(isPulsing ? 0.45 : 0.2), lineWidth: isPulsing ? 4.5 : 3.0)
-                    .frame(width: indicatorDimension, height: indicatorDimension)
-                    .scaleEffect(isPulsing && !reduceMotion ? 1.05 : 1.0)
-                    .onAppear {
-                        guard !reduceMotion else { return }
-                        withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
-                            isPulsing = true
-                        }
-                    }
-                    .onDisappear {
-                        isPulsing = false
-                    }
+                CraftPulsingAuraRing(
+                    color: theme.colors.brandPrimary,
+                    size: indicatorDimension,
+                    lineWidth: 3.5
+                )
 
                 // 3D Pedestal Inner Badge
                 ZStack {

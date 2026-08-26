@@ -22,39 +22,72 @@ public struct CraftShimmerModifier: ViewModifier {
     public func body(content: Content) -> some View {
         if isActive {
             content
-                .overlay(
-                    GeometryReader { proxy in
-                        let width = proxy.size.width
-                        let height = proxy.size.height
-                        let highlightColor = theme.colors.surfaceElevated.opacity(0.5)
-
-                        LinearGradient(
-                            stops: [
-                                .init(color: .clear, location: 0.0),
-                                .init(color: highlightColor, location: 0.5),
-                                .init(color: .clear, location: 1.0)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                        .frame(width: max(width * 1.5, 100), height: max(height * 1.5, 100))
-                        .offset(x: reduceMotion ? 0 : phase * (width + 100))
-                        .blendMode(.screen)
-                        .mask(content)
-                    }
+                .modifier(
+                    ShimmerAnimatableModifier(
+                        phase: phase,
+                        highlightColor: theme.colors.surfaceElevated.opacity(0.5),
+                        reduceMotion: reduceMotion
+                    )
                 )
                 .onAppear {
-                    guard !reduceMotion else { return }
-                    withAnimation(
-                        .linear(duration: duration)
-                        .repeatForever(autoreverses: bounce)
-                    ) {
-                        phase = 1.0
+                    startAnimation()
+                }
+                .onChange(of: reduceMotion) { _, newValue in
+                    if !newValue {
+                        startAnimation()
                     }
                 }
         } else {
             content
         }
+    }
+
+    private func startAnimation() {
+        guard !reduceMotion else { return }
+        phase = -1.0
+        withAnimation(
+            .linear(duration: duration)
+            .repeatForever(autoreverses: bounce)
+        ) {
+            phase = 1.0
+        }
+    }
+}
+
+// MARK: - Isolated Animatable Modifier
+
+private struct ShimmerAnimatableModifier: AnimatableModifier {
+    var phase: CGFloat
+    let highlightColor: Color
+    let reduceMotion: Bool
+
+    var animatableData: CGFloat {
+        get { phase }
+        set { phase = newValue }
+    }
+
+    func body(content: Content) -> some View {
+        content
+            .overlay(
+                GeometryReader { proxy in
+                    let width = proxy.size.width
+                    let height = proxy.size.height
+
+                    LinearGradient(
+                        stops: [
+                            .init(color: .clear, location: 0.0),
+                            .init(color: highlightColor, location: 0.5),
+                            .init(color: .clear, location: 1.0)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    .frame(width: max(width * 1.5, 100), height: max(height * 1.5, 100))
+                    .offset(x: reduceMotion ? 0 : phase * (width + 100))
+                    .blendMode(.screen)
+                    .mask(content)
+                }
+            )
     }
 }
 
