@@ -223,6 +223,35 @@ final class InteractiveCardTests: XCTestCase {
         XCTAssertNotNil(transform)
     }
 
+    func testChoiceCardEnvironmentSurfaceStyleInheritance() {
+        let defaultCard = CraftChoiceCard(title: "Default Card") {}
+        XCTAssertEqual(defaultCard.style, .tactile3D)
+        XCTAssertEqual(defaultCard.resolvedStyle, .tactile3D)
+
+        let explicitGlass = CraftChoiceCard(title: "Glass", style: .glass) {}
+        XCTAssertEqual(explicitGlass.style, .glass)
+
+        let explicitFlat = CraftChoiceCard(title: "Flat", style: .flat) {}
+        XCTAssertEqual(explicitFlat.style, .flat)
+
+        let explicitElevated = CraftChoiceCard(title: "Elevated", style: .elevated) {}
+        XCTAssertEqual(explicitElevated.style, .elevated)
+
+        let explicitOutlined = CraftChoiceCard(title: "Outlined", style: .outlined) {}
+        XCTAssertEqual(explicitOutlined.style, .outlined)
+    }
+
+    func testChoiceCardButtonStyleConfiguration() {
+        for style in CraftSurfaceStyle.allCases {
+            for state in CraftChoiceState.allCases {
+                let buttonStyle = CraftChoiceCardButtonStyle(state: state, style: style, depth: 4)
+                XCTAssertEqual(buttonStyle.state, state)
+                XCTAssertEqual(buttonStyle.style, style)
+                XCTAssertEqual(buttonStyle.depth, 4)
+            }
+        }
+    }
+
     // MARK: - CraftFlipCard Tests
 
     func testFlipCardBinding() {
