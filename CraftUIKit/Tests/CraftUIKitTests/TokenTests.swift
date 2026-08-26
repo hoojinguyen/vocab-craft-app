@@ -5,6 +5,9 @@ import SwiftUI
 final class TokenTests: XCTestCase {
     func testStreakColorAndGradientTokens() {
         let theme = CraftDefaultTheme()
+        XCTAssertNotNil(theme.colors.streakStarter)
+        XCTAssertNotNil(theme.colors.streakBlaze)
+        XCTAssertNotNil(theme.colors.streakLegendary)
         XCTAssertNotNil(theme.colors.streakFreeze)
         XCTAssertNotNil(theme.colors.streakPending)
         XCTAssertNotNil(theme.colors.streakGlow)
@@ -15,6 +18,9 @@ final class TokenTests: XCTestCase {
 
     func testDefaultStreakColorValues() {
         let colors = CraftDefaultColorTokens()
+        XCTAssertEqual(colors.streakStarter, Color(hex: 0xE06D3B))
+        XCTAssertEqual(colors.streakBlaze, Color(hex: 0xF59E0B))
+        XCTAssertEqual(colors.streakLegendary, Color(hex: 0x8B5CF6))
         XCTAssertEqual(colors.streakFreeze, Color(hex: 0x38BDF8))
         XCTAssertEqual(colors.streakPending, Color(hex: 0x94A3B8))
         XCTAssertEqual(colors.streakGlow, Color(hex: 0xF59E0B).opacity(0.35))

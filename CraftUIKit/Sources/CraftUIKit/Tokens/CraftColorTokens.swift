@@ -38,6 +38,9 @@ public protocol CraftColorTokens: Sendable {
     var statusInfo: Color { get }
 
     // Streak System
+    var streakStarter: Color { get }
+    var streakBlaze: Color { get }
+    var streakLegendary: Color { get }
     var streakFreeze: Color { get }
     var streakPending: Color { get }
     var streakGlow: Color { get }
@@ -51,6 +54,9 @@ public protocol CraftColorTokens: Sendable {
 }
 
 public extension CraftColorTokens {
+    var streakStarter: Color { brandPrimary }
+    var streakBlaze: Color { accent }
+    var streakLegendary: Color { Color(hex: 0x8B5CF6) }
     var streakFreeze: Color { Color(hex: 0x38BDF8) }
     var streakPending: Color { Color(hex: 0x94A3B8) }
     var streakGlow: Color { Color(hex: 0xF59E0B).opacity(0.35) }
@@ -96,6 +102,9 @@ public struct CraftDefaultColorTokens: CraftColorTokens {
     public var statusInfo: Color
 
     // Streak System
+    public var streakStarter: Color
+    public var streakBlaze: Color
+    public var streakLegendary: Color
     public var streakFreeze: Color
     public var streakPending: Color
     public var streakGlow: Color
@@ -126,6 +135,9 @@ public struct CraftDefaultColorTokens: CraftColorTokens {
         statusWarning: Color = Color(hex: 0xF59E0B),
         statusDanger: Color = Color(hex: 0xEF4444),
         statusInfo: Color = Color(hex: 0x0284C7),
+        streakStarter: Color = Color(hex: 0xE06D3B),
+        streakBlaze: Color = Color(hex: 0xF59E0B),
+        streakLegendary: Color = Color(hex: 0x8B5CF6),
         streakFreeze: Color = Color(hex: 0x38BDF8),
         streakPending: Color = Color(hex: 0x94A3B8),
         streakGlow: Color = Color(hex: 0xF59E0B).opacity(0.35),
@@ -153,6 +165,9 @@ public struct CraftDefaultColorTokens: CraftColorTokens {
         self.statusWarning = statusWarning
         self.statusDanger = statusDanger
         self.statusInfo = statusInfo
+        self.streakStarter = streakStarter
+        self.streakBlaze = streakBlaze
+        self.streakLegendary = streakLegendary
         self.streakFreeze = streakFreeze
         self.streakPending = streakPending
         self.streakGlow = streakGlow

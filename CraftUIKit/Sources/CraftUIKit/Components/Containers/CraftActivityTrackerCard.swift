@@ -480,11 +480,11 @@ public struct CraftActivityTrackerCard: View {
     private var tierRimColor: Color {
         switch data.tier {
         case .starter:
-            return theme.colors.brandPrimary.opacity(0.85)
+            return theme.colors.streakStarter.opacity(0.85)
         case .blaze:
-            return theme.colors.accent.opacity(0.85)
+            return theme.colors.streakBlaze.opacity(0.85)
         case .legendary:
-            return Color.purple.opacity(0.85)
+            return theme.colors.streakLegendary.opacity(0.85)
         }
     }
 
@@ -515,11 +515,11 @@ public struct CraftActivityTrackerCard: View {
     private var tierBaseColor: Color {
         switch data.tier {
         case .starter:
-            return theme.colors.brandPrimary
+            return theme.colors.streakStarter
         case .blaze:
-            return theme.colors.accent
+            return theme.colors.streakBlaze
         case .legendary:
-            return theme.colors.statusDanger
+            return theme.colors.streakLegendary
         }
     }
 
