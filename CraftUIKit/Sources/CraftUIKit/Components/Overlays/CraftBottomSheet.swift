@@ -297,7 +297,6 @@ public struct CraftBottomSheetModifier<SheetContent: View>: ViewModifier {
                 .zIndex(1000)
             }
         }
-        .animation(theme.animations.springSmooth, value: isPresented)
     }
 }
 

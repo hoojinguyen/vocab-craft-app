@@ -262,7 +262,6 @@ public struct CraftToastModifier: ViewModifier {
                 }
             }
         }
-        .animation(theme.animations.springSmooth, value: isPresented)
     }
 }
 

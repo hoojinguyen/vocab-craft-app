@@ -472,11 +472,10 @@ public struct CraftDialogModifier<DialogBody: View>: ViewModifier {
 
                 // Dialog Content
                 dialogContent
-                    .transition(.scale(scale: 0.9).combined(with: .opacity))
+                    .transition(.scale(scale: 0.92).combined(with: .opacity))
                     .zIndex(1000)
             }
         }
-        .animation(theme.animations.springSmooth, value: isPresented)
     }
 }
 

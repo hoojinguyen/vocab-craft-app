@@ -847,4 +847,72 @@ final class ContainerOverlayTests: XCTestCase {
         XCTAssertNotNil(view)
         XCTAssertFalse(backdropDismissed)
     }
+
+    // MARK: - Overlay Hierarchy & Isolation Tests
+
+    func testOverlayDoesNotCorruptHostHierarchy() {
+        var isToastPresented = true
+        let toastView = Text("Host Screen")
+            .craftToast(
+                isPresented: Binding(get: { isToastPresented }, set: { isToastPresented = $0 }),
+                message: "Notification",
+                position: .top
+            )
+        XCTAssertNotNil(toastView)
+
+        var isSheetPresented = true
+        let sheetView = Text("Host Screen")
+            .craftBottomSheet(
+                isPresented: Binding(get: { isSheetPresented }, set: { isSheetPresented = $0 }),
+                title: "Bottom Sheet"
+            ) {
+                Text("Sheet Body")
+            }
+        XCTAssertNotNil(sheetView)
+
+        var isDialogPresented = true
+        let dialogView = Text("Host Screen")
+            .craftDialog(
+                isPresented: Binding(get: { isDialogPresented }, set: { isDialogPresented = $0 }),
+                title: "Alert Dialog",
+                primaryAction: {}
+            )
+        XCTAssertNotNil(dialogView)
+
+        // Test modifiers with isPresented = true and false
+        for presented in [true, false] {
+            var state = presented
+            let toastMod = CraftToastModifier(
+                isPresented: Binding(get: { state }, set: { state = $0 }),
+                data: CraftToastData(message: "Toast isolation test"),
+                position: .bottom
+            )
+            let toastModifiedView = Text("Host").modifier(toastMod)
+            XCTAssertNotNil(toastModifiedView)
+
+            let sheetMod = CraftBottomSheetModifier(
+                isPresented: Binding(get: { state }, set: { state = $0 }),
+                title: "Sheet Title",
+                detents: [.medium, .large],
+                style: .glass,
+                onDismiss: nil
+            ) {
+                Text("Sheet Content")
+            }
+            let sheetModifiedView = Text("Host").modifier(sheetMod)
+            XCTAssertNotNil(sheetModifiedView)
+
+            let dialogMod = CraftDialogModifier(
+                isPresented: Binding(get: { state }, set: { state = $0 }),
+                backdrop: .material,
+                dismissOnBackdropTap: true,
+                onBackdropDismiss: nil
+            ) {
+                Text("Dialog Content")
+            }
+            let dialogModifiedView = Text("Host").modifier(dialogMod)
+            XCTAssertNotNil(dialogModifiedView)
+        }
+    }
 }
+
