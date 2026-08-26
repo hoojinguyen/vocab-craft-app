@@ -171,7 +171,7 @@ public struct CraftActionCard: View {
 
     public var body: some View {
         Button(action: action) {
-            cardContent
+            cardSurface
         }
         .buttonStyle(
             CraftActionCardButtonStyle(
@@ -187,7 +187,27 @@ public struct CraftActionCard: View {
         .accessibilityAddTraits(.isButton)
     }
 
-    // MARK: - Card Content & Slots
+    // MARK: - Card Surface & Layout
+
+    @ViewBuilder
+    private var cardSurface: some View {
+        let shape = RoundedRectangle(cornerRadius: effectiveRadius, style: .continuous)
+        if #available(iOS 26, macOS 26, *), resolvedStyle == .glass, !reduceTransparency {
+            cardContent
+                .glassEffect(.regular.interactive(), in: shape)
+                .overlay(cardBorderOverlay)
+                .modifier(ActionCardShadowModifier(style: resolvedStyle, theme: theme))
+                .contentShape(Rectangle())
+        } else {
+            cardContent
+                .background(cardBackground)
+                .clipShape(shape)
+                .overlay(cardBorderOverlay)
+                .overlay(topHighlightOverlay)
+                .modifier(ActionCardShadowModifier(style: resolvedStyle, theme: theme))
+                .contentShape(Rectangle())
+        }
+    }
 
     private var cardContent: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -206,12 +226,6 @@ public struct CraftActionCard: View {
         }
         .padding(18)
         .frame(maxWidth: .infinity, minHeight: 160, alignment: .topLeading)
-        .background(cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: effectiveRadius, style: .continuous))
-        .overlay(cardBorderOverlay)
-        .overlay(topHighlightOverlay)
-        .modifier(ActionCardShadowModifier(style: resolvedStyle, theme: theme))
-        .contentShape(Rectangle())
     }
 
     // MARK: - Header Slot
@@ -240,12 +254,9 @@ public struct CraftActionCard: View {
                 .foregroundColor(badgeForegroundColor)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
-                .background(badgeBackgroundColor)
+                .background(badgeBackground)
                 .clipShape(Capsule())
-                .overlay(
-                    Capsule()
-                        .stroke(badgeStrokeColor, lineWidth: 0.8)
-                )
+                .overlay(badgeBorder)
             } else if let badgeText {
                 HStack(spacing: 4) {
                     if let badgeIcon {
@@ -259,13 +270,36 @@ public struct CraftActionCard: View {
                 .foregroundColor(badgeForegroundColor)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
-                .background(badgeBackgroundColor)
+                .background(badgeBackground)
                 .clipShape(Capsule())
-                .overlay(
-                    Capsule()
-                        .stroke(badgeStrokeColor, lineWidth: 0.8)
-                )
+                .overlay(badgeBorder)
             }
+        }
+    }
+
+    @ViewBuilder
+    private var badgeBackground: some View {
+        if resolvedStyle == .glass && !reduceTransparency {
+            Capsule().fill(.ultraThinMaterial)
+        } else {
+            Capsule().fill(badgeBackgroundColor)
+        }
+    }
+
+    @ViewBuilder
+    private var badgeBorder: some View {
+        if resolvedStyle == .glass && !reduceTransparency {
+            Capsule()
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [Color.white.opacity(0.65), effectiveAccent.opacity(0.35)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 0.8
+                )
+        } else {
+            Capsule().strokeBorder(badgeStrokeColor, lineWidth: 0.8)
         }
     }
 
@@ -326,15 +360,20 @@ public struct CraftActionCard: View {
             if reduceTransparency {
                 shape.fill(theme.colors.surfaceCard)
             } else {
-                if #available(iOS 26, macOS 26, *) {
-                    shape
-                        .fill(.clear)
-                        .glassEffect(.regular.tint(effectiveAccent).interactive(), in: shape)
-                } else {
-                    ZStack {
-                        shape.fill(.ultraThinMaterial)
-                        shape.fill(effectiveAccent.opacity(theme.glass.tintOpacity))
-                    }
+                ZStack {
+                    shape.fill(.ultraThinMaterial)
+                    // Clean frosted glass ambient specular gradient with a subtle accent light reflection
+                    shape.fill(
+                        LinearGradient(
+                            stops: [
+                                .init(color: Color.white.opacity(0.35), location: 0.0),
+                                .init(color: Color.white.opacity(0.06), location: 0.35),
+                                .init(color: effectiveAccent.opacity(0.04), location: 1.0)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
                 }
             }
         case .outlined:
@@ -408,7 +447,21 @@ public struct CraftActionCard: View {
                 lineWidth: 1
             )
         case .glass:
-            shape.stroke(theme.glass.borderGradient, lineWidth: 1)
+            ZStack {
+                shape.strokeBorder(theme.glass.borderGradient, lineWidth: 1.0)
+                shape.strokeBorder(
+                    LinearGradient(
+                        stops: [
+                            .init(color: Color.white.opacity(0.65), location: 0.0),
+                            .init(color: effectiveAccent.opacity(0.30), location: 0.35),
+                            .init(color: Color.clear, location: 1.0)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 0.8
+                )
+            }
         case .flat:
             EmptyView()
         }
