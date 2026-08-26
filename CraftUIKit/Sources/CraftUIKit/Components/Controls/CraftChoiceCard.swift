@@ -381,8 +381,10 @@ public struct CraftChoiceCard: View {
     private var topHighlightOverlay: some View {
         if state != .disabled {
             if style == .tactile3D {
-                RoundedRectangle(cornerRadius: theme.radii.lg)
-                    .strokeBorder(theme.depths.topHighlight, lineWidth: 1)
+                if state == .idle {
+                    RoundedRectangle(cornerRadius: theme.radii.lg)
+                        .strokeBorder(theme.depths.topHighlight, lineWidth: 1)
+                }
             } else if style == .glass {
                 if #unavailable(iOS 26, macOS 26) {
                     RoundedRectangle(cornerRadius: theme.radii.lg)
@@ -644,7 +646,7 @@ public struct CraftChoiceCardButtonStyle: ButtonStyle {
             if state != .disabled && isTactile {
                 RoundedRectangle(cornerRadius: theme.radii.lg)
                     .fill(bottomLipColor)
-                    .padding(.top, depth)
+                    .offset(y: depth)
             }
 
             // Top interactive card face
@@ -664,13 +666,13 @@ public struct CraftChoiceCardButtonStyle: ButtonStyle {
     private var bottomLipColor: Color {
         switch state {
         case .idle:
-            return theme.colors.borderDefault
+            return .craftDynamic(light: Color(hex: 0xD1D5DB), dark: Color(hex: 0x374151))
         case .selected:
             return theme.colors.brandSecondary
         case .correct:
-            return theme.colors.statusSuccess
+            return .craftDynamic(light: Color(hex: 0x059669), dark: Color(hex: 0x047857))
         case .wrong:
-            return theme.colors.statusDanger
+            return .craftDynamic(light: Color(hex: 0xDC2626), dark: Color(hex: 0xB91C1C))
         case .disabled:
             return .clear
         }

@@ -314,6 +314,39 @@ final class InteractiveCardTests: XCTestCase {
         }
     }
 
+    func testChoiceCardButtonStylePropertiesAndTactileDepth() {
+        let buttonStyle = CraftChoiceCardButtonStyle(state: .selected, style: .tactile3D, depth: 4)
+        XCTAssertEqual(buttonStyle.state, .selected)
+        XCTAssertEqual(buttonStyle.style, .tactile3D)
+        XCTAssertEqual(buttonStyle.depth, 4)
+
+        let idleStyle = CraftChoiceCardButtonStyle(state: .idle, style: .tactile3D, depth: 4)
+        XCTAssertEqual(idleStyle.state, .idle)
+        XCTAssertEqual(idleStyle.style, .tactile3D)
+        XCTAssertEqual(idleStyle.depth, 4)
+
+        let zeroDepthStyle = CraftChoiceCardButtonStyle(state: .disabled, style: .tactile3D, depth: 0)
+        XCTAssertEqual(zeroDepthStyle.state, .disabled)
+        XCTAssertEqual(zeroDepthStyle.depth, 0)
+    }
+
+    func testTactileCardRenderingAcrossAllStates() {
+        for state in CraftChoiceState.allCases {
+            let card = CraftChoiceCard(
+                prefix: nil,
+                prefixStyle: .none,
+                title: "Option in \(state.rawValue)",
+                textAlignment: .center,
+                state: state,
+                style: .tactile3D,
+                showsStatusIndicator: false
+            ) {}
+            XCTAssertNotNil(card.body)
+            XCTAssertEqual(card.state, state)
+            XCTAssertEqual(card.style, .tactile3D)
+        }
+    }
+
     func testChoiceCardDefaultParametersContract() {
         var tapped = false
         let card = CraftChoiceCard(title: "Contract Test") {
