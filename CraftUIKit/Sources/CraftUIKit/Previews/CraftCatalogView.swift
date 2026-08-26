@@ -126,44 +126,58 @@ public enum CatalogEmptyStatePreset: String, CaseIterable, Identifiable, Sendabl
     }
 }
 
-/// Interactive preset options for demonstrating `CraftFeedbackSheet` in the catalog.
 public enum CatalogFeedbackPreset: String, CaseIterable, Identifiable, Sendable {
-    case success = "Success"
-    case error = "Error"
-    case warning = "Warning"
-    case glass = "Liquid Glass"
+    case success = "Tactile 3D Success"
+    case error = "Tactile 3D Error"
+    case warning = "Outlined Warning"
+    case elevated = "Elevated Success"
+    case glass = "Liquid Glass Info"
+    case flat = "Flat Success"
 
     public var id: String { rawValue }
 
     public var status: CraftFeedbackStatus {
         switch self {
-        case .success, .glass: return .success
+        case .success, .elevated, .flat: return .success
         case .error: return .error
         case .warning: return .warning
+        case .glass: return .info
         }
     }
 
     public var title: String {
         switch self {
-        case .success, .glass: return "Nice work!"
+        case .success, .elevated, .flat: return "Correct!"
         case .error: return "Incorrect"
         case .warning: return "Almost!"
+        case .glass: return "Explanation"
         }
     }
 
     public var message: String? {
         switch self {
-        case .success: return nil
-        case .error: return "Correct: It's a stressful job."
+        case .success, .flat: return "Great job! Keep the streak going."
+        case .error: return "Correct answer: Phenomenon (/fəˈnɒmɪnən/)"
         case .warning: return "Review the pronunciation of the last word."
-        case .glass: return "Liquid Glass assessment feedback."
+        case .glass: return "Liquid Glass translucent surface with refraction tint."
+        case .elevated: return "Elevated depth surface with layered shadows."
+        }
+    }
+
+    public var secondaryActionTitle: String? {
+        switch self {
+        case .error: return "Explain"
+        default: return nil
         }
     }
 
     public var surfaceStyle: CraftSurfaceStyle? {
         switch self {
         case .glass: return .glass
-        case .success, .error, .warning: return nil
+        case .elevated: return .elevated
+        case .warning: return .outlined
+        case .flat: return .flat
+        case .success, .error: return .tactile3D
         }
     }
 }
@@ -1980,13 +1994,35 @@ private struct CatalogContainersOverlaysSection: View {
                             status: selectedFeedbackPreset.status,
                             title: selectedFeedbackPreset.title,
                             message: selectedFeedbackPreset.message,
+                            secondaryActionTitle: selectedFeedbackPreset.secondaryActionTitle,
                             surfaceStyle: selectedFeedbackPreset.surfaceStyle,
+                            onSecondaryAction: {
+                                toastStyle = .warning
+                                toastSurfaceStyle = selectedFeedbackPreset.surfaceStyle ?? .elevated
+                                isToastPresented = true
+                            },
                             onContinue: {
                                 toastStyle = selectedFeedbackPreset.status == .error ? .danger : (selectedFeedbackPreset.status == .warning ? .warning : .success)
                                 toastSurfaceStyle = selectedFeedbackPreset.surfaceStyle ?? .elevated
                                 isToastPresented = true
                             }
-                        )
+                        ) {
+                            if selectedFeedbackPreset == .error {
+                                HStack(spacing: 6) {
+                                    CraftIcon("lightbulb.fill", size: .sm, color: .orange)
+                                    Text("Hint: Remember the Greek root 'phainomenon'.")
+                                        .font(theme.typography.caption)
+                                        .foregroundStyle(theme.colors.textSecondary)
+                                }
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .craftSurface(
+                                    style: selectedFeedbackPreset.surfaceStyle ?? .flat,
+                                    shape: RoundedRectangle(cornerRadius: 8),
+                                    customTint: Color.orange.opacity(0.12)
+                                )
+                            }
+                        }
                     }
 
                     // Presentation Trigger Buttons

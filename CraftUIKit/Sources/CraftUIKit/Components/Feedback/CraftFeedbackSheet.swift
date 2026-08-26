@@ -142,7 +142,7 @@ public struct CraftFeedbackSheet<ExtraContent: View>: View {
         )
 
         let sheetContent = VStack(alignment: .leading, spacing: theme.spacing.base) {
-            // Header row: Status Icon + Title + Secondary Action Button
+            // Header row: Status Pill Badge + Secondary Action Button
             headerRow
 
             // Message row (if provided)
@@ -156,17 +156,18 @@ public struct CraftFeedbackSheet<ExtraContent: View>: View {
                 .fixedSize(horizontal: false, vertical: true)
             }
 
-            // Optional extra content
+            // Optional extra content (inherits resolved surface style)
             if !(ExtraContent.self == EmptyView.self) {
                 extraContent
             }
 
-            // Primary tactile progression button
+            // Primary progression button inheriting resolved surface style
             CraftButton(
                 resolvedActionTitle,
-                variant: .tactile,
+                variant: (resolvedSurfaceStyle == .tactile3D ? .tactile : .primary),
                 size: .lg,
                 isFullWidth: true,
+                style: resolvedSurfaceStyle,
                 customTint: statusColor,
                 action: onContinue
             )
@@ -175,6 +176,7 @@ public struct CraftFeedbackSheet<ExtraContent: View>: View {
         .padding(.horizontal, theme.spacing.base)
         .padding(.bottom, theme.spacing.xl)
         .frame(maxWidth: .infinity, alignment: .leading)
+        .craftSurfaceStyle(resolvedSurfaceStyle)
         .background(surfaceBackground(shape: sheetShape))
         .clipShape(sheetShape)
         .overlay(surfaceBorder(shape: sheetShape))
@@ -204,25 +206,54 @@ public struct CraftFeedbackSheet<ExtraContent: View>: View {
 
     private var headerRow: some View {
         HStack(alignment: .center, spacing: theme.spacing.sm) {
-            CraftIcon(status.iconName, size: .lg, color: statusColor)
-
-            CraftText(
-                resolvedTitle,
-                style: .titleMedium,
-                color: statusColor
-            )
+            statusBadge
 
             Spacer(minLength: theme.spacing.xs)
 
             if let secondaryActionTitle, let onSecondaryAction {
                 CraftButton(
                     secondaryActionTitle,
-                    variant: .ghost,
+                    variant: (resolvedSurfaceStyle == .tactile3D ? .tactile : .primary),
                     size: .sm,
+                    style: resolvedSurfaceStyle,
                     customTint: statusColor,
                     action: onSecondaryAction
                 )
             }
+        }
+    }
+
+    private var statusBadge: some View {
+        HStack(spacing: 6) {
+            CraftIcon(
+                status.iconName,
+                size: .sm,
+                color: statusColor
+            )
+
+            Text(resolvedTitle)
+                .font(theme.typography.label)
+                .fontWeight(.bold)
+                .foregroundStyle(statusColor)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .craftSurface(
+            style: resolvedSurfaceStyle,
+            shape: Capsule(),
+            customTint: statusBadgeTint
+        )
+    }
+
+    private var statusBadgeTint: Color {
+        switch resolvedSurfaceStyle {
+        case .glass:
+            return statusColor.opacity(theme.glass.tintOpacity)
+        case .flat, .elevated, .outlined, .tactile3D:
+            return .craftDynamic(
+                light: statusColor.opacity(0.18),
+                dark: statusColor.opacity(0.26)
+            )
         }
     }
 
@@ -263,7 +294,7 @@ public struct CraftFeedbackSheet<ExtraContent: View>: View {
                 shape.strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
             }
         case .outlined:
-            shape.strokeBorder(theme.colors.borderDefault, lineWidth: 1)
+            shape.strokeBorder(theme.colors.borderDefault, lineWidth: 1.5)
         case .elevated:
             shape.strokeBorder(
                 LinearGradient(
@@ -358,7 +389,7 @@ private struct FeedbackSheetShadowModifier: ViewModifier {
     func body(content: Content) -> some View {
         switch style {
         case .elevated:
-            content.craftShadow(theme.shadows.lg)
+            content.craftShadow(theme.shadows.xl)
         case .glass:
             content.craftShadow(theme.shadows.md)
         case .flat, .outlined, .tactile3D:

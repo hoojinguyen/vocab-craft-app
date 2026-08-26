@@ -103,35 +103,38 @@ final class CatalogViewTests: XCTestCase {
     }
 
     func testCatalogFeedbackPresetProperties() {
-        XCTAssertEqual(CatalogFeedbackPreset.allCases.count, 4)
+        XCTAssertEqual(CatalogFeedbackPreset.allCases.count, 6)
 
         let success = CatalogFeedbackPreset.success
-        XCTAssertEqual(success.id, "Success")
+        XCTAssertEqual(success.id, "Tactile 3D Success")
         XCTAssertEqual(success.status, .success)
-        XCTAssertEqual(success.title, "Nice work!")
-        XCTAssertNil(success.message)
-        XCTAssertNil(success.surfaceStyle)
+        XCTAssertEqual(success.title, "Correct!")
+        XCTAssertEqual(success.message, "Great job! Keep the streak going.")
+        XCTAssertEqual(success.surfaceStyle, .tactile3D)
 
         let error = CatalogFeedbackPreset.error
-        XCTAssertEqual(error.id, "Error")
+        XCTAssertEqual(error.id, "Tactile 3D Error")
         XCTAssertEqual(error.status, .error)
         XCTAssertEqual(error.title, "Incorrect")
-        XCTAssertEqual(error.message, "Correct: It's a stressful job.")
-        XCTAssertNil(error.surfaceStyle)
+        XCTAssertEqual(error.message, "Correct answer: Phenomenon (/fəˈnɒmɪnən/)")
+        XCTAssertEqual(error.secondaryActionTitle, "Explain")
+        XCTAssertEqual(error.surfaceStyle, .tactile3D)
+
+        let elevated = CatalogFeedbackPreset.elevated
+        XCTAssertEqual(elevated.surfaceStyle, .elevated)
 
         let warning = CatalogFeedbackPreset.warning
-        XCTAssertEqual(warning.id, "Warning")
-        XCTAssertEqual(warning.status, .warning)
-        XCTAssertEqual(warning.title, "Almost!")
-        XCTAssertEqual(warning.message, "Review the pronunciation of the last word.")
-        XCTAssertNil(warning.surfaceStyle)
+        XCTAssertEqual(warning.id, "Outlined Warning")
+        XCTAssertEqual(warning.surfaceStyle, .outlined)
 
         let glass = CatalogFeedbackPreset.glass
-        XCTAssertEqual(glass.id, "Liquid Glass")
-        XCTAssertEqual(glass.status, .success)
-        XCTAssertEqual(glass.title, "Nice work!")
-        XCTAssertEqual(glass.message, "Liquid Glass assessment feedback.")
+        XCTAssertEqual(glass.id, "Liquid Glass Info")
+        XCTAssertEqual(glass.status, .info)
+        XCTAssertEqual(glass.title, "Explanation")
         XCTAssertEqual(glass.surfaceStyle, .glass)
+
+        let flat = CatalogFeedbackPreset.flat
+        XCTAssertEqual(flat.surfaceStyle, .flat)
     }
 
     func testCatalogRowPatternPresets() {
