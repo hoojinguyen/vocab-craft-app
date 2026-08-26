@@ -77,7 +77,7 @@ public struct CraftPathNode<CustomPayload: Sendable>: View {
         if let calloutText, !calloutText.isEmpty {
             return calloutText
         }
-        return CraftLocalized.string("craft.journey.continueCallout")
+        return CraftLocalized.string("craft.learning_path.continue_callout")
     }
 
     // MARK: - Accessibility Helpers
@@ -86,27 +86,27 @@ public struct CraftPathNode<CustomPayload: Sendable>: View {
         let base: String
         switch model.state {
         case .completed:
-            base = "Lesson: \(model.title), Completed"
+            base = CraftLocalized.format("craft.learning_path.node_completed_a11y", model.title)
         case .active:
             if let progress = model.progress {
                 let percent = Int((progress * 100).rounded())
-                base = "Lesson: \(model.title), Current lesson. \(percent)% complete"
+                base = CraftLocalized.format("craft.learning_path.node_current_format_a11y", model.title, percent)
             } else {
-                base = "Lesson: \(model.title), Current lesson"
+                base = CraftLocalized.format("craft.learning_path.node_current_a11y", model.title)
             }
         case .inProgress:
             if let progress = model.progress {
                 let percent = Int((progress * 100).rounded())
-                base = "Lesson: \(model.title), In progress. \(percent)% complete"
+                base = CraftLocalized.format("craft.learning_path.node_in_progress_format_a11y", model.title, percent)
             } else {
-                base = "Lesson: \(model.title), In progress"
+                base = CraftLocalized.format("craft.learning_path.node_in_progress_a11y", model.title)
             }
         case .upcoming:
-            base = "Lesson: \(model.title), Upcoming lesson"
+            base = CraftLocalized.format("craft.learning_path.node_upcoming_a11y", model.title)
         case .locked:
-            base = "Lesson: \(model.title), Locked"
+            base = CraftLocalized.format("craft.learning_path.node_locked_a11y", model.title)
         case .bonus:
-            base = "Bonus Lesson: \(model.title)"
+            base = CraftLocalized.format("craft.learning_path.node_bonus_a11y", model.title)
         }
 
         if let metric = model.metricText, !metric.isEmpty {
@@ -118,13 +118,13 @@ public struct CraftPathNode<CustomPayload: Sendable>: View {
     public var accessibilityHintText: String {
         switch model.state {
         case .completed:
-            return "Double tap to review"
+            return CraftLocalized.string("craft.learning_path.tap_to_review_hint")
         case .active, .inProgress:
-            return "Double tap to continue"
+            return CraftLocalized.string("craft.learning_path.tap_to_continue_hint")
         case .upcoming, .bonus:
-            return "Double tap to start"
+            return CraftLocalized.string("craft.learning_path.tap_to_start_hint")
         case .locked:
-            return "Complete previous lessons to unlock"
+            return CraftLocalized.string("craft.learning_path.unlock_requirement_hint")
         }
     }
 

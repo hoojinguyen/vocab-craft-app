@@ -34,16 +34,16 @@ public struct CraftLessonDetailSheet: View {
     public var ctaTitle: String {
         switch node.state {
         case .active, .upcoming:
-            return CraftLocalized.string("craft.journey.startLesson", comment: "BẮT ĐẦU HỌC")
+            return CraftLocalized.string("craft.learning_path.start_lesson")
         case .inProgress:
             let percentage = Int(((node.progress ?? 0) * 100).rounded())
-            return CraftLocalized.format("craft.journey.continueLesson", percentage)
+            return CraftLocalized.format("craft.learning_path.continue_lesson_format", percentage)
         case .completed:
-            return CraftLocalized.format("craft.journey.reviewLesson", 5)
+            return CraftLocalized.format("craft.learning_path.review_lesson_format", node.xpReward ?? 20)
         case .bonus:
-            return CraftLocalized.string("craft.journey.challengeLesson", comment: "CHINH PHỤC THỬ THÁCH")
+            return CraftLocalized.string("craft.learning_path.challenge_lesson")
         case .locked:
-            return CraftLocalized.string("craft.journey.lockedLesson", comment: "BÀI HỌC ĐANG KHÓA")
+            return CraftLocalized.string("craft.learning_path.locked_lesson")
         }
     }
 
@@ -69,12 +69,12 @@ public struct CraftLessonDetailSheet: View {
 
     /// Formatted estimated duration string.
     public var formattedDuration: String {
-        "⏱ \(node.estimatedMinutes ?? 5) phút"
+        CraftLocalized.format("craft.common.unit.minutes_format", node.estimatedMinutes ?? 5)
     }
 
     /// Formatted vocabulary / objective count string.
     public var formattedVocabularyCount: String {
-        node.subtitle ?? "15 từ vựng mới"
+        node.subtitle ?? CraftLocalized.format("craft.common.unit.words_format", 15)
     }
 
     /// Capitalized status text for badge presentation.
@@ -149,8 +149,8 @@ public struct CraftLessonDetailSheet: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel(CraftLocalized.string("craft.action.close"))
-                .accessibilityHint("Nhấn đúp để đóng thông tin bài học")
+                .accessibilityLabel(CraftLocalized.string("craft.common.action.close"))
+                .accessibilityHint(CraftLocalized.string("craft.learning_path.close_sheet_hint"))
             }
             .padding(.horizontal, theme.spacing.base)
 
@@ -450,6 +450,16 @@ public struct CraftLessonDetailSheet: View {
 
     // MARK: - Objectives Card
 
+    private var resolvedObjectives: [String]? {
+        if let customObjectives = node.objectives, !customObjectives.isEmpty {
+            return customObjectives
+        }
+        if let objectiveKeys = node.objectiveKeys, !objectiveKeys.isEmpty {
+            return objectiveKeys.map { CraftLocalized.string($0) }
+        }
+        return nil
+    }
+
     private var objectivesCard: some View {
         CraftCard(style: .outlined) {
             VStack(alignment: .leading, spacing: theme.spacing.sm) {
@@ -458,15 +468,21 @@ public struct CraftLessonDetailSheet: View {
                         .font(.system(size: 15, weight: .bold))
                         .foregroundStyle(theme.colors.brandPrimary)
 
-                    Text(CraftLocalized.string("craft.journey.objectives"))
+                    Text(CraftLocalized.string("craft.learning_path.objectives_header"))
                         .font(theme.typography.headline)
                         .foregroundStyle(theme.colors.textPrimary)
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
-                    objectiveRow(icon: "checkmark.circle.fill", text: CraftLocalized.string("craft.journey.objective1"))
-                    objectiveRow(icon: "checkmark.circle.fill", text: CraftLocalized.string("craft.journey.objective2"))
-                    objectiveRow(icon: "checkmark.circle.fill", text: CraftLocalized.format("craft.journey.objective3", formattedXPReward))
+                    if let objectives = resolvedObjectives {
+                        ForEach(objectives, id: \.self) { objective in
+                            objectiveRow(icon: "checkmark.circle.fill", text: objective)
+                        }
+                    } else {
+                        objectiveRow(icon: "checkmark.circle.fill", text: CraftLocalized.string("craft.learning_path.default_objective_1"))
+                        objectiveRow(icon: "checkmark.circle.fill", text: CraftLocalized.string("craft.learning_path.default_objective_2"))
+                        objectiveRow(icon: "checkmark.circle.fill", text: CraftLocalized.format("craft.learning_path.default_objective_3_format", formattedXPReward))
+                    }
                 }
             }
         }
@@ -502,7 +518,7 @@ public struct CraftLessonDetailSheet: View {
         }
         .disabled(isCtaDisabled)
         .accessibilityLabel(ctaTitle)
-        .accessibilityHint(isCtaDisabled ? "Bài học đang bị khóa" : "Nhấn đúp để bắt đầu học")
+        .accessibilityHint(isCtaDisabled ? CraftLocalized.string("craft.learning_path.unlock_requirement_hint") : CraftLocalized.string("craft.learning_path.tap_to_start_hint"))
     }
 
     // MARK: - Haptic Feedback

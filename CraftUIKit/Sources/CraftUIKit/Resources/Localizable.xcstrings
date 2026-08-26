@@ -127,6 +127,42 @@
         }
       }
     },
+    "craft.common.state.active": {
+      "comment": "Active state",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang hoạt động"
+          }
+        }
+      }
+    },
+    "craft.common.state.completed": {
+      "comment": "Completed state",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Completed"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã hoàn thành"
+          }
+        }
+      }
+    },
     "craft.common.state.loading": {
       "comment": "General loading state",
       "extractionState": "manual",
@@ -163,20 +199,20 @@
         }
       }
     },
-    "craft.common.state.on": {
-      "comment": "Toggle/switch state ON",
+    "craft.common.state.locked": {
+      "comment": "Locked state",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "On"
+            "value": "Locked"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bật"
+            "value": "Đang khóa"
           }
         }
       }
@@ -195,6 +231,42 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tắt"
+          }
+        }
+      }
+    },
+    "craft.common.state.on": {
+      "comment": "Toggle/switch state ON",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bật"
+          }
+        }
+      }
+    },
+    "craft.common.state.upcoming": {
+      "comment": "Upcoming state",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upcoming"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chưa đến"
           }
         }
       }

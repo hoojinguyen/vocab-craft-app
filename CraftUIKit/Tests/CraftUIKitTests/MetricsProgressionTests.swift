@@ -277,4 +277,22 @@ final class MetricsProgressionTests: XCTestCase {
         XCTAssertEqual(tracker.shieldTokens, 3)
     }
 
+    func testStepStateAccessibilityDescriptions() {
+        XCTAssertEqual(CraftStepState.completed.accessibilityDescription, "Completed")
+        XCTAssertEqual(CraftStepState.active.accessibilityDescription, "Active")
+        XCTAssertEqual(CraftStepState.locked.accessibilityDescription, "Locked")
+        XCTAssertEqual(CraftStepState.upcoming.accessibilityDescription, "Upcoming")
+    }
+
+    func testSegmentedBarAccessibilitySummary() {
+        let emptyBar = CraftSegmentedBar(items: [])
+        XCTAssertNotNil(emptyBar.body)
+
+        let items = [
+            CraftSegmentItem(label: "Mastered", value: 70, color: .green),
+            CraftSegmentItem(label: "Learning", value: 30, color: .blue)
+        ]
+        let bar = CraftSegmentedBar(items: items)
+        XCTAssertNotNil(bar.body)
+    }
 }

@@ -110,7 +110,7 @@ public struct ActiveCalloutBubble: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    public init(text: String = "TIẾP TỤC") {
+    public init(text: String = CraftLocalized.string("craft.learning_path.continue_callout")) {
         self.text = text
     }
 
@@ -238,31 +238,32 @@ public struct CraftLessonNode: View, Equatable {
         let base: String
         switch model.state {
         case .completed:
-            base = "Lesson: \(model.title), Completed"
+            base = CraftLocalized.format("craft.learning_path.node_completed_a11y", model.title)
         case .active:
             if let progress = model.progress {
                 let percent = Int((progress * 100).rounded())
-                base = "Lesson: \(model.title), Current lesson. \(percent)% complete"
+                base = CraftLocalized.format("craft.learning_path.node_current_format_a11y", model.title, percent)
             } else {
-                base = "Lesson: \(model.title), Current lesson"
+                base = CraftLocalized.format("craft.learning_path.node_current_a11y", model.title)
             }
         case .inProgress:
             if let progress = model.progress {
                 let percent = Int((progress * 100).rounded())
-                base = "Lesson: \(model.title), In progress. \(percent)% complete"
+                base = CraftLocalized.format("craft.learning_path.node_in_progress_format_a11y", model.title, percent)
             } else {
-                base = "Lesson: \(model.title), In progress"
+                base = CraftLocalized.format("craft.learning_path.node_in_progress_a11y", model.title)
             }
         case .upcoming:
-            base = "Lesson: \(model.title), Upcoming lesson"
+            base = CraftLocalized.format("craft.learning_path.node_upcoming_a11y", model.title)
         case .locked:
-            base = "Lesson: \(model.title), Locked"
+            base = CraftLocalized.format("craft.learning_path.node_locked_a11y", model.title)
         case .bonus:
-            base = "Bonus Lesson: \(model.title)"
+            base = CraftLocalized.format("craft.learning_path.node_bonus_a11y", model.title)
         }
 
         if let xp = model.xpReward {
-            return "\(base). Reward: \(xp) XP"
+            let rewardText = CraftLocalized.format("craft.learning_path.reward_format_a11y", xp)
+            return "\(base). \(rewardText)"
         }
         return base
     }
@@ -270,13 +271,13 @@ public struct CraftLessonNode: View, Equatable {
     public var accessibilityHintText: String {
         switch model.state {
         case .completed:
-            return "Double tap to review"
+            return CraftLocalized.string("craft.learning_path.tap_to_review_hint")
         case .active, .inProgress:
-            return "Double tap to continue"
+            return CraftLocalized.string("craft.learning_path.tap_to_continue_hint")
         case .upcoming, .bonus:
-            return "Double tap to start"
+            return CraftLocalized.string("craft.learning_path.tap_to_start_hint")
         case .locked:
-            return "Complete previous lessons to unlock"
+            return CraftLocalized.string("craft.learning_path.unlock_requirement_hint")
         }
     }
 
@@ -300,7 +301,7 @@ public struct CraftLessonNode: View, Equatable {
     public var body: some View {
         VStack(spacing: 0) {
             if model.state == .active {
-                ActiveCalloutBubble(text: calloutText ?? "TIẾP TỤC")
+                ActiveCalloutBubble(text: calloutText ?? CraftLocalized.string("craft.learning_path.continue_callout"))
                     .padding(.bottom, 6)
             }
 

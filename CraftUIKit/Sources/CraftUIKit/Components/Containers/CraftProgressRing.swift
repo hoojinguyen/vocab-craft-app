@@ -27,7 +27,7 @@ public struct CraftProgressRing<CenterContent: View>: View {
         tintColor: Color? = nil,
         trackColor: Color? = nil,
         animated: Bool = true,
-        accessibilityLabel: String = "Progress",
+        accessibilityLabel: String = CraftLocalized.string("craft.progress.label"),
         @ViewBuilder centerContent: () -> CenterContent
     ) {
         self.progress = progress
@@ -65,7 +65,7 @@ public struct CraftProgressRing<CenterContent: View>: View {
         .frame(width: size, height: size)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabel)
-        .accessibilityValue("\(Int(clampedProgress * 100)) percent")
+        .accessibilityValue(CraftLocalized.format("craft.common.unit.percent_word_format", Int(round(clampedProgress * 100))))
     }
 }
 
@@ -80,7 +80,7 @@ public extension CraftProgressRing where CenterContent == Text {
         tintColor: Color? = nil,
         trackColor: Color? = nil,
         animated: Bool = true,
-        accessibilityLabel: String = "Progress"
+        accessibilityLabel: String = CraftLocalized.string("craft.progress.label")
     ) {
         let percentage = Int((min(max(progress, 0.0), 1.0) * 100).rounded())
         self.init(

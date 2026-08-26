@@ -12,10 +12,10 @@ public enum CraftStepState: String, Sendable, Equatable, Hashable, CaseIterable 
     /// Accessible VoiceOver description for the step state.
     public var accessibilityDescription: String {
         switch self {
-        case .completed: return "Completed"
-        case .active: return "Active"
-        case .locked: return "Locked"
-        case .upcoming: return "Upcoming"
+        case .completed: return CraftLocalized.string("craft.common.state.completed")
+        case .active: return CraftLocalized.string("craft.common.state.active")
+        case .locked: return CraftLocalized.string("craft.common.state.locked")
+        case .upcoming: return CraftLocalized.string("craft.common.state.upcoming")
         }
     }
 }
@@ -103,7 +103,7 @@ public struct CraftStepNode: View {
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabelText)
-        .accessibilityHint(onTap != nil ? "Double tap to select this step" : "")
+        .accessibilityHint(onTap != nil ? CraftLocalized.string("craft.step_node.tap_hint") : "")
     }
 
     // MARK: - Content Layout
@@ -313,12 +313,16 @@ public struct CraftStepNode: View {
     }
 
     private var accessibilityLabelText: String {
-        var label = title.isEmpty ? "Step" : title
+        let fallbackTitle = CraftLocalized.string("craft.segmented_bar.segment_fallback")
+        let baseTitle = title.isEmpty ? fallbackTitle : title
+        var label: String
         if let stepNumber {
-            label = "Step \(stepNumber): \(label)"
+            label = CraftLocalized.format("craft.step_node.step_format", stepNumber, baseTitle)
+        } else {
+            label = baseTitle
         }
         label += ", \(state.accessibilityDescription)"
-        if let subtitle {
+        if let subtitle = subtitle, !subtitle.isEmpty {
             label += ", \(subtitle)"
         }
         return label

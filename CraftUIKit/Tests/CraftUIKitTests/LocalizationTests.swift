@@ -42,6 +42,16 @@ final class LocalizationTests: XCTestCase {
         XCTAssertEqual(CraftLocalized.string("craft.common.state.empty"), "Empty")
         XCTAssertEqual(CraftLocalized.string("craft.common.state.empty", language: "vi"), "Trống")
         
+        // Active / Completed / Locked / Upcoming States
+        XCTAssertEqual(CraftLocalized.string("craft.common.state.active"), "Active")
+        XCTAssertEqual(CraftLocalized.string("craft.common.state.active", language: "vi"), "Đang hoạt động")
+        XCTAssertEqual(CraftLocalized.string("craft.common.state.completed"), "Completed")
+        XCTAssertEqual(CraftLocalized.string("craft.common.state.completed", language: "vi"), "Đã hoàn thành")
+        XCTAssertEqual(CraftLocalized.string("craft.common.state.locked"), "Locked")
+        XCTAssertEqual(CraftLocalized.string("craft.common.state.locked", language: "vi"), "Đang khóa")
+        XCTAssertEqual(CraftLocalized.string("craft.common.state.upcoming"), "Upcoming")
+        XCTAssertEqual(CraftLocalized.string("craft.common.state.upcoming", language: "vi"), "Chưa đến")
+        
         // On / Off
         XCTAssertEqual(CraftLocalized.string("craft.common.state.on"), "On")
         XCTAssertEqual(CraftLocalized.string("craft.common.state.on", language: "vi"), "Bật")

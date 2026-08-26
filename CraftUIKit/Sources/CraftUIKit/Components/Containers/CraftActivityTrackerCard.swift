@@ -90,10 +90,10 @@ public struct CraftActivityTrackerCard: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabelString)
         .accessibilityHint(accessibilityHintString)
-        .accessibilityActionIf(onShieldTap != nil, named: CraftLocalized.string("craft.streak.viewShieldAction")) {
+        .accessibilityActionIf(onShieldTap != nil, named: CraftLocalized.string("craft.streak.view_shield_action")) {
             onShieldTap?()
         }
-        .accessibilityActionIf(onMilestoneTap != nil, named: CraftLocalized.string("craft.streak.viewMilestoneAction")) {
+        .accessibilityActionIf(onMilestoneTap != nil, named: CraftLocalized.string("craft.streak.view_milestone_action")) {
             onMilestoneTap?()
         }
         .onAppear {
@@ -155,7 +155,7 @@ public struct CraftActivityTrackerCard: View {
             // Best Record Trophy Badge
             if data.bestRecord > 0 {
                 CraftBadge(
-                    CraftLocalized.format("craft.streak.bestRecord", data.bestRecord),
+                    CraftLocalized.format("craft.streak.best_record_format", data.bestRecord),
                     symbol: .trophy,
                     variant: isGradientCard ? .solid : .subtle,
                     tone: .neutral,
@@ -245,7 +245,7 @@ public struct CraftActivityTrackerCard: View {
             .contentShape(Rectangle())
             .accessibilityAddTraits(.isButton)
             .accessibilityLabel("\(day.weekdaySymbol), \(accessibilityDayStatusDescription(for: day.status))")
-            .accessibilityHint("Chạm hai lần để xem chi tiết ngày này.")
+            .accessibilityHint(CraftLocalized.string("craft.streak.day_inspect_hint"))
         } else {
             dayStatusNode(for: day)
                 .frame(minWidth: 44, minHeight: 44)
@@ -424,7 +424,7 @@ public struct CraftActivityTrackerCard: View {
 
     private var shieldBadge: some View {
         CraftBadge(
-            CraftLocalized.format("craft.streak.freezeShield", data.shieldTokens, data.maxShieldTokens),
+            CraftLocalized.format("craft.streak.freeze_shield_format", data.shieldTokens, data.maxShieldTokens),
             iconName: "snowflake",
             variant: isGradientCard ? .solid : .subtle,
             tone: isGradientCard ? .neutral : (data.shieldTokens > 0 ? .primary : .neutral),
@@ -469,11 +469,11 @@ public struct CraftActivityTrackerCard: View {
     private var tierTitle: String {
         switch data.tier {
         case .starter:
-            return CraftLocalized.string("craft.streak.tierStarter")
+            return CraftLocalized.string("craft.streak.tier_starter")
         case .blaze:
-            return CraftLocalized.string("craft.streak.tierBlaze")
+            return CraftLocalized.string("craft.streak.tier_blaze")
         case .legendary:
-            return CraftLocalized.string("craft.streak.tierLegendary")
+            return CraftLocalized.string("craft.streak.tier_legendary")
         }
     }
 
@@ -492,13 +492,7 @@ public struct CraftActivityTrackerCard: View {
         if let subtitle = data.subtitle, !subtitle.isEmpty {
             return subtitle
         }
-        let remaining = max(0, data.nextMilestone - data.currentValue)
-        let percent = Int(round(data.milestoneProgress * 100.0))
-        if remaining == 0 {
-            return CraftLocalized.format("craft.streak.milestoneReachedPercent", data.nextMilestone)
-        } else {
-            return CraftLocalized.format("craft.streak.milestoneProgressPercent", data.nextMilestone, percent)
-        }
+        return CraftLocalized.format("craft.streak.milestone_title_format", data.nextMilestone)
     }
 
     private var tierGradient: LinearGradient {
@@ -541,9 +535,9 @@ public struct CraftActivityTrackerCard: View {
         if let customAccessibilityLabel {
             return customAccessibilityLabel
         }
-        let statusDescription = data.isCompletedToday ? CraftLocalized.string("craft.streak.todayCompleted") : CraftLocalized.string("craft.streak.todayPending")
-        let bestDescription = data.bestRecord > 0 ? "\(CraftLocalized.format("craft.streak.bestRecord", data.bestRecord)). " : ""
-        let freezeDescription = CraftLocalized.format("craft.streak.freezeShield", data.shieldTokens, data.maxShieldTokens)
+        let statusDescription = data.isCompletedToday ? CraftLocalized.string("craft.streak.today_completed") : CraftLocalized.string("craft.streak.today_pending")
+        let bestDescription = data.bestRecord > 0 ? "\(CraftLocalized.format("craft.streak.best_record_format", data.bestRecord)). " : ""
+        let freezeDescription = CraftLocalized.format("craft.streak.freeze_shield_format", data.shieldTokens, data.maxShieldTokens)
         return "\(data.currentValue) \(resolvedUnit), \(tierTitle). \(statusDescription). \(bestDescription)\(freezeDescription)"
     }
 
@@ -551,32 +545,21 @@ public struct CraftActivityTrackerCard: View {
         if let customAccessibilityHint {
             return customAccessibilityHint
         }
-        var actions: [String] = []
-        if onShieldTap != nil {
-            actions.append("'\(CraftLocalized.string("craft.streak.viewShieldAction"))'")
-        }
-        if onMilestoneTap != nil {
-            actions.append("'\(CraftLocalized.string("craft.streak.viewMilestoneAction"))'")
-        }
-        if !actions.isEmpty {
-            let actionsJoined = actions.joined(separator: ", ")
-            return CraftLocalized.format("craft.streak.cardA11yActionsFormat", actionsJoined)
-        }
-        return CraftLocalized.string("craft.streak.cardA11yHintOverview")
+        return CraftLocalized.string("craft.streak.card_a11y_overview")
     }
 
     private func accessibilityDayStatusDescription(for status: CraftActivityDayStatus) -> String {
         switch status {
         case .completed:
-            return CraftLocalized.string("craft.streak.dayStatusCompleted")
+            return CraftLocalized.string("craft.streak.day_status_completed")
         case .pending:
-            return CraftLocalized.string("craft.streak.dayStatusPending")
+            return CraftLocalized.string("craft.streak.day_status_pending")
         case .saved:
-            return CraftLocalized.string("craft.streak.dayStatusSaved")
+            return CraftLocalized.string("craft.streak.day_status_saved")
         case .missed:
-            return CraftLocalized.string("craft.streak.dayStatusMissed")
+            return CraftLocalized.string("craft.streak.day_status_missed")
         case .upcoming:
-            return CraftLocalized.string("craft.streak.dayStatusUpcoming")
+            return CraftLocalized.string("craft.streak.day_status_upcoming")
         }
     }
 }

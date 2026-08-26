@@ -126,7 +126,7 @@ public struct CraftLessonSectionView: View {
             VStack(alignment: .leading, spacing: theme.spacing.sm) {
                 // Top Row: Level Badge & Progress Pill
                 HStack(alignment: .center) {
-                    Text(section.level ?? "UNIT")
+                    Text(section.level ?? CraftLocalized.string("craft.learning_path.default_unit_label"))
                         .font(.caption.smallCaps().bold())
                         .foregroundStyle(theme.colors.brandPrimary)
                         .padding(.horizontal, theme.spacing.xs * 1.5)

@@ -82,8 +82,8 @@ public struct CraftProgressBar: View {
         }
         .frame(height: height)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Progress")
-        .accessibilityValue("\(Int(clampedProgress * 100)) percent")
+        .accessibilityLabel(CraftLocalized.string("craft.progress.label"))
+        .accessibilityValue(CraftLocalized.format("craft.common.unit.percent_word_format", Int(round(clampedProgress * 100))))
     }
 }
 

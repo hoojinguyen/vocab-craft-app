@@ -218,9 +218,9 @@ public struct CraftLearningPath: View {
 
     private var emptyStateView: some View {
         ContentUnavailableView(
-            "No Lessons Available",
+            CraftLocalized.string("craft.learning_path.empty_title"),
             systemImage: "character.book.closed",
-            description: Text("There are no lesson sections available in this learning path.")
+            description: Text(CraftLocalized.string("craft.learning_path.empty_desc"))
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

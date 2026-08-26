@@ -147,7 +147,7 @@ public struct CraftSegmentedBar: View {
             }
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Segmented metric bar")
+        .accessibilityLabel(CraftLocalized.string("craft.segmented_bar.label_a11y"))
         .accessibilityValue(accessibilitySummary)
     }
 
@@ -190,11 +190,11 @@ public struct CraftSegmentedBar: View {
 
     private var accessibilitySummary: String {
         if items.isEmpty || totalValue == 0 {
-            return "Empty"
+            return CraftLocalized.string("craft.common.state.empty")
         }
         return items.map { item in
             let pct = Int(round(percentage(for: item)))
-            let labelText = item.label.isEmpty ? "Segment" : item.label
+            let labelText = item.label.isEmpty ? CraftLocalized.string("craft.segmented_bar.segment_fallback") : item.label
             return "\(labelText): \(pct)%"
         }.joined(separator: ", ")
     }

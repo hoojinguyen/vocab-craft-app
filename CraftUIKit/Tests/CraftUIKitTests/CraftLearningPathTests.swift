@@ -685,7 +685,7 @@ final class CraftLearningPathTests: XCTestCase {
 
     func testActiveCalloutBubbleInstantiationAndVariants() {
         let defaultBubble = ActiveCalloutBubble()
-        XCTAssertEqual(defaultBubble.text, "TIẾP TỤC")
+        XCTAssertEqual(defaultBubble.text, "CONTINUE")
 
         let customBubble = ActiveCalloutBubble("START")
         XCTAssertEqual(customBubble.text, "START")
@@ -1527,49 +1527,49 @@ final class CraftLearningPathTests: XCTestCase {
         // 1. Active State
         let activeNode = LessonNodeModel(id: "act", title: "Active Lesson", state: .active)
         let activeSheet = CraftLessonDetailSheet(node: activeNode)
-        XCTAssertEqual(activeSheet.ctaTitle, "BẮT ĐẦU HỌC")
+        XCTAssertEqual(activeSheet.ctaTitle, "START LESSON")
         XCTAssertEqual(activeSheet.ctaVariant, .primary)
         XCTAssertFalse(activeSheet.isCtaDisabled)
 
         // 2. Upcoming State
         let upcomingNode = LessonNodeModel(id: "up", title: "Upcoming Lesson", state: .upcoming)
         let upcomingSheet = CraftLessonDetailSheet(node: upcomingNode)
-        XCTAssertEqual(upcomingSheet.ctaTitle, "BẮT ĐẦU HỌC")
+        XCTAssertEqual(upcomingSheet.ctaTitle, "START LESSON")
         XCTAssertEqual(upcomingSheet.ctaVariant, .primary)
         XCTAssertFalse(upcomingSheet.isCtaDisabled)
 
         // 3. InProgress State (with progress)
         let inProgressNode = LessonNodeModel(id: "prog", title: "In Progress Lesson", state: .inProgress, progress: 0.65)
         let inProgressSheet = CraftLessonDetailSheet(node: inProgressNode)
-        XCTAssertEqual(inProgressSheet.ctaTitle, "TIẾP TỤC HỌC (65%)")
+        XCTAssertEqual(inProgressSheet.ctaTitle, "CONTINUE (65%)")
         XCTAssertEqual(inProgressSheet.ctaVariant, .primary)
         XCTAssertFalse(inProgressSheet.isCtaDisabled)
 
         // 3b. InProgress State (nil progress)
         let inProgressNilNode = LessonNodeModel(id: "prog_nil", title: "In Progress Nil", state: .inProgress)
         let inProgressNilSheet = CraftLessonDetailSheet(node: inProgressNilNode)
-        XCTAssertEqual(inProgressNilSheet.ctaTitle, "TIẾP TỤC HỌC (0%)")
+        XCTAssertEqual(inProgressNilSheet.ctaTitle, "CONTINUE (0%)")
         XCTAssertEqual(inProgressNilSheet.ctaVariant, .primary)
         XCTAssertFalse(inProgressNilSheet.isCtaDisabled)
 
         // 4. Completed State
         let completedNode = LessonNodeModel(id: "comp", title: "Completed Lesson", state: .completed)
         let completedSheet = CraftLessonDetailSheet(node: completedNode)
-        XCTAssertEqual(completedSheet.ctaTitle, "ÔN TẬP LẠI (+5 XP)")
+        XCTAssertEqual(completedSheet.ctaTitle, "REVIEW (+20 XP)")
         XCTAssertEqual(completedSheet.ctaVariant, .secondary)
         XCTAssertFalse(completedSheet.isCtaDisabled)
 
         // 5. Bonus State
         let bonusNode = LessonNodeModel(id: "bon", title: "Bonus Challenge", state: .bonus)
         let bonusSheet = CraftLessonDetailSheet(node: bonusNode)
-        XCTAssertEqual(bonusSheet.ctaTitle, "CHINH PHỤC THỬ THÁCH")
+        XCTAssertEqual(bonusSheet.ctaTitle, "CONQUER CHALLENGE")
         XCTAssertEqual(bonusSheet.ctaVariant, .primary)
         XCTAssertFalse(bonusSheet.isCtaDisabled)
 
         // 6. Locked State
         let lockedNode = LessonNodeModel(id: "lock", title: "Locked Lesson", state: .locked)
         let lockedSheet = CraftLessonDetailSheet(node: lockedNode)
-        XCTAssertEqual(lockedSheet.ctaTitle, "BÀI HỌC ĐANG KHÓA")
+        XCTAssertEqual(lockedSheet.ctaTitle, "LESSON LOCKED")
         XCTAssertEqual(lockedSheet.ctaVariant, .secondary)
         XCTAssertTrue(lockedSheet.isCtaDisabled)
     }
@@ -1586,7 +1586,7 @@ final class CraftLearningPathTests: XCTestCase {
         )
         let sheetWithValues = CraftLessonDetailSheet(node: nodeWithValues)
         XCTAssertEqual(sheetWithValues.formattedXPReward, "+35 XP")
-        XCTAssertEqual(sheetWithValues.formattedDuration, "⏱ 8 phút")
+        XCTAssertEqual(sheetWithValues.formattedDuration, "8 min")
         XCTAssertEqual(sheetWithValues.formattedVocabularyCount, "20 từ vựng du lịch")
         XCTAssertEqual(sheetWithValues.statusBadgeTitle, "Active")
         XCTAssertEqual(sheetWithValues.statusBadgeTone, .primary)
@@ -1595,8 +1595,8 @@ final class CraftLearningPathTests: XCTestCase {
         let defaultNode = LessonNodeModel(id: "m2", title: "Default Lesson", state: .completed)
         let defaultSheet = CraftLessonDetailSheet(node: defaultNode)
         XCTAssertEqual(defaultSheet.formattedXPReward, "+20 XP")
-        XCTAssertEqual(defaultSheet.formattedDuration, "⏱ 5 phút")
-        XCTAssertEqual(defaultSheet.formattedVocabularyCount, "15 từ vựng mới")
+        XCTAssertEqual(defaultSheet.formattedDuration, "5 min")
+        XCTAssertEqual(defaultSheet.formattedVocabularyCount, "15 new words")
         XCTAssertEqual(defaultSheet.statusBadgeTitle, "Completed")
         XCTAssertEqual(defaultSheet.statusBadgeTone, .success)
 
@@ -1627,7 +1627,7 @@ final class CraftLearningPathTests: XCTestCase {
         let cpSheet = CraftLessonDetailSheet(node: cpNode)
         XCTAssertEqual(cpSheet.node.kind, .checkpoint)
         XCTAssertEqual(cpSheet.formattedXPReward, "+100 XP")
-        XCTAssertEqual(cpSheet.formattedDuration, "⏱ 10 phút")
+        XCTAssertEqual(cpSheet.formattedDuration, "10 min")
 
         let tcNode = LessonNodeModel(
             id: "tc_sheet",
