@@ -1926,6 +1926,96 @@
           }
         }
       }
+    },
+    "craft.feedback.success_title": {
+      "comment": "Feedback sheet success banner title",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nice work!"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chính xác!"
+          }
+        }
+      }
+    },
+    "craft.feedback.error_title": {
+      "comment": "Feedback sheet error banner title",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incorrect"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chưa chính xác"
+          }
+        }
+      }
+    },
+    "craft.feedback.warning_title": {
+      "comment": "Feedback sheet warning banner title",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Almost!"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gần đúng!"
+          }
+        }
+      }
+    },
+    "craft.feedback.info_title": {
+      "comment": "Feedback sheet info banner title",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Explanation"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giải thích"
+          }
+        }
+      }
+    },
+    "craft.feedback.continue_action": {
+      "comment": "Feedback sheet continue action button label",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CONTINUE"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TIẾP TỤC"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

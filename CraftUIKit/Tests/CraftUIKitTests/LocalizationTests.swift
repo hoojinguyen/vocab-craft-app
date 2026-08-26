@@ -353,6 +353,30 @@ final class LocalizationTests: XCTestCase {
         XCTAssertEqual(CraftLocalized.string("craft.sparkle.celebration_label", language: "vi"), "Chúc mừng!")
     }
 
+    func testFeedbackSheetLocalizationKeys() {
+        let successEn = CraftLocalized.string("craft.feedback.success_title", language: "en")
+        let successVi = CraftLocalized.string("craft.feedback.success_title", language: "vi")
+        let errorEn = CraftLocalized.string("craft.feedback.error_title", language: "en")
+        let errorVi = CraftLocalized.string("craft.feedback.error_title", language: "vi")
+        let warningEn = CraftLocalized.string("craft.feedback.warning_title", language: "en")
+        let warningVi = CraftLocalized.string("craft.feedback.warning_title", language: "vi")
+        let infoEn = CraftLocalized.string("craft.feedback.info_title", language: "en")
+        let infoVi = CraftLocalized.string("craft.feedback.info_title", language: "vi")
+        let continueEn = CraftLocalized.string("craft.feedback.continue_action", language: "en")
+        let continueVi = CraftLocalized.string("craft.feedback.continue_action", language: "vi")
+
+        XCTAssertEqual(successEn, "Nice work!")
+        XCTAssertEqual(successVi, "Chính xác!")
+        XCTAssertEqual(errorEn, "Incorrect")
+        XCTAssertEqual(errorVi, "Chưa chính xác")
+        XCTAssertEqual(warningEn, "Almost!")
+        XCTAssertEqual(warningVi, "Gần đúng!")
+        XCTAssertEqual(infoEn, "Explanation")
+        XCTAssertEqual(infoVi, "Giải thích")
+        XCTAssertEqual(continueEn, "CONTINUE")
+        XCTAssertEqual(continueVi, "TIẾP TỤC")
+    }
+
     // MARK: - Fallback and Missing Keys
     
     func testFallbackToKeyWhenMissing() {
