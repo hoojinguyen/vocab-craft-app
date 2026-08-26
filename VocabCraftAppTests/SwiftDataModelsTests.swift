@@ -203,6 +203,7 @@ final class SwiftDataModelsTests: XCTestCase {
         XCTAssertEqual(progress.deckId, "deck_food")
         XCTAssertFalse(progress.isCompleted)
         XCTAssertEqual(progress.score, 0)
+        XCTAssertEqual(progress.progressFraction, 0.0, accuracy: 0.001)
         XCTAssertLessThanOrEqual(progress.completedAt.timeIntervalSince(now), 1.0)
     }
 
@@ -212,24 +213,34 @@ final class SwiftDataModelsTests: XCTestCase {
         let testContainer = try ModelContainer(for: testSchema, configurations: [testConfig])
         let stageContext = testContainer.mainContext
 
-        let stage = UserStageProgress(stageId: "stage_travel_1", deckId: "deck_travel", isCompleted: true, score: 85)
+        let stage = UserStageProgress(
+            stageId: "stage_travel_1",
+            deckId: "deck_travel",
+            isCompleted: true,
+            score: 85,
+            progressFraction: 1.0
+        )
         stageContext.insert(stage)
         try stageContext.save()
 
         let descriptor = FetchDescriptor<UserStageProgress>(predicate: #Predicate { $0.stageId == "stage_travel_1" })
         let fetched = try stageContext.fetch(descriptor)
-        XCTAssertEqual(fetched.count, 1)
-        XCTAssertEqual(fetched.first?.stageId, "stage_travel_1")
-        XCTAssertEqual(fetched.first?.deckId, "deck_travel")
-        XCTAssertEqual(fetched.first?.isCompleted, true)
-        XCTAssertEqual(fetched.first?.score, 85)
+        let fetchedRecord = try XCTUnwrap(fetched.first)
+        XCTAssertEqual(fetchedRecord.stageId, "stage_travel_1")
+        XCTAssertEqual(fetchedRecord.deckId, "deck_travel")
+        XCTAssertEqual(fetchedRecord.isCompleted, true)
+        XCTAssertEqual(fetchedRecord.score, 85)
+        XCTAssertEqual(fetchedRecord.progressFraction, 1.0, accuracy: 0.001)
 
         // Update
-        fetched.first?.score = 100
+        fetchedRecord.score = 100
+        fetchedRecord.progressFraction = 1.0
         try stageContext.save()
 
         let updated = try stageContext.fetch(descriptor)
-        XCTAssertEqual(updated.first?.score, 100)
+        let updatedRecord = try XCTUnwrap(updated.first)
+        XCTAssertEqual(updatedRecord.score, 100)
+        XCTAssertEqual(updatedRecord.progressFraction, 1.0, accuracy: 0.001)
 
         // Delete
         if let toDelete = updated.first {

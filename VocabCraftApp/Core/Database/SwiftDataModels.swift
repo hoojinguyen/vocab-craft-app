@@ -63,13 +63,22 @@ public final class UserStageProgress {
     public var deckId: String
     public var isCompleted: Bool
     public var score: Int
+    public var progressFraction: Double
     public var completedAt: Date
 
-    public init(stageId: String, deckId: String, isCompleted: Bool = false, score: Int = 0, completedAt: Date = Date()) {
+    public init(
+        stageId: String,
+        deckId: String,
+        isCompleted: Bool = false,
+        score: Int = 0,
+        progressFraction: Double = 0.0,
+        completedAt: Date = Date()
+    ) {
         self.stageId = stageId
         self.deckId = deckId
         self.isCompleted = isCompleted
         self.score = score
+        self.progressFraction = progressFraction
         self.completedAt = completedAt
     }
 }
