@@ -159,7 +159,7 @@ def generate_pbxproj():
 
 /* Begin PBXBuildFile section */
 {pbx_build_section}
-		300000402D50000000000002 /* VocabCraftWidgetExtension.appex in Embed App Extensions */ = {{isa = PBXBuildFile; fileRef = 200000402D50000000000000 /* VocabCraftWidgetExtension.appex */; settings = {{ATTRIBUTES = (RemoveHeadersOnCopy, ); }}; }};
+		300000402D50000000000002 /* VocabCraftWidgetExtension.appex in Embed App Extensions */ = {{isa = PBXBuildFile; fileRef = 200000402D50000000000000 /* VocabCraftWidgetExtension.appex */; settings = {{ATTRIBUTES = (RemoveHeadersOnCopy, CodeSignOnCopy, ); }}; }};
 		900000000000000000000003 /* CraftUIKit in Frameworks */ = {{isa = PBXBuildFile; productRef = 900000000000000000000002 /* CraftUIKit */; }};
 		900000000000000000000004 /* CraftUIKit in Frameworks */ = {{isa = PBXBuildFile; productRef = 900000000000000000000002 /* CraftUIKit */; }};
 		900000000000000000000007 /* SpeechKit in Frameworks */ = {{isa = PBXBuildFile; productRef = 900000000000000000000006 /* SpeechKit */; }};
@@ -496,6 +496,7 @@ def generate_pbxproj():
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_ENTITLEMENTS = VocabCraftApp/App/VocabCraftApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = NO;
 				DEVELOPMENT_TEAM = 58TYVC4N97;
@@ -553,6 +554,7 @@ def generate_pbxproj():
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 58TYVC4N97;
 				GENERATE_INFOPLIST_FILE = NO;
