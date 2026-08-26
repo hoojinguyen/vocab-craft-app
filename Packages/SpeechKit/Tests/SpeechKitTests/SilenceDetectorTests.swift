@@ -1,4 +1,4 @@
-@testable import VocabCraftApp
+@testable import SpeechKit
 import XCTest
 
 private final class AtomicCounter: @unchecked Sendable {

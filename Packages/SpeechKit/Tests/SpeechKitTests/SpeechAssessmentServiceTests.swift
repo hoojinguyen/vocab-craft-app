@@ -1,4 +1,4 @@
-@testable import VocabCraftApp
+@testable import SpeechKit
 import XCTest
 
 // MARK: - Mock Speech Recognition Engine

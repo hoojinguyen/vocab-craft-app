@@ -1,4 +1,4 @@
-@testable import VocabCraftApp
+@testable import SpeechKit
 import XCTest
 
 final class FuzzySpeechMatcherTests: XCTestCase {
