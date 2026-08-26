@@ -656,6 +656,44 @@ final class CraftStreakComponentTests: XCTestCase {
         let reachedFormattedVi = CraftLocalized.format("craft.streak.milestoneReachedPercent", language: "vi", 21)
         XCTAssertEqual(reachedFormattedVi, "Đạt mốc 21 ngày • 100%")
     }
+
+    // MARK: - Task 2: Visual Styling, Gold Trophy, Soft Recessed Tray & Ember Glow Tests
+
+    func testCraftActivityTrackerCardVisualHierarchyAndTiers() {
+        let mockDays: [CraftActivityDay] = [
+            .init(id: "1", weekdaySymbol: "T2", status: .completed),
+            .init(id: "2", weekdaySymbol: "T3", status: .pending, isToday: true),
+            .init(id: "3", weekdaySymbol: "T4", status: .saved),
+            .init(id: "4", weekdaySymbol: "T5", status: .missed),
+            .init(id: "5", weekdaySymbol: "T6", status: .upcoming)
+        ]
+        let data = CraftActivityTrackerData(
+            currentValue: 14,
+            bestRecord: 30,
+            cycleDays: mockDays
+        )
+        let card = CraftActivityTrackerCard(data: data, cardStyle: .elevated)
+        XCTAssertNotNil(card.body)
+        XCTAssertEqual(card.data.currentValue, 14)
+        XCTAssertEqual(card.data.bestRecord, 30)
+        XCTAssertEqual(card.cardStyle, .elevated)
+
+        // Verify across all tiers and card styles
+        for tier in CraftStreakTier.allCases {
+            let tierData = CraftActivityTrackerData(
+                currentValue: tier == .starter ? 3 : (tier == .blaze ? 14 : 35),
+                bestRecord: 50,
+                tier: tier,
+                cycleDays: mockDays
+            )
+            for style in CraftCardStyle.allCases {
+                let tierCard = CraftActivityTrackerCard(data: tierData, cardStyle: style)
+                XCTAssertNotNil(tierCard.body)
+                XCTAssertEqual(tierCard.data.tier, tier)
+                XCTAssertEqual(tierCard.cardStyle, style)
+            }
+        }
+    }
 }
 
 

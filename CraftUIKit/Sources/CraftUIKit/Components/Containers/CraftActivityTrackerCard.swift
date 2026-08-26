@@ -145,8 +145,9 @@ public struct CraftActivityTrackerCard: View {
                     CraftLocalized.format("craft.streak.bestRecord", data.bestRecord),
                     symbol: .trophy,
                     variant: .subtle,
-                    tone: .warning,
-                    size: .sm
+                    tone: .neutral,
+                    size: .sm,
+                    customTint: Color(hex: "F59E0B") // Warm Amber Gold
                 )
             }
         }
@@ -183,12 +184,8 @@ public struct CraftActivityTrackerCard: View {
         }
         .padding(.horizontal, theme.spacing.xs)
         .padding(.vertical, theme.spacing.sm)
-        .background(theme.colors.surfaceSubtle.opacity(0.45))
+        .background(theme.colors.surfaceSubtle.opacity(0.35))
         .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
-        .overlay(
-            RoundedRectangle(cornerRadius: theme.radii.md)
-                .strokeBorder(theme.colors.borderDefault.opacity(0.35), lineWidth: 0.8)
-        )
     }
 
     @ViewBuilder
@@ -248,21 +245,23 @@ public struct CraftActivityTrackerCard: View {
 
             case .pending:
                 Circle()
-                    .fill(day.isToday ? tierBaseColor.opacity(0.08) : theme.colors.surfaceSubtle.opacity(0.5))
+                    .fill(day.isToday ? tierBaseColor.opacity(0.12) : theme.colors.surfaceSubtle.opacity(0.5))
                     .frame(width: nodeSize, height: nodeSize)
                     .overlay(
                         Circle()
                             .stroke(
-                                day.isToday ? theme.colors.streakPending : theme.colors.borderDefault,
+                                day.isToday ? tierBaseColor : theme.colors.borderDefault,
                                 style: StrokeStyle(lineWidth: 1.5, dash: day.isToday ? [4, 3] : [3, 3])
                             )
                     )
-                    .overlay(
-                        Circle()
-                            .stroke(theme.depths.topHighlight, lineWidth: 0.8)
-                    )
-                    .scaleEffect(!reduceMotion && day.isToday && isPulsing ? 1.06 : 1.0)
-                    .opacity(!reduceMotion && day.isToday && isPulsing ? 0.90 : 1.0)
+                    .overlay {
+                        if day.isToday && !reduceMotion {
+                            Circle()
+                                .stroke(tierBaseColor.opacity(isPulsing ? 0.6 : 0.0), lineWidth: 2.5)
+                                .scaleEffect(isPulsing ? 1.25 : 1.0)
+                                .opacity(isPulsing ? 0.0 : 1.0)
+                        }
+                    }
 
             case .saved:
                 ZStack {
