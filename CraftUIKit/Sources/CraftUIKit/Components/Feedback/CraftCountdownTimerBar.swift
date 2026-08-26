@@ -66,6 +66,17 @@ public struct CraftCountdownTimerBar: View {
     public let animated: Bool
     public let onTimeout: (() -> Void)?
 
+    private var isTimeDriven: Bool {
+        progress == nil && timeLimit != nil
+    }
+
+    /// Composite equatable identifier for time-driven background task scheduling.
+    private struct TimeDrivenTaskID: Equatable, Hashable {
+        let isActive: Bool
+        let startDate: Date
+        let timeLimit: TimeInterval
+    }
+
     /// Returns the clamped progress in [0.0, 1.0] range.
     public var clampedProgress: Double {
         if let progress = progress {
@@ -147,7 +158,7 @@ public struct CraftCountdownTimerBar: View {
                 let fraction = timeLimit > 0 ? min(max(remaining / timeLimit, 0.0), 1.0) : 0.0
                 renderBar(fraction: fraction)
             }
-            .task(id: "\(isActive)-\(startDate.timeIntervalSince1970)-\(timeLimit)") {
+            .task(id: TimeDrivenTaskID(isActive: isActive, startDate: startDate, timeLimit: timeLimit)) {
                 guard isActive else { return }
                 let elapsed = Date().timeIntervalSince(startDate)
                 let remaining = timeLimit - elapsed
@@ -175,6 +186,7 @@ public struct CraftCountdownTimerBar: View {
         let currentStage = stage ?? Self.deriveStage(for: fraction)
         let fillColor = stageColor(for: currentStage)
         let track = colorConfig.trackColor ?? theme.colors.surfaceSubtle
+        let animation = (isTimeDriven || !animated || reduceMotion) ? nil : theme.animations.springSmooth
 
         GeometryReader { geometry in
             ZStack(alignment: .leading) {
@@ -195,7 +207,7 @@ public struct CraftCountdownTimerBar: View {
                             y: 0
                         )
                         .animation(
-                            animated && !reduceMotion ? theme.animations.springSmooth : nil,
+                            animation,
                             value: fraction
                         )
                 }
@@ -205,6 +217,7 @@ public struct CraftCountdownTimerBar: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(CraftLocalized.string("craft.countdown.time_remaining_label"))
         .accessibilityValue(CraftLocalized.format("craft.common.unit.percent_word_format", Int(round(fraction * 100))))
+        .accessibilityAddTraits(.updatesFrequently)
     }
 
     private func stageColor(for stage: CraftCountdownStage) -> Color {
