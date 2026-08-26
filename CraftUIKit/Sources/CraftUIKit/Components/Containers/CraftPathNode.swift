@@ -461,6 +461,19 @@ public struct CraftPathNode<CustomPayload: Sendable>: View {
 
     // MARK: - Active Glow Halo
 
+    private var haloRadialGradient: RadialGradient {
+        RadialGradient(
+            colors: [
+                theme.colors.brandPrimary.opacity(0.30),
+                theme.colors.brandPrimary.opacity(0.12),
+                Color.clear
+            ],
+            center: .center,
+            startRadius: nodeDiameter * 0.35,
+            endRadius: (nodeDiameter + 24) * 0.5
+        )
+    }
+
     @ViewBuilder
     private var activeGlowHalo: some View {
         let haloSize = nodeDiameter + 24
@@ -481,11 +494,13 @@ public struct CraftPathNode<CustomPayload: Sendable>: View {
 
     @ViewBuilder
     private func haloShapeView(size: CGFloat, opacity: Double, scale: CGFloat) -> some View {
+        let gradient = haloRadialGradient
         switch model.shape {
         case .circle:
             Circle()
-                .fill(theme.colors.pathHaloGlow.opacity(opacity))
+                .fill(gradient)
                 .frame(width: size, height: size)
+                .opacity(opacity)
                 .scaleEffect(scale)
                 .overlay(
                     Circle()
@@ -494,8 +509,9 @@ public struct CraftPathNode<CustomPayload: Sendable>: View {
                 )
         case .hexagon:
             HexagonShape()
-                .fill(theme.colors.pathHaloGlow.opacity(opacity))
+                .fill(gradient)
                 .frame(width: size, height: size)
+                .opacity(opacity)
                 .scaleEffect(scale)
                 .overlay(
                     HexagonShape()
@@ -504,8 +520,9 @@ public struct CraftPathNode<CustomPayload: Sendable>: View {
                 )
         case .diamond:
             DiamondShape()
-                .fill(theme.colors.pathHaloGlow.opacity(opacity))
+                .fill(gradient)
                 .frame(width: size, height: size)
+                .opacity(opacity)
                 .scaleEffect(scale)
                 .overlay(
                     DiamondShape()
@@ -514,8 +531,9 @@ public struct CraftPathNode<CustomPayload: Sendable>: View {
                 )
         case .squircle:
             SquircleShape(cornerRadius: size * 0.28)
-                .fill(theme.colors.pathHaloGlow.opacity(opacity))
+                .fill(gradient)
                 .frame(width: size, height: size)
+                .opacity(opacity)
                 .scaleEffect(scale)
                 .overlay(
                     SquircleShape(cornerRadius: size * 0.28)
@@ -524,8 +542,9 @@ public struct CraftPathNode<CustomPayload: Sendable>: View {
                 )
         case .star:
             StarShape()
-                .fill(theme.colors.pathHaloGlow.opacity(opacity))
+                .fill(gradient)
                 .frame(width: size, height: size)
+                .opacity(opacity)
                 .scaleEffect(scale)
                 .overlay(
                     StarShape()

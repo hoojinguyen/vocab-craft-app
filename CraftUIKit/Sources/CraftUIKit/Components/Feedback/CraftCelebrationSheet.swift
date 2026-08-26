@@ -412,18 +412,14 @@ public struct CraftCelebrationSheet: View {
             try? await Task.sleep(nanoseconds: 200_000_000)
             guard !Task.isCancelled else { return }
 
-            let stepDelay = max(30_000_000, 400_000_000 / UInt64(max(1, currentValue - previousValue)))
             #if os(iOS)
             let selectionFeedback = UISelectionFeedbackGenerator()
             selectionFeedback.prepare()
+            selectionFeedback.selectionChanged()
             #endif
-            for val in (previousValue + 1)...currentValue {
-                displayedValue = val
-                #if os(iOS)
-                selectionFeedback.selectionChanged()
-                #endif
-                try? await Task.sleep(nanoseconds: stepDelay)
-                guard !Task.isCancelled else { return }
+
+            withAnimation(theme.animations.springSmooth) {
+                displayedValue = currentValue
             }
         } else {
             displayedValue = currentValue

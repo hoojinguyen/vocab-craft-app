@@ -227,7 +227,7 @@ public struct CraftStyledConnector: View {
                             style: StrokeStyle(lineWidth: 2, lineCap: .round, dash: [4, 4])
                         )
                 } else {
-                    TimelineView(.animation) { timeline in
+                    TimelineView(.animation(minimumInterval: 1.0 / 60.0)) { timeline in
                         let time = timeline.date.timeIntervalSinceReferenceDate
                         let phase = CGFloat(time.truncatingRemainder(dividingBy: 2.0) * 12)
                         CraftNodeConnector(from: from, to: to)
@@ -251,7 +251,7 @@ public struct CraftStyledConnector: View {
 // MARK: - CraftSnakeDottedSegmentView
 
 /// Renders a single vector dotted snake path segment with round caps and progressive theme coloring.
-public struct CraftSnakeDottedSegmentView: View {
+public struct CraftSnakeDottedSegmentView: View, Equatable {
     public let segment: SnakePathSegmentGeometry
     public let fromState: LessonNodeState
     public let toState: LessonNodeState
@@ -277,6 +277,15 @@ public struct CraftSnakeDottedSegmentView: View {
         self.customColor = customColor
     }
 
+    public static func == (lhs: CraftSnakeDottedSegmentView, rhs: CraftSnakeDottedSegmentView) -> Bool {
+        lhs.segment == rhs.segment &&
+        lhs.fromState == rhs.fromState &&
+        lhs.toState == rhs.toState &&
+        lhs.dotDiameter == rhs.dotDiameter &&
+        lhs.dotSpacing == rhs.dotSpacing &&
+        lhs.customColor == rhs.customColor
+    }
+
     private var segmentColor: Color {
         if let customColor {
             return customColor
@@ -292,18 +301,22 @@ public struct CraftSnakeDottedSegmentView: View {
         }
     }
 
+    private func strokeStyle(diameter: CGFloat, spacing: CGFloat) -> StrokeStyle {
+        StrokeStyle(
+            lineWidth: diameter,
+            lineCap: .round,
+            lineJoin: .round,
+            dash: [0, diameter + spacing]
+        )
+    }
+
     public var body: some View {
         let diameter = dotDiameter ?? theme.spacing.pathDotDiameter
         let spacing = dotSpacing ?? theme.spacing.pathDotSpacing
         segment.buildPath()
             .stroke(
                 segmentColor,
-                style: StrokeStyle(
-                    lineWidth: diameter,
-                    lineCap: .round,
-                    lineJoin: .round,
-                    dash: [0, diameter + spacing]
-                )
+                style: strokeStyle(diameter: diameter, spacing: spacing)
             )
             .accessibilityHidden(true)
     }

@@ -491,22 +491,36 @@ public struct CraftLessonNode: View, Equatable {
 
     // MARK: - Active Glow Ring
 
+    private var haloRadialGradient: RadialGradient {
+        RadialGradient(
+            colors: [
+                theme.colors.brandPrimary.opacity(0.30),
+                theme.colors.brandPrimary.opacity(0.12),
+                Color.clear
+            ],
+            center: .center,
+            startRadius: nodeDiameter * 0.35,
+            endRadius: (nodeDiameter + 24) * 0.5
+        )
+    }
+
     @ViewBuilder
     private var activeGlowRing: some View {
         let isCheckpoint = model.kind == .checkpoint
         let haloSize = nodeDiameter + 24
+        let haloGradient = haloRadialGradient
         if reduceMotion {
             ZStack {
                 if isCheckpoint {
                     HexagonShape()
-                        .fill(theme.colors.pathHaloGlow)
+                        .fill(haloGradient)
                         .frame(width: haloSize, height: haloSize)
                     HexagonShape()
                         .stroke(theme.colors.brandPrimary.opacity(0.25), lineWidth: 1.5)
                         .frame(width: haloSize, height: haloSize)
                 } else {
                     Circle()
-                        .fill(theme.colors.pathHaloGlow)
+                        .fill(haloGradient)
                         .frame(width: haloSize, height: haloSize)
                     Circle()
                         .stroke(theme.colors.brandPrimary.opacity(0.25), lineWidth: 1.5)
@@ -518,8 +532,9 @@ public struct CraftLessonNode: View, Equatable {
                 ZStack {
                     if isCheckpoint {
                         HexagonShape()
-                            .fill(theme.colors.pathHaloGlow.opacity(phase == .glowing ? 1.0 : 0.75))
+                            .fill(haloGradient)
                             .frame(width: haloSize, height: haloSize)
+                            .opacity(phase == .glowing ? 1.0 : 0.75)
                             .scaleEffect(phase == .glowing ? 1.04 : 0.98)
 
                         HexagonShape()
@@ -531,8 +546,9 @@ public struct CraftLessonNode: View, Equatable {
                             .scaleEffect(phase == .glowing ? 1.04 : 0.98)
                     } else {
                         Circle()
-                            .fill(theme.colors.pathHaloGlow.opacity(phase == .glowing ? 1.0 : 0.75))
+                            .fill(haloGradient)
                             .frame(width: haloSize, height: haloSize)
+                            .opacity(phase == .glowing ? 1.0 : 0.75)
                             .scaleEffect(phase == .glowing ? 1.04 : 0.98)
 
                         Circle()
