@@ -154,12 +154,16 @@ def generate_pbxproj():
 	archiveVersion = 1;
 	classes = {{
 	}};
-	objectVersion = 56;
+	objectVersion = 60;
 	objects = {{
 
 /* Begin PBXBuildFile section */
 {pbx_build_section}
 		300000402D50000000000002 /* VocabCraftWidgetExtension.appex in Embed App Extensions */ = {{isa = PBXBuildFile; fileRef = 200000402D50000000000000 /* VocabCraftWidgetExtension.appex */; settings = {{ATTRIBUTES = (RemoveHeadersOnCopy, ); }}; }};
+		900000000000000000000003 /* CraftUIKit in Frameworks */ = {{isa = PBXBuildFile; productRef = 900000000000000000000002 /* CraftUIKit */; }};
+		900000000000000000000004 /* CraftUIKit in Frameworks */ = {{isa = PBXBuildFile; productRef = 900000000000000000000002 /* CraftUIKit */; }};
+		900000000000000000000007 /* SpeechKit in Frameworks */ = {{isa = PBXBuildFile; productRef = 900000000000000000000006 /* SpeechKit */; }};
+		900000000000000000000008 /* SpeechKit in Frameworks */ = {{isa = PBXBuildFile; productRef = 900000000000000000000006 /* SpeechKit */; }};
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -205,6 +209,8 @@ def generate_pbxproj():
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				900000000000000000000003 /* CraftUIKit in Frameworks */,
+				900000000000000000000007 /* SpeechKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		}};
@@ -219,6 +225,8 @@ def generate_pbxproj():
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				900000000000000000000004 /* CraftUIKit in Frameworks */,
+				900000000000000000000008 /* SpeechKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		}};
@@ -266,6 +274,10 @@ def generate_pbxproj():
 				800000402D50000000000001 /* TargetDependency */,
 			);
 			name = VocabCraftApp;
+			packageProductDependencies = (
+				900000000000000000000002 /* CraftUIKit */,
+				900000000000000000000006 /* SpeechKit */,
+			);
 			productName = VocabCraftApp;
 			productReference = 200000002D50000000000000 /* VocabCraftApp.app */;
 			productType = "com.apple.product-type.application";
@@ -299,6 +311,10 @@ def generate_pbxproj():
 				800000502D50000000000001 /* TargetDependency */,
 			);
 			name = VocabCraftAppTests;
+			packageProductDependencies = (
+				900000000000000000000002 /* CraftUIKit */,
+				900000000000000000000006 /* SpeechKit */,
+			);
 			productName = VocabCraftAppTests;
 			productReference = 200000502D50000000000000 /* VocabCraftAppTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -335,6 +351,10 @@ def generate_pbxproj():
 				Base,
 			);
 			mainGroup = 400000002D50000000000000 /* MainGroup */;
+			packageReferences = (
+				900000000000000000000001 /* XCLocalSwiftPackageReference "CraftUIKit" */,
+				900000000000000000000005 /* XCLocalSwiftPackageReference "SpeechKit" */,
+			);
 			productRefGroup = 400000092D50000000000000 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -406,11 +426,13 @@ def generate_pbxproj():
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_ENTITLEMENTS = VocabCraftApp/App/VocabCraftApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMPILATION_CACHE_ENABLE_CACHING = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				EAGER_LINKING = YES;
+				ENABLE_PREVIEWS = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -420,8 +442,10 @@ def generate_pbxproj():
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hoojinguyen.vocabcraft;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				CODE_SIGN_ENTITLEMENTS = VocabCraftApp/App/VocabCraftApp.entitlements;
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_COMPILATION_MODE = singlefile;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -437,6 +461,7 @@ def generate_pbxproj():
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_ENTITLEMENTS = VocabCraftApp/App/VocabCraftApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMPILATION_CACHE_ENABLE_CACHING = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -450,8 +475,10 @@ def generate_pbxproj():
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hoojinguyen.vocabcraft;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				CODE_SIGN_ENTITLEMENTS = VocabCraftApp/App/VocabCraftApp.entitlements;
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
@@ -467,19 +494,25 @@ def generate_pbxproj():
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_ENTITLEMENTS = VocabCraftApp/App/VocabCraftApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEFINES_MODULE = YES;
+				DEFINES_MODULE = NO;
+				DEVELOPMENT_TEAM = 58TYVC4N97;
+				ENABLE_PREVIEWS = YES;
 				ENABLE_TESTABILITY = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = VocabCraftApp/App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hoojinguyen.vocabcraft;
-				PRODUCT_NAME = "$(TARGET_NAME)";
 				PRODUCT_MODULE_NAME = VocabCraftApp;
-				CODE_SIGN_ENTITLEMENTS = VocabCraftApp/App/VocabCraftApp.entitlements;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			}};
@@ -494,16 +527,20 @@ def generate_pbxproj():
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_ENTITLEMENTS = VocabCraftApp/App/VocabCraftApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = VocabCraftApp/App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hoojinguyen.vocabcraft;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				CODE_SIGN_ENTITLEMENTS = VocabCraftApp/App/VocabCraftApp.entitlements;
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			}};
@@ -520,10 +557,14 @@ def generate_pbxproj():
 				INFOPLIST_FILE = VocabCraftWidgetExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hoojinguyen.vocabcraft.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			}};
@@ -540,10 +581,14 @@ def generate_pbxproj():
 				INFOPLIST_FILE = VocabCraftWidgetExtension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hoojinguyen.vocabcraft.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			}};
@@ -560,9 +605,13 @@ def generate_pbxproj():
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hoojinguyen.vocabcraft.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VocabCraftApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VocabCraftApp";
@@ -580,9 +629,13 @@ def generate_pbxproj():
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hoojinguyen.vocabcraft.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VocabCraftApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VocabCraftApp";
@@ -630,6 +683,30 @@ def generate_pbxproj():
 			defaultConfigurationName = Release;
 		}};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		900000000000000000000001 /* XCLocalSwiftPackageReference "CraftUIKit" */ = {{
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/CraftUIKit;
+		}};
+		900000000000000000000005 /* XCLocalSwiftPackageReference "SpeechKit" */ = {{
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/SpeechKit;
+		}};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		900000000000000000000002 /* CraftUIKit */ = {{
+			isa = XCSwiftPackageProductDependency;
+			package = 900000000000000000000001 /* XCLocalSwiftPackageReference "CraftUIKit" */;
+			productName = CraftUIKit;
+		}};
+		900000000000000000000006 /* SpeechKit */ = {{
+			isa = XCSwiftPackageProductDependency;
+			package = 900000000000000000000005 /* XCLocalSwiftPackageReference "SpeechKit" */;
+			productName = SpeechKit;
+		}};
+/* End XCSwiftPackageProductDependency section */
 	}};
 	rootObject = 100000002D50000000000000 /* Project object */;
 }}
