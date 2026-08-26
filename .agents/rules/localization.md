@@ -1,60 +1,87 @@
 # Localization & Text Rendering Rules
 
+## 1. Zero Hardcoded Strings Policy (Toàn dự án)
+
 > [!IMPORTANT]
-> **Zero Hardcoded Strings Policy**: Never hardcode raw user-facing English or Vietnamese string literals directly in SwiftUI view bodies, component initializers, fallback logic, or Accessibility modifiers (`.accessibilityLabel`, `.accessibilityHint`, `.accessibilityValue`). All displayed text must be defined in `Localizable.xcstrings`.
+> **Tuyệt đối không hardcode text**: Không bao giờ viết chuỗi ký tự thô (raw literal English hoặc Vietnamese) trực tiếp trong SwiftUI view bodies, view models, controllers, component initializers, fallback logic, hay các Accessibility modifiers (`.accessibilityLabel`, `.accessibilityHint`, `.accessibilityValue`).
+>
+> Mọi chuỗi hiển thị đều phải được định nghĩa trong `Localizable.xcstrings` theo đúng tầng phụ trách và format chuẩn.
 
-## 1. Key Naming Taxonomy Standard
-All localization keys must strictly adhere to the hierarchical, dot-separated lowercase `snake_case` format:
+---
 
+## 2. Phân định Kiến trúc Localization theo Tầng (2-Layer Architecture)
+
+Dự án phân tách thành 2 tầng rõ ràng với tiền tố và phạm vi riêng biệt:
+
+| Tiêu chí | Tầng 1: `CraftUIKit` (Design System Package) | Tầng 2: `VocabCraftApp` (Main Application) |
+| :--- | :--- | :--- |
+| **Tiền tố Root** | `craft.*` | `app.*` |
+| **Tài nguyên Catalog** | `CraftUIKit/Sources/CraftUIKit/Resources/Localizable.xcstrings` | `VocabCraftApp/Resources/Localizable.xcstrings` |
+| **Bundle & Truy xuất** | `Bundle.module` qua `CraftLocalized.string/format` | `Bundle.main` / `LocalizedStringKey` / `String(localized:)` |
+| **Phạm vi chuỗi** | UI controls, widget states, token labels, VoiceOver mặc định của component | Tiêu đề màn hình, luồng nghiệp vụ, Deck từ vựng, SRS Reflex Drills, Onboarding, Profile, Settings, Notifications |
+
+---
+
+## 3. Quy chuẩn Đặt tên Key (Key Taxonomy Standard)
+
+### 3.1 Tầng 1: `CraftUIKit` (`craft.*`)
+Cấu trúc:
 $$\text{craft} \ . \ \langle\text{scope}\rangle \ . \ \langle\text{element/context}\rangle \ . \ \langle\text{role/state/a11y}\rangle$$
 
-### Key Scopes:
-1. **`craft.common.action.*`**: Shared user actions (`confirm`, `cancel`, `close`, `dismiss`, `continue`, `retry`, `action`).
-2. **`craft.common.state.*`**: Generic component and progression states (`loading`, `empty`, `on`, `off`, `completed`, `active`, `locked`, `upcoming`).
-3. **`craft.common.unit.*`**: Quantities and units (`days_format`, `days_single`, `minutes_format`, `words_format`, `percent_format`, `percent_word_format`).
-4. **Component Scopes**:
-   - `craft.button.*`: Button-specific strings (`loading_a11y`).
-   - `craft.choice.*`: Choice card states (`selected_a11y`, `correct_a11y`, `wrong_a11y`, `disabled_a11y`).
-   - `craft.search.*`: Search bar elements (`placeholder`, `clear_a11y`, `trailing_action_a11y`).
-   - `craft.stepper.*`: Stepper controls (`decrease_a11y`, `increase_a11y`, `default_label`).
-   - `craft.textfield.*`: Text fields (`show_password_a11y`, `hide_password_a11y`).
-   - `craft.flipcard.*`: Flip cards (`flip_to_front_action`, `flip_to_back_action`, `front_side_hint`, `back_side_hint`).
-   - `craft.progress.*`: Progress bar / ring labels (`label`).
-   - `craft.segmented_bar.*`: Segmented metric bars (`label_a11y`, `segment_fallback`).
-   - `craft.step_node.*`: Step progression nodes (`step_format`, `tap_hint`).
-   - `craft.streak.*`: Streak tiers, counters, and celebration modals (`tier_starter`, `tier_blaze`, `tier_legendary`, `best_record_format`, `freeze_shield_format`, `day_inspect_hint`, `celebration_title`, etc.).
-   - `craft.learning_path.*`: Learning paths & journey nodes (`empty_title`, `empty_desc`, `continue_callout`, `start_lesson`, `continue_lesson_format`, `review_lesson_format`, `node_completed_a11y`, `tap_to_start_hint`, `default_objective_1/2/3`, etc.).
-   - `craft.tab_bar.*`: Floating tab bars (`badge_count_format`, `center_action_fallback`).
-   - `craft.waveform.*`: Audio visualizer (`recording_active_a11y`, `visualizer_a11y`, `audio_level_format`).
-   - `craft.countdown.*`: Countdown overlays (`label_format`, `go_text`).
-   - `craft.sparkle.*`: Particle bursts in reduce-motion mode (`sparkle_label`, `celebration_label`).
+- **`craft.common.action.*`**: Shared actions (`confirm`, `cancel`, `close`, `dismiss`, `continue`, `retry`, `action`).
+- **`craft.common.state.*`**: Progression states (`loading`, `empty`, `on`, `off`, `completed`, `active`, `locked`, `upcoming`).
+- **`craft.common.unit.*`**: Units & counts (`days_format`, `days_single`, `minutes_format`, `words_format`, `percent_format`, `percent_word_format`).
+- **Component Scopes**:
+  - `craft.button.*`, `craft.choice.*`, `craft.search.*`, `craft.stepper.*`, `craft.textfield.*`, `craft.toggle.*`
+  - `craft.flipcard.*`, `craft.progress.*`, `craft.segmented_bar.*`, `craft.step_node.*`
+  - `craft.streak.*`, `craft.learning_path.*`, `craft.tab_bar.*`, `craft.waveform.*`, `craft.countdown.*`, `craft.sparkle.*`
+
+### 3.2 Tầng 2: `VocabCraftApp` (`app.*`)
+Cấu trúc:
+$$\text{app} \ . \ \langle\text{feature}\rangle \ . \ \langle\text{screen/flow}\rangle \ . \ \langle\text{element}\rangle \ . \ \langle\text{role/state/a11y}\rangle$$
+
+- **`app.common.*`**:
+  - `app.common.nav.*`: Tab bar items (`tab_home`, `tab_study`, `tab_practice`, `tab_profile`).
+  - `app.common.error.*`: Lỗi mạng/hệ thống (`network_unavailable`, `speech_recognition_failed`, `save_failed`).
+- **`app.onboarding.*`**: Welcome screens, level assessment, daily study goal selection (`app.onboarding.welcome.title`, `app.onboarding.level_picker.header`, `app.onboarding.daily_goal.cta`).
+- **`app.study.*`**: Luồng học bài, flashcards, session complete summary (`app.study.session.flip_hint`, `app.study.session.complete_title`, `app.study.summary.xp_earned_format`).
+- **`app.reflex.*`**: SRS Engine, Speed drills, pronunciation checks (`app.reflex.drill.speed_round_title`, `app.reflex.card.listen_and_choose`, `app.reflex.result.accuracy_format`).
+- **`app.deck.*` / `app.topic.*`**: Quản lý Deck từ vựng, SubTopics, danh sách từ (`app.deck.detail.total_words_format`, `app.deck.list.search_placeholder`, `app.deck.empty.title`).
+- **`app.streak.*`**: Thông tin chuỗi streak trên app, freeze token store (`app.streak.freeze_used_alert_title`, `app.streak.banner_subtitle`).
+- **`app.profile.*` & `app.settings.*`**: Thông tin cá nhân, thống kê XP, tùy chỉnh giọng đọc, dark mode (`app.settings.voice_accent.title`, `app.profile.stats.words_learned_format`).
+- **`app.notification.*`**: Nội dung push notifications và local reminders (`app.notification.daily_reminder.title`, `app.notification.streak_freeze.body`).
 
 ---
 
-## 2. Mandatory 100% Bilingual Parity (EN & VI)
-Whenever creating or updating strings in `Localizable.xcstrings`:
-- **Both `en` and `vi` MUST be populated** with accurate translations.
-- **No cross-language pollution**: Never place Vietnamese text under `en` or leave English placeholder text under `vi`.
-- **Format specifier parity**: Format tokens (`%lld`, `%@`, `%%`) must match exactly between languages.
-- **Maintain manual extraction**: Ensure entries use `extractionState: "manual"` and `state: "translated"` to prevent Xcode String Catalog auto-extraction from creating un-namespaced duplicate keys.
+## 4. Nguyên tắc Bắt buộc về Dữ liệu Song ngữ (100% Bilingual Parity)
+
+Bất kỳ khi nào tạo hoặc cập nhật key trong bất kỳ file `Localizable.xcstrings` nào (`CraftUIKit` hoặc `VocabCraftApp`):
+1. **Đầy đủ cả 2 ngôn ngữ**: Cả `en` và `vi` đều phải có bản dịch chuẩn xác, không được để trống bất kỳ ngôn ngữ nào.
+2. **Không lẫn lộn ngôn ngữ**: Tuyệt đối không để text tiếng Việt sang nhánh `en` hoặc để tiếng Anh giữ chỗ ở nhánh `vi`.
+3. **Đồng nhất Format Specifiers**: Thứ tự và kiểu định dạng format token (`%lld`, `%@`, `%%`) phải khớp chính xác 100% giữa tiếng Anh và tiếng Việt.
+4. **Extraction State**: Luôn thiết lập `extractionState: "manual"` và `state: "translated"` cho các key được thêm bằng tay để tránh Xcode tự sinh ra các key rác trùng lặp không có namespace.
 
 ---
 
-## 3. How to Render Text in Code
-- In `CraftUIKit`, access localized text programmatically using `CraftLocalized`:
+## 5. Cách thức Render Text trong Code
+
+- **Trong `CraftUIKit`**: Sử dụng `CraftLocalized`:
   ```swift
-  // Simple string
-  let label = CraftLocalized.string("craft.common.action.confirm")
-
-  // Formatted string with specifiers
-  let duration = CraftLocalized.format("craft.common.unit.minutes_format", 15)
+  let buttonLabel = CraftLocalized.string("craft.common.action.confirm")
+  let formattedTime = CraftLocalized.format("craft.common.unit.minutes_format", 15)
   ```
-- For SwiftUI views supporting `LocalizedStringKey`, pass keys with `bundle: .module` or resolve via `CraftLocalized`.
-- For domain content (titles, subtitles, custom objectives), allow caller injection via properties while providing `CraftLocalized` defaults as fallback.
+- **Trong `VocabCraftApp`**: Sử dụng `LocalizedStringKey` hoặc `String(localized:)`:
+  ```swift
+  Text("app.study.session.complete_title")
+  let progressText = String(localized: "app.study.summary.xp_earned_format", defaultValue: "Earned %lld XP")
+  ```
+- **Tương tác giữa App và CraftUIKit**:
+  - Khi App sử dụng các components từ `CraftUIKit`, truyền dữ liệu domain (như title, subtitle, custom objectives) thông qua parameters dạng `LocalizedStringKey` hoặc `String`.
+  - Component trong `CraftUIKit` sẽ ưu tiên hiển thị text được truyền từ App, và chỉ fallback về key mặc định của `CraftUIKit` khi tham số truyền vào là `nil`.
 
 ---
 
-## 4. Verification Requirement
-Before finalizing any code change:
-- Run `swift test --filter LocalizationTests` and verify 0 failures.
-- Run `swift test` across all suites to confirm no regressions.
+## 6. Yêu cầu Kiểm tra (Verification Gate)
+Trước khi kết thúc bất kỳ task nào có liên quan đến UI text hoặc localization:
+- Chạy `swift test --filter LocalizationTests` (đối với `CraftUIKit`).
+- Chạy toàn bộ test suites liên quan để đảm bảo không có lỗi biên dịch hay sai lệch format token.
