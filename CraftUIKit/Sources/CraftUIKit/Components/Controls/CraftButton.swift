@@ -528,7 +528,7 @@ public struct CraftButton: View {
             )
         )
         .disabled(isLoading)
-        .accessibilityValue(isLoading ? CraftLocalized.string("craft.button.loadingA11y") : "")
+        .accessibilityValue(isLoading ? CraftLocalized.string("craft.button.loading_a11y") : "")
     }
 
     @ViewBuilder

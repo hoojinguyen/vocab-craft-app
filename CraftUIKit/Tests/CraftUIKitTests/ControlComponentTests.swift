@@ -464,9 +464,9 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertTrue(localizedLoadingBtn.isLoading)
         XCTAssertNotNil(localizedLoadingBtn.body)
 
-        let loadingString = CraftLocalized.string("craft.button.loadingA11y")
+        let loadingString = CraftLocalized.string("craft.button.loading_a11y")
         XCTAssertEqual(loadingString, "Loading")
-        let viLoadingString = CraftLocalized.string("craft.button.loadingA11y", language: "vi")
+        let viLoadingString = CraftLocalized.string("craft.button.loading_a11y", language: "vi")
         XCTAssertEqual(viLoadingString, "Đang tải")
     }
 
@@ -576,16 +576,16 @@ final class ControlComponentTests: XCTestCase {
 
     func testChoiceCardAccessibilityValues() {
         // Verify accessibility localized string lookup for all states
-        XCTAssertEqual(CraftLocalized.string("craft.choice.selected"), "Selected")
-        XCTAssertEqual(CraftLocalized.string("craft.choice.correct"), "Correct Answer")
-        XCTAssertEqual(CraftLocalized.string("craft.choice.wrong"), "Incorrect Answer")
-        XCTAssertEqual(CraftLocalized.string("craft.choice.disabled"), "Disabled")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.selected_a11y"), "Selected")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.correct_a11y"), "Correct Answer")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.wrong_a11y"), "Incorrect Answer")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.disabled_a11y"), "Disabled")
 
         // Vietnamese accessibility translations
-        XCTAssertEqual(CraftLocalized.string("craft.choice.selected", language: "vi"), "Đã chọn")
-        XCTAssertEqual(CraftLocalized.string("craft.choice.correct", language: "vi"), "Đáp án đúng")
-        XCTAssertEqual(CraftLocalized.string("craft.choice.wrong", language: "vi"), "Đáp án chưa đúng")
-        XCTAssertEqual(CraftLocalized.string("craft.choice.disabled", language: "vi"), "Vô hiệu hóa")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.selected_a11y", language: "vi"), "Đã chọn")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.correct_a11y", language: "vi"), "Đáp án đúng")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.wrong_a11y", language: "vi"), "Đáp án chưa đúng")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.disabled_a11y", language: "vi"), "Vô hiệu hóa")
 
         // Verify card body instantiates without errors for all states and prefix styles
         for prefixStyle in CraftChoicePrefixStyle.allCases {
@@ -605,23 +605,23 @@ final class ControlComponentTests: XCTestCase {
     }
 
     func testChoiceCardZeroHardcodingAndLocalization() {
-        let selectedA11y = CraftLocalized.string("craft.choice.selected")
+        let selectedA11y = CraftLocalized.string("craft.choice.selected_a11y")
         XCTAssertEqual(selectedA11y, "Selected")
 
-        let correctA11y = CraftLocalized.string("craft.choice.correct")
+        let correctA11y = CraftLocalized.string("craft.choice.correct_a11y")
         XCTAssertEqual(correctA11y, "Correct Answer")
 
-        let wrongA11y = CraftLocalized.string("craft.choice.wrong")
+        let wrongA11y = CraftLocalized.string("craft.choice.wrong_a11y")
         XCTAssertEqual(wrongA11y, "Incorrect Answer")
 
-        let disabledA11y = CraftLocalized.string("craft.choice.disabled")
+        let disabledA11y = CraftLocalized.string("craft.choice.disabled_a11y")
         XCTAssertEqual(disabledA11y, "Disabled")
 
         // Test Vietnamese localization
-        XCTAssertEqual(CraftLocalized.string("craft.choice.selected", language: "vi"), "Đã chọn")
-        XCTAssertEqual(CraftLocalized.string("craft.choice.correct", language: "vi"), "Đáp án đúng")
-        XCTAssertEqual(CraftLocalized.string("craft.choice.wrong", language: "vi"), "Đáp án chưa đúng")
-        XCTAssertEqual(CraftLocalized.string("craft.choice.disabled", language: "vi"), "Vô hiệu hóa")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.selected_a11y", language: "vi"), "Đã chọn")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.correct_a11y", language: "vi"), "Đáp án đúng")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.wrong_a11y", language: "vi"), "Đáp án chưa đúng")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.disabled_a11y", language: "vi"), "Vô hiệu hóa")
     }
 
     func testChoiceCardHasSubtitleAlignment() {
@@ -798,10 +798,14 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertNotNil(roundedGlassSearchBar.body)
 
         // Verify localized cancel & clear
-        XCTAssertEqual(CraftLocalized.string("craft.action.cancel"), "Cancel")
-        XCTAssertEqual(CraftLocalized.string("craft.action.cancel", language: "vi"), "Hủy")
-        XCTAssertEqual(CraftLocalized.string("craft.search.clearA11y"), "Clear search")
-        XCTAssertEqual(CraftLocalized.string("craft.search.clearA11y", language: "vi"), "Xóa tìm kiếm")
+        XCTAssertEqual(CraftLocalized.string("craft.common.action.cancel"), "Cancel")
+        XCTAssertEqual(CraftLocalized.string("craft.common.action.cancel", language: "vi"), "Hủy")
+        XCTAssertEqual(CraftLocalized.string("craft.search.clear_a11y"), "Clear search")
+        XCTAssertEqual(CraftLocalized.string("craft.search.clear_a11y", language: "vi"), "Xóa tìm kiếm")
+        XCTAssertEqual(CraftLocalized.string("craft.search.placeholder"), "Search...")
+        XCTAssertEqual(CraftLocalized.string("craft.search.placeholder", language: "vi"), "Tìm kiếm...")
+        XCTAssertEqual(CraftLocalized.string("craft.search.trailing_action_a11y"), "Trailing action")
+        XCTAssertEqual(CraftLocalized.string("craft.search.trailing_action_a11y", language: "vi"), "Tác vụ mở rộng")
     }
 
     func testPillSurfaceStylesAndCustomTint() {
@@ -852,10 +856,26 @@ final class ControlComponentTests: XCTestCase {
             XCTAssertNotNil(stepper.body)
         }
 
-        // Verify localized increase & decrease strings
-        XCTAssertEqual(CraftLocalized.string("craft.stepper.increaseA11y"), "Increase")
-        XCTAssertEqual(CraftLocalized.string("craft.stepper.increaseA11y", language: "vi"), "Tăng")
-        XCTAssertEqual(CraftLocalized.string("craft.stepper.decreaseA11y"), "Decrease")
-        XCTAssertEqual(CraftLocalized.string("craft.stepper.decreaseA11y", language: "vi"), "Giảm")
+        // Verify localized increase & decrease & default label strings
+        XCTAssertEqual(CraftLocalized.string("craft.stepper.increase_a11y"), "Increase")
+        XCTAssertEqual(CraftLocalized.string("craft.stepper.increase_a11y", language: "vi"), "Tăng")
+        XCTAssertEqual(CraftLocalized.string("craft.stepper.decrease_a11y"), "Decrease")
+        XCTAssertEqual(CraftLocalized.string("craft.stepper.decrease_a11y", language: "vi"), "Giảm")
+        XCTAssertEqual(CraftLocalized.string("craft.stepper.default_label"), "Stepper")
+        XCTAssertEqual(CraftLocalized.string("craft.stepper.default_label", language: "vi"), "Bộ đếm")
+    }
+
+    func testTextFieldAccessibilityLocalization() {
+        XCTAssertEqual(CraftLocalized.string("craft.textfield.show_password_a11y"), "Show password")
+        XCTAssertEqual(CraftLocalized.string("craft.textfield.show_password_a11y", language: "vi"), "Hiện mật khẩu")
+        XCTAssertEqual(CraftLocalized.string("craft.textfield.hide_password_a11y"), "Hide password")
+        XCTAssertEqual(CraftLocalized.string("craft.textfield.hide_password_a11y", language: "vi"), "Ẩn mật khẩu")
+    }
+
+    func testToggleAccessibilityLocalization() {
+        XCTAssertEqual(CraftLocalized.string("craft.common.state.on"), "On")
+        XCTAssertEqual(CraftLocalized.string("craft.common.state.on", language: "vi"), "Bật")
+        XCTAssertEqual(CraftLocalized.string("craft.common.state.off"), "Off")
+        XCTAssertEqual(CraftLocalized.string("craft.common.state.off", language: "vi"), "Tắt")
     }
 }

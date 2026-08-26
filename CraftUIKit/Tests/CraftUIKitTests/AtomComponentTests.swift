@@ -550,5 +550,30 @@ final class AtomComponentTests: XCTestCase {
         let completedBadge = CraftStreakBadge(count: 7, isCompletedToday: true)
         XCTAssertNotNil(completedBadge.body)
     }
+
+    func testCraftStreakBadgeAccessibilityLocalization() {
+        // Tiers
+        XCTAssertEqual(CraftLocalized.string("craft.streak.tier_starter"), "Starter Streak")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.tier_starter", language: "vi"), "Chuỗi khởi đầu")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.tier_blaze"), "Blaze Streak")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.tier_blaze", language: "vi"), "Chuỗi rực lửa")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.tier_legendary"), "Legendary Streak")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.tier_legendary", language: "vi"), "Chuỗi huyền thoại")
+
+        // Statuses
+        XCTAssertEqual(CraftLocalized.string("craft.streak.today_completed"), "Completed for today")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.today_completed", language: "vi"), "Hôm nay đã hoàn thành")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.today_pending"), "Pending completion for today")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.today_pending", language: "vi"), "Hôm nay chưa hoàn thành")
+
+        // Formatted Badge & Hint
+        let badgeEN = CraftLocalized.format("craft.streak.badge_a11y_format", 7, "Blaze", "Completed for today")
+        XCTAssertEqual(badgeEN, "7-day study streak, Blaze tier. Completed for today")
+        let badgeVI = CraftLocalized.format("craft.streak.badge_a11y_format", language: "vi", 7, "Rực lửa", "Hôm nay đã hoàn thành")
+        XCTAssertEqual(badgeVI, "Chuỗi 7 ngày học liên tiếp, Cấp độ Rực lửa. Hôm nay đã hoàn thành")
+
+        XCTAssertEqual(CraftLocalized.string("craft.streak.badge_a11y_hint"), "Double tap to view streak details.")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.badge_a11y_hint", language: "vi"), "Chạm hai lần để xem chi tiết chuỗi ngày.")
+    }
 }
 

@@ -138,7 +138,7 @@ public struct CraftStepper: View {
                     }
                     .buttonStyle(.craftPress(scale: 0.92))
                     .disabled(!canDecrement)
-                    .accessibilityLabel(CraftLocalized.string("craft.stepper.decreaseA11y"))
+                    .accessibilityLabel(CraftLocalized.string("craft.stepper.decrease_a11y"))
 
                     // Divider
                     Rectangle()
@@ -187,7 +187,7 @@ public struct CraftStepper: View {
                     }
                     .buttonStyle(.craftPress(scale: 0.92))
                     .disabled(!canIncrement)
-                    .accessibilityLabel(CraftLocalized.string("craft.stepper.increaseA11y"))
+                    .accessibilityLabel(CraftLocalized.string("craft.stepper.increase_a11y"))
                 }
                 .frame(height: 44)
                 .background(stepperBackground)
@@ -281,7 +281,7 @@ public struct CraftStepper: View {
         } else if let rawLabel, !rawLabel.isEmpty {
             return Text(rawLabel)
         }
-        return Text("Stepper")
+        return Text(CraftLocalized.string("craft.stepper.default_label"))
     }
 
     private var accessibilityValueContent: Text {

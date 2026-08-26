@@ -170,7 +170,7 @@ public struct CraftTextField: View {
                     }
                     .buttonStyle(.plain)
                     .sensoryFeedback(.selection, trigger: isPasswordVisible)
-                    .accessibilityLabel(isPasswordVisible ? "Hide password" : "Show password")
+                    .accessibilityLabel(isPasswordVisible ? CraftLocalized.string("craft.textfield.hide_password_a11y") : CraftLocalized.string("craft.textfield.show_password_a11y"))
                 } else if showClearButton && !text.wrappedValue.isEmpty {
                     Button(action: {
                         text.wrappedValue = ""
@@ -178,7 +178,7 @@ public struct CraftTextField: View {
                         CraftIcon(.wrongCircle, size: .sm, color: theme.colors.textMuted)
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel(CraftLocalized.string("craft.search.clearA11y"))
+                    .accessibilityLabel(CraftLocalized.string("craft.search.clear_a11y"))
                 }
             }
             .padding(.horizontal, style == .underlined ? 0 : theme.spacing.md)

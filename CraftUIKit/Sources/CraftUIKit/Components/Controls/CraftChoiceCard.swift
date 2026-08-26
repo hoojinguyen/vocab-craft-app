@@ -526,13 +526,13 @@ public struct CraftChoiceCard: View {
         case .idle:
             return ""
         case .selected:
-            return CraftLocalized.string("craft.choice.selected")
+            return CraftLocalized.string("craft.choice.selected_a11y")
         case .correct:
-            return CraftLocalized.string("craft.choice.correct")
+            return CraftLocalized.string("craft.choice.correct_a11y")
         case .wrong:
-            return CraftLocalized.string("craft.choice.wrong")
+            return CraftLocalized.string("craft.choice.wrong_a11y")
         case .disabled:
-            return CraftLocalized.string("craft.choice.disabled")
+            return CraftLocalized.string("craft.choice.disabled_a11y")
         }
     }
 

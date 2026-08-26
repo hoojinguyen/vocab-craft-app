@@ -48,12 +48,12 @@ public struct CraftSearchBar: View {
     public let onSubmit: (() -> Void)?
 
     public var placeholder: String {
-        rawPlaceholder ?? "Search..."
+        rawPlaceholder ?? CraftLocalized.string("craft.search.placeholder")
     }
 
     public init(
         text: Binding<String>,
-        placeholder: String = "Search...",
+        placeholder: String = CraftLocalized.string("craft.search.placeholder"),
         style: CraftSearchBarStyle = .standard,
         shape: CraftSearchBarShape = .capsule,
         trailingIcon: String? = nil,
@@ -128,7 +128,7 @@ public struct CraftSearchBar: View {
                         CraftIcon(.wrongCircle, size: .sm, color: theme.colors.textMuted)
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel(CraftLocalized.string("craft.search.clearA11y"))
+                    .accessibilityLabel(CraftLocalized.string("craft.search.clear_a11y"))
                 }
 
                 if let trailingIcon, let trailingAction {
@@ -136,7 +136,7 @@ public struct CraftSearchBar: View {
                         CraftIcon(trailingIcon, size: .sm, color: isFocused ? theme.colors.brandPrimary : theme.colors.textMuted)
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("Trailing action")
+                    .accessibilityLabel(CraftLocalized.string("craft.search.trailing_action_a11y"))
                 }
             }
             .padding(.horizontal, theme.spacing.base)
@@ -158,7 +158,7 @@ public struct CraftSearchBar: View {
                     isFocused = false
                     onCancel?()
                 }) {
-                    Text(CraftLocalized.string("craft.action.cancel"))
+                    Text(CraftLocalized.string("craft.common.action.cancel"))
                         .font(theme.typography.bodyMedium)
                         .foregroundStyle(theme.colors.brandPrimary)
                 }

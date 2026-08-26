@@ -230,17 +230,26 @@ public struct CraftStreakBadge: View {
             return customAccessibilityLabel
         }
         let statusDescription = isCompletedToday
-            ? CraftLocalized.string("craft.streak.todayCompleted")
-            : CraftLocalized.string("craft.streak.todayPending")
-        let tierName = CraftLocalized.string("craft.streak.\(tier.localizationKey)")
-        return CraftLocalized.format("craft.streak.badgeA11yFormat", count, tierName, statusDescription)
+            ? CraftLocalized.string("craft.streak.today_completed")
+            : CraftLocalized.string("craft.streak.today_pending")
+        let tierKey: String
+        switch tier {
+        case .starter:
+            tierKey = "craft.streak.tier_starter"
+        case .blaze:
+            tierKey = "craft.streak.tier_blaze"
+        case .legendary:
+            tierKey = "craft.streak.tier_legendary"
+        }
+        let tierName = CraftLocalized.string(tierKey)
+        return CraftLocalized.format("craft.streak.badge_a11y_format", count, tierName, statusDescription)
     }
 
     private var accessibilityHintString: String {
         if let customAccessibilityHint {
             return customAccessibilityHint
         }
-        return onTap != nil ? CraftLocalized.string("craft.streak.badgeA11yHint") : ""
+        return onTap != nil ? CraftLocalized.string("craft.streak.badge_a11y_hint") : ""
     }
 }
 

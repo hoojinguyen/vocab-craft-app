@@ -316,7 +316,7 @@ public struct CraftToggle: View {
         .sensoryFeedback(.selection, trigger: isOn.wrappedValue)
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(isOn.wrappedValue ? [.isButton, .isSelected] : [.isButton])
-        .accessibilityValue(isOn.wrappedValue ? "On" : "Off")
+        .accessibilityValue(isOn.wrappedValue ? CraftLocalized.string("craft.common.state.on") : CraftLocalized.string("craft.common.state.off"))
     }
 }
 
