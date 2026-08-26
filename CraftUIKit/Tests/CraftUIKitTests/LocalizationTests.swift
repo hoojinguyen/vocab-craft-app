@@ -377,6 +377,31 @@ final class LocalizationTests: XCTestCase {
         XCTAssertEqual(continueVi, "Tiếp tục")
     }
 
+    // MARK: - Speech Scope
+
+    func testSpeechLocalizationKeys() {
+        XCTAssertEqual(CraftLocalized.string("craft.speech.tap_to_speak"), "Tap to speak")
+        XCTAssertEqual(CraftLocalized.string("craft.speech.tap_to_speak", language: "vi"), "Chạm để nói")
+
+        XCTAssertEqual(CraftLocalized.string("craft.speech.listening"), "Listening...")
+        XCTAssertEqual(CraftLocalized.string("craft.speech.listening", language: "vi"), "Đang lắng nghe...")
+
+        XCTAssertEqual(CraftLocalized.string("craft.speech.analyzing"), "Analyzing pronunciation...")
+        XCTAssertEqual(CraftLocalized.string("craft.speech.analyzing", language: "vi"), "Đang phân tích phát âm...")
+
+        XCTAssertEqual(CraftLocalized.string("craft.speech.try_again"), "Try speaking again")
+        XCTAssertEqual(CraftLocalized.string("craft.speech.try_again", language: "vi"), "Thử nói lại")
+
+        XCTAssertEqual(CraftLocalized.string("craft.speech.mic_start_a11y"), "Start speaking")
+        XCTAssertEqual(CraftLocalized.string("craft.speech.mic_start_a11y", language: "vi"), "Bắt đầu nói")
+
+        XCTAssertEqual(CraftLocalized.string("craft.speech.mic_stop_a11y"), "Stop recording")
+        XCTAssertEqual(CraftLocalized.string("craft.speech.mic_stop_a11y", language: "vi"), "Dừng ghi âm")
+
+        XCTAssertEqual(CraftLocalized.format("craft.speech.score_format", 95), "Score: 95%")
+        XCTAssertEqual(CraftLocalized.format("craft.speech.score_format", language: "vi", 95), "Điểm: 95%")
+    }
+
     // MARK: - Fallback and Missing Keys
     
     func testFallbackToKeyWhenMissing() {

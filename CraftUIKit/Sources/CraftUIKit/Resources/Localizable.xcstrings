@@ -2016,6 +2016,132 @@
           }
         }
       }
+    },
+    "craft.speech.tap_to_speak": {
+      "comment": "Speech recognition tap to speak prompt",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to speak"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chạm để nói"
+          }
+        }
+      }
+    },
+    "craft.speech.listening": {
+      "comment": "Speech recognition listening state",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listening..."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang lắng nghe..."
+          }
+        }
+      }
+    },
+    "craft.speech.analyzing": {
+      "comment": "Speech recognition analyzing pronunciation state",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyzing pronunciation..."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang phân tích phát âm..."
+          }
+        }
+      }
+    },
+    "craft.speech.try_again": {
+      "comment": "Speech recognition retry speaking prompt",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try speaking again"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thử nói lại"
+          }
+        }
+      }
+    },
+    "craft.speech.mic_start_a11y": {
+      "comment": "Microphone start speaking accessibility label",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start speaking"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bắt đầu nói"
+          }
+        }
+      }
+    },
+    "craft.speech.mic_stop_a11y": {
+      "comment": "Microphone stop recording accessibility label",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop recording"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dừng ghi âm"
+          }
+        }
+      }
+    },
+    "craft.speech.score_format": {
+      "comment": "Pronunciation score percentage format",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Score: %lld%%"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Điểm: %lld%%"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
