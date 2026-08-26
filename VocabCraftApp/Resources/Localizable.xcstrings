@@ -1,40 +1,6 @@
 {
   "sourceLanguage" : "vi",
   "strings" : {
-    "app.reflex.blitz.combo_streak_a11y_format" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Combo streak %lld"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chuỗi combo %lld"
-          }
-        }
-      }
-    },
-    "app.reflex.blitz.skip_current_a11y" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skip current word"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bỏ qua từ hiện tại"
-          }
-        }
-      }
-    },
     " [ ______ ] " : {
 
     },
@@ -74,16 +40,6 @@
     },
     "%@ " : {
 
-    },
-    "%@ / %@" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@ / %2$@"
-          }
-        }
-      }
     },
     "%@ • Từ tiếp theo" : {
 
@@ -160,6 +116,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nghiên cứu Học thuật"
+          }
+        }
+      }
+    },
+    "app.reflex.blitz.combo_streak_a11y_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Combo streak %lld"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chuỗi combo %lld"
+          }
+        }
+      }
+    },
+    "app.reflex.blitz.skip_current_a11y" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip current word"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bỏ qua từ hiện tại"
           }
         }
       }
@@ -3055,6 +3045,40 @@
         }
       }
     },
+    "settings.craftCatalog" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CraftUIKit Catalog"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CraftUIKit Catalog"
+          }
+        }
+      }
+    },
+    "settings.craftCatalogSubtitle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interactive component gallery & tokens"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thư viện component & token tương tác"
+          }
+        }
+      }
+    },
     "settings.dailyGoal" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3344,57 +3368,6 @@
         }
       }
     },
-    "settings.sectionDeveloper" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Developer & Design System"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nhà phát triển & Hệ thống Design"
-          }
-        }
-      }
-    },
-    "settings.craftCatalog" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "CraftUIKit Catalog"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "CraftUIKit Catalog"
-          }
-        }
-      }
-    },
-    "settings.craftCatalogSubtitle" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Interactive component gallery & tokens"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thư viện component & token tương tác"
-          }
-        }
-      }
-    },
     "settings.sectionAppData" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3442,6 +3415,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Âm thanh & Phát âm"
+          }
+        }
+      }
+    },
+    "settings.sectionDeveloper" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Developer & Design System"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhà phát triển & Hệ thống Design"
           }
         }
       }
