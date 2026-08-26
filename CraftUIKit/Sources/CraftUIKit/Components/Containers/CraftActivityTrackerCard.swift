@@ -437,10 +437,11 @@ public struct CraftActivityTrackerCard: View {
             return subtitle
         }
         let remaining = max(0, data.nextMilestone - data.currentValue)
+        let percent = Int(round(data.milestoneProgress * 100.0))
         if remaining == 0 {
-            return CraftLocalized.format("craft.streak.milestoneReached", data.nextMilestone, resolvedUnit)
+            return CraftLocalized.format("craft.streak.milestoneReachedPercent", data.nextMilestone)
         } else {
-            return CraftLocalized.format("craft.streak.milestoneRemaining", remaining, resolvedUnit, data.nextMilestone)
+            return CraftLocalized.format("craft.streak.milestoneProgressPercent", data.nextMilestone, percent)
         }
     }
 

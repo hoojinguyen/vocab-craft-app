@@ -968,6 +968,40 @@
         }
       }
     },
+    "craft.streak.milestoneProgressPercent" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Milestone %lldd • %lld%%"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mốc %lld ngày • %lld%%"
+          }
+        }
+      }
+    },
+    "craft.streak.milestoneReachedPercent" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reached %lldd milestone • 100%%"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đạt mốc %lld ngày • 100%%"
+          }
+        }
+      }
+    },
     "craft.streak.milestoneReached" : {
       "extractionState" : "manual",
       "localizations" : {

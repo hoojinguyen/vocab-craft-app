@@ -630,5 +630,32 @@ final class CraftStreakComponentTests: XCTestCase {
         XCTAssertEqual(streakSheet.surfaceStyle, .glass)
         XCTAssertNotNil(streakSheet.body)
     }
+
+    // MARK: - Task 1: Milestone Formatting & Percentage Progress Tests
+
+    func testMilestonePercentageFormatting() {
+        let data = CraftActivityTrackerData(
+            currentValue: 14,
+            bestRecord: 30,
+            nextMilestone: 21
+        )
+        let card = CraftActivityTrackerCard(data: data)
+        XCTAssertNotNil(card.body)
+        XCTAssertEqual(data.milestoneProgress, 14.0 / 21.0, accuracy: 0.001)
+
+        // Verify localized format strings
+        let progressFormattedEn = CraftLocalized.format("craft.streak.milestoneProgressPercent", language: "en", 21, 67)
+        XCTAssertEqual(progressFormattedEn, "Milestone 21d • 67%")
+
+        let progressFormattedVi = CraftLocalized.format("craft.streak.milestoneProgressPercent", language: "vi", 21, 67)
+        XCTAssertEqual(progressFormattedVi, "Mốc 21 ngày • 67%")
+
+        let reachedFormattedEn = CraftLocalized.format("craft.streak.milestoneReachedPercent", language: "en", 21)
+        XCTAssertEqual(reachedFormattedEn, "Reached 21d milestone • 100%")
+
+        let reachedFormattedVi = CraftLocalized.format("craft.streak.milestoneReachedPercent", language: "vi", 21)
+        XCTAssertEqual(reachedFormattedVi, "Đạt mốc 21 ngày • 100%")
+    }
 }
+
 
