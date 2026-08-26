@@ -197,24 +197,14 @@ public struct CraftChoiceCard: View {
         ZStack {
             switch style {
             case .glass:
-                if #available(iOS 26, macOS 26, *) {
-                    if reduceTransparency {
-                        RoundedRectangle(cornerRadius: theme.radii.lg)
-                            .fill(theme.colors.surfaceCard)
-                    } else {
-                        RoundedRectangle(cornerRadius: theme.radii.lg)
-                            .glassEffect(cardGlassVariant, in: RoundedRectangle(cornerRadius: theme.radii.lg))
-                    }
+                if reduceTransparency {
+                    RoundedRectangle(cornerRadius: theme.radii.lg)
+                        .fill(theme.colors.surfaceCard)
                 } else {
-                    if reduceTransparency {
-                        RoundedRectangle(cornerRadius: theme.radii.lg)
-                            .fill(theme.colors.surfaceCard)
-                    } else {
-                        RoundedRectangle(cornerRadius: theme.radii.lg)
-                            .fill(.ultraThinMaterial)
-                        RoundedRectangle(cornerRadius: theme.radii.lg)
-                            .fill(theme.colors.surfaceCard.opacity(theme.glass.tintOpacity))
-                    }
+                    RoundedRectangle(cornerRadius: theme.radii.lg)
+                        .fill(.ultraThinMaterial)
+                    RoundedRectangle(cornerRadius: theme.radii.lg)
+                        .fill(theme.colors.surfaceCard.opacity(theme.glass.tintOpacity))
                 }
             case .flat:
                 RoundedRectangle(cornerRadius: theme.radii.lg)
@@ -234,15 +224,6 @@ public struct CraftChoiceCard: View {
         }
     }
 
-    @available(iOS 26, macOS 26, *)
-    private var cardGlassVariant: Glass {
-        switch state {
-        case .disabled:
-            return .clear
-        default:
-            return .regular.interactive()
-        }
-    }
 
     private var stateTintOverlay: Color {
         switch state {
@@ -657,73 +638,58 @@ private struct CraftChoiceCardPreviewContainer: View {
                 .padding(.bottom, 4)
 
                 // 5 States Rendered Dynamically in the Selected Style
-                cardsList
+                VStack(alignment: .leading, spacing: 12) {
+                    CraftChoiceCard(
+                        prefix: "A",
+                        prefixStyle: selectedPrefixStyle,
+                        title: "Idle State",
+                        subtitle: "Default unselected option",
+                        state: interactiveSelection == "A" ? .selected : .idle,
+                        style: selectedStyle
+                    ) {
+                        interactiveSelection = "A"
+                    }
+
+                    CraftChoiceCard(
+                        prefix: "B",
+                        prefixStyle: selectedPrefixStyle,
+                        title: "Selected State",
+                        subtitle: "Currently selected option",
+                        state: interactiveSelection == "B" ? .selected : .idle,
+                        style: selectedStyle
+                    ) {
+                        interactiveSelection = "B"
+                    }
+
+                    CraftChoiceCard(
+                        prefix: "C",
+                        prefixStyle: selectedPrefixStyle,
+                        title: "Correct Answer",
+                        subtitle: "Validated correct state with bounce icon",
+                        state: .correct,
+                        style: selectedStyle
+                    ) {}
+
+                    CraftChoiceCard(
+                        prefix: "D",
+                        prefixStyle: selectedPrefixStyle,
+                        title: "Incorrect Answer",
+                        subtitle: "Validated error state with shake feedback",
+                        state: .wrong,
+                        style: selectedStyle
+                    ) {}
+
+                    CraftChoiceCard(
+                        prefix: "E",
+                        prefixStyle: selectedPrefixStyle,
+                        title: "Disabled Option",
+                        subtitle: "Non-interactive dimmed state",
+                        state: .disabled,
+                        style: selectedStyle
+                    ) {}
+                }
             }
             .padding()
-        }
-    }
-
-    @ViewBuilder
-    private var cardsList: some View {
-        if #available(iOS 26, macOS 26, *), selectedStyle == .glass {
-            GlassEffectContainer(spacing: 12) {
-                cardsContent
-            }
-        } else {
-            cardsContent
-        }
-    }
-
-    private var cardsContent: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            CraftChoiceCard(
-                prefix: "A",
-                prefixStyle: selectedPrefixStyle,
-                title: "Idle State",
-                subtitle: "Default unselected option",
-                state: interactiveSelection == "A" ? .selected : .idle,
-                style: selectedStyle
-            ) {
-                interactiveSelection = "A"
-            }
-
-            CraftChoiceCard(
-                prefix: "B",
-                prefixStyle: selectedPrefixStyle,
-                title: "Selected State",
-                subtitle: "Currently selected option",
-                state: interactiveSelection == "B" ? .selected : .idle,
-                style: selectedStyle
-            ) {
-                interactiveSelection = "B"
-            }
-
-            CraftChoiceCard(
-                prefix: "C",
-                prefixStyle: selectedPrefixStyle,
-                title: "Correct Answer",
-                subtitle: "Validated correct state with bounce icon",
-                state: .correct,
-                style: selectedStyle
-            ) {}
-
-            CraftChoiceCard(
-                prefix: "D",
-                prefixStyle: selectedPrefixStyle,
-                title: "Incorrect Answer",
-                subtitle: "Validated error state with shake feedback",
-                state: .wrong,
-                style: selectedStyle
-            ) {}
-
-            CraftChoiceCard(
-                prefix: "E",
-                prefixStyle: selectedPrefixStyle,
-                title: "Disabled Option",
-                subtitle: "Non-interactive dimmed state",
-                state: .disabled,
-                style: selectedStyle
-            ) {}
         }
     }
 

@@ -1388,43 +1388,21 @@ private struct CatalogControlsSection: View {
 
                     CraftText("What is the closest synonym for 'Ephemeral'?", style: .bodyMedium, color: theme.colors.textSecondary)
 
-                    if #available(iOS 26, macOS 26, *) {
-                        GlassEffectContainer(spacing: theme.spacing.sm) {
-                            VStack(spacing: theme.spacing.sm) {
-                                CraftChoiceCard(prefix: "A", prefixStyle: selectedChoicePrefixStyle, title: "Permanent", subtitle: "Enduring and perpetual across eras", state: choiceState(for: "A"), style: .tactile3D) {
-                                    selectChoice("A")
-                                }
-                                CraftChoiceCard(prefix: "B", prefixStyle: selectedChoicePrefixStyle, title: "Transitory", subtitle: "Fleeting and brief in existence", state: choiceState(for: "B"), style: .glass) {
-                                    selectChoice("B")
-                                }
-                                CraftChoiceCard(prefix: "C", prefixStyle: selectedChoicePrefixStyle, title: "Immutable", subtitle: "Completely rigid and unchangeable", state: choiceState(for: "C"), style: .elevated) {
-                                    selectChoice("C")
-                                }
-                                CraftChoiceCard(prefix: "D", prefixStyle: selectedChoicePrefixStyle, title: "Dormant", subtitle: "Temporarily inactive or asleep", state: choiceState(for: "D"), style: .outlined) {
-                                    selectChoice("D")
-                                }
-                                CraftChoiceCard(prefix: "E", prefixStyle: selectedChoicePrefixStyle, title: "Perennial", subtitle: "Continually recurring across seasons", state: choiceState(for: "E"), style: .flat) {
-                                    selectChoice("E")
-                                }
-                            }
+                    VStack(spacing: theme.spacing.sm) {
+                        CraftChoiceCard(prefix: "A", prefixStyle: selectedChoicePrefixStyle, title: "Permanent", subtitle: "Enduring and perpetual across eras", state: choiceState(for: "A"), style: .tactile3D) {
+                            selectChoice("A")
                         }
-                    } else {
-                        VStack(spacing: theme.spacing.sm) {
-                            CraftChoiceCard(prefix: "A", prefixStyle: selectedChoicePrefixStyle, title: "Permanent", subtitle: "Enduring and perpetual across eras", state: choiceState(for: "A"), style: .tactile3D) {
-                                selectChoice("A")
-                            }
-                            CraftChoiceCard(prefix: "B", prefixStyle: selectedChoicePrefixStyle, title: "Transitory", subtitle: "Fleeting and brief in existence", state: choiceState(for: "B"), style: .glass) {
-                                selectChoice("B")
-                            }
-                            CraftChoiceCard(prefix: "C", prefixStyle: selectedChoicePrefixStyle, title: "Immutable", subtitle: "Completely rigid and unchangeable", state: choiceState(for: "C"), style: .elevated) {
-                                selectChoice("C")
-                            }
-                            CraftChoiceCard(prefix: "D", prefixStyle: selectedChoicePrefixStyle, title: "Dormant", subtitle: "Temporarily inactive or asleep", state: choiceState(for: "D"), style: .outlined) {
-                                selectChoice("D")
-                            }
-                            CraftChoiceCard(prefix: "E", prefixStyle: selectedChoicePrefixStyle, title: "Perennial", subtitle: "Continually recurring across seasons", state: choiceState(for: "E"), style: .flat) {
-                                selectChoice("E")
-                            }
+                        CraftChoiceCard(prefix: "B", prefixStyle: selectedChoicePrefixStyle, title: "Transitory", subtitle: "Fleeting and brief in existence", state: choiceState(for: "B"), style: .glass) {
+                            selectChoice("B")
+                        }
+                        CraftChoiceCard(prefix: "C", prefixStyle: selectedChoicePrefixStyle, title: "Immutable", subtitle: "Completely rigid and unchangeable", state: choiceState(for: "C"), style: .elevated) {
+                            selectChoice("C")
+                        }
+                        CraftChoiceCard(prefix: "D", prefixStyle: selectedChoicePrefixStyle, title: "Dormant", subtitle: "Temporarily inactive or asleep", state: choiceState(for: "D"), style: .outlined) {
+                            selectChoice("D")
+                        }
+                        CraftChoiceCard(prefix: "E", prefixStyle: selectedChoicePrefixStyle, title: "Perennial", subtitle: "Continually recurring across seasons", state: choiceState(for: "E"), style: .flat) {
+                            selectChoice("E")
                         }
                     }
 
