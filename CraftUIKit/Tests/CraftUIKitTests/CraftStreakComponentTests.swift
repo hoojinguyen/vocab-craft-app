@@ -762,6 +762,79 @@ final class CraftStreakComponentTests: XCTestCase {
         card.onDayTap?(day)
         XCTAssertTrue(dayTapped)
     }
+
+    // MARK: - Task 4: Full Surface Styles Verification Tests
+
+    func testCraftStreakCardAllSixStylesWithTap() {
+        let streakData = CraftStreakData(currentStreak: 14, bestStreak: 30)
+        for style in CraftCardStyle.allCases {
+            let card = CraftStreakCard(
+                data: streakData,
+                cardStyle: style,
+                onTap: {}
+            )
+            XCTAssertEqual(card.cardStyle, style)
+            XCTAssertNotNil(card.body)
+        }
+    }
+
+    func testCraftStreakCardAllSixStylesWithInteractiveCallbacks() {
+        let day = CraftStreakDay(id: "1", weekdaySymbol: "T2", status: .completed)
+        let streakData = CraftStreakData(
+            currentStreak: 21,
+            bestStreak: 45,
+            freezeTokens: 2,
+            maxFreezeTokens: 3,
+            nextMilestoneDays: 30,
+            isCompletedToday: true,
+            weekDays: [day]
+        )
+
+        for style in CraftCardStyle.allCases {
+            var cardTapped = false
+            var dayTapped = false
+            var freezeTapped = false
+            var milestoneTapped = false
+
+            let card = CraftStreakCard(
+                data: streakData,
+                cardStyle: style,
+                onTap: { cardTapped = true },
+                onFreezeTap: { freezeTapped = true },
+                onMilestoneTap: { milestoneTapped = true },
+                onDayTap: { _ in dayTapped = true }
+            )
+
+            XCTAssertEqual(card.cardStyle, style)
+            XCTAssertNotNil(card.body)
+            XCTAssertNotNil(card.onTap)
+            XCTAssertNotNil(card.onFreezeTap)
+            XCTAssertNotNil(card.onMilestoneTap)
+            XCTAssertNotNil(card.onDayTap)
+
+            card.onTap?()
+            XCTAssertTrue(cardTapped, "Card tap failed for style \(style)")
+
+            card.onFreezeTap?()
+            XCTAssertTrue(freezeTapped, "Freeze tap failed for style \(style)")
+
+            card.onMilestoneTap?()
+            XCTAssertTrue(milestoneTapped, "Milestone tap failed for style \(style)")
+
+            card.onDayTap?(day)
+            XCTAssertTrue(dayTapped, "Day tap failed for style \(style)")
+        }
+    }
+
+    func testCraftStreakCardAllSurfaceStylesMapping() {
+        let streakData = CraftStreakData(currentStreak: 7, bestStreak: 14)
+        for surfaceStyle in CraftSurfaceStyle.allCases {
+            let card = CraftStreakCard(data: streakData, surfaceStyle: surfaceStyle)
+            XCTAssertEqual(card.surfaceStyle, surfaceStyle)
+            XCTAssertEqual(card.cardStyle, CraftCardStyle(surfaceStyle: surfaceStyle))
+            XCTAssertNotNil(card.body)
+        }
+    }
 }
 
 

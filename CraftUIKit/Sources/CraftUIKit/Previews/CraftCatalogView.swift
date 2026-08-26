@@ -702,11 +702,18 @@ private struct CraftCatalogContentView: View {
                             onBadgeTap: {
                                 isCelebrationSheetPresented = true
                             },
+                            onCardTap: {
+                                toastTitle = "Streak Card Tapped"
+                                toastMessage = "Card-level tap triggered. Opening streak details modal."
+                                toastStyle = .info
+                                toastSurfaceStyle = streakCardStyle.surfaceStyle ?? selectedSurfaceStyle
+                                isToastPresented = true
+                            },
                             onFreezeTap: {
                                 toastTitle = "Freeze Shield"
                                 toastMessage = "Protected by streak freeze shield token. 🛡️"
                                 toastStyle = .info
-                                toastSurfaceStyle = selectedSurfaceStyle
+                                toastSurfaceStyle = streakCardStyle.surfaceStyle ?? selectedSurfaceStyle
                                 isToastPresented = true
                             },
                             onDayTap: { day in
@@ -730,7 +737,7 @@ private struct CraftCatalogContentView: View {
                                     toastStyle = .info
                                 }
                                 toastMessage = statusDesc
-                                toastSurfaceStyle = selectedSurfaceStyle
+                                toastSurfaceStyle = streakCardStyle.surfaceStyle ?? selectedSurfaceStyle
                                 isToastPresented = true
                             }
                         )
@@ -1994,6 +2001,7 @@ private struct CatalogActivityStreakSection: View {
     @Binding var isConfettiTriggered: Bool
     @Binding var isCountdownPresented: Bool
     let onBadgeTap: () -> Void
+    let onCardTap: () -> Void
     let onFreezeTap: () -> Void
     let onDayTap: (CraftActivityDay) -> Void
 
@@ -2005,7 +2013,7 @@ private struct CatalogActivityStreakSection: View {
                     iconName: CraftSymbol.streak.rawValue
                 )
 
-                // Streak Controls: Preset, Surface Style, Completed Today
+                // Streak Controls: Preset, Card Style, Completed Today
                 VStack(alignment: .leading, spacing: theme.spacing.sm) {
                     // Preset Selector
                     VStack(alignment: .leading, spacing: theme.spacing.xs) {
@@ -2040,34 +2048,37 @@ private struct CatalogActivityStreakSection: View {
                         }
                     }
 
-                    // Surface Style Selector
+                    // Card Style Selector (All 6 Styles)
                     VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                        CraftText("Streak Surface Style", style: .label, color: theme.colors.textSecondary)
+                        CraftText("Streak Card Style (All 6 Styles)", style: .label, color: theme.colors.textSecondary)
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: theme.spacing.xs) {
-                                ForEach(CraftSurfaceStyle.allCases, id: \.self) { style in
+                                ForEach(CraftCardStyle.allCases, id: \.self) { style in
                                     Button(action: {
                                         withAnimation(theme.animations.springSmooth) {
-                                            selectedSurfaceStyle = style
+                                            cardStyle = style
+                                            if let surf = style.surfaceStyle {
+                                                selectedSurfaceStyle = surf
+                                            }
                                         }
                                     }) {
                                         HStack(spacing: 6) {
-                                            if selectedSurfaceStyle == style {
+                                            if cardStyle == style {
                                                 Image(systemName: "checkmark")
                                                     .font(.system(size: 10, weight: .bold))
                                             }
                                             Text(style.rawValue.capitalized)
-                                                .font(.system(.caption, design: .rounded, weight: selectedSurfaceStyle == style ? .bold : .medium))
+                                                .font(.system(.caption, design: .rounded, weight: cardStyle == style ? .bold : .medium))
                                         }
                                         .padding(.horizontal, 12)
                                         .padding(.vertical, 6)
                                         .background(
-                                            selectedSurfaceStyle == style
+                                            cardStyle == style
                                                 ? theme.colors.brandPrimary
                                                 : theme.colors.surfaceSubtle
                                         )
                                         .foregroundStyle(
-                                            selectedSurfaceStyle == style
+                                            cardStyle == style
                                                 ? Color.white
                                                 : theme.colors.textPrimary
                                         )
@@ -2075,7 +2086,7 @@ private struct CatalogActivityStreakSection: View {
                                         .overlay(
                                             Capsule()
                                                 .strokeBorder(
-                                                    selectedSurfaceStyle == style
+                                                    cardStyle == style
                                                         ? theme.colors.brandPrimary
                                                         : theme.colors.borderDefault,
                                                     lineWidth: 1
@@ -2169,27 +2180,56 @@ private struct CatalogActivityStreakSection: View {
 
                 CraftDivider()
 
-                // Universal 7-Day Bento Card
+                // Universal 7-Day Bento Card (CraftStreakCard)
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText("CraftActivityTrackerCard (7-Day Bento Dashboard Widget)", style: .headline)
-                    CraftText("Tap any day node to inspect details. Supports all 5 surface styles.", style: .caption, color: theme.colors.textSecondary)
+                    CraftText("CraftStreakCard (7-Day Bento Dashboard Widget)", style: .headline)
+                    CraftText("Tap card for details, or tap day nodes/shield. Active Style: .\(cardStyle.rawValue)", style: .caption, color: theme.colors.textSecondary)
 
-                    CraftActivityTrackerCard(
-                        data: CraftActivityTrackerData(
-                            currentValue: selectedPreset.days,
-                            bestRecord: selectedPreset.bestStreak,
-                            tier: selectedPreset.tier == .starter ? .starter : (selectedPreset.tier == .blaze ? .blaze : .legendary),
-                            shieldTokens: 2,
-                            maxShieldTokens: 3,
-                            nextMilestone: selectedPreset.nextMilestone,
-                            isCompletedToday: isCompletedToday,
-                            cycleDays: sampleDays
-                        ),
-                        surfaceStyle: selectedSurfaceStyle,
-                        onShieldTap: onFreezeTap,
+                    CraftStreakCard(
+                        data: streakData,
+                        cardStyle: cardStyle,
+                        onTap: onCardTap,
+                        onFreezeTap: onFreezeTap,
                         onMilestoneTap: { isCelebrationPresented = true },
-                        onDayTap: onDayTap
+                        onDayTap: { streakDay in
+                            onDayTap(streakDay.asActivityDay)
+                        }
                     )
+                }
+
+                CraftDivider()
+
+                // All 6 Surface Styles Comparison Showcase
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("All 6 Surface Styles (Live Comparison)", style: .headline)
+                    CraftText("Scroll horizontally to preview each style variant", style: .caption, color: theme.colors.textSecondary)
+
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: theme.spacing.base) {
+                            ForEach(CraftCardStyle.allCases, id: \.self) { style in
+                                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                                    HStack {
+                                        CraftText(style.rawValue.capitalized, style: .label)
+                                        if cardStyle == style {
+                                            CraftBadge("Active", variant: .subtle, tone: .primary, size: .sm)
+                                        }
+                                    }
+                                    CraftStreakCard(
+                                        data: streakData,
+                                        cardStyle: style,
+                                        onTap: onCardTap,
+                                        onFreezeTap: onFreezeTap,
+                                        onMilestoneTap: { isCelebrationPresented = true },
+                                        onDayTap: { streakDay in
+                                            onDayTap(streakDay.asActivityDay)
+                                        }
+                                    )
+                                    .frame(width: 320)
+                                }
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
                 }
 
                 CraftDivider()
@@ -2240,15 +2280,27 @@ private struct CatalogActivityStreakSection: View {
         }
     }
 
-    private var sampleDays: [CraftActivityDay] {
+    private var streakData: CraftStreakData {
+        CraftStreakData(
+            currentStreak: selectedPreset.days,
+            bestStreak: selectedPreset.bestStreak,
+            freezeTokens: 2,
+            maxFreezeTokens: 3,
+            nextMilestoneDays: selectedPreset.nextMilestone,
+            isCompletedToday: isCompletedToday,
+            weekDays: sampleStreakDays
+        )
+    }
+
+    private var sampleStreakDays: [CraftStreakDay] {
         [
-            CraftActivityDay(id: "1", weekdaySymbol: "T2", status: .completed),
-            CraftActivityDay(id: "2", weekdaySymbol: "T3", status: selectedPreset == .starter ? .missed : .completed),
-            CraftActivityDay(id: "3", weekdaySymbol: "T4", status: selectedPreset == .blaze ? .saved : .completed),
-            CraftActivityDay(id: "4", weekdaySymbol: "T5", status: isCompletedToday ? .completed : .pending, isToday: true),
-            CraftActivityDay(id: "5", weekdaySymbol: "T6", status: .upcoming),
-            CraftActivityDay(id: "6", weekdaySymbol: "T7", status: .upcoming),
-            CraftActivityDay(id: "7", weekdaySymbol: "CN", status: .upcoming)
+            CraftStreakDay(id: "1", weekdaySymbol: "T2", status: .completed),
+            CraftStreakDay(id: "2", weekdaySymbol: "T3", status: selectedPreset == .starter ? .missed : .completed),
+            CraftStreakDay(id: "3", weekdaySymbol: "T4", status: selectedPreset == .blaze ? .frozen : .completed),
+            CraftStreakDay(id: "4", weekdaySymbol: "T5", status: isCompletedToday ? .completed : .pending, isToday: true),
+            CraftStreakDay(id: "5", weekdaySymbol: "T6", status: .upcoming),
+            CraftStreakDay(id: "6", weekdaySymbol: "T7", status: .upcoming),
+            CraftStreakDay(id: "7", weekdaySymbol: "CN", status: .upcoming)
         ]
     }
 }

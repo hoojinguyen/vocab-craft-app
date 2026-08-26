@@ -104,7 +104,7 @@ public struct CraftStreakCard: View {
 
 // MARK: - Previews
 
-#Preview("CraftStreakCard") {
+#Preview("CraftStreakCard - All 6 Surface Styles (Light)") {
     let mockDays: [CraftStreakDay] = [
         .init(id: "1", weekdaySymbol: "T2", status: .completed),
         .init(id: "2", weekdaySymbol: "T3", status: .completed),
@@ -115,22 +115,173 @@ public struct CraftStreakCard: View {
         .init(id: "7", weekdaySymbol: "CN", status: .upcoming)
     ]
 
+    let starterData = CraftStreakData(
+        currentStreak: 3,
+        bestStreak: 7,
+        freezeTokens: 1,
+        maxFreezeTokens: 2,
+        nextMilestoneDays: 7,
+        isCompletedToday: false,
+        weekDays: mockDays
+    )
+
+    let blazeData = CraftStreakData(
+        currentStreak: 14,
+        bestStreak: 30,
+        freezeTokens: 2,
+        maxFreezeTokens: 3,
+        nextMilestoneDays: 21,
+        isCompletedToday: false,
+        weekDays: mockDays
+    )
+
+    let legendaryData = CraftStreakData(
+        currentStreak: 45,
+        bestStreak: 60,
+        freezeTokens: 3,
+        maxFreezeTokens: 3,
+        nextMilestoneDays: 50,
+        isCompletedToday: true,
+        weekDays: mockDays
+    )
+
     ScrollView {
-        VStack(spacing: 24) {
-            CraftStreakCard(
-                data: CraftStreakData(
-                    currentStreak: 14,
-                    bestStreak: 30,
-                    freezeTokens: 2,
-                    maxFreezeTokens: 3,
-                    nextMilestoneDays: 21,
-                    isCompletedToday: false,
-                    weekDays: mockDays
-                ),
-                onFreezeTap: {},
-                onMilestoneTap: {}
-            )
+        VStack(alignment: .leading, spacing: 24) {
+            // 1. Flat
+            VStack(alignment: .leading, spacing: 8) {
+                Text("1. Flat Style (.flat)")
+                    .font(.system(.caption, design: .rounded, weight: .bold))
+                    .foregroundStyle(.secondary)
+                CraftStreakCard(
+                    data: starterData,
+                    cardStyle: .flat,
+                    onTap: { print("Flat card tapped") },
+                    onFreezeTap: { print("Freeze tapped") },
+                    onMilestoneTap: { print("Milestone tapped") },
+                    onDayTap: { day in print("Day tapped: \(day.weekdaySymbol)") }
+                )
+            }
+
+            // 2. Elevated
+            VStack(alignment: .leading, spacing: 8) {
+                Text("2. Elevated Style (.elevated)")
+                    .font(.system(.caption, design: .rounded, weight: .bold))
+                    .foregroundStyle(.secondary)
+                CraftStreakCard(
+                    data: blazeData,
+                    cardStyle: .elevated,
+                    onTap: { print("Elevated card tapped") },
+                    onFreezeTap: { print("Freeze tapped") },
+                    onMilestoneTap: { print("Milestone tapped") },
+                    onDayTap: { day in print("Day tapped: \(day.weekdaySymbol)") }
+                )
+            }
+
+            // 3. Outlined
+            VStack(alignment: .leading, spacing: 8) {
+                Text("3. Outlined Style (.outlined)")
+                    .font(.system(.caption, design: .rounded, weight: .bold))
+                    .foregroundStyle(.secondary)
+                CraftStreakCard(
+                    data: starterData,
+                    cardStyle: .outlined,
+                    onTap: { print("Outlined card tapped") },
+                    onFreezeTap: { print("Freeze tapped") },
+                    onMilestoneTap: { print("Milestone tapped") },
+                    onDayTap: { day in print("Day tapped: \(day.weekdaySymbol)") }
+                )
+            }
+
+            // 4. Gradient
+            VStack(alignment: .leading, spacing: 8) {
+                Text("4. Gradient Style (.gradient)")
+                    .font(.system(.caption, design: .rounded, weight: .bold))
+                    .foregroundStyle(.secondary)
+                CraftStreakCard(
+                    data: legendaryData,
+                    cardStyle: .gradient,
+                    onTap: { print("Gradient card tapped") },
+                    onFreezeTap: { print("Freeze tapped") },
+                    onMilestoneTap: { print("Milestone tapped") },
+                    onDayTap: { day in print("Day tapped: \(day.weekdaySymbol)") }
+                )
+            }
+
+            // 5. Tactile 3D
+            VStack(alignment: .leading, spacing: 8) {
+                Text("5. Tactile 3D Style (.tactile3D)")
+                    .font(.system(.caption, design: .rounded, weight: .bold))
+                    .foregroundStyle(.secondary)
+                CraftStreakCard(
+                    data: blazeData,
+                    cardStyle: .tactile3D,
+                    onTap: { print("Tactile 3D card tapped") },
+                    onFreezeTap: { print("Freeze tapped") },
+                    onMilestoneTap: { print("Milestone tapped") },
+                    onDayTap: { day in print("Day tapped: \(day.weekdaySymbol)") }
+                )
+            }
+
+            // 6. Liquid Glass
+            VStack(alignment: .leading, spacing: 8) {
+                Text("6. Liquid Glass Style (.glass)")
+                    .font(.system(.caption, design: .rounded, weight: .bold))
+                    .foregroundStyle(.secondary)
+                CraftStreakCard(
+                    data: legendaryData,
+                    cardStyle: .glass,
+                    onTap: { print("Glass card tapped") },
+                    onFreezeTap: { print("Freeze tapped") },
+                    onMilestoneTap: { print("Milestone tapped") },
+                    onDayTap: { day in print("Day tapped: \(day.weekdaySymbol)") }
+                )
+            }
         }
         .padding()
     }
 }
+
+#Preview("CraftStreakCard - All 6 Surface Styles (Dark)") {
+    let mockDays: [CraftStreakDay] = [
+        .init(id: "1", weekdaySymbol: "T2", status: .completed),
+        .init(id: "2", weekdaySymbol: "T3", status: .completed),
+        .init(id: "3", weekdaySymbol: "T4", status: .frozen),
+        .init(id: "4", weekdaySymbol: "T5", status: .pending, isToday: true),
+        .init(id: "5", weekdaySymbol: "T6", status: .upcoming),
+        .init(id: "6", weekdaySymbol: "T7", status: .upcoming),
+        .init(id: "7", weekdaySymbol: "CN", status: .upcoming)
+    ]
+
+    let blazeData = CraftStreakData(
+        currentStreak: 14,
+        bestStreak: 30,
+        freezeTokens: 2,
+        maxFreezeTokens: 3,
+        nextMilestoneDays: 21,
+        isCompletedToday: false,
+        weekDays: mockDays
+    )
+
+    ScrollView {
+        VStack(alignment: .leading, spacing: 24) {
+            ForEach(CraftCardStyle.allCases, id: \.self) { style in
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("\(style.rawValue.capitalized) Style (.\(style.rawValue))")
+                        .font(.system(.caption, design: .rounded, weight: .bold))
+                        .foregroundStyle(.secondary)
+                    CraftStreakCard(
+                        data: blazeData,
+                        cardStyle: style,
+                        onTap: { print("\(style) tapped") },
+                        onFreezeTap: { print("Freeze tapped") },
+                        onMilestoneTap: { print("Milestone tapped") },
+                        onDayTap: { day in print("Day: \(day.weekdaySymbol)") }
+                    )
+                }
+            }
+        }
+        .padding()
+    }
+    .preferredColorScheme(.dark)
+}
+
