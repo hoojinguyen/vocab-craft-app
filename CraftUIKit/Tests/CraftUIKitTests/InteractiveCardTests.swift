@@ -23,6 +23,28 @@ final class InteractiveCardTests: XCTestCase {
         XCTAssertEqual(stateSet.count, 5)
     }
 
+    // MARK: - CraftChoicePrefixStyle Tests
+
+    func testChoicePrefixStyleEnumCasesAndProtocols() {
+        let allStyles = CraftChoicePrefixStyle.allCases
+        XCTAssertEqual(allStyles.count, 4)
+        XCTAssertTrue(allStyles.contains(.circle))
+        XCTAssertTrue(allStyles.contains(.roundedSquare))
+        XCTAssertTrue(allStyles.contains(.minimal))
+        XCTAssertTrue(allStyles.contains(.none))
+
+        XCTAssertEqual(CraftChoicePrefixStyle.circle.rawValue, "circle")
+        XCTAssertEqual(CraftChoicePrefixStyle.roundedSquare.rawValue, "roundedSquare")
+        XCTAssertEqual(CraftChoicePrefixStyle.minimal.rawValue, "minimal")
+        XCTAssertEqual(CraftChoicePrefixStyle.none.rawValue, "none")
+
+        // Equatable and Hashable conformance
+        XCTAssertEqual(CraftChoicePrefixStyle.circle, CraftChoicePrefixStyle.circle)
+        XCTAssertNotEqual(CraftChoicePrefixStyle.circle, CraftChoicePrefixStyle.minimal)
+        let styleSet: Set<CraftChoicePrefixStyle> = [.circle, .roundedSquare, .minimal, .none]
+        XCTAssertEqual(styleSet.count, 4)
+    }
+
     // MARK: - CraftChoiceCard Tests
 
     func testChoiceCardInitializersAndStates() {
@@ -248,6 +270,110 @@ final class InteractiveCardTests: XCTestCase {
                 XCTAssertEqual(buttonStyle.state, state)
                 XCTAssertEqual(buttonStyle.style, style)
                 XCTAssertEqual(buttonStyle.depth, 4)
+            }
+        }
+    }
+
+    func testChoiceCardDefaultParametersContract() {
+        var tapped = false
+        let card = CraftChoiceCard(title: "Contract Test") {
+            tapped = true
+        }
+        XCTAssertEqual(card.prefix, "A")
+        XCTAssertEqual(card.prefixStyle, .circle)
+        XCTAssertEqual(card.title, "Contract Test")
+        XCTAssertNil(card.subtitle)
+        XCTAssertEqual(card.state, .idle)
+        XCTAssertEqual(card.style, .tactile3D)
+        XCTAssertEqual(card.resolvedStyle, .tactile3D)
+        card.action()
+        XCTAssertTrue(tapped)
+        XCTAssertNotNil(card.body)
+    }
+
+    func testChoiceCardPrefixStylesAndCustomization() {
+        for prefixStyle in CraftChoicePrefixStyle.allCases {
+            let card = CraftChoiceCard(
+                prefix: "P",
+                prefixStyle: prefixStyle,
+                title: "Custom Card \(prefixStyle.rawValue)",
+                subtitle: "Custom Subtitle",
+                state: .selected,
+                style: .glass
+            ) {}
+
+            XCTAssertEqual(card.prefix, "P")
+            XCTAssertEqual(card.prefixStyle, prefixStyle)
+            XCTAssertEqual(card.title, "Custom Card \(prefixStyle.rawValue)")
+            XCTAssertEqual(card.subtitle, "Custom Subtitle")
+            XCTAssertEqual(card.state, .selected)
+            XCTAssertEqual(card.style, .glass)
+            XCTAssertNotNil(card.body)
+        }
+    }
+
+    func testChoiceCardNonePrefixStyleBehavior() {
+        // With nil prefix
+        let nilPrefixCard = CraftChoiceCard(
+            prefix: nil,
+            prefixStyle: .none,
+            title: "No Prefix Style with Nil",
+            subtitle: "Sub"
+        ) {}
+        XCTAssertNil(nilPrefixCard.prefix)
+        XCTAssertEqual(nilPrefixCard.prefixStyle, .none)
+        XCTAssertNotNil(nilPrefixCard.body)
+
+        // With explicit non-nil prefix (prefixStyle .none hides the badge)
+        let withPrefixCard = CraftChoiceCard(
+            prefix: "Z",
+            prefixStyle: .none,
+            title: "No Prefix Style with Prefix Value",
+            subtitle: "Sub"
+        ) {}
+        XCTAssertEqual(withPrefixCard.prefix, "Z")
+        XCTAssertEqual(withPrefixCard.prefixStyle, .none)
+        XCTAssertNotNil(withPrefixCard.body)
+    }
+
+    func testChoiceCardLocalizedPrefixStyles() {
+        for prefixStyle in CraftChoicePrefixStyle.allCases {
+            let localizedCard = CraftChoiceCard(
+                prefix: LocalizedStringKey("key.prefix"),
+                prefixStyle: prefixStyle,
+                title: LocalizedStringKey("key.title"),
+                subtitle: LocalizedStringKey("key.subtitle"),
+                state: .correct,
+                style: .elevated
+            ) {}
+            XCTAssertEqual(localizedCard.prefixStyle, prefixStyle)
+            XCTAssertNil(localizedCard.prefix)
+            XCTAssertNil(localizedCard.title)
+            XCTAssertNil(localizedCard.subtitle)
+            XCTAssertEqual(localizedCard.state, .correct)
+            XCTAssertEqual(localizedCard.style, .elevated)
+            XCTAssertNotNil(localizedCard.body)
+        }
+    }
+
+    func testChoiceCardAllPrefixStylesWithAllStatesAndSurfaceStyles() {
+        for prefixStyle in CraftChoicePrefixStyle.allCases {
+            for surfaceStyle in CraftSurfaceStyle.allCases {
+                for state in CraftChoiceState.allCases {
+                    let card = CraftChoiceCard(
+                        prefix: "X",
+                        prefixStyle: prefixStyle,
+                        title: "Prefix \(prefixStyle.rawValue) in \(surfaceStyle.rawValue)",
+                        subtitle: "State \(state.rawValue)",
+                        state: state,
+                        style: surfaceStyle
+                    ) {}
+                    XCTAssertEqual(card.prefix, "X")
+                    XCTAssertEqual(card.prefixStyle, prefixStyle)
+                    XCTAssertEqual(card.state, state)
+                    XCTAssertEqual(card.style, surfaceStyle)
+                    XCTAssertNotNil(card.body)
+                }
             }
         }
     }

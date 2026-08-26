@@ -487,16 +487,121 @@ final class ControlComponentTests: XCTestCase {
         }
     }
 
-    func testCraftChoicePrefixStyleCases() {
-        let cardCircle = CraftChoiceCard(prefix: "A", prefixStyle: .circle, title: "Option A") {}
-        let cardMinimal = CraftChoiceCard(prefix: "B", prefixStyle: .minimal, title: "Option B") {}
-        let cardSquare = CraftChoiceCard(prefix: "C", prefixStyle: .roundedSquare, title: "Option C") {}
-        let cardNone = CraftChoiceCard(prefix: nil, prefixStyle: .none, title: "Option None") {}
+    func testChoiceCardAllPrefixStyles() {
+        let styles: [CraftChoicePrefixStyle] = [.circle, .roundedSquare, .minimal, .none]
+        XCTAssertEqual(CraftChoicePrefixStyle.allCases.count, 4)
 
-        XCTAssertEqual(cardCircle.prefixStyle, .circle)
-        XCTAssertEqual(cardMinimal.prefixStyle, .minimal)
-        XCTAssertEqual(cardSquare.prefixStyle, .roundedSquare)
-        XCTAssertEqual(cardNone.prefixStyle, .none)
+        for prefixStyle in styles {
+            let card = CraftChoiceCard(
+                prefix: "1",
+                prefixStyle: prefixStyle,
+                title: "Title \(prefixStyle.rawValue)",
+                subtitle: "Subtitle \(prefixStyle.rawValue)",
+                state: .idle,
+                style: .tactile3D
+            ) {}
+
+            XCTAssertEqual(card.prefix, "1")
+            XCTAssertEqual(card.prefixStyle, prefixStyle)
+            XCTAssertEqual(card.title, "Title \(prefixStyle.rawValue)")
+            XCTAssertEqual(card.subtitle, "Subtitle \(prefixStyle.rawValue)")
+            XCTAssertEqual(card.state, .idle)
+            XCTAssertEqual(card.style, .tactile3D)
+            XCTAssertNotNil(card.body)
+
+            // Also test with LocalizedStringKey
+            let localizedCard = CraftChoiceCard(
+                prefix: LocalizedStringKey("prefix_\(prefixStyle.rawValue)"),
+                prefixStyle: prefixStyle,
+                title: LocalizedStringKey("title_\(prefixStyle.rawValue)"),
+                subtitle: LocalizedStringKey("subtitle_\(prefixStyle.rawValue)"),
+                state: .selected,
+                style: .glass
+            ) {}
+
+            XCTAssertEqual(localizedCard.prefixStyle, prefixStyle)
+            XCTAssertNil(localizedCard.prefix)
+            XCTAssertNil(localizedCard.title)
+            XCTAssertNil(localizedCard.subtitle)
+            XCTAssertEqual(localizedCard.state, .selected)
+            XCTAssertEqual(localizedCard.style, .glass)
+            XCTAssertNotNil(localizedCard.body)
+        }
+    }
+
+    func testChoiceCardDefaultPrefixStyleIsCircle() {
+        // Test default with title only
+        let defaultCard = CraftChoiceCard(title: "Default Option") {}
+        XCTAssertEqual(defaultCard.prefixStyle, .circle)
+        XCTAssertEqual(defaultCard.prefix, "A")
+        XCTAssertEqual(defaultCard.title, "Default Option")
+        XCTAssertNil(defaultCard.subtitle)
+        XCTAssertEqual(defaultCard.state, .idle)
+        XCTAssertEqual(defaultCard.style, .tactile3D)
+
+        // Test default with custom prefix, title, subtitle, state, style omitting prefixStyle
+        let explicitCard = CraftChoiceCard(
+            prefix: "B",
+            title: "Option B",
+            subtitle: "Secondary info",
+            state: .selected,
+            style: .outlined
+        ) {}
+        XCTAssertEqual(explicitCard.prefixStyle, .circle)
+        XCTAssertEqual(explicitCard.prefix, "B")
+        XCTAssertEqual(explicitCard.title, "Option B")
+        XCTAssertEqual(explicitCard.subtitle, "Secondary info")
+        XCTAssertEqual(explicitCard.state, .selected)
+        XCTAssertEqual(explicitCard.style, .outlined)
+
+        // Test localized initializer omitting prefixStyle
+        let localizedDefaultCard = CraftChoiceCard(
+            title: LocalizedStringKey("choice.title")
+        ) {}
+        XCTAssertEqual(localizedDefaultCard.prefixStyle, .circle)
+        XCTAssertNil(localizedDefaultCard.prefix)
+        XCTAssertEqual(localizedDefaultCard.state, .idle)
+
+        let localizedExplicitCard = CraftChoiceCard(
+            prefix: LocalizedStringKey("choice.prefix"),
+            title: LocalizedStringKey("choice.title"),
+            subtitle: LocalizedStringKey("choice.subtitle"),
+            state: .correct,
+            style: .elevated
+        ) {}
+        XCTAssertEqual(localizedExplicitCard.prefixStyle, .circle)
+        XCTAssertEqual(localizedExplicitCard.state, .correct)
+        XCTAssertEqual(localizedExplicitCard.style, .elevated)
+    }
+
+    func testChoiceCardAccessibilityValues() {
+        // Verify accessibility localized string lookup for all states
+        XCTAssertEqual(CraftLocalized.string("craft.choice.selected"), "Selected")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.correct"), "Correct Answer")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.wrong"), "Incorrect Answer")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.disabled"), "Disabled")
+
+        // Vietnamese accessibility translations
+        XCTAssertEqual(CraftLocalized.string("craft.choice.selected", language: "vi"), "Đã chọn")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.correct", language: "vi"), "Đáp án đúng")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.wrong", language: "vi"), "Đáp án chưa đúng")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.disabled", language: "vi"), "Vô hiệu hóa")
+
+        // Verify card body instantiates without errors for all states and prefix styles
+        for prefixStyle in CraftChoicePrefixStyle.allCases {
+            for state in CraftChoiceState.allCases {
+                let card = CraftChoiceCard(
+                    prefix: "A",
+                    prefixStyle: prefixStyle,
+                    title: "Accessibility Test \(state.rawValue)",
+                    subtitle: "Subtitle \(state.rawValue)",
+                    state: state
+                ) {}
+                XCTAssertEqual(card.state, state)
+                XCTAssertEqual(card.prefixStyle, prefixStyle)
+                XCTAssertNotNil(card.body)
+            }
+        }
     }
 
     func testChoiceCardZeroHardcodingAndLocalization() {
