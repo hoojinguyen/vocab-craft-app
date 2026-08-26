@@ -268,6 +268,50 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertNotNil(searchBar.body)
     }
 
+    func testSearchBarFullSpectrumStyles() {
+        XCTAssertEqual(CraftSearchBarStyle.allCases.count, 7)
+        XCTAssertTrue(CraftSearchBarStyle.allCases.contains(.standard))
+        XCTAssertTrue(CraftSearchBarStyle.allCases.contains(.flat))
+        XCTAssertTrue(CraftSearchBarStyle.allCases.contains(.elevated))
+        XCTAssertTrue(CraftSearchBarStyle.allCases.contains(.outlined))
+        XCTAssertTrue(CraftSearchBarStyle.allCases.contains(.recessed))
+        XCTAssertTrue(CraftSearchBarStyle.allCases.contains(.tactile3D))
+        XCTAssertTrue(CraftSearchBarStyle.allCases.contains(.glass))
+
+        for style in CraftSearchBarStyle.allCases {
+            var query = "test"
+            let searchBar = CraftSearchBar(
+                text: Binding(get: { query }, set: { query = $0 }),
+                placeholder: "Search in \(style.rawValue)...",
+                style: style,
+                customTint: .teal
+            )
+            XCTAssertEqual(searchBar.style, style)
+            XCTAssertEqual(searchBar.customTint, .teal)
+            XCTAssertNotNil(searchBar.body)
+        }
+    }
+
+    func testSearchBarSizesAndLoadingState() {
+        XCTAssertEqual(CraftSearchBarSize.allCases.count, 3)
+        XCTAssertEqual(CraftSearchBarSize.sm.height, 36)
+        XCTAssertEqual(CraftSearchBarSize.md.height, 44)
+        XCTAssertEqual(CraftSearchBarSize.lg.height, 52)
+
+        for size in CraftSearchBarSize.allCases {
+            var query = "size test"
+            let searchBar = CraftSearchBar(
+                text: Binding(get: { query }, set: { query = $0 }),
+                size: size,
+                isLoading: true
+            )
+            XCTAssertEqual(searchBar.size, size)
+            XCTAssertTrue(searchBar.isLoading)
+            XCTAssertNotNil(searchBar.body)
+        }
+    }
+
+
     // MARK: - CraftToggle Tests
 
     func testToggleInitAndProperties() {
@@ -776,7 +820,7 @@ final class ControlComponentTests: XCTestCase {
     }
 
     func testSearchBarGlassStyleAndLocalization() {
-        XCTAssertEqual(CraftSearchBarStyle.allCases.count, 3)
+        XCTAssertEqual(CraftSearchBarStyle.allCases.count, 7)
         XCTAssertTrue(CraftSearchBarStyle.allCases.contains(.standard))
         XCTAssertTrue(CraftSearchBarStyle.allCases.contains(.recessed))
         XCTAssertTrue(CraftSearchBarStyle.allCases.contains(.glass))
