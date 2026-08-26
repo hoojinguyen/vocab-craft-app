@@ -158,6 +158,25 @@ final class CraftActionCardTests: XCTestCase {
         XCTAssertNotNil(card.body)
     }
 
+    func testCustomTrailingIconAndSymbol() {
+        let cardWithCustomIconName = CraftActionCard(
+            title: "Custom Trailing Icon",
+            trailingIconName: "arrow.right"
+        ) {}
+
+        XCTAssertEqual(cardWithCustomIconName.trailingIconName, "arrow.right")
+        XCTAssertNil(cardWithCustomIconName.trailingSymbol)
+        XCTAssertNotNil(cardWithCustomIconName.body)
+
+        let cardWithCustomSymbol = CraftActionCard(
+            title: "Custom Trailing Symbol",
+            trailingSymbol: .streak
+        ) {}
+
+        XCTAssertEqual(cardWithCustomSymbol.trailingSymbol, .streak)
+        XCTAssertNotNil(cardWithCustomSymbol.body)
+    }
+
     // MARK: - Button Style Tests
 
     func testActionCardButtonStyleConfiguration() {

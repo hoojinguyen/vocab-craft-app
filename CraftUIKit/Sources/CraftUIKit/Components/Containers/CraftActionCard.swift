@@ -24,6 +24,8 @@ public struct CraftActionCard: View {
     public let badgeText: String?
     public let badgeKey: LocalizedStringKey?
     public let badgeIcon: String?
+    public let trailingIconName: String?
+    public let trailingSymbol: CraftSymbol?
     public let accentColor: Color?
     public let explicitStyle: CraftSurfaceStyle?
     public let showChevron: Bool
@@ -45,6 +47,16 @@ public struct CraftActionCard: View {
         cornerRadius ?? theme.radii.xl
     }
 
+    private var resolvedTrailingIcon: String? {
+        if let trailingSymbol {
+            return trailingSymbol.rawValue
+        }
+        if let trailingIconName, trailingIconName != "chevron.forward" {
+            return trailingIconName
+        }
+        return showChevron ? (trailingIconName ?? "chevron.forward") : nil
+    }
+
     // MARK: - Initializers
 
     /// 1. Standard String-based Initializer
@@ -55,6 +67,8 @@ public struct CraftActionCard: View {
         badgeText: String? = nil,
         badgeKey: LocalizedStringKey? = nil,
         badgeIcon: String? = "stopwatch.fill",
+        trailingIconName: String? = "chevron.forward",
+        trailingSymbol: CraftSymbol? = nil,
         accentColor: Color? = nil,
         style: CraftSurfaceStyle? = nil,
         showChevron: Bool = true,
@@ -70,6 +84,8 @@ public struct CraftActionCard: View {
         self.badgeText = badgeText
         self.badgeKey = badgeKey
         self.badgeIcon = badgeIcon
+        self.trailingIconName = trailingIconName
+        self.trailingSymbol = trailingSymbol
         self.accentColor = accentColor
         self.explicitStyle = style
         self.showChevron = showChevron
@@ -85,6 +101,8 @@ public struct CraftActionCard: View {
         badgeText: String? = nil,
         badgeKey: LocalizedStringKey? = nil,
         badgeIcon: String? = "stopwatch.fill",
+        trailingIconName: String? = "chevron.forward",
+        trailingSymbol: CraftSymbol? = nil,
         accentColor: Color? = nil,
         style: CraftSurfaceStyle? = nil,
         showChevron: Bool = true,
@@ -100,6 +118,8 @@ public struct CraftActionCard: View {
         self.badgeText = badgeText
         self.badgeKey = badgeKey
         self.badgeIcon = badgeIcon
+        self.trailingIconName = trailingIconName
+        self.trailingSymbol = trailingSymbol
         self.accentColor = accentColor
         self.explicitStyle = style
         self.showChevron = showChevron
@@ -115,6 +135,8 @@ public struct CraftActionCard: View {
         badgeText: String? = nil,
         badgeKey: LocalizedStringKey? = nil,
         badgeIcon: String? = "stopwatch.fill",
+        trailingIconName: String? = "chevron.forward",
+        trailingSymbol: CraftSymbol? = nil,
         accentColor: Color? = nil,
         style: CraftSurfaceStyle? = nil,
         showChevron: Bool = true,
@@ -130,6 +152,8 @@ public struct CraftActionCard: View {
         self.badgeText = badgeText
         self.badgeKey = badgeKey
         self.badgeIcon = badgeIcon
+        self.trailingIconName = trailingIconName
+        self.trailingSymbol = trailingSymbol
         self.accentColor = accentColor
         self.explicitStyle = style
         self.showChevron = showChevron
@@ -145,6 +169,8 @@ public struct CraftActionCard: View {
         badgeText: String? = nil,
         badgeKey: LocalizedStringKey? = nil,
         badgeIcon: String? = "stopwatch.fill",
+        trailingIconName: String? = "chevron.forward",
+        trailingSymbol: CraftSymbol? = nil,
         accentColor: Color? = nil,
         style: CraftSurfaceStyle? = nil,
         showChevron: Bool = true,
@@ -160,6 +186,8 @@ public struct CraftActionCard: View {
         self.badgeText = badgeText
         self.badgeKey = badgeKey
         self.badgeIcon = badgeIcon
+        self.trailingIconName = trailingIconName
+        self.trailingSymbol = trailingSymbol
         self.accentColor = accentColor
         self.explicitStyle = style
         self.showChevron = showChevron
@@ -219,8 +247,8 @@ public struct CraftActionCard: View {
 
             Spacer(minLength: 0)
 
-            // Footer (Chevron)
-            if showChevron {
+            // Footer (Trailing Action Icon)
+            if resolvedTrailingIcon != nil {
                 footerRow
             }
         }
@@ -341,12 +369,15 @@ public struct CraftActionCard: View {
 
     // MARK: - Footer Slot
 
+    @ViewBuilder
     private var footerRow: some View {
-        HStack {
-            Spacer()
-            Image(systemName: "chevron.forward")
-                .font(.system(size: 12, weight: .bold))
-                .foregroundStyle(chevronColor)
+        if let resolvedTrailingIcon {
+            HStack {
+                Spacer()
+                Image(systemName: resolvedTrailingIcon)
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(chevronColor)
+            }
         }
     }
 
