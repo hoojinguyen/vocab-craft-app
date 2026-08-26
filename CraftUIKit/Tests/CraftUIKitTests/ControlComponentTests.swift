@@ -624,6 +624,60 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertEqual(CraftLocalized.string("craft.choice.disabled", language: "vi"), "Vô hiệu hóa")
     }
 
+    func testChoiceCardHasSubtitleAlignment() {
+        let cardWithoutSubtitle = CraftChoiceCard(title: "Single Line Option") {}
+        XCTAssertFalse(cardWithoutSubtitle.hasSubtitle)
+
+        let cardWithEmptySubtitle = CraftChoiceCard(title: "Option", subtitle: "   ") {}
+        XCTAssertFalse(cardWithEmptySubtitle.hasSubtitle)
+
+        let cardWithSubtitle = CraftChoiceCard(title: "Option", subtitle: "Detailed explanation") {}
+        XCTAssertTrue(cardWithSubtitle.hasSubtitle)
+
+        let localizedCardWithoutSubtitle = CraftChoiceCard(title: LocalizedStringKey("option.title")) {}
+        XCTAssertFalse(localizedCardWithoutSubtitle.hasSubtitle)
+
+        let localizedCardWithSubtitle = CraftChoiceCard(title: LocalizedStringKey("option.title"), subtitle: LocalizedStringKey("option.subtitle")) {}
+        XCTAssertTrue(localizedCardWithSubtitle.hasSubtitle)
+    }
+
+    func testChoiceCardCustomStatusIndicatorsAndVisibility() {
+        // Test indicator visibility toggles
+        let cardWithIndicator = CraftChoiceCard(title: "Option", state: .correct, showsStatusIndicator: true) {}
+        XCTAssertTrue(cardWithIndicator.showsStatusIndicator)
+        XCTAssertNil(cardWithIndicator.correctIconName)
+        XCTAssertNil(cardWithIndicator.wrongIconName)
+        XCTAssertNotNil(cardWithIndicator.body)
+
+        let cardWithoutIndicator = CraftChoiceCard(title: "Option", state: .correct, showsStatusIndicator: false) {}
+        XCTAssertFalse(cardWithoutIndicator.showsStatusIndicator)
+        XCTAssertNotNil(cardWithoutIndicator.body)
+
+        // Test custom SF Symbol icon strings
+        let cardCustomSF = CraftChoiceCard(
+            title: "Option",
+            state: .correct,
+            showsStatusIndicator: true,
+            correctIconName: "checkmark.seal.fill",
+            wrongIconName: "xmark.octagon.fill"
+        ) {}
+        XCTAssertEqual(cardCustomSF.correctIconName, "checkmark.seal.fill")
+        XCTAssertEqual(cardCustomSF.wrongIconName, "xmark.octagon.fill")
+        XCTAssertNotNil(cardCustomSF.body)
+
+        // Test custom CraftSymbol initializers
+        let cardCustomSymbol = CraftChoiceCard(
+            title: "Option",
+            state: .wrong,
+            showsStatusIndicator: true,
+            correctSymbol: .trophy,
+            wrongSymbol: .lightbulb
+        ) {}
+        XCTAssertEqual(cardCustomSymbol.correctIconName, CraftSymbol.trophy.rawValue)
+        XCTAssertEqual(cardCustomSymbol.wrongIconName, CraftSymbol.lightbulb.rawValue)
+        XCTAssertNotNil(cardCustomSymbol.body)
+    }
+
     func testTextFieldStylesEnumAndRendering() {
         XCTAssertEqual(CraftTextFieldStyle.allCases.count, 4)
         XCTAssertTrue(CraftTextFieldStyle.allCases.contains(.standard))

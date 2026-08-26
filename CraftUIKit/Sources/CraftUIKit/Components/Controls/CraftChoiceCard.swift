@@ -49,6 +49,9 @@ public struct CraftChoiceCard: View {
     private let subtitleKey: LocalizedStringKey?
     private let rawSubtitle: String?
     private let explicitStyle: CraftSurfaceStyle?
+    public let showsStatusIndicator: Bool
+    public let correctIconName: String?
+    public let wrongIconName: String?
 
     public var prefix: String? { rawPrefix }
     public var title: String? { rawTitle }
@@ -64,6 +67,16 @@ public struct CraftChoiceCard: View {
         style
     }
 
+    public var hasSubtitle: Bool {
+        if subtitleKey != nil {
+            return true
+        }
+        if let rawSubtitle, !rawSubtitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return true
+        }
+        return false
+    }
+
     public init(
         prefix: String? = "A",
         prefixStyle: CraftChoicePrefixStyle = .circle,
@@ -71,6 +84,9 @@ public struct CraftChoiceCard: View {
         subtitle: String? = nil,
         state: CraftChoiceState = .idle,
         style: CraftSurfaceStyle? = nil,
+        showsStatusIndicator: Bool = true,
+        correctIconName: String? = nil,
+        wrongIconName: String? = nil,
         action: @escaping () -> Void
     ) {
         self.prefixKey = nil
@@ -82,6 +98,9 @@ public struct CraftChoiceCard: View {
         self.rawSubtitle = subtitle
         self.state = state
         self.explicitStyle = style
+        self.showsStatusIndicator = showsStatusIndicator
+        self.correctIconName = correctIconName
+        self.wrongIconName = wrongIconName
         self.action = action
     }
 
@@ -92,6 +111,9 @@ public struct CraftChoiceCard: View {
         subtitle: LocalizedStringKey? = nil,
         state: CraftChoiceState = .idle,
         style: CraftSurfaceStyle? = nil,
+        showsStatusIndicator: Bool = true,
+        correctIconName: String? = nil,
+        wrongIconName: String? = nil,
         action: @escaping () -> Void
     ) {
         self.prefixKey = prefix
@@ -103,7 +125,36 @@ public struct CraftChoiceCard: View {
         self.rawSubtitle = nil
         self.state = state
         self.explicitStyle = style
+        self.showsStatusIndicator = showsStatusIndicator
+        self.correctIconName = correctIconName
+        self.wrongIconName = wrongIconName
         self.action = action
+    }
+
+    public init(
+        prefix: String? = "A",
+        prefixStyle: CraftChoicePrefixStyle = .circle,
+        title: String,
+        subtitle: String? = nil,
+        state: CraftChoiceState = .idle,
+        style: CraftSurfaceStyle? = nil,
+        showsStatusIndicator: Bool = true,
+        correctSymbol: CraftSymbol,
+        wrongSymbol: CraftSymbol? = nil,
+        action: @escaping () -> Void
+    ) {
+        self.init(
+            prefix: prefix,
+            prefixStyle: prefixStyle,
+            title: title,
+            subtitle: subtitle,
+            state: state,
+            style: style,
+            showsStatusIndicator: showsStatusIndicator,
+            correctIconName: correctSymbol.rawValue,
+            wrongIconName: wrongSymbol?.rawValue,
+            action: action
+        )
     }
 
     public var body: some View {
@@ -138,10 +189,10 @@ public struct CraftChoiceCard: View {
     }
 
     private var cardSurface: some View {
-        let content = HStack(alignment: .top, spacing: theme.spacing.md) {
+        let content = HStack(alignment: hasSubtitle ? .top : .center, spacing: theme.spacing.md) {
             if prefixStyle != .none && (prefixKey != nil || rawPrefix != nil) {
                 prefixBadge
-                    .padding(.top, 1)
+                    .padding(.top, hasSubtitle ? 1 : 0)
             }
 
             VStack(alignment: .leading, spacing: theme.spacing.xxs) {
@@ -164,7 +215,7 @@ public struct CraftChoiceCard: View {
                         .font(theme.typography.bodyMedium)
                         .foregroundStyle(subtitleColor)
                         .multilineTextAlignment(.leading)
-                } else if let rawSubtitle {
+                } else if let rawSubtitle, !rawSubtitle.isEmpty {
                     Text(rawSubtitle)
                         .font(theme.typography.bodyMedium)
                         .foregroundStyle(subtitleColor)
@@ -174,8 +225,10 @@ public struct CraftChoiceCard: View {
 
             Spacer(minLength: theme.spacing.sm)
 
-            trailingIndicator
-                .padding(.top, 2)
+            if showsStatusIndicator {
+                trailingIndicator
+                    .padding(.top, hasSubtitle ? 2 : 0)
+            }
         }
         .padding(theme.spacing.base)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -440,17 +493,29 @@ public struct CraftChoiceCard: View {
 
     @ViewBuilder
     private var trailingIndicator: some View {
-        switch state {
-        case .correct:
-            CraftIcon(.checkmarkCircle, size: .md, color: theme.colors.statusSuccess, renderingMode: .hierarchical)
+        if showsStatusIndicator {
+            switch state {
+            case .correct:
+                CraftIcon(
+                    correctIconName ?? CraftSymbol.checkmarkCircle.rawValue,
+                    size: .md,
+                    color: theme.colors.statusSuccess,
+                    renderingMode: .hierarchical
+                )
                 .symbolEffect(.bounce, value: state)
                 .transition(.scale.combined(with: .opacity))
-        case .wrong:
-            CraftIcon(.wrongCircle, size: .md, color: theme.colors.statusDanger, renderingMode: .hierarchical)
+            case .wrong:
+                CraftIcon(
+                    wrongIconName ?? CraftSymbol.wrongCircle.rawValue,
+                    size: .md,
+                    color: theme.colors.statusDanger,
+                    renderingMode: .hierarchical
+                )
                 .symbolEffect(.bounce, value: state)
                 .transition(.scale.combined(with: .opacity))
-        case .idle, .selected, .disabled:
-            EmptyView()
+            case .idle, .selected, .disabled:
+                EmptyView()
+            }
         }
     }
 
@@ -674,7 +739,7 @@ private struct CraftChoiceCardPreviewContainer: View {
                         prefix: "D",
                         prefixStyle: selectedPrefixStyle,
                         title: "Incorrect Answer",
-                        subtitle: "Validated error state with shake feedback",
+//                        subtitle: "Validated error state with shake feedback",
                         state: .wrong,
                         style: selectedStyle
                     ) {}
