@@ -382,6 +382,7 @@ public extension ButtonStyle where Self == CraftButtonStyle {
 /// A tactile, composable button component styled with Craft design tokens.
 public struct CraftButton: View {
     @Environment(\.craftTheme) private var theme
+    @State private var pressTrigger: Bool = false
 
     private let titleKey: LocalizedStringKey?
     private let rawTitle: String?
@@ -502,6 +503,7 @@ public struct CraftButton: View {
     public var body: some View {
         Button(action: {
             guard !isLoading else { return }
+            pressTrigger.toggle()
             action()
         }) {
             HStack(spacing: theme.spacing.xs) {
@@ -527,6 +529,7 @@ public struct CraftButton: View {
                 customGradient: customGradient
             )
         )
+        .craftSquashAndStretch(trigger: pressTrigger)
         .disabled(isLoading)
         .accessibilityValue(isLoading ? CraftLocalized.string("craft.button.loading_a11y") : "")
     }

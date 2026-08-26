@@ -47,6 +47,11 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertTrue(actionFired)
     }
 
+    func testButtonSquashAndStretchMotion() {
+        let button = CraftButton("Animate Me") {}
+        XCTAssertNotNil(button.body)
+    }
+
     func testButtonLocalizationAndVerbatim() {
         let localizedButton = CraftButton(LocalizedStringKey("start_quiz"), variant: .primary) {}
         XCTAssertNil(localizedButton.title)

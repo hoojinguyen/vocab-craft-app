@@ -599,5 +599,53 @@ final class InteractiveCardTests: XCTestCase {
         let reduceMotionModifier = Craft3DFlipModifier(progress: 0.2, side: .front, axis: .horizontal, perspective: 0.45, reduceMotion: true)
         XCTAssertEqual(reduceMotionModifier.currentDegrees, 0.0)
     }
+
+    // MARK: - CraftSquashAndStretchModifier Tests
+
+    func testSquashValuesInitializationAndDefaults() {
+        let defaultValues = SquashValues()
+        XCTAssertEqual(defaultValues.scaleX, 1.0)
+        XCTAssertEqual(defaultValues.scaleY, 1.0)
+        XCTAssertEqual(defaultValues.yOffset, 0.0)
+
+        let customValues = SquashValues(scaleX: 1.08, scaleY: 0.92, yOffset: 3.0)
+        XCTAssertEqual(customValues.scaleX, 1.08)
+        XCTAssertEqual(customValues.scaleY, 0.92)
+        XCTAssertEqual(customValues.yOffset, 3.0)
+
+        XCTAssertEqual(defaultValues, SquashValues(scaleX: 1.0, scaleY: 1.0, yOffset: 0.0))
+        XCTAssertNotEqual(defaultValues, customValues)
+    }
+
+    func testSquashAndStretchModifierViewExtension() {
+        let view = Text("Card Content").craftSquashAndStretch(trigger: 1)
+        XCTAssertNotNil(view)
+
+        let stringTriggerView = Text("Interactive Card").craftSquashAndStretch(trigger: "selected")
+        XCTAssertNotNil(stringTriggerView)
+
+        let boolTriggerView = Text("Toggle Card").craftSquashAndStretch(trigger: true)
+        XCTAssertNotNil(boolTriggerView)
+    }
+
+    func testSquashAndStretchModifierDirectBody() {
+        let modifier = CraftSquashAndStretchModifier(trigger: 42)
+        XCTAssertEqual(modifier.trigger, 42)
+
+        let view = Text("Testing Modifier").modifier(modifier)
+        XCTAssertNotNil(view)
+    }
+
+    func testChoiceCardStateSquashAndStretchInteraction() {
+        for state in CraftChoiceState.allCases {
+            let card = CraftChoiceCard(
+                prefix: "A",
+                title: "Card in \(state.rawValue)",
+                subtitle: "Testing squash & stretch trigger",
+                state: state
+            ) {}
+            XCTAssertNotNil(card.body)
+        }
+    }
 }
 

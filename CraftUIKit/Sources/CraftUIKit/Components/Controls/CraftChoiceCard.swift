@@ -161,6 +161,7 @@ public struct CraftChoiceCard: View {
         cardButton
             .scaleEffect(state == .correct && !reduceMotion ? 1.02 : 1.0)
             .modifier(ChoiceShakeEffect(shakes: shakeCount))
+            .craftSquashAndStretch(trigger: state)
             .animation(theme.animations.springBouncy, value: state)
             .accessibilityElement(children: .combine)
             .accessibilityValue(accessibilityValueDescription)
