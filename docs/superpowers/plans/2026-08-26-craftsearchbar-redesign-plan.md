@@ -33,7 +33,7 @@
   - `public enum CraftSearchBarSize: String, Sendable, CaseIterable { case sm, md, lg }`
   - `public struct CraftSearchBar: View` supporting `size`, `style`, `shape`, `customTint`, `customGradient`, `isLoading`, `trailingIcon`, `trailingAction`, `onCancel`, `onSubmit` with `String` and `LocalizedStringKey` initializers.
 
-- [ ] **Step 1: Write failing unit tests in ControlComponentTests.swift**
+- [x] **Step 1: Write failing unit tests in ControlComponentTests.swift**
 
 ```swift
 // Add to CraftUIKit/Tests/CraftUIKitTests/ControlComponentTests.swift
@@ -81,12 +81,12 @@ func testSearchBarSizesAndLoadingState() {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `swift test --package-path CraftUIKit --filter testSearchBarFullSpectrumStyles`
 Expected: FAIL with compilation error (missing cases in `CraftSearchBarStyle` or `CraftSearchBarSize`).
 
-- [ ] **Step 3: Implement CraftSearchBar.swift refactoring**
+- [x] **Step 3: Implement CraftSearchBar.swift refactoring**
 
 ```swift
 import SwiftUI
@@ -501,12 +501,12 @@ public struct CraftSearchBar: View {
 }
 ```
 
-- [ ] **Step 4: Run tests to verify all pass**
+- [x] **Step 4: Run tests to verify all pass**
 
 Run: `swift test --package-path CraftUIKit --filter testSearchBar`
 Expected: PASS with 100% assertions.
 
-- [ ] **Step 5: Commit changes**
+- [x] **Step 5: Commit changes**
 
 ```bash
 git add CraftUIKit/Sources/CraftUIKit/Components/Controls/CraftSearchBar.swift CraftUIKit/Tests/CraftUIKitTests/ControlComponentTests.swift
@@ -527,7 +527,7 @@ git commit -m "feat: upgrade CraftSearchBar with full-spectrum styles, sizes, ha
 - Produces:
   - Interactive multi-style, multi-size, loading demo in `CraftCatalogView`
 
-- [ ] **Step 1: Write test assertion in CatalogViewTests.swift for new search bar styles & sizes**
+- [x] **Step 1: Write test assertion in CatalogViewTests.swift for new search bar styles & sizes**
 
 ```swift
 // Add to CraftUIKit/Tests/CraftUIKitTests/CatalogViewTests.swift
@@ -543,7 +543,7 @@ func testCatalogSearchBarStylesAndSizes() {
 }
 ```
 
-- [ ] **Step 2: Update CraftCatalogView.swift Controls Section**
+- [x] **Step 2: Update CraftCatalogView.swift Controls Section**
 
 ```swift
 // Update CraftCatalogView.swift SearchBar showcase
@@ -589,12 +589,12 @@ CraftSearchBar(
 )
 ```
 
-- [ ] **Step 3: Run catalog test suite to verify 100% pass**
+- [x] **Step 3: Run catalog test suite to verify 100% pass**
 
 Run: `swift test --package-path CraftUIKit --filter CatalogViewTests`
 Expected: PASS with 100% assertions.
 
-- [ ] **Step 4: Commit changes**
+- [x] **Step 4: Commit changes**
 
 ```bash
 git add CraftUIKit/Sources/CraftUIKit/Previews/CraftCatalogView.swift CraftUIKit/Tests/CraftUIKitTests/CatalogViewTests.swift
@@ -608,12 +608,12 @@ git commit -m "feat: showcase CraftSearchBar full-spectrum styles and sizes in c
 **Files:**
 - Test: `CraftUIKit/Tests/CraftUIKitTests/`
 
-- [ ] **Step 1: Run full test suite**
+- [x] **Step 1: Run full test suite**
 
 Run: `swift test --package-path CraftUIKit`
 Expected: ALL test suites pass (ControlComponentTests, CatalogViewTests, InteractiveCardTests, etc.).
 
-- [ ] **Step 2: Commit final documentation & code verification**
+- [x] **Step 2: Commit final documentation & code verification**
 
 ```bash
 git add docs/superpowers/plans/2026-08-26-craftsearchbar-redesign-plan.md
