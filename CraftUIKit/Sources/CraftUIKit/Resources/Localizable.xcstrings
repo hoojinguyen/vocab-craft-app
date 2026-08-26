@@ -739,6 +739,24 @@
         }
       }
     },
+    "craft.step_progress.a11y_value_format": {
+      "comment": "Step indicator voiceover value format",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Step %lld of %lld"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bước %lld trên %lld"
+          }
+        }
+      }
+    },
     "craft.step_node.step_format": {
       "comment": "Step node label format",
       "extractionState": "manual",
@@ -1887,6 +1905,24 @@
           "stringUnit": {
             "state": "translated",
             "value": "BẮT ĐẦU!"
+          }
+        }
+      }
+    },
+    "craft.countdown.time_remaining_label": {
+      "comment": "Countdown timer bar accessibility label",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time remaining"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thời gian còn lại"
           }
         }
       }

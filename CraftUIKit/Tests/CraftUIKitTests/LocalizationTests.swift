@@ -144,6 +144,10 @@ final class LocalizationTests: XCTestCase {
         XCTAssertEqual(CraftLocalized.string("craft.segmented_bar.segment_fallback"), "Segment")
         XCTAssertEqual(CraftLocalized.string("craft.segmented_bar.segment_fallback", language: "vi"), "Phân đoạn")
         
+        // Step Progress
+        XCTAssertEqual(CraftLocalized.format("craft.step_progress.a11y_value_format", 2, 5), "Step 2 of 5")
+        XCTAssertEqual(CraftLocalized.format("craft.step_progress.a11y_value_format", language: "vi", 2, 5), "Bước 2 trên 5")
+        
         // Step Node
         XCTAssertEqual(CraftLocalized.format("craft.step_node.step_format", 2, "Review"), "Step 2: Review")
         XCTAssertEqual(CraftLocalized.format("craft.step_node.step_format", language: "vi", 2, "Ôn tập"), "Bước 2: Ôn tập")
@@ -344,6 +348,9 @@ final class LocalizationTests: XCTestCase {
         
         XCTAssertEqual(CraftLocalized.string("craft.countdown.go_text"), "GO!")
         XCTAssertEqual(CraftLocalized.string("craft.countdown.go_text", language: "vi"), "BẮT ĐẦU!")
+        
+        XCTAssertEqual(CraftLocalized.string("craft.countdown.time_remaining_label"), "Time remaining")
+        XCTAssertEqual(CraftLocalized.string("craft.countdown.time_remaining_label", language: "vi"), "Thời gian còn lại")
         
         // Sparkle
         XCTAssertEqual(CraftLocalized.string("craft.sparkle.sparkle_label"), "Sparkle!")
