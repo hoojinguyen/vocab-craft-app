@@ -155,7 +155,7 @@ public struct CraftActivityTrackerCard: View {
                     variant: .subtle,
                     tone: .neutral,
                     size: .sm,
-                    customTint: Color(hex: "F59E0B") // Warm Amber Gold
+                    customTint: theme.colors.accent
                 )
             }
         }
