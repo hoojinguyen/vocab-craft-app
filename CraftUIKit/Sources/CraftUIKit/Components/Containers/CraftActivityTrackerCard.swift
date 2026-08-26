@@ -6,38 +6,72 @@ import SwiftUI
 /// weekly cycle track, shield counter, and milestone progress.
 public struct CraftActivityTrackerCard: View {
     @Environment(\.craftTheme) private var theme
+    @Environment(\.craftSurfaceStyle) private var environmentSurfaceStyle
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     public let data: CraftActivityTrackerData
     public let cardStyle: CraftCardStyle
+    public let surfaceStyle: CraftSurfaceStyle?
     public let icon: CraftNodeIcon
     public let customAccessibilityLabel: String?
     public let customAccessibilityHint: String?
     public let onShieldTap: (() -> Void)?
     public let onMilestoneTap: (() -> Void)?
+    public let onDayTap: ((CraftActivityDay) -> Void)?
 
     @State private var isPulsing = false
 
     public init(
         data: CraftActivityTrackerData,
         cardStyle: CraftCardStyle = .outlined,
+        surfaceStyle: CraftSurfaceStyle? = nil,
         icon: CraftNodeIcon = .system(CraftSymbol.streak.rawValue),
         accessibilityLabel: String? = nil,
         accessibilityHint: String? = nil,
         onShieldTap: (() -> Void)? = nil,
-        onMilestoneTap: (() -> Void)? = nil
+        onMilestoneTap: (() -> Void)? = nil,
+        onDayTap: ((CraftActivityDay) -> Void)? = nil
     ) {
         self.data = data
-        self.cardStyle = cardStyle
+        self.surfaceStyle = surfaceStyle
+        if let surfaceStyle {
+            self.cardStyle = CraftCardStyle(surfaceStyle: surfaceStyle)
+        } else {
+            self.cardStyle = cardStyle
+        }
         self.icon = icon
         self.customAccessibilityLabel = accessibilityLabel
         self.customAccessibilityHint = accessibilityHint
         self.onShieldTap = onShieldTap
         self.onMilestoneTap = onMilestoneTap
+        self.onDayTap = onDayTap
+    }
+
+    public init(
+        data: CraftActivityTrackerData,
+        surfaceStyle: CraftSurfaceStyle,
+        icon: CraftNodeIcon = .system(CraftSymbol.streak.rawValue),
+        accessibilityLabel: String? = nil,
+        accessibilityHint: String? = nil,
+        onShieldTap: (() -> Void)? = nil,
+        onMilestoneTap: (() -> Void)? = nil,
+        onDayTap: ((CraftActivityDay) -> Void)? = nil
+    ) {
+        self.init(
+            data: data,
+            cardStyle: CraftCardStyle(surfaceStyle: surfaceStyle),
+            surfaceStyle: surfaceStyle,
+            icon: icon,
+            accessibilityLabel: accessibilityLabel,
+            accessibilityHint: accessibilityHint,
+            onShieldTap: onShieldTap,
+            onMilestoneTap: onMilestoneTap,
+            onDayTap: onDayTap
+        )
     }
 
     public var body: some View {
-        CraftCard(style: cardStyle) {
+        CraftCard(style: effectiveCardStyle) {
             VStack(alignment: .leading, spacing: theme.spacing.base) {
                 headerRow
                 weekTrackRow
@@ -65,6 +99,16 @@ public struct CraftActivityTrackerCard: View {
         .onChange(of: data.isCompletedToday) { _, _ in
             updatePulseAnimation()
         }
+    }
+
+    private var effectiveCardStyle: CraftCardStyle {
+        if let surfaceStyle {
+            return CraftCardStyle(surfaceStyle: surfaceStyle)
+        }
+        if environmentSurfaceStyle != .flat {
+            return CraftCardStyle(surfaceStyle: environmentSurfaceStyle)
+        }
+        return cardStyle
     }
 
     // MARK: - Header Row
@@ -132,10 +176,43 @@ public struct CraftActivityTrackerCard: View {
                         .fontWeight(day.isToday ? .bold : .medium)
                         .foregroundStyle(day.isToday ? theme.colors.textPrimary : theme.colors.textMuted)
 
-                    dayStatusNode(for: day)
+                    dayNodeView(for: day)
                 }
                 .frame(maxWidth: .infinity, minHeight: 44)
             }
+        }
+        .padding(.horizontal, theme.spacing.xs)
+        .padding(.vertical, theme.spacing.sm)
+        .background(theme.colors.surfaceSubtle.opacity(0.45))
+        .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
+        .overlay(
+            RoundedRectangle(cornerRadius: theme.radii.md)
+                .strokeBorder(theme.colors.borderDefault.opacity(0.35), lineWidth: 0.8)
+        )
+    }
+
+    @ViewBuilder
+    private func dayNodeView(for day: CraftActivityDay) -> some View {
+        if let onDayTap {
+            Button {
+                #if os(iOS)
+                let generator = UIImpactFeedbackGenerator(style: .light)
+                generator.prepare()
+                generator.impactOccurred()
+                #endif
+                onDayTap(day)
+            } label: {
+                dayStatusNode(for: day)
+            }
+            .buttonStyle(.craftPress(scale: 0.94))
+            .frame(minWidth: 44, minHeight: 44)
+            .contentShape(Rectangle())
+            .accessibilityAddTraits(.isButton)
+            .accessibilityLabel("\(day.weekdaySymbol), \(accessibilityDayStatusDescription(for: day.status))")
+            .accessibilityHint("Chạm hai lần để xem chi tiết ngày này.")
+        } else {
+            dayStatusNode(for: day)
+                .frame(minWidth: 44, minHeight: 44)
         }
     }
 
@@ -304,6 +381,7 @@ public struct CraftActivityTrackerCard: View {
             tone: data.shieldTokens > 0 ? .primary : .neutral,
             size: .sm
         )
+        .fixedSize(horizontal: true, vertical: false)
     }
 
     private var milestoneProgressSection: some View {
@@ -312,13 +390,14 @@ public struct CraftActivityTrackerCard: View {
                 .font(theme.typography.caption)
                 .foregroundStyle(theme.colors.textSecondary)
                 .lineLimit(1)
+                .minimumScaleFactor(0.85)
 
             CraftProgressBar(
                 progress: data.milestoneProgress,
                 height: 6,
                 tintColor: tierBaseColor
             )
-            .frame(maxWidth: 130)
+            .frame(minWidth: 60, maxWidth: 140)
         }
     }
 
@@ -426,6 +505,21 @@ public struct CraftActivityTrackerCard: View {
             return "Vuốt lên hoặc xuống để chọn tác vụ \(actions.joined(separator: " hoặc "))."
         }
         return "Hiển thị tổng quan chuỗi ngày học trong tuần."
+    }
+
+    private func accessibilityDayStatusDescription(for status: CraftActivityDayStatus) -> String {
+        switch status {
+        case .completed:
+            return "Đã hoàn thành"
+        case .pending:
+            return "Đang chờ hoàn thành"
+        case .saved:
+            return "Đã dùng khiên bảo vệ"
+        case .missed:
+            return "Bỏ lỡ"
+        case .upcoming:
+            return "Chưa đến"
+        }
     }
 }
 

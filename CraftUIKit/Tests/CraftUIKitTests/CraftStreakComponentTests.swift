@@ -532,4 +532,77 @@ final class CraftStreakComponentTests: XCTestCase {
         XCTAssertNotNil(sheet.body)
     }
 
+    // MARK: - Task 2: Recessed Tray, onDayTap & CraftSurfaceStyle Tests
+
+    func testCraftStreakCardWithDayTapAndSurfaceStyle() {
+        var tappedDay: CraftStreakDay? = nil
+        let mockDays: [CraftStreakDay] = [
+            .init(id: "1", weekdaySymbol: "T2", status: .completed),
+            .init(id: "2", weekdaySymbol: "T3", status: .frozen),
+            .init(id: "3", weekdaySymbol: "T4", status: .pending, isToday: true)
+        ]
+        let streakData = CraftStreakData(
+            currentStreak: 10,
+            bestStreak: 20,
+            weekDays: mockDays
+        )
+        let card = CraftStreakCard(
+            data: streakData,
+            surfaceStyle: .glass,
+            onDayTap: { day in
+                tappedDay = day
+            }
+        )
+        XCTAssertEqual(card.surfaceStyle, .glass)
+        XCTAssertEqual(card.cardStyle, .glass)
+        XCTAssertNotNil(card.onDayTap)
+        card.onDayTap?(mockDays[1])
+        XCTAssertEqual(tappedDay?.status, .frozen)
+    }
+
+    func testCraftActivityTrackerCardWithDayTap() {
+        var tappedActivityDay: CraftActivityDay? = nil
+        let mockDays: [CraftActivityDay] = [
+            .init(id: "1", weekdaySymbol: "Mon", status: .completed),
+            .init(id: "2", weekdaySymbol: "Tue", status: .saved)
+        ]
+        let data = CraftActivityTrackerData(
+            currentValue: 5,
+            bestRecord: 10,
+            cycleDays: mockDays
+        )
+        let card = CraftActivityTrackerCard(
+            data: data,
+            surfaceStyle: .tactile3D,
+            onDayTap: { day in
+                tappedActivityDay = day
+            }
+        )
+        XCTAssertEqual(card.surfaceStyle, .tactile3D)
+        XCTAssertEqual(card.cardStyle, .tactile3D)
+        XCTAssertNotNil(card.onDayTap)
+        card.onDayTap?(mockDays[0])
+        XCTAssertEqual(tappedActivityDay?.id, "1")
+    }
+
+    func testCraftStreakCardSurfaceStylesAll() {
+        let streakData = CraftStreakData(currentStreak: 5, bestStreak: 10)
+        for style in CraftSurfaceStyle.allCases {
+            let card = CraftStreakCard(data: streakData, surfaceStyle: style)
+            XCTAssertEqual(card.surfaceStyle, style)
+            XCTAssertEqual(card.cardStyle, CraftCardStyle(surfaceStyle: style))
+            XCTAssertNotNil(card.body)
+        }
+    }
+
+    func testCraftActivityTrackerCardSurfaceStylesAll() {
+        let data = CraftActivityTrackerData(currentValue: 5, bestRecord: 10)
+        for style in CraftSurfaceStyle.allCases {
+            let card = CraftActivityTrackerCard(data: data, surfaceStyle: style)
+            XCTAssertEqual(card.surfaceStyle, style)
+            XCTAssertEqual(card.cardStyle, CraftCardStyle(surfaceStyle: style))
+            XCTAssertNotNil(card.body)
+        }
+    }
 }
+

@@ -7,36 +7,91 @@ import SwiftUI
 public struct CraftStreakCard: View {
     public let data: CraftStreakData
     public let cardStyle: CraftCardStyle
+    public let surfaceStyle: CraftSurfaceStyle?
     public let customAccessibilityLabel: String?
     public let customAccessibilityHint: String?
     public let onFreezeTap: (() -> Void)?
     public let onMilestoneTap: (() -> Void)?
+    public let onDayTap: ((CraftStreakDay) -> Void)?
 
     public init(
         data: CraftStreakData,
         cardStyle: CraftCardStyle = .outlined,
+        surfaceStyle: CraftSurfaceStyle? = nil,
         accessibilityLabel: String? = nil,
         accessibilityHint: String? = nil,
         onFreezeTap: (() -> Void)? = nil,
-        onMilestoneTap: (() -> Void)? = nil
+        onMilestoneTap: (() -> Void)? = nil,
+        onDayTap: ((CraftStreakDay) -> Void)? = nil
     ) {
         self.data = data
-        self.cardStyle = cardStyle
+        self.surfaceStyle = surfaceStyle
+        if let surfaceStyle {
+            self.cardStyle = CraftCardStyle(surfaceStyle: surfaceStyle)
+        } else {
+            self.cardStyle = cardStyle
+        }
         self.customAccessibilityLabel = accessibilityLabel
         self.customAccessibilityHint = accessibilityHint
         self.onFreezeTap = onFreezeTap
         self.onMilestoneTap = onMilestoneTap
+        self.onDayTap = onDayTap
+    }
+
+    public init(
+        data: CraftStreakData,
+        surfaceStyle: CraftSurfaceStyle,
+        accessibilityLabel: String? = nil,
+        accessibilityHint: String? = nil,
+        onFreezeTap: (() -> Void)? = nil,
+        onMilestoneTap: (() -> Void)? = nil,
+        onDayTap: ((CraftStreakDay) -> Void)? = nil
+    ) {
+        self.init(
+            data: data,
+            cardStyle: CraftCardStyle(surfaceStyle: surfaceStyle),
+            surfaceStyle: surfaceStyle,
+            accessibilityLabel: accessibilityLabel,
+            accessibilityHint: accessibilityHint,
+            onFreezeTap: onFreezeTap,
+            onMilestoneTap: onMilestoneTap,
+            onDayTap: onDayTap
+        )
     }
 
     public var body: some View {
         CraftActivityTrackerCard(
             data: data.asActivityTrackerData,
             cardStyle: cardStyle,
+            surfaceStyle: surfaceStyle,
             icon: .system(CraftSymbol.streak.rawValue),
             accessibilityLabel: customAccessibilityLabel,
             accessibilityHint: customAccessibilityHint,
             onShieldTap: onFreezeTap,
-            onMilestoneTap: onMilestoneTap
+            onMilestoneTap: onMilestoneTap,
+            onDayTap: onDayTap.map { callback in
+                { (activityDay: CraftActivityDay) in
+                    if let streakDay = data.weekDays.first(where: { $0.id == activityDay.id }) {
+                        callback(streakDay)
+                    } else {
+                        let streakStatus: CraftStreakDayStatus
+                        switch activityDay.status {
+                        case .completed: streakStatus = .completed
+                        case .pending: streakStatus = .pending
+                        case .saved: streakStatus = .frozen
+                        case .missed: streakStatus = .missed
+                        case .upcoming: streakStatus = .upcoming
+                        }
+                        let fallbackDay = CraftStreakDay(
+                            id: activityDay.id,
+                            weekdaySymbol: activityDay.weekdaySymbol,
+                            status: streakStatus,
+                            isToday: activityDay.isToday
+                        )
+                        callback(fallbackDay)
+                    }
+                }
+            }
         )
     }
 }
