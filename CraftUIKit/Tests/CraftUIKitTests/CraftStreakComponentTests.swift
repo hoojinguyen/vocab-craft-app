@@ -397,7 +397,7 @@ final class CraftStreakComponentTests: XCTestCase {
         let activityData = CraftActivityTrackerData(
             currentValue: 14,
             bestRecord: 25,
-            unitKey: "craft.streak.daysUnit",
+            unitKey: "craft.common.unit.days_single",
             unit: "days",
             tier: .blaze,
             shieldTokens: 2,
@@ -479,7 +479,7 @@ final class CraftStreakComponentTests: XCTestCase {
         let sheetMilestone = CraftCelebrationSheet(
             currentValue: 30,
             previousValue: 29,
-            unitKey: "craft.streak.daysUnit",
+            unitKey: "craft.common.unit.days_single",
             unit: "days",
             cycleDays: [CraftActivityDay(id: "1", weekdaySymbol: "Mon", status: .completed)],
             onContinue: {}
@@ -644,17 +644,17 @@ final class CraftStreakComponentTests: XCTestCase {
         XCTAssertEqual(data.milestoneProgress, 14.0 / 21.0, accuracy: 0.001)
 
         // Verify localized format strings
-        let progressFormattedEn = CraftLocalized.format("craft.streak.milestoneProgressPercent", language: "en", 21, 67)
-        XCTAssertEqual(progressFormattedEn, "Milestone 21d • 67%")
+        let milestoneTitleEn = CraftLocalized.format("craft.streak.milestone_title_format", language: "en", 21)
+        XCTAssertEqual(milestoneTitleEn, "21-Day Milestone!")
 
-        let progressFormattedVi = CraftLocalized.format("craft.streak.milestoneProgressPercent", language: "vi", 21, 67)
-        XCTAssertEqual(progressFormattedVi, "Mốc 21 ngày • 67%")
+        let milestoneTitleVi = CraftLocalized.format("craft.streak.milestone_title_format", language: "vi", 21)
+        XCTAssertEqual(milestoneTitleVi, "Cột mốc 21 ngày!")
 
-        let reachedFormattedEn = CraftLocalized.format("craft.streak.milestoneReachedPercent", language: "en", 21)
-        XCTAssertEqual(reachedFormattedEn, "Reached 21d milestone • 100%")
+        let celebrationTitleEn = CraftLocalized.string("craft.streak.celebration_title", language: "en")
+        XCTAssertEqual(celebrationTitleEn, "Streak Extended!")
 
-        let reachedFormattedVi = CraftLocalized.format("craft.streak.milestoneReachedPercent", language: "vi", 21)
-        XCTAssertEqual(reachedFormattedVi, "Đạt mốc 21 ngày • 100%")
+        let celebrationTitleVi = CraftLocalized.string("craft.streak.celebration_title", language: "vi")
+        XCTAssertEqual(celebrationTitleVi, "Chuỗi ngày rực lửa!")
     }
 
     // MARK: - Task 2: Visual Styling, Gold Trophy, Soft Recessed Tray & Ember Glow Tests

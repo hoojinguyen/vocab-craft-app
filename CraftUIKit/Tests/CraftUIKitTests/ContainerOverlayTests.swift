@@ -576,8 +576,8 @@ final class ContainerOverlayTests: XCTestCase {
             title: "Default Actions",
             primaryAction: {}
         )
-        XCTAssertEqual(dialog.primaryButtonTitle, CraftLocalized.string("craft.action.confirm"))
-        XCTAssertEqual(dialog.cancelButtonTitle, CraftLocalized.string("craft.action.cancel"))
+        XCTAssertEqual(dialog.primaryButtonTitle, CraftLocalized.string("craft.common.action.confirm"))
+        XCTAssertEqual(dialog.cancelButtonTitle, CraftLocalized.string("craft.common.action.cancel"))
         XCTAssertEqual(dialog.style, .elevated)
         XCTAssertNotNil(dialog.body)
     }

@@ -305,14 +305,14 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
         .animation(effectiveAnimation, value: isFlipped)
         .sensoryFeedback(.impact(weight: .medium), trigger: isFlipped)
         .accessibilityAction(
-            named: CraftLocalized.string(isFlipped ? "craft.flipcard.flipToFront" : "craft.flipcard.flipToBack")
+            named: CraftLocalized.string(isFlipped ? "craft.flipcard.flip_to_front_action" : "craft.flipcard.flip_to_back_action")
         ) {
             withAnimation(effectiveAnimation) {
                 isFlipped.toggle()
             }
         }
         .accessibilityHint(
-            CraftLocalized.string(isFlipped ? "craft.flipcard.backSideA11y" : "craft.flipcard.frontSideA11y")
+            CraftLocalized.string(isFlipped ? "craft.flipcard.back_side_hint" : "craft.flipcard.front_side_hint")
         )
     }
 }

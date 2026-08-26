@@ -45,7 +45,7 @@ public struct CraftCelebrationSheet: View {
         currentValue: Int,
         previousValue: Int,
         unitKey: String? = nil,
-        unit: String = "days",
+        unit: String = CraftLocalized.string("craft.common.unit.days_single"),
         cycleDays: [CraftActivityDay] = [],
         icon: CraftNodeIcon = .system(CraftSymbol.streak.rawValue),
         surfaceStyle: CraftSurfaceStyle? = nil,
@@ -218,9 +218,9 @@ public struct CraftCelebrationSheet: View {
 
     private var titleText: String {
         if isMilestone {
-            return CraftLocalized.format("craft.streak.milestoneTitle", currentValue)
+            return CraftLocalized.format("craft.streak.milestone_title_format", currentValue)
         } else {
-            return CraftLocalized.string("craft.streak.celebrationTitle")
+            return CraftLocalized.string("craft.streak.celebration_title")
         }
     }
 
@@ -228,21 +228,21 @@ public struct CraftCelebrationSheet: View {
         switch tier {
         case .starter:
             if currentValue <= 1 {
-                return CraftLocalized.string("craft.streak.msgStarter1")
+                return CraftLocalized.string("craft.streak.msg_starter_1")
             } else {
-                return CraftLocalized.string("craft.streak.msgStarter")
+                return CraftLocalized.string("craft.streak.msg_starter")
             }
         case .blaze:
             if isMilestone {
-                return CraftLocalized.string("craft.streak.msgBlazeMilestone")
+                return CraftLocalized.string("craft.streak.msg_blaze_milestone")
             } else {
-                return CraftLocalized.string("craft.streak.msgBlaze")
+                return CraftLocalized.string("craft.streak.msg_blaze")
             }
         case .legendary:
             if isMilestone {
-                return CraftLocalized.string("craft.streak.msgLegendaryMilestone")
+                return CraftLocalized.string("craft.streak.msg_legendary_milestone")
             } else {
-                return CraftLocalized.string("craft.streak.msgLegendary")
+                return CraftLocalized.string("craft.streak.msg_legendary")
             }
         }
     }
@@ -370,7 +370,7 @@ public struct CraftCelebrationSheet: View {
 
     private var continueButton: some View {
         CraftButton(
-            CraftLocalized.string("craft.streak.continueAction"),
+            CraftLocalized.string("craft.streak.continue_action"),
             variant: .tactile,
             size: .lg,
             isFullWidth: true,
@@ -471,14 +471,13 @@ public struct CraftCelebrationSheet: View {
         if let customAccessibilityLabel {
             return customAccessibilityLabel
         }
-        let key = isMilestone ? "craft.streak.celebrationA11yMilestone" : "craft.streak.celebrationA11yRegular"
-        return CraftLocalized.format(key, currentValue, motivationalMessage)
+        return "\(titleText), \(displayedValue) \(resolvedUnit). \(motivationalMessage)"
     }
 
     private var accessibilityHintString: String {
         if let customAccessibilityHint {
             return customAccessibilityHint
         }
-        return CraftLocalized.string("craft.streak.celebrationA11yHint")
+        return CraftLocalized.string("craft.streak.celebration_hint")
     }
 }

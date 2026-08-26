@@ -48,8 +48,8 @@ public struct CraftStreakCelebrationSheet: View {
         CraftCelebrationSheet(
             currentValue: currentStreak,
             previousValue: previousStreak,
-            unitKey: "craft.streak.daysUnit",
-            unit: "ngày",
+            unitKey: "craft.common.unit.days_single",
+            unit: CraftLocalized.string("craft.common.unit.days_single"),
             cycleDays: weekDays.map(\.asActivityDay),
             icon: .system(CraftSymbol.streak.rawValue),
             surfaceStyle: surfaceStyle,

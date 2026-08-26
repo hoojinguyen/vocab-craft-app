@@ -110,8 +110,8 @@ public struct CraftWaveformView: View {
             }
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(isRecording ? "Audio waveform recording active" : "Audio waveform visualizer")
-        .accessibilityValue("\(averageLevelPercentage(for: currentLevels)) percent average audio level")
+        .accessibilityLabel(isRecording ? CraftLocalized.string("craft.waveform.recording_active_a11y") : CraftLocalized.string("craft.waveform.visualizer_a11y"))
+        .accessibilityValue(CraftLocalized.format("craft.waveform.audio_level_format", averageLevelPercentage(for: currentLevels)))
     }
 }
 

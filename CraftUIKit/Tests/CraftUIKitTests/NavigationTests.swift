@@ -310,5 +310,15 @@ final class NavigationTests: XCTestCase {
         XCTAssertEqual(inlineBar.centerPosition, .inline)
         XCTAssertNotNil(inlineBar.body)
     }
+
+    // MARK: - Navigation Localization Tests
+
+    func testFloatingTabBarLocalization() {
+        XCTAssertEqual(CraftLocalized.format("craft.tab_bar.badge_count_format", language: "en", 5), "5 new items")
+        XCTAssertEqual(CraftLocalized.format("craft.tab_bar.badge_count_format", language: "vi", 5), "5 mục mới")
+
+        XCTAssertEqual(CraftLocalized.string("craft.tab_bar.center_action_fallback", language: "en"), "Action")
+        XCTAssertEqual(CraftLocalized.string("craft.tab_bar.center_action_fallback", language: "vi"), "Tác vụ")
+    }
 }
 

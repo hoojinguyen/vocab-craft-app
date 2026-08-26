@@ -24,7 +24,7 @@ public struct CraftCountdownOverlay: View {
     public init(
         startNumber: Int = 3,
         title: String? = nil,
-        goText: String = "GO!",
+        goText: String = CraftLocalized.string("craft.countdown.go_text"),
         onFinish: @escaping () -> Void
     ) {
         self.startNumber = max(1, startNumber)
@@ -75,7 +75,7 @@ public struct CraftCountdownOverlay: View {
             await runCountdown()
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(isShowingGo ? goText : "Countdown \(currentCount)")
+        .accessibilityLabel(isShowingGo ? goText : CraftLocalized.format("craft.countdown.label_format", currentCount))
     }
 
     // MARK: - Countdown Loop
@@ -147,7 +147,7 @@ public struct CraftCountdownModifier: ViewModifier {
         isPresented: Binding<Bool>,
         startNumber: Int = 3,
         title: String? = nil,
-        goText: String = "GO!",
+        goText: String = CraftLocalized.string("craft.countdown.go_text"),
         onFinish: @escaping () -> Void
     ) {
         self._isPresented = isPresented
@@ -186,14 +186,14 @@ public extension View {
     ///   - isPresented: Binding controlling the presentation of the countdown overlay.
     ///   - startNumber: Starting integer count (default: 3).
     ///   - title: Optional contextual title (e.g. "Get Ready!").
-    ///   - goText: Text displayed on countdown completion (default: "GO!").
+    ///   - goText: Text displayed on countdown completion (default: localized "GO!").
     ///   - onFinish: Callback executed when the countdown completes and "GO!" finishes animating.
     /// - Returns: A view modified with the countdown modal overlay.
     func craftCountdown(
         isPresented: Binding<Bool>,
         startNumber: Int = 3,
         title: String? = nil,
-        goText: String = "GO!",
+        goText: String = CraftLocalized.string("craft.countdown.go_text"),
         onFinish: @escaping () -> Void
     ) -> some View {
         modifier(CraftCountdownModifier(

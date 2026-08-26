@@ -165,4 +165,50 @@ final class FeedbackFXTests: XCTestCase {
         XCTAssertNotNil(modified)
         XCTAssertFalse(finished)
     }
+
+    // MARK: - Feedback Localization Tests
+
+    func testWaveformLocalization() {
+        XCTAssertEqual(CraftLocalized.string("craft.waveform.recording_active_a11y", language: "en"), "Audio waveform recording active")
+        XCTAssertEqual(CraftLocalized.string("craft.waveform.recording_active_a11y", language: "vi"), "Đang thu âm sóng âm thanh")
+
+        XCTAssertEqual(CraftLocalized.string("craft.waveform.visualizer_a11y", language: "en"), "Audio waveform visualizer")
+        XCTAssertEqual(CraftLocalized.string("craft.waveform.visualizer_a11y", language: "vi"), "Trình hiển thị sóng âm")
+
+        XCTAssertEqual(CraftLocalized.format("craft.waveform.audio_level_format", language: "en", 75), "75 percent average audio level")
+        XCTAssertEqual(CraftLocalized.format("craft.waveform.audio_level_format", language: "vi", 75), "Mức âm thanh trung bình 75 phần trăm")
+    }
+
+    func testCountdownLocalization() {
+        XCTAssertEqual(CraftLocalized.string("craft.countdown.go_text", language: "en"), "GO!")
+        XCTAssertEqual(CraftLocalized.string("craft.countdown.go_text", language: "vi"), "BẮT ĐẦU!")
+
+        XCTAssertEqual(CraftLocalized.format("craft.countdown.label_format", language: "en", 3), "Countdown 3")
+        XCTAssertEqual(CraftLocalized.format("craft.countdown.label_format", language: "vi", 3), "Đếm ngược 3")
+    }
+
+    func testSparkleLocalization() {
+        XCTAssertEqual(CraftLocalized.string("craft.sparkle.sparkle_label", language: "en"), "Sparkle!")
+        XCTAssertEqual(CraftLocalized.string("craft.sparkle.sparkle_label", language: "vi"), "Lấp lánh!")
+
+        XCTAssertEqual(CraftLocalized.string("craft.sparkle.celebration_label", language: "en"), "Celebration!")
+        XCTAssertEqual(CraftLocalized.string("craft.sparkle.celebration_label", language: "vi"), "Chúc mừng!")
+    }
+
+    func testStreakCelebrationLocalization() {
+        XCTAssertEqual(CraftLocalized.string("craft.common.unit.days_single", language: "en"), "days")
+        XCTAssertEqual(CraftLocalized.string("craft.common.unit.days_single", language: "vi"), "ngày")
+
+        XCTAssertEqual(CraftLocalized.string("craft.streak.celebration_title", language: "en"), "Streak Extended!")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.celebration_title", language: "vi"), "Chuỗi ngày rực lửa!")
+
+        XCTAssertEqual(CraftLocalized.string("craft.streak.continue_action", language: "en"), "Continue Learning")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.continue_action", language: "vi"), "Tiếp tục học")
+
+        XCTAssertEqual(CraftLocalized.string("craft.streak.celebration_hint", language: "en"), "Double tap to dismiss and continue learning.")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.celebration_hint", language: "vi"), "Chạm hai lần để đóng màn hình và tiếp tục học.")
+
+        XCTAssertEqual(CraftLocalized.format("craft.streak.milestone_title_format", language: "en", 14), "14-Day Milestone!")
+        XCTAssertEqual(CraftLocalized.format("craft.streak.milestone_title_format", language: "vi", 14), "Cột mốc 14 ngày!")
+    }
 }

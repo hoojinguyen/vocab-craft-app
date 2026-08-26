@@ -89,7 +89,7 @@ public struct CraftBottomSheet<Content: View>: View {
                         CraftIcon(.wrongCircle, size: .md, color: theme.colors.textMuted)
                     }
                     .buttonStyle(PlainButtonStyle())
-                    .accessibilityLabel(CraftLocalized.string("craft.action.dismiss"))
+                    .accessibilityLabel(CraftLocalized.string("craft.common.action.dismiss"))
                     .frame(minWidth: 44, minHeight: 44)
                 }
                 .padding(.horizontal, theme.spacing.base)
@@ -102,7 +102,7 @@ public struct CraftBottomSheet<Content: View>: View {
                         CraftIcon(.wrongCircle, size: .md, color: theme.colors.textMuted)
                     }
                     .buttonStyle(PlainButtonStyle())
-                    .accessibilityLabel(CraftLocalized.string("craft.action.dismiss"))
+                    .accessibilityLabel(CraftLocalized.string("craft.common.action.dismiss"))
                     .frame(minWidth: 44, minHeight: 44)
                 }
                 .padding(.horizontal, theme.spacing.base)

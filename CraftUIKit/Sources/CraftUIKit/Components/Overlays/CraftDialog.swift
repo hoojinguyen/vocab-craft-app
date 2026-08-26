@@ -41,7 +41,7 @@ public struct CraftDialog<CustomContent: View>: View {
 
     public var title: String { rawTitle ?? "" }
     public var message: String? { rawMessage }
-    public var primaryButtonTitle: String { rawPrimaryButtonTitle ?? CraftLocalized.string("craft.action.confirm") }
+    public var primaryButtonTitle: String { rawPrimaryButtonTitle ?? CraftLocalized.string("craft.common.action.confirm") }
     public var cancelButtonTitle: String? { rawCancelButtonTitle }
 
     public let iconName: String?
@@ -65,10 +65,10 @@ public struct CraftDialog<CustomContent: View>: View {
         message: String? = nil,
         iconName: String? = nil,
         iconColor: Color? = nil,
-        primaryButtonTitle: String = CraftLocalized.string("craft.action.confirm"),
+        primaryButtonTitle: String = CraftLocalized.string("craft.common.action.confirm"),
         primaryButtonVariant: CraftButtonVariant = .primary,
         primaryAction: @escaping () -> Void,
-        cancelButtonTitle: String? = CraftLocalized.string("craft.action.cancel"),
+        cancelButtonTitle: String? = CraftLocalized.string("craft.common.action.cancel"),
         cancelButtonVariant: CraftButtonVariant? = nil,
         cancelAction: (() -> Void)? = nil,
         style: CraftSurfaceStyle = .elevated,
@@ -359,10 +359,10 @@ public extension CraftDialog where CustomContent == EmptyView {
         message: String? = nil,
         iconName: String? = nil,
         iconColor: Color? = nil,
-        primaryButtonTitle: String = CraftLocalized.string("craft.action.confirm"),
+        primaryButtonTitle: String = CraftLocalized.string("craft.common.action.confirm"),
         primaryButtonVariant: CraftButtonVariant = .primary,
         primaryAction: @escaping () -> Void,
-        cancelButtonTitle: String? = CraftLocalized.string("craft.action.cancel"),
+        cancelButtonTitle: String? = CraftLocalized.string("craft.common.action.cancel"),
         cancelButtonVariant: CraftButtonVariant? = nil,
         cancelAction: (() -> Void)? = nil,
         style: CraftSurfaceStyle = .elevated,
@@ -490,10 +490,10 @@ public extension View {
         message: String? = nil,
         iconName: String? = nil,
         iconColor: Color? = nil,
-        primaryButtonTitle: String = CraftLocalized.string("craft.action.confirm"),
+        primaryButtonTitle: String = CraftLocalized.string("craft.common.action.confirm"),
         primaryButtonVariant: CraftButtonVariant = .primary,
         primaryAction: @escaping () -> Void,
-        cancelButtonTitle: String? = CraftLocalized.string("craft.action.cancel"),
+        cancelButtonTitle: String? = CraftLocalized.string("craft.common.action.cancel"),
         cancelButtonVariant: CraftButtonVariant? = nil,
         cancelAction: (() -> Void)? = nil,
         style: CraftSurfaceStyle = .elevated,

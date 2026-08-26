@@ -319,7 +319,7 @@ public struct CraftSparkleView: View {
                 color: theme.colors.accent,
                 weight: .bold
             )
-            Text(style == .sparkles ? "Sparkle!" : "Celebration!")
+            Text(CraftLocalized.string(style == .sparkles ? "craft.sparkle.sparkle_label" : "craft.sparkle.celebration_label"))
                 .font(theme.typography.headline)
                 .foregroundColor(theme.colors.textPrimary)
         }

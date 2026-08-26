@@ -843,14 +843,14 @@ private struct CraftCatalogContentView: View {
             title: "Confirm Action",
             message: "Would you like to apply these changes to your CraftUIKit workspace?",
             iconName: "questionmark.circle.fill",
-            primaryButtonTitle: CraftLocalized.string("craft.action.confirm", language: selectedLanguage.code),
+            primaryButtonTitle: CraftLocalized.string("craft.common.action.confirm", language: selectedLanguage.code),
             primaryButtonVariant: .primary,
             primaryAction: {
                 toastStyle = .success
                 toastSurfaceStyle = .elevated
                 isToastPresented = true
             },
-            cancelButtonTitle: CraftLocalized.string("craft.action.cancel", language: selectedLanguage.code)
+            cancelButtonTitle: CraftLocalized.string("craft.common.action.cancel", language: selectedLanguage.code)
         )
         .craftDialog(
             isPresented: $isDangerDialogPresented,
@@ -864,21 +864,21 @@ private struct CraftCatalogContentView: View {
                 toastSurfaceStyle = .elevated
                 isToastPresented = true
             },
-            cancelButtonTitle: CraftLocalized.string("craft.action.cancel", language: selectedLanguage.code)
+            cancelButtonTitle: CraftLocalized.string("craft.common.action.cancel", language: selectedLanguage.code)
         )
         .craftDialog(
             isPresented: $isGlassDialogPresented,
             title: "Liquid Glass Dialog",
             message: "Translucent backdrop and frosted material surface with specular reflection.",
             iconName: "sparkles",
-            primaryButtonTitle: CraftLocalized.string("craft.action.confirm", language: selectedLanguage.code),
+            primaryButtonTitle: CraftLocalized.string("craft.common.action.confirm", language: selectedLanguage.code),
             primaryButtonVariant: .primary,
             primaryAction: {
                 toastStyle = .success
                 toastSurfaceStyle = .glass
                 isToastPresented = true
             },
-            cancelButtonTitle: CraftLocalized.string("craft.action.close", language: selectedLanguage.code),
+            cancelButtonTitle: CraftLocalized.string("craft.common.action.close", language: selectedLanguage.code),
             style: .glass,
             backdrop: .material
         )

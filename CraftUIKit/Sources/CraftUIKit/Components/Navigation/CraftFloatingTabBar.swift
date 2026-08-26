@@ -443,7 +443,7 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
 
     private var accessibilityBadgeValue: String {
         if let count = item.badgeCount, count > 0 {
-            return "\(count) new items"
+            return CraftLocalized.format("craft.tab_bar.badge_count_format", count)
         }
         return ""
     }
@@ -557,7 +557,7 @@ private struct CraftCenterActionButton: View {
         } else if let title, !title.isEmpty {
             return Text(title)
         } else {
-            return Text("Action")
+            return Text(CraftLocalized.string("craft.tab_bar.center_action_fallback"))
         }
     }
 }

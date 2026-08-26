@@ -517,20 +517,20 @@ final class InteractiveCardTests: XCTestCase {
     }
 
     func testFlipCardLocalizationKeys() {
-        let flipToBackEn = CraftLocalized.string("craft.flipcard.flipToBack")
-        let flipToFrontEn = CraftLocalized.string("craft.flipcard.flipToFront")
-        let frontA11y = CraftLocalized.string("craft.flipcard.frontSideA11y")
-        let backA11y = CraftLocalized.string("craft.flipcard.backSideA11y")
+        let flipToBackEn = CraftLocalized.string("craft.flipcard.flip_to_back_action")
+        let flipToFrontEn = CraftLocalized.string("craft.flipcard.flip_to_front_action")
+        let frontA11y = CraftLocalized.string("craft.flipcard.front_side_hint")
+        let backA11y = CraftLocalized.string("craft.flipcard.back_side_hint")
 
         XCTAssertEqual(flipToBackEn, "Flip to back")
         XCTAssertEqual(flipToFrontEn, "Flip to front")
         XCTAssertEqual(frontA11y, "Front of card")
         XCTAssertEqual(backA11y, "Back of card")
 
-        XCTAssertEqual(CraftLocalized.string("craft.flipcard.flipToBack", language: "vi"), "Lật ra mặt sau")
-        XCTAssertEqual(CraftLocalized.string("craft.flipcard.flipToFront", language: "vi"), "Lật ra mặt trước")
-        XCTAssertEqual(CraftLocalized.string("craft.flipcard.frontSideA11y", language: "vi"), "Mặt trước của thẻ")
-        XCTAssertEqual(CraftLocalized.string("craft.flipcard.backSideA11y", language: "vi"), "Mặt sau của thẻ")
+        XCTAssertEqual(CraftLocalized.string("craft.flipcard.flip_to_back_action", language: "vi"), "Lật ra mặt sau")
+        XCTAssertEqual(CraftLocalized.string("craft.flipcard.flip_to_front_action", language: "vi"), "Lật ra mặt trước")
+        XCTAssertEqual(CraftLocalized.string("craft.flipcard.front_side_hint", language: "vi"), "Mặt trước của thẻ")
+        XCTAssertEqual(CraftLocalized.string("craft.flipcard.back_side_hint", language: "vi"), "Mặt sau của thẻ")
 
         XCTAssertFalse(flipToBackEn.isEmpty)
         XCTAssertFalse(flipToFrontEn.isEmpty)
