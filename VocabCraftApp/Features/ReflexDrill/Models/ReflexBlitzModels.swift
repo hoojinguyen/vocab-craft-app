@@ -180,6 +180,19 @@ public struct ReflexBlitzWordItem: Identifiable, Equatable, Sendable {
         )
     }
 
+    public init(from dto: TopicWordDTO) {
+        let sentenceEn = dto.exampleEn.isEmpty ? "The word is \(dto.lemma)." : dto.exampleEn
+        self.init(
+            id: Int(dto.id),
+            lemma: dto.lemma,
+            pos: dto.pos.isEmpty ? "word" : dto.pos,
+            ipa: dto.phonetic,
+            definitionVi: dto.definitionVi.isEmpty ? dto.definitionEn : dto.definitionVi,
+            exampleSentenceEn: sentenceEn,
+            exampleSentenceVi: dto.exampleVi
+        )
+    }
+
     public var completedSentenceWithTargetWord: String {
         if clozeSentenceEn.contains("[ _________ ]") {
             return clozeSentenceEn.replacingOccurrences(of: "[ _________ ]", with: lemma)

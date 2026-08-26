@@ -1,11 +1,13 @@
+import CraftUIKit
 import SwiftUI
 
-/// Integrated Homepage view showcasing Bento grid layout, dark mode aesthetic, and liquid glass navigation.
+/// Integrated Homepage view showcasing sticky HeaderView, CraftLearningPath gamified journey, and liquid glass navigation.
 public struct HomepageView: View {
     @State private var viewModel: HomepageViewModel
     @State private var vaultVM: PersonalVaultViewModel?
     @State private var settingsVM: SettingsViewModel?
     @State private var reflexBlitzVM: ReflexBlitzViewModel?
+    @State private var activeLessonNode: LessonNodeModel?
     @Environment(\.appContainer) private var appContainer
     @Environment(\.appRouter) private var appRouter
 
@@ -23,53 +25,39 @@ public struct HomepageView: View {
 
             switch router.selectedTab {
             case .home:
-                ScrollView(.vertical, showsIndicators: false) {
-                    VStack(spacing: 16) {
-                        HeaderView(
-                            userName: viewModel.state.userName,
-                            streakDays: viewModel.state.streakDays,
-                            dailyGoalProgress: viewModel.state.dailyGoalProgress,
-                            unreadNotifications: viewModel.state.unreadNotifications
-                        )
+                VStack(spacing: 0) {
+                    HeaderView(
+                        userName: viewModel.userName,
+                        streakDays: viewModel.streakDays,
+                        dailyGoalProgress: viewModel.dailyGoalProgress,
+                        unreadNotifications: viewModel.unreadNotifications
+                    )
+                    .background(Color.vocabCanvas)
+                    .zIndex(1)
 
-                        SuggestedWordsCardView(
-                            words: viewModel.suggestedWords,
-                            selectedIndex: $viewModel.currentSuggestedWordIndex,
-                            onBookmarkToggle: { id in
-                                viewModel.toggleBookmarkSuggestedWord(id: id)
-                            },
-                            onSpeakTap: { word in
-                                viewModel.speakSuggestedWord(word)
+                    CraftLearningPath(
+                        sections: viewModel.sections,
+                        winding: .standard,
+                        rowPattern: .standard,
+                        onNodeTap: { node in
+                            MainActor.assumeIsolated {
+                                viewModel.handleNodeTap(node)
                             }
-                        )
-
-                        SRSMemoryHeroCard(
-                            totalWords: viewModel.state.totalWords,
-                            retentionPercentage: viewModel.state.retentionPercentage
-                        )
-
-                        ActionCardsGrid(
-                            dueCardsCount: viewModel.state.dueCardsCount,
-                            onReflexTap: {
-                                router.navigateToReflex()
-                            },
-                            onQueueTap: {
-                                router.navigateToVocabulary()
+                        },
+                        onStartLesson: { node in
+                            MainActor.assumeIsolated {
+                                startLesson(for: node)
                             }
-                        )
-
-                        CEFRDistributionCard(
-                            onDetailTap: {
-                                router.navigateToVocabulary()
-                            }
-                        )
-
-                        Spacer(minLength: 100)
-                    }
-                    .padding(.top)
+                        },
+                        showDetailModal: true,
+                        scrollToActive: true,
+                        showCelebration: false
+                    )
                 }
                 .task {
-                    await viewModel.loadData()
+                    if viewModel.sections.isEmpty {
+                        await viewModel.loadLearningPath()
+                    }
                 }
 
             case .vocabulary:
@@ -77,10 +65,12 @@ public struct HomepageView: View {
             case .search:
                 SearchNewWordView()
             case .reflex:
-                ReflexBlitzView(viewModel: reflexBlitzVM ?? appContainer.makeReflexBlitzViewModel(), onDismiss: {
-                    reflexBlitzVM = nil
-                    router.navigateToHome()
-                })
+                ReflexBlitzView(
+                    viewModel: reflexBlitzVM ?? appContainer.makeReflexBlitzViewModel(),
+                    onDismiss: {
+                        handleReflexDismiss()
+                    }
+                )
             case .settings:
                 SettingsView(viewModel: settingsVM ?? appContainer.makeSettingsViewModel())
             }
@@ -124,5 +114,59 @@ public struct HomepageView: View {
         }
         .preferredColorScheme(appContainer.userSettingsStore.colorScheme)
         .environment(\.locale, appContainer.userSettingsStore.appLocale ?? .autoupdatingCurrent)
+    }
+
+    private func startLesson(for node: LessonNodeModel) {
+        Task {
+            let words: [TopicWordDTO]
+            if node.id.hasPrefix("checkpoint_") {
+                let deckId = String(node.id.dropFirst("checkpoint_".count))
+                let stages = (try? await appContainer.vocabularyDataSource.fetchSubTopicStages(deckId: deckId)) ?? []
+                var deckWords: [TopicWordDTO] = []
+                for stage in stages {
+                    if let stageWords = try? await appContainer.vocabularyDataSource.fetchWordsForStage(stageId: stage.id) {
+                        deckWords.append(contentsOf: stageWords)
+                    }
+                }
+                words = deckWords
+            } else {
+                words = (try? await appContainer.vocabularyDataSource.fetchWordsForStage(stageId: node.id)) ?? []
+            }
+
+            let blitzWords = words.map { ReflexBlitzWordItem(from: $0) }
+            let vm = appContainer.makeReflexBlitzViewModel(words: blitzWords.isEmpty ? ReflexBlitzWordItem.defaultStarterWords : blitzWords)
+            self.activeLessonNode = node
+            self.reflexBlitzVM = vm
+            self.appRouter.navigateToReflex()
+        }
+    }
+
+    private func handleReflexDismiss() {
+        let node = activeLessonNode
+        let summary = reflexBlitzVM?.sessionSummary
+
+        reflexBlitzVM = nil
+        activeLessonNode = nil
+        appRouter.navigateToHome()
+
+        Task {
+            if let node, let summary {
+                let accuracy = summary.totalWords > 0 ? Double(summary.correctWords) / Double(summary.totalWords) : 1.0
+                let stars = accuracy >= 0.95 ? 3 : (accuracy >= 0.80 ? 2 : 1)
+                let weakWordIds = summary.weakWordAttempts.map { Int64($0.wordId) }
+                let deckId = node.id.hasPrefix("checkpoint_")
+                    ? String(node.id.dropFirst("checkpoint_".count))
+                    : (viewModel.sections.first(where: { sec in sec.nodes.contains(where: { $0.id == node.id }) })?.id ?? "")
+
+                _ = try? await appContainer.completeLessonUseCase.execute(
+                    stageId: node.id,
+                    deckId: deckId,
+                    stars: stars,
+                    weakWordIds: weakWordIds,
+                    progressFraction: 1.0
+                )
+            }
+            await viewModel.loadLearningPath()
+        }
     }
 }
