@@ -211,4 +211,165 @@ final class FeedbackFXTests: XCTestCase {
         XCTAssertEqual(CraftLocalized.format("craft.streak.milestone_title_format", language: "en", 14), "14-Day Milestone!")
         XCTAssertEqual(CraftLocalized.format("craft.streak.milestone_title_format", language: "vi", 14), "Cột mốc 14 ngày!")
     }
+
+    // MARK: - CraftSymbolEffects Tests
+
+    func testSymbolBounceModifier() {
+        let view = Image(systemName: "star.fill").craftSymbolBounce(value: 5)
+        XCTAssertNotNil(view)
+    }
+
+    func testSymbolPulseModifier() {
+        let activeView = Image(systemName: "mic.fill").craftSymbolPulse(isActive: true)
+        let inactiveView = Image(systemName: "mic.fill").craftSymbolPulse(isActive: false)
+        let defaultView = Image(systemName: "mic.fill").craftSymbolPulse()
+        XCTAssertNotNil(activeView)
+        XCTAssertNotNil(inactiveView)
+        XCTAssertNotNil(defaultView)
+    }
+
+    func testSymbolVariableColorModifier() {
+        let activeView = Image(systemName: "speaker.wave.3.fill").craftSymbolVariableColor(isActive: true)
+        let inactiveView = Image(systemName: "speaker.wave.3.fill").craftSymbolVariableColor(isActive: false)
+        let defaultView = Image(systemName: "speaker.wave.3.fill").craftSymbolVariableColor()
+        XCTAssertNotNil(activeView)
+        XCTAssertNotNil(inactiveView)
+        XCTAssertNotNil(defaultView)
+    }
+
+    func testSymbolReplaceModifier() {
+        let view = Image(systemName: "checkmark").craftSymbolReplace()
+        XCTAssertNotNil(view)
+    }
+
+    // MARK: - CraftPathUnlockSurge Tests
+
+    func testPathSurgeShapeProgressAndAnimatableData() {
+        var shape = CraftPathSurgeShape(
+            from: CGPoint(x: 10, y: 10),
+            to: CGPoint(x: 100, y: 100),
+            progress: 0.5,
+            trailLength: 0.2
+        )
+        XCTAssertEqual(shape.progress, 0.5)
+        XCTAssertEqual(shape.trailLength, 0.2)
+        XCTAssertEqual(shape.animatableData, 0.5)
+
+        shape.animatableData = 0.8
+        XCTAssertEqual(shape.progress, 0.8)
+
+        let pathAtZero = CraftPathSurgeShape(
+            from: CGPoint(x: 0, y: 0),
+            to: CGPoint(x: 100, y: 100),
+            progress: 0.0
+        ).path(in: CGRect(x: 0, y: 0, width: 100, height: 100))
+        XCTAssertTrue(pathAtZero.isEmpty)
+
+        let pathAtFull = CraftPathSurgeShape(
+            from: CGPoint(x: 0, y: 0),
+            to: CGPoint(x: 100, y: 100),
+            progress: 1.0,
+            trailLength: 0.3
+        ).path(in: CGRect(x: 0, y: 0, width: 100, height: 100))
+        XCTAssertFalse(pathAtFull.isEmpty)
+    }
+
+    func testPathUnlockSurgeViewInitWithEndpoints() {
+        var completed = false
+        let surge = CraftPathUnlockSurgeView(
+            from: CGPoint(x: 20, y: 30),
+            to: CGPoint(x: 120, y: 180),
+            isTriggered: true,
+            color: .yellow,
+            glowColor: .white,
+            lineWidth: 5.0,
+            sparkSize: 14.0,
+            duration: 0.65,
+            onComplete: { completed = true }
+        )
+        XCTAssertEqual(surge.from, CGPoint(x: 20, y: 30))
+        XCTAssertEqual(surge.to, CGPoint(x: 120, y: 180))
+        XCTAssertEqual(surge.isTriggered, true)
+        XCTAssertEqual(surge.color, .yellow)
+        XCTAssertEqual(surge.glowColor, .white)
+        XCTAssertEqual(surge.lineWidth, 5.0)
+        XCTAssertEqual(surge.sparkSize, 14.0)
+        XCTAssertEqual(surge.duration, 0.65)
+        surge.onComplete?()
+        XCTAssertTrue(completed)
+        XCTAssertNotNil(surge.body)
+    }
+
+    func testPathUnlockSurgeViewInitWithSnakeSegment() {
+        let segment = SnakePathSegmentGeometry(
+            from: CGPoint(x: 50, y: 50),
+            to: CGPoint(x: 250, y: 150),
+            type: .rightHairpin,
+            turnRadius: 24,
+            turnX: 300
+        )
+        let surge = CraftPathUnlockSurgeView(
+            segment: segment,
+            isTriggered: true,
+            lineWidth: 4.0
+        )
+        XCTAssertEqual(surge.from, CGPoint(x: 50, y: 50))
+        XCTAssertEqual(surge.to, CGPoint(x: 250, y: 150))
+        XCTAssertNotNil(surge.segment)
+        XCTAssertEqual(surge.lineWidth, 4.0)
+        XCTAssertNotNil(surge.body)
+    }
+
+    func testPathUnlockSurgeViewInitWithPath() {
+        var testPath = Path()
+        testPath.move(to: CGPoint(x: 0, y: 0))
+        testPath.addLine(to: CGPoint(x: 50, y: 50))
+
+        let surge = CraftPathUnlockSurgeView(
+            path: testPath,
+            progress: 0.75,
+            color: .blue
+        )
+        XCTAssertEqual(surge.explicitProgress, 0.75)
+        XCTAssertEqual(surge.color, .blue)
+        XCTAssertNotNil(surge.body)
+    }
+
+    func testPathUnlockSurgeViewModifiers() {
+        var isTriggered = true
+        let binding = Binding(get: { isTriggered }, set: { isTriggered = $0 })
+        var completed = false
+
+        let modifiedWithPoints = Text("Learning Path").craftPathUnlockSurge(
+            isTriggered: binding,
+            from: CGPoint(x: 0, y: 0),
+            to: CGPoint(x: 100, y: 200),
+            color: .orange,
+            onComplete: { completed = true }
+        )
+        XCTAssertNotNil(modifiedWithPoints)
+
+        let segment = SnakePathSegmentGeometry(
+            from: CGPoint(x: 0, y: 0),
+            to: CGPoint(x: 100, y: 100),
+            type: .horizontal,
+            turnRadius: 10,
+            turnX: 0
+        )
+        let modifiedWithSegment = Text("Learning Path").craftPathUnlockSurge(
+            isTriggered: binding,
+            segment: segment,
+            color: .green
+        )
+        XCTAssertNotNil(modifiedWithSegment)
+    }
+
+    func testCraftPathUnlockSurgeTypeAlias() {
+        let view: CraftPathUnlockSurge = CraftPathUnlockSurge(
+            from: CGPoint(x: 0, y: 0),
+            to: CGPoint(x: 50, y: 50)
+        )
+        XCTAssertNotNil(view.body)
+    }
 }
+
