@@ -71,4 +71,28 @@ final class CraftSpeechUIComponentTests: XCTestCase {
 
         XCTAssertNotNil(container)
     }
+
+    func testTactileMicHubInitializationAndStates() {
+        var tapped = false
+        let idleView = CraftTactileMicHubView(speechState: .idle) {
+            tapped = true
+        }
+        XCTAssertEqual(idleView.speechState, .idle)
+        idleView.onTapMic()
+        XCTAssertTrue(tapped)
+        XCTAssertNotNil(idleView.body)
+
+        let listeningView = CraftTactileMicHubView(speechState: .listening(audioLevels: [0.1, 0.5, 0.8]), onTapMic: {})
+        XCTAssertEqual(listeningView.speechState, .listening(audioLevels: [0.1, 0.5, 0.8]))
+        XCTAssertNotNil(listeningView.body)
+
+        let processingView = CraftTactileMicHubView(speechState: .processing, onTapMic: {})
+        XCTAssertEqual(processingView.speechState, .processing)
+        XCTAssertNotNil(processingView.body)
+
+        let evaluatedView = CraftTactileMicHubView(speechState: .evaluated(overallScore: 92), onTapMic: {})
+        XCTAssertEqual(evaluatedView.speechState, .evaluated(overallScore: 92))
+        XCTAssertNotNil(evaluatedView.body)
+    }
 }
+
