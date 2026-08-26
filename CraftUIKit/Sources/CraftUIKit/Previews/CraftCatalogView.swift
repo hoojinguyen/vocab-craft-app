@@ -2859,8 +2859,9 @@ private struct CatalogVoiceMatchSection: View {
 
     private func handleMicTap() {
         withAnimation(theme.animations.springSmooth) {
+            let currentState = activeSpeechState
             isCustomInteractive = true
-            switch interactiveState {
+            switch currentState {
             case .idle:
                 interactiveState = .listening(audioLevels: [0.2, 0.6, 0.85, 0.5, 0.9, 0.4])
                 interactiveActualText = "It was a"
@@ -2877,7 +2878,16 @@ private struct CatalogVoiceMatchSection: View {
                 toastStyle = .success
                 toastSurfaceStyle = .glass
                 isToastPresented = true
-            case .processing, .evaluated:
+            case .evaluated:
+                // From evaluated (Try again), immediately start listening again in 1 tap!
+                interactiveState = .listening(audioLevels: [0.3, 0.7, 0.85, 0.6, 0.9, 0.5])
+                interactiveActualText = "It was"
+                toastTitle = "Listening Started"
+                toastMessage = "Try again speech recognition active."
+                toastStyle = .info
+                toastSurfaceStyle = .glass
+                isToastPresented = true
+            case .processing:
                 interactiveState = .idle
                 interactiveActualText = nil
                 toastTitle = "Reset to Idle"
