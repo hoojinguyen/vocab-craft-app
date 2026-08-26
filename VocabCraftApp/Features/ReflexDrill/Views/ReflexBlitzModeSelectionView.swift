@@ -1,3 +1,4 @@
+import CraftUIKit
 import SwiftUI
 
 /// Mode item presentation model for the Reflex Blitz Mode Selection Bento cards.
@@ -179,111 +180,17 @@ public struct ReflexBlitzModeSelectionView: View {
 
     @ViewBuilder
     private func modeCard(for item: ReflexBlitzModeItem) -> some View {
-        Button(action: {
+        CraftActionCard(
+            title: item.title,
+            subtitle: item.subtitle,
+            iconName: item.iconName,
+            badgeText: item.badgeText,
+            badgeIcon: "stopwatch.fill",
+            accentColor: item.accentColor,
+            showChevron: true
+        ) {
             selectedModeTrigger = item.mode
             onSelectMode(item.mode)
-        }) {
-            VStack(alignment: .leading, spacing: 14) {
-                modeCardTopRow(for: item)
-
-                // Text Content
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(item.title)
-                        .font(.headline.weight(.bold))
-                        .fontDesign(.rounded)
-                        .foregroundColor(.vocabInk)
-                        .lineLimit(1)
-
-                    Text(item.subtitle)
-                        .font(.caption)
-                        .foregroundColor(.vocabMuted)
-                        .lineLimit(3)
-                        .multilineTextAlignment(.leading)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-
-                Spacer(minLength: 0)
-
-                // Trailing Apple-style Navigation Cue
-                HStack {
-                    Spacer()
-                    Image(systemName: "chevron.forward")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundStyle(item.accentColor.opacity(0.8))
-                }
-            }
-            .padding(18)
-            .frame(maxWidth: .infinity, minHeight: 165, alignment: .topLeading)
-            .background(modeCardBackground(for: item))
-            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-            .overlay(modeCardBorder(for: item))
-            .shadow(color: Color.black.opacity(0.06), radius: 10, x: 0, y: 4)
-            .contentShape(Rectangle())
         }
-        .buttonStyle(BentoCardButtonStyle())
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(item.title), thời gian \(item.badgeText), \(item.subtitle)")
-        .accessibilityHint("Nhấn để bắt đầu luyện tập với chế độ \(item.title)")
-    }
-
-    @ViewBuilder
-    private func modeCardTopRow(for item: ReflexBlitzModeItem) -> some View {
-        HStack(alignment: .center) {
-            Image(systemName: item.iconName)
-                .font(.system(size: 26, weight: .semibold))
-                .symbolRenderingMode(.hierarchical)
-                .foregroundStyle(item.accentColor)
-
-            Spacer(minLength: 4)
-
-            HStack(spacing: 4) {
-                Image(systemName: "stopwatch.fill")
-                    .font(.system(size: 10, weight: .semibold))
-                    .symbolRenderingMode(.hierarchical)
-                Text(item.badgeText)
-                    .font(.caption2.monospacedDigit().bold())
-            }
-            .foregroundColor(item.accentColor)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(item.accentColor.opacity(0.12))
-            .clipShape(Capsule())
-            .overlay(
-                Capsule()
-                    .stroke(item.accentColor.opacity(0.2), lineWidth: 0.8)
-            )
-        }
-    }
-
-    @ViewBuilder
-    private func modeCardBackground(for item: ReflexBlitzModeItem) -> some View {
-        RoundedRectangle(cornerRadius: 22, style: .continuous)
-            .fill(Color.vocabSurfaceCard)
-            .overlay(
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [item.accentColor.opacity(0.06), Color.clear],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-            )
-    }
-
-    @ViewBuilder
-    private func modeCardBorder(for item: ReflexBlitzModeItem) -> some View {
-        RoundedRectangle(cornerRadius: 22, style: .continuous)
-            .stroke(
-                LinearGradient(
-                    colors: [
-                        item.accentColor.opacity(0.35),
-                        Color.white.opacity(0.08)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                ),
-                lineWidth: 1
-            )
     }
 }
