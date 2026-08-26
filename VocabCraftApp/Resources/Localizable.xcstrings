@@ -63,6 +63,295 @@
         }
       }
     },
+    "app.home.header.daily_goal_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daily Goal: %lld%%"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mục tiêu: %lld%%"
+          }
+        }
+      }
+    },
+    "app.home.header.greeting_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hello, %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xin chào, %@"
+          }
+        }
+      }
+    },
+    "app.home.header.streak_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld days"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld ngày"
+          }
+        }
+      }
+    },
+    "app.home.node.checkpoint_objective_1_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review all %lld words in this unit"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ôn tập toàn bộ %lld từ vựng trong Unit"
+          }
+        }
+      }
+    },
+    "app.home.node.checkpoint_objective_2": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Score ≥ 80%% accuracy to unlock the next Unit"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đạt độ chính xác ≥ 80%% để mở khóa Unit tiếp theo"
+          }
+        }
+      }
+    },
+    "app.home.node.cta_checkpoint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start Boss Exam"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bắt đầu thi vượt cấp"
+          }
+        }
+      }
+    },
+    "app.home.node.cta_continue_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue (%lld%%)"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiếp tục (%lld%%)"
+          }
+        }
+      }
+    },
+    "app.home.node.cta_review_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review Lesson (+%lld XP)"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ôn lại bài học (+%lld XP)"
+          }
+        }
+      }
+    },
+    "app.home.node.cta_start": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start Lesson"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bắt đầu bài học"
+          }
+        }
+      }
+    },
+    "app.home.node.locked_hint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Complete previous lessons to unlock"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hoàn thành các bài học trước để mở khóa"
+          }
+        }
+      }
+    },
+    "app.home.node.objective_1_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Master %lld core vocabulary words"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nắm vững %lld từ vựng trọng tâm"
+          }
+        }
+      }
+    },
+    "app.home.node.objective_2": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Practice 2-way Receptive & Productive recall"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Luyện phản xạ Nhận diện & Sản xuất 2 chiều"
+          }
+        }
+      }
+    },
+    "app.home.node.objective_3": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Achieve ≥ 80%% accuracy to pass"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đạt độ chính xác ≥ 80%% để qua bài"
+          }
+        }
+      }
+    },
+    "app.home.node.words_duration_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld words • %lld min"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld từ • %lld phút"
+          }
+        }
+      }
+    },
+    "app.home.section.checkpoint_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comprehensive exam covering all unit words"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bài kiểm tra tổng hợp toàn bộ từ vựng trong Unit"
+          }
+        }
+      }
+    },
+    "app.home.section.checkpoint_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unit Review Exam"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ôn tập tổng hợp"
+          }
+        }
+      }
+    },
+    "app.home.section.unit_title_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unit %lld: %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unit %lld: %@"
+          }
+        }
+      }
+    },
     "app.reflex.blitz.combo_streak_a11y_format": {
       "extractionState": "manual",
       "localizations": {

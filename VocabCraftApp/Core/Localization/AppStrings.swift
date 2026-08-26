@@ -312,4 +312,78 @@ public enum AppStrings {
         public static var suggestedTopicsTitle: LocalizedStringKey { "search.suggestedTopicsTitle" }
         public static var placeholder: LocalizedStringKey { "search.placeholder" }
     }
+
+    // MARK: - Home Learning Path
+    public enum Home {
+        // Header
+        public static func greeting(_ name: String) -> String {
+            String(format: String(localized: "app.home.header.greeting_format", defaultValue: "Hello, %@", bundle: .module), name)
+        }
+        public static func greetingKey(_ name: String) -> LocalizedStringKey {
+            LocalizedStringKey("app.home.header.greeting_format \(name)")
+        }
+        public static func dailyGoal(percent: Int) -> String {
+            String(format: String(localized: "app.home.header.daily_goal_format", defaultValue: "Daily Goal: %lld%%", bundle: .module), percent)
+        }
+        public static func streak(days: Int) -> String {
+            String(format: String(localized: "app.home.header.streak_format", defaultValue: "%lld days", bundle: .module), days)
+        }
+
+        // Section & Checkpoint Header
+        public static func unitTitle(number: Int, title: String) -> String {
+            String(format: String(localized: "app.home.section.unit_title_format", defaultValue: "Unit %lld: %@", bundle: .module), number, title)
+        }
+        public static var checkpointTitle: LocalizedStringKey { "app.home.section.checkpoint_title" }
+        public static var checkpointTitleText: String {
+            String(localized: "app.home.section.checkpoint_title", defaultValue: "Unit Review Exam", bundle: .module)
+        }
+        public static var checkpointSubtitle: LocalizedStringKey { "app.home.section.checkpoint_subtitle" }
+        public static var checkpointSubtitleText: String {
+            String(localized: "app.home.section.checkpoint_subtitle", defaultValue: "Comprehensive exam covering all unit words", bundle: .module)
+        }
+
+        // Node Metadata & Objectives
+        public static func wordsDuration(words: Int, minutes: Int) -> String {
+            String(format: String(localized: "app.home.node.words_duration_format", defaultValue: "%lld words • %lld min", bundle: .module), words, minutes)
+        }
+        public static func objective1(words: Int) -> String {
+            String(format: String(localized: "app.home.node.objective_1_format", defaultValue: "Master %lld core vocabulary words", bundle: .module), words)
+        }
+        public static var objective2: LocalizedStringKey { "app.home.node.objective_2" }
+        public static var objective2Text: String {
+            String(localized: "app.home.node.objective_2", defaultValue: "Practice 2-way Receptive & Productive recall", bundle: .module)
+        }
+        public static var objective3: LocalizedStringKey { "app.home.node.objective_3" }
+        public static var objective3Text: String {
+            String(localized: "app.home.node.objective_3", defaultValue: "Achieve ≥ 80% accuracy to pass", bundle: .module)
+        }
+        public static func checkpointObjective1(words: Int) -> String {
+            String(format: String(localized: "app.home.node.checkpoint_objective_1_format", defaultValue: "Review all %lld words in this unit", bundle: .module), words)
+        }
+        public static var checkpointObjective2: LocalizedStringKey { "app.home.node.checkpoint_objective_2" }
+        public static var checkpointObjective2Text: String {
+            String(localized: "app.home.node.checkpoint_objective_2", defaultValue: "Score ≥ 80% accuracy to unlock the next Unit", bundle: .module)
+        }
+
+        // Call-to-Actions & Hints
+        public static var ctaStart: LocalizedStringKey { "app.home.node.cta_start" }
+        public static var ctaStartText: String {
+            String(localized: "app.home.node.cta_start", defaultValue: "Start Lesson", bundle: .module)
+        }
+        public static func ctaContinue(percent: Int) -> String {
+            String(format: String(localized: "app.home.node.cta_continue_format", defaultValue: "Continue (%lld%%)", bundle: .module), percent)
+        }
+        public static func ctaReview(xp: Int) -> String {
+            String(format: String(localized: "app.home.node.cta_review_format", defaultValue: "Review Lesson (+%lld XP)", bundle: .module), xp)
+        }
+        public static var ctaCheckpoint: LocalizedStringKey { "app.home.node.cta_checkpoint" }
+        public static var ctaCheckpointText: String {
+            String(localized: "app.home.node.cta_checkpoint", defaultValue: "Start Boss Exam", bundle: .module)
+        }
+        public static var lockedHint: LocalizedStringKey { "app.home.node.locked_hint" }
+        public static var lockedHintText: String {
+            String(localized: "app.home.node.locked_hint", defaultValue: "Complete previous lessons to unlock", bundle: .module)
+        }
+    }
 }
+
