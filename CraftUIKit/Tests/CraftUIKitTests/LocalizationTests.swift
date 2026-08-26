@@ -3,112 +3,346 @@ import XCTest
 
 final class LocalizationTests: XCTestCase {
     
-    // MARK: - English Default Localizations
+    // MARK: - Common Actions & States
     
-    func testEnglishActionStrings() {
-        XCTAssertEqual(CraftLocalized.string("craft.action.confirm"), "Confirm")
-        XCTAssertEqual(CraftLocalized.string("craft.action.cancel"), "Cancel")
-        XCTAssertEqual(CraftLocalized.string("craft.action.dismiss"), "Dismiss")
-        XCTAssertEqual(CraftLocalized.string("craft.action.continue"), "Continue")
-        XCTAssertEqual(CraftLocalized.string("craft.action.close"), "Close")
-        XCTAssertEqual(CraftLocalized.string("craft.action.retry"), "Retry")
+    func testCommonStrings() {
+        // Confirm
+        XCTAssertEqual(CraftLocalized.string("craft.common.action.confirm"), "Confirm")
+        XCTAssertEqual(CraftLocalized.string("craft.common.action.confirm", language: "vi"), "Xác nhận")
+        
+        // Cancel
+        XCTAssertEqual(CraftLocalized.string("craft.common.action.cancel"), "Cancel")
+        XCTAssertEqual(CraftLocalized.string("craft.common.action.cancel", language: "vi"), "Hủy")
+        
+        // Close
+        XCTAssertEqual(CraftLocalized.string("craft.common.action.close"), "Close")
+        XCTAssertEqual(CraftLocalized.string("craft.common.action.close", language: "vi"), "Đóng")
+        
+        // Dismiss
+        XCTAssertEqual(CraftLocalized.string("craft.common.action.dismiss"), "Dismiss")
+        XCTAssertEqual(CraftLocalized.string("craft.common.action.dismiss", language: "vi"), "Đóng")
+        
+        // Continue
+        XCTAssertEqual(CraftLocalized.string("craft.common.action.continue"), "Continue")
+        XCTAssertEqual(CraftLocalized.string("craft.common.action.continue", language: "vi"), "Tiếp tục")
+        
+        // Retry
+        XCTAssertEqual(CraftLocalized.string("craft.common.action.retry"), "Retry")
+        XCTAssertEqual(CraftLocalized.string("craft.common.action.retry", language: "vi"), "Thử lại")
+        
+        // Generic Action
+        XCTAssertEqual(CraftLocalized.string("craft.common.action.action"), "Action")
+        XCTAssertEqual(CraftLocalized.string("craft.common.action.action", language: "vi"), "Tác vụ")
+        
+        // Loading
+        XCTAssertEqual(CraftLocalized.string("craft.common.state.loading"), "Loading")
+        XCTAssertEqual(CraftLocalized.string("craft.common.state.loading", language: "vi"), "Đang tải")
+        
+        // Empty
+        XCTAssertEqual(CraftLocalized.string("craft.common.state.empty"), "Empty")
+        XCTAssertEqual(CraftLocalized.string("craft.common.state.empty", language: "vi"), "Trống")
+        
+        // On / Off
+        XCTAssertEqual(CraftLocalized.string("craft.common.state.on"), "On")
+        XCTAssertEqual(CraftLocalized.string("craft.common.state.on", language: "vi"), "Bật")
+        XCTAssertEqual(CraftLocalized.string("craft.common.state.off"), "Off")
+        XCTAssertEqual(CraftLocalized.string("craft.common.state.off", language: "vi"), "Tắt")
     }
+
+    // MARK: - Formatted Units
     
-    func testEnglishChoiceStrings() {
-        XCTAssertEqual(CraftLocalized.string("craft.choice.correct"), "Correct Answer")
-        XCTAssertEqual(CraftLocalized.string("craft.choice.wrong"), "Incorrect Answer")
-        XCTAssertEqual(CraftLocalized.string("craft.choice.selected"), "Selected")
+    func testCommonUnits() {
+        XCTAssertEqual(CraftLocalized.format("craft.common.unit.days_format", 5), "5 days")
+        XCTAssertEqual(CraftLocalized.format("craft.common.unit.days_format", language: "vi", 5), "5 ngày")
+        
+        XCTAssertEqual(CraftLocalized.string("craft.common.unit.days_single"), "days")
+        XCTAssertEqual(CraftLocalized.string("craft.common.unit.days_single", language: "vi"), "ngày")
+        
+        XCTAssertEqual(CraftLocalized.format("craft.common.unit.minutes_format", 10), "10 min")
+        XCTAssertEqual(CraftLocalized.format("craft.common.unit.minutes_format", language: "vi", 10), "10 phút")
+        
+        XCTAssertEqual(CraftLocalized.format("craft.common.unit.words_format", 15), "15 new words")
+        XCTAssertEqual(CraftLocalized.format("craft.common.unit.words_format", language: "vi", 15), "15 từ vựng mới")
+        
+        XCTAssertEqual(CraftLocalized.format("craft.common.unit.percent_format", 80), "80%")
+        XCTAssertEqual(CraftLocalized.format("craft.common.unit.percent_format", language: "vi", 80), "80%")
+        
+        XCTAssertEqual(CraftLocalized.format("craft.common.unit.percent_word_format", 75), "75 percent")
+        XCTAssertEqual(CraftLocalized.format("craft.common.unit.percent_word_format", language: "vi", 75), "75 phần trăm")
     }
+
+    // MARK: - Controls Scope
     
-    func testEnglishJourneyStrings() {
-        XCTAssertEqual(CraftLocalized.string("craft.journey.completedA11y"), "Completed")
-        XCTAssertEqual(CraftLocalized.string("craft.journey.continueCallout"), "CONTINUE")
-        XCTAssertEqual(CraftLocalized.string("craft.journey.currentA11y"), "Current step")
-        XCTAssertEqual(CraftLocalized.string("craft.journey.lockedA11y"), "Locked")
-    }
-    
-    func testEnglishSearchAndStepperStrings() {
-        XCTAssertEqual(CraftLocalized.string("craft.search.clearA11y"), "Clear search")
+    func testControlStrings() {
+        // Button
+        XCTAssertEqual(CraftLocalized.string("craft.button.loading_a11y"), "Loading")
+        XCTAssertEqual(CraftLocalized.string("craft.button.loading_a11y", language: "vi"), "Đang tải")
+        
+        // Choice Card
+        XCTAssertEqual(CraftLocalized.string("craft.choice.selected_a11y"), "Selected")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.selected_a11y", language: "vi"), "Đã chọn")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.correct_a11y"), "Correct Answer")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.correct_a11y", language: "vi"), "Đáp án đúng")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.wrong_a11y"), "Incorrect Answer")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.wrong_a11y", language: "vi"), "Đáp án chưa đúng")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.disabled_a11y"), "Disabled")
+        XCTAssertEqual(CraftLocalized.string("craft.choice.disabled_a11y", language: "vi"), "Vô hiệu hóa")
+        
+        // Search Bar
         XCTAssertEqual(CraftLocalized.string("craft.search.placeholder"), "Search...")
-        XCTAssertEqual(CraftLocalized.string("craft.stepper.decreaseA11y"), "Decrease")
-        XCTAssertEqual(CraftLocalized.string("craft.stepper.increaseA11y"), "Increase")
-    }
-    
-    func testEnglishStreakStrings() {
-        XCTAssertEqual(CraftLocalized.string("craft.streak.daysUnit"), "days")
-        XCTAssertEqual(CraftLocalized.string("craft.streak.tierBlaze"), "Blaze Streak")
-        XCTAssertEqual(CraftLocalized.string("craft.streak.tierLegendary"), "Legendary Streak")
-        XCTAssertEqual(CraftLocalized.string("craft.streak.tierStarter"), "Starter Streak")
-    }
-    
-    // MARK: - Formatted Strings
-    
-    func testEnglishFormattedStrings() {
-        let bestRecord = CraftLocalized.format("craft.streak.bestRecord", 14)
-        XCTAssertEqual(bestRecord, "Best: 14 days")
-        
-        let freezeShield = CraftLocalized.format("craft.streak.freezeShield", 2, 3)
-        XCTAssertEqual(freezeShield, "2/3 Shields")
-        
-        let bestRecordArray = CraftLocalized.format("craft.streak.bestRecord", [14 as CVarArg])
-        XCTAssertEqual(bestRecordArray, "Best: 14 days")
-        
-        let freezeShieldArray = CraftLocalized.format("craft.streak.freezeShield", [2 as CVarArg, 3 as CVarArg])
-        XCTAssertEqual(freezeShieldArray, "2/3 Shields")
-    }
-    
-    // MARK: - Vietnamese Localizations
-    
-    func testVietnameseActionStrings() {
-        XCTAssertEqual(CraftLocalized.string("craft.action.confirm", language: "vi"), "Xác nhận")
-        XCTAssertEqual(CraftLocalized.string("craft.action.cancel", language: "vi"), "Hủy")
-        XCTAssertEqual(CraftLocalized.string("craft.action.dismiss", language: "vi"), "Đóng")
-        XCTAssertEqual(CraftLocalized.string("craft.action.continue", language: "vi"), "Tiếp tục")
-        XCTAssertEqual(CraftLocalized.string("craft.action.close", language: "vi"), "Đóng")
-        XCTAssertEqual(CraftLocalized.string("craft.action.retry", language: "vi"), "Thử lại")
-    }
-    
-    func testVietnameseChoiceStrings() {
-        XCTAssertEqual(CraftLocalized.string("craft.choice.correct", language: "vi"), "Đáp án đúng")
-        XCTAssertEqual(CraftLocalized.string("craft.choice.wrong", language: "vi"), "Đáp án chưa đúng")
-        XCTAssertEqual(CraftLocalized.string("craft.choice.selected", language: "vi"), "Đã chọn")
-    }
-    
-    func testVietnameseJourneyStrings() {
-        XCTAssertEqual(CraftLocalized.string("craft.journey.completedA11y", language: "vi"), "Đã hoàn thành")
-        XCTAssertEqual(CraftLocalized.string("craft.journey.continueCallout", language: "vi"), "TIẾP TỤC")
-        XCTAssertEqual(CraftLocalized.string("craft.journey.currentA11y", language: "vi"), "Bước hiện tại")
-        XCTAssertEqual(CraftLocalized.string("craft.journey.lockedA11y", language: "vi"), "Đang khóa")
-    }
-    
-    func testVietnameseSearchAndStepperStrings() {
-        XCTAssertEqual(CraftLocalized.string("craft.search.clearA11y", language: "vi"), "Xóa tìm kiếm")
         XCTAssertEqual(CraftLocalized.string("craft.search.placeholder", language: "vi"), "Tìm kiếm...")
-        XCTAssertEqual(CraftLocalized.string("craft.stepper.decreaseA11y", language: "vi"), "Giảm")
-        XCTAssertEqual(CraftLocalized.string("craft.stepper.increaseA11y", language: "vi"), "Tăng")
-    }
-    
-    func testVietnameseStreakStrings() {
-        XCTAssertEqual(CraftLocalized.string("craft.streak.daysUnit", language: "vi"), "ngày")
-        XCTAssertEqual(CraftLocalized.string("craft.streak.tierBlaze", language: "vi"), "Chuỗi rực lửa")
-        XCTAssertEqual(CraftLocalized.string("craft.streak.tierLegendary", language: "vi"), "Chuỗi huyền thoại")
-        XCTAssertEqual(CraftLocalized.string("craft.streak.tierStarter", language: "vi"), "Chuỗi khởi đầu")
-    }
-    
-    func testVietnameseFormattedStrings() {
-        let bestRecord = CraftLocalized.format("craft.streak.bestRecord", language: "vi", 14)
-        XCTAssertEqual(bestRecord, "Kỷ lục: 14 ngày")
+        XCTAssertEqual(CraftLocalized.string("craft.search.clear_a11y"), "Clear search")
+        XCTAssertEqual(CraftLocalized.string("craft.search.clear_a11y", language: "vi"), "Xóa tìm kiếm")
+        XCTAssertEqual(CraftLocalized.string("craft.search.trailing_action_a11y"), "Trailing action")
+        XCTAssertEqual(CraftLocalized.string("craft.search.trailing_action_a11y", language: "vi"), "Tác vụ mở rộng")
         
-        let freezeShield = CraftLocalized.format("craft.streak.freezeShield", language: "vi", 2, 3)
-        XCTAssertEqual(freezeShield, "2/3 Khiên")
+        // Stepper
+        XCTAssertEqual(CraftLocalized.string("craft.stepper.default_label"), "Stepper")
+        XCTAssertEqual(CraftLocalized.string("craft.stepper.default_label", language: "vi"), "Bộ đếm")
+        XCTAssertEqual(CraftLocalized.string("craft.stepper.decrease_a11y"), "Decrease")
+        XCTAssertEqual(CraftLocalized.string("craft.stepper.decrease_a11y", language: "vi"), "Giảm")
+        XCTAssertEqual(CraftLocalized.string("craft.stepper.increase_a11y"), "Increase")
+        XCTAssertEqual(CraftLocalized.string("craft.stepper.increase_a11y", language: "vi"), "Tăng")
         
-        let bestRecordArray = CraftLocalized.format("craft.streak.bestRecord", language: "vi", [14 as CVarArg])
-        XCTAssertEqual(bestRecordArray, "Kỷ lục: 14 ngày")
-        
-        let freezeShieldArray = CraftLocalized.format("craft.streak.freezeShield", language: "vi", [2 as CVarArg, 3 as CVarArg])
-        XCTAssertEqual(freezeShieldArray, "2/3 Khiên")
+        // TextField
+        XCTAssertEqual(CraftLocalized.string("craft.textfield.show_password_a11y"), "Show password")
+        XCTAssertEqual(CraftLocalized.string("craft.textfield.show_password_a11y", language: "vi"), "Hiện mật khẩu")
+        XCTAssertEqual(CraftLocalized.string("craft.textfield.hide_password_a11y"), "Hide password")
+        XCTAssertEqual(CraftLocalized.string("craft.textfield.hide_password_a11y", language: "vi"), "Ẩn mật khẩu")
     }
+
+    // MARK: - Containers & Roadmap Scope
     
+    func testContainerStrings() {
+        // FlipCard
+        XCTAssertEqual(CraftLocalized.string("craft.flipcard.flip_to_back_action"), "Flip to back")
+        XCTAssertEqual(CraftLocalized.string("craft.flipcard.flip_to_back_action", language: "vi"), "Lật ra mặt sau")
+        XCTAssertEqual(CraftLocalized.string("craft.flipcard.flip_to_front_action"), "Flip to front")
+        XCTAssertEqual(CraftLocalized.string("craft.flipcard.flip_to_front_action", language: "vi"), "Lật ra mặt trước")
+        XCTAssertEqual(CraftLocalized.string("craft.flipcard.front_side_hint"), "Front of card")
+        XCTAssertEqual(CraftLocalized.string("craft.flipcard.front_side_hint", language: "vi"), "Mặt trước của thẻ")
+        XCTAssertEqual(CraftLocalized.string("craft.flipcard.back_side_hint"), "Back of card")
+        XCTAssertEqual(CraftLocalized.string("craft.flipcard.back_side_hint", language: "vi"), "Mặt sau của thẻ")
+        
+        // Progress
+        XCTAssertEqual(CraftLocalized.string("craft.progress.label"), "Progress")
+        XCTAssertEqual(CraftLocalized.string("craft.progress.label", language: "vi"), "Tiến độ")
+        
+        // Segmented Bar
+        XCTAssertEqual(CraftLocalized.string("craft.segmented_bar.label_a11y"), "Segmented metric bar")
+        XCTAssertEqual(CraftLocalized.string("craft.segmented_bar.label_a11y", language: "vi"), "Thanh tỉ lệ phân đoạn")
+        XCTAssertEqual(CraftLocalized.string("craft.segmented_bar.segment_fallback"), "Segment")
+        XCTAssertEqual(CraftLocalized.string("craft.segmented_bar.segment_fallback", language: "vi"), "Phân đoạn")
+        
+        // Step Node
+        XCTAssertEqual(CraftLocalized.format("craft.step_node.step_format", 2, "Review"), "Step 2: Review")
+        XCTAssertEqual(CraftLocalized.format("craft.step_node.step_format", language: "vi", 2, "Ôn tập"), "Bước 2: Ôn tập")
+        XCTAssertEqual(CraftLocalized.string("craft.step_node.tap_hint"), "Double tap to select this step")
+        XCTAssertEqual(CraftLocalized.string("craft.step_node.tap_hint", language: "vi"), "Chạm hai lần để chọn bước này")
+    }
+
+    // MARK: - Streak & Activity Scope
+    
+    func testStreakStrings() {
+        // Tiers
+        XCTAssertEqual(CraftLocalized.string("craft.streak.tier_starter"), "Starter Streak")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.tier_starter", language: "vi"), "Chuỗi khởi đầu")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.tier_blaze"), "Blaze Streak")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.tier_blaze", language: "vi"), "Chuỗi rực lửa")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.tier_legendary"), "Legendary Streak")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.tier_legendary", language: "vi"), "Chuỗi huyền thoại")
+        
+        // Today Status
+        XCTAssertEqual(CraftLocalized.string("craft.streak.today_completed"), "Completed for today")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.today_completed", language: "vi"), "Hôm nay đã hoàn thành")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.today_pending"), "Pending completion for today")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.today_pending", language: "vi"), "Hôm nay chưa hoàn thành")
+        
+        // Formatted Badge & Records
+        let badgeEN = CraftLocalized.format("craft.streak.badge_a11y_format", 7, "Blaze", "Completed for today")
+        XCTAssertEqual(badgeEN, "7-day study streak, Blaze tier. Completed for today")
+        let badgeVI = CraftLocalized.format("craft.streak.badge_a11y_format", language: "vi", 7, "Rực lửa", "Hôm nay đã hoàn thành")
+        XCTAssertEqual(badgeVI, "Chuỗi 7 ngày học liên tiếp, Cấp độ Rực lửa. Hôm nay đã hoàn thành")
+        
+        XCTAssertEqual(CraftLocalized.string("craft.streak.badge_a11y_hint"), "Double tap to view streak details.")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.badge_a11y_hint", language: "vi"), "Chạm hai lần để xem chi tiết chuỗi ngày.")
+        
+        XCTAssertEqual(CraftLocalized.format("craft.streak.best_record_format", 14), "Best: 14 days")
+        XCTAssertEqual(CraftLocalized.format("craft.streak.best_record_format", language: "vi", 14), "Kỷ lục: 14 ngày")
+        
+        XCTAssertEqual(CraftLocalized.format("craft.streak.freeze_shield_format", 2, 3), "2/3 Shields")
+        XCTAssertEqual(CraftLocalized.format("craft.streak.freeze_shield_format", language: "vi", 2, 3), "2/3 Khiên")
+        
+        XCTAssertEqual(CraftLocalized.format("craft.streak.milestone_title_format", 30), "30-Day Milestone!")
+        XCTAssertEqual(CraftLocalized.format("craft.streak.milestone_title_format", language: "vi", 30), "Cột mốc 30 ngày!")
+        
+        XCTAssertEqual(CraftLocalized.string("craft.streak.celebration_title"), "Streak Extended!")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.celebration_title", language: "vi"), "Chuỗi ngày rực lửa!")
+        
+        XCTAssertEqual(CraftLocalized.string("craft.streak.continue_action"), "Continue Learning")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.continue_action", language: "vi"), "Tiếp tục học")
+        
+        XCTAssertEqual(CraftLocalized.string("craft.streak.celebration_hint"), "Double tap to dismiss and continue learning.")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.celebration_hint", language: "vi"), "Chạm hai lần để đóng màn hình và tiếp tục học.")
+        
+        // Day Statuses
+        XCTAssertEqual(CraftLocalized.string("craft.streak.day_status_completed"), "Completed")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.day_status_completed", language: "vi"), "Đã hoàn thành")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.day_status_pending"), "Pending")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.day_status_pending", language: "vi"), "Đang chờ hoàn thành")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.day_status_saved"), "Freeze shield used")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.day_status_saved", language: "vi"), "Đã dùng khiên bảo vệ")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.day_status_missed"), "Missed")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.day_status_missed", language: "vi"), "Bỏ lỡ")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.day_status_upcoming"), "Upcoming")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.day_status_upcoming", language: "vi"), "Chưa đến")
+        
+        // Actions & Overview
+        XCTAssertEqual(CraftLocalized.string("craft.streak.day_inspect_hint"), "Double tap to inspect day details.")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.day_inspect_hint", language: "vi"), "Chạm hai lần để kiểm tra chi tiết ngày.")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.view_shield_action"), "View freeze shields")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.view_shield_action", language: "vi"), "Xem khiên bảo vệ")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.view_milestone_action"), "View milestone rewards")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.view_milestone_action", language: "vi"), "Xem mốc thưởng")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.card_a11y_overview"), "Displays weekly streak overview and activity status.")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.card_a11y_overview", language: "vi"), "Hiển thị tổng quan chuỗi ngày học trong tuần.")
+        
+        // Motivational Messages
+        XCTAssertEqual(CraftLocalized.string("craft.streak.msg_starter_1"), "Great start! Keep up the daily habit of learning.")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.msg_starter_1", language: "vi"), "Khởi đầu tuyệt vời! Hãy duy trì thói quen học mỗi ngày nhé.")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.msg_starter"), "Great progress! You are building a solid learning habit.")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.msg_starter", language: "vi"), "Tuyệt vời! Bạn đang xây dựng một thói quen học tập vững chắc.")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.msg_blaze"), "Great streak! Your learning flame is burning bright.")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.msg_blaze", language: "vi"), "Phong độ tuyệt vời! Ngọn lửa học tập của bạn đang rực sáng.")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.msg_blaze_milestone"), "Awesome! You've achieved a blaze streak, keep up the momentum!")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.msg_blaze_milestone", language: "vi"), "Đẳng cấp! Bạn đã đạt chuỗi rực lửa, tiếp tục duy trì đà tiến bộ này!")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.msg_legendary"), "Unstoppable! You are an inspiring example of consistency.")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.msg_legendary", language: "vi"), "Không thể ngăn cản! Bạn là tấm gương học tập đầy cảm hứng.")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.msg_legendary_milestone"), "Legendary! You've reached a pinnacle milestone with extraordinary dedication!")
+        XCTAssertEqual(CraftLocalized.string("craft.streak.msg_legendary_milestone", language: "vi"), "Huyền thoại! Bạn đã chinh phục cột mốc đỉnh cao với sự kiên trì phi thường!")
+    }
+
+    // MARK: - Learning Path & Journey Scope
+    
+    func testLearningPathStrings() {
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.empty_title"), "No Lessons Available")
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.empty_title", language: "vi"), "Chưa có bài học nào")
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.empty_desc"), "There are no lesson sections available in this learning path.")
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.empty_desc", language: "vi"), "Hiện chưa có bài học nào trong lộ trình này.")
+        
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.default_unit_label"), "UNIT")
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.default_unit_label", language: "vi"), "BÀI HỌC")
+        
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.continue_callout"), "CONTINUE")
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.continue_callout", language: "vi"), "TIẾP TỤC")
+        
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.start_lesson"), "START LESSON")
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.start_lesson", language: "vi"), "BẮT ĐẦU HỌC")
+        
+        XCTAssertEqual(CraftLocalized.format("craft.learning_path.continue_lesson_format", 40), "CONTINUE (40%)")
+        XCTAssertEqual(CraftLocalized.format("craft.learning_path.continue_lesson_format", language: "vi", 40), "TIẾP TỤC HỌC (40%)")
+        
+        XCTAssertEqual(CraftLocalized.format("craft.learning_path.review_lesson_format", 5), "REVIEW (+5 XP)")
+        XCTAssertEqual(CraftLocalized.format("craft.learning_path.review_lesson_format", language: "vi", 5), "ÔN TẬP LẠI (+5 XP)")
+        
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.challenge_lesson"), "CONQUER CHALLENGE")
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.challenge_lesson", language: "vi"), "CHINH PHỤC THỬ THÁCH")
+        
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.locked_lesson"), "LESSON LOCKED")
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.locked_lesson", language: "vi"), "BÀI HỌC ĐANG KHÓA")
+        
+        // Objectives
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.objectives_header"), "Lesson Objectives")
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.objectives_header", language: "vi"), "Mục tiêu bài học")
+        
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.default_objective_1"), "Master standard pronunciation and core vocabulary meanings")
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.default_objective_1", language: "vi"), "Nắm vững phát âm chuẩn và ý nghĩa từ vựng trọng tâm")
+        
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.default_objective_2"), "Practice sentence reflex via interactive Spaced Repetition drills")
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.default_objective_2", language: "vi"), "Thực hành phản xạ câu qua bài tập tương tác Spaced Repetition")
+        
+        XCTAssertEqual(CraftLocalized.format("craft.learning_path.default_objective_3_format", "+10 XP"), "Earn +10 XP and maintain daily study streak")
+        XCTAssertEqual(CraftLocalized.format("craft.learning_path.default_objective_3_format", language: "vi", "+10 XP"), "Tích lũy +10 XP và duy trì chuỗi Streak học tập")
+        
+        // Accessibility labels & hints
+        XCTAssertEqual(CraftLocalized.format("craft.learning_path.node_completed_a11y", "Basics"), "Lesson: Basics, Completed")
+        XCTAssertEqual(CraftLocalized.format("craft.learning_path.node_completed_a11y", language: "vi", "Cơ bản"), "Bài học: Cơ bản, Đã hoàn thành")
+        
+        XCTAssertEqual(CraftLocalized.format("craft.learning_path.node_current_format_a11y", "Basics", 50), "Lesson: Basics, Current lesson. 50% complete")
+        XCTAssertEqual(CraftLocalized.format("craft.learning_path.node_current_format_a11y", language: "vi", "Cơ bản", 50), "Bài học: Cơ bản, Bài học hiện tại. Đã hoàn thành 50%")
+        
+        XCTAssertEqual(CraftLocalized.format("craft.learning_path.node_current_a11y", "Basics"), "Lesson: Basics, Current lesson")
+        XCTAssertEqual(CraftLocalized.format("craft.learning_path.node_current_a11y", language: "vi", "Cơ bản"), "Bài học: Cơ bản, Bài học hiện tại")
+        
+        XCTAssertEqual(CraftLocalized.format("craft.learning_path.node_in_progress_format_a11y", "Basics", 30), "Lesson: Basics, In progress. 30% complete")
+        XCTAssertEqual(CraftLocalized.format("craft.learning_path.node_in_progress_format_a11y", language: "vi", "Cơ bản", 30), "Bài học: Cơ bản, Đang học dở. Đã hoàn thành 30%")
+        
+        XCTAssertEqual(CraftLocalized.format("craft.learning_path.node_in_progress_a11y", "Basics"), "Lesson: Basics, In progress")
+        XCTAssertEqual(CraftLocalized.format("craft.learning_path.node_in_progress_a11y", language: "vi", "Cơ bản"), "Bài học: Cơ bản, Đang học dở")
+        
+        XCTAssertEqual(CraftLocalized.format("craft.learning_path.node_upcoming_a11y", "Basics"), "Lesson: Basics, Upcoming lesson")
+        XCTAssertEqual(CraftLocalized.format("craft.learning_path.node_upcoming_a11y", language: "vi", "Cơ bản"), "Bài học: Cơ bản, Bài học sắp tới")
+        
+        XCTAssertEqual(CraftLocalized.format("craft.learning_path.node_locked_a11y", "Basics"), "Lesson: Basics, Locked")
+        XCTAssertEqual(CraftLocalized.format("craft.learning_path.node_locked_a11y", language: "vi", "Cơ bản"), "Bài học: Cơ bản, Đang khóa")
+        
+        XCTAssertEqual(CraftLocalized.format("craft.learning_path.node_bonus_a11y", "Bonus Challenge"), "Bonus Lesson: Bonus Challenge")
+        XCTAssertEqual(CraftLocalized.format("craft.learning_path.node_bonus_a11y", language: "vi", "Thử thách phụ"), "Bài học thử thách: Thử thách phụ")
+        
+        XCTAssertEqual(CraftLocalized.format("craft.learning_path.reward_format_a11y", 20), "Reward: 20 XP")
+        XCTAssertEqual(CraftLocalized.format("craft.learning_path.reward_format_a11y", language: "vi", 20), "Phần thưởng: 20 XP")
+        
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.tap_to_review_hint"), "Double tap to review")
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.tap_to_review_hint", language: "vi"), "Nhấn đúp để ôn tập")
+        
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.tap_to_continue_hint"), "Double tap to continue")
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.tap_to_continue_hint", language: "vi"), "Nhấn đúp để tiếp tục học")
+        
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.tap_to_start_hint"), "Double tap to start")
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.tap_to_start_hint", language: "vi"), "Nhấn đúp để bắt đầu học")
+        
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.unlock_requirement_hint"), "Complete previous lessons to unlock")
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.unlock_requirement_hint", language: "vi"), "Hoàn thành bài học trước để mở khóa")
+        
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.close_sheet_hint"), "Double tap to close lesson details")
+        XCTAssertEqual(CraftLocalized.string("craft.learning_path.close_sheet_hint", language: "vi"), "Nhấn đúp để đóng thông tin bài học")
+    }
+
+    // MARK: - Navigation, Feedback & Audio Scope
+    
+    func testNavigationAndAudioFeedbackStrings() {
+        // Tab Bar
+        XCTAssertEqual(CraftLocalized.format("craft.tab_bar.badge_count_format", 3), "3 new items")
+        XCTAssertEqual(CraftLocalized.format("craft.tab_bar.badge_count_format", language: "vi", 3), "3 mục mới")
+        
+        XCTAssertEqual(CraftLocalized.string("craft.tab_bar.center_action_fallback"), "Action")
+        XCTAssertEqual(CraftLocalized.string("craft.tab_bar.center_action_fallback", language: "vi"), "Tác vụ")
+        
+        // Waveform
+        XCTAssertEqual(CraftLocalized.string("craft.waveform.recording_active_a11y"), "Audio waveform recording active")
+        XCTAssertEqual(CraftLocalized.string("craft.waveform.recording_active_a11y", language: "vi"), "Đang thu âm sóng âm thanh")
+        
+        XCTAssertEqual(CraftLocalized.string("craft.waveform.visualizer_a11y"), "Audio waveform visualizer")
+        XCTAssertEqual(CraftLocalized.string("craft.waveform.visualizer_a11y", language: "vi"), "Trình hiển thị sóng âm")
+        
+        XCTAssertEqual(CraftLocalized.format("craft.waveform.audio_level_format", 60), "60 percent average audio level")
+        XCTAssertEqual(CraftLocalized.format("craft.waveform.audio_level_format", language: "vi", 60), "Mức âm thanh trung bình 60 phần trăm")
+        
+        // Countdown
+        XCTAssertEqual(CraftLocalized.format("craft.countdown.label_format", 3), "Countdown 3")
+        XCTAssertEqual(CraftLocalized.format("craft.countdown.label_format", language: "vi", 3), "Đếm ngược 3")
+        
+        XCTAssertEqual(CraftLocalized.string("craft.countdown.go_text"), "GO!")
+        XCTAssertEqual(CraftLocalized.string("craft.countdown.go_text", language: "vi"), "BẮT ĐẦU!")
+        
+        // Sparkle
+        XCTAssertEqual(CraftLocalized.string("craft.sparkle.sparkle_label"), "Sparkle!")
+        XCTAssertEqual(CraftLocalized.string("craft.sparkle.sparkle_label", language: "vi"), "Lấp lánh!")
+        
+        XCTAssertEqual(CraftLocalized.string("craft.sparkle.celebration_label"), "Celebration!")
+        XCTAssertEqual(CraftLocalized.string("craft.sparkle.celebration_label", language: "vi"), "Chúc mừng!")
+    }
+
     // MARK: - Fallback and Missing Keys
     
     func testFallbackToKeyWhenMissing() {
@@ -118,7 +352,7 @@ final class LocalizationTests: XCTestCase {
     }
     
     func testCommentParameter() {
-        let confirmWithComment = CraftLocalized.string("craft.action.confirm", comment: "Confirm button action")
+        let confirmWithComment = CraftLocalized.string("craft.common.action.confirm", comment: "Confirm button action")
         XCTAssertEqual(confirmWithComment, "Confirm")
     }
 }
