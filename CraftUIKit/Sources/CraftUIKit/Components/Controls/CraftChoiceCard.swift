@@ -730,18 +730,19 @@ private struct CraftChoiceCardPreviewContainer: View {
                         prefix: "C",
                         prefixStyle: selectedPrefixStyle,
                         title: "Correct Answer",
-                        subtitle: "Validated correct state with bounce icon",
+                        subtitle: "Validated with custom checkmark.seal.fill icon",
                         state: .correct,
-                        style: selectedStyle
+                        style: selectedStyle,
+                        correctIconName: "checkmark.seal.fill"
                     ) {}
 
                     CraftChoiceCard(
                         prefix: "D",
                         prefixStyle: selectedPrefixStyle,
                         title: "Incorrect Answer",
-//                        subtitle: "Validated error state with shake feedback",
                         state: .wrong,
-                        style: selectedStyle
+                        style: selectedStyle,
+                        wrongIconName: "xmark.octagon.fill"
                     ) {}
 
                     CraftChoiceCard(
