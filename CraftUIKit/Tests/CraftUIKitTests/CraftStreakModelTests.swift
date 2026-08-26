@@ -281,4 +281,19 @@ final class CraftStreakModelTests: XCTestCase {
         XCTAssertEqual(activityData.subtitle, "Halfway there!")
         XCTAssertEqual(activityData.milestoneProgress, 0.5, accuracy: 0.001)
     }
+
+    func testStreakDataAsActivityTrackerDataLocalization() {
+        let streakData = CraftStreakData(
+            currentStreak: 5,
+            bestStreak: 10,
+            freezeTokens: 1,
+            maxFreezeTokens: 2,
+            nextMilestoneDays: 7,
+            isCompletedToday: true,
+            weekDays: []
+        )
+        let activity = streakData.asActivityTrackerData
+        XCTAssertEqual(activity.unitKey, "craft.common.unit.days_single")
+        XCTAssertEqual(activity.unit, CraftLocalized.string("craft.common.unit.days_single"))
+    }
 }

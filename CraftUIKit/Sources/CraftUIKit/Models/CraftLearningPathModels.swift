@@ -46,6 +46,8 @@ public struct LessonNodeModel: Identifiable, Sendable, Equatable, Hashable {
     public let stars: Int?
     public let badgeCount: Int?
     public let badgeText: String?
+    public let objectives: [String]?
+    public let objectiveKeys: [String]?
 
     public init(
         id: String,
@@ -59,7 +61,9 @@ public struct LessonNodeModel: Identifiable, Sendable, Equatable, Hashable {
         estimatedMinutes: Int? = nil,
         stars: Int? = nil,
         badgeCount: Int? = nil,
-        badgeText: String? = nil
+        badgeText: String? = nil,
+        objectives: [String]? = nil,
+        objectiveKeys: [String]? = nil
     ) {
         self.id = id
         self.title = title
@@ -73,6 +77,8 @@ public struct LessonNodeModel: Identifiable, Sendable, Equatable, Hashable {
         self.stars = stars
         self.badgeCount = badgeCount
         self.badgeText = badgeText
+        self.objectives = objectives
+        self.objectiveKeys = objectiveKeys
     }
 
     /// Converts to generic `CraftPathNodeModel`.

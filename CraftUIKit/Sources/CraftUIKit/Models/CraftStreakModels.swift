@@ -129,8 +129,8 @@ public struct CraftStreakData: Sendable, Equatable {
         CraftActivityTrackerData(
             currentValue: currentStreak,
             bestRecord: bestStreak,
-            unitKey: "craft.streak.daysUnit",
-            unit: "ngày",
+            unitKey: "craft.common.unit.days_single",
+            unit: CraftLocalized.string("craft.common.unit.days_single"),
             tier: tier,
             shieldTokens: freezeTokens,
             maxShieldTokens: maxFreezeTokens,

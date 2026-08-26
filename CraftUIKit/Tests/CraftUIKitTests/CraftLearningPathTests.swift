@@ -103,6 +103,8 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertNil(defaultNode.stars)
         XCTAssertNil(defaultNode.badgeCount)
         XCTAssertNil(defaultNode.badgeText)
+        XCTAssertNil(defaultNode.objectives)
+        XCTAssertNil(defaultNode.objectiveKeys)
 
         let fullNode = LessonNodeModel(
             id: "full_node",
@@ -116,7 +118,9 @@ final class CraftLearningPathTests: XCTestCase {
             estimatedMinutes: 4,
             stars: 3,
             badgeCount: 1,
-            badgeText: "HOT"
+            badgeText: "HOT",
+            objectives: ["Master 15 advanced words", "Pass timed test"],
+            objectiveKeys: ["craft.objectives.master15", "craft.objectives.timed_test"]
         )
 
         XCTAssertEqual(fullNode.subtitle, "15 từ mới • 4 phút")
@@ -124,6 +128,8 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertEqual(fullNode.xpReward, 50)
         XCTAssertEqual(fullNode.estimatedMinutes, 4)
         XCTAssertEqual(fullNode.stars, 3)
+        XCTAssertEqual(fullNode.objectives, ["Master 15 advanced words", "Pass timed test"])
+        XCTAssertEqual(fullNode.objectiveKeys, ["craft.objectives.master15", "craft.objectives.timed_test"])
 
         let treasureNode = LessonNodeModel(
             id: "chest_node",
@@ -149,12 +155,32 @@ final class CraftLearningPathTests: XCTestCase {
             estimatedMinutes: 4,
             stars: 3,
             badgeCount: 1,
-            badgeText: "HOT"
+            badgeText: "HOT",
+            objectives: ["Master 15 advanced words", "Pass timed test"],
+            objectiveKeys: ["craft.objectives.master15", "craft.objectives.timed_test"]
         )
         XCTAssertEqual(fullNode, fullNodeCopy)
 
-        let set: Set<LessonNodeModel> = [defaultNode, fullNode, treasureNode, fullNodeCopy]
-        XCTAssertEqual(set.count, 3)
+        let differentObjectivesNode = LessonNodeModel(
+            id: "full_node",
+            title: "Boss Challenge",
+            subtitle: "15 từ mới • 4 phút",
+            iconName: "crown.fill",
+            state: .active,
+            kind: .checkpoint,
+            progress: 0.75,
+            xpReward: 50,
+            estimatedMinutes: 4,
+            stars: 3,
+            badgeCount: 1,
+            badgeText: "HOT",
+            objectives: ["Different objective"],
+            objectiveKeys: ["craft.objectives.different"]
+        )
+        XCTAssertNotEqual(fullNode, differentObjectivesNode)
+
+        let set: Set<LessonNodeModel> = [defaultNode, fullNode, treasureNode, fullNodeCopy, differentObjectivesNode]
+        XCTAssertEqual(set.count, 4)
     }
 
     // MARK: - SerpentineWinding Tests
