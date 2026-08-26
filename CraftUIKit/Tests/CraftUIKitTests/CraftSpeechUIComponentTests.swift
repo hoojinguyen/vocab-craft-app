@@ -94,5 +94,52 @@ final class CraftSpeechUIComponentTests: XCTestCase {
         XCTAssertEqual(evaluatedView.speechState, .evaluated(overallScore: 92))
         XCTAssertNotNil(evaluatedView.body)
     }
+
+    func testCraftVoiceMatchCardInitializesCleanly() {
+        let card = CraftVoiceMatchCard(
+            originText: "It was a good job.",
+            actualText: "It was",
+            subtitle: "Đó là một công việc tốt.",
+            speechState: .idle,
+            onTapMic: {}
+        )
+        XCTAssertNotNil(card)
+        XCTAssertNotNil(card.body)
+    }
+
+    func testCraftVoiceMatchCardWithExplicitTokens() {
+        let tokens = [
+            CraftSpeechWordToken(targetWord: "It", status: .matched),
+            CraftSpeechWordToken(targetWord: "was", status: .matched),
+            CraftSpeechWordToken(targetWord: "a", status: .pending),
+            CraftSpeechWordToken(targetWord: "good", status: .pending),
+            CraftSpeechWordToken(targetWord: "job", status: .pending)
+        ]
+        let card = CraftVoiceMatchCard(
+            originText: "It was a good job.",
+            explicitTokens: tokens,
+            subtitle: "Đó là một công việc tốt.",
+            speechState: .listening(audioLevels: [0.3, 0.6]),
+            customInstruction: "Speak clearly into the microphone",
+            onTapMic: {},
+            onReset: {}
+        )
+        XCTAssertNotNil(card)
+        XCTAssertNotNil(card.body)
+        XCTAssertEqual(card.originText, "It was a good job.")
+        XCTAssertEqual(card.explicitTokens?.count, 5)
+        XCTAssertEqual(card.customInstruction, "Speak clearly into the microphone")
+    }
+
+    func testCraftVoiceMatchCardEvaluatedScore() {
+        let card = CraftVoiceMatchCard(
+            originText: "Great job",
+            actualText: "Great job",
+            speechState: .evaluated(overallScore: 95),
+            onTapMic: {}
+        )
+        XCTAssertNotNil(card)
+        XCTAssertNotNil(card.body)
+    }
 }
 
