@@ -1,5 +1,5 @@
-@testable import VocabCraftApp
 import SpeechKit
+@testable import VocabCraftApp
 import XCTest
 
 @MainActor

@@ -1,7 +1,7 @@
-import Testing
+import CraftUIKit
 import Foundation
 import SpeechKit
-import CraftUIKit
+import Testing
 @testable import VocabCraftApp
 
 @Suite("SpeechKitAdapterTests")

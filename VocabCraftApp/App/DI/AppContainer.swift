@@ -1,6 +1,6 @@
 import Foundation
-import SwiftData
 import SpeechKit
+import SwiftData
 
 /// Centralized Composition Root / Dependency Injection Container.
 @MainActor
