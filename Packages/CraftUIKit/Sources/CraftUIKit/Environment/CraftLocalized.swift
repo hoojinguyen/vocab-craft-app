@@ -59,8 +59,7 @@ public enum CraftLocalized {
     ///   - arguments: The arguments to substitute into the format string.
     /// - Returns: A formatted string using the localized format string designated by `key`.
     public static func format(_ key: String, _ arguments: CVarArg...) -> String {
-        let formatString = string(key)
-        return String(format: formatString, arguments: arguments)
+        format(key, arguments)
     }
 
     /// Returns a formatted localized string using the localized template for `key` and an array of arguments.
@@ -70,8 +69,9 @@ public enum CraftLocalized {
     ///   - arguments: An array of arguments to substitute into the format string.
     /// - Returns: A formatted string using the localized format string designated by `key`.
     public static func format(_ key: String, _ arguments: [CVarArg]) -> String {
+        let processedArgs = sanitizeArguments(for: key, arguments: arguments)
         let formatString = string(key)
-        return String(format: formatString, arguments: arguments)
+        return String(format: formatString, arguments: processedArgs)
     }
 
     /// Returns a formatted localized string for an explicit language code.
@@ -82,8 +82,7 @@ public enum CraftLocalized {
     ///   - arguments: The arguments to substitute into the format string.
     /// - Returns: A formatted string using the localized format string designated by `key`.
     public static func format(_ key: String, language: String, _ arguments: CVarArg...) -> String {
-        let formatString = string(key, language: language)
-        return String(format: formatString, arguments: arguments)
+        format(key, language: language, arguments)
     }
 
     /// Returns a formatted localized string for an explicit language code and argument array.
@@ -94,8 +93,28 @@ public enum CraftLocalized {
     ///   - arguments: An array of arguments to substitute into the format string.
     /// - Returns: A formatted string using the localized format string designated by `key`.
     public static func format(_ key: String, language: String, _ arguments: [CVarArg]) -> String {
+        let processedArgs = sanitizeArguments(for: key, arguments: arguments)
         let formatString = string(key, language: language)
-        return String(format: formatString, arguments: arguments)
+        return String(format: formatString, arguments: processedArgs)
+    }
+
+    private static func sanitizeArguments(for key: String, arguments: [CVarArg]) -> [CVarArg] {
+        switch key {
+        case "craft.common.unit.percent_format",
+             "craft.speech.score_format",
+             "craft.learning_path.continue_lesson_format":
+            if let firstInt = arguments.first as? Int {
+                return ["\(firstInt)%"]
+            }
+        case "craft.learning_path.node_current_format_a11y",
+             "craft.learning_path.node_in_progress_format_a11y":
+            if arguments.count >= 2, let percent = arguments[1] as? Int {
+                return [arguments[0], "\(percent)%"]
+            }
+        default:
+            break
+        }
+        return arguments
     }
 
     // MARK: - Private Helpers
