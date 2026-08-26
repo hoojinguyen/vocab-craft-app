@@ -699,9 +699,18 @@ public struct ChoiceShakeEffect: GeometryEffect {
 }
 
 private struct CraftChoiceCardPreviewContainer: View {
-    @State private var selectedStyle: CraftSurfaceStyle = .glass
+    @State private var selectedStyle: CraftSurfaceStyle = .tactile3D
     @State private var selectedPrefixStyle: CraftChoicePrefixStyle = .circle
+    @State private var selectedAlignment: TextAlignment = .leading
     @State private var interactiveSelection: String = "B"
+    @State private var practiceSelection: String? = "It's a nice day."
+
+    private let practiceOptions = [
+        "It's a nice day.",
+        "He was a nurse.",
+        "It's a stressful job.",
+        "It was a good job."
+    ]
 
     var body: some View {
         ScrollView {
@@ -741,59 +750,121 @@ private struct CraftChoiceCardPreviewContainer: View {
                     }
                     .pickerStyle(.segmented)
                 }
+
+                // Text Alignment Switcher Segmented Control
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Text Alignment")
+                        .font(.caption.bold())
+                        .foregroundStyle(.secondary)
+                        .textCase(.uppercase)
+
+                    Picker("Text Alignment", selection: $selectedAlignment) {
+                        Text("Leading").tag(TextAlignment.leading)
+                        Text("Center").tag(TextAlignment.center)
+                    }
+                    .pickerStyle(.segmented)
+                }
                 .padding(.bottom, 4)
 
                 // 5 States Rendered Dynamically in the Selected Style
                 VStack(alignment: .leading, spacing: 12) {
+                    Text("Standard Multi-Choice States")
+                        .font(.caption.bold())
+                        .foregroundStyle(.secondary)
+                        .textCase(.uppercase)
+
                     CraftChoiceCard(
-                        prefix: "A",
-                        prefixStyle: selectedPrefixStyle,
+                        prefix: selectedAlignment == .center && selectedPrefixStyle == .none ? nil : "A",
+                        prefixStyle: selectedAlignment == .center && selectedPrefixStyle == .none ? .none : selectedPrefixStyle,
                         title: "Idle State",
                         subtitle: "Default unselected option",
+                        textAlignment: selectedAlignment,
                         state: interactiveSelection == "A" ? .selected : .idle,
-                        style: selectedStyle
+                        style: selectedStyle,
+                        showsStatusIndicator: !(selectedAlignment == .center && selectedPrefixStyle == .none)
                     ) {
                         interactiveSelection = "A"
                     }
 
                     CraftChoiceCard(
-                        prefix: "B",
-                        prefixStyle: selectedPrefixStyle,
+                        prefix: selectedAlignment == .center && selectedPrefixStyle == .none ? nil : "B",
+                        prefixStyle: selectedAlignment == .center && selectedPrefixStyle == .none ? .none : selectedPrefixStyle,
                         title: "Selected State",
                         subtitle: "Currently selected option",
+                        textAlignment: selectedAlignment,
                         state: interactiveSelection == "B" ? .selected : .idle,
-                        style: selectedStyle
+                        style: selectedStyle,
+                        showsStatusIndicator: !(selectedAlignment == .center && selectedPrefixStyle == .none)
                     ) {
                         interactiveSelection = "B"
                     }
 
                     CraftChoiceCard(
-                        prefix: "C",
-                        prefixStyle: selectedPrefixStyle,
+                        prefix: selectedAlignment == .center && selectedPrefixStyle == .none ? nil : "C",
+                        prefixStyle: selectedAlignment == .center && selectedPrefixStyle == .none ? .none : selectedPrefixStyle,
                         title: "Correct Answer",
                         subtitle: "Validated with custom checkmark.seal.fill icon",
+                        textAlignment: selectedAlignment,
                         state: .correct,
                         style: selectedStyle,
+                        showsStatusIndicator: !(selectedAlignment == .center && selectedPrefixStyle == .none),
                         correctIconName: "checkmark.seal.fill"
                     ) {}
 
                     CraftChoiceCard(
-                        prefix: "D",
-                        prefixStyle: selectedPrefixStyle,
+                        prefix: selectedAlignment == .center && selectedPrefixStyle == .none ? nil : "D",
+                        prefixStyle: selectedAlignment == .center && selectedPrefixStyle == .none ? .none : selectedPrefixStyle,
                         title: "Incorrect Answer",
+                        textAlignment: selectedAlignment,
                         state: .wrong,
                         style: selectedStyle,
+                        showsStatusIndicator: !(selectedAlignment == .center && selectedPrefixStyle == .none),
                         wrongIconName: "xmark.octagon.fill"
                     ) {}
 
                     CraftChoiceCard(
-                        prefix: "E",
-                        prefixStyle: selectedPrefixStyle,
+                        prefix: selectedAlignment == .center && selectedPrefixStyle == .none ? nil : "E",
+                        prefixStyle: selectedAlignment == .center && selectedPrefixStyle == .none ? .none : selectedPrefixStyle,
                         title: "Disabled Option",
                         subtitle: "Non-interactive dimmed state",
+                        textAlignment: selectedAlignment,
                         state: .disabled,
-                        style: selectedStyle
+                        style: selectedStyle,
+                        showsStatusIndicator: !(selectedAlignment == .center && selectedPrefixStyle == .none)
                     ) {}
+                }
+
+                Divider()
+                    .padding(.vertical, 4)
+
+                // Dedicated Practice / Video Quiz Demo (Matching Reference Screenshot)
+                VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Practice / Video Quiz (Minimalist Centered)")
+                            .font(.caption.bold())
+                            .foregroundStyle(.secondary)
+                            .textCase(.uppercase)
+
+                        Text("Select what you heard:")
+                            .font(.subheadline)
+                            .foregroundStyle(.primary)
+                    }
+
+                    VStack(spacing: 12) {
+                        ForEach(practiceOptions, id: \.self) { option in
+                            CraftChoiceCard(
+                                prefix: nil,
+                                prefixStyle: .none,
+                                title: option,
+                                textAlignment: .center,
+                                state: practiceSelection == option ? .selected : .idle,
+                                style: selectedStyle,
+                                showsStatusIndicator: false
+                            ) {
+                                practiceSelection = option
+                            }
+                        }
+                    }
                 }
             }
             .padding()

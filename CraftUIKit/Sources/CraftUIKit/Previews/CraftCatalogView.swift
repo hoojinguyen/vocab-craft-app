@@ -1342,6 +1342,8 @@ private struct CatalogControlsSection: View {
     let onSubmitQuiz: () -> Void
     let onResetQuiz: () -> Void
 
+    @State private var selectedPracticeChoice: String? = "It's a nice day."
+
     private let filterChips = [
         ("Vocabulary", "character.book.closed.fill", 14),
         ("Grammar", "doc.text.fill", 8),
@@ -1451,6 +1453,37 @@ private struct CatalogControlsSection: View {
                             .frame(maxWidth: .infinity)
                             .disabled(selectedQuizChoice == nil)
                             .padding(.top, theme.spacing.xs)
+                    }
+                }
+
+                CraftDivider()
+
+                // Minimalist Centered Practice Option Cards (Video / Listening Quiz)
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("CraftChoiceCard (Centered Practice & Video Quiz)", style: .headline)
+                    CraftText("Select what you heard in the clip:", style: .bodyMedium, color: theme.colors.textSecondary)
+
+                    let practiceOptions = [
+                        "It's a nice day.",
+                        "He was a nurse.",
+                        "It's a stressful job.",
+                        "It was a good job."
+                    ]
+
+                    VStack(spacing: theme.spacing.sm) {
+                        ForEach(practiceOptions, id: \.self) { option in
+                            CraftChoiceCard(
+                                prefix: nil,
+                                prefixStyle: .none,
+                                title: option,
+                                textAlignment: .center,
+                                state: selectedPracticeChoice == option ? .selected : .idle,
+                                style: .tactile3D,
+                                showsStatusIndicator: false
+                            ) {
+                                selectedPracticeChoice = option
+                            }
+                        }
                     }
                 }
 
