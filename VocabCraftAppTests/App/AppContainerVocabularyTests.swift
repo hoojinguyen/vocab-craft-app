@@ -93,4 +93,13 @@ final class AppContainerVocabularyTests: XCTestCase {
         XCTAssertEqual(drillVM.queue.count, 2)
         XCTAssertFalse(drillVM.isCompleted)
     }
+
+    @MainActor
+    func test_appContainer_instantiatesLearningPathUseCases() {
+        let container = AppContainer.mock
+        XCTAssertNotNil(container.fetchLearningPathUseCase)
+        XCTAssertNotNil(container.completeLessonUseCase)
+        XCTAssertNotNil(container.makeFetchLearningPathUseCase())
+        XCTAssertNotNil(container.makeCompleteLessonUseCase())
+    }
 }

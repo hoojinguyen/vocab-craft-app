@@ -31,6 +31,9 @@ public final class AppContainer {
     public let evaluateSRSUseCase: EvaluateSRSUseCaseProtocol
     public let resetUserProgressUseCase: ResetUserProgressUseCaseProtocol
 
+    public let fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol
+    public let completeLessonUseCase: CompleteLessonUseCaseProtocol
+
     public let fetchTopicDecksUseCase: FetchTopicDecksUseCaseProtocol
     public let fetchDeckRoadmapUseCase: FetchDeckRoadmapUseCaseProtocol
     public let completeStageChallengeUseCase: CompleteStageChallengeUseCaseProtocol
@@ -52,6 +55,8 @@ public final class AppContainer {
         vocabularyDataSource: VocabularyDataSourceProtocol? = nil,
         stageProgressRepository: StageProgressRepositoryProtocol? = nil,
         userProgressRepository: (any UserProgressRepositoryProtocol)? = nil,
+        fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol? = nil,
+        completeLessonUseCase: CompleteLessonUseCaseProtocol? = nil,
         generateMixedReflexQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol? = nil,
         recordMixedDrillAttemptUseCase: RecordMixedDrillAttemptUseCaseProtocol? = nil,
         ttsService: TextToSpeechProtocol? = nil,
@@ -98,6 +103,16 @@ public final class AppContainer {
         self.evaluateSRSUseCase = EvaluateSRSUseCase(srsRepository: srsRepo)
         self.resetUserProgressUseCase = ResetUserProgressUseCase(srsRepository: srsRepo)
 
+        // Learning Path Use Cases
+        self.fetchLearningPathUseCase = fetchLearningPathUseCase ?? FetchLearningPathUseCase(
+            dataSource: resolvedDataSource,
+            stageRepo: resolvedStageRepo
+        )
+        self.completeLessonUseCase = completeLessonUseCase ?? CompleteLessonUseCase(
+            stageRepo: resolvedStageRepo,
+            progressRepo: resolvedUserProgressRepo
+        )
+
         // Vocabulary Hub Use Cases
         self.fetchTopicDecksUseCase = FetchTopicDecksUseCase(
             dataSource: resolvedDataSource,
@@ -133,6 +148,14 @@ public final class AppContainer {
     }
 
     // MARK: - Use Case Factories
+
+    public func makeFetchLearningPathUseCase() -> FetchLearningPathUseCaseProtocol {
+        fetchLearningPathUseCase
+    }
+
+    public func makeCompleteLessonUseCase() -> CompleteLessonUseCaseProtocol {
+        completeLessonUseCase
+    }
 
     public func makeGenerateMixedReflexQueueUseCase() -> GenerateMixedReflexQueueUseCaseProtocol {
         generateMixedReflexQueueUseCase
