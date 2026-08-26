@@ -528,6 +528,8 @@ private struct CraftCatalogContentView: View {
 
     // Overlays
     @State private var isToastPresented: Bool = false
+    @State private var toastTitle: String = "Craft Toast Notification"
+    @State private var toastMessage: String = "Action completed successfully!"
     @State private var toastStyle: CraftToastStyle = .success
     @State private var toastSurfaceStyle: CraftSurfaceStyle = .elevated
     @State private var toastPosition: CraftToastPosition = .top
@@ -688,6 +690,7 @@ private struct CraftCatalogContentView: View {
                         // f. Universal Activity & Streak Tracker Section
                         CatalogActivityStreakSection(
                             selectedPreset: $selectedStreakPreset,
+                            selectedSurfaceStyle: $selectedSurfaceStyle,
                             isCompletedToday: $isStreakCompletedToday,
                             isCelebrationPresented: $isCelebrationSheetPresented,
                             cardStyle: $streakCardStyle,
@@ -700,8 +703,34 @@ private struct CraftCatalogContentView: View {
                                 isCelebrationSheetPresented = true
                             },
                             onFreezeTap: {
+                                toastTitle = "Freeze Shield"
+                                toastMessage = "Protected by streak freeze shield token. 🛡️"
                                 toastStyle = .info
-                                toastSurfaceStyle = .glass
+                                toastSurfaceStyle = selectedSurfaceStyle
+                                isToastPresented = true
+                            },
+                            onDayTap: { day in
+                                toastTitle = "Day \(day.weekdaySymbol)"
+                                let statusDesc: String
+                                switch day.status {
+                                case .completed:
+                                    statusDesc = "Completed daily goal! 🔥"
+                                    toastStyle = .success
+                                case .pending:
+                                    statusDesc = day.isToday ? "Goal pending for today. Keep going! ⚡️" : "Pending completion."
+                                    toastStyle = .warning
+                                case .saved:
+                                    statusDesc = "Preserved with a freeze shield! 🛡️"
+                                    toastStyle = .info
+                                case .missed:
+                                    statusDesc = "Missed daily goal."
+                                    toastStyle = .danger
+                                case .upcoming:
+                                    statusDesc = "Upcoming day in weekly cycle."
+                                    toastStyle = .info
+                                }
+                                toastMessage = statusDesc
+                                toastSurfaceStyle = selectedSurfaceStyle
                                 isToastPresented = true
                             }
                         )
@@ -753,6 +782,7 @@ private struct CraftCatalogContentView: View {
                     CraftActivityDay(id: "6", weekdaySymbol: "T7", status: .upcoming),
                     CraftActivityDay(id: "7", weekdaySymbol: "CN", status: .upcoming)
                 ],
+                surfaceStyle: selectedSurfaceStyle,
                 onContinue: {
                     isCelebrationSheetPresented = false
                 }
@@ -767,6 +797,8 @@ private struct CraftCatalogContentView: View {
             title: "Speed Challenge Countdown",
             goText: "GO!"
         ) {
+            toastTitle = "Countdown Complete"
+            toastMessage = "Speed challenge started!"
             toastStyle = .success
             toastSurfaceStyle = .glass
             isToastPresented = true
@@ -774,8 +806,8 @@ private struct CraftCatalogContentView: View {
         }
         .craftToast(
             isPresented: $isToastPresented,
-            message: "Action completed successfully!",
-            title: "Craft Toast Notification",
+            message: toastMessage,
+            title: toastTitle,
             iconName: toastStyle.defaultIconName,
             style: toastStyle,
             surfaceStyle: toastSurfaceStyle,
@@ -1951,6 +1983,7 @@ private struct CatalogJourneyPathSection: View {
 private struct CatalogActivityStreakSection: View {
     @Environment(\.craftTheme) private var theme
     @Binding var selectedPreset: CatalogStreakTierPreset
+    @Binding var selectedSurfaceStyle: CraftSurfaceStyle
     @Binding var isCompletedToday: Bool
     @Binding var isCelebrationPresented: Bool
     @Binding var cardStyle: CraftCardStyle
@@ -1961,60 +1994,175 @@ private struct CatalogActivityStreakSection: View {
     @Binding var isCountdownPresented: Bool
     let onBadgeTap: () -> Void
     let onFreezeTap: () -> Void
+    let onDayTap: (CraftActivityDay) -> Void
 
     var body: some View {
         CraftCard(style: .elevated) {
             VStack(alignment: .leading, spacing: theme.spacing.base) {
-                CatalogSectionHeader(title: "6. Universal Activity & Streak Tracker (7-Day Bento & Celebration Modal)", iconName: CraftSymbol.streak.rawValue)
+                CatalogSectionHeader(
+                    title: "6. Universal Activity & Streak Tracker (7-Day Bento & Celebration Modal)",
+                    iconName: CraftSymbol.streak.rawValue
+                )
 
-                // Streak Controls
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText("Streak Tier Preset", style: .headline)
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: theme.spacing.xs) {
-                            ForEach(CatalogStreakTierPreset.allCases) { preset in
-                                Button(action: {
-                                    withAnimation(theme.animations.springSmooth) {
-                                        selectedPreset = preset
+                // Streak Controls: Preset, Surface Style, Completed Today
+                VStack(alignment: .leading, spacing: theme.spacing.sm) {
+                    // Preset Selector
+                    VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                        CraftText("Streak Tier Preset", style: .headline)
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: theme.spacing.xs) {
+                                ForEach(CatalogStreakTierPreset.allCases) { preset in
+                                    Button(action: {
+                                        withAnimation(theme.animations.springSmooth) {
+                                            selectedPreset = preset
+                                        }
+                                    }) {
+                                        Text(preset.rawValue)
+                                            .font(.system(.caption, design: .rounded, weight: selectedPreset == preset ? .bold : .medium))
+                                            .padding(.horizontal, 12)
+                                            .padding(.vertical, 6)
+                                            .background(selectedPreset == preset ? theme.colors.brandPrimary : theme.colors.surfaceSubtle)
+                                            .foregroundStyle(selectedPreset == preset ? Color.white : theme.colors.textPrimary)
+                                            .clipShape(Capsule())
+                                            .overlay(
+                                                Capsule()
+                                                    .strokeBorder(
+                                                        selectedPreset == preset ? theme.colors.brandPrimary : theme.colors.borderDefault,
+                                                        lineWidth: 1
+                                                    )
+                                            )
                                     }
-                                }) {
-                                    Text(preset.rawValue)
-                                        .font(.system(.caption, design: .rounded, weight: selectedPreset == preset ? .bold : .medium))
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                            .padding(.vertical, 2)
+                        }
+                    }
+
+                    // Surface Style Selector
+                    VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                        CraftText("Streak Surface Style", style: .label, color: theme.colors.textSecondary)
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: theme.spacing.xs) {
+                                ForEach(CraftSurfaceStyle.allCases, id: \.self) { style in
+                                    Button(action: {
+                                        withAnimation(theme.animations.springSmooth) {
+                                            selectedSurfaceStyle = style
+                                        }
+                                    }) {
+                                        HStack(spacing: 6) {
+                                            if selectedSurfaceStyle == style {
+                                                Image(systemName: "checkmark")
+                                                    .font(.system(size: 10, weight: .bold))
+                                            }
+                                            Text(style.rawValue.capitalized)
+                                                .font(.system(.caption, design: .rounded, weight: selectedSurfaceStyle == style ? .bold : .medium))
+                                        }
                                         .padding(.horizontal, 12)
                                         .padding(.vertical, 6)
-                                        .background(selectedPreset == preset ? theme.colors.brandPrimary : theme.colors.surfaceSubtle)
-                                        .foregroundStyle(selectedPreset == preset ? Color.white : theme.colors.textPrimary)
+                                        .background(
+                                            selectedSurfaceStyle == style
+                                                ? theme.colors.brandPrimary
+                                                : theme.colors.surfaceSubtle
+                                        )
+                                        .foregroundStyle(
+                                            selectedSurfaceStyle == style
+                                                ? Color.white
+                                                : theme.colors.textPrimary
+                                        )
                                         .clipShape(Capsule())
                                         .overlay(
                                             Capsule()
                                                 .strokeBorder(
-                                                    selectedPreset == preset ? theme.colors.brandPrimary : theme.colors.borderDefault,
+                                                    selectedSurfaceStyle == style
+                                                        ? theme.colors.brandPrimary
+                                                        : theme.colors.borderDefault,
                                                     lineWidth: 1
                                                 )
                                         )
+                                    }
+                                    .buttonStyle(.plain)
                                 }
-                                .buttonStyle(.plain)
                             }
+                            .padding(.vertical, 2)
                         }
-                        .padding(.vertical, 2)
                     }
 
-                    CraftToggle(isOn: $isCompletedToday, title: "Goal Completed Today", subtitle: "Toggles active flame vs. pending breathing pulse node", iconName: "checkmark.circle.fill")
+                    CraftToggle(
+                        isOn: $isCompletedToday,
+                        title: "Goal Completed Today",
+                        subtitle: "Toggles active flame vs. pending breathing pulse node",
+                        iconName: "checkmark.circle.fill"
+                    )
                 }
 
                 CraftDivider()
 
-                // CraftStreakBadge
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                // CraftStreakBadge Showcase
+                VStack(alignment: .leading, spacing: theme.spacing.sm) {
                     HStack {
                         CraftText("CraftStreakBadge Indicators", style: .headline)
                         Spacer()
                         CraftText("Tap to celebrate", style: .caption, color: theme.colors.brandPrimary)
                     }
 
-                    HStack(spacing: theme.spacing.lg) {
-                        CraftStreakBadge(count: selectedPreset.days, tier: selectedPreset.tier, isCompletedToday: isCompletedToday, size: .sm, onTap: onBadgeTap)
-                        CraftStreakBadge(count: selectedPreset.days, tier: selectedPreset.tier, isCompletedToday: isCompletedToday, size: .md, onTap: onBadgeTap)
+                    // Active Selection (sm & md)
+                    VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                        CraftText("Active Style (\(selectedSurfaceStyle.rawValue.capitalized))", style: .label, color: theme.colors.textSecondary)
+                        HStack(spacing: theme.spacing.lg) {
+                            CraftStreakBadge(
+                                count: selectedPreset.days,
+                                tier: selectedPreset.tier,
+                                isCompletedToday: isCompletedToday,
+                                size: .sm,
+                                style: selectedSurfaceStyle,
+                                onTap: onBadgeTap
+                            )
+                            CraftStreakBadge(
+                                count: selectedPreset.days,
+                                tier: selectedPreset.tier,
+                                isCompletedToday: isCompletedToday,
+                                size: .md,
+                                style: selectedSurfaceStyle,
+                                onTap: onBadgeTap
+                            )
+                        }
+                    }
+
+                    // All Surface Styles Matrix (sm & md)
+                    VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                        CraftText("All Surface Styles (.sm & .md)", style: .label, color: theme.colors.textSecondary)
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: theme.spacing.md) {
+                                ForEach(CraftSurfaceStyle.allCases, id: \.self) { style in
+                                    VStack(spacing: theme.spacing.xs) {
+                                        CraftText(style.rawValue.capitalized, style: .caption, color: theme.colors.textSecondary)
+                                        HStack(spacing: theme.spacing.xs) {
+                                            CraftStreakBadge(
+                                                count: selectedPreset.days,
+                                                tier: selectedPreset.tier,
+                                                isCompletedToday: isCompletedToday,
+                                                size: .sm,
+                                                style: style,
+                                                onTap: onBadgeTap
+                                            )
+                                            CraftStreakBadge(
+                                                count: selectedPreset.days,
+                                                tier: selectedPreset.tier,
+                                                isCompletedToday: isCompletedToday,
+                                                size: .md,
+                                                style: style,
+                                                onTap: onBadgeTap
+                                            )
+                                        }
+                                    }
+                                    .padding(theme.spacing.xs)
+                                    .background(selectedSurfaceStyle == style ? theme.colors.brandPrimary.opacity(0.08) : Color.clear)
+                                    .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
+                                }
+                            }
+                            .padding(.vertical, 2)
+                        }
                     }
                 }
 
@@ -2023,7 +2171,7 @@ private struct CatalogActivityStreakSection: View {
                 // Universal 7-Day Bento Card
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     CraftText("CraftActivityTrackerCard (7-Day Bento Dashboard Widget)", style: .headline)
-                    CraftText("Zero hardcoded colors/strings, 3D day nodes, freeze shield tokens, and milestone progress bar.", style: .caption, color: theme.colors.textSecondary)
+                    CraftText("Tap any day node to inspect details. Supports all 5 surface styles.", style: .caption, color: theme.colors.textSecondary)
 
                     CraftActivityTrackerCard(
                         data: CraftActivityTrackerData(
@@ -2036,9 +2184,10 @@ private struct CatalogActivityStreakSection: View {
                             isCompletedToday: isCompletedToday,
                             cycleDays: sampleDays
                         ),
-                        cardStyle: .tactile3D,
+                        surfaceStyle: selectedSurfaceStyle,
                         onShieldTap: onFreezeTap,
-                        onMilestoneTap: { isCelebrationPresented = true }
+                        onMilestoneTap: { isCelebrationPresented = true },
+                        onDayTap: onDayTap
                     )
                 }
 
@@ -2047,7 +2196,13 @@ private struct CatalogActivityStreakSection: View {
                 // Celebration Sheet Modal Trigger
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     CraftText("CraftCelebrationSheet Modal Trigger", style: .headline)
-                    CraftButton("Launch Celebration Modal (\(selectedPreset.days) Days)", iconName: "party.popper.fill", variant: .tactile, size: .md, isFullWidth: true) {
+                    CraftButton(
+                        "Launch Celebration Modal (\(selectedPreset.days) Days - \(selectedSurfaceStyle.rawValue.capitalized))",
+                        iconName: "party.popper.fill",
+                        variant: .tactile,
+                        size: .md,
+                        isFullWidth: true
+                    ) {
                         isCelebrationPresented = true
                     }
                 }

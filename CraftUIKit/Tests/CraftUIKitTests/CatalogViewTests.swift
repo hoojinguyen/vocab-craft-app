@@ -402,22 +402,40 @@ final class CatalogViewTests: XCTestCase {
             ]
         )
 
-        let trackerCard = CraftActivityTrackerCard(data: trackerData, cardStyle: .tactile3D)
-        XCTAssertNotNil(trackerCard)
-        XCTAssertEqual(trackerCard.data.currentValue, 14)
-        XCTAssertEqual(trackerCard.data.tier, .blaze)
-        XCTAssertEqual(trackerCard.cardStyle, .tactile3D)
+        var tappedDay: CraftActivityDay?
+        for style in CraftSurfaceStyle.allCases {
+            let trackerCard = CraftActivityTrackerCard(
+                data: trackerData,
+                surfaceStyle: style,
+                onDayTap: { day in tappedDay = day }
+            )
+            XCTAssertNotNil(trackerCard)
+            XCTAssertEqual(trackerCard.data.currentValue, 14)
+            XCTAssertEqual(trackerCard.data.tier, .blaze)
+            XCTAssertEqual(trackerCard.surfaceStyle, style)
+            XCTAssertNotNil(trackerCard.body)
+            trackerCard.onDayTap?(trackerData.cycleDays[0])
+            XCTAssertEqual(tappedDay?.id, "1")
 
-        let celebrationSheet = CraftCelebrationSheet(
-            currentValue: 14,
-            previousValue: 13,
-            cycleDays: trackerData.cycleDays,
-            onContinue: {}
-        )
-        XCTAssertNotNil(celebrationSheet)
-        XCTAssertEqual(celebrationSheet.currentValue, 14)
-        XCTAssertEqual(celebrationSheet.previousValue, 13)
-        XCTAssertEqual(celebrationSheet.tier, .blaze)
-        XCTAssertTrue(celebrationSheet.isMilestone)
+            let streakBadgeSm = CraftStreakBadge(count: 14, tier: .blaze, isCompletedToday: true, size: .sm, style: style)
+            XCTAssertNotNil(streakBadgeSm.body)
+            let streakBadgeMd = CraftStreakBadge(count: 14, tier: .blaze, isCompletedToday: true, size: .md, style: style)
+            XCTAssertNotNil(streakBadgeMd.body)
+
+            let celebrationSheet = CraftCelebrationSheet(
+                currentValue: 14,
+                previousValue: 13,
+                cycleDays: trackerData.cycleDays,
+                surfaceStyle: style,
+                onContinue: {}
+            )
+            XCTAssertNotNil(celebrationSheet)
+            XCTAssertEqual(celebrationSheet.currentValue, 14)
+            XCTAssertEqual(celebrationSheet.previousValue, 13)
+            XCTAssertEqual(celebrationSheet.tier, .blaze)
+            XCTAssertEqual(celebrationSheet.surfaceStyle, style)
+            XCTAssertTrue(celebrationSheet.isMilestone)
+            XCTAssertNotNil(celebrationSheet.body)
+        }
     }
 }
