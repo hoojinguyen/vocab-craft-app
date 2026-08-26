@@ -86,6 +86,37 @@ final class InteractiveCardTests: XCTestCase {
         XCTAssertNotNil(symbolCard.body)
     }
 
+    func testChoiceCardCenteredAlignmentAcrossStates() {
+        for state in CraftChoiceState.allCases {
+            // Pure centered (no prefix, showsStatusIndicator true/false)
+            let pureCard = CraftChoiceCard(
+                prefix: nil,
+                prefixStyle: .none,
+                title: "Pure Centered Option",
+                subtitle: "Subtitle",
+                textAlignment: .center,
+                state: state,
+                showsStatusIndicator: true
+            ) {}
+            XCTAssertEqual(pureCard.textAlignment, .center)
+            XCTAssertEqual(pureCard.state, state)
+            XCTAssertNotNil(pureCard.body)
+
+            // Centered with prefix
+            let centeredWithPrefixCard = CraftChoiceCard(
+                prefix: "A",
+                prefixStyle: .circle,
+                title: "Centered with Prefix",
+                textAlignment: .center,
+                state: state,
+                showsStatusIndicator: true
+            ) {}
+            XCTAssertEqual(centeredWithPrefixCard.textAlignment, .center)
+            XCTAssertEqual(centeredWithPrefixCard.state, state)
+            XCTAssertNotNil(centeredWithPrefixCard.body)
+        }
+    }
+
 
     func testChoiceCardInitializersAndStates() {
         var tapped = false

@@ -1351,6 +1351,13 @@ private struct CatalogControlsSection: View {
         ("Idioms", "quote.bubble.fill", 5)
     ]
 
+    private let practiceOptions = [
+        "It's a nice day.",
+        "He was a nurse.",
+        "It's a stressful job.",
+        "It was a good job."
+    ]
+
     var body: some View {
         CraftCard(style: .elevated) {
             VStack(alignment: .leading, spacing: theme.spacing.base) {
@@ -1462,13 +1469,6 @@ private struct CatalogControlsSection: View {
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     CraftText("CraftChoiceCard (Centered Practice & Video Quiz)", style: .headline)
                     CraftText("Select what you heard in the clip:", style: .bodyMedium, color: theme.colors.textSecondary)
-
-                    let practiceOptions = [
-                        "It's a nice day.",
-                        "He was a nurse.",
-                        "It's a stressful job.",
-                        "It was a good job."
-                    ]
 
                     VStack(spacing: theme.spacing.sm) {
                         ForEach(practiceOptions, id: \.self) { option in

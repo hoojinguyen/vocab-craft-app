@@ -197,7 +197,7 @@ public struct CraftChoiceCard: View {
     }
 
     private var isCenteredLayout: Bool {
-        textAlignment == .center && (prefixStyle == .none || (prefixKey == nil && rawPrefix == nil)) && !showsStatusIndicator
+        textAlignment == .center && (prefixStyle == .none || (prefixKey == nil && rawPrefix == nil)) && (!showsStatusIndicator || (state != .correct && state != .wrong))
     }
 
     private var contentHorizontalAlignment: HorizontalAlignment {
@@ -229,15 +229,18 @@ public struct CraftChoiceCard: View {
                     VStack(alignment: contentHorizontalAlignment, spacing: theme.spacing.xxs) {
                         titleAndSubtitleContent
                     }
+                    .frame(maxWidth: textAlignment == .center ? .infinity : nil, alignment: textAlignment == .center ? .center : .leading)
 
-                    Spacer(minLength: theme.spacing.sm)
+                    if textAlignment != .center {
+                        Spacer(minLength: theme.spacing.sm)
+                    }
 
                     if showsStatusIndicator {
                         trailingIndicator
                             .padding(.top, hasSubtitle ? 2 : 0)
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: textAlignment == .center ? .center : .leading)
             }
         }
         .padding(theme.spacing.base)
