@@ -73,23 +73,32 @@ public struct Craft3DFlipModifier: AnimatableModifier {
 
 // MARK: - Specular Glare Modifier
 
-/// An animatable view modifier that sweeps a specular glare reflection gradient across the card surface during 3D rotation.
+/// An animatable view modifier that sweeps a specular glare reflection gradient across the card surface during 3D rotation,
+/// dynamically adapting contrast for Light and Dark color schemes.
 public struct CraftSpecularGlareModifier: AnimatableModifier {
     public var progress: Double // 0.0 (front resting) -> 1.0 (back resting)
     public let axis: Axis
     public let cornerRadius: CGFloat
     public let isEnabled: Bool
+    public let colorScheme: ColorScheme
 
     public var animatableData: Double {
         get { progress }
         set { progress = newValue }
     }
 
-    public init(progress: Double, axis: Axis = .horizontal, cornerRadius: CGFloat = 16, isEnabled: Bool = true) {
+    public init(
+        progress: Double,
+        axis: Axis = .horizontal,
+        cornerRadius: CGFloat = 16,
+        isEnabled: Bool = true,
+        colorScheme: ColorScheme = .dark
+    ) {
         self.progress = progress
         self.axis = axis
         self.cornerRadius = cornerRadius
         self.isEnabled = isEnabled
+        self.colorScheme = colorScheme
     }
 
     public func body(content: Content) -> some View {
@@ -98,41 +107,61 @@ public struct CraftSpecularGlareModifier: AnimatableModifier {
                 if isEnabled {
                     GeometryReader { geometry in
                         let size = geometry.size
+                        let clamped = max(0, min(progress, 1.0))
                         // Sinusoidal bell curve peak at progress = 0.5 (90 degrees midpoint of rotation)
-                        let glareIntensity = sin(max(0, min(progress, 1.0)) * .pi)
+                        let glareIntensity = sin(clamped * .pi)
 
                         if glareIntensity > 0.001 {
-                            let beamDimension = max(size.width, size.height) * 0.9
+                            let beamDimension = max(size.width, size.height) * 1.1
                             let totalSpan = (axis == .horizontal ? size.width : size.height) + beamDimension
-                            let offsetPos = (progress * totalSpan) - (beamDimension * 0.5)
+                            let offsetPos = (clamped * totalSpan) - (beamDimension * 0.5)
 
-                            LinearGradient(
-                                stops: [
-                                    .init(color: .clear, location: 0.0),
-                                    .init(color: Color.white.opacity(0.08 * glareIntensity), location: 0.2),
-                                    .init(color: Color.white.opacity(0.40 * glareIntensity), location: 0.5),
-                                    .init(color: Color.white.opacity(0.08 * glareIntensity), location: 0.8),
-                                    .init(color: .clear, location: 1.0)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                            .frame(
-                                width: axis == .horizontal ? beamDimension * 0.6 : size.width * 1.5,
-                                height: axis == .horizontal ? size.height * 1.5 : beamDimension * 0.6
-                            )
-                            .rotationEffect(.degrees(axis == .horizontal ? 25 : 65))
-                            .offset(
-                                x: axis == .horizontal ? offsetPos - (size.width * 0.2) : 0,
-                                y: axis == .vertical ? offsetPos - (size.height * 0.2) : 0
-                            )
-                            .blendMode(.plusLighter)
-                            .allowsHitTesting(false)
+                            glareGradient(intensity: glareIntensity)
+                                .frame(
+                                    width: axis == .horizontal ? beamDimension * 0.55 : size.width * 1.6,
+                                    height: axis == .horizontal ? size.height * 1.6 : beamDimension * 0.55
+                                )
+                                .rotationEffect(.degrees(axis == .horizontal ? 25 : 65))
+                                .offset(
+                                    x: axis == .horizontal ? offsetPos - (size.width * 0.2) : 0,
+                                    y: axis == .vertical ? offsetPos - (size.height * 0.2) : 0
+                                )
+                                .blendMode(colorScheme == .dark ? .plusLighter : .overlay)
+                                .allowsHitTesting(false)
                         }
                     }
                     .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
                 }
             }
+    }
+
+    @ViewBuilder
+    private func glareGradient(intensity: Double) -> some View {
+        if colorScheme == .dark {
+            LinearGradient(
+                stops: [
+                    .init(color: .clear, location: 0.0),
+                    .init(color: Color.white.opacity(0.12 * intensity), location: 0.25),
+                    .init(color: Color.white.opacity(0.45 * intensity), location: 0.50),
+                    .init(color: Color.white.opacity(0.12 * intensity), location: 0.75),
+                    .init(color: .clear, location: 1.0)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        } else {
+            LinearGradient(
+                stops: [
+                    .init(color: .clear, location: 0.0),
+                    .init(color: Color.black.opacity(0.06 * intensity), location: 0.2),
+                    .init(color: Color.white.opacity(0.60 * intensity), location: 0.5),
+                    .init(color: Color.black.opacity(0.06 * intensity), location: 0.8),
+                    .init(color: .clear, location: 1.0)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
     }
 }
 

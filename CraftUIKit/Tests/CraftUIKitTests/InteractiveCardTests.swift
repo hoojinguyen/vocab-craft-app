@@ -465,6 +465,19 @@ final class InteractiveCardTests: XCTestCase {
         XCTAssertNotNil(modifiedView)
     }
 
+    func testSpecularGlareModifierAdaptation() {
+        var glareDark = CraftSpecularGlareModifier(progress: 0.5, axis: .horizontal, cornerRadius: 16, isEnabled: true, colorScheme: .dark)
+        XCTAssertEqual(glareDark.progress, 0.5)
+        XCTAssertEqual(glareDark.colorScheme, .dark)
+
+        glareDark.animatableData = 0.75
+        XCTAssertEqual(glareDark.progress, 0.75)
+
+        let glareLight = CraftSpecularGlareModifier(progress: 0.5, axis: .vertical, cornerRadius: 12, isEnabled: true, colorScheme: .light)
+        XCTAssertEqual(glareLight.colorScheme, .light)
+        XCTAssertEqual(glareLight.axis, .vertical)
+    }
+
     func testFlipCardVerticalAxisWithSpecularDisabled() {
         var flipped = true
         let binding = Binding(get: { flipped }, set: { flipped = $0 })
