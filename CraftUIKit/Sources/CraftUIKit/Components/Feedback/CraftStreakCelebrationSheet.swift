@@ -9,6 +9,7 @@ public struct CraftStreakCelebrationSheet: View {
     public let currentStreak: Int
     public let previousStreak: Int
     public let weekDays: [CraftStreakDay]
+    public let surfaceStyle: CraftSurfaceStyle?
     public let customAccessibilityLabel: String?
     public let customAccessibilityHint: String?
     public let onContinue: () -> Void
@@ -29,6 +30,7 @@ public struct CraftStreakCelebrationSheet: View {
         currentStreak: Int,
         previousStreak: Int,
         weekDays: [CraftStreakDay] = [],
+        surfaceStyle: CraftSurfaceStyle? = nil,
         accessibilityLabel: String? = nil,
         accessibilityHint: String? = nil,
         onContinue: @escaping () -> Void
@@ -36,6 +38,7 @@ public struct CraftStreakCelebrationSheet: View {
         self.currentStreak = currentStreak
         self.previousStreak = previousStreak
         self.weekDays = weekDays
+        self.surfaceStyle = surfaceStyle
         self.customAccessibilityLabel = accessibilityLabel
         self.customAccessibilityHint = accessibilityHint
         self.onContinue = onContinue
@@ -49,6 +52,7 @@ public struct CraftStreakCelebrationSheet: View {
             unit: "ngày",
             cycleDays: weekDays.map(\.asActivityDay),
             icon: .system(CraftSymbol.streak.rawValue),
+            surfaceStyle: surfaceStyle,
             accessibilityLabel: customAccessibilityLabel,
             accessibilityHint: customAccessibilityHint,
             onContinue: onContinue

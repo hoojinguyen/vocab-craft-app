@@ -604,5 +604,31 @@ final class CraftStreakComponentTests: XCTestCase {
             XCTAssertNotNil(card.body)
         }
     }
+
+    // MARK: - Task 3: CraftCelebrationSheet & CraftStreakCelebrationSheet Surface Style Tests
+
+    func testCraftCelebrationSheetSurfaceStyles() {
+        for style in CraftSurfaceStyle.allCases {
+            let sheet = CraftCelebrationSheet(
+                currentValue: 14,
+                previousValue: 13,
+                surfaceStyle: style,
+                onContinue: {}
+            )
+            XCTAssertEqual(sheet.surfaceStyle, style)
+            XCTAssertNotNil(sheet.body)
+        }
+    }
+
+    func testCraftStreakCelebrationSheetWithSurfaceStyle() {
+        let streakSheet = CraftStreakCelebrationSheet(
+            currentStreak: 21,
+            previousStreak: 20,
+            surfaceStyle: .glass,
+            onContinue: {}
+        )
+        XCTAssertEqual(streakSheet.surfaceStyle, .glass)
+        XCTAssertNotNil(streakSheet.body)
+    }
 }
 

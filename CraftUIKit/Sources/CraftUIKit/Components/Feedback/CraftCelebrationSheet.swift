@@ -8,6 +8,8 @@ import UIKit
 /// A celebratory modal sheet presented when the user achieves a milestone, extends a streak, or completes an activity goal.
 public struct CraftCelebrationSheet: View {
     @Environment(\.craftTheme) private var theme
+    @Environment(\.craftSurfaceStyle) private var environmentSurfaceStyle
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     public let currentValue: Int
@@ -16,6 +18,7 @@ public struct CraftCelebrationSheet: View {
     public let unitKey: String?
     public let cycleDays: [CraftActivityDay]
     public let icon: CraftNodeIcon
+    public let surfaceStyle: CraftSurfaceStyle?
     public let customAccessibilityLabel: String?
     public let customAccessibilityHint: String?
     public let onContinue: () -> Void
@@ -45,6 +48,7 @@ public struct CraftCelebrationSheet: View {
         unit: String = "days",
         cycleDays: [CraftActivityDay] = [],
         icon: CraftNodeIcon = .system(CraftSymbol.streak.rawValue),
+        surfaceStyle: CraftSurfaceStyle? = nil,
         accessibilityLabel: String? = nil,
         accessibilityHint: String? = nil,
         onContinue: @escaping () -> Void
@@ -55,6 +59,7 @@ public struct CraftCelebrationSheet: View {
         self.unit = unit
         self.cycleDays = cycleDays
         self.icon = icon
+        self.surfaceStyle = surfaceStyle
         self.customAccessibilityLabel = accessibilityLabel
         self.customAccessibilityHint = accessibilityHint
         self.onContinue = onContinue
@@ -100,17 +105,14 @@ public struct CraftCelebrationSheet: View {
             .padding(.bottom, theme.spacing.xl)
             .frame(maxWidth: .infinity)
         }
-        .background(theme.colors.surfaceCard)
-        .clipShape(RoundedRectangle(cornerRadius: theme.radii.xl))
-        .overlay(
-            RoundedRectangle(cornerRadius: theme.radii.xl)
-                .strokeBorder(theme.colors.borderDefault.opacity(0.4), lineWidth: 1)
+        .craftSurface(
+            style: surfaceStyle ?? environmentSurfaceStyle,
+            shape: RoundedRectangle(cornerRadius: theme.radii.xl)
         )
         .overlay(
             RoundedRectangle(cornerRadius: theme.radii.xl)
                 .strokeBorder(theme.depths.topHighlight, lineWidth: 1.5)
         )
-        .craftShadow(theme.shadows.xl)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabelString)
         .accessibilityHint(accessibilityHintString)
@@ -124,11 +126,18 @@ public struct CraftCelebrationSheet: View {
     private var heroFlameSection: some View {
         VStack(spacing: theme.spacing.sm) {
             ZStack {
-                // Outer subtle glow halo
-                Circle()
-                    .fill(tierBaseColor.opacity(0.15))
-                    .frame(width: 120, height: 120)
-                    .blur(radius: 8)
+                // Multi-stop luminous ambient bloom
+                RadialGradient(
+                    colors: [
+                        tierBaseColor.opacity(0.30),
+                        tierBaseColor.opacity(0.12),
+                        Color.clear
+                    ],
+                    center: .center,
+                    startRadius: 20,
+                    endRadius: 70
+                )
+                .frame(width: 140, height: 140)
 
                 // Inner circle background
                 Circle()
@@ -169,6 +178,7 @@ public struct CraftCelebrationSheet: View {
                 Text("\(displayedValue)")
                     .font(theme.typography.displayHero)
                     .monospacedDigit()
+                    .contentTransition(.numericText(countsDown: false))
                     .foregroundStyle(theme.colors.textPrimary)
 
                 Text(resolvedUnit.uppercased())
