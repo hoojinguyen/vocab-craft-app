@@ -146,6 +146,39 @@ final class TokenTests: XCTestCase {
         XCTAssertEqual(theme.depths.depthLg, 6)
         XCTAssertNotNil(theme.depths.topHighlight)
     }
+
+    func testExpandedAnimationTokens() {
+        let tokens = CraftDefaultAnimationTokens()
+        _ = tokens.springSnappy
+        _ = tokens.springSmooth
+        _ = tokens.springBouncy
+        _ = tokens.springGentle
+        _ = tokens.springInteractive
+    }
+
+    func testAnimationTokensProtocolExtensionDefaults() {
+        struct MinimalAnimationTokens: CraftAnimationTokens {
+            var springSnappy: Animation = .default
+            var springSmooth: Animation = .default
+            var springBouncy: Animation = .default
+        }
+
+        let tokens = MinimalAnimationTokens()
+        _ = tokens.springSnappy
+        _ = tokens.springSmooth
+        _ = tokens.springBouncy
+        _ = tokens.springGentle
+        _ = tokens.springInteractive
+    }
+
+    func testCraftMotionGuardModifier() {
+        let modifier = CraftMotionGuardModifier(animation: .default, value: 42)
+        XCTAssertEqual(modifier.value, 42)
+        XCTAssertEqual(modifier.animation, .default)
+
+        let view = Text("Test").craftAnimation(.spring, value: 1)
+        XCTAssertNotNil(view)
+    }
 }
 
 
