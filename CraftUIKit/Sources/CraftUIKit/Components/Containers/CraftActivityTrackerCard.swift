@@ -78,6 +78,7 @@ public struct CraftActivityTrackerCard: View {
     public var body: some View {
         CraftCard(
             style: effectiveCardStyle,
+            customGradient: isGradientCard ? tierGradient : nil,
             action: onCardTap
         ) {
             VStack(alignment: .leading, spacing: theme.spacing.base) {
@@ -119,6 +120,10 @@ public struct CraftActivityTrackerCard: View {
         return cardStyle
     }
 
+    private var isGradientCard: Bool {
+        effectiveCardStyle == .gradient
+    }
+
     // MARK: - Header Row
 
     private var headerRow: some View {
@@ -133,16 +138,16 @@ public struct CraftActivityTrackerCard: View {
                     Text("\(data.currentValue)")
                         .font(theme.typography.metricRounded)
                         .monospacedDigit()
-                        .foregroundStyle(theme.colors.textPrimary)
+                        .foregroundStyle(isGradientCard ? Color.white : theme.colors.textPrimary)
 
                     Text(resolvedUnit)
                         .font(theme.typography.label)
-                        .foregroundStyle(theme.colors.textSecondary)
+                        .foregroundStyle(isGradientCard ? Color.white.opacity(0.85) : theme.colors.textSecondary)
                 }
 
                 Text(tierTitle)
                     .font(theme.typography.caption)
-                    .foregroundStyle(theme.colors.textMuted)
+                    .foregroundStyle(isGradientCard ? Color.white.opacity(0.75) : theme.colors.textMuted)
             }
 
             Spacer(minLength: theme.spacing.xs)
@@ -152,10 +157,15 @@ public struct CraftActivityTrackerCard: View {
                 CraftBadge(
                     CraftLocalized.format("craft.streak.bestRecord", data.bestRecord),
                     symbol: .trophy,
-                    variant: .subtle,
+                    variant: isGradientCard ? .solid : .subtle,
                     tone: .neutral,
                     size: .sm,
-                    customTint: theme.colors.accent
+                    customTint: isGradientCard ? Color.white.opacity(0.25) : theme.colors.accent
+                )
+                .overlay(
+                    isGradientCard
+                        ? Capsule().strokeBorder(Color.white.opacity(0.4), lineWidth: 0.8)
+                        : nil
                 )
             }
         }
@@ -164,9 +174,16 @@ public struct CraftActivityTrackerCard: View {
     @ViewBuilder
     private var heroIconView: some View {
         if icon.isSystem {
-            Image(systemName: icon.name)
-                .font(.system(size: 28, weight: .bold))
-                .foregroundStyle(tierGradient)
+            if isGradientCard {
+                Image(systemName: icon.name)
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundStyle(Color.white)
+                    .shadow(color: Color.black.opacity(0.20), radius: 2, y: 1)
+            } else {
+                Image(systemName: icon.name)
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundStyle(tierGradient)
+            }
         } else {
             Image(icon.name)
                 .resizable()
@@ -183,7 +200,11 @@ public struct CraftActivityTrackerCard: View {
                     Text(day.weekdaySymbol)
                         .font(theme.typography.caption)
                         .fontWeight(day.isToday ? .bold : .medium)
-                        .foregroundStyle(day.isToday ? theme.colors.textPrimary : theme.colors.textMuted)
+                        .foregroundStyle(
+                            isGradientCard
+                                ? (day.isToday ? Color.white : Color.white.opacity(0.70))
+                                : (day.isToday ? theme.colors.textPrimary : theme.colors.textMuted)
+                        )
 
                     dayNodeView(for: day)
                 }
@@ -192,8 +213,18 @@ public struct CraftActivityTrackerCard: View {
         }
         .padding(.horizontal, theme.spacing.xs)
         .padding(.vertical, theme.spacing.sm)
-        .background(theme.colors.surfaceSubtle.opacity(0.35))
+        .background(
+            isGradientCard
+                ? Color.black.opacity(0.16)
+                : theme.colors.surfaceSubtle.opacity(0.35)
+        )
         .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
+        .overlay(
+            isGradientCard
+                ? RoundedRectangle(cornerRadius: theme.radii.md)
+                    .strokeBorder(Color.white.opacity(0.20), lineWidth: 0.8)
+                : nil
+        )
     }
 
     @ViewBuilder
@@ -232,17 +263,17 @@ public struct CraftActivityTrackerCard: View {
                 ZStack {
                     // Bottom 3D Rim
                     Circle()
-                        .fill(tierRimColor)
+                        .fill(isGradientCard ? Color.black.opacity(0.30) : tierRimColor)
                         .frame(width: nodeSize, height: nodeSize)
                         .offset(y: depth)
 
                     // Top Face
                     Circle()
-                        .fill(tierGradient)
+                        .fill(isGradientCard ? AnyShapeStyle(Color.white) : AnyShapeStyle(tierGradient))
                         .frame(width: nodeSize, height: nodeSize)
                         .overlay(
                             Circle()
-                                .stroke(theme.depths.topHighlight, lineWidth: 1.0)
+                                .stroke(isGradientCard ? AnyShapeStyle(Color.white) : AnyShapeStyle(theme.depths.topHighlight), lineWidth: 1.0)
                         )
                         .overlay(
                             nodeFaceIcon
@@ -253,19 +284,28 @@ public struct CraftActivityTrackerCard: View {
 
             case .pending:
                 Circle()
-                    .fill(day.isToday ? tierBaseColor.opacity(0.12) : theme.colors.surfaceSubtle.opacity(0.5))
+                    .fill(
+                        isGradientCard
+                            ? (day.isToday ? Color.white.opacity(0.22) : Color.white.opacity(0.08))
+                            : (day.isToday ? tierBaseColor.opacity(0.12) : theme.colors.surfaceSubtle.opacity(0.5))
+                    )
                     .frame(width: nodeSize, height: nodeSize)
                     .overlay(
                         Circle()
                             .stroke(
-                                day.isToday ? tierBaseColor : theme.colors.borderDefault,
+                                isGradientCard
+                                    ? (day.isToday ? Color.white : Color.white.opacity(0.35))
+                                    : (day.isToday ? tierBaseColor : theme.colors.borderDefault),
                                 style: StrokeStyle(lineWidth: 1.5, dash: day.isToday ? [4, 3] : [3, 3])
                             )
                     )
                     .overlay {
                         if day.isToday && !reduceMotion {
                             Circle()
-                                .stroke(tierBaseColor.opacity(isPulsing ? 0.6 : 0.0), lineWidth: 2.5)
+                                .stroke(
+                                    (isGradientCard ? Color.white : tierBaseColor).opacity(isPulsing ? 0.7 : 0.0),
+                                    lineWidth: 2.5
+                                )
                                 .scaleEffect(isPulsing ? 1.25 : 1.0)
                                 .opacity(isPulsing ? 0.0 : 1.0)
                         }
@@ -275,49 +315,51 @@ public struct CraftActivityTrackerCard: View {
                 ZStack {
                     // Bottom 3D Shield Rim
                     Circle()
-                        .fill(theme.colors.streakFreeze.opacity(0.35))
+                        .fill(isGradientCard ? Color.black.opacity(0.25) : theme.colors.streakFreeze.opacity(0.35))
                         .frame(width: nodeSize, height: nodeSize)
                         .offset(y: depth)
 
                     // Top Face
                     Circle()
-                        .fill(theme.colors.streakFreeze.opacity(0.14))
+                        .fill(isGradientCard ? Color.white.opacity(0.25) : theme.colors.streakFreeze.opacity(0.14))
                         .frame(width: nodeSize, height: nodeSize)
                         .overlay(
                             Circle()
-                                .stroke(theme.depths.topHighlight, lineWidth: 1.0)
+                                .stroke(isGradientCard ? AnyShapeStyle(Color.white.opacity(0.40)) : AnyShapeStyle(theme.depths.topHighlight), lineWidth: 1.0)
                         )
                         .overlay(
                             Circle()
-                                .stroke(theme.colors.streakFreeze.opacity(0.35), lineWidth: 1.0)
+                                .stroke(isGradientCard ? Color.white.opacity(0.60) : theme.colors.streakFreeze.opacity(0.35), lineWidth: 1.0)
                         )
                         .overlay(
                             Image(systemName: "snowflake")
                                 .font(.system(size: 14, weight: .bold))
-                                .foregroundStyle(theme.colors.streakFreeze)
+                                .foregroundStyle(isGradientCard ? Color(hex: "E0F2FE") : theme.colors.streakFreeze)
                         )
                 }
                 .frame(width: nodeSize, height: nodeSize + depth)
 
             case .missed:
                 Circle()
-                    .fill(theme.colors.surfaceSubtle)
+                    .fill(isGradientCard ? Color.white.opacity(0.12) : theme.colors.surfaceSubtle)
                     .frame(width: nodeSize, height: nodeSize)
                     .overlay(
                         Circle()
-                            .stroke(theme.colors.borderDefault.opacity(0.4), lineWidth: 0.5)
+                            .stroke(isGradientCard ? Color.white.opacity(0.25) : theme.colors.borderDefault.opacity(0.4), lineWidth: 0.5)
                     )
                     .overlay(
                         Circle()
-                            .fill(theme.colors.textMuted.opacity(0.35))
+                            .fill(isGradientCard ? Color.white.opacity(0.60) : theme.colors.textMuted.opacity(0.35))
                             .frame(width: 6, height: 6)
                     )
 
             case .upcoming:
                 Circle()
-                    .stroke(theme.colors.borderDefault.opacity(0.7), lineWidth: 1.0)
+                    .stroke(isGradientCard ? Color.white.opacity(0.35) : theme.colors.borderDefault.opacity(0.7), lineWidth: 1.0)
                     .frame(width: nodeSize, height: nodeSize)
-                    .background(Circle().fill(theme.colors.surfaceSubtle.opacity(0.25)))
+                    .background(
+                        Circle().fill(isGradientCard ? Color.white.opacity(0.08) : theme.colors.surfaceSubtle.opacity(0.25))
+                    )
             }
         }
         .frame(width: nodeSize, height: nodeSize + depth)
@@ -328,7 +370,7 @@ public struct CraftActivityTrackerCard: View {
         if icon.isSystem {
             Image(systemName: icon.name)
                 .font(.system(size: 14, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(isGradientCard ? tierBaseColor : Color.white)
         } else {
             Image(icon.name)
                 .resizable()
@@ -342,7 +384,7 @@ public struct CraftActivityTrackerCard: View {
     private var footerRow: some View {
         VStack(spacing: theme.spacing.xs) {
             Divider()
-                .overlay(theme.colors.borderDefault.opacity(0.5))
+                .overlay(isGradientCard ? Color.white.opacity(0.22) : theme.colors.borderDefault.opacity(0.5))
 
             HStack(alignment: .center, spacing: theme.spacing.sm) {
                 // Shield Counter
@@ -384,9 +426,15 @@ public struct CraftActivityTrackerCard: View {
         CraftBadge(
             CraftLocalized.format("craft.streak.freezeShield", data.shieldTokens, data.maxShieldTokens),
             iconName: "snowflake",
-            variant: .subtle,
-            tone: data.shieldTokens > 0 ? .primary : .neutral,
-            size: .sm
+            variant: isGradientCard ? .solid : .subtle,
+            tone: isGradientCard ? .neutral : (data.shieldTokens > 0 ? .primary : .neutral),
+            size: .sm,
+            customTint: isGradientCard ? Color.white.opacity(0.25) : nil
+        )
+        .overlay(
+            isGradientCard
+                ? Capsule().strokeBorder(Color.white.opacity(0.4), lineWidth: 0.8)
+                : nil
         )
         .fixedSize(horizontal: true, vertical: false)
     }
@@ -395,14 +443,15 @@ public struct CraftActivityTrackerCard: View {
         VStack(alignment: .trailing, spacing: 4) {
             Text(milestoneDescriptionText)
                 .font(theme.typography.caption)
-                .foregroundStyle(theme.colors.textSecondary)
+                .foregroundStyle(isGradientCard ? Color.white.opacity(0.90) : theme.colors.textSecondary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.85)
 
             CraftProgressBar(
                 progress: data.milestoneProgress,
                 height: 6,
-                tintColor: tierBaseColor
+                tintColor: isGradientCard ? Color.white : tierBaseColor,
+                trackColor: isGradientCard ? Color.white.opacity(0.25) : nil
             )
             .frame(minWidth: 60, maxWidth: 140)
         }

@@ -835,6 +835,37 @@ final class CraftStreakComponentTests: XCTestCase {
             XCTAssertNotNil(card.body)
         }
     }
+
+    func testCraftStreakCardGradientStyleHighContrastTiers() {
+        let mockDays: [CraftStreakDay] = [
+            .init(id: "1", weekdaySymbol: "T2", status: .completed),
+            .init(id: "2", weekdaySymbol: "T3", status: .completed),
+            .init(id: "3", weekdaySymbol: "T4", status: .frozen),
+            .init(id: "4", weekdaySymbol: "T5", status: .pending, isToday: true),
+            .init(id: "5", weekdaySymbol: "T6", status: .missed),
+            .init(id: "6", weekdaySymbol: "T7", status: .upcoming),
+            .init(id: "7", weekdaySymbol: "CN", status: .upcoming)
+        ]
+
+        let tiers: [CraftStreakTier] = [.starter, .blaze, .legendary]
+        let streakCounts = [3, 14, 45]
+
+        for (tier, count) in zip(tiers, streakCounts) {
+            let data = CraftStreakData(
+                currentStreak: count,
+                bestStreak: 60,
+                freezeTokens: 2,
+                maxFreezeTokens: 3,
+                nextMilestoneDays: count + 7,
+                isCompletedToday: false,
+                weekDays: mockDays
+            )
+            let card = CraftStreakCard(data: data, cardStyle: .gradient)
+            XCTAssertEqual(card.data.tier, tier)
+            XCTAssertEqual(card.cardStyle, .gradient)
+            XCTAssertNotNil(card.body)
+        }
+    }
 }
 
 
