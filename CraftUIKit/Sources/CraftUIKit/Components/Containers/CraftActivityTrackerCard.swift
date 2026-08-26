@@ -15,6 +15,7 @@ public struct CraftActivityTrackerCard: View {
     public let icon: CraftNodeIcon
     public let customAccessibilityLabel: String?
     public let customAccessibilityHint: String?
+    public let onCardTap: (() -> Void)?
     public let onShieldTap: (() -> Void)?
     public let onMilestoneTap: (() -> Void)?
     public let onDayTap: ((CraftActivityDay) -> Void)?
@@ -28,6 +29,7 @@ public struct CraftActivityTrackerCard: View {
         icon: CraftNodeIcon = .system(CraftSymbol.streak.rawValue),
         accessibilityLabel: String? = nil,
         accessibilityHint: String? = nil,
+        onCardTap: (() -> Void)? = nil,
         onShieldTap: (() -> Void)? = nil,
         onMilestoneTap: (() -> Void)? = nil,
         onDayTap: ((CraftActivityDay) -> Void)? = nil
@@ -42,6 +44,7 @@ public struct CraftActivityTrackerCard: View {
         self.icon = icon
         self.customAccessibilityLabel = accessibilityLabel
         self.customAccessibilityHint = accessibilityHint
+        self.onCardTap = onCardTap
         self.onShieldTap = onShieldTap
         self.onMilestoneTap = onMilestoneTap
         self.onDayTap = onDayTap
@@ -53,6 +56,7 @@ public struct CraftActivityTrackerCard: View {
         icon: CraftNodeIcon = .system(CraftSymbol.streak.rawValue),
         accessibilityLabel: String? = nil,
         accessibilityHint: String? = nil,
+        onCardTap: (() -> Void)? = nil,
         onShieldTap: (() -> Void)? = nil,
         onMilestoneTap: (() -> Void)? = nil,
         onDayTap: ((CraftActivityDay) -> Void)? = nil
@@ -64,6 +68,7 @@ public struct CraftActivityTrackerCard: View {
             icon: icon,
             accessibilityLabel: accessibilityLabel,
             accessibilityHint: accessibilityHint,
+            onCardTap: onCardTap,
             onShieldTap: onShieldTap,
             onMilestoneTap: onMilestoneTap,
             onDayTap: onDayTap
@@ -71,7 +76,10 @@ public struct CraftActivityTrackerCard: View {
     }
 
     public var body: some View {
-        CraftCard(style: effectiveCardStyle) {
+        CraftCard(
+            style: effectiveCardStyle,
+            action: onCardTap
+        ) {
             VStack(alignment: .leading, spacing: theme.spacing.base) {
                 headerRow
                 weekTrackRow

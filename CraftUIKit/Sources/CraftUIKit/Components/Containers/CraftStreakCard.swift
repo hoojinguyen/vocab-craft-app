@@ -10,6 +10,7 @@ public struct CraftStreakCard: View {
     public let surfaceStyle: CraftSurfaceStyle?
     public let customAccessibilityLabel: String?
     public let customAccessibilityHint: String?
+    public let onTap: (() -> Void)?
     public let onFreezeTap: (() -> Void)?
     public let onMilestoneTap: (() -> Void)?
     public let onDayTap: ((CraftStreakDay) -> Void)?
@@ -20,6 +21,7 @@ public struct CraftStreakCard: View {
         surfaceStyle: CraftSurfaceStyle? = nil,
         accessibilityLabel: String? = nil,
         accessibilityHint: String? = nil,
+        onTap: (() -> Void)? = nil,
         onFreezeTap: (() -> Void)? = nil,
         onMilestoneTap: (() -> Void)? = nil,
         onDayTap: ((CraftStreakDay) -> Void)? = nil
@@ -33,6 +35,7 @@ public struct CraftStreakCard: View {
         }
         self.customAccessibilityLabel = accessibilityLabel
         self.customAccessibilityHint = accessibilityHint
+        self.onTap = onTap
         self.onFreezeTap = onFreezeTap
         self.onMilestoneTap = onMilestoneTap
         self.onDayTap = onDayTap
@@ -43,6 +46,7 @@ public struct CraftStreakCard: View {
         surfaceStyle: CraftSurfaceStyle,
         accessibilityLabel: String? = nil,
         accessibilityHint: String? = nil,
+        onTap: (() -> Void)? = nil,
         onFreezeTap: (() -> Void)? = nil,
         onMilestoneTap: (() -> Void)? = nil,
         onDayTap: ((CraftStreakDay) -> Void)? = nil
@@ -53,6 +57,7 @@ public struct CraftStreakCard: View {
             surfaceStyle: surfaceStyle,
             accessibilityLabel: accessibilityLabel,
             accessibilityHint: accessibilityHint,
+            onTap: onTap,
             onFreezeTap: onFreezeTap,
             onMilestoneTap: onMilestoneTap,
             onDayTap: onDayTap
@@ -67,6 +72,7 @@ public struct CraftStreakCard: View {
             icon: .system(CraftSymbol.streak.rawValue),
             accessibilityLabel: customAccessibilityLabel,
             accessibilityHint: customAccessibilityHint,
+            onCardTap: onTap,
             onShieldTap: onFreezeTap,
             onMilestoneTap: onMilestoneTap,
             onDayTap: onDayTap.map { callback in

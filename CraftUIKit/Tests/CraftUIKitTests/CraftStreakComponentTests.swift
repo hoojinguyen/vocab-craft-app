@@ -694,6 +694,74 @@ final class CraftStreakComponentTests: XCTestCase {
             }
         }
     }
+
+    // MARK: - Task 3: Card-Level Tap & Nested Child Interactions Tests
+
+    func testCraftStreakCardCardLevelTapAndChildTaps() {
+        var cardTapped = false
+        var dayTapped = false
+        var freezeTapped = false
+
+        let day = CraftStreakDay(id: "1", weekdaySymbol: "T2", status: .completed)
+        let data = CraftStreakData(currentStreak: 14, bestStreak: 30, weekDays: [day])
+
+        let card = CraftStreakCard(
+            data: data,
+            onTap: { cardTapped = true },
+            onFreezeTap: { freezeTapped = true },
+            onDayTap: { _ in dayTapped = true }
+        )
+
+        XCTAssertNotNil(card.body)
+        XCTAssertNotNil(card.onTap)
+        XCTAssertNotNil(card.onFreezeTap)
+        XCTAssertNotNil(card.onDayTap)
+
+        card.onTap?()
+        XCTAssertTrue(cardTapped)
+
+        card.onFreezeTap?()
+        XCTAssertTrue(freezeTapped)
+
+        card.onDayTap?(day)
+        XCTAssertTrue(dayTapped)
+    }
+
+    func testCraftActivityTrackerCardCardLevelTapAndChildTaps() {
+        var cardTapped = false
+        var dayTapped = false
+        var shieldTapped = false
+        var milestoneTapped = false
+
+        let day = CraftActivityDay(id: "1", weekdaySymbol: "T2", status: .completed)
+        let data = CraftActivityTrackerData(currentValue: 14, bestRecord: 30, nextMilestone: 20, cycleDays: [day])
+
+        let card = CraftActivityTrackerCard(
+            data: data,
+            onCardTap: { cardTapped = true },
+            onShieldTap: { shieldTapped = true },
+            onMilestoneTap: { milestoneTapped = true },
+            onDayTap: { _ in dayTapped = true }
+        )
+
+        XCTAssertNotNil(card.body)
+        XCTAssertNotNil(card.onCardTap)
+        XCTAssertNotNil(card.onShieldTap)
+        XCTAssertNotNil(card.onMilestoneTap)
+        XCTAssertNotNil(card.onDayTap)
+
+        card.onCardTap?()
+        XCTAssertTrue(cardTapped)
+
+        card.onShieldTap?()
+        XCTAssertTrue(shieldTapped)
+
+        card.onMilestoneTap?()
+        XCTAssertTrue(milestoneTapped)
+
+        card.onDayTap?(day)
+        XCTAssertTrue(dayTapped)
+    }
 }
 
 
