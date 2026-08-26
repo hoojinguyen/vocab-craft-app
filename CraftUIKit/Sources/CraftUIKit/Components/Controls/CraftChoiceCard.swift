@@ -425,10 +425,8 @@ public struct CraftChoiceCard: View {
         switch state {
         case .idle:
             return theme.colors.textPrimary
-        case .selected:
+        case .selected, .correct, .wrong:
             return theme.colors.textInverse
-        case .correct, .wrong:
-            return .white
         case .disabled:
             return theme.colors.textMuted
         }
@@ -457,7 +455,7 @@ public struct CraftChoiceCard: View {
         case .idle:
             return theme.colors.borderDefault
         case .selected, .correct, .wrong:
-            return Color.white.opacity(0.35)
+            return theme.colors.textInverse.opacity(0.35)
         case .disabled:
             return theme.colors.borderDefault.opacity(0.4)
         }
