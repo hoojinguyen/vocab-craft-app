@@ -2830,30 +2830,26 @@ private struct CatalogVoiceMatchSection: View {
                     CraftText("CraftTactileMicHubView States", style: .headline)
                     CraftText("Idle, listening breathing wave, analyzing spinner, and completed evaluation retry.", style: .caption, color: theme.colors.textSecondary)
 
-                    HStack(spacing: theme.spacing.lg) {
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: theme.spacing.md) {
                         VStack(spacing: theme.spacing.xs) {
                             CraftTactileMicHubView(speechState: .idle, onTapMic: {})
                             CraftText("Idle", style: .caption, color: theme.colors.textMuted)
                         }
-                        .frame(maxWidth: .infinity)
 
                         VStack(spacing: theme.spacing.xs) {
                             CraftTactileMicHubView(speechState: .listening(audioLevels: [0.3, 0.7, 0.9]), onTapMic: {})
                             CraftText("Listening", style: .caption, color: theme.colors.textMuted)
                         }
-                        .frame(maxWidth: .infinity)
 
                         VStack(spacing: theme.spacing.xs) {
                             CraftTactileMicHubView(speechState: .processing, onTapMic: {})
                             CraftText("Processing", style: .caption, color: theme.colors.textMuted)
                         }
-                        .frame(maxWidth: .infinity)
 
                         VStack(spacing: theme.spacing.xs) {
                             CraftTactileMicHubView(speechState: .evaluated(overallScore: 92), onTapMic: {})
                             CraftText("Retry", style: .caption, color: theme.colors.textMuted)
                         }
-                        .frame(maxWidth: .infinity)
                     }
                     .padding(.vertical, theme.spacing.xs)
                 }

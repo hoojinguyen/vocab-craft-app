@@ -61,45 +61,53 @@ public struct CraftVoiceMatchCard: View {
     }
 
     public var body: some View {
-        VStack(spacing: theme.spacing.lg) {
+        VStack(spacing: theme.spacing.md) {
             // Header / Instruction & Score
-            HStack(alignment: .center) {
-                if let customInstruction {
-                    Text(customInstruction)
-                        .font(theme.typography.label)
-                        .foregroundColor(theme.colors.textSecondary)
-                } else if let subtitle {
+            if customInstruction != nil || isEvaluated {
+                HStack(alignment: .center) {
+                    if let customInstruction {
+                        Text(customInstruction)
+                            .font(theme.typography.label)
+                            .foregroundColor(theme.colors.textSecondary)
+                    }
+
+                    Spacer()
+
+                    if case let .evaluated(score) = speechState {
+                        HStack(spacing: theme.spacing.xs) {
+                            Image(systemName: "bolt.fill")
+                                .font(.caption2)
+                            Text(CraftLocalized.format("craft.speech.score_format", Int(score)))
+                                .font(theme.typography.label)
+                                .fontWeight(.bold)
+                        }
+                        .padding(.horizontal, theme.spacing.sm)
+                        .padding(.vertical, theme.spacing.xs / 2)
+                        .background(score >= 80 ? theme.colors.statusSuccess.opacity(0.12) : theme.colors.statusWarning.opacity(0.12))
+                        .foregroundColor(score >= 80 ? theme.colors.statusSuccess : theme.colors.statusWarning)
+                        .clipShape(Capsule())
+                    }
+                }
+            }
+
+            // Word Tokens Flow & Centered Subtitle
+            VStack(spacing: theme.spacing.sm) {
+                CraftSpeechWordFlowLayout(spacing: theme.spacing.xs, lineSpacing: theme.spacing.xs, alignment: .center) {
+                    ForEach(activeTokens) { token in
+                        CraftSpeechWordTokenView(token: token)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+
+                if let subtitle, !subtitle.isEmpty {
                     Text(subtitle)
                         .font(theme.typography.bodyMedium)
                         .foregroundColor(theme.colors.textSecondary)
-                }
-
-                Spacer()
-
-                if case let .evaluated(score) = speechState {
-                    HStack(spacing: theme.spacing.xs) {
-                        Image(systemName: "bolt.fill")
-                            .font(.caption2)
-                        Text(CraftLocalized.format("craft.speech.score_format", Int(score)))
-                            .font(theme.typography.label)
-                            .fontWeight(.bold)
-                    }
-                    .padding(.horizontal, theme.spacing.sm)
-                    .padding(.vertical, theme.spacing.xs / 2)
-                    .background(score >= 80 ? theme.colors.statusSuccess.opacity(0.12) : theme.colors.statusWarning.opacity(0.12))
-                    .foregroundColor(score >= 80 ? theme.colors.statusSuccess : theme.colors.statusWarning)
-                    .clipShape(Capsule())
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, theme.spacing.sm)
                 }
             }
-
-            // Word Tokens Flow
-            CraftSpeechWordFlowLayout(spacing: theme.spacing.xs, lineSpacing: theme.spacing.xs) {
-                ForEach(activeTokens) { token in
-                    CraftSpeechWordTokenView(token: token)
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, theme.spacing.sm)
+            .padding(.vertical, theme.spacing.xs)
 
             // Waveform & Transcript feedback
             if isListening {
@@ -107,17 +115,21 @@ public struct CraftVoiceMatchCard: View {
                     CraftWaveformView(
                         audioLevels: audioLevels,
                         barCount: 16,
-                        isRecording: true
+                        isRecording: true,
+                        activeColor: theme.colors.brandPrimary
                     )
 
                     if let actualText, !actualText.isEmpty {
                         Text(actualText)
                             .font(theme.typography.bodyMedium)
+                            .fontWeight(.medium)
                             .foregroundColor(theme.colors.textPrimary)
                             .multilineTextAlignment(.center)
                             .transition(.opacity)
                     }
                 }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, theme.spacing.xs)
                 .transition(.scale.combined(with: .opacity))
             }
 
@@ -132,7 +144,7 @@ public struct CraftVoiceMatchCard: View {
         .clipShape(RoundedRectangle(cornerRadius: theme.radii.xl, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: theme.radii.xl, style: .continuous)
-                .stroke(isListening ? theme.colors.statusDanger.opacity(0.4) : theme.colors.borderDefault, lineWidth: 1.5)
+                .stroke(isListening ? theme.colors.brandPrimary.opacity(0.4) : theme.colors.borderDefault, lineWidth: 1.5)
         )
         .shadow(
             color: Color.black.opacity(0.04),
@@ -141,6 +153,11 @@ public struct CraftVoiceMatchCard: View {
             y: 4
         )
         .animation(theme.animations.springSnappy, value: speechState)
+    }
+
+    private var isEvaluated: Bool {
+        if case .evaluated = speechState { return true }
+        return false
     }
 }
 

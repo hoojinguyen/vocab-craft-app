@@ -52,18 +52,18 @@ public struct CraftTactileMicHubView: View {
                         .fill(
                             LinearGradient(
                                 colors: isListening
-                                    ? [theme.colors.statusDanger, theme.colors.statusDanger.opacity(0.85)]
-                                    : [theme.colors.brandPrimary, theme.colors.brandPrimary.opacity(0.85)],
+                                    ? [theme.colors.brandPrimary, theme.colors.brandSecondary]
+                                    : [theme.colors.brandPrimary, theme.colors.brandPrimary.opacity(0.88)],
                                 startPoint: .top,
                                 endPoint: .bottom
                             )
                         )
                         .frame(width: 80, height: 80)
                         .shadow(
-                            color: isListening ? theme.colors.statusDanger.opacity(0.35) : theme.colors.brandPrimary.opacity(0.35),
-                            radius: 12,
+                            color: isListening ? theme.colors.brandPrimary.opacity(0.45) : theme.colors.brandPrimary.opacity(0.25),
+                            radius: isListening ? 16 : 8,
                             x: 0,
-                            y: 6
+                            y: isListening ? 6 : 4
                         )
 
                     if isProcessing {
@@ -81,12 +81,13 @@ public struct CraftTactileMicHubView: View {
                 .contentShape(Circle())
             }
             .buttonStyle(CraftTactileButtonStyle())
+            .disabled(isProcessing)
             .accessibilityLabel(isListening ? CraftLocalized.string("craft.speech.mic_stop_a11y") : CraftLocalized.string("craft.speech.mic_start_a11y"))
 
             Text(statusSubtitle)
                 .font(theme.typography.label)
                 .fontWeight(.medium)
-                .foregroundColor(isListening ? theme.colors.statusDanger : theme.colors.textSecondary)
+                .foregroundColor(isListening ? theme.colors.brandPrimary : theme.colors.textSecondary)
         }
         .sensoryFeedback(.impact(weight: .medium), trigger: isListening)
     }

@@ -19,6 +19,7 @@ public struct CraftWaveformView: View {
     public let inactiveColor: Color?
 
     @State private var pulseGlow: Bool = false
+    @State private var simulatedLevels: [CGFloat] = []
 
     public init(
         audioLevels: [CGFloat] = [],
@@ -53,6 +54,14 @@ public struct CraftWaveformView: View {
         return levels
     }
 
+    /// Effective audio levels taking live dynamic animation into account during recording.
+    public var effectiveLevels: [CGFloat] {
+        if isRecording && (audioLevels.isEmpty || !audioLevels.contains(where: { $0 > 0.05 })) && !simulatedLevels.isEmpty {
+            return simulatedLevels
+        }
+        return normalizedLevels
+    }
+
     /// Computes the visual height for a given normalized level.
     public func barHeight(for level: CGFloat) -> CGFloat {
         let clamped = min(max(level, 0.0), 1.0)
@@ -66,8 +75,8 @@ public struct CraftWaveformView: View {
     }
 
     public var body: some View {
-        let currentLevels = normalizedLevels
-        let resolvedActiveColor = activeColor ?? (isRecording ? theme.colors.statusDanger : theme.colors.brandPrimary)
+        let currentLevels = effectiveLevels
+        let resolvedActiveColor = activeColor ?? theme.colors.brandPrimary
         let resolvedInactiveColor = inactiveColor ?? theme.colors.borderDefault
 
         HStack(alignment: .center, spacing: spacing) {
@@ -87,7 +96,7 @@ public struct CraftWaveformView: View {
         .padding(.vertical, theme.spacing.xs / 2)
         .background(
             Capsule()
-                .fill(isRecording ? resolvedActiveColor.opacity(pulseGlow ? 0.15 : 0.05) : Color.clear)
+                .fill(isRecording ? resolvedActiveColor.opacity(pulseGlow ? 0.18 : 0.06) : Color.clear)
                 .blur(radius: isRecording ? (pulseGlow ? 8 : 4) : 0)
         )
         .onAppear {
@@ -107,6 +116,31 @@ public struct CraftWaveformView: View {
                 }
             } else {
                 pulseGlow = false
+            }
+        }
+        .task(id: isRecording) {
+            guard isRecording else {
+                simulatedLevels = []
+                return
+            }
+            // Seed initial wave shape
+            simulatedLevels = (0..<barCount).map { i in
+                let pos = Double(i) / Double(max(1, barCount - 1))
+                return CGFloat(sin(pos * .pi) * 0.4)
+            }
+            while !Task.isCancelled && isRecording {
+                try? await Task.sleep(for: .milliseconds(120))
+                guard !Task.isCancelled && isRecording else { break }
+                if !reduceMotion {
+                    withAnimation(theme.animations.springSnappy) {
+                        simulatedLevels = (0..<barCount).map { i in
+                            let pos = Double(i) / Double(max(1, barCount - 1))
+                            let centerBell = sin(pos * .pi)
+                            let randomFactor = Double.random(in: 0.25...1.0)
+                            return CGFloat(centerBell * randomFactor)
+                        }
+                    }
+                }
             }
         }
         .accessibilityElement(children: .ignore)
