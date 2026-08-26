@@ -47,23 +47,25 @@ public enum CraftStreakBadgeSize: String, Sendable, CaseIterable, Equatable {
 /// A compact, HIG-compliant flame streak badge used in navigation bars and header views.
 public struct CraftStreakBadge: View {
     @Environment(\.craftTheme) private var theme
+    @Environment(\.craftSurfaceStyle) private var environmentSurfaceStyle
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     public let count: Int
     public let tier: CraftStreakTier
     public let isCompletedToday: Bool
     public let size: CraftStreakBadgeSize
+    public let style: CraftSurfaceStyle?
     public let customAccessibilityLabel: String?
     public let customAccessibilityHint: String?
     public let onTap: (() -> Void)?
-
-    @State private var isPulsing = false
 
     public init(
         count: Int,
         tier: CraftStreakTier? = nil,
         isCompletedToday: Bool = false,
         size: CraftStreakBadgeSize = .md,
+        style: CraftSurfaceStyle? = nil,
         accessibilityLabel: String? = nil,
         accessibilityHint: String? = nil,
         onTap: (() -> Void)? = nil
@@ -72,6 +74,7 @@ public struct CraftStreakBadge: View {
         self.tier = tier ?? CraftStreakTier.tier(for: count)
         self.isCompletedToday = isCompletedToday
         self.size = size
+        self.style = style
         self.customAccessibilityLabel = accessibilityLabel
         self.customAccessibilityHint = accessibilityHint
         self.onTap = onTap
@@ -102,11 +105,12 @@ public struct CraftStreakBadge: View {
     // MARK: - Badge Pill Content
 
     private var badgePill: some View {
-        HStack(spacing: 4) {
-            // Flame Icon colored by Tier Gradient
+        let content = HStack(spacing: 4) {
+            // Flame Icon colored by Tier Gradient with SF Symbol Pulse Effect
             Image(systemName: CraftSymbol.streak.rawValue)
                 .font(.system(size: size.iconSize, weight: .bold))
                 .foregroundStyle(tierGradient)
+                .symbolEffect(.pulse.byLayer, options: .repeating, isActive: !isCompletedToday && !reduceMotion)
 
             // Monospaced Digit Counter
             Text("\(count)")
@@ -115,28 +119,57 @@ public struct CraftStreakBadge: View {
                 .foregroundStyle(theme.colors.textPrimary)
         }
         .padding(.horizontal, size.horizontalPadding)
-        .frame(height: size.height)
-        .background(pillBackground)
-        .clipShape(Capsule())
-        .overlay(pillBorder)
-        .overlay(
-            Capsule()
-                .strokeBorder(theme.depths.topHighlight, lineWidth: 1.0)
-        )
-        .craftShadow(isCompletedToday ? theme.shadows.sm : CraftShadow(color: .clear, radius: 0))
-        .scaleEffect(!reduceMotion && !isCompletedToday && isPulsing ? 1.04 : 1.0)
-        .opacity(!reduceMotion && !isCompletedToday && isPulsing ? 0.90 : 1.0)
-        .onAppear {
-            updatePulseAnimation()
+        .padding(.vertical, size == .sm ? 4 : 6)
+        .frame(minHeight: size.height)
+
+        return surfaceDecorated(content)
+    }
+
+    // MARK: - Surface Decoration
+
+    @ViewBuilder
+    private func surfaceDecorated<V: View>(_ content: V) -> some View {
+        if let resolvedStyle {
+            content.craftSurface(
+                style: resolvedStyle,
+                shape: Capsule(),
+                customTint: surfaceTint(for: resolvedStyle)
+            )
+        } else {
+            content
+                .background(pillBackground)
+                .clipShape(Capsule())
+                .overlay(pillBorder)
+                .overlay(
+                    Capsule()
+                        .strokeBorder(theme.depths.topHighlight, lineWidth: 1.0)
+                )
+                .craftShadow(isCompletedToday ? theme.shadows.sm : CraftShadow(color: .clear, radius: 0))
         }
-        .onDisappear {
-            isPulsing = false
+    }
+
+    private var resolvedStyle: CraftSurfaceStyle? {
+        if let style {
+            return style
         }
-        .onChange(of: isCompletedToday) { _, _ in
-            updatePulseAnimation()
+        if environmentSurfaceStyle != .flat {
+            return environmentSurfaceStyle
         }
-        .onChange(of: reduceMotion) { _, _ in
-            updatePulseAnimation()
+        return nil
+    }
+
+    private func surfaceTint(for style: CraftSurfaceStyle) -> Color? {
+        switch style {
+        case .glass:
+            return tierBaseColor
+        case .flat:
+            return isCompletedToday ? tierBaseColor.opacity(0.12) : theme.colors.surfaceSubtle.opacity(0.60)
+        case .elevated:
+            return isCompletedToday ? tierBaseColor.opacity(0.08) : nil
+        case .outlined:
+            return isCompletedToday ? tierBaseColor.opacity(0.08) : nil
+        case .tactile3D:
+            return isCompletedToday ? tierBaseColor.opacity(0.10) : nil
         }
     }
 
@@ -189,18 +222,6 @@ public struct CraftStreakBadge: View {
         }
     }
 
-    private func updatePulseAnimation() {
-        if !reduceMotion && !isCompletedToday {
-            withAnimation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true)) {
-                isPulsing = true
-            }
-        } else {
-            withAnimation(.easeOut(duration: 0.2)) {
-                isPulsing = false
-            }
-        }
-    }
-
     // MARK: - Accessibility Strings
 
     private var accessibilityLabelString: String {
@@ -217,4 +238,27 @@ public struct CraftStreakBadge: View {
         }
         return onTap != nil ? "Chạm hai lần để xem chi tiết chuỗi ngày." : ""
     }
+}
+
+#Preview("CraftStreakBadge") {
+    VStack(spacing: 24) {
+        HStack(spacing: 16) {
+            CraftStreakBadge(count: 3, isCompletedToday: false, size: .sm)
+            CraftStreakBadge(count: 7, isCompletedToday: true, size: .sm)
+            CraftStreakBadge(count: 30, isCompletedToday: true, size: .sm)
+        }
+
+        HStack(spacing: 16) {
+            CraftStreakBadge(count: 3, isCompletedToday: false, size: .md)
+            CraftStreakBadge(count: 14, isCompletedToday: true, size: .md)
+            CraftStreakBadge(count: 100, isCompletedToday: true, size: .md)
+        }
+
+        HStack(spacing: 16) {
+            CraftStreakBadge(count: 7, isCompletedToday: true, size: .md, style: .glass)
+            CraftStreakBadge(count: 14, isCompletedToday: true, size: .md, style: .elevated)
+            CraftStreakBadge(count: 30, isCompletedToday: true, size: .md, style: .tactile3D)
+        }
+    }
+    .padding()
 }

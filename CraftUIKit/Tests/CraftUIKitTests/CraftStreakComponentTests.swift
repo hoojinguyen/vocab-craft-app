@@ -103,6 +103,29 @@ final class CraftStreakComponentTests: XCTestCase {
         XCTAssertNotNil(badge.body)
     }
 
+    func testCraftStreakBadgeSurfaceStyles() {
+        for style in CraftSurfaceStyle.allCases {
+            let badge = CraftStreakBadge(
+                count: 7,
+                tier: .blaze,
+                isCompletedToday: true,
+                size: .md,
+                style: style
+            )
+            XCTAssertEqual(badge.style, style)
+            XCTAssertNotNil(badge.body)
+        }
+    }
+
+    func testCraftStreakBadgeDynamicTypeVerticalPadding() {
+        let smBadge = CraftStreakBadge(count: 3, size: .sm)
+        let mdBadge = CraftStreakBadge(count: 14, size: .md)
+        XCTAssertEqual(smBadge.size.height, 32)
+        XCTAssertEqual(mdBadge.size.height, 40)
+        XCTAssertNotNil(smBadge.body)
+        XCTAssertNotNil(mdBadge.body)
+    }
+
     // MARK: - CraftStreakCard Tests
 
     func testCraftStreakCardRendering() {
