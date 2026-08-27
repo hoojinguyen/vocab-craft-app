@@ -29,14 +29,16 @@ final class HomepageViewTests: XCTestCase {
             selectedItem: binding,
             items: TabItem.navigationTabs,
             style: .glass,
-            showsTitles: false,
             centerPosition: .floating,
             centerAction: {},
             centerSymbol: CraftSymbol.practice.rawValue,
             centerTitleKey: AppStrings.Tabs.reflex
         )
         XCTAssertNotNil(tabBar)
-        XCTAssertFalse(tabBar.showsTitles)
+        XCTAssertEqual(tabBar.items.count, 4)
+        XCTAssertEqual(tabBar.style, .glass)
+        XCTAssertEqual(tabBar.centerPosition, .floating)
+        XCTAssertEqual(tabBar.centerSymbol, CraftSymbol.practice.rawValue)
     }
 
     func testHomepageViewInitialization() {

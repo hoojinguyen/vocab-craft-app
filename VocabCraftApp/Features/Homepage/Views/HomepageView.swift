@@ -81,7 +81,6 @@ public struct HomepageView: View {
                     selectedItem: $router.selectedTab,
                     items: TabItem.navigationTabs,
                     style: .glass,
-                    showsTitles: false,
                     centerPosition: .floating,
                     centerAction: {
                         router.navigateToReflex()

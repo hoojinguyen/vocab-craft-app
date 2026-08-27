@@ -75,6 +75,9 @@ public enum CatalogTabItem: String, CaseIterable, Identifiable, CraftTabItemProt
         default: return nil
         }
     }
+
+    public var showsTitle: Bool { false }
+    public var showsSymbol: Bool { true }
 }
 
 /// Interactive preset options for demonstrating domain-specific `CraftEmptyState` illustrations and copy.
