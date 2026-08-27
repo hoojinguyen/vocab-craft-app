@@ -216,14 +216,14 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
             if #available(iOS 26, macOS 26, *), style == .glass {
                 GlassEffectContainer(spacing: 8) {
                     barContent
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 5)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 4)
                         .glassEffect(.regular, in: .capsule)
                 }
             } else {
                 barContent
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 5)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 4)
                     .background {
                         tabBarLegacyBackground
                     }
@@ -254,8 +254,8 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                         style: style,
                         isTransitioning: isTransitioning
                     )
-                    .frame(width: frame.width, height: frame.height, alignment: .center)
-                    .offset(x: frame.minX, y: frame.minY)
+                    .frame(width: max(0, frame.width - 6), height: max(0, frame.height - 6), alignment: .center)
+                    .offset(x: frame.minX + 3, y: frame.minY + 3)
                 }
             }
             .coordinateSpace(name: "CraftTabBarTrack")
@@ -266,7 +266,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
 
     @ViewBuilder
     private var tabButtonsStack: some View {
-        HStack(spacing: theme.spacing.xs) {
+        HStack(spacing: 2) {
             if centerAction != nil {
                 ForEach(leadingItems) { item in
                     CraftTabButton(
@@ -278,7 +278,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                 }
 
                 Color.clear
-                    .frame(width: centerPosition == .floating ? 56 : 42, height: 44)
+                    .frame(width: centerPosition == .floating ? 60 : 46, height: 44)
                     .accessibilityHidden(true)
 
                 ForEach(trailingItems) { item in
@@ -308,10 +308,12 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
             selectedItem = item
         } else {
             activeTransitionCount += 1
-            withAnimation(theme.animations.springSnappy) {
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.76)) {
                 selectedItem = item
             } completion: {
-                activeTransitionCount = max(0, activeTransitionCount - 1)
+                withAnimation(.spring(response: 0.25, dampingFraction: 0.85)) {
+                    activeTransitionCount = max(0, activeTransitionCount - 1)
+                }
             }
         }
     }
@@ -389,10 +391,10 @@ public struct CraftSlidingFluidPill: View {
     public var body: some View {
         pillBackground
             .scaleEffect(
-                x: (isTransitioning && !reduceMotion) ? 1.08 : 1.0,
-                y: (isTransitioning && !reduceMotion) ? 0.94 : 1.0
+                x: (isTransitioning && !reduceMotion) ? 1.05 : 1.0,
+                y: (isTransitioning && !reduceMotion) ? 0.96 : 1.0
             )
-            .animation(reduceMotion ? nil : theme.animations.springSnappy, value: isTransitioning)
+            .animation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.76), value: isTransitioning)
     }
 
     @ViewBuilder
@@ -411,7 +413,7 @@ public struct CraftSlidingFluidPill: View {
             }
         case .elevated:
             Capsule()
-                .fill(theme.colors.surfaceElevated.opacity(0.85))
+                .fill(theme.colors.surfaceElevated.opacity(0.92))
                 .overlay(
                     Capsule()
                         .strokeBorder(theme.colors.hairline, lineWidth: 1)
@@ -420,6 +422,7 @@ public struct CraftSlidingFluidPill: View {
                     Capsule()
                         .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
                 )
+                .shadow(color: Color.black.opacity(0.06), radius: 3, x: 0, y: 1)
         case .outlined:
             Capsule()
                 .fill(theme.colors.surfaceCard)
@@ -434,6 +437,7 @@ public struct CraftSlidingFluidPill: View {
                     Capsule()
                         .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
                 )
+                .shadow(color: Color.black.opacity(0.08), radius: 2, x: 0, y: 1)
         case .flat:
             Capsule()
                 .fill(theme.colors.surfaceCard)
@@ -442,27 +446,23 @@ public struct CraftSlidingFluidPill: View {
 
     @ViewBuilder
     private var glassPill: some View {
-        if #available(iOS 26, macOS 26, *) {
-            Capsule()
-                .fill(Color.clear)
-                .glassEffect(.regular.tint(theme.colors.brandPrimary).interactive(), in: .capsule)
-                .overlay(specularRimHighlight)
-                .shadow(color: theme.colors.brandPrimary.opacity(0.20), radius: 6, x: 0, y: 2)
-        } else {
-            Capsule()
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            theme.colors.brandPrimary.opacity(0.18),
-                            theme.colors.brandPrimary.opacity(0.08)
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
+        Capsule()
+            .fill(
+                Color.craftDynamic(
+                    light: Color.white.opacity(0.85),
+                    dark: Color.white.opacity(0.18)
                 )
-                .overlay(specularRimHighlight)
-                .shadow(color: theme.colors.brandPrimary.opacity(0.20), radius: 6, x: 0, y: 2)
-        }
+            )
+            .overlay(specularRimHighlight)
+            .shadow(
+                color: Color.craftDynamic(
+                    light: Color.black.opacity(0.08),
+                    dark: Color.black.opacity(0.30)
+                ),
+                radius: 4,
+                x: 0,
+                y: 2
+            )
     }
 
     private var specularRimHighlight: some View {
@@ -470,8 +470,8 @@ public struct CraftSlidingFluidPill: View {
             .strokeBorder(
                 LinearGradient(
                     colors: [
-                        .white.opacity(0.40),
-                        theme.colors.brandPrimary.opacity(0.12)
+                        Color.craftDynamic(light: Color.white.opacity(0.95), dark: Color.white.opacity(0.40)),
+                        Color.craftDynamic(light: Color.white.opacity(0.30), dark: Color.white.opacity(0.10))
                     ],
                     startPoint: .top,
                     endPoint: .bottom
