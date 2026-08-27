@@ -358,6 +358,12 @@ final class LocalizationTests: XCTestCase {
         
         XCTAssertEqual(CraftLocalized.string("craft.sparkle.celebration_label"), "Celebration!")
         XCTAssertEqual(CraftLocalized.string("craft.sparkle.celebration_label", language: "vi"), "Chúc mừng!")
+
+        // Speaker / Pronunciation Audio
+        XCTAssertEqual(CraftLocalized.string("craft.audio.pronounce"), "Pronounce word")
+        XCTAssertEqual(CraftLocalized.string("craft.audio.pronounce", language: "vi"), "Phát âm từ vựng")
+        XCTAssertEqual(CraftLocalized.string("craft.audio.playing"), "Playing pronunciation...")
+        XCTAssertEqual(CraftLocalized.string("craft.audio.playing", language: "vi"), "Đang phát âm...")
     }
 
     func testFeedbackSheetLocalizationKeys() {

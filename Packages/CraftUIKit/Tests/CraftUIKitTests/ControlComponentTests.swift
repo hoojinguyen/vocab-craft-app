@@ -956,4 +956,56 @@ final class ControlComponentTests: XCTestCase {
         control.onSelect?("tab2")
         XCTAssertEqual(selectedCallback, "tab2")
     }
+
+    // MARK: - CraftSpeakerButton Tests
+
+    func testCraftSpeakerButtonInitAndProperties() {
+        var played = false
+        let btn = CraftSpeakerButton(
+            variant: .subtle,
+            size: .md,
+            isPlaying: false,
+            action: { played = true }
+        )
+        XCTAssertEqual(btn.variant, .subtle)
+        XCTAssertEqual(btn.size, .md)
+        XCTAssertFalse(btn.isPlaying)
+        XCTAssertNil(btn.label)
+        XCTAssertNotNil(btn.body)
+
+        btn.action()
+        XCTAssertTrue(played)
+    }
+
+    func testCraftSpeakerButtonPillMode() {
+        let btn = CraftSpeakerButton(
+            variant: .subtle,
+            size: .md,
+            isPlaying: true,
+            label: LocalizedStringKey("craft.audio.pronounce"),
+            action: {}
+        )
+        XCTAssertTrue(btn.isPlaying)
+        XCTAssertNotNil(btn.label)
+        XCTAssertNotNil(btn.body)
+    }
+
+    func testCraftSpeakerButtonAllVariantsAndSizes() {
+        for variant in CraftSpeakerButtonVariant.allCases {
+            for size in CraftIconSize.allCases {
+                let btn = CraftSpeakerButton(
+                    variant: variant,
+                    size: size,
+                    isPlaying: true,
+                    customTint: .purple,
+                    action: {}
+                )
+                XCTAssertEqual(btn.variant, variant)
+                XCTAssertEqual(btn.size, size)
+                XCTAssertTrue(btn.isPlaying)
+                XCTAssertEqual(btn.customTint, .purple)
+                XCTAssertNotNil(btn.body)
+            }
+        }
+    }
 }

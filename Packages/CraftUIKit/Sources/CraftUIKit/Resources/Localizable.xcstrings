@@ -4,6 +4,42 @@
     "" : {
 
     },
+    "craft.audio.playing" : {
+      "comment" : "Speaker button accessibility label when audio is playing",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Playing pronunciation..."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đang phát âm..."
+          }
+        }
+      }
+    },
+    "craft.audio.pronounce" : {
+      "comment" : "Speaker button accessibility label when audio is idle",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pronounce word"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Phát âm từ vựng"
+          }
+        }
+      }
+    },
     "craft.button.loading_a11y" : {
       "comment" : "Button loading accessibility",
       "extractionState" : "manual",
