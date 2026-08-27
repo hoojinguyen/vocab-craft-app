@@ -285,9 +285,9 @@ public struct CraftPathUnlockSurgeView: View {
             if progress > 0 {
                 // Wide ambient glow
                 CraftPathSurgeShape(
+                    path: basePath,
                     progress: progress,
-                    trailLength: trailLength,
-                    pathProvider: { _ in basePath }
+                    trailLength: trailLength
                 )
                 .stroke(
                     LinearGradient(
@@ -301,9 +301,9 @@ public struct CraftPathUnlockSurgeView: View {
 
                 // Sharp core beam
                 CraftPathSurgeShape(
+                    path: basePath,
                     progress: progress,
-                    trailLength: trailLength,
-                    pathProvider: { _ in basePath }
+                    trailLength: trailLength
                 )
                 .stroke(
                     LinearGradient(
@@ -316,9 +316,9 @@ public struct CraftPathUnlockSurgeView: View {
 
                 // Bright highlight core
                 CraftPathSurgeShape(
+                    path: basePath,
                     progress: progress,
-                    trailLength: trailLength * 0.4,
-                    pathProvider: { _ in basePath }
+                    trailLength: trailLength * 0.4
                 )
                 .stroke(
                     Color.white.opacity(0.9),

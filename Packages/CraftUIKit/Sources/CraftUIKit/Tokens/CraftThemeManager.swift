@@ -1,12 +1,11 @@
-import CraftUIKit
 import SwiftUI
 
-// MARK: - App Theme Manager
+// MARK: - Craft Theme Manager
 
 /// Manages application-wide theme selection, persistence, and appearance modes.
 @Observable
-public final class AppThemeManager: @unchecked Sendable {
-    public static let shared = AppThemeManager()
+public final class CraftThemeManager: @unchecked Sendable {
+    public static let shared = CraftThemeManager()
 
     public var currentPreset: CraftThemePreset {
         didSet {
@@ -43,3 +42,6 @@ public final class AppThemeManager: @unchecked Sendable {
         self.preferredColorScheme = scheme
     }
 }
+
+/// Convenience type alias for application-level theme manager.
+public typealias AppThemeManager = CraftThemeManager

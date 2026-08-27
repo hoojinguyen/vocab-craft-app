@@ -1,3 +1,4 @@
+import CraftUIKit
 import SwiftUI
 @testable import VocabCraftApp
 import XCTest

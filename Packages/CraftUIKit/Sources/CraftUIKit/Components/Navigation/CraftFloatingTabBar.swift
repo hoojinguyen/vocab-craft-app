@@ -23,7 +23,7 @@ public extension CraftTabItemProtocol {
 // MARK: - Standard Tab Item Model
 
 /// Concrete convenience implementation of `CraftTabItemProtocol`.
-public struct CraftTabItem: CraftTabItemProtocol {
+public struct CraftTabItem: @unchecked Sendable, CraftTabItemProtocol {
     public let id: String
     public let title: String
     public let titleKey: LocalizedStringKey?
