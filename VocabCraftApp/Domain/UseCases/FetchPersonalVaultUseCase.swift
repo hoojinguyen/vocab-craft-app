@@ -38,19 +38,25 @@ public struct PersonalVaultMetrics: Sendable, Equatable {
     public let needsReviewCount: Int
     public let masteredCount: Int
     public let bookmarkedCount: Int
+    public let unmasteredCount: Int
 
     public var totalCount: Int { totalWords }
+    public var totalLearnedWords: Int { totalWords }
 
     public init(
         totalWords: Int = 0,
         needsReviewCount: Int = 0,
         masteredCount: Int = 0,
-        bookmarkedCount: Int = 0
+        bookmarkedCount: Int = 0,
+        unmasteredCount: Int? = nil,
+        totalLearnedWords: Int? = nil
     ) {
-        self.totalWords = totalWords
+        let total = totalLearnedWords ?? totalWords
+        self.totalWords = total
         self.needsReviewCount = needsReviewCount
         self.masteredCount = masteredCount
         self.bookmarkedCount = bookmarkedCount
+        self.unmasteredCount = unmasteredCount ?? max(0, total - masteredCount)
     }
 }
 
@@ -122,11 +128,18 @@ public final class FetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProtocol,
             }
         }
 
+        let total = allPersonalWords.count
+        let mastered = allPersonalWords.filter { $0.masteryLevel >= 4 }.count
+        let bookmarked = allPersonalWords.filter(\.isBookmarked).count
+        let needsReview = allPersonalWords.filter(\.needsReview).count
+        let unmastered = max(0, total - mastered)
+
         let metrics = PersonalVaultMetrics(
-            totalWords: allPersonalWords.count,
-            needsReviewCount: allPersonalWords.filter(\.needsReview).count,
-            masteredCount: allPersonalWords.filter { $0.masteryLevel >= 4 }.count,
-            bookmarkedCount: allPersonalWords.filter(\.isBookmarked).count
+            totalWords: total,
+            needsReviewCount: needsReview,
+            masteredCount: mastered,
+            bookmarkedCount: bookmarked,
+            unmasteredCount: unmastered
         )
 
         var filteredWords: [PersonalWord]
@@ -146,7 +159,8 @@ public final class FetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProtocol,
             filteredWords = filteredWords.filter { word in
                 word.lemma.lowercased().contains(lowerQuery) ||
                 word.definitionVi.lowercased().contains(lowerQuery) ||
-                word.definitionEn.lowercased().contains(lowerQuery)
+                word.definitionEn.lowercased().contains(lowerQuery) ||
+                word.phonetic.lowercased().contains(lowerQuery)
             }
         }
 
@@ -194,7 +208,8 @@ public final class FetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProtocol,
             let lowerQuery = query.lowercased()
             filteredWords = filteredWords.filter { word in
                 word.lemma.lowercased().contains(lowerQuery) ||
-                word.definitionVi.lowercased().contains(lowerQuery)
+                word.definitionVi.lowercased().contains(lowerQuery) ||
+                word.phonetic.lowercased().contains(lowerQuery)
             }
         }
 

@@ -15,6 +15,10 @@ public final class PersonalVaultViewModel {
     public private(set) var isLoading: Bool = false
     public private(set) var errorMessage: String?
 
+    public var selectedWordForDetail: VaultWordItem?
+    public var isPresentingReviewSession: Bool = false
+    public private(set) var reviewWords: [VaultWordItem] = []
+
     private let fetchVaultUseCase: FetchPersonalVaultUseCaseProtocol?
     private let toggleBookmarkUseCase: ToggleWordBookmarkUseCaseProtocol?
     private let ttsService: TextToSpeechProtocol?
@@ -61,6 +65,34 @@ public final class PersonalVaultViewModel {
         isLoading = false
     }
 
+    public func selectWordForDetail(_ word: VaultWordItem?) {
+        selectedWordForDetail = word
+    }
+
+    public func dismissWordDetail() {
+        selectedWordForDetail = nil
+    }
+
+    @discardableResult
+    public func prepareReviewWords() -> [VaultWordItem] {
+        let targetWords: [VaultWordItem]
+        switch vaultTabFilter {
+        case .notMastered:
+            targetWords = vaultWords
+                .filter { !$0.isMastered }
+                .sorted { $0.correctStreak < $1.correctStreak }
+        case .mastered:
+            targetWords = vaultWords
+                .filter(\.isMastered)
+        case .bookmarked:
+            targetWords = vaultWords
+                .filter(\.isBookmarked)
+        }
+        let selected = Array(targetWords.prefix(15))
+        self.reviewWords = selected
+        return selected
+    }
+
     public func toggleWordSelection(id: Int64) {
         if selectedWordIds.contains(id) {
             selectedWordIds.remove(id)
@@ -93,12 +125,52 @@ public final class PersonalVaultViewModel {
     }
 
     public func toggleBookmark(wordId: Int64) async {
-        guard let toggleBookmarkUseCase else { return }
-        do {
-            _ = try await toggleBookmarkUseCase.execute(wordId: wordId)
-            await loadData()
-        } catch {
-            errorMessage = error.localizedDescription
+        if let toggleBookmarkUseCase {
+            do {
+                _ = try await toggleBookmarkUseCase.execute(wordId: wordId)
+                await loadData()
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+        } else {
+            // In-memory fallback if toggleBookmarkUseCase is not injected
+            if let idx = vaultWords.firstIndex(where: { $0.id == wordId }) {
+                let item = vaultWords[idx]
+                let updated = VaultWordItem(
+                    id: item.id,
+                    lemma: item.lemma,
+                    pos: item.pos,
+                    phonetic: item.phonetic,
+                    definitionVi: item.definitionVi,
+                    exampleSentenceEn: item.exampleSentenceEn,
+                    exampleSentenceVi: item.exampleSentenceVi,
+                    cefrLevel: item.cefrLevel,
+                    isMastered: item.isMastered,
+                    isBookmarked: !item.isBookmarked,
+                    correctStreak: item.correctStreak,
+                    practicedModes: item.practicedModes,
+                    lastPracticedAt: item.lastPracticedAt
+                )
+                vaultWords[idx] = updated
+            }
+        }
+
+        if let current = selectedWordForDetail, current.id == wordId {
+            selectedWordForDetail = VaultWordItem(
+                id: current.id,
+                lemma: current.lemma,
+                pos: current.pos,
+                phonetic: current.phonetic,
+                definitionVi: current.definitionVi,
+                exampleSentenceEn: current.exampleSentenceEn,
+                exampleSentenceVi: current.exampleSentenceVi,
+                cefrLevel: current.cefrLevel,
+                isMastered: current.isMastered,
+                isBookmarked: !current.isBookmarked,
+                correctStreak: current.correctStreak,
+                practicedModes: current.practicedModes,
+                lastPracticedAt: current.lastPracticedAt
+            )
         }
     }
 

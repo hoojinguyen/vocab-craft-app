@@ -100,6 +100,68 @@ struct PersonalVaultViewModelTests {
         #expect(vm.vaultWords.first?.lemma == "adaptable")
     }
 
+    @Test("Chuẩn bị danh sách từ ôn luyện theo tab hiện tại")
+    @MainActor
+    func testPrepareReviewWordsMatchesActiveTab() async {
+        var mockWords: [VaultWordItem] = []
+        for i in 1...20 {
+            mockWords.append(
+                VaultWordItem(
+                    id: Int64(i),
+                    lemma: "word_\(i)",
+                    pos: "n.",
+                    definitionVi: "Nghĩa \(i)",
+                    isMastered: i > 16,
+                    isBookmarked: i % 2 == 0,
+                    correctStreak: 20 - i
+                )
+            )
+        }
+
+        let vm = PersonalVaultViewModel(mockWords: mockWords)
+        #expect(vm.reviewWords.isEmpty)
+
+        // 1. Tab .notMastered: Lấy tối đa 15 từ chưa thuộc, ưu tiên streak thấp
+        vm.setVaultFilter(.notMastered)
+        let unmasteredReview = vm.prepareReviewWords()
+        #expect(unmasteredReview.count == 15)
+        #expect(unmasteredReview.allSatisfy { !$0.isMastered })
+        #expect(vm.reviewWords.count == 15)
+        #expect(vm.reviewWords == unmasteredReview)
+        if unmasteredReview.count >= 2 {
+            #expect(unmasteredReview[0].correctStreak <= unmasteredReview[1].correctStreak)
+        }
+
+        // 2. Tab .bookmarked: Lấy các từ đã lưu
+        vm.setVaultFilter(.bookmarked)
+        let bookmarkedReview = vm.prepareReviewWords()
+        #expect(!bookmarkedReview.isEmpty)
+        #expect(bookmarkedReview.allSatisfy { $0.isBookmarked })
+        #expect(vm.reviewWords == bookmarkedReview)
+
+        // 3. Tab .mastered: Lấy các từ đã thuộc
+        vm.setVaultFilter(.mastered)
+        let masteredReview = vm.prepareReviewWords()
+        #expect(!masteredReview.isEmpty)
+        #expect(masteredReview.allSatisfy { $0.isMastered })
+        #expect(vm.reviewWords == masteredReview)
+    }
+
+    @Test("Chọn và đóng sheet chi tiết từ vựng")
+    @MainActor
+    func testDetailSheetSelection() async {
+        let vm = PersonalVaultViewModel()
+        #expect(vm.selectedWordForDetail == nil)
+
+        let word = VaultWordItem(id: 42, lemma: "paradigm", pos: "n.", definitionVi: "Mô hình")
+        vm.selectWordForDetail(word)
+        #expect(vm.selectedWordForDetail?.id == 42)
+        #expect(vm.selectedWordForDetail?.lemma == "paradigm")
+
+        vm.dismissWordDetail()
+        #expect(vm.selectedWordForDetail == nil)
+    }
+
     @Test("Phát âm từ vựng VaultWordItem qua TextToSpeech")
     @MainActor
     func testPlayAudioForVaultWord() async {
@@ -109,6 +171,27 @@ struct PersonalVaultViewModelTests {
 
         vm.playAudio(for: word)
         #expect(mockTTS.lastSpokenText == "eloquent")
+    }
+
+    @Test("Toggle bookmark tự động làm mới vaultWords và metrics")
+    @MainActor
+    func testToggleBookmarkRefreshesData() async {
+        let word1 = VaultWordItem(id: 1, lemma: "adapt", pos: "v.", definitionVi: "Thích nghi", isBookmarked: false)
+        let word2 = VaultWordItem(id: 2, lemma: "brave", pos: "adj.", definitionVi: "Dũng cảm", isBookmarked: true)
+
+        let mockUseCase = MockFetchPersonalVaultUseCase(vaultWords: [word1, word2])
+        let mockBookmarkUseCase = MockToggleBookmarkUseCase(mockUseCase: mockUseCase)
+        let vm = PersonalVaultViewModel(
+            fetchVaultUseCase: mockUseCase,
+            toggleBookmarkUseCase: mockBookmarkUseCase
+        )
+
+        await vm.loadData()
+        #expect(vm.vaultWords.first(where: { $0.id == 1 })?.isBookmarked == false)
+
+        await vm.toggleBookmark(wordId: 1)
+        #expect(mockBookmarkUseCase.executedWordIds.contains(1))
+        #expect(vm.vaultWords.first(where: { $0.id == 1 })?.isBookmarked == true)
     }
 }
 
@@ -127,14 +210,24 @@ private final class MockTTS: TextToSpeechProtocol {
 }
 
 private final class MockFetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProtocol, @unchecked Sendable {
-    private let vaultWords: [VaultWordItem]
+    var vaultWords: [VaultWordItem]
 
     init(vaultWords: [VaultWordItem] = []) {
         self.vaultWords = vaultWords
     }
 
     func execute(filter: PersonalVaultFilter, searchQuery: String?) async throws -> PersonalVaultResult {
-        return PersonalVaultResult(words: [], metrics: PersonalVaultMetrics())
+        let total = vaultWords.count
+        let mastered = vaultWords.filter(\.isMastered).count
+        let bookmarked = vaultWords.filter(\.isBookmarked).count
+        let metrics = PersonalVaultMetrics(
+            totalWords: total,
+            needsReviewCount: 0,
+            masteredCount: mastered,
+            bookmarkedCount: bookmarked,
+            unmasteredCount: total - mastered
+        )
+        return PersonalVaultResult(words: [], metrics: metrics)
     }
 
     func fetchVaultWords(filter: VaultTabFilter, searchQuery: String?) async throws -> [VaultWordItem] {
@@ -150,9 +243,49 @@ private final class MockFetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProt
 
         if let query = searchQuery?.trimmingCharacters(in: .whitespacesAndNewlines), !query.isEmpty {
             let lower = query.lowercased()
-            filtered = filtered.filter { $0.lemma.lowercased().contains(lower) || $0.definitionVi.lowercased().contains(lower) }
+            filtered = filtered.filter {
+                $0.lemma.lowercased().contains(lower) ||
+                $0.definitionVi.lowercased().contains(lower) ||
+                $0.phonetic.lowercased().contains(lower)
+            }
         }
 
         return filtered
+    }
+
+    func toggleBookmark(wordId: Int64) {
+        if let index = vaultWords.firstIndex(where: { $0.id == wordId }) {
+            let old = vaultWords[index]
+            vaultWords[index] = VaultWordItem(
+                id: old.id,
+                lemma: old.lemma,
+                pos: old.pos,
+                phonetic: old.phonetic,
+                definitionVi: old.definitionVi,
+                exampleSentenceEn: old.exampleSentenceEn,
+                exampleSentenceVi: old.exampleSentenceVi,
+                cefrLevel: old.cefrLevel,
+                isMastered: old.isMastered,
+                isBookmarked: !old.isBookmarked,
+                correctStreak: old.correctStreak,
+                practicedModes: old.practicedModes,
+                lastPracticedAt: old.lastPracticedAt
+            )
+        }
+    }
+}
+
+private final class MockToggleBookmarkUseCase: ToggleWordBookmarkUseCaseProtocol, @unchecked Sendable {
+    private let mockUseCase: MockFetchPersonalVaultUseCase
+    var executedWordIds: [Int64] = []
+
+    init(mockUseCase: MockFetchPersonalVaultUseCase) {
+        self.mockUseCase = mockUseCase
+    }
+
+    func execute(wordId: Int64) async throws -> Bool {
+        executedWordIds.append(wordId)
+        mockUseCase.toggleBookmark(wordId: wordId)
+        return true
     }
 }
