@@ -51,7 +51,8 @@ public struct HomepageView: View {
                         },
                         showDetailModal: true,
                         scrollToActive: true,
-                        showCelebration: false
+                        showCelebration: false,
+                        pinSectionHeaders: true
                     )
                 }
                 .task {

@@ -63,6 +63,16 @@ final class HomepageViewTests: XCTestCase {
         XCTAssertNotNil(homepage.body)
     }
 
+    func testHomepageViewBodyWithLoadedLearningPath() async {
+        let container = AppContainer.mock
+        let viewModel = container.makeHomepageViewModel()
+        await viewModel.loadLearningPath()
+        XCTAssertFalse(viewModel.sections.isEmpty)
+
+        let homepage = HomepageView(viewModel: viewModel)
+        XCTAssertNotNil(homepage.body)
+    }
+
     func testHomepageViewModelLoadLearningPath() async {
         let container = AppContainer.mock
         let viewModel = container.makeHomepageViewModel()
