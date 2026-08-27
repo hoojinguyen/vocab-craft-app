@@ -115,6 +115,8 @@ final class NavigationTests: XCTestCase {
         XCTAssertNil(item1.titleKey)
         XCTAssertEqual(item1.symbol, "house.fill")
         XCTAssertEqual(item1.badgeCount, 2)
+        XCTAssertTrue(item1.showsTitle)
+        XCTAssertTrue(item1.showsSymbol)
 
         let item2 = CraftTabItem(id: "saved", titleKey: LocalizedStringKey("saved_key"), symbol: "bookmark.fill")
         XCTAssertEqual(item2.id, "saved")
@@ -122,6 +124,38 @@ final class NavigationTests: XCTestCase {
         XCTAssertNotNil(item2.titleKey)
         XCTAssertEqual(item2.symbol, "bookmark.fill")
         XCTAssertNil(item2.badgeCount)
+        XCTAssertTrue(item2.showsTitle)
+        XCTAssertTrue(item2.showsSymbol)
+    }
+
+    func testCraftTabItemCustomPresentation() {
+        let item = CraftTabItem(
+            id: "custom",
+            title: "Custom Tab",
+            symbol: "star.fill",
+            badgeCount: 3,
+            showsTitle: false,
+            showsSymbol: true
+        )
+        XCTAssertEqual(item.id, "custom")
+        XCTAssertEqual(item.title, "Custom Tab")
+        XCTAssertEqual(item.symbol, "star.fill")
+        XCTAssertEqual(item.badgeCount, 3)
+        XCTAssertFalse(item.showsTitle)
+        XCTAssertTrue(item.showsSymbol)
+    }
+
+    func testTabItemProtocolDefaults() {
+        struct MinimalTab: CraftTabItemProtocol {
+            let id: String
+            let title: String
+            let symbol: String
+        }
+        let tab = MinimalTab(id: "1", title: "Test", symbol: "bell")
+        XCTAssertTrue(tab.showsTitle)
+        XCTAssertTrue(tab.showsSymbol)
+        XCTAssertNil(tab.badgeCount)
+        XCTAssertNil(tab.titleKey)
     }
 
     func testFloatingTabBarWithCraftTabItem() {

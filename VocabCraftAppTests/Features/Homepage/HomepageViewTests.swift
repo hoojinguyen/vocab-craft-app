@@ -19,6 +19,8 @@ final class HomepageViewTests: XCTestCase {
         XCTAssertEqual(TabItem.navigationTabs, [.home, .vocabulary, .search, .settings])
         XCTAssertEqual(TabItem.allCases.count, 5)
         XCTAssertNil(TabItem.home.badgeCount)
+        XCTAssertFalse(TabItem.home.showsTitle)
+        XCTAssertTrue(TabItem.home.showsSymbol)
     }
 
     func testCraftFloatingTabBarInitialization() {

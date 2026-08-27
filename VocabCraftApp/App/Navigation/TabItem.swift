@@ -35,6 +35,9 @@ public enum TabItem: Int, CaseIterable, Identifiable, Sendable, CraftTabItemProt
 
     public var badgeCount: Int? { nil }
 
+    public var showsTitle: Bool { false }
+    public var showsSymbol: Bool { true }
+
     /// The 4 standard navigation tabs rendered on the dock sides.
     public static var navigationTabs: [TabItem] {
         [.home, .vocabulary, .search, .settings]

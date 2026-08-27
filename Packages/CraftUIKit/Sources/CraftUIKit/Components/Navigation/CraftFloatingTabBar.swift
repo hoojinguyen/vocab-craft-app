@@ -9,15 +9,15 @@ public protocol CraftTabItemProtocol: Identifiable, Equatable, Sendable where ID
     var symbol: String { get }
     var badgeCount: Int? { get }
     var titleKey: LocalizedStringKey? { get }
+    var showsTitle: Bool { get }
+    var showsSymbol: Bool { get }
 }
 
 public extension CraftTabItemProtocol {
-    var badgeCount: Int? {
-        nil
-    }
-    var titleKey: LocalizedStringKey? {
-        nil
-    }
+    var badgeCount: Int? { nil }
+    var titleKey: LocalizedStringKey? { nil }
+    var showsTitle: Bool { true }
+    var showsSymbol: Bool { true }
 }
 
 // MARK: - Standard Tab Item Model
@@ -29,31 +29,41 @@ public struct CraftTabItem: CraftTabItemProtocol {
     public let titleKey: LocalizedStringKey?
     public let symbol: String
     public let badgeCount: Int?
+    public let showsTitle: Bool
+    public let showsSymbol: Bool
 
     public init(
         id: String,
         title: String,
         symbol: String,
-        badgeCount: Int? = nil
+        badgeCount: Int? = nil,
+        showsTitle: Bool = true,
+        showsSymbol: Bool = true
     ) {
         self.id = id
         self.title = title
         self.titleKey = nil
         self.symbol = symbol
         self.badgeCount = badgeCount
+        self.showsTitle = showsTitle
+        self.showsSymbol = showsSymbol
     }
 
     public init(
         id: String,
         titleKey: LocalizedStringKey,
         symbol: String,
-        badgeCount: Int? = nil
+        badgeCount: Int? = nil,
+        showsTitle: Bool = true,
+        showsSymbol: Bool = true
     ) {
         self.id = id
         self.title = ""
         self.titleKey = titleKey
         self.symbol = symbol
         self.badgeCount = badgeCount
+        self.showsTitle = showsTitle
+        self.showsSymbol = showsSymbol
     }
 }
 
