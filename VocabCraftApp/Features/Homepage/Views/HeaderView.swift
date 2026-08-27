@@ -40,32 +40,25 @@ public struct HeaderView: View {
 
     public var body: some View {
         HStack(alignment: .center, spacing: 14) {
-            // Profile Avatar with Radial Daily Goal Progress Ring
+            // Profile Avatar with CraftProgressRing
             Button(action: { onAvatarTap?() }) {
-                ZStack {
-                    // Background track circle
-                    Circle()
-                        .stroke(Color.vocabMint.opacity(0.18), lineWidth: 3.5)
-
-                    // Animated Radial Progress Ring
-                    Circle()
-                        .trim(from: 0, to: CGFloat(min(max(dailyGoalProgress, 0), 1.0)))
-                        .stroke(
-                            Color.vocabMint,
-                            style: StrokeStyle(lineWidth: 3.5, lineCap: .round)
-                        )
-                        .rotationEffect(.degrees(-90))
-
-                    // User Initials Inner Avatar
+                CraftProgressRing(
+                    progress: dailyGoalProgress,
+                    lineWidth: 3.5,
+                    size: 48,
+                    tintColor: Color.vocabMint,
+                    trackColor: Color.vocabMint.opacity(0.18),
+                    accessibilityLabel: AppStrings.Home.dailyGoal(percent: Int(dailyGoalProgress * 100))
+                ) {
                     Circle()
                         .fill(Color.vocabSurfaceSoft)
                         .padding(5)
-
-                    Text(userInitials)
-                        .font(.system(size: 15, weight: .bold, design: .rounded))
-                        .foregroundColor(Color.vocabInk)
+                        .overlay(
+                            Text(userInitials)
+                                .font(.system(size: 15, weight: .bold, design: .rounded))
+                                .foregroundColor(Color.vocabInk)
+                        )
                 }
-                .frame(width: 48, height: 48)
             }
             .buttonStyle(.plain)
 
@@ -94,17 +87,16 @@ public struct HeaderView: View {
                 onTap: onStreakTap
             )
 
-            // Notification Bell Button with 44x44pt touch target
+            // Notification Bell Button with CraftIconButton
             ZStack(alignment: .topTrailing) {
-                Button(action: { onNotificationTap?() }) {
-                    Image(systemName: "bell.fill")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(Color.vocabInk)
-                        .frame(width: 44, height: 44)
-                        .background(Color.vocabSurfaceSoft)
-                        .clipShape(Circle())
-                }
-                .buttonStyle(.plain)
+                CraftIconButton(
+                    iconName: "bell.fill",
+                    size: .md,
+                    shape: .circle,
+                    variant: .subtle,
+                    accessibilityLabel: String(localized: "craft.common.action.action", defaultValue: "Notifications"),
+                    action: { onNotificationTap?() }
+                )
 
                 if unreadNotifications {
                     Circle()
