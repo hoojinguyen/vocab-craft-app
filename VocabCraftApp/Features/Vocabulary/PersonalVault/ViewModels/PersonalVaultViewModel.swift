@@ -125,10 +125,12 @@ public final class PersonalVaultViewModel {
     }
 
     public func toggleBookmark(wordId: Int64) async {
+        var didSucceed = false
         if let toggleBookmarkUseCase {
             do {
                 _ = try await toggleBookmarkUseCase.execute(wordId: wordId)
                 await loadData()
+                didSucceed = true
             } catch {
                 errorMessage = error.localizedDescription
             }
@@ -152,10 +154,11 @@ public final class PersonalVaultViewModel {
                     lastPracticedAt: item.lastPracticedAt
                 )
                 vaultWords[idx] = updated
+                didSucceed = true
             }
         }
 
-        if let current = selectedWordForDetail, current.id == wordId {
+        if didSucceed, let current = selectedWordForDetail, current.id == wordId {
             selectedWordForDetail = VaultWordItem(
                 id: current.id,
                 lemma: current.lemma,

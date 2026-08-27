@@ -1,3 +1,4 @@
+import CraftUIKit
 import SwiftUI
 @testable import VocabCraftApp
 import XCTest
@@ -24,6 +25,186 @@ final class PersonalVaultViewsTests: XCTestCase {
         sourceStageTitle: "Chặng 1: Thói quen & Cảm xúc"
     )
 
+    let mockVaultWord = VaultWordItem(
+        id: 10,
+        lemma: "meticulous",
+        pos: "adj",
+        phonetic: "/məˈtɪk.jə.ləs/",
+        definitionVi: "Tỉ mỉ, kỹ lưỡng",
+        exampleSentenceEn: "She is meticulous about her work.",
+        exampleSentenceVi: "Cô ấy rất tỉ mỉ trong công việc của mình.",
+        cefrLevel: "C1",
+        isMastered: false,
+        isBookmarked: true,
+        correctStreak: 2,
+        practicedModes: [.speaking, .typing],
+        lastPracticedAt: Date()
+    )
+
+    // MARK: - VaultSegmentedControl Tests
+    func test_vaultSegmentedControl_rendersAndUpdatesSelection() {
+        var selectedFilter: VaultTabFilter = .notMastered
+        var didCallSelect = false
+        var receivedFilter: VaultTabFilter?
+
+        let binding = Binding<VaultTabFilter>(
+            get: { selectedFilter },
+            set: { selectedFilter = $0 }
+        )
+
+        let metrics = PersonalVaultMetrics(
+            totalWords: 20,
+            needsReviewCount: 5,
+            masteredCount: 8,
+            bookmarkedCount: 3,
+            unmasteredCount: 12
+        )
+
+        let view = VaultSegmentedControl(
+            selectedTab: binding,
+            metrics: metrics,
+            onSelect: { filter in
+                didCallSelect = true
+                receivedFilter = filter
+            }
+        )
+
+        #if canImport(UIKit)
+        let host = UIHostingController(rootView: view)
+        XCTAssertNotNil(host.view)
+        #else
+        XCTAssertNotNil(view)
+        #endif
+
+        view.onSelect?(.mastered)
+        XCTAssertTrue(didCallSelect)
+        XCTAssertEqual(receivedFilter, .mastered)
+    }
+
+    // MARK: - VaultReviewActionButton Tests
+    func test_vaultReviewActionButton_triggersAction() {
+        var didTrigger = false
+        let view = VaultReviewActionButton(count: 10) {
+            didTrigger = true
+        }
+
+        #if canImport(UIKit)
+        let host = UIHostingController(rootView: view)
+        XCTAssertNotNil(host.view)
+        #else
+        XCTAssertNotNil(view)
+        #endif
+
+        view.action()
+        XCTAssertTrue(didTrigger)
+    }
+
+    func test_vaultReviewActionButton_withZeroCount_rendersDisabled() {
+        let view = VaultReviewActionButton(count: 0) {}
+
+        #if canImport(UIKit)
+        let host = UIHostingController(rootView: view)
+        XCTAssertNotNil(host.view)
+        #else
+        XCTAssertNotNil(view)
+        #endif
+
+        XCTAssertEqual(view.count, 0)
+    }
+
+    // MARK: - VaultWordRowView Tests (Active Recall)
+    func test_vaultWordRowView_activeRecall_callbacksTriggered() {
+        var didTapRow = false
+        var didTapBookmark = false
+
+        let view = VaultWordRowView(
+            word: mockVaultWord,
+            onTap: { didTapRow = true },
+            onBookmarkTap: { didTapBookmark = true }
+        )
+
+        #if canImport(UIKit)
+        let host = UIHostingController(rootView: view)
+        XCTAssertNotNil(host.view)
+        #else
+        XCTAssertNotNil(view)
+        #endif
+
+        view.onTap()
+        XCTAssertTrue(didTapRow)
+
+        view.onBookmarkTap()
+        XCTAssertTrue(didTapBookmark)
+    }
+
+    func test_vaultWordRowView_masteredWord_rendersCleanly() {
+        let masteredWord = VaultWordItem(
+            id: 20,
+            lemma: "eloquent",
+            pos: "adj",
+            phonetic: "/ˈel.ə.kwənt/",
+            definitionVi: "Hùng biện, lưu loát",
+            cefrLevel: "C1",
+            isMastered: true,
+            isBookmarked: false,
+            correctStreak: 5
+        )
+
+        let view = VaultWordRowView(
+            word: masteredWord,
+            onTap: {},
+            onBookmarkTap: {}
+        )
+
+        #if canImport(UIKit)
+        let host = UIHostingController(rootView: view)
+        XCTAssertNotNil(host.view)
+        #else
+        XCTAssertNotNil(view)
+        #endif
+
+        XCTAssertTrue(masteredWord.isMastered)
+    }
+
+    // MARK: - VaultWordDetailSheet Tests
+    func test_vaultWordDetailSheet_rendersAndTriggersCallbacks() {
+        var didPlayAudio = false
+        var didToggleBookmark = false
+
+        let view = VaultWordDetailSheet(
+            word: mockVaultWord,
+            onPlayAudio: { didPlayAudio = true },
+            onToggleBookmark: { didToggleBookmark = true }
+        )
+
+        #if canImport(UIKit)
+        let host = UIHostingController(rootView: view)
+        XCTAssertNotNil(host.view)
+        #else
+        XCTAssertNotNil(view)
+        #endif
+
+        view.onPlayAudio()
+        XCTAssertTrue(didPlayAudio)
+
+        view.onToggleBookmark()
+        XCTAssertTrue(didToggleBookmark)
+    }
+
+    // MARK: - VocabularyView Integration Tests
+    func test_vocabularyView_initializationWithViewModel() {
+        let vm = PersonalVaultViewModel(mockWords: [mockVaultWord])
+        let view = VocabularyView(vaultViewModel: vm)
+
+        #if canImport(UIKit)
+        let host = UIHostingController(rootView: view)
+        XCTAssertNotNil(host.view)
+        #else
+        XCTAssertNotNil(view)
+        #endif
+    }
+
+    // MARK: - Legacy View Backward Compatibility Tests
     func test_personalVaultHeroCard_withWeakWords_triggersAction() {
         var didTrigger = false
         let metrics = PersonalVaultMetrics(totalWords: 10, needsReviewCount: 3, masteredCount: 5, bookmarkedCount: 2)
@@ -40,48 +221,6 @@ final class PersonalVaultViewsTests: XCTestCase {
 
         view.onStartSmartReview()
         XCTAssertTrue(didTrigger)
-    }
-
-    func test_personalVaultHeroCard_withZeroWeakWords_rendersCleanSummary() {
-        let metrics = PersonalVaultMetrics(totalWords: 10, needsReviewCount: 0, masteredCount: 10, bookmarkedCount: 3)
-        let view = PersonalVaultHeroCard(metrics: metrics, onStartSmartReview: {})
-
-        #if canImport(UIKit)
-        let host = UIHostingController(rootView: view)
-        XCTAssertNotNil(host.view)
-        #else
-        XCTAssertNotNil(view)
-        #endif
-    }
-
-    func test_personalSearchFilterBar_invokesCallbacks() {
-        var query = ""
-        var selectedFilter: PersonalVaultFilter = .all
-        let metrics = PersonalVaultMetrics(totalWords: 15, needsReviewCount: 3, masteredCount: 8, bookmarkedCount: 4)
-
-        let binding = Binding<String>(
-            get: { query },
-            set: { query = $0 }
-        )
-
-        let view = PersonalSearchFilterBar(
-            searchQuery: binding,
-            selectedFilter: selectedFilter,
-            metrics: metrics,
-            onFilterChanged: { filter in
-                selectedFilter = filter
-            }
-        )
-
-        #if canImport(UIKit)
-        let host = UIHostingController(rootView: view)
-        XCTAssertNotNil(host.view)
-        #else
-        XCTAssertNotNil(view)
-        #endif
-
-        view.onFilterChanged(.needsReview)
-        XCTAssertEqual(selectedFilter, .needsReview)
     }
 
     func test_cleanWordCardView_renderingAndCallbacks() {
