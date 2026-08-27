@@ -33,21 +33,13 @@ final class ColorTokensTests: XCTestCase {
 
     func testAppThemeManagerPresetSwitching() {
         let manager = AppThemeManager.shared
-        manager.setPreset(.editorial)
-        XCTAssertEqual(manager.currentPreset, .editorial)
-        XCTAssertNotNil(manager.currentPreset.theme)
-
-        manager.setPreset(.neoArcade)
-        XCTAssertEqual(manager.currentPreset, .neoArcade)
-        XCTAssertNotNil(manager.currentPreset.theme)
-
-        manager.setPreset(.nordicZen)
-        XCTAssertEqual(manager.currentPreset, .nordicZen)
-        XCTAssertNotNil(manager.currentPreset.theme)
-
-        manager.setPreset(.classic)
-        XCTAssertEqual(manager.currentPreset, .classic)
-        XCTAssertNotNil(manager.currentPreset.theme)
+        for preset in CraftThemePreset.allCases {
+            manager.setPreset(preset)
+            XCTAssertEqual(manager.currentPreset, preset)
+            XCTAssertNotNil(manager.currentPreset.theme)
+            XCTAssertFalse(preset.displayName.isEmpty)
+            XCTAssertFalse(preset.subtitle.isEmpty)
+        }
     }
 
     func testAppThemeManagerColorSchemeSwitching() {

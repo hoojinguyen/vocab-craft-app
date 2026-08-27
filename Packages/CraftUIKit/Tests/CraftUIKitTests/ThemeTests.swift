@@ -251,5 +251,51 @@ final class ThemeTests: XCTestCase {
         XCTAssertNotNil(theme.gradients.brandHero)
         XCTAssertNotNil(theme.depths.topHighlight)
     }
+
+    func testKyotoMatchaThemeTokens() {
+        let theme = CraftKyotoMatchaTheme()
+        XCTAssertNotNil(theme.colors.canvasBackground)
+        XCTAssertNotNil(theme.colors.brandPrimary)
+        XCTAssertNotNil(theme.colors.accent)
+        XCTAssertNotNil(theme.typography.displaySerif)
+        XCTAssertNotNil(theme.gradients.brandHero)
+    }
+
+    func testAIAcousticThemeTokens() {
+        let theme = CraftAIAcousticTheme()
+        XCTAssertNotNil(theme.colors.canvasBackground)
+        XCTAssertNotNil(theme.colors.brandPrimary)
+        XCTAssertNotNil(theme.colors.accent)
+        XCTAssertNotNil(theme.typography.phonetic)
+        XCTAssertNotNil(theme.gradients.brandHero)
+    }
+
+    func testOxfordHeritageThemeTokens() {
+        let theme = CraftOxfordHeritageTheme()
+        XCTAssertNotNil(theme.colors.canvasBackground)
+        XCTAssertNotNil(theme.colors.brandPrimary)
+        XCTAssertNotNil(theme.colors.accent)
+        XCTAssertNotNil(theme.typography.displaySerif)
+        XCTAssertNotNil(theme.gradients.streakLegendary)
+    }
+
+    func testSolarMomentumThemeTokens() {
+        let theme = CraftSolarMomentumTheme()
+        XCTAssertNotNil(theme.colors.canvasBackground)
+        XCTAssertNotNil(theme.colors.brandPrimary)
+        XCTAssertNotNil(theme.colors.accent)
+        XCTAssertNotNil(theme.typography.metricRounded)
+        XCTAssertNotNil(theme.gradients.brandHero)
+    }
+
+    func testTactileClayThemeTokens() {
+        let theme = CraftTactileClayTheme()
+        XCTAssertNotNil(theme.colors.canvasBackground)
+        XCTAssertNotNil(theme.colors.brandPrimary)
+        XCTAssertNotNil(theme.colors.accent)
+        XCTAssertNotNil(theme.typography.headline)
+        XCTAssertNotNil(theme.gradients.brandHero)
+    }
 }
+
 

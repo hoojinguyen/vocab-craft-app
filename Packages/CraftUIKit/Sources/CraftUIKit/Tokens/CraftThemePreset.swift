@@ -6,6 +6,11 @@ import SwiftUI
 ///
 /// Encapsulates the 4 design trend themes with light and dark mode parity.
 public enum CraftThemePreset: String, CaseIterable, Identifiable, Sendable {
+    case kyotoMatcha = "kyoto_matcha"
+    case aiAcoustic = "ai_acoustic"
+    case oxfordHeritage = "oxford_heritage"
+    case solarMomentum = "solar_momentum"
+    case tactileClay = "tactile_clay"
     case editorial = "editorial"
     case neoArcade = "neo_arcade"
     case nordicZen = "nordic_zen"
@@ -16,6 +21,11 @@ public enum CraftThemePreset: String, CaseIterable, Identifiable, Sendable {
     /// Human-readable title for UI selectors and settings menus.
     public var displayName: String {
         switch self {
+        case .kyotoMatcha: return "Kyoto Matcha Zen"
+        case .aiAcoustic: return "AI Acoustic Obsidian"
+        case .oxfordHeritage: return "Oxford Heritage"
+        case .solarMomentum: return "Solar Momentum"
+        case .tactileClay: return "Tactile Clay Mochi"
         case .editorial: return "Warm Editorial"
         case .neoArcade: return "Neo-Arcade"
         case .nordicZen: return "Nordic Zen"
@@ -26,7 +36,12 @@ public enum CraftThemePreset: String, CaseIterable, Identifiable, Sendable {
     /// Subtitle describing the design vibe and typography pairing.
     public var subtitle: String {
         switch self {
-        case .editorial: return "Linen & Obsidian • New York Serif • Emerald & Apricot"
+        case .kyotoMatcha: return "Oatmeal Milk & Hinoki • Matcha Sage • Yuzu Gold"
+        case .aiAcoustic: return "Obsidian & Cyber Glow • Sonic Cobalt • Waveforms"
+        case .oxfordHeritage: return "Ivory & Midnight • Oxford Navy • Wax Seal Gold"
+        case .solarMomentum: return "Solar Sand & Midnight • Coral Fire • Sunset Amber"
+        case .tactileClay: return "Sesame & Truffle • Terracotta Clay • Pistachio"
+        case .editorial: return "Linen & Obsidian • New York Serif • Deep Teal"
         case .neoArcade: return "Ice & Cyber Night • SF Rounded • Lime & Indigo"
         case .nordicZen: return "Mist & Graphite • Minimalist • Lavender & Frost"
         case .classic: return "Modern Slate • Rounded • Coral & Amber"
@@ -36,6 +51,16 @@ public enum CraftThemePreset: String, CaseIterable, Identifiable, Sendable {
     /// Returns the instantiated `CraftTheme` conforming instance.
     public var theme: any CraftTheme {
         switch self {
+        case .kyotoMatcha:
+            return CraftKyotoMatchaTheme()
+        case .aiAcoustic:
+            return CraftAIAcousticTheme()
+        case .oxfordHeritage:
+            return CraftOxfordHeritageTheme()
+        case .solarMomentum:
+            return CraftSolarMomentumTheme()
+        case .tactileClay:
+            return CraftTactileClayTheme()
         case .editorial:
             return CraftEditorialTheme()
         case .neoArcade:

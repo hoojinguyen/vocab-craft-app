@@ -4,24 +4,39 @@ import SwiftUI
 
 /// Available themes for the CraftUIKit interactive catalog gallery.
 public enum CatalogThemeType: String, CaseIterable, Identifiable, Sendable {
-    case defaultSlate = "Default Slate"
+    case kyotoMatcha = "Kyoto Matcha Zen"
+    case aiAcoustic = "AI Acoustic Obsidian"
+    case oxfordHeritage = "Oxford Heritage"
+    case solarMomentum = "Solar Momentum"
+    case tactileClay = "Tactile Clay Mochi"
     case editorial = "Warm Editorial"
     case neoArcade = "Neo-Arcade"
     case nordicZen = "Nordic Zen"
+    case defaultSlate = "Default Slate"
     case emeraldTeal = "Emerald Teal"
 
     public var id: String { rawValue }
 
     public var theme: any CraftTheme {
         switch self {
-        case .defaultSlate:
-            return CraftDefaultTheme()
+        case .kyotoMatcha:
+            return CraftKyotoMatchaTheme()
+        case .aiAcoustic:
+            return CraftAIAcousticTheme()
+        case .oxfordHeritage:
+            return CraftOxfordHeritageTheme()
+        case .solarMomentum:
+            return CraftSolarMomentumTheme()
+        case .tactileClay:
+            return CraftTactileClayTheme()
         case .editorial:
             return CraftEditorialTheme()
         case .neoArcade:
             return CraftNeoArcadeTheme()
         case .nordicZen:
             return CraftNordicZenTheme()
+        case .defaultSlate:
+            return CraftDefaultTheme()
         case .emeraldTeal:
             return CraftEmeraldTheme()
         }
