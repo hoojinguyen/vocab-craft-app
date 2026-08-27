@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3000A1A1000100010001 /* FetchLearningPathUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A1000100010001 /* FetchLearningPathUseCase.swift */; };
+		3000A1A1000200020002 /* CompleteLessonUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A1000200020002 /* CompleteLessonUseCase.swift */; };
+		3000A1A1000300030003 /* LearningPathDataMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A1000300030003 /* LearningPathDataMapper.swift */; };
+		3000B2B2000100010001 /* LearningPathUseCasesTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B2B2000100010001 /* LearningPathUseCasesTests.swift */; };
+		3000B2B2000200020002 /* HomeLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B2B2000200020002 /* HomeLocalizationTests.swift */; };
+		3000B2B2000300030003 /* HomepageViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B2B2000300030003 /* HomepageViewModelTests.swift */; };
+		3000B2B2000400040004 /* LearningPathDataMapperTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B2B2000400040004 /* LearningPathDataMapperTests.swift */; };
 		3000DE9D056D85598F6E /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DE9D056D85598F6E /* AppContainer.swift */; };
 		3000FAD85B1C0D0923C5 /* EnvironmentKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FAD85B1C0D0923C5 /* EnvironmentKeys.swift */; };
 		300012A79BAC11C11690 /* AppRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200012A79BAC11C11690 /* AppRouter.swift */; };
@@ -270,6 +277,13 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2000A1A1000100010001 /* FetchLearningPathUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FetchLearningPathUseCase.swift"; sourceTree = "<group>"; };
+		2000A1A1000200020002 /* CompleteLessonUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CompleteLessonUseCase.swift"; sourceTree = "<group>"; };
+		2000A1A1000300030003 /* LearningPathDataMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathDataMapper.swift"; sourceTree = "<group>"; };
+		2000B2B2000100010001 /* LearningPathUseCasesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathUseCasesTests.swift"; sourceTree = "<group>"; };
+		2000B2B2000200020002 /* HomeLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomeLocalizationTests.swift"; sourceTree = "<group>"; };
+		2000B2B2000300030003 /* HomepageViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomepageViewModelTests.swift"; sourceTree = "<group>"; };
+		2000B2B2000400040004 /* LearningPathDataMapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathDataMapperTests.swift"; sourceTree = "<group>"; };
 		200000002D50000000000000 /* VocabCraftApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VocabCraftApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000402D50000000000000 /* VocabCraftWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VocabCraftWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000502D50000000000000 /* VocabCraftAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VocabCraftAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -781,6 +795,8 @@
 		40008298FFEC52A63E9E /* UseCases */ = {
 			isa = PBXGroup;
 			children = (
+				2000A1A1000200020002 /* CompleteLessonUseCase.swift */,
+				2000A1A1000100010001 /* FetchLearningPathUseCase.swift */,
 				2000DD5C753F2543B2FC /* CompleteStageChallengeUseCase.swift */,
 				2000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift */,
 				200084D5B31CC714F488 /* FetchDeckRoadmapUseCase.swift */,
@@ -819,6 +835,7 @@
 		40000AC5F5DCB522F6F2 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				2000A1A1000300030003 /* LearningPathDataMapper.swift */,
 				20008990938AED4AD135 /* HomepageViewModel.swift */,
 			);
 			path = "ViewModels";
@@ -1173,6 +1190,7 @@
 		40002E4285B41EEC7F8B /* Domain */ = {
 			isa = PBXGroup;
 			children = (
+				2000B2B2000100010001 /* LearningPathUseCasesTests.swift */,
 				2000AFFB3F242012EAF1 /* MasteryEvaluationPolicyTests.swift */,
 				2000ACD44A59CAC0463A /* MixedReflexQueueUseCaseTests.swift */,
 				2000257F4D2FD33D16E6 /* VocabularyDomainEntitiesTests.swift */,
@@ -1198,6 +1216,9 @@
 		40004A7D1798887BBCBC /* Homepage */ = {
 			isa = PBXGroup;
 			children = (
+				2000B2B2000200020002 /* HomeLocalizationTests.swift */,
+				2000B2B2000300030003 /* HomepageViewModelTests.swift */,
+				2000B2B2000400040004 /* LearningPathDataMapperTests.swift */,
 				2000E12B85B25E96B828 /* BentoCardsTests.swift */,
 				200031F097ABA2148D97 /* HeaderViewTests.swift */,
 				20004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift */,
@@ -1450,6 +1471,9 @@
 				3000F3CFD53DC701703F /* FetchPersonalVaultUseCase.swift in Sources */,
 				30001457CECD503DB71C /* FetchTopicDecksUseCase.swift in Sources */,
 				300001F55FA2F8FA1668 /* FetchVocabularyUseCase.swift in Sources */,
+				3000A1A1000200020002 /* CompleteLessonUseCase.swift in Sources */,
+				3000A1A1000100010001 /* FetchLearningPathUseCase.swift in Sources */,
+				3000A1A1000300030003 /* LearningPathDataMapper.swift in Sources */,
 				3000541EE18435328F58 /* GenerateMixedReflexQueueUseCase.swift in Sources */,
 				3000A6FAFC7B50783D6B /* RecordMixedDrillAttemptUseCase.swift in Sources */,
 				3000FA7560015826094C /* ResetUserProgressUseCase.swift in Sources */,
@@ -1575,6 +1599,10 @@
 				3000E12B85B25E96B828 /* BentoCardsTests.swift in Test Sources */,
 				300031F097ABA2148D97 /* HeaderViewTests.swift in Test Sources */,
 				30004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift in Test Sources */,
+				3000B2B2000100010001 /* LearningPathUseCasesTests.swift in Test Sources */,
+				3000B2B2000200020002 /* HomeLocalizationTests.swift in Test Sources */,
+				3000B2B2000300030003 /* HomepageViewModelTests.swift in Test Sources */,
+				3000B2B2000400040004 /* LearningPathDataMapperTests.swift in Test Sources */,
 				3000B8BA7058BCC04544 /* MobileSearchViewTests.swift in Test Sources */,
 				3000F020886343A9460C /* SuggestedWordsCardViewTests.swift in Test Sources */,
 				300014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift in Test Sources */,

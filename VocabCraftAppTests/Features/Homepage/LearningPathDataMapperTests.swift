@@ -4,7 +4,6 @@ import Foundation
 import XCTest
 
 final class LearningPathDataMapperTests: XCTestCase {
-
     private var sampleDecks: [TopicDeckDTO] = []
     private var sampleStages: [SubTopicStageDTO] = []
     private var sampleWords: [TopicWordDTO] = []
@@ -25,11 +24,31 @@ final class LearningPathDataMapperTests: XCTestCase {
         ]
 
         sampleWords = [
-            TopicWordDTO(id: 1, stageId: "stage_daily_1", lemma: "Resilience", phonetic: "/rɪˈzɪl.jəns/", pos: "noun", cefrLevel: "B2", definitionVi: "Kiên cường", definitionEn: "Resilience", exampleEn: "Example", exampleVi: "Ví dụ"),
-            TopicWordDTO(id: 2, stageId: "stage_daily_1", lemma: "Gratitude", phonetic: "/ˈɡræt̬.ə.tuːd/", pos: "noun", cefrLevel: "B1", definitionVi: "Biết ơn", definitionEn: "Gratitude", exampleEn: "Example", exampleVi: "Ví dụ"),
-            TopicWordDTO(id: 3, stageId: "stage_daily_2", lemma: "Empathy", phonetic: "/ˈem.pə.θi/", pos: "noun", cefrLevel: "B2", definitionVi: "Đồng cảm", definitionEn: "Empathy", exampleEn: "Example", exampleVi: "Ví dụ"),
-            TopicWordDTO(id: 4, stageId: "stage_biz_1", lemma: "Leadership", phonetic: "/ˈliː.dɚ.ʃɪp/", pos: "noun", cefrLevel: "B2", definitionVi: "Lãnh đạo", definitionEn: "Leadership", exampleEn: "Example", exampleVi: "Ví dụ"),
-            TopicWordDTO(id: 5, stageId: "stage_biz_2", lemma: "Contract", phonetic: "/ˈkɑːn.trækt/", pos: "noun", cefrLevel: "B1", definitionVi: "Hợp đồng", definitionEn: "Contract", exampleEn: "Example", exampleVi: "Ví dụ")
+            TopicWordDTO(
+                id: 1, stageId: "stage_daily_1", lemma: "Resilience", phonetic: "/rɪˈzɪl.jəns/",
+                pos: "noun", cefrLevel: "B2", definitionVi: "Kiên cường", definitionEn: "Resilience",
+                exampleEn: "Example", exampleVi: "Ví dụ"
+            ),
+            TopicWordDTO(
+                id: 2, stageId: "stage_daily_1", lemma: "Gratitude", phonetic: "/ˈɡræt̬.ə.tuːd/",
+                pos: "noun", cefrLevel: "B1", definitionVi: "Biết ơn", definitionEn: "Gratitude",
+                exampleEn: "Example", exampleVi: "Ví dụ"
+            ),
+            TopicWordDTO(
+                id: 3, stageId: "stage_daily_2", lemma: "Empathy", phonetic: "/ˈem.pə.θi/",
+                pos: "noun", cefrLevel: "B2", definitionVi: "Đồng cảm", definitionEn: "Empathy",
+                exampleEn: "Example", exampleVi: "Ví dụ"
+            ),
+            TopicWordDTO(
+                id: 4, stageId: "stage_biz_1", lemma: "Leadership", phonetic: "/ˈliː.dɚ.ʃɪp/",
+                pos: "noun", cefrLevel: "B2", definitionVi: "Lãnh đạo", definitionEn: "Leadership",
+                exampleEn: "Example", exampleVi: "Ví dụ"
+            ),
+            TopicWordDTO(
+                id: 5, stageId: "stage_biz_2", lemma: "Contract", phonetic: "/ˈkɑːn.trækt/",
+                pos: "noun", cefrLevel: "B1", definitionVi: "Hợp đồng", definitionEn: "Contract",
+                exampleEn: "Example", exampleVi: "Ví dụ"
+            )
         ]
     }
 

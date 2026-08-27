@@ -3,7 +3,6 @@ import SwiftUI
 import XCTest
 
 final class HomeLocalizationTests: XCTestCase {
-
     func testAppStringsHomeHeaderAccessors() {
         XCTAssertEqual(AppStrings.Home.greeting("Hooji"), "Hello, Hooji")
         XCTAssertNotNil(AppStrings.Home.greetingKey("Hooji"))

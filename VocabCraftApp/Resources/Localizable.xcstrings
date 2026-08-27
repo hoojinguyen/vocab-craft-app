@@ -137,13 +137,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Score ≥ 80%% accuracy to unlock the next Unit"
+            "value": "Score ≥ 80% accuracy to unlock the next Unit"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Đạt độ chính xác ≥ 80%% để mở khóa Unit tiếp theo"
+            "value": "Đạt độ chính xác ≥ 80% để mở khóa Unit tiếp theo"
           }
         }
       }
@@ -273,13 +273,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Achieve ≥ 80%% accuracy to pass"
+            "value": "Achieve ≥ 80% accuracy to pass"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Đạt độ chính xác ≥ 80%% để qua bài"
+            "value": "Đạt độ chính xác ≥ 80% để qua bài"
           }
         }
       }

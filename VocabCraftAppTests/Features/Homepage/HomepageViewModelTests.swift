@@ -40,7 +40,6 @@ private enum MockError: LocalizedError {
 
 @MainActor
 final class HomepageViewModelTests: XCTestCase {
-
     private func makeSampleSection() -> LessonSection {
         LessonSection(
             id: "deck_1",

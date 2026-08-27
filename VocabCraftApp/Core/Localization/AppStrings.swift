@@ -389,4 +389,3 @@ public enum AppStrings {
         }
     }
 }
-
