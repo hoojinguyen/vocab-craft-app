@@ -11,6 +11,9 @@ public struct VaultWordDetailSheet: View {
     public let onPlayAudio: () -> Void
     public let onToggleBookmark: () -> Void
 
+    @State private var isBookmarked: Bool
+    @State private var isPlayingAudio: Bool = false
+
     public init(
         word: VaultWordItem,
         onPlayAudio: @escaping () -> Void,
@@ -19,6 +22,7 @@ public struct VaultWordDetailSheet: View {
         self.word = word
         self.onPlayAudio = onPlayAudio
         self.onToggleBookmark = onToggleBookmark
+        _isBookmarked = State(initialValue: word.isBookmarked)
     }
 
     public var body: some View {
@@ -43,8 +47,11 @@ public struct VaultWordDetailSheet: View {
             .padding(.bottom, theme.spacing.xl)
         }
         .background(theme.colors.canvasBackground)
-        .presentationDetents([.fraction(0.55), .large])
+        .presentationDetents([.fraction(0.68), .large])
         .presentationDragIndicator(.visible)
+        .onChange(of: word.isBookmarked) { _, newValue in
+            isBookmarked = newValue
+        }
     }
 
     // MARK: - Header Section
@@ -96,31 +103,29 @@ public struct VaultWordDetailSheet: View {
 
             // Header Action Buttons: Speaker & Bookmark
             HStack(spacing: theme.spacing.sm) {
-                CraftIconButton(
-                    symbol: .audio,
-                    size: .lg,
-                    shape: .circle,
-                    variant: .filled,
-                    customTint: theme.colors.brandPrimary,
-                    accessibilityLabelKey: "reflex.listenPronunciation"
+                CraftSpeakerButton(
+                    variant: .subtle,
+                    size: .md,
+                    isPlaying: isPlayingAudio
                 ) {
+                    isPlayingAudio = true
                     onPlayAudio()
+                    Task {
+                        try? await Task.sleep(for: .seconds(1.2))
+                        isPlayingAudio = false
+                    }
                 }
 
                 CraftIconButton(
-                    symbol: word.isBookmarked ? .bookmarkFill : .bookmark,
-                    size: .lg,
+                    symbol: isBookmarked ? .bookmarkFill : .bookmark,
+                    size: .md,
                     shape: .circle,
                     variant: .subtle,
-                    customTint: word.isBookmarked ? theme.colors.accent : theme.colors.textMuted,
-                    isSelected: word.isBookmarked,
-                    accessibilityLabelKey: word.isBookmarked ? "homepage.saved" : "homepage.saveWord"
+                    customTint: isBookmarked ? theme.colors.accent : theme.colors.textMuted,
+                    isSelected: false,
+                    accessibilityLabelKey: isBookmarked ? "homepage.saved" : "homepage.saveWord"
                 ) {
-                    #if os(iOS)
-                    let generator = UIImpactFeedbackGenerator(style: .light)
-                    generator.prepare()
-                    generator.impactOccurred()
-                    #endif
+                    isBookmarked.toggle()
                     onToggleBookmark()
                 }
             }

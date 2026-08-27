@@ -199,6 +199,75 @@ final class PersonalVaultViewsTests: XCTestCase {
         XCTAssertTrue(didToggleBookmark)
     }
 
+    func test_vaultWordDetailSheet_masteredWordWithoutBookmark_rendersProperly() {
+        let masteredWord = VaultWordItem(
+            id: 101,
+            lemma: "serendipity",
+            pos: "noun",
+            phonetic: "/ˌser.ənˈdɪp.ə.ti/",
+            definitionVi: "Sự tình cờ may mắn",
+            exampleSentenceEn: "Finding this book was pure serendipity.",
+            exampleSentenceVi: "Tìm thấy cuốn sách này là một sự may mắn thuần túy.",
+            cefrLevel: "C2",
+            isMastered: true,
+            isBookmarked: false,
+            correctStreak: 7,
+            practicedModes: [.speaking, .listening, .typing],
+            lastPracticedAt: Date()
+        )
+
+        let view = VaultWordDetailSheet(
+            word: masteredWord,
+            onPlayAudio: {},
+            onToggleBookmark: {}
+        )
+
+        #if canImport(UIKit)
+        let host = UIHostingController(rootView: view)
+        XCTAssertNotNil(host.view)
+        #else
+        XCTAssertNotNil(view)
+        #endif
+
+        XCTAssertTrue(masteredWord.isMastered)
+        XCTAssertFalse(masteredWord.isBookmarked)
+    }
+
+    func test_vaultWordDetailSheet_minimalWordWithoutExamplesOrModes_rendersProperly() {
+        let minimalWord = VaultWordItem(
+            id: 102,
+            lemma: "ephemeral",
+            pos: "adj",
+            phonetic: "/ɪˈfem.ər.əl/",
+            definitionVi: "Phù du, chóng tàn",
+            exampleSentenceEn: "",
+            exampleSentenceVi: "",
+            cefrLevel: nil,
+            isMastered: false,
+            isBookmarked: false,
+            correctStreak: 0,
+            practicedModes: [],
+            lastPracticedAt: nil
+        )
+
+        let view = VaultWordDetailSheet(
+            word: minimalWord,
+            onPlayAudio: {},
+            onToggleBookmark: {}
+        )
+
+        #if canImport(UIKit)
+        let host = UIHostingController(rootView: view)
+        XCTAssertNotNil(host.view)
+        #else
+        XCTAssertNotNil(view)
+        #endif
+
+        XCTAssertFalse(minimalWord.isMastered)
+        XCTAssertFalse(minimalWord.isBookmarked)
+        XCTAssertTrue(minimalWord.practicedModes.isEmpty)
+    }
+
     // MARK: - VocabularyView Integration Tests
     func test_vocabularyView_initializationWithViewModel() {
         let vm = PersonalVaultViewModel(mockWords: [mockVaultWord])
