@@ -624,6 +624,57 @@
         }
       }
     },
+    "app.vault.filter.bookmarked_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã lưu"
+          }
+        }
+      }
+    },
+    "app.vault.filter.mastered_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mastered"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã thuộc"
+          }
+        }
+      }
+    },
+    "app.vault.filter.not_mastered_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learning"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa thuộc"
+          }
+        }
+      }
+    },
     "app.vault.filter.mastered" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1106,9 +1157,6 @@
     "Danh sách từ đã luyện (%@)" : {
 
     },
-    "Danh sách từ vựng" : {
-
-    },
     "Đáp án: %@" : {
 
     },
@@ -1508,16 +1556,10 @@
         }
       }
     },
-    "Kho từ" : {
-
-    },
     "Kho từ của bạn" : {
 
     },
     "Không có từ yếu nào!" : {
-
-    },
-    "Không tìm thấy từ vựng nào trong danh mục này." : {
 
     },
     "Không tìm thấy từ vựng nào trong mục này." : {
@@ -1536,9 +1578,6 @@
 
     },
     "Luyện tập lại Chặng này" : {
-
-    },
-    "LUYỆN TẬP PHẢN XẠ" : {
 
     },
     "Mỗi từ có giới hạn đếm ngược riêng biệt để tạo phản xạ vô điều kiện." : {

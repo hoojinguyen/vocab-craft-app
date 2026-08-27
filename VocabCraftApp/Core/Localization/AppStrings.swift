@@ -401,6 +401,15 @@ extension AppStrings {
         public static var searchPlaceholderText: String {
             String(localized: "app.vault.search_placeholder", defaultValue: "Tìm kiếm từ vựng...", bundle: .module)
         }
+        public static var filterNotMasteredTitle: String {
+            String(localized: "app.vault.filter.not_mastered_title", defaultValue: "Chưa thuộc", bundle: .module)
+        }
+        public static var filterMasteredTitle: String {
+            String(localized: "app.vault.filter.mastered_title", defaultValue: "Đã thuộc", bundle: .module)
+        }
+        public static var filterBookmarkedTitle: String {
+            String(localized: "app.vault.filter.bookmarked_title", defaultValue: "Đã lưu", bundle: .module)
+        }
         public static func filterNotMastered(_ count: Int) -> String {
             String(format: String(localized: "app.vault.filter.not_mastered", defaultValue: "Chưa thuộc (%lld)", bundle: .module), count)
         }

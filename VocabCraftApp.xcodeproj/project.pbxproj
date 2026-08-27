@@ -133,8 +133,6 @@
 		30008B8A03E6581634CC /* PracticeSelectionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20008B8A03E6581634CC /* PracticeSelectionRow.swift */; };
 		30006775C280E15D4C8F /* TopCarouselFlashcardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20006775C280E15D4C8F /* TopCarouselFlashcardView.swift */; };
 		3000A5F3C1C439691651 /* VaultWordCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A5F3C1C439691651 /* VaultWordCardView.swift */; };
-		3000A101C1C439691601 /* VaultSegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A101C1C439691601 /* VaultSegmentedControl.swift */; };
-		3000A102C1C439691602 /* VaultReviewActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A102C1C439691602 /* VaultReviewActionButton.swift */; };
 		3000A103C1C439691603 /* VaultWordRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A103C1C439691603 /* VaultWordRowView.swift */; };
 		3000A104C1C439691604 /* VaultWordDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A104C1C439691604 /* VaultWordDetailSheet.swift */; };
 		300077C9C8386F262E62 /* MixedReflexDrillView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200077C9C8386F262E62 /* MixedReflexDrillView.swift */; };
@@ -412,8 +410,6 @@
 		20008B8A03E6581634CC /* PracticeSelectionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeSelectionRow.swift"; sourceTree = "<group>"; };
 		20006775C280E15D4C8F /* TopCarouselFlashcardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TopCarouselFlashcardView.swift"; sourceTree = "<group>"; };
 		2000A5F3C1C439691651 /* VaultWordCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VaultWordCardView.swift"; sourceTree = "<group>"; };
-		2000A101C1C439691601 /* VaultSegmentedControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VaultSegmentedControl.swift"; sourceTree = "<group>"; };
-		2000A102C1C439691602 /* VaultReviewActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VaultReviewActionButton.swift"; sourceTree = "<group>"; };
 		2000A103C1C439691603 /* VaultWordRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VaultWordRowView.swift"; sourceTree = "<group>"; };
 		2000A104C1C439691604 /* VaultWordDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VaultWordDetailSheet.swift"; sourceTree = "<group>"; };
 		200077C9C8386F262E62 /* MixedReflexDrillView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MixedReflexDrillView.swift"; sourceTree = "<group>"; };
@@ -1087,8 +1083,6 @@
 				20008B8A03E6581634CC /* PracticeSelectionRow.swift */,
 				20006775C280E15D4C8F /* TopCarouselFlashcardView.swift */,
 				2000A5F3C1C439691651 /* VaultWordCardView.swift */,
-				2000A101C1C439691601 /* VaultSegmentedControl.swift */,
-				2000A102C1C439691602 /* VaultReviewActionButton.swift */,
 				2000A103C1C439691603 /* VaultWordRowView.swift */,
 				2000A104C1C439691604 /* VaultWordDetailSheet.swift */,
 			);
@@ -1547,8 +1541,6 @@
 				30008B8A03E6581634CC /* PracticeSelectionRow.swift in Sources */,
 				30006775C280E15D4C8F /* TopCarouselFlashcardView.swift in Sources */,
 				3000A5F3C1C439691651 /* VaultWordCardView.swift in Sources */,
-				3000A101C1C439691601 /* VaultSegmentedControl.swift in Sources */,
-				3000A102C1C439691602 /* VaultReviewActionButton.swift in Sources */,
 				3000A103C1C439691603 /* VaultWordRowView.swift in Sources */,
 				3000A104C1C439691604 /* VaultWordDetailSheet.swift in Sources */,
 				300077C9C8386F262E62 /* MixedReflexDrillView.swift in Sources */,

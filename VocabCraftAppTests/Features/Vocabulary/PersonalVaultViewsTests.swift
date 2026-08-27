@@ -41,8 +41,8 @@ final class PersonalVaultViewsTests: XCTestCase {
         lastPracticedAt: Date()
     )
 
-    // MARK: - VaultSegmentedControl Tests
-    func test_vaultSegmentedControl_rendersAndUpdatesSelection() {
+    // MARK: - CraftSegmentedControl in Vault Tests
+    func test_vaultCraftSegmentedControl_rendersAndUpdatesSelection() {
         var selectedFilter: VaultTabFilter = .notMastered
         var didCallSelect = false
         var receivedFilter: VaultTabFilter?
@@ -52,17 +52,16 @@ final class PersonalVaultViewsTests: XCTestCase {
             set: { selectedFilter = $0 }
         )
 
-        let metrics = PersonalVaultMetrics(
-            totalWords: 20,
-            needsReviewCount: 5,
-            masteredCount: 8,
-            bookmarkedCount: 3,
-            unmasteredCount: 12
-        )
+        let options: [CraftSegmentOption<VaultTabFilter>] = [
+            CraftSegmentOption(.notMastered, title: "Chưa thuộc", count: 12),
+            CraftSegmentOption(.mastered, title: "Đã thuộc", count: 8),
+            CraftSegmentOption(.bookmarked, title: "Đã lưu", count: 3)
+        ]
 
-        let view = VaultSegmentedControl(
-            selectedTab: binding,
-            metrics: metrics,
+        let view = CraftSegmentedControl(
+            selection: binding,
+            options: options,
+            style: .glass,
             onSelect: { filter in
                 didCallSelect = true
                 receivedFilter = filter
@@ -81,10 +80,15 @@ final class PersonalVaultViewsTests: XCTestCase {
         XCTAssertEqual(receivedFilter, .mastered)
     }
 
-    // MARK: - VaultReviewActionButton Tests
-    func test_vaultReviewActionButton_triggersAction() {
+    // MARK: - CraftButton in Vault Tests
+    func test_vaultPracticeButton_triggersAction() {
         var didTrigger = false
-        let view = VaultReviewActionButton(count: 10) {
+        let view = CraftButton(
+            verbatim: AppStrings.Vault.actionPracticeText,
+            variant: .primary,
+            size: .lg,
+            isFullWidth: true
+        ) {
             didTrigger = true
         }
 
@@ -99,8 +103,14 @@ final class PersonalVaultViewsTests: XCTestCase {
         XCTAssertTrue(didTrigger)
     }
 
-    func test_vaultReviewActionButton_withZeroCount_rendersDisabled() {
-        let view = VaultReviewActionButton(count: 0) {}
+    func test_vaultPracticeButton_withDisabledState_rendersCorrectly() {
+        let view = CraftButton(
+            verbatim: AppStrings.Vault.actionPracticeText,
+            variant: .primary,
+            size: .lg,
+            isFullWidth: true
+        ) {}
+        .disabled(true)
 
         #if canImport(UIKit)
         let host = UIHostingController(rootView: view)
@@ -108,8 +118,6 @@ final class PersonalVaultViewsTests: XCTestCase {
         #else
         XCTAssertNotNil(view)
         #endif
-
-        XCTAssertEqual(view.count, 0)
     }
 
     // MARK: - VaultWordRowView Tests (Active Recall)

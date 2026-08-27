@@ -76,24 +76,29 @@ public struct VocabularyView: View {
                     .padding(.top, theme.spacing.xs)
 
                     // 3-Tab Segmented Filter (Chưa thuộc / Đã thuộc / Đã lưu)
-                    VaultSegmentedControl(
-                        selectedTab: Binding(
+                    CraftSegmentedControl(
+                        selection: Binding(
                             get: { bindableVaultVM.vaultTabFilter },
                             set: { bindableVaultVM.setVaultFilter($0) }
                         ),
-                        metrics: currentVaultVM.metrics
+                        options: vaultSegmentOptions(metrics: currentVaultVM.metrics),
+                        style: .glass
                     )
                     .padding(.horizontal, theme.spacing.base)
 
-                    // Top Action Button: Ôn luyện
-                    VaultReviewActionButton(
-                        count: min(currentVaultVM.vaultWords.count, 15),
+                    // Top Action Button: PRACTICE / LUYỆN TẬP
+                    CraftButton(
+                        verbatim: AppStrings.Vault.actionPracticeText,
+                        variant: .primary,
+                        size: .lg,
+                        isFullWidth: true,
                         action: {
                             let words = currentVaultVM.prepareReviewWords()
                             guard !words.isEmpty else { return }
                             activeDrillViewModel = appContainer.makeMixedReflexDrillViewModel(selectedWords: words)
                         }
                     )
+                    .disabled(currentVaultVM.vaultWords.isEmpty)
                     .padding(.horizontal, theme.spacing.base)
 
                     // Main Word List / Empty State
@@ -240,6 +245,15 @@ public struct VocabularyView: View {
                 )
             }
         }
+    }
+
+    // MARK: - Segment Options Helper
+    private func vaultSegmentOptions(metrics: PersonalVaultMetrics) -> [CraftSegmentOption<VaultTabFilter>] {
+        [
+            CraftSegmentOption(.notMastered, title: AppStrings.Vault.filterNotMasteredTitle, count: metrics.unmasteredCount),
+            CraftSegmentOption(.mastered, title: AppStrings.Vault.filterMasteredTitle, count: metrics.masteredCount),
+            CraftSegmentOption(.bookmarked, title: AppStrings.Vault.filterBookmarkedTitle, count: metrics.bookmarkedCount)
+        ]
     }
 
     // MARK: - Automation State Setup

@@ -927,4 +927,33 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertEqual(CraftLocalized.string("craft.common.state.off"), "Off")
         XCTAssertEqual(CraftLocalized.string("craft.common.state.off", language: "vi"), "Tắt")
     }
+
+    // MARK: - CraftSegmentedControl Tests
+
+    func testCraftSegmentedControlOptionsAndStyles() {
+        var selected = "tab1"
+        var selectedCallback: String?
+        let options = [
+            CraftSegmentOption("tab1", title: "Tab 1", count: 5, symbol: CraftSymbol.study),
+            CraftSegmentOption("tab2", title: "Tab 2", count: 10),
+            CraftSegmentOption("tab3", title: "Tab 3")
+        ]
+
+        let control = CraftSegmentedControl(
+            selection: Binding(get: { selected }, set: { selected = $0 }),
+            options: options,
+            style: .glass,
+            onSelect: { selectedCallback = $0 }
+        )
+
+        XCTAssertEqual(control.options.count, 3)
+        XCTAssertEqual(control.options[0].id, "tab1")
+        XCTAssertEqual(control.options[0].count, 5)
+        XCTAssertEqual(control.options[0].symbol, CraftSymbol.study)
+        XCTAssertEqual(control.style, CraftSurfaceStyle.glass)
+        XCTAssertNotNil(control.body)
+
+        control.onSelect?("tab2")
+        XCTAssertEqual(selectedCallback, "tab2")
+    }
 }
