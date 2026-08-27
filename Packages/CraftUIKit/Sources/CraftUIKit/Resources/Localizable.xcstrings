@@ -1156,6 +1156,24 @@
         }
       }
     },
+    "craft.learning_path.sticky_hud_progress_format" : {
+      "comment" : "Sticky HUD progress format",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@"
+          }
+        }
+      }
+    },
     "craft.learning_path.tap_to_continue_hint" : {
       "comment" : "Node resume hint",
       "extractionState" : "manual",

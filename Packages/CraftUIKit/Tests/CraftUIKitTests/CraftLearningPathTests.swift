@@ -3324,13 +3324,12 @@ final class CraftLearningPathTests: XCTestCase {
 
     func testCraftLessonRowImpressionForwarding() {
         let node = LessonNodeModel(id: "n_row_imp", title: "Row Impression")
-        var impressionCalled = false
 
         let row = CraftLessonRow(
             node: node,
             offsetRatio: 0.2,
             onNodeTap: nil,
-            onNodeImpression: { _ in impressionCalled = true },
+            onNodeImpression: { _ in },
             impressionThreshold: 0.3
         )
         XCTAssertEqual(row.impressionThreshold, 0.3)
@@ -3343,7 +3342,7 @@ final class CraftLearningPathTests: XCTestCase {
         let snakeRow = CraftLessonRow(
             rowLayout: SnakeRowLayout(id: "row_1", rowIndex: 0, nodes: [PositionedLessonNode(node: node, slot: .center, traversalIndex: 0)]),
             onNodeTap: nil,
-            onNodeImpression: { _ in impressionCalled = true },
+            onNodeImpression: { _ in },
             impressionThreshold: 0.25
         )
         XCTAssertEqual(snakeRow.impressionThreshold, 0.25)
@@ -3353,7 +3352,7 @@ final class CraftLearningPathTests: XCTestCase {
             nodes: [node],
             arrangement: .single,
             onNodeTap: nil,
-            onNodeImpression: { _ in impressionCalled = true },
+            onNodeImpression: { _ in },
             impressionThreshold: 0.4
         )
         XCTAssertEqual(legacyRow.impressionThreshold, 0.4)
@@ -3416,5 +3415,121 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertNotNil(multiSectionPath.onNodeImpression)
     }
 
+    // MARK: - Sticky HUD Builder Tests
+
+    func testCraftLearningPathStickyHUDBuilderInitialization() {
+        let section = LessonSection(
+            id: "unit_hud",
+            title: "Unit HUD",
+            level: "LEVEL 1",
+            progressText: "50%",
+            progressValue: 0.5,
+            nodes: [LessonNodeModel(id: "n1", title: "Node 1")]
+        )
+        let path = CraftLearningPath(
+            sections: [section],
+            stickyHUD: { s in
+                Text("Custom HUD: \(s.title)")
+            }
+        )
+        XCTAssertNotNil(path.stickyHUDBuilder)
+    }
+
+    func testCraftLearningPathSingleSectionStickyHUDBuilderInitialization() {
+        let section = LessonSection(
+            id: "unit_single_hud",
+            title: "Single Unit HUD",
+            nodes: [LessonNodeModel(id: "n1", title: "Node 1")]
+        )
+        let path = CraftLearningPath(
+            section: section,
+            stickyHUD: { s in
+                Text("Single HUD: \(s.title)")
+            }
+        )
+        XCTAssertNotNil(path.stickyHUDBuilder)
+    }
+
+    func testCraftLearningPathDefaultStickyHUDInitialization() {
+        let section = LessonSection(
+            id: "unit_default_hud",
+            title: "Default Unit",
+            nodes: [LessonNodeModel(id: "n1", title: "Node 1")]
+        )
+        let path = CraftLearningPath(sections: [section])
+        XCTAssertNil(path.stickyHUDBuilder)
+
+        let singlePath = CraftLearningPath(section: section)
+        XCTAssertNil(singlePath.stickyHUDBuilder)
+    }
+
+    func testCraftLessonSectionHeaderViewOnDockChangeCallback() {
+        let section = LessonSection(
+            id: "unit_dock",
+            title: "Dock Unit",
+            nodes: [LessonNodeModel(id: "n1", title: "Node 1")]
+        )
+        var dockStatus: Bool?
+        let headerView = CraftLessonSectionHeaderView(
+            section: section,
+            dockThreshold: 20,
+            onDockChange: { isDocked in
+                dockStatus = isDocked
+            }
+        )
+        XCTAssertEqual(headerView.dockThreshold, 20)
+        XCTAssertNotNil(headerView.onDockChange)
+
+        let defaultHeaderView = CraftLessonSectionHeaderView(section: section)
+        XCTAssertEqual(defaultHeaderView.dockThreshold, 15)
+        XCTAssertNil(defaultHeaderView.onDockChange)
+        XCTAssertFalse(defaultHeaderView.isPinned)
+    }
+
+    func testCraftLessonSectionViewOnDockChangeForwarding() {
+        let section = LessonSection(
+            id: "unit_sec_dock",
+            title: "Section Dock Unit",
+            nodes: [LessonNodeModel(id: "n1", title: "Node 1")]
+        )
+        let sectionView = CraftLessonSectionView(
+            section: section,
+            dockThreshold: 25,
+            onDockChange: { _ in }
+        )
+        XCTAssertEqual(sectionView.dockThreshold, 25)
+        XCTAssertNotNil(sectionView.onDockChange)
+
+        let defaultSectionView = CraftLessonSectionView(section: section)
+        XCTAssertEqual(defaultSectionView.dockThreshold, 15)
+        XCTAssertNil(defaultSectionView.onDockChange)
+    }
+
+    func testCraftLearningPathStickyHUDViewRendering() {
+        let section = LessonSection(
+            id: "unit_render_hud",
+            title: "Render HUD Unit",
+            level: "LEVEL 3",
+            progressText: "4/5",
+            progressValue: 0.8,
+            bannerIcon: "star.fill",
+            nodes: [LessonNodeModel(id: "n1", title: "Node 1")]
+        )
+        let pathWithCustomHUD = CraftLearningPath(
+            sections: [section],
+            stickyHUD: { s in
+                Text("Custom: \(s.title)")
+            }
+        )
+        XCTAssertNotNil(pathWithCustomHUD.body)
+
+        let pathWithDefaultHUD = CraftLearningPath(
+            sections: [section]
+        )
+        XCTAssertNotNil(pathWithDefaultHUD.body)
+    }
+
 }
+
+
 

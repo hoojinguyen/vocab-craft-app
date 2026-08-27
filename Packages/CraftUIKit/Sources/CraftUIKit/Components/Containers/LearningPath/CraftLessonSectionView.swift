@@ -20,6 +20,7 @@ public struct CraftLessonSectionHeaderView: View {
     public let section: LessonSection
     public var isPinned: Bool
     public var dockThreshold: CGFloat
+    public var onDockChange: ((Bool) -> Void)?
 
     @Environment(\.craftTheme) private var theme
     @State private var isDocked: Bool = false
@@ -32,10 +33,17 @@ public struct CraftLessonSectionHeaderView: View {
     ///   - section: The `LessonSection` presentation model.
     ///   - isPinned: Whether this header is explicitly marked as pinned.
     ///   - dockThreshold: The vertical offset threshold to consider the header docked.
-    public init(section: LessonSection, isPinned: Bool = false, dockThreshold: CGFloat = 15) {
+    ///   - onDockChange: Optional closure invoked when the header dock status changes.
+    public init(
+        section: LessonSection,
+        isPinned: Bool = false,
+        dockThreshold: CGFloat = 15,
+        onDockChange: ((Bool) -> Void)? = nil
+    ) {
         self.section = section
         self.isPinned = isPinned
         self.dockThreshold = dockThreshold
+        self.onDockChange = onDockChange
     }
 
     // MARK: - Header Visibility
@@ -162,12 +170,14 @@ public struct CraftLessonSectionHeaderView: View {
                                 withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                                     isDocked = docked
                                 }
+                                onDockChange?(docked)
                             }
                         }
                         .onAppear {
                             let docked = minY <= dockThreshold
                             if isDocked != docked {
                                 isDocked = docked
+                                onDockChange?(docked)
                             }
                         }
                 }
@@ -312,6 +322,8 @@ public struct CraftLessonSectionView: View {
     public let onNodeTap: (@Sendable (LessonNodeModel) -> Void)?
     public let onNodeImpression: (@Sendable (LessonNodeModel) -> Void)?
     public let impressionThreshold: TimeInterval
+    public var dockThreshold: CGFloat
+    public var onDockChange: ((Bool) -> Void)?
 
     @Environment(\.craftTheme) private var theme
 
@@ -324,17 +336,23 @@ public struct CraftLessonSectionView: View {
     ///   - onNodeTap: Optional closure invoked when any lesson node within the section is tapped.
     ///   - onNodeImpression: Optional closure invoked when a node impression is recorded.
     ///   - impressionThreshold: Duration in seconds a node must be visible before impression triggers.
+    ///   - dockThreshold: The vertical offset threshold to consider the header docked.
+    ///   - onDockChange: Optional closure invoked when the header dock status changes.
     public init(
         section: LessonSection,
         onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
         onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
-        impressionThreshold: TimeInterval = 0.5
+        impressionThreshold: TimeInterval = 0.5,
+        dockThreshold: CGFloat = 15,
+        onDockChange: ((Bool) -> Void)? = nil
     ) {
         self.section = section
         self.rowPattern = section.rowPattern
         self.onNodeTap = onNodeTap
         self.onNodeImpression = onNodeImpression
         self.impressionThreshold = impressionThreshold
+        self.dockThreshold = dockThreshold
+        self.onDockChange = onDockChange
     }
 
     /// Creates a lesson section view supporting custom row patterns for backward compatibility.
@@ -345,25 +363,35 @@ public struct CraftLessonSectionView: View {
     ///   - onNodeTap: Optional closure invoked when any lesson node within the section is tapped.
     ///   - onNodeImpression: Optional closure invoked when a node impression is recorded.
     ///   - impressionThreshold: Duration in seconds a node must be visible before impression triggers.
+    ///   - dockThreshold: The vertical offset threshold to consider the header docked.
+    ///   - onDockChange: Optional closure invoked when the header dock status changes.
     public init(
         section: LessonSection,
         rowPattern: RowPattern = .standard,
         onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
         onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
-        impressionThreshold: TimeInterval = 0.5
+        impressionThreshold: TimeInterval = 0.5,
+        dockThreshold: CGFloat = 15,
+        onDockChange: ((Bool) -> Void)? = nil
     ) {
         self.section = section
         self.rowPattern = rowPattern
         self.onNodeTap = onNodeTap
         self.onNodeImpression = onNodeImpression
         self.impressionThreshold = impressionThreshold
+        self.dockThreshold = dockThreshold
+        self.onDockChange = onDockChange
     }
 
     // MARK: - Body
 
     public var body: some View {
         VStack(spacing: theme.spacing.lg) {
-            CraftLessonSectionHeaderView(section: section)
+            CraftLessonSectionHeaderView(
+                section: section,
+                dockThreshold: dockThreshold,
+                onDockChange: onDockChange
+            )
 
             CraftLessonSectionBodyView(
                 section: section,
