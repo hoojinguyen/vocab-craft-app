@@ -54,4 +54,3 @@ final class ColorTokensTests: XCTestCase {
         XCTAssertNil(manager.preferredColorScheme)
     }
 }
-
