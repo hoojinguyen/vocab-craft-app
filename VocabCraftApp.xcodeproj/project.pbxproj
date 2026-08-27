@@ -83,7 +83,6 @@
 		30003F92B199F9827BCA /* CEFRDistributionCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003F92B199F9827BCA /* CEFRDistributionCard.swift */; };
 		30002A4CBDD7D76C361F /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20002A4CBDD7D76C361F /* HeaderView.swift */; };
 		300034E8C11F48348C6D /* HomepageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200034E8C11F48348C6D /* HomepageView.swift */; };
-		3000F5E38233F07AA9F3 /* LiquidGlassTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000F5E38233F07AA9F3 /* LiquidGlassTabBar.swift */; };
 		300096513C5AE8139597 /* MobileSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200096513C5AE8139597 /* MobileSearchView.swift */; };
 		300020749F4D43ABD652 /* SRSMemoryHeroCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200020749F4D43ABD652 /* SRSMemoryHeroCard.swift */; };
 		300008890465B3CF1A36 /* SearchNewWordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200008890465B3CF1A36 /* SearchNewWordView.swift */; };
@@ -359,7 +358,6 @@
 		20003F92B199F9827BCA /* CEFRDistributionCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CEFRDistributionCard.swift"; sourceTree = "<group>"; };
 		20002A4CBDD7D76C361F /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HeaderView.swift"; sourceTree = "<group>"; };
 		200034E8C11F48348C6D /* HomepageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomepageView.swift"; sourceTree = "<group>"; };
-		2000F5E38233F07AA9F3 /* LiquidGlassTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LiquidGlassTabBar.swift"; sourceTree = "<group>"; };
 		200096513C5AE8139597 /* MobileSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MobileSearchView.swift"; sourceTree = "<group>"; };
 		200020749F4D43ABD652 /* SRSMemoryHeroCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SRSMemoryHeroCard.swift"; sourceTree = "<group>"; };
 		200008890465B3CF1A36 /* SearchNewWordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SearchNewWordView.swift"; sourceTree = "<group>"; };
@@ -851,7 +849,6 @@
 				20003F92B199F9827BCA /* CEFRDistributionCard.swift */,
 				20002A4CBDD7D76C361F /* HeaderView.swift */,
 				200034E8C11F48348C6D /* HomepageView.swift */,
-				2000F5E38233F07AA9F3 /* LiquidGlassTabBar.swift */,
 				200096513C5AE8139597 /* MobileSearchView.swift */,
 				200020749F4D43ABD652 /* SRSMemoryHeroCard.swift */,
 				200008890465B3CF1A36 /* SearchNewWordView.swift */,
@@ -1488,7 +1485,6 @@
 				30003F92B199F9827BCA /* CEFRDistributionCard.swift in Sources */,
 				30002A4CBDD7D76C361F /* HeaderView.swift in Sources */,
 				300034E8C11F48348C6D /* HomepageView.swift in Sources */,
-				3000F5E38233F07AA9F3 /* LiquidGlassTabBar.swift in Sources */,
 				300096513C5AE8139597 /* MobileSearchView.swift in Sources */,
 				300020749F4D43ABD652 /* SRSMemoryHeroCard.swift in Sources */,
 				300008890465B3CF1A36 /* SearchNewWordView.swift in Sources */,

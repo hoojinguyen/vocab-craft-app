@@ -77,8 +77,18 @@ public struct HomepageView: View {
             }
 
             if router.selectedTab != .reflex {
-                LiquidGlassTabBar(selectedTab: $router.selectedTab)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                CraftFloatingTabBar(
+                    selectedItem: $router.selectedTab,
+                    items: TabItem.navigationTabs,
+                    style: .glass,
+                    centerPosition: .floating,
+                    centerAction: {
+                        router.navigateToReflex()
+                    },
+                    centerSymbol: CraftSymbol.practice.rawValue,
+                    centerTitleKey: AppStrings.Tabs.reflex
+                )
+                .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
         .onAppear {

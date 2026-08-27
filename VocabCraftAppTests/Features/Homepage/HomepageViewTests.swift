@@ -21,9 +21,17 @@ final class HomepageViewTests: XCTestCase {
         XCTAssertNil(TabItem.home.badgeCount)
     }
 
-    func testLiquidGlassTabBarInitialization() {
+    func testCraftFloatingTabBarInitialization() {
         let binding = Binding.constant(TabItem.home)
-        let tabBar = LiquidGlassTabBar(selectedTab: binding)
+        let tabBar = CraftFloatingTabBar(
+            selectedItem: binding,
+            items: TabItem.navigationTabs,
+            style: .glass,
+            centerPosition: .floating,
+            centerAction: {},
+            centerSymbol: CraftSymbol.practice.rawValue,
+            centerTitleKey: AppStrings.Tabs.reflex
+        )
         XCTAssertNotNil(tabBar)
     }
 
