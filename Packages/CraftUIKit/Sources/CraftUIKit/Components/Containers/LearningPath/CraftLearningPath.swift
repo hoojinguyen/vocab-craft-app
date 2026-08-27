@@ -13,6 +13,9 @@ import SwiftUI
 /// 6. Smooth scroll-driven parallax and scale transition effects on sections.
 /// 7. Optional celebratory confetti/sparkle overlay triggers on milestone and reward completion.
 public struct CraftLearningPath: View {
+    /// Coordinate space identifier used for header docking and scroll position calculations.
+    public static let scrollCoordinateSpaceName = "CraftLearningPathScrollView"
+
     public let sections: [LessonSection]
     public let winding: SerpentineWinding
     public let rowPattern: RowPattern
@@ -460,7 +463,7 @@ public struct CraftLearningPath: View {
                     .padding(.top, theme.spacing.xl)
                 }
             }
-            .coordinateSpace(name: "CraftLearningPathScrollView")
+            .coordinateSpace(name: Self.scrollCoordinateSpaceName)
             .safeAreaInset(edge: .bottom) {
                 Color.clear.frame(height: smartBottomPadding)
             }

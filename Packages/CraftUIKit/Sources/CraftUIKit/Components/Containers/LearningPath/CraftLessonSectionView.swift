@@ -162,7 +162,7 @@ public struct CraftLessonSectionHeaderView: View {
             .padding(.horizontal, theme.spacing.base)
             .background(
                 GeometryReader { geo in
-                    let minY = geo.frame(in: .named("CraftLearningPathScrollView")).minY
+                    let minY = geo.frame(in: .named(CraftLearningPath.scrollCoordinateSpaceName)).minY
                     Color.clear
                         .onChange(of: minY) { _, newValue in
                             let docked = newValue <= dockThreshold

@@ -347,6 +347,11 @@ public struct CraftLessonNode: View, Equatable {
             impressionTask?.cancel()
             impressionTask = nil
         }
+        .onChange(of: model.id) { _, _ in
+            hasTrackedImpression = false
+            impressionTask?.cancel()
+            impressionTask = nil
+        }
     }
 
     // MARK: - Tactile Node Atom
