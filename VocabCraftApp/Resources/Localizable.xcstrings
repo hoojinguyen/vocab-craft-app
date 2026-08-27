@@ -437,6 +437,23 @@
         }
       }
     },
+    "app.reflex.mode_a11y_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mode: %@, time limit %@"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chế độ: %@, giới hạn thời gian %@"
+          }
+        }
+      }
+    },
     "app.vault.action.review_words" : {
       "extractionState" : "manual",
       "localizations" : {

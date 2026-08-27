@@ -259,6 +259,12 @@ public enum AppStrings {
         public static func incorrectFeedback(_ answer: String) -> LocalizedStringKey {
             LocalizedStringKey("reflex.incorrectFeedback \(answer)")
         }
+        public static func modeA11yLabel(mode: String, duration: String) -> String {
+            String(format: String(localized: "app.reflex.mode_a11y_format", defaultValue: "Mode: %@, time limit %@", bundle: .module), mode, duration)
+        }
+        public static func modeAccessibilityLabel(mode: String, duration: String) -> String {
+            modeA11yLabel(mode: mode, duration: duration)
+        }
     }
 
     // MARK: - Settings View

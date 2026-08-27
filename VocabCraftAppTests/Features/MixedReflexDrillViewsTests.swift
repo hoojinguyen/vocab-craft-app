@@ -15,6 +15,19 @@ struct MixedReflexDrillViewsTests {
         }
     }
 
+    @Test("DynamicReflexModeBadge a11y label và localized format hoạt động chính xác")
+    func testDynamicReflexModeBadgeA11yLocalization() {
+        let label = AppStrings.Reflex.modeA11yLabel(mode: "Trắc nghiệm", duration: "4.5s")
+        #expect(!label.isEmpty)
+        #expect(label.contains("Trắc nghiệm"))
+        #expect(label.contains("4.5s"))
+
+        let aliasLabel = AppStrings.Reflex.modeAccessibilityLabel(mode: "Luyện nói", duration: "6.0s")
+        #expect(!aliasLabel.isEmpty)
+        #expect(aliasLabel.contains("Luyện nói"))
+        #expect(aliasLabel.contains("6.0s"))
+    }
+
     @Test("DynamicPulseTimerBar phân loại đúng 3 cấp độ thời gian (Steady, Warning, Urgent)")
     @MainActor
     func testDynamicPulseTimerBarStages() {
