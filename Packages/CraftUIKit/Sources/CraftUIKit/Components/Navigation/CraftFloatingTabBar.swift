@@ -136,13 +136,17 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
     private let rawCenterTitle: String?
 
     @State private var tabFrames: [String: CGRect] = [:]
-    @State private var isTransitioning = false
+    @State private var activeTransitionCount = 0
 
     // Pre-computed item partitions to avoid array allocations on every view body re-evaluation
     private let leadingItems: [Item]
     private let trailingItems: [Item]
 
     public var centerTitle: String? { rawCenterTitle }
+
+    private var isTransitioning: Bool {
+        activeTransitionCount > 0
+    }
 
     private var selectedTabKey: String {
         String(describing: selectedItem.id)
@@ -242,57 +246,59 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
 
     @ViewBuilder
     private var barContent: some View {
-        ZStack(alignment: .topLeading) {
-            // Tier 2: Independent Sliding Fluid Glass Pill
-            if let frame = selectedFrame {
-                CraftSlidingFluidPill(
-                    style: style,
-                    isTransitioning: isTransitioning
-                )
-                .frame(width: frame.width, height: frame.height)
-                .position(x: frame.midX, y: frame.midY)
-                .animation(reduceMotion ? nil : theme.animations.springSnappy, value: frame)
-            }
-
-            // Tier 3: Foreground Interactive Tab Buttons
-            HStack(spacing: theme.spacing.xs) {
-                if centerAction != nil {
-                    ForEach(leadingItems) { item in
-                        CraftTabButton(
-                            item: item,
-                            isSelected: selectedItem.id == item.id,
-                            barStyle: style,
-                            onSelect: { select(item) }
-                        )
-                    }
-
-                    Color.clear
-                        .frame(width: centerPosition == .floating ? 56 : 42, height: 44)
-                        .accessibilityHidden(true)
-
-                    ForEach(trailingItems) { item in
-                        CraftTabButton(
-                            item: item,
-                            isSelected: selectedItem.id == item.id,
-                            barStyle: style,
-                            onSelect: { select(item) }
-                        )
-                    }
-                } else {
-                    ForEach(items) { item in
-                        CraftTabButton(
-                            item: item,
-                            isSelected: selectedItem.id == item.id,
-                            barStyle: style,
-                            onSelect: { select(item) }
-                        )
-                    }
+        tabButtonsStack
+            .background(alignment: .topLeading) {
+                // Tier 2: Independent Sliding Fluid Glass Pill
+                if let frame = selectedFrame {
+                    CraftSlidingFluidPill(
+                        style: style,
+                        isTransitioning: isTransitioning
+                    )
+                    .frame(width: frame.width, height: frame.height, alignment: .center)
+                    .offset(x: frame.minX, y: frame.minY)
                 }
             }
-        }
-        .coordinateSpace(name: "CraftTabBarTrack")
-        .onPreferenceChange(CraftTabBarItemPreferenceKey.self) { preferences in
-            tabFrames = preferences
+            .coordinateSpace(name: "CraftTabBarTrack")
+            .onPreferenceChange(CraftTabBarItemPreferenceKey.self) { preferences in
+                tabFrames = preferences
+            }
+    }
+
+    @ViewBuilder
+    private var tabButtonsStack: some View {
+        HStack(spacing: theme.spacing.xs) {
+            if centerAction != nil {
+                ForEach(leadingItems) { item in
+                    CraftTabButton(
+                        item: item,
+                        isSelected: selectedItem.id == item.id,
+                        barStyle: style,
+                        onSelect: { select(item) }
+                    )
+                }
+
+                Color.clear
+                    .frame(width: centerPosition == .floating ? 56 : 42, height: 44)
+                    .accessibilityHidden(true)
+
+                ForEach(trailingItems) { item in
+                    CraftTabButton(
+                        item: item,
+                        isSelected: selectedItem.id == item.id,
+                        barStyle: style,
+                        onSelect: { select(item) }
+                    )
+                }
+            } else {
+                ForEach(items) { item in
+                    CraftTabButton(
+                        item: item,
+                        isSelected: selectedItem.id == item.id,
+                        barStyle: style,
+                        onSelect: { select(item) }
+                    )
+                }
+            }
         }
     }
 
@@ -301,11 +307,11 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
         if reduceMotion {
             selectedItem = item
         } else {
-            isTransitioning = true
+            activeTransitionCount += 1
             withAnimation(theme.animations.springSnappy) {
                 selectedItem = item
             } completion: {
-                isTransitioning = false
+                activeTransitionCount = max(0, activeTransitionCount - 1)
             }
         }
     }
