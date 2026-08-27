@@ -182,6 +182,8 @@ public struct CraftLessonNode: View, Equatable {
     public let model: LessonNodeModel
     public let calloutText: String?
     public let onTap: (@Sendable () -> Void)?
+    public let onNodeImpression: (@Sendable (LessonNodeModel) -> Void)?
+    public let impressionThreshold: TimeInterval
 
     @Environment(\.craftTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -190,23 +192,31 @@ public struct CraftLessonNode: View, Equatable {
     @State private var tapTrigger: Bool = false
     @State private var completionTrigger: Bool = false
     @State private var lockedAttemptTrigger: Bool = false
+    @State private var impressionTask: Task<Void, Never>? = nil
+    @State private var hasTrackedImpression: Bool = false
 
     // MARK: - Initializer
 
     public init(
         model: LessonNodeModel,
         calloutText: String? = nil,
-        onTap: (@Sendable () -> Void)? = nil
+        onTap: (@Sendable () -> Void)? = nil,
+        onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        impressionThreshold: TimeInterval = 0.5
     ) {
         self.model = model
         self.calloutText = calloutText
         self.onTap = onTap
+        self.onNodeImpression = onNodeImpression
+        self.impressionThreshold = impressionThreshold
     }
 
     // MARK: - Equatable Conformance
 
     public static func == (lhs: CraftLessonNode, rhs: CraftLessonNode) -> Bool {
-        lhs.model == rhs.model && lhs.calloutText == rhs.calloutText
+        lhs.model == rhs.model &&
+        lhs.calloutText == rhs.calloutText &&
+        abs(lhs.impressionThreshold - rhs.impressionThreshold) < 0.0001
     }
 
     // MARK: - Computed Sizing
@@ -321,6 +331,22 @@ public struct CraftLessonNode: View, Equatable {
         .accessibilityLabel(accessibilityLabelText)
         .accessibilityHint(accessibilityHintText)
         .accessibilityAddTraits(accessibilityTraits)
+        .onAppear {
+            guard !hasTrackedImpression, onNodeImpression != nil else { return }
+            impressionTask?.cancel()
+            impressionTask = Task { @MainActor in
+                let nanoseconds = UInt64(max(0, impressionThreshold) * 1_000_000_000)
+                try? await Task.sleep(nanoseconds: nanoseconds)
+                guard !Task.isCancelled else { return }
+                guard !hasTrackedImpression else { return }
+                hasTrackedImpression = true
+                onNodeImpression?(model)
+            }
+        }
+        .onDisappear {
+            impressionTask?.cancel()
+            impressionTask = nil
+        }
     }
 
     // MARK: - Tactile Node Atom

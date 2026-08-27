@@ -41,6 +41,8 @@ public struct CraftLearningPath: View {
     // Telemetry hooks
     public let onSectionAppear: (@Sendable (LessonSection) -> Void)?
     public let onAutoScrolled: (@Sendable (String) -> Void)?
+    public let onNodeImpression: (@Sendable (LessonNodeModel) -> Void)?
+    public let nodeImpressionThreshold: TimeInterval
 
     @Environment(\.craftTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -63,6 +65,8 @@ public struct CraftLearningPath: View {
     ///   - scrollToActive: Whether to automatically scroll to the active node upon appear (default: `true`).
     ///   - showCelebration: Whether to display celebratory confetti when completed/bonus/treasure nodes are tapped (default: `true`).
     ///   - pinSectionHeaders: Whether to pin section headers at the top when scrolling (default: `true`).
+    ///   - onNodeImpression: Optional closure invoked when a node impression is recorded.
+    ///   - nodeImpressionThreshold: Duration in seconds a node must be visible before impression triggers (default: `0.5`).
     public init(
         section: LessonSection,
         winding: SerpentineWinding = .standard,
@@ -72,7 +76,9 @@ public struct CraftLearningPath: View {
         showDetailModal: Bool = true,
         scrollToActive: Bool = true,
         showCelebration: Bool = true,
-        pinSectionHeaders: Bool = true
+        pinSectionHeaders: Bool = true,
+        onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        nodeImpressionThreshold: TimeInterval = 0.5
     ) {
         self.init(
             sections: [section],
@@ -83,7 +89,9 @@ public struct CraftLearningPath: View {
             showDetailModal: showDetailModal,
             scrollToActive: scrollToActive,
             showCelebration: showCelebration,
-            pinSectionHeaders: pinSectionHeaders
+            pinSectionHeaders: pinSectionHeaders,
+            onNodeImpression: onNodeImpression,
+            nodeImpressionThreshold: nodeImpressionThreshold
         )
     }
 
@@ -99,6 +107,19 @@ public struct CraftLearningPath: View {
     ///   - scrollToActive: Whether to automatically scroll to the active node upon appear (default: `true`).
     ///   - showCelebration: Whether to display celebratory confetti when completed/bonus/treasure nodes are tapped (default: `true`).
     ///   - pinSectionHeaders: Whether to pin section headers at the top when scrolling (default: `true`).
+    ///   - scrollAnimation: Animation used for automatic scrolling.
+    ///   - scrollAnchor: Anchor point used for auto-scrolling to active node.
+    ///   - detailSheetBuilder: Optional custom modal sheet builder.
+    ///   - backgroundViewBuilder: Optional custom background view builder.
+    ///   - emptyStateViewBuilder: Optional custom empty state view builder.
+    ///   - connectorDotDiameter: Optional connector dot diameter.
+    ///   - connectorDotSpacing: Optional connector dot spacing.
+    ///   - connectorTurnRadius: Optional connector turn corner radius.
+    ///   - connectorEdgeInset: Optional connector edge inset margin.
+    ///   - onSectionAppear: Optional closure invoked when a section appears.
+    ///   - onAutoScrolled: Optional closure invoked when auto-scroll completes.
+    ///   - onNodeImpression: Optional closure invoked when a node impression is recorded.
+    ///   - nodeImpressionThreshold: Duration in seconds a node must be visible before impression triggers (default: `0.5`).
     public init(
         sections: [LessonSection],
         winding: SerpentineWinding = .standard,
@@ -119,7 +140,9 @@ public struct CraftLearningPath: View {
         connectorTurnRadius: CGFloat? = nil,
         connectorEdgeInset: CGFloat? = nil,
         onSectionAppear: (@Sendable (LessonSection) -> Void)? = nil,
-        onAutoScrolled: (@Sendable (String) -> Void)? = nil
+        onAutoScrolled: (@Sendable (String) -> Void)? = nil,
+        onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        nodeImpressionThreshold: TimeInterval = 0.5
     ) {
         self.sections = sections
         self.winding = winding
@@ -142,6 +165,8 @@ public struct CraftLearningPath: View {
         self.connectorEdgeInset = connectorEdgeInset
         self.onSectionAppear = onSectionAppear
         self.onAutoScrolled = onAutoScrolled
+        self.onNodeImpression = onNodeImpression
+        self.nodeImpressionThreshold = nodeImpressionThreshold
     }
 
     /// Creates a single-section learning path supporting custom row patterns for backward compatibility.
@@ -153,7 +178,9 @@ public struct CraftLearningPath: View {
         showDetailModal: Bool = true,
         scrollToActive: Bool = true,
         showCelebration: Bool = true,
-        pinSectionHeaders: Bool = true
+        pinSectionHeaders: Bool = true,
+        onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        nodeImpressionThreshold: TimeInterval = 0.5
     ) {
         self.init(
             sections: [section],
@@ -164,7 +191,9 @@ public struct CraftLearningPath: View {
             showDetailModal: showDetailModal,
             scrollToActive: scrollToActive,
             showCelebration: showCelebration,
-            pinSectionHeaders: pinSectionHeaders
+            pinSectionHeaders: pinSectionHeaders,
+            onNodeImpression: onNodeImpression,
+            nodeImpressionThreshold: nodeImpressionThreshold
         )
     }
 
@@ -177,7 +206,9 @@ public struct CraftLearningPath: View {
         showDetailModal: Bool = true,
         scrollToActive: Bool = true,
         showCelebration: Bool = true,
-        pinSectionHeaders: Bool = true
+        pinSectionHeaders: Bool = true,
+        onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        nodeImpressionThreshold: TimeInterval = 0.5
     ) {
         self.init(
             sections: sections,
@@ -188,7 +219,9 @@ public struct CraftLearningPath: View {
             showDetailModal: showDetailModal,
             scrollToActive: scrollToActive,
             showCelebration: showCelebration,
-            pinSectionHeaders: pinSectionHeaders
+            pinSectionHeaders: pinSectionHeaders,
+            onNodeImpression: onNodeImpression,
+            nodeImpressionThreshold: nodeImpressionThreshold
         )
     }
 
@@ -265,7 +298,9 @@ public struct CraftLearningPath: View {
                                     connectorDotDiameter: connectorDotDiameter,
                                     connectorDotSpacing: connectorDotSpacing,
                                     connectorTurnRadius: connectorTurnRadius,
-                                    connectorEdgeInset: connectorEdgeInset
+                                    connectorEdgeInset: connectorEdgeInset,
+                                    onNodeImpression: onNodeImpression,
+                                    impressionThreshold: nodeImpressionThreshold
                                 )
                                 .scrollTransition(.animated) { content, phase in
                                     content
@@ -299,7 +334,9 @@ public struct CraftLearningPath: View {
                                     connectorDotDiameter: connectorDotDiameter,
                                     connectorDotSpacing: connectorDotSpacing,
                                     connectorTurnRadius: connectorTurnRadius,
-                                    connectorEdgeInset: connectorEdgeInset
+                                    connectorEdgeInset: connectorEdgeInset,
+                                    onNodeImpression: onNodeImpression,
+                                    impressionThreshold: nodeImpressionThreshold
                                 )
                             }
                             .scrollTransition(.animated) { content, phase in

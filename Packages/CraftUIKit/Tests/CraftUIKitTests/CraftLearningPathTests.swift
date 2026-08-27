@@ -3299,4 +3299,122 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertEqual(journeySection.nodes[0].id, "l1")
     }
 
+    // MARK: - Node Impression Telemetry Tests
+
+    func testNodeImpressionInitializationAndThresholdDefaults() {
+        let node = LessonNodeModel(id: "n_imp", title: "Impression Test")
+        let expectation = XCTestExpectation(description: "Node impression triggered")
+
+        let lessonNode = CraftLessonNode(
+            model: node,
+            onNodeImpression: { impressed in
+                XCTAssertEqual(impressed.id, "n_imp")
+                expectation.fulfill()
+            },
+            impressionThreshold: 0.1
+        )
+        XCTAssertEqual(lessonNode.impressionThreshold, 0.1)
+        XCTAssertNotNil(lessonNode.onNodeImpression)
+
+        // Test default threshold
+        let defaultNode = CraftLessonNode(model: node)
+        XCTAssertEqual(defaultNode.impressionThreshold, 0.5)
+        XCTAssertNil(defaultNode.onNodeImpression)
+    }
+
+    func testCraftLessonRowImpressionForwarding() {
+        let node = LessonNodeModel(id: "n_row_imp", title: "Row Impression")
+        var impressionCalled = false
+
+        let row = CraftLessonRow(
+            node: node,
+            offsetRatio: 0.2,
+            onNodeTap: nil,
+            onNodeImpression: { _ in impressionCalled = true },
+            impressionThreshold: 0.3
+        )
+        XCTAssertEqual(row.impressionThreshold, 0.3)
+        XCTAssertNotNil(row.onNodeImpression)
+
+        let defaultRow = CraftLessonRow(node: node)
+        XCTAssertEqual(defaultRow.impressionThreshold, 0.5)
+        XCTAssertNil(defaultRow.onNodeImpression)
+
+        let snakeRow = CraftLessonRow(
+            rowLayout: SnakeRowLayout(id: "row_1", rowIndex: 0, nodes: [PositionedLessonNode(node: node, slot: .center, traversalIndex: 0)]),
+            onNodeTap: nil,
+            onNodeImpression: { _ in impressionCalled = true },
+            impressionThreshold: 0.25
+        )
+        XCTAssertEqual(snakeRow.impressionThreshold, 0.25)
+        XCTAssertNotNil(snakeRow.onNodeImpression)
+
+        let legacyRow = CraftLessonRow(
+            nodes: [node],
+            arrangement: .single,
+            onNodeTap: nil,
+            onNodeImpression: { _ in impressionCalled = true },
+            impressionThreshold: 0.4
+        )
+        XCTAssertEqual(legacyRow.impressionThreshold, 0.4)
+        XCTAssertNotNil(legacyRow.onNodeImpression)
+    }
+
+    func testCraftLessonSectionBodyAndSectionViewImpressionForwarding() {
+        let node = LessonNodeModel(id: "n_sec_imp", title: "Sec Impression")
+        let section = LessonSection(id: "sec_imp", title: "Section", nodes: [node])
+
+        let bodyView = CraftLessonSectionBodyView(
+            section: section,
+            onNodeTap: nil,
+            onNodeImpression: { _ in },
+            impressionThreshold: 0.15
+        )
+        XCTAssertEqual(bodyView.impressionThreshold, 0.15)
+        XCTAssertNotNil(bodyView.onNodeImpression)
+
+        let defaultBodyView = CraftLessonSectionBodyView(section: section)
+        XCTAssertEqual(defaultBodyView.impressionThreshold, 0.5)
+        XCTAssertNil(defaultBodyView.onNodeImpression)
+
+        let sectionView = CraftLessonSectionView(
+            section: section,
+            onNodeTap: nil,
+            onNodeImpression: { _ in },
+            impressionThreshold: 0.2
+        )
+        XCTAssertEqual(sectionView.impressionThreshold, 0.2)
+        XCTAssertNotNil(sectionView.onNodeImpression)
+
+        let defaultSectionView = CraftLessonSectionView(section: section)
+        XCTAssertEqual(defaultSectionView.impressionThreshold, 0.5)
+        XCTAssertNil(defaultSectionView.onNodeImpression)
+    }
+
+    func testCraftLearningPathImpressionInitializationAndDefaults() {
+        let node = LessonNodeModel(id: "n_lp_imp", title: "LP Impression")
+        let section = LessonSection(id: "sec_lp", title: "LP Section", nodes: [node])
+
+        let path = CraftLearningPath(
+            section: section,
+            onNodeImpression: { _ in },
+            nodeImpressionThreshold: 0.35
+        )
+        XCTAssertEqual(path.nodeImpressionThreshold, 0.35)
+        XCTAssertNotNil(path.onNodeImpression)
+
+        let defaultPath = CraftLearningPath(section: section)
+        XCTAssertEqual(defaultPath.nodeImpressionThreshold, 0.5)
+        XCTAssertNil(defaultPath.onNodeImpression)
+
+        let multiSectionPath = CraftLearningPath(
+            sections: [section],
+            onNodeImpression: { _ in },
+            nodeImpressionThreshold: 0.45
+        )
+        XCTAssertEqual(multiSectionPath.nodeImpressionThreshold, 0.45)
+        XCTAssertNotNil(multiSectionPath.onNodeImpression)
+    }
+
 }
+

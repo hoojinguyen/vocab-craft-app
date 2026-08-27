@@ -184,6 +184,8 @@ public struct CraftLessonSectionBodyView: View {
     public let section: LessonSection
     public let rowPattern: RowPattern
     public let onNodeTap: (@Sendable (LessonNodeModel) -> Void)?
+    public let onNodeImpression: (@Sendable (LessonNodeModel) -> Void)?
+    public let impressionThreshold: TimeInterval
     
     public let connectorDotDiameter: CGFloat?
     public let connectorDotSpacing: CGFloat?
@@ -199,17 +201,27 @@ public struct CraftLessonSectionBodyView: View {
     /// - Parameters:
     ///   - section: The `LessonSection` presentation model.
     ///   - onNodeTap: Optional closure invoked when any lesson node within the section is tapped.
+    ///   - connectorDotDiameter: Optional diameter for connector dots.
+    ///   - connectorDotSpacing: Optional spacing between connector dots.
+    ///   - connectorTurnRadius: Optional turn corner radius for connector curves.
+    ///   - connectorEdgeInset: Optional edge inset margin for connector turns.
+    ///   - onNodeImpression: Optional closure invoked when a node impression is recorded.
+    ///   - impressionThreshold: Duration in seconds a node must be visible before impression triggers.
     public init(
         section: LessonSection,
         onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
         connectorDotDiameter: CGFloat? = nil,
         connectorDotSpacing: CGFloat? = nil,
         connectorTurnRadius: CGFloat? = nil,
-        connectorEdgeInset: CGFloat? = nil
+        connectorEdgeInset: CGFloat? = nil,
+        onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        impressionThreshold: TimeInterval = 0.5
     ) {
         self.section = section
         self.rowPattern = section.rowPattern
         self.onNodeTap = onNodeTap
+        self.onNodeImpression = onNodeImpression
+        self.impressionThreshold = impressionThreshold
         
         self.connectorDotDiameter = connectorDotDiameter
         self.connectorDotSpacing = connectorDotSpacing
@@ -223,6 +235,12 @@ public struct CraftLessonSectionBodyView: View {
     ///   - section: The `LessonSection` presentation model.
     ///   - rowPattern: Layout row pattern (defaults to `.standard`).
     ///   - onNodeTap: Optional closure invoked when any lesson node within the section is tapped.
+    ///   - connectorDotDiameter: Optional diameter for connector dots.
+    ///   - connectorDotSpacing: Optional spacing between connector dots.
+    ///   - connectorTurnRadius: Optional turn corner radius for connector curves.
+    ///   - connectorEdgeInset: Optional edge inset margin for connector turns.
+    ///   - onNodeImpression: Optional closure invoked when a node impression is recorded.
+    ///   - impressionThreshold: Duration in seconds a node must be visible before impression triggers.
     public init(
         section: LessonSection,
         rowPattern: RowPattern = .standard,
@@ -230,11 +248,15 @@ public struct CraftLessonSectionBodyView: View {
         connectorDotDiameter: CGFloat? = nil,
         connectorDotSpacing: CGFloat? = nil,
         connectorTurnRadius: CGFloat? = nil,
-        connectorEdgeInset: CGFloat? = nil
+        connectorEdgeInset: CGFloat? = nil,
+        onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        impressionThreshold: TimeInterval = 0.5
     ) {
         self.section = section
         self.rowPattern = rowPattern
         self.onNodeTap = onNodeTap
+        self.onNodeImpression = onNodeImpression
+        self.impressionThreshold = impressionThreshold
         
         self.connectorDotDiameter = connectorDotDiameter
         self.connectorDotSpacing = connectorDotSpacing
@@ -255,7 +277,9 @@ public struct CraftLessonSectionBodyView: View {
             ForEach(rowLayouts) { rowLayout in
                 CraftLessonRow(
                     rowLayout: rowLayout,
-                    onNodeTap: onNodeTap
+                    onNodeTap: onNodeTap,
+                    onNodeImpression: onNodeImpression,
+                    impressionThreshold: impressionThreshold
                 )
             }
         }
@@ -286,6 +310,8 @@ public struct CraftLessonSectionView: View {
     public let section: LessonSection
     public let rowPattern: RowPattern
     public let onNodeTap: (@Sendable (LessonNodeModel) -> Void)?
+    public let onNodeImpression: (@Sendable (LessonNodeModel) -> Void)?
+    public let impressionThreshold: TimeInterval
 
     @Environment(\.craftTheme) private var theme
 
@@ -296,13 +322,19 @@ public struct CraftLessonSectionView: View {
     /// - Parameters:
     ///   - section: The `LessonSection` presentation model.
     ///   - onNodeTap: Optional closure invoked when any lesson node within the section is tapped.
+    ///   - onNodeImpression: Optional closure invoked when a node impression is recorded.
+    ///   - impressionThreshold: Duration in seconds a node must be visible before impression triggers.
     public init(
         section: LessonSection,
-        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil
+        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        impressionThreshold: TimeInterval = 0.5
     ) {
         self.section = section
         self.rowPattern = section.rowPattern
         self.onNodeTap = onNodeTap
+        self.onNodeImpression = onNodeImpression
+        self.impressionThreshold = impressionThreshold
     }
 
     /// Creates a lesson section view supporting custom row patterns for backward compatibility.
@@ -311,14 +343,20 @@ public struct CraftLessonSectionView: View {
     ///   - section: The `LessonSection` presentation model.
     ///   - rowPattern: Layout row pattern (defaults to `.standard`).
     ///   - onNodeTap: Optional closure invoked when any lesson node within the section is tapped.
+    ///   - onNodeImpression: Optional closure invoked when a node impression is recorded.
+    ///   - impressionThreshold: Duration in seconds a node must be visible before impression triggers.
     public init(
         section: LessonSection,
         rowPattern: RowPattern = .standard,
-        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil
+        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        impressionThreshold: TimeInterval = 0.5
     ) {
         self.section = section
         self.rowPattern = rowPattern
         self.onNodeTap = onNodeTap
+        self.onNodeImpression = onNodeImpression
+        self.impressionThreshold = impressionThreshold
     }
 
     // MARK: - Body
@@ -330,7 +368,9 @@ public struct CraftLessonSectionView: View {
             CraftLessonSectionBodyView(
                 section: section,
                 rowPattern: rowPattern,
-                onNodeTap: onNodeTap
+                onNodeTap: onNodeTap,
+                onNodeImpression: onNodeImpression,
+                impressionThreshold: impressionThreshold
             )
         }
     }

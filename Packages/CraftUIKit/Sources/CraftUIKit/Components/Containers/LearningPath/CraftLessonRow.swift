@@ -29,6 +29,8 @@ public struct CraftLessonRow: View, Equatable {
     public let node: LessonNodeModel
     public let offsetRatio: CGFloat
     public let onNodeTap: (@Sendable (LessonNodeModel) -> Void)?
+    public let onNodeImpression: (@Sendable (LessonNodeModel) -> Void)?
+    public let impressionThreshold: TimeInterval
 
     // Backward compatibility properties
     public let nodes: [LessonNodeModel]
@@ -45,12 +47,18 @@ public struct CraftLessonRow: View, Equatable {
     /// - Parameters:
     ///   - rowLayout: The `SnakeRowLayout` defining positioned nodes for this row.
     ///   - onNodeTap: Optional closure invoked when a node is tapped.
+    ///   - onNodeImpression: Optional closure invoked when a node impression is recorded.
+    ///   - impressionThreshold: Duration in seconds a node must be visible before impression triggers.
     public init(
         rowLayout: SnakeRowLayout,
-        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil
+        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        impressionThreshold: TimeInterval = 0.5
     ) {
         self.rowLayout = rowLayout
         self.onNodeTap = onNodeTap
+        self.onNodeImpression = onNodeImpression
+        self.impressionThreshold = impressionThreshold
         self.nodes = rowLayout.nodes.map(\.node)
         self.node = rowLayout.nodes.first?.node ?? LessonNodeModel(id: "empty", title: "")
         self.offsetRatio = 0.0
@@ -67,15 +75,21 @@ public struct CraftLessonRow: View, Equatable {
     ///   - node: The `LessonNodeModel` to display in this row.
     ///   - offsetRatio: Horizontal offset ratio (-1.0 to 1.0, where 0.0 is center, -0.5 is left, +0.5 is right).
     ///   - onNodeTap: Optional closure invoked when the node is tapped.
+    ///   - onNodeImpression: Optional closure invoked when a node impression is recorded.
+    ///   - impressionThreshold: Duration in seconds a node must be visible before impression triggers.
     public init(
         node: LessonNodeModel,
         offsetRatio: CGFloat = 0.0,
-        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil
+        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        impressionThreshold: TimeInterval = 0.5
     ) {
         self.rowLayout = nil
         self.node = node
         self.offsetRatio = offsetRatio
         self.onNodeTap = onNodeTap
+        self.onNodeImpression = onNodeImpression
+        self.impressionThreshold = impressionThreshold
         self.nodes = [node]
         self.arrangement = .single
     }
@@ -84,12 +98,16 @@ public struct CraftLessonRow: View, Equatable {
     public init(
         nodes: [LessonNodeModel],
         arrangement: LessonRowArrangement = .single,
-        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil
+        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        impressionThreshold: TimeInterval = 0.5
     ) {
         self.rowLayout = nil
         self.node = nodes.first ?? LessonNodeModel(id: "empty", title: "")
         self.offsetRatio = 0.0
         self.onNodeTap = onNodeTap
+        self.onNodeImpression = onNodeImpression
+        self.impressionThreshold = impressionThreshold
         self.nodes = nodes
         self.arrangement = arrangement
     }
@@ -101,7 +119,8 @@ public struct CraftLessonRow: View, Equatable {
         lhs.node == rhs.node &&
         abs(lhs.offsetRatio - rhs.offsetRatio) < 0.0001 &&
         lhs.nodes == rhs.nodes &&
-        lhs.arrangement == rhs.arrangement
+        lhs.arrangement == rhs.arrangement &&
+        abs(lhs.impressionThreshold - rhs.impressionThreshold) < 0.0001
     }
 
     // MARK: - Body
@@ -124,7 +143,9 @@ public struct CraftLessonRow: View, Equatable {
                 let xOffset = measuredWidth * (pNode.slot.xRatio - 0.50)
                 CraftLessonNode(
                     model: pNode.node,
-                    onTap: onNodeTap != nil ? { onNodeTap?(pNode.node) } : nil
+                    onTap: onNodeTap != nil ? { onNodeTap?(pNode.node) } : nil,
+                    onNodeImpression: onNodeImpression,
+                    impressionThreshold: impressionThreshold
                 )
                 .id(pNode.node.id)
                 .alignmentGuide(HorizontalAlignment.center) { d in
@@ -157,7 +178,9 @@ public struct CraftLessonRow: View, Equatable {
         return ZStack(alignment: .center) {
             CraftLessonNode(
                 model: node,
-                onTap: onNodeTap != nil ? { onNodeTap?(node) } : nil
+                onTap: onNodeTap != nil ? { onNodeTap?(node) } : nil,
+                onNodeImpression: onNodeImpression,
+                impressionThreshold: impressionThreshold
             )
             .id(node.id)
             .alignmentGuide(HorizontalAlignment.center) { d in
@@ -227,7 +250,9 @@ public struct CraftLessonRow: View, Equatable {
     private func nodeView(for node: LessonNodeModel) -> some View {
         CraftLessonNode(
             model: node,
-            onTap: onNodeTap != nil ? { onNodeTap?(node) } : nil
+            onTap: onNodeTap != nil ? { onNodeTap?(node) } : nil,
+            onNodeImpression: onNodeImpression,
+            impressionThreshold: impressionThreshold
         )
         .id(node.id)
     }
