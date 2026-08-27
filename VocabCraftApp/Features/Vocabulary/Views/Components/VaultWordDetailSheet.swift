@@ -8,7 +8,8 @@ public struct VaultWordDetailSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     public let word: VaultWordItem
-    public let isPlayingAudio: Bool
+    public let viewModel: PersonalVaultViewModel?
+    public let isPlayingAudio: Bool?
     public let onPlayAudio: () -> Void
     public let onToggleBookmark: () -> Void
 
@@ -16,15 +17,24 @@ public struct VaultWordDetailSheet: View {
 
     public init(
         word: VaultWordItem,
-        isPlayingAudio: Bool = false,
+        viewModel: PersonalVaultViewModel? = nil,
+        isPlayingAudio: Bool? = nil,
         onPlayAudio: @escaping () -> Void,
         onToggleBookmark: @escaping () -> Void
     ) {
         self.word = word
+        self.viewModel = viewModel
         self.isPlayingAudio = isPlayingAudio
         self.onPlayAudio = onPlayAudio
         self.onToggleBookmark = onToggleBookmark
         _isBookmarked = State(initialValue: word.isBookmarked)
+    }
+
+    public var effectiveIsPlayingAudio: Bool {
+        if let explicit = isPlayingAudio {
+            return explicit
+        }
+        return viewModel?.isSpeakingAudio ?? false
     }
 
     public var body: some View {
@@ -98,7 +108,7 @@ public struct VaultWordDetailSheet: View {
                 CraftSpeakerButton(
                     variant: .subtle,
                     size: .md,
-                    isPlaying: isPlayingAudio
+                    isPlaying: effectiveIsPlayingAudio
                 ) {
                     onPlayAudio()
                 }

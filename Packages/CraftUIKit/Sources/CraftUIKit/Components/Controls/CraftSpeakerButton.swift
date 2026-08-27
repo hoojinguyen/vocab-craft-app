@@ -72,6 +72,7 @@ public struct CraftSpeakerButton: View {
         }
         .buttonStyle(PlainButtonStyle())
         .sensoryFeedback(.impact(weight: .light), trigger: hapticTrigger)
+        .animation(.smooth(duration: 0.2), value: isPlaying)
         .accessibilityLabel(CraftLocalized.string(isPlaying ? "craft.audio.playing" : "craft.audio.pronounce"))
         .accessibilityAddTraits(.isButton)
     }
@@ -104,12 +105,11 @@ public struct CraftSpeakerButton: View {
 
     @ViewBuilder
     private var speakerIcon: some View {
-        let iconName = isPlaying ? "speaker.wave.3.fill" : "speaker.wave.2.fill"
-        Image(systemName: iconName)
+        Image(systemName: "speaker.wave.2.fill")
             .font(.system(size: iconSizePt, weight: .semibold))
             .foregroundStyle(foregroundColor)
             .symbolRenderingMode(.hierarchical)
-            .contentTransition(.symbolEffect(.replace))
+            .symbolEffect(.variableColor.iterative.reversing, isActive: isPlaying)
     }
 
     private var foregroundColor: Color {

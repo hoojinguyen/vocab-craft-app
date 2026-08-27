@@ -94,7 +94,7 @@ public struct VocabularyView: View {
             .sheet(item: $bindableVaultVM.selectedWordForDetail) { word in
                 VaultWordDetailSheet(
                     word: word,
-                    isPlayingAudio: currentVaultVM.isSpeakingAudio,
+                    viewModel: currentVaultVM,
                     onPlayAudio: {
                         currentVaultVM.playAudio(for: word)
                     },

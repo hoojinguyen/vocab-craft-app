@@ -283,7 +283,30 @@ final class PersonalVaultViewsTests: XCTestCase {
         XCTAssertNotNil(view)
         #endif
 
-        XCTAssertTrue(view.isPlayingAudio)
+        XCTAssertEqual(view.isPlayingAudio, true)
+        XCTAssertTrue(view.effectiveIsPlayingAudio)
+    }
+
+    func test_vaultWordDetailSheet_withViewModel_observesIsSpeakingAudio() {
+        let mockTTS = MockTTS()
+        let vm = PersonalVaultViewModel(ttsService: mockTTS, mockWords: [mockVaultWord])
+        let view = VaultWordDetailSheet(
+            word: mockVaultWord,
+            viewModel: vm,
+            onPlayAudio: {},
+            onToggleBookmark: {}
+        )
+
+        #if canImport(UIKit)
+        let host = UIHostingController(rootView: view)
+        XCTAssertNotNil(host.view)
+        #else
+        XCTAssertNotNil(view)
+        #endif
+
+        XCTAssertFalse(view.effectiveIsPlayingAudio)
+        mockTTS.isSpeaking = true
+        XCTAssertTrue(view.effectiveIsPlayingAudio)
     }
 
     // MARK: - VocabularyView Integration Tests
@@ -371,5 +394,21 @@ final class PersonalVaultViewsTests: XCTestCase {
 
         view.onDismiss()
         XCTAssertTrue(didDismiss)
+    }
+}
+
+// MARK: - Test Helpers
+
+@MainActor
+private final class MockTTS: TextToSpeechProtocol {
+    var lastSpokenText: String?
+    var isSpeaking: Bool = false
+
+    func speak(text: String, rate: Float, locale: String) {
+        lastSpokenText = text
+    }
+
+    func stop() {
+        isSpeaking = false
     }
 }
