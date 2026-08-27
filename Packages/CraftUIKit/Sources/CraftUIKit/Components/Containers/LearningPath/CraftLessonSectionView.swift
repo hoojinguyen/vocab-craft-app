@@ -99,7 +99,10 @@ public struct CraftLessonSectionHeaderView: View {
                                 .foregroundStyle(theme.colors.textPrimary)
                         }
 
-                        if let subtitle = section.subtitle, !subtitle.isEmpty {
+                        if let subtitle = section.subtitle,
+                           !subtitle.isEmpty,
+                           subtitle != section.level,
+                           subtitle != section.title {
                             Text(subtitle)
                                 .font(theme.typography.bodyMedium)
                                 .foregroundStyle(theme.colors.textSecondary)

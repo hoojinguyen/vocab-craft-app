@@ -188,7 +188,7 @@ public struct LearningPathDataMapper: Sendable {
         return LessonSection(
             id: deck.id,
             title: AppStrings.Home.unitTitle(number: deckIndex + 1, title: deck.title),
-            subtitle: deck.cefrLevel,
+            subtitle: nil,
             level: deck.cefrLevel,
             progressText: progressText,
             progressValue: progressValue,

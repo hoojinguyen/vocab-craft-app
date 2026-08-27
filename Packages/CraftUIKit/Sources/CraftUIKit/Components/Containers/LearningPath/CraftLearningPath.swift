@@ -164,6 +164,10 @@ public struct CraftLearningPath: View {
         return nil
     }
 
+    private var smartBottomPadding: CGFloat {
+        pinSectionHeaders ? 420 : 130
+    }
+
     // MARK: - Body
 
     public var body: some View {
@@ -221,7 +225,7 @@ public struct CraftLearningPath: View {
                         }
                     }
                     .padding(.top, theme.spacing.xl)
-                    .padding(.bottom, 130)
+                    .padding(.bottom, smartBottomPadding)
                 } else {
                     LazyVStack(spacing: theme.spacing.xxl, pinnedViews: []) {
                         ForEach(sections) { section in

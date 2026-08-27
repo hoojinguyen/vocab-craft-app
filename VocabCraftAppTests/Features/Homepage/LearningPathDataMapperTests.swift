@@ -259,7 +259,7 @@ final class LearningPathDataMapperTests: XCTestCase {
 
         let section1 = sections[0]
         XCTAssertEqual(section1.title, AppStrings.Home.unitTitle(number: 1, title: "Daily Life"))
-        XCTAssertEqual(section1.subtitle, "A2 - B1")
+        XCTAssertNil(section1.subtitle)
         XCTAssertEqual(section1.level, "A2 - B1")
         XCTAssertEqual(section1.bannerIcon, "bubble.left")
 
