@@ -1,9 +1,8 @@
-import XCTest
-import SwiftUI
 @testable import CraftUIKit
+import SwiftUI
+import XCTest
 
 final class AtomComponentTests: XCTestCase {
-
     // MARK: - CraftBadge Tests
 
     func testBadgeInit() {
@@ -342,6 +341,18 @@ final class AtomComponentTests: XCTestCase {
         XCTAssertEqual(btn.minTouchTarget, 44)
     }
 
+    func testIconButtonFilledWithCustomTintHasTextInverseForeground() {
+        let btn = CraftIconButton(
+            symbol: .audio,
+            variant: .filled,
+            customTint: .orange,
+            accessibilityLabel: "Audio"
+        ) {}
+        XCTAssertEqual(btn.variant, .filled)
+        XCTAssertEqual(btn.customTint, .orange)
+        XCTAssertNotNil(btn.body)
+    }
+
     // MARK: - CraftDivider Tests
 
     func testDividerInit() {
@@ -392,9 +403,9 @@ final class AtomComponentTests: XCTestCase {
         XCTAssertNotEqual(CraftDividerStyle.solid, CraftDividerStyle.dashed(dash: 6, gap: 3))
         XCTAssertNotEqual(CraftDividerStyle.dashed(dash: 6, gap: 3), CraftDividerStyle.dashed(dash: 4, gap: 2))
 
-        let g1 = LinearGradient(colors: [.red, .blue], startPoint: .leading, endPoint: .trailing)
-        let g2 = LinearGradient(colors: [.red, .blue], startPoint: .leading, endPoint: .trailing)
-        XCTAssertEqual(CraftDividerStyle.gradient(g1), CraftDividerStyle.gradient(g2))
+        let gradient1 = LinearGradient(colors: [.red, .blue], startPoint: .leading, endPoint: .trailing)
+        let gradient2 = LinearGradient(colors: [.red, .blue], startPoint: .leading, endPoint: .trailing)
+        XCTAssertEqual(CraftDividerStyle.gradient(gradient1), CraftDividerStyle.gradient(gradient2))
     }
 
     // MARK: - CraftSpinner Tests
@@ -594,4 +605,3 @@ final class AtomComponentTests: XCTestCase {
         XCTAssertNotNil(ring.body)
     }
 }
-

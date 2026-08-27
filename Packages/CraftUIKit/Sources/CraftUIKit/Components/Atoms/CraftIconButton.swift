@@ -173,26 +173,26 @@ public struct CraftIconButtonStyle: ButtonStyle {
     }
 
     @ViewBuilder
-    private func renderShape<S: InsettableShape>(_ s: S) -> some View {
+    private func renderShape<S: InsettableShape>(_ shape: S) -> some View {
         switch variant {
         case .filled:
-            s.fill(effectiveTint)
+            shape.fill(effectiveTint)
         case .subtle:
-            s.fill(isSelected ? effectiveTint : effectiveTint.opacity(0.12))
+            shape.fill(isSelected ? effectiveTint : effectiveTint.opacity(0.12))
         case .outline:
             if isSelected {
-                s.fill(effectiveTint)
+                shape.fill(effectiveTint)
             } else {
-                s.strokeBorder(customTint ?? theme.colors.borderDefault, lineWidth: 1.5)
+                shape.strokeBorder(customTint ?? theme.colors.borderDefault, lineWidth: 1.5)
             }
         case .ghost:
             if isSelected {
-                s.fill(effectiveTint)
+                shape.fill(effectiveTint)
             } else {
                 Color.clear
             }
         case .danger:
-            s.fill(theme.colors.statusDanger)
+            shape.fill(theme.colors.statusDanger)
         }
     }
 }
@@ -343,18 +343,10 @@ public struct CraftIconButton: View {
     }
 
     private var foregroundColor: Color {
-        if let customTint {
-            return isSelected ? theme.colors.textInverse : customTint
-        }
-        if style != nil {
-            return isSelected ? theme.colors.textInverse : theme.colors.brandPrimary
-        }
-        switch variant {
-        case .filled, .danger:
+        if variant == .filled || variant == .danger || isSelected {
             return theme.colors.textInverse
-        case .subtle, .outline, .ghost:
-            return isSelected ? theme.colors.textInverse : theme.colors.brandPrimary
         }
+        return effectiveTint
     }
 
     public var body: some View {
