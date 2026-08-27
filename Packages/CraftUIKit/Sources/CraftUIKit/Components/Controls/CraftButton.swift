@@ -175,8 +175,12 @@ public struct CraftButtonStyle: ButtonStyle {
         } else {
             switch variant {
             case .primary, .tactile:
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(theme.colors.brandSecondary)
+                ZStack {
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .fill(theme.colors.brandPrimary)
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .fill(Color.black.opacity(0.28))
+                }
             case .danger:
                 ZStack {
                     RoundedRectangle(cornerRadius: cornerRadius)
