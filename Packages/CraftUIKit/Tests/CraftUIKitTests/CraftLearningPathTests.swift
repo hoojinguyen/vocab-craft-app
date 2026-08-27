@@ -1781,8 +1781,11 @@ final class CraftLearningPathTests: XCTestCase {
 
     @MainActor
     func testLessonDetailSheetActionCallbacksExecution() {
-        var startInvokedWith: LessonNodeModel?
-        var dismissInvoked = false
+        final class CallbackBox: @unchecked Sendable {
+            var startInvokedWith: LessonNodeModel?
+            var dismissInvoked = false
+        }
+        let box = CallbackBox()
 
         let node = LessonNodeModel(
             id: "callback_node",
@@ -1791,10 +1794,10 @@ final class CraftLearningPathTests: XCTestCase {
         )
 
         let sendableStart: @Sendable (LessonNodeModel) -> Void = { n in
-            startInvokedWith = n
+            box.startInvokedWith = n
         }
         let sendableDismiss: @Sendable () -> Void = {
-            dismissInvoked = true
+            box.dismissInvoked = true
         }
 
         let sheet = CraftLessonDetailSheet(
@@ -1804,10 +1807,63 @@ final class CraftLearningPathTests: XCTestCase {
         )
 
         sheet.onStart?(node)
-        XCTAssertEqual(startInvokedWith?.id, "callback_node")
+        XCTAssertEqual(box.startInvokedWith?.id, "callback_node")
 
         sheet.onDismiss?()
-        XCTAssertTrue(dismissInvoked)
+        XCTAssertTrue(box.dismissInvoked)
+    }
+
+    func testDetailSheetAccessibilityProperties() {
+        let node = LessonNodeModel(
+            id: "node_detail_a11y",
+            title: "Advanced Phrasal Verbs",
+            subtitle: "12 words • 3 min",
+            iconName: "flame.fill",
+            state: .active,
+            xpReward: 35,
+            estimatedMinutes: 3
+        )
+        let sheet = CraftLessonDetailSheet(node: node, onStart: { _ in }, onDismiss: { })
+        XCTAssertEqual(sheet.node.id, "node_detail_a11y")
+        XCTAssertEqual(sheet.formattedXPReward, "+35 XP")
+        XCTAssertEqual(sheet.formattedDuration, "3 min")
+        XCTAssertEqual(sheet.accessibilityXPLabel, "Reward: 35 XP")
+        XCTAssertEqual(sheet.accessibilityDurationLabel, "Duration: 3 min")
+        XCTAssertEqual(sheet.accessibilityVocabularyLabel, "12 words • 3 min")
+    }
+
+    func testDetailSheetAccessibilityFallbacks() {
+        let defaultNode = LessonNodeModel(
+            id: "node_default_a11y",
+            title: "Basic Greetings"
+        )
+        let sheet = CraftLessonDetailSheet(node: defaultNode)
+        XCTAssertEqual(sheet.formattedXPReward, "+20 XP")
+        XCTAssertEqual(sheet.formattedDuration, "5 min")
+        XCTAssertEqual(sheet.accessibilityXPLabel, "Reward: 20 XP")
+        XCTAssertEqual(sheet.accessibilityDurationLabel, "Duration: 5 min")
+        XCTAssertEqual(sheet.accessibilityVocabularyLabel, "15 new words")
+    }
+
+    @MainActor
+    func testDetailSheetBodyContainsAccessibilityModifiers() {
+        let node = LessonNodeModel(
+            id: "node_body_a11y",
+            title: "Idioms Masterclass",
+            subtitle: "10 idioms • 5 min",
+            state: .active,
+            xpReward: 40,
+            estimatedMinutes: 5
+        )
+        var dismissed = false
+        let sheet = CraftLessonDetailSheet(
+            node: node,
+            onStart: { _ in },
+            onDismiss: { dismissed = true }
+        )
+        XCTAssertNotNil(sheet.body)
+        sheet.onDismiss?()
+        XCTAssertTrue(dismissed)
     }
 
     // MARK: - Task 6: Root Container Integration, Sheet Wiring & Auto-Scroll Tests

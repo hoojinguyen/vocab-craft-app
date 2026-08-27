@@ -14,6 +14,7 @@ public struct CraftLessonDetailSheet: View {
 
     @Environment(\.craftTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @AccessibilityFocusState private var isHeaderFocused: Bool
     @ScaledMetric(relativeTo: .body) private var baseScale: CGFloat = 1.0
 
     // MARK: - Initializer
@@ -75,6 +76,21 @@ public struct CraftLessonDetailSheet: View {
     /// Formatted vocabulary / objective count string.
     public var formattedVocabularyCount: String {
         node.subtitle ?? CraftLocalized.format("craft.common.unit.words_format", 15)
+    }
+
+    /// Accessibility label for the XP reward metric chip.
+    public var accessibilityXPLabel: String {
+        CraftLocalized.format("craft.learning_path.reward_format_a11y", node.xpReward ?? 20)
+    }
+
+    /// Accessibility label for the duration metric chip.
+    public var accessibilityDurationLabel: String {
+        CraftLocalized.format("craft.learning_path.duration_format_a11y", formattedDuration)
+    }
+
+    /// Accessibility label for the vocabulary / objectives metric chip.
+    public var accessibilityVocabularyLabel: String {
+        formattedVocabularyCount
     }
 
     /// Capitalized status text for badge presentation.
@@ -167,6 +183,14 @@ public struct CraftLessonDetailSheet: View {
                 topTrailingRadius: theme.radii.xl
             )
         )
+        .accessibilityAction(.escape) {
+            triggerDismissFeedback()
+            onDismiss?()
+        }
+        .task {
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            isHeaderFocused = true
+        }
     }
 }
 
@@ -183,6 +207,8 @@ private extension CraftLessonDetailSheet {
                 .foregroundStyle(theme.colors.textPrimary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
+                .accessibilityAddTraits(.isHeader)
+                .accessibilityFocused($isHeaderFocused)
 
             if node.state == .completed, let starCount = node.stars, starCount > 0 {
                 starRatingView(count: starCount)
@@ -420,6 +446,7 @@ private extension CraftLessonDetailSheet {
             metricChip(
                 icon: "sparkles",
                 title: formattedXPReward,
+                accessibilityLabel: accessibilityXPLabel,
                 tintColor: theme.colors.accent,
                 backgroundColor: theme.colors.accent.opacity(0.12)
             )
@@ -428,6 +455,7 @@ private extension CraftLessonDetailSheet {
             metricChip(
                 icon: "clock.fill",
                 title: formattedDuration,
+                accessibilityLabel: accessibilityDurationLabel,
                 tintColor: theme.colors.brandPrimary,
                 backgroundColor: theme.colors.brandPrimary.opacity(0.12)
             )
@@ -436,6 +464,7 @@ private extension CraftLessonDetailSheet {
             metricChip(
                 icon: "character.book.closed.fill",
                 title: formattedVocabularyCount,
+                accessibilityLabel: accessibilityVocabularyLabel,
                 tintColor: theme.colors.textSecondary,
                 backgroundColor: theme.colors.surfaceSubtle
             )
@@ -446,6 +475,7 @@ private extension CraftLessonDetailSheet {
     func metricChip(
         icon: String,
         title: String,
+        accessibilityLabel: String? = nil,
         tintColor: Color,
         backgroundColor: Color
     ) -> some View {
@@ -470,6 +500,8 @@ private extension CraftLessonDetailSheet {
             RoundedRectangle(cornerRadius: theme.radii.md)
                 .stroke(theme.colors.borderDefault.opacity(0.5), lineWidth: 1)
         )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityLabel ?? title)
     }
 
     var resolvedObjectives: [String]? {

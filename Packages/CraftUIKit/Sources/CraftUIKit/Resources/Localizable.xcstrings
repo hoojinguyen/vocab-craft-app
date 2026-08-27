@@ -868,6 +868,24 @@
         }
       }
     },
+    "craft.learning_path.duration_format_a11y" : {
+      "comment" : "Detail sheet duration accessibility label",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duration: %@"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thời lượng: %@"
+          }
+        }
+      }
+    },
     "craft.learning_path.empty_desc" : {
       "comment" : "Empty learning path description",
       "extractionState" : "manual",

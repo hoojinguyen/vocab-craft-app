@@ -318,6 +318,9 @@ final class LocalizationTests: XCTestCase {
         XCTAssertEqual(CraftLocalized.string("craft.learning_path.unlock_requirement_hint"), "Complete previous lessons to unlock")
         XCTAssertEqual(CraftLocalized.string("craft.learning_path.unlock_requirement_hint", language: "vi"), "Hoàn thành bài học trước để mở khóa")
         
+        XCTAssertEqual(CraftLocalized.format("craft.learning_path.duration_format_a11y", "3 min"), "Duration: 3 min")
+        XCTAssertEqual(CraftLocalized.format("craft.learning_path.duration_format_a11y", language: "vi", "3 phút"), "Thời lượng: 3 phút")
+
         XCTAssertEqual(CraftLocalized.string("craft.learning_path.close_sheet_hint"), "Double tap to close lesson details")
         XCTAssertEqual(CraftLocalized.string("craft.learning_path.close_sheet_hint", language: "vi"), "Nhấn đúp để đóng thông tin bài học")
     }
