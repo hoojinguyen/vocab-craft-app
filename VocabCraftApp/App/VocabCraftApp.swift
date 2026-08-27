@@ -112,7 +112,8 @@ struct VocabCraftApp: App {
                         }
                 }
             }
-            .craftTheme(VocabTheme())
+            .craftTheme(AppThemeManager.shared.currentPreset.theme)
+            .preferredColorScheme(AppThemeManager.shared.preferredColorScheme)
         }
         .modelContainer(container)
     }

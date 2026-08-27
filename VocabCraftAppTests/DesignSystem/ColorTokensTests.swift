@@ -29,4 +29,36 @@ final class ColorTokensTests: XCTestCase {
         let view = SRSSparkleEffectView(isEmitting: binding)
         XCTAssertNotNil(view.body)
     }
+
+    func testAppThemeManagerPresetSwitching() {
+        let manager = AppThemeManager.shared
+        manager.setPreset(.editorial)
+        XCTAssertEqual(manager.currentPreset, .editorial)
+        XCTAssertNotNil(manager.currentPreset.theme)
+
+        manager.setPreset(.neoArcade)
+        XCTAssertEqual(manager.currentPreset, .neoArcade)
+        XCTAssertNotNil(manager.currentPreset.theme)
+
+        manager.setPreset(.nordicZen)
+        XCTAssertEqual(manager.currentPreset, .nordicZen)
+        XCTAssertNotNil(manager.currentPreset.theme)
+
+        manager.setPreset(.classic)
+        XCTAssertEqual(manager.currentPreset, .classic)
+        XCTAssertNotNil(manager.currentPreset.theme)
+    }
+
+    func testAppThemeManagerColorSchemeSwitching() {
+        let manager = AppThemeManager.shared
+        manager.setColorScheme(.dark)
+        XCTAssertEqual(manager.preferredColorScheme, .dark)
+
+        manager.setColorScheme(.light)
+        XCTAssertEqual(manager.preferredColorScheme, .light)
+
+        manager.setColorScheme(nil)
+        XCTAssertNil(manager.preferredColorScheme)
+    }
 }
+
