@@ -167,7 +167,24 @@ public struct SettingsView: View {
             // Appearance & Experience Section
             Section(header: sectionHeader(AppStrings.Settings.sectionAppearance)) {
                 CraftListRow(
-                    title: String(localized: "settings.appTheme", defaultValue: "App Theme", bundle: .module),
+                    title: String(localized: "settings.designPreset", defaultValue: "Design Theme", bundle: .module),
+                    subtitle: viewModel.store.themePreset.displayName,
+                    iconName: "wand.and.stars",
+                    iconColor: .vocabHeroTeal,
+                    iconBackgroundColor: Color.vocabHeroTeal.opacity(0.15)
+                ) {
+                    Picker("", selection: $viewModel.store.themePreset) {
+                        ForEach(CraftThemePreset.allCases) { preset in
+                            Text(preset.displayName).tag(preset)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .tint(.vocabHeroTeal)
+                }
+                .listRowInsets(EdgeInsets())
+
+                CraftListRow(
+                    title: String(localized: "settings.appTheme", defaultValue: "Appearance Mode", bundle: .module),
                     iconName: "paintpalette.fill",
                     iconColor: .vocabLavender,
                     iconBackgroundColor: Color.vocabLavender.opacity(0.15)
@@ -331,6 +348,7 @@ public struct SettingsView: View {
             Color.clear.frame(height: 115)
         }
         .sensoryFeedback(.selection, trigger: viewModel.store.dailyGoalCount) { _, _ in viewModel.store.isHapticsEnabled }
+        .sensoryFeedback(.selection, trigger: viewModel.store.themePreset) { _, _ in viewModel.store.isHapticsEnabled }
         .sensoryFeedback(.selection, trigger: viewModel.store.ttsVoiceGender) { _, _ in viewModel.store.isHapticsEnabled }
         .sensoryFeedback(.selection, trigger: viewModel.store.appTheme) { _, _ in viewModel.store.isHapticsEnabled }
         .sensoryFeedback(.selection, trigger: viewModel.store.appLanguage) { _, _ in viewModel.store.isHapticsEnabled }

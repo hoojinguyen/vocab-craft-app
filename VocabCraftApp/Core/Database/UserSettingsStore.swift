@@ -1,9 +1,16 @@
+import CraftUIKit
 import Foundation
 import SwiftUI
 
 @MainActor
 @Observable
 public final class UserSettingsStore {
+    public var themePreset: CraftThemePreset {
+        didSet {
+            UserDefaults.standard.set(themePreset.rawValue, forKey: "app_theme_preset")
+            CraftThemeManager.shared.setPreset(themePreset)
+        }
+    }
     public var dailyGoalCount: Int {
         didSet {
             UserDefaults.standard.set(dailyGoalCount, forKey: "daily_goal_count")
@@ -89,6 +96,8 @@ public final class UserSettingsStore {
 
     public init() {
         let defaults = UserDefaults.standard
+        let savedPreset = defaults.string(forKey: "app_theme_preset") ?? CraftThemePreset.editorial.rawValue
+        self.themePreset = CraftThemePreset(rawValue: savedPreset) ?? .editorial
         self.dailyGoalCount = defaults.object(forKey: "daily_goal_count") != nil ? defaults.integer(forKey: "daily_goal_count") : 15
         self.isNotificationEnabled = defaults.object(forKey: "is_notification_enabled") != nil ? defaults.bool(forKey: "is_notification_enabled") : true
         self.notificationTimeInterval = defaults.object(forKey: "notification_time_interval") != nil ? defaults.double(forKey: "notification_time_interval") : 72000

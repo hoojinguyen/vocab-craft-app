@@ -6,6 +6,7 @@ import SwiftUI
 @main
 #endif
 struct VocabCraftApp: App {
+    @State private var themeManager = CraftThemeManager.shared
     let container: ModelContainer
     let datasetEngine: DatasetEngine?
     let appContainer: AppContainer
@@ -112,8 +113,8 @@ struct VocabCraftApp: App {
                         }
                 }
             }
-            .craftTheme(AppThemeManager.shared.currentPreset.theme)
-            .preferredColorScheme(AppThemeManager.shared.preferredColorScheme)
+            .craftTheme(themeManager.currentPreset.theme)
+            .preferredColorScheme(themeManager.preferredColorScheme)
         }
         .modelContainer(container)
     }
