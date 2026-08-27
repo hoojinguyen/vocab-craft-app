@@ -205,4 +205,51 @@ final class ThemeTests: XCTestCase {
         let modifiedView = TestHostView().craftTheme(CraftDefaultTheme())
         XCTAssertNotNil(modifiedView)
     }
+
+    func testThemePresetEnumCoverageAndInstantiation() {
+        for preset in CraftThemePreset.allCases {
+            let theme = preset.theme
+            XCTAssertNotNil(theme.colors.canvasBackground)
+            XCTAssertNotNil(theme.colors.brandPrimary)
+            XCTAssertNotNil(theme.colors.surfaceCard)
+            XCTAssertNotNil(theme.typography.titleLarge)
+            XCTAssertNotNil(theme.gradients.brandHero)
+            XCTAssertNotNil(theme.depths.depthSm)
+            XCTAssertNotNil(theme.glass.tintOpacity)
+            XCTAssertFalse(preset.displayName.isEmpty)
+            XCTAssertFalse(preset.subtitle.isEmpty)
+        }
+    }
+
+    func testEditorialThemeTokens() {
+        let theme = CraftEditorialTheme()
+        XCTAssertNotNil(theme.colors.canvasBackground)
+        XCTAssertNotNil(theme.colors.brandPrimary)
+        XCTAssertNotNil(theme.colors.accent)
+        XCTAssertNotNil(theme.typography.displaySerif)
+        XCTAssertNotNil(theme.gradients.brandHero)
+        XCTAssertEqual(theme.spacing.base, 16)
+        XCTAssertEqual(theme.radii.md, 12)
+    }
+
+    func testNeoArcadeThemeTokens() {
+        let theme = CraftNeoArcadeTheme()
+        XCTAssertNotNil(theme.colors.canvasBackground)
+        XCTAssertNotNil(theme.colors.brandPrimary)
+        XCTAssertNotNil(theme.colors.accent)
+        XCTAssertNotNil(theme.typography.displayLarge)
+        XCTAssertNotNil(theme.animations.springBouncy)
+        XCTAssertNotNil(theme.gradients.streakLegendary)
+    }
+
+    func testNordicZenThemeTokens() {
+        let theme = CraftNordicZenTheme()
+        XCTAssertNotNil(theme.colors.canvasBackground)
+        XCTAssertNotNil(theme.colors.brandPrimary)
+        XCTAssertNotNil(theme.colors.accent)
+        XCTAssertNotNil(theme.typography.headline)
+        XCTAssertNotNil(theme.gradients.brandHero)
+        XCTAssertNotNil(theme.depths.topHighlight)
+    }
 }
+
