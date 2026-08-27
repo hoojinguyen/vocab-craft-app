@@ -443,13 +443,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Practice (%lld words)"
+            "value" : "PRACTICE"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Luyện tập (%lld từ)"
+            "value" : "LUYỆN TẬP"
           }
         }
       }

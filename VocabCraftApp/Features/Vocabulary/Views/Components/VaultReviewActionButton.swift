@@ -25,9 +25,10 @@ public struct VaultReviewActionButton: View {
             #endif
             action()
         }) {
-            Text(verbatim: AppStrings.Vault.actionPracticeWords(count))
+            Text(verbatim: AppStrings.Vault.actionPracticeText)
                 .font(theme.typography.headline)
-                .fontWeight(.semibold)
+                .fontWeight(.bold)
+                .tracking(0.8)
                 .foregroundStyle(Color.white)
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)

@@ -10,7 +10,7 @@ struct PersonalVaultLocalizationTests {
         "app.vault.filter.not_mastered": ("Chưa thuộc (%lld)", "Learning (%lld)"),
         "app.vault.filter.mastered": ("Đã thuộc (%lld)", "Mastered (%lld)"),
         "app.vault.filter.bookmarked": ("Đã lưu (%lld)", "Saved (%lld)"),
-        "app.vault.action.review_words": ("Luyện tập (%lld từ)", "Practice (%lld words)"),
+        "app.vault.action.review_words": ("LUYỆN TẬP", "PRACTICE"),
         "app.vault.empty.not_mastered": ("Bạn không có từ nào chưa thuộc", "No unmastered words"),
         "app.vault.empty.mastered": ("Chưa có từ nào đạt mức thành thạo", "No mastered words yet"),
         "app.vault.empty.bookmarked": ("Chưa có từ nào được lưu", "No saved words yet"),
@@ -100,7 +100,7 @@ struct PersonalVaultLocalizationTests {
         #expect(AppStrings.Vault.filterNotMastered(10) == "Chưa thuộc (10)")
         #expect(AppStrings.Vault.filterMastered(5) == "Đã thuộc (5)")
         #expect(AppStrings.Vault.filterBookmarked(3) == "Đã lưu (3)")
-        #expect(AppStrings.Vault.actionReviewWords(15) == "Luyện tập (15 từ)")
+        #expect(AppStrings.Vault.actionPracticeText == "LUYỆN TẬP")
         #expect(AppStrings.Vault.emptyNotMasteredText == "Bạn không có từ nào chưa thuộc")
         #expect(AppStrings.Vault.emptyMasteredText == "Chưa có từ nào đạt mức thành thạo")
         #expect(AppStrings.Vault.emptyBookmarkedText == "Chưa có từ nào được lưu")
