@@ -245,6 +245,22 @@ final class NavigationTests: XCTestCase {
         XCTAssertEqual(bar.items[0].title, "")
     }
 
+    func testFloatingTabBarShowsTitlesFlag() {
+        let tabs = [
+            SampleTab(id: 0, title: "Home", symbol: "house"),
+            SampleTab(id: 1, title: "Settings", symbol: "gear")
+        ]
+        var selected = tabs[0]
+        let binding = Binding(get: { selected }, set: { selected = $0 })
+        let iconOnlyBar = CraftFloatingTabBar(selectedItem: binding, items: tabs, showsTitles: false)
+        XCTAssertFalse(iconOnlyBar.showsTitles)
+        XCTAssertNotNil(iconOnlyBar.body)
+
+        let labeledBar = CraftFloatingTabBar(selectedItem: binding, items: tabs, showsTitles: true)
+        XCTAssertTrue(labeledBar.showsTitles)
+        XCTAssertNotNil(labeledBar.body)
+    }
+
     func testFloatingTabBarAccessibilityWithLocalizedStringKey() {
         let localizedTabs = [
             CraftTabItem(id: "learn", titleKey: LocalizedStringKey("learn_tab"), symbol: "book.fill"),

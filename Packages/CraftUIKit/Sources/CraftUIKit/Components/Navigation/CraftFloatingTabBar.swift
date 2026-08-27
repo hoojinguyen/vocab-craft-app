@@ -110,6 +110,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
     @Binding public var selectedItem: Item
     public let items: [Item]
     public let style: CraftSurfaceStyle
+    public let showsTitles: Bool
     public let centerPosition: CraftCenterButtonPosition
     public let centerAction: (() -> Void)?
     public let centerSymbol: String
@@ -126,6 +127,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
         selectedItem: Binding<Item>,
         items: [Item],
         style: CraftSurfaceStyle = .glass,
+        showsTitles: Bool = true,
         centerPosition: CraftCenterButtonPosition = .floating,
         centerAction: (() -> Void)? = nil,
         centerSymbol: String = "plus",
@@ -134,6 +136,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
         self._selectedItem = selectedItem
         self.items = items
         self.style = style
+        self.showsTitles = showsTitles
         self.centerPosition = centerPosition
         self.centerAction = centerAction
         self.centerSymbol = centerSymbol
@@ -149,6 +152,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
         selectedItem: Binding<Item>,
         items: [Item],
         style: CraftSurfaceStyle = .glass,
+        showsTitles: Bool = true,
         centerPosition: CraftCenterButtonPosition = .floating,
         centerAction: (() -> Void)? = nil,
         centerSymbol: String = "plus",
@@ -157,6 +161,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
         self._selectedItem = selectedItem
         self.items = items
         self.style = style
+        self.showsTitles = showsTitles
         self.centerPosition = centerPosition
         self.centerAction = centerAction
         self.centerSymbol = centerSymbol
@@ -220,6 +225,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                         isSelected: selectedItem.id == item.id,
                         namespace: tabNamespace,
                         barStyle: style,
+                        showsTitles: showsTitles,
                         onSelect: { select(item) }
                     )
                 }
@@ -234,6 +240,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                         isSelected: selectedItem.id == item.id,
                         namespace: tabNamespace,
                         barStyle: style,
+                        showsTitles: showsTitles,
                         onSelect: { select(item) }
                     )
                 }
@@ -244,6 +251,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                         isSelected: selectedItem.id == item.id,
                         namespace: tabNamespace,
                         barStyle: style,
+                        showsTitles: showsTitles,
                         onSelect: { select(item) }
                     )
                 }
@@ -326,9 +334,11 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
     let isSelected: Bool
     let namespace: Namespace.ID
     let barStyle: CraftSurfaceStyle
+    let showsTitles: Bool
     let onSelect: () -> Void
 
     private var hasTitle: Bool {
+        guard showsTitles else { return false }
         if item.titleKey != nil { return true }
         return !item.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
@@ -339,7 +349,7 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
                 ZStack(alignment: .topTrailing) {
                     CraftIcon(
                         item.symbol,
-                        size: .md,
+                        size: hasTitle ? .md : .lg,
                         color: isSelected ? theme.colors.brandPrimary : theme.colors.textMuted,
                         renderingMode: isSelected ? .hierarchical : .monochrome,
                         weight: isSelected ? .bold : .medium
@@ -358,18 +368,20 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
                     }
                 }
 
-                if let titleKey = item.titleKey {
-                    Text(titleKey)
-                        .font(theme.typography.caption)
-                        .fontWeight(isSelected ? .semibold : .regular)
-                        .foregroundColor(isSelected ? theme.colors.brandPrimary : theme.colors.textMuted)
-                        .lineLimit(1)
-                } else if hasTitle {
-                    Text(item.title)
-                        .font(theme.typography.caption)
-                        .fontWeight(isSelected ? .semibold : .regular)
-                        .foregroundColor(isSelected ? theme.colors.brandPrimary : theme.colors.textMuted)
-                        .lineLimit(1)
+                if hasTitle {
+                    if let titleKey = item.titleKey {
+                        Text(titleKey)
+                            .font(theme.typography.caption)
+                            .fontWeight(isSelected ? .semibold : .regular)
+                            .foregroundColor(isSelected ? theme.colors.brandPrimary : theme.colors.textMuted)
+                            .lineLimit(1)
+                    } else if !item.title.isEmpty {
+                        Text(item.title)
+                            .font(theme.typography.caption)
+                            .fontWeight(isSelected ? .semibold : .regular)
+                            .foregroundColor(isSelected ? theme.colors.brandPrimary : theme.colors.textMuted)
+                            .lineLimit(1)
+                    }
                 }
             }
             .frame(maxWidth: .infinity)
