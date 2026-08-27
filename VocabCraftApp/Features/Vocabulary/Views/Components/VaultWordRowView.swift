@@ -22,26 +22,26 @@ public struct VaultWordRowView: View {
 
     public var body: some View {
         CraftCard(
-            style: .outlined,
+            style: .glass,
             isPressable: true,
             padding: theme.spacing.md,
             action: onTap
         ) {
             HStack(alignment: .center, spacing: theme.spacing.md) {
-                // Word Details (Lemma, POS, CEFR, IPA) - NO DEFINITION for Active Recall
+                // Word Details (Lemma, IPA, POS, CEFR) - Never truncated, no definition for Active Recall
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    HStack(spacing: theme.spacing.sm) {
-                        Text(word.lemma)
-                            .font(theme.typography.headline)
-                            .foregroundStyle(theme.colors.textPrimary)
-                            .lineLimit(1)
+                    Text(word.lemma)
+                        .font(theme.typography.headline)
+                        .foregroundStyle(theme.colors.textPrimary)
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
 
-                        if !word.phonetic.isEmpty {
-                            Text(word.phonetic)
-                                .font(theme.typography.phonetic)
-                                .foregroundStyle(theme.colors.textSecondary)
-                                .lineLimit(1)
-                        }
+                    if !word.phonetic.isEmpty {
+                        Text(word.phonetic)
+                            .font(theme.typography.phonetic)
+                            .foregroundStyle(theme.colors.textSecondary)
+                            .multilineTextAlignment(.leading)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
 
                     HStack(spacing: theme.spacing.xs) {
@@ -71,37 +71,29 @@ public struct VaultWordRowView: View {
                                 tone: .success,
                                 size: .sm
                             )
-                        } else if word.correctStreak > 0 {
-                            CraftBadge(
-                                verbatim: "\(word.correctStreak)/3",
-                                symbol: .streak,
-                                variant: .subtle,
-                                tone: .warning,
-                                size: .sm
-                            )
                         }
                     }
                 }
 
                 Spacer(minLength: theme.spacing.xs)
 
-                // Bookmark Icon Button
-                CraftIconButton(
-                    symbol: word.isBookmarked ? .bookmarkFill : .bookmark,
-                    size: .md,
-                    shape: .circle,
-                    variant: .ghost,
-                    customTint: word.isBookmarked ? theme.colors.accent : theme.colors.textMuted,
-                    isSelected: word.isBookmarked,
-                    accessibilityLabelKey: word.isBookmarked ? "homepage.saved" : "homepage.saveWord"
-                ) {
+                // Subtle Bookmark Button (Clean, no solid background)
+                Button(action: {
                     #if os(iOS)
                     let generator = UIImpactFeedbackGenerator(style: .light)
                     generator.prepare()
                     generator.impactOccurred()
                     #endif
                     onBookmarkTap()
+                }) {
+                    Image(systemName: word.isBookmarked ? "bookmark.fill" : "bookmark")
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundStyle(word.isBookmarked ? theme.colors.accent : theme.colors.textMuted.opacity(0.5))
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
+                .buttonStyle(.plain)
+                .accessibilityLabel(word.isBookmarked ? "homepage.saved" : "homepage.saveWord")
             }
         }
     }

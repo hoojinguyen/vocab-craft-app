@@ -40,6 +40,24 @@ public struct VocabularyView: View {
                 theme.colors.canvasBackground
                     .ignoresSafeArea()
 
+                // Ambient Liquid Glow for Glass Elements
+                GeometryReader { geo in
+                    ZStack {
+                        Circle()
+                            .fill(theme.colors.accent.opacity(0.07))
+                            .frame(width: geo.size.width * 0.85)
+                            .blur(radius: 65)
+                            .offset(x: -geo.size.width * 0.3, y: -geo.size.height * 0.2)
+
+                        Circle()
+                            .fill(theme.colors.brandPrimary.opacity(0.06))
+                            .frame(width: geo.size.width * 0.85)
+                            .blur(radius: 70)
+                            .offset(x: geo.size.width * 0.35, y: geo.size.height * 0.25)
+                    }
+                }
+                .ignoresSafeArea()
+
                 VStack(spacing: theme.spacing.md) {
                     // Top Search Bar
                     CraftSearchBar(
@@ -83,7 +101,9 @@ public struct VocabularyView: View {
                 }
             }
             .navigationTitle(AppStrings.Vault.title)
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .sheet(item: $bindableVaultVM.selectedWordForDetail) { word in
                 VaultWordDetailSheet(
                     word: word,

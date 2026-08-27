@@ -66,7 +66,11 @@ public struct VaultSegmentedControl: View {
                         .background {
                             if isSelected {
                                 RoundedRectangle(cornerRadius: theme.radii.sm)
-                                    .fill(theme.colors.surfaceCard)
+                                    .fill(.ultraThinMaterial)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: theme.radii.sm)
+                                            .strokeBorder(theme.glass.borderGradient, lineWidth: 1)
+                                    )
                                     .craftShadow(theme.shadows.sm)
                             }
                         }
@@ -79,11 +83,12 @@ public struct VaultSegmentedControl: View {
             }
         }
         .padding(theme.spacing.xs)
-        .background(theme.colors.surfaceSubtle)
+        .background(.ultraThinMaterial)
+        .background(theme.colors.surfaceCard.opacity(theme.glass.tintOpacity))
         .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
         .overlay(
             RoundedRectangle(cornerRadius: theme.radii.md)
-                .strokeBorder(theme.colors.borderDefault, lineWidth: 1)
+                .strokeBorder(theme.glass.borderGradient, lineWidth: 1)
         )
         .sensoryFeedback(.selection, trigger: selectedTab)
     }

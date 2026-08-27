@@ -17,13 +17,42 @@ public struct VaultReviewActionButton: View {
     }
 
     public var body: some View {
-        CraftButton(
-            verbatim: AppStrings.Vault.actionReviewWords(count),
-            variant: .primary,
-            size: .lg,
-            isFullWidth: true,
-            action: action
-        )
+        Button(action: {
+            #if os(iOS)
+            let generator = UIImpactFeedbackGenerator(style: .medium)
+            generator.prepare()
+            generator.impactOccurred()
+            #endif
+            action()
+        }) {
+            Text(verbatim: AppStrings.Vault.actionPracticeWords(count))
+                .font(theme.typography.headline)
+                .fontWeight(.semibold)
+                .foregroundStyle(Color.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: 50)
+                .background(
+                    ZStack {
+                        RoundedRectangle(cornerRadius: theme.radii.md)
+                            .fill(count >= 1 ? theme.colors.accent : theme.colors.textMuted.opacity(0.35))
+                        RoundedRectangle(cornerRadius: theme.radii.md)
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color.white.opacity(0.25), Color.white.opacity(0.05), Color.clear],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                    }
+                )
+                .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
+                .overlay(
+                    RoundedRectangle(cornerRadius: theme.radii.md)
+                        .strokeBorder(theme.glass.borderGradient, lineWidth: 1)
+                )
+                .craftShadow(count >= 1 ? theme.shadows.sm : CraftShadow(color: .clear, radius: 0))
+        }
+        .buttonStyle(.plain)
         .disabled(count < 1)
     }
 }

@@ -411,7 +411,10 @@ extension AppStrings {
             String(format: String(localized: "app.vault.filter.bookmarked", defaultValue: "Đã lưu (%lld)", bundle: .module), count)
         }
         public static func actionReviewWords(_ count: Int) -> String {
-            String(format: String(localized: "app.vault.action.review_words", defaultValue: "⚡ Ôn luyện (%lld từ)", bundle: .module), count)
+            String(format: String(localized: "app.vault.action.review_words", defaultValue: "Luyện tập (%lld từ)", bundle: .module), count)
+        }
+        public static func actionPracticeWords(_ count: Int) -> String {
+            actionReviewWords(count)
         }
         public static var emptyNotMastered: LocalizedStringKey { "app.vault.empty.not_mastered" }
         public static var emptyNotMasteredText: String {
