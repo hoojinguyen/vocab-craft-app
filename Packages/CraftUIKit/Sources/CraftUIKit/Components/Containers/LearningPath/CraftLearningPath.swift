@@ -184,7 +184,7 @@ public struct CraftLearningPath: View {
                     selectedNodeForDetail = nil
                 }
             )
-            .presentationDetents([.fraction(0.62), .large])
+            .presentationDetents([.fraction(0.70), .large])
             .presentationDragIndicator(.visible)
         }
     }
@@ -220,7 +220,8 @@ public struct CraftLearningPath: View {
                             }
                         }
                     }
-                    .padding(.vertical, theme.spacing.xl)
+                    .padding(.top, theme.spacing.xl)
+                    .padding(.bottom, 130)
                 } else {
                     LazyVStack(spacing: theme.spacing.xxl, pinnedViews: []) {
                         ForEach(sections) { section in
@@ -238,9 +239,11 @@ public struct CraftLearningPath: View {
                             }
                         }
                     }
-                    .padding(.vertical, theme.spacing.xl)
+                    .padding(.top, theme.spacing.xl)
+                    .padding(.bottom, 130)
                 }
             }
+            .coordinateSpace(name: "CraftLearningPathScrollView")
             .task {
                 guard scrollToActive, let targetID = activeNodeID else { return }
                 // Delay 300ms to allow LazyVStack layout and child geometry to stabilize before animating scroll

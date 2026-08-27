@@ -18,16 +18,21 @@ public struct NodeAnchorPreferenceKey: PreferenceKey {
 /// Organism header view representing the Unit Portal Gateway Card for a learning path section.
 public struct CraftLessonSectionHeaderView: View {
     public let section: LessonSection
+    public var isPinned: Bool
 
     @Environment(\.craftTheme) private var theme
+    @State private var isDocked: Bool = false
 
     // MARK: - Initializers
 
     /// Creates a lesson section header view for the given section.
     ///
-    /// - Parameter section: The `LessonSection` presentation model.
-    public init(section: LessonSection) {
+    /// - Parameters:
+    ///   - section: The `LessonSection` presentation model.
+    ///   - isPinned: Whether this header is explicitly marked as pinned.
+    public init(section: LessonSection, isPinned: Bool = false) {
         self.section = section
+        self.isPinned = isPinned
     }
 
     // MARK: - Header Visibility
@@ -43,6 +48,10 @@ public struct CraftLessonSectionHeaderView: View {
         section.bannerIcon != nil
     }
 
+    private var isHighlighted: Bool {
+        isPinned || isDocked
+    }
+
     // MARK: - Body
 
     public var body: some View {
@@ -52,7 +61,7 @@ public struct CraftLessonSectionHeaderView: View {
                 if let bannerIcon = section.bannerIcon, !bannerIcon.isEmpty {
                     Image(systemName: bannerIcon)
                         .font(.system(size: 40, weight: .bold))
-                        .foregroundStyle(theme.colors.brandPrimary.opacity(0.15))
+                        .foregroundStyle(theme.colors.brandPrimary.opacity(isHighlighted ? 0.22 : 0.15))
                         .padding(.top, theme.spacing.base)
                         .padding(.trailing, theme.spacing.base)
                         .accessibilityHidden(true)
@@ -68,7 +77,7 @@ public struct CraftLessonSectionHeaderView: View {
                             .padding(.vertical, theme.spacing.xs / 2)
                             .background(
                                 Capsule()
-                                    .fill(theme.colors.brandPrimary.opacity(0.12))
+                                    .fill(theme.colors.brandPrimary.opacity(isHighlighted ? 0.18 : 0.12))
                             )
 
                         Spacer()
@@ -78,7 +87,7 @@ public struct CraftLessonSectionHeaderView: View {
                                 .font(theme.typography.label)
                                 .monospacedDigit()
                                 .fontDesign(.rounded)
-                                .foregroundStyle(theme.colors.textSecondary)
+                                .foregroundStyle(isHighlighted ? theme.colors.brandPrimary : theme.colors.textSecondary)
                         }
                     }
 
@@ -116,8 +125,8 @@ public struct CraftLessonSectionHeaderView: View {
             .background(
                 LinearGradient(
                     colors: [
-                        theme.colors.brandPrimary.opacity(0.06),
-                        theme.colors.surfaceCard
+                        theme.colors.brandPrimary.opacity(isHighlighted ? 0.14 : 0.06),
+                        isHighlighted ? theme.colors.surfaceElevated : theme.colors.surfaceCard
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
@@ -126,11 +135,35 @@ public struct CraftLessonSectionHeaderView: View {
             .clipShape(RoundedRectangle(cornerRadius: theme.radii.xl))
             .overlay(
                 RoundedRectangle(cornerRadius: theme.radii.xl)
-                    .strokeBorder(theme.colors.hairline, lineWidth: 1)
+                    .strokeBorder(
+                        isHighlighted ? theme.colors.brandPrimary.opacity(0.35) : theme.colors.hairline,
+                        lineWidth: isHighlighted ? 1.5 : 1
+                    )
             )
-            .craftShadow(theme.shadows.sm)
+            .craftShadow(isHighlighted ? theme.shadows.md : theme.shadows.sm)
             .accessibilityElement(children: .combine)
             .padding(.horizontal, theme.spacing.base)
+            .background(
+                GeometryReader { geo in
+                    let minY = geo.frame(in: .named("CraftLearningPathScrollView")).minY
+                    Color.clear
+                        .onChange(of: minY) { _, newValue in
+                            let docked = newValue <= 15
+                            if isDocked != docked {
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                    isDocked = docked
+                                }
+                            }
+                        }
+                        .onAppear {
+                            let docked = minY <= 15
+                            if isDocked != docked {
+                                isDocked = docked
+                            }
+                        }
+                }
+            )
+            .animation(.spring(response: 0.35, dampingFraction: 0.8), value: isHighlighted)
         }
     }
 }
