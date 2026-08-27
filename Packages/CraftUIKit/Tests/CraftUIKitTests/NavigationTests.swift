@@ -414,6 +414,60 @@ final class NavigationTests: XCTestCase {
         XCTAssertNotNil(inlineBar.body)
     }
 
+    func testCraftTabBarSizeScale() {
+        XCTAssertEqual(CraftTabBarSize.sm.barHeight, 44)
+        XCTAssertEqual(CraftTabBarSize.md.barHeight, 52)
+        XCTAssertEqual(CraftTabBarSize.lg.barHeight, 60)
+
+        XCTAssertEqual(CraftTabBarSize.sm.iconSize, .md)
+        XCTAssertEqual(CraftTabBarSize.md.iconSize, .lg)
+        XCTAssertEqual(CraftTabBarSize.lg.iconSize, .lg)
+
+        XCTAssertEqual(CraftTabBarSize.sm.pillInset, 3)
+        XCTAssertEqual(CraftTabBarSize.md.pillInset, 4)
+        XCTAssertEqual(CraftTabBarSize.lg.pillInset, 5)
+
+        XCTAssertEqual(CraftTabBarSize.sm.centerButtonDiameter(position: .floating), 50)
+        XCTAssertEqual(CraftTabBarSize.md.centerButtonDiameter(position: .floating), 58)
+        XCTAssertEqual(CraftTabBarSize.lg.centerButtonDiameter(position: .floating), 66)
+
+        XCTAssertEqual(CraftTabBarSize.sm.centerButtonDiameter(position: .inline), 38)
+        XCTAssertEqual(CraftTabBarSize.md.centerButtonDiameter(position: .inline), 44)
+        XCTAssertEqual(CraftTabBarSize.lg.centerButtonDiameter(position: .inline), 50)
+
+        XCTAssertEqual(CraftTabBarSize.sm.centerSpacerWidth(position: .floating), 56)
+        XCTAssertEqual(CraftTabBarSize.md.centerSpacerWidth(position: .floating), 66)
+        XCTAssertEqual(CraftTabBarSize.lg.centerSpacerWidth(position: .floating), 76)
+
+        XCTAssertEqual(CraftTabBarSize.sm.centerFloatingOffset(position: .floating), -16)
+        XCTAssertEqual(CraftTabBarSize.md.centerFloatingOffset(position: .floating), -20)
+        XCTAssertEqual(CraftTabBarSize.lg.centerFloatingOffset(position: .floating), -24)
+        XCTAssertEqual(CraftTabBarSize.md.centerFloatingOffset(position: .inline), 0)
+    }
+
+    func testFloatingTabBarWithCustomSize() {
+        let tabs = [
+            SampleTab(id: 0, title: "Home", symbol: "house"),
+            SampleTab(id: 1, title: "Settings", symbol: "gear")
+        ]
+        var selected = tabs[0]
+        let binding = Binding(get: { selected }, set: { selected = $0 })
+
+        for size in CraftTabBarSize.allCases {
+            let bar = CraftFloatingTabBar(
+                selectedItem: binding,
+                items: tabs,
+                style: .glass,
+                size: size,
+                centerPosition: .floating,
+                centerAction: {},
+                centerSymbol: "plus"
+            )
+            XCTAssertEqual(bar.size, size)
+            XCTAssertNotNil(bar.body)
+        }
+    }
+
     // MARK: - Navigation Localization Tests
 
     func testFloatingTabBarLocalization() {
@@ -424,4 +478,5 @@ final class NavigationTests: XCTestCase {
         XCTAssertEqual(CraftLocalized.string("craft.tab_bar.center_action_fallback", language: "vi"), "Tác vụ")
     }
 }
+
 

@@ -96,6 +96,97 @@ public struct CraftTactileFABButtonStyle: ButtonStyle {
     }
 }
 
+// MARK: - Tab Bar Size Tier
+
+/// Sizing tiers for `CraftFloatingTabBar`.
+public enum CraftTabBarSize: String, Sendable, CaseIterable {
+    /// Compact mode for minimal footprint (bar height: 44pt, FAB: 50pt).
+    case sm
+    /// Standard regular mode (bar height: 52pt, FAB: 58pt).
+    case md
+    /// Prominent spacious mode (bar height: 60pt, FAB: 66pt).
+    case lg
+
+    /// Total height of each tab touch button.
+    public var barHeight: CGFloat {
+        switch self {
+        case .sm: return 44
+        case .md: return 52
+        case .lg: return 60
+        }
+    }
+
+    /// Icon point size for tab buttons.
+    public var iconSize: CraftIconSize {
+        switch self {
+        case .sm: return .md
+        case .md: return .lg
+        case .lg: return .lg
+        }
+    }
+
+    /// Outer container horizontal padding.
+    public var horizontalPadding: CGFloat {
+        switch self {
+        case .sm: return 6
+        case .md: return 8
+        case .lg: return 10
+        }
+    }
+
+    /// Outer container vertical padding.
+    public var verticalPadding: CGFloat {
+        switch self {
+        case .sm: return 4
+        case .md: return 5
+        case .lg: return 6
+        }
+    }
+
+    /// Inset applied to sliding fluid pill (`dx`, `dy`).
+    public var pillInset: CGFloat {
+        switch self {
+        case .sm: return 3
+        case .md: return 4
+        case .lg: return 5
+        }
+    }
+
+    /// Diameter of center floating action button.
+    public func centerButtonDiameter(position: CraftCenterButtonPosition) -> CGFloat {
+        switch (self, position) {
+        case (.sm, .floating): return 50
+        case (.sm, .inline): return 38
+        case (.md, .floating): return 58
+        case (.md, .inline): return 44
+        case (.lg, .floating): return 66
+        case (.lg, .inline): return 50
+        }
+    }
+
+    /// Reserved spacer width between leading and trailing items.
+    public func centerSpacerWidth(position: CraftCenterButtonPosition) -> CGFloat {
+        switch (self, position) {
+        case (.sm, .floating): return 56
+        case (.sm, .inline): return 42
+        case (.md, .floating): return 66
+        case (.md, .inline): return 50
+        case (.lg, .floating): return 76
+        case (.lg, .inline): return 58
+        }
+    }
+
+    /// Vertical protrusion offset for floating center button.
+    public func centerFloatingOffset(position: CraftCenterButtonPosition) -> CGFloat {
+        guard position == .floating else { return 0 }
+        switch self {
+        case .sm: return -16
+        case .md: return -20
+        case .lg: return -24
+        }
+    }
+}
+
 // MARK: - Center Button Position
 
 /// Placement mode for the optional center action button in `CraftFloatingTabBar`.
@@ -120,7 +211,7 @@ public struct CraftTabBarItemPreferenceKey: PreferenceKey {
 
 /// A floating navigation bar featuring animated sliding tab indicators,
 /// spring transitions, safe area handling, minimum 44pt touch targets, theme-driven surface styles,
-/// and an integrated tactile / liquid glass action button.
+/// configurable size tiers (`.sm`, `.md`, `.lg`), and an integrated tactile / liquid glass action button.
 public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -129,6 +220,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
     @Binding public var selectedItem: Item
     public let items: [Item]
     public let style: CraftSurfaceStyle
+    public let size: CraftTabBarSize
     public let centerPosition: CraftCenterButtonPosition
     public let centerAction: (() -> Void)?
     public let centerSymbol: String
@@ -160,6 +252,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
         selectedItem: Binding<Item>,
         items: [Item],
         style: CraftSurfaceStyle = .glass,
+        size: CraftTabBarSize = .md,
         centerPosition: CraftCenterButtonPosition = .floating,
         centerAction: (() -> Void)? = nil,
         centerSymbol: String = "plus",
@@ -168,6 +261,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
         self._selectedItem = selectedItem
         self.items = items
         self.style = style
+        self.size = size
         self.centerPosition = centerPosition
         self.centerAction = centerAction
         self.centerSymbol = centerSymbol
@@ -183,6 +277,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
         selectedItem: Binding<Item>,
         items: [Item],
         style: CraftSurfaceStyle = .glass,
+        size: CraftTabBarSize = .md,
         centerPosition: CraftCenterButtonPosition = .floating,
         centerAction: (() -> Void)? = nil,
         centerSymbol: String = "plus",
@@ -191,6 +286,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
         self._selectedItem = selectedItem
         self.items = items
         self.style = style
+        self.size = size
         self.centerPosition = centerPosition
         self.centerAction = centerAction
         self.centerSymbol = centerSymbol
@@ -216,14 +312,14 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
             if #available(iOS 26, macOS 26, *), style == .glass {
                 GlassEffectContainer(spacing: 8) {
                     barContent
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 4)
+                        .padding(.horizontal, size.horizontalPadding)
+                        .padding(.vertical, size.verticalPadding)
                         .glassEffect(.regular, in: .capsule)
                 }
             } else {
                 barContent
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 4)
+                    .padding(.horizontal, size.horizontalPadding)
+                    .padding(.vertical, size.verticalPadding)
                     .background {
                         tabBarLegacyBackground
                     }
@@ -236,6 +332,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                     titleKey: centerTitleKey,
                     title: rawCenterTitle,
                     style: style,
+                    size: size,
                     position: centerPosition,
                     action: centerAction
                 )
@@ -254,8 +351,12 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                         style: style,
                         isTransitioning: isTransitioning
                     )
-                    .frame(width: max(0, frame.width - 6), height: max(0, frame.height - 6), alignment: .center)
-                    .offset(x: frame.minX + 3, y: frame.minY + 3)
+                    .frame(
+                        width: max(0, frame.width - (size.pillInset * 2)),
+                        height: max(0, frame.height - (size.pillInset * 2)),
+                        alignment: .center
+                    )
+                    .offset(x: frame.minX + size.pillInset, y: frame.minY + size.pillInset)
                 }
             }
             .coordinateSpace(name: "CraftTabBarTrack")
@@ -273,12 +374,16 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                         item: item,
                         isSelected: selectedItem.id == item.id,
                         barStyle: style,
+                        size: size,
                         onSelect: { select(item) }
                     )
                 }
 
                 Color.clear
-                    .frame(width: centerPosition == .floating ? 60 : 46, height: 44)
+                    .frame(
+                        width: size.centerSpacerWidth(position: centerPosition),
+                        height: size.barHeight
+                    )
                     .accessibilityHidden(true)
 
                 ForEach(trailingItems) { item in
@@ -286,6 +391,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                         item: item,
                         isSelected: selectedItem.id == item.id,
                         barStyle: style,
+                        size: size,
                         onSelect: { select(item) }
                     )
                 }
@@ -295,6 +401,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                         item: item,
                         isSelected: selectedItem.id == item.id,
                         barStyle: style,
+                        size: size,
                         onSelect: { select(item) }
                     )
                 }
@@ -491,12 +598,21 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
     let item: Item
     let isSelected: Bool
     let barStyle: CraftSurfaceStyle
+    let size: CraftTabBarSize
     let onSelect: () -> Void
 
     private var hasTitle: Bool {
         guard item.showsTitle else { return false }
         if item.titleKey != nil { return true }
         return !item.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private var iconSize: CraftIconSize {
+        if hasTitle {
+            return size == .lg ? .md : .sm
+        } else {
+            return size.iconSize
+        }
     }
 
     var body: some View {
@@ -506,7 +622,7 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
                     if item.showsSymbol {
                         CraftIcon(
                             item.symbol,
-                            size: hasTitle ? .md : .lg,
+                            size: iconSize,
                             color: isSelected ? theme.colors.brandPrimary : theme.colors.textMuted,
                             renderingMode: isSelected ? .hierarchical : .monochrome,
                             weight: isSelected ? .bold : .medium
@@ -545,7 +661,7 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
                 }
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 44)
+            .frame(height: size.barHeight)
             .contentShape(Rectangle())
         }
         .buttonStyle(.craftPress(scale: 0.95))
@@ -593,11 +709,23 @@ private struct CraftCenterActionButton: View {
     let titleKey: LocalizedStringKey?
     let title: String?
     let style: CraftSurfaceStyle
+    let size: CraftTabBarSize
     let position: CraftCenterButtonPosition
     let action: () -> Void
 
     private var circleDiameter: CGFloat {
-        position == .floating ? 56 : 42
+        size.centerButtonDiameter(position: position)
+    }
+
+    private var iconSize: CraftIconSize {
+        switch (size, position) {
+        case (.sm, .floating): return .md
+        case (.sm, .inline): return .sm
+        case (.md, .floating): return .lg
+        case (.md, .inline): return .md
+        case (.lg, .floating): return .xl
+        case (.lg, .inline): return .lg
+        }
     }
 
     var body: some View {
@@ -608,7 +736,7 @@ private struct CraftCenterActionButton: View {
                 tactileFAB
             }
         }
-        .offset(y: position == .floating ? -18 : 0)
+        .offset(y: size.centerFloatingOffset(position: position))
         .zIndex(100)
         .accessibilityLabel(accessibilityTitle)
         .accessibilityAddTraits(.isButton)
@@ -643,7 +771,7 @@ private struct CraftCenterActionButton: View {
 
                 CraftIcon(
                     symbol,
-                    size: position == .floating ? .lg : .md,
+                    size: iconSize,
                     color: theme.colors.textInverse,
                     renderingMode: .monochrome,
                     weight: .bold
@@ -672,7 +800,7 @@ private struct CraftCenterActionButton: View {
 
                 CraftIcon(
                     symbol,
-                    size: position == .floating ? .lg : .md,
+                    size: iconSize,
                     color: theme.colors.textInverse,
                     renderingMode: .monochrome,
                     weight: .bold
