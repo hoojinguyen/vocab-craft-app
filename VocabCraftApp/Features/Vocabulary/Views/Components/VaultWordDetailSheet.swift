@@ -86,16 +86,6 @@ public struct VaultWordDetailSheet: View {
                             size: .md
                         )
                     }
-
-                    if word.isMastered {
-                        CraftBadge(
-                            AppStrings.Vocabulary.masteredBadge,
-                            symbol: .checkmarkCircle,
-                            variant: .subtle,
-                            tone: .success,
-                            size: .md
-                        )
-                    }
                 }
             }
 
