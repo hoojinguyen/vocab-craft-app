@@ -2,10 +2,19 @@ import XCTest
 import SwiftUI
 @testable import CraftUIKit
 
-struct SampleTab: CraftTabItemProtocol {
+struct SampleTab: CraftTabItemProtocol, CaseIterable {
     let id: Int
     let title: String
     let symbol: String
+
+    static let home = SampleTab(id: 0, title: "Home", symbol: "house.fill")
+    static let search = SampleTab(id: 1, title: "Search", symbol: "magnifyingglass")
+    static let library = SampleTab(id: 2, title: "Library", symbol: "books.vertical")
+    static let profile = SampleTab(id: 3, title: "Profile", symbol: "person.fill")
+
+    static var allCases: [SampleTab] {
+        [.home, .search, .library, .profile]
+    }
 }
 
 struct CustomStringTab: CraftTabItemProtocol {
@@ -15,6 +24,23 @@ struct CustomStringTab: CraftTabItemProtocol {
 }
 
 final class NavigationTests: XCTestCase {
+
+    func testFloatingTabBarStreamlinedInit() {
+        let binding = Binding(get: { SampleTab.home }, set: { _ in })
+        let tabs = SampleTab.allCases
+        let bar = CraftFloatingTabBar(selectedItem: binding, items: tabs, style: .glass)
+        XCTAssertEqual(bar.items.count, 4)
+        XCTAssertEqual(bar.style, .glass)
+    }
+
+    func testFloatingTabBarItemPresentationRespectsProtocol() {
+        let item1 = CraftTabItem(id: "1", title: "Tab 1", symbol: "house", showsTitle: false)
+        let item2 = CraftTabItem(id: "2", title: "Tab 2", symbol: "gear", showsTitle: true)
+        let binding = Binding(get: { item1 }, set: { _ in })
+        let bar = CraftFloatingTabBar(selectedItem: binding, items: [item1, item2])
+        XCTAssertFalse(bar.items[0].showsTitle)
+        XCTAssertTrue(bar.items[1].showsTitle)
+    }
 
     func testFloatingTabBarItemSelection() {
         let tabs = [
@@ -279,20 +305,38 @@ final class NavigationTests: XCTestCase {
         XCTAssertEqual(bar.items[0].title, "")
     }
 
-    func testFloatingTabBarShowsTitlesFlag() {
+    func testFloatingTabBarItemPresentationMixedFlags() {
         let tabs = [
-            SampleTab(id: 0, title: "Home", symbol: "house"),
-            SampleTab(id: 1, title: "Settings", symbol: "gear")
+            CraftTabItem(id: "home", title: "Home", symbol: "house", showsTitle: false),
+            CraftTabItem(id: "settings", title: "Settings", symbol: "gear", showsTitle: true)
         ]
         var selected = tabs[0]
         let binding = Binding(get: { selected }, set: { selected = $0 })
-        let iconOnlyBar = CraftFloatingTabBar(selectedItem: binding, items: tabs, showsTitles: false)
-        XCTAssertFalse(iconOnlyBar.showsTitles)
-        XCTAssertNotNil(iconOnlyBar.body)
+        let bar = CraftFloatingTabBar(selectedItem: binding, items: tabs)
+        XCTAssertFalse(bar.items[0].showsTitle)
+        XCTAssertTrue(bar.items[1].showsTitle)
+        XCTAssertNotNil(bar.body)
+    }
 
-        let labeledBar = CraftFloatingTabBar(selectedItem: binding, items: tabs, showsTitles: true)
-        XCTAssertTrue(labeledBar.showsTitles)
-        XCTAssertNotNil(labeledBar.body)
+    func testCraftTabBarItemPreferenceKey() {
+        var values: [String: CGRect] = ["tab1": CGRect(x: 0, y: 0, width: 60, height: 44)]
+        let next = ["tab2": CGRect(x: 70, y: 0, width: 60, height: 44)]
+        CraftTabBarItemPreferenceKey.reduce(value: &values, nextValue: { next })
+        XCTAssertEqual(values.count, 2)
+        XCTAssertEqual(values["tab1"], CGRect(x: 0, y: 0, width: 60, height: 44))
+        XCTAssertEqual(values["tab2"], CGRect(x: 70, y: 0, width: 60, height: 44))
+    }
+
+    func testCraftSlidingFluidPillInitialization() {
+        let pillGlass = CraftSlidingFluidPill(style: .glass, isTransitioning: false)
+        XCTAssertEqual(pillGlass.style, .glass)
+        XCTAssertFalse(pillGlass.isTransitioning)
+        XCTAssertNotNil(pillGlass.body)
+
+        let pillElevated = CraftSlidingFluidPill(style: .elevated, isTransitioning: true)
+        XCTAssertEqual(pillElevated.style, .elevated)
+        XCTAssertTrue(pillElevated.isTransitioning)
+        XCTAssertNotNil(pillElevated.body)
     }
 
     func testFloatingTabBarAccessibilityWithLocalizedStringKey() {

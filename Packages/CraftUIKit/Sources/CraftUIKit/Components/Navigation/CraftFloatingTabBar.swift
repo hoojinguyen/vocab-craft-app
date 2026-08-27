@@ -106,6 +106,16 @@ public enum CraftCenterButtonPosition: String, Sendable, CaseIterable {
     case floating
 }
 
+// MARK: - Tab Bar Item Preference Key
+
+/// Coordinate space tracking preference key reporting individual tab button bounds.
+public struct CraftTabBarItemPreferenceKey: PreferenceKey {
+    public static var defaultValue: [String: CGRect] = [:]
+    public static func reduce(value: inout [String: CGRect], nextValue: () -> [String: CGRect]) {
+        value.merge(nextValue(), uniquingKeysWith: { $1 })
+    }
+}
+
 // MARK: - CraftFloatingTabBar Component
 
 /// A floating navigation bar featuring animated sliding tab indicators,
@@ -115,17 +125,18 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
-    @Namespace private var tabNamespace
 
     @Binding public var selectedItem: Item
     public let items: [Item]
     public let style: CraftSurfaceStyle
-    public let showsTitles: Bool
     public let centerPosition: CraftCenterButtonPosition
     public let centerAction: (() -> Void)?
     public let centerSymbol: String
     private let centerTitleKey: LocalizedStringKey?
     private let rawCenterTitle: String?
+
+    @State private var tabFrames: [String: CGRect] = [:]
+    @State private var isTransitioning = false
 
     // Pre-computed item partitions to avoid array allocations on every view body re-evaluation
     private let leadingItems: [Item]
@@ -133,11 +144,18 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
 
     public var centerTitle: String? { rawCenterTitle }
 
+    private var selectedTabKey: String {
+        String(describing: selectedItem.id)
+    }
+
+    private var selectedFrame: CGRect? {
+        tabFrames[selectedTabKey]
+    }
+
     public init(
         selectedItem: Binding<Item>,
         items: [Item],
         style: CraftSurfaceStyle = .glass,
-        showsTitles: Bool = true,
         centerPosition: CraftCenterButtonPosition = .floating,
         centerAction: (() -> Void)? = nil,
         centerSymbol: String = "plus",
@@ -146,7 +164,6 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
         self._selectedItem = selectedItem
         self.items = items
         self.style = style
-        self.showsTitles = showsTitles
         self.centerPosition = centerPosition
         self.centerAction = centerAction
         self.centerSymbol = centerSymbol
@@ -162,7 +179,6 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
         selectedItem: Binding<Item>,
         items: [Item],
         style: CraftSurfaceStyle = .glass,
-        showsTitles: Bool = true,
         centerPosition: CraftCenterButtonPosition = .floating,
         centerAction: (() -> Void)? = nil,
         centerSymbol: String = "plus",
@@ -171,7 +187,6 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
         self._selectedItem = selectedItem
         self.items = items
         self.style = style
-        self.showsTitles = showsTitles
         self.centerPosition = centerPosition
         self.centerAction = centerAction
         self.centerSymbol = centerSymbol
@@ -227,54 +242,70 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
 
     @ViewBuilder
     private var barContent: some View {
-        HStack(spacing: theme.spacing.xs) {
-            if centerAction != nil {
-                ForEach(leadingItems) { item in
-                    CraftTabButton(
-                        item: item,
-                        isSelected: selectedItem.id == item.id,
-                        namespace: tabNamespace,
-                        barStyle: style,
-                        showsTitles: showsTitles,
-                        onSelect: { select(item) }
-                    )
-                }
+        ZStack(alignment: .topLeading) {
+            // Tier 2: Independent Sliding Fluid Glass Pill
+            if let frame = selectedFrame {
+                CraftSlidingFluidPill(
+                    style: style,
+                    isTransitioning: isTransitioning
+                )
+                .frame(width: frame.width, height: frame.height)
+                .position(x: frame.midX, y: frame.midY)
+                .animation(reduceMotion ? nil : theme.animations.springSnappy, value: frame)
+            }
 
-                Color.clear
-                    .frame(width: centerPosition == .floating ? 56 : 42, height: 44)
-                    .accessibilityHidden(true)
+            // Tier 3: Foreground Interactive Tab Buttons
+            HStack(spacing: theme.spacing.xs) {
+                if centerAction != nil {
+                    ForEach(leadingItems) { item in
+                        CraftTabButton(
+                            item: item,
+                            isSelected: selectedItem.id == item.id,
+                            barStyle: style,
+                            onSelect: { select(item) }
+                        )
+                    }
 
-                ForEach(trailingItems) { item in
-                    CraftTabButton(
-                        item: item,
-                        isSelected: selectedItem.id == item.id,
-                        namespace: tabNamespace,
-                        barStyle: style,
-                        showsTitles: showsTitles,
-                        onSelect: { select(item) }
-                    )
-                }
-            } else {
-                ForEach(items) { item in
-                    CraftTabButton(
-                        item: item,
-                        isSelected: selectedItem.id == item.id,
-                        namespace: tabNamespace,
-                        barStyle: style,
-                        showsTitles: showsTitles,
-                        onSelect: { select(item) }
-                    )
+                    Color.clear
+                        .frame(width: centerPosition == .floating ? 56 : 42, height: 44)
+                        .accessibilityHidden(true)
+
+                    ForEach(trailingItems) { item in
+                        CraftTabButton(
+                            item: item,
+                            isSelected: selectedItem.id == item.id,
+                            barStyle: style,
+                            onSelect: { select(item) }
+                        )
+                    }
+                } else {
+                    ForEach(items) { item in
+                        CraftTabButton(
+                            item: item,
+                            isSelected: selectedItem.id == item.id,
+                            barStyle: style,
+                            onSelect: { select(item) }
+                        )
+                    }
                 }
             }
+        }
+        .coordinateSpace(name: "CraftTabBarTrack")
+        .onPreferenceChange(CraftTabBarItemPreferenceKey.self) { preferences in
+            tabFrames = preferences
         }
     }
 
     private func select(_ item: Item) {
+        guard selectedItem.id != item.id else { return }
         if reduceMotion {
             selectedItem = item
         } else {
+            isTransitioning = true
             withAnimation(theme.animations.springSnappy) {
                 selectedItem = item
+            } completion: {
+                isTransitioning = false
             }
         }
     }
@@ -333,22 +364,131 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
     }
 }
 
+// MARK: - Sliding Fluid Glass Pill View
+
+/// Independent sliding fluid pill rendering Tier 2 optical liquid glass with squash/stretch spring kinematics.
+public struct CraftSlidingFluidPill: View {
+    @Environment(\.craftTheme) private var theme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
+    public let style: CraftSurfaceStyle
+    public let isTransitioning: Bool
+
+    public init(style: CraftSurfaceStyle = .glass, isTransitioning: Bool = false) {
+        self.style = style
+        self.isTransitioning = isTransitioning
+    }
+
+    public var body: some View {
+        pillBackground
+            .scaleEffect(
+                x: (isTransitioning && !reduceMotion) ? 1.08 : 1.0,
+                y: (isTransitioning && !reduceMotion) ? 0.94 : 1.0
+            )
+            .animation(reduceMotion ? nil : theme.animations.springSnappy, value: isTransitioning)
+    }
+
+    @ViewBuilder
+    private var pillBackground: some View {
+        switch style {
+        case .glass:
+            if reduceTransparency {
+                Capsule()
+                    .fill(theme.colors.surfaceCard)
+                    .overlay(
+                        Capsule()
+                            .strokeBorder(theme.colors.borderDefault, lineWidth: 1)
+                    )
+            } else {
+                glassPill
+            }
+        case .elevated:
+            Capsule()
+                .fill(theme.colors.surfaceElevated.opacity(0.85))
+                .overlay(
+                    Capsule()
+                        .strokeBorder(theme.colors.hairline, lineWidth: 1)
+                )
+                .overlay(
+                    Capsule()
+                        .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
+                )
+        case .outlined:
+            Capsule()
+                .fill(theme.colors.surfaceCard)
+                .overlay(
+                    Capsule()
+                        .strokeBorder(theme.colors.borderDefault, lineWidth: 1)
+                )
+        case .tactile3D:
+            Capsule()
+                .fill(theme.colors.surfaceCard)
+                .overlay(
+                    Capsule()
+                        .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
+                )
+        case .flat:
+            Capsule()
+                .fill(theme.colors.surfaceCard)
+        }
+    }
+
+    @ViewBuilder
+    private var glassPill: some View {
+        if #available(iOS 26, macOS 26, *) {
+            Capsule()
+                .fill(Color.clear)
+                .glassEffect(.regular.tint(theme.colors.brandPrimary).interactive(), in: .capsule)
+                .overlay(specularRimHighlight)
+                .shadow(color: theme.colors.brandPrimary.opacity(0.20), radius: 6, x: 0, y: 2)
+        } else {
+            Capsule()
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            theme.colors.brandPrimary.opacity(0.18),
+                            theme.colors.brandPrimary.opacity(0.08)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .overlay(specularRimHighlight)
+                .shadow(color: theme.colors.brandPrimary.opacity(0.20), radius: 6, x: 0, y: 2)
+        }
+    }
+
+    private var specularRimHighlight: some View {
+        Capsule()
+            .strokeBorder(
+                LinearGradient(
+                    colors: [
+                        .white.opacity(0.40),
+                        theme.colors.brandPrimary.opacity(0.12)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                ),
+                lineWidth: 0.8
+            )
+    }
+}
+
 // MARK: - Dedicated Tab Item Button Subview
 
 /// Isolated tab button view enabling SwiftUI's Attribute Graph to bypass unaffected tabs during selection changes.
 private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
     @Environment(\.craftTheme) private var theme
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     let item: Item
     let isSelected: Bool
-    let namespace: Namespace.ID
     let barStyle: CraftSurfaceStyle
-    let showsTitles: Bool
     let onSelect: () -> Void
 
     private var hasTitle: Bool {
-        guard showsTitles else { return false }
+        guard item.showsTitle else { return false }
         if item.titleKey != nil { return true }
         return !item.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
@@ -357,13 +497,17 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
         Button(action: onSelect) {
             VStack(spacing: hasTitle ? 2 : 0) {
                 ZStack(alignment: .topTrailing) {
-                    CraftIcon(
-                        item.symbol,
-                        size: hasTitle ? .md : .lg,
-                        color: isSelected ? theme.colors.brandPrimary : theme.colors.textMuted,
-                        renderingMode: isSelected ? .hierarchical : .monochrome,
-                        weight: isSelected ? .bold : .medium
-                    )
+                    if item.showsSymbol {
+                        CraftIcon(
+                            item.symbol,
+                            size: hasTitle ? .md : .lg,
+                            color: isSelected ? theme.colors.brandPrimary : theme.colors.textMuted,
+                            renderingMode: isSelected ? .hierarchical : .monochrome,
+                            weight: isSelected ? .bold : .medium
+                        )
+                        .scaleEffect(isSelected && !reduceMotion ? 1.08 : 1.0)
+                        .symbolEffect(.bounce, value: isSelected)
+                    }
 
                     if let badgeCount = item.badgeCount, badgeCount > 0 {
                         Text(verbatim: "\(min(badgeCount, 99))")
@@ -396,60 +540,21 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
             }
             .frame(maxWidth: .infinity)
             .frame(height: 44)
-            .background {
-                if isSelected {
-                    tabIndicatorBackground
-                        .matchedGeometryEffect(id: "activeTabIndicator", in: namespace)
-                }
-            }
             .contentShape(Rectangle())
         }
         .buttonStyle(.craftPress(scale: 0.95))
+        .background(
+            GeometryReader { proxy in
+                Color.clear.preference(
+                    key: CraftTabBarItemPreferenceKey.self,
+                    value: [String(describing: item.id): proxy.frame(in: .named("CraftTabBarTrack"))]
+                )
+            }
+        )
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityTitle)
         .accessibilityValue(accessibilityBadgeValue)
         .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : [.isButton])
-    }
-
-    @ViewBuilder
-    private var tabIndicatorBackground: some View {
-        switch barStyle {
-        case .glass:
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(reduceTransparency ? AnyShapeStyle(theme.colors.surfaceCard) : AnyShapeStyle(theme.colors.brandPrimary.opacity(0.14)))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .strokeBorder(theme.colors.brandPrimary.opacity(0.25), lineWidth: 0.8)
-                )
-        case .elevated:
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(theme.colors.surfaceElevated.opacity(0.85))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .strokeBorder(theme.colors.hairline, lineWidth: 1)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
-                )
-        case .outlined:
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(theme.colors.surfaceCard)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .strokeBorder(theme.colors.borderDefault, lineWidth: 1)
-                )
-        case .tactile3D:
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(theme.colors.surfaceCard)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
-                )
-        case .flat:
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(theme.colors.surfaceCard)
-        }
     }
 
     private var accessibilityTitle: Text {
@@ -602,11 +707,12 @@ private struct _PreviewTab: CraftTabItemProtocol {
     let id: String
     let title: String
     let symbol: String
+    var showsTitle: Bool = true
 }
 
 #Preview("CraftFloatingTabBar - Glass & Icon-Only") {
     @Previewable @State var selected = _PreviewTab(id: "home", title: "Home", symbol: "house")
-    @Previewable @State var selectedIconOnly = _PreviewTab(id: "learn", title: "", symbol: "book.fill")
+    @Previewable @State var selectedIconOnly = _PreviewTab(id: "learn", title: "Learn", symbol: "book.fill", showsTitle: false)
 
     let tabs = [
         _PreviewTab(id: "home", title: "Home", symbol: "house"),
@@ -616,10 +722,10 @@ private struct _PreviewTab: CraftTabItemProtocol {
     ]
 
     let iconOnlyTabs = [
-        _PreviewTab(id: "learn", title: "", symbol: "book.fill"),
-        _PreviewTab(id: "practice", title: "", symbol: "repeat"),
-        _PreviewTab(id: "rank", title: "", symbol: "trophy.fill"),
-        _PreviewTab(id: "account", title: "", symbol: "person.crop.circle")
+        _PreviewTab(id: "learn", title: "Learn", symbol: "book.fill", showsTitle: false),
+        _PreviewTab(id: "practice", title: "Practice", symbol: "repeat", showsTitle: false),
+        _PreviewTab(id: "rank", title: "Rank", symbol: "trophy.fill", showsTitle: false),
+        _PreviewTab(id: "account", title: "Account", symbol: "person.crop.circle", showsTitle: false)
     ]
 
     ScrollView {
