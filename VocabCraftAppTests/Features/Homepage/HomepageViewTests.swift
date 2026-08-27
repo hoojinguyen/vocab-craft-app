@@ -5,18 +5,20 @@ import XCTest
 
 @MainActor
 final class HomepageViewTests: XCTestCase {
-    func testTabItemProperties() {
-        XCTAssertEqual(TabItem.home.title, AppStrings.Tabs.home)
-        XCTAssertEqual(TabItem.home.symbol, "house.fill")
-        XCTAssertEqual(TabItem.vocabulary.title, AppStrings.Tabs.vocabulary)
-        XCTAssertEqual(TabItem.vocabulary.symbol, "book.fill")
-        XCTAssertEqual(TabItem.reflex.title, AppStrings.Tabs.reflex)
-        XCTAssertEqual(TabItem.reflex.symbol, "bolt.fill")
-        XCTAssertEqual(TabItem.settings.title, AppStrings.Tabs.settings)
-        XCTAssertEqual(TabItem.settings.symbol, "gearshape.fill")
-        XCTAssertEqual(TabItem.search.title, AppStrings.Tabs.search)
-        XCTAssertEqual(TabItem.search.symbol, "magnifyingglass")
+    func testTabItemCraftProtocolConformance() {
+        XCTAssertEqual(TabItem.home.titleKey, AppStrings.Tabs.home)
+        XCTAssertEqual(TabItem.home.symbol, CraftSymbol.home.rawValue)
+        XCTAssertEqual(TabItem.vocabulary.titleKey, AppStrings.Tabs.vocabulary)
+        XCTAssertEqual(TabItem.vocabulary.symbol, CraftSymbol.study.rawValue)
+        XCTAssertEqual(TabItem.search.titleKey, AppStrings.Tabs.search)
+        XCTAssertEqual(TabItem.search.symbol, CraftSymbol.search.rawValue)
+        XCTAssertEqual(TabItem.reflex.titleKey, AppStrings.Tabs.reflex)
+        XCTAssertEqual(TabItem.reflex.symbol, CraftSymbol.practice.rawValue)
+        XCTAssertEqual(TabItem.settings.titleKey, AppStrings.Tabs.settings)
+        XCTAssertEqual(TabItem.settings.symbol, CraftSymbol.settings.rawValue)
+        XCTAssertEqual(TabItem.navigationTabs, [.home, .vocabulary, .search, .settings])
         XCTAssertEqual(TabItem.allCases.count, 5)
+        XCTAssertNil(TabItem.home.badgeCount)
     }
 
     func testLiquidGlassTabBarInitialization() {

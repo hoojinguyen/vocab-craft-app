@@ -17,6 +17,7 @@
 		3000DE9D056D85598F6E /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DE9D056D85598F6E /* AppContainer.swift */; };
 		3000FAD85B1C0D0923C5 /* EnvironmentKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FAD85B1C0D0923C5 /* EnvironmentKeys.swift */; };
 		300012A79BAC11C11690 /* AppRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200012A79BAC11C11690 /* AppRouter.swift */; };
+		300012A79BAC11C11691 /* TabItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200012A79BAC11C11691 /* TabItem.swift */; };
 		30005D17660A661FF2F5 /* VocabCraftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005D17660A661FF2F5 /* VocabCraftApp.swift */; };
 		3000991CE1A83CFDC071 /* ContinuousReflexSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000991CE1A83CFDC071 /* ContinuousReflexSpeechService.swift */; };
 		3000087B04314FDDF262 /* SoundEffectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000087B04314FDDF262 /* SoundEffectService.swift */; };
@@ -291,6 +292,7 @@
 		2000FAD85B1C0D0923C5 /* EnvironmentKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EnvironmentKeys.swift"; sourceTree = "<group>"; };
 		20004DC19C2C12FAB3C7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info.plist"; sourceTree = "<group>"; };
 		200012A79BAC11C11690 /* AppRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppRouter.swift"; sourceTree = "<group>"; };
+		200012A79BAC11C11691 /* TabItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TabItem.swift"; sourceTree = "<group>"; };
 		2000AE8014E8A9522B13 /* VocabCraftApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "VocabCraftApp.entitlements"; sourceTree = "<group>"; };
 		20005D17660A661FF2F5 /* VocabCraftApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftApp.swift"; sourceTree = "<group>"; };
 		2000991CE1A83CFDC071 /* ContinuousReflexSpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContinuousReflexSpeechService.swift"; sourceTree = "<group>"; };
@@ -582,6 +584,7 @@
 			isa = PBXGroup;
 			children = (
 				200012A79BAC11C11690 /* AppRouter.swift */,
+				200012A79BAC11C11691 /* TabItem.swift */,
 			);
 			path = "Navigation";
 			sourceTree = "<group>";
@@ -1416,6 +1419,7 @@
 				3000DE9D056D85598F6E /* AppContainer.swift in Sources */,
 				3000FAD85B1C0D0923C5 /* EnvironmentKeys.swift in Sources */,
 				300012A79BAC11C11690 /* AppRouter.swift in Sources */,
+				300012A79BAC11C11691 /* TabItem.swift in Sources */,
 				30005D17660A661FF2F5 /* VocabCraftApp.swift in Sources */,
 				3000991CE1A83CFDC071 /* ContinuousReflexSpeechService.swift in Sources */,
 				3000087B04314FDDF262 /* SoundEffectService.swift in Sources */,

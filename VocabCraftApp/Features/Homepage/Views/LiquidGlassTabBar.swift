@@ -1,34 +1,5 @@
 import SwiftUI
 
-public enum TabItem: Int, CaseIterable, Identifiable {
-    case home = 0
-    case vocabulary = 1
-    case search = 4 // Center Hero FAB
-    case reflex = 2
-    case settings = 3
-
-    public var id: Int { rawValue }
-
-    public var title: LocalizedStringKey {
-        switch self {
-        case .home: return AppStrings.Tabs.home
-        case .vocabulary: return AppStrings.Tabs.vocabulary
-        case .search: return AppStrings.Tabs.search
-        case .reflex: return AppStrings.Tabs.reflex
-        case .settings: return AppStrings.Tabs.settings
-        }
-    }
-
-    public var symbol: String {
-        switch self {
-        case .home: return "house.fill"
-        case .vocabulary: return "book.fill"
-        case .search: return "magnifyingglass"
-        case .reflex: return "bolt.fill"
-        case .settings: return "gearshape.fill"
-        }
-    }
-}
 
 struct LiquidGlassTabButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
@@ -131,8 +102,13 @@ public struct LiquidGlassTabBar: View {
                     .scaleEffect(isSelected ? (reduceMotion ? 1.0 : 1.12) : 1.0)
                     .animation(.spring(response: 0.3, dampingFraction: 0.55), value: isSelected)
 
-                Text(tab.title)
-                    .font(.system(size: 10, weight: isSelected ? .bold : .medium, design: .rounded))
+                if let titleKey = tab.titleKey {
+                    Text(titleKey)
+                        .font(.system(size: 10, weight: isSelected ? .bold : .medium, design: .rounded))
+                } else if !tab.title.isEmpty {
+                    Text(tab.title)
+                        .font(.system(size: 10, weight: isSelected ? .bold : .medium, design: .rounded))
+                }
             }
             .foregroundColor(isSelected ? Color.vocabMint : Color.vocabMuted)
             .padding(.vertical, 8)
