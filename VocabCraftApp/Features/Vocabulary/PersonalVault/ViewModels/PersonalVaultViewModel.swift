@@ -19,6 +19,10 @@ public final class PersonalVaultViewModel {
     public var isPresentingReviewSession: Bool = false
     public private(set) var reviewWords: [VaultWordItem] = []
 
+    public var isSpeakingAudio: Bool {
+        ttsService?.isSpeaking ?? false
+    }
+
     private let fetchVaultUseCase: FetchPersonalVaultUseCaseProtocol?
     private let toggleBookmarkUseCase: ToggleWordBookmarkUseCaseProtocol?
     private let ttsService: TextToSpeechProtocol?

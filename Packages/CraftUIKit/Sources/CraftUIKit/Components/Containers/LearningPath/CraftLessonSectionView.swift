@@ -19,6 +19,7 @@ public struct NodeAnchorPreferenceKey: PreferenceKey {
 public struct CraftLessonSectionHeaderView: View {
     public let section: LessonSection
     public var isPinned: Bool
+    public var dockThreshold: CGFloat
 
     @Environment(\.craftTheme) private var theme
     @State private var isDocked: Bool = false
@@ -30,9 +31,11 @@ public struct CraftLessonSectionHeaderView: View {
     /// - Parameters:
     ///   - section: The `LessonSection` presentation model.
     ///   - isPinned: Whether this header is explicitly marked as pinned.
-    public init(section: LessonSection, isPinned: Bool = false) {
+    ///   - dockThreshold: The vertical offset threshold to consider the header docked.
+    public init(section: LessonSection, isPinned: Bool = false, dockThreshold: CGFloat = 15) {
         self.section = section
         self.isPinned = isPinned
+        self.dockThreshold = dockThreshold
     }
 
     // MARK: - Header Visibility
@@ -145,13 +148,16 @@ public struct CraftLessonSectionHeaderView: View {
             )
             .craftShadow(isHighlighted ? theme.shadows.md : theme.shadows.sm)
             .accessibilityElement(children: .combine)
+            .accessibilityAddTraits(.isHeader)
+            .accessibilityLabel(Text(section.title))
+            .accessibilityValue(Text((section.progressText ?? section.progress) ?? ""))
             .padding(.horizontal, theme.spacing.base)
             .background(
                 GeometryReader { geo in
                     let minY = geo.frame(in: .named("CraftLearningPathScrollView")).minY
                     Color.clear
                         .onChange(of: minY) { _, newValue in
-                            let docked = newValue <= 15
+                            let docked = newValue <= dockThreshold
                             if isDocked != docked {
                                 withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                                     isDocked = docked
@@ -159,7 +165,7 @@ public struct CraftLessonSectionHeaderView: View {
                             }
                         }
                         .onAppear {
-                            let docked = minY <= 15
+                            let docked = minY <= dockThreshold
                             if isDocked != docked {
                                 isDocked = docked
                             }
@@ -178,6 +184,11 @@ public struct CraftLessonSectionBodyView: View {
     public let section: LessonSection
     public let rowPattern: RowPattern
     public let onNodeTap: (@Sendable (LessonNodeModel) -> Void)?
+    
+    public let connectorDotDiameter: CGFloat?
+    public let connectorDotSpacing: CGFloat?
+    public let connectorTurnRadius: CGFloat?
+    public let connectorEdgeInset: CGFloat?
 
     @Environment(\.craftTheme) private var theme
 
@@ -190,11 +201,20 @@ public struct CraftLessonSectionBodyView: View {
     ///   - onNodeTap: Optional closure invoked when any lesson node within the section is tapped.
     public init(
         section: LessonSection,
-        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil
+        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        connectorDotDiameter: CGFloat? = nil,
+        connectorDotSpacing: CGFloat? = nil,
+        connectorTurnRadius: CGFloat? = nil,
+        connectorEdgeInset: CGFloat? = nil
     ) {
         self.section = section
         self.rowPattern = section.rowPattern
         self.onNodeTap = onNodeTap
+        
+        self.connectorDotDiameter = connectorDotDiameter
+        self.connectorDotSpacing = connectorDotSpacing
+        self.connectorTurnRadius = connectorTurnRadius
+        self.connectorEdgeInset = connectorEdgeInset
     }
 
     /// Creates a lesson section body view supporting custom row patterns.
@@ -206,11 +226,20 @@ public struct CraftLessonSectionBodyView: View {
     public init(
         section: LessonSection,
         rowPattern: RowPattern = .standard,
-        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil
+        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        connectorDotDiameter: CGFloat? = nil,
+        connectorDotSpacing: CGFloat? = nil,
+        connectorTurnRadius: CGFloat? = nil,
+        connectorEdgeInset: CGFloat? = nil
     ) {
         self.section = section
         self.rowPattern = rowPattern
         self.onNodeTap = onNodeTap
+        
+        self.connectorDotDiameter = connectorDotDiameter
+        self.connectorDotSpacing = connectorDotSpacing
+        self.connectorTurnRadius = connectorTurnRadius
+        self.connectorEdgeInset = connectorEdgeInset
     }
 
     // MARK: - Computed Properties
@@ -235,7 +264,11 @@ public struct CraftLessonSectionBodyView: View {
                 CraftSnakeConnectorLayer(
                     nodes: section.nodes,
                     preferences: preferences,
-                    geometry: geometry
+                    geometry: geometry,
+                    turnRadius: connectorTurnRadius,
+                    edgeInset: connectorEdgeInset,
+                    dotDiameter: connectorDotDiameter,
+                    dotSpacing: connectorDotSpacing
                 )
             }
             .allowsHitTesting(false)
@@ -331,3 +364,4 @@ public struct CraftLessonSectionView: View {
         .padding(.vertical)
     }
 }
+

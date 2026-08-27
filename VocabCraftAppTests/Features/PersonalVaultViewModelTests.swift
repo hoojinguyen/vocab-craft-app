@@ -169,6 +169,10 @@ struct PersonalVaultViewModelTests {
         let vm = PersonalVaultViewModel(ttsService: mockTTS)
         let word = VaultWordItem(id: 1, lemma: "eloquent", pos: "adj.", definitionVi: "Hùng biện")
 
+        #expect(!vm.isSpeakingAudio)
+        mockTTS.isSpeaking = true
+        #expect(vm.isSpeakingAudio)
+
         vm.playAudio(for: word)
         #expect(mockTTS.lastSpokenText == "eloquent")
     }

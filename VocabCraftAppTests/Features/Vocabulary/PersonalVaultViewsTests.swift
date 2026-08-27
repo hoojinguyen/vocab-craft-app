@@ -268,6 +268,24 @@ final class PersonalVaultViewsTests: XCTestCase {
         XCTAssertTrue(minimalWord.practicedModes.isEmpty)
     }
 
+    func test_vaultWordDetailSheet_isPlayingAudioTrue_rendersProperly() {
+        let view = VaultWordDetailSheet(
+            word: mockVaultWord,
+            isPlayingAudio: true,
+            onPlayAudio: {},
+            onToggleBookmark: {}
+        )
+
+        #if canImport(UIKit)
+        let host = UIHostingController(rootView: view)
+        XCTAssertNotNil(host.view)
+        #else
+        XCTAssertNotNil(view)
+        #endif
+
+        XCTAssertTrue(view.isPlayingAudio)
+    }
+
     // MARK: - VocabularyView Integration Tests
     func test_vocabularyView_initializationWithViewModel() {
         let vm = PersonalVaultViewModel(mockWords: [mockVaultWord])

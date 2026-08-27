@@ -57,13 +57,11 @@ public struct CraftSpeakerButton: View {
         }
     }
 
+    @State private var hapticTrigger: Int = 0
+
     public var body: some View {
         Button(action: {
-            #if os(iOS)
-            let generator = UIImpactFeedbackGenerator(style: .light)
-            generator.prepare()
-            generator.impactOccurred()
-            #endif
+            hapticTrigger &+= 1
             action()
         }) {
             if let label {
@@ -73,6 +71,7 @@ public struct CraftSpeakerButton: View {
             }
         }
         .buttonStyle(PlainButtonStyle())
+        .sensoryFeedback(.impact(weight: .light), trigger: hapticTrigger)
         .accessibilityLabel(CraftLocalized.string(isPlaying ? "craft.audio.playing" : "craft.audio.pronounce"))
         .accessibilityAddTraits(.isButton)
     }
@@ -110,6 +109,7 @@ public struct CraftSpeakerButton: View {
             .font(.system(size: iconSizePt, weight: .semibold))
             .foregroundStyle(foregroundColor)
             .symbolRenderingMode(.hierarchical)
+            .contentTransition(.symbolEffect(.replace))
     }
 
     private var foregroundColor: Color {

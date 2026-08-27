@@ -67,4 +67,10 @@ final class SoundEffectAndTTSTests: XCTestCase {
         tts.speak(text: "   ")
         XCTAssertFalse(tts.isSpeaking)
     }
+
+    func testPrewarmExecutesWithoutCrashing() {
+        let tts = TextToSpeechService()
+        tts.prewarm()
+        XCTAssertFalse(tts.isSpeaking)
+    }
 }

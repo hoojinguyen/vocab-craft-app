@@ -7,9 +7,12 @@ public protocol TextToSpeechProtocol: AnyObject {
     func speak(text: String, rate: Float, locale: String)
     func speakAsync(text: String, rate: Float, locale: String) async
     func stop()
+    func prewarm()
 }
 
 public extension TextToSpeechProtocol {
+    func prewarm() {}
+
     func speak(text: String) {
         speak(text: text, rate: 0.5, locale: "en-US")
     }

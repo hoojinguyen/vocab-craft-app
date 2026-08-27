@@ -23,11 +23,31 @@ public struct CraftLearningPath: View {
     public let showCelebration: Bool
     public let pinSectionHeaders: Bool
 
+    // Customization hooks
+    public let detailSheetBuilder: (@Sendable (LessonNodeModel, @escaping (LessonNodeModel) -> Void, @escaping () -> Void) -> AnyView)?
+    public let backgroundViewBuilder: (() -> AnyView)?
+    public let emptyStateViewBuilder: (() -> AnyView)?
+
+    // Scroll configuration
+    public let scrollAnimation: Animation
+    public let scrollAnchor: UnitPoint
+
+    // Connector configuration
+    public let connectorDotDiameter: CGFloat?
+    public let connectorDotSpacing: CGFloat?
+    public let connectorTurnRadius: CGFloat?
+    public let connectorEdgeInset: CGFloat?
+
+    // Telemetry hooks
+    public let onSectionAppear: (@Sendable (LessonSection) -> Void)?
+    public let onAutoScrolled: (@Sendable (String) -> Void)?
+
     @Environment(\.craftTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var celebrationTriggered: Bool = false
     @State private var selectedNodeForDetail: LessonNodeModel?
+    @State private var hasScrolledToActive: Bool = false
 
     // MARK: - Initializers
 
@@ -88,7 +108,18 @@ public struct CraftLearningPath: View {
         showDetailModal: Bool = true,
         scrollToActive: Bool = true,
         showCelebration: Bool = true,
-        pinSectionHeaders: Bool = true
+        pinSectionHeaders: Bool = true,
+        scrollAnimation: Animation = .spring(response: 0.5, dampingFraction: 0.8),
+        scrollAnchor: UnitPoint = .center,
+        detailSheetBuilder: (@Sendable (LessonNodeModel, @escaping (LessonNodeModel) -> Void, @escaping () -> Void) -> AnyView)? = nil,
+        backgroundViewBuilder: (() -> AnyView)? = nil,
+        emptyStateViewBuilder: (() -> AnyView)? = nil,
+        connectorDotDiameter: CGFloat? = nil,
+        connectorDotSpacing: CGFloat? = nil,
+        connectorTurnRadius: CGFloat? = nil,
+        connectorEdgeInset: CGFloat? = nil,
+        onSectionAppear: (@Sendable (LessonSection) -> Void)? = nil,
+        onAutoScrolled: (@Sendable (String) -> Void)? = nil
     ) {
         self.sections = sections
         self.winding = winding
@@ -99,6 +130,18 @@ public struct CraftLearningPath: View {
         self.scrollToActive = scrollToActive
         self.showCelebration = showCelebration
         self.pinSectionHeaders = pinSectionHeaders
+
+        self.detailSheetBuilder = detailSheetBuilder
+        self.backgroundViewBuilder = backgroundViewBuilder
+        self.emptyStateViewBuilder = emptyStateViewBuilder
+        self.scrollAnimation = scrollAnimation
+        self.scrollAnchor = scrollAnchor
+        self.connectorDotDiameter = connectorDotDiameter
+        self.connectorDotSpacing = connectorDotSpacing
+        self.connectorTurnRadius = connectorTurnRadius
+        self.connectorEdgeInset = connectorEdgeInset
+        self.onSectionAppear = onSectionAppear
+        self.onAutoScrolled = onAutoScrolled
     }
 
     /// Creates a single-section learning path supporting custom row patterns for backward compatibility.
@@ -136,15 +179,17 @@ public struct CraftLearningPath: View {
         showCelebration: Bool = true,
         pinSectionHeaders: Bool = true
     ) {
-        self.sections = sections
-        self.winding = .standard
-        self.rowPattern = rowPattern
-        self.onNodeTap = onNodeTap
-        self.onStartLesson = onStartLesson
-        self.showDetailModal = showDetailModal
-        self.scrollToActive = scrollToActive
-        self.showCelebration = showCelebration
-        self.pinSectionHeaders = pinSectionHeaders
+        self.init(
+            sections: sections,
+            winding: .standard,
+            rowPattern: rowPattern,
+            onNodeTap: onNodeTap,
+            onStartLesson: onStartLesson,
+            showDetailModal: showDetailModal,
+            scrollToActive: scrollToActive,
+            showCelebration: showCelebration,
+            pinSectionHeaders: pinSectionHeaders
+        )
     }
 
     // MARK: - Computed Properties
@@ -178,18 +223,26 @@ public struct CraftLearningPath: View {
                 scrollableView
             }
         }
-        .background(backgroundWash)
+        .background(effectiveBackground)
         .craftConfetti(isTriggered: $celebrationTriggered)
         .sheet(item: $selectedNodeForDetail) { node in
-            CraftLessonDetailSheet(
-                node: node,
-                onStart: handleStartLesson,
-                onDismiss: {
-                    selectedNodeForDetail = nil
-                }
-            )
-            .presentationDetents([.fraction(0.70), .large])
-            .presentationDragIndicator(.visible)
+            if let builder = detailSheetBuilder {
+                builder(
+                    node,
+                    { started in handleStartLesson(started) },
+                    { selectedNodeForDetail = nil }
+                )
+            } else {
+                CraftLessonDetailSheet(
+                    node: node,
+                    onStart: handleStartLesson,
+                    onDismiss: {
+                        selectedNodeForDetail = nil
+                    }
+                )
+                .presentationDetents([.fraction(0.70), .large])
+                .presentationDragIndicator(.visible)
+            }
         }
     }
 
@@ -208,16 +261,22 @@ public struct CraftLearningPath: View {
                                     rowPattern: rowPattern != .standard ? rowPattern : section.rowPattern,
                                     onNodeTap: { node in
                                         handleNodeTap(node)
-                                    }
+                                    },
+                                    connectorDotDiameter: connectorDotDiameter,
+                                    connectorDotSpacing: connectorDotSpacing,
+                                    connectorTurnRadius: connectorTurnRadius,
+                                    connectorEdgeInset: connectorEdgeInset
                                 )
                                 .scrollTransition(.animated) { content, phase in
                                     content
                                         .opacity(isReducedMotion ? 1.0 : (1.0 - abs(phase.value) * 0.25))
                                         .scaleEffect(isReducedMotion ? 1.0 : (1.0 - abs(phase.value) * 0.04))
                                 }
+                                .onAppear { onSectionAppear?(section) }
                             } header: {
                                 if CraftLessonSectionHeaderView(section: section).hasHeaderContent {
                                     CraftLessonSectionHeaderView(section: section)
+                                        .accessibilityAddTraits(.isHeader)
                                         .padding(.vertical, theme.spacing.xs)
                                         .background(theme.colors.canvasBackground)
                                 }
@@ -225,50 +284,76 @@ public struct CraftLearningPath: View {
                         }
                     }
                     .padding(.top, theme.spacing.xl)
-                    .padding(.bottom, smartBottomPadding)
                 } else {
                     LazyVStack(spacing: theme.spacing.xxl, pinnedViews: []) {
                         ForEach(sections) { section in
-                            CraftLessonSectionView(
-                                section: section,
-                                rowPattern: rowPattern != .standard ? rowPattern : section.rowPattern,
-                                onNodeTap: { node in
-                                    handleNodeTap(node)
-                                }
-                            )
+                            VStack(spacing: theme.spacing.lg) {
+                                CraftLessonSectionHeaderView(section: section)
+
+                                CraftLessonSectionBodyView(
+                                    section: section,
+                                    rowPattern: rowPattern != .standard ? rowPattern : section.rowPattern,
+                                    onNodeTap: { node in
+                                        handleNodeTap(node)
+                                    },
+                                    connectorDotDiameter: connectorDotDiameter,
+                                    connectorDotSpacing: connectorDotSpacing,
+                                    connectorTurnRadius: connectorTurnRadius,
+                                    connectorEdgeInset: connectorEdgeInset
+                                )
+                            }
                             .scrollTransition(.animated) { content, phase in
                                 content
                                     .opacity(isReducedMotion ? 1.0 : (1.0 - abs(phase.value) * 0.25))
                                     .scaleEffect(isReducedMotion ? 1.0 : (1.0 - abs(phase.value) * 0.04))
                             }
+                            .onAppear { onSectionAppear?(section) }
                         }
                     }
                     .padding(.top, theme.spacing.xl)
-                    .padding(.bottom, 130)
                 }
             }
             .coordinateSpace(name: "CraftLearningPathScrollView")
-            .task {
-                guard scrollToActive, let targetID = activeNodeID else { return }
-                // Delay 300ms to allow LazyVStack layout and child geometry to stabilize before animating scroll
-                try? await Task.sleep(nanoseconds: 300_000_000)
-                guard !Task.isCancelled else { return }
-                withAnimation(isReducedMotion ? .default : .spring(response: 0.5, dampingFraction: 0.8)) {
-                    proxy.scrollTo(targetID, anchor: .center)
+            .safeAreaInset(edge: .bottom) {
+                Color.clear.frame(height: smartBottomPadding)
+            }
+            .onAppear {
+                if scrollToActive, let targetID = activeNodeID {
+                    performScroll(proxy, to: targetID, reducedMotion: isReducedMotion)
+                    hasScrolledToActive = true
                 }
+            }
+            .onChange(of: activeNodeID) { _, newID in
+                guard scrollToActive, let id = newID else { return }
+                performScroll(proxy, to: id, reducedMotion: isReducedMotion)
+            }
+            .onChange(of: sections) { _, _ in
+                guard scrollToActive, !hasScrolledToActive, let id = activeNodeID else { return }
+                performScroll(proxy, to: id, reducedMotion: isReducedMotion)
+                hasScrolledToActive = true
             }
         }
     }
 
     // MARK: - Empty State View
 
-    private var emptyStateView: some View {
+    private var defaultEmptyStateView: some View {
         ContentUnavailableView(
             CraftLocalized.string("craft.learning_path.empty_title"),
             systemImage: "character.book.closed",
             description: Text(CraftLocalized.string("craft.learning_path.empty_desc"))
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var emptyStateView: some View {
+        Group {
+            if let builder = emptyStateViewBuilder {
+                builder()
+            } else {
+                defaultEmptyStateView
+            }
+        }
     }
 
     // MARK: - Atmospheric Background Wash
@@ -283,6 +368,27 @@ public struct CraftLearningPath: View {
             endPoint: .bottom
         )
         .ignoresSafeArea()
+    }
+
+    // MARK: - Background
+
+    private var effectiveBackground: some View {
+        Group {
+            if let builder = backgroundViewBuilder {
+                builder()
+            } else {
+                backgroundWash
+            }
+        }
+    }
+
+    // MARK: - Scrolling Helper
+
+    private func performScroll(_ proxy: ScrollViewProxy, to id: String, reducedMotion: Bool) {
+        withAnimation(reducedMotion ? .default : scrollAnimation) {
+            proxy.scrollTo(id, anchor: scrollAnchor)
+            onAutoScrolled?(id)
+        }
     }
 
     // MARK: - Tap & Sheet Handling
@@ -353,3 +459,4 @@ public struct CraftLearningPath: View {
         }
     )
 }
+

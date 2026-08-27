@@ -8,18 +8,20 @@ public struct VaultWordDetailSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     public let word: VaultWordItem
+    public let isPlayingAudio: Bool
     public let onPlayAudio: () -> Void
     public let onToggleBookmark: () -> Void
 
     @State private var isBookmarked: Bool
-    @State private var isPlayingAudio: Bool = false
 
     public init(
         word: VaultWordItem,
+        isPlayingAudio: Bool = false,
         onPlayAudio: @escaping () -> Void,
         onToggleBookmark: @escaping () -> Void
     ) {
         self.word = word
+        self.isPlayingAudio = isPlayingAudio
         self.onPlayAudio = onPlayAudio
         self.onToggleBookmark = onToggleBookmark
         _isBookmarked = State(initialValue: word.isBookmarked)
@@ -98,12 +100,7 @@ public struct VaultWordDetailSheet: View {
                     size: .md,
                     isPlaying: isPlayingAudio
                 ) {
-                    isPlayingAudio = true
                     onPlayAudio()
-                    Task {
-                        try? await Task.sleep(for: .seconds(1.2))
-                        isPlayingAudio = false
-                    }
                 }
 
                 CraftIconButton(

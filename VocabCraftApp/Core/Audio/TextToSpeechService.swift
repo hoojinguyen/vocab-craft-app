@@ -10,11 +10,46 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
     private var activeContinuation: CheckedContinuation<Void, Never>?
     private var interruptionObserver: (any NSObjectProtocol)?
 
+    private var isAudioSessionConfigured: Bool = false
+
     public override init() {
         super.init()
         synthesizer.delegate = self
         setupInterruptionObserver()
+        prewarm()
     }
+
+    public func prewarm() {
+        #if os(iOS)
+        Task.detached(priority: .utility) { [weak self] in
+            do {
+                let audioSession = AVAudioSession.sharedInstance()
+                try audioSession.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
+                await MainActor.run {
+                    self?.isAudioSessionConfigured = true
+                }
+            } catch {
+                // Non-fatal pre-warming failure
+            }
+        }
+        #endif
+        _ = Self.resolveVoice(for: "en-US")
+    }
+
+    #if os(iOS)
+    private func ensureAudioSessionActive() {
+        do {
+            let audioSession = AVAudioSession.sharedInstance()
+            if !isAudioSessionConfigured {
+                try audioSession.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
+                isAudioSessionConfigured = true
+            }
+            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+        } catch {
+            print("Failed to activate AVAudioSession for TTS: \(error)")
+        }
+    }
+    #endif
 
     private func setupInterruptionObserver() {
         #if os(iOS)
@@ -65,13 +100,7 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         utterance.voice = Self.resolveVoice(for: locale)
 
 #if os(iOS)
-        do {
-            let audioSession = AVAudioSession.sharedInstance()
-            try audioSession.setCategory(.playAndRecord, mode: .spokenAudio, options: [.defaultToSpeaker, .allowBluetoothHFP, .allowBluetoothA2DP])
-            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
-        } catch {
-            print("Failed to set AVAudioSession category for TTS: \(error)")
-        }
+        ensureAudioSessionActive()
 #endif
 
         isSpeaking = true
@@ -101,13 +130,7 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         utterance.voice = Self.resolveVoice(for: locale)
 
 #if os(iOS)
-        do {
-            let audioSession = AVAudioSession.sharedInstance()
-            try audioSession.setCategory(.playAndRecord, mode: .spokenAudio, options: [.defaultToSpeaker, .allowBluetoothHFP, .allowBluetoothA2DP])
-            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
-        } catch {
-            print("Failed to set AVAudioSession category for TTS: \(error)")
-        }
+        ensureAudioSessionActive()
 #endif
 
         let isTesting = NSClassFromString("XCTestCase") != nil
