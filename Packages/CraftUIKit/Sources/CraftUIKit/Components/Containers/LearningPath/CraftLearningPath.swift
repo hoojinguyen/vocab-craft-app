@@ -21,6 +21,7 @@ public struct CraftLearningPath: View {
     public let showDetailModal: Bool
     public let scrollToActive: Bool
     public let showCelebration: Bool
+    public let pinSectionHeaders: Bool
 
     @Environment(\.craftTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -41,6 +42,7 @@ public struct CraftLearningPath: View {
     ///   - showDetailModal: Whether tapping an unlocked node presents the `CraftLessonDetailSheet` modal (default: `true`).
     ///   - scrollToActive: Whether to automatically scroll to the active node upon appear (default: `true`).
     ///   - showCelebration: Whether to display celebratory confetti when completed/bonus/treasure nodes are tapped (default: `true`).
+    ///   - pinSectionHeaders: Whether to pin section headers at the top when scrolling (default: `true`).
     public init(
         section: LessonSection,
         winding: SerpentineWinding = .standard,
@@ -49,7 +51,8 @@ public struct CraftLearningPath: View {
         onStartLesson: (@Sendable (LessonNodeModel) -> Void)? = nil,
         showDetailModal: Bool = true,
         scrollToActive: Bool = true,
-        showCelebration: Bool = true
+        showCelebration: Bool = true,
+        pinSectionHeaders: Bool = true
     ) {
         self.init(
             sections: [section],
@@ -59,7 +62,8 @@ public struct CraftLearningPath: View {
             onStartLesson: onStartLesson,
             showDetailModal: showDetailModal,
             scrollToActive: scrollToActive,
-            showCelebration: showCelebration
+            showCelebration: showCelebration,
+            pinSectionHeaders: pinSectionHeaders
         )
     }
 
@@ -74,6 +78,7 @@ public struct CraftLearningPath: View {
     ///   - showDetailModal: Whether tapping an unlocked node presents the `CraftLessonDetailSheet` modal (default: `true`).
     ///   - scrollToActive: Whether to automatically scroll to the active node upon appear (default: `true`).
     ///   - showCelebration: Whether to display celebratory confetti when completed/bonus/treasure nodes are tapped (default: `true`).
+    ///   - pinSectionHeaders: Whether to pin section headers at the top when scrolling (default: `true`).
     public init(
         sections: [LessonSection],
         winding: SerpentineWinding = .standard,
@@ -82,7 +87,8 @@ public struct CraftLearningPath: View {
         onStartLesson: (@Sendable (LessonNodeModel) -> Void)? = nil,
         showDetailModal: Bool = true,
         scrollToActive: Bool = true,
-        showCelebration: Bool = true
+        showCelebration: Bool = true,
+        pinSectionHeaders: Bool = true
     ) {
         self.sections = sections
         self.winding = winding
@@ -92,6 +98,7 @@ public struct CraftLearningPath: View {
         self.showDetailModal = showDetailModal
         self.scrollToActive = scrollToActive
         self.showCelebration = showCelebration
+        self.pinSectionHeaders = pinSectionHeaders
     }
 
     /// Creates a single-section learning path supporting custom row patterns for backward compatibility.
@@ -102,7 +109,8 @@ public struct CraftLearningPath: View {
         onStartLesson: (@Sendable (LessonNodeModel) -> Void)? = nil,
         showDetailModal: Bool = true,
         scrollToActive: Bool = true,
-        showCelebration: Bool = true
+        showCelebration: Bool = true,
+        pinSectionHeaders: Bool = true
     ) {
         self.init(
             sections: [section],
@@ -112,7 +120,8 @@ public struct CraftLearningPath: View {
             onStartLesson: onStartLesson,
             showDetailModal: showDetailModal,
             scrollToActive: scrollToActive,
-            showCelebration: showCelebration
+            showCelebration: showCelebration,
+            pinSectionHeaders: pinSectionHeaders
         )
     }
 
@@ -124,7 +133,8 @@ public struct CraftLearningPath: View {
         onStartLesson: (@Sendable (LessonNodeModel) -> Void)? = nil,
         showDetailModal: Bool = true,
         scrollToActive: Bool = true,
-        showCelebration: Bool = true
+        showCelebration: Bool = true,
+        pinSectionHeaders: Bool = true
     ) {
         self.sections = sections
         self.winding = .standard
@@ -134,6 +144,7 @@ public struct CraftLearningPath: View {
         self.showDetailModal = showDetailModal
         self.scrollToActive = scrollToActive
         self.showCelebration = showCelebration
+        self.pinSectionHeaders = pinSectionHeaders
     }
 
     // MARK: - Computed Properties
@@ -184,23 +195,51 @@ public struct CraftLearningPath: View {
         let isReducedMotion = reduceMotion
         return ScrollViewReader { proxy in
             ScrollView {
-                LazyVStack(spacing: theme.spacing.xxl) {
-                    ForEach(sections) { section in
-                        CraftLessonSectionView(
-                            section: section,
-                            rowPattern: rowPattern != .standard ? rowPattern : section.rowPattern,
-                            onNodeTap: { node in
-                                handleNodeTap(node)
+                if pinSectionHeaders {
+                    LazyVStack(spacing: theme.spacing.xxl, pinnedViews: [.sectionHeaders]) {
+                        ForEach(sections) { section in
+                            Section {
+                                CraftLessonSectionBodyView(
+                                    section: section,
+                                    rowPattern: rowPattern != .standard ? rowPattern : section.rowPattern,
+                                    onNodeTap: { node in
+                                        handleNodeTap(node)
+                                    }
+                                )
+                                .scrollTransition(.animated) { content, phase in
+                                    content
+                                        .opacity(isReducedMotion ? 1.0 : (1.0 - abs(phase.value) * 0.25))
+                                        .scaleEffect(isReducedMotion ? 1.0 : (1.0 - abs(phase.value) * 0.04))
+                                }
+                            } header: {
+                                if CraftLessonSectionHeaderView(section: section).hasHeaderContent {
+                                    CraftLessonSectionHeaderView(section: section)
+                                        .padding(.vertical, theme.spacing.xs)
+                                        .background(theme.colors.canvasBackground)
+                                }
                             }
-                        )
-                        .scrollTransition(.animated) { content, phase in
-                            content
-                                .opacity(isReducedMotion ? 1.0 : (1.0 - abs(phase.value) * 0.25))
-                                .scaleEffect(isReducedMotion ? 1.0 : (1.0 - abs(phase.value) * 0.04))
                         }
                     }
+                    .padding(.vertical, theme.spacing.xl)
+                } else {
+                    LazyVStack(spacing: theme.spacing.xxl, pinnedViews: []) {
+                        ForEach(sections) { section in
+                            CraftLessonSectionView(
+                                section: section,
+                                rowPattern: rowPattern != .standard ? rowPattern : section.rowPattern,
+                                onNodeTap: { node in
+                                    handleNodeTap(node)
+                                }
+                            )
+                            .scrollTransition(.animated) { content, phase in
+                                content
+                                    .opacity(isReducedMotion ? 1.0 : (1.0 - abs(phase.value) * 0.25))
+                                    .scaleEffect(isReducedMotion ? 1.0 : (1.0 - abs(phase.value) * 0.04))
+                            }
+                        }
+                    }
+                    .padding(.vertical, theme.spacing.xl)
                 }
-                .padding(.vertical, theme.spacing.xl)
             }
             .task {
                 guard scrollToActive, let targetID = activeNodeID else { return }

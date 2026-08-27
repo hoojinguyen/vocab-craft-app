@@ -1286,6 +1286,53 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertEqual(viewWithSubtitle.section.subtitle, "Sub text")
     }
 
+    func testCraftLessonSectionHeaderView() {
+        let fullSection = LessonSection(
+            id: "s_header",
+            title: "Unit 1: Basics",
+            subtitle: "Intro phrases",
+            level: "LEVEL 1",
+            progressText: "3/5",
+            progressValue: 0.6,
+            bannerIcon: "sparkles",
+            nodes: []
+        )
+        let headerView = CraftLessonSectionHeaderView(section: fullSection)
+        XCTAssertNotNil(headerView.body)
+        XCTAssertEqual(headerView.section.id, "s_header")
+        XCTAssertTrue(headerView.hasHeaderContent)
+
+        let minimalSection = LessonSection(id: "s_min", title: "Minimal", nodes: [])
+        let minHeaderView = CraftLessonSectionHeaderView(section: minimalSection)
+        XCTAssertTrue(minHeaderView.hasHeaderContent)
+
+        let emptySection = LessonSection(id: "s_empty", title: "", nodes: [])
+        let emptyHeaderView = CraftLessonSectionHeaderView(section: emptySection)
+        XCTAssertFalse(emptyHeaderView.hasHeaderContent)
+    }
+
+    func testCraftLessonSectionBodyView() {
+        var tappedNode: LessonNodeModel?
+        let nodes = [
+            LessonNodeModel(id: "bn1", title: "Body Node 1", state: .completed),
+            LessonNodeModel(id: "bn2", title: "Body Node 2", state: .active)
+        ]
+        let section = LessonSection(id: "s_body", title: "Body Unit", nodes: nodes, rowPattern: .standard)
+
+        let bodyView = CraftLessonSectionBodyView(section: section) { node in
+            tappedNode = node
+        }
+        XCTAssertNotNil(bodyView.body)
+        XCTAssertEqual(bodyView.section.id, "s_body")
+        XCTAssertEqual(bodyView.rowPattern, .standard)
+
+        bodyView.onNodeTap?(nodes[0])
+        XCTAssertEqual(tappedNode?.id, "bn1")
+
+        let waveBodyView = CraftLessonSectionBodyView(section: section, rowPattern: .wave)
+        XCTAssertEqual(waveBodyView.rowPattern, .wave)
+    }
+
     // MARK: - CraftLearningPath Container Tests
 
     func testLearningPathInstantiationAndEmptySection() {
@@ -1310,6 +1357,7 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertEqual(singlePath.rowPattern, .standard)
         XCTAssertTrue(singlePath.scrollToActive)
         XCTAssertTrue(singlePath.showCelebration)
+        XCTAssertTrue(singlePath.pinSectionHeaders)
         XCTAssertNil(singlePath.onNodeTap)
 
         // Multi-section custom init
@@ -1329,6 +1377,43 @@ final class CraftLearningPathTests: XCTestCase {
 
         multiPath.onNodeTap?(node)
         XCTAssertEqual(tapCount, 1)
+    }
+
+    func testCraftLearningPathPinSectionHeaders() {
+        let node = LessonNodeModel(id: "pn1", title: "Path Node", state: .active)
+        let section = LessonSection(id: "ps1", title: "Path Section", nodes: [node])
+
+        // Single section init defaults pinSectionHeaders to true
+        let singlePathDefault = CraftLearningPath(section: section)
+        XCTAssertTrue(singlePathDefault.pinSectionHeaders)
+        XCTAssertNotNil(singlePathDefault.body)
+
+        // Single section explicit pinSectionHeaders: false
+        let singlePathNoPin = CraftLearningPath(section: section, pinSectionHeaders: false)
+        XCTAssertFalse(singlePathNoPin.pinSectionHeaders)
+        XCTAssertNotNil(singlePathNoPin.body)
+
+        // Multi section init defaults pinSectionHeaders to true
+        let multiPathDefault = CraftLearningPath(sections: [section])
+        XCTAssertTrue(multiPathDefault.pinSectionHeaders)
+        XCTAssertNotNil(multiPathDefault.body)
+
+        // Multi section explicit pinSectionHeaders: false
+        let multiPathNoPin = CraftLearningPath(sections: [section], pinSectionHeaders: false)
+        XCTAssertFalse(multiPathNoPin.pinSectionHeaders)
+        XCTAssertNotNil(multiPathNoPin.body)
+
+        // Single section with rowPattern init defaults pinSectionHeaders to true
+        let customRowSingleDefault = CraftLearningPath(section: section, rowPattern: .wave)
+        XCTAssertTrue(customRowSingleDefault.pinSectionHeaders)
+        let customRowSingleNoPin = CraftLearningPath(section: section, rowPattern: .wave, pinSectionHeaders: false)
+        XCTAssertFalse(customRowSingleNoPin.pinSectionHeaders)
+
+        // Multi section with rowPattern init defaults pinSectionHeaders to true
+        let customRowMultiDefault = CraftLearningPath(sections: [section], rowPattern: .wave)
+        XCTAssertTrue(customRowMultiDefault.pinSectionHeaders)
+        let customRowMultiNoPin = CraftLearningPath(sections: [section], rowPattern: .wave, pinSectionHeaders: false)
+        XCTAssertFalse(customRowMultiNoPin.pinSectionHeaders)
     }
 
     func testLearningPathActiveNodeResolution() {
