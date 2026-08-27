@@ -8,12 +8,12 @@ public struct VaultWordRowView: View {
     @Environment(\.craftTheme) private var theme
     public let word: VaultWordItem
     public let onTap: () -> Void
-    public let onBookmarkTap: () -> Void
+    public let onBookmarkTap: (() -> Void)?
 
     public init(
         word: VaultWordItem,
         onTap: @escaping () -> Void,
-        onBookmarkTap: @escaping () -> Void
+        onBookmarkTap: (() -> Void)? = nil
     ) {
         self.word = word
         self.onTap = onTap
@@ -22,7 +22,7 @@ public struct VaultWordRowView: View {
 
     public var body: some View {
         CraftCard(
-            style: .glass,
+            style: .tactile3D,
             isPressable: true,
             padding: theme.spacing.md,
             action: onTap
@@ -62,38 +62,14 @@ public struct VaultWordRowView: View {
                                 size: .sm
                             )
                         }
-
-                        if word.isMastered {
-                            CraftBadge(
-                                AppStrings.Vocabulary.masteredBadge,
-                                symbol: .checkmarkCircle,
-                                variant: .subtle,
-                                tone: .success,
-                                size: .sm
-                            )
-                        }
                     }
                 }
 
                 Spacer(minLength: theme.spacing.xs)
 
-                // Subtle Bookmark Button (Clean, no solid background)
-                Button(action: {
-                    #if os(iOS)
-                    let generator = UIImpactFeedbackGenerator(style: .light)
-                    generator.prepare()
-                    generator.impactOccurred()
-                    #endif
-                    onBookmarkTap()
-                }) {
-                    Image(systemName: word.isBookmarked ? "bookmark.fill" : "bookmark")
-                        .font(.system(size: 20, weight: .medium))
-                        .foregroundStyle(word.isBookmarked ? theme.colors.accent : theme.colors.textMuted.opacity(0.5))
-                        .frame(width: 44, height: 44)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(word.isBookmarked ? "homepage.saved" : "homepage.saveWord")
+                // Subtle chevron indicating tap to open detail sheet
+                CraftIcon(.chevronRight, size: .sm)
+                    .foregroundStyle(theme.colors.textMuted.opacity(0.4))
             }
         }
     }

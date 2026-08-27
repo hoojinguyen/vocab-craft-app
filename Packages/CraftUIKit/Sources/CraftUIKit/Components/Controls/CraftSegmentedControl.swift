@@ -120,6 +120,19 @@ public struct CraftSegmentedControl<Value: Hashable & Sendable>: View {
                         .strokeBorder(theme.glass.borderGradient, lineWidth: 1)
                 )
                 .craftShadow(theme.shadows.sm)
+        } else if style == .tactile3D {
+            ZStack {
+                RoundedRectangle(cornerRadius: theme.radii.sm)
+                    .fill(theme.colors.borderDefault)
+                    .offset(y: 2)
+                RoundedRectangle(cornerRadius: theme.radii.sm)
+                    .fill(theme.colors.surfaceCard)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: theme.radii.sm)
+                            .strokeBorder(theme.colors.borderDefault, lineWidth: 0.5)
+                    )
+            }
+            .padding(.bottom, 2)
         } else {
             RoundedRectangle(cornerRadius: theme.radii.sm)
                 .fill(theme.colors.surfaceCard)

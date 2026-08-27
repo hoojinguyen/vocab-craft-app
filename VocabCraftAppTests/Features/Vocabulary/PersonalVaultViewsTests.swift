@@ -141,7 +141,7 @@ final class PersonalVaultViewsTests: XCTestCase {
         view.onTap()
         XCTAssertTrue(didTapRow)
 
-        view.onBookmarkTap()
+        view.onBookmarkTap?()
         XCTAssertTrue(didTapBookmark)
     }
 
