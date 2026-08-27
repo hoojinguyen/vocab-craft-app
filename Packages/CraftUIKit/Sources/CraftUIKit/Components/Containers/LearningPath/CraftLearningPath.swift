@@ -26,7 +26,7 @@ public struct CraftLearningPath: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var celebrationTriggered: Bool = false
-    @State private var selectedNodeForDetail: LessonNodeModel? = nil
+    @State private var selectedNodeForDetail: LessonNodeModel?
 
     // MARK: - Initializers
 
@@ -173,7 +173,7 @@ public struct CraftLearningPath: View {
                     selectedNodeForDetail = nil
                 }
             )
-            .presentationDetents([.fraction(0.48), .medium, .large])
+            .presentationDetents([.fraction(0.62), .large])
             .presentationDragIndicator(.visible)
         }
     }

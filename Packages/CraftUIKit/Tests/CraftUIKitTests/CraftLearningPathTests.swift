@@ -1694,6 +1694,7 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertNotNil(emptySubSheet.body)
     }
 
+    @MainActor
     func testLessonDetailSheetActionCallbacksExecution() {
         var startInvokedWith: LessonNodeModel?
         var dismissInvoked = false

@@ -96,31 +96,14 @@ public struct CraftLessonDetailSheet: View {
         }
     }
 
-    private var statusBadgeIcon: String {
-        switch node.state {
-        case .completed:
-            return "checkmark.circle.fill"
-        case .active:
-            return "flame.fill"
-        case .inProgress:
-            return "bolt.fill"
-        case .bonus:
-            return "star.fill"
-        case .locked:
-            return "lock.fill"
-        case .upcoming:
-            return "character.book.closed.fill"
-        }
-    }
-
-    // MARK: - Sizing
+    // MARK: - Sizing Constants
 
     private var tactileDiameter: CGFloat {
-        60 * baseScale
+        54 * baseScale
     }
 
     private var iconSize: CGFloat {
-        26 * baseScale
+        24 * baseScale
     }
 
     // MARK: - Body
@@ -155,8 +138,8 @@ public struct CraftLessonDetailSheet: View {
             .padding(.horizontal, theme.spacing.base)
 
             ScrollView {
-                VStack(spacing: theme.spacing.lg) {
-                    // Header Section: Tactile 3D Icon, Title, Status Badge
+                VStack(spacing: theme.spacing.base) {
+                    // Header Section: Tactile 3D Icon, Title, Stars (if completed), Status Badge
                     headerSection
 
                     // Metrics Chips Row
@@ -166,14 +149,14 @@ public struct CraftLessonDetailSheet: View {
                     objectivesCard
                 }
                 .padding(.horizontal, theme.spacing.base)
-                .padding(.bottom, theme.spacing.base)
+                .padding(.bottom, theme.spacing.sm)
             }
 
             // Primary Action Button
             actionButton
                 .padding(.horizontal, theme.spacing.base)
                 .padding(.top, theme.spacing.xs)
-                .padding(.bottom, theme.spacing.lg)
+                .padding(.bottom, theme.spacing.base)
         }
         .background(theme.colors.surfaceCard)
         .clipShape(
@@ -185,18 +168,25 @@ public struct CraftLessonDetailSheet: View {
             )
         )
     }
+}
 
-    // MARK: - Header Section
+// MARK: - Header & Badge Extensions
 
-    private var headerSection: some View {
-        VStack(spacing: theme.spacing.sm) {
+private extension CraftLessonDetailSheet {
+    var headerSection: some View {
+        VStack(spacing: theme.spacing.xs) {
             tactile3DNodeIcon
+                .padding(.bottom, theme.spacing.xs)
 
             Text(node.title)
                 .font(theme.typography.titleLarge.bold())
                 .foregroundStyle(theme.colors.textPrimary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
+
+            if node.state == .completed, let starCount = node.stars, starCount > 0 {
+                starRatingView(count: starCount)
+            }
 
             CraftBadge(
                 statusBadgeTitle,
@@ -209,23 +199,55 @@ public struct CraftLessonDetailSheet: View {
         .frame(maxWidth: .infinity)
     }
 
-    // MARK: - 3D Tactile Node Icon (60pt diameter)
+    func starRatingView(count: Int) -> some View {
+        let clampedStars = min(max(count, 0), 3)
+        return HStack(spacing: 4) {
+            ForEach(0..<clampedStars, id: \.self) { _ in
+                Image(systemName: "star.fill")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(theme.gradients.accentShine)
+                    .shadow(color: theme.colors.accent.opacity(0.5), radius: 0, x: 0, y: 1.2)
+            }
+        }
+        .accessibilityHidden(true)
+    }
 
-    private var tactile3DNodeIcon: some View {
+    var statusBadgeIcon: String {
+        switch node.state {
+        case .completed:
+            return "checkmark.circle.fill"
+        case .active:
+            return "flame.fill"
+        case .inProgress:
+            return "bolt.fill"
+        case .bonus:
+            return "star.fill"
+        case .locked:
+            return "lock.fill"
+        case .upcoming:
+            return "character.book.closed.fill"
+        }
+    }
+}
+
+// MARK: - 3D Tactile Node Icon Extensions
+
+private extension CraftLessonDetailSheet {
+    var tactile3DNodeIcon: some View {
         ZStack {
             // Bottom 3D Bevel/Rim
             bottomRimShape
-                .offset(y: node.state == .locked ? 0 : 5)
+                .offset(y: node.state == .locked ? 0 : 4)
 
             // Top Face
             topFaceShape
         }
-        .frame(width: tactileDiameter, height: tactileDiameter + (node.state == .locked ? 0 : 5))
+        .frame(width: tactileDiameter, height: tactileDiameter + (node.state == .locked ? 0 : 4))
         .accessibilityHidden(true)
     }
 
     @ViewBuilder
-    private var bottomRimShape: some View {
+    var bottomRimShape: some View {
         switch node.kind {
         case .checkpoint:
             HexagonShape()
@@ -238,7 +260,7 @@ public struct CraftLessonDetailSheet: View {
         }
     }
 
-    private var topFaceShape: some View {
+    var topFaceShape: some View {
         ZStack {
             faceBackground
 
@@ -255,7 +277,7 @@ public struct CraftLessonDetailSheet: View {
     }
 
     @ViewBuilder
-    private var faceBackground: some View {
+    var faceBackground: some View {
         switch node.kind {
         case .checkpoint:
             ZStack {
@@ -304,7 +326,7 @@ public struct CraftLessonDetailSheet: View {
     }
 
     @ViewBuilder
-    private var faceHighlight: some View {
+    var faceHighlight: some View {
         switch node.kind {
         case .checkpoint:
             HexagonShape()
@@ -337,7 +359,7 @@ public struct CraftLessonDetailSheet: View {
         }
     }
 
-    private var rimColor: Color {
+    var rimColor: Color {
         switch node.kind {
         case .treasureChest:
             return theme.colors.accent.opacity(0.85)
@@ -357,7 +379,7 @@ public struct CraftLessonDetailSheet: View {
         }
     }
 
-    private var effectiveIconName: String {
+    var effectiveIconName: String {
         if node.kind == .treasureChest {
             return (node.iconName == "book.fill" || node.iconName.isEmpty) ? "gift.fill" : node.iconName
         }
@@ -377,7 +399,7 @@ public struct CraftLessonDetailSheet: View {
         }
     }
 
-    private var effectiveIconColor: Color {
+    var effectiveIconColor: Color {
         switch node.state {
         case .completed, .active, .bonus:
             return .white
@@ -387,10 +409,12 @@ public struct CraftLessonDetailSheet: View {
             return theme.colors.textMuted
         }
     }
+}
 
-    // MARK: - Metrics Row
+// MARK: - Metrics, Objectives & Action Extensions
 
-    private var metricsRow: some View {
+private extension CraftLessonDetailSheet {
+    var metricsRow: some View {
         HStack(spacing: theme.spacing.sm) {
             // XP Reward Chip
             metricChip(
@@ -419,7 +443,7 @@ public struct CraftLessonDetailSheet: View {
         .frame(maxWidth: .infinity)
     }
 
-    private func metricChip(
+    func metricChip(
         icon: String,
         title: String,
         tintColor: Color,
@@ -438,7 +462,7 @@ public struct CraftLessonDetailSheet: View {
                 .minimumScaleFactor(0.8)
         }
         .padding(.horizontal, 10)
-        .padding(.vertical, 8)
+        .padding(.vertical, 7)
         .frame(maxWidth: .infinity)
         .background(backgroundColor)
         .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
@@ -448,9 +472,7 @@ public struct CraftLessonDetailSheet: View {
         )
     }
 
-    // MARK: - Objectives Card
-
-    private var resolvedObjectives: [String]? {
+    var resolvedObjectives: [String]? {
         if let customObjectives = node.objectives, !customObjectives.isEmpty {
             return customObjectives
         }
@@ -460,7 +482,7 @@ public struct CraftLessonDetailSheet: View {
         return nil
     }
 
-    private var objectivesCard: some View {
+    var objectivesCard: some View {
         CraftCard(style: .outlined) {
             VStack(alignment: .leading, spacing: theme.spacing.sm) {
                 HStack(spacing: 8) {
@@ -488,7 +510,7 @@ public struct CraftLessonDetailSheet: View {
         }
     }
 
-    private func objectiveRow(icon: String, text: String) -> some View {
+    func objectiveRow(icon: String, text: String) -> some View {
         HStack(alignment: .top, spacing: 8) {
             Image(systemName: icon)
                 .font(.system(size: 13, weight: .semibold))
@@ -502,9 +524,7 @@ public struct CraftLessonDetailSheet: View {
         }
     }
 
-    // MARK: - Action Button
-
-    private var actionButton: some View {
+    var actionButton: some View {
         CraftButton(
             ctaTitle,
             variant: ctaVariant,
@@ -518,12 +538,14 @@ public struct CraftLessonDetailSheet: View {
         }
         .disabled(isCtaDisabled)
         .accessibilityLabel(ctaTitle)
-        .accessibilityHint(isCtaDisabled ? CraftLocalized.string("craft.learning_path.unlock_requirement_hint") : CraftLocalized.string("craft.learning_path.tap_to_start_hint"))
+        .accessibilityHint(
+            isCtaDisabled
+                ? CraftLocalized.string("craft.learning_path.unlock_requirement_hint")
+                : CraftLocalized.string("craft.learning_path.tap_to_start_hint")
+        )
     }
 
-    // MARK: - Haptic Feedback
-
-    private func triggerTapFeedback() {
+    func triggerTapFeedback() {
         #if os(iOS)
         if isCtaDisabled {
             let generator = UINotificationFeedbackGenerator()
@@ -537,7 +559,7 @@ public struct CraftLessonDetailSheet: View {
         #endif
     }
 
-    private func triggerDismissFeedback() {
+    func triggerDismissFeedback() {
         #if os(iOS)
         let generator = UIImpactFeedbackGenerator(style: .light)
         generator.prepare()
