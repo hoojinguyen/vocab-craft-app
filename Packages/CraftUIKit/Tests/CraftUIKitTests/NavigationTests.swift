@@ -350,6 +350,15 @@ final class NavigationTests: XCTestCase {
         XCTAssertNotNil(bar.body)
     }
 
+    func testFloatingTabBarAccessibilityIconOnlyWithExplicitTitle() {
+        let tab = CraftTabItem(id: "learn", title: "Learn Vocabulary", symbol: "book.fill", showsTitle: false)
+        let binding = Binding(get: { tab }, set: { _ in })
+        let bar = CraftFloatingTabBar(selectedItem: binding, items: [tab])
+        XCTAssertFalse(bar.items[0].showsTitle)
+        XCTAssertEqual(bar.items[0].title, "Learn Vocabulary")
+        XCTAssertNotNil(bar.body)
+    }
+
     func testFloatingTabBarAllSurfaceStylesWithCenterAction() {
         let tabs = [
             SampleTab(id: 0, title: "Home", symbol: "house"),

@@ -560,7 +560,7 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
     private var accessibilityTitle: Text {
         if let titleKey = item.titleKey {
             return Text(titleKey)
-        } else if hasTitle {
+        } else if !item.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             return Text(item.title)
         } else {
             let readable = item.symbol.replacingOccurrences(of: ".", with: " ").capitalized
