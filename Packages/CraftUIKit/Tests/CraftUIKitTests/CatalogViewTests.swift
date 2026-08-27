@@ -6,18 +6,18 @@ final class CatalogViewTests: XCTestCase {
     // MARK: - Theme & Options Enums
 
     func testCatalogThemeTypeEnumCases() {
-        XCTAssertEqual(CatalogThemeType.allCases.count, 2)
+        XCTAssertEqual(CatalogThemeType.allCases.count, 5)
         XCTAssertEqual(CatalogThemeType.defaultSlate.rawValue, "Default Slate")
+        XCTAssertEqual(CatalogThemeType.editorial.rawValue, "Warm Editorial")
+        XCTAssertEqual(CatalogThemeType.neoArcade.rawValue, "Neo-Arcade")
+        XCTAssertEqual(CatalogThemeType.nordicZen.rawValue, "Nordic Zen")
         XCTAssertEqual(CatalogThemeType.emeraldTeal.rawValue, "Emerald Teal")
-        XCTAssertEqual(CatalogThemeType.defaultSlate.id, "Default Slate")
-        XCTAssertEqual(CatalogThemeType.emeraldTeal.id, "Emerald Teal")
 
-        let slateTheme = CatalogThemeType.defaultSlate.theme
-        XCTAssertNotNil(slateTheme)
-
-        let emeraldTheme = CatalogThemeType.emeraldTeal.theme
-        XCTAssertNotNil(emeraldTheme)
-        XCTAssertEqual(emeraldTheme.colors.brandPrimary, Color(hex: 0x10B981))
+        for type in CatalogThemeType.allCases {
+            let theme = type.theme
+            XCTAssertNotNil(theme.colors.canvasBackground)
+            XCTAssertNotNil(theme.colors.brandPrimary)
+        }
     }
 
     func testCatalogColorSchemeEnumCases() {

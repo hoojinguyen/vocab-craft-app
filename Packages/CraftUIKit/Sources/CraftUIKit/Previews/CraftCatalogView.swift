@@ -5,6 +5,9 @@ import SwiftUI
 /// Available themes for the CraftUIKit interactive catalog gallery.
 public enum CatalogThemeType: String, CaseIterable, Identifiable, Sendable {
     case defaultSlate = "Default Slate"
+    case editorial = "Warm Editorial"
+    case neoArcade = "Neo-Arcade"
+    case nordicZen = "Nordic Zen"
     case emeraldTeal = "Emerald Teal"
 
     public var id: String { rawValue }
@@ -13,6 +16,12 @@ public enum CatalogThemeType: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .defaultSlate:
             return CraftDefaultTheme()
+        case .editorial:
+            return CraftEditorialTheme()
+        case .neoArcade:
+            return CraftNeoArcadeTheme()
+        case .nordicZen:
+            return CraftNordicZenTheme()
         case .emeraldTeal:
             return CraftEmeraldTheme()
         }
