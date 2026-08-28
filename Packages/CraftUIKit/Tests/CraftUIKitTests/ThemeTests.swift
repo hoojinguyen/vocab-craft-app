@@ -296,6 +296,30 @@ final class ThemeTests: XCTestCase {
         XCTAssertNotNil(theme.typography.headline)
         XCTAssertNotNil(theme.gradients.brandHero)
     }
+
+    func testCraftAppearanceModeMapping() {
+        XCTAssertNil(CraftAppearanceMode.system.colorScheme)
+        XCTAssertEqual(CraftAppearanceMode.light.colorScheme, .light)
+        XCTAssertEqual(CraftAppearanceMode.dark.colorScheme, .dark)
+    }
+
+    func testCraftThemeManagerAppearanceModePersistence() {
+        let manager = CraftThemeManager()
+        manager.setAppearanceMode(.dark)
+        XCTAssertEqual(manager.appearanceMode, .dark)
+        XCTAssertEqual(manager.preferredColorScheme, .dark)
+        XCTAssertEqual(UserDefaults.standard.string(forKey: "app_appearance_mode"), "dark")
+
+        manager.setAppearanceMode(.light)
+        XCTAssertEqual(manager.appearanceMode, .light)
+        XCTAssertEqual(manager.preferredColorScheme, .light)
+        XCTAssertEqual(UserDefaults.standard.string(forKey: "app_appearance_mode"), "light")
+
+        manager.setAppearanceMode(.system)
+        XCTAssertEqual(manager.appearanceMode, .system)
+        XCTAssertNil(manager.preferredColorScheme)
+        XCTAssertEqual(UserDefaults.standard.string(forKey: "app_appearance_mode"), "system")
+    }
 }
 
 

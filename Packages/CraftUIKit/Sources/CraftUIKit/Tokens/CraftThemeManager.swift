@@ -13,33 +13,46 @@ public final class CraftThemeManager: @unchecked Sendable {
         }
     }
 
-    public var preferredColorScheme: ColorScheme? {
+    public var appearanceMode: CraftAppearanceMode {
         didSet {
-            if let preferredColorScheme {
-                UserDefaults.standard.set(preferredColorScheme == .dark ? "dark" : "light", forKey: "app_color_scheme")
-            } else {
-                UserDefaults.standard.removeObject(forKey: "app_color_scheme")
-            }
+            UserDefaults.standard.set(appearanceMode.rawValue, forKey: "app_appearance_mode")
         }
+    }
+
+    public var preferredColorScheme: ColorScheme? {
+        appearanceMode.colorScheme
     }
 
     public init() {
         let savedPreset = UserDefaults.standard.string(forKey: "app_theme_preset") ?? CraftThemePreset.editorial.rawValue
         self.currentPreset = CraftThemePreset(rawValue: savedPreset) ?? .editorial
 
-        if let savedScheme = UserDefaults.standard.string(forKey: "app_color_scheme") {
-            self.preferredColorScheme = savedScheme == "dark" ? .dark : (savedScheme == "light" ? .light : nil)
-        } else {
-            self.preferredColorScheme = nil
-        }
+        let savedAppearance = UserDefaults.standard.string(forKey: "app_appearance_mode")
+            ?? UserDefaults.standard.string(forKey: "app_theme")
+            ?? UserDefaults.standard.string(forKey: "app_color_scheme")
+            ?? CraftAppearanceMode.system.rawValue
+        self.appearanceMode = CraftAppearanceMode(rawValue: savedAppearance) ?? .system
     }
 
     public func setPreset(_ preset: CraftThemePreset) {
         self.currentPreset = preset
     }
 
+    public func setAppearanceMode(_ mode: CraftAppearanceMode) {
+        self.appearanceMode = mode
+    }
+
     public func setColorScheme(_ scheme: ColorScheme?) {
-        self.preferredColorScheme = scheme
+        switch scheme {
+        case .none:
+            self.appearanceMode = .system
+        case .some(.light):
+            self.appearanceMode = .light
+        case .some(.dark):
+            self.appearanceMode = .dark
+        @unknown default:
+            self.appearanceMode = .system
+        }
     }
 }
 
