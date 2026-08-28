@@ -366,6 +366,12 @@ final class LocalizationTests: XCTestCase {
         XCTAssertEqual(CraftLocalized.string("craft.countdown.time_remaining_label"), "Time remaining")
         XCTAssertEqual(CraftLocalized.string("craft.countdown.time_remaining_label", language: "vi"), "Thời gian còn lại")
         
+        XCTAssertEqual(CraftLocalized.string("craft.countdown.tap_to_skip"), "Tap anywhere to skip")
+        XCTAssertEqual(CraftLocalized.string("craft.countdown.tap_to_skip", language: "vi"), "Chạm để bỏ qua")
+        
+        XCTAssertEqual(CraftLocalized.string("craft.countdown.tap_to_skip_hint"), "Double tap to start immediately")
+        XCTAssertEqual(CraftLocalized.string("craft.countdown.tap_to_skip_hint", language: "vi"), "Nhấn đúp để bắt đầu ngay")
+        
         // Sparkle
         XCTAssertEqual(CraftLocalized.string("craft.sparkle.sparkle_label"), "Sparkle!")
         XCTAssertEqual(CraftLocalized.string("craft.sparkle.sparkle_label", language: "vi"), "Lấp lánh!")

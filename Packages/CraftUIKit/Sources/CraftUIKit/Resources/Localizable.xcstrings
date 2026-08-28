@@ -544,6 +544,42 @@
         }
       }
     },
+    "craft.countdown.tap_to_skip" : {
+      "comment" : "Countdown tap to skip action hint",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap anywhere to skip"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chạm để bỏ qua"
+          }
+        }
+      }
+    },
+    "craft.countdown.tap_to_skip_hint" : {
+      "comment" : "Countdown accessibility skip hint",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double tap to start immediately"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhấn đúp để bắt đầu ngay"
+          }
+        }
+      }
+    },
     "craft.countdown.time_remaining_label" : {
       "comment" : "Countdown timer bar accessibility label",
       "extractionState" : "manual",
