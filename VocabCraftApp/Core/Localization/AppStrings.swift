@@ -270,27 +270,27 @@ public enum AppStrings {
     // MARK: - Settings View
     public enum Settings {
         public static var title: LocalizedStringKey { "app.settings.title" }
-        public static var titleText: String { String(localized: "app.settings.title", defaultValue: "Cài đặt", bundle: .module) }
+        public static var titleText: String { String(localized: "app.settings.title", defaultValue: "Settings", bundle: .module) }
 
         // Profile
         public static var membershipActive: LocalizedStringKey { "app.settings.profile.membership_active" }
         public static var membershipActiveText: String { String(localized: "app.settings.profile.membership_active", defaultValue: "PRO ACTIVE", bundle: .module) }
         public static var profilePerks: LocalizedStringKey { "app.settings.profile.perks" }
-        public static var profilePerksText: String { String(localized: "app.settings.profile.perks", defaultValue: "Thành viên Pro · Đã mở khoá toàn bộ 3,000+ từ Oxford & Reflex Blitz", bundle: .module) }
+        public static var profilePerksText: String { String(localized: "app.settings.profile.perks", defaultValue: "Pro Member · Unlocked all 3,000+ Oxford words & Reflex Blitz", bundle: .module) }
         public static var profileActionView: LocalizedStringKey { "app.settings.profile.action_view" }
-        public static var profileActionViewText: String { String(localized: "app.settings.profile.action_view", defaultValue: "Xem hồ sơ & thành tích", bundle: .module) }
+        public static var profileActionViewText: String { String(localized: "app.settings.profile.action_view", defaultValue: "View Profile & Achievements", bundle: .module) }
 
         // Learning Section
         public static var sectionLearning: LocalizedStringKey { "app.settings.section.learning" }
         public static var targetLevel: LocalizedStringKey { "app.settings.learning.target_level" }
-        public static var targetLevelText: String { String(localized: "app.settings.learning.target_level", defaultValue: "Trình độ mục tiêu", bundle: .module) }
+        public static var targetLevelText: String { String(localized: "app.settings.learning.target_level", defaultValue: "Target Level", bundle: .module) }
         public static var appLanguage: LocalizedStringKey { "app.settings.learning.app_language" }
-        public static var appLanguageText: String { String(localized: "app.settings.learning.app_language", defaultValue: "Ngôn ngữ ứng dụng", bundle: .module) }
+        public static var appLanguageText: String { String(localized: "app.settings.learning.app_language", defaultValue: "App Language", bundle: .module) }
         public static var langSystem: LocalizedStringKey { "app.settings.learning.lang_system" }
         public static var langVietnamese: LocalizedStringKey { "app.settings.learning.lang_vi" }
         public static var langEnglish: LocalizedStringKey { "app.settings.learning.lang_en" }
         public static var dailyGoal: LocalizedStringKey { "app.settings.learning.daily_goal" }
-        public static var dailyGoalText: String { String(localized: "app.settings.learning.daily_goal", defaultValue: "Mục tiêu hàng ngày", bundle: .module) }
+        public static var dailyGoalText: String { String(localized: "app.settings.learning.daily_goal", defaultValue: "Daily Goal", bundle: .module) }
         public static var reminders: LocalizedStringKey { "app.settings.learning.reminders" }
         public static var reminderTime: LocalizedStringKey { "app.settings.learning.reminder_time" }
         public static var resetSRS: LocalizedStringKey { "app.settings.learning.reset_srs" }
@@ -302,9 +302,9 @@ public enum AppStrings {
         public static var sectionAudio: LocalizedStringKey { "app.settings.section.audio" }
         public static var audioAccent: LocalizedStringKey { "app.settings.audio.accent" }
         public static var accentUS: LocalizedStringKey { "app.settings.audio.accent_us" }
-        public static var accentUSText: String { String(localized: "app.settings.audio.accent_us", defaultValue: "US (Mỹ)", bundle: .module) }
+        public static var accentUSText: String { String(localized: "app.settings.audio.accent_us", defaultValue: "US (American)", bundle: .module) }
         public static var accentUK: LocalizedStringKey { "app.settings.audio.accent_uk" }
-        public static var accentUKText: String { String(localized: "app.settings.audio.accent_uk", defaultValue: "UK (Anh)", bundle: .module) }
+        public static var accentUKText: String { String(localized: "app.settings.audio.accent_uk", defaultValue: "UK (British)", bundle: .module) }
         public static var speechSpeed: LocalizedStringKey { "app.settings.audio.speed" }
         public static var testTTS: LocalizedStringKey { "app.settings.audio.test_tts" }
         public static var playingPreview: LocalizedStringKey { "app.settings.audio.playing_preview" }
@@ -313,11 +313,11 @@ public enum AppStrings {
         public static var sectionAppearance: LocalizedStringKey { "app.settings.section.appearance" }
         public static var appearanceMode: LocalizedStringKey { "app.settings.appearance.theme_mode" }
         public static var themeDark: LocalizedStringKey { "app.settings.appearance.theme_dark" }
-        public static var themeDarkText: String { String(localized: "app.settings.appearance.theme_dark", defaultValue: "Tối", bundle: .module) }
+        public static var themeDarkText: String { String(localized: "app.settings.appearance.theme_dark", defaultValue: "Dark", bundle: .module) }
         public static var themeLight: LocalizedStringKey { "app.settings.appearance.theme_light" }
-        public static var themeLightText: String { String(localized: "app.settings.appearance.theme_light", defaultValue: "Sáng", bundle: .module) }
+        public static var themeLightText: String { String(localized: "app.settings.appearance.theme_light", defaultValue: "Light", bundle: .module) }
         public static var themeSystem: LocalizedStringKey { "app.settings.appearance.theme_system" }
-        public static var themeSystemText: String { String(localized: "app.settings.appearance.theme_system", defaultValue: "Tự động", bundle: .module) }
+        public static var themeSystemText: String { String(localized: "app.settings.appearance.theme_system", defaultValue: "System", bundle: .module) }
         public static var haptics: LocalizedStringKey { "app.settings.appearance.haptics" }
         public static var soundEffects: LocalizedStringKey { "app.settings.appearance.sound_effects" }
 

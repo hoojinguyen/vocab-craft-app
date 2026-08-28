@@ -155,18 +155,18 @@ final class SettingsLocalizationTests: XCTestCase {
     }
 
     func testAppStringsSettingsAccessors() {
-        XCTAssertEqual(AppStrings.Settings.titleText, "Cài đặt")
+        XCTAssertEqual(AppStrings.Settings.titleText, "Settings")
         XCTAssertEqual(AppStrings.Settings.membershipActiveText, "PRO ACTIVE")
-        XCTAssertEqual(AppStrings.Settings.profilePerksText, "Thành viên Pro · Đã mở khoá toàn bộ 3,000+ từ Oxford & Reflex Blitz")
-        XCTAssertEqual(AppStrings.Settings.profileActionViewText, "Xem hồ sơ & thành tích")
-        XCTAssertEqual(AppStrings.Settings.targetLevelText, "Trình độ mục tiêu")
-        XCTAssertEqual(AppStrings.Settings.appLanguageText, "Ngôn ngữ ứng dụng")
-        XCTAssertEqual(AppStrings.Settings.dailyGoalText, "Mục tiêu hàng ngày")
-        XCTAssertEqual(AppStrings.Settings.accentUSText, "US (Mỹ)")
-        XCTAssertEqual(AppStrings.Settings.accentUKText, "UK (Anh)")
-        XCTAssertEqual(AppStrings.Settings.themeDarkText, "Tối")
-        XCTAssertEqual(AppStrings.Settings.themeLightText, "Sáng")
-        XCTAssertEqual(AppStrings.Settings.themeSystemText, "Tự động")
+        XCTAssertEqual(AppStrings.Settings.profilePerksText, "Pro Member · Unlocked all 3,000+ Oxford words & Reflex Blitz")
+        XCTAssertEqual(AppStrings.Settings.profileActionViewText, "View Profile & Achievements")
+        XCTAssertEqual(AppStrings.Settings.targetLevelText, "Target Level")
+        XCTAssertEqual(AppStrings.Settings.appLanguageText, "App Language")
+        XCTAssertEqual(AppStrings.Settings.dailyGoalText, "Daily Goal")
+        XCTAssertEqual(AppStrings.Settings.accentUSText, "US (American)")
+        XCTAssertEqual(AppStrings.Settings.accentUKText, "UK (British)")
+        XCTAssertEqual(AppStrings.Settings.themeDarkText, "Dark")
+        XCTAssertEqual(AppStrings.Settings.themeLightText, "Light")
+        XCTAssertEqual(AppStrings.Settings.themeSystemText, "System")
 
         // LocalizedStringKey accessors
         XCTAssertNotNil(AppStrings.Settings.title)

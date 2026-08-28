@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3000BCECD4679C9E8ED9 /* HeroProfileCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000BCECD4679C9E8ED9 /* HeroProfileCard.swift */; };
+		3000FE759BC2C33450AC /* AppStrings+ReflexBlitz.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FE759BC2C33450AC /* AppStrings+ReflexBlitz.swift */; };
+		3000644190359C5A3C15 /* AppStrings+Vault.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000644190359C5A3C15 /* AppStrings+Vault.swift */; };
+		30001D594419E5FDDC0B /* GenerateSmartReflexQueueUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20001D594419E5FDDC0B /* GenerateSmartReflexQueueUseCase.swift */; };
+		3000B5F6CEC261EADFFB /* SettingsLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B5F6CEC261EADFFB /* SettingsLocalizationTests.swift */; };
+		30009901047D7899A16C /* PersonalVaultLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20009901047D7899A16C /* PersonalVaultLocalizationTests.swift */; };
+		3000E70C0C4D706D4D14 /* ReflexBlitzLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000E70C0C4D706D4D14 /* ReflexBlitzLocalizationTests.swift */; };
+		3000E8C30B0AE929A360 /* SmartReflexQueueUseCaseTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000E8C30B0AE929A360 /* SmartReflexQueueUseCaseTests.swift */; };
 		3000A1A1000100010001 /* FetchLearningPathUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A1000100010001 /* FetchLearningPathUseCase.swift */; };
 		3000A1A1000200020002 /* CompleteLessonUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A1000200020002 /* CompleteLessonUseCase.swift */; };
 		3000A1A1000300030003 /* LearningPathDataMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A1000300030003 /* LearningPathDataMapper.swift */; };
@@ -279,6 +287,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2000BCECD4679C9E8ED9 /* HeroProfileCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HeroProfileCard.swift"; sourceTree = "<group>"; };
+		2000FE759BC2C33450AC /* AppStrings+ReflexBlitz.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStrings+ReflexBlitz.swift"; sourceTree = "<group>"; };
+		2000644190359C5A3C15 /* AppStrings+Vault.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStrings+Vault.swift"; sourceTree = "<group>"; };
+		20001D594419E5FDDC0B /* GenerateSmartReflexQueueUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GenerateSmartReflexQueueUseCase.swift"; sourceTree = "<group>"; };
+		2000B5F6CEC261EADFFB /* SettingsLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsLocalizationTests.swift"; sourceTree = "<group>"; };
+		20009901047D7899A16C /* PersonalVaultLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersonalVaultLocalizationTests.swift"; sourceTree = "<group>"; };
+		2000E70C0C4D706D4D14 /* ReflexBlitzLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzLocalizationTests.swift"; sourceTree = "<group>"; };
+		2000E8C30B0AE929A360 /* SmartReflexQueueUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SmartReflexQueueUseCaseTests.swift"; sourceTree = "<group>"; };
 		2000A1A1000100010001 /* FetchLearningPathUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FetchLearningPathUseCase.swift"; sourceTree = "<group>"; };
 		2000A1A1000200020002 /* CompleteLessonUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CompleteLessonUseCase.swift"; sourceTree = "<group>"; };
 		2000A1A1000300030003 /* LearningPathDataMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathDataMapper.swift"; sourceTree = "<group>"; };
@@ -670,6 +686,8 @@
 		400080019F7B3C6D2348 /* Localization */ = {
 			isa = PBXGroup;
 			children = (
+				2000644190359C5A3C15 /* AppStrings+Vault.swift */,
+				2000FE759BC2C33450AC /* AppStrings+ReflexBlitz.swift */,
 				20006FB901290FE28F5C /* AppStrings.swift */,
 			);
 			path = "Localization";
@@ -800,6 +818,7 @@
 		40008298FFEC52A63E9E /* UseCases */ = {
 			isa = PBXGroup;
 			children = (
+				20001D594419E5FDDC0B /* GenerateSmartReflexQueueUseCase.swift */,
 				2000A1A1000200020002 /* CompleteLessonUseCase.swift */,
 				2000A1A1000100010001 /* FetchLearningPathUseCase.swift */,
 				2000DD5C753F2543B2FC /* CompleteStageChallengeUseCase.swift */,
@@ -942,6 +961,7 @@
 		4000FF1944B7E810992A /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				2000BCECD4679C9E8ED9 /* HeroProfileCard.swift */,
 				200020A86E4013F2A9E9 /* ProfileHeaderCard.swift */,
 				2000DD96DA258E5661BB /* SettingsRowView.swift */,
 			);
@@ -1121,6 +1141,7 @@
 		4000A4B5D97C10747B92 /* VocabCraftAppTests */ = {
 			isa = PBXGroup;
 			children = (
+				2000B5F6CEC261EADFFB /* SettingsLocalizationTests.swift */,
 				4000D124A443CB2C8687 /* App */,
 				20001611F67650D4D4BB /* AppRouterTests.swift */,
 				40005E5E6E56B12F0885 /* Core */,
@@ -1196,6 +1217,7 @@
 		40002E4285B41EEC7F8B /* Domain */ = {
 			isa = PBXGroup;
 			children = (
+				2000E8C30B0AE929A360 /* SmartReflexQueueUseCaseTests.swift */,
 				2000B2B2000100010001 /* LearningPathUseCasesTests.swift */,
 				2000AFFB3F242012EAF1 /* MasteryEvaluationPolicyTests.swift */,
 				2000ACD44A59CAC0463A /* MixedReflexQueueUseCaseTests.swift */,
@@ -1208,6 +1230,7 @@
 		4000538975BBBF45E56C /* Features */ = {
 			isa = PBXGroup;
 			children = (
+				20009901047D7899A16C /* PersonalVaultLocalizationTests.swift */,
 				40004A7D1798887BBCBC /* Homepage */,
 				200014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift */,
 				200034AB7AB035E97418 /* MixedReflexDrillViewsTests.swift */,
@@ -1237,6 +1260,7 @@
 		4000222CDC96FC1A1DA8 /* ReflexDrill */ = {
 			isa = PBXGroup;
 			children = (
+				2000E70C0C4D706D4D14 /* ReflexBlitzLocalizationTests.swift */,
 				20003B12304942E6E1B2 /* ContinuousReflexSpeechServiceTests.swift */,
 				20000F377D3FDF561ADC /* ReflexBlitzComponentsTests.swift */,
 				200060072D5F6523D014 /* ReflexBlitzModelsTests.swift */,
@@ -1443,7 +1467,11 @@
 				300098C80917F59AB1AB /* VocabMicControlHubView.swift in Sources */,
 				30004AA2997CC609FCB8 /* VocabSpeechVisualizerView.swift in Sources */,
 				300085D4BA7A4E3D273F /* VocabTheme.swift in Sources */,
-				30006FB901290FE28F5C /* AppStrings.swift in Sources */,
+								3000FE759BC2C33450AC /* AppStrings+ReflexBlitz.swift in Sources */,
+				3000644190359C5A3C15 /* AppStrings+Vault.swift in Sources */,
+				30001D594419E5FDDC0B /* GenerateSmartReflexQueueUseCase.swift in Sources */,
+				3000BCECD4679C9E8ED9 /* HeroProfileCard.swift in Sources */,
+30006FB901290FE28F5C /* AppStrings.swift in Sources */,
 				30003498E286D20C1EBC /* SRSEngine.swift in Sources */,
 				3000EA1A05F3921C21B6 /* UserProgressModelActor.swift in Sources */,
 				30007597124286610F99 /* MockVocabularyDataSource.swift in Sources */,
@@ -1650,7 +1678,11 @@
 				3000129F1C781D6703DB /* ReflexFlipCardViewTests.swift in Test Sources */,
 				3000B1DEE633B1C8F81E /* SRSEngineTests.swift in Test Sources */,
 				30007E84695DF55F278D /* SettingsViewModelTests.swift in Test Sources */,
-				30004D5A668F6276E9BC /* SettingsViewTests.swift in Test Sources */,
+								3000B5F6CEC261EADFFB /* SettingsLocalizationTests.swift in Test Sources */,
+				30009901047D7899A16C /* PersonalVaultLocalizationTests.swift in Test Sources */,
+				3000E70C0C4D706D4D14 /* ReflexBlitzLocalizationTests.swift in Test Sources */,
+				3000E8C30B0AE929A360 /* SmartReflexQueueUseCaseTests.swift in Test Sources */,
+30004D5A668F6276E9BC /* SettingsViewTests.swift in Test Sources */,
 				3000CE88B8551858B787 /* SpeechServiceTests.swift in Test Sources */,
 				3000B5772208CF9770FA /* StudySessionViewModelTests.swift in Test Sources */,
 				3000F67BBB703E2C8F8D /* SubTopicPreviewSheetTests.swift in Test Sources */,
