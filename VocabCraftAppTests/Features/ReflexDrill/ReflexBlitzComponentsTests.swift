@@ -41,7 +41,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertEqual(header.comboStreak, 3)
         XCTAssertEqual(header.fractionRemaining, 0.75)
         XCTAssertEqual(header.timerStage, .warning)
-        XCTAssertEqual(header.timerBarColor, theme.colors.statusWarning)
+        assertColorsEqual(header.timerBarColor, theme.colors.statusWarning)
 
         header.onClose()
         header.onSkip()
@@ -70,7 +70,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
             timerStage: .warning,
             onClose: {}
         )
-        XCTAssertEqual(warningHeader.timerBarColor, theme.colors.statusWarning)
+        assertColorsEqual(warningHeader.timerBarColor, theme.colors.statusWarning)
 
         let urgentHeader = ReflexBlitzHeaderView(
             currentIndex: 2,
@@ -80,7 +80,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
             timerStage: .urgent,
             onClose: {}
         )
-        XCTAssertEqual(urgentHeader.timerBarColor, theme.colors.statusDanger)
+        assertColorsEqual(urgentHeader.timerBarColor, theme.colors.statusDanger)
     }
 
     @MainActor
@@ -97,8 +97,8 @@ final class ReflexBlitzComponentsTests: XCTestCase {
             attempts: attempts,
             onClose: {}
         )
-        XCTAssertEqual(header.segmentColor(for: 0), theme.colors.statusSuccess)
-        XCTAssertEqual(header.segmentColor(for: 1), theme.colors.statusDanger)
+        assertColorsEqual(header.segmentColor(for: 0), theme.colors.statusSuccess)
+        assertColorsEqual(header.segmentColor(for: 1), theme.colors.statusDanger)
         assertColorsEqual(header.segmentColor(for: 2), theme.colors.brandPrimary)
         XCTAssertNotNil(header.segmentColor(for: 3))
     }
@@ -244,7 +244,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         )
         XCTAssertEqual(warningCard.timerStage, .warning)
         XCTAssertTrue(warningCard.showHint)
-        XCTAssertEqual(warningCard.timerStrokeColor, CraftDefaultColorTokens().statusWarning)
+        assertColorsEqual(warningCard.timerStrokeColor, CraftDefaultColorTokens().statusWarning)
         XCTAssertNotNil(warningCard.body)
 
         // Urgent stage
@@ -262,7 +262,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
             onSubmitKeyboard: {}
         )
         XCTAssertEqual(urgentCard.timerStage, .urgent)
-        XCTAssertEqual(urgentCard.timerStrokeColor, CraftDefaultColorTokens().statusDanger)
+        assertColorsEqual(urgentCard.timerStrokeColor, CraftDefaultColorTokens().statusDanger)
         XCTAssertNotNil(urgentCard.body)
 
         // Correct match state
@@ -281,7 +281,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         )
         XCTAssertNotNil(correctCard)
         XCTAssertTrue(correctCard.isCorrect)
-        XCTAssertEqual(correctCard.timerStrokeColor, CraftDefaultColorTokens().statusSuccess)
+        assertColorsEqual(correctCard.timerStrokeColor, CraftDefaultColorTokens().statusSuccess)
         XCTAssertNotNil(correctCard.body)
 
         // Timeout state
@@ -300,7 +300,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         )
         XCTAssertNotNil(timeoutCard)
         XCTAssertTrue(timeoutCard.isTimeout)
-        XCTAssertEqual(timeoutCard.timerStrokeColor, CraftDefaultColorTokens().statusDanger)
+        assertColorsEqual(timeoutCard.timerStrokeColor, CraftDefaultColorTokens().statusDanger)
         XCTAssertNotNil(timeoutCard.body)
 
         // Keyboard Fallback Active State
@@ -624,7 +624,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertTrue(cardView.isReviewed)
         XCTAssertTrue(cardView.isResultCorrect)
         XCTAssertFalse(cardView.isResultTimeout)
-        XCTAssertEqual(cardView.cardBorderColor, CraftDefaultColorTokens().statusSuccess)
+        assertColorsEqual(cardView.cardBorderColor, CraftDefaultColorTokens().statusSuccess)
         XCTAssertNotNil(cardView.body)
     }
 
@@ -654,7 +654,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         )
         XCTAssertTrue(wrongCardView.isReviewed)
         XCTAssertFalse(wrongCardView.isResultCorrect)
-        XCTAssertEqual(wrongCardView.cardBorderColor, CraftDefaultColorTokens().statusDanger)
+        assertColorsEqual(wrongCardView.cardBorderColor, CraftDefaultColorTokens().statusDanger)
         XCTAssertEqual(wrongCardView.selectedOptionText, "focus")
         XCTAssertNotNil(wrongCardView.body)
 
@@ -674,7 +674,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         )
         XCTAssertTrue(timeoutCardView.isReviewed)
         XCTAssertTrue(timeoutCardView.isResultTimeout)
-        XCTAssertEqual(timeoutCardView.cardBorderColor, CraftDefaultColorTokens().statusDanger)
+        assertColorsEqual(timeoutCardView.cardBorderColor, CraftDefaultColorTokens().statusDanger)
         XCTAssertNotNil(timeoutCardView.body)
     }
 
@@ -763,25 +763,25 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertEqual(speaking.title, AppStrings.ReflexBlitz.speakingTitleText)
         XCTAssertEqual(speaking.badgeText, "6.0s")
         XCTAssertEqual(speaking.iconName, "waveform.and.mic")
-        XCTAssertEqual(speaking.accentColor, colors.brandPrimary)
+        assertColorsEqual(speaking.accentColor, colors.brandPrimary)
 
         let typing = ReflexBlitzModeSelectionView.modeItem(for: .typing, colors: colors)
         XCTAssertEqual(typing.title, AppStrings.ReflexBlitz.typingTitleText)
         XCTAssertEqual(typing.badgeText, "7.5s")
         XCTAssertEqual(typing.iconName, "keyboard")
-        XCTAssertEqual(typing.accentColor, colors.streakLegendary)
+        assertColorsEqual(typing.accentColor, colors.streakLegendary)
 
         let multipleChoice = ReflexBlitzModeSelectionView.modeItem(for: .multipleChoice, colors: colors)
         XCTAssertEqual(multipleChoice.title, AppStrings.ReflexBlitz.mcTitleText)
         XCTAssertEqual(multipleChoice.badgeText, "4.5s")
         XCTAssertEqual(multipleChoice.iconName, "square.grid.2x2.fill")
-        XCTAssertEqual(multipleChoice.accentColor, colors.statusSuccess)
+        assertColorsEqual(multipleChoice.accentColor, colors.statusSuccess)
 
         let listening = ReflexBlitzModeSelectionView.modeItem(for: .listening, colors: colors)
         XCTAssertEqual(listening.title, AppStrings.ReflexBlitz.listeningTitleText)
         XCTAssertEqual(listening.badgeText, "5.5s")
         XCTAssertEqual(listening.iconName, "headphones")
-        XCTAssertEqual(listening.accentColor, colors.statusInfo)
+        assertColorsEqual(listening.accentColor, colors.statusInfo)
     }
 
     @MainActor
@@ -928,7 +928,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertTrue(cardView.isReviewed)
         XCTAssertFalse(cardView.isResultCorrect)
         XCTAssertFalse(cardView.isResultTimeout)
-        XCTAssertEqual(cardView.cardBorderColor, CraftDefaultColorTokens().statusDanger)
+        assertColorsEqual(cardView.cardBorderColor, CraftDefaultColorTokens().statusDanger)
         XCTAssertNotNil(cardView.body)
     }
 
@@ -951,8 +951,8 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertTrue(cardView.isReviewed)
         XCTAssertFalse(cardView.isResultCorrect)
         XCTAssertTrue(cardView.isResultTimeout)
-        XCTAssertEqual(cardView.cardBorderColor, CraftDefaultColorTokens().statusDanger)
-        XCTAssertEqual(cardView.timerStrokeColor, CraftDefaultColorTokens().statusDanger)
+        assertColorsEqual(cardView.cardBorderColor, CraftDefaultColorTokens().statusDanger)
+        assertColorsEqual(cardView.timerStrokeColor, CraftDefaultColorTokens().statusDanger)
         XCTAssertNotNil(cardView.body)
     }
 }

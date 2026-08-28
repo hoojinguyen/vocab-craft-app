@@ -56,10 +56,10 @@ public protocol CraftColorTokens: Sendable {
 public extension CraftColorTokens {
     var streakStarter: Color { brandPrimary }
     var streakBlaze: Color { accent }
-    var streakLegendary: Color { Color(hex: 0x8B5CF6) }
-    var streakFreeze: Color { Color(hex: 0x38BDF8) }
-    var streakPending: Color { Color(hex: 0x94A3B8) }
-    var streakGlow: Color { Color(hex: 0xF59E0B).opacity(0.35) }
+    var streakLegendary: Color { .craftDynamic(light: Color(hex: 0x7C3AED), dark: Color(hex: 0xA78BFA)) }
+    var streakFreeze: Color { .craftDynamic(light: Color(hex: 0x0284C7), dark: Color(hex: 0x38BDF8)) }
+    var streakPending: Color { .craftDynamic(light: Color(hex: 0x94A3B8), dark: Color(hex: 0x64748B)) }
+    var streakGlow: Color { .craftDynamic(light: Color(hex: 0xF59E0B).opacity(0.35), dark: Color(hex: 0xFCD34D).opacity(0.40)) }
 
     // Learning Path Defaults
     var pathCompleted: Color { statusSuccess }
@@ -129,23 +129,23 @@ public struct CraftDefaultColorTokens: CraftColorTokens {
         textMuted: Color = .craftDynamic(light: Color(hex: 0x71717A), dark: Color(hex: 0x71717A)),
         textInverse: Color = .craftDynamic(light: Color(hex: 0xFFFFFF), dark: Color(hex: 0x121214)),
         borderDefault: Color = .craftDynamic(light: Color(hex: 0xE4E4E7), dark: Color(hex: 0x27272A)),
-        borderFocus: Color = Color(hex: 0xE06D3B),
+        borderFocus: Color = .craftDynamic(light: Color(hex: 0xE06D3B), dark: Color(hex: 0xF97316)),
         hairline: Color = .craftDynamic(light: Color(hex: 0xE4E4E7).opacity(0.8), dark: Color(hex: 0x27272A).opacity(0.8)),
-        statusSuccess: Color = Color(hex: 0x10B981),
-        statusWarning: Color = Color(hex: 0xF59E0B),
-        statusDanger: Color = Color(hex: 0xEF4444),
-        statusInfo: Color = Color(hex: 0x0284C7),
-        streakStarter: Color = Color(hex: 0xE06D3B),
-        streakBlaze: Color = Color(hex: 0xF59E0B),
-        streakLegendary: Color = Color(hex: 0x8B5CF6),
-        streakFreeze: Color = Color(hex: 0x38BDF8),
-        streakPending: Color = Color(hex: 0x94A3B8),
-        streakGlow: Color = Color(hex: 0xF59E0B).opacity(0.35),
-        pathCompleted: Color = Color(hex: 0x10B981),
-        pathActive: Color = Color(hex: 0xE06D3B),
+        statusSuccess: Color = .craftDynamic(light: Color(hex: 0x059669), dark: Color(hex: 0x34D399)),
+        statusWarning: Color = .craftDynamic(light: Color(hex: 0xD97706), dark: Color(hex: 0xFBBF24)),
+        statusDanger: Color = .craftDynamic(light: Color(hex: 0xDC2626), dark: Color(hex: 0xF87171)),
+        statusInfo: Color = .craftDynamic(light: Color(hex: 0x0284C7), dark: Color(hex: 0x38BDF8)),
+        streakStarter: Color = .craftDynamic(light: Color(hex: 0xE06D3B), dark: Color(hex: 0xF97316)),
+        streakBlaze: Color = .craftDynamic(light: Color(hex: 0xF59E0B), dark: Color(hex: 0xFCD34D)),
+        streakLegendary: Color = .craftDynamic(light: Color(hex: 0x7C3AED), dark: Color(hex: 0xA78BFA)),
+        streakFreeze: Color = .craftDynamic(light: Color(hex: 0x0284C7), dark: Color(hex: 0x38BDF8)),
+        streakPending: Color = .craftDynamic(light: Color(hex: 0x94A3B8), dark: Color(hex: 0x64748B)),
+        streakGlow: Color = .craftDynamic(light: Color(hex: 0xF59E0B).opacity(0.35), dark: Color(hex: 0xFCD34D).opacity(0.40)),
+        pathCompleted: Color = .craftDynamic(light: Color(hex: 0x059669), dark: Color(hex: 0x34D399)),
+        pathActive: Color = .craftDynamic(light: Color(hex: 0xE06D3B), dark: Color(hex: 0xF97316)),
         pathUpcoming: Color = .craftDynamic(light: Color(hex: 0xCBD5E1), dark: Color(hex: 0x475569)),
         pathLocked: Color = .craftDynamic(light: Color(hex: 0xE2E8F0), dark: Color(hex: 0x27272A)),
-        pathHaloGlow: Color = Color(hex: 0xE06D3B).opacity(0.20)
+        pathHaloGlow: Color = .craftDynamic(light: Color(hex: 0xE06D3B).opacity(0.20), dark: Color(hex: 0xF97316).opacity(0.25))
     ) {
         self.canvasBackground = canvasBackground
         self.surfaceCard = surfaceCard
