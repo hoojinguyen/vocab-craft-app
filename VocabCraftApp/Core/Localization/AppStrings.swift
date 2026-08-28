@@ -269,44 +269,86 @@ public enum AppStrings {
 
     // MARK: - Settings View
     public enum Settings {
-        public static var sectionLearningSRS: LocalizedStringKey { "settings.sectionLearningSRS" }
-        public static var sectionAudioTTS: LocalizedStringKey { "settings.sectionAudioTTS" }
-        public static var sectionAppearance: LocalizedStringKey { "settings.sectionAppearance" }
-        public static var sectionLanguage: LocalizedStringKey { "settings.sectionLanguage" }
-        public static var sectionAppData: LocalizedStringKey { "settings.sectionAppData" }
-        public static var dailyGoal: LocalizedStringKey { "settings.dailyGoal" }
-        public static var reminderNotification: LocalizedStringKey { "settings.reminderNotification" }
-        public static var reminderTime: LocalizedStringKey { "settings.reminderTime" }
-        public static var resetSRS: LocalizedStringKey { "settings.resetSRS" }
-        public static var resetSRSSubtitle: LocalizedStringKey { "settings.resetSRSSubtitle" }
-        public static var englishVoice: LocalizedStringKey { "settings.englishVoice" }
-        public static var speechSpeed: LocalizedStringKey { "settings.speechSpeed" }
-        public static var testTTS: LocalizedStringKey { "settings.testTTS" }
-        public static var playingAudio: LocalizedStringKey { "settings.playingAudio" }
-        public static var appTheme: LocalizedStringKey { "settings.appTheme" }
-        public static var themeDark: LocalizedStringKey { "settings.themeDark" }
-        public static var themeLight: LocalizedStringKey { "settings.themeLight" }
-        public static var themeSystem: LocalizedStringKey { "settings.themeSystem" }
-        public static var haptics: LocalizedStringKey { "settings.haptics" }
-        public static var soundEffects: LocalizedStringKey { "settings.soundEffects" }
-        public static var appLanguage: LocalizedStringKey { "settings.appLanguage" }
-        public static var langSystem: LocalizedStringKey { "settings.langSystem" }
-        public static var langVietnamese: LocalizedStringKey { "settings.langVietnamese" }
-        public static var langEnglish: LocalizedStringKey { "settings.langEnglish" }
-        public static var icloudSync: LocalizedStringKey { "settings.icloudSync" }
-        public static var synced: LocalizedStringKey { "settings.synced" }
-        public static var clearCache: LocalizedStringKey { "settings.clearCache" }
-        public static var appVersion: LocalizedStringKey { "settings.appVersion" }
-        public static var inputGoalTitle: LocalizedStringKey { "settings.inputGoalTitle" }
-        public static var inputGoalMessage: LocalizedStringKey { "settings.inputGoalMessage" }
-        public static var resetConfirmTitle: LocalizedStringKey { "settings.resetConfirmTitle" }
-        public static var resetConfirmMessage: LocalizedStringKey { "settings.resetConfirmMessage" }
-        public static var profileBadge: LocalizedStringKey { "settings.profileBadge" }
-        public static var voiceUS: LocalizedStringKey { "settings.voiceUS" }
-        public static var voiceUK: LocalizedStringKey { "settings.voiceUK" }
-        public static var sectionDeveloper: LocalizedStringKey { "settings.sectionDeveloper" }
-        public static var craftCatalog: LocalizedStringKey { "settings.craftCatalog" }
-        public static var craftCatalogSubtitle: LocalizedStringKey { "settings.craftCatalogSubtitle" }
+        public static var title: LocalizedStringKey { "app.settings.title" }
+        public static var titleText: String { String(localized: "app.settings.title", defaultValue: "Cài đặt", bundle: .module) }
+
+        // Profile
+        public static var membershipActive: LocalizedStringKey { "app.settings.profile.membership_active" }
+        public static var membershipActiveText: String { String(localized: "app.settings.profile.membership_active", defaultValue: "PRO ACTIVE", bundle: .module) }
+        public static var profilePerks: LocalizedStringKey { "app.settings.profile.perks" }
+        public static var profilePerksText: String { String(localized: "app.settings.profile.perks", defaultValue: "Thành viên Pro · Đã mở khoá toàn bộ 3,000+ từ Oxford & Reflex Blitz", bundle: .module) }
+        public static var profileActionView: LocalizedStringKey { "app.settings.profile.action_view" }
+        public static var profileActionViewText: String { String(localized: "app.settings.profile.action_view", defaultValue: "Xem hồ sơ & thành tích", bundle: .module) }
+
+        // Learning Section
+        public static var sectionLearning: LocalizedStringKey { "app.settings.section.learning" }
+        public static var targetLevel: LocalizedStringKey { "app.settings.learning.target_level" }
+        public static var targetLevelText: String { String(localized: "app.settings.learning.target_level", defaultValue: "Trình độ mục tiêu", bundle: .module) }
+        public static var appLanguage: LocalizedStringKey { "app.settings.learning.app_language" }
+        public static var appLanguageText: String { String(localized: "app.settings.learning.app_language", defaultValue: "Ngôn ngữ ứng dụng", bundle: .module) }
+        public static var langSystem: LocalizedStringKey { "app.settings.learning.lang_system" }
+        public static var langVietnamese: LocalizedStringKey { "app.settings.learning.lang_vi" }
+        public static var langEnglish: LocalizedStringKey { "app.settings.learning.lang_en" }
+        public static var dailyGoal: LocalizedStringKey { "app.settings.learning.daily_goal" }
+        public static var dailyGoalText: String { String(localized: "app.settings.learning.daily_goal", defaultValue: "Mục tiêu hàng ngày", bundle: .module) }
+        public static var reminders: LocalizedStringKey { "app.settings.learning.reminders" }
+        public static var reminderTime: LocalizedStringKey { "app.settings.learning.reminder_time" }
+        public static var resetSRS: LocalizedStringKey { "app.settings.learning.reset_srs" }
+        public static var resetSRSSubtitle: LocalizedStringKey { "app.settings.learning.reset_srs_subtitle" }
+        public static var resetConfirmTitle: LocalizedStringKey { "app.settings.learning.reset_confirm_title" }
+        public static var resetConfirmMessage: LocalizedStringKey { "app.settings.learning.reset_confirm_message" }
+
+        // Audio Section
+        public static var sectionAudio: LocalizedStringKey { "app.settings.section.audio" }
+        public static var audioAccent: LocalizedStringKey { "app.settings.audio.accent" }
+        public static var accentUS: LocalizedStringKey { "app.settings.audio.accent_us" }
+        public static var accentUSText: String { String(localized: "app.settings.audio.accent_us", defaultValue: "US (Mỹ)", bundle: .module) }
+        public static var accentUK: LocalizedStringKey { "app.settings.audio.accent_uk" }
+        public static var accentUKText: String { String(localized: "app.settings.audio.accent_uk", defaultValue: "UK (Anh)", bundle: .module) }
+        public static var speechSpeed: LocalizedStringKey { "app.settings.audio.speed" }
+        public static var testTTS: LocalizedStringKey { "app.settings.audio.test_tts" }
+        public static var playingPreview: LocalizedStringKey { "app.settings.audio.playing_preview" }
+
+        // Appearance Section
+        public static var sectionAppearance: LocalizedStringKey { "app.settings.section.appearance" }
+        public static var appearanceMode: LocalizedStringKey { "app.settings.appearance.theme_mode" }
+        public static var themeDark: LocalizedStringKey { "app.settings.appearance.theme_dark" }
+        public static var themeDarkText: String { String(localized: "app.settings.appearance.theme_dark", defaultValue: "Tối", bundle: .module) }
+        public static var themeLight: LocalizedStringKey { "app.settings.appearance.theme_light" }
+        public static var themeLightText: String { String(localized: "app.settings.appearance.theme_light", defaultValue: "Sáng", bundle: .module) }
+        public static var themeSystem: LocalizedStringKey { "app.settings.appearance.theme_system" }
+        public static var themeSystemText: String { String(localized: "app.settings.appearance.theme_system", defaultValue: "Tự động", bundle: .module) }
+        public static var haptics: LocalizedStringKey { "app.settings.appearance.haptics" }
+        public static var soundEffects: LocalizedStringKey { "app.settings.appearance.sound_effects" }
+
+        // Developer Tools Section
+        public static var sectionDevTools: LocalizedStringKey { "app.settings.section.dev_tools" }
+        public static var themePreset: LocalizedStringKey { "app.settings.dev.theme_preset" }
+        public static var craftCatalog: LocalizedStringKey { "app.settings.dev.catalog_title" }
+        public static var craftCatalogSubtitle: LocalizedStringKey { "app.settings.dev.catalog_subtitle" }
+
+        // About Section
+        public static var sectionAbout: LocalizedStringKey { "app.settings.section.about" }
+        public static var icloudSync: LocalizedStringKey { "app.settings.about.icloud_sync" }
+        public static var synced: LocalizedStringKey { "app.settings.about.synced" }
+        public static var clearCache: LocalizedStringKey { "app.settings.about.clear_cache" }
+        public static var appVersion: LocalizedStringKey { "app.settings.about.app_version" }
+
+        // Backward-compatibility aliases for legacy views prior to Task 3 refactor
+        public static var sectionLearningSRS: LocalizedStringKey { sectionLearning }
+        public static var sectionAudioTTS: LocalizedStringKey { sectionAudio }
+        public static var sectionLanguage: LocalizedStringKey { sectionLearning }
+        public static var sectionAppData: LocalizedStringKey { sectionAbout }
+        public static var sectionDeveloper: LocalizedStringKey { sectionDevTools }
+        public static var reminderNotification: LocalizedStringKey { reminders }
+        public static var englishVoice: LocalizedStringKey { audioAccent }
+        public static var playingAudio: LocalizedStringKey { playingPreview }
+        public static var appTheme: LocalizedStringKey { appearanceMode }
+        public static var voiceUS: LocalizedStringKey { accentUS }
+        public static var voiceUK: LocalizedStringKey { accentUK }
+        public static var profileBadge: LocalizedStringKey { membershipActive }
+        public static var inputGoalTitle: LocalizedStringKey { dailyGoal }
+        public static var inputGoalMessage: LocalizedStringKey { dailyGoal }
     }
 
     // MARK: - Search View
@@ -392,291 +434,6 @@ public enum AppStrings {
         public static var lockedHint: LocalizedStringKey { "app.home.node.locked_hint" }
         public static var lockedHintText: String {
             String(localized: "app.home.node.locked_hint", defaultValue: "Complete previous lessons to unlock", bundle: .module)
-        }
-    }
-}
-
-// MARK: - Vocabulary Vault Extension
-extension AppStrings {
-    public enum Vault {
-        public static var title: LocalizedStringKey { "app.vault.title" }
-        public static var titleText: String {
-            String(localized: "app.vault.title", defaultValue: "Kho Từ", bundle: .module)
-        }
-        public static var searchPlaceholder: LocalizedStringKey { "app.vault.search_placeholder" }
-        public static var searchPlaceholderText: String {
-            String(localized: "app.vault.search_placeholder", defaultValue: "Tìm kiếm từ vựng...", bundle: .module)
-        }
-        public static var filterNotMasteredTitle: String {
-            String(localized: "app.vault.filter.not_mastered_title", defaultValue: "Chưa thuộc", bundle: .module)
-        }
-        public static var filterMasteredTitle: String {
-            String(localized: "app.vault.filter.mastered_title", defaultValue: "Đã thuộc", bundle: .module)
-        }
-        public static var filterBookmarkedTitle: String {
-            String(localized: "app.vault.filter.bookmarked_title", defaultValue: "Đã lưu", bundle: .module)
-        }
-        public static func filterNotMastered(_ count: Int) -> String {
-            String(format: String(localized: "app.vault.filter.not_mastered", defaultValue: "Chưa thuộc (%lld)", bundle: .module), count)
-        }
-        public static func filterMastered(_ count: Int) -> String {
-            String(format: String(localized: "app.vault.filter.mastered", defaultValue: "Đã thuộc (%lld)", bundle: .module), count)
-        }
-        public static func filterBookmarked(_ count: Int) -> String {
-            String(format: String(localized: "app.vault.filter.bookmarked", defaultValue: "Đã lưu (%lld)", bundle: .module), count)
-        }
-        public static var actionPractice: LocalizedStringKey { "app.vault.action.review_words" }
-        public static var actionPracticeText: String {
-            String(localized: "app.vault.action.review_words", defaultValue: "LUYỆN TẬP", bundle: .module)
-        }
-        public static func actionReviewWords(_ count: Int = 0) -> String {
-            actionPracticeText
-        }
-        public static func actionPracticeWords(_ count: Int = 0) -> String {
-            actionPracticeText
-        }
-        public static var emptyNotMastered: LocalizedStringKey { "app.vault.empty.not_mastered" }
-        public static var emptyNotMasteredText: String {
-            String(localized: "app.vault.empty.not_mastered", defaultValue: "Bạn không có từ nào chưa thuộc", bundle: .module)
-        }
-        public static var emptyMastered: LocalizedStringKey { "app.vault.empty.mastered" }
-        public static var emptyMasteredText: String {
-            String(localized: "app.vault.empty.mastered", defaultValue: "Chưa có từ nào đạt mức thành thạo", bundle: .module)
-        }
-        public static var emptyBookmarked: LocalizedStringKey { "app.vault.empty.bookmarked" }
-        public static var emptyBookmarkedText: String {
-            String(localized: "app.vault.empty.bookmarked", defaultValue: "Chưa có từ nào được lưu", bundle: .module)
-        }
-        public static var emptySearchNoResults: LocalizedStringKey { "app.vault.empty.search_no_results" }
-        public static var emptySearchNoResultsText: String {
-            String(localized: "app.vault.empty.search_no_results", defaultValue: "Không tìm thấy từ nào phù hợp", bundle: .module)
-        }
-        public static var detailDefinitionsTitle: LocalizedStringKey { "app.vault.detail.definitions_title" }
-        public static var detailDefinitionsTitleText: String {
-            String(localized: "app.vault.detail.definitions_title", defaultValue: "Định nghĩa", bundle: .module)
-        }
-        public static var detailExamplesTitle: LocalizedStringKey { "app.vault.detail.examples_title" }
-        public static var detailExamplesTitleText: String {
-            String(localized: "app.vault.detail.examples_title", defaultValue: "Ví dụ thực tế", bundle: .module)
-        }
-        public static var detailProgressTitle: LocalizedStringKey { "app.vault.detail.progress_title" }
-        public static var detailProgressTitleText: String {
-            String(localized: "app.vault.detail.progress_title", defaultValue: "Tiến độ phản xạ", bundle: .module)
-        }
-        public static func detailStreakCount(_ count: Int) -> String {
-            String(format: String(localized: "app.vault.detail.streak_count", defaultValue: "Chuỗi đúng %lld", bundle: .module), count)
-        }
-        public static var detailPracticedModes: LocalizedStringKey { "app.vault.detail.practiced_modes" }
-        public static var detailPracticedModesText: String {
-            String(localized: "app.vault.detail.practiced_modes", defaultValue: "Chế độ đã luyện", bundle: .module)
-        }
-    }
-}
-
-// MARK: - Reflex Blitz Tab Extension
-extension AppStrings {
-    public enum ReflexBlitz {
-        // Hub
-        public static var hubBadge: LocalizedStringKey { "app.reflex.hub.badge" }
-        public static var hubBadgeText: String {
-            String(localized: "app.reflex.hub.badge", defaultValue: "REFLEX BLITZ", bundle: .module)
-        }
-        public static var hubTitle: LocalizedStringKey { "app.reflex.hub.title" }
-        public static var hubTitleText: String {
-            String(localized: "app.reflex.hub.title", defaultValue: "Luyện phản xạ tốc độ", bundle: .module)
-        }
-        public static var hubSubtitle: LocalizedStringKey { "app.reflex.hub.subtitle" }
-        public static var hubSubtitleText: String {
-            String(localized: "app.reflex.hub.subtitle", defaultValue: "Chọn phương pháp phản xạ hôm nay", bundle: .module)
-        }
-        public static var hubStatsTitle: LocalizedStringKey { "app.reflex.hub.stats_title" }
-        public static var hubStatsTitleText: String {
-            String(localized: "app.reflex.hub.stats_title", defaultValue: "Thống kê phản xạ", bundle: .module)
-        }
-        public static func weeklyWords(_ count: Int) -> String {
-            String(format: String(localized: "app.reflex.stats.weekly_words", defaultValue: "%lld từ đã luyện", bundle: .module), count)
-        }
-        public static func weakWords(_ count: Int) -> String {
-            String(format: String(localized: "app.reflex.stats.weak_words", defaultValue: "%lld từ cần ôn", bundle: .module), count)
-        }
-        public static var avgSpeedLabel: LocalizedStringKey { "app.reflex.stats.avg_speed" }
-        public static var avgSpeedLabelText: String {
-            String(localized: "app.reflex.stats.avg_speed", defaultValue: "Tốc độ TB", bundle: .module)
-        }
-        public static var hubFooterHint: LocalizedStringKey { "app.reflex.hub.footer_hint" }
-        public static var hubFooterHintText: String {
-            String(localized: "app.reflex.hub.footer_hint", defaultValue: "Mỗi từ có giới hạn đếm ngược riêng biệt để tạo phản xạ vô điều kiện.", bundle: .module)
-        }
-
-        // Modalities
-        public static var speakingTitle: LocalizedStringKey { "app.reflex.mode.speaking.title" }
-        public static var speakingTitleText: String {
-            String(localized: "app.reflex.mode.speaking.title", defaultValue: "Luyện nói", bundle: .module)
-        }
-        public static var speakingSubtitle: LocalizedStringKey { "app.reflex.mode.speaking.subtitle" }
-        public static var speakingSubtitleText: String {
-            String(localized: "app.reflex.mode.speaking.subtitle", defaultValue: "Phản xạ phát âm & nhận diện giọng nói", bundle: .module)
-        }
-
-        public static var typingTitle: LocalizedStringKey { "app.reflex.mode.typing.title" }
-        public static var typingTitleText: String {
-            String(localized: "app.reflex.mode.typing.title", defaultValue: "Gõ từ", bundle: .module)
-        }
-        public static var typingSubtitle: LocalizedStringKey { "app.reflex.mode.typing.subtitle" }
-        public static var typingSubtitleText: String {
-            String(localized: "app.reflex.mode.typing.subtitle", defaultValue: "Phản xạ gõ phím & nhớ mặt chữ", bundle: .module)
-        }
-
-        public static var mcTitle: LocalizedStringKey { "app.reflex.mode.mc.title" }
-        public static var mcTitleText: String {
-            String(localized: "app.reflex.mode.mc.title", defaultValue: "Trắc nghiệm", bundle: .module)
-        }
-        public static var mcSubtitle: LocalizedStringKey { "app.reflex.mode.mc.subtitle" }
-        public static var mcSubtitleText: String {
-            String(localized: "app.reflex.mode.mc.subtitle", defaultValue: "Nhận diện từ vựng 1 trong 4", bundle: .module)
-        }
-
-        public static var listeningTitle: LocalizedStringKey { "app.reflex.mode.listening.title" }
-        public static var listeningTitleText: String {
-            String(localized: "app.reflex.mode.listening.title", defaultValue: "Phản xạ nghe", bundle: .module)
-        }
-        public static var listeningSubtitle: LocalizedStringKey { "app.reflex.mode.listening.subtitle" }
-        public static var listeningSubtitleText: String {
-            String(localized: "app.reflex.mode.listening.subtitle", defaultValue: "Bắt âm thanh & dịch nghĩa tức thì", bundle: .module)
-        }
-
-        // Drill
-        public static var skip: LocalizedStringKey { "app.reflex.drill.skip" }
-        public static var skipText: String {
-            String(localized: "app.reflex.drill.skip", defaultValue: "Bỏ qua", bundle: .module)
-        }
-        public static var typingPlaceholder: LocalizedStringKey { "app.reflex.drill.typing_placeholder" }
-        public static var typingPlaceholderText: String {
-            String(localized: "app.reflex.drill.typing_placeholder", defaultValue: "Gõ từ tiếng Anh...", bundle: .module)
-        }
-        public static var listeningInstruction: LocalizedStringKey { "app.reflex.drill.listening_instruction" }
-        public static var listeningInstructionText: String {
-            String(localized: "app.reflex.drill.listening_instruction", defaultValue: "Chọn nghĩa tiếng Việt của từ vừa nghe", bundle: .module)
-        }
-        public static var listeningReplay: LocalizedStringKey { "app.reflex.drill.listening_replay" }
-        public static var listeningReplayText: String {
-            String(localized: "app.reflex.drill.listening_replay", defaultValue: "Nghe lại phát âm", bundle: .module)
-        }
-        public static var speakingListening: LocalizedStringKey { "app.reflex.drill.speaking_listening" }
-        public static var speakingListeningText: String {
-            String(localized: "app.reflex.drill.speaking_listening", defaultValue: "Đang lắng nghe phát âm...", bundle: .module)
-        }
-        public static var continueCTA: LocalizedStringKey { "app.reflex.drill.continue_cta" }
-        public static var continueCTAText: String {
-            String(localized: "app.reflex.drill.continue_cta", defaultValue: "Tiếp tục", bundle: .module)
-        }
-        public static var correctTitle: LocalizedStringKey { "app.reflex.drill.correct_title" }
-        public static var correctTitleText: String {
-            String(localized: "app.reflex.drill.correct_title", defaultValue: "Chính xác!", bundle: .module)
-        }
-        public static var timeoutTitle: LocalizedStringKey { "app.reflex.drill.timeout_title" }
-        public static var timeoutTitleText: String {
-            String(localized: "app.reflex.drill.timeout_title", defaultValue: "Hết thời gian!", bundle: .module)
-        }
-        public static var incorrectTitle: LocalizedStringKey { "app.reflex.drill.incorrect_title" }
-        public static var incorrectTitleText: String {
-            String(localized: "app.reflex.drill.incorrect_title", defaultValue: "Chưa chính xác", bundle: .module)
-        }
-        public static func definitionA11y(_ definition: String) -> String {
-            String(format: String(localized: "app.reflex.drill.definition_a11y", defaultValue: "Nghĩa tiếng Việt: %@", bundle: .module), definition)
-        }
-        public static func completedSentenceA11y(_ sentence: String) -> String {
-            String(format: String(localized: "app.reflex.drill.completed_sentence_a11y", defaultValue: "Câu hoàn chỉnh: %@", bundle: .module), sentence)
-        }
-        public static func clozeSentenceA11y(_ sentence: String) -> String {
-            String(format: String(localized: "app.reflex.drill.cloze_sentence_a11y", defaultValue: "Câu điền từ: %@", bundle: .module), sentence)
-        }
-        public static func ipaA11y(_ ipa: String) -> String {
-            String(format: String(localized: "app.reflex.drill.ipa_a11y", defaultValue: "Phiên âm IPA: %@", bundle: .module), ipa)
-        }
-        public static func hintPrefix(_ hint: String) -> String {
-            String(format: String(localized: "app.reflex.drill.hint_prefix", defaultValue: "Gợi ý: %@", bundle: .module), hint)
-        }
-        public static func hintA11y(_ hint: String) -> String {
-            String(format: String(localized: "app.reflex.drill.hint_a11y", defaultValue: "Gợi ý ký tự đầu: %@", bundle: .module), hint)
-        }
-        public static func optionA11y(prefix: String, text: String) -> String {
-            String(format: String(localized: "app.reflex.drill.option_a11y", defaultValue: "Lựa chọn %@: %@", bundle: .module), prefix, text)
-        }
-        public static var typingInputA11y: String {
-            String(localized: "app.reflex.drill.typing_input_a11y", defaultValue: "Ô nhập từ tiếng Anh", bundle: .module)
-        }
-        public static var typingSubmitA11y: String {
-            String(localized: "app.reflex.drill.typing_submit_a11y", defaultValue: "Gửi câu trả lời đã gõ", bundle: .module)
-        }
-        public static func selectedPrefix(_ text: String) -> String {
-            String(format: String(localized: "app.reflex.drill.selected_prefix", defaultValue: "Đã chọn: %@", bundle: .module), text)
-        }
-        public static func spokenRecognized(_ text: String) -> String {
-            String(format: String(localized: "app.reflex.drill.spoken_recognized", defaultValue: "Nhận diện: %@", bundle: .module), text)
-        }
-        public static func typedAnswer(_ text: String) -> String {
-            String(format: String(localized: "app.reflex.drill.typed_answer", defaultValue: "Đã nhập: %@", bundle: .module), text)
-        }
-        public static var speechWaitingA11y: String {
-            String(localized: "app.reflex.drill.speech_waiting_a11y", defaultValue: "Đang chờ phát âm...", bundle: .module)
-        }
-        public static func speechRecognizedA11y(_ transcript: String) -> String {
-            String(format: String(localized: "app.reflex.drill.speech_recognized_a11y", defaultValue: "Nhận diện giọng nói: %@", bundle: .module), transcript)
-        }
-        public static var advanceTimeoutA11y: String {
-            String(localized: "app.reflex.drill.advance_timeout_a11y", defaultValue: "Hết giờ. Nhấn để sang từ tiếp theo", bundle: .module)
-        }
-        public static func advanceCorrectA11y(_ time: String) -> String {
-            String(format: String(localized: "app.reflex.drill.advance_correct_a11y", defaultValue: "Chính xác, phản xạ %@. Nhấn để sang từ tiếp theo", bundle: .module), time)
-        }
-        public static func advanceIncorrectA11y(_ time: String) -> String {
-            String(format: String(localized: "app.reflex.drill.advance_incorrect_a11y", defaultValue: "Chưa chính xác, thời gian %@. Nhấn để sang từ tiếp theo", bundle: .module), time)
-        }
-        public static var advanceHintA11y: String {
-            String(localized: "app.reflex.drill.advance_hint_a11y", defaultValue: "Nhấn để chuyển sang từ vựng tiếp theo", bundle: .module)
-        }
-        public static var advanceTimeoutButton: String {
-            String(localized: "app.reflex.drill.advance_timeout_button", defaultValue: "⚠️ Hết giờ • Từ tiếp theo ➔", bundle: .module)
-        }
-        public static func advanceCorrectButton(_ time: String) -> String {
-            String(format: String(localized: "app.reflex.drill.advance_correct_button", defaultValue: "⚡️ %@ • Từ tiếp theo ➔", bundle: .module), time)
-        }
-        public static func advanceIncorrectButton(_ time: String) -> String {
-            String(format: String(localized: "app.reflex.drill.advance_incorrect_button", defaultValue: "%@ • Từ tiếp theo ➔", bundle: .module), time)
-        }
-
-        // Summary
-        public static var summaryTitle: LocalizedStringKey { "app.reflex.summary.title" }
-        public static var summaryTitleText: String {
-            String(localized: "app.reflex.summary.title", defaultValue: "Hoàn thành phiên phản xạ Blitz", bundle: .module)
-        }
-        public static func redrillWeak(_ count: Int) -> String {
-            String(format: String(localized: "app.reflex.summary.redrill_weak", defaultValue: "Luyện lại %lld từ chưa thuộc", bundle: .module), count)
-        }
-        public static var finishSave: LocalizedStringKey { "app.reflex.summary.finish_save" }
-        public static var finishSaveText: String {
-            String(localized: "app.reflex.summary.finish_save", defaultValue: "Hoàn thành & Lưu tiến độ", bundle: .module)
-        }
-        public static var perfectTitle: LocalizedStringKey { "app.reflex.summary.perfect_title" }
-        public static var perfectTitleText: String {
-            String(localized: "app.reflex.summary.perfect_title", defaultValue: "Phản xạ hoàn hảo!", bundle: .module)
-        }
-        public static var perfectDesc: LocalizedStringKey { "app.reflex.summary.perfect_desc" }
-        public static var perfectDescText: String {
-            String(localized: "app.reflex.summary.perfect_desc", defaultValue: "Bạn đã trả lời chính xác và nhanh chóng toàn bộ từ vựng.", bundle: .module)
-        }
-        public static var summaryAvgSpeed: LocalizedStringKey { "app.reflex.summary.avg_speed" }
-        public static var summaryAvgSpeedText: String {
-            String(localized: "app.reflex.summary.avg_speed", defaultValue: "Tốc độ TB", bundle: .module)
-        }
-        public static var summaryAccuracy: LocalizedStringKey { "app.reflex.summary.accuracy" }
-        public static var summaryAccuracyText: String {
-            String(localized: "app.reflex.summary.accuracy", defaultValue: "Độ chính xác", bundle: .module)
-        }
-        public static var summaryMaxCombo: LocalizedStringKey { "app.reflex.summary.max_combo" }
-        public static var summaryMaxComboText: String {
-            String(localized: "app.reflex.summary.max_combo", defaultValue: "Combo cao nhất", bundle: .module)
         }
     }
 }
