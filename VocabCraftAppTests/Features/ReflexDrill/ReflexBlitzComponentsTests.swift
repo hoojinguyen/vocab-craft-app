@@ -34,18 +34,11 @@ final class ReflexBlitzComponentsTests: XCTestCase {
     }
     @MainActor
     func testHeaderViewInstantiation() {
-        var didClose = false
-        var didSkip = false
+        var didClose = false, didSkip = false
         let theme = CraftDefaultTheme()
-
         let header = ReflexBlitzHeaderView(
-            currentIndex: 2,
-            totalCount: 8,
-            comboStreak: 3,
-            fractionRemaining: 0.75,
-            timerStage: .warning,
-            onClose: { didClose = true },
-            onSkip: { didSkip = true }
+            currentIndex: 2, totalCount: 8, comboStreak: 3, fractionRemaining: 0.75,
+            timerStage: .warning, onClose: { didClose = true }, onSkip: { didSkip = true }
         )
         XCTAssertNotNil(header)
         XCTAssertEqual(header.currentIndex, 2)
@@ -54,7 +47,6 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertEqual(header.fractionRemaining, 0.75)
         XCTAssertEqual(header.timerStage, .warning)
         assertColorsEqual(header.timerBarColor, theme.colors.statusWarning)
-
         header.onClose()
         header.onSkip()
         XCTAssertTrue(didClose)
@@ -64,34 +56,13 @@ final class ReflexBlitzComponentsTests: XCTestCase {
     @MainActor
     func testHeaderViewTimerStagesColor() {
         let theme = CraftDefaultTheme()
-        let steadyHeader = ReflexBlitzHeaderView(
-            currentIndex: 0,
-            totalCount: 5,
-            comboStreak: 0,
-            fractionRemaining: 1.0,
-            timerStage: .steady,
-            onClose: {}
-        )
+        let steadyHeader = ReflexBlitzHeaderView(currentIndex: 0, totalCount: 5, comboStreak: 0, fractionRemaining: 1.0, timerStage: .steady, onClose: {})
         assertColorsEqual(steadyHeader.timerBarColor, theme.colors.brandPrimary)
 
-        let warningHeader = ReflexBlitzHeaderView(
-            currentIndex: 1,
-            totalCount: 5,
-            comboStreak: 0,
-            fractionRemaining: 0.4,
-            timerStage: .warning,
-            onClose: {}
-        )
+        let warningHeader = ReflexBlitzHeaderView(currentIndex: 1, totalCount: 5, comboStreak: 0, fractionRemaining: 0.4, timerStage: .warning, onClose: {})
         assertColorsEqual(warningHeader.timerBarColor, theme.colors.statusWarning)
 
-        let urgentHeader = ReflexBlitzHeaderView(
-            currentIndex: 2,
-            totalCount: 5,
-            comboStreak: 0,
-            fractionRemaining: 0.1,
-            timerStage: .urgent,
-            onClose: {}
-        )
+        let urgentHeader = ReflexBlitzHeaderView(currentIndex: 2, totalCount: 5, comboStreak: 0, fractionRemaining: 0.1, timerStage: .urgent, onClose: {})
         assertColorsEqual(urgentHeader.timerBarColor, theme.colors.statusDanger)
     }
 
@@ -102,13 +73,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
             ReflexBlitzAttempt(wordId: 1, lemma: "a", pos: "", ipa: "", definitionVi: "", responseTimeMs: 1000, usedHint: false, isCorrect: true),
             ReflexBlitzAttempt(wordId: 2, lemma: "b", pos: "", ipa: "", definitionVi: "", responseTimeMs: 2000, usedHint: false, isCorrect: false)
         ]
-        let header = ReflexBlitzHeaderView(
-            currentIndex: 2,
-            totalCount: 5,
-            comboStreak: 0,
-            attempts: attempts,
-            onClose: {}
-        )
+        let header = ReflexBlitzHeaderView(currentIndex: 2, totalCount: 5, comboStreak: 0, attempts: attempts, onClose: {})
         assertColorsEqual(header.segmentColor(for: 0), theme.colors.statusSuccess)
         assertColorsEqual(header.segmentColor(for: 1), theme.colors.statusDanger)
         assertColorsEqual(header.segmentColor(for: 2), theme.colors.brandPrimary)
@@ -117,41 +82,18 @@ final class ReflexBlitzComponentsTests: XCTestCase {
 
     @MainActor
     func testHeaderViewBodyRendersAcrossComboThresholds() {
-        let noComboHeader = ReflexBlitzHeaderView(
-            currentIndex: 0,
-            totalCount: 5,
-            comboStreak: 1,
-            fractionRemaining: 0.9,
-            timerStage: .steady,
-            onClose: {},
-            onSkip: {}
-        )
-        XCTAssertNotNil(noComboHeader.body)
+        let noCombo = ReflexBlitzHeaderView(currentIndex: 0, totalCount: 5, comboStreak: 1, fractionRemaining: 0.9, timerStage: .steady, onClose: {}, onSkip: {})
+        XCTAssertNotNil(noCombo.body)
 
-        let comboHeader = ReflexBlitzHeaderView(
-            currentIndex: 4,
-            totalCount: 5,
-            comboStreak: 4,
-            fractionRemaining: 0.2,
-            timerStage: .urgent,
-            onClose: {},
-            onSkip: {}
-        )
-        XCTAssertNotNil(comboHeader.body)
+        let combo = ReflexBlitzHeaderView(currentIndex: 4, totalCount: 5, comboStreak: 4, fractionRemaining: 0.2, timerStage: .urgent, onClose: {}, onSkip: {})
+        XCTAssertNotNil(combo.body)
     }
 
     @MainActor
     func testHeaderViewWithModeProperty() {
         let header = ReflexBlitzHeaderView(
-            currentIndex: 1,
-            totalCount: 10,
-            comboStreak: 2,
-            fractionRemaining: 0.5,
-            timerStage: .steady,
-            mode: .listening,
-            onClose: {},
-            onSkip: {},
-            showSkipInHeader: true
+            currentIndex: 1, totalCount: 10, comboStreak: 2, fractionRemaining: 0.5,
+            timerStage: .steady, mode: .listening, onClose: {}, onSkip: {}, showSkipInHeader: true
         )
         XCTAssertEqual(header.mode, .listening)
         XCTAssertNotNil(header.body)
@@ -160,35 +102,27 @@ final class ReflexBlitzComponentsTests: XCTestCase {
     @MainActor
     func testHeaderViewDynamicTimerBar() {
         let now = Date()
-        let activeHeader = ReflexBlitzHeaderView(
-            currentIndex: 0,
-            totalCount: 5,
-            comboStreak: 0,
-            fractionRemaining: 1.0,
-            timerStage: .steady,
-            mode: .speaking,
-            wordStartTime: now,
-            timeLimitSeconds: 6.0,
-            isTimerActive: true,
-            onClose: {}
+        let active = ReflexBlitzHeaderView(
+            currentIndex: 0, totalCount: 5, comboStreak: 0, fractionRemaining: 1.0,
+            timerStage: .steady, mode: .speaking, wordStartTime: now, timeLimitSeconds: 6.0, isTimerActive: true, onClose: {}
         )
-        XCTAssertEqual(activeHeader.wordStartTime, now)
-        XCTAssertEqual(activeHeader.timeLimitSeconds, 6.0)
-        XCTAssertTrue(activeHeader.isTimerActive)
-        XCTAssertNotNil(activeHeader.body)
+        XCTAssertEqual(active.wordStartTime, now)
+        XCTAssertEqual(active.timeLimitSeconds, 6.0)
+        XCTAssertTrue(active.isTimerActive)
+        XCTAssertNotNil(active.body)
     }
 
     @MainActor
     func testCountdownOverlayInstantiationAndBody() {
-        let overlayCountdown = ReflexCountdownOverlayView(count: 3)
-        XCTAssertNotNil(overlayCountdown)
-        XCTAssertEqual(overlayCountdown.count, 3)
-        XCTAssertNotNil(overlayCountdown.body)
+        let overlay3 = ReflexCountdownOverlayView(count: 3)
+        XCTAssertNotNil(overlay3)
+        XCTAssertEqual(overlay3.count, 3)
+        XCTAssertNotNil(overlay3.body)
 
-        let overlayGo = ReflexCountdownOverlayView(count: 0)
-        XCTAssertNotNil(overlayGo)
-        XCTAssertEqual(overlayGo.count, 0)
-        XCTAssertNotNil(overlayGo.body)
+        let overlay0 = ReflexCountdownOverlayView(count: 0)
+        XCTAssertNotNil(overlay0)
+        XCTAssertEqual(overlay0.count, 0)
+        XCTAssertNotNil(overlay0.body)
     }
 
     @MainActor
@@ -199,7 +133,6 @@ final class ReflexBlitzComponentsTests: XCTestCase {
             exampleSentenceVi: "Danh tiếng của cô ấy phù du."
         )
 
-        // Default drilling state with full parameters
         var submitted = false
         var textInput = "test"
         let binding = Binding<String>(get: { textInput }, set: { textInput = $0 })
@@ -207,8 +140,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         let defaultCard = ReflexBlitzCardView(
             word: word, fractionRemaining: 0.85, timerStage: .steady, showHint: false,
             isCorrect: false, isTimeout: false, liveTranscript: "ephem", elapsedTimeMs: 900,
-            isKeyboardFallbackActive: false, keyboardInputText: binding,
-            onSubmitKeyboard: { submitted = true }
+            isKeyboardFallbackActive: false, keyboardInputText: binding, onSubmitKeyboard: { submitted = true }
         )
         XCTAssertNotNil(defaultCard)
         XCTAssertEqual(defaultCard.word.id, 1)
@@ -221,12 +153,12 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertEqual(defaultCard.elapsedTimeMs, 900)
         XCTAssertFalse(defaultCard.isKeyboardFallbackActive)
         assertColorsEqual(defaultCard.timerStrokeColor, CraftDefaultColorTokens().brandPrimary)
+        assertColorsEqual(defaultCard.cardBorderColor, CraftDefaultColorTokens().hairline.opacity(0.4))
         XCTAssertNotNil(defaultCard.body)
 
         defaultCard.onSubmitKeyboard?()
         XCTAssertTrue(submitted)
 
-        // Warning stage
         let warningCard = ReflexBlitzCardView(
             word: word, fractionRemaining: 0.35, timerStage: .warning, showHint: true,
             isCorrect: false, isTimeout: false, liveTranscript: "", elapsedTimeMs: 4000,
@@ -237,7 +169,6 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         assertColorsEqual(warningCard.timerStrokeColor, CraftDefaultColorTokens().statusWarning)
         XCTAssertNotNil(warningCard.body)
 
-        // Urgent stage
         let urgentCard = ReflexBlitzCardView(
             word: word, fractionRemaining: 0.1, timerStage: .urgent, showHint: true,
             isCorrect: false, isTimeout: false, liveTranscript: "", elapsedTimeMs: 5500,
@@ -247,7 +178,6 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         assertColorsEqual(urgentCard.timerStrokeColor, CraftDefaultColorTokens().statusDanger)
         XCTAssertNotNil(urgentCard.body)
 
-        // Correct match state
         let correctCard = ReflexBlitzCardView(
             word: word, fractionRemaining: 0.6, timerStage: .steady, showHint: false,
             isCorrect: true, isTimeout: false, liveTranscript: "ephemeral", elapsedTimeMs: 2400,
@@ -256,9 +186,9 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertNotNil(correctCard)
         XCTAssertTrue(correctCard.isCorrect)
         assertColorsEqual(correctCard.timerStrokeColor, CraftDefaultColorTokens().statusSuccess)
+        assertColorsEqual(correctCard.cardBorderColor, CraftDefaultColorTokens().hairline.opacity(0.4))
         XCTAssertNotNil(correctCard.body)
 
-        // Timeout state
         let timeoutCard = ReflexBlitzCardView(
             word: word, fractionRemaining: 0.0, timerStage: .urgent, showHint: true,
             isCorrect: false, isTimeout: true, liveTranscript: "", elapsedTimeMs: 6000,
@@ -267,9 +197,9 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertNotNil(timeoutCard)
         XCTAssertTrue(timeoutCard.isTimeout)
         assertColorsEqual(timeoutCard.timerStrokeColor, CraftDefaultColorTokens().statusDanger)
+        assertColorsEqual(timeoutCard.cardBorderColor, CraftDefaultColorTokens().hairline.opacity(0.4))
         XCTAssertNotNil(timeoutCard.body)
 
-        // Keyboard Fallback Active State
         let keyboardCard = ReflexBlitzCardView(
             word: word, fractionRemaining: 0.5, timerStage: .steady, showHint: false,
             isCorrect: false, isTimeout: false, liveTranscript: "", elapsedTimeMs: 3000,
@@ -470,6 +400,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         )
         XCTAssertNotNil(card.body)
         XCTAssertEqual(card.options.count, 4)
+        assertColorsEqual(card.cardBorderColor, CraftDefaultColorTokens().hairline.opacity(0.4))
         card.onSelectOption?(options[1])
         XCTAssertEqual(selectedOption?.id, options[1].id)
     }
@@ -657,6 +588,87 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertEqual(reviewedCard.displayedSentence, word.completedSentenceWithTargetWord)
         reviewedCard.onReplayAudio?()
         XCTAssertTrue(didReplay)
+    }
+
+    @MainActor
+    func testReflexBlitzCardReviewedViewIncorrectAndTimeoutModes() {
+        let word = ReflexBlitzWordItem.defaultStarterWords[0]
+        let options = [
+            ReflexBlitzOption(id: "1", text: "habit", isCorrect: true),
+            ReflexBlitzOption(id: "2", text: "focus", isCorrect: false),
+            ReflexBlitzOption(id: "3", text: "create", isCorrect: false),
+            ReflexBlitzOption(id: "4", text: "relax", isCorrect: false)
+        ]
+
+        // 1. Multiple Choice Incorrect Selection
+        let wrongCard = ReflexBlitzCardReviewedView(
+            word: word,
+            mode: .multipleChoice,
+            isReviewed: true,
+            isResultCorrect: false,
+            isResultTimeout: false,
+            options: options,
+            reviewResult: ReflexCardResult(isCorrect: false, responseTimeMs: 2300, isTimeout: false, selectedOption: "focus"),
+            selectedOptionText: "focus",
+            clozeParts: nil,
+            displayedSentence: word.completedSentenceWithTargetWord,
+            onReplayAudio: nil
+        )
+        XCTAssertNotNil(wrongCard.body)
+        XCTAssertEqual(wrongCard.selectedOptionText, "focus")
+        XCTAssertFalse(wrongCard.isResultCorrect)
+        XCTAssertFalse(wrongCard.isResultTimeout)
+
+        // 2. Multiple Choice Timeout
+        let timeoutCard = ReflexBlitzCardReviewedView(
+            word: word,
+            mode: .multipleChoice,
+            isReviewed: true,
+            isResultCorrect: false,
+            isResultTimeout: true,
+            options: options,
+            reviewResult: ReflexCardResult(isCorrect: false, responseTimeMs: 4500, isTimeout: true, selectedOption: nil),
+            selectedOptionText: nil,
+            clozeParts: nil,
+            displayedSentence: word.completedSentenceWithTargetWord,
+            onReplayAudio: nil
+        )
+        XCTAssertNotNil(timeoutCard.body)
+        XCTAssertNil(timeoutCard.selectedOptionText)
+        XCTAssertFalse(timeoutCard.isResultCorrect)
+        XCTAssertTrue(timeoutCard.isResultTimeout)
+
+        // 3. Speaking mode reviewed chip
+        let speakingCard = ReflexBlitzCardReviewedView(
+            word: word,
+            mode: .speaking,
+            isReviewed: true,
+            isResultCorrect: true,
+            isResultTimeout: false,
+            options: [],
+            reviewResult: ReflexCardResult(isCorrect: true, responseTimeMs: 1200, isTimeout: false, recognizedSpoken: "habit"),
+            selectedOptionText: nil,
+            clozeParts: nil,
+            displayedSentence: word.completedSentenceWithTargetWord,
+            onReplayAudio: nil
+        )
+        XCTAssertNotNil(speakingCard.body)
+
+        // 4. Typing mode reviewed chip
+        let typingCard = ReflexBlitzCardReviewedView(
+            word: word,
+            mode: .typing,
+            isReviewed: true,
+            isResultCorrect: true,
+            isResultTimeout: false,
+            options: [],
+            reviewResult: ReflexCardResult(isCorrect: true, responseTimeMs: 1800, isTimeout: false, typedText: "habit"),
+            selectedOptionText: nil,
+            clozeParts: nil,
+            displayedSentence: word.completedSentenceWithTargetWord,
+            onReplayAudio: nil
+        )
+        XCTAssertNotNil(typingCard.body)
     }
 
     // MARK: - Mode Selection View Tests

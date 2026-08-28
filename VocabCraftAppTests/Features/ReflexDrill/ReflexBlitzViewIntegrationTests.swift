@@ -168,6 +168,83 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         }
     }
 
+    func testBlitzViewDrillingMultipleChoiceIncorrectSelectionAndAdvance() {
+        let (vm, _, _, _) = makeViewModel()
+        vm.selectMode(.multipleChoice)
+        vm.beginSessionDirectly()
+
+        XCTAssertEqual(vm.phase, .drilling)
+        XCTAssertEqual(vm.selectedMode, .multipleChoice)
+        XCTAssertEqual(vm.cardPhase, .activeCountdown)
+
+        guard let incorrectOption = vm.currentOptions.first(where: { !$0.isCorrect }) else {
+            XCTFail("Missing incorrect option")
+            return
+        }
+
+        vm.selectOption(incorrectOption)
+        XCTAssertFalse(vm.currentAttemptIsCorrect)
+        XCTAssertEqual(vm.comboStreak, 0)
+
+        if case .reviewed(let result) = vm.cardPhase {
+            XCTAssertFalse(result.isCorrect)
+            XCTAssertFalse(result.isTimeout)
+            XCTAssertEqual(result.selectedOption, incorrectOption.text)
+        } else {
+            XCTFail("Expected cardPhase to be .reviewed")
+        }
+
+        let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
+        XCTAssertNotNil(view.body)
+
+        vm.advanceToNextWord()
+        XCTAssertEqual(vm.currentWordIndex, 1)
+        XCTAssertEqual(vm.cardPhase, .activeCountdown)
+        XCTAssertEqual(vm.currentOptions.count, 4)
+    }
+
+    func testBlitzViewDrillingMultipleChoiceTimeoutAndReview() {
+        let (vm, _, _, _) = makeViewModel()
+        vm.selectMode(.multipleChoice)
+        vm.beginSessionDirectly()
+
+        XCTAssertEqual(vm.phase, .drilling)
+        XCTAssertEqual(vm.selectedMode, .multipleChoice)
+
+        vm.handleTimeout()
+
+        if case .reviewed(let result) = vm.cardPhase {
+            XCTAssertTrue(result.isTimeout)
+            XCTAssertFalse(result.isCorrect)
+            XCTAssertNil(result.selectedOption)
+        } else {
+            XCTFail("Expected cardPhase to be .reviewed")
+        }
+
+        let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
+        XCTAssertNotNil(view.body)
+    }
+
+    func testBlitzViewDrillingMultipleChoiceAudioReplayInReview() {
+        let (vm, _, mockTTS, _) = makeViewModel()
+        vm.selectMode(.multipleChoice)
+        vm.beginSessionDirectly()
+
+        guard let correctOption = vm.currentOptions.first(where: { $0.isCorrect }) else {
+            XCTFail("Missing correct option")
+            return
+        }
+
+        vm.selectOption(correctOption)
+        XCTAssertTrue(vm.currentAttemptIsCorrect)
+
+        let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
+        XCTAssertNotNil(view.body)
+
+        vm.speakCurrentWord()
+        XCTAssertEqual(mockTTS.lastSpokenText, "ephemeral")
+    }
+
     func testBlitzViewDrillingListeningModeFlow() {
         let (vm, _, mockTTS, _) = makeViewModel()
         vm.selectMode(.listening)
