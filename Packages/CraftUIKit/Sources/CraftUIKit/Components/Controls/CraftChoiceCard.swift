@@ -643,26 +643,22 @@ public struct CraftChoiceCardButtonStyle: ButtonStyle {
         let effectiveDepth = isTactile ? depth : 0
         let depressOffset = (isPressed && isTactile) ? depth : 0
 
-        ZStack(alignment: .top) {
-            // Seamless extruded 3D base layer
-            if state != .disabled && isTactile {
-                RoundedRectangle(cornerRadius: theme.radii.lg)
-                    .fill(bottomLipColor)
-                    .offset(y: depth)
+        configuration.label
+            .offset(y: depressOffset)
+            .background {
+                if state != .disabled && isTactile {
+                    RoundedRectangle(cornerRadius: theme.radii.lg)
+                        .fill(bottomLipColor)
+                        .offset(y: depth)
+                }
             }
-
-            // Top interactive card face
-            configuration.label
-                .offset(y: depressOffset)
-        }
-        .padding(.bottom, (state == .disabled || !isTactile) ? 0 : effectiveDepth)
-        .scaleEffect(isPressed && !reduceMotion ? (isTactile ? 0.99 : 0.98) : 1.0)
-        .animation(theme.animations.springSnappy, value: isPressed)
-        .frame(minHeight: 44)
-        .contentShape(Rectangle())
-        .sensoryFeedback(.impact(weight: .light), trigger: isPressed) { _, pressed in
-            pressed
-        }
+            .padding(.bottom, (state == .disabled || !isTactile) ? 0 : effectiveDepth)
+            .scaleEffect(isPressed && !reduceMotion ? (isTactile ? 0.99 : 0.98) : 1.0)
+            .animation(theme.animations.springSnappy, value: isPressed)
+            .contentShape(Rectangle())
+            .sensoryFeedback(.impact(weight: .light), trigger: isPressed) { _, pressed in
+                pressed
+            }
     }
 
     private var bottomLipColor: Color {
