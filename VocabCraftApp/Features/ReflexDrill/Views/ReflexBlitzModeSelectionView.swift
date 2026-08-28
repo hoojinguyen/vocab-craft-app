@@ -183,6 +183,7 @@ public struct ReflexBlitzModeSelectionView: View {
                 shape: .circle,
                 variant: .subtle,
                 style: .glass,
+                customTint: theme.colors.textSecondary,
                 accessibilityLabelKey: AppStrings.Common.close,
                 action: onDismiss
             )
@@ -239,7 +240,7 @@ public struct ReflexBlitzModeSelectionView: View {
             badgeText: item.badgeText,
             badgeIcon: nil,
             accentColor: item.accentColor,
-            style: .outlined,
+            style: .tactile3D,
             showChevron: false
         ) {
             selectedModeTrigger = item.mode
@@ -249,72 +250,31 @@ public struct ReflexBlitzModeSelectionView: View {
 
     private var quickStatsDashboard: some View {
         HStack(spacing: theme.spacing.sm) {
-            // 1. Weekly Practiced Words
-            CraftCard(
-                style: .outlined,
-                cornerRadius: theme.radii.lg,
-                padding: theme.spacing.base
-            ) {
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText(
-                        verbatim: "\(weeklyPracticedCount)",
-                        style: .metricRounded,
-                        color: theme.colors.textPrimary
-                    )
-                    CraftText(
-                        AppStrings.ReflexBlitz.weeklyWords(weeklyPracticedCount),
-                        style: .caption,
-                        color: theme.colors.textMuted,
-                        lineLimit: 1
-                    )
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
+            CraftBadge(
+                AppStrings.ReflexBlitz.weeklyWords(weeklyPracticedCount),
+                variant: .subtle,
+                tone: .neutral,
+                size: .sm,
+                shape: .capsule
+            )
 
-            // 2. Weak Words
-            CraftCard(
-                style: .outlined,
-                cornerRadius: theme.radii.lg,
-                padding: theme.spacing.base
-            ) {
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText(
-                        verbatim: "\(weakWordsCount)",
-                        style: .metricRounded,
-                        color: theme.colors.textPrimary
-                    )
-                    CraftText(
-                        AppStrings.ReflexBlitz.weakWords(weakWordsCount),
-                        style: .caption,
-                        color: theme.colors.textMuted,
-                        lineLimit: 1
-                    )
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
+            CraftBadge(
+                AppStrings.ReflexBlitz.weakWords(weakWordsCount),
+                variant: .subtle,
+                tone: weakWordsCount > 0 ? .warning : .neutral,
+                size: .sm,
+                shape: .capsule
+            )
 
-            // 3. Avg Speed
-            CraftCard(
-                style: .outlined,
-                cornerRadius: theme.radii.lg,
-                padding: theme.spacing.base
-            ) {
-                VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftText(
-                        verbatim: String(format: "%.1fs", averageSpeedSeconds),
-                        style: .metricRounded,
-                        color: theme.colors.textPrimary
-                    )
-                    CraftText(
-                        AppStrings.ReflexBlitz.avgSpeedLabel,
-                        style: .caption,
-                        color: theme.colors.textMuted,
-                        lineLimit: 1
-                    )
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
+            CraftBadge(
+                String(format: "%.1fs %@", averageSpeedSeconds, AppStrings.ReflexBlitz.avgSpeedLabelText),
+                variant: .subtle,
+                tone: .primary,
+                size: .sm,
+                shape: .capsule
+            )
         }
+        .frame(maxWidth: .infinity, alignment: .center)
         .padding(.horizontal, theme.spacing.base)
     }
 
