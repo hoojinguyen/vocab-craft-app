@@ -7,6 +7,10 @@ import UIKit
 @testable import VocabCraftApp
 import XCTest
 
+#if canImport(AppKit)
+import AppKit
+#endif
+
 final class ReflexBlitzComponentsTests: XCTestCase {
     private func assertColorsEqual(_ color1: Color, _ color2: Color, file: StaticString = #filePath, line: UInt = #line) {
         #if canImport(UIKit)
@@ -16,6 +20,16 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         let darkTrait = UITraitCollection(userInterfaceStyle: .dark)
         XCTAssertEqual(ui1.resolvedColor(with: lightTrait), ui2.resolvedColor(with: lightTrait), "Light mode color mismatch", file: file, line: line)
         XCTAssertEqual(ui1.resolvedColor(with: darkTrait), ui2.resolvedColor(with: darkTrait), "Dark mode color mismatch", file: file, line: line)
+        #elseif canImport(AppKit)
+        var srgb1 = ""
+        var srgb2 = ""
+        NSAppearance(named: .aqua)?.performAsCurrentDrawingAppearance {
+            let ns1 = NSColor(color1).usingColorSpace(.sRGB) ?? NSColor(color1)
+            let ns2 = NSColor(color2).usingColorSpace(.sRGB) ?? NSColor(color2)
+            srgb1 = "\(ns1.redComponent),\(ns1.greenComponent),\(ns1.blueComponent),\(ns1.alphaComponent)"
+            srgb2 = "\(ns2.redComponent),\(ns2.greenComponent),\(ns2.blueComponent),\(ns2.alphaComponent)"
+        }
+        XCTAssertEqual(srgb1, srgb2, "Light mode color mismatch", file: file, line: line)
         #else
         XCTAssertEqual(color1, color2, file: file, line: line)
         #endif
