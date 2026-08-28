@@ -532,12 +532,18 @@ private struct SettingsAboutCard: View {
                     iconBackgroundColor: theme.colors.surfaceSubtle
                 ) {
                     CraftText(
-                        "v1.2.0 (Build 42)",
+                        appVersionString,
                         style: .label,
                         color: theme.colors.textMuted
                     )
                 }
             }
         }
+    }
+
+    private var appVersionString: String {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
+        return "v\(version) (Build \(build))"
     }
 }

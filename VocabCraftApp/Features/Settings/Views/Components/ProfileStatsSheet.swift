@@ -125,8 +125,8 @@ public struct ProfileStatsSheet: View {
                     .stroke(
                         LinearGradient(
                             colors: [
-                                Color.white.opacity(0.35),
-                                Color.white.opacity(0.08),
+                                theme.colors.textInverse.opacity(0.35),
+                                theme.colors.textInverse.opacity(0.08),
                                 Color.clear
                             ],
                             startPoint: .top,
@@ -137,7 +137,7 @@ public struct ProfileStatsSheet: View {
 
                 Image(systemName: "trophy.fill")
                     .font(.system(size: 24, weight: .bold))
-                    .foregroundStyle(Color.white)
+                    .foregroundStyle(theme.colors.textInverse)
             }
             .frame(width: 56, height: 56)
         }
