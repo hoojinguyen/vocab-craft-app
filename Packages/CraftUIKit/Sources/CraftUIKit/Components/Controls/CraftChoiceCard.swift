@@ -229,7 +229,7 @@ public struct CraftChoiceCard: View {
                     VStack(alignment: contentHorizontalAlignment, spacing: theme.spacing.xxs) {
                         titleAndSubtitleContent
                     }
-                    .frame(maxWidth: textAlignment == .center ? .infinity : nil, alignment: textAlignment == .center ? .center : .leading)
+                    .frame(maxWidth: textAlignment == .center ? .infinity : nil, alignment: textAlignment == .center ? .center : (textAlignment == .trailing ? .trailing : .leading))
 
                     if textAlignment != .center {
                         Spacer(minLength: theme.spacing.sm)
@@ -240,7 +240,7 @@ public struct CraftChoiceCard: View {
                             .padding(.top, hasSubtitle ? 2 : 0)
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: textAlignment == .center ? .center : .leading)
+                .frame(maxWidth: .infinity, alignment: textAlignment == .center ? .center : (textAlignment == .trailing ? .trailing : .leading))
             }
         }
         .padding(theme.spacing.base)
@@ -276,7 +276,7 @@ public struct CraftChoiceCard: View {
                 .font(theme.typography.bodyMedium)
                 .foregroundStyle(subtitleColor)
                 .multilineTextAlignment(textAlignment)
-        } else if let rawSubtitle, !rawSubtitle.isEmpty {
+        } else if let rawSubtitle, !rawSubtitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             Text(rawSubtitle)
                 .font(theme.typography.bodyMedium)
                 .foregroundStyle(subtitleColor)

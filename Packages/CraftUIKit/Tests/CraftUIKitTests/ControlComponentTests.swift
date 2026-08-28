@@ -727,6 +727,29 @@ final class ControlComponentTests: XCTestCase {
         XCTAssertNotNil(cardCustomSymbol.body)
     }
 
+    @MainActor
+    func testCraftChoiceCardPrefixNoneLeadingAlignment() {
+        var didTap = false
+        let card = CraftChoiceCard(
+            prefix: nil,
+            prefixStyle: .none,
+            title: "look forward to",
+            subtitle: "trông đợi, mong chờ",
+            textAlignment: .leading,
+            state: .idle,
+            style: .tactile3D,
+            showsStatusIndicator: false,
+            action: { didTap = true }
+        )
+        XCTAssertNil(card.prefix)
+        XCTAssertEqual(card.prefixStyle, .none)
+        XCTAssertEqual(card.title, "look forward to")
+        XCTAssertEqual(card.subtitle, "trông đợi, mong chờ")
+        XCTAssertNotNil(card.body)
+        card.action()
+        XCTAssertTrue(didTap)
+    }
+
     func testTextFieldStylesEnumAndRendering() {
         XCTAssertEqual(CraftTextFieldStyle.allCases.count, 4)
         XCTAssertTrue(CraftTextFieldStyle.allCases.contains(.standard))
