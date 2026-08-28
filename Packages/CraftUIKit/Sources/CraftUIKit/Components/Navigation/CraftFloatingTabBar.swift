@@ -199,11 +199,21 @@ public enum CraftCenterButtonPosition: String, Sendable, CaseIterable {
 
 // MARK: - Tab Bar Item Preference Key
 
-/// Coordinate space tracking preference key reporting individual tab button bounds.
+/// Legacy preference key retained for source compatibility with clients that inspect tab bounds.
 public struct CraftTabBarItemPreferenceKey: PreferenceKey {
     public static var defaultValue: [String: CGRect] = [:]
     public static func reduce(value: inout [String: CGRect], nextValue: () -> [String: CGRect]) {
         value.merge(nextValue(), uniquingKeysWith: { $1 })
+    }
+}
+
+/// Keeps selection motion local to the tab bar and honors the system Reduce Motion setting.
+enum CraftTabBarAnimationPolicy {
+    static func selectionAnimation(
+        reduceMotion: Bool,
+        animations: CraftAnimationTokens
+    ) -> Animation? {
+        reduceMotion ? nil : animations.springSmooth
     }
 }
 
@@ -227,26 +237,13 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
     private let centerTitleKey: LocalizedStringKey?
     private let rawCenterTitle: String?
 
-    @State private var tabFrames: [String: CGRect] = [:]
-    @State private var activeTransitionCount = 0
+    @Namespace private var selectionNamespace
 
     // Pre-computed item partitions to avoid array allocations on every view body re-evaluation
     private let leadingItems: [Item]
     private let trailingItems: [Item]
 
     public var centerTitle: String? { rawCenterTitle }
-
-    private var isTransitioning: Bool {
-        activeTransitionCount > 0
-    }
-
-    private var selectedTabKey: String {
-        String(describing: selectedItem.id)
-    }
-
-    private var selectedFrame: CGRect? {
-        tabFrames[selectedTabKey]
-    }
 
     public init(
         selectedItem: Binding<Item>,
@@ -310,11 +307,22 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
     private var barContainer: some View {
         ZStack {
             if #available(iOS 26, macOS 26, *), style == .glass {
-                GlassEffectContainer(spacing: 8) {
+                GlassEffectContainer(spacing: theme.spacing.xs) {
                     barContent
                         .padding(.horizontal, size.horizontalPadding)
                         .padding(.vertical, size.verticalPadding)
+                        .background {
+                            Capsule()
+                                .fill(theme.colors.surfaceCard.opacity(theme.opacities.subtle))
+                        }
                         .glassEffect(.regular, in: .capsule)
+                        .overlay {
+                            Capsule()
+                                .strokeBorder(
+                                    theme.colors.borderDefault.opacity(theme.opacities.medium),
+                                    lineWidth: 1
+                                )
+                        }
                 }
             } else {
                 barContent
@@ -344,37 +352,26 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
     @ViewBuilder
     private var barContent: some View {
         tabButtonsStack
-            .background(alignment: .topLeading) {
-                // Tier 2: Independent Sliding Fluid Glass Pill
-                if let frame = selectedFrame {
-                    CraftSlidingFluidPill(
-                        style: style,
-                        isTransitioning: isTransitioning
-                    )
-                    .frame(
-                        width: max(0, frame.width - (size.pillInset * 2)),
-                        height: max(0, frame.height - (size.pillInset * 2)),
-                        alignment: .center
-                    )
-                    .offset(x: frame.minX + size.pillInset, y: frame.minY + size.pillInset)
-                }
-            }
-            .coordinateSpace(name: "CraftTabBarTrack")
-            .onPreferenceChange(CraftTabBarItemPreferenceKey.self) { preferences in
-                tabFrames = preferences
-            }
+            .animation(
+                CraftTabBarAnimationPolicy.selectionAnimation(
+                    reduceMotion: reduceMotion,
+                    animations: theme.animations
+                ),
+                value: selectedItem.id
+            )
     }
 
     @ViewBuilder
     private var tabButtonsStack: some View {
-        HStack(spacing: 2) {
+        HStack(spacing: theme.spacing.xs) {
             if centerAction != nil {
                 ForEach(leadingItems) { item in
                     CraftTabButton(
                         item: item,
                         isSelected: selectedItem.id == item.id,
-                        barStyle: style,
                         size: size,
+                        selectionNamespace: selectionNamespace,
+                        barStyle: style,
                         onSelect: { select(item) }
                     )
                 }
@@ -390,8 +387,9 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                     CraftTabButton(
                         item: item,
                         isSelected: selectedItem.id == item.id,
-                        barStyle: style,
                         size: size,
+                        selectionNamespace: selectionNamespace,
+                        barStyle: style,
                         onSelect: { select(item) }
                     )
                 }
@@ -400,8 +398,9 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                     CraftTabButton(
                         item: item,
                         isSelected: selectedItem.id == item.id,
-                        barStyle: style,
                         size: size,
+                        selectionNamespace: selectionNamespace,
+                        barStyle: style,
                         onSelect: { select(item) }
                     )
                 }
@@ -411,18 +410,10 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
 
     private func select(_ item: Item) {
         guard selectedItem.id != item.id else { return }
-        if reduceMotion {
-            selectedItem = item
-        } else {
-            activeTransitionCount += 1
-            withAnimation(.spring(response: 0.35, dampingFraction: 0.76)) {
-                selectedItem = item
-            } completion: {
-                withAnimation(.spring(response: 0.25, dampingFraction: 0.85)) {
-                    activeTransitionCount = max(0, activeTransitionCount - 1)
-                }
-            }
-        }
+        // The scoped animation on `barContent` animates only the indicator and tab visuals.
+        // Keeping the binding mutation non-animated prevents the host screen from inheriting
+        // the tab bar's spring transaction during a potentially expensive tab switch.
+        selectedItem = item
     }
 
     // MARK: - Legacy / Non-Glass Background
@@ -432,10 +423,14 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
         switch style {
         case .glass:
             Capsule()
-                .fill(reduceTransparency ? AnyShapeStyle(theme.colors.surfaceCard) : AnyShapeStyle(.ultraThinMaterial))
+                .fill(reduceTransparency ? AnyShapeStyle(theme.colors.surfaceElevated) : AnyShapeStyle(.ultraThinMaterial))
+                .overlay {
+                    Capsule()
+                        .fill(theme.colors.surfaceCard.opacity(theme.opacities.subtle))
+                }
                 .overlay(
                     Capsule()
-                        .strokeBorder(theme.glass.borderGradient, lineWidth: 1)
+                        .strokeBorder(theme.colors.borderDefault, lineWidth: 1)
                 )
                 .overlay(
                     Capsule()
@@ -446,7 +441,7 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                 .fill(theme.colors.surfaceElevated)
                 .overlay(
                     Capsule()
-                        .strokeBorder(theme.colors.borderDefault.opacity(0.5), lineWidth: 1)
+                        .strokeBorder(theme.colors.borderDefault.opacity(theme.opacities.medium), lineWidth: 1)
                 )
                 .overlay(
                     Capsule()
@@ -510,17 +505,21 @@ public struct CraftSlidingFluidPill: View {
         case .glass:
             if reduceTransparency {
                 Capsule()
-                    .fill(theme.colors.surfaceCard)
+                    .fill(theme.colors.surfaceElevated)
                     .overlay(
                         Capsule()
-                            .strokeBorder(theme.colors.borderDefault, lineWidth: 1)
+                            .strokeBorder(theme.colors.borderFocus, lineWidth: 1)
                     )
             } else {
                 glassPill
             }
         case .elevated:
             Capsule()
-                .fill(theme.colors.surfaceElevated.opacity(0.92))
+                .fill(theme.colors.surfaceElevated)
+                .overlay {
+                    Capsule()
+                        .fill(theme.colors.brandPrimary.opacity(theme.opacities.subtle))
+                }
                 .overlay(
                     Capsule()
                         .strokeBorder(theme.colors.hairline, lineWidth: 1)
@@ -529,7 +528,7 @@ public struct CraftSlidingFluidPill: View {
                     Capsule()
                         .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
                 )
-                .shadow(color: Color.black.opacity(0.06), radius: 3, x: 0, y: 1)
+                .craftShadow(theme.shadows.sm)
         case .outlined:
             Capsule()
                 .fill(theme.colors.surfaceCard)
@@ -540,11 +539,15 @@ public struct CraftSlidingFluidPill: View {
         case .tactile3D:
             Capsule()
                 .fill(theme.colors.surfaceCard)
+                .overlay {
+                    Capsule()
+                        .fill(theme.colors.brandPrimary.opacity(theme.opacities.subtle))
+                }
                 .overlay(
                     Capsule()
                         .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
                 )
-                .shadow(color: Color.black.opacity(0.08), radius: 2, x: 0, y: 1)
+                .craftShadow(theme.shadows.sm)
         case .flat:
             Capsule()
                 .fill(theme.colors.surfaceCard)
@@ -554,37 +557,19 @@ public struct CraftSlidingFluidPill: View {
     @ViewBuilder
     private var glassPill: some View {
         Capsule()
-            .fill(
-                Color.craftDynamic(
-                    light: Color.white.opacity(0.85),
-                    dark: Color.white.opacity(0.18)
-                )
-            )
-            .overlay(specularRimHighlight)
-            .shadow(
-                color: Color.craftDynamic(
-                    light: Color.black.opacity(0.08),
-                    dark: Color.black.opacity(0.30)
-                ),
-                radius: 4,
-                x: 0,
-                y: 2
-            )
-    }
-
-    private var specularRimHighlight: some View {
-        Capsule()
-            .strokeBorder(
-                LinearGradient(
-                    colors: [
-                        Color.craftDynamic(light: Color.white.opacity(0.95), dark: Color.white.opacity(0.40)),
-                        Color.craftDynamic(light: Color.white.opacity(0.30), dark: Color.white.opacity(0.10))
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                ),
-                lineWidth: 0.8
-            )
+            .fill(theme.colors.surfaceElevated)
+            .overlay {
+                Capsule()
+                    .fill(theme.colors.brandPrimary.opacity(theme.opacities.muted))
+            }
+            .overlay {
+                Capsule()
+                    .strokeBorder(
+                        theme.colors.brandPrimary.opacity(theme.opacities.medium),
+                        lineWidth: 1
+                    )
+            }
+            .craftShadow(theme.shadows.sm)
     }
 }
 
@@ -597,8 +582,9 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
 
     let item: Item
     let isSelected: Bool
-    let barStyle: CraftSurfaceStyle
     let size: CraftTabBarSize
+    let selectionNamespace: Namespace.ID
+    let barStyle: CraftSurfaceStyle
     let onSelect: () -> Void
 
     private var hasTitle: Bool {
@@ -623,12 +609,11 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
                         CraftIcon(
                             item.symbol,
                             size: iconSize,
-                            color: isSelected ? theme.colors.brandPrimary : theme.colors.textMuted,
+                            color: isSelected ? theme.colors.brandPrimary : theme.colors.textSecondary,
                             renderingMode: isSelected ? .hierarchical : .monochrome,
                             weight: isSelected ? .bold : .medium
                         )
                         .scaleEffect(isSelected && !reduceMotion ? 1.08 : 1.0)
-                        .symbolEffect(.bounce, value: isSelected)
                     }
 
                     if let badgeCount = item.badgeCount, badgeCount > 0 {
@@ -649,13 +634,13 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
                         Text(titleKey)
                             .font(theme.typography.caption)
                             .fontWeight(isSelected ? .semibold : .regular)
-                            .foregroundColor(isSelected ? theme.colors.brandPrimary : theme.colors.textMuted)
+                            .foregroundColor(isSelected ? theme.colors.brandPrimary : theme.colors.textSecondary)
                             .lineLimit(1)
                     } else if !item.title.isEmpty {
                         Text(item.title)
                             .font(theme.typography.caption)
                             .fontWeight(isSelected ? .semibold : .regular)
-                            .foregroundColor(isSelected ? theme.colors.brandPrimary : theme.colors.textMuted)
+                            .foregroundColor(isSelected ? theme.colors.brandPrimary : theme.colors.textSecondary)
                             .lineLimit(1)
                     }
                 }
@@ -665,14 +650,16 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.craftPress(scale: 0.95))
-        .background(
-            GeometryReader { proxy in
-                Color.clear.preference(
-                    key: CraftTabBarItemPreferenceKey.self,
-                    value: [String(describing: item.id): proxy.frame(in: .named("CraftTabBarTrack"))]
-                )
+        .background {
+            if isSelected {
+                CraftSlidingFluidPill(style: barStyle)
+                    .matchedGeometryEffect(
+                        id: "CraftFloatingTabBar.selectedPill",
+                        in: selectionNamespace
+                    )
+                    .padding(size.pillInset)
             }
-        )
+        }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityTitle)
         .accessibilityValue(accessibilityBadgeValue)

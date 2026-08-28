@@ -721,7 +721,7 @@ private struct CraftChoiceCardPreviewContainer: View {
                 // Style Switcher Segmented Control
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        Text("Surface Style")
+                        Text(verbatim: "Surface Style")
                             .font(.caption.bold())
                             .foregroundStyle(.secondary)
                             .textCase(.uppercase)

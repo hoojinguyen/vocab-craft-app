@@ -1,59 +1,8 @@
 {
   "sourceLanguage": "vi",
   "strings": {
-    " [ ______ ] ": {},
-    " 🔍": {},
-    ":": {},
-    "\"": {},
-    "“": {},
-    "\"%@\"": {},
-    "“%@”": {},
-    "(%@)": {},
-    "[%@] %@": {
-      "localizations": {
-        "vi": {
-          "stringUnit": {
-            "state": "new",
-            "value": "[%1$@] %2$@"
-          }
-        }
-      }
-    },
-    "%@": {},
-    "%@ ": {},
-    "%@ đã chọn": {},
-    "%@ từ chưa chính xác": {},
-    "%@ từ trong danh sách": {},
-    "%@ từ vựng cốt lõi": {},
-    "%@/%@": {
-      "localizations": {
-        "vi": {
-          "stringUnit": {
-            "state": "new",
-            "value": "%1$@/%2$@"
-          }
-        }
-      }
-    },
-    "%@/%@ ": {
-      "localizations": {
-        "vi": {
-          "stringUnit": {
-            "state": "new",
-            "value": "%1$@/%2$@ "
-          }
-        }
-      }
-    },
-    "%@/3": {},
-    "%@x": {},
-    "•": {},
-    "+%@ XP": {},
-    "< 2.5s": {},
-    "📚 %@": {},
-    "A2 - C1": {},
     "Academic Research": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -65,6 +14,108 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nghiên cứu Học thuật"
+          }
+        }
+      }
+    },
+    "Business & Tech": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Business & Tech"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kinh doanh & Công nghệ"
+          }
+        }
+      }
+    },
+    "Công Nghệ & AI": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Technology & AI"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Công nghệ & AI"
+          }
+        }
+      }
+    },
+    "Daily Expressions": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daily Expressions"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giao tiếp Hàng ngày"
+          }
+        }
+      }
+    },
+    "Giao Tiếp Ngày": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daily Communication"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giao tiếp Hàng ngày"
+          }
+        }
+      }
+    },
+    "IELTS Band 7.0+": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IELTS Band 7.0+"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IELTS Band 7.0+"
+          }
+        }
+      }
+    },
+    "Travel & Food": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Travel & Food"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du lịch & Ẩm thực"
           }
         }
       }
@@ -354,6 +405,176 @@
           "stringUnit": {
             "state": "translated",
             "value": "Unit %lld: %@"
+          }
+        }
+      }
+    },
+    "app.profile.achievements": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Badges & Achievements"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Huy hiệu & Danh hiệu"
+          }
+        }
+      }
+    },
+    "app.profile.avg_speed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avg Speed"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tốc độ phản xạ TB"
+          }
+        }
+      }
+    },
+    "app.profile.badge_oxford_pioneer": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oxford Pioneer"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nhà thám hiểm Oxford"
+          }
+        }
+      }
+    },
+    "app.profile.badge_reflex_master": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reflex Master"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bậc thầy phản xạ"
+          }
+        }
+      }
+    },
+    "app.profile.badge_streak_blaze": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "14-Day Blaze"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ngọn lửa 14 ngày"
+          }
+        }
+      }
+    },
+    "app.profile.cefr_mastery": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oxford CEFR Mastery"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiến độ Oxford CEFR"
+          }
+        }
+      }
+    },
+    "app.profile.reflex_accuracy": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reflex Accuracy"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chính xác phản xạ"
+          }
+        }
+      }
+    },
+    "app.profile.streak_days": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Streak Days"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chuỗi ngày"
+          }
+        }
+      }
+    },
+    "app.profile.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profile & Achievements"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hồ sơ & Thành tích"
+          }
+        }
+      }
+    },
+    "app.profile.words_learned": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Words Learned"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Từ đã học"
           }
         }
       }
@@ -1089,23 +1310,6 @@
         }
       }
     },
-    "app.reflex.mode_a11y_format": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mode: %@, time limit %@"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chế độ: %@, giới hạn thời gian %@"
-          }
-        }
-      }
-    },
     "app.reflex.mode.listening.instruction": {
       "extractionState": "manual",
       "localizations": {
@@ -1306,6 +1510,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Gõ từ"
+          }
+        }
+      }
+    },
+    "app.reflex.mode_a11y_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mode: %@, time limit %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chế độ: %@, giới hạn thời gian %@"
           }
         }
       }
@@ -2262,6 +2483,23 @@
         }
       }
     },
+    "app.settings.profile.tagline": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Master 3,000+ Oxford words with Reflex Blitz"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chinh phục 3,000+ từ vựng Oxford & Phản xạ Reflex Blitz"
+          }
+        }
+      }
+    },
     "app.settings.section.about": {
       "extractionState": "manual",
       "localizations": {
@@ -2670,49 +2908,8 @@
         }
       }
     },
-    "B2 - C1": {},
-    "Bạn có %@ từ vựng cần ôn tập lại.": {},
-    "Bạn đã ôn tập toàn bộ %@ từ yếu trong phiên này.": {},
-    "Bắt đầu Thử thách Chặng (%@ câu)": {},
-    "Business & Tech": {
-      "extractionState": "stale",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Business & Tech"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kinh doanh & Công nghệ"
-          }
-        }
-      }
-    },
-    "Cần Củng Cố Kiến Thức": {},
-    "Cần ôn": {},
-    "Câu %@ / %@": {
-      "localizations": {
-        "vi": {
-          "stringUnit": {
-            "state": "new",
-            "value": "Câu %1$@ / %2$@"
-          }
-        }
-      }
-    },
-    "CEFR": {},
-    "Chính xác! +10 XP": {},
-    "Chọn nghĩa tiếng Việt chính xác của từ vừa nghe": {},
-    "Chưa có từ vựng": {},
-    "Chưa đúng": {},
-    "Chưa nhớ": {},
-    "Chuỗi: %@/3": {},
-    "Chuyển sang gõ từ": {},
     "common.back": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2729,7 +2926,7 @@
       }
     },
     "common.cancel": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2746,7 +2943,7 @@
       }
     },
     "common.close": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2763,7 +2960,7 @@
       }
     },
     "common.congratulations": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2780,7 +2977,7 @@
       }
     },
     "common.continue": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2797,7 +2994,7 @@
       }
     },
     "common.delete": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2814,7 +3011,7 @@
       }
     },
     "common.done": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2831,7 +3028,7 @@
       }
     },
     "common.ok": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2848,7 +3045,7 @@
       }
     },
     "common.reset": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2865,7 +3062,7 @@
       }
     },
     "common.retry": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2882,7 +3079,7 @@
       }
     },
     "common.save": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2899,7 +3096,7 @@
       }
     },
     "common.search": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2916,7 +3113,7 @@
       }
     },
     "common.skip": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2933,7 +3130,7 @@
       }
     },
     "common.understand": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2950,7 +3147,7 @@
       }
     },
     "common.viewDetails": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2967,7 +3164,7 @@
       }
     },
     "common.wordUnit": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2983,76 +3180,8 @@
         }
       }
     },
-    "Công Nghệ & AI": {
-      "extractionState": "stale",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Technology & AI"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Công nghệ & AI"
-          }
-        }
-      }
-    },
-    "Đã luyện lại": {},
-    "Đã nhớ": {},
-    "Đã thuộc": {},
-    "Đã tự động thêm vào Kho cá nhân để bạn ôn tập lại.": {},
-    "Daily Expressions": {
-      "extractionState": "stale",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Daily Expressions"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Giao tiếp Hàng ngày"
-          }
-        }
-      }
-    },
-    "Đang chuẩn bị câu hỏi...": {},
-    "Đang lắng nghe phát âm...": {},
-    "Danh sách từ đã luyện (%@)": {},
-    "Đáp án: %@": {},
-    "Định nghĩa tiếng Anh": {},
-    "Đóng": {},
-    "Đúng": {},
-    "Ex: “%@”": {},
-    "Giao Tiếp Ngày": {
-      "extractionState": "stale",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Daily Communication"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Giao tiếp Hàng ngày"
-          }
-        }
-      }
-    },
-    "Hiện nghĩa & Ví dụ": {},
-    "Hoàn tất & Quay lại": {},
-    "Hoàn thành & Lưu tiến độ": {},
-    "Hoàn thành bài luyện tập phản xạ ngẫu nhiên": {},
-    "Hoàn Thành Ôn Tập!": {},
     "homepage.cefrTitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3069,7 +3198,7 @@
       }
     },
     "homepage.dailyGoal": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3086,7 +3215,7 @@
       }
     },
     "homepage.dueCardsSubtitle %lld": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3103,7 +3232,7 @@
       }
     },
     "homepage.explore": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3120,7 +3249,7 @@
       }
     },
     "homepage.greeting": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3137,7 +3266,7 @@
       }
     },
     "homepage.greetingUser %@": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3154,7 +3283,7 @@
       }
     },
     "homepage.newWordBadge": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3171,7 +3300,7 @@
       }
     },
     "homepage.practiceNow": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3188,7 +3317,7 @@
       }
     },
     "homepage.reflexBadge": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3205,7 +3334,7 @@
       }
     },
     "homepage.reflexTitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3221,25 +3350,8 @@
         }
       }
     },
-    "homepage.saved": {
-      "extractionState": "stale",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Saved"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Đã lưu"
-          }
-        }
-      }
-    },
     "homepage.saveWord": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3255,8 +3367,25 @@
         }
       }
     },
+    "homepage.saved": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saved"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã lưu"
+          }
+        }
+      }
+    },
     "homepage.searchPlaceholder": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3273,7 +3402,7 @@
       }
     },
     "homepage.srsHeader": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3290,7 +3419,7 @@
       }
     },
     "homepage.srsRetentionMessage %lld": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3307,7 +3436,7 @@
       }
     },
     "homepage.streakDays": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3324,7 +3453,7 @@
       }
     },
     "homepage.suggestedWordsTitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3341,7 +3470,7 @@
       }
     },
     "homepage.vocabLibrarySubtitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3358,7 +3487,7 @@
       }
     },
     "homepage.vocabLibraryTitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3374,40 +3503,8 @@
         }
       }
     },
-    "IELTS Academic 500": {},
-    "IELTS Band 7.0+": {
-      "extractionState": "stale",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "IELTS Band 7.0+"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "IELTS Band 7.0+"
-          }
-        }
-      }
-    },
-    "Kho từ của bạn": {},
-    "Không có từ yếu nào!": {},
-    "Không tìm thấy từ vựng nào trong mục này.": {},
-    "Luyện tập": {},
-    "Luyện tập lại": {},
-    "Luyện tập lại Chặng này": {},
-    "Nạp từ vựng hoặc luyện tập để xem thẻ từ tại đây.": {},
-    "Nghe lại phát âm": {},
-    "Nghĩa tiếng Việt": {},
-    "Ôn Tập Tập Trung": {},
-    "Ôn tập từ yếu ngay (%@ từ)": {},
-    "Phát âm": {},
-    "Quay lại": {},
-    "Reflex Drill (%@)": {},
     "reflex.audioAlertTitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3424,7 +3521,7 @@
       }
     },
     "reflex.completedFeedback": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3441,7 +3538,7 @@
       }
     },
     "reflex.continueNext": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3458,7 +3555,7 @@
       }
     },
     "reflex.correct": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3475,7 +3572,7 @@
       }
     },
     "reflex.correctFeedbackMs %lld": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3492,7 +3589,7 @@
       }
     },
     "reflex.correctSpeech": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3509,7 +3606,7 @@
       }
     },
     "reflex.daysLater %lld": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3526,7 +3623,7 @@
       }
     },
     "reflex.errorLoadingDrills %@": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3543,7 +3640,7 @@
       }
     },
     "reflex.errorRecording %@": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3560,7 +3657,7 @@
       }
     },
     "reflex.excellentSpeech": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3577,7 +3674,7 @@
       }
     },
     "reflex.feedbackCorrect": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3594,7 +3691,7 @@
       }
     },
     "reflex.feedbackIncorrect": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3611,7 +3708,7 @@
       }
     },
     "reflex.holdToSpeak": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3628,7 +3725,7 @@
       }
     },
     "reflex.incorrect": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3645,7 +3742,7 @@
       }
     },
     "reflex.incorrectFeedback %@": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3662,7 +3759,7 @@
       }
     },
     "reflex.lessonProgressLabel %lld %lld": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3679,7 +3776,7 @@
       }
     },
     "reflex.levelLabel %lld": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3696,7 +3793,7 @@
       }
     },
     "reflex.listenExample": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3712,25 +3809,8 @@
         }
       }
     },
-    "reflex.listening": {
-      "extractionState": "stale",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "LISTENING TO VOICE..."
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ĐANG LẮNG NGHE GIỌNG NÓI..."
-          }
-        }
-      }
-    },
     "reflex.listenPronunciation": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3747,7 +3827,7 @@
       }
     },
     "reflex.listenStandardPronunciation": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3763,8 +3843,25 @@
         }
       }
     },
+    "reflex.listening": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LISTENING TO VOICE..."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ĐANG LẮNG NGHE GIỌNG NÓI..."
+          }
+        }
+      }
+    },
     "reflex.loadingDrills": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3781,7 +3878,7 @@
       }
     },
     "reflex.masteredFeedback": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3798,7 +3895,7 @@
       }
     },
     "reflex.micIdle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3815,7 +3912,7 @@
       }
     },
     "reflex.micListening": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3832,7 +3929,7 @@
       }
     },
     "reflex.micPlaceholder": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3849,7 +3946,7 @@
       }
     },
     "reflex.msPerQuestionFormat": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3866,7 +3963,7 @@
       }
     },
     "reflex.needsPractice": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3883,7 +3980,7 @@
       }
     },
     "reflex.nextDrill": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3900,7 +3997,7 @@
       }
     },
     "reflex.nextReviewHeader": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3917,7 +4014,7 @@
       }
     },
     "reflex.promptHeader": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3934,7 +4031,7 @@
       }
     },
     "reflex.quickAdjectiveSentenceFrame": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3951,7 +4048,7 @@
       }
     },
     "reflex.quickAdverbSentenceFrame": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3968,7 +4065,7 @@
       }
     },
     "reflex.quickCollocationBadge": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3985,7 +4082,7 @@
       }
     },
     "reflex.quickComfortable": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4002,7 +4099,7 @@
       }
     },
     "reflex.quickConfidenceQuestion": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4019,7 +4116,7 @@
       }
     },
     "reflex.quickContinue": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4036,7 +4133,7 @@
       }
     },
     "reflex.quickCurrentAttempt": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4053,7 +4150,7 @@
       }
     },
     "reflex.quickHint": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4070,7 +4167,7 @@
       }
     },
     "reflex.quickHintAvailable": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4087,7 +4184,7 @@
       }
     },
     "reflex.quickHints": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4104,7 +4201,7 @@
       }
     },
     "reflex.quickListenExample": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4121,7 +4218,7 @@
       }
     },
     "reflex.quickListenModelAgain": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4138,7 +4235,7 @@
       }
     },
     "reflex.quickMicDefaultIdle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4155,7 +4252,7 @@
       }
     },
     "reflex.quickMicDefaultListening": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4172,7 +4269,7 @@
       }
     },
     "reflex.quickMicIdle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4189,7 +4286,7 @@
       }
     },
     "reflex.quickMicListening": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4206,7 +4303,7 @@
       }
     },
     "reflex.quickMicStartAccessibility": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4223,7 +4320,7 @@
       }
     },
     "reflex.quickMicStopAccessibility": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4240,7 +4337,7 @@
       }
     },
     "reflex.quickModelSentence": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4257,7 +4354,7 @@
       }
     },
     "reflex.quickNeedsPractice": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4274,7 +4371,7 @@
       }
     },
     "reflex.quickNounSentenceFrame": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4291,7 +4388,7 @@
       }
     },
     "reflex.quickPhraseSentenceFrame": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4308,7 +4405,7 @@
       }
     },
     "reflex.quickPracticeTitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4325,7 +4422,7 @@
       }
     },
     "reflex.quickPreviousAttempt": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4342,7 +4439,7 @@
       }
     },
     "reflex.quickProgressSegment %lld": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4359,7 +4456,7 @@
       }
     },
     "reflex.quickRecordingError %@": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4376,7 +4473,7 @@
       }
     },
     "reflex.quickResultsTitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4393,7 +4490,7 @@
       }
     },
     "reflex.quickRetrieveTitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4410,7 +4507,7 @@
       }
     },
     "reflex.quickReveal": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4427,7 +4524,7 @@
       }
     },
     "reflex.quickRevealedAnswer": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4444,7 +4541,7 @@
       }
     },
     "reflex.quickSaving": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4461,7 +4558,7 @@
       }
     },
     "reflex.quickShadowButton": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4478,7 +4575,7 @@
       }
     },
     "reflex.quickShadowCardTitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4495,7 +4592,7 @@
       }
     },
     "reflex.quickShadowScoreLabel %lld": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4512,7 +4609,7 @@
       }
     },
     "reflex.quickShowHint": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4529,7 +4626,7 @@
       }
     },
     "reflex.quickSkip": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4546,7 +4643,7 @@
       }
     },
     "reflex.quickSpeechRetry": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4563,7 +4660,7 @@
       }
     },
     "reflex.quickSpeechTyping": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4580,7 +4677,7 @@
       }
     },
     "reflex.quickStage1Title": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4597,7 +4694,7 @@
       }
     },
     "reflex.quickStage2Title": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4614,7 +4711,7 @@
       }
     },
     "reflex.quickStage3Title": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4631,7 +4728,7 @@
       }
     },
     "reflex.quickStageProgress": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4648,7 +4745,7 @@
       }
     },
     "reflex.quickStageProgressValue %lld %lld": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4665,7 +4762,7 @@
       }
     },
     "reflex.quickSubmit": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4682,7 +4779,7 @@
       }
     },
     "reflex.quickSucceeded": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4699,7 +4796,7 @@
       }
     },
     "reflex.quickTimeSaved %@": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4716,7 +4813,7 @@
       }
     },
     "reflex.quickTimeSlower %@": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4733,7 +4830,7 @@
       }
     },
     "reflex.quickTimeUnchanged": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4750,7 +4847,7 @@
       }
     },
     "reflex.quickTranscriptFeedback": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4767,7 +4864,7 @@
       }
     },
     "reflex.quickTranscriptPlaceholder": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4784,7 +4881,7 @@
       }
     },
     "reflex.quickTypeAnswer": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4801,7 +4898,7 @@
       }
     },
     "reflex.quickTypingFallback": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4818,7 +4915,7 @@
       }
     },
     "reflex.quickTypingMode": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4835,7 +4932,7 @@
       }
     },
     "reflex.quickUncertain": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4852,7 +4949,7 @@
       }
     },
     "reflex.quickUsePrompt %@": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4869,7 +4966,7 @@
       }
     },
     "reflex.quickUsePromptFromExample %@ %@": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4886,7 +4983,7 @@
       }
     },
     "reflex.quickUseTitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4903,7 +5000,7 @@
       }
     },
     "reflex.quickVerbSentenceFrame": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4920,7 +5017,7 @@
       }
     },
     "reflex.quickVisualizerListening": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4937,7 +5034,7 @@
       }
     },
     "reflex.quickVisualizerPlaceholder": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4954,7 +5051,7 @@
       }
     },
     "reflex.quickVoiceMode": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4971,7 +5068,7 @@
       }
     },
     "reflex.reactionTimeLabel": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4988,7 +5085,7 @@
       }
     },
     "reflex.reactionTimeTitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5005,7 +5102,7 @@
       }
     },
     "reflex.reflexAccuracy": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5022,7 +5119,7 @@
       }
     },
     "reflex.reflexStreakCompleted": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5039,7 +5136,7 @@
       }
     },
     "reflex.secondsPerQuestionFormat": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5056,7 +5153,7 @@
       }
     },
     "reflex.speakingState": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5073,7 +5170,7 @@
       }
     },
     "reflex.speechEvaluation": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5090,7 +5187,7 @@
       }
     },
     "reflex.speedBonus": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5107,7 +5204,7 @@
       }
     },
     "reflex.speedBonusCountLabel %lld %lld": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5124,7 +5221,7 @@
       }
     },
     "reflex.spokenAnswer": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5141,7 +5238,7 @@
       }
     },
     "reflex.srsLevelHeader": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5158,7 +5255,7 @@
       }
     },
     "reflex.startNow": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5175,7 +5272,7 @@
       }
     },
     "reflex.subtitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5192,7 +5289,7 @@
       }
     },
     "reflex.tapToFlip": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5209,7 +5306,7 @@
       }
     },
     "reflex.title": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5226,7 +5323,7 @@
       }
     },
     "reflex.viewHint": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5243,7 +5340,7 @@
       }
     },
     "search.placeholder": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5260,7 +5357,7 @@
       }
     },
     "search.recentSearchesTitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5277,7 +5374,7 @@
       }
     },
     "search.smartLookupDescription": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5294,7 +5391,7 @@
       }
     },
     "search.smartLookupTitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5311,7 +5408,7 @@
       }
     },
     "search.suggestedTopicsTitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5328,7 +5425,7 @@
       }
     },
     "search.upcomingFeatureTitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5345,7 +5442,7 @@
       }
     },
     "settings.appLanguage": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5362,7 +5459,7 @@
       }
     },
     "settings.appTheme": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5379,7 +5476,7 @@
       }
     },
     "settings.appVersion": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5396,7 +5493,7 @@
       }
     },
     "settings.clearCache": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5413,7 +5510,7 @@
       }
     },
     "settings.craftCatalog": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5430,7 +5527,7 @@
       }
     },
     "settings.craftCatalogSubtitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5447,7 +5544,7 @@
       }
     },
     "settings.dailyGoal": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5464,7 +5561,7 @@
       }
     },
     "settings.englishVoice": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5481,7 +5578,7 @@
       }
     },
     "settings.haptics": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5498,7 +5595,7 @@
       }
     },
     "settings.icloudSync": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5515,7 +5612,7 @@
       }
     },
     "settings.inputGoalMessage": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5532,7 +5629,7 @@
       }
     },
     "settings.inputGoalTitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5549,7 +5646,7 @@
       }
     },
     "settings.langEnglish": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5566,7 +5663,7 @@
       }
     },
     "settings.langSystem": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5583,7 +5680,7 @@
       }
     },
     "settings.langVietnamese": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5600,7 +5697,7 @@
       }
     },
     "settings.playingAudio": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5617,7 +5714,7 @@
       }
     },
     "settings.profileBadge": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5634,7 +5731,7 @@
       }
     },
     "settings.reminderNotification": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5651,7 +5748,7 @@
       }
     },
     "settings.reminderTime": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5668,7 +5765,7 @@
       }
     },
     "settings.resetConfirmMessage": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5685,7 +5782,7 @@
       }
     },
     "settings.resetConfirmTitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5702,7 +5799,7 @@
       }
     },
     "settings.resetSRS": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5719,7 +5816,7 @@
       }
     },
     "settings.resetSRSSubtitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5736,7 +5833,7 @@
       }
     },
     "settings.sectionAppData": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5753,7 +5850,7 @@
       }
     },
     "settings.sectionAppearance": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5770,7 +5867,7 @@
       }
     },
     "settings.sectionAudioTTS": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5787,7 +5884,7 @@
       }
     },
     "settings.sectionDeveloper": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5804,7 +5901,7 @@
       }
     },
     "settings.sectionLanguage": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5821,7 +5918,7 @@
       }
     },
     "settings.sectionLearningSRS": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5838,7 +5935,7 @@
       }
     },
     "settings.soundEffects": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5855,7 +5952,7 @@
       }
     },
     "settings.speechSpeed": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5872,7 +5969,7 @@
       }
     },
     "settings.synced": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5889,7 +5986,7 @@
       }
     },
     "settings.testTTS": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5906,7 +6003,7 @@
       }
     },
     "settings.themeDark": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5923,7 +6020,7 @@
       }
     },
     "settings.themeLight": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5940,7 +6037,7 @@
       }
     },
     "settings.themeSystem": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5957,7 +6054,7 @@
       }
     },
     "settings.voiceUK": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5974,7 +6071,7 @@
       }
     },
     "settings.voiceUS": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -5991,7 +6088,7 @@
       }
     },
     "tabs.home": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6008,7 +6105,7 @@
       }
     },
     "tabs.reflex": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6025,7 +6122,7 @@
       }
     },
     "tabs.search": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6042,7 +6139,7 @@
       }
     },
     "tabs.settings": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6059,7 +6156,7 @@
       }
     },
     "tabs.vocabulary": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6075,31 +6172,8 @@
         }
       }
     },
-    "Tất cả từ vựng trong kho của bạn đang được ghi nhớ rất tốt.": {},
-    "Testing...": {},
-    "Tiến độ của các từ chưa hoàn thành sẽ không được lưu vào phiên này.": {},
-    "Toàn bộ từ vựng đều trong trạng thái ghi nhớ tốt.": {},
-    "Travel & Food": {
-      "extractionState": "stale",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Travel & Food"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Du lịch & Ẩm thực"
-          }
-        }
-      }
-    },
-    "Trí Nhớ SRS Ổn Định": {},
-    "Ví dụ ngữ cảnh": {},
     "vocabulary.attemptsLabel %lld %lld": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6116,7 +6190,7 @@
       }
     },
     "vocabulary.backToHome": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6133,7 +6207,7 @@
       }
     },
     "vocabulary.completionPercent %lld": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6150,7 +6224,7 @@
       }
     },
     "vocabulary.definition": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6167,7 +6241,7 @@
       }
     },
     "vocabulary.deleteWord": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6184,7 +6258,7 @@
       }
     },
     "vocabulary.emptyStageData": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6201,7 +6275,7 @@
       }
     },
     "vocabulary.example": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6218,7 +6292,7 @@
       }
     },
     "vocabulary.filterAll": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6235,7 +6309,7 @@
       }
     },
     "vocabulary.filterMastered": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6252,7 +6326,7 @@
       }
     },
     "vocabulary.filterReviewNeeded": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6269,7 +6343,7 @@
       }
     },
     "vocabulary.filterSaved": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6286,7 +6360,7 @@
       }
     },
     "vocabulary.lessonCompleted": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6303,7 +6377,7 @@
       }
     },
     "vocabulary.level": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6320,7 +6394,7 @@
       }
     },
     "vocabulary.masteredBadge": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6337,7 +6411,7 @@
       }
     },
     "vocabulary.personalBank": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6354,7 +6428,7 @@
       }
     },
     "vocabulary.previewTopic": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6371,7 +6445,7 @@
       }
     },
     "vocabulary.progressTitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6388,7 +6462,7 @@
       }
     },
     "vocabulary.progressWordsCount %lld %lld": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6405,7 +6479,7 @@
       }
     },
     "vocabulary.quizCorrectXP %lld": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6422,7 +6496,7 @@
       }
     },
     "vocabulary.quizIncorrectXP": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6439,7 +6513,7 @@
       }
     },
     "vocabulary.quizSelectOptionTitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6456,7 +6530,7 @@
       }
     },
     "vocabulary.reviewBadge": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6473,7 +6547,7 @@
       }
     },
     "vocabulary.searchPlaceholder": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6490,7 +6564,7 @@
       }
     },
     "vocabulary.startLearning": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6507,7 +6581,7 @@
       }
     },
     "vocabulary.startLearningNode %@": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6524,7 +6598,7 @@
       }
     },
     "vocabulary.startNodeDefaultTitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6541,7 +6615,7 @@
       }
     },
     "vocabulary.studyAgain": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6558,7 +6632,7 @@
       }
     },
     "vocabulary.summaryAccuracy": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6575,7 +6649,7 @@
       }
     },
     "vocabulary.summaryFailedSubtitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6592,7 +6666,7 @@
       }
     },
     "vocabulary.summaryFailedTitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6609,7 +6683,7 @@
       }
     },
     "vocabulary.summaryNeedsReview": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6626,7 +6700,7 @@
       }
     },
     "vocabulary.summaryNextStage": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6643,7 +6717,7 @@
       }
     },
     "vocabulary.summaryPassedSubtitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6660,7 +6734,7 @@
       }
     },
     "vocabulary.summaryPassedTitle": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6677,7 +6751,7 @@
       }
     },
     "vocabulary.summarySrsMemory": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6694,7 +6768,7 @@
       }
     },
     "vocabulary.summaryTotalReward": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6711,7 +6785,7 @@
       }
     },
     "vocabulary.summaryTotalWords": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6728,7 +6802,7 @@
       }
     },
     "vocabulary.topicDecks": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6745,7 +6819,7 @@
       }
     },
     "vocabulary.wordCount": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6762,7 +6836,7 @@
       }
     },
     "vocabulary.wordsMasteredCount": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6779,7 +6853,7 @@
       }
     },
     "vocabulary.wordsMasteredCountLabel %lld %lld": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -6791,193 +6865,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld/%lld từ đã thuộc"
-          }
-        }
-      }
-    },
-    "app.profile.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Profile & Achievements"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hồ sơ & Thành tích"
-          }
-        }
-      }
-    },
-    "app.profile.words_learned": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Words Learned"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Từ đã học"
-          }
-        }
-      }
-    },
-    "app.profile.reflex_accuracy": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Reflex Accuracy"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chính xác phản xạ"
-          }
-        }
-      }
-    },
-    "app.profile.avg_speed": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Avg Speed"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tốc độ phản xạ TB"
-          }
-        }
-      }
-    },
-    "app.profile.streak_days": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Streak Days"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chuỗi ngày"
-          }
-        }
-      }
-    },
-    "app.profile.cefr_mastery": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Oxford CEFR Mastery"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tiến độ Oxford CEFR"
-          }
-        }
-      }
-    },
-    "app.profile.achievements": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Badges & Achievements"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Huy hiệu & Danh hiệu"
-          }
-        }
-      }
-    },
-    "app.profile.badge_reflex_master": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Reflex Master"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bậc thầy phản xạ"
-          }
-        }
-      }
-    },
-    "app.profile.badge_streak_blaze": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "14-Day Blaze"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ngọn lửa 14 ngày"
-          }
-        }
-      }
-    },
-    "app.profile.badge_oxford_pioneer": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Oxford Pioneer"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nhà thám hiểm Oxford"
-          }
-        }
-      }
-    },
-    "app.settings.profile.tagline": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Master 3,000+ Oxford words with Reflex Blitz"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chinh phục 3,000+ từ vựng Oxford & Phản xạ Reflex Blitz"
           }
         }
       }

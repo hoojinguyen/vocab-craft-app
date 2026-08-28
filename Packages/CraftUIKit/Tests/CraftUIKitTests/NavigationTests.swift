@@ -479,4 +479,3 @@ final class NavigationTests: XCTestCase {
     }
 }
 
-
