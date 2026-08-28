@@ -109,6 +109,30 @@ extension AppStrings {
         public static var speakingListeningText: String {
             String(localized: "app.reflex.drill.speaking_listening", defaultValue: "Đang lắng nghe phát âm...", bundle: .module)
         }
+        public static var switchToKeyboard: LocalizedStringKey { "app.reflex.drill.switch_to_keyboard" }
+        public static var switchToKeyboardText: String {
+            String(localized: "app.reflex.drill.switch_to_keyboard", defaultValue: "Chuyển sang gõ từ", bundle: .module)
+        }
+        public static var exitDialogTitle: LocalizedStringKey { "app.reflex.drill.exit_title" }
+        public static var exitDialogTitleText: String {
+            String(localized: "app.reflex.drill.exit_title", defaultValue: "Thoát bài luyện tập?", bundle: .module)
+        }
+        public static var exitDialogCancel: LocalizedStringKey { "app.reflex.drill.exit_cancel" }
+        public static var exitDialogCancelText: String {
+            String(localized: "app.reflex.drill.exit_cancel", defaultValue: "Tiếp tục luyện tập", bundle: .module)
+        }
+        public static var exitDialogConfirm: LocalizedStringKey { "app.reflex.drill.exit_confirm" }
+        public static var exitDialogConfirmText: String {
+            String(localized: "app.reflex.drill.exit_confirm", defaultValue: "Thoát", bundle: .module)
+        }
+        public static var exitDialogMessage: LocalizedStringKey { "app.reflex.drill.exit_message" }
+        public static var exitDialogMessageText: String {
+            String(localized: "app.reflex.drill.exit_message", defaultValue: "Tiến độ của các từ chưa hoàn thành sẽ không được lưu vào phiên này.", bundle: .module)
+        }
+        public static var exitA11y: LocalizedStringKey { "app.reflex.drill.exit_a11y" }
+        public static var exitA11yText: String {
+            String(localized: "app.reflex.drill.exit_a11y", defaultValue: "Thoát bài luyện tập", bundle: .module)
+        }
         public static var continueCTA: LocalizedStringKey { "app.reflex.drill.continue_cta" }
         public static var continueCTAText: String {
             String(localized: "app.reflex.drill.continue_cta", defaultValue: "Tiếp tục", bundle: .module)

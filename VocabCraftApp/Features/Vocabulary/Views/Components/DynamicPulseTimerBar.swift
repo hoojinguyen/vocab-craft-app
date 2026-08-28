@@ -1,9 +1,12 @@
+import CraftUIKit
 import SwiftUI
 
 /// Dynamic countdown pulse timer bar with 3-tier color shifting and urgency breathing pulse effect.
-/// Shifts from Vibrant Emerald (`vocabHeroAccent`) -> Warm Amber (`vocabPeach`) -> Crimson Coral (`vocabCoral`)
+/// Shifts from Vibrant Emerald (`brandPrimary`) -> Warm Amber (`statusWarning`) -> Crimson Coral (`statusDanger`)
 /// as remaining time elapses.
 public struct DynamicPulseTimerBar: View {
+    @Environment(\.craftTheme) private var theme
+
     public let fractionRemaining: Double
     public let totalDurationSeconds: Double
     public let isActive: Bool
@@ -33,11 +36,11 @@ public struct DynamicPulseTimerBar: View {
 
     public var barColor: Color {
         if isUrgent {
-            return .vocabCoral
+            return theme.colors.statusDanger
         } else if isWarning {
-            return .vocabPeach
+            return theme.colors.statusWarning
         } else {
-            return .vocabHeroAccent
+            return theme.colors.brandPrimary
         }
     }
 
@@ -46,7 +49,7 @@ public struct DynamicPulseTimerBar: View {
             ZStack(alignment: .leading) {
                 // Background Track
                 Capsule()
-                    .fill(Color.vocabHairline.opacity(0.35))
+                    .fill(theme.colors.hairline.opacity(0.35))
                     .frame(height: height)
 
                 // Filling Progress Bar
@@ -80,7 +83,7 @@ public struct DynamicPulseTimerBar: View {
             }
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Thời gian còn lại")
+        .accessibilityLabel(CraftLocalized.string("craft.countdown.time_remaining_a11y"))
         .accessibilityValue("\(Int(fractionRemaining * 100))%")
     }
 

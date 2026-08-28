@@ -1,3 +1,4 @@
+import CraftUIKit
 import SwiftUI
 
 /// Main container view for the Mixed Reflex Drill session.
@@ -10,6 +11,7 @@ import SwiftUI
 /// Fully incorporates the Loop-Back mechanism: any failed or timed-out word
 /// is immediately requeued at the end of the session with a fresh alternative mode.
 public struct MixedReflexDrillView: View {
+    @Environment(\.craftTheme) private var theme
     @Bindable public var viewModel: MixedReflexDrillViewModel
     public var speechService: ContinuousReflexSpeechProtocol?
     public let onFinish: () -> Void
@@ -55,7 +57,7 @@ public struct MixedReflexDrillView: View {
 
     public var body: some View {
         ZStack {
-            Color.vocabCanvas
+            theme.colors.canvasBackground
                 .ignoresSafeArea()
 
             if viewModel.isCompleted, let summary = viewModel.sessionSummary {
@@ -87,14 +89,14 @@ public struct MixedReflexDrillView: View {
         .onDisappear {
             stopDrillSession()
         }
-        .alert("Thoát bài luyện tập?", isPresented: $showExitAlert) {
-            Button("Tiếp tục luyện tập", role: .cancel) {}
-            Button("Thoát", role: .destructive) {
+        .alert(AppStrings.ReflexBlitz.exitDialogTitleText, isPresented: $showExitAlert) {
+            Button(AppStrings.ReflexBlitz.exitDialogCancelText, role: .cancel) {}
+            Button(AppStrings.ReflexBlitz.exitDialogConfirmText, role: .destructive) {
                 stopDrillSession()
                 onFinish()
             }
         } message: {
-            Text("Tiến độ của các từ chưa hoàn thành sẽ không được lưu vào phiên này.")
+            Text(AppStrings.ReflexBlitz.exitDialogMessageText)
         }
         .sensoryFeedback(.success, trigger: isResultCorrect) { _, isCorrect in isCorrect }
         .sensoryFeedback(.error, trigger: isResultTimeout || (isReviewed && !isResultCorrect)) { _, isError in isError }
@@ -103,11 +105,11 @@ public struct MixedReflexDrillView: View {
     // MARK: - Drilling Session Main Content
     @ViewBuilder
     private func drillingSessionContent(currentItem: MixedReflexDrillItem) -> some View {
-        VStack(spacing: 14) {
+        VStack(spacing: theme.spacing.md) {
             sessionHeaderBar(currentItem: currentItem)
-                .padding(.top, 10)
+                .padding(.top, theme.spacing.sm)
 
-            VStack(spacing: 8) {
+            VStack(spacing: theme.spacing.sm) {
                 DynamicReflexModeBadge(mode: currentItem.assignedMode)
 
                 DynamicPulseTimerBar(
@@ -116,25 +118,54 @@ public struct MixedReflexDrillView: View {
                     isActive: cardPhase == .activeCountdown
                 )
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, theme.spacing.lg)
 
-            Spacer(minLength: 8)
+            Spacer(minLength: theme.spacing.xs)
 
             challengeCard(for: currentItem)
-                .padding(.horizontal, 16)
+                .padding(.horizontal, theme.spacing.lg)
 
-            Spacer(minLength: 8)
+            Spacer(minLength: theme.spacing.xs)
 
-            ReflexBlitzAdvanceDockView(
-                cardPhase: cardPhase,
-                onAdvance: {
+            bottomDockArea
+        }
+    }
+
+    // MARK: - Bottom Dock Area
+    @ViewBuilder
+    private var bottomDockArea: some View {
+        switch cardPhase {
+        case .activeCountdown:
+            if let current = viewModel.currentItem,
+               current.assignedMode == .speaking || current.assignedMode == .typing {
+                CraftButton(
+                    AppStrings.ReflexBlitz.skip,
+                    iconName: "forward.fill",
+                    variant: .outline,
+                    size: .md,
+                    isFullWidth: true,
+                    style: .outlined,
+                    action: {
+                        handleTimeout()
+                    }
+                )
+                .padding(.horizontal, theme.spacing.lg)
+                .padding(.bottom, theme.spacing.md)
+                .transition(.opacity)
+            }
+        case .reviewed(let result):
+            CraftFeedbackSheet(
+                status: result.isCorrect ? .success : (result.isTimeout ? .warning : .error),
+                title: result.isCorrect ? AppStrings.ReflexBlitz.correctTitleText : (result.isTimeout ? AppStrings.ReflexBlitz.timeoutTitleText : AppStrings.ReflexBlitz.incorrectTitleText),
+                actionTitle: AppStrings.ReflexBlitz.continueCTAText,
+                streakCount: viewModel.comboStreak > 1 ? viewModel.comboStreak : nil,
+                style: .tactile3D,
+                onContinue: {
                     advanceToNextItem()
-                },
-                onSkip: {
-                    handleTimeout()
                 }
             )
-            .padding(.bottom, 12)
+            .ignoresSafeArea(edges: .bottom)
+            .transition(.move(edge: .bottom).combined(with: .opacity))
         }
     }
 
@@ -146,17 +177,17 @@ public struct MixedReflexDrillView: View {
             }) {
                 Image(systemName: "xmark")
                     .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(.vocabInk)
+                    .foregroundColor(theme.colors.textPrimary)
                     .frame(width: 36, height: 36)
                     .background(.ultraThinMaterial)
                     .clipShape(Circle())
                     .overlay(
-                        Circle().stroke(Color.vocabHairline, lineWidth: 1)
+                        Circle().stroke(theme.colors.hairline, lineWidth: 1)
                     )
             }
             .buttonStyle(PlainButtonStyle())
             .frame(minWidth: 44, minHeight: 44)
-            .accessibilityLabel("Thoát bài luyện tập")
+            .accessibilityLabel(AppStrings.ReflexBlitz.exitA11yText)
 
             Spacer()
 
@@ -174,14 +205,14 @@ public struct MixedReflexDrillView: View {
                 HStack(spacing: 4) {
                     Image(systemName: "flame.fill")
                         .font(.caption2.bold())
-                        .foregroundColor(.vocabPeach)
+                        .foregroundColor(theme.colors.streakLegendary)
                     Text("\(viewModel.comboStreak)x")
                         .font(.caption.monospacedDigit().bold())
-                        .foregroundColor(.vocabPeach)
+                        .foregroundColor(theme.colors.streakLegendary)
                 }
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
-                .background(Color.vocabPeach.opacity(0.14))
+                .background(theme.colors.streakLegendary.opacity(0.14))
                 .clipShape(Capsule())
                 .frame(minWidth: 44, minHeight: 44, alignment: .trailing)
             } else {
@@ -189,27 +220,28 @@ public struct MixedReflexDrillView: View {
                     .frame(width: 44, height: 44)
             }
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, theme.spacing.lg)
     }
 
     private func stepSegmentColor(for index: Int) -> Color {
         if index < viewModel.attempts.count {
-            return viewModel.attempts[index].isCorrect ? Color.vocabMint : Color.vocabCoral
+            return viewModel.attempts[index].isCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger
         } else if index == viewModel.currentIndex {
-            return Color.vocabHeroAccent
+            return theme.colors.brandPrimary
         } else {
-            return Color.vocabHairline.opacity(0.4)
+            return theme.colors.hairline.opacity(0.4)
         }
     }
 
     // MARK: - Challenge Card Container
     @ViewBuilder
     private func challengeCard(for item: MixedReflexDrillItem) -> some View {
-        VStack(spacing: 16) {
+        VStack(spacing: theme.spacing.md) {
             if isReviewed {
                 MixedDrillReviewedSection(
                     item: item,
                     result: reviewedResult,
+                    options: currentOptions,
                     onPlayAudio: {
                         viewModel.playAudioForCurrentWord()
                     }
@@ -218,23 +250,23 @@ public struct MixedReflexDrillView: View {
                 activeChallengeContent(for: item)
             }
         }
-        .padding(20)
+        .padding(theme.spacing.lg)
         .frame(maxWidth: .infinity)
-        .background(Color.vocabSurfaceCard)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .background(theme.colors.surfaceCard)
+        .clipShape(RoundedRectangle(cornerRadius: theme.radii.xl, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
+            RoundedRectangle(cornerRadius: theme.radii.xl, style: .continuous)
                 .stroke(cardBorderColor, lineWidth: isReviewed ? 2 : 1)
         )
-        .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 3)
+        .shadow(color: theme.shadows.sm.color, radius: theme.shadows.sm.radius, x: theme.shadows.sm.x, y: theme.shadows.sm.y)
         .offset(x: shakeOffset)
     }
 
     private var cardBorderColor: Color {
         if isReviewed {
-            return isResultCorrect ? .vocabMint : .vocabCoral
+            return isResultCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger
         } else {
-            return Color.vocabHairline
+            return theme.colors.borderDefault
         }
     }
 

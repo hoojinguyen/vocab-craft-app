@@ -596,6 +596,91 @@
         }
       }
     },
+    "app.reflex.drill.exit_a11y": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exit practice session"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thoát bài luyện tập"
+          }
+        }
+      }
+    },
+    "app.reflex.drill.exit_cancel": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue practicing"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiếp tục luyện tập"
+          }
+        }
+      }
+    },
+    "app.reflex.drill.exit_confirm": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exit"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thoát"
+          }
+        }
+      }
+    },
+    "app.reflex.drill.exit_message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Progress for uncompleted words will not be saved in this session."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiến độ của các từ chưa hoàn thành sẽ không được lưu vào phiên này."
+          }
+        }
+      }
+    },
+    "app.reflex.drill.exit_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exit practice session?"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thoát bài luyện tập?"
+          }
+        }
+      }
+    },
     "app.reflex.drill.hint_a11y": {
       "extractionState": "manual",
       "localizations": {
@@ -813,6 +898,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nhận diện: %@"
+          }
+        }
+      }
+    },
+    "app.reflex.drill.switch_to_keyboard": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch to typing"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chuyển sang gõ từ"
           }
         }
       }
