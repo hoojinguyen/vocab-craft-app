@@ -1210,6 +1210,23 @@
         }
       }
     },
+    "craft.learning_path.tap_to_scroll_unit_hint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double tap to scroll to the top of this unit"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chạm hai lần để cuộn về đầu bài học này"
+          }
+        }
+      }
+    },
     "craft.learning_path.tap_to_start_hint" : {
       "comment" : "Node start hint",
       "extractionState" : "manual",

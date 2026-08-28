@@ -325,6 +325,17 @@ final class LocalizationTests: XCTestCase {
         XCTAssertEqual(CraftLocalized.string("craft.learning_path.close_sheet_hint", language: "vi"), "Nhấn đúp để đóng thông tin bài học")
     }
 
+    func testLearningPathStickyHUDTapToScrollHintLocalization() {
+        let key = "craft.learning_path.tap_to_scroll_unit_hint"
+        let enValue = CraftLocalized.string(key, locale: Locale(identifier: "en"))
+        let viValue = CraftLocalized.string(key, locale: Locale(identifier: "vi"))
+
+        XCTAssertFalse(enValue.isEmpty)
+        XCTAssertFalse(viValue.isEmpty)
+        XCTAssertEqual(enValue, "Double tap to scroll to the top of this unit")
+        XCTAssertEqual(viValue, "Chạm hai lần để cuộn về đầu bài học này")
+    }
+
     // MARK: - Navigation, Feedback & Audio Scope
     
     func testNavigationAndAudioFeedbackStrings() {

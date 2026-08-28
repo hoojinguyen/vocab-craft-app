@@ -50,6 +50,18 @@ public enum CraftLocalized {
         localizedString(forKey: key, language: language)
     }
 
+    /// Returns the localized string for the specified key and explicit locale.
+    ///
+    /// - Parameters:
+    ///   - key: The key for a string in the localization table.
+    ///   - locale: The locale to use for localization.
+    ///   - comment: An optional comment describing the context of the string.
+    /// - Returns: A localized version of the string designated by `key` in the requested locale.
+    public static func string(_ key: String, locale: Locale, comment: String = "") -> String {
+        let languageCode = locale.language.languageCode?.identifier ?? locale.identifier
+        return localizedString(forKey: key, language: languageCode)
+    }
+
     // MARK: - Public Formatting APIs
 
     /// Returns a formatted localized string using the localized template for `key` and the provided arguments.
