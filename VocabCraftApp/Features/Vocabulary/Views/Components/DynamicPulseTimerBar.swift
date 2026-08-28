@@ -83,7 +83,7 @@ public struct DynamicPulseTimerBar: View {
             }
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(CraftLocalized.string("craft.countdown.time_remaining_a11y"))
+        .accessibilityLabel(CraftLocalized.string("craft.countdown.time_remaining_label"))
         .accessibilityValue("\(Int(fractionRemaining * 100))%")
     }
 
