@@ -3479,9 +3479,11 @@ final class CraftLearningPathTests: XCTestCase {
         )
         XCTAssertEqual(headerView.dockThreshold, 20)
         XCTAssertNotNil(headerView.onDockChange)
+        headerView.onDockChange?(true)
+        XCTAssertEqual(dockStatus, true)
 
         let defaultHeaderView = CraftLessonSectionHeaderView(section: section)
-        XCTAssertEqual(defaultHeaderView.dockThreshold, 15)
+        XCTAssertEqual(defaultHeaderView.dockThreshold, 0)
         XCTAssertNil(defaultHeaderView.onDockChange)
         XCTAssertFalse(defaultHeaderView.isPinned)
     }
@@ -3501,8 +3503,28 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertNotNil(sectionView.onDockChange)
 
         let defaultSectionView = CraftLessonSectionView(section: section)
-        XCTAssertEqual(defaultSectionView.dockThreshold, 15)
+        XCTAssertEqual(defaultSectionView.dockThreshold, 0)
         XCTAssertNil(defaultSectionView.onDockChange)
+    }
+
+    func testCraftLessonSectionHeaderViewDockThresholdDefaultIsZero() {
+        let section = LessonSection(
+            id: "unit_dock_zero",
+            title: "Dock Unit Zero",
+            nodes: [LessonNodeModel(id: "n1", title: "Node 1")]
+        )
+        let headerView = CraftLessonSectionHeaderView(section: section)
+        XCTAssertEqual(headerView.dockThreshold, 0)
+    }
+
+    func testCraftLessonSectionViewDockThresholdDefaultIsZero() {
+        let section = LessonSection(
+            id: "unit_sec_zero",
+            title: "Section Dock Zero",
+            nodes: [LessonNodeModel(id: "n1", title: "Node 1")]
+        )
+        let sectionView = CraftLessonSectionView(section: section)
+        XCTAssertEqual(sectionView.dockThreshold, 0)
     }
 
     func testCraftLearningPathStickyHUDViewRendering() {

@@ -37,7 +37,7 @@ public struct CraftLessonSectionHeaderView: View {
     public init(
         section: LessonSection,
         isPinned: Bool = false,
-        dockThreshold: CGFloat = 15,
+        dockThreshold: CGFloat = 0,
         onDockChange: ((Bool) -> Void)? = nil
     ) {
         self.section = section
@@ -160,11 +160,12 @@ public struct CraftLessonSectionHeaderView: View {
             .accessibilityLabel(Text(section.title))
             .accessibilityValue(Text((section.progressText ?? section.progress) ?? ""))
             .padding(.horizontal, theme.spacing.base)
+            .id(section.id)
             .background(
                 GeometryReader { geo in
-                    let minY = geo.frame(in: .named(CraftLearningPath.scrollCoordinateSpaceName)).minY
+                    let maxY = geo.frame(in: .named(CraftLearningPath.scrollCoordinateSpaceName)).maxY
                     Color.clear
-                        .onChange(of: minY) { _, newValue in
+                        .onChange(of: maxY) { _, newValue in
                             let docked = newValue <= dockThreshold
                             if isDocked != docked {
                                 withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
@@ -174,7 +175,7 @@ public struct CraftLessonSectionHeaderView: View {
                             }
                         }
                         .onAppear {
-                            let docked = minY <= dockThreshold
+                            let docked = maxY <= dockThreshold
                             if isDocked != docked {
                                 isDocked = docked
                                 onDockChange?(docked)
@@ -343,7 +344,7 @@ public struct CraftLessonSectionView: View {
         onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
         onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
         impressionThreshold: TimeInterval = 0.5,
-        dockThreshold: CGFloat = 15,
+        dockThreshold: CGFloat = 0,
         onDockChange: ((Bool) -> Void)? = nil
     ) {
         self.section = section
@@ -371,7 +372,7 @@ public struct CraftLessonSectionView: View {
         onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
         onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
         impressionThreshold: TimeInterval = 0.5,
-        dockThreshold: CGFloat = 15,
+        dockThreshold: CGFloat = 0,
         onDockChange: ((Bool) -> Void)? = nil
     ) {
         self.section = section
