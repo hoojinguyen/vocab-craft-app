@@ -21,13 +21,10 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
 
     public func prewarm() {
         #if os(iOS)
-        Task.detached(priority: .utility) { [weak self] in
+        Task.detached(priority: .utility) {
             do {
                 let audioSession = AVAudioSession.sharedInstance()
                 try audioSession.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
-                await MainActor.run {
-                    self?.isAudioSessionConfigured = true
-                }
             } catch {
                 // Non-fatal pre-warming failure
             }
