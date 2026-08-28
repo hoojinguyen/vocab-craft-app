@@ -207,7 +207,7 @@ public struct ReflexBlitzView: View {
                 status: result.isCorrect ? .success : (result.isTimeout ? .warning : .error),
                 title: result.isCorrect ? AppStrings.ReflexBlitz.correctTitleText : (result.isTimeout ? AppStrings.ReflexBlitz.timeoutTitleText : AppStrings.ReflexBlitz.incorrectTitleText),
                 actionTitle: AppStrings.ReflexBlitz.continueCTAText,
-                streakCount: viewModel.comboStreak > 1 ? viewModel.comboStreak : nil,
+                streakCount: nil,
                 style: .tactile3D,
                 onContinue: {
                     typingInput = ""

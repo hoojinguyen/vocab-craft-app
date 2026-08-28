@@ -209,7 +209,7 @@ extension ReflexBlitzCardReviewedView {
                     textAlignment: .leading,
                     state: choiceState,
                     style: .tactile3D,
-                    showsStatusIndicator: isCorrect || isSelected,
+                    showsStatusIndicator: false,
                     action: {}
                 )
                 .frame(minHeight: 52)
