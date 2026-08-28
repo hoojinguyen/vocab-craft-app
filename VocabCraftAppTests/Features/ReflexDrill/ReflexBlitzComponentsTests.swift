@@ -1,10 +1,25 @@
 import CraftUIKit
 import SwiftUI
 import Testing
+#if canImport(UIKit)
+import UIKit
+#endif
 @testable import VocabCraftApp
 import XCTest
 
 final class ReflexBlitzComponentsTests: XCTestCase {
+    private func assertColorsEqual(_ color1: Color, _ color2: Color, file: StaticString = #filePath, line: UInt = #line) {
+        #if canImport(UIKit)
+        let ui1 = UIColor(color1)
+        let ui2 = UIColor(color2)
+        let lightTrait = UITraitCollection(userInterfaceStyle: .light)
+        let darkTrait = UITraitCollection(userInterfaceStyle: .dark)
+        XCTAssertEqual(ui1.resolvedColor(with: lightTrait), ui2.resolvedColor(with: lightTrait), "Light mode color mismatch", file: file, line: line)
+        XCTAssertEqual(ui1.resolvedColor(with: darkTrait), ui2.resolvedColor(with: darkTrait), "Dark mode color mismatch", file: file, line: line)
+        #else
+        XCTAssertEqual(color1, color2, file: file, line: line)
+        #endif
+    }
     @MainActor
     func testHeaderViewInstantiation() {
         var didClose = false
@@ -45,7 +60,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
             timerStage: .steady,
             onClose: {}
         )
-        XCTAssertEqual(steadyHeader.timerBarColor, theme.colors.brandPrimary)
+        assertColorsEqual(steadyHeader.timerBarColor, theme.colors.brandPrimary)
 
         let warningHeader = ReflexBlitzHeaderView(
             currentIndex: 1,
@@ -84,7 +99,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         )
         XCTAssertEqual(header.segmentColor(for: 0), theme.colors.statusSuccess)
         XCTAssertEqual(header.segmentColor(for: 1), theme.colors.statusDanger)
-        XCTAssertEqual(header.segmentColor(for: 2), theme.colors.brandPrimary)
+        assertColorsEqual(header.segmentColor(for: 2), theme.colors.brandPrimary)
         XCTAssertNotNil(header.segmentColor(for: 3))
     }
 
@@ -207,7 +222,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertEqual(defaultCard.liveTranscript, "ephem")
         XCTAssertEqual(defaultCard.elapsedTimeMs, 900)
         XCTAssertFalse(defaultCard.isKeyboardFallbackActive)
-        XCTAssertEqual(defaultCard.timerStrokeColor, CraftDefaultColorTokens().brandPrimary)
+        assertColorsEqual(defaultCard.timerStrokeColor, CraftDefaultColorTokens().brandPrimary)
         XCTAssertNotNil(defaultCard.body)
 
         defaultCard.onSubmitKeyboard?()

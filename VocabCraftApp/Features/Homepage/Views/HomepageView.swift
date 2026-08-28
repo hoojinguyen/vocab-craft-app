@@ -124,7 +124,6 @@ public struct HomepageView: View {
                 self.reflexBlitzVM = vm
             }
         }
-        .preferredColorScheme(appContainer.userSettingsStore.colorScheme)
         .environment(\.locale, appContainer.userSettingsStore.appLocale ?? .autoupdatingCurrent)
     }
 
