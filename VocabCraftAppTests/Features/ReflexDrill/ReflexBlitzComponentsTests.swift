@@ -734,8 +734,9 @@ final class ReflexBlitzComponentsTests: XCTestCase {
 
     @MainActor
     func testModeSelectionViewMetadataAndCards() {
+        let colors = CraftDefaultColorTokens()
         for mode in ReflexBlitzMode.allCases {
-            let item = ReflexBlitzModeSelectionView.modeItem(for: mode)
+            let item = ReflexBlitzModeSelectionView.modeItem(for: mode, colors: colors)
             XCTAssertEqual(item.mode, mode)
             XCTAssertFalse(item.title.isEmpty)
             XCTAssertFalse(item.subtitle.isEmpty)
@@ -743,25 +744,29 @@ final class ReflexBlitzComponentsTests: XCTestCase {
             XCTAssertFalse(item.iconName.isEmpty)
         }
 
-        let speaking = ReflexBlitzModeSelectionView.modeItem(for: .speaking)
-        XCTAssertEqual(speaking.title, "Luyện nói")
+        let speaking = ReflexBlitzModeSelectionView.modeItem(for: .speaking, colors: colors)
+        XCTAssertEqual(speaking.title, AppStrings.ReflexBlitz.speakingTitleText)
         XCTAssertEqual(speaking.badgeText, "6.0s")
         XCTAssertEqual(speaking.iconName, "waveform.and.mic")
+        XCTAssertEqual(speaking.accentColor, colors.brandPrimary)
 
-        let typing = ReflexBlitzModeSelectionView.modeItem(for: .typing)
-        XCTAssertEqual(typing.title, "Gõ từ")
+        let typing = ReflexBlitzModeSelectionView.modeItem(for: .typing, colors: colors)
+        XCTAssertEqual(typing.title, AppStrings.ReflexBlitz.typingTitleText)
         XCTAssertEqual(typing.badgeText, "7.5s")
         XCTAssertEqual(typing.iconName, "keyboard")
+        XCTAssertEqual(typing.accentColor, colors.streakLegendary)
 
-        let multipleChoice = ReflexBlitzModeSelectionView.modeItem(for: .multipleChoice)
-        XCTAssertEqual(multipleChoice.title, "Trắc nghiệm")
+        let multipleChoice = ReflexBlitzModeSelectionView.modeItem(for: .multipleChoice, colors: colors)
+        XCTAssertEqual(multipleChoice.title, AppStrings.ReflexBlitz.mcTitleText)
         XCTAssertEqual(multipleChoice.badgeText, "4.5s")
         XCTAssertEqual(multipleChoice.iconName, "square.grid.2x2.fill")
+        XCTAssertEqual(multipleChoice.accentColor, colors.statusSuccess)
 
-        let listening = ReflexBlitzModeSelectionView.modeItem(for: .listening)
-        XCTAssertEqual(listening.title, "Phản xạ nghe")
+        let listening = ReflexBlitzModeSelectionView.modeItem(for: .listening, colors: colors)
+        XCTAssertEqual(listening.title, AppStrings.ReflexBlitz.listeningTitleText)
         XCTAssertEqual(listening.badgeText, "5.5s")
         XCTAssertEqual(listening.iconName, "headphones")
+        XCTAssertEqual(listening.accentColor, colors.statusInfo)
     }
 
     // MARK: - Advance Dock View Tests
@@ -778,7 +783,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         )
         XCTAssertNotNil(view)
         XCTAssertEqual(view.formattedResponseTime, "1.4s")
-        XCTAssertEqual(view.buttonTitle, "⚡️ 1.4s • Từ tiếp theo ➔")
+        XCTAssertEqual(view.buttonTitle, AppStrings.ReflexBlitz.advanceCorrectButton("1.4s"))
         XCTAssertNotNil(view.body)
 
         view.onAdvance()
@@ -796,7 +801,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
             onAdvance: { didAdvance = true }
         )
         XCTAssertNotNil(view)
-        XCTAssertEqual(view.buttonTitle, "⚠️ Hết giờ • Từ tiếp theo ➔")
+        XCTAssertEqual(view.buttonTitle, AppStrings.ReflexBlitz.advanceTimeoutButton)
         XCTAssertNotNil(view.body)
 
         view.onAdvance()
@@ -814,7 +819,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         )
         XCTAssertNotNil(view)
         XCTAssertEqual(view.formattedResponseTime, "2.3s")
-        XCTAssertEqual(view.buttonTitle, "2.3s • Từ tiếp theo ➔")
+        XCTAssertEqual(view.buttonTitle, AppStrings.ReflexBlitz.advanceIncorrectButton("2.3s"))
         XCTAssertNotNil(view.body)
     }
 
@@ -831,7 +836,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
             onSkip: { didSkip = true }
         )
         XCTAssertNotNil(view)
-        XCTAssertEqual(view.buttonTitle, "Bỏ qua")
+        XCTAssertEqual(view.buttonTitle, AppStrings.ReflexBlitz.skipText)
         XCTAssertNotNil(view.body)
 
         view.onSkip?()

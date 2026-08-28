@@ -84,7 +84,10 @@ public struct ReflexBlitzModeSelectionView: View {
         self.onDismiss = onDismiss
     }
 
-    public static func modeItem(for mode: ReflexBlitzMode) -> ReflexBlitzModeItem {
+    public static func modeItem(
+        for mode: ReflexBlitzMode,
+        colors: CraftColorTokens = CraftDefaultColorTokens()
+    ) -> ReflexBlitzModeItem {
         switch mode {
         case .speaking:
             return ReflexBlitzModeItem(
@@ -95,7 +98,7 @@ public struct ReflexBlitzModeSelectionView: View {
                 subtitle: AppStrings.ReflexBlitz.speakingSubtitleText,
                 badgeText: "6.0s",
                 iconName: "waveform.and.mic",
-                accentColor: Color(hex: 0xE06D3B)
+                accentColor: colors.brandPrimary
             )
         case .typing:
             return ReflexBlitzModeItem(
@@ -106,7 +109,7 @@ public struct ReflexBlitzModeSelectionView: View {
                 subtitle: AppStrings.ReflexBlitz.typingSubtitleText,
                 badgeText: "7.5s",
                 iconName: "keyboard",
-                accentColor: Color(hex: 0x8B5CF6)
+                accentColor: colors.streakLegendary
             )
         case .multipleChoice:
             return ReflexBlitzModeItem(
@@ -117,7 +120,7 @@ public struct ReflexBlitzModeSelectionView: View {
                 subtitle: AppStrings.ReflexBlitz.mcSubtitleText,
                 badgeText: "4.5s",
                 iconName: "square.grid.2x2.fill",
-                accentColor: Color(hex: 0x10B981)
+                accentColor: colors.statusSuccess
             )
         case .listening:
             return ReflexBlitzModeItem(
@@ -128,7 +131,7 @@ public struct ReflexBlitzModeSelectionView: View {
                 subtitle: AppStrings.ReflexBlitz.listeningSubtitleText,
                 badgeText: "5.5s",
                 iconName: "headphones",
-                accentColor: Color(hex: 0x0284C7)
+                accentColor: colors.statusInfo
             )
         }
     }
@@ -298,7 +301,7 @@ public struct ReflexBlitzModeSelectionView: View {
     private var modeGrid: some View {
         LazyVGrid(columns: columns, spacing: 14) {
             ForEach(ReflexBlitzMode.allCases) { mode in
-                modeCard(for: Self.modeItem(for: mode))
+                modeCard(for: Self.modeItem(for: mode, colors: theme.colors))
             }
         }
         .padding(.horizontal, 18)
