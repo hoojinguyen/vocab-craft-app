@@ -43,6 +43,9 @@ public final class ReflexBlitzViewModel {
     public var liveTranscript: String = ""
     public var sessionSummary: ReflexBlitzSessionSummary?
     public var attempts: [ReflexBlitzAttempt] = []
+    public var weeklyPracticedCount: Int = 0
+    public var weakWordsCount: Int = 0
+    public var averageSpeedSeconds: Double = 0.0
 
     private let continuousSpeechService: ContinuousReflexSpeechProtocol
     private let ttsService: TextToSpeechProtocol
@@ -87,12 +90,18 @@ public final class ReflexBlitzViewModel {
 
     public init(
         words: [ReflexBlitzWordItem] = ReflexBlitzWordItem.defaultStarterWords,
+        weeklyPracticedCount: Int = 0,
+        weakWordsCount: Int = 0,
+        averageSpeedSeconds: Double = 0.0,
         continuousSpeechService: ContinuousReflexSpeechProtocol,
         ttsService: TextToSpeechProtocol,
         evaluateSRSUseCase: EvaluateSRSUseCaseProtocol,
         soundEffectService: SoundEffectServiceProtocol = SoundEffectService.shared
     ) {
         self.words = words
+        self.weeklyPracticedCount = weeklyPracticedCount
+        self.weakWordsCount = weakWordsCount
+        self.averageSpeedSeconds = averageSpeedSeconds
         self.continuousSpeechService = continuousSpeechService
         self.ttsService = ttsService
         self.evaluateSRSUseCase = evaluateSRSUseCase

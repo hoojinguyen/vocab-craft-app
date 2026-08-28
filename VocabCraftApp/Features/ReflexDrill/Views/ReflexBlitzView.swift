@@ -22,6 +22,9 @@ public struct ReflexBlitzView: View {
             switch viewModel.phase {
             case .modeSelection:
                 ReflexBlitzModeSelectionView(
+                    weeklyPracticedCount: viewModel.weeklyPracticedCount,
+                    weakWordsCount: viewModel.weakWordsCount,
+                    averageSpeedSeconds: viewModel.averageSpeedSeconds,
                     onSelectMode: { mode in
                         viewModel.selectMode(mode)
                     },

@@ -1,4 +1,5 @@
 import SwiftUI
+import Testing
 @testable import VocabCraftApp
 import XCTest
 
@@ -687,6 +688,9 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         var didDismiss = false
 
         let view = ReflexBlitzModeSelectionView(
+            weeklyPracticedCount: 42,
+            weakWordsCount: 5,
+            averageSpeedSeconds: 1.6,
             onSelectMode: { mode in
                 selectedMode = mode
             },
@@ -695,6 +699,9 @@ final class ReflexBlitzComponentsTests: XCTestCase {
             }
         )
         XCTAssertNotNil(view)
+        XCTAssertEqual(view.weeklyPracticedCount, 42)
+        XCTAssertEqual(view.weakWordsCount, 5)
+        XCTAssertEqual(view.averageSpeedSeconds, 1.6)
         XCTAssertNotNil(view.body)
 
         // Verify dismissal callback
@@ -706,6 +713,19 @@ final class ReflexBlitzComponentsTests: XCTestCase {
             view.onSelectMode(mode)
             XCTAssertEqual(selectedMode, mode)
         }
+    }
+
+    @MainActor
+    func testModeSelectionViewDefaultInit() {
+        let view = ReflexBlitzModeSelectionView(
+            onSelectMode: { _ in },
+            onDismiss: {}
+        )
+        XCTAssertNotNil(view)
+        XCTAssertEqual(view.weeklyPracticedCount, 0)
+        XCTAssertEqual(view.weakWordsCount, 0)
+        XCTAssertEqual(view.averageSpeedSeconds, 0.0)
+        XCTAssertNotNil(view.body)
     }
 
     @MainActor
@@ -888,5 +908,32 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertEqual(cardView.cardBorderColor, .vocabCoral)
         XCTAssertEqual(cardView.timerStrokeColor, .vocabCoral)
         XCTAssertNotNil(cardView.body)
+    }
+}
+
+// MARK: - Swift Testing Suite
+
+@Suite("Reflex Blitz Mode Selection View Tests")
+struct ReflexBlitzModeSelectionViewTests {
+    @Test("Mode Selection View initializes and yields 4 mode cards with stats")
+    @MainActor
+    func testModeSelectionViewInitialization() {
+        var selectedMode: ReflexBlitzMode?
+        let view = ReflexBlitzModeSelectionView(
+            weeklyPracticedCount: 42,
+            weakWordsCount: 5,
+            averageSpeedSeconds: 1.6,
+            onSelectMode: { mode in
+                selectedMode = mode
+            },
+            onDismiss: {}
+        )
+        #expect(view.weeklyPracticedCount == 42)
+        #expect(view.weakWordsCount == 5)
+        #expect(view.averageSpeedSeconds == 1.6)
+        #expect(view.body != nil)
+
+        view.onSelectMode(.speaking)
+        #expect(selectedMode == .speaking)
     }
 }
