@@ -69,7 +69,8 @@ public struct ReflexBlitzHeaderView: View {
                     size: .sm,
                     shape: .circle,
                     variant: .subtle,
-                    style: .glass,
+                    style: nil,
+                    customTint: theme.colors.textSecondary,
                     accessibilityLabel: CraftLocalized.string("craft.common.action.close"),
                     action: onClose
                 )

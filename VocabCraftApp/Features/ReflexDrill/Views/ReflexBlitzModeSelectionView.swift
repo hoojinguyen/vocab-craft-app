@@ -179,10 +179,10 @@ public struct ReflexBlitzModeSelectionView: View {
         HStack {
             CraftIconButton(
                 iconName: "xmark",
-                size: .md,
+                size: .sm,
                 shape: .circle,
                 variant: .subtle,
-                style: .glass,
+                style: nil,
                 customTint: theme.colors.textSecondary,
                 accessibilityLabelKey: AppStrings.Common.close,
                 action: onDismiss
