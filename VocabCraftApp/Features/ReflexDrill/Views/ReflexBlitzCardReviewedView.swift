@@ -196,7 +196,7 @@ extension ReflexBlitzCardReviewedView {
             ForEach(options, id: \.id) { option in
                 let isSelected = (option.text == selectedOptionText)
                 let isCorrect = option.isCorrect
-                let choiceState: CraftChoiceState = isCorrect ? .correct : (isSelected ? .wrong : .idle)
+                let choiceState: CraftChoiceState = isCorrect ? .correct : (isSelected ? .wrong : .disabled)
 
                 CraftChoiceCard(
                     prefix: nil,
@@ -205,7 +205,7 @@ extension ReflexBlitzCardReviewedView {
                     textAlignment: .leading,
                     state: choiceState,
                     style: .tactile3D,
-                    showsStatusIndicator: false,
+                    showsStatusIndicator: isCorrect || isSelected,
                     action: {}
                 )
                 .frame(minHeight: 52)

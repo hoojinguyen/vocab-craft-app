@@ -160,9 +160,25 @@ public struct ReflexBlitzCardView: View {
         return ClozeSentenceParts(prefix: word.clozePrefix, slot: slot, suffix: word.clozeSuffix)
     }
 
+    public func choiceState(for option: ReflexBlitzOption) -> CraftChoiceState {
+        guard isReviewed else { return .idle }
+        if option.isCorrect {
+            return .correct
+        } else if option.text == selectedOptionText {
+            return .wrong
+        } else {
+            return .disabled
+        }
+    }
+
+    public func showsStatusIndicator(for option: ReflexBlitzOption) -> Bool {
+        guard isReviewed else { return false }
+        return option.isCorrect || (option.text == selectedOptionText)
+    }
+
     public var body: some View {
         VStack(spacing: theme.spacing.md) {
-            if isReviewed {
+            if isReviewed && mode != .multipleChoice {
                 ReflexBlitzCardReviewedView(
                     word: word,
                     mode: mode,
@@ -246,7 +262,7 @@ extension ReflexBlitzCardView {
         sentenceArea
         scaffoldingArea
         dividerLine
-        activeOptionsList
+        optionsListView
     }
 
     @ViewBuilder
@@ -287,7 +303,7 @@ extension ReflexBlitzCardView {
 
         dividerLine
 
-        activeOptionsList
+        optionsListView
     }
 
     // MARK: - Subviews & Areas
@@ -417,18 +433,22 @@ extension ReflexBlitzCardView {
     }
 
     @ViewBuilder
-    private var activeOptionsList: some View {
+    private var optionsListView: some View {
         VStack(spacing: theme.spacing.sm) {
             ForEach(options, id: \.id) { option in
+                let choiceState = choiceState(for: option)
+                let showIndicator = showsStatusIndicator(for: option)
+
                 CraftChoiceCard(
                     prefix: nil,
                     prefixStyle: .none,
                     title: option.text,
                     textAlignment: .leading,
-                    state: .idle,
+                    state: choiceState,
                     style: .tactile3D,
-                    showsStatusIndicator: false,
+                    showsStatusIndicator: showIndicator,
                     action: {
+                        guard !isReviewed else { return }
                         onSelectOption?(option)
                     }
                 )

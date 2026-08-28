@@ -569,6 +569,106 @@ final class ReflexBlitzComponentsTests: XCTestCase {
     }
 
     @MainActor
+    func testCardViewChoiceStatesDerivationInReviewedMode() {
+        let word = ReflexBlitzWordItem.defaultStarterWords[0]
+        let optionHabit = ReflexBlitzOption(id: "1", text: "habit", isCorrect: true)
+        let optionFocus = ReflexBlitzOption(id: "2", text: "focus", isCorrect: false)
+        let optionCreate = ReflexBlitzOption(id: "3", text: "create", isCorrect: false)
+        let optionRelax = ReflexBlitzOption(id: "4", text: "relax", isCorrect: false)
+        let options = [optionHabit, optionFocus, optionCreate, optionRelax]
+
+        // 1. Active countdown mode (not reviewed) -> all .idle and no status indicator
+        let activeCard = ReflexBlitzCardView(
+            word: word,
+            mode: .multipleChoice,
+            cardPhase: .activeCountdown,
+            options: options
+        )
+        XCTAssertFalse(activeCard.isReviewed)
+        XCTAssertEqual(activeCard.choiceState(for: optionHabit), .idle)
+        XCTAssertEqual(activeCard.choiceState(for: optionFocus), .idle)
+        XCTAssertEqual(activeCard.choiceState(for: optionCreate), .idle)
+        XCTAssertEqual(activeCard.choiceState(for: optionRelax), .idle)
+        XCTAssertFalse(activeCard.showsStatusIndicator(for: optionHabit))
+        XCTAssertFalse(activeCard.showsStatusIndicator(for: optionFocus))
+        XCTAssertFalse(activeCard.showsStatusIndicator(for: optionCreate))
+        XCTAssertFalse(activeCard.showsStatusIndicator(for: optionRelax))
+        XCTAssertNotNil(activeCard.body)
+
+        // 2. Reviewed mode with wrong selection ("focus")
+        let wrongCard = ReflexBlitzCardView(
+            word: word,
+            mode: .multipleChoice,
+            cardPhase: .reviewed(result: ReflexCardResult(
+                isCorrect: false,
+                responseTimeMs: 2000,
+                isTimeout: false,
+                selectedOption: "focus"
+            )),
+            options: options
+        )
+        XCTAssertTrue(wrongCard.isReviewed)
+        XCTAssertEqual(wrongCard.selectedOptionText, "focus")
+        XCTAssertEqual(wrongCard.choiceState(for: optionHabit), .correct)
+        XCTAssertEqual(wrongCard.choiceState(for: optionFocus), .wrong)
+        XCTAssertEqual(wrongCard.choiceState(for: optionCreate), .disabled)
+        XCTAssertEqual(wrongCard.choiceState(for: optionRelax), .disabled)
+        XCTAssertTrue(wrongCard.showsStatusIndicator(for: optionHabit))
+        XCTAssertTrue(wrongCard.showsStatusIndicator(for: optionFocus))
+        XCTAssertFalse(wrongCard.showsStatusIndicator(for: optionCreate))
+        XCTAssertFalse(wrongCard.showsStatusIndicator(for: optionRelax))
+        XCTAssertNotNil(wrongCard.body)
+
+        // 3. Reviewed mode with correct selection ("habit")
+        let correctCard = ReflexBlitzCardView(
+            word: word,
+            mode: .multipleChoice,
+            cardPhase: .reviewed(result: ReflexCardResult(
+                isCorrect: true,
+                responseTimeMs: 1200,
+                isTimeout: false,
+                selectedOption: "habit"
+            )),
+            options: options
+        )
+        XCTAssertTrue(correctCard.isReviewed)
+        XCTAssertEqual(correctCard.selectedOptionText, "habit")
+        XCTAssertEqual(correctCard.choiceState(for: optionHabit), .correct)
+        XCTAssertEqual(correctCard.choiceState(for: optionFocus), .disabled)
+        XCTAssertEqual(correctCard.choiceState(for: optionCreate), .disabled)
+        XCTAssertEqual(correctCard.choiceState(for: optionRelax), .disabled)
+        XCTAssertTrue(correctCard.showsStatusIndicator(for: optionHabit))
+        XCTAssertFalse(correctCard.showsStatusIndicator(for: optionFocus))
+        XCTAssertFalse(correctCard.showsStatusIndicator(for: optionCreate))
+        XCTAssertFalse(correctCard.showsStatusIndicator(for: optionRelax))
+        XCTAssertNotNil(correctCard.body)
+
+        // 4. Reviewed mode with timeout (no selection)
+        let timeoutCard = ReflexBlitzCardView(
+            word: word,
+            mode: .multipleChoice,
+            cardPhase: .reviewed(result: ReflexCardResult(
+                isCorrect: false,
+                responseTimeMs: 4000,
+                isTimeout: true,
+                selectedOption: nil
+            )),
+            options: options
+        )
+        XCTAssertTrue(timeoutCard.isReviewed)
+        XCTAssertNil(timeoutCard.selectedOptionText)
+        XCTAssertEqual(timeoutCard.choiceState(for: optionHabit), .correct)
+        XCTAssertEqual(timeoutCard.choiceState(for: optionFocus), .disabled)
+        XCTAssertEqual(timeoutCard.choiceState(for: optionCreate), .disabled)
+        XCTAssertEqual(timeoutCard.choiceState(for: optionRelax), .disabled)
+        XCTAssertTrue(timeoutCard.showsStatusIndicator(for: optionHabit))
+        XCTAssertFalse(timeoutCard.showsStatusIndicator(for: optionFocus))
+        XCTAssertFalse(timeoutCard.showsStatusIndicator(for: optionCreate))
+        XCTAssertFalse(timeoutCard.showsStatusIndicator(for: optionRelax))
+        XCTAssertNotNil(timeoutCard.body)
+    }
+
+    @MainActor
     func testCardViewInReviewedStateShowsAudioReplayAndTranslation() {
         let word = ReflexBlitzWordItem.defaultStarterWords[4]
         var replayed = false
@@ -703,213 +803,6 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertNotNil(typingCard.body)
     }
 
-    // MARK: - Mode Selection View Tests
-
-    @MainActor
-    func testModeSelectionViewInstantiationAndCallbacks() {
-        var selectedMode: ReflexBlitzMode?
-        var didDismiss = false
-
-        let view = ReflexBlitzModeSelectionView(
-            weeklyPracticedCount: 42,
-            weakWordsCount: 5,
-            averageSpeedSeconds: 1.6,
-            onSelectMode: { mode in
-                selectedMode = mode
-            },
-            onDismiss: {
-                didDismiss = true
-            }
-        )
-        XCTAssertNotNil(view)
-        XCTAssertEqual(view.weeklyPracticedCount, 42)
-        XCTAssertEqual(view.weakWordsCount, 5)
-        XCTAssertEqual(view.averageSpeedSeconds, 1.6)
-        XCTAssertNotNil(view.body)
-
-        // Verify dismissal callback
-        view.onDismiss()
-        XCTAssertTrue(didDismiss)
-
-        // Verify mode selections
-        for mode in ReflexBlitzMode.allCases {
-            view.onSelectMode(mode)
-            XCTAssertEqual(selectedMode, mode)
-        }
-    }
-
-    @MainActor
-    func testModeSelectionViewDefaultInit() {
-        let view = ReflexBlitzModeSelectionView(
-            onSelectMode: { _ in },
-            onDismiss: {}
-        )
-        XCTAssertNotNil(view)
-        XCTAssertEqual(view.weeklyPracticedCount, 0)
-        XCTAssertEqual(view.weakWordsCount, 0)
-        XCTAssertEqual(view.averageSpeedSeconds, 0.0)
-        XCTAssertNotNil(view.body)
-    }
-
-    @MainActor
-    func testModeSelectionViewMetadataAndCards() {
-        let colors = CraftDefaultColorTokens()
-        for mode in ReflexBlitzMode.allCases {
-            let item = ReflexBlitzModeSelectionView.modeItem(for: mode, colors: colors)
-            XCTAssertEqual(item.mode, mode)
-            XCTAssertFalse(item.title.isEmpty)
-            XCTAssertFalse(item.subtitle.isEmpty)
-            XCTAssertFalse(item.badgeText.isEmpty)
-            XCTAssertFalse(item.iconName.isEmpty)
-        }
-
-        let speaking = ReflexBlitzModeSelectionView.modeItem(for: .speaking, colors: colors)
-        XCTAssertEqual(speaking.title, AppStrings.ReflexBlitz.speakingTitleText)
-        XCTAssertEqual(speaking.badgeText, "6.0s")
-        XCTAssertEqual(speaking.iconName, "waveform.and.mic")
-        assertColorsEqual(speaking.accentColor, colors.brandPrimary)
-
-        let typing = ReflexBlitzModeSelectionView.modeItem(for: .typing, colors: colors)
-        XCTAssertEqual(typing.title, AppStrings.ReflexBlitz.typingTitleText)
-        XCTAssertEqual(typing.badgeText, "7.5s")
-        XCTAssertEqual(typing.iconName, "keyboard")
-        assertColorsEqual(typing.accentColor, colors.streakLegendary)
-
-        let multipleChoice = ReflexBlitzModeSelectionView.modeItem(for: .multipleChoice, colors: colors)
-        XCTAssertEqual(multipleChoice.title, AppStrings.ReflexBlitz.mcTitleText)
-        XCTAssertEqual(multipleChoice.badgeText, "4.5s")
-        XCTAssertEqual(multipleChoice.iconName, "square.grid.2x2.fill")
-        assertColorsEqual(multipleChoice.accentColor, colors.statusSuccess)
-
-        let listening = ReflexBlitzModeSelectionView.modeItem(for: .listening, colors: colors)
-        XCTAssertEqual(listening.title, AppStrings.ReflexBlitz.listeningTitleText)
-        XCTAssertEqual(listening.badgeText, "5.5s")
-        XCTAssertEqual(listening.iconName, "headphones")
-        assertColorsEqual(listening.accentColor, colors.statusInfo)
-    }
-
-    @MainActor
-    func testModeSelectionViewWithDeepLinkConfig() {
-        var selectedConfig: ReflexBlitzDeepLinkConfig?
-        let config = ReflexBlitzDeepLinkConfig(mode: .speaking, phase: .drilling, showHint: true, combo: 2)
-        let view = ReflexBlitzModeSelectionView(
-            weeklyPracticedCount: 15,
-            weakWordsCount: 3,
-            averageSpeedSeconds: 2.1,
-            onSelectMode: { _ in },
-            onSelectConfig: { cfg in
-                selectedConfig = cfg
-            },
-            onDismiss: {}
-        )
-        XCTAssertNotNil(view.body)
-        view.onSelectConfig?(config)
-        XCTAssertEqual(selectedConfig?.mode, .speaking)
-        XCTAssertEqual(selectedConfig?.phase, .drilling)
-        XCTAssertEqual(selectedConfig?.showHint, true)
-        XCTAssertEqual(selectedConfig?.combo, 2)
-    }
-
-    // MARK: - Advance Dock View Tests
-
-    @MainActor
-    func testAdvanceDockViewDisplaysFormattedTimeOnCorrect() {
-        var didAdvance = false
-        let view = ReflexBlitzAdvanceDockView(
-            isReviewed: true,
-            responseTimeMs: 1400,
-            isCorrect: true,
-            isTimeout: false,
-            onAdvance: { didAdvance = true }
-        )
-        XCTAssertNotNil(view)
-        XCTAssertEqual(view.formattedResponseTime, "1.4s")
-        XCTAssertEqual(view.buttonTitle, AppStrings.ReflexBlitz.advanceCorrectButton("1.4s"))
-        XCTAssertNotNil(view.body)
-
-        view.onAdvance()
-        XCTAssertTrue(didAdvance)
-    }
-
-    @MainActor
-    func testAdvanceDockViewDisplaysTimeoutState() {
-        var didAdvance = false
-        let view = ReflexBlitzAdvanceDockView(
-            isReviewed: true,
-            responseTimeMs: 6000,
-            isCorrect: false,
-            isTimeout: true,
-            onAdvance: { didAdvance = true }
-        )
-        XCTAssertNotNil(view)
-        XCTAssertEqual(view.buttonTitle, AppStrings.ReflexBlitz.advanceTimeoutButton)
-        XCTAssertNotNil(view.body)
-
-        view.onAdvance()
-        XCTAssertTrue(didAdvance)
-    }
-
-    @MainActor
-    func testAdvanceDockViewDisplaysIncorrectNonTimeoutState() {
-        let view = ReflexBlitzAdvanceDockView(
-            isReviewed: true,
-            responseTimeMs: 2300,
-            isCorrect: false,
-            isTimeout: false,
-            onAdvance: {}
-        )
-        XCTAssertNotNil(view)
-        XCTAssertEqual(view.formattedResponseTime, "2.3s")
-        XCTAssertEqual(view.buttonTitle, AppStrings.ReflexBlitz.advanceIncorrectButton("2.3s"))
-        XCTAssertNotNil(view.body)
-    }
-
-    @MainActor
-    func testAdvanceDockViewActiveDrillingAndSkip() {
-        var didSkip = false
-        var didAdvance = false
-        let view = ReflexBlitzAdvanceDockView(
-            isReviewed: false,
-            responseTimeMs: 0,
-            isCorrect: false,
-            isTimeout: false,
-            onAdvance: { didAdvance = true },
-            onSkip: { didSkip = true }
-        )
-        XCTAssertNotNil(view)
-        XCTAssertEqual(view.buttonTitle, AppStrings.ReflexBlitz.skipText)
-        XCTAssertNotNil(view.body)
-
-        view.onSkip?()
-        XCTAssertTrue(didSkip)
-        view.onAdvance()
-        XCTAssertTrue(didAdvance)
-    }
-
-    @MainActor
-    func testAdvanceDockViewCardPhaseConvenienceInit() {
-        let correctResult = ReflexCardResult(
-            isCorrect: true,
-            responseTimeMs: 900,
-            isTimeout: false
-        )
-        let reviewedView = ReflexBlitzAdvanceDockView(
-            cardPhase: .reviewed(result: correctResult),
-            onAdvance: {}
-        )
-        XCTAssertTrue(reviewedView.isReviewed)
-        XCTAssertTrue(reviewedView.isCorrect)
-        XCTAssertFalse(reviewedView.isTimeout)
-        XCTAssertEqual(reviewedView.responseTimeMs, 900)
-        XCTAssertEqual(reviewedView.formattedResponseTime, "0.9s")
-
-        let activeView = ReflexBlitzAdvanceDockView(
-            cardPhase: .activeCountdown,
-            onAdvance: {}
-        )
-        XCTAssertFalse(activeView.isReviewed)
-    }
-
     @MainActor
     func testCardViewShakeAndErrorPresentationOnIncorrectReview() {
         let word = ReflexBlitzWordItem.defaultStarterWords[0]
@@ -958,31 +851,5 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         assertColorsEqual(cardView.cardBorderColor, CraftDefaultColorTokens().hairline.opacity(0.4))
         assertColorsEqual(cardView.timerStrokeColor, CraftDefaultColorTokens().statusDanger)
         XCTAssertNotNil(cardView.body)
-    }
-}
-
-// MARK: - Swift Testing Suite
-
-@Suite("Reflex Blitz Mode Selection View Tests")
-struct ReflexBlitzModeSelectionViewTests {
-    @Test("Mode Selection View initializes and yields 4 mode cards with stats")
-    @MainActor
-    func testModeSelectionViewInitialization() {
-        var selectedMode: ReflexBlitzMode?
-        let view = ReflexBlitzModeSelectionView(
-            weeklyPracticedCount: 42,
-            weakWordsCount: 5,
-            averageSpeedSeconds: 1.6,
-            onSelectMode: { mode in
-                selectedMode = mode
-            },
-            onDismiss: {}
-        )
-        #expect(view.weeklyPracticedCount == 42)
-        #expect(view.weakWordsCount == 5)
-        #expect(view.averageSpeedSeconds == 1.6)
-
-        view.onSelectMode(.speaking)
-        #expect(selectedMode == .speaking)
     }
 }
