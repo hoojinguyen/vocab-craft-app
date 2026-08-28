@@ -33,26 +33,9 @@ public struct ProfileStatsSheet: View {
             Capsule()
                 .fill(theme.colors.borderDefault)
                 .frame(width: 36, height: 4)
-                .padding(.top, theme.spacing.sm)
-                .padding(.bottom, theme.spacing.xs)
+                .padding(.top, theme.spacing.md)
+                .padding(.bottom, theme.spacing.sm)
                 .accessibilityHidden(true)
-
-            // Header Bar with Dismiss Button
-            HStack {
-                Spacer()
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 24, weight: .semibold))
-                        .foregroundStyle(theme.colors.textMuted)
-                        .frame(width: 44, height: 44)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(AppStrings.Common.close)
-            }
-            .padding(.horizontal, theme.spacing.base)
 
             ScrollView {
                 VStack(spacing: theme.spacing.base) {
