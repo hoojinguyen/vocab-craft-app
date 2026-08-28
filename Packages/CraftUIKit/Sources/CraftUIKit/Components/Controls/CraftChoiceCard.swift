@@ -284,7 +284,6 @@ public struct CraftChoiceCard: View {
         }
     }
 
-
     // MARK: - Card Background & Overlays
 
     @ViewBuilder

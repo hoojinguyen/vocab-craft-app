@@ -123,18 +123,7 @@ public struct ReflexBlitzCardView: View {
     }
 
     public var cardBorderColor: Color {
-        if isReviewed {
-            return isResultCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger
-        } else {
-            switch timerStage {
-            case .steady:
-                return theme.colors.hairline.opacity(0.6)
-            case .warning:
-                return theme.colors.statusWarning.opacity(0.8)
-            case .urgent:
-                return theme.colors.statusDanger
-            }
-        }
+        theme.colors.hairline.opacity(0.4)
     }
 
     public var timerStrokeColor: Color {
@@ -200,7 +189,7 @@ public struct ReflexBlitzCardView: View {
         .clipShape(RoundedRectangle(cornerRadius: theme.radii.xl, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: theme.radii.xl, style: .continuous)
-                .stroke(cardBorderColor, lineWidth: isReviewed ? 2 : 1)
+                .stroke(cardBorderColor, lineWidth: 1)
         )
         .shadow(color: theme.shadows.lg.color, radius: theme.shadows.lg.radius, x: theme.shadows.lg.x, y: theme.shadows.lg.y)
         .offset(x: shakeOffset)
@@ -260,7 +249,7 @@ extension ReflexBlitzCardView {
         sentenceArea
         scaffoldingArea
         dividerLine
-        activeOptionsGrid
+        activeOptionsList
     }
 
     @ViewBuilder
@@ -301,7 +290,7 @@ extension ReflexBlitzCardView {
 
         dividerLine
 
-        activeOptionsGrid
+        activeOptionsList
     }
 
     // MARK: - Subviews & Areas
@@ -437,27 +426,15 @@ extension ReflexBlitzCardView {
             .padding(.horizontal, theme.spacing.xs)
     }
 
-    private func optionLetter(for index: Int) -> String {
-        let letters = ["A", "B", "C", "D", "E", "F"]
-        if index >= 0 && index < letters.count {
-            return letters[index]
-        }
-        return "\(index + 1)"
-    }
-
     @ViewBuilder
-    private var activeOptionsGrid: some View {
-        let isMultipleChoice = mode == .multipleChoice
-        let gridColumns = isMultipleChoice
-            ? [GridItem(.flexible(), spacing: theme.spacing.sm), GridItem(.flexible(), spacing: theme.spacing.sm)]
-            : [GridItem(.flexible())]
-
-        LazyVGrid(columns: gridColumns, spacing: theme.spacing.sm) {
-            ForEach(Array(options.enumerated()), id: \.element.id) { index, option in
+    private var activeOptionsList: some View {
+        VStack(spacing: theme.spacing.sm) {
+            ForEach(options, id: \.id) { option in
                 CraftChoiceCard(
-                    prefix: optionLetter(for: index),
-                    prefixStyle: .circle,
+                    prefix: nil,
+                    prefixStyle: .none,
                     title: option.text,
+                    textAlignment: .leading,
                     state: .idle,
                     style: .tactile3D,
                     showsStatusIndicator: false,
@@ -465,7 +442,7 @@ extension ReflexBlitzCardView {
                         onSelectOption?(option)
                     }
                 )
-                .accessibilityLabel(AppStrings.ReflexBlitz.optionA11y(prefix: optionLetter(for: index), text: option.text))
+                .accessibilityLabel(option.text)
             }
         }
     }
