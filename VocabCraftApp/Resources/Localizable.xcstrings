@@ -5775,6 +5775,193 @@
           }
         }
       }
+    },
+    "app.reflex.summary.weak_words_header": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Words to Reinforce (%lld)"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Từ cần củng cố (%lld)"
+          }
+        }
+      }
+    },
+    "app.reflex.summary.timeout_label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time out"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hết giờ"
+          }
+        }
+      }
+    },
+    "app.reflex.summary.rating_master": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reflex Master"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bậc thầy phản xạ"
+          }
+        }
+      }
+    },
+    "app.reflex.summary.rating_swift": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swift Reflex"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phản xạ nhanh nhạy"
+          }
+        }
+      }
+    },
+    "app.reflex.summary.rating_steady": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steady Learner"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Người học kiên trì"
+          }
+        }
+      }
+    },
+    "app.reflex.summary.a11y_header_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@. Reflex Blitz Completed."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@. Hoàn thành phiên phản xạ Blitz."
+          }
+        }
+      }
+    },
+    "app.reflex.summary.a11y_avg_speed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Average speed: %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tốc độ trung bình: %@"
+          }
+        }
+      }
+    },
+    "app.reflex.summary.a11y_accuracy": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accuracy: %lld out of %lld words"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Độ chính xác: %lld trên %lld từ"
+          }
+        }
+      }
+    },
+    "app.reflex.summary.a11y_max_combo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Max combo streak: %lld"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chuỗi combo tối đa: %lld"
+          }
+        }
+      }
+    },
+    "app.reflex.summary.a11y_weak_word": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weak word: %@, response time: %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Từ cần ôn: %@, thời gian phản hồi: %@"
+          }
+        }
+      }
+    },
+    "app.reflex.summary.a11y_speak_word": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listen to pronunciation of %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nghe phát âm từ %@"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

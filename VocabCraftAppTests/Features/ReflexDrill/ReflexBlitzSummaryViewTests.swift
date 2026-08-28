@@ -1,6 +1,99 @@
 import SwiftUI
+import Testing
 @testable import VocabCraftApp
 import XCTest
+
+@Suite("Reflex Blitz Summary Re-drill Tests")
+@MainActor
+struct ReflexBlitzSummaryReDrillTests {
+    @Test("Summary re-drill retains same modality for weak words in speaking mode")
+    func testSameModeReDrill() {
+        let viewModel = ReflexBlitzViewModel()
+        let wordItem1 = ReflexBlitzWordItem(id: 1, lemma: "word1", ipa: "/w1/", definitionVi: "nghĩa 1", clozeSentenceEn: "[word1]", clozeSentenceVi: "câu 1")
+        let wordItem2 = ReflexBlitzWordItem(id: 2, lemma: "word2", ipa: "/w2/", definitionVi: "nghĩa 2", clozeSentenceEn: "[word2]", clozeSentenceVi: "câu 2")
+
+        viewModel.startDrillSession(mode: .speaking, words: [wordItem1, wordItem2])
+        viewModel.submitSpeakingResult(isCorrect: true, responseTimeMs: 1200)
+        viewModel.advanceToNextWord()
+        viewModel.submitSpeakingResult(isCorrect: false, responseTimeMs: 6000)
+        viewModel.advanceToNextWord()
+
+        #expect(viewModel.phase == .summary)
+        #expect(viewModel.sessionSummary?.weakWordAttempts.count == 1)
+        #expect(viewModel.sessionSummary?.weakWordAttempts.first?.wordId == 2)
+
+        viewModel.reDrillWeakWords()
+        #expect(viewModel.selectedMode == .speaking)
+        #expect(viewModel.words.count == 1)
+        #expect(viewModel.words.first?.id == 2)
+        #expect(viewModel.phase == .countdown)
+    }
+
+    @Test("Summary re-drill retains typing modality for weak words")
+    func testTypingModeReDrill() {
+        let viewModel = ReflexBlitzViewModel()
+        let wordItem1 = ReflexBlitzWordItem(id: 10, lemma: "apple", ipa: "/ˈæp.əl/", definitionVi: "quả táo", clozeSentenceEn: "[apple]", clozeSentenceVi: "quả táo")
+        let wordItem2 = ReflexBlitzWordItem(id: 20, lemma: "banana", ipa: "/bəˈnɑː.nə/", definitionVi: "quả chuối", clozeSentenceEn: "[banana]", clozeSentenceVi: "quả chuối")
+
+        viewModel.startDrillSession(mode: .typing, words: [wordItem1, wordItem2])
+        viewModel.submitTypingAnswer("apple")
+        viewModel.advanceToNextWord()
+        viewModel.handleTimeout()
+        viewModel.advanceToNextWord()
+
+        #expect(viewModel.phase == .summary)
+        #expect(viewModel.sessionSummary?.weakWordAttempts.count == 1)
+        #expect(viewModel.sessionSummary?.weakWordAttempts.first?.wordId == 20)
+
+        viewModel.reDrillWeakWords()
+        #expect(viewModel.selectedMode == .typing)
+        #expect(viewModel.words.count == 1)
+        #expect(viewModel.words.first?.id == 20)
+    }
+
+    @Test("Summary re-drill retains multiple choice modality for weak words")
+    func testMultipleChoiceModeReDrill() {
+        let viewModel = ReflexBlitzViewModel()
+        let wordItem1 = ReflexBlitzWordItem(id: 100, lemma: "cat", ipa: "/kæt/", definitionVi: "con mèo", clozeSentenceEn: "[cat]", clozeSentenceVi: "con mèo")
+        let wordItem2 = ReflexBlitzWordItem(id: 200, lemma: "dog", ipa: "/dɒɡ/", definitionVi: "con chó", clozeSentenceEn: "[dog]", clozeSentenceVi: "con chó")
+
+        viewModel.startDrillSession(mode: .multipleChoice, words: [wordItem1, wordItem2])
+        if let correct = viewModel.currentOptions.first(where: { $0.isCorrect }) {
+            viewModel.selectOption(correct)
+        }
+        viewModel.advanceToNextWord()
+        if let wrong = viewModel.currentOptions.first(where: { !$0.isCorrect }) {
+            viewModel.selectOption(wrong)
+        }
+        viewModel.advanceToNextWord()
+
+        #expect(viewModel.phase == .summary)
+        #expect(viewModel.sessionSummary?.weakWordAttempts.count == 1)
+        #expect(viewModel.sessionSummary?.weakWordAttempts.first?.wordId == 200)
+
+        viewModel.reDrillWeakWords()
+        #expect(viewModel.selectedMode == .multipleChoice)
+        #expect(viewModel.words.count == 1)
+        #expect(viewModel.words.first?.id == 200)
+    }
+
+    @Test("Re-drill with empty weak words does nothing")
+    func testReDrillNoWeakWords() {
+        let viewModel = ReflexBlitzViewModel()
+        let wordItem1 = ReflexBlitzWordItem(id: 1, lemma: "word1", ipa: "/w1/", definitionVi: "nghĩa 1")
+        viewModel.startDrillSession(mode: .speaking, words: [wordItem1])
+        viewModel.submitSpeakingResult(isCorrect: true, responseTimeMs: 1000)
+        viewModel.advanceToNextWord()
+
+        #expect(viewModel.phase == .summary)
+        #expect(viewModel.sessionSummary?.weakWordAttempts.isEmpty == true)
+
+        let wordsBefore = viewModel.words
+        viewModel.reDrillWeakWords()
+        #expect(viewModel.words == wordsBefore)
+        #expect(viewModel.phase == .summary)
+    }
+}
 
 final class ReflexBlitzSummaryViewTests: XCTestCase {
     @MainActor
@@ -242,5 +335,31 @@ final class ReflexBlitzSummaryViewTests: XCTestCase {
         )
 
         XCTAssertNil(view.onSpeakWord)
+    }
+
+    @MainActor
+    func testSummaryViewWithDifferentSpeedRatings() {
+        let ratings = ["⚡️ Reflex Master", "🔥 Swift Reflex", "🌱 Steady Learner"]
+        for rating in ratings {
+            let summary = ReflexBlitzSessionSummary(
+                id: UUID(),
+                totalWords: 5,
+                correctWords: 4,
+                averageResponseTimeMs: 2500,
+                maxComboStreak: 3,
+                attempts: [],
+                weakWordAttempts: [],
+                speedRating: rating
+            )
+            let view = ReflexBlitzSummaryView(
+                summary: summary,
+                onSpeakWord: { _ in },
+                onReDrillWeak: {},
+                onFinish: {}
+            )
+            XCTAssertNotNil(view.body)
+            XCTAssertNotNil(view.summaryContent)
+            XCTAssertEqual(view.summary.speedRating, rating)
+        }
     }
 }

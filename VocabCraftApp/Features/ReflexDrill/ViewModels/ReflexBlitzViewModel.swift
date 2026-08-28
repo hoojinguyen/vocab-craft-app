@@ -517,6 +517,16 @@ extension ReflexBlitzViewModel {
         ))
     }
 
+    public func submitSpeakingResult(isCorrect: Bool, responseTimeMs: Int) {
+        guard phase == .drilling, cardPhase == .activeCountdown, let word = currentWord else { return }
+        self.elapsedTimeMs = responseTimeMs
+        if isCorrect {
+            handleSpokenMatch(word.lemma)
+        } else {
+            handleTimeout()
+        }
+    }
+
     public func handleTimeout() {
         guard phase == .drilling, cardPhase == .activeCountdown, let word = currentWord else { return }
         hintTimerTask?.cancel()
@@ -526,7 +536,7 @@ extension ReflexBlitzViewModel {
         comboStreak = 0
         soundEffectService.playIncorrectChime()
 
-        let timeLimitMs = Int(selectedMode.timeLimitSeconds * 1000)
+        let timeLimitMs = elapsedTimeMs > 0 ? elapsedTimeMs : Int(selectedMode.timeLimitSeconds * 1000)
         self.elapsedTimeMs = timeLimitMs
         let attempt = ReflexBlitzAttempt(
             wordId: word.id,

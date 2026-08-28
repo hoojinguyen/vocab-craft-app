@@ -1,10 +1,15 @@
+import CraftUIKit
 import SwiftUI
 
 public struct ReflexBlitzSummaryView: View {
+    @Environment(\.craftTheme) private var theme
+
     public let summary: ReflexBlitzSessionSummary
     public let onSpeakWord: ((String) -> Void)?
     public let onReDrillWeak: () -> Void
     public let onFinish: () -> Void
+
+    @State private var isSparkleTriggered: Bool = true
 
     public init(
         summary: ReflexBlitzSessionSummary,
@@ -30,6 +35,16 @@ public struct ReflexBlitzSummaryView: View {
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    private var starCount: Int {
+        if summary.speedRating.contains("Master") {
+            return 3
+        } else if summary.speedRating.contains("Swift") {
+            return 2
+        } else {
+            return 1
+        }
+    }
+
     private var headerIconName: String {
         if summary.speedRating.contains("Master") {
             return "bolt.shield.fill"
@@ -40,20 +55,30 @@ public struct ReflexBlitzSummaryView: View {
         }
     }
 
+    private var headerAccentColor: Color {
+        if summary.speedRating.contains("Master") {
+            return theme.colors.brandPrimary
+        } else if summary.speedRating.contains("Swift") {
+            return theme.colors.brandSecondary
+        } else {
+            return theme.colors.statusSuccess
+        }
+    }
+
     public var body: some View {
         ZStack(alignment: .bottom) {
             ScrollView(.vertical, showsIndicators: false) {
                 summaryContent
-                    .padding(.bottom, summary.weakWordAttempts.isEmpty ? 100 : 150)
+                    .padding(.bottom, summary.weakWordAttempts.isEmpty ? 110 : 160)
             }
 
             bottomActionDock
         }
-        .background(Color.vocabCanvas.ignoresSafeArea())
+        .background(theme.colors.canvasBackground.ignoresSafeArea())
     }
 
     public var summaryContent: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: theme.spacing.lg) {
             headerView
             bentoMetricsGrid
 
@@ -63,353 +88,298 @@ public struct ReflexBlitzSummaryView: View {
                 perfectScoreCard
             }
         }
+        .padding(.top, theme.spacing.base)
     }
 
     // MARK: - Header
     private var headerView: some View {
-        VStack(spacing: 14) {
-            Image(systemName: headerIconName)
-                .font(.system(size: 36, weight: .semibold))
-                .symbolRenderingMode(.multicolor)
-                .frame(width: 68, height: 68)
-                .background(.ultraThinMaterial)
-                .clipShape(Circle())
-                .overlay(
-                    Circle()
-                        .stroke(
-                            LinearGradient(
-                                colors: [Color.vocabHeroAccent.opacity(0.4), Color.white.opacity(0.1)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 1.2
-                        )
-                )
-                .shadow(color: Color.vocabHeroAccent.opacity(0.2), radius: 12, x: 0, y: 4)
-                .accessibilityHidden(true)
+        VStack(spacing: theme.spacing.md) {
+            // Icon with decorative background ring
+            ZStack {
+                Circle()
+                    .fill(headerAccentColor.opacity(0.12))
+                    .frame(width: 68, height: 68)
+                Circle()
+                    .strokeBorder(headerAccentColor.opacity(0.24), lineWidth: 1.5)
+                    .frame(width: 68, height: 68)
 
-            VStack(spacing: 4) {
+                Image(systemName: headerIconName)
+                    .font(.system(size: 32, weight: .bold))
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundStyle(headerAccentColor)
+            }
+            .craftShadow(theme.shadows.sm)
+            .accessibilityHidden(true)
+
+            // Rating title & subtitle
+            VStack(spacing: theme.spacing.xs) {
                 Text(cleanRatingTitle)
-                    .font(.system(size: 26, weight: .heavy, design: .rounded))
-                    .foregroundColor(.vocabInk)
+                    .font(theme.typography.titleLarge)
+                    .fontWeight(.bold)
+                    .fontDesign(.rounded)
+                    .foregroundStyle(theme.colors.textPrimary)
                     .accessibilityAddTraits(.isHeader)
 
-                Text("Hoàn thành phiên phản xạ Blitz")
-                    .font(.subheadline.weight(.medium))
-                    .foregroundColor(.vocabMuted)
+                ratingStarsView
+
+                Text(String(localized: "app.reflex.summary.title"))
+                    .font(theme.typography.bodyMedium)
+                    .foregroundStyle(theme.colors.textMuted)
             }
         }
-        .padding(.top, 16)
+        .padding(.horizontal, theme.spacing.base)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(cleanRatingTitle). Hoàn thành phiên phản xạ Blitz.")
+        .accessibilityLabel(String(localized: "app.reflex.summary.a11y_header_format \(cleanRatingTitle)"))
     }
 
-    private struct MetricCardItem {
-        let icon: String
-        let isMulticolor: Bool
-        let accentColor: Color
-        let value: String
-        let title: String
-        let accessibilityLabel: String
+    // MARK: - Rating Stars
+    private var ratingStarsView: some View {
+        HStack(spacing: theme.spacing.xs) {
+            ForEach(1...3, id: \.self) { index in
+                Image(systemName: index <= starCount ? "star.fill" : "star")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(index <= starCount ? theme.colors.accent : theme.colors.textMuted.opacity(0.35))
+            }
+        }
+        .accessibilityHidden(true)
     }
 
     // MARK: - Bento Metrics Grid
     private var bentoMetricsGrid: some View {
-        HStack(spacing: 12) {
-            metricCard(MetricCardItem(
-                icon: "speedometer",
-                isMulticolor: false,
-                accentColor: .vocabHeroAccent,
+        HStack(spacing: theme.spacing.sm) {
+            // Metric 1: Avg Speed
+            bentoCard(
+                iconName: "speedometer",
+                tint: theme.colors.brandPrimary,
                 value: formattedAvgTime,
-                title: "Tốc độ TB",
-                accessibilityLabel: "Tốc độ trung bình: \(formattedAvgTime)"
-            ))
+                title: String(localized: "app.reflex.summary.avg_speed"),
+                accessibilityLabel: String(localized: "app.reflex.summary.a11y_avg_speed \(formattedAvgTime)")
+            )
 
-            metricCard(MetricCardItem(
-                icon: "target",
-                isMulticolor: false,
-                accentColor: .vocabMint,
+            // Metric 2: Accuracy
+            bentoCard(
+                iconName: "target",
+                tint: theme.colors.statusSuccess,
                 value: "\(summary.correctWords)/\(summary.totalWords)",
-                title: "Độ chính xác",
-                accessibilityLabel: "Độ chính xác: \(summary.correctWords) trên \(summary.totalWords) từ"
-            ))
+                title: String(localized: "app.reflex.summary.accuracy"),
+                accessibilityLabel: String(localized: "app.reflex.summary.a11y_accuracy \(summary.correctWords) \(summary.totalWords)")
+            )
 
-            metricCard(MetricCardItem(
-                icon: "flame.fill",
-                isMulticolor: true,
-                accentColor: .vocabPeach,
+            // Metric 3: Max Combo
+            bentoCard(
+                iconName: "flame.fill",
+                tint: theme.colors.brandSecondary,
                 value: "x\(summary.maxComboStreak)",
-                title: "Max Combo",
-                accessibilityLabel: "Chuỗi combo tối đa: \(summary.maxComboStreak)"
-            ))
+                title: String(localized: "app.reflex.summary.max_combo"),
+                accessibilityLabel: String(localized: "app.reflex.summary.a11y_max_combo \(summary.maxComboStreak)")
+            )
         }
-        .padding(.horizontal)
+        .padding(.horizontal, theme.spacing.base)
     }
 
-    private func metricCard(_ item: MetricCardItem) -> some View {
-        VStack(spacing: 8) {
-            Group {
-                if item.isMulticolor {
-                    Image(systemName: item.icon)
-                        .symbolRenderingMode(.multicolor)
-                } else {
-                    Image(systemName: item.icon)
+    private func bentoCard(
+        iconName: String,
+        tint: Color,
+        value: String,
+        title: String,
+        accessibilityLabel: String
+    ) -> some View {
+        CraftCard(style: .outlined, padding: theme.spacing.md) {
+            VStack(spacing: theme.spacing.xs) {
+                ZStack {
+                    Circle()
+                        .fill(tint.opacity(0.12))
+                        .frame(width: 36, height: 36)
+                    Image(systemName: iconName)
+                        .font(.system(size: 17, weight: .semibold))
                         .symbolRenderingMode(.hierarchical)
-                        .foregroundStyle(item.accentColor)
+                        .foregroundStyle(tint)
                 }
+                .accessibilityHidden(true)
+
+                Text(value)
+                    .font(theme.typography.titleLarge)
+                    .fontWeight(.bold)
+                    .fontDesign(.rounded)
+                    .monospacedDigit()
+                    .foregroundStyle(theme.colors.textPrimary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+
+                Text(title)
+                    .font(theme.typography.caption)
+                    .foregroundStyle(theme.colors.textMuted)
+                    .lineLimit(1)
             }
-            .font(.system(size: 20, weight: .semibold))
-            .frame(width: 38, height: 38)
-            .background(.ultraThinMaterial)
-            .clipShape(Circle())
-            .overlay(
-                Circle()
-                    .stroke(item.accentColor.opacity(0.2), lineWidth: 0.8)
-            )
-            .accessibilityHidden(true)
-
-            Text(item.value)
-                .font(.title3.weight(.bold))
-                .fontDesign(.rounded)
-                .monospacedDigit()
-                .foregroundColor(.vocabInk)
-
-            Text(item.title)
-                .font(.caption2.weight(.medium))
-                .foregroundColor(.vocabMuted)
+            .frame(maxWidth: .infinity)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 16)
-        .padding(.horizontal, 8)
-        .background(Color.vocabSurfaceCard)
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(Color.vocabHairline.opacity(0.7), lineWidth: 1)
-        )
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(item.accessibilityLabel)
+        .accessibilityLabel(accessibilityLabel)
     }
 
     // MARK: - Weak Words Section
     private var weakWordsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 6) {
+        VStack(alignment: .leading, spacing: theme.spacing.sm) {
+            HStack(spacing: theme.spacing.xs) {
                 Image(systemName: "exclamationmark.circle.fill")
                     .symbolRenderingMode(.hierarchical)
-                    .foregroundColor(.vocabCoral)
+                    .foregroundStyle(theme.colors.statusDanger)
                     .font(.headline)
                     .accessibilityHidden(true)
-                Text("Từ cần củng cố (\(summary.weakWordAttempts.count))")
-                    .font(.headline.weight(.bold))
+
+                Text(String(localized: "app.reflex.summary.weak_words_header \(summary.weakWordAttempts.count)"))
+                    .font(theme.typography.headline)
+                    .fontWeight(.bold)
                     .fontDesign(.rounded)
-                    .foregroundColor(.vocabInk)
+                    .foregroundStyle(theme.colors.textPrimary)
             }
-            .padding(.horizontal)
+            .padding(.horizontal, theme.spacing.base)
             .accessibilityAddTraits(.isHeader)
 
-            ForEach(summary.weakWordAttempts) { weak in
-                weakWordRow(for: weak)
+            VStack(spacing: theme.spacing.sm) {
+                ForEach(summary.weakWordAttempts) { weak in
+                    weakWordRow(for: weak)
+                }
             }
+            .padding(.horizontal, theme.spacing.base)
         }
     }
 
     // MARK: - 3-Tier Vocabulary Row
     private func weakWordRow(for weak: ReflexBlitzAttempt) -> some View {
-        let timeLabel = weak.responseTimeMs >= 6000 ? "Hết giờ" : String(format: "%.1fs", Double(weak.responseTimeMs) / 1000.0)
+        let timeLabel = weak.responseTimeMs >= 6000 ? String(localized: "app.reflex.summary.timeout_label") : String(format: "%.1fs", Double(weak.responseTimeMs) / 1000.0)
         let meta = [weak.pos, weak.ipa].filter { !$0.isEmpty }.joined(separator: " • ")
 
-        return VStack(alignment: .leading, spacing: 8) {
-            // Tier 1: Lemma text on the left, Audio Speaker button on the right
-            HStack(alignment: .center) {
-                Text(weak.lemma)
-                    .font(.headline.weight(.bold))
-                    .fontDesign(.rounded)
-                    .foregroundColor(.vocabInk)
+        return CraftCard(style: .outlined, padding: theme.spacing.base) {
+            VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                // Tier 1: Lemma text on the left, Audio Speaker button on the right
+                HStack(alignment: .center) {
+                    Text(weak.lemma)
+                        .font(theme.typography.headline)
+                        .fontWeight(.bold)
+                        .fontDesign(.rounded)
+                        .foregroundStyle(theme.colors.textPrimary)
 
-                Spacer()
+                    Spacer()
 
-                if let onSpeak = onSpeakWord {
-                    Button(action: { onSpeak(weak.lemma) }) {
-                        Image(systemName: "speaker.wave.2.fill")
-                            .font(.system(size: 14, weight: .semibold))
-                            .symbolRenderingMode(.hierarchical)
-                            .foregroundColor(.vocabHeroAccent)
-                            .frame(width: 34, height: 34)
-                            .background(.ultraThinMaterial)
-                            .clipShape(Circle())
-                            .overlay(
-                                Circle()
-                                    .stroke(Color.vocabHeroAccent.opacity(0.2), lineWidth: 0.8)
-                            )
+                    if let onSpeak = onSpeakWord {
+                        CraftSpeakerButton(
+                            variant: .subtle,
+                            size: .sm,
+                            customTint: theme.colors.brandPrimary
+                        ) {
+                            onSpeak(weak.lemma)
+                        }
+                        .accessibilityLabel(String(localized: "app.reflex.summary.a11y_speak_word \(weak.lemma)"))
                     }
-                    .buttonStyle(.borderless)
-                    .accessibilityLabel("Nghe phát âm từ \(weak.lemma)")
-                }
-            }
-
-            // Tier 2: Part of Speech & IPA phonetics metadata
-            if !meta.isEmpty {
-                Text(meta)
-                    .font(.caption.monospaced())
-                    .foregroundColor(.vocabMuted)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.85)
-            }
-
-            // Tier 3: Vietnamese definition on the left, response time badge on the right
-            HStack(alignment: .center, spacing: 8) {
-                if !weak.definitionVi.isEmpty {
-                    Text(weak.definitionVi)
-                        .font(.subheadline)
-                        .foregroundColor(.vocabInk.opacity(0.8))
-                        .lineLimit(2)
                 }
 
-                Spacer()
-
-                HStack(spacing: 4) {
-                    Image(systemName: "stopwatch.fill")
-                        .font(.system(size: 10, weight: .bold))
-                        .symbolRenderingMode(.hierarchical)
-
-                    Text(timeLabel)
-                        .font(.caption2.monospacedDigit().bold())
+                // Tier 2: Part of Speech & IPA phonetics metadata
+                if !meta.isEmpty {
+                    Text(meta)
+                        .font(theme.typography.phonetic)
+                        .foregroundStyle(theme.colors.textMuted)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
                 }
-                .foregroundColor(.vocabCoral)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(Color.vocabCoral.opacity(0.12))
-                .clipShape(Capsule())
+
+                // Tier 3: Vietnamese definition on the left, response time badge on the right
+                HStack(alignment: .center, spacing: theme.spacing.xs) {
+                    if !weak.definitionVi.isEmpty {
+                        Text(weak.definitionVi)
+                            .font(theme.typography.bodyMedium)
+                            .foregroundStyle(theme.colors.textSecondary)
+                            .lineLimit(2)
+                    }
+
+                    Spacer()
+
+                    CraftBadge(
+                        timeLabel,
+                        iconName: "stopwatch.fill",
+                        variant: .subtle,
+                        tone: .danger,
+                        size: .sm
+                    )
+                }
             }
         }
-        .padding(16)
-        .background(Color.vocabSurfaceCard)
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(Color.vocabHairline.opacity(0.6), lineWidth: 1)
-        )
-        .padding(.horizontal)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Từ cần ôn: \(weak.lemma), thời gian phản hồi: \(timeLabel)")
+        .accessibilityLabel(String(localized: "app.reflex.summary.a11y_weak_word \(weak.lemma) \(timeLabel)"))
     }
 
     // MARK: - Perfect Score State
     private var perfectScoreCard: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "medal.fill")
-                .font(.system(size: 44, weight: .bold))
-                .symbolRenderingMode(.multicolor)
-                .accessibilityHidden(true)
+        CraftCard(style: .elevated, customTint: theme.colors.surfaceCard) {
+            VStack(spacing: theme.spacing.sm) {
+                Image(systemName: "medal.fill")
+                    .font(.system(size: 44, weight: .bold))
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundStyle(theme.colors.accent)
+                    .accessibilityHidden(true)
 
-            Text("Phản xạ hoàn hảo!")
-                .font(.title3.weight(.bold))
-                .fontDesign(.rounded)
-                .foregroundColor(.vocabInk)
+                Text(String(localized: "app.reflex.summary.perfect_title"))
+                    .font(theme.typography.titleLarge)
+                    .fontWeight(.bold)
+                    .fontDesign(.rounded)
+                    .foregroundStyle(theme.colors.textPrimary)
 
-            Text("Bạn đã trả lời chính xác và nhanh chóng toàn bộ từ vựng.")
-                .font(.subheadline)
-                .foregroundColor(.vocabMuted)
-                .multilineTextAlignment(.center)
+                Text(String(localized: "app.reflex.summary.perfect_desc"))
+                    .font(theme.typography.bodyMedium)
+                    .foregroundStyle(theme.colors.textMuted)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, theme.spacing.md)
+            .padding(.horizontal, theme.spacing.sm)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 24)
-        .padding(.horizontal, 20)
-        .background(Color.vocabSurfaceCard)
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(
-                    LinearGradient(
-                        colors: [Color.vocabMint.opacity(0.4), Color.white.opacity(0.08)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 1
-                )
-        )
-        .padding(.horizontal)
+        .padding(.horizontal, theme.spacing.base)
+        .craftSparkle(isTriggered: $isSparkleTriggered, particleCount: 25)
     }
 
     // MARK: - Sticky Bottom Action Dock
     private var bottomActionDock: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: theme.spacing.xs) {
             if !summary.weakWordAttempts.isEmpty {
                 // Primary Action: Re-drill weak words
-                Button(action: onReDrillWeak) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "arrow.triangle.2.circlepath")
-                            .font(.headline.weight(.bold))
-                            .symbolRenderingMode(.hierarchical)
-                            .accessibilityHidden(true)
-
-                        Text("Luyện lại \(summary.weakWordAttempts.count) từ chưa thuộc")
-                            .font(.headline.bold())
-                            .fontDesign(.rounded)
-                    }
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(minHeight: 52)
-                    .background(
-                        LinearGradient(
-                            colors: [Color.vocabCoral, Color.vocabCoral.opacity(0.9)],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                    .shadow(color: Color.vocabCoral.opacity(0.35), radius: 10, y: 5)
-                }
-                .buttonStyle(BentoCardButtonStyle())
-                .accessibilityLabel("Luyện lại \(summary.weakWordAttempts.count) từ chưa thuộc")
+                CraftButton(
+                    String(localized: "app.reflex.summary.redrill_weak \(summary.weakWordAttempts.count)"),
+                    iconName: "arrow.triangle.2.circlepath",
+                    variant: .primary,
+                    size: .lg,
+                    isFullWidth: true,
+                    customTint: theme.colors.statusDanger,
+                    action: onReDrillWeak
+                )
 
                 // Secondary Action: Finish & Save
-                Button(action: onFinish) {
-                    Text("Hoàn thành & Lưu tiến độ")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundColor(.vocabMuted)
-                        .frame(maxWidth: .infinity)
-                        .frame(minHeight: 44)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Hoàn thành và lưu tiến độ")
+                CraftButton(
+                    String(localized: "app.reflex.summary.finish_save"),
+                    variant: .ghost,
+                    size: .md,
+                    isFullWidth: true,
+                    action: onFinish
+                )
             } else {
                 // Primary Action: Finish & Save
-                Button(action: onFinish) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "checkmark")
-                            .font(.headline.weight(.bold))
-                        Text("Hoàn thành & Lưu tiến độ")
-                            .font(.headline.bold())
-                            .fontDesign(.rounded)
-                    }
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(minHeight: 54)
-                    .background(
-                        LinearGradient(
-                            colors: [Color.vocabHeroAccent, Color.vocabMint],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                    .shadow(color: Color.vocabHeroAccent.opacity(0.3), radius: 10, y: 5)
-                }
-                .buttonStyle(BentoCardButtonStyle())
-                .accessibilityLabel("Hoàn thành và lưu tiến độ")
+                CraftButton(
+                    String(localized: "app.reflex.summary.finish_save"),
+                    iconName: "checkmark",
+                    variant: .primary,
+                    size: .lg,
+                    isFullWidth: true,
+                    action: onFinish
+                )
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 12)
-        .padding(.bottom, 16)
+        .padding(.horizontal, theme.spacing.base)
+        .padding(.top, theme.spacing.sm)
+        .padding(.bottom, theme.spacing.md)
         .background(
             Rectangle()
                 .fill(.ultraThinMaterial)
                 .ignoresSafeArea(edges: .bottom)
-                .shadow(color: Color.black.opacity(0.06), radius: 8, y: -4)
+                .craftShadow(theme.shadows.sm)
         )
     }
-
 }
