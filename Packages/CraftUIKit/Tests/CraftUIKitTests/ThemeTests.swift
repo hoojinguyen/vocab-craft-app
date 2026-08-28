@@ -136,6 +136,7 @@ final class ThemeTests: XCTestCase {
         XCTAssertNotNil(typography.displayHero)
         XCTAssertNotNil(typography.displaySerif)
         XCTAssertNotNil(typography.titleLarge)
+        XCTAssertNotNil(typography.titleLargeSerif)
         XCTAssertNotNil(typography.titleMedium)
         XCTAssertNotNil(typography.headline)
         XCTAssertNotNil(typography.bodyLarge)
@@ -157,6 +158,7 @@ final class ThemeTests: XCTestCase {
         _ = typography.displayHero
         _ = typography.displaySerif
         _ = typography.titleLarge
+        _ = typography.titleLargeSerif
         _ = typography.titleMedium
         _ = typography.headline
         _ = typography.bodyLarge
@@ -170,6 +172,7 @@ final class ThemeTests: XCTestCase {
         XCTAssertNotNil(typography.font(for: .displayHero))
         XCTAssertNotNil(typography.font(for: .displaySerif))
         XCTAssertNotNil(typography.font(for: .titleLarge))
+        XCTAssertNotNil(typography.font(for: .titleLargeSerif))
         XCTAssertNotNil(typography.font(for: .titleMedium))
         XCTAssertNotNil(typography.font(for: .headline))
         XCTAssertNotNil(typography.font(for: .bodyLarge))

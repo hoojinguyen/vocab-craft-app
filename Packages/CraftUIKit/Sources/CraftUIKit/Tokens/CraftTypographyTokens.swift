@@ -8,6 +8,7 @@ public enum CraftTypographyStyle: String, Sendable, CaseIterable {
     case displayHero
     case displaySerif
     case titleLarge
+    case titleLargeSerif
     case titleMedium
     case headline
     case bodyLarge
@@ -27,6 +28,7 @@ public protocol CraftTypographyTokens: Sendable {
     var displayHero: Font { get }
     var displaySerif: Font { get }
     var titleLarge: Font { get }
+    var titleLargeSerif: Font { get }
     var titleMedium: Font { get }
     var headline: Font { get }
     var bodyLarge: Font { get }
@@ -41,6 +43,7 @@ public protocol CraftTypographyTokens: Sendable {
 }
 
 public extension CraftTypographyTokens {
+    var titleLargeSerif: Font { .system(.title, design: .serif, weight: .bold) }
     var displaySerif: Font { .system(.largeTitle, design: .serif, weight: .bold) }
     var bodySerif: Font { .system(.body, design: .serif, weight: .regular) }
     var phonetic: Font { .system(.callout, design: .monospaced, weight: .regular) }
@@ -52,6 +55,7 @@ public extension CraftTypographyTokens {
         case .displayHero: return displayHero
         case .displaySerif: return displaySerif
         case .titleLarge: return titleLarge
+        case .titleLargeSerif: return titleLargeSerif
         case .titleMedium: return titleMedium
         case .headline: return headline
         case .bodyLarge: return bodyLarge
@@ -73,6 +77,7 @@ public struct CraftDefaultTypographyTokens: CraftTypographyTokens {
     public var displayHero: Font
     public var displaySerif: Font
     public var titleLarge: Font
+    public var titleLargeSerif: Font
     public var titleMedium: Font
     public var headline: Font
     public var bodyLarge: Font
@@ -88,6 +93,7 @@ public struct CraftDefaultTypographyTokens: CraftTypographyTokens {
         displayHero: Font = .system(size: 72, weight: .black, design: .rounded),
         displaySerif: Font = .system(.largeTitle, design: .serif, weight: .bold),
         titleLarge: Font = .system(.title, design: .rounded, weight: .bold),
+        titleLargeSerif: Font = .system(.title, design: .serif, weight: .bold),
         titleMedium: Font = .system(.title2, design: .rounded, weight: .semibold),
         headline: Font = .system(.headline, design: .rounded, weight: .semibold),
         bodyLarge: Font = .system(.body, design: .default, weight: .regular),
@@ -102,6 +108,7 @@ public struct CraftDefaultTypographyTokens: CraftTypographyTokens {
         self.displayHero = displayHero
         self.displaySerif = displaySerif
         self.titleLarge = titleLarge
+        self.titleLargeSerif = titleLargeSerif
         self.titleMedium = titleMedium
         self.headline = headline
         self.bodyLarge = bodyLarge

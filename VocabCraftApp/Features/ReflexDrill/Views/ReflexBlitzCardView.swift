@@ -442,6 +442,7 @@ extension ReflexBlitzCardView {
                         onSelectOption?(option)
                     }
                 )
+                .frame(minHeight: 52)
                 .accessibilityLabel(option.text)
             }
         }

@@ -71,7 +71,7 @@ extension ReflexBlitzCardReviewedView {
             HStack(alignment: .center, spacing: theme.spacing.sm) {
                 CraftText(
                     word.lemma,
-                    style: .titleLarge,
+                    style: .titleLargeSerif,
                     color: theme.colors.textPrimary
                 )
 
@@ -212,6 +212,7 @@ extension ReflexBlitzCardReviewedView {
                     showsStatusIndicator: isCorrect || isSelected,
                     action: {}
                 )
+                .frame(minHeight: 52)
                 .accessibilityLabel(option.text)
             }
         }
