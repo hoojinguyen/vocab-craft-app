@@ -45,14 +45,13 @@ public struct ReflexBlitzCardReviewedView: View {
 
     public var body: some View {
         VStack(spacing: theme.spacing.md) {
-            statusHeaderBadge
             lemmaAndDefinitionSection
             dividerLine
             sentenceSection
 
             if mode == .multipleChoice && !options.isEmpty {
                 dividerLine
-                reviewedOptionsGrid
+                reviewedOptionsList
             } else if mode == .listening {
                 listeningResultChip
             } else if mode == .speaking, let spoken = reviewResult?.recognizedSpoken, !spoken.isEmpty {
@@ -67,21 +66,6 @@ public struct ReflexBlitzCardReviewedView: View {
 // MARK: - ReflexBlitzCardReviewedView Subviews
 
 extension ReflexBlitzCardReviewedView {
-    private var statusHeaderBadge: some View {
-        CraftBadge(
-            isResultCorrect
-                ? AppStrings.ReflexBlitz.correctTitleText
-                : (isResultTimeout ? AppStrings.ReflexBlitz.timeoutTitleText : AppStrings.ReflexBlitz.incorrectTitleText),
-            iconName: isResultCorrect
-                ? "checkmark.circle.fill"
-                : (isResultTimeout ? "clock.badge.exclamationmark.fill" : "xmark.circle.fill"),
-            variant: .subtle,
-            tone: isResultCorrect ? .success : .danger,
-            size: .md,
-            shape: .capsule
-        )
-    }
-
     private var lemmaAndDefinitionSection: some View {
         VStack(spacing: theme.spacing.xs) {
             HStack(alignment: .center, spacing: theme.spacing.sm) {
@@ -104,9 +88,9 @@ extension ReflexBlitzCardReviewedView {
                 if let onReplayAudio = onReplayAudio {
                     CraftSpeakerButton(
                         variant: .subtle,
-                        size: .sm,
+                        size: .md,
                         isPlaying: false,
-                        label: LocalizedStringKey("craft.audio.pronounce"),
+                        label: nil,
                         action: onReplayAudio
                     )
                 }
@@ -211,37 +195,26 @@ extension ReflexBlitzCardReviewedView {
     }
 
     @ViewBuilder
-    private var reviewedOptionsGrid: some View {
-        let isMultipleChoice = mode == .multipleChoice
-        let gridColumns = isMultipleChoice
-            ? [GridItem(.flexible(), spacing: theme.spacing.sm), GridItem(.flexible(), spacing: theme.spacing.sm)]
-            : [GridItem(.flexible())]
-
-        LazyVGrid(columns: gridColumns, spacing: theme.spacing.sm) {
-            ForEach(Array(options.enumerated()), id: \.element.id) { index, option in
+    private var reviewedOptionsList: some View {
+        VStack(spacing: theme.spacing.sm) {
+            ForEach(options, id: \.id) { option in
                 let isSelected = (option.text == selectedOptionText)
                 let isCorrect = option.isCorrect
                 let choiceState: CraftChoiceState = isCorrect ? .correct : (isSelected ? .wrong : .idle)
 
                 CraftChoiceCard(
-                    prefix: optionLetter(for: index),
-                    prefixStyle: .circle,
+                    prefix: nil,
+                    prefixStyle: .none,
                     title: option.text,
+                    textAlignment: .leading,
                     state: choiceState,
                     style: .tactile3D,
                     showsStatusIndicator: isCorrect || isSelected,
                     action: {}
                 )
+                .accessibilityLabel(option.text)
             }
         }
-    }
-
-    private func optionLetter(for index: Int) -> String {
-        let letters = ["A", "B", "C", "D", "E", "F"]
-        if index >= 0 && index < letters.count {
-            return letters[index]
-        }
-        return "\(index + 1)"
     }
 
     private var dividerLine: some View {

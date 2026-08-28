@@ -194,12 +194,8 @@ final class ReflexBlitzComponentsTests: XCTestCase {
     @MainActor
     func testCardViewInstantiationAndStates() {
         let word = ReflexBlitzWordItem(
-            id: 1,
-            lemma: "ephemeral",
-            pos: "adj.",
-            ipa: "/ɪˈfem.ər.əl/",
-            definitionVi: "Phù du, chóng tàn",
-            exampleSentenceEn: "Her fame is ephemeral in nature.",
+            id: 1, lemma: "ephemeral", pos: "adj.", ipa: "/ɪˈfem.ər.əl/",
+            definitionVi: "Phù du, chóng tàn", exampleSentenceEn: "Her fame is ephemeral in nature.",
             exampleSentenceVi: "Danh tiếng của cô ấy phù du."
         )
 
@@ -209,16 +205,9 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         let binding = Binding<String>(get: { textInput }, set: { textInput = $0 })
 
         let defaultCard = ReflexBlitzCardView(
-            word: word,
-            fractionRemaining: 0.85,
-            timerStage: .steady,
-            showHint: false,
-            isCorrect: false,
-            isTimeout: false,
-            liveTranscript: "ephem",
-            elapsedTimeMs: 900,
-            isKeyboardFallbackActive: false,
-            keyboardInputText: binding,
+            word: word, fractionRemaining: 0.85, timerStage: .steady, showHint: false,
+            isCorrect: false, isTimeout: false, liveTranscript: "ephem", elapsedTimeMs: 900,
+            isKeyboardFallbackActive: false, keyboardInputText: binding,
             onSubmitKeyboard: { submitted = true }
         )
         XCTAssertNotNil(defaultCard)
@@ -293,27 +282,16 @@ final class ReflexBlitzComponentsTests: XCTestCase {
     @MainActor
     func testCardViewTargetWordMorphingAndIPA() {
         let word = ReflexBlitzWordItem(
-            id: 2,
-            lemma: "fluent",
-            pos: "adj.",
-            ipa: "/ˈfluː.ənt/",
+            id: 2, lemma: "fluent", pos: "adj.", ipa: "/ˈfluː.ənt/",
             definitionVi: "Trôi chảy, lưu loát",
             exampleSentenceEn: "She is fluent in English and French.",
             exampleSentenceVi: "Cô ấy nói trôi chảy tiếng Anh và tiếng Pháp."
         )
 
         let correctCard = ReflexBlitzCardView(
-            word: word,
-            fractionRemaining: 0.7,
-            timerStage: .steady,
-            showHint: false,
-            isCorrect: true,
-            isTimeout: false,
-            liveTranscript: "fluent",
-            elapsedTimeMs: 1800,
-            isKeyboardFallbackActive: false,
-            keyboardInputText: .constant(""),
-            onSubmitKeyboard: {}
+            word: word, fractionRemaining: 0.7, timerStage: .steady, showHint: false,
+            isCorrect: true, isTimeout: false, liveTranscript: "fluent", elapsedTimeMs: 1800,
+            isKeyboardFallbackActive: false, keyboardInputText: .constant(""), onSubmitKeyboard: {}
         )
 
         let sentence = correctCard.displayedSentence
@@ -325,10 +303,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
     @MainActor
     func testCardHidesIPAUntilAnswered() {
         let word = ReflexBlitzWordItem(
-            id: 10,
-            lemma: "meticulous",
-            pos: "adj.",
-            ipa: "/məˈtɪk.jə.ləs/",
+            id: 10, lemma: "meticulous", pos: "adj.", ipa: "/məˈtɪk.jə.ləs/",
             definitionVi: "Tỉ mỉ, cẩn thận",
             exampleSentenceEn: "She is meticulous about her work quality.",
             exampleSentenceVi: "Cô ấy rất tỉ mỉ về chất lượng công việc của mình."
@@ -336,13 +311,8 @@ final class ReflexBlitzComponentsTests: XCTestCase {
 
         // 1. Active drilling without hint: IPA must be hidden from view body
         let activeDrillingCard = ReflexBlitzCardView(
-            word: word,
-            fractionRemaining: 0.8,
-            timerStage: .steady,
-            showHint: false,
-            isCorrect: false,
-            isTimeout: false,
-            liveTranscript: ""
+            word: word, fractionRemaining: 0.8, timerStage: .steady,
+            showHint: false, isCorrect: false, isTimeout: false, liveTranscript: ""
         )
         XCTAssertNotNil(activeDrillingCard.body)
         XCTAssertFalse(activeDrillingCard.isCorrect)
@@ -352,13 +322,8 @@ final class ReflexBlitzComponentsTests: XCTestCase {
 
         // 2. Active drilling with hint: hint initial letter revealed, IPA still hidden
         let hintedDrillingCard = ReflexBlitzCardView(
-            word: word,
-            fractionRemaining: 0.4,
-            timerStage: .warning,
-            showHint: true,
-            isCorrect: false,
-            isTimeout: false,
-            liveTranscript: ""
+            word: word, fractionRemaining: 0.4, timerStage: .warning,
+            showHint: true, isCorrect: false, isTimeout: false, liveTranscript: ""
         )
         XCTAssertNotNil(hintedDrillingCard.body)
         XCTAssertTrue(hintedDrillingCard.showHint)
@@ -368,13 +333,8 @@ final class ReflexBlitzComponentsTests: XCTestCase {
 
         // 3. Correct match: IPA and full target word revealed
         let correctCard = ReflexBlitzCardView(
-            word: word,
-            fractionRemaining: 0.5,
-            timerStage: .steady,
-            showHint: false,
-            isCorrect: true,
-            isTimeout: false,
-            liveTranscript: "meticulous"
+            word: word, fractionRemaining: 0.5, timerStage: .steady,
+            showHint: false, isCorrect: true, isTimeout: false, liveTranscript: "meticulous"
         )
         XCTAssertNotNil(correctCard.body)
         XCTAssertTrue(correctCard.isCorrect)
@@ -383,13 +343,8 @@ final class ReflexBlitzComponentsTests: XCTestCase {
 
         // 4. Timeout reveal: IPA and full example sentence revealed
         let timeoutCard = ReflexBlitzCardView(
-            word: word,
-            fractionRemaining: 0.0,
-            timerStage: .urgent,
-            showHint: true,
-            isCorrect: false,
-            isTimeout: true,
-            liveTranscript: ""
+            word: word, fractionRemaining: 0.0, timerStage: .urgent,
+            showHint: true, isCorrect: false, isTimeout: true, liveTranscript: ""
         )
         XCTAssertNotNil(timeoutCard.body)
         XCTAssertTrue(timeoutCard.isTimeout)
@@ -400,10 +355,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
     @MainActor
     func testClozeSentenceRevealPartsOnCorrectAndTimeout() {
         let word = ReflexBlitzWordItem(
-            id: 3,
-            lemma: "fluent",
-            pos: "adj.",
-            ipa: "/ˈfluː.ənt/",
+            id: 3, lemma: "fluent", pos: "adj.", ipa: "/ˈfluː.ənt/",
             definitionVi: "Trôi chảy, lưu loát",
             exampleSentenceEn: "She is fluent in English and French.",
             exampleSentenceVi: "Cô ấy nói trôi chảy tiếng Anh và tiếng Pháp.",
@@ -412,12 +364,8 @@ final class ReflexBlitzComponentsTests: XCTestCase {
 
         // 1. Drilling state: cloze slot has placeholder dots
         let drillingCard = ReflexBlitzCardView(
-            word: word,
-            fractionRemaining: 0.9,
-            timerStage: .steady,
-            showHint: false,
-            isCorrect: false,
-            isTimeout: false
+            word: word, fractionRemaining: 0.9, timerStage: .steady,
+            showHint: false, isCorrect: false, isTimeout: false
         )
         let drillingParts = drillingCard.clozeParts
         XCTAssertNotNil(drillingParts)
@@ -427,12 +375,8 @@ final class ReflexBlitzComponentsTests: XCTestCase {
 
         // 2. Hinted state: cloze slot contains initial letter hint
         let hintedCard = ReflexBlitzCardView(
-            word: word,
-            fractionRemaining: 0.4,
-            timerStage: .warning,
-            showHint: true,
-            isCorrect: false,
-            isTimeout: false
+            word: word, fractionRemaining: 0.4, timerStage: .warning,
+            showHint: true, isCorrect: false, isTimeout: false
         )
         let hintedParts = hintedCard.clozeParts
         XCTAssertNotNil(hintedParts)
@@ -442,12 +386,8 @@ final class ReflexBlitzComponentsTests: XCTestCase {
 
         // 3. Correct match state: cloze slot reveals the target lemma
         let correctCard = ReflexBlitzCardView(
-            word: word,
-            fractionRemaining: 0.6,
-            timerStage: .steady,
-            showHint: false,
-            isCorrect: true,
-            isTimeout: false
+            word: word, fractionRemaining: 0.6, timerStage: .steady,
+            showHint: false, isCorrect: true, isTimeout: false
         )
         let correctParts = correctCard.clozeParts
         XCTAssertNotNil(correctParts)
@@ -684,6 +624,39 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertNotNil(cardView.body)
         cardView.onReplayAudio?()
         XCTAssertTrue(replayed)
+    }
+
+    @MainActor
+    func testReflexBlitzCardReviewedViewCleanConsolidationLayout() {
+        let word = ReflexBlitzWordItem.defaultStarterWords[0]
+        let options = [
+            ReflexBlitzOption(id: "1", text: "habit", isCorrect: true),
+            ReflexBlitzOption(id: "2", text: "focus", isCorrect: false),
+            ReflexBlitzOption(id: "3", text: "create", isCorrect: false),
+            ReflexBlitzOption(id: "4", text: "relax", isCorrect: false)
+        ]
+        var didReplay = false
+        let reviewedCard = ReflexBlitzCardReviewedView(
+            word: word,
+            mode: .multipleChoice,
+            isReviewed: true,
+            isResultCorrect: true,
+            isResultTimeout: false,
+            options: options,
+            reviewResult: ReflexCardResult(isCorrect: true, responseTimeMs: 1200, isTimeout: false, selectedOption: "habit"),
+            selectedOptionText: "habit",
+            clozeParts: nil,
+            displayedSentence: word.completedSentenceWithTargetWord,
+            onReplayAudio: { didReplay = true }
+        )
+        XCTAssertNotNil(reviewedCard.body)
+        XCTAssertEqual(reviewedCard.options.count, 4)
+        XCTAssertEqual(reviewedCard.selectedOptionText, "habit")
+        XCTAssertTrue(reviewedCard.isResultCorrect)
+        XCTAssertFalse(reviewedCard.isResultTimeout)
+        XCTAssertEqual(reviewedCard.displayedSentence, word.completedSentenceWithTargetWord)
+        reviewedCard.onReplayAudio?()
+        XCTAssertTrue(didReplay)
     }
 
     // MARK: - Mode Selection View Tests
