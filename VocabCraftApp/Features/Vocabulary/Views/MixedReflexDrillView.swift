@@ -129,6 +129,7 @@ public struct MixedReflexDrillView: View {
 
             bottomDockArea
         }
+        .ignoresSafeArea(edges: .bottom)
     }
 
     // MARK: - Bottom Dock Area
@@ -150,7 +151,7 @@ public struct MixedReflexDrillView: View {
                     }
                 )
                 .padding(.horizontal, theme.spacing.lg)
-                .padding(.bottom, theme.spacing.md)
+                .padding(.bottom, theme.spacing.lg)
                 .transition(.opacity)
             }
         case .reviewed(let result):
@@ -164,7 +165,6 @@ public struct MixedReflexDrillView: View {
                     advanceToNextItem()
                 }
             )
-            .ignoresSafeArea(edges: .bottom)
             .transition(.move(edge: .bottom).combined(with: .opacity))
         }
     }

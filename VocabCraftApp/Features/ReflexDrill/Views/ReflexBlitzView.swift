@@ -179,6 +179,7 @@ public struct ReflexBlitzView: View {
             // Bottom Dock: Skip button during active countdown for Speaking/Typing, CraftFeedbackSheet on review
             bottomDockArea
         }
+        .ignoresSafeArea(edges: .bottom)
     }
 
     @ViewBuilder
@@ -198,7 +199,7 @@ public struct ReflexBlitzView: View {
                     }
                 )
                 .padding(.horizontal, theme.spacing.lg)
-                .padding(.bottom, theme.spacing.md)
+                .padding(.bottom, theme.spacing.lg)
                 .transition(.opacity)
             }
         case .reviewed(let result):
@@ -213,7 +214,6 @@ public struct ReflexBlitzView: View {
                     viewModel.advanceToNextWord()
                 }
             )
-            .ignoresSafeArea(edges: .bottom)
             .transition(.move(edge: .bottom).combined(with: .opacity))
         }
     }
