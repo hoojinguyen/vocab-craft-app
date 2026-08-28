@@ -70,7 +70,7 @@ public struct CraftLearningPath: View {
     ///   - showDetailModal: Whether tapping an unlocked node presents the `CraftLessonDetailSheet` modal (default: `true`).
     ///   - scrollToActive: Whether to automatically scroll to the active node upon appear (default: `true`).
     ///   - showCelebration: Whether to display celebratory confetti when completed/bonus/treasure nodes are tapped (default: `true`).
-    ///   - pinSectionHeaders: Whether to pin section headers at the top when scrolling (default: `true`).
+    ///   - pinSectionHeaders: Whether to pin section headers at the top when scrolling (default: `false`).
     ///   - onNodeImpression: Optional closure invoked when a node impression is recorded.
     ///   - nodeImpressionThreshold: Duration in seconds a node must be visible before impression triggers (default: `0.5`).
     ///   - stickyHUDBuilder: Optional custom builder for the floating sticky HUD.
@@ -83,7 +83,7 @@ public struct CraftLearningPath: View {
         showDetailModal: Bool = true,
         scrollToActive: Bool = true,
         showCelebration: Bool = true,
-        pinSectionHeaders: Bool = true,
+        pinSectionHeaders: Bool = false,
         onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
         nodeImpressionThreshold: TimeInterval = 0.5,
         stickyHUDBuilder: (@Sendable (LessonSection) -> AnyView)? = nil
@@ -115,7 +115,7 @@ public struct CraftLearningPath: View {
     ///   - showDetailModal: Whether tapping an unlocked node presents the `CraftLessonDetailSheet` modal (default: `true`).
     ///   - scrollToActive: Whether to automatically scroll to the active node upon appear (default: `true`).
     ///   - showCelebration: Whether to display celebratory confetti when completed/bonus/treasure nodes are tapped (default: `true`).
-    ///   - pinSectionHeaders: Whether to pin section headers at the top when scrolling (default: `true`).
+    ///   - pinSectionHeaders: Whether to pin section headers at the top when scrolling (default: `false`).
     ///   - scrollAnimation: Animation used for automatic scrolling.
     ///   - scrollAnchor: Anchor point used for auto-scrolling to active node.
     ///   - detailSheetBuilder: Optional custom modal sheet builder.
@@ -139,7 +139,7 @@ public struct CraftLearningPath: View {
         showDetailModal: Bool = true,
         scrollToActive: Bool = true,
         showCelebration: Bool = true,
-        pinSectionHeaders: Bool = true,
+        pinSectionHeaders: Bool = false,
         scrollAnimation: Animation = .spring(response: 0.5, dampingFraction: 0.8),
         scrollAnchor: UnitPoint = .center,
         detailSheetBuilder: (@Sendable (LessonNodeModel, @escaping (LessonNodeModel) -> Void, @escaping () -> Void) -> AnyView)? = nil,
@@ -191,7 +191,7 @@ public struct CraftLearningPath: View {
         showDetailModal: Bool = true,
         scrollToActive: Bool = true,
         showCelebration: Bool = true,
-        pinSectionHeaders: Bool = true,
+        pinSectionHeaders: Bool = false,
         scrollAnimation: Animation = .spring(response: 0.5, dampingFraction: 0.8),
         scrollAnchor: UnitPoint = .center,
         detailSheetBuilder: (@Sendable (LessonNodeModel, @escaping (LessonNodeModel) -> Void, @escaping () -> Void) -> AnyView)? = nil,
@@ -244,7 +244,7 @@ public struct CraftLearningPath: View {
         showDetailModal: Bool = true,
         scrollToActive: Bool = true,
         showCelebration: Bool = true,
-        pinSectionHeaders: Bool = true,
+        pinSectionHeaders: Bool = false,
         onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
         nodeImpressionThreshold: TimeInterval = 0.5,
         @ViewBuilder stickyHUD: @escaping @Sendable (LessonSection) -> HUDContent
@@ -274,7 +274,7 @@ public struct CraftLearningPath: View {
         showDetailModal: Bool = true,
         scrollToActive: Bool = true,
         showCelebration: Bool = true,
-        pinSectionHeaders: Bool = true,
+        pinSectionHeaders: Bool = false,
         onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
         nodeImpressionThreshold: TimeInterval = 0.5,
         stickyHUDBuilder: (@Sendable (LessonSection) -> AnyView)? = nil
@@ -304,7 +304,7 @@ public struct CraftLearningPath: View {
         showDetailModal: Bool = true,
         scrollToActive: Bool = true,
         showCelebration: Bool = true,
-        pinSectionHeaders: Bool = true,
+        pinSectionHeaders: Bool = false,
         onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
         nodeImpressionThreshold: TimeInterval = 0.5,
         stickyHUDBuilder: (@Sendable (LessonSection) -> AnyView)? = nil
@@ -354,9 +354,6 @@ public struct CraftLearningPath: View {
                 emptyStateView
             } else {
                 scrollableView
-                    .overlay(alignment: .top) {
-                        stickyHUDOverlay
-                    }
             }
         }
         .background(effectiveBackground)
@@ -419,6 +416,7 @@ public struct CraftLearningPath: View {
                                             handleDockChange(section: section, isDocked: isDocked)
                                         }
                                     )
+                                    .id(section.id)
                                     .accessibilityAddTraits(.isHeader)
                                     .padding(.vertical, theme.spacing.xs)
                                     .background(theme.colors.canvasBackground)
@@ -437,6 +435,7 @@ public struct CraftLearningPath: View {
                                         handleDockChange(section: section, isDocked: isDocked)
                                     }
                                 )
+                                .id(section.id)
 
                                 CraftLessonSectionBodyView(
                                     section: section,
@@ -467,6 +466,9 @@ public struct CraftLearningPath: View {
             .safeAreaInset(edge: .bottom) {
                 Color.clear.frame(height: smartBottomPadding)
             }
+            .overlay(alignment: .top) {
+                stickyHUDOverlay(proxy: proxy)
+            }
             .onAppear {
                 if scrollToActive, let targetID = activeNodeID {
                     performScroll(proxy, to: targetID, reducedMotion: isReducedMotion)
@@ -489,13 +491,13 @@ public struct CraftLearningPath: View {
     // MARK: - Sticky HUD Overlay
 
     @ViewBuilder
-    private var stickyHUDOverlay: some View {
+    private func stickyHUDOverlay(proxy: ScrollViewProxy) -> some View {
         if let section = dockedSection {
             Group {
                 if let builder = stickyHUDBuilder {
                     builder(section)
                 } else {
-                    defaultStickyHUD(for: section)
+                    defaultStickyHUD(for: section, proxy: proxy)
                 }
             }
             .padding(.top, theme.spacing.xs)
@@ -510,73 +512,86 @@ public struct CraftLearningPath: View {
     }
 
     @ViewBuilder
-    private func defaultStickyHUD(for section: LessonSection) -> some View {
-        HStack(spacing: theme.spacing.sm) {
-            if let bannerIcon = section.bannerIcon, !bannerIcon.isEmpty {
-                Image(systemName: bannerIcon)
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundStyle(theme.colors.brandPrimary)
+    private func defaultStickyHUD(for section: LessonSection, proxy: ScrollViewProxy) -> some View {
+        Button {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                proxy.scrollTo(section.id, anchor: .top)
             }
+        } label: {
+            HStack(spacing: theme.spacing.sm) {
+                if let bannerIcon = section.bannerIcon, !bannerIcon.isEmpty {
+                    Image(systemName: bannerIcon)
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(theme.colors.brandPrimary)
+                }
 
-            Text(section.level ?? CraftLocalized.string("craft.learning_path.default_unit_label"))
-                .font(.caption2.smallCaps().bold())
-                .foregroundStyle(theme.colors.brandPrimary)
-                .padding(.horizontal, theme.spacing.xs * 1.2)
-                .padding(.vertical, 3)
-                .background(
-                    Capsule()
-                        .fill(theme.colors.brandPrimary.opacity(0.12))
-                )
-
-            if !section.title.isEmpty {
-                Text(section.title)
-                    .font(theme.typography.label)
-                    .foregroundStyle(theme.colors.textPrimary)
-                    .lineLimit(1)
-            }
-
-            Spacer()
-
-            if let progress = section.progressText ?? section.progress, !progress.isEmpty {
-                Text(progress)
-                    .font(theme.typography.caption.bold())
-                    .monospacedDigit()
-                    .fontDesign(.rounded)
+                Text(section.level ?? CraftLocalized.string("craft.learning_path.default_unit_label"))
+                    .font(.caption2.smallCaps().bold())
                     .foregroundStyle(theme.colors.brandPrimary)
-                    .padding(.horizontal, theme.spacing.xs * 1.5)
+                    .padding(.horizontal, theme.spacing.xs * 1.2)
                     .padding(.vertical, 3)
                     .background(
                         Capsule()
-                            .fill(theme.colors.brandPrimary.opacity(0.08))
+                            .fill(theme.colors.brandPrimary.opacity(0.12))
                     )
-            } else if let progressValue = section.progressValue {
-                CraftProgressBar(
-                    progress: progressValue,
-                    height: 4,
-                    tintColor: theme.colors.brandPrimary,
-                    trackColor: theme.colors.surfaceSubtle,
-                    cornerRadius: 2,
-                    animated: true
-                )
-                .frame(width: 48)
+
+                if !section.title.isEmpty {
+                    Text(section.title)
+                        .font(theme.typography.label)
+                        .foregroundStyle(theme.colors.textPrimary)
+                        .lineLimit(1)
+                }
+
+                Spacer()
+
+                if let progress = section.progressText ?? section.progress, !progress.isEmpty {
+                    Text(progress)
+                        .font(theme.typography.caption.bold())
+                        .monospacedDigit()
+                        .fontDesign(.rounded)
+                        .foregroundStyle(theme.colors.brandPrimary)
+                        .padding(.horizontal, theme.spacing.xs * 1.5)
+                        .padding(.vertical, 3)
+                        .background(
+                            Capsule()
+                                .fill(theme.colors.brandPrimary.opacity(0.08))
+                        )
+                } else if let progressValue = section.progressValue {
+                    CraftProgressBar(
+                        progress: progressValue,
+                        height: 4,
+                        tintColor: theme.colors.brandPrimary,
+                        trackColor: theme.colors.surfaceSubtle,
+                        cornerRadius: 2,
+                        animated: true
+                    )
+                    .frame(width: 48)
+                }
             }
+            .padding(.horizontal, theme.spacing.base)
+            .padding(.vertical, theme.spacing.sm)
+            .background(
+                Capsule()
+                    .fill(.ultraThinMaterial)
+            )
+            .background(
+                Capsule()
+                    .fill(theme.colors.surfaceElevated.opacity(0.85))
+            )
+            .overlay(
+                Capsule()
+                    .strokeBorder(theme.colors.hairline, lineWidth: 1)
+            )
+            .craftShadow(theme.shadows.md)
+            .padding(.horizontal, theme.spacing.base)
         }
-        .padding(.horizontal, theme.spacing.base)
-        .padding(.vertical, theme.spacing.sm)
-        .background(
-            Capsule()
-                .fill(theme.colors.surfaceElevated)
-        )
-        .overlay(
-            Capsule()
-                .strokeBorder(theme.colors.hairline, lineWidth: 1)
-        )
-        .craftShadow(theme.shadows.md)
-        .padding(.horizontal, theme.spacing.base)
+        .buttonStyle(.plain)
+        .sensoryFeedback(.impact(weight: .light), trigger: dockedSection?.id)
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isHeader)
         .accessibilityLabel(Text(section.title))
         .accessibilityValue(Text((section.progressText ?? section.progress) ?? ""))
+        .accessibilityHint(CraftLocalized.string("craft.learning_path.tap_to_scroll_unit_hint"))
     }
 
     private func handleDockChange(section: LessonSection, isDocked: Bool) {
