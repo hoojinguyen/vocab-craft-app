@@ -47,6 +47,20 @@ public final class ReflexBlitzViewModel {
     public var weakWordsCount: Int = 0
     public var averageSpeedSeconds: Double = 0.0
 
+    public var isFeedbackPresented: Bool {
+        get {
+            if case .reviewed = cardPhase {
+                return true
+            }
+            return false
+        }
+        set {
+            if !newValue && isFeedbackPresented {
+                advanceToNextWord()
+            }
+        }
+    }
+
     private let continuousSpeechService: ContinuousReflexSpeechProtocol
     private let ttsService: TextToSpeechProtocol
     private let evaluateSRSUseCase: EvaluateSRSUseCaseProtocol
@@ -86,6 +100,24 @@ public final class ReflexBlitzViewModel {
         } else {
             return .urgent
         }
+    }
+
+    public convenience init(
+        words: [ReflexBlitzWordItem] = ReflexBlitzWordItem.defaultStarterWords,
+        weeklyPracticedCount: Int = 0,
+        weakWordsCount: Int = 0,
+        averageSpeedSeconds: Double = 0.0
+    ) {
+        self.init(
+            words: words,
+            weeklyPracticedCount: weeklyPracticedCount,
+            weakWordsCount: weakWordsCount,
+            averageSpeedSeconds: averageSpeedSeconds,
+            continuousSpeechService: ContinuousReflexSpeechService(),
+            ttsService: TextToSpeechService(),
+            evaluateSRSUseCase: EvaluateSRSUseCase(srsRepository: SRSRepositoryImpl()),
+            soundEffectService: SoundEffectService.shared
+        )
     }
 
     public init(
@@ -151,6 +183,18 @@ public final class ReflexBlitzViewModel {
     public func selectMode(_ mode: ReflexBlitzMode) {
         self.selectedMode = mode
         startCountdown()
+    }
+
+    public func startDrillSession(mode: ReflexBlitzMode, words: [ReflexBlitzWordItem]? = nil) {
+        if let words = words, !words.isEmpty {
+            self.words = words
+        }
+        self.selectedMode = mode
+        beginSessionDirectly()
+    }
+
+    public func skip() {
+        handleTimeout()
     }
 
     public func startCountdown() {

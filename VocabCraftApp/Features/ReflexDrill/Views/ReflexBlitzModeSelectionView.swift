@@ -2,7 +2,7 @@ import CraftUIKit
 import SwiftUI
 
 /// Mode item presentation model for the Reflex Blitz Mode Selection Bento cards.
-public struct ReflexBlitzModeItem: Identifiable, Sendable, Equatable {
+public struct ReflexBlitzModeItem: Identifiable, Equatable {
     public let mode: ReflexBlitzMode
     public let titleKey: LocalizedStringKey
     public let subtitleKey: LocalizedStringKey

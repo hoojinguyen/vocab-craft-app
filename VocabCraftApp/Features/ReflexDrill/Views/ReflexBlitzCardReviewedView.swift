@@ -1,7 +1,10 @@
+import CraftUIKit
 import SwiftUI
 
 /// Reviewed consolidation view for Reflex Blitz drill card displaying correct answers, IPA, translations, and feedback.
 public struct ReflexBlitzCardReviewedView: View {
+    @Environment(\.craftTheme) private var theme
+
     public let word: ReflexBlitzWordItem
     public let mode: ReflexBlitzMode
     public let isReviewed: Bool
@@ -41,7 +44,7 @@ public struct ReflexBlitzCardReviewedView: View {
     }
 
     public var body: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: theme.spacing.md) {
             statusHeaderBadge
             lemmaAndDefinitionSection
             dividerLine
@@ -65,94 +68,82 @@ public struct ReflexBlitzCardReviewedView: View {
 
 extension ReflexBlitzCardReviewedView {
     private var statusHeaderBadge: some View {
-        HStack(spacing: 6) {
-            Image(systemName: isResultCorrect ? "checkmark.circle.fill" : (isResultTimeout ? "clock.badge.exclamationmark.fill" : "xmark.circle.fill"))
-                .font(.subheadline.bold())
-                .symbolRenderingMode(.hierarchical)
-                .symbolEffect(.bounce, value: isReviewed)
-
-            Text(isResultCorrect ? "Chính xác!" : (isResultTimeout ? "Hết thời gian!" : "Chưa chính xác"))
-                .font(.subheadline.bold())
-                .fontDesign(.rounded)
-        }
-        .foregroundColor(isResultCorrect ? .vocabMint : .vocabCoral)
-        .padding(.horizontal, 14)
-        .padding(.vertical, 6)
-        .background((isResultCorrect ? Color.vocabMint : Color.vocabCoral).opacity(0.12))
-        .clipShape(Capsule())
-        .overlay(
-            Capsule()
-                .stroke((isResultCorrect ? Color.vocabMint : Color.vocabCoral).opacity(0.25), lineWidth: 0.8)
+        CraftBadge(
+            isResultCorrect ? "Chính xác!" : (isResultTimeout ? "Hết thời gian!" : "Chưa chính xác"),
+            iconName: isResultCorrect ? "checkmark.circle.fill" : (isResultTimeout ? "clock.badge.exclamationmark.fill" : "xmark.circle.fill"),
+            variant: .subtle,
+            tone: isResultCorrect ? .success : .danger,
+            size: .md,
+            shape: .capsule
         )
     }
 
     private var lemmaAndDefinitionSection: some View {
-        VStack(spacing: 6) {
-            HStack(alignment: .center, spacing: 10) {
-                Text(word.lemma)
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
-                    .foregroundColor(.vocabInk)
+        VStack(spacing: theme.spacing.xs) {
+            HStack(alignment: .center, spacing: theme.spacing.sm) {
+                CraftText(
+                    word.lemma,
+                    style: .titleLarge,
+                    color: theme.colors.textPrimary
+                )
 
                 if !word.pos.isEmpty {
-                    Text(word.pos.uppercased())
-                        .font(.caption2.weight(.bold))
-                        .fontDesign(.rounded)
-                        .foregroundColor(.vocabHeroAccent)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 3)
-                        .background(Color.vocabHeroAccent.opacity(0.12))
-                        .clipShape(Capsule())
+                    CraftBadge(
+                        word.pos.uppercased(),
+                        variant: .subtle,
+                        tone: .primary,
+                        size: .sm,
+                        shape: .capsule
+                    )
                 }
 
                 if let onReplayAudio = onReplayAudio {
-                    Button(action: onReplayAudio) {
-                        Image(systemName: "speaker.wave.2.fill")
-                            .font(.system(size: 15, weight: .semibold))
-                            .symbolRenderingMode(.hierarchical)
-                            .foregroundColor(.vocabHeroAccent)
-                            .frame(width: 36, height: 36)
-                            .background(.ultraThinMaterial)
-                            .clipShape(Circle())
-                            .overlay(
-                                Circle()
-                                    .stroke(Color.vocabHeroAccent.opacity(0.2), lineWidth: 0.8)
-                            )
-                    }
-                    .buttonStyle(BentoCardButtonStyle())
-                    .accessibilityLabel("Phát âm lại từ")
+                    CraftSpeakerButton(
+                        variant: .subtle,
+                        size: .sm,
+                        isPlaying: false,
+                        label: LocalizedStringKey("craft.audio.pronounce"),
+                        action: onReplayAudio
+                    )
                 }
             }
 
             if !word.ipa.isEmpty {
-                Text(word.ipa)
-                    .font(.subheadline.monospaced())
-                    .foregroundColor(.vocabMuted)
-                    .accessibilityLabel("Phiên âm IPA: \(word.ipa)")
+                CraftText(
+                    word.ipa,
+                    style: .caption,
+                    color: theme.colors.textMuted
+                )
+                .accessibilityLabel("Phiên âm IPA: \(word.ipa)")
             }
 
-            Text(word.definitionVi)
-                .font(.headline.weight(.semibold))
-                .foregroundColor(.vocabInk)
-                .multilineTextAlignment(.center)
-                .padding(.top, 2)
+            CraftText(
+                word.definitionVi,
+                style: .titleMedium,
+                color: theme.colors.textPrimary,
+                textAlignment: .center
+            )
+            .padding(.top, theme.spacing.xs / 2)
         }
     }
 
     private var sentenceSection: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: theme.spacing.xs) {
             reviewedSentenceView
                 .multilineTextAlignment(.center)
                 .lineSpacing(5)
-                .padding(.horizontal, 8)
+                .padding(.horizontal, theme.spacing.xs)
                 .fixedSize(horizontal: false, vertical: true)
 
             if !word.exampleSentenceVi.isEmpty {
-                Text(word.exampleSentenceVi)
-                    .font(.subheadline)
-                    .foregroundColor(.vocabMuted)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 8)
-                    .fixedSize(horizontal: false, vertical: true)
+                CraftText(
+                    word.exampleSentenceVi,
+                    style: .caption,
+                    color: theme.colors.textMuted,
+                    textAlignment: .center
+                )
+                .padding(.horizontal, theme.spacing.xs)
+                .fixedSize(horizontal: false, vertical: true)
             }
         }
     }
@@ -161,143 +152,81 @@ extension ReflexBlitzCardReviewedView {
     private var reviewedSentenceView: some View {
         if let parts = clozeParts {
             Text(parts.prefix)
-                .font(.title3.weight(.medium))
+                .font(theme.typography.titleMedium)
                 .fontDesign(.serif)
-                .foregroundColor(.vocabInk)
+                .foregroundColor(theme.colors.textPrimary)
             +
             Text(parts.slot)
-                .font(.title3.weight(.bold))
+                .font(theme.typography.titleMedium.bold())
                 .fontDesign(.serif)
-                .foregroundColor(isResultCorrect ? .vocabMint : .vocabCoral)
+                .foregroundColor(isResultCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger)
             +
             Text(parts.suffix)
-                .font(.title3.weight(.medium))
+                .font(theme.typography.titleMedium)
                 .fontDesign(.serif)
-                .foregroundColor(.vocabInk)
+                .foregroundColor(theme.colors.textPrimary)
         } else {
             Text(displayedSentence)
-                .font(.title3.weight(.bold))
+                .font(theme.typography.titleMedium.bold())
                 .fontDesign(.serif)
-                .foregroundColor(isResultCorrect ? .vocabMint : .vocabCoral)
+                .foregroundColor(isResultCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger)
         }
     }
 
     private var listeningResultChip: some View {
-        HStack(spacing: 6) {
-            Image(systemName: isResultCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
-                .font(.caption)
-                .symbolRenderingMode(.hierarchical)
-            Text("Đã chọn: \(selectedOptionText ?? word.definitionVi)")
-                .font(.caption.bold())
-        }
-        .foregroundColor(isResultCorrect ? .vocabMint : .vocabCoral)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
-        .background((isResultCorrect ? Color.vocabMint : Color.vocabCoral).opacity(0.12))
-        .clipShape(Capsule())
+        CraftBadge(
+            "Đã chọn: \(selectedOptionText ?? word.definitionVi)",
+            iconName: isResultCorrect ? "checkmark.circle.fill" : "xmark.circle.fill",
+            variant: .subtle,
+            tone: isResultCorrect ? .success : .danger,
+            size: .md,
+            shape: .capsule
+        )
     }
 
     private func speakingResultChip(spoken: String) -> some View {
-        HStack(spacing: 6) {
-            Image(systemName: "waveform")
-                .font(.caption)
-                .symbolRenderingMode(.hierarchical)
-            Text("Nhận diện: \(spoken)")
-                .font(.caption.bold())
-        }
-        .foregroundColor(.vocabMint)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
-        .background(Color.vocabMint.opacity(0.12))
-        .clipShape(Capsule())
+        CraftBadge(
+            "Nhận diện: \(spoken)",
+            iconName: "waveform",
+            variant: .subtle,
+            tone: .primary,
+            size: .md,
+            shape: .capsule
+        )
     }
 
     private func typingResultChip(typed: String) -> some View {
-        HStack(spacing: 6) {
-            Image(systemName: "keyboard")
-                .font(.caption)
-                .symbolRenderingMode(.hierarchical)
-            Text("Đã nhập: \(typed)")
-                .font(.caption.bold())
-        }
-        .foregroundColor(isResultCorrect ? .vocabMint : .vocabCoral)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
-        .background((isResultCorrect ? Color.vocabMint : Color.vocabCoral).opacity(0.12))
-        .clipShape(Capsule())
+        CraftBadge(
+            "Đã nhập: \(typed)",
+            iconName: "keyboard",
+            variant: .subtle,
+            tone: isResultCorrect ? .success : .danger,
+            size: .md,
+            shape: .capsule
+        )
     }
 
     @ViewBuilder
     private var reviewedOptionsGrid: some View {
         let isMultipleChoice = mode == .multipleChoice
         let gridColumns = isMultipleChoice
-            ? [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)]
+            ? [GridItem(.flexible(), spacing: theme.spacing.sm), GridItem(.flexible(), spacing: theme.spacing.sm)]
             : [GridItem(.flexible())]
 
-        LazyVGrid(columns: gridColumns, spacing: 10) {
+        LazyVGrid(columns: gridColumns, spacing: theme.spacing.sm) {
             ForEach(Array(options.enumerated()), id: \.element.id) { index, option in
                 let isSelected = (option.text == selectedOptionText)
                 let isCorrect = option.isCorrect
+                let choiceState: CraftChoiceState = isCorrect ? .correct : (isSelected ? .wrong : .idle)
 
-                HStack(spacing: 8) {
-                    Text(optionLetter(for: index))
-                        .font(.caption2.weight(.bold))
-                        .fontDesign(.rounded)
-                        .foregroundColor(
-                            isSelected
-                                ? (isCorrect ? .vocabMint : .vocabCoral)
-                                : (isCorrect ? .vocabMint : .vocabMuted)
-                        )
-                        .frame(width: 22, height: 22)
-                        .background(
-                            (isSelected
-                                ? (isCorrect ? Color.vocabMint : Color.vocabCoral)
-                                : (isCorrect ? Color.vocabMint : Color.vocabMuted)
-                            ).opacity(0.15)
-                        )
-                        .clipShape(Circle())
-
-                    Text(option.text)
-                        .font(isMultipleChoice ? .subheadline.weight(.semibold) : .subheadline)
-                        .foregroundColor(
-                            isSelected
-                                ? (isCorrect ? .vocabMint : .vocabCoral)
-                                : (isCorrect ? .vocabMint : .vocabInk.opacity(0.6))
-                        )
-                        .multilineTextAlignment(.leading)
-                        .lineLimit(2)
-
-                    Spacer(minLength: 0)
-
-                    if isSelected {
-                        Image(systemName: isCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
-                            .symbolRenderingMode(.hierarchical)
-                            .foregroundColor(isCorrect ? .vocabMint : .vocabCoral)
-                            .font(.subheadline)
-                    } else if isCorrect {
-                        Image(systemName: "checkmark.circle.fill")
-                            .symbolRenderingMode(.hierarchical)
-                            .foregroundColor(.vocabMint)
-                            .font(.subheadline)
-                    }
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 10)
-                .frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
-                .background(
-                    isSelected
-                        ? (isCorrect ? Color.vocabMint.opacity(0.12) : Color.vocabCoral.opacity(0.12))
-                        : (isCorrect ? Color.vocabMint.opacity(0.08) : Color.vocabCanvas.opacity(0.5))
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .stroke(
-                            isSelected
-                                ? (isCorrect ? Color.vocabMint : Color.vocabCoral)
-                                : (isCorrect ? Color.vocabMint : Color.vocabHairline.opacity(0.4)),
-                            lineWidth: isSelected || isCorrect ? 1.5 : 1
-                        )
+                CraftChoiceCard(
+                    prefix: optionLetter(for: index),
+                    prefixStyle: .circle,
+                    title: option.text,
+                    state: choiceState,
+                    style: .tactile3D,
+                    showsStatusIndicator: isCorrect || isSelected,
+                    action: {}
                 )
             }
         }
@@ -312,15 +241,7 @@ extension ReflexBlitzCardReviewedView {
     }
 
     private var dividerLine: some View {
-        Rectangle()
-            .fill(
-                LinearGradient(
-                    colors: [.clear, Color.vocabHairline.opacity(0.6), .clear],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-            )
-            .frame(height: 1)
-            .padding(.horizontal, 8)
+        CraftDivider()
+            .padding(.horizontal, theme.spacing.xs)
     }
 }

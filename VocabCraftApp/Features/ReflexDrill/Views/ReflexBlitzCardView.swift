@@ -1,3 +1,4 @@
+import CraftUIKit
 import SwiftUI
 
 /// Structural breakdown of a cloze sentence for inline styled reveal.
@@ -16,6 +17,8 @@ public struct ClozeSentenceParts: Equatable, Sendable {
 /// Challenge card view for Reflex Blitz drill supporting 4 modalities (Speaking, Typing, Multiple Choice, Listening)
 /// and a paused review consolidation state.
 public struct ReflexBlitzCardView: View {
+    @Environment(\.craftTheme) private var theme
+
     public let word: ReflexBlitzWordItem
     public let mode: ReflexBlitzMode
     public let cardPhase: ReflexCardPhase
@@ -172,7 +175,7 @@ public struct ReflexBlitzCardView: View {
     }
 
     public var body: some View {
-        VStack(spacing: 18) {
+        VStack(spacing: theme.spacing.md) {
             if isReviewed {
                 ReflexBlitzCardReviewedView(
                     word: word,
@@ -191,17 +194,17 @@ public struct ReflexBlitzCardView: View {
                 activeCountdownContentView
             }
         }
-        .padding(22)
+        .padding(theme.spacing.lg)
         .frame(maxWidth: .infinity)
-        .background(Color.vocabSurfaceCard)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .background(theme.colors.surfaceCard)
+        .clipShape(RoundedRectangle(cornerRadius: theme.radii.xl, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
+            RoundedRectangle(cornerRadius: theme.radii.xl, style: .continuous)
                 .stroke(cardBorderColor, lineWidth: isReviewed ? 2 : 1)
         )
-        .shadow(color: Color.black.opacity(0.06), radius: 16, x: 0, y: 6)
+        .shadow(color: theme.shadows.lg.color, radius: theme.shadows.lg.radius, x: theme.shadows.lg.x, y: theme.shadows.lg.y)
         .offset(x: shakeOffset)
-        .padding(.horizontal)
+        .padding(.horizontal, theme.spacing.base)
         .onChange(of: isReviewed) { _, reviewed in
             if reviewed && !isResultCorrect {
                 withAnimation(.spring(response: 0.15, dampingFraction: 0.2, blendDuration: 0.15)) {
@@ -239,11 +242,7 @@ extension ReflexBlitzCardView {
         sentenceArea
         scaffoldingArea
         dividerLine
-        if isKeyboardFallbackActive {
-            typingInputDockView
-        } else {
-            livingAudioDockView
-        }
+        livingAudioDockView
     }
 
     @ViewBuilder
@@ -264,71 +263,41 @@ extension ReflexBlitzCardView {
         activeOptionsGrid
     }
 
-    private var audioVisualizerGradient: LinearGradient {
-        LinearGradient(
-            colors: [Color.vocabHeroAccent, Color.vocabHeroAccent.opacity(0.6)],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-    }
-
-    private func listeningWaveformHeight(for index: Int) -> CGFloat {
-        let offset: Int = index * 6 + (elapsedTimeMs / 60)
-        let dynamicHeight: Int = 10 + (offset % 22)
-        return CGFloat(dynamicHeight)
-    }
-
     @ViewBuilder
     private var activeListeningContent: some View {
         // Listening mode stimulus: Hero Audio Player Widget + Replay cue (Lemma & Cloze hidden!)
-        VStack(spacing: 16) {
-            // Pulsing Audio Visualizer
-            HStack(spacing: 6) {
-                ForEach(0..<11, id: \.self) { index in
-                    Capsule()
-                        .fill(audioVisualizerGradient)
-                        .frame(
-                            width: 3.5,
-                            height: listeningWaveformHeight(for: index)
-                        )
-                        .animation(.easeInOut(duration: 0.1), value: elapsedTimeMs)
-                }
-            }
-            .frame(height: 32)
+        VStack(spacing: theme.spacing.md) {
+            // Pulsing Waveform Audio Visualizer
+            CraftWaveformView(
+                barCount: 16,
+                spacing: theme.spacing.xs,
+                minHeight: 6,
+                maxHeight: 36,
+                barWidth: 4,
+                isRecording: true,
+                activeColor: theme.colors.accent
+            )
+            .frame(height: 36)
             .accessibilityHidden(true)
 
             if let onReplayAudio = onReplayAudio {
-                Button(action: onReplayAudio) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "speaker.wave.3.fill")
-                            .font(.system(size: 16, weight: .bold))
-                            .symbolRenderingMode(.hierarchical)
-                            .symbolEffect(.pulse, options: .repeating)
-
-                        Text("Nghe lại phát âm")
-
-                            .font(.subheadline.weight(.bold))
-                    }
-                    .foregroundColor(.vocabHeroAccent)
-                    .padding(.horizontal, 18)
-                    .padding(.vertical, 10)
-                    .background(.ultraThinMaterial)
-                    .clipShape(Capsule())
-                    .overlay(
-                        Capsule()
-                            .stroke(Color.vocabHeroAccent.opacity(0.3), lineWidth: 1)
-                    )
-                    .frame(minHeight: 44)
-                }
-                .buttonStyle(BentoCardButtonStyle())
-                .accessibilityLabel("Nghe lại phát âm")
+                CraftSpeakerButton(
+                    variant: .subtle,
+                    size: .lg,
+                    isPlaying: false,
+                    label: AppStrings.ReflexBlitz.listeningReplay,
+                    action: onReplayAudio
+                )
             }
 
-            Text("Chọn nghĩa tiếng Việt của từ vừa nghe")
-                .font(.footnote.weight(.medium))
-                .foregroundColor(.vocabMuted)
+            CraftText(
+                AppStrings.ReflexBlitz.listeningInstruction,
+                style: .caption,
+                color: theme.colors.textMuted,
+                textAlignment: .center
+            )
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, theme.spacing.xs)
 
         dividerLine
 
@@ -339,26 +308,27 @@ extension ReflexBlitzCardView {
 
     @ViewBuilder
     private var triggerArea: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: theme.spacing.xs) {
             if !word.pos.isEmpty {
-                Text(word.pos.uppercased())
-                    .font(.caption2.weight(.bold))
-                    .fontDesign(.rounded)
-                    .foregroundColor(.vocabHeroAccent)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(Color.vocabHeroAccent.opacity(0.12))
-                    .clipShape(Capsule())
+                CraftBadge(
+                    word.pos.uppercased(),
+                    variant: .subtle,
+                    tone: .primary,
+                    size: .sm,
+                    shape: .capsule
+                )
             }
 
-            Text(word.definitionVi)
-                .font(.title3.weight(.bold))
-                .foregroundColor(.vocabInk)
-                .multilineTextAlignment(.center)
-                .lineLimit(2)
-                .accessibilityLabel("Nghĩa tiếng Việt: \(word.definitionVi)")
+            CraftText(
+                word.definitionVi,
+                style: .titleLarge,
+                color: theme.colors.textPrimary,
+                textAlignment: .center
+            )
+            .lineLimit(2)
+            .accessibilityLabel("Nghĩa tiếng Việt: \(word.definitionVi)")
         }
-        .padding(.top, 2)
+        .padding(.top, theme.spacing.xs / 2)
     }
 
     @ViewBuilder
@@ -366,7 +336,7 @@ extension ReflexBlitzCardView {
         sentenceView
             .multilineTextAlignment(.center)
             .lineSpacing(6)
-            .padding(.horizontal, 8)
+            .padding(.horizontal, theme.spacing.xs)
             .animation(.spring(response: 0.35, dampingFraction: 0.75), value: isResultCorrect)
             .animation(.spring(response: 0.35, dampingFraction: 0.75), value: isResultTimeout)
             .accessibilityLabel(
@@ -379,39 +349,24 @@ extension ReflexBlitzCardView {
     @ViewBuilder
     private var scaffoldingArea: some View {
         if isReviewed && !word.ipa.isEmpty {
-            HStack(spacing: 5) {
-                Image(systemName: "waveform")
-                    .font(.caption2)
-                    .symbolRenderingMode(.hierarchical)
-                Text(word.ipa)
-                    .font(.subheadline.monospaced())
-                    .lineLimit(1)
-            }
-            .foregroundColor(isResultCorrect ? .vocabMint : .vocabCoral)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 5)
-            .background(
-                (isResultCorrect ? Color.vocabMint : Color.vocabCoral).opacity(0.14)
+            CraftBadge(
+                word.ipa,
+                iconName: "waveform",
+                variant: .subtle,
+                tone: isResultCorrect ? .success : .danger,
+                size: .md,
+                shape: .capsule
             )
-            .clipShape(Capsule())
             .transition(.scale.combined(with: .opacity))
             .accessibilityLabel("Phiên âm IPA: \(word.ipa)")
         } else if showHint && !isReviewed {
-            HStack(spacing: 6) {
-                Image(systemName: "lightbulb.min.fill")
-                    .font(.caption2)
-                    .symbolRenderingMode(.hierarchical)
-                Text("Gợi ý: \(word.initialLetterHint)")
-                    .font(.caption.bold())
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 5)
-            .background(Color.vocabPeach.opacity(0.16))
-            .foregroundColor(.vocabPeach)
-            .clipShape(Capsule())
-            .overlay(
-                Capsule()
-                    .stroke(Color.vocabPeach.opacity(0.35), lineWidth: 1)
+            CraftBadge(
+                "Gợi ý: \(word.initialLetterHint)",
+                iconName: "lightbulb.min.fill",
+                variant: .outline,
+                tone: .warning,
+                size: .sm,
+                shape: .capsule
             )
             .transition(.scale.combined(with: .opacity))
             .accessibilityLabel("Gợi ý ký tự đầu: \(word.initialLetterHint)")
@@ -420,34 +375,34 @@ extension ReflexBlitzCardView {
 
     private func reviewedClozeText(parts: ClozeSentenceParts) -> Text {
         let prefixText = Text(parts.prefix)
-            .font(.title3.weight(.medium))
+            .font(theme.typography.titleMedium)
             .fontDesign(.serif)
-            .foregroundColor(.vocabInk)
-        let slotColor: Color = isResultCorrect ? .vocabMint : .vocabCoral
+            .foregroundColor(theme.colors.textPrimary)
+        let slotColor: Color = isResultCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger
         let slotText = Text(parts.slot)
-            .font(.title3.weight(.bold))
+            .font(theme.typography.titleMedium.bold())
             .fontDesign(.serif)
             .foregroundColor(slotColor)
         let suffixText = Text(parts.suffix)
-            .font(.title3.weight(.medium))
+            .font(theme.typography.titleMedium)
             .fontDesign(.serif)
-            .foregroundColor(.vocabInk)
+            .foregroundColor(theme.colors.textPrimary)
         return prefixText + slotText + suffixText
     }
 
     private func activeClozeText(parts: ClozeSentenceParts) -> Text {
         let prefixText = Text(parts.prefix)
-            .font(.title3.weight(.medium))
+            .font(theme.typography.titleMedium)
             .fontDesign(.serif)
-            .foregroundColor(.vocabInk)
+            .foregroundColor(theme.colors.textPrimary)
         let slotText = Text(parts.slot)
-            .font(.title3.bold())
+            .font(theme.typography.titleMedium.bold())
             .fontDesign(.monospaced)
             .foregroundColor(slotTextColor)
         let suffixText = Text(parts.suffix)
-            .font(.title3.weight(.medium))
+            .font(theme.typography.titleMedium)
             .fontDesign(.serif)
-            .foregroundColor(.vocabInk)
+            .foregroundColor(theme.colors.textPrimary)
         return prefixText + slotText + suffixText
     }
 
@@ -461,33 +416,25 @@ extension ReflexBlitzCardView {
             }
         } else {
             Text(displayedSentence)
-                .font(.title3.weight(isReviewed ? .bold : .medium))
+                .font(theme.typography.titleMedium.weight(isReviewed ? .bold : .medium))
                 .fontDesign(.serif)
-                .foregroundColor(isReviewed ? (isResultCorrect ? .vocabMint : .vocabCoral) : .vocabInk)
+                .foregroundColor(isReviewed ? (isResultCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger) : theme.colors.textPrimary)
         }
     }
 
     private var slotTextColor: Color {
         if isReviewed {
-            return isResultCorrect ? .vocabMint : .vocabCoral
+            return isResultCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger
         } else if showHint {
-            return .vocabPeach
+            return theme.colors.statusWarning
         } else {
-            return .vocabHeroAccent
+            return theme.colors.brandPrimary
         }
     }
 
     private var dividerLine: some View {
-        Rectangle()
-            .fill(
-                LinearGradient(
-                    colors: [.clear, Color.vocabHairline.opacity(0.6), .clear],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-            )
-            .frame(height: 1)
-            .padding(.horizontal, 8)
+        CraftDivider()
+            .padding(.horizontal, theme.spacing.xs)
     }
 
     private func optionLetter(for index: Int) -> String {
@@ -502,43 +449,22 @@ extension ReflexBlitzCardView {
     private var activeOptionsGrid: some View {
         let isMultipleChoice = mode == .multipleChoice
         let gridColumns = isMultipleChoice
-            ? [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)]
+            ? [GridItem(.flexible(), spacing: theme.spacing.sm), GridItem(.flexible(), spacing: theme.spacing.sm)]
             : [GridItem(.flexible())]
 
-        LazyVGrid(columns: gridColumns, spacing: 12) {
+        LazyVGrid(columns: gridColumns, spacing: theme.spacing.sm) {
             ForEach(Array(options.enumerated()), id: \.element.id) { index, option in
-                Button(action: {
-                    onSelectOption?(option)
-                }) {
-                    HStack(spacing: 10) {
-                        Text(optionLetter(for: index))
-                            .font(.caption.weight(.bold))
-                            .fontDesign(.rounded)
-                            .foregroundColor(.vocabMuted)
-                            .frame(width: 24, height: 24)
-                            .background(Color.vocabMuted.opacity(0.12))
-                            .clipShape(Circle())
-
-                        Text(option.text)
-                            .font(isMultipleChoice ? .subheadline.weight(.semibold) : .subheadline)
-                            .foregroundColor(.vocabInk)
-                            .multilineTextAlignment(.leading)
-                            .lineLimit(2)
-
-                        Spacer(minLength: 0)
+                CraftChoiceCard(
+                    prefix: optionLetter(for: index),
+                    prefixStyle: .circle,
+                    title: option.text,
+                    state: .idle,
+                    style: .tactile3D,
+                    showsStatusIndicator: false,
+                    action: {
+                        onSelectOption?(option)
                     }
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 12)
-                    .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
-                    .background(Color.vocabCanvas)
-                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .stroke(Color.vocabHairline.opacity(0.8), lineWidth: 1)
-                    )
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(BentoCardButtonStyle())
+                )
                 .accessibilityLabel("Lựa chọn \(optionLetter(for: index)): \(option.text)")
             }
         }
@@ -546,48 +472,36 @@ extension ReflexBlitzCardView {
 
     @ViewBuilder
     private var typingInputDockView: some View {
-        HStack(spacing: 10) {
-            TextField("Gõ từ tiếng Anh...", text: $keyboardInputText)
-                .textFieldStyle(.plain)
-                .focused($isTextFieldFocused)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 12)
-                .background(Color.vocabCanvas)
-                .cornerRadius(14)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 14)
-                        .stroke(
-                            isTextFieldFocused ? Color.vocabHeroAccent : Color.vocabHairline.opacity(0.8),
-                            lineWidth: isTextFieldFocused ? 1.5 : 1
-                        )
-                )
-                .autocorrectionDisabled()
-                #if os(iOS)
-                .textInputAutocapitalization(.never)
-                #endif
-                .onSubmit {
+        HStack(spacing: theme.spacing.sm) {
+            CraftTextField(
+                placeholder: AppStrings.ReflexBlitz.typingPlaceholderText,
+                text: $keyboardInputText,
+                leadingIcon: "keyboard",
+                style: .standard
+            )
+            .focused($isTextFieldFocused)
+            .autocorrectionDisabled()
+            #if os(iOS)
+            .textInputAutocapitalization(.never)
+            #endif
+            .onSubmit {
+                onSubmitKeyboard?()
+            }
+            .accessibilityLabel(AppStrings.ReflexBlitz.typingPlaceholderText)
+
+            CraftIconButton(
+                iconName: "arrow.up.circle.fill",
+                size: .lg,
+                shape: .circle,
+                variant: keyboardInputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? .subtle : .filled,
+                accessibilityLabelKey: LocalizedStringKey("app.reflex.drill.typing_submit_a11y"),
+                action: {
                     onSubmitKeyboard?()
                 }
-                .accessibilityLabel("Ô nhập từ tiếng Anh")
-
-            Button(action: {
-                onSubmitKeyboard?()
-            }) {
-                Image(systemName: "arrow.up.circle.fill")
-                    .font(.system(size: 34, weight: .bold))
-                    .symbolRenderingMode(.hierarchical)
-                    .symbolEffect(.bounce, value: keyboardInputText.count)
-                    .foregroundColor(
-                        keyboardInputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                            ? .vocabMuted.opacity(0.35)
-                            : .vocabHeroAccent
-                    )
-            }
+            )
             .disabled(keyboardInputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            .frame(minWidth: 44, minHeight: 44)
-            .accessibilityLabel("Gửi câu trả lời đã gõ")
         }
-        .padding(.horizontal, 4)
+        .padding(.horizontal, theme.spacing.xxs)
         .onAppear {
             if !isReviewed {
                 isTextFieldFocused = true
@@ -595,74 +509,53 @@ extension ReflexBlitzCardView {
         }
     }
 
-    private var dockWaveformColor: Color {
-        if isResultCorrect {
-            return .vocabMint
-        } else if isResultTimeout {
-            return .vocabCoral
-        } else {
-            return timerStrokeColor
-        }
-    }
-
-    private func dockWaveformHeight(for index: Int) -> CGFloat {
-        let offset: Int = index * 5 + (elapsedTimeMs / 70)
-        let dynamicHeight: Int = 8 + (offset % 16)
-        return CGFloat(dynamicHeight)
-    }
-
     @ViewBuilder
     private var livingAudioDockView: some View {
-        VStack(spacing: 8) {
-            HStack(spacing: 5) {
-                ForEach(0..<9, id: \.self) { index in
-                    Capsule()
-                        .fill(dockWaveformColor)
-                        .frame(
-                            width: 3.5,
-                            height: dockWaveformHeight(for: index)
-                        )
-                        .animation(.easeInOut(duration: 0.12), value: elapsedTimeMs)
-                }
-            }
-            .frame(height: 24)
+        VStack(spacing: theme.spacing.xs) {
+            CraftWaveformView(
+                barCount: 16,
+                spacing: theme.spacing.xs,
+                minHeight: 4,
+                maxHeight: 28,
+                barWidth: 4,
+                isRecording: true,
+                activeColor: timerStrokeColor
+            )
+            .frame(height: 28)
             .accessibilityHidden(true)
 
             if liveTranscript.isEmpty {
-                HStack(spacing: 6) {
-                    Image(systemName: "mic.fill")
-                        .font(.caption2)
-                        .symbolRenderingMode(.hierarchical)
-                        .symbolEffect(.pulse, options: .repeating)
-
-                    Text("Đang lắng nghe phát âm...")
-                        .font(.footnote.weight(.medium))
+                HStack(spacing: theme.spacing.xs) {
+                    CraftIcon("mic.fill", size: .sm, color: theme.colors.textMuted)
+                    CraftText(
+                        AppStrings.ReflexBlitz.speakingListeningText,
+                        style: .caption,
+                        color: theme.colors.textMuted
+                    )
                 }
-                .foregroundColor(.vocabMuted)
                 .transition(.opacity)
             } else {
-                HStack(spacing: 6) {
-                    Image(systemName: "waveform")
-                        .font(.caption2)
-                        .symbolRenderingMode(.hierarchical)
-
-                    Text(liveTranscript)
-                        .font(.footnote.weight(.bold))
-                }
-                .foregroundColor(timerStrokeColor)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 5)
-                .background(timerStrokeColor.opacity(0.12))
-                .clipShape(Capsule())
+                CraftBadge(
+                    liveTranscript,
+                    iconName: "waveform",
+                    variant: .solid,
+                    tone: .primary,
+                    size: .md,
+                    shape: .capsule
+                )
                 .transition(.scale.combined(with: .opacity))
             }
         }
-        .padding(.vertical, 10)
-        .padding(.horizontal, 16)
+        .padding(.vertical, theme.spacing.sm)
+        .padding(.horizontal, theme.spacing.base)
         .frame(maxWidth: .infinity)
-        .background(Color.vocabCanvas.opacity(0.6))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .background(theme.colors.surfaceSubtle.opacity(0.6))
+        .clipShape(RoundedRectangle(cornerRadius: theme.radii.lg, style: .continuous))
         .animation(.spring(response: 0.3, dampingFraction: 0.75), value: liveTranscript.isEmpty)
         .accessibilityLabel(liveTranscript.isEmpty ? "Đang chờ phát âm..." : "Nhận diện giọng nói: \(liveTranscript)")
     }
+}
+
+private extension CraftSpacingTokens {
+    var xxs: CGFloat { xs / 2 }
 }

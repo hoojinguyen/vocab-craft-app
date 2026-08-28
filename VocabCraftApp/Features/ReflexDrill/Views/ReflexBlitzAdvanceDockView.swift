@@ -1,9 +1,12 @@
+import CraftUIKit
 import SwiftUI
 
 /// Ergonomic Bottom Dock Action Button for advancing between drill items in Reflex Blitz.
 /// Displays speed metrics (e.g. `⚡️ 1.4s • Từ tiếp theo ➔` or `⚠️ Hết giờ • Từ tiếp theo ➔`),
 /// provides clear auditory/tactile feedback, and anchors firmly within the thumb reach zone.
 public struct ReflexBlitzAdvanceDockView: View {
+    @Environment(\.craftTheme) private var theme
+
     public let isReviewed: Bool
     public let responseTimeMs: Int
     public let isCorrect: Bool
@@ -87,130 +90,47 @@ public struct ReflexBlitzAdvanceDockView: View {
                 return "\(formattedResponseTime) • Từ tiếp theo ➔"
             }
         } else {
-            return "Bỏ qua"
-        }
-    }
-
-    private var buttonGradient: LinearGradient {
-        if isReviewed {
-            if isCorrect {
-                return LinearGradient(
-                    colors: [Color.vocabHeroAccent, Color.vocabMint],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-            } else if isTimeout {
-                return LinearGradient(
-                    colors: [Color.vocabCoral, Color.vocabPeach],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-            } else {
-                return LinearGradient(
-                    colors: [Color.vocabPeach, Color.vocabCoral],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-            }
-        } else {
-            return LinearGradient(
-                colors: [Color.vocabSurfaceCard, Color.vocabSurfaceCard],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
+            return AppStrings.ReflexBlitz.skipText
         }
     }
 
     public var body: some View {
         VStack(spacing: 0) {
             if isReviewed {
-                Button(action: {
-                    advanceTapTrigger.toggle()
-                    onAdvance()
-                }) {
-                    HStack(spacing: 8) {
-                        if isTimeout {
-                            Image(systemName: "clock.badge.exclamationmark.fill")
-                                .font(.subheadline.bold())
-                                .symbolRenderingMode(.hierarchical)
-                            Text("Hết giờ • Từ tiếp theo")
-                                .font(.headline.weight(.bold))
-                                .fontDesign(.rounded)
-                        } else if isCorrect {
-                            Image(systemName: "bolt.fill")
-                                .font(.subheadline.bold())
-                                .symbolRenderingMode(.hierarchical)
-                                .symbolEffect(.pulse)
-                            Text("\(formattedResponseTime) • Từ tiếp theo")
-                                .font(.headline.weight(.bold))
-                                .fontDesign(.rounded)
-                        } else {
-                            Image(systemName: "arrow.right.circle.fill")
-                                .font(.subheadline.bold())
-                                .symbolRenderingMode(.hierarchical)
-                            Text("\(formattedResponseTime) • Từ tiếp theo")
-                                .font(.headline.weight(.bold))
-                                .fontDesign(.rounded)
-                        }
-
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 13, weight: .bold))
+                CraftButton(
+                    buttonTitle,
+                    iconName: isTimeout ? "clock.badge.exclamationmark.fill" : (isCorrect ? "bolt.fill" : "arrow.right.circle.fill"),
+                    variant: isCorrect ? .primary : (isTimeout ? .danger : .secondary),
+                    size: .lg,
+                    isFullWidth: true,
+                    style: .tactile3D,
+                    action: {
+                        advanceTapTrigger.toggle()
+                        onAdvance()
                     }
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 54)
-                    .background(buttonGradient)
-                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                    .shadow(
-                        color: isCorrect
-                            ? Color.vocabHeroAccent.opacity(0.35)
-                            : Color.vocabCoral.opacity(0.35),
-                        radius: 12,
-                        x: 0,
-                        y: 6
-                    )
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(BentoCardButtonStyle())
+                )
                 .keyboardShortcut(.defaultAction)
                 .transition(.scale.combined(with: .opacity))
                 .accessibilityLabel(accessibilityDescription)
                 .accessibilityHint("Nhấn để chuyển sang từ vựng tiếp theo")
-            } else {
-                Button(action: {
-                    advanceTapTrigger.toggle()
-                    if let onSkip = onSkip {
+            } else if let onSkip = onSkip {
+                CraftButton(
+                    AppStrings.ReflexBlitz.skip,
+                    iconName: "forward.fill",
+                    variant: .outline,
+                    size: .md,
+                    isFullWidth: true,
+                    style: .outlined,
+                    action: {
+                        advanceTapTrigger.toggle()
                         onSkip()
-                    } else {
-                        onAdvance()
                     }
-                }) {
-                    HStack(spacing: 6) {
-                        Text("Bỏ qua")
-                            .font(.subheadline.weight(.semibold))
-                        Image(systemName: "forward.fill")
-                            .font(.caption2.weight(.bold))
-                            .symbolRenderingMode(.hierarchical)
-                    }
-                    .foregroundColor(.vocabMuted)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 48)
-                    .background(Color.vocabSurfaceCard)
-                    .clipShape(Capsule())
-                    .overlay(
-                        Capsule()
-                            .stroke(Color.vocabHairline.opacity(0.8), lineWidth: 1)
-                    )
-                    .shadow(color: Color.black.opacity(0.03), radius: 6, x: 0, y: 2)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(BentoCardButtonStyle())
-                .accessibilityLabel("Bỏ qua từ hiện tại")
+                )
+                .accessibilityLabel(AppStrings.ReflexBlitz.skipText)
             }
-
         }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 12)
+        .padding(.horizontal, theme.spacing.lg)
+        .padding(.vertical, theme.spacing.sm)
         .sensoryFeedback(.impact(weight: .medium), trigger: advanceTapTrigger)
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: isReviewed)
     }

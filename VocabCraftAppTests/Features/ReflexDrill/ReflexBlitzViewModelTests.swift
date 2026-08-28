@@ -1,3 +1,4 @@
+import Testing
 @testable import VocabCraftApp
 import XCTest
 
@@ -632,5 +633,94 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         XCTAssertEqual(weakAttempt.pos, "adj.")
         XCTAssertEqual(weakAttempt.ipa, "/rɪˈzɪl.jənt/")
         XCTAssertEqual(weakAttempt.definitionVi, "Kiên cường")
+    }
+}
+
+// MARK: - Swift Testing 4 Modalities Feedback Suite
+
+@Suite("Reflex Blitz 4 Modalities Feedback Tests")
+struct ReflexBlitzViewModelFeedbackTests {
+    @Test("Speaking and Typing allow Skip; MC and Listening trigger instant feedback on choice")
+    @MainActor
+    func testModalityInteractions() {
+        let viewModel = ReflexBlitzViewModel()
+        let sampleWord = ReflexBlitzWordItem(id: 1, lemma: "capital", ipa: "/kæp/", definitionVi: "thủ đô", clozeSentenceEn: "Tokyo is a [capital].", clozeSentenceVi: "Tokyo là thủ đô.")
+        viewModel.startDrillSession(mode: .speaking, words: [sampleWord])
+
+        // Initially feedback is not presented
+        #expect(viewModel.isFeedbackPresented == false)
+
+        // Skip in Speaking should transition to reviewed with feedback
+        viewModel.handleTimeout()
+        #expect(viewModel.isFeedbackPresented == true)
+
+        // Multiple Choice selection
+        viewModel.startDrillSession(mode: .multipleChoice, words: [sampleWord])
+        #expect(viewModel.isFeedbackPresented == false)
+        let opt = ReflexBlitzOption(id: "1", text: "capital", isCorrect: true)
+        viewModel.selectOption(opt)
+        #expect(viewModel.isFeedbackPresented == true)
+        #expect(viewModel.currentAttemptIsCorrect == true)
+    }
+
+    @Test("Typing submission triggers feedback presentation and case-insensitive check")
+    @MainActor
+    func testTypingFeedbackInteractions() {
+        let viewModel = ReflexBlitzViewModel()
+        let sampleWord = ReflexBlitzWordItem(id: 2, lemma: "eloquent", ipa: "/ˈel.ə.kwənt/", definitionVi: "Hùng biện", clozeSentenceEn: "He is [eloquent].", clozeSentenceVi: "Anh ấy rất hùng biện.")
+        viewModel.startDrillSession(mode: .typing, words: [sampleWord])
+
+        #expect(viewModel.isFeedbackPresented == false)
+
+        // Incorrect typing should NOT trigger feedback immediately (lets user retry before timeout)
+        viewModel.submitTypingAnswer("wrong")
+        #expect(viewModel.isFeedbackPresented == false)
+
+        // Correct typing triggers feedback
+        viewModel.submitTypingAnswer("  ELOQUENT \n")
+        #expect(viewModel.isFeedbackPresented == true)
+        #expect(viewModel.currentAttemptIsCorrect == true)
+    }
+
+    @Test("Listening mode auto-speaks lemma and option selection triggers feedback")
+    @MainActor
+    func testListeningFeedbackInteractions() {
+        let mockSpeech = MockContinuousReflexSpeechService()
+        let mockTTS = MockTextToSpeechService()
+        let mockSRS = MockEvaluateSRSUseCase()
+        let sampleWord = ReflexBlitzWordItem(id: 3, lemma: "resilient", ipa: "/rɪˈzɪl.jənt/", definitionVi: "Kiên cường", clozeSentenceEn: "They are [resilient].", clozeSentenceVi: "Họ kiên cường.")
+
+        let viewModel = ReflexBlitzViewModel(
+            words: [sampleWord],
+            continuousSpeechService: mockSpeech,
+            ttsService: mockTTS,
+            evaluateSRSUseCase: mockSRS
+        )
+        viewModel.startDrillSession(mode: .listening, words: [sampleWord])
+
+        #expect(mockTTS.lastSpokenText == "resilient")
+        #expect(viewModel.isFeedbackPresented == false)
+
+        let correctOpt = viewModel.currentOptions.first(where: { $0.isCorrect })!
+        viewModel.selectOption(correctOpt)
+        #expect(viewModel.isFeedbackPresented == true)
+        #expect(viewModel.currentAttemptIsCorrect == true)
+    }
+
+    @Test("Advancing to next word resets isFeedbackPresented to false")
+    @MainActor
+    func testAdvanceResetsFeedbackState() {
+        let viewModel = ReflexBlitzViewModel()
+        let word1 = ReflexBlitzWordItem(id: 1, lemma: "first", definitionVi: "thứ nhất")
+        let word2 = ReflexBlitzWordItem(id: 2, lemma: "second", definitionVi: "thứ hai")
+        viewModel.startDrillSession(mode: .typing, words: [word1, word2])
+
+        viewModel.submitTypingAnswer("first")
+        #expect(viewModel.isFeedbackPresented == true)
+
+        viewModel.advanceToNextWord()
+        #expect(viewModel.isFeedbackPresented == false)
+        #expect(viewModel.currentWordIndex == 1)
+        #expect(viewModel.currentWord?.lemma == "second")
     }
 }

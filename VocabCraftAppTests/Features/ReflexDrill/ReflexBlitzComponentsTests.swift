@@ -935,7 +935,6 @@ struct ReflexBlitzModeSelectionViewTests {
         #expect(view.weeklyPracticedCount == 42)
         #expect(view.weakWordsCount == 5)
         #expect(view.averageSpeedSeconds == 1.6)
-        #expect(view.body != nil)
 
         view.onSelectMode(.speaking)
         #expect(selectedMode == .speaking)

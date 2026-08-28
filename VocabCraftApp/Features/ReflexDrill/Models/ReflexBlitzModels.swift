@@ -128,14 +128,15 @@ public struct ReflexBlitzWordItem: Identifiable, Equatable, Sendable {
     public let initialLetterHint: String
 
     public init(
-        id: Int,
+        id: Int = 0,
         lemma: String,
-        pos: String,
+        pos: String = "",
         ipa: String = "",
         definitionVi: String,
-        exampleSentenceEn: String,
-        exampleSentenceVi: String,
-        clozeSentenceEn: String? = nil
+        exampleSentenceEn: String = "",
+        exampleSentenceVi: String = "",
+        clozeSentenceEn: String? = nil,
+        clozeSentenceVi: String? = nil
     ) {
         self.id = id
         self.lemma = lemma
@@ -143,7 +144,7 @@ public struct ReflexBlitzWordItem: Identifiable, Equatable, Sendable {
         self.ipa = ipa
         self.definitionVi = definitionVi
         self.exampleSentenceEn = exampleSentenceEn
-        self.exampleSentenceVi = exampleSentenceVi
+        self.exampleSentenceVi = !exampleSentenceVi.isEmpty ? exampleSentenceVi : (clozeSentenceVi ?? "")
         let cloze = clozeSentenceEn ?? ReflexClozeFormatter.formatCloze(sentenceEn: exampleSentenceEn, lemma: lemma)
         self.clozeSentenceEn = cloze
         let (prefix, suffix) = ReflexClozeFormatter.extractTemplateParts(from: cloze)

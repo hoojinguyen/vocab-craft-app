@@ -4,7 +4,7 @@ import SwiftUI
 /// Main container view for the Redesigned Reflex Blitz drill experience.
 /// Manages phase transitions (mode selection, countdown, drilling, and summary),
 /// 4 distinct drill modalities (Speaking, Typing, Multiple Choice, Listening),
-/// and the paused review consolidation dock.
+/// and the docked CraftFeedbackSheet review state.
 public struct ReflexBlitzView: View {
     @Environment(\.craftTheme) private var theme
     public var viewModel: ReflexBlitzViewModel
@@ -123,7 +123,7 @@ public struct ReflexBlitzView: View {
             )
             .padding(.top, theme.spacing.sm)
 
-            Spacer(minLength: theme.spacing.sm)
+            Spacer(minLength: theme.spacing.xs)
 
             // Challenge Card with 4-mode presentation & reviewed consolidation state
             if let word = viewModel.currentWord {
@@ -157,21 +157,94 @@ public struct ReflexBlitzView: View {
                 ))
             }
 
-            Spacer(minLength: theme.spacing.sm)
+            Spacer(minLength: theme.spacing.xs)
 
-            // Ergonomic Advance Dock / Bottom Skip button in Thumb Zone
-            ReflexBlitzAdvanceDockView(
-                cardPhase: viewModel.cardPhase,
-                onAdvance: {
+            // Bottom Dock: Skip button during active countdown for Speaking/Typing, CraftFeedbackSheet on review
+            bottomDockArea
+                .padding(.bottom, theme.spacing.md)
+        }
+    }
+
+    @ViewBuilder
+    private var bottomDockArea: some View {
+        switch viewModel.cardPhase {
+        case .activeCountdown:
+            if viewModel.selectedMode == .speaking || viewModel.selectedMode == .typing {
+                CraftButton(
+                    AppStrings.ReflexBlitz.skip,
+                    iconName: "forward.fill",
+                    variant: .outline,
+                    size: .md,
+                    isFullWidth: true,
+                    style: .outlined,
+                    action: {
+                        viewModel.skip()
+                    }
+                )
+                .padding(.horizontal, theme.spacing.lg)
+                .transition(.opacity)
+            }
+        case .reviewed(let result):
+            CraftFeedbackSheet(
+                status: result.isCorrect ? .success : (result.isTimeout ? .warning : .error),
+                title: result.isCorrect ? "Chính xác!" : (result.isTimeout ? "Hết thời gian!" : "Chưa chính xác"),
+                actionTitle: AppStrings.ReflexBlitz.continueCTAText,
+                style: .tactile3D,
+                onContinue: {
                     typingInput = ""
                     viewModel.advanceToNextWord()
                 },
-                onSkip: {
-                    viewModel.handleTimeout()
+                extraContent: {
+                    if let word = viewModel.currentWord {
+                        feedbackExtraContent(word: word, result: result)
+                    }
                 }
             )
-            .padding(.bottom, theme.spacing.md)
+            .padding(.horizontal, theme.spacing.base)
+            .transition(.move(edge: .bottom).combined(with: .opacity))
         }
+    }
+
+    @ViewBuilder
+    private func feedbackExtraContent(word: ReflexBlitzWordItem, result: ReflexCardResult) -> some View {
+        VStack(alignment: .leading, spacing: theme.spacing.xs) {
+            HStack(spacing: theme.spacing.sm) {
+                CraftText(word.lemma, style: .titleMedium, color: theme.colors.textPrimary)
+
+                if !word.pos.isEmpty {
+                    CraftBadge(word.pos.uppercased(), variant: .subtle, tone: .primary, size: .sm, shape: .capsule)
+                }
+
+                if !word.ipa.isEmpty {
+                    CraftText(word.ipa, style: .caption, color: theme.colors.textMuted)
+                }
+
+                Spacer()
+
+                CraftSpeakerButton(
+                    variant: .subtle,
+                    size: .sm,
+                    isPlaying: false,
+                    label: LocalizedStringKey("craft.audio.pronounce"),
+                    action: {
+                        viewModel.speakCurrentWord()
+                    }
+                )
+            }
+
+            CraftText(word.definitionVi, style: .bodyMedium, color: theme.colors.textPrimary)
+
+            if !word.clozeSentenceEn.isEmpty {
+                CraftText(word.completedSentenceWithTargetWord, style: .bodyMedium, color: theme.colors.textSecondary)
+            }
+
+            if !word.exampleSentenceVi.isEmpty {
+                CraftText(word.exampleSentenceVi, style: .caption, color: theme.colors.textMuted)
+            }
+        }
+        .padding(theme.spacing.sm)
+        .background(theme.colors.surfaceSubtle)
+        .clipShape(RoundedRectangle(cornerRadius: theme.radii.md, style: .continuous))
     }
 
     private func submitKeyboard() {
