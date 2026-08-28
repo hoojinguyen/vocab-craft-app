@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import SwiftUI
 
 public enum ReflexBlitzPhase: Equatable, Sendable {
     case modeSelection
@@ -369,33 +370,24 @@ extension ReflexBlitzViewModel {
         }
 
         let attempt = ReflexBlitzAttempt(
-            wordId: word.id,
-            lemma: word.lemma,
-            pos: word.pos,
-            ipa: word.ipa,
-            definitionVi: word.definitionVi,
-            responseTimeMs: responseMs,
-            usedHint: showHint,
-            isCorrect: isCorrect
+            wordId: word.id, lemma: word.lemma, pos: word.pos, ipa: word.ipa,
+            definitionVi: word.definitionVi, responseTimeMs: responseMs,
+            usedHint: showHint, isCorrect: isCorrect
         )
         attempts.append(attempt)
 
         Task {
             _ = try? await self.evaluateSRSUseCase.recordReview(
-                wordId: Int64(word.id),
-                isCorrect: isCorrect,
-                responseTimeMs: responseMs
+                wordId: Int64(word.id), isCorrect: isCorrect, responseTimeMs: responseMs
             )
         }
 
-        cardPhase = .reviewed(result: ReflexCardResult(
-            isCorrect: isCorrect,
-            responseTimeMs: responseMs,
-            isTimeout: false,
-            selectedOption: option.text,
-            typedText: nil,
-            recognizedSpoken: nil
-        ))
+        withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
+            self.cardPhase = .reviewed(result: ReflexCardResult(
+                isCorrect: isCorrect, responseTimeMs: responseMs, isTimeout: false,
+                selectedOption: option.text, typedText: nil, recognizedSpoken: nil
+            ))
+        }
     }
 
     public func submitTypingAnswer(_ text: String) {
@@ -426,33 +418,24 @@ extension ReflexBlitzViewModel {
         }
 
         let attempt = ReflexBlitzAttempt(
-            wordId: word.id,
-            lemma: word.lemma,
-            pos: word.pos,
-            ipa: word.ipa,
-            definitionVi: word.definitionVi,
-            responseTimeMs: responseMs,
-            usedHint: showHint,
-            isCorrect: true
+            wordId: word.id, lemma: word.lemma, pos: word.pos, ipa: word.ipa,
+            definitionVi: word.definitionVi, responseTimeMs: responseMs,
+            usedHint: showHint, isCorrect: true
         )
         attempts.append(attempt)
 
         Task {
             _ = try? await self.evaluateSRSUseCase.recordReview(
-                wordId: Int64(word.id),
-                isCorrect: true,
-                responseTimeMs: responseMs
+                wordId: Int64(word.id), isCorrect: true, responseTimeMs: responseMs
             )
         }
 
-        cardPhase = .reviewed(result: ReflexCardResult(
-            isCorrect: true,
-            responseTimeMs: responseMs,
-            isTimeout: false,
-            selectedOption: nil,
-            typedText: word.lemma,
-            recognizedSpoken: nil
-        ))
+        withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
+            self.cardPhase = .reviewed(result: ReflexCardResult(
+                isCorrect: true, responseTimeMs: responseMs, isTimeout: false,
+                selectedOption: nil, typedText: word.lemma, recognizedSpoken: nil
+            ))
+        }
     }
 
     public func submitKeyboardInput(_ text: String) {
@@ -486,35 +469,26 @@ extension ReflexBlitzViewModel {
         }
 
         let attempt = ReflexBlitzAttempt(
-            wordId: word.id,
-            lemma: word.lemma,
-            pos: word.pos,
-            ipa: word.ipa,
-            definitionVi: word.definitionVi,
-            responseTimeMs: responseMs,
-            usedHint: showHint,
-            isCorrect: true
+            wordId: word.id, lemma: word.lemma, pos: word.pos, ipa: word.ipa,
+            definitionVi: word.definitionVi, responseTimeMs: responseMs,
+            usedHint: showHint, isCorrect: true
         )
         attempts.append(attempt)
 
         Task {
             _ = try? await self.evaluateSRSUseCase.recordReview(
-                wordId: Int64(word.id),
-                isCorrect: true,
-                responseTimeMs: responseMs
+                wordId: Int64(word.id), isCorrect: true, responseTimeMs: responseMs
             )
         }
 
         continuousSpeechService.pauseListening()
 
-        cardPhase = .reviewed(result: ReflexCardResult(
-            isCorrect: true,
-            responseTimeMs: responseMs,
-            isTimeout: false,
-            selectedOption: nil,
-            typedText: nil,
-            recognizedSpoken: matchedLemma
-        ))
+        withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
+            self.cardPhase = .reviewed(result: ReflexCardResult(
+                isCorrect: true, responseTimeMs: responseMs, isTimeout: false,
+                selectedOption: nil, typedText: nil, recognizedSpoken: matchedLemma
+            ))
+        }
     }
 
     public func submitSpeakingResult(isCorrect: Bool, responseTimeMs: Int) {
@@ -539,14 +513,9 @@ extension ReflexBlitzViewModel {
         let timeLimitMs = elapsedTimeMs > 0 ? elapsedTimeMs : Int(selectedMode.timeLimitSeconds * 1000)
         self.elapsedTimeMs = timeLimitMs
         let attempt = ReflexBlitzAttempt(
-            wordId: word.id,
-            lemma: word.lemma,
-            pos: word.pos,
-            ipa: word.ipa,
-            definitionVi: word.definitionVi,
-            responseTimeMs: timeLimitMs,
-            usedHint: true,
-            isCorrect: false
+            wordId: word.id, lemma: word.lemma, pos: word.pos, ipa: word.ipa,
+            definitionVi: word.definitionVi, responseTimeMs: timeLimitMs,
+            usedHint: true, isCorrect: false
         )
         attempts.append(attempt)
 
@@ -554,20 +523,16 @@ extension ReflexBlitzViewModel {
 
         Task {
             _ = try? await self.evaluateSRSUseCase.recordReview(
-                wordId: Int64(word.id),
-                isCorrect: false,
-                responseTimeMs: timeLimitMs
+                wordId: Int64(word.id), isCorrect: false, responseTimeMs: timeLimitMs
             )
         }
 
-        cardPhase = .reviewed(result: ReflexCardResult(
-            isCorrect: false,
-            responseTimeMs: timeLimitMs,
-            isTimeout: true,
-            selectedOption: nil,
-            typedText: nil,
-            recognizedSpoken: nil
-        ))
+        withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
+            self.cardPhase = .reviewed(result: ReflexCardResult(
+                isCorrect: false, responseTimeMs: timeLimitMs, isTimeout: true,
+                selectedOption: nil, typedText: nil, recognizedSpoken: nil
+            ))
+        }
 
         if selectedMode != .listening {
             ttsService.speak(text: word.lemma, rate: 0.5, locale: "en-US")

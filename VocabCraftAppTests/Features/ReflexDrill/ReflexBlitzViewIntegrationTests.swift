@@ -562,4 +562,39 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
             filename: "10_reflex_summary_screen.png"
         )
     }
+
+    func testZeroShiftLayoutStructureWithFloatingFeedbackSheetOverlay() {
+        let (vm, _, _, _) = makeViewModel()
+        vm.selectMode(.multipleChoice)
+        vm.beginSessionDirectly()
+
+        XCTAssertEqual(vm.phase, .drilling)
+        XCTAssertEqual(vm.cardPhase, .activeCountdown)
+
+        let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
+        XCTAssertNotNil(view.drillingView)
+
+        // Select correct option to trigger reviewed state & floating sheet
+        guard let correctOption = vm.currentOptions.first(where: { $0.isCorrect }) else {
+            XCTFail("Missing correct option")
+            return
+        }
+
+        vm.selectOption(correctOption)
+        if case .reviewed(let result) = vm.cardPhase {
+            XCTAssertTrue(result.isCorrect)
+            XCTAssertEqual(result.selectedOption, correctOption.text)
+        } else {
+            XCTFail("Expected cardPhase to be .reviewed")
+        }
+
+        // Verify drillingView is rendered with reviewed floating sheet overlay
+        XCTAssertNotNil(view.drillingView)
+
+        // Advance to next word
+        vm.advanceToNextWord()
+        XCTAssertEqual(vm.cardPhase, .activeCountdown)
+        XCTAssertEqual(vm.currentWordIndex, 1)
+        XCTAssertNotNil(view.drillingView)
+    }
 }

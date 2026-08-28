@@ -634,6 +634,77 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         XCTAssertEqual(weakAttempt.ipa, "/rɪˈzɪl.jənt/")
         XCTAssertEqual(weakAttempt.definitionVi, "Kiên cường")
     }
+
+    // MARK: - Zero-Shift Layout & Animated CardPhase Transitions
+
+    func testSelectOptionTransitionsCardPhaseToReviewed() {
+        let viewModel = ReflexBlitzViewModel(words: ReflexBlitzWordItem.defaultStarterWords)
+        viewModel.startDrillSession(mode: .multipleChoice)
+
+        guard let correctOption = viewModel.currentOptions.first(where: { $0.isCorrect }) else {
+            XCTFail("No correct option found")
+            return
+        }
+
+        viewModel.selectOption(correctOption)
+
+        if case .reviewed(let result) = viewModel.cardPhase {
+            XCTAssertTrue(result.isCorrect)
+            XCTAssertEqual(result.selectedOption, correctOption.text)
+        } else {
+            XCTFail("Expected cardPhase to be .reviewed")
+        }
+    }
+
+    func testSubmitTypingAnswerTransitionsCardPhaseToReviewed() {
+        let viewModel = ReflexBlitzViewModel(words: ReflexBlitzWordItem.defaultStarterWords)
+        viewModel.startDrillSession(mode: .typing)
+        guard let currentLemma = viewModel.currentWord?.lemma else {
+            XCTFail("No current word")
+            return
+        }
+
+        viewModel.submitTypingAnswer(currentLemma)
+
+        if case .reviewed(let result) = viewModel.cardPhase {
+            XCTAssertTrue(result.isCorrect)
+            XCTAssertEqual(result.typedText, currentLemma)
+        } else {
+            XCTFail("Expected cardPhase to be .reviewed")
+        }
+    }
+
+    func testHandleSpokenMatchTransitionsCardPhaseToReviewed() {
+        let viewModel = ReflexBlitzViewModel(words: ReflexBlitzWordItem.defaultStarterWords)
+        viewModel.startDrillSession(mode: .speaking)
+        guard let currentLemma = viewModel.currentWord?.lemma else {
+            XCTFail("No current word")
+            return
+        }
+
+        viewModel.handleSpokenMatch(currentLemma)
+
+        if case .reviewed(let result) = viewModel.cardPhase {
+            XCTAssertTrue(result.isCorrect)
+            XCTAssertEqual(result.recognizedSpoken, currentLemma)
+        } else {
+            XCTFail("Expected cardPhase to be .reviewed")
+        }
+    }
+
+    func testHandleTimeoutTransitionsCardPhaseToReviewed() {
+        let viewModel = ReflexBlitzViewModel(words: ReflexBlitzWordItem.defaultStarterWords)
+        viewModel.startDrillSession(mode: .multipleChoice)
+
+        viewModel.handleTimeout()
+
+        if case .reviewed(let result) = viewModel.cardPhase {
+            XCTAssertFalse(result.isCorrect)
+            XCTAssertTrue(result.isTimeout)
+        } else {
+            XCTFail("Expected cardPhase to be .reviewed")
+        }
+    }
 }
 
 // MARK: - Swift Testing 4 Modalities Feedback Suite
