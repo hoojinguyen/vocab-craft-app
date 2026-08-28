@@ -497,7 +497,7 @@ extension AppStrings {
             String(format: String(localized: "app.reflex.stats.weekly_words", defaultValue: "%lld từ đã luyện", bundle: .module), count)
         }
         public static func weakWords(_ count: Int) -> String {
-            String(format: String(localized: "app.reflex.stats.weak_words", defaultValue: "%lld từ cần củng cố", bundle: .module), count)
+            String(format: String(localized: "app.reflex.stats.weak_words", defaultValue: "%lld từ cần ôn", bundle: .module), count)
         }
         public static var avgSpeedLabel: LocalizedStringKey { "app.reflex.stats.avg_speed" }
         public static var avgSpeedLabelText: String {

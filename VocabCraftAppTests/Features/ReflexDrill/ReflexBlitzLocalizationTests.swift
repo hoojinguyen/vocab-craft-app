@@ -10,7 +10,7 @@ struct ReflexBlitzLocalizationTests {
         "app.reflex.hub.subtitle": ("Chọn phương pháp phản xạ hôm nay", "Choose your reflex modality today"),
         "app.reflex.hub.stats_title": ("Thống kê phản xạ", "Reflex Stats"),
         "app.reflex.stats.weekly_words": ("%lld từ đã luyện", "%lld practiced"),
-        "app.reflex.stats.weak_words": ("%lld từ cần củng cố", "%lld need review"),
+        "app.reflex.stats.weak_words": ("%lld từ cần ôn", "%lld need review"),
         "app.reflex.stats.avg_speed": ("Tốc độ TB", "Avg Speed"),
         "app.reflex.hub.footer_hint": ("Mỗi từ có giới hạn đếm ngược riêng biệt để tạo phản xạ vô điều kiện.", "Each word has a dedicated countdown to build unconditional reflexes."),
         "app.reflex.mode.speaking.title": ("Luyện nói", "Speaking Drill"),
