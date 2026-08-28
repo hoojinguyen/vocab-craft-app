@@ -1,3 +1,4 @@
+import Testing
 @testable import VocabCraftApp
 import XCTest
 
@@ -282,5 +283,18 @@ final class ReflexBlitzModelsTests: XCTestCase {
             XCTAssertFalse(word.ipa.isEmpty, "Word \(word.lemma) must have non-empty IPA")
             XCTAssertTrue(word.ipa.hasPrefix("/"), "Word \(word.lemma) IPA should start with /")
         }
+    }
+}
+
+// MARK: - Swift Testing Suite
+
+@Suite("Reflex Blitz Models & Limits Tests")
+struct ReflexBlitzModelsAndLimitsTests {
+    @Test("Modalities have strict time limits per spec")
+    func testModalityTimeLimits() {
+        #expect(ReflexBlitzMode.speaking.timeLimitSeconds == 6.0)
+        #expect(ReflexBlitzMode.typing.timeLimitSeconds == 7.5)
+        #expect(ReflexBlitzMode.multipleChoice.timeLimitSeconds == 4.5)
+        #expect(ReflexBlitzMode.listening.timeLimitSeconds == 5.5)
     }
 }

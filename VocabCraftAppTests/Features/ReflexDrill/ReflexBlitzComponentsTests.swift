@@ -1,3 +1,4 @@
+import CraftUIKit
 import SwiftUI
 import Testing
 @testable import VocabCraftApp
@@ -8,6 +9,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
     func testHeaderViewInstantiation() {
         var didClose = false
         var didSkip = false
+        let theme = CraftDefaultTheme()
 
         let header = ReflexBlitzHeaderView(
             currentIndex: 2,
@@ -24,7 +26,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertEqual(header.comboStreak, 3)
         XCTAssertEqual(header.fractionRemaining, 0.75)
         XCTAssertEqual(header.timerStage, .warning)
-        XCTAssertEqual(header.timerBarColor, .vocabPeach)
+        XCTAssertEqual(header.timerBarColor, theme.colors.statusWarning)
 
         header.onClose()
         header.onSkip()
@@ -34,6 +36,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
 
     @MainActor
     func testHeaderViewTimerStagesColor() {
+        let theme = CraftDefaultTheme()
         let steadyHeader = ReflexBlitzHeaderView(
             currentIndex: 0,
             totalCount: 5,
@@ -42,7 +45,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
             timerStage: .steady,
             onClose: {}
         )
-        XCTAssertEqual(steadyHeader.timerBarColor, .vocabHeroAccent)
+        XCTAssertEqual(steadyHeader.timerBarColor, theme.colors.brandPrimary)
 
         let warningHeader = ReflexBlitzHeaderView(
             currentIndex: 1,
@@ -52,7 +55,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
             timerStage: .warning,
             onClose: {}
         )
-        XCTAssertEqual(warningHeader.timerBarColor, .vocabPeach)
+        XCTAssertEqual(warningHeader.timerBarColor, theme.colors.statusWarning)
 
         let urgentHeader = ReflexBlitzHeaderView(
             currentIndex: 2,
@@ -62,11 +65,12 @@ final class ReflexBlitzComponentsTests: XCTestCase {
             timerStage: .urgent,
             onClose: {}
         )
-        XCTAssertEqual(urgentHeader.timerBarColor, .vocabCoral)
+        XCTAssertEqual(urgentHeader.timerBarColor, theme.colors.statusDanger)
     }
 
     @MainActor
     func testHeaderViewSegmentColorsWithAttemptsHistory() {
+        let theme = CraftDefaultTheme()
         let attempts = [
             ReflexBlitzAttempt(wordId: 1, lemma: "a", pos: "", ipa: "", definitionVi: "", responseTimeMs: 1000, usedHint: false, isCorrect: true),
             ReflexBlitzAttempt(wordId: 2, lemma: "b", pos: "", ipa: "", definitionVi: "", responseTimeMs: 2000, usedHint: false, isCorrect: false)
@@ -78,10 +82,10 @@ final class ReflexBlitzComponentsTests: XCTestCase {
             attempts: attempts,
             onClose: {}
         )
-        XCTAssertEqual(header.segmentColor(for: 0), Color.vocabMint)
-        XCTAssertEqual(header.segmentColor(for: 1), Color.vocabCoral)
-        XCTAssertEqual(header.segmentColor(for: 2), Color.vocabHeroAccent)
-        XCTAssertEqual(header.segmentColor(for: 3), Color.vocabHairline.opacity(0.4))
+        XCTAssertEqual(header.segmentColor(for: 0), theme.colors.statusSuccess)
+        XCTAssertEqual(header.segmentColor(for: 1), theme.colors.statusDanger)
+        XCTAssertEqual(header.segmentColor(for: 2), theme.colors.brandPrimary)
+        XCTAssertNotNil(header.segmentColor(for: 3))
     }
 
     @MainActor

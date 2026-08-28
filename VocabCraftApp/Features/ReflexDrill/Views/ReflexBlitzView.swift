@@ -1,3 +1,4 @@
+import CraftUIKit
 import SwiftUI
 
 /// Main container view for the Redesigned Reflex Blitz drill experience.
@@ -5,6 +6,7 @@ import SwiftUI
 /// 4 distinct drill modalities (Speaking, Typing, Multiple Choice, Listening),
 /// and the paused review consolidation dock.
 public struct ReflexBlitzView: View {
+    @Environment(\.craftTheme) private var theme
     public var viewModel: ReflexBlitzViewModel
     @State private var typingInput: String = ""
     public var onDismiss: () -> Void
@@ -16,7 +18,7 @@ public struct ReflexBlitzView: View {
 
     public var body: some View {
         ZStack {
-            Color.vocabCanvas
+            theme.colors.canvasBackground
                 .ignoresSafeArea()
 
             switch viewModel.phase {
@@ -57,13 +59,15 @@ public struct ReflexBlitzView: View {
                 drillingView
 
                 if viewModel.phase == .countdown {
-                    ReflexCountdownOverlayView(
-                        count: viewModel.countdownCount,
-                        mode: viewModel.selectedMode
+                    CraftCountdownOverlay(
+                        startNumber: 3,
+                        title: viewModel.selectedMode.title,
+                        onFinish: {
+                            viewModel.beginSessionDirectly()
+                        }
                     )
                     .transition(.opacity)
                 }
-
             }
         }
         .onAppear {
@@ -95,7 +99,7 @@ public struct ReflexBlitzView: View {
 
     @ViewBuilder
     public var drillingView: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: theme.spacing.md) {
             // Header Bar with Mode Badge, Step Counter, Combo Streak, and Close Button
             ReflexBlitzHeaderView(
                 currentIndex: viewModel.currentWordIndex,
@@ -117,9 +121,9 @@ public struct ReflexBlitzView: View {
                 },
                 showSkipInHeader: false
             )
-            .padding(.top, 12)
+            .padding(.top, theme.spacing.sm)
 
-            Spacer(minLength: 12)
+            Spacer(minLength: theme.spacing.sm)
 
             // Challenge Card with 4-mode presentation & reviewed consolidation state
             if let word = viewModel.currentWord {
@@ -153,7 +157,7 @@ public struct ReflexBlitzView: View {
                 ))
             }
 
-            Spacer(minLength: 12)
+            Spacer(minLength: theme.spacing.sm)
 
             // Ergonomic Advance Dock / Bottom Skip button in Thumb Zone
             ReflexBlitzAdvanceDockView(
@@ -166,7 +170,7 @@ public struct ReflexBlitzView: View {
                     viewModel.handleTimeout()
                 }
             )
-            .padding(.bottom, 16)
+            .padding(.bottom, theme.spacing.md)
         }
     }
 
