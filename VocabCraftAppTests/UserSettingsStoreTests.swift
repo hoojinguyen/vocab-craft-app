@@ -1,3 +1,4 @@
+import CraftUIKit
 @testable import VocabCraftApp
 import XCTest
 
@@ -19,4 +20,22 @@ final class UserSettingsStoreTests: XCTestCase {
         XCTAssertTrue(store.isSoundEffectsEnabled)
     }
 
+    func testAppearanceModeDelegatesToCraftThemeManager() {
+        let store = UserSettingsStore()
+
+        store.appTheme = "dark"
+        XCTAssertEqual(CraftThemeManager.shared.appearanceMode, .dark)
+        XCTAssertEqual(store.colorScheme, .dark)
+
+        store.appTheme = "light"
+        XCTAssertEqual(CraftThemeManager.shared.appearanceMode, .light)
+        XCTAssertEqual(store.colorScheme, .light)
+
+        store.appTheme = "system"
+        XCTAssertEqual(CraftThemeManager.shared.appearanceMode, .system)
+        XCTAssertNil(store.colorScheme)
+
+        store.themePreset = .kyotoMatcha
+        XCTAssertEqual(CraftThemeManager.shared.currentPreset, .kyotoMatcha)
+    }
 }

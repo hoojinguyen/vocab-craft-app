@@ -6,11 +6,10 @@ import SwiftUI
 @Observable
 public final class UserSettingsStore {
     public var themePreset: CraftThemePreset {
-        didSet {
-            UserDefaults.standard.set(themePreset.rawValue, forKey: "app_theme_preset")
-            CraftThemeManager.shared.setPreset(themePreset)
-        }
+        get { CraftThemeManager.shared.currentPreset }
+        set { CraftThemeManager.shared.setPreset(newValue) }
     }
+
     public var dailyGoalCount: Int {
         didSet {
             UserDefaults.standard.set(dailyGoalCount, forKey: "daily_goal_count")
@@ -54,9 +53,17 @@ public final class UserSettingsStore {
         }
     }
 
+    public var appearanceMode: CraftAppearanceMode {
+        get { CraftThemeManager.shared.appearanceMode }
+        set { CraftThemeManager.shared.setAppearanceMode(newValue) }
+    }
+
     public var appTheme: String {
-        didSet {
-            UserDefaults.standard.set(appTheme, forKey: "app_theme")
+        get { CraftThemeManager.shared.appearanceMode.rawValue }
+        set {
+            if let mode = CraftAppearanceMode(rawValue: newValue) {
+                CraftThemeManager.shared.setAppearanceMode(mode)
+            }
         }
     }
 
@@ -87,23 +94,16 @@ public final class UserSettingsStore {
     }
 
     public var colorScheme: ColorScheme? {
-        switch appTheme {
-        case "dark": return .dark
-        case "light": return .light
-        default: return nil
-        }
+        CraftThemeManager.shared.preferredColorScheme
     }
 
     public init() {
         let defaults = UserDefaults.standard
-        let savedPreset = defaults.string(forKey: "app_theme_preset") ?? CraftThemePreset.editorial.rawValue
-        self.themePreset = CraftThemePreset(rawValue: savedPreset) ?? .editorial
         self.dailyGoalCount = defaults.object(forKey: "daily_goal_count") != nil ? defaults.integer(forKey: "daily_goal_count") : 15
         self.isNotificationEnabled = defaults.object(forKey: "is_notification_enabled") != nil ? defaults.bool(forKey: "is_notification_enabled") : true
         self.notificationTimeInterval = defaults.object(forKey: "notification_time_interval") != nil ? defaults.double(forKey: "notification_time_interval") : 72000
         self.ttsVoiceGender = defaults.string(forKey: "tts_voice_gender") ?? "US"
         self.ttsSpeed = defaults.object(forKey: "tts_speed") != nil ? defaults.double(forKey: "tts_speed") : 1.0
-        self.appTheme = defaults.string(forKey: "app_theme") ?? "system"
         self.appLanguage = defaults.string(forKey: "app_language") ?? "system"
         self.isHapticsEnabled = defaults.object(forKey: "is_haptics_enabled") != nil ? defaults.bool(forKey: "is_haptics_enabled") : true
         self.isSoundEffectsEnabled = defaults.object(forKey: "is_sound_effects_enabled") != nil ? defaults.bool(forKey: "is_sound_effects_enabled") : true
