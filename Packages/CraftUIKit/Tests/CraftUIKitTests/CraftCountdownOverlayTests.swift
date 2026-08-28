@@ -1,9 +1,8 @@
-import XCTest
-import SwiftUI
 @testable import CraftUIKit
+import SwiftUI
+import XCTest
 
 final class CraftCountdownOverlayTests: XCTestCase {
-
     // MARK: - Initializer & Defaults Tests
 
     func testCountdownInitDefaults() {

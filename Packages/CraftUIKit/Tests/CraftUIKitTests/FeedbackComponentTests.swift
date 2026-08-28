@@ -1,6 +1,6 @@
-import XCTest
-import SwiftUI
 @testable import CraftUIKit
+import SwiftUI
+import XCTest
 
 final class FeedbackComponentTests: XCTestCase {
     func testCraftFeedbackStatusProperties() {
@@ -246,7 +246,11 @@ final class FeedbackComponentTests: XCTestCase {
         )
         XCTAssertEqual(sheetWithMessage.accessibilityDescription, "Incorrect, Correct: Apple. Action: NEXT QUESTION")
     }
+}
 
+// MARK: - Accessibility & Extended Tests
+
+extension FeedbackComponentTests {
     func testFeedbackSheetAccessibilityTree() {
         // 1. Verify localized status titles in English & Vietnamese
         XCTAssertEqual(CraftLocalized.string("craft.feedback.success_title", language: "en"), "Nice work!")
@@ -440,5 +444,94 @@ final class FeedbackComponentTests: XCTestCase {
         XCTAssertEqual(hintCard.icon, "sparkles")
         XCTAssertEqual(hintCard.tint, .green)
         XCTAssertNotNil(hintCard.body)
+    }
+
+    // MARK: - Edge-to-Edge Docking, Streak, and Custom Titles Tests
+
+    func testCraftFeedbackSheetWithStreakDisplay() {
+        let sheet = CraftFeedbackSheet(
+            status: .success,
+            title: "Chính xác!",
+            streakCount: 5,
+            onContinue: {}
+        )
+        XCTAssertEqual(sheet.streakCount, 5)
+        XCTAssertEqual(sheet.resolvedTitle, "Chính xác!")
+        XCTAssertNotNil(sheet.body)
+
+        // Sheet with nil streak
+        let sheetNoStreak = CraftFeedbackSheet(
+            status: .error,
+            title: "✕ Chưa chính xác",
+            onContinue: {}
+        )
+        XCTAssertNil(sheetNoStreak.streakCount)
+        XCTAssertEqual(sheetNoStreak.resolvedTitle, "✕ Chưa chính xác")
+        XCTAssertNotNil(sheetNoStreak.body)
+    }
+
+    func testCraftFeedbackSheetEdgeToEdgeAndCustomActionTitles() {
+        let timeoutSheet = CraftFeedbackSheet(
+            status: .warning,
+            title: "⏰ Hết giờ!",
+            actionTitle: "Đã hiểu",
+            onContinue: {}
+        )
+        XCTAssertEqual(timeoutSheet.resolvedTitle, "⏰ Hết giờ!")
+        XCTAssertEqual(timeoutSheet.resolvedActionTitle, "Đã hiểu")
+        XCTAssertNotNil(timeoutSheet.body)
+
+        let correctSheet = CraftFeedbackSheet(
+            status: .success,
+            title: "✓ Chính xác!",
+            actionTitle: "Tiếp tục",
+            streakCount: 12,
+            onContinue: {}
+        )
+        XCTAssertEqual(correctSheet.resolvedTitle, "✓ Chính xác!")
+        XCTAssertEqual(correctSheet.resolvedActionTitle, "Tiếp tục")
+        XCTAssertEqual(correctSheet.streakCount, 12)
+        XCTAssertNotNil(correctSheet.body)
+    }
+
+    func testCraftFeedbackSheetModifierWithStreak() {
+        let isPresented = Binding.constant(true)
+        var continued = false
+        let modifier = CraftFeedbackSheetModifier(
+            isPresented: isPresented,
+            status: .success,
+            title: "✓ Chính xác!",
+            actionTitle: "Tiếp tục",
+            streakCount: 7,
+            onContinue: { continued = true }
+        )
+        XCTAssertEqual(modifier.status, .success)
+        XCTAssertEqual(modifier.title, "✓ Chính xác!")
+        XCTAssertEqual(modifier.actionTitle, "Tiếp tục")
+        XCTAssertEqual(modifier.streakCount, 7)
+        modifier.onContinue()
+        XCTAssertTrue(continued)
+
+        let modifiedView = Text("Question Content").craftFeedbackSheet(
+            isPresented: isPresented,
+            status: .success,
+            title: "✓ Chính xác!",
+            actionTitle: "Tiếp tục",
+            streakCount: 7,
+            onContinue: {}
+        )
+        XCTAssertNotNil(modifiedView)
+
+        let modifiedViewWithExtra = Text("Question Content").craftFeedbackSheet(
+            isPresented: isPresented,
+            status: .error,
+            title: "✕ Chưa chính xác",
+            actionTitle: "Tiếp tục",
+            streakCount: 0,
+            onContinue: {}
+        ) {
+            Text("Extra info")
+        }
+        XCTAssertNotNil(modifiedViewWithExtra)
     }
 }

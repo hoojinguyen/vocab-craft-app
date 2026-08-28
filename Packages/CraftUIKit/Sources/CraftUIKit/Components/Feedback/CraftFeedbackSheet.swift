@@ -3,72 +3,11 @@ import SwiftUI
 import UIKit
 #endif
 
-// MARK: - CraftFeedbackStatus
-
-/// Semantic status for assessment feedback sheets.
-public enum CraftFeedbackStatus: String, Sendable, CaseIterable {
-    case success
-    case error
-    case warning
-    case info
-
-    /// SF Symbol icon representation for the feedback state.
-    public var iconName: String {
-        switch self {
-        case .success: return "checkmark.circle.fill"
-        case .error: return "xmark.circle.fill"
-        case .warning: return "exclamationmark.circle.fill"
-        case .info: return "info.circle.fill"
-        }
-    }
-}
-
-// MARK: - CraftFeedbackHintCard Helper
-
-/// An accessible, tokenized hint and auxiliary note card designed for `CraftFeedbackSheet` extraContent.
-public struct CraftFeedbackHintCard: View {
-    @Environment(\.craftTheme) private var theme
-
-    public let text: String
-    public let icon: String
-    public let tint: Color?
-
-    public init(_ text: String, icon: String = "lightbulb.fill", tint: Color? = nil) {
-        self.text = text
-        self.icon = icon
-        self.tint = tint
-    }
-
-    public var body: some View {
-        let resolvedTint = tint ?? theme.colors.statusWarning
-        HStack(alignment: .top, spacing: theme.spacing.xs) {
-            CraftIcon(icon, size: .sm, color: resolvedTint)
-                .padding(.top, 2)
-
-            Text(text)
-                .font(theme.typography.caption)
-                .foregroundStyle(theme.colors.textPrimary)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .padding(.horizontal, theme.spacing.sm)
-        .padding(.vertical, theme.spacing.xs)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background {
-            RoundedRectangle(cornerRadius: theme.radii.sm)
-                .fill(resolvedTint.opacity(0.12))
-        }
-        .overlay {
-            RoundedRectangle(cornerRadius: theme.radii.sm)
-                .strokeBorder(resolvedTint.opacity(0.25), lineWidth: 1)
-        }
-    }
-}
-
 // MARK: - CraftFeedbackSheet Component
 
 /// A modal feedback bottom sheet presented after an answer or assessment submission,
 /// featuring semantic status coloring, customizable surface style (`.glass`, `.tactile3D`, `.elevated`, `.outlined`, `.flat`),
-/// non-competing auxiliary action hierarchy, accessible contrast, and optional custom extra content.
+/// non-competing auxiliary action hierarchy, accessible contrast, combo streak display, and optional custom extra content.
 public struct CraftFeedbackSheet<ExtraContent: View>: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.craftSurfaceStyle) private var environmentSurfaceStyle
@@ -78,6 +17,7 @@ public struct CraftFeedbackSheet<ExtraContent: View>: View {
     public let message: String?
     public let actionTitle: String?
     public let secondaryActionTitle: String?
+    public let streakCount: Int?
     public let style: CraftSurfaceStyle?
     public let onSecondaryAction: (() -> Void)?
     public let onContinue: () -> Void
@@ -97,6 +37,7 @@ public struct CraftFeedbackSheet<ExtraContent: View>: View {
         message: String? = nil,
         actionTitle: String? = nil,
         secondaryActionTitle: String? = nil,
+        streakCount: Int? = nil,
         style: CraftSurfaceStyle? = nil,
         onSecondaryAction: (() -> Void)? = nil,
         onContinue: @escaping () -> Void,
@@ -107,19 +48,21 @@ public struct CraftFeedbackSheet<ExtraContent: View>: View {
         self.message = message
         self.actionTitle = actionTitle
         self.secondaryActionTitle = secondaryActionTitle
+        self.streakCount = streakCount
         self.style = style
         self.onSecondaryAction = onSecondaryAction
         self.onContinue = onContinue
         self.extraContent = extraContent()
     }
 
-    /// Convenience initializer supporting the legacy `surfaceStyle:` parameter label.
+    /// Convenience initializer supporting legacy `surfaceStyle:` parameter label.
     public init(
         status: CraftFeedbackStatus,
         title: String? = nil,
         message: String? = nil,
         actionTitle: String? = nil,
         secondaryActionTitle: String? = nil,
+        streakCount: Int? = nil,
         surfaceStyle: CraftSurfaceStyle?,
         onSecondaryAction: (() -> Void)? = nil,
         onContinue: @escaping () -> Void,
@@ -131,6 +74,7 @@ public struct CraftFeedbackSheet<ExtraContent: View>: View {
             message: message,
             actionTitle: actionTitle,
             secondaryActionTitle: secondaryActionTitle,
+            streakCount: streakCount,
             style: surfaceStyle,
             onSecondaryAction: onSecondaryAction,
             onContinue: onContinue,
@@ -208,7 +152,7 @@ public struct CraftFeedbackSheet<ExtraContent: View>: View {
     }
 
     public var accessibilityDescription: String {
-        if let message {
+        if let message, !message.isEmpty {
             return "\(resolvedTitle), \(message). Action: \(resolvedActionTitle)"
         } else {
             return "\(resolvedTitle). Action: \(resolvedActionTitle)"
@@ -226,7 +170,7 @@ public struct CraftFeedbackSheet<ExtraContent: View>: View {
         )
 
         VStack(alignment: .leading, spacing: theme.spacing.base) {
-            // Header row: Status Pill Badge + Secondary Action Button
+            // Header row: Status Pill Badge + Streak Badge + Secondary Action Button
             headerRow
 
             // Message row (if provided)
@@ -278,6 +222,15 @@ public struct CraftFeedbackSheet<ExtraContent: View>: View {
     private var headerRow: some View {
         HStack(alignment: .center, spacing: theme.spacing.sm) {
             statusBadge
+
+            if let streakCount, streakCount > 0 {
+                CraftStreakBadge(
+                    count: streakCount,
+                    isCompletedToday: true,
+                    size: .sm,
+                    style: resolvedSurfaceStyle == .tactile3D ? .tactile3D : resolvedSurfaceStyle
+                )
+            }
 
             Spacer(minLength: theme.spacing.xs)
 
@@ -484,6 +437,7 @@ public extension CraftFeedbackSheet where ExtraContent == EmptyView {
         message: String? = nil,
         actionTitle: String? = nil,
         secondaryActionTitle: String? = nil,
+        streakCount: Int? = nil,
         style: CraftSurfaceStyle? = nil,
         onSecondaryAction: (() -> Void)? = nil,
         onContinue: @escaping () -> Void
@@ -494,6 +448,7 @@ public extension CraftFeedbackSheet where ExtraContent == EmptyView {
             message: message,
             actionTitle: actionTitle,
             secondaryActionTitle: secondaryActionTitle,
+            streakCount: streakCount,
             style: style,
             onSecondaryAction: onSecondaryAction,
             onContinue: onContinue,
@@ -508,6 +463,7 @@ public extension CraftFeedbackSheet where ExtraContent == EmptyView {
         message: String? = nil,
         actionTitle: String? = nil,
         secondaryActionTitle: String? = nil,
+        streakCount: Int? = nil,
         surfaceStyle: CraftSurfaceStyle?,
         onSecondaryAction: (() -> Void)? = nil,
         onContinue: @escaping () -> Void
@@ -518,6 +474,7 @@ public extension CraftFeedbackSheet where ExtraContent == EmptyView {
             message: message,
             actionTitle: actionTitle,
             secondaryActionTitle: secondaryActionTitle,
+            streakCount: streakCount,
             style: surfaceStyle,
             onSecondaryAction: onSecondaryAction,
             onContinue: onContinue,
@@ -544,283 +501,17 @@ private struct FeedbackSheetShadowModifier: ViewModifier {
     }
 }
 
-// MARK: - Feedback Sheet View Modifier
-
-/// A ViewModifier that presents a docked `CraftFeedbackSheet` anchored to the bottom edge
-/// when `isPresented` is true, using a smooth spring animation and slide-up transition.
-public struct CraftFeedbackSheetModifier<ExtraContent: View>: ViewModifier {
-    @Environment(\.craftTheme) private var theme
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Binding public var isPresented: Bool
-
-    public let status: CraftFeedbackStatus
-    public let title: String?
-    public let message: String?
-    public let actionTitle: String?
-    public let secondaryActionTitle: String?
-    public let style: CraftSurfaceStyle?
-    public let onSecondaryAction: (() -> Void)?
-    public let onContinue: () -> Void
-    public let extraContent: ExtraContent
-
-    /// Backwards compatibility alias for `style`.
-    public var surfaceStyle: CraftSurfaceStyle? {
-        style
-    }
-
-    public init(
-        isPresented: Binding<Bool>,
-        status: CraftFeedbackStatus,
-        title: String? = nil,
-        message: String? = nil,
-        actionTitle: String? = nil,
-        secondaryActionTitle: String? = nil,
-        style: CraftSurfaceStyle? = nil,
-        onSecondaryAction: (() -> Void)? = nil,
-        onContinue: @escaping () -> Void,
-        @ViewBuilder extraContent: () -> ExtraContent
-    ) {
-        self._isPresented = isPresented
-        self.status = status
-        self.title = title
-        self.message = message
-        self.actionTitle = actionTitle
-        self.secondaryActionTitle = secondaryActionTitle
-        self.style = style
-        self.onSecondaryAction = onSecondaryAction
-        self.onContinue = onContinue
-        self.extraContent = extraContent()
-    }
-
-    /// Legacy initializer accepting `surfaceStyle:`.
-    public init(
-        isPresented: Binding<Bool>,
-        status: CraftFeedbackStatus,
-        title: String? = nil,
-        message: String? = nil,
-        actionTitle: String? = nil,
-        secondaryActionTitle: String? = nil,
-        surfaceStyle: CraftSurfaceStyle?,
-        onSecondaryAction: (() -> Void)? = nil,
-        onContinue: @escaping () -> Void,
-        @ViewBuilder extraContent: () -> ExtraContent
-    ) {
-        self.init(
-            isPresented: isPresented,
-            status: status,
-            title: title,
-            message: message,
-            actionTitle: actionTitle,
-            secondaryActionTitle: secondaryActionTitle,
-            style: surfaceStyle,
-            onSecondaryAction: onSecondaryAction,
-            onContinue: onContinue,
-            extraContent: extraContent
-        )
-    }
-
-    public func body(content: Content) -> some View {
-        ZStack {
-            content
-
-            if isPresented {
-                VStack {
-                    Spacer()
-                    CraftFeedbackSheet(
-                        status: status,
-                        title: title,
-                        message: message,
-                        actionTitle: actionTitle,
-                        secondaryActionTitle: secondaryActionTitle,
-                        style: style,
-                        onSecondaryAction: onSecondaryAction,
-                        onContinue: onContinue,
-                        extraContent: { extraContent }
-                    )
-                }
-                .ignoresSafeArea(edges: .bottom)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-                .zIndex(1000)
-            }
-        }
-        .animation(reduceMotion ? .default : theme.animations.springSmooth, value: isPresented)
-    }
-}
-
-public extension CraftFeedbackSheetModifier where ExtraContent == EmptyView {
-    init(
-        isPresented: Binding<Bool>,
-        status: CraftFeedbackStatus,
-        title: String? = nil,
-        message: String? = nil,
-        actionTitle: String? = nil,
-        secondaryActionTitle: String? = nil,
-        style: CraftSurfaceStyle? = nil,
-        onSecondaryAction: (() -> Void)? = nil,
-        onContinue: @escaping () -> Void
-    ) {
-        self.init(
-            isPresented: isPresented,
-            status: status,
-            title: title,
-            message: message,
-            actionTitle: actionTitle,
-            secondaryActionTitle: secondaryActionTitle,
-            style: style,
-            onSecondaryAction: onSecondaryAction,
-            onContinue: onContinue,
-            extraContent: { EmptyView() }
-        )
-    }
-
-    init(
-        isPresented: Binding<Bool>,
-        status: CraftFeedbackStatus,
-        title: String? = nil,
-        message: String? = nil,
-        actionTitle: String? = nil,
-        secondaryActionTitle: String? = nil,
-        surfaceStyle: CraftSurfaceStyle?,
-        onSecondaryAction: (() -> Void)? = nil,
-        onContinue: @escaping () -> Void
-    ) {
-        self.init(
-            isPresented: isPresented,
-            status: status,
-            title: title,
-            message: message,
-            actionTitle: actionTitle,
-            secondaryActionTitle: secondaryActionTitle,
-            style: surfaceStyle,
-            onSecondaryAction: onSecondaryAction,
-            onContinue: onContinue,
-            extraContent: { EmptyView() }
-        )
-    }
-}
-
-// MARK: - View Extensions
-
-public extension View {
-    /// Presents a docked feedback sheet anchored to the bottom edge when `isPresented` is true.
-    func craftFeedbackSheet<ExtraContent: View>(
-        isPresented: Binding<Bool>,
-        status: CraftFeedbackStatus,
-        title: String? = nil,
-        message: String? = nil,
-        actionTitle: String? = nil,
-        secondaryActionTitle: String? = nil,
-        style: CraftSurfaceStyle? = nil,
-        onSecondaryAction: (() -> Void)? = nil,
-        onContinue: @escaping () -> Void,
-        @ViewBuilder extraContent: () -> ExtraContent
-    ) -> some View {
-        modifier(
-            CraftFeedbackSheetModifier(
-                isPresented: isPresented,
-                status: status,
-                title: title,
-                message: message,
-                actionTitle: actionTitle,
-                secondaryActionTitle: secondaryActionTitle,
-                style: style,
-                onSecondaryAction: onSecondaryAction,
-                onContinue: onContinue,
-                extraContent: extraContent
-            )
-        )
-    }
-
-    /// Presents a docked feedback sheet anchored to the bottom edge when `isPresented` is true, without extra content.
-    func craftFeedbackSheet(
-        isPresented: Binding<Bool>,
-        status: CraftFeedbackStatus,
-        title: String? = nil,
-        message: String? = nil,
-        actionTitle: String? = nil,
-        secondaryActionTitle: String? = nil,
-        style: CraftSurfaceStyle? = nil,
-        onSecondaryAction: (() -> Void)? = nil,
-        onContinue: @escaping () -> Void
-    ) -> some View {
-        craftFeedbackSheet(
-            isPresented: isPresented,
-            status: status,
-            title: title,
-            message: message,
-            actionTitle: actionTitle,
-            secondaryActionTitle: secondaryActionTitle,
-            style: style,
-            onSecondaryAction: onSecondaryAction,
-            onContinue: onContinue,
-            extraContent: { EmptyView() }
-        )
-    }
-
-    /// Legacy view modifier accepting `surfaceStyle:`.
-    func craftFeedbackSheet<ExtraContent: View>(
-        isPresented: Binding<Bool>,
-        status: CraftFeedbackStatus,
-        title: String? = nil,
-        message: String? = nil,
-        actionTitle: String? = nil,
-        secondaryActionTitle: String? = nil,
-        surfaceStyle: CraftSurfaceStyle?,
-        onSecondaryAction: (() -> Void)? = nil,
-        onContinue: @escaping () -> Void,
-        @ViewBuilder extraContent: () -> ExtraContent
-    ) -> some View {
-        craftFeedbackSheet(
-            isPresented: isPresented,
-            status: status,
-            title: title,
-            message: message,
-            actionTitle: actionTitle,
-            secondaryActionTitle: secondaryActionTitle,
-            style: surfaceStyle,
-            onSecondaryAction: onSecondaryAction,
-            onContinue: onContinue,
-            extraContent: extraContent
-        )
-    }
-
-    /// Legacy view modifier without extra content, accepting `surfaceStyle:`.
-    func craftFeedbackSheet(
-        isPresented: Binding<Bool>,
-        status: CraftFeedbackStatus,
-        title: String? = nil,
-        message: String? = nil,
-        actionTitle: String? = nil,
-        secondaryActionTitle: String? = nil,
-        surfaceStyle: CraftSurfaceStyle?,
-        onSecondaryAction: (() -> Void)? = nil,
-        onContinue: @escaping () -> Void
-    ) -> some View {
-        craftFeedbackSheet(
-            isPresented: isPresented,
-            status: status,
-            title: title,
-            message: message,
-            actionTitle: actionTitle,
-            secondaryActionTitle: secondaryActionTitle,
-            style: surfaceStyle,
-            onSecondaryAction: onSecondaryAction,
-            onContinue: onContinue,
-            extraContent: { EmptyView() }
-        )
-    }
-}
-
 // MARK: - Previews
 
 #Preview("Feedback Sheets - All Styles") {
     ScrollView {
         VStack(spacing: 28) {
-            // 1. Tactile 3D Success (Gamified)
+            // 1. Tactile 3D Success (Gamified with Streak)
             CraftFeedbackSheet(
                 status: .success,
-                title: "Correct!",
+                title: "Chính xác!",
                 message: "Great job! Keep the streak going.",
+                streakCount: 5,
                 style: .tactile3D,
                 onContinue: {}
             )
@@ -868,5 +559,3 @@ public extension View {
         .padding()
     }
 }
-
-
