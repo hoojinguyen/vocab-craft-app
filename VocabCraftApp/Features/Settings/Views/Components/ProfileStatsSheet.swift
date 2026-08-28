@@ -1,22 +1,26 @@
 import CraftUIKit
 import SwiftUI
 
-/// Bottom sheet component displaying user learning statistics, CEFR Oxford mastery
-/// progression, and unlocked achievements, matching the VaultWordDetailSheet architecture.
+/// An interactive, CraftLessonDetailSheet-aligned modal sheet displaying detailed user learning
+/// statistics, Oxford CEFR mastery breakdown, and unlocked achievements.
 public struct ProfileStatsSheet: View {
     @Environment(\.craftTheme) private var theme
+    @Environment(\.dismiss) private var dismiss
 
+    public let userLevel: String
     public let wordsLearned: Int
     public let accuracyPercent: Int
     public let avgSpeedSeconds: Double
     public let streakDays: Int
 
     public init(
+        userLevel: String = "B2 Intermediate",
         wordsLearned: Int = 420,
         accuracyPercent: Int = 94,
         avgSpeedSeconds: Double = 1.8,
         streakDays: Int = 14
     ) {
+        self.userLevel = userLevel
         self.wordsLearned = wordsLearned
         self.accuracyPercent = accuracyPercent
         self.avgSpeedSeconds = avgSpeedSeconds
@@ -24,132 +28,221 @@ public struct ProfileStatsSheet: View {
     }
 
     public var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: theme.spacing.lg) {
-                // Header Section: Title & Subtitle
-                headerSection
+        VStack(spacing: 0) {
+            // Drag Indicator Handle
+            Capsule()
+                .fill(theme.colors.borderDefault)
+                .frame(width: 36, height: 4)
+                .padding(.top, theme.spacing.sm)
+                .padding(.bottom, theme.spacing.xs)
+                .accessibilityHidden(true)
 
-                // Section 1: 4-Item Bento Metrics Grid
-                metricsGridSection
-
-                // Section 2: Oxford CEFR Progression
-                cefrProgressionSection
-
-                // Section 3: Unlocked Achievements
-                achievementsSection
+            // Header Bar with Dismiss Button
+            HStack {
+                Spacer()
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 24, weight: .semibold))
+                        .foregroundStyle(theme.colors.textMuted)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(AppStrings.Common.close)
             }
             .padding(.horizontal, theme.spacing.base)
-            .padding(.top, theme.spacing.lg)
-            .padding(.bottom, theme.spacing.xl)
+
+            ScrollView {
+                VStack(spacing: theme.spacing.base) {
+                    // Header Section: Tactile 3D Icon, Title, Level Badge
+                    headerSection
+
+                    // Metrics Chips Row
+                    metricsRow
+
+                    // Oxford CEFR Mastery Card
+                    cefrProgressionCard
+
+                    // Badges & Achievements Card
+                    achievementsCard
+                }
+                .padding(.horizontal, theme.spacing.base)
+                .padding(.bottom, theme.spacing.sm)
+            }
+
+            // Bottom Primary Action Button
+            CraftButton(
+                AppStrings.Common.done,
+                variant: .primary,
+                size: .lg,
+                isFullWidth: true
+            ) {
+                dismiss()
+            }
+            .padding(.horizontal, theme.spacing.base)
+            .padding(.top, theme.spacing.xs)
+            .padding(.bottom, theme.spacing.base)
         }
-        .background(theme.colors.canvasBackground.ignoresSafeArea())
-        .presentationDetents([.fraction(0.78), .large])
-        .presentationDragIndicator(.visible)
+        .background(theme.colors.surfaceCard)
+        .clipShape(
+            UnevenRoundedRectangle(
+                topLeadingRadius: theme.radii.xl,
+                bottomLeadingRadius: 0,
+                bottomTrailingRadius: 0,
+                topTrailingRadius: theme.radii.xl
+            )
+        )
     }
 
     // MARK: - Header Section
 
     private var headerSection: some View {
-        VStack(alignment: .leading, spacing: theme.spacing.xs / 2) {
-            CraftText(
-                AppStrings.Profile.title,
-                style: .titleLarge,
-                color: theme.colors.textPrimary
-            )
-            .fontWeight(.bold)
+        VStack(spacing: theme.spacing.xs) {
+            // Tactile 3D Trophy Icon
+            tactile3DHeroIcon
+                .padding(.bottom, theme.spacing.xs)
 
-            CraftText(
-                AppStrings.Settings.profileTagline,
-                style: .caption,
-                color: theme.colors.textSecondary
-            )
-        }
-        .padding(.top, theme.spacing.xs)
-    }
+            // Centered Title
+            Text(AppStrings.Profile.title)
+                .font(theme.typography.titleLarge.bold())
+                .foregroundStyle(theme.colors.textPrimary)
+                .multilineTextAlignment(.center)
 
-    // MARK: - Bento Metrics Grid
-
-    private var metricsGridSection: some View {
-        LazyVGrid(
-            columns: [
-                GridItem(.flexible(), spacing: theme.spacing.md),
-                GridItem(.flexible(), spacing: theme.spacing.md)
-            ],
-            spacing: theme.spacing.md
-        ) {
-            metricCard(
-                iconName: "book.fill",
-                iconColor: theme.colors.brandPrimary,
-                value: "\(wordsLearned)",
-                label: AppStrings.Profile.wordsLearned
-            )
-
-            metricCard(
-                iconName: "target",
-                iconColor: theme.colors.statusSuccess,
-                value: "\(accuracyPercent)%",
-                label: AppStrings.Profile.reflexAccuracy
-            )
-
-            metricCard(
-                iconName: "bolt.fill",
-                iconColor: theme.colors.statusWarning,
-                value: String(format: "%.1fs", avgSpeedSeconds),
-                label: AppStrings.Profile.avgSpeed
-            )
-
-            metricCard(
-                iconName: "flame.fill",
-                iconColor: theme.colors.accent,
-                value: "\(streakDays)",
-                label: AppStrings.Profile.streakDays
+            // User Level Badge
+            CraftBadge(
+                userLevel,
+                symbol: .star,
+                variant: .subtle,
+                tone: .primary,
+                size: .md
             )
         }
+        .frame(maxWidth: .infinity)
     }
 
-    private func metricCard(
-        iconName: String,
-        iconColor: Color,
-        value: String,
-        label: LocalizedStringKey
+    // MARK: - Tactile 3D Hero Icon
+
+    private var tactile3DHeroIcon: some View {
+        ZStack {
+            // Bottom 3D Bevel Rim
+            Circle()
+                .fill(theme.colors.accent.opacity(0.85))
+                .frame(width: 56, height: 56)
+                .offset(y: 4)
+
+            // Top Face
+            ZStack {
+                Circle()
+                    .fill(theme.gradients.brandHero)
+
+                // Top highlight
+                Circle()
+                    .stroke(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(0.35),
+                                Color.white.opacity(0.08),
+                                Color.clear
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        ),
+                        lineWidth: 1.5
+                    )
+
+                Image(systemName: "trophy.fill")
+                    .font(.system(size: 24, weight: .bold))
+                    .foregroundStyle(Color.white)
+            }
+            .frame(width: 56, height: 56)
+        }
+        .frame(width: 56, height: 60)
+        .accessibilityHidden(true)
+    }
+
+    // MARK: - Metrics Chips Row
+
+    private var metricsRow: some View {
+        HStack(spacing: theme.spacing.xs) {
+            // Words Learned Chip
+            metricChip(
+                icon: "book.fill",
+                title: "\(wordsLearned) \(AppStrings.Common.wordUnitText)",
+                tintColor: theme.colors.brandPrimary,
+                backgroundColor: theme.colors.brandPrimary.opacity(0.12)
+            )
+
+            // Accuracy Chip
+            metricChip(
+                icon: "target",
+                title: "\(accuracyPercent)%",
+                tintColor: theme.colors.statusSuccess,
+                backgroundColor: theme.colors.statusSuccess.opacity(0.12)
+            )
+
+            // Speed Chip
+            metricChip(
+                icon: "bolt.fill",
+                title: String(format: "%.1fs", avgSpeedSeconds),
+                tintColor: theme.colors.accent,
+                backgroundColor: theme.colors.accent.opacity(0.12)
+            )
+
+            // Streak Chip
+            metricChip(
+                icon: "flame.fill",
+                title: "\(streakDays)d",
+                tintColor: theme.colors.statusWarning,
+                backgroundColor: theme.colors.statusWarning.opacity(0.12)
+            )
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func metricChip(
+        icon: String,
+        title: String,
+        tintColor: Color,
+        backgroundColor: Color
     ) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(tintColor)
+
+            Text(title)
+                .font(theme.typography.caption)
+                .fontWeight(.semibold)
+                .foregroundStyle(theme.colors.textPrimary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 7)
+        .frame(maxWidth: .infinity)
+        .background(backgroundColor)
+        .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
+        .overlay(
+            RoundedRectangle(cornerRadius: theme.radii.md)
+                .stroke(theme.colors.borderDefault.opacity(0.5), lineWidth: 1)
+        )
+    }
+
+    // MARK: - Oxford CEFR Progression Card
+
+    private var cefrProgressionCard: some View {
         CraftCard(style: .outlined) {
             VStack(alignment: .leading, spacing: theme.spacing.sm) {
-                HStack {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: theme.radii.sm)
-                            .fill(iconColor.opacity(0.15))
-                            .frame(width: 32, height: 32)
+                HStack(spacing: 8) {
+                    Image(systemName: "chart.bar.fill")
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundStyle(theme.colors.brandPrimary)
 
-                        CraftIcon(iconName, size: .sm, color: iconColor)
-                    }
-                    Spacer()
-                }
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(value)
-                        .font(theme.typography.metricRounded)
-                        .fontWeight(.bold)
+                    Text(AppStrings.Profile.cefrMastery)
+                        .font(theme.typography.headline)
                         .foregroundStyle(theme.colors.textPrimary)
-
-                    Text(label)
-                        .font(theme.typography.caption)
-                        .foregroundStyle(theme.colors.textSecondary)
-                        .lineLimit(1)
-                }
-            }
-        }
-    }
-
-    // MARK: - Oxford CEFR Progression
-
-    private var cefrProgressionSection: some View {
-        CraftCard(style: .outlined) {
-            VStack(alignment: .leading, spacing: theme.spacing.md) {
-                HStack(spacing: theme.spacing.xs) {
-                    CraftIcon("chart.bar.fill", size: .sm, color: theme.colors.brandPrimary)
-                    CraftText(AppStrings.Profile.cefrMastery, style: .headline, color: theme.colors.textPrimary)
-                    Spacer()
                 }
 
                 VStack(spacing: theme.spacing.sm) {
@@ -191,15 +284,19 @@ public struct ProfileStatsSheet: View {
         }
     }
 
-    // MARK: - Achievements Section
+    // MARK: - Achievements Card
 
-    private var achievementsSection: some View {
+    private var achievementsCard: some View {
         CraftCard(style: .outlined) {
-            VStack(alignment: .leading, spacing: theme.spacing.md) {
-                HStack(spacing: theme.spacing.xs) {
-                    CraftIcon("trophy.fill", size: .sm, color: theme.colors.statusWarning)
-                    CraftText(AppStrings.Profile.achievements, style: .headline, color: theme.colors.textPrimary)
-                    Spacer()
+            VStack(alignment: .leading, spacing: theme.spacing.sm) {
+                HStack(spacing: 8) {
+                    Image(systemName: "trophy.fill")
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundStyle(theme.colors.statusWarning)
+
+                    Text(AppStrings.Profile.achievements)
+                        .font(theme.typography.headline)
+                        .foregroundStyle(theme.colors.textPrimary)
                 }
 
                 HStack(spacing: theme.spacing.xs) {
