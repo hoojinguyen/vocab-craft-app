@@ -207,7 +207,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertEqual(defaultCard.liveTranscript, "ephem")
         XCTAssertEqual(defaultCard.elapsedTimeMs, 900)
         XCTAssertFalse(defaultCard.isKeyboardFallbackActive)
-        XCTAssertEqual(defaultCard.timerStrokeColor, .vocabHeroAccent)
+        XCTAssertEqual(defaultCard.timerStrokeColor, CraftDefaultColorTokens().brandPrimary)
         XCTAssertNotNil(defaultCard.body)
 
         defaultCard.onSubmitKeyboard?()
@@ -229,7 +229,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         )
         XCTAssertEqual(warningCard.timerStage, .warning)
         XCTAssertTrue(warningCard.showHint)
-        XCTAssertEqual(warningCard.timerStrokeColor, .vocabPeach)
+        XCTAssertEqual(warningCard.timerStrokeColor, CraftDefaultColorTokens().statusWarning)
         XCTAssertNotNil(warningCard.body)
 
         // Urgent stage
@@ -247,7 +247,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
             onSubmitKeyboard: {}
         )
         XCTAssertEqual(urgentCard.timerStage, .urgent)
-        XCTAssertEqual(urgentCard.timerStrokeColor, .vocabCoral)
+        XCTAssertEqual(urgentCard.timerStrokeColor, CraftDefaultColorTokens().statusDanger)
         XCTAssertNotNil(urgentCard.body)
 
         // Correct match state
@@ -266,7 +266,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         )
         XCTAssertNotNil(correctCard)
         XCTAssertTrue(correctCard.isCorrect)
-        XCTAssertEqual(correctCard.timerStrokeColor, .vocabMint)
+        XCTAssertEqual(correctCard.timerStrokeColor, CraftDefaultColorTokens().statusSuccess)
         XCTAssertNotNil(correctCard.body)
 
         // Timeout state
@@ -285,7 +285,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         )
         XCTAssertNotNil(timeoutCard)
         XCTAssertTrue(timeoutCard.isTimeout)
-        XCTAssertEqual(timeoutCard.timerStrokeColor, .vocabCoral)
+        XCTAssertEqual(timeoutCard.timerStrokeColor, CraftDefaultColorTokens().statusDanger)
         XCTAssertNotNil(timeoutCard.body)
 
         // Keyboard Fallback Active State
@@ -609,7 +609,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertTrue(cardView.isReviewed)
         XCTAssertTrue(cardView.isResultCorrect)
         XCTAssertFalse(cardView.isResultTimeout)
-        XCTAssertEqual(cardView.cardBorderColor, .vocabMint)
+        XCTAssertEqual(cardView.cardBorderColor, CraftDefaultColorTokens().statusSuccess)
         XCTAssertNotNil(cardView.body)
     }
 
@@ -639,7 +639,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         )
         XCTAssertTrue(wrongCardView.isReviewed)
         XCTAssertFalse(wrongCardView.isResultCorrect)
-        XCTAssertEqual(wrongCardView.cardBorderColor, .vocabCoral)
+        XCTAssertEqual(wrongCardView.cardBorderColor, CraftDefaultColorTokens().statusDanger)
         XCTAssertEqual(wrongCardView.selectedOptionText, "focus")
         XCTAssertNotNil(wrongCardView.body)
 
@@ -659,7 +659,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         )
         XCTAssertTrue(timeoutCardView.isReviewed)
         XCTAssertTrue(timeoutCardView.isResultTimeout)
-        XCTAssertEqual(timeoutCardView.cardBorderColor, .vocabCoral)
+        XCTAssertEqual(timeoutCardView.cardBorderColor, CraftDefaultColorTokens().statusDanger)
         XCTAssertNotNil(timeoutCardView.body)
     }
 
@@ -886,7 +886,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertTrue(cardView.isReviewed)
         XCTAssertFalse(cardView.isResultCorrect)
         XCTAssertFalse(cardView.isResultTimeout)
-        XCTAssertEqual(cardView.cardBorderColor, .vocabCoral)
+        XCTAssertEqual(cardView.cardBorderColor, CraftDefaultColorTokens().statusDanger)
         XCTAssertNotNil(cardView.body)
     }
 
@@ -909,8 +909,8 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertTrue(cardView.isReviewed)
         XCTAssertFalse(cardView.isResultCorrect)
         XCTAssertTrue(cardView.isResultTimeout)
-        XCTAssertEqual(cardView.cardBorderColor, .vocabCoral)
-        XCTAssertEqual(cardView.timerStrokeColor, .vocabCoral)
+        XCTAssertEqual(cardView.cardBorderColor, CraftDefaultColorTokens().statusDanger)
+        XCTAssertEqual(cardView.timerStrokeColor, CraftDefaultColorTokens().statusDanger)
         XCTAssertNotNil(cardView.body)
     }
 }

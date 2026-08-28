@@ -83,11 +83,11 @@ public struct ReflexBlitzAdvanceDockView: View {
     public var buttonTitle: String {
         if isReviewed {
             if isTimeout {
-                return "⚠️ Hết giờ • Từ tiếp theo ➔"
+                return AppStrings.ReflexBlitz.advanceTimeoutButton
             } else if isCorrect {
-                return "⚡️ \(formattedResponseTime) • Từ tiếp theo ➔"
+                return AppStrings.ReflexBlitz.advanceCorrectButton(formattedResponseTime)
             } else {
-                return "\(formattedResponseTime) • Từ tiếp theo ➔"
+                return AppStrings.ReflexBlitz.advanceIncorrectButton(formattedResponseTime)
             }
         } else {
             return AppStrings.ReflexBlitz.skipText
@@ -112,7 +112,7 @@ public struct ReflexBlitzAdvanceDockView: View {
                 .keyboardShortcut(.defaultAction)
                 .transition(.scale.combined(with: .opacity))
                 .accessibilityLabel(accessibilityDescription)
-                .accessibilityHint("Nhấn để chuyển sang từ vựng tiếp theo")
+                .accessibilityHint(AppStrings.ReflexBlitz.advanceHintA11y)
             } else if let onSkip = onSkip {
                 CraftButton(
                     AppStrings.ReflexBlitz.skip,
@@ -137,11 +137,11 @@ public struct ReflexBlitzAdvanceDockView: View {
 
     private var accessibilityDescription: String {
         if isTimeout {
-            return "Hết giờ. Nhấn để sang từ tiếp theo"
+            return AppStrings.ReflexBlitz.advanceTimeoutA11y
         } else if isCorrect {
-            return "Chính xác, phản xạ \(formattedResponseTime). Nhấn để sang từ tiếp theo"
+            return AppStrings.ReflexBlitz.advanceCorrectA11y(formattedResponseTime)
         } else {
-            return "Chưa chính xác, thời gian \(formattedResponseTime). Nhấn để sang từ tiếp theo"
+            return AppStrings.ReflexBlitz.advanceIncorrectA11y(formattedResponseTime)
         }
     }
 }

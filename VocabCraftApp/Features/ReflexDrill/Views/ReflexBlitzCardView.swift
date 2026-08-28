@@ -124,32 +124,32 @@ public struct ReflexBlitzCardView: View {
 
     public var cardBorderColor: Color {
         if isReviewed {
-            return isResultCorrect ? .vocabMint : .vocabCoral
+            return isResultCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger
         } else {
             switch timerStage {
             case .steady:
-                return Color.vocabHairline.opacity(0.6)
+                return theme.colors.hairline.opacity(0.6)
             case .warning:
-                return Color.vocabPeach.opacity(0.8)
+                return theme.colors.statusWarning.opacity(0.8)
             case .urgent:
-                return Color.vocabCoral
+                return theme.colors.statusDanger
             }
         }
     }
 
     public var timerStrokeColor: Color {
         if isResultCorrect {
-            return .vocabMint
+            return theme.colors.statusSuccess
         } else if isResultTimeout {
-            return .vocabCoral
+            return theme.colors.statusDanger
         } else {
             switch timerStage {
             case .steady:
-                return .vocabHeroAccent
+                return theme.colors.brandPrimary
             case .warning:
-                return .vocabPeach
+                return theme.colors.statusWarning
             case .urgent:
-                return .vocabCoral
+                return theme.colors.statusDanger
             }
         }
     }
@@ -326,7 +326,7 @@ extension ReflexBlitzCardView {
                 textAlignment: .center
             )
             .lineLimit(2)
-            .accessibilityLabel("Nghĩa tiếng Việt: \(word.definitionVi)")
+            .accessibilityLabel(AppStrings.ReflexBlitz.definitionA11y(word.definitionVi))
         }
         .padding(.top, theme.spacing.xs / 2)
     }
@@ -341,8 +341,8 @@ extension ReflexBlitzCardView {
             .animation(.spring(response: 0.35, dampingFraction: 0.75), value: isResultTimeout)
             .accessibilityLabel(
                 isReviewed
-                    ? "Câu hoàn chỉnh: \(word.completedSentenceWithTargetWord)"
-                    : "Câu điền từ: \(word.clozeSentenceEn)"
+                    ? AppStrings.ReflexBlitz.completedSentenceA11y(word.completedSentenceWithTargetWord)
+                    : AppStrings.ReflexBlitz.clozeSentenceA11y(word.clozeSentenceEn)
             )
     }
 
@@ -358,10 +358,10 @@ extension ReflexBlitzCardView {
                 shape: .capsule
             )
             .transition(.scale.combined(with: .opacity))
-            .accessibilityLabel("Phiên âm IPA: \(word.ipa)")
+            .accessibilityLabel(AppStrings.ReflexBlitz.ipaA11y(word.ipa))
         } else if showHint && !isReviewed {
             CraftBadge(
-                "Gợi ý: \(word.initialLetterHint)",
+                AppStrings.ReflexBlitz.hintPrefix(word.initialLetterHint),
                 iconName: "lightbulb.min.fill",
                 variant: .outline,
                 tone: .warning,
@@ -369,7 +369,7 @@ extension ReflexBlitzCardView {
                 shape: .capsule
             )
             .transition(.scale.combined(with: .opacity))
-            .accessibilityLabel("Gợi ý ký tự đầu: \(word.initialLetterHint)")
+            .accessibilityLabel(AppStrings.ReflexBlitz.hintA11y(word.initialLetterHint))
         }
     }
 
@@ -465,7 +465,7 @@ extension ReflexBlitzCardView {
                         onSelectOption?(option)
                     }
                 )
-                .accessibilityLabel("Lựa chọn \(optionLetter(for: index)): \(option.text)")
+                .accessibilityLabel(AppStrings.ReflexBlitz.optionA11y(prefix: optionLetter(for: index), text: option.text))
             }
         }
     }
@@ -487,14 +487,14 @@ extension ReflexBlitzCardView {
             .onSubmit {
                 onSubmitKeyboard?()
             }
-            .accessibilityLabel(AppStrings.ReflexBlitz.typingPlaceholderText)
+            .accessibilityLabel(AppStrings.ReflexBlitz.typingInputA11y)
 
             CraftIconButton(
                 iconName: "arrow.up.circle.fill",
                 size: .lg,
                 shape: .circle,
                 variant: keyboardInputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? .subtle : .filled,
-                accessibilityLabelKey: LocalizedStringKey("app.reflex.drill.typing_submit_a11y"),
+                accessibilityLabel: AppStrings.ReflexBlitz.typingSubmitA11y,
                 action: {
                     onSubmitKeyboard?()
                 }
@@ -552,7 +552,7 @@ extension ReflexBlitzCardView {
         .background(theme.colors.surfaceSubtle.opacity(0.6))
         .clipShape(RoundedRectangle(cornerRadius: theme.radii.lg, style: .continuous))
         .animation(.spring(response: 0.3, dampingFraction: 0.75), value: liveTranscript.isEmpty)
-        .accessibilityLabel(liveTranscript.isEmpty ? "Đang chờ phát âm..." : "Nhận diện giọng nói: \(liveTranscript)")
+        .accessibilityLabel(liveTranscript.isEmpty ? AppStrings.ReflexBlitz.speechWaitingA11y : AppStrings.ReflexBlitz.speechRecognizedA11y(liveTranscript))
     }
 }
 

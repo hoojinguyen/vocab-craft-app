@@ -69,8 +69,12 @@ public struct ReflexBlitzCardReviewedView: View {
 extension ReflexBlitzCardReviewedView {
     private var statusHeaderBadge: some View {
         CraftBadge(
-            isResultCorrect ? "Chính xác!" : (isResultTimeout ? "Hết thời gian!" : "Chưa chính xác"),
-            iconName: isResultCorrect ? "checkmark.circle.fill" : (isResultTimeout ? "clock.badge.exclamationmark.fill" : "xmark.circle.fill"),
+            isResultCorrect
+                ? AppStrings.ReflexBlitz.correctTitleText
+                : (isResultTimeout ? AppStrings.ReflexBlitz.timeoutTitleText : AppStrings.ReflexBlitz.incorrectTitleText),
+            iconName: isResultCorrect
+                ? "checkmark.circle.fill"
+                : (isResultTimeout ? "clock.badge.exclamationmark.fill" : "xmark.circle.fill"),
             variant: .subtle,
             tone: isResultCorrect ? .success : .danger,
             size: .md,
@@ -114,7 +118,7 @@ extension ReflexBlitzCardReviewedView {
                     style: .caption,
                     color: theme.colors.textMuted
                 )
-                .accessibilityLabel("Phiên âm IPA: \(word.ipa)")
+                .accessibilityLabel(AppStrings.ReflexBlitz.ipaA11y(word.ipa))
             }
 
             CraftText(
@@ -175,7 +179,7 @@ extension ReflexBlitzCardReviewedView {
 
     private var listeningResultChip: some View {
         CraftBadge(
-            "Đã chọn: \(selectedOptionText ?? word.definitionVi)",
+            AppStrings.ReflexBlitz.selectedPrefix(selectedOptionText ?? word.definitionVi),
             iconName: isResultCorrect ? "checkmark.circle.fill" : "xmark.circle.fill",
             variant: .subtle,
             tone: isResultCorrect ? .success : .danger,
@@ -186,7 +190,7 @@ extension ReflexBlitzCardReviewedView {
 
     private func speakingResultChip(spoken: String) -> some View {
         CraftBadge(
-            "Nhận diện: \(spoken)",
+            AppStrings.ReflexBlitz.spokenRecognized(spoken),
             iconName: "waveform",
             variant: .subtle,
             tone: .primary,
@@ -197,7 +201,7 @@ extension ReflexBlitzCardReviewedView {
 
     private func typingResultChip(typed: String) -> some View {
         CraftBadge(
-            "Đã nhập: \(typed)",
+            AppStrings.ReflexBlitz.typedAnswer(typed),
             iconName: "keyboard",
             variant: .subtle,
             tone: isResultCorrect ? .success : .danger,

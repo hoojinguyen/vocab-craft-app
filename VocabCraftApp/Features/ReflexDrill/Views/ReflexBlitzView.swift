@@ -187,7 +187,7 @@ public struct ReflexBlitzView: View {
         case .reviewed(let result):
             CraftFeedbackSheet(
                 status: result.isCorrect ? .success : (result.isTimeout ? .warning : .error),
-                title: result.isCorrect ? "Chính xác!" : (result.isTimeout ? "Hết thời gian!" : "Chưa chính xác"),
+                title: result.isCorrect ? AppStrings.ReflexBlitz.correctTitleText : (result.isTimeout ? AppStrings.ReflexBlitz.timeoutTitleText : AppStrings.ReflexBlitz.incorrectTitleText),
                 actionTitle: AppStrings.ReflexBlitz.continueCTAText,
                 style: .tactile3D,
                 onContinue: {

@@ -5232,6 +5232,414 @@
         }
       }
     },
+    "app.reflex.drill.correct_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Correct!"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chính xác!"
+          }
+        }
+      }
+    },
+    "app.reflex.drill.timeout_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time's up!"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hết thời gian!"
+          }
+        }
+      }
+    },
+    "app.reflex.drill.incorrect_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incorrect"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chưa chính xác"
+          }
+        }
+      }
+    },
+    "app.reflex.drill.definition_a11y": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vietnamese definition: %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nghĩa tiếng Việt: %@"
+          }
+        }
+      }
+    },
+    "app.reflex.drill.completed_sentence_a11y": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Completed sentence: %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Câu hoàn chỉnh: %@"
+          }
+        }
+      }
+    },
+    "app.reflex.drill.cloze_sentence_a11y": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloze sentence: %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Câu điền từ: %@"
+          }
+        }
+      }
+    },
+    "app.reflex.drill.ipa_a11y": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IPA phonetic: %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phiên âm IPA: %@"
+          }
+        }
+      }
+    },
+    "app.reflex.drill.hint_prefix": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hint: %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gợi ý: %@"
+          }
+        }
+      }
+    },
+    "app.reflex.drill.hint_a11y": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "First letter hint: %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gợi ý ký tự đầu: %@"
+          }
+        }
+      }
+    },
+    "app.reflex.drill.option_a11y": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Option %1$@: %2$@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lựa chọn %1$@: %2$@"
+          }
+        }
+      }
+    },
+    "app.reflex.drill.typing_input_a11y": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "English word input field"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ô nhập từ tiếng Anh"
+          }
+        }
+      }
+    },
+    "app.reflex.drill.typing_submit_a11y": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Submit typed answer"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gửi câu trả lời đã gõ"
+          }
+        }
+      }
+    },
+    "app.reflex.drill.selected_prefix": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selected: %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã chọn: %@"
+          }
+        }
+      }
+    },
+    "app.reflex.drill.spoken_recognized": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recognized: %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nhận diện: %@"
+          }
+        }
+      }
+    },
+    "app.reflex.drill.typed_answer": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Typed: %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã nhập: %@"
+          }
+        }
+      }
+    },
+    "app.reflex.drill.speech_waiting_a11y": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for pronunciation..."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang chờ phát âm..."
+          }
+        }
+      }
+    },
+    "app.reflex.drill.speech_recognized_a11y": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice recognition: %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nhận diện giọng nói: %@"
+          }
+        }
+      }
+    },
+    "app.reflex.drill.advance_timeout_a11y": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time's up. Tap to advance to next word"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hết giờ. Nhấn để sang từ tiếp theo"
+          }
+        }
+      }
+    },
+    "app.reflex.drill.advance_correct_a11y": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Correct, reaction time %@. Tap to advance to next word"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chính xác, phản xạ %@. Nhấn để sang từ tiếp theo"
+          }
+        }
+      }
+    },
+    "app.reflex.drill.advance_incorrect_a11y": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incorrect, reaction time %@. Tap to advance to next word"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chưa chính xác, thời gian %@. Nhấn để sang từ tiếp theo"
+          }
+        }
+      }
+    },
+    "app.reflex.drill.advance_hint_a11y": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to advance to next word"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nhấn để chuyển sang từ vựng tiếp theo"
+          }
+        }
+      }
+    },
+    "app.reflex.drill.advance_timeout_button": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time's up • Next word ➔"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚠️ Hết giờ • Từ tiếp theo ➔"
+          }
+        }
+      }
+    },
+    "app.reflex.drill.advance_correct_button": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚡️ %@ • Next word ➔"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚡️ %@ • Từ tiếp theo ➔"
+          }
+        }
+      }
+    },
+    "app.reflex.drill.advance_incorrect_button": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ • Next word ➔"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ • Từ tiếp theo ➔"
+          }
+        }
+      }
+    },
     "app.reflex.summary.title": {
       "extractionState": "manual",
       "localizations": {
