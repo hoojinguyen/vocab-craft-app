@@ -15,12 +15,16 @@ struct ReflexBlitzLocalizationTests {
         "app.reflex.hub.footer_hint": ("Mỗi từ có giới hạn đếm ngược riêng biệt để tạo phản xạ vô điều kiện.", "Each word has a dedicated countdown to build unconditional reflexes."),
         "app.reflex.mode.speaking.title": ("Luyện nói", "Speaking Drill"),
         "app.reflex.mode.speaking.subtitle": ("Phản xạ phát âm & nhận diện giọng nói", "Pronunciation reflex & voice recognition"),
+        "app.reflex.mode.speaking.instruction": ("Sẵn sàng phát âm to & rõ ràng", "Get ready to speak loud & clear"),
         "app.reflex.mode.typing.title": ("Gõ từ", "Typing Drill"),
         "app.reflex.mode.typing.subtitle": ("Phản xạ gõ phím & nhớ mặt chữ", "Keyboard reflex & spelling memory"),
+        "app.reflex.mode.typing.instruction": ("Đặt tay lên phím & sẵn sàng gõ nhanh", "Hands on keyboard & get ready to type fast"),
         "app.reflex.mode.mc.title": ("Trắc nghiệm", "Multiple Choice"),
         "app.reflex.mode.mc.subtitle": ("Nhận diện từ vựng 1 trong 4", "1-in-4 rapid vocabulary identification"),
+        "app.reflex.mode.mc.instruction": ("Quan sát nhanh & chọn đáp án chính xác", "Look fast & pick the correct answer"),
         "app.reflex.mode.listening.title": ("Phản xạ nghe", "Listening Reflex"),
         "app.reflex.mode.listening.subtitle": ("Bắt âm thanh & dịch nghĩa tức thì", "Audio capture & instant translation"),
+        "app.reflex.mode.listening.instruction": ("Lắng nghe cẩn thận & chọn nghĩa chính xác", "Listen carefully & pick the correct meaning"),
         "app.reflex.drill.skip": ("Bỏ qua", "Skip"),
         "app.reflex.drill.typing_placeholder": ("Gõ từ tiếng Anh...", "Type English word..."),
         "app.reflex.drill.listening_instruction": ("Chọn nghĩa tiếng Việt của từ vừa nghe", "Select the Vietnamese meaning of the word you heard"),
@@ -148,12 +152,16 @@ struct ReflexBlitzLocalizationTests {
 
         #expect(!AppStrings.ReflexBlitz.speakingTitleText.isEmpty)
         #expect(!AppStrings.ReflexBlitz.speakingSubtitleText.isEmpty)
+        #expect(!AppStrings.ReflexBlitz.speakingInstructionText.isEmpty)
         #expect(!AppStrings.ReflexBlitz.typingTitleText.isEmpty)
         #expect(!AppStrings.ReflexBlitz.typingSubtitleText.isEmpty)
+        #expect(!AppStrings.ReflexBlitz.typingInstructionText.isEmpty)
         #expect(!AppStrings.ReflexBlitz.mcTitleText.isEmpty)
         #expect(!AppStrings.ReflexBlitz.mcSubtitleText.isEmpty)
+        #expect(!AppStrings.ReflexBlitz.mcInstructionText.isEmpty)
         #expect(!AppStrings.ReflexBlitz.listeningTitleText.isEmpty)
         #expect(!AppStrings.ReflexBlitz.listeningSubtitleText.isEmpty)
+        #expect(!AppStrings.ReflexBlitz.listeningModeInstructionText.isEmpty)
 
         #expect(!AppStrings.ReflexBlitz.skipText.isEmpty)
         #expect(!AppStrings.ReflexBlitz.typingPlaceholderText.isEmpty)

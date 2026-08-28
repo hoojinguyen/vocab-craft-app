@@ -1004,6 +1004,23 @@
         }
       }
     },
+    "app.reflex.mode.listening.instruction": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listen carefully & pick the correct meaning"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lắng nghe cẩn thận & chọn nghĩa chính xác"
+          }
+        }
+      }
+    },
     "app.reflex.mode.listening.subtitle": {
       "extractionState": "manual",
       "localizations": {
@@ -1034,6 +1051,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Phản xạ nghe"
+          }
+        }
+      }
+    },
+    "app.reflex.mode.mc.instruction": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Look fast & pick the correct answer"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quan sát nhanh & chọn đáp án chính xác"
           }
         }
       }
@@ -1072,6 +1106,23 @@
         }
       }
     },
+    "app.reflex.mode.speaking.instruction": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get ready to speak loud & clear"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sẵn sàng phát âm to & rõ ràng"
+          }
+        }
+      }
+    },
     "app.reflex.mode.speaking.subtitle": {
       "extractionState": "manual",
       "localizations": {
@@ -1102,6 +1153,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "Luyện nói"
+          }
+        }
+      }
+    },
+    "app.reflex.mode.typing.instruction": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hands on keyboard & get ready to type fast"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đặt tay lên phím & sẵn sàng gõ nhanh"
           }
         }
       }

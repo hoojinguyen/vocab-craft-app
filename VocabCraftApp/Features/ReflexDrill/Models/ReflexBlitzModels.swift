@@ -19,10 +19,28 @@ public enum ReflexBlitzMode: String, CaseIterable, Identifiable, Sendable, Codab
 
     public var title: String {
         switch self {
-        case .speaking:       return "Luyện nói"
-        case .typing:         return "Gõ từ"
-        case .multipleChoice: return "Trắc nghiệm"
-        case .listening:      return "Phản xạ nghe"
+        case .speaking:       return AppStrings.ReflexBlitz.speakingTitleText
+        case .typing:         return AppStrings.ReflexBlitz.typingTitleText
+        case .multipleChoice: return AppStrings.ReflexBlitz.mcTitleText
+        case .listening:      return AppStrings.ReflexBlitz.listeningTitleText
+        }
+    }
+
+    public var iconName: String {
+        switch self {
+        case .speaking:       return "waveform.and.mic"
+        case .typing:         return "keyboard"
+        case .multipleChoice: return "square.grid.2x2.fill"
+        case .listening:      return "headphones"
+        }
+    }
+
+    public var instructionPrompt: String {
+        switch self {
+        case .speaking:       return AppStrings.ReflexBlitz.speakingInstructionText
+        case .typing:         return AppStrings.ReflexBlitz.typingInstructionText
+        case .multipleChoice: return AppStrings.ReflexBlitz.mcInstructionText
+        case .listening:      return AppStrings.ReflexBlitz.listeningModeInstructionText
         }
     }
 }

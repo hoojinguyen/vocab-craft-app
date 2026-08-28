@@ -185,10 +185,20 @@ final class ReflexBlitzModelsTests: XCTestCase {
         XCTAssertEqual(ReflexBlitzMode.speaking.timeLimitSeconds, 6.0)
         XCTAssertEqual(ReflexBlitzMode.typing.timeLimitSeconds, 7.5)
 
-        XCTAssertEqual(ReflexBlitzMode.speaking.title, "Luyện nói")
-        XCTAssertEqual(ReflexBlitzMode.typing.title, "Gõ từ")
-        XCTAssertEqual(ReflexBlitzMode.multipleChoice.title, "Trắc nghiệm")
-        XCTAssertEqual(ReflexBlitzMode.listening.title, "Phản xạ nghe")
+        XCTAssertEqual(ReflexBlitzMode.speaking.title, AppStrings.ReflexBlitz.speakingTitleText)
+        XCTAssertEqual(ReflexBlitzMode.typing.title, AppStrings.ReflexBlitz.typingTitleText)
+        XCTAssertEqual(ReflexBlitzMode.multipleChoice.title, AppStrings.ReflexBlitz.mcTitleText)
+        XCTAssertEqual(ReflexBlitzMode.listening.title, AppStrings.ReflexBlitz.listeningTitleText)
+
+        XCTAssertEqual(ReflexBlitzMode.speaking.iconName, "waveform.and.mic")
+        XCTAssertEqual(ReflexBlitzMode.typing.iconName, "keyboard")
+        XCTAssertEqual(ReflexBlitzMode.multipleChoice.iconName, "square.grid.2x2.fill")
+        XCTAssertEqual(ReflexBlitzMode.listening.iconName, "headphones")
+
+        XCTAssertEqual(ReflexBlitzMode.speaking.instructionPrompt, AppStrings.ReflexBlitz.speakingInstructionText)
+        XCTAssertEqual(ReflexBlitzMode.typing.instructionPrompt, AppStrings.ReflexBlitz.typingInstructionText)
+        XCTAssertEqual(ReflexBlitzMode.multipleChoice.instructionPrompt, AppStrings.ReflexBlitz.mcInstructionText)
+        XCTAssertEqual(ReflexBlitzMode.listening.instructionPrompt, AppStrings.ReflexBlitz.listeningModeInstructionText)
 
         XCTAssertEqual(ReflexBlitzMode.speaking.id, "speaking")
         XCTAssertEqual(ReflexBlitzMode.allCases.count, 4)

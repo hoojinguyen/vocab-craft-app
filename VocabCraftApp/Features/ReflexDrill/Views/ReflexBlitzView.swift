@@ -55,19 +55,23 @@ public struct ReflexBlitzView: View {
                     .transition(.opacity)
                 }
 
-            case .countdown, .drilling, .timeoutRevealing:
-                drillingView
-
-                if viewModel.phase == .countdown {
-                    CraftCountdownOverlay(
-                        startNumber: 3,
-                        title: viewModel.selectedMode.title,
-                        onFinish: {
+            case .countdown:
+                CraftCountdownOverlay(
+                    startNumber: 3,
+                    title: viewModel.selectedMode.title,
+                    subtitle: viewModel.selectedMode.instructionPrompt,
+                    iconName: viewModel.selectedMode.iconName,
+                    tintColor: modalityTintColor(for: viewModel.selectedMode),
+                    onFinish: {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                             viewModel.beginSessionDirectly()
                         }
-                    )
-                    .transition(.opacity)
-                }
+                    }
+                )
+                .transition(.opacity)
+
+            case .drilling, .timeoutRevealing:
+                drillingView
             }
         }
         .onAppear {
@@ -81,6 +85,19 @@ public struct ReflexBlitzView: View {
         .sensoryFeedback(.success, trigger: viewModel.currentAttemptIsCorrect) { _, isCorrect in isCorrect }
         .sensoryFeedback(.impact(weight: .heavy), trigger: isReviewedTimeout) { _, isTimeout in isTimeout }
         .sensoryFeedback(.error, trigger: isReviewedIncorrect) { _, isIncorrect in isIncorrect }
+    }
+
+    private func modalityTintColor(for mode: ReflexBlitzMode) -> Color {
+        switch mode {
+        case .speaking:
+            return theme.colors.brandPrimary
+        case .typing:
+            return theme.colors.streakLegendary
+        case .multipleChoice:
+            return theme.colors.statusSuccess
+        case .listening:
+            return theme.colors.statusInfo
+        }
     }
 
     private var isReviewedIncorrect: Bool {
@@ -161,7 +178,6 @@ public struct ReflexBlitzView: View {
 
             // Bottom Dock: Skip button during active countdown for Speaking/Typing, CraftFeedbackSheet on review
             bottomDockArea
-                .padding(.bottom, theme.spacing.md)
         }
     }
 
@@ -182,6 +198,7 @@ public struct ReflexBlitzView: View {
                     }
                 )
                 .padding(.horizontal, theme.spacing.lg)
+                .padding(.bottom, theme.spacing.md)
                 .transition(.opacity)
             }
         case .reviewed(let result):
@@ -189,62 +206,16 @@ public struct ReflexBlitzView: View {
                 status: result.isCorrect ? .success : (result.isTimeout ? .warning : .error),
                 title: result.isCorrect ? AppStrings.ReflexBlitz.correctTitleText : (result.isTimeout ? AppStrings.ReflexBlitz.timeoutTitleText : AppStrings.ReflexBlitz.incorrectTitleText),
                 actionTitle: AppStrings.ReflexBlitz.continueCTAText,
+                streakCount: viewModel.comboStreak > 1 ? viewModel.comboStreak : nil,
                 style: .tactile3D,
                 onContinue: {
                     typingInput = ""
                     viewModel.advanceToNextWord()
-                },
-                extraContent: {
-                    if let word = viewModel.currentWord {
-                        feedbackExtraContent(word: word, result: result)
-                    }
                 }
             )
-            .padding(.horizontal, theme.spacing.base)
+            .ignoresSafeArea(edges: .bottom)
             .transition(.move(edge: .bottom).combined(with: .opacity))
         }
-    }
-
-    @ViewBuilder
-    private func feedbackExtraContent(word: ReflexBlitzWordItem, result: ReflexCardResult) -> some View {
-        VStack(alignment: .leading, spacing: theme.spacing.xs) {
-            HStack(spacing: theme.spacing.sm) {
-                CraftText(word.lemma, style: .titleMedium, color: theme.colors.textPrimary)
-
-                if !word.pos.isEmpty {
-                    CraftBadge(word.pos.uppercased(), variant: .subtle, tone: .primary, size: .sm, shape: .capsule)
-                }
-
-                if !word.ipa.isEmpty {
-                    CraftText(word.ipa, style: .caption, color: theme.colors.textMuted)
-                }
-
-                Spacer()
-
-                CraftSpeakerButton(
-                    variant: .subtle,
-                    size: .sm,
-                    isPlaying: false,
-                    label: LocalizedStringKey("craft.audio.pronounce"),
-                    action: {
-                        viewModel.speakCurrentWord()
-                    }
-                )
-            }
-
-            CraftText(word.definitionVi, style: .bodyMedium, color: theme.colors.textPrimary)
-
-            if !word.clozeSentenceEn.isEmpty {
-                CraftText(word.completedSentenceWithTargetWord, style: .bodyMedium, color: theme.colors.textSecondary)
-            }
-
-            if !word.exampleSentenceVi.isEmpty {
-                CraftText(word.exampleSentenceVi, style: .caption, color: theme.colors.textMuted)
-            }
-        }
-        .padding(theme.spacing.sm)
-        .background(theme.colors.surfaceSubtle)
-        .clipShape(RoundedRectangle(cornerRadius: theme.radii.md, style: .continuous))
     }
 
     private func submitKeyboard() {

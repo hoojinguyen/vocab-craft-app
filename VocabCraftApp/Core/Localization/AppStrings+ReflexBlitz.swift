@@ -44,6 +44,10 @@ extension AppStrings {
         public static var speakingSubtitleText: String {
             String(localized: "app.reflex.mode.speaking.subtitle", defaultValue: "Phản xạ phát âm & nhận diện giọng nói", bundle: .module)
         }
+        public static var speakingInstruction: LocalizedStringKey { "app.reflex.mode.speaking.instruction" }
+        public static var speakingInstructionText: String {
+            String(localized: "app.reflex.mode.speaking.instruction", defaultValue: "Sẵn sàng phát âm to & rõ ràng", bundle: .module)
+        }
 
         public static var typingTitle: LocalizedStringKey { "app.reflex.mode.typing.title" }
         public static var typingTitleText: String {
@@ -52,6 +56,10 @@ extension AppStrings {
         public static var typingSubtitle: LocalizedStringKey { "app.reflex.mode.typing.subtitle" }
         public static var typingSubtitleText: String {
             String(localized: "app.reflex.mode.typing.subtitle", defaultValue: "Phản xạ gõ phím & nhớ mặt chữ", bundle: .module)
+        }
+        public static var typingInstruction: LocalizedStringKey { "app.reflex.mode.typing.instruction" }
+        public static var typingInstructionText: String {
+            String(localized: "app.reflex.mode.typing.instruction", defaultValue: "Đặt tay lên phím & sẵn sàng gõ nhanh", bundle: .module)
         }
 
         public static var mcTitle: LocalizedStringKey { "app.reflex.mode.mc.title" }
@@ -62,6 +70,10 @@ extension AppStrings {
         public static var mcSubtitleText: String {
             String(localized: "app.reflex.mode.mc.subtitle", defaultValue: "Nhận diện từ vựng 1 trong 4", bundle: .module)
         }
+        public static var mcInstruction: LocalizedStringKey { "app.reflex.mode.mc.instruction" }
+        public static var mcInstructionText: String {
+            String(localized: "app.reflex.mode.mc.instruction", defaultValue: "Quan sát nhanh & chọn đáp án chính xác", bundle: .module)
+        }
 
         public static var listeningTitle: LocalizedStringKey { "app.reflex.mode.listening.title" }
         public static var listeningTitleText: String {
@@ -70,6 +82,10 @@ extension AppStrings {
         public static var listeningSubtitle: LocalizedStringKey { "app.reflex.mode.listening.subtitle" }
         public static var listeningSubtitleText: String {
             String(localized: "app.reflex.mode.listening.subtitle", defaultValue: "Bắt âm thanh & dịch nghĩa tức thì", bundle: .module)
+        }
+        public static var listeningModeInstruction: LocalizedStringKey { "app.reflex.mode.listening.instruction" }
+        public static var listeningModeInstructionText: String {
+            String(localized: "app.reflex.mode.listening.instruction", defaultValue: "Lắng nghe cẩn thận & chọn nghĩa chính xác", bundle: .module)
         }
 
         // Drill
