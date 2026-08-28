@@ -136,10 +136,12 @@ public struct ReflexBlitzModeSelectionView: View {
         }
     }
 
-    private let columns = [
-        GridItem(.flexible(), spacing: 14),
-        GridItem(.flexible(), spacing: 14)
-    ]
+    private var columns: [GridItem] {
+        [
+            GridItem(.flexible(), spacing: theme.spacing.md),
+            GridItem(.flexible(), spacing: theme.spacing.md)
+        ]
+    }
 
     public var body: some View {
         ZStack {
@@ -151,20 +153,20 @@ public struct ReflexBlitzModeSelectionView: View {
                 topDismissBar
 
                 ScrollView(.vertical, showsIndicators: false) {
-                    VStack(spacing: 20) {
+                    VStack(spacing: theme.spacing.lg) {
                         // Header Title & Subtitle Section
                         headerSection
 
-                        // Quick Stats Dashboard
-                        quickStatsDashboard
-
-                        // 4 Bento Cards Grid
+                        // 4 Bento Cards Grid (Primary Core Action)
                         modeGrid
+
+                        // Quick Stats Dashboard (Secondary support information)
+                        quickStatsDashboard
 
                         // Bottom Scaffolding Hint
                         footerHintSection
                     }
-                    .padding(.bottom, 32)
+                    .padding(.bottom, theme.spacing.xl)
                 }
             }
         }
@@ -180,17 +182,18 @@ public struct ReflexBlitzModeSelectionView: View {
                 size: .md,
                 shape: .circle,
                 variant: .subtle,
+                style: .glass,
                 accessibilityLabelKey: AppStrings.Common.close,
                 action: onDismiss
             )
             Spacer()
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 16)
+        .padding(.horizontal, theme.spacing.base)
+        .padding(.top, theme.spacing.base)
     }
 
     private var headerSection: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: theme.spacing.sm) {
             CraftBadge(
                 AppStrings.ReflexBlitz.hubBadge,
                 iconName: "bolt.fill",
@@ -214,27 +217,50 @@ public struct ReflexBlitzModeSelectionView: View {
                 textAlignment: .center
             )
         }
-        .padding(.top, 4)
-        .padding(.horizontal, 16)
+        .padding(.top, theme.spacing.xs)
+        .padding(.horizontal, theme.spacing.base)
+    }
+
+    private var modeGrid: some View {
+        LazyVGrid(columns: columns, spacing: theme.spacing.md) {
+            ForEach(ReflexBlitzMode.allCases) { mode in
+                modeCard(for: Self.modeItem(for: mode, colors: theme.colors))
+            }
+        }
+        .padding(.horizontal, theme.spacing.base)
+    }
+
+    @ViewBuilder
+    private func modeCard(for item: ReflexBlitzModeItem) -> some View {
+        CraftActionCard(
+            title: item.titleKey,
+            subtitle: item.subtitleKey,
+            iconName: item.iconName,
+            badgeText: item.badgeText,
+            badgeIcon: nil,
+            accentColor: item.accentColor,
+            style: .outlined,
+            showChevron: false
+        ) {
+            selectedModeTrigger = item.mode
+            onSelectMode(item.mode)
+        }
     }
 
     private var quickStatsDashboard: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: theme.spacing.sm) {
             // 1. Weekly Practiced Words
             CraftCard(
                 style: .outlined,
                 cornerRadius: theme.radii.lg,
-                padding: theme.spacing.sm
+                padding: theme.spacing.base
             ) {
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 6) {
-                        CraftIcon("flame.fill", size: .sm, color: theme.colors.brandPrimary)
-                        CraftText(
-                            verbatim: "\(weeklyPracticedCount)",
-                            style: .metricRounded,
-                            color: theme.colors.textPrimary
-                        )
-                    }
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText(
+                        verbatim: "\(weeklyPracticedCount)",
+                        style: .metricRounded,
+                        color: theme.colors.textPrimary
+                    )
                     CraftText(
                         AppStrings.ReflexBlitz.weeklyWords(weeklyPracticedCount),
                         style: .caption,
@@ -249,17 +275,14 @@ public struct ReflexBlitzModeSelectionView: View {
             CraftCard(
                 style: .outlined,
                 cornerRadius: theme.radii.lg,
-                padding: theme.spacing.sm
+                padding: theme.spacing.base
             ) {
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 6) {
-                        CraftIcon("exclamationmark.triangle.fill", size: .sm, color: theme.colors.statusWarning)
-                        CraftText(
-                            verbatim: "\(weakWordsCount)",
-                            style: .metricRounded,
-                            color: theme.colors.textPrimary
-                        )
-                    }
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText(
+                        verbatim: "\(weakWordsCount)",
+                        style: .metricRounded,
+                        color: theme.colors.textPrimary
+                    )
                     CraftText(
                         AppStrings.ReflexBlitz.weakWords(weakWordsCount),
                         style: .caption,
@@ -274,17 +297,14 @@ public struct ReflexBlitzModeSelectionView: View {
             CraftCard(
                 style: .outlined,
                 cornerRadius: theme.radii.lg,
-                padding: theme.spacing.sm
+                padding: theme.spacing.base
             ) {
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 6) {
-                        CraftIcon("bolt.fill", size: .sm, color: theme.colors.accent)
-                        CraftText(
-                            verbatim: String(format: "%.1fs", averageSpeedSeconds),
-                            style: .metricRounded,
-                            color: theme.colors.textPrimary
-                        )
-                    }
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText(
+                        verbatim: String(format: "%.1fs", averageSpeedSeconds),
+                        style: .metricRounded,
+                        color: theme.colors.textPrimary
+                    )
                     CraftText(
                         AppStrings.ReflexBlitz.avgSpeedLabel,
                         style: .caption,
@@ -295,46 +315,17 @@ public struct ReflexBlitzModeSelectionView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
-        .padding(.horizontal, 18)
-    }
-
-    private var modeGrid: some View {
-        LazyVGrid(columns: columns, spacing: 14) {
-            ForEach(ReflexBlitzMode.allCases) { mode in
-                modeCard(for: Self.modeItem(for: mode, colors: theme.colors))
-            }
-        }
-        .padding(.horizontal, 18)
-    }
-
-    @ViewBuilder
-    private func modeCard(for item: ReflexBlitzModeItem) -> some View {
-        CraftActionCard(
-            title: item.titleKey,
-            subtitle: item.subtitleKey,
-            iconName: item.iconName,
-            badgeText: item.badgeText,
-            badgeIcon: "stopwatch.fill",
-            accentColor: item.accentColor,
-            style: .tactile3D,
-            showChevron: true
-        ) {
-            selectedModeTrigger = item.mode
-            onSelectMode(item.mode)
-        }
+        .padding(.horizontal, theme.spacing.base)
     }
 
     private var footerHintSection: some View {
-        HStack(spacing: 8) {
-            CraftIcon("sparkles", size: .sm, color: theme.colors.brandPrimary)
-            CraftText(
-                AppStrings.ReflexBlitz.hubFooterHint,
-                style: .caption,
-                color: theme.colors.textMuted,
-                textAlignment: .center
-            )
-        }
-        .padding(.horizontal, 24)
-        .padding(.top, 8)
+        CraftText(
+            AppStrings.ReflexBlitz.hubFooterHint,
+            style: .caption,
+            color: theme.colors.textMuted,
+            textAlignment: .center
+        )
+        .padding(.horizontal, theme.spacing.lg)
+        .padding(.top, theme.spacing.sm)
     }
 }

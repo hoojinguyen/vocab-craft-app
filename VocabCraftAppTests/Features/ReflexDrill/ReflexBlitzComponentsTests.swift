@@ -769,6 +769,28 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertEqual(listening.accentColor, colors.statusInfo)
     }
 
+    @MainActor
+    func testModeSelectionViewWithDeepLinkConfig() {
+        var selectedConfig: ReflexBlitzDeepLinkConfig?
+        let config = ReflexBlitzDeepLinkConfig(mode: .speaking, phase: .drilling, showHint: true, combo: 2)
+        let view = ReflexBlitzModeSelectionView(
+            weeklyPracticedCount: 15,
+            weakWordsCount: 3,
+            averageSpeedSeconds: 2.1,
+            onSelectMode: { _ in },
+            onSelectConfig: { cfg in
+                selectedConfig = cfg
+            },
+            onDismiss: {}
+        )
+        XCTAssertNotNil(view.body)
+        view.onSelectConfig?(config)
+        XCTAssertEqual(selectedConfig?.mode, .speaking)
+        XCTAssertEqual(selectedConfig?.phase, .drilling)
+        XCTAssertEqual(selectedConfig?.showHint, true)
+        XCTAssertEqual(selectedConfig?.combo, 2)
+    }
+
     // MARK: - Advance Dock View Tests
 
     @MainActor
