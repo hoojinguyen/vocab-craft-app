@@ -277,6 +277,8 @@ public enum AppStrings {
         public static var membershipActiveText: String { String(localized: "app.settings.profile.membership_active", defaultValue: "PRO ACTIVE", bundle: .module) }
         public static var profilePerks: LocalizedStringKey { "app.settings.profile.perks" }
         public static var profilePerksText: String { String(localized: "app.settings.profile.perks", defaultValue: "Pro Member · Unlocked all 3,000+ Oxford words & Reflex Blitz", bundle: .module) }
+        public static var profileTagline: LocalizedStringKey { "app.settings.profile.tagline" }
+        public static var profileTaglineText: String { String(localized: "app.settings.profile.tagline", defaultValue: "Master 3,000+ Oxford words with Reflex Blitz", bundle: .module) }
         public static var profileActionView: LocalizedStringKey { "app.settings.profile.action_view" }
         public static var profileActionViewText: String { String(localized: "app.settings.profile.action_view", defaultValue: "View Profile & Achievements", bundle: .module) }
 

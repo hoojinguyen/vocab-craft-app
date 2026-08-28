@@ -138,4 +138,27 @@ final class SettingsViewTests: XCTestCase {
         store.isSoundEffectsEnabled.toggle()
         XCTAssertFalse(store.isSoundEffectsEnabled)
     }
+
+    func testProfileStatsSheetInitialization() {
+        let sheet = ProfileStatsSheet(
+            userName: "Hooji N.",
+            userLevel: "B2 Intermediate",
+            wordsLearned: 420,
+            accuracyPercent: 94,
+            avgSpeedSeconds: 1.8,
+            streakDays: 14
+        )
+        XCTAssertEqual(sheet.userName, "Hooji N.")
+        XCTAssertEqual(sheet.userLevel, "B2 Intermediate")
+        XCTAssertEqual(sheet.wordsLearned, 420)
+        XCTAssertEqual(sheet.accuracyPercent, 94)
+        XCTAssertEqual(sheet.avgSpeedSeconds, 1.8)
+        XCTAssertEqual(sheet.streakDays, 14)
+    }
+
+    func testProfileStatsSheetBodyRendering() {
+        let sheet = ProfileStatsSheet()
+        let body = sheet.body
+        XCTAssertNotNil(body)
+    }
 }

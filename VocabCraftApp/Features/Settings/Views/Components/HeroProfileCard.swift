@@ -1,8 +1,8 @@
 import CraftUIKit
 import SwiftUI
 
-/// Elevated hero profile header card displaying user avatar, membership tier, CEFR level badge,
-/// perks summary, and profile action trigger using CraftUIKit design tokens.
+/// Elevated hero profile header card displaying user avatar, CEFR level badge,
+/// perks summary, and profile action trigger in an elegant centered layout.
 public struct HeroProfileCard: View {
     @Environment(\.craftTheme) private var theme
     public let userName: String
@@ -21,57 +21,52 @@ public struct HeroProfileCard: View {
 
     public var body: some View {
         CraftCard(style: .elevated) {
-            VStack(alignment: .leading, spacing: theme.spacing.md) {
-                // Top Header Row
-                HStack(spacing: theme.spacing.md) {
-                    // Avatar with glowing aura
-                    ZStack {
-                        Circle()
-                            .fill(theme.gradients.brandHero)
-                            .frame(width: 56, height: 56)
-                            .overlay(
-                                Circle()
-                                    .strokeBorder(theme.colors.borderDefault, lineWidth: 2)
-                            )
-                            .craftShadow(theme.shadows.md)
-
-                        Text(userName.prefix(1))
-                            .font(theme.typography.titleLarge)
-                            .fontWeight(.bold)
-                            .foregroundStyle(theme.colors.textInverse)
-                    }
-
-                    VStack(alignment: .leading, spacing: theme.spacing.xs / 2) {
-                        HStack(spacing: theme.spacing.xs) {
-                            CraftText(userName, style: .headline, color: theme.colors.textPrimary)
-                            CraftBadge(
-                                AppStrings.Settings.membershipActive,
-                                symbol: .sparkles,
-                                variant: .subtle,
-                                tone: .success,
-                                size: .sm
-                            )
-                        }
-
-                        CraftBadge(
-                            userLevel,
-                            symbol: .star,
-                            variant: .subtle,
-                            tone: .primary,
-                            size: .sm
+            VStack(alignment: .center, spacing: theme.spacing.md) {
+                // Centered Avatar with glowing aura ring
+                ZStack {
+                    Circle()
+                        .fill(theme.gradients.brandHero)
+                        .frame(width: 68, height: 68)
+                        .overlay(
+                            Circle()
+                                .strokeBorder(theme.colors.borderDefault, lineWidth: 2)
                         )
-                    }
+                        .craftShadow(theme.shadows.md)
 
-                    Spacer()
+                    Text(userName.prefix(1))
+                        .font(theme.typography.displayLarge)
+                        .fontWeight(.bold)
+                        .foregroundStyle(theme.colors.textInverse)
+                }
+                .padding(.top, theme.spacing.xs)
+
+                // User Name & Level Badge
+                VStack(spacing: theme.spacing.xs) {
+                    CraftText(
+                        userName,
+                        style: .titleLarge,
+                        color: theme.colors.textPrimary
+                    )
+                    .fontWeight(.bold)
+
+                    CraftBadge(
+                        userLevel,
+                        symbol: .star,
+                        variant: .subtle,
+                        tone: .primary,
+                        size: .md
+                    )
                 }
 
-                // Perks Tagline
+                // Subtitle / Tagline
                 CraftText(
-                    AppStrings.Settings.profilePerks,
+                    AppStrings.Settings.profileTagline,
                     style: .caption,
                     color: theme.colors.textSecondary
                 )
+                .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, theme.spacing.sm)
 
                 // Action Button
                 CraftButton(
@@ -82,7 +77,11 @@ public struct HeroProfileCard: View {
                         onTapAction?()
                     }
                 )
+                .frame(maxWidth: .infinity)
+                .padding(.top, theme.spacing.xs / 2)
             }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, theme.spacing.xs)
         }
     }
 }

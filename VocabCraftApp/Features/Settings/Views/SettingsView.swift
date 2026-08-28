@@ -8,6 +8,7 @@ public struct SettingsView: View {
     @State private var showGoalInputAlert: Bool = false
     @State private var goalInputText: String = ""
     @State private var showCatalogSheet: Bool = ProcessInfo.processInfo.arguments.contains("-open-catalog")
+    @State private var showProfileSheet: Bool = false
 
     public init(viewModel: SettingsViewModel) {
         self.viewModel = viewModel
@@ -17,8 +18,10 @@ public struct SettingsView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 VStack(spacing: theme.spacing.lg) {
-                    // 1. Hero Profile & Pro Card
-                    HeroProfileCard()
+                    // 1. Hero Profile Card
+                    HeroProfileCard {
+                        showProfileSheet = true
+                    }
 
                     // 2. 7-Day Streak Tracker Card
                     CraftStreakCard(data: streakData, cardStyle: .outlined)
@@ -65,6 +68,9 @@ public struct SettingsView: View {
                 .frame(minWidth: 700, minHeight: 600)
         }
         #endif
+        .sheet(isPresented: $showProfileSheet) {
+            ProfileStatsSheet()
+        }
         .sensoryFeedback(.selection, trigger: viewModel.store.dailyGoalCount) { _, _ in viewModel.store.isHapticsEnabled }
         .sensoryFeedback(.selection, trigger: viewModel.store.themePreset) { _, _ in viewModel.store.isHapticsEnabled }
         .sensoryFeedback(.selection, trigger: viewModel.store.ttsVoiceGender) { _, _ in viewModel.store.isHapticsEnabled }

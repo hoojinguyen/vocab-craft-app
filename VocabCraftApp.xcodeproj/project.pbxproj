@@ -8,8 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		3000BCECD4679C9E8ED9 /* HeroProfileCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000BCECD4679C9E8ED9 /* HeroProfileCard.swift */; };
+		3000BCECD4679C9E8EDA /* ProfileStatsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000BCECD4679C9E8EDA /* ProfileStatsSheet.swift */; };
 		3000FE759BC2C33450AC /* AppStrings+ReflexBlitz.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FE759BC2C33450AC /* AppStrings+ReflexBlitz.swift */; };
 		3000644190359C5A3C15 /* AppStrings+Vault.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000644190359C5A3C15 /* AppStrings+Vault.swift */; };
+		3000644190359C5A3C16 /* AppStrings+Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000644190359C5A3C16 /* AppStrings+Profile.swift */; };
 		30001D594419E5FDDC0B /* GenerateSmartReflexQueueUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20001D594419E5FDDC0B /* GenerateSmartReflexQueueUseCase.swift */; };
 		3000B5F6CEC261EADFFB /* SettingsLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B5F6CEC261EADFFB /* SettingsLocalizationTests.swift */; };
 		30009901047D7899A16C /* PersonalVaultLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20009901047D7899A16C /* PersonalVaultLocalizationTests.swift */; };
@@ -286,8 +288,10 @@
 
 /* Begin PBXFileReference section */
 		2000BCECD4679C9E8ED9 /* HeroProfileCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HeroProfileCard.swift"; sourceTree = "<group>"; };
+		2000BCECD4679C9E8EDA /* ProfileStatsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProfileStatsSheet.swift"; sourceTree = "<group>"; };
 		2000FE759BC2C33450AC /* AppStrings+ReflexBlitz.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStrings+ReflexBlitz.swift"; sourceTree = "<group>"; };
 		2000644190359C5A3C15 /* AppStrings+Vault.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStrings+Vault.swift"; sourceTree = "<group>"; };
+		2000644190359C5A3C16 /* AppStrings+Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStrings+Profile.swift"; sourceTree = "<group>"; };
 		20001D594419E5FDDC0B /* GenerateSmartReflexQueueUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GenerateSmartReflexQueueUseCase.swift"; sourceTree = "<group>"; };
 		2000B5F6CEC261EADFFB /* SettingsLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsLocalizationTests.swift"; sourceTree = "<group>"; };
 		20009901047D7899A16C /* PersonalVaultLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersonalVaultLocalizationTests.swift"; sourceTree = "<group>"; };
@@ -683,6 +687,7 @@
 			isa = PBXGroup;
 			children = (
 				2000644190359C5A3C15 /* AppStrings+Vault.swift */,
+				2000644190359C5A3C16 /* AppStrings+Profile.swift */,
 				2000FE759BC2C33450AC /* AppStrings+ReflexBlitz.swift */,
 				20006FB901290FE28F5C /* AppStrings.swift */,
 			);
@@ -958,6 +963,7 @@
 			isa = PBXGroup;
 			children = (
 				2000BCECD4679C9E8ED9 /* HeroProfileCard.swift */,
+				2000BCECD4679C9E8EDA /* ProfileStatsSheet.swift */,
 			);
 			path = "Components";
 			sourceTree = "<group>";
@@ -1463,9 +1469,11 @@
 				300085D4BA7A4E3D273F /* VocabTheme.swift in Sources */,
 								3000FE759BC2C33450AC /* AppStrings+ReflexBlitz.swift in Sources */,
 				3000644190359C5A3C15 /* AppStrings+Vault.swift in Sources */,
+				3000644190359C5A3C16 /* AppStrings+Profile.swift in Sources */,
 				30001D594419E5FDDC0B /* GenerateSmartReflexQueueUseCase.swift in Sources */,
 				3000BCECD4679C9E8ED9 /* HeroProfileCard.swift in Sources */,
-30006FB901290FE28F5C /* AppStrings.swift in Sources */,
+				3000BCECD4679C9E8EDA /* ProfileStatsSheet.swift in Sources */,
+				30006FB901290FE28F5C /* AppStrings.swift in Sources */,
 				30003498E286D20C1EBC /* SRSEngine.swift in Sources */,
 				3000EA1A05F3921C21B6 /* UserProgressModelActor.swift in Sources */,
 				30007597124286610F99 /* MockVocabularyDataSource.swift in Sources */,

@@ -43,7 +43,18 @@ final class SettingsLocalizationTests: XCTestCase {
         "app.settings.about.icloud_sync": ("Đồng bộ iCloud", "iCloud Sync"),
         "app.settings.about.synced": ("Đã đồng bộ", "Synced"),
         "app.settings.about.clear_cache": ("Xoá bộ nhớ đệm", "Clear Cache"),
-        "app.settings.about.app_version": ("Phiên bản ứng dụng", "App Version")
+        "app.settings.about.app_version": ("Phiên bản ứng dụng", "App Version"),
+        "app.settings.profile.tagline": ("Chinh phục 3,000+ từ vựng Oxford & Phản xạ Reflex Blitz", "Master 3,000+ Oxford words with Reflex Blitz"),
+        "app.profile.title": ("Hồ sơ & Thành tích", "Profile & Achievements"),
+        "app.profile.words_learned": ("Từ đã học", "Words Learned"),
+        "app.profile.reflex_accuracy": ("Chính xác phản xạ", "Reflex Accuracy"),
+        "app.profile.avg_speed": ("Tốc độ phản xạ TB", "Avg Speed"),
+        "app.profile.streak_days": ("Chuỗi ngày", "Streak Days"),
+        "app.profile.cefr_mastery": ("Tiến độ Oxford CEFR", "Oxford CEFR Mastery"),
+        "app.profile.achievements": ("Huy hiệu & Danh hiệu", "Badges & Achievements"),
+        "app.profile.badge_reflex_master": ("Bậc thầy phản xạ", "Reflex Master"),
+        "app.profile.badge_streak_blaze": ("Ngọn lửa 14 ngày", "14-Day Blaze"),
+        "app.profile.badge_oxford_pioneer": ("Nhà thám hiểm Oxford", "Oxford Pioneer")
     ]
 
     func testAllSettingsStringsHaveBilingualTranslations() {
@@ -87,10 +98,21 @@ final class SettingsLocalizationTests: XCTestCase {
             "app.settings.about.icloud_sync",
             "app.settings.about.synced",
             "app.settings.about.clear_cache",
-            "app.settings.about.app_version"
+            "app.settings.about.app_version",
+            "app.settings.profile.tagline",
+            "app.profile.title",
+            "app.profile.words_learned",
+            "app.profile.reflex_accuracy",
+            "app.profile.avg_speed",
+            "app.profile.streak_days",
+            "app.profile.cefr_mastery",
+            "app.profile.achievements",
+            "app.profile.badge_reflex_master",
+            "app.profile.badge_streak_blaze",
+            "app.profile.badge_oxford_pioneer"
         ]
 
-        XCTAssertEqual(keys.count, 40, "There must be exactly 40 required keys for Settings")
+        XCTAssertEqual(keys.count, 51, "There must be exactly 51 required keys for Settings and Profile")
 
         for key in keys {
             XCTAssertNotNil(expectedSettingsKeys[key], "Key \(key) should be present in expected dictionary")
@@ -158,6 +180,7 @@ final class SettingsLocalizationTests: XCTestCase {
         XCTAssertEqual(AppStrings.Settings.titleText, "Settings")
         XCTAssertEqual(AppStrings.Settings.membershipActiveText, "PRO ACTIVE")
         XCTAssertEqual(AppStrings.Settings.profilePerksText, "Pro Member · Unlocked all 3,000+ Oxford words & Reflex Blitz")
+        XCTAssertEqual(AppStrings.Settings.profileTaglineText, "Master 3,000+ Oxford words with Reflex Blitz")
         XCTAssertEqual(AppStrings.Settings.profileActionViewText, "View Profile & Achievements")
         XCTAssertEqual(AppStrings.Settings.targetLevelText, "Target Level")
         XCTAssertEqual(AppStrings.Settings.appLanguageText, "App Language")
@@ -172,6 +195,7 @@ final class SettingsLocalizationTests: XCTestCase {
         XCTAssertNotNil(AppStrings.Settings.title)
         XCTAssertNotNil(AppStrings.Settings.membershipActive)
         XCTAssertNotNil(AppStrings.Settings.profilePerks)
+        XCTAssertNotNil(AppStrings.Settings.profileTagline)
         XCTAssertNotNil(AppStrings.Settings.profileActionView)
         XCTAssertNotNil(AppStrings.Settings.sectionLearning)
         XCTAssertNotNil(AppStrings.Settings.targetLevel)
@@ -209,5 +233,28 @@ final class SettingsLocalizationTests: XCTestCase {
         XCTAssertNotNil(AppStrings.Settings.synced)
         XCTAssertNotNil(AppStrings.Settings.clearCache)
         XCTAssertNotNil(AppStrings.Settings.appVersion)
+
+        // Profile Strings
+        XCTAssertEqual(AppStrings.Profile.titleText, "Profile & Achievements")
+        XCTAssertEqual(AppStrings.Profile.wordsLearnedText, "Words Learned")
+        XCTAssertEqual(AppStrings.Profile.reflexAccuracyText, "Reflex Accuracy")
+        XCTAssertEqual(AppStrings.Profile.avgSpeedText, "Avg Speed")
+        XCTAssertEqual(AppStrings.Profile.streakDaysText, "Streak Days")
+        XCTAssertEqual(AppStrings.Profile.cefrMasteryText, "Oxford CEFR Mastery")
+        XCTAssertEqual(AppStrings.Profile.achievementsText, "Badges & Achievements")
+        XCTAssertEqual(AppStrings.Profile.badgeReflexMasterText, "Reflex Master")
+        XCTAssertEqual(AppStrings.Profile.badgeStreakBlazeText, "14-Day Blaze")
+        XCTAssertEqual(AppStrings.Profile.badgeOxfordPioneerText, "Oxford Pioneer")
+
+        XCTAssertNotNil(AppStrings.Profile.title)
+        XCTAssertNotNil(AppStrings.Profile.wordsLearned)
+        XCTAssertNotNil(AppStrings.Profile.reflexAccuracy)
+        XCTAssertNotNil(AppStrings.Profile.avgSpeed)
+        XCTAssertNotNil(AppStrings.Profile.streakDays)
+        XCTAssertNotNil(AppStrings.Profile.cefrMastery)
+        XCTAssertNotNil(AppStrings.Profile.achievements)
+        XCTAssertNotNil(AppStrings.Profile.badgeReflexMaster)
+        XCTAssertNotNil(AppStrings.Profile.badgeStreakBlaze)
+        XCTAssertNotNil(AppStrings.Profile.badgeOxfordPioneer)
     }
 }
