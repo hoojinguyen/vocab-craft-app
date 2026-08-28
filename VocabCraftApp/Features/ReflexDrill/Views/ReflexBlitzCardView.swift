@@ -148,12 +148,9 @@ public struct ReflexBlitzCardView: View {
             return word.lemma
         } else if showHint {
             let initial = String(word.lemma.prefix(1)).lowercased()
-            let dotsCount = max(1, word.lemma.count - 1)
-            return "[ \(initial)" + String(repeating: " •", count: dotsCount) + " ]"
+            return "[ \(initial) • • ]"
         } else {
-            let dotsCount = max(3, min(6, word.lemma.count))
-            let dots = String(repeating: "• ", count: dotsCount).trimmingCharacters(in: .whitespaces)
-            return "[ \(dots) ]"
+            return "[ • • • ]"
         }
     }
 
@@ -364,33 +361,27 @@ extension ReflexBlitzCardView {
 
     private func reviewedClozeText(parts: ClozeSentenceParts) -> Text {
         let prefixText = Text(parts.prefix)
-            .font(theme.typography.titleMedium)
-            .fontDesign(.serif)
+            .font(theme.typography.bodySerif)
             .foregroundColor(theme.colors.textPrimary)
         let slotColor: Color = isResultCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger
         let slotText = Text(parts.slot)
-            .font(theme.typography.titleMedium.bold())
-            .fontDesign(.serif)
+            .font(theme.typography.bodySerif.bold())
             .foregroundColor(slotColor)
         let suffixText = Text(parts.suffix)
-            .font(theme.typography.titleMedium)
-            .fontDesign(.serif)
+            .font(theme.typography.bodySerif)
             .foregroundColor(theme.colors.textPrimary)
         return prefixText + slotText + suffixText
     }
 
     private func activeClozeText(parts: ClozeSentenceParts) -> Text {
         let prefixText = Text(parts.prefix)
-            .font(theme.typography.titleMedium)
-            .fontDesign(.serif)
+            .font(theme.typography.bodySerif)
             .foregroundColor(theme.colors.textPrimary)
         let slotText = Text(parts.slot)
-            .font(theme.typography.titleMedium.bold())
-            .fontDesign(.monospaced)
+            .font(theme.typography.bodySerif.bold())
             .foregroundColor(slotTextColor)
         let suffixText = Text(parts.suffix)
-            .font(theme.typography.titleMedium)
-            .fontDesign(.serif)
+            .font(theme.typography.bodySerif)
             .foregroundColor(theme.colors.textPrimary)
         return prefixText + slotText + suffixText
     }
@@ -405,8 +396,7 @@ extension ReflexBlitzCardView {
             }
         } else {
             Text(displayedSentence)
-                .font(theme.typography.titleMedium.weight(isReviewed ? .bold : .medium))
-                .fontDesign(.serif)
+                .font(theme.typography.bodySerif.weight(isReviewed ? .bold : .medium))
                 .foregroundColor(isReviewed ? (isResultCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger) : theme.colors.textPrimary)
         }
     }

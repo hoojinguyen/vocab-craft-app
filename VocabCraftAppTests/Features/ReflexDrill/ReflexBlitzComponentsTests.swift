@@ -366,6 +366,38 @@ final class ReflexBlitzComponentsTests: XCTestCase {
     }
 
     @MainActor
+    func testCompactClozeSlotRepresentationDoesNotExceedMaxDots() {
+        let longWord = ReflexBlitzWordItem(
+            id: 99,
+            lemma: "comprehension",
+            pos: "n.",
+            ipa: "/ˌkɒm.prɪˈhen.ʃən/",
+            definitionVi: "Sự thấu hiểu",
+            exampleSentenceEn: "Reading aids comprehension of language.",
+            exampleSentenceVi: "Đọc sách giúp thấu hiểu ngôn ngữ.",
+            clozeSentenceEn: "Reading aids [ _____________ ] of language."
+        )
+
+        let card = ReflexBlitzCardView(
+            word: longWord,
+            showHint: false,
+            isCorrect: false
+        )
+        let slot = card.slotRepresentation
+        XCTAssertEqual(slot, "[ • • • ]")
+
+        let hintedCard = ReflexBlitzCardView(
+            word: longWord,
+            showHint: true,
+            isCorrect: false
+        )
+        let hintedSlot = hintedCard.slotRepresentation
+        XCTAssertTrue(hintedSlot.hasPrefix("[ c"))
+        XCTAssertEqual(hintedSlot, "[ c • • ]")
+        XCTAssertTrue(hintedSlot.count <= 10)
+    }
+
+    @MainActor
     func testCardViewInMultipleChoiceModeRendersOptions() {
         let word = ReflexBlitzWordItem.defaultStarterWords[0]
         let options = word.generateOptions(mode: .multipleChoice, allPool: ReflexBlitzWordItem.defaultStarterWords)

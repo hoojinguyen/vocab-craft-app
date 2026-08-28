@@ -140,23 +140,19 @@ extension ReflexBlitzCardReviewedView {
     private var reviewedSentenceView: some View {
         if let parts = clozeParts {
             Text(parts.prefix)
-                .font(theme.typography.titleMedium)
-                .fontDesign(.serif)
+                .font(theme.typography.bodySerif)
                 .foregroundColor(theme.colors.textPrimary)
             +
             Text(parts.slot)
-                .font(theme.typography.titleMedium.bold())
-                .fontDesign(.serif)
+                .font(theme.typography.bodySerif.bold())
                 .foregroundColor(isResultCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger)
             +
             Text(parts.suffix)
-                .font(theme.typography.titleMedium)
-                .fontDesign(.serif)
+                .font(theme.typography.bodySerif)
                 .foregroundColor(theme.colors.textPrimary)
         } else {
             Text(displayedSentence)
-                .font(theme.typography.titleMedium.bold())
-                .fontDesign(.serif)
+                .font(theme.typography.bodySerif.bold())
                 .foregroundColor(isResultCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger)
         }
     }
