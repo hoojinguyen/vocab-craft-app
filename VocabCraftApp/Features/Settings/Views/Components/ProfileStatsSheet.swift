@@ -1,29 +1,22 @@
 import CraftUIKit
 import SwiftUI
 
-/// A comprehensive, theme-driven bottom sheet displaying user learning statistics,
-/// CEFR Oxford mastery progression, and unlocked achievements.
+/// Bottom sheet component displaying user learning statistics, CEFR Oxford mastery
+/// progression, and unlocked achievements, matching the VaultWordDetailSheet architecture.
 public struct ProfileStatsSheet: View {
     @Environment(\.craftTheme) private var theme
-    @Environment(\.dismiss) private var dismiss
 
-    public let userName: String
-    public let userLevel: String
     public let wordsLearned: Int
     public let accuracyPercent: Int
     public let avgSpeedSeconds: Double
     public let streakDays: Int
 
     public init(
-        userName: String = "Hooji N.",
-        userLevel: String = "B2 Intermediate",
         wordsLearned: Int = 420,
         accuracyPercent: Int = 94,
         avgSpeedSeconds: Double = 1.8,
         streakDays: Int = 14
     ) {
-        self.userName = userName
-        self.userLevel = userLevel
         self.wordsLearned = wordsLearned
         self.accuracyPercent = accuracyPercent
         self.avgSpeedSeconds = avgSpeedSeconds
@@ -31,94 +24,52 @@ public struct ProfileStatsSheet: View {
     }
 
     public var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: theme.spacing.lg) {
-                    // Profile Summary Header
-                    profileSummaryHeader
+        ScrollView {
+            VStack(alignment: .leading, spacing: theme.spacing.lg) {
+                // Header Section: Title & Subtitle
+                headerSection
 
-                    // 4-Item Bento Metrics Grid
-                    bentoMetricsGrid
+                // Section 1: 4-Item Bento Metrics Grid
+                metricsGridSection
 
-                    // Oxford CEFR Progression
-                    cefrProgressionSection
+                // Section 2: Oxford CEFR Progression
+                cefrProgressionSection
 
-                    // Unlocked Achievements
-                    achievementsSection
-
-                    // Dismiss Button
-                    CraftButton(
-                        AppStrings.Common.done,
-                        variant: .primary,
-                        size: .lg
-                    ) {
-                        dismiss()
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.top, theme.spacing.sm)
-                }
-                .padding(.horizontal, theme.spacing.base)
-                .padding(.top, theme.spacing.md)
-                .padding(.bottom, theme.spacing.xl)
+                // Section 3: Unlocked Achievements
+                achievementsSection
             }
-            .background(theme.colors.canvasBackground.ignoresSafeArea())
-            .navigationTitle(AppStrings.Profile.title)
-            #if os(iOS)
-            .navigationBarTitleDisplayMode(.inline)
-            #endif
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        CraftIcon("xmark.circle.fill", size: .md, color: theme.colors.textMuted)
-                    }
-                    .accessibilityLabel(AppStrings.Common.close)
-                }
-            }
+            .padding(.horizontal, theme.spacing.base)
+            .padding(.top, theme.spacing.lg)
+            .padding(.bottom, theme.spacing.xl)
         }
+        .background(theme.colors.canvasBackground.ignoresSafeArea())
+        .presentationDetents([.fraction(0.78), .large])
+        .presentationDragIndicator(.visible)
     }
 
-    // MARK: - Profile Summary Header
+    // MARK: - Header Section
 
-    private var profileSummaryHeader: some View {
-        HStack(spacing: theme.spacing.md) {
-            ZStack {
-                Circle()
-                    .fill(theme.gradients.brandHero)
-                    .frame(width: 52, height: 52)
-                    .overlay(
-                        Circle()
-                            .strokeBorder(theme.colors.borderDefault, lineWidth: 1.5)
-                    )
+    private var headerSection: some View {
+        VStack(alignment: .leading, spacing: theme.spacing.xs / 2) {
+            CraftText(
+                AppStrings.Profile.title,
+                style: .titleLarge,
+                color: theme.colors.textPrimary
+            )
+            .fontWeight(.bold)
 
-                Text(userName.prefix(1))
-                    .font(theme.typography.titleLarge)
-                    .fontWeight(.bold)
-                    .foregroundStyle(theme.colors.textInverse)
-            }
-
-            VStack(alignment: .leading, spacing: theme.spacing.xs / 2) {
-                CraftText(userName, style: .titleMedium, color: theme.colors.textPrimary)
-                    .fontWeight(.bold)
-
-                CraftBadge(
-                    userLevel,
-                    symbol: .star,
-                    variant: .subtle,
-                    tone: .primary,
-                    size: .sm
-                )
-            }
-
-            Spacer()
+            CraftText(
+                AppStrings.Settings.profileTagline,
+                style: .caption,
+                color: theme.colors.textSecondary
+            )
         }
-        .padding(.vertical, theme.spacing.xs)
+        .padding(.top, theme.spacing.xs)
     }
 
     // MARK: - Bento Metrics Grid
 
-    private var bentoMetricsGrid: some View {
+    private var metricsGridSection: some View {
         LazyVGrid(
             columns: [
                 GridItem(.flexible(), spacing: theme.spacing.md),
@@ -195,7 +146,7 @@ public struct ProfileStatsSheet: View {
     private var cefrProgressionSection: some View {
         CraftCard(style: .outlined) {
             VStack(alignment: .leading, spacing: theme.spacing.md) {
-                HStack {
+                HStack(spacing: theme.spacing.xs) {
                     CraftIcon("chart.bar.fill", size: .sm, color: theme.colors.brandPrimary)
                     CraftText(AppStrings.Profile.cefrMastery, style: .headline, color: theme.colors.textPrimary)
                     Spacer()
@@ -245,7 +196,7 @@ public struct ProfileStatsSheet: View {
     private var achievementsSection: some View {
         CraftCard(style: .outlined) {
             VStack(alignment: .leading, spacing: theme.spacing.md) {
-                HStack {
+                HStack(spacing: theme.spacing.xs) {
                     CraftIcon("trophy.fill", size: .sm, color: theme.colors.statusWarning)
                     CraftText(AppStrings.Profile.achievements, style: .headline, color: theme.colors.textPrimary)
                     Spacer()
