@@ -384,7 +384,7 @@ final class ReflexBlitzComponentsTests: XCTestCase {
             isCorrect: false
         )
         let slot = card.slotRepresentation
-        XCTAssertEqual(slot, "[ • • • ]")
+        XCTAssertEqual(slot, "[\u{00A0}•\u{00A0}•\u{00A0}•\u{00A0}]")
 
         let hintedCard = ReflexBlitzCardView(
             word: longWord,
@@ -392,8 +392,8 @@ final class ReflexBlitzComponentsTests: XCTestCase {
             isCorrect: false
         )
         let hintedSlot = hintedCard.slotRepresentation
-        XCTAssertTrue(hintedSlot.hasPrefix("[ c"))
-        XCTAssertEqual(hintedSlot, "[ c • • ]")
+        XCTAssertTrue(hintedSlot.hasPrefix("[\u{00A0}c"))
+        XCTAssertEqual(hintedSlot, "[\u{00A0}c\u{00A0}•\u{00A0}•\u{00A0}]")
         XCTAssertTrue(hintedSlot.count <= 10)
     }
 
@@ -611,8 +611,8 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertEqual(wrongCard.selectedOptionText, "focus")
         XCTAssertEqual(wrongCard.choiceState(for: optionHabit), .correct)
         XCTAssertEqual(wrongCard.choiceState(for: optionFocus), .wrong)
-        XCTAssertEqual(wrongCard.choiceState(for: optionCreate), .disabled)
-        XCTAssertEqual(wrongCard.choiceState(for: optionRelax), .disabled)
+        XCTAssertEqual(wrongCard.choiceState(for: optionCreate), .idle)
+        XCTAssertEqual(wrongCard.choiceState(for: optionRelax), .idle)
         XCTAssertTrue(wrongCard.showsStatusIndicator(for: optionHabit))
         XCTAssertTrue(wrongCard.showsStatusIndicator(for: optionFocus))
         XCTAssertFalse(wrongCard.showsStatusIndicator(for: optionCreate))
@@ -634,9 +634,9 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertTrue(correctCard.isReviewed)
         XCTAssertEqual(correctCard.selectedOptionText, "habit")
         XCTAssertEqual(correctCard.choiceState(for: optionHabit), .correct)
-        XCTAssertEqual(correctCard.choiceState(for: optionFocus), .disabled)
-        XCTAssertEqual(correctCard.choiceState(for: optionCreate), .disabled)
-        XCTAssertEqual(correctCard.choiceState(for: optionRelax), .disabled)
+        XCTAssertEqual(correctCard.choiceState(for: optionFocus), .idle)
+        XCTAssertEqual(correctCard.choiceState(for: optionCreate), .idle)
+        XCTAssertEqual(correctCard.choiceState(for: optionRelax), .idle)
         XCTAssertTrue(correctCard.showsStatusIndicator(for: optionHabit))
         XCTAssertFalse(correctCard.showsStatusIndicator(for: optionFocus))
         XCTAssertFalse(correctCard.showsStatusIndicator(for: optionCreate))
@@ -658,9 +658,9 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         XCTAssertTrue(timeoutCard.isReviewed)
         XCTAssertNil(timeoutCard.selectedOptionText)
         XCTAssertEqual(timeoutCard.choiceState(for: optionHabit), .correct)
-        XCTAssertEqual(timeoutCard.choiceState(for: optionFocus), .disabled)
-        XCTAssertEqual(timeoutCard.choiceState(for: optionCreate), .disabled)
-        XCTAssertEqual(timeoutCard.choiceState(for: optionRelax), .disabled)
+        XCTAssertEqual(timeoutCard.choiceState(for: optionFocus), .idle)
+        XCTAssertEqual(timeoutCard.choiceState(for: optionCreate), .idle)
+        XCTAssertEqual(timeoutCard.choiceState(for: optionRelax), .idle)
         XCTAssertTrue(timeoutCard.showsStatusIndicator(for: optionHabit))
         XCTAssertFalse(timeoutCard.showsStatusIndicator(for: optionFocus))
         XCTAssertFalse(timeoutCard.showsStatusIndicator(for: optionCreate))

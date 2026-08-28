@@ -148,9 +148,9 @@ public struct ReflexBlitzCardView: View {
             return word.lemma
         } else if showHint {
             let initial = String(word.lemma.prefix(1)).lowercased()
-            return "[ \(initial) • • ]"
+            return "[\u{00A0}\(initial)\u{00A0}•\u{00A0}•\u{00A0}]"
         } else {
-            return "[ • • • ]"
+            return "[\u{00A0}•\u{00A0}•\u{00A0}•\u{00A0}]"
         }
     }
 
@@ -167,7 +167,7 @@ public struct ReflexBlitzCardView: View {
         } else if option.text == selectedOptionText {
             return .wrong
         } else {
-            return .disabled
+            return .idle
         }
     }
 
@@ -240,27 +240,24 @@ extension ReflexBlitzCardView {
 
     @ViewBuilder
     private var activeSpeakingContent: some View {
-        triggerArea
+        wordHeaderArea
         sentenceArea
-        scaffoldingArea
         dividerLine
         livingAudioDockView
     }
 
     @ViewBuilder
     private var activeTypingContent: some View {
-        triggerArea
+        wordHeaderArea
         sentenceArea
-        scaffoldingArea
         dividerLine
         typingInputDockView
     }
 
     @ViewBuilder
     private var activeMultipleChoiceContent: some View {
-        triggerArea
+        wordHeaderArea
         sentenceArea
-        scaffoldingArea
         dividerLine
         optionsListView
     }
@@ -309,69 +306,109 @@ extension ReflexBlitzCardView {
     // MARK: - Subviews & Areas
 
     @ViewBuilder
-    private var triggerArea: some View {
+    private var wordHeaderArea: some View {
         VStack(spacing: theme.spacing.xs) {
-            if !word.pos.isEmpty {
-                CraftBadge(
-                    word.pos.uppercased(),
-                    variant: .subtle,
-                    tone: .primary,
-                    size: .sm,
-                    shape: .capsule
+            if isReviewed {
+                CraftText(
+                    word.lemma,
+                    style: .titleLargeSerif,
+                    color: theme.colors.textPrimary,
+                    textAlignment: .center
                 )
+            } else {
+                CraftText(
+                    word.definitionVi,
+                    style: .titleLarge,
+                    color: theme.colors.textPrimary,
+                    textAlignment: .center
+                )
+                .lineLimit(2)
+                .accessibilityLabel(AppStrings.ReflexBlitz.definitionA11y(word.definitionVi))
             }
 
-            CraftText(
-                word.definitionVi,
-                style: .titleLarge,
-                color: theme.colors.textPrimary,
-                textAlignment: .center
-            )
-            .lineLimit(2)
-            .accessibilityLabel(AppStrings.ReflexBlitz.definitionA11y(word.definitionVi))
+            HStack(alignment: .center, spacing: theme.spacing.sm) {
+                if !word.pos.isEmpty {
+                    CraftBadge(
+                        word.pos.uppercased(),
+                        variant: .subtle,
+                        tone: .primary,
+                        size: .sm,
+                        shape: .capsule
+                    )
+                }
+
+                if isReviewed {
+                    if !word.ipa.isEmpty {
+                        CraftText(
+                            word.ipa,
+                            style: .caption,
+                            color: theme.colors.textMuted
+                        )
+                        .accessibilityLabel(AppStrings.ReflexBlitz.ipaA11y(word.ipa))
+                    }
+
+                    if let onReplayAudio {
+                        CraftSpeakerButton(
+                            variant: .subtle,
+                            size: .sm,
+                            isPlaying: false,
+                            label: nil,
+                            action: onReplayAudio
+                        )
+                    }
+                } else if showHint {
+                    CraftBadge(
+                        AppStrings.ReflexBlitz.hintPrefix(word.initialLetterHint),
+                        iconName: "lightbulb.min.fill",
+                        variant: .outline,
+                        tone: .warning,
+                        size: .sm,
+                        shape: .capsule
+                    )
+                    .transition(.scale.combined(with: .opacity))
+                    .accessibilityLabel(AppStrings.ReflexBlitz.hintA11y(word.initialLetterHint))
+                }
+            }
+
+            if isReviewed {
+                CraftText(
+                    word.definitionVi,
+                    style: .titleMedium,
+                    color: theme.colors.textPrimary,
+                    textAlignment: .center
+                )
+                .padding(.top, theme.spacing.xs / 2)
+            }
         }
         .padding(.top, theme.spacing.xs / 2)
     }
 
     @ViewBuilder
     private var sentenceArea: some View {
-        sentenceView
-            .multilineTextAlignment(.center)
-            .lineSpacing(6)
-            .padding(.horizontal, theme.spacing.xs)
-            .animation(.spring(response: 0.35, dampingFraction: 0.75), value: isResultCorrect)
-            .animation(.spring(response: 0.35, dampingFraction: 0.75), value: isResultTimeout)
-            .accessibilityLabel(
-                isReviewed
-                    ? AppStrings.ReflexBlitz.completedSentenceA11y(word.completedSentenceWithTargetWord)
-                    : AppStrings.ReflexBlitz.clozeSentenceA11y(word.clozeSentenceEn)
-            )
-    }
+        VStack(spacing: theme.spacing.xs) {
+            sentenceView
+                .multilineTextAlignment(.center)
+                .lineSpacing(6)
+                .padding(.horizontal, theme.spacing.xs)
+                .fixedSize(horizontal: false, vertical: true)
+                .animation(.spring(response: 0.35, dampingFraction: 0.75), value: isResultCorrect)
+                .animation(.spring(response: 0.35, dampingFraction: 0.75), value: isResultTimeout)
+                .accessibilityLabel(
+                    isReviewed
+                        ? AppStrings.ReflexBlitz.completedSentenceA11y(word.completedSentenceWithTargetWord)
+                        : AppStrings.ReflexBlitz.clozeSentenceA11y(word.clozeSentenceEn)
+                )
 
-    @ViewBuilder
-    private var scaffoldingArea: some View {
-        if isReviewed && !word.ipa.isEmpty {
-            CraftBadge(
-                word.ipa,
-                iconName: "waveform",
-                variant: .subtle,
-                tone: isResultCorrect ? .success : .danger,
-                size: .md,
-                shape: .capsule
-            )
-            .transition(.scale.combined(with: .opacity))
-            .accessibilityLabel(AppStrings.ReflexBlitz.ipaA11y(word.ipa))
-        } else if showHint && !isReviewed {
-            CraftBadge(
-                AppStrings.ReflexBlitz.hintPrefix(word.initialLetterHint),
-                iconName: "lightbulb.min.fill",
-                variant: .outline,
-                tone: .warning,
-                size: .sm,
-                shape: .capsule
-            )
-            .transition(.scale.combined(with: .opacity))
-            .accessibilityLabel(AppStrings.ReflexBlitz.hintA11y(word.initialLetterHint))
+            if isReviewed && !word.exampleSentenceVi.isEmpty {
+                CraftText(
+                    word.exampleSentenceVi,
+                    style: .caption,
+                    color: theme.colors.textMuted,
+                    textAlignment: .center
+                )
+                .padding(.horizontal, theme.spacing.xs)
+                .fixedSize(horizontal: false, vertical: true)
+            }
         }
     }
 
