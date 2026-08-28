@@ -29,7 +29,7 @@ struct DomainEntitiesTests {
             targetTimeMs: 2500,
             sentenceTextEn: "It is a good habit."
         )
-        #expect(item.id == 101)
+        #expect(item.id == "101")
         #expect(item.correctAnswer == "habit")
     }
 }
