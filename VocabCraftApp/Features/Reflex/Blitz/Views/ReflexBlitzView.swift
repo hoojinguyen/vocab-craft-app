@@ -150,7 +150,8 @@ public struct ReflexBlitzView: View {
     }
 
     private var eliminatedOptionId: String? {
-        guard viewModel.hintStage >= 3 else { return nil }
+        let requiredStage = viewModel.selectedMode == .listening ? 2 : 3
+        guard viewModel.hintStage >= requiredStage else { return nil }
         return viewModel.currentEliminatedOptionId ?? viewModel.currentOptions.first(where: { !$0.isCorrect })?.id
     }
 
