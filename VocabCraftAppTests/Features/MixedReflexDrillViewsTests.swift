@@ -169,12 +169,12 @@ struct MixedReflexDrillViewsTests {
         let drillView = MixedReflexDrillView(viewModel: vm, onFinish: {})
         #expect(drillView.viewModel.queue.count == 2)
         #expect(drillView.viewModel.currentIndex == 0)
-        #expect(drillView.viewModel.currentItem?.id == words[0].id)
+        #expect(drillView.viewModel.currentItem?.word.id == words[0].id)
 
         await vm.submitAnswer(isCorrect: true, responseTimeMs: 1000)
         vm.advanceToNextItem()
 
         #expect(drillView.viewModel.currentIndex == 1)
-        #expect(drillView.viewModel.currentItem?.id == words[1].id)
+        #expect(drillView.viewModel.currentItem?.word.id == words[1].id)
     }
 }

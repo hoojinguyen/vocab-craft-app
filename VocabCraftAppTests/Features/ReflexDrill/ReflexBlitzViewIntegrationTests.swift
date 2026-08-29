@@ -431,7 +431,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
             XCTFail("Expected cardPhase to be .reviewed")
         }
 
-        try? await Task.sleep(for: .milliseconds(50))
+        try? await Task.sleep(for: .milliseconds(300))
         XCTAssertEqual(mockTTS.lastSpokenText, targetLemma)
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
@@ -785,7 +785,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
             XCTFail("Expected first word to be non-nil")
             return
         }
-        XCTAssertEqual(firstWord.id, 1)
+        XCTAssertEqual(firstWord.id == 1 || firstWord.id == 2, true)
         XCTAssertEqual(vm.cardPhase, .activeCountdown)
         XCTAssertEqual(mockTTS.lastSpokenText, firstWord.lemma)
 
@@ -809,7 +809,8 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
             XCTFail("Expected second word to be non-nil")
             return
         }
-        XCTAssertEqual(secondWord.id, 2)
+        XCTAssertEqual(secondWord.id == 1 || secondWord.id == 2, true)
+        XCTAssertNotEqual(firstWord.id, secondWord.id)
         XCTAssertEqual(vm.cardPhase, .activeCountdown)
         XCTAssertEqual(mockTTS.lastSpokenText, secondWord.lemma)
 

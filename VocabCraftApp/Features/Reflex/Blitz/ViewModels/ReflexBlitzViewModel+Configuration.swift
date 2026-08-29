@@ -70,4 +70,61 @@ extension ReflexBlitzViewModel {
             elapsedTimeMs = 1200
         }
     }
+
+    public func advanceToNextWord() {
+        guard phase == .drilling else { return }
+        let nextIndex = currentWordIndex + 1
+        if nextIndex < words.count {
+            loadWord(at: nextIndex)
+        } else {
+            finishSession()
+        }
+    }
+
+    public func toggleKeyboardFallback() {
+        isKeyboardFallbackActive.toggle()
+    }
+
+    public func finishSession() {
+        cancelAllTasks()
+        continuousSpeechService.stopSession()
+        sessionSummary = ReflexBlitzSessionSummary.create(from: attempts, maxCombo: maxComboStreak)
+        phase = .summary
+    }
+
+    public func reDrillWeakWords() {
+        guard let summary = sessionSummary, !summary.weakWordAttempts.isEmpty else { return }
+        let weakWordIds = Set(summary.weakWordAttempts.map { $0.wordId })
+        let reDrillItems = words.filter { weakWordIds.contains($0.id) }
+        guard !reDrillItems.isEmpty else { return }
+        self.words = reDrillItems
+        startCountdown()
+    }
+
+    public func cancelSession() {
+        cancelAllTasks()
+        continuousSpeechService.stopSession()
+        ttsService.stop()
+    }
+
+    public func resetToModeSelection() {
+        cancelSession()
+        sessionPlan = nil
+        currentPlanItem = nil
+        currentClozeStages = nil
+        currentEliminatedOptionId = nil
+        currentHintBadgeText = ""
+        sessionSummary = nil
+        attempts = []
+        currentWordIndex = 0
+        phase = .modeSelection
+    }
+
+    func triggerIncorrectHaptic() {
+        #if os(iOS) && !targetEnvironment(simulator)
+        let generator = UIImpactFeedbackGenerator(style: .light)
+        generator.prepare()
+        generator.impactOccurred()
+        #endif
+    }
 }
