@@ -11,8 +11,11 @@ public struct ReflexSpeakingModeView: View {
     public let liveTranscript: String
     public let elapsedTimeMs: Int
     public let showHint: Bool
+    public let hintStage: Int
+    public let clozeStages: ReflexClozeStageSet?
     public let clozeParts: ClozeSentenceParts?
     public let displayedSentence: String?
+    public let hintBadgeText: String?
     public let onSwitchToKeyboard: (() -> Void)?
 
     public init(
@@ -20,17 +23,32 @@ public struct ReflexSpeakingModeView: View {
         liveTranscript: String = "",
         elapsedTimeMs: Int = 0,
         showHint: Bool = false,
+        hintStage: Int = 0,
+        clozeStages: ReflexClozeStageSet? = nil,
         clozeParts: ClozeSentenceParts? = nil,
         displayedSentence: String? = nil,
+        hintBadgeText: String? = nil,
         onSwitchToKeyboard: (() -> Void)? = nil
     ) {
         self.word = word
         self.liveTranscript = liveTranscript
         self.elapsedTimeMs = elapsedTimeMs
         self.showHint = showHint
+        self.hintStage = hintStage
+        self.clozeStages = clozeStages
         self.clozeParts = clozeParts
         self.displayedSentence = displayedSentence
+        self.hintBadgeText = hintBadgeText
         self.onSwitchToKeyboard = onSwitchToKeyboard
+    }
+
+    public var activeClozeParts: ClozeSentenceParts? {
+        guard let stages = clozeStages else { return clozeParts }
+        switch hintStage {
+        case 0: return stages.initialParts
+        case 1: return stages.lengthMaskedParts
+        default: return stages.patternRevealedParts
+        }
     }
 
     public var body: some View {
@@ -74,9 +92,12 @@ public struct ReflexSpeakingModeView: View {
                     shape: .capsule
                 )
 
-                if showHint {
+                if showHint || hintStage > 0 {
+                    let badgeText = (hintBadgeText?.isEmpty == false)
+                        ? hintBadgeText!
+                        : AppStrings.ReflexBlitz.hintPrefix(word.cleanInitialLetterHint)
                     CraftBadge(
-                        AppStrings.ReflexBlitz.hintPrefix(word.cleanInitialLetterHint),
+                        badgeText,
                         iconName: "lightbulb.min.fill",
                         variant: .outline,
                         tone: .warning,
@@ -100,13 +121,14 @@ public struct ReflexSpeakingModeView: View {
                 .lineSpacing(6)
                 .padding(.horizontal, theme.spacing.xs)
                 .fixedSize(horizontal: false, vertical: true)
+                .animation(.spring(response: 0.35, dampingFraction: 0.75), value: hintStage)
                 .accessibilityLabel(AppStrings.ReflexBlitz.clozeSentenceA11y(word.clozeSentenceEn))
         }
     }
 
     @ViewBuilder
     private var sentenceView: some View {
-        if let parts = clozeParts {
+        if let parts = activeClozeParts ?? clozeParts {
             activeClozeText(parts: parts)
         } else {
             Text(displayedSentence ?? word.clozeSentenceEn)
@@ -121,7 +143,7 @@ public struct ReflexSpeakingModeView: View {
             .foregroundColor(theme.colors.textPrimary)
         let slotText = Text(parts.slot)
             .font(theme.typography.bodySerif.bold())
-            .foregroundColor(showHint ? theme.colors.statusWarning : theme.colors.brandPrimary)
+            .foregroundColor((showHint || hintStage >= 2) ? theme.colors.statusWarning : theme.colors.brandPrimary)
         let suffixText = Text(parts.suffix)
             .font(theme.typography.bodySerif)
             .foregroundColor(theme.colors.textPrimary)

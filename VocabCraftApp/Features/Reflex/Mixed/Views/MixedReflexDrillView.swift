@@ -185,6 +185,15 @@ public struct MixedReflexDrillView: View {
     // MARK: - Challenge Card Container
     @ViewBuilder
     private func challengeCard(for item: MixedReflexDrillItem) -> some View {
+        let isReviewed = self.isReviewed
+        let reviewedResult = self.reviewedResult
+        let isResultCorrect = self.isResultCorrect
+        let isResultTimeout = self.isResultTimeout
+        let timerStage = self.timerStage
+        let currentHintStage = item.assignedMode.hintStage(forElapsedTimeMs: elapsedTimeMs)
+        let isHintActive = currentHintStage >= 1
+
+
         if item.assignedMode == .multipleChoice {
             ReflexMultipleChoiceModeView(
                 word: item,
@@ -192,13 +201,14 @@ public struct MixedReflexDrillView: View {
                 isReviewed: isReviewed,
                 isResultCorrect: isResultCorrect,
                 isResultTimeout: isResultTimeout,
-                showHint: false,
-                hintStage: 0,
+                showHint: isHintActive,
+                hintStage: currentHintStage,
                 selectedOptionText: reviewedResult?.selectedOption,
+                clozeStages: viewModel.currentClozeStages,
                 clozeParts: ReflexClozeFormatter.extractTemplateParts(from: item.clozeSentenceEn),
                 displayedSentence: isReviewed ? item.completedSentenceWithTargetWord : item.clozeSentenceEn,
                 cardBorderColor: theme.colors.hairline.opacity(0.4),
-                eliminatedOptionId: nil,
+                eliminatedOptionId: viewModel.currentEliminatedOptionId,
                 onSelectOption: { option in
                     selectOption(option)
                 },
@@ -231,6 +241,12 @@ public struct MixedReflexDrillView: View {
                             word: item,
                             liveTranscript: liveTranscript,
                             elapsedTimeMs: elapsedTimeMs,
+                            showHint: isHintActive,
+                            hintStage: currentHintStage,
+                            clozeStages: viewModel.currentClozeStages,
+                            clozeParts: ReflexClozeFormatter.extractTemplateParts(from: item.clozeSentenceEn),
+                            displayedSentence: item.clozeSentenceEn,
+                            hintBadgeText: viewModel.currentHintBadgeText,
                             onSwitchToKeyboard: {
                                 isKeyboardFallbackActive.toggle()
                             }
@@ -239,6 +255,12 @@ public struct MixedReflexDrillView: View {
                         ReflexTypingModeView(
                             word: item,
                             typingText: $typingText,
+                            showHint: isHintActive,
+                            hintStage: currentHintStage,
+                            clozeStages: viewModel.currentClozeStages,
+                            clozeParts: ReflexClozeFormatter.extractTemplateParts(from: item.clozeSentenceEn),
+                            displayedSentence: item.clozeSentenceEn,
+                            hintBadgeText: viewModel.currentHintBadgeText,
                             onSubmit: {
                                 submitTypingAnswer(typingText)
                             }
@@ -247,6 +269,8 @@ public struct MixedReflexDrillView: View {
                         ReflexListeningModeView(
                             word: item,
                             options: currentOptions,
+                            hintStage: currentHintStage,
+                            eliminatedOptionId: viewModel.currentEliminatedOptionId,
                             onPlayAudio: {
                                 viewModel.playAudioForCurrentWord()
                             },

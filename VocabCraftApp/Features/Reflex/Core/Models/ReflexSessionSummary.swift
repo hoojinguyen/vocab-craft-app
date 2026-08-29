@@ -83,12 +83,16 @@ public enum ReflexPerformanceRating: String, Sendable, Codable, CaseIterable {
         }
     }
 
-    public var localizedTitle: String {
+    public var title: String {
         switch self {
-        case .master: return String(localized: "app.reflex.summary.rating_master")
-        case .swift:  return String(localized: "app.reflex.summary.rating_swift")
-        case .steady: return String(localized: "app.reflex.summary.rating_steady")
+        case .master: return "Reflex Master"
+        case .swift:  return "Swift Reflex"
+        case .steady: return "Steady Learner"
         }
+    }
+
+    public var localizedTitle: String {
+        AppStrings.ReflexBlitz.localizedRatingTitle(for: title)
     }
 
     public var starCount: Int {
@@ -108,7 +112,7 @@ public enum ReflexPerformanceRating: String, Sendable, Codable, CaseIterable {
     }
 
     public var displayTitle: String {
-        "\(emoji) \(localizedTitle)"
+        "\(emoji) \(title)"
     }
 }
 

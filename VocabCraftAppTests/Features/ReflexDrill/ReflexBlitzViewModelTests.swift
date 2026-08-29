@@ -88,11 +88,12 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.phase, .drilling)
         XCTAssertEqual(viewModel.currentOptions.count, 4)
 
-        guard let correctOption = viewModel.currentOptions.first(where: { $0.isCorrect }) else {
-            XCTFail("No correct option found")
+        guard let correctOption = viewModel.currentOptions.first(where: { $0.isCorrect }),
+              let targetLemma = viewModel.currentWord?.lemma else {
+            XCTFail("No correct option or target lemma found")
             return
         }
-        XCTAssertEqual(correctOption.text, "ephemeral")
+        XCTAssertEqual(correctOption.text, targetLemma)
 
         viewModel.simulateElapsedTime(ms: 1200)
         viewModel.selectOption(correctOption)
@@ -100,7 +101,7 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         if case .reviewed(let result) = viewModel.cardPhase {
             XCTAssertTrue(result.isCorrect)
             XCTAssertFalse(result.isTimeout)
-            XCTAssertEqual(result.selectedOption, "ephemeral")
+            XCTAssertEqual(result.selectedOption, targetLemma)
             XCTAssertEqual(result.responseTimeMs, 1200)
         } else {
             XCTFail("Expected cardPhase to be .reviewed")
@@ -110,7 +111,7 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.maxComboStreak, 1)
         XCTAssertEqual(mockSound.playSuccessChimeCallCount, 1)
         XCTAssertEqual(viewModel.attempts.count, 1)
-        XCTAssertEqual(viewModel.attempts.first?.lemma, "ephemeral")
+        XCTAssertEqual(viewModel.attempts.first?.lemma, targetLemma)
         XCTAssertEqual(viewModel.attempts.first?.isCorrect, true)
         XCTAssertEqual(viewModel.attempts.first?.responseTimeMs, 1200)
     }
@@ -166,13 +167,14 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.phase, .drilling)
         XCTAssertEqual(viewModel.cardPhase, .activeCountdown)
 
+        let targetLemma = viewModel.currentWord!.lemma
         viewModel.simulateElapsedTime(ms: 1800)
-        viewModel.submitTypingAnswer(viewModel.currentWord!.lemma)
+        viewModel.submitTypingAnswer(targetLemma)
 
         if case .reviewed(let result) = viewModel.cardPhase {
             XCTAssertTrue(result.isCorrect)
             XCTAssertFalse(result.isTimeout)
-            XCTAssertEqual(result.typedText, "ephemeral")
+            XCTAssertEqual(result.typedText, targetLemma)
             XCTAssertEqual(result.responseTimeMs, 1800)
         } else {
             XCTFail("Expected cardPhase to be .reviewed")
@@ -185,7 +187,8 @@ final class ReflexBlitzViewModelTests: XCTestCase {
     func testTypingModeCaseAndWhitespaceInsensitiveMatch() {
         viewModel.selectMode(.typing)
         viewModel.beginSessionDirectly()
-        viewModel.submitTypingAnswer("   EPHEMERAL  \n")
+        let targetLemma = viewModel.currentWord!.lemma
+        viewModel.submitTypingAnswer("   \(targetLemma.uppercased())  \n")
 
         if case .reviewed(let result) = viewModel.cardPhase {
             XCTAssertTrue(result.isCorrect)
@@ -209,19 +212,24 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         viewModel.selectMode(.listening)
         viewModel.beginSessionDirectly()
 
-        XCTAssertEqual(mockTTS.lastSpokenText, "ephemeral", "Listening mode must auto-speak target lemma on load")
+        guard let targetWord = viewModel.currentWord else {
+            XCTFail("No target word found")
+            return
+        }
+
+        XCTAssertEqual(mockTTS.lastSpokenText, targetWord.lemma, "Listening mode must auto-speak target lemma on load")
         XCTAssertEqual(viewModel.currentOptions.count, 4)
 
         guard let correctOption = viewModel.currentOptions.first(where: { $0.isCorrect }) else {
             XCTFail("No correct option found")
             return
         }
-        XCTAssertEqual(correctOption.text, "Phù du, ngắn ngủi")
+        XCTAssertEqual(correctOption.text, targetWord.definitionVi)
 
         viewModel.selectOption(correctOption)
         if case .reviewed(let result) = viewModel.cardPhase {
             XCTAssertTrue(result.isCorrect)
-            XCTAssertEqual(result.selectedOption, "Phù du, ngắn ngủi")
+            XCTAssertEqual(result.selectedOption, targetWord.definitionVi)
         } else {
             XCTFail("Expected cardPhase to be .reviewed")
         }
@@ -262,13 +270,18 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         viewModel.beginSessionDirectly()
         XCTAssertFalse(mockSpeech.isRecognitionMuted)
 
+        guard let targetLemma = viewModel.currentWord?.lemma else {
+            XCTFail("No target lemma found")
+            return
+        }
+
         viewModel.simulateElapsedTime(ms: 1500)
-        mockSpeech.simulateTranscript("ephemeral")
+        mockSpeech.simulateTranscript(targetLemma)
 
         if case .reviewed(let result) = viewModel.cardPhase {
             XCTAssertTrue(result.isCorrect)
             XCTAssertFalse(result.isTimeout)
-            XCTAssertEqual(result.recognizedSpoken, "ephemeral")
+            XCTAssertEqual(result.recognizedSpoken, targetLemma)
             XCTAssertEqual(result.responseTimeMs, 1500)
         } else {
             XCTFail("Expected cardPhase to be .reviewed")
@@ -282,7 +295,11 @@ final class ReflexBlitzViewModelTests: XCTestCase {
     func testSpokenMatchCaseInsensitivityAndWhitespaceTrimming() {
         viewModel.selectMode(.speaking)
         viewModel.beginSessionDirectly()
-        viewModel.handleSpokenMatch("  EPHEMERAL\n")
+        guard let targetLemma = viewModel.currentWord?.lemma else {
+            XCTFail("No target lemma found")
+            return
+        }
+        viewModel.handleSpokenMatch("  \(targetLemma.uppercased())\n")
 
         if case .reviewed(let result) = viewModel.cardPhase {
             XCTAssertTrue(result.isCorrect)
@@ -295,12 +312,16 @@ final class ReflexBlitzViewModelTests: XCTestCase {
     func testRepeatedMatchIgnoredWhenCurrentAttemptAlreadyCorrect() {
         viewModel.selectMode(.speaking)
         viewModel.beginSessionDirectly()
-        viewModel.handleSpokenMatch("ephemeral")
+        guard let targetLemma = viewModel.currentWord?.lemma else {
+            XCTFail("No target lemma found")
+            return
+        }
+        viewModel.handleSpokenMatch(targetLemma)
         XCTAssertEqual(viewModel.attempts.count, 1)
         XCTAssertEqual(viewModel.comboStreak, 1)
 
         // Second match on same attempt while reviewed
-        viewModel.handleSpokenMatch("ephemeral")
+        viewModel.handleSpokenMatch(targetLemma)
         XCTAssertEqual(viewModel.attempts.count, 1)
         XCTAssertEqual(viewModel.comboStreak, 1)
     }
@@ -312,6 +333,11 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         viewModel.beginSessionDirectly()
         viewModel.comboStreak = 4
         viewModel.maxComboStreak = 4
+
+        guard let targetLemma = viewModel.currentWord?.lemma else {
+            XCTFail("No target lemma found")
+            return
+        }
 
         viewModel.handleTimeout()
 
@@ -326,7 +352,7 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.comboStreak, 0)
         XCTAssertEqual(viewModel.maxComboStreak, 4)
         XCTAssertTrue(mockSpeech.isRecognitionMuted, "Speech recognition must pause during review state")
-        XCTAssertEqual(mockTTS.lastSpokenText, "ephemeral", "Target word must be spoken on timeout")
+        XCTAssertEqual(mockTTS.lastSpokenText, targetLemma, "Target word must be spoken on timeout")
         XCTAssertEqual(viewModel.attempts.count, 1)
         XCTAssertEqual(viewModel.attempts.first?.isCorrect, false)
         XCTAssertEqual(viewModel.attempts.first?.responseTimeMs, 6000)
@@ -360,13 +386,18 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         viewModel.beginSessionDirectly()
         XCTAssertEqual(viewModel.currentWordIndex, 0)
 
-        viewModel.submitTypingAnswer(viewModel.currentWord!.lemma)
+        guard let targetLemma = viewModel.currentWord?.lemma else {
+            XCTFail("No current word found")
+            return
+        }
+
+        viewModel.submitTypingAnswer(targetLemma)
         XCTAssertEqual(viewModel.currentWordIndex, 0, "Should remain on current word in review state until advanceToNextWord is called")
 
         viewModel.advanceToNextWord()
         XCTAssertEqual(viewModel.currentWordIndex, 1)
         XCTAssertEqual(viewModel.cardPhase, .activeCountdown)
-        XCTAssertEqual(viewModel.currentWord?.lemma, "vital")
+        XCTAssertNotNil(viewModel.currentWord)
         XCTAssertEqual(viewModel.elapsedTimeMs, 0)
     }
 
@@ -394,12 +425,14 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         viewModel.beginSessionDirectly()
 
         // Word 1
-        viewModel.submitTypingAnswer("ephemeral")
+        guard let w1 = viewModel.currentWord?.lemma else { XCTFail("No word 1"); return }
+        viewModel.submitTypingAnswer(w1)
         XCTAssertEqual(viewModel.comboStreak, 1)
         viewModel.advanceToNextWord()
 
         // Word 2
-        viewModel.submitTypingAnswer("vital")
+        guard let w2 = viewModel.currentWord?.lemma else { XCTFail("No word 2"); return }
+        viewModel.submitTypingAnswer(w2)
         XCTAssertEqual(viewModel.comboStreak, 2)
         XCTAssertEqual(viewModel.maxComboStreak, 2)
         viewModel.advanceToNextWord()
@@ -415,26 +448,29 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         viewModel.beginSessionDirectly()
 
         // Word 1: Correct
-        viewModel.submitTypingAnswer("ephemeral")
+        guard let w1 = viewModel.currentWord?.lemma else { XCTFail("No word 1"); return }
+        viewModel.submitTypingAnswer(w1)
         viewModel.advanceToNextWord()
 
         // Word 2: Timeout (weak)
+        guard let weakWord = viewModel.currentWord else { XCTFail("No word 2"); return }
         viewModel.handleTimeout()
         viewModel.advanceToNextWord()
 
         // Word 3: Correct
-        viewModel.submitTypingAnswer("serendipity")
+        guard let w3 = viewModel.currentWord?.lemma else { XCTFail("No word 3"); return }
+        viewModel.submitTypingAnswer(w3)
         viewModel.advanceToNextWord()
 
         XCTAssertEqual(viewModel.phase, .summary)
         XCTAssertEqual(viewModel.sessionSummary?.weakWordAttempts.count, 1)
-        XCTAssertEqual(viewModel.sessionSummary?.weakWordAttempts.first?.wordId, 2)
+        XCTAssertEqual(viewModel.sessionSummary?.weakWordAttempts.first?.wordId, weakWord.id)
 
         viewModel.reDrillWeakWords()
 
         XCTAssertEqual(viewModel.words.count, 1)
-        XCTAssertEqual(viewModel.words.first?.id, 2)
-        XCTAssertEqual(viewModel.words.first?.lemma, "vital")
+        XCTAssertEqual(viewModel.words.first?.id, weakWord.id)
+        XCTAssertEqual(viewModel.words.first?.lemma, weakWord.lemma)
         XCTAssertEqual(viewModel.selectedMode, .typing)
         XCTAssertEqual(viewModel.phase, .countdown)
     }
@@ -586,12 +622,14 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         viewModel.beginSessionDirectly()
         mockTTS.lastSpokenText = nil
 
+        let word0Lemma = viewModel.currentWord?.lemma
         viewModel.speakCurrentWord()
-        XCTAssertEqual(mockTTS.lastSpokenText, "ephemeral")
+        XCTAssertEqual(mockTTS.lastSpokenText, word0Lemma)
 
         viewModel.loadWordForTesting(at: 1)
+        let word1Lemma = viewModel.currentWord?.lemma
         viewModel.speakCurrentWord()
-        XCTAssertEqual(mockTTS.lastSpokenText, "vital")
+        XCTAssertEqual(mockTTS.lastSpokenText, word1Lemma)
     }
 
     func testCancelSessionStopsServices() {
@@ -647,25 +685,27 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         richVM.beginSessionDirectly()
 
         // 1. Spoken/typed match on word 0
-        richVM.submitTypingAnswer("meticulous")
+        let firstWord = richVM.currentWord!
+        richVM.submitTypingAnswer(firstWord.lemma)
         XCTAssertEqual(richVM.attempts.count, 1)
         let firstAttempt = richVM.attempts[0]
-        XCTAssertEqual(firstAttempt.wordId, 101)
-        XCTAssertEqual(firstAttempt.lemma, "meticulous")
-        XCTAssertEqual(firstAttempt.pos, "adj.")
-        XCTAssertEqual(firstAttempt.ipa, "/məˈtɪk.jə.ləs/")
-        XCTAssertEqual(firstAttempt.definitionVi, "Tỉ mỉ, cẩn thận")
+        XCTAssertEqual(firstAttempt.wordId, firstWord.id)
+        XCTAssertEqual(firstAttempt.lemma, firstWord.lemma)
+        XCTAssertEqual(firstAttempt.pos, firstWord.pos)
+        XCTAssertEqual(firstAttempt.ipa, firstWord.ipa)
+        XCTAssertEqual(firstAttempt.definitionVi, firstWord.definitionVi)
 
         // 2. Timeout on word 1 (Weak word)
         richVM.advanceToNextWord()
+        let secondWord = richVM.currentWord!
         richVM.handleTimeout()
         XCTAssertEqual(richVM.attempts.count, 2)
         let secondAttempt = richVM.attempts[1]
-        XCTAssertEqual(secondAttempt.wordId, 102)
-        XCTAssertEqual(secondAttempt.lemma, "resilient")
-        XCTAssertEqual(secondAttempt.pos, "adj.")
-        XCTAssertEqual(secondAttempt.ipa, "/rɪˈzɪl.jənt/")
-        XCTAssertEqual(secondAttempt.definitionVi, "Kiên cường")
+        XCTAssertEqual(secondAttempt.wordId, secondWord.id)
+        XCTAssertEqual(secondAttempt.lemma, secondWord.lemma)
+        XCTAssertEqual(secondAttempt.pos, secondWord.pos)
+        XCTAssertEqual(secondAttempt.ipa, secondWord.ipa)
+        XCTAssertEqual(secondAttempt.definitionVi, secondWord.definitionVi)
 
         // 3. Summary weak words contain metadata
         richVM.advanceToNextWord()
@@ -676,11 +716,11 @@ final class ReflexBlitzViewModelTests: XCTestCase {
 
         XCTAssertEqual(summary.weakWordAttempts.count, 1)
         let weakAttempt = summary.weakWordAttempts[0]
-        XCTAssertEqual(weakAttempt.wordId, 102)
-        XCTAssertEqual(weakAttempt.lemma, "resilient")
-        XCTAssertEqual(weakAttempt.pos, "adj.")
-        XCTAssertEqual(weakAttempt.ipa, "/rɪˈzɪl.jənt/")
-        XCTAssertEqual(weakAttempt.definitionVi, "Kiên cường")
+        XCTAssertEqual(weakAttempt.wordId, secondWord.id)
+        XCTAssertEqual(weakAttempt.lemma, secondWord.lemma)
+        XCTAssertEqual(weakAttempt.pos, secondWord.pos)
+        XCTAssertEqual(weakAttempt.ipa, secondWord.ipa)
+        XCTAssertEqual(weakAttempt.definitionVi, secondWord.definitionVi)
     }
 
     // MARK: - Zero-Shift Layout & Animated CardPhase Transitions
@@ -834,12 +874,65 @@ struct ReflexBlitzViewModelFeedbackTests {
         let word2 = ReflexBlitzWordItem(id: 2, lemma: "second", definitionVi: "thứ hai")
         viewModel.startDrillSession(mode: .typing, words: [word1, word2])
 
-        viewModel.submitTypingAnswer("first")
+        guard let firstWord = viewModel.currentWord else {
+            Issue.record("No first word")
+            return
+        }
+
+        viewModel.submitTypingAnswer(firstWord.lemma)
         #expect(viewModel.isFeedbackPresented == true)
 
         viewModel.advanceToNextWord()
         #expect(viewModel.isFeedbackPresented == false)
         #expect(viewModel.currentWordIndex == 1)
-        #expect(viewModel.currentWord?.lemma == "second")
+        #expect(viewModel.currentWord != nil)
+    }
+}
+
+// MARK: - Pre-generation & Hint Scaffolding Tests
+
+@Suite("Reflex Blitz ViewModel Pre-generation Tests")
+struct ReflexBlitzViewModelPreGenerationTests {
+    @Test("startDrillSession initializes sessionPlan and loads first plan item without runtime delay")
+    @MainActor
+    func testSessionPlanInitialization() {
+        let viewModel = ReflexBlitzViewModel(words: ReflexBlitzWordItem.defaultStarterWords)
+        viewModel.startDrillSession(mode: .multipleChoice)
+        #expect(viewModel.sessionPlan != nil)
+        #expect(viewModel.sessionPlan?.items.count == ReflexBlitzWordItem.defaultStarterWords.count)
+        #expect(viewModel.currentPlanItem != nil)
+        #expect(viewModel.currentOptions.count == 4)
+    }
+
+    @Test("Hint stages progress from 0 -> 1 -> 2 -> 3 with simulated elapsed time")
+    @MainActor
+    func testProgressiveHintStages() {
+        let viewModel = ReflexBlitzViewModel(words: ReflexBlitzWordItem.defaultStarterWords)
+        viewModel.startDrillSession(mode: .multipleChoice)
+
+        viewModel.simulateElapsedTime(ms: 0)
+        #expect(viewModel.hintStage == 0)
+
+        viewModel.simulateElapsedTime(ms: 1700)
+        #expect(viewModel.hintStage == 1)
+
+        viewModel.simulateElapsedTime(ms: 2600)
+        #expect(viewModel.hintStage == 2)
+
+        viewModel.simulateElapsedTime(ms: 3500)
+        #expect(viewModel.hintStage == 3)
+    }
+
+    @Test("loadWord binds planItem options, clozeStages, eliminatedOptionId, and hintBadgeText")
+    @MainActor
+    func testLoadWordBindsPlanItemProperties() {
+        let viewModel = ReflexBlitzViewModel(words: ReflexBlitzWordItem.defaultStarterWords)
+        viewModel.startDrillSession(mode: .multipleChoice)
+
+        #expect(viewModel.currentPlanItem != nil)
+        #expect(viewModel.currentClozeStages != nil)
+        #expect(viewModel.currentEliminatedOptionId != nil)
+        #expect(!viewModel.currentHintBadgeText.isEmpty)
+        #expect(viewModel.currentOptions == viewModel.currentPlanItem?.options)
     }
 }

@@ -130,13 +130,14 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         XCTAssertNotNil(view.body)
 
         // Submit typing answer
-        vm.submitTypingAnswer("ephemeral")
+        let targetLemma = vm.currentWord!.lemma
+        vm.submitTypingAnswer(targetLemma)
         XCTAssertTrue(vm.currentAttemptIsCorrect)
         XCTAssertEqual(vm.comboStreak, 1)
 
         if case .reviewed(let result) = vm.cardPhase {
             XCTAssertTrue(result.isCorrect)
-            XCTAssertEqual(result.typedText, "ephemeral")
+            XCTAssertEqual(result.typedText, targetLemma)
         } else {
             XCTFail("Expected cardPhase to be .reviewed")
         }
@@ -241,8 +242,9 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
         XCTAssertNotNil(view.body)
 
+        let targetLemma = vm.currentWord!.lemma
         vm.speakCurrentWord()
-        XCTAssertEqual(mockTTS.lastSpokenText, "ephemeral")
+        XCTAssertEqual(mockTTS.lastSpokenText, targetLemma)
     }
 
     func testBlitzViewDrillingListeningModeFlow() {
@@ -252,7 +254,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
 
         XCTAssertEqual(vm.phase, .drilling)
         XCTAssertEqual(vm.selectedMode, .listening)
-        XCTAssertEqual(mockTTS.lastSpokenText, "ephemeral")
+        XCTAssertEqual(mockTTS.lastSpokenText, vm.currentWord!.lemma)
 
         guard let incorrectOption = vm.currentOptions.first(where: { !$0.isCorrect }) else {
             XCTFail("Missing incorrect option")
@@ -274,6 +276,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
     func testBlitzViewTimeoutRevealingPhaseRendering() async {
         let (vm, _, mockTTS, _) = makeViewModel()
         vm.beginSessionDirectly()
+        let targetLemma = vm.currentWord!.lemma
         vm.handleTimeout()
 
         XCTAssertEqual(vm.phase, .drilling)
@@ -285,7 +288,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         }
 
         try? await Task.sleep(for: .milliseconds(50))
-        XCTAssertEqual(mockTTS.lastSpokenText, "ephemeral")
+        XCTAssertEqual(mockTTS.lastSpokenText, targetLemma)
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
         XCTAssertNotNil(view.body)
@@ -325,7 +328,8 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         XCTAssertTrue(mockSpeech.isRecognitionMuted)
 
         // Submit via keyboard
-        vm.submitKeyboardInput("ephemeral")
+        let targetLemma = vm.currentWord!.lemma
+        vm.submitKeyboardInput(targetLemma)
         XCTAssertTrue(vm.currentAttemptIsCorrect)
         XCTAssertEqual(vm.comboStreak, 1)
     }
@@ -375,20 +379,22 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         vm.beginSessionDirectly()
         XCTAssertEqual(vm.phase, .drilling)
         XCTAssertEqual(vm.currentWordIndex, 0)
-        XCTAssertEqual(mockSpeech.currentTargetLemma, "ephemeral")
+        let word1 = vm.currentWord!
+        XCTAssertEqual(mockSpeech.currentTargetLemma, word1.lemma)
 
         // 2. Correct Spoken Match on Word 1
-        mockSpeech.simulateTranscript("The fame is ephemeral today")
+        mockSpeech.simulateTranscript("The fame is \(word1.lemma) today")
         XCTAssertTrue(vm.currentAttemptIsCorrect)
         XCTAssertEqual(vm.comboStreak, 1)
         XCTAssertEqual(vm.attempts.count, 1)
-        XCTAssertEqual(vm.attempts.first?.wordId, 1)
+        XCTAssertEqual(vm.attempts.first?.wordId, word1.id)
         XCTAssertEqual(vm.attempts.first?.isCorrect, true)
 
         // 3. Advance to Word 2 and Trigger Timeout
         vm.advanceToNextWord()
         XCTAssertEqual(vm.currentWordIndex, 1)
-        XCTAssertEqual(mockSpeech.currentTargetLemma, "serendipity")
+        let word2 = vm.currentWord!
+        XCTAssertEqual(mockSpeech.currentTargetLemma, word2.lemma)
 
         vm.handleTimeout()
         if case .reviewed(let result) = vm.cardPhase {
@@ -398,7 +404,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         }
         XCTAssertEqual(vm.comboStreak, 0)
         XCTAssertEqual(vm.attempts.count, 2)
-        XCTAssertEqual(vm.attempts.last?.wordId, 2)
+        XCTAssertEqual(vm.attempts.last?.wordId, word2.id)
         XCTAssertEqual(vm.attempts.last?.isCorrect, false)
 
         // 4. Advance past last word -> Finish Session -> Summary Phase
@@ -408,13 +414,13 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         XCTAssertEqual(vm.sessionSummary?.totalWords, 2)
         XCTAssertEqual(vm.sessionSummary?.correctWords, 1)
         XCTAssertEqual(vm.sessionSummary?.weakWordAttempts.count, 1)
-        XCTAssertEqual(vm.sessionSummary?.weakWordAttempts.first?.lemma, "serendipity")
+        XCTAssertEqual(vm.sessionSummary?.weakWordAttempts.first?.lemma, word2.lemma)
 
         // 5. Re-drill weak words restarts session with only weak items
         vm.reDrillWeakWords()
         XCTAssertEqual(vm.phase, .countdown)
         XCTAssertEqual(vm.words.count, 1)
-        XCTAssertEqual(vm.words.first?.lemma, "serendipity")
+        XCTAssertEqual(vm.words.first?.lemma, word2.lemma)
 
         // 6. Dismiss View
         view.onDismiss()

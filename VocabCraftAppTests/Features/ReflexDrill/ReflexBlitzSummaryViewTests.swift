@@ -15,17 +15,18 @@ struct ReflexBlitzSummaryReDrillTests {
         viewModel.startDrillSession(mode: .speaking, words: [wordItem1, wordItem2])
         viewModel.submitSpeakingResult(isCorrect: true, responseTimeMs: 1200)
         viewModel.advanceToNextWord()
+        let weakWord = viewModel.currentWord!
         viewModel.submitSpeakingResult(isCorrect: false, responseTimeMs: 6000)
         viewModel.advanceToNextWord()
 
         #expect(viewModel.phase == .summary)
         #expect(viewModel.sessionSummary?.weakWordAttempts.count == 1)
-        #expect(viewModel.sessionSummary?.weakWordAttempts.first?.wordId == 2)
+        #expect(viewModel.sessionSummary?.weakWordAttempts.first?.wordId == weakWord.id)
 
         viewModel.reDrillWeakWords()
         #expect(viewModel.selectedMode == .speaking)
         #expect(viewModel.words.count == 1)
-        #expect(viewModel.words.first?.id == 2)
+        #expect(viewModel.words.first?.id == weakWord.id)
         #expect(viewModel.phase == .countdown)
     }
 
@@ -36,19 +37,21 @@ struct ReflexBlitzSummaryReDrillTests {
         let wordItem2 = ReflexBlitzWordItem(id: 20, lemma: "banana", ipa: "/bəˈnɑː.nə/", definitionVi: "quả chuối", clozeSentenceEn: "[banana]", clozeSentenceVi: "quả chuối")
 
         viewModel.startDrillSession(mode: .typing, words: [wordItem1, wordItem2])
-        viewModel.submitTypingAnswer("apple")
+        let firstWord = viewModel.currentWord!
+        viewModel.submitTypingAnswer(firstWord.lemma)
         viewModel.advanceToNextWord()
+        let weakWord = viewModel.currentWord!
         viewModel.handleTimeout()
         viewModel.advanceToNextWord()
 
         #expect(viewModel.phase == .summary)
         #expect(viewModel.sessionSummary?.weakWordAttempts.count == 1)
-        #expect(viewModel.sessionSummary?.weakWordAttempts.first?.wordId == 20)
+        #expect(viewModel.sessionSummary?.weakWordAttempts.first?.wordId == weakWord.id)
 
         viewModel.reDrillWeakWords()
         #expect(viewModel.selectedMode == .typing)
         #expect(viewModel.words.count == 1)
-        #expect(viewModel.words.first?.id == 20)
+        #expect(viewModel.words.first?.id == weakWord.id)
     }
 
     @Test("Summary re-drill retains multiple choice modality for weak words")
@@ -62,6 +65,7 @@ struct ReflexBlitzSummaryReDrillTests {
             viewModel.selectOption(correct)
         }
         viewModel.advanceToNextWord()
+        let weakWord = viewModel.currentWord!
         if let wrong = viewModel.currentOptions.first(where: { !$0.isCorrect }) {
             viewModel.selectOption(wrong)
         }
@@ -69,12 +73,12 @@ struct ReflexBlitzSummaryReDrillTests {
 
         #expect(viewModel.phase == .summary)
         #expect(viewModel.sessionSummary?.weakWordAttempts.count == 1)
-        #expect(viewModel.sessionSummary?.weakWordAttempts.first?.wordId == 200)
+        #expect(viewModel.sessionSummary?.weakWordAttempts.first?.wordId == weakWord.id)
 
         viewModel.reDrillWeakWords()
         #expect(viewModel.selectedMode == .multipleChoice)
         #expect(viewModel.words.count == 1)
-        #expect(viewModel.words.first?.id == 200)
+        #expect(viewModel.words.first?.id == weakWord.id)
     }
 
     @Test("Re-drill with empty weak words does nothing")

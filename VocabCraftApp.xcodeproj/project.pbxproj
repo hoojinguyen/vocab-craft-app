@@ -88,8 +88,17 @@
 		3000C001000100010013 /* ReflexReviewedConsolidationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010013 /* ReflexReviewedConsolidationView.swift */; };
 		3000C001000100010014 /* ReflexCardContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010014 /* ReflexCardContainerView.swift */; };
 		3000C001000100010015 /* ReflexHeaderBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010015 /* ReflexHeaderBarView.swift */; };
+		3000C001000100010021 /* ReflexHintMaskStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010021 /* ReflexHintMaskStrategy.swift */; };
+		3000C001000100010022 /* ReflexClozeStageSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010022 /* ReflexClozeStageSet.swift */; };
+		3000C001000100010023 /* ReflexDrillPlanItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010023 /* ReflexDrillPlanItem.swift */; };
+		3000C001000100010024 /* ReflexDrillSessionPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010024 /* ReflexDrillSessionPlan.swift */; };
+		3000C001000100010025 /* ReflexHintMaskGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010025 /* ReflexHintMaskGenerator.swift */; };
+		3000C001000100010026 /* ReflexDrillPlanGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010026 /* ReflexDrillPlanGenerator.swift */; };
 		3000C002000100010003 /* ReflexOtherModesTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C002000100010003 /* ReflexOtherModesTests.swift */; };
 		3000C002000100010004 /* ReflexContainerComponentsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C002000100010004 /* ReflexContainerComponentsTests.swift */; };
+		3000C002000100010005 /* ReflexDrillPlanModelsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C002000100010005 /* ReflexDrillPlanModelsTests.swift */; };
+		3000C002000100010006 /* ReflexHintMaskGeneratorTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C002000100010006 /* ReflexHintMaskGeneratorTests.swift */; };
+		3000C002000100010007 /* ReflexDrillPlanGeneratorTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C002000100010007 /* ReflexDrillPlanGeneratorTests.swift */; };
 
 		30009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift */; };
 		30007A8B4B9D3D451203 /* ContinuousReflexSpeechProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20007A8B4B9D3D451203 /* ContinuousReflexSpeechProtocol.swift */; };
@@ -387,8 +396,17 @@
 		2000C001000100010013 /* ReflexReviewedConsolidationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexReviewedConsolidationView.swift"; sourceTree = "<group>"; };
 		2000C001000100010014 /* ReflexCardContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexCardContainerView.swift"; sourceTree = "<group>"; };
 		2000C001000100010015 /* ReflexHeaderBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexHeaderBarView.swift"; sourceTree = "<group>"; };
+		2000C001000100010021 /* ReflexHintMaskStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexHintMaskStrategy.swift"; sourceTree = "<group>"; };
+		2000C001000100010022 /* ReflexClozeStageSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexClozeStageSet.swift"; sourceTree = "<group>"; };
+		2000C001000100010023 /* ReflexDrillPlanItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillPlanItem.swift"; sourceTree = "<group>"; };
+		2000C001000100010024 /* ReflexDrillSessionPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillSessionPlan.swift"; sourceTree = "<group>"; };
+		2000C001000100010025 /* ReflexHintMaskGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexHintMaskGenerator.swift"; sourceTree = "<group>"; };
+		2000C001000100010026 /* ReflexDrillPlanGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillPlanGenerator.swift"; sourceTree = "<group>"; };
 		2000C002000100010003 /* ReflexOtherModesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexOtherModesTests.swift"; sourceTree = "<group>"; };
 		2000C002000100010004 /* ReflexContainerComponentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexContainerComponentsTests.swift"; sourceTree = "<group>"; };
+		2000C002000100010005 /* ReflexDrillPlanModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillPlanModelsTests.swift"; sourceTree = "<group>"; };
+		2000C002000100010006 /* ReflexHintMaskGeneratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexHintMaskGeneratorTests.swift"; sourceTree = "<group>"; };
+		2000C002000100010007 /* ReflexDrillPlanGeneratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillPlanGeneratorTests.swift"; sourceTree = "<group>"; };
 
 		20009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AudioServiceProtocols.swift"; sourceTree = "<group>"; };
 		20007A8B4B9D3D451203 /* ContinuousReflexSpeechProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContinuousReflexSpeechProtocol.swift"; sourceTree = "<group>"; };
@@ -1000,6 +1018,10 @@
 				2000C001000100010004 /* ReflexBlitzOption.swift */,
 				2000C001000100010005 /* ReflexBlitzWordItem.swift */,
 				2000C001000100010006 /* ReflexSessionSummary.swift */,
+				2000C001000100010021 /* ReflexHintMaskStrategy.swift */,
+				2000C001000100010022 /* ReflexClozeStageSet.swift */,
+				2000C001000100010023 /* ReflexDrillPlanItem.swift */,
+				2000C001000100010024 /* ReflexDrillSessionPlan.swift */,
 			);
 			path = "Models";
 			sourceTree = "<group>";
@@ -1009,6 +1031,8 @@
 			children = (
 				2000C001000100010007 /* ReflexClozeFormatter.swift */,
 				2000C001000100010008 /* ReflexDistractorGenerator.swift */,
+				2000C001000100010025 /* ReflexHintMaskGenerator.swift */,
+				2000C001000100010026 /* ReflexDrillPlanGenerator.swift */,
 			);
 			path = "Utilities";
 			sourceTree = "<group>";
@@ -1358,6 +1382,9 @@
 				2000C002000100010002 /* ReflexMultipleChoiceModeViewTests.swift */,
 				2000C002000100010003 /* ReflexOtherModesTests.swift */,
 				2000C002000100010004 /* ReflexContainerComponentsTests.swift */,
+				2000C002000100010005 /* ReflexDrillPlanModelsTests.swift */,
+				2000C002000100010006 /* ReflexHintMaskGeneratorTests.swift */,
+				2000C002000100010007 /* ReflexDrillPlanGeneratorTests.swift */,
 			);
 			path = "Reflex";
 			sourceTree = "<group>";
@@ -1640,6 +1667,12 @@
 				3000C001000100010013 /* ReflexReviewedConsolidationView.swift in Sources */,
 				3000C001000100010014 /* ReflexCardContainerView.swift in Sources */,
 				3000C001000100010015 /* ReflexHeaderBarView.swift in Sources */,
+				3000C001000100010021 /* ReflexHintMaskStrategy.swift in Sources */,
+				3000C001000100010022 /* ReflexClozeStageSet.swift in Sources */,
+				3000C001000100010023 /* ReflexDrillPlanItem.swift in Sources */,
+				3000C001000100010024 /* ReflexDrillSessionPlan.swift in Sources */,
+				3000C001000100010025 /* ReflexHintMaskGenerator.swift in Sources */,
+				3000C001000100010026 /* ReflexDrillPlanGenerator.swift in Sources */,
 
 				300044F0262868591EF0 /* VocabularyFilterService.swift in Sources */,
 				3000DD5C753F2543B2FC /* CompleteStageChallengeUseCase.swift in Sources */,
@@ -1768,6 +1801,9 @@
 				3000C002000100010002 /* ReflexMultipleChoiceModeViewTests.swift in Test Sources */,
 				3000C002000100010003 /* ReflexOtherModesTests.swift in Test Sources */,
 				3000C002000100010004 /* ReflexContainerComponentsTests.swift in Test Sources */,
+				3000C002000100010005 /* ReflexDrillPlanModelsTests.swift in Test Sources */,
+				3000C002000100010006 /* ReflexHintMaskGeneratorTests.swift in Test Sources */,
+				3000C002000100010007 /* ReflexDrillPlanGeneratorTests.swift in Test Sources */,
 
 				3000D1459B6F5FD76CEA /* DomainEntitiesTests.swift in Test Sources */,
 				3000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift in Test Sources */,

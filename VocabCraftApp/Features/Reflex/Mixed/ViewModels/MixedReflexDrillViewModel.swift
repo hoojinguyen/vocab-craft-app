@@ -12,6 +12,11 @@ public final class MixedReflexDrillViewModel: Identifiable {
     public private(set) var attempts: [ReflexBlitzAttempt] = []
     public private(set) var isCompleted: Bool = false
     public private(set) var sessionSummary: ReflexBlitzSessionSummary?
+    public private(set) var sessionPlan: ReflexDrillSessionPlan?
+    public private(set) var currentPlanItem: ReflexDrillPlanItem?
+    public private(set) var currentClozeStages: ReflexClozeStageSet?
+    public private(set) var currentEliminatedOptionId: String?
+    public private(set) var currentHintBadgeText: String = ""
 
     private let selectedWords: [VaultWordItem]
     private let queueUseCase: GenerateMixedReflexQueueUseCaseProtocol
@@ -31,6 +36,8 @@ public final class MixedReflexDrillViewModel: Identifiable {
         self.queue = queueUseCase.generate(from: selectedWords)
         if self.queue.isEmpty {
             self.isCompleted = true
+        } else {
+            buildSessionPlan()
         }
     }
 
@@ -45,42 +52,16 @@ public final class MixedReflexDrillViewModel: Identifiable {
     }
 
     public func generateOptions(for item: MixedReflexDrillItem) -> [ReflexBlitzOption] {
+        if let planItem = currentPlanItem, planItem.id.contains(item.id.uuidString) {
+            return planItem.options
+        }
         let mode = item.assignedMode
         guard mode == .multipleChoice || mode == .listening else { return [] }
-
-        let isMultipleChoice = mode == .multipleChoice
-        let correctText = isMultipleChoice ? item.word.lemma : item.word.definitionVi
-
-        var distractors: [String] = []
-        var seen: Set<String> = [correctText]
-
-        for otherWord in selectedWords.shuffled() {
-            let candidate = isMultipleChoice ? otherWord.lemma : otherWord.definitionVi
-            if !candidate.isEmpty && !seen.contains(candidate) {
-                seen.insert(candidate)
-                distractors.append(candidate)
-                if distractors.count == 3 { break }
-            }
-        }
-
-        if distractors.count < 3 {
-            for starter in ReflexBlitzWordItem.defaultStarterWords.shuffled() {
-                let candidate = isMultipleChoice ? starter.lemma : starter.definitionVi
-                if !candidate.isEmpty && !seen.contains(candidate) {
-                    seen.insert(candidate)
-                    distractors.append(candidate)
-                    if distractors.count == 3 { break }
-                }
-            }
-        }
-
-        var options: [ReflexBlitzOption] = [
-            ReflexBlitzOption(text: correctText, isCorrect: true)
-        ]
-        for distractor in distractors.prefix(3) {
-            options.append(ReflexBlitzOption(text: distractor, isCorrect: false))
-        }
-        return options.shuffled()
+        return ReflexDistractorGenerator.generateOptions(
+            mode: mode,
+            target: item,
+            pool: selectedWords
+        )
     }
 
     public func submitAnswer(isCorrect: Bool, responseTimeMs: Int = 2000) async {
@@ -105,6 +86,10 @@ public final class MixedReflexDrillViewModel: Identifiable {
             comboStreak = 0
             let retryItem = queueUseCase.requeueFailedItem(current)
             queue.append(retryItem)
+            let retryPlanItem = createPlanItem(for: retryItem)
+            var items = sessionPlan?.items ?? []
+            items.append(retryPlanItem)
+            self.sessionPlan = ReflexDrillSessionPlan(mode: .multipleChoice, items: items)
         }
 
         _ = try? await recordAttemptUseCase?.execute(
@@ -121,6 +106,8 @@ public final class MixedReflexDrillViewModel: Identifiable {
         currentIndex += 1
         if currentIndex >= queue.count {
             finishSession()
+        } else {
+            loadPlanItem(at: currentIndex)
         }
     }
 
@@ -132,6 +119,85 @@ public final class MixedReflexDrillViewModel: Identifiable {
         self.attempts = []
         self.isCompleted = self.queue.isEmpty
         self.sessionSummary = nil
+        if !self.queue.isEmpty {
+            buildSessionPlan()
+        } else {
+            self.sessionPlan = nil
+            self.currentPlanItem = nil
+            self.currentClozeStages = nil
+            self.currentEliminatedOptionId = nil
+            self.currentHintBadgeText = ""
+        }
+    }
+
+    private func createPlanItem(for item: MixedReflexDrillItem) -> ReflexDrillPlanItem {
+        let mode = item.assignedMode
+        let options: [ReflexBlitzOption]
+        if mode == .multipleChoice || mode == .listening {
+            options = ReflexDistractorGenerator.generateOptions(
+                mode: mode,
+                target: item,
+                pool: selectedWords
+            )
+        } else {
+            options = []
+        }
+
+        let correctIndex = options.firstIndex(where: { $0.isCorrect }) ?? 0
+        let incorrectOptions = options.filter { !$0.isCorrect }
+        let eliminatedId = incorrectOptions.randomElement()?.id
+
+        let clozeStages = ReflexHintMaskGenerator.generateStages(
+            lemma: item.word.lemma,
+            sentenceEn: item.word.exampleSentenceEn,
+            pos: item.cleanPos
+        )
+
+        let hintBadgeText: String
+        switch clozeStages.strategy {
+        case .middleCluster(let cluster, _):
+            hintBadgeText = "...\(cluster)... • \(item.cleanPos)"
+        case .prefix(let count):
+            let prefixStr = String(item.word.lemma.prefix(count))
+            hintBadgeText = "\(prefixStr)... • \(item.cleanPos)"
+        case .suffix(let count):
+            let suffixStr = String(item.word.lemma.suffix(count))
+            hintBadgeText = "...\(suffixStr) • \(item.cleanPos)"
+        case .consonantScaffold, .shortWordPrefix, .shortWordSuffix:
+            hintBadgeText = "\(item.cleanInitialLetterHint)"
+        }
+
+        return ReflexDrillPlanItem(
+            id: "\(mode.rawValue)-mixed-\(item.id.uuidString)",
+            word: item,
+            assignedMode: mode,
+            options: options,
+            correctOptionIndex: correctIndex,
+            eliminatedOptionId: eliminatedId,
+            clozeStages: clozeStages,
+            hintBadgeText: hintBadgeText
+        )
+    }
+
+    private func buildSessionPlan() {
+        let planItems = queue.map { createPlanItem(for: $0) }
+        self.sessionPlan = ReflexDrillSessionPlan(mode: .multipleChoice, items: planItems)
+        loadPlanItem(at: currentIndex)
+    }
+
+    private func loadPlanItem(at index: Int) {
+        guard let plan = sessionPlan, index >= 0 && index < plan.items.count else {
+            currentPlanItem = nil
+            currentClozeStages = nil
+            currentEliminatedOptionId = nil
+            currentHintBadgeText = ""
+            return
+        }
+        let item = plan.items[index]
+        currentPlanItem = item
+        currentClozeStages = item.clozeStages
+        currentEliminatedOptionId = item.eliminatedOptionId
+        currentHintBadgeText = item.hintBadgeText
     }
 
     private func finishSession() {
