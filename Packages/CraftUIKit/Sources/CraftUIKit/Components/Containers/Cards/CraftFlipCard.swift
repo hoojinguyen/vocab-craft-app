@@ -267,6 +267,8 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
         )
     }
 
+    @State private var synchronizedHeight: CGFloat = 0
+
     public var body: some View {
         let progress = isFlipped ? 1.0 : 0.0
         let effectiveAnimation = animation ?? theme.animations.springSmooth
@@ -319,6 +321,11 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
                 )
                 .accessibilityHidden(!isFlipped)
         }
+        .onPreferenceChange(CraftCardFaceHeightPreferenceKey.self) { measuredHeight in
+            if measuredHeight > 0 && abs(synchronizedHeight - measuredHeight) > 0.5 {
+                synchronizedHeight = measuredHeight
+            }
+        }
         .contentShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
         .onTapGesture {
             if isTapToFlipEnabled {
@@ -350,7 +357,13 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
     ) -> some View {
         let topFace = content
             .padding(contentPadding)
+            .background(
+                GeometryReader { geo in
+                    Color.clear.preference(key: CraftCardFaceHeightPreferenceKey.self, value: geo.size.height)
+                }
+            )
             .frame(maxWidth: .infinity)
+            .frame(minHeight: synchronizedHeight > 0 ? synchronizedHeight : nil)
             .background(surfaceBackground(radius: radius))
             .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
             .overlay(surfaceBorderOverlay(radius: radius))
@@ -458,6 +471,15 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
                 EmptyView()
             }
         }
+    }
+}
+
+// MARK: - Card Face Height Preference Key
+
+private struct CraftCardFaceHeightPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
     }
 }
 
