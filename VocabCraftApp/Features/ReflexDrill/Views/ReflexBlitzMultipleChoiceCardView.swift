@@ -13,10 +13,12 @@ public struct ReflexBlitzMultipleChoiceCardView: View {
     public let isResultCorrect: Bool
     public let isResultTimeout: Bool
     public let showHint: Bool
+    public let hintStage: Int
     public let selectedOptionText: String?
     public let clozeParts: ClozeSentenceParts?
     public let displayedSentence: String
     public let cardBorderColor: Color
+    public let eliminatedOptionId: String?
     public let onSelectOption: ((ReflexBlitzOption) -> Void)?
     public let onReplayAudio: (() -> Void)?
 
@@ -27,10 +29,12 @@ public struct ReflexBlitzMultipleChoiceCardView: View {
         isResultCorrect: Bool,
         isResultTimeout: Bool,
         showHint: Bool,
+        hintStage: Int = 0,
         selectedOptionText: String?,
         clozeParts: ClozeSentenceParts?,
         displayedSentence: String,
         cardBorderColor: Color,
+        eliminatedOptionId: String? = nil,
         onSelectOption: ((ReflexBlitzOption) -> Void)?,
         onReplayAudio: (() -> Void)?
     ) {
@@ -40,16 +44,23 @@ public struct ReflexBlitzMultipleChoiceCardView: View {
         self.isResultCorrect = isResultCorrect
         self.isResultTimeout = isResultTimeout
         self.showHint = showHint
+        self.hintStage = hintStage
         self.selectedOptionText = selectedOptionText
         self.clozeParts = clozeParts
         self.displayedSentence = displayedSentence
         self.cardBorderColor = cardBorderColor
+        self.eliminatedOptionId = eliminatedOptionId
         self.onSelectOption = onSelectOption
         self.onReplayAudio = onReplayAudio
     }
 
     public func choiceState(for option: ReflexBlitzOption) -> CraftChoiceState {
-        guard isReviewed else { return .idle }
+        guard isReviewed else {
+            if hintStage >= 3 && option.id == eliminatedOptionId {
+                return .disabled
+            }
+            return .idle
+        }
         if option.isCorrect {
             return .correct
         } else if option.text == selectedOptionText {
@@ -108,29 +119,19 @@ public struct ReflexBlitzMultipleChoiceCardView: View {
             .lineLimit(2)
             .accessibilityLabel(AppStrings.ReflexBlitz.definitionA11y(word.definitionVi))
 
-            HStack(alignment: .center, spacing: theme.spacing.xs) {
-                if !word.cleanPos.isEmpty {
-                    CraftBadge(
-                        word.cleanPos,
-                        variant: .subtle,
-                        tone: .neutral,
-                        size: .sm,
-                        shape: .capsule
-                    )
+            if hintStage >= 1 {
+                HStack(alignment: .center, spacing: theme.spacing.xs) {
+                    if !word.cleanPos.isEmpty {
+                        CraftBadge(
+                            word.cleanPos,
+                            variant: .subtle,
+                            tone: .neutral,
+                            size: .sm,
+                            shape: .capsule
+                        )
+                    }
                 }
-
-                if showHint {
-                    CraftBadge(
-                        AppStrings.ReflexBlitz.hintPrefix(word.cleanInitialLetterHint),
-                        iconName: "lightbulb.min.fill",
-                        variant: .outline,
-                        tone: .warning,
-                        size: .sm,
-                        shape: .capsule
-                    )
-                    .transition(.scale.combined(with: .opacity))
-                    .accessibilityLabel(AppStrings.ReflexBlitz.hintA11y(word.cleanInitialLetterHint))
-                }
+                .transition(.scale.combined(with: .opacity))
             }
 
             sentenceArea
@@ -293,7 +294,7 @@ public struct ReflexBlitzMultipleChoiceCardView: View {
             .foregroundColor(theme.colors.textPrimary)
         let slotText = Text(parts.slot)
             .font(theme.typography.bodySerif.bold())
-            .foregroundColor(showHint ? theme.colors.statusWarning : theme.colors.brandPrimary)
+            .foregroundColor(hintStage >= 2 ? theme.colors.statusWarning : theme.colors.brandPrimary)
         let suffixText = Text(parts.suffix)
             .font(theme.typography.bodySerif)
             .foregroundColor(theme.colors.textPrimary)

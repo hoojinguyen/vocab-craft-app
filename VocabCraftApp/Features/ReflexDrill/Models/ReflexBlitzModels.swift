@@ -45,6 +45,20 @@ public enum ReflexBlitzMode: String, CaseIterable, Identifiable, Sendable, Codab
     }
 }
 
+public enum ReflexBlitzPhase: Equatable, Sendable {
+    case modeSelection
+    case countdown
+    case drilling
+    case timeoutRevealing
+    case summary
+}
+
+public enum ReflexBlitzTimerStage: Equatable, Sendable {
+    case steady
+    case warning
+    case urgent
+}
+
 public enum ReflexCardPhase: Equatable, Sendable {
     case activeCountdown
     case reviewed(result: ReflexCardResult)

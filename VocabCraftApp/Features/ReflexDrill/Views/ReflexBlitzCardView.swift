@@ -26,6 +26,7 @@ public struct ReflexBlitzCardView: View {
     public let fractionRemaining: Double
     public let timerStage: ReflexBlitzTimerStage
     public let showHint: Bool
+    public let hintStage: Int
     public let isCorrect: Bool
     public let isTimeout: Bool
     public let liveTranscript: String
@@ -47,6 +48,7 @@ public struct ReflexBlitzCardView: View {
         fractionRemaining: Double = 1.0,
         timerStage: ReflexBlitzTimerStage = .steady,
         showHint: Bool = false,
+        hintStage: Int = 0,
         isCorrect: Bool = false,
         isTimeout: Bool = false,
         liveTranscript: String = "",
@@ -64,6 +66,7 @@ public struct ReflexBlitzCardView: View {
         self.fractionRemaining = fractionRemaining
         self.timerStage = timerStage
         self.showHint = showHint
+        self.hintStage = hintStage
         self.isCorrect = isCorrect
         self.isTimeout = isTimeout
         self.liveTranscript = liveTranscript
@@ -146,7 +149,7 @@ public struct ReflexBlitzCardView: View {
     public var slotRepresentation: String {
         if isReviewed {
             return word.lemma
-        } else if showHint {
+        } else if mode == .multipleChoice ? hintStage >= 2 : showHint {
             let initial = String(word.lemma.prefix(1)).lowercased()
             return "[\u{00A0}\(initial)\u{00A0}•\u{00A0}•\u{00A0}]"
         } else {
@@ -498,7 +501,7 @@ extension ReflexBlitzCardView {
     private var slotTextColor: Color {
         if isReviewed {
             return isResultCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger
-        } else if showHint {
+        } else if mode == .multipleChoice ? hintStage >= 2 : showHint {
             return theme.colors.statusWarning
         } else {
             return theme.colors.brandPrimary
@@ -512,6 +515,11 @@ extension ReflexBlitzCardView {
 
     // MARK: - Multiple Choice Separated Layout with 3D Flip Card
 
+    private var eliminatedOptionId: String? {
+        guard hintStage >= 3 else { return nil }
+        return options.first(where: { !$0.isCorrect })?.id
+    }
+
     @ViewBuilder
     private var multipleChoiceSeparatedContent: some View {
         ReflexBlitzMultipleChoiceCardView(
@@ -521,10 +529,12 @@ extension ReflexBlitzCardView {
             isResultCorrect: isResultCorrect,
             isResultTimeout: isResultTimeout,
             showHint: showHint,
+            hintStage: hintStage,
             selectedOptionText: selectedOptionText,
             clozeParts: clozeParts,
             displayedSentence: displayedSentence,
             cardBorderColor: cardBorderColor,
+            eliminatedOptionId: eliminatedOptionId,
             onSelectOption: onSelectOption,
             onReplayAudio: onReplayAudio
         )

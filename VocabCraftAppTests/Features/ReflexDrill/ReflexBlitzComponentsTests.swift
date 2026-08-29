@@ -892,4 +892,54 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         )
         XCTAssertNotNil(reviewedCard.body)
     }
+
+    @MainActor
+    func testReflexBlitzMultipleChoiceCardViewProgressiveHintStages() {
+        let word = ReflexBlitzWordItem.defaultStarterWords[0]
+        let options = word.generateOptions(mode: .multipleChoice, allPool: ReflexBlitzWordItem.defaultStarterWords)
+        let wrongOption = options.first(where: { !$0.isCorrect })!
+        let correctOption = options.first(where: { $0.isCorrect })!
+
+        // Stage 0: all options idle
+        let stage0Card = ReflexBlitzMultipleChoiceCardView(
+            word: word,
+            options: options,
+            isReviewed: false,
+            isResultCorrect: false,
+            isResultTimeout: false,
+            showHint: false,
+            hintStage: 0,
+            selectedOptionText: nil,
+            clozeParts: nil,
+            displayedSentence: word.clozeSentenceEn,
+            cardBorderColor: .clear,
+            eliminatedOptionId: nil,
+            onSelectOption: nil,
+            onReplayAudio: nil
+        )
+        XCTAssertEqual(stage0Card.choiceState(for: wrongOption), .idle)
+        XCTAssertEqual(stage0Card.choiceState(for: correctOption), .idle)
+        XCTAssertNotNil(stage0Card.body)
+
+        // Stage 3: eliminated option is disabled, correct option is idle
+        let stage3Card = ReflexBlitzMultipleChoiceCardView(
+            word: word,
+            options: options,
+            isReviewed: false,
+            isResultCorrect: false,
+            isResultTimeout: false,
+            showHint: true,
+            hintStage: 3,
+            selectedOptionText: nil,
+            clozeParts: nil,
+            displayedSentence: word.clozeSentenceEn,
+            cardBorderColor: .clear,
+            eliminatedOptionId: wrongOption.id,
+            onSelectOption: nil,
+            onReplayAudio: nil
+        )
+        XCTAssertEqual(stage3Card.choiceState(for: wrongOption), .disabled)
+        XCTAssertEqual(stage3Card.choiceState(for: correctOption), .idle)
+        XCTAssertNotNil(stage3Card.body)
+    }
 }

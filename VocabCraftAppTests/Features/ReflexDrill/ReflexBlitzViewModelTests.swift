@@ -489,6 +489,54 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         XCTAssertTrue(viewModel.showHint)
     }
 
+    func testProgressiveHintTimingForMultipleChoice() {
+        viewModel.selectMode(.multipleChoice)
+        viewModel.beginSessionDirectly()
+
+        // Stage 0: Initial state
+        XCTAssertEqual(viewModel.hintStage, 0)
+        XCTAssertFalse(viewModel.showHint)
+
+        // Before Stage 1 (1.6s)
+        viewModel.simulateElapsedTime(ms: 1599)
+        XCTAssertEqual(viewModel.hintStage, 0)
+        XCTAssertFalse(viewModel.showHint)
+
+        // Stage 1 (>= 1.6s): POS badge
+        viewModel.simulateElapsedTime(ms: 1600)
+        XCTAssertEqual(viewModel.hintStage, 1)
+        XCTAssertTrue(viewModel.showHint)
+
+        // Before Stage 2 (2.5s)
+        viewModel.simulateElapsedTime(ms: 2499)
+        XCTAssertEqual(viewModel.hintStage, 1)
+
+        // Stage 2 (>= 2.5s): Cloze letter reveal
+        viewModel.simulateElapsedTime(ms: 2500)
+        XCTAssertEqual(viewModel.hintStage, 2)
+        XCTAssertTrue(viewModel.showHint)
+
+        // Before Stage 3 (3.4s)
+        viewModel.simulateElapsedTime(ms: 3399)
+        XCTAssertEqual(viewModel.hintStage, 2)
+
+        // Stage 3 (>= 3.4s): Eliminate option
+        viewModel.simulateElapsedTime(ms: 3400)
+        XCTAssertEqual(viewModel.hintStage, 3)
+        XCTAssertTrue(viewModel.showHint)
+    }
+
+    func testLoadWordResetsHintStage() {
+        viewModel.selectMode(.multipleChoice)
+        viewModel.beginSessionDirectly()
+        viewModel.simulateElapsedTime(ms: 3400)
+        XCTAssertEqual(viewModel.hintStage, 3)
+
+        viewModel.loadWordForTesting(at: 1)
+        XCTAssertEqual(viewModel.hintStage, 0)
+        XCTAssertFalse(viewModel.showHint)
+    }
+
     func testTimerStagesAcrossIntervals() {
         viewModel.selectMode(.speaking)
         viewModel.beginSessionDirectly()

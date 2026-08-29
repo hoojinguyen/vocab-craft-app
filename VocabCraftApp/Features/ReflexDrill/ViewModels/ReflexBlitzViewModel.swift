@@ -2,20 +2,6 @@ import Foundation
 import Observation
 import SwiftUI
 
-public enum ReflexBlitzPhase: Equatable, Sendable {
-    case modeSelection
-    case countdown
-    case drilling
-    case timeoutRevealing
-    case summary
-}
-
-public enum ReflexBlitzTimerStage: Equatable, Sendable {
-    case steady
-    case warning
-    case urgent
-}
-
 @MainActor
 @Observable
 public final class ReflexBlitzViewModel {
@@ -28,7 +14,8 @@ public final class ReflexBlitzViewModel {
     public var words: [ReflexBlitzWordItem] = []
     public var currentWordIndex: Int = 0
     public var elapsedTimeMs: Int = 0
-    public var showHint: Bool = false
+    public var hintStage: Int = 0
+    public var showHint: Bool { hintStage >= 1 }
     public var comboStreak: Int = 0
     public var maxComboStreak: Int = 0
     public var currentAttemptIsCorrect: Bool = false
@@ -70,6 +57,8 @@ public final class ReflexBlitzViewModel {
     private var countdownTask: Task<Void, Never>?
     private var sessionTimerTask: Task<Void, Never>?
     private var hintTimerTask: Task<Void, Never>?
+    private var hintStage2Task: Task<Void, Never>?
+    private var hintStage3Task: Task<Void, Never>?
     private var timeoutTimerTask: Task<Void, Never>?
     private var advanceTask: Task<Void, Never>?
     public var wordStartTime: Date?
@@ -201,6 +190,8 @@ public final class ReflexBlitzViewModel {
     public func startCountdown() {
         countdownTask?.cancel()
         hintTimerTask?.cancel()
+        hintStage2Task?.cancel()
+        hintStage3Task?.cancel()
         timeoutTimerTask?.cancel()
         sessionTimerTask?.cancel()
         advanceTask?.cancel()
@@ -226,6 +217,8 @@ public final class ReflexBlitzViewModel {
     public func beginSessionDirectly() {
         countdownTask?.cancel()
         hintTimerTask?.cancel()
+        hintStage2Task?.cancel()
+        hintStage3Task?.cancel()
         timeoutTimerTask?.cancel()
         sessionTimerTask?.cancel()
         if selectedMode == .speaking {
@@ -247,6 +240,8 @@ public final class ReflexBlitzViewModel {
     private func loadWord(at index: Int) {
         advanceTask?.cancel()
         hintTimerTask?.cancel()
+        hintStage2Task?.cancel()
+        hintStage3Task?.cancel()
         timeoutTimerTask?.cancel()
         sessionTimerTask?.cancel()
         guard index < words.count else {
@@ -255,7 +250,7 @@ public final class ReflexBlitzViewModel {
         }
         currentWordIndex = index
         let word = words[index]
-        showHint = false
+        hintStage = 0
         currentAttemptIsCorrect = false
         cardPhase = .activeCountdown
         elapsedTimeMs = 0
@@ -295,18 +290,37 @@ public final class ReflexBlitzViewModel {
 
     private func startStopwatch() {
         hintTimerTask?.cancel()
+        hintStage2Task?.cancel()
+        hintStage3Task?.cancel()
         timeoutTimerTask?.cancel()
         sessionTimerTask?.cancel()
 
-        let hintSeconds = selectedMode == .typing ? 4.5 : 3.5
-        let limitSeconds = selectedMode.timeLimitSeconds
-
-        hintTimerTask = Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .seconds(hintSeconds))
-            guard let self = self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
-            self.showHint = true
+        if selectedMode == .multipleChoice {
+            hintTimerTask = Task { @MainActor [weak self] in
+                try? await Task.sleep(for: .milliseconds(1600))
+                guard let self = self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
+                self.hintStage = max(self.hintStage, 1)
+            }
+            hintStage2Task = Task { @MainActor [weak self] in
+                try? await Task.sleep(for: .milliseconds(2500))
+                guard let self = self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
+                self.hintStage = max(self.hintStage, 2)
+            }
+            hintStage3Task = Task { @MainActor [weak self] in
+                try? await Task.sleep(for: .milliseconds(3400))
+                guard let self = self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
+                self.hintStage = max(self.hintStage, 3)
+            }
+        } else {
+            let hintSeconds = selectedMode == .typing ? 4.5 : 3.5
+            hintTimerTask = Task { @MainActor [weak self] in
+                try? await Task.sleep(for: .seconds(hintSeconds))
+                guard let self = self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
+                self.hintStage = 1
+            }
         }
 
+        let limitSeconds = selectedMode.timeLimitSeconds
         timeoutTimerTask = Task { @MainActor [weak self] in
             try? await Task.sleep(for: .seconds(limitSeconds))
             guard let self = self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
@@ -325,9 +339,15 @@ public final class ReflexBlitzViewModel {
 
     public func simulateElapsedTime(ms: Int) {
         self.elapsedTimeMs = ms
-        let hintThreshold = selectedMode == .typing ? 4500 : 3500
-        if ms >= hintThreshold {
-            self.showHint = true
+        if selectedMode == .multipleChoice {
+            if ms >= 1600 { self.hintStage = max(self.hintStage, 1) }
+            if ms >= 2500 { self.hintStage = max(self.hintStage, 2) }
+            if ms >= 3400 { self.hintStage = max(self.hintStage, 3) }
+        } else {
+            let hintThreshold = selectedMode == .typing ? 4500 : 3500
+            if ms >= hintThreshold {
+                self.hintStage = 1
+            }
         }
         let limitMs = Int(selectedMode.timeLimitSeconds * 1000)
         if ms >= limitMs && phase == .drilling && cardPhase == .activeCountdown {
@@ -342,6 +362,8 @@ extension ReflexBlitzViewModel {
     public func selectOption(_ option: ReflexBlitzOption) {
         guard phase == .drilling, cardPhase == .activeCountdown, let word = currentWord else { return }
         hintTimerTask?.cancel()
+        hintStage2Task?.cancel()
+        hintStage3Task?.cancel()
         timeoutTimerTask?.cancel()
         sessionTimerTask?.cancel()
 
@@ -402,6 +424,8 @@ extension ReflexBlitzViewModel {
         guard cleanInput == cleanLemma else { return }
 
         hintTimerTask?.cancel()
+        hintStage2Task?.cancel()
+        hintStage3Task?.cancel()
         timeoutTimerTask?.cancel()
         sessionTimerTask?.cancel()
         currentAttemptIsCorrect = true
@@ -453,6 +477,8 @@ extension ReflexBlitzViewModel {
         guard cleanMatched == cleanLemma || cleanMatched.contains(cleanLemma) else { return }
 
         hintTimerTask?.cancel()
+        hintStage2Task?.cancel()
+        hintStage3Task?.cancel()
         timeoutTimerTask?.cancel()
         sessionTimerTask?.cancel()
         currentAttemptIsCorrect = true
@@ -508,6 +534,8 @@ extension ReflexBlitzViewModel {
     public func handleTimeout() {
         guard phase == .drilling, cardPhase == .activeCountdown, let word = currentWord else { return }
         hintTimerTask?.cancel()
+        hintStage2Task?.cancel()
+        hintStage3Task?.cancel()
         timeoutTimerTask?.cancel()
         sessionTimerTask?.cancel()
         currentAttemptIsCorrect = false
@@ -564,6 +592,8 @@ extension ReflexBlitzViewModel {
     public func finishSession() {
         countdownTask?.cancel()
         hintTimerTask?.cancel()
+        hintStage2Task?.cancel()
+        hintStage3Task?.cancel()
         timeoutTimerTask?.cancel()
         sessionTimerTask?.cancel()
         advanceTask?.cancel()
@@ -584,6 +614,8 @@ extension ReflexBlitzViewModel {
     public func cancelSession() {
         countdownTask?.cancel()
         hintTimerTask?.cancel()
+        hintStage2Task?.cancel()
+        hintStage3Task?.cancel()
         timeoutTimerTask?.cancel()
         sessionTimerTask?.cancel()
         advanceTask?.cancel()
@@ -594,6 +626,8 @@ extension ReflexBlitzViewModel {
     public func applyReviewConfig(_ config: ReflexBlitzDeepLinkConfig) {
         countdownTask?.cancel()
         hintTimerTask?.cancel()
+        hintStage2Task?.cancel()
+        hintStage3Task?.cancel()
         timeoutTimerTask?.cancel()
         sessionTimerTask?.cancel()
         advanceTask?.cancel()
@@ -602,7 +636,7 @@ extension ReflexBlitzViewModel {
         self.phase = config.phase
         self.comboStreak = config.combo
         self.maxComboStreak = max(config.combo, 4)
-        self.showHint = config.showHint
+        self.hintStage = config.showHint ? 1 : 0
         self.currentWordIndex = 0
 
         if config.phase == .summary {

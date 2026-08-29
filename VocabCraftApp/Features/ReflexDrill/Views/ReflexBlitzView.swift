@@ -150,6 +150,7 @@ public struct ReflexBlitzView: View {
                         fractionRemaining: viewModel.fractionRemaining,
                         timerStage: viewModel.timerStage,
                         showHint: viewModel.showHint,
+                        hintStage: viewModel.hintStage,
                         isCorrect: viewModel.currentAttemptIsCorrect,
                         isTimeout: isReviewedTimeout,
                         liveTranscript: viewModel.liveTranscript,
