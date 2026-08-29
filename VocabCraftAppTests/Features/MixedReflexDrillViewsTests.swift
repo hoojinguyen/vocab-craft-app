@@ -91,6 +91,8 @@ struct MixedReflexDrillViewsTests {
         #expect(summaryView.summary.totalWords == 2)
         #expect(summaryView.summary.correctWords == 2)
         #expect(summaryView.practicedWords.count == 2)
+        _ = summaryView.body
+        _ = summaryView.stickyBottomActionDock
 
         summaryView.onRetry()
         #expect(retryCalled == true)

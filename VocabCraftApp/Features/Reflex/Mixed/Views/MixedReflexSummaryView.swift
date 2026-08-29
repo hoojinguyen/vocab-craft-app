@@ -47,7 +47,7 @@ public struct MixedReflexSummaryView: View {
                     metricsBentoGrid
                     practicedWordsSection
                 }
-                .padding(.bottom, 110)
+                .padding(.bottom, 200)
             }
 
             stickyBottomActionDock
@@ -299,8 +299,8 @@ public struct MixedReflexSummaryView: View {
     }
 
     // MARK: - Sticky Bottom Action Dock
-    private var stickyBottomActionDock: some View {
-        VStack(spacing: theme.spacing.xs) {
+    public var stickyBottomActionDock: some View {
+        VStack(spacing: theme.spacing.md) {
             CraftButton(
                 String(localized: "app.reflex.summary.retry_drill"),
                 iconName: "arrow.triangle.2.circlepath",
@@ -320,13 +320,20 @@ public struct MixedReflexSummaryView: View {
             )
         }
         .padding(.horizontal, theme.spacing.base)
-        .padding(.top, theme.spacing.sm)
-        .padding(.bottom, theme.spacing.md)
+        .padding(.top, theme.spacing.md)
+        .padding(.bottom, theme.spacing.lg)
         .background(
-            Rectangle()
-                .fill(.ultraThinMaterial)
-                .ignoresSafeArea(edges: .bottom)
-                .craftShadow(theme.shadows.sm)
+            VStack(spacing: 0) {
+                LinearGradient(
+                    colors: [theme.colors.canvasBackground.opacity(0), theme.colors.canvasBackground],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: 20)
+
+                theme.colors.canvasBackground
+            }
+            .ignoresSafeArea(edges: .bottom)
         )
     }
 }
