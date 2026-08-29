@@ -90,21 +90,19 @@ public struct ReflexBlitzSummaryView: View {
     // MARK: - Header
     private var headerView: some View {
         VStack(spacing: theme.spacing.md) {
-            // Hero badge squircle container
+            // Hero badge tactile 3D squircle container
             ZStack {
-                RoundedRectangle(cornerRadius: theme.radii.lg)
-                    .fill(headerAccentColor.opacity(0.12))
-                    .frame(width: 64, height: 64)
-                RoundedRectangle(cornerRadius: theme.radii.lg)
-                    .strokeBorder(headerAccentColor.opacity(0.24), lineWidth: 1.5)
-                    .frame(width: 64, height: 64)
-
                 Image(systemName: headerIconName)
                     .font(.system(size: 30, weight: .bold))
                     .symbolRenderingMode(.hierarchical)
                     .foregroundStyle(headerAccentColor)
             }
-            .craftShadow(theme.shadows.sm)
+            .frame(width: 64, height: 64)
+            .craftSurface(
+                style: .tactile3D,
+                shape: RoundedRectangle(cornerRadius: theme.radii.lg),
+                customTint: headerAccentColor.opacity(0.12)
+            )
             .accessibilityHidden(true)
 
             // Rating title & stars (no redundant announcement subtitle)
