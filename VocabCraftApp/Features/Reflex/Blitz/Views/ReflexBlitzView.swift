@@ -103,9 +103,6 @@ public struct ReflexBlitzView: View {
         .onDisappear {
             viewModel.cancelSession()
         }
-        .sensoryFeedback(.success, trigger: viewModel.currentAttemptIsCorrect) { _, isCorrect in isCorrect }
-        .sensoryFeedback(.impact(weight: .heavy), trigger: isReviewedTimeout) { _, isTimeout in isTimeout }
-        .sensoryFeedback(.error, trigger: isReviewedIncorrect) { _, isIncorrect in isIncorrect }
     }
 
     private func modalityTintColor(for mode: ReflexBlitzMode) -> Color {
@@ -218,6 +215,7 @@ public struct ReflexBlitzView: View {
                         advanceToNextWord()
                     }
                 )
+                .ignoresSafeArea(edges: .bottom)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
                 .zIndex(100)
             }

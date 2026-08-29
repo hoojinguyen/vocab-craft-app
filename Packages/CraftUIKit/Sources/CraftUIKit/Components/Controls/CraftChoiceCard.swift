@@ -174,8 +174,7 @@ public struct CraftChoiceCard: View {
             .accessibilityValue(accessibilityValueDescription)
             .accessibilityAddTraits(state == .selected ? [.isButton, .isSelected] : [.isButton])
             .sensoryFeedback(.selection, trigger: state) { (_: CraftChoiceState, new: CraftChoiceState) -> Bool in new == .selected }
-            .sensoryFeedback(.success, trigger: state) { (_: CraftChoiceState, new: CraftChoiceState) -> Bool in new == .correct }
-            .sensoryFeedback(.error, trigger: state) { (_: CraftChoiceState, new: CraftChoiceState) -> Bool in new == .wrong }
+            .sensoryFeedback(.impact(weight: .light), trigger: state) { (_: CraftChoiceState, new: CraftChoiceState) -> Bool in new == .wrong }
             .onChange(of: state) { _, newState in
                 if newState == .wrong && !reduceMotion {
                     withAnimation(.linear(duration: 0.35)) {
@@ -399,7 +398,7 @@ public struct CraftChoiceCard: View {
 
     @ViewBuilder
     private var topHighlightOverlay: some View {
-        if state != .disabled {
+        if state != .disabled && state != .correct && state != .wrong {
             if style == .tactile3D {
                 RoundedRectangle(cornerRadius: theme.radii.lg)
                     .strokeBorder(theme.depths.topHighlight, lineWidth: 1)
@@ -422,17 +421,17 @@ public struct CraftChoiceCard: View {
         case .tactile3D:
             if state == .correct {
                 view.shadow(
-                    color: theme.colors.statusSuccess.opacity(0.3),
-                    radius: 8,
+                    color: theme.colors.statusSuccess.opacity(0.15),
+                    radius: 6,
                     x: 0,
-                    y: 4
+                    y: 2
                 )
             } else if state == .wrong {
                 view.shadow(
-                    color: theme.colors.statusDanger.opacity(0.3),
-                    radius: 8,
+                    color: theme.colors.statusDanger.opacity(0.15),
+                    radius: 6,
                     x: 0,
-                    y: 4
+                    y: 2
                 )
             } else {
                 view
@@ -638,9 +637,9 @@ public struct CraftChoiceCard: View {
         case .selected:
             return theme.colors.brandPrimary
         case .correct:
-            return style == .tactile3D ? theme.colors.statusSuccess.opacity(0.6) : theme.colors.statusSuccess
+            return style == .tactile3D ? theme.colors.statusSuccess.opacity(0.5) : theme.colors.statusSuccess
         case .wrong:
-            return style == .tactile3D ? theme.colors.statusDanger.opacity(0.6) : theme.colors.statusDanger
+            return style == .tactile3D ? theme.colors.statusDanger.opacity(0.5) : theme.colors.statusDanger
         case .disabled:
             return theme.colors.borderDefault.opacity(0.35)
         }

@@ -92,6 +92,10 @@ public final class MixedReflexDrillViewModel: Identifiable {
             self.sessionPlan = ReflexDrillSessionPlan(mode: .multipleChoice, items: items)
         }
 
+        if current.assignedMode != .listening {
+            playAudioForCurrentWord()
+        }
+
         _ = try? await recordAttemptUseCase?.execute(
             wordId: current.word.id,
             mode: current.assignedMode,

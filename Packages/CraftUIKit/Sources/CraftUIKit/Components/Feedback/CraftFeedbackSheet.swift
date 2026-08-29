@@ -394,19 +394,14 @@ public struct CraftFeedbackSheet<ExtraContent: View>: View {
         #if os(iOS) && !targetEnvironment(simulator)
         switch status {
         case .success:
-            let generator = UINotificationFeedbackGenerator()
+            // Zero vibration on success for a distraction-free learning experience
+            break
+        case .error, .warning:
+            let generator = UIImpactFeedbackGenerator(style: .light)
             generator.prepare()
-            generator.notificationOccurred(.success)
-        case .error:
-            let generator = UINotificationFeedbackGenerator()
-            generator.prepare()
-            generator.notificationOccurred(.error)
-        case .warning:
-            let generator = UINotificationFeedbackGenerator()
-            generator.prepare()
-            generator.notificationOccurred(.warning)
+            generator.impactOccurred()
         case .info:
-            let generator = UIImpactFeedbackGenerator(style: .medium)
+            let generator = UIImpactFeedbackGenerator(style: .light)
             generator.prepare()
             generator.impactOccurred()
         }

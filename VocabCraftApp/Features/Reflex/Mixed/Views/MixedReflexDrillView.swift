@@ -112,8 +112,6 @@ public struct MixedReflexDrillView: View {
         } message: {
             Text(AppStrings.ReflexBlitz.exitDialogMessageText)
         }
-        .sensoryFeedback(.success, trigger: isResultCorrect) { _, isCorrect in isCorrect }
-        .sensoryFeedback(.error, trigger: isResultTimeout || (isReviewed && !isResultCorrect)) { _, isError in isError }
     }
 
     // MARK: - Drilling Session Main Content
@@ -176,6 +174,7 @@ public struct MixedReflexDrillView: View {
                         advanceToNextItem()
                     }
                 )
+                .ignoresSafeArea(edges: .bottom)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
                 .zIndex(100)
             }
@@ -403,6 +402,10 @@ public struct MixedReflexDrillView: View {
                 responseTimeMs: max(1000, elapsedTimeMs),
                 isTimeout: true
             ))
+        }
+
+        if viewModel.currentItem?.assignedMode != .listening {
+            viewModel.playAudioForCurrentWord()
         }
 
         Task {

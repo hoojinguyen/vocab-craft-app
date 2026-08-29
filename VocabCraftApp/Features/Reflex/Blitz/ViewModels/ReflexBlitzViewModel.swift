@@ -455,7 +455,7 @@ extension ReflexBlitzViewModel {
             ))
         }
 
-        if !isCorrect && selectedMode != .listening {
+        if selectedMode != .listening {
             ttsService.speak(text: word.lemma, rate: 0.5, locale: "en-US")
         }
     }
@@ -510,9 +510,7 @@ extension ReflexBlitzViewModel {
             ))
         }
 
-        if !isCorrect {
-            ttsService.speak(text: word.lemma, rate: 0.5, locale: "en-US")
-        }
+        ttsService.speak(text: word.lemma, rate: 0.5, locale: "en-US")
     }
 
     public func submitKeyboardInput(_ text: String) {
