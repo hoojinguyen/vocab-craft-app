@@ -98,4 +98,64 @@ struct ReflexMultipleChoiceModeViewTests {
         #expect(view.choiceState(for: eliminatedOpt) == .disabled)
         #expect(view.choiceState(for: otherOpt) == .idle)
     }
+
+    @Test("Progressive cloze stages dynamically update activeClozeParts across stages 0, 1, and 2")
+    func testClozeStagesMasking() {
+        let item = ReflexBlitzWordItem.defaultStarterWords[0] // "habit"
+        let stageSet = ReflexHintMaskGenerator.generateStages(
+            sentence: item.clozeSentenceEn,
+            targetWord: item.lemma
+        )
+
+        let stage0View = ReflexMultipleChoiceModeView(
+            word: item,
+            options: [],
+            isReviewed: false,
+            isResultCorrect: false,
+            isResultTimeout: false,
+            showHint: false,
+            hintStage: 0,
+            selectedOptionText: nil,
+            clozeStages: stageSet,
+            clozeParts: nil,
+            displayedSentence: item.clozeSentenceEn,
+            cardBorderColor: .clear
+        )
+        #expect(stage0View.activeClozeParts?.slot == stageSet.initialParts.slot)
+        #expect(stage0View.activeClozeParts?.slot == "_____")
+
+        let stage1View = ReflexMultipleChoiceModeView(
+            word: item,
+            options: [],
+            isReviewed: false,
+            isResultCorrect: false,
+            isResultTimeout: false,
+            showHint: true,
+            hintStage: 1,
+            selectedOptionText: nil,
+            clozeStages: stageSet,
+            clozeParts: nil,
+            displayedSentence: item.clozeSentenceEn,
+            cardBorderColor: .clear
+        )
+        #expect(stage1View.activeClozeParts?.slot == stageSet.lengthMaskedParts.slot)
+        #expect(stage1View.activeClozeParts?.slot == "• • • • •")
+
+        let stage2View = ReflexMultipleChoiceModeView(
+            word: item,
+            options: [],
+            isReviewed: false,
+            isResultCorrect: false,
+            isResultTimeout: false,
+            showHint: true,
+            hintStage: 2,
+            selectedOptionText: nil,
+            clozeStages: stageSet,
+            clozeParts: nil,
+            displayedSentence: item.clozeSentenceEn,
+            cardBorderColor: .clear
+        )
+        #expect(stage2View.activeClozeParts?.slot == stageSet.patternRevealedParts.slot)
+        #expect(stage2View.activeClozeParts?.slot == stageSet.maskedWordString)
+    }
 }

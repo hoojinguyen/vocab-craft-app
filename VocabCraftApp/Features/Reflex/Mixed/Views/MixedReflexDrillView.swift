@@ -195,10 +195,11 @@ public struct MixedReflexDrillView: View {
                 showHint: false,
                 hintStage: 0,
                 selectedOptionText: reviewedResult?.selectedOption,
+                clozeStages: viewModel.currentClozeStages,
                 clozeParts: ReflexClozeFormatter.extractTemplateParts(from: item.clozeSentenceEn),
                 displayedSentence: isReviewed ? item.completedSentenceWithTargetWord : item.clozeSentenceEn,
                 cardBorderColor: theme.colors.hairline.opacity(0.4),
-                eliminatedOptionId: nil,
+                eliminatedOptionId: viewModel.currentEliminatedOptionId,
                 onSelectOption: { option in
                     selectOption(option)
                 },
@@ -231,6 +232,12 @@ public struct MixedReflexDrillView: View {
                             word: item,
                             liveTranscript: liveTranscript,
                             elapsedTimeMs: elapsedTimeMs,
+                            showHint: false,
+                            hintStage: 0,
+                            clozeStages: viewModel.currentClozeStages,
+                            clozeParts: ReflexClozeFormatter.extractTemplateParts(from: item.clozeSentenceEn),
+                            displayedSentence: item.clozeSentenceEn,
+                            hintBadgeText: viewModel.currentHintBadgeText,
                             onSwitchToKeyboard: {
                                 isKeyboardFallbackActive.toggle()
                             }
@@ -239,6 +246,12 @@ public struct MixedReflexDrillView: View {
                         ReflexTypingModeView(
                             word: item,
                             typingText: $typingText,
+                            showHint: false,
+                            hintStage: 0,
+                            clozeStages: viewModel.currentClozeStages,
+                            clozeParts: ReflexClozeFormatter.extractTemplateParts(from: item.clozeSentenceEn),
+                            displayedSentence: item.clozeSentenceEn,
+                            hintBadgeText: viewModel.currentHintBadgeText,
                             onSubmit: {
                                 submitTypingAnswer(typingText)
                             }
@@ -247,6 +260,8 @@ public struct MixedReflexDrillView: View {
                         ReflexListeningModeView(
                             word: item,
                             options: currentOptions,
+                            hintStage: 0,
+                            eliminatedOptionId: viewModel.currentEliminatedOptionId,
                             onPlayAudio: {
                                 viewModel.playAudioForCurrentWord()
                             },

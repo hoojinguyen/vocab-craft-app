@@ -235,6 +235,7 @@ public struct ReflexBlitzView: View {
                 showHint: viewModel.showHint,
                 hintStage: viewModel.hintStage,
                 selectedOptionText: reviewResult?.selectedOption,
+                clozeStages: viewModel.currentClozeStages,
                 clozeParts: ReflexClozeFormatter.extractTemplateParts(from: word.clozeSentenceEn),
                 displayedSentence: isReviewed ? word.completedSentenceWithTargetWord : word.clozeSentenceEn,
                 cardBorderColor: theme.colors.hairline.opacity(0.4),
@@ -271,6 +272,12 @@ public struct ReflexBlitzView: View {
                             word: word,
                             liveTranscript: viewModel.liveTranscript,
                             elapsedTimeMs: viewModel.elapsedTimeMs,
+                            showHint: viewModel.showHint,
+                            hintStage: viewModel.hintStage,
+                            clozeStages: viewModel.currentClozeStages,
+                            clozeParts: ReflexClozeFormatter.extractTemplateParts(from: word.clozeSentenceEn),
+                            displayedSentence: word.clozeSentenceEn,
+                            hintBadgeText: viewModel.currentHintBadgeText,
                             onSwitchToKeyboard: {
                                 viewModel.toggleKeyboardFallback()
                             }
@@ -279,6 +286,12 @@ public struct ReflexBlitzView: View {
                         ReflexTypingModeView(
                             word: word,
                             typingText: $typingInput,
+                            showHint: viewModel.showHint,
+                            hintStage: viewModel.hintStage,
+                            clozeStages: viewModel.currentClozeStages,
+                            clozeParts: ReflexClozeFormatter.extractTemplateParts(from: word.clozeSentenceEn),
+                            displayedSentence: word.clozeSentenceEn,
+                            hintBadgeText: viewModel.currentHintBadgeText,
                             onSubmit: {
                                 viewModel.submitTypingAnswer(typingInput)
                             }
@@ -290,6 +303,8 @@ public struct ReflexBlitzView: View {
                             elapsedTimeMs: viewModel.elapsedTimeMs,
                             isReviewed: isReviewed,
                             selectedOptionText: reviewResult?.selectedOption,
+                            hintStage: viewModel.hintStage,
+                            eliminatedOptionId: eliminatedOptionId,
                             onPlayAudio: {
                                 viewModel.speakCurrentWord()
                             },

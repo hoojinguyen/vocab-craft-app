@@ -12,6 +12,8 @@ public struct ReflexListeningModeView: View {
     public let elapsedTimeMs: Int
     public let isReviewed: Bool
     public let selectedOptionText: String?
+    public let hintStage: Int
+    public let eliminatedOptionId: String?
     public let onPlayAudio: (() -> Void)?
     public let onSelectOption: ((ReflexBlitzOption) -> Void)?
 
@@ -21,6 +23,8 @@ public struct ReflexListeningModeView: View {
         elapsedTimeMs: Int = 0,
         isReviewed: Bool = false,
         selectedOptionText: String? = nil,
+        hintStage: Int = 0,
+        eliminatedOptionId: String? = nil,
         onPlayAudio: (() -> Void)? = nil,
         onSelectOption: ((ReflexBlitzOption) -> Void)? = nil
     ) {
@@ -29,12 +33,19 @@ public struct ReflexListeningModeView: View {
         self.elapsedTimeMs = elapsedTimeMs
         self.isReviewed = isReviewed
         self.selectedOptionText = selectedOptionText
+        self.hintStage = hintStage
+        self.eliminatedOptionId = eliminatedOptionId
         self.onPlayAudio = onPlayAudio
         self.onSelectOption = onSelectOption
     }
 
     public func choiceState(for option: ReflexBlitzOption) -> CraftChoiceState {
-        guard isReviewed else { return .idle }
+        guard isReviewed else {
+            if hintStage >= 3 && option.id == eliminatedOptionId {
+                return .disabled
+            }
+            return .idle
+        }
         if option.isCorrect {
             return .correct
         } else if option.text == selectedOptionText {

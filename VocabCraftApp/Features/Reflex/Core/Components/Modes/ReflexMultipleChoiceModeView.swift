@@ -15,6 +15,7 @@ public struct ReflexMultipleChoiceModeView: View {
     public let showHint: Bool
     public let hintStage: Int
     public let selectedOptionText: String?
+    public let clozeStages: ReflexClozeStageSet?
     public let clozeParts: ClozeSentenceParts?
     public let displayedSentence: String
     public let cardBorderColor: Color
@@ -31,7 +32,8 @@ public struct ReflexMultipleChoiceModeView: View {
         showHint: Bool,
         hintStage: Int = 0,
         selectedOptionText: String?,
-        clozeParts: ClozeSentenceParts?,
+        clozeStages: ReflexClozeStageSet? = nil,
+        clozeParts: ClozeSentenceParts? = nil,
         displayedSentence: String,
         cardBorderColor: Color,
         eliminatedOptionId: String? = nil,
@@ -46,12 +48,22 @@ public struct ReflexMultipleChoiceModeView: View {
         self.showHint = showHint
         self.hintStage = hintStage
         self.selectedOptionText = selectedOptionText
+        self.clozeStages = clozeStages
         self.clozeParts = clozeParts
         self.displayedSentence = displayedSentence
         self.cardBorderColor = cardBorderColor
         self.eliminatedOptionId = eliminatedOptionId
         self.onSelectOption = onSelectOption
         self.onReplayAudio = onReplayAudio
+    }
+
+    public var activeClozeParts: ClozeSentenceParts? {
+        guard let stages = clozeStages else { return clozeParts }
+        switch hintStage {
+        case 0: return stages.initialParts
+        case 1: return stages.lengthMaskedParts
+        default: return stages.patternRevealedParts
+        }
     }
 
     public func choiceState(for option: ReflexBlitzOption) -> CraftChoiceState {
@@ -238,6 +250,7 @@ public struct ReflexMultipleChoiceModeView: View {
                 .lineSpacing(6)
                 .padding(.horizontal, theme.spacing.xs)
                 .fixedSize(horizontal: false, vertical: true)
+                .animation(.spring(response: 0.35, dampingFraction: 0.75), value: hintStage)
                 .animation(.spring(response: 0.35, dampingFraction: 0.75), value: isResultCorrect)
                 .animation(.spring(response: 0.35, dampingFraction: 0.75), value: isResultTimeout)
                 .accessibilityLabel(
@@ -261,7 +274,7 @@ public struct ReflexMultipleChoiceModeView: View {
 
     @ViewBuilder
     private var sentenceView: some View {
-        if let parts = clozeParts {
+        if let parts = (isReviewed ? clozeParts : activeClozeParts) ?? clozeParts {
             if isReviewed {
                 reviewedClozeText(parts: parts)
             } else {
