@@ -139,6 +139,22 @@ struct MixedReflexDrillViewModelTests {
         vm.playAudioForCurrentWord()
         #expect(mockTTS.lastSpokenText == "serendipity")
     }
+
+    @Test("MixedReflexDrillViewModel initializes sessionPlan and plan items")
+    @MainActor
+    func testMixedSessionPlanInitialization() {
+        let words = [
+            VaultWordItem(id: 1, lemma: "habit", pos: "n.", definitionVi: "Thói quen"),
+            VaultWordItem(id: 2, lemma: "focus", pos: "v.", definitionVi: "Tập trung")
+        ]
+        let queueUseCase = GenerateMixedReflexQueueUseCase()
+        let vm = MixedReflexDrillViewModel(selectedWords: words, queueUseCase: queueUseCase)
+
+        #expect(vm.sessionPlan != nil)
+        #expect(vm.sessionPlan?.items.count == 2)
+        #expect(vm.currentPlanItem != nil)
+        #expect(vm.currentClozeStages != nil)
+    }
 }
 
 // MARK: - Test Mocks

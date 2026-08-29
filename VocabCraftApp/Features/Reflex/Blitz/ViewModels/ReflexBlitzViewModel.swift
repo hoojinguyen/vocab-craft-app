@@ -8,6 +8,11 @@ public final class ReflexBlitzViewModel {
     public var phase: ReflexBlitzPhase = .modeSelection
     public var selectedMode: ReflexBlitzMode = .speaking
     public var cardPhase: ReflexCardPhase = .activeCountdown
+    public var sessionPlan: ReflexDrillSessionPlan?
+    public var currentPlanItem: ReflexDrillPlanItem?
+    public var currentClozeStages: ReflexClozeStageSet?
+    public var currentEliminatedOptionId: String?
+    public var currentHintBadgeText: String = ""
     public var currentOptions: [ReflexBlitzOption] = []
     public var typingInput: String = ""
     public var countdownCount: Int = 3
@@ -194,6 +199,11 @@ public final class ReflexBlitzViewModel {
             self.words = words
         }
         self.selectedMode = mode
+        let plan = ReflexDrillPlanGenerator.generatePlan(words: self.words, mode: mode)
+        self.sessionPlan = plan
+        if !plan.items.isEmpty {
+            self.words = plan.items.compactMap { $0.word as? ReflexBlitzWordItem }
+        }
         beginSessionDirectly()
     }
 
@@ -203,6 +213,12 @@ public final class ReflexBlitzViewModel {
 
     public func startCountdown() {
         cancelAllTasks()
+
+        let plan = ReflexDrillPlanGenerator.generatePlan(words: words, mode: selectedMode)
+        self.sessionPlan = plan
+        if !plan.items.isEmpty {
+            self.words = plan.items.compactMap { $0.word as? ReflexBlitzWordItem }
+        }
 
         phase = .countdown
         countdownCount = 3
@@ -225,6 +241,13 @@ public final class ReflexBlitzViewModel {
     public func beginSessionDirectly() {
         countdownTask?.cancel()
         cancelActiveTimers()
+        if sessionPlan == nil || sessionPlan?.items.count != words.count || sessionPlan?.mode != selectedMode {
+            let plan = ReflexDrillPlanGenerator.generatePlan(words: words, mode: selectedMode)
+            self.sessionPlan = plan
+            if !plan.items.isEmpty {
+                self.words = plan.items.compactMap { $0.word as? ReflexBlitzWordItem }
+            }
+        }
         if selectedMode == .speaking {
             let contextualPhrases = words.flatMap { [$0.lemma, $0.exampleSentenceEn] }
             continuousSpeechService.startSession(contextualPhrases: contextualPhrases)
@@ -259,10 +282,23 @@ public final class ReflexBlitzViewModel {
         wordStartTime = Date()
         phase = .drilling
 
-        if selectedMode == .multipleChoice || selectedMode == .listening {
-            currentOptions = word.generateOptions(mode: selectedMode, allPool: words)
+        if let plan = sessionPlan, index >= 0 && index < plan.items.count {
+            let planItem = plan.items[index]
+            self.currentPlanItem = planItem
+            self.currentOptions = planItem.options
+            self.currentClozeStages = planItem.clozeStages
+            self.currentEliminatedOptionId = planItem.eliminatedOptionId
+            self.currentHintBadgeText = planItem.hintBadgeText
         } else {
-            currentOptions = []
+            self.currentPlanItem = nil
+            if selectedMode == .multipleChoice || selectedMode == .listening {
+                self.currentOptions = word.generateOptions(mode: selectedMode, allPool: words)
+            } else {
+                self.currentOptions = []
+            }
+            self.currentClozeStages = nil
+            self.currentEliminatedOptionId = nil
+            self.currentHintBadgeText = ""
         }
 
         if selectedMode == .speaking {
@@ -609,6 +645,11 @@ extension ReflexBlitzViewModel {
 
     public func resetToModeSelection() {
         cancelSession()
+        sessionPlan = nil
+        currentPlanItem = nil
+        currentClozeStages = nil
+        currentEliminatedOptionId = nil
+        currentHintBadgeText = ""
         sessionSummary = nil
         attempts = []
         currentWordIndex = 0
