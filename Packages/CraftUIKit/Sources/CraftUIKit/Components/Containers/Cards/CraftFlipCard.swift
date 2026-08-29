@@ -356,22 +356,15 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
             .overlay(surfaceBorderOverlay(radius: radius))
             .modifier(ShadowModifier(style: style, theme: theme))
 
-        let cardView: some View = Group {
-            if style == .tactile3D {
-                ZStack {
-                    // Native extruded 3D base lip perfectly aligned to face geometry
+        let cardView: some View = topFace
+            .background {
+                if style == .tactile3D {
                     RoundedRectangle(cornerRadius: radius, style: .continuous)
                         .fill(theme.colors.borderDefault)
                         .offset(y: depth)
-
-                    // Top interactive/rendered card face
-                    topFace
                 }
-                .padding(.bottom, depth)
-            } else {
-                topFace
             }
-        }
+            .padding(.bottom, style == .tactile3D ? depth : 0)
 
         if let highlightShadowColor {
             cardView

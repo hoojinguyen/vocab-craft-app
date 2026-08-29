@@ -180,16 +180,13 @@ public struct CraftCard<Content: View>: View {
             }
         } else {
             if style == .tactile3D {
-                ZStack {
-                    // Bottom 3D Lip / Extrusion
-                    RoundedRectangle(cornerRadius: radius)
-                        .fill(theme.colors.borderDefault)
-                        .offset(y: depth)
-
-                    // Top Card Face
-                    cardFace
-                }
-                .padding(.bottom, depth)
+                cardFace
+                    .background {
+                        RoundedRectangle(cornerRadius: radius, style: .continuous)
+                            .fill(theme.colors.borderDefault)
+                            .offset(y: depth)
+                    }
+                    .padding(.bottom, depth)
             } else {
                 cardFace
             }
