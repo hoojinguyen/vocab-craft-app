@@ -100,6 +100,8 @@ public struct CraftCard<Content: View>: View {
     public let cornerRadius: CGFloat?
     public let padding: CGFloat?
     public let customTint: Color?
+    public let customBorderColor: Color?
+    public let customBottomColor: Color?
     public let customGradient: LinearGradient?
     public let action: (() -> Void)?
     public let content: Content
@@ -110,6 +112,8 @@ public struct CraftCard<Content: View>: View {
         cornerRadius: CGFloat? = nil,
         padding: CGFloat? = nil,
         customTint: Color? = nil,
+        customBorderColor: Color? = nil,
+        customBottomColor: Color? = nil,
         customGradient: LinearGradient? = nil,
         action: (() -> Void)? = nil,
         @ViewBuilder content: () -> Content
@@ -119,6 +123,8 @@ public struct CraftCard<Content: View>: View {
         self.cornerRadius = cornerRadius
         self.padding = padding
         self.customTint = customTint
+        self.customBorderColor = customBorderColor
+        self.customBottomColor = customBottomColor
         self.customGradient = customGradient
         self.action = action
         self.content = content()
@@ -131,6 +137,8 @@ public struct CraftCard<Content: View>: View {
         cornerRadius: CGFloat? = nil,
         padding: CGFloat? = nil,
         customTint: Color? = nil,
+        customBorderColor: Color? = nil,
+        customBottomColor: Color? = nil,
         customGradient: LinearGradient? = nil,
         action: (() -> Void)? = nil,
         @ViewBuilder content: () -> Content
@@ -141,6 +149,8 @@ public struct CraftCard<Content: View>: View {
             cornerRadius: cornerRadius,
             padding: padding,
             customTint: customTint,
+            customBorderColor: customBorderColor,
+            customBottomColor: customBottomColor,
             customGradient: customGradient,
             action: action,
             content: content
@@ -151,6 +161,7 @@ public struct CraftCard<Content: View>: View {
         let radius = cornerRadius ?? theme.radii.lg
         let contentPadding = padding ?? theme.spacing.base
         let depth = (style == .tactile3D) ? theme.depths.depthMd : 0
+        let effectiveBottomColor = customBottomColor ?? theme.colors.borderDefault
 
         let cardFace = content
             .padding(contentPadding)
@@ -165,7 +176,7 @@ public struct CraftCard<Content: View>: View {
                 Button(action: { action?() }) {
                     cardFace
                 }
-                .buttonStyle(CraftTactileCardButtonStyle(depth: depth, radius: radius, bottomColor: theme.colors.borderDefault))
+                .buttonStyle(CraftTactileCardButtonStyle(depth: depth, radius: radius, bottomColor: effectiveBottomColor))
                 .frame(minHeight: 44)
                 .contentShape(Rectangle())
                 .accessibilityAddTraits(.isButton)
@@ -183,7 +194,7 @@ public struct CraftCard<Content: View>: View {
                 cardFace
                     .background {
                         RoundedRectangle(cornerRadius: radius, style: .continuous)
-                            .fill(theme.colors.borderDefault)
+                            .fill(effectiveBottomColor)
                             .offset(y: depth)
                     }
                     .padding(.bottom, depth)
@@ -232,9 +243,10 @@ public struct CraftCard<Content: View>: View {
     @ViewBuilder
     private func borderOverlay(radius: CGFloat) -> some View {
         let shape = RoundedRectangle(cornerRadius: radius)
+        let effectiveBorderColor = customBorderColor ?? theme.colors.borderDefault
         switch style {
         case .outlined:
-            shape.strokeBorder(theme.colors.borderDefault, lineWidth: 1)
+            shape.strokeBorder(effectiveBorderColor, lineWidth: 1)
         case .elevated:
             shape.strokeBorder(
                 LinearGradient(
@@ -250,7 +262,7 @@ public struct CraftCard<Content: View>: View {
             )
         case .tactile3D:
             ZStack {
-                shape.strokeBorder(theme.colors.borderDefault, lineWidth: 1)
+                shape.strokeBorder(effectiveBorderColor, lineWidth: 1)
                 shape.strokeBorder(theme.depths.topHighlight, lineWidth: 1)
             }
         case .glass:

@@ -1715,13 +1715,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Finish & Save Progress"
+            "value" : "Done"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hoàn thành & Lưu tiến độ"
+            "value" : "Hoàn tất"
           }
         }
       }
@@ -1834,13 +1834,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Re-drill %lld weak words"
+            "value" : "Re-drill"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Luyện lại %lld từ chưa thuộc"
+            "value" : "Luyện lại từ yếu"
           }
         }
       }
@@ -1919,13 +1919,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Words to Reinforce (%lld)"
+            "value" : "Words to Reinforce"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Từ cần củng cố (%lld)"
+            "value" : "Từ cần củng cố"
           }
         }
       }

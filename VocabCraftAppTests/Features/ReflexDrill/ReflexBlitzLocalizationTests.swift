@@ -56,14 +56,14 @@ struct ReflexBlitzLocalizationTests {
         "app.reflex.drill.advance_correct_button": ("⚡️ %@ • Từ tiếp theo ➔", "⚡️ %@ • Next word ➔"),
         "app.reflex.drill.advance_incorrect_button": ("%@ • Từ tiếp theo ➔", "%@ • Next word ➔"),
         "app.reflex.summary.title": ("Hoàn thành phiên phản xạ Blitz", "Reflex Blitz Completed"),
-        "app.reflex.summary.redrill_weak": ("Luyện lại %lld từ chưa thuộc", "Re-drill %lld weak words"),
-        "app.reflex.summary.finish_save": ("Hoàn thành & Lưu tiến độ", "Finish & Save Progress"),
+        "app.reflex.summary.redrill_weak": ("Luyện lại từ yếu", "Re-drill"),
+        "app.reflex.summary.finish_save": ("Hoàn tất", "Done"),
         "app.reflex.summary.perfect_title": ("Phản xạ hoàn hảo!", "Perfect Reflex!"),
         "app.reflex.summary.perfect_desc": ("Bạn đã trả lời chính xác và nhanh chóng toàn bộ từ vựng.", "You answered all words quickly and accurately."),
         "app.reflex.summary.avg_speed": ("Tốc độ TB", "Avg Speed"),
         "app.reflex.summary.accuracy": ("Độ chính xác", "Accuracy"),
         "app.reflex.summary.max_combo": ("Combo cao nhất", "Max Combo"),
-        "app.reflex.summary.weak_words_header": ("Từ cần củng cố (%lld)", "Words to Reinforce (%lld)"),
+        "app.reflex.summary.weak_words_header": ("Từ cần củng cố", "Words to Reinforce"),
         "app.reflex.summary.status_incorrect": ("Chưa chính xác", "Incorrect"),
         "app.reflex.summary.status_slow": ("%@ • Quá chậm", "%@ • Slow")
     ]
@@ -183,8 +183,8 @@ struct ReflexBlitzLocalizationTests {
 
         #expect(AppStrings.ReflexBlitz.weeklyWords(10).contains("10"))
         #expect(AppStrings.ReflexBlitz.weakWords(3).contains("3"))
-        #expect(AppStrings.ReflexBlitz.redrillWeak(5).contains("5"))
-        #expect(AppStrings.ReflexBlitz.weakWordsHeader(2).contains("2"))
+        #expect(!AppStrings.ReflexBlitz.redrillWeak.isEmpty)
+        #expect(!AppStrings.ReflexBlitz.weakWordsHeader.isEmpty)
         #expect(!AppStrings.ReflexBlitz.statusIncorrect.isEmpty)
         #expect(AppStrings.ReflexBlitz.statusSlow("4.5s").contains("4.5s"))
         #expect(AppStrings.ReflexBlitz.localizedRatingTitle(for: "⚡️ Reflex Master") == "Bậc thầy phản xạ")

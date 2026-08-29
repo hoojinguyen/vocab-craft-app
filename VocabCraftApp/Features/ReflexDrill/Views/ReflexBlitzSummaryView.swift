@@ -107,7 +107,7 @@ public struct ReflexBlitzSummaryView: View {
             .craftShadow(theme.shadows.sm)
             .accessibilityHidden(true)
 
-            // Rating title & subtitle
+            // Rating title & stars (no redundant announcement subtitle)
             VStack(spacing: theme.spacing.xs) {
                 Text(localizedRatingTitle)
                     .font(theme.typography.titleLarge)
@@ -116,10 +116,6 @@ public struct ReflexBlitzSummaryView: View {
                     .accessibilityAddTraits(.isHeader)
 
                 ratingStarsView
-
-                Text(AppStrings.ReflexBlitz.summaryTitle)
-                    .font(theme.typography.bodyMedium)
-                    .foregroundStyle(theme.colors.textMuted)
             }
         }
         .padding(.horizontal, theme.spacing.base)
@@ -139,7 +135,7 @@ public struct ReflexBlitzSummaryView: View {
         .accessibilityHidden(true)
     }
 
-    // MARK: - Bento Metrics Grid (Typography-First, Zero Icon Clutter)
+    // MARK: - Bento Metrics Grid (Typography-First, Tactile 3D)
     private var bentoMetricsGrid: some View {
         HStack(spacing: theme.spacing.sm) {
             // Metric 1: Avg Speed
@@ -171,7 +167,7 @@ public struct ReflexBlitzSummaryView: View {
         title: String,
         accessibilityLabel: String
     ) -> some View {
-        CraftCard(style: .outlined, padding: theme.spacing.md) {
+        CraftCard(style: .tactile3D, padding: theme.spacing.md) {
             VStack(spacing: theme.spacing.xs) {
                 Text(value)
                     .font(theme.typography.titleLarge)
@@ -192,23 +188,15 @@ public struct ReflexBlitzSummaryView: View {
         .accessibilityLabel(accessibilityLabel)
     }
 
-    // MARK: - Weak Words Section
+    // MARK: - Weak Words Section (Active Recall, Tactile 3D with Subtle Red Danger Rim)
     private var weakWordsSection: some View {
         VStack(alignment: .leading, spacing: theme.spacing.sm) {
-            HStack(spacing: theme.spacing.xs) {
-                Image(systemName: "exclamationmark.circle.fill")
-                    .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(theme.colors.statusWarning)
-                    .font(.headline)
-                    .accessibilityHidden(true)
-
-                Text(AppStrings.ReflexBlitz.weakWordsHeader(summary.weakWordAttempts.count))
-                    .font(theme.typography.headline)
-                    .fontWeight(.bold)
-                    .foregroundStyle(theme.colors.textPrimary)
-            }
-            .padding(.horizontal, theme.spacing.base)
-            .accessibilityAddTraits(.isHeader)
+            Text(AppStrings.ReflexBlitz.weakWordsHeader)
+                .font(theme.typography.headline)
+                .fontWeight(.bold)
+                .foregroundStyle(theme.colors.textPrimary)
+                .padding(.horizontal, theme.spacing.base)
+                .accessibilityAddTraits(.isHeader)
 
             VStack(spacing: theme.spacing.sm) {
                 ForEach(summary.weakWordAttempts) { weak in
@@ -219,81 +207,73 @@ public struct ReflexBlitzSummaryView: View {
         }
     }
 
-    // MARK: - 3-Tier Vocabulary Row
+    // MARK: - Vocabulary Row (Active Recall - No definition, Subtle Red Danger 3D Rim)
     private func weakWordRow(for weak: ReflexBlitzAttempt) -> some View {
-        let timeFormatted = weak.responseTimeMs >= 6000 ? String(localized: "app.reflex.summary.timeout_label", bundle: .module) : String(format: "%.1fs", Double(weak.responseTimeMs) / 1000.0)
-        let meta = [weak.pos, weak.ipa].filter { !$0.isEmpty }.joined(separator: " • ")
-
-        return CraftCard(style: .outlined, padding: theme.spacing.base) {
-            VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                // Tier 1: Lemma text on the left, Audio Speaker button on the right
-                HStack(alignment: .center) {
+        CraftCard(
+            style: .tactile3D,
+            padding: theme.spacing.md,
+            customBorderColor: theme.colors.statusDanger.opacity(0.4),
+            customBottomColor: theme.colors.statusDanger.opacity(0.8)
+        ) {
+            HStack(alignment: .center, spacing: theme.spacing.md) {
+                // Word Details (Lemma, IPA, POS, CEFR) - Active Recall, no definition
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     Text(weak.lemma)
                         .font(theme.typography.headline)
                         .fontWeight(.bold)
                         .foregroundStyle(theme.colors.textPrimary)
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
 
-                    Spacer()
-
-                    if let onSpeak = onSpeakWord {
-                        CraftSpeakerButton(
-                            variant: .subtle,
-                            size: .sm,
-                            customTint: theme.colors.brandPrimary
-                        ) {
-                            onSpeak(weak.lemma)
-                        }
-                        .accessibilityLabel(String(format: String(localized: "app.reflex.summary.a11y_speak_word", bundle: .module), weak.lemma))
-                    }
-                }
-
-                // Tier 2: Part of Speech & IPA phonetics metadata
-                if !meta.isEmpty {
-                    Text(meta)
-                        .font(theme.typography.phonetic)
-                        .foregroundStyle(theme.colors.textMuted)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.85)
-                }
-
-                // Tier 3: Vietnamese definition on the left, diagnostic status badge on the right
-                HStack(alignment: .center, spacing: theme.spacing.xs) {
-                    if !weak.definitionVi.isEmpty {
-                        Text(weak.definitionVi)
-                            .font(theme.typography.bodyMedium)
+                    if !weak.ipa.isEmpty {
+                        Text(weak.ipa)
+                            .font(theme.typography.phonetic)
                             .foregroundStyle(theme.colors.textSecondary)
-                            .lineLimit(2)
+                            .multilineTextAlignment(.leading)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
 
-                    Spacer()
+                    HStack(spacing: theme.spacing.xs) {
+                        if !weak.pos.isEmpty {
+                            CraftBadge(
+                                verbatim: weak.cleanPos,
+                                variant: .subtle,
+                                tone: .neutral,
+                                size: .sm
+                            )
+                        }
 
-                    if !weak.isCorrect {
                         CraftBadge(
-                            AppStrings.ReflexBlitz.statusIncorrect,
-                            iconName: "xmark.circle.fill",
+                            verbatim: weak.cleanLevel.uppercased(),
                             variant: .subtle,
-                            tone: .danger,
-                            size: .sm
-                        )
-                    } else {
-                        CraftBadge(
-                            AppStrings.ReflexBlitz.statusSlow(timeFormatted),
-                            iconName: "stopwatch.fill",
-                            variant: .subtle,
-                            tone: .warning,
+                            tone: .primary,
                             size: .sm
                         )
                     }
+                }
+
+                Spacer(minLength: theme.spacing.xs)
+
+                // Speaker audio button on trailing edge
+                if let onSpeak = onSpeakWord {
+                    CraftSpeakerButton(
+                        variant: .subtle,
+                        size: .sm,
+                        customTint: theme.colors.brandPrimary
+                    ) {
+                        onSpeak(weak.lemma)
+                    }
+                    .accessibilityLabel(String(format: String(localized: "app.reflex.summary.a11y_speak_word", bundle: .module), weak.lemma))
                 }
             }
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(String(format: String(localized: "app.reflex.summary.a11y_weak_word", bundle: .module), weak.lemma, timeFormatted))
+        .accessibilityLabel(String(format: String(localized: "app.reflex.summary.a11y_weak_word", bundle: .module), weak.lemma, weak.cleanPos))
     }
 
     // MARK: - Perfect Score State
     private var perfectScoreCard: some View {
-        CraftCard(style: .elevated, customTint: theme.colors.surfaceCard) {
+        CraftCard(style: .tactile3D, padding: theme.spacing.lg) {
             VStack(spacing: theme.spacing.sm) {
                 Image(systemName: "medal.fill")
                     .font(.system(size: 44, weight: .bold))
@@ -312,21 +292,18 @@ public struct ReflexBlitzSummaryView: View {
                     .multilineTextAlignment(.center)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, theme.spacing.md)
-            .padding(.horizontal, theme.spacing.sm)
         }
         .padding(.horizontal, theme.spacing.base)
         .craftSparkle(isTriggered: $isSparkleTriggered, particleCount: 25)
     }
 
-    // MARK: - Sticky Bottom Action Dock
+    // MARK: - Sticky Bottom Action Dock (Icon-free, Concise Text)
     private var bottomActionDock: some View {
         VStack(spacing: theme.spacing.xs) {
             if !summary.weakWordAttempts.isEmpty {
-                // Primary Action: Re-drill weak words (Brand Primary tactile button)
+                // Primary Action: Re-drill weak words (Brand Primary tactile button, no icon)
                 CraftButton(
-                    AppStrings.ReflexBlitz.redrillWeak(summary.weakWordAttempts.count),
-                    iconName: "arrow.triangle.2.circlepath",
+                    AppStrings.ReflexBlitz.redrillWeak,
                     variant: .tactile,
                     size: .lg,
                     isFullWidth: true,
@@ -334,7 +311,7 @@ public struct ReflexBlitzSummaryView: View {
                     action: onReDrillWeak
                 )
 
-                // Secondary Action: Finish & Save
+                // Secondary Action: Done (no icon)
                 CraftButton(
                     AppStrings.ReflexBlitz.finishSaveText,
                     variant: .secondary,
@@ -343,10 +320,9 @@ public struct ReflexBlitzSummaryView: View {
                     action: onFinish
                 )
             } else {
-                // Primary Action: Finish & Save
+                // Primary Action: Done (Brand Primary tactile button, no icon)
                 CraftButton(
                     AppStrings.ReflexBlitz.finishSaveText,
-                    iconName: "checkmark",
                     variant: .tactile,
                     size: .lg,
                     isFullWidth: true,

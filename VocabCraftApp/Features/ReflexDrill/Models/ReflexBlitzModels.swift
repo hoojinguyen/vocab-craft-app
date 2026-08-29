@@ -446,10 +446,29 @@ public struct ReflexBlitzAttempt: Identifiable, Codable, Sendable, Equatable {
     public let pos: String
     public let ipa: String
     public let definitionVi: String
+    public let level: String
     public let responseTimeMs: Int
     public let usedHint: Bool
     public let isCorrect: Bool
     public let timestamp: Date
+
+    public var cleanPos: String {
+        let trimmed = pos.trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: ".", with: "").lowercased()
+        switch trimmed {
+        case "v", "verb": return "verb"
+        case "n", "noun": return "noun"
+        case "adj", "adjective": return "adjective"
+        case "adv", "adverb": return "adverb"
+        case "prep", "preposition": return "preposition"
+        case "conj", "conjunction": return "conjunction"
+        case "pron", "pronoun": return "pronoun"
+        default: return trimmed.isEmpty ? "word" : trimmed
+        }
+    }
+
+    public var cleanLevel: String {
+        level.isEmpty ? "B2" : level
+    }
 
     public init(
         id: UUID = UUID(),
@@ -458,6 +477,7 @@ public struct ReflexBlitzAttempt: Identifiable, Codable, Sendable, Equatable {
         pos: String = "",
         ipa: String = "",
         definitionVi: String = "",
+        level: String = "B2",
         responseTimeMs: Int,
         usedHint: Bool,
         isCorrect: Bool,
@@ -469,6 +489,7 @@ public struct ReflexBlitzAttempt: Identifiable, Codable, Sendable, Equatable {
         self.pos = pos
         self.ipa = ipa
         self.definitionVi = definitionVi
+        self.level = level
         self.responseTimeMs = responseTimeMs
         self.usedHint = usedHint
         self.isCorrect = isCorrect
