@@ -144,6 +144,30 @@ public struct ReflexBlitzWordItem: Identifiable, Equatable, Sendable {
     public let clozeSuffix: String
     public let hasClozeSlot: Bool
     public let initialLetterHint: String
+    public let level: String
+
+    public var cleanPos: String {
+        let trimmed = pos.trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: ".", with: "").lowercased()
+        switch trimmed {
+        case "v", "verb": return "verb"
+        case "n", "noun": return "noun"
+        case "adj", "adjective": return "adj"
+        case "adv", "adverb": return "adv"
+        case "prep", "preposition": return "prep"
+        case "conj", "conjunction": return "conj"
+        case "pron", "pronoun": return "pron"
+        default: return trimmed.isEmpty ? "word" : trimmed
+        }
+    }
+
+    public var cleanLevel: String {
+        level.isEmpty ? "B2" : level
+    }
+
+    public var cleanInitialLetterHint: String {
+        let firstLetter = lemma.prefix(1).lowercased()
+        return "\(firstLetter)... • \(cleanPos)"
+    }
 
     public init(
         id: Int = 0,
@@ -154,7 +178,8 @@ public struct ReflexBlitzWordItem: Identifiable, Equatable, Sendable {
         exampleSentenceEn: String = "",
         exampleSentenceVi: String = "",
         clozeSentenceEn: String? = nil,
-        clozeSentenceVi: String? = nil
+        clozeSentenceVi: String? = nil,
+        level: String = "B2"
     ) {
         self.id = id
         self.lemma = lemma
@@ -163,6 +188,7 @@ public struct ReflexBlitzWordItem: Identifiable, Equatable, Sendable {
         self.definitionVi = definitionVi
         self.exampleSentenceEn = exampleSentenceEn
         self.exampleSentenceVi = !exampleSentenceVi.isEmpty ? exampleSentenceVi : (clozeSentenceVi ?? "")
+        self.level = level
         let cloze = clozeSentenceEn ?? ReflexClozeFormatter.formatCloze(sentenceEn: exampleSentenceEn, lemma: lemma)
         self.clozeSentenceEn = cloze
         let (prefix, suffix) = ReflexClozeFormatter.extractTemplateParts(from: cloze)
@@ -182,7 +208,8 @@ public struct ReflexBlitzWordItem: Identifiable, Equatable, Sendable {
             ipa: wordItem.phonetic,
             definitionVi: wordItem.definition,
             exampleSentenceEn: wordItem.exampleSentenceEn,
-            exampleSentenceVi: wordItem.exampleSentenceVi
+            exampleSentenceVi: wordItem.exampleSentenceVi,
+            level: wordItem.cefrLevel.isEmpty ? "B2" : wordItem.cefrLevel
         )
     }
 
@@ -195,7 +222,8 @@ public struct ReflexBlitzWordItem: Identifiable, Equatable, Sendable {
             ipa: word.ipaUs ?? "",
             definitionVi: word.definitionVi ?? word.definitionEn ?? "",
             exampleSentenceEn: sentenceEn,
-            exampleSentenceVi: word.definitionVi ?? ""
+            exampleSentenceVi: word.definitionVi ?? "",
+            level: word.cefrLevel ?? "B2"
         )
     }
 

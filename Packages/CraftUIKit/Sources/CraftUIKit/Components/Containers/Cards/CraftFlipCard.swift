@@ -35,11 +35,12 @@ public struct Craft3DFlipModifier: AnimatableModifier {
         }
     }
 
-    public var rotationAxis: (x: CGFloat, y: CGFloat, z: CGFloat) {
-        switch axis {
-        case .horizontal: return (x: 0, y: 1, z: 0)
-        case .vertical: return (x: 1, y: 0, z: 0)
-        }
+    public var axisX: CGFloat {
+        axis == .vertical ? 1 : 0
+    }
+
+    public var axisY: CGFloat {
+        axis == .horizontal ? 1 : 0
     }
 
     public init(
@@ -62,7 +63,7 @@ public struct Craft3DFlipModifier: AnimatableModifier {
             .allowsHitTesting(isVisible)
             .rotation3DEffect(
                 .degrees(currentDegrees),
-                axis: rotationAxis,
+                axis: (x: axisX, y: axisY, z: 0),
                 perspective: perspective
             )
     }
@@ -217,82 +218,60 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
 
         ZStack {
             // Front Card Face with zero-ghosting backface culling & glare
-            ZStack {
-                if edgeThickness > 0 && !reduceMotion {
-                    RoundedRectangle(cornerRadius: cornerRadius)
-                        .fill(theme.colors.borderDefault)
-                        .offset(
-                            x: axis == .horizontal ? edgeThickness * 0.8 : 0,
-                            y: axis == .vertical ? edgeThickness * 0.8 : 0
-                        )
-                }
-
-                front
-                    .overlay {
-                        if showsHighlightBorder {
-                            RoundedRectangle(cornerRadius: cornerRadius)
-                                .strokeBorder(theme.depths.topHighlight, lineWidth: 1)
-                        }
+            front
+                .overlay {
+                    if showsHighlightBorder {
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .strokeBorder(theme.depths.topHighlight, lineWidth: 1)
                     }
-                    .modifier(
-                        CraftSpecularGlareModifier(
-                            progress: progress,
-                            axis: axis,
-                            cornerRadius: cornerRadius,
-                            isEnabled: showSpecularGlare && !reduceMotion,
-                            colorScheme: colorScheme
-                        )
+                }
+                .modifier(
+                    CraftSpecularGlareModifier(
+                        progress: progress,
+                        axis: axis,
+                        cornerRadius: cornerRadius,
+                        isEnabled: showSpecularGlare && !reduceMotion,
+                        colorScheme: colorScheme
                     )
-            }
-            .modifier(
-                Craft3DFlipModifier(
-                    progress: progress,
-                    side: .front,
-                    axis: axis,
-                    perspective: perspective,
-                    reduceMotion: reduceMotion
                 )
-            )
-            .accessibilityHidden(isFlipped)
+                .modifier(
+                    Craft3DFlipModifier(
+                        progress: progress,
+                        side: .front,
+                        axis: axis,
+                        perspective: perspective,
+                        reduceMotion: reduceMotion
+                    )
+                )
+                .accessibilityHidden(isFlipped)
 
             // Back Card Face with zero-ghosting backface culling & glare
-            ZStack {
-                if edgeThickness > 0 && !reduceMotion {
-                    RoundedRectangle(cornerRadius: cornerRadius)
-                        .fill(theme.colors.borderDefault)
-                        .offset(
-                            x: axis == .horizontal ? -edgeThickness * 0.8 : 0,
-                            y: axis == .vertical ? -edgeThickness * 0.8 : 0
-                        )
-                }
-
-                back
-                    .overlay {
-                        if showsHighlightBorder {
-                            RoundedRectangle(cornerRadius: cornerRadius)
-                                .strokeBorder(theme.depths.topHighlight, lineWidth: 1)
-                        }
+            back
+                .overlay {
+                    if showsHighlightBorder {
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .strokeBorder(theme.depths.topHighlight, lineWidth: 1)
                     }
-                    .modifier(
-                        CraftSpecularGlareModifier(
-                            progress: progress,
-                            axis: axis,
-                            cornerRadius: cornerRadius,
-                            isEnabled: showSpecularGlare && !reduceMotion,
-                            colorScheme: colorScheme
-                        )
+                }
+                .modifier(
+                    CraftSpecularGlareModifier(
+                        progress: progress,
+                        axis: axis,
+                        cornerRadius: cornerRadius,
+                        isEnabled: showSpecularGlare && !reduceMotion,
+                        colorScheme: colorScheme
                     )
-            }
-            .modifier(
-                Craft3DFlipModifier(
-                    progress: progress,
-                    side: .back,
-                    axis: axis,
-                    perspective: perspective,
-                    reduceMotion: reduceMotion
                 )
-            )
-            .accessibilityHidden(!isFlipped)
+                .modifier(
+                    Craft3DFlipModifier(
+                        progress: progress,
+                        side: .back,
+                        axis: axis,
+                        perspective: perspective,
+                        reduceMotion: reduceMotion
+                    )
+                )
+                .accessibilityHidden(!isFlipped)
         }
         .contentShape(RoundedRectangle(cornerRadius: cornerRadius))
         .onTapGesture {

@@ -388,6 +388,10 @@ extension ReflexBlitzViewModel {
                 selectedOption: option.text, typedText: nil, recognizedSpoken: nil
             ))
         }
+
+        if selectedMode != .listening {
+            ttsService.speak(text: word.lemma, rate: 0.5, locale: "en-US")
+        }
     }
 
     public func submitTypingAnswer(_ text: String) {

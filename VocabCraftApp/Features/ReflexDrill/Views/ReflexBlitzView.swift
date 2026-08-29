@@ -118,7 +118,7 @@ public struct ReflexBlitzView: View {
     public var drillingView: some View {
         ZStack(alignment: .bottom) {
             // Main stable content area (Header + Card)
-            VStack(spacing: theme.spacing.md) {
+            VStack(spacing: theme.spacing.sm) {
                 ReflexBlitzHeaderView(
                     currentIndex: viewModel.currentWordIndex,
                     totalCount: viewModel.words.count,
@@ -139,9 +139,9 @@ public struct ReflexBlitzView: View {
                     },
                     showSkipInHeader: false
                 )
-                .padding(.top, theme.spacing.sm)
+                .padding(.top, theme.spacing.xs)
 
-                Spacer(minLength: theme.spacing.xs)
+                Spacer(minLength: theme.spacing.xs / 2)
 
                 if let word = viewModel.currentWord {
                     ReflexBlitzCardView(
@@ -170,7 +170,7 @@ public struct ReflexBlitzView: View {
                     )
                 }
 
-                Spacer(minLength: theme.spacing.xs)
+                Spacer(minLength: theme.spacing.xs / 2)
 
                 // Reserved spacing for Skip Button or Sheet clearance
                 if viewModel.cardPhase == .activeCountdown && (viewModel.selectedMode == .speaking || viewModel.selectedMode == .typing) {
@@ -188,10 +188,12 @@ public struct ReflexBlitzView: View {
                     .padding(.horizontal, theme.spacing.lg)
                     .padding(.bottom, theme.spacing.lg)
                     .transition(.opacity)
+                } else if case .reviewed = viewModel.cardPhase {
+                    Color.clear
+                        .frame(height: 140)
                 } else {
                     Color.clear
-                        .frame(height: 52)
-                        .padding(.bottom, theme.spacing.lg)
+                        .frame(height: 20)
                 }
             }
 

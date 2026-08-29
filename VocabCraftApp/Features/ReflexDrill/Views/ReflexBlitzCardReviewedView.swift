@@ -75,15 +75,23 @@ extension ReflexBlitzCardReviewedView {
                     color: theme.colors.textPrimary
                 )
 
-                if !word.pos.isEmpty {
+                if !word.cleanPos.isEmpty {
                     CraftBadge(
-                        word.pos.uppercased(),
+                        word.cleanPos,
                         variant: .subtle,
-                        tone: .primary,
+                        tone: .neutral,
                         size: .sm,
                         shape: .capsule
                     )
                 }
+
+                CraftBadge(
+                    word.cleanLevel,
+                    variant: .subtle,
+                    tone: .warning,
+                    size: .sm,
+                    shape: .capsule
+                )
 
                 if let onReplayAudio = onReplayAudio {
                     CraftSpeakerButton(
@@ -205,7 +213,7 @@ extension ReflexBlitzCardReviewedView {
                     textAlignment: .leading,
                     state: choiceState,
                     style: .tactile3D,
-                    showsStatusIndicator: isCorrect || isSelected,
+                    showsStatusIndicator: false,
                     action: {}
                 )
                 .frame(minHeight: 52)

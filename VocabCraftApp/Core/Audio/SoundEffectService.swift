@@ -12,14 +12,14 @@ public final class SoundEffectService: SoundEffectServiceProtocol, @unchecked Se
     public init() {}
 
     public func playSuccessChime() {
-        #if os(iOS)
+        #if os(iOS) && !targetEnvironment(simulator)
         // 1054 is the standard pleasant UI acknowledgment chime, or 1057 / 1394
         AudioServicesPlaySystemSound(1054)
         #endif
     }
 
     public func playIncorrectChime() {
-        #if os(iOS)
+        #if os(iOS) && !targetEnvironment(simulator)
         AudioServicesPlaySystemSound(1053)
         #endif
     }

@@ -221,7 +221,7 @@ public struct CraftFeedbackSheet<ExtraContent: View>: View {
 
     private var headerRow: some View {
         HStack(alignment: .center, spacing: theme.spacing.sm) {
-            statusBadge
+            statusTitleView
 
             if let streakCount, streakCount > 0 {
                 CraftStreakBadge(
@@ -240,31 +240,18 @@ public struct CraftFeedbackSheet<ExtraContent: View>: View {
         }
     }
 
-    private var statusBadge: some View {
-        HStack(spacing: 6) {
+    private var statusTitleView: some View {
+        HStack(spacing: theme.spacing.xs) {
             CraftIcon(
                 status.iconName,
-                size: .sm,
+                size: .md,
                 color: statusColor
             )
 
             Text(resolvedTitle)
-                .font(theme.typography.label)
+                .font(theme.typography.titleLarge)
                 .fontWeight(.bold)
                 .foregroundStyle(statusColor)
-        }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .craftSurface(
-            style: (resolvedSurfaceStyle == .tactile3D ? .flat : resolvedSurfaceStyle),
-            shape: Capsule(),
-            customTint: statusBadgeTint
-        )
-        .overlay {
-            if resolvedSurfaceStyle == .tactile3D {
-                Capsule()
-                    .strokeBorder(statusColor.opacity(0.25), lineWidth: 1)
-            }
         }
     }
 
@@ -404,7 +391,7 @@ public struct CraftFeedbackSheet<ExtraContent: View>: View {
 
     @MainActor
     private func triggerFeedbackHaptics() {
-        #if os(iOS)
+        #if os(iOS) && !targetEnvironment(simulator)
         switch status {
         case .success:
             let generator = UINotificationFeedbackGenerator()

@@ -167,54 +167,70 @@ public struct ReflexBlitzCardView: View {
         } else if option.text == selectedOptionText {
             return .wrong
         } else {
-            return .idle
+            return .disabled
         }
     }
 
     public func showsStatusIndicator(for option: ReflexBlitzOption) -> Bool {
-        guard isReviewed else { return false }
-        return option.isCorrect || (option.text == selectedOptionText)
+        false
     }
 
     public var body: some View {
-        VStack(spacing: theme.spacing.md) {
-            if isReviewed && mode != .multipleChoice {
-                ReflexBlitzCardReviewedView(
-                    word: word,
-                    mode: mode,
-                    isReviewed: isReviewed,
-                    isResultCorrect: isResultCorrect,
-                    isResultTimeout: isResultTimeout,
-                    options: options,
-                    reviewResult: reviewResult,
-                    selectedOptionText: selectedOptionText,
-                    clozeParts: clozeParts,
-                    displayedSentence: displayedSentence,
-                    onReplayAudio: onReplayAudio
-                )
-            } else {
-                activeCountdownContentView
-            }
-        }
-        .padding(theme.spacing.lg)
-        .frame(maxWidth: .infinity)
-        .background(theme.colors.surfaceCard)
-        .clipShape(RoundedRectangle(cornerRadius: theme.radii.xl, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: theme.radii.xl, style: .continuous)
-                .stroke(cardBorderColor, lineWidth: 1)
-        )
-        .shadow(color: theme.shadows.lg.color, radius: theme.shadows.lg.radius, x: theme.shadows.lg.x, y: theme.shadows.lg.y)
-        .offset(x: shakeOffset)
-        .padding(.horizontal, theme.spacing.base)
-        .onChange(of: isReviewed) { _, reviewed in
-            if reviewed && !isResultCorrect {
-                withAnimation(.spring(response: 0.15, dampingFraction: 0.2, blendDuration: 0.15)) {
-                    shakeOffset = 6
+        if mode == .multipleChoice {
+            multipleChoiceSeparatedContent
+                .offset(x: shakeOffset)
+                .padding(.horizontal, theme.spacing.base)
+                .onChange(of: isReviewed) { _, reviewed in
+                    if reviewed && !isResultCorrect {
+                        withAnimation(.spring(response: 0.15, dampingFraction: 0.2, blendDuration: 0.15)) {
+                            shakeOffset = 6
+                        }
+                        Task { @MainActor in
+                            try? await Task.sleep(for: .milliseconds(150))
+                            shakeOffset = 0
+                        }
+                    }
                 }
-                Task { @MainActor in
-                    try? await Task.sleep(for: .milliseconds(150))
-                    shakeOffset = 0
+        } else {
+            VStack(spacing: theme.spacing.md) {
+                if isReviewed {
+                    ReflexBlitzCardReviewedView(
+                        word: word,
+                        mode: mode,
+                        isReviewed: isReviewed,
+                        isResultCorrect: isResultCorrect,
+                        isResultTimeout: isResultTimeout,
+                        options: options,
+                        reviewResult: reviewResult,
+                        selectedOptionText: selectedOptionText,
+                        clozeParts: clozeParts,
+                        displayedSentence: displayedSentence,
+                        onReplayAudio: onReplayAudio
+                    )
+                } else {
+                    activeCountdownContentView
+                }
+            }
+            .padding(theme.spacing.lg)
+            .frame(maxWidth: .infinity)
+            .background(theme.colors.surfaceCard)
+            .clipShape(RoundedRectangle(cornerRadius: theme.radii.xl, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: theme.radii.xl, style: .continuous)
+                    .stroke(cardBorderColor, lineWidth: 1)
+            )
+            .shadow(color: theme.shadows.lg.color, radius: theme.shadows.lg.radius, x: theme.shadows.lg.x, y: theme.shadows.lg.y)
+            .offset(x: shakeOffset)
+            .padding(.horizontal, theme.spacing.base)
+            .onChange(of: isReviewed) { _, reviewed in
+                if reviewed && !isResultCorrect {
+                    withAnimation(.spring(response: 0.15, dampingFraction: 0.2, blendDuration: 0.15)) {
+                        shakeOffset = 6
+                    }
+                    Task { @MainActor in
+                        try? await Task.sleep(for: .milliseconds(150))
+                        shakeOffset = 0
+                    }
                 }
             }
         }
@@ -232,7 +248,7 @@ extension ReflexBlitzCardView {
         case .typing:
             activeTypingContent
         case .multipleChoice:
-            activeMultipleChoiceContent
+            EmptyView()
         case .listening:
             activeListeningContent
         }
@@ -252,14 +268,6 @@ extension ReflexBlitzCardView {
         sentenceArea
         dividerLine
         typingInputDockView
-    }
-
-    @ViewBuilder
-    private var activeMultipleChoiceContent: some View {
-        wordHeaderArea
-        sentenceArea
-        dividerLine
-        optionsListView
     }
 
     @ViewBuilder
@@ -300,7 +308,32 @@ extension ReflexBlitzCardView {
 
         dividerLine
 
-        optionsListView
+        listeningOptionsListView
+    }
+
+    @ViewBuilder
+    private var listeningOptionsListView: some View {
+        VStack(spacing: theme.spacing.sm) {
+            ForEach(options, id: \.id) { option in
+                let choiceState = choiceState(for: option)
+
+                CraftChoiceCard(
+                    prefix: nil,
+                    prefixStyle: .none,
+                    title: option.text,
+                    textAlignment: .leading,
+                    state: choiceState,
+                    style: .tactile3D,
+                    showsStatusIndicator: false,
+                    action: {
+                        guard !isReviewed else { return }
+                        onSelectOption?(option)
+                    }
+                )
+                .frame(minHeight: 52)
+                .accessibilityLabel(option.text)
+            }
+        }
     }
 
     // MARK: - Subviews & Areas
@@ -326,16 +359,24 @@ extension ReflexBlitzCardView {
                 .accessibilityLabel(AppStrings.ReflexBlitz.definitionA11y(word.definitionVi))
             }
 
-            HStack(alignment: .center, spacing: theme.spacing.sm) {
-                if !word.pos.isEmpty {
+            HStack(alignment: .center, spacing: theme.spacing.xs) {
+                if !word.cleanPos.isEmpty {
                     CraftBadge(
-                        word.pos.uppercased(),
+                        word.cleanPos,
                         variant: .subtle,
-                        tone: .primary,
+                        tone: .neutral,
                         size: .sm,
                         shape: .capsule
                     )
                 }
+
+                CraftBadge(
+                    word.cleanLevel,
+                    variant: .subtle,
+                    tone: .warning,
+                    size: .sm,
+                    shape: .capsule
+                )
 
                 if isReviewed {
                     if !word.ipa.isEmpty {
@@ -358,7 +399,7 @@ extension ReflexBlitzCardView {
                     }
                 } else if showHint {
                     CraftBadge(
-                        AppStrings.ReflexBlitz.hintPrefix(word.initialLetterHint),
+                        AppStrings.ReflexBlitz.hintPrefix(word.cleanInitialLetterHint),
                         iconName: "lightbulb.min.fill",
                         variant: .outline,
                         tone: .warning,
@@ -366,7 +407,7 @@ extension ReflexBlitzCardView {
                         shape: .capsule
                     )
                     .transition(.scale.combined(with: .opacity))
-                    .accessibilityLabel(AppStrings.ReflexBlitz.hintA11y(word.initialLetterHint))
+                    .accessibilityLabel(AppStrings.ReflexBlitz.hintA11y(word.cleanInitialLetterHint))
                 }
             }
 
@@ -469,30 +510,24 @@ extension ReflexBlitzCardView {
             .padding(.horizontal, theme.spacing.xs)
     }
 
-    @ViewBuilder
-    private var optionsListView: some View {
-        VStack(spacing: theme.spacing.sm) {
-            ForEach(options, id: \.id) { option in
-                let choiceState = choiceState(for: option)
-                let showIndicator = showsStatusIndicator(for: option)
+    // MARK: - Multiple Choice Separated Layout with 3D Flip Card
 
-                CraftChoiceCard(
-                    prefix: nil,
-                    prefixStyle: .none,
-                    title: option.text,
-                    textAlignment: .leading,
-                    state: choiceState,
-                    style: .tactile3D,
-                    showsStatusIndicator: showIndicator,
-                    action: {
-                        guard !isReviewed else { return }
-                        onSelectOption?(option)
-                    }
-                )
-                .frame(minHeight: 52)
-                .accessibilityLabel(option.text)
-            }
-        }
+    @ViewBuilder
+    private var multipleChoiceSeparatedContent: some View {
+        ReflexBlitzMultipleChoiceCardView(
+            word: word,
+            options: options,
+            isReviewed: isReviewed,
+            isResultCorrect: isResultCorrect,
+            isResultTimeout: isResultTimeout,
+            showHint: showHint,
+            selectedOptionText: selectedOptionText,
+            clozeParts: clozeParts,
+            displayedSentence: displayedSentence,
+            cardBorderColor: cardBorderColor,
+            onSelectOption: onSelectOption,
+            onReplayAudio: onReplayAudio
+        )
     }
 
     @ViewBuilder

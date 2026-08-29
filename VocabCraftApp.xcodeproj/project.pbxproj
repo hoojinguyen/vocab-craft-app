@@ -104,6 +104,7 @@
 		30005D2B166623C3F401 /* ReflexBlitzAdvanceDockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005D2B166623C3F401 /* ReflexBlitzAdvanceDockView.swift */; };
 		30004CE4808DDB7C4856 /* ReflexBlitzCardReviewedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20004CE4808DDB7C4856 /* ReflexBlitzCardReviewedView.swift */; };
 		30000CED0631A5F57244 /* ReflexBlitzCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000CED0631A5F57244 /* ReflexBlitzCardView.swift */; };
+		300099A1MC0000000001 /* ReflexBlitzMultipleChoiceCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200099A1MC0000000001 /* ReflexBlitzMultipleChoiceCardView.swift */; };
 		30005DF86FBEBA618963 /* ReflexBlitzHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005DF86FBEBA618963 /* ReflexBlitzHeaderView.swift */; };
 		3000E2383A0FDF336719 /* ReflexBlitzModeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000E2383A0FDF336719 /* ReflexBlitzModeSelectionView.swift */; };
 		30000B23D37B5EC1F4DC /* ReflexBlitzSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000B23D37B5EC1F4DC /* ReflexBlitzSummaryView.swift */; };
@@ -390,6 +391,7 @@
 		20005D2B166623C3F401 /* ReflexBlitzAdvanceDockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzAdvanceDockView.swift"; sourceTree = "<group>"; };
 		20004CE4808DDB7C4856 /* ReflexBlitzCardReviewedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzCardReviewedView.swift"; sourceTree = "<group>"; };
 		20000CED0631A5F57244 /* ReflexBlitzCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzCardView.swift"; sourceTree = "<group>"; };
+		200099A1MC0000000001 /* ReflexBlitzMultipleChoiceCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzMultipleChoiceCardView.swift"; sourceTree = "<group>"; };
 		20005DF86FBEBA618963 /* ReflexBlitzHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzHeaderView.swift"; sourceTree = "<group>"; };
 		2000E2383A0FDF336719 /* ReflexBlitzModeSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzModeSelectionView.swift"; sourceTree = "<group>"; };
 		20000B23D37B5EC1F4DC /* ReflexBlitzSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzSummaryView.swift"; sourceTree = "<group>"; };
@@ -926,6 +928,7 @@
 				20005D2B166623C3F401 /* ReflexBlitzAdvanceDockView.swift */,
 				20004CE4808DDB7C4856 /* ReflexBlitzCardReviewedView.swift */,
 				20000CED0631A5F57244 /* ReflexBlitzCardView.swift */,
+				200099A1MC0000000001 /* ReflexBlitzMultipleChoiceCardView.swift */,
 				20005DF86FBEBA618963 /* ReflexBlitzHeaderView.swift */,
 				2000E2383A0FDF336719 /* ReflexBlitzModeSelectionView.swift */,
 				20000B23D37B5EC1F4DC /* ReflexBlitzSummaryView.swift */,
@@ -1535,6 +1538,7 @@
 				30005D2B166623C3F401 /* ReflexBlitzAdvanceDockView.swift in Sources */,
 				30004CE4808DDB7C4856 /* ReflexBlitzCardReviewedView.swift in Sources */,
 				30000CED0631A5F57244 /* ReflexBlitzCardView.swift in Sources */,
+				300099A1MC0000000001 /* ReflexBlitzMultipleChoiceCardView.swift in Sources */,
 				30005DF86FBEBA618963 /* ReflexBlitzHeaderView.swift in Sources */,
 				3000E2383A0FDF336719 /* ReflexBlitzModeSelectionView.swift in Sources */,
 				30000B23D37B5EC1F4DC /* ReflexBlitzSummaryView.swift in Sources */,

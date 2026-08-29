@@ -20,7 +20,7 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
     }
 
     public func prewarm() {
-        #if os(iOS)
+        #if os(iOS) && !targetEnvironment(simulator)
         Task.detached(priority: .utility) {
             do {
                 let audioSession = AVAudioSession.sharedInstance()
@@ -35,6 +35,7 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
 
     #if os(iOS)
     private func ensureAudioSessionActive() {
+        #if !targetEnvironment(simulator)
         do {
             let audioSession = AVAudioSession.sharedInstance()
             if !isAudioSessionConfigured {
@@ -45,11 +46,12 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         } catch {
             print("Failed to activate AVAudioSession for TTS: \(error)")
         }
+        #endif
     }
     #endif
 
     private func setupInterruptionObserver() {
-        #if os(iOS)
+        #if os(iOS) && !targetEnvironment(simulator)
         interruptionObserver = NotificationCenter.default.addObserver(
             forName: AVAudioSession.interruptionNotification,
             object: AVAudioSession.sharedInstance(),
@@ -75,9 +77,14 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         voiceLock.lock()
         defer { voiceLock.unlock() }
         if let cached = cachedVoices[locale] { return cached }
+        #if targetEnvironment(simulator)
+        let voice = AVSpeechSynthesisVoice(language: locale)
+            ?? AVSpeechSynthesisVoice(language: "en-US")
+        #else
         let voice = AVSpeechSynthesisVoice(language: locale)
             ?? AVSpeechSynthesisVoice.speechVoices().first(where: { $0.language.hasPrefix("en") })
             ?? AVSpeechSynthesisVoice(language: AVSpeechSynthesisVoice.currentLanguageCode())
+        #endif
         if let voice { cachedVoices[locale] = voice }
         return voice
     }
@@ -94,7 +101,9 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         let scaledRate = AVSpeechUtteranceDefaultSpeechRate * rate
         utterance.rate = min(max(scaledRate, AVSpeechUtteranceMinimumSpeechRate), AVSpeechUtteranceMaximumSpeechRate)
 
-        utterance.voice = Self.resolveVoice(for: locale)
+        if let voice = Self.resolveVoice(for: locale) {
+            utterance.voice = voice
+        }
 
 #if os(iOS)
         ensureAudioSessionActive()
