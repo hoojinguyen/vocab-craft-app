@@ -26,7 +26,9 @@ struct ReflexBlitzLocalizationTests {
         "app.reflex.mode.listening.subtitle": ("Bắt âm thanh & dịch nghĩa tức thì", "Audio capture & instant translation"),
         "app.reflex.mode.listening.instruction": ("Lắng nghe cẩn thận & chọn nghĩa chính xác", "Listen carefully & pick the correct meaning"),
         "app.reflex.drill.skip": ("Bỏ qua", "Skip"),
-        "app.reflex.drill.typing_placeholder": ("Gõ từ tiếng Anh...", "Type English word..."),
+        "app.reflex.drill.typing_entered": ("Đã nhập: \"%@\"", "Entered: \"%@\""),
+        "app.reflex.drill.typing_placeholder": ("Nhập câu trả lời...", "Type your answer..."),
+        "app.reflex.drill.typing_you_typed": ("Bạn đã nhập: \"%@\"", "You typed: \"%@\""),
         "app.reflex.drill.listening_instruction": ("Chọn nghĩa tiếng Việt của từ vừa nghe", "Select the Vietnamese meaning of the word you heard"),
         "app.reflex.drill.listening_replay": ("Nghe lại phát âm", "Replay pronunciation"),
         "app.reflex.drill.speaking_listening": ("Đang lắng nghe phát âm...", "Listening for pronunciation..."),
@@ -168,6 +170,8 @@ struct ReflexBlitzLocalizationTests {
 
         #expect(!AppStrings.ReflexBlitz.skipText.isEmpty)
         #expect(!AppStrings.ReflexBlitz.typingPlaceholderText.isEmpty)
+        #expect(AppStrings.ReflexBlitz.typingEnteredPrefix("apple").contains("apple"))
+        #expect(AppStrings.ReflexBlitz.typingYouTypedPrefix("aple").contains("aple"))
         #expect(!AppStrings.ReflexBlitz.listeningInstructionText.isEmpty)
         #expect(!AppStrings.ReflexBlitz.listeningReplayText.isEmpty)
         #expect(!AppStrings.ReflexBlitz.speakingListeningText.isEmpty)

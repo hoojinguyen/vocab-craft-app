@@ -95,7 +95,13 @@ extension AppStrings {
         }
         public static var typingPlaceholder: LocalizedStringKey { "app.reflex.drill.typing_placeholder" }
         public static var typingPlaceholderText: String {
-            String(localized: "app.reflex.drill.typing_placeholder", defaultValue: "Gõ từ tiếng Anh...", bundle: .module)
+            String(localized: "app.reflex.drill.typing_placeholder", defaultValue: "Nhập câu trả lời...", bundle: .module)
+        }
+        public static func typingEnteredPrefix(_ text: String) -> String {
+            String(format: String(localized: "app.reflex.drill.typing_entered", defaultValue: "Đã nhập: \"%@\"", bundle: .module), text)
+        }
+        public static func typingYouTypedPrefix(_ text: String) -> String {
+            String(format: String(localized: "app.reflex.drill.typing_you_typed", defaultValue: "Bạn đã nhập: \"%@\"", bundle: .module), text)
         }
         public static var listeningInstruction: LocalizedStringKey { "app.reflex.drill.listening_instruction" }
         public static var listeningInstructionText: String {

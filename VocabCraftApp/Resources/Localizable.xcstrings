@@ -1153,6 +1153,23 @@
         }
       }
     },
+    "app.reflex.drill.typing_entered" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entered: \"%@\""
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã nhập: \"%@\""
+          }
+        }
+      }
+    },
     "app.reflex.drill.typing_input_a11y" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1176,13 +1193,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Type English word..."
+            "value" : "Type your answer..."
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gõ từ tiếng Anh..."
+            "value" : "Nhập câu trả lời..."
           }
         }
       }
@@ -1200,6 +1217,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gửi câu trả lời đã gõ"
+          }
+        }
+      }
+    },
+    "app.reflex.drill.typing_you_typed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You typed: \"%@\""
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bạn đã nhập: \"%@\""
           }
         }
       }
