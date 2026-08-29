@@ -127,6 +127,7 @@ public struct ReflexListeningModeView: View {
             showsHighlightBorder: false,
             highlightShadowColor: statusGlow,
             isTapToFlipEnabled: false,
+            isSensoryFeedbackEnabled: false,
             cornerRadius: theme.radii.xl,
             padding: theme.spacing.base,
             perspective: 0.5,

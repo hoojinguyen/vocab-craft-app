@@ -1,6 +1,9 @@
 import Foundation
 import Observation
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 @MainActor
 @Observable
@@ -411,6 +414,7 @@ extension ReflexBlitzViewModel {
             }
         } else {
             soundEffectService.playIncorrectChime()
+            triggerIncorrectHaptic()
             comboStreak = 0
         }
 
@@ -477,6 +481,7 @@ extension ReflexBlitzViewModel {
             }
         } else {
             soundEffectService.playIncorrectChime()
+            triggerIncorrectHaptic()
             comboStreak = 0
         }
 
@@ -580,6 +585,7 @@ extension ReflexBlitzViewModel {
         currentAttemptIsCorrect = false
         comboStreak = 0
         soundEffectService.playIncorrectChime()
+        triggerIncorrectHaptic()
 
         let timeLimitMs = elapsedTimeMs > 0 ? elapsedTimeMs : Int(selectedMode.timeLimitSeconds * 1000)
         self.elapsedTimeMs = timeLimitMs
@@ -661,5 +667,13 @@ extension ReflexBlitzViewModel {
         attempts = []
         currentWordIndex = 0
         phase = .modeSelection
+    }
+
+    private func triggerIncorrectHaptic() {
+        #if os(iOS) && !targetEnvironment(simulator)
+        let generator = UIImpactFeedbackGenerator(style: .light)
+        generator.prepare()
+        generator.impactOccurred()
+        #endif
     }
 }

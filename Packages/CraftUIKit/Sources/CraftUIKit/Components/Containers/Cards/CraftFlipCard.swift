@@ -183,6 +183,7 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
     public let showsHighlightBorder: Bool
     public let highlightShadowColor: Color?
     public let isTapToFlipEnabled: Bool
+    public let isSensoryFeedbackEnabled: Bool
     public let cornerRadius: CGFloat?
     public let padding: CGFloat?
     public let customTint: Color?
@@ -201,6 +202,7 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
         showsHighlightBorder: Bool = false,
         highlightShadowColor: Color? = nil,
         isTapToFlipEnabled: Bool = true,
+        isSensoryFeedbackEnabled: Bool = true,
         cornerRadius: CGFloat? = nil,
         padding: CGFloat? = nil,
         customTint: Color? = nil,
@@ -218,6 +220,7 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
         self.showsHighlightBorder = showsHighlightBorder
         self.highlightShadowColor = highlightShadowColor
         self.isTapToFlipEnabled = isTapToFlipEnabled
+        self.isSensoryFeedbackEnabled = isSensoryFeedbackEnabled
         self.cornerRadius = cornerRadius
         self.padding = padding
         self.customTint = customTint
@@ -238,6 +241,7 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
         showsHighlightBorder: Bool = false,
         highlightShadowColor: Color? = nil,
         isTapToFlipEnabled: Bool = true,
+        isSensoryFeedbackEnabled: Bool = true,
         cornerRadius: CGFloat? = nil,
         padding: CGFloat? = nil,
         customTint: Color? = nil,
@@ -256,6 +260,7 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
             showsHighlightBorder: showsHighlightBorder,
             highlightShadowColor: highlightShadowColor,
             isTapToFlipEnabled: isTapToFlipEnabled,
+            isSensoryFeedbackEnabled: isSensoryFeedbackEnabled,
             cornerRadius: cornerRadius,
             padding: padding,
             customTint: customTint,
@@ -335,7 +340,9 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
             }
         }
         .animation(effectiveAnimation, value: isFlipped)
-        .sensoryFeedback(.impact(weight: .medium), trigger: isFlipped)
+        .sensoryFeedback(.impact(weight: .light), trigger: isFlipped) { _, _ in
+            isSensoryFeedbackEnabled && isTapToFlipEnabled
+        }
         .accessibilityAction(
             named: CraftLocalized.string(isFlipped ? "craft.flipcard.flip_to_front_action" : "craft.flipcard.flip_to_back_action")
         ) {
