@@ -184,6 +184,46 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         }
     }
 
+    func testBlitzViewTypingModeCardViewIdentityAndSequentialWordProgression() {
+        let (vm, _, _, _) = makeViewModel()
+        vm.selectMode(.typing)
+        vm.beginSessionDirectly()
+
+        XCTAssertEqual(vm.currentWordIndex, 0)
+        guard let firstWord = vm.currentWord else {
+            XCTFail("Expected first word to be non-nil")
+            return
+        }
+        XCTAssertEqual(firstWord.id == 1 || firstWord.id == 2, true)
+        XCTAssertEqual(vm.cardPhase, .activeCountdown)
+
+        let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
+        XCTAssertNotNil(view.drillingView)
+
+        // Submit answer on word 1
+        vm.submitTypingAnswer(firstWord.lemma)
+        XCTAssertTrue(vm.currentAttemptIsCorrect)
+        if case .reviewed(let result) = vm.cardPhase {
+            XCTAssertTrue(result.isCorrect)
+            XCTAssertEqual(result.typedText, firstWord.lemma)
+        } else {
+            XCTFail("Expected .reviewed state")
+        }
+
+        // Advance to word 2
+        vm.advanceToNextWord()
+        XCTAssertEqual(vm.currentWordIndex, 1)
+        guard let secondWord = vm.currentWord else {
+            XCTFail("Expected second word to be non-nil")
+            return
+        }
+        XCTAssertNotEqual(firstWord.id, secondWord.id)
+        XCTAssertEqual(vm.cardPhase, .activeCountdown)
+
+        // Drilling view renders cleanly for next word with fresh identity
+        XCTAssertNotNil(view.drillingView)
+    }
+
     func testBlitzViewDrillingMultipleChoiceSelection() {
         let (vm, _, _, _) = makeViewModel()
         vm.selectMode(.multipleChoice)

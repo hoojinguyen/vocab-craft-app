@@ -286,6 +286,7 @@ public struct ReflexBlitzView: View {
                 viewModel.speakCurrentWord()
             }
         )
+        .id(word.id)
         .padding(.horizontal, theme.spacing.base)
     }
 
