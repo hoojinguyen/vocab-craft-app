@@ -163,7 +163,19 @@ struct ReflexOtherModesTests {
         activeStage0.onSelectOption?(correctOpt)
         #expect(selectedOption?.id == "opt-1")
 
-        // 2. Active Stage 2 (Distractor eliminated)
+        // 2. Active Stage 1 (POS hint stage, distractor NOT eliminated yet)
+        let activeStage1 = ReflexListeningModeView(
+            word: item,
+            options: options,
+            isReviewed: false,
+            hintStage: 1,
+            eliminatedOptionId: "opt-2"
+        )
+        #expect(activeStage1.choiceState(for: correctOpt) == .idle)
+        #expect(activeStage1.choiceState(for: wrongOpt) == .idle)
+        #expect(activeStage1.choiceState(for: otherOpt) == .idle)
+
+        // 3. Active Stage 2 (Distractor eliminated)
         let activeStage2 = ReflexListeningModeView(
             word: item,
             options: options,
@@ -175,7 +187,7 @@ struct ReflexOtherModesTests {
         #expect(activeStage2.choiceState(for: wrongOpt) == .disabled)
         #expect(activeStage2.choiceState(for: otherOpt) == .idle)
 
-        // 3. Reviewed Correct
+        // 4. Reviewed Correct
         let reviewedCorrect = ReflexListeningModeView(
             word: item,
             options: options,
@@ -189,7 +201,7 @@ struct ReflexOtherModesTests {
         #expect(reviewedCorrect.choiceState(for: wrongOpt) == .disabled)
         #expect(reviewedCorrect.choiceState(for: otherOpt) == .disabled)
 
-        // 4. Reviewed Wrong
+        // 5. Reviewed Wrong
         let reviewedWrong = ReflexListeningModeView(
             word: item,
             options: options,
@@ -202,5 +214,20 @@ struct ReflexOtherModesTests {
         #expect(reviewedWrong.choiceState(for: correctOpt) == .correct)
         #expect(reviewedWrong.choiceState(for: wrongOpt) == .wrong)
         #expect(reviewedWrong.choiceState(for: otherOpt) == .disabled)
+
+        // 6. Reviewed Timeout
+        let reviewedTimeout = ReflexListeningModeView(
+            word: item,
+            options: options,
+            isReviewed: true,
+            isResultCorrect: false,
+            isResultTimeout: true,
+            selectedOptionText: nil
+        )
+        #expect(reviewedTimeout.isReviewed == true)
+        #expect(reviewedTimeout.isResultTimeout == true)
+        #expect(reviewedTimeout.choiceState(for: correctOpt) == .correct)
+        #expect(reviewedTimeout.choiceState(for: wrongOpt) == .disabled)
+        #expect(reviewedTimeout.choiceState(for: otherOpt) == .disabled)
     }
 }
