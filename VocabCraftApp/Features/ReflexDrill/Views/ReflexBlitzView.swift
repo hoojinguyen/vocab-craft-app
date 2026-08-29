@@ -141,8 +141,6 @@ public struct ReflexBlitzView: View {
                 )
                 .padding(.top, theme.spacing.xs)
 
-                Spacer(minLength: theme.spacing.xs / 2)
-
                 if let word = viewModel.currentWord {
                     ReflexBlitzCardView(
                         word: word,
@@ -168,9 +166,10 @@ public struct ReflexBlitzView: View {
                             viewModel.speakCurrentWord()
                         }
                     )
+                    .padding(.top, theme.spacing.xs)
                 }
 
-                Spacer(minLength: theme.spacing.xs / 2)
+                Spacer(minLength: theme.spacing.xs)
 
                 // Reserved spacing for Skip Button or Sheet clearance
                 if viewModel.cardPhase == .activeCountdown && (viewModel.selectedMode == .speaking || viewModel.selectedMode == .typing) {
@@ -189,6 +188,9 @@ public struct ReflexBlitzView: View {
                     .padding(.bottom, theme.spacing.lg)
                     .transition(.opacity)
                 } else if case .reviewed = viewModel.cardPhase {
+                    Color.clear
+                        .frame(height: 140)
+                } else if viewModel.selectedMode == .multipleChoice {
                     Color.clear
                         .frame(height: 140)
                 } else {

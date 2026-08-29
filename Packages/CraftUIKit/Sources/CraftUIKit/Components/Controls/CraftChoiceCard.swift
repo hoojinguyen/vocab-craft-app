@@ -324,16 +324,34 @@ public struct CraftChoiceCard: View {
         case .idle, .disabled:
             return .clear
         case .selected:
+            if style == .tactile3D {
+                return .craftDynamic(
+                    light: theme.colors.brandPrimary.opacity(0.05),
+                    dark: theme.colors.brandPrimary.opacity(0.10)
+                )
+            }
             return .craftDynamic(
                 light: theme.colors.brandPrimary.opacity(0.08),
                 dark: theme.colors.brandPrimary.opacity(0.16)
             )
         case .correct:
+            if style == .tactile3D {
+                return .craftDynamic(
+                    light: theme.colors.statusSuccess.opacity(0.05),
+                    dark: theme.colors.statusSuccess.opacity(0.10)
+                )
+            }
             return .craftDynamic(
                 light: theme.colors.statusSuccess.opacity(0.08),
                 dark: theme.colors.statusSuccess.opacity(0.16)
             )
         case .wrong:
+            if style == .tactile3D {
+                return .craftDynamic(
+                    light: theme.colors.statusDanger.opacity(0.05),
+                    dark: theme.colors.statusDanger.opacity(0.10)
+                )
+            }
             return .craftDynamic(
                 light: theme.colors.statusDanger.opacity(0.08),
                 dark: theme.colors.statusDanger.opacity(0.16)
@@ -383,10 +401,8 @@ public struct CraftChoiceCard: View {
     private var topHighlightOverlay: some View {
         if state != .disabled {
             if style == .tactile3D {
-                if state == .idle {
-                    RoundedRectangle(cornerRadius: theme.radii.lg)
-                        .strokeBorder(theme.depths.topHighlight, lineWidth: 1)
-                }
+                RoundedRectangle(cornerRadius: theme.radii.lg)
+                    .strokeBorder(theme.depths.topHighlight, lineWidth: 1)
             } else if style == .glass {
                 if #unavailable(iOS 26, macOS 26) {
                     RoundedRectangle(cornerRadius: theme.radii.lg)
@@ -403,7 +419,25 @@ public struct CraftChoiceCard: View {
             view.craftShadow(theme.shadows.md)
         case .glass:
             view.craftShadow(theme.shadows.sm)
-        case .flat, .outlined, .tactile3D:
+        case .tactile3D:
+            if state == .correct {
+                view.shadow(
+                    color: theme.colors.statusSuccess.opacity(0.3),
+                    radius: 8,
+                    x: 0,
+                    y: 4
+                )
+            } else if state == .wrong {
+                view.shadow(
+                    color: theme.colors.statusDanger.opacity(0.3),
+                    radius: 8,
+                    x: 0,
+                    y: 4
+                )
+            } else {
+                view
+            }
+        case .flat, .outlined:
             view
         }
     }
@@ -604,15 +638,18 @@ public struct CraftChoiceCard: View {
         case .selected:
             return theme.colors.brandPrimary
         case .correct:
-            return theme.colors.statusSuccess
+            return style == .tactile3D ? theme.colors.statusSuccess.opacity(0.6) : theme.colors.statusSuccess
         case .wrong:
-            return theme.colors.statusDanger
+            return style == .tactile3D ? theme.colors.statusDanger.opacity(0.6) : theme.colors.statusDanger
         case .disabled:
             return theme.colors.borderDefault.opacity(0.35)
         }
     }
 
     private var borderWidth: CGFloat {
+        if style == .tactile3D {
+            return 1.0
+        }
         switch state {
         case .idle, .disabled:
             return 1.5
