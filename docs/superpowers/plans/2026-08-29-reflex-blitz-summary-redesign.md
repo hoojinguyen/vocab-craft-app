@@ -1,208 +1,76 @@
-# Reflex Blitz Summary Screen Redesign Implementation Plan
+# Reflex Blitz Summary Screen Redesign Implementation Plan (Refined)
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Refactor and modernize `ReflexBlitzSummaryView.swift` to eliminate raw localization key bugs, remove icon clutter and color cacophony, and align with CraftUIKit design tokens and 100% bilingual parity.
+**Goal:** Refactor `ReflexBlitzSummaryView.swift` to 100% Tactile3D style, remove header subtitle, eliminate count repetition, simplify word cards to Active Recall layout (with subtle red bottom extrusion token), and remove button icons with concise labels.
 
-**Architecture:** MV with Observation pattern. View cleanly consumes `ReflexBlitzSessionSummary` data model, resolves localized strings through `AppStrings.ReflexBlitz`, and renders layout with CraftUIKit Design System tokens (`CraftCard`, `CraftBadge`, `CraftButton`, `CraftSpeakerButton`).
+**Architecture:** MV with Observation. Reusable CraftUIKit components (`CraftCard`, `CraftBadge`, `CraftButton`, `CraftSpeakerButton`) with full Design Token compliance.
 
-**Tech Stack:** Swift 6.0, SwiftUI, CraftUIKit, Swift Testing (`@Test`, `@Suite`, `#expect`).
+**Tech Stack:** Swift 6.0, SwiftUI, CraftUIKit, Swift Testing.
 
 **Spec:** `docs/superpowers/specs/2026-08-29-reflex-blitz-summary-redesign.md`
 
 ## Global Constraints
 
-- Zero raw string literals or string interpolation inside `String(localized:)` keys.
-- All display strings must exist in `Localizable.xcstrings` with both `en` and `vi` translations.
-- Zero hardcoded colors; strictly use `CraftTheme` tokens (`theme.colors`, `theme.typography`, `theme.spacing`, `theme.radii`).
-- All tests must pass with 0 errors, 0 warnings, and 0 SwiftLint violations.
+- 100% Tactile3D style across cards.
+- Zero raw strings, zero hardcoded colors; use `theme.colors` (`statusDanger.opacity(0.8)` for bottom extrusion, `statusDanger.opacity(0.4)` for border).
+- All tests pass with 0 errors, 0 warnings, and 0 SwiftLint violations.
 
 ---
 
-### Task 1: Core Localization & String Accessors
+### Task 1: CraftUIKit CraftCard Tactile Color Extension
+
+**Files:**
+- Modify: `Packages/CraftUIKit/Sources/CraftUIKit/Components/Containers/Cards/CraftCard.swift`
+- Test: `Packages/CraftUIKit/Tests/CraftUIKitTests/CraftCardTests.swift` (or relevant test suite in CraftUIKit)
+
+- [ ] **Step 1: Update `CraftCard.swift` to accept `customBorderColor` and `customBottomColor`**
+- [ ] **Step 2: Verify `swift test --package-path Packages/CraftUIKit` passes**
+- [ ] **Step 3: Commit changes**
+
+---
+
+### Task 2: Core Localization & Concise Action Strings
 
 **Files:**
 - Modify: `VocabCraftApp/Resources/Localizable.xcstrings`
-- Modify: `VocabCraftApp/Core/Localization/AppStrings+ReflexBlitz.swift:215-250`
+- Modify: `VocabCraftApp/Core/Localization/AppStrings+ReflexBlitz.swift`
 - Test: `VocabCraftAppTests/Features/ReflexDrill/ReflexBlitzLocalizationTests.swift`
 
-**Interfaces:**
-- Consumes: `Localizable.xcstrings` key catalog.
-- Produces:
-  ```swift
-  public static func weakWordsHeader(_ count: Int) -> String
-  public static func redrillWeak(_ count: Int) -> String
-  public static func localizedRatingTitle(for speedRating: String) -> String
-  public static var statusIncorrect: String
-  public static func statusSlow(_ time: String) -> String
-  ```
-
-- [ ] **Step 1: Write the failing tests for new summary localization keys and accessors**
-
-```swift
-// In VocabCraftAppTests/Features/ReflexDrill/ReflexBlitzLocalizationTests.swift
-// Add required keys to requiredReflexKeys dictionary:
-"app.reflex.summary.weak_words_header": ("Từ cần củng cố (%lld)", "Words to Reinforce (%lld)"),
-"app.reflex.summary.status_incorrect": ("Chưa chính xác", "Incorrect"),
-"app.reflex.summary.status_slow": ("%@ • Quá chậm", "%@ • Slow"),
-
-// Add accessor assertions in testAppStringsReflexBlitzAccessors():
-#expect(AppStrings.ReflexBlitz.weakWordsHeader(2).contains("2"))
-#expect(!AppStrings.ReflexBlitz.statusIncorrect.isEmpty)
-#expect(AppStrings.ReflexBlitz.statusSlow("4.5s").contains("4.5s"))
-#expect(AppStrings.ReflexBlitz.localizedRatingTitle(for: "⚡️ Reflex Master") == String(localized: "app.reflex.summary.rating_master"))
-```
-
-- [ ] **Step 2: Run test to verify it fails**
-
-Run: `swift test --filter ReflexBlitzLocalizationTests`  
-Expected: FAIL (missing methods or dictionary keys)
-
-- [ ] **Step 3: Update `Localizable.xcstrings` and `AppStrings+ReflexBlitz.swift`**
-
-Add keys to `Localizable.xcstrings`:
-- `app.reflex.summary.weak_words_header`
-- `app.reflex.summary.status_incorrect`
-- `app.reflex.summary.status_slow`
-
-Implement helper methods in `AppStrings+ReflexBlitz.swift`:
-```swift
-public static func weakWordsHeader(_ count: Int) -> String {
-    String(format: String(localized: "app.reflex.summary.weak_words_header", defaultValue: "Từ cần củng cố (%lld)", bundle: .module), count)
-}
-
-public static var statusIncorrect: String {
-    String(localized: "app.reflex.summary.status_incorrect", defaultValue: "Chưa chính xác", bundle: .module)
-}
-
-public static func statusSlow(_ time: String) -> String {
-    String(format: String(localized: "app.reflex.summary.status_slow", defaultValue: "%@ • Quá chậm", bundle: .module), time)
-}
-
-public static func localizedRatingTitle(for speedRating: String) -> String {
-    if speedRating.contains("Master") {
-        return String(localized: "app.reflex.summary.rating_master", defaultValue: "Bậc thầy phản xạ", bundle: .module)
-    } else if speedRating.contains("Swift") {
-        return String(localized: "app.reflex.summary.rating_swift", defaultValue: "Phản xạ nhanh nhạy", bundle: .module)
-    } else {
-        return String(localized: "app.reflex.summary.rating_steady", defaultValue: "Người học kiên trì", bundle: .module)
-    }
-}
-```
-
-- [ ] **Step 4: Run test to verify it passes**
-
-Run: `swift test --filter ReflexBlitzLocalizationTests`  
-Expected: PASS
-
-- [ ] **Step 5: Commit changes**
-
-```bash
-git add VocabCraftApp/Resources/Localizable.xcstrings VocabCraftApp/Core/Localization/AppStrings+ReflexBlitz.swift VocabCraftAppTests/Features/ReflexDrill/ReflexBlitzLocalizationTests.swift
-git commit -m "feat(reflex): add summary localization keys and AppStrings accessors"
-```
+- [ ] **Step 1: Update localization strings for concise labels without count repetition**
+  - `app.reflex.summary.weak_words_header`: EN "Words to Reinforce", VI "Từ cần củng cố"
+  - `app.reflex.summary.redrill_weak`: EN "Re-drill", VI "Luyện lại từ yếu"
+  - `app.reflex.summary.finish_save`: EN "Done", VI "Hoàn tất"
+- [ ] **Step 2: Update AppStrings+ReflexBlitz.swift helper accessors**
+- [ ] **Step 3: Update and run `swift test --filter ReflexBlitzLocalizationTests`**
+- [ ] **Step 4: Commit changes**
 
 ---
 
-### Task 2: ReflexBlitzSummaryView UI/UX Overhaul & Token Alignment
+### Task 3: ReflexBlitzSummaryView UI/UX Overhaul to Active Recall & Tactile3D
 
 **Files:**
 - Modify: `VocabCraftApp/Features/ReflexDrill/Views/ReflexBlitzSummaryView.swift`
 - Test: `VocabCraftAppTests/Features/ReflexDrill/ReflexBlitzSummaryViewTests.swift`
 
-**Interfaces:**
-- Consumes: `AppStrings.ReflexBlitz`, `CraftTheme`, `CraftCard`, `CraftBadge`, `CraftButton`, `CraftSpeakerButton`.
-- Produces: Clean, modern, unified `ReflexBlitzSummaryView`.
-
-- [ ] **Step 1: Write/update unit tests in `ReflexBlitzSummaryViewTests.swift`**
-
-```swift
-@MainActor
-func testSummaryViewLocalizesRatingAndDiagnosesWeakWord() {
-    let weakAttemptIncorrect = ReflexBlitzAttempt(
-        wordId: 1,
-        lemma: "improve",
-        pos: "v.",
-        ipa: "/ɪmˈpruːv/",
-        definitionVi: "Cải thiện",
-        responseTimeMs: 2000,
-        usedHint: false,
-        isCorrect: false
-    )
-    let weakAttemptSlow = ReflexBlitzAttempt(
-        wordId: 2,
-        lemma: "focus",
-        pos: "v.",
-        ipa: "/ˈfoʊ.kəs/",
-        definitionVi: "Tập trung",
-        responseTimeMs: 4500,
-        usedHint: false,
-        isCorrect: true
-    )
-    let summary = ReflexBlitzSessionSummary(
-        id: UUID(),
-        totalWords: 10,
-        correctWords: 8,
-        averageResponseTimeMs: 2400,
-        maxComboStreak: 5,
-        attempts: [weakAttemptIncorrect, weakAttemptSlow],
-        weakWordAttempts: [weakAttemptIncorrect, weakAttemptSlow],
-        speedRating: "⚡️ Reflex Master"
-    )
-    let view = ReflexBlitzSummaryView(
-        summary: summary,
-        onSpeakWord: { _ in },
-        onReDrillWeak: {},
-        onFinish: {}
-    )
-    XCTAssertNotNil(view.body)
-    XCTAssertEqual(view.summary.weakWordAttempts.count, 2)
-}
-```
-
-- [ ] **Step 2: Refactor `ReflexBlitzSummaryView.swift`**
-
-Implement:
-1. **Hero Header:** Single theme-accented badge squircle, localized title via `AppStrings.ReflexBlitz.localizedRatingTitle(for: summary.speedRating)`, stars + subtitle.
-2. **Typography-First Bento Grid:** Clean `CraftCard(style: .outlined)` with large `.font(theme.typography.displaySmall).monospacedDigit()`, removing extra circle icons.
-3. **Weak Words Section:** 
-   - Header with `AppStrings.ReflexBlitz.weakWordsHeader(summary.weakWordAttempts.count)`.
-   - Rows with lemma, `CraftSpeakerButton`, POS + IPA phonetics, Vietnamese definition, and diagnostic `CraftBadge`:
-     - If `!weak.isCorrect`: `CraftBadge(AppStrings.ReflexBlitz.statusIncorrect, tone: .danger, size: .sm)`
-     - Else: `CraftBadge(AppStrings.ReflexBlitz.statusSlow(timeFormatted), tone: .warning, size: .sm)`
-4. **Bottom Action Dock:**
-   - Primary: `CraftButton(AppStrings.ReflexBlitz.redrillWeak(summary.weakWordAttempts.count), variant: .tactile, size: .lg, isFullWidth: true, customTint: theme.colors.brandPrimary, action: onReDrillWeak)`
-   - Secondary: `CraftButton(AppStrings.ReflexBlitz.finishSaveText, variant: .subtle, size: .md, isFullWidth: true, action: onFinish)`
-
-- [ ] **Step 3: Run tests to verify they pass**
-
-Run: `swift test --filter ReflexBlitzSummaryViewTests`  
-Expected: PASS
-
+- [ ] **Step 1: Refactor ReflexBlitzSummaryView.swift**
+  - Header: Remove subtitle "Reflex Blitz Completed". Keep hero badge + localized title + stars.
+  - Bento Grid: 3 `CraftCard(style: .tactile3D)` cards.
+  - Weak Words: `CraftCard(style: .tactile3D, padding: theme.spacing.md, customBorderColor: theme.colors.statusDanger.opacity(0.4), customBottomColor: theme.colors.statusDanger.opacity(0.8))`
+    - Structure: Lemma, IPA phonetics, POS badge (`[verb]`) & CEFR Level badge (`[B2]`), Speaker audio button (`CraftSpeakerButton`).
+    - Remove Vietnamese definition (`definitionVi`).
+    - Remove `[❌ Incorrect]` / `[⏱ 4.5s]` badges.
+  - Action Dock:
+    - Primary: `CraftButton(AppStrings.ReflexBlitz.redrillWeak, variant: .tactile, size: .lg, isFullWidth: true, customTint: theme.colors.brandPrimary, action: onReDrillWeak)` (No icon).
+    - Secondary: `CraftButton(AppStrings.ReflexBlitz.finishSaveText, variant: .subtle, size: .md, isFullWidth: true, action: onFinish)` (No icon).
+- [ ] **Step 2: Update unit tests in `ReflexBlitzSummaryViewTests.swift`**
+- [ ] **Step 3: Run `swift test --filter ReflexBlitzSummaryViewTests`**
 - [ ] **Step 4: Commit changes**
-
-```bash
-git add VocabCraftApp/Features/ReflexDrill/Views/ReflexBlitzSummaryView.swift VocabCraftAppTests/Features/ReflexDrill/ReflexBlitzSummaryViewTests.swift
-git commit -m "refactor(reflex): overhaul ReflexBlitzSummaryView with clean typography and token discipline"
-```
 
 ---
 
-### Task 3: Full Test Suite, SwiftLint & Xcode Build Verification
+### Task 4: Full Test Suite, SwiftLint & Xcode Build Verification
 
-**Files:**
-- Test: All test suites in `VocabCraftAppTests/`
-
-- [ ] **Step 1: Run full test suite**
-
-Run: `swift test`  
-Expected: 100% tests pass
-
-- [ ] **Step 2: Run SwiftLint**
-
-Run: `swiftlint`  
-Expected: 0 errors, 0 warnings
-
-- [ ] **Step 3: Final Git status check & verification report**
-
-Ensure working directory is clean and all files follow project guidelines.
+- [ ] **Step 1: Run full test suite `swift test`**
+- [ ] **Step 2: Run SwiftLint `swiftlint`**
+- [ ] **Step 3: Final verification report**

@@ -1,167 +1,118 @@
-# Reflex Blitz Summary Screen Redesign Specification
+# Reflex Blitz Summary Screen Redesign Specification (Refined)
 
 **Date:** 2026-08-29  
-**Status:** Approved for Implementation Planning  
+**Status:** Approved for Implementation  
 **Target View:** `VocabCraftApp/Features/ReflexDrill/Views/ReflexBlitzSummaryView.swift`  
-**Dependencies:** `CraftUIKit`, `Localizable.xcstrings`, `AppStrings+ReflexBlitz.swift`
+**Components:** `CraftUIKit` (`CraftCard`, `CraftBadge`, `CraftButton`, `CraftSpeakerButton`)  
+**Dependencies:** `Localizable.xcstrings`, `AppStrings+ReflexBlitz.swift`
 
 ---
 
-## 1. Problem Statement & Audit Findings
+## 1. Core Principles & Refined Design Guidelines
 
-The current `ReflexBlitzSummaryView` has several critical visual, architectural, and localization flaws:
-1. **Critical Localization Bug:** Raw keys like `app.reflex.summary.weak_words_header 8` and `app.reflex.summary.redrill_weak 8` are rendered on screen due to invalid string interpolation into `String(localized:)`.
-2. **Language Inconsistency:** Mixing untranslated English header ratings, English metric titles (`Avg Speed`, `Accuracy`, `Max Combo`), and Vietnamese word definitions.
-3. **Color Cacophony (Rainbow Effect):** 7+ clashing color tones on one screen (pale green, purple stars, coral, mint, yellow-orange, salmon, blood-red primary button, muddy brown secondary button).
-4. **Icon Clutter & Visual Noise:** Unnecessary large icon circles inside every bento box and list item when the typography and numeric values already convey 100% of the meaning.
-5. **Anti-pattern Button Semantics:** The primary CTA ("Re-drill weak words") uses `statusDanger` (destructive red) which psychologically indicates data loss or error, rather than positive reinforcement.
-6. **Violations of CraftUIKit Standards:** Custom ad-hoc card containers with arbitrary padding, hand-crafted `.opacity()` calculations, and failure to leverage reusable design tokens and components.
+1. **100% Tactile 3D Consistency:**
+   - All cards across the summary view (Bento Grid, Weak Words, and Perfect Score) strictly adopt `CraftCard(style: .tactile3D)`.
+   - `CraftCard` in `CraftUIKit` is enhanced with `customBorderColor` and `customBottomColor` to support semantic status styling.
+2. **Simplified, Distraction-Free Header:**
+   - Remove the redundant announcement subtitle `"Reflex Blitz Completed"`.
+   - The header focuses cleanly on:
+     - Hero Rating Icon Squircle (`theme.colors.brandPrimary`).
+     - Localized Tier Title (`Reflex Master` / `Swift Reflex` / `Steady Learner`).
+     - Rating Stars (`★ ★ ☆`).
+3. **Eliminate Count Repetition ("6" repeated 3 times):**
+   - **Bento Grid:** Retains the fractional accuracy e.g. `6/12`.
+   - **Section Header:** Clean label without count suffix: `"Words to Reinforce"` / `"Từ cần củng cố"`.
+   - **CTA Button:** Concise action without count duplication: `"Re-drill"` / `"Luyện lại từ yếu"`.
+4. **Active Recall Word Cards (Vocabulary Vault Alignment):**
+   - Word cards follow the Vault item layout:
+     - Line 1: `lemma` (bold headline).
+     - Line 2: `ipa` phonetics (phonetic font).
+     - Line 3: `[POS]` (neutral subtle badge) and `[CEFR Level]` (primary subtle badge).
+     - Trailing: `CraftSpeakerButton` for instant audio playback.
+   - **No Vietnamese definitions:** Stimulates active recall.
+   - **No extra `[❌ Incorrect]` or `[⏱ 4.5s]` badges:** The card itself communicates weak status.
+5. **Subtle Red 3D Extrusion for Weak Words (Design Token Conformance):**
+   - Card face background remains neutral `theme.colors.surfaceCard`.
+   - 3D bottom extrusion / rim uses `theme.colors.statusDanger.opacity(0.8)`.
+   - Card stroke border uses `theme.colors.statusDanger.opacity(0.4)`.
+6. **Icon-Free, Concise Action Buttons:**
+   - Remove icons from CTA buttons (`iconName: nil`).
+   - Primary: `"Re-drill"` / `"Luyện lại từ yếu"` (`theme.colors.brandPrimary`, `.tactile`).
+   - Secondary: `"Done"` / `"Hoàn tất"` (`variant: .subtle`).
 
 ---
 
-## 2. Redesign Architecture & Design System Alignment
+## 2. Visual Blueprint
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    StatusBar / Top Spacing                  │
+│                        11:38                                │
 │                                                             │
-│                    🏆 Hero Rating Badge                     │
-│               [ Bậc thầy phản xạ / Reflex Master ]           │
-│             ★ ★ ☆  •  8/12 từ chuẩn xác (67%)               │
+│                         ✨                                  │
+│                   Steady Learner                            │
+│                      ★ ☆ ☆                                  │
 │                                                             │
 │   ┌───────────────┐ ┌───────────────┐ ┌─────────────────┐   │
-│   │     3.3s      │ │      67%      │ │       x3        │   │
-│   │   Tốc độ TB   │ │  Độ chính xác │ │   Combo max     │   │
+│   │     1.6s      │ │     6/12      │ │       x2        │   │
+│   │   Avg Speed   │ │   Accuracy    │ │   Max Combo     │   │
 │   └───────────────┘ └───────────────┘ └─────────────────┘   │
+│    [ Tactile 3D ]    [ Tactile 3D ]    [ Tactile 3D ]       │
 │                                                             │
-│   TỪ CẦN CỦNG CỐ (2 TỪ)                                     │
+│   Words to Reinforce                                        │
 │   ┌─────────────────────────────────────────────────────┐   │
-│   │ improve                 [ 🔊 ]  [ ⏱ 4.5s • Quá chậm ]│   │
-│   │ v. • /ɪm'pru:v/                                     │   │
-│   │ Cải thiện, nâng cao                                 │   │
+│   │ focus                                        [ 🔊 ] │   │
+│   │ /ˈfoʊ.kəs/                                          │   │
+│   │ [ verb ]  [ B2 ]                                    │   │
 │   └─────────────────────────────────────────────────────┘   │
-│   ┌─────────────────────────────────────────────────────┐   │
-│   │ focus                   [ 🔊 ]  [ ❌ Chưa đúng ]     │   │
-│   │ v. • /'foʊ.kəs/                                     │   │
-│   │ Tập trung                                           │   │
-│   └─────────────────────────────────────────────────────┘   │
+│   ( Tactile 3D - Subtle Red Danger 3D Bottom Lip )          │
 │                                                             │
 │   ┌─────────────────────────────────────────────────────┐   │
-│   │  ⚡️ Luyện lại 2 từ chưa vững (Primary - Brand Orange) │   │
+│   │ create                                       [ 🔊 ] │   │
+│   │ /kriˈeɪt/                                           │   │
+│   │ [ verb ]  [ B1 ]                                    │   │
 │   └─────────────────────────────────────────────────────┘   │
-│   [ Hoàn thành & Lưu tiến độ (Neutral Secondary Button) ]   │
+│   ( Tactile 3D - Subtle Red Danger 3D Bottom Lip )          │
+│                                                             │
+│   ┌─────────────────────────────────────────────────────┐   │
+│   │                    Re-drill                         │   │
+│   └─────────────────────────────────────────────────────┘   │
+│   ┌─────────────────────────────────────────────────────┐   │
+│   │                      Done                           │   │
+│   └─────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### 2.1 Visual Hierarchy & Spatial Composition
-1. **Hero Header (Celebration / Performance Tier):**
-   - Single cohesive focal point representing the session's overall achievement tier (`ReflexSpeedRating`: `master`, `swift`, `steady`).
-   - Compact hero icon container utilizing `CraftBadge` or themed squircle with unified brand styling.
-   - Title in `theme.typography.titleLarge` (`.fontDesign(.rounded)`), localized via `AppStrings.ReflexBlitz`.
-   - Sub-headline combining star rating + summary fraction text.
-2. **Bento Metrics Grid (Typography-First, Zero Icon Clutter):**
-   - Clean 3-column `CraftCard` grid.
-   - **No pastel circle icons**: Focus purely on large, crisp numbers using `theme.typography.displaySmall` with `.monospacedDigit()` and subtle semantic labeling.
-   - Values:
-     - Metric 1: Average Reaction Time (`Double / 1000.0` formatted with `s`).
-     - Metric 2: Accuracy Percentage (e.g. `67%` or `8/12`).
-     - Metric 3: Max Streak Combo (e.g. `x3`).
-3. **Weak Words Section (Contextual Feedback):**
-   - Section header with count: `AppStrings.ReflexBlitz.weakWordsHeader(count)` (localized, e.g., "Từ cần củng cố (2)").
-   - Card rows formatted with 3 clear tiers:
-     - Tier 1: English lemma + audio speaker button (`CraftSpeakerButton`).
-     - Tier 2: POS and IPA phonetics in `theme.typography.phonetic`.
-     - Tier 3: Vietnamese definition + diagnostic status badge (`CraftBadge`):
-       - If incorrect: `tone: .danger`, label: `Chưa đúng` / `Incorrect`.
-       - If timeout (>6s): `tone: .warning`, label: `Hết giờ` / `Time out`.
-       - If slow reaction: `tone: .warning`, label: `4.5s • Quá chậm` / `4.5s • Slow`.
-4. **Bottom CTA Action Dock:**
-   - **Primary Action (if weak words exist):** `CraftButton` with `variant: .tactile` or `.primary`, tinted with `theme.colors.brandPrimary` (warm brand color, NOT red danger).
-   - **Secondary Action:** `CraftButton` with `variant: .subtle` or `.ghost`, tinted with `theme.colors.textPrimary` for high contrast and clean hierarchy.
-
 ---
 
-## 3. Localization Architecture & Key Taxonomy
-
-### 3.1 `Localizable.xcstrings` Additions & Updates
-Ensure exact matching format strings with 100% bilingual parity (both `en` and `vi`):
+## 3. Localization Keys & Strings
 
 ```json
 "app.reflex.summary.weak_words_header" : {
   "extractionState" : "manual",
   "localizations" : {
-    "en" : {
-      "stringUnit" : {
-        "state" : "translated",
-        "value" : "Words to Reinforce (%lld)"
-      }
-    },
-    "vi" : {
-      "stringUnit" : {
-        "state" : "translated",
-        "value" : "Từ cần củng cố (%lld)"
-      }
-    }
+    "en" : { "stringUnit" : { "state" : "translated", "value" : "Words to Reinforce" } },
+    "vi" : { "stringUnit" : { "state" : "translated", "value" : "Từ cần củng cố" } }
   }
 },
 "app.reflex.summary.redrill_weak" : {
   "extractionState" : "manual",
   "localizations" : {
-    "en" : {
-      "stringUnit" : {
-        "state" : "translated",
-        "value" : "Re-drill %lld weak words"
-      }
-    },
-    "vi" : {
-      "stringUnit" : {
-        "state" : "translated",
-        "value" : "Luyện lại %lld từ chưa thuộc"
-      }
-    }
+    "en" : { "stringUnit" : { "state" : "translated", "value" : "Re-drill" } },
+    "vi" : { "stringUnit" : { "state" : "translated", "value" : "Luyện lại từ yếu" } }
   }
 },
-"app.reflex.summary.status_incorrect" : {
+"app.reflex.summary.finish_save" : {
   "extractionState" : "manual",
   "localizations" : {
-    "en" : { "stringUnit" : { "state" : "translated", "value" : "Incorrect" } },
-    "vi" : { "stringUnit" : { "state" : "translated", "value" : "Chưa chính xác" } }
-  }
-},
-"app.reflex.summary.status_slow" : {
-  "extractionState" : "manual",
-  "localizations" : {
-    "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ • Slow" } },
-    "vi" : { "stringUnit" : { "state" : "translated", "value" : "%@ • Quá chậm" } }
+    "en" : { "stringUnit" : { "state" : "translated", "value" : "Done" } },
+    "vi" : { "stringUnit" : { "state" : "translated", "value" : "Hoàn tất" } }
   }
 }
 ```
 
-### 3.2 `AppStrings+ReflexBlitz.swift` Helper Methods
-Add type-safe, compiled localization accessors:
-- `AppStrings.ReflexBlitz.weakWordsHeader(_ count: Int) -> String`
-- `AppStrings.ReflexBlitz.redrillWeak(_ count: Int) -> String`
-- `AppStrings.ReflexBlitz.ratingTitle(for rating: String) -> String`
-- `AppStrings.ReflexBlitz.statusIncorrect: String`
-- `AppStrings.ReflexBlitz.statusSlow(_ time: String) -> String`
-
 ---
 
-## 4. Accessibility & Polish
-1. **Dynamic Type:** All labels scale with Dynamic Type up to Accessibility XXL.
-2. **Reduced Motion:** Particle animations and transitions gracefully fallback when `accessibilityReduceMotion` is active.
-3. **Screen Reader:** All composite cards use `.accessibilityElement(children: .combine)` with descriptive summary labels.
-4. **Dark Mode & Contrast:** Zero hardcoded colors; all backgrounds and text strictly reference `theme.colors` and pass WCAG AAA/AA standards.
-
----
-
-## 5. Verification & Testing Strategy
-1. **Unit & Localization Tests:**
-   - Update `ReflexBlitzLocalizationTests.swift` to verify all new/updated summary keys.
-   - Run `swift test --filter ReflexBlitzLocalizationTests`.
-2. **View & Interaction Tests:**
-   - Update `ReflexBlitzSummaryViewTests.swift` to assert all view states (perfect score, weak words present, varying ratings, button actions).
-   - Run full test suite: `swift test --filter ReflexBlitzSummaryViewTests`.
-3. **Compiler & Linter Verification:**
-   - Xcode build: 0 errors, 0 warnings.
-   - SwiftLint: 0 violations.
+## 4. Verification Plan
+1. **CraftUIKit Tests:** `swift test --package-path Packages/CraftUIKit`
+2. **App Localization & View Tests:** `swift test --filter ReflexBlitzSummaryViewTests`, `swift test --filter ReflexBlitzLocalizationTests`
+3. **Full Suite & SwiftLint:** `swift test`, `swiftlint` (0 errors, 0 warnings).
