@@ -901,9 +901,38 @@
 		4000C000000000000001 /* Reflex */ = {
 			isa = PBXGroup;
 			children = (
+				4000C000000000000020 /* Blitz */,
 				4000C000000000000002 /* Core */,
 			);
 			path = "Reflex";
+			sourceTree = "<group>";
+		};
+		4000C000000000000020 /* Blitz */ = {
+			isa = PBXGroup;
+			children = (
+				4000C000000000000021 /* ViewModels */,
+				4000C000000000000022 /* Views */,
+			);
+			path = "Blitz";
+			sourceTree = "<group>";
+		};
+		4000C000000000000021 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				2000925E6AEFC3C319C4 /* ReflexBlitzViewModel.swift */,
+			);
+			path = "ViewModels";
+			sourceTree = "<group>";
+		};
+		4000C000000000000022 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				200086A09076E74750E7 /* ReflexBlitzView.swift */,
+				2000E2383A0FDF336719 /* ReflexBlitzModeSelectionView.swift */,
+				20000B23D37B5EC1F4DC /* ReflexBlitzSummaryView.swift */,
+				200081F9E83CE94C16ED /* ReflexCountdownOverlayView.swift */,
+			);
+			path = "Views";
 			sourceTree = "<group>";
 		};
 		4000C000000000000002 /* Core */ = {
@@ -1041,7 +1070,6 @@
 		400090860225ED9DE9BC /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
-				2000925E6AEFC3C319C4 /* ReflexBlitzViewModel.swift */,
 				2000F8D39E9F4428B5C0 /* ReflexDrillViewModel.swift */,
 			);
 			path = "ViewModels";
@@ -1055,10 +1083,6 @@
 				20000CED0631A5F57244 /* ReflexBlitzCardView.swift */,
 				200099A1MC0000000001 /* ReflexBlitzMultipleChoiceCardView.swift */,
 				20005DF86FBEBA618963 /* ReflexBlitzHeaderView.swift */,
-				2000E2383A0FDF336719 /* ReflexBlitzModeSelectionView.swift */,
-				20000B23D37B5EC1F4DC /* ReflexBlitzSummaryView.swift */,
-				200086A09076E74750E7 /* ReflexBlitzView.swift */,
-				200081F9E83CE94C16ED /* ReflexCountdownOverlayView.swift */,
 			);
 			path = "Views";
 			sourceTree = "<group>";

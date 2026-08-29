@@ -94,7 +94,6 @@ public struct ReflexBlitzSummaryView: View {
     // MARK: - Header
     private var headerView: some View {
         VStack(spacing: theme.spacing.md) {
-            // Icon with decorative background ring
             ZStack {
                 Circle()
                     .fill(headerAccentColor.opacity(0.12))
@@ -111,7 +110,6 @@ public struct ReflexBlitzSummaryView: View {
             .craftShadow(theme.shadows.sm)
             .accessibilityHidden(true)
 
-            // Rating title & subtitle
             VStack(spacing: theme.spacing.xs) {
                 Text(cleanRatingTitle)
                     .font(theme.typography.titleLarge)
@@ -147,7 +145,6 @@ public struct ReflexBlitzSummaryView: View {
     // MARK: - Bento Metrics Grid
     private var bentoMetricsGrid: some View {
         HStack(spacing: theme.spacing.sm) {
-            // Metric 1: Avg Speed
             bentoCard(
                 iconName: "speedometer",
                 tint: theme.colors.brandPrimary,
@@ -156,7 +153,6 @@ public struct ReflexBlitzSummaryView: View {
                 accessibilityLabel: String(localized: "app.reflex.summary.a11y_avg_speed \(formattedAvgTime)")
             )
 
-            // Metric 2: Accuracy
             bentoCard(
                 iconName: "target",
                 tint: theme.colors.statusSuccess,
@@ -165,7 +161,6 @@ public struct ReflexBlitzSummaryView: View {
                 accessibilityLabel: String(localized: "app.reflex.summary.a11y_accuracy \(summary.correctWords) \(summary.totalWords)")
             )
 
-            // Metric 3: Max Combo
             bentoCard(
                 iconName: "flame.fill",
                 tint: theme.colors.brandSecondary,
@@ -252,7 +247,6 @@ public struct ReflexBlitzSummaryView: View {
 
         return CraftCard(style: .outlined, padding: theme.spacing.base) {
             VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                // Tier 1: Lemma text on the left, Audio Speaker button on the right
                 HStack(alignment: .center) {
                     Text(weak.lemma)
                         .font(theme.typography.headline)
@@ -274,7 +268,6 @@ public struct ReflexBlitzSummaryView: View {
                     }
                 }
 
-                // Tier 2: Part of Speech & IPA phonetics metadata
                 if !meta.isEmpty {
                     Text(meta)
                         .font(theme.typography.phonetic)
@@ -283,7 +276,6 @@ public struct ReflexBlitzSummaryView: View {
                         .minimumScaleFactor(0.85)
                 }
 
-                // Tier 3: Vietnamese definition on the left, response time badge on the right
                 HStack(alignment: .center, spacing: theme.spacing.xs) {
                     if !weak.definitionVi.isEmpty {
                         Text(weak.definitionVi)
@@ -341,7 +333,6 @@ public struct ReflexBlitzSummaryView: View {
     private var bottomActionDock: some View {
         VStack(spacing: theme.spacing.xs) {
             if !summary.weakWordAttempts.isEmpty {
-                // Primary Action: Re-drill weak words
                 CraftButton(
                     String(localized: "app.reflex.summary.redrill_weak \(summary.weakWordAttempts.count)"),
                     iconName: "arrow.triangle.2.circlepath",
@@ -352,7 +343,6 @@ public struct ReflexBlitzSummaryView: View {
                     action: onReDrillWeak
                 )
 
-                // Secondary Action: Finish & Save
                 CraftButton(
                     String(localized: "app.reflex.summary.finish_save"),
                     variant: .ghost,
@@ -361,7 +351,6 @@ public struct ReflexBlitzSummaryView: View {
                     action: onFinish
                 )
             } else {
-                // Primary Action: Finish & Save
                 CraftButton(
                     String(localized: "app.reflex.summary.finish_save"),
                     iconName: "checkmark",

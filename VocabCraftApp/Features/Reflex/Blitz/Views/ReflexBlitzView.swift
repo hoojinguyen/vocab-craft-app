@@ -100,18 +100,37 @@ public struct ReflexBlitzView: View {
         }
     }
 
-    private var isReviewedIncorrect: Bool {
+    private var isReviewed: Bool {
+        if case .reviewed = viewModel.cardPhase {
+            return true
+        }
+        return false
+    }
+
+    private var reviewResult: ReflexCardResult? {
         if case .reviewed(let result) = viewModel.cardPhase {
+            return result
+        }
+        return nil
+    }
+
+    private var isReviewedIncorrect: Bool {
+        if let result = reviewResult {
             return !result.isCorrect
         }
         return false
     }
 
     private var isReviewedTimeout: Bool {
-        if case .reviewed(let result) = viewModel.cardPhase {
+        if let result = reviewResult {
             return result.isTimeout
         }
         return viewModel.phase == .timeoutRevealing
+    }
+
+    private var eliminatedOptionId: String? {
+        guard viewModel.hintStage >= 3 else { return nil }
+        return viewModel.currentOptions.first(where: { !$0.isCorrect })?.id
     }
 
     @ViewBuilder
@@ -119,54 +138,29 @@ public struct ReflexBlitzView: View {
         ZStack(alignment: .bottom) {
             // Main stable content area (Header + Card)
             VStack(spacing: theme.spacing.sm) {
-                ReflexBlitzHeaderView(
+                ReflexHeaderBarView(
                     currentIndex: viewModel.currentWordIndex,
                     totalCount: viewModel.words.count,
                     comboStreak: viewModel.comboStreak,
                     fractionRemaining: viewModel.fractionRemaining,
                     timerStage: viewModel.timerStage,
-                    mode: viewModel.selectedMode,
                     attempts: viewModel.attempts,
                     wordStartTime: viewModel.wordStartTime,
                     timeLimitSeconds: viewModel.selectedMode.timeLimitSeconds,
                     isTimerActive: viewModel.cardPhase == .activeCountdown,
+                    showSkipInHeader: false,
                     onClose: {
                         viewModel.cancelSession()
                         viewModel.phase = .modeSelection
                     },
                     onSkip: {
                         viewModel.handleTimeout()
-                    },
-                    showSkipInHeader: false
+                    }
                 )
                 .padding(.top, theme.spacing.sm)
 
                 if let word = viewModel.currentWord {
-                    ReflexBlitzCardView(
-                        word: word,
-                        mode: viewModel.selectedMode,
-                        cardPhase: viewModel.cardPhase,
-                        options: viewModel.currentOptions,
-                        fractionRemaining: viewModel.fractionRemaining,
-                        timerStage: viewModel.timerStage,
-                        showHint: viewModel.showHint,
-                        hintStage: viewModel.hintStage,
-                        isCorrect: viewModel.currentAttemptIsCorrect,
-                        isTimeout: isReviewedTimeout,
-                        liveTranscript: viewModel.liveTranscript,
-                        elapsedTimeMs: viewModel.elapsedTimeMs,
-                        isKeyboardFallbackActive: viewModel.isKeyboardFallbackActive,
-                        keyboardInputText: $typingInput,
-                        onSelectOption: { option in
-                            viewModel.selectOption(option)
-                        },
-                        onSubmitKeyboard: {
-                            submitKeyboard()
-                        },
-                        onReplayAudio: {
-                            viewModel.speakCurrentWord()
-                        }
-                    )
+                    cardContent(for: word)
                 }
 
                 Spacer(minLength: theme.spacing.xs)
@@ -198,25 +192,97 @@ public struct ReflexBlitzView: View {
                     actionTitle: AppStrings.ReflexBlitz.continueCTAText,
                     streakCount: nil,
                     style: .tactile3D,
-                    onContinue: {
-                        typingInput = ""
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                            viewModel.advanceToNextWord()
-                        }
+                    onAction: {
+                        advanceToNextWord()
                     }
                 )
                 .transition(.move(edge: .bottom).combined(with: .opacity))
                 .zIndex(100)
             }
         }
-        .ignoresSafeArea(edges: .bottom)
-        .animation(.spring(response: 0.38, dampingFraction: 0.82), value: viewModel.cardPhase)
     }
 
-    private func submitKeyboard() {
-        let text = typingInput.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !text.isEmpty else { return }
-        viewModel.submitKeyboardInput(text)
+    @ViewBuilder
+    private func cardContent(for word: ReflexBlitzWordItem) -> some View {
+        if viewModel.selectedMode == .multipleChoice {
+            ReflexMultipleChoiceModeView(
+                word: word,
+                options: viewModel.currentOptions,
+                isReviewed: isReviewed,
+                isResultCorrect: viewModel.currentAttemptIsCorrect,
+                isResultTimeout: isReviewedTimeout,
+                showHint: viewModel.showHint,
+                hintStage: viewModel.hintStage,
+                selectedOptionText: reviewResult?.selectedOption,
+                clozeParts: ReflexClozeFormatter.extractTemplateParts(from: word.clozeSentenceEn),
+                displayedSentence: isReviewed ? word.completedSentenceWithTargetWord : word.clozeSentenceEn,
+                cardBorderColor: theme.colors.hairline.opacity(0.4),
+                eliminatedOptionId: eliminatedOptionId,
+                onSelectOption: { option in
+                    viewModel.selectOption(option)
+                },
+                onReplayAudio: {
+                    viewModel.speakCurrentWord()
+                }
+            )
+            .padding(.horizontal, theme.spacing.base)
+        } else {
+            ReflexCardContainerView(
+                isReviewed: isReviewed,
+                isCorrect: viewModel.currentAttemptIsCorrect,
+                isTimeout: isReviewedTimeout,
+                timerStage: viewModel.timerStage
+            ) {
+                if isReviewed {
+                    ReflexReviewedConsolidationView(
+                        word: word,
+                        mode: viewModel.selectedMode,
+                        reviewResult: reviewResult,
+                        displayedSentence: word.completedSentenceWithTargetWord,
+                        onReplayAudio: {
+                            viewModel.speakCurrentWord()
+                        }
+                    )
+                } else {
+                    switch viewModel.selectedMode {
+                    case .speaking:
+                        ReflexSpeakingModeView(
+                            word: word,
+                            liveTranscript: viewModel.liveTranscript,
+                            elapsedTimeMs: viewModel.elapsedTimeMs,
+                            onSwitchToKeyboard: {
+                                viewModel.toggleKeyboardFallback()
+                            }
+                        )
+                    case .typing:
+                        ReflexTypingModeView(
+                            word: word,
+                            typingText: $typingInput,
+                            onSubmit: {
+                                viewModel.submitTypingAnswer(typingInput)
+                            }
+                        )
+                    case .listening:
+                        ReflexListeningModeView(
+                            word: word,
+                            options: viewModel.currentOptions,
+                            onSelectOption: { option in
+                                viewModel.selectOption(option)
+                            },
+                            onReplayAudio: {
+                                viewModel.speakCurrentWord()
+                            }
+                        )
+                    case .multipleChoice:
+                        EmptyView()
+                    }
+                }
+            }
+        }
+    }
+
+    private func advanceToNextWord() {
         typingInput = ""
+        viewModel.advanceToNextWord()
     }
 }

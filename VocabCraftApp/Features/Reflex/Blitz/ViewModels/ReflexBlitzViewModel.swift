@@ -176,7 +176,7 @@ public final class ReflexBlitzViewModel {
     }
 
     public func startDrillSession(mode: ReflexBlitzMode, words: [ReflexBlitzWordItem]? = nil) {
-        if let words = words, !words.isEmpty {
+        if let words, !words.isEmpty {
             self.words = words
         }
         self.selectedMode = mode
@@ -205,11 +205,11 @@ public final class ReflexBlitzViewModel {
 
         countdownTask = Task { @MainActor [weak self] in
             for i in stride(from: 3, through: 1, by: -1) {
-                guard let self = self, !Task.isCancelled else { return }
+                guard let self, !Task.isCancelled else { return }
                 self.countdownCount = i
                 try? await Task.sleep(for: .seconds(1))
             }
-            guard let self = self, !Task.isCancelled else { return }
+            guard let self, !Task.isCancelled else { return }
             self.beginDrilling()
         }
     }
@@ -298,24 +298,24 @@ public final class ReflexBlitzViewModel {
         if selectedMode == .multipleChoice {
             hintTimerTask = Task { @MainActor [weak self] in
                 try? await Task.sleep(for: .milliseconds(1600))
-                guard let self = self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
+                guard let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
                 self.hintStage = max(self.hintStage, 1)
             }
             hintStage2Task = Task { @MainActor [weak self] in
                 try? await Task.sleep(for: .milliseconds(2500))
-                guard let self = self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
+                guard let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
                 self.hintStage = max(self.hintStage, 2)
             }
             hintStage3Task = Task { @MainActor [weak self] in
                 try? await Task.sleep(for: .milliseconds(3400))
-                guard let self = self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
+                guard let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
                 self.hintStage = max(self.hintStage, 3)
             }
         } else {
             let hintSeconds = selectedMode == .typing ? 4.5 : 3.5
             hintTimerTask = Task { @MainActor [weak self] in
                 try? await Task.sleep(for: .seconds(hintSeconds))
-                guard let self = self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
+                guard let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
                 self.hintStage = 1
             }
         }
@@ -323,7 +323,7 @@ public final class ReflexBlitzViewModel {
         let limitSeconds = selectedMode.timeLimitSeconds
         timeoutTimerTask = Task { @MainActor [weak self] in
             try? await Task.sleep(for: .seconds(limitSeconds))
-            guard let self = self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
+            guard let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
             self.handleTimeout()
         }
     }
