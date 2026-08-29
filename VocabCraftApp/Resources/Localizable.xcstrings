@@ -1715,13 +1715,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Finish & Save Progress"
+            "value" : "Done"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hoàn thành & Lưu tiến độ"
+            "value" : "Hoàn tất"
           }
         }
       }
@@ -1834,13 +1834,47 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Re-drill %lld weak words"
+            "value" : "Re-drill"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Luyện lại %lld từ chưa thuộc"
+            "value" : "Luyện lại từ yếu"
+          }
+        }
+      }
+    },
+    "app.reflex.summary.status_incorrect" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incorrect"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa chính xác"
+          }
+        }
+      }
+    },
+    "app.reflex.summary.status_slow" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ • Slow"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ • Quá chậm"
           }
         }
       }
@@ -1970,13 +2004,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Words to Reinforce (%lld)"
+            "value" : "Words to Reinforce"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Từ cần củng cố (%lld)"
+            "value" : "Từ cần củng cố"
           }
         }
       }

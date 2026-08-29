@@ -9,11 +9,18 @@ public struct ReflexBlitzView: View {
     @Environment(\.craftTheme) private var theme
     public var viewModel: ReflexBlitzViewModel
     @State private var typingInput: String = ""
+    @State private var isConfettiTriggered: Bool = false
     public var onDismiss: () -> Void
+    public var onFinishSession: ((ReflexBlitzSessionSummary) -> Void)?
 
-    public init(viewModel: ReflexBlitzViewModel, onDismiss: @escaping () -> Void) {
+    public init(
+        viewModel: ReflexBlitzViewModel,
+        onDismiss: @escaping () -> Void,
+        onFinishSession: ((ReflexBlitzSessionSummary) -> Void)? = nil
+    ) {
         self.viewModel = viewModel
         self.onDismiss = onDismiss
+        self.onFinishSession = onFinishSession
     }
 
     public var body: some View {
@@ -50,9 +57,23 @@ public struct ReflexBlitzView: View {
                         onReDrillWeak: {
                             viewModel.reDrillWeakWords()
                         },
-                        onFinish: onDismiss
+                        onFinish: {
+                            if let onFinishSession {
+                                onFinishSession(summary)
+                            } else {
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                    viewModel.resetToModeSelection()
+                                }
+                            }
+                        }
                     )
                     .transition(.opacity)
+                    .craftConfetti(isTriggered: $isConfettiTriggered, particleCount: 35)
+                    .onAppear {
+                        if summary.ratingTier == .master {
+                            isConfettiTriggered = true
+                        }
+                    }
                 }
 
             case .countdown:

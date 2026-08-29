@@ -70,7 +70,7 @@ public struct ReflexBlitzSummaryView: View {
             if !summary.weakWordAttempts.isEmpty {
                 weakWordsSection
             } else {
-                perfectScoreCard
+                perfectScoreView
             }
         }
         .padding(.top, theme.spacing.base)
@@ -78,24 +78,24 @@ public struct ReflexBlitzSummaryView: View {
 
     // MARK: - Header
     private var headerView: some View {
-        VStack(spacing: theme.spacing.md) {
-            ZStack {
-                Circle()
-                    .fill(headerAccentColor.opacity(0.12))
-                    .frame(width: 68, height: 68)
-                Circle()
-                    .strokeBorder(headerAccentColor.opacity(0.24), lineWidth: 1.5)
-                    .frame(width: 68, height: 68)
-
+        VStack(spacing: theme.spacing.sm) {
+            CraftCard(
+                style: .tactile3D,
+                cornerRadius: theme.radii.xl,
+                padding: theme.spacing.base,
+                customTint: theme.colors.brandPrimary,
+                customBorderColor: theme.colors.brandPrimary.opacity(0.3),
+                customBottomColor: theme.colors.brandPrimary.opacity(0.7)
+            ) {
                 Image(systemName: headerIconName)
-                    .font(.system(size: 32, weight: .bold))
-                    .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(headerAccentColor)
+                    .font(.system(size: 36, weight: .bold))
+                    .foregroundStyle(.white)
+                    .frame(width: 48, height: 48)
             }
-            .craftShadow(theme.shadows.sm)
+            .frame(width: 80, height: 80)
             .accessibilityHidden(true)
 
-            VStack(spacing: theme.spacing.xs) {
+            VStack(spacing: theme.spacing.xxs) {
                 Text(cleanRatingTitle)
                     .font(theme.typography.titleLarge)
                     .fontWeight(.bold)
@@ -104,10 +104,6 @@ public struct ReflexBlitzSummaryView: View {
                     .accessibilityAddTraits(.isHeader)
 
                 ratingStarsView
-
-                Text(String(localized: "app.reflex.summary.title"))
-                    .font(theme.typography.bodyMedium)
-                    .foregroundStyle(theme.colors.textMuted)
             }
         }
         .padding(.horizontal, theme.spacing.base)
@@ -164,7 +160,7 @@ public struct ReflexBlitzSummaryView: View {
         title: String,
         accessibilityLabel: String
     ) -> some View {
-        CraftCard(style: .outlined, padding: theme.spacing.md) {
+        CraftCard(style: .tactile3D, padding: theme.spacing.md) {
             VStack(spacing: theme.spacing.xs) {
                 ZStack {
                     Circle()
@@ -207,7 +203,7 @@ public struct ReflexBlitzSummaryView: View {
                     .font(.headline)
                     .accessibilityHidden(true)
 
-                Text(String(localized: "app.reflex.summary.weak_words_header \(summary.weakWordAttempts.count)"))
+                Text(AppStrings.ReflexBlitz.weakWordsHeader)
                     .font(theme.typography.headline)
                     .fontWeight(.bold)
                     .fontDesign(.rounded)
@@ -225,93 +221,79 @@ public struct ReflexBlitzSummaryView: View {
         }
     }
 
-    // MARK: - 3-Tier Vocabulary Row
+    // MARK: - Active Recall Vocabulary Row
     private func weakWordRow(for weak: ReflexBlitzAttempt) -> some View {
-        let timeLabel = weak.responseTimeMs >= 6000 ? String(localized: "app.reflex.summary.timeout_label") : String(format: "%.1fs", Double(weak.responseTimeMs) / 1000.0)
-        let meta = [weak.pos, weak.ipa].filter { !$0.isEmpty }.joined(separator: " • ")
-
-        return CraftCard(style: .outlined, padding: theme.spacing.base) {
-            VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                HStack(alignment: .center) {
+        CraftCard(
+            style: .tactile3D,
+            padding: theme.spacing.base,
+            customBorderColor: theme.colors.statusDanger.opacity(0.4),
+            customBottomColor: theme.colors.statusDanger.opacity(0.8)
+        ) {
+            HStack(alignment: .center, spacing: theme.spacing.sm) {
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
                     Text(weak.lemma)
                         .font(theme.typography.headline)
                         .fontWeight(.bold)
-                        .fontDesign(.rounded)
                         .foregroundStyle(theme.colors.textPrimary)
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
 
-                    Spacer()
-
-                    if let onSpeak = onSpeakWord {
-                        CraftSpeakerButton(
-                            variant: .subtle,
-                            size: .sm,
-                            customTint: theme.colors.brandPrimary
-                        ) {
-                            onSpeak(weak.lemma)
-                        }
-                        .accessibilityLabel(String(localized: "app.reflex.summary.a11y_speak_word \(weak.lemma)"))
-                    }
-                }
-
-                if !meta.isEmpty {
-                    Text(meta)
-                        .font(theme.typography.phonetic)
-                        .foregroundStyle(theme.colors.textMuted)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.85)
-                }
-
-                HStack(alignment: .center, spacing: theme.spacing.xs) {
-                    if !weak.definitionVi.isEmpty {
-                        Text(weak.definitionVi)
-                            .font(theme.typography.bodyMedium)
+                    if !weak.ipa.isEmpty {
+                        Text(weak.ipa)
+                            .font(theme.typography.phonetic)
                             .foregroundStyle(theme.colors.textSecondary)
-                            .lineLimit(2)
+                            .multilineTextAlignment(.leading)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
 
-                    Spacer()
+                    HStack(spacing: theme.spacing.xs) {
+                        if !weak.pos.isEmpty {
+                            CraftBadge(
+                                weak.cleanPos,
+                                variant: .subtle,
+                                tone: .neutral,
+                                size: .sm
+                            )
+                        }
 
-                    CraftBadge(
-                        timeLabel,
-                        iconName: "stopwatch.fill",
+                        CraftBadge(
+                            weak.cleanLevel.uppercased(),
+                            variant: .subtle,
+                            tone: .primary,
+                            size: .sm
+                        )
+                    }
+                }
+
+                Spacer(minLength: theme.spacing.xs)
+
+                if let onSpeak = onSpeakWord {
+                    CraftSpeakerButton(
                         variant: .subtle,
-                        tone: .danger,
-                        size: .sm
-                    )
+                        size: .sm,
+                        customTint: theme.colors.brandPrimary
+                    ) {
+                        onSpeak(weak.lemma)
+                    }
+                    .accessibilityLabel(String(localized: "app.reflex.summary.a11y_speak_word \(weak.lemma)"))
                 }
             }
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(String(localized: "app.reflex.summary.a11y_weak_word \(weak.lemma) \(timeLabel)"))
+        .accessibilityLabel("\(weak.lemma), \(weak.cleanPos)")
     }
 
     // MARK: - Perfect Score State
-    private var perfectScoreCard: some View {
-        CraftCard(style: .elevated, customTint: theme.colors.surfaceCard) {
-            VStack(spacing: theme.spacing.sm) {
-                Image(systemName: "medal.fill")
-                    .font(.system(size: 44, weight: .bold))
-                    .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(theme.colors.accent)
-                    .accessibilityHidden(true)
-
-                Text(String(localized: "app.reflex.summary.perfect_title"))
-                    .font(theme.typography.titleLarge)
-                    .fontWeight(.bold)
-                    .fontDesign(.rounded)
-                    .foregroundStyle(theme.colors.textPrimary)
-
-                Text(String(localized: "app.reflex.summary.perfect_desc"))
-                    .font(theme.typography.bodyMedium)
-                    .foregroundStyle(theme.colors.textMuted)
-                    .multilineTextAlignment(.center)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, theme.spacing.md)
-            .padding(.horizontal, theme.spacing.sm)
+    private var perfectScoreView: some View {
+        VStack(spacing: theme.spacing.xs) {
+            Text(AppStrings.ReflexBlitz.perfectDesc)
+                .font(theme.typography.bodyMedium)
+                .foregroundStyle(theme.colors.textSecondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, theme.spacing.xl)
+                .padding(.vertical, theme.spacing.base)
         }
-        .padding(.horizontal, theme.spacing.base)
-        .craftSparkle(isTriggered: $isSparkleTriggered, particleCount: 25)
+        .frame(maxWidth: .infinity)
     }
 
     // MARK: - Sticky Bottom Action Dock
@@ -319,29 +301,28 @@ public struct ReflexBlitzSummaryView: View {
         VStack(spacing: theme.spacing.xs) {
             if !summary.weakWordAttempts.isEmpty {
                 CraftButton(
-                    String(localized: "app.reflex.summary.redrill_weak \(summary.weakWordAttempts.count)"),
-                    iconName: "arrow.triangle.2.circlepath",
-                    variant: .primary,
+                    AppStrings.ReflexBlitz.redrillWeak,
+                    variant: .tactile,
                     size: .lg,
                     isFullWidth: true,
-                    customTint: theme.colors.statusDanger,
+                    customTint: theme.colors.brandPrimary,
                     action: onReDrillWeak
                 )
 
                 CraftButton(
-                    String(localized: "app.reflex.summary.finish_save"),
-                    variant: .ghost,
+                    AppStrings.ReflexBlitz.finishSaveText,
+                    variant: .secondary,
                     size: .md,
                     isFullWidth: true,
                     action: onFinish
                 )
             } else {
                 CraftButton(
-                    String(localized: "app.reflex.summary.finish_save"),
-                    iconName: "checkmark",
-                    variant: .primary,
+                    AppStrings.ReflexBlitz.finishSaveText,
+                    variant: .tactile,
                     size: .lg,
                     isFullWidth: true,
+                    customTint: theme.colors.brandPrimary,
                     action: onFinish
                 )
             }

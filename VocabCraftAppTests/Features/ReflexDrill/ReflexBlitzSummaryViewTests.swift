@@ -97,6 +97,50 @@ struct ReflexBlitzSummaryReDrillTests {
 
 final class ReflexBlitzSummaryViewTests: XCTestCase {
     @MainActor
+    func testSummaryViewLocalizesRatingAndDiagnosesWeakWord() {
+        let weakAttemptIncorrect = ReflexBlitzAttempt(
+            wordId: 1,
+            lemma: "improve",
+            pos: "v.",
+            ipa: "/ɪmˈpruːv/",
+            definitionVi: "Cải thiện",
+            responseTimeMs: 2000,
+            usedHint: false,
+            isCorrect: false
+        )
+        let weakAttemptSlow = ReflexBlitzAttempt(
+            wordId: 2,
+            lemma: "focus",
+            pos: "v.",
+            ipa: "/ˈfoʊ.kəs/",
+            definitionVi: "Tập trung",
+            responseTimeMs: 4500,
+            usedHint: false,
+            isCorrect: true
+        )
+        let summary = ReflexBlitzSessionSummary(
+            id: UUID(),
+            totalWords: 10,
+            correctWords: 8,
+            averageResponseTimeMs: 2400,
+            maxComboStreak: 5,
+            attempts: [weakAttemptIncorrect, weakAttemptSlow],
+            weakWordAttempts: [weakAttemptIncorrect, weakAttemptSlow],
+            speedRating: "⚡️ Reflex Master"
+        )
+        let view = ReflexBlitzSummaryView(
+            summary: summary,
+            onSpeakWord: { _ in },
+            onReDrillWeak: {},
+            onFinish: {}
+        )
+        XCTAssertNotNil(view.body)
+        XCTAssertEqual(view.summary.weakWordAttempts.count, 2)
+        XCTAssertFalse(view.summary.weakWordAttempts[0].isCorrect)
+        XCTAssertTrue(view.summary.weakWordAttempts[1].isCorrect)
+    }
+
+    @MainActor
     func testSummaryViewInstantiation() {
         var didReDrill = false
         var didFinish = false
@@ -361,5 +405,26 @@ final class ReflexBlitzSummaryViewTests: XCTestCase {
             XCTAssertNotNil(view.summaryContent)
             XCTAssertEqual(view.summary.speedRating, rating)
         }
+    }
+
+    @MainActor
+    func testSummaryViewCelebrationOnMasterLevel() {
+        let masterSummary = ReflexBlitzSessionSummary(
+            id: UUID(),
+            totalWords: 5,
+            correctWords: 5,
+            averageResponseTimeMs: 1400,
+            maxComboStreak: 5,
+            attempts: [],
+            weakWordAttempts: [],
+            speedRating: "⚡️ Reflex Master"
+        )
+        let view = ReflexBlitzSummaryView(
+            summary: masterSummary,
+            onReDrillWeak: {},
+            onFinish: {}
+        )
+        XCTAssertNotNil(view.body)
+        XCTAssertEqual(view.summary.speedRating, "⚡️ Reflex Master")
     }
 }

@@ -218,12 +218,15 @@ extension AppStrings {
         public static var summaryTitleText: String {
             String(localized: "app.reflex.summary.title", defaultValue: "Hoàn thành phiên phản xạ Blitz", bundle: .module)
         }
+        public static var redrillWeak: String {
+            String(localized: "app.reflex.summary.redrill_weak", defaultValue: "Luyện lại từ yếu", bundle: .module)
+        }
         public static func redrillWeak(_ count: Int) -> String {
-            String(format: String(localized: "app.reflex.summary.redrill_weak", defaultValue: "Luyện lại %lld từ chưa thuộc", bundle: .module), count)
+            redrillWeak
         }
         public static var finishSave: LocalizedStringKey { "app.reflex.summary.finish_save" }
         public static var finishSaveText: String {
-            String(localized: "app.reflex.summary.finish_save", defaultValue: "Hoàn thành & Lưu tiến độ", bundle: .module)
+            String(localized: "app.reflex.summary.finish_save", defaultValue: "Hoàn tất", bundle: .module)
         }
         public static var perfectTitle: LocalizedStringKey { "app.reflex.summary.perfect_title" }
         public static var perfectTitleText: String {
@@ -244,6 +247,27 @@ extension AppStrings {
         public static var summaryMaxCombo: LocalizedStringKey { "app.reflex.summary.max_combo" }
         public static var summaryMaxComboText: String {
             String(localized: "app.reflex.summary.max_combo", defaultValue: "Combo cao nhất", bundle: .module)
+        }
+        public static var weakWordsHeader: String {
+            String(localized: "app.reflex.summary.weak_words_header", defaultValue: "Từ cần củng cố", bundle: .module)
+        }
+        public static func weakWordsHeader(_ count: Int) -> String {
+            weakWordsHeader
+        }
+        public static var statusIncorrect: String {
+            String(localized: "app.reflex.summary.status_incorrect", defaultValue: "Chưa chính xác", bundle: .module)
+        }
+        public static func statusSlow(_ time: String) -> String {
+            String(format: String(localized: "app.reflex.summary.status_slow", defaultValue: "%@ • Quá chậm", bundle: .module), time)
+        }
+        public static func localizedRatingTitle(for speedRating: String) -> String {
+            if speedRating.contains("Master") {
+                return String(localized: "app.reflex.summary.rating_master", defaultValue: "Bậc thầy phản xạ", bundle: .module)
+            } else if speedRating.contains("Swift") {
+                return String(localized: "app.reflex.summary.rating_swift", defaultValue: "Phản xạ nhanh nhạy", bundle: .module)
+            } else {
+                return String(localized: "app.reflex.summary.rating_steady", defaultValue: "Người học kiên trì", bundle: .module)
+            }
         }
     }
 }

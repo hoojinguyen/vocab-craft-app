@@ -623,6 +623,14 @@ extension ReflexBlitzViewModel {
         ttsService.stop()
     }
 
+    public func resetToModeSelection() {
+        cancelSession()
+        sessionSummary = nil
+        attempts = []
+        currentWordIndex = 0
+        phase = .modeSelection
+    }
+
     public func applyReviewConfig(_ config: ReflexBlitzDeepLinkConfig) {
         countdownTask?.cancel()
         hintTimerTask?.cancel()
