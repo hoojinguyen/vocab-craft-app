@@ -103,13 +103,19 @@ extension AppStrings {
         public static func typingYouTypedPrefix(_ text: String) -> String {
             String(format: String(localized: "app.reflex.drill.typing_you_typed", defaultValue: "Bạn đã nhập: \"%@\"", bundle: .module), text)
         }
-        public static var listeningInstruction: LocalizedStringKey { "app.reflex.drill.listening_instruction" }
+        public static var listeningInstruction: LocalizedStringKey { "app.reflex.listening.instruction" }
         public static var listeningInstructionText: String {
-            String(localized: "app.reflex.drill.listening_instruction", defaultValue: "Chọn nghĩa tiếng Việt của từ vừa nghe", bundle: .module)
+            String(localized: "app.reflex.listening.instruction", defaultValue: "Nghe và chọn nghĩa đúng", bundle: .module)
         }
         public static var listeningReplay: LocalizedStringKey { "app.reflex.drill.listening_replay" }
         public static var listeningReplayText: String {
             String(localized: "app.reflex.drill.listening_replay", defaultValue: "Nghe lại phát âm", bundle: .module)
+        }
+        public static var listeningReplayA11y: String {
+            String(localized: "app.reflex.listening.replay_a11y", defaultValue: "Phát lại âm thanh từ vựng", bundle: .module)
+        }
+        public static var listeningWaveformA11y: String {
+            String(localized: "app.reflex.listening.waveform_a11y", defaultValue: "Biểu đồ sóng âm phát âm từ vựng", bundle: .module)
         }
         public static var speakingListening: LocalizedStringKey { "app.reflex.drill.speaking_listening" }
         public static var speakingListeningText: String {

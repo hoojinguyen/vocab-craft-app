@@ -1323,6 +1323,57 @@
         }
       }
     },
+    "app.reflex.listening.instruction" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Listen and choose the meaning"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nghe và chọn nghĩa đúng"
+          }
+        }
+      }
+    },
+    "app.reflex.listening.replay_a11y" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Replay vocabulary audio"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Phát lại âm thanh từ vựng"
+          }
+        }
+      }
+    },
+    "app.reflex.listening.waveform_a11y" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vocabulary audio waveform"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Biểu đồ sóng âm phát âm từ vựng"
+          }
+        }
+      }
+    },
     "app.reflex.mode_a11y_format" : {
       "extractionState" : "manual",
       "localizations" : {
