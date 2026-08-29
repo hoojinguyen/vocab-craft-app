@@ -27,12 +27,8 @@ public struct ReflexBlitzSummaryView: View {
         String(format: "%.1fs", Double(summary.averageResponseTimeMs) / 1000.0)
     }
 
-    private var cleanRatingTitle: String {
-        summary.speedRating
-            .replacingOccurrences(of: "⚡️ ", with: "")
-            .replacingOccurrences(of: "🔥 ", with: "")
-            .replacingOccurrences(of: "🌱 ", with: "")
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+    private var localizedRatingTitle: String {
+        AppStrings.ReflexBlitz.localizedRatingTitle(for: summary.speedRating)
     }
 
     private var starCount: Int {
@@ -94,17 +90,17 @@ public struct ReflexBlitzSummaryView: View {
     // MARK: - Header
     private var headerView: some View {
         VStack(spacing: theme.spacing.md) {
-            // Icon with decorative background ring
+            // Hero badge squircle container
             ZStack {
-                Circle()
+                RoundedRectangle(cornerRadius: theme.radii.lg)
                     .fill(headerAccentColor.opacity(0.12))
-                    .frame(width: 68, height: 68)
-                Circle()
+                    .frame(width: 64, height: 64)
+                RoundedRectangle(cornerRadius: theme.radii.lg)
                     .strokeBorder(headerAccentColor.opacity(0.24), lineWidth: 1.5)
-                    .frame(width: 68, height: 68)
+                    .frame(width: 64, height: 64)
 
                 Image(systemName: headerIconName)
-                    .font(.system(size: 32, weight: .bold))
+                    .font(.system(size: 30, weight: .bold))
                     .symbolRenderingMode(.hierarchical)
                     .foregroundStyle(headerAccentColor)
             }
@@ -113,23 +109,22 @@ public struct ReflexBlitzSummaryView: View {
 
             // Rating title & subtitle
             VStack(spacing: theme.spacing.xs) {
-                Text(cleanRatingTitle)
+                Text(localizedRatingTitle)
                     .font(theme.typography.titleLarge)
                     .fontWeight(.bold)
-                    .fontDesign(.rounded)
                     .foregroundStyle(theme.colors.textPrimary)
                     .accessibilityAddTraits(.isHeader)
 
                 ratingStarsView
 
-                Text(String(localized: "app.reflex.summary.title"))
+                Text(AppStrings.ReflexBlitz.summaryTitle)
                     .font(theme.typography.bodyMedium)
                     .foregroundStyle(theme.colors.textMuted)
             }
         }
         .padding(.horizontal, theme.spacing.base)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(String(localized: "app.reflex.summary.a11y_header_format \(cleanRatingTitle)"))
+        .accessibilityLabel(String(format: String(localized: "app.reflex.summary.a11y_header_format", bundle: .module), localizedRatingTitle))
     }
 
     // MARK: - Rating Stars
@@ -144,63 +139,43 @@ public struct ReflexBlitzSummaryView: View {
         .accessibilityHidden(true)
     }
 
-    // MARK: - Bento Metrics Grid
+    // MARK: - Bento Metrics Grid (Typography-First, Zero Icon Clutter)
     private var bentoMetricsGrid: some View {
         HStack(spacing: theme.spacing.sm) {
             // Metric 1: Avg Speed
             bentoCard(
-                iconName: "speedometer",
-                tint: theme.colors.brandPrimary,
                 value: formattedAvgTime,
-                title: String(localized: "app.reflex.summary.avg_speed"),
-                accessibilityLabel: String(localized: "app.reflex.summary.a11y_avg_speed \(formattedAvgTime)")
+                title: AppStrings.ReflexBlitz.summaryAvgSpeedText,
+                accessibilityLabel: String(format: String(localized: "app.reflex.summary.a11y_avg_speed", bundle: .module), formattedAvgTime)
             )
 
             // Metric 2: Accuracy
             bentoCard(
-                iconName: "target",
-                tint: theme.colors.statusSuccess,
                 value: "\(summary.correctWords)/\(summary.totalWords)",
-                title: String(localized: "app.reflex.summary.accuracy"),
-                accessibilityLabel: String(localized: "app.reflex.summary.a11y_accuracy \(summary.correctWords) \(summary.totalWords)")
+                title: AppStrings.ReflexBlitz.summaryAccuracyText,
+                accessibilityLabel: String(format: String(localized: "app.reflex.summary.a11y_accuracy", bundle: .module), summary.correctWords, summary.totalWords)
             )
 
             // Metric 3: Max Combo
             bentoCard(
-                iconName: "flame.fill",
-                tint: theme.colors.brandSecondary,
                 value: "x\(summary.maxComboStreak)",
-                title: String(localized: "app.reflex.summary.max_combo"),
-                accessibilityLabel: String(localized: "app.reflex.summary.a11y_max_combo \(summary.maxComboStreak)")
+                title: AppStrings.ReflexBlitz.summaryMaxComboText,
+                accessibilityLabel: String(format: String(localized: "app.reflex.summary.a11y_max_combo", bundle: .module), summary.maxComboStreak)
             )
         }
         .padding(.horizontal, theme.spacing.base)
     }
 
     private func bentoCard(
-        iconName: String,
-        tint: Color,
         value: String,
         title: String,
         accessibilityLabel: String
     ) -> some View {
         CraftCard(style: .outlined, padding: theme.spacing.md) {
             VStack(spacing: theme.spacing.xs) {
-                ZStack {
-                    Circle()
-                        .fill(tint.opacity(0.12))
-                        .frame(width: 36, height: 36)
-                    Image(systemName: iconName)
-                        .font(.system(size: 17, weight: .semibold))
-                        .symbolRenderingMode(.hierarchical)
-                        .foregroundStyle(tint)
-                }
-                .accessibilityHidden(true)
-
                 Text(value)
                     .font(theme.typography.titleLarge)
                     .fontWeight(.bold)
-                    .fontDesign(.rounded)
                     .monospacedDigit()
                     .foregroundStyle(theme.colors.textPrimary)
                     .lineLimit(1)
@@ -223,14 +198,13 @@ public struct ReflexBlitzSummaryView: View {
             HStack(spacing: theme.spacing.xs) {
                 Image(systemName: "exclamationmark.circle.fill")
                     .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(theme.colors.statusDanger)
+                    .foregroundStyle(theme.colors.statusWarning)
                     .font(.headline)
                     .accessibilityHidden(true)
 
-                Text(String(localized: "app.reflex.summary.weak_words_header \(summary.weakWordAttempts.count)"))
+                Text(AppStrings.ReflexBlitz.weakWordsHeader(summary.weakWordAttempts.count))
                     .font(theme.typography.headline)
                     .fontWeight(.bold)
-                    .fontDesign(.rounded)
                     .foregroundStyle(theme.colors.textPrimary)
             }
             .padding(.horizontal, theme.spacing.base)
@@ -247,7 +221,7 @@ public struct ReflexBlitzSummaryView: View {
 
     // MARK: - 3-Tier Vocabulary Row
     private func weakWordRow(for weak: ReflexBlitzAttempt) -> some View {
-        let timeLabel = weak.responseTimeMs >= 6000 ? String(localized: "app.reflex.summary.timeout_label") : String(format: "%.1fs", Double(weak.responseTimeMs) / 1000.0)
+        let timeFormatted = weak.responseTimeMs >= 6000 ? String(localized: "app.reflex.summary.timeout_label", bundle: .module) : String(format: "%.1fs", Double(weak.responseTimeMs) / 1000.0)
         let meta = [weak.pos, weak.ipa].filter { !$0.isEmpty }.joined(separator: " • ")
 
         return CraftCard(style: .outlined, padding: theme.spacing.base) {
@@ -257,7 +231,6 @@ public struct ReflexBlitzSummaryView: View {
                     Text(weak.lemma)
                         .font(theme.typography.headline)
                         .fontWeight(.bold)
-                        .fontDesign(.rounded)
                         .foregroundStyle(theme.colors.textPrimary)
 
                     Spacer()
@@ -270,7 +243,7 @@ public struct ReflexBlitzSummaryView: View {
                         ) {
                             onSpeak(weak.lemma)
                         }
-                        .accessibilityLabel(String(localized: "app.reflex.summary.a11y_speak_word \(weak.lemma)"))
+                        .accessibilityLabel(String(format: String(localized: "app.reflex.summary.a11y_speak_word", bundle: .module), weak.lemma))
                     }
                 }
 
@@ -283,7 +256,7 @@ public struct ReflexBlitzSummaryView: View {
                         .minimumScaleFactor(0.85)
                 }
 
-                // Tier 3: Vietnamese definition on the left, response time badge on the right
+                // Tier 3: Vietnamese definition on the left, diagnostic status badge on the right
                 HStack(alignment: .center, spacing: theme.spacing.xs) {
                     if !weak.definitionVi.isEmpty {
                         Text(weak.definitionVi)
@@ -294,18 +267,28 @@ public struct ReflexBlitzSummaryView: View {
 
                     Spacer()
 
-                    CraftBadge(
-                        timeLabel,
-                        iconName: "stopwatch.fill",
-                        variant: .subtle,
-                        tone: .danger,
-                        size: .sm
-                    )
+                    if !weak.isCorrect {
+                        CraftBadge(
+                            AppStrings.ReflexBlitz.statusIncorrect,
+                            iconName: "xmark.circle.fill",
+                            variant: .subtle,
+                            tone: .danger,
+                            size: .sm
+                        )
+                    } else {
+                        CraftBadge(
+                            AppStrings.ReflexBlitz.statusSlow(timeFormatted),
+                            iconName: "stopwatch.fill",
+                            variant: .subtle,
+                            tone: .warning,
+                            size: .sm
+                        )
+                    }
                 }
             }
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(String(localized: "app.reflex.summary.a11y_weak_word \(weak.lemma) \(timeLabel)"))
+        .accessibilityLabel(String(format: String(localized: "app.reflex.summary.a11y_weak_word", bundle: .module), weak.lemma, timeFormatted))
     }
 
     // MARK: - Perfect Score State
@@ -318,13 +301,12 @@ public struct ReflexBlitzSummaryView: View {
                     .foregroundStyle(theme.colors.accent)
                     .accessibilityHidden(true)
 
-                Text(String(localized: "app.reflex.summary.perfect_title"))
+                Text(AppStrings.ReflexBlitz.perfectTitle)
                     .font(theme.typography.titleLarge)
                     .fontWeight(.bold)
-                    .fontDesign(.rounded)
                     .foregroundStyle(theme.colors.textPrimary)
 
-                Text(String(localized: "app.reflex.summary.perfect_desc"))
+                Text(AppStrings.ReflexBlitz.perfectDesc)
                     .font(theme.typography.bodyMedium)
                     .foregroundStyle(theme.colors.textMuted)
                     .multilineTextAlignment(.center)
@@ -341,21 +323,21 @@ public struct ReflexBlitzSummaryView: View {
     private var bottomActionDock: some View {
         VStack(spacing: theme.spacing.xs) {
             if !summary.weakWordAttempts.isEmpty {
-                // Primary Action: Re-drill weak words
+                // Primary Action: Re-drill weak words (Brand Primary tactile button)
                 CraftButton(
-                    String(localized: "app.reflex.summary.redrill_weak \(summary.weakWordAttempts.count)"),
+                    AppStrings.ReflexBlitz.redrillWeak(summary.weakWordAttempts.count),
                     iconName: "arrow.triangle.2.circlepath",
-                    variant: .primary,
+                    variant: .tactile,
                     size: .lg,
                     isFullWidth: true,
-                    customTint: theme.colors.statusDanger,
+                    customTint: theme.colors.brandPrimary,
                     action: onReDrillWeak
                 )
 
                 // Secondary Action: Finish & Save
                 CraftButton(
-                    String(localized: "app.reflex.summary.finish_save"),
-                    variant: .ghost,
+                    AppStrings.ReflexBlitz.finishSaveText,
+                    variant: .secondary,
                     size: .md,
                     isFullWidth: true,
                     action: onFinish
@@ -363,11 +345,12 @@ public struct ReflexBlitzSummaryView: View {
             } else {
                 // Primary Action: Finish & Save
                 CraftButton(
-                    String(localized: "app.reflex.summary.finish_save"),
+                    AppStrings.ReflexBlitz.finishSaveText,
                     iconName: "checkmark",
-                    variant: .primary,
+                    variant: .tactile,
                     size: .lg,
                     isFullWidth: true,
+                    customTint: theme.colors.brandPrimary,
                     action: onFinish
                 )
             }
