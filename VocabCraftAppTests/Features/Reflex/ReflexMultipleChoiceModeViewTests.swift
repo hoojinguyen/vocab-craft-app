@@ -1,0 +1,101 @@
+import CraftUIKit
+import SwiftUI
+import Testing
+@testable import VocabCraftApp
+
+@Suite("ReflexMultipleChoiceModeView Tests")
+struct ReflexMultipleChoiceModeViewTests {
+    @Test("Instantiates ReflexMultipleChoiceModeView in active and unreviewed state")
+    func testMultipleChoiceViewActive() {
+        let item = ReflexBlitzWordItem.defaultStarterWords[0]
+        let options = [
+            ReflexBlitzOption(text: "habit", isCorrect: true),
+            ReflexBlitzOption(text: "improve", isCorrect: false)
+        ]
+
+        let view = ReflexMultipleChoiceModeView(
+            word: item,
+            options: options,
+            isReviewed: false,
+            isResultCorrect: false,
+            isResultTimeout: false,
+            showHint: true,
+            hintStage: 1,
+            selectedOptionText: nil,
+            clozeParts: nil,
+            displayedSentence: item.clozeSentenceEn,
+            cardBorderColor: .clear,
+            eliminatedOptionId: nil,
+            onSelectOption: nil,
+            onReplayAudio: nil
+        )
+
+        #expect(view.options.count == 2)
+        #expect(view.isReviewed == false)
+        #expect(view.showHint == true)
+        #expect(view.hintStage == 1)
+        #expect(view.choiceState(for: options[0]) == .idle)
+        #expect(view.choiceState(for: options[1]) == .idle)
+    }
+
+    @Test("Choice state reflects correct, wrong, and disabled in reviewed mode")
+    func testMultipleChoiceViewReviewedState() {
+        let item = ReflexBlitzWordItem.defaultStarterWords[0]
+        let correctOpt = ReflexBlitzOption(id: "opt-1", text: "habit", isCorrect: true)
+        let wrongOpt = ReflexBlitzOption(id: "opt-2", text: "improve", isCorrect: false)
+        let otherOpt = ReflexBlitzOption(id: "opt-3", text: "focus", isCorrect: false)
+        let options = [correctOpt, wrongOpt, otherOpt]
+
+        let view = ReflexMultipleChoiceModeView(
+            word: item,
+            options: options,
+            isReviewed: true,
+            isResultCorrect: false,
+            isResultTimeout: false,
+            showHint: true,
+            hintStage: 0,
+            selectedOptionText: "improve",
+            clozeParts: nil,
+            displayedSentence: item.completedSentenceWithTargetWord,
+            cardBorderColor: .clear,
+            eliminatedOptionId: nil,
+            onSelectOption: nil,
+            onReplayAudio: nil
+        )
+
+        #expect(view.isReviewed == true)
+        #expect(view.choiceState(for: correctOpt) == .correct)
+        #expect(view.choiceState(for: wrongOpt) == .wrong)
+        #expect(view.choiceState(for: otherOpt) == .disabled)
+    }
+
+    @Test("Stage 3 hint disables eliminated distractor in active mode")
+    func testMultipleChoiceViewEliminationHint() {
+        let item = ReflexBlitzWordItem.defaultStarterWords[0]
+        let correctOpt = ReflexBlitzOption(id: "opt-1", text: "habit", isCorrect: true)
+        let eliminatedOpt = ReflexBlitzOption(id: "opt-2", text: "improve", isCorrect: false)
+        let otherOpt = ReflexBlitzOption(id: "opt-3", text: "focus", isCorrect: false)
+        let options = [correctOpt, eliminatedOpt, otherOpt]
+
+        let view = ReflexMultipleChoiceModeView(
+            word: item,
+            options: options,
+            isReviewed: false,
+            isResultCorrect: false,
+            isResultTimeout: false,
+            showHint: true,
+            hintStage: 3,
+            selectedOptionText: nil,
+            clozeParts: nil,
+            displayedSentence: item.clozeSentenceEn,
+            cardBorderColor: .clear,
+            eliminatedOptionId: "opt-2",
+            onSelectOption: nil,
+            onReplayAudio: nil
+        )
+
+        #expect(view.choiceState(for: correctOpt) == .idle)
+        #expect(view.choiceState(for: eliminatedOpt) == .disabled)
+        #expect(view.choiceState(for: otherOpt) == .idle)
+    }
+}
