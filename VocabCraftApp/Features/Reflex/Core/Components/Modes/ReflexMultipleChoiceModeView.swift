@@ -326,7 +326,7 @@ public struct ReflexMultipleChoiceModeView: View {
                     prefix: nil,
                     prefixStyle: .none,
                     title: option.text,
-                    textAlignment: .leading,
+                    textAlignment: .center,
                     state: choiceState,
                     style: .tactile3D,
                     showsStatusIndicator: false,

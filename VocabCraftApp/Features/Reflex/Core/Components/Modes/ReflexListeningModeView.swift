@@ -274,15 +274,15 @@ public struct ReflexListeningModeView: View {
 
     @ViewBuilder
     private var listeningOptionsListView: some View {
-        VStack(spacing: theme.spacing.sm) {
-            ForEach(Array(options.enumerated()), id: \.element.id) { index, option in
+        VStack(spacing: theme.spacing.xs) {
+            ForEach(options, id: \.id) { option in
                 let choiceState = choiceState(for: option)
 
                 CraftChoiceCard(
-                    prefix: optionLetter(for: index),
-                    prefixStyle: .circle,
+                    prefix: nil,
+                    prefixStyle: .none,
                     title: option.text,
-                    textAlignment: .leading,
+                    textAlignment: .center,
                     state: choiceState,
                     style: .tactile3D,
                     showsStatusIndicator: false,
@@ -291,17 +291,9 @@ public struct ReflexListeningModeView: View {
                         onSelectOption?(option)
                     }
                 )
-                .frame(minHeight: 52)
-                .accessibilityLabel(AppStrings.ReflexBlitz.optionA11y(prefix: optionLetter(for: index), text: option.text))
+                .frame(minHeight: 48)
+                .accessibilityLabel(option.text)
             }
         }
-    }
-
-    private func optionLetter(for index: Int) -> String {
-        let letters = ["A", "B", "C", "D", "E", "F"]
-        if index >= 0 && index < letters.count {
-            return letters[index]
-        }
-        return "\(index + 1)"
     }
 }
