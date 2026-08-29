@@ -211,17 +211,6 @@ public final class AppContainer {
         )
     }
 
-    public func makeReflexDrillViewModel(cefrLevel: String = "B1") -> ReflexDrillViewModel {
-        ReflexDrillViewModel(
-            fetchVocabularyUseCase: fetchVocabularyUseCase,
-            evaluateSRSUseCase: evaluateSRSUseCase,
-            ttsService: ttsService,
-            sttService: sttService,
-            speechAssessmentService: speechAssessmentService,
-            cefrLevel: cefrLevel
-        )
-    }
-
     public func makeReflexBlitzViewModel(words: [ReflexBlitzWordItem] = []) -> ReflexBlitzViewModel {
         let blitzWords = !words.isEmpty ? words : ReflexBlitzWordItem.defaultStarterWords
         return ReflexBlitzViewModel(

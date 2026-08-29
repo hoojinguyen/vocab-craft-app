@@ -118,16 +118,8 @@
 		300096513C5AE8139597 /* MobileSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200096513C5AE8139597 /* MobileSearchView.swift */; };
 		300020749F4D43ABD652 /* SRSMemoryHeroCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200020749F4D43ABD652 /* SRSMemoryHeroCard.swift */; };
 		300008890465B3CF1A36 /* SearchNewWordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200008890465B3CF1A36 /* SearchNewWordView.swift */; };
-		3000B63A5CC107F07807 /* SuggestedWordsCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B63A5CC107F07807 /* SuggestedWordsCardView.swift */; };
-		3000A7671FB389AEBB6B /* ReflexBlitzModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A7671FB389AEBB6B /* ReflexBlitzModels.swift */; };
-		30007465AED07FB92017 /* ReflexDrillView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20007465AED07FB92017 /* ReflexDrillView.swift */; };
+		3000C001000100010007 /* ReflexBlitzPhase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010007 /* ReflexBlitzPhase.swift */; };
 		3000925E6AEFC3C319C4 /* ReflexBlitzViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000925E6AEFC3C319C4 /* ReflexBlitzViewModel.swift */; };
-		3000F8D39E9F4428B5C0 /* ReflexDrillViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000F8D39E9F4428B5C0 /* ReflexDrillViewModel.swift */; };
-		30005D2B166623C3F401 /* ReflexBlitzAdvanceDockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005D2B166623C3F401 /* ReflexBlitzAdvanceDockView.swift */; };
-		30004CE4808DDB7C4856 /* ReflexBlitzCardReviewedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20004CE4808DDB7C4856 /* ReflexBlitzCardReviewedView.swift */; };
-		30000CED0631A5F57244 /* ReflexBlitzCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000CED0631A5F57244 /* ReflexBlitzCardView.swift */; };
-		300099A1MC0000000001 /* ReflexBlitzMultipleChoiceCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200099A1MC0000000001 /* ReflexBlitzMultipleChoiceCardView.swift */; };
-		30005DF86FBEBA618963 /* ReflexBlitzHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005DF86FBEBA618963 /* ReflexBlitzHeaderView.swift */; };
 		3000E2383A0FDF336719 /* ReflexBlitzModeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000E2383A0FDF336719 /* ReflexBlitzModeSelectionView.swift */; };
 		30000B23D37B5EC1F4DC /* ReflexBlitzSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000B23D37B5EC1F4DC /* ReflexBlitzSummaryView.swift */; };
 		300086A09076E74750E7 /* ReflexBlitzView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200086A09076E74750E7 /* ReflexBlitzView.swift */; };
@@ -228,7 +220,7 @@
 		30007DD63AA4B1896001 /* ReflexBlitzViewIntegrationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20007DD63AA4B1896001 /* ReflexBlitzViewIntegrationTests.swift */; };
 		30007DD63AA4B1896002 /* ReflexBlitzModeSelectionViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20007DD63AA4B1896002 /* ReflexBlitzModeSelectionViewTests.swift */; };
 		3000A5EC389D77272424 /* ReflexBlitzViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000A5EC389D77272424 /* ReflexBlitzViewModelTests.swift */; };
-		3000DD4CECAB945418DA /* ReflexDrillViewModelSpeechTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000DD4CECAB945418DA /* ReflexDrillViewModelSpeechTests.swift */; };
+		3000C001000100010008 /* MockReflexServices.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010008 /* MockReflexServices.swift */; };
 		3000D22F93692E9C65C5 /* CollocationExtractorTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000D22F93692E9C65C5 /* CollocationExtractorTests.swift */; };
 		300047D0A5CDF3D93D9F /* PersonalVaultLegacyViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200047D0A5CDF3D93D9F /* PersonalVaultLegacyViewModelTests.swift */; };
 		300022913C72DD267B8F /* PersonalVaultViewsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200022913C72DD267B8F /* PersonalVaultViewsTests.swift */; };
@@ -251,8 +243,6 @@
 		300041B134BDE2385881 /* VocabularyViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200041B134BDE2385881 /* VocabularyViewTests.swift */; };
 		3000871815071728E145 /* VocabularyViewsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000871815071728E145 /* VocabularyViewsTests.swift */; };
 		300091F224DACBC284B0 /* MockVocabularyRepository.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200091F224DACBC284B0 /* MockVocabularyRepository.swift */; };
-		30009A66CE4FB106804A /* ReflexDrillViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20009A66CE4FB106804A /* ReflexDrillViewModelTests.swift */; };
-		3000EAE4A7B7D61EA805 /* ReflexDrillViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000EAE4A7B7D61EA805 /* ReflexDrillViewTests.swift */; };
 		3000129F1C781D6703DB /* ReflexFlipCardViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000129F1C781D6703DB /* ReflexFlipCardViewTests.swift */; };
 		3000B1DEE633B1C8F81E /* SRSEngineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B1DEE633B1C8F81E /* SRSEngineTests.swift */; };
 		30007E84695DF55F278D /* SettingsViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20007E84695DF55F278D /* SettingsViewModelTests.swift */; };
@@ -426,16 +416,8 @@
 		200096513C5AE8139597 /* MobileSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MobileSearchView.swift"; sourceTree = "<group>"; };
 		200020749F4D43ABD652 /* SRSMemoryHeroCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SRSMemoryHeroCard.swift"; sourceTree = "<group>"; };
 		200008890465B3CF1A36 /* SearchNewWordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SearchNewWordView.swift"; sourceTree = "<group>"; };
-		2000B63A5CC107F07807 /* SuggestedWordsCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SuggestedWordsCardView.swift"; sourceTree = "<group>"; };
-		2000A7671FB389AEBB6B /* ReflexBlitzModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzModels.swift"; sourceTree = "<group>"; };
-		20007465AED07FB92017 /* ReflexDrillView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillView.swift"; sourceTree = "<group>"; };
+		2000C001000100010007 /* ReflexBlitzPhase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzPhase.swift"; sourceTree = "<group>"; };
 		2000925E6AEFC3C319C4 /* ReflexBlitzViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzViewModel.swift"; sourceTree = "<group>"; };
-		2000F8D39E9F4428B5C0 /* ReflexDrillViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillViewModel.swift"; sourceTree = "<group>"; };
-		20005D2B166623C3F401 /* ReflexBlitzAdvanceDockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzAdvanceDockView.swift"; sourceTree = "<group>"; };
-		20004CE4808DDB7C4856 /* ReflexBlitzCardReviewedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzCardReviewedView.swift"; sourceTree = "<group>"; };
-		20000CED0631A5F57244 /* ReflexBlitzCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzCardView.swift"; sourceTree = "<group>"; };
-		200099A1MC0000000001 /* ReflexBlitzMultipleChoiceCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzMultipleChoiceCardView.swift"; sourceTree = "<group>"; };
-		20005DF86FBEBA618963 /* ReflexBlitzHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzHeaderView.swift"; sourceTree = "<group>"; };
 		2000E2383A0FDF336719 /* ReflexBlitzModeSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzModeSelectionView.swift"; sourceTree = "<group>"; };
 		20000B23D37B5EC1F4DC /* ReflexBlitzSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzSummaryView.swift"; sourceTree = "<group>"; };
 		200086A09076E74750E7 /* ReflexBlitzView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzView.swift"; sourceTree = "<group>"; };
@@ -526,7 +508,7 @@
 		20007DD63AA4B1896001 /* ReflexBlitzViewIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzViewIntegrationTests.swift"; sourceTree = "<group>"; };
 		20007DD63AA4B1896002 /* ReflexBlitzModeSelectionViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzModeSelectionViewTests.swift"; sourceTree = "<group>"; };
 		2000A5EC389D77272424 /* ReflexBlitzViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzViewModelTests.swift"; sourceTree = "<group>"; };
-		2000DD4CECAB945418DA /* ReflexDrillViewModelSpeechTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillViewModelSpeechTests.swift"; sourceTree = "<group>"; };
+		2000C001000100010008 /* MockReflexServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockReflexServices.swift"; sourceTree = "<group>"; };
 		2000D22F93692E9C65C5 /* CollocationExtractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CollocationExtractorTests.swift"; sourceTree = "<group>"; };
 		200047D0A5CDF3D93D9F /* PersonalVaultLegacyViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersonalVaultLegacyViewModelTests.swift"; sourceTree = "<group>"; };
 		200022913C72DD267B8F /* PersonalVaultViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersonalVaultViewsTests.swift"; sourceTree = "<group>"; };
@@ -549,8 +531,6 @@
 		200041B134BDE2385881 /* VocabularyViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyViewTests.swift"; sourceTree = "<group>"; };
 		2000871815071728E145 /* VocabularyViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyViewsTests.swift"; sourceTree = "<group>"; };
 		200091F224DACBC284B0 /* MockVocabularyRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockVocabularyRepository.swift"; sourceTree = "<group>"; };
-		20009A66CE4FB106804A /* ReflexDrillViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillViewModelTests.swift"; sourceTree = "<group>"; };
-		2000EAE4A7B7D61EA805 /* ReflexDrillViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillViewTests.swift"; sourceTree = "<group>"; };
 		2000129F1C781D6703DB /* ReflexFlipCardViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexFlipCardViewTests.swift"; sourceTree = "<group>"; };
 		2000B1DEE633B1C8F81E /* SRSEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SRSEngineTests.swift"; sourceTree = "<group>"; };
 		20007E84695DF55F278D /* SettingsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsViewModelTests.swift"; sourceTree = "<group>"; };
@@ -889,7 +869,6 @@
 			children = (
 				400035A206369F2FAA77 /* Homepage */,
 				4000C000000000000001 /* Reflex */,
-				4000A827BA6524C5D45F /* ReflexDrill */,
 				4000D4D5BFC6AFCDAB4C /* Settings */,
 				4000235BDB4106301AF2 /* Vocabulary */,
 			);
@@ -1012,6 +991,7 @@
 		4000C000000000000003 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				2000C001000100010007 /* ReflexBlitzPhase.swift */,
 				2000C001000100010001 /* ReflexMode.swift */,
 				2000C001000100010002 /* ReflexCardPhase.swift */,
 				2000C001000100010003 /* ReflexCardResult.swift */,
@@ -1060,54 +1040,6 @@
 				200020749F4D43ABD652 /* SRSMemoryHeroCard.swift */,
 				200008890465B3CF1A36 /* SearchNewWordView.swift */,
 				2000B63A5CC107F07807 /* SuggestedWordsCardView.swift */,
-			);
-			path = "Views";
-			sourceTree = "<group>";
-		};
-		4000A827BA6524C5D45F /* ReflexDrill */ = {
-			isa = PBXGroup;
-			children = (
-				4000ACF2A4DA06F4A481 /* Models */,
-				20007465AED07FB92017 /* ReflexDrillView.swift */,
-				40009386A2E4BCFB13A3 /* Services */,
-				400090860225ED9DE9BC /* ViewModels */,
-				40003C7A2EA29915FDAB /* Views */,
-			);
-			path = "ReflexDrill";
-			sourceTree = "<group>";
-		};
-		4000ACF2A4DA06F4A481 /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				2000A7671FB389AEBB6B /* ReflexBlitzModels.swift */,
-			);
-			path = "Models";
-			sourceTree = "<group>";
-		};
-		40009386A2E4BCFB13A3 /* Services */ = {
-			isa = PBXGroup;
-			children = (
-
-			);
-			path = "Services";
-			sourceTree = "<group>";
-		};
-		400090860225ED9DE9BC /* ViewModels */ = {
-			isa = PBXGroup;
-			children = (
-				2000F8D39E9F4428B5C0 /* ReflexDrillViewModel.swift */,
-			);
-			path = "ViewModels";
-			sourceTree = "<group>";
-		};
-		40003C7A2EA29915FDAB /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				20005D2B166623C3F401 /* ReflexBlitzAdvanceDockView.swift */,
-				20004CE4808DDB7C4856 /* ReflexBlitzCardReviewedView.swift */,
-				20000CED0631A5F57244 /* ReflexBlitzCardView.swift */,
-				200099A1MC0000000001 /* ReflexBlitzMultipleChoiceCardView.swift */,
-				20005DF86FBEBA618963 /* ReflexBlitzHeaderView.swift */,
 			);
 			path = "Views";
 			sourceTree = "<group>";
@@ -1328,8 +1260,6 @@
 				2000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift */,
 				4000538975BBBF45E56C /* Features */,
 				40001795D309886C29B1 /* Mocks */,
-				20009A66CE4FB106804A /* ReflexDrillViewModelTests.swift */,
-				2000EAE4A7B7D61EA805 /* ReflexDrillViewTests.swift */,
 				2000129F1C781D6703DB /* ReflexFlipCardViewTests.swift */,
 				2000B1DEE633B1C8F81E /* SRSEngineTests.swift */,
 				20007E84695DF55F278D /* SettingsViewModelTests.swift */,
@@ -1492,6 +1422,7 @@
 		40001795D309886C29B1 /* Mocks */ = {
 			isa = PBXGroup;
 			children = (
+				2000C001000100010008 /* MockReflexServices.swift */,
 				200091F224DACBC284B0 /* MockVocabularyRepository.swift */,
 			);
 			path = "Mocks";
@@ -1731,16 +1662,8 @@
 				300096513C5AE8139597 /* MobileSearchView.swift in Sources */,
 				300020749F4D43ABD652 /* SRSMemoryHeroCard.swift in Sources */,
 				300008890465B3CF1A36 /* SearchNewWordView.swift in Sources */,
-				3000B63A5CC107F07807 /* SuggestedWordsCardView.swift in Sources */,
-				3000A7671FB389AEBB6B /* ReflexBlitzModels.swift in Sources */,
-				30007465AED07FB92017 /* ReflexDrillView.swift in Sources */,
+				3000C001000100010007 /* ReflexBlitzPhase.swift in Sources */,
 				3000925E6AEFC3C319C4 /* ReflexBlitzViewModel.swift in Sources */,
-				3000F8D39E9F4428B5C0 /* ReflexDrillViewModel.swift in Sources */,
-				30005D2B166623C3F401 /* ReflexBlitzAdvanceDockView.swift in Sources */,
-				30004CE4808DDB7C4856 /* ReflexBlitzCardReviewedView.swift in Sources */,
-				30000CED0631A5F57244 /* ReflexBlitzCardView.swift in Sources */,
-				300099A1MC0000000001 /* ReflexBlitzMultipleChoiceCardView.swift in Sources */,
-				30005DF86FBEBA618963 /* ReflexBlitzHeaderView.swift in Sources */,
 				3000E2383A0FDF336719 /* ReflexBlitzModeSelectionView.swift in Sources */,
 				30000B23D37B5EC1F4DC /* ReflexBlitzSummaryView.swift in Sources */,
 				300086A09076E74750E7 /* ReflexBlitzView.swift in Sources */,
@@ -1864,7 +1787,7 @@
 				30007DD63AA4B1896001 /* ReflexBlitzViewIntegrationTests.swift in Test Sources */,
 				30007DD63AA4B1896002 /* ReflexBlitzModeSelectionViewTests.swift in Test Sources */,
 				3000A5EC389D77272424 /* ReflexBlitzViewModelTests.swift in Test Sources */,
-				3000DD4CECAB945418DA /* ReflexDrillViewModelSpeechTests.swift in Test Sources */,
+				3000C001000100010008 /* MockReflexServices.swift in Test Sources */,
 				3000D22F93692E9C65C5 /* CollocationExtractorTests.swift in Test Sources */,
 				300047D0A5CDF3D93D9F /* PersonalVaultLegacyViewModelTests.swift in Test Sources */,
 				300022913C72DD267B8F /* PersonalVaultViewsTests.swift in Test Sources */,
@@ -1887,8 +1810,6 @@
 				300041B134BDE2385881 /* VocabularyViewTests.swift in Test Sources */,
 				3000871815071728E145 /* VocabularyViewsTests.swift in Test Sources */,
 				300091F224DACBC284B0 /* MockVocabularyRepository.swift in Test Sources */,
-				30009A66CE4FB106804A /* ReflexDrillViewModelTests.swift in Test Sources */,
-				3000EAE4A7B7D61EA805 /* ReflexDrillViewTests.swift in Test Sources */,
 				3000129F1C781D6703DB /* ReflexFlipCardViewTests.swift in Test Sources */,
 				3000B1DEE633B1C8F81E /* SRSEngineTests.swift in Test Sources */,
 				30007E84695DF55F278D /* SettingsViewModelTests.swift in Test Sources */,

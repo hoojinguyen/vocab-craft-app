@@ -19,6 +19,27 @@ public struct ReflexHeaderBarView: View {
     public let onClose: () -> Void
     public let onSkip: (() -> Void)?
 
+    public var timerBarColor: Color {
+        switch timerStage {
+        case .steady:
+            return theme.colors.brandPrimary
+        case .warning:
+            return theme.colors.statusWarning
+        case .urgent:
+            return theme.colors.statusDanger
+        }
+    }
+
+    public func segmentColor(for index: Int) -> Color {
+        if index < attempts.count {
+            return attempts[index].isCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger
+        } else if index == currentIndex {
+            return theme.colors.brandPrimary
+        } else {
+            return theme.colors.surfaceSubtle.opacity(0.4)
+        }
+    }
+
     public init(
         currentIndex: Int,
         totalCount: Int,
@@ -150,3 +171,5 @@ public struct ReflexHeaderBarView: View {
         .padding(.bottom, theme.spacing.xs)
     }
 }
+
+public typealias ReflexBlitzHeaderView = ReflexHeaderBarView
