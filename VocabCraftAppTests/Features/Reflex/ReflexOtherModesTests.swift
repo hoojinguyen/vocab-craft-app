@@ -129,6 +129,45 @@ struct ReflexOtherModesTests {
         #expect(timeoutView.userSubmittedText == nil)
     }
 
+    @Test("ReflexTypingModeView front face cloze parts and hint stage slots")
+    func testTypingModeClozeStages() {
+        let item = ReflexBlitzWordItem.defaultStarterWords[0]
+        let stageSet = ReflexHintMaskGenerator.generateStages(
+            lemma: item.lemma,
+            sentenceEn: item.clozeSentenceEn,
+            pos: item.cleanPos
+        )
+        var text = ""
+        let binding = Binding(get: { text }, set: { text = $0 })
+
+        // Stage 0: Initial length mask slot
+        let stage0View = ReflexTypingModeView(
+            word: item,
+            hintStage: 0,
+            typingText: binding,
+            clozeStages: stageSet
+        )
+        #expect(stage0View.activeClozeParts?.slot == stageSet.initialParts.slot)
+
+        // Stage 1: Length mask slot
+        let stage1View = ReflexTypingModeView(
+            word: item,
+            hintStage: 1,
+            typingText: binding,
+            clozeStages: stageSet
+        )
+        #expect(stage1View.activeClozeParts?.slot == stageSet.lengthMaskedParts.slot)
+
+        // Stage 2: Pattern revealed slot
+        let stage2View = ReflexTypingModeView(
+            word: item,
+            hintStage: 2,
+            typingText: binding,
+            clozeStages: stageSet
+        )
+        #expect(stage2View.activeClozeParts?.slot == stageSet.patternRevealedParts.slot)
+    }
+
     @Test("Instantiates ListeningModeView with 3D Flip Card, auto-play, hint stages, and reviewed states")
     func testListeningModeViewFullStates() {
         let item = ReflexBlitzWordItem.defaultStarterWords[0]

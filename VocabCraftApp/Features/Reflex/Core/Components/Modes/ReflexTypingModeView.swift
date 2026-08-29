@@ -98,21 +98,29 @@ public struct ReflexTypingModeView: View {
         VStack(spacing: theme.spacing.md) {
             flipStimulusCard
 
-            if !isReviewed {
+            if isReviewed {
+                externalTypedBadge
+            } else {
                 floatingInputBar
             }
         }
         .onAppear {
-            if !isReviewed {
-                isTextFieldFocused = true
-            }
+            requestDelayedFocus()
         }
-        .onChange(of: isReviewed) { _, newValue in
-            if newValue {
+        .onChange(of: isReviewed) { _, reviewed in
+            if reviewed {
                 isTextFieldFocused = false
             } else {
-                isTextFieldFocused = true
+                requestDelayedFocus()
             }
+        }
+    }
+
+    private func requestDelayedFocus() {
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(80))
+            guard !isReviewed else { return }
+            isTextFieldFocused = true
         }
     }
 
@@ -170,34 +178,9 @@ public struct ReflexTypingModeView: View {
                         shape: .capsule
                     )
                 }
-
-                CraftBadge(
-                    word.cleanLevel,
-                    variant: .subtle,
-                    tone: .warning,
-                    size: .sm,
-                    shape: .capsule
-                )
-
-                if showHint || hintStage > 0 {
-                    let badgeText: String = {
-                        if let text = hintBadgeText, !text.isEmpty {
-                            return text
-                        }
-                        return AppStrings.ReflexBlitz.hintPrefix(word.cleanInitialLetterHint)
-                    }()
-                    CraftBadge(
-                        badgeText,
-                        iconName: "lightbulb.min.fill",
-                        variant: .outline,
-                        tone: .warning,
-                        size: .sm,
-                        shape: .capsule
-                    )
-                    .transition(.scale.combined(with: .opacity))
-                    .accessibilityLabel(AppStrings.ReflexBlitz.hintA11y(word.cleanInitialLetterHint))
-                }
             }
+            .opacity(hintStage >= 1 ? 1.0 : 0.0)
+            .animation(.easeInOut(duration: 0.2), value: hintStage)
 
             sentenceArea
                 .padding(.top, theme.spacing.xs / 2)
@@ -242,20 +225,7 @@ public struct ReflexTypingModeView: View {
                 .accessibilityLabel(AppStrings.ReflexBlitz.ipaA11y(word.ipa))
             }
 
-            // Row 3: Subtle User Input Subtitle
-            if let submitted = userSubmittedText, !submitted.isEmpty {
-                let subtitleText = isResultCorrect
-                    ? AppStrings.ReflexBlitz.typingEnteredPrefix(submitted)
-                    : AppStrings.ReflexBlitz.typingYouTypedPrefix(submitted)
-                CraftText(
-                    subtitleText,
-                    style: .caption,
-                    color: theme.colors.textMuted,
-                    textAlignment: .leading
-                )
-            }
-
-            // Row 4: Badges (POS capsule, Level capsule)
+            // Row 3: Badges (POS capsule, Level capsule)
             HStack(spacing: theme.spacing.xs) {
                 if !word.cleanPos.isEmpty {
                     CraftBadge(
@@ -277,7 +247,7 @@ public struct ReflexTypingModeView: View {
             }
             .padding(.vertical, 2)
 
-            // Row 5: Meaning (Definition in Vietnamese)
+            // Row 4: Meaning (Definition in Vietnamese)
             CraftText(
                 word.definitionVi,
                 style: .titleMedium,
@@ -286,7 +256,7 @@ public struct ReflexTypingModeView: View {
             )
             .padding(.top, 2)
 
-            // Row 6: Example Sentence & Vietnamese Translation
+            // Row 5: Example Sentence & Vietnamese Translation
             VStack(alignment: .leading, spacing: 4) {
                 backSentenceView
                     .multilineTextAlignment(.leading)
@@ -306,6 +276,28 @@ public struct ReflexTypingModeView: View {
             .padding(.top, 4)
         }
         .frame(maxWidth: .infinity, minHeight: 195, alignment: .center)
+    }
+
+    // MARK: - External Typed Answer Badge
+
+    @ViewBuilder
+    private var externalTypedBadge: some View {
+        if isReviewed,
+           let submitted = userSubmittedText?.trimmingCharacters(in: .whitespacesAndNewlines),
+           !submitted.isEmpty {
+            CraftBadge(
+                isResultCorrect
+                    ? AppStrings.ReflexBlitz.typingEnteredPrefix(submitted)
+                    : AppStrings.ReflexBlitz.typingYouTypedPrefix(submitted),
+                iconName: isResultCorrect ? "checkmark.circle.fill" : "xmark.circle.fill",
+                variant: .subtle,
+                tone: isResultCorrect ? .success : .danger,
+                size: .md,
+                shape: .capsule
+            )
+            .padding(.top, theme.spacing.sm)
+            .transition(.opacity.combined(with: .scale(scale: 0.95)))
+        }
     }
 
     // MARK: - Sentence Area
@@ -342,7 +334,7 @@ public struct ReflexTypingModeView: View {
         let prefixText = Text(parts.prefix)
             .font(theme.typography.bodySerif)
             .foregroundColor(theme.colors.textPrimary)
-        let slotColor = (showHint || hintStage >= 2) ? theme.colors.statusWarning : theme.colors.brandPrimary
+        let slotColor = (hintStage >= 2) ? theme.colors.statusWarning : theme.colors.brandPrimary
         let slotText = Text(parts.slot)
             .font(theme.typography.bodySerif.bold())
             .foregroundColor(slotColor)
