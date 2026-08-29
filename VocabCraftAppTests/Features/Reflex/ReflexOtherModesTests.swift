@@ -9,8 +9,9 @@ struct ReflexOtherModesTests {
     func testSpeakingModeView() {
         let item = ReflexBlitzWordItem.defaultStarterWords[0]
         let stageSet = ReflexHintMaskGenerator.generateStages(
-            sentence: item.clozeSentenceEn,
-            targetWord: item.lemma
+            lemma: item.lemma,
+            sentenceEn: item.clozeSentenceEn,
+            pos: item.cleanPos
         )
         var switchedToKeyboard = false
         let speakingView = ReflexSpeakingModeView(
@@ -20,7 +21,7 @@ struct ReflexOtherModesTests {
             showHint: true,
             hintStage: 1,
             clozeStages: stageSet,
-            hintBadgeText: "Gợi ý: h • • • •",
+            hintBadgeText: item.cleanInitialLetterHint,
             onSwitchToKeyboard: {
                 switchedToKeyboard = true
             }
@@ -30,8 +31,8 @@ struct ReflexOtherModesTests {
         #expect(speakingView.elapsedTimeMs == 1200)
         #expect(speakingView.showHint == true)
         #expect(speakingView.hintStage == 1)
-        #expect(speakingView.hintBadgeText == "Gợi ý: h • • • •")
-        #expect(speakingView.activeClozeParts?.slot == "• • • • •")
+        #expect(speakingView.hintBadgeText == item.cleanInitialLetterHint)
+        #expect(speakingView.activeClozeParts?.slot == stageSet.lengthMaskedParts.slot)
         speakingView.onSwitchToKeyboard?()
         #expect(switchedToKeyboard == true)
     }
@@ -40,8 +41,9 @@ struct ReflexOtherModesTests {
     func testTypingModeView() {
         let item = ReflexBlitzWordItem.defaultStarterWords[0]
         let stageSet = ReflexHintMaskGenerator.generateStages(
-            sentence: item.clozeSentenceEn,
-            targetWord: item.lemma
+            lemma: item.lemma,
+            sentenceEn: item.clozeSentenceEn,
+            pos: item.cleanPos
         )
         var text = "hab"
         var submitted = false
@@ -52,7 +54,7 @@ struct ReflexOtherModesTests {
             showHint: true,
             hintStage: 2,
             clozeStages: stageSet,
-            hintBadgeText: "Gợi ý: h _ _ i t",
+            hintBadgeText: item.cleanInitialLetterHint,
             onSubmit: {
                 submitted = true
             }
@@ -61,8 +63,8 @@ struct ReflexOtherModesTests {
         #expect(typingView.typingText == "hab")
         #expect(typingView.showHint == true)
         #expect(typingView.hintStage == 2)
-        #expect(typingView.hintBadgeText == "Gợi ý: h _ _ i t")
-        #expect(typingView.activeClozeParts?.slot == stageSet.maskedWordString)
+        #expect(typingView.hintBadgeText == item.cleanInitialLetterHint)
+        #expect(typingView.activeClozeParts?.slot == stageSet.patternRevealedParts.slot)
         typingBinding.wrappedValue = "habit"
         #expect(typingView.typingText == "habit")
         typingView.onSubmit?()

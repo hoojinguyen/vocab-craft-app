@@ -89,8 +89,11 @@ public struct ReflexHintMaskGenerator: Sendable {
 
         // Long words (>= 5): Check for middle cluster
         let lower = lemma.lowercased()
+        let searchStartIndex = lower.index(after: lower.startIndex)
+        let searchEndIndex = lower.endIndex
         for cluster in (doubleConsonants + distinctiveDigraphs) {
-            if let range = lower.range(of: cluster) {
+            if searchStartIndex < searchEndIndex,
+               let range = lower.range(of: cluster, range: searchStartIndex..<searchEndIndex) {
                 let startOffset = lower.distance(from: lower.startIndex, to: range.lowerBound)
                 let endOffset = lower.distance(from: lower.startIndex, to: range.upperBound)
 

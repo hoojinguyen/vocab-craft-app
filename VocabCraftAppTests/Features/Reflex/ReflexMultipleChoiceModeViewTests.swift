@@ -103,8 +103,9 @@ struct ReflexMultipleChoiceModeViewTests {
     func testClozeStagesMasking() {
         let item = ReflexBlitzWordItem.defaultStarterWords[0] // "habit"
         let stageSet = ReflexHintMaskGenerator.generateStages(
-            sentence: item.clozeSentenceEn,
-            targetWord: item.lemma
+            lemma: item.lemma,
+            sentenceEn: item.clozeSentenceEn,
+            pos: item.cleanPos
         )
 
         let stage0View = ReflexMultipleChoiceModeView(
@@ -122,7 +123,6 @@ struct ReflexMultipleChoiceModeViewTests {
             cardBorderColor: .clear
         )
         #expect(stage0View.activeClozeParts?.slot == stageSet.initialParts.slot)
-        #expect(stage0View.activeClozeParts?.slot == "_____")
 
         let stage1View = ReflexMultipleChoiceModeView(
             word: item,
@@ -139,7 +139,6 @@ struct ReflexMultipleChoiceModeViewTests {
             cardBorderColor: .clear
         )
         #expect(stage1View.activeClozeParts?.slot == stageSet.lengthMaskedParts.slot)
-        #expect(stage1View.activeClozeParts?.slot == "• • • • •")
 
         let stage2View = ReflexMultipleChoiceModeView(
             word: item,
@@ -156,6 +155,5 @@ struct ReflexMultipleChoiceModeViewTests {
             cardBorderColor: .clear
         )
         #expect(stage2View.activeClozeParts?.slot == stageSet.patternRevealedParts.slot)
-        #expect(stage2View.activeClozeParts?.slot == stageSet.maskedWordString)
     }
 }

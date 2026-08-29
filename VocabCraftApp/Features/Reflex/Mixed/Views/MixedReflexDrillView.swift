@@ -185,6 +185,17 @@ public struct MixedReflexDrillView: View {
     // MARK: - Challenge Card Container
     @ViewBuilder
     private func challengeCard(for item: MixedReflexDrillItem) -> some View {
+        let isReviewed = cardPhase.isReviewed
+        let reviewedResult = cardPhase.reviewResult
+        let isResultCorrect = reviewedResult?.isCorrect ?? false
+        let isResultTimeout = reviewedResult?.isTimeout ?? false
+        let timerStage = ReflexBlitzTimerCalculator.timerStage(
+            fractionRemaining: fractionRemaining,
+            isReviewed: isReviewed
+        )
+        let currentHintStage = item.assignedMode.hintStage(forElapsedTimeMs: elapsedTimeMs)
+        let isHintActive = currentHintStage >= 1
+
         if item.assignedMode == .multipleChoice {
             ReflexMultipleChoiceModeView(
                 word: item,
@@ -192,8 +203,8 @@ public struct MixedReflexDrillView: View {
                 isReviewed: isReviewed,
                 isResultCorrect: isResultCorrect,
                 isResultTimeout: isResultTimeout,
-                showHint: false,
-                hintStage: 0,
+                showHint: isHintActive,
+                hintStage: currentHintStage,
                 selectedOptionText: reviewedResult?.selectedOption,
                 clozeStages: viewModel.currentClozeStages,
                 clozeParts: ReflexClozeFormatter.extractTemplateParts(from: item.clozeSentenceEn),
@@ -232,8 +243,8 @@ public struct MixedReflexDrillView: View {
                             word: item,
                             liveTranscript: liveTranscript,
                             elapsedTimeMs: elapsedTimeMs,
-                            showHint: false,
-                            hintStage: 0,
+                            showHint: isHintActive,
+                            hintStage: currentHintStage,
                             clozeStages: viewModel.currentClozeStages,
                             clozeParts: ReflexClozeFormatter.extractTemplateParts(from: item.clozeSentenceEn),
                             displayedSentence: item.clozeSentenceEn,
@@ -246,8 +257,8 @@ public struct MixedReflexDrillView: View {
                         ReflexTypingModeView(
                             word: item,
                             typingText: $typingText,
-                            showHint: false,
-                            hintStage: 0,
+                            showHint: isHintActive,
+                            hintStage: currentHintStage,
                             clozeStages: viewModel.currentClozeStages,
                             clozeParts: ReflexClozeFormatter.extractTemplateParts(from: item.clozeSentenceEn),
                             displayedSentence: item.clozeSentenceEn,
@@ -260,7 +271,7 @@ public struct MixedReflexDrillView: View {
                         ReflexListeningModeView(
                             word: item,
                             options: currentOptions,
-                            hintStage: 0,
+                            hintStage: currentHintStage,
                             eliminatedOptionId: viewModel.currentEliminatedOptionId,
                             onPlayAudio: {
                                 viewModel.playAudioForCurrentWord()
