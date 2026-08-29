@@ -41,6 +41,7 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
     public let edgeThickness: CGFloat
     public let showSpecularGlare: Bool
     public let showsHighlightBorder: Bool
+    public let highlightShadowColor: Color?
     public let isTapToFlipEnabled: Bool
     public let cornerRadius: CGFloat?
     public let padding: CGFloat?
@@ -58,6 +59,7 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
         edgeThickness: CGFloat = 0,
         showSpecularGlare: Bool = true,
         showsHighlightBorder: Bool = false,
+        highlightShadowColor: Color? = nil,
         isTapToFlipEnabled: Bool = true,
         cornerRadius: CGFloat? = nil,
         padding: CGFloat? = nil,
@@ -74,6 +76,7 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
         self.edgeThickness = edgeThickness
         self.showSpecularGlare = showSpecularGlare
         self.showsHighlightBorder = showsHighlightBorder
+        self.highlightShadowColor = highlightShadowColor
         self.isTapToFlipEnabled = isTapToFlipEnabled
         self.cornerRadius = cornerRadius
         self.padding = padding
@@ -107,19 +110,28 @@ private func cardFaceContainer<V: View>(
         .overlay(surfaceBorderOverlay(radius: radius))
         .modifier(ShadowModifier(style: style, theme: theme))
 
-    if style == .tactile3D {
-        ZStack {
-            // Native extruded 3D base lip perfectly aligned to face geometry
-            RoundedRectangle(cornerRadius: radius, style: .continuous)
-                .fill(theme.colors.borderDefault)
-                .offset(y: depth)
+    let cardView: some View = Group {
+        if style == .tactile3D {
+            ZStack {
+                // Native extruded 3D base lip perfectly aligned to face geometry
+                RoundedRectangle(cornerRadius: radius, style: .continuous)
+                    .fill(theme.colors.borderDefault)
+                    .offset(y: depth)
 
-            // Top interactive/rendered card face
+                // Top interactive/rendered card face
+                topFace
+            }
+            .padding(.bottom, depth)
+        } else {
             topFace
         }
-        .padding(.bottom, depth)
+    }
+
+    if let highlightShadowColor {
+        cardView
+            .shadow(color: highlightShadowColor, radius: 10, x: 0, y: 3)
     } else {
-        topFace
+        cardView
     }
 }
 ```
@@ -127,6 +139,7 @@ private func cardFaceContainer<V: View>(
 This guarantees:
 1. Both `front` and `back` faces share identical corner radii, padding, borders, and tactile 3D lip extrusion geometry.
 2. The 3D flip animation rotates the complete composite face (card surface + 3D bottom extrusion) with zero edge distortion and zero external container leakage.
+3. The optional ambient perimeter shadow (`highlightShadowColor`) provides an elegant, non-intrusive glow around the card upon result reveal when desired by the caller.
 
 ---
 
@@ -139,6 +152,10 @@ With `CraftFlipCard` handling surface geometry, `ReflexBlitzMultipleChoiceCardVi
 ```swift
 @ViewBuilder
 private var flipStimulusCard: some View {
+    let statusGlow: Color? = isReviewed
+        ? (isResultCorrect ? theme.colors.statusSuccess.opacity(0.2) : theme.colors.statusDanger.opacity(0.2))
+        : nil
+
     CraftFlipCard(
         isFlipped: Binding(
             get: { isReviewed },
@@ -147,6 +164,8 @@ private var flipStimulusCard: some View {
         style: .tactile3D,
         axis: .horizontal,
         showSpecularGlare: true,
+        showsHighlightBorder: false,
+        highlightShadowColor: statusGlow,
         isTapToFlipEnabled: false,
         cornerRadius: theme.radii.xl,
         padding: theme.spacing.base,
