@@ -298,16 +298,19 @@ public final class ReflexBlitzViewModel {
         if selectedMode == .multipleChoice {
             hintTimerTask = Task { @MainActor [weak self] in
                 try? await Task.sleep(for: .milliseconds(1600))
+                guard !Task.isCancelled else { return }
                 guard let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
                 self.hintStage = max(self.hintStage, 1)
             }
             hintStage2Task = Task { @MainActor [weak self] in
                 try? await Task.sleep(for: .milliseconds(2500))
+                guard !Task.isCancelled else { return }
                 guard let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
                 self.hintStage = max(self.hintStage, 2)
             }
             hintStage3Task = Task { @MainActor [weak self] in
                 try? await Task.sleep(for: .milliseconds(3400))
+                guard !Task.isCancelled else { return }
                 guard let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
                 self.hintStage = max(self.hintStage, 3)
             }
@@ -315,6 +318,7 @@ public final class ReflexBlitzViewModel {
             let hintSeconds = selectedMode == .typing ? 4.5 : 3.5
             hintTimerTask = Task { @MainActor [weak self] in
                 try? await Task.sleep(for: .seconds(hintSeconds))
+                guard !Task.isCancelled else { return }
                 guard let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
                 self.hintStage = 1
             }
@@ -323,6 +327,7 @@ public final class ReflexBlitzViewModel {
         let limitSeconds = selectedMode.timeLimitSeconds
         timeoutTimerTask = Task { @MainActor [weak self] in
             try? await Task.sleep(for: .seconds(limitSeconds))
+            guard !Task.isCancelled else { return }
             guard let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
             self.handleTimeout()
         }

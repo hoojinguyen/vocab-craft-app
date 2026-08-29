@@ -367,6 +367,7 @@ public struct MixedReflexDrillView: View {
     }
 
     private func advanceToNextItem() {
+        viewModel.advanceToNextItem()
         if let nextItem = viewModel.currentItem {
             startDrillItem(nextItem)
         }

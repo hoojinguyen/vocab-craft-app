@@ -88,7 +88,7 @@ public struct ReflexBlitzSummaryView: View {
                 customBottomColor: theme.colors.brandPrimary.opacity(0.7)
             ) {
                 Image(systemName: headerIconName)
-                    .font(.system(size: 36, weight: .bold))
+                    .font(theme.typography.displayLarge)
                     .foregroundStyle(.white)
                     .frame(width: 48, height: 48)
             }
@@ -116,7 +116,8 @@ public struct ReflexBlitzSummaryView: View {
         HStack(spacing: theme.spacing.xs) {
             ForEach(1...3, id: \.self) { index in
                 Image(systemName: index <= starCount ? "star.fill" : "star")
-                    .font(.system(size: 14, weight: .bold))
+                    .font(theme.typography.caption)
+                    .fontWeight(.bold)
                     .foregroundStyle(index <= starCount ? theme.colors.accent : theme.colors.textMuted.opacity(0.35))
             }
         }
@@ -167,7 +168,8 @@ public struct ReflexBlitzSummaryView: View {
                         .fill(tint.opacity(0.12))
                         .frame(width: 36, height: 36)
                     Image(systemName: iconName)
-                        .font(.system(size: 17, weight: .semibold))
+                        .font(theme.typography.bodyLarge)
+                        .fontWeight(.semibold)
                         .symbolRenderingMode(.hierarchical)
                         .foregroundStyle(tint)
                 }

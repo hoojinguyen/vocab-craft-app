@@ -112,7 +112,12 @@ public final class MixedReflexDrillViewModel: Identifiable {
             mode: current.assignedMode,
             isCorrect: isCorrect
         )
+    }
 
+    /// Advances to the next item in the queue and triggers session completion if exhausted.
+    /// Must be called from the view after the feedback sheet is dismissed,
+    /// so the background card does not flip to the next word while the sheet is still visible.
+    public func advanceToNextItem() {
         currentIndex += 1
         if currentIndex >= queue.count {
             finishSession()
