@@ -130,4 +130,28 @@ struct MixedReflexDrillViewsTests {
         drillView.onFinish()
         #expect(finished == true)
     }
+
+    @Test("MixedReflexDrillView khởi tạo và hiển thị card Listening cho item chế độ listening")
+    @MainActor
+    func testMixedReflexDrillViewListeningModeChallengeCard() async {
+        let words = [
+            VaultWordItem(id: 1, lemma: "ephemeral", pos: "adj.", definitionVi: "Phù du", exampleSentenceEn: "Her fame is ephemeral.")
+        ]
+        final class MockListeningQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol {
+            let item: MixedReflexDrillItem
+            init(item: MixedReflexDrillItem) { self.item = item }
+            func generate(from words: [VaultWordItem]) -> [MixedReflexDrillItem] { [item] }
+        }
+
+        let item = MixedReflexDrillItem(word: words[0], assignedMode: .listening, timeLimitSeconds: 5.5)
+        let queueUseCase = MockListeningQueueUseCase(item: item)
+        let vm = MixedReflexDrillViewModel(selectedWords: words, queueUseCase: queueUseCase)
+
+        let drillView = MixedReflexDrillView(viewModel: vm, onFinish: {})
+        #expect(drillView.viewModel.queue.count == 1)
+        #expect(drillView.viewModel.currentItem?.assignedMode == .listening)
+        #expect(drillView.isReviewed == false)
+        #expect(drillView.isResultCorrect == false)
+        #expect(drillView.isResultTimeout == false)
+    }
 }

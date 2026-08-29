@@ -190,6 +190,8 @@ public struct MixedReflexDrillView: View {
 
         if item.assignedMode == .multipleChoice {
             multipleChoiceChallengeCard(for: item, hintStage: currentHintStage, isHintActive: isHintActive)
+        } else if item.assignedMode == .listening {
+            listeningChallengeCard(for: item, hintStage: currentHintStage, isHintActive: isHintActive)
         } else {
             containerChallengeCard(for: item, hintStage: currentHintStage, isHintActive: isHintActive)
         }
@@ -213,6 +215,33 @@ public struct MixedReflexDrillView: View {
             eliminatedOptionId: viewModel.currentEliminatedOptionId,
             onSelectOption: { option in
                 selectOption(option)
+            },
+            onReplayAudio: {
+                viewModel.playAudioForCurrentWord()
+            }
+        )
+        .padding(.horizontal, theme.spacing.base)
+    }
+
+    @ViewBuilder
+    private func listeningChallengeCard(for item: MixedReflexDrillItem, hintStage: Int, isHintActive: Bool) -> some View {
+        ReflexListeningModeView(
+            word: item,
+            options: currentOptions,
+            elapsedTimeMs: elapsedTimeMs,
+            isReviewed: isReviewed,
+            isResultCorrect: isResultCorrect,
+            isResultTimeout: isResultTimeout,
+            showHint: isHintActive,
+            hintStage: hintStage,
+            selectedOptionText: reviewedResult?.selectedOption,
+            cardBorderColor: theme.colors.hairline.opacity(0.4),
+            eliminatedOptionId: viewModel.currentEliminatedOptionId,
+            onSelectOption: { option in
+                selectOption(option)
+            },
+            onPlayAudio: {
+                viewModel.playAudioForCurrentWord()
             },
             onReplayAudio: {
                 viewModel.playAudioForCurrentWord()
@@ -270,20 +299,7 @@ public struct MixedReflexDrillView: View {
                             submitTypingAnswer(typingText)
                         }
                     )
-                case .listening:
-                    ReflexListeningModeView(
-                        word: item,
-                        options: currentOptions,
-                        hintStage: hintStage,
-                        eliminatedOptionId: viewModel.currentEliminatedOptionId,
-                        onPlayAudio: {
-                            viewModel.playAudioForCurrentWord()
-                        },
-                        onSelectOption: { option in
-                            selectOption(option)
-                        }
-                    )
-                case .multipleChoice:
+                case .multipleChoice, .listening:
                     EmptyView()
                 }
             }

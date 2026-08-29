@@ -229,6 +229,8 @@ public struct ReflexBlitzView: View {
             multipleChoiceCard(for: word)
         } else if viewModel.selectedMode == .typing {
             typingCard(for: word)
+        } else if viewModel.selectedMode == .listening {
+            listeningCard(for: word)
         } else {
             containerCard(for: word)
         }
@@ -286,6 +288,33 @@ public struct ReflexBlitzView: View {
     }
 
     @ViewBuilder
+    private func listeningCard(for word: ReflexBlitzWordItem) -> some View {
+        ReflexListeningModeView(
+            word: word,
+            options: viewModel.currentOptions,
+            elapsedTimeMs: viewModel.elapsedTimeMs,
+            isReviewed: isReviewed,
+            isResultCorrect: viewModel.currentAttemptIsCorrect,
+            isResultTimeout: isReviewedTimeout,
+            showHint: viewModel.showHint,
+            hintStage: viewModel.hintStage,
+            selectedOptionText: reviewResult?.selectedOption,
+            cardBorderColor: theme.colors.hairline.opacity(0.4),
+            eliminatedOptionId: eliminatedOptionId,
+            onSelectOption: { option in
+                viewModel.selectOption(option)
+            },
+            onPlayAudio: {
+                viewModel.speakCurrentWord()
+            },
+            onReplayAudio: {
+                viewModel.speakCurrentWord()
+            }
+        )
+        .padding(.horizontal, theme.spacing.base)
+    }
+
+    @ViewBuilder
     private func containerCard(for word: ReflexBlitzWordItem) -> some View {
         ReflexCardContainerView(
             isReviewed: isReviewed,
@@ -320,23 +349,7 @@ public struct ReflexBlitzView: View {
                             viewModel.toggleKeyboardFallback()
                         }
                     )
-                case .listening:
-                    ReflexListeningModeView(
-                        word: word,
-                        options: viewModel.currentOptions,
-                        elapsedTimeMs: viewModel.elapsedTimeMs,
-                        isReviewed: isReviewed,
-                        selectedOptionText: reviewResult?.selectedOption,
-                        hintStage: viewModel.hintStage,
-                        eliminatedOptionId: eliminatedOptionId,
-                        onPlayAudio: {
-                            viewModel.speakCurrentWord()
-                        },
-                        onSelectOption: { option in
-                            viewModel.selectOption(option)
-                        }
-                    )
-                case .multipleChoice, .typing:
+                case .multipleChoice, .typing, .listening:
                     EmptyView()
                 }
             }

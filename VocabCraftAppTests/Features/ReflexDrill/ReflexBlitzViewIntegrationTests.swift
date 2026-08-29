@@ -297,6 +297,10 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         XCTAssertEqual(vm.selectedMode, .listening)
         XCTAssertEqual(mockTTS.lastSpokenText, vm.currentWord!.lemma)
 
+        let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
+        XCTAssertNotNil(view.body)
+        XCTAssertNotNil(view.drillingView)
+
         guard let incorrectOption = vm.currentOptions.first(where: { !$0.isCorrect }) else {
             XCTFail("Missing incorrect option")
             return
@@ -312,6 +316,106 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         } else {
             XCTFail("Expected cardPhase to be .reviewed")
         }
+
+        // Verify reviewed drilling view with feedback sheet
+        XCTAssertNotNil(view.drillingView)
+    }
+
+    func testBlitzViewDrillingListeningModeCorrectSelectionAndAdvance() {
+        let (vm, _, mockTTS, _) = makeViewModel()
+        vm.selectMode(.listening)
+        vm.beginSessionDirectly()
+
+        XCTAssertEqual(vm.phase, .drilling)
+        XCTAssertEqual(vm.selectedMode, .listening)
+        guard let firstWord = vm.currentWord else {
+            XCTFail("Missing first word")
+            return
+        }
+        XCTAssertEqual(mockTTS.lastSpokenText, firstWord.lemma)
+
+        let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
+        XCTAssertNotNil(view.body)
+        XCTAssertNotNil(view.drillingView)
+
+        guard let correctOption = vm.currentOptions.first(where: { $0.isCorrect }) else {
+            XCTFail("Missing correct option")
+            return
+        }
+
+        vm.selectOption(correctOption)
+        XCTAssertTrue(vm.currentAttemptIsCorrect)
+        XCTAssertEqual(vm.comboStreak, 1)
+
+        if case .reviewed(let result) = vm.cardPhase {
+            XCTAssertTrue(result.isCorrect)
+            XCTAssertFalse(result.isTimeout)
+            XCTAssertEqual(result.selectedOption, correctOption.text)
+        } else {
+            XCTFail("Expected cardPhase to be .reviewed")
+        }
+
+        // Test audio replay in review
+        vm.speakCurrentWord()
+        XCTAssertEqual(mockTTS.lastSpokenText, firstWord.lemma)
+
+        // Advance to word 2
+        vm.advanceToNextWord()
+        XCTAssertEqual(vm.currentWordIndex, 1)
+        XCTAssertEqual(vm.cardPhase, .activeCountdown)
+        guard let secondWord = vm.currentWord else {
+            XCTFail("Missing second word")
+            return
+        }
+        XCTAssertEqual(mockTTS.lastSpokenText, secondWord.lemma)
+    }
+
+    func testBlitzViewDrillingListeningModeTimeoutAndReview() {
+        let (vm, _, mockTTS, _) = makeViewModel()
+        vm.selectMode(.listening)
+        vm.beginSessionDirectly()
+
+        XCTAssertEqual(vm.phase, .drilling)
+        XCTAssertEqual(vm.selectedMode, .listening)
+
+        let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
+        XCTAssertNotNil(view.body)
+
+        vm.handleTimeout()
+
+        if case .reviewed(let result) = vm.cardPhase {
+            XCTAssertTrue(result.isTimeout)
+            XCTAssertFalse(result.isCorrect)
+            XCTAssertNil(result.selectedOption)
+        } else {
+            XCTFail("Expected cardPhase to be .reviewed")
+        }
+
+        XCTAssertNotNil(view.drillingView)
+    }
+
+    func testBlitzViewDrillingListeningModeHintProgression() {
+        let (vm, _, _, _) = makeViewModel()
+        vm.selectMode(.listening)
+        vm.beginSessionDirectly()
+
+        XCTAssertEqual(vm.phase, .drilling)
+        XCTAssertEqual(vm.hintStage, 0)
+
+        let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
+        XCTAssertNotNil(view.drillingView)
+
+        // Stage 1 hint progression (Part of Speech)
+        vm.hintStage = 1
+        vm.showHint = true
+        XCTAssertEqual(vm.hintStage, 1)
+        XCTAssertTrue(vm.showHint)
+        XCTAssertNotNil(view.drillingView)
+
+        // Stage 3 hint progression (Distractor elimination)
+        vm.hintStage = 3
+        XCTAssertEqual(vm.hintStage, 3)
+        XCTAssertNotNil(view.drillingView)
     }
 
     func testBlitzViewTimeoutRevealingPhaseRendering() async {
