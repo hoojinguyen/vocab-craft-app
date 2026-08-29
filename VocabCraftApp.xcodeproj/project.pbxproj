@@ -160,7 +160,6 @@
 		3000A2F071BDE838E61F /* VocabularyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A2F071BDE838E61F /* VocabularyViewModel.swift */; };
 		3000ECC1801AE930F9B9 /* DynamicPulseTimerBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000ECC1801AE930F9B9 /* DynamicPulseTimerBar.swift */; };
 		3000D429957D71D60B77 /* DynamicReflexModeBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000D429957D71D60B77 /* DynamicReflexModeBadge.swift */; };
-		3000C9951A33CA312256 /* MixedDrillSectionViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C9951A33CA312256 /* MixedDrillSectionViews.swift */; };
 		30008B8A03E6581634CC /* PracticeSelectionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20008B8A03E6581634CC /* PracticeSelectionRow.swift */; };
 		30006775C280E15D4C8F /* TopCarouselFlashcardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20006775C280E15D4C8F /* TopCarouselFlashcardView.swift */; };
 		3000A5F3C1C439691651 /* VaultWordCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A5F3C1C439691651 /* VaultWordCardView.swift */; };
@@ -469,7 +468,6 @@
 		2000A2F071BDE838E61F /* VocabularyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyViewModel.swift"; sourceTree = "<group>"; };
 		2000ECC1801AE930F9B9 /* DynamicPulseTimerBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DynamicPulseTimerBar.swift"; sourceTree = "<group>"; };
 		2000D429957D71D60B77 /* DynamicReflexModeBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DynamicReflexModeBadge.swift"; sourceTree = "<group>"; };
-		2000C9951A33CA312256 /* MixedDrillSectionViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MixedDrillSectionViews.swift"; sourceTree = "<group>"; };
 		20008B8A03E6581634CC /* PracticeSelectionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeSelectionRow.swift"; sourceTree = "<group>"; };
 		20006775C280E15D4C8F /* TopCarouselFlashcardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TopCarouselFlashcardView.swift"; sourceTree = "<group>"; };
 		2000A5F3C1C439691651 /* VaultWordCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VaultWordCardView.swift"; sourceTree = "<group>"; };
@@ -903,6 +901,7 @@
 			children = (
 				4000C000000000000020 /* Blitz */,
 				4000C000000000000002 /* Core */,
+				4000C000000000000030 /* Mixed */,
 			);
 			path = "Reflex";
 			sourceTree = "<group>";
@@ -914,6 +913,32 @@
 				4000C000000000000022 /* Views */,
 			);
 			path = "Blitz";
+			sourceTree = "<group>";
+		};
+		4000C000000000000030 /* Mixed */ = {
+			isa = PBXGroup;
+			children = (
+				4000C000000000000031 /* ViewModels */,
+				4000C000000000000032 /* Views */,
+			);
+			path = "Mixed";
+			sourceTree = "<group>";
+		};
+		4000C000000000000031 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				2000107C30A744495C46 /* MixedReflexDrillViewModel.swift */,
+			);
+			path = "ViewModels";
+			sourceTree = "<group>";
+		};
+		4000C000000000000032 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				200077C9C8386F262E62 /* MixedReflexDrillView.swift */,
+				2000158DB6324A9E8D3E /* MixedReflexSummaryView.swift */,
+			);
+			path = "Views";
 			sourceTree = "<group>";
 		};
 		4000C000000000000021 /* ViewModels */ = {
@@ -1218,7 +1243,6 @@
 		400093F1EE2146E580AB /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
-				2000107C30A744495C46 /* MixedReflexDrillViewModel.swift */,
 				2000D1AFA639C3CAA534 /* QuickReflexDrillViewModel.swift */,
 				2000A6E85473D55734B1 /* StudySessionViewModel.swift */,
 				2000A2F071BDE838E61F /* VocabularyViewModel.swift */,
@@ -1230,8 +1254,6 @@
 			isa = PBXGroup;
 			children = (
 				4000B4AAE68CE1FF3203 /* Components */,
-				200077C9C8386F262E62 /* MixedReflexDrillView.swift */,
-				2000158DB6324A9E8D3E /* MixedReflexSummaryView.swift */,
 				20002F7276D162B86C67 /* PracticeSelectionView.swift */,
 				200080D6E75B2F2E5FAD /* QuickReflexDrillSheetView.swift */,
 				20009D3D783C65956EBC /* QuickReflexResultCardView.swift */,
@@ -1253,7 +1275,6 @@
 			children = (
 				2000ECC1801AE930F9B9 /* DynamicPulseTimerBar.swift */,
 				2000D429957D71D60B77 /* DynamicReflexModeBadge.swift */,
-				2000C9951A33CA312256 /* MixedDrillSectionViews.swift */,
 				20008B8A03E6581634CC /* PracticeSelectionRow.swift */,
 				20006775C280E15D4C8F /* TopCarouselFlashcardView.swift */,
 				2000A5F3C1C439691651 /* VaultWordCardView.swift */,
@@ -1752,7 +1773,6 @@
 				3000A2F071BDE838E61F /* VocabularyViewModel.swift in Sources */,
 				3000ECC1801AE930F9B9 /* DynamicPulseTimerBar.swift in Sources */,
 				3000D429957D71D60B77 /* DynamicReflexModeBadge.swift in Sources */,
-				3000C9951A33CA312256 /* MixedDrillSectionViews.swift in Sources */,
 				30008B8A03E6581634CC /* PracticeSelectionRow.swift in Sources */,
 				30006775C280E15D4C8F /* TopCarouselFlashcardView.swift in Sources */,
 				3000A5F3C1C439691651 /* VaultWordCardView.swift in Sources */,
