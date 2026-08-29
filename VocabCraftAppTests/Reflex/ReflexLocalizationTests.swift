@@ -26,4 +26,3 @@ struct ReflexLocalizationTests {
         #expect(AppStrings.ReflexBlitz.listeningWaveformA11y != "app.reflex.listening.waveform_a11y")
     }
 }
-

@@ -141,9 +141,10 @@ struct MixedReflexDrillViewsTests {
             let item: MixedReflexDrillItem
             init(item: MixedReflexDrillItem) { self.item = item }
             func generate(from words: [VaultWordItem]) -> [MixedReflexDrillItem] { [item] }
+            func requeueFailedItem(_ item: MixedReflexDrillItem) -> MixedReflexDrillItem { item }
         }
 
-        let item = MixedReflexDrillItem(word: words[0], assignedMode: .listening, timeLimitSeconds: 5.5)
+        let item = MixedReflexDrillItem(word: words[0], assignedMode: .listening, isRetry: false)
         let queueUseCase = MockListeningQueueUseCase(item: item)
         let vm = MixedReflexDrillViewModel(selectedWords: words, queueUseCase: queueUseCase)
 

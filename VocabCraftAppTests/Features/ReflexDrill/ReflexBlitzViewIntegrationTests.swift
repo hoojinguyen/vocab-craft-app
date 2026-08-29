@@ -371,7 +371,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
     }
 
     func testBlitzViewDrillingListeningModeTimeoutAndReview() {
-        let (vm, _, mockTTS, _) = makeViewModel()
+        let (vm, _, _, _) = makeViewModel()
         vm.selectMode(.listening)
         vm.beginSessionDirectly()
 
@@ -407,7 +407,6 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
 
         // Stage 1 hint progression (Part of Speech)
         vm.hintStage = 1
-        vm.showHint = true
         XCTAssertEqual(vm.hintStage, 1)
         XCTAssertTrue(vm.showHint)
         XCTAssertNotNil(view.drillingView)
