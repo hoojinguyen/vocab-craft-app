@@ -197,13 +197,32 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         }
     }
 
-    func testTypingModeIncorrectSubmissionDoesNotTransitionActivePhase() {
+    func testTypingModeEmptySubmissionDoesNotTransitionActivePhase() {
+        viewModel.selectMode(.typing)
+        viewModel.beginSessionDirectly()
+        viewModel.submitTypingAnswer("   \n")
+
+        XCTAssertEqual(viewModel.cardPhase, .activeCountdown, "Empty typing input should be ignored")
+        XCTAssertEqual(viewModel.attempts.count, 0)
+    }
+
+    func testTypingModeIncorrectSubmissionTransitionsToReviewed() {
         viewModel.selectMode(.typing)
         viewModel.beginSessionDirectly()
         viewModel.submitTypingAnswer("wrongword")
 
-        XCTAssertEqual(viewModel.cardPhase, .activeCountdown, "Incorrect typing input should allow user to retry before timeout")
-        XCTAssertEqual(viewModel.attempts.count, 0)
+        if case .reviewed(let result) = viewModel.cardPhase {
+            XCTAssertFalse(result.isCorrect)
+            XCTAssertFalse(result.isTimeout)
+            XCTAssertEqual(result.typedText, "wrongword")
+        } else {
+            XCTFail("Expected cardPhase to be .reviewed")
+        }
+        XCTAssertEqual(viewModel.comboStreak, 0)
+        XCTAssertEqual(mockSound.playIncorrectChimeCallCount, 1)
+        XCTAssertEqual(mockTTS.lastSpokenText, viewModel.currentWord?.lemma)
+        XCTAssertEqual(viewModel.attempts.count, 1)
+        XCTAssertFalse(viewModel.attempts[0].isCorrect)
     }
 
     // MARK: - Listening Modality
@@ -822,6 +841,32 @@ struct ReflexBlitzViewModelFeedbackTests {
         #expect(viewModel.currentAttemptIsCorrect == true)
     }
 
+    @Test("Typing submission handles empty, correct, and incorrect inputs")
+    @MainActor
+    func testTypingSubmission() async {
+        let sampleWord = ReflexBlitzWordItem(
+            id: 1, lemma: "apple", pos: "n.", ipa: "/ˈæpl/",
+            definitionVi: "quả táo", exampleSentenceEn: "I eat an apple.",
+            exampleSentenceVi: "Tôi ăn một quả táo.", level: "A1"
+        )
+        let viewModel = ReflexBlitzViewModel(words: [sampleWord])
+        viewModel.selectMode(.typing)
+        viewModel.beginSessionDirectly()
+
+        // Empty string should be ignored
+        viewModel.submitTypingAnswer("   ")
+        #expect(viewModel.cardPhase == .activeCountdown)
+
+        // Incorrect string should transition to reviewed with isCorrect = false
+        viewModel.submitTypingAnswer("aple")
+        if case .reviewed(let result) = viewModel.cardPhase {
+            #expect(result.isCorrect == false)
+            #expect(result.typedText == "aple")
+        } else {
+            Issue.record("Expected reviewed phase on incorrect typing")
+        }
+    }
+
     @Test("Typing submission triggers feedback presentation and case-insensitive check")
     @MainActor
     func testTypingFeedbackInteractions() {
@@ -831,8 +876,8 @@ struct ReflexBlitzViewModelFeedbackTests {
 
         #expect(viewModel.isFeedbackPresented == false)
 
-        // Incorrect typing should NOT trigger feedback immediately (lets user retry before timeout)
-        viewModel.submitTypingAnswer("wrong")
+        // Empty typing should NOT trigger feedback
+        viewModel.submitTypingAnswer("   ")
         #expect(viewModel.isFeedbackPresented == false)
 
         // Correct typing triggers feedback

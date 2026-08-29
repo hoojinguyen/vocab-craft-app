@@ -462,17 +462,22 @@ extension ReflexBlitzViewModel {
 
     public func submitTypingAnswer(_ text: String) {
         guard phase == .drilling, cardPhase == .activeCountdown, let word = currentWord else { return }
-        let cleanInput = text.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        let cleanLemma = word.lemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-
-        guard cleanInput == cleanLemma else { return }
+        let cleanInput = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanInput.isEmpty else { return }
 
         cancelActiveTimers()
-        currentAttemptIsCorrect = true
-        soundEffectService.playSuccessChime()
-        comboStreak += 1
-        if comboStreak > maxComboStreak {
-            maxComboStreak = comboStreak
+        let isCorrect = cleanInput.lowercased() == word.lemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        currentAttemptIsCorrect = isCorrect
+
+        if isCorrect {
+            soundEffectService.playSuccessChime()
+            comboStreak += 1
+            if comboStreak > maxComboStreak {
+                maxComboStreak = comboStreak
+            }
+        } else {
+            soundEffectService.playIncorrectChime()
+            comboStreak = 0
         }
 
         let responseMs: Int
@@ -488,21 +493,25 @@ extension ReflexBlitzViewModel {
         let attempt = ReflexBlitzAttempt(
             wordId: word.id, lemma: word.lemma, pos: word.pos, ipa: word.ipa,
             definitionVi: word.definitionVi, responseTimeMs: responseMs,
-            usedHint: showHint, isCorrect: true
+            usedHint: showHint, isCorrect: isCorrect
         )
         attempts.append(attempt)
 
         Task {
             _ = try? await self.evaluateSRSUseCase.recordReview(
-                wordId: Int64(word.id), isCorrect: true, responseTimeMs: responseMs
+                wordId: Int64(word.id), isCorrect: isCorrect, responseTimeMs: responseMs
             )
         }
 
         withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
             self.cardPhase = .reviewed(result: ReflexCardResult(
-                isCorrect: true, responseTimeMs: responseMs, isTimeout: false,
-                selectedOption: nil, typedText: word.lemma, recognizedSpoken: nil
+                isCorrect: isCorrect, responseTimeMs: responseMs, isTimeout: false,
+                selectedOption: nil, typedText: cleanInput, recognizedSpoken: nil
             ))
+        }
+
+        if !isCorrect {
+            ttsService.speak(text: word.lemma, rate: 0.5, locale: "en-US")
         }
     }
 
