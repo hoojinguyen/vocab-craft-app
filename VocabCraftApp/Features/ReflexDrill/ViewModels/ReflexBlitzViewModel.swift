@@ -623,6 +623,14 @@ extension ReflexBlitzViewModel {
         ttsService.stop()
     }
 
+    public func resetToModeSelection() {
+        cancelSession()
+        sessionSummary = nil
+        attempts = []
+        currentWordIndex = 0
+        phase = .modeSelection
+    }
+
     public func applyReviewConfig(_ config: ReflexBlitzDeepLinkConfig) {
         countdownTask?.cancel()
         hintTimerTask?.cancel()
@@ -640,56 +648,31 @@ extension ReflexBlitzViewModel {
         self.currentWordIndex = 0
 
         if config.phase == .summary {
+            let isPerf = config.state == "perfect"
             let mockAttempts = [
-                ReflexBlitzAttempt(wordId: 1, lemma: "habit", pos: "n.", ipa: "/ˈhæb.ɪt/", definitionVi: "Thói quen", responseTimeMs: 1400, usedHint: false, isCorrect: true),
-                ReflexBlitzAttempt(wordId: 2, lemma: "improve", pos: "v.", ipa: "/ɪmˈpruːv/", definitionVi: "Cải thiện, nâng cao", responseTimeMs: 2100, usedHint: false, isCorrect: true),
-                ReflexBlitzAttempt(wordId: 3, lemma: "focus", pos: "v.", ipa: "/ˈfoʊ.kəs/", definitionVi: "Tập trung", responseTimeMs: 4200, usedHint: true, isCorrect: true),
-                ReflexBlitzAttempt(wordId: 7, lemma: "challenge", pos: "n.", ipa: "/ˈtʃæl.ɪndʒ/", definitionVi: "Thử thách", responseTimeMs: 6000, usedHint: true, isCorrect: false)
+                ReflexBlitzAttempt(wordId: 1, lemma: "habit", pos: "n.", ipa: "/ˈhæb.ɪt/", definitionVi: "Thói quen", responseTimeMs: 1200, usedHint: false, isCorrect: true),
+                ReflexBlitzAttempt(wordId: 2, lemma: "improve", pos: "v.", ipa: "/ɪmˈpruːv/", definitionVi: "Cải thiện, nâng cao", responseTimeMs: 1400, usedHint: false, isCorrect: true),
+                ReflexBlitzAttempt(wordId: 3, lemma: "focus", pos: "v.", ipa: "/ˈfoʊ.kəs/", definitionVi: "Tập trung", responseTimeMs: isPerf ? 1100 : 4200, usedHint: !isPerf, isCorrect: true),
+                ReflexBlitzAttempt(wordId: 7, lemma: "challenge", pos: "n.", ipa: "/ˈtʃæl.ɪndʒ/", definitionVi: "Thử thách", responseTimeMs: isPerf ? 1500 : 6000, usedHint: !isPerf, isCorrect: isPerf)
             ]
-            self.sessionSummary = ReflexBlitzSessionSummary.create(from: mockAttempts, maxCombo: config.combo)
+            self.sessionSummary = ReflexBlitzSessionSummary.create(from: mockAttempts, maxCombo: max(config.combo, 4))
             return
         }
 
         guard let word = currentWord else { return }
-
-        if config.mode == .multipleChoice || config.mode == .listening {
-            currentOptions = word.generateOptions(mode: config.mode, allPool: words)
-        } else {
-            currentOptions = []
-        }
+        currentOptions = (config.mode == .multipleChoice || config.mode == .listening) ? word.generateOptions(mode: config.mode, allPool: words) : []
 
         if config.state == "reviewedCorrect" {
             currentAttemptIsCorrect = true
             let correctOpt = currentOptions.first(where: { $0.isCorrect })?.text ?? word.lemma
-            cardPhase = .reviewed(result: ReflexCardResult(
-                isCorrect: true,
-                responseTimeMs: 1400,
-                isTimeout: false,
-                selectedOption: correctOpt,
-                typedText: word.lemma,
-                recognizedSpoken: word.lemma
-            ))
+            cardPhase = .reviewed(result: ReflexCardResult(isCorrect: true, responseTimeMs: 1400, isTimeout: false, selectedOption: correctOpt, typedText: word.lemma, recognizedSpoken: word.lemma))
         } else if config.state == "reviewedIncorrect" {
             currentAttemptIsCorrect = false
             let wrongOpt = currentOptions.first(where: { !$0.isCorrect })?.text ?? "other"
-            cardPhase = .reviewed(result: ReflexCardResult(
-                isCorrect: false,
-                responseTimeMs: 3500,
-                isTimeout: false,
-                selectedOption: wrongOpt,
-                typedText: "habbit",
-                recognizedSpoken: "rabbit"
-            ))
+            cardPhase = .reviewed(result: ReflexCardResult(isCorrect: false, responseTimeMs: 3500, isTimeout: false, selectedOption: wrongOpt, typedText: "habbit", recognizedSpoken: "rabbit"))
         } else if config.state == "timeout" {
             currentAttemptIsCorrect = false
-            cardPhase = .reviewed(result: ReflexCardResult(
-                isCorrect: false,
-                responseTimeMs: Int(config.mode.timeLimitSeconds * 1000),
-                isTimeout: true,
-                selectedOption: nil,
-                typedText: nil,
-                recognizedSpoken: nil
-            ))
+            cardPhase = .reviewed(result: ReflexCardResult(isCorrect: false, responseTimeMs: Int(config.mode.timeLimitSeconds * 1000), isTimeout: true, selectedOption: nil, typedText: nil, recognizedSpoken: nil))
         } else {
             cardPhase = .activeCountdown
             elapsedTimeMs = 1200

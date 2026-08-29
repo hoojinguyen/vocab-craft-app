@@ -50,7 +50,11 @@ public struct ReflexBlitzView: View {
                         onReDrillWeak: {
                             viewModel.reDrillWeakWords()
                         },
-                        onFinish: onDismiss
+                        onFinish: {
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                viewModel.resetToModeSelection()
+                            }
+                        }
                     )
                     .transition(.opacity)
                 }

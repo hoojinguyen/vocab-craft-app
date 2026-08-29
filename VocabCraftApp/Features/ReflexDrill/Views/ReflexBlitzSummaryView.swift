@@ -81,7 +81,7 @@ public struct ReflexBlitzSummaryView: View {
             if !summary.weakWordAttempts.isEmpty {
                 weakWordsSection
             } else {
-                perfectScoreCard
+                perfectScoreView
             }
         }
         .padding(.top, theme.spacing.base)
@@ -271,30 +271,18 @@ public struct ReflexBlitzSummaryView: View {
         .accessibilityLabel(String(format: String(localized: "app.reflex.summary.a11y_weak_word", bundle: .module), weak.lemma, weak.cleanPos))
     }
 
-    // MARK: - Perfect Score State
-    private var perfectScoreCard: some View {
-        CraftCard(style: .tactile3D, padding: theme.spacing.lg) {
-            VStack(spacing: theme.spacing.sm) {
-                Image(systemName: "medal.fill")
-                    .font(.system(size: 44, weight: .bold))
-                    .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(theme.colors.accent)
-                    .accessibilityHidden(true)
-
-                Text(AppStrings.ReflexBlitz.perfectTitle)
-                    .font(theme.typography.titleLarge)
-                    .fontWeight(.bold)
-                    .foregroundStyle(theme.colors.textPrimary)
-
-                Text(AppStrings.ReflexBlitz.perfectDesc)
-                    .font(theme.typography.bodyMedium)
-                    .foregroundStyle(theme.colors.textMuted)
-                    .multilineTextAlignment(.center)
-            }
-            .frame(maxWidth: .infinity)
+    // MARK: - Perfect Score State (Clean, Unboxed, Airy)
+    private var perfectScoreView: some View {
+        VStack(spacing: theme.spacing.xs) {
+            Text(AppStrings.ReflexBlitz.perfectDesc)
+                .font(theme.typography.bodyMedium)
+                .foregroundStyle(theme.colors.textSecondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, theme.spacing.xl)
+                .padding(.vertical, theme.spacing.base)
         }
-        .padding(.horizontal, theme.spacing.base)
-        .craftSparkle(isTriggered: $isSparkleTriggered, particleCount: 25)
+        .frame(maxWidth: .infinity)
+        .craftSparkle(isTriggered: $isSparkleTriggered, particleCount: 35)
     }
 
     // MARK: - Sticky Bottom Action Dock (Icon-free, Concise Text)
