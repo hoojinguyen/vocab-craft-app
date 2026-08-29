@@ -1,6 +1,6 @@
 import Foundation
 
-public struct VaultWordItem: Identifiable, Sendable, Equatable {
+public struct VaultWordItem: Identifiable, Sendable, Equatable, ReflexDrillable {
     public let id: Int64
     public let lemma: String
     public let pos: String
@@ -8,7 +8,7 @@ public struct VaultWordItem: Identifiable, Sendable, Equatable {
     public let definitionVi: String
     public let exampleSentenceEn: String
     public let exampleSentenceVi: String
-    public let cefrLevel: String?
+    public let cefrLevel: String
 
     public let isMastered: Bool
     public let isBookmarked: Bool
@@ -38,11 +38,15 @@ public struct VaultWordItem: Identifiable, Sendable, Equatable {
         self.definitionVi = definitionVi
         self.exampleSentenceEn = exampleSentenceEn
         self.exampleSentenceVi = exampleSentenceVi
-        self.cefrLevel = cefrLevel
+        self.cefrLevel = cefrLevel ?? ""
         self.isMastered = isMastered
         self.isBookmarked = isBookmarked
         self.correctStreak = correctStreak
         self.practicedModes = practicedModes
         self.lastPracticedAt = lastPracticedAt
     }
+
+    public var ipa: String { phonetic }
+    public var clozeSentenceEn: String { exampleSentenceEn }
+    public var audioResourceUrl: String? { nil }
 }

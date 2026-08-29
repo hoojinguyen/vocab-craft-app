@@ -93,3 +93,11 @@ public struct ReflexDrillItem: Identifiable, Equatable, Sendable {
         )
     }
 }
+
+extension ReflexDrillItem: ReflexDrillable {
+    public var pos: String { "word" }
+    public var exampleSentenceEn: String { clozeSentenceEn }
+    public var exampleSentenceVi: String { clozeSentenceVi }
+    public var cefrLevel: String { "B2" }
+    public var audioResourceUrl: String? { nil }
+}

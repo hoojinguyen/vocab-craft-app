@@ -31,3 +31,35 @@ public struct Word: Identifiable, Equatable, Hashable, Sendable {
         self.example = example
     }
 }
+
+/// Adapter to present a Word entity as ReflexDrillable.
+public struct DrillableWord: ReflexDrillable, Equatable, Sendable {
+    public let lemma: String
+    public let pos: String
+    public let ipa: String
+    public let definitionVi: String
+    public let exampleSentenceEn: String
+    public let exampleSentenceVi: String
+    public let clozeSentenceEn: String
+    public let cefrLevel: String
+    public let audioResourceUrl: String?
+
+    public init(word: Word) {
+        self.lemma = word.lemma
+        self.pos = word.pos ?? "word"
+        self.ipa = word.ipaUs ?? ""
+        self.definitionVi = word.definitionVi ?? word.definitionEn ?? ""
+        let sentenceEn = word.example ?? "The word is \(word.lemma)."
+        self.exampleSentenceEn = sentenceEn
+        self.exampleSentenceVi = word.definitionVi ?? ""
+        self.clozeSentenceEn = sentenceEn
+        self.cefrLevel = word.cefrLevel ?? "B2"
+        self.audioResourceUrl = nil
+    }
+}
+
+extension Word {
+    public func asDrillable() -> DrillableWord {
+        DrillableWord(word: self)
+    }
+}
