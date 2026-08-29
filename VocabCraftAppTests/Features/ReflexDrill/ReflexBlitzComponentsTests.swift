@@ -852,4 +852,44 @@ final class ReflexBlitzComponentsTests: XCTestCase {
         assertColorsEqual(cardView.timerStrokeColor, CraftDefaultColorTokens().statusDanger)
         XCTAssertNotNil(cardView.body)
     }
+
+    @MainActor
+    func testReflexBlitzMultipleChoiceCardViewUsesDeclarativeFlipCard() {
+        let word = ReflexBlitzWordItem.defaultStarterWords[0]
+        let options = word.generateOptions(mode: .multipleChoice, allPool: ReflexBlitzWordItem.defaultStarterWords)
+
+        // Active Prompt State: front card has no CEFR badge
+        let activeCard = ReflexBlitzMultipleChoiceCardView(
+            word: word,
+            options: options,
+            isReviewed: false,
+            isResultCorrect: false,
+            isResultTimeout: false,
+            showHint: false,
+            selectedOptionText: nil,
+            clozeParts: nil,
+            displayedSentence: word.clozeSentenceEn,
+            cardBorderColor: .clear,
+            onSelectOption: nil,
+            onReplayAudio: nil
+        )
+        XCTAssertNotNil(activeCard.body)
+
+        // Reviewed State: back card has CEFR badge and audio replay
+        let reviewedCard = ReflexBlitzMultipleChoiceCardView(
+            word: word,
+            options: options,
+            isReviewed: true,
+            isResultCorrect: true,
+            isResultTimeout: false,
+            showHint: false,
+            selectedOptionText: "habit",
+            clozeParts: nil,
+            displayedSentence: word.completedSentenceWithTargetWord,
+            cardBorderColor: .clear,
+            onSelectOption: nil,
+            onReplayAudio: {}
+        )
+        XCTAssertNotNil(reviewedCard.body)
+    }
 }

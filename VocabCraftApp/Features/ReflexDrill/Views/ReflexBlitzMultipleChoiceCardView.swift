@@ -71,17 +71,23 @@ public struct ReflexBlitzMultipleChoiceCardView: View {
 
     @ViewBuilder
     private var flipStimulusCard: some View {
+        let statusGlow: Color? = isReviewed
+            ? (isResultCorrect ? theme.colors.statusSuccess.opacity(0.2) : theme.colors.statusDanger.opacity(0.2))
+            : nil
+
         CraftFlipCard(
             isFlipped: Binding(
                 get: { isReviewed },
                 set: { _ in }
             ),
+            style: .tactile3D,
             axis: .horizontal,
-            edgeThickness: 0,
             showSpecularGlare: true,
             showsHighlightBorder: false,
+            highlightShadowColor: statusGlow,
             isTapToFlipEnabled: false,
             cornerRadius: theme.radii.xl,
+            padding: theme.spacing.base,
             perspective: 0.5,
             animation: .spring(response: 0.45, dampingFraction: 0.78)
         ) {
@@ -93,6 +99,8 @@ public struct ReflexBlitzMultipleChoiceCardView: View {
 
     private var frontPromptFace: some View {
         VStack(spacing: theme.spacing.sm) {
+            Spacer(minLength: 0)
+
             CraftText(
                 word.definitionVi,
                 style: .titleLarge,
@@ -113,14 +121,6 @@ public struct ReflexBlitzMultipleChoiceCardView: View {
                     )
                 }
 
-                CraftBadge(
-                    word.cleanLevel,
-                    variant: .subtle,
-                    tone: .warning,
-                    size: .sm,
-                    shape: .capsule
-                )
-
                 if showHint {
                     CraftBadge(
                         AppStrings.ReflexBlitz.hintPrefix(word.cleanInitialLetterHint),
@@ -137,16 +137,10 @@ public struct ReflexBlitzMultipleChoiceCardView: View {
 
             sentenceArea
                 .padding(.top, theme.spacing.xs / 2)
+
+            Spacer(minLength: 0)
         }
-        .padding(theme.spacing.base)
-        .frame(maxWidth: .infinity)
-        .background(theme.colors.surfaceCard)
-        .clipShape(RoundedRectangle(cornerRadius: theme.radii.xl, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: theme.radii.xl, style: .continuous)
-                .stroke(cardBorderColor, lineWidth: 1)
-        )
-        .shadow(color: theme.shadows.md.color, radius: theme.shadows.md.radius, x: theme.shadows.md.x, y: theme.shadows.md.y)
+        .frame(maxWidth: .infinity, minHeight: 195)
     }
 
     private var backResultFace: some View {
@@ -234,20 +228,7 @@ public struct ReflexBlitzMultipleChoiceCardView: View {
             }
             .padding(.top, 4)
         }
-        .padding(theme.spacing.base)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(theme.colors.surfaceCard)
-        .clipShape(RoundedRectangle(cornerRadius: theme.radii.xl, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: theme.radii.xl, style: .continuous)
-                .stroke(
-                    isResultCorrect
-                        ? theme.colors.statusSuccess.opacity(0.6)
-                        : (isResultTimeout ? theme.colors.statusWarning.opacity(0.6) : theme.colors.statusDanger.opacity(0.6)),
-                    lineWidth: 1.5
-                )
-        )
-        .shadow(color: theme.shadows.md.color, radius: theme.shadows.md.radius, x: theme.shadows.md.x, y: theme.shadows.md.y)
+        .frame(maxWidth: .infinity, minHeight: 195, alignment: .leading)
     }
 
     // MARK: - Sentence Area
