@@ -129,8 +129,8 @@ struct ReflexOtherModesTests {
         #expect(timeoutView.userSubmittedText == nil)
     }
 
-    @Test("Instantiates ListeningModeView with options, audio replay, and choice selection")
-    func testListeningModeView() {
+    @Test("Instantiates ListeningModeView with 3D Flip Card, auto-play, hint stages, and reviewed states")
+    func testListeningModeViewFullStates() {
         let item = ReflexBlitzWordItem.defaultStarterWords[0]
         let correctOpt = ReflexBlitzOption(id: "opt-1", text: "thói quen", isCorrect: true)
         let wrongOpt = ReflexBlitzOption(id: "opt-2", text: "cải thiện", isCorrect: false)
@@ -138,49 +138,69 @@ struct ReflexOtherModesTests {
         let options = [correctOpt, wrongOpt, otherOpt]
 
         var audioPlayed = false
+        var audioReplayed = false
         var selectedOption: ReflexBlitzOption?
 
-        let activeView = ReflexListeningModeView(
+        // 1. Active Stage 0
+        let activeStage0 = ReflexListeningModeView(
             word: item,
             options: options,
-            elapsedTimeMs: 500,
             isReviewed: false,
-            hintStage: 3,
-            eliminatedOptionId: "opt-2",
-            onPlayAudio: {
-                audioPlayed = true
-            },
-            onSelectOption: { opt in
-                selectedOption = opt
-            }
+            hintStage: 0,
+            eliminatedOptionId: nil,
+            onSelectOption: { selectedOption = $0 },
+            onPlayAudio: { audioPlayed = true },
+            onReplayAudio: { audioReplayed = true }
         )
-
-        #expect(activeView.options.count == 3)
-        #expect(activeView.elapsedTimeMs == 500)
-        #expect(activeView.isReviewed == false)
-        #expect(activeView.choiceState(for: correctOpt) == .idle)
-        #expect(activeView.choiceState(for: wrongOpt) == .disabled)
-        #expect(activeView.choiceState(for: otherOpt) == .idle)
-
-        activeView.onPlayAudio?()
+        #expect(activeStage0.isReviewed == false)
+        #expect(activeStage0.choiceState(for: correctOpt) == .idle)
+        #expect(activeStage0.choiceState(for: wrongOpt) == .idle)
+        #expect(activeStage0.choiceState(for: otherOpt) == .idle)
+        activeStage0.onPlayAudio?()
         #expect(audioPlayed == true)
-
-        activeView.onSelectOption?(correctOpt)
+        activeStage0.onReplayAudio?()
+        #expect(audioReplayed == true)
+        activeStage0.onSelectOption?(correctOpt)
         #expect(selectedOption?.id == "opt-1")
 
-        let reviewedView = ReflexListeningModeView(
+        // 2. Active Stage 2 (Distractor eliminated)
+        let activeStage2 = ReflexListeningModeView(
             word: item,
             options: options,
-            elapsedTimeMs: 1500,
-            isReviewed: true,
-            selectedOptionText: "cải thiện",
-            onPlayAudio: nil,
-            onSelectOption: nil
+            isReviewed: false,
+            hintStage: 2,
+            eliminatedOptionId: "opt-2"
         )
+        #expect(activeStage2.choiceState(for: correctOpt) == .idle)
+        #expect(activeStage2.choiceState(for: wrongOpt) == .disabled)
+        #expect(activeStage2.choiceState(for: otherOpt) == .idle)
 
-        #expect(reviewedView.isReviewed == true)
-        #expect(reviewedView.choiceState(for: correctOpt) == .correct)
-        #expect(reviewedView.choiceState(for: wrongOpt) == .wrong)
-        #expect(reviewedView.choiceState(for: otherOpt) == .disabled)
+        // 3. Reviewed Correct
+        let reviewedCorrect = ReflexListeningModeView(
+            word: item,
+            options: options,
+            isReviewed: true,
+            isResultCorrect: true,
+            isResultTimeout: false,
+            selectedOptionText: "thói quen"
+        )
+        #expect(reviewedCorrect.isReviewed == true)
+        #expect(reviewedCorrect.choiceState(for: correctOpt) == .correct)
+        #expect(reviewedCorrect.choiceState(for: wrongOpt) == .disabled)
+        #expect(reviewedCorrect.choiceState(for: otherOpt) == .disabled)
+
+        // 4. Reviewed Wrong
+        let reviewedWrong = ReflexListeningModeView(
+            word: item,
+            options: options,
+            isReviewed: true,
+            isResultCorrect: false,
+            isResultTimeout: false,
+            selectedOptionText: "cải thiện"
+        )
+        #expect(reviewedWrong.isReviewed == true)
+        #expect(reviewedWrong.choiceState(for: correctOpt) == .correct)
+        #expect(reviewedWrong.choiceState(for: wrongOpt) == .wrong)
+        #expect(reviewedWrong.choiceState(for: otherOpt) == .disabled)
     }
 }
