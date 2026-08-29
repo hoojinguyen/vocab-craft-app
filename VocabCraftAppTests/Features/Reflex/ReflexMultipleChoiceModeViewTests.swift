@@ -156,4 +156,34 @@ struct ReflexMultipleChoiceModeViewTests {
         )
         #expect(stage2View.activeClozeParts?.slot == stageSet.patternRevealedParts.slot)
     }
+
+    @Test("ReflexMultipleChoiceModeView renders cleanly with filled target lemma in reviewed state")
+    func testMultipleChoiceReviewedBodyRendering() {
+        let item = ReflexBlitzWordItem.defaultStarterWords[0] // "habit"
+        let parts = ReflexClozeFormatter.extractTemplateParts(from: item.clozeSentenceEn)
+        let options = [
+            ReflexBlitzOption(text: "habit", isCorrect: true),
+            ReflexBlitzOption(text: "improve", isCorrect: false)
+        ]
+
+        let view = ReflexMultipleChoiceModeView(
+            word: item,
+            options: options,
+            isReviewed: true,
+            isResultCorrect: true,
+            isResultTimeout: false,
+            showHint: false,
+            hintStage: 0,
+            selectedOptionText: "habit",
+            clozeParts: parts,
+            displayedSentence: item.completedSentenceWithTargetWord,
+            cardBorderColor: .clear,
+            onSelectOption: nil,
+            onReplayAudio: nil
+        )
+
+        #expect(view.isReviewed == true)
+        #expect(view.isResultCorrect == true)
+        #expect(view.body != nil)
+    }
 }

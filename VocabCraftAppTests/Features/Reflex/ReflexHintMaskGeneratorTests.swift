@@ -79,4 +79,17 @@ struct ReflexHintMaskGeneratorTests {
             #expect(Bool(false), "Expected middleCluster strategy for brother")
         }
     }
+
+    @Test("Cloze slot character length remains identical across initial, length-masked, and pattern-revealed stages")
+    func testSlotLengthStabilityAcrossStages() {
+        let lemma = "environment"
+        let stages = ReflexHintMaskGenerator.generateStages(
+            lemma: lemma,
+            sentenceEn: "We need to protect our environment worldwide.",
+            pos: "noun"
+        )
+        #expect(stages.initialParts.slot.count == stages.lengthMaskedParts.slot.count)
+        #expect(stages.lengthMaskedParts.slot.count == stages.patternRevealedParts.slot.count)
+        #expect(stages.initialParts.slot == stages.lengthMaskedParts.slot)
+    }
 }

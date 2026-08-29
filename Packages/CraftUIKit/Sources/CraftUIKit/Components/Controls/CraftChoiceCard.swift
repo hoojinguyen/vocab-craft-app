@@ -174,7 +174,6 @@ public struct CraftChoiceCard: View {
             .accessibilityValue(accessibilityValueDescription)
             .accessibilityAddTraits(state == .selected ? [.isButton, .isSelected] : [.isButton])
             .sensoryFeedback(.selection, trigger: state) { (_: CraftChoiceState, new: CraftChoiceState) -> Bool in new == .selected }
-            .sensoryFeedback(.impact(weight: .light), trigger: state) { (_: CraftChoiceState, new: CraftChoiceState) -> Bool in new == .wrong }
             .onChange(of: state) { _, newState in
                 if newState == .wrong && !reduceMotion {
                     withAnimation(.linear(duration: 0.35)) {
@@ -682,19 +681,16 @@ public struct CraftChoiceCardButtonStyle: ButtonStyle {
         configuration.label
             .offset(y: depressOffset)
             .background {
-                if state != .disabled && isTactile {
+                if isTactile {
                     RoundedRectangle(cornerRadius: theme.radii.lg)
                         .fill(bottomLipColor)
                         .offset(y: depth)
                 }
             }
-            .padding(.bottom, (state == .disabled || !isTactile) ? 0 : effectiveDepth)
+            .padding(.bottom, isTactile ? effectiveDepth : 0)
             .scaleEffect(isPressed && !reduceMotion ? (isTactile ? 0.99 : 0.98) : 1.0)
             .animation(theme.animations.springSnappy, value: isPressed)
             .contentShape(Rectangle())
-            .sensoryFeedback(.impact(weight: .light), trigger: isPressed) { _, pressed in
-                pressed
-            }
     }
 
     private var bottomLipColor: Color {
@@ -708,7 +704,7 @@ public struct CraftChoiceCardButtonStyle: ButtonStyle {
         case .wrong:
             return .craftDynamic(light: Color(hex: 0xDC2626), dark: Color(hex: 0xB91C1C))
         case .disabled:
-            return .clear
+            return .craftDynamic(light: Color(hex: 0xE5E7EB), dark: Color(hex: 0x1F2937))
         }
     }
 }

@@ -26,9 +26,8 @@ public struct ReflexHintMaskGenerator: Sendable {
             )
         }
 
-        // Generate length mask string: e.g. "_ _ _ _ _ _ _ _ _"
+        // Generate length mask string: e.g. "_ _ _ _ _"
         let lengthMaskStr = formatLengthUnderscores(for: cleanLemma)
-        let initialSlotStr = "[ _________ ]"
         let lengthSlotStr = "[ \(lengthMaskStr) ]"
 
         // Generate pattern mask strategy and string
@@ -38,8 +37,13 @@ public struct ReflexHintMaskGenerator: Sendable {
         // Extract cloze sentence parts
         let formattedInitial = ReflexClozeFormatter.formatCloze(sentenceEn: sentenceEn, lemma: cleanLemma)
         let partsInitial = ReflexClozeFormatter.extractTemplateParts(from: formattedInitial)
-            ?? ClozeSentenceParts(prefix: sentenceEn, slot: initialSlotStr, suffix: "")
+            ?? ClozeSentenceParts(prefix: sentenceEn, slot: lengthSlotStr, suffix: "")
 
+        let partsInitialStable = ClozeSentenceParts(
+            prefix: partsInitial.prefix,
+            slot: lengthSlotStr,
+            suffix: partsInitial.suffix
+        )
         let partsLength = ClozeSentenceParts(
             prefix: partsInitial.prefix,
             slot: lengthSlotStr,
@@ -52,7 +56,7 @@ public struct ReflexHintMaskGenerator: Sendable {
         )
 
         return ReflexClozeStageSet(
-            initialParts: partsInitial,
+            initialParts: partsInitialStable,
             lengthMaskedParts: partsLength,
             patternRevealedParts: partsPattern,
             maskedWordString: patternRevealedWord,

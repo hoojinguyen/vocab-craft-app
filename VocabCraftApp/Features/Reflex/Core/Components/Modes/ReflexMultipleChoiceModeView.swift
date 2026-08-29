@@ -109,6 +109,7 @@ public struct ReflexMultipleChoiceModeView: View {
             showsHighlightBorder: false,
             highlightShadowColor: statusGlow,
             isTapToFlipEnabled: false,
+            isSensoryFeedbackEnabled: false,
             cornerRadius: theme.radii.xl,
             padding: theme.spacing.base,
             perspective: 0.5,
@@ -131,20 +132,19 @@ public struct ReflexMultipleChoiceModeView: View {
             .lineLimit(2)
             .accessibilityLabel(AppStrings.ReflexBlitz.definitionA11y(word.definitionVi))
 
-            if hintStage >= 1 {
-                HStack(alignment: .center, spacing: theme.spacing.xs) {
-                    if !word.cleanPos.isEmpty {
-                        CraftBadge(
-                            word.cleanPos,
-                            variant: .subtle,
-                            tone: .neutral,
-                            size: .sm,
-                            shape: .capsule
-                        )
-                    }
+            HStack(alignment: .center, spacing: theme.spacing.xs) {
+                if !word.cleanPos.isEmpty {
+                    CraftBadge(
+                        word.cleanPos,
+                        variant: .subtle,
+                        tone: .neutral,
+                        size: .sm,
+                        shape: .capsule
+                    )
                 }
-                .transition(.scale.combined(with: .opacity))
             }
+            .opacity(hintStage >= 1 ? 1.0 : 0.0)
+            .animation(.easeInOut(duration: 0.2), value: hintStage)
 
             sentenceArea
                 .padding(.top, theme.spacing.xs / 2)
@@ -250,9 +250,7 @@ public struct ReflexMultipleChoiceModeView: View {
                 .lineSpacing(6)
                 .padding(.horizontal, theme.spacing.xs)
                 .fixedSize(horizontal: false, vertical: true)
-                .animation(.spring(response: 0.35, dampingFraction: 0.75), value: hintStage)
-                .animation(.spring(response: 0.35, dampingFraction: 0.75), value: isResultCorrect)
-                .animation(.spring(response: 0.35, dampingFraction: 0.75), value: isResultTimeout)
+                .animation(.easeInOut(duration: 0.2), value: hintStage)
                 .accessibilityLabel(
                     isReviewed
                         ? AppStrings.ReflexBlitz.completedSentenceA11y(word.completedSentenceWithTargetWord)
@@ -292,7 +290,8 @@ public struct ReflexMultipleChoiceModeView: View {
             .font(theme.typography.bodySerif)
             .foregroundColor(theme.colors.textPrimary)
         let slotColor: Color = isResultCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger
-        let slotText = Text(parts.slot)
+        let slotWord = parts.slot.contains("_") ? word.lemma : parts.slot
+        let slotText = Text(slotWord)
             .font(theme.typography.bodySerif.bold())
             .foregroundColor(slotColor)
         let suffixText = Text(parts.suffix)
