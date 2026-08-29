@@ -99,8 +99,6 @@ public struct ReflexBlitzMultipleChoiceCardView: View {
 
     private var frontPromptFace: some View {
         VStack(spacing: theme.spacing.sm) {
-            Spacer(minLength: 0)
-
             CraftText(
                 word.definitionVi,
                 style: .titleLarge,
@@ -137,10 +135,8 @@ public struct ReflexBlitzMultipleChoiceCardView: View {
 
             sentenceArea
                 .padding(.top, theme.spacing.xs / 2)
-
-            Spacer(minLength: 0)
         }
-        .frame(maxWidth: .infinity, minHeight: 195)
+        .frame(maxWidth: .infinity, minHeight: 195, alignment: .center)
     }
 
     private var backResultFace: some View {
@@ -228,7 +224,7 @@ public struct ReflexBlitzMultipleChoiceCardView: View {
             }
             .padding(.top, 4)
         }
-        .frame(maxWidth: .infinity, minHeight: 195, alignment: .leading)
+        .frame(maxWidth: .infinity, minHeight: 195, alignment: .center)
     }
 
     // MARK: - Sentence Area

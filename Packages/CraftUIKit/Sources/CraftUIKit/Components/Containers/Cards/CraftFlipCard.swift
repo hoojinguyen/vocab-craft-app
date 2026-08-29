@@ -363,7 +363,7 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
                 }
             )
             .frame(maxWidth: .infinity)
-            .frame(minHeight: synchronizedHeight > 0 ? synchronizedHeight : nil)
+            .frame(minHeight: synchronizedHeight > 0 ? synchronizedHeight : nil, alignment: .center)
             .background(surfaceBackground(radius: radius))
             .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
             .overlay(surfaceBorderOverlay(radius: radius))
