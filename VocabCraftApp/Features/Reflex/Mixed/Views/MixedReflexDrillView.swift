@@ -183,10 +183,12 @@ public struct MixedReflexDrillView: View {
             }
         }
     }
+}
 
-    // MARK: - Challenge Card Container
+// MARK: - Challenge Cards
+private extension MixedReflexDrillView {
     @ViewBuilder
-    private func challengeCard(for item: MixedReflexDrillItem) -> some View {
+    func challengeCard(for item: MixedReflexDrillItem) -> some View {
         let currentHintStage = item.assignedMode.hintStage(forElapsedTimeMs: elapsedTimeMs)
         let isHintActive = currentHintStage >= 1
 
@@ -194,13 +196,15 @@ public struct MixedReflexDrillView: View {
             multipleChoiceChallengeCard(for: item, hintStage: currentHintStage, isHintActive: isHintActive)
         } else if item.assignedMode == .listening {
             listeningChallengeCard(for: item, hintStage: currentHintStage, isHintActive: isHintActive)
+        } else if item.assignedMode == .typing {
+            typingChallengeCard(for: item, hintStage: currentHintStage, isHintActive: isHintActive)
         } else {
             containerChallengeCard(for: item, hintStage: currentHintStage, isHintActive: isHintActive)
         }
     }
 
     @ViewBuilder
-    private func multipleChoiceChallengeCard(for item: MixedReflexDrillItem, hintStage: Int, isHintActive: Bool) -> some View {
+    func multipleChoiceChallengeCard(for item: MixedReflexDrillItem, hintStage: Int, isHintActive: Bool) -> some View {
         ReflexMultipleChoiceModeView(
             word: item,
             options: currentOptions,
@@ -226,7 +230,33 @@ public struct MixedReflexDrillView: View {
     }
 
     @ViewBuilder
-    private func listeningChallengeCard(for item: MixedReflexDrillItem, hintStage: Int, isHintActive: Bool) -> some View {
+    func typingChallengeCard(for item: MixedReflexDrillItem, hintStage: Int, isHintActive: Bool) -> some View {
+        ReflexTypingModeView(
+            word: item,
+            isReviewed: isReviewed,
+            isResultCorrect: isResultCorrect,
+            isResultTimeout: isResultTimeout,
+            showHint: isHintActive,
+            hintStage: hintStage,
+            typingText: $typingText,
+            userSubmittedText: reviewedResult?.typedText ?? typingText,
+            clozeStages: viewModel.currentClozeStages,
+            clozeParts: ReflexClozeFormatter.extractTemplateParts(from: item.clozeSentenceEn),
+            displayedSentence: isReviewed ? item.completedSentenceWithTargetWord : item.clozeSentenceEn,
+            hintBadgeText: viewModel.currentHintBadgeText,
+            onSubmit: {
+                submitTypingAnswer(typingText)
+            },
+            onReplayAudio: {
+                viewModel.playAudioForCurrentWord()
+            }
+        )
+        .id(item.id)
+        .padding(.horizontal, theme.spacing.base)
+    }
+
+    @ViewBuilder
+    func listeningChallengeCard(for item: MixedReflexDrillItem, hintStage: Int, isHintActive: Bool) -> some View {
         ReflexListeningModeView(
             word: item,
             options: currentOptions,
@@ -250,7 +280,7 @@ public struct MixedReflexDrillView: View {
     }
 
     @ViewBuilder
-    private func containerChallengeCard(for item: MixedReflexDrillItem, hintStage: Int, isHintActive: Bool) -> some View {
+    func containerChallengeCard(for item: MixedReflexDrillItem, hintStage: Int, isHintActive: Bool) -> some View {
         ReflexCardContainerView(
             isReviewed: isReviewed,
             isCorrect: isResultCorrect,
@@ -284,29 +314,17 @@ public struct MixedReflexDrillView: View {
                             isKeyboardFallbackActive.toggle()
                         }
                     )
-                case .typing:
-                    ReflexTypingModeView(
-                        word: item,
-                        typingText: $typingText,
-                        showHint: isHintActive,
-                        hintStage: hintStage,
-                        clozeStages: viewModel.currentClozeStages,
-                        clozeParts: ReflexClozeFormatter.extractTemplateParts(from: item.clozeSentenceEn),
-                        displayedSentence: item.clozeSentenceEn,
-                        hintBadgeText: viewModel.currentHintBadgeText,
-                        onSubmit: {
-                            submitTypingAnswer(typingText)
-                        }
-                    )
-                case .multipleChoice, .listening:
+                case .multipleChoice, .listening, .typing:
                     EmptyView()
                 }
             }
         }
     }
+}
 
-    // MARK: - Drill Item Lifecycle & Timer
-    private func startDrillItem(_ item: MixedReflexDrillItem) {
+// MARK: - Drill Actions & Lifecycle
+private extension MixedReflexDrillView {
+    func startDrillItem(_ item: MixedReflexDrillItem) {
         timerTask?.cancel()
         fractionRemaining = 1.0
         elapsedTimeMs = 0
@@ -351,7 +369,7 @@ public struct MixedReflexDrillView: View {
         }
     }
 
-    private func selectOption(_ option: ReflexBlitzOption) {
+    func selectOption(_ option: ReflexBlitzOption) {
         guard cardPhase == .activeCountdown else { return }
         timerTask?.cancel()
 
@@ -369,29 +387,35 @@ public struct MixedReflexDrillView: View {
         }
     }
 
-    private func submitTypingAnswer(_ text: String) {
+    func submitTypingAnswer(_ text: String) {
         guard cardPhase == .activeCountdown, let current = viewModel.currentItem else { return }
-        let cleanText = text.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        let isCorrect = cleanText == current.word.lemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        guard isCorrect else { return }
+        let cleanText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanText.isEmpty else { return }
 
+        let isCorrect = cleanText.lowercased() == current.word.lemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         timerTask?.cancel()
 
         withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
             cardPhase = .reviewed(result: ReflexCardResult(
-                isCorrect: true,
+                isCorrect: isCorrect,
                 responseTimeMs: max(500, elapsedTimeMs),
                 isTimeout: false,
-                typedText: text
+                typedText: cleanText
             ))
         }
 
+        if isCorrect {
+            SoundEffectService.shared.playSuccessChime()
+        } else {
+            SoundEffectService.shared.playIncorrectChime()
+        }
+
         Task {
-            await viewModel.submitAnswer(isCorrect: true, responseTimeMs: max(500, elapsedTimeMs))
+            await viewModel.submitAnswer(isCorrect: isCorrect, responseTimeMs: max(500, elapsedTimeMs))
         }
     }
 
-    private func handleTimeout() {
+    func handleTimeout() {
         guard cardPhase == .activeCountdown else { return }
         timerTask?.cancel()
         fractionRemaining = 0.0
@@ -413,14 +437,14 @@ public struct MixedReflexDrillView: View {
         }
     }
 
-    private func advanceToNextItem() {
+    func advanceToNextItem() {
         viewModel.advanceToNextItem()
         if let nextItem = viewModel.currentItem {
             startDrillItem(nextItem)
         }
     }
 
-    private func setupSpeechServiceCallbacks() {
+    func setupSpeechServiceCallbacks() {
         speechService?.onMatchDetected = { matched in
             Task { @MainActor in
                 guard cardPhase == .activeCountdown, let current = viewModel.currentItem else { return }
@@ -447,7 +471,7 @@ public struct MixedReflexDrillView: View {
         }
     }
 
-    private func stopDrillSession() {
+    func stopDrillSession() {
         timerTask?.cancel()
         speechService?.stopSession()
     }

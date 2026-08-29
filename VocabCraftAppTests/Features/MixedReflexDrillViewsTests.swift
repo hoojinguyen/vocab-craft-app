@@ -177,4 +177,64 @@ struct MixedReflexDrillViewsTests {
         #expect(drillView.viewModel.currentIndex == 1)
         #expect(drillView.viewModel.currentItem?.word.id == words[1].id)
     }
+
+    @Test("MixedReflexDrillView khởi tạo và hiển thị card Typing cho item chế độ typing")
+    @MainActor
+    func testMixedReflexDrillViewTypingModeChallengeCard() async {
+        let words = [
+            VaultWordItem(id: 1, lemma: "habit", pos: "n.", definitionVi: "Thói quen", exampleSentenceEn: "Reading books daily is a great habit.")
+        ]
+        final class MockTypingQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol {
+            let item: MixedReflexDrillItem
+            init(item: MixedReflexDrillItem) { self.item = item }
+            func generate(from words: [VaultWordItem]) -> [MixedReflexDrillItem] { [item] }
+            func requeueFailedItem(_ item: MixedReflexDrillItem) -> MixedReflexDrillItem { item }
+        }
+
+        let item = MixedReflexDrillItem(word: words[0], assignedMode: .typing, isRetry: false)
+        let queueUseCase = MockTypingQueueUseCase(item: item)
+        let vm = MixedReflexDrillViewModel(selectedWords: words, queueUseCase: queueUseCase)
+
+        let drillView = MixedReflexDrillView(viewModel: vm, onFinish: {})
+        #expect(drillView.viewModel.queue.count == 1)
+        #expect(drillView.viewModel.currentItem?.assignedMode == .typing)
+        #expect(drillView.isReviewed == false)
+        #expect(drillView.isResultCorrect == false)
+        #expect(drillView.isResultTimeout == false)
+    }
+
+    @Test("Mixed Reflex Drill handles incorrect typing submission without silent drop")
+    @MainActor
+    func testMixedReflexIncorrectTypingSubmission() async {
+        let words = [
+            VaultWordItem(id: 1, lemma: "habit", pos: "n.", definitionVi: "Thói quen", exampleSentenceEn: "Reading books daily is a great habit.")
+        ]
+        final class MockTypingQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol {
+            let item: MixedReflexDrillItem
+            init(item: MixedReflexDrillItem) { self.item = item }
+            func generate(from words: [VaultWordItem]) -> [MixedReflexDrillItem] { [item] }
+            func requeueFailedItem(_ item: MixedReflexDrillItem) -> MixedReflexDrillItem {
+                MixedReflexDrillItem(word: item.word, assignedMode: .typing, isRetry: true)
+            }
+        }
+
+        let item = MixedReflexDrillItem(word: words[0], assignedMode: .typing, isRetry: false)
+        let queueUseCase = MockTypingQueueUseCase(item: item)
+        let viewModel = MixedReflexDrillViewModel(
+            selectedWords: words,
+            queueUseCase: queueUseCase
+        )
+
+        let drillView = MixedReflexDrillView(viewModel: viewModel, onFinish: {})
+        #expect(drillView.viewModel.queue.count == 1)
+        #expect(drillView.viewModel.currentItem?.assignedMode == .typing)
+        #expect(viewModel.attempts.isEmpty)
+
+        await viewModel.submitAnswer(isCorrect: false, responseTimeMs: 1200)
+
+        #expect(viewModel.attempts.count == 1)
+        #expect(viewModel.attempts[0].isCorrect == false)
+        #expect(viewModel.queue.count == 2)
+        #expect(viewModel.queue.last?.isRetry == true)
+    }
 }
