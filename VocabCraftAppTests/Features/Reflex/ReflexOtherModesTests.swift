@@ -47,20 +47,33 @@ struct ReflexOtherModesTests {
         )
         var text = "hab"
         var submitted = false
+        var audioReplayed = false
         let typingBinding = Binding(get: { text }, set: { text = $0 })
         let typingView = ReflexTypingModeView(
             word: item,
-            typingText: typingBinding,
+            isReviewed: false,
+            isResultCorrect: false,
+            isResultTimeout: false,
             showHint: true,
             hintStage: 2,
+            typingText: typingBinding,
+            userSubmittedText: nil,
             clozeStages: stageSet,
+            clozeParts: ReflexClozeFormatter.extractTemplateParts(from: item.clozeSentenceEn),
+            displayedSentence: item.clozeSentenceEn,
             hintBadgeText: item.cleanInitialLetterHint,
             onSubmit: {
                 submitted = true
+            },
+            onReplayAudio: {
+                audioReplayed = true
             }
         )
         #expect(typingView.word.lemma == "habit")
         #expect(typingView.typingText == "hab")
+        #expect(typingView.isReviewed == false)
+        #expect(typingView.isResultCorrect == false)
+        #expect(typingView.isResultTimeout == false)
         #expect(typingView.showHint == true)
         #expect(typingView.hintStage == 2)
         #expect(typingView.hintBadgeText == item.cleanInitialLetterHint)
@@ -69,6 +82,51 @@ struct ReflexOtherModesTests {
         #expect(typingView.typingText == "habit")
         typingView.onSubmit?()
         #expect(submitted == true)
+        typingView.onReplayAudio?()
+        #expect(audioReplayed == true)
+    }
+
+    @Test("Instantiates TypingModeView in reviewed correct and incorrect states")
+    func testTypingModeViewReviewedStates() {
+        let item = ReflexBlitzWordItem.defaultStarterWords[0]
+        var text = "habit"
+        let binding = Binding(get: { text }, set: { text = $0 })
+
+        let correctView = ReflexTypingModeView(
+            word: item,
+            isReviewed: true,
+            isResultCorrect: true,
+            isResultTimeout: false,
+            typingText: binding,
+            userSubmittedText: "habit"
+        )
+        #expect(correctView.isReviewed == true)
+        #expect(correctView.isResultCorrect == true)
+        #expect(correctView.userSubmittedText == "habit")
+
+        let incorrectView = ReflexTypingModeView(
+            word: item,
+            isReviewed: true,
+            isResultCorrect: false,
+            isResultTimeout: false,
+            typingText: binding,
+            userSubmittedText: "habitt"
+        )
+        #expect(incorrectView.isReviewed == true)
+        #expect(incorrectView.isResultCorrect == false)
+        #expect(incorrectView.userSubmittedText == "habitt")
+
+        let timeoutView = ReflexTypingModeView(
+            word: item,
+            isReviewed: true,
+            isResultCorrect: false,
+            isResultTimeout: true,
+            typingText: binding,
+            userSubmittedText: nil
+        )
+        #expect(timeoutView.isReviewed == true)
+        #expect(timeoutView.isResultTimeout == true)
+        #expect(timeoutView.userSubmittedText == nil)
     }
 
     @Test("Instantiates ListeningModeView with options, audio replay, and choice selection")

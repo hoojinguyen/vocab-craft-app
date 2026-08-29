@@ -1,23 +1,60 @@
 import CraftUIKit
 import SwiftUI
 
-/// Isolated challenge mode view for Reflex Typing modality.
-/// Displays Vietnamese definition prompt, cloze sentence, auto-focused `CraftTextField`,
-/// tactile submit button, and enter-key submission support.
+/// Challenge and reviewed view for Reflex Blitz Typing modality.
+/// Features a 3D Flip Card stimulus container (front: definition + cloze prompt; back: target word, IPA, user input subtitle, audio replay, example sentence)
+/// and a floating keyboard-docked input bar with auto-focus and return key validation.
 public struct ReflexTypingModeView: View {
     @Environment(\.craftTheme) private var theme
 
     public let word: any ReflexDrillable
-    @Binding public var typingText: String
+    public let isReviewed: Bool
+    public let isResultCorrect: Bool
+    public let isResultTimeout: Bool
     public let showHint: Bool
     public let hintStage: Int
+    @Binding public var typingText: String
+    public let userSubmittedText: String?
     public let clozeStages: ReflexClozeStageSet?
     public let clozeParts: ClozeSentenceParts?
-    public let displayedSentence: String?
+    public let displayedSentence: String
     public let hintBadgeText: String?
     public let onSubmit: (() -> Void)?
+    public let onReplayAudio: (() -> Void)?
 
     @FocusState private var isTextFieldFocused: Bool
+
+    public init(
+        word: any ReflexDrillable,
+        isReviewed: Bool = false,
+        isResultCorrect: Bool = false,
+        isResultTimeout: Bool = false,
+        showHint: Bool = false,
+        hintStage: Int = 0,
+        typingText: Binding<String>,
+        userSubmittedText: String? = nil,
+        clozeStages: ReflexClozeStageSet? = nil,
+        clozeParts: ClozeSentenceParts? = nil,
+        displayedSentence: String = "",
+        hintBadgeText: String? = nil,
+        onSubmit: (() -> Void)? = nil,
+        onReplayAudio: (() -> Void)? = nil
+    ) {
+        self.word = word
+        self.isReviewed = isReviewed
+        self.isResultCorrect = isResultCorrect
+        self.isResultTimeout = isResultTimeout
+        self.showHint = showHint
+        self.hintStage = hintStage
+        self._typingText = typingText
+        self.userSubmittedText = userSubmittedText
+        self.clozeStages = clozeStages
+        self.clozeParts = clozeParts
+        self.displayedSentence = displayedSentence.isEmpty ? word.clozeSentenceEn : displayedSentence
+        self.hintBadgeText = hintBadgeText
+        self.onSubmit = onSubmit
+        self.onReplayAudio = onReplayAudio
+    }
 
     public init(
         word: any ReflexDrillable,
@@ -26,19 +63,26 @@ public struct ReflexTypingModeView: View {
         hintStage: Int = 0,
         clozeStages: ReflexClozeStageSet? = nil,
         clozeParts: ClozeSentenceParts? = nil,
-        displayedSentence: String? = nil,
+        displayedSentence: String = "",
         hintBadgeText: String? = nil,
         onSubmit: (() -> Void)? = nil
     ) {
-        self.word = word
-        self._typingText = typingText
-        self.showHint = showHint
-        self.hintStage = hintStage
-        self.clozeStages = clozeStages
-        self.clozeParts = clozeParts
-        self.displayedSentence = displayedSentence
-        self.hintBadgeText = hintBadgeText
-        self.onSubmit = onSubmit
+        self.init(
+            word: word,
+            isReviewed: false,
+            isResultCorrect: false,
+            isResultTimeout: false,
+            showHint: showHint,
+            hintStage: hintStage,
+            typingText: typingText,
+            userSubmittedText: nil,
+            clozeStages: clozeStages,
+            clozeParts: clozeParts,
+            displayedSentence: displayedSentence,
+            hintBadgeText: hintBadgeText,
+            onSubmit: onSubmit,
+            onReplayAudio: nil
+        )
     }
 
     public var activeClozeParts: ClozeSentenceParts? {
@@ -52,17 +96,60 @@ public struct ReflexTypingModeView: View {
 
     public var body: some View {
         VStack(spacing: theme.spacing.md) {
-            wordHeaderArea
-            sentenceArea
-            dividerLine
-            typingInputDockView
+            flipStimulusCard
+
+            if !isReviewed {
+                floatingInputBar
+            }
+        }
+        .onAppear {
+            if !isReviewed {
+                isTextFieldFocused = true
+            }
+        }
+        .onChange(of: isReviewed) { _, newValue in
+            if newValue {
+                isTextFieldFocused = false
+            } else {
+                isTextFieldFocused = true
+            }
         }
     }
 
-    // MARK: - Word Prompt Header
+    // MARK: - 3D Flip Stimulus Card
+
     @ViewBuilder
-    private var wordHeaderArea: some View {
-        VStack(spacing: theme.spacing.xs) {
+    private var flipStimulusCard: some View {
+        let statusGlow: Color? = isReviewed
+            ? (isResultCorrect ? theme.colors.statusSuccess.opacity(0.2) : theme.colors.statusDanger.opacity(0.2))
+            : nil
+
+        CraftFlipCard(
+            isFlipped: Binding(
+                get: { isReviewed },
+                set: { _ in }
+            ),
+            style: .tactile3D,
+            axis: .horizontal,
+            showSpecularGlare: true,
+            showsHighlightBorder: false,
+            highlightShadowColor: statusGlow,
+            isTapToFlipEnabled: false,
+            cornerRadius: theme.radii.xl,
+            padding: theme.spacing.base,
+            perspective: 0.5,
+            animation: .spring(response: 0.45, dampingFraction: 0.78)
+        ) {
+            frontPromptFace
+        } back: {
+            backResultFace
+        }
+    }
+
+    // MARK: - Front Face
+
+    private var frontPromptFace: some View {
+        VStack(spacing: theme.spacing.sm) {
             CraftText(
                 word.definitionVi,
                 style: .titleLarge,
@@ -92,9 +179,12 @@ public struct ReflexTypingModeView: View {
                 )
 
                 if showHint || hintStage > 0 {
-                    let badgeText = (hintBadgeText?.isEmpty == false)
-                        ? hintBadgeText!
-                        : AppStrings.ReflexBlitz.hintPrefix(word.cleanInitialLetterHint)
+                    let badgeText: String = {
+                        if let text = hintBadgeText, !text.isEmpty {
+                            return text
+                        }
+                        return AppStrings.ReflexBlitz.hintPrefix(word.cleanInitialLetterHint)
+                    }()
                     CraftBadge(
                         badgeText,
                         iconName: "lightbulb.min.fill",
@@ -107,30 +197,141 @@ public struct ReflexTypingModeView: View {
                     .accessibilityLabel(AppStrings.ReflexBlitz.hintA11y(word.cleanInitialLetterHint))
                 }
             }
+
+            sentenceArea
+                .padding(.top, theme.spacing.xs / 2)
         }
-        .padding(.top, theme.spacing.xs / 2)
+        .frame(maxWidth: .infinity, minHeight: 195, alignment: .center)
+    }
+
+    // MARK: - Back Face
+
+    private var backResultFace: some View {
+        VStack(alignment: .leading, spacing: theme.spacing.xs) {
+            // Row 1: Lemma (Left) and Audio Replay Speaker Button (Right)
+            HStack(alignment: .center) {
+                CraftText(
+                    word.lemma,
+                    style: .titleLargeSerif,
+                    color: theme.colors.textPrimary,
+                    textAlignment: .leading
+                )
+
+                Spacer(minLength: theme.spacing.sm)
+
+                if let onReplayAudio {
+                    CraftSpeakerButton(
+                        variant: .subtle,
+                        size: .md,
+                        isPlaying: false,
+                        label: nil,
+                        action: onReplayAudio
+                    )
+                }
+            }
+
+            // Row 2: IPA Phonetic
+            if !word.ipa.isEmpty {
+                CraftText(
+                    word.ipa,
+                    style: .caption,
+                    color: theme.colors.textMuted,
+                    textAlignment: .leading
+                )
+                .accessibilityLabel(AppStrings.ReflexBlitz.ipaA11y(word.ipa))
+            }
+
+            // Row 3: Subtle User Input Subtitle
+            if let submitted = userSubmittedText, !submitted.isEmpty {
+                let subtitleText = isResultCorrect
+                    ? AppStrings.ReflexBlitz.typingEnteredPrefix(submitted)
+                    : AppStrings.ReflexBlitz.typingYouTypedPrefix(submitted)
+                CraftText(
+                    subtitleText,
+                    style: .caption,
+                    color: theme.colors.textMuted,
+                    textAlignment: .leading
+                )
+            }
+
+            // Row 4: Badges (POS capsule, Level capsule)
+            HStack(spacing: theme.spacing.xs) {
+                if !word.cleanPos.isEmpty {
+                    CraftBadge(
+                        word.cleanPos,
+                        variant: .subtle,
+                        tone: .neutral,
+                        size: .sm,
+                        shape: .capsule
+                    )
+                }
+
+                CraftBadge(
+                    word.cleanLevel,
+                    variant: .subtle,
+                    tone: .warning,
+                    size: .sm,
+                    shape: .capsule
+                )
+            }
+            .padding(.vertical, 2)
+
+            // Row 5: Meaning (Definition in Vietnamese)
+            CraftText(
+                word.definitionVi,
+                style: .titleMedium,
+                color: theme.colors.textPrimary,
+                textAlignment: .leading
+            )
+            .padding(.top, 2)
+
+            // Row 6: Example Sentence & Vietnamese Translation
+            VStack(alignment: .leading, spacing: 4) {
+                backSentenceView
+                    .multilineTextAlignment(.leading)
+                    .lineSpacing(4)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                if !word.exampleSentenceVi.isEmpty {
+                    CraftText(
+                        word.exampleSentenceVi,
+                        style: .caption,
+                        color: theme.colors.textMuted,
+                        textAlignment: .leading
+                    )
+                    .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .padding(.top, 4)
+        }
+        .frame(maxWidth: .infinity, minHeight: 195, alignment: .center)
     }
 
     // MARK: - Sentence Area
+
     @ViewBuilder
     private var sentenceArea: some View {
         VStack(spacing: theme.spacing.xs) {
-            sentenceView
+            frontSentenceView
                 .multilineTextAlignment(.center)
                 .lineSpacing(6)
                 .padding(.horizontal, theme.spacing.xs)
                 .fixedSize(horizontal: false, vertical: true)
                 .animation(.spring(response: 0.35, dampingFraction: 0.75), value: hintStage)
-                .accessibilityLabel(AppStrings.ReflexBlitz.clozeSentenceA11y(word.clozeSentenceEn))
+                .accessibilityLabel(
+                    isReviewed
+                        ? AppStrings.ReflexBlitz.completedSentenceA11y(word.completedSentenceWithTargetWord)
+                        : AppStrings.ReflexBlitz.clozeSentenceA11y(word.clozeSentenceEn)
+                )
         }
     }
 
     @ViewBuilder
-    private var sentenceView: some View {
+    private var frontSentenceView: some View {
         if let parts = activeClozeParts ?? clozeParts {
             activeClozeText(parts: parts)
         } else {
-            Text(displayedSentence ?? word.clozeSentenceEn)
+            Text(displayedSentence.isEmpty ? word.clozeSentenceEn : displayedSentence)
                 .font(theme.typography.bodySerif.weight(.medium))
                 .foregroundColor(theme.colors.textPrimary)
         }
@@ -140,57 +341,89 @@ public struct ReflexTypingModeView: View {
         let prefixText = Text(parts.prefix)
             .font(theme.typography.bodySerif)
             .foregroundColor(theme.colors.textPrimary)
+        let slotColor = (showHint || hintStage >= 2) ? theme.colors.statusWarning : theme.colors.brandPrimary
         let slotText = Text(parts.slot)
             .font(theme.typography.bodySerif.bold())
-            .foregroundColor((showHint || hintStage >= 2) ? theme.colors.statusWarning : theme.colors.brandPrimary)
+            .foregroundColor(slotColor)
         let suffixText = Text(parts.suffix)
             .font(theme.typography.bodySerif)
             .foregroundColor(theme.colors.textPrimary)
         return prefixText + slotText + suffixText
     }
 
-    private var dividerLine: some View {
-        CraftDivider()
-            .padding(.horizontal, theme.spacing.xs)
+    @ViewBuilder
+    private var backSentenceView: some View {
+        if let parts = clozeParts {
+            reviewedClozeText(parts: parts)
+        } else {
+            Text(displayedSentence.isEmpty ? word.completedSentenceWithTargetWord : displayedSentence)
+                .font(theme.typography.bodySerif.weight(.bold))
+                .foregroundColor(isResultCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger)
+        }
     }
 
-    // MARK: - Typing Input Dock
-    @ViewBuilder
-    private var typingInputDockView: some View {
-        let isInputEmpty = typingText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    private func reviewedClozeText(parts: ClozeSentenceParts) -> Text {
+        let prefixText = Text(parts.prefix)
+            .font(theme.typography.bodySerif)
+            .foregroundColor(theme.colors.textPrimary)
+        let slotColor: Color = isResultCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger
+        let slotWord = parts.slot.contains("_") ? word.lemma : parts.slot
+        let slotText = Text(slotWord)
+            .font(theme.typography.bodySerif.bold())
+            .foregroundColor(slotColor)
+        let suffixText = Text(parts.suffix)
+            .font(theme.typography.bodySerif)
+            .foregroundColor(theme.colors.textPrimary)
+        return prefixText + slotText + suffixText
+    }
 
+    // MARK: - Floating Input Dock
+
+    @ViewBuilder
+    private var floatingInputBar: some View {
         HStack(spacing: theme.spacing.sm) {
-            CraftTextField(
-                placeholder: AppStrings.ReflexBlitz.typingPlaceholderText,
-                text: $typingText,
-                leadingIcon: "keyboard",
-                style: .standard
+            Image(systemName: "keyboard")
+                .foregroundColor(theme.colors.textMuted)
+                .font(theme.typography.bodyMedium)
+
+            TextField(
+                AppStrings.ReflexBlitz.typingPlaceholderText,
+                text: $typingText
             )
+            .font(theme.typography.bodyMedium)
+            .foregroundColor(theme.colors.textPrimary)
             .focused($isTextFieldFocused)
+            .submitLabel(.go)
             .autocorrectionDisabled()
             #if os(iOS)
             .textInputAutocapitalization(.never)
             #endif
             .onSubmit {
-                onSubmit?()
+                handleSubmission()
             }
             .accessibilityLabel(AppStrings.ReflexBlitz.typingInputA11y)
+        }
+        .padding(.horizontal, theme.spacing.base)
+        .padding(.vertical, theme.spacing.sm)
+        .background(theme.colors.surfaceElevated)
+        .clipShape(Capsule())
+        .overlay(
+            Capsule()
+                .stroke(theme.colors.hairline, lineWidth: 1)
+        )
+        .shadow(
+            color: theme.shadows.sm.color,
+            radius: theme.shadows.sm.radius,
+            x: theme.shadows.sm.x,
+            y: theme.shadows.sm.y
+        )
+        .padding(.horizontal, theme.spacing.base)
+        .transition(.move(edge: .bottom).combined(with: .opacity))
+    }
 
-            CraftIconButton(
-                iconName: "arrow.up.circle.fill",
-                size: .lg,
-                shape: .circle,
-                variant: isInputEmpty ? .subtle : .filled,
-                accessibilityLabel: AppStrings.ReflexBlitz.typingSubmitA11y,
-                action: {
-                    onSubmit?()
-                }
-            )
-            .disabled(isInputEmpty)
-        }
-        .padding(.horizontal, theme.spacing.xs / 2)
-        .onAppear {
-            isTextFieldFocused = true
-        }
+    private func handleSubmission() {
+        let trimmed = typingText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        onSubmit?()
     }
 }
