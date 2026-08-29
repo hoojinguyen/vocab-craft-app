@@ -181,6 +181,8 @@ public struct ReflexBlitzView: View {
 
                 if let word = viewModel.currentWord {
                     cardContent(for: word)
+                        .id("\(viewModel.currentWordIndex)-\(word.id)")
+                        .transition(.opacity)
                 }
 
                 Spacer(minLength: theme.spacing.xs)
@@ -303,9 +305,6 @@ public struct ReflexBlitzView: View {
             eliminatedOptionId: eliminatedOptionId,
             onSelectOption: { option in
                 viewModel.selectOption(option)
-            },
-            onPlayAudio: {
-                viewModel.speakCurrentWord()
             },
             onReplayAudio: {
                 viewModel.speakCurrentWord()
