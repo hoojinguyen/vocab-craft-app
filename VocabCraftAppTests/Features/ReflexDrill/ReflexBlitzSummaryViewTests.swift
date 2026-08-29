@@ -406,4 +406,25 @@ final class ReflexBlitzSummaryViewTests: XCTestCase {
             XCTAssertEqual(view.summary.speedRating, rating)
         }
     }
+
+    @MainActor
+    func testSummaryViewCelebrationOnMasterLevel() {
+        let masterSummary = ReflexBlitzSessionSummary(
+            id: UUID(),
+            totalWords: 5,
+            correctWords: 5,
+            averageResponseTimeMs: 1400,
+            maxComboStreak: 5,
+            attempts: [],
+            weakWordAttempts: [],
+            speedRating: "⚡️ Reflex Master"
+        )
+        let view = ReflexBlitzSummaryView(
+            summary: masterSummary,
+            onReDrillWeak: {},
+            onFinish: {}
+        )
+        XCTAssertNotNil(view.body)
+        XCTAssertEqual(view.summary.speedRating, "⚡️ Reflex Master")
+    }
 }

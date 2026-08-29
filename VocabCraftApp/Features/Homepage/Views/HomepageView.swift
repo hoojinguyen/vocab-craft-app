@@ -70,6 +70,9 @@ public struct HomepageView: View {
                     viewModel: reflexBlitzVM ?? appContainer.makeReflexBlitzViewModel(),
                     onDismiss: {
                         handleReflexDismiss()
+                    },
+                    onFinishSession: { summary in
+                        handleReflexSessionFinished(summary: summary)
                     }
                 )
             case .settings:
@@ -124,6 +127,11 @@ public struct HomepageView: View {
                 self.reflexBlitzVM = vm
             }
         }
+        .onChange(of: appRouter.selectedTab) { _, newTab in
+            if newTab == .reflex && reflexBlitzVM == nil {
+                self.reflexBlitzVM = appContainer.makeReflexBlitzViewModel()
+            }
+        }
         .environment(\.locale, appContainer.userSettingsStore.appLocale ?? .autoupdatingCurrent)
     }
 
@@ -152,16 +160,14 @@ public struct HomepageView: View {
         }
     }
 
-    private func handleReflexDismiss() {
+    private func handleReflexSessionFinished(summary: ReflexBlitzSessionSummary) {
         let node = activeLessonNode
-        let summary = reflexBlitzVM?.sessionSummary
-
         reflexBlitzVM = nil
         activeLessonNode = nil
-        appRouter.navigateToHome()
 
-        Task {
-            if let node, let summary {
+        if let node {
+            appRouter.navigateToHome()
+            Task {
                 let accuracy = summary.totalWords > 0 ? Double(summary.correctWords) / Double(summary.totalWords) : 1.0
                 let stars = accuracy >= 0.95 ? 3 : (accuracy >= 0.80 ? 2 : 1)
                 let weakWordIds = summary.weakWordAttempts.map { Int64($0.wordId) }
@@ -176,8 +182,17 @@ public struct HomepageView: View {
                     weakWordIds: weakWordIds,
                     progressFraction: 1.0
                 )
+                await viewModel.loadLearningPath()
             }
-            await viewModel.loadLearningPath()
+        } else {
+            let vm = appContainer.makeReflexBlitzViewModel()
+            self.reflexBlitzVM = vm
         }
+    }
+
+    private func handleReflexDismiss() {
+        reflexBlitzVM = nil
+        activeLessonNode = nil
+        appRouter.navigateToHome()
     }
 }

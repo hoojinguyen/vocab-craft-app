@@ -9,7 +9,7 @@ public struct ReflexBlitzSummaryView: View {
     public let onReDrillWeak: () -> Void
     public let onFinish: () -> Void
 
-    @State private var isSparkleTriggered: Bool = true
+    @State private var isCelebrationTriggered: Bool = false
 
     public init(
         summary: ReflexBlitzSessionSummary,
@@ -21,6 +21,10 @@ public struct ReflexBlitzSummaryView: View {
         self.onSpeakWord = onSpeakWord
         self.onReDrillWeak = onReDrillWeak
         self.onFinish = onFinish
+    }
+
+    private var isMasterLevel: Bool {
+        summary.speedRating.contains("Master") || (starCount == 3 && summary.weakWordAttempts.isEmpty)
     }
 
     private var formattedAvgTime: String {
@@ -71,6 +75,14 @@ public struct ReflexBlitzSummaryView: View {
             bottomActionDock
         }
         .background(theme.colors.canvasBackground.ignoresSafeArea())
+        .craftConfetti(isTriggered: $isCelebrationTriggered, particleCount: 40)
+        .task {
+            if isMasterLevel {
+                try? await Task.sleep(for: .milliseconds(150))
+                isCelebrationTriggered = true
+            }
+        }
+        .sensoryFeedback(.success, trigger: isCelebrationTriggered) { _, isTriggered in isTriggered }
     }
 
     public var summaryContent: some View {
@@ -280,7 +292,6 @@ public struct ReflexBlitzSummaryView: View {
                 .padding(.vertical, theme.spacing.base)
         }
         .frame(maxWidth: .infinity)
-        .craftSparkle(isTriggered: $isSparkleTriggered, particleCount: 35)
     }
 
     // MARK: - Sticky Bottom Action Dock (Icon-free, Concise Text)

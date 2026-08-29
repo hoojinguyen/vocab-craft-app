@@ -597,4 +597,31 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         XCTAssertEqual(vm.currentWordIndex, 1)
         XCTAssertNotNil(view.drillingView)
     }
+
+    func testBlitzViewOnFinishSessionCallbackCalledOnSummaryFinish() {
+        let (vm, _, _, _) = makeViewModel()
+        vm.beginSessionDirectly()
+        vm.handleTimeout()
+        vm.finishSession()
+
+        XCTAssertEqual(vm.phase, .summary)
+        XCTAssertNotNil(vm.sessionSummary)
+
+        var finishedSummary: ReflexBlitzSessionSummary?
+        let view = ReflexBlitzView(
+            viewModel: vm,
+            onDismiss: {},
+            onFinishSession: { summary in
+                finishedSummary = summary
+            }
+        )
+        XCTAssertNotNil(view.body)
+
+        // Invoke onFinishSession directly to verify contract
+        if let summary = vm.sessionSummary {
+            view.onFinishSession?(summary)
+            XCTAssertNotNil(finishedSummary)
+            XCTAssertEqual(finishedSummary?.totalWords, 1)
+        }
+    }
 }

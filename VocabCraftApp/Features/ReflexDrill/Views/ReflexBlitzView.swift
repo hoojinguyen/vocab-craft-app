@@ -10,10 +10,16 @@ public struct ReflexBlitzView: View {
     public var viewModel: ReflexBlitzViewModel
     @State private var typingInput: String = ""
     public var onDismiss: () -> Void
+    public var onFinishSession: ((ReflexBlitzSessionSummary) -> Void)?
 
-    public init(viewModel: ReflexBlitzViewModel, onDismiss: @escaping () -> Void) {
+    public init(
+        viewModel: ReflexBlitzViewModel,
+        onDismiss: @escaping () -> Void,
+        onFinishSession: ((ReflexBlitzSessionSummary) -> Void)? = nil
+    ) {
         self.viewModel = viewModel
         self.onDismiss = onDismiss
+        self.onFinishSession = onFinishSession
     }
 
     public var body: some View {
@@ -51,8 +57,12 @@ public struct ReflexBlitzView: View {
                             viewModel.reDrillWeakWords()
                         },
                         onFinish: {
-                            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                viewModel.resetToModeSelection()
+                            if let onFinishSession = onFinishSession {
+                                onFinishSession(summary)
+                            } else {
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                    viewModel.resetToModeSelection()
+                                }
                             }
                         }
                     )
