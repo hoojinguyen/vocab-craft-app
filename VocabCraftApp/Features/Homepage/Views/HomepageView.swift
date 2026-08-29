@@ -75,6 +75,7 @@ public struct HomepageView: View {
                         handleReflexSessionFinished(summary: summary)
                     }
                 )
+                .ignoresSafeArea(edges: .bottom)
             case .settings:
                 SettingsView(viewModel: settingsVM ?? appContainer.makeSettingsViewModel())
             }

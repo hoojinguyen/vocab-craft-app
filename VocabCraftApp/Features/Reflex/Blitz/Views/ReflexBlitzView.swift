@@ -95,6 +95,7 @@ public struct ReflexBlitzView: View {
                 drillingView
             }
         }
+        .ignoresSafeArea(edges: .bottom)
         .onAppear {
             if viewModel.phase == .countdown {
                 viewModel.startCountdown()

@@ -94,6 +94,7 @@ public struct MixedReflexDrillView: View {
                     .transition(.opacity)
             }
         }
+        .ignoresSafeArea(edges: .bottom)
         .onAppear {
             setupSpeechServiceCallbacks()
             if let current = viewModel.currentItem {

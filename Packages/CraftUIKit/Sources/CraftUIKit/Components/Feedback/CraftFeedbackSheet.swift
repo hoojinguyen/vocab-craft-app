@@ -199,10 +199,10 @@ public struct CraftFeedbackSheet<ExtraContent: View>: View {
                 customTint: statusColor,
                 action: onContinue
             )
-            .padding(.top, theme.spacing.xs)
+            .padding(.top, theme.spacing.sm)
         }
         .padding(.horizontal, theme.spacing.base)
-        .padding(.top, theme.spacing.base)
+        .padding(.top, theme.spacing.lg)
         .padding(.bottom, theme.spacing.xl)
         .frame(maxWidth: .infinity, alignment: .leading)
         .craftSurfaceStyle(resolvedSurfaceStyle)
@@ -212,7 +212,7 @@ public struct CraftFeedbackSheet<ExtraContent: View>: View {
         .modifier(FeedbackSheetShadowModifier(style: resolvedSurfaceStyle, theme: theme))
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityDescription)
-        .task {
+        .onAppear {
             triggerFeedbackHaptics()
         }
     }
