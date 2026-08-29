@@ -431,4 +431,75 @@ final class ReflexBlitzSummaryViewTests: XCTestCase {
         XCTAssertNotNil(view.body)
         XCTAssertEqual(view.summary.speedRating, "⚡️ Reflex Master")
     }
+
+    @MainActor
+    func testSummaryViewBottomActionDockWithWeakWords() {
+        var didReDrill = false
+        var didFinish = false
+
+        let weakAttempt = ReflexBlitzAttempt(
+            wordId: 1,
+            lemma: "persist",
+            pos: "v.",
+            ipa: "/pəˈsɪst/",
+            definitionVi: "Kiên trì",
+            responseTimeMs: 5000,
+            usedHint: false,
+            isCorrect: false
+        )
+        let summary = ReflexBlitzSessionSummary(
+            id: UUID(),
+            totalWords: 5,
+            correctWords: 4,
+            averageResponseTimeMs: 2100,
+            maxComboStreak: 3,
+            attempts: [weakAttempt],
+            weakWordAttempts: [weakAttempt],
+            speedRating: "🔥 Swift Reflex"
+        )
+        let view = ReflexBlitzSummaryView(
+            summary: summary,
+            onSpeakWord: { _ in },
+            onReDrillWeak: { didReDrill = true },
+            onFinish: { didFinish = true }
+        )
+
+        XCTAssertNotNil(view.body)
+        XCTAssertNotNil(view.bottomActionDock)
+        XCTAssertEqual(view.summary.weakWordAttempts.count, 1)
+
+        view.onReDrillWeak()
+        view.onFinish()
+        XCTAssertTrue(didReDrill)
+        XCTAssertTrue(didFinish)
+    }
+
+    @MainActor
+    func testSummaryViewBottomActionDockWithoutWeakWords() {
+        var didFinish = false
+
+        let summary = ReflexBlitzSessionSummary(
+            id: UUID(),
+            totalWords: 5,
+            correctWords: 5,
+            averageResponseTimeMs: 1200,
+            maxComboStreak: 5,
+            attempts: [],
+            weakWordAttempts: [],
+            speedRating: "⚡️ Reflex Master"
+        )
+        let view = ReflexBlitzSummaryView(
+            summary: summary,
+            onSpeakWord: { _ in },
+            onReDrillWeak: {},
+            onFinish: { didFinish = true }
+        )
+
+        XCTAssertNotNil(view.body)
+        XCTAssertNotNil(view.bottomActionDock)
+        XCTAssertTrue(view.summary.weakWordAttempts.isEmpty)
+
+        view.onFinish()
+        XCTAssertTrue(didFinish)
+    }
 }

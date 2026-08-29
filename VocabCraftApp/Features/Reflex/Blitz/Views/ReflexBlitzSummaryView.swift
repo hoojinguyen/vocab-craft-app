@@ -54,7 +54,7 @@ public struct ReflexBlitzSummaryView: View {
         ZStack(alignment: .bottom) {
             ScrollView(.vertical, showsIndicators: false) {
                 summaryContent
-                    .padding(.bottom, summary.weakWordAttempts.isEmpty ? 110 : 160)
+                    .padding(.bottom, summary.weakWordAttempts.isEmpty ? 140 : 200)
             }
 
             bottomActionDock
@@ -299,8 +299,8 @@ public struct ReflexBlitzSummaryView: View {
     }
 
     // MARK: - Sticky Bottom Action Dock
-    private var bottomActionDock: some View {
-        VStack(spacing: theme.spacing.xs) {
+    public var bottomActionDock: some View {
+        VStack(spacing: theme.spacing.md) {
             if !summary.weakWordAttempts.isEmpty {
                 CraftButton(
                     AppStrings.ReflexBlitz.redrillWeak,
@@ -314,7 +314,7 @@ public struct ReflexBlitzSummaryView: View {
                 CraftButton(
                     AppStrings.ReflexBlitz.finishSaveText,
                     variant: .secondary,
-                    size: .md,
+                    size: .lg,
                     isFullWidth: true,
                     action: onFinish
                 )
@@ -330,13 +330,20 @@ public struct ReflexBlitzSummaryView: View {
             }
         }
         .padding(.horizontal, theme.spacing.base)
-        .padding(.top, theme.spacing.sm)
-        .padding(.bottom, theme.spacing.md)
+        .padding(.top, theme.spacing.md)
+        .padding(.bottom, theme.spacing.lg)
         .background(
-            Rectangle()
-                .fill(.ultraThinMaterial)
-                .ignoresSafeArea(edges: .bottom)
-                .craftShadow(theme.shadows.sm)
+            VStack(spacing: 0) {
+                LinearGradient(
+                    colors: [theme.colors.canvasBackground.opacity(0), theme.colors.canvasBackground],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: 20)
+
+                theme.colors.canvasBackground
+            }
+            .ignoresSafeArea(edges: .bottom)
         )
     }
 }
