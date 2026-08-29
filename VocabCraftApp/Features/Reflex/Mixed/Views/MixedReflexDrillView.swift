@@ -141,6 +141,8 @@ public struct MixedReflexDrillView: View {
                 .padding(.top, theme.spacing.sm)
 
                 challengeCard(for: currentItem)
+                    .id("\(viewModel.currentIndex)-\(currentItem.id)")
+                    .transition(.opacity)
 
                 Spacer(minLength: theme.spacing.xs)
 
@@ -239,9 +241,6 @@ public struct MixedReflexDrillView: View {
             eliminatedOptionId: viewModel.currentEliminatedOptionId,
             onSelectOption: { option in
                 selectOption(option)
-            },
-            onPlayAudio: {
-                viewModel.playAudioForCurrentWord()
             },
             onReplayAudio: {
                 viewModel.playAudioForCurrentWord()

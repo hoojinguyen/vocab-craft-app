@@ -54,8 +54,8 @@ public enum ReflexMode: String, CaseIterable, Identifiable, Sendable, Codable {
             if elapsed >= 1600 { return 1 }
             return 0
         case .listening:
-            if elapsed >= 4000 { return 3 }
-            if elapsed >= 2800 { return 2 }
+            if elapsed >= 5500 { return 3 }
+            if elapsed >= 3000 { return 2 }
             if elapsed >= 1800 { return 1 }
             return 0
         case .speaking:

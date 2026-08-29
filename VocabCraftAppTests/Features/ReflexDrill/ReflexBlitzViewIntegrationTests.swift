@@ -774,4 +774,74 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
             XCTAssertEqual(finishedSummary?.totalWords, 1)
         }
     }
+
+    func testBlitzViewListeningModeCardViewIdentityAndSpoilerFreeProgression() {
+        let (vm, _, mockTTS, _) = makeViewModel()
+        vm.selectMode(.listening)
+        vm.beginSessionDirectly()
+
+        XCTAssertEqual(vm.currentWordIndex, 0)
+        guard let firstWord = vm.currentWord else {
+            XCTFail("Expected first word to be non-nil")
+            return
+        }
+        XCTAssertEqual(firstWord.id, 1)
+        XCTAssertEqual(vm.cardPhase, .activeCountdown)
+        XCTAssertEqual(mockTTS.lastSpokenText, firstWord.lemma)
+
+        let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
+        XCTAssertNotNil(view.drillingView)
+
+        // Select an option to transition to reviewed flip state
+        if let option = vm.currentOptions.first {
+            vm.selectOption(option)
+        }
+        if case .reviewed(let result) = vm.cardPhase {
+            XCTAssertNotNil(result)
+        } else {
+            XCTFail("Expected .reviewed state")
+        }
+
+        // Advance to word index 1
+        vm.advanceToNextWord()
+        XCTAssertEqual(vm.currentWordIndex, 1)
+        guard let secondWord = vm.currentWord else {
+            XCTFail("Expected second word to be non-nil")
+            return
+        }
+        XCTAssertEqual(secondWord.id, 2)
+        XCTAssertEqual(vm.cardPhase, .activeCountdown)
+        XCTAssertEqual(mockTTS.lastSpokenText, secondWord.lemma)
+
+        // Drilling view renders cleanly for new word instance with fresh identity
+        XCTAssertNotNil(view.drillingView)
+    }
+
+    func testBlitzViewCardViewIdentityAcrossAllModes() {
+        let modes: [ReflexBlitzMode] = [.speaking, .typing, .multipleChoice, .listening]
+
+        for mode in modes {
+            let (vm, _, _, _) = makeViewModel()
+            vm.selectMode(mode)
+            vm.beginSessionDirectly()
+
+            XCTAssertEqual(vm.currentWordIndex, 0, "Failed for mode \(mode)")
+            XCTAssertEqual(vm.cardPhase, .activeCountdown, "Failed for mode \(mode)")
+
+            let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
+            XCTAssertNotNil(view.drillingView, "Failed for mode \(mode)")
+
+            vm.handleTimeout()
+            if case .reviewed = vm.cardPhase {
+                // Expected reviewed
+            } else {
+                XCTFail("Expected .reviewed state for mode \(mode)")
+            }
+
+            vm.advanceToNextWord()
+            XCTAssertEqual(vm.currentWordIndex, 1, "Failed for mode \(mode)")
+            XCTAssertEqual(vm.cardPhase, .activeCountdown, "Failed for mode \(mode)")
+            XCTAssertNotNil(view.drillingView, "Failed for mode \(mode)")
+        }
+    }
 }

@@ -155,4 +155,26 @@ struct MixedReflexDrillViewsTests {
         #expect(drillView.isResultCorrect == false)
         #expect(drillView.isResultTimeout == false)
     }
+
+    @Test("MixedReflexDrillView tiến triển mượt mà qua các từ với view identity rõ ràng")
+    @MainActor
+    func testMixedReflexDrillViewProgressionWithIdentity() async {
+        let words = [
+            VaultWordItem(id: 1, lemma: "ephemeral", pos: "adj.", definitionVi: "Phù du", exampleSentenceEn: "Her fame is ephemeral."),
+            VaultWordItem(id: 2, lemma: "serendipity", pos: "n.", definitionVi: "May mắn", exampleSentenceEn: "Pure serendipity.")
+        ]
+        let queueUseCase = GenerateMixedReflexQueueUseCase()
+        let vm = MixedReflexDrillViewModel(selectedWords: words, queueUseCase: queueUseCase)
+
+        let drillView = MixedReflexDrillView(viewModel: vm, onFinish: {})
+        #expect(drillView.viewModel.queue.count == 2)
+        #expect(drillView.viewModel.currentIndex == 0)
+        #expect(drillView.viewModel.currentItem?.id == words[0].id)
+
+        await vm.submitAnswer(isCorrect: true, responseTimeMs: 1000)
+        vm.advanceToNextItem()
+
+        #expect(drillView.viewModel.currentIndex == 1)
+        #expect(drillView.viewModel.currentItem?.id == words[1].id)
+    }
 }

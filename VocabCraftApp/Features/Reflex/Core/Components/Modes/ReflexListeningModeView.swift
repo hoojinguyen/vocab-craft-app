@@ -22,9 +22,6 @@ public struct ReflexListeningModeView: View {
     public let onPlayAudio: (() -> Void)?
     public let onReplayAudio: (() -> Void)?
 
-    @State private var isAudioPlaying: Bool = false
-    @State private var audioTimerTask: Task<Void, Never>?
-
     public init(
         word: any ReflexDrillable,
         options: [ReflexBlitzOption],
@@ -79,33 +76,6 @@ public struct ReflexListeningModeView: View {
 
             listeningOptionsListView
         }
-        .onAppear {
-            if !isReviewed {
-                triggerAudioPlayback()
-            }
-        }
-        .onDisappear {
-            audioTimerTask?.cancel()
-        }
-        .onChange(of: hintStage) { _, newStage in
-            if !isReviewed && newStage > 0 {
-                triggerAudioPlayback()
-            }
-        }
-    }
-
-    // MARK: - Audio Playback
-
-    private func triggerAudioPlayback() {
-        onPlayAudio?()
-        isAudioPlaying = true
-        audioTimerTask?.cancel()
-        audioTimerTask = Task { @MainActor in
-            try? await Task.sleep(nanoseconds: 1_600_000_000)
-            if !Task.isCancelled {
-                isAudioPlaying = false
-            }
-        }
     }
 
     // MARK: - 3D Flip Stimulus Card
@@ -149,7 +119,7 @@ public struct ReflexListeningModeView: View {
                 minHeight: 6,
                 maxHeight: 40,
                 barWidth: 4,
-                isRecording: isAudioPlaying,
+                isRecording: !isReviewed,
                 activeColor: theme.colors.brandPrimary
             )
             .frame(height: 40)
@@ -173,7 +143,7 @@ public struct ReflexListeningModeView: View {
                 textAlignment: .center
             )
         }
-        .frame(maxWidth: .infinity, minHeight: 195, alignment: .center)
+        .frame(maxWidth: .infinity, minHeight: 220, alignment: .center)
         .padding(.vertical, theme.spacing.xs)
     }
 
@@ -268,7 +238,7 @@ public struct ReflexListeningModeView: View {
             }
             .padding(.top, 4)
         }
-        .frame(maxWidth: .infinity, minHeight: 195, alignment: .center)
+        .frame(maxWidth: .infinity, minHeight: 220, alignment: .center)
     }
 
     // MARK: - Options List (Directly on Canvas)

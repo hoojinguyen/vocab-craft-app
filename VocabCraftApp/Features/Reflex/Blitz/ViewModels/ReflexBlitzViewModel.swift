@@ -317,7 +317,7 @@ public final class ReflexBlitzViewModel {
         }
 
         if selectedMode == .listening {
-            ttsService.speak(text: word.lemma, rate: 0.5, locale: "en-US")
+            ttsService.speak(text: word.lemma, rate: 1.0, locale: "en-US")
         }
 
         startStopwatch()
@@ -349,6 +349,21 @@ public final class ReflexBlitzViewModel {
                 guard let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
                 self.hintStage = max(self.hintStage, 3)
             }
+        } else if selectedMode == .listening {
+            hintTimerTask = Task { @MainActor [weak self] in
+                try? await Task.sleep(for: .milliseconds(1800))
+                guard !Task.isCancelled else { return }
+                guard let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
+                self.hintStage = max(self.hintStage, 1)
+                self.speakCurrentWord()
+            }
+            hintStage2Task = Task { @MainActor [weak self] in
+                try? await Task.sleep(for: .milliseconds(3000))
+                guard !Task.isCancelled else { return }
+                guard let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
+                self.hintStage = max(self.hintStage, 2)
+                self.speakCurrentWord()
+            }
         } else {
             let hintSeconds = selectedMode == .typing ? 4.5 : 3.5
             hintTimerTask = Task { @MainActor [weak self] in
@@ -369,7 +384,7 @@ public final class ReflexBlitzViewModel {
     }
 
     public func speakLemma(_ lemma: String) {
-        ttsService.speak(text: lemma, rate: 0.5, locale: "en-US")
+        ttsService.speak(text: lemma, rate: 1.0, locale: "en-US")
     }
 
     public func speakCurrentWord() {
@@ -383,6 +398,9 @@ public final class ReflexBlitzViewModel {
             if ms >= 1600 { self.hintStage = max(self.hintStage, 1) }
             if ms >= 2500 { self.hintStage = max(self.hintStage, 2) }
             if ms >= 3400 { self.hintStage = max(self.hintStage, 3) }
+        } else if selectedMode == .listening {
+            if ms >= 1800 { self.hintStage = max(self.hintStage, 1) }
+            if ms >= 3000 { self.hintStage = max(self.hintStage, 2) }
         } else {
             let hintThreshold = selectedMode == .typing ? 4500 : 3500
             if ms >= hintThreshold {
@@ -460,7 +478,7 @@ extension ReflexBlitzViewModel {
         }
 
         if selectedMode != .listening {
-            ttsService.speak(text: word.lemma, rate: 0.5, locale: "en-US")
+            ttsService.speak(text: word.lemma, rate: 1.0, locale: "en-US")
         }
     }
 
@@ -515,7 +533,7 @@ extension ReflexBlitzViewModel {
             ))
         }
 
-        ttsService.speak(text: word.lemma, rate: 0.5, locale: "en-US")
+        ttsService.speak(text: word.lemma, rate: 1.0, locale: "en-US")
     }
 
     public func submitKeyboardInput(_ text: String) {
@@ -612,7 +630,7 @@ extension ReflexBlitzViewModel {
         }
 
         if selectedMode != .listening {
-            ttsService.speak(text: word.lemma, rate: 0.5, locale: "en-US")
+            ttsService.speak(text: word.lemma, rate: 1.0, locale: "en-US")
         }
     }
 }
