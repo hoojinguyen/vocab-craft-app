@@ -139,7 +139,7 @@ public struct ReflexBlitzView: View {
                     },
                     showSkipInHeader: false
                 )
-                .padding(.top, theme.spacing.xs)
+                .padding(.top, theme.spacing.sm)
 
                 if let word = viewModel.currentWord {
                     ReflexBlitzCardView(
@@ -166,12 +166,11 @@ public struct ReflexBlitzView: View {
                             viewModel.speakCurrentWord()
                         }
                     )
-                    .padding(.top, theme.spacing.xs)
                 }
 
                 Spacer(minLength: theme.spacing.xs)
 
-                // Reserved spacing for Skip Button or Sheet clearance
+                // Skip Button for Speaking / Typing
                 if viewModel.cardPhase == .activeCountdown && (viewModel.selectedMode == .speaking || viewModel.selectedMode == .typing) {
                     CraftButton(
                         AppStrings.ReflexBlitz.skip,
@@ -187,15 +186,6 @@ public struct ReflexBlitzView: View {
                     .padding(.horizontal, theme.spacing.lg)
                     .padding(.bottom, theme.spacing.lg)
                     .transition(.opacity)
-                } else if case .reviewed = viewModel.cardPhase {
-                    Color.clear
-                        .frame(height: 140)
-                } else if viewModel.selectedMode == .multipleChoice {
-                    Color.clear
-                        .frame(height: 140)
-                } else {
-                    Color.clear
-                        .frame(height: 20)
                 }
             }
 
