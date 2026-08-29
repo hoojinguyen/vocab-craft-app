@@ -90,22 +90,25 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
 
         XCTAssertEqual(vm.phase, .drilling)
         XCTAssertEqual(vm.cardPhase, .activeCountdown)
-        XCTAssertEqual(vm.currentWord?.lemma, "ephemeral")
-        XCTAssertEqual(mockSpeech.currentTargetLemma, "ephemeral")
+        guard let firstWord = vm.currentWord else {
+            XCTFail("Expected first word to be non-nil")
+            return
+        }
+        XCTAssertEqual(mockSpeech.currentTargetLemma, firstWord.lemma)
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
         XCTAssertNotNil(view.body)
         XCTAssertNotNil(view.drillingView)
 
         // Spoken match triggers review state
-        mockSpeech.simulateTranscript("The fame is ephemeral today")
+        mockSpeech.simulateTranscript("The fame is \(firstWord.lemma) today")
         XCTAssertTrue(vm.currentAttemptIsCorrect)
         XCTAssertEqual(vm.comboStreak, 1)
 
         if case .reviewed(let result) = vm.cardPhase {
             XCTAssertTrue(result.isCorrect)
             XCTAssertFalse(result.isTimeout)
-            XCTAssertEqual(result.recognizedSpoken, "ephemeral")
+            XCTAssertEqual(result.recognizedSpoken, firstWord.lemma)
         } else {
             XCTFail("Expected cardPhase to be .reviewed")
         }
@@ -113,7 +116,11 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         // Advance to word 2
         vm.advanceToNextWord()
         XCTAssertEqual(vm.currentWordIndex, 1)
-        XCTAssertEqual(vm.currentWord?.lemma, "serendipity")
+        guard let secondWord = vm.currentWord else {
+            XCTFail("Expected second word to be non-nil")
+            return
+        }
+        XCTAssertEqual(mockSpeech.currentTargetLemma, secondWord.lemma)
         XCTAssertEqual(vm.cardPhase, .activeCountdown)
     }
 
@@ -128,6 +135,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
         XCTAssertNotNil(view.body)
+        XCTAssertNotNil(view.drillingView)
 
         // Submit typing answer
         let targetLemma = vm.currentWord!.lemma
@@ -138,6 +146,39 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         if case .reviewed(let result) = vm.cardPhase {
             XCTAssertTrue(result.isCorrect)
             XCTAssertEqual(result.typedText, targetLemma)
+        } else {
+            XCTFail("Expected cardPhase to be .reviewed")
+        }
+
+        // Advance to next word
+        vm.advanceToNextWord()
+        XCTAssertEqual(vm.currentWordIndex, 1)
+        XCTAssertEqual(vm.cardPhase, .activeCountdown)
+    }
+
+    func testBlitzViewDrillingTypingModeIncorrectInputAndReview() {
+        let (vm, _, _, _) = makeViewModel()
+        vm.selectMode(.typing)
+        vm.beginSessionDirectly()
+
+        XCTAssertEqual(vm.phase, .drilling)
+        XCTAssertEqual(vm.selectedMode, .typing)
+        XCTAssertEqual(vm.cardPhase, .activeCountdown)
+
+        let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
+        XCTAssertNotNil(view.body)
+        XCTAssertNotNil(view.drillingView)
+
+        // Submit incorrect typing answer
+        let wrongInput = "wrongword"
+        vm.submitTypingAnswer(wrongInput)
+        XCTAssertFalse(vm.currentAttemptIsCorrect)
+        XCTAssertEqual(vm.comboStreak, 0)
+
+        if case .reviewed(let result) = vm.cardPhase {
+            XCTAssertFalse(result.isCorrect)
+            XCTAssertFalse(result.isTimeout)
+            XCTAssertEqual(result.typedText, wrongInput)
         } else {
             XCTFail("Expected cardPhase to be .reviewed")
         }

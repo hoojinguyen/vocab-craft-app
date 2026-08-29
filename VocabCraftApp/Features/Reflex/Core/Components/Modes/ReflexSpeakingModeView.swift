@@ -93,9 +93,12 @@ public struct ReflexSpeakingModeView: View {
                 )
 
                 if showHint || hintStage > 0 {
-                    let badgeText = (hintBadgeText?.isEmpty == false)
-                        ? hintBadgeText!
-                        : AppStrings.ReflexBlitz.hintPrefix(word.cleanInitialLetterHint)
+                    let badgeText: String = {
+                        if let text = hintBadgeText, !text.isEmpty {
+                            return text
+                        }
+                        return AppStrings.ReflexBlitz.hintPrefix(word.cleanInitialLetterHint)
+                    }()
                     CraftBadge(
                         badgeText,
                         iconName: "lightbulb.min.fill",

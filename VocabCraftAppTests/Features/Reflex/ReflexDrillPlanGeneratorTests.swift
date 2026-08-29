@@ -17,7 +17,6 @@ struct ReflexDrillPlanGeneratorTests {
         let emptyWords: [ReflexBlitzWordItem] = []
         let plan = ReflexDrillPlanGenerator.generatePlan(words: emptyWords, mode: .multipleChoice)
         #expect(plan.isEmpty)
-        #expect(plan.count == 0)
         #expect(plan.items.isEmpty)
         #expect(plan.mode == .multipleChoice)
     }

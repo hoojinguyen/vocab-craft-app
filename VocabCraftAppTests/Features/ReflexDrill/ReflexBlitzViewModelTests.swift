@@ -444,14 +444,14 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         viewModel.beginSessionDirectly()
 
         // Word 1
-        guard let w1 = viewModel.currentWord?.lemma else { XCTFail("No word 1"); return }
-        viewModel.submitTypingAnswer(w1)
+        guard let word1Lemma = viewModel.currentWord?.lemma else { XCTFail("No word 1"); return }
+        viewModel.submitTypingAnswer(word1Lemma)
         XCTAssertEqual(viewModel.comboStreak, 1)
         viewModel.advanceToNextWord()
 
         // Word 2
-        guard let w2 = viewModel.currentWord?.lemma else { XCTFail("No word 2"); return }
-        viewModel.submitTypingAnswer(w2)
+        guard let word2Lemma = viewModel.currentWord?.lemma else { XCTFail("No word 2"); return }
+        viewModel.submitTypingAnswer(word2Lemma)
         XCTAssertEqual(viewModel.comboStreak, 2)
         XCTAssertEqual(viewModel.maxComboStreak, 2)
         viewModel.advanceToNextWord()
@@ -467,8 +467,8 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         viewModel.beginSessionDirectly()
 
         // Word 1: Correct
-        guard let w1 = viewModel.currentWord?.lemma else { XCTFail("No word 1"); return }
-        viewModel.submitTypingAnswer(w1)
+        guard let word1Lemma = viewModel.currentWord?.lemma else { XCTFail("No word 1"); return }
+        viewModel.submitTypingAnswer(word1Lemma)
         viewModel.advanceToNextWord()
 
         // Word 2: Timeout (weak)
@@ -477,8 +477,8 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         viewModel.advanceToNextWord()
 
         // Word 3: Correct
-        guard let w3 = viewModel.currentWord?.lemma else { XCTFail("No word 3"); return }
-        viewModel.submitTypingAnswer(w3)
+        guard let word3Lemma = viewModel.currentWord?.lemma else { XCTFail("No word 3"); return }
+        viewModel.submitTypingAnswer(word3Lemma)
         viewModel.advanceToNextWord()
 
         XCTAssertEqual(viewModel.phase, .summary)

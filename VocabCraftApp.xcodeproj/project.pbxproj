@@ -88,7 +88,8 @@
 		3000C001000100010013 /* ReflexReviewedConsolidationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010013 /* ReflexReviewedConsolidationView.swift */; };
 		3000C001000100010014 /* ReflexCardContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010014 /* ReflexCardContainerView.swift */; };
 		3000C001000100010015 /* ReflexHeaderBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010015 /* ReflexHeaderBarView.swift */; };
-		3000C001000100010021 /* ReflexHintMaskStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010021 /* ReflexHintMaskStrategy.swift */; };
+		3000C001000100010091 /* ReflexHintMaskStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010091 /* ReflexHintMaskStrategy.swift */; };
+		3000C001000100010092 /* ReflexBlitzViewModel+Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010092 /* ReflexBlitzViewModel+Configuration.swift */; };
 		3000C001000100010022 /* ReflexClozeStageSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010022 /* ReflexClozeStageSet.swift */; };
 		3000C001000100010023 /* ReflexDrillPlanItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010023 /* ReflexDrillPlanItem.swift */; };
 		3000C001000100010024 /* ReflexDrillSessionPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010024 /* ReflexDrillSessionPlan.swift */; };
@@ -396,7 +397,8 @@
 		2000C001000100010013 /* ReflexReviewedConsolidationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexReviewedConsolidationView.swift"; sourceTree = "<group>"; };
 		2000C001000100010014 /* ReflexCardContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexCardContainerView.swift"; sourceTree = "<group>"; };
 		2000C001000100010015 /* ReflexHeaderBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexHeaderBarView.swift"; sourceTree = "<group>"; };
-		2000C001000100010021 /* ReflexHintMaskStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexHintMaskStrategy.swift"; sourceTree = "<group>"; };
+		2000C001000100010091 /* ReflexHintMaskStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexHintMaskStrategy.swift"; sourceTree = "<group>"; };
+		2000C001000100010092 /* ReflexBlitzViewModel+Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzViewModel+Configuration.swift"; sourceTree = "<group>"; };
 		2000C001000100010022 /* ReflexClozeStageSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexClozeStageSet.swift"; sourceTree = "<group>"; };
 		2000C001000100010023 /* ReflexDrillPlanItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillPlanItem.swift"; sourceTree = "<group>"; };
 		2000C001000100010024 /* ReflexDrillSessionPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillSessionPlan.swift"; sourceTree = "<group>"; };
@@ -944,6 +946,7 @@
 			isa = PBXGroup;
 			children = (
 				2000925E6AEFC3C319C4 /* ReflexBlitzViewModel.swift */,
+				2000C001000100010092 /* ReflexBlitzViewModel+Configuration.swift */,
 			);
 			path = "ViewModels";
 			sourceTree = "<group>";
@@ -1018,7 +1021,7 @@
 				2000C001000100010004 /* ReflexBlitzOption.swift */,
 				2000C001000100010005 /* ReflexBlitzWordItem.swift */,
 				2000C001000100010006 /* ReflexSessionSummary.swift */,
-				2000C001000100010021 /* ReflexHintMaskStrategy.swift */,
+				2000C001000100010091 /* ReflexHintMaskStrategy.swift */,
 				2000C001000100010022 /* ReflexClozeStageSet.swift */,
 				2000C001000100010023 /* ReflexDrillPlanItem.swift */,
 				2000C001000100010024 /* ReflexDrillSessionPlan.swift */,
@@ -1667,7 +1670,8 @@
 				3000C001000100010013 /* ReflexReviewedConsolidationView.swift in Sources */,
 				3000C001000100010014 /* ReflexCardContainerView.swift in Sources */,
 				3000C001000100010015 /* ReflexHeaderBarView.swift in Sources */,
-				3000C001000100010021 /* ReflexHintMaskStrategy.swift in Sources */,
+				3000C001000100010091 /* ReflexHintMaskStrategy.swift in Sources */,
+				3000C001000100010092 /* ReflexBlitzViewModel+Configuration.swift in Sources */,
 				3000C001000100010022 /* ReflexClozeStageSet.swift in Sources */,
 				3000C001000100010023 /* ReflexDrillPlanItem.swift in Sources */,
 				3000C001000100010024 /* ReflexDrillSessionPlan.swift in Sources */,

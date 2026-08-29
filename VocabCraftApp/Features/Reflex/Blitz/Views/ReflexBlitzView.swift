@@ -186,8 +186,8 @@ public struct ReflexBlitzView: View {
 
                 Spacer(minLength: theme.spacing.xs)
 
-                // Skip Button for Speaking / Typing
-                if viewModel.cardPhase == .activeCountdown && (viewModel.selectedMode == .speaking || viewModel.selectedMode == .typing) {
+                // Skip Button for Speaking
+                if viewModel.cardPhase == .activeCountdown && viewModel.selectedMode == .speaking {
                     CraftButton(
                         AppStrings.ReflexBlitz.skip,
                         iconName: "forward.fill",
@@ -226,95 +226,118 @@ public struct ReflexBlitzView: View {
     @ViewBuilder
     private func cardContent(for word: ReflexBlitzWordItem) -> some View {
         if viewModel.selectedMode == .multipleChoice {
-            ReflexMultipleChoiceModeView(
-                word: word,
-                options: viewModel.currentOptions,
-                isReviewed: isReviewed,
-                isResultCorrect: viewModel.currentAttemptIsCorrect,
-                isResultTimeout: isReviewedTimeout,
-                showHint: viewModel.showHint,
-                hintStage: viewModel.hintStage,
-                selectedOptionText: reviewResult?.selectedOption,
-                clozeStages: viewModel.currentClozeStages,
-                clozeParts: ReflexClozeFormatter.extractTemplateParts(from: word.clozeSentenceEn),
-                displayedSentence: isReviewed ? word.completedSentenceWithTargetWord : word.clozeSentenceEn,
-                cardBorderColor: theme.colors.hairline.opacity(0.4),
-                eliminatedOptionId: eliminatedOptionId,
-                onSelectOption: { option in
-                    viewModel.selectOption(option)
-                },
-                onReplayAudio: {
-                    viewModel.speakCurrentWord()
-                }
-            )
-            .padding(.horizontal, theme.spacing.base)
+            multipleChoiceCard(for: word)
+        } else if viewModel.selectedMode == .typing {
+            typingCard(for: word)
         } else {
-            ReflexCardContainerView(
-                isReviewed: isReviewed,
-                isCorrect: viewModel.currentAttemptIsCorrect,
-                isTimeout: isReviewedTimeout,
-                timerStage: viewModel.timerStage
-            ) {
-                if isReviewed {
-                    ReflexReviewedConsolidationView(
+            containerCard(for: word)
+        }
+    }
+
+    @ViewBuilder
+    private func multipleChoiceCard(for word: ReflexBlitzWordItem) -> some View {
+        ReflexMultipleChoiceModeView(
+            word: word,
+            options: viewModel.currentOptions,
+            isReviewed: isReviewed,
+            isResultCorrect: viewModel.currentAttemptIsCorrect,
+            isResultTimeout: isReviewedTimeout,
+            showHint: viewModel.showHint,
+            hintStage: viewModel.hintStage,
+            selectedOptionText: reviewResult?.selectedOption,
+            clozeStages: viewModel.currentClozeStages,
+            clozeParts: ReflexClozeFormatter.extractTemplateParts(from: word.clozeSentenceEn),
+            displayedSentence: isReviewed ? word.completedSentenceWithTargetWord : word.clozeSentenceEn,
+            cardBorderColor: theme.colors.hairline.opacity(0.4),
+            eliminatedOptionId: eliminatedOptionId,
+            onSelectOption: { option in
+                viewModel.selectOption(option)
+            },
+            onReplayAudio: {
+                viewModel.speakCurrentWord()
+            }
+        )
+        .padding(.horizontal, theme.spacing.base)
+    }
+
+    @ViewBuilder
+    private func typingCard(for word: ReflexBlitzWordItem) -> some View {
+        ReflexTypingModeView(
+            word: word,
+            isReviewed: isReviewed,
+            isResultCorrect: viewModel.currentAttemptIsCorrect,
+            isResultTimeout: isReviewedTimeout,
+            showHint: viewModel.showHint,
+            hintStage: viewModel.hintStage,
+            typingText: $typingInput,
+            userSubmittedText: reviewResult?.typedText ?? typingInput,
+            clozeStages: viewModel.currentClozeStages,
+            clozeParts: ReflexClozeFormatter.extractTemplateParts(from: word.clozeSentenceEn),
+            displayedSentence: isReviewed ? word.completedSentenceWithTargetWord : word.clozeSentenceEn,
+            hintBadgeText: viewModel.currentHintBadgeText,
+            onSubmit: {
+                viewModel.submitTypingAnswer(typingInput)
+            },
+            onReplayAudio: {
+                viewModel.speakCurrentWord()
+            }
+        )
+        .padding(.horizontal, theme.spacing.base)
+    }
+
+    @ViewBuilder
+    private func containerCard(for word: ReflexBlitzWordItem) -> some View {
+        ReflexCardContainerView(
+            isReviewed: isReviewed,
+            isCorrect: viewModel.currentAttemptIsCorrect,
+            isTimeout: isReviewedTimeout,
+            timerStage: viewModel.timerStage
+        ) {
+            if isReviewed {
+                ReflexReviewedConsolidationView(
+                    word: word,
+                    mode: viewModel.selectedMode,
+                    reviewResult: reviewResult,
+                    displayedSentence: word.completedSentenceWithTargetWord,
+                    onReplayAudio: {
+                        viewModel.speakCurrentWord()
+                    }
+                )
+            } else {
+                switch viewModel.selectedMode {
+                case .speaking:
+                    ReflexSpeakingModeView(
                         word: word,
-                        mode: viewModel.selectedMode,
-                        reviewResult: reviewResult,
-                        displayedSentence: word.completedSentenceWithTargetWord,
-                        onReplayAudio: {
-                            viewModel.speakCurrentWord()
+                        liveTranscript: viewModel.liveTranscript,
+                        elapsedTimeMs: viewModel.elapsedTimeMs,
+                        showHint: viewModel.showHint,
+                        hintStage: viewModel.hintStage,
+                        clozeStages: viewModel.currentClozeStages,
+                        clozeParts: ReflexClozeFormatter.extractTemplateParts(from: word.clozeSentenceEn),
+                        displayedSentence: word.clozeSentenceEn,
+                        hintBadgeText: viewModel.currentHintBadgeText,
+                        onSwitchToKeyboard: {
+                            viewModel.toggleKeyboardFallback()
                         }
                     )
-                } else {
-                    switch viewModel.selectedMode {
-                    case .speaking:
-                        ReflexSpeakingModeView(
-                            word: word,
-                            liveTranscript: viewModel.liveTranscript,
-                            elapsedTimeMs: viewModel.elapsedTimeMs,
-                            showHint: viewModel.showHint,
-                            hintStage: viewModel.hintStage,
-                            clozeStages: viewModel.currentClozeStages,
-                            clozeParts: ReflexClozeFormatter.extractTemplateParts(from: word.clozeSentenceEn),
-                            displayedSentence: word.clozeSentenceEn,
-                            hintBadgeText: viewModel.currentHintBadgeText,
-                            onSwitchToKeyboard: {
-                                viewModel.toggleKeyboardFallback()
-                            }
-                        )
-                    case .typing:
-                        ReflexTypingModeView(
-                            word: word,
-                            typingText: $typingInput,
-                            showHint: viewModel.showHint,
-                            hintStage: viewModel.hintStage,
-                            clozeStages: viewModel.currentClozeStages,
-                            clozeParts: ReflexClozeFormatter.extractTemplateParts(from: word.clozeSentenceEn),
-                            displayedSentence: word.clozeSentenceEn,
-                            hintBadgeText: viewModel.currentHintBadgeText,
-                            onSubmit: {
-                                viewModel.submitTypingAnswer(typingInput)
-                            }
-                        )
-                    case .listening:
-                        ReflexListeningModeView(
-                            word: word,
-                            options: viewModel.currentOptions,
-                            elapsedTimeMs: viewModel.elapsedTimeMs,
-                            isReviewed: isReviewed,
-                            selectedOptionText: reviewResult?.selectedOption,
-                            hintStage: viewModel.hintStage,
-                            eliminatedOptionId: eliminatedOptionId,
-                            onPlayAudio: {
-                                viewModel.speakCurrentWord()
-                            },
-                            onSelectOption: { option in
-                                viewModel.selectOption(option)
-                            }
-                        )
-                    case .multipleChoice:
-                        EmptyView()
-                    }
+                case .listening:
+                    ReflexListeningModeView(
+                        word: word,
+                        options: viewModel.currentOptions,
+                        elapsedTimeMs: viewModel.elapsedTimeMs,
+                        isReviewed: isReviewed,
+                        selectedOptionText: reviewResult?.selectedOption,
+                        hintStage: viewModel.hintStage,
+                        eliminatedOptionId: eliminatedOptionId,
+                        onPlayAudio: {
+                            viewModel.speakCurrentWord()
+                        },
+                        onSelectOption: { option in
+                            viewModel.selectOption(option)
+                        }
+                    )
+                case .multipleChoice, .typing:
+                    EmptyView()
                 }
             }
         }

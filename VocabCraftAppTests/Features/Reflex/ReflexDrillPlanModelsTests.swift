@@ -112,6 +112,5 @@ struct ReflexDrillPlanModelsTests {
             items: []
         )
         #expect(emptyPlan.isEmpty)
-        #expect(emptyPlan.count == 0)
     }
 }

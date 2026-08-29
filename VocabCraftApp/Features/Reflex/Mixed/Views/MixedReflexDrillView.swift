@@ -185,102 +185,106 @@ public struct MixedReflexDrillView: View {
     // MARK: - Challenge Card Container
     @ViewBuilder
     private func challengeCard(for item: MixedReflexDrillItem) -> some View {
-        let isReviewed = self.isReviewed
-        let reviewedResult = self.reviewedResult
-        let isResultCorrect = self.isResultCorrect
-        let isResultTimeout = self.isResultTimeout
-        let timerStage = self.timerStage
         let currentHintStage = item.assignedMode.hintStage(forElapsedTimeMs: elapsedTimeMs)
         let isHintActive = currentHintStage >= 1
 
-
         if item.assignedMode == .multipleChoice {
-            ReflexMultipleChoiceModeView(
-                word: item,
-                options: currentOptions,
-                isReviewed: isReviewed,
-                isResultCorrect: isResultCorrect,
-                isResultTimeout: isResultTimeout,
-                showHint: isHintActive,
-                hintStage: currentHintStage,
-                selectedOptionText: reviewedResult?.selectedOption,
-                clozeStages: viewModel.currentClozeStages,
-                clozeParts: ReflexClozeFormatter.extractTemplateParts(from: item.clozeSentenceEn),
-                displayedSentence: isReviewed ? item.completedSentenceWithTargetWord : item.clozeSentenceEn,
-                cardBorderColor: theme.colors.hairline.opacity(0.4),
-                eliminatedOptionId: viewModel.currentEliminatedOptionId,
-                onSelectOption: { option in
-                    selectOption(option)
-                },
-                onReplayAudio: {
-                    viewModel.playAudioForCurrentWord()
-                }
-            )
-            .padding(.horizontal, theme.spacing.base)
+            multipleChoiceChallengeCard(for: item, hintStage: currentHintStage, isHintActive: isHintActive)
         } else {
-            ReflexCardContainerView(
-                isReviewed: isReviewed,
-                isCorrect: isResultCorrect,
-                isTimeout: isResultTimeout,
-                timerStage: timerStage
-            ) {
-                if isReviewed {
-                    ReflexReviewedConsolidationView(
+            containerChallengeCard(for: item, hintStage: currentHintStage, isHintActive: isHintActive)
+        }
+    }
+
+    @ViewBuilder
+    private func multipleChoiceChallengeCard(for item: MixedReflexDrillItem, hintStage: Int, isHintActive: Bool) -> some View {
+        ReflexMultipleChoiceModeView(
+            word: item,
+            options: currentOptions,
+            isReviewed: isReviewed,
+            isResultCorrect: isResultCorrect,
+            isResultTimeout: isResultTimeout,
+            showHint: isHintActive,
+            hintStage: hintStage,
+            selectedOptionText: reviewedResult?.selectedOption,
+            clozeStages: viewModel.currentClozeStages,
+            clozeParts: ReflexClozeFormatter.extractTemplateParts(from: item.clozeSentenceEn),
+            displayedSentence: isReviewed ? item.completedSentenceWithTargetWord : item.clozeSentenceEn,
+            cardBorderColor: theme.colors.hairline.opacity(0.4),
+            eliminatedOptionId: viewModel.currentEliminatedOptionId,
+            onSelectOption: { option in
+                selectOption(option)
+            },
+            onReplayAudio: {
+                viewModel.playAudioForCurrentWord()
+            }
+        )
+        .padding(.horizontal, theme.spacing.base)
+    }
+
+    @ViewBuilder
+    private func containerChallengeCard(for item: MixedReflexDrillItem, hintStage: Int, isHintActive: Bool) -> some View {
+        ReflexCardContainerView(
+            isReviewed: isReviewed,
+            isCorrect: isResultCorrect,
+            isTimeout: isResultTimeout,
+            timerStage: timerStage
+        ) {
+            if isReviewed {
+                ReflexReviewedConsolidationView(
+                    word: item,
+                    mode: item.assignedMode,
+                    reviewResult: reviewedResult,
+                    displayedSentence: item.completedSentenceWithTargetWord,
+                    onReplayAudio: {
+                        viewModel.playAudioForCurrentWord()
+                    }
+                )
+            } else {
+                switch item.assignedMode {
+                case .speaking:
+                    ReflexSpeakingModeView(
                         word: item,
-                        mode: item.assignedMode,
-                        reviewResult: reviewedResult,
-                        displayedSentence: item.completedSentenceWithTargetWord,
-                        onReplayAudio: {
-                            viewModel.playAudioForCurrentWord()
+                        liveTranscript: liveTranscript,
+                        elapsedTimeMs: elapsedTimeMs,
+                        showHint: isHintActive,
+                        hintStage: hintStage,
+                        clozeStages: viewModel.currentClozeStages,
+                        clozeParts: ReflexClozeFormatter.extractTemplateParts(from: item.clozeSentenceEn),
+                        displayedSentence: item.clozeSentenceEn,
+                        hintBadgeText: viewModel.currentHintBadgeText,
+                        onSwitchToKeyboard: {
+                            isKeyboardFallbackActive.toggle()
                         }
                     )
-                } else {
-                    switch item.assignedMode {
-                    case .speaking:
-                        ReflexSpeakingModeView(
-                            word: item,
-                            liveTranscript: liveTranscript,
-                            elapsedTimeMs: elapsedTimeMs,
-                            showHint: isHintActive,
-                            hintStage: currentHintStage,
-                            clozeStages: viewModel.currentClozeStages,
-                            clozeParts: ReflexClozeFormatter.extractTemplateParts(from: item.clozeSentenceEn),
-                            displayedSentence: item.clozeSentenceEn,
-                            hintBadgeText: viewModel.currentHintBadgeText,
-                            onSwitchToKeyboard: {
-                                isKeyboardFallbackActive.toggle()
-                            }
-                        )
-                    case .typing:
-                        ReflexTypingModeView(
-                            word: item,
-                            typingText: $typingText,
-                            showHint: isHintActive,
-                            hintStage: currentHintStage,
-                            clozeStages: viewModel.currentClozeStages,
-                            clozeParts: ReflexClozeFormatter.extractTemplateParts(from: item.clozeSentenceEn),
-                            displayedSentence: item.clozeSentenceEn,
-                            hintBadgeText: viewModel.currentHintBadgeText,
-                            onSubmit: {
-                                submitTypingAnswer(typingText)
-                            }
-                        )
-                    case .listening:
-                        ReflexListeningModeView(
-                            word: item,
-                            options: currentOptions,
-                            hintStage: currentHintStage,
-                            eliminatedOptionId: viewModel.currentEliminatedOptionId,
-                            onPlayAudio: {
-                                viewModel.playAudioForCurrentWord()
-                            },
-                            onSelectOption: { option in
-                                selectOption(option)
-                            }
-                        )
-                    case .multipleChoice:
-                        EmptyView()
-                    }
+                case .typing:
+                    ReflexTypingModeView(
+                        word: item,
+                        typingText: $typingText,
+                        showHint: isHintActive,
+                        hintStage: hintStage,
+                        clozeStages: viewModel.currentClozeStages,
+                        clozeParts: ReflexClozeFormatter.extractTemplateParts(from: item.clozeSentenceEn),
+                        displayedSentence: item.clozeSentenceEn,
+                        hintBadgeText: viewModel.currentHintBadgeText,
+                        onSubmit: {
+                            submitTypingAnswer(typingText)
+                        }
+                    )
+                case .listening:
+                    ReflexListeningModeView(
+                        word: item,
+                        options: currentOptions,
+                        hintStage: hintStage,
+                        eliminatedOptionId: viewModel.currentEliminatedOptionId,
+                        onPlayAudio: {
+                            viewModel.playAudioForCurrentWord()
+                        },
+                        onSelectOption: { option in
+                            selectOption(option)
+                        }
+                    )
+                case .multipleChoice:
+                    EmptyView()
                 }
             }
         }

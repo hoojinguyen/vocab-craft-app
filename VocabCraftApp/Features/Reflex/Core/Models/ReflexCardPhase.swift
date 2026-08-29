@@ -15,4 +15,3 @@ public enum ReflexCardPhase: Equatable, Sendable {
         return nil
     }
 }
-
