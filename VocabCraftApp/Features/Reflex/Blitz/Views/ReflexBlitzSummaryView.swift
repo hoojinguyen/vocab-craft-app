@@ -28,40 +28,25 @@ public struct ReflexBlitzSummaryView: View {
     }
 
     private var cleanRatingTitle: String {
-        summary.speedRating
-            .replacingOccurrences(of: "⚡️ ", with: "")
-            .replacingOccurrences(of: "🔥 ", with: "")
-            .replacingOccurrences(of: "🌱 ", with: "")
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+        summary.ratingTier.localizedTitle
     }
 
     private var starCount: Int {
-        if summary.speedRating.contains("Master") {
-            return 3
-        } else if summary.speedRating.contains("Swift") {
-            return 2
-        } else {
-            return 1
-        }
+        summary.ratingTier.starCount
     }
 
     private var headerIconName: String {
-        if summary.speedRating.contains("Master") {
-            return "bolt.shield.fill"
-        } else if summary.speedRating.contains("Swift") {
-            return "flame.fill"
-        } else {
-            return "sparkles"
-        }
+        summary.ratingTier.iconName
     }
 
     private var headerAccentColor: Color {
-        if summary.speedRating.contains("Master") {
+        switch summary.ratingTier {
+        case .master:
             return theme.colors.brandPrimary
-        } else if summary.speedRating.contains("Swift") {
-            return theme.colors.brandSecondary
-        } else {
-            return theme.colors.statusSuccess
+        case .swift:
+            return theme.colors.accentSecondary
+        case .steady:
+            return theme.colors.accentPrimary
         }
     }
 

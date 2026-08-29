@@ -117,32 +117,6 @@ public struct ReflexBlitzWordItem: Identifiable, Equatable, Sendable, ReflexDril
         )
     }
 
-    public var completedSentenceWithTargetWord: String {
-        if clozeSentenceEn.contains("[ _________ ]") {
-            return clozeSentenceEn.replacingOccurrences(of: "[ _________ ]", with: lemma)
-        } else if clozeSentenceEn.contains("[ ________ ]") {
-            return clozeSentenceEn.replacingOccurrences(of: "[ ________ ]", with: lemma)
-        } else if clozeSentenceEn.contains("[ ______ ]") {
-            return clozeSentenceEn.replacingOccurrences(of: "[ ______ ]", with: lemma)
-        } else if let regex = try? NSRegularExpression(pattern: "\\[\\s*_{3,}\\s*\\]") {
-            let range = NSRange(clozeSentenceEn.startIndex..., in: clozeSentenceEn)
-            let replaced = regex.stringByReplacingMatches(in: clozeSentenceEn, options: [], range: range, withTemplate: lemma)
-            if replaced != clozeSentenceEn {
-                return replaced
-            }
-        }
-
-        if let regex = try? NSRegularExpression(pattern: "_{3,}") {
-            let range = NSRange(clozeSentenceEn.startIndex..., in: clozeSentenceEn)
-            let replaced = regex.stringByReplacingMatches(in: clozeSentenceEn, options: [], range: range, withTemplate: lemma)
-            if replaced != clozeSentenceEn {
-                return replaced
-            }
-        }
-
-        return !exampleSentenceEn.isEmpty ? exampleSentenceEn : clozeSentenceEn
-    }
-
     public func generateOptions(mode: ReflexMode, allPool: [ReflexBlitzWordItem]) -> [ReflexBlitzOption] {
         ReflexDistractorGenerator.generateOptions(
             mode: mode,

@@ -173,14 +173,13 @@ public struct ReflexSpeakingModeView: View {
 
             if let onSwitchToKeyboard {
                 Button(action: onSwitchToKeyboard) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "keyboard")
-                            .font(.caption2)
+                    HStack(spacing: theme.spacing.xs) {
+                        CraftIcon("keyboard", size: .xs, color: theme.colors.textMuted)
                         Text(AppStrings.ReflexBlitz.switchToKeyboard)
                             .font(theme.typography.caption.weight(.semibold))
                     }
                     .foregroundColor(theme.colors.textMuted)
-                    .padding(.top, 4)
+                    .padding(.top, theme.spacing.xs)
                     .frame(minHeight: 44)
                 }
                 .buttonStyle(PlainButtonStyle())

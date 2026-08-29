@@ -32,21 +32,11 @@ public struct MixedReflexSummaryView: View {
     }
 
     private var cleanRatingTitle: String {
-        summary.speedRating
-            .replacingOccurrences(of: "⚡️ ", with: "")
-            .replacingOccurrences(of: "🔥 ", with: "")
-            .replacingOccurrences(of: "🌱 ", with: "")
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+        summary.ratingTier.localizedTitle
     }
 
     private var headerIconName: String {
-        if summary.speedRating.contains("Master") {
-            return "bolt.shield.fill"
-        } else if summary.speedRating.contains("Swift") {
-            return "flame.fill"
-        } else {
-            return "sparkles"
-        }
+        summary.ratingTier.iconName
     }
 
     public var body: some View {
@@ -179,7 +169,7 @@ public struct MixedReflexSummaryView: View {
                     .symbolRenderingMode(.hierarchical)
                     .foregroundColor(theme.colors.brandPrimary)
 
-                Text(String(localized: "app.reflex.summary.practiced_words_header \(summary.attempts.count)", defaultValue: "Danh sách từ đã luyện (%lld)"))
+                Text(String(localized: "app.reflex.summary.practiced_words_count \(summary.attempts.count)"))
                     .font(theme.typography.headline)
                     .fontWeight(.bold)
                     .fontDesign(.rounded)
@@ -241,7 +231,7 @@ public struct MixedReflexSummaryView: View {
     private func wordAttemptStatusBadge(attempt: ReflexBlitzAttempt, isMasteredWord: Bool) -> some View {
         if isMasteredWord {
             CraftBadge(
-                String(localized: "app.reflex.summary.mastered", defaultValue: "Đã thuộc"),
+                String(localized: "app.reflex.summary.mastered"),
                 iconName: "checkmark.seal.fill",
                 variant: .subtle,
                 tone: .success,
@@ -250,7 +240,7 @@ public struct MixedReflexSummaryView: View {
             )
         } else if attempt.isCorrect {
             CraftBadge(
-                String(localized: "app.reflex.summary.correct", defaultValue: "Đúng"),
+                String(localized: "app.reflex.summary.correct"),
                 iconName: "checkmark",
                 variant: .subtle,
                 tone: .primary,
@@ -259,7 +249,7 @@ public struct MixedReflexSummaryView: View {
             )
         } else {
             CraftBadge(
-                String(localized: "app.reflex.summary.retried", defaultValue: "Đã luyện lại"),
+                String(localized: "app.reflex.summary.retried"),
                 iconName: "arrow.triangle.2.circlepath",
                 variant: .subtle,
                 tone: .warning,
@@ -312,7 +302,7 @@ public struct MixedReflexSummaryView: View {
     private var stickyBottomActionDock: some View {
         VStack(spacing: theme.spacing.xs) {
             CraftButton(
-                String(localized: "app.reflex.summary.retry_drill", defaultValue: "Luyện tập lại"),
+                String(localized: "app.reflex.summary.retry_drill"),
                 iconName: "arrow.triangle.2.circlepath",
                 variant: .ghost,
                 size: .lg,

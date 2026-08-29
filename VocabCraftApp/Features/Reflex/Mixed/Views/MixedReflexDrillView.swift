@@ -373,27 +373,29 @@ public struct MixedReflexDrillView: View {
     }
 
     private func setupSpeechServiceCallbacks() {
-        speechService?.onMatchDetected = { [self] matched in
-            guard cardPhase == .activeCountdown, let current = viewModel.currentItem else { return }
-            let isCorrect = matched.lowercased().contains(current.word.lemma.lowercased())
-            if isCorrect {
-                timerTask?.cancel()
-                withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
-                    cardPhase = .reviewed(result: ReflexCardResult(
-                        isCorrect: true,
-                        responseTimeMs: max(500, elapsedTimeMs),
-                        isTimeout: false,
-                        recognizedSpoken: matched
-                    ))
-                }
-                Task {
+        speechService?.onMatchDetected = { matched in
+            Task { @MainActor in
+                guard cardPhase == .activeCountdown, let current = viewModel.currentItem else { return }
+                let isCorrect = matched.lowercased().contains(current.word.lemma.lowercased())
+                if isCorrect {
+                    timerTask?.cancel()
+                    withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
+                        cardPhase = .reviewed(result: ReflexCardResult(
+                            isCorrect: true,
+                            responseTimeMs: max(500, elapsedTimeMs),
+                            isTimeout: false,
+                            recognizedSpoken: matched
+                        ))
+                    }
                     await viewModel.submitAnswer(isCorrect: true, responseTimeMs: max(500, elapsedTimeMs))
                 }
             }
         }
 
-        speechService?.onTranscriptUpdate = { [self] transcript in
-            self.liveTranscript = transcript
+        speechService?.onTranscriptUpdate = { transcript in
+            Task { @MainActor in
+                self.liveTranscript = transcript
+            }
         }
     }
 

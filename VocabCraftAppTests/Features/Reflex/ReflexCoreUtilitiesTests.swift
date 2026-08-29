@@ -11,8 +11,10 @@ struct ReflexCoreUtilitiesTests {
         #expect(formatted.contains("[ _________ ]"))
 
         let parts = ReflexClozeFormatter.extractTemplateParts(from: formatted)
-        #expect(parts.prefix == "Practice helps you ")
-        #expect(parts.suffix == " your English skills.")
+        #expect(parts != nil)
+        #expect(parts?.prefix == "Practice helps you ")
+        #expect(parts?.slot == "[ _________ ]")
+        #expect(parts?.suffix == " your English skills.")
     }
 
     @Test("Cloze formatter handles case-insensitivity and empty inputs")

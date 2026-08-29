@@ -61,6 +61,49 @@ public struct ReflexBlitzAttempt: Identifiable, Codable, Sendable, Equatable {
 
 public typealias ReflexBlitzWeakWordAttempt = ReflexBlitzAttempt
 
+/// Performance rating for a completed Reflex session.
+public enum ReflexPerformanceRating: String, Sendable, Codable, CaseIterable {
+    case master
+    case swift
+    case steady
+
+    public var emoji: String {
+        switch self {
+        case .master: return "⚡️"
+        case .swift:  return "🔥"
+        case .steady: return "🌱"
+        }
+    }
+
+    public var localizedTitle: String {
+        switch self {
+        case .master: return String(localized: "app.reflex.summary.rating_master")
+        case .swift:  return String(localized: "app.reflex.summary.rating_swift")
+        case .steady: return String(localized: "app.reflex.summary.rating_steady")
+        }
+    }
+
+    public var starCount: Int {
+        switch self {
+        case .master: return 3
+        case .swift:  return 2
+        case .steady: return 1
+        }
+    }
+
+    public var iconName: String {
+        switch self {
+        case .master: return "bolt.shield.fill"
+        case .swift:  return "flame.fill"
+        case .steady: return "sparkles"
+        }
+    }
+
+    public var displayTitle: String {
+        "\(emoji) \(localizedTitle)"
+    }
+}
+
 /// Aggregated metrics and summary for a completed Reflex drilling session.
 public struct ReflexSessionSummary: Identifiable, Sendable, Equatable {
     public let id: UUID
@@ -70,7 +113,31 @@ public struct ReflexSessionSummary: Identifiable, Sendable, Equatable {
     public let maxComboStreak: Int
     public let attempts: [ReflexBlitzAttempt]
     public let weakWordAttempts: [ReflexBlitzAttempt]
-    public let speedRating: String
+    public let ratingTier: ReflexPerformanceRating
+
+    public var speedRating: String {
+        ratingTier.displayTitle
+    }
+
+    public init(
+        id: UUID = UUID(),
+        totalWords: Int,
+        correctWords: Int,
+        averageResponseTimeMs: Int,
+        maxComboStreak: Int,
+        attempts: [ReflexBlitzAttempt],
+        weakWordAttempts: [ReflexBlitzAttempt],
+        ratingTier: ReflexPerformanceRating
+    ) {
+        self.id = id
+        self.totalWords = totalWords
+        self.correctWords = correctWords
+        self.averageResponseTimeMs = averageResponseTimeMs
+        self.maxComboStreak = maxComboStreak
+        self.attempts = attempts
+        self.weakWordAttempts = weakWordAttempts
+        self.ratingTier = ratingTier
+    }
 
     public init(
         id: UUID = UUID(),
@@ -82,14 +149,24 @@ public struct ReflexSessionSummary: Identifiable, Sendable, Equatable {
         weakWordAttempts: [ReflexBlitzAttempt],
         speedRating: String
     ) {
-        self.id = id
-        self.totalWords = totalWords
-        self.correctWords = correctWords
-        self.averageResponseTimeMs = averageResponseTimeMs
-        self.maxComboStreak = maxComboStreak
-        self.attempts = attempts
-        self.weakWordAttempts = weakWordAttempts
-        self.speedRating = speedRating
+        let rating: ReflexPerformanceRating
+        if speedRating.contains("Master") {
+            rating = .master
+        } else if speedRating.contains("Swift") {
+            rating = .swift
+        } else {
+            rating = .steady
+        }
+        self.init(
+            id: id,
+            totalWords: totalWords,
+            correctWords: correctWords,
+            averageResponseTimeMs: averageResponseTimeMs,
+            maxComboStreak: maxComboStreak,
+            attempts: attempts,
+            weakWordAttempts: weakWordAttempts,
+            ratingTier: rating
+        )
     }
 
     public static func create(from attempts: [ReflexBlitzAttempt], maxCombo: Int) -> ReflexSessionSummary {
@@ -98,13 +175,13 @@ public struct ReflexSessionSummary: Identifiable, Sendable, Equatable {
         let avgTime = total > 0 ? attempts.reduce(0) { $0 + $1.responseTimeMs } / total : 0
         let weak = attempts.filter { !$0.isCorrect || $0.speedTier == .needsPractice }
 
-        let rating: String
+        let rating: ReflexPerformanceRating
         if total > 0 && avgTime <= 2500 && correct == total {
-            rating = "⚡️ Reflex Master"
+            rating = .master
         } else if total > 0 && avgTime <= 4000 && Double(correct) / Double(max(1, total)) >= 0.7 {
-            rating = "🔥 Swift Reflex"
+            rating = .swift
         } else {
-            rating = "🌱 Steady Learner"
+            rating = .steady
         }
 
         return ReflexSessionSummary(
@@ -115,7 +192,7 @@ public struct ReflexSessionSummary: Identifiable, Sendable, Equatable {
             maxComboStreak: maxCombo,
             attempts: attempts,
             weakWordAttempts: weak,
-            speedRating: rating
+            ratingTier: rating
         )
     }
 }
