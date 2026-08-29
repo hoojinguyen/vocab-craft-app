@@ -62,7 +62,10 @@ struct ReflexBlitzLocalizationTests {
         "app.reflex.summary.perfect_desc": ("Bạn đã trả lời chính xác và nhanh chóng toàn bộ từ vựng.", "You answered all words quickly and accurately."),
         "app.reflex.summary.avg_speed": ("Tốc độ TB", "Avg Speed"),
         "app.reflex.summary.accuracy": ("Độ chính xác", "Accuracy"),
-        "app.reflex.summary.max_combo": ("Combo cao nhất", "Max Combo")
+        "app.reflex.summary.max_combo": ("Combo cao nhất", "Max Combo"),
+        "app.reflex.summary.weak_words_header": ("Từ cần củng cố (%lld)", "Words to Reinforce (%lld)"),
+        "app.reflex.summary.status_incorrect": ("Chưa chính xác", "Incorrect"),
+        "app.reflex.summary.status_slow": ("%@ • Quá chậm", "%@ • Slow")
     ]
 
     @Test("All app.reflex keys exist with non-empty en and vi strings")
@@ -181,6 +184,12 @@ struct ReflexBlitzLocalizationTests {
         #expect(AppStrings.ReflexBlitz.weeklyWords(10).contains("10"))
         #expect(AppStrings.ReflexBlitz.weakWords(3).contains("3"))
         #expect(AppStrings.ReflexBlitz.redrillWeak(5).contains("5"))
+        #expect(AppStrings.ReflexBlitz.weakWordsHeader(2).contains("2"))
+        #expect(!AppStrings.ReflexBlitz.statusIncorrect.isEmpty)
+        #expect(AppStrings.ReflexBlitz.statusSlow("4.5s").contains("4.5s"))
+        #expect(AppStrings.ReflexBlitz.localizedRatingTitle(for: "⚡️ Reflex Master") == "Bậc thầy phản xạ")
+        #expect(AppStrings.ReflexBlitz.localizedRatingTitle(for: "Swift Reflex") == "Phản xạ nhanh nhạy")
+        #expect(AppStrings.ReflexBlitz.localizedRatingTitle(for: "Steady") == "Người học kiên trì")
     }
 }
 

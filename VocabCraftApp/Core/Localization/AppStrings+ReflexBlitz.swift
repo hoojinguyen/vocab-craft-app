@@ -245,5 +245,23 @@ extension AppStrings {
         public static var summaryMaxComboText: String {
             String(localized: "app.reflex.summary.max_combo", defaultValue: "Combo cao nhất", bundle: .module)
         }
+        public static func weakWordsHeader(_ count: Int) -> String {
+            String(format: String(localized: "app.reflex.summary.weak_words_header", defaultValue: "Từ cần củng cố (%lld)", bundle: .module), count)
+        }
+        public static var statusIncorrect: String {
+            String(localized: "app.reflex.summary.status_incorrect", defaultValue: "Chưa chính xác", bundle: .module)
+        }
+        public static func statusSlow(_ time: String) -> String {
+            String(format: String(localized: "app.reflex.summary.status_slow", defaultValue: "%@ • Quá chậm", bundle: .module), time)
+        }
+        public static func localizedRatingTitle(for speedRating: String) -> String {
+            if speedRating.contains("Master") {
+                return String(localized: "app.reflex.summary.rating_master", defaultValue: "Bậc thầy phản xạ", bundle: .module)
+            } else if speedRating.contains("Swift") {
+                return String(localized: "app.reflex.summary.rating_swift", defaultValue: "Phản xạ nhanh nhạy", bundle: .module)
+            } else {
+                return String(localized: "app.reflex.summary.rating_steady", defaultValue: "Người học kiên trì", bundle: .module)
+            }
+        }
     }
 }

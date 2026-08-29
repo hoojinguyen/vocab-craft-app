@@ -1845,6 +1845,40 @@
         }
       }
     },
+    "app.reflex.summary.status_incorrect" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incorrect"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa chính xác"
+          }
+        }
+      }
+    },
+    "app.reflex.summary.status_slow" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ • Slow"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ • Quá chậm"
+          }
+        }
+      }
+    },
     "app.reflex.summary.timeout_label" : {
       "extractionState" : "manual",
       "localizations" : {
