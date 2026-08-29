@@ -111,9 +111,10 @@ The Reflex Blitz Typing Mode provides high-intensity, active-recall spelling and
 
 - Positioned directly below `CraftFlipCard` with standard spacing (`theme.spacing.base` / `16pt`).
 - Render conditions:
-  - **Correct Answer**: `CraftBadge(AppStrings.ReflexBlitz.typingEnteredPrefix(userSubmittedText), iconName: "checkmark.circle.fill", variant: .subtle, tone: .success, size: .md, shape: .capsule)`
-  - **Incorrect Answer**: `CraftBadge(AppStrings.ReflexBlitz.typingYouTypedPrefix(userSubmittedText), iconName: "xmark.circle.fill", variant: .subtle, tone: .danger, size: .md, shape: .capsule)`
+  - **Correct Answer**: `CraftBadge(AppStrings.ReflexBlitz.typingEnteredPrefix(userSubmittedText), variant: .subtle, tone: .success, size: .md, shape: .capsule)`
+  - **Incorrect Answer**: `CraftBadge(AppStrings.ReflexBlitz.typingYouTypedPrefix(userSubmittedText), variant: .subtle, tone: .danger, size: .md, shape: .capsule)`
   - **Empty Timeout**: If `userSubmittedText` is nil or empty after whitespace trimming, **no badge is rendered**.
+  - **No Duplicate Icons**: Avoid icon repetition with `CraftFeedbackSheet` by omitting leading icons on the answer badge.
 
 ### 3.4 Keyboard Docking & Focus Lifecycle
 

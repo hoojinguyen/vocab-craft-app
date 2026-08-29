@@ -14,6 +14,8 @@ public enum CraftThemePreset: String, CaseIterable, Identifiable, Sendable {
     case editorial = "editorial"
     case neoArcade = "neo_arcade"
     case nordicZen = "nordic_zen"
+    case playfulOwl = "playful_owl"
+    case smartCoach = "smart_coach"
     case classic = "classic"
 
     public var id: String { rawValue }
@@ -29,6 +31,8 @@ public enum CraftThemePreset: String, CaseIterable, Identifiable, Sendable {
         case .editorial: return "Warm Editorial"
         case .neoArcade: return "Neo-Arcade"
         case .nordicZen: return "Nordic Zen"
+        case .playfulOwl: return "Playful Owl"
+        case .smartCoach: return "Smart Coach"
         case .classic: return "Classic Slate"
         }
     }
@@ -44,6 +48,8 @@ public enum CraftThemePreset: String, CaseIterable, Identifiable, Sendable {
         case .editorial: return "Linen & Obsidian • New York Serif • Deep Teal"
         case .neoArcade: return "Ice & Cyber Night • SF Rounded • Lime & Indigo"
         case .nordicZen: return "Mist & Graphite • Minimalist • Lavender & Frost"
+        case .playfulOwl: return "Snow & Warm Gray • Rounded • Feather Green & Macaw"
+        case .smartCoach: return "Pure & Deep Dark • Geometric Sans • ELSA Blue & Teal"
         case .classic: return "Modern Slate • Rounded • Coral & Amber"
         }
     }
@@ -67,6 +73,10 @@ public enum CraftThemePreset: String, CaseIterable, Identifiable, Sendable {
             return CraftNeoArcadeTheme()
         case .nordicZen:
             return CraftNordicZenTheme()
+        case .playfulOwl:
+            return CraftPlayfulOwlTheme()
+        case .smartCoach:
+            return CraftSmartCoachTheme()
         case .classic:
             return CraftDefaultTheme()
         }

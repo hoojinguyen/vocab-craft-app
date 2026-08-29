@@ -289,7 +289,6 @@ public struct ReflexTypingModeView: View {
                 isResultCorrect
                     ? AppStrings.ReflexBlitz.typingEnteredPrefix(submitted)
                     : AppStrings.ReflexBlitz.typingYouTypedPrefix(submitted),
-                iconName: isResultCorrect ? "checkmark.circle.fill" : "xmark.circle.fill",
                 variant: .subtle,
                 tone: isResultCorrect ? .success : .danger,
                 size: .md,
