@@ -1,6 +1,6 @@
 # Reflex Listening Mode Bugfixes & Architecture Refinement Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Fix all audio lifecycle, timer synchronization, 3D flip card answer leak, and continuous waveform visualizer bugs in Reflex Listening Mode across Blitz and Mixed Reflex Drills.
 
@@ -27,7 +27,7 @@
 - Consumes: `ReflexMode.hintStage(forElapsedTimeMs:)`
 - Produces: Correct hint stage integer (0, 1, 2, 3) for listening mode at 1800ms, 3000ms, 5500ms.
 
-- [ ] **Step 1: Write the failing test for ReflexMode listening hint stages**
+- [x] **Step 1: Write the failing test for ReflexMode listening hint stages**
 
 ```swift
 import Testing
@@ -50,7 +50,7 @@ struct ReflexModeListeningTests {
 }
 ```
 
-- [ ] **Step 2: Update `ReflexMode.swift` listening hint stage thresholds**
+- [x] **Step 2: Update `ReflexMode.swift` listening hint stage thresholds**
 
 Update `VocabCraftApp/Features/Reflex/Core/Models/ReflexMode.swift`:
 ```swift
@@ -61,12 +61,12 @@ Update `VocabCraftApp/Features/Reflex/Core/Models/ReflexMode.swift`:
             return 0
 ```
 
-- [ ] **Step 3: Run test to verify it passes**
+- [x] **Step 3: Run test to verify it passes**
 
 Run: `swift test --filter ReflexModeListeningTests`
 Expected: PASS
 
-- [ ] **Step 4: Commit Task 1**
+- [x] **Step 4: Commit Task 1**
 
 ```bash
 git add VocabCraftApp/Features/Reflex/Core/Models/ReflexMode.swift VocabCraftAppTests/Features/Reflex/ReflexModeTests.swift
@@ -85,7 +85,7 @@ git commit -m "fix(reflex): update listening mode hint stage progression thresho
 - Consumes: `ReflexBlitzViewModel`, `TextToSpeechProtocol`, `ReflexMode.listening`
 - Produces: Proper 3-stage timer execution for `.listening`, single audio trigger per stage, natural 1.0x speech speed, silent back face on review.
 
-- [ ] **Step 1: Write the failing tests for ViewModel listening timers and audio behavior**
+- [x] **Step 1: Write the failing tests for ViewModel listening timers and audio behavior**
 
 ```swift
 import Testing
@@ -138,7 +138,7 @@ struct ReflexBlitzViewModelListeningTests {
 }
 ```
 
-- [ ] **Step 2: Update `ReflexBlitzViewModel.swift`**
+- [x] **Step 2: Update `ReflexBlitzViewModel.swift`**
 
 1. In `loadWord(at:)`:
 ```swift
@@ -210,12 +210,12 @@ Add explicit branch for `.listening`:
         }
 ```
 
-- [ ] **Step 3: Run tests to verify they pass**
+- [x] **Step 3: Run tests to verify they pass**
 
 Run: `swift test --filter ReflexBlitzViewModelListeningTests`
 Expected: PASS
 
-- [ ] **Step 4: Commit Task 2**
+- [x] **Step 4: Commit Task 2**
 
 ```bash
 git add VocabCraftApp/Features/Reflex/Blitz/ViewModels/ReflexBlitzViewModel.swift VocabCraftAppTests/Features/Reflex/ReflexBlitzViewModelListeningTests.swift
@@ -234,11 +234,11 @@ git commit -m "fix(reflex): synchronize listening mode hint timers, audio auto-r
 - Consumes: `ReflexListeningModeView`, `CraftWaveformView`, `CraftFlipCard`, `CraftChoiceCard`, `CraftSpeakerButton`
 - Produces: Clean listening view without local timer tasks, continuous waveform during countdown, `minHeight: 220` stability, interactive speaker on back face.
 
-- [ ] **Step 1: Update unit tests in `ReflexOtherModesTests.swift`**
+- [x] **Step 1: Update unit tests in `ReflexOtherModesTests.swift`**
 
 Verify `ReflexListeningModeView` initializers, continuous active states, and distractor elimination at stage 2.
 
-- [ ] **Step 2: Refactor `ReflexListeningModeView.swift`**
+- [x] **Step 2: Refactor `ReflexListeningModeView.swift`**
 
 1. Remove `@State private var isAudioPlaying: Bool = false` and `@State private var audioTimerTask: Task<Void, Never>?`.
 2. Remove `triggerAudioPlayback()`, `.onAppear`, `.onDisappear`, and `.onChange(of: hintStage)` since the ViewModel authoritative audio controls playback.
@@ -310,12 +310,12 @@ Verify `ReflexListeningModeView` initializers, continuous active states, and dis
     }
 ```
 
-- [ ] **Step 3: Run tests to verify they pass**
+- [x] **Step 3: Run tests to verify they pass**
 
 Run: `swift test --filter testListeningModeViewFullStates`
 Expected: PASS
 
-- [ ] **Step 4: Commit Task 3**
+- [x] **Step 4: Commit Task 3**
 
 ```bash
 git add VocabCraftApp/Features/Reflex/Core/Components/Modes/ReflexListeningModeView.swift VocabCraftAppTests/Features/Reflex/ReflexOtherModesTests.swift
@@ -335,11 +335,11 @@ git commit -m "refactor(reflex): streamline ReflexListeningModeView with continu
 - Consumes: `ReflexBlitzView`, `MixedReflexDrillView`, `cardContent(for:)`
 - Produces: Zero-spoiler card mounting with `.id("\(currentIndex)-\(word.id)")` and clean transitions.
 
-- [ ] **Step 1: Write integration test for card view identity in `ReflexBlitzViewIntegrationTests.swift`**
+- [x] **Step 1: Write integration test for card view identity in `ReflexBlitzViewIntegrationTests.swift`**
 
 Verify that advancing to the next word mounts a clean card instance without reverse-rotation glitch.
 
-- [ ] **Step 2: Update `ReflexBlitzView.swift` and `MixedReflexDrillView.swift`**
+- [x] **Step 2: Update `ReflexBlitzView.swift` and `MixedReflexDrillView.swift`**
 
 In `ReflexBlitzView.swift`:
 ```swift
@@ -361,12 +361,12 @@ In `MixedReflexDrillView.swift`:
 In `listeningChallengeCard(for:...)`:
 Keep `onReplayAudio: { viewModel.playAudioForCurrentWord() }` and remove redundant `onPlayAudio`.
 
-- [ ] **Step 3: Run integration tests to verify they pass**
+- [x] **Step 3: Run integration tests to verify they pass**
 
 Run: `swift test --filter ReflexBlitzViewIntegrationTests`
 Expected: PASS
 
-- [ ] **Step 4: Commit Task 4**
+- [x] **Step 4: Commit Task 4**
 
 ```bash
 git add VocabCraftApp/Features/Reflex/Blitz/Views/ReflexBlitzView.swift VocabCraftApp/Features/Reflex/Mixed/Views/MixedReflexDrillView.swift VocabCraftAppTests/Features/Reflex/ReflexBlitzViewIntegrationTests.swift
@@ -383,17 +383,17 @@ git commit -m "fix(reflex): eliminate flip card spoiler leak with explicit view 
 **Interfaces:**
 - Swift Testing test suites, SwiftLint, compiler checks
 
-- [ ] **Step 1: Run complete Reflex test suite**
+- [x] **Step 1: Run complete Reflex test suite**
 
 Run: `swift test --filter Reflex`
 Expected: 100% test pass rate
 
-- [ ] **Step 2: Run SwiftLint check**
+- [x] **Step 2: Run SwiftLint check**
 
 Run: `swiftlint`
 Expected: 0 errors, 0 warnings
 
-- [ ] **Step 3: Commit all remaining cleanups**
+- [x] **Step 3: Commit all remaining cleanups**
 
 ```bash
 git status
