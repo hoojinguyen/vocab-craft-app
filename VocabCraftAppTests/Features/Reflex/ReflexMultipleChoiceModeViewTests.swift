@@ -184,6 +184,6 @@ struct ReflexMultipleChoiceModeViewTests {
 
         #expect(view.isReviewed == true)
         #expect(view.isResultCorrect == true)
-        #expect(view.body != nil)
+        _ = view.body
     }
 }

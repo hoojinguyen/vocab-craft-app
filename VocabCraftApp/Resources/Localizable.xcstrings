@@ -1,87 +1,6 @@
 {
   "sourceLanguage" : "vi",
   "strings" : {
-    " 🔍" : {
-
-    },
-    ":" : {
-
-    },
-    "\"" : {
-
-    },
-    "“" : {
-
-    },
-    "\"%@\"" : {
-
-    },
-    "“%@”" : {
-
-    },
-    "(%@)" : {
-
-    },
-    "[%@] %@" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "[%1$@] %2$@"
-          }
-        }
-      }
-    },
-    "%@" : {
-
-    },
-    "%@ " : {
-
-    },
-    "%@ đã chọn" : {
-
-    },
-    "%@ từ chưa chính xác" : {
-
-    },
-    "%@ từ trong danh sách" : {
-
-    },
-    "%@ từ vựng cốt lõi" : {
-
-    },
-    "%@/%@" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@/%2$@"
-          }
-        }
-      }
-    },
-    "%@/%@ " : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@/%2$@ "
-          }
-        }
-      }
-    },
-    "%@/3" : {
-
-    },
-    "+%@ XP" : {
-
-    },
-    "📚 %@" : {
-
-    },
-    "A2 - C1" : {
-
-    },
     "Academic Research" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3091,18 +3010,6 @@
         }
       }
     },
-    "B2 - C1" : {
-
-    },
-    "Bạn có %@ từ vựng cần ôn tập lại." : {
-
-    },
-    "Bạn đã ôn tập toàn bộ %@ từ yếu trong phiên này." : {
-
-    },
-    "Bắt đầu Thử thách Chặng (%@ câu)" : {
-
-    },
     "Business & Tech" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3119,40 +3026,6 @@
           }
         }
       }
-    },
-    "Cần Củng Cố Kiến Thức" : {
-
-    },
-    "Cần ôn" : {
-
-    },
-    "Câu %@ / %@" : {
-      "localizations" : {
-        "vi" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Câu %1$@ / %2$@"
-          }
-        }
-      }
-    },
-    "CEFR" : {
-
-    },
-    "Chính xác! +10 XP" : {
-
-    },
-    "Chưa có từ vựng" : {
-
-    },
-    "Chưa đúng" : {
-
-    },
-    "Chưa nhớ" : {
-
-    },
-    "Chuỗi: %@/3" : {
-
     },
     "common.back" : {
       "extractionState" : "manual",
@@ -3443,15 +3316,6 @@
         }
       }
     },
-    "Đã nhớ" : {
-
-    },
-    "Đã thuộc" : {
-
-    },
-    "Đã tự động thêm vào Kho cá nhân để bạn ôn tập lại." : {
-
-    },
     "Daily Expressions" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3469,21 +3333,6 @@
         }
       }
     },
-    "Đang chuẩn bị câu hỏi..." : {
-
-    },
-    "Đáp án: %@" : {
-
-    },
-    "Định nghĩa tiếng Anh" : {
-
-    },
-    "Đóng" : {
-
-    },
-    "Ex: “%@”" : {
-
-    },
     "Giao Tiếp Ngày" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3500,15 +3349,6 @@
           }
         }
       }
-    },
-    "Hiện nghĩa & Ví dụ" : {
-
-    },
-    "Hoàn tất & Quay lại" : {
-
-    },
-    "Hoàn Thành Ôn Tập!" : {
-
     },
     "homepage.cefrTitle" : {
       "extractionState" : "manual",
@@ -3833,9 +3673,6 @@
         }
       }
     },
-    "IELTS Academic 500" : {
-
-    },
     "IELTS Band 7.0+" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3852,39 +3689,6 @@
           }
         }
       }
-    },
-    "Kho từ của bạn" : {
-
-    },
-    "Không có từ yếu nào!" : {
-
-    },
-    "Không tìm thấy từ vựng nào trong mục này." : {
-
-    },
-    "Luyện tập" : {
-
-    },
-    "Luyện tập lại Chặng này" : {
-
-    },
-    "Nạp từ vựng hoặc luyện tập để xem thẻ từ tại đây." : {
-
-    },
-    "Nghĩa tiếng Việt" : {
-
-    },
-    "Ôn Tập Tập Trung" : {
-
-    },
-    "Ôn tập từ yếu ngay (%@ từ)" : {
-
-    },
-    "Phát âm" : {
-
-    },
-    "Quay lại" : {
-
     },
     "reflex.audioAlertTitle" : {
       "extractionState" : "manual",
@@ -6555,15 +6359,6 @@
         }
       }
     },
-    "Tất cả từ vựng trong kho của bạn đang được ghi nhớ rất tốt." : {
-
-    },
-    "Testing..." : {
-
-    },
-    "Toàn bộ từ vựng đều trong trạng thái ghi nhớ tốt." : {
-
-    },
     "Travel & Food" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6580,12 +6375,6 @@
           }
         }
       }
-    },
-    "Trí Nhớ SRS Ổn Định" : {
-
-    },
-    "Ví dụ ngữ cảnh" : {
-
     },
     "vocabulary.attemptsLabel %lld %lld" : {
       "extractionState" : "manual",
