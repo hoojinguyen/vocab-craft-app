@@ -44,9 +44,9 @@ public struct ReflexBlitzSummaryView: View {
         case .master:
             return theme.colors.brandPrimary
         case .swift:
-            return theme.colors.accentSecondary
+            return theme.colors.brandSecondary
         case .steady:
-            return theme.colors.accentPrimary
+            return theme.colors.accent
         }
     }
 
@@ -83,9 +83,9 @@ public struct ReflexBlitzSummaryView: View {
                 style: .tactile3D,
                 cornerRadius: theme.radii.xl,
                 padding: theme.spacing.base,
-                customTint: theme.colors.brandPrimary,
-                customBorderColor: theme.colors.brandPrimary.opacity(0.3),
-                customBottomColor: theme.colors.brandPrimary.opacity(0.7)
+                customTint: headerAccentColor,
+                customBorderColor: headerAccentColor.opacity(0.3),
+                customBottomColor: headerAccentColor.opacity(0.7)
             ) {
                 Image(systemName: headerIconName)
                     .font(theme.typography.displayLarge)
@@ -95,7 +95,7 @@ public struct ReflexBlitzSummaryView: View {
             .frame(width: 80, height: 80)
             .accessibilityHidden(true)
 
-            VStack(spacing: theme.spacing.xxs) {
+            VStack(spacing: theme.spacing.xs) {
                 Text(cleanRatingTitle)
                     .font(theme.typography.titleLarge)
                     .fontWeight(.bold)

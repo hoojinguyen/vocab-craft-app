@@ -26,6 +26,7 @@ struct MixedReflexDrillViewModelTests {
         #expect(vm.queue.count == 3)
         #expect(vm.queue.last?.word.id == firstWordId)
         #expect(vm.queue.last?.isRetry == true)
+        vm.advanceToNextItem()
         #expect(vm.currentIndex == 1)
         #expect(vm.currentItem?.word.id == 2)
         #expect(vm.comboStreak == 0)
@@ -44,21 +45,25 @@ struct MixedReflexDrillViewModelTests {
 
         // Câu 1: đúng
         await vm.submitAnswer(isCorrect: true, responseTimeMs: 1000)
+        vm.advanceToNextItem()
         #expect(vm.comboStreak == 1)
         #expect(vm.maxComboStreak == 1)
 
         // Câu 2: đúng
         await vm.submitAnswer(isCorrect: true, responseTimeMs: 1200)
+        vm.advanceToNextItem()
         #expect(vm.comboStreak == 2)
         #expect(vm.maxComboStreak == 2)
 
         // Câu 3: sai -> comboStreak reset, maxCombo giữ nguyên 2
         await vm.submitAnswer(isCorrect: false, responseTimeMs: 3000)
+        vm.advanceToNextItem()
         #expect(vm.comboStreak == 0)
         #expect(vm.maxComboStreak == 2)
 
         // Câu 4 (retry của câu 3): đúng
         await vm.submitAnswer(isCorrect: true, responseTimeMs: 900)
+        vm.advanceToNextItem()
         #expect(vm.comboStreak == 1)
         #expect(vm.maxComboStreak == 2)
     }
@@ -79,11 +84,13 @@ struct MixedReflexDrillViewModelTests {
 
         // Hoàn thành câu 1
         await vm.submitAnswer(isCorrect: true, responseTimeMs: 1500)
+        vm.advanceToNextItem()
         #expect(vm.progress == 0.5)
         #expect(vm.isCompleted == false)
 
         // Hoàn thành câu 2
         await vm.submitAnswer(isCorrect: true, responseTimeMs: 1800)
+        vm.advanceToNextItem()
         #expect(vm.progress == 1.0)
         #expect(vm.isCompleted == true)
         #expect(vm.currentItem == nil)

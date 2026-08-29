@@ -172,7 +172,7 @@ public struct MixedReflexDrillView: View {
                     actionTitle: AppStrings.ReflexBlitz.continueCTAText,
                     streakCount: viewModel.comboStreak > 1 ? viewModel.comboStreak : nil,
                     style: .tactile3D,
-                    onAction: {
+                    onContinue: {
                         advanceToNextItem()
                     }
                 )
@@ -247,11 +247,11 @@ public struct MixedReflexDrillView: View {
                         ReflexListeningModeView(
                             word: item,
                             options: currentOptions,
+                            onPlayAudio: {
+                                viewModel.playAudioForCurrentWord()
+                            },
                             onSelectOption: { option in
                                 selectOption(option)
-                            },
-                            onReplayAudio: {
-                                viewModel.playAudioForCurrentWord()
                             }
                         )
                     case .multipleChoice:

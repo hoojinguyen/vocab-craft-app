@@ -23,9 +23,9 @@ final class ReflexBlitzModelsTests: XCTestCase {
 
     func testReflexClozeFormatterTemplateExtraction() {
         let sentence = "He decided to [ ______ ] the project."
-        let (prefix, suffix) = ReflexClozeFormatter.extractTemplateParts(from: sentence)
-        XCTAssertEqual(prefix, "He decided to ")
-        XCTAssertEqual(suffix, " the project.")
+        let parts = ReflexClozeFormatter.extractTemplateParts(from: sentence)
+        XCTAssertEqual(parts?.prefix, "He decided to ")
+        XCTAssertEqual(parts?.suffix, " the project.")
     }
 
     func testSpeedTierClassification() {

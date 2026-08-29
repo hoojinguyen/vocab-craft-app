@@ -59,6 +59,14 @@ public struct ReflexBlitzAttempt: Identifiable, Codable, Sendable, Equatable {
     }
 }
 
+extension ReflexBlitzAttempt: ReflexDrillable {
+    public var exampleSentenceEn: String { "" }
+    public var exampleSentenceVi: String { "" }
+    public var clozeSentenceEn: String { "" }
+    public var cefrLevel: String { "" }
+    public var audioResourceUrl: String? { nil }
+}
+
 public typealias ReflexBlitzWeakWordAttempt = ReflexBlitzAttempt
 
 /// Performance rating for a completed Reflex session.

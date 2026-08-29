@@ -54,9 +54,9 @@ public struct VaultWordRowView: View {
                             )
                         }
 
-                        if let cefr = word.cefrLevel, !cefr.isEmpty {
+                        if !word.cefrLevel.isEmpty {
                             CraftBadge(
-                                verbatim: cefr.uppercased(),
+                                verbatim: word.cefrLevel.uppercased(),
                                 variant: .subtle,
                                 tone: .primary,
                                 size: .sm

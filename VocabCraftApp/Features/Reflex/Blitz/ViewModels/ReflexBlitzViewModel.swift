@@ -170,6 +170,20 @@ public final class ReflexBlitzViewModel {
         }
     }
 
+    private func cancelActiveTimers() {
+        hintTimerTask?.cancel()
+        hintStage2Task?.cancel()
+        hintStage3Task?.cancel()
+        timeoutTimerTask?.cancel()
+        sessionTimerTask?.cancel()
+    }
+
+    private func cancelAllTasks() {
+        countdownTask?.cancel()
+        advanceTask?.cancel()
+        cancelActiveTimers()
+    }
+
     public func selectMode(_ mode: ReflexBlitzMode) {
         self.selectedMode = mode
         startCountdown()
@@ -188,13 +202,7 @@ public final class ReflexBlitzViewModel {
     }
 
     public func startCountdown() {
-        countdownTask?.cancel()
-        hintTimerTask?.cancel()
-        hintStage2Task?.cancel()
-        hintStage3Task?.cancel()
-        timeoutTimerTask?.cancel()
-        sessionTimerTask?.cancel()
-        advanceTask?.cancel()
+        cancelAllTasks()
 
         phase = .countdown
         countdownCount = 3
@@ -216,11 +224,7 @@ public final class ReflexBlitzViewModel {
 
     public func beginSessionDirectly() {
         countdownTask?.cancel()
-        hintTimerTask?.cancel()
-        hintStage2Task?.cancel()
-        hintStage3Task?.cancel()
-        timeoutTimerTask?.cancel()
-        sessionTimerTask?.cancel()
+        cancelActiveTimers()
         if selectedMode == .speaking {
             let contextualPhrases = words.flatMap { [$0.lemma, $0.exampleSentenceEn] }
             continuousSpeechService.startSession(contextualPhrases: contextualPhrases)
@@ -239,11 +243,7 @@ public final class ReflexBlitzViewModel {
 
     private func loadWord(at index: Int) {
         advanceTask?.cancel()
-        hintTimerTask?.cancel()
-        hintStage2Task?.cancel()
-        hintStage3Task?.cancel()
-        timeoutTimerTask?.cancel()
-        sessionTimerTask?.cancel()
+        cancelActiveTimers()
         guard index < words.count else {
             finishSession()
             return
@@ -289,11 +289,7 @@ public final class ReflexBlitzViewModel {
     }
 
     private func startStopwatch() {
-        hintTimerTask?.cancel()
-        hintStage2Task?.cancel()
-        hintStage3Task?.cancel()
-        timeoutTimerTask?.cancel()
-        sessionTimerTask?.cancel()
+        cancelActiveTimers()
 
         if selectedMode == .multipleChoice {
             hintTimerTask = Task { @MainActor [weak self] in
@@ -366,11 +362,7 @@ public final class ReflexBlitzViewModel {
 extension ReflexBlitzViewModel {
     public func selectOption(_ option: ReflexBlitzOption) {
         guard phase == .drilling, cardPhase == .activeCountdown, let word = currentWord else { return }
-        hintTimerTask?.cancel()
-        hintStage2Task?.cancel()
-        hintStage3Task?.cancel()
-        timeoutTimerTask?.cancel()
-        sessionTimerTask?.cancel()
+        cancelActiveTimers()
 
         let isCorrect = option.isCorrect
         currentAttemptIsCorrect = isCorrect
@@ -397,26 +389,37 @@ extension ReflexBlitzViewModel {
         }
 
         let attempt = ReflexBlitzAttempt(
-            wordId: word.id, lemma: word.lemma, pos: word.pos, ipa: word.ipa,
-            definitionVi: word.definitionVi, responseTimeMs: responseMs,
-            usedHint: showHint, isCorrect: isCorrect
+            wordId: word.id,
+            lemma: word.lemma,
+            pos: word.pos,
+            ipa: word.ipa,
+            definitionVi: word.definitionVi,
+            responseTimeMs: responseMs,
+            usedHint: showHint,
+            isCorrect: isCorrect
         )
         attempts.append(attempt)
 
         Task {
             _ = try? await self.evaluateSRSUseCase.recordReview(
-                wordId: Int64(word.id), isCorrect: isCorrect, responseTimeMs: responseMs
+                wordId: Int64(word.id),
+                isCorrect: isCorrect,
+                responseTimeMs: responseMs
             )
         }
 
         withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
             self.cardPhase = .reviewed(result: ReflexCardResult(
-                isCorrect: isCorrect, responseTimeMs: responseMs, isTimeout: false,
-                selectedOption: option.text, typedText: nil, recognizedSpoken: nil
+                isCorrect: isCorrect,
+                responseTimeMs: responseMs,
+                isTimeout: false,
+                selectedOption: option.text,
+                typedText: nil,
+                recognizedSpoken: nil
             ))
         }
 
-        if selectedMode != .listening {
+        if !isCorrect && selectedMode != .listening {
             ttsService.speak(text: word.lemma, rate: 0.5, locale: "en-US")
         }
     }
@@ -428,11 +431,7 @@ extension ReflexBlitzViewModel {
 
         guard cleanInput == cleanLemma else { return }
 
-        hintTimerTask?.cancel()
-        hintStage2Task?.cancel()
-        hintStage3Task?.cancel()
-        timeoutTimerTask?.cancel()
-        sessionTimerTask?.cancel()
+        cancelActiveTimers()
         currentAttemptIsCorrect = true
         soundEffectService.playSuccessChime()
         comboStreak += 1
@@ -481,11 +480,7 @@ extension ReflexBlitzViewModel {
         let cleanLemma = word.lemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard cleanMatched == cleanLemma || cleanMatched.contains(cleanLemma) else { return }
 
-        hintTimerTask?.cancel()
-        hintStage2Task?.cancel()
-        hintStage3Task?.cancel()
-        timeoutTimerTask?.cancel()
-        sessionTimerTask?.cancel()
+        cancelActiveTimers()
         currentAttemptIsCorrect = true
         soundEffectService.playSuccessChime()
         comboStreak += 1
@@ -538,11 +533,7 @@ extension ReflexBlitzViewModel {
 
     public func handleTimeout() {
         guard phase == .drilling, cardPhase == .activeCountdown, let word = currentWord else { return }
-        hintTimerTask?.cancel()
-        hintStage2Task?.cancel()
-        hintStage3Task?.cancel()
-        timeoutTimerTask?.cancel()
-        sessionTimerTask?.cancel()
+        cancelActiveTimers()
         currentAttemptIsCorrect = false
         comboStreak = 0
         soundEffectService.playIncorrectChime()
@@ -595,13 +586,7 @@ extension ReflexBlitzViewModel {
     }
 
     public func finishSession() {
-        countdownTask?.cancel()
-        hintTimerTask?.cancel()
-        hintStage2Task?.cancel()
-        hintStage3Task?.cancel()
-        timeoutTimerTask?.cancel()
-        sessionTimerTask?.cancel()
-        advanceTask?.cancel()
+        cancelAllTasks()
         continuousSpeechService.stopSession()
         sessionSummary = ReflexBlitzSessionSummary.create(from: attempts, maxCombo: maxComboStreak)
         phase = .summary
@@ -617,13 +602,7 @@ extension ReflexBlitzViewModel {
     }
 
     public func cancelSession() {
-        countdownTask?.cancel()
-        hintTimerTask?.cancel()
-        hintStage2Task?.cancel()
-        hintStage3Task?.cancel()
-        timeoutTimerTask?.cancel()
-        sessionTimerTask?.cancel()
-        advanceTask?.cancel()
+        cancelAllTasks()
         continuousSpeechService.stopSession()
         ttsService.stop()
     }
@@ -637,13 +616,7 @@ extension ReflexBlitzViewModel {
     }
 
     public func applyReviewConfig(_ config: ReflexBlitzDeepLinkConfig) {
-        countdownTask?.cancel()
-        hintTimerTask?.cancel()
-        hintStage2Task?.cancel()
-        hintStage3Task?.cancel()
-        timeoutTimerTask?.cancel()
-        sessionTimerTask?.cancel()
-        advanceTask?.cancel()
+        cancelAllTasks()
 
         self.selectedMode = config.mode
         self.phase = config.phase

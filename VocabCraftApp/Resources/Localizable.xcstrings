@@ -1,9 +1,6 @@
 {
   "sourceLanguage" : "vi",
   "strings" : {
-    " [ ______ ] " : {
-
-    },
     " 🔍" : {
 
     },
@@ -76,16 +73,7 @@
     "%@/3" : {
 
     },
-    "%@x" : {
-
-    },
-    "•" : {
-
-    },
     "+%@ XP" : {
-
-    },
-    "< 2.5s" : {
 
     },
     "📚 %@" : {
@@ -1709,6 +1697,23 @@
         }
       }
     },
+    "app.reflex.summary.correct" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Correct"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đúng"
+          }
+        }
+      }
+    },
     "app.reflex.summary.finish_save" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1722,6 +1727,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hoàn tất"
+          }
+        }
+      }
+    },
+    "app.reflex.summary.mastered" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mastered"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã thuộc"
           }
         }
       }
@@ -1773,6 +1795,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Phản xạ hoàn hảo!"
+          }
+        }
+      }
+    },
+    "app.reflex.summary.practiced_words_count" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Practiced Words (%lld)"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Danh sách từ đã luyện (%lld)"
           }
         }
       }
@@ -1845,6 +1884,40 @@
         }
       }
     },
+    "app.reflex.summary.retried" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retried"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã luyện lại"
+          }
+        }
+      }
+    },
+    "app.reflex.summary.retry_drill" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Practice Again"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Luyện tập lại"
+          }
+        }
+      }
+    },
     "app.reflex.summary.status_incorrect" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1909,91 +1982,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hoàn thành phiên phản xạ Blitz"
-          }
-        }
-      }
-    },
-    "app.reflex.summary.correct" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Correct"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đúng"
-          }
-        }
-      }
-    },
-    "app.reflex.summary.mastered" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mastered"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đã thuộc"
-          }
-        }
-      }
-    },
-    "app.reflex.summary.practiced_words_count" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Practiced Words (%lld)"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Danh sách từ đã luyện (%lld)"
-          }
-        }
-      }
-    },
-    "app.reflex.summary.retried" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Retried"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đã luyện lại"
-          }
-        }
-      }
-    },
-    "app.reflex.summary.retry_drill" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Practice Again"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Luyện tập lại"
           }
         }
       }
@@ -3370,9 +3358,6 @@
         }
       }
     },
-    "Đã luyện lại" : {
-
-    },
     "Đã nhớ" : {
 
     },
@@ -3402,9 +3387,6 @@
     "Đang chuẩn bị câu hỏi..." : {
 
     },
-    "Danh sách từ đã luyện (%@)" : {
-
-    },
     "Đáp án: %@" : {
 
     },
@@ -3412,9 +3394,6 @@
 
     },
     "Đóng" : {
-
-    },
-    "Đúng" : {
 
     },
     "Ex: “%@”" : {
@@ -3441,12 +3420,6 @@
 
     },
     "Hoàn tất & Quay lại" : {
-
-    },
-    "Hoàn thành & Lưu tiến độ" : {
-
-    },
-    "Hoàn thành bài luyện tập phản xạ ngẫu nhiên" : {
 
     },
     "Hoàn Thành Ôn Tập!" : {
@@ -3807,9 +3780,6 @@
     "Luyện tập" : {
 
     },
-    "Luyện tập lại" : {
-
-    },
     "Luyện tập lại Chặng này" : {
 
     },
@@ -3829,9 +3799,6 @@
 
     },
     "Quay lại" : {
-
-    },
-    "Reflex Drill (%@)" : {
 
     },
     "reflex.audioAlertTitle" : {

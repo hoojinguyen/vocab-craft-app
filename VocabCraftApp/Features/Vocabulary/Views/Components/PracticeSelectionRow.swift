@@ -53,8 +53,8 @@ public struct PracticeSelectionRow: View {
                     }
 
                     HStack(spacing: 6) {
-                        if let cefr = word.cefrLevel, !cefr.isEmpty {
-                            Text(cefr)
+                        if !word.cefrLevel.isEmpty {
+                            Text(word.cefrLevel)
                                 .font(.system(size: 10, weight: .bold))
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
@@ -114,7 +114,7 @@ public struct PracticeSelectionRow: View {
     }
 
     private var cefrBadgeBackground: Color {
-        guard let level = word.cefrLevel?.uppercased() else { return Color.vocabSurfaceSoft }
+        let level = word.cefrLevel.uppercased()
         switch level {
         case "A1", "A2":
             return Color.vocabMint.opacity(0.18)

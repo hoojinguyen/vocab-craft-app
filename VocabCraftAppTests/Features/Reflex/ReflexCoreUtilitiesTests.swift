@@ -129,6 +129,7 @@ struct ReflexCoreUtilitiesTests {
         #expect(summary.maxComboStreak == 2)
         #expect(summary.weakWordAttempts.count == 1)
         #expect(summary.weakWordAttempts.first?.lemma == "ubiquitous")
-        #expect(summary.speedRating == "🌱 Steady Learner")
+        #expect(summary.ratingTier == .steady)
+        #expect(summary.speedRating.contains("rating_steady") || summary.speedRating.contains("Steady"))
     }
 }

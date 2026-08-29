@@ -213,7 +213,7 @@ public struct ReflexBlitzView: View {
                     actionTitle: AppStrings.ReflexBlitz.continueCTAText,
                     streakCount: nil,
                     style: .tactile3D,
-                    onAction: {
+                    onContinue: {
                         advanceToNextWord()
                     }
                 )
@@ -287,11 +287,14 @@ public struct ReflexBlitzView: View {
                         ReflexListeningModeView(
                             word: word,
                             options: viewModel.currentOptions,
+                            elapsedTimeMs: viewModel.elapsedTimeMs,
+                            isReviewed: isReviewed,
+                            selectedOptionText: reviewResult?.selectedOption,
+                            onPlayAudio: {
+                                viewModel.speakCurrentWord()
+                            },
                             onSelectOption: { option in
                                 viewModel.selectOption(option)
-                            },
-                            onReplayAudio: {
-                                viewModel.speakCurrentWord()
                             }
                         )
                     case .multipleChoice:

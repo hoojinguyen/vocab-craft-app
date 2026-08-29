@@ -119,9 +119,11 @@ struct MixedReflexDrillViewsTests {
 
         // Hoàn thành lần lượt cả 2 câu
         await vm.submitAnswer(isCorrect: true, responseTimeMs: 1200)
+        vm.advanceToNextItem()
         #expect(vm.currentIndex == 1)
 
         await vm.submitAnswer(isCorrect: true, responseTimeMs: 1400)
+        vm.advanceToNextItem()
         #expect(vm.isCompleted == true)
         #expect(vm.sessionSummary != nil)
 

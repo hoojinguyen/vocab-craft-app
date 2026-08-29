@@ -68,7 +68,9 @@ public struct ReflexBlitzWordItem: Identifiable, Equatable, Sendable, ReflexDril
         self.audioResourceUrl = audioResourceUrl
         let cloze = clozeSentenceEn ?? ReflexClozeFormatter.formatCloze(sentenceEn: exampleSentenceEn, lemma: lemma)
         self.clozeSentenceEn = cloze
-        let (prefix, suffix) = ReflexClozeFormatter.extractTemplateParts(from: cloze)
+        let parts = ReflexClozeFormatter.extractTemplateParts(from: cloze)
+        let prefix = parts?.prefix ?? cloze
+        let suffix = parts?.suffix ?? ""
         self.clozePrefix = prefix
         self.clozeSuffix = suffix
         self.hasClozeSlot = (cloze != prefix) || !suffix.isEmpty

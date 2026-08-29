@@ -1,4 +1,5 @@
 import Foundation
+import SpeechKit
 @testable import VocabCraftApp
 
 final class MockSpeechRecognitionService: SpeechRecognitionProtocol {
@@ -92,3 +93,53 @@ final class MockEvaluateSRSUseCase: EvaluateSRSUseCaseProtocol {
         evaluateResponse(currentMastery: 0, easeFactor: 2.5, isCorrect: isCorrect, responseTimeMs: responseTimeMs)
     }
 }
+
+final class MockSpeechAssessmentService: SpeechAssessmentProtocol {
+    var isListening: Bool = false
+    var currentEvaluation: SpeechEvaluationResult?
+    var targetSentence: String?
+    var toleranceThreshold: Double?
+    var contextualPhrases: [String] = []
+    var onProgressHandler: ((SpeechEvaluationResult) -> Void)?
+    var onCompletionHandler: ((SpeechEvaluationResult) -> Void)?
+    var onErrorHandler: ((Error) -> Void)?
+
+    func startAssessing(
+        targetSentence: String,
+        toleranceThreshold: Double,
+        contextualPhrases: [String],
+        onProgress: @escaping (SpeechEvaluationResult) -> Void,
+        onCompletion: @escaping (SpeechEvaluationResult) -> Void,
+        onError: @escaping (Error) -> Void
+    ) {
+        self.isListening = true
+        self.targetSentence = targetSentence
+        self.toleranceThreshold = toleranceThreshold
+        self.contextualPhrases = contextualPhrases
+        self.onProgressHandler = onProgress
+        self.onCompletionHandler = onCompletion
+        self.onErrorHandler = onError
+    }
+
+    func stopAssessing() {
+        self.isListening = false
+    }
+
+    func simulateProgress(_ result: SpeechEvaluationResult) {
+        self.currentEvaluation = result
+        onProgressHandler?(result)
+    }
+
+    func simulateCompletion(_ result: SpeechEvaluationResult) {
+        self.currentEvaluation = result
+        self.isListening = false
+        onCompletionHandler?(result)
+    }
+
+    func simulateError(_ error: Error) {
+        self.isListening = false
+        onErrorHandler?(error)
+    }
+}
+
+typealias MockSpeechAssessmentServiceForViewModel = MockSpeechAssessmentService

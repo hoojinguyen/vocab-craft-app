@@ -67,4 +67,3 @@ public extension ReflexDrillable {
         return !exampleSentenceEn.isEmpty ? exampleSentenceEn : clozeSentenceEn
     }
 }
-

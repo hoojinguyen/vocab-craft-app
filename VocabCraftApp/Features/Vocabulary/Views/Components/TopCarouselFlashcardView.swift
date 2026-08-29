@@ -69,12 +69,12 @@ public struct TopCarouselFlashcardView: View {
 
     private func flashcardMetaHeader(for word: VaultWordItem) -> some View {
         HStack(alignment: .center, spacing: 6) {
-            if let cefr = word.cefrLevel, !cefr.isEmpty {
-                Text(cefr.uppercased())
+            if !word.cefrLevel.isEmpty {
+                Text(word.cefrLevel.uppercased())
                     .font(.system(size: 10, weight: .bold))
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(cefrBadgeBackground(for: cefr))
+                    .background(cefrBadgeBackground(for: word.cefrLevel))
                     .foregroundColor(Color.vocabInk)
                     .cornerRadius(4)
             }
