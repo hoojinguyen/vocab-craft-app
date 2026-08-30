@@ -130,7 +130,7 @@ public struct CraftPageHeader<Leading: View, Trailing: View>: View {
             let isReduceMotion = reduceMotion
             content.scrollTransition(.animated) { view, phase in
                 view
-                    .opacity(isReduceMotion ? (phase.isIdentity ? 1.0 : 0.0) : max(0.0, 1.0 - abs(phase.value) * 1.25))
+                    .opacity(max(0.0, 1.0 - abs(phase.value) * 1.25))
                     .scaleEffect(isReduceMotion ? 1.0 : (1.0 - abs(phase.value) * 0.04))
                     .offset(y: isReduceMotion ? 0 : phase.value * -8)
             }
