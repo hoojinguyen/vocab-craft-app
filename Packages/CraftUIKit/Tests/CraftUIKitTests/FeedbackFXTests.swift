@@ -348,6 +348,7 @@ final class FeedbackFXTests: XCTestCase {
             onComplete: {}
         )
         XCTAssertNotNil(modifiedWithPoints)
+        XCTAssertFalse(completed)
 
         let segment = SnakePathSegmentGeometry(
             from: CGPoint(x: 0, y: 0),

@@ -693,6 +693,8 @@ final class ContainerOverlayTests: XCTestCase {
 
         XCTAssertTrue(modifier.dismissOnBackdropTap)
         XCTAssertNotNil(modifier.onBackdropDismiss)
+        modifier.onBackdropDismiss?()
+        XCTAssertTrue(cancelled)
     }
 
     func testDialogButtonLayoutAndCustomIconColor() {
