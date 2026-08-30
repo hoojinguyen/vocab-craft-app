@@ -25,10 +25,6 @@ public enum CraftChoicePrefixStyle: String, Sendable, Equatable, Hashable, CaseI
     case none
 }
 
-private extension CraftSpacingTokens {
-    var xxs: CGFloat { xs }
-}
-
 // MARK: - CraftChoiceCard Component
 
 /// A quiz option card supporting prefix badges (e.g. A/B/C/D), title, subtitle,

@@ -1,5 +1,5 @@
-import Foundation
 import CraftUIKit
+import Foundation
 import SwiftUI
 @testable import VocabCraftApp
 #if canImport(XCTest)

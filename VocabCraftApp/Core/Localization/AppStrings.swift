@@ -131,7 +131,11 @@ public enum AppStrings {
             String(format: String(localized: "vocabulary.wordsMasteredCountLabel %lld %lld", defaultValue: "%lld/%lld words mastered", bundle: .module), current, total)
         }
     }
+}
 
+// MARK: - Reflex Strings Extension
+
+extension AppStrings {
     // MARK: - Reflex Drill View
     public enum Reflex {
         public static var title: LocalizedStringKey { "reflex.title" }

@@ -4,6 +4,28 @@ import Observation
 import Speech
 import SpeechKit
 
+/// Thread-safe buffer relay to bridge AVAudioEngine real-time audio tap callbacks with
+/// SFSpeechAudioBufferRecognitionRequest without capturing @MainActor isolated references.
+public final class AudioBufferRelay: @unchecked Sendable {
+    private let lock = NSLock()
+    private weak var activeRequest: SFSpeechAudioBufferRecognitionRequest?
+
+    public init() {}
+
+    public func setRequest(_ request: SFSpeechAudioBufferRecognitionRequest?) {
+        lock.lock()
+        defer { lock.unlock() }
+        activeRequest = request
+    }
+
+    public func append(_ buffer: AVAudioPCMBuffer) {
+        lock.lock()
+        let request = activeRequest
+        lock.unlock()
+        request?.append(buffer)
+    }
+}
+
 @MainActor
 @Observable
 public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
@@ -23,6 +45,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     private var sessionContextualPhrases: [String] = []
     private var sessionStartTime: Date?
     private var needsEngineRenew: Bool = false
+    private let bufferRelay = AudioBufferRelay()
 
     // MARK: - Request layer (word-scoped)
     private var activeRequest: SFSpeechAudioBufferRecognitionRequest?
@@ -96,6 +119,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     public func endWord() {
         currentWordSessionToken = UUID() // Invalidate current token
 
+        bufferRelay.setRequest(nil)
         activeRequest?.endAudio()
         activeTask?.cancel()
         activeRequest = nil
@@ -208,9 +232,10 @@ extension ResilientReflexSpeechEngine {
                 )
             }
 
-            inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self] buffer, _ in
-                // Forward buffer to active request (nil-safe: discarded when no word active)
-                self?.activeRequest?.append(buffer)
+            let relay = self.bufferRelay
+            inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [relay] buffer, _ in
+                // Forward buffer to active request (thread-safe, Sendable relay)
+                relay.append(buffer)
             }
 
             engine.prepare()
@@ -225,6 +250,7 @@ extension ResilientReflexSpeechEngine {
 
     private func teardownEngine() {
         #if !targetEnvironment(simulator) && !os(macOS)
+        bufferRelay.setRequest(nil)
         if let engine = audioEngine {
             if engine.isRunning {
                 engine.stop()
@@ -284,6 +310,7 @@ extension ResilientReflexSpeechEngine {
         #endif
 
         self.activeRequest = request
+        self.bufferRelay.setRequest(request)
 
         let task = recognizer.recognitionTask(with: request) { [weak self] result, error in
             Task { @MainActor [weak self] in

@@ -99,4 +99,10 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
         XCTAssertTrue(engine.isWordActive)
         XCTAssertEqual(engine.liveTranscript, "")
     }
+
+    func testAudioBufferRelay_threadSafetyAndNilHandling() {
+        let relay = AudioBufferRelay()
+        relay.setRequest(nil)
+        XCTAssertNotNil(relay)
+    }
 }

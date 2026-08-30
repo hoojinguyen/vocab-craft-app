@@ -4,6 +4,8 @@ import Foundation
 
 /// Standardized layout spacing scale tokens.
 public protocol CraftSpacingTokens: Sendable {
+    /// Extra-extra-small spacing (2pt)
+    var xxs: CGFloat { get }
     /// Extra-small spacing (4pt)
     var xs: CGFloat { get }
     /// Small spacing (8pt)
@@ -28,6 +30,7 @@ public protocol CraftSpacingTokens: Sendable {
 }
 
 public extension CraftSpacingTokens {
+    var xxs: CGFloat { 2 }
     var pathDotDiameter: CGFloat { 4.5 }
     var pathDotSpacing: CGFloat { 8.0 }
     var pathTurnRadius: CGFloat { 36.0 }
@@ -39,6 +42,7 @@ public extension CraftSpacingTokens {
 
 /// Default 4pt/8pt harmonic spacing scale tokens.
 public struct CraftDefaultSpacingTokens: CraftSpacingTokens {
+    public var xxs: CGFloat
     public var xs: CGFloat
     public var sm: CGFloat
     public var md: CGFloat
@@ -55,6 +59,7 @@ public struct CraftDefaultSpacingTokens: CraftSpacingTokens {
     public var pathRowSpacing: CGFloat
 
     public init(
+        xxs: CGFloat = 2,
         xs: CGFloat = 4,
         sm: CGFloat = 8,
         md: CGFloat = 12,
@@ -68,6 +73,7 @@ public struct CraftDefaultSpacingTokens: CraftSpacingTokens {
         pathEdgeInset: CGFloat = 24.0,
         pathRowSpacing: CGFloat = 64.0
     ) {
+        self.xxs = xxs
         self.xs = xs
         self.sm = sm
         self.md = md

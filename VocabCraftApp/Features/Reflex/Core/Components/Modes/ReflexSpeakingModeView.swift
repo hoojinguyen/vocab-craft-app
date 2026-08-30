@@ -192,7 +192,7 @@ public struct ReflexSpeakingModeView: View {
             .animation(.easeInOut(duration: 0.2), value: hintStage)
 
             frontSentenceArea
-                .padding(.top, theme.spacing.xs / 2)
+                .padding(.top, theme.spacing.xxs)
         }
         .frame(maxWidth: .infinity, minHeight: 195, alignment: .center)
     }
@@ -251,7 +251,7 @@ public struct ReflexSpeakingModeView: View {
                     shape: .capsule
                 )
             }
-            .padding(.vertical, 2)
+            .padding(.vertical, theme.spacing.xxs)
 
             CraftText(
                 word.definitionVi,
@@ -259,12 +259,12 @@ public struct ReflexSpeakingModeView: View {
                 color: theme.colors.textPrimary,
                 textAlignment: .leading
             )
-            .padding(.top, 2)
+            .padding(.top, theme.spacing.xxs)
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: theme.spacing.xs) {
                 backSentenceView
                     .multilineTextAlignment(.leading)
-                    .lineSpacing(4)
+                    .lineSpacing(theme.spacing.xs)
                     .fixedSize(horizontal: false, vertical: true)
 
                 if !word.exampleSentenceVi.isEmpty {
@@ -277,7 +277,7 @@ public struct ReflexSpeakingModeView: View {
                     .fixedSize(horizontal: false, vertical: true)
                 }
             }
-            .padding(.top, 4)
+            .padding(.top, theme.spacing.xs)
         }
         .frame(maxWidth: .infinity, minHeight: 195, alignment: .center)
     }
@@ -330,7 +330,7 @@ public struct ReflexSpeakingModeView: View {
         VStack(spacing: theme.spacing.xs) {
             frontSentenceView
                 .multilineTextAlignment(.center)
-                .lineSpacing(6)
+                .lineSpacing(theme.spacing.sm)
                 .padding(.horizontal, theme.spacing.xs)
                 .fixedSize(horizontal: false, vertical: true)
                 .animation(.spring(response: 0.35, dampingFraction: 0.75), value: hintStage)
