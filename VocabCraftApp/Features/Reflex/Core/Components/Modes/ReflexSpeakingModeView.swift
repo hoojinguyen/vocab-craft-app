@@ -1,22 +1,58 @@
 import CraftUIKit
 import SwiftUI
 
-/// Isolated challenge mode view for Reflex Speaking modality.
-/// Displays Vietnamese definition prompt, cloze sentence, active pulsing waveform visualizer,
-/// live speech recognition transcript badge, and switch-to-keyboard fallback action.
+/// Redesigned Speaking Mode view with Dual-Zone 3D Flip Card architecture.
+/// Zone 1 (Top): CraftFlipCard (.tactile3D) — front: Vietnamese definition + cloze prompt; back: consolidation.
+/// Zone 2 (Bottom): CraftTactileMicHubView on canvas + live transcript CraftBadge.
 public struct ReflexSpeakingModeView: View {
     @Environment(\.craftTheme) private var theme
 
+    // MARK: - Word & Challenge Data
     public let word: any ReflexDrillable
-    public let liveTranscript: String
-    public let elapsedTimeMs: Int
+    public let isReviewed: Bool
+    public let isResultCorrect: Bool
+    public let isResultTimeout: Bool
     public let showHint: Bool
     public let hintStage: Int
     public let clozeStages: ReflexClozeStageSet?
     public let clozeParts: ClozeSentenceParts?
-    public let displayedSentence: String?
+    public let displayedSentence: String
     public let hintBadgeText: String?
-    public let onSwitchToKeyboard: (() -> Void)?
+
+    // MARK: - Mic & Transcript
+    public let speechState: CraftSpeechState
+    public let liveTranscript: String
+    public let onReplayAudio: (() -> Void)?
+
+    public init(
+        word: any ReflexDrillable,
+        isReviewed: Bool = false,
+        isResultCorrect: Bool = false,
+        isResultTimeout: Bool = false,
+        showHint: Bool = false,
+        hintStage: Int = 0,
+        clozeStages: ReflexClozeStageSet? = nil,
+        clozeParts: ClozeSentenceParts? = nil,
+        displayedSentence: String = "",
+        hintBadgeText: String? = nil,
+        speechState: CraftSpeechState = .listening(),
+        liveTranscript: String = "",
+        onReplayAudio: (() -> Void)? = nil
+    ) {
+        self.word = word
+        self.isReviewed = isReviewed
+        self.isResultCorrect = isResultCorrect
+        self.isResultTimeout = isResultTimeout
+        self.showHint = showHint
+        self.hintStage = hintStage
+        self.clozeStages = clozeStages
+        self.clozeParts = clozeParts
+        self.displayedSentence = displayedSentence.isEmpty ? word.clozeSentenceEn : displayedSentence
+        self.hintBadgeText = hintBadgeText
+        self.speechState = speechState
+        self.liveTranscript = liveTranscript
+        self.onReplayAudio = onReplayAudio
+    }
 
     public init(
         word: any ReflexDrillable,
@@ -26,20 +62,25 @@ public struct ReflexSpeakingModeView: View {
         hintStage: Int = 0,
         clozeStages: ReflexClozeStageSet? = nil,
         clozeParts: ClozeSentenceParts? = nil,
-        displayedSentence: String? = nil,
+        displayedSentence: String = "",
         hintBadgeText: String? = nil,
         onSwitchToKeyboard: (() -> Void)? = nil
     ) {
-        self.word = word
-        self.liveTranscript = liveTranscript
-        self.elapsedTimeMs = elapsedTimeMs
-        self.showHint = showHint
-        self.hintStage = hintStage
-        self.clozeStages = clozeStages
-        self.clozeParts = clozeParts
-        self.displayedSentence = displayedSentence
-        self.hintBadgeText = hintBadgeText
-        self.onSwitchToKeyboard = onSwitchToKeyboard
+        self.init(
+            word: word,
+            isReviewed: false,
+            isResultCorrect: false,
+            isResultTimeout: false,
+            showHint: showHint,
+            hintStage: hintStage,
+            clozeStages: clozeStages,
+            clozeParts: clozeParts,
+            displayedSentence: displayedSentence,
+            hintBadgeText: hintBadgeText,
+            speechState: .listening(),
+            liveTranscript: liveTranscript,
+            onReplayAudio: nil
+        )
     }
 
     public var activeClozeParts: ClozeSentenceParts? {
@@ -53,17 +94,51 @@ public struct ReflexSpeakingModeView: View {
 
     public var body: some View {
         VStack(spacing: theme.spacing.md) {
-            wordHeaderArea
-            sentenceArea
-            dividerLine
-            livingAudioDockView
+            // Zone 1: 3D Flip Card
+            flipStimulusCard
+
+            // Zone 2: Mic Hub + Transcript (on canvas, no card wrapper)
+            micHubArea
         }
     }
 
-    // MARK: - Word Prompt Header
+    // MARK: - Zone 1: 3D Flip Stimulus Card
+
     @ViewBuilder
-    private var wordHeaderArea: some View {
-        VStack(spacing: theme.spacing.xs) {
+    private var flipStimulusCard: some View {
+        let statusGlow: Color? = isReviewed
+            ? (isResultCorrect
+                ? theme.colors.statusSuccess.opacity(0.2)
+                : theme.colors.statusDanger.opacity(0.2))
+            : nil
+
+        CraftFlipCard(
+            isFlipped: Binding(
+                get: { isReviewed },
+                set: { _ in }
+            ),
+            style: .tactile3D,
+            axis: .horizontal,
+            showSpecularGlare: true,
+            showsHighlightBorder: false,
+            highlightShadowColor: statusGlow,
+            isTapToFlipEnabled: false,
+            isSensoryFeedbackEnabled: false,
+            cornerRadius: theme.radii.xl,
+            padding: theme.spacing.base,
+            perspective: 0.5,
+            animation: .spring(response: 0.45, dampingFraction: 0.78)
+        ) {
+            frontPromptFace
+        } back: {
+            backResultFace
+        }
+    }
+
+    // MARK: - Front Face (Active Challenge)
+
+    private var frontPromptFace: some View {
+        VStack(spacing: theme.spacing.sm) {
             CraftText(
                 word.definitionVi,
                 style: .titleLarge,
@@ -92,7 +167,7 @@ public struct ReflexSpeakingModeView: View {
                     shape: .capsule
                 )
 
-                if showHint || hintStage > 0 {
+                if showHint || hintStage >= 2 {
                     let badgeText: String = {
                         if let text = hintBadgeText, !text.isEmpty {
                             return text
@@ -108,73 +183,131 @@ public struct ReflexSpeakingModeView: View {
                         shape: .capsule
                     )
                     .transition(.scale.combined(with: .opacity))
-                    .accessibilityLabel(AppStrings.ReflexBlitz.hintA11y(word.cleanInitialLetterHint))
+                    .accessibilityLabel(
+                        AppStrings.ReflexBlitz.hintA11y(word.cleanInitialLetterHint)
+                    )
                 }
             }
+            .opacity(hintStage >= 1 ? 1.0 : 0.0)
+            .animation(.easeInOut(duration: 0.2), value: hintStage)
+
+            frontSentenceArea
+                .padding(.top, theme.spacing.xs / 2)
         }
-        .padding(.top, theme.spacing.xs / 2)
+        .frame(maxWidth: .infinity, minHeight: 195, alignment: .center)
     }
 
-    // MARK: - Sentence Area
-    @ViewBuilder
-    private var sentenceArea: some View {
-        VStack(spacing: theme.spacing.xs) {
-            sentenceView
-                .multilineTextAlignment(.center)
-                .lineSpacing(6)
-                .padding(.horizontal, theme.spacing.xs)
-                .fixedSize(horizontal: false, vertical: true)
-                .animation(.spring(response: 0.35, dampingFraction: 0.75), value: hintStage)
-                .accessibilityLabel(AppStrings.ReflexBlitz.clozeSentenceA11y(word.clozeSentenceEn))
-        }
-    }
+    // MARK: - Back Face (Reviewed Consolidation)
 
-    @ViewBuilder
-    private var sentenceView: some View {
-        if let parts = activeClozeParts ?? clozeParts {
-            activeClozeText(parts: parts)
-        } else {
-            Text(displayedSentence ?? word.clozeSentenceEn)
-                .font(theme.typography.bodySerif.weight(.medium))
-                .foregroundColor(theme.colors.textPrimary)
-        }
-    }
+    private var backResultFace: some View {
+        VStack(alignment: .leading, spacing: theme.spacing.xs) {
+            HStack(alignment: .center) {
+                CraftText(
+                    word.lemma,
+                    style: .titleLargeSerif,
+                    color: theme.colors.textPrimary,
+                    textAlignment: .leading
+                )
 
-    private func activeClozeText(parts: ClozeSentenceParts) -> Text {
-        let prefixText = Text(parts.prefix)
-            .font(theme.typography.bodySerif)
-            .foregroundColor(theme.colors.textPrimary)
-        let slotText = Text(parts.slot)
-            .font(theme.typography.bodySerif.bold())
-            .foregroundColor((showHint || hintStage >= 2) ? theme.colors.statusWarning : theme.colors.brandPrimary)
-        let suffixText = Text(parts.suffix)
-            .font(theme.typography.bodySerif)
-            .foregroundColor(theme.colors.textPrimary)
-        return prefixText + slotText + suffixText
-    }
+                Spacer(minLength: theme.spacing.sm)
 
-    private var dividerLine: some View {
-        CraftDivider()
-            .padding(.horizontal, theme.spacing.xs)
-    }
+                if let onReplayAudio {
+                    CraftSpeakerButton(
+                        variant: .subtle,
+                        size: .md,
+                        isPlaying: false,
+                        label: nil,
+                        action: onReplayAudio
+                    )
+                }
+            }
 
-    // MARK: - Living Audio Visualizer Dock
-    @ViewBuilder
-    private var livingAudioDockView: some View {
-        VStack(spacing: theme.spacing.xs) {
-            CraftWaveformView(
-                barCount: 16,
-                spacing: theme.spacing.xs,
-                minHeight: 4,
-                maxHeight: 28,
-                barWidth: 4,
-                isRecording: true,
-                activeColor: theme.colors.brandPrimary
+            if !word.ipa.isEmpty {
+                CraftText(
+                    word.ipa,
+                    style: .caption,
+                    color: theme.colors.textMuted,
+                    textAlignment: .leading
+                )
+                .accessibilityLabel(AppStrings.ReflexBlitz.ipaA11y(word.ipa))
+            }
+
+            HStack(spacing: theme.spacing.xs) {
+                if !word.cleanPos.isEmpty {
+                    CraftBadge(
+                        word.cleanPos,
+                        variant: .subtle,
+                        tone: .neutral,
+                        size: .sm,
+                        shape: .capsule
+                    )
+                }
+
+                CraftBadge(
+                    word.cleanLevel,
+                    variant: .subtle,
+                    tone: .warning,
+                    size: .sm,
+                    shape: .capsule
+                )
+            }
+            .padding(.vertical, 2)
+
+            CraftText(
+                word.definitionVi,
+                style: .titleMedium,
+                color: theme.colors.textPrimary,
+                textAlignment: .leading
             )
-            .frame(height: 28)
-            .accessibilityHidden(true)
+            .padding(.top, 2)
 
-            if liveTranscript.isEmpty {
+            VStack(alignment: .leading, spacing: 4) {
+                backSentenceView
+                    .multilineTextAlignment(.leading)
+                    .lineSpacing(4)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                if !word.exampleSentenceVi.isEmpty {
+                    CraftText(
+                        word.exampleSentenceVi,
+                        style: .caption,
+                        color: theme.colors.textMuted,
+                        textAlignment: .leading
+                    )
+                    .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .padding(.top, 4)
+        }
+        .frame(maxWidth: .infinity, minHeight: 195, alignment: .center)
+    }
+
+    // MARK: - Zone 2: Mic Hub + Transcript Badge
+
+    @ViewBuilder
+    private var micHubArea: some View {
+        VStack(spacing: theme.spacing.sm) {
+            CraftTactileMicHubView(
+                speechState: isReviewed
+                    ? .evaluated(overallScore: isResultCorrect ? 100 : 0)
+                    : speechState,
+                onTapMic: {}  // No tap action — continuous listening
+            )
+            .disabled(true)  // Disable tap — mic is auto-controlled
+
+            if !liveTranscript.isEmpty {
+                CraftBadge(
+                    liveTranscript,
+                    iconName: "waveform",
+                    variant: isReviewed ? .subtle : .solid,
+                    tone: isReviewed
+                        ? (isResultCorrect ? .success : .danger)
+                        : .primary,
+                    size: .md,
+                    shape: .capsule
+                )
+                .transition(.scale.combined(with: .opacity))
+            } else if !isReviewed {
                 HStack(spacing: theme.spacing.xs) {
                     CraftIcon("mic.fill", size: .sm, color: theme.colors.textMuted)
                     CraftText(
@@ -184,39 +317,81 @@ public struct ReflexSpeakingModeView: View {
                     )
                 }
                 .transition(.opacity)
-            } else {
-                CraftBadge(
-                    liveTranscript,
-                    iconName: "waveform",
-                    variant: .solid,
-                    tone: .primary,
-                    size: .md,
-                    shape: .capsule
-                )
-                .transition(.scale.combined(with: .opacity))
-            }
-
-            if let onSwitchToKeyboard {
-                Button(action: onSwitchToKeyboard) {
-                    HStack(spacing: theme.spacing.xs) {
-                        CraftIcon("keyboard", size: .sm, color: theme.colors.textMuted)
-                        Text(AppStrings.ReflexBlitz.switchToKeyboard)
-                            .font(theme.typography.caption.weight(.semibold))
-                    }
-                    .foregroundColor(theme.colors.textMuted)
-                    .padding(.top, theme.spacing.xs)
-                    .frame(minHeight: 44)
-                }
-                .buttonStyle(PlainButtonStyle())
-                .accessibilityLabel(AppStrings.ReflexBlitz.switchToKeyboardText)
             }
         }
-        .padding(.vertical, theme.spacing.sm)
-        .padding(.horizontal, theme.spacing.base)
-        .frame(maxWidth: .infinity)
-        .background(theme.colors.surfaceSubtle.opacity(0.6))
-        .clipShape(RoundedRectangle(cornerRadius: theme.radii.lg, style: .continuous))
         .animation(.spring(response: 0.3, dampingFraction: 0.75), value: liveTranscript.isEmpty)
-        .accessibilityLabel(liveTranscript.isEmpty ? AppStrings.ReflexBlitz.speechWaitingA11y : AppStrings.ReflexBlitz.speechRecognizedA11y(liveTranscript))
+        .animation(.spring(response: 0.3, dampingFraction: 0.75), value: isReviewed)
+    }
+
+    // MARK: - Sentence Helpers
+
+    @ViewBuilder
+    private var frontSentenceArea: some View {
+        VStack(spacing: theme.spacing.xs) {
+            frontSentenceView
+                .multilineTextAlignment(.center)
+                .lineSpacing(6)
+                .padding(.horizontal, theme.spacing.xs)
+                .fixedSize(horizontal: false, vertical: true)
+                .animation(.spring(response: 0.35, dampingFraction: 0.75), value: hintStage)
+                .accessibilityLabel(
+                    AppStrings.ReflexBlitz.clozeSentenceA11y(word.clozeSentenceEn)
+                )
+        }
+    }
+
+    @ViewBuilder
+    private var frontSentenceView: some View {
+        if let parts = activeClozeParts ?? clozeParts {
+            activeClozeText(parts: parts)
+        } else {
+            Text(displayedSentence)
+                .font(theme.typography.bodySerif.weight(.medium))
+                .foregroundColor(theme.colors.textPrimary)
+        }
+    }
+
+    private func activeClozeText(parts: ClozeSentenceParts) -> Text {
+        let prefixText = Text(parts.prefix)
+            .font(theme.typography.bodySerif)
+            .foregroundColor(theme.colors.textPrimary)
+        let slotColor = (hintStage >= 2) ? theme.colors.statusWarning : theme.colors.brandPrimary
+        let slotText = Text(parts.slot)
+            .font(theme.typography.bodySerif.bold())
+            .foregroundColor(slotColor)
+        let suffixText = Text(parts.suffix)
+            .font(theme.typography.bodySerif)
+            .foregroundColor(theme.colors.textPrimary)
+        return prefixText + slotText + suffixText
+    }
+
+    @ViewBuilder
+    private var backSentenceView: some View {
+        if let parts = clozeParts {
+            reviewedClozeText(parts: parts)
+        } else {
+            Text(word.completedSentenceWithTargetWord)
+                .font(theme.typography.bodySerif.weight(.bold))
+                .foregroundColor(
+                    isResultCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger
+                )
+        }
+    }
+
+    private func reviewedClozeText(parts: ClozeSentenceParts) -> Text {
+        let prefixText = Text(parts.prefix)
+            .font(theme.typography.bodySerif)
+            .foregroundColor(theme.colors.textPrimary)
+        let slotColor: Color = isResultCorrect
+            ? theme.colors.statusSuccess
+            : theme.colors.statusDanger
+        let slotWord = parts.slot.contains("_") ? word.lemma : parts.slot
+        let slotText = Text(slotWord)
+            .font(theme.typography.bodySerif.bold())
+            .foregroundColor(slotColor)
+        let suffixText = Text(parts.suffix)
+            .font(theme.typography.bodySerif)
+            .foregroundColor(theme.colors.textPrimary)
+        return prefixText + slotText + suffixText
     }
 }

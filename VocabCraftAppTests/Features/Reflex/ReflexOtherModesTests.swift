@@ -1,5 +1,5 @@
-import Foundation
 import CraftUIKit
+import Foundation
 import SwiftUI
 #if canImport(Testing)
 import Testing
@@ -17,28 +17,81 @@ struct ReflexOtherModesTests {
             sentenceEn: item.clozeSentenceEn,
             pos: item.cleanPos
         )
-        var switchedToKeyboard = false
+        var audioReplayed = false
         let speakingView = ReflexSpeakingModeView(
             word: item,
-            liveTranscript: "habit",
-            elapsedTimeMs: 1200,
+            isReviewed: false,
+            isResultCorrect: false,
+            isResultTimeout: false,
             showHint: true,
             hintStage: 1,
             clozeStages: stageSet,
+            clozeParts: ReflexClozeFormatter.extractTemplateParts(from: item.clozeSentenceEn),
+            displayedSentence: item.clozeSentenceEn,
             hintBadgeText: item.cleanInitialLetterHint,
-            onSwitchToKeyboard: {
-                switchedToKeyboard = true
+            speechState: .listening(),
+            liveTranscript: "habit",
+            onReplayAudio: {
+                audioReplayed = true
             }
         )
         #expect(speakingView.word.lemma == "habit")
+        #expect(speakingView.isReviewed == false)
+        #expect(speakingView.isResultCorrect == false)
+        #expect(speakingView.isResultTimeout == false)
         #expect(speakingView.liveTranscript == "habit")
-        #expect(speakingView.elapsedTimeMs == 1200)
         #expect(speakingView.showHint == true)
         #expect(speakingView.hintStage == 1)
         #expect(speakingView.hintBadgeText == item.cleanInitialLetterHint)
         #expect(speakingView.activeClozeParts?.slot == stageSet.lengthMaskedParts.slot)
-        speakingView.onSwitchToKeyboard?()
-        #expect(switchedToKeyboard == true)
+        #expect(speakingView.speechState == .listening())
+        speakingView.onReplayAudio?()
+        #expect(audioReplayed == true)
+    }
+
+    @Test("Instantiates SpeakingModeView in reviewed correct and incorrect states")
+    func testSpeakingModeViewReviewedStates() {
+        let item = ReflexBlitzWordItem.defaultStarterWords[0]
+
+        let correctView = ReflexSpeakingModeView(
+            word: item,
+            isReviewed: true,
+            isResultCorrect: true,
+            isResultTimeout: false,
+            speechState: .evaluated(overallScore: 100),
+            liveTranscript: "habit"
+        )
+        #expect(correctView.isReviewed == true)
+        #expect(correctView.isResultCorrect == true)
+        #expect(correctView.isResultTimeout == false)
+        #expect(correctView.liveTranscript == "habit")
+        #expect(correctView.speechState == .evaluated(overallScore: 100))
+
+        let incorrectView = ReflexSpeakingModeView(
+            word: item,
+            isReviewed: true,
+            isResultCorrect: false,
+            isResultTimeout: false,
+            speechState: .evaluated(overallScore: 0),
+            liveTranscript: "rabbit"
+        )
+        #expect(incorrectView.isReviewed == true)
+        #expect(incorrectView.isResultCorrect == false)
+        #expect(incorrectView.isResultTimeout == false)
+        #expect(incorrectView.liveTranscript == "rabbit")
+        #expect(incorrectView.speechState == .evaluated(overallScore: 0))
+
+        let timeoutView = ReflexSpeakingModeView(
+            word: item,
+            isReviewed: true,
+            isResultCorrect: false,
+            isResultTimeout: true,
+            speechState: .evaluated(overallScore: 0),
+            liveTranscript: ""
+        )
+        #expect(timeoutView.isReviewed == true)
+        #expect(timeoutView.isResultTimeout == true)
+        #expect(timeoutView.liveTranscript == "")
     }
 
     @Test("Instantiates TypingModeView with binding, cloze stages, and submit callback")
