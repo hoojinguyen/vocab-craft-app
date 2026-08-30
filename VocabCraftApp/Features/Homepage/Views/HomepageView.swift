@@ -47,35 +47,62 @@ public struct HomepageView: View {
                     )
                     .background(Color.vocabCanvas)
 
-                    CraftLearningPath(
-                        sections: viewModel.sections,
-                        winding: .standard,
-                        rowPattern: .standard,
-                        onNodeTap: { node in
-                            MainActor.assumeIsolated {
-                                viewModel.handleNodeTap(node)
+                    Group {
+                        if viewModel.isLoading && viewModel.sections.isEmpty {
+                            VStack(spacing: 16) {
+                                ProgressView()
+                                    .scaleEffect(1.2)
+                                Text(String(localized: "app.home.loading", defaultValue: "Đang tải lộ trình...", bundle: .module))
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
                             }
-                        },
-                        onStartLesson: { node in
-                            MainActor.assumeIsolated {
-                                startLesson(for: node)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(Color.vocabCanvas)
+                        } else if let error = viewModel.errorMessage, viewModel.sections.isEmpty {
+                            ContentUnavailableView {
+                                Label(String(localized: "app.home.load_error_title", defaultValue: "Không tải được lộ trình", bundle: .module), systemImage: "wifi.exclamationmark")
+                            } description: {
+                                Text(error)
+                                    .multilineTextAlignment(.center)
+                            } actions: {
+                                CraftButton(String(localized: "app.common.action.retry", defaultValue: "Thử lại", bundle: .module), variant: .primary, size: .md) {
+                                    Task { await viewModel.loadLearningPath() }
+                                }
                             }
-                        },
-                        showDetailModal: true,
-                        scrollToActive: true,
-                        showCelebration: false,
-                        pinSectionHeaders: true,
-                        connectorDotDiameter: 5.0,
-                        connectorDotSpacing: 7.0,
-                        onTabBarPresentationChange: { presentation in
-                            MainActor.assumeIsolated {
-                                tabBarPresentation = presentation
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(Color.vocabCanvas)
+                        } else {
+                            CraftLearningPath(
+                                sections: viewModel.sections,
+                                winding: .standard,
+                                rowPattern: .standard,
+                                onNodeTap: { node in
+                                    MainActor.assumeIsolated {
+                                        viewModel.handleNodeTap(node)
+                                    }
+                                },
+                                onStartLesson: { node in
+                                    MainActor.assumeIsolated {
+                                        startLesson(for: node)
+                                    }
+                                },
+                                showDetailModal: true,
+                                scrollToActive: true,
+                                showCelebration: false,
+                                pinSectionHeaders: true,
+                                connectorDotDiameter: 5.0,
+                                connectorDotSpacing: 7.0,
+                                onTabBarPresentationChange: { presentation in
+                                    MainActor.assumeIsolated {
+                                        tabBarPresentation = presentation
+                                    }
+                                }
+                            )
+                            .task {
+                                if viewModel.sections.isEmpty {
+                                    await viewModel.loadLearningPath()
+                                }
                             }
-                        }
-                    )
-                    .task {
-                        if viewModel.sections.isEmpty {
-                            await viewModel.loadLearningPath()
                         }
                     }
                 }
