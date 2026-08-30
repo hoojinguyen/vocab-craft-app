@@ -1,5 +1,8 @@
+import Foundation
 @testable import SpeechKit
+#if canImport(XCTest)
 import XCTest
+#endif
 
 private final class AtomicCounter: @unchecked Sendable {
     private let lock = NSLock()

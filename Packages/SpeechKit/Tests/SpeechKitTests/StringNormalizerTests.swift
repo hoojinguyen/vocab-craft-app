@@ -1,5 +1,8 @@
+import Foundation
 @testable import SpeechKit
+#if canImport(XCTest)
 import XCTest
+#endif
 
 final class StringNormalizerTests: XCTestCase {
     // MARK: - Basic Normalization Tests
