@@ -260,14 +260,11 @@ final class AtomComponentTests: XCTestCase {
     }
 
     func testIconButtonSelectedAndLoadingStates() {
-        var executed = false
         let selectedBtn = CraftIconButton(
             symbol: .favoriteFill,
             isSelected: true,
             accessibilityLabel: "Favorited"
-        ) {
-            executed = true
-        }
+        ) {}
         XCTAssertTrue(selectedBtn.isSelected)
         XCTAssertFalse(selectedBtn.isLoading)
         XCTAssertEqual(selectedBtn.accessibilityLabel, "Favorited")
@@ -278,9 +275,7 @@ final class AtomComponentTests: XCTestCase {
             isLoading: true,
             accessibilityLabel: "Refreshing",
             accessibilityHint: "Fetches latest data"
-        ) {
-            executed = true
-        }
+        ) {}
         XCTAssertTrue(loadingBtn.isLoading)
         XCTAssertEqual(loadingBtn.accessibilityHint, "Fetches latest data")
         XCTAssertNotNil(loadingBtn.body)

@@ -682,13 +682,11 @@ final class ContainerOverlayTests: XCTestCase {
 
     func testDialogModifierSmartBackdropTapCallback() {
         var isPresented = true
-        var cancelled = false
-
         let modifier = CraftDialogModifier(
             isPresented: Binding(get: { isPresented }, set: { isPresented = $0 }),
             backdrop: .dimmed,
             dismissOnBackdropTap: true,
-            onBackdropDismiss: { cancelled = true }
+            onBackdropDismiss: {}
         ) {
             Text("Dialog Body")
         }
@@ -917,4 +915,3 @@ final class ContainerOverlayTests: XCTestCase {
         }
     }
 }
-

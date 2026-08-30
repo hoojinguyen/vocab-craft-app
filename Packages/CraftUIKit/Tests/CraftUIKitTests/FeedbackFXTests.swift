@@ -340,14 +340,12 @@ final class FeedbackFXTests: XCTestCase {
     func testPathUnlockSurgeViewModifiers() {
         var isTriggered = true
         let binding = Binding(get: { isTriggered }, set: { isTriggered = $0 })
-        var completed = false
-
         let modifiedWithPoints = Text("Learning Path").craftPathUnlockSurge(
             isTriggered: binding,
             from: CGPoint(x: 0, y: 0),
             to: CGPoint(x: 100, y: 200),
             color: .orange,
-            onComplete: { completed = true }
+            onComplete: {}
         )
         XCTAssertNotNil(modifiedWithPoints)
 
@@ -374,4 +372,3 @@ final class FeedbackFXTests: XCTestCase {
         XCTAssertNotNil(view.body)
     }
 }
-
