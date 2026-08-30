@@ -18,6 +18,7 @@ public struct HomeTopHeaderView: View {
     public let dailyWordsGoal: Int
     public var onAvatarTap: (() -> Void)?
     public var onStreakTap: (() -> Void)?
+    public var onProgressTap: (() -> Void)?
 
     public init(
         userName: String,
@@ -25,7 +26,8 @@ public struct HomeTopHeaderView: View {
         dailyWordsLearned: Int,
         dailyWordsGoal: Int,
         onAvatarTap: (() -> Void)? = nil,
-        onStreakTap: (() -> Void)? = nil
+        onStreakTap: (() -> Void)? = nil,
+        onProgressTap: (() -> Void)? = nil
     ) {
         self.userName = userName
         self.streakDays = streakDays
@@ -33,6 +35,7 @@ public struct HomeTopHeaderView: View {
         self.dailyWordsGoal = dailyWordsGoal
         self.onAvatarTap = onAvatarTap
         self.onStreakTap = onStreakTap
+        self.onProgressTap = onProgressTap
     }
 
     private var userInitials: String {
@@ -76,22 +79,19 @@ public struct HomeTopHeaderView: View {
                 onTap: onStreakTap
             )
 
-            // 2. Daily Goal Progress Ring (36pt)
-            CraftProgressRing(
-                progress: dailyGoalProgress,
-                lineWidth: 2.5,
-                size: 36,
-                tintColor: theme.colors.brandPrimary,
-                trackColor: theme.colors.surfaceSubtle,
-                animated: true,
-                accessibilityLabel: AppStrings.Home.dailyGoalA11y(completed: dailyWordsLearned, goal: dailyWordsGoal)
-            ) {
-                Text(AppStrings.Home.dailyGoalCount(completed: dailyWordsLearned, goal: dailyWordsGoal))
-                    .font(theme.typography.caption.weight(.bold))
-                    .monospacedDigit()
-                    .foregroundStyle(theme.colors.textPrimary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
+            // 2. Daily Goal Progress Ring (36pt) - tappable to scroll to active
+            if let onProgressTap {
+                Button(action: {
+                    CraftHaptics.shared.light()
+                    onProgressTap()
+                }) {
+                    progressRingView
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(.isButton)
+                .accessibilityHint(CraftLocalized.string("craft.learning_path.tap_to_scroll_unit_hint"))
+            } else {
+                progressRingView
             }
 
             // 3. User Avatar Button
@@ -99,10 +99,32 @@ public struct HomeTopHeaderView: View {
         }
     }
 
+    private var progressRingView: some View {
+        CraftProgressRing(
+            progress: dailyGoalProgress,
+            lineWidth: 2.5,
+            size: 36,
+            tintColor: theme.colors.brandPrimary,
+            trackColor: theme.colors.surfaceSubtle,
+            animated: true,
+            accessibilityLabel: AppStrings.Home.dailyGoalA11y(completed: dailyWordsLearned, goal: dailyWordsGoal)
+        ) {
+            Text(AppStrings.Home.dailyGoalCount(completed: dailyWordsLearned, goal: dailyWordsGoal))
+                .font(theme.typography.caption.weight(.bold))
+                .monospacedDigit()
+                .foregroundStyle(theme.colors.textPrimary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+        }
+    }
+
     // MARK: - Avatar Button
 
     private var avatarButton: some View {
-        Button(action: { onAvatarTap?() }) {
+        Button(action: {
+            CraftHaptics.shared.light()
+            onAvatarTap?()
+        }) {
             ZStack {
                 Circle()
                     .fill(theme.gradients.brandHero)

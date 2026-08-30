@@ -580,22 +580,16 @@ private extension CraftLessonDetailSheet {
     func triggerTapFeedback() {
         #if os(iOS)
         if isCtaDisabled {
-            let generator = UINotificationFeedbackGenerator()
-            generator.prepare()
-            generator.notificationOccurred(.warning)
+            CraftHaptics.shared.warning()
         } else {
-            let generator = UIImpactFeedbackGenerator(style: .medium)
-            generator.prepare()
-            generator.impactOccurred()
+            CraftHaptics.shared.medium()
         }
         #endif
     }
 
     func triggerDismissFeedback() {
         #if os(iOS)
-        let generator = UIImpactFeedbackGenerator(style: .light)
-        generator.prepare()
-        generator.impactOccurred()
+        CraftHaptics.shared.light()
         #endif
     }
 }

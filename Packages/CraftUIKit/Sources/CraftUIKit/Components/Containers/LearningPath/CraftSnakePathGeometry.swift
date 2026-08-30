@@ -75,6 +75,18 @@ public struct SnakePathSegmentGeometry: Sendable, Equatable {
 
 /// Geometry routing helper calculating exact connector geometry between node anchor coordinates.
 public struct SnakePathGeometry {
+    private static var segmentCache: [String: SnakePathSegmentGeometry] = [:]
+    private static let maxCacheSize = 128
+
+    private static func cacheKey(from: CGPoint, to: CGPoint, containerWidth: CGFloat, turnRadius: CGFloat, edgeInset: CGFloat) -> String {
+        // Quantize to 0.5pt to avoid floating point noise
+        let fx = (from.x * 2).rounded() / 2
+        let fy = (from.y * 2).rounded() / 2
+        let tx = (to.x * 2).rounded() / 2
+        let ty = (to.y * 2).rounded() / 2
+        return "\(fx),\(fy)-\(tx),\(ty)-\(containerWidth.rounded())-\(turnRadius.rounded())-\(edgeInset.rounded())"
+    }
+
     public static func createSegment(
         from: CGPoint,
         to: CGPoint,
@@ -82,44 +94,59 @@ public struct SnakePathGeometry {
         turnRadius: CGFloat = 32.0,
         edgeInset: CGFloat = 28.0
     ) -> SnakePathSegmentGeometry {
+        let key = cacheKey(from: from, to: to, containerWidth: containerWidth, turnRadius: turnRadius, edgeInset: edgeInset)
+        if let cached = segmentCache[key] {
+            return cached
+        }
+
+        let result: SnakePathSegmentGeometry
         if abs(from.y - to.y) < 15 {
-            return SnakePathSegmentGeometry(
+            result = SnakePathSegmentGeometry(
                 from: from,
                 to: to,
                 type: .horizontal,
                 turnRadius: turnRadius,
                 turnX: from.x
             )
+        } else {
+            let isLeftTurn: Bool
+            if from.x < containerWidth * 0.40 {
+                isLeftTurn = true
+            } else if from.x > containerWidth * 0.60 {
+                isLeftTurn = false
+            } else {
+                // Starting from Center node
+                isLeftTurn = (to.x < from.x)
+            }
+
+            if isLeftTurn {
+                let leftTurnX = edgeInset
+                result = SnakePathSegmentGeometry(
+                    from: from,
+                    to: to,
+                    type: .leftHairpin,
+                    turnRadius: turnRadius,
+                    turnX: leftTurnX
+                )
+            } else {
+                let rightTurnX = containerWidth - edgeInset
+                result = SnakePathSegmentGeometry(
+                    from: from,
+                    to: to,
+                    type: .rightHairpin,
+                    turnRadius: turnRadius,
+                    turnX: rightTurnX
+                )
+            }
         }
 
-        let isLeftTurn: Bool
-        if from.x < containerWidth * 0.40 {
-            isLeftTurn = true
-        } else if from.x > containerWidth * 0.60 {
-            isLeftTurn = false
-        } else {
-            // Starting from Center node
-            isLeftTurn = (to.x < from.x)
+        if segmentCache.count > maxCacheSize {
+            // Evict arbitrary first entry (LRU approx)
+            if let firstKey = segmentCache.keys.first {
+                segmentCache.removeValue(forKey: firstKey)
+            }
         }
-
-        if isLeftTurn {
-            let leftTurnX = edgeInset
-            return SnakePathSegmentGeometry(
-                from: from,
-                to: to,
-                type: .leftHairpin,
-                turnRadius: turnRadius,
-                turnX: leftTurnX
-            )
-        } else {
-            let rightTurnX = containerWidth - edgeInset
-            return SnakePathSegmentGeometry(
-                from: from,
-                to: to,
-                type: .rightHairpin,
-                turnRadius: turnRadius,
-                turnX: rightTurnX
-            )
-        }
+        segmentCache[key] = result
+        return result
     }
 }

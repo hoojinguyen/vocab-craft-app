@@ -18,6 +18,7 @@ public struct HomepageView: View {
     @State private var reflexBlitzVM: ReflexBlitzViewModel?
     @State private var activeLessonNode: LessonNodeModel?
     @State private var tabBarPresentation: CraftTabBarPresentation = .expanded
+    @State private var scrollToActiveNonce: Int = 0
     @Environment(\.appContainer) private var appContainer
     @Environment(\.appRouter) private var appRouter
 
@@ -42,7 +43,11 @@ public struct HomepageView: View {
                         dailyWordsLearned: viewModel.dailyWordsLearned,
                         dailyWordsGoal: viewModel.dailyWordsGoal,
                         onAvatarTap: {
+                            CraftHaptics.shared.light()
                             appRouter.navigateToSettings()
+                        },
+                        onProgressTap: {
+                            scrollToActiveNonce += 1
                         }
                     )
                     .background(Color.vocabCanvas)
@@ -65,39 +70,40 @@ public struct HomepageView: View {
                                 Text(error)
                                     .multilineTextAlignment(.center)
                             } actions: {
-                                CraftButton(String(localized: "app.common.action.retry", defaultValue: "Thử lại", bundle: .module), variant: .primary, size: .md) {
+                                CraftButton(String(localized: "common.retry", defaultValue: "Thử lại", bundle: .module), variant: .primary, size: .md) {
                                     Task { await viewModel.loadLearningPath() }
                                 }
                             }
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .background(Color.vocabCanvas)
                         } else {
-                            CraftLearningPath(
-                                sections: viewModel.sections,
-                                winding: .standard,
-                                rowPattern: .standard,
-                                onNodeTap: { node in
-                                    MainActor.assumeIsolated {
-                                        viewModel.handleNodeTap(node)
-                                    }
-                                },
-                                onStartLesson: { node in
-                                    MainActor.assumeIsolated {
-                                        startLesson(for: node)
-                                    }
-                                },
-                                showDetailModal: true,
-                                scrollToActive: true,
-                                showCelebration: false,
-                                pinSectionHeaders: true,
-                                connectorDotDiameter: 5.0,
-                                connectorDotSpacing: 7.0,
-                                onTabBarPresentationChange: { presentation in
-                                    MainActor.assumeIsolated {
-                                        tabBarPresentation = presentation
-                                    }
-                                }
-                            )
+                    CraftLearningPath(
+                        sections: viewModel.sections,
+                        winding: .standard,
+                        rowPattern: .standard,
+                        onNodeTap: { node in
+                            MainActor.assumeIsolated {
+                                viewModel.handleNodeTap(node)
+                            }
+                        },
+                        onStartLesson: { node in
+                            MainActor.assumeIsolated {
+                                startLesson(for: node)
+                            }
+                        },
+                        showDetailModal: true,
+                        scrollToActive: true,
+                        showCelebration: false,
+                        pinSectionHeaders: true,
+                        connectorDotDiameter: 5.0,
+                        connectorDotSpacing: 7.0,
+                        onTabBarPresentationChange: { presentation in
+                            MainActor.assumeIsolated {
+                                tabBarPresentation = presentation
+                            }
+                        },
+                        externalScrollTrigger: scrollToActiveNonce
+                    )
                             .task {
                                 if viewModel.sections.isEmpty {
                                     await viewModel.loadLearningPath()

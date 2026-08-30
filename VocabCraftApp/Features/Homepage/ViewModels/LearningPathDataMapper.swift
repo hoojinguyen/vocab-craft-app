@@ -209,7 +209,10 @@ public struct LearningPathDataMapper: Sendable {
         let completedCount = nodes.filter { $0.state == .completed }.count
         let totalCount = nodes.count
         let progressText = "\(completedCount)/\(totalCount)"
-        let progressValue = totalCount > 0 ? Double(completedCount) / Double(totalCount) : 0.0
+        // Honest progress: active/inProgress counts as 0.5, so bar is not flat 0 when learner started
+        let hasActive = nodes.contains { $0.state == .active || $0.state == .inProgress }
+        let effectiveCompleted = Double(completedCount) + (hasActive ? 0.5 : 0.0)
+        let progressValue = totalCount > 0 ? min(1.0, effectiveCompleted / Double(totalCount)) : 0.0
 
         return LessonSection(
             id: deck.id,

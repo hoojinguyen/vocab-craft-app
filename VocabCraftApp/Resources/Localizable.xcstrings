@@ -358,6 +358,40 @@
         }
       }
     },
+    "app.home.loading" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading learning path..."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đang tải lộ trình..."
+          }
+        }
+      }
+    },
+    "app.home.load_error_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to load learning path"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không tải được lộ trình"
+          }
+        }
+      }
+    },
     "app.profile.achievements" : {
       "extractionState" : "manual",
       "localizations" : {

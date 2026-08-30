@@ -49,6 +49,7 @@ public struct CraftLearningPath: View {
     public let onNodeImpression: (@Sendable (LessonNodeModel) -> Void)?
     public let onTabBarPresentationChange: (@Sendable (CraftTabBarPresentation) -> Void)?
     public let nodeImpressionThreshold: TimeInterval
+    public let externalScrollTrigger: Int
 
     @Environment(\.craftTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -58,6 +59,7 @@ public struct CraftLearningPath: View {
     @State private var hasScrolledToActive: Bool = false
     @State private var dockedSectionIDs: Set<String> = []
     @State private var dockedSection: LessonSection?
+    @State private var dockDebounceTask: Task<Void, Never>?
     @State private var tabBarScrollReducer = CraftTabBarScrollPresentationReducer()
     @State private var tracksUserTabBarScroll = false
 
@@ -163,7 +165,8 @@ public struct CraftLearningPath: View {
         onAutoScrolled: (@Sendable (String) -> Void)? = nil,
         onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
         onTabBarPresentationChange: (@Sendable (CraftTabBarPresentation) -> Void)? = nil,
-        nodeImpressionThreshold: TimeInterval = 0.5
+        nodeImpressionThreshold: TimeInterval = 0.5,
+        externalScrollTrigger: Int = 0
     ) {
         self.sections = sections
         self.winding = winding
@@ -191,6 +194,7 @@ public struct CraftLearningPath: View {
         self.onNodeImpression = onNodeImpression
         self.onTabBarPresentationChange = onTabBarPresentationChange
         self.nodeImpressionThreshold = nodeImpressionThreshold
+        self.externalScrollTrigger = externalScrollTrigger
     }
 
     /// Creates a multi-section learning path with a custom ViewBuilder for the floating sticky HUD.
@@ -509,6 +513,10 @@ public struct CraftLearningPath: View {
                 performScroll(proxy, to: id, reducedMotion: isReducedMotion)
                 hasScrolledToActive = true
             }
+            .onChange(of: externalScrollTrigger) { _, _ in
+                guard let id = activeNodeID else { return }
+                performScroll(proxy, to: id, reducedMotion: isReducedMotion)
+            }
             )
         }
     }
@@ -674,8 +682,12 @@ public struct CraftLearningPath: View {
         } else {
             dockedSectionIDs.remove(section.id)
         }
-        let activeDocked = sections.last(where: { dockedSectionIDs.contains($0.id) })
-        if dockedSection?.id != activeDocked?.id {
+        dockDebounceTask?.cancel()
+        dockDebounceTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 16_000_000)
+            guard !Task.isCancelled else { return }
+            let activeDocked = sections.last(where: { dockedSectionIDs.contains($0.id) })
+            guard dockedSection?.id != activeDocked?.id else { return }
             withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                 dockedSection = activeDocked
             }
