@@ -100,6 +100,9 @@
 		3000C002000100010005 /* ReflexDrillPlanModelsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C002000100010005 /* ReflexDrillPlanModelsTests.swift */; };
 		3000C002000100010006 /* ReflexHintMaskGeneratorTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C002000100010006 /* ReflexHintMaskGeneratorTests.swift */; };
 		3000C002000100010007 /* ReflexDrillPlanGeneratorTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C002000100010007 /* ReflexDrillPlanGeneratorTests.swift */; };
+		3000C003000100010001 /* ReflexSpeechEngineProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C003000100010001 /* ReflexSpeechEngineProtocol.swift */; };
+		3000C003000100010002 /* MockResilientReflexSpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C003000100010002 /* MockResilientReflexSpeechEngine.swift */; };
+		3000C003000100010003 /* MockResilientReflexSpeechEngineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C003000100010003 /* MockResilientReflexSpeechEngineTests.swift */; };
 
 		30009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift */; };
 		30007A8B4B9D3D451203 /* ContinuousReflexSpeechProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20007A8B4B9D3D451203 /* ContinuousReflexSpeechProtocol.swift */; };
@@ -403,6 +406,9 @@
 		2000C002000100010005 /* ReflexDrillPlanModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillPlanModelsTests.swift"; sourceTree = "<group>"; };
 		2000C002000100010006 /* ReflexHintMaskGeneratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexHintMaskGeneratorTests.swift"; sourceTree = "<group>"; };
 		2000C002000100010007 /* ReflexDrillPlanGeneratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillPlanGeneratorTests.swift"; sourceTree = "<group>"; };
+		2000C003000100010001 /* ReflexSpeechEngineProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexSpeechEngineProtocol.swift"; sourceTree = "<group>"; };
+		2000C003000100010002 /* MockResilientReflexSpeechEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockResilientReflexSpeechEngine.swift"; sourceTree = "<group>"; };
+		2000C003000100010003 /* MockResilientReflexSpeechEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockResilientReflexSpeechEngineTests.swift"; sourceTree = "<group>"; };
 
 		20009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AudioServiceProtocols.swift"; sourceTree = "<group>"; };
 		20007A8B4B9D3D451203 /* ContinuousReflexSpeechProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContinuousReflexSpeechProtocol.swift"; sourceTree = "<group>"; };
@@ -659,6 +665,7 @@
 			isa = PBXGroup;
 			children = (
 				2000991CE1A83CFDC071 /* ContinuousReflexSpeechService.swift */,
+				2000C003000100010002 /* MockResilientReflexSpeechEngine.swift */,
 				2000087B04314FDDF262 /* SoundEffectService.swift */,
 				200054D51843DFDCEB06 /* SpeechRecognitionService.swift */,
 				2000BEA090FB6DD9E928 /* TextToSpeechService.swift */,
@@ -841,6 +848,7 @@
 				2000410EFACF0E255E2A /* UserProgressRepositoryProtocol.swift */,
 				2000A91CFCCE87349186 /* VocabularyRepositoryProtocol.swift */,
 				2000A1A1000100010002 /* ReflexDrillable.swift */,
+				2000C003000100010001 /* ReflexSpeechEngineProtocol.swift */,
 			);
 			path = "Protocols";
 			sourceTree = "<group>";
@@ -1372,6 +1380,7 @@
 				2000C002000100010005 /* ReflexDrillPlanModelsTests.swift */,
 				2000C002000100010006 /* ReflexHintMaskGeneratorTests.swift */,
 				2000C002000100010007 /* ReflexDrillPlanGeneratorTests.swift */,
+				2000C003000100010003 /* MockResilientReflexSpeechEngineTests.swift */,
 			);
 			path = "Reflex";
 			sourceTree = "<group>";
@@ -1637,6 +1646,8 @@
 				3000410EFACF0E255E2A /* UserProgressRepositoryProtocol.swift in Sources */,
 				3000A91CFCCE87349186 /* VocabularyRepositoryProtocol.swift in Sources */,
 				3000A1A1000100010002 /* ReflexDrillable.swift in Sources */,
+				3000C003000100010001 /* ReflexSpeechEngineProtocol.swift in Sources */,
+				3000C003000100010002 /* MockResilientReflexSpeechEngine.swift in Sources */,
 				3000C001000100010001 /* ReflexMode.swift in Sources */,
 				3000C001000100010002 /* ReflexCardPhase.swift in Sources */,
 				3000C001000100010003 /* ReflexCardResult.swift in Sources */,
@@ -1786,6 +1797,7 @@
 				3000C002000100010005 /* ReflexDrillPlanModelsTests.swift in Test Sources */,
 				3000C002000100010006 /* ReflexHintMaskGeneratorTests.swift in Test Sources */,
 				3000C002000100010007 /* ReflexDrillPlanGeneratorTests.swift in Test Sources */,
+				3000C003000100010003 /* MockResilientReflexSpeechEngineTests.swift in Test Sources */,
 
 				3000D1459B6F5FD76CEA /* DomainEntitiesTests.swift in Test Sources */,
 				3000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift in Test Sources */,
