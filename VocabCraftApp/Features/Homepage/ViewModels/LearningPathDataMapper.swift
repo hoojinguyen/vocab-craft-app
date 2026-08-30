@@ -49,11 +49,37 @@ public struct LearningPathDataMapper: Sendable {
             )
             sectionNodes.append(checkpointNode)
 
+            // Promote immediate next locked node after active/inProgress to upcoming for curiosity gap
+            if let activeIdx = sectionNodes.firstIndex(where: { $0.state == .active || $0.state == .inProgress }),
+               activeIdx + 1 < sectionNodes.count,
+               sectionNodes[activeIdx + 1].state == .locked {
+                sectionNodes[activeIdx + 1] = withState(sectionNodes[activeIdx + 1], state: .upcoming)
+            }
+
             let section = buildSection(deck: deck, deckIndex: deckIndex, nodes: sectionNodes)
             sections.append(section)
         }
 
         return sections
+    }
+
+    private static func withState(_ node: LessonNodeModel, state: LessonNodeState) -> LessonNodeModel {
+        LessonNodeModel(
+            id: node.id,
+            title: node.title,
+            subtitle: node.subtitle,
+            iconName: node.iconName,
+            state: state,
+            kind: node.kind,
+            progress: node.progress,
+            xpReward: node.xpReward,
+            estimatedMinutes: node.estimatedMinutes,
+            stars: node.stars,
+            badgeCount: node.badgeCount,
+            badgeText: node.badgeText,
+            objectives: node.objectives,
+            objectiveKeys: node.objectiveKeys
+        )
     }
 
     private static func buildStandardNode(
