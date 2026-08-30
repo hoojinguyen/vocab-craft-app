@@ -18,6 +18,40 @@
         }
       }
     },
+    "app.home.header.daily_goal_a11y_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daily Goal: %lld of %lld words completed"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mục tiêu hàng ngày: Đã hoàn thành %lld trên %lld từ"
+          }
+        }
+      }
+    },
+    "app.home.header.daily_goal_count_format" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld/%lld"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld/%lld"
+          }
+        }
+      }
+    },
     "app.home.header.daily_goal_format" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -303,6 +337,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Unit %lld: %@"
+          }
+        }
+      }
+    },
+    "app.home.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Home"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trang chủ"
           }
         }
       }

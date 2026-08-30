@@ -366,6 +366,16 @@ public enum AppStrings {
     // MARK: - Home Learning Path
     public enum Home {
         // Header
+        public static var title: LocalizedStringKey { "app.home.title" }
+        public static var titleText: String {
+            String(localized: "app.home.title", defaultValue: "Home", bundle: .module)
+        }
+        public static func dailyGoalCount(completed: Int, goal: Int) -> String {
+            String(format: String(localized: "app.home.header.daily_goal_count_format", defaultValue: "%lld/%lld", bundle: .module), completed, goal)
+        }
+        public static func dailyGoalA11y(completed: Int, goal: Int) -> String {
+            String(format: String(localized: "app.home.header.daily_goal_a11y_format", defaultValue: "Daily Goal: %lld of %lld words completed", bundle: .module), completed, goal)
+        }
         public static func greeting(_ name: String) -> String {
             String(format: String(localized: "app.home.header.greeting_format", defaultValue: "Hello, %@", bundle: .module), name)
         }
