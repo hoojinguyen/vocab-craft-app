@@ -26,8 +26,8 @@ public struct CraftPageHeader<Leading: View, Trailing: View>: View {
         subtitle: LocalizedStringKey? = nil,
         alignment: CraftHeaderAlignment = .leading,
         enableScrollFade: Bool = true,
-        @ViewBuilder leading: () -> Leading = { EmptyView() },
-        @ViewBuilder trailing: () -> Trailing = { EmptyView() }
+        @ViewBuilder leading: () -> Leading,
+        @ViewBuilder trailing: () -> Trailing
     ) {
         self.title = title
         self.subtitle = subtitle
@@ -42,8 +42,8 @@ public struct CraftPageHeader<Leading: View, Trailing: View>: View {
         subtitleVerbatim: String? = nil,
         alignment: CraftHeaderAlignment = .leading,
         enableScrollFade: Bool = true,
-        @ViewBuilder leading: () -> Leading = { EmptyView() },
-        @ViewBuilder trailing: () -> Trailing = { EmptyView() }
+        @ViewBuilder leading: () -> Leading,
+        @ViewBuilder trailing: () -> Trailing
     ) {
         self.title = LocalizedStringKey(titleText)
         self.subtitle = subtitleVerbatim.map { LocalizedStringKey($0) }
@@ -180,7 +180,8 @@ public extension CraftPageHeader where Trailing == EmptyView {
         subtitle: LocalizedStringKey? = nil,
         alignment: CraftHeaderAlignment = .leading,
         enableScrollFade: Bool = true,
-        @ViewBuilder leading: () -> Leading
+        @ViewBuilder leading: () -> Leading,
+        _ trailingPlaceholder: Void = ()
     ) {
         self.init(
             title,
@@ -197,7 +198,8 @@ public extension CraftPageHeader where Trailing == EmptyView {
         subtitleVerbatim: String? = nil,
         alignment: CraftHeaderAlignment = .leading,
         enableScrollFade: Bool = true,
-        @ViewBuilder leading: () -> Leading
+        @ViewBuilder leading: () -> Leading,
+        _ trailingPlaceholder: Void = ()
     ) {
         self.init(
             verbatim: titleText,

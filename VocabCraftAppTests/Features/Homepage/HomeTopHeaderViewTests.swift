@@ -58,6 +58,22 @@ struct HomeTopHeaderViewTestingTests {
             dailyWordsGoal: 0
         )
         _ = view.body
+
+        let singleNameView = HomeTopHeaderView(
+            userName: "Alex",
+            streakDays: 30,
+            dailyWordsLearned: 15,
+            dailyWordsGoal: 10
+        )
+        _ = singleNameView.body
+
+        let emptyNameView = HomeTopHeaderView(
+            userName: "   ",
+            streakDays: 5,
+            dailyWordsLearned: 5,
+            dailyWordsGoal: 10
+        )
+        _ = emptyNameView.body
     }
 }
 #endif
@@ -106,6 +122,22 @@ final class HomeTopHeaderViewTests: XCTestCase {
             dailyWordsGoal: 0
         )
         XCTAssertNotNil(view.body)
+
+        let singleNameView = HomeTopHeaderView(
+            userName: "Alex",
+            streakDays: 30,
+            dailyWordsLearned: 15,
+            dailyWordsGoal: 10
+        )
+        XCTAssertNotNil(singleNameView.body)
+
+        let emptyNameView = HomeTopHeaderView(
+            userName: "   ",
+            streakDays: 5,
+            dailyWordsLearned: 5,
+            dailyWordsGoal: 10
+        )
+        XCTAssertNotNil(emptyNameView.body)
     }
 }
 #endif

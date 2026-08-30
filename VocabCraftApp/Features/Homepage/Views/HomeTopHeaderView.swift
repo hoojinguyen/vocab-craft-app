@@ -56,50 +56,47 @@ public struct HomeTopHeaderView: View {
     }
 
     public var body: some View {
-        HStack(alignment: .center, spacing: theme.spacing.sm) {
-            // Large Title: "Home"
-            Text(AppStrings.Home.title)
-                .font(theme.typography.displayLarge)
-                .foregroundStyle(theme.colors.textPrimary)
-                .accessibilityAddTraits(.isHeader)
-
-            Spacer(minLength: theme.spacing.xs)
-
-            // Trailing Actions Group
-            HStack(spacing: theme.spacing.sm) {
-                // 1. Streak Flame Badge
-                CraftStreakBadge(
-                    count: streakDays,
-                    tier: CraftStreakTier.tier(for: streakDays),
-                    isCompletedToday: isGoalCompletedToday,
-                    size: .sm,
-                    onTap: onStreakTap
-                )
-
-                // 2. Daily Goal Progress Ring (36pt)
-                CraftProgressRing(
-                    progress: dailyGoalProgress,
-                    lineWidth: 2.5,
-                    size: 36,
-                    tintColor: theme.colors.brandPrimary,
-                    trackColor: theme.colors.surfaceSubtle,
-                    animated: true,
-                    accessibilityLabel: AppStrings.Home.dailyGoalA11y(completed: dailyWordsLearned, goal: dailyWordsGoal)
-                ) {
-                    Text(AppStrings.Home.dailyGoalCount(completed: dailyWordsLearned, goal: dailyWordsGoal))
-                        .font(theme.typography.caption.weight(.bold))
-                        .monospacedDigit()
-                        .foregroundStyle(theme.colors.textPrimary)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                }
-
-                // 3. User Avatar Button
-                avatarButton
-            }
+        CraftPageHeader(
+            AppStrings.Home.title,
+            alignment: .leading,
+            enableScrollFade: true
+        ) {
+            trailingActionsGroup
         }
-        .padding(.horizontal, theme.spacing.base)
-        .padding(.vertical, theme.spacing.xs)
+    }
+
+    private var trailingActionsGroup: some View {
+        HStack(spacing: theme.spacing.sm) {
+            // 1. Streak Flame Badge
+            CraftStreakBadge(
+                count: streakDays,
+                tier: CraftStreakTier.tier(for: streakDays),
+                isCompletedToday: isGoalCompletedToday,
+                size: .sm,
+                onTap: onStreakTap
+            )
+
+            // 2. Daily Goal Progress Ring (36pt)
+            CraftProgressRing(
+                progress: dailyGoalProgress,
+                lineWidth: 2.5,
+                size: 36,
+                tintColor: theme.colors.brandPrimary,
+                trackColor: theme.colors.surfaceSubtle,
+                animated: true,
+                accessibilityLabel: AppStrings.Home.dailyGoalA11y(completed: dailyWordsLearned, goal: dailyWordsGoal)
+            ) {
+                Text(AppStrings.Home.dailyGoalCount(completed: dailyWordsLearned, goal: dailyWordsGoal))
+                    .font(theme.typography.caption.weight(.bold))
+                    .monospacedDigit()
+                    .foregroundStyle(theme.colors.textPrimary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+
+            // 3. User Avatar Button
+            avatarButton
+        }
     }
 
     // MARK: - Avatar Button
