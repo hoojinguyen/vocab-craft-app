@@ -27,6 +27,34 @@ struct CustomStringTab: CraftTabItemProtocol {
 
 final class NavigationTests: XCTestCase {
 
+    func testFloatingTabBarDefaultsToExpandedPresentation() {
+        let binding = Binding(get: { SampleTab.home }, set: { _ in })
+        let bar = CraftFloatingTabBar(selectedItem: binding, items: SampleTab.allCases)
+
+        XCTAssertEqual(bar.presentation, .expanded)
+        XCTAssertEqual(bar.resolvedSize, .md)
+    }
+
+    func testFloatingTabBarUsesCompactPresentationMetrics() {
+        let binding = Binding(get: { SampleTab.home }, set: { _ in })
+        let bar = CraftFloatingTabBar(
+            selectedItem: binding,
+            items: SampleTab.allCases,
+            size: .lg,
+            presentation: .compact,
+            centerAction: {},
+            centerSymbol: CraftSymbol.add.rawValue
+        )
+
+        XCTAssertEqual(bar.presentation, .compact)
+        XCTAssertEqual(bar.resolvedSize, .sm)
+        XCTAssertGreaterThanOrEqual(
+            bar.centerActionHitTargetDiameter,
+            CraftTabBarSize.sm.barHeight
+        )
+        XCTAssertNotNil(bar.body)
+    }
+
     func testFloatingTabBarStreamlinedInit() {
         let binding = Binding(get: { SampleTab.home }, set: { _ in })
         let tabs = SampleTab.allCases
@@ -480,4 +508,3 @@ final class NavigationTests: XCTestCase {
         XCTAssertEqual(CraftLocalized.string("craft.tab_bar.center_action_fallback", language: "vi"), "Tác vụ")
     }
 }
-
