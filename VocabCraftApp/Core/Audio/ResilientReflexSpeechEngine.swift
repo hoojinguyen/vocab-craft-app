@@ -53,6 +53,12 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     private var currentTargetLemma: String = ""
     private var currentWordSessionToken: UUID = UUID()
 
+    // MARK: - Throttle (nonisolated for real-time callback)
+    private let throttleLock = NSLock()
+    private var lastDispatchTime: CFAbsoluteTime = 0
+    /// Minimum interval between MainActor dispatches for partial results (seconds)
+    private let throttleInterval: CFAbsoluteTime = 0.15
+
     public init() {}
 
     deinit {
@@ -131,6 +137,13 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
            Date().timeIntervalSince(start) > 50 {
             needsEngineRenew = true
         }
+    }
+
+    public func finalizeWordAudio() {
+        // Signal end of audio input but keep recognition task alive
+        // so in-flight buffers can still be processed during grace period.
+        bufferRelay.setRequest(nil)
+        activeRequest?.endAudio()
     }
 
     // MARK: - Simulator support
@@ -295,13 +308,20 @@ extension ResilientReflexSpeechEngine {
 
         let request = SFSpeechAudioBufferRecognitionRequest()
         request.shouldReportPartialResults = true
-        request.taskHint = .confirmation
+        // .dictation provides better accuracy for vocabulary words vs .confirmation
+        // which biases toward short affirmative phrases ("yes", "no", "okay")
+        request.taskHint = .dictation
 
-        var biasedPhrases = sessionContextualPhrases + contextualPhrases
+        // Only include short phrases (≤5 words) as contextual strings.
+        // Full sentences dilute the language model bias and hurt accuracy.
+        var biasedPhrases = (sessionContextualPhrases + contextualPhrases)
+            .filter { phrase in
+                !phrase.isEmpty && phrase.split(separator: " ").count <= 5
+            }
         if !biasedPhrases.contains(targetLemma) {
             biasedPhrases.append(targetLemma)
         }
-        request.contextualStrings = Array(Set(biasedPhrases.filter { !$0.isEmpty }))
+        request.contextualStrings = Array(Set(biasedPhrases))
 
         #if os(iOS)
         if #available(iOS 16.0, *) {
@@ -312,13 +332,21 @@ extension ResilientReflexSpeechEngine {
         self.activeRequest = request
         self.bufferRelay.setRequest(request)
 
-        let task = recognizer.recognitionTask(with: request) { [weak self] result, error in
-            Task { @MainActor [weak self] in
-                guard let self,
-                      self.isWordActive,
-                      self.currentWordSessionToken == sessionToken else { return }
+        // Reset throttle timestamp for new word
+        throttleLock.lock()
+        lastDispatchTime = 0
+        throttleLock.unlock()
 
-                if let error = error {
+        let task = recognizer.recognitionTask(with: request) { [weak self] result, error in
+            guard let self else { return }
+
+            // Error handling — always dispatch immediately
+            if let error {
+                Task { @MainActor [weak self] in
+                    guard let self,
+                          self.isWordActive,
+                          self.currentWordSessionToken == sessionToken else { return }
+
                     let nsError = error as NSError
                     // 216 = cancelled (normal), 1110 = timeout (60s limit)
                     if nsError.code == 1110 {
@@ -331,21 +359,51 @@ extension ResilientReflexSpeechEngine {
                     } else if nsError.code != 216 {
                         self.onError?(error)
                     }
-                    return
                 }
+                return
+            }
 
-                guard let result else { return }
-                let spoken = result.bestTranscription.formattedString
-                self.liveTranscript = spoken
-                self.onTranscriptUpdate?(spoken)
+            guard let result else { return }
+            let spoken = result.bestTranscription.formattedString
 
-                // Evaluate match
-                if ReflexSpeechMatcher.isReflexMatch(
-                    spokenText: spoken,
-                    targetLemma: targetLemma
-                ) {
+            // Check match first — always dispatch match detection immediately
+            let isMatch = ReflexSpeechMatcher.isReflexMatch(
+                spokenText: spoken,
+                targetLemma: targetLemma
+            )
+
+            if isMatch {
+                // Match found — dispatch immediately, bypass throttle
+                Task { @MainActor [weak self] in
+                    guard let self,
+                          self.isWordActive,
+                          self.currentWordSessionToken == sessionToken else { return }
+                    self.liveTranscript = spoken
+                    self.onTranscriptUpdate?(spoken)
                     self.onMatchDetected?(targetLemma)
                 }
+                return
+            }
+
+            // Throttle non-match partial results to reduce MainActor pressure.
+            // SFSpeechRecognizer fires 30-50 callbacks/sec; we cap UI updates at ~7/sec.
+            let now = CFAbsoluteTimeGetCurrent()
+            self.throttleLock.lock()
+            let elapsed = now - self.lastDispatchTime
+            let shouldDispatch = elapsed >= self.throttleInterval
+            if shouldDispatch {
+                self.lastDispatchTime = now
+            }
+            self.throttleLock.unlock()
+
+            guard shouldDispatch else { return }
+
+            Task { @MainActor [weak self] in
+                guard let self,
+                      self.isWordActive,
+                      self.currentWordSessionToken == sessionToken else { return }
+                self.liveTranscript = spoken
+                self.onTranscriptUpdate?(spoken)
             }
         }
 

@@ -294,10 +294,13 @@ public struct CraftSnakeDottedSegmentView: View, Equatable {
             return theme.colors.pathCompleted
         } else if fromState == .completed && (toState == .active || toState == .inProgress) {
             return theme.colors.pathActive
+        } else if toState == .locked || fromState == .locked {
+            // Muted but still visible on ivory canvas — avoid invisible beige
+            return theme.colors.textMuted.opacity(0.35)
         } else if fromState == .active || fromState == .inProgress || fromState == .upcoming {
-            return theme.colors.pathUpcoming
+            return theme.colors.textMuted.opacity(0.55)
         } else {
-            return theme.colors.pathLocked
+            return theme.colors.textMuted.opacity(0.30)
         }
     }
 

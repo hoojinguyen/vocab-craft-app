@@ -18,20 +18,43 @@ public final class FetchLearningPathUseCase: FetchLearningPathUseCaseProtocol, S
     }
 
     public func execute() async throws -> [LessonSection] {
-        let decks = try await dataSource.fetchTopicDecks()
-        var allStages: [SubTopicStageDTO] = []
-        var allWords: [TopicWordDTO] = []
+        // Parallelize deck + progress fetch. Then fetch stages and words concurrently via TaskGroup
+        async let decksTask = dataSource.fetchTopicDecks()
+        async let progressTask = stageRepo.fetchAllStageProgress()
 
-        for deck in decks {
-            let stages = try await dataSource.fetchSubTopicStages(deckId: deck.id)
-            allStages.append(contentsOf: stages)
-            for stage in stages {
-                let words = try await dataSource.fetchWordsForStage(stageId: stage.id)
-                allWords.append(contentsOf: words)
+        let decks = try await decksTask
+
+        // Fetch all stages in parallel across decks
+        let allStages: [SubTopicStageDTO] = try await withThrowingTaskGroup(of: [SubTopicStageDTO].self) { group in
+            for deck in decks {
+                group.addTask { [dataSource] in
+                    try await dataSource.fetchSubTopicStages(deckId: deck.id)
+                }
             }
+            var combined: [SubTopicStageDTO] = []
+            combined.reserveCapacity(decks.count * 4)
+            for try await stages in group {
+                combined.append(contentsOf: stages)
+            }
+            return combined
         }
 
-        let progressList = try await stageRepo.fetchAllStageProgress()
+        // Fetch all words in parallel across stages
+        let allWords: [TopicWordDTO] = try await withThrowingTaskGroup(of: [TopicWordDTO].self) { group in
+            for stage in allStages {
+                group.addTask { [dataSource] in
+                    try await dataSource.fetchWordsForStage(stageId: stage.id)
+                }
+            }
+            var combined: [TopicWordDTO] = []
+            combined.reserveCapacity(allStages.count * 8)
+            for try await words in group {
+                combined.append(contentsOf: words)
+            }
+            return combined
+        }
+
+        let progressList = try await progressTask
         return LearningPathDataMapper.map(
             decks: decks,
             stages: allStages,

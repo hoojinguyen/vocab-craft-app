@@ -80,11 +80,11 @@ final class LearningPathDataMapperTests: XCTestCase {
         XCTAssertEqual(node1.state, .active)
         XCTAssertNil(node1.stars)
 
-        // Node 2 is locked
+        // Node 2 is upcoming (curiosity preview)
         let node2 = section1.nodes[1]
         XCTAssertEqual(node2.id, "stage_daily_2")
         XCTAssertEqual(node2.kind, .standard)
-        XCTAssertEqual(node2.state, .locked)
+        XCTAssertEqual(node2.state, .upcoming)
 
         // Node 3 (Checkpoint) is locked
         let node3 = section1.nodes[2]
@@ -126,9 +126,9 @@ final class LearningPathDataMapperTests: XCTestCase {
         let node2 = section1.nodes[1]
         XCTAssertEqual(node2.state, .active)
 
-        // Node 3 (Checkpoint) remains locked
+        // Node 3 (Checkpoint) is preview upcoming
         let node3 = section1.nodes[2]
-        XCTAssertEqual(node3.state, .locked)
+        XCTAssertEqual(node3.state, .upcoming)
 
         // Section 2 remains all locked
         let section2 = sections[1]
@@ -194,8 +194,8 @@ final class LearningPathDataMapperTests: XCTestCase {
         XCTAssertEqual(section2.nodes[0].id, "stage_biz_1")
         XCTAssertEqual(section2.nodes[0].state, .active)
 
-        // Section 2 Node 2 and Checkpoint remain locked
-        XCTAssertEqual(section2.nodes[1].state, .locked)
+        // Section 2 Node 2 is upcoming preview, Checkpoint locked
+        XCTAssertEqual(section2.nodes[1].state, .upcoming)
         XCTAssertEqual(section2.nodes[2].state, .locked)
     }
 
@@ -215,8 +215,8 @@ final class LearningPathDataMapperTests: XCTestCase {
         XCTAssertEqual(node1.state, .inProgress)
         XCTAssertEqual(node1.progress, 0.5)
 
-        // Rest of nodes remain locked
-        XCTAssertEqual(sections[0].nodes[1].state, .locked)
+        // Next node is preview upcoming
+        XCTAssertEqual(sections[0].nodes[1].state, .upcoming)
         XCTAssertEqual(sections[0].nodes[2].state, .locked)
     }
 
