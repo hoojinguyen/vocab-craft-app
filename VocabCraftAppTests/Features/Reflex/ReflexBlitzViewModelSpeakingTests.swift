@@ -1,5 +1,7 @@
 @testable import VocabCraftApp
+#if canImport(XCTest)
 import XCTest
+#endif
 
 @MainActor
 final class ReflexBlitzViewModelSpeakingTests: XCTestCase {
