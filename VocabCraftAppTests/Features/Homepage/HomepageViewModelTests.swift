@@ -1,3 +1,4 @@
+import Foundation
 import CraftUIKit
 import SwiftUI
 #if canImport(Testing)
@@ -301,31 +302,6 @@ struct HomepageViewModelTestingTests {
 }
 #endif
 
-#if !canImport(Testing) && !canImport(XCTest)
-public func XCTAssertEqual<T: Equatable>(_ a: T, _ b: T, file: StaticString = #file, line: UInt = #line) {
-    assert(a == b, "Assertion failed: \(a) != \(b)", file: file, line: line)
-}
-public func XCTAssertEqual(_ a: Double, _ b: Double, accuracy: Double, file: StaticString = #file, line: UInt = #line) {
-    assert(abs(a - b) <= accuracy, "Assertion failed: |\(a) - \(b)| > \(accuracy)", file: file, line: line)
-}
-public func XCTAssertTrue(_ condition: Bool, file: StaticString = #file, line: UInt = #line) {
-    assert(condition, "Assertion failed: condition is false", file: file, line: line)
-}
-public func XCTAssertFalse(_ condition: Bool, file: StaticString = #file, line: UInt = #line) {
-    assert(!condition, "Assertion failed: condition is true", file: file, line: line)
-}
-public func XCTAssertNil(_ value: Any?, file: StaticString = #file, line: UInt = #line) {
-    assert(value == nil, "Assertion failed: \(String(describing: value)) is not nil", file: file, line: line)
-}
-public func XCTAssertNotNil(_ value: Any?, file: StaticString = #file, line: UInt = #line) {
-    assert(value != nil, "Assertion failed: value is nil", file: file, line: line)
-}
-open class XCTestCase {
-    public init() {}
-}
-#endif
-
-#if canImport(XCTest) || (!canImport(Testing) && !canImport(XCTest))
 @MainActor
 final class HomepageViewModelTests: XCTestCase {
     func testViewModelDailyGoalCalculation() {
@@ -516,4 +492,3 @@ final class HomepageViewModelTests: XCTestCase {
         XCTAssertFalse(vm.isDetailSheetPresented)
     }
 }
-#endif

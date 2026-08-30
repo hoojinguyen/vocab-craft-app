@@ -1,7 +1,10 @@
+import Foundation
 import CraftUIKit
 import SwiftUI
 @testable import VocabCraftApp
+#if canImport(XCTest)
 import XCTest
+#endif
 
 @MainActor
 final class HomepageViewTests: XCTestCase {
@@ -197,5 +200,81 @@ final class HomepageViewTests: XCTestCase {
         XCTAssertEqual(result.score, 3)
         XCTAssertEqual(result.xpEarned, 80)
         XCTAssertTrue(result.isUnitCheckpoint)
+    }
+
+    func testHomepageViewIntegratesHomeTopHeaderViewInScrollFlow() async {
+        let container = AppContainer.mock
+        let viewModel = container.makeHomepageViewModel()
+        await viewModel.loadLearningPath()
+
+        let homepage = HomepageView(viewModel: viewModel)
+            .environment(\.appContainer, container)
+            .environment(\.appRouter, container.appRouter)
+
+        XCTAssertNotNil(homepage.body)
+        XCTAssertEqual(viewModel.userName, "Hooji N.")
+        XCTAssertEqual(viewModel.streakDays, 7)
+        XCTAssertEqual(viewModel.dailyWordsLearned, 5)
+        XCTAssertEqual(viewModel.dailyWordsGoal, 10)
+    }
+
+    func testLearningPathStickyHUDUnitDockingConfig() {
+        let section = LessonSection(
+            id: "sec_unit_1",
+            title: "Everyday Phrases",
+            level: "UNIT 1",
+            progressText: "4/8",
+            nodes: [
+                LessonNodeModel(id: "node_1", title: "Intro", state: .active)
+            ]
+        )
+
+        var tappedSectionID: String?
+        let path = CraftLearningPath(
+            section: section,
+            pinSectionHeaders: true,
+            topHeaderBuilder: {
+                AnyView(
+                    HomeTopHeaderView(
+                        userName: "Hooji N.",
+                        streakDays: 7,
+                        dailyWordsLearned: 5,
+                        dailyWordsGoal: 10
+                    )
+                )
+            },
+            stickyHUDBuilder: { sec in
+                tappedSectionID = sec.id
+                return AnyView(Text(sec.title))
+            }
+        )
+
+        XCTAssertTrue(path.pinSectionHeaders)
+        XCTAssertNotNil(path.topHeaderBuilder)
+        XCTAssertNotNil(path.stickyHUDBuilder)
+        _ = path.stickyHUDBuilder?(section)
+        XCTAssertEqual(tappedSectionID, "sec_unit_1")
+        XCTAssertNotNil(path.body)
+    }
+
+    func testHomeTopHeaderAvatarTapNavigatesToSettings() {
+        let router = AppRouter(initialTab: .home)
+        var avatarTapped = false
+
+        let header = HomeTopHeaderView(
+            userName: "Hooji N.",
+            streakDays: 7,
+            dailyWordsLearned: 5,
+            dailyWordsGoal: 10,
+            onAvatarTap: {
+                avatarTapped = true
+                router.navigateToSettings()
+            }
+        )
+
+        XCTAssertNotNil(header.body)
+        header.onAvatarTap?()
+        XCTAssertTrue(avatarTapped)
+        XCTAssertEqual(router.selectedTab, .settings)
     }
 }

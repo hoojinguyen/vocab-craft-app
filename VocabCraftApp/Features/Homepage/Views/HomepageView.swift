@@ -25,36 +25,38 @@ public struct HomepageView: View {
 
             switch router.selectedTab {
             case .home:
-                VStack(spacing: 0) {
-                    HeaderView(
-                        userName: viewModel.userName,
-                        streakDays: viewModel.streakDays,
-                        dailyGoalProgress: viewModel.dailyGoalProgress,
-                        unreadNotifications: viewModel.unreadNotifications
-                    )
-                    .background(Color.vocabCanvas)
-                    .zIndex(1)
-
-                    CraftLearningPath(
-                        sections: viewModel.sections,
-                        winding: .standard,
-                        rowPattern: .standard,
-                        onNodeTap: { node in
-                            MainActor.assumeIsolated {
-                                viewModel.handleNodeTap(node)
-                            }
-                        },
-                        onStartLesson: { node in
-                            MainActor.assumeIsolated {
-                                startLesson(for: node)
-                            }
-                        },
-                        showDetailModal: true,
-                        scrollToActive: true,
-                        showCelebration: false,
-                        pinSectionHeaders: false
-                    )
-                }
+                CraftLearningPath(
+                    sections: viewModel.sections,
+                    winding: .standard,
+                    rowPattern: .standard,
+                    onNodeTap: { node in
+                        MainActor.assumeIsolated {
+                            viewModel.handleNodeTap(node)
+                        }
+                    },
+                    onStartLesson: { node in
+                        MainActor.assumeIsolated {
+                            startLesson(for: node)
+                        }
+                    },
+                    showDetailModal: true,
+                    scrollToActive: true,
+                    showCelebration: false,
+                    pinSectionHeaders: true,
+                    topHeaderBuilder: {
+                        AnyView(
+                            HomeTopHeaderView(
+                                userName: viewModel.userName,
+                                streakDays: viewModel.streakDays,
+                                dailyWordsLearned: viewModel.dailyWordsLearned,
+                                dailyWordsGoal: viewModel.dailyWordsGoal,
+                                onAvatarTap: {
+                                    appRouter.navigateToSettings()
+                                }
+                            )
+                        )
+                    }
+                )
                 .task {
                     if viewModel.sections.isEmpty {
                         await viewModel.loadLearningPath()

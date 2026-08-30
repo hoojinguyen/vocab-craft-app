@@ -27,6 +27,7 @@ public struct CraftLearningPath: View {
     public let pinSectionHeaders: Bool
 
     // Customization hooks
+    public let topHeaderBuilder: (() -> AnyView)?
     public let detailSheetBuilder: (@Sendable (LessonNodeModel, @escaping (LessonNodeModel) -> Void, @escaping () -> Void) -> AnyView)?
     public let backgroundViewBuilder: (() -> AnyView)?
     public let emptyStateViewBuilder: (() -> AnyView)?
@@ -84,6 +85,7 @@ public struct CraftLearningPath: View {
         scrollToActive: Bool = true,
         showCelebration: Bool = true,
         pinSectionHeaders: Bool = false,
+        topHeaderBuilder: (() -> AnyView)? = nil,
         onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
         nodeImpressionThreshold: TimeInterval = 0.5,
         stickyHUDBuilder: (@Sendable (LessonSection) -> AnyView)? = nil
@@ -98,6 +100,7 @@ public struct CraftLearningPath: View {
             scrollToActive: scrollToActive,
             showCelebration: showCelebration,
             pinSectionHeaders: pinSectionHeaders,
+            topHeaderBuilder: topHeaderBuilder,
             stickyHUDBuilder: stickyHUDBuilder,
             onNodeImpression: onNodeImpression,
             nodeImpressionThreshold: nodeImpressionThreshold
@@ -118,6 +121,7 @@ public struct CraftLearningPath: View {
     ///   - pinSectionHeaders: Whether to pin section headers at the top when scrolling (default: `false`).
     ///   - scrollAnimation: Animation used for automatic scrolling.
     ///   - scrollAnchor: Anchor point used for auto-scrolling to active node.
+    ///   - topHeaderBuilder: Optional builder for a top header view scrolling along with the learning path.
     ///   - detailSheetBuilder: Optional custom modal sheet builder.
     ///   - backgroundViewBuilder: Optional custom background view builder.
     ///   - emptyStateViewBuilder: Optional custom empty state view builder.
@@ -142,6 +146,7 @@ public struct CraftLearningPath: View {
         pinSectionHeaders: Bool = false,
         scrollAnimation: Animation = .spring(response: 0.5, dampingFraction: 0.8),
         scrollAnchor: UnitPoint = .center,
+        topHeaderBuilder: (() -> AnyView)? = nil,
         detailSheetBuilder: (@Sendable (LessonNodeModel, @escaping (LessonNodeModel) -> Void, @escaping () -> Void) -> AnyView)? = nil,
         backgroundViewBuilder: (() -> AnyView)? = nil,
         emptyStateViewBuilder: (() -> AnyView)? = nil,
@@ -165,6 +170,7 @@ public struct CraftLearningPath: View {
         self.showCelebration = showCelebration
         self.pinSectionHeaders = pinSectionHeaders
 
+        self.topHeaderBuilder = topHeaderBuilder
         self.detailSheetBuilder = detailSheetBuilder
         self.backgroundViewBuilder = backgroundViewBuilder
         self.emptyStateViewBuilder = emptyStateViewBuilder
@@ -194,6 +200,7 @@ public struct CraftLearningPath: View {
         pinSectionHeaders: Bool = false,
         scrollAnimation: Animation = .spring(response: 0.5, dampingFraction: 0.8),
         scrollAnchor: UnitPoint = .center,
+        topHeaderBuilder: (() -> AnyView)? = nil,
         detailSheetBuilder: (@Sendable (LessonNodeModel, @escaping (LessonNodeModel) -> Void, @escaping () -> Void) -> AnyView)? = nil,
         backgroundViewBuilder: (() -> AnyView)? = nil,
         emptyStateViewBuilder: (() -> AnyView)? = nil,
@@ -219,6 +226,7 @@ public struct CraftLearningPath: View {
             pinSectionHeaders: pinSectionHeaders,
             scrollAnimation: scrollAnimation,
             scrollAnchor: scrollAnchor,
+            topHeaderBuilder: topHeaderBuilder,
             detailSheetBuilder: detailSheetBuilder,
             backgroundViewBuilder: backgroundViewBuilder,
             emptyStateViewBuilder: emptyStateViewBuilder,
@@ -385,6 +393,10 @@ public struct CraftLearningPath: View {
         let isReducedMotion = reduceMotion
         return ScrollViewReader { proxy in
             ScrollView {
+                if let topHeader = topHeaderBuilder {
+                    topHeader()
+                }
+
                 if pinSectionHeaders {
                     LazyVStack(spacing: theme.spacing.xxl, pinnedViews: [.sectionHeaders]) {
                         ForEach(sections) { section in
@@ -424,7 +436,7 @@ public struct CraftLearningPath: View {
                             }
                         }
                     }
-                    .padding(.top, theme.spacing.xl)
+                    .padding(.top, topHeaderBuilder != nil ? theme.spacing.sm : theme.spacing.xl)
                 } else {
                     LazyVStack(spacing: theme.spacing.xxl, pinnedViews: []) {
                         ForEach(sections) { section in
@@ -459,7 +471,7 @@ public struct CraftLearningPath: View {
                             .onAppear { onSectionAppear?(section) }
                         }
                     }
-                    .padding(.top, theme.spacing.xl)
+                    .padding(.top, topHeaderBuilder != nil ? theme.spacing.sm : theme.spacing.xl)
                 }
             }
             .coordinateSpace(name: Self.scrollCoordinateSpaceName)
@@ -580,7 +592,7 @@ public struct CraftLearningPath: View {
             )
             .overlay(
                 Capsule()
-                    .strokeBorder(theme.colors.hairline, lineWidth: 1)
+                    .strokeBorder(theme.depths.topHighlight, lineWidth: 1)
             )
             .craftShadow(theme.shadows.md)
             .padding(.horizontal, theme.spacing.base)
@@ -684,6 +696,7 @@ public struct CraftLearningPath: View {
 
 // MARK: - Previews
 
+#if canImport(PreviewsMacros)
 #Preview("CraftLearningPath") {
     let section1 = LessonSection(
         id: "unit_1",
@@ -732,4 +745,5 @@ public struct CraftLearningPath: View {
         }
     )
 }
+#endif
 

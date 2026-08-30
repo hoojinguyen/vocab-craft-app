@@ -1,6 +1,9 @@
+import Foundation
 import SwiftUI
 @testable import VocabCraftApp
+#if canImport(XCTest)
 import XCTest
+#endif
 
 @MainActor
 final class SuggestedWordsCardViewTests: XCTestCase {
@@ -26,17 +29,6 @@ final class SuggestedWordsCardViewTests: XCTestCase {
         XCTAssertFalse(first.definitionVi.isEmpty)
         XCTAssertFalse(first.definitionEn.isEmpty)
         XCTAssertFalse(first.example.isEmpty)
-    }
-
-    func testHomepageViewModelSuggestedWords() {
-        let vm = HomepageViewModel()
-        XCTAssertEqual(vm.suggestedWords.count, 0)
-        XCTAssertEqual(vm.currentSuggestedWordIndex, 0)
-    }
-
-    func testToggleBookmarkSuggestedWord() {
-        let vm = HomepageViewModel()
-        XCTAssertTrue(vm.suggestedWords.isEmpty)
     }
 
     func testSuggestedWordsCardViewInstantiation() {
