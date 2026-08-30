@@ -35,46 +35,48 @@ public struct HomepageView: View {
 
             switch router.selectedTab {
             case .home:
-                CraftLearningPath(
-                    sections: viewModel.sections,
-                    winding: .standard,
-                    rowPattern: .standard,
-                    onNodeTap: { node in
-                        MainActor.assumeIsolated {
-                            viewModel.handleNodeTap(node)
+                VStack(spacing: 0) {
+                    HomeTopHeaderView(
+                        userName: viewModel.userName,
+                        streakDays: viewModel.streakDays,
+                        dailyWordsLearned: viewModel.dailyWordsLearned,
+                        dailyWordsGoal: viewModel.dailyWordsGoal,
+                        onAvatarTap: {
+                            appRouter.navigateToSettings()
                         }
-                    },
-                    onStartLesson: { node in
-                        MainActor.assumeIsolated {
-                            startLesson(for: node)
+                    )
+                    .background(Color.vocabCanvas)
+
+                    CraftLearningPath(
+                        sections: viewModel.sections,
+                        winding: .standard,
+                        rowPattern: .standard,
+                        onNodeTap: { node in
+                            MainActor.assumeIsolated {
+                                viewModel.handleNodeTap(node)
+                            }
+                        },
+                        onStartLesson: { node in
+                            MainActor.assumeIsolated {
+                                startLesson(for: node)
+                            }
+                        },
+                        showDetailModal: true,
+                        scrollToActive: true,
+                        showCelebration: false,
+                        pinSectionHeaders: true,
+                        connectorDotDiameter: 5.0,
+                        connectorDotSpacing: 7.0,
+                        onTabBarPresentationChange: { presentation in
+                            MainActor.assumeIsolated {
+                                tabBarPresentation = presentation
+                            }
                         }
-                    },
-                    showDetailModal: true,
-                    scrollToActive: true,
-                    showCelebration: false,
-                    pinSectionHeaders: true,
-                    topHeaderBuilder: {
-                        AnyView(
-                            HomeTopHeaderView(
-                                userName: viewModel.userName,
-                                streakDays: viewModel.streakDays,
-                                dailyWordsLearned: viewModel.dailyWordsLearned,
-                                dailyWordsGoal: viewModel.dailyWordsGoal,
-                                onAvatarTap: {
-                                    appRouter.navigateToSettings()
-                                }
-                            )
-                        )
-                    },
-                    onTabBarPresentationChange: { presentation in
-                        MainActor.assumeIsolated {
-                            tabBarPresentation = presentation
+                    )
+                    .task {
+                        if viewModel.sections.isEmpty {
+                            await viewModel.loadLearningPath()
                         }
-                    }
-                )
-                .task {
-                    if viewModel.sections.isEmpty {
-                        await viewModel.loadLearningPath()
                     }
                 }
 
@@ -164,11 +166,19 @@ public struct HomepageView: View {
             if node.id.hasPrefix("checkpoint_") {
                 let deckId = String(node.id.dropFirst("checkpoint_".count))
                 let stages = (try? await appContainer.vocabularyDataSource.fetchSubTopicStages(deckId: deckId)) ?? []
-                var deckWords: [TopicWordDTO] = []
-                for stage in stages {
-                    if let stageWords = try? await appContainer.vocabularyDataSource.fetchWordsForStage(stageId: stage.id) {
-                        deckWords.append(contentsOf: stageWords)
+                // Fetch checkpoint words in parallel
+                let deckWords: [TopicWordDTO] = await withTaskGroup(of: [TopicWordDTO].self) { group in
+                    for stage in stages {
+                        group.addTask {
+                            (try? await appContainer.vocabularyDataSource.fetchWordsForStage(stageId: stage.id)) ?? []
+                        }
                     }
+                    var combined: [TopicWordDTO] = []
+                    combined.reserveCapacity(stages.count * 8)
+                    for await words in group {
+                        combined.append(contentsOf: words)
+                    }
+                    return combined
                 }
                 words = deckWords
             } else {

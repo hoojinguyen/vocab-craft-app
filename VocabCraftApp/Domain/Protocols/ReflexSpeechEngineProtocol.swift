@@ -13,4 +13,7 @@ public protocol ReflexSpeechEngineProtocol: AnyObject {
     func stopSession()
     func beginWord(targetLemma: String, contextualPhrases: [String])
     func endWord()
+    /// Signal end of audio input without cancelling the recognition task.
+    /// Allows in-flight audio buffers to be processed before full teardown.
+    func finalizeWordAudio()
 }

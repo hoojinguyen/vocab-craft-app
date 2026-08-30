@@ -357,7 +357,8 @@ public struct CraftLearningPath: View {
     }
 
     private var smartBottomPadding: CGFloat {
-        pinSectionHeaders ? 420 : 130
+        // TabBar floating height ~88 + row spacing + safeArea → 200 ensures last row scrolls above glass bar
+        pinSectionHeaders ? 220 : 200
     }
 
     // MARK: - Body

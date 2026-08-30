@@ -44,6 +44,8 @@ public final class MockResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         endWordCallCount += 1
     }
 
+    public func finalizeWordAudio() {}
+
     // Test helpers
     public func simulateTranscript(_ text: String) {
         guard isWordActive else { return }

@@ -59,7 +59,7 @@ public struct HomeTopHeaderView: View {
         CraftPageHeader(
             AppStrings.Home.title,
             alignment: .leading,
-            enableScrollFade: true
+            enableScrollFade: false
         ) {
             trailingActionsGroup
         }
