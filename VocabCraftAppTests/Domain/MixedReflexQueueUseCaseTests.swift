@@ -1,7 +1,10 @@
 import Foundation
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 
+#if canImport(Testing)
 @Suite("MixedReflexQueueUseCase & RecordMixedDrillAttempt Tests")
 struct MixedReflexQueueUseCaseTests {
     // MARK: - GenerateMixedReflexQueueUseCase Tests
@@ -156,3 +159,4 @@ struct MixedReflexQueueUseCaseTests {
         #expect(searched.first?.id == 2)
     }
 }
+#endif

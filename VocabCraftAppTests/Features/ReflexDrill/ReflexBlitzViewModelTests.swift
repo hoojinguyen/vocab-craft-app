@@ -1,6 +1,11 @@
+import Foundation
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
+#if canImport(XCTest)
 import XCTest
+#endif
 
 @MainActor
 final class ReflexBlitzViewModelTests: XCTestCase {

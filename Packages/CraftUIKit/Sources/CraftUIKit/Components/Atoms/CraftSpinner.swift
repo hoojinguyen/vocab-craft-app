@@ -61,6 +61,7 @@ public struct CraftSpinner: View {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("CraftSpinner") {
     VStack(spacing: 24) {
         HStack(spacing: 16) {
@@ -76,4 +77,5 @@ public struct CraftSpinner: View {
     }
     .padding()
 }
+#endif
 

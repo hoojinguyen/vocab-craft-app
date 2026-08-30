@@ -1,7 +1,10 @@
 import Foundation
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 
+#if canImport(Testing)
 @Suite("MixedReflexDrillViewModel Tests")
 struct MixedReflexDrillViewModelTests {
     @Test("Loop-back đẩy từ sai về cuối hàng đợi và đánh dấu isRetry")
@@ -183,3 +186,4 @@ private final class MockRecordMixedDrillAttemptUseCase: RecordMixedDrillAttemptU
         return nil
     }
 }
+#endif

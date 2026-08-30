@@ -1,6 +1,9 @@
+import Foundation
 import SwiftUI
 @testable import VocabCraftApp
+#if canImport(XCTest)
 import XCTest
+#endif
 
 final class MobileSearchViewTests: XCTestCase {
     func testMobileSearchViewInitialization() {

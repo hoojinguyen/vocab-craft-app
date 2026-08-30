@@ -1,10 +1,14 @@
+import Foundation
 import SwiftUI
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 #if canImport(UIKit)
 import UIKit
 #endif
 
+#if canImport(Testing)
 @Suite("VocabularyRedesignView Tests")
 struct VocabularyRedesignViewTests {
     let mockWords = [
@@ -155,3 +159,4 @@ struct VocabularyRedesignViewTests {
         #expect(vm.vaultWords.count == 2)
     }
 }
+#endif

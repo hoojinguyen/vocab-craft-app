@@ -1,10 +1,14 @@
+import Foundation
 import SwiftUI
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 #if canImport(UIKit)
 import UIKit
 #endif
 
+#if canImport(Testing)
 @Suite("PracticeSelectionViews Tests")
 struct PracticeSelectionViewsTests {
     let mockWords = [
@@ -124,3 +128,4 @@ struct PracticeSelectionViewsTests {
         #expect(vm.vaultTabFilter == .mastered)
     }
 }
+#endif

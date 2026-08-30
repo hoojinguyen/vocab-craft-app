@@ -1,6 +1,9 @@
+import Foundation
 import AVFoundation
 @testable import VocabCraftApp
+#if canImport(XCTest)
 import XCTest
+#endif
 
 final class ContinuousReflexSpeechServiceTests: XCTestCase {
     func testTargetSwitchingAndMatching() {

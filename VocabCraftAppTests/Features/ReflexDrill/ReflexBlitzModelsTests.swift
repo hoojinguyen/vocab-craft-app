@@ -1,6 +1,11 @@
+import Foundation
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
+#if canImport(XCTest)
 import XCTest
+#endif
 
 final class ReflexBlitzModelsTests: XCTestCase {
     func testClozeSentenceGeneration() {
@@ -298,6 +303,7 @@ final class ReflexBlitzModelsTests: XCTestCase {
 
 // MARK: - Swift Testing Suite
 
+#if canImport(Testing)
 @Suite("Reflex Blitz Models & Limits Tests")
 struct ReflexBlitzModelsAndLimitsTests {
     @Test("Modalities have strict time limits per spec")
@@ -308,3 +314,4 @@ struct ReflexBlitzModelsAndLimitsTests {
         #expect(ReflexBlitzMode.listening.timeLimitSeconds == 5.5)
     }
 }
+#endif

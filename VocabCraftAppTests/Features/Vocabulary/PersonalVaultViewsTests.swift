@@ -1,7 +1,10 @@
+import Foundation
 import CraftUIKit
 import SwiftUI
 @testable import VocabCraftApp
+#if canImport(XCTest)
 import XCTest
+#endif
 #if canImport(UIKit)
 import UIKit
 #endif

@@ -831,6 +831,7 @@ private struct _PreviewTab: CraftTabItemProtocol {
     var showsTitle: Bool = true
 }
 
+#if canImport(PreviewsMacros)
 #Preview("CraftFloatingTabBar - Glass & Icon-Only") {
     @Previewable @State var selected = _PreviewTab(id: "home", title: "Home", symbol: "house")
     @Previewable @State var selectedIconOnly = _PreviewTab(id: "learn", title: "Learn", symbol: "book.fill", showsTitle: false)
@@ -903,3 +904,4 @@ private struct _PreviewTab: CraftTabItemProtocol {
     }
     .background(Color.gray.opacity(0.12).ignoresSafeArea())
 }
+#endif

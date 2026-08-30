@@ -1,5 +1,8 @@
+import Foundation
 @testable import VocabCraftApp
+#if canImport(XCTest)
 import XCTest
+#endif
 
 public final class MockResetUserProgressUseCase: ResetUserProgressUseCaseProtocol, @unchecked Sendable {
     public var didCallReset: Bool = false

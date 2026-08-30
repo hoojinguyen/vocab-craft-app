@@ -1,3 +1,4 @@
+import Foundation
 import SwiftUI
 #if canImport(Testing)
 import Testing

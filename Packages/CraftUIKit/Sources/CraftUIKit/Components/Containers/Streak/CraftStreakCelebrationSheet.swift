@@ -62,6 +62,7 @@ public struct CraftStreakCelebrationSheet: View {
 
 // MARK: - Previews
 
+#if canImport(PreviewsMacros)
 #Preview("Celebration Sheet - Milestone 7") {
     let mockDays: [CraftStreakDay] = [
         .init(id: "1", weekdaySymbol: "T2", status: .completed),
@@ -81,3 +82,4 @@ public struct CraftStreakCelebrationSheet: View {
     )
     .padding()
 }
+#endif

@@ -1,7 +1,10 @@
 import Foundation
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 
+#if canImport(Testing)
 @Suite("PersonalVault Localization Tests")
 struct PersonalVaultLocalizationTests {
     private let requiredVaultKeys: [String: (vi: String, en: String)] = [
@@ -112,3 +115,4 @@ struct PersonalVaultLocalizationTests {
         #expect(AppStrings.Vault.detailPracticedModesText == "Practiced modes")
     }
 }
+#endif

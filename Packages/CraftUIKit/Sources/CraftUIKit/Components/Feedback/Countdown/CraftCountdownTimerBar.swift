@@ -234,6 +234,7 @@ public struct CraftCountdownTimerBar: View {
 
 // MARK: - Previews
 
+#if canImport(PreviewsMacros)
 #Preview("CraftCountdownTimerBar - Stages") {
     VStack(spacing: 24) {
         CraftCountdownTimerBar(progress: 0.8)
@@ -242,10 +243,13 @@ public struct CraftCountdownTimerBar: View {
     }
     .padding()
 }
+#endif
 
+#if canImport(PreviewsMacros)
 #Preview("CraftCountdownTimerBar - Time-Driven") {
     VStack(spacing: 24) {
         CraftCountdownTimerBar(timeLimit: 15, isActive: true)
     }
     .padding()
 }
+#endif

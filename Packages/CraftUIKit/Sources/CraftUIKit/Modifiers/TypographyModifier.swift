@@ -30,6 +30,7 @@ public extension View {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("TypographyModifier") {
     ScrollView {
         VStack(alignment: .leading, spacing: 16) {
@@ -46,3 +47,4 @@ public extension View {
         .padding()
     }
 }
+#endif

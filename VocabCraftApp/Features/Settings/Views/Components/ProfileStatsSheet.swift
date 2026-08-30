@@ -312,6 +312,8 @@ public struct ProfileStatsSheet: View {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("ProfileStatsSheet") {
     ProfileStatsSheet()
 }
+#endif

@@ -1,6 +1,10 @@
+import Foundation
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 
+#if canImport(Testing)
 @Suite("Reflex Drill Plan Models Tests")
 struct ReflexDrillPlanModelsTests {
     @Test("ReflexClozeStageSet holds initial, length masked, and pattern revealed parts")
@@ -114,3 +118,4 @@ struct ReflexDrillPlanModelsTests {
         #expect(emptyPlan.isEmpty)
     }
 }
+#endif

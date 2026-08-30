@@ -610,6 +610,7 @@ public extension View {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("CraftDialog") {
     @Previewable @State var showConfirmation = false
     @Previewable @State var showDanger = false
@@ -683,3 +684,4 @@ public extension View {
         backdrop: .material
     )
 }
+#endif

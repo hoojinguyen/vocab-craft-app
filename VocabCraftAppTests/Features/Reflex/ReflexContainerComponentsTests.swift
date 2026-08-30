@@ -1,8 +1,12 @@
+import Foundation
 import CraftUIKit
 import SwiftUI
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 
+#if canImport(Testing)
 @Suite("ReflexContainerComponents Tests")
 struct ReflexContainerComponentsTests {
     @Test("Validates ReflexReviewedConsolidationView instantiation and properties")
@@ -139,3 +143,4 @@ struct ReflexContainerComponentsTests {
         #expect(didSkip == true)
     }
 }
+#endif

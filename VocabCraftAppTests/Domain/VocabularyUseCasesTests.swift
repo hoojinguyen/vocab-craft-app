@@ -1,5 +1,8 @@
+import Foundation
 @testable import VocabCraftApp
+#if canImport(XCTest)
 import XCTest
+#endif
 
 final class MockUserProgressActor: UserProgressRepositoryProtocol, @unchecked Sendable {
     private var storage: [Int64: UserWordProgressData] = [:]

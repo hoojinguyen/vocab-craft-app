@@ -1,11 +1,16 @@
+import Foundation
 import CraftUIKit
 import SwiftUI
+#if canImport(Testing)
 import Testing
+#endif
 #if canImport(UIKit)
 import UIKit
 #endif
 @testable import VocabCraftApp
+#if canImport(XCTest)
 import XCTest
+#endif
 
 #if canImport(AppKit)
 import AppKit
@@ -141,6 +146,7 @@ final class ReflexBlitzModeSelectionViewTests: XCTestCase {
 
 // MARK: - Swift Testing Suite
 
+#if canImport(Testing)
 @Suite("Reflex Blitz Mode Selection View Tests")
 struct ReflexBlitzModeSelectionViewTestsSuite {
     @Test("Mode Selection View initializes and yields 4 mode cards with stats")
@@ -164,3 +170,4 @@ struct ReflexBlitzModeSelectionViewTestsSuite {
         #expect(selectedMode == .speaking)
     }
 }
+#endif

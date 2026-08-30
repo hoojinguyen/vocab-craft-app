@@ -260,6 +260,7 @@ public struct CraftLessonRow: View, Equatable {
 
 // MARK: - Preview
 
+#if canImport(PreviewsMacros)
 #Preview("CraftLessonRow Serpentine") {
     VStack(spacing: 24) {
         CraftLessonRow(
@@ -279,3 +280,4 @@ public struct CraftLessonRow: View, Equatable {
     }
     .padding()
 }
+#endif

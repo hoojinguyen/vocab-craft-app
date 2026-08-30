@@ -79,6 +79,7 @@ public extension View {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("PressEffectModifier") {
     VStack(spacing: 32) {
         Button { } label: {
@@ -101,3 +102,4 @@ public extension View {
     }
     .padding()
 }
+#endif

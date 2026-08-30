@@ -1,8 +1,12 @@
+import Foundation
 import CraftUIKit
 import SwiftUI
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 
+#if canImport(Testing)
 @Suite("MixedReflexDrillViews Tests")
 struct MixedReflexDrillViewsTests {
     @Test("DynamicReflexModeBadge hiển thị đúng cho cả 4 chế độ")
@@ -240,3 +244,4 @@ struct MixedReflexDrillViewsTests {
         #expect(viewModel.queue.last?.isRetry == true)
     }
 }
+#endif

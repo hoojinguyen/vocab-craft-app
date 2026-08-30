@@ -107,6 +107,7 @@ public extension View {
 }
 
 
+#if canImport(PreviewsMacros)
 #Preview("ShimmerModifier") {
     VStack(spacing: 24) {
         RoundedRectangle(cornerRadius: 12)
@@ -135,3 +136,4 @@ public extension View {
     }
     .padding()
 }
+#endif

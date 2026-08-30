@@ -1,6 +1,10 @@
+import Foundation
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 
+#if canImport(Testing)
 @Suite("Reflex Hint Mask Generator Tests")
 struct ReflexHintMaskGeneratorTests {
     @Test("Short word (<= 4 letters) generates prefix or suffix mask")
@@ -93,3 +97,4 @@ struct ReflexHintMaskGeneratorTests {
         #expect(stages.initialParts.slot == stages.lengthMaskedParts.slot)
     }
 }
+#endif

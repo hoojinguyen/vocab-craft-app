@@ -1,8 +1,11 @@
+import Foundation
 #if os(iOS)
 import AVFoundation
 import Speech
 @testable import VocabCraftApp
+#if canImport(XCTest)
 import XCTest
+#endif
 
 @MainActor
 final class SpeechServiceTests: XCTestCase {

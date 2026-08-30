@@ -1,6 +1,10 @@
+import Foundation
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 
+#if canImport(Testing)
 @Suite("VocabularyFilterService Tests")
 struct VocabularyFilterServiceTests {
     let service = VocabularyFilterService()
@@ -71,3 +75,4 @@ struct VocabularyFilterServiceTests {
         #expect(counts[.c1c2] == 1)
     }
 }
+#endif

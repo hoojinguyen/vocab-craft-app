@@ -157,6 +157,7 @@ public struct CraftText: View {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("CraftText") {
     ScrollView {
         VStack(alignment: .leading, spacing: 16) {
@@ -171,4 +172,5 @@ public struct CraftText: View {
         .padding()
     }
 }
+#endif
 

@@ -104,6 +104,7 @@ public struct CraftStreakCard: View {
 
 // MARK: - Previews
 
+#if canImport(PreviewsMacros)
 #Preview("CraftStreakCard - All 6 Surface Styles (Light)") {
     let mockDays: [CraftStreakDay] = [
         .init(id: "1", weekdaySymbol: "T2", status: .completed),
@@ -240,7 +241,9 @@ public struct CraftStreakCard: View {
         .padding()
     }
 }
+#endif
 
+#if canImport(PreviewsMacros)
 #Preview("CraftStreakCard - All 6 Surface Styles (Dark)") {
     let mockDays: [CraftStreakDay] = [
         .init(id: "1", weekdaySymbol: "T2", status: .completed),
@@ -284,4 +287,5 @@ public struct CraftStreakCard: View {
     }
     .preferredColorScheme(.dark)
 }
+#endif
 

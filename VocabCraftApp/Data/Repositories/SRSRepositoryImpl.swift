@@ -1,6 +1,9 @@
 import Foundation
+#if canImport(SwiftData)
 import SwiftData
+#endif
 
+#if canImport(SwiftDataMacros)
 @MainActor
 public final class SRSRepositoryImpl: SRSRepositoryProtocol {
     private let modelContext: ModelContext?
@@ -78,3 +81,25 @@ public final class SRSRepositoryImpl: SRSRepositoryProtocol {
         try context.save()
     }
 }
+#else
+@MainActor
+public final class SRSRepositoryImpl: SRSRepositoryProtocol {
+    private var records: [Int64: SRSProgressItem] = [:]
+
+    public init(modelContext: Any? = nil) {}
+
+    public func getProgress(wordId: Int64) async throws -> SRSProgressItem? {
+        records[wordId]
+    }
+
+    public func saveProgress(_ item: SRSProgressItem) async throws {
+        records[item.wordId] = item
+    }
+
+    public func logReflexSession(drillId: Int64, responseTimeMs: Int, accuracyScore: Double) async throws {}
+
+    public func resetAllProgress() async throws {
+        records.removeAll()
+    }
+}
+#endif

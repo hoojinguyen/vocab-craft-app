@@ -1,5 +1,8 @@
+import Foundation
 import SwiftUI
+#if canImport(XCTest)
 import XCTest
+#endif
 #if canImport(UIKit)
 import UIKit
 #elseif canImport(AppKit)

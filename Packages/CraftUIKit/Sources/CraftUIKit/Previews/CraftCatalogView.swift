@@ -2947,11 +2947,15 @@ private struct CatalogSectionHeader: View {
 
 // MARK: - Xcode Preview
 
+#if canImport(PreviewsMacros)
 #Preview("CraftCatalogView - Light") {
     CraftCatalogView()
 }
+#endif
 
+#if canImport(PreviewsMacros)
 #Preview("CraftCatalogView - Dark") {
     CraftCatalogView()
         .preferredColorScheme(.dark)
 }
+#endif

@@ -76,6 +76,7 @@ public struct CraftSpeechWordTokenView: View {
 
 // MARK: - Previews
 
+#if canImport(PreviewsMacros)
 #Preview("Word Token Statuses") {
     VStack(spacing: 16) {
         CraftSpeechWordTokenView(token: CraftSpeechWordToken(targetWord: "Pending", status: .pending))
@@ -85,3 +86,4 @@ public struct CraftSpeechWordTokenView: View {
     }
     .padding()
 }
+#endif

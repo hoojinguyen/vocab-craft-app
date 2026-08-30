@@ -7,11 +7,16 @@ import SwiftUI
 #endif
 struct VocabCraftApp: App {
     @State private var themeManager = CraftThemeManager.shared
+    #if canImport(SwiftDataMacros)
     let container: ModelContainer
+    #else
+    let container: ModelContainer?
+    #endif
     let datasetEngine: DatasetEngine?
     let appContainer: AppContainer
 
     init() {
+        #if canImport(SwiftDataMacros)
         let isTesting = NSClassFromString("XCTestCase") != nil
         let fallbackSchema = Schema(versionedSchema: SchemaV2.self)
         if isTesting {
@@ -42,6 +47,10 @@ struct VocabCraftApp: App {
             }
             self.container = containerResult
         }
+        #else
+        self.container = nil
+        #endif
+
         let engine = DatasetEngine()
         self.datasetEngine = engine
         let args = ProcessInfo.processInfo.arguments
@@ -116,6 +125,5 @@ struct VocabCraftApp: App {
             .craftTheme(themeManager.currentPreset.theme)
             .preferredColorScheme(themeManager.preferredColorScheme)
         }
-        .modelContainer(container)
     }
 }

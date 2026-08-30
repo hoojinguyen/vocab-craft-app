@@ -209,6 +209,7 @@ public extension View {
 
 // MARK: - Previews
 
+#if canImport(PreviewsMacros)
 #Preview("CraftSurfaceModifier") {
     ScrollView {
         VStack(spacing: 24) {
@@ -235,3 +236,4 @@ public extension View {
         .padding()
     }
 }
+#endif

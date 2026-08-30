@@ -223,6 +223,7 @@ public struct CraftPill: View {
 /// Semantic alias for filter chip use cases.
 public typealias CraftFilterChip = CraftPill
 
+#if canImport(PreviewsMacros)
 #Preview("CraftPill") {
     @Previewable @State var isSelected1 = false
     @Previewable @State var isSelected2 = true
@@ -247,3 +248,4 @@ public typealias CraftFilterChip = CraftPill
         .padding()
     }
 }
+#endif

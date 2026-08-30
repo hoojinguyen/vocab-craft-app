@@ -22,6 +22,7 @@ extension StageProgressRepositoryProtocol {
     }
 }
 
+#if canImport(SwiftDataMacros)
 public final class StageProgressRepositoryImpl: StageProgressRepositoryProtocol, @unchecked Sendable {
     private let modelContext: ModelContext?
 
@@ -83,6 +84,54 @@ public final class StageProgressRepositoryImpl: StageProgressRepositoryProtocol,
         try context.save()
     }
 }
+#else
+public final class StageProgressRepositoryImpl: StageProgressRepositoryProtocol, @unchecked Sendable {
+    private var records: [String: UserStageProgress] = [:]
+
+    public init(modelContext: Any? = nil) {}
+
+    @MainActor
+    public func fetchStageProgress(stageId: String) async throws -> UserStageProgress? {
+        records[stageId]
+    }
+
+    @MainActor
+    public func fetchCompletedStageIds(deckId: String) async throws -> Set<String> {
+        Set(records.values.filter { $0.deckId == deckId && $0.isCompleted }.map(\.stageId))
+    }
+
+    @MainActor
+    public func fetchAllStageProgress() async throws -> [UserStageProgress] {
+        Array(records.values)
+    }
+
+    @MainActor
+    public func saveStageProgress(
+        stageId: String,
+        deckId: String,
+        isCompleted: Bool,
+        score: Int,
+        progressFraction: Double
+    ) async throws {
+        if let existing = records[stageId] {
+            existing.isCompleted = isCompleted
+            existing.score = score
+            existing.progressFraction = progressFraction
+            existing.completedAt = Date()
+        } else {
+            let record = UserStageProgress(
+                stageId: stageId,
+                deckId: deckId,
+                isCompleted: isCompleted,
+                score: score,
+                progressFraction: progressFraction,
+                completedAt: Date()
+            )
+            records[stageId] = record
+        }
+    }
+}
+#endif
 
 public final class MockStageProgressRepository: StageProgressRepositoryProtocol, @unchecked Sendable {
     private var records: [String: UserStageProgress] = [:]

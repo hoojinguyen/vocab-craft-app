@@ -1,7 +1,11 @@
+import Foundation
 import SwiftUI
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 
+#if canImport(Testing)
 @Suite("Reflex Localization Tests")
 struct ReflexLocalizationTests {
     @Test("Typing localized string helpers return formatted values")
@@ -26,3 +30,4 @@ struct ReflexLocalizationTests {
         #expect(AppStrings.ReflexBlitz.listeningWaveformA11y != "app.reflex.listening.waveform_a11y")
     }
 }
+#endif

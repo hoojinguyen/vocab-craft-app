@@ -319,6 +319,7 @@ public struct CraftStepNode: View {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("CraftStepNode") {
     VStack(spacing: 0) {
         CraftStepNode(
@@ -347,4 +348,5 @@ public struct CraftStepNode: View {
     }
     .padding()
 }
+#endif
 

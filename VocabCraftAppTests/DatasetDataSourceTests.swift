@@ -1,5 +1,7 @@
 import Foundation
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 
 @MainActor
@@ -76,6 +78,7 @@ final class MockDatasetDataSource: DatasetDataSourceProtocol {
     }
 }
 
+#if canImport(Testing)
 @Suite("DatasetDataSource Protocol Tests")
 @MainActor
 struct DatasetDataSourceTests {
@@ -133,3 +136,4 @@ struct DatasetDataSourceTests {
         #expect(nodes.first?.words[1].isSavedToPersonalVault == false)
     }
 }
+#endif

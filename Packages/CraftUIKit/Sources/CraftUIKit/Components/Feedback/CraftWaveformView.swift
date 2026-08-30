@@ -168,6 +168,7 @@ public struct CraftWaveformView: View {
 
 // MARK: - Previews
 
+#if canImport(PreviewsMacros)
 #Preview("Waveform - Idle") {
     CraftWaveformView(
         audioLevels: [0.1, 0.2, 0.4, 0.7, 0.9, 0.6, 0.3, 0.1],
@@ -175,7 +176,9 @@ public struct CraftWaveformView: View {
     )
     .padding()
 }
+#endif
 
+#if canImport(PreviewsMacros)
 #Preview("Waveform - Recording") {
     CraftWaveformView(
         audioLevels: [0.2, 0.5, 0.8, 1.0, 0.7, 0.4, 0.6, 0.9, 0.3],
@@ -184,3 +187,4 @@ public struct CraftWaveformView: View {
     )
     .padding()
 }
+#endif

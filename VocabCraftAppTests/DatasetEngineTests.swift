@@ -1,6 +1,9 @@
+import Foundation
 import SQLite3
 @testable import VocabCraftApp
+#if canImport(XCTest)
 import XCTest
+#endif
 
 @MainActor
 final class DatasetEngineTests: XCTestCase {

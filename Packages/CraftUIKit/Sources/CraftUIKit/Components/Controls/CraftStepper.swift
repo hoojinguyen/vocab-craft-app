@@ -294,6 +294,7 @@ public struct CraftStepper: View {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("CraftStepper") {
     @Previewable @State var value1 = 5
     @Previewable @State var value2 = 25
@@ -324,3 +325,4 @@ public struct CraftStepper: View {
         .padding()
     }
 }
+#endif

@@ -1,10 +1,13 @@
+#if canImport(SwiftData)
 import SwiftData
+#endif
 import SwiftUI
 import WidgetKit
 #if !WIDGET_EXTENSION && canImport(VocabCraftApp)
 @testable import VocabCraftApp
 #endif
 
+#if canImport(SwiftDataMacros)
 public enum WidgetContainerHolder {
     public static let sharedContainer: ModelContainer? = {
         let isTesting = NSClassFromString("XCTestCase") != nil
@@ -14,6 +17,7 @@ public enum WidgetContainerHolder {
         return try? SharedAppGroupContainer.createContainer()
     }()
 }
+#endif
 
 public struct VocabWidgetProvider: TimelineProvider {
     public init() {}
@@ -34,20 +38,29 @@ public struct VocabWidgetProvider: TimelineProvider {
     }
 
     public func getSnapshot(in context: Context, completion: @escaping (VocabWidgetEntry) -> Void) {
+        #if canImport(SwiftDataMacros)
         if let entry = fetchCurrentEntry() {
             completion(entry)
         } else {
             completion(makePlaceholder())
         }
+        #else
+        completion(makePlaceholder())
+        #endif
     }
 
     public func getTimeline(in context: Context, completion: @escaping (Timeline<VocabWidgetEntry>) -> Void) {
+        #if canImport(SwiftDataMacros)
         let entry = fetchCurrentEntry() ?? makePlaceholder()
+        #else
+        let entry = makePlaceholder()
+        #endif
         let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: Date()) ?? Date().addingTimeInterval(900)
         let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
         completion(timeline)
     }
 
+    #if canImport(SwiftDataMacros)
     public func fetchCurrentEntry(in container: ModelContainer? = nil) -> VocabWidgetEntry? {
         guard let targetContainer = container ?? WidgetContainerHolder.sharedContainer else {
             return nil
@@ -73,6 +86,7 @@ public struct VocabWidgetProvider: TimelineProvider {
             masteryLevel: mastery
         )
     }
+    #endif
 }
 
 public struct VocabWidget: Widget {

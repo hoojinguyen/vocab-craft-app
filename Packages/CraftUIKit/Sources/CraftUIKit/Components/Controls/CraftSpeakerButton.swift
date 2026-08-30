@@ -136,6 +136,7 @@ public struct CraftSpeakerButton: View {
 
 // MARK: - Previews
 
+#if canImport(PreviewsMacros)
 #Preview("CraftSpeakerButton Variants") {
     VStack(spacing: 24) {
         HStack(spacing: 16) {
@@ -163,3 +164,4 @@ public struct CraftSpeakerButton: View {
     }
     .padding()
 }
+#endif

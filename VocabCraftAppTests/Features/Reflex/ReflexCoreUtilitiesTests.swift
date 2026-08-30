@@ -1,7 +1,10 @@
 import Foundation
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 
+#if canImport(Testing)
 @Suite("ReflexCoreUtilities Tests")
 struct ReflexCoreUtilitiesTests {
     @Test("Cloze formatter creates template and extracts prefix/suffix")
@@ -133,3 +136,4 @@ struct ReflexCoreUtilitiesTests {
         #expect(summary.speedRating.contains("rating_steady") || summary.speedRating.contains("Steady"))
     }
 }
+#endif

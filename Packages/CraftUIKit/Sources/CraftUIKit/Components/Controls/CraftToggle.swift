@@ -320,6 +320,7 @@ public struct CraftToggle: View {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("CraftToggle") {
     @Previewable @State var isOn1 = false
     @Previewable @State var isOn2 = true
@@ -354,3 +355,4 @@ public struct CraftToggle: View {
         .padding()
     }
 }
+#endif

@@ -358,6 +358,7 @@ public struct CraftBadge: View {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("CraftBadge") {
     ScrollView {
         VStack(spacing: 24) {
@@ -393,4 +394,5 @@ public struct CraftBadge: View {
         .padding()
     }
 }
+#endif
 

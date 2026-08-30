@@ -651,6 +651,7 @@ public struct CraftActionCardButtonStyle: ButtonStyle {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("CraftActionCard - All Variants") {
     ScrollView {
         VStack(spacing: 16) {
@@ -687,3 +688,4 @@ public struct CraftActionCardButtonStyle: ButtonStyle {
         .padding()
     }
 }
+#endif

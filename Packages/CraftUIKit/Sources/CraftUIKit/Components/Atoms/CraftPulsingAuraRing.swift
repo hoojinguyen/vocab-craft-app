@@ -35,6 +35,7 @@ public struct CraftPulsingAuraRing: View {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("CraftPulsingAuraRing") {
     HStack(spacing: 24) {
         CraftPulsingAuraRing(color: .orange, size: 36, lineWidth: 3.0)
@@ -43,3 +44,4 @@ public struct CraftPulsingAuraRing: View {
     }
     .padding()
 }
+#endif

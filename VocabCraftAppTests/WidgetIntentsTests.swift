@@ -1,3 +1,5 @@
+import Foundation
+#if canImport(SwiftDataMacros)
 import AppIntents
 import SwiftData
 import SwiftUI
@@ -6,7 +8,9 @@ import SwiftUI
 @testable import VocabCraftWidgetExtension
 #endif
 import WidgetKit
+#if canImport(XCTest)
 import XCTest
+#endif
 
 @MainActor
 final class WidgetIntentsTests: XCTestCase {
@@ -149,3 +153,5 @@ final class WidgetIntentsTests: XCTestCase {
         XCTAssertEqual(fetched?.masteryLevel, 2)
     }
 }
+
+#endif

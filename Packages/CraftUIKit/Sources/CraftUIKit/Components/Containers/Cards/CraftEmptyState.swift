@@ -306,6 +306,7 @@ public extension CraftEmptyState where Illustration == CraftDefaultEmptyStateIll
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("CraftEmptyState") {
     ScrollView {
         VStack(spacing: 48) {
@@ -325,3 +326,4 @@ public extension CraftEmptyState where Illustration == CraftDefaultEmptyStateIll
         .padding()
     }
 }
+#endif

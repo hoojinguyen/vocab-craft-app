@@ -86,7 +86,9 @@ public struct HeroProfileCard: View {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("HeroProfileCard") {
     HeroProfileCard()
         .padding()
 }
+#endif

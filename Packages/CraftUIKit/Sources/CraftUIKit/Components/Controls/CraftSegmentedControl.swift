@@ -165,6 +165,7 @@ public struct CraftSegmentedControl<Value: Hashable & Sendable>: View {
 
 // MARK: - Previews
 
+#if canImport(PreviewsMacros)
 #Preview("CraftSegmentedControl - Glass & Flat") {
     @Previewable @State var selectedFilter = "notMastered"
     let options = [
@@ -188,3 +189,4 @@ public struct CraftSegmentedControl<Value: Hashable & Sendable>: View {
     }
     .padding()
 }
+#endif

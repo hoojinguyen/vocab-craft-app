@@ -1,7 +1,10 @@
 import Foundation
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 
+#if canImport(Testing)
 @Suite("Domain Entities Clean Architecture Tests")
 struct DomainEntitiesTests {
     @Test("TopicDeck is pure domain entity with hex color")
@@ -33,3 +36,4 @@ struct DomainEntitiesTests {
         #expect(item.correctAnswer == "habit")
     }
 }
+#endif

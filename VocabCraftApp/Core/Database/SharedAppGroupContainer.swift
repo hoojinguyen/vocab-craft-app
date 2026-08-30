@@ -1,6 +1,9 @@
 import Foundation
+#if canImport(SwiftData)
 import SwiftData
+#endif
 
+#if canImport(SwiftDataMacros)
 public enum SchemaV1: VersionedSchema {
     public static var versionIdentifier = Schema.Version(1, 0, 0)
     public static var models: [any PersistentModel.Type] {
@@ -69,3 +72,11 @@ public struct SharedAppGroupContainer {
         }
     }
 }
+#else
+public struct SharedAppGroupContainer {
+    public static let appGroupID = "group.com.hoojinguyen.vocabcraft"
+    public static func createContainer(inMemory: Bool = false) throws -> Any? {
+        nil
+    }
+}
+#endif

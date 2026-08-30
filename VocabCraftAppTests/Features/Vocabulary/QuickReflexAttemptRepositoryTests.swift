@@ -1,6 +1,10 @@
+#if canImport(SwiftDataMacros)
+import Foundation
 import SwiftData
 @testable import VocabCraftApp
+#if canImport(XCTest)
 import XCTest
+#endif
 
 @MainActor
 final class QuickReflexAttemptRepositoryTests: XCTestCase {
@@ -163,3 +167,5 @@ final class QuickReflexAttemptRepositoryTests: XCTestCase {
         )
     }
 }
+
+#endif

@@ -200,6 +200,7 @@ public struct CraftSegmentedBar: View {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("CraftSegmentedBar") {
     VStack(spacing: 24) {
         CraftSegmentedBar(
@@ -219,4 +220,5 @@ public struct CraftSegmentedBar: View {
     }
     .padding()
 }
+#endif
 

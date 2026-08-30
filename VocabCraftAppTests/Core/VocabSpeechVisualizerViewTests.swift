@@ -1,8 +1,11 @@
+import Foundation
 import CraftUIKit
 import SpeechKit
 import SwiftUI
 @testable import VocabCraftApp
+#if canImport(XCTest)
 import XCTest
+#endif
 
 @MainActor
 final class VocabSpeechVisualizerViewTests: XCTestCase {

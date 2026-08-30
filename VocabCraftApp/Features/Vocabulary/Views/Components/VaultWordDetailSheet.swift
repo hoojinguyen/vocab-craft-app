@@ -271,6 +271,7 @@ public struct VaultWordDetailSheet: View {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("VaultWordDetailSheet") {
     VaultWordDetailSheet(
         word: VaultWordItem(
@@ -291,3 +292,4 @@ public struct VaultWordDetailSheet: View {
         onToggleBookmark: {}
     )
 }
+#endif

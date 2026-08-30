@@ -1,7 +1,10 @@
 import Foundation
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 
+#if canImport(Testing)
 @Suite("Reflex Blitz Localization Tests")
 struct ReflexBlitzLocalizationTests {
     private let requiredReflexKeys: [String: (vi: String, en: String)] = [
@@ -206,3 +209,4 @@ struct ReflexBlitzLocalizationTests {
 }
 
 private final class ReflexBlitzLocalizationTestsMarker {}
+#endif

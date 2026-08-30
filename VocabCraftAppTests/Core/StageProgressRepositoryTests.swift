@@ -1,6 +1,10 @@
+#if canImport(SwiftDataMacros)
+import Foundation
 import SwiftData
 @testable import VocabCraftApp
+#if canImport(XCTest)
 import XCTest
+#endif
 
 final class StageProgressRepositoryTests: XCTestCase {
     var container: ModelContainer!
@@ -195,3 +199,5 @@ final class StageProgressRepositoryTests: XCTestCase {
         XCTAssertEqual(all.count, 1)
     }
 }
+
+#endif

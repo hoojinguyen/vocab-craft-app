@@ -118,6 +118,7 @@ private struct CraftTactileButtonStyle: ButtonStyle {
 
 // MARK: - Previews
 
+#if canImport(PreviewsMacros)
 #Preview("Tactile Mic States") {
     VStack(spacing: 32) {
         CraftTactileMicHubView(speechState: .idle, onTapMic: {})
@@ -127,3 +128,4 @@ private struct CraftTactileButtonStyle: ButtonStyle {
     }
     .padding()
 }
+#endif

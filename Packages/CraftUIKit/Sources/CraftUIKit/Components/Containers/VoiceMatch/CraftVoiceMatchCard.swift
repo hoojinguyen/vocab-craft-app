@@ -163,6 +163,7 @@ public struct CraftVoiceMatchCard: View {
 
 // MARK: - Previews
 
+#if canImport(PreviewsMacros)
 #Preview("CraftVoiceMatchCard - Idle") {
     CraftVoiceMatchCard(
         originText: "It was a good job.",
@@ -172,7 +173,9 @@ public struct CraftVoiceMatchCard: View {
     )
     .padding()
 }
+#endif
 
+#if canImport(PreviewsMacros)
 #Preview("CraftVoiceMatchCard - Listening") {
     CraftVoiceMatchCard(
         originText: "It was a good job.",
@@ -183,7 +186,9 @@ public struct CraftVoiceMatchCard: View {
     )
     .padding()
 }
+#endif
 
+#if canImport(PreviewsMacros)
 #Preview("CraftVoiceMatchCard - Evaluated") {
     CraftVoiceMatchCard(
         originText: "It was a good job.",
@@ -194,3 +199,4 @@ public struct CraftVoiceMatchCard: View {
     )
     .padding()
 }
+#endif

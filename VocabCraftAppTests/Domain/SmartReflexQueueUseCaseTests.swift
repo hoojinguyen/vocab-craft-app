@@ -1,7 +1,10 @@
 import Foundation
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 
+#if canImport(Testing)
 @Suite("Smart Reflex Queue UseCase Tests")
 struct SmartReflexQueueUseCaseTests {
     @Test("Queue selects max 10 words prioritizing weak words and current topic")
@@ -199,3 +202,4 @@ struct SmartReflexQueueUseCaseTests {
         #expect(result.isEmpty)
     }
 }
+#endif

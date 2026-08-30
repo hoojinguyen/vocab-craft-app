@@ -1,6 +1,8 @@
 import AppIntents
 import Foundation
+#if canImport(SwiftData)
 import SwiftData
+#endif
 import WidgetKit
 #if !WIDGET_EXTENSION && canImport(VocabCraftApp)
 @testable import VocabCraftApp
@@ -12,6 +14,7 @@ public struct NextWordIntent: AppIntent {
 
     public init() {}
 
+    #if canImport(SwiftDataMacros)
     @MainActor
     @discardableResult
     public func perform() async throws -> some IntentResult {
@@ -84,4 +87,11 @@ public struct NextWordIntent: AppIntent {
         WidgetCenter.shared.reloadTimelines(ofKind: "VocabWidget")
         return .result()
     }
+    #else
+    @MainActor
+    @discardableResult
+    public func perform() async throws -> some IntentResult {
+        return .result()
+    }
+    #endif
 }

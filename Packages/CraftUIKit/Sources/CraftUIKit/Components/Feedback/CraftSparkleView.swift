@@ -389,6 +389,7 @@ public extension View {
 
 // MARK: - Previews
 
+#if canImport(PreviewsMacros)
 #Preview("Sparkle Burst") {
     CraftSparkleView(
         isTriggered: .constant(true),
@@ -398,10 +399,13 @@ public extension View {
     .frame(width: 300, height: 300)
     .background(Color.black.opacity(0.8))
 }
+#endif
 
+#if canImport(PreviewsMacros)
 #Preview("Confetti Burst") {
     CraftConfettiPreview()
 }
+#endif
 
 private struct CraftConfettiPreview: View {
     @State private var triggered: Bool = true

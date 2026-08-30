@@ -1,9 +1,12 @@
 import CraftUIKit
 import Foundation
 import SpeechKit
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 
+#if canImport(Testing)
 @Suite("SpeechKitAdapterTests")
 struct SpeechKitAdapterTests {
     @Test("Exact match status maps to CraftSpeechStatus.matched")
@@ -53,3 +56,4 @@ struct SpeechKitAdapterTests {
         #expect(craftToken.confidence == nil)
     }
 }
+#endif

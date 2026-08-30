@@ -253,6 +253,7 @@ public struct CraftStreakBadge: View {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("CraftStreakBadge") {
     VStack(spacing: 24) {
         HStack(spacing: 16) {
@@ -275,3 +276,4 @@ public struct CraftStreakBadge: View {
     }
     .padding()
 }
+#endif

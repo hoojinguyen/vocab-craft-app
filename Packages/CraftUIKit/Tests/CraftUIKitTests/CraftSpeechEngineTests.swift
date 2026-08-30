@@ -1,4 +1,6 @@
+#if canImport(XCTest)
 import XCTest
+#endif
 @testable import CraftUIKit
 
 final class CraftSpeechEngineTests: XCTestCase {

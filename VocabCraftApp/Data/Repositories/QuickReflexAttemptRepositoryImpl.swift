@@ -1,6 +1,9 @@
 import Foundation
+#if canImport(SwiftData)
 import SwiftData
+#endif
 
+#if canImport(SwiftDataMacros)
 /// A SwiftData-backed store for quick-reflex learning attempts.
 @MainActor
 public final class QuickReflexAttemptRepositoryImpl: QuickReflexAttemptRepositoryProtocol {
@@ -79,3 +82,19 @@ public final class QuickReflexAttemptRepositoryImpl: QuickReflexAttemptRepositor
         rawValue == "typing" ? .typing : .voice
     }
 }
+#else
+@MainActor
+public final class QuickReflexAttemptRepositoryImpl: QuickReflexAttemptRepositoryProtocol {
+    private var attempts: [Int64: QuickReflexAttempt] = [:]
+
+    public init(modelContext: Any? = nil) {}
+
+    public func save(_ attempt: QuickReflexAttempt) async throws {
+        attempts[attempt.wordId] = attempt
+    }
+
+    public func mostRecentSuccessfulAttempt(for wordId: Int64) async throws -> QuickReflexAttempt? {
+        attempts[wordId]
+    }
+}
+#endif

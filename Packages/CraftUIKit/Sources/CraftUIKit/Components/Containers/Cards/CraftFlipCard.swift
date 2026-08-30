@@ -508,6 +508,7 @@ private struct ShadowModifier: ViewModifier {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("CraftFlipCard") {
     struct PreviewWrapper: View {
         @State private var isFlipped = false
@@ -529,3 +530,4 @@ private struct ShadowModifier: ViewModifier {
     }
     return PreviewWrapper()
 }
+#endif

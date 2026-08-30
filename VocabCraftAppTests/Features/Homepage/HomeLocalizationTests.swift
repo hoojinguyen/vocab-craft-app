@@ -1,8 +1,11 @@
 import Foundation
 import SwiftUI
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 
+#if canImport(Testing)
 @Suite("Home Localization Tests")
 struct HomeLocalizationTests {
     @Test("Verifies zen header accessors in AppStrings.Home")
@@ -139,3 +142,4 @@ struct HomeLocalizationTests {
         }
     }
 }
+#endif

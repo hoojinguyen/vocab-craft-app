@@ -1,6 +1,10 @@
+import Foundation
+#if canImport(SwiftDataMacros)
 import SwiftData
 @testable import VocabCraftApp
+#if canImport(XCTest)
 import XCTest
+#endif
 
 @MainActor
 final class UserProgressModelActorConcurrencyTests: XCTestCase {
@@ -72,3 +76,5 @@ final class UserProgressModelActorConcurrencyTests: XCTestCase {
         XCTAssertNotNil(appContainer.resetUserProgressUseCase)
     }
 }
+
+#endif

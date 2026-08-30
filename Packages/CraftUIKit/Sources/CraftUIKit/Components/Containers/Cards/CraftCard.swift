@@ -292,6 +292,7 @@ private struct ShadowModifier: ViewModifier {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("CraftCard") {
     ScrollView {
         VStack(spacing: 24) {
@@ -318,3 +319,4 @@ private struct ShadowModifier: ViewModifier {
         .padding()
     }
 }
+#endif

@@ -1,7 +1,9 @@
 import CraftUIKit
 import Foundation
 @testable import VocabCraftApp
+#if canImport(XCTest)
 import XCTest
+#endif
 
 final class LearningPathDataMapperTests: XCTestCase {
     private var sampleDecks: [TopicDeckDTO] = []

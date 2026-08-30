@@ -1,7 +1,10 @@
 import Foundation
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 
+#if canImport(Testing)
 @Suite("Reflex Drill Plan Generator Tests")
 struct ReflexDrillPlanGeneratorTests {
     @Test("Generates session plan with matching count and mode")
@@ -90,3 +93,4 @@ struct ReflexDrillPlanGeneratorTests {
         }
     }
 }
+#endif

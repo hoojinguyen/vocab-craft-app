@@ -1,8 +1,14 @@
+import Foundation
 import SwiftUI
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
+#if canImport(XCTest)
 import XCTest
+#endif
 
+#if canImport(Testing)
 @Suite("Reflex Blitz Summary Re-drill Tests")
 @MainActor
 struct ReflexBlitzSummaryReDrillTests {
@@ -503,3 +509,4 @@ final class ReflexBlitzSummaryViewTests: XCTestCase {
         XCTAssertTrue(didFinish)
     }
 }
+#endif

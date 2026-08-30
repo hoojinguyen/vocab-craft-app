@@ -99,6 +99,7 @@ public extension CraftProgressRing where CenterContent == Text {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("CraftProgressRing") {
     VStack(spacing: 24) {
         HStack(spacing: 24) {
@@ -109,4 +110,5 @@ public extension CraftProgressRing where CenterContent == Text {
     }
     .padding()
 }
+#endif
 

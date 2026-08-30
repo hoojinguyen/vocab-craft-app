@@ -912,6 +912,8 @@ private struct CraftChoiceCardPreviewContainer: View {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("CraftChoiceCard") {
     CraftChoiceCardPreviewContainer()
 }
+#endif

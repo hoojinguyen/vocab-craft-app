@@ -1,7 +1,10 @@
 import Foundation
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 
+#if canImport(Testing)
 @Suite("AppRouter Navigation Tests")
 @MainActor
 struct AppRouterTests {
@@ -44,3 +47,4 @@ struct AppRouterTests {
         #expect(router.selectedTab == .home)
     }
 }
+#endif

@@ -87,6 +87,7 @@ public struct CraftProgressBar: View {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("CraftProgressBar") {
     VStack(spacing: 24) {
         CraftProgressBar(progress: 0.0)
@@ -95,5 +96,6 @@ public struct CraftProgressBar: View {
     }
     .padding()
 }
+#endif
 
 

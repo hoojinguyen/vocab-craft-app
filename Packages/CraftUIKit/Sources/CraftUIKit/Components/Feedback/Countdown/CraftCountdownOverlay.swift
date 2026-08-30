@@ -313,6 +313,7 @@ public extension View {
 
 // MARK: - Previews
 
+#if canImport(PreviewsMacros)
 #Preview("Countdown Overlay - Default") {
     CraftCountdownOverlay(
         startNumber: 3,
@@ -321,7 +322,10 @@ public extension View {
         iconName: "bolt.fill"
     ) {}
 }
+#endif
 
+#if canImport(PreviewsMacros)
 #Preview("Countdown Overlay - Minimal") {
     CraftCountdownOverlay(startNumber: 3) {}
 }
+#endif

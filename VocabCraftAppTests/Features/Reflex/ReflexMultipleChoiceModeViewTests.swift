@@ -1,8 +1,12 @@
+import Foundation
 import CraftUIKit
 import SwiftUI
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 
+#if canImport(Testing)
 @Suite("ReflexMultipleChoiceModeView Tests")
 struct ReflexMultipleChoiceModeViewTests {
     @Test("Instantiates ReflexMultipleChoiceModeView in active and unreviewed state")
@@ -187,3 +191,4 @@ struct ReflexMultipleChoiceModeViewTests {
         _ = view.body
     }
 }
+#endif

@@ -1,5 +1,8 @@
+import Foundation
 @testable import VocabCraftApp
+#if canImport(XCTest)
 import XCTest
+#endif
 
 final class VocabularyModelsTests: XCTestCase {
     func testWordItemInitializationAndMockData() {

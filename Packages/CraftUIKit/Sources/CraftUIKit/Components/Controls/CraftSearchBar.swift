@@ -411,6 +411,7 @@ public struct CraftSearchBar: View {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("CraftSearchBar") {
     @Previewable @State var emptyText = ""
     @Previewable @State var filledText = "SwiftUI"
@@ -443,3 +444,4 @@ public struct CraftSearchBar: View {
         .padding()
     }
 }
+#endif

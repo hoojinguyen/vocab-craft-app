@@ -1,6 +1,10 @@
+import Foundation
+#if canImport(SwiftDataMacros)
 import SwiftData
 @testable import VocabCraftApp
+#if canImport(XCTest)
 import XCTest
+#endif
 
 @MainActor
 final class SwiftDataModelsTests: XCTestCase {
@@ -462,3 +466,5 @@ final class SwiftDataModelsTests: XCTestCase {
         XCTAssertNil(summaryMap[999])
     }
 }
+
+#endif

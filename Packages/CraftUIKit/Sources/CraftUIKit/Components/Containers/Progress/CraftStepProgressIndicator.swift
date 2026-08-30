@@ -164,6 +164,7 @@ public struct CraftStepProgressIndicator: View {
 
 // MARK: - SwiftUI Preview
 
+#if canImport(PreviewsMacros)
 #Preview("CraftStepProgressIndicator") {
     VStack(spacing: 24) {
         CraftStepProgressIndicator(totalSteps: 10, currentStep: 2)
@@ -189,3 +190,4 @@ public struct CraftStepProgressIndicator: View {
     }
     .padding()
 }
+#endif

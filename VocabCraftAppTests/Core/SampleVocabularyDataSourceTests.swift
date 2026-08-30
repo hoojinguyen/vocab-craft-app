@@ -1,5 +1,8 @@
+import Foundation
 @testable import VocabCraftApp
+#if canImport(XCTest)
 import XCTest
+#endif
 
 final class SampleVocabularyDataSourceTests: XCTestCase {
     func test_fetchTopicDecks_returnsFourCuratedDecks() async throws {

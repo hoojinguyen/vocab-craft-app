@@ -1,6 +1,10 @@
+import Foundation
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 
+#if canImport(Testing)
 @MainActor
 @Suite("ReflexBlitzViewModel Listening Tests")
 struct ReflexBlitzViewModelListeningTests {
@@ -64,3 +68,4 @@ struct ReflexBlitzViewModelListeningTests {
         #expect(mockTTS.lastSpokenRate == 1.0)
     }
 }
+#endif

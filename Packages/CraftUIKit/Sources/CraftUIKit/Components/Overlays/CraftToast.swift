@@ -313,6 +313,7 @@ public extension View {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("CraftToast") {
     @Previewable @State var showInfo = false
     @Previewable @State var showSuccess = false
@@ -351,3 +352,4 @@ public extension View {
         position: .top
     )
 }
+#endif

@@ -1,7 +1,10 @@
 import Foundation
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 
+#if canImport(Testing)
 @Suite("ReflexDrillable Protocol Tests")
 struct ReflexDrillableTests {
     struct MockDrillItem: ReflexDrillable {
@@ -155,3 +158,4 @@ struct ReflexDrillableTests {
         #expect(drillable.cleanInitialLetterHint == "a... • verb")
     }
 }
+#endif

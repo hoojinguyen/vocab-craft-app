@@ -1,6 +1,10 @@
+import Foundation
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 
+#if canImport(Testing)
 @Suite("MasteryEvaluationPolicy Tests")
 struct MasteryEvaluationPolicyTests {
     @Test("Chưa thuộc khi streak < 3 hoặc chỉ có 1 mode")
@@ -53,3 +57,4 @@ struct MasteryEvaluationPolicyTests {
         #expect(result.isMastered == false)
     }
 }
+#endif

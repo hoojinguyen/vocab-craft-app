@@ -1,7 +1,10 @@
 import Foundation
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 
+#if canImport(Testing)
 @Suite("PersonalVaultViewModel Tests")
 struct PersonalVaultViewModelTests {
     @Test("Toggle chọn từng từ và Chọn tất cả, Bỏ chọn tất cả")
@@ -293,3 +296,4 @@ private final class MockToggleBookmarkUseCase: ToggleWordBookmarkUseCaseProtocol
         return true
     }
 }
+#endif

@@ -1,8 +1,12 @@
+import Foundation
 import CraftUIKit
 import SwiftUI
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 
+#if canImport(Testing)
 @Suite("ReflexOtherModes Tests")
 struct ReflexOtherModesTests {
     @Test("Instantiates SpeakingModeView with live transcript, cloze stages, and callbacks")
@@ -270,3 +274,4 @@ struct ReflexOtherModesTests {
         #expect(reviewedTimeout.choiceState(for: otherOpt) == .disabled)
     }
 }
+#endif

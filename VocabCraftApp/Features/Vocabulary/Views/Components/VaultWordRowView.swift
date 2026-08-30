@@ -75,6 +75,7 @@ public struct VaultWordRowView: View {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("VaultWordRowView") {
     VStack(spacing: 12) {
         VaultWordRowView(
@@ -111,3 +112,4 @@ public struct VaultWordRowView: View {
     }
     .padding()
 }
+#endif

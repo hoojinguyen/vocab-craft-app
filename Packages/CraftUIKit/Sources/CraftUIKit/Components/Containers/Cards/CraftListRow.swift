@@ -175,6 +175,7 @@ public extension CraftListRow where TrailingContent == EmptyView {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("CraftListRow") {
     VStack(spacing: 0) {
         CraftListRow(
@@ -198,4 +199,5 @@ public extension CraftListRow where TrailingContent == EmptyView {
         )
     }
 }
+#endif
 

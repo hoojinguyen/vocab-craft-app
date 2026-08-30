@@ -414,6 +414,7 @@ private struct CraftIconButtonA11yModifier: ViewModifier {
 
 // MARK: - Previews
 
+#if canImport(PreviewsMacros)
 #Preview("CraftIconButton") {
     VStack(spacing: 24) {
         ForEach(CraftIconButtonVariant.allCases, id: \.self) { variant in
@@ -434,3 +435,4 @@ private struct CraftIconButtonA11yModifier: ViewModifier {
     }
     .padding()
 }
+#endif

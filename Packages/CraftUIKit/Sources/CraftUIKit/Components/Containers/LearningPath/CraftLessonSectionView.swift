@@ -407,6 +407,7 @@ public struct CraftLessonSectionView: View {
 
 // MARK: - Preview
 
+#if canImport(PreviewsMacros)
 #Preview("CraftLessonSectionView Portal") {
     ScrollView {
         CraftLessonSectionView(
@@ -433,4 +434,5 @@ public struct CraftLessonSectionView: View {
         .padding(.vertical)
     }
 }
+#endif
 

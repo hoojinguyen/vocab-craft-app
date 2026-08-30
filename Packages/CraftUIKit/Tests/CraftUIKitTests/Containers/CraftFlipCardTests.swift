@@ -1,6 +1,8 @@
 import CraftUIKit
 import SwiftUI
+#if canImport(XCTest)
 import XCTest
+#endif
 
 final class CraftFlipCardTests: XCTestCase {
     @MainActor

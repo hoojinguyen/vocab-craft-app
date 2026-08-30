@@ -109,6 +109,7 @@ public struct CraftIcon: View {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("CraftIcon") {
     VStack(spacing: 24) {
         HStack(spacing: 16) {
@@ -126,3 +127,4 @@ public struct CraftIcon: View {
     }
     .padding()
 }
+#endif

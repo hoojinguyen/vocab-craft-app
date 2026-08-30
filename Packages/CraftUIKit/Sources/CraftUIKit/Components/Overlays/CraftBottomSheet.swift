@@ -346,6 +346,7 @@ public extension View {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("CraftBottomSheet") {
     @Previewable @State var isPresented = true
 
@@ -369,3 +370,4 @@ public extension View {
         }
     }
 }
+#endif

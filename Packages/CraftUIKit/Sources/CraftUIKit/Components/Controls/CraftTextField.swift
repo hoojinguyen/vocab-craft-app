@@ -313,6 +313,7 @@ public struct CraftTextField: View {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("CraftTextField") {
     @Previewable @State var text1 = ""
     @Previewable @State var text2 = "user@example.com"
@@ -354,3 +355,4 @@ public struct CraftTextField: View {
         .padding()
     }
 }
+#endif

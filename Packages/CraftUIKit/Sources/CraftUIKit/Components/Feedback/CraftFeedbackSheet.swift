@@ -485,6 +485,7 @@ private struct FeedbackSheetShadowModifier: ViewModifier {
 
 // MARK: - Previews
 
+#if canImport(PreviewsMacros)
 #Preview("Feedback Sheets - All Styles") {
     ScrollView {
         VStack(spacing: 28) {
@@ -541,3 +542,4 @@ private struct FeedbackSheetShadowModifier: ViewModifier {
         .padding()
     }
 }
+#endif

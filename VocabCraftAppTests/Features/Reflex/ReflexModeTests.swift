@@ -1,6 +1,10 @@
+import Foundation
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 
+#if canImport(Testing)
 @Suite("ReflexMode Listening Tests")
 struct ReflexModeListeningTests {
     @Test("Verifies Listening mode hint stage thresholds")
@@ -16,3 +20,4 @@ struct ReflexModeListeningTests {
         #expect(mode.hintStage(forElapsedTimeMs: 5500) == 3)
     }
 }
+#endif

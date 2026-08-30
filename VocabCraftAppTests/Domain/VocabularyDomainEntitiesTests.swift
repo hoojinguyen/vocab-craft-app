@@ -1,5 +1,8 @@
+import Foundation
 @testable import VocabCraftApp
+#if canImport(XCTest)
 import XCTest
+#endif
 
 final class VocabularyDomainEntitiesTests: XCTestCase {
     func test_subTopicStage_stateTransitions() {

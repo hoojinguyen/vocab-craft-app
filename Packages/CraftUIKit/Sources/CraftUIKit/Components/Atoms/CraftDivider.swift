@@ -104,6 +104,7 @@ public struct CraftDivider: View {
     }
 }
 
+#if canImport(PreviewsMacros)
 #Preview("CraftDivider") {
     VStack(spacing: 24) {
         VStack(spacing: 8) {
@@ -126,4 +127,5 @@ public struct CraftDivider: View {
     }
     .padding()
 }
+#endif
 

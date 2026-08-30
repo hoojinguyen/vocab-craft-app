@@ -1,9 +1,12 @@
 import Foundation
+#if canImport(Testing)
 import Testing
+#endif
 @testable import VocabCraftApp
 
 // MARK: - Swift Testing 4 Modalities Feedback Suite
 
+#if canImport(Testing)
 @Suite("Reflex Blitz 4 Modalities Feedback Tests")
 struct ReflexBlitzViewModelFeedbackTests {
     @Test("Speaking and Typing allow Skip; MC and Listening trigger instant feedback on choice")
@@ -169,3 +172,4 @@ struct ReflexBlitzViewModelPreGenerationTests {
         #expect(viewModel.currentOptions == viewModel.currentPlanItem?.options)
     }
 }
+#endif
