@@ -268,8 +268,12 @@ public struct ReflexSpeakingModeView: View {
             .disabled(true)  // Disable tap — mic is auto-controlled
 
             if !liveTranscript.isEmpty {
+                let lastToken = liveTranscript
+                    .split(separator: " ")
+                    .last
+                    .map(String.init) ?? liveTranscript
                 CraftBadge(
-                    liveTranscript,
+                    lastToken,
                     iconName: "waveform",
                     variant: isReviewed ? .subtle : .solid,
                     tone: isReviewed

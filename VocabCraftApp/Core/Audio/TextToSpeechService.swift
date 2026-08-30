@@ -38,6 +38,14 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         #if !targetEnvironment(simulator)
         do {
             let audioSession = AVAudioSession.sharedInstance()
+            // When speech recognition is active, the session is already .playAndRecord
+            // which supports both mic input AND audio output. Switching to .playback
+            // would kill the mic and cause hardware audio crackling/pops.
+            if audioSession.category == .playAndRecord {
+                // Already configured for simultaneous record + playback — just ensure active
+                try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+                return
+            }
             if !isAudioSessionConfigured {
                 try audioSession.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
                 isAudioSessionConfigured = true
