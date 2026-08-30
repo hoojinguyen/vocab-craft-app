@@ -32,6 +32,14 @@ final class MockSoundEffectService: SoundEffectServiceProtocol, @unchecked Senda
     var playSuccessChimeCallCount: Int = 0
     var playIncorrectChimeCallCount: Int = 0
 
+    var successChimePlayed: Bool {
+        playSuccessChimeCallCount > 0
+    }
+
+    var incorrectChimePlayed: Bool {
+        playIncorrectChimeCallCount > 0
+    }
+
     func playSuccessChime() {
         playSuccessChimeCallCount += 1
     }

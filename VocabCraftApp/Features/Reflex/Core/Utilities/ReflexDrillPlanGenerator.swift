@@ -14,10 +14,10 @@ public struct ReflexDrillPlanGenerator: Sendable {
             return ReflexDrillSessionPlan(mode: mode, items: [])
         }
 
-        let shuffledWords = words.shuffled()
+        let planWords = words
         var items: [ReflexDrillPlanItem] = []
 
-        for (index, word) in shuffledWords.enumerated() {
+        for (index, word) in planWords.enumerated() {
             let options: [ReflexBlitzOption]
             if mode == .multipleChoice || mode == .listening {
                 options = ReflexDistractorGenerator.generateOptions(

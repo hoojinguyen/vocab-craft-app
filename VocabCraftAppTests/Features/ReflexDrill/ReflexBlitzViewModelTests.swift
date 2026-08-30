@@ -13,6 +13,7 @@ final class ReflexBlitzViewModelTests: XCTestCase {
     private var mockTTS: MockTextToSpeechService!
     private var mockSRS: MockEvaluateSRSUseCase!
     private var mockSound: MockSoundEffectService!
+    private var mockSpeechEngine: MockResilientReflexSpeechEngine!
     private var viewModel: ReflexBlitzViewModel!
 
     private let sampleWords = [
@@ -48,13 +49,15 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         mockTTS = MockTextToSpeechService()
         mockSRS = MockEvaluateSRSUseCase()
         mockSound = MockSoundEffectService()
+        mockSpeechEngine = MockResilientReflexSpeechEngine()
 
         viewModel = ReflexBlitzViewModel(
             words: sampleWords,
             continuousSpeechService: mockSpeech,
             ttsService: mockTTS,
             evaluateSRSUseCase: mockSRS,
-            soundEffectService: mockSound
+            soundEffectService: mockSound,
+            speechEngine: mockSpeechEngine
         )
     }
 
@@ -64,6 +67,7 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         mockTTS = nil
         mockSRS = nil
         mockSound = nil
+        mockSpeechEngine = nil
         super.tearDown()
     }
 
@@ -293,7 +297,7 @@ final class ReflexBlitzViewModelTests: XCTestCase {
     func testSpeakingModeSpokenMatchTransitionsToReviewedAndPausesListening() {
         viewModel.selectMode(.speaking)
         viewModel.beginSessionDirectly()
-        XCTAssertFalse(mockSpeech.isRecognitionMuted)
+        XCTAssertTrue(mockSpeechEngine.isWordActive)
 
         guard let targetLemma = viewModel.currentWord?.lemma else {
             XCTFail("No target lemma found")
@@ -301,7 +305,7 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         }
 
         viewModel.simulateElapsedTime(ms: 1500)
-        mockSpeech.simulateTranscript(targetLemma)
+        mockSpeechEngine.simulateMatch(targetLemma)
 
         if case .reviewed(let result) = viewModel.cardPhase {
             XCTAssertTrue(result.isCorrect)
@@ -312,7 +316,7 @@ final class ReflexBlitzViewModelTests: XCTestCase {
             XCTFail("Expected cardPhase to be .reviewed")
         }
 
-        XCTAssertTrue(mockSpeech.isRecognitionMuted, "Speech listening must pause during review state")
+        XCTAssertFalse(mockSpeechEngine.isWordActive, "Speech listening must pause during review state")
         XCTAssertEqual(mockSound.playSuccessChimeCallCount, 1)
         XCTAssertEqual(viewModel.comboStreak, 1)
     }
@@ -376,7 +380,7 @@ final class ReflexBlitzViewModelTests: XCTestCase {
 
         XCTAssertEqual(viewModel.comboStreak, 0)
         XCTAssertEqual(viewModel.maxComboStreak, 4)
-        XCTAssertTrue(mockSpeech.isRecognitionMuted, "Speech recognition must pause during review state")
+        XCTAssertFalse(mockSpeechEngine.isWordActive, "Speech recognition must pause during review state")
         try await Task.sleep(for: .milliseconds(300))
         XCTAssertEqual(mockTTS.lastSpokenText, targetLemma, "Target word must be spoken on timeout")
         XCTAssertEqual(viewModel.attempts.count, 1)
@@ -532,13 +536,13 @@ final class ReflexBlitzViewModelTests: XCTestCase {
     }
 
     func testHintTimingForSpeaking() {
-        // Speaking: Hint at 3.5s
+        // Speaking: Hint at 2.5s
         viewModel.selectMode(.speaking)
         viewModel.beginSessionDirectly()
         XCTAssertFalse(viewModel.showHint)
-        viewModel.simulateElapsedTime(ms: 3499)
+        viewModel.simulateElapsedTime(ms: 2499)
         XCTAssertFalse(viewModel.showHint)
-        viewModel.simulateElapsedTime(ms: 3500)
+        viewModel.simulateElapsedTime(ms: 2500)
         XCTAssertTrue(viewModel.showHint)
     }
 
@@ -678,17 +682,17 @@ final class ReflexBlitzViewModelTests: XCTestCase {
     func testCancelSessionStopsServices() {
         viewModel.selectMode(.speaking)
         viewModel.beginSessionDirectly()
-        XCTAssertTrue(mockSpeech.isSessionActive)
+        XCTAssertTrue(mockSpeechEngine.isSessionActive)
 
         viewModel.cancelSession()
-        XCTAssertFalse(mockSpeech.isSessionActive)
+        XCTAssertFalse(mockSpeechEngine.isSessionActive)
         XCTAssertFalse(mockTTS.isSpeaking)
     }
 
     func testLiveTranscriptUpdatesPropagatedAndResetOnNextWord() {
         viewModel.selectMode(.speaking)
         viewModel.beginSessionDirectly()
-        mockSpeech.simulateTranscript("Speaking some words...")
+        mockSpeechEngine.simulateTranscript("Speaking some words...")
         XCTAssertEqual(viewModel.liveTranscript, "Speaking some words...")
 
         viewModel.advanceToNextWord()

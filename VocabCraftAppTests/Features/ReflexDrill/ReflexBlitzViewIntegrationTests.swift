@@ -35,8 +35,11 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         ]
     }
 
-    private func makeViewModel(words: [ReflexBlitzWordItem]? = nil) -> (ReflexBlitzViewModel, MockContinuousReflexSpeechService, MockTextToSpeechService, MockEvaluateSRSUseCase) {
+    private func makeViewModel(
+        words: [ReflexBlitzWordItem]? = nil
+    ) -> (ReflexBlitzViewModel, MockContinuousReflexSpeechService, MockTextToSpeechService, MockEvaluateSRSUseCase, MockResilientReflexSpeechEngine) {
         let mockSpeech = MockContinuousReflexSpeechService()
+        let mockSpeechEngine = MockResilientReflexSpeechEngine()
         let mockTTS = MockTextToSpeechService()
         let mockSRS = MockEvaluateSRSUseCase()
         let items = words ?? makeSampleWords()
@@ -44,13 +47,14 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
             words: items,
             continuousSpeechService: mockSpeech,
             ttsService: mockTTS,
-            evaluateSRSUseCase: mockSRS
+            evaluateSRSUseCase: mockSRS,
+            speechEngine: mockSpeechEngine
         )
-        return (vm, mockSpeech, mockTTS, mockSRS)
+        return (vm, mockSpeech, mockTTS, mockSRS, mockSpeechEngine)
     }
 
     func testBlitzViewInstantiationAndModeSelectionPhase() {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         var didDismiss = false
         let view = ReflexBlitzView(viewModel: vm, onDismiss: { didDismiss = true })
         XCTAssertNotNil(view)
@@ -62,7 +66,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
     }
 
     func testFullReflexBlitzFlowFromModeSelectionToSummary() {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         XCTAssertEqual(vm.phase, .modeSelection)
 
         vm.selectMode(.multipleChoice)
@@ -76,7 +80,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
     }
 
     func testBlitzViewCountdownPhaseRendering() {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         vm.selectMode(.speaking)
         vm.countdownCount = 3
 
@@ -87,7 +91,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
     }
 
     func testBlitzViewDrillingSpeakingModeSpokenMatchAndReview() {
-        let (vm, mockSpeech, _, _) = makeViewModel()
+        let (vm, _, _, _, mockSpeechEngine) = makeViewModel()
         vm.selectMode(.speaking)
         vm.beginSessionDirectly()
 
@@ -97,14 +101,14 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
             XCTFail("Expected first word to be non-nil")
             return
         }
-        XCTAssertEqual(mockSpeech.currentTargetLemma, firstWord.lemma)
+        XCTAssertEqual(mockSpeechEngine.lastTargetLemma, firstWord.lemma)
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
         XCTAssertNotNil(view.body)
         XCTAssertNotNil(view.drillingView)
 
         // Spoken match triggers review state
-        mockSpeech.simulateTranscript("The fame is \(firstWord.lemma) today")
+        mockSpeechEngine.simulateMatch(firstWord.lemma)
         XCTAssertTrue(vm.currentAttemptIsCorrect)
         XCTAssertEqual(vm.comboStreak, 1)
 
@@ -123,12 +127,12 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
             XCTFail("Expected second word to be non-nil")
             return
         }
-        XCTAssertEqual(mockSpeech.currentTargetLemma, secondWord.lemma)
+        XCTAssertEqual(mockSpeechEngine.lastTargetLemma, secondWord.lemma)
         XCTAssertEqual(vm.cardPhase, .activeCountdown)
     }
 
     func testBlitzViewDrillingTypingModeInputAndSubmit() {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         vm.selectMode(.typing)
         vm.beginSessionDirectly()
 
@@ -160,7 +164,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
     }
 
     func testBlitzViewDrillingTypingModeIncorrectInputAndReview() {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         vm.selectMode(.typing)
         vm.beginSessionDirectly()
 
@@ -188,7 +192,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
     }
 
     func testBlitzViewTypingModeCardViewIdentityAndSequentialWordProgression() {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         vm.selectMode(.typing)
         vm.beginSessionDirectly()
 
@@ -228,7 +232,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
     }
 
     func testBlitzViewDrillingMultipleChoiceSelection() {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         vm.selectMode(.multipleChoice)
         vm.beginSessionDirectly()
 
@@ -254,7 +258,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
     }
 
     func testBlitzViewDrillingMultipleChoiceIncorrectSelectionAndAdvance() {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         vm.selectMode(.multipleChoice)
         vm.beginSessionDirectly()
 
@@ -289,7 +293,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
     }
 
     func testBlitzViewDrillingMultipleChoiceTimeoutAndReview() {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         vm.selectMode(.multipleChoice)
         vm.beginSessionDirectly()
 
@@ -311,7 +315,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
     }
 
     func testBlitzViewDrillingMultipleChoiceAudioReplayInReview() {
-        let (vm, _, mockTTS, _) = makeViewModel()
+        let (vm, _, mockTTS, _, _) = makeViewModel()
         vm.selectMode(.multipleChoice)
         vm.beginSessionDirectly()
 
@@ -332,7 +336,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
     }
 
     func testBlitzViewDrillingListeningModeFlow() {
-        let (vm, _, mockTTS, _) = makeViewModel()
+        let (vm, _, mockTTS, _, _) = makeViewModel()
         vm.selectMode(.listening)
         vm.beginSessionDirectly()
 
@@ -365,7 +369,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
     }
 
     func testBlitzViewDrillingListeningModeCorrectSelectionAndAdvance() {
-        let (vm, _, mockTTS, _) = makeViewModel()
+        let (vm, _, mockTTS, _, _) = makeViewModel()
         vm.selectMode(.listening)
         vm.beginSessionDirectly()
 
@@ -414,7 +418,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
     }
 
     func testBlitzViewDrillingListeningModeTimeoutAndReview() {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         vm.selectMode(.listening)
         vm.beginSessionDirectly()
 
@@ -438,7 +442,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
     }
 
     func testBlitzViewDrillingListeningModeHintProgression() {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         vm.selectMode(.listening)
         vm.beginSessionDirectly()
 
@@ -461,7 +465,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
     }
 
     func testBlitzViewTimeoutRevealingPhaseRendering() async {
-        let (vm, _, mockTTS, _) = makeViewModel()
+        let (vm, _, mockTTS, _, _) = makeViewModel()
         vm.beginSessionDirectly()
         let targetLemma = vm.currentWord!.lemma
         vm.handleTimeout()
@@ -482,7 +486,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
     }
 
     func testBlitzViewSummaryPhaseRenderingAndReDrill() {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         vm.beginSessionDirectly()
         vm.handleTimeout()
         vm.finishSession()
@@ -501,7 +505,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
     }
 
     func testKeyboardFallbackInputToggleAndSubmit() {
-        let (vm, mockSpeech, _, _) = makeViewModel()
+        let (vm, mockSpeech, _, _, _) = makeViewModel()
         vm.selectMode(.speaking)
         vm.beginSessionDirectly()
         XCTAssertFalse(vm.isKeyboardFallbackActive)
@@ -522,13 +526,13 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
     }
 
     func testCancellationTeardownOnDisappear() {
-        let (vm, mockSpeech, mockTTS, _) = makeViewModel()
+        let (vm, _, mockTTS, _, mockSpeechEngine) = makeViewModel()
         vm.selectMode(.speaking)
         vm.beginSessionDirectly()
-        XCTAssertTrue(mockSpeech.isSessionActive)
+        XCTAssertTrue(mockSpeechEngine.isSessionActive)
 
         vm.cancelSession()
-        XCTAssertFalse(mockSpeech.isSessionActive)
+        XCTAssertFalse(mockSpeechEngine.isSessionActive)
         XCTAssertFalse(mockTTS.isSpeaking)
     }
 
@@ -555,7 +559,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
 
     func testFullSessionEndToEndFlow() async {
         let words = makeSampleWords()
-        let (vm, mockSpeech, _, _) = makeViewModel(words: words)
+        let (vm, _, _, _, mockSpeechEngine) = makeViewModel(words: words)
         var dismissed = false
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: { dismissed = true })
@@ -567,10 +571,10 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         XCTAssertEqual(vm.phase, .drilling)
         XCTAssertEqual(vm.currentWordIndex, 0)
         let word1 = vm.currentWord!
-        XCTAssertEqual(mockSpeech.currentTargetLemma, word1.lemma)
+        XCTAssertEqual(mockSpeechEngine.lastTargetLemma, word1.lemma)
 
         // 2. Correct Spoken Match on Word 1
-        mockSpeech.simulateTranscript("The fame is \(word1.lemma) today")
+        mockSpeechEngine.simulateMatch(word1.lemma)
         XCTAssertTrue(vm.currentAttemptIsCorrect)
         XCTAssertEqual(vm.comboStreak, 1)
         XCTAssertEqual(vm.attempts.count, 1)
@@ -581,7 +585,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         vm.advanceToNextWord()
         XCTAssertEqual(vm.currentWordIndex, 1)
         let word2 = vm.currentWord!
-        XCTAssertEqual(mockSpeech.currentTargetLemma, word2.lemma)
+        XCTAssertEqual(mockSpeechEngine.lastTargetLemma, word2.lemma)
 
         vm.handleTimeout()
         if case .reviewed(let result) = vm.cardPhase {
@@ -659,19 +663,19 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         renderSnapshot(view: homeView, filename: "01_homepage_reflex_entry.png")
 
         // 2. Mode Selection Screen
-        let (vmMode, _, _, _) = makeViewModel()
+        let (vmMode, _, _, _, _) = makeViewModel()
         let modeSelectionView = ReflexBlitzView(viewModel: vmMode, onDismiss: {})
         renderSnapshot(view: modeSelectionView, filename: "02_reflex_mode_selection.png")
 
         // 3. Countdown Phase
-        let (vmCountdown, _, _, _) = makeViewModel()
+        let (vmCountdown, _, _, _, _) = makeViewModel()
         vmCountdown.selectMode(.speaking)
         vmCountdown.countdownCount = 3
         let countdownView = ReflexBlitzView(viewModel: vmCountdown, onDismiss: {})
         renderSnapshot(view: countdownView, filename: "03_reflex_countdown.png")
 
         // 4. Drilling Speaking Mode
-        let (vmSpeak, _, _, _) = makeViewModel()
+        let (vmSpeak, _, _, _, _) = makeViewModel()
         vmSpeak.selectMode(.speaking)
         vmSpeak.beginSessionDirectly()
         vmSpeak.elapsedTimeMs = 1200
@@ -679,7 +683,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         renderSnapshot(view: speakView, filename: "04_reflex_drilling_speaking.png")
 
         // 5. Drilling Typing Mode
-        let (vmType, _, _, _) = makeViewModel()
+        let (vmType, _, _, _, _) = makeViewModel()
         vmType.selectMode(.typing)
         vmType.beginSessionDirectly()
         vmType.elapsedTimeMs = 2000
@@ -687,7 +691,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         renderSnapshot(view: typeView, filename: "05_reflex_drilling_typing.png")
 
         // 6. Drilling Multiple Choice Mode
-        let (vmMC, _, _, _) = makeViewModel()
+        let (vmMC, _, _, _, _) = makeViewModel()
         vmMC.selectMode(.multipleChoice)
         vmMC.beginSessionDirectly()
         vmMC.elapsedTimeMs = 1500
@@ -695,7 +699,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         renderSnapshot(view: mcView, filename: "06_reflex_drilling_multiple_choice.png")
 
         // 7. Drilling Listening Mode
-        let (vmListen, _, _, _) = makeViewModel()
+        let (vmListen, _, _, _, _) = makeViewModel()
         vmListen.selectMode(.listening)
         vmListen.beginSessionDirectly()
         vmListen.elapsedTimeMs = 1000
@@ -703,7 +707,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         renderSnapshot(view: listenView, filename: "07_reflex_drilling_listening.png")
 
         // 8. Reviewed Correct State with Advance Dock
-        let (vmCorrect, _, _, _) = makeViewModel()
+        let (vmCorrect, _, _, _, _) = makeViewModel()
         vmCorrect.selectMode(.speaking)
         vmCorrect.beginSessionDirectly()
         vmCorrect.comboStreak = 3
@@ -718,7 +722,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         renderSnapshot(view: correctView, filename: "08_reflex_drilling_correct_reviewed.png")
 
         // 9. Reviewed Timeout State with Advance Dock
-        let (vmTimeout, _, _, _) = makeViewModel()
+        let (vmTimeout, _, _, _, _) = makeViewModel()
         vmTimeout.selectMode(.speaking)
         vmTimeout.beginSessionDirectly()
         vmTimeout.cardPhase = .reviewed(result: ReflexCardResult(
@@ -730,7 +734,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         renderSnapshot(view: timeoutView, filename: "09_reflex_drilling_timeout_reviewed.png")
 
         // 10. Session Summary Screen
-        let (vmSummary, _, _, _) = makeViewModel()
+        let (vmSummary, _, _, _, _) = makeViewModel()
         let attempts = [
             ReflexBlitzAttempt(wordId: 1, lemma: "ephemeral", pos: "adj.", ipa: "/ɪˈfem.ər.əl/", definitionVi: "Phù du, chóng tàn", responseTimeMs: 1400, usedHint: false, isCorrect: true),
             ReflexBlitzAttempt(wordId: 2, lemma: "serendipity", pos: "n.", ipa: "/ˌser.ənˈdɪp.ə.ti/", definitionVi: "Sự may mắn bất ngờ", responseTimeMs: 2100, usedHint: false, isCorrect: true),
@@ -757,7 +761,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
     }
 
     func testZeroShiftLayoutStructureWithFloatingFeedbackSheetOverlay() {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         vm.selectMode(.multipleChoice)
         vm.beginSessionDirectly()
 
@@ -792,7 +796,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
     }
 
     func testBlitzViewOnFinishSessionCallbackCalledOnSummaryFinish() {
-        let (vm, _, _, _) = makeViewModel()
+        let (vm, _, _, _, _) = makeViewModel()
         vm.beginSessionDirectly()
         vm.handleTimeout()
         vm.finishSession()
@@ -819,7 +823,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
     }
 
     func testBlitzViewListeningModeCardViewIdentityAndSpoilerFreeProgression() {
-        let (vm, _, mockTTS, _) = makeViewModel()
+        let (vm, _, mockTTS, _, _) = makeViewModel()
         vm.selectMode(.listening)
         vm.beginSessionDirectly()
 
@@ -865,7 +869,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         let modes: [ReflexBlitzMode] = [.speaking, .typing, .multipleChoice, .listening]
 
         for mode in modes {
-            let (vm, _, _, _) = makeViewModel()
+            let (vm, _, _, _, _) = makeViewModel()
             vm.selectMode(mode)
             vm.beginSessionDirectly()
 
