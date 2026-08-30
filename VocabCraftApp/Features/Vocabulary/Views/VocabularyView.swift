@@ -10,6 +10,7 @@ public struct VocabularyView: View {
 
     @State private var vaultVM: PersonalVaultViewModel?
     @State private var legacyVM: VocabularyViewModel?
+    @State private var isSearchVisible: Bool = false
     @State private var isPresentingPracticeSelection: Bool = false
     @State private var activeDrillViewModel: MixedReflexDrillViewModel?
     @State private var isPresentingSmartReview: Bool = false
@@ -17,10 +18,12 @@ public struct VocabularyView: View {
     @MainActor
     public init(
         vaultViewModel: PersonalVaultViewModel? = nil,
-        viewModel: VocabularyViewModel? = nil
+        viewModel: VocabularyViewModel? = nil,
+        isSearchVisible: Bool = false
     ) {
         self._vaultVM = State(initialValue: vaultViewModel)
         self._legacyVM = State(initialValue: viewModel)
+        self._isSearchVisible = State(initialValue: isSearchVisible)
     }
 
     private var activeVaultVM: PersonalVaultViewModel {
@@ -41,21 +44,46 @@ public struct VocabularyView: View {
                     .ignoresSafeArea()
 
                 VStack(spacing: theme.spacing.md) {
-                    // Top Search Bar
-                    CraftSearchBar(
-                        text: Binding(
-                            get: { bindableVaultVM.searchQuery },
-                            set: { bindableVaultVM.setSearchQuery($0) }
-                        ),
-                        placeholder: AppStrings.Vault.searchPlaceholder,
-                        size: .md,
-                        style: .flat,
-                        onCancel: {
-                            bindableVaultVM.setSearchQuery("")
-                        }
-                    )
-                    .padding(.horizontal, theme.spacing.base)
-                    .padding(.top, theme.spacing.xs)
+                    // Top Synchronized Header
+                    CraftPageHeader(
+                        AppStrings.Vault.title,
+                        alignment: .leading,
+                        enableScrollFade: true
+                    ) {
+                        CraftIconButton(
+                            iconName: isSearchVisible ? "magnifyingglass.circle.fill" : "magnifyingglass",
+                            size: .md,
+                            shape: .circle,
+                            variant: isSearchVisible ? .filled : .subtle,
+                            accessibilityLabel: CraftLocalized.string("craft.header.a11y.search_toggle"),
+                            action: {
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                    isSearchVisible.toggle()
+                                }
+                            }
+                        )
+                    }
+
+                    // Expandable Search Bar
+                    if isSearchVisible {
+                        CraftSearchBar(
+                            text: Binding(
+                                get: { bindableVaultVM.searchQuery },
+                                set: { bindableVaultVM.setSearchQuery($0) }
+                            ),
+                            placeholder: AppStrings.Vault.searchPlaceholder,
+                            size: .md,
+                            style: .flat,
+                            onCancel: {
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                    bindableVaultVM.setSearchQuery("")
+                                    isSearchVisible = false
+                                }
+                            }
+                        )
+                        .padding(.horizontal, theme.spacing.base)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                    }
 
                     // 3-Tab Segmented Filter (Chưa thuộc / Đã thuộc / Đã lưu)
                     CraftSegmentedControl(
@@ -87,9 +115,8 @@ public struct VocabularyView: View {
                     wordListContent(vaultVM: currentVaultVM)
                 }
             }
-            .navigationTitle(AppStrings.Vault.title)
             #if os(iOS)
-            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(.hidden, for: .navigationBar)
             #endif
             .sheet(item: $bindableVaultVM.selectedWordForDetail) { word in
                 VaultWordDetailSheet(
@@ -268,8 +295,10 @@ public struct VocabularyView: View {
             vm.setVaultFilter(.bookmarked)
         case "personal-search-match":
             vm.setSearchQuery("resilience")
+            isSearchVisible = true
         case "personal-search-empty":
             vm.setSearchQuery("không_tìm_thấy_từ")
+            isSearchVisible = true
         default:
             break
         }
