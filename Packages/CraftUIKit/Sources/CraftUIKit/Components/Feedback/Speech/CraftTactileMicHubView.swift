@@ -9,12 +9,18 @@ public struct CraftTactileMicHubView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     public let speechState: CraftSpeechState
+    public let customSubtitle: String?
     public let onTapMic: () -> Void
 
     @State private var isPulsing: Bool = false
 
-    public init(speechState: CraftSpeechState, onTapMic: @escaping () -> Void) {
+    public init(
+        speechState: CraftSpeechState,
+        customSubtitle: String? = nil,
+        onTapMic: @escaping () -> Void
+    ) {
         self.speechState = speechState
+        self.customSubtitle = customSubtitle
         self.onTapMic = onTapMic
     }
 
@@ -84,15 +90,20 @@ public struct CraftTactileMicHubView: View {
             .disabled(isProcessing)
             .accessibilityLabel(isListening ? CraftLocalized.string("craft.speech.mic_stop_a11y") : CraftLocalized.string("craft.speech.mic_start_a11y"))
 
-            Text(statusSubtitle)
-                .font(theme.typography.label)
-                .fontWeight(.medium)
-                .foregroundColor(isListening ? theme.colors.brandPrimary : theme.colors.textSecondary)
+            if let statusSubtitle {
+                Text(statusSubtitle)
+                    .font(theme.typography.label)
+                    .fontWeight(.medium)
+                    .foregroundColor(isListening ? theme.colors.brandPrimary : theme.colors.textSecondary)
+            }
         }
         .sensoryFeedback(.impact(weight: .medium), trigger: isListening)
     }
 
-    private var statusSubtitle: String {
+    private var statusSubtitle: String? {
+        if let customSubtitle {
+            return customSubtitle.isEmpty ? nil : customSubtitle
+        }
         switch speechState {
         case .idle:
             return CraftLocalized.string("craft.speech.tap_to_speak")

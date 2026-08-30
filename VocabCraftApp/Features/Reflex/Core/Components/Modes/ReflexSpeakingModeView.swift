@@ -93,12 +93,16 @@ public struct ReflexSpeakingModeView: View {
     }
 
     public var body: some View {
-        VStack(spacing: theme.spacing.md) {
+        VStack(spacing: theme.spacing.xl) {
             // Zone 1: 3D Flip Card
             flipStimulusCard
 
+            Spacer(minLength: theme.spacing.sm)
+
             // Zone 2: Mic Hub + Transcript (on canvas, no card wrapper)
             micHubArea
+
+            Spacer(minLength: theme.spacing.sm)
         }
     }
 
@@ -156,35 +160,6 @@ public struct ReflexSpeakingModeView: View {
                         tone: .neutral,
                         size: .sm,
                         shape: .capsule
-                    )
-                }
-
-                CraftBadge(
-                    word.cleanLevel,
-                    variant: .subtle,
-                    tone: .warning,
-                    size: .sm,
-                    shape: .capsule
-                )
-
-                if showHint || hintStage >= 2 {
-                    let badgeText: String = {
-                        if let text = hintBadgeText, !text.isEmpty {
-                            return text
-                        }
-                        return AppStrings.ReflexBlitz.hintPrefix(word.cleanInitialLetterHint)
-                    }()
-                    CraftBadge(
-                        badgeText,
-                        iconName: "lightbulb.min.fill",
-                        variant: .outline,
-                        tone: .warning,
-                        size: .sm,
-                        shape: .capsule
-                    )
-                    .transition(.scale.combined(with: .opacity))
-                    .accessibilityLabel(
-                        AppStrings.ReflexBlitz.hintA11y(word.cleanInitialLetterHint)
                     )
                 }
             }
@@ -291,6 +266,7 @@ public struct ReflexSpeakingModeView: View {
                 speechState: isReviewed
                     ? .evaluated(overallScore: isResultCorrect ? 100 : 0)
                     : speechState,
+                customSubtitle: isReviewed ? "" : nil,
                 onTapMic: {}  // No tap action — continuous listening
             )
             .disabled(true)  // Disable tap — mic is auto-controlled
@@ -307,16 +283,6 @@ public struct ReflexSpeakingModeView: View {
                     shape: .capsule
                 )
                 .transition(.scale.combined(with: .opacity))
-            } else if !isReviewed {
-                HStack(spacing: theme.spacing.xs) {
-                    CraftIcon("mic.fill", size: .sm, color: theme.colors.textMuted)
-                    CraftText(
-                        AppStrings.ReflexBlitz.speakingListeningText,
-                        style: .caption,
-                        color: theme.colors.textMuted
-                    )
-                }
-                .transition(.opacity)
             }
         }
         .animation(.spring(response: 0.3, dampingFraction: 0.75), value: liveTranscript.isEmpty)

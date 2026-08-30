@@ -94,7 +94,12 @@ final class CraftSpeechUIComponentTests: XCTestCase {
 
         let evaluatedView = CraftTactileMicHubView(speechState: .evaluated(overallScore: 92), onTapMic: {})
         XCTAssertEqual(evaluatedView.speechState, .evaluated(overallScore: 92))
+        XCTAssertNil(evaluatedView.customSubtitle)
         XCTAssertNotNil(evaluatedView.body)
+
+        let customSubtitleView = CraftTactileMicHubView(speechState: .evaluated(overallScore: 92), customSubtitle: "", onTapMic: {})
+        XCTAssertEqual(customSubtitleView.customSubtitle, "")
+        XCTAssertNotNil(customSubtitleView.body)
     }
 
     func testCraftVoiceMatchCardInitializesCleanly() {
