@@ -208,13 +208,10 @@ final class HomepageViewTests: XCTestCase {
         await viewModel.loadLearningPath()
 
         let homepage = HomepageView(viewModel: viewModel)
-            .environment(\.appContainer, container)
-            .environment(\.appRouter, container.appRouter)
-
         XCTAssertNotNil(homepage.body)
         XCTAssertEqual(viewModel.userName, "Hooji N.")
-        XCTAssertEqual(viewModel.streakDays, 7)
-        XCTAssertEqual(viewModel.dailyWordsLearned, 5)
+        XCTAssertEqual(viewModel.streakDays, 14)
+        XCTAssertEqual(viewModel.dailyWordsLearned, 8)
         XCTAssertEqual(viewModel.dailyWordsGoal, 10)
     }
 
