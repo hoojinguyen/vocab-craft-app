@@ -3589,7 +3589,81 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertNotNil(pathWithDefaultHUD.body)
     }
 
+    // MARK: - Task 2: Scroll Stabilization & Auto-Scroll Tests
+
+    func testCraftLearningPathScrollStabilizationConfiguration() {
+        let node1 = LessonNodeModel(id: "node_1", title: "Node 1", state: .completed)
+        let node2 = LessonNodeModel(id: "node_2", title: "Node 2", state: .active)
+        let node3 = LessonNodeModel(id: "node_3", title: "Node 3", state: .upcoming)
+        let section = LessonSection(
+            id: "unit_scroll_stab",
+            title: "Scroll Unit",
+            nodes: [node1, node2, node3]
+        )
+
+        var autoScrolledTarget: String?
+        let path = CraftLearningPath(
+            sections: [section],
+            scrollToActive: true,
+            onAutoScrolled: { target in
+                autoScrolledTarget = target
+            }
+        )
+
+        XCTAssertTrue(path.scrollToActive)
+        XCTAssertEqual(path.activeNodeID, "node_2")
+        XCTAssertNotNil(path.body)
+
+        path.onAutoScrolled?("node_2")
+        XCTAssertEqual(autoScrolledTarget, "node_2")
+    }
+
+    func testCraftLearningPathScrollDisabledWhenScrollToActiveIsFalse() {
+        let node1 = LessonNodeModel(id: "node_1", title: "Node 1", state: .active)
+        let section = LessonSection(
+            id: "unit_scroll_disabled",
+            title: "Scroll Disabled Unit",
+            nodes: [node1]
+        )
+
+        let path = CraftLearningPath(
+            sections: [section],
+            scrollToActive: false
+        )
+
+        XCTAssertFalse(path.scrollToActive)
+        XCTAssertEqual(path.activeNodeID, "node_1")
+        XCTAssertNotNil(path.body)
+    }
+
+    func testCraftLearningPathMultiSectionActiveNodeResolutionForStabilization() {
+        let section1 = LessonSection(
+            id: "sec_1",
+            title: "Unit 1",
+            nodes: [
+                LessonNodeModel(id: "u1_n1", title: "N1", state: .completed),
+                LessonNodeModel(id: "u1_n2", title: "N2", state: .completed)
+            ]
+        )
+        let section2 = LessonSection(
+            id: "sec_2",
+            title: "Unit 2",
+            nodes: [
+                LessonNodeModel(id: "u2_n1", title: "N3", state: .active),
+                LessonNodeModel(id: "u2_n2", title: "N4", state: .upcoming)
+            ]
+        )
+
+        let path = CraftLearningPath(
+            sections: [section1, section2],
+            scrollToActive: true
+        )
+
+        XCTAssertEqual(path.activeNodeID, "u2_n1")
+        XCTAssertNotNil(path.body)
+    }
 }
+
 
 
 

@@ -482,9 +482,12 @@ public struct CraftLearningPath: View {
                 stickyHUDOverlay(proxy: proxy)
             }
             .onAppear {
-                if scrollToActive, let targetID = activeNodeID {
-                    performScroll(proxy, to: targetID, reducedMotion: isReducedMotion)
-                    hasScrolledToActive = true
+                if scrollToActive, !hasScrolledToActive, let targetID = activeNodeID {
+                    Task { @MainActor in
+                        try? await Task.sleep(for: .milliseconds(300))
+                        performScroll(proxy, to: targetID, reducedMotion: isReducedMotion)
+                        hasScrolledToActive = true
+                    }
                 }
             }
             .onChange(of: activeNodeID) { _, newID in
