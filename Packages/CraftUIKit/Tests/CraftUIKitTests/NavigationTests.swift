@@ -74,6 +74,18 @@ final class NavigationTests: XCTestCase {
         )
     }
 
+    func testFloatingTabBarGlassTreatmentKeepsBarSurfaceNeutral() {
+        XCTAssertFalse(CraftTabBarGlassSurface.bar.usesBrandTint)
+        XCTAssertTrue(CraftTabBarGlassSurface.selectionLens.usesBrandTint)
+        XCTAssertTrue(CraftTabBarGlassSurface.centerAction.usesBrandTint)
+    }
+
+    func testFloatingTabBarNativeGlassAvoidsOpaqueBaseSurfaces() {
+        XCTAssertFalse(CraftTabBarGlassSurface.bar.usesBaseFill)
+        XCTAssertFalse(CraftTabBarGlassSurface.selectionLens.usesBaseFill)
+        XCTAssertTrue(CraftTabBarGlassSurface.centerAction.usesBaseFill)
+    }
+
     func testFloatingTabBarStreamlinedInit() {
         let binding = Binding(get: { SampleTab.home }, set: { _ in })
         let tabs = SampleTab.allCases

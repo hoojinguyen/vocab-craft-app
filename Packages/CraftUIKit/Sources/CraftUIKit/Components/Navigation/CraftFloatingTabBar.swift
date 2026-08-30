@@ -203,6 +203,25 @@ public enum CraftTabBarPresentation: String, Sendable, Equatable, CaseIterable {
     case compact
 }
 
+enum CraftTabBarGlassSurface: Sendable {
+    case bar
+    case selectionLens
+    case centerAction
+
+    var usesBrandTint: Bool {
+        switch self {
+        case .bar:
+            false
+        case .selectionLens, .centerAction:
+            true
+        }
+    }
+
+    var usesBaseFill: Bool {
+        self == .centerAction
+    }
+}
+
 // MARK: - Tab Bar Item Preference Key
 
 /// Legacy preference key retained for source compatibility with clients that inspect tab bounds.
@@ -226,7 +245,7 @@ enum CraftTabBarAnimationPolicy {
         reduceMotion: Bool,
         animations: CraftAnimationTokens
     ) -> Animation? {
-        reduceMotion ? nil : animations.springGentle
+        reduceMotion ? nil : animations.springSmooth
     }
 }
 
@@ -383,34 +402,58 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
 
     public var body: some View {
         barContainer
-            .padding(.horizontal, theme.spacing.base)
+            .padding(.horizontal, horizontalContainerPadding)
             .padding(.bottom, theme.spacing.xs)
             .accessibilityElement(children: .contain)
             .sensoryFeedback(.selection, trigger: selectedItem.id)
+            .animation(
+                CraftTabBarAnimationPolicy.presentationAnimation(
+                    reduceMotion: reduceMotion,
+                    animations: theme.animations
+                ),
+                value: presentation
+            )
+    }
+
+    private var horizontalContainerPadding: CGFloat {
+        presentation == .compact ? theme.spacing.xxl : theme.spacing.base
     }
 
     @ViewBuilder
     private var barContainer: some View {
-        if #available(iOS 26, macOS 26, *), Self.usesNativeGlass(
-            style: style,
-            reduceTransparency: reduceTransparency
-        ) {
-            GlassEffectContainer(spacing: theme.spacing.xs) {
-                ZStack {
+        ZStack {
+            if #available(iOS 26, macOS 26, *), Self.usesNativeGlass(
+                style: style,
+                reduceTransparency: reduceTransparency
+            ) {
+                GlassEffectContainer(spacing: theme.spacing.xs) {
                     barContent
                         .padding(.horizontal, resolvedSize.horizontalPadding)
                         .padding(.vertical, resolvedSize.verticalPadding)
                         .background {
                             Capsule()
                                 .fill(theme.colors.surfaceCard.opacity(theme.opacities.subtle))
-                                .glassEffect(
-                                    .regular.tint(
-                                        theme.colors.brandPrimary.opacity(theme.glass.tintOpacity)
-                                    ),
-                                    in: .capsule
-                                )
-                                .glassEffectID("craft.tab_bar.surface", in: glassNamespace)
                         }
+                        .glassEffect(
+                            CraftTabBarGlassSurface.bar.usesBrandTint
+                                ? .regular.tint(
+                                    theme.colors.brandPrimary.opacity(theme.glass.tintOpacity)
+                                )
+                                : .regular,
+                            in: .capsule
+                        )
+                        .overlay {
+                            Capsule()
+                                .strokeBorder(
+                                    theme.colors.borderDefault.opacity(theme.opacities.medium),
+                                    lineWidth: 1
+                                )
+                        }
+                        .overlay {
+                            Capsule()
+                                .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
+                        }
+                        .glassEffectID("craft.tab_bar.surface", in: glassNamespace)
                         .animation(
                             CraftTabBarAnimationPolicy.presentationAnimation(
                                 reduceMotion: reduceMotion,
@@ -418,32 +461,8 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                             ),
                             value: presentation
                         )
-
-                    if let centerAction {
-                        CraftCenterActionButton(
-                            symbol: centerSymbol,
-                            titleKey: centerTitleKey,
-                            title: rawCenterTitle,
-                            style: style,
-                            resolvedSize: resolvedSize,
-                            position: centerPosition,
-                            hitTargetDiameter: centerActionHitTargetDiameter,
-                            glassNamespace: glassNamespace,
-                            action: centerAction
-                        )
-                        .zIndex(100)
-                        .animation(
-                            CraftTabBarAnimationPolicy.presentationAnimation(
-                                reduceMotion: reduceMotion,
-                                animations: theme.animations
-                            ),
-                            value: presentation
-                        )
-                    }
                 }
-            }
-        } else {
-            ZStack {
+            } else {
                 barContent
                     .padding(.horizontal, resolvedSize.horizontalPadding)
                     .padding(.vertical, resolvedSize.verticalPadding)
@@ -458,28 +477,27 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                         ),
                         value: presentation
                     )
+            }
 
-                if let centerAction {
-                    CraftCenterActionButton(
-                        symbol: centerSymbol,
-                        titleKey: centerTitleKey,
-                        title: rawCenterTitle,
-                        style: style,
-                        resolvedSize: resolvedSize,
-                        position: centerPosition,
-                        hitTargetDiameter: centerActionHitTargetDiameter,
-                        glassNamespace: glassNamespace,
-                        action: centerAction
-                    )
-                    .zIndex(100)
-                    .animation(
-                        CraftTabBarAnimationPolicy.presentationAnimation(
-                            reduceMotion: reduceMotion,
-                            animations: theme.animations
-                        ),
-                        value: presentation
-                    )
-                }
+            if let centerAction {
+                CraftCenterActionButton(
+                    symbol: centerSymbol,
+                    titleKey: centerTitleKey,
+                    title: rawCenterTitle,
+                    style: style,
+                    resolvedSize: resolvedSize,
+                    position: centerPosition,
+                    hitTargetDiameter: centerActionHitTargetDiameter,
+                    action: centerAction
+                )
+                .zIndex(100)
+                .animation(
+                    CraftTabBarAnimationPolicy.presentationAnimation(
+                        reduceMotion: reduceMotion,
+                        animations: theme.animations
+                    ),
+                    value: presentation
+                )
             }
         }
     }
@@ -506,7 +524,6 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                         isSelected: selectedItem.id == item.id,
                         resolvedSize: resolvedSize,
                         selectionNamespace: selectionNamespace,
-                        glassNamespace: glassNamespace,
                         barStyle: style,
                         onSelect: { select(item) }
                     )
@@ -525,7 +542,6 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                         isSelected: selectedItem.id == item.id,
                         resolvedSize: resolvedSize,
                         selectionNamespace: selectionNamespace,
-                        glassNamespace: glassNamespace,
                         barStyle: style,
                         onSelect: { select(item) }
                     )
@@ -537,7 +553,6 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
                         isSelected: selectedItem.id == item.id,
                         resolvedSize: resolvedSize,
                         selectionNamespace: selectionNamespace,
-                        glassNamespace: glassNamespace,
                         barStyle: style,
                         onSelect: { select(item) }
                     )
@@ -648,13 +663,6 @@ public struct CraftSlidingFluidPill: View {
                         Capsule()
                             .strokeBorder(theme.colors.borderFocus, lineWidth: 1)
                     )
-            } else if #available(iOS 26, macOS 26, *) {
-                Capsule()
-                    .fill(theme.colors.surfaceElevated)
-                    .glassEffect(
-                        .regular.tint(theme.colors.brandPrimary.opacity(theme.glass.tintOpacity)),
-                        in: .capsule
-                    )
             } else {
                 glassPill
             }
@@ -730,7 +738,6 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
     let isSelected: Bool
     let resolvedSize: CraftTabBarSize
     let selectionNamespace: Namespace.ID
-    let glassNamespace: Namespace.ID
     let barStyle: CraftSurfaceStyle
     let onSelect: () -> Void
 
@@ -744,7 +751,7 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
         if hasTitle {
             return resolvedSize == .lg ? .md : .sm
         } else {
-            return resolvedSize.iconSize
+            return .lg
         }
     }
 
@@ -810,22 +817,12 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
 
     @ViewBuilder
     private var selectionLens: some View {
-        if #available(iOS 26, macOS 26, *), barStyle == .glass, !reduceTransparency {
-            CraftSlidingFluidPill(style: barStyle)
-                .matchedGeometryEffect(
-                    id: "CraftFloatingTabBar.selectedPill",
-                    in: selectionNamespace
-                )
-                .padding(resolvedSize.pillInset)
-                .glassEffectID("craft.tab_bar.selection_lens", in: glassNamespace)
-        } else {
-            CraftSlidingFluidPill(style: barStyle)
-                .matchedGeometryEffect(
-                    id: "CraftFloatingTabBar.selectedPill",
-                    in: selectionNamespace
-                )
-                .padding(resolvedSize.pillInset)
-        }
+        CraftSlidingFluidPill(style: barStyle)
+            .matchedGeometryEffect(
+                id: "CraftFloatingTabBar.selectedPill",
+                in: selectionNamespace
+            )
+            .padding(resolvedSize.pillInset)
     }
 
     private var accessibilityTitle: Text {
@@ -852,7 +849,6 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
 /// Isolated tactile / glass action button view located at the center of the tab bar.
 private struct CraftCenterActionButton: View {
     @Environment(\.craftTheme) private var theme
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @State private var triggerHapticCount = 0
 
     let symbol: String
@@ -862,7 +858,6 @@ private struct CraftCenterActionButton: View {
     let resolvedSize: CraftTabBarSize
     let position: CraftCenterButtonPosition
     let hitTargetDiameter: CGFloat
-    let glassNamespace: Namespace.ID
     let action: () -> Void
 
     private var circleDiameter: CGFloat {
@@ -870,94 +865,19 @@ private struct CraftCenterActionButton: View {
     }
 
     private var iconSize: CraftIconSize {
-        switch (resolvedSize, position) {
-        case (.sm, .floating): return .md
-        case (.sm, .inline): return .sm
-        case (.md, .floating): return .lg
-        case (.md, .inline): return .md
-        case (.lg, .floating): return .xl
-        case (.lg, .inline): return .lg
+        switch position {
+        case .floating: return .lg
+        case .inline: return .md
         }
     }
 
     var body: some View {
-        Group {
-            if style == .glass {
-                glassFAB
-            } else {
-                tactileFAB
-            }
-        }
-        .offset(y: resolvedSize.centerFloatingOffset(position: position))
-        .zIndex(100)
-        .accessibilityLabel(accessibilityTitle)
-        .accessibilityAddTraits(.isButton)
-        .sensoryFeedback(.impact(weight: .medium), trigger: triggerHapticCount)
-    }
-
-    @ViewBuilder
-    private var glassFAB: some View {
-        if #available(iOS 26, macOS 26, *), !reduceTransparency {
-            Button {
-                triggerHapticCount += 1
-                action()
-            } label: {
-                ZStack {
-                    Circle()
-                        .fill(theme.gradients.brandHero)
-
-                    CraftIcon(
-                        symbol,
-                        size: iconSize,
-                        color: theme.colors.textInverse,
-                        renderingMode: .monochrome,
-                        weight: .bold
-                    )
-                }
-                .frame(width: circleDiameter, height: circleDiameter)
-                .glassEffect(
-                    .regular.tint(
-                        theme.colors.brandPrimary.opacity(theme.glass.tintOpacity)
-                    ).interactive(),
-                    in: .circle
-                )
-                .glassEffectID("craft.tab_bar.center_action", in: glassNamespace)
-                .frame(width: hitTargetDiameter, height: hitTargetDiameter)
-                .contentShape(Circle())
-            }
-            .buttonStyle(.craftPress(scale: 0.93))
-        } else {
-            legacyGlassFAB
-        }
-    }
-
-    private var legacyGlassFAB: some View {
-        Button {
-            triggerHapticCount += 1
-            action()
-        } label: {
-            ZStack {
-                Circle()
-                    .fill(theme.gradients.brandHero)
-                    .frame(width: circleDiameter, height: circleDiameter)
-                    .overlay(
-                        Circle()
-                            .strokeBorder(theme.depths.topHighlight, lineWidth: 1)
-                    )
-                    .craftShadow(position == .floating ? theme.shadows.lg : theme.shadows.sm)
-
-                CraftIcon(
-                    symbol,
-                    size: iconSize,
-                    color: theme.colors.textInverse,
-                    renderingMode: .monochrome,
-                    weight: .bold
-                )
-            }
-            .frame(width: hitTargetDiameter, height: hitTargetDiameter)
-            .contentShape(Circle())
-        }
-        .buttonStyle(.craftPress(scale: 0.93))
+        tactileFAB
+            .offset(y: resolvedSize.centerFloatingOffset(position: position))
+            .zIndex(100)
+            .accessibilityLabel(accessibilityTitle)
+            .accessibilityAddTraits(.isButton)
+            .sensoryFeedback(.impact(weight: .medium), trigger: triggerHapticCount)
     }
 
     @ViewBuilder

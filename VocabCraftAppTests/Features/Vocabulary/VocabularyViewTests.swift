@@ -44,12 +44,16 @@ struct VocabularyViewTestingTests {
         let vm = PersonalVaultViewModel(mockWords: [mockWord])
         let view = VocabularyView(vaultViewModel: vm, isSearchVisible: false)
             .environment(\.appContainer, AppContainer.mock)
-        _ = view.body
+        #if canImport(UIKit)
+        _ = UIHostingController(rootView: view).view
+        #endif
 
         vm.setSearchQuery("elo")
         let searchingView = VocabularyView(vaultViewModel: vm, isSearchVisible: true)
             .environment(\.appContainer, AppContainer.mock)
-        _ = searchingView.body
+        #if canImport(UIKit)
+        _ = UIHostingController(rootView: searchingView).view
+        #endif
 
         vm.setSearchQuery("")
         #expect(vm.searchQuery.isEmpty)

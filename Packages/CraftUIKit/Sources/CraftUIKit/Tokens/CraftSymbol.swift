@@ -6,10 +6,14 @@ import Foundation
 public enum CraftSymbol: String, Sendable, CaseIterable, Equatable, Hashable {
     // MARK: Navigation & Structure
     case home = "house"
+    case homeFill = "house.fill"
     case study = "character.book.closed"
+    case booksFill = "books.vertical.fill"
     case practice = "bolt"
     case profile = "person.crop.circle"
+    case profileFill = "person.crop.circle.fill"
     case settings = "gearshape"
+    case settingsFill = "gearshape.fill"
     case chevronRight = "chevron.right"
     case chevronLeft = "chevron.left"
     case chevronDown = "chevron.down"
