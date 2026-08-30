@@ -30,6 +30,7 @@ public protocol CraftSpacingTokens: Sendable {
 }
 
 public extension CraftSpacingTokens {
+    /// Extra-extra-small spacing (2pt / half xs)
     var xxs: CGFloat { 2 }
     var pathDotDiameter: CGFloat { 4.5 }
     var pathDotSpacing: CGFloat { 8.0 }

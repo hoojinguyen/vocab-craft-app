@@ -757,6 +757,42 @@
         }
       }
     },
+    "craft.header.a11y.search_toggle" : {
+      "comment" : "Header search toggle button accessibility label",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toggle Search"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bật tắt tìm kiếm"
+          }
+        }
+      }
+    },
+    "craft.header.a11y.title" : {
+      "comment" : "Page header container accessibility label",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Page Header"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiêu đề trang"
+          }
+        }
+      }
+    },
     "craft.learning_path.challenge_lesson" : {
       "comment" : "Modal sheet CTA checkpoint",
       "extractionState" : "manual",

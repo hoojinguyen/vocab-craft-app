@@ -156,6 +156,12 @@ final class LocalizationTests: XCTestCase {
         XCTAssertEqual(CraftLocalized.format("craft.step_node.step_format", language: "vi", 2, "Ôn tập"), "Bước 2: Ôn tập")
         XCTAssertEqual(CraftLocalized.string("craft.step_node.tap_hint"), "Double tap to select this step")
         XCTAssertEqual(CraftLocalized.string("craft.step_node.tap_hint", language: "vi"), "Chạm hai lần để chọn bước này")
+
+        // Page Header
+        XCTAssertEqual(CraftLocalized.string("craft.header.a11y.title"), "Page Header")
+        XCTAssertEqual(CraftLocalized.string("craft.header.a11y.title", language: "vi"), "Tiêu đề trang")
+        XCTAssertEqual(CraftLocalized.string("craft.header.a11y.search_toggle"), "Toggle Search")
+        XCTAssertEqual(CraftLocalized.string("craft.header.a11y.search_toggle", language: "vi"), "Bật tắt tìm kiếm")
     }
 
     // MARK: - Streak & Activity Scope
