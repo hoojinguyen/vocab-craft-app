@@ -3453,6 +3453,21 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertNotNil(multiSectionPath.onNodeImpression)
     }
 
+    func testLearningPathAcceptsOptionalTabBarPresentationCallback() {
+        let section = LessonSection(
+            id: "tab_bar_scroll",
+            title: "",
+            nodes: []
+        )
+        let path = CraftLearningPath(
+            sections: [section],
+            onTabBarPresentationChange: { _ in }
+        )
+
+        XCTAssertNotNil(path.body)
+        XCTAssertNotNil(path.onTabBarPresentationChange)
+    }
+
     // MARK: - Sticky HUD Builder Tests
 
     func testCraftLearningPathStickyHUDBuilderInitialization() {
@@ -3663,7 +3678,6 @@ final class CraftLearningPathTests: XCTestCase {
         XCTAssertNotNil(path.body)
     }
 }
-
 
 
 
