@@ -58,6 +58,7 @@ public final class ReflexBlitzViewModel {
     }
 
     let continuousSpeechService: ContinuousReflexSpeechProtocol
+    let speechEngine: ReflexSpeechEngineProtocol
     let ttsService: TextToSpeechProtocol
     let evaluateSRSUseCase: EvaluateSRSUseCaseProtocol
     let soundEffectService: SoundEffectServiceProtocol
@@ -114,7 +115,8 @@ public final class ReflexBlitzViewModel {
             continuousSpeechService: ContinuousReflexSpeechService(),
             ttsService: TextToSpeechService(),
             evaluateSRSUseCase: EvaluateSRSUseCase(srsRepository: SRSRepositoryImpl()),
-            soundEffectService: SoundEffectService.shared
+            soundEffectService: SoundEffectService.shared,
+            speechEngine: ResilientReflexSpeechEngine()
         )
     }
 
@@ -126,7 +128,8 @@ public final class ReflexBlitzViewModel {
         continuousSpeechService: ContinuousReflexSpeechProtocol,
         ttsService: TextToSpeechProtocol,
         evaluateSRSUseCase: EvaluateSRSUseCaseProtocol,
-        soundEffectService: SoundEffectServiceProtocol = SoundEffectService.shared
+        soundEffectService: SoundEffectServiceProtocol = SoundEffectService.shared,
+        speechEngine: ReflexSpeechEngineProtocol? = nil
     ) {
         self.words = words
         self.weeklyPracticedCount = weeklyPracticedCount
@@ -136,44 +139,46 @@ public final class ReflexBlitzViewModel {
         self.ttsService = ttsService
         self.evaluateSRSUseCase = evaluateSRSUseCase
         self.soundEffectService = soundEffectService
+        self.speechEngine = speechEngine ?? ResilientReflexSpeechEngine()
         setupSpeechServiceBindings()
+        setupSpeechEngineBindings()
+    }
+
+    private func setupSpeechEngineBindings() {
+        speechEngine.onMatchDetected = { [weak self] matched in
+            self?.handleSpokenMatch(matched)
+        }
+        speechEngine.onTranscriptUpdate = { [weak self] transcript in
+            self?.liveTranscript = transcript
+        }
+        speechEngine.onError = { [weak self] error in
+            print("[ReflexBlitzViewModel] Speech engine error: \(error.localizedDescription)")
+        }
     }
 
     private func setupSpeechServiceBindings() {
         continuousSpeechService.onMatchDetected = { [weak self] matched in
             if Thread.isMainThread {
-                MainActor.assumeIsolated {
-                    self?.handleSpokenMatch(matched)
-                }
+                MainActor.assumeIsolated { self?.handleSpokenMatch(matched) }
             } else {
-                Task { @MainActor [weak self] in
-                    self?.handleSpokenMatch(matched)
-                }
+                Task { @MainActor [weak self] in self?.handleSpokenMatch(matched) }
             }
         }
 
         continuousSpeechService.onTranscriptUpdate = { [weak self] transcript in
             if Thread.isMainThread {
-                MainActor.assumeIsolated {
-                    self?.liveTranscript = transcript
-                }
+                MainActor.assumeIsolated { self?.liveTranscript = transcript }
             } else {
-                Task { @MainActor [weak self] in
-                    self?.liveTranscript = transcript
-                }
+                Task { @MainActor [weak self] in self?.liveTranscript = transcript }
             }
         }
 
         continuousSpeechService.onError = { [weak self] error in
             print("[ReflexBlitzViewModel] Continuous speech error: \(error.localizedDescription)")
             if Thread.isMainThread {
-                MainActor.assumeIsolated {
-                    self?.isKeyboardFallbackActive = true
-                }
+                MainActor.assumeIsolated { self?.isKeyboardFallbackActive = true }
             } else {
-                Task { @MainActor [weak self] in
-                    self?.isKeyboardFallbackActive = true
-                }
+                Task { @MainActor [weak self] in self?.isKeyboardFallbackActive = true }
             }
         }
     }
@@ -227,7 +232,7 @@ public final class ReflexBlitzViewModel {
         countdownCount = 3
         if selectedMode == .speaking {
             let contextualPhrases = words.flatMap { [$0.lemma, $0.exampleSentenceEn] }
-            continuousSpeechService.startSession(contextualPhrases: contextualPhrases)
+            speechEngine.startSession(contextualPhrases: contextualPhrases)
         }
 
         countdownTask = Task { @MainActor [weak self] in
@@ -253,7 +258,7 @@ public final class ReflexBlitzViewModel {
         }
         if selectedMode == .speaking {
             let contextualPhrases = words.flatMap { [$0.lemma, $0.exampleSentenceEn] }
-            continuousSpeechService.startSession(contextualPhrases: contextualPhrases)
+            speechEngine.startSession(contextualPhrases: contextualPhrases)
         }
         beginDrilling()
     }
@@ -305,13 +310,10 @@ public final class ReflexBlitzViewModel {
         }
 
         if selectedMode == .speaking {
-            continuousSpeechService.setTargetWord(
-                lemma: word.lemma,
+            speechEngine.beginWord(
+                targetLemma: word.lemma,
                 contextualPhrases: [word.exampleSentenceEn]
             )
-            if !isKeyboardFallbackActive {
-                continuousSpeechService.resumeListening()
-            }
         } else {
             continuousSpeechService.pauseListening()
         }
@@ -353,20 +355,17 @@ extension ReflexBlitzViewModel {
     private func scheduleMultipleChoiceTimers() {
         hintTimerTask = Task { @MainActor [weak self] in
             try? await Task.sleep(for: .milliseconds(1600))
-            guard !Task.isCancelled else { return }
-            guard let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
+            guard !Task.isCancelled, let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
             self.hintStage = max(self.hintStage, 1)
         }
         hintStage2Task = Task { @MainActor [weak self] in
             try? await Task.sleep(for: .milliseconds(2500))
-            guard !Task.isCancelled else { return }
-            guard let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
+            guard !Task.isCancelled, let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
             self.hintStage = max(self.hintStage, 2)
         }
         hintStage3Task = Task { @MainActor [weak self] in
             try? await Task.sleep(for: .milliseconds(3400))
-            guard !Task.isCancelled else { return }
-            guard let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
+            guard !Task.isCancelled, let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
             self.hintStage = max(self.hintStage, 3)
         }
     }
@@ -374,15 +373,13 @@ extension ReflexBlitzViewModel {
     private func scheduleListeningTimers() {
         hintTimerTask = Task { @MainActor [weak self] in
             try? await Task.sleep(for: .milliseconds(1800))
-            guard !Task.isCancelled else { return }
-            guard let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
+            guard !Task.isCancelled, let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
             self.hintStage = max(self.hintStage, 1)
             self.speakCurrentWord()
         }
         hintStage2Task = Task { @MainActor [weak self] in
             try? await Task.sleep(for: .milliseconds(3000))
-            guard !Task.isCancelled else { return }
-            guard let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
+            guard !Task.isCancelled, let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
             self.hintStage = max(self.hintStage, 2)
             self.speakCurrentWord()
         }
@@ -391,24 +388,31 @@ extension ReflexBlitzViewModel {
     private func scheduleTypingTimers() {
         hintTimerTask = Task { @MainActor [weak self] in
             try? await Task.sleep(for: .milliseconds(2500))
-            guard !Task.isCancelled else { return }
-            guard let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
+            guard !Task.isCancelled, let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
             self.hintStage = max(self.hintStage, 1)
         }
         hintStage2Task = Task { @MainActor [weak self] in
             try? await Task.sleep(for: .milliseconds(4500))
-            guard !Task.isCancelled else { return }
-            guard let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
+            guard !Task.isCancelled, let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
             self.hintStage = max(self.hintStage, 2)
         }
     }
 
     private func scheduleSpeakingTimers() {
         hintTimerTask = Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .milliseconds(3500))
-            guard !Task.isCancelled else { return }
-            guard let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
-            self.hintStage = 1
+            try? await Task.sleep(for: .milliseconds(2500))
+            guard !Task.isCancelled, let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
+            self.hintStage = max(self.hintStage, 1)
+        }
+        hintStage2Task = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .milliseconds(4000))
+            guard !Task.isCancelled, let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
+            self.hintStage = max(self.hintStage, 2)
+        }
+        hintStage3Task = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .milliseconds(5000))
+            guard !Task.isCancelled, let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
+            self.hintStage = max(self.hintStage, 3)
         }
     }
 
@@ -416,8 +420,7 @@ extension ReflexBlitzViewModel {
         let limitSeconds = selectedMode.timeLimitSeconds
         timeoutTimerTask = Task { @MainActor [weak self] in
             try? await Task.sleep(for: .seconds(limitSeconds))
-            guard !Task.isCancelled else { return }
-            guard let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
+            guard !Task.isCancelled, let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
             self.handleTimeout()
         }
     }
@@ -622,7 +625,7 @@ extension ReflexBlitzViewModel {
             )
         }
 
-        continuousSpeechService.pauseListening()
+        speechEngine.endWord()
 
         withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
             self.cardPhase = .reviewed(result: ReflexCardResult(
@@ -659,7 +662,11 @@ extension ReflexBlitzViewModel {
         )
         attempts.append(attempt)
 
-        continuousSpeechService.pauseListening()
+        if selectedMode == .speaking {
+            speechEngine.endWord()
+        } else {
+            continuousSpeechService.pauseListening()
+        }
 
         Task {
             _ = try? await self.evaluateSRSUseCase.recordReview(

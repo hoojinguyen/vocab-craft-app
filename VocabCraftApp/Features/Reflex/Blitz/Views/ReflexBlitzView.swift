@@ -186,24 +186,6 @@ public struct ReflexBlitzView: View {
                 }
 
                 Spacer(minLength: theme.spacing.xs)
-
-                // Skip Button for Speaking
-                if viewModel.cardPhase == .activeCountdown && viewModel.selectedMode == .speaking {
-                    CraftButton(
-                        AppStrings.ReflexBlitz.skip,
-                        iconName: "forward.fill",
-                        variant: .outline,
-                        size: .md,
-                        isFullWidth: true,
-                        style: .outlined,
-                        action: {
-                            viewModel.skip()
-                        }
-                    )
-                    .padding(.horizontal, theme.spacing.lg)
-                    .padding(.bottom, theme.spacing.lg)
-                    .transition(.opacity)
-                }
             }
 
             // Floating Bottom Feedback Sheet Overlay
@@ -233,9 +215,31 @@ public struct ReflexBlitzView: View {
             typingCard(for: word)
         } else if viewModel.selectedMode == .listening {
             listeningCard(for: word)
-        } else {
-            containerCard(for: word)
+        } else if viewModel.selectedMode == .speaking {
+            speakingCard(for: word)
         }
+    }
+
+    @ViewBuilder
+    private func speakingCard(for word: ReflexBlitzWordItem) -> some View {
+        ReflexSpeakingModeView(
+            word: word,
+            isReviewed: isReviewed,
+            isResultCorrect: viewModel.currentAttemptIsCorrect,
+            isResultTimeout: isReviewedTimeout,
+            showHint: viewModel.showHint,
+            hintStage: viewModel.hintStage,
+            clozeStages: viewModel.currentClozeStages,
+            clozeParts: ReflexClozeFormatter.extractTemplateParts(from: word.clozeSentenceEn),
+            displayedSentence: isReviewed ? word.completedSentenceWithTargetWord : word.clozeSentenceEn,
+            hintBadgeText: viewModel.currentHintBadgeText,
+            speechState: viewModel.cardPhase == .activeCountdown ? .listening() : .evaluated(overallScore: viewModel.currentAttemptIsCorrect ? 100 : 0),
+            liveTranscript: viewModel.liveTranscript,
+            onReplayAudio: {
+                viewModel.speakCurrentWord()
+            }
+        )
+        .padding(.horizontal, theme.spacing.base)
     }
 
     @ViewBuilder
@@ -312,48 +316,6 @@ public struct ReflexBlitzView: View {
             }
         )
         .padding(.horizontal, theme.spacing.base)
-    }
-
-    @ViewBuilder
-    private func containerCard(for word: ReflexBlitzWordItem) -> some View {
-        ReflexCardContainerView(
-            isReviewed: isReviewed,
-            isCorrect: viewModel.currentAttemptIsCorrect,
-            isTimeout: isReviewedTimeout,
-            timerStage: viewModel.timerStage
-        ) {
-            if isReviewed {
-                ReflexReviewedConsolidationView(
-                    word: word,
-                    mode: viewModel.selectedMode,
-                    reviewResult: reviewResult,
-                    displayedSentence: word.completedSentenceWithTargetWord,
-                    onReplayAudio: {
-                        viewModel.speakCurrentWord()
-                    }
-                )
-            } else {
-                switch viewModel.selectedMode {
-                case .speaking:
-                    ReflexSpeakingModeView(
-                        word: word,
-                        liveTranscript: viewModel.liveTranscript,
-                        elapsedTimeMs: viewModel.elapsedTimeMs,
-                        showHint: viewModel.showHint,
-                        hintStage: viewModel.hintStage,
-                        clozeStages: viewModel.currentClozeStages,
-                        clozeParts: ReflexClozeFormatter.extractTemplateParts(from: word.clozeSentenceEn),
-                        displayedSentence: word.clozeSentenceEn,
-                        hintBadgeText: viewModel.currentHintBadgeText,
-                        onSwitchToKeyboard: {
-                            viewModel.toggleKeyboardFallback()
-                        }
-                    )
-                case .multipleChoice, .typing, .listening:
-                    EmptyView()
-                }
-            }
-        }
     }
 
     private func advanceToNextWord() {
