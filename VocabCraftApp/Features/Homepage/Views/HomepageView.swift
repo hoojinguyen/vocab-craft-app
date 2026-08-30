@@ -1,7 +1,7 @@
 import CraftUIKit
 import SwiftUI
 
-/// Integrated Homepage view showcasing sticky HeaderView, CraftLearningPath gamified journey, and liquid glass navigation.
+/// Integrated Homepage view showcasing in-scroll HomeTopHeaderView, CraftLearningPath gamified journey, and liquid glass navigation.
 public struct HomepageView: View {
     @State private var viewModel: HomepageViewModel
     @State private var vaultVM: PersonalVaultViewModel?

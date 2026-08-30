@@ -121,14 +121,10 @@
 		30006D78C4524120F696 /* ReviewWeakWordsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20006D78C4524120F696 /* ReviewWeakWordsUseCase.swift */; };
 		30001BF345803150242B /* ToggleWordBookmarkUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20001BF345803150242B /* ToggleWordBookmarkUseCase.swift */; };
 		30008990938AED4AD135 /* HomepageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20008990938AED4AD135 /* HomepageViewModel.swift */; };
-		30005B77B1A1EFC9EA05 /* ActionCardsGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005B77B1A1EFC9EA05 /* ActionCardsGrid.swift */; };
-		30003F92B199F9827BCA /* CEFRDistributionCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003F92B199F9827BCA /* CEFRDistributionCard.swift */; };
-		30002A4CBDD7D76C361F /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20002A4CBDD7D76C361F /* HeaderView.swift */; };
+		3000B2B2000500050001 /* HomeTopHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B2B2000500050001 /* HomeTopHeaderView.swift */; };
 		300034E8C11F48348C6D /* HomepageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200034E8C11F48348C6D /* HomepageView.swift */; };
 		300096513C5AE8139597 /* MobileSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200096513C5AE8139597 /* MobileSearchView.swift */; };
-		300020749F4D43ABD652 /* SRSMemoryHeroCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200020749F4D43ABD652 /* SRSMemoryHeroCard.swift */; };
 		300008890465B3CF1A36 /* SearchNewWordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200008890465B3CF1A36 /* SearchNewWordView.swift */; };
-		3000B63A5CC107F07807 /* SuggestedWordsCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B63A5CC107F07807 /* SuggestedWordsCardView.swift */; };
 		3000C001000100010020 /* ReflexBlitzPhase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010020 /* ReflexBlitzPhase.swift */; };
 		3000925E6AEFC3C319C4 /* ReflexBlitzViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000925E6AEFC3C319C4 /* ReflexBlitzViewModel.swift */; };
 		3000E2383A0FDF336719 /* ReflexBlitzModeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000E2383A0FDF336719 /* ReflexBlitzModeSelectionView.swift */; };
@@ -216,11 +212,9 @@
 		3000496889722C6A9765 /* VocabularyUseCasesTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000496889722C6A9765 /* VocabularyUseCasesTests.swift */; };
 		3000D1459B6F5FD76CEA /* DomainEntitiesTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000D1459B6F5FD76CEA /* DomainEntitiesTests.swift */; };
 		3000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift */; };
-		3000E12B85B25E96B828 /* BentoCardsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000E12B85B25E96B828 /* BentoCardsTests.swift */; };
-		300031F097ABA2148D97 /* HeaderViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200031F097ABA2148D97 /* HeaderViewTests.swift */; };
+		3000B2B2000500050002 /* HomeTopHeaderViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B2B2000500050002 /* HomeTopHeaderViewTests.swift */; };
 		30004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift */; };
 		3000B8BA7058BCC04544 /* MobileSearchViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B8BA7058BCC04544 /* MobileSearchViewTests.swift */; };
-		3000F020886343A9460C /* SuggestedWordsCardViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000F020886343A9460C /* SuggestedWordsCardViewTests.swift */; };
 		300014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift */; };
 		300034AB7AB035E97418 /* MixedReflexDrillViewsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200034AB7AB035E97418 /* MixedReflexDrillViewsTests.swift */; };
 		30009B83DC7F07E6E1B1 /* PersonalVaultViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20009B83DC7F07E6E1B1 /* PersonalVaultViewModelTests.swift */; };
@@ -430,14 +424,10 @@
 		20006D78C4524120F696 /* ReviewWeakWordsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReviewWeakWordsUseCase.swift"; sourceTree = "<group>"; };
 		20001BF345803150242B /* ToggleWordBookmarkUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ToggleWordBookmarkUseCase.swift"; sourceTree = "<group>"; };
 		20008990938AED4AD135 /* HomepageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomepageViewModel.swift"; sourceTree = "<group>"; };
-		20005B77B1A1EFC9EA05 /* ActionCardsGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ActionCardsGrid.swift"; sourceTree = "<group>"; };
-		20003F92B199F9827BCA /* CEFRDistributionCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CEFRDistributionCard.swift"; sourceTree = "<group>"; };
-		20002A4CBDD7D76C361F /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HeaderView.swift"; sourceTree = "<group>"; };
+		2000B2B2000500050001 /* HomeTopHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomeTopHeaderView.swift"; sourceTree = "<group>"; };
 		200034E8C11F48348C6D /* HomepageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomepageView.swift"; sourceTree = "<group>"; };
 		200096513C5AE8139597 /* MobileSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MobileSearchView.swift"; sourceTree = "<group>"; };
-		200020749F4D43ABD652 /* SRSMemoryHeroCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SRSMemoryHeroCard.swift"; sourceTree = "<group>"; };
 		200008890465B3CF1A36 /* SearchNewWordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SearchNewWordView.swift"; sourceTree = "<group>"; };
-		2000B63A5CC107F07807 /* SuggestedWordsCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SuggestedWordsCardView.swift"; sourceTree = "<group>"; };
 		2000C001000100010020 /* ReflexBlitzPhase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzPhase.swift"; sourceTree = "<group>"; };
 		2000925E6AEFC3C319C4 /* ReflexBlitzViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzViewModel.swift"; sourceTree = "<group>"; };
 		2000E2383A0FDF336719 /* ReflexBlitzModeSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzModeSelectionView.swift"; sourceTree = "<group>"; };
@@ -515,11 +505,9 @@
 		2000496889722C6A9765 /* VocabularyUseCasesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyUseCasesTests.swift"; sourceTree = "<group>"; };
 		2000D1459B6F5FD76CEA /* DomainEntitiesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DomainEntitiesTests.swift"; sourceTree = "<group>"; };
 		2000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EvaluateSRSUseCaseTests.swift"; sourceTree = "<group>"; };
-		2000E12B85B25E96B828 /* BentoCardsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BentoCardsTests.swift"; sourceTree = "<group>"; };
-		200031F097ABA2148D97 /* HeaderViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HeaderViewTests.swift"; sourceTree = "<group>"; };
+		2000B2B2000500050002 /* HomeTopHeaderViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomeTopHeaderViewTests.swift"; sourceTree = "<group>"; };
 		20004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomepageViewTests.swift"; sourceTree = "<group>"; };
 		2000B8BA7058BCC04544 /* MobileSearchViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MobileSearchViewTests.swift"; sourceTree = "<group>"; };
-		2000F020886343A9460C /* SuggestedWordsCardViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SuggestedWordsCardViewTests.swift"; sourceTree = "<group>"; };
 		200014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MixedReflexDrillViewModelTests.swift"; sourceTree = "<group>"; };
 		200034AB7AB035E97418 /* MixedReflexDrillViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MixedReflexDrillViewsTests.swift"; sourceTree = "<group>"; };
 		20009B83DC7F07E6E1B1 /* PersonalVaultViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersonalVaultViewModelTests.swift"; sourceTree = "<group>"; };
@@ -1061,14 +1049,10 @@
 		4000BDD811B778859DDB /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				20005B77B1A1EFC9EA05 /* ActionCardsGrid.swift */,
-				20003F92B199F9827BCA /* CEFRDistributionCard.swift */,
-				20002A4CBDD7D76C361F /* HeaderView.swift */,
+				2000B2B2000500050001 /* HomeTopHeaderView.swift */,
 				200034E8C11F48348C6D /* HomepageView.swift */,
 				200096513C5AE8139597 /* MobileSearchView.swift */,
-				200020749F4D43ABD652 /* SRSMemoryHeroCard.swift */,
 				200008890465B3CF1A36 /* SearchNewWordView.swift */,
-				2000B63A5CC107F07807 /* SuggestedWordsCardView.swift */,
 			);
 			path = "Views";
 			sourceTree = "<group>";
@@ -1397,13 +1381,11 @@
 			isa = PBXGroup;
 			children = (
 				2000B2B2000200020002 /* HomeLocalizationTests.swift */,
+				2000B2B2000500050002 /* HomeTopHeaderViewTests.swift */,
 				2000B2B2000300030003 /* HomepageViewModelTests.swift */,
 				2000B2B2000400040004 /* LearningPathDataMapperTests.swift */,
-				2000E12B85B25E96B828 /* BentoCardsTests.swift */,
-				200031F097ABA2148D97 /* HeaderViewTests.swift */,
 				20004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift */,
 				2000B8BA7058BCC04544 /* MobileSearchViewTests.swift */,
-				2000F020886343A9460C /* SuggestedWordsCardViewTests.swift */,
 			);
 			path = "Homepage";
 			sourceTree = "<group>";
@@ -1694,14 +1676,10 @@
 				30006D78C4524120F696 /* ReviewWeakWordsUseCase.swift in Sources */,
 				30001BF345803150242B /* ToggleWordBookmarkUseCase.swift in Sources */,
 				30008990938AED4AD135 /* HomepageViewModel.swift in Sources */,
-				30005B77B1A1EFC9EA05 /* ActionCardsGrid.swift in Sources */,
-				30003F92B199F9827BCA /* CEFRDistributionCard.swift in Sources */,
-				30002A4CBDD7D76C361F /* HeaderView.swift in Sources */,
+				3000B2B2000500050001 /* HomeTopHeaderView.swift in Sources */,
 				300034E8C11F48348C6D /* HomepageView.swift in Sources */,
 				300096513C5AE8139597 /* MobileSearchView.swift in Sources */,
-				300020749F4D43ABD652 /* SRSMemoryHeroCard.swift in Sources */,
 				300008890465B3CF1A36 /* SearchNewWordView.swift in Sources */,
-				3000B63A5CC107F07807 /* SuggestedWordsCardView.swift in Sources */,
 				3000C001000100010020 /* ReflexBlitzPhase.swift in Sources */,
 				3000925E6AEFC3C319C4 /* ReflexBlitzViewModel.swift in Sources */,
 				3000E2383A0FDF336719 /* ReflexBlitzModeSelectionView.swift in Sources */,
@@ -1811,15 +1789,13 @@
 
 				3000D1459B6F5FD76CEA /* DomainEntitiesTests.swift in Test Sources */,
 				3000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift in Test Sources */,
-				3000E12B85B25E96B828 /* BentoCardsTests.swift in Test Sources */,
-				300031F097ABA2148D97 /* HeaderViewTests.swift in Test Sources */,
+				3000B2B2000500050002 /* HomeTopHeaderViewTests.swift in Test Sources */,
 				30004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift in Test Sources */,
 				3000B2B2000100010001 /* LearningPathUseCasesTests.swift in Test Sources */,
 				3000B2B2000200020002 /* HomeLocalizationTests.swift in Test Sources */,
 				3000B2B2000300030003 /* HomepageViewModelTests.swift in Test Sources */,
 				3000B2B2000400040004 /* LearningPathDataMapperTests.swift in Test Sources */,
 				3000B8BA7058BCC04544 /* MobileSearchViewTests.swift in Test Sources */,
-				3000F020886343A9460C /* SuggestedWordsCardViewTests.swift in Test Sources */,
 				300014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift in Test Sources */,
 				300034AB7AB035E97418 /* MixedReflexDrillViewsTests.swift in Test Sources */,
 				30009B83DC7F07E6E1B1 /* PersonalVaultViewModelTests.swift in Test Sources */,

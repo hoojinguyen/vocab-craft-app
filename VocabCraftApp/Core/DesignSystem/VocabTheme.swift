@@ -148,3 +148,15 @@ public struct VocabTheme: CraftTheme {
         self.depths = depths
     }
 }
+
+// MARK: - Bento Card Button Style
+
+/// Tactile spring scale interaction button style used across interactive cards.
+public struct BentoCardButtonStyle: ButtonStyle {
+    public init() {}
+    public func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
+            .animation(.spring(response: 0.2, dampingFraction: 0.6), value: configuration.isPressed)
+    }
+}
