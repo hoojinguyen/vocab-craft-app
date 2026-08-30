@@ -2277,9 +2277,11 @@ private struct CatalogContainersOverlaysSection: View {
                         .padding(.bottom, 60)
                         .frame(height: 160)
 
-                        CraftFloatingTabBar(selectedItem: $selectedTab, items: CatalogTabItem.allCases, centerAction: showCenterFAB ? onFabTap : nil, centerSymbol: CraftSymbol.add.rawValue, centerTitle: "Add")
+                        CraftFloatingTabBar(selectedItem: $selectedTab, items: CatalogTabItem.allCases, style: .glass, centerAction: showCenterFAB ? onFabTap : nil, centerSymbol: CraftSymbol.add.rawValue, centerTitle: "Add")
                             .padding(.bottom, 4)
                     }
+
+                    CraftFloatingTabBar(selectedItem: $selectedTab, items: CatalogTabItem.allCases, style: .glass, presentation: .compact, centerAction: showCenterFAB ? onFabTap : nil, centerSymbol: CraftSymbol.add.rawValue, centerTitle: "Add")
                 }
             }
         }

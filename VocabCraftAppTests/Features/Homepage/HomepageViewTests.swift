@@ -8,6 +8,42 @@ import XCTest
 
 @MainActor
 final class HomepageViewTests: XCTestCase {
+    func testTabBarPresentationPolicyPreservesHomePresentation() {
+        XCTAssertEqual(
+            HomepageTabBarPresentationPolicy.presentation(
+                for: .home,
+                current: .compact
+            ),
+            .compact
+        )
+    }
+
+    func testTabBarPresentationPolicyResetsOutsideHome() {
+        XCTAssertEqual(
+            HomepageTabBarPresentationPolicy.presentation(
+                for: .vocabulary,
+                current: .compact
+            ),
+            .expanded
+        )
+    }
+
+    func testCraftFloatingTabBarInitializationSupportsCompactPresentation() {
+        let tabBar = CraftFloatingTabBar(
+            selectedItem: .constant(TabItem.home),
+            items: TabItem.navigationTabs,
+            style: .glass,
+            presentation: .compact,
+            centerPosition: .floating,
+            centerAction: {},
+            centerSymbol: CraftSymbol.practice.rawValue,
+            centerTitleKey: AppStrings.Tabs.reflex
+        )
+
+        XCTAssertEqual(tabBar.presentation, .compact)
+        XCTAssertNotNil(tabBar.body)
+    }
+
     func testTabItemCraftProtocolConformance() {
         XCTAssertEqual(TabItem.home.titleKey, AppStrings.Tabs.home)
         XCTAssertEqual(TabItem.home.symbol, CraftSymbol.home.rawValue)

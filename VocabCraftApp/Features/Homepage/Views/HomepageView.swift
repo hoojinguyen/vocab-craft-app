@@ -1,6 +1,15 @@
 import CraftUIKit
 import SwiftUI
 
+enum HomepageTabBarPresentationPolicy {
+    static func presentation(
+        for tab: TabItem,
+        current: CraftTabBarPresentation
+    ) -> CraftTabBarPresentation {
+        tab == .home ? current : .expanded
+    }
+}
+
 /// Integrated Homepage view showcasing in-scroll HomeTopHeaderView, CraftLearningPath gamified journey, and liquid glass navigation.
 public struct HomepageView: View {
     @State private var viewModel: HomepageViewModel
@@ -8,6 +17,7 @@ public struct HomepageView: View {
     @State private var settingsVM: SettingsViewModel?
     @State private var reflexBlitzVM: ReflexBlitzViewModel?
     @State private var activeLessonNode: LessonNodeModel?
+    @State private var tabBarPresentation: CraftTabBarPresentation = .expanded
     @Environment(\.appContainer) private var appContainer
     @Environment(\.appRouter) private var appRouter
 
@@ -55,6 +65,11 @@ public struct HomepageView: View {
                                 }
                             )
                         )
+                    },
+                    onTabBarPresentationChange: { presentation in
+                        MainActor.assumeIsolated {
+                            tabBarPresentation = presentation
+                        }
                     }
                 )
                 .task {
@@ -88,6 +103,7 @@ public struct HomepageView: View {
                     items: TabItem.navigationTabs,
                     style: .glass,
                     size: .md,
+                    presentation: tabBarPresentation,
                     centerPosition: .floating,
                     centerAction: {
                         router.navigateToReflex()
@@ -134,6 +150,10 @@ public struct HomepageView: View {
             if newTab == .reflex && reflexBlitzVM == nil {
                 self.reflexBlitzVM = appContainer.makeReflexBlitzViewModel()
             }
+            tabBarPresentation = HomepageTabBarPresentationPolicy.presentation(
+                for: newTab,
+                current: tabBarPresentation
+            )
         }
         .environment(\.locale, appContainer.userSettingsStore.appLocale ?? .autoupdatingCurrent)
     }
