@@ -78,14 +78,14 @@ public struct CraftPageHeader<Leading: View, Trailing: View>: View {
             leadingContent
 
             VStack(alignment: .leading, spacing: theme.spacing.xxs) {
-                Text(title, bundle: .module)
+                Text(title)
                     .font(theme.typography.displayLarge)
                     .foregroundStyle(theme.colors.textPrimary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
 
                 if let subtitle {
-                    Text(subtitle, bundle: .module)
+                    Text(subtitle)
                         .font(theme.typography.caption)
                         .foregroundStyle(theme.colors.textSecondary)
                         .lineLimit(1)
@@ -107,20 +107,20 @@ public struct CraftPageHeader<Leading: View, Trailing: View>: View {
             }
 
             VStack(alignment: .center, spacing: theme.spacing.xxs) {
-                Text(title, bundle: .module)
+                Text(title)
                     .font(theme.typography.headline)
                     .foregroundStyle(theme.colors.textPrimary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
 
                 if let subtitle {
-                    Text(subtitle, bundle: .module)
+                    Text(subtitle)
                         .font(theme.typography.caption)
                         .foregroundStyle(theme.colors.textSecondary)
                         .lineLimit(1)
                 }
             }
-            .padding(.horizontal, 48)
+            .padding(.horizontal, theme.spacing.xxl)
         }
     }
 
