@@ -50,9 +50,28 @@ final class NavigationTests: XCTestCase {
         XCTAssertEqual(bar.resolvedSize, .sm)
         XCTAssertGreaterThanOrEqual(
             bar.centerActionHitTargetDiameter,
-            CraftTabBarSize.sm.barHeight
+            bar.resolvedSize.barHeight
+        )
+        XCTAssertEqual(
+            bar.centerActionHitTargetDiameter,
+            bar.resolvedSize.centerButtonDiameter(position: .floating)
         )
         XCTAssertNotNil(bar.body)
+    }
+
+    func testFloatingTabBarNativeGlassRequiresTransparency() {
+        XCTAssertFalse(
+            CraftFloatingTabBar<SampleTab>.usesNativeGlass(
+                style: .glass,
+                reduceTransparency: true
+            )
+        )
+        XCTAssertTrue(
+            CraftFloatingTabBar<SampleTab>.usesNativeGlass(
+                style: .glass,
+                reduceTransparency: false
+            )
+        )
     }
 
     func testFloatingTabBarStreamlinedInit() {

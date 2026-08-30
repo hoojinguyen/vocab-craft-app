@@ -309,6 +309,13 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
 
     public var centerTitle: String? { rawCenterTitle }
 
+    static func usesNativeGlass(
+        style: CraftSurfaceStyle,
+        reduceTransparency: Bool
+    ) -> Bool {
+        style == .glass && !reduceTransparency
+    }
+
     var resolvedSize: CraftTabBarSize {
         presentation == .compact ? .sm : size
     }
@@ -384,7 +391,10 @@ public struct CraftFloatingTabBar<Item: CraftTabItemProtocol>: View {
 
     @ViewBuilder
     private var barContainer: some View {
-        if #available(iOS 26, macOS 26, *), style == .glass {
+        if #available(iOS 26, macOS 26, *), Self.usesNativeGlass(
+            style: style,
+            reduceTransparency: reduceTransparency
+        ) {
             GlassEffectContainer(spacing: theme.spacing.xs) {
                 ZStack {
                     barContent
@@ -842,6 +852,7 @@ private struct CraftTabButton<Item: CraftTabItemProtocol>: View {
 /// Isolated tactile / glass action button view located at the center of the tab bar.
 private struct CraftCenterActionButton: View {
     @Environment(\.craftTheme) private var theme
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @State private var triggerHapticCount = 0
 
     let symbol: String
@@ -886,7 +897,7 @@ private struct CraftCenterActionButton: View {
 
     @ViewBuilder
     private var glassFAB: some View {
-        if #available(iOS 26, macOS 26, *) {
+        if #available(iOS 26, macOS 26, *), !reduceTransparency {
             Button {
                 triggerHapticCount += 1
                 action()
