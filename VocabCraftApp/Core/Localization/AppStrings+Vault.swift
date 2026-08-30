@@ -11,6 +11,9 @@ extension AppStrings {
         public static var searchPlaceholderText: String {
             String(localized: "app.vault.search_placeholder", defaultValue: "Search vocabulary...", bundle: .module)
         }
+        public static var searchToggleA11y: String {
+            String(localized: "app.vault.header.search_toggle", defaultValue: "Toggle Search", bundle: .module)
+        }
         public static var filterNotMasteredTitle: String {
             String(localized: "app.vault.filter.not_mastered_title", defaultValue: "Learning", bundle: .module)
         }

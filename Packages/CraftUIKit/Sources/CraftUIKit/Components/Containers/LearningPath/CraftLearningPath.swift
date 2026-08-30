@@ -485,6 +485,7 @@ public struct CraftLearningPath: View {
                 if scrollToActive, !hasScrolledToActive, let targetID = activeNodeID {
                     Task { @MainActor in
                         try? await Task.sleep(for: .milliseconds(300))
+                        guard !Task.isCancelled else { return }
                         performScroll(proxy, to: targetID, reducedMotion: isReducedMotion)
                         hasScrolledToActive = true
                     }

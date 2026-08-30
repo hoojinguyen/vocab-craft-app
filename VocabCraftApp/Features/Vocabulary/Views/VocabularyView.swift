@@ -55,7 +55,7 @@ public struct VocabularyView: View {
                             size: .md,
                             shape: .circle,
                             variant: isSearchVisible ? .filled : .subtle,
-                            accessibilityLabel: CraftLocalized.string("craft.header.a11y.search_toggle"),
+                            accessibilityLabel: AppStrings.Vault.searchToggleA11y,
                             action: {
                                 withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                                     isSearchVisible.toggle()

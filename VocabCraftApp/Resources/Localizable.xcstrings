@@ -3044,6 +3044,23 @@
         }
       }
     },
+    "app.vault.header.search_toggle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toggle Search"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bật tắt tìm kiếm"
+          }
+        }
+      }
+    },
     "app.vault.title" : {
       "extractionState" : "manual",
       "localizations" : {
