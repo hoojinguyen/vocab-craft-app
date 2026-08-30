@@ -94,7 +94,6 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     }
 
     public func endWord() {
-        _ = currentWordSessionToken
         currentWordSessionToken = UUID() // Invalidate current token
 
         activeRequest?.endAudio()
