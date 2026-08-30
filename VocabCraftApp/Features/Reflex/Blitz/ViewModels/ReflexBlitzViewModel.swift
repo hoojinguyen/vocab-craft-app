@@ -151,7 +151,7 @@ public final class ReflexBlitzViewModel {
         speechEngine.onTranscriptUpdate = { [weak self] transcript in
             self?.liveTranscript = transcript
         }
-        speechEngine.onError = { [weak self] error in
+        speechEngine.onError = { error in
             print("[ReflexBlitzViewModel] Speech engine error: \(error.localizedDescription)")
         }
     }
@@ -446,10 +446,10 @@ extension ReflexBlitzViewModel {
         } else if selectedMode == .typing {
             if ms >= 2500 { self.hintStage = max(self.hintStage, 1) }
             if ms >= 4500 { self.hintStage = max(self.hintStage, 2) }
-        } else {
-            if ms >= 3500 {
-                self.hintStage = 1
-            }
+        } else if selectedMode == .speaking {
+            if ms >= 2500 { self.hintStage = max(self.hintStage, 1) }
+            if ms >= 4000 { self.hintStage = max(self.hintStage, 2) }
+            if ms >= 5000 { self.hintStage = max(self.hintStage, 3) }
         }
         let limitMs = Int(selectedMode.timeLimitSeconds * 1000)
         if ms >= limitMs && phase == .drilling && cardPhase == .activeCountdown {
