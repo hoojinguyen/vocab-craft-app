@@ -197,6 +197,12 @@ public enum CraftCenterButtonPosition: String, Sendable, CaseIterable {
     case floating
 }
 
+/// Presentation states for scroll-responsive tab bar content.
+public enum CraftTabBarPresentation: String, Sendable, Equatable, CaseIterable {
+    case expanded
+    case compact
+}
+
 // MARK: - Tab Bar Item Preference Key
 
 /// Legacy preference key retained for source compatibility with clients that inspect tab bounds.
@@ -214,6 +220,62 @@ enum CraftTabBarAnimationPolicy {
         animations: CraftAnimationTokens
     ) -> Animation? {
         reduceMotion ? nil : animations.springSmooth
+    }
+
+    static func presentationAnimation(
+        reduceMotion: Bool,
+        animations: CraftAnimationTokens
+    ) -> Animation? {
+        reduceMotion ? nil : animations.springGentle
+    }
+}
+
+struct CraftTabBarScrollPresentationReducer: Equatable {
+    private(set) var presentation: CraftTabBarPresentation
+    private var lastOffset: CGFloat?
+    private var directionalTravel: CGFloat = 0
+
+    init(presentation: CraftTabBarPresentation = .expanded) {
+        self.presentation = presentation
+    }
+
+    mutating func reset(at contentOffset: CGFloat = 0) {
+        lastOffset = normalized(contentOffset)
+        directionalTravel = 0
+    }
+
+    mutating func receive(
+        contentOffset: CGFloat,
+        threshold: CGFloat
+    ) -> CraftTabBarPresentation? {
+        guard contentOffset.isFinite, threshold > 0 else { return nil }
+
+        let offset = normalized(contentOffset)
+        guard let lastOffset else {
+            self.lastOffset = offset
+            return nil
+        }
+
+        let delta = offset - lastOffset
+        self.lastOffset = offset
+
+        switch presentation {
+        case .expanded:
+            directionalTravel = delta > 0 ? directionalTravel + delta : 0
+            guard directionalTravel >= threshold else { return nil }
+            presentation = .compact
+        case .compact:
+            directionalTravel = delta < 0 ? directionalTravel - delta : 0
+            guard directionalTravel >= threshold else { return nil }
+            presentation = .expanded
+        }
+
+        directionalTravel = 0
+        return presentation
+    }
+
+    private func normalized(_ contentOffset: CGFloat) -> CGFloat {
+        max(0, contentOffset)
     }
 }
 
