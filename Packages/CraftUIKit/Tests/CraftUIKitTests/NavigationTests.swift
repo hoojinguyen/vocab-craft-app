@@ -27,6 +27,53 @@ struct CustomStringTab: CraftTabItemProtocol {
 
 final class NavigationTests: XCTestCase {
 
+    func testFloatingTabBarDefaultsToExpandedPresentation() {
+        let binding = Binding(get: { SampleTab.home }, set: { _ in })
+        let bar = CraftFloatingTabBar(selectedItem: binding, items: SampleTab.allCases)
+
+        XCTAssertEqual(bar.presentation, .expanded)
+        XCTAssertEqual(bar.resolvedSize, .md)
+    }
+
+    func testFloatingTabBarUsesCompactPresentationMetrics() {
+        let binding = Binding(get: { SampleTab.home }, set: { _ in })
+        let bar = CraftFloatingTabBar(
+            selectedItem: binding,
+            items: SampleTab.allCases,
+            size: .lg,
+            presentation: .compact,
+            centerAction: {},
+            centerSymbol: CraftSymbol.add.rawValue
+        )
+
+        XCTAssertEqual(bar.presentation, .compact)
+        XCTAssertEqual(bar.resolvedSize, .sm)
+        XCTAssertGreaterThanOrEqual(
+            bar.centerActionHitTargetDiameter,
+            bar.resolvedSize.barHeight
+        )
+        XCTAssertEqual(
+            bar.centerActionHitTargetDiameter,
+            bar.resolvedSize.centerButtonDiameter(position: .floating)
+        )
+        XCTAssertNotNil(bar.body)
+    }
+
+    func testFloatingTabBarNativeGlassRequiresTransparency() {
+        XCTAssertFalse(
+            CraftFloatingTabBar<SampleTab>.usesNativeGlass(
+                style: .glass,
+                reduceTransparency: true
+            )
+        )
+        XCTAssertTrue(
+            CraftFloatingTabBar<SampleTab>.usesNativeGlass(
+                style: .glass,
+                reduceTransparency: false
+            )
+        )
+    }
+
     func testFloatingTabBarStreamlinedInit() {
         let binding = Binding(get: { SampleTab.home }, set: { _ in })
         let tabs = SampleTab.allCases
@@ -480,4 +527,3 @@ final class NavigationTests: XCTestCase {
         XCTAssertEqual(CraftLocalized.string("craft.tab_bar.center_action_fallback", language: "vi"), "Tác vụ")
     }
 }
-

@@ -47,6 +47,7 @@ public struct CraftLearningPath: View {
     public let onSectionAppear: (@Sendable (LessonSection) -> Void)?
     public let onAutoScrolled: (@Sendable (String) -> Void)?
     public let onNodeImpression: (@Sendable (LessonNodeModel) -> Void)?
+    public let onTabBarPresentationChange: (@Sendable (CraftTabBarPresentation) -> Void)?
     public let nodeImpressionThreshold: TimeInterval
 
     @Environment(\.craftTheme) private var theme
@@ -57,6 +58,8 @@ public struct CraftLearningPath: View {
     @State private var hasScrolledToActive: Bool = false
     @State private var dockedSectionIDs: Set<String> = []
     @State private var dockedSection: LessonSection?
+    @State private var tabBarScrollReducer = CraftTabBarScrollPresentationReducer()
+    @State private var tracksUserTabBarScroll = false
 
     // MARK: - Initializers
 
@@ -133,6 +136,7 @@ public struct CraftLearningPath: View {
     ///   - onSectionAppear: Optional closure invoked when a section appears.
     ///   - onAutoScrolled: Optional closure invoked when auto-scroll completes.
     ///   - onNodeImpression: Optional closure invoked when a node impression is recorded.
+    ///   - onTabBarPresentationChange: Optional closure invoked when a deliberate user scroll changes the tab bar presentation.
     ///   - nodeImpressionThreshold: Duration in seconds a node must be visible before impression triggers (default: `0.5`).
     public init(
         sections: [LessonSection],
@@ -158,6 +162,7 @@ public struct CraftLearningPath: View {
         onSectionAppear: (@Sendable (LessonSection) -> Void)? = nil,
         onAutoScrolled: (@Sendable (String) -> Void)? = nil,
         onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        onTabBarPresentationChange: (@Sendable (CraftTabBarPresentation) -> Void)? = nil,
         nodeImpressionThreshold: TimeInterval = 0.5
     ) {
         self.sections = sections
@@ -184,6 +189,7 @@ public struct CraftLearningPath: View {
         self.onSectionAppear = onSectionAppear
         self.onAutoScrolled = onAutoScrolled
         self.onNodeImpression = onNodeImpression
+        self.onTabBarPresentationChange = onTabBarPresentationChange
         self.nodeImpressionThreshold = nodeImpressionThreshold
     }
 
@@ -392,7 +398,8 @@ public struct CraftLearningPath: View {
     private var scrollableView: some View {
         let isReducedMotion = reduceMotion
         return ScrollViewReader { proxy in
-            ScrollView {
+            trackedTabBarScrollView(
+                ScrollView {
                 if let topHeader = topHeaderBuilder {
                     topHeader()
                 }
@@ -501,7 +508,57 @@ public struct CraftLearningPath: View {
                 performScroll(proxy, to: id, reducedMotion: isReducedMotion)
                 hasScrolledToActive = true
             }
+            )
         }
+    }
+
+    @ViewBuilder
+    private func trackedTabBarScrollView<Content: View>(_ content: Content) -> some View {
+        if #available(iOS 18, macOS 15, *) {
+            content
+                .onScrollPhaseChange { _, newPhase, context in
+                    handleScrollPhaseChange(newPhase, context: context)
+                }
+                .onScrollGeometryChange(for: CGFloat.self) { geometry in
+                    geometry.contentOffset.y + geometry.contentInsets.top
+                } action: { _, contentOffset in
+                    handleTabBarScrollOffset(contentOffset)
+                }
+        } else {
+            content
+        }
+    }
+
+    @available(iOS 18, macOS 15, *)
+    private func handleScrollPhaseChange(
+        _ phase: ScrollPhase,
+        context: ScrollPhaseChangeContext
+    ) {
+        let contentOffset = context.geometry.contentOffset.y + context.geometry.contentInsets.top
+
+        switch phase {
+        case .tracking:
+            tracksUserTabBarScroll = true
+            tabBarScrollReducer.reset(at: contentOffset)
+        case .interacting, .decelerating:
+            tracksUserTabBarScroll = true
+        case .idle, .animating:
+            tracksUserTabBarScroll = false
+            tabBarScrollReducer.reset(at: contentOffset)
+        }
+    }
+
+    private func handleTabBarScrollOffset(_ contentOffset: CGFloat) {
+        guard tracksUserTabBarScroll,
+              let presentation = tabBarScrollReducer.receive(
+                  contentOffset: contentOffset,
+                  threshold: theme.spacing.lg
+              )
+        else {
+            return
+        }
+
+        onTabBarPresentationChange?(presentation)
     }
 
     // MARK: - Sticky HUD Overlay
@@ -750,4 +807,3 @@ public struct CraftLearningPath: View {
     )
 }
 #endif
-

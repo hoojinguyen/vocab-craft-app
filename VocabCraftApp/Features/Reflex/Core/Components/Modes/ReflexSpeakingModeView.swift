@@ -93,16 +93,12 @@ public struct ReflexSpeakingModeView: View {
     }
 
     public var body: some View {
-        VStack(spacing: theme.spacing.xl) {
+        VStack(spacing: theme.spacing.lg) {
             // Zone 1: 3D Flip Card
             flipStimulusCard
 
-            Spacer(minLength: theme.spacing.sm)
-
             // Zone 2: Mic Hub + Transcript (on canvas, no card wrapper)
             micHubArea
-
-            Spacer(minLength: theme.spacing.sm)
         }
     }
 

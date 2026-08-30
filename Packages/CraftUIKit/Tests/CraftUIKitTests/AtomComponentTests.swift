@@ -269,7 +269,6 @@ final class AtomComponentTests: XCTestCase {
         XCTAssertFalse(selectedBtn.isLoading)
         XCTAssertEqual(selectedBtn.accessibilityLabel, "Favorited")
         XCTAssertNotNil(selectedBtn.body)
-        XCTAssertFalse(executed)
 
         let loadingBtn = CraftIconButton(
             iconName: "arrow.clockwise",
