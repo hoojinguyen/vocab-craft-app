@@ -33,7 +33,6 @@ final class ReflexBlitzViewModelSpeakingTests: XCTestCase {
 
         viewModel = ReflexBlitzViewModel(
             words: sampleWords,
-            continuousSpeechService: MockContinuousReflexSpeechService(),
             ttsService: mockTTS,
             evaluateSRSUseCase: mockSRS,
             soundEffectService: mockSound,
@@ -83,6 +82,7 @@ final class ReflexBlitzViewModelSpeakingTests: XCTestCase {
         viewModel.startDrillSession(mode: .speaking, words: sampleWords)
         mockSpeechEngine.simulateMatch("ephemeral")
         XCTAssertEqual(mockSpeechEngine.endWordCallCount, 1)
+        XCTAssertEqual(mockSpeechEngine.isWordActive, false)
     }
 
     func testSpeakingMode_matchDetected_playsSuccessChime() {
@@ -150,6 +150,65 @@ final class ReflexBlitzViewModelSpeakingTests: XCTestCase {
         viewModel.startDrillSession(mode: .speaking, words: sampleWords)
         viewModel.simulateElapsedTime(ms: 5000)
         XCTAssertGreaterThanOrEqual(viewModel.hintStage, 3)
+    }
+
+    // MARK: - Keyboard Fallback & Error Handling
+
+    func testSpeakingMode_speechEngineError_activatesKeyboardFallback() {
+        viewModel.startDrillSession(mode: .speaking, words: sampleWords)
+        XCTAssertFalse(viewModel.isKeyboardFallbackActive)
+
+        let testError = NSError(domain: "test", code: 403, userInfo: nil)
+        mockSpeechEngine.simulateError(testError)
+
+        XCTAssertTrue(viewModel.isKeyboardFallbackActive)
+    }
+
+    func testSpeakingMode_advanceWithKeyboardFallback_doesNotCallBeginWord() {
+        viewModel.startDrillSession(mode: .speaking, words: sampleWords)
+        viewModel.toggleKeyboardFallback()
+        XCTAssertTrue(viewModel.isKeyboardFallbackActive)
+
+        let countBeforeAdvance = mockSpeechEngine.beginWordCallCount
+        viewModel.advanceToNextWord()
+
+        XCTAssertEqual(viewModel.currentWord?.lemma, "vital")
+        XCTAssertEqual(mockSpeechEngine.beginWordCallCount, countBeforeAdvance)
+    }
+
+    func testSpeakingMode_startDrillSession_resetsKeyboardFallback() {
+        viewModel.startDrillSession(mode: .speaking, words: sampleWords)
+        viewModel.toggleKeyboardFallback()
+        XCTAssertTrue(viewModel.isKeyboardFallbackActive)
+
+        viewModel.startDrillSession(mode: .speaking, words: sampleWords)
+        XCTAssertFalse(viewModel.isKeyboardFallbackActive)
+    }
+
+    func testSpeakingMode_cancelSession_duringKeyboardFallback_doesNotCallBeginWord() {
+        viewModel.startDrillSession(mode: .speaking, words: sampleWords)
+        viewModel.toggleKeyboardFallback()
+        XCTAssertTrue(viewModel.isKeyboardFallbackActive)
+
+        let countBeforeCancel = mockSpeechEngine.beginWordCallCount
+        viewModel.cancelSession()
+
+        XCTAssertFalse(viewModel.isKeyboardFallbackActive)
+        XCTAssertEqual(mockSpeechEngine.beginWordCallCount, countBeforeCancel)
+        XCTAssertFalse(mockSpeechEngine.isSessionActive)
+    }
+
+    func testSpeakingMode_startDrillSession_duringKeyboardFallback_doesNotCallBeginWordTwice() {
+        viewModel.startDrillSession(mode: .speaking, words: sampleWords)
+        viewModel.toggleKeyboardFallback()
+        XCTAssertTrue(viewModel.isKeyboardFallbackActive)
+
+        let beginCountBefore = mockSpeechEngine.beginWordCallCount
+        viewModel.startDrillSession(mode: .speaking, words: sampleWords)
+
+        XCTAssertFalse(viewModel.isKeyboardFallbackActive)
+        XCTAssertEqual(mockSpeechEngine.beginWordCallCount, beginCountBefore + 1)
+        XCTAssertEqual(mockSpeechEngine.lastTargetLemma, "ephemeral")
     }
 
     // MARK: - Session End

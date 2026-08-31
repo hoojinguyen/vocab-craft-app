@@ -120,22 +120,19 @@ public final class AudioBufferRelay: @unchecked Sendable {
     /// Đảm bảo không có buffer nào được append sau khi endAudio() được gọi.
     public func detachAndEnd() {
         lock.lock()
+        defer { lock.unlock() }
         let requestToEnd = activeRequest
         activeRequest = nil
         isMuted = true
-        lock.unlock()
-
         requestToEnd?.endAudio()
     }
 
     public func append(_ buffer: AVAudioPCMBuffer) {
         lock.lock()
+        defer { lock.unlock() }
         guard !isMuted, let request = activeRequest else {
-            lock.unlock()
             return
         }
-        lock.unlock()
-
         request.append(buffer)
     }
 }

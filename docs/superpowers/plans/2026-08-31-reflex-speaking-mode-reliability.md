@@ -125,7 +125,7 @@ public enum ReflexSpeechMatcher {
                 targetSentence: normalizedTarget,
                 passThreshold: toleranceThreshold
             )
-            if eval.isPassed { return true }
+            return eval.isPassed
         }
 
         let targetLen = normalizedTarget.count

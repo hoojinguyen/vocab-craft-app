@@ -29,10 +29,11 @@ public final class ReflexBlitzViewModel {
     public var currentAttemptIsCorrect: Bool = false
     public var isKeyboardFallbackActive: Bool = false {
         didSet {
+            guard isKeyboardFallbackActive != oldValue else { return }
             if isKeyboardFallbackActive {
-                continuousSpeechService.pauseListening()
-            } else if selectedMode == .speaking && cardPhase == .activeCountdown {
-                continuousSpeechService.resumeListening()
+                speechEngine.endWord()
+            } else if selectedMode == .speaking && phase == .drilling && cardPhase == .activeCountdown && speechEngine.isSessionActive, let word = currentWord {
+                speechEngine.beginWord(targetLemma: word.lemma, contextualPhrases: [word.lemma])
             }
         }
     }
@@ -57,7 +58,6 @@ public final class ReflexBlitzViewModel {
         }
     }
 
-    let continuousSpeechService: ContinuousReflexSpeechProtocol
     let speechEngine: ReflexSpeechEngineProtocol
     let ttsService: TextToSpeechProtocol
     let evaluateSRSUseCase: EvaluateSRSUseCaseProtocol
@@ -112,7 +112,6 @@ public final class ReflexBlitzViewModel {
             weeklyPracticedCount: weeklyPracticedCount,
             weakWordsCount: weakWordsCount,
             averageSpeedSeconds: averageSpeedSeconds,
-            continuousSpeechService: ContinuousReflexSpeechService(),
             ttsService: TextToSpeechService(),
             evaluateSRSUseCase: EvaluateSRSUseCase(srsRepository: SRSRepositoryImpl()),
             soundEffectService: SoundEffectService.shared,
@@ -125,7 +124,6 @@ public final class ReflexBlitzViewModel {
         weeklyPracticedCount: Int = 0,
         weakWordsCount: Int = 0,
         averageSpeedSeconds: Double = 0.0,
-        continuousSpeechService: ContinuousReflexSpeechProtocol,
         ttsService: TextToSpeechProtocol,
         evaluateSRSUseCase: EvaluateSRSUseCaseProtocol,
         soundEffectService: SoundEffectServiceProtocol = SoundEffectService.shared,
@@ -135,12 +133,10 @@ public final class ReflexBlitzViewModel {
         self.weeklyPracticedCount = weeklyPracticedCount
         self.weakWordsCount = weakWordsCount
         self.averageSpeedSeconds = averageSpeedSeconds
-        self.continuousSpeechService = continuousSpeechService
         self.ttsService = ttsService
         self.evaluateSRSUseCase = evaluateSRSUseCase
         self.soundEffectService = soundEffectService
         self.speechEngine = speechEngine ?? ResilientReflexSpeechEngine()
-        setupSpeechServiceBindings()
         setupSpeechEngineBindings()
     }
 
@@ -151,34 +147,11 @@ public final class ReflexBlitzViewModel {
         speechEngine.onTranscriptUpdate = { [weak self] transcript in
             self?.liveTranscript = transcript
         }
-        speechEngine.onError = { error in
+        speechEngine.onError = { [weak self] error in
             print("[ReflexBlitzViewModel] Speech engine error: \(error.localizedDescription)")
-        }
-    }
-
-    private func setupSpeechServiceBindings() {
-        continuousSpeechService.onMatchDetected = { [weak self] matched in
-            if Thread.isMainThread {
-                MainActor.assumeIsolated { self?.handleSpokenMatch(matched) }
-            } else {
-                Task { @MainActor [weak self] in self?.handleSpokenMatch(matched) }
-            }
-        }
-
-        continuousSpeechService.onTranscriptUpdate = { [weak self] transcript in
-            if Thread.isMainThread {
-                MainActor.assumeIsolated { self?.liveTranscript = transcript }
-            } else {
-                Task { @MainActor [weak self] in self?.liveTranscript = transcript }
-            }
-        }
-
-        continuousSpeechService.onError = { [weak self] error in
-            print("[ReflexBlitzViewModel] Continuous speech error: \(error.localizedDescription)")
-            if Thread.isMainThread {
-                MainActor.assumeIsolated { self?.isKeyboardFallbackActive = true }
-            } else {
-                Task { @MainActor [weak self] in self?.isKeyboardFallbackActive = true }
+            guard let self else { return }
+            if self.selectedMode == .speaking && !self.isKeyboardFallbackActive {
+                self.isKeyboardFallbackActive = true
             }
         }
     }
@@ -203,6 +176,9 @@ public final class ReflexBlitzViewModel {
     }
 
     public func startDrillSession(mode: ReflexBlitzMode, words: [ReflexBlitzWordItem]? = nil) {
+        cancelAllTasks()
+        phase = .countdown
+        self.isKeyboardFallbackActive = false
         if let words, !words.isEmpty {
             self.words = words
         }
@@ -221,6 +197,8 @@ public final class ReflexBlitzViewModel {
 
     public func startCountdown() {
         cancelAllTasks()
+        phase = .countdown
+        self.isKeyboardFallbackActive = false
 
         let plan = ReflexDrillPlanGenerator.generatePlan(words: words, mode: selectedMode)
         self.sessionPlan = plan
@@ -228,7 +206,6 @@ public final class ReflexBlitzViewModel {
             self.words = plan.items.compactMap { $0.word as? ReflexBlitzWordItem }
         }
 
-        phase = .countdown
         countdownCount = 3
         if selectedMode == .speaking {
             let contextualPhrases = words.map(\.lemma)
@@ -249,6 +226,8 @@ public final class ReflexBlitzViewModel {
     public func beginSessionDirectly() {
         countdownTask?.cancel()
         cancelActiveTimers()
+        phase = .countdown
+        self.isKeyboardFallbackActive = false
         if sessionPlan == nil || sessionPlan?.items.count != words.count || sessionPlan?.mode != selectedMode {
             let plan = ReflexDrillPlanGenerator.generatePlan(words: words, mode: selectedMode)
             self.sessionPlan = plan
@@ -309,13 +288,11 @@ public final class ReflexBlitzViewModel {
             self.currentHintBadgeText = ""
         }
 
-        if selectedMode == .speaking {
+        if selectedMode == .speaking && !isKeyboardFallbackActive {
             speechEngine.beginWord(
                 targetLemma: word.lemma,
-                contextualPhrases: [word.exampleSentenceEn]
+                contextualPhrases: [word.lemma]
             )
-        } else {
-            continuousSpeechService.pauseListening()
         }
 
         if selectedMode == .listening {

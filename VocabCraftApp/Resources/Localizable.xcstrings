@@ -1123,6 +1123,23 @@
         }
       }
     },
+    "app.reflex.drill.switch_to_voice" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switch to voice"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chuyển sang luyện nói"
+          }
+        }
+      }
+    },
     "app.reflex.drill.timeout_title" : {
       "extractionState" : "manual",
       "localizations" : {
