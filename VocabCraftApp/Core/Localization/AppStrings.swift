@@ -415,6 +415,14 @@ extension AppStrings {
         public static var checkpointSubtitleText: String {
             String(localized: "app.home.section.checkpoint_subtitle", defaultValue: "Comprehensive exam covering all unit words", bundle: .module)
         }
+        public static var treasureTitle: LocalizedStringKey { "app.home.section.treasure_title" }
+        public static var treasureTitleText: String {
+            String(localized: "app.home.section.treasure_title", defaultValue: "Treasure Chest", bundle: .module)
+        }
+        public static var treasureSubtitle: LocalizedStringKey { "app.home.section.treasure_subtitle" }
+        public static var treasureSubtitleText: String {
+            String(localized: "app.home.section.treasure_subtitle", defaultValue: "150 XP Bonus", bundle: .module)
+        }
 
         // Node Metadata & Objectives
         public static func wordsDuration(words: Int, minutes: Int) -> String {

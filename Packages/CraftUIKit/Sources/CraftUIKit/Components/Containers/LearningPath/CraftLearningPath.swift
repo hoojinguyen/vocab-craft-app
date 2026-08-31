@@ -362,9 +362,9 @@ public struct CraftLearningPath: View {
 
     private var smartBottomPadding: CGFloat {
         // TabBar: bar 52 + vertical 10 + bottom 8 + safeArea 34 + FAB protrusion 20 ≈ 124 total visible.
-        // Add row spacing + breathing room so last Unit card is fully readable above glass bar.
-        // Previous 200/220 left truncated peek on iPhone SE/17; bump to 280/260 for P0 fix.
-        pinSectionHeaders ? 280 : 260
+        // Add row spacing + breathing room so last Unit card + treasure row is fully readable above glass bar.
+        // Previous 200/220 left truncated peek; P0 bumped to 260/280; P1 adds treasure chest row (+~80pt) → 320/340.
+        pinSectionHeaders ? 340 : 320
     }
 
     // MARK: - Body

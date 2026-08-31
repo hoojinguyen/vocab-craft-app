@@ -8,11 +8,14 @@ public enum LessonEconomyPolicy: Sendable {
     public static let standardXP: Int = 25
     /// XP reward for a checkpoint / boss exam node.
     public static let checkpointXP: Int = 80
+    /// XP reward for a treasure chest milestone.
+    public static let treasureXP: Int = 150
 
     public static func xpReward(for kind: LessonNodeKind) -> Int {
         switch kind {
         case .checkpoint: return checkpointXP
-        case .standard, .treasureChest: return standardXP
+        case .treasureChest: return treasureXP
+        case .standard: return standardXP
         }
     }
 

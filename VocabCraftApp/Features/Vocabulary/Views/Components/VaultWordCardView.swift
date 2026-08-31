@@ -180,31 +180,25 @@ public struct VaultWordCardView: View {
         )
     }
 
-    @ViewBuilder
-    private func highlightedExample(sentence: String, lemma: String) -> some View {
-        if let range = sentence.range(of: lemma, options: .caseInsensitive) {
-            let prefix = String(sentence[..<range.lowerBound])
-            let match = String(sentence[range])
-            let suffix = String(sentence[range.upperBound...])
-
-            (
-                Text(prefix)
-                    .font(.system(size: 13, weight: .medium, design: .serif))
-                    .foregroundColor(Color.vocabInk)
-                +
-                Text(match)
-                    .font(.system(size: 13, weight: .bold, design: .serif))
-                    .foregroundColor(Color.vocabHeroAccent)
-                +
-                Text(suffix)
-                    .font(.system(size: 13, weight: .medium, design: .serif))
-                    .foregroundColor(Color.vocabInk)
-            )
-        } else {
-            Text(sentence)
+    private func highlightedExample(sentence: String, lemma: String) -> Text {
+        guard let range = sentence.range(of: lemma, options: .caseInsensitive) else {
+            return Text(sentence)
                 .font(.system(size: 13, weight: .medium, design: .serif))
                 .foregroundColor(Color.vocabInk)
         }
+        let prefix: String = String(sentence[..<range.lowerBound])
+        let match: String = String(sentence[range])
+        let suffix: String = String(sentence[range.upperBound...])
+        let prefixText: Text = Text(prefix)
+            .font(.system(size: 13, weight: .medium, design: .serif))
+            .foregroundColor(Color.vocabInk)
+        let matchText: Text = Text(match)
+            .font(.system(size: 13, weight: .bold, design: .serif))
+            .foregroundColor(Color.vocabHeroAccent)
+        let suffixText: Text = Text(suffix)
+            .font(.system(size: 13, weight: .medium, design: .serif))
+            .foregroundColor(Color.vocabInk)
+        return prefixText + matchText + suffixText
     }
 
     private func cefrBadgeBackground(for level: String) -> Color {

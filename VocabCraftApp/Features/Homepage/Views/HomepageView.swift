@@ -54,17 +54,16 @@ public struct HomepageView: View {
                     )
                     .background(Color.vocabCanvas)
 
+                    StreakWeekStripView(
+                        streakDays: viewModel.streakDays,
+                        isCompletedToday: viewModel.dailyWordsLearned >= viewModel.dailyWordsGoal && viewModel.dailyWordsGoal > 0
+                    )
+                    .padding(.top, 8)
+                    .padding(.bottom, 4)
+
                     Group {
                         if viewModel.isLoading && viewModel.sections.isEmpty {
-                            VStack(spacing: 16) {
-                                ProgressView()
-                                    .scaleEffect(1.2)
-                                Text(String(localized: "app.home.loading", defaultValue: "Đang tải lộ trình...", bundle: .module))
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                            }
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .background(Color.vocabCanvas)
+                            HomeSkeletonView()
                         } else if let error = viewModel.errorMessage, viewModel.sections.isEmpty {
                             ContentUnavailableView {
                                 Label(String(localized: "app.home.load_error_title", defaultValue: "Không tải được lộ trình", bundle: .module), systemImage: "wifi.exclamationmark")
@@ -110,6 +109,9 @@ public struct HomepageView: View {
                                 if viewModel.sections.isEmpty {
                                     await viewModel.loadLearningPath()
                                 }
+                            }
+                            .refreshable {
+                                await viewModel.loadLearningPath()
                             }
                         }
                     }

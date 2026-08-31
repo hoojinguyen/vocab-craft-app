@@ -106,16 +106,19 @@ public struct TactileNodeButtonStyle: ButtonStyle {
 /// Floating speech bubble positioned above active nodes with subtle bobbing oscillation.
 public struct ActiveCalloutBubble: View {
     public let text: String
+    public let isVisible: Bool
 
     @Environment(\.craftTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    public init(text: String = CraftLocalized.string("craft.learning_path.continue_callout")) {
+    public init(text: String = CraftLocalized.string("craft.learning_path.continue_callout"), isVisible: Bool = true) {
         self.text = text
+        self.isVisible = isVisible
     }
 
-    public init(_ text: String) {
+    public init(_ text: String, isVisible: Bool = true) {
         self.text = text
+        self.isVisible = isVisible
     }
 
     public var body: some View {
@@ -125,7 +128,7 @@ public struct ActiveCalloutBubble: View {
 
     @ViewBuilder
     private var content: some View {
-        if reduceMotion {
+        if reduceMotion || !isVisible {
             bubbleView
         } else {
             PhaseAnimator(BobbingPhase.allCases) { phase in
@@ -194,6 +197,7 @@ public struct CraftLessonNode: View, Equatable {
     @State private var lockedAttemptTrigger: Bool = false
     @State private var impressionTask: Task<Void, Never>? = nil
     @State private var hasTrackedImpression: Bool = false
+    @State private var isVisibleForAnimation: Bool = false
 
     // MARK: - Initializer
 
@@ -311,8 +315,11 @@ public struct CraftLessonNode: View, Equatable {
     public var body: some View {
         VStack(spacing: 0) {
             if model.state == .active {
-                ActiveCalloutBubble(text: calloutText ?? CraftLocalized.string("craft.learning_path.continue_callout"))
-                    .padding(.bottom, 6)
+                ActiveCalloutBubble(
+                    text: calloutText ?? CraftLocalized.string("craft.learning_path.continue_callout"),
+                    isVisible: isVisibleForAnimation
+                )
+                .padding(.bottom, 6)
             }
 
             tactileNodeAtom
@@ -332,6 +339,7 @@ public struct CraftLessonNode: View, Equatable {
         .accessibilityHint(accessibilityHintText)
         .accessibilityAddTraits(accessibilityTraits)
         .onAppear {
+            isVisibleForAnimation = true
             guard !hasTrackedImpression, onNodeImpression != nil else { return }
             impressionTask?.cancel()
             impressionTask = Task { @MainActor in
@@ -344,6 +352,7 @@ public struct CraftLessonNode: View, Equatable {
             }
         }
         .onDisappear {
+            isVisibleForAnimation = false
             impressionTask?.cancel()
             impressionTask = nil
         }
@@ -540,7 +549,7 @@ public struct CraftLessonNode: View, Equatable {
         let isCheckpoint = model.kind == .checkpoint
         let haloSize = nodeDiameter + 24
         let haloGradient = haloRadialGradient
-        if reduceMotion {
+        if reduceMotion || !isVisibleForAnimation {
             ZStack {
                 if isCheckpoint {
                     HexagonShape()
@@ -663,7 +672,7 @@ public struct CraftLessonNode: View, Equatable {
             .font(.system(size: iconSize, weight: .bold))
             .foregroundStyle(iconColor)
             .contentTransition(.symbolEffect(.replace))
-            .symbolEffect(.pulse.byLayer, isActive: model.state == .active && !reduceMotion)
+            .symbolEffect(.pulse.byLayer, isActive: model.state == .active && !reduceMotion && isVisibleForAnimation)
             .symbolEffect(.bounce, value: model.state == .completed)
             .symbolEffectsRemoved(reduceMotion)
     }

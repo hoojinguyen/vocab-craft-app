@@ -66,10 +66,10 @@ final class LearningPathDataMapperTests: XCTestCase {
 
         XCTAssertEqual(sections.count, 2)
 
-        // Section 1: 2 standard stages + 1 checkpoint = 3 nodes
+        // Section 1: 2 standard stages + 1 checkpoint + 1 treasure = 4 nodes
         let section1 = sections[0]
         XCTAssertEqual(section1.id, "deck_daily")
-        XCTAssertEqual(section1.nodes.count, 3)
+        XCTAssertEqual(section1.nodes.count, 4)
         XCTAssertEqual(section1.progressText, AppStrings.Home.sectionProgress(completed: 0, total: 3))
         XCTAssertEqual(section1.progressValue ?? 0, 0.5 / 3.0, accuracy: 0.001)
 
@@ -92,10 +92,16 @@ final class LearningPathDataMapperTests: XCTestCase {
         XCTAssertEqual(node3.kind, .checkpoint)
         XCTAssertEqual(node3.state, .locked)
 
+        // Node 4 (Treasure) is locked (bonus)
+        let node4 = section1.nodes[3]
+        XCTAssertEqual(node4.id, "treasure_deck_daily")
+        XCTAssertEqual(node4.kind, .treasureChest)
+        XCTAssertEqual(node4.state, .locked)
+
         // Section 2: All nodes locked
         let section2 = sections[1]
         XCTAssertEqual(section2.id, "deck_business")
-        XCTAssertEqual(section2.nodes.count, 3)
+        XCTAssertEqual(section2.nodes.count, 4)
         XCTAssertEqual(section2.progressText, AppStrings.Home.sectionProgress(completed: 0, total: 3))
         XCTAssertEqual(section2.progressValue ?? 0, 0.0, accuracy: 0.001)
         XCTAssertTrue(section2.nodes.allSatisfy { $0.state == .locked })
@@ -130,6 +136,10 @@ final class LearningPathDataMapperTests: XCTestCase {
         let node3 = section1.nodes[2]
         XCTAssertEqual(node3.state, .upcoming)
 
+        // Treasure remains locked
+        XCTAssertEqual(section1.nodes[3].kind, .treasureChest)
+        XCTAssertEqual(section1.nodes[3].state, .locked)
+
         // Section 2 remains all locked
         let section2 = sections[1]
         XCTAssertTrue(section2.nodes.allSatisfy { $0.state == .locked })
@@ -163,6 +173,10 @@ final class LearningPathDataMapperTests: XCTestCase {
         XCTAssertEqual(checkpointNode.kind, .checkpoint)
         XCTAssertEqual(checkpointNode.state, .active)
 
+        // Treasure is upcoming preview (next after active checkpoint)
+        XCTAssertEqual(section1.nodes[3].kind, .treasureChest)
+        XCTAssertEqual(section1.nodes[3].state, .upcoming)
+
         // Section 2 Node 1 remains locked until checkpoint is completed
         let section2 = sections[1]
         XCTAssertEqual(section2.nodes[0].state, .locked)
@@ -182,12 +196,14 @@ final class LearningPathDataMapperTests: XCTestCase {
             progressList: progressList
         )
 
-        // Section 1 is 100% completed (3/3)
+        // Section 1 is 100% completed (3/3) — treasure is now bonus
         let section1 = sections[0]
         XCTAssertEqual(section1.progressText, AppStrings.Home.sectionProgress(completed: 3, total: 3))
         XCTAssertEqual(section1.progressValue, 1.0)
         XCTAssertEqual(section1.nodes[2].state, .completed)
         XCTAssertEqual(section1.nodes[2].stars, 3)
+        XCTAssertEqual(section1.nodes[3].kind, .treasureChest)
+        XCTAssertEqual(section1.nodes[3].state, .bonus)
 
         // Section 2 Node 1 is now unlocked and active!
         let section2 = sections[1]
@@ -282,6 +298,12 @@ final class LearningPathDataMapperTests: XCTestCase {
         XCTAssertEqual(checkpointNode.objectives?.count, 2)
         XCTAssertEqual(checkpointNode.objectives?[0], AppStrings.Home.checkpointObjective1(words: 3)) // 2 in stage 1 + 1 in stage 2 = 3
         XCTAssertEqual(checkpointNode.objectives?[1], AppStrings.Home.checkpointObjective2Text)
+
+        // Treasure Node
+        let treasureNode = section1.nodes[3]
+        XCTAssertEqual(treasureNode.kind, .treasureChest)
+        XCTAssertEqual(treasureNode.xpReward, 150)
+        XCTAssertEqual(treasureNode.title, AppStrings.Home.treasureTitleText)
     }
 
     func test_unsorted_inputs_are_properly_ordered_by_sort_order() {
@@ -302,5 +324,6 @@ final class LearningPathDataMapperTests: XCTestCase {
         XCTAssertEqual(sections[0].nodes[0].id, "stage_daily_1")
         XCTAssertEqual(sections[0].nodes[1].id, "stage_daily_2")
         XCTAssertEqual(sections[0].nodes[2].id, "checkpoint_deck_daily")
+        XCTAssertEqual(sections[0].nodes[3].id, "treasure_deck_daily")
     }
 }

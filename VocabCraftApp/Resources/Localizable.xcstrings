@@ -7242,6 +7242,91 @@
           }
         }
       }
+    },
+    "app.home.streak.week_a11y" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld-day streak"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chuỗi %lld ngày"
+          }
+        }
+      }
+    },
+    "app.home.section.treasure_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Treasure Chest"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rương Kho Báu"
+          }
+        }
+      }
+    },
+    "app.home.section.treasure_subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "150 XP Bonus"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thưởng 150 XP"
+          }
+        }
+      }
+    },
+    "app.home.node.treasure_objective_1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open the chest to claim 150 XP"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mở rương để nhận 150 XP"
+          }
+        }
+      }
+    },
+    "app.home.node.treasure_objective_2" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complete the Unit to unlock"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoàn thành Unit để mở khóa"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

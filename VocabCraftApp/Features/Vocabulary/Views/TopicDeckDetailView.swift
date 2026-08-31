@@ -67,20 +67,20 @@ public struct TopicDeckDetailView: View {
                             .cornerRadius(6)
                     }
 
-                    let totalWords = viewModel.nodes.reduce(0) { $0 + $1.totalWords }
-                    let learnedWords = viewModel.nodes.reduce(0) { $0 + $1.learnedWords }
-                    let percentage = totalWords > 0 ? Int((Double(learnedWords) / Double(totalWords)) * 100) : 0
-                    let progressFraction = totalWords > 0 ? CGFloat(learnedWords) / CGFloat(totalWords) : 0.0
+                    let totalWords: Int = viewModel.nodes.reduce(0) { $0 + $1.totalWords }
+                    let learnedWords: Int = viewModel.nodes.reduce(0) { $0 + $1.learnedWords }
+                    let percentage: Int = totalWords > 0 ? Int((Double(learnedWords) / Double(totalWords)) * 100) : 0
+                    let progressFraction: CGFloat = totalWords > 0 ? CGFloat(learnedWords) / CGFloat(totalWords) : 0.0
 
-                    HStack {
+                    HStack(spacing: 4) {
                         Text(AppStrings.Vocabulary.progressTitle)
                             .font(.system(size: 13, weight: .medium))
                             .foregroundColor(Color.vocabMuted)
-                        + Text(verbatim: "\(percentage)%")
+                        Text(verbatim: "\(percentage)%")
                             .font(.system(size: 13, weight: .bold, design: .rounded))
                             .monospacedDigit()
                             .foregroundColor(Color.vocabMint)
-                        + Text(AppStrings.Vocabulary.progressWordsCount(current: learnedWords, total: totalWords))
+                        Text(AppStrings.Vocabulary.progressWordsCount(current: learnedWords, total: totalWords))
                             .font(.system(size: 13, weight: .medium))
                             .monospacedDigit()
                             .foregroundColor(Color.vocabMuted)
