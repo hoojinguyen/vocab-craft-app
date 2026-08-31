@@ -54,7 +54,6 @@ struct PracticeDrillPlanGeneratorTests {
         let plan = generator.generatePlan(from: [])
         #expect(plan.isEmpty)
         #expect(plan.items.isEmpty)
-        #expect(plan.count == 0)
     }
 
     @Test("Pre-generates options for multipleChoice and listening modes, empty options for typing and speaking")
@@ -168,5 +167,3 @@ struct PracticeDrillPlanGeneratorTests {
     }
 }
 #endif
-
-

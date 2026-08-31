@@ -65,3 +65,10 @@ public struct ModeSuccessStats: Codable, Equatable, Sendable {
         return all.filter { $0.1 == minVal }.map(\.0)
     }
 }
+
+extension UserWordProgress {
+    public var modeStats: ModeSuccessStats {
+        get { ModeSuccessStatsCodec.decode(modeSuccessCountsRaw) }
+        set { modeSuccessCountsRaw = ModeSuccessStatsCodec.encode(newValue) }
+    }
+}

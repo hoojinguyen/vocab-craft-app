@@ -34,6 +34,7 @@
 		30004AA2997CC609FCB8 /* VocabSpeechVisualizerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20004AA2997CC609FCB8 /* VocabSpeechVisualizerView.swift */; };
 		300085D4BA7A4E3D273F /* VocabTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200085D4BA7A4E3D273F /* VocabTheme.swift */; };
 		300090EB5ABA9B7051A5 /* AppStrings+Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200090EB5ABA9B7051A5 /* AppStrings+Profile.swift */; };
+		300091EB5ABA9B7051A5 /* AppStrings+Practice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200091EB5ABA9B7051A5 /* AppStrings+Practice.swift */; };
 		300022B44833F2AD6C9D /* AppStrings+ReflexBlitz.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200022B44833F2AD6C9D /* AppStrings+ReflexBlitz.swift */; };
 		3000B0F78EB2399D75E7 /* AppStrings+Vault.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B0F78EB2399D75E7 /* AppStrings+Vault.swift */; };
 		30006FB901290FE28F5C /* AppStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20006FB901290FE28F5C /* AppStrings.swift */; };
@@ -221,6 +222,7 @@
 		300014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift */; };
 		300034AB7AB035E97418 /* MixedReflexDrillViewsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200034AB7AB035E97418 /* MixedReflexDrillViewsTests.swift */; };
 		300033EBEB29F1774CF6 /* PersonalVaultLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200033EBEB29F1774CF6 /* PersonalVaultLocalizationTests.swift */; };
+		300034EBEB29F1774CF6 /* PracticeSelectionLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200034EBEB29F1774CF6 /* PracticeSelectionLocalizationTests.swift */; };
 		30009B83DC7F07E6E1B1 /* PersonalVaultViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20009B83DC7F07E6E1B1 /* PersonalVaultViewModelTests.swift */; };
 		300097AA850CCC0BDDAE /* MockResilientReflexSpeechEngineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200097AA850CCC0BDDAE /* MockResilientReflexSpeechEngineTests.swift */; };
 		30004814A8C2426B8B5F /* ReflexBlitzViewModelListeningTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20004814A8C2426B8B5F /* ReflexBlitzViewModelListeningTests.swift */; };
@@ -358,6 +360,7 @@
 		20004AA2997CC609FCB8 /* VocabSpeechVisualizerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabSpeechVisualizerView.swift"; sourceTree = "<group>"; };
 		200085D4BA7A4E3D273F /* VocabTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabTheme.swift"; sourceTree = "<group>"; };
 		200090EB5ABA9B7051A5 /* AppStrings+Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStrings+Profile.swift"; sourceTree = "<group>"; };
+		200091EB5ABA9B7051A5 /* AppStrings+Practice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStrings+Practice.swift"; sourceTree = "<group>"; };
 		200022B44833F2AD6C9D /* AppStrings+ReflexBlitz.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStrings+ReflexBlitz.swift"; sourceTree = "<group>"; };
 		2000B0F78EB2399D75E7 /* AppStrings+Vault.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStrings+Vault.swift"; sourceTree = "<group>"; };
 		20006FB901290FE28F5C /* AppStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStrings.swift"; sourceTree = "<group>"; };
@@ -535,6 +538,7 @@
 		200014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MixedReflexDrillViewModelTests.swift"; sourceTree = "<group>"; };
 		200034AB7AB035E97418 /* MixedReflexDrillViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MixedReflexDrillViewsTests.swift"; sourceTree = "<group>"; };
 		200033EBEB29F1774CF6 /* PersonalVaultLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersonalVaultLocalizationTests.swift"; sourceTree = "<group>"; };
+		200034EBEB29F1774CF6 /* PracticeSelectionLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeSelectionLocalizationTests.swift"; sourceTree = "<group>"; };
 		20009B83DC7F07E6E1B1 /* PersonalVaultViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersonalVaultViewModelTests.swift"; sourceTree = "<group>"; };
 		200097AA850CCC0BDDAE /* MockResilientReflexSpeechEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockResilientReflexSpeechEngineTests.swift"; sourceTree = "<group>"; };
 		20004814A8C2426B8B5F /* ReflexBlitzViewModelListeningTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzViewModelListeningTests.swift"; sourceTree = "<group>"; };
@@ -767,6 +771,7 @@
 			isa = PBXGroup;
 			children = (
 				200090EB5ABA9B7051A5 /* AppStrings+Profile.swift */,
+				200091EB5ABA9B7051A5 /* AppStrings+Practice.swift */,
 				200022B44833F2AD6C9D /* AppStrings+ReflexBlitz.swift */,
 				2000B0F78EB2399D75E7 /* AppStrings+Vault.swift */,
 				20006FB901290FE28F5C /* AppStrings.swift */,
@@ -1427,6 +1432,7 @@
 				200014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift */,
 				200034AB7AB035E97418 /* MixedReflexDrillViewsTests.swift */,
 				200033EBEB29F1774CF6 /* PersonalVaultLocalizationTests.swift */,
+				200034EBEB29F1774CF6 /* PracticeSelectionLocalizationTests.swift */,
 				20009B83DC7F07E6E1B1 /* PersonalVaultViewModelTests.swift */,
 				4000E102CB9FECDF3753 /* Reflex */,
 				4000222CDC96FC1A1DA8 /* ReflexDrill */,
@@ -1699,6 +1705,7 @@
 				30004AA2997CC609FCB8 /* VocabSpeechVisualizerView.swift in Sources */,
 				300085D4BA7A4E3D273F /* VocabTheme.swift in Sources */,
 				300090EB5ABA9B7051A5 /* AppStrings+Profile.swift in Sources */,
+				300091EB5ABA9B7051A5 /* AppStrings+Practice.swift in Sources */,
 				300022B44833F2AD6C9D /* AppStrings+ReflexBlitz.swift in Sources */,
 				3000B0F78EB2399D75E7 /* AppStrings+Vault.swift in Sources */,
 				30006FB901290FE28F5C /* AppStrings.swift in Sources */,
@@ -1899,6 +1906,7 @@
 				300014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift in Test Sources */,
 				300034AB7AB035E97418 /* MixedReflexDrillViewsTests.swift in Test Sources */,
 				300033EBEB29F1774CF6 /* PersonalVaultLocalizationTests.swift in Test Sources */,
+				300034EBEB29F1774CF6 /* PracticeSelectionLocalizationTests.swift in Test Sources */,
 				30009B83DC7F07E6E1B1 /* PersonalVaultViewModelTests.swift in Test Sources */,
 				300097AA850CCC0BDDAE /* MockResilientReflexSpeechEngineTests.swift in Test Sources */,
 				30004814A8C2426B8B5F /* ReflexBlitzViewModelListeningTests.swift in Test Sources */,

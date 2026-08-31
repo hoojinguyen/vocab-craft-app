@@ -300,11 +300,6 @@ public final class UserWordProgress: @unchecked Sendable {
         self.isMastered = isMastered
         self.modeSuccessCountsRaw = modeSuccessCountsRaw
     }
-
-    public var modeStats: ModeSuccessStats {
-        get { ModeSuccessStatsCodec.decode(modeSuccessCountsRaw) }
-        set { modeSuccessCountsRaw = ModeSuccessStatsCodec.encode(newValue) }
-    }
 }
 
 public final class UserStageProgress: @unchecked Sendable {

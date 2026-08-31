@@ -161,7 +161,7 @@ struct MixedReflexDrillViewModelTests {
 }
 
 @Suite("MixedReflexDrillViewModel Skip Speaking Tests")
-struct MixedReflexDrillViewModelSkipSpeakingTests {
+struct MixedReflexDrillSkipSpeakingTests {
     @Test("Skip speaking requeues word to end with non-speaking mode without penalty")
     @MainActor
     func testSkipSpeakingRequeue() {
@@ -287,7 +287,7 @@ struct MixedReflexDrillViewModelSkipSpeakingTests {
 }
 
 @Suite("RecordMixedDrillAttemptUseCase ModeSuccessStats Tests")
-struct RecordMixedDrillAttemptUseCaseModeSuccessStatsTests {
+struct RecordMixedDrillModeSuccessStatsTests {
     @Test("Recording correct drill attempt increments modeSuccessStats for that mode")
     func testRecordAttemptIncrementsModeStats() async throws {
         let mockRepo = MockUserProgressRepository()
@@ -341,5 +341,3 @@ private final class MockRecordMixedDrillAttemptUseCase: RecordMixedDrillAttemptU
     }
 }
 #endif
-
-
