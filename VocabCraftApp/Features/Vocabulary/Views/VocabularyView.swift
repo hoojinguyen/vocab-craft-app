@@ -53,88 +53,91 @@ public struct VocabularyView: View {
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    VStack(spacing: 0) {
-                        // ═══ PINNED ZONE (outside ScrollView) ═══
-
-                        // Expandable Search Bar — sticky when visible
-                        if isSearchVisible {
-                            CraftSearchBar(
-                                text: $searchText,
-                                placeholder: AppStrings.Vault.searchPlaceholder,
-                                size: .md,
-                                style: .flat,
-                                onCancel: {
-                                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                        searchText = ""
-                                        currentVaultVM.setSearchQuery("")
-                                        isSearchVisible = false
-                                    }
-                                }
-                            )
-                            .padding(.horizontal, theme.spacing.base)
-                            .padding(.vertical, theme.spacing.xs)
-                            .transition(.move(edge: .top).combined(with: .opacity))
-                        }
-
-                        // 3-Tab Segmented Filter — always sticky
-                        CraftSegmentedControl(
-                            selection: Binding(
-                                get: { bindableVaultVM.vaultTabFilter },
-                                set: { bindableVaultVM.setVaultFilter($0) }
-                            ),
-                            options: vaultSegmentOptions(metrics: currentVaultVM.metrics),
-                            style: .tactile3D
-                        )
-                        .padding(.horizontal, theme.spacing.base)
-                        .padding(.vertical, theme.spacing.xs)
-
-                        // ═══ SCROLLABLE ZONE ═══
-                        ScrollView(.vertical, showsIndicators: false) {
-                            VStack(spacing: theme.spacing.md) {
-                                // Header with scroll-fade effect
-                                CraftPageHeader(
-                                    AppStrings.Vault.title,
-                                    alignment: .leading,
-                                    enableScrollFade: true
-                                ) {
-                                    CraftIconButton(
-                                        iconName: isSearchVisible ? "magnifyingglass.circle.fill" : "magnifyingglass",
-                                        size: .md,
-                                        shape: .circle,
-                                        variant: isSearchVisible ? .filled : .subtle,
-                                        accessibilityLabel: AppStrings.Vault.searchToggleA11y,
-                                        action: {
-                                            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                                isSearchVisible.toggle()
-                                            }
-                                        }
-                                    )
-                                }
-
-                                // Practice button — scrolls with content
-                                CraftButton(
-                                    verbatim: AppStrings.Vault.actionPracticeText,
-                                    variant: .tactile,
-                                    size: .lg,
-                                    isFullWidth: true,
+                    ScrollView(.vertical, showsIndicators: false) {
+                        LazyVStack(spacing: theme.spacing.md, pinnedViews: [.sectionHeaders]) {
+                            // 1. Page Header at the top of the scroll view
+                            CraftPageHeader(
+                                AppStrings.Vault.title,
+                                alignment: .leading,
+                                enableScrollFade: true
+                            ) {
+                                CraftIconButton(
+                                    iconName: isSearchVisible ? "magnifyingglass.circle.fill" : "magnifyingglass",
+                                    size: .md,
+                                    shape: .circle,
+                                    variant: isSearchVisible ? .filled : .subtle,
+                                    accessibilityLabel: AppStrings.Vault.searchToggleA11y,
                                     action: {
-                                        let words = currentVaultVM.prepareReviewWords()
-                                        guard !words.isEmpty else { return }
-                                        activeDrillViewModel = appContainer.makeMixedReflexDrillViewModel(selectedWords: words)
+                                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                            isSearchVisible.toggle()
+                                        }
                                     }
                                 )
-                                .disabled(currentVaultVM.vaultWords.isEmpty)
-                                .padding(.horizontal, theme.spacing.base)
-
-                                // Main Word List / Empty State
-                                wordListContent(vaultVM: currentVaultVM)
                             }
-                            .padding(.top, theme.spacing.xs)
-                            .padding(.bottom, theme.spacing.xxl + 40)
+
+                            // 2. Pinned Search & Filter Section
+                            Section {
+                                VStack(spacing: theme.spacing.md) {
+                                    // Practice button — scrolls with content
+                                    CraftButton(
+                                        verbatim: AppStrings.Vault.actionPracticeText,
+                                        variant: .tactile,
+                                        size: .lg,
+                                        isFullWidth: true,
+                                        action: {
+                                            let words = currentVaultVM.prepareReviewWords()
+                                            guard !words.isEmpty else { return }
+                                            activeDrillViewModel = appContainer.makeMixedReflexDrillViewModel(selectedWords: words)
+                                        }
+                                    )
+                                    .disabled(currentVaultVM.vaultWords.isEmpty)
+                                    .padding(.horizontal, theme.spacing.base)
+
+                                    // Main Word List / Empty State
+                                    wordListContent(vaultVM: currentVaultVM)
+                                }
+                            } header: {
+                                VStack(spacing: 0) {
+                                    // Expandable Search Bar — sticky when visible
+                                    if isSearchVisible {
+                                        CraftSearchBar(
+                                            text: $searchText,
+                                            placeholder: AppStrings.Vault.searchPlaceholder,
+                                            size: .md,
+                                            style: .flat,
+                                            onCancel: {
+                                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                                    searchText = ""
+                                                    currentVaultVM.setSearchQuery("")
+                                                    isSearchVisible = false
+                                                }
+                                            }
+                                        )
+                                        .padding(.horizontal, theme.spacing.base)
+                                        .padding(.vertical, theme.spacing.xs)
+                                        .transition(.move(edge: .top).combined(with: .opacity))
+                                    }
+
+                                    // 3-Tab Segmented Filter — always sticky
+                                    CraftSegmentedControl(
+                                        selection: Binding(
+                                            get: { bindableVaultVM.vaultTabFilter },
+                                            set: { bindableVaultVM.setVaultFilter($0) }
+                                        ),
+                                        options: vaultSegmentOptions(metrics: currentVaultVM.metrics),
+                                        style: .tactile3D
+                                    )
+                                    .padding(.horizontal, theme.spacing.base)
+                                    .padding(.vertical, theme.spacing.xs)
+                                }
+                                .background(theme.colors.canvasBackground)
+                            }
                         }
-                        .refreshable {
-                            await currentVaultVM.loadData()
-                        }
+                        .padding(.top, theme.spacing.xs)
+                        .padding(.bottom, theme.spacing.xxl + 40)
+                    }
+                    .refreshable {
+                        await currentVaultVM.loadData()
                     }
                     .task(id: searchText) {
                         if searchText.isEmpty {

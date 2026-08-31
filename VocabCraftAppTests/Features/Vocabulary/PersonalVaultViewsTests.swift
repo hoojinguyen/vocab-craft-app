@@ -325,6 +325,30 @@ final class PersonalVaultViewsTests: XCTestCase {
         #endif
     }
 
+    func test_vocabularyView_initializationWithSearchVisibleTrue() {
+        let vm = PersonalVaultViewModel(mockWords: [mockVaultWord])
+        let view = VocabularyView(vaultViewModel: vm, isSearchVisible: true)
+
+        #if canImport(UIKit)
+        let host = UIHostingController(rootView: view)
+        XCTAssertNotNil(host.view)
+        #else
+        XCTAssertNotNil(view)
+        #endif
+    }
+
+    func test_vocabularyView_initializationWithSearchVisibleFalse() {
+        let vm = PersonalVaultViewModel(mockWords: [mockVaultWord])
+        let view = VocabularyView(vaultViewModel: vm, isSearchVisible: false)
+
+        #if canImport(UIKit)
+        let host = UIHostingController(rootView: view)
+        XCTAssertNotNil(host.view)
+        #else
+        XCTAssertNotNil(view)
+        #endif
+    }
+
     // MARK: - Legacy View Backward Compatibility Tests
     func test_personalVaultHeroCard_withWeakWords_triggersAction() {
         var didTrigger = false
