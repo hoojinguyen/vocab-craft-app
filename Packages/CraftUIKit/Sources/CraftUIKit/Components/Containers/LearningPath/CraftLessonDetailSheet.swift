@@ -126,14 +126,6 @@ public struct CraftLessonDetailSheet: View {
 
     public var body: some View {
         VStack(spacing: 0) {
-            // Drag Indicator Handle
-            Capsule()
-                .fill(theme.colors.borderDefault)
-                .frame(width: 36, height: 4)
-                .padding(.top, theme.spacing.sm)
-                .padding(.bottom, theme.spacing.xs)
-                .accessibilityHidden(true)
-
             // Header Bar with Dismiss Button
             HStack {
                 Spacer()
@@ -174,15 +166,9 @@ public struct CraftLessonDetailSheet: View {
                 .padding(.top, theme.spacing.xs)
                 .padding(.bottom, theme.spacing.base)
         }
-        .background(theme.colors.surfaceCard)
-        .clipShape(
-            UnevenRoundedRectangle(
-                topLeadingRadius: theme.radii.xl,
-                bottomLeadingRadius: 0,
-                bottomTrailingRadius: 0,
-                topTrailingRadius: theme.radii.xl
-            )
-        )
+        .presentationBackground(theme.colors.surfaceCard)
+        .presentationCornerRadius(theme.radii.xl)
+        .presentationDragIndicator(.visible)
         .accessibilityAction(.escape) {
             triggerDismissFeedback()
             onDismiss?()

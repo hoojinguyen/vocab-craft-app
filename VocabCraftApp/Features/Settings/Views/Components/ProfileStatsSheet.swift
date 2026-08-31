@@ -29,14 +29,6 @@ public struct ProfileStatsSheet: View {
 
     public var body: some View {
         VStack(spacing: 0) {
-            // Drag Indicator Handle
-            Capsule()
-                .fill(theme.colors.borderDefault)
-                .frame(width: 36, height: 4)
-                .padding(.top, theme.spacing.md)
-                .padding(.bottom, theme.spacing.sm)
-                .accessibilityHidden(true)
-
             ScrollView {
                 VStack(spacing: theme.spacing.base) {
                     // Header Section: Tactile 3D Icon, Title, Level Badge
@@ -68,15 +60,9 @@ public struct ProfileStatsSheet: View {
             .padding(.top, theme.spacing.xs)
             .padding(.bottom, theme.spacing.base)
         }
-        .background(theme.colors.surfaceCard)
-        .clipShape(
-            UnevenRoundedRectangle(
-                topLeadingRadius: theme.radii.xl,
-                bottomLeadingRadius: 0,
-                bottomTrailingRadius: 0,
-                topTrailingRadius: theme.radii.xl
-            )
-        )
+        .presentationBackground(theme.colors.surfaceCard)
+        .presentationCornerRadius(theme.radii.xl)
+        .presentationDragIndicator(.visible)
     }
 
     // MARK: - Header Section
