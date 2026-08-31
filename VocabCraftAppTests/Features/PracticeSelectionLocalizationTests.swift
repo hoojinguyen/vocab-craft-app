@@ -43,24 +43,32 @@ struct PracticeSelectionLocalizationTests {
 
     @Test("Kiểm tra tính toàn vẹn và song ngữ EN/VI trong catalog xcstrings cho Practice")
     func testPracticeCatalogIntegrity() throws {
-        let potentialPaths: [String?] = [
-            Bundle.main.path(forResource: "Localizable", ofType: "xcstrings"),
-            URL(fileURLWithPath: #filePath)
-                .deletingLastPathComponent()
-                .deletingLastPathComponent()
-                .deletingLastPathComponent()
-                .appendingPathComponent("VocabCraftApp/Resources/Localizable.xcstrings").path
-        ]
+        var catalogURL: URL?
 
-        var data: Data?
-        for case let path? in potentialPaths {
-            if let fileData = try? Data(contentsOf: URL(fileURLWithPath: path)) {
-                data = fileData
-                break
+        // Check Bundle first
+        if let bundlePath = Bundle.main.path(forResource: "Localizable", ofType: "xcstrings") {
+            catalogURL = URL(fileURLWithPath: bundlePath)
+        }
+
+        // Check relative file paths up the hierarchy
+        if catalogURL == nil {
+            var currentDir = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+            for _ in 0..<5 {
+                let candidate = currentDir.appendingPathComponent("VocabCraftApp/Resources/Localizable.xcstrings")
+                if FileManager.default.fileExists(atPath: candidate.path) {
+                    catalogURL = candidate
+                    break
+                }
+                let directCandidate = currentDir.appendingPathComponent("Resources/Localizable.xcstrings")
+                if FileManager.default.fileExists(atPath: directCandidate.path) {
+                    catalogURL = directCandidate
+                    break
+                }
+                currentDir = currentDir.deletingLastPathComponent()
             }
         }
 
-        let fileData = try #require(data, "Localizable.xcstrings should be found")
+        let fileData = try #require(catalogURL.flatMap { try? Data(contentsOf: $0) }, "Localizable.xcstrings should be found")
         let json = try #require(
             JSONSerialization.jsonObject(with: fileData) as? [String: Any],
             "Catalog should parse as JSON dictionary"

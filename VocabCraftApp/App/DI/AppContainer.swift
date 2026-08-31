@@ -41,6 +41,7 @@ public final class AppContainer {
     public let reviewWeakWordsUseCase: ReviewWeakWordsUseCaseProtocol
     public let toggleWordBookmarkUseCase: ToggleWordBookmarkUseCaseProtocol
     public let generateMixedReflexQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol
+    public let practiceDrillPlanGenerator: PracticeDrillPlanGeneratorProtocol
     public let recordMixedDrillAttemptUseCase: RecordMixedDrillAttemptUseCaseProtocol
 
     // MARK: - Stores & Navigation
@@ -138,6 +139,7 @@ public final class AppContainer {
             progressRepo: resolvedUserProgressRepo
         )
         self.generateMixedReflexQueueUseCase = generateMixedReflexQueueUseCase ?? GenerateMixedReflexQueueUseCase()
+        self.practiceDrillPlanGenerator = PracticeDrillPlanGenerator()
         self.recordMixedDrillAttemptUseCase = recordMixedDrillAttemptUseCase ?? RecordMixedDrillAttemptUseCase(
             progressRepo: resolvedUserProgressRepo,
             dataSource: resolvedDataSource
@@ -228,6 +230,7 @@ public final class AppContainer {
         MixedReflexDrillViewModel(
             selectedWords: selectedWords,
             queueUseCase: generateMixedReflexQueueUseCase,
+            planGenerator: practiceDrillPlanGenerator,
             recordAttemptUseCase: recordMixedDrillAttemptUseCase,
             ttsService: ttsService,
             allowSpeakingSkip: allowSpeakingSkip

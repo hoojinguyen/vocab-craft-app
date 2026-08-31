@@ -14,45 +14,9 @@ public struct ReflexDrillPlanGenerator: Sendable {
             return ReflexDrillSessionPlan(mode: mode, items: [])
         }
 
-        let planWords = words
         var items: [ReflexDrillPlanItem] = []
 
-        for (index, word) in planWords.enumerated() {
-            let options: [ReflexBlitzOption]
-            if mode == .multipleChoice || mode == .listening {
-                options = ReflexDistractorGenerator.generateOptions(
-                    mode: mode,
-                    target: word,
-                    pool: words
-                )
-            } else {
-                options = []
-            }
-
-            let correctIndex = options.firstIndex(where: { $0.isCorrect }) ?? 0
-            let incorrectOptions = options.filter { !$0.isCorrect }
-            let eliminatedId = incorrectOptions.randomElement()?.id
-
-            let clozeStages = ReflexHintMaskGenerator.generateStages(
-                lemma: word.lemma,
-                sentenceEn: word.exampleSentenceEn,
-                pos: word.cleanPos
-            )
-
-            let hintBadgeText: String
-            switch clozeStages.strategy {
-            case .middleCluster(let cluster, _):
-                hintBadgeText = "...\(cluster)... • \(word.cleanPos)"
-            case .prefix(let count):
-                let prefixStr = String(word.lemma.prefix(count))
-                hintBadgeText = "\(prefixStr)... • \(word.cleanPos)"
-            case .suffix(let count):
-                let suffixStr = String(word.lemma.suffix(count))
-                hintBadgeText = "...\(suffixStr) • \(word.cleanPos)"
-            case .consonantScaffold, .shortWordPrefix, .shortWordSuffix:
-                hintBadgeText = "\(word.cleanInitialLetterHint)"
-            }
-
+        for (index, word) in words.enumerated() {
             let planItemId: String
             if let identifiable = word as? (any Identifiable) {
                 planItemId = "\(mode.rawValue)-plan-\(index)-\(identifiable.id)"
@@ -60,15 +24,11 @@ public struct ReflexDrillPlanGenerator: Sendable {
                 planItemId = "\(mode.rawValue)-plan-\(index)-\(word.lemma)"
             }
 
-            let planItem = ReflexDrillPlanItem(
+            let planItem = ReflexDrillPlanItemBuilder.buildItem(
                 id: planItemId,
                 word: word,
                 assignedMode: mode,
-                options: options,
-                correctOptionIndex: correctIndex,
-                eliminatedOptionId: eliminatedId,
-                clozeStages: clozeStages,
-                hintBadgeText: hintBadgeText
+                distractorPool: words
             )
             items.append(planItem)
         }

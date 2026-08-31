@@ -15,6 +15,7 @@ public struct MixedReflexDrillView: View {
     @Bindable public var viewModel: MixedReflexDrillViewModel
     public var speechService: ContinuousReflexSpeechProtocol?
     public let onFinish: () -> Void
+    public let startWithCountdown: Bool
 
     @State private var isCountingDown: Bool
     @State private var timerTask: Task<Void, Never>?
@@ -36,6 +37,7 @@ public struct MixedReflexDrillView: View {
     ) {
         self.viewModel = viewModel
         self.speechService = speechService
+        self.startWithCountdown = startWithCountdown
         self.onFinish = onFinish
         self._isCountingDown = State(initialValue: startWithCountdown)
     }

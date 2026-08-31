@@ -118,7 +118,17 @@ public final class PersonalVaultViewModel {
 
     @discardableResult
     public func smartPickWords(targetCount: Int = 10) -> [VaultWordItem] {
-        let picked = smartSelector.selectWords(from: vaultWords, targetCount: targetCount)
+        let pool: [VaultWordItem]
+        switch vaultTabFilter {
+        case .notMastered:
+            pool = vaultWords.filter { !$0.isMastered }
+        case .mastered:
+            pool = vaultWords.filter(\.isMastered)
+        case .bookmarked:
+            pool = vaultWords.filter(\.isBookmarked)
+        }
+        let effectivePool = pool.isEmpty ? vaultWords : pool
+        let picked = smartSelector.selectWords(from: effectivePool, targetCount: targetCount)
         selectedWordIds = Set(picked.map(\.id))
         return picked
     }
@@ -165,7 +175,8 @@ public final class PersonalVaultViewModel {
                     isBookmarked: !item.isBookmarked,
                     correctStreak: item.correctStreak,
                     practicedModes: item.practicedModes,
-                    lastPracticedAt: item.lastPracticedAt
+                    lastPracticedAt: item.lastPracticedAt,
+                    modeStats: item.modeStats
                 )
                 vaultWords[idx] = updated
                 didSucceed = true
@@ -186,7 +197,8 @@ public final class PersonalVaultViewModel {
                 isBookmarked: !current.isBookmarked,
                 correctStreak: current.correctStreak,
                 practicedModes: current.practicedModes,
-                lastPracticedAt: current.lastPracticedAt
+                lastPracticedAt: current.lastPracticedAt,
+                modeStats: current.modeStats
             )
         }
     }

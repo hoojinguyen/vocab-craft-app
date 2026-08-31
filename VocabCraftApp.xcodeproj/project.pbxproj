@@ -121,6 +121,7 @@
 		3000306F302360991113 /* ReflexClozeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000306F302360991113 /* ReflexClozeFormatter.swift */; };
 		300012A1ACC2ABC41650 /* ReflexDistractorGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200012A1ACC2ABC41650 /* ReflexDistractorGenerator.swift */; };
 		300058D7D9AAA5B7C7F7 /* ReflexDrillPlanGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200058D7D9AAA5B7C7F7 /* ReflexDrillPlanGenerator.swift */; };
+		300058D7D9AAA5B7C7F8 /* ReflexDrillPlanItemBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200058D7D9AAA5B7C7F8 /* ReflexDrillPlanItemBuilder.swift */; };
 		300049875611C61A20FD /* ReflexHintMaskGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200049875611C61A20FD /* ReflexHintMaskGenerator.swift */; };
 		3000F61883A1AB597078 /* MixedReflexDrillViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000F61883A1AB597078 /* MixedReflexDrillViewModel.swift */; };
 		30001992FE6EF047EBBD /* MixedReflexDrillView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20001992FE6EF047EBBD /* MixedReflexDrillView.swift */; };
@@ -444,6 +445,7 @@
 		2000306F302360991113 /* ReflexClozeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexClozeFormatter.swift"; sourceTree = "<group>"; };
 		200012A1ACC2ABC41650 /* ReflexDistractorGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDistractorGenerator.swift"; sourceTree = "<group>"; };
 		200058D7D9AAA5B7C7F7 /* ReflexDrillPlanGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillPlanGenerator.swift"; sourceTree = "<group>"; };
+		200058D7D9AAA5B7C7F8 /* ReflexDrillPlanItemBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillPlanItemBuilder.swift"; sourceTree = "<group>"; };
 		200049875611C61A20FD /* ReflexHintMaskGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexHintMaskGenerator.swift"; sourceTree = "<group>"; };
 		2000F61883A1AB597078 /* MixedReflexDrillViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MixedReflexDrillViewModel.swift"; sourceTree = "<group>"; };
 		20001992FE6EF047EBBD /* MixedReflexDrillView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MixedReflexDrillView.swift"; sourceTree = "<group>"; };
@@ -1076,6 +1078,7 @@
 				2000306F302360991113 /* ReflexClozeFormatter.swift */,
 				200012A1ACC2ABC41650 /* ReflexDistractorGenerator.swift */,
 				200058D7D9AAA5B7C7F7 /* ReflexDrillPlanGenerator.swift */,
+				200058D7D9AAA5B7C7F8 /* ReflexDrillPlanItemBuilder.swift */,
 				200049875611C61A20FD /* ReflexHintMaskGenerator.swift */,
 			);
 			path = "Utilities";
@@ -1783,6 +1786,7 @@
 				3000306F302360991113 /* ReflexClozeFormatter.swift in Sources */,
 				300012A1ACC2ABC41650 /* ReflexDistractorGenerator.swift in Sources */,
 				300058D7D9AAA5B7C7F7 /* ReflexDrillPlanGenerator.swift in Sources */,
+				300058D7D9AAA5B7C7F8 /* ReflexDrillPlanItemBuilder.swift in Sources */,
 				300049875611C61A20FD /* ReflexHintMaskGenerator.swift in Sources */,
 				3000F61883A1AB597078 /* MixedReflexDrillViewModel.swift in Sources */,
 				30001992FE6EF047EBBD /* MixedReflexDrillView.swift in Sources */,

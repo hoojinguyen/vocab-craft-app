@@ -139,6 +139,7 @@ public struct ModeSuccessStats: Codable, Equatable, Sendable {
 ```
 
 #### `UserWordProgress` (SwiftData Storage)
+- Persists `lastReviewDate: Date` for time-decay calculations.
 - Stores `modeSuccessCountsRaw: String` (e.g. `"s:2,t:1,m:4,l:3"`) to guarantee 100% schema backward compatibility.
 - Provides accessor:
   ```swift
@@ -149,7 +150,7 @@ public struct ModeSuccessStats: Codable, Equatable, Sendable {
   ```
 
 #### `VaultWordItem` (Domain Model)
-- Updated with `public let modeStats: ModeSuccessStats`.
+- Updated with `public let modeStats: ModeSuccessStats` alongside existing `public let lastPracticedAt: Date?`.
 
 ---
 
@@ -159,6 +160,7 @@ public struct ModeSuccessStats: Codable, Equatable, Sendable {
 1. **Input**: Tab word list, target count $N$ from `UserSettingsStore.dailyGoalCount`.
 2. **Formula**:
    $$S = (4 - \text{modeCount}) \times 10 + \max(0, 5 - \text{correctStreak}) \times 3 + \min(10, \text{daysSinceLastPractice}) \times 2 + \text{jitter}(0 \dots 1.5)$$
+   *(where `daysSinceLastPractice` is computed from `word.lastPracticedAt` vs current date)*
 3. **Execution**:
    - Calculate score $S$ for each candidate word in the current tab.
    - Sort descending by $S$.
@@ -171,10 +173,11 @@ public struct ModeSuccessStats: Codable, Equatable, Sendable {
    - Distribute the 4 modes evenly across the session so each mode has roughly $N/4$ items.
    - Assign the candidate mode that best balances the global session quota.
    - Avoid having the same mode repeat more than 2 times in sequence.
-3. **Plan Pre-computation**:
+3. **Plan Pre-computation & Dynamic Requeue**:
    - Generate distractor options for MC and Listening via `ReflexDistractorGenerator`.
    - Generate progressive cloze hint stages via `ReflexHintMaskGenerator`.
-   - Build immutable `ReflexDrillSessionPlan`.
+   - Build initial `ReflexDrillSessionPlan` for the $N$ selected words.
+   - If a Speaking question is skipped via "Can't Speak Now" or a question is failed, the loop-back mechanism appends a retry item to the queue and generates its plan item on-the-fly via shared `ReflexDrillPlanItemBuilder`.
 
 ---
 

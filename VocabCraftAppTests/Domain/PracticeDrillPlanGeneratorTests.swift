@@ -140,6 +140,32 @@ struct PracticeDrillPlanGeneratorTests {
             #expect(!threeInARow)
         }
     }
+
+    @Test("Balances across multiple modes even when all words share the same single weakest mode")
+    func testAllWordsShareSameWeakestMode() {
+        let generator = PracticeDrillPlanGenerator()
+        let words = (1...12).map { id in
+            VaultWordItem(
+                id: Int64(id),
+                lemma: "word\(id)",
+                pos: "n",
+                definitionVi: "nghĩa \(id)",
+                modeStats: ModeSuccessStats(speaking: 10, typing: 0, multipleChoice: 10, listening: 10)
+            )
+        }
+        let plan = generator.generatePlan(from: words)
+        let modes = plan.items.map(\.assignedMode)
+        let uniqueModes = Set(modes)
+
+        // Phải phân bổ ra nhiều mode thay vì 100% typing
+        #expect(uniqueModes.count >= 3)
+
+        // Không bao giờ lặp lại 3 lần liên tiếp cùng 1 mode
+        for i in 2..<modes.count {
+            let threeInARow = (modes[i] == modes[i - 1] && modes[i] == modes[i - 2])
+            #expect(!threeInARow)
+        }
+    }
 }
 #endif
 

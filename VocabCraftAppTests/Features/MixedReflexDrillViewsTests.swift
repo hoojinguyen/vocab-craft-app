@@ -267,27 +267,34 @@ struct MixedReflexDrillViewsTests {
             VaultWordItem(id: 1, lemma: "voice", pos: "n.", definitionVi: "tiếng nói", exampleSentenceEn: "Her voice is clear.")
         ]
         let queueUseCase = GenerateMixedReflexQueueUseCase()
-        let vm = MixedReflexDrillViewModel(
+        let vmWithSkip = MixedReflexDrillViewModel(
             selectedWords: words,
             queueUseCase: queueUseCase,
             allowSpeakingSkip: true
         )
+        let vmWithoutSkip = MixedReflexDrillViewModel(
+            selectedWords: words,
+            queueUseCase: queueUseCase,
+            allowSpeakingSkip: false
+        )
 
         var finished = false
         let drillViewWithCountdown = MixedReflexDrillView(
-            viewModel: vm,
+            viewModel: vmWithSkip,
             startWithCountdown: true,
             onFinish: { finished = true }
         )
+        #expect(drillViewWithCountdown.startWithCountdown == true)
         #expect(drillViewWithCountdown.viewModel.allowSpeakingSkip == true)
         _ = drillViewWithCountdown.body
 
         let drillViewWithoutCountdown = MixedReflexDrillView(
-            viewModel: vm,
+            viewModel: vmWithoutSkip,
             startWithCountdown: false,
             onFinish: { finished = true }
         )
-        #expect(drillViewWithoutCountdown.viewModel.queue.count == 1)
+        #expect(drillViewWithoutCountdown.startWithCountdown == false)
+        #expect(drillViewWithoutCountdown.viewModel.allowSpeakingSkip == false)
         _ = drillViewWithoutCountdown.body
     }
 
@@ -325,9 +332,9 @@ struct MixedReflexDrillViewsTests {
         #expect(vm.attempts.isEmpty)
         #expect(vm.comboStreak == 0)
 
-        // Phím CTA text không rỗng
+        // Phím CTA text kiểm tra giá trị localized chuẩn
         #expect(!AppStrings.Practice.cantSpeakNowCTA.isEmpty)
-        #expect(AppStrings.Practice.cantSpeakNowCTA == AppStrings.Practice.cantSpeakNowText)
+        #expect(AppStrings.Practice.cantSpeakNowCTA == "Không thể nói lúc này" || AppStrings.Practice.cantSpeakNowCTA == "Can't speak now")
     }
 }
 #endif

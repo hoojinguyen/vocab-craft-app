@@ -23,36 +23,36 @@ public struct PracticeDrillPlanGenerator: PracticeDrillPlanGeneratorProtocol, Se
         ]
 
         let allModes = ReflexMode.allCases
+        let targetQuotaPerMode = max(1, (words.count + allModes.count - 1) / allModes.count)
 
         for word in words {
-            let candidateModes: [ReflexMode]
             let lowest = word.modeStats.lowestSuccessModes
-            if lowest.isEmpty {
-                candidateModes = allModes
-            } else {
-                candidateModes = lowest
-            }
+            let lowestSet = Set(lowest)
 
-            // Score candidate modes based on usage balance, consecutive runs, and deterministic order
-            var bestMode: ReflexMode = candidateModes[0]
+            // Score all 4 modes: prioritize weakest modality while enforcing session quota and avoiding consecutive runs
+            var bestMode: ReflexMode = lowest.first ?? .multipleChoice
             var lowestScore = Int.max
 
-            for mode in candidateModes {
-                let usage = modeCounts[mode] ?? 0
+            for (index, mode) in allModes.enumerated() {
+                let usage = modeCounts[mode, default: 0]
+                let isWeakest = lowestSet.contains(mode)
+                let weakestBonus = isWeakest ? 0 : 500
+
                 let consecutivePenalty: Int
                 let lastMode = assignedModes.last
                 let secondLastMode = assignedModes.count >= 2 ? assignedModes[assignedModes.count - 2] : nil
 
                 if lastMode == mode && secondLastMode == mode {
-                    consecutivePenalty = 10
+                    consecutivePenalty = 2000 // Strictly discourage 3 in a row
                 } else if lastMode == mode {
-                    consecutivePenalty = 1
+                    consecutivePenalty = 150
                 } else {
                     consecutivePenalty = 0
                 }
 
-                let modeOrder = allModes.firstIndex(of: mode) ?? 0
-                let score = (usage * 100) + (consecutivePenalty * 200) + modeOrder
+                let quotaPenalty = max(0, usage - targetQuotaPerMode) * 300
+                let usageScore = usage * 100
+                let score = weakestBonus + usageScore + quotaPenalty + consecutivePenalty + index
 
                 if score < lowestScore {
                     lowestScore = score
@@ -68,53 +68,13 @@ public struct PracticeDrillPlanGenerator: PracticeDrillPlanGeneratorProtocol, Se
 
         for (index, word) in words.enumerated() {
             let assignedMode = assignedModes[index]
-
-            let options: [ReflexBlitzOption]
-            if assignedMode == .multipleChoice || assignedMode == .listening {
-                options = ReflexDistractorGenerator.generateOptions(
-                    mode: assignedMode,
-                    target: word,
-                    pool: words
-                )
-            } else {
-                options = []
-            }
-
-            let correctIndex = options.firstIndex(where: { $0.isCorrect }) ?? 0
-            let incorrectOptions = options.filter { !$0.isCorrect }
-            let eliminatedId = incorrectOptions.randomElement()?.id
-
-            let clozeStages = ReflexHintMaskGenerator.generateStages(
-                lemma: word.lemma,
-                sentenceEn: word.exampleSentenceEn,
-                pos: word.cleanPos
-            )
-
-            let hintBadgeText: String
-            switch clozeStages.strategy {
-            case .middleCluster(let cluster, _):
-                hintBadgeText = "...\(cluster)... • \(word.cleanPos)"
-            case .prefix(let count):
-                let prefixStr = String(word.lemma.prefix(count))
-                hintBadgeText = "\(prefixStr)... • \(word.cleanPos)"
-            case .suffix(let count):
-                let suffixStr = String(word.lemma.suffix(count))
-                hintBadgeText = "...\(suffixStr) • \(word.cleanPos)"
-            case .consonantScaffold, .shortWordPrefix, .shortWordSuffix:
-                hintBadgeText = "\(word.cleanInitialLetterHint)"
-            }
-
             let planItemId = "\(assignedMode.rawValue)-practice-\(index)-\(word.id)"
 
-            let planItem = ReflexDrillPlanItem(
+            let planItem = ReflexDrillPlanItemBuilder.buildItem(
                 id: planItemId,
                 word: word,
                 assignedMode: assignedMode,
-                options: options,
-                correctOptionIndex: correctIndex,
-                eliminatedOptionId: eliminatedId,
-                clozeStages: clozeStages,
-                hintBadgeText: hintBadgeText
+                distractorPool: words
             )
             items.append(planItem)
         }

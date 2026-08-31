@@ -24,7 +24,7 @@
 - Create: `VocabCraftApp/Domain/Entities/ModeSuccessStatsCodec.swift`
 - Modify: `VocabCraftApp/Core/Database/SwiftDataModels.swift`
 - Modify: `VocabCraftApp/Domain/Entities/VaultWordItem.swift`
-- Modify: `VocabCraftApp/Core/Database/Repositories/UserProgressRepository.swift`
+- Modify: `VocabCraftApp/Data/Local/Actors/UserProgressModelActor.swift` & `VocabCraftApp/Data/Repositories/MockUserProgressRepository.swift`
 - Test: `VocabCraftAppTests/Domain/ModeSuccessStatsTests.swift`
 
 **Interfaces:**

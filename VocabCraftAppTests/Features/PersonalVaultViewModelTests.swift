@@ -201,43 +201,59 @@ struct PersonalVaultViewModelTests {
         #expect(vm.vaultWords.first(where: { $0.id == 1 })?.isBookmarked == true)
     }
 
-    @Test("Smart Pick chọn các từ vựng ưu tiên và cập nhật selectedWordIds")
+    @Test("Smart Pick chọn các từ vựng ưu tiên và cập nhật selectedWordIds với selector xác định")
     @MainActor
     func testSmartPickWords() async {
-        let wordWeak = VaultWordItem(
-            id: 1,
-            lemma: "weak",
-            pos: "adj",
-            definitionVi: "yếu",
-            correctStreak: 0,
-            modeStats: ModeSuccessStats(speaking: 0, typing: 0, multipleChoice: 0, listening: 0)
-        )
-        let wordMastered = VaultWordItem(
-            id: 2,
-            lemma: "strong",
-            pos: "adj",
-            definitionVi: "mạnh",
-            correctStreak: 5,
-            modeStats: ModeSuccessStats(speaking: 5, typing: 5, multipleChoice: 5, listening: 5)
-        )
-        let wordMedium = VaultWordItem(
-            id: 3,
-            lemma: "medium",
-            pos: "adj",
-            definitionVi: "vừa",
-            correctStreak: 2,
-            modeStats: ModeSuccessStats(speaking: 1, typing: 1, multipleChoice: 0, listening: 0)
-        )
+        final class StubSmartSelector: SmartVaultWordSelectorProtocol, @unchecked Sendable {
+            func selectWords(from pool: [VaultWordItem], targetCount: Int) -> [VaultWordItem] {
+                Array(pool.prefix(targetCount))
+            }
+        }
 
-        let vm = PersonalVaultViewModel(mockWords: [wordMastered, wordWeak, wordMedium])
+        let word1 = VaultWordItem(id: 101, lemma: "weak", pos: "adj", definitionVi: "yếu")
+        let word2 = VaultWordItem(id: 102, lemma: "medium", pos: "adj", definitionVi: "vừa")
+        let word3 = VaultWordItem(id: 103, lemma: "strong", pos: "adj", definitionVi: "mạnh")
+
+        let vm = PersonalVaultViewModel(
+            smartSelector: StubSmartSelector(),
+            mockWords: [word1, word2, word3]
+        )
         #expect(vm.selectedWordIds.isEmpty)
 
         let picked = vm.smartPickWords(targetCount: 2)
         #expect(picked.count == 2)
         #expect(vm.selectedWordIds.count == 2)
-        #expect(vm.selectedWordIds.contains(1))
-        #expect(vm.selectedWords.count == 2)
-        #expect(picked.first?.id == 1) // wordWeak has highest priority
+        #expect(vm.selectedWordIds.contains(101))
+        #expect(vm.selectedWordIds.contains(102))
+        #expect(picked.first?.id == 101)
+    }
+
+    @Test("Smart Pick tuân thủ bộ lọc vaultTabFilter")
+    @MainActor
+    func testSmartPickWordsRespectsTabFilter() async {
+        final class PassthroughSelector: SmartVaultWordSelectorProtocol, @unchecked Sendable {
+            func selectWords(from pool: [VaultWordItem], targetCount: Int) -> [VaultWordItem] {
+                Array(pool.prefix(targetCount))
+            }
+        }
+
+        let unmastered = VaultWordItem(id: 1, lemma: "learn", pos: "v", definitionVi: "học", isMastered: false)
+        let mastered = VaultWordItem(id: 2, lemma: "master", pos: "v", definitionVi: "thành thạo", isMastered: true)
+
+        let vm = PersonalVaultViewModel(
+            smartSelector: PassthroughSelector(),
+            mockWords: [unmastered, mastered]
+        )
+
+        vm.vaultTabFilter = .notMastered
+        let unmasteredPicks = vm.smartPickWords(targetCount: 5)
+        #expect(unmasteredPicks.count == 1)
+        #expect(unmasteredPicks.first?.id == 1)
+
+        vm.vaultTabFilter = .mastered
+        let masteredPicks = vm.smartPickWords(targetCount: 5)
+        #expect(masteredPicks.count == 1)
+        #expect(masteredPicks.first?.id == 2)
     }
 }
 
