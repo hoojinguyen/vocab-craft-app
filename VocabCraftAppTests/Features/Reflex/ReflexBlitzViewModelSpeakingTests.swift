@@ -198,6 +198,19 @@ final class ReflexBlitzViewModelSpeakingTests: XCTestCase {
         XCTAssertFalse(mockSpeechEngine.isSessionActive)
     }
 
+    func testSpeakingMode_startDrillSession_duringKeyboardFallback_doesNotCallBeginWordTwice() {
+        viewModel.startDrillSession(mode: .speaking, words: sampleWords)
+        viewModel.toggleKeyboardFallback()
+        XCTAssertTrue(viewModel.isKeyboardFallbackActive)
+
+        let beginCountBefore = mockSpeechEngine.beginWordCallCount
+        viewModel.startDrillSession(mode: .speaking, words: sampleWords)
+
+        XCTAssertFalse(viewModel.isKeyboardFallbackActive)
+        XCTAssertEqual(mockSpeechEngine.beginWordCallCount, beginCountBefore + 1)
+        XCTAssertEqual(mockSpeechEngine.lastTargetLemma, "ephemeral")
+    }
+
     // MARK: - Session End
 
     func testSpeakingMode_finishSession_stopsEngine() {

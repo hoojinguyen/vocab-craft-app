@@ -43,11 +43,17 @@ final class ReflexSpeechMatcherTests: XCTestCase {
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "running", targetLemma: "run"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "sitting", targetLemma: "sit"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "fitted", targetLemma: "fit"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "canning", targetLemma: "can"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "pinning", targetLemma: "pin"))
 
         // 4-letter consonant doubling (CVC)
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "planned", targetLemma: "plan"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "planning", targetLemma: "plan"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "stopped", targetLemma: "stop"))
+
+        // c -> ck spelling transformation
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "panicked", targetLemma: "panic"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "panicking", targetLemma: "panic"))
 
         // Vowel-drop inflections for 3 and 4 letter silent-e targets
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "making", targetLemma: "make"))
@@ -68,6 +74,9 @@ final class ReflexSpeechMatcherTests: XCTestCase {
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "tones", targetLemma: "ton"))
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "wines", targetLemma: "win"))
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "care", targetLemma: "car"))
+        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "cared", targetLemma: "car"))
+        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "caning", targetLemma: "can"))
+        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "pining", targetLemma: "pin"))
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "catch", targetLemma: "cat"))
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "paste", targetLemma: "past"))
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "planet", targetLemma: "plan"))
