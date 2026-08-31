@@ -11,7 +11,6 @@ import AppKit
 @testable import VocabCraftApp
 
 @MainActor
-// swiftlint:disable:next type_body_length
 final class ReflexBlitzViewIntegrationTests: XCTestCase {
     private func makeSampleWords() -> [ReflexBlitzWordItem] {
         [

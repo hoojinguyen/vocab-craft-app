@@ -8,7 +8,6 @@ import XCTest
 #endif
 
 @MainActor
-// swiftlint:disable:next type_body_length
 final class ReflexBlitzViewModelTests: XCTestCase {
     private var mockTTS: MockTextToSpeechService!
     private var mockSRS: MockEvaluateSRSUseCase!
