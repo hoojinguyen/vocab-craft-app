@@ -24,25 +24,50 @@ final class ReflexSpeechMatcherTests: XCTestCase {
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "i see a cat here", targetLemma: "cat"))
     }
 
-    func testShortWords_acceptsStemOrPrefixWhenTargetFourChars() {
+    func testShortWords_acceptsInflectionsAndConsonantDoublingForThreeAndFourChars() {
+        // 4-letter regular verbal inflections
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "walked", targetLemma: "walk"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "walking", targetLemma: "walk"))
-        // Accept consonant doubling for 3-letter CVC targets
+
+        // 3-letter regular verbal inflections (-ed, -ing, -s, -es for sibilants)
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "asked", targetLemma: "ask"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "asking", targetLemma: "ask"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "fixed", targetLemma: "fix"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "fixing", targetLemma: "fix"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "boxes", targetLemma: "box"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "buses", targetLemma: "bus"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "cats", targetLemma: "cat"))
+
+        // 3-letter consonant doubling (CVC)
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "running", targetLemma: "run"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "sitting", targetLemma: "sit"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "fitted", targetLemma: "fit"))
-        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "cats", targetLemma: "cat"))
-        // Reject non-inflections on 3-letter targets
-        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "care", targetLemma: "car"))
-        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "catch", targetLemma: "cat"))
-        // Accept consonant doubling for 4-letter CVC targets
+
+        // 4-letter consonant doubling (CVC)
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "planned", targetLemma: "plan"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "planning", targetLemma: "plan"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "stopped", targetLemma: "stop"))
-        // Reject non-inflection derivations (e.g. agent nouns, adjectives, or distinct lemmas)
+
+        // Vowel-drop inflections for 3 and 4 letter silent-e targets
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "making", targetLemma: "make"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "taking", targetLemma: "take"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "loving", targetLemma: "love"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "using", targetLemma: "use"))
+
+        // Rejection of non-inflection derivations (e.g. agent nouns, adjectives)
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "rainy", targetLemma: "rain"))
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "farmer", targetLemma: "farm"))
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "planner", targetLemma: "plan"))
+        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "maker", targetLemma: "make"))
+
+        // Rejection of distinct words slipping through as fake inflections
+        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "cares", targetLemma: "car"))
+        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "canes", targetLemma: "can"))
+        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "pines", targetLemma: "pin"))
+        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "tones", targetLemma: "ton"))
+        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "wines", targetLemma: "win"))
+        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "care", targetLemma: "car"))
+        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "catch", targetLemma: "cat"))
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "paste", targetLemma: "past"))
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "planet", targetLemma: "plan"))
     }

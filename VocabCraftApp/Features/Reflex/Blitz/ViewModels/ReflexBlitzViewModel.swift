@@ -32,7 +32,7 @@ public final class ReflexBlitzViewModel {
             guard isKeyboardFallbackActive != oldValue else { return }
             if isKeyboardFallbackActive {
                 speechEngine.endWord()
-            } else if selectedMode == .speaking && cardPhase == .activeCountdown, let word = currentWord {
+            } else if selectedMode == .speaking && phase == .drilling && cardPhase == .activeCountdown && speechEngine.isSessionActive, let word = currentWord {
                 speechEngine.beginWord(targetLemma: word.lemma, contextualPhrases: [word.lemma])
             }
         }
