@@ -10,9 +10,10 @@ public struct VocabularyView: View {
 
     @State private var vaultVM: PersonalVaultViewModel?
     @State private var legacyVM: VocabularyViewModel?
-    @State private var isSearchVisible: Bool = false
+    @State private var isSearchHiddenByScroll: Bool = false
     @State private var isScrolledPastHeader: Bool = false
     @State private var measuredHeaderHeight: CGFloat = 50
+    @State private var lastScrollOffset: CGFloat = 0
     @State private var searchText: String = ""
     @State private var isPresentingPracticeSelection: Bool = false
     @State private var activeDrillViewModel: MixedReflexDrillViewModel?
@@ -22,18 +23,18 @@ public struct VocabularyView: View {
     public init(
         vaultViewModel: PersonalVaultViewModel? = nil,
         viewModel: VocabularyViewModel? = nil,
-        isSearchVisible: Bool = false,
+        isSearchHiddenByScroll: Bool = false,
         isScrolledPastHeader: Bool = false
     ) {
         self._vaultVM = State(initialValue: vaultViewModel)
         self._legacyVM = State(initialValue: viewModel)
-        self._isSearchVisible = State(initialValue: isSearchVisible)
+        self._isSearchHiddenByScroll = State(initialValue: isSearchHiddenByScroll)
         self._isScrolledPastHeader = State(initialValue: isScrolledPastHeader)
         self._searchText = State(initialValue: vaultViewModel?.searchQuery ?? "")
     }
 
     // MARK: - Testing Inspection Accessors
-    internal var isSearchVisibleForTesting: Bool { isSearchVisible }
+    internal var isSearchHiddenByScrollForTesting: Bool { isSearchHiddenByScroll }
     internal var isScrolledPastHeaderForTesting: Bool { isScrolledPastHeader }
     internal var measuredHeaderHeightForTesting: CGFloat { measuredHeaderHeight }
 
@@ -69,20 +70,7 @@ public struct VocabularyView: View {
                                 AppStrings.Vault.title,
                                 alignment: .leading,
                                 enableScrollFade: true
-                            ) {
-                                CraftIconButton(
-                                    iconName: (isSearchVisible || isScrolledPastHeader) ? "magnifyingglass.circle.fill" : "magnifyingglass",
-                                    size: .md,
-                                    shape: .circle,
-                                    variant: (isSearchVisible || isScrolledPastHeader) ? .filled : .subtle,
-                                    accessibilityLabel: AppStrings.Vault.searchToggleA11y,
-                                    action: {
-                                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                            isSearchVisible.toggle()
-                                        }
-                                    }
-                                )
-                            }
+                            )
                             .background(
                                 GeometryReader { proxy in
                                     Color.clear
@@ -123,18 +111,17 @@ public struct VocabularyView: View {
                                     }
                                 } header: {
                                     VStack(spacing: 0) {
-                                        // Expandable Search Bar — sticky when visible or scrolled past header
-                                        if isSearchVisible || isScrolledPastHeader {
+                                        // Expandable Search Bar — sticky, auto-hides on scroll direction
+                                        if !isSearchHiddenByScroll {
                                             CraftSearchBar(
                                                 text: $searchText,
                                                 placeholder: AppStrings.Vault.searchPlaceholder,
                                                 size: .md,
                                                 style: .flat,
                                                 onCancel: {
-                                                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                                    withAnimation(theme.animations.springSnappy) {
                                                         searchText = ""
                                                         currentVaultVM.setSearchQuery("")
-                                                        isSearchVisible = false
                                                     }
                                                 }
                                             )
@@ -179,6 +166,35 @@ public struct VocabularyView: View {
                                 isScrolledPastHeader = shouldBePastHeader
                             }
                         }
+
+                        let delta = offset - lastScrollOffset
+
+                        if abs(delta) > 2 {
+                            if delta < -2 {
+                                // Scroll Down: Hide search bar to save space
+                                if !isSearchHiddenByScroll && searchText.isEmpty {
+                                    withAnimation(theme.animations.springSnappy) {
+                                        isSearchHiddenByScroll = true
+                                    }
+                                }
+                            } else if delta > 2 {
+                                // Scroll Up: Reveal search bar
+                                if isSearchHiddenByScroll {
+                                    withAnimation(theme.animations.springSnappy) {
+                                        isSearchHiddenByScroll = false
+                                    }
+                                }
+                            }
+                        }
+
+                        // Safety check: if text is not empty, always show
+                        if !searchText.isEmpty && isSearchHiddenByScroll {
+                            withAnimation(theme.animations.springSnappy) {
+                                isSearchHiddenByScroll = false
+                            }
+                        }
+
+                        lastScrollOffset = offset
                     }
                     .refreshable {
                         await currentVaultVM.loadData()
@@ -362,11 +378,11 @@ public struct VocabularyView: View {
         case "personal-search-match":
             searchText = "resilience"
             vm.setSearchQuery("resilience")
-            isSearchVisible = true
+            isSearchHiddenByScroll = false
         case "personal-search-empty":
             searchText = "không_tìm_thấy_từ"
             vm.setSearchQuery("không_tìm_thấy_từ")
-            isSearchVisible = true
+            isSearchHiddenByScroll = false
         default:
             break
         }
