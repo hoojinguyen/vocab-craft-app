@@ -4,6 +4,13 @@ import Speech
 import SpeechKit
 
 public enum ReflexSpeechMatcher {
+    private static let allowedExtendedSuffixes: Set<String> = [
+        "ing", "ed", "es", "s", "er", "able", "d", "y", "ment", "tion", "ion", "ation"
+    ]
+    private static let allowedInflections: Set<String> = [
+        "ing", "ed", "es", "s", "er", "or", "tion", "ion", "ation", "ment"
+    ]
+
     /// Evaluates whether spoken text contains the target lemma or an acceptable phonetic / accent / inflection reflex match.
     public static func isReflexMatch(
         spokenText: String,
@@ -42,11 +49,17 @@ public enum ReflexSpeechMatcher {
                 // Token is an extended form of the target (e.g. target "walk" -> spoken "walked", "walking")
                 if token.hasPrefix(normalizedTarget) {
                     let suffix = String(token.dropFirst(targetLen))
-                    let allowedExtendedSuffixes: Set<String> = [
-                        "ing", "ed", "es", "s", "er", "able", "d", "y", "ment", "tion", "ion", "ation"
-                    ]
                     if allowedExtendedSuffixes.contains(suffix) {
                         return true
+                    }
+                    // Handle consonant doubling for short CVC words (e.g. "plan" -> "planned", "planning", "stop" -> "stopped")
+                    if suffix.count >= 2,
+                       let targetLastChar = normalizedTarget.last,
+                       suffix.first == targetLastChar {
+                        let doubledSuffix = String(suffix.dropFirst())
+                        if allowedExtendedSuffixes.contains(doubledSuffix) {
+                            return true
+                        }
                     }
                 }
 
@@ -56,9 +69,6 @@ public enum ReflexSpeechMatcher {
                     let stemWithoutE = String(normalizedTarget.dropLast())
                     if token.hasPrefix(stemWithoutE) {
                         let suffix = String(token.dropFirst(stemWithoutE.count))
-                        let allowedInflections: Set<String> = [
-                            "ing", "ed", "es", "s", "er", "or", "tion", "ion", "ation", "ment"
-                        ]
                         if allowedInflections.contains(suffix) {
                             return true
                         }

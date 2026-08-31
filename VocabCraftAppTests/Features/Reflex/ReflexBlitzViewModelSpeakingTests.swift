@@ -158,6 +158,29 @@ final class ReflexBlitzViewModelSpeakingTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(viewModel.hintStage, 3)
     }
 
+    // MARK: - Keyboard Fallback & Error Handling
+
+    func testSpeakingMode_speechEngineError_activatesKeyboardFallback() {
+        viewModel.startDrillSession(mode: .speaking, words: sampleWords)
+        XCTAssertFalse(viewModel.isKeyboardFallbackActive)
+
+        let testError = NSError(domain: "test", code: 403, userInfo: nil)
+        mockSpeechEngine.simulateError(testError)
+
+        XCTAssertTrue(viewModel.isKeyboardFallbackActive)
+    }
+
+    func testSpeakingMode_advanceWithKeyboardFallback_doesNotCallBeginWord() {
+        viewModel.startDrillSession(mode: .speaking, words: sampleWords)
+        viewModel.toggleKeyboardFallback()
+        XCTAssertTrue(viewModel.isKeyboardFallbackActive)
+
+        let countBeforeAdvance = mockSpeechEngine.beginWordCallCount
+        viewModel.advanceToNextWord()
+
+        XCTAssertEqual(mockSpeechEngine.beginWordCallCount, countBeforeAdvance)
+    }
+
     // MARK: - Session End
 
     func testSpeakingMode_finishSession_stopsEngine() {

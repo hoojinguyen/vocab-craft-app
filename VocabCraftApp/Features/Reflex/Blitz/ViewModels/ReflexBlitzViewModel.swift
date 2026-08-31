@@ -146,8 +146,12 @@ public final class ReflexBlitzViewModel {
         speechEngine.onTranscriptUpdate = { [weak self] transcript in
             self?.liveTranscript = transcript
         }
-        speechEngine.onError = { error in
+        speechEngine.onError = { [weak self] error in
             print("[ReflexBlitzViewModel] Speech engine error: \(error.localizedDescription)")
+            guard let self else { return }
+            if self.selectedMode == .speaking && !self.isKeyboardFallbackActive {
+                self.isKeyboardFallbackActive = true
+            }
         }
     }
 
@@ -277,7 +281,7 @@ public final class ReflexBlitzViewModel {
             self.currentHintBadgeText = ""
         }
 
-        if selectedMode == .speaking {
+        if selectedMode == .speaking && !isKeyboardFallbackActive {
             speechEngine.beginWord(
                 targetLemma: word.lemma,
                 contextualPhrases: [word.lemma]

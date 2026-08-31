@@ -27,6 +27,10 @@ final class ReflexSpeechMatcherTests: XCTestCase {
     func testShortWords_acceptsStemOrPrefixWhenTargetFourChars() {
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "walked", targetLemma: "walk"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "walking", targetLemma: "walk"))
+        // Accept consonant doubling for short CVC targets
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "planned", targetLemma: "plan"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "planning", targetLemma: "plan"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "stopped", targetLemma: "stop"))
         // Reject non-inflection extensions on 4-letter targets (e.g. target "past" vs spoken "paste", target "plan" vs spoken "planet")
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "paste", targetLemma: "past"))
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "planet", targetLemma: "plan"))
