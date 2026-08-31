@@ -41,7 +41,13 @@ public enum ReflexSpeechMatcher {
             if targetLen >= 4 {
                 // Token is an extended form of the target (e.g. target "walk" -> spoken "walked", "walking")
                 if token.hasPrefix(normalizedTarget) {
-                    return true
+                    let suffix = String(token.dropFirst(targetLen))
+                    let allowedExtendedSuffixes: Set<String> = [
+                        "ing", "ed", "es", "s", "er", "able", "d", "y", "ment", "tion", "ion", "ation"
+                    ]
+                    if allowedExtendedSuffixes.contains(suffix) {
+                        return true
+                    }
                 }
 
                 // Handle English vowel drop (e.g. "hesitate" -> stem "hesitat" vs "hesitating", "hesitation")

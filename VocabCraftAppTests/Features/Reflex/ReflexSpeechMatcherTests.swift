@@ -27,22 +27,25 @@ final class ReflexSpeechMatcherTests: XCTestCase {
     func testShortWords_acceptsStemOrPrefixWhenTargetFourChars() {
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "walked", targetLemma: "walk"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "walking", targetLemma: "walk"))
+        // Reject non-inflection extensions on 4-letter targets (e.g. target "past" vs spoken "paste", target "plan" vs spoken "planet")
+        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "paste", targetLemma: "past"))
+        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "planet", targetLemma: "plan"))
     }
 
     // MARK: - Medium Words (5 - 7 chars): Threshold 0.80
 
     func testMediumWords_acceptsHighSimilarity() {
-        // "vital" (5 chars) vs "vitall" (ratio 0.83)
+        // "vital" (5 chars) vs "vital" (exact) and "vitals" (6 chars, dist 1 / 6 = ratio 0.83)
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "vital", targetLemma: "vital"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "vitals", targetLemma: "vital"))
     }
 
     func testMediumWords_rejectsDissimilarTokens() {
-        // "vital" vs "viral" (dist 1 / 5 = 0.8, but "viral" vs "vital" -> 0.8 is right on edge, test 0.6)
+        // "vital" (5 chars) vs "metal" (5 chars, dist 2 / 5 = ratio 0.60 < 0.80)
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "metal", targetLemma: "vital"))
     }
 
-    // MARK: - Long Words (>= 8 chars): Threshold 0.72
+    // MARK: - Long Words (>= 8 chars): Threshold 0.70
 
     func testLongWords_acceptsAccentTolerantVariants() {
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "ephemeral", targetLemma: "ephemeral"))

@@ -32,7 +32,7 @@ public final class ReflexBlitzViewModel {
             if isKeyboardFallbackActive {
                 speechEngine.endWord()
             } else if selectedMode == .speaking && cardPhase == .activeCountdown, let word = currentWord {
-                speechEngine.beginWord(targetLemma: word.lemma, contextualPhrases: [word.exampleSentenceEn])
+                speechEngine.beginWord(targetLemma: word.lemma, contextualPhrases: [word.lemma])
             }
         }
     }
@@ -280,7 +280,7 @@ public final class ReflexBlitzViewModel {
         if selectedMode == .speaking {
             speechEngine.beginWord(
                 targetLemma: word.lemma,
-                contextualPhrases: [word.exampleSentenceEn]
+                contextualPhrases: [word.lemma]
             )
         }
 
