@@ -49,6 +49,7 @@ public struct CraftLearningPath: View {
     public let onNodeImpression: (@Sendable (LessonNodeModel) -> Void)?
     public let onTabBarPresentationChange: (@Sendable (CraftTabBarPresentation) -> Void)?
     public let nodeImpressionThreshold: TimeInterval
+    public let externalScrollTrigger: Int
 
     @Environment(\.craftTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -58,6 +59,7 @@ public struct CraftLearningPath: View {
     @State private var hasScrolledToActive: Bool = false
     @State private var dockedSectionIDs: Set<String> = []
     @State private var dockedSection: LessonSection?
+    @State private var dockDebounceTask: Task<Void, Never>?
     @State private var tabBarScrollReducer = CraftTabBarScrollPresentationReducer()
     @State private var tracksUserTabBarScroll = false
 
@@ -163,7 +165,8 @@ public struct CraftLearningPath: View {
         onAutoScrolled: (@Sendable (String) -> Void)? = nil,
         onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
         onTabBarPresentationChange: (@Sendable (CraftTabBarPresentation) -> Void)? = nil,
-        nodeImpressionThreshold: TimeInterval = 0.5
+        nodeImpressionThreshold: TimeInterval = 0.5,
+        externalScrollTrigger: Int = 0
     ) {
         self.sections = sections
         self.winding = winding
@@ -191,6 +194,7 @@ public struct CraftLearningPath: View {
         self.onNodeImpression = onNodeImpression
         self.onTabBarPresentationChange = onTabBarPresentationChange
         self.nodeImpressionThreshold = nodeImpressionThreshold
+        self.externalScrollTrigger = externalScrollTrigger
     }
 
     /// Creates a multi-section learning path with a custom ViewBuilder for the floating sticky HUD.
@@ -357,8 +361,10 @@ public struct CraftLearningPath: View {
     }
 
     private var smartBottomPadding: CGFloat {
-        // TabBar floating height ~88 + row spacing + safeArea → 200 ensures last row scrolls above glass bar
-        pinSectionHeaders ? 220 : 200
+        // TabBar: bar 52 + vertical 10 + bottom 8 + safeArea 34 + FAB protrusion 20 ≈ 124 total visible.
+        // Add row spacing + breathing room so last Unit card + treasure row is fully readable above glass bar.
+        // Previous 200/220 left truncated peek; P0 bumped to 260/280; P1 adds treasure chest row (+~80pt) → 320/340.
+        pinSectionHeaders ? 340 : 320
     }
 
     // MARK: - Body
@@ -486,6 +492,8 @@ public struct CraftLearningPath: View {
             .safeAreaInset(edge: .bottom) {
                 Color.clear.frame(height: smartBottomPadding)
             }
+            .contentMargins(.bottom, theme.spacing.base, for: .scrollContent)
+            .contentMargins(.top, theme.spacing.sm, for: .scrollContent)
             .overlay(alignment: .top) {
                 stickyHUDOverlay(proxy: proxy)
             }
@@ -504,10 +512,15 @@ public struct CraftLearningPath: View {
                 performScroll(proxy, to: id, reducedMotion: isReducedMotion)
             }
             .onChange(of: sections) { _, newSections in
+                dockDebounceTask?.cancel()
                 dockedSection = newSections.last(where: { dockedSectionIDs.contains($0.id) })
                 guard scrollToActive, !hasScrolledToActive, let id = activeNodeID else { return }
                 performScroll(proxy, to: id, reducedMotion: isReducedMotion)
                 hasScrolledToActive = true
+            }
+            .onChange(of: externalScrollTrigger) { _, _ in
+                guard scrollToActive, let id = activeNodeID else { return }
+                performScroll(proxy, to: id, reducedMotion: isReducedMotion)
             }
             )
         }
@@ -674,8 +687,12 @@ public struct CraftLearningPath: View {
         } else {
             dockedSectionIDs.remove(section.id)
         }
-        let activeDocked = sections.last(where: { dockedSectionIDs.contains($0.id) })
-        if dockedSection?.id != activeDocked?.id {
+        dockDebounceTask?.cancel()
+        dockDebounceTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 16_000_000)
+            guard !Task.isCancelled else { return }
+            let activeDocked = sections.last(where: { dockedSectionIDs.contains($0.id) })
+            guard dockedSection?.id != activeDocked?.id else { return }
             withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                 dockedSection = activeDocked
             }

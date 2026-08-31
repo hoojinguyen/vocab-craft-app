@@ -129,4 +129,59 @@ extension ReflexBlitzViewModel {
         generator.impactOccurred()
         #endif
     }
+
+    public func submitSpeakingResult(isCorrect: Bool, responseTimeMs: Int) {
+        guard phase == .drilling, cardPhase == .activeCountdown, let word = currentWord else { return }
+        self.elapsedTimeMs = responseTimeMs
+        if isCorrect {
+            handleSpokenMatch(word.lemma)
+        } else {
+            handleTimeout()
+        }
+    }
+
+    public func handleTimeout() {
+        guard phase == .drilling, cardPhase == .activeCountdown, let word = currentWord else { return }
+        cancelActiveTimers()
+        currentAttemptIsCorrect = false
+        comboStreak = 0
+        soundEffectService.playIncorrectChime()
+        triggerIncorrectHaptic()
+
+        let timeLimitMs = elapsedTimeMs > 0 ? elapsedTimeMs : Int(selectedMode.timeLimitSeconds * 1000)
+        self.elapsedTimeMs = timeLimitMs
+        let attempt = ReflexBlitzAttempt(
+            wordId: word.id, lemma: word.lemma, pos: word.pos, ipa: word.ipa,
+            definitionVi: word.definitionVi, responseTimeMs: timeLimitMs,
+            usedHint: true, isCorrect: false
+        )
+        attempts.append(attempt)
+
+        if selectedMode == .speaking {
+            speechEngine.endWord()
+        } else {
+            continuousSpeechService.pauseListening()
+        }
+
+        Task {
+            _ = try? await self.evaluateSRSUseCase.recordReview(
+                wordId: Int64(word.id), isCorrect: false, responseTimeMs: timeLimitMs
+            )
+        }
+
+        withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
+            self.cardPhase = .reviewed(result: ReflexCardResult(
+                isCorrect: false, responseTimeMs: timeLimitMs, isTimeout: true,
+                selectedOption: nil, typedText: nil, recognizedSpoken: nil
+            ))
+        }
+
+        if selectedMode != .listening {
+            Task { @MainActor [weak self] in
+                try? await Task.sleep(for: .milliseconds(250))
+                guard let self, self.cardPhase != .activeCountdown else { return }
+                self.ttsService.speak(text: word.lemma, rate: 0.5, locale: "en-US")
+            }
+        }
+    }
 }

@@ -231,7 +231,7 @@ public final class ReflexBlitzViewModel {
         phase = .countdown
         countdownCount = 3
         if selectedMode == .speaking {
-            let contextualPhrases = words.flatMap { [$0.lemma, $0.exampleSentenceEn] }
+            let contextualPhrases = words.map(\.lemma)
             speechEngine.startSession(contextualPhrases: contextualPhrases)
         }
 
@@ -257,7 +257,7 @@ public final class ReflexBlitzViewModel {
             }
         }
         if selectedMode == .speaking {
-            let contextualPhrases = words.flatMap { [$0.lemma, $0.exampleSentenceEn] }
+            let contextualPhrases = words.map(\.lemma)
             speechEngine.startSession(contextualPhrases: contextualPhrases)
         }
         beginDrilling()
@@ -421,6 +421,17 @@ extension ReflexBlitzViewModel {
         timeoutTimerTask = Task { @MainActor [weak self] in
             try? await Task.sleep(for: .seconds(limitSeconds))
             guard !Task.isCancelled, let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
+
+            if self.selectedMode == .speaking {
+                // Grace period: stop mic input but let recognition pipeline
+                // process in-flight audio buffers. Words spoken at ~5.3-5.8s
+                // have 300-800ms recognition latency that would be lost otherwise.
+                self.speechEngine.finalizeWordAudio()
+                try? await Task.sleep(for: .milliseconds(500))
+                // If match was detected during grace, cardPhase changed → skip timeout
+                guard !Task.isCancelled, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
+            }
+
             self.handleTimeout()
         }
     }
@@ -637,60 +648,12 @@ extension ReflexBlitzViewModel {
                 selectedOption: nil, typedText: nil, recognizedSpoken: matchedLemma
             ))
         }
-    }
 
-    public func submitSpeakingResult(isCorrect: Bool, responseTimeMs: Int) {
-        guard phase == .drilling, cardPhase == .activeCountdown, let word = currentWord else { return }
-        self.elapsedTimeMs = responseTimeMs
-        if isCorrect {
-            handleSpokenMatch(word.lemma)
-        } else {
-            handleTimeout()
-        }
-    }
-
-    public func handleTimeout() {
-        guard phase == .drilling, cardPhase == .activeCountdown, let word = currentWord else { return }
-        cancelActiveTimers()
-        currentAttemptIsCorrect = false
-        comboStreak = 0
-        soundEffectService.playIncorrectChime()
-        triggerIncorrectHaptic()
-
-        let timeLimitMs = elapsedTimeMs > 0 ? elapsedTimeMs : Int(selectedMode.timeLimitSeconds * 1000)
-        self.elapsedTimeMs = timeLimitMs
-        let attempt = ReflexBlitzAttempt(
-            wordId: word.id, lemma: word.lemma, pos: word.pos, ipa: word.ipa,
-            definitionVi: word.definitionVi, responseTimeMs: timeLimitMs,
-            usedHint: true, isCorrect: false
-        )
-        attempts.append(attempt)
-
-        if selectedMode == .speaking {
-            speechEngine.endWord()
-        } else {
-            continuousSpeechService.pauseListening()
-        }
-
-        Task {
-            _ = try? await self.evaluateSRSUseCase.recordReview(
-                wordId: Int64(word.id), isCorrect: false, responseTimeMs: timeLimitMs
-            )
-        }
-
-        withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
-            self.cardPhase = .reviewed(result: ReflexCardResult(
-                isCorrect: false, responseTimeMs: timeLimitMs, isTimeout: true,
-                selectedOption: nil, typedText: nil, recognizedSpoken: nil
-            ))
-        }
-
-        if selectedMode != .listening {
-            Task { @MainActor [weak self] in
-                try? await Task.sleep(for: .milliseconds(250))
-                guard let self, self.cardPhase != .activeCountdown else { return }
-                self.ttsService.speak(text: word.lemma, rate: 0.5, locale: "en-US")
-            }
+        // Speak the word after card flip — matching typing/timeout modes
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .milliseconds(250))
+            guard let self, self.cardPhase != .activeCountdown else { return }
+            self.ttsService.speak(text: word.lemma, rate: 0.5, locale: "en-US")
         }
     }
 }

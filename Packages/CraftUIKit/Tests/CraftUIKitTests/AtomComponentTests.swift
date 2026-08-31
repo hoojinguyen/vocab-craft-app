@@ -129,8 +129,12 @@ final class AtomComponentTests: XCTestCase {
 
     func testCraftSymbolCasesAndRawValues() {
         XCTAssertEqual(CraftSymbol.home.rawValue, "house")
+        XCTAssertEqual(CraftSymbol.homeFill.rawValue, "house.fill")
         XCTAssertEqual(CraftSymbol.study.rawValue, "character.book.closed")
+        XCTAssertEqual(CraftSymbol.booksFill.rawValue, "books.vertical.fill")
         XCTAssertEqual(CraftSymbol.search.rawValue, "magnifyingglass")
+        XCTAssertEqual(CraftSymbol.profileFill.rawValue, "person.crop.circle.fill")
+        XCTAssertEqual(CraftSymbol.settingsFill.rawValue, "gearshape.fill")
         XCTAssertEqual(CraftSymbol.checkmarkCircle.rawValue, "checkmark.circle.fill")
         XCTAssertEqual(CraftSymbol.wrongCircle.rawValue, "xmark.circle.fill")
         XCTAssertEqual(CraftSymbol.sparkles.rawValue, "sparkles")

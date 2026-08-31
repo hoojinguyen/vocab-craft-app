@@ -248,6 +248,28 @@ public struct CraftStyledConnector: View {
     }
 }
 
+// MARK: - PathSegmentColorResolver
+
+/// Shared resolver for dotted path segment colors — ensures Canvas and standalone segment stay in sync.
+private enum PathSegmentColorResolver {
+    static func color(from: LessonNodeState, to: LessonNodeState, theme: CraftTheme, customColor: Color?) -> Color {
+        if let customColor {
+            return customColor
+        }
+        if from == .completed && to == .completed {
+            return theme.colors.pathCompleted
+        } else if from == .completed && (to == .active || to == .inProgress) {
+            return theme.colors.pathActive
+        } else if to == .locked || from == .locked {
+            return theme.colors.textMuted.opacity(0.55)
+        } else if from == .active || from == .inProgress || from == .upcoming {
+            return theme.colors.textMuted.opacity(0.65)
+        } else {
+            return theme.colors.textMuted.opacity(0.40)
+        }
+    }
+}
+
 // MARK: - CraftSnakeDottedSegmentView
 
 /// Renders a single vector dotted snake path segment with round caps and progressive theme coloring.
@@ -287,21 +309,7 @@ public struct CraftSnakeDottedSegmentView: View, Equatable {
     }
 
     private var segmentColor: Color {
-        if let customColor {
-            return customColor
-        }
-        if fromState == .completed && toState == .completed {
-            return theme.colors.pathCompleted
-        } else if fromState == .completed && (toState == .active || toState == .inProgress) {
-            return theme.colors.pathActive
-        } else if toState == .locked || fromState == .locked {
-            // Muted but still visible on ivory canvas — avoid invisible beige
-            return theme.colors.textMuted.opacity(0.35)
-        } else if fromState == .active || fromState == .inProgress || fromState == .upcoming {
-            return theme.colors.textMuted.opacity(0.55)
-        } else {
-            return theme.colors.textMuted.opacity(0.30)
-        }
+        PathSegmentColorResolver.color(from: fromState, to: toState, theme: theme, customColor: customColor)
     }
 
     private func strokeStyle(diameter: CGFloat, spacing: CGFloat) -> StrokeStyle {
@@ -328,6 +336,7 @@ public struct CraftSnakeDottedSegmentView: View, Equatable {
 // MARK: - CraftSnakeConnectorLayer
 
 /// Container layer rendering progressive colored vector dotted snake connectors between anchored nodes.
+/// Uses single Canvas draw call instead of N Path views to reduce SwiftUI view count and layout thrash.
 public struct CraftSnakeConnectorLayer: View {
     public let nodes: [LessonNodeModel]
     public let preferences: NodeAnchorPreferenceKey.Value
@@ -357,35 +366,44 @@ public struct CraftSnakeConnectorLayer: View {
         self.dotSpacing = dotSpacing
     }
 
+    private func segmentColor(from: LessonNodeState, to: LessonNodeState) -> Color {
+        PathSegmentColorResolver.color(from: from, to: to, theme: theme, customColor: nil)
+    }
+
     public var body: some View {
-        if nodes.count > 1 {
-            ForEach(0..<(nodes.count - 1), id: \.self) { index in
+        let diameter = dotDiameter ?? theme.spacing.pathDotDiameter
+        let spacing = dotSpacing ?? theme.spacing.pathDotSpacing
+        let radius = turnRadius ?? theme.spacing.pathTurnRadius
+        let inset = edgeInset ?? theme.spacing.pathEdgeInset
+        let strokeStyle = StrokeStyle(
+            lineWidth: diameter,
+            lineCap: .round,
+            lineJoin: .round,
+            dash: [0, diameter + spacing]
+        )
+
+        Canvas { context, _ in
+            guard nodes.count > 1 else { return }
+            for index in 0..<(nodes.count - 1) {
                 let fromNode = nodes[index]
                 let toNode = nodes[index + 1]
-
-                if let fromAnchor = preferences[fromNode.id],
-                   let toAnchor = preferences[toNode.id] {
-                    let fromPoint = geometry[fromAnchor]
-                    let toPoint = geometry[toAnchor]
-                    let radius = turnRadius ?? theme.spacing.pathTurnRadius
-                    let inset = edgeInset ?? theme.spacing.pathEdgeInset
-                    let segment = SnakePathGeometry.createSegment(
-                        from: fromPoint,
-                        to: toPoint,
-                        containerWidth: geometry.size.width,
-                        turnRadius: radius,
-                        edgeInset: inset
-                    )
-
-                    CraftSnakeDottedSegmentView(
-                        segment: segment,
-                        fromState: fromNode.state,
-                        toState: toNode.state,
-                        dotDiameter: dotDiameter,
-                        dotSpacing: dotSpacing
-                    )
-                }
+                guard let fromAnchor = preferences[fromNode.id],
+                      let toAnchor = preferences[toNode.id] else { continue }
+                let fromPoint = geometry[fromAnchor]
+                let toPoint = geometry[toAnchor]
+                let segment = SnakePathGeometry.createSegment(
+                    from: fromPoint,
+                    to: toPoint,
+                    containerWidth: geometry.size.width,
+                    turnRadius: radius,
+                    edgeInset: inset
+                )
+                let color = segmentColor(from: fromNode.state, to: toNode.state)
+                let path = segment.buildPath()
+                context.stroke(path, with: .color(color), style: strokeStyle)
             }
         }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 }

@@ -49,8 +49,15 @@ public struct LearningPathDataMapper: Sendable {
             )
             sectionNodes.append(checkpointNode)
 
+            let treasureNode = buildTreasureNode(
+                deck: deck,
+                progressMap: progressMap,
+                hasFoundActive: &hasFoundActive
+            )
+            sectionNodes.append(treasureNode)
+
             // Promote immediate next locked node after active/inProgress to upcoming for curiosity gap
-            if let activeIdx = sectionNodes.firstIndex(where: { $0.state == .active || $0.state == .inProgress }),
+            if let activeIdx = sectionNodes.firstIndex(where: { $0.state == .active || $0.state == .inProgress || $0.state == .bonus }),
                activeIdx + 1 < sectionNodes.count,
                sectionNodes[activeIdx + 1].state == .locked {
                 sectionNodes[activeIdx + 1] = withState(sectionNodes[activeIdx + 1], state: .upcoming)
@@ -89,7 +96,7 @@ public struct LearningPathDataMapper: Sendable {
         hasFoundActive: inout Bool
     ) -> LessonNodeModel {
         let wordCount = words.count
-        let estimatedMinutes = max(1, Int(ceil(Double(wordCount) * 0.3)))
+        let estimatedMinutes = LessonEconomyPolicy.estimatedMinutes(wordCount: wordCount)
 
         let state: LessonNodeState
         let stars: Int?
@@ -115,15 +122,24 @@ public struct LearningPathDataMapper: Sendable {
             nodeProgress = nil
         }
 
+        let previewSubtitle: String = {
+            if words.isEmpty { return AppStrings.Home.wordsDuration(words: wordCount, minutes: estimatedMinutes) }
+            let preview = words.prefix(2).map(\.lemma).joined(separator: " • ")
+            guard !preview.isEmpty else { return AppStrings.Home.wordsDuration(words: wordCount, minutes: estimatedMinutes) }
+            // Use CraftUIKit localization so VI shows "phút" correctly
+            let minutesText = CraftLocalized.format("craft.common.unit.minutes_format", estimatedMinutes)
+            return "\(preview) • \(minutesText)"
+        }()
+
         return LessonNodeModel(
             id: stage.id,
             title: stage.title,
-            subtitle: AppStrings.Home.wordsDuration(words: wordCount, minutes: estimatedMinutes),
+            subtitle: previewSubtitle,
             iconName: stage.iconName.isEmpty ? "book.fill" : stage.iconName,
             state: state,
             kind: .standard,
             progress: nodeProgress,
-            xpReward: 25,
+            xpReward: LessonEconomyPolicy.xpReward(for: .standard),
             estimatedMinutes: estimatedMinutes,
             stars: stars,
             badgeCount: nil,
@@ -150,7 +166,7 @@ public struct LearningPathDataMapper: Sendable {
     ) -> LessonNodeModel {
         let checkpointId = "checkpoint_\(deck.id)"
         let checkpointProgress = progressMap[checkpointId]
-        let checkpointEstimatedMinutes = max(3, Int(ceil(Double(deckWordCount) * 0.2)))
+        let checkpointEstimatedMinutes = LessonEconomyPolicy.checkpointEstimatedMinutes(deckWordCount: deckWordCount)
         let allStandardCompleted = sectionNodes.allSatisfy { $0.state == .completed }
 
         let checkpointState: LessonNodeState
@@ -185,7 +201,7 @@ public struct LearningPathDataMapper: Sendable {
             state: checkpointState,
             kind: .checkpoint,
             progress: checkpointNodeProgress,
-            xpReward: 80,
+            xpReward: LessonEconomyPolicy.xpReward(for: .checkpoint),
             estimatedMinutes: checkpointEstimatedMinutes,
             stars: checkpointStars,
             badgeCount: nil,
@@ -201,15 +217,66 @@ public struct LearningPathDataMapper: Sendable {
         )
     }
 
+    private static func buildTreasureNode(
+        deck: TopicDeckDTO,
+        progressMap: [String: UserStageProgress],
+        hasFoundActive: inout Bool
+    ) -> LessonNodeModel {
+        let treasureId = "treasure_\(deck.id)"
+        let treasureProgress = progressMap[treasureId]
+        let state: LessonNodeState
+        let stars: Int?
+        if let progress = treasureProgress, progress.isCompleted {
+            state = .completed
+            stars = calculateStars(from: progress.score)
+        } else if let checkpointProgress = progressMap["checkpoint_\(deck.id)"],
+                  checkpointProgress.isCompleted {
+            // Treasure is bonus, does not consume hasFoundActive — next unit can still be active
+            state = .bonus
+            stars = nil
+        } else {
+            state = .locked
+            stars = nil
+        }
+
+        return LessonNodeModel(
+            id: treasureId,
+            title: AppStrings.Home.treasureTitleText,
+            subtitle: AppStrings.Home.treasureSubtitleText,
+            iconName: "gift.fill",
+            state: state,
+            kind: .treasureChest,
+            progress: nil,
+            xpReward: LessonEconomyPolicy.xpReward(for: .treasureChest),
+            estimatedMinutes: 1,
+            stars: stars,
+            badgeCount: nil,
+            badgeText: state == .bonus ? "HOT" : nil,
+            objectives: [
+                String(localized: "app.home.node.treasure_objective_1", defaultValue: "Mở rương để nhận 150 XP", bundle: .module),
+                String(localized: "app.home.node.treasure_objective_2", defaultValue: "Hoàn thành Unit để mở khóa", bundle: .module)
+            ],
+            objectiveKeys: [
+                "app.home.node.treasure_objective_1",
+                "app.home.node.treasure_objective_2"
+            ]
+        )
+    }
+
     private static func buildSection(
         deck: TopicDeckDTO,
         deckIndex: Int,
         nodes: [LessonNodeModel]
     ) -> LessonSection {
-        let completedCount = nodes.filter { $0.state == .completed }.count
-        let totalCount = nodes.count
-        let progressText = "\(completedCount)/\(totalCount)"
-        let progressValue = totalCount > 0 ? Double(completedCount) / Double(totalCount) : 0.0
+        // Exclude treasureChest from progress denominator (bonus, not required)
+        let progressNodes = nodes.filter { $0.kind != .treasureChest }
+        let completedCount = progressNodes.filter { $0.state == .completed }.count
+        let totalCount = progressNodes.count
+        let progressText = AppStrings.Home.sectionProgress(completed: completedCount, total: totalCount)
+        // Honest progress: active/inProgress/bonus counts as 0.5, so bar is not flat 0 when learner started
+        let hasActive = progressNodes.contains { $0.state == .active || $0.state == .inProgress || $0.state == .bonus }
+        let effectiveCompleted = Double(completedCount) + (hasActive ? 0.5 : 0.0)
+        let progressValue = totalCount > 0 ? min(1.0, effectiveCompleted / Double(totalCount)) : 0.0
 
         return LessonSection(
             id: deck.id,

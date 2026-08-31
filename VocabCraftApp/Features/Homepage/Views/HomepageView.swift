@@ -18,6 +18,9 @@ public struct HomepageView: View {
     @State private var reflexBlitzVM: ReflexBlitzViewModel?
     @State private var activeLessonNode: LessonNodeModel?
     @State private var tabBarPresentation: CraftTabBarPresentation = .expanded
+    @State private var scrollToActiveNonce: Int = 0
+    @State private var homeConfettiTrigger: Bool = false
+    @State private var completionToastData: CraftToastData?
     @Environment(\.appContainer) private var appContainer
     @Environment(\.appRouter) private var appRouter
 
@@ -42,11 +45,39 @@ public struct HomepageView: View {
                         dailyWordsLearned: viewModel.dailyWordsLearned,
                         dailyWordsGoal: viewModel.dailyWordsGoal,
                         onAvatarTap: {
+                            CraftHaptics.shared.light()
                             appRouter.navigateToSettings()
+                        },
+                        onProgressTap: {
+                            scrollToActiveNonce += 1
                         }
                     )
                     .background(Color.vocabCanvas)
 
+                    StreakWeekStripView(
+                        streakDays: viewModel.streakDays,
+                        isCompletedToday: viewModel.dailyWordsLearned >= viewModel.dailyWordsGoal && viewModel.dailyWordsGoal > 0
+                    )
+                    .padding(.top, 8)
+                    .padding(.bottom, 4)
+
+                    Group {
+                        if viewModel.isLoading && viewModel.sections.isEmpty {
+                            HomeSkeletonView()
+                        } else if let error = viewModel.errorMessage, viewModel.sections.isEmpty {
+                            ContentUnavailableView {
+                                Label(String(localized: "app.home.load_error_title", defaultValue: "Không tải được lộ trình", bundle: .module), systemImage: "wifi.exclamationmark")
+                            } description: {
+                                Text(error)
+                                    .multilineTextAlignment(.center)
+                            } actions: {
+                                CraftButton(String(localized: "common.retry", defaultValue: "Thử lại", bundle: .module), variant: .primary, size: .md) {
+                                    Task { await viewModel.loadLearningPath() }
+                                }
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(Color.vocabCanvas)
+                        } else {
                     CraftLearningPath(
                         sections: viewModel.sections,
                         winding: .standard,
@@ -63,7 +94,7 @@ public struct HomepageView: View {
                         },
                         showDetailModal: true,
                         scrollToActive: true,
-                        showCelebration: false,
+                        showCelebration: true,
                         pinSectionHeaders: true,
                         connectorDotDiameter: 5.0,
                         connectorDotSpacing: 7.0,
@@ -71,8 +102,14 @@ public struct HomepageView: View {
                             MainActor.assumeIsolated {
                                 tabBarPresentation = presentation
                             }
-                        }
+                        },
+                        externalScrollTrigger: scrollToActiveNonce
                     )
+                            .refreshable {
+                                await viewModel.loadLearningPath()
+                            }
+                        }
+                    }
                     .task {
                         if viewModel.sections.isEmpty {
                             await viewModel.loadLearningPath()
@@ -116,6 +153,8 @@ public struct HomepageView: View {
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
+        .craftConfetti(isTriggered: $homeConfettiTrigger, particleCount: 36)
+        .craftToast(item: $completionToastData, position: .top)
         .onAppear {
             if vaultVM == nil {
                 vaultVM = appContainer.makePersonalVaultViewModel()
@@ -208,14 +247,42 @@ public struct HomepageView: View {
                     ? String(node.id.dropFirst("checkpoint_".count))
                     : (viewModel.sections.first(where: { sec in sec.nodes.contains(where: { $0.id == node.id }) })?.id ?? "")
 
-                _ = try? await appContainer.completeLessonUseCase.execute(
-                    stageId: node.id,
-                    deckId: deckId,
-                    stars: stars,
-                    weakWordIds: weakWordIds,
-                    progressFraction: 1.0
-                )
-                await viewModel.loadLearningPath()
+                do {
+                    let result = try await appContainer.completeLessonUseCase.execute(
+                        stageId: node.id,
+                        deckId: deckId,
+                        stars: stars,
+                        weakWordIds: weakWordIds,
+                        progressFraction: 1.0
+                    )
+                    await viewModel.loadLearningPath()
+                    // Reward feedback: confetti + toast only on success — show fixed policy reward, not stars * xp
+                    await MainActor.run {
+                        let earnedXP = result.xpEarned
+                        let starIcons = String(repeating: "★", count: stars)
+                        CraftHaptics.shared.success()
+                        homeConfettiTrigger = true
+                        completionToastData = CraftToastData(
+                            title: String(localized: "app.home.toast.completed_title", defaultValue: "Hoàn thành!", bundle: .module),
+                            message: "+\(earnedXP) XP • \(starIcons) \(String(localized: "app.home.toast.stars_suffix", defaultValue: " • Tuyệt vời!", bundle: .module))",
+                            iconName: "star.fill",
+                            style: .success,
+                            surfaceStyle: .glass,
+                            duration: 3.0
+                        )
+                    }
+                } catch {
+                    await MainActor.run {
+                        completionToastData = CraftToastData(
+                            title: String(localized: "common.error", defaultValue: "Lỗi", bundle: .module),
+                            message: error.localizedDescription,
+                            iconName: "exclamationmark.triangle.fill",
+                            style: .danger,
+                            surfaceStyle: .glass,
+                            duration: 3.0
+                        )
+                    }
+                }
             }
         } else {
             let vm = appContainer.makeReflexBlitzViewModel()

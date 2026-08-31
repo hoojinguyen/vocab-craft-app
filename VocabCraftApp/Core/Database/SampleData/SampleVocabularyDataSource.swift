@@ -1,6 +1,11 @@
 import Foundation
 
 public final class SampleVocabularyDataSource: VocabularyDataSourceProtocol, Sendable {
+    // Precomputed indexes for O(1) lookups — avoids O(N*M) scans for 3000+ words.
+    private static let wordsByStage: [String: [TopicWordDTO]] = Dictionary(grouping: VocabularySampleDataset.words, by: \.stageId)
+    private static let stagesByDeck: [String: [SubTopicStageDTO]] = Dictionary(grouping: VocabularySampleDataset.stages, by: \.deckId)
+    private static let wordById: [Int64: TopicWordDTO] = Dictionary(VocabularySampleDataset.words.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+
     public init() {}
 
     public func fetchTopicDecks() async throws -> [TopicDeckDTO] {
@@ -8,13 +13,11 @@ public final class SampleVocabularyDataSource: VocabularyDataSourceProtocol, Sen
     }
 
     public func fetchSubTopicStages(deckId: String) async throws -> [SubTopicStageDTO] {
-        VocabularySampleDataset.stages
-            .filter { $0.deckId == deckId }
-            .sorted { $0.sortOrder < $1.sortOrder }
+        (Self.stagesByDeck[deckId] ?? []).sorted { $0.sortOrder < $1.sortOrder }
     }
 
     public func fetchWordsForStage(stageId: String) async throws -> [TopicWordDTO] {
-        VocabularySampleDataset.words.filter { $0.stageId == stageId }
+        Self.wordsByStage[stageId] ?? []
     }
 
     public func searchWords(query: String) async throws -> [TopicWordDTO] {
@@ -28,6 +31,6 @@ public final class SampleVocabularyDataSource: VocabularyDataSourceProtocol, Sen
     }
 
     public func fetchWordById(id: Int64) async throws -> TopicWordDTO? {
-        VocabularySampleDataset.words.first { $0.id == id }
+        Self.wordById[id]
     }
 }

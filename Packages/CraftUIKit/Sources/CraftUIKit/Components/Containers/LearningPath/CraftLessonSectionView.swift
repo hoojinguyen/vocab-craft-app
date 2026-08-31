@@ -284,7 +284,7 @@ public struct CraftLessonSectionBodyView: View {
     // MARK: - Body
 
     public var body: some View {
-        VStack(spacing: theme.spacing.pathRowSpacing) {
+        LazyVStack(spacing: theme.spacing.pathRowSpacing) {
             ForEach(rowLayouts) { rowLayout in
                 CraftLessonRow(
                     rowLayout: rowLayout,

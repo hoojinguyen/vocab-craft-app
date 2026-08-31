@@ -400,6 +400,13 @@ extension AppStrings {
         public static func unitTitle(number: Int, title: String) -> String {
             String(format: String(localized: "app.home.section.unit_title_format", defaultValue: "Unit %lld: %@", bundle: .module), number, title)
         }
+        public static func sectionProgress(completed: Int, total: Int) -> String {
+            String(format: String(localized: "app.home.section.progress_format", defaultValue: "%lld/%lld lessons", bundle: .module), completed, total)
+        }
+        public static var todayLabelText: String {
+            String(localized: "app.home.header.today_label", defaultValue: "today", bundle: .module)
+        }
+        public static var todayLabel: LocalizedStringKey { "app.home.header.today_label" }
         public static var checkpointTitle: LocalizedStringKey { "app.home.section.checkpoint_title" }
         public static var checkpointTitleText: String {
             String(localized: "app.home.section.checkpoint_title", defaultValue: "Unit Review Exam", bundle: .module)
@@ -407,6 +414,14 @@ extension AppStrings {
         public static var checkpointSubtitle: LocalizedStringKey { "app.home.section.checkpoint_subtitle" }
         public static var checkpointSubtitleText: String {
             String(localized: "app.home.section.checkpoint_subtitle", defaultValue: "Comprehensive exam covering all unit words", bundle: .module)
+        }
+        public static var treasureTitle: LocalizedStringKey { "app.home.section.treasure_title" }
+        public static var treasureTitleText: String {
+            String(localized: "app.home.section.treasure_title", defaultValue: "Treasure Chest", bundle: .module)
+        }
+        public static var treasureSubtitle: LocalizedStringKey { "app.home.section.treasure_subtitle" }
+        public static var treasureSubtitleText: String {
+            String(localized: "app.home.section.treasure_subtitle", defaultValue: "150 XP Bonus", bundle: .module)
         }
 
         // Node Metadata & Objectives

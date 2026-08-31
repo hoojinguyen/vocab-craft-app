@@ -7,29 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3000BCECD4679C9E8ED9 /* HeroProfileCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000BCECD4679C9E8ED9 /* HeroProfileCard.swift */; };
-		3000BCECD4679C9E8EDA /* ProfileStatsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000BCECD4679C9E8EDA /* ProfileStatsSheet.swift */; };
-		3000FE759BC2C33450AC /* AppStrings+ReflexBlitz.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FE759BC2C33450AC /* AppStrings+ReflexBlitz.swift */; };
-		3000644190359C5A3C15 /* AppStrings+Vault.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000644190359C5A3C15 /* AppStrings+Vault.swift */; };
-		3000644190359C5A3C16 /* AppStrings+Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000644190359C5A3C16 /* AppStrings+Profile.swift */; };
-		30001D594419E5FDDC0B /* GenerateSmartReflexQueueUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20001D594419E5FDDC0B /* GenerateSmartReflexQueueUseCase.swift */; };
-		3000B5F6CEC261EADFFB /* SettingsLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B5F6CEC261EADFFB /* SettingsLocalizationTests.swift */; };
-		30009901047D7899A16C /* PersonalVaultLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20009901047D7899A16C /* PersonalVaultLocalizationTests.swift */; };
-		3000E70C0C4D706D4D14 /* ReflexBlitzLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000E70C0C4D706D4D14 /* ReflexBlitzLocalizationTests.swift */; };
-		3000E8C30B0AE929A360 /* SmartReflexQueueUseCaseTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000E8C30B0AE929A360 /* SmartReflexQueueUseCaseTests.swift */; };
-		3000A1A1000100010001 /* FetchLearningPathUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A1000100010001 /* FetchLearningPathUseCase.swift */; };
-		3000A1A1000200020002 /* CompleteLessonUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A1000200020002 /* CompleteLessonUseCase.swift */; };
-		3000A1A1000300030003 /* LearningPathDataMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A1000300030003 /* LearningPathDataMapper.swift */; };
-		3000B2B2000100010001 /* LearningPathUseCasesTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B2B2000100010001 /* LearningPathUseCasesTests.swift */; };
-		3000B2B2000200020002 /* HomeLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B2B2000200020002 /* HomeLocalizationTests.swift */; };
-		3000B2B2000300030003 /* HomepageViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B2B2000300030003 /* HomepageViewModelTests.swift */; };
-		3000B2B2000400040004 /* LearningPathDataMapperTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B2B2000400040004 /* LearningPathDataMapperTests.swift */; };
 		3000DE9D056D85598F6E /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DE9D056D85598F6E /* AppContainer.swift */; };
 		3000FAD85B1C0D0923C5 /* EnvironmentKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FAD85B1C0D0923C5 /* EnvironmentKeys.swift */; };
 		300012A79BAC11C11690 /* AppRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200012A79BAC11C11690 /* AppRouter.swift */; };
-		300012A79BAC11C11691 /* TabItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200012A79BAC11C11691 /* TabItem.swift */; };
+		300094814DC25601FEC3 /* TabItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200094814DC25601FEC3 /* TabItem.swift */; };
 		30005D17660A661FF2F5 /* VocabCraftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005D17660A661FF2F5 /* VocabCraftApp.swift */; };
 		3000991CE1A83CFDC071 /* ContinuousReflexSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000991CE1A83CFDC071 /* ContinuousReflexSpeechService.swift */; };
+		300086880CE4B0BD22E3 /* MockResilientReflexSpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200086880CE4B0BD22E3 /* MockResilientReflexSpeechEngine.swift */; };
+		3000AF0C814D7D13DB80 /* ResilientReflexSpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000AF0C814D7D13DB80 /* ResilientReflexSpeechEngine.swift */; };
 		3000087B04314FDDF262 /* SoundEffectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000087B04314FDDF262 /* SoundEffectService.swift */; };
 		300054D51843DFDCEB06 /* SpeechRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200054D51843DFDCEB06 /* SpeechRecognitionService.swift */; };
 		3000BEA090FB6DD9E928 /* TextToSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000BEA090FB6DD9E928 /* TextToSpeechService.swift */; };
@@ -48,6 +33,9 @@
 		300098C80917F59AB1AB /* VocabMicControlHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200098C80917F59AB1AB /* VocabMicControlHubView.swift */; };
 		30004AA2997CC609FCB8 /* VocabSpeechVisualizerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20004AA2997CC609FCB8 /* VocabSpeechVisualizerView.swift */; };
 		300085D4BA7A4E3D273F /* VocabTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200085D4BA7A4E3D273F /* VocabTheme.swift */; };
+		300090EB5ABA9B7051A5 /* AppStrings+Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200090EB5ABA9B7051A5 /* AppStrings+Profile.swift */; };
+		300022B44833F2AD6C9D /* AppStrings+ReflexBlitz.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200022B44833F2AD6C9D /* AppStrings+ReflexBlitz.swift */; };
+		3000B0F78EB2399D75E7 /* AppStrings+Vault.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B0F78EB2399D75E7 /* AppStrings+Vault.swift */; };
 		30006FB901290FE28F5C /* AppStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20006FB901290FE28F5C /* AppStrings.swift */; };
 		30003498E286D20C1EBC /* SRSEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003498E286D20C1EBC /* SRSEngine.swift */; };
 		3000EA1A05F3921C21B6 /* UserProgressModelActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000EA1A05F3921C21B6 /* UserProgressModelActor.swift */; };
@@ -69,75 +57,73 @@
 		30004E04DA4BC3CA718A /* QuickDrillStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20004E04DA4BC3CA718A /* QuickDrillStep.swift */; };
 		3000B1DCD0DC16127C79 /* QuickReflexAttempt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B1DCD0DC16127C79 /* QuickReflexAttempt.swift */; };
 		30001EEEA598590BA38A /* MasteryEvaluationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20001EEEA598590BA38A /* MasteryEvaluationPolicy.swift */; };
-		3000A1A1000100010002 /* ReflexDrillable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A1000100010002 /* ReflexDrillable.swift */; };
-		3000B2B2000100010002 /* ReflexDrillableTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B2B2000100010002 /* ReflexDrillableTests.swift */; };
-		3000C001000100010001 /* ReflexMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010001 /* ReflexMode.swift */; };
-		3000C001000100010002 /* ReflexCardPhase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010002 /* ReflexCardPhase.swift */; };
-		3000C001000100010003 /* ReflexCardResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010003 /* ReflexCardResult.swift */; };
-		3000C001000100010004 /* ReflexBlitzOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010004 /* ReflexBlitzOption.swift */; };
-		3000C001000100010005 /* ReflexBlitzWordItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010005 /* ReflexBlitzWordItem.swift */; };
-		3000C001000100010006 /* ReflexSessionSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010006 /* ReflexSessionSummary.swift */; };
-		3000C001000100010007 /* ReflexClozeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010007 /* ReflexClozeFormatter.swift */; };
-		3000C001000100010008 /* ReflexDistractorGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010008 /* ReflexDistractorGenerator.swift */; };
-		3000C002000100010001 /* ReflexCoreUtilitiesTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C002000100010001 /* ReflexCoreUtilitiesTests.swift */; };
-		3000C001000100010009 /* ReflexMultipleChoiceModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010009 /* ReflexMultipleChoiceModeView.swift */; };
-		3000C002000100010002 /* ReflexMultipleChoiceModeViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C002000100010002 /* ReflexMultipleChoiceModeViewTests.swift */; };
-		3000C001000100010010 /* ReflexSpeakingModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010010 /* ReflexSpeakingModeView.swift */; };
-		3000C001000100010011 /* ReflexTypingModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010011 /* ReflexTypingModeView.swift */; };
-		3000C001000100010012 /* ReflexListeningModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010012 /* ReflexListeningModeView.swift */; };
-		3000C001000100010013 /* ReflexReviewedConsolidationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010013 /* ReflexReviewedConsolidationView.swift */; };
-		3000C001000100010014 /* ReflexCardContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010014 /* ReflexCardContainerView.swift */; };
-		3000C001000100010015 /* ReflexHeaderBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010015 /* ReflexHeaderBarView.swift */; };
-		3000C001000100010091 /* ReflexHintMaskStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010091 /* ReflexHintMaskStrategy.swift */; };
-		3000C001000100010092 /* ReflexBlitzViewModel+Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010092 /* ReflexBlitzViewModel+Configuration.swift */; };
-		3000C001000100010022 /* ReflexClozeStageSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010022 /* ReflexClozeStageSet.swift */; };
-		3000C001000100010023 /* ReflexDrillPlanItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010023 /* ReflexDrillPlanItem.swift */; };
-		3000C001000100010024 /* ReflexDrillSessionPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010024 /* ReflexDrillSessionPlan.swift */; };
-		3000C001000100010025 /* ReflexHintMaskGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010025 /* ReflexHintMaskGenerator.swift */; };
-		3000C001000100010026 /* ReflexDrillPlanGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010026 /* ReflexDrillPlanGenerator.swift */; };
-		3000C002000100010003 /* ReflexOtherModesTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C002000100010003 /* ReflexOtherModesTests.swift */; };
-		3000C002000100010004 /* ReflexContainerComponentsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C002000100010004 /* ReflexContainerComponentsTests.swift */; };
-		3000C002000100010005 /* ReflexDrillPlanModelsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C002000100010005 /* ReflexDrillPlanModelsTests.swift */; };
-		3000C002000100010006 /* ReflexHintMaskGeneratorTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C002000100010006 /* ReflexHintMaskGeneratorTests.swift */; };
-		3000C002000100010007 /* ReflexDrillPlanGeneratorTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C002000100010007 /* ReflexDrillPlanGeneratorTests.swift */; };
-		3000C003000100010001 /* ReflexSpeechEngineProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C003000100010001 /* ReflexSpeechEngineProtocol.swift */; };
-		3000C003000100010002 /* MockResilientReflexSpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C003000100010002 /* MockResilientReflexSpeechEngine.swift */; };
-		3000C003000100010003 /* MockResilientReflexSpeechEngineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C003000100010003 /* MockResilientReflexSpeechEngineTests.swift */; };
-		3000C003000100020001 /* ResilientReflexSpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C003000100020001 /* ResilientReflexSpeechEngine.swift */; };
-		3000C003000100020002 /* ResilientReflexSpeechEngineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C003000100020002 /* ResilientReflexSpeechEngineTests.swift */; };
-		3000C003000100030001 /* ReflexBlitzViewModelSpeakingTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C003000100030001 /* ReflexBlitzViewModelSpeakingTests.swift */; };
-
 		30009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift */; };
 		30007A8B4B9D3D451203 /* ContinuousReflexSpeechProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20007A8B4B9D3D451203 /* ContinuousReflexSpeechProtocol.swift */; };
 		3000FFCB867F894749B7 /* DatasetDataSourceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FFCB867F894749B7 /* DatasetDataSourceProtocol.swift */; };
 		3000FEEDD9D5FAC1C153 /* QuickReflexAttemptRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FEEDD9D5FAC1C153 /* QuickReflexAttemptRepositoryProtocol.swift */; };
+		300025360B5A06610E2E /* ReflexDrillable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200025360B5A06610E2E /* ReflexDrillable.swift */; };
+		30007F7D19273EF8E04F /* ReflexSpeechEngineProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20007F7D19273EF8E04F /* ReflexSpeechEngineProtocol.swift */; };
 		30001B54BD9C7BC878A1 /* SRSRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20001B54BD9C7BC878A1 /* SRSRepositoryProtocol.swift */; };
 		3000410EFACF0E255E2A /* UserProgressRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000410EFACF0E255E2A /* UserProgressRepositoryProtocol.swift */; };
 		3000A91CFCCE87349186 /* VocabularyRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A91CFCCE87349186 /* VocabularyRepositoryProtocol.swift */; };
 		300044F0262868591EF0 /* VocabularyFilterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200044F0262868591EF0 /* VocabularyFilterService.swift */; };
+		300063C6A8B57B3C3299 /* CompleteLessonUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200063C6A8B57B3C3299 /* CompleteLessonUseCase.swift */; };
 		3000DD5C753F2543B2FC /* CompleteStageChallengeUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DD5C753F2543B2FC /* CompleteStageChallengeUseCase.swift */; };
 		3000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift */; };
 		300084D5B31CC714F488 /* FetchDeckRoadmapUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200084D5B31CC714F488 /* FetchDeckRoadmapUseCase.swift */; };
+		3000C3390C35C064E34A /* FetchLearningPathUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C3390C35C064E34A /* FetchLearningPathUseCase.swift */; };
 		3000F3CFD53DC701703F /* FetchPersonalVaultUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000F3CFD53DC701703F /* FetchPersonalVaultUseCase.swift */; };
 		30001457CECD503DB71C /* FetchTopicDecksUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20001457CECD503DB71C /* FetchTopicDecksUseCase.swift */; };
 		300001F55FA2F8FA1668 /* FetchVocabularyUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200001F55FA2F8FA1668 /* FetchVocabularyUseCase.swift */; };
 		3000541EE18435328F58 /* GenerateMixedReflexQueueUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000541EE18435328F58 /* GenerateMixedReflexQueueUseCase.swift */; };
+		30003D547F8FD9A60B27 /* GenerateSmartReflexQueueUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003D547F8FD9A60B27 /* GenerateSmartReflexQueueUseCase.swift */; };
 		3000A6FAFC7B50783D6B /* RecordMixedDrillAttemptUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A6FAFC7B50783D6B /* RecordMixedDrillAttemptUseCase.swift */; };
 		3000FA7560015826094C /* ResetUserProgressUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FA7560015826094C /* ResetUserProgressUseCase.swift */; };
 		30006D78C4524120F696 /* ReviewWeakWordsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20006D78C4524120F696 /* ReviewWeakWordsUseCase.swift */; };
 		30001BF345803150242B /* ToggleWordBookmarkUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20001BF345803150242B /* ToggleWordBookmarkUseCase.swift */; };
 		30008990938AED4AD135 /* HomepageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20008990938AED4AD135 /* HomepageViewModel.swift */; };
-		3000B2B2000500050001 /* HomeTopHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B2B2000500050001 /* HomeTopHeaderView.swift */; };
+		30004F1187B05A298263 /* LearningPathDataMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20004F1187B05A298263 /* LearningPathDataMapper.swift */; };
+		30007136B02A0468CE64 /* LessonEconomyPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20007136B02A0468CE64 /* LessonEconomyPolicy.swift */; };
+		30002FFDE20095760CB8 /* HomeSkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20002FFDE20095760CB8 /* HomeSkeletonView.swift */; };
+		3000B4EBE185E244E802 /* HomeTopHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B4EBE185E244E802 /* HomeTopHeaderView.swift */; };
 		300034E8C11F48348C6D /* HomepageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200034E8C11F48348C6D /* HomepageView.swift */; };
 		300096513C5AE8139597 /* MobileSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200096513C5AE8139597 /* MobileSearchView.swift */; };
 		300008890465B3CF1A36 /* SearchNewWordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200008890465B3CF1A36 /* SearchNewWordView.swift */; };
-		3000C001000100010020 /* ReflexBlitzPhase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010020 /* ReflexBlitzPhase.swift */; };
-		3000925E6AEFC3C319C4 /* ReflexBlitzViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000925E6AEFC3C319C4 /* ReflexBlitzViewModel.swift */; };
-		3000E2383A0FDF336719 /* ReflexBlitzModeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000E2383A0FDF336719 /* ReflexBlitzModeSelectionView.swift */; };
-		30000B23D37B5EC1F4DC /* ReflexBlitzSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000B23D37B5EC1F4DC /* ReflexBlitzSummaryView.swift */; };
-		300086A09076E74750E7 /* ReflexBlitzView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200086A09076E74750E7 /* ReflexBlitzView.swift */; };
-		300081F9E83CE94C16ED /* ReflexCountdownOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200081F9E83CE94C16ED /* ReflexCountdownOverlayView.swift */; };
+		30005FCC8B8F9D2561CD /* StreakWeekStripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005FCC8B8F9D2561CD /* StreakWeekStripView.swift */; };
+		3000F03E5BADA15ED6EB /* ReflexBlitzViewModel+Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000F03E5BADA15ED6EB /* ReflexBlitzViewModel+Configuration.swift */; };
+		3000A74013DE879E4E41 /* ReflexBlitzViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A74013DE879E4E41 /* ReflexBlitzViewModel.swift */; };
+		30004E90729BD17C71F2 /* ReflexBlitzModeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20004E90729BD17C71F2 /* ReflexBlitzModeSelectionView.swift */; };
+		3000E4D3B4C43FAF2FE4 /* ReflexBlitzSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000E4D3B4C43FAF2FE4 /* ReflexBlitzSummaryView.swift */; };
+		30000C57A4B8001CF461 /* ReflexBlitzView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000C57A4B8001CF461 /* ReflexBlitzView.swift */; };
+		3000CF21E9F501ECADD4 /* ReflexCountdownOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000CF21E9F501ECADD4 /* ReflexCountdownOverlayView.swift */; };
+		3000828DF2099455265E /* ReflexReviewedConsolidationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000828DF2099455265E /* ReflexReviewedConsolidationView.swift */; };
+		3000BA5298E3C6DB9614 /* ReflexCardContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000BA5298E3C6DB9614 /* ReflexCardContainerView.swift */; };
+		30000D1D8F15A99109F7 /* ReflexHeaderBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000D1D8F15A99109F7 /* ReflexHeaderBarView.swift */; };
+		3000DF6A8254F930AC56 /* ReflexListeningModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DF6A8254F930AC56 /* ReflexListeningModeView.swift */; };
+		3000E2DDBB2621C8C989 /* ReflexMultipleChoiceModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000E2DDBB2621C8C989 /* ReflexMultipleChoiceModeView.swift */; };
+		3000E144E0428706EAA7 /* ReflexSpeakingModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000E144E0428706EAA7 /* ReflexSpeakingModeView.swift */; };
+		300061CBE66CC7064108 /* ReflexTypingModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200061CBE66CC7064108 /* ReflexTypingModeView.swift */; };
+		3000621CAF6C8F4749A9 /* ReflexBlitzOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000621CAF6C8F4749A9 /* ReflexBlitzOption.swift */; };
+		30006FD292D796CEC687 /* ReflexBlitzPhase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20006FD292D796CEC687 /* ReflexBlitzPhase.swift */; };
+		30009EE98C1BFA6A345B /* ReflexBlitzWordItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20009EE98C1BFA6A345B /* ReflexBlitzWordItem.swift */; };
+		30007475E8BBCA8EF409 /* ReflexCardPhase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20007475E8BBCA8EF409 /* ReflexCardPhase.swift */; };
+		300097FF868AE5CA128B /* ReflexCardResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200097FF868AE5CA128B /* ReflexCardResult.swift */; };
+		3000DE54239B77038649 /* ReflexClozeStageSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DE54239B77038649 /* ReflexClozeStageSet.swift */; };
+		3000A914150939195A73 /* ReflexDrillPlanItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A914150939195A73 /* ReflexDrillPlanItem.swift */; };
+		3000669A78EB5976D9D4 /* ReflexDrillSessionPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000669A78EB5976D9D4 /* ReflexDrillSessionPlan.swift */; };
+		300062F735C241B182D9 /* ReflexHintMaskStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200062F735C241B182D9 /* ReflexHintMaskStrategy.swift */; };
+		300056A99476FEA015E8 /* ReflexMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200056A99476FEA015E8 /* ReflexMode.swift */; };
+		3000A5B377A7277F4EB7 /* ReflexSessionSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A5B377A7277F4EB7 /* ReflexSessionSummary.swift */; };
+		3000306F302360991113 /* ReflexClozeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000306F302360991113 /* ReflexClozeFormatter.swift */; };
+		300012A1ACC2ABC41650 /* ReflexDistractorGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200012A1ACC2ABC41650 /* ReflexDistractorGenerator.swift */; };
+		300058D7D9AAA5B7C7F7 /* ReflexDrillPlanGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200058D7D9AAA5B7C7F7 /* ReflexDrillPlanGenerator.swift */; };
+		300049875611C61A20FD /* ReflexHintMaskGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200049875611C61A20FD /* ReflexHintMaskGenerator.swift */; };
+		3000F61883A1AB597078 /* MixedReflexDrillViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000F61883A1AB597078 /* MixedReflexDrillViewModel.swift */; };
+		30001992FE6EF047EBBD /* MixedReflexDrillView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20001992FE6EF047EBBD /* MixedReflexDrillView.swift */; };
+		3000D07E0E768FC0CEF3 /* MixedReflexSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000D07E0E768FC0CEF3 /* MixedReflexSummaryView.swift */; };
 		30001869ACE6A7807D33 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20001869ACE6A7807D33 /* SettingsViewModel.swift */; };
+		300063C2664EBD5E0999 /* HeroProfileCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200063C2664EBD5E0999 /* HeroProfileCard.swift */; };
+		300081BCAFC0C1C48B61 /* ProfileStatsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200081BCAFC0C1C48B61 /* ProfileStatsSheet.swift */; };
 		3000F862E9AA098E9263 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000F862E9AA098E9263 /* SettingsView.swift */; };
 		300016A5AFED8DA60D49 /* QuickReflexPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200016A5AFED8DA60D49 /* QuickReflexPrompt.swift */; };
 		30008890835203644360 /* SubTopicSessionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20008890835203644360 /* SubTopicSessionEngine.swift */; };
@@ -159,7 +145,6 @@
 		300022A1010E55CEB572 /* StagePreviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200022A1010E55CEB572 /* StagePreviewSheet.swift */; };
 		30000331AAAF0AEFAF36 /* StageSummarySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000331AAAF0AEFAF36 /* StageSummarySheet.swift */; };
 		3000E8CAA34A57906B9B /* TopicRoadmapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000E8CAA34A57906B9B /* TopicRoadmapView.swift */; };
-		3000107C30A744495C46 /* MixedReflexDrillViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000107C30A744495C46 /* MixedReflexDrillViewModel.swift */; };
 		3000D1AFA639C3CAA534 /* QuickReflexDrillViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000D1AFA639C3CAA534 /* QuickReflexDrillViewModel.swift */; };
 		3000A6E85473D55734B1 /* StudySessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A6E85473D55734B1 /* StudySessionViewModel.swift */; };
 		3000A2F071BDE838E61F /* VocabularyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A2F071BDE838E61F /* VocabularyViewModel.swift */; };
@@ -168,10 +153,8 @@
 		30008B8A03E6581634CC /* PracticeSelectionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20008B8A03E6581634CC /* PracticeSelectionRow.swift */; };
 		30006775C280E15D4C8F /* TopCarouselFlashcardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20006775C280E15D4C8F /* TopCarouselFlashcardView.swift */; };
 		3000A5F3C1C439691651 /* VaultWordCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A5F3C1C439691651 /* VaultWordCardView.swift */; };
-		3000A103C1C439691603 /* VaultWordRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A103C1C439691603 /* VaultWordRowView.swift */; };
-		3000A104C1C439691604 /* VaultWordDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A104C1C439691604 /* VaultWordDetailSheet.swift */; };
-		300077C9C8386F262E62 /* MixedReflexDrillView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200077C9C8386F262E62 /* MixedReflexDrillView.swift */; };
-		3000158DB6324A9E8D3E /* MixedReflexSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000158DB6324A9E8D3E /* MixedReflexSummaryView.swift */; };
+		30002B3ADF2E9ABE8C44 /* VaultWordDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20002B3ADF2E9ABE8C44 /* VaultWordDetailSheet.swift */; };
+		30008DEFBD9AB171825A /* VaultWordRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20008DEFBD9AB171825A /* VaultWordRowView.swift */; };
 		30002F7276D162B86C67 /* PracticeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20002F7276D162B86C67 /* PracticeSelectionView.swift */; };
 		300080D6E75B2F2E5FAD /* QuickReflexDrillSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200080D6E75B2F2E5FAD /* QuickReflexDrillSheetView.swift */; };
 		30009D3D783C65956EBC /* QuickReflexResultCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20009D3D783C65956EBC /* QuickReflexResultCardView.swift */; };
@@ -212,26 +195,46 @@
 		300055893DED0D8FA1E3 /* DatasetEngineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200055893DED0D8FA1E3 /* DatasetEngineTests.swift */; };
 		3000D052EA676149B3D6 /* ColorTokensTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000D052EA676149B3D6 /* ColorTokensTests.swift */; };
 		3000838EAAA70A5E0D29 /* VocabThemeTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000838EAAA70A5E0D29 /* VocabThemeTests.swift */; };
+		30006B99E7C69FF14341 /* LearningPathUseCasesTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20006B99E7C69FF14341 /* LearningPathUseCasesTests.swift */; };
 		3000AFFB3F242012EAF1 /* MasteryEvaluationPolicyTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000AFFB3F242012EAF1 /* MasteryEvaluationPolicyTests.swift */; };
 		3000ACD44A59CAC0463A /* MixedReflexQueueUseCaseTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000ACD44A59CAC0463A /* MixedReflexQueueUseCaseTests.swift */; };
+		30005B373A959290F7A7 /* ReflexDrillableTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20005B373A959290F7A7 /* ReflexDrillableTests.swift */; };
+		3000022A6E566EEDC31A /* SmartReflexQueueUseCaseTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000022A6E566EEDC31A /* SmartReflexQueueUseCaseTests.swift */; };
 		3000257F4D2FD33D16E6 /* VocabularyDomainEntitiesTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000257F4D2FD33D16E6 /* VocabularyDomainEntitiesTests.swift */; };
 		3000496889722C6A9765 /* VocabularyUseCasesTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000496889722C6A9765 /* VocabularyUseCasesTests.swift */; };
 		3000D1459B6F5FD76CEA /* DomainEntitiesTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000D1459B6F5FD76CEA /* DomainEntitiesTests.swift */; };
 		3000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift */; };
-		3000B2B2000500050002 /* HomeTopHeaderViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B2B2000500050002 /* HomeTopHeaderViewTests.swift */; };
+		3000D7D92B122A4B2F10 /* HomeLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000D7D92B122A4B2F10 /* HomeLocalizationTests.swift */; };
+		300016308CFEFF34283A /* HomeTopHeaderViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200016308CFEFF34283A /* HomeTopHeaderViewTests.swift */; };
+		30009A73EA4B8A40B002 /* HomepageViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20009A73EA4B8A40B002 /* HomepageViewModelTests.swift */; };
 		30004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift */; };
+		3000B16B1D8D146B208B /* LearningPathDataMapperTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B16B1D8D146B208B /* LearningPathDataMapperTests.swift */; };
 		3000B8BA7058BCC04544 /* MobileSearchViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B8BA7058BCC04544 /* MobileSearchViewTests.swift */; };
 		300014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift */; };
 		300034AB7AB035E97418 /* MixedReflexDrillViewsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200034AB7AB035E97418 /* MixedReflexDrillViewsTests.swift */; };
+		300033EBEB29F1774CF6 /* PersonalVaultLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200033EBEB29F1774CF6 /* PersonalVaultLocalizationTests.swift */; };
 		30009B83DC7F07E6E1B1 /* PersonalVaultViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20009B83DC7F07E6E1B1 /* PersonalVaultViewModelTests.swift */; };
+		300097AA850CCC0BDDAE /* MockResilientReflexSpeechEngineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200097AA850CCC0BDDAE /* MockResilientReflexSpeechEngineTests.swift */; };
+		30004814A8C2426B8B5F /* ReflexBlitzViewModelListeningTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20004814A8C2426B8B5F /* ReflexBlitzViewModelListeningTests.swift */; };
+		3000FFB2D11C9D345720 /* ReflexBlitzViewModelSpeakingTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000FFB2D11C9D345720 /* ReflexBlitzViewModelSpeakingTests.swift */; };
+		3000E2C1F15B30BE36EF /* ReflexContainerComponentsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000E2C1F15B30BE36EF /* ReflexContainerComponentsTests.swift */; };
+		3000F728BE52589F4D59 /* ReflexCoreUtilitiesTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000F728BE52589F4D59 /* ReflexCoreUtilitiesTests.swift */; };
+		30005D3C583211E4B509 /* ReflexDrillPlanGeneratorTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20005D3C583211E4B509 /* ReflexDrillPlanGeneratorTests.swift */; };
+		300063BF4D501E70F659 /* ReflexDrillPlanModelsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200063BF4D501E70F659 /* ReflexDrillPlanModelsTests.swift */; };
+		3000448452104295EC76 /* ReflexHintMaskGeneratorTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000448452104295EC76 /* ReflexHintMaskGeneratorTests.swift */; };
+		3000DBEDA92C50384260 /* ReflexModeTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000DBEDA92C50384260 /* ReflexModeTests.swift */; };
+		3000FDD7FC2E6B9ED692 /* ReflexMultipleChoiceModeViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000FDD7FC2E6B9ED692 /* ReflexMultipleChoiceModeViewTests.swift */; };
+		30004D4BFF1DB0753E89 /* ReflexOtherModesTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20004D4BFF1DB0753E89 /* ReflexOtherModesTests.swift */; };
+		30004FB8278DD289362C /* ResilientReflexSpeechEngineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20004FB8278DD289362C /* ResilientReflexSpeechEngineTests.swift */; };
 		30003B12304942E6E1B2 /* ContinuousReflexSpeechServiceTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003B12304942E6E1B2 /* ContinuousReflexSpeechServiceTests.swift */; };
 		30000F377D3FDF561ADC /* ReflexBlitzComponentsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20000F377D3FDF561ADC /* ReflexBlitzComponentsTests.swift */; };
+		30005EACC20F793C36CE /* ReflexBlitzLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20005EACC20F793C36CE /* ReflexBlitzLocalizationTests.swift */; };
+		3000F1F3611358E0328E /* ReflexBlitzModeSelectionViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000F1F3611358E0328E /* ReflexBlitzModeSelectionViewTests.swift */; };
 		300060072D5F6523D014 /* ReflexBlitzModelsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200060072D5F6523D014 /* ReflexBlitzModelsTests.swift */; };
 		3000CC22F52C8B7B9C75 /* ReflexBlitzSummaryViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000CC22F52C8B7B9C75 /* ReflexBlitzSummaryViewTests.swift */; };
 		30007DD63AA4B1896001 /* ReflexBlitzViewIntegrationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20007DD63AA4B1896001 /* ReflexBlitzViewIntegrationTests.swift */; };
-		30007DD63AA4B1896002 /* ReflexBlitzModeSelectionViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20007DD63AA4B1896002 /* ReflexBlitzModeSelectionViewTests.swift */; };
+		30007DED1AA24D03CDB4 /* ReflexBlitzViewModelFeedbackTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20007DED1AA24D03CDB4 /* ReflexBlitzViewModelFeedbackTests.swift */; };
 		3000A5EC389D77272424 /* ReflexBlitzViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000A5EC389D77272424 /* ReflexBlitzViewModelTests.swift */; };
-		3000C001000100010021 /* MockReflexServices.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C001000100010021 /* MockReflexServices.swift */; };
 		3000D22F93692E9C65C5 /* CollocationExtractorTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000D22F93692E9C65C5 /* CollocationExtractorTests.swift */; };
 		300047D0A5CDF3D93D9F /* PersonalVaultLegacyViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200047D0A5CDF3D93D9F /* PersonalVaultLegacyViewModelTests.swift */; };
 		300022913C72DD267B8F /* PersonalVaultViewsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200022913C72DD267B8F /* PersonalVaultViewsTests.swift */; };
@@ -253,9 +256,12 @@
 		30005C654C6659FCC839 /* VocabularyRedesignViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20005C654C6659FCC839 /* VocabularyRedesignViewTests.swift */; };
 		300041B134BDE2385881 /* VocabularyViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200041B134BDE2385881 /* VocabularyViewTests.swift */; };
 		3000871815071728E145 /* VocabularyViewsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000871815071728E145 /* VocabularyViewsTests.swift */; };
+		3000C272A49C7CAF5DDF /* MockReflexServices.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C272A49C7CAF5DDF /* MockReflexServices.swift */; };
 		300091F224DACBC284B0 /* MockVocabularyRepository.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200091F224DACBC284B0 /* MockVocabularyRepository.swift */; };
+		3000329638D5564AD2D6 /* ReflexLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000329638D5564AD2D6 /* ReflexLocalizationTests.swift */; };
 		3000129F1C781D6703DB /* ReflexFlipCardViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000129F1C781D6703DB /* ReflexFlipCardViewTests.swift */; };
 		3000B1DEE633B1C8F81E /* SRSEngineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B1DEE633B1C8F81E /* SRSEngineTests.swift */; };
+		3000DC5CE2968AA846A6 /* SettingsLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000DC5CE2968AA846A6 /* SettingsLocalizationTests.swift */; };
 		30007E84695DF55F278D /* SettingsViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20007E84695DF55F278D /* SettingsViewModelTests.swift */; };
 		30004D5A668F6276E9BC /* SettingsViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20004D5A668F6276E9BC /* SettingsViewTests.swift */; };
 		3000CE88B8551858B787 /* SpeechServiceTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000CE88B8551858B787 /* SpeechServiceTests.swift */; };
@@ -264,6 +270,7 @@
 		3000D3A2E3E9C2B62FFA /* SubTopicSessionEngineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000D3A2E3E9C2B62FFA /* SubTopicSessionEngineTests.swift */; };
 		30009BBF16DB9BD6F1CE /* SubTopicSessionSummaryViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20009BBF16DB9BD6F1CE /* SubTopicSessionSummaryViewTests.swift */; };
 		30003F8BC4CF0102DDE2 /* SubTopicStudySessionViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20003F8BC4CF0102DDE2 /* SubTopicStudySessionViewTests.swift */; };
+		30007A4DF5ED1922799E /* XCTestShim.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20007A4DF5ED1922799E /* XCTestShim.swift */; };
 		3000FAC198AA799A3AC5 /* SwiftDataModelsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000FAC198AA799A3AC5 /* SwiftDataModelsTests.swift */; };
 		3000E3AFED7A38ECFE12 /* TopicDeckDetailViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000E3AFED7A38ECFE12 /* TopicDeckDetailViewTests.swift */; };
 		30006C3205A7C09C3ED0 /* TopicDeckModelsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20006C3205A7C09C3ED0 /* TopicDeckModelsTests.swift */; };
@@ -311,23 +318,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		2000BCECD4679C9E8ED9 /* HeroProfileCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HeroProfileCard.swift"; sourceTree = "<group>"; };
-		2000BCECD4679C9E8EDA /* ProfileStatsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProfileStatsSheet.swift"; sourceTree = "<group>"; };
-		2000FE759BC2C33450AC /* AppStrings+ReflexBlitz.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStrings+ReflexBlitz.swift"; sourceTree = "<group>"; };
-		2000644190359C5A3C15 /* AppStrings+Vault.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStrings+Vault.swift"; sourceTree = "<group>"; };
-		2000644190359C5A3C16 /* AppStrings+Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStrings+Profile.swift"; sourceTree = "<group>"; };
-		20001D594419E5FDDC0B /* GenerateSmartReflexQueueUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GenerateSmartReflexQueueUseCase.swift"; sourceTree = "<group>"; };
-		2000B5F6CEC261EADFFB /* SettingsLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsLocalizationTests.swift"; sourceTree = "<group>"; };
-		20009901047D7899A16C /* PersonalVaultLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersonalVaultLocalizationTests.swift"; sourceTree = "<group>"; };
-		2000E70C0C4D706D4D14 /* ReflexBlitzLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzLocalizationTests.swift"; sourceTree = "<group>"; };
-		2000E8C30B0AE929A360 /* SmartReflexQueueUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SmartReflexQueueUseCaseTests.swift"; sourceTree = "<group>"; };
-		2000A1A1000100010001 /* FetchLearningPathUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FetchLearningPathUseCase.swift"; sourceTree = "<group>"; };
-		2000A1A1000200020002 /* CompleteLessonUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CompleteLessonUseCase.swift"; sourceTree = "<group>"; };
-		2000A1A1000300030003 /* LearningPathDataMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathDataMapper.swift"; sourceTree = "<group>"; };
-		2000B2B2000100010001 /* LearningPathUseCasesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathUseCasesTests.swift"; sourceTree = "<group>"; };
-		2000B2B2000200020002 /* HomeLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomeLocalizationTests.swift"; sourceTree = "<group>"; };
-		2000B2B2000300030003 /* HomepageViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomepageViewModelTests.swift"; sourceTree = "<group>"; };
-		2000B2B2000400040004 /* LearningPathDataMapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathDataMapperTests.swift"; sourceTree = "<group>"; };
 		200000002D50000000000000 /* VocabCraftApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VocabCraftApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000402D50000000000000 /* VocabCraftWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VocabCraftWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000502D50000000000000 /* VocabCraftAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VocabCraftAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -335,10 +325,12 @@
 		2000FAD85B1C0D0923C5 /* EnvironmentKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EnvironmentKeys.swift"; sourceTree = "<group>"; };
 		20004DC19C2C12FAB3C7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info.plist"; sourceTree = "<group>"; };
 		200012A79BAC11C11690 /* AppRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppRouter.swift"; sourceTree = "<group>"; };
-		200012A79BAC11C11691 /* TabItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TabItem.swift"; sourceTree = "<group>"; };
+		200094814DC25601FEC3 /* TabItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TabItem.swift"; sourceTree = "<group>"; };
 		2000AE8014E8A9522B13 /* VocabCraftApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "VocabCraftApp.entitlements"; sourceTree = "<group>"; };
 		20005D17660A661FF2F5 /* VocabCraftApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftApp.swift"; sourceTree = "<group>"; };
 		2000991CE1A83CFDC071 /* ContinuousReflexSpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContinuousReflexSpeechService.swift"; sourceTree = "<group>"; };
+		200086880CE4B0BD22E3 /* MockResilientReflexSpeechEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockResilientReflexSpeechEngine.swift"; sourceTree = "<group>"; };
+		2000AF0C814D7D13DB80 /* ResilientReflexSpeechEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ResilientReflexSpeechEngine.swift"; sourceTree = "<group>"; };
 		2000087B04314FDDF262 /* SoundEffectService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SoundEffectService.swift"; sourceTree = "<group>"; };
 		200054D51843DFDCEB06 /* SpeechRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeechRecognitionService.swift"; sourceTree = "<group>"; };
 		2000BEA090FB6DD9E928 /* TextToSpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TextToSpeechService.swift"; sourceTree = "<group>"; };
@@ -357,6 +349,9 @@
 		200098C80917F59AB1AB /* VocabMicControlHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabMicControlHubView.swift"; sourceTree = "<group>"; };
 		20004AA2997CC609FCB8 /* VocabSpeechVisualizerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabSpeechVisualizerView.swift"; sourceTree = "<group>"; };
 		200085D4BA7A4E3D273F /* VocabTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabTheme.swift"; sourceTree = "<group>"; };
+		200090EB5ABA9B7051A5 /* AppStrings+Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStrings+Profile.swift"; sourceTree = "<group>"; };
+		200022B44833F2AD6C9D /* AppStrings+ReflexBlitz.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStrings+ReflexBlitz.swift"; sourceTree = "<group>"; };
+		2000B0F78EB2399D75E7 /* AppStrings+Vault.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStrings+Vault.swift"; sourceTree = "<group>"; };
 		20006FB901290FE28F5C /* AppStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStrings.swift"; sourceTree = "<group>"; };
 		20003498E286D20C1EBC /* SRSEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SRSEngine.swift"; sourceTree = "<group>"; };
 		2000EA1A05F3921C21B6 /* UserProgressModelActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserProgressModelActor.swift"; sourceTree = "<group>"; };
@@ -378,75 +373,73 @@
 		20004E04DA4BC3CA718A /* QuickDrillStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "QuickDrillStep.swift"; sourceTree = "<group>"; };
 		2000B1DCD0DC16127C79 /* QuickReflexAttempt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "QuickReflexAttempt.swift"; sourceTree = "<group>"; };
 		20001EEEA598590BA38A /* MasteryEvaluationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MasteryEvaluationPolicy.swift"; sourceTree = "<group>"; };
-		2000A1A1000100010002 /* ReflexDrillable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillable.swift"; sourceTree = "<group>"; };
-		2000B2B2000100010002 /* ReflexDrillableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillableTests.swift"; sourceTree = "<group>"; };
-		2000C001000100010001 /* ReflexMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexMode.swift"; sourceTree = "<group>"; };
-		2000C001000100010002 /* ReflexCardPhase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexCardPhase.swift"; sourceTree = "<group>"; };
-		2000C001000100010003 /* ReflexCardResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexCardResult.swift"; sourceTree = "<group>"; };
-		2000C001000100010004 /* ReflexBlitzOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzOption.swift"; sourceTree = "<group>"; };
-		2000C001000100010005 /* ReflexBlitzWordItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzWordItem.swift"; sourceTree = "<group>"; };
-		2000C001000100010006 /* ReflexSessionSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexSessionSummary.swift"; sourceTree = "<group>"; };
-		2000C001000100010007 /* ReflexClozeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexClozeFormatter.swift"; sourceTree = "<group>"; };
-		2000C001000100010008 /* ReflexDistractorGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDistractorGenerator.swift"; sourceTree = "<group>"; };
-		2000C002000100010001 /* ReflexCoreUtilitiesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexCoreUtilitiesTests.swift"; sourceTree = "<group>"; };
-		2000C001000100010009 /* ReflexMultipleChoiceModeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexMultipleChoiceModeView.swift"; sourceTree = "<group>"; };
-		2000C002000100010002 /* ReflexMultipleChoiceModeViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexMultipleChoiceModeViewTests.swift"; sourceTree = "<group>"; };
-		2000C001000100010010 /* ReflexSpeakingModeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexSpeakingModeView.swift"; sourceTree = "<group>"; };
-		2000C001000100010011 /* ReflexTypingModeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexTypingModeView.swift"; sourceTree = "<group>"; };
-		2000C001000100010012 /* ReflexListeningModeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexListeningModeView.swift"; sourceTree = "<group>"; };
-		2000C001000100010013 /* ReflexReviewedConsolidationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexReviewedConsolidationView.swift"; sourceTree = "<group>"; };
-		2000C001000100010014 /* ReflexCardContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexCardContainerView.swift"; sourceTree = "<group>"; };
-		2000C001000100010015 /* ReflexHeaderBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexHeaderBarView.swift"; sourceTree = "<group>"; };
-		2000C001000100010091 /* ReflexHintMaskStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexHintMaskStrategy.swift"; sourceTree = "<group>"; };
-		2000C001000100010092 /* ReflexBlitzViewModel+Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzViewModel+Configuration.swift"; sourceTree = "<group>"; };
-		2000C001000100010022 /* ReflexClozeStageSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexClozeStageSet.swift"; sourceTree = "<group>"; };
-		2000C001000100010023 /* ReflexDrillPlanItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillPlanItem.swift"; sourceTree = "<group>"; };
-		2000C001000100010024 /* ReflexDrillSessionPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillSessionPlan.swift"; sourceTree = "<group>"; };
-		2000C001000100010025 /* ReflexHintMaskGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexHintMaskGenerator.swift"; sourceTree = "<group>"; };
-		2000C001000100010026 /* ReflexDrillPlanGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillPlanGenerator.swift"; sourceTree = "<group>"; };
-		2000C002000100010003 /* ReflexOtherModesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexOtherModesTests.swift"; sourceTree = "<group>"; };
-		2000C002000100010004 /* ReflexContainerComponentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexContainerComponentsTests.swift"; sourceTree = "<group>"; };
-		2000C002000100010005 /* ReflexDrillPlanModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillPlanModelsTests.swift"; sourceTree = "<group>"; };
-		2000C002000100010006 /* ReflexHintMaskGeneratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexHintMaskGeneratorTests.swift"; sourceTree = "<group>"; };
-		2000C002000100010007 /* ReflexDrillPlanGeneratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillPlanGeneratorTests.swift"; sourceTree = "<group>"; };
-		2000C003000100010001 /* ReflexSpeechEngineProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexSpeechEngineProtocol.swift"; sourceTree = "<group>"; };
-		2000C003000100010002 /* MockResilientReflexSpeechEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockResilientReflexSpeechEngine.swift"; sourceTree = "<group>"; };
-		2000C003000100010003 /* MockResilientReflexSpeechEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockResilientReflexSpeechEngineTests.swift"; sourceTree = "<group>"; };
-		2000C003000100020001 /* ResilientReflexSpeechEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ResilientReflexSpeechEngine.swift"; sourceTree = "<group>"; };
-		2000C003000100020002 /* ResilientReflexSpeechEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ResilientReflexSpeechEngineTests.swift"; sourceTree = "<group>"; };
-		2000C003000100030001 /* ReflexBlitzViewModelSpeakingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzViewModelSpeakingTests.swift"; sourceTree = "<group>"; };
-
 		20009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AudioServiceProtocols.swift"; sourceTree = "<group>"; };
 		20007A8B4B9D3D451203 /* ContinuousReflexSpeechProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContinuousReflexSpeechProtocol.swift"; sourceTree = "<group>"; };
 		2000FFCB867F894749B7 /* DatasetDataSourceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatasetDataSourceProtocol.swift"; sourceTree = "<group>"; };
 		2000FEEDD9D5FAC1C153 /* QuickReflexAttemptRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "QuickReflexAttemptRepositoryProtocol.swift"; sourceTree = "<group>"; };
+		200025360B5A06610E2E /* ReflexDrillable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillable.swift"; sourceTree = "<group>"; };
+		20007F7D19273EF8E04F /* ReflexSpeechEngineProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexSpeechEngineProtocol.swift"; sourceTree = "<group>"; };
 		20001B54BD9C7BC878A1 /* SRSRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SRSRepositoryProtocol.swift"; sourceTree = "<group>"; };
 		2000410EFACF0E255E2A /* UserProgressRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserProgressRepositoryProtocol.swift"; sourceTree = "<group>"; };
 		2000A91CFCCE87349186 /* VocabularyRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyRepositoryProtocol.swift"; sourceTree = "<group>"; };
 		200044F0262868591EF0 /* VocabularyFilterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyFilterService.swift"; sourceTree = "<group>"; };
+		200063C6A8B57B3C3299 /* CompleteLessonUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CompleteLessonUseCase.swift"; sourceTree = "<group>"; };
 		2000DD5C753F2543B2FC /* CompleteStageChallengeUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CompleteStageChallengeUseCase.swift"; sourceTree = "<group>"; };
 		2000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EvaluateSRSUseCase.swift"; sourceTree = "<group>"; };
 		200084D5B31CC714F488 /* FetchDeckRoadmapUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FetchDeckRoadmapUseCase.swift"; sourceTree = "<group>"; };
+		2000C3390C35C064E34A /* FetchLearningPathUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FetchLearningPathUseCase.swift"; sourceTree = "<group>"; };
 		2000F3CFD53DC701703F /* FetchPersonalVaultUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FetchPersonalVaultUseCase.swift"; sourceTree = "<group>"; };
 		20001457CECD503DB71C /* FetchTopicDecksUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FetchTopicDecksUseCase.swift"; sourceTree = "<group>"; };
 		200001F55FA2F8FA1668 /* FetchVocabularyUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FetchVocabularyUseCase.swift"; sourceTree = "<group>"; };
 		2000541EE18435328F58 /* GenerateMixedReflexQueueUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GenerateMixedReflexQueueUseCase.swift"; sourceTree = "<group>"; };
+		20003D547F8FD9A60B27 /* GenerateSmartReflexQueueUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GenerateSmartReflexQueueUseCase.swift"; sourceTree = "<group>"; };
 		2000A6FAFC7B50783D6B /* RecordMixedDrillAttemptUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RecordMixedDrillAttemptUseCase.swift"; sourceTree = "<group>"; };
 		2000FA7560015826094C /* ResetUserProgressUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ResetUserProgressUseCase.swift"; sourceTree = "<group>"; };
 		20006D78C4524120F696 /* ReviewWeakWordsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReviewWeakWordsUseCase.swift"; sourceTree = "<group>"; };
 		20001BF345803150242B /* ToggleWordBookmarkUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ToggleWordBookmarkUseCase.swift"; sourceTree = "<group>"; };
 		20008990938AED4AD135 /* HomepageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomepageViewModel.swift"; sourceTree = "<group>"; };
-		2000B2B2000500050001 /* HomeTopHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomeTopHeaderView.swift"; sourceTree = "<group>"; };
+		20004F1187B05A298263 /* LearningPathDataMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathDataMapper.swift"; sourceTree = "<group>"; };
+		20007136B02A0468CE64 /* LessonEconomyPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LessonEconomyPolicy.swift"; sourceTree = "<group>"; };
+		20002FFDE20095760CB8 /* HomeSkeletonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomeSkeletonView.swift"; sourceTree = "<group>"; };
+		2000B4EBE185E244E802 /* HomeTopHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomeTopHeaderView.swift"; sourceTree = "<group>"; };
 		200034E8C11F48348C6D /* HomepageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomepageView.swift"; sourceTree = "<group>"; };
 		200096513C5AE8139597 /* MobileSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MobileSearchView.swift"; sourceTree = "<group>"; };
 		200008890465B3CF1A36 /* SearchNewWordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SearchNewWordView.swift"; sourceTree = "<group>"; };
-		2000C001000100010020 /* ReflexBlitzPhase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzPhase.swift"; sourceTree = "<group>"; };
-		2000925E6AEFC3C319C4 /* ReflexBlitzViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzViewModel.swift"; sourceTree = "<group>"; };
-		2000E2383A0FDF336719 /* ReflexBlitzModeSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzModeSelectionView.swift"; sourceTree = "<group>"; };
-		20000B23D37B5EC1F4DC /* ReflexBlitzSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzSummaryView.swift"; sourceTree = "<group>"; };
-		200086A09076E74750E7 /* ReflexBlitzView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzView.swift"; sourceTree = "<group>"; };
-		200081F9E83CE94C16ED /* ReflexCountdownOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexCountdownOverlayView.swift"; sourceTree = "<group>"; };
+		20005FCC8B8F9D2561CD /* StreakWeekStripView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StreakWeekStripView.swift"; sourceTree = "<group>"; };
+		2000F03E5BADA15ED6EB /* ReflexBlitzViewModel+Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzViewModel+Configuration.swift"; sourceTree = "<group>"; };
+		2000A74013DE879E4E41 /* ReflexBlitzViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzViewModel.swift"; sourceTree = "<group>"; };
+		20004E90729BD17C71F2 /* ReflexBlitzModeSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzModeSelectionView.swift"; sourceTree = "<group>"; };
+		2000E4D3B4C43FAF2FE4 /* ReflexBlitzSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzSummaryView.swift"; sourceTree = "<group>"; };
+		20000C57A4B8001CF461 /* ReflexBlitzView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzView.swift"; sourceTree = "<group>"; };
+		2000CF21E9F501ECADD4 /* ReflexCountdownOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexCountdownOverlayView.swift"; sourceTree = "<group>"; };
+		2000828DF2099455265E /* ReflexReviewedConsolidationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexReviewedConsolidationView.swift"; sourceTree = "<group>"; };
+		2000BA5298E3C6DB9614 /* ReflexCardContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexCardContainerView.swift"; sourceTree = "<group>"; };
+		20000D1D8F15A99109F7 /* ReflexHeaderBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexHeaderBarView.swift"; sourceTree = "<group>"; };
+		2000DF6A8254F930AC56 /* ReflexListeningModeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexListeningModeView.swift"; sourceTree = "<group>"; };
+		2000E2DDBB2621C8C989 /* ReflexMultipleChoiceModeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexMultipleChoiceModeView.swift"; sourceTree = "<group>"; };
+		2000E144E0428706EAA7 /* ReflexSpeakingModeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexSpeakingModeView.swift"; sourceTree = "<group>"; };
+		200061CBE66CC7064108 /* ReflexTypingModeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexTypingModeView.swift"; sourceTree = "<group>"; };
+		2000621CAF6C8F4749A9 /* ReflexBlitzOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzOption.swift"; sourceTree = "<group>"; };
+		20006FD292D796CEC687 /* ReflexBlitzPhase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzPhase.swift"; sourceTree = "<group>"; };
+		20009EE98C1BFA6A345B /* ReflexBlitzWordItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzWordItem.swift"; sourceTree = "<group>"; };
+		20007475E8BBCA8EF409 /* ReflexCardPhase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexCardPhase.swift"; sourceTree = "<group>"; };
+		200097FF868AE5CA128B /* ReflexCardResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexCardResult.swift"; sourceTree = "<group>"; };
+		2000DE54239B77038649 /* ReflexClozeStageSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexClozeStageSet.swift"; sourceTree = "<group>"; };
+		2000A914150939195A73 /* ReflexDrillPlanItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillPlanItem.swift"; sourceTree = "<group>"; };
+		2000669A78EB5976D9D4 /* ReflexDrillSessionPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillSessionPlan.swift"; sourceTree = "<group>"; };
+		200062F735C241B182D9 /* ReflexHintMaskStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexHintMaskStrategy.swift"; sourceTree = "<group>"; };
+		200056A99476FEA015E8 /* ReflexMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexMode.swift"; sourceTree = "<group>"; };
+		2000A5B377A7277F4EB7 /* ReflexSessionSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexSessionSummary.swift"; sourceTree = "<group>"; };
+		2000306F302360991113 /* ReflexClozeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexClozeFormatter.swift"; sourceTree = "<group>"; };
+		200012A1ACC2ABC41650 /* ReflexDistractorGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDistractorGenerator.swift"; sourceTree = "<group>"; };
+		200058D7D9AAA5B7C7F7 /* ReflexDrillPlanGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillPlanGenerator.swift"; sourceTree = "<group>"; };
+		200049875611C61A20FD /* ReflexHintMaskGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexHintMaskGenerator.swift"; sourceTree = "<group>"; };
+		2000F61883A1AB597078 /* MixedReflexDrillViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MixedReflexDrillViewModel.swift"; sourceTree = "<group>"; };
+		20001992FE6EF047EBBD /* MixedReflexDrillView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MixedReflexDrillView.swift"; sourceTree = "<group>"; };
+		2000D07E0E768FC0CEF3 /* MixedReflexSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MixedReflexSummaryView.swift"; sourceTree = "<group>"; };
 		20001869ACE6A7807D33 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsViewModel.swift"; sourceTree = "<group>"; };
+		200063C2664EBD5E0999 /* HeroProfileCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HeroProfileCard.swift"; sourceTree = "<group>"; };
+		200081BCAFC0C1C48B61 /* ProfileStatsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProfileStatsSheet.swift"; sourceTree = "<group>"; };
 		2000F862E9AA098E9263 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsView.swift"; sourceTree = "<group>"; };
 		200016A5AFED8DA60D49 /* QuickReflexPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "QuickReflexPrompt.swift"; sourceTree = "<group>"; };
 		20008890835203644360 /* SubTopicSessionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubTopicSessionEngine.swift"; sourceTree = "<group>"; };
@@ -468,7 +461,6 @@
 		200022A1010E55CEB572 /* StagePreviewSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StagePreviewSheet.swift"; sourceTree = "<group>"; };
 		20000331AAAF0AEFAF36 /* StageSummarySheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StageSummarySheet.swift"; sourceTree = "<group>"; };
 		2000E8CAA34A57906B9B /* TopicRoadmapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TopicRoadmapView.swift"; sourceTree = "<group>"; };
-		2000107C30A744495C46 /* MixedReflexDrillViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MixedReflexDrillViewModel.swift"; sourceTree = "<group>"; };
 		2000D1AFA639C3CAA534 /* QuickReflexDrillViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "QuickReflexDrillViewModel.swift"; sourceTree = "<group>"; };
 		2000A6E85473D55734B1 /* StudySessionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StudySessionViewModel.swift"; sourceTree = "<group>"; };
 		2000A2F071BDE838E61F /* VocabularyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyViewModel.swift"; sourceTree = "<group>"; };
@@ -477,10 +469,8 @@
 		20008B8A03E6581634CC /* PracticeSelectionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeSelectionRow.swift"; sourceTree = "<group>"; };
 		20006775C280E15D4C8F /* TopCarouselFlashcardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TopCarouselFlashcardView.swift"; sourceTree = "<group>"; };
 		2000A5F3C1C439691651 /* VaultWordCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VaultWordCardView.swift"; sourceTree = "<group>"; };
-		2000A103C1C439691603 /* VaultWordRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VaultWordRowView.swift"; sourceTree = "<group>"; };
-		2000A104C1C439691604 /* VaultWordDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VaultWordDetailSheet.swift"; sourceTree = "<group>"; };
-		200077C9C8386F262E62 /* MixedReflexDrillView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MixedReflexDrillView.swift"; sourceTree = "<group>"; };
-		2000158DB6324A9E8D3E /* MixedReflexSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MixedReflexSummaryView.swift"; sourceTree = "<group>"; };
+		20002B3ADF2E9ABE8C44 /* VaultWordDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VaultWordDetailSheet.swift"; sourceTree = "<group>"; };
+		20008DEFBD9AB171825A /* VaultWordRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VaultWordRowView.swift"; sourceTree = "<group>"; };
 		20002F7276D162B86C67 /* PracticeSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeSelectionView.swift"; sourceTree = "<group>"; };
 		200080D6E75B2F2E5FAD /* QuickReflexDrillSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "QuickReflexDrillSheetView.swift"; sourceTree = "<group>"; };
 		20009D3D783C65956EBC /* QuickReflexResultCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "QuickReflexResultCardView.swift"; sourceTree = "<group>"; };
@@ -511,26 +501,46 @@
 		200055893DED0D8FA1E3 /* DatasetEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatasetEngineTests.swift"; sourceTree = "<group>"; };
 		2000D052EA676149B3D6 /* ColorTokensTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ColorTokensTests.swift"; sourceTree = "<group>"; };
 		2000838EAAA70A5E0D29 /* VocabThemeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabThemeTests.swift"; sourceTree = "<group>"; };
+		20006B99E7C69FF14341 /* LearningPathUseCasesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathUseCasesTests.swift"; sourceTree = "<group>"; };
 		2000AFFB3F242012EAF1 /* MasteryEvaluationPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MasteryEvaluationPolicyTests.swift"; sourceTree = "<group>"; };
 		2000ACD44A59CAC0463A /* MixedReflexQueueUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MixedReflexQueueUseCaseTests.swift"; sourceTree = "<group>"; };
+		20005B373A959290F7A7 /* ReflexDrillableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillableTests.swift"; sourceTree = "<group>"; };
+		2000022A6E566EEDC31A /* SmartReflexQueueUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SmartReflexQueueUseCaseTests.swift"; sourceTree = "<group>"; };
 		2000257F4D2FD33D16E6 /* VocabularyDomainEntitiesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyDomainEntitiesTests.swift"; sourceTree = "<group>"; };
 		2000496889722C6A9765 /* VocabularyUseCasesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyUseCasesTests.swift"; sourceTree = "<group>"; };
 		2000D1459B6F5FD76CEA /* DomainEntitiesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DomainEntitiesTests.swift"; sourceTree = "<group>"; };
 		2000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EvaluateSRSUseCaseTests.swift"; sourceTree = "<group>"; };
-		2000B2B2000500050002 /* HomeTopHeaderViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomeTopHeaderViewTests.swift"; sourceTree = "<group>"; };
+		2000D7D92B122A4B2F10 /* HomeLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomeLocalizationTests.swift"; sourceTree = "<group>"; };
+		200016308CFEFF34283A /* HomeTopHeaderViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomeTopHeaderViewTests.swift"; sourceTree = "<group>"; };
+		20009A73EA4B8A40B002 /* HomepageViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomepageViewModelTests.swift"; sourceTree = "<group>"; };
 		20004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomepageViewTests.swift"; sourceTree = "<group>"; };
+		2000B16B1D8D146B208B /* LearningPathDataMapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathDataMapperTests.swift"; sourceTree = "<group>"; };
 		2000B8BA7058BCC04544 /* MobileSearchViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MobileSearchViewTests.swift"; sourceTree = "<group>"; };
 		200014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MixedReflexDrillViewModelTests.swift"; sourceTree = "<group>"; };
 		200034AB7AB035E97418 /* MixedReflexDrillViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MixedReflexDrillViewsTests.swift"; sourceTree = "<group>"; };
+		200033EBEB29F1774CF6 /* PersonalVaultLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersonalVaultLocalizationTests.swift"; sourceTree = "<group>"; };
 		20009B83DC7F07E6E1B1 /* PersonalVaultViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersonalVaultViewModelTests.swift"; sourceTree = "<group>"; };
+		200097AA850CCC0BDDAE /* MockResilientReflexSpeechEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockResilientReflexSpeechEngineTests.swift"; sourceTree = "<group>"; };
+		20004814A8C2426B8B5F /* ReflexBlitzViewModelListeningTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzViewModelListeningTests.swift"; sourceTree = "<group>"; };
+		2000FFB2D11C9D345720 /* ReflexBlitzViewModelSpeakingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzViewModelSpeakingTests.swift"; sourceTree = "<group>"; };
+		2000E2C1F15B30BE36EF /* ReflexContainerComponentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexContainerComponentsTests.swift"; sourceTree = "<group>"; };
+		2000F728BE52589F4D59 /* ReflexCoreUtilitiesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexCoreUtilitiesTests.swift"; sourceTree = "<group>"; };
+		20005D3C583211E4B509 /* ReflexDrillPlanGeneratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillPlanGeneratorTests.swift"; sourceTree = "<group>"; };
+		200063BF4D501E70F659 /* ReflexDrillPlanModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillPlanModelsTests.swift"; sourceTree = "<group>"; };
+		2000448452104295EC76 /* ReflexHintMaskGeneratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexHintMaskGeneratorTests.swift"; sourceTree = "<group>"; };
+		2000DBEDA92C50384260 /* ReflexModeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexModeTests.swift"; sourceTree = "<group>"; };
+		2000FDD7FC2E6B9ED692 /* ReflexMultipleChoiceModeViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexMultipleChoiceModeViewTests.swift"; sourceTree = "<group>"; };
+		20004D4BFF1DB0753E89 /* ReflexOtherModesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexOtherModesTests.swift"; sourceTree = "<group>"; };
+		20004FB8278DD289362C /* ResilientReflexSpeechEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ResilientReflexSpeechEngineTests.swift"; sourceTree = "<group>"; };
 		20003B12304942E6E1B2 /* ContinuousReflexSpeechServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContinuousReflexSpeechServiceTests.swift"; sourceTree = "<group>"; };
 		20000F377D3FDF561ADC /* ReflexBlitzComponentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzComponentsTests.swift"; sourceTree = "<group>"; };
+		20005EACC20F793C36CE /* ReflexBlitzLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzLocalizationTests.swift"; sourceTree = "<group>"; };
+		2000F1F3611358E0328E /* ReflexBlitzModeSelectionViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzModeSelectionViewTests.swift"; sourceTree = "<group>"; };
 		200060072D5F6523D014 /* ReflexBlitzModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzModelsTests.swift"; sourceTree = "<group>"; };
 		2000CC22F52C8B7B9C75 /* ReflexBlitzSummaryViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzSummaryViewTests.swift"; sourceTree = "<group>"; };
 		20007DD63AA4B1896001 /* ReflexBlitzViewIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzViewIntegrationTests.swift"; sourceTree = "<group>"; };
-		20007DD63AA4B1896002 /* ReflexBlitzModeSelectionViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzModeSelectionViewTests.swift"; sourceTree = "<group>"; };
+		20007DED1AA24D03CDB4 /* ReflexBlitzViewModelFeedbackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzViewModelFeedbackTests.swift"; sourceTree = "<group>"; };
 		2000A5EC389D77272424 /* ReflexBlitzViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzViewModelTests.swift"; sourceTree = "<group>"; };
-		2000C001000100010021 /* MockReflexServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockReflexServices.swift"; sourceTree = "<group>"; };
 		2000D22F93692E9C65C5 /* CollocationExtractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CollocationExtractorTests.swift"; sourceTree = "<group>"; };
 		200047D0A5CDF3D93D9F /* PersonalVaultLegacyViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersonalVaultLegacyViewModelTests.swift"; sourceTree = "<group>"; };
 		200022913C72DD267B8F /* PersonalVaultViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersonalVaultViewsTests.swift"; sourceTree = "<group>"; };
@@ -552,9 +562,12 @@
 		20005C654C6659FCC839 /* VocabularyRedesignViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyRedesignViewTests.swift"; sourceTree = "<group>"; };
 		200041B134BDE2385881 /* VocabularyViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyViewTests.swift"; sourceTree = "<group>"; };
 		2000871815071728E145 /* VocabularyViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyViewsTests.swift"; sourceTree = "<group>"; };
+		2000C272A49C7CAF5DDF /* MockReflexServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockReflexServices.swift"; sourceTree = "<group>"; };
 		200091F224DACBC284B0 /* MockVocabularyRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockVocabularyRepository.swift"; sourceTree = "<group>"; };
+		2000329638D5564AD2D6 /* ReflexLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexLocalizationTests.swift"; sourceTree = "<group>"; };
 		2000129F1C781D6703DB /* ReflexFlipCardViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexFlipCardViewTests.swift"; sourceTree = "<group>"; };
 		2000B1DEE633B1C8F81E /* SRSEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SRSEngineTests.swift"; sourceTree = "<group>"; };
+		2000DC5CE2968AA846A6 /* SettingsLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsLocalizationTests.swift"; sourceTree = "<group>"; };
 		20007E84695DF55F278D /* SettingsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsViewModelTests.swift"; sourceTree = "<group>"; };
 		20004D5A668F6276E9BC /* SettingsViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsViewTests.swift"; sourceTree = "<group>"; };
 		2000CE88B8551858B787 /* SpeechServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeechServiceTests.swift"; sourceTree = "<group>"; };
@@ -563,6 +576,7 @@
 		2000D3A2E3E9C2B62FFA /* SubTopicSessionEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubTopicSessionEngineTests.swift"; sourceTree = "<group>"; };
 		20009BBF16DB9BD6F1CE /* SubTopicSessionSummaryViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubTopicSessionSummaryViewTests.swift"; sourceTree = "<group>"; };
 		20003F8BC4CF0102DDE2 /* SubTopicStudySessionViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubTopicStudySessionViewTests.swift"; sourceTree = "<group>"; };
+		20007A4DF5ED1922799E /* XCTestShim.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestShim.swift"; sourceTree = "<group>"; };
 		2000FAC198AA799A3AC5 /* SwiftDataModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SwiftDataModelsTests.swift"; sourceTree = "<group>"; };
 		2000E3AFED7A38ECFE12 /* TopicDeckDetailViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TopicDeckDetailViewTests.swift"; sourceTree = "<group>"; };
 		20006C3205A7C09C3ED0 /* TopicDeckModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TopicDeckModelsTests.swift"; sourceTree = "<group>"; };
@@ -650,7 +664,7 @@
 			isa = PBXGroup;
 			children = (
 				200012A79BAC11C11690 /* AppRouter.swift */,
-				200012A79BAC11C11691 /* TabItem.swift */,
+				200094814DC25601FEC3 /* TabItem.swift */,
 			);
 			path = "Navigation";
 			sourceTree = "<group>";
@@ -671,8 +685,8 @@
 			isa = PBXGroup;
 			children = (
 				2000991CE1A83CFDC071 /* ContinuousReflexSpeechService.swift */,
-				2000C003000100010002 /* MockResilientReflexSpeechEngine.swift */,
-				2000C003000100020001 /* ResilientReflexSpeechEngine.swift */,
+				200086880CE4B0BD22E3 /* MockResilientReflexSpeechEngine.swift */,
+				2000AF0C814D7D13DB80 /* ResilientReflexSpeechEngine.swift */,
 				2000087B04314FDDF262 /* SoundEffectService.swift */,
 				200054D51843DFDCEB06 /* SpeechRecognitionService.swift */,
 				2000BEA090FB6DD9E928 /* TextToSpeechService.swift */,
@@ -736,9 +750,9 @@
 		400080019F7B3C6D2348 /* Localization */ = {
 			isa = PBXGroup;
 			children = (
-				2000644190359C5A3C15 /* AppStrings+Vault.swift */,
-				2000644190359C5A3C16 /* AppStrings+Profile.swift */,
-				2000FE759BC2C33450AC /* AppStrings+ReflexBlitz.swift */,
+				200090EB5ABA9B7051A5 /* AppStrings+Profile.swift */,
+				200022B44833F2AD6C9D /* AppStrings+ReflexBlitz.swift */,
+				2000B0F78EB2399D75E7 /* AppStrings+Vault.swift */,
 				20006FB901290FE28F5C /* AppStrings.swift */,
 			);
 			path = "Localization";
@@ -851,11 +865,11 @@
 				20007A8B4B9D3D451203 /* ContinuousReflexSpeechProtocol.swift */,
 				2000FFCB867F894749B7 /* DatasetDataSourceProtocol.swift */,
 				2000FEEDD9D5FAC1C153 /* QuickReflexAttemptRepositoryProtocol.swift */,
+				200025360B5A06610E2E /* ReflexDrillable.swift */,
+				20007F7D19273EF8E04F /* ReflexSpeechEngineProtocol.swift */,
 				20001B54BD9C7BC878A1 /* SRSRepositoryProtocol.swift */,
 				2000410EFACF0E255E2A /* UserProgressRepositoryProtocol.swift */,
 				2000A91CFCCE87349186 /* VocabularyRepositoryProtocol.swift */,
-				2000A1A1000100010002 /* ReflexDrillable.swift */,
-				2000C003000100010001 /* ReflexSpeechEngineProtocol.swift */,
 			);
 			path = "Protocols";
 			sourceTree = "<group>";
@@ -871,16 +885,16 @@
 		40008298FFEC52A63E9E /* UseCases */ = {
 			isa = PBXGroup;
 			children = (
-				20001D594419E5FDDC0B /* GenerateSmartReflexQueueUseCase.swift */,
-				2000A1A1000200020002 /* CompleteLessonUseCase.swift */,
-				2000A1A1000100010001 /* FetchLearningPathUseCase.swift */,
+				200063C6A8B57B3C3299 /* CompleteLessonUseCase.swift */,
 				2000DD5C753F2543B2FC /* CompleteStageChallengeUseCase.swift */,
 				2000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift */,
 				200084D5B31CC714F488 /* FetchDeckRoadmapUseCase.swift */,
+				2000C3390C35C064E34A /* FetchLearningPathUseCase.swift */,
 				2000F3CFD53DC701703F /* FetchPersonalVaultUseCase.swift */,
 				20001457CECD503DB71C /* FetchTopicDecksUseCase.swift */,
 				200001F55FA2F8FA1668 /* FetchVocabularyUseCase.swift */,
 				2000541EE18435328F58 /* GenerateMixedReflexQueueUseCase.swift */,
+				20003D547F8FD9A60B27 /* GenerateSmartReflexQueueUseCase.swift */,
 				2000A6FAFC7B50783D6B /* RecordMixedDrillAttemptUseCase.swift */,
 				2000FA7560015826094C /* ResetUserProgressUseCase.swift */,
 				20006D78C4524120F696 /* ReviewWeakWordsUseCase.swift */,
@@ -893,154 +907,12 @@
 			isa = PBXGroup;
 			children = (
 				400035A206369F2FAA77 /* Homepage */,
-				4000C000000000000001 /* Reflex */,
+				40003C02F9B5FF46EF35 /* Reflex */,
+				4000A827BA6524C5D45F /* ReflexDrill */,
 				4000D4D5BFC6AFCDAB4C /* Settings */,
 				4000235BDB4106301AF2 /* Vocabulary */,
 			);
 			path = "Features";
-			sourceTree = "<group>";
-		};
-		4000C000000000000001 /* Reflex */ = {
-			isa = PBXGroup;
-			children = (
-				4000C000000000000020 /* Blitz */,
-				4000C000000000000002 /* Core */,
-				4000C000000000000030 /* Mixed */,
-			);
-			path = "Reflex";
-			sourceTree = "<group>";
-		};
-		4000C000000000000020 /* Blitz */ = {
-			isa = PBXGroup;
-			children = (
-				4000C000000000000021 /* ViewModels */,
-				4000C000000000000022 /* Views */,
-			);
-			path = "Blitz";
-			sourceTree = "<group>";
-		};
-		4000C000000000000030 /* Mixed */ = {
-			isa = PBXGroup;
-			children = (
-				4000C000000000000031 /* ViewModels */,
-				4000C000000000000032 /* Views */,
-			);
-			path = "Mixed";
-			sourceTree = "<group>";
-		};
-		4000C000000000000031 /* ViewModels */ = {
-			isa = PBXGroup;
-			children = (
-				2000107C30A744495C46 /* MixedReflexDrillViewModel.swift */,
-			);
-			path = "ViewModels";
-			sourceTree = "<group>";
-		};
-		4000C000000000000032 /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				200077C9C8386F262E62 /* MixedReflexDrillView.swift */,
-				2000158DB6324A9E8D3E /* MixedReflexSummaryView.swift */,
-			);
-			path = "Views";
-			sourceTree = "<group>";
-		};
-		4000C000000000000021 /* ViewModels */ = {
-			isa = PBXGroup;
-			children = (
-				2000925E6AEFC3C319C4 /* ReflexBlitzViewModel.swift */,
-				2000C001000100010092 /* ReflexBlitzViewModel+Configuration.swift */,
-			);
-			path = "ViewModels";
-			sourceTree = "<group>";
-		};
-		4000C000000000000022 /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				200086A09076E74750E7 /* ReflexBlitzView.swift */,
-				2000E2383A0FDF336719 /* ReflexBlitzModeSelectionView.swift */,
-				20000B23D37B5EC1F4DC /* ReflexBlitzSummaryView.swift */,
-				200081F9E83CE94C16ED /* ReflexCountdownOverlayView.swift */,
-			);
-			path = "Views";
-			sourceTree = "<group>";
-		};
-		4000C000000000000002 /* Core */ = {
-			isa = PBXGroup;
-			children = (
-				4000C000000000000010 /* Components */,
-				4000C000000000000003 /* Models */,
-				4000C000000000000004 /* Utilities */,
-			);
-			path = "Core";
-			sourceTree = "<group>";
-		};
-		4000C000000000000010 /* Components */ = {
-			isa = PBXGroup;
-			children = (
-				4000C000000000000012 /* Consolidation */,
-				4000C000000000000013 /* Container */,
-				4000C000000000000011 /* Modes */,
-			);
-			path = "Components";
-			sourceTree = "<group>";
-		};
-		4000C000000000000012 /* Consolidation */ = {
-			isa = PBXGroup;
-			children = (
-				2000C001000100010013 /* ReflexReviewedConsolidationView.swift */,
-			);
-			path = "Consolidation";
-			sourceTree = "<group>";
-		};
-		4000C000000000000013 /* Container */ = {
-			isa = PBXGroup;
-			children = (
-				2000C001000100010014 /* ReflexCardContainerView.swift */,
-				2000C001000100010015 /* ReflexHeaderBarView.swift */,
-			);
-			path = "Container";
-			sourceTree = "<group>";
-		};
-		4000C000000000000011 /* Modes */ = {
-			isa = PBXGroup;
-			children = (
-				2000C001000100010009 /* ReflexMultipleChoiceModeView.swift */,
-				2000C001000100010010 /* ReflexSpeakingModeView.swift */,
-				2000C001000100010011 /* ReflexTypingModeView.swift */,
-				2000C001000100010012 /* ReflexListeningModeView.swift */,
-			);
-			path = "Modes";
-			sourceTree = "<group>";
-		};
-
-		4000C000000000000003 /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				2000C001000100010020 /* ReflexBlitzPhase.swift */,
-				2000C001000100010001 /* ReflexMode.swift */,
-				2000C001000100010002 /* ReflexCardPhase.swift */,
-				2000C001000100010003 /* ReflexCardResult.swift */,
-				2000C001000100010004 /* ReflexBlitzOption.swift */,
-				2000C001000100010005 /* ReflexBlitzWordItem.swift */,
-				2000C001000100010006 /* ReflexSessionSummary.swift */,
-				2000C001000100010091 /* ReflexHintMaskStrategy.swift */,
-				2000C001000100010022 /* ReflexClozeStageSet.swift */,
-				2000C001000100010023 /* ReflexDrillPlanItem.swift */,
-				2000C001000100010024 /* ReflexDrillSessionPlan.swift */,
-			);
-			path = "Models";
-			sourceTree = "<group>";
-		};
-		4000C000000000000004 /* Utilities */ = {
-			isa = PBXGroup;
-			children = (
-				2000C001000100010007 /* ReflexClozeFormatter.swift */,
-				2000C001000100010008 /* ReflexDistractorGenerator.swift */,
-				2000C001000100010025 /* ReflexHintMaskGenerator.swift */,
-				2000C001000100010026 /* ReflexDrillPlanGenerator.swift */,
-			);
-			path = "Utilities";
 			sourceTree = "<group>";
 		};
 		400035A206369F2FAA77 /* Homepage */ = {
@@ -1055,8 +927,9 @@
 		40000AC5F5DCB522F6F2 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
-				2000A1A1000300030003 /* LearningPathDataMapper.swift */,
 				20008990938AED4AD135 /* HomepageViewModel.swift */,
+				20004F1187B05A298263 /* LearningPathDataMapper.swift */,
+				20007136B02A0468CE64 /* LessonEconomyPolicy.swift */,
 			);
 			path = "ViewModels";
 			sourceTree = "<group>";
@@ -1064,12 +937,172 @@
 		4000BDD811B778859DDB /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				2000B2B2000500050001 /* HomeTopHeaderView.swift */,
+				20002FFDE20095760CB8 /* HomeSkeletonView.swift */,
+				2000B4EBE185E244E802 /* HomeTopHeaderView.swift */,
 				200034E8C11F48348C6D /* HomepageView.swift */,
 				200096513C5AE8139597 /* MobileSearchView.swift */,
 				200008890465B3CF1A36 /* SearchNewWordView.swift */,
+				20005FCC8B8F9D2561CD /* StreakWeekStripView.swift */,
 			);
 			path = "Views";
+			sourceTree = "<group>";
+		};
+		40003C02F9B5FF46EF35 /* Reflex */ = {
+			isa = PBXGroup;
+			children = (
+				4000C2FB1C0C05834C49 /* Blitz */,
+				4000AD6F38E42034FEC3 /* Core */,
+				400069F328575E8956F7 /* Mixed */,
+			);
+			path = "Reflex";
+			sourceTree = "<group>";
+		};
+		4000C2FB1C0C05834C49 /* Blitz */ = {
+			isa = PBXGroup;
+			children = (
+				4000627CD7677F216452 /* ViewModels */,
+				400075FFA2C39E5DF250 /* Views */,
+			);
+			path = "Blitz";
+			sourceTree = "<group>";
+		};
+		4000627CD7677F216452 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				2000F03E5BADA15ED6EB /* ReflexBlitzViewModel+Configuration.swift */,
+				2000A74013DE879E4E41 /* ReflexBlitzViewModel.swift */,
+			);
+			path = "ViewModels";
+			sourceTree = "<group>";
+		};
+		400075FFA2C39E5DF250 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				20004E90729BD17C71F2 /* ReflexBlitzModeSelectionView.swift */,
+				2000E4D3B4C43FAF2FE4 /* ReflexBlitzSummaryView.swift */,
+				20000C57A4B8001CF461 /* ReflexBlitzView.swift */,
+				2000CF21E9F501ECADD4 /* ReflexCountdownOverlayView.swift */,
+			);
+			path = "Views";
+			sourceTree = "<group>";
+		};
+		4000AD6F38E42034FEC3 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				40004704B4C8104E75F9 /* Components */,
+				4000295DFD5C25EC5ED2 /* Models */,
+				4000777CA279C65BEF3F /* Utilities */,
+			);
+			path = "Core";
+			sourceTree = "<group>";
+		};
+		40004704B4C8104E75F9 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				4000CDBC016BB7168359 /* Consolidation */,
+				400040C2A8E962765D82 /* Container */,
+				400065390B9BB64D4E38 /* Modes */,
+			);
+			path = "Components";
+			sourceTree = "<group>";
+		};
+		4000CDBC016BB7168359 /* Consolidation */ = {
+			isa = PBXGroup;
+			children = (
+				2000828DF2099455265E /* ReflexReviewedConsolidationView.swift */,
+			);
+			path = "Consolidation";
+			sourceTree = "<group>";
+		};
+		400040C2A8E962765D82 /* Container */ = {
+			isa = PBXGroup;
+			children = (
+				2000BA5298E3C6DB9614 /* ReflexCardContainerView.swift */,
+				20000D1D8F15A99109F7 /* ReflexHeaderBarView.swift */,
+			);
+			path = "Container";
+			sourceTree = "<group>";
+		};
+		400065390B9BB64D4E38 /* Modes */ = {
+			isa = PBXGroup;
+			children = (
+				2000DF6A8254F930AC56 /* ReflexListeningModeView.swift */,
+				2000E2DDBB2621C8C989 /* ReflexMultipleChoiceModeView.swift */,
+				2000E144E0428706EAA7 /* ReflexSpeakingModeView.swift */,
+				200061CBE66CC7064108 /* ReflexTypingModeView.swift */,
+			);
+			path = "Modes";
+			sourceTree = "<group>";
+		};
+		4000295DFD5C25EC5ED2 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				2000621CAF6C8F4749A9 /* ReflexBlitzOption.swift */,
+				20006FD292D796CEC687 /* ReflexBlitzPhase.swift */,
+				20009EE98C1BFA6A345B /* ReflexBlitzWordItem.swift */,
+				20007475E8BBCA8EF409 /* ReflexCardPhase.swift */,
+				200097FF868AE5CA128B /* ReflexCardResult.swift */,
+				2000DE54239B77038649 /* ReflexClozeStageSet.swift */,
+				2000A914150939195A73 /* ReflexDrillPlanItem.swift */,
+				2000669A78EB5976D9D4 /* ReflexDrillSessionPlan.swift */,
+				200062F735C241B182D9 /* ReflexHintMaskStrategy.swift */,
+				200056A99476FEA015E8 /* ReflexMode.swift */,
+				2000A5B377A7277F4EB7 /* ReflexSessionSummary.swift */,
+			);
+			path = "Models";
+			sourceTree = "<group>";
+		};
+		4000777CA279C65BEF3F /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				2000306F302360991113 /* ReflexClozeFormatter.swift */,
+				200012A1ACC2ABC41650 /* ReflexDistractorGenerator.swift */,
+				200058D7D9AAA5B7C7F7 /* ReflexDrillPlanGenerator.swift */,
+				200049875611C61A20FD /* ReflexHintMaskGenerator.swift */,
+			);
+			path = "Utilities";
+			sourceTree = "<group>";
+		};
+		400069F328575E8956F7 /* Mixed */ = {
+			isa = PBXGroup;
+			children = (
+				400062B71AF8AE3EE9F5 /* ViewModels */,
+				4000005DA959D81F1F51 /* Views */,
+			);
+			path = "Mixed";
+			sourceTree = "<group>";
+		};
+		400062B71AF8AE3EE9F5 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				2000F61883A1AB597078 /* MixedReflexDrillViewModel.swift */,
+			);
+			path = "ViewModels";
+			sourceTree = "<group>";
+		};
+		4000005DA959D81F1F51 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				20001992FE6EF047EBBD /* MixedReflexDrillView.swift */,
+				2000D07E0E768FC0CEF3 /* MixedReflexSummaryView.swift */,
+			);
+			path = "Views";
+			sourceTree = "<group>";
+		};
+		4000A827BA6524C5D45F /* ReflexDrill */ = {
+			isa = PBXGroup;
+			children = (
+				40009386A2E4BCFB13A3 /* Services */,
+			);
+			path = "ReflexDrill";
+			sourceTree = "<group>";
+		};
+		40009386A2E4BCFB13A3 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+
+			);
+			path = "Services";
 			sourceTree = "<group>";
 		};
 		4000D4D5BFC6AFCDAB4C /* Settings */ = {
@@ -1101,8 +1134,8 @@
 		4000FF1944B7E810992A /* Components */ = {
 			isa = PBXGroup;
 			children = (
-				2000BCECD4679C9E8ED9 /* HeroProfileCard.swift */,
-				2000BCECD4679C9E8EDA /* ProfileStatsSheet.swift */,
+				200063C2664EBD5E0999 /* HeroProfileCard.swift */,
+				200081BCAFC0C1C48B61 /* ProfileStatsSheet.swift */,
 			);
 			path = "Components";
 			sourceTree = "<group>";
@@ -1238,8 +1271,8 @@
 				20008B8A03E6581634CC /* PracticeSelectionRow.swift */,
 				20006775C280E15D4C8F /* TopCarouselFlashcardView.swift */,
 				2000A5F3C1C439691651 /* VaultWordCardView.swift */,
-				2000A103C1C439691603 /* VaultWordRowView.swift */,
-				2000A104C1C439691604 /* VaultWordDetailSheet.swift */,
+				20002B3ADF2E9ABE8C44 /* VaultWordDetailSheet.swift */,
+				20008DEFBD9AB171825A /* VaultWordRowView.swift */,
 			);
 			path = "Components";
 			sourceTree = "<group>";
@@ -1276,7 +1309,6 @@
 		4000A4B5D97C10747B92 /* VocabCraftAppTests */ = {
 			isa = PBXGroup;
 			children = (
-				2000B5F6CEC261EADFFB /* SettingsLocalizationTests.swift */,
 				4000D124A443CB2C8687 /* App */,
 				20001611F67650D4D4BB /* AppRouterTests.swift */,
 				40005E5E6E56B12F0885 /* Core */,
@@ -1288,8 +1320,10 @@
 				2000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift */,
 				4000538975BBBF45E56C /* Features */,
 				40001795D309886C29B1 /* Mocks */,
+				4000A43204724448D0C9 /* Reflex */,
 				2000129F1C781D6703DB /* ReflexFlipCardViewTests.swift */,
 				2000B1DEE633B1C8F81E /* SRSEngineTests.swift */,
+				2000DC5CE2968AA846A6 /* SettingsLocalizationTests.swift */,
 				20007E84695DF55F278D /* SettingsViewModelTests.swift */,
 				20004D5A668F6276E9BC /* SettingsViewTests.swift */,
 				2000CE88B8551858B787 /* SpeechServiceTests.swift */,
@@ -1298,6 +1332,7 @@
 				2000D3A2E3E9C2B62FFA /* SubTopicSessionEngineTests.swift */,
 				20009BBF16DB9BD6F1CE /* SubTopicSessionSummaryViewTests.swift */,
 				20003F8BC4CF0102DDE2 /* SubTopicStudySessionViewTests.swift */,
+				4000D3F1B681BE1783FF /* Support */,
 				2000FAC198AA799A3AC5 /* SwiftDataModelsTests.swift */,
 				2000E3AFED7A38ECFE12 /* TopicDeckDetailViewTests.swift */,
 				20006C3205A7C09C3ED0 /* TopicDeckModelsTests.swift */,
@@ -1350,13 +1385,13 @@
 		40002E4285B41EEC7F8B /* Domain */ = {
 			isa = PBXGroup;
 			children = (
-				2000E8C30B0AE929A360 /* SmartReflexQueueUseCaseTests.swift */,
-				2000B2B2000100010001 /* LearningPathUseCasesTests.swift */,
+				20006B99E7C69FF14341 /* LearningPathUseCasesTests.swift */,
 				2000AFFB3F242012EAF1 /* MasteryEvaluationPolicyTests.swift */,
 				2000ACD44A59CAC0463A /* MixedReflexQueueUseCaseTests.swift */,
+				20005B373A959290F7A7 /* ReflexDrillableTests.swift */,
+				2000022A6E566EEDC31A /* SmartReflexQueueUseCaseTests.swift */,
 				2000257F4D2FD33D16E6 /* VocabularyDomainEntitiesTests.swift */,
 				2000496889722C6A9765 /* VocabularyUseCasesTests.swift */,
-				2000B2B2000100010002 /* ReflexDrillableTests.swift */,
 			);
 			path = "Domain";
 			sourceTree = "<group>";
@@ -1364,60 +1399,61 @@
 		4000538975BBBF45E56C /* Features */ = {
 			isa = PBXGroup;
 			children = (
-				20009901047D7899A16C /* PersonalVaultLocalizationTests.swift */,
 				40004A7D1798887BBCBC /* Homepage */,
 				200014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift */,
 				200034AB7AB035E97418 /* MixedReflexDrillViewsTests.swift */,
+				200033EBEB29F1774CF6 /* PersonalVaultLocalizationTests.swift */,
 				20009B83DC7F07E6E1B1 /* PersonalVaultViewModelTests.swift */,
-				4000C000000000000005 /* Reflex */,
+				4000E102CB9FECDF3753 /* Reflex */,
 				4000222CDC96FC1A1DA8 /* ReflexDrill */,
-				2000DD4CECAB945418DA /* ReflexDrillViewModelSpeechTests.swift */,
 				4000829CC0FFDB01C99C /* Vocabulary */,
 			);
 			path = "Features";
 			sourceTree = "<group>";
 		};
-		4000C000000000000005 /* Reflex */ = {
-			isa = PBXGroup;
-			children = (
-				2000C002000100010001 /* ReflexCoreUtilitiesTests.swift */,
-				2000C002000100010002 /* ReflexMultipleChoiceModeViewTests.swift */,
-				2000C002000100010003 /* ReflexOtherModesTests.swift */,
-				2000C002000100010004 /* ReflexContainerComponentsTests.swift */,
-				2000C002000100010005 /* ReflexDrillPlanModelsTests.swift */,
-				2000C002000100010006 /* ReflexHintMaskGeneratorTests.swift */,
-				2000C002000100010007 /* ReflexDrillPlanGeneratorTests.swift */,
-				2000C003000100010003 /* MockResilientReflexSpeechEngineTests.swift */,
-				2000C003000100020002 /* ResilientReflexSpeechEngineTests.swift */,
-				2000C003000100030001 /* ReflexBlitzViewModelSpeakingTests.swift */,
-			);
-			path = "Reflex";
-			sourceTree = "<group>";
-		};
-
 		40004A7D1798887BBCBC /* Homepage */ = {
 			isa = PBXGroup;
 			children = (
-				2000B2B2000200020002 /* HomeLocalizationTests.swift */,
-				2000B2B2000500050002 /* HomeTopHeaderViewTests.swift */,
-				2000B2B2000300030003 /* HomepageViewModelTests.swift */,
-				2000B2B2000400040004 /* LearningPathDataMapperTests.swift */,
+				2000D7D92B122A4B2F10 /* HomeLocalizationTests.swift */,
+				200016308CFEFF34283A /* HomeTopHeaderViewTests.swift */,
+				20009A73EA4B8A40B002 /* HomepageViewModelTests.swift */,
 				20004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift */,
+				2000B16B1D8D146B208B /* LearningPathDataMapperTests.swift */,
 				2000B8BA7058BCC04544 /* MobileSearchViewTests.swift */,
 			);
 			path = "Homepage";
 			sourceTree = "<group>";
 		};
+		4000E102CB9FECDF3753 /* Reflex */ = {
+			isa = PBXGroup;
+			children = (
+				200097AA850CCC0BDDAE /* MockResilientReflexSpeechEngineTests.swift */,
+				20004814A8C2426B8B5F /* ReflexBlitzViewModelListeningTests.swift */,
+				2000FFB2D11C9D345720 /* ReflexBlitzViewModelSpeakingTests.swift */,
+				2000E2C1F15B30BE36EF /* ReflexContainerComponentsTests.swift */,
+				2000F728BE52589F4D59 /* ReflexCoreUtilitiesTests.swift */,
+				20005D3C583211E4B509 /* ReflexDrillPlanGeneratorTests.swift */,
+				200063BF4D501E70F659 /* ReflexDrillPlanModelsTests.swift */,
+				2000448452104295EC76 /* ReflexHintMaskGeneratorTests.swift */,
+				2000DBEDA92C50384260 /* ReflexModeTests.swift */,
+				2000FDD7FC2E6B9ED692 /* ReflexMultipleChoiceModeViewTests.swift */,
+				20004D4BFF1DB0753E89 /* ReflexOtherModesTests.swift */,
+				20004FB8278DD289362C /* ResilientReflexSpeechEngineTests.swift */,
+			);
+			path = "Reflex";
+			sourceTree = "<group>";
+		};
 		4000222CDC96FC1A1DA8 /* ReflexDrill */ = {
 			isa = PBXGroup;
 			children = (
-				2000E70C0C4D706D4D14 /* ReflexBlitzLocalizationTests.swift */,
 				20003B12304942E6E1B2 /* ContinuousReflexSpeechServiceTests.swift */,
 				20000F377D3FDF561ADC /* ReflexBlitzComponentsTests.swift */,
+				20005EACC20F793C36CE /* ReflexBlitzLocalizationTests.swift */,
+				2000F1F3611358E0328E /* ReflexBlitzModeSelectionViewTests.swift */,
 				200060072D5F6523D014 /* ReflexBlitzModelsTests.swift */,
 				2000CC22F52C8B7B9C75 /* ReflexBlitzSummaryViewTests.swift */,
 				20007DD63AA4B1896001 /* ReflexBlitzViewIntegrationTests.swift */,
-				20007DD63AA4B1896002 /* ReflexBlitzModeSelectionViewTests.swift */,
+				20007DED1AA24D03CDB4 /* ReflexBlitzViewModelFeedbackTests.swift */,
 				2000A5EC389D77272424 /* ReflexBlitzViewModelTests.swift */,
 			);
 			path = "ReflexDrill";
@@ -1454,10 +1490,26 @@
 		40001795D309886C29B1 /* Mocks */ = {
 			isa = PBXGroup;
 			children = (
-				2000C001000100010021 /* MockReflexServices.swift */,
+				2000C272A49C7CAF5DDF /* MockReflexServices.swift */,
 				200091F224DACBC284B0 /* MockVocabularyRepository.swift */,
 			);
 			path = "Mocks";
+			sourceTree = "<group>";
+		};
+		4000A43204724448D0C9 /* Reflex */ = {
+			isa = PBXGroup;
+			children = (
+				2000329638D5564AD2D6 /* ReflexLocalizationTests.swift */,
+			);
+			path = "Reflex";
+			sourceTree = "<group>";
+		};
+		4000D3F1B681BE1783FF /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				20007A4DF5ED1922799E /* XCTestShim.swift */,
+			);
+			path = "Support";
 			sourceTree = "<group>";
 		};
 		400000092D50000000000000 /* Products */ = {
@@ -1599,9 +1651,11 @@
 				3000DE9D056D85598F6E /* AppContainer.swift in Sources */,
 				3000FAD85B1C0D0923C5 /* EnvironmentKeys.swift in Sources */,
 				300012A79BAC11C11690 /* AppRouter.swift in Sources */,
-				300012A79BAC11C11691 /* TabItem.swift in Sources */,
+				300094814DC25601FEC3 /* TabItem.swift in Sources */,
 				30005D17660A661FF2F5 /* VocabCraftApp.swift in Sources */,
 				3000991CE1A83CFDC071 /* ContinuousReflexSpeechService.swift in Sources */,
+				300086880CE4B0BD22E3 /* MockResilientReflexSpeechEngine.swift in Sources */,
+				3000AF0C814D7D13DB80 /* ResilientReflexSpeechEngine.swift in Sources */,
 				3000087B04314FDDF262 /* SoundEffectService.swift in Sources */,
 				300054D51843DFDCEB06 /* SpeechRecognitionService.swift in Sources */,
 				3000BEA090FB6DD9E928 /* TextToSpeechService.swift in Sources */,
@@ -1620,12 +1674,9 @@
 				300098C80917F59AB1AB /* VocabMicControlHubView.swift in Sources */,
 				30004AA2997CC609FCB8 /* VocabSpeechVisualizerView.swift in Sources */,
 				300085D4BA7A4E3D273F /* VocabTheme.swift in Sources */,
-								3000FE759BC2C33450AC /* AppStrings+ReflexBlitz.swift in Sources */,
-				3000644190359C5A3C15 /* AppStrings+Vault.swift in Sources */,
-				3000644190359C5A3C16 /* AppStrings+Profile.swift in Sources */,
-				30001D594419E5FDDC0B /* GenerateSmartReflexQueueUseCase.swift in Sources */,
-				3000BCECD4679C9E8ED9 /* HeroProfileCard.swift in Sources */,
-				3000BCECD4679C9E8EDA /* ProfileStatsSheet.swift in Sources */,
+				300090EB5ABA9B7051A5 /* AppStrings+Profile.swift in Sources */,
+				300022B44833F2AD6C9D /* AppStrings+ReflexBlitz.swift in Sources */,
+				3000B0F78EB2399D75E7 /* AppStrings+Vault.swift in Sources */,
 				30006FB901290FE28F5C /* AppStrings.swift in Sources */,
 				30003498E286D20C1EBC /* SRSEngine.swift in Sources */,
 				3000EA1A05F3921C21B6 /* UserProgressModelActor.swift in Sources */,
@@ -1651,63 +1702,69 @@
 				30007A8B4B9D3D451203 /* ContinuousReflexSpeechProtocol.swift in Sources */,
 				3000FFCB867F894749B7 /* DatasetDataSourceProtocol.swift in Sources */,
 				3000FEEDD9D5FAC1C153 /* QuickReflexAttemptRepositoryProtocol.swift in Sources */,
+				300025360B5A06610E2E /* ReflexDrillable.swift in Sources */,
+				30007F7D19273EF8E04F /* ReflexSpeechEngineProtocol.swift in Sources */,
 				30001B54BD9C7BC878A1 /* SRSRepositoryProtocol.swift in Sources */,
 				3000410EFACF0E255E2A /* UserProgressRepositoryProtocol.swift in Sources */,
 				3000A91CFCCE87349186 /* VocabularyRepositoryProtocol.swift in Sources */,
-				3000A1A1000100010002 /* ReflexDrillable.swift in Sources */,
-				3000C003000100010001 /* ReflexSpeechEngineProtocol.swift in Sources */,
-				3000C003000100010002 /* MockResilientReflexSpeechEngine.swift in Sources */,
-				3000C003000100020001 /* ResilientReflexSpeechEngine.swift in Sources */,
-				3000C001000100010001 /* ReflexMode.swift in Sources */,
-				3000C001000100010002 /* ReflexCardPhase.swift in Sources */,
-				3000C001000100010003 /* ReflexCardResult.swift in Sources */,
-				3000C001000100010004 /* ReflexBlitzOption.swift in Sources */,
-				3000C001000100010005 /* ReflexBlitzWordItem.swift in Sources */,
-				3000C001000100010006 /* ReflexSessionSummary.swift in Sources */,
-				3000C001000100010007 /* ReflexClozeFormatter.swift in Sources */,
-				3000C001000100010008 /* ReflexDistractorGenerator.swift in Sources */,
-				3000C001000100010009 /* ReflexMultipleChoiceModeView.swift in Sources */,
-				3000C001000100010010 /* ReflexSpeakingModeView.swift in Sources */,
-				3000C001000100010011 /* ReflexTypingModeView.swift in Sources */,
-				3000C001000100010012 /* ReflexListeningModeView.swift in Sources */,
-				3000C001000100010013 /* ReflexReviewedConsolidationView.swift in Sources */,
-				3000C001000100010014 /* ReflexCardContainerView.swift in Sources */,
-				3000C001000100010015 /* ReflexHeaderBarView.swift in Sources */,
-				3000C001000100010091 /* ReflexHintMaskStrategy.swift in Sources */,
-				3000C001000100010092 /* ReflexBlitzViewModel+Configuration.swift in Sources */,
-				3000C001000100010022 /* ReflexClozeStageSet.swift in Sources */,
-				3000C001000100010023 /* ReflexDrillPlanItem.swift in Sources */,
-				3000C001000100010024 /* ReflexDrillSessionPlan.swift in Sources */,
-				3000C001000100010025 /* ReflexHintMaskGenerator.swift in Sources */,
-				3000C001000100010026 /* ReflexDrillPlanGenerator.swift in Sources */,
-
 				300044F0262868591EF0 /* VocabularyFilterService.swift in Sources */,
+				300063C6A8B57B3C3299 /* CompleteLessonUseCase.swift in Sources */,
 				3000DD5C753F2543B2FC /* CompleteStageChallengeUseCase.swift in Sources */,
 				3000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift in Sources */,
 				300084D5B31CC714F488 /* FetchDeckRoadmapUseCase.swift in Sources */,
+				3000C3390C35C064E34A /* FetchLearningPathUseCase.swift in Sources */,
 				3000F3CFD53DC701703F /* FetchPersonalVaultUseCase.swift in Sources */,
 				30001457CECD503DB71C /* FetchTopicDecksUseCase.swift in Sources */,
 				300001F55FA2F8FA1668 /* FetchVocabularyUseCase.swift in Sources */,
-				3000A1A1000200020002 /* CompleteLessonUseCase.swift in Sources */,
-				3000A1A1000100010001 /* FetchLearningPathUseCase.swift in Sources */,
-				3000A1A1000300030003 /* LearningPathDataMapper.swift in Sources */,
 				3000541EE18435328F58 /* GenerateMixedReflexQueueUseCase.swift in Sources */,
+				30003D547F8FD9A60B27 /* GenerateSmartReflexQueueUseCase.swift in Sources */,
 				3000A6FAFC7B50783D6B /* RecordMixedDrillAttemptUseCase.swift in Sources */,
 				3000FA7560015826094C /* ResetUserProgressUseCase.swift in Sources */,
 				30006D78C4524120F696 /* ReviewWeakWordsUseCase.swift in Sources */,
 				30001BF345803150242B /* ToggleWordBookmarkUseCase.swift in Sources */,
 				30008990938AED4AD135 /* HomepageViewModel.swift in Sources */,
-				3000B2B2000500050001 /* HomeTopHeaderView.swift in Sources */,
+				30004F1187B05A298263 /* LearningPathDataMapper.swift in Sources */,
+				30007136B02A0468CE64 /* LessonEconomyPolicy.swift in Sources */,
+				30002FFDE20095760CB8 /* HomeSkeletonView.swift in Sources */,
+				3000B4EBE185E244E802 /* HomeTopHeaderView.swift in Sources */,
 				300034E8C11F48348C6D /* HomepageView.swift in Sources */,
 				300096513C5AE8139597 /* MobileSearchView.swift in Sources */,
 				300008890465B3CF1A36 /* SearchNewWordView.swift in Sources */,
-				3000C001000100010020 /* ReflexBlitzPhase.swift in Sources */,
-				3000925E6AEFC3C319C4 /* ReflexBlitzViewModel.swift in Sources */,
-				3000E2383A0FDF336719 /* ReflexBlitzModeSelectionView.swift in Sources */,
-				30000B23D37B5EC1F4DC /* ReflexBlitzSummaryView.swift in Sources */,
-				300086A09076E74750E7 /* ReflexBlitzView.swift in Sources */,
-				300081F9E83CE94C16ED /* ReflexCountdownOverlayView.swift in Sources */,
+				30005FCC8B8F9D2561CD /* StreakWeekStripView.swift in Sources */,
+				3000F03E5BADA15ED6EB /* ReflexBlitzViewModel+Configuration.swift in Sources */,
+				3000A74013DE879E4E41 /* ReflexBlitzViewModel.swift in Sources */,
+				30004E90729BD17C71F2 /* ReflexBlitzModeSelectionView.swift in Sources */,
+				3000E4D3B4C43FAF2FE4 /* ReflexBlitzSummaryView.swift in Sources */,
+				30000C57A4B8001CF461 /* ReflexBlitzView.swift in Sources */,
+				3000CF21E9F501ECADD4 /* ReflexCountdownOverlayView.swift in Sources */,
+				3000828DF2099455265E /* ReflexReviewedConsolidationView.swift in Sources */,
+				3000BA5298E3C6DB9614 /* ReflexCardContainerView.swift in Sources */,
+				30000D1D8F15A99109F7 /* ReflexHeaderBarView.swift in Sources */,
+				3000DF6A8254F930AC56 /* ReflexListeningModeView.swift in Sources */,
+				3000E2DDBB2621C8C989 /* ReflexMultipleChoiceModeView.swift in Sources */,
+				3000E144E0428706EAA7 /* ReflexSpeakingModeView.swift in Sources */,
+				300061CBE66CC7064108 /* ReflexTypingModeView.swift in Sources */,
+				3000621CAF6C8F4749A9 /* ReflexBlitzOption.swift in Sources */,
+				30006FD292D796CEC687 /* ReflexBlitzPhase.swift in Sources */,
+				30009EE98C1BFA6A345B /* ReflexBlitzWordItem.swift in Sources */,
+				30007475E8BBCA8EF409 /* ReflexCardPhase.swift in Sources */,
+				300097FF868AE5CA128B /* ReflexCardResult.swift in Sources */,
+				3000DE54239B77038649 /* ReflexClozeStageSet.swift in Sources */,
+				3000A914150939195A73 /* ReflexDrillPlanItem.swift in Sources */,
+				3000669A78EB5976D9D4 /* ReflexDrillSessionPlan.swift in Sources */,
+				300062F735C241B182D9 /* ReflexHintMaskStrategy.swift in Sources */,
+				300056A99476FEA015E8 /* ReflexMode.swift in Sources */,
+				3000A5B377A7277F4EB7 /* ReflexSessionSummary.swift in Sources */,
+				3000306F302360991113 /* ReflexClozeFormatter.swift in Sources */,
+				300012A1ACC2ABC41650 /* ReflexDistractorGenerator.swift in Sources */,
+				300058D7D9AAA5B7C7F7 /* ReflexDrillPlanGenerator.swift in Sources */,
+				300049875611C61A20FD /* ReflexHintMaskGenerator.swift in Sources */,
+				3000F61883A1AB597078 /* MixedReflexDrillViewModel.swift in Sources */,
+				30001992FE6EF047EBBD /* MixedReflexDrillView.swift in Sources */,
+				3000D07E0E768FC0CEF3 /* MixedReflexSummaryView.swift in Sources */,
 				30001869ACE6A7807D33 /* SettingsViewModel.swift in Sources */,
+				300063C2664EBD5E0999 /* HeroProfileCard.swift in Sources */,
+				300081BCAFC0C1C48B61 /* ProfileStatsSheet.swift in Sources */,
 				3000F862E9AA098E9263 /* SettingsView.swift in Sources */,
 				300016A5AFED8DA60D49 /* QuickReflexPrompt.swift in Sources */,
 				30008890835203644360 /* SubTopicSessionEngine.swift in Sources */,
@@ -1729,7 +1786,6 @@
 				300022A1010E55CEB572 /* StagePreviewSheet.swift in Sources */,
 				30000331AAAF0AEFAF36 /* StageSummarySheet.swift in Sources */,
 				3000E8CAA34A57906B9B /* TopicRoadmapView.swift in Sources */,
-				3000107C30A744495C46 /* MixedReflexDrillViewModel.swift in Sources */,
 				3000D1AFA639C3CAA534 /* QuickReflexDrillViewModel.swift in Sources */,
 				3000A6E85473D55734B1 /* StudySessionViewModel.swift in Sources */,
 				3000A2F071BDE838E61F /* VocabularyViewModel.swift in Sources */,
@@ -1738,10 +1794,8 @@
 				30008B8A03E6581634CC /* PracticeSelectionRow.swift in Sources */,
 				30006775C280E15D4C8F /* TopCarouselFlashcardView.swift in Sources */,
 				3000A5F3C1C439691651 /* VaultWordCardView.swift in Sources */,
-				3000A103C1C439691603 /* VaultWordRowView.swift in Sources */,
-				3000A104C1C439691604 /* VaultWordDetailSheet.swift in Sources */,
-				300077C9C8386F262E62 /* MixedReflexDrillView.swift in Sources */,
-				3000158DB6324A9E8D3E /* MixedReflexSummaryView.swift in Sources */,
+				30002B3ADF2E9ABE8C44 /* VaultWordDetailSheet.swift in Sources */,
+				30008DEFBD9AB171825A /* VaultWordRowView.swift in Sources */,
 				30002F7276D162B86C67 /* PracticeSelectionView.swift in Sources */,
 				300080D6E75B2F2E5FAD /* QuickReflexDrillSheetView.swift in Sources */,
 				30009D3D783C65956EBC /* QuickReflexResultCardView.swift in Sources */,
@@ -1795,42 +1849,46 @@
 				300055893DED0D8FA1E3 /* DatasetEngineTests.swift in Test Sources */,
 				3000D052EA676149B3D6 /* ColorTokensTests.swift in Test Sources */,
 				3000838EAAA70A5E0D29 /* VocabThemeTests.swift in Test Sources */,
+				30006B99E7C69FF14341 /* LearningPathUseCasesTests.swift in Test Sources */,
 				3000AFFB3F242012EAF1 /* MasteryEvaluationPolicyTests.swift in Test Sources */,
 				3000ACD44A59CAC0463A /* MixedReflexQueueUseCaseTests.swift in Test Sources */,
+				30005B373A959290F7A7 /* ReflexDrillableTests.swift in Test Sources */,
+				3000022A6E566EEDC31A /* SmartReflexQueueUseCaseTests.swift in Test Sources */,
 				3000257F4D2FD33D16E6 /* VocabularyDomainEntitiesTests.swift in Test Sources */,
 				3000496889722C6A9765 /* VocabularyUseCasesTests.swift in Test Sources */,
-				3000B2B2000100010002 /* ReflexDrillableTests.swift in Test Sources */,
-				3000C002000100010001 /* ReflexCoreUtilitiesTests.swift in Test Sources */,
-				3000C002000100010002 /* ReflexMultipleChoiceModeViewTests.swift in Test Sources */,
-				3000C002000100010003 /* ReflexOtherModesTests.swift in Test Sources */,
-				3000C002000100010004 /* ReflexContainerComponentsTests.swift in Test Sources */,
-				3000C002000100010005 /* ReflexDrillPlanModelsTests.swift in Test Sources */,
-				3000C002000100010006 /* ReflexHintMaskGeneratorTests.swift in Test Sources */,
-				3000C002000100010007 /* ReflexDrillPlanGeneratorTests.swift in Test Sources */,
-				3000C003000100010003 /* MockResilientReflexSpeechEngineTests.swift in Test Sources */,
-				3000C003000100020002 /* ResilientReflexSpeechEngineTests.swift in Test Sources */,
-				3000C003000100030001 /* ReflexBlitzViewModelSpeakingTests.swift in Test Sources */,
-
 				3000D1459B6F5FD76CEA /* DomainEntitiesTests.swift in Test Sources */,
 				3000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift in Test Sources */,
-				3000B2B2000500050002 /* HomeTopHeaderViewTests.swift in Test Sources */,
+				3000D7D92B122A4B2F10 /* HomeLocalizationTests.swift in Test Sources */,
+				300016308CFEFF34283A /* HomeTopHeaderViewTests.swift in Test Sources */,
+				30009A73EA4B8A40B002 /* HomepageViewModelTests.swift in Test Sources */,
 				30004EBBFAE9BCDF3AB9 /* HomepageViewTests.swift in Test Sources */,
-				3000B2B2000100010001 /* LearningPathUseCasesTests.swift in Test Sources */,
-				3000B2B2000200020002 /* HomeLocalizationTests.swift in Test Sources */,
-				3000B2B2000300030003 /* HomepageViewModelTests.swift in Test Sources */,
-				3000B2B2000400040004 /* LearningPathDataMapperTests.swift in Test Sources */,
+				3000B16B1D8D146B208B /* LearningPathDataMapperTests.swift in Test Sources */,
 				3000B8BA7058BCC04544 /* MobileSearchViewTests.swift in Test Sources */,
 				300014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift in Test Sources */,
 				300034AB7AB035E97418 /* MixedReflexDrillViewsTests.swift in Test Sources */,
+				300033EBEB29F1774CF6 /* PersonalVaultLocalizationTests.swift in Test Sources */,
 				30009B83DC7F07E6E1B1 /* PersonalVaultViewModelTests.swift in Test Sources */,
+				300097AA850CCC0BDDAE /* MockResilientReflexSpeechEngineTests.swift in Test Sources */,
+				30004814A8C2426B8B5F /* ReflexBlitzViewModelListeningTests.swift in Test Sources */,
+				3000FFB2D11C9D345720 /* ReflexBlitzViewModelSpeakingTests.swift in Test Sources */,
+				3000E2C1F15B30BE36EF /* ReflexContainerComponentsTests.swift in Test Sources */,
+				3000F728BE52589F4D59 /* ReflexCoreUtilitiesTests.swift in Test Sources */,
+				30005D3C583211E4B509 /* ReflexDrillPlanGeneratorTests.swift in Test Sources */,
+				300063BF4D501E70F659 /* ReflexDrillPlanModelsTests.swift in Test Sources */,
+				3000448452104295EC76 /* ReflexHintMaskGeneratorTests.swift in Test Sources */,
+				3000DBEDA92C50384260 /* ReflexModeTests.swift in Test Sources */,
+				3000FDD7FC2E6B9ED692 /* ReflexMultipleChoiceModeViewTests.swift in Test Sources */,
+				30004D4BFF1DB0753E89 /* ReflexOtherModesTests.swift in Test Sources */,
+				30004FB8278DD289362C /* ResilientReflexSpeechEngineTests.swift in Test Sources */,
 				30003B12304942E6E1B2 /* ContinuousReflexSpeechServiceTests.swift in Test Sources */,
 				30000F377D3FDF561ADC /* ReflexBlitzComponentsTests.swift in Test Sources */,
+				30005EACC20F793C36CE /* ReflexBlitzLocalizationTests.swift in Test Sources */,
+				3000F1F3611358E0328E /* ReflexBlitzModeSelectionViewTests.swift in Test Sources */,
 				300060072D5F6523D014 /* ReflexBlitzModelsTests.swift in Test Sources */,
 				3000CC22F52C8B7B9C75 /* ReflexBlitzSummaryViewTests.swift in Test Sources */,
 				30007DD63AA4B1896001 /* ReflexBlitzViewIntegrationTests.swift in Test Sources */,
-				30007DD63AA4B1896002 /* ReflexBlitzModeSelectionViewTests.swift in Test Sources */,
+				30007DED1AA24D03CDB4 /* ReflexBlitzViewModelFeedbackTests.swift in Test Sources */,
 				3000A5EC389D77272424 /* ReflexBlitzViewModelTests.swift in Test Sources */,
-				3000C001000100010021 /* MockReflexServices.swift in Test Sources */,
 				3000D22F93692E9C65C5 /* CollocationExtractorTests.swift in Test Sources */,
 				300047D0A5CDF3D93D9F /* PersonalVaultLegacyViewModelTests.swift in Test Sources */,
 				300022913C72DD267B8F /* PersonalVaultViewsTests.swift in Test Sources */,
@@ -1852,21 +1910,21 @@
 				30005C654C6659FCC839 /* VocabularyRedesignViewTests.swift in Test Sources */,
 				300041B134BDE2385881 /* VocabularyViewTests.swift in Test Sources */,
 				3000871815071728E145 /* VocabularyViewsTests.swift in Test Sources */,
+				3000C272A49C7CAF5DDF /* MockReflexServices.swift in Test Sources */,
 				300091F224DACBC284B0 /* MockVocabularyRepository.swift in Test Sources */,
+				3000329638D5564AD2D6 /* ReflexLocalizationTests.swift in Test Sources */,
 				3000129F1C781D6703DB /* ReflexFlipCardViewTests.swift in Test Sources */,
 				3000B1DEE633B1C8F81E /* SRSEngineTests.swift in Test Sources */,
+				3000DC5CE2968AA846A6 /* SettingsLocalizationTests.swift in Test Sources */,
 				30007E84695DF55F278D /* SettingsViewModelTests.swift in Test Sources */,
-								3000B5F6CEC261EADFFB /* SettingsLocalizationTests.swift in Test Sources */,
-				30009901047D7899A16C /* PersonalVaultLocalizationTests.swift in Test Sources */,
-				3000E70C0C4D706D4D14 /* ReflexBlitzLocalizationTests.swift in Test Sources */,
-				3000E8C30B0AE929A360 /* SmartReflexQueueUseCaseTests.swift in Test Sources */,
-30004D5A668F6276E9BC /* SettingsViewTests.swift in Test Sources */,
+				30004D5A668F6276E9BC /* SettingsViewTests.swift in Test Sources */,
 				3000CE88B8551858B787 /* SpeechServiceTests.swift in Test Sources */,
 				3000B5772208CF9770FA /* StudySessionViewModelTests.swift in Test Sources */,
 				3000F67BBB703E2C8F8D /* SubTopicPreviewSheetTests.swift in Test Sources */,
 				3000D3A2E3E9C2B62FFA /* SubTopicSessionEngineTests.swift in Test Sources */,
 				30009BBF16DB9BD6F1CE /* SubTopicSessionSummaryViewTests.swift in Test Sources */,
 				30003F8BC4CF0102DDE2 /* SubTopicStudySessionViewTests.swift in Test Sources */,
+				30007A4DF5ED1922799E /* XCTestShim.swift in Test Sources */,
 				3000FAC198AA799A3AC5 /* SwiftDataModelsTests.swift in Test Sources */,
 				3000E3AFED7A38ECFE12 /* TopicDeckDetailViewTests.swift in Test Sources */,
 				30006C3205A7C09C3ED0 /* TopicDeckModelsTests.swift in Test Sources */,

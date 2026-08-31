@@ -25,11 +25,11 @@ public enum TabItem: Int, CaseIterable, Identifiable, Sendable, CraftTabItemProt
 
     public var symbol: String {
         switch self {
-        case .home: return CraftSymbol.home.rawValue
-        case .vocabulary: return CraftSymbol.study.rawValue
+        case .home: return CraftSymbol.homeFill.rawValue
+        case .vocabulary: return CraftSymbol.booksFill.rawValue
         case .search: return CraftSymbol.search.rawValue
         case .reflex: return CraftSymbol.practice.rawValue
-        case .settings: return CraftSymbol.settings.rawValue
+        case .settings: return CraftSymbol.settingsFill.rawValue
         }
     }
 

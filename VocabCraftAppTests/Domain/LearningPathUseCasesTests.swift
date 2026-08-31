@@ -39,8 +39,9 @@ final class LearningPathUseCasesTests: XCTestCase {
         XCTAssertEqual(firstNode.id, "stage_daily_1")
         XCTAssertEqual(firstNode.state, LessonNodeState.active)
 
-        // Other nodes locked
-        XCTAssertEqual(firstSection.nodes[1].state, LessonNodeState.locked)
+        // Next node is upcoming for curiosity preview, remaining nodes locked
+        XCTAssertEqual(firstSection.nodes[1].state, LessonNodeState.upcoming)
+        XCTAssertEqual(firstSection.nodes[2].state, LessonNodeState.locked)
     }
 
     func test_fetchLearningPathUseCase_reflectsCompletedProgress() async throws {
