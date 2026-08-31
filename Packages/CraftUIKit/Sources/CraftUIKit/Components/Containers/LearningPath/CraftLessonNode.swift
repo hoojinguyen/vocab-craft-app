@@ -339,7 +339,7 @@ public struct CraftLessonNode: View, Equatable {
         .accessibilityHint(accessibilityHintText)
         .accessibilityAddTraits(accessibilityTraits)
         .onAppear {
-            isVisibleForAnimation = true
+            // isVisibleForAnimation is now driven by geometry, not hierarchy insertion
             guard !hasTrackedImpression, onNodeImpression != nil else { return }
             impressionTask?.cancel()
             impressionTask = Task { @MainActor in
@@ -352,7 +352,6 @@ public struct CraftLessonNode: View, Equatable {
             }
         }
         .onDisappear {
-            isVisibleForAnimation = false
             impressionTask?.cancel()
             impressionTask = nil
         }
@@ -361,6 +360,25 @@ public struct CraftLessonNode: View, Equatable {
             impressionTask?.cancel()
             impressionTask = nil
         }
+        // Viewport-based animation gating — only animate when actually visible
+        .background(
+            GeometryReader { proxy in
+                Color.clear
+                    .onChange(of: proxy.frame(in: .named(CraftLearningPath.scrollCoordinateSpaceName)), initial: true) { _, frame in
+                        // Consider node visible if its frame intersects the viewport with 100pt buffer
+                        let viewportHeight: CGFloat = 800 // fallback; geometry will update on scroll
+                        #if canImport(UIKit)
+                        let screenHeight = UIScreen.main.bounds.height
+                        let isVisible = frame.maxY > -100 && frame.minY < screenHeight + 100
+                        #else
+                        let isVisible = frame.maxY > -100 && frame.minY < viewportHeight + 100
+                        #endif
+                        if isVisibleForAnimation != isVisible {
+                            isVisibleForAnimation = isVisible
+                        }
+                    }
+            }
+        )
     }
 
     // MARK: - Tactile Node Atom

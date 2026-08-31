@@ -306,6 +306,29 @@ final class LearningPathDataMapperTests: XCTestCase {
         XCTAssertEqual(treasureNode.title, AppStrings.Home.treasureTitleText)
     }
 
+    func test_treasure_completed_branch_showsCompletedWithStars() {
+        let progressList = [
+            UserStageProgress(stageId: "stage_daily_1", deckId: "deck_daily", isCompleted: true, score: 3, progressFraction: 1.0),
+            UserStageProgress(stageId: "stage_daily_2", deckId: "deck_daily", isCompleted: true, score: 3, progressFraction: 1.0),
+            UserStageProgress(stageId: "checkpoint_deck_daily", deckId: "deck_daily", isCompleted: true, score: 3, progressFraction: 1.0),
+            UserStageProgress(stageId: "treasure_deck_daily", deckId: "deck_daily", isCompleted: true, score: 2, progressFraction: 1.0)
+        ]
+
+        let sections = LearningPathDataMapper.map(
+            decks: sampleDecks,
+            stages: sampleStages,
+            words: sampleWords,
+            progressList: progressList
+        )
+
+        let section1 = sections[0]
+        XCTAssertEqual(section1.nodes[3].id, "treasure_deck_daily")
+        XCTAssertEqual(section1.nodes[3].kind, .treasureChest)
+        XCTAssertEqual(section1.nodes[3].state, .completed)
+        XCTAssertEqual(section1.nodes[3].stars, 2)
+        XCTAssertEqual(section1.nodes[3].xpReward, 150)
+    }
+
     func test_unsorted_inputs_are_properly_ordered_by_sort_order() {
         let reversedDecks = Array(sampleDecks.reversed())
         let reversedStages = Array(sampleStages.reversed())
