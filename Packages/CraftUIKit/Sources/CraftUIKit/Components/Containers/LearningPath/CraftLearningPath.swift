@@ -361,8 +361,10 @@ public struct CraftLearningPath: View {
     }
 
     private var smartBottomPadding: CGFloat {
-        // TabBar floating height ~88 + row spacing + safeArea → 200 ensures last row scrolls above glass bar
-        pinSectionHeaders ? 220 : 200
+        // TabBar: bar 52 + vertical 10 + bottom 8 + safeArea 34 + FAB protrusion 20 ≈ 124 total visible.
+        // Add row spacing + breathing room so last Unit card is fully readable above glass bar.
+        // Previous 200/220 left truncated peek on iPhone SE/17; bump to 280/260 for P0 fix.
+        pinSectionHeaders ? 280 : 260
     }
 
     // MARK: - Body
@@ -490,6 +492,8 @@ public struct CraftLearningPath: View {
             .safeAreaInset(edge: .bottom) {
                 Color.clear.frame(height: smartBottomPadding)
             }
+            .contentMargins(.bottom, theme.spacing.base, for: .scrollContent)
+            .contentMargins(.top, theme.spacing.sm, for: .scrollContent)
             .overlay(alignment: .top) {
                 stickyHUDOverlay(proxy: proxy)
             }

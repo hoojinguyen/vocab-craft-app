@@ -71,12 +71,35 @@ public struct SnakePathSegmentGeometry: Sendable, Equatable {
     }
 }
 
+// MARK: - SnakePathGeometryCache
+
+/// Thread-safe LRU-ish cache for snake segment geometry (Swift 6 Sendable safe).
+private final class SnakePathGeometryCache: @unchecked Sendable {
+    private var storage: [String: SnakePathSegmentGeometry] = [:]
+    private let lock = NSLock()
+    private let maxSize: Int = 128
+
+    func get(_ key: String) -> SnakePathSegmentGeometry? {
+        lock.lock()
+        defer { lock.unlock() }
+        return storage[key]
+    }
+
+    func set(_ key: String, value: SnakePathSegmentGeometry) {
+        lock.lock()
+        defer { lock.unlock() }
+        if storage.count > maxSize, let firstKey = storage.keys.first {
+            storage.removeValue(forKey: firstKey)
+        }
+        storage[key] = value
+    }
+}
+
 // MARK: - SnakePathGeometry
 
 /// Geometry routing helper calculating exact connector geometry between node anchor coordinates.
 public struct SnakePathGeometry {
-    private static var segmentCache: [String: SnakePathSegmentGeometry] = [:]
-    private static let maxCacheSize = 128
+    private static let cache = SnakePathGeometryCache()
 
     private static func cacheKey(from: CGPoint, to: CGPoint, containerWidth: CGFloat, turnRadius: CGFloat, edgeInset: CGFloat) -> String {
         // Quantize to 0.5pt to avoid floating point noise
@@ -95,7 +118,7 @@ public struct SnakePathGeometry {
         edgeInset: CGFloat = 28.0
     ) -> SnakePathSegmentGeometry {
         let key = cacheKey(from: from, to: to, containerWidth: containerWidth, turnRadius: turnRadius, edgeInset: edgeInset)
-        if let cached = segmentCache[key] {
+        if let cached = cache.get(key) {
             return cached
         }
 
@@ -140,13 +163,7 @@ public struct SnakePathGeometry {
             }
         }
 
-        if segmentCache.count > maxCacheSize {
-            // Evict arbitrary first entry (LRU approx)
-            if let firstKey = segmentCache.keys.first {
-                segmentCache.removeValue(forKey: firstKey)
-            }
-        }
-        segmentCache[key] = result
+        cache.set(key, value: result)
         return result
     }
 }

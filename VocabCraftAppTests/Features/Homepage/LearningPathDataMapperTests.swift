@@ -70,7 +70,7 @@ final class LearningPathDataMapperTests: XCTestCase {
         let section1 = sections[0]
         XCTAssertEqual(section1.id, "deck_daily")
         XCTAssertEqual(section1.nodes.count, 3)
-        XCTAssertEqual(section1.progressText, "0/3")
+        XCTAssertEqual(section1.progressText, AppStrings.Home.sectionProgress(completed: 0, total: 3))
         XCTAssertEqual(section1.progressValue ?? 0, 0.5 / 3.0, accuracy: 0.001)
 
         // Node 1 is active
@@ -96,7 +96,7 @@ final class LearningPathDataMapperTests: XCTestCase {
         let section2 = sections[1]
         XCTAssertEqual(section2.id, "deck_business")
         XCTAssertEqual(section2.nodes.count, 3)
-        XCTAssertEqual(section2.progressText, "0/3")
+        XCTAssertEqual(section2.progressText, AppStrings.Home.sectionProgress(completed: 0, total: 3))
         XCTAssertEqual(section2.progressValue ?? 0, 0.0, accuracy: 0.001)
         XCTAssertTrue(section2.nodes.allSatisfy { $0.state == .locked })
     }
@@ -114,7 +114,7 @@ final class LearningPathDataMapperTests: XCTestCase {
         )
 
         let section1 = sections[0]
-        XCTAssertEqual(section1.progressText, "1/3")
+        XCTAssertEqual(section1.progressText, AppStrings.Home.sectionProgress(completed: 1, total: 3))
         XCTAssertEqual(section1.progressValue ?? 0, 1.5 / 3.0, accuracy: 0.001)
 
         // Node 1 is completed with 3 stars
@@ -149,7 +149,7 @@ final class LearningPathDataMapperTests: XCTestCase {
         )
 
         let section1 = sections[0]
-        XCTAssertEqual(section1.progressText, "2/3")
+        XCTAssertEqual(section1.progressText, AppStrings.Home.sectionProgress(completed: 2, total: 3))
         XCTAssertEqual(section1.progressValue ?? 0, 2.5 / 3.0, accuracy: 0.001)
 
         XCTAssertEqual(section1.nodes[0].state, .completed)
@@ -184,14 +184,14 @@ final class LearningPathDataMapperTests: XCTestCase {
 
         // Section 1 is 100% completed (3/3)
         let section1 = sections[0]
-        XCTAssertEqual(section1.progressText, "3/3")
+        XCTAssertEqual(section1.progressText, AppStrings.Home.sectionProgress(completed: 3, total: 3))
         XCTAssertEqual(section1.progressValue, 1.0)
         XCTAssertEqual(section1.nodes[2].state, .completed)
         XCTAssertEqual(section1.nodes[2].stars, 3)
 
         // Section 2 Node 1 is now unlocked and active!
         let section2 = sections[1]
-        XCTAssertEqual(section2.progressText, "0/3")
+        XCTAssertEqual(section2.progressText, AppStrings.Home.sectionProgress(completed: 0, total: 3))
         XCTAssertEqual(section2.nodes[0].id, "stage_biz_1")
         XCTAssertEqual(section2.nodes[0].state, .active)
 

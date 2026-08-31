@@ -32,11 +32,11 @@ public protocol CraftSpacingTokens: Sendable {
 public extension CraftSpacingTokens {
     /// Extra-extra-small spacing (2pt / half xs)
     var xxs: CGFloat { 2 }
-    var pathDotDiameter: CGFloat { 4.5 }
-    var pathDotSpacing: CGFloat { 8.0 }
-    var pathTurnRadius: CGFloat { 36.0 }
-    var pathEdgeInset: CGFloat { 24.0 }
-    var pathRowSpacing: CGFloat { 64.0 }
+    var pathDotDiameter: CGFloat { 5.5 }
+    var pathDotSpacing: CGFloat { 6.0 }
+    var pathTurnRadius: CGFloat { 32.0 }
+    var pathEdgeInset: CGFloat { 16.0 }
+    var pathRowSpacing: CGFloat { 44.0 }
 }
 
 // MARK: - Default Implementation
@@ -68,11 +68,11 @@ public struct CraftDefaultSpacingTokens: CraftSpacingTokens {
         lg: CGFloat = 24,
         xl: CGFloat = 32,
         xxl: CGFloat = 48,
-        pathDotDiameter: CGFloat = 4.5,
-        pathDotSpacing: CGFloat = 8.0,
-        pathTurnRadius: CGFloat = 36.0,
-        pathEdgeInset: CGFloat = 24.0,
-        pathRowSpacing: CGFloat = 64.0
+        pathDotDiameter: CGFloat = 5.5,
+        pathDotSpacing: CGFloat = 6.0,
+        pathTurnRadius: CGFloat = 32.0,
+        pathEdgeInset: CGFloat = 16.0,
+        pathRowSpacing: CGFloat = 44.0
     ) {
         self.xxs = xxs
         self.xs = xs

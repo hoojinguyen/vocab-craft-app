@@ -89,7 +89,7 @@ public struct LearningPathDataMapper: Sendable {
         hasFoundActive: inout Bool
     ) -> LessonNodeModel {
         let wordCount = words.count
-        let estimatedMinutes = max(1, Int(ceil(Double(wordCount) * 0.3)))
+        let estimatedMinutes = LessonEconomyPolicy.estimatedMinutes(wordCount: wordCount)
 
         let state: LessonNodeState
         let stars: Int?
@@ -123,7 +123,7 @@ public struct LearningPathDataMapper: Sendable {
             state: state,
             kind: .standard,
             progress: nodeProgress,
-            xpReward: 25,
+            xpReward: LessonEconomyPolicy.xpReward(for: .standard),
             estimatedMinutes: estimatedMinutes,
             stars: stars,
             badgeCount: nil,
@@ -150,7 +150,7 @@ public struct LearningPathDataMapper: Sendable {
     ) -> LessonNodeModel {
         let checkpointId = "checkpoint_\(deck.id)"
         let checkpointProgress = progressMap[checkpointId]
-        let checkpointEstimatedMinutes = max(3, Int(ceil(Double(deckWordCount) * 0.2)))
+        let checkpointEstimatedMinutes = LessonEconomyPolicy.checkpointEstimatedMinutes(deckWordCount: deckWordCount)
         let allStandardCompleted = sectionNodes.allSatisfy { $0.state == .completed }
 
         let checkpointState: LessonNodeState
@@ -185,7 +185,7 @@ public struct LearningPathDataMapper: Sendable {
             state: checkpointState,
             kind: .checkpoint,
             progress: checkpointNodeProgress,
-            xpReward: 80,
+            xpReward: LessonEconomyPolicy.xpReward(for: .checkpoint),
             estimatedMinutes: checkpointEstimatedMinutes,
             stars: checkpointStars,
             badgeCount: nil,
@@ -208,7 +208,7 @@ public struct LearningPathDataMapper: Sendable {
     ) -> LessonSection {
         let completedCount = nodes.filter { $0.state == .completed }.count
         let totalCount = nodes.count
-        let progressText = "\(completedCount)/\(totalCount)"
+        let progressText = AppStrings.Home.sectionProgress(completed: completedCount, total: totalCount)
         // Honest progress: active/inProgress counts as 0.5, so bar is not flat 0 when learner started
         let hasActive = nodes.contains { $0.state == .active || $0.state == .inProgress }
         let effectiveCompleted = Double(completedCount) + (hasActive ? 0.5 : 0.0)

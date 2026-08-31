@@ -295,12 +295,12 @@ public struct CraftSnakeDottedSegmentView: View, Equatable {
         } else if fromState == .completed && (toState == .active || toState == .inProgress) {
             return theme.colors.pathActive
         } else if toState == .locked || fromState == .locked {
-            // Muted but still visible on ivory canvas — avoid invisible beige
-            return theme.colors.textMuted.opacity(0.35)
-        } else if fromState == .active || fromState == .inProgress || fromState == .upcoming {
+            // P0 fix: 0.35 was invisible on ivory; bump to 0.55 for contrast
             return theme.colors.textMuted.opacity(0.55)
+        } else if fromState == .active || fromState == .inProgress || fromState == .upcoming {
+            return theme.colors.textMuted.opacity(0.65)
         } else {
-            return theme.colors.textMuted.opacity(0.30)
+            return theme.colors.textMuted.opacity(0.40)
         }
     }
 
@@ -364,11 +364,11 @@ public struct CraftSnakeConnectorLayer: View {
         } else if from == .completed && (to == .active || to == .inProgress) {
             return theme.colors.pathActive
         } else if to == .locked || from == .locked {
-            return theme.colors.textMuted.opacity(0.35)
-        } else if from == .active || from == .inProgress || from == .upcoming {
             return theme.colors.textMuted.opacity(0.55)
+        } else if from == .active || from == .inProgress || from == .upcoming {
+            return theme.colors.textMuted.opacity(0.65)
         } else {
-            return theme.colors.textMuted.opacity(0.30)
+            return theme.colors.textMuted.opacity(0.40)
         }
     }
 

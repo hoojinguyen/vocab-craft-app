@@ -69,7 +69,7 @@ public struct HomeTopHeaderView: View {
     }
 
     private var trailingActionsGroup: some View {
-        HStack(spacing: theme.spacing.sm) {
+        HStack(alignment: .center, spacing: theme.spacing.sm) {
             // 1. Streak Flame Badge
             CraftStreakBadge(
                 count: streakDays,
@@ -100,21 +100,27 @@ public struct HomeTopHeaderView: View {
     }
 
     private var progressRingView: some View {
-        CraftProgressRing(
-            progress: dailyGoalProgress,
-            lineWidth: 2.5,
-            size: 36,
-            tintColor: theme.colors.brandPrimary,
-            trackColor: theme.colors.surfaceSubtle,
-            animated: true,
-            accessibilityLabel: AppStrings.Home.dailyGoalA11y(completed: dailyWordsLearned, goal: dailyWordsGoal)
-        ) {
-            Text(AppStrings.Home.dailyGoalCount(completed: dailyWordsLearned, goal: dailyWordsGoal))
-                .font(theme.typography.caption.weight(.bold))
-                .monospacedDigit()
-                .foregroundStyle(theme.colors.textPrimary)
+        VStack(spacing: 2) {
+            CraftProgressRing(
+                progress: dailyGoalProgress,
+                lineWidth: 2.5,
+                size: 36,
+                tintColor: theme.colors.brandPrimary,
+                trackColor: theme.colors.surfaceSubtle,
+                animated: true,
+                accessibilityLabel: AppStrings.Home.dailyGoalA11y(completed: dailyWordsLearned, goal: dailyWordsGoal)
+            ) {
+                Text(AppStrings.Home.dailyGoalCount(completed: dailyWordsLearned, goal: dailyWordsGoal))
+                    .font(theme.typography.caption.weight(.bold))
+                    .monospacedDigit()
+                    .foregroundStyle(theme.colors.textPrimary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
+            Text(AppStrings.Home.todayLabelText)
+                .font(.system(size: 9, weight: .semibold))
+                .foregroundStyle(theme.colors.textSecondary)
                 .lineLimit(1)
-                .minimumScaleFactor(0.7)
         }
     }
 

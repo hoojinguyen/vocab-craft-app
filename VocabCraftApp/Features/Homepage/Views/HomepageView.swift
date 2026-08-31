@@ -19,6 +19,8 @@ public struct HomepageView: View {
     @State private var activeLessonNode: LessonNodeModel?
     @State private var tabBarPresentation: CraftTabBarPresentation = .expanded
     @State private var scrollToActiveNonce: Int = 0
+    @State private var homeConfettiTrigger: Bool = false
+    @State private var completionToastData: CraftToastData?
     @Environment(\.appContainer) private var appContainer
     @Environment(\.appRouter) private var appRouter
 
@@ -93,7 +95,7 @@ public struct HomepageView: View {
                         },
                         showDetailModal: true,
                         scrollToActive: true,
-                        showCelebration: false,
+                        showCelebration: true,
                         pinSectionHeaders: true,
                         connectorDotDiameter: 5.0,
                         connectorDotSpacing: 7.0,
@@ -149,6 +151,8 @@ public struct HomepageView: View {
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
+        .craftConfetti(isTriggered: $homeConfettiTrigger, particleCount: 36)
+        .craftToast(item: $completionToastData, position: .top)
         .onAppear {
             if vaultVM == nil {
                 vaultVM = appContainer.makePersonalVaultViewModel()
@@ -249,6 +253,22 @@ public struct HomepageView: View {
                     progressFraction: 1.0
                 )
                 await viewModel.loadLearningPath()
+                // Reward feedback: confetti + toast on main actor after reload
+                await MainActor.run {
+                    let xp = LessonEconomyPolicy.xpReward(for: node.kind)
+                    let earnedXP = stars * xp
+                    let starIcons = String(repeating: "★", count: stars)
+                    CraftHaptics.shared.success()
+                    homeConfettiTrigger = true
+                    completionToastData = CraftToastData(
+                        title: String(localized: "app.home.toast.completed_title", defaultValue: "Hoàn thành!", bundle: .module),
+                        message: "+\(earnedXP) XP • \(starIcons) \(String(localized: "app.home.toast.stars_suffix", defaultValue: " • Tuyệt vời!", bundle: .module))",
+                        iconName: "star.fill",
+                        style: .success,
+                        surfaceStyle: .glass,
+                        duration: 3.0
+                    )
+                }
             }
         } else {
             let vm = appContainer.makeReflexBlitzViewModel()
