@@ -266,14 +266,23 @@ extension ResilientReflexSpeechEngine {
             let audioSession = AVAudioSession.sharedInstance()
             try audioSession.setCategory(
                 .playAndRecord,
-                mode: .spokenAudio,
-                options: [.defaultToSpeaker, .allowBluetoothHFP, .allowBluetoothA2DP]
+                mode: .voiceChat,
+                options: [.defaultToSpeaker, .allowBluetoothHFP, .allowBluetoothA2DP, .duckOthers]
             )
             try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
             #endif
 
             let engine = AVAudioEngine()
             let inputNode = engine.inputNode
+
+            #if os(iOS)
+            do {
+                try inputNode.setVoiceProcessingEnabled(true)
+            } catch {
+                print("[ResilientReflexSpeechEngine] Voice processing unavailable: \(error)")
+            }
+            #endif
+
             let recordingFormat = inputNode.outputFormat(forBus: 0)
 
             guard recordingFormat.sampleRate > 0, recordingFormat.channelCount > 0 else {
@@ -285,7 +294,7 @@ extension ResilientReflexSpeechEngine {
             }
 
             let relay = self.bufferRelay
-            inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [relay] buffer, _ in
+            inputNode.installTap(onBus: 0, bufferSize: 2048, format: recordingFormat) { [relay] buffer, _ in
                 // Forward buffer to active request (thread-safe, Sendable relay)
                 relay.append(buffer)
             }
@@ -331,6 +340,37 @@ extension ResilientReflexSpeechEngine {
 
 extension ResilientReflexSpeechEngine {
     #if !targetEnvironment(simulator) && !os(macOS)
+    private func buildRecognitionRequest(
+        targetLemma: String,
+        contextualPhrases: [String]
+    ) -> SFSpeechAudioBufferRecognitionRequest {
+        let request = SFSpeechAudioBufferRecognitionRequest()
+        request.shouldReportPartialResults = true
+        request.taskHint = .search
+
+        var biasedPhrases = (sessionContextualPhrases + contextualPhrases)
+            .flatMap { phrase -> [String] in
+                let trimmed = phrase.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !trimmed.isEmpty else { return [] }
+                if trimmed.split(separator: " ").count <= 2 {
+                    return [trimmed]
+                }
+                return []
+            }
+        if !biasedPhrases.contains(targetLemma) {
+            biasedPhrases.append(targetLemma)
+        }
+        request.contextualStrings = Array(Set(biasedPhrases))
+
+        #if os(iOS)
+        if #available(iOS 16.0, *) {
+            request.addsPunctuation = false
+        }
+        #endif
+
+        return request
+    }
+
     private func startRecognitionRequest(
         targetLemma: String,
         contextualPhrases: [String],
@@ -345,28 +385,10 @@ extension ResilientReflexSpeechEngine {
             return
         }
 
-        let request = SFSpeechAudioBufferRecognitionRequest()
-        request.shouldReportPartialResults = true
-        // .dictation provides better accuracy for vocabulary words vs .confirmation
-        // which biases toward short affirmative phrases ("yes", "no", "okay")
-        request.taskHint = .dictation
-
-        // Only include short phrases (≤5 words) as contextual strings.
-        // Full sentences dilute the language model bias and hurt accuracy.
-        var biasedPhrases = (sessionContextualPhrases + contextualPhrases)
-            .filter { phrase in
-                !phrase.isEmpty && phrase.split(separator: " ").count <= 5
-            }
-        if !biasedPhrases.contains(targetLemma) {
-            biasedPhrases.append(targetLemma)
-        }
-        request.contextualStrings = Array(Set(biasedPhrases))
-
-        #if os(iOS)
-        if #available(iOS 16.0, *) {
-            request.addsPunctuation = false
-        }
-        #endif
+        let request = buildRecognitionRequest(
+            targetLemma: targetLemma,
+            contextualPhrases: contextualPhrases
+        )
 
         self.activeRequest = request
         self.bufferRelay.setRequest(request)
