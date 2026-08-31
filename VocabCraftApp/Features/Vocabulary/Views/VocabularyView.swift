@@ -64,48 +64,42 @@ public struct VocabularyView: View {
                 } else {
                     ScrollView(.vertical, showsIndicators: false) {
                         VStack(spacing: 0) {
-                            // Non-virtualized scroll anchor at root of scroll view
-                            Color.clear
-                                .frame(height: 0)
-                                .background(
-                                    GeometryReader { proxy in
-                                        Color.clear.preference(
+                            // 1. Page Header at the top of the scroll view (outside LazyVStack, never virtualized/recycled)
+                            CraftPageHeader(
+                                AppStrings.Vault.title,
+                                alignment: .leading,
+                                enableScrollFade: true
+                            ) {
+                                CraftIconButton(
+                                    iconName: (isSearchVisible || isScrolledPastHeader) ? "magnifyingglass.circle.fill" : "magnifyingglass",
+                                    size: .md,
+                                    shape: .circle,
+                                    variant: (isSearchVisible || isScrolledPastHeader) ? .filled : .subtle,
+                                    accessibilityLabel: AppStrings.Vault.searchToggleA11y,
+                                    action: {
+                                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                            isSearchVisible.toggle()
+                                        }
+                                    }
+                                )
+                            }
+                            .background(
+                                GeometryReader { proxy in
+                                    Color.clear
+                                        .preference(
                                             key: HeaderOffsetPreferenceKey.self,
                                             value: proxy.frame(in: .named("vocabScroll")).minY
                                         )
-                                    }
-                                )
-
-                            LazyVStack(spacing: theme.spacing.md, pinnedViews: [.sectionHeaders]) {
-                                // 1. Page Header at the top of the scroll view
-                                CraftPageHeader(
-                                    AppStrings.Vault.title,
-                                    alignment: .leading,
-                                    enableScrollFade: true
-                                ) {
-                                    CraftIconButton(
-                                        iconName: (isSearchVisible || isScrolledPastHeader) ? "magnifyingglass.circle.fill" : "magnifyingglass",
-                                        size: .md,
-                                        shape: .circle,
-                                        variant: (isSearchVisible || isScrolledPastHeader) ? .filled : .subtle,
-                                        accessibilityLabel: AppStrings.Vault.searchToggleA11y,
-                                        action: {
-                                            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                                isSearchVisible.toggle()
-                                            }
-                                        }
-                                    )
-                                }
-                                .background(
-                                    GeometryReader { proxy in
-                                        Color.clear.preference(
+                                        .preference(
                                             key: HeaderHeightPreferenceKey.self,
                                             value: proxy.size.height
                                         )
-                                    }
-                                )
+                                }
+                            )
+                            .padding(.bottom, theme.spacing.md)
 
-                                // 2. Pinned Search & Filter Section
+                            // 2. Pinned Search & Filter Section inside LazyVStack
+                            LazyVStack(spacing: theme.spacing.md, pinnedViews: [.sectionHeaders]) {
                                 Section {
                                     VStack(spacing: theme.spacing.md) {
                                         // Practice button — scrolls with content
