@@ -175,7 +175,6 @@ public struct CraftSearchBar: View {
                         size: size.iconSize,
                         color: isFocused ? (customTint ?? theme.colors.borderFocus) : theme.colors.textMuted
                     )
-                    .symbolEffect(.bounce, value: isFocused)
                 }
 
                 // Text Input
@@ -243,29 +242,31 @@ public struct CraftSearchBar: View {
                 }
             }
 
-            // Cancel Button
-            if isFocused && onCancel != nil {
-                Button(action: {
-                    isFocused = false
-                    cancelHapticTrigger.toggle()
-                    onCancel?()
-                }) {
-                    Text(CraftLocalized.string("craft.common.action.cancel"))
-                        .font(cancelButtonFont)
-                        .foregroundStyle(customTint ?? theme.colors.brandPrimary)
-                        .padding(.horizontal, 4)
-                        .frame(minHeight: 44)
-                        .contentShape(Rectangle())
+            // Cancel Button — scoped animation to avoid animating entire HStack
+            Group {
+                if isFocused && onCancel != nil {
+                    Button(action: {
+                        isFocused = false
+                        cancelHapticTrigger.toggle()
+                        onCancel?()
+                    }) {
+                        Text(CraftLocalized.string("craft.common.action.cancel"))
+                            .font(cancelButtonFont)
+                            .foregroundStyle(customTint ?? theme.colors.brandPrimary)
+                            .padding(.horizontal, 4)
+                            .frame(minHeight: 44)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .transition(.asymmetric(
+                        insertion: .move(edge: .trailing).combined(with: .opacity),
+                        removal: .opacity
+                    ))
+                    .sensoryFeedback(.selection, trigger: cancelHapticTrigger)
                 }
-                .buttonStyle(.plain)
-                .transition(.asymmetric(
-                    insertion: .move(edge: .trailing).combined(with: .opacity),
-                    removal: .opacity
-                ))
-                .sensoryFeedback(.selection, trigger: cancelHapticTrigger)
             }
+            .animation(theme.animations.springSnappy, value: isFocused)
         }
-        .animation(theme.animations.springSnappy, value: isFocused)
     }
 
     private var textFieldFont: Font {
