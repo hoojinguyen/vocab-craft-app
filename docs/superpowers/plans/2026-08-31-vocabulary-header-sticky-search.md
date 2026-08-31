@@ -201,7 +201,7 @@ private struct HeaderOffsetPreferenceKey: PreferenceKey {
 
 Add `@State private var isScrolledPastHeader: Bool = false` to `VocabularyView`.
 Attach geometry reader to `CraftPageHeader` to report `minY` relative to `.named("vocabScroll")`.
-When `minY < -10`, set `isScrolledPastHeader = true` with smooth animation; otherwise `false`.
+When `minY < -50`, set `isScrolledPastHeader = true` with smooth animation; otherwise `false`.
 
 - [ ] **Step 2: Update sticky header view rendering**
 

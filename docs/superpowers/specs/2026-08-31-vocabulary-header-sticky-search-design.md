@@ -95,7 +95,7 @@ NavigationStack
 ### Interaction Details:
 - **Search Button Tap**: Toggles `withAnimation(.spring(response: 0.35, dampingFraction: 0.8))` on `isSearchVisible`.
 - **Search Cancel Button**: Clears search text, resets query in `vaultVM`, and collapses search bar if at top.
-- **Scroll Tracking**: `GeometryReader` on scroll anchor reads `minY` relative to `"vocabScroll"` coordinate space. When `minY < -10`, `isScrolledPastHeader = true`; otherwise `false`.
+- **Scroll Tracking**: `GeometryReader` on scroll anchor reads `minY` relative to `"vocabScroll"` coordinate space. When `minY < -50`, `isScrolledPastHeader = true`; otherwise `false`.
 
 ---
 

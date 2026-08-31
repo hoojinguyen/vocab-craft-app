@@ -31,7 +31,7 @@ public struct VocabularyView: View {
         self._searchText = State(initialValue: vaultViewModel?.searchQuery ?? "")
     }
 
-    private static let headerScrollThreshold: CGFloat = -10
+    private static let headerScrollThreshold: CGFloat = -50
 
     // MARK: - Testing Inspection Accessors
     internal var isSearchVisibleForTesting: Bool { isSearchVisible }
