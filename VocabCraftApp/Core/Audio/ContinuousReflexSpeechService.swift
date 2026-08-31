@@ -67,8 +67,8 @@ public enum ReflexSpeechMatcher {
                     return true
                 }
             } else {
-                // Long words (>= 8 letters): Allow accent tolerance (>= 0.72 default)
-                let effectiveThreshold = toleranceThreshold ?? 0.72
+                // Long words (>= 8 letters): Allow accent tolerance (>= 0.70 default to tolerate common suffix/unstressed vowel variance like -ence vs -ant)
+                let effectiveThreshold = toleranceThreshold ?? 0.70
                 let ratio = FuzzySpeechMatcher.similarityRatio(token, normalizedTarget)
                 if ratio >= effectiveThreshold {
                     return true
