@@ -21,7 +21,7 @@ struct PracticeDrillPlanGeneratorTests {
 
         let modes = plan.items.map(\.assignedMode)
         let uniqueModes = Set(modes)
-        #expect(uniqueModes.count >= 3)
+        #expect(uniqueModes.count == 4)
 
         // All 4 modes should be distributed evenly (3 each for 12 items)
         let speakingCount = modes.filter { $0 == .speaking }.count
@@ -179,7 +179,7 @@ final class PracticeDrillPlanGeneratorXCTestCase: XCTestCase {
         XCTAssertEqual(plan.items.count, 12)
         let modes = plan.items.map(\.assignedMode)
         let uniqueModes = Set(modes)
-        XCTAssertGreaterThanOrEqual(uniqueModes.count, 3)
+        XCTAssertEqual(uniqueModes.count, 4)
     }
 
     func testTargetModeAssignment() {

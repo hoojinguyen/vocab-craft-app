@@ -243,7 +243,7 @@ struct PracticeDrillPlanGeneratorTests {
         
         let modes = plan.items.map(\.assignedMode)
         let uniqueModes = Set(modes)
-        #expect(uniqueModes.count >= 3)
+        #expect(uniqueModes.count == 4)
     }
 
     @Test("Respects individual word lowest success mode when possible")
