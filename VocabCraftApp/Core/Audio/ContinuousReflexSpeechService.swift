@@ -37,13 +37,20 @@ public enum ReflexSpeechMatcher {
                 return true
             }
 
-            // 2. Stemming / Inflection / Prefix match (e.g. "walk" vs "walking", "hesitate" vs "hesitated")
+            // 2. Stemming / Inflection / Prefix match (e.g. "walk" vs "walking", "hesitate" vs "hesitating")
             if targetLen >= 4 {
                 if token.hasPrefix(normalizedTarget) {
                     return true
                 }
                 if token.count >= 4 && normalizedTarget.hasPrefix(token) {
                     return true
+                }
+                // Handle English vowel drop (e.g. "hesitate" -> stem "hesitat" vs "hesitating")
+                if normalizedTarget.hasSuffix("e") && normalizedTarget.count >= 5 {
+                    let stemWithoutE = String(normalizedTarget.dropLast())
+                    if token.hasPrefix(stemWithoutE) {
+                        return true
+                    }
                 }
             }
 
@@ -53,15 +60,17 @@ public enum ReflexSpeechMatcher {
                 // Do NOT apply loose Levenshtein distance to prevent ambient noise (breathing, whispers) from matching.
                 continue
             } else if targetLen <= 7 {
-                // Medium words (5-7 letters): Require high similarity (>= 0.80)
+                // Medium words (5-7 letters): Require high similarity (>= 0.80) unless explicit toleranceThreshold is given
+                let effectiveThreshold = min(0.80, toleranceThreshold)
                 let ratio = FuzzySpeechMatcher.similarityRatio(token, normalizedTarget)
-                if ratio >= 0.80 {
+                if ratio >= effectiveThreshold {
                     return true
                 }
             } else {
                 // Long words (>= 8 letters): Allow accent tolerance (>= 0.72)
+                let effectiveThreshold = min(0.72, toleranceThreshold)
                 let ratio = FuzzySpeechMatcher.similarityRatio(token, normalizedTarget)
-                if ratio >= max(0.72, toleranceThreshold) {
+                if ratio >= effectiveThreshold {
                     return true
                 }
             }
