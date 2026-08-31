@@ -5,10 +5,16 @@ import SwiftUI
 public struct ReflexCountdownOverlayView: View {
     public let count: Int
     public let mode: ReflexBlitzMode
+    public let onFinish: () -> Void
 
-    public init(count: Int, mode: ReflexBlitzMode = .speaking) {
+    public init(
+        count: Int = 3,
+        mode: ReflexBlitzMode = .speaking,
+        onFinish: @escaping () -> Void = {}
+    ) {
         self.count = count
         self.mode = mode
+        self.onFinish = onFinish
     }
 
     private var modePromptText: String {
@@ -43,7 +49,7 @@ public struct ReflexCountdownOverlayView: View {
             title: mode.title,
             subtitle: modePromptText,
             iconName: modeIconName,
-            onFinish: {}
+            onFinish: onFinish
         )
     }
 }

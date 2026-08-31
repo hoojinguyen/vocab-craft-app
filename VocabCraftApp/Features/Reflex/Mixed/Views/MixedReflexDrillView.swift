@@ -16,6 +16,7 @@ public struct MixedReflexDrillView: View {
     public var speechService: ContinuousReflexSpeechProtocol?
     public let onFinish: () -> Void
 
+    @State private var isCountingDown: Bool
     @State private var timerTask: Task<Void, Never>?
     @State private var fractionRemaining: Double = 1.0
     @State private var elapsedTimeMs: Int = 0
@@ -30,11 +31,13 @@ public struct MixedReflexDrillView: View {
     public init(
         viewModel: MixedReflexDrillViewModel,
         speechService: ContinuousReflexSpeechProtocol? = nil,
+        startWithCountdown: Bool = true,
         onFinish: @escaping () -> Void
     ) {
         self.viewModel = viewModel
         self.speechService = speechService
         self.onFinish = onFinish
+        self._isCountingDown = State(initialValue: startWithCountdown)
     }
 
     public var isReviewed: Bool {
@@ -82,11 +85,21 @@ public struct MixedReflexDrillView: View {
                     },
                     onRetry: {
                         viewModel.restartSession()
-                        if let first = viewModel.currentItem {
-                            startDrillItem(first)
-                        }
+                        isCountingDown = true
                     },
                     onDone: onFinish
+                )
+                .transition(.opacity)
+            } else if isCountingDown, let currentItem = viewModel.currentItem {
+                ReflexCountdownOverlayView(
+                    count: 3,
+                    mode: currentItem.assignedMode,
+                    onFinish: {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                            isCountingDown = false
+                            startDrillItem(currentItem)
+                        }
+                    }
                 )
                 .transition(.opacity)
             } else if let currentItem = viewModel.currentItem {
@@ -97,7 +110,7 @@ public struct MixedReflexDrillView: View {
         .ignoresSafeArea(edges: .bottom)
         .onAppear {
             setupSpeechServiceCallbacks()
-            if let current = viewModel.currentItem {
+            if !isCountingDown, let current = viewModel.currentItem {
                 startDrillItem(current)
             }
         }
@@ -146,22 +159,45 @@ public struct MixedReflexDrillView: View {
 
                 Spacer(minLength: theme.spacing.xs)
 
-                // Skip Button for Speaking / Typing
-                if cardPhase == .activeCountdown && (currentItem.assignedMode == .speaking || currentItem.assignedMode == .typing) {
-                    CraftButton(
-                        AppStrings.ReflexBlitz.skip,
-                        iconName: "forward.fill",
-                        variant: .outline,
-                        size: .md,
-                        isFullWidth: true,
-                        style: .outlined,
-                        action: {
-                            handleTimeout()
-                        }
-                    )
-                    .padding(.horizontal, theme.spacing.lg)
-                    .padding(.bottom, theme.spacing.lg)
-                    .transition(.opacity)
+                // Skip / Can't Speak Button for Speaking / Typing
+                if cardPhase == .activeCountdown {
+                    if currentItem.assignedMode == .speaking && viewModel.allowSpeakingSkip {
+                        CraftButton(
+                            AppStrings.Practice.cantSpeakNowCTA,
+                            iconName: "waveform.slash",
+                            variant: .outline,
+                            size: .md,
+                            isFullWidth: true,
+                            style: .outlined,
+                            action: {
+                                timerTask?.cancel()
+                                viewModel.skipSpeakingCurrentWord()
+                                if let next = viewModel.currentItem {
+                                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                        startDrillItem(next)
+                                    }
+                                }
+                            }
+                        )
+                        .padding(.horizontal, theme.spacing.lg)
+                        .padding(.bottom, theme.spacing.lg)
+                        .transition(.opacity)
+                    } else if currentItem.assignedMode == .speaking || currentItem.assignedMode == .typing {
+                        CraftButton(
+                            AppStrings.ReflexBlitz.skip,
+                            iconName: "forward.fill",
+                            variant: .outline,
+                            size: .md,
+                            isFullWidth: true,
+                            style: .outlined,
+                            action: {
+                                handleTimeout()
+                            }
+                        )
+                        .padding(.horizontal, theme.spacing.lg)
+                        .padding(.bottom, theme.spacing.lg)
+                        .transition(.opacity)
+                    }
                 }
             }
 

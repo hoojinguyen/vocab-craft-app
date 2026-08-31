@@ -68,6 +68,9 @@ extension AppStrings {
         public static var cantSpeakNowText: String {
             String(localized: "app.practice.drill.cant_speak_now", defaultValue: "Can't speak now", bundle: .module)
         }
+        public static var cantSpeakNowCTA: String {
+            cantSpeakNowText
+        }
 
         // Modes & A11y
         public static func modeTitle(_ mode: ReflexBlitzMode) -> String {
