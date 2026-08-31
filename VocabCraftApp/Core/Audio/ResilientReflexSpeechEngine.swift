@@ -48,21 +48,19 @@ public final class AudioBufferRelay: @unchecked Sendable {
     /// Guarantees that no background tap buffer can ever be appended after endAudio() is called.
     public func detachAndEnd() {
         lock.lock()
+        defer { lock.unlock() }
         let requestToEnd = activeRequest
         activeRequest = nil
         isMuted = true
-        lock.unlock()
-
         requestToEnd?.endAudio()
     }
 
     public func append(_ buffer: AVAudioPCMBuffer) {
         lock.lock()
+        defer { lock.unlock() }
         guard !isMuted, let request = activeRequest else {
-            lock.unlock()
             return
         }
-        lock.unlock()
         request.append(buffer)
     }
 }
@@ -321,7 +319,9 @@ extension ResilientReflexSpeechEngine {
         audioEngine = nil
 
         #if os(iOS)
-        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        let session = AVAudioSession.sharedInstance()
+        try? session.setActive(false, options: .notifyOthersOnDeactivation)
+        try? session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
         #endif
         #endif
     }

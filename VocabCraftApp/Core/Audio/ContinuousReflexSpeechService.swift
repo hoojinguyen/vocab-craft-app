@@ -45,11 +45,16 @@ public enum ReflexSpeechMatcher {
                 if token.count >= 4 && normalizedTarget.hasPrefix(token) {
                     return true
                 }
-                // Handle English vowel drop (e.g. "hesitate" -> stem "hesitat" vs "hesitating")
+                // Handle English vowel drop (e.g. "hesitate" -> stem "hesitat" vs "hesitating", "hesitated")
+                // Restrict to recognized verbal/nominal inflection suffixes (ing, ed, es, s, er, or) to avoid false matches (e.g. "create" vs "creative")
                 if normalizedTarget.hasSuffix("e") && normalizedTarget.count >= 5 {
                     let stemWithoutE = String(normalizedTarget.dropLast())
                     if token.hasPrefix(stemWithoutE) {
-                        return true
+                        let suffix = String(token.dropFirst(stemWithoutE.count))
+                        let allowedInflections: Set<String> = ["", "ing", "ed", "es", "s", "er", "or"]
+                        if allowedInflections.contains(suffix) {
+                            return true
+                        }
                     }
                 }
             }

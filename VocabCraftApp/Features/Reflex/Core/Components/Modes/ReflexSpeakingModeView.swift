@@ -272,6 +272,8 @@ public struct ReflexSpeakingModeView: View {
                 isReviewed: isReviewed,
                 isResultCorrect: isResultCorrect
             )
+            .equatable()
+            .animation(.spring(response: 0.25, dampingFraction: 0.8), value: !liveTranscript.isEmpty)
         }
         .animation(.spring(response: 0.3, dampingFraction: 0.75), value: isReviewed)
     }
@@ -357,21 +359,23 @@ private struct ReflexSpeakingLiveBadge: View, Equatable {
     let isResultCorrect: Bool
     @Environment(\.craftTheme) private var theme
 
+    private var renderedToken: String {
+        liveTranscript
+            .split(separator: " ")
+            .last
+            .map(String.init) ?? liveTranscript
+    }
+
     static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.liveTranscript == rhs.liveTranscript &&
+        lhs.renderedToken == rhs.renderedToken &&
         lhs.isReviewed == rhs.isReviewed &&
         lhs.isResultCorrect == rhs.isResultCorrect
     }
 
     var body: some View {
         if !liveTranscript.isEmpty {
-            let lastToken = liveTranscript
-                .split(separator: " ")
-                .last
-                .map(String.init) ?? liveTranscript
-
             CraftBadge(
-                lastToken,
+                renderedToken,
                 iconName: "waveform",
                 variant: isReviewed ? .subtle : .solid,
                 tone: isReviewed

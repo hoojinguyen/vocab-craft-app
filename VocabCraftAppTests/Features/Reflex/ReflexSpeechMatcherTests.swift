@@ -48,6 +48,9 @@ final class ReflexSpeechMatcherTests: XCTestCase {
         // "ephemeral" (9 chars)
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "ephemeral", targetLemma: "ephemeral"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "hesitated", targetLemma: "hesitate"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "hesitating", targetLemma: "hesitate"))
+        // Reject non-inflection derivations (e.g. "creative" should not match "create")
+        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "creative", targetLemma: "create"))
     }
 
     // MARK: - Multi-Word Lemmas
