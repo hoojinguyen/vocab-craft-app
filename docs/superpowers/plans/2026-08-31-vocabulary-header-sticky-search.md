@@ -26,14 +26,14 @@
 
 **Interfaces:**
 - Consumes: `AppStrings.Vault.title`, `AppStrings.Vault.titleText`
-- Produces: Updated localized title `"Vocabulary"` for English and `"Kho Từ"` / `"Kho từ vựng"` for Vietnamese.
+- Produces: Updated localized title `"Vocabulary"` for English and `"Kho từ vựng"` for Vietnamese.
 
 - [ ] **Step 1: Write failing test in `PersonalVaultLocalizationTests.swift`**
 
 Update `PersonalVaultLocalizationTests.swift`:
 ```swift
     private let requiredVaultKeys: [String: (vi: String, en: String)] = [
-        "app.vault.title": ("Kho Từ", "Vocabulary"),
+        "app.vault.title": ("Kho từ vựng", "Vocabulary"),
         // ...
     ]
 
@@ -191,7 +191,7 @@ git commit -m "fix(VocabularyView): correct hierarchy with page header on top an
 - [ ] **Step 1: Add scroll tracking preference key and state in `VocabularyView.swift`**
 
 ```swift
-private struct HeaderScrollOffsetKey: PreferenceKey {
+private struct HeaderOffsetPreferenceKey: PreferenceKey {
     static var defaultValue: CGFloat = 0
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value = nextValue()
@@ -245,12 +245,7 @@ private func stickyHeaderView(
     }
     .background(
         theme.colors.canvasBackground
-            .shadow(
-                color: isScrolledPastHeader ? Color.black.opacity(0.06) : Color.clear,
-                radius: 4,
-                x: 0,
-                y: 2
-            )
+            .craftShadow(isScrolledPastHeader ? theme.shadows.sm : CraftShadow(color: .clear, radius: 0))
     )
 }
 ```

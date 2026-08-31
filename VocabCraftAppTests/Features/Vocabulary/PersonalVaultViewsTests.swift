@@ -329,6 +329,9 @@ final class PersonalVaultViewsTests: XCTestCase {
         let vm = PersonalVaultViewModel(mockWords: [mockVaultWord])
         let view = VocabularyView(vaultViewModel: vm, isSearchVisible: true)
 
+        XCTAssertTrue(view.isSearchVisibleForTesting)
+        XCTAssertFalse(view.isScrolledPastHeaderForTesting)
+
         #if canImport(UIKit)
         let host = UIHostingController(rootView: view)
         XCTAssertNotNil(host.view)
@@ -341,6 +344,9 @@ final class PersonalVaultViewsTests: XCTestCase {
         let vm = PersonalVaultViewModel(mockWords: [mockVaultWord])
         let view = VocabularyView(vaultViewModel: vm, isSearchVisible: false)
 
+        XCTAssertFalse(view.isSearchVisibleForTesting)
+        XCTAssertFalse(view.isScrolledPastHeaderForTesting)
+
         #if canImport(UIKit)
         let host = UIHostingController(rootView: view)
         XCTAssertNotNil(host.view)
@@ -352,6 +358,9 @@ final class PersonalVaultViewsTests: XCTestCase {
     func test_vocabularyView_initializationWithScrolledPastHeaderTrue() {
         let vm = PersonalVaultViewModel(mockWords: [mockVaultWord])
         let view = VocabularyView(vaultViewModel: vm, isSearchVisible: false, isScrolledPastHeader: true)
+
+        XCTAssertFalse(view.isSearchVisibleForTesting)
+        XCTAssertTrue(view.isScrolledPastHeaderForTesting)
 
         #if canImport(UIKit)
         let host = UIHostingController(rootView: view)
@@ -370,6 +379,9 @@ final class PersonalVaultViewsTests: XCTestCase {
             isSearchVisible: true,
             isScrolledPastHeader: true
         )
+
+        XCTAssertTrue(view.isSearchVisibleForTesting)
+        XCTAssertTrue(view.isScrolledPastHeaderForTesting)
 
         #if canImport(UIKit)
         let host = UIHostingController(rootView: view)
