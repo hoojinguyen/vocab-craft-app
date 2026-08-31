@@ -150,7 +150,7 @@ public struct VocabularyView: View {
                         .padding(.top, theme.spacing.xs)
                         .padding(.bottom, theme.spacing.xxl + 40)
                     }
-                    .coordinateSpace(name: "vocabScroll")
+                    .coordinateSpace(.named("vocabScroll"))
                     .onPreferenceChange(HeaderOffsetPreferenceKey.self) { offset in
                         let shouldBePastHeader = offset < -10
                         if isScrolledPastHeader != shouldBePastHeader {
