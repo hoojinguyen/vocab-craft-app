@@ -46,6 +46,7 @@ public struct ProfileStatsSheet: View {
                 .padding(.horizontal, theme.spacing.base)
                 .padding(.bottom, theme.spacing.sm)
             }
+            .padding(.top, theme.spacing.md)
 
             // Bottom Primary Action Button
             CraftButton(

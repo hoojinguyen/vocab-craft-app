@@ -144,6 +144,7 @@ public struct CraftLessonDetailSheet: View {
                 .accessibilityHint(CraftLocalized.string("craft.learning_path.close_sheet_hint"))
             }
             .padding(.horizontal, theme.spacing.base)
+            .padding(.top, theme.spacing.md)
 
             ScrollView {
                 VStack(spacing: theme.spacing.base) {
