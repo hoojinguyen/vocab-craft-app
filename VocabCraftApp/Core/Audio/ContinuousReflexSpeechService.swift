@@ -25,18 +25,20 @@ public enum ReflexSpeechMatcher {
                 targetSentence: normalizedTarget,
                 passThreshold: toleranceThreshold
             )
-            if eval.isPassed { return true }
+            return eval.isPassed
         }
 
-        // Single-word lemma evaluation (most common case in Reflex Blitz)
+        let targetLen = normalizedTarget.count
+
+        // Single-word lemma evaluation with Tiered Length Matching
         for token in tokens {
             // 1. Exact normalized token match
             if token == normalizedTarget {
                 return true
             }
 
-            // 2. Stemming / Inflection / Prefix match (e.g. "hesitate" vs "hesitated" / "hesitating")
-            if normalizedTarget.count >= 4 {
+            // 2. Stemming / Inflection / Prefix match (e.g. "walk" vs "walking", "hesitate" vs "hesitated")
+            if targetLen >= 4 {
                 if token.hasPrefix(normalizedTarget) {
                     return true
                 }
@@ -45,10 +47,23 @@ public enum ReflexSpeechMatcher {
                 }
             }
 
-            // 3. Fuzzy phonetic & accent tolerance via Levenshtein similarity ratio
-            let ratio = FuzzySpeechMatcher.similarityRatio(token, normalizedTarget)
-            if ratio >= toleranceThreshold {
-                return true
+            // 3. Tiered fuzzy phonetic & accent tolerance
+            if targetLen <= 4 {
+                // Short words (< 5 letters): STRICT exact/stem only.
+                // Do NOT apply loose Levenshtein distance to prevent ambient noise (breathing, whispers) from matching.
+                continue
+            } else if targetLen <= 7 {
+                // Medium words (5-7 letters): Require high similarity (>= 0.80)
+                let ratio = FuzzySpeechMatcher.similarityRatio(token, normalizedTarget)
+                if ratio >= 0.80 {
+                    return true
+                }
+            } else {
+                // Long words (>= 8 letters): Allow accent tolerance (>= 0.72)
+                let ratio = FuzzySpeechMatcher.similarityRatio(token, normalizedTarget)
+                if ratio >= max(0.72, toleranceThreshold) {
+                    return true
+                }
             }
         }
 
