@@ -311,7 +311,7 @@ extension ResilientReflexSpeechEngine {
 
     private func teardownEngine() {
         #if !targetEnvironment(simulator) && !os(macOS)
-        bufferRelay.setRequest(nil)
+        bufferRelay.detachAndEnd()
         if let engine = audioEngine {
             if engine.isRunning {
                 engine.stop()

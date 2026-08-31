@@ -8,7 +8,7 @@ public enum ReflexSpeechMatcher {
     public static func isReflexMatch(
         spokenText: String,
         targetLemma: String,
-        toleranceThreshold: Double = 0.70
+        toleranceThreshold: Double? = nil
     ) -> Bool {
         let normalizedTarget = StringNormalizer.normalize(targetLemma)
         guard !normalizedTarget.isEmpty, !spokenText.isEmpty else { return false }
@@ -23,7 +23,7 @@ public enum ReflexSpeechMatcher {
             let eval = FuzzySpeechMatcher.evaluate(
                 spokenText: spokenText,
                 targetSentence: normalizedTarget,
-                passThreshold: toleranceThreshold
+                passThreshold: toleranceThreshold ?? 0.70
             )
             return eval.isPassed
         }
@@ -60,15 +60,15 @@ public enum ReflexSpeechMatcher {
                 // Do NOT apply loose Levenshtein distance to prevent ambient noise (breathing, whispers) from matching.
                 continue
             } else if targetLen <= 7 {
-                // Medium words (5-7 letters): Require high similarity (>= 0.80) unless explicit toleranceThreshold is given
-                let effectiveThreshold = min(0.80, toleranceThreshold)
+                // Medium words (5-7 letters): Require high similarity (>= 0.80 default)
+                let effectiveThreshold = toleranceThreshold ?? 0.80
                 let ratio = FuzzySpeechMatcher.similarityRatio(token, normalizedTarget)
                 if ratio >= effectiveThreshold {
                     return true
                 }
             } else {
-                // Long words (>= 8 letters): Allow accent tolerance (>= 0.72)
-                let effectiveThreshold = min(0.72, toleranceThreshold)
+                // Long words (>= 8 letters): Allow accent tolerance (>= 0.72 default)
+                let effectiveThreshold = toleranceThreshold ?? 0.72
                 let ratio = FuzzySpeechMatcher.similarityRatio(token, normalizedTarget)
                 if ratio >= effectiveThreshold {
                     return true
