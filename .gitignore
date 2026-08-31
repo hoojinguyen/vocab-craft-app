@@ -4,5 +4,7 @@ build/
 xcuserdata/
 .superpowers/
 .build-benchmark/
+.worktrees/
+worktrees/
 
 
