@@ -36,6 +36,7 @@ final class ReflexSpeechMatcherTests: XCTestCase {
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "fixing", targetLemma: "fix"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "boxes", targetLemma: "box"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "buses", targetLemma: "bus"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "ashes", targetLemma: "ash"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "cats", targetLemma: "cat"))
 
         // 3-letter consonant doubling (CVC)

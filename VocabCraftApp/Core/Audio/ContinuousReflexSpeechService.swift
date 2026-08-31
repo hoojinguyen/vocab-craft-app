@@ -56,8 +56,13 @@ public enum ReflexSpeechMatcher {
         if targetLen >= 4 && allowedExtendedSuffixes.contains(suffix) { return true }
         if targetLen == 3 {
             if suffix == "s" { return true }
-            if suffix == "es", let last = normalizedTarget.last, last == "s" || last == "x" || last == "z" {
-                return true
+            if suffix == "es" {
+                if let last = normalizedTarget.last, last == "s" || last == "x" || last == "z" {
+                    return true
+                }
+                if normalizedTarget.hasSuffix("sh") || normalizedTarget.hasSuffix("ch") {
+                    return true
+                }
             }
             if suffix == "ed" || suffix == "ing" || suffix == "d" { return true }
         }
