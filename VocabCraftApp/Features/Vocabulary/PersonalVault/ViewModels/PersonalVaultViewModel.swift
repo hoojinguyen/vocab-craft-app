@@ -127,8 +127,7 @@ public final class PersonalVaultViewModel {
         case .bookmarked:
             pool = vaultWords.filter(\.isBookmarked)
         }
-        let effectivePool = pool.isEmpty ? vaultWords : pool
-        let picked = smartSelector.selectWords(from: effectivePool, targetCount: targetCount)
+        let picked = smartSelector.selectWords(from: pool, targetCount: targetCount)
         selectedWordIds = Set(picked.map(\.id))
         return picked
     }

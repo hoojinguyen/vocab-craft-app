@@ -50,7 +50,8 @@ public struct PracticeDrillPlanGenerator: PracticeDrillPlanGeneratorProtocol, Se
                     consecutivePenalty = 0
                 }
 
-                let quotaPenalty = max(0, usage - targetQuotaPerMode) * 300
+                let isAtOrAboveQuota = usage >= targetQuotaPerMode
+                let quotaPenalty = isAtOrAboveQuota ? (600 + (usage - targetQuotaPerMode) * 300) : 0
                 let usageScore = usage * 100
                 let score = weakestBonus + usageScore + quotaPenalty + consecutivePenalty + index
 

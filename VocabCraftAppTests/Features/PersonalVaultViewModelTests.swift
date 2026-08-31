@@ -204,18 +204,12 @@ struct PersonalVaultViewModelTests {
     @Test("Smart Pick chọn các từ vựng ưu tiên và cập nhật selectedWordIds với selector xác định")
     @MainActor
     func testSmartPickWords() async {
-        final class StubSmartSelector: SmartVaultWordSelectorProtocol, @unchecked Sendable {
-            func selectWords(from pool: [VaultWordItem], targetCount: Int) -> [VaultWordItem] {
-                Array(pool.prefix(targetCount))
-            }
-        }
-
         let word1 = VaultWordItem(id: 101, lemma: "weak", pos: "adj", definitionVi: "yếu")
         let word2 = VaultWordItem(id: 102, lemma: "medium", pos: "adj", definitionVi: "vừa")
         let word3 = VaultWordItem(id: 103, lemma: "strong", pos: "adj", definitionVi: "mạnh")
 
         let vm = PersonalVaultViewModel(
-            smartSelector: StubSmartSelector(),
+            smartSelector: PrefixSmartSelector(),
             mockWords: [word1, word2, word3]
         )
         #expect(vm.selectedWordIds.isEmpty)
@@ -231,17 +225,11 @@ struct PersonalVaultViewModelTests {
     @Test("Smart Pick tuân thủ bộ lọc vaultTabFilter")
     @MainActor
     func testSmartPickWordsRespectsTabFilter() async {
-        final class PassthroughSelector: SmartVaultWordSelectorProtocol, @unchecked Sendable {
-            func selectWords(from pool: [VaultWordItem], targetCount: Int) -> [VaultWordItem] {
-                Array(pool.prefix(targetCount))
-            }
-        }
-
         let unmastered = VaultWordItem(id: 1, lemma: "learn", pos: "v", definitionVi: "học", isMastered: false)
         let mastered = VaultWordItem(id: 2, lemma: "master", pos: "v", definitionVi: "thành thạo", isMastered: true)
 
         let vm = PersonalVaultViewModel(
-            smartSelector: PassthroughSelector(),
+            smartSelector: PrefixSmartSelector(),
             mockWords: [unmastered, mastered]
         )
 
@@ -254,10 +242,21 @@ struct PersonalVaultViewModelTests {
         let masteredPicks = vm.smartPickWords(targetCount: 5)
         #expect(masteredPicks.count == 1)
         #expect(masteredPicks.first?.id == 2)
+
+        vm.vaultTabFilter = .bookmarked
+        let bookmarkedPicks = vm.smartPickWords(targetCount: 5)
+        #expect(bookmarkedPicks.isEmpty)
+        #expect(vm.selectedWordIds.isEmpty)
     }
 }
 
 // MARK: - Test Helpers
+
+private final class PrefixSmartSelector: SmartVaultWordSelectorProtocol, @unchecked Sendable {
+    func selectWords(from pool: [VaultWordItem], targetCount: Int) -> [VaultWordItem] {
+        Array(pool.prefix(targetCount))
+    }
+}
 
 @MainActor
 private final class MockTTS: TextToSpeechProtocol {

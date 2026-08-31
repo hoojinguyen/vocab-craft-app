@@ -221,6 +221,69 @@ struct MixedReflexDrillViewModelSkipSpeakingTests {
         #expect(vm.queue.count == 3)
         #expect(vm.queue.last?.assignedMode != .speaking)
     }
+
+    @Test("MixedReflexDrillViewModel integrates with PracticeDrillPlanGenerator")
+    @MainActor
+    func testPlanGeneratorIntegration() {
+        let words = [
+            VaultWordItem(
+                id: 1,
+                lemma: "typingWord",
+                pos: "n",
+                definitionVi: "từ gõ",
+                modeStats: ModeSuccessStats(speaking: 10, typing: 0, multipleChoice: 10, listening: 10)
+            )
+        ]
+        let generator = PracticeDrillPlanGenerator()
+        let vm = MixedReflexDrillViewModel(
+            selectedWords: words,
+            planGenerator: generator
+        )
+
+        #expect(vm.queue.count == 1)
+        #expect(vm.currentItem?.assignedMode == .typing)
+        #expect(vm.sessionPlan != nil)
+        #expect(vm.sessionPlan?.items.first?.assignedMode == .typing)
+        #expect(!vm.generateOptions(for: vm.queue[0]).isEmpty || vm.queue[0].assignedMode == .typing)
+    }
+
+    @Test("MixedReflexDrillViewModel retrieves precomputed options and elimination hint from plan")
+    @MainActor
+    func testPlanGeneratorPrecomputedOptions() {
+        let words = [
+            VaultWordItem(
+                id: 1,
+                lemma: "apple",
+                pos: "n",
+                definitionVi: "quả táo",
+                modeStats: ModeSuccessStats(speaking: 10, typing: 10, multipleChoice: 0, listening: 10)
+            ),
+            VaultWordItem(
+                id: 2,
+                lemma: "banana",
+                pos: "n",
+                definitionVi: "quả chuối",
+                modeStats: ModeSuccessStats(speaking: 10, typing: 10, multipleChoice: 10, listening: 10)
+            )
+        ]
+        let generator = PracticeDrillPlanGenerator()
+        let vm = MixedReflexDrillViewModel(
+            selectedWords: words,
+            planGenerator: generator
+        )
+
+        guard let firstItem = vm.currentItem else {
+            Issue.record("Expected currentItem to exist")
+            return
+        }
+
+        let options = vm.generateOptions(for: firstItem)
+        if firstItem.assignedMode == .multipleChoice || firstItem.assignedMode == .listening {
+            #expect(!options.isEmpty)
+            #expect(options.count == 4 || options.count == words.count)
+            #expect(vm.currentEliminatedOptionId != nil)
+        }
+    }
 }
 
 @Suite("RecordMixedDrillAttemptUseCase ModeSuccessStats Tests")
@@ -248,30 +311,6 @@ struct RecordMixedDrillAttemptUseCaseModeSuccessStatsTests {
 
         let result = try await useCase.execute(wordId: 1, mode: .speaking, isCorrect: false)
         #expect(result?.modeStats.speaking == 0)
-    }
-
-    @Test("MixedReflexDrillViewModel integrates with PracticeDrillPlanGenerator")
-    @MainActor
-    func testPlanGeneratorIntegration() {
-        let words = [
-            VaultWordItem(
-                id: 1,
-                lemma: "typingWord",
-                pos: "n",
-                definitionVi: "từ gõ",
-                modeStats: ModeSuccessStats(speaking: 10, typing: 0, multipleChoice: 10, listening: 10)
-            )
-        ]
-        let generator = PracticeDrillPlanGenerator()
-        let vm = MixedReflexDrillViewModel(
-            selectedWords: words,
-            planGenerator: generator
-        )
-
-        #expect(vm.queue.count == 1)
-        #expect(vm.currentItem?.assignedMode == .typing)
-        #expect(vm.sessionPlan != nil)
-        #expect(vm.sessionPlan?.items.first?.assignedMode == .typing)
     }
 }
 

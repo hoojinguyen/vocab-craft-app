@@ -73,7 +73,10 @@ public final class MixedReflexDrillViewModel: Identifiable {
     }
 
     public func generateOptions(for item: MixedReflexDrillItem) -> [ReflexBlitzOption] {
-        if let planItem = currentPlanItem, planItem.id.contains(item.id.uuidString) {
+        if let planItem = currentPlanItem,
+           planItem.assignedMode == item.assignedMode,
+           planItem.word.lemma == item.word.lemma,
+           !planItem.options.isEmpty {
             return planItem.options
         }
         let mode = item.assignedMode
