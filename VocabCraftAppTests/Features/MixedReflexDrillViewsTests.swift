@@ -296,6 +296,7 @@ struct MixedReflexDrillViewsTests {
         #expect(drillViewWithoutCountdown.startWithCountdown == false)
         #expect(drillViewWithoutCountdown.viewModel.allowSpeakingSkip == false)
         _ = drillViewWithoutCountdown.body
+        #expect(finished == false)
     }
 
     @Test("MixedReflexDrillView nút Không thể nói lúc này bỏ qua từ nói mà không phạt streak")
@@ -338,4 +339,3 @@ struct MixedReflexDrillViewsTests {
     }
 }
 #endif
-

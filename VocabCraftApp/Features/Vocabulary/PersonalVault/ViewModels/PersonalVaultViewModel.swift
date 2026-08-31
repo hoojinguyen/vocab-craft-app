@@ -9,7 +9,7 @@ public final class PersonalVaultViewModel {
     public private(set) var vaultWords: [VaultWordItem] = []
     public private(set) var metrics: PersonalVaultMetrics = PersonalVaultMetrics()
     public private(set) var selectedFilter: PersonalVaultFilter = .all
-    public private(set) var vaultTabFilter: VaultTabFilter = .notMastered
+    public var vaultTabFilter: VaultTabFilter = .notMastered
     public private(set) var selectedWordIds: Set<Int64> = []
     public private(set) var searchQuery: String = ""
     public private(set) var isLoading: Bool = false

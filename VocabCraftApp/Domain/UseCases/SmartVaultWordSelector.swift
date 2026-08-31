@@ -20,7 +20,6 @@ public final class SmartVaultWordSelector: SmartVaultWordSelectorProtocol, Senda
 
     public func selectWords(from pool: [VaultWordItem], targetCount: Int) -> [VaultWordItem] {
         guard targetCount > 0, !pool.isEmpty else { return [] }
-        if pool.count <= targetCount { return pool }
 
         let now = dateProvider()
 
