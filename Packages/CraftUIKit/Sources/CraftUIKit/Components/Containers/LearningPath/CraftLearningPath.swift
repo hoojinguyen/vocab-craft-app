@@ -395,7 +395,6 @@ public struct CraftLearningPath: View {
                     }
                 )
                 .presentationDetents([.fraction(0.70), .large])
-                .presentationDragIndicator(.visible)
             }
         }
     }
