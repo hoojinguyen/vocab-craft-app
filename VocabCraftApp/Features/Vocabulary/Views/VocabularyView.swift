@@ -229,7 +229,10 @@ public struct VocabularyView: View {
                     vaultViewModel: currentVaultVM,
                     onStartPractice: { selectedWords in
                         isPresentingPracticeSelection = false
-                        let drillVM = appContainer.makeMixedReflexDrillViewModel(selectedWords: selectedWords)
+                        let drillVM = appContainer.makeMixedReflexDrillViewModel(
+                            selectedWords: selectedWords,
+                            allowSpeakingSkip: true
+                        )
                         activeDrillViewModel = drillVM
                     },
                     onClose: {

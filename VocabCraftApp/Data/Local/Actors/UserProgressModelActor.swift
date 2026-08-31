@@ -276,7 +276,8 @@ public actor UserProgressModelActor: UserProgressRepositoryProtocol {
         isCorrect: Bool,
         newStreak: Int,
         newModes: Set<ReflexBlitzMode>,
-        isMastered: Bool
+        isMastered: Bool,
+        modeStats: ModeSuccessStats? = nil
     ) throws {
         if let existing = try fetchEntity(wordId: wordId) {
             existing.consecutiveCorrectStreak = newStreak
@@ -284,6 +285,9 @@ public actor UserProgressModelActor: UserProgressRepositoryProtocol {
             existing.isMastered = isMastered
             existing.lastReviewDate = Date()
             existing.totalReviews += 1
+            if let modeStats {
+                existing.modeStats = modeStats
+            }
             if isMastered {
                 existing.masteryLevel = 5
             }
@@ -303,7 +307,8 @@ public actor UserProgressModelActor: UserProgressRepositoryProtocol {
                 mistakeCount: isCorrect ? 0 : 1,
                 consecutiveCorrectStreak: newStreak,
                 practicedModesRaw: newModes.map(\.rawValue).sorted().joined(separator: ","),
-                isMastered: isMastered
+                isMastered: isMastered,
+                modeSuccessCountsRaw: modeStats.map { ModeSuccessStatsCodec.encode($0) } ?? ""
             )
             newProgress.totalReviews = 1
             modelContext.insert(newProgress)
@@ -560,7 +565,8 @@ public actor UserProgressModelActor: UserProgressRepositoryProtocol {
         isCorrect: Bool,
         newStreak: Int,
         newModes: Set<ReflexBlitzMode>,
-        isMastered: Bool
+        isMastered: Bool,
+        modeStats: ModeSuccessStats? = nil
     ) throws {
         if let existing = records[wordId] {
             existing.consecutiveCorrectStreak = newStreak
@@ -568,6 +574,9 @@ public actor UserProgressModelActor: UserProgressRepositoryProtocol {
             existing.isMastered = isMastered
             existing.lastReviewDate = Date()
             existing.totalReviews += 1
+            if let modeStats {
+                existing.modeStats = modeStats
+            }
             if isMastered {
                 existing.masteryLevel = 5
             }
@@ -587,7 +596,8 @@ public actor UserProgressModelActor: UserProgressRepositoryProtocol {
                 mistakeCount: isCorrect ? 0 : 1,
                 consecutiveCorrectStreak: newStreak,
                 practicedModesRaw: newModes.map(\.rawValue).sorted().joined(separator: ","),
-                isMastered: isMastered
+                isMastered: isMastered,
+                modeSuccessCountsRaw: modeStats.map { ModeSuccessStatsCodec.encode($0) } ?? ""
             )
             newProgress.totalReviews = 1
             records[wordId] = newProgress

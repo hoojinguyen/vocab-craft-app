@@ -17,6 +17,7 @@ public final class MixedReflexDrillViewModel: Identifiable {
     public private(set) var currentClozeStages: ReflexClozeStageSet?
     public private(set) var currentEliminatedOptionId: String?
     public private(set) var currentHintBadgeText: String = ""
+    public let allowSpeakingSkip: Bool
 
     private let selectedWords: [VaultWordItem]
     private let queueUseCase: GenerateMixedReflexQueueUseCaseProtocol
@@ -27,12 +28,14 @@ public final class MixedReflexDrillViewModel: Identifiable {
         selectedWords: [VaultWordItem],
         queueUseCase: GenerateMixedReflexQueueUseCaseProtocol,
         recordAttemptUseCase: RecordMixedDrillAttemptUseCaseProtocol? = nil,
-        ttsService: TextToSpeechProtocol? = nil
+        ttsService: TextToSpeechProtocol? = nil,
+        allowSpeakingSkip: Bool = false
     ) {
         self.selectedWords = selectedWords
         self.queueUseCase = queueUseCase
         self.recordAttemptUseCase = recordAttemptUseCase
         self.ttsService = ttsService
+        self.allowSpeakingSkip = allowSpeakingSkip
         self.queue = queueUseCase.generate(from: selectedWords)
         if self.queue.isEmpty {
             self.isCompleted = true
@@ -113,6 +116,24 @@ public final class MixedReflexDrillViewModel: Identifiable {
         } else {
             loadPlanItem(at: currentIndex)
         }
+    }
+
+    /// Skips the current speaking question without penalty and requeues it to the end of the queue
+    /// with a non-speaking mode (Typing, Multiple Choice, or Listening).
+    public func skipSpeakingCurrentWord() {
+        guard allowSpeakingSkip, let current = currentItem else { return }
+
+        let nonSpeakingModes = ReflexBlitzMode.allCases.filter { $0 != .speaking }
+        let newMode = nonSpeakingModes.randomElement() ?? .multipleChoice
+        let retryItem = MixedReflexDrillItem(word: current.word, assignedMode: newMode, isRetry: true)
+        queue.append(retryItem)
+
+        let retryPlanItem = createPlanItem(for: retryItem)
+        var items = sessionPlan?.items ?? []
+        items.append(retryPlanItem)
+        self.sessionPlan = ReflexDrillSessionPlan(mode: .multipleChoice, items: items)
+
+        advanceToNextItem()
     }
 
     public func restartSession() {

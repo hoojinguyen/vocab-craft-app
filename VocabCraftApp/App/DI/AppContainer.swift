@@ -221,12 +221,16 @@ public final class AppContainer {
         )
     }
 
-    public func makeMixedReflexDrillViewModel(selectedWords: [VaultWordItem]) -> MixedReflexDrillViewModel {
+    public func makeMixedReflexDrillViewModel(
+        selectedWords: [VaultWordItem],
+        allowSpeakingSkip: Bool = false
+    ) -> MixedReflexDrillViewModel {
         MixedReflexDrillViewModel(
             selectedWords: selectedWords,
             queueUseCase: generateMixedReflexQueueUseCase,
             recordAttemptUseCase: recordMixedDrillAttemptUseCase,
-            ttsService: ttsService
+            ttsService: ttsService,
+            allowSpeakingSkip: allowSpeakingSkip
         )
     }
 

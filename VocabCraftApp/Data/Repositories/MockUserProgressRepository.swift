@@ -129,7 +129,8 @@ public final class MockUserProgressRepository: UserProgressRepositoryProtocol, @
         isCorrect: Bool,
         newStreak: Int,
         newModes: Set<ReflexBlitzMode>,
-        isMastered: Bool
+        isMastered: Bool,
+        modeStats: ModeSuccessStats? = nil
     ) async throws {
         if let existing = storage[wordId] {
             storage[wordId] = UserWordProgressData(
@@ -149,7 +150,7 @@ public final class MockUserProgressRepository: UserProgressRepositoryProtocol, @
                 consecutiveCorrectStreak: newStreak,
                 practicedModes: newModes,
                 isMastered: isMastered,
-                modeStats: existing.modeStats
+                modeStats: modeStats ?? existing.modeStats
             )
         } else {
             storage[wordId] = UserWordProgressData(
@@ -161,7 +162,8 @@ public final class MockUserProgressRepository: UserProgressRepositoryProtocol, @
                 mistakeCount: isCorrect ? 0 : 1,
                 consecutiveCorrectStreak: newStreak,
                 practicedModes: newModes,
-                isMastered: isMastered
+                isMastered: isMastered,
+                modeStats: modeStats ?? ModeSuccessStats()
             )
         }
     }
