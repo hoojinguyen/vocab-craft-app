@@ -22,6 +22,7 @@ public struct ReflexSpeakingModeView: View {
     // MARK: - Mic & Transcript
     public let speechState: CraftSpeechState
     public let liveTranscript: String
+    public let onSwitchToKeyboard: (() -> Void)?
     public let onReplayAudio: (() -> Void)?
 
     public init(
@@ -37,6 +38,7 @@ public struct ReflexSpeakingModeView: View {
         hintBadgeText: String? = nil,
         speechState: CraftSpeechState = .listening(),
         liveTranscript: String = "",
+        onSwitchToKeyboard: (() -> Void)? = nil,
         onReplayAudio: (() -> Void)? = nil
     ) {
         self.word = word
@@ -51,6 +53,7 @@ public struct ReflexSpeakingModeView: View {
         self.hintBadgeText = hintBadgeText
         self.speechState = speechState
         self.liveTranscript = liveTranscript
+        self.onSwitchToKeyboard = onSwitchToKeyboard
         self.onReplayAudio = onReplayAudio
     }
 
@@ -79,6 +82,7 @@ public struct ReflexSpeakingModeView: View {
             hintBadgeText: hintBadgeText,
             speechState: .listening(),
             liveTranscript: liveTranscript,
+            onSwitchToKeyboard: onSwitchToKeyboard,
             onReplayAudio: nil
         )
     }
@@ -274,6 +278,16 @@ public struct ReflexSpeakingModeView: View {
             )
             .equatable()
             .animation(.spring(response: 0.25, dampingFraction: 0.8), value: !liveTranscript.isEmpty)
+
+            if !isReviewed, let onSwitchToKeyboard {
+                CraftButton(
+                    AppStrings.ReflexBlitz.switchToKeyboardText,
+                    iconName: "keyboard",
+                    variant: .ghost,
+                    size: .sm,
+                    action: onSwitchToKeyboard
+                )
+            }
         }
         .animation(.spring(response: 0.3, dampingFraction: 0.75), value: isReviewed)
     }

@@ -27,11 +27,22 @@ final class ReflexSpeechMatcherTests: XCTestCase {
     func testShortWords_acceptsStemOrPrefixWhenTargetFourChars() {
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "walked", targetLemma: "walk"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "walking", targetLemma: "walk"))
-        // Accept consonant doubling for short CVC targets
+        // Accept consonant doubling for 3-letter CVC targets
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "running", targetLemma: "run"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "sitting", targetLemma: "sit"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "fitted", targetLemma: "fit"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "cats", targetLemma: "cat"))
+        // Reject non-inflections on 3-letter targets
+        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "care", targetLemma: "car"))
+        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "catch", targetLemma: "cat"))
+        // Accept consonant doubling for 4-letter CVC targets
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "planned", targetLemma: "plan"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "planning", targetLemma: "plan"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "stopped", targetLemma: "stop"))
-        // Reject non-inflection extensions on 4-letter targets (e.g. target "past" vs spoken "paste", target "plan" vs spoken "planet")
+        // Reject non-inflection derivations (e.g. agent nouns, adjectives, or distinct lemmas)
+        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "rainy", targetLemma: "rain"))
+        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "farmer", targetLemma: "farm"))
+        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "planner", targetLemma: "plan"))
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "paste", targetLemma: "past"))
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "planet", targetLemma: "plan"))
     }

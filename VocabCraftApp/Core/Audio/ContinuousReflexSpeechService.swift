@@ -5,10 +5,10 @@ import SpeechKit
 
 public enum ReflexSpeechMatcher {
     private static let allowedExtendedSuffixes: Set<String> = [
-        "ing", "ed", "es", "s", "er", "able", "d", "y", "ment", "tion", "ion", "ation"
+        "ing", "ed", "es", "s", "d", "ment", "tion", "ion", "ation"
     ]
     private static let allowedInflections: Set<String> = [
-        "ing", "ed", "es", "s", "er", "or", "tion", "ion", "ation", "ment"
+        "ing", "ed", "es", "s", "tion", "ion", "ation", "ment"
     ]
 
     /// Evaluates whether spoken text contains the target lemma or an acceptable phonetic / accent / inflection reflex match.
@@ -45,14 +45,18 @@ public enum ReflexSpeechMatcher {
             }
 
             // 2. Stemming / Inflection / Prefix match (e.g. "walk" vs "walking", "hesitate" vs "hesitating")
-            if targetLen >= 4 {
+            if targetLen >= 3 {
                 // Token is an extended form of the target (e.g. target "walk" -> spoken "walked", "walking")
                 if token.hasPrefix(normalizedTarget) {
                     let suffix = String(token.dropFirst(targetLen))
-                    if allowedExtendedSuffixes.contains(suffix) {
+                    if targetLen >= 4 && allowedExtendedSuffixes.contains(suffix) {
                         return true
                     }
-                    // Handle consonant doubling for short CVC words (e.g. "plan" -> "planned", "planning", "stop" -> "stopped")
+                    // For 3-letter words: allow standard plural/third-person "s"/"es"
+                    if targetLen == 3 && (suffix == "s" || suffix == "es") {
+                        return true
+                    }
+                    // Handle consonant doubling for short CVC words (e.g. "plan" -> "planned", "planning", "run" -> "running", "fit" -> "fitted", "stop" -> "stopped")
                     if suffix.count >= 2,
                        let targetLastChar = normalizedTarget.last,
                        suffix.first == targetLastChar {

@@ -82,12 +82,6 @@ final class ReflexBlitzViewModelSpeakingTests: XCTestCase {
         viewModel.startDrillSession(mode: .speaking, words: sampleWords)
         mockSpeechEngine.simulateMatch("ephemeral")
         XCTAssertEqual(mockSpeechEngine.endWordCallCount, 1)
-    }
-
-    func testSpeakingMode_matchDetected_callsEndWordBeforeTTS() {
-        viewModel.startDrillSession(mode: .speaking, words: sampleWords)
-        mockSpeechEngine.simulateMatch("ephemeral")
-        XCTAssertEqual(mockSpeechEngine.endWordCallCount, 1)
         XCTAssertEqual(mockSpeechEngine.isWordActive, false)
     }
 
@@ -178,7 +172,17 @@ final class ReflexBlitzViewModelSpeakingTests: XCTestCase {
         let countBeforeAdvance = mockSpeechEngine.beginWordCallCount
         viewModel.advanceToNextWord()
 
+        XCTAssertEqual(viewModel.currentWord?.lemma, "vital")
         XCTAssertEqual(mockSpeechEngine.beginWordCallCount, countBeforeAdvance)
+    }
+
+    func testSpeakingMode_startDrillSession_resetsKeyboardFallback() {
+        viewModel.startDrillSession(mode: .speaking, words: sampleWords)
+        viewModel.toggleKeyboardFallback()
+        XCTAssertTrue(viewModel.isKeyboardFallbackActive)
+
+        viewModel.startDrillSession(mode: .speaking, words: sampleWords)
+        XCTAssertFalse(viewModel.isKeyboardFallbackActive)
     }
 
     // MARK: - Session End
