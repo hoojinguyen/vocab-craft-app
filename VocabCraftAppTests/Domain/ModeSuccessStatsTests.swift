@@ -61,6 +61,18 @@ struct ModeSuccessStatsTests {
         #expect(decoded == stats)
     }
 
+    @Test("Codec produces pinned exact string format and decodes legacy token formats")
+    func testCodecExactFormatAndBackwardCompatibility() {
+        let stats = ModeSuccessStats(speaking: 2, typing: 1, multipleChoice: 4, listening: 3)
+        let encoded = ModeSuccessStatsCodec.encode(stats)
+        #expect(encoded == "s:2,t:1,m:4,l:3")
+
+        // Legacy/partial string with reordered or extra/unknown tokens
+        let legacyInput = "m:4,s:2,l:3,t:1,unknown:99"
+        let decodedLegacy = ModeSuccessStatsCodec.decode(legacyInput)
+        #expect(decodedLegacy == stats)
+    }
+
     @Test("Codec handles empty and partial inputs gracefully")
     func testCodecEdgeCases() {
         let emptyDecoded = ModeSuccessStatsCodec.decode("")
@@ -114,6 +126,7 @@ struct ModeSuccessStatsTests {
 }
 #endif
 
+#if canImport(XCTest)
 final class ModeSuccessStatsXCTestCase: XCTestCase {
     func testDefaultInit() {
         let stats = ModeSuccessStats()
@@ -160,6 +173,16 @@ final class ModeSuccessStatsXCTestCase: XCTestCase {
         let encoded = ModeSuccessStatsCodec.encode(stats)
         let decoded = ModeSuccessStatsCodec.decode(encoded)
         XCTAssertEqual(decoded, stats)
+    }
+
+    func testCodecExactFormatAndBackwardCompatibility() {
+        let stats = ModeSuccessStats(speaking: 2, typing: 1, multipleChoice: 4, listening: 3)
+        let encoded = ModeSuccessStatsCodec.encode(stats)
+        XCTAssertEqual(encoded, "s:2,t:1,m:4,l:3")
+
+        let legacyInput = "m:4,s:2,l:3,t:1,unknown:99"
+        let decodedLegacy = ModeSuccessStatsCodec.decode(legacyInput)
+        XCTAssertEqual(decodedLegacy, stats)
     }
 
     func testCodecEdgeCases() {
@@ -210,3 +233,4 @@ final class ModeSuccessStatsXCTestCase: XCTestCase {
         XCTAssertEqual(customItem.modeStats, customStats)
     }
 }
+#endif

@@ -91,6 +91,17 @@ struct ModeSuccessStatsTests {
         let decoded = ModeSuccessStatsCodec.decode(encoded)
         #expect(decoded == stats)
     }
+
+    @Test("Codec produces pinned exact string format and decodes legacy token formats")
+    func testCodecExactFormatAndBackwardCompatibility() {
+        let stats = ModeSuccessStats(speaking: 2, typing: 1, multipleChoice: 4, listening: 3)
+        let encoded = ModeSuccessStatsCodec.encode(stats)
+        #expect(encoded == "s:2,t:1,m:4,l:3")
+
+        let legacyInput = "m:4,s:2,l:3,t:1,unknown:99"
+        let decodedLegacy = ModeSuccessStatsCodec.decode(legacyInput)
+        #expect(decodedLegacy == stats)
+    }
 }
 ```
 
@@ -307,9 +318,11 @@ import Testing
 @Suite("MixedReflexDrillViewModel Skip Speaking Tests")
 struct MixedReflexDrillViewModelSkipSpeakingTests {
     @Test("Skip speaking requeues word to end with non-speaking mode without penalty")
-    func testSkipSpeakingRequeue() {
+    @MainActor
+    func testSkipSpeakingRequeue() async {
         let words = [
-            VaultWordItem(id: 1, lemma: "voice", pos: "n", definitionVi: "tiếng nói")
+            VaultWordItem(id: 1, lemma: "voice", pos: "n", definitionVi: "tiếng nói"),
+            VaultWordItem(id: 2, lemma: "sound", pos: "n", definitionVi: "âm thanh")
         ]
         let vm = MixedReflexDrillViewModel(
             selectedWords: words,
@@ -317,10 +330,17 @@ struct MixedReflexDrillViewModelSkipSpeakingTests {
             allowSpeakingSkip: true
         )
         #expect(vm.allowSpeakingSkip)
+        // Seed combo streak with a correct answer first
+        await vm.submitAnswer(isCorrect: true, responseTimeMs: 1000)
+        vm.advanceToNextItem()
+        #expect(vm.comboStreak == 1)
+        #expect(vm.attempts.count == 1)
+
+        // Skip should preserve combo streak and requeue with non-speaking mode
         vm.skipSpeakingCurrentWord()
-        #expect(vm.comboStreak == 0)
-        #expect(vm.attempts.isEmpty)
-        #expect(vm.queue.count == 2)
+        #expect(vm.comboStreak == 1)
+        #expect(vm.attempts.count == 1)
+        #expect(vm.queue.count == 3)
         #expect(vm.queue.last?.assignedMode != .speaking)
     }
 }

@@ -169,29 +169,4 @@ struct PracticeDrillPlanGeneratorTests {
 }
 #endif
 
-final class PracticeDrillPlanGeneratorXCTestCase: XCTestCase {
-    func testPlanGenerationBalance() {
-        let generator = PracticeDrillPlanGenerator()
-        let words = (1...12).map { id in
-            VaultWordItem(id: Int64(id), lemma: "word\(id)", pos: "n", definitionVi: "nghĩa \(id)")
-        }
-        let plan = generator.generatePlan(from: words)
-        XCTAssertEqual(plan.items.count, 12)
-        let modes = plan.items.map(\.assignedMode)
-        let uniqueModes = Set(modes)
-        XCTAssertEqual(uniqueModes.count, 4)
-    }
 
-    func testTargetModeAssignment() {
-        let generator = PracticeDrillPlanGenerator()
-        let wordWithTypingNeed = VaultWordItem(
-            id: 1,
-            lemma: "craft",
-            pos: "n",
-            definitionVi: "thủ công",
-            modeStats: ModeSuccessStats(speaking: 10, typing: 0, multipleChoice: 10, listening: 10)
-        )
-        let plan = generator.generatePlan(from: [wordWithTypingNeed])
-        XCTAssertEqual(plan.items.first?.assignedMode, .typing)
-    }
-}
