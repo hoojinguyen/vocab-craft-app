@@ -200,6 +200,45 @@ struct PersonalVaultViewModelTests {
         #expect(mockBookmarkUseCase.executedWordIds.contains(1))
         #expect(vm.vaultWords.first(where: { $0.id == 1 })?.isBookmarked == true)
     }
+
+    @Test("Smart Pick chọn các từ vựng ưu tiên và cập nhật selectedWordIds")
+    @MainActor
+    func testSmartPickWords() async {
+        let wordWeak = VaultWordItem(
+            id: 1,
+            lemma: "weak",
+            pos: "adj",
+            definitionVi: "yếu",
+            correctStreak: 0,
+            modeStats: ModeSuccessStats(speaking: 0, typing: 0, multipleChoice: 0, listening: 0)
+        )
+        let wordMastered = VaultWordItem(
+            id: 2,
+            lemma: "strong",
+            pos: "adj",
+            definitionVi: "mạnh",
+            correctStreak: 5,
+            modeStats: ModeSuccessStats(speaking: 5, typing: 5, multipleChoice: 5, listening: 5)
+        )
+        let wordMedium = VaultWordItem(
+            id: 3,
+            lemma: "medium",
+            pos: "adj",
+            definitionVi: "vừa",
+            correctStreak: 2,
+            modeStats: ModeSuccessStats(speaking: 1, typing: 1, multipleChoice: 0, listening: 0)
+        )
+
+        let vm = PersonalVaultViewModel(mockWords: [wordMastered, wordWeak, wordMedium])
+        #expect(vm.selectedWordIds.isEmpty)
+
+        let picked = vm.smartPickWords(targetCount: 2)
+        #expect(picked.count == 2)
+        #expect(vm.selectedWordIds.count == 2)
+        #expect(vm.selectedWordIds.contains(1))
+        #expect(vm.selectedWords.count == 2)
+        #expect(picked.first?.id == 1) // wordWeak has highest priority
+    }
 }
 
 // MARK: - Test Helpers

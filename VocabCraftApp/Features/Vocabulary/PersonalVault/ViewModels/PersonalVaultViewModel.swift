@@ -26,16 +26,19 @@ public final class PersonalVaultViewModel {
     private let fetchVaultUseCase: FetchPersonalVaultUseCaseProtocol?
     private let toggleBookmarkUseCase: ToggleWordBookmarkUseCaseProtocol?
     private let ttsService: TextToSpeechProtocol?
+    private let smartSelector: SmartVaultWordSelectorProtocol
 
     public init(
         fetchVaultUseCase: FetchPersonalVaultUseCaseProtocol? = nil,
         toggleBookmarkUseCase: ToggleWordBookmarkUseCaseProtocol? = nil,
         ttsService: TextToSpeechProtocol? = nil,
+        smartSelector: SmartVaultWordSelectorProtocol = SmartVaultWordSelector(),
         mockWords: [VaultWordItem] = []
     ) {
         self.fetchVaultUseCase = fetchVaultUseCase
         self.toggleBookmarkUseCase = toggleBookmarkUseCase
         self.ttsService = ttsService
+        self.smartSelector = smartSelector
         self.vaultWords = mockWords
     }
 
@@ -111,6 +114,13 @@ public final class PersonalVaultViewModel {
 
     public func deselectAll() {
         selectedWordIds.removeAll()
+    }
+
+    @discardableResult
+    public func smartPickWords(targetCount: Int = 10) -> [VaultWordItem] {
+        let picked = smartSelector.selectWords(from: vaultWords, targetCount: targetCount)
+        selectedWordIds = Set(picked.map(\.id))
+        return picked
     }
 
     public func setVaultFilter(_ filter: VaultTabFilter) {

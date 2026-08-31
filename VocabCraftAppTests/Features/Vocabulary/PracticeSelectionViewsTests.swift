@@ -127,5 +127,53 @@ struct PracticeSelectionViewsTests {
         vm.setVaultFilter(.mastered)
         #expect(vm.vaultTabFilter == .mastered)
     }
+
+    @Test("PracticeSelectionView thực hiện Smart Pick nhanh")
+    @MainActor
+    func testPracticeSelectionViewSmartPick() {
+        let vm = PersonalVaultViewModel(mockWords: mockWords)
+        let view = PracticeSelectionView(
+            vaultViewModel: vm,
+            onStartPractice: { _ in }
+        )
+
+        #if canImport(UIKit)
+        let host = UIHostingController(rootView: view)
+        #expect(host.view != nil)
+        #endif
+
+        #expect(vm.selectedWordIds.isEmpty)
+        let picked = vm.smartPickWords(targetCount: 1)
+        #expect(picked.count == 1)
+        #expect(vm.selectedWordIds.count == 1)
+    }
+
+    @Test("PracticeSelectionRow hiển thị modeStats và các trạng thái hoàn thành")
+    @MainActor
+    func testPracticeSelectionRowModeStats() {
+        let wordWithStats = VaultWordItem(
+            id: 10,
+            lemma: "mastery",
+            pos: "n.",
+            definitionVi: "Sự thành thạo",
+            modeStats: ModeSuccessStats(speaking: 1, typing: 0, multipleChoice: 2, listening: 0)
+        )
+
+        let row = PracticeSelectionRow(
+            word: wordWithStats,
+            isSelected: true,
+            onToggle: {}
+        )
+
+        #if canImport(UIKit)
+        let host = UIHostingController(rootView: row)
+        #expect(host.view != nil)
+        #endif
+
+        #expect(wordWithStats.modeStats.count(for: .speaking) == 1)
+        #expect(wordWithStats.modeStats.count(for: .typing) == 0)
+        #expect(wordWithStats.modeStats.count(for: .multipleChoice) == 2)
+        #expect(wordWithStats.modeStats.count(for: .listening) == 0)
+    }
 }
 #endif
