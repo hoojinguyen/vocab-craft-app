@@ -248,6 +248,28 @@ public struct CraftStyledConnector: View {
     }
 }
 
+// MARK: - PathSegmentColorResolver
+
+/// Shared resolver for dotted path segment colors — ensures Canvas and standalone segment stay in sync.
+private enum PathSegmentColorResolver {
+    static func color(from: LessonNodeState, to: LessonNodeState, theme: CraftTheme, customColor: Color?) -> Color {
+        if let customColor {
+            return customColor
+        }
+        if from == .completed && to == .completed {
+            return theme.colors.pathCompleted
+        } else if from == .completed && (to == .active || to == .inProgress) {
+            return theme.colors.pathActive
+        } else if to == .locked || from == .locked {
+            return theme.colors.textMuted.opacity(0.55)
+        } else if from == .active || from == .inProgress || from == .upcoming {
+            return theme.colors.textMuted.opacity(0.65)
+        } else {
+            return theme.colors.textMuted.opacity(0.40)
+        }
+    }
+}
+
 // MARK: - CraftSnakeDottedSegmentView
 
 /// Renders a single vector dotted snake path segment with round caps and progressive theme coloring.
@@ -287,21 +309,7 @@ public struct CraftSnakeDottedSegmentView: View, Equatable {
     }
 
     private var segmentColor: Color {
-        if let customColor {
-            return customColor
-        }
-        if fromState == .completed && toState == .completed {
-            return theme.colors.pathCompleted
-        } else if fromState == .completed && (toState == .active || toState == .inProgress) {
-            return theme.colors.pathActive
-        } else if toState == .locked || fromState == .locked {
-            // P0 fix: 0.35 was invisible on ivory; bump to 0.55 for contrast
-            return theme.colors.textMuted.opacity(0.55)
-        } else if fromState == .active || fromState == .inProgress || fromState == .upcoming {
-            return theme.colors.textMuted.opacity(0.65)
-        } else {
-            return theme.colors.textMuted.opacity(0.40)
-        }
+        PathSegmentColorResolver.color(from: fromState, to: toState, theme: theme, customColor: customColor)
     }
 
     private func strokeStyle(diameter: CGFloat, spacing: CGFloat) -> StrokeStyle {
@@ -359,17 +367,7 @@ public struct CraftSnakeConnectorLayer: View {
     }
 
     private func segmentColor(from: LessonNodeState, to: LessonNodeState) -> Color {
-        if from == .completed && to == .completed {
-            return theme.colors.pathCompleted
-        } else if from == .completed && (to == .active || to == .inProgress) {
-            return theme.colors.pathActive
-        } else if to == .locked || from == .locked {
-            return theme.colors.textMuted.opacity(0.55)
-        } else if from == .active || from == .inProgress || from == .upcoming {
-            return theme.colors.textMuted.opacity(0.65)
-        } else {
-            return theme.colors.textMuted.opacity(0.40)
-        }
+        PathSegmentColorResolver.color(from: from, to: to, theme: theme, customColor: nil)
     }
 
     public var body: some View {

@@ -118,9 +118,11 @@ public struct HomeTopHeaderView: View {
                     .minimumScaleFactor(0.7)
             }
             Text(AppStrings.Home.todayLabelText)
-                .font(.system(size: 9, weight: .semibold))
+                .font(theme.typography.caption.weight(.semibold))
                 .foregroundStyle(theme.colors.textSecondary)
                 .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .accessibilityHidden(true)
         }
     }
 
@@ -128,7 +130,6 @@ public struct HomeTopHeaderView: View {
 
     private var avatarButton: some View {
         Button(action: {
-            CraftHaptics.shared.light()
             onAvatarTap?()
         }) {
             ZStack {

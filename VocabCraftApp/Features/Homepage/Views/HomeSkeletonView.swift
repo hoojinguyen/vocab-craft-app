@@ -66,20 +66,11 @@ public struct HomeSkeletonView: View {
 
     private func skeletonNodeRow(isActive: Bool) -> some View {
         let diameter: CGFloat = isActive ? 64 : 48
-        return ZStack(alignment: .center) {
-            Circle()
-                .fill(theme.colors.surfaceSubtle)
-                .frame(width: diameter, height: diameter)
-                .craftShimmer(isActive: true)
-            // Dotted line placeholder
-            if !isActive {
-                Circle()
-                    .fill(theme.colors.surfaceSubtle)
-                    .frame(width: 48, height: 48)
-                    .craftShimmer(isActive: true)
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .frame(height: diameter + 20)
+        return Circle()
+            .fill(theme.colors.surfaceSubtle)
+            .frame(width: diameter, height: diameter)
+            .craftShimmer(isActive: true)
+            .frame(maxWidth: .infinity)
+            .frame(height: diameter + 20)
     }
 }

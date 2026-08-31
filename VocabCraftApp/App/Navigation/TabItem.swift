@@ -29,7 +29,7 @@ public enum TabItem: Int, CaseIterable, Identifiable, Sendable, CraftTabItemProt
         case .vocabulary: return CraftSymbol.booksFill.rawValue
         case .search: return CraftSymbol.search.rawValue
         case .reflex: return CraftSymbol.practice.rawValue
-        case .settings: return CraftSymbol.profileFill.rawValue
+        case .settings: return CraftSymbol.settingsFill.rawValue
         }
     }
 

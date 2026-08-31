@@ -15,29 +15,54 @@ public struct StreakWeekStripView: View {
     }
 
     private var weekDays: [CraftStreakDay] {
-        // Vietnamese weekday symbols Mon-Sun
-        let symbols = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"]
-        // Determine how many of last 7 days are considered completed.
-        // For demo: streakDays % 7 gives completed in current week; if completedToday true, last dot is completed.
-        let completedInWeek = min(7, streakDays % 7 + (isCompletedToday ? 1 : 0))
-        // Edge: if streak >=7, show 6 completed + today pending/completed
-        let effectiveCompleted = streakDays >= 7 ? (isCompletedToday ? 7 : 6) : completedInWeek
+        // Locale-aware weekday symbols for last 7 days ending today (trailing window)
+        let calendar = Calendar.current
+        let formatter = DateFormatter()
+        formatter.locale = Locale.current
+        formatter.calendar = calendar
+        // Use veryShort or short symbols; fallback to short
+        let baseSymbols = formatter.shortWeekdaySymbols ?? ["CN", "T2", "T3", "T4", "T5", "T6", "T7"]
+        // Generate 7 dates: today-6 .. today
+        let today = Date()
         return (0..<7).map { idx in
+            let daysAgo = 6 - idx
+            guard let date = calendar.date(byAdding: .day, value: -daysAgo, to: today) else {
+                return CraftStreakDay(id: "d\(idx)", weekdaySymbol: baseSymbols[idx % baseSymbols.count], status: .upcoming, isToday: idx == 6)
+            }
+            let weekday = calendar.component(.weekday, from: date) // 1=Sun
+            // baseSymbols is Sunday-first; index = weekday-1
+            let symbol = baseSymbols[(weekday - 1) % baseSymbols.count]
             let isToday = idx == 6
             let status: CraftStreakDayStatus
-            if idx < effectiveCompleted {
+            // Streak covers last `streakDays` days; today counts only if isCompletedToday
+            let cappedStreak = min(7, streakDays)
+            let isWithinStreak: Bool = {
+                if isToday {
+                    return isCompletedToday && cappedStreak > 0
+                } else {
+                    // For days before today, they are within streak if daysAgo < cappedStreak (+ adjust for today pending)
+                    // If today pending, streak days are before today, so shift by 1
+                    let effectiveStreak = isCompletedToday ? cappedStreak : min(6, cappedStreak)
+                    // Count from today backwards: daysAgo 1..6
+                    return daysAgo <= effectiveStreak && daysAgo > 0
+                }
+            }()
+            // Special demo freeze: if long streak and today pending, show freeze at middle
+            if isWithinStreak {
                 status = .completed
             } else if isToday && !isCompletedToday {
-                status = .pending
-            } else if idx == 3 && streakDays >= 14 && !isCompletedToday {
-                // Demo freeze example for long streaks
-                status = .frozen
+                // Show pending for today, or frozen for demo long streak
+                if streakDays >= 14 {
+                    status = .frozen
+                } else {
+                    status = .pending
+                }
             } else {
                 status = .upcoming
             }
             return CraftStreakDay(
                 id: "d\(idx)",
-                weekdaySymbol: symbols[idx],
+                weekdaySymbol: symbol,
                 status: status,
                 isToday: isToday
             )
@@ -70,7 +95,19 @@ public struct StreakWeekStripView: View {
         .craftShadow(theme.shadows.sm)
         .padding(.horizontal, theme.spacing.base)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(Text(String(localized: "app.home.streak.week_a11y", defaultValue: "Chuỗi \(streakDays) ngày", bundle: .module)))
+        .accessibilityLabel(Text(String(format: String(localized: "app.home.streak.week_a11y", defaultValue: "Chuỗi %lld ngày", bundle: .module), streakDays)))
+        .accessibilityValue(Text(weekDays.map { "\($0.weekdaySymbol) \(statusLabel(for: $0.status))" }.joined(separator: ", ")))
+        .accessibilityHint(Text(String(localized: "app.home.streak.week_hint", defaultValue: "Nhấn để xem chi tiết chuỗi", bundle: .module)))
+    }
+
+    private func statusLabel(for status: CraftStreakDayStatus) -> String {
+        switch status {
+        case .completed: return CraftLocalized.string("craft.streak.day_status_completed")
+        case .pending: return CraftLocalized.string("craft.streak.day_status_pending")
+        case .frozen: return CraftLocalized.string("craft.streak.day_status_saved")
+        case .missed: return CraftLocalized.string("craft.streak.day_status_missed")
+        case .upcoming: return CraftLocalized.string("craft.streak.day_status_upcoming")
+        }
     }
 
     @ViewBuilder

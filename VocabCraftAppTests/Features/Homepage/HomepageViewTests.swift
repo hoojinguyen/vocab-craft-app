@@ -54,7 +54,7 @@ final class HomepageViewTests: XCTestCase {
         XCTAssertEqual(TabItem.reflex.titleKey, AppStrings.Tabs.reflex)
         XCTAssertEqual(TabItem.reflex.symbol, CraftSymbol.practice.rawValue)
         XCTAssertEqual(TabItem.settings.titleKey, AppStrings.Tabs.settings)
-        XCTAssertEqual(TabItem.settings.symbol, CraftSymbol.profileFill.rawValue)
+        XCTAssertEqual(TabItem.settings.symbol, CraftSymbol.settingsFill.rawValue)
         XCTAssertEqual(TabItem.navigationTabs, [.home, .vocabulary, .search, .settings])
         XCTAssertEqual(TabItem.allCases.count, 5)
         XCTAssertNil(TabItem.home.badgeCount)

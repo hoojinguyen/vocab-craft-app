@@ -105,14 +105,14 @@ public struct HomepageView: View {
                         },
                         externalScrollTrigger: scrollToActiveNonce
                     )
-                            .task {
-                                if viewModel.sections.isEmpty {
-                                    await viewModel.loadLearningPath()
-                                }
-                            }
                             .refreshable {
                                 await viewModel.loadLearningPath()
                             }
+                        }
+                    }
+                    .task {
+                        if viewModel.sections.isEmpty {
+                            await viewModel.loadLearningPath()
                         }
                     }
                 }
@@ -247,29 +247,41 @@ public struct HomepageView: View {
                     ? String(node.id.dropFirst("checkpoint_".count))
                     : (viewModel.sections.first(where: { sec in sec.nodes.contains(where: { $0.id == node.id }) })?.id ?? "")
 
-                _ = try? await appContainer.completeLessonUseCase.execute(
-                    stageId: node.id,
-                    deckId: deckId,
-                    stars: stars,
-                    weakWordIds: weakWordIds,
-                    progressFraction: 1.0
-                )
-                await viewModel.loadLearningPath()
-                // Reward feedback: confetti + toast on main actor after reload
-                await MainActor.run {
-                    let xp = LessonEconomyPolicy.xpReward(for: node.kind)
-                    let earnedXP = stars * xp
-                    let starIcons = String(repeating: "★", count: stars)
-                    CraftHaptics.shared.success()
-                    homeConfettiTrigger = true
-                    completionToastData = CraftToastData(
-                        title: String(localized: "app.home.toast.completed_title", defaultValue: "Hoàn thành!", bundle: .module),
-                        message: "+\(earnedXP) XP • \(starIcons) \(String(localized: "app.home.toast.stars_suffix", defaultValue: " • Tuyệt vời!", bundle: .module))",
-                        iconName: "star.fill",
-                        style: .success,
-                        surfaceStyle: .glass,
-                        duration: 3.0
+                do {
+                    let result = try await appContainer.completeLessonUseCase.execute(
+                        stageId: node.id,
+                        deckId: deckId,
+                        stars: stars,
+                        weakWordIds: weakWordIds,
+                        progressFraction: 1.0
                     )
+                    await viewModel.loadLearningPath()
+                    // Reward feedback: confetti + toast only on success — show fixed policy reward, not stars * xp
+                    await MainActor.run {
+                        let earnedXP = result.xpEarned
+                        let starIcons = String(repeating: "★", count: stars)
+                        CraftHaptics.shared.success()
+                        homeConfettiTrigger = true
+                        completionToastData = CraftToastData(
+                            title: String(localized: "app.home.toast.completed_title", defaultValue: "Hoàn thành!", bundle: .module),
+                            message: "+\(earnedXP) XP • \(starIcons) \(String(localized: "app.home.toast.stars_suffix", defaultValue: " • Tuyệt vời!", bundle: .module))",
+                            iconName: "star.fill",
+                            style: .success,
+                            surfaceStyle: .glass,
+                            duration: 3.0
+                        )
+                    }
+                } catch {
+                    await MainActor.run {
+                        completionToastData = CraftToastData(
+                            title: String(localized: "common.error", defaultValue: "Lỗi", bundle: .module),
+                            message: error.localizedDescription,
+                            iconName: "exclamationmark.triangle.fill",
+                            style: .danger,
+                            surfaceStyle: .glass,
+                            duration: 3.0
+                        )
+                    }
                 }
             }
         } else {

@@ -512,13 +512,14 @@ public struct CraftLearningPath: View {
                 performScroll(proxy, to: id, reducedMotion: isReducedMotion)
             }
             .onChange(of: sections) { _, newSections in
+                dockDebounceTask?.cancel()
                 dockedSection = newSections.last(where: { dockedSectionIDs.contains($0.id) })
                 guard scrollToActive, !hasScrolledToActive, let id = activeNodeID else { return }
                 performScroll(proxy, to: id, reducedMotion: isReducedMotion)
                 hasScrolledToActive = true
             }
             .onChange(of: externalScrollTrigger) { _, _ in
-                guard let id = activeNodeID else { return }
+                guard scrollToActive, let id = activeNodeID else { return }
                 performScroll(proxy, to: id, reducedMotion: isReducedMotion)
             }
             )

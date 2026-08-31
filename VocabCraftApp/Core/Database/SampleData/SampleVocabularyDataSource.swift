@@ -4,7 +4,7 @@ public final class SampleVocabularyDataSource: VocabularyDataSourceProtocol, Sen
     // Precomputed indexes for O(1) lookups — avoids O(N*M) scans for 3000+ words.
     private static let wordsByStage: [String: [TopicWordDTO]] = Dictionary(grouping: VocabularySampleDataset.words, by: \.stageId)
     private static let stagesByDeck: [String: [SubTopicStageDTO]] = Dictionary(grouping: VocabularySampleDataset.stages, by: \.deckId)
-    private static let wordById: [Int64: TopicWordDTO] = Dictionary(uniqueKeysWithValues: VocabularySampleDataset.words.map { ($0.id, $0) })
+    private static let wordById: [Int64: TopicWordDTO] = Dictionary(VocabularySampleDataset.words.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
 
     public init() {}
 
