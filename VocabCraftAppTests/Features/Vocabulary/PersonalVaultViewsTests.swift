@@ -401,6 +401,22 @@ final class PersonalVaultViewsTests: XCTestCase {
         XCTAssertEqual(current, 100.0)
     }
 
+    func test_headerHeightPreferenceKey_defaultValueAndReduce() {
+        XCTAssertEqual(HeaderHeightPreferenceKey.defaultValue, 50)
+        var current: CGFloat = 50
+        HeaderHeightPreferenceKey.reduce(value: &current, nextValue: { 85.0 })
+        XCTAssertEqual(current, 85.0)
+
+        HeaderHeightPreferenceKey.reduce(value: &current, nextValue: { 0 })
+        XCTAssertEqual(current, 85.0)
+    }
+
+    func test_vocabularyView_measuredHeaderHeightDefault() {
+        let vm = PersonalVaultViewModel(mockWords: [mockVaultWord])
+        let view = VocabularyView(vaultViewModel: vm)
+        XCTAssertEqual(view.measuredHeaderHeightForTesting, 50)
+    }
+
     // MARK: - Legacy View Backward Compatibility Tests
     func test_personalVaultHeroCard_withWeakWords_triggersAction() {
         var didTrigger = false

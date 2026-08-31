@@ -12,6 +12,7 @@ public struct VocabularyView: View {
     @State private var legacyVM: VocabularyViewModel?
     @State private var isSearchVisible: Bool = false
     @State private var isScrolledPastHeader: Bool = false
+    @State private var measuredHeaderHeight: CGFloat = 50
     @State private var searchText: String = ""
     @State private var isPresentingPracticeSelection: Bool = false
     @State private var activeDrillViewModel: MixedReflexDrillViewModel?
@@ -31,11 +32,10 @@ public struct VocabularyView: View {
         self._searchText = State(initialValue: vaultViewModel?.searchQuery ?? "")
     }
 
-    private static let headerScrollThreshold: CGFloat = -50
-
     // MARK: - Testing Inspection Accessors
     internal var isSearchVisibleForTesting: Bool { isSearchVisible }
     internal var isScrolledPastHeaderForTesting: Bool { isScrolledPastHeader }
+    internal var measuredHeaderHeightForTesting: CGFloat { measuredHeaderHeight }
 
     private var activeVaultVM: PersonalVaultViewModel {
         if let vm = vaultVM {
@@ -96,6 +96,14 @@ public struct VocabularyView: View {
                                         }
                                     )
                                 }
+                                .background(
+                                    GeometryReader { proxy in
+                                        Color.clear.preference(
+                                            key: HeaderHeightPreferenceKey.self,
+                                            value: proxy.size.height
+                                        )
+                                    }
+                                )
 
                                 // 2. Pinned Search & Filter Section
                                 Section {
@@ -163,8 +171,14 @@ public struct VocabularyView: View {
                         .padding(.bottom, theme.spacing.xxl + 40)
                     }
                     .coordinateSpace(.named("vocabScroll"))
+                    .onPreferenceChange(HeaderHeightPreferenceKey.self) { height in
+                        if height > 0 && abs(measuredHeaderHeight - height) > 1 {
+                            measuredHeaderHeight = height
+                        }
+                    }
                     .onPreferenceChange(HeaderOffsetPreferenceKey.self) { offset in
-                        let shouldBePastHeader = offset < Self.headerScrollThreshold
+                        let threshold = -max(measuredHeaderHeight, 20)
+                        let shouldBePastHeader = offset < threshold
                         if isScrolledPastHeader != shouldBePastHeader {
                             withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                                 isScrolledPastHeader = shouldBePastHeader
@@ -381,5 +395,19 @@ struct HeaderOffsetPreferenceKey: PreferenceKey {
 
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value = nextValue()
+    }
+}
+
+// MARK: - Header Height Preference Key
+
+/// Tracks dynamic rendered height of the page header (adapting to Dynamic Type accessibility scaling).
+struct HeaderHeightPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 50
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        let next = nextValue()
+        if next > 0 {
+            value = next
+        }
     }
 }
