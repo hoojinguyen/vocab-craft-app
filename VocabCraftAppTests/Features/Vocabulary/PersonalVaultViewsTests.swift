@@ -349,6 +349,46 @@ final class PersonalVaultViewsTests: XCTestCase {
         #endif
     }
 
+    func test_vocabularyView_initializationWithScrolledPastHeaderTrue() {
+        let vm = PersonalVaultViewModel(mockWords: [mockVaultWord])
+        let view = VocabularyView(vaultViewModel: vm, isSearchVisible: false, isScrolledPastHeader: true)
+
+        #if canImport(UIKit)
+        let host = UIHostingController(rootView: view)
+        XCTAssertNotNil(host.view)
+        #else
+        XCTAssertNotNil(view)
+        #endif
+    }
+
+    func test_vocabularyView_initializationWithAllParameters() {
+        let vm = PersonalVaultViewModel(mockWords: [mockVaultWord])
+        let legacyVM = VocabularyViewModel()
+        let view = VocabularyView(
+            vaultViewModel: vm,
+            viewModel: legacyVM,
+            isSearchVisible: true,
+            isScrolledPastHeader: true
+        )
+
+        #if canImport(UIKit)
+        let host = UIHostingController(rootView: view)
+        XCTAssertNotNil(host.view)
+        #else
+        XCTAssertNotNil(view)
+        #endif
+    }
+
+    func test_headerOffsetPreferenceKey_defaultValueAndReduce() {
+        XCTAssertEqual(HeaderOffsetPreferenceKey.defaultValue, 0)
+        var current: CGFloat = 0
+        HeaderOffsetPreferenceKey.reduce(value: &current, nextValue: { -42.5 })
+        XCTAssertEqual(current, -42.5)
+
+        HeaderOffsetPreferenceKey.reduce(value: &current, nextValue: { 100.0 })
+        XCTAssertEqual(current, 100.0)
+    }
+
     // MARK: - Legacy View Backward Compatibility Tests
     func test_personalVaultHeroCard_withWeakWords_triggersAction() {
         var didTrigger = false

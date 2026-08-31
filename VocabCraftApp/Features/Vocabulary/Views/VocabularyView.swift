@@ -11,6 +11,7 @@ public struct VocabularyView: View {
     @State private var vaultVM: PersonalVaultViewModel?
     @State private var legacyVM: VocabularyViewModel?
     @State private var isSearchVisible: Bool = false
+    @State private var isScrolledPastHeader: Bool = false
     @State private var searchText: String = ""
     @State private var isPresentingPracticeSelection: Bool = false
     @State private var activeDrillViewModel: MixedReflexDrillViewModel?
@@ -20,11 +21,13 @@ public struct VocabularyView: View {
     public init(
         vaultViewModel: PersonalVaultViewModel? = nil,
         viewModel: VocabularyViewModel? = nil,
-        isSearchVisible: Bool = false
+        isSearchVisible: Bool = false,
+        isScrolledPastHeader: Bool = false
     ) {
         self._vaultVM = State(initialValue: vaultViewModel)
         self._legacyVM = State(initialValue: viewModel)
         self._isSearchVisible = State(initialValue: isSearchVisible)
+        self._isScrolledPastHeader = State(initialValue: isScrolledPastHeader)
         self._searchText = State(initialValue: vaultViewModel?.searchQuery ?? "")
     }
 
@@ -62,10 +65,10 @@ public struct VocabularyView: View {
                                 enableScrollFade: true
                             ) {
                                 CraftIconButton(
-                                    iconName: isSearchVisible ? "magnifyingglass.circle.fill" : "magnifyingglass",
+                                    iconName: (isSearchVisible || isScrolledPastHeader) ? "magnifyingglass.circle.fill" : "magnifyingglass",
                                     size: .md,
                                     shape: .circle,
-                                    variant: isSearchVisible ? .filled : .subtle,
+                                    variant: (isSearchVisible || isScrolledPastHeader) ? .filled : .subtle,
                                     accessibilityLabel: AppStrings.Vault.searchToggleA11y,
                                     action: {
                                         withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
@@ -74,6 +77,14 @@ public struct VocabularyView: View {
                                     }
                                 )
                             }
+                            .background(
+                                GeometryReader { proxy in
+                                    Color.clear.preference(
+                                        key: HeaderOffsetPreferenceKey.self,
+                                        value: proxy.frame(in: .named("vocabScroll")).minY
+                                    )
+                                }
+                            )
 
                             // 2. Pinned Search & Filter Section
                             Section {
@@ -98,8 +109,8 @@ public struct VocabularyView: View {
                                 }
                             } header: {
                                 VStack(spacing: 0) {
-                                    // Expandable Search Bar — sticky when visible
-                                    if isSearchVisible {
+                                    // Expandable Search Bar — sticky when visible or scrolled past header
+                                    if isSearchVisible || isScrolledPastHeader {
                                         CraftSearchBar(
                                             text: $searchText,
                                             placeholder: AppStrings.Vault.searchPlaceholder,
@@ -130,11 +141,23 @@ public struct VocabularyView: View {
                                     .padding(.horizontal, theme.spacing.base)
                                     .padding(.vertical, theme.spacing.xs)
                                 }
-                                .background(theme.colors.canvasBackground)
+                                .background(
+                                    theme.colors.canvasBackground
+                                        .craftShadow(isScrolledPastHeader ? theme.shadows.sm : CraftShadow(color: .clear, radius: 0))
+                                )
                             }
                         }
                         .padding(.top, theme.spacing.xs)
                         .padding(.bottom, theme.spacing.xxl + 40)
+                    }
+                    .coordinateSpace(name: "vocabScroll")
+                    .onPreferenceChange(HeaderOffsetPreferenceKey.self) { offset in
+                        let shouldBePastHeader = offset < -10
+                        if isScrolledPastHeader != shouldBePastHeader {
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                isScrolledPastHeader = shouldBePastHeader
+                            }
+                        }
                     }
                     .refreshable {
                         await currentVaultVM.loadData()
@@ -335,5 +358,16 @@ public struct VocabularyView: View {
 
     private func seedSampleUserProgress() async {
         await SampleVaultDataSeeder.seed(repository: appContainer.userProgressRepository)
+    }
+}
+
+// MARK: - Header Offset Preference Key
+
+/// Tracks vertical scroll offset of the page header relative to the scroll container.
+struct HeaderOffsetPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
     }
 }
