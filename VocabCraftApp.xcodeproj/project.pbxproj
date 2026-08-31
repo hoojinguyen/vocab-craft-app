@@ -82,6 +82,7 @@
 		3000A6FAFC7B50783D6B /* RecordMixedDrillAttemptUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A6FAFC7B50783D6B /* RecordMixedDrillAttemptUseCase.swift */; };
 		3000FA7560015826094C /* ResetUserProgressUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FA7560015826094C /* ResetUserProgressUseCase.swift */; };
 		30006D78C4524120F696 /* ReviewWeakWordsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20006D78C4524120F696 /* ReviewWeakWordsUseCase.swift */; };
+		3000B1115C596D2E5E45 /* SmartVaultWordSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B1115C596D2E5E45 /* SmartVaultWordSelector.swift */; };
 		30001BF345803150242B /* ToggleWordBookmarkUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20001BF345803150242B /* ToggleWordBookmarkUseCase.swift */; };
 		30008990938AED4AD135 /* HomepageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20008990938AED4AD135 /* HomepageViewModel.swift */; };
 		30004F1187B05A298263 /* LearningPathDataMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20004F1187B05A298263 /* LearningPathDataMapper.swift */; };
@@ -204,6 +205,7 @@
 		3000022A6E566EEDC31A /* SmartReflexQueueUseCaseTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000022A6E566EEDC31A /* SmartReflexQueueUseCaseTests.swift */; };
 		3000257F4D2FD33D16E6 /* VocabularyDomainEntitiesTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000257F4D2FD33D16E6 /* VocabularyDomainEntitiesTests.swift */; };
 		3000A3335C596D2E5E45 /* ModeSuccessStatsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000A3335C596D2E5E45 /* ModeSuccessStatsTests.swift */; };
+		3000B2225C596D2E5E45 /* SmartVaultWordSelectorTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B2225C596D2E5E45 /* SmartVaultWordSelectorTests.swift */; };
 		3000496889722C6A9765 /* VocabularyUseCasesTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000496889722C6A9765 /* VocabularyUseCasesTests.swift */; };
 		3000D1459B6F5FD76CEA /* DomainEntitiesTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000D1459B6F5FD76CEA /* DomainEntitiesTests.swift */; };
 		3000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift */; };
@@ -401,6 +403,7 @@
 		2000A6FAFC7B50783D6B /* RecordMixedDrillAttemptUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RecordMixedDrillAttemptUseCase.swift"; sourceTree = "<group>"; };
 		2000FA7560015826094C /* ResetUserProgressUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ResetUserProgressUseCase.swift"; sourceTree = "<group>"; };
 		20006D78C4524120F696 /* ReviewWeakWordsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReviewWeakWordsUseCase.swift"; sourceTree = "<group>"; };
+		2000B1115C596D2E5E45 /* SmartVaultWordSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SmartVaultWordSelector.swift"; sourceTree = "<group>"; };
 		20001BF345803150242B /* ToggleWordBookmarkUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ToggleWordBookmarkUseCase.swift"; sourceTree = "<group>"; };
 		20008990938AED4AD135 /* HomepageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomepageViewModel.swift"; sourceTree = "<group>"; };
 		20004F1187B05A298263 /* LearningPathDataMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathDataMapper.swift"; sourceTree = "<group>"; };
@@ -513,6 +516,7 @@
 		2000022A6E566EEDC31A /* SmartReflexQueueUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SmartReflexQueueUseCaseTests.swift"; sourceTree = "<group>"; };
 		2000257F4D2FD33D16E6 /* VocabularyDomainEntitiesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyDomainEntitiesTests.swift"; sourceTree = "<group>"; };
 		2000A3335C596D2E5E45 /* ModeSuccessStatsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ModeSuccessStatsTests.swift"; sourceTree = "<group>"; };
+		2000B2225C596D2E5E45 /* SmartVaultWordSelectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SmartVaultWordSelectorTests.swift"; sourceTree = "<group>"; };
 		2000496889722C6A9765 /* VocabularyUseCasesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyUseCasesTests.swift"; sourceTree = "<group>"; };
 		2000D1459B6F5FD76CEA /* DomainEntitiesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DomainEntitiesTests.swift"; sourceTree = "<group>"; };
 		2000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EvaluateSRSUseCaseTests.swift"; sourceTree = "<group>"; };
@@ -906,6 +910,7 @@
 				2000A6FAFC7B50783D6B /* RecordMixedDrillAttemptUseCase.swift */,
 				2000FA7560015826094C /* ResetUserProgressUseCase.swift */,
 				20006D78C4524120F696 /* ReviewWeakWordsUseCase.swift */,
+				2000B1115C596D2E5E45 /* SmartVaultWordSelector.swift */,
 				20001BF345803150242B /* ToggleWordBookmarkUseCase.swift */,
 			);
 			path = "UseCases";
@@ -1400,6 +1405,7 @@
 				2000022A6E566EEDC31A /* SmartReflexQueueUseCaseTests.swift */,
 				2000257F4D2FD33D16E6 /* VocabularyDomainEntitiesTests.swift */,
 				2000A3335C596D2E5E45 /* ModeSuccessStatsTests.swift */,
+				2000B2225C596D2E5E45 /* SmartVaultWordSelectorTests.swift */,
 				2000496889722C6A9765 /* VocabularyUseCasesTests.swift */,
 			);
 			path = "Domain";
@@ -1732,6 +1738,7 @@
 				3000A6FAFC7B50783D6B /* RecordMixedDrillAttemptUseCase.swift in Sources */,
 				3000FA7560015826094C /* ResetUserProgressUseCase.swift in Sources */,
 				30006D78C4524120F696 /* ReviewWeakWordsUseCase.swift in Sources */,
+				3000B1115C596D2E5E45 /* SmartVaultWordSelector.swift in Sources */,
 				30001BF345803150242B /* ToggleWordBookmarkUseCase.swift in Sources */,
 				30008990938AED4AD135 /* HomepageViewModel.swift in Sources */,
 				30004F1187B05A298263 /* LearningPathDataMapper.swift in Sources */,
@@ -1867,6 +1874,7 @@
 				3000022A6E566EEDC31A /* SmartReflexQueueUseCaseTests.swift in Test Sources */,
 				3000257F4D2FD33D16E6 /* VocabularyDomainEntitiesTests.swift in Test Sources */,
 				3000A3335C596D2E5E45 /* ModeSuccessStatsTests.swift in Test Sources */,
+				3000B2225C596D2E5E45 /* SmartVaultWordSelectorTests.swift in Test Sources */,
 				3000496889722C6A9765 /* VocabularyUseCasesTests.swift in Test Sources */,
 				3000D1459B6F5FD76CEA /* DomainEntitiesTests.swift in Test Sources */,
 				3000C63E337713EC8B32 /* EvaluateSRSUseCaseTests.swift in Test Sources */,
