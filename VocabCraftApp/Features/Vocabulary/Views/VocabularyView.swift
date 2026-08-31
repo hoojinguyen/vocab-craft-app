@@ -11,6 +11,7 @@ public struct VocabularyView: View {
     @State private var vaultVM: PersonalVaultViewModel?
     @State private var legacyVM: VocabularyViewModel?
     @State private var isSearchVisible: Bool = false
+    @State private var searchText: String = ""
     @State private var isPresentingPracticeSelection: Bool = false
     @State private var activeDrillViewModel: MixedReflexDrillViewModel?
     @State private var isPresentingSmartReview: Bool = false
@@ -24,6 +25,7 @@ public struct VocabularyView: View {
         self._vaultVM = State(initialValue: vaultViewModel)
         self._legacyVM = State(initialValue: viewModel)
         self._isSearchVisible = State(initialValue: isSearchVisible)
+        self._searchText = State(initialValue: vaultViewModel?.searchQuery ?? "")
     }
 
     private var activeVaultVM: PersonalVaultViewModel {
@@ -51,83 +53,99 @@ public struct VocabularyView: View {
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    ScrollView(.vertical, showsIndicators: false) {
-                        VStack(spacing: theme.spacing.md) {
-                            // Top Synchronized Header
-                            CraftPageHeader(
-                                AppStrings.Vault.title,
-                                alignment: .leading,
-                                enableScrollFade: true
-                            ) {
-                                CraftIconButton(
-                                    iconName: isSearchVisible ? "magnifyingglass.circle.fill" : "magnifyingglass",
-                                    size: .md,
-                                    shape: .circle,
-                                    variant: isSearchVisible ? .filled : .subtle,
-                                    accessibilityLabel: AppStrings.Vault.searchToggleA11y,
-                                    action: {
-                                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                            isSearchVisible.toggle()
-                                        }
+                    VStack(spacing: 0) {
+                        // ═══ PINNED ZONE (outside ScrollView) ═══
+
+                        // Expandable Search Bar — sticky when visible
+                        if isSearchVisible {
+                            CraftSearchBar(
+                                text: $searchText,
+                                placeholder: AppStrings.Vault.searchPlaceholder,
+                                size: .md,
+                                style: .flat,
+                                onCancel: {
+                                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                        searchText = ""
+                                        currentVaultVM.setSearchQuery("")
+                                        isSearchVisible = false
                                     }
-                                )
-                            }
-
-                            // Expandable Search Bar
-                            if isSearchVisible {
-                                CraftSearchBar(
-                                    text: Binding(
-                                        get: { bindableVaultVM.searchQuery },
-                                        set: { bindableVaultVM.setSearchQuery($0) }
-                                    ),
-                                    placeholder: AppStrings.Vault.searchPlaceholder,
-                                    size: .md,
-                                    style: .flat,
-                                    onCancel: {
-                                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                            bindableVaultVM.setSearchQuery("")
-                                            isSearchVisible = false
-                                        }
-                                    }
-                                )
-                                .padding(.horizontal, theme.spacing.base)
-                                .transition(.move(edge: .top).combined(with: .opacity))
-                            }
-
-                            // 3-Tab Segmented Filter (Chưa thuộc / Đã thuộc / Đã lưu)
-                            CraftSegmentedControl(
-                                selection: Binding(
-                                    get: { bindableVaultVM.vaultTabFilter },
-                                    set: { bindableVaultVM.setVaultFilter($0) }
-                                ),
-                                options: vaultSegmentOptions(metrics: currentVaultVM.metrics),
-                                style: .tactile3D
-                            )
-                            .padding(.horizontal, theme.spacing.base)
-
-                            // Top Action Button: PRACTICE / LUYỆN TẬP
-                            CraftButton(
-                                verbatim: AppStrings.Vault.actionPracticeText,
-                                variant: .tactile,
-                                size: .lg,
-                                isFullWidth: true,
-                                action: {
-                                    let words = currentVaultVM.prepareReviewWords()
-                                    guard !words.isEmpty else { return }
-                                    activeDrillViewModel = appContainer.makeMixedReflexDrillViewModel(selectedWords: words)
                                 }
                             )
-                            .disabled(currentVaultVM.vaultWords.isEmpty)
                             .padding(.horizontal, theme.spacing.base)
-
-                            // Main Word List / Empty State
-                            wordListContent(vaultVM: currentVaultVM)
+                            .padding(.vertical, theme.spacing.xs)
+                            .transition(.move(edge: .top).combined(with: .opacity))
                         }
-                        .padding(.top, theme.spacing.xs)
-                        .padding(.bottom, theme.spacing.xxl + 40)
+
+                        // 3-Tab Segmented Filter — always sticky
+                        CraftSegmentedControl(
+                            selection: Binding(
+                                get: { bindableVaultVM.vaultTabFilter },
+                                set: { bindableVaultVM.setVaultFilter($0) }
+                            ),
+                            options: vaultSegmentOptions(metrics: currentVaultVM.metrics),
+                            style: .tactile3D
+                        )
+                        .padding(.horizontal, theme.spacing.base)
+                        .padding(.vertical, theme.spacing.xs)
+
+                        // ═══ SCROLLABLE ZONE ═══
+                        ScrollView(.vertical, showsIndicators: false) {
+                            VStack(spacing: theme.spacing.md) {
+                                // Header with scroll-fade effect
+                                CraftPageHeader(
+                                    AppStrings.Vault.title,
+                                    alignment: .leading,
+                                    enableScrollFade: true
+                                ) {
+                                    CraftIconButton(
+                                        iconName: isSearchVisible ? "magnifyingglass.circle.fill" : "magnifyingglass",
+                                        size: .md,
+                                        shape: .circle,
+                                        variant: isSearchVisible ? .filled : .subtle,
+                                        accessibilityLabel: AppStrings.Vault.searchToggleA11y,
+                                        action: {
+                                            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                                isSearchVisible.toggle()
+                                            }
+                                        }
+                                    )
+                                }
+
+                                // Practice button — scrolls with content
+                                CraftButton(
+                                    verbatim: AppStrings.Vault.actionPracticeText,
+                                    variant: .tactile,
+                                    size: .lg,
+                                    isFullWidth: true,
+                                    action: {
+                                        let words = currentVaultVM.prepareReviewWords()
+                                        guard !words.isEmpty else { return }
+                                        activeDrillViewModel = appContainer.makeMixedReflexDrillViewModel(selectedWords: words)
+                                    }
+                                )
+                                .disabled(currentVaultVM.vaultWords.isEmpty)
+                                .padding(.horizontal, theme.spacing.base)
+
+                                // Main Word List / Empty State
+                                wordListContent(vaultVM: currentVaultVM)
+                            }
+                            .padding(.top, theme.spacing.xs)
+                            .padding(.bottom, theme.spacing.xxl + 40)
+                        }
+                        .refreshable {
+                            await currentVaultVM.loadData()
+                        }
                     }
-                    .refreshable {
-                        await currentVaultVM.loadData()
+                    .task(id: searchText) {
+                        if searchText.isEmpty {
+                            if !currentVaultVM.searchQuery.isEmpty {
+                                currentVaultVM.setSearchQuery("")
+                            }
+                            return
+                        }
+                        try? await Task.sleep(for: .milliseconds(300))
+                        guard !Task.isCancelled else { return }
+                        currentVaultVM.setSearchQuery(searchText)
                     }
                 }
             }
@@ -292,9 +310,11 @@ public struct VocabularyView: View {
         case "personal-filter-bookmarked":
             vm.setVaultFilter(.bookmarked)
         case "personal-search-match":
+            searchText = "resilience"
             vm.setSearchQuery("resilience")
             isSearchVisible = true
         case "personal-search-empty":
+            searchText = "không_tìm_thấy_từ"
             vm.setSearchQuery("không_tìm_thấy_từ")
             isSearchVisible = true
         default:
