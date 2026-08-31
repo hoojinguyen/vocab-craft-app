@@ -9,20 +9,61 @@ import SpeechKit
 public final class AudioBufferRelay: @unchecked Sendable {
     private let lock = NSLock()
     private weak var activeRequest: SFSpeechAudioBufferRecognitionRequest?
+    private var isMuted: Bool = false
 
     public init() {}
+
+    public var isCurrentlyMuted: Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return isMuted
+    }
+
+    public var currentRequest: SFSpeechAudioBufferRecognitionRequest? {
+        lock.lock()
+        defer { lock.unlock() }
+        return activeRequest
+    }
 
     public func setRequest(_ request: SFSpeechAudioBufferRecognitionRequest?) {
         lock.lock()
         defer { lock.unlock() }
         activeRequest = request
+        isMuted = false
+    }
+
+    public func mute() {
+        lock.lock()
+        defer { lock.unlock() }
+        isMuted = true
+    }
+
+    public func unmute() {
+        lock.lock()
+        defer { lock.unlock() }
+        isMuted = false
+    }
+
+    /// Atomically detaches the active request and invokes endAudio() on it.
+    /// Guarantees that no background tap buffer can ever be appended after endAudio() is called.
+    public func detachAndEnd() {
+        lock.lock()
+        let requestToEnd = activeRequest
+        activeRequest = nil
+        isMuted = true
+        lock.unlock()
+
+        requestToEnd?.endAudio()
     }
 
     public func append(_ buffer: AVAudioPCMBuffer) {
         lock.lock()
-        let request = activeRequest
+        guard !isMuted, let request = activeRequest else {
+            lock.unlock()
+            return
+        }
         lock.unlock()
-        request?.append(buffer)
+        request.append(buffer)
     }
 }
 
@@ -125,8 +166,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     public func endWord() {
         currentWordSessionToken = UUID() // Invalidate current token
 
-        bufferRelay.setRequest(nil)
-        activeRequest?.endAudio()
+        bufferRelay.detachAndEnd()
         activeTask?.cancel()
         activeRequest = nil
         activeTask = nil
@@ -142,8 +182,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     public func finalizeWordAudio() {
         // Signal end of audio input but keep recognition task alive
         // so in-flight buffers can still be processed during grace period.
-        bufferRelay.setRequest(nil)
-        activeRequest?.endAudio()
+        bufferRelay.detachAndEnd()
     }
 
     // MARK: - Simulator support
