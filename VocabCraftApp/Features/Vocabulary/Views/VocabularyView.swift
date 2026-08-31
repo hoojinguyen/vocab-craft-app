@@ -11,6 +11,8 @@ public struct VocabularyView: View {
     @State private var vaultVM: PersonalVaultViewModel?
     @State private var legacyVM: VocabularyViewModel?
     @State private var isSearchVisible: Bool = false
+    @State private var isScrolledPastHeader: Bool = false
+    @State private var measuredHeaderHeight: CGFloat = 50
     @State private var searchText: String = ""
     @State private var isPresentingPracticeSelection: Bool = false
     @State private var activeDrillViewModel: MixedReflexDrillViewModel?
@@ -20,13 +22,20 @@ public struct VocabularyView: View {
     public init(
         vaultViewModel: PersonalVaultViewModel? = nil,
         viewModel: VocabularyViewModel? = nil,
-        isSearchVisible: Bool = false
+        isSearchVisible: Bool = false,
+        isScrolledPastHeader: Bool = false
     ) {
         self._vaultVM = State(initialValue: vaultViewModel)
         self._legacyVM = State(initialValue: viewModel)
         self._isSearchVisible = State(initialValue: isSearchVisible)
+        self._isScrolledPastHeader = State(initialValue: isScrolledPastHeader)
         self._searchText = State(initialValue: vaultViewModel?.searchQuery ?? "")
     }
+
+    // MARK: - Testing Inspection Accessors
+    internal var isSearchVisibleForTesting: Bool { isSearchVisible }
+    internal var isScrolledPastHeaderForTesting: Bool { isScrolledPastHeader }
+    internal var measuredHeaderHeightForTesting: CGFloat { measuredHeaderHeight }
 
     private var activeVaultVM: PersonalVaultViewModel {
         if let vm = vaultVM {
@@ -53,88 +62,125 @@ public struct VocabularyView: View {
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    VStack(spacing: 0) {
-                        // ═══ PINNED ZONE (outside ScrollView) ═══
-
-                        // Expandable Search Bar — sticky when visible
-                        if isSearchVisible {
-                            CraftSearchBar(
-                                text: $searchText,
-                                placeholder: AppStrings.Vault.searchPlaceholder,
-                                size: .md,
-                                style: .flat,
-                                onCancel: {
-                                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                        searchText = ""
-                                        currentVaultVM.setSearchQuery("")
-                                        isSearchVisible = false
-                                    }
-                                }
-                            )
-                            .padding(.horizontal, theme.spacing.base)
-                            .padding(.vertical, theme.spacing.xs)
-                            .transition(.move(edge: .top).combined(with: .opacity))
-                        }
-
-                        // 3-Tab Segmented Filter — always sticky
-                        CraftSegmentedControl(
-                            selection: Binding(
-                                get: { bindableVaultVM.vaultTabFilter },
-                                set: { bindableVaultVM.setVaultFilter($0) }
-                            ),
-                            options: vaultSegmentOptions(metrics: currentVaultVM.metrics),
-                            style: .tactile3D
-                        )
-                        .padding(.horizontal, theme.spacing.base)
-                        .padding(.vertical, theme.spacing.xs)
-
-                        // ═══ SCROLLABLE ZONE ═══
-                        ScrollView(.vertical, showsIndicators: false) {
-                            VStack(spacing: theme.spacing.md) {
-                                // Header with scroll-fade effect
-                                CraftPageHeader(
-                                    AppStrings.Vault.title,
-                                    alignment: .leading,
-                                    enableScrollFade: true
-                                ) {
-                                    CraftIconButton(
-                                        iconName: isSearchVisible ? "magnifyingglass.circle.fill" : "magnifyingglass",
-                                        size: .md,
-                                        shape: .circle,
-                                        variant: isSearchVisible ? .filled : .subtle,
-                                        accessibilityLabel: AppStrings.Vault.searchToggleA11y,
-                                        action: {
-                                            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                                isSearchVisible.toggle()
-                                            }
-                                        }
-                                    )
-                                }
-
-                                // Practice button — scrolls with content
-                                CraftButton(
-                                    verbatim: AppStrings.Vault.actionPracticeText,
-                                    variant: .tactile,
-                                    size: .lg,
-                                    isFullWidth: true,
+                    ScrollView(.vertical, showsIndicators: false) {
+                        VStack(spacing: 0) {
+                            // 1. Page Header at the top of the scroll view (outside LazyVStack, never virtualized/recycled)
+                            CraftPageHeader(
+                                AppStrings.Vault.title,
+                                alignment: .leading,
+                                enableScrollFade: true
+                            ) {
+                                CraftIconButton(
+                                    iconName: (isSearchVisible || isScrolledPastHeader) ? "magnifyingglass.circle.fill" : "magnifyingglass",
+                                    size: .md,
+                                    shape: .circle,
+                                    variant: (isSearchVisible || isScrolledPastHeader) ? .filled : .subtle,
+                                    accessibilityLabel: AppStrings.Vault.searchToggleA11y,
                                     action: {
-                                        let words = currentVaultVM.prepareReviewWords()
-                                        guard !words.isEmpty else { return }
-                                        activeDrillViewModel = appContainer.makeMixedReflexDrillViewModel(selectedWords: words)
+                                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                            isSearchVisible.toggle()
+                                        }
                                     }
                                 )
-                                .disabled(currentVaultVM.vaultWords.isEmpty)
-                                .padding(.horizontal, theme.spacing.base)
-
-                                // Main Word List / Empty State
-                                wordListContent(vaultVM: currentVaultVM)
                             }
-                            .padding(.top, theme.spacing.xs)
-                            .padding(.bottom, theme.spacing.xxl + 40)
+                            .background(
+                                GeometryReader { proxy in
+                                    Color.clear
+                                        .preference(
+                                            key: HeaderOffsetPreferenceKey.self,
+                                            value: proxy.frame(in: .named("vocabScroll")).minY
+                                        )
+                                        .preference(
+                                            key: HeaderHeightPreferenceKey.self,
+                                            value: proxy.size.height
+                                        )
+                                }
+                            )
+                            .padding(.bottom, theme.spacing.md)
+
+                            // 2. Pinned Search & Filter Section inside LazyVStack
+                            LazyVStack(spacing: theme.spacing.md, pinnedViews: [.sectionHeaders]) {
+                                Section {
+                                    VStack(spacing: theme.spacing.md) {
+                                        // Practice button — scrolls with content
+                                        CraftButton(
+                                            verbatim: AppStrings.Vault.actionPracticeText,
+                                            variant: .tactile,
+                                            size: .lg,
+                                            isFullWidth: true,
+                                            action: {
+                                                let words = currentVaultVM.prepareReviewWords()
+                                                guard !words.isEmpty else { return }
+                                                activeDrillViewModel = appContainer.makeMixedReflexDrillViewModel(selectedWords: words)
+                                            }
+                                        )
+                                        .disabled(currentVaultVM.vaultWords.isEmpty)
+                                        .padding(.horizontal, theme.spacing.base)
+
+                                        // Main Word List / Empty State
+                                        wordListContent(vaultVM: currentVaultVM)
+                                    }
+                                } header: {
+                                    VStack(spacing: 0) {
+                                        // Expandable Search Bar — sticky when visible or scrolled past header
+                                        if isSearchVisible || isScrolledPastHeader {
+                                            CraftSearchBar(
+                                                text: $searchText,
+                                                placeholder: AppStrings.Vault.searchPlaceholder,
+                                                size: .md,
+                                                style: .flat,
+                                                onCancel: {
+                                                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                                        searchText = ""
+                                                        currentVaultVM.setSearchQuery("")
+                                                        isSearchVisible = false
+                                                    }
+                                                }
+                                            )
+                                            .padding(.horizontal, theme.spacing.base)
+                                            .padding(.vertical, theme.spacing.xs)
+                                            .transition(.move(edge: .top).combined(with: .opacity))
+                                        }
+
+                                        // 3-Tab Segmented Filter — always sticky
+                                        CraftSegmentedControl(
+                                            selection: Binding(
+                                                get: { bindableVaultVM.vaultTabFilter },
+                                                set: { bindableVaultVM.setVaultFilter($0) }
+                                            ),
+                                            options: vaultSegmentOptions(metrics: currentVaultVM.metrics),
+                                            style: .tactile3D
+                                        )
+                                        .padding(.horizontal, theme.spacing.base)
+                                        .padding(.vertical, theme.spacing.xs)
+                                    }
+                                    .background(
+                                        theme.colors.canvasBackground
+                                            .craftShadow(isScrolledPastHeader ? theme.shadows.sm : CraftShadow(color: .clear, radius: 0))
+                                    )
+                                }
+                            }
                         }
-                        .refreshable {
-                            await currentVaultVM.loadData()
+                        .padding(.top, theme.spacing.xs)
+                        .padding(.bottom, theme.spacing.xxl + 40)
+                    }
+                    .coordinateSpace(.named("vocabScroll"))
+                    .onPreferenceChange(HeaderHeightPreferenceKey.self) { height in
+                        if height > 0 && abs(measuredHeaderHeight - height) > 1 {
+                            measuredHeaderHeight = height
                         }
+                    }
+                    .onPreferenceChange(HeaderOffsetPreferenceKey.self) { offset in
+                        let threshold = -max(measuredHeaderHeight, 20)
+                        let shouldBePastHeader = offset < threshold
+                        if isScrolledPastHeader != shouldBePastHeader {
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                isScrolledPastHeader = shouldBePastHeader
+                            }
+                        }
+                    }
+                    .refreshable {
+                        await currentVaultVM.loadData()
                     }
                     .task(id: searchText) {
                         if searchText.isEmpty {
@@ -332,5 +378,30 @@ public struct VocabularyView: View {
 
     private func seedSampleUserProgress() async {
         await SampleVaultDataSeeder.seed(repository: appContainer.userProgressRepository)
+    }
+}
+
+// MARK: - Header Offset Preference Key
+
+/// Tracks vertical scroll offset of the page header relative to the scroll container.
+struct HeaderOffsetPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}
+
+// MARK: - Header Height Preference Key
+
+/// Tracks dynamic rendered height of the page header (adapting to Dynamic Type accessibility scaling).
+struct HeaderHeightPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 50
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        let next = nextValue()
+        if next > 0 {
+            value = next
+        }
     }
 }

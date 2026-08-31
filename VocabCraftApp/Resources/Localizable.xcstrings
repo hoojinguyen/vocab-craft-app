@@ -3067,13 +3067,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vocabulary Vault"
+            "value" : "Vocabulary"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kho Từ"
+            "value" : "Kho từ vựng"
           }
         }
       }

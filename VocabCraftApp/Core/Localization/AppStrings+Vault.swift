@@ -5,7 +5,7 @@ extension AppStrings {
     public enum Vault {
         public static var title: LocalizedStringKey { "app.vault.title" }
         public static var titleText: String {
-            String(localized: "app.vault.title", defaultValue: "Vocabulary Vault", bundle: .module)
+            String(localized: "app.vault.title", defaultValue: "Vocabulary", bundle: .module)
         }
         public static var searchPlaceholder: LocalizedStringKey { "app.vault.search_placeholder" }
         public static var searchPlaceholderText: String {

@@ -325,6 +325,98 @@ final class PersonalVaultViewsTests: XCTestCase {
         #endif
     }
 
+    func test_vocabularyView_initializationWithSearchVisibleTrue() {
+        let vm = PersonalVaultViewModel(mockWords: [mockVaultWord])
+        let view = VocabularyView(vaultViewModel: vm, isSearchVisible: true)
+
+        XCTAssertTrue(view.isSearchVisibleForTesting)
+        XCTAssertFalse(view.isScrolledPastHeaderForTesting)
+
+        #if canImport(UIKit)
+        let host = UIHostingController(rootView: view)
+        XCTAssertNotNil(host.view)
+        #else
+        XCTAssertNotNil(view)
+        #endif
+    }
+
+    func test_vocabularyView_initializationWithSearchVisibleFalse() {
+        let vm = PersonalVaultViewModel(mockWords: [mockVaultWord])
+        let view = VocabularyView(vaultViewModel: vm, isSearchVisible: false)
+
+        XCTAssertFalse(view.isSearchVisibleForTesting)
+        XCTAssertFalse(view.isScrolledPastHeaderForTesting)
+
+        #if canImport(UIKit)
+        let host = UIHostingController(rootView: view)
+        XCTAssertNotNil(host.view)
+        #else
+        XCTAssertNotNil(view)
+        #endif
+    }
+
+    func test_vocabularyView_initializationWithScrolledPastHeaderTrue() {
+        let vm = PersonalVaultViewModel(mockWords: [mockVaultWord])
+        let view = VocabularyView(vaultViewModel: vm, isSearchVisible: false, isScrolledPastHeader: true)
+
+        XCTAssertFalse(view.isSearchVisibleForTesting)
+        XCTAssertTrue(view.isScrolledPastHeaderForTesting)
+
+        #if canImport(UIKit)
+        let host = UIHostingController(rootView: view)
+        XCTAssertNotNil(host.view)
+        #else
+        XCTAssertNotNil(view)
+        #endif
+    }
+
+    func test_vocabularyView_initializationWithAllParameters() {
+        let vm = PersonalVaultViewModel(mockWords: [mockVaultWord])
+        let legacyVM = VocabularyViewModel()
+        let view = VocabularyView(
+            vaultViewModel: vm,
+            viewModel: legacyVM,
+            isSearchVisible: true,
+            isScrolledPastHeader: true
+        )
+
+        XCTAssertTrue(view.isSearchVisibleForTesting)
+        XCTAssertTrue(view.isScrolledPastHeaderForTesting)
+
+        #if canImport(UIKit)
+        let host = UIHostingController(rootView: view)
+        XCTAssertNotNil(host.view)
+        #else
+        XCTAssertNotNil(view)
+        #endif
+    }
+
+    func test_headerOffsetPreferenceKey_defaultValueAndReduce() {
+        XCTAssertEqual(HeaderOffsetPreferenceKey.defaultValue, 0)
+        var current: CGFloat = 0
+        HeaderOffsetPreferenceKey.reduce(value: &current, nextValue: { -42.5 })
+        XCTAssertEqual(current, -42.5)
+
+        HeaderOffsetPreferenceKey.reduce(value: &current, nextValue: { 100.0 })
+        XCTAssertEqual(current, 100.0)
+    }
+
+    func test_headerHeightPreferenceKey_defaultValueAndReduce() {
+        XCTAssertEqual(HeaderHeightPreferenceKey.defaultValue, 50)
+        var current: CGFloat = 50
+        HeaderHeightPreferenceKey.reduce(value: &current, nextValue: { 85.0 })
+        XCTAssertEqual(current, 85.0)
+
+        HeaderHeightPreferenceKey.reduce(value: &current, nextValue: { 0 })
+        XCTAssertEqual(current, 85.0)
+    }
+
+    func test_vocabularyView_measuredHeaderHeightDefault() {
+        let vm = PersonalVaultViewModel(mockWords: [mockVaultWord])
+        let view = VocabularyView(vaultViewModel: vm)
+        XCTAssertEqual(view.measuredHeaderHeightForTesting, 50)
+    }
+
     // MARK: - Legacy View Backward Compatibility Tests
     func test_personalVaultHeroCard_withWeakWords_triggersAction() {
         var didTrigger = false
