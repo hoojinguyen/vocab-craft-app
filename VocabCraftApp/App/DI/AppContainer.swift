@@ -219,9 +219,9 @@ public final class AppContainer {
         let blitzWords = !words.isEmpty ? words : ReflexBlitzWordItem.defaultStarterWords
         return ReflexBlitzViewModel(
             words: blitzWords,
-            continuousSpeechService: ContinuousReflexSpeechService(),
             ttsService: ttsService,
-            evaluateSRSUseCase: evaluateSRSUseCase
+            evaluateSRSUseCase: evaluateSRSUseCase,
+            speechEngine: ResilientReflexSpeechEngine()
         )
     }
 

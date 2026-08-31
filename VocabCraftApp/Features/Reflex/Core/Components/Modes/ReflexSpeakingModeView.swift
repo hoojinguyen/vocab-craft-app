@@ -22,6 +22,7 @@ public struct ReflexSpeakingModeView: View {
     // MARK: - Mic & Transcript
     public let speechState: CraftSpeechState
     public let liveTranscript: String
+    public let onSwitchToKeyboard: (() -> Void)?
     public let onReplayAudio: (() -> Void)?
 
     public init(
@@ -37,6 +38,7 @@ public struct ReflexSpeakingModeView: View {
         hintBadgeText: String? = nil,
         speechState: CraftSpeechState = .listening(),
         liveTranscript: String = "",
+        onSwitchToKeyboard: (() -> Void)? = nil,
         onReplayAudio: (() -> Void)? = nil
     ) {
         self.word = word
@@ -51,6 +53,7 @@ public struct ReflexSpeakingModeView: View {
         self.hintBadgeText = hintBadgeText
         self.speechState = speechState
         self.liveTranscript = liveTranscript
+        self.onSwitchToKeyboard = onSwitchToKeyboard
         self.onReplayAudio = onReplayAudio
     }
 
@@ -79,6 +82,7 @@ public struct ReflexSpeakingModeView: View {
             hintBadgeText: hintBadgeText,
             speechState: .listening(),
             liveTranscript: liveTranscript,
+            onSwitchToKeyboard: onSwitchToKeyboard,
             onReplayAudio: nil
         )
     }
@@ -263,29 +267,28 @@ public struct ReflexSpeakingModeView: View {
                     ? .evaluated(overallScore: isResultCorrect ? 100 : 0)
                     : speechState,
                 customSubtitle: isReviewed ? "" : nil,
-                onTapMic: {}  // No tap action — continuous listening
+                onTapMic: {}  // Auto continuous listening
             )
-            .disabled(true)  // Disable tap — mic is auto-controlled
+            .disabled(true)
 
-            if !liveTranscript.isEmpty {
-                let lastToken = liveTranscript
-                    .split(separator: " ")
-                    .last
-                    .map(String.init) ?? liveTranscript
-                CraftBadge(
-                    lastToken,
-                    iconName: "waveform",
-                    variant: isReviewed ? .subtle : .solid,
-                    tone: isReviewed
-                        ? (isResultCorrect ? .success : .danger)
-                        : .primary,
-                    size: .md,
-                    shape: .capsule
+            ReflexSpeakingLiveBadge(
+                liveTranscript: liveTranscript,
+                isReviewed: isReviewed,
+                isResultCorrect: isResultCorrect
+            )
+            .equatable()
+            .animation(.spring(response: 0.25, dampingFraction: 0.8), value: !liveTranscript.isEmpty)
+
+            if !isReviewed, let onSwitchToKeyboard {
+                CraftButton(
+                    AppStrings.ReflexBlitz.switchToKeyboardText,
+                    iconName: "keyboard",
+                    variant: .ghost,
+                    size: .sm,
+                    action: onSwitchToKeyboard
                 )
-                .transition(.scale.combined(with: .opacity))
             }
         }
-        .animation(.spring(response: 0.3, dampingFraction: 0.75), value: liveTranscript.isEmpty)
         .animation(.spring(response: 0.3, dampingFraction: 0.75), value: isReviewed)
     }
 
@@ -359,5 +362,43 @@ public struct ReflexSpeakingModeView: View {
             .font(theme.typography.bodySerif)
             .foregroundColor(theme.colors.textPrimary)
         return prefixText + slotText + suffixText
+    }
+}
+
+// MARK: - Subviews
+
+private struct ReflexSpeakingLiveBadge: View, Equatable {
+    let liveTranscript: String
+    let isReviewed: Bool
+    let isResultCorrect: Bool
+    @Environment(\.craftTheme) private var theme
+
+    private var renderedToken: String {
+        liveTranscript
+            .split(separator: " ")
+            .last
+            .map(String.init) ?? liveTranscript
+    }
+
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.renderedToken == rhs.renderedToken &&
+        lhs.isReviewed == rhs.isReviewed &&
+        lhs.isResultCorrect == rhs.isResultCorrect
+    }
+
+    var body: some View {
+        if !liveTranscript.isEmpty {
+            CraftBadge(
+                renderedToken,
+                iconName: "waveform",
+                variant: isReviewed ? .subtle : .solid,
+                tone: isReviewed
+                    ? (isResultCorrect ? .success : .danger)
+                    : .primary,
+                size: .md,
+                shape: .capsule
+            )
+            .transition(.scale.combined(with: .opacity))
+        }
     }
 }

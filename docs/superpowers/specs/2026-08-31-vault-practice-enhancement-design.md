@@ -159,8 +159,8 @@ public struct ModeSuccessStats: Codable, Equatable, Sendable {
 #### A. Smart Vault Word Selection Algorithm (`SmartVaultWordSelector`)
 1. **Input**: Tab word list, target count $N$ from `UserSettingsStore.dailyGoalCount`.
 2. **Formula**:
-   $$S = (4 - \text{modeCount}) \times 10 + \max(0, 5 - \text{correctStreak}) \times 3 + \min(10, \text{daysSinceLastPractice}) \times 2 + \text{jitter}(0.0 \dots 1.0)$$
-   *(where `daysSinceLastPractice` is computed from `word.lastPracticedAt` vs current date)*
+   $$S = (4 - \text{modeCount}) \times 10 + \max(0, 5 - \text{correctStreak}) \times 3 + \min(10, \text{daysSinceLastPractice}) \times 2 + \text{jitter}(0.0 \dots <1.0)$$
+   *(where jitter is drawn from half-open range `0.0..<1.0`, and `daysSinceLastPractice` is computed from `word.lastPracticedAt` vs current date)*
 3. **Execution**:
    - Calculate score $S$ for each candidate word in the current tab.
    - Sort descending by $S$.

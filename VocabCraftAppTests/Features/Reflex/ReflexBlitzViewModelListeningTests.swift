@@ -13,7 +13,6 @@ struct ReflexBlitzViewModelListeningTests {
         let mockTTS = MockTextToSpeechService()
         let vm = ReflexBlitzViewModel(
             words: ReflexBlitzWordItem.defaultStarterWords,
-            continuousSpeechService: MockContinuousReflexSpeechService(),
             ttsService: mockTTS,
             evaluateSRSUseCase: MockEvaluateSRSUseCase(),
             soundEffectService: MockSoundEffectService()
@@ -34,7 +33,6 @@ struct ReflexBlitzViewModelListeningTests {
         let mockTTS = MockTextToSpeechService()
         let vm = ReflexBlitzViewModel(
             words: ReflexBlitzWordItem.defaultStarterWords,
-            continuousSpeechService: MockContinuousReflexSpeechService(),
             ttsService: mockTTS,
             evaluateSRSUseCase: MockEvaluateSRSUseCase(),
             soundEffectService: MockSoundEffectService()
@@ -55,7 +53,6 @@ struct ReflexBlitzViewModelListeningTests {
         let mockTTS = MockTextToSpeechService()
         let vm = ReflexBlitzViewModel(
             words: ReflexBlitzWordItem.defaultStarterWords,
-            continuousSpeechService: MockContinuousReflexSpeechService(),
             ttsService: mockTTS,
             evaluateSRSUseCase: MockEvaluateSRSUseCase(),
             soundEffectService: MockSoundEffectService()

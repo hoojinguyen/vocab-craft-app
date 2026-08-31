@@ -1,7 +1,9 @@
-@testable import VocabCraftApp
+@preconcurrency import AVFoundation
+import Speech
 #if canImport(XCTest)
 import XCTest
 #endif
+@testable import VocabCraftApp
 
 @MainActor
 final class ResilientReflexSpeechEngineTests: XCTestCase {
@@ -106,5 +108,57 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
         let relay = AudioBufferRelay()
         relay.setRequest(nil)
         XCTAssertNotNil(relay)
+    }
+
+    func testAudioBufferRelay_muteAndUnmute() {
+        let relay = AudioBufferRelay()
+        relay.mute()
+        XCTAssertTrue(relay.isCurrentlyMuted)
+        relay.unmute()
+        XCTAssertFalse(relay.isCurrentlyMuted)
+    }
+
+    func testAudioBufferRelay_detachAndEnd_resetsRequestAndMutes() {
+        let relay = AudioBufferRelay()
+        let request = SFSpeechAudioBufferRecognitionRequest()
+        relay.setRequest(request)
+        XCTAssertFalse(relay.isCurrentlyMuted)
+
+        relay.detachAndEnd()
+        XCTAssertTrue(relay.isCurrentlyMuted)
+        XCTAssertNil(relay.currentRequest)
+    }
+
+    func testAudioBufferRelay_concurrentAppendAndDetach_noCrash() {
+        let relay = AudioBufferRelay()
+        let format = AVAudioFormat(standardFormatWithSampleRate: 44100, channels: 1)!
+        let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: 1024)!
+        buffer.frameLength = 1024
+
+        let iterations = 1000
+        let group = DispatchGroup()
+
+        // Background thread appending buffers rapidly
+        group.enter()
+        DispatchQueue.global(qos: .userInteractive).async {
+            for _ in 0..<iterations {
+                relay.append(buffer)
+            }
+            group.leave()
+        }
+
+        // Main thread alternating request and detachAndEnd
+        group.enter()
+        DispatchQueue.global(qos: .default).async {
+            for _ in 0..<iterations {
+                let req = SFSpeechAudioBufferRecognitionRequest()
+                relay.setRequest(req)
+                relay.detachAndEnd()
+            }
+            group.leave()
+        }
+
+        let result = group.wait(timeout: .now() + 5.0)
+        XCTAssertEqual(result, .success)
     }
 }

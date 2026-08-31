@@ -80,14 +80,12 @@ struct ReflexBlitzViewModelFeedbackTests {
     @Test("Listening mode auto-speaks lemma and option selection triggers feedback")
     @MainActor
     func testListeningFeedbackInteractions() {
-        let mockSpeech = MockContinuousReflexSpeechService()
         let mockTTS = MockTextToSpeechService()
         let mockSRS = MockEvaluateSRSUseCase()
         let sampleWord = ReflexBlitzWordItem(id: 3, lemma: "resilient", ipa: "/rɪˈzɪl.jənt/", definitionVi: "Kiên cường", clozeSentenceEn: "They are [resilient].", clozeSentenceVi: "Họ kiên cường.")
 
         let viewModel = ReflexBlitzViewModel(
             words: [sampleWord],
-            continuousSpeechService: mockSpeech,
             ttsService: mockTTS,
             evaluateSRSUseCase: mockSRS
         )
@@ -96,7 +94,10 @@ struct ReflexBlitzViewModelFeedbackTests {
         #expect(mockTTS.lastSpokenText == "resilient")
         #expect(viewModel.isFeedbackPresented == false)
 
-        let correctOpt = viewModel.currentOptions.first(where: { $0.isCorrect })!
+        guard let correctOpt = viewModel.currentOptions.first(where: { $0.isCorrect }) else {
+            Issue.record("Expected correct option")
+            return
+        }
         viewModel.selectOption(correctOpt)
         #expect(viewModel.isFeedbackPresented == true)
         #expect(viewModel.currentAttemptIsCorrect == true)
