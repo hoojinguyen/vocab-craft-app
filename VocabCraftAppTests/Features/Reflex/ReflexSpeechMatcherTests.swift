@@ -45,12 +45,16 @@ final class ReflexSpeechMatcherTests: XCTestCase {
     // MARK: - Long Words (>= 8 chars): Threshold 0.72
 
     func testLongWords_acceptsAccentTolerantVariants() {
-        // "ephemeral" (9 chars)
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "ephemeral", targetLemma: "ephemeral"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "hesitated", targetLemma: "hesitate"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "hesitating", targetLemma: "hesitate"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "hesitation", targetLemma: "hesitate"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "creation", targetLemma: "create"))
         // Reject non-inflection derivations (e.g. "creative" should not match "create")
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "creative", targetLemma: "create"))
+        // Reject bare truncated stem when target is a distinct longer word (e.g. "past" vs "paste", "cast" vs "caste")
+        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "past", targetLemma: "paste"))
+        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "cast", targetLemma: "caste"))
     }
 
     // MARK: - Multi-Word Lemmas

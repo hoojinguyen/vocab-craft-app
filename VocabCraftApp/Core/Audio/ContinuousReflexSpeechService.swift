@@ -39,19 +39,20 @@ public enum ReflexSpeechMatcher {
 
             // 2. Stemming / Inflection / Prefix match (e.g. "walk" vs "walking", "hesitate" vs "hesitating")
             if targetLen >= 4 {
+                // Token is an extended form of the target (e.g. target "walk" -> spoken "walked", "walking")
                 if token.hasPrefix(normalizedTarget) {
                     return true
                 }
-                if token.count >= 4 && normalizedTarget.hasPrefix(token) {
-                    return true
-                }
-                // Handle English vowel drop (e.g. "hesitate" -> stem "hesitat" vs "hesitating", "hesitated")
-                // Restrict to recognized verbal/nominal inflection suffixes (ing, ed, es, s, er, or) to avoid false matches (e.g. "create" vs "creative")
-                if normalizedTarget.hasSuffix("e") && normalizedTarget.count >= 5 {
+
+                // Handle English vowel drop (e.g. "hesitate" -> stem "hesitat" vs "hesitating", "hesitation")
+                // Suffix must be a non-empty recognized verbal/nominal inflection suffix
+                if normalizedTarget.hasSuffix("e") && targetLen >= 5 {
                     let stemWithoutE = String(normalizedTarget.dropLast())
                     if token.hasPrefix(stemWithoutE) {
                         let suffix = String(token.dropFirst(stemWithoutE.count))
-                        let allowedInflections: Set<String> = ["", "ing", "ed", "es", "s", "er", "or"]
+                        let allowedInflections: Set<String> = [
+                            "ing", "ed", "es", "s", "er", "or", "tion", "ion", "ation", "ment"
+                        ]
                         if allowedInflections.contains(suffix) {
                             return true
                         }
@@ -60,9 +61,10 @@ public enum ReflexSpeechMatcher {
             }
 
             // 3. Tiered fuzzy phonetic & accent tolerance
-            if targetLen <= 4 {
-                // Short words (< 5 letters): STRICT exact/stem only.
-                // Do NOT apply loose Levenshtein distance to prevent ambient noise (breathing, whispers) from matching.
+            if targetLen <= 4 || token.count <= 4 {
+                // Short words or short spoken tokens (<= 4 letters): STRICT exact/stem only.
+                // Do NOT apply loose Levenshtein distance to prevent ambient noise (breathing, whispers)
+                // or distinct 4-letter lemmas (e.g. "past" vs "paste", "cast" vs "caste") from matching.
                 continue
             } else if targetLen <= 7 {
                 // Medium words (5-7 letters): Require high similarity (>= 0.80 default)
