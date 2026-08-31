@@ -8,7 +8,7 @@ import Testing
 @Suite("PersonalVault Localization Tests")
 struct PersonalVaultLocalizationTests {
     private let requiredVaultKeys: [String: (vi: String, en: String)] = [
-        "app.vault.title": ("Kho Từ", "Vocabulary Vault"),
+        "app.vault.title": ("Kho Từ", "Vocabulary"),
         "app.vault.search_placeholder": ("Tìm kiếm từ vựng...", "Search vocabulary..."),
         "app.vault.filter.not_mastered": ("Chưa thuộc (%lld)", "Learning (%lld)"),
         "app.vault.filter.mastered": ("Đã thuộc (%lld)", "Mastered (%lld)"),
@@ -98,7 +98,7 @@ struct PersonalVaultLocalizationTests {
 
     @Test("Kiểm tra typed accessors trong AppStrings.Vault")
     func testAppStringsVaultAccessors() {
-        #expect(AppStrings.Vault.titleText == "Vocabulary Vault")
+        #expect(AppStrings.Vault.titleText == "Vocabulary")
         #expect(AppStrings.Vault.searchPlaceholderText == "Search vocabulary...")
         #expect(AppStrings.Vault.filterNotMastered(10) == "Learning (10)")
         #expect(AppStrings.Vault.filterMastered(5) == "Mastered (5)")
