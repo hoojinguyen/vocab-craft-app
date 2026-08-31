@@ -22,6 +22,7 @@ public final class UserWordProgress {
     public var consecutiveCorrectStreak: Int
     public var practicedModesRaw: String
     public var isMastered: Bool
+    public var modeSuccessCountsRaw: String
 
     public init(
         wordId: Int64,
@@ -39,7 +40,8 @@ public final class UserWordProgress {
         sourceNodeId: String? = nil,
         consecutiveCorrectStreak: Int = 0,
         practicedModesRaw: String = "",
-        isMastered: Bool = false
+        isMastered: Bool = false,
+        modeSuccessCountsRaw: String = ""
     ) {
         self.wordId = wordId
         self.cefrLevel = cefrLevel
@@ -57,6 +59,12 @@ public final class UserWordProgress {
         self.consecutiveCorrectStreak = consecutiveCorrectStreak
         self.practicedModesRaw = practicedModesRaw
         self.isMastered = isMastered
+        self.modeSuccessCountsRaw = modeSuccessCountsRaw
+    }
+
+    public var modeStats: ModeSuccessStats {
+        get { ModeSuccessStatsCodec.decode(modeSuccessCountsRaw) }
+        set { modeSuccessCountsRaw = ModeSuccessStatsCodec.encode(newValue) }
     }
 }
 
@@ -253,6 +261,7 @@ public final class UserWordProgress: @unchecked Sendable {
     public var consecutiveCorrectStreak: Int
     public var practicedModesRaw: String
     public var isMastered: Bool
+    public var modeSuccessCountsRaw: String
 
     public init(
         wordId: Int64,
@@ -270,7 +279,8 @@ public final class UserWordProgress: @unchecked Sendable {
         sourceNodeId: String? = nil,
         consecutiveCorrectStreak: Int = 0,
         practicedModesRaw: String = "",
-        isMastered: Bool = false
+        isMastered: Bool = false,
+        modeSuccessCountsRaw: String = ""
     ) {
         self.wordId = wordId
         self.cefrLevel = cefrLevel
@@ -288,6 +298,12 @@ public final class UserWordProgress: @unchecked Sendable {
         self.consecutiveCorrectStreak = consecutiveCorrectStreak
         self.practicedModesRaw = practicedModesRaw
         self.isMastered = isMastered
+        self.modeSuccessCountsRaw = modeSuccessCountsRaw
+    }
+
+    public var modeStats: ModeSuccessStats {
+        get { ModeSuccessStatsCodec.decode(modeSuccessCountsRaw) }
+        set { modeSuccessCountsRaw = ModeSuccessStatsCodec.encode(newValue) }
     }
 }
 

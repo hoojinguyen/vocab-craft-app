@@ -26,16 +26,22 @@ public final class PersonalVaultViewModel {
     private let fetchVaultUseCase: FetchPersonalVaultUseCaseProtocol?
     private let toggleBookmarkUseCase: ToggleWordBookmarkUseCaseProtocol?
     private let ttsService: TextToSpeechProtocol?
+    private let smartSelector: SmartVaultWordSelectorProtocol
+    public let userSettingsStore: UserSettingsStore?
 
     public init(
         fetchVaultUseCase: FetchPersonalVaultUseCaseProtocol? = nil,
         toggleBookmarkUseCase: ToggleWordBookmarkUseCaseProtocol? = nil,
         ttsService: TextToSpeechProtocol? = nil,
+        smartSelector: SmartVaultWordSelectorProtocol = SmartVaultWordSelector(),
+        userSettingsStore: UserSettingsStore? = nil,
         mockWords: [VaultWordItem] = []
     ) {
         self.fetchVaultUseCase = fetchVaultUseCase
         self.toggleBookmarkUseCase = toggleBookmarkUseCase
         self.ttsService = ttsService
+        self.smartSelector = smartSelector
+        self.userSettingsStore = userSettingsStore
         self.vaultWords = mockWords
     }
 
@@ -113,6 +119,23 @@ public final class PersonalVaultViewModel {
         selectedWordIds.removeAll()
     }
 
+    @discardableResult
+    public func smartPickWords(targetCount: Int? = nil) -> [VaultWordItem] {
+        let effectiveTarget = targetCount ?? userSettingsStore?.dailyGoalCount ?? 10
+        let pool: [VaultWordItem]
+        switch vaultTabFilter {
+        case .notMastered:
+            pool = vaultWords.filter { !$0.isMastered }
+        case .mastered:
+            pool = vaultWords.filter(\.isMastered)
+        case .bookmarked:
+            pool = vaultWords.filter(\.isBookmarked)
+        }
+        let picked = smartSelector.selectWords(from: pool, targetCount: effectiveTarget)
+        selectedWordIds = Set(picked.map(\.id))
+        return picked
+    }
+
     public func setVaultFilter(_ filter: VaultTabFilter) {
         vaultTabFilter = filter
         Task { await loadData() }
@@ -155,7 +178,8 @@ public final class PersonalVaultViewModel {
                     isBookmarked: !item.isBookmarked,
                     correctStreak: item.correctStreak,
                     practicedModes: item.practicedModes,
-                    lastPracticedAt: item.lastPracticedAt
+                    lastPracticedAt: item.lastPracticedAt,
+                    modeStats: item.modeStats
                 )
                 vaultWords[idx] = updated
                 didSucceed = true
@@ -176,7 +200,8 @@ public final class PersonalVaultViewModel {
                 isBookmarked: !current.isBookmarked,
                 correctStreak: current.correctStreak,
                 practicedModes: current.practicedModes,
-                lastPracticedAt: current.lastPracticedAt
+                lastPracticedAt: current.lastPracticedAt,
+                modeStats: current.modeStats
             )
         }
     }

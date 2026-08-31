@@ -1,9 +1,14 @@
+import CraftUIKit
 import SwiftUI
 
 /// A selectable row component representing a word in the Practice Selection sheet.
 /// Complies with Apple HIG guidelines: minimum 44x44pt touch targets, native SF Symbols,
 /// spring transitions, and haptic feedback.
+/// Displays word lemma, phonetic, audio button, CEFR/POS badges, definition, 4 mini sensory icons (🎙️ ⌨️ 🔲 🎧),
+/// and a selection checkbox.
 public struct PracticeSelectionRow: View {
+    @Environment(\.craftTheme) private var theme
+
     public let word: VaultWordItem
     public let isSelected: Bool
     public let onToggle: () -> Void
@@ -23,107 +28,136 @@ public struct PracticeSelectionRow: View {
 
     public var body: some View {
         Button(action: onToggle) {
-            HStack(alignment: .center, spacing: 12) {
+            HStack(alignment: .center, spacing: theme.spacing.md) {
                 // Word Details
-                VStack(alignment: .leading, spacing: 5) {
-                    HStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    HStack(alignment: .center, spacing: theme.spacing.xs) {
                         Text(word.lemma)
-                            .font(.system(size: 17, weight: .bold, design: .serif))
-                            .foregroundColor(Color.vocabInk)
+                            .font(theme.typography.headline)
+                            .foregroundStyle(theme.colors.textPrimary)
+                            .multilineTextAlignment(.leading)
 
                         if !word.phonetic.isEmpty {
                             Text(word.phonetic)
-                                .font(.system(size: 12, weight: .medium, design: .monospaced))
-                                .foregroundColor(Color.vocabMuted)
+                                .font(theme.typography.phonetic)
+                                .foregroundStyle(theme.colors.textSecondary)
                         }
 
                         if let onAudioTap {
                             Button(action: onAudioTap) {
                                 Image(systemName: "speaker.wave.2.fill")
                                     .font(.system(size: 13, weight: .semibold))
-                                    .foregroundColor(Color.vocabPeach)
+                                    .foregroundStyle(theme.colors.brandPrimary)
                                     .frame(width: 32, height: 32)
-                                    .background(Color.vocabPeach.opacity(0.12))
+                                    .background(theme.colors.brandPrimary.opacity(0.12))
                                     .clipShape(Circle())
                             }
-                            .buttonStyle(PlainButtonStyle())
+                            .buttonStyle(.plain)
                             .frame(minWidth: 44, minHeight: 44)
                             .contentShape(Rectangle())
+                            .accessibilityLabel(AppStrings.Practice.audioA11yLabel(lemma: word.lemma))
                         }
                     }
 
-                    HStack(spacing: 6) {
+                    HStack(spacing: theme.spacing.xs) {
                         if !word.cefrLevel.isEmpty {
-                            Text(word.cefrLevel)
-                                .font(.system(size: 10, weight: .bold))
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(cefrBadgeBackground)
-                                .foregroundColor(Color.vocabInk)
-                                .cornerRadius(4)
+                            CraftBadge(
+                                verbatim: word.cefrLevel.uppercased(),
+                                variant: .subtle,
+                                tone: .primary,
+                                size: .sm
+                            )
                         }
 
                         if !word.pos.isEmpty {
-                            Text("(\(word.pos))")
-                                .font(.system(size: 11, weight: .medium).italic())
-                                .foregroundColor(Color.vocabMuted)
+                            CraftBadge(
+                                verbatim: word.pos,
+                                variant: .subtle,
+                                tone: .neutral,
+                                size: .sm
+                            )
                         }
 
                         Text(word.definitionVi)
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(Color.vocabMuted)
+                            .font(theme.typography.caption)
+                            .foregroundStyle(theme.colors.textSecondary)
                             .lineLimit(1)
                     }
+
+                    // 4 Mini Sensory Icons Indicator Row (🎙️ ⌨️ 🔲 🎧)
+                    sensoryIconsRow
+                        .padding(.top, 2)
                 }
 
-                Spacer(minLength: 8)
+                Spacer(minLength: theme.spacing.xs)
 
                 // Selection Checkbox
                 ZStack {
                     Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                         .font(.system(size: 24, weight: .semibold))
-                        .foregroundColor(isSelected ? Color.vocabHeroAccent : Color.vocabMuted.opacity(0.4))
+                        .foregroundStyle(isSelected ? theme.colors.brandPrimary : theme.colors.textMuted.opacity(0.4))
                         .contentTransition(.symbolEffect(.replace))
                 }
                 .frame(minWidth: 44, minHeight: 44)
                 .contentShape(Rectangle())
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 12)
+            .padding(.horizontal, theme.spacing.md)
+            .padding(.vertical, theme.spacing.md)
             .frame(minHeight: 56)
-            .background(Color.vocabSurfaceCard)
-            .cornerRadius(14)
+            .background(theme.colors.surfaceCard)
+            .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
             .overlay(
-                RoundedRectangle(cornerRadius: 14)
+                RoundedRectangle(cornerRadius: theme.radii.md)
                     .stroke(
-                        isSelected ? Color.vocabHeroAccent.opacity(0.5) : Color.vocabHairline,
+                        isSelected ? theme.colors.brandPrimary.opacity(0.6) : theme.colors.borderDefault,
                         lineWidth: isSelected ? 1.5 : 1
                     )
             )
-            .shadow(
-                color: isSelected ? Color.vocabHeroAccent.opacity(0.08) : Color.black.opacity(0.02),
-                radius: 4,
-                x: 0,
-                y: 2
-            )
+            .craftShadow(isSelected ? theme.shadows.sm : CraftShadow(color: .clear, radius: 0))
             .contentShape(Rectangle())
         }
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(.plain)
         .sensoryFeedback(.selection, trigger: isSelected)
-        .animation(.spring(response: 0.25, dampingFraction: 0.75), value: isSelected)
+        .animation(theme.animations.springSnappy, value: isSelected)
+        .accessibilityLabel(AppStrings.Practice.toggleA11yLabel(lemma: word.lemma))
+        .accessibilityAddTraits(isSelected ? [.isSelected] : [])
     }
 
-    private var cefrBadgeBackground: Color {
-        let level = word.cefrLevel.uppercased()
-        switch level {
-        case "A1", "A2":
-            return Color.vocabMint.opacity(0.18)
-        case "B1", "B2":
-            return Color.vocabPeach.opacity(0.18)
-        case "C1", "C2":
-            return Color.vocabLavender.opacity(0.18)
-        default:
-            return Color.vocabSurfaceSoft
+    // MARK: - 4 Mini Sensory Icons Row (🎙️ ⌨️ 🔲 🎧)
+    private var sensoryIconsRow: some View {
+        HStack(spacing: 6) {
+            ForEach(ReflexBlitzMode.allCases) { mode in
+                let isMastered = word.modeStats.count(for: mode) > 0 || word.practicedModes.contains(mode)
+                let iconName = modeIcon(for: mode)
+
+                HStack(spacing: 2) {
+                    Image(systemName: iconName)
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundStyle(isMastered ? theme.colors.brandPrimary : theme.colors.textMuted.opacity(0.35))
+                }
+                .padding(.horizontal, 5)
+                .padding(.vertical, 3)
+                .background(
+                    isMastered
+                        ? theme.colors.brandPrimary.opacity(0.12)
+                        : theme.colors.surfaceSubtle.opacity(0.5)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 4))
+                .accessibilityLabel(AppStrings.Practice.modeAccessibilityLabel(mode: mode, isMastered: isMastered))
+            }
+        }
+    }
+
+    private func modeIcon(for mode: ReflexBlitzMode) -> String {
+        switch mode {
+        case .speaking:
+            return "mic.fill"
+        case .typing:
+            return "keyboard.fill"
+        case .multipleChoice:
+            return "square.grid.2x2.fill"
+        case .listening:
+            return "headphones"
         }
     }
 }

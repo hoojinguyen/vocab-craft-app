@@ -41,6 +41,7 @@ public final class AppContainer {
     public let reviewWeakWordsUseCase: ReviewWeakWordsUseCaseProtocol
     public let toggleWordBookmarkUseCase: ToggleWordBookmarkUseCaseProtocol
     public let generateMixedReflexQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol
+    public let practiceDrillPlanGenerator: PracticeDrillPlanGeneratorProtocol
     public let recordMixedDrillAttemptUseCase: RecordMixedDrillAttemptUseCaseProtocol
 
     // MARK: - Stores & Navigation
@@ -58,6 +59,7 @@ public final class AppContainer {
         fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol? = nil,
         completeLessonUseCase: CompleteLessonUseCaseProtocol? = nil,
         generateMixedReflexQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol? = nil,
+        practiceDrillPlanGenerator: PracticeDrillPlanGeneratorProtocol? = nil,
         recordMixedDrillAttemptUseCase: RecordMixedDrillAttemptUseCaseProtocol? = nil,
         ttsService: TextToSpeechProtocol? = nil,
         sttService: SpeechRecognitionProtocol? = nil,
@@ -138,6 +140,7 @@ public final class AppContainer {
             progressRepo: resolvedUserProgressRepo
         )
         self.generateMixedReflexQueueUseCase = generateMixedReflexQueueUseCase ?? GenerateMixedReflexQueueUseCase()
+        self.practiceDrillPlanGenerator = practiceDrillPlanGenerator ?? PracticeDrillPlanGenerator()
         self.recordMixedDrillAttemptUseCase = recordMixedDrillAttemptUseCase ?? RecordMixedDrillAttemptUseCase(
             progressRepo: resolvedUserProgressRepo,
             dataSource: resolvedDataSource
@@ -192,7 +195,8 @@ public final class AppContainer {
         PersonalVaultViewModel(
             fetchVaultUseCase: fetchPersonalVaultUseCase,
             toggleBookmarkUseCase: toggleWordBookmarkUseCase,
-            ttsService: ttsService
+            ttsService: ttsService,
+            userSettingsStore: userSettingsStore
         )
     }
 
@@ -221,12 +225,17 @@ public final class AppContainer {
         )
     }
 
-    public func makeMixedReflexDrillViewModel(selectedWords: [VaultWordItem]) -> MixedReflexDrillViewModel {
+    public func makeMixedReflexDrillViewModel(
+        selectedWords: [VaultWordItem],
+        allowSpeakingSkip: Bool = false
+    ) -> MixedReflexDrillViewModel {
         MixedReflexDrillViewModel(
             selectedWords: selectedWords,
             queueUseCase: generateMixedReflexQueueUseCase,
+            planGenerator: practiceDrillPlanGenerator,
             recordAttemptUseCase: recordMixedDrillAttemptUseCase,
-            ttsService: ttsService
+            ttsService: ttsService,
+            allowSpeakingSkip: allowSpeakingSkip
         )
     }
 

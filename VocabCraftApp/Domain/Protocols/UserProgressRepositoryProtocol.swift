@@ -30,7 +30,8 @@ public protocol UserProgressRepositoryProtocol: Sendable {
         isCorrect: Bool,
         newStreak: Int,
         newModes: Set<ReflexBlitzMode>,
-        isMastered: Bool
+        isMastered: Bool,
+        modeStats: ModeSuccessStats?
     ) async throws
 
     // swiftlint:disable function_parameter_count
@@ -51,5 +52,22 @@ public protocol UserProgressRepositoryProtocol: Sendable {
 public extension UserProgressRepositoryProtocol {
     func fetchProgress(for wordId: Int64) async throws -> UserWordProgressData? {
         try await getProgress(wordId: wordId)
+    }
+
+    func recordDrillResult(
+        wordId: Int64,
+        isCorrect: Bool,
+        newStreak: Int,
+        newModes: Set<ReflexBlitzMode>,
+        isMastered: Bool
+    ) async throws {
+        try await recordDrillResult(
+            wordId: wordId,
+            isCorrect: isCorrect,
+            newStreak: newStreak,
+            newModes: newModes,
+            isMastered: isMastered,
+            modeStats: nil
+        )
     }
 }

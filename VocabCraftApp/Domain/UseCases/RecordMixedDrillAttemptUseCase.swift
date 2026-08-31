@@ -20,6 +20,10 @@ public final class RecordMixedDrillAttemptUseCase: RecordMixedDrillAttemptUseCas
         let existingProgress = try await progressRepo.fetchProgress(for: wordId)
         let currentStreak = existingProgress?.consecutiveCorrectStreak ?? 0
         let currentModes = existingProgress?.practicedModes ?? []
+        var modeStats = existingProgress?.modeStats ?? ModeSuccessStats()
+        if isCorrect {
+            modeStats.increment(for: mode)
+        }
 
         let evaluation = MasteryEvaluationPolicy.evaluate(
             currentStreak: currentStreak,
@@ -33,7 +37,8 @@ public final class RecordMixedDrillAttemptUseCase: RecordMixedDrillAttemptUseCas
             isCorrect: isCorrect,
             newStreak: evaluation.newStreak,
             newModes: evaluation.newPracticedModes,
-            isMastered: evaluation.isMastered
+            isMastered: evaluation.isMastered,
+            modeStats: modeStats
         )
 
         guard let wordDTO = try await dataSource.fetchWordById(id: wordId) else { return nil }
@@ -52,7 +57,8 @@ public final class RecordMixedDrillAttemptUseCase: RecordMixedDrillAttemptUseCas
             isBookmarked: updatedProgress?.isBookmarked ?? false,
             correctStreak: evaluation.newStreak,
             practicedModes: evaluation.newPracticedModes,
-            lastPracticedAt: Date()
+            lastPracticedAt: Date(),
+            modeStats: updatedProgress?.modeStats ?? modeStats
         )
     }
 }

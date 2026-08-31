@@ -200,9 +200,85 @@ struct PersonalVaultViewModelTests {
         #expect(mockBookmarkUseCase.executedWordIds.contains(1))
         #expect(vm.vaultWords.first(where: { $0.id == 1 })?.isBookmarked == true)
     }
+
+    @Test("Smart Pick chọn các từ vựng ưu tiên và cập nhật selectedWordIds với selector xác định")
+    @MainActor
+    func testSmartPickWords() async {
+        let word1 = VaultWordItem(id: 101, lemma: "weak", pos: "adj", definitionVi: "yếu")
+        let word2 = VaultWordItem(id: 102, lemma: "medium", pos: "adj", definitionVi: "vừa")
+        let word3 = VaultWordItem(id: 103, lemma: "strong", pos: "adj", definitionVi: "mạnh")
+
+        let vm = PersonalVaultViewModel(
+            smartSelector: PrefixSmartSelector(),
+            mockWords: [word1, word2, word3]
+        )
+        #expect(vm.selectedWordIds.isEmpty)
+
+        let picked = vm.smartPickWords(targetCount: 2)
+        #expect(picked.count == 2)
+        #expect(vm.selectedWordIds.count == 2)
+        #expect(vm.selectedWordIds.contains(101))
+        #expect(vm.selectedWordIds.contains(102))
+        #expect(picked.first?.id == 101)
+    }
+
+    @Test("Smart Pick tuân thủ bộ lọc vaultTabFilter")
+    @MainActor
+    func testSmartPickWordsRespectsTabFilter() async {
+        let unmastered = VaultWordItem(id: 1, lemma: "learn", pos: "v", definitionVi: "học", isMastered: false)
+        let mastered = VaultWordItem(id: 2, lemma: "master", pos: "v", definitionVi: "thành thạo", isMastered: true)
+
+        let vm = PersonalVaultViewModel(
+            smartSelector: PrefixSmartSelector(),
+            mockWords: [unmastered, mastered]
+        )
+
+        vm.vaultTabFilter = .notMastered
+        let unmasteredPicks = vm.smartPickWords(targetCount: 5)
+        #expect(unmasteredPicks.count == 1)
+        #expect(unmasteredPicks.first?.id == 1)
+
+        vm.vaultTabFilter = .mastered
+        let masteredPicks = vm.smartPickWords(targetCount: 5)
+        #expect(masteredPicks.count == 1)
+        #expect(masteredPicks.first?.id == 2)
+
+        vm.vaultTabFilter = .bookmarked
+        let bookmarkedPicks = vm.smartPickWords(targetCount: 5)
+        #expect(bookmarkedPicks.isEmpty)
+        #expect(vm.selectedWordIds.isEmpty)
+    }
+
+    @Test("Smart Pick sử dụng dailyGoalCount từ UserSettingsStore làm giá trị mặc định")
+    @MainActor
+    func testSmartPickWordsDefaultsToDailyGoalCount() async {
+        let store = UserSettingsStore()
+        store.dailyGoalCount = 3
+
+        let words = (1...10).map { id in
+            VaultWordItem(id: Int64(id), lemma: "word\(id)", pos: "n", definitionVi: "nghĩa \(id)")
+        }
+
+        let vm = PersonalVaultViewModel(
+            smartSelector: PrefixSmartSelector(),
+            userSettingsStore: store,
+            mockWords: words
+        )
+
+        // Không truyền targetCount, phải lấy đúng 3 từ theo dailyGoalCount
+        let picks = vm.smartPickWords()
+        #expect(picks.count == 3)
+        #expect(vm.selectedWordIds.count == 3)
+    }
 }
 
 // MARK: - Test Helpers
+
+private final class PrefixSmartSelector: SmartVaultWordSelectorProtocol, @unchecked Sendable {
+    func selectWords(from pool: [VaultWordItem], targetCount: Int) -> [VaultWordItem] {
+        Array(pool.prefix(targetCount))
+    }
+}
 
 @MainActor
 private final class MockTTS: TextToSpeechProtocol {

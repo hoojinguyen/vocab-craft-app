@@ -109,9 +109,10 @@ public struct VocabularyView: View {
                                             size: .lg,
                                             isFullWidth: true,
                                             action: {
-                                                let words = currentVaultVM.prepareReviewWords()
-                                                guard !words.isEmpty else { return }
-                                                activeDrillViewModel = appContainer.makeMixedReflexDrillViewModel(selectedWords: words)
+                                                if currentVaultVM.selectedWordIds.isEmpty {
+                                                    _ = currentVaultVM.smartPickWords()
+                                                }
+                                                isPresentingPracticeSelection = true
                                             }
                                         )
                                         .disabled(currentVaultVM.vaultWords.isEmpty)
@@ -229,7 +230,10 @@ public struct VocabularyView: View {
                     vaultViewModel: currentVaultVM,
                     onStartPractice: { selectedWords in
                         isPresentingPracticeSelection = false
-                        let drillVM = appContainer.makeMixedReflexDrillViewModel(selectedWords: selectedWords)
+                        let drillVM = appContainer.makeMixedReflexDrillViewModel(
+                            selectedWords: selectedWords,
+                            allowSpeakingSkip: true
+                        )
                         activeDrillViewModel = drillVM
                     },
                     onClose: {

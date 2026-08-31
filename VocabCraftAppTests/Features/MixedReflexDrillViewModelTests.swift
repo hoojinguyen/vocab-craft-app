@@ -160,6 +160,160 @@ struct MixedReflexDrillViewModelTests {
     }
 }
 
+@Suite("MixedReflexDrillViewModel Skip Speaking Tests")
+struct MixedReflexDrillViewModelSkipSpeakingTests {
+    @Test("Skip speaking requeues word to end with non-speaking mode without penalty")
+    @MainActor
+    func testSkipSpeakingRequeue() {
+        let words = [
+            VaultWordItem(id: 1, lemma: "voice", pos: "n", definitionVi: "tiếng nói")
+        ]
+        let vm = MixedReflexDrillViewModel(
+            selectedWords: words,
+            queueUseCase: GenerateMixedReflexQueueUseCase(),
+            allowSpeakingSkip: true
+        )
+        #expect(vm.allowSpeakingSkip)
+        vm.skipSpeakingCurrentWord()
+        #expect(vm.comboStreak == 0)
+        #expect(vm.attempts.isEmpty)
+        #expect(vm.queue.count == 2)
+        #expect(vm.queue.last?.assignedMode != .speaking)
+    }
+
+    @Test("Skip speaking does nothing when allowSpeakingSkip is false")
+    @MainActor
+    func testSkipSpeakingDisabled() {
+        let words = [
+            VaultWordItem(id: 1, lemma: "voice", pos: "n", definitionVi: "tiếng nói")
+        ]
+        let vm = MixedReflexDrillViewModel(
+            selectedWords: words,
+            queueUseCase: GenerateMixedReflexQueueUseCase(),
+            allowSpeakingSkip: false
+        )
+        #expect(!vm.allowSpeakingSkip)
+        vm.skipSpeakingCurrentWord()
+        #expect(vm.queue.count == 1)
+        #expect(vm.currentIndex == 0)
+    }
+
+    @Test("Skip speaking preserves existing combo streak without adding attempt")
+    @MainActor
+    func testSkipSpeakingPreservesComboStreak() async {
+        let words = [
+            VaultWordItem(id: 1, lemma: "voice", pos: "n", definitionVi: "tiếng nói"),
+            VaultWordItem(id: 2, lemma: "sound", pos: "n", definitionVi: "âm thanh")
+        ]
+        let vm = MixedReflexDrillViewModel(
+            selectedWords: words,
+            queueUseCase: GenerateMixedReflexQueueUseCase(),
+            allowSpeakingSkip: true
+        )
+        await vm.submitAnswer(isCorrect: true, responseTimeMs: 1000)
+        vm.advanceToNextItem()
+        #expect(vm.comboStreak == 1)
+        #expect(vm.attempts.count == 1)
+
+        vm.skipSpeakingCurrentWord()
+        #expect(vm.comboStreak == 1)
+        #expect(vm.attempts.count == 1)
+        #expect(vm.queue.count == 3)
+        #expect(vm.queue.last?.assignedMode != .speaking)
+    }
+
+    @Test("MixedReflexDrillViewModel integrates with PracticeDrillPlanGenerator")
+    @MainActor
+    func testPlanGeneratorIntegration() {
+        let words = [
+            VaultWordItem(
+                id: 1,
+                lemma: "typingWord",
+                pos: "n",
+                definitionVi: "từ gõ",
+                modeStats: ModeSuccessStats(speaking: 10, typing: 0, multipleChoice: 10, listening: 10)
+            )
+        ]
+        let generator = PracticeDrillPlanGenerator()
+        let vm = MixedReflexDrillViewModel(
+            selectedWords: words,
+            planGenerator: generator
+        )
+
+        #expect(vm.queue.count == 1)
+        #expect(vm.currentItem?.assignedMode == .typing)
+        #expect(vm.sessionPlan != nil)
+        #expect(vm.sessionPlan?.items.first?.assignedMode == .typing)
+        #expect(!vm.generateOptions(for: vm.queue[0]).isEmpty || vm.queue[0].assignedMode == .typing)
+    }
+
+    @Test("MixedReflexDrillViewModel retrieves precomputed options and elimination hint from plan")
+    @MainActor
+    func testPlanGeneratorPrecomputedOptions() {
+        let words = [
+            VaultWordItem(
+                id: 1,
+                lemma: "apple",
+                pos: "n",
+                definitionVi: "quả táo",
+                modeStats: ModeSuccessStats(speaking: 10, typing: 10, multipleChoice: 0, listening: 10)
+            ),
+            VaultWordItem(
+                id: 2,
+                lemma: "banana",
+                pos: "n",
+                definitionVi: "quả chuối",
+                modeStats: ModeSuccessStats(speaking: 10, typing: 10, multipleChoice: 10, listening: 10)
+            )
+        ]
+        let generator = PracticeDrillPlanGenerator()
+        let vm = MixedReflexDrillViewModel(
+            selectedWords: words,
+            planGenerator: generator
+        )
+
+        guard let firstItem = vm.currentItem else {
+            Issue.record("Expected currentItem to exist")
+            return
+        }
+
+        let options = vm.generateOptions(for: firstItem)
+        if firstItem.assignedMode == .multipleChoice || firstItem.assignedMode == .listening {
+            #expect(!options.isEmpty)
+            #expect(options.count == 4 || options.count == words.count)
+            #expect(vm.currentEliminatedOptionId != nil)
+        }
+    }
+}
+
+@Suite("RecordMixedDrillAttemptUseCase ModeSuccessStats Tests")
+struct RecordMixedDrillAttemptUseCaseModeSuccessStatsTests {
+    @Test("Recording correct drill attempt increments modeSuccessStats for that mode")
+    func testRecordAttemptIncrementsModeStats() async throws {
+        let mockRepo = MockUserProgressRepository()
+        let mockDataSource = SampleVocabularyDataSource()
+        let useCase = RecordMixedDrillAttemptUseCase(progressRepo: mockRepo, dataSource: mockDataSource)
+
+        let result = try await useCase.execute(wordId: 1, mode: .speaking, isCorrect: true)
+        #expect(result?.modeStats.speaking == 1)
+        #expect(result?.modeStats.typing == 0)
+
+        let result2 = try await useCase.execute(wordId: 1, mode: .typing, isCorrect: true)
+        #expect(result2?.modeStats.speaking == 1)
+        #expect(result2?.modeStats.typing == 1)
+    }
+
+    @Test("Recording incorrect drill attempt does not increment modeSuccessStats")
+    func testRecordAttemptIncorrectDoesNotIncrementModeStats() async throws {
+        let mockRepo = MockUserProgressRepository()
+        let mockDataSource = SampleVocabularyDataSource()
+        let useCase = RecordMixedDrillAttemptUseCase(progressRepo: mockRepo, dataSource: mockDataSource)
+
+        let result = try await useCase.execute(wordId: 1, mode: .speaking, isCorrect: false)
+        #expect(result?.modeStats.speaking == 0)
+    }
+}
+
 // MARK: - Test Mocks
 
 @MainActor
@@ -187,3 +341,5 @@ private final class MockRecordMixedDrillAttemptUseCase: RecordMixedDrillAttemptU
     }
 }
 #endif
+
+

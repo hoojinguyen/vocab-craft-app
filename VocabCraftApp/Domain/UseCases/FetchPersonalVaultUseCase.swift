@@ -188,7 +188,8 @@ public final class FetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProtocol,
                     isBookmarked: progress.isBookmarked,
                     correctStreak: progress.consecutiveCorrectStreak,
                     practicedModes: progress.practicedModes,
-                    lastPracticedAt: progress.lastReviewDate
+                    lastPracticedAt: progress.lastReviewDate,
+                    modeStats: progress.modeStats
                 )
                 allVaultWords.append(vaultWord)
             }
