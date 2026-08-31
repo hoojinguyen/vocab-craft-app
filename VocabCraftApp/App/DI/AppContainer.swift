@@ -59,6 +59,7 @@ public final class AppContainer {
         fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol? = nil,
         completeLessonUseCase: CompleteLessonUseCaseProtocol? = nil,
         generateMixedReflexQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol? = nil,
+        practiceDrillPlanGenerator: PracticeDrillPlanGeneratorProtocol? = nil,
         recordMixedDrillAttemptUseCase: RecordMixedDrillAttemptUseCaseProtocol? = nil,
         ttsService: TextToSpeechProtocol? = nil,
         sttService: SpeechRecognitionProtocol? = nil,
@@ -139,7 +140,7 @@ public final class AppContainer {
             progressRepo: resolvedUserProgressRepo
         )
         self.generateMixedReflexQueueUseCase = generateMixedReflexQueueUseCase ?? GenerateMixedReflexQueueUseCase()
-        self.practiceDrillPlanGenerator = PracticeDrillPlanGenerator()
+        self.practiceDrillPlanGenerator = practiceDrillPlanGenerator ?? PracticeDrillPlanGenerator()
         self.recordMixedDrillAttemptUseCase = recordMixedDrillAttemptUseCase ?? RecordMixedDrillAttemptUseCase(
             progressRepo: resolvedUserProgressRepo,
             dataSource: resolvedDataSource
@@ -194,7 +195,8 @@ public final class AppContainer {
         PersonalVaultViewModel(
             fetchVaultUseCase: fetchPersonalVaultUseCase,
             toggleBookmarkUseCase: toggleWordBookmarkUseCase,
-            ttsService: ttsService
+            ttsService: ttsService,
+            userSettingsStore: userSettingsStore
         )
     }
 

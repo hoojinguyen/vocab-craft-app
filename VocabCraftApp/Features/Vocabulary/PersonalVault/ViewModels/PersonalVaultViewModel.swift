@@ -27,18 +27,21 @@ public final class PersonalVaultViewModel {
     private let toggleBookmarkUseCase: ToggleWordBookmarkUseCaseProtocol?
     private let ttsService: TextToSpeechProtocol?
     private let smartSelector: SmartVaultWordSelectorProtocol
+    public let userSettingsStore: UserSettingsStore?
 
     public init(
         fetchVaultUseCase: FetchPersonalVaultUseCaseProtocol? = nil,
         toggleBookmarkUseCase: ToggleWordBookmarkUseCaseProtocol? = nil,
         ttsService: TextToSpeechProtocol? = nil,
         smartSelector: SmartVaultWordSelectorProtocol = SmartVaultWordSelector(),
+        userSettingsStore: UserSettingsStore? = nil,
         mockWords: [VaultWordItem] = []
     ) {
         self.fetchVaultUseCase = fetchVaultUseCase
         self.toggleBookmarkUseCase = toggleBookmarkUseCase
         self.ttsService = ttsService
         self.smartSelector = smartSelector
+        self.userSettingsStore = userSettingsStore
         self.vaultWords = mockWords
     }
 
@@ -117,7 +120,8 @@ public final class PersonalVaultViewModel {
     }
 
     @discardableResult
-    public func smartPickWords(targetCount: Int = 10) -> [VaultWordItem] {
+    public func smartPickWords(targetCount: Int? = nil) -> [VaultWordItem] {
+        let effectiveTarget = targetCount ?? userSettingsStore?.dailyGoalCount ?? 10
         let pool: [VaultWordItem]
         switch vaultTabFilter {
         case .notMastered:
@@ -127,7 +131,7 @@ public final class PersonalVaultViewModel {
         case .bookmarked:
             pool = vaultWords.filter(\.isBookmarked)
         }
-        let picked = smartSelector.selectWords(from: pool, targetCount: targetCount)
+        let picked = smartSelector.selectWords(from: pool, targetCount: effectiveTarget)
         selectedWordIds = Set(picked.map(\.id))
         return picked
     }

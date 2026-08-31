@@ -125,7 +125,7 @@ git commit -m "feat: add ModeSuccessStats entity, codec, and SwiftData mapping"
 - Test: `VocabCraftAppTests/Domain/SmartVaultWordSelectorTests.swift`
 
 **Interfaces:**
-- Consumes: `VaultWordItem`, `ModeSuccessStats`, `UserSettingsStore`
+- Consumes: `VaultWordItem`, `ModeSuccessStats`, `targetCount: Int` (passed from caller or `PersonalVaultViewModel` via `UserSettingsStore.dailyGoalCount`)
 - Produces:
   ```swift
   public protocol SmartVaultWordSelectorProtocol: Sendable {
@@ -289,7 +289,6 @@ git commit -m "feat: implement PracticeDrillPlanGenerator with balanced mode all
 
 **Files:**
 - Modify: `VocabCraftApp/Features/Reflex/Mixed/ViewModels/MixedReflexDrillViewModel.swift`
-- Modify: `VocabCraftApp/Domain/UseCases/RecordMixedDrillAttemptUseCase.swift`
 - Test: `VocabCraftAppTests/Features/Reflex/MixedReflexDrillViewModelTests.swift`
 
 **Interfaces:**

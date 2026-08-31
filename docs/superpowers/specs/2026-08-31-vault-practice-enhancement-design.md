@@ -202,7 +202,7 @@ public struct ModeSuccessStats: Codable, Equatable, Sendable {
 - **Speaking Mode "Can't Speak Now" Button**:
   - Gated by `allowSpeakingSkip: true` (only true during Practice, false during Reflex Drill Speaking).
   - Button: `CraftButton("Không thể nói lúc này", iconName: "waveform.slash", variant: .outline, size: .md)`.
-  - Action: Invokes `viewModel.skipSpeakingCurrentWord()`, which requeues the word to the end of `queue` with a non-speaking mode (Typing or Multiple Choice) without breaking streak or logging a negative attempt.
+  - Action: Invokes `viewModel.skipSpeakingCurrentWord()`, which requeues the word to the end of `queue` with a non-speaking mode (Typing, Multiple Choice, or Listening) without breaking streak or logging a negative attempt.
 
 #### 4. Summary Screen
 - Shows accuracy %, max combo streak, average response time, word list with audio buttons.

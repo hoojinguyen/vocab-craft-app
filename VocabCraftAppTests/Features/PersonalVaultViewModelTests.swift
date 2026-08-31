@@ -248,6 +248,28 @@ struct PersonalVaultViewModelTests {
         #expect(bookmarkedPicks.isEmpty)
         #expect(vm.selectedWordIds.isEmpty)
     }
+
+    @Test("Smart Pick sử dụng dailyGoalCount từ UserSettingsStore làm giá trị mặc định")
+    @MainActor
+    func testSmartPickWordsDefaultsToDailyGoalCount() async {
+        let store = UserSettingsStore()
+        store.dailyGoalCount = 3
+
+        let words = (1...10).map { id in
+            VaultWordItem(id: Int64(id), lemma: "word\(id)", pos: "n", definitionVi: "nghĩa \(id)")
+        }
+
+        let vm = PersonalVaultViewModel(
+            smartSelector: PrefixSmartSelector(),
+            userSettingsStore: store,
+            mockWords: words
+        )
+
+        // Không truyền targetCount, phải lấy đúng 3 từ theo dailyGoalCount
+        let picks = vm.smartPickWords()
+        #expect(picks.count == 3)
+        #expect(vm.selectedWordIds.count == 3)
+    }
 }
 
 // MARK: - Test Helpers
