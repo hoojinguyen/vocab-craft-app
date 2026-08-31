@@ -263,29 +263,16 @@ public struct ReflexSpeakingModeView: View {
                     ? .evaluated(overallScore: isResultCorrect ? 100 : 0)
                     : speechState,
                 customSubtitle: isReviewed ? "" : nil,
-                onTapMic: {}  // No tap action — continuous listening
+                onTapMic: {}  // Auto continuous listening
             )
-            .disabled(true)  // Disable tap — mic is auto-controlled
+            .disabled(true)
 
-            if !liveTranscript.isEmpty {
-                let lastToken = liveTranscript
-                    .split(separator: " ")
-                    .last
-                    .map(String.init) ?? liveTranscript
-                CraftBadge(
-                    lastToken,
-                    iconName: "waveform",
-                    variant: isReviewed ? .subtle : .solid,
-                    tone: isReviewed
-                        ? (isResultCorrect ? .success : .danger)
-                        : .primary,
-                    size: .md,
-                    shape: .capsule
-                )
-                .transition(.scale.combined(with: .opacity))
-            }
+            ReflexSpeakingLiveBadge(
+                liveTranscript: liveTranscript,
+                isReviewed: isReviewed,
+                isResultCorrect: isResultCorrect
+            )
         }
-        .animation(.spring(response: 0.3, dampingFraction: 0.75), value: liveTranscript.isEmpty)
         .animation(.spring(response: 0.3, dampingFraction: 0.75), value: isReviewed)
     }
 
@@ -359,5 +346,41 @@ public struct ReflexSpeakingModeView: View {
             .font(theme.typography.bodySerif)
             .foregroundColor(theme.colors.textPrimary)
         return prefixText + slotText + suffixText
+    }
+}
+
+// MARK: - Subviews
+
+private struct ReflexSpeakingLiveBadge: View, Equatable {
+    let liveTranscript: String
+    let isReviewed: Bool
+    let isResultCorrect: Bool
+    @Environment(\.craftTheme) private var theme
+
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.liveTranscript == rhs.liveTranscript &&
+        lhs.isReviewed == rhs.isReviewed &&
+        lhs.isResultCorrect == rhs.isResultCorrect
+    }
+
+    var body: some View {
+        if !liveTranscript.isEmpty {
+            let lastToken = liveTranscript
+                .split(separator: " ")
+                .last
+                .map(String.init) ?? liveTranscript
+
+            CraftBadge(
+                lastToken,
+                iconName: "waveform",
+                variant: isReviewed ? .subtle : .solid,
+                tone: isReviewed
+                    ? (isResultCorrect ? .success : .danger)
+                    : .primary,
+                size: .md,
+                shape: .capsule
+            )
+            .transition(.scale.combined(with: .opacity))
+        }
     }
 }
