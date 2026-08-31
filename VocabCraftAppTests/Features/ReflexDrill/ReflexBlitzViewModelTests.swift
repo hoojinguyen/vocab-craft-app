@@ -8,8 +8,8 @@ import XCTest
 #endif
 
 @MainActor
+// swiftlint:disable:next type_body_length
 final class ReflexBlitzViewModelTests: XCTestCase {
-    private var mockSpeech: MockContinuousReflexSpeechService!
     private var mockTTS: MockTextToSpeechService!
     private var mockSRS: MockEvaluateSRSUseCase!
     private var mockSound: MockSoundEffectService!
@@ -45,7 +45,6 @@ final class ReflexBlitzViewModelTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        mockSpeech = MockContinuousReflexSpeechService()
         mockTTS = MockTextToSpeechService()
         mockSRS = MockEvaluateSRSUseCase()
         mockSound = MockSoundEffectService()
@@ -53,7 +52,6 @@ final class ReflexBlitzViewModelTests: XCTestCase {
 
         viewModel = ReflexBlitzViewModel(
             words: sampleWords,
-            continuousSpeechService: mockSpeech,
             ttsService: mockTTS,
             evaluateSRSUseCase: mockSRS,
             soundEffectService: mockSound,
@@ -63,7 +61,6 @@ final class ReflexBlitzViewModelTests: XCTestCase {
 
     override func tearDown() {
         viewModel = nil
-        mockSpeech = nil
         mockTTS = nil
         mockSRS = nil
         mockSound = nil
@@ -444,7 +441,7 @@ final class ReflexBlitzViewModelTests: XCTestCase {
 
         viewModel.advanceToNextWord()
         XCTAssertEqual(viewModel.phase, .summary)
-        XCTAssertFalse(mockSpeech.isSessionActive)
+        XCTAssertFalse(mockSpeechEngine.isSessionActive)
         XCTAssertNotNil(viewModel.sessionSummary)
         XCTAssertEqual(viewModel.sessionSummary?.totalWords, 1)
         XCTAssertEqual(viewModel.sessionSummary?.correctWords, 1)
@@ -723,7 +720,6 @@ final class ReflexBlitzViewModelTests: XCTestCase {
 
         let richVM = ReflexBlitzViewModel(
             words: richWords,
-            continuousSpeechService: mockSpeech,
             ttsService: mockTTS,
             evaluateSRSUseCase: mockSRS
         )

@@ -11,6 +11,7 @@ import AppKit
 @testable import VocabCraftApp
 
 @MainActor
+// swiftlint:disable:next type_body_length
 final class ReflexBlitzViewIntegrationTests: XCTestCase {
     private func makeSampleWords() -> [ReflexBlitzWordItem] {
         [
@@ -37,6 +38,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
 
     private func makeViewModel(
         words: [ReflexBlitzWordItem]? = nil
+        // swiftlint:disable:next large_tuple
     ) -> (ReflexBlitzViewModel, MockContinuousReflexSpeechService, MockTextToSpeechService, MockEvaluateSRSUseCase, MockResilientReflexSpeechEngine) {
         let mockSpeech = MockContinuousReflexSpeechService()
         let mockSpeechEngine = MockResilientReflexSpeechEngine()
@@ -45,7 +47,6 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         let items = words ?? makeSampleWords()
         let vm = ReflexBlitzViewModel(
             words: items,
-            continuousSpeechService: mockSpeech,
             ttsService: mockTTS,
             evaluateSRSUseCase: mockSRS,
             speechEngine: mockSpeechEngine
@@ -505,7 +506,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
     }
 
     func testKeyboardFallbackInputToggleAndSubmit() {
-        let (vm, mockSpeech, _, _, _) = makeViewModel()
+        let (vm, _, _, _, mockSpeechEngine) = makeViewModel()
         vm.selectMode(.speaking)
         vm.beginSessionDirectly()
         XCTAssertFalse(vm.isKeyboardFallbackActive)
@@ -516,7 +517,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
 
         vm.toggleKeyboardFallback()
         XCTAssertTrue(vm.isKeyboardFallbackActive)
-        XCTAssertTrue(mockSpeech.isRecognitionMuted)
+        XCTAssertFalse(mockSpeechEngine.isWordActive)
 
         // Submit via keyboard
         let targetLemma = vm.currentWord!.lemma

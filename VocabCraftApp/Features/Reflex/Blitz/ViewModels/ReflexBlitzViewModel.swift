@@ -30,9 +30,9 @@ public final class ReflexBlitzViewModel {
     public var isKeyboardFallbackActive: Bool = false {
         didSet {
             if isKeyboardFallbackActive {
-                continuousSpeechService.pauseListening()
-            } else if selectedMode == .speaking && cardPhase == .activeCountdown {
-                continuousSpeechService.resumeListening()
+                speechEngine.endWord()
+            } else if selectedMode == .speaking && cardPhase == .activeCountdown, let word = currentWord {
+                speechEngine.beginWord(targetLemma: word.lemma, contextualPhrases: [word.exampleSentenceEn])
             }
         }
     }
@@ -57,7 +57,6 @@ public final class ReflexBlitzViewModel {
         }
     }
 
-    let continuousSpeechService: ContinuousReflexSpeechProtocol
     let speechEngine: ReflexSpeechEngineProtocol
     let ttsService: TextToSpeechProtocol
     let evaluateSRSUseCase: EvaluateSRSUseCaseProtocol
@@ -112,7 +111,6 @@ public final class ReflexBlitzViewModel {
             weeklyPracticedCount: weeklyPracticedCount,
             weakWordsCount: weakWordsCount,
             averageSpeedSeconds: averageSpeedSeconds,
-            continuousSpeechService: ContinuousReflexSpeechService(),
             ttsService: TextToSpeechService(),
             evaluateSRSUseCase: EvaluateSRSUseCase(srsRepository: SRSRepositoryImpl()),
             soundEffectService: SoundEffectService.shared,
@@ -125,7 +123,6 @@ public final class ReflexBlitzViewModel {
         weeklyPracticedCount: Int = 0,
         weakWordsCount: Int = 0,
         averageSpeedSeconds: Double = 0.0,
-        continuousSpeechService: ContinuousReflexSpeechProtocol,
         ttsService: TextToSpeechProtocol,
         evaluateSRSUseCase: EvaluateSRSUseCaseProtocol,
         soundEffectService: SoundEffectServiceProtocol = SoundEffectService.shared,
@@ -135,12 +132,10 @@ public final class ReflexBlitzViewModel {
         self.weeklyPracticedCount = weeklyPracticedCount
         self.weakWordsCount = weakWordsCount
         self.averageSpeedSeconds = averageSpeedSeconds
-        self.continuousSpeechService = continuousSpeechService
         self.ttsService = ttsService
         self.evaluateSRSUseCase = evaluateSRSUseCase
         self.soundEffectService = soundEffectService
         self.speechEngine = speechEngine ?? ResilientReflexSpeechEngine()
-        setupSpeechServiceBindings()
         setupSpeechEngineBindings()
     }
 
@@ -153,33 +148,6 @@ public final class ReflexBlitzViewModel {
         }
         speechEngine.onError = { error in
             print("[ReflexBlitzViewModel] Speech engine error: \(error.localizedDescription)")
-        }
-    }
-
-    private func setupSpeechServiceBindings() {
-        continuousSpeechService.onMatchDetected = { [weak self] matched in
-            if Thread.isMainThread {
-                MainActor.assumeIsolated { self?.handleSpokenMatch(matched) }
-            } else {
-                Task { @MainActor [weak self] in self?.handleSpokenMatch(matched) }
-            }
-        }
-
-        continuousSpeechService.onTranscriptUpdate = { [weak self] transcript in
-            if Thread.isMainThread {
-                MainActor.assumeIsolated { self?.liveTranscript = transcript }
-            } else {
-                Task { @MainActor [weak self] in self?.liveTranscript = transcript }
-            }
-        }
-
-        continuousSpeechService.onError = { [weak self] error in
-            print("[ReflexBlitzViewModel] Continuous speech error: \(error.localizedDescription)")
-            if Thread.isMainThread {
-                MainActor.assumeIsolated { self?.isKeyboardFallbackActive = true }
-            } else {
-                Task { @MainActor [weak self] in self?.isKeyboardFallbackActive = true }
-            }
         }
     }
 
@@ -314,8 +282,6 @@ public final class ReflexBlitzViewModel {
                 targetLemma: word.lemma,
                 contextualPhrases: [word.exampleSentenceEn]
             )
-        } else {
-            continuousSpeechService.pauseListening()
         }
 
         if selectedMode == .listening {

@@ -87,7 +87,6 @@ extension ReflexBlitzViewModel {
 
     public func finishSession() {
         cancelAllTasks()
-        continuousSpeechService.stopSession()
         speechEngine.stopSession()
         sessionSummary = ReflexBlitzSessionSummary.create(from: attempts, maxCombo: maxComboStreak)
         phase = .summary
@@ -104,7 +103,6 @@ extension ReflexBlitzViewModel {
 
     public func cancelSession() {
         cancelAllTasks()
-        continuousSpeechService.stopSession()
         speechEngine.stopSession()
         ttsService.stop()
     }
@@ -159,8 +157,6 @@ extension ReflexBlitzViewModel {
 
         if selectedMode == .speaking {
             speechEngine.endWord()
-        } else {
-            continuousSpeechService.pauseListening()
         }
 
         Task {

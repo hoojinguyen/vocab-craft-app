@@ -33,7 +33,6 @@ final class ReflexBlitzViewModelSpeakingTests: XCTestCase {
 
         viewModel = ReflexBlitzViewModel(
             words: sampleWords,
-            continuousSpeechService: MockContinuousReflexSpeechService(),
             ttsService: mockTTS,
             evaluateSRSUseCase: mockSRS,
             soundEffectService: mockSound,
@@ -83,6 +82,13 @@ final class ReflexBlitzViewModelSpeakingTests: XCTestCase {
         viewModel.startDrillSession(mode: .speaking, words: sampleWords)
         mockSpeechEngine.simulateMatch("ephemeral")
         XCTAssertEqual(mockSpeechEngine.endWordCallCount, 1)
+    }
+
+    func testSpeakingMode_matchDetected_callsEndWordBeforeTTS() {
+        viewModel.startDrillSession(mode: .speaking, words: sampleWords)
+        mockSpeechEngine.simulateMatch("ephemeral")
+        XCTAssertEqual(mockSpeechEngine.endWordCallCount, 1)
+        XCTAssertEqual(mockSpeechEngine.isWordActive, false)
     }
 
     func testSpeakingMode_matchDetected_playsSuccessChime() {
