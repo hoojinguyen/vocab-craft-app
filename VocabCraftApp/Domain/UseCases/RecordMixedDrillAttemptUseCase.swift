@@ -52,7 +52,8 @@ public final class RecordMixedDrillAttemptUseCase: RecordMixedDrillAttemptUseCas
             isBookmarked: updatedProgress?.isBookmarked ?? false,
             correctStreak: evaluation.newStreak,
             practicedModes: evaluation.newPracticedModes,
-            lastPracticedAt: Date()
+            lastPracticedAt: Date(),
+            modeStats: updatedProgress?.modeStats ?? ModeSuccessStats()
         )
     }
 }

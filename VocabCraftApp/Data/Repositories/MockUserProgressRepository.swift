@@ -27,7 +27,11 @@ public final class MockUserProgressRepository: UserProgressRepositoryProtocol, @
                 needsReview: !isCorrect,
                 mistakeCount: updatedMistakes,
                 sourceDeckId: deckId ?? existing.sourceDeckId,
-                sourceNodeId: stageId ?? existing.sourceNodeId
+                sourceNodeId: stageId ?? existing.sourceNodeId,
+                consecutiveCorrectStreak: existing.consecutiveCorrectStreak,
+                practicedModes: existing.practicedModes,
+                isMastered: existing.isMastered,
+                modeStats: existing.modeStats
             )
         } else {
             storage[wordId] = UserWordProgressData(
@@ -59,7 +63,11 @@ public final class MockUserProgressRepository: UserProgressRepositoryProtocol, @
                 needsReview: existing.needsReview,
                 mistakeCount: existing.mistakeCount,
                 sourceDeckId: existing.sourceDeckId,
-                sourceNodeId: existing.sourceNodeId
+                sourceNodeId: existing.sourceNodeId,
+                consecutiveCorrectStreak: existing.consecutiveCorrectStreak,
+                practicedModes: existing.practicedModes,
+                isMastered: existing.isMastered,
+                modeStats: existing.modeStats
             )
             return newState
         } else {
@@ -88,7 +96,11 @@ public final class MockUserProgressRepository: UserProgressRepositoryProtocol, @
                 needsReview: !isCorrect,
                 mistakeCount: newMistakes,
                 sourceDeckId: existing.sourceDeckId,
-                sourceNodeId: existing.sourceNodeId
+                sourceNodeId: existing.sourceNodeId,
+                consecutiveCorrectStreak: existing.consecutiveCorrectStreak,
+                practicedModes: existing.practicedModes,
+                isMastered: existing.isMastered,
+                modeStats: existing.modeStats
             )
         } else {
             storage[wordId] = UserWordProgressData(
@@ -136,7 +148,8 @@ public final class MockUserProgressRepository: UserProgressRepositoryProtocol, @
                 sourceNodeId: existing.sourceNodeId,
                 consecutiveCorrectStreak: newStreak,
                 practicedModes: newModes,
-                isMastered: isMastered
+                isMastered: isMastered,
+                modeStats: existing.modeStats
             )
         } else {
             storage[wordId] = UserWordProgressData(
@@ -164,6 +177,7 @@ public final class MockUserProgressRepository: UserProgressRepositoryProtocol, @
         sourceDeckId: String?,
         sourceNodeId: String?
     ) async throws {
+        let existing = storage[wordId]
         storage[wordId] = UserWordProgressData(
             wordId: wordId,
             cefrLevel: cefrLevel,
@@ -172,7 +186,11 @@ public final class MockUserProgressRepository: UserProgressRepositoryProtocol, @
             needsReview: needsReview,
             mistakeCount: mistakeCount,
             sourceDeckId: sourceDeckId,
-            sourceNodeId: sourceNodeId
+            sourceNodeId: sourceNodeId,
+            consecutiveCorrectStreak: existing?.consecutiveCorrectStreak ?? 0,
+            practicedModes: existing?.practicedModes ?? [],
+            isMastered: existing?.isMastered ?? false,
+            modeStats: existing?.modeStats ?? ModeSuccessStats()
         )
     }
 }

@@ -15,6 +15,7 @@ public struct VaultWordItem: Identifiable, Sendable, Equatable, ReflexDrillable 
     public let correctStreak: Int
     public let practicedModes: Set<ReflexBlitzMode>
     public let lastPracticedAt: Date?
+    public let modeStats: ModeSuccessStats
 
     public init(
         id: Int64,
@@ -29,7 +30,8 @@ public struct VaultWordItem: Identifiable, Sendable, Equatable, ReflexDrillable 
         isBookmarked: Bool = false,
         correctStreak: Int = 0,
         practicedModes: Set<ReflexBlitzMode> = [],
-        lastPracticedAt: Date? = nil
+        lastPracticedAt: Date? = nil,
+        modeStats: ModeSuccessStats = ModeSuccessStats()
     ) {
         self.id = id
         self.lemma = lemma
@@ -44,6 +46,7 @@ public struct VaultWordItem: Identifiable, Sendable, Equatable, ReflexDrillable 
         self.correctStreak = correctStreak
         self.practicedModes = practicedModes
         self.lastPracticedAt = lastPracticedAt
+        self.modeStats = modeStats
     }
 
     public var ipa: String { phonetic }

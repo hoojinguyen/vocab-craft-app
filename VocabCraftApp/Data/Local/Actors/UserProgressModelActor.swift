@@ -41,6 +41,7 @@ public struct UserWordProgressData: Sendable, Equatable {
     public let consecutiveCorrectStreak: Int
     public let practicedModes: Set<ReflexBlitzMode>
     public let isMastered: Bool
+    public let modeStats: ModeSuccessStats
 
     public init(
         wordId: Int64,
@@ -58,7 +59,8 @@ public struct UserWordProgressData: Sendable, Equatable {
         sourceNodeId: String? = nil,
         consecutiveCorrectStreak: Int = 0,
         practicedModes: Set<ReflexBlitzMode> = [],
-        isMastered: Bool = false
+        isMastered: Bool = false,
+        modeStats: ModeSuccessStats = ModeSuccessStats()
     ) {
         self.wordId = wordId
         self.cefrLevel = cefrLevel
@@ -76,6 +78,7 @@ public struct UserWordProgressData: Sendable, Equatable {
         self.consecutiveCorrectStreak = consecutiveCorrectStreak
         self.practicedModes = practicedModes
         self.isMastered = isMastered
+        self.modeStats = modeStats
     }
 }
 
@@ -108,7 +111,8 @@ public actor UserProgressModelActor: UserProgressRepositoryProtocol {
             sourceNodeId: item.sourceNodeId,
             consecutiveCorrectStreak: item.consecutiveCorrectStreak,
             practicedModes: item.practicedModes,
-            isMastered: item.isMastered
+            isMastered: item.isMastered,
+            modeStats: item.modeStats
         )
     }
 
@@ -327,7 +331,8 @@ public actor UserProgressModelActor: UserProgressRepositoryProtocol {
                 sourceNodeId: item.sourceNodeId,
                 consecutiveCorrectStreak: item.consecutiveCorrectStreak,
                 practicedModes: item.practicedModes,
-                isMastered: item.isMastered
+                isMastered: item.isMastered,
+                modeStats: item.modeStats
             )
         }
     }
@@ -397,7 +402,8 @@ public actor UserProgressModelActor: UserProgressRepositoryProtocol {
             sourceNodeId: item.sourceNodeId,
             consecutiveCorrectStreak: item.consecutiveCorrectStreak,
             practicedModes: item.practicedModes,
-            isMastered: item.isMastered
+            isMastered: item.isMastered,
+            modeStats: item.modeStats
         )
     }
 
@@ -606,7 +612,8 @@ public actor UserProgressModelActor: UserProgressRepositoryProtocol {
                 sourceNodeId: item.sourceNodeId,
                 consecutiveCorrectStreak: item.consecutiveCorrectStreak,
                 practicedModes: item.practicedModes,
-                isMastered: item.isMastered
+                isMastered: item.isMastered,
+                modeStats: item.modeStats
             )
         }
     }
