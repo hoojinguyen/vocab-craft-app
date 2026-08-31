@@ -71,21 +71,21 @@ public struct TopicRoadmapView: View {
                     .cornerRadius(6)
             }
 
-            let percentage = Int(viewModel.progressPercentage * 100)
-            let completedWords = viewModel.stages
+            let percentage: Int = Int(viewModel.progressPercentage * 100)
+            let completedWords: Int = viewModel.stages
                 .filter { $0.state == .completed }
                 .reduce(0) { $0 + $1.words.count }
-            let totalWords = viewModel.totalWordsCount
+            let totalWords: Int = viewModel.totalWordsCount
 
-            HStack {
+            HStack(spacing: 4) {
                 Text(AppStrings.Vocabulary.progressTitle)
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(Color.vocabMuted)
-                + Text(verbatim: "\(percentage)%")
+                Text(verbatim: "\(percentage)%")
                     .font(.system(size: 13, weight: .bold, design: .rounded))
                     .monospacedDigit()
                     .foregroundColor(Color.vocabMint)
-                + Text(AppStrings.Vocabulary.progressWordsCount(current: completedWords, total: totalWords))
+                Text(AppStrings.Vocabulary.progressWordsCount(current: completedWords, total: totalWords))
                     .font(.system(size: 13, weight: .medium))
                     .monospacedDigit()
                     .foregroundColor(Color.vocabMuted)
