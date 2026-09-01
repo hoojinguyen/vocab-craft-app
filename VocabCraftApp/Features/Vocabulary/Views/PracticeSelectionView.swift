@@ -189,7 +189,7 @@ public struct PracticeSelectionView: View {
                 // Top CTA: Smart Practice (Instant launch)
                 CraftButton(
                     verbatim: AppStrings.Practice.smartPickText,
-                    variant: .tactile,
+                    variant: .secondary,
                     size: .lg,
                     isFullWidth: true,
                     action: {
