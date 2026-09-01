@@ -64,9 +64,32 @@ struct PracticeSelectionViewsTests {
         #expect(toggleTriggered == true)
     }
 
-    @Test("PracticeSelectionView hiển thị và thực hiện Chọn tất cả / Bắt đầu luyện tập")
+    @Test("PracticeSelectionRow hiển thị trạng thái đã chọn")
     @MainActor
-    func testPracticeSelectionViewStartPractice() async {
+    func testPracticeSelectionRowSelectedState() {
+        var toggleTriggered = false
+        let row = PracticeSelectionRow(
+            word: mockWords[0],
+            isSelected: true,
+            onToggle: {
+                toggleTriggered = true
+            }
+        )
+
+        #if canImport(UIKit)
+        let host = UIHostingController(rootView: row)
+        #expect(host.view != nil)
+        #endif
+
+        #expect(row.isSelected == true)
+        #expect(row.word.lemma == "resilience")
+        row.onToggle()
+        #expect(toggleTriggered == true)
+    }
+
+    @Test("PracticeSelectionView thực hiện Chọn tất cả / Bỏ chọn tất cả và Bắt đầu luyện tập thủ công")
+    @MainActor
+    func testPracticeSelectionViewManualSelectionAndStart() async {
         let vm = PersonalVaultViewModel(mockWords: mockWords)
         var startedWords: [VaultWordItem] = []
         var closeTriggered = false
@@ -94,40 +117,36 @@ struct PracticeSelectionViewsTests {
         #expect(vm.selectedWordIds.count == 2)
         #expect(vm.selectedWords.count == 2)
 
+        // Trigger manual start
         view.onStartPractice(vm.selectedWords)
         #expect(startedWords.count == 2)
         #expect(startedWords.map(\.id) == [1, 2])
+
+        // Deselect all words
+        vm.deselectAll()
+        #expect(vm.selectedWordIds.isEmpty)
+        #expect(vm.selectedWords.isEmpty)
+
+        // Toggle single word
+        vm.toggleWordSelection(id: 1)
+        #expect(vm.selectedWordIds == [1])
+        #expect(vm.selectedWords.count == 1)
 
         view.onClose?()
         #expect(closeTriggered == true)
     }
 
-    @Test("PracticeSelectionView chuyển đổi tab bộ lọc VaultTabFilter")
+    @Test("PracticeSelectionView khởi chạy Luyện tập thông minh (Smart Practice) ngay lập tức")
     @MainActor
-    func testPracticeSelectionViewTabFilter() {
+    func testPracticeSelectionViewInstantSmartPractice() {
         let vm = PersonalVaultViewModel(mockWords: mockWords)
+        var startedWords: [VaultWordItem] = []
+
         let view = PracticeSelectionView(
             vaultViewModel: vm,
-            onStartPractice: { _ in }
-        )
-
-        #if canImport(UIKit)
-        let host = UIHostingController(rootView: view)
-        #expect(host.view != nil)
-        #endif
-
-        #expect(vm.vaultTabFilter == .notMastered)
-        vm.setVaultFilter(.mastered)
-        #expect(vm.vaultTabFilter == .mastered)
-    }
-
-    @Test("PracticeSelectionView thực hiện Smart Pick nhanh")
-    @MainActor
-    func testPracticeSelectionViewSmartPick() {
-        let vm = PersonalVaultViewModel(mockWords: mockWords)
-        let view = PracticeSelectionView(
-            vaultViewModel: vm,
-            onStartPractice: { _ in }
+            onStartPractice: { words in
+                startedWords = words
+            }
         )
 
         #if canImport(UIKit)
@@ -136,32 +155,35 @@ struct PracticeSelectionViewsTests {
         #endif
 
         #expect(vm.selectedWordIds.isEmpty)
+        #expect(startedWords.isEmpty)
+
+        // Simulate instant Smart Practice CTA action:
         let picked = vm.smartPickWords(targetCount: 1)
-        #expect(picked.count == 1)
+        #expect(!picked.isEmpty)
+        view.onStartPractice(picked)
+
+        #expect(startedWords.count == 1)
         #expect(vm.selectedWordIds.count == 1)
+        #expect(startedWords.first?.id == picked.first?.id)
     }
 
-    @Test("PracticeSelectionRow hiển thị trạng thái đã chọn")
+    @Test("PracticeSelectionView render trực tiếp danh sách từ vựng không dùng segmentedFilterBar")
     @MainActor
-    func testPracticeSelectionRowSelectedState() {
-        var toggleTriggered = false
-        let row = PracticeSelectionRow(
-            word: mockWords[0],
-            isSelected: true,
-            onToggle: {
-                toggleTriggered = true
-            }
+    func testPracticeSelectionViewDirectWordListRendering() {
+        let vm = PersonalVaultViewModel(mockWords: mockWords)
+        let view = PracticeSelectionView(
+            vaultViewModel: vm,
+            onStartPractice: { _ in }
         )
 
         #if canImport(UIKit)
-        let host = UIHostingController(rootView: row)
+        let host = UIHostingController(rootView: view)
         #expect(host.view != nil)
         #endif
 
-        #expect(row.isSelected == true)
-        #expect(row.word.lemma == "resilience")
-        row.onToggle()
-        #expect(toggleTriggered == true)
+        #expect(vm.vaultWords.count == 2)
+        #expect(vm.vaultWords[0].lemma == "resilience")
+        #expect(vm.vaultWords[1].lemma == "diligent")
     }
 }
 #endif

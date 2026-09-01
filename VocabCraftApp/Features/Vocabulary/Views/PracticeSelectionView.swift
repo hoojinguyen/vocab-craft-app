@@ -2,10 +2,10 @@ import CraftUIKit
 import SwiftUI
 
 /// Screen allowing the user to select words for a Mixed Reflex Drill practice session.
-/// Features a navigation header, 3-tab segmented category filter (Chưa thuộc / Đã thuộc / Đã lưu),
-/// quick "⚡️ Luyện tập nhanh" Smart Pick button, "Chọn tất cả" toggle action,
-/// lazy scrollable list of selectable words with mini sensory mode indicators,
-/// and a sticky bottom CTA bar anchored with `.safeAreaInset(edge: .bottom)`.
+/// Features a navigation header, "Chọn tất cả" toggle action,
+/// lazy scrollable list of selectable words,
+/// and a sticky bottom CTA bar anchored with `.safeAreaInset(edge: .bottom)`
+/// containing instant "⚡️ Luyện tập thông minh" Smart Practice and manual Start Practice.
 public struct PracticeSelectionView: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.dismiss) private var dismiss
@@ -33,14 +33,6 @@ public struct PracticeSelectionView: View {
         vaultViewModel.selectedWords.count
     }
 
-    private var vaultSegmentOptions: [CraftSegmentOption<VaultTabFilter>] {
-        [
-            CraftSegmentOption(.notMastered, title: AppStrings.Vault.filterNotMasteredTitle, count: vaultViewModel.metrics.unmasteredCount),
-            CraftSegmentOption(.mastered, title: AppStrings.Vault.filterMasteredTitle, count: vaultViewModel.metrics.masteredCount),
-            CraftSegmentOption(.bookmarked, title: AppStrings.Vault.filterBookmarkedTitle, count: vaultViewModel.metrics.bookmarkedCount)
-        ]
-    }
-
     public var body: some View {
         ZStack {
             theme.colors.canvasBackground
@@ -53,13 +45,8 @@ public struct PracticeSelectionView: View {
                     .padding(.top, theme.spacing.md)
                     .padding(.bottom, theme.spacing.xs)
 
-                // 3-Tab Segmented Filter
-                segmentedFilterBar
-                    .padding(.horizontal, theme.spacing.base)
-                    .padding(.vertical, theme.spacing.xs)
-
-                // Quick Action Toolbar (Smart Pick & Select All Toggle)
-                actionToolbar
+                // Sub-Header Toolbar (Select All / Deselect All Toggle)
+                subHeaderToolbar
                     .padding(.horizontal, theme.spacing.base)
                     .padding(.vertical, theme.spacing.xs)
 
@@ -125,63 +112,28 @@ public struct PracticeSelectionView: View {
         }
     }
 
-    // MARK: - 3-Tab Segmented Filter
-    private var segmentedFilterBar: some View {
-        CraftSegmentedControl(
-            selection: Binding(
-                get: { vaultViewModel.vaultTabFilter },
-                set: { vaultViewModel.setVaultFilter($0) }
-            ),
-            options: vaultSegmentOptions,
-            style: .tactile3D
-        )
-    }
+    // MARK: - Sub-Header Toolbar (Select All / Deselect All Toggle)
+    private var subHeaderToolbar: some View {
+        HStack {
+            Spacer()
 
-    // MARK: - Action Toolbar (Smart Pick & Select All Toggle)
-    private var actionToolbar: some View {
-        VStack(spacing: theme.spacing.xs) {
-            HStack {
-                Text(verbatim: AppStrings.Practice.totalCount(vaultViewModel.vaultWords.count))
-                    .font(theme.typography.caption)
-                    .foregroundStyle(theme.colors.textSecondary)
-
-                Spacer()
-            }
-
-            HStack(spacing: theme.spacing.sm) {
-                // "⚡️ Luyện tập nhanh" Smart Pick Button
-                CraftButton(
-                    verbatim: AppStrings.Practice.smartPickText,
-                    variant: .tactile,
-                    size: .sm,
-                    action: {
-                        withAnimation(theme.animations.springSnappy) {
-                            _ = vaultViewModel.smartPickWords()
+            // Select All / Deselect All Toggle Button
+            CraftButton(
+                verbatim: isAllSelected ? AppStrings.Practice.deselectAllText : AppStrings.Practice.selectAllText,
+                iconName: isAllSelected ? "xmark.circle" : "checkmark.circle",
+                variant: .ghost,
+                size: .sm,
+                action: {
+                    withAnimation(theme.animations.springSnappy) {
+                        if isAllSelected {
+                            vaultViewModel.deselectAll()
+                        } else {
+                            vaultViewModel.selectAll()
                         }
                     }
-                )
-                .disabled(vaultViewModel.vaultWords.isEmpty)
-
-                Spacer()
-
-                // Select All / Deselect All Toggle Button
-                CraftButton(
-                    verbatim: isAllSelected ? AppStrings.Practice.deselectAllText : AppStrings.Practice.selectAllText,
-                    iconName: isAllSelected ? "xmark.circle" : "checkmark.circle",
-                    variant: .ghost,
-                    size: .sm,
-                    action: {
-                        withAnimation(theme.animations.springSnappy) {
-                            if isAllSelected {
-                                vaultViewModel.deselectAll()
-                            } else {
-                                vaultViewModel.selectAll()
-                            }
-                        }
-                    }
-                )
-                .disabled(vaultViewModel.vaultWords.isEmpty)
-            }
+                }
+            )
+            .disabled(vaultViewModel.vaultWords.isEmpty)
         }
     }
 
@@ -206,9 +158,6 @@ public struct PracticeSelectionView: View {
                             isSelected: vaultViewModel.selectedWordIds.contains(word.id),
                             onToggle: {
                                 vaultViewModel.toggleWordSelection(id: word.id)
-                            },
-                            onAudioTap: {
-                                vaultViewModel.playAudio(for: word)
                             }
                         )
                     }
@@ -236,12 +185,28 @@ public struct PracticeSelectionView: View {
             Divider()
                 .background(theme.colors.borderDefault)
 
-            VStack(spacing: theme.spacing.xs) {
+            VStack(spacing: theme.spacing.sm) {
+                // Top CTA: Smart Practice (Instant launch)
+                CraftButton(
+                    verbatim: AppStrings.Practice.smartPickText,
+                    iconName: "bolt.fill",
+                    variant: .tactile,
+                    size: .md,
+                    isFullWidth: true,
+                    action: {
+                        let picked = vaultViewModel.smartPickWords()
+                        guard !picked.isEmpty else { return }
+                        onStartPractice(picked)
+                    }
+                )
+                .disabled(vaultViewModel.vaultWords.isEmpty)
+
+                // Bottom CTA: Manual Selection Start
                 CraftButton(
                     verbatim: selectedWordsCount > 0
                         ? AppStrings.Practice.startButton(selectedWordsCount)
                         : AppStrings.Practice.emptyPromptText,
-                    iconName: "bolt.fill",
+                    iconName: "play.fill",
                     variant: .tactile,
                     size: .lg,
                     isFullWidth: true,
