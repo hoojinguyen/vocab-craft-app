@@ -77,4 +77,33 @@ public protocol VocabularyDataSourceProtocol: Sendable {
     func fetchWordsForStage(stageId: String) async throws -> [TopicWordDTO]
     func searchWords(query: String) async throws -> [TopicWordDTO]
     func fetchWordById(id: Int64) async throws -> TopicWordDTO?
+    func fetchWordsByIds(ids: Set<Int64>) async throws -> [TopicWordDTO]
+    func fetchAllWordsMap() async throws -> [Int64: TopicWordDTO]
+}
+
+public extension VocabularyDataSourceProtocol {
+    func fetchWordsByIds(ids: Set<Int64>) async throws -> [TopicWordDTO] {
+        var results: [TopicWordDTO] = []
+        for id in ids {
+            if let word = try await fetchWordById(id: id) {
+                results.append(word)
+            }
+        }
+        return results
+    }
+
+    func fetchAllWordsMap() async throws -> [Int64: TopicWordDTO] {
+        let decks = try await fetchTopicDecks()
+        var map: [Int64: TopicWordDTO] = [:]
+        for deck in decks {
+            let stages = try await fetchSubTopicStages(deckId: deck.id)
+            for stage in stages {
+                let words = try await fetchWordsForStage(stageId: stage.id)
+                for word in words {
+                    map[word.id] = word
+                }
+            }
+        }
+        return map
+    }
 }
