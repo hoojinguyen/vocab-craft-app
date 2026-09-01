@@ -489,6 +489,46 @@ extension AppStrings {
         }
     }
 
+    // MARK: - Topic Decks & Stage
+    public enum TopicDecks {
+        public enum StageSummary {
+            public static var passedTitle: LocalizedStringKey { "app.topic.stage_summary.passed_title" }
+            public static var passedTitleText: String { String(localized: "app.topic.stage_summary.passed_title", defaultValue: "Stage Completed!", bundle: .module) }
+            public static var failedTitle: LocalizedStringKey { "app.topic.stage_summary.failed_title" }
+            public static var failedTitleText: String { String(localized: "app.topic.stage_summary.failed_title", defaultValue: "Goal Not Reached", bundle: .module) }
+            public static var passedSubtitle: LocalizedStringKey { "app.topic.stage_summary.passed_subtitle" }
+            public static var passedSubtitleText: String { String(localized: "app.topic.stage_summary.passed_subtitle", defaultValue: "You have successfully added these words to your knowledge vault.", bundle: .module) }
+            public static var failedSubtitle: LocalizedStringKey { "app.topic.stage_summary.failed_subtitle" }
+            public static var failedSubtitleText: String { String(localized: "app.topic.stage_summary.failed_subtitle", defaultValue: "Please review to reinforce these vocabulary words.", bundle: .module) }
+            public static var xpEarned: LocalizedStringKey { "app.topic.stage_summary.xp_earned" }
+            public static var xpEarnedText: String { String(localized: "app.topic.stage_summary.xp_earned", defaultValue: "XP Earned", bundle: .module) }
+            public static var correct: LocalizedStringKey { "app.topic.stage_summary.correct" }
+            public static var correctText: String { String(localized: "app.topic.stage_summary.correct", defaultValue: "Correct", bundle: .module) }
+            public static var accuracy: LocalizedStringKey { "app.topic.stage_summary.accuracy" }
+            public static var accuracyText: String { String(localized: "app.topic.stage_summary.accuracy", defaultValue: "Accuracy", bundle: .module) }
+            public static func weakWordsCount(_ count: Int) -> String {
+                String(format: String(localized: "app.topic.stage_summary.weak_words_count_format", defaultValue: "%lld words need practice", bundle: .module), count)
+            }
+            public static var weakWordsDesc: LocalizedStringKey { "app.topic.stage_summary.weak_words_desc" }
+            public static var weakWordsDescText: String { String(localized: "app.topic.stage_summary.weak_words_desc", defaultValue: "Automatically added to your Personal Vault for review.", bundle: .module) }
+            public static var finishContinue: LocalizedStringKey { "app.topic.stage_summary.finish_continue" }
+            public static var finishContinueText: String { String(localized: "app.topic.stage_summary.finish_continue", defaultValue: "Complete & Continue", bundle: .module) }
+            public static var continuePath: LocalizedStringKey { "app.topic.stage_summary.continue_path" }
+            public static var continuePathText: String { String(localized: "app.topic.stage_summary.continue_path", defaultValue: "Continue Path", bundle: .module) }
+            public static var restartStage: LocalizedStringKey { "app.topic.stage_summary.restart_stage" }
+            public static var restartStageText: String { String(localized: "app.topic.stage_summary.restart_stage", defaultValue: "Practice this Stage again", bundle: .module) }
+        }
+
+        public enum StagePreview {
+            public static func wordsCount(_ count: Int) -> String {
+                String(format: String(localized: "app.topic.stage_preview.words_count_format", defaultValue: "%lld core words", bundle: .module), count)
+            }
+            public static func startChallenge(_ count: Int) -> String {
+                String(format: String(localized: "app.topic.stage_preview.start_challenge_format", defaultValue: "Start Stage Challenge (%lld questions)", bundle: .module), count)
+            }
+        }
+    }
+
     // MARK: - Widget
     public enum Widget {
         public static var next: LocalizedStringKey { "app.widget.next" }

@@ -54,14 +54,14 @@ public struct VocabMicControlHubView: View {
                                 endPoint: .bottom
                             )
                             : LinearGradient(
-                                colors: [theme.colors.accent, theme.colors.accent.opacity(0.85)],
+                                colors: [theme.colors.brandSecondary, theme.colors.brandSecondary.opacity(0.85)],
                                 startPoint: .top,
                                 endPoint: .bottom
                             )
                         )
                         .frame(width: 84, height: 84)
                         .shadow(
-                            color: isListening ? theme.colors.statusDanger.opacity(0.4) : theme.colors.accent.opacity(0.35),
+                            color: isListening ? theme.colors.statusDanger.opacity(0.4) : theme.colors.brandSecondary.opacity(0.35),
                             radius: 14,
                             x: 0,
                             y: 6

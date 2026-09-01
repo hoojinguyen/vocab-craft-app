@@ -66,7 +66,7 @@ public struct StagePreviewSheet: View {
                 Circle()
                     .fill(
                         LinearGradient(
-                            colors: [theme.colors.accent.opacity(0.2), theme.colors.accent.opacity(0.1)],
+                            colors: [theme.colors.brandSecondary.opacity(0.2), theme.colors.brandSecondary.opacity(0.1)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -75,7 +75,7 @@ public struct StagePreviewSheet: View {
 
                 Image(systemName: stage.iconName)
                     .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(theme.colors.accent)
+                    .foregroundColor(theme.colors.brandSecondary)
             }
 
             VStack(alignment: .leading, spacing: 2) {
@@ -84,7 +84,7 @@ public struct StagePreviewSheet: View {
                     .foregroundColor(theme.colors.textPrimary)
                     .lineLimit(1)
 
-                Text("\(stage.words.count) từ vựng cốt lõi")
+                Text(AppStrings.TopicDecks.StagePreview.wordsCount(stage.words.count))
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(theme.colors.textSecondary)
             }
@@ -217,24 +217,24 @@ public struct StagePreviewSheet: View {
 
             Button(action: onStartChallenge) {
                 HStack(spacing: 8) {
-                    Text("Bắt đầu Thử thách Chặng (\(stage.words.count) câu)")
+                    Text(AppStrings.TopicDecks.StagePreview.startChallenge(stage.words.count))
                         .font(.system(size: 15, weight: .bold))
 
                     Image(systemName: "arrow.right")
                         .font(.system(size: 14, weight: .bold))
                 }
-                .foregroundColor(.white)
+                .foregroundColor(theme.colors.textInverse)
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
                 .background(
                     LinearGradient(
-                        colors: [theme.colors.accent, theme.colors.accent.opacity(0.85)],
+                        colors: [theme.colors.brandPrimary, theme.colors.brandPrimary.opacity(0.85)],
                         startPoint: .leading,
                         endPoint: .trailing
                     )
                 )
                 .clipShape(Capsule())
-                .shadow(color: theme.colors.accent.opacity(0.35), radius: 8, x: 0, y: 4)
+                .shadow(color: theme.colors.brandPrimary.opacity(0.35), radius: 8, x: 0, y: 4)
                 .contentShape(Rectangle())
             }
             .buttonStyle(BentoCardButtonStyle())

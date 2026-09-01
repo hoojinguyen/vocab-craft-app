@@ -39,16 +39,11 @@ public struct VocabularyView: View {
     internal var measuredHeaderHeightForTesting: CGFloat { measuredHeaderHeight }
 
     private func resolvedVaultVM() -> PersonalVaultViewModel {
-        if let vm = vaultVM {
-            return vm
-        }
-        let vm = appContainer.makePersonalVaultViewModel()
-        vaultVM = vm
-        return vm
+        vaultVM ?? appContainer.makePersonalVaultViewModel()
     }
 
     public var body: some View {
-        let currentVaultVM = vaultVM ?? resolvedVaultVM()
+        let currentVaultVM = resolvedVaultVM()
         @Bindable var bindableVaultVM = currentVaultVM
 
         NavigationStack {

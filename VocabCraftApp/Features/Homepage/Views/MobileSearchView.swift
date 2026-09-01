@@ -15,7 +15,7 @@ public struct MobileSearchView: View {
         HStack(spacing: 10) {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(theme.colors.accent)
+                .foregroundColor(theme.colors.brandSecondary)
 
             TextField(AppStrings.Search.placeholder, text: $searchText)
                 .font(.system(size: 15, weight: .medium))
@@ -34,11 +34,11 @@ public struct MobileSearchView: View {
             Button(action: onVoiceSearchTapped) {
                 ZStack {
                     Circle()
-                        .fill(theme.colors.accent.opacity(0.12))
+                        .fill(theme.colors.brandSecondary.opacity(0.12))
                         .frame(width: 32, height: 32)
                     Image(systemName: "mic.fill")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(theme.colors.accent)
+                        .foregroundColor(theme.colors.brandSecondary)
                 }
                 .frame(width: 44, height: 44)
             }

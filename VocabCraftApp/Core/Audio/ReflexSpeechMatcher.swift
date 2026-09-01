@@ -10,6 +10,9 @@ public enum ReflexSpeechMatcher {
     private static let allowedInflections: Set<String> = [
         "ing", "ed", "tion", "ion", "ation", "ment"
     ]
+    private static let allowedYtoISuffixes: Set<String> = [
+        "es", "ed", "er", "est", "ly", "ness", "ties", "fied", "able"
+    ]
 
     /// Evaluates whether spoken text contains the target lemma or an acceptable phonetic / accent / inflection reflex match.
     public static func isReflexMatch(
@@ -39,6 +42,9 @@ public enum ReflexSpeechMatcher {
                 return true
             }
             if matchesVowelDrop(token: token, normalizedTarget: normalizedTarget, targetLen: targetLen) {
+                return true
+            }
+            if matchesYtoI(token: token, normalizedTarget: normalizedTarget, targetLen: targetLen) {
                 return true
             }
             if matchesTieredFuzzy(token: token, normalizedTarget: normalizedTarget, targetLen: targetLen, toleranceThreshold: toleranceThreshold) {
@@ -89,6 +95,20 @@ public enum ReflexSpeechMatcher {
         guard token.hasPrefix(stemWithoutE) else { return false }
         let suffix = String(token.dropFirst(stemWithoutE.count))
         return allowedInflections.contains(suffix)
+    }
+
+    private static func matchesYtoI(token: String, normalizedTarget: String, targetLen: Int) -> Bool {
+        guard targetLen >= 3, normalizedTarget.hasSuffix("y") else { return false }
+        let chars = Array(normalizedTarget)
+        let secondToLast = chars[targetLen - 2]
+        let vowels: Set<Character> = ["a", "e", "i", "o", "u"]
+        guard !vowels.contains(secondToLast) else { return false }
+
+        let stem = String(normalizedTarget.dropLast())
+        let stemWithI = stem + "i"
+        guard token.hasPrefix(stemWithI) else { return false }
+        let suffix = String(token.dropFirst(stemWithI.count))
+        return allowedYtoISuffixes.contains(suffix)
     }
 
     private static func matchesTieredFuzzy(token: String, normalizedTarget: String, targetLen: Int, toleranceThreshold: Double?) -> Bool {

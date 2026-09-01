@@ -83,27 +83,41 @@ public protocol VocabularyDataSourceProtocol: Sendable {
 
 public extension VocabularyDataSourceProtocol {
     func fetchWordsByIds(ids: Set<Int64>) async throws -> [TopicWordDTO] {
-        var results: [TopicWordDTO] = []
-        for id in ids {
-            if let word = try await fetchWordById(id: id) {
-                results.append(word)
+        try await withThrowingTaskGroup(of: TopicWordDTO?.self) { group in
+            for id in ids {
+                group.addTask {
+                    try await self.fetchWordById(id: id)
+                }
             }
+            var results: [TopicWordDTO] = []
+            results.reserveCapacity(ids.count)
+            for try await word in group {
+                if let word {
+                    results.append(word)
+                }
+            }
+            return results
         }
-        return results
     }
 
     func fetchAllWordsMap() async throws -> [Int64: TopicWordDTO] {
         let decks = try await fetchTopicDecks()
-        var map: [Int64: TopicWordDTO] = [:]
-        for deck in decks {
-            let stages = try await fetchSubTopicStages(deckId: deck.id)
-            for stage in stages {
-                let words = try await fetchWordsForStage(stageId: stage.id)
+        return try await withThrowingTaskGroup(of: [TopicWordDTO].self) { stageGroup in
+            for deck in decks {
+                let stages = try await self.fetchSubTopicStages(deckId: deck.id)
+                for stage in stages {
+                    stageGroup.addTask {
+                        try await self.fetchWordsForStage(stageId: stage.id)
+                    }
+                }
+            }
+            var map: [Int64: TopicWordDTO] = [:]
+            for try await words in stageGroup {
                 for word in words {
                     map[word.id] = word
                 }
             }
+            return map
         }
-        return map
     }
 }

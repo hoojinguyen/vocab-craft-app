@@ -50,11 +50,11 @@ public struct StageSummarySheet: View {
 
                 // Headline & Subtitle
                 VStack(spacing: 6) {
-                    Text(isPassed ? "Hoàn Thành Chặng!" : "Chưa Đạt Mục Tiêu")
+                    Text(isPassed ? AppStrings.TopicDecks.StageSummary.passedTitle : AppStrings.TopicDecks.StageSummary.failedTitle)
                         .font(.system(size: 24, weight: .bold, design: .rounded))
                         .foregroundColor(theme.colors.textPrimary)
 
-                    Text(isPassed ? "Bạn đã nạp thành công các từ vựng vào kho kiến thức." : "Hãy ôn tập lại để củng cố các từ vựng này nhé.")
+                    Text(isPassed ? AppStrings.TopicDecks.StageSummary.passedSubtitle : AppStrings.TopicDecks.StageSummary.failedSubtitle)
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(theme.colors.textSecondary)
                         .multilineTextAlignment(.center)
@@ -112,19 +112,19 @@ public struct StageSummarySheet: View {
         HStack(spacing: 12) {
             statMetricCard(
                 title: "+\(max(0, summary.xpEarned)) XP",
-                label: "XP Đạt Được",
+                label: AppStrings.TopicDecks.StageSummary.xpEarnedText,
                 color: theme.colors.statusSuccess
             )
 
             statMetricCard(
                 title: "\(summary.correctCount)/\(summary.totalQuestions)",
-                label: "Đúng",
+                label: AppStrings.TopicDecks.StageSummary.correctText,
                 color: theme.colors.textPrimary
             )
 
             statMetricCard(
                 title: "\(accuracyPercentage)%",
-                label: "Chính Xác",
+                label: AppStrings.TopicDecks.StageSummary.accuracyText,
                 color: isPassed ? theme.colors.statusSuccess : theme.colors.statusDanger
             )
         }
@@ -158,11 +158,11 @@ public struct StageSummarySheet: View {
                 .foregroundColor(theme.colors.statusDanger)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text("\(summary.weakWordIds.count) từ chưa chính xác")
+                Text(AppStrings.TopicDecks.StageSummary.weakWordsCount(summary.weakWordIds.count))
                     .font(.system(size: 13, weight: .bold))
                     .foregroundColor(theme.colors.textPrimary)
 
-                Text("Đã tự động thêm vào Kho cá nhân để bạn ôn tập lại.")
+                Text(AppStrings.TopicDecks.StageSummary.weakWordsDesc)
                     .font(.system(size: 11, weight: .medium))
                     .foregroundColor(theme.colors.textSecondary)
             }
@@ -184,7 +184,7 @@ public struct StageSummarySheet: View {
             // Primary Finish / Next CTA
             Button(action: onFinish) {
                 HStack(spacing: 8) {
-                    Text(isPassed ? "Hoàn thành & Tiếp tục" : "Tiếp tục Lộ trình")
+                    Text(isPassed ? AppStrings.TopicDecks.StageSummary.finishContinue : AppStrings.TopicDecks.StageSummary.continuePath)
                         .font(.system(size: 15, weight: .bold))
 
                     Image(systemName: "arrow.right")
@@ -197,13 +197,13 @@ public struct StageSummarySheet: View {
                     LinearGradient(
                         colors: isPassed
                             ? [theme.colors.statusSuccess, theme.colors.statusSuccess.opacity(0.85)]
-                            : [theme.colors.accent, theme.colors.accent.opacity(0.85)],
+                            : [theme.colors.brandPrimary, theme.colors.brandPrimary.opacity(0.85)],
                         startPoint: .leading,
                         endPoint: .trailing
                     )
                 )
                 .clipShape(Capsule())
-                .shadow(color: (isPassed ? theme.colors.statusSuccess : theme.colors.accent).opacity(0.35), radius: 8, x: 0, y: 4)
+                .shadow(color: (isPassed ? theme.colors.statusSuccess : theme.colors.brandPrimary).opacity(0.35), radius: 8, x: 0, y: 4)
                 .contentShape(Rectangle())
             }
             .buttonStyle(BentoCardButtonStyle())
@@ -213,7 +213,7 @@ public struct StageSummarySheet: View {
                 HStack(spacing: 6) {
                     Image(systemName: "arrow.counterclockwise")
                         .font(.system(size: 13, weight: .semibold))
-                    Text("Luyện tập lại Chặng này")
+                    Text(AppStrings.TopicDecks.StageSummary.restartStage)
                         .font(.system(size: 13, weight: .semibold))
                 }
                 .foregroundColor(theme.colors.textSecondary)

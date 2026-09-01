@@ -75,13 +75,13 @@ public final class ReflexBlitzViewModel {
     }
 
     public var fractionRemaining: Double {
-        let limit = selectedMode.timeLimitSeconds * 1000.0
+        let limit = currentHandler.timeLimitSeconds * 1000.0
         guard limit > 0 else { return 0 }
         return max(0.0, min(1.0, 1.0 - Double(elapsedTimeMs) / limit))
     }
 
     public var timerStage: ReflexBlitzTimerStage {
-        let limit = selectedMode.timeLimitSeconds * 1000.0
+        let limit = currentHandler.timeLimitSeconds * 1000.0
         let warningThreshold = limit * (3.5 / 6.0)
         let urgentThreshold = limit * (5.0 / 6.0)
         if Double(elapsedTimeMs) < warningThreshold {
@@ -306,7 +306,7 @@ extension ReflexBlitzViewModel {
     }
 
     private func scheduleTimeoutTimer() {
-        let limitSeconds = selectedMode.timeLimitSeconds
+        let limitSeconds = currentHandler.timeLimitSeconds
         timeoutTimerTask = Task { @MainActor [weak self] in
             try? await Task.sleep(for: .seconds(limitSeconds))
             guard !Task.isCancelled, let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
@@ -338,7 +338,7 @@ extension ReflexBlitzViewModel {
         if computed > self.hintStage {
             self.hintStage = computed
         }
-        let limitMs = Int(selectedMode.timeLimitSeconds * 1000)
+        let limitMs = Int(currentHandler.timeLimitSeconds * 1000)
         if ms >= limitMs && phase == .drilling && cardPhase == .activeCountdown {
             handleTimeout()
         }

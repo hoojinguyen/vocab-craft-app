@@ -102,7 +102,9 @@ public final class FetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProtocol,
 
     public func execute(filter: PersonalVaultFilter = .all, searchQuery: String? = nil) async throws -> PersonalVaultResult {
         let allProgress = try await progressRepo.fetchAllProgress()
-        let wordsMap = try await dataSource.fetchAllWordsMap()
+        let wordIds = Set(allProgress.map(\.wordId))
+        let wordsList = try await dataSource.fetchWordsByIds(ids: wordIds)
+        let wordsMap = Dictionary(wordsList.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
         var allPersonalWords: [PersonalWord] = []
         allPersonalWords.reserveCapacity(allProgress.count)
 
@@ -170,7 +172,9 @@ public final class FetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProtocol,
 
     public func fetchVaultWords(filter: VaultTabFilter = .notMastered, searchQuery: String? = nil) async throws -> [VaultWordItem] {
         let allProgress = try await progressRepo.fetchAllProgress()
-        let wordsMap = try await dataSource.fetchAllWordsMap()
+        let wordIds = Set(allProgress.map(\.wordId))
+        let wordsList = try await dataSource.fetchWordsByIds(ids: wordIds)
+        let wordsMap = Dictionary(wordsList.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
         var allVaultWords: [VaultWordItem] = []
         allVaultWords.reserveCapacity(allProgress.count)
 

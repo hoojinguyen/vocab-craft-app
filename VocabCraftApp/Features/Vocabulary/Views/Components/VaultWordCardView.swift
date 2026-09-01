@@ -46,11 +46,11 @@ public struct VaultWordCardView: View {
 
                             Button(action: onAudioTap) {
                                 Image(systemName: "speaker.wave.2.fill")
-                                    .font(.system(size: 13, weight: .semibold))
-                                    .foregroundColor(theme.colors.accent)
-                                    .padding(5)
-                                    .background(theme.colors.accent.opacity(0.12))
-                                    .clipShape(Circle())
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundColor(theme.colors.brandSecondary)
+                                .padding(5)
+                                .background(theme.colors.brandSecondary.opacity(0.12))
+                                .clipShape(Circle())
                             }
                             .buttonStyle(PlainButtonStyle())
                             .frame(minWidth: 44, minHeight: 44)
@@ -89,7 +89,7 @@ public struct VaultWordCardView: View {
                             Image(systemName: "checkmark.seal.fill")
                                 .font(.system(size: 16, weight: .bold))
                                 .foregroundColor(theme.colors.statusSuccess)
-                                .accessibilityLabel("Đã thuộc")
+                                .accessibilityLabel(AppStrings.Vault.statusMasteredText)
                         } else if word.correctStreak > 0 {
                             HStack(spacing: 2) {
                                 Image(systemName: "flame.fill")
@@ -197,7 +197,7 @@ public struct VaultWordCardView: View {
             .foregroundColor(theme.colors.textPrimary)
         let matchText: Text = Text(match)
             .font(.system(size: 13, weight: .bold, design: .serif))
-            .foregroundColor(theme.colors.accent)
+            .foregroundColor(theme.colors.brandSecondary)
         let suffixText: Text = Text(suffix)
             .font(.system(size: 13, weight: .medium, design: .serif))
             .foregroundColor(theme.colors.textPrimary)

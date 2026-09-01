@@ -9,18 +9,19 @@ public struct SearchNewWordView: View {
     private let recentSearches = ["resilient", "ubiquitous", "ephemeral", "pragmatic", "meticulous"]
 
     private struct SuggestedTopic: Identifiable {
-        let id = UUID()
+        let id: String
         let titleKey: LocalizedStringKey
+        let titleText: String
         let iconName: String
         let color: (CraftColorTokens) -> Color
     }
 
     private var suggestedTopics: [SuggestedTopic] {
         [
-            SuggestedTopic(titleKey: AppStrings.Search.topicIelts, iconName: "sparkles", color: { $0.accent }),
-            SuggestedTopic(titleKey: AppStrings.Search.topicBusiness, iconName: "briefcase.fill", color: { $0.statusInfo }),
-            SuggestedTopic(titleKey: AppStrings.Search.topicAcademic, iconName: "book.closed.fill", color: { $0.statusDanger }),
-            SuggestedTopic(titleKey: AppStrings.Search.topicDaily, iconName: "bubble.left.and.bubble.right.fill", color: { $0.statusSuccess })
+            SuggestedTopic(id: "ielts", titleKey: AppStrings.Search.topicIelts, titleText: AppStrings.Search.topicIeltsText, iconName: "sparkles", color: { $0.accent }),
+            SuggestedTopic(id: "business", titleKey: AppStrings.Search.topicBusiness, titleText: AppStrings.Search.topicBusinessText, iconName: "briefcase.fill", color: { $0.statusInfo }),
+            SuggestedTopic(id: "academic", titleKey: AppStrings.Search.topicAcademic, titleText: AppStrings.Search.topicAcademicText, iconName: "book.closed.fill", color: { $0.statusDanger }),
+            SuggestedTopic(id: "daily", titleKey: AppStrings.Search.topicDaily, titleText: AppStrings.Search.topicDailyText, iconName: "bubble.left.and.bubble.right.fill", color: { $0.statusSuccess })
         ]
     }
 
@@ -173,7 +174,7 @@ public struct SearchNewWordView: View {
                         cornerRadius: theme.radii.lg,
                         padding: theme.spacing.sm,
                         action: {
-                            // Action when topic is pressed
+                            searchText = topic.titleText
                         }
                     ) {
                         HStack(spacing: theme.spacing.sm) {

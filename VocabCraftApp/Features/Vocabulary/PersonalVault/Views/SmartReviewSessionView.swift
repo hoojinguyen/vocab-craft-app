@@ -68,7 +68,7 @@ public struct SmartReviewSessionView: View {
 
             Spacer()
 
-            Text("Ôn Tập Tập Trung")
+            Text(AppStrings.Vault.SmartReview.title)
                 .font(.system(size: 16, weight: .bold))
                 .foregroundColor(theme.colors.textPrimary)
 
@@ -94,11 +94,8 @@ public struct SmartReviewSessionView: View {
     private func wordReviewCard(word: PersonalWord) -> some View {
         VStack(spacing: 20) {
             progressBar
-
             flashcardBody(word: word)
-
             Spacer()
-
             actionControls
         }
     }
@@ -146,7 +143,7 @@ public struct SmartReviewSessionView: View {
                         HStack(spacing: 6) {
                             Image(systemName: "speaker.wave.2.fill")
                                 .font(.system(size: 14, weight: .bold))
-                            Text("Phát âm")
+                            Text(AppStrings.Vault.SmartReview.pronounce)
                                 .font(.system(size: 13, weight: .semibold))
                         }
                         .foregroundColor(theme.colors.accent)
@@ -180,7 +177,7 @@ public struct SmartReviewSessionView: View {
                 .background(theme.colors.hairline)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text("Nghĩa tiếng Việt")
+                Text(AppStrings.Vault.SmartReview.definitionVi)
                     .font(.system(size: 11, weight: .bold))
                     .foregroundColor(theme.colors.textSecondary)
                     .textCase(.uppercase)
@@ -192,7 +189,7 @@ public struct SmartReviewSessionView: View {
 
             if !word.definitionEn.isEmpty {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Định nghĩa tiếng Anh")
+                    Text(AppStrings.Vault.SmartReview.definitionEn)
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(theme.colors.textSecondary)
                         .textCase(.uppercase)
@@ -205,7 +202,7 @@ public struct SmartReviewSessionView: View {
 
             if !word.exampleEn.isEmpty {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Ví dụ ngữ cảnh")
+                    Text(AppStrings.Vault.SmartReview.contextExample)
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(theme.colors.textSecondary)
                         .textCase(.uppercase)
@@ -241,7 +238,7 @@ public struct SmartReviewSessionView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "eye.fill")
                         .font(.system(size: 15, weight: .bold))
-                    Text("Hiện nghĩa & Ví dụ")
+                    Text(AppStrings.Vault.SmartReview.showAnswer)
                         .font(.system(size: 15, weight: .bold))
                 }
                 .foregroundColor(.white)
@@ -265,7 +262,7 @@ public struct SmartReviewSessionView: View {
                     HStack(spacing: 6) {
                         Image(systemName: "xmark.circle.fill")
                             .font(.system(size: 16, weight: .bold))
-                        Text("Chưa nhớ")
+                        Text(AppStrings.Vault.SmartReview.notRemembered)
                             .font(.system(size: 14, weight: .bold))
                     }
                     .foregroundColor(theme.colors.statusDanger)
@@ -291,7 +288,7 @@ public struct SmartReviewSessionView: View {
                     HStack(spacing: 6) {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 16, weight: .bold))
-                        Text("Đã nhớ")
+                        Text(AppStrings.Vault.SmartReview.remembered)
                             .font(.system(size: 14, weight: .bold))
                     }
                     .foregroundColor(.white)
@@ -329,11 +326,11 @@ public struct SmartReviewSessionView: View {
             }
 
             VStack(spacing: 6) {
-                Text("Hoàn Thành Ôn Tập!")
+                Text(AppStrings.Vault.SmartReview.completedTitle)
                     .font(.system(size: 22, weight: .bold))
                     .foregroundColor(theme.colors.textPrimary)
 
-                Text("Bạn đã ôn tập toàn bộ \(viewModel.weakWords.count) từ yếu trong phiên này.")
+                Text(AppStrings.Vault.SmartReview.completedDesc(viewModel.weakWords.count))
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(theme.colors.textSecondary)
                     .multilineTextAlignment(.center)
@@ -342,7 +339,7 @@ public struct SmartReviewSessionView: View {
             Spacer()
 
             Button(action: onDismiss) {
-                Text("Hoàn tất & Quay lại")
+                Text(AppStrings.Vault.SmartReview.finishAndReturn)
                     .font(.system(size: 15, weight: .bold))
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
@@ -366,11 +363,11 @@ public struct SmartReviewSessionView: View {
                 .font(.system(size: 44))
                 .foregroundColor(theme.colors.statusSuccess)
 
-            Text("Không có từ yếu nào!")
+            Text(AppStrings.Vault.SmartReview.emptyTitle)
                 .font(.system(size: 18, weight: .bold))
                 .foregroundColor(theme.colors.textPrimary)
 
-            Text("Tất cả từ vựng trong kho của bạn đang được ghi nhớ rất tốt.")
+            Text(AppStrings.Vault.SmartReview.emptyDesc)
                 .font(.system(size: 13, weight: .medium))
                 .foregroundColor(theme.colors.textSecondary)
                 .multilineTextAlignment(.center)
@@ -378,7 +375,7 @@ public struct SmartReviewSessionView: View {
             Spacer()
 
             Button(action: onDismiss) {
-                Text("Đóng")
+                Text(AppStrings.Vault.SmartReview.close)
                     .font(.system(size: 14, weight: .bold))
                     .foregroundColor(theme.colors.textPrimary)
                     .frame(maxWidth: .infinity)

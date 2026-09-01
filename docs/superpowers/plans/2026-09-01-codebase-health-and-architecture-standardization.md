@@ -150,7 +150,7 @@ Remove `fetchVocabularyUseCase` and `makeVocabularyViewModel()` from `AppContain
 
 - [ ] **Step 2: Delete orphan source and test files**
 
-Delete the 17 source files and 9 test files listed above via `rm`.
+Delete the 18 source files and 9 test files listed above via `rm`.
 
 - [ ] **Step 3: Regenerate `VocabCraftApp.xcodeproj`**
 

@@ -58,9 +58,7 @@ struct HomeLocalizationTests {
         let _: LocalizedStringKey = AppStrings.Home.lockedHint
     }
 
-    @Test("Verifies catalog keys integrity for Home domain")
-    func testHomeCatalogKeysIntegrity() throws {
-        // Find Localizable.xcstrings file
+    private func loadCatalogStrings() throws -> [String: [String: Any]] {
         let potentialPaths: [String?] = [
             Bundle.main.path(forResource: "Localizable", ofType: "xcstrings"),
             URL(fileURLWithPath: #filePath)
@@ -84,10 +82,15 @@ struct HomeLocalizationTests {
             JSONSerialization.jsonObject(with: fileData) as? [String: Any],
             "Catalog should parse as JSON dictionary"
         )
-        let strings = try #require(
+        return try #require(
             json["strings"] as? [String: [String: Any]],
             "Catalog should contain 'strings' key"
         )
+    }
+
+    @Test("Verifies catalog keys integrity for Home domain")
+    func testHomeCatalogKeysIntegrity() throws {
+        let strings = try loadCatalogStrings()
 
         let requiredHomeKeys = [
             "app.home.title",
@@ -178,33 +181,7 @@ struct HomeLocalizationTests {
 
     @Test("Verifies search and widget catalog keys integrity")
     func testSearchAndWidgetCatalogKeysIntegrity() throws {
-        let potentialPaths: [String?] = [
-            Bundle.main.path(forResource: "Localizable", ofType: "xcstrings"),
-            URL(fileURLWithPath: #filePath)
-                .deletingLastPathComponent()
-                .deletingLastPathComponent()
-                .deletingLastPathComponent()
-                .deletingLastPathComponent()
-                .appendingPathComponent("VocabCraftApp/Resources/Localizable.xcstrings").path
-        ]
-
-        var data: Data?
-        for case let path? in potentialPaths {
-            if let fileData = try? Data(contentsOf: URL(fileURLWithPath: path)) {
-                data = fileData
-                break
-            }
-        }
-
-        let fileData = try #require(data, "Localizable.xcstrings should be found")
-        let json = try #require(
-            JSONSerialization.jsonObject(with: fileData) as? [String: Any],
-            "Catalog should parse as JSON dictionary"
-        )
-        let strings = try #require(
-            json["strings"] as? [String: [String: Any]],
-            "Catalog should contain 'strings' key"
-        )
+        let strings = try loadCatalogStrings()
 
         let expectedSearchAndWidgetKeys: [String: (vi: String, en: String)] = [
             "app.search.title": ("Tra từ", "Search"),

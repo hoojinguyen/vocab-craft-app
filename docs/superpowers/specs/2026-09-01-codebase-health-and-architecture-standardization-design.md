@@ -83,7 +83,7 @@ graph TD
 #### 3.1.3 `MarkLearnedIntent` Logic Fix
 * **Problem**: `progress.masteryLevel = max(5, srsResult.nextMastery)` in `MarkLearnedIntent.swift` forces mastery to $\ge 5$ always.
 * **Solution**:
-  - Update assignment to `progress.masteryLevel = min(5, max(1, srsResult.nextMastery))` or appropriately set `progress.masteryLevel = 5` only if intended to instantly mark as mastered, preserving correct SRS interval calculations.
+  - Update assignment to `progress.masteryLevel = min(5, max(1, srsResult.nextMastery))`, letting mastery advance one step per review instead of being clamped to the maximum.
 
 ---
 

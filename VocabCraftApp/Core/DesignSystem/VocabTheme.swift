@@ -4,7 +4,6 @@ import SwiftUI
 // MARK: - Vocab Color Tokens
 
 /// VocabCraft brand-aligned color tokens conforming to `CraftColorTokens`.
-@available(*, deprecated, message: "Use CraftTheme via CraftUIKit")
 public struct VocabColorTokens: CraftColorTokens {
     // Canvas & Backgrounds
     public var canvasBackground: Color
@@ -78,7 +77,6 @@ public struct VocabColorTokens: CraftColorTokens {
 // MARK: - Vocab Gradient Tokens
 
 /// VocabCraft brand-aligned gradient tokens conforming to `CraftGradientTokens`.
-@available(*, deprecated, message: "Use CraftTheme via CraftUIKit")
 public struct VocabGradientTokens: CraftGradientTokens {
     public var brandHero: LinearGradient
     public var surfaceGlass: LinearGradient
@@ -117,7 +115,6 @@ public struct VocabGradientTokens: CraftGradientTokens {
 // MARK: - Vocab Theme
 
 /// The core theme for VocabCraftApp conforming to `CraftTheme`.
-@available(*, deprecated, message: "Use CraftTheme via CraftUIKit")
 public struct VocabTheme: CraftTheme {
     public var colors: CraftColorTokens
     public var typography: CraftTypographyTokens

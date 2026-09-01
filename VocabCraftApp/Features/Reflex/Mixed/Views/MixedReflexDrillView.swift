@@ -475,13 +475,13 @@ private extension MixedReflexDrillView {
 
     func setupSpeechEngineCallbacks() {
         if let speechEngine {
-            speechEngine.onMatchDetected = { matched in
+            speechEngine.onMatchDetected = { [weak speechEngine] matched in
                 Task { @MainActor in
                     guard cardPhase == .activeCountdown, let current = viewModel.currentItem else { return }
-                    let isCorrect = ReflexSpeechMatcher.isReflexMatch(spokenText: matched, targetLemma: current.word.lemma) || matched.lowercased().contains(current.word.lemma.lowercased())
+                    let isCorrect = ReflexSpeechMatcher.isReflexMatch(spokenText: matched, targetLemma: current.word.lemma)
                     if isCorrect {
                         timerTask?.cancel()
-                        speechEngine.finalizeWordAudio()
+                        speechEngine?.finalizeWordAudio()
                         SoundEffectService.shared.playSuccessChime()
                         withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
                             cardPhase = .reviewed(result: ReflexCardResult(

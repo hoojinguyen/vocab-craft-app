@@ -104,7 +104,7 @@ extension ReflexModeHandlerProtocol {
         let cleanMatched = spokenText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         let cleanLemma = targetLemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard !cleanMatched.isEmpty, !cleanLemma.isEmpty else { return false }
-        if cleanMatched == cleanLemma || cleanMatched.contains(cleanLemma) {
+        if cleanMatched == cleanLemma {
             return true
         }
         return ReflexSpeechMatcher.isReflexMatch(spokenText: spokenText, targetLemma: targetLemma)
