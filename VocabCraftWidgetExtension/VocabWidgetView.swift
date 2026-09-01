@@ -1,6 +1,8 @@
 import AppIntents
 import SwiftUI
-import VocabCraftApp
+#if !WIDGET_EXTENSION && canImport(VocabCraftApp)
+@testable import VocabCraftApp
+#endif
 import WidgetKit
 
 public struct VocabWidgetEntry: TimelineEntry {
@@ -115,7 +117,7 @@ public struct VocabWidgetView: View {
                     Image(systemName: "star.fill")
                         .font(.caption)
                         .foregroundColor(.yellow)
-                    Text(AppStrings.Widget.levelText(entry.masteryLevel))
+                    Text(String(format: String(localized: "app.widget.level_format", defaultValue: "Level %lld"), entry.masteryLevel))
                         .font(.caption)
                         .fontWeight(.semibold)
                         .foregroundColor(.secondary)
@@ -139,7 +141,7 @@ public struct VocabWidgetView: View {
 
             HStack {
                 Button(intent: NextWordIntent()) {
-                    Label(AppStrings.Widget.nextText, systemImage: "arrow.forward.circle.fill")
+                    Label(LocalizedStringKey("app.widget.next"), systemImage: "arrow.forward.circle.fill")
                         .font(.caption)
                         .fontWeight(.semibold)
                         .padding(.horizontal, 10)
@@ -152,7 +154,7 @@ public struct VocabWidgetView: View {
                 Spacer()
 
                 Button(intent: MarkLearnedIntent()) {
-                    Label(AppStrings.Widget.masteredText, systemImage: "checkmark.circle.fill")
+                    Label(LocalizedStringKey("app.widget.mastered"), systemImage: "checkmark.circle.fill")
                         .font(.caption)
                         .fontWeight(.semibold)
                         .foregroundColor(.green)

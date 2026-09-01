@@ -34,13 +34,15 @@ public struct StageSummarySheet: View {
         ZStack {
             theme.colors.canvasBackground.ignoresSafeArea()
 
-            #if canImport(UIKit)
             if isPassed {
-                ConfettiParticleView()
-                    .ignoresSafeArea()
-                    .allowsHitTesting(false)
+                CraftSparkleView(
+                    isTriggered: .constant(true),
+                    style: .confetti,
+                    particleCount: 40
+                )
+                .ignoresSafeArea()
+                .allowsHitTesting(false)
             }
-            #endif
 
             VStack(spacing: 24) {
                 Spacer()

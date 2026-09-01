@@ -517,7 +517,7 @@ struct MixedReflexDrillViewsTests {
         #expect(drillView.viewModel.attempts.first?.isCorrect == true)
 
         drillView.advanceToNextItem()
-        #expect(drillView.viewModel.phase == .completed)
+        #expect(drillView.viewModel.isCompleted == true)
     }
 }
 #endif
