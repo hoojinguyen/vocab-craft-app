@@ -18,6 +18,7 @@ struct ReflexOtherModesTests {
             pos: item.cleanPos
         )
         var audioReplayed = false
+        var cantSpeakNowTapped = false
         let speakingView = ReflexSpeakingModeView(
             word: item,
             isReviewed: false,
@@ -31,6 +32,9 @@ struct ReflexOtherModesTests {
             hintBadgeText: item.cleanInitialLetterHint,
             speechState: .listening(),
             liveTranscript: "habit",
+            onCantSpeakNow: {
+                cantSpeakNowTapped = true
+            },
             onReplayAudio: {
                 audioReplayed = true
             }
@@ -45,6 +49,8 @@ struct ReflexOtherModesTests {
         #expect(speakingView.hintBadgeText == item.cleanInitialLetterHint)
         #expect(speakingView.activeClozeParts?.slot == stageSet.lengthMaskedParts.slot)
         #expect(speakingView.speechState == .listening())
+        speakingView.onCantSpeakNow?()
+        #expect(cantSpeakNowTapped == true)
         speakingView.onReplayAudio?()
         #expect(audioReplayed == true)
     }

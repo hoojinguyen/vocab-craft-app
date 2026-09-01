@@ -22,7 +22,7 @@ public struct ReflexSpeakingModeView: View {
     // MARK: - Mic & Transcript
     public let speechState: CraftSpeechState
     public let liveTranscript: String
-    public let onSwitchToKeyboard: (() -> Void)?
+    public let onCantSpeakNow: (() -> Void)?
     public let onReplayAudio: (() -> Void)?
 
     public init(
@@ -38,7 +38,7 @@ public struct ReflexSpeakingModeView: View {
         hintBadgeText: String? = nil,
         speechState: CraftSpeechState = .listening(),
         liveTranscript: String = "",
-        onSwitchToKeyboard: (() -> Void)? = nil,
+        onCantSpeakNow: (() -> Void)? = nil,
         onReplayAudio: (() -> Void)? = nil
     ) {
         self.word = word
@@ -53,7 +53,7 @@ public struct ReflexSpeakingModeView: View {
         self.hintBadgeText = hintBadgeText
         self.speechState = speechState
         self.liveTranscript = liveTranscript
-        self.onSwitchToKeyboard = onSwitchToKeyboard
+        self.onCantSpeakNow = onCantSpeakNow
         self.onReplayAudio = onReplayAudio
     }
 
@@ -67,7 +67,7 @@ public struct ReflexSpeakingModeView: View {
         clozeParts: ClozeSentenceParts? = nil,
         displayedSentence: String = "",
         hintBadgeText: String? = nil,
-        onSwitchToKeyboard: (() -> Void)? = nil
+        onCantSpeakNow: (() -> Void)? = nil
     ) {
         self.init(
             word: word,
@@ -82,8 +82,68 @@ public struct ReflexSpeakingModeView: View {
             hintBadgeText: hintBadgeText,
             speechState: .listening(),
             liveTranscript: liveTranscript,
-            onSwitchToKeyboard: onSwitchToKeyboard,
+            onCantSpeakNow: onCantSpeakNow,
             onReplayAudio: nil
+        )
+    }
+
+    public init(
+        word: any ReflexDrillable,
+        isReviewed: Bool = false,
+        isResultCorrect: Bool = false,
+        isResultTimeout: Bool = false,
+        showHint: Bool = false,
+        hintStage: Int = 0,
+        clozeStages: ReflexClozeStageSet? = nil,
+        clozeParts: ClozeSentenceParts? = nil,
+        displayedSentence: String = "",
+        hintBadgeText: String? = nil,
+        speechState: CraftSpeechState = .listening(),
+        liveTranscript: String = "",
+        onSwitchToKeyboard: (() -> Void)?,
+        onReplayAudio: (() -> Void)? = nil
+    ) {
+        self.init(
+            word: word,
+            isReviewed: isReviewed,
+            isResultCorrect: isResultCorrect,
+            isResultTimeout: isResultTimeout,
+            showHint: showHint,
+            hintStage: hintStage,
+            clozeStages: clozeStages,
+            clozeParts: clozeParts,
+            displayedSentence: displayedSentence,
+            hintBadgeText: hintBadgeText,
+            speechState: speechState,
+            liveTranscript: liveTranscript,
+            onCantSpeakNow: onSwitchToKeyboard,
+            onReplayAudio: onReplayAudio
+        )
+    }
+
+    public init(
+        word: any ReflexDrillable,
+        liveTranscript: String = "",
+        elapsedTimeMs: Int = 0,
+        showHint: Bool = false,
+        hintStage: Int = 0,
+        clozeStages: ReflexClozeStageSet? = nil,
+        clozeParts: ClozeSentenceParts? = nil,
+        displayedSentence: String = "",
+        hintBadgeText: String? = nil,
+        onSwitchToKeyboard: (() -> Void)?
+    ) {
+        self.init(
+            word: word,
+            liveTranscript: liveTranscript,
+            elapsedTimeMs: elapsedTimeMs,
+            showHint: showHint,
+            hintStage: hintStage,
+            clozeStages: clozeStages,
+            clozeParts: clozeParts,
+            displayedSentence: displayedSentence,
+            hintBadgeText: hintBadgeText,
+            onCantSpeakNow: onSwitchToKeyboard
         )
     }
 
@@ -279,13 +339,13 @@ public struct ReflexSpeakingModeView: View {
             .equatable()
             .animation(.spring(response: 0.25, dampingFraction: 0.8), value: !liveTranscript.isEmpty)
 
-            if !isReviewed, let onSwitchToKeyboard {
+            if !isReviewed, let onCantSpeakNow {
                 CraftButton(
-                    AppStrings.ReflexBlitz.switchToKeyboardText,
-                    iconName: "keyboard",
+                    AppStrings.Practice.cantSpeakNowCTA,
+                    iconName: "waveform.slash",
                     variant: .ghost,
                     size: .sm,
-                    action: onSwitchToKeyboard
+                    action: onCantSpeakNow
                 )
             }
         }

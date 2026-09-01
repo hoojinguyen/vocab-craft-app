@@ -19,7 +19,6 @@ public struct ReflexTypingModeView: View {
     public let clozeParts: ClozeSentenceParts?
     public let displayedSentence: String
     public let hintBadgeText: String?
-    public let onSwitchToVoice: (() -> Void)?
     public let onSubmit: (() -> Void)?
     public let onReplayAudio: (() -> Void)?
 
@@ -38,7 +37,6 @@ public struct ReflexTypingModeView: View {
         clozeParts: ClozeSentenceParts? = nil,
         displayedSentence: String = "",
         hintBadgeText: String? = nil,
-        onSwitchToVoice: (() -> Void)? = nil,
         onSubmit: (() -> Void)? = nil,
         onReplayAudio: (() -> Void)? = nil
     ) {
@@ -54,7 +52,6 @@ public struct ReflexTypingModeView: View {
         self.clozeParts = clozeParts
         self.displayedSentence = displayedSentence.isEmpty ? word.clozeSentenceEn : displayedSentence
         self.hintBadgeText = hintBadgeText
-        self.onSwitchToVoice = onSwitchToVoice
         self.onSubmit = onSubmit
         self.onReplayAudio = onReplayAudio
     }
@@ -68,7 +65,6 @@ public struct ReflexTypingModeView: View {
         clozeParts: ClozeSentenceParts? = nil,
         displayedSentence: String = "",
         hintBadgeText: String? = nil,
-        onSwitchToVoice: (() -> Void)? = nil,
         onSubmit: (() -> Void)? = nil
     ) {
         self.init(
@@ -84,9 +80,43 @@ public struct ReflexTypingModeView: View {
             clozeParts: clozeParts,
             displayedSentence: displayedSentence,
             hintBadgeText: hintBadgeText,
-            onSwitchToVoice: onSwitchToVoice,
             onSubmit: onSubmit,
             onReplayAudio: nil
+        )
+    }
+
+    public init(
+        word: any ReflexDrillable,
+        isReviewed: Bool = false,
+        isResultCorrect: Bool = false,
+        isResultTimeout: Bool = false,
+        showHint: Bool = false,
+        hintStage: Int = 0,
+        typingText: Binding<String>,
+        userSubmittedText: String? = nil,
+        clozeStages: ReflexClozeStageSet? = nil,
+        clozeParts: ClozeSentenceParts? = nil,
+        displayedSentence: String = "",
+        hintBadgeText: String? = nil,
+        onSwitchToVoice: (() -> Void)?,
+        onSubmit: (() -> Void)? = nil,
+        onReplayAudio: (() -> Void)? = nil
+    ) {
+        self.init(
+            word: word,
+            isReviewed: isReviewed,
+            isResultCorrect: isResultCorrect,
+            isResultTimeout: isResultTimeout,
+            showHint: showHint,
+            hintStage: hintStage,
+            typingText: typingText,
+            userSubmittedText: userSubmittedText,
+            clozeStages: clozeStages,
+            clozeParts: clozeParts,
+            displayedSentence: displayedSentence,
+            hintBadgeText: hintBadgeText,
+            onSubmit: onSubmit,
+            onReplayAudio: onReplayAudio
         )
     }
 
@@ -379,19 +409,9 @@ public struct ReflexTypingModeView: View {
     @ViewBuilder
     private var floatingInputBar: some View {
         HStack(spacing: theme.spacing.sm) {
-            if let onSwitchToVoice {
-                CraftIconButton(
-                    iconName: "mic.fill",
-                    size: .sm,
-                    variant: .ghost,
-                    accessibilityLabel: AppStrings.ReflexBlitz.switchToVoiceText,
-                    action: onSwitchToVoice
-                )
-            } else {
-                Image(systemName: "keyboard")
-                    .foregroundColor(theme.colors.textMuted)
-                    .font(theme.typography.bodyMedium)
-            }
+            Image(systemName: "keyboard")
+                .foregroundColor(theme.colors.textMuted)
+                .font(theme.typography.bodyMedium)
 
             TextField(
                 AppStrings.ReflexBlitz.typingPlaceholderText,
