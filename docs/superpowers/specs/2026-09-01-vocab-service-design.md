@@ -1,633 +1,328 @@
-# VocabCraft Cloud-First Service & Dataset Platform — Technical Design Specification
+# VocabCraft Foundation & Service Platform — High-Level Solution Design (Source of Truth)
 
 **Date:** 2026-09-01
-**Status:** Draft — Approved, Pending Implementation Plan
+**Status:** Approved — Source of Truth for entire development lifecycle (supersedes `2026-08-31-vocabcraft-backend-platform-design.md`)
 **Author:** OpenCode (Muse Spark) + hoojinguyen
-**Approach:** Cloud-First Monolithic FastAPI (Python) + Postgres + Ollama Self-Host on Mac mini M4
-**Scope:** Tách biệt Service quản lý tiến độ học, từ vựng, mẫu câu + Lộ trình Dataset ≥3000 từ + Lộ trình AI
-**Related:** `2026-08-31-vocabcraft-backend-platform-design.md` (superseded — chuyển từ offline-first sang cloud-first)
+**Approach:** Hybrid (Content offline-first via SQLite bundled + Progress cloud) — Modular FastAPI + Postgres + Ollama self-host on Mac mini M4
+**Scope:** Foundation vững chãi cho sản phẩm thực tế (không phải MVP/POC). Tách biệt Service quản lý tiến độ học, từ vựng, mẫu câu. Pipeline 0-đồng → CMS human/AI → SQLite bundled → API + background sync. Lộ trình AI theo phase.
+**Process:** Spec này là high-level solution design duy nhất. Không chứa implementation plan chi tiết. Mỗi phase trong §12 sẽ được brainstorm riêng để ra spec chi tiết + plan trước khi thực thi.
 
 ---
 
 ## 1. Executive Summary
 
-VocabCraft hiện tại chỉ có UI/UX + sample data. `AppContainer.swift:7` là composition root duy nhất, `DatasetEngine.swift:4` đọc SQLite readonly `english_dataset.db` (đang fallback `SampleVocabularyDataSource`), tiến độ lưu local qua `UserProgressModelActor:87` + `SRSRepositoryImpl` + `SRSEngine:15`. Chưa có backend, chưa có sync, chưa có dataset thật.
+VocabCraft hiện tại là SwiftUI + CraftUIKit + SpeechKit (~25.6k LOC, 160 files) với `AppContainer.swift:7` là composition root, `DatasetEngine.swift:4` đọc SQLite readonly `english_dataset.db` (đang fallback `SampleVocabularyDataSource` 50 từ), tiến độ lưu local qua `UserProgressModelActor:87` + `SRSRepositoryImpl` + `SRSEngine.swift:15`. Chưa có backend, chưa có dataset thật, chưa có sync, chưa release.
 
-Mục tiêu spec này: định nghĩa kiến trúc **tách biệt Service** theo hướng **Cloud-first** (server là source of truth, app là thin client có cache), xây **dataset pipeline 0 đồng API bên thứ 3** để có **≥3000 từ chuẩn trước release**, và lộ trình AI theo phase. Thiết kế tối ưu cho **solo dev full-stack, 2 tháng cho dataset + API core**, deploy **self-host 100% trên Mac mini M4 với Ollama model nhẹ**.
+Mục tiêu: xây **móng vững** cho sản phẩm thực tế, có thể scale 3000→10000+ từ, offline tốt, sync đa thiết bị, không tốn API bên thứ 3 cho pipeline. Thay vì làm MVP cho có, ta tách 2 thành phần, làm pipeline chuẩn hoá dataset trước, CMS human/AI duyệt, khi dataset đủ tốt mới build API và SQLite bundled, cuối cùng tích hợp iOS với background sync để UX không bị block.
 
-Quyết định then chốt đã duyệt:
-- Không migrate sample — build dataset mới hoàn toàn.
-- Stack B: Python FastAPI (ưu tiên crawl/NLP).
-- AI bắt đầu từ Content Pipeline (rẻ, chuẩn dataset), AI tutor/interaction để post-release.
+Quyết định duyệt:
+- Không migrate sample — build dataset mới hoàn toàn trên internet sources uy tín, ≥3000 từ A1-B2 chuẩn trước release.
+- Stack B: Python FastAPI (ưu tiên crawl/NLP/AI pipeline).
+- Self-host 100% trên Mac mini M4, Ollama model nhẹ (<4GB).
+- Hybrid: Content SQLite bundled (transform từ Postgres) + Progress sync cloud background (không phải cloud-first thuần).
 
 ---
 
-## 2. Goals, Non-Goals & Constraints
+## 2. Goals, Non-Goals, Constraints & Principles
 
 **Goals (v1 release):**
-- G1: Dataset chuẩn ≥3000 từ (lemma, POS, IPA US/UK, CEFR A1-C1, definition EN/VI, example EN/VI, collocation EN/VI, audio URL) có nguồn uy tín, qua human review, sẵn sàng serve qua API.
-- G2: Service tách biệt quản lý: Vocabulary + Sentences/Collocations + Decks/Nodes + User Progress (SRS, mastery, bookmark, streak, XP, drill history, weak words) + Auth + CMS Admin.
-- G3: Cloud-first: mọi write qua API, server là source of truth; app cache SQLite chỉ để read-through + offline queue (không phải source of truth), sync khi online <2s cho 50 ops.
-- G4: CMS admin-only để duyệt dataset, quản lý decks/nodes, theo dõi pipeline confidence.
-- G5: Pipeline 0 đồng: crawl/normalize/dịch/đánh giá chất lượng không gọi API trả phí (chỉ self-host Ollama + open-source).
-- G6: App integration giữ Clean Architecture hiện có, chỉ đổi Repository Impl (giữ Protocol), không đụng ViewModel.
+- G1: Dataset chuẩn ≥3000 từ (lemma, POS, IPA US/UK, CEFR, definition EN/VI, example EN/VI, collocation EN/VI, audio URL) có provenance, qua human review, sẵn sàng bundled + serve delta.
+- G2: Tách biệt Service: Data Platform (pipeline + CMS + SQLite builder) và API Platform (Content API + Progress API + Auth).
+- G3: Trải nghiệm tốt nhất: content đọc từ SQLite local 0ms, user progress sync nền không block UI, offline học được, online tự reconcile <2s/50 ops.
+- G4: CMS admin-only duyệt chất lượng, quản lý decks/nodes, theo dõi confidence.
+- G5: Pipeline 0 đồng API trả phí (chỉ open-source + Ollama self-host).
+- G6: iOS giữ Clean Architecture, chỉ đổi Repository Impl, không đụng ViewModel, CraftUIKit-first, bilingual parity.
 
 **Non-Goals (v1):**
-- Không microservices, không Kubernetes, không Redis, không Realtime multiplayer/leaderboard server.
-- Không AI tutor/interaction runtime trong v1 (chỉ pipeline AI).
-- Không multi-tenant CMS (chỉ 1 admin role).
+- Không microservices/k8s/Redis/Realtime/social leaderboard. Một modular monolith đủ.
+- Không AI tutor/interaction runtime trong v1 (chỉ pipeline AI). AI tutor để post-release khi đã có user.
+- Không multi-tenant CMS, không FTS5, không train LLM riêng.
 
 **Constraints:**
-- Solo dev full-stack, 2 tháng.
-- Self-host Mac mini M4 (Ollama lightweight: `qwen2.5:1.5b` hoặc `3b`, `nllb-200-distilled-600M` cho VI, `wordfreq`/`spaCy` local).
-- Bilingual parity `Localizable.xcstrings` (`craft.*` + `app.*`), CraftUIKit-first, zero hardcoded strings.
-- Quality gate `AGENTS.md §5`: `swiftlint` 0 warnings, `swift test` pass, Xcode 0 warnings.
+- Solo dev full-stack, 2 tháng cho dataset + API core (để release), sau đó iterate.
+- Self-host Mac mini M4 (16GB), Ollama lightweight (`qwen2.5:1.5b/3b`, `nllb-200-distilled-600M`, `wordfreq`, `spaCy en_core_web_sm`, `epitran`).
+- Quality gate `AGENTS.md §5`: `swiftlint` 0, `swift test` pass (LocalizationTests), Xcode 0 warnings, `pytest` >70% cho backend, `/health` 200.
+
+**Principles (móng vững):**
+- **P1 — Contract-first:** DB schema + OpenAPI + Swift DTOs lock ở Foundation trước khi crawl. Tránh đổi schema khi đã có 3000 từ.
+- **P2 — Provenance & versioning:** mọi word/definition ghi `source_url`, `version`, `updated_at`, `status` (`pending→ai_reviewed→human_approved→rejected`), `content_manifest.version` để delta.
+- **P3 — Idempotent & audit:** pipeline jobs lưu `raw_payload/normalized_payload/ai_review` JSONB, import `ON CONFLICT DO UPDATE WHERE version < excluded.version`.
+- **P4 — YAGNI:** không thêm infra/pattern khi chưa cần. Một Postgres, một FastAPI, một Ollama.
+- **P5 — UX-first:** content offline-first, progress optimistic local + background reconcile (server-wins nhưng app đã tính SRS local để UI mượt).
 
 ---
 
-## 3. System Architecture — Cloud-First
+## 3. High-Level Architecture
 
-### 3.1 High-Level
-
-```
-[iOS App — VocabCraftApp (SwiftUI)]
-  │  thin client, cache + offline queue
-  │  APIClient (URLSession, JWT, Retry, ETag)
-  ▼
-[Caddy :80/:443 — TLS Let's Encrypt, reverse proxy /api → app:8000, /health → app:8000/health]
-  ▼
-[FastAPI Monolith :8000 — app/]
-  ├─ modules/auth      (JWT access 15m / refresh 30d, bcrypt)
-  ├─ modules/vocabulary (words, definitions, sentences, collocations)
-  ├─ modules/decks      (topic_decks, topic_nodes, node_words)
-  ├─ modules/progress   (user_word_progress, streaks, xp, attempts, weak words)
-  ├─ modules/cms        (admin CRUD, review queue)
-  └─ modules/pipeline   (crawler, normalizer, translator, AI reviewer — run as background job, not request path)
-  ▼
-[Postgres 16 :5432 — volume pgdata, Alembic migrations]
-[Ollama :11434 — sidecar, models: qwen2.5:3b, nllb-200-600M]  (chỉ pipeline & CMS gọi, không phải runtime app)
-```
-
-So với `2026-08-31` spec (offline-first, local là source of truth): lần này **đảo invariant** — **server là source of truth**, local chỉ là **read-through cache + write-behind queue**. Quyết định này do user chọn **C. Cloud-first**, yêu cầu login ngay, đa thiết bị.
-
-### 3.2 Repo Layout
+### 3.1 Context (C4 Level 1)
 
 ```
-vocab-craft-app/                     # iOS repo hiện tại (giữ nguyên)
-  VocabCraftApp/
-  Packages/CraftUIKit, SpeechKit
-  docs/superpowers/specs/, plans/
+[User iOS App] ──(1) read SQLite bundled──▶ [SQLite vocab_dataset.sqlite (bundled + delta)]
+       │                (2) background sync manifest/bundle
+       │                (3) background sync progress (push/pull)
+       ▼
+[API Platform — FastAPI :8000 behind Caddy :443] ◀──(4) CMS approve── [Admin (human) via CMS]
+       │                ▲
+       │                │ (5) transform Postgres → SQLite
+       ▼                │
+[Postgres 16 — source of truth for content+progress]
+       ▲
+       │ (6) pipeline jobs
+[Data Platform — Pipeline + CMS]
+       │ (7) Ollama :11434 (qwen2.5:3b, nllb-600M) — only Data Platform calls
+```
 
-vocab-craft-api/                     # mới — backend repo (đề xuất tách repo riêng để solo dev dễ CI)
-  app/
-    __init__.py
-    main.py                          # create_app(), lifespan, CORS, X-Request-ID middleware
-    core/
-      config.py                      # pydantic-settings, .env
-      db.py                          # SQLAlchemy async engine, session factory
-      security.py                    # JWT (python-jose), bcrypt (passlib), API-Key guard cho CMS
-      errors.py                      # error envelope, exception handlers
-      pagination.py                  # cursor pagination helpers
-      logging.py                     # structlog
-    modules/
-      auth/
-        router.py, service.py, models.py, schemas.py, deps.py
-      vocabulary/
-        router.py, service.py, models.py, schemas.py
-      decks/
-        router.py, service.py, models.py, schemas.py
-      progress/
-        router.py, service.py, models.py, schemas.py, srs.py  # SRSEngine port sang Python
-      cms/
-        router.py, service.py, schemas.py  # admin-only
-      pipeline/
-        crawler.py, cleaner.py, normalizer.py, translator.py, reviewer.py, jobs.py
-    api/
-      v1/router.py                   # include all module routers under /api/v1
+### 3.2 Components (C4 Level 2) — 2 thành phần chính như bạn yêu cầu
+
+**Thành phần 1: Data Platform (không serve user trực tiếp, chỉ admin + batch)**
+- **Pipeline Service:** `Crawler` (Trafilatura/Wiktionary dump/Tatoeba) → `Cleaner` (ftfy, langdetect, dedup) → `Normalizer` (spaCy POS, epitran IPA, wordfreq CEFR/frequency) → `Translator` (NLLB local) → `AI Reviewer` (Qwen2.5:3b, JSON confidence/issues). Input: lemma list (wordfreq top). Output: `pipeline_jobs` row (`pending→crawling→normalizing→translating→ai_reviewing→human_queue`). Chạy batch 50, `temperature 0.2`, `num_ctx 2048`, một model tại một thời điểm để tiết kiệm RAM M4.
+- **CMS Service:** `Review Queue` (filter `human_queue` ưu tiên confidence <0.75, `ai_reviewed` batch), `Deck/Node Editor`, `Approve/Reject` (khi approve → upsert `words/definitions` `status=human_approved`, bump `content_manifest.version`, tính `checksum`). Guard `X-Admin-Key` + admin JWT.
+- **SQLite Builder:** Job `build_sqlite --version X` → `SELECT ... WHERE status=human_approved AND deleted_at IS NULL` từ Postgres → tạo `vocab_dataset.sqlite` (schema tương thích `DatasetEngine`) + `manifest.json {version, checksum, total_words, total_decks}`. Upload tới `storage/bundles/v{version}.sqlite` và serve qua `GET /content/bundle?version=`. Đây là cầu nối giữa Data Platform và API Platform.
+
+**Thành phần 2: API Platform (serve app + admin)**
+- **Content API (public, cached):** `manifest`, `bundle`, `decks/nodes/words` (chỉ `human_approved`), `sync?since_version` (delta JSON cho app patch SQLite thay vì download full). ETag + `Cache-Control: public, max-age=300` cho manifest.
+- **Progress API (Bearer):** `review/bookmark/drill/stage_complete`, `summary/history`, `sync/push|pull` (cursor `updated_at` ISO8601, server-wins). SRS tính server (port `SRSEngine.swift:15`) nhưng app cũng tính optimistic local để UI không chờ.
+- **Auth API:** `register/login/refresh/me` (JWT access 15m/refresh 30d, bcrypt, rate limit 100/60s/IP in-memory).
+- **Core:** `Caddy` TLS Let's Encrypt, `X-Request-ID` mọi response, error envelope `{code, message, details, request_id}`, `structlog`, `slowapi`.
+
+Cả 2 thành phần chung Postgres nhưng deploy cùng container ở v1 (modular monolith `app/modules/{auth,vocabulary,decks,progress,cms,pipeline}`). Khi scale mới tách pipeline thành worker riêng — không cần ngay.
+
+### 3.3 Deployment (Mac mini M4)
+
+- `docker compose up --build` — `app:8000`, `postgres:16` (`pgdata` volume), `caddy:80/443` (auto TLS, `Caddyfile` reverse_proxy), `ollama:11434` (`ollama_models` volume, `ollama pull qwen2.5:3b && nllb-200-distilled-600M` <4GB). Ollama không expose ra internet, chỉ `app` gọi `http://ollama:11434/api/generate`.
+- Không Redis v1. Backup `cron pg_dump -Fc > /backups/pg-$(date +%F).dump` daily, retain 7d, rclone offsite.
+- `openapi.json` generate từ Pydantic, dùng để gen Swift DTOs (`swift-openapi-generator` hoặc `openapi-generator-cli`).
+
+### 3.4 Repo Layout (high-level)
+
+```
+vocab-craft-app/                  # iOS (giữ nguyên, thêm Core/Network + Core/Sync)
+vocab-craft-api/                  # Data + API Platform (tách repo riêng để CI độc lập, hoặc backend/ trong monorepo — chọn tách repo)
+  app/{core, modules/{auth,vocabulary,decks,progress,cms,pipeline}, api/v1}
   alembic/
-    env.py, versions/
-  tests/
-    test_auth.py, test_vocabulary.py, test_decks.py, test_progress.py, test_pipeline.py
-  scripts/
-    seed.py, crawl.py, import_wiktionary.py
-  Dockerfile                         # python:3.12-slim, uv/pip
-  docker-compose.yml                 # app, postgres, caddy, ollama
-  .env.example
-  openapi.json                       # generated, dùng để gen Swift DTOs
+  scripts/{crawl.py, build_sqlite.py, seed.py}
+  Dockerfile, docker-compose.yml, Caddyfile, .env.example, openapi.json
 ```
 
-### 3.3 Runtime Self-Host (Mac mini M4)
+---
 
-- `docker compose up --build` — `app:8000`, `postgres:16` (volume `pgdata`), `caddy:80/443` (auto TLS), `ollama:11434` (volume `ollama_models`).
-- Không Redis v1 — rate limit in-memory `slowapi` 100 req/60s/IP; thêm khi cần.
-- Backup: `cron pg_dump -Fc > /backups/pg-$(date +%F).dump` daily, retain 7d, rclone offsite.
-- Ollama models preload: `ollama pull qwen2.5:3b && ollama pull nllb-200-distilled-600M` (tổng <4GB, phù hợp M4 16GB). Pipeline gọi qua `http://ollama:11434/api/generate`, không expose ra ngoài.
+## 4. Data Architecture — Source of Truth & Bundled Artifact
 
-### 3.4 iOS New Layers (tối thiểu đụng chạm)
+### 4.1 Postgres (source of truth)
 
-```
-VocabCraftApp/Core/Network/
-  APIClient.swift                    # URLSession async/await, Endpoint enum, RequestBuilder, AuthInterceptor (refresh 401→ retry 1 lần), RetryPolicy exponential 1s/2s/4s, X-Request-ID
-  AuthStore.swift                    # Keychain kSecClassGenericPassword (accessToken, refreshToken, userId)
-  DTOs/                              # Codable ISO8601, gen từ openapi.json (openapi-generator-cli swift5)
-    WordDTO.swift, DeckDTO.swift, ProgressDTO.swift, AuthDTO.swift
-VocabCraftApp/Core/Sync/
-  SyncEngine.swift                   # Cloud-first: push queue → POST, pull delta → GET, NWPathMonitor + BGTaskScheduler
-  SyncOperation.swift                # SwiftData @Model persistent queue (survive kill)
-  SyncMetadataStore.swift            # lastSyncToken (ISO8601 updated_at cursor) trong UserDefaults + SwiftData
-  ConflictResolver.swift             # server-wins (cloud-first), khác với last-write-wins của offline-first cũ
-VocabCraftApp/Core/Database/
-  ContentCache.sqlite                # read-through cache cho words/decks (không phải source of truth)
-  PendingOps.sqlite                  # queue cho progress writes khi offline
-```
+**Content (versioned, soft-delete, chỉ `human_approved` mới public):**
+- `words(id BIGINT PK, lemma TEXT UNIQUE, pos, ipa_us, ipa_uk, cefr_level CHECK A1..C2, frequency_rank, audio_url, status CHECK pending/ai_reviewed/human_approved/rejected, ai_confidence DOUBLE, source_url, created_at, updated_at, version, deleted_at)`
+- `definitions(id BIGINT PK, word_id FK, pos, definition_en, definition_vi, definition_vi_auto, example_en, example_vi, collocation_en/vi, source_url, status, version, updated_at)`
+- `sentences(id BIGINT PK, word_id FK, text_en, text_vi, cefr_level, source)`
+- `reflex_drills(id BIGINT PK, sentence_id FK, drill_type, prompt_text, correct_answer, distractors_json JSONB, target_time_ms)`
+- `topic_decks(id TEXT PK, title, title_vi, icon_name, badge_color_hex, cefr_level, sort_order, status, version, updated_at)`
+- `topic_nodes(id TEXT PK, deck_id FK, title, title_vi, icon_name, sort_order, version)`
+- `node_words(node_id FK, word_id FK, sort_order, PK(node_id, word_id))`
+- `content_manifest(version INT PK, checksum TEXT, total_words, total_decks, created_at)` — bump khi CMS approve.
+- `pipeline_jobs(id UUID PK, lemma TEXT, status CHECK pending/crawling/.../approved/rejected, raw_payload JSONB, normalized_payload JSONB, ai_review JSONB {confidence, issues, suggested}, assigned_to, created_at, updated_at)`
 
-**Cloud-first invariant (khác 2026-08-31):** Mọi `recordReview`/`toggleBookmark`/`completeStage` phải gọi API trước khi coi là thành công. Nếu offline → enqueue vào `PendingOps`, UI hiển thị optimistic nhưng gắn badge `pending sync`, không tăng `masteryLevel` local vượt server version. Khi online → `SyncEngine` flush queue, server trả canonical `progress` mới, app overwrite local.
+**Progress (cloud source of truth, per-user):**
+- `users(id UUID PK, email UNIQUE, password_hash, display_name, created_at)`
+- `user_word_progress(user_id FK, word_id FK, mastery_level 0..5, ease_factor, interval_days, next_review_date, last_review_date, is_bookmarked, mistake_count, consecutive_streak, practiced_modes TEXT, mode_success_counts TEXT, is_mastered, source_deck_id, source_node_id, total_reviews, version, updated_at, deleted_at, PK(user_id, word_id))` + index `next_review_date` + `updated_at`
+- `user_stage_progress(user_id, stage_id TEXT, deck_id FK, is_completed, score, progress_fraction, completed_at, version, PK(user_id, stage_id))`
+- `quick_reflex_attempts(id UUID PK, user_id FK, word_id FK, drill_type, recall_time_ms, produce_time_ms, shadow_score, hint_level, input_mode, is_correct, response_time_ms, created_at)` + index `(user_id, word_id, created_at DESC)`
+- `streaks(user_id PK FK, current_streak, longest_streak, last_active_date, total_xp)`
+
+Mapping iOS: `Word.swift:4` ↔ `words+definitions`, `TopicDeckEntities` ↔ `topic_decks/nodes`, `UserWordProgressData:27` ↔ `user_word_progress` (+ `version/updatedAt` khi cache ở SwiftData SchemaV3).
+
+### 4.2 SQLite Bundled (artifact, không phải source of truth)
+
+- Schema SQLite **tương thích** `DatasetEngine.swift:5` hiện tại (để `VocabCraftApp` không phải đổi nhiều): `words`, `definitions`, `topic_decks`, `topic_nodes`, `node_words`, thêm bảng `manifest(version INT, checksum TEXT)` để app biết bundled version (seed từ `content_manifest`).
+- Build: `build_sqlite.py --version X` chạy `SELECT ... WHERE status=human_approved` → `sqlite3` tạo file `VocabCraftApp/Resources/vocab_dataset.sqlite` (cho IPA build) và `storage/bundles/vX.sqlite` (cho delta download). Tính `sha256` → update `content_manifest.checksum`.
+- Kích thước dự kiến: 3000 từ + definitions + 8 decks ≈ 3-5MB SQLite, chấp nhận bundle trong IPA.
+- Delta: app đã có `v12`, server có `v13` → `GET /content/sync?since_version=12` trả JSON delta (`words: [], deleted: []`, `new_version: 13`) để app apply vào SQLite local qua `ContentCache` (không cần download full 5MB mỗi lần). Full bundle chỉ khi cài mới hoặc major bump.
 
 ---
 
-## 4. Data Models & API Contract
+## 5. Service Boundaries & Contracts (high-level)
 
-### 4.1 Postgres Schema (v1 — đủ cho 3000 từ + progress mở rộng)
+| Service | Trách nhiệm | Không làm | Contract |
+|---------|-------------|-----------|----------|
+| **Auth** | register/login/refresh, JWT, bcrypt, `users` | Không đụng content/progress | `POST /auth/*`, `GET /auth/me` |
+| **Vocabulary** | CRUD words/definitions/sentences, search ILIKE, `status` filter, version | Không tính SRS | `GET /content/words`, `GET /content/words/{id}` |
+| **Decks** | topic_decks/nodes/node_words, sort_order, manifest | Không lưu mastery | `GET /content/decks`, `GET /content/decks/{id}/nodes`, `GET /content/nodes/{id}/words`, `GET /content/sync?since_version`, `GET /content/bundle?version=` |
+| **Progress** | SRS (`srs.py` port `SRSEngine.swift:15`), mastery/ease/interval/next_review, streak/xp, bookmark, weak-words, history | Không serve content raw | `POST /progress/words/{id}/review`, `bookmark`, `drill`, `stages/{id}/complete`, `GET /progress/summary`, `POST /sync/push`, `GET /sync/pull?since=` |
+| **CMS** | admin guard, review queue, approve/reject, bump manifest, import | Không gọi Ollama trực tiếp | `GET /admin/pipeline/jobs?status=`, `POST /admin/pipeline/jobs/{id}/approve`, `POST /admin/content/import` |
+| **Pipeline** | crawl→clean→normalize→translate→AI review (async job) | Không expose public, chỉ `POST /admin/pipeline/trigger` | Internal, ghi `pipeline_jobs` |
 
-```sql
--- Content (public, versioned, soft-delete, chỉ human_approved mới public)
-words(
-  id BIGINT PRIMARY KEY,                    -- giữ id Int64 tương thích Word.swift:5
-  lemma TEXT NOT NULL UNIQUE,
-  pos TEXT,                                 -- noun/verb/adj/...
-  ipa_us TEXT, ipa_uk TEXT,
-  cefr_level TEXT CHECK (cefr_level IN ('A1','A2','B1','B2','C1','C2')),
-  frequency_rank INT,                       -- từ wordfreq, để sort/prioritize
-  audio_url TEXT,
-  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','ai_reviewed','human_approved','rejected')),
-  ai_confidence DOUBLE PRECISION,            -- 0..1 từ reviewer model
-  source_url TEXT,                          -- provenance
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  version INT NOT NULL DEFAULT 1,
-  deleted_at TIMESTAMPTZ
-);
-definitions(
-  id BIGINT PRIMARY KEY,
-  word_id BIGINT NOT NULL REFERENCES words(id) ON DELETE CASCADE,
-  pos TEXT,
-  definition_en TEXT NOT NULL,
-  definition_vi TEXT,                       -- human hoặc NLLB
-  definition_vi_auto TEXT,                  -- raw NLLB để so sánh
-  example_en TEXT,
-  example_vi TEXT,
-  collocation_en TEXT,                      -- ví dụ: "make a decision"
-  collocation_vi TEXT,
-  source_url TEXT,
-  status TEXT NOT NULL DEFAULT 'pending',
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  version INT NOT NULL DEFAULT 1,
-  deleted_at TIMESTAMPTZ
-);
-sentences(
-  id BIGINT PRIMARY KEY,
-  word_id BIGINT REFERENCES words(id) ON DELETE SET NULL,
-  text_en TEXT NOT NULL,
-  text_vi TEXT,
-  cefr_level TEXT,
-  source TEXT,                              -- tatoeba, wiktionary example
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-reflex_drills(
-  id BIGINT PRIMARY KEY,
-  sentence_id BIGINT REFERENCES sentences(id),
-  drill_type TEXT NOT NULL,                 -- recall/collocation/produce/shadow
-  prompt_text TEXT NOT NULL,
-  correct_answer TEXT NOT NULL,
-  distractors_json JSONB NOT NULL DEFAULT '[]',
-  target_time_ms INT NOT NULL
-);
+Dependency rule: `progress` đọc `words` (FK check) không ghi `words`; `cms` ghi `words/definitions`; `pipeline` ghi `pipeline_jobs` + draft `words/pending`. Tất cả qua `core/db.py` session.
 
--- Decks
-topic_decks(
-  id TEXT PRIMARY KEY,                      -- giữ String id như TopicDeckEntities
-  title TEXT NOT NULL,
-  title_vi TEXT,
-  icon_name TEXT,
-  badge_color_hex TEXT,
-  cefr_level TEXT,
-  sort_order INT NOT NULL,
-  status TEXT NOT NULL DEFAULT 'human_approved',
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  version INT NOT NULL DEFAULT 1,
-  deleted_at TIMESTAMPTZ
-);
-topic_nodes(
-  id TEXT PRIMARY KEY,
-  deck_id TEXT NOT NULL REFERENCES topic_decks(id) ON DELETE CASCADE,
-  title TEXT NOT NULL,
-  title_vi TEXT,
-  icon_name TEXT,
-  sort_order INT NOT NULL,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  version INT NOT NULL DEFAULT 1,
-  deleted_at TIMESTAMPTZ
-);
-node_words(
-  node_id TEXT NOT NULL REFERENCES topic_nodes(id) ON DELETE CASCADE,
-  word_id BIGINT NOT NULL REFERENCES words(id) ON DELETE CASCADE,
-  sort_order INT NOT NULL DEFAULT 0,
-  PRIMARY KEY (node_id, word_id)
-);
+**High-level API contract (OpenAPI 3.1, Pydantic v2 → Swift Codable ISO8601):**
 
--- Content manifest (để app check delta nhanh)
-content_manifest(
-  version INT PRIMARY KEY,
-  checksum TEXT NOT NULL,
-  total_words INT NOT NULL,
-  total_decks INT NOT NULL,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
--- Users & Progress (cloud source of truth)
-users(
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  email TEXT UNIQUE NOT NULL,
-  password_hash TEXT NOT NULL,
-  display_name TEXT,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-user_word_progress(
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  word_id BIGINT NOT NULL REFERENCES words(id) ON DELETE CASCADE,
-  mastery_level INT NOT NULL DEFAULT 0 CHECK (mastery_level BETWEEN 0 AND 5),
-  ease_factor DOUBLE PRECISION NOT NULL DEFAULT 2.5,
-  interval_days INT NOT NULL DEFAULT 1,
-  next_review_date TIMESTAMPTZ NOT NULL DEFAULT now(),
-  last_review_date TIMESTAMPTZ NOT NULL DEFAULT now(),
-  is_bookmarked BOOLEAN NOT NULL DEFAULT false,
-  mistake_count INT NOT NULL DEFAULT 0,
-  consecutive_streak INT NOT NULL DEFAULT 0,
-  practiced_modes TEXT NOT NULL DEFAULT '',          -- csv như practicedModesRaw
-  mode_success_counts TEXT NOT NULL DEFAULT '',      -- ModeSuccessStatsCodec encode
-  is_mastered BOOLEAN NOT NULL DEFAULT false,
-  source_deck_id TEXT REFERENCES topic_decks(id),
-  source_node_id TEXT REFERENCES topic_nodes(id),
-  total_reviews INT NOT NULL DEFAULT 0,
-  version INT NOT NULL DEFAULT 1,
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  deleted_at TIMESTAMPTZ,
-  PRIMARY KEY (user_id, word_id)
-);
-CREATE INDEX idx_user_word_progress_next_review ON user_word_progress(user_id, next_review_date) WHERE deleted_at IS NULL;
-CREATE INDEX idx_user_word_progress_updated_at ON user_word_progress(updated_at);
-
-user_stage_progress(
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  stage_id TEXT NOT NULL,                   -- SubTopicStage.id
-  deck_id TEXT NOT NULL REFERENCES topic_decks(id),
-  is_completed BOOLEAN NOT NULL DEFAULT false,
-  score INT NOT NULL DEFAULT 0,
-  progress_fraction DOUBLE PRECISION NOT NULL DEFAULT 0,
-  completed_at TIMESTAMPTZ,
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  version INT NOT NULL DEFAULT 1,
-  deleted_at TIMESTAMPTZ,
-  PRIMARY KEY (user_id, stage_id)
-);
-
-quick_reflex_attempts(
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  word_id BIGINT NOT NULL REFERENCES words(id),
-  drill_type TEXT NOT NULL,
-  recall_time_ms INT,
-  collocation_time_ms INT,
-  produce_time_ms INT,
-  recall_ok BOOLEAN, collocation_ok BOOLEAN, produce_ok BOOLEAN,
-  shadow_score DOUBLE PRECISION,
-  hint_level INT NOT NULL DEFAULT 0,
-  input_mode TEXT NOT NULL,                 -- typing/speaking/multipleChoice
-  retry_count INT NOT NULL DEFAULT 0,
-  confidence TEXT NOT NULL,                 -- high/medium/low
-  is_correct BOOLEAN NOT NULL,
-  response_time_ms INT NOT NULL,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-CREATE INDEX idx_attempts_user_word ON quick_reflex_attempts(user_id, word_id, created_at DESC);
-
-streaks(
-  user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-  current_streak INT NOT NULL DEFAULT 0,
-  longest_streak INT NOT NULL DEFAULT 0,
-  last_active_date DATE,
-  total_xp INT NOT NULL DEFAULT 0,
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
--- Pipeline review queue (internal)
-pipeline_jobs(
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  lemma TEXT NOT NULL,
-  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','crawling','normalizing','translating','ai_reviewing','human_queue','approved','rejected')),
-  raw_payload JSONB,
-  normalized_payload JSONB,
-  ai_review JSONB,                          -- {confidence, issues[], suggested_fix}
-  assigned_to TEXT,                         -- admin email khi human review
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-```
-
-Mapping iOS: `Word.swift:4` (`Word` struct) ↔ `words` + `definitions`; `TopicDeckEntities` ↔ `topic_decks`/`topic_nodes`; `UserWordProgressData:27` ↔ `user_word_progress`; thêm `version/updatedAt` vào SwiftData `SchemaV3` khi cache.
-
-### 4.2 API Contract `/api/v1` (OpenAPI 3.1, Pydantic v2 → Swift Codable ISO8601 + Cursor Pagination)
-
-**Auth (public):**
-- `POST /auth/register {email, password, display_name?}` → `201 {access_token, refresh_token, user: {id, email}}` | `409 EMAIL_EXISTS`
-- `POST /auth/login {email, password}` → `200 {access_token, refresh_token, user}` | `401 INVALID_CREDENTIALS`
-- `POST /auth/refresh {refresh_token}` → `200 {access_token, refresh_token}` | `401`
-- `POST /auth/logout` (Bearer) → `204`
-- `GET /auth/me` (Bearer) → `200 {id, email, display_name}`
-
-**Content (public, ETag + Cache-Control: public, max-age=300, chỉ trả human_approved):**
-- `GET /content/manifest` → `200 {version, checksum, total_words, total_decks, created_at}`
-- `GET /content/decks` → `200 [TopicDeckDTO]` (sort_order ASC)
-- `GET /content/decks/{id}` → `200 TopicDeckDTO` | `404`
-- `GET /content/decks/{id}/nodes` → `200 [TopicNodeDTO]`
-- `GET /content/nodes/{id}/words` → `200 [WordDTO]` (kèm bookmark/mastery nếu có Bearer, nếu không thì is_bookmarked=false)
-- `GET /content/words?limit=50&offset=0&cefr=B2&q=algorithm` → `200 {items: [WordDTO], total, has_more}` (FTS sau, v1 dùng ILIKE)
-- `GET /content/words/{id}` → `200 WordDTO` | `404`
-- `GET /content/words/{id}/sentences` → `200 [SentenceDTO]`
-- `GET /content/sync?since_version=12` → `200 {decks: [], nodes: [], words: [], deleted: {decks:[], nodes:[], words:[]}, new_version: 13}` (delta cho cache)
-
-**Progress (Bearer required, server là source of truth):**
-- `GET /progress/words` → `200 [UserWordProgressDTO]` (của user hiện tại, hỗ trợ `?word_ids=1,2,3` để hydrate)
-- `GET /progress/words/{word_id}` → `200 UserWordProgressDTO` | `404` (chưa học → trả default mastery 0)
-- `POST /progress/words/{word_id}/review {is_correct, response_time_ms, drill_type?, hint_level?}` → `200 {progress: UserWordProgressDTO, srs: {next_mastery, ease_factor, interval_days, next_review_date}, streak: {current, longest}, xp_delta}` (server chạy `SRSEngine` port sang Python, bump version, tính next_review)
-- `POST /progress/words/{word_id}/bookmark` → `200 {is_bookmarked: bool, progress: UserWordProgressDTO}` (toggle, idempotent)
-- `POST /progress/words/{word_id}/drill {is_correct, new_streak, new_modes, is_mastered, mode_stats?}` → `200 UserWordProgressDTO` (cho ReflexBlitz/Mixed)
-- `POST /progress/stages/{stage_id}/complete {deck_id, score?, progress_fraction?}` → `200 UserStageProgressDTO`
-- `GET /progress/summary` → `200 {total_learned, total_bookmarked, total_reviews, current_streak, longest_streak, total_xp, next_reviews: [WordDTO]}`
-- `GET /progress/history?word_id=123&limit=20` → `200 [AttemptDTO]` (phục vụ weak words, analytics)
-- `POST /progress/sync/push {operations: [{op_id: uuid, type: "review|bookmark|drill|stage_complete", payload: {...}, client_version}]}` → `200 {acks: [op_id], conflicts: [{op_id, server_progress}]}` (cho offline queue flush, server-wins)
-- `GET /progress/sync/pull?since=2026-09-01T00:00:00Z` → `200 {changes: {word_progress: [], stage_progress: []}, new_token: ISO8601, has_more: bool}` (cursor = max updated_at)
-
-**CMS (Admin, API-Key `X-Admin-Key` + Bearer admin role):**
-- `GET /admin/pipeline/jobs?status=human_queue&limit=20` → `200 [PipelineJobDTO]`
-- `POST /admin/pipeline/jobs/{id}/approve` → `200` (chuyển words/definitions status → human_approved, bump content_manifest version)
-- `POST /admin/pipeline/jobs/{id}/reject {reason}` → `200`
-- `POST /admin/content/import` `multipart {file: csv/json}` → `200 {imported: 120, new_version: 13}` (idempotent upsert)
-- `POST /admin/decks` / `PUT /admin/decks/{id}` / `DELETE /admin/decks/{id}` (tương tự nodes, words)
-
-**Error envelope (thống nhất):**
-```json
-{
-  "code": "AUTH_EXPIRED | VALIDATION_ERROR | CONFLICT | NOT_FOUND | RATE_LIMITED",
-  "message": "human readable",
-  "details": {"field": "reason"},
-  "request_id": "uuid"
-}
-```
-Kèm header `X-Request-ID`. Swift `APIClient` map thành `APIError` enum.
-
-**OpenAPI → Swift:** `openapi-generator-cli generate -i vocab-craft-api/openapi.json -g swift5 -o VocabCraftApp/Core/Network/Generated --additional-properties useClasses=false,generateModelAdditionalProperties=false` hoặc dùng `CreateAPI`/`swift-openapi-generator`. DTOs dùng `ISO8601DateFormatter` + `Codable`.
+- Auth public, Content public (ETag, chỉ `human_approved`), Progress Bearer (server là source of truth nhưng app optimistic), CMS Admin (`X-Admin-Key` + admin role).
+- Error envelope thống nhất: `{code: AUTH_EXPIRED|VALIDATION_ERROR|CONFLICT|NOT_FOUND|RATE_LIMITED, message, details?, request_id}` + `X-Request-ID`.
+- OpenAPI → Swift: `swift-openapi-generator` generate DTOs, không hardcode.
 
 ---
 
-## 5. Service Boundaries — Tách Biệt Rõ
+## 6. Dataset Pipeline — 0 Đồng (high-level)
 
-| Service | Trách nhiệm | Không làm |
-|---------|-------------|-----------|
-| **AuthService** | register/login/refresh, JWT sign/verify, bcrypt, `users` table, rate limit login | Không đụng content/progress |
-| **VocabularyService** | CRUD words/definitions/sentences, search, FTS, `status` filter, version bump, manifest | Không tính SRS, không auth |
-| **DeckService** | topic_decks/nodes/node_words, sort_order, deck progress aggregation (computed từ progress) | Không lưu mastery |
-| **ProgressService** | SRS tính toán (`srs.py` port `SRSEngine.swift:15`), mastery/ease/interval/next_review, streak/xp, bookmark, weak-words query, history | Không serve content raw |
-| **CmsService** | admin guard, review queue, approve/reject, import, content versioning | Không gọi Ollama trực tiếp (giao pipeline) |
-| **PipelineWorker** | crawl → clean → normalize → translate → AI review → enqueue human_queue (async job, không block request) | Không expose public API, chỉ `POST /admin/pipeline/trigger` |
+**Nguồn (chỉ CC-BY-SA/CC-BY, ghi `source_url`):**
+- Frequency: `wordfreq` top 5000 en → top 3000.
+- Definition/Example: Wiktionary dump `enwiktionary-latest-pages-articles.xml.bz2`, Oxford 3000 wordlist (public domain extract), Tatoeba sentences.
+- IPA: `epitran`/`eng_to_ipa` rule-based.
+- CEFR: heuristic `wordfreq` + `zipf_frequency` + Cambridge Vocabulary Profile public list (không LLM).
+- Dịch VI: `nllb-200-distilled-600M` local via Ollama.
 
-Dependency rule: `progress` → đọc `words` (FK check) nhưng không ghi `words`; `cms` → ghi `words/definitions`; `pipeline` → ghi `pipeline_jobs` + draft `words` (pending). Tất cả qua `core/db.py` session.
+**DAG (mỗi lemma 1 job, batch 50):**
+1. Crawler (Trafilatura/BeautifulSoup) — `raw_html`, `raw_definition_en`, `source_url`.
+2. Cleaner (ftfy, `clean-text`, langdetect filter en, dedup).
+3. Normalizer (spaCy `en_core_web_sm` POS, epitran IPA, wordfreq CEFR/frequency_rank).
+4. Translator (NLLB) — `definition_vi_auto`, `example_vi_auto`.
+5. AI Reviewer (Qwen2.5:3b, prompt JSON `confidence 0..1, issues[], suggested_definition_vi, cefr_correct`) — routing: `confidence >=0.75 → ai_reviewed` (chờ batch human, ưu tiên thấp), `<0.75 → human_queue` ưu tiên cao. Chưa auto-approve ở bước này.
+6. Human Queue (CMS) — approve → `human_approved` + bump manifest, reject → `rejected`. CMS UI Jinja đơn giản, side-by-side EN/VI + ai_review.
 
----
+**Quality gate trước khi qua API (Phase 2 exit criteria):**
+- Random 10% (300 từ) human duyệt 100% bất kể confidence.
+- 90% còn lại: `confidence ≥0.85` mới auto-approve lên `human_approved` không cần human, `0.75-0.84` phải qua `human_queue` batch duyệt nhanh, `<0.75` bắt buộc human chi tiết.
+- Tổng `human_approved` ≥3000, mỗi entry có `definition_vi` (human hoặc NLLB+AI suggest đã duyệt), `example_en/vi`, `ipa_us`, `cefr_level`, `source_url`.
 
-## 6. Dataset Pipeline — 0 Đồng API Bên Thứ 3 (Mac mini M4 + Ollama)
+**Thứ tự seed:** Wave 1 (1000) A1-A2 core (Oxford 3000 A1+A2 ∩ wordfreq top 1500) → Wave 2 (1000) B1 (1500-2500) → Wave 3 (1000) B2 (2500-4000, lọc academic).
 
-**Mục tiêu:** ≥3000 từ tần suất cao, CEFR A1-B2 trước, nguồn uy tín, không trả tiền dịch/API.
-
-### 6.1 Nguồn
-
-- **Frequency list:** `wordfreq` top 5000 en, lọc stopwords, lấy top 3000.
-- **Definition/Example:** Wiktionary dump (enwiktionary-latest-pages-articles.xml.bz2, CC-BY-SA), Oxford 3000 wordlist (public domain extract), Tatoeba sentences (CC-BY).
-- **IPA:** `epitran` hoặc `eng_to_ipa` (rule-based, không gọi API).
-- **CEFR:** heuristic `wordfreq` + `cefr_classifier` (train nhẹ trên Cambridge Vocabulary Profile public list, không gọi LLM).
-- **Dịch VI:** `nllb-200-distilled-600M` local (Ollama hoặc `transformers` local), fallback không dùng Google Translate API.
-
-### 6.2 Pipeline DAG (mỗi lemma 1 job)
-
-```
-1. Crawler (Trafilatura + BeautifulSoup)
-   input: lemma
-   output: raw_html, raw_definition_en, raw_example_en, source_url
-   libs: trafilatura, requests, lxml
-
-2. Cleaner
-   input: raw
-   output: cleaned_en (strip HTML, normalize whitespace, langdetect filter en, dedup)
-   libs: clean-text, ftfy
-
-3. Normalizer
-   input: cleaned_en, lemma
-   output: pos (spaCy en_core_web_sm), ipa_us (epitran), cefr_level (heuristic), frequency_rank (wordfreq)
-   libs: spacy, epitran, wordfreq
-
-4. Translator (NLLB local)
-   input: definition_en, example_en, collocation_en
-   output: definition_vi_auto, example_vi_auto, collocation_vi_auto
-   model: nllb-200-distilled-600M via Ollama hoặc transformers pipeline
-
-5. AI Reviewer (Qwen2.5:3b via Ollama)
-   prompt: "Bạn là biên tập từ điển. Đánh giá entry sau: lemma={lemma}, pos={pos}, definition_en={def}, example_en={ex}, cefr={cefr}. Trả về JSON: {confidence: 0..1, issues: [string], suggested_definition_vi, suggested_example_vi, cefr_correct: bool}"
-   output: ai_review {confidence, issues, suggested_*, cefr_correct}
-   routing: confidence >=0.75 → `ai_reviewed` (chờ human batch, ưu tiên thấp), <0.75 → `human_queue` ưu tiên cao (cần human duyệt ngay); chưa auto-approve ở bước này
-
-6. Human Queue (CMS)
-   admin duyệt: approve → words/definitions status=human_approved, bump content_manifest.version
-               reject → status=rejected, ghi reason, job closed
-   CMS UI: FastAPI Jinja admin hoặc Retool self-host, hiển thị ai_review + side-by-side EN/VI
-```
-
-### 6.3 Thực thi
-
-- **Job runner:** `APScheduler` hoặc `arq` (Redis-free, dùng Postgres `pipeline_jobs` polling mỗi 5s) — đơn giản cho solo dev. Trigger: `POST /admin/pipeline/trigger {lemmas: ["abandon", ...]}` hoặc `scripts/crawl.py --limit 100`.
-- **Batch:** 50 lemmas/lần, Ollama `num_ctx 2048`, `temperature 0.2` để determinist.
-- **Storage:** `pipeline_jobs.raw_payload/normalized_payload/ai_review` JSONB để audit.
-- **Quality gate trước release:** random sample 10% (300 từ) human duyệt 100% bất kể confidence; 90% còn lại: confidence ≥0.85 mới được auto-approve lên `human_approved` không cần human, 0.75–0.84 vẫn phải qua human_queue (batch duyệt nhanh), <0.75 bắt buộc human duyệt chi tiết; tổng `human_approved` phải ≥3000.
-
-### 6.4 Seed 3000 từ — Thứ tự
-
-- Wave 1 (1000): A1-A2 core (Oxford 3000 A1+A2 intersection với wordfreq top 1500).
-- Wave 2 (1000): B1 (wordfreq 1500-2500).
-- Wave 3 (1000): B2 (wordfreq 2500-4000, lọc academic).
+**Thực thi:** `APScheduler` hoặc polling Postgres `pipeline_jobs` mỗi 5s (Redis-free), trigger `POST /admin/pipeline/trigger {lemmas}` hoặc `scripts/crawl.py --wave 1`. Lưu `raw_payload/normalized_payload/ai_review` JSONB để audit.
 
 ---
 
-## 7. iOS App Integration — Cloud-First, Giữ Clean Architecture
+## 7. CMS — Human Chuẩn Hoá
 
-### 7.1 Thay Đổi Tối Thiểu
-
-- Giữ `Domain/Protocols/*` (đã có `UserProgressRepositoryProtocol:4`, `VocabularyRepositoryProtocol`, `SRSRepositoryProtocol`, `DatasetDataSourceProtocol`).
-- Thêm `RemoteVocabularyRepository: VocabularyRepositoryProtocol` (gọi `APIClient`), `RemoteProgressRepository: UserProgressRepositoryProtocol + SRSRepositoryProtocol` (gọi `/progress/*`), `RemoteDeckRepository`.
-- `AppContainer.swift:7` thêm `apiClient: APIClient`, `authStore: AuthStore`, `syncEngine: SyncEngine`; `init(useMockData, apiBaseURL)` để `VocabCraftAppTests` vẫn dùng Mock.
-- Không đụng ViewModel: `HomepageViewModel`, `TopicDecksViewModel`, `ReflexBlitzViewModel` vẫn gọi UseCase như cũ, UseCase gọi Repository mới.
-
-### 7.2 APIClient Chi Tiết
-
-```swift
-enum Endpoint { case login, register, refresh, decks, words(limit: Int, q: String?), word(id: Int64), review(wordId: Int64), bookmark(wordId: Int64) }
-struct APIClient {
-  func request<T: Decodable>(_ endpoint: Endpoint, body: Encodable?) async throws -> T
-  // - URLRequest + JSONEncoder ISO8601
-  // - AuthInterceptor: gắn Bearer, nếu 401 → refresh (1 lần) → retry
-  // - RetryPolicy: 429/5xx exponential 1s/2s/4s, respect Retry-After
-  // - X-Request-ID: UUID per request
-}
-```
-
-### 7.3 Sync & Offline (Cloud-First Queue)
-
-- **Write path:**
-  1. User tap `markWordReviewed` → ViewModel gọi `EvaluateSRSUseCase.recordReview` (đang `SRSRepositoryImpl` local) → đổi thành `RemoteProgressRepository.review` → `POST /progress/words/{id}/review`.
-  2. Nếu online thành công → server trả canonical `progress` + `next_review_date`, app upsert vào `ContentCache.sqlite` (để UI đọc) và `SwiftData` (để widget).
-  3. Nếu offline → enqueue `SyncOperation(type: .review, payload: {wordId, isCorrect, responseTimeMs}, createdAt)` vào SwiftData `PendingOps`, UI optimistic (hiển thị pending badge), không bump mastery local.
-
-- **Flush queue:**
-  - Trigger: `NWPathMonitor` → satisfied, `scenePhase == .active`, sau mỗi enqueue, `BGTaskScheduler` 15m nếu có pending.
-  - `SyncEngine.flush(limit: 50)` → `POST /progress/sync/push {operations}` → server `ack` + `conflicts` (server-wins, overwrite local với server_progress).
-
-- **Pull delta:**
-  - `GET /progress/sync/pull?since=lastSyncToken` (token = max `updated_at` đã nhận, lưu `SyncMetadataStore` UserDefaults + SwiftData atomic).
-  - Upsert vào local cache trên background `ModelActor`. Loop nếu `has_more`.
-
-- **Content cache:**
-  - `GET /content/manifest` so `localVersion` (UserDefaults `content_version`) với `server.version`. Nếu local < server → `GET /content/sync?since_version=localVersion` → upsert `ContentCache.sqlite`. Fallback bundle khi offline.
-  - Check khi `app.foreground` + daily `BGTask`.
-
-- **Conflict:** Cloud-first → **server-wins**. Nếu client gửi `client_version < server.version` → server trả `conflicts`, client discard local, apply server. Không merge easeFactor ở v1.
-
-### 7.4 Widget & Notifications
-
-- `WidgetCurrentState` trong App Group `group.com.hoojinguyen.vocabcraft` vẫn update từ local cache sau pull.
-- `SyncEngine` sau khi pull xong → `WidgetCenter.shared.reloadTimelines()`. Silent APNs `content-available:1` (khi CMS bump manifest) trigger `BGTask` pull (optional v1).
-
-### 7.5 Bảo Mật
-
-- Keychain `kSecClassGenericPassword` cho tokens, `kSecAttrAccessibleAfterFirstUnlock`.
-- Không lưu password.
-- CMS admin key: `X-Admin-Key` env `ADMIN_API_KEY` (32+ chars), chỉ Mac mini biết.
+- Review queue filter `status=human_queue` sort `ai_confidence ASC` (ưu tiên thấp confidence trước), hiển thị `lemma`, `pos`, `definition_en`, `definition_vi_auto`, `suggested_definition_vi`, `issues`, `source_url`.
+- Actions: Approve (1 click), Reject (require reason), Edit (sửa `definition_vi`/`example_vi` trước khi approve). Batch approve cho `confidence ≥0.85` (checkbox).
+- Deck/Node editor: CRUD `topic_decks/nodes`, drag `sort_order`, assign `node_words` (chọn từ `human_approved`).
+- Import: `POST /admin/content/import` multipart CSV/JSON (idempotent).
+- Auth: `X-Admin-Key` 32+ chars, chỉ Mac mini biết, không expose CMS ra public internet (Caddy basic auth hoặc Tailscale).
 
 ---
 
-## 8. Lộ Trình — 2 Tháng Solo + AI Post-Release
+## 8. SQLite Builder & Distribution
 
-### 8.1 Wave Plan (1pt ≈ 3h, tổng ~90pt cho 2 tháng, 15h/tuần)
-
-**Tháng 1 — Dataset + API Core (để có 1000 từ đầu)**
-
-- **W1 (15pt):**
-  - A1 `5pt` Scaffold vocab-craft-api (FastAPI modular, docker-compose app+postgres+caddy+ollama, Alembic, /health, structlog, X-Request-ID)
-  - A2 `3pt` Auth (register/login/refresh, JWT, bcrypt, users table, tests)
-  - B1 `5pt` DB schema words/definitions/sentences/topic_decks/nodes (Alembic V1), Pydantic schemas
-  - D1 `2pt` iOS `APIClient` + `AuthStore` (Keychain) + DTOs gen
-
-- **W2 (15pt):**
-  - B2 `5pt` Content CRUD `GET /content/*` + manifest + ETag (public, human_approved filter)
-  - P1 `5pt` Pipeline skeleton (crawler + cleaner + normalizer) + `pipeline_jobs` table + `POST /admin/pipeline/trigger`
-  - P2 `3pt` Translator NLLB local (Ollama) integration, test 50 lemmas
-  - D2 `2pt` iOS `RemoteVocabularyRepository` (thay DatasetEngine), `AppContainer` wiring
-
-- **W3 (15pt):**
-  - P3 `5pt` AI Reviewer Qwen2.5:3b (prompt, JSON parse, confidence), CMS review queue API `GET /admin/pipeline/jobs`
-  - B3 `3pt` CMS approve/reject → bump manifest version, admin guard
-  - C1 `5pt` ProgressService `POST /progress/words/{id}/review` (port SRSEngine sang `srs.py`, next_review, version bump)
-  - D3 `2pt` iOS `RemoteProgressRepository` (review/bookmark), wiring `EvaluateSRSUseCase`
-
-- **W4 (15pt):**
-  - C2 `5pt` Progress còn lại (bookmark, drill, stage_complete, summary, history, streak/xp)
-  - P4 `5pt` Wave 1 seed 1000 từ (A1-A2): crawl Wiktionary+Tatoeba, run pipeline, human review sample 100% cho 300 từ đầu, còn lại threshold 0.75
-  - D4 `3pt` iOS Decks API (`RemoteDeckRepository`, TopicDecksViewModel)
-  - E1 `2pt` Tests backend pytest >70% cho auth/content/progress
-
-**Tháng 2 — Đủ 3000 Từ + Sync + Release**
-
-- **W5 (15pt):**
-  - P5 `5pt` Wave 2 seed 1000 từ B1 (pipeline batch 50, Ollama tuning)
-  - C3 `5pt` SyncEngine iOS (queue, NWPathMonitor, BGTask, flush/push, server-wins)
-  - C4 `3pt` Content sync delta `GET /content/sync?since_version` + `ContentCache.sqlite`
-  - E2 `2pt` Fix bugs AppContainer:78, D2 actor refactor, SharedAppGroupContainer backup
-
-- **W6 (15pt):**
-  - P6 `5pt` Wave 3 seed 1000 từ B2, quality gate 10% random human review, tổng ≥3000 human_approved
-  - C5 `3pt` Pull `GET /progress/sync/pull?since` + `SyncMetadataStore`
-  - D5 `3pt` Offline queue UI (pending badge), error envelope, retry
-  - E3 `2pt` `swiftlint` 0, `swift test` pass, build <15s, TestFlight internal
-
-- **W7-8 buffer (10pt):**
-  - CMS polish (Jinja admin UI hoặc Retool, import CSV, deck management)
-  - Content expansion decks 4→8 (Du lịch, IELTS Speaking P2, TOEIC) via import
-  - Backup cron, Caddy TLS, docs `openapi.json`, README self-host
-
-**Post-release AI (phase 2-4, sau khi có user):**
-- Phase 2 (1 tháng sau release): Adaptive SRS — server train nhẹ trên `quick_reflex_attempts` (không LLM, chỉ logistic regression điều chỉnh easeFactor theo `response_time + hint_level + retry_count`), A/B test.
-- Phase 3: Pronunciation v2 — `SpeechKit` đã có, thêm server feedback chi tiết (không gọi API bên ngoài, dùng local Wav2Vec2 small).
-- Phase 4: Chat role-play — host Qwen 7B trên Mac mini, stream qua `POST /ai/chat` (SSE), chỉ khi đã có >1000 DAU.
-
-### 8.2 YAGNI — Đã Cắt
-
-- Không Redis, không Celery, không k8s, không microservices.
-- Không FTS5 v1 (chỉ ILIKE), không Realtime, không leaderboard server.
-- Không train LLM riêng ở v1, chỉ dùng Ollama inference.
+- **Build:** `build_sqlite.py --version X` như §4.2. Chạy sau mỗi lần CMS approve batch (có thể trigger manual `POST /admin/content/build` ở v1, sau này cron).
+- **Distribution:**
+  - **Bundled:** file `vocab_dataset.sqlite` kèm IPA (build time). `DatasetEngine.swift:4` vẫn `Bundle.main.path(forResource: "vocab_dataset", ofType: "sqlite")` — không đổi View.
+  - **Delta OTA:** `GET /content/manifest` (app check mỗi `app.foreground` + daily BGTask) → nếu `server.version > local_version` (lưu `UserDefaults content_version` + `manifest` table) → `GET /content/sync?since_version=local` (JSON delta, <100KB) → app apply vào `ContentCache.sqlite` (copy của bundled, writable trong `Application Support`). Fallback bundled khi offline.
+  - **Full OTA (hiếm):** `GET /content/bundle?version=13` (5MB) chỉ khi delta quá lớn hoặc fresh install muốn latest không cần App Store update.
+- **Versioning:** `content_manifest` bump mỗi approve, `checksum` để app verify integrity sau khi apply delta.
 
 ---
 
-## 9. Error Handling, Testing & Quality
+## 9. API Platform — High-Level
 
-**Error handling:**
-- Backend: `HTTPException` với `code` enum, `X-Request-ID` mọi response, 5xx log structlog + không leak stack.
-- iOS: `APIError` (`.authExpired`, `.validation`, `.conflict(serverProgress)`, `.notFound`, `.rateLimited(retryAfter)`, `.network`), ViewModel map thành `CraftToast`/`CraftDialog`.
-- Offline: mọi write fail → enqueue, không crash, không mất data (queue persistent).
+**Content API (public, cached, chỉ `human_approved`):**
+- `GET /content/manifest` → `{version, checksum, total_words, total_decks, created_at}` (ETag, `max-age=300`).
+- `GET /content/bundle?version=` → binary SQLite (optional).
+- `GET /content/decks`, `GET /content/decks/{id}/nodes`, `GET /content/nodes/{id}/words`, `GET /content/words?limit=&q=&cefr=` (ILIKE v1, FTS5 sau), `GET /content/words/{id}`, `GET /content/sync?since_version=`.
 
-**Testing:**
-- Backend: `pytest` + `httpx.AsyncClient` + `pytest-asyncio`, coverage >70% cho auth/content/progress, test `srs.py` port chính xác `SRSEngine.swift:15`.
-- iOS: `VocabCraftAppTests` mock `APIClient` (protocol) để test offline queue, `LocalizationTests` bilingual parity.
-- E2E: `scripts/seed.py` tạo user test, seed 10 từ, chạy `curl` register→login→review→pull.
+**Progress API (Bearer, server source of truth nhưng app optimistic):**
+- `GET /progress/words`, `GET /progress/words/{id}`, `POST /progress/words/{id}/review {is_correct, response_time_ms, drill_type?, hint_level?}` → `{progress, srs {next_mastery, ease_factor, interval_days, next_review_date}, streak, xp_delta}` (server chạy `srs.py` port `SRSEngine`, bump `version`, tính `next_review`).
+- `POST /progress/words/{id}/bookmark` (idempotent toggle), `POST /progress/words/{id}/drill`, `POST /progress/stages/{id}/complete`, `GET /progress/summary`, `GET /progress/history?word_id=`.
+- `POST /progress/sync/push {operations: [{op_id, type, payload, client_version}]}` → `{acks, conflicts}` (server-wins), `GET /progress/sync/pull?since=ISO8601` → `{changes, new_token, has_more}` (cursor `max updated_at`).
 
-**Quality gate:**
-- `docker compose up` pass, `/health` 200, `/content/manifest` ETag, `pytest` pass, `ruff`/`mypy` pass.
-- iOS offline: airplane mode vẫn đọc 3000 từ cache, online flush 50 ops <2s, conflict 0 data loss, `swiftlint` 0, Xcode 0 warnings.
+**Auth:** `POST /auth/register|login|refresh`, `POST /auth/logout`, `GET /auth/me`.
 
 ---
 
-## 10. Risks & Mitigations
+## 10. iOS App Integration — Background Sync, UX Không Block
 
-- **Solo sync complexity** → Cloud-first server-wins đơn giản hơn offline-first merge; chỉ flush queue, không merge phức tạp.
-- **Ollama M4 memory** → chỉ chạy 1 model tại 1 thời điểm (queue), `qwen2.5:3b` (<2GB) + `nllb-600M` (<1GB), không load đồng thời.
-- **Crawl legal/quality** → chỉ nguồn CC-BY-SA/CC-BY, ghi `source_url`, filter langdetect, human review gate 10%.
-- **Self-host ops** → Docker Compose single VPS, backup pg_dump daily, Caddy auto-TLS; chưa cần k8s.
-- **Content scale 3000 từ** → import idempotent `ON CONFLICT DO UPDATE WHERE version < excluded.version`, manifest version bump.
+**Tối thiểu đụng chạm:** Giữ `Domain/Protocols/*` (đã có `UserProgressRepositoryProtocol`, `VocabularyRepositoryProtocol`), thêm `RemoteVocabularyRepository`/`RemoteProgressRepository`/`RemoteDeckRepository` gọi `APIClient`, `AppContainer.swift:7` inject `apiClient: APIClient` (URLSession async/await, `Endpoint` enum, `AuthInterceptor` refresh 401→ retry 1 lần, `RetryPolicy` exponential 1s/2s/4s, `X-Request-ID`), `AuthStore` (Keychain `kSecClassGenericPassword`, `kSecAttrAccessibleAfterFirstUnlock`), `DTOs` gen từ `openapi.json`. Không đụng ViewModel.
 
----
+**Content đọc:**
+- App launch → đọc `vocab_dataset.sqlite` bundled (hoặc `ContentCache.sqlite` đã patch) qua `DatasetEngine` (sẽ refactor `@MainActor` → `actor` off-main queue ở phase Foundation) → UI hiện ngay 0ms.
+- Background: `SyncEngine` check `GET /content/manifest` mỗi foreground + daily `BGTask`, nếu `new_version` → `GET /content/sync?since_version` → apply delta vào `ContentCache.sqlite` (background `ModelActor`), update `manifest` table, không block UI. Thất bại thì giữ bundled.
 
-## 11. Success Criteria (v1 Release)
+**Progress ghi:**
+- User `markWordReviewed` → ViewModel gọi `EvaluateSRSUseCase.recordReview` → đổi thành `RemoteProgressRepository.review` nhưng **optimistic local** trước: tính `SRSEngine` local để UI update tức thì (mastery + next_review tạm), đồng thời `SyncEngine.enqueue(.review)` vào SwiftData `PendingOps` (persistent, survive kill) với `op_id` UUID.
+- Flush queue background: `NWPathMonitor.satisfied` + `scenePhase==.active` + sau mỗi enqueue + `BGTaskScheduler` 15m nếu có pending → `POST /sync/push` batch 50 → server trả canonical `progress` (server-wins), app reconcile: overwrite local `UserWordProgress` với server `version/updated_at` mới, không tăng mastery vượt server. Nếu conflict (`client_version < server.version`) → server trả `conflicts`, app discard local, apply server.
+- Pull delta: `GET /sync/pull?since=lastSyncToken` (lưu `SyncMetadataStore` UserDefaults + SwiftData atomic), upsert vào SwiftData/Widget `App Group` trên background, loop nếu `has_more`, rồi `WidgetCenter.reloadTimelines()`.
 
-- API `docker compose up` trên Mac mini M4 pass, `openapi.json` gen ra Swift DTOs, `pytest` >70%.
-- CMS duyệt được 3000 từ, mỗi từ có EN/VI definition + example + IPA + CEFR, `status=human_approved` ≥3000, manifest `total_words=3000`.
-- iOS TestFlight: login/register hoạt động, học 3000 từ qua decks/nodes, progress (mastery/SRS/bookmark/streak) persist server, airplane mode đọc cache, online sync <2s/50 ops, `swift test` 100% pass, `swiftlint` 0.
-- Backlog 31 tickets → map sang wave W1-W8, mỗi ticket ≤8pt.
+**Widget & Notifications:** `WidgetCurrentState` trong `App Group group.com.hoojinguyen.vocabcraft` update từ local cache sau pull. Silent APNs `content-available:1` khi CMS bump manifest trigger `BGTask` pull (optional v1).
 
 ---
 
-## 12. References
+## 11. Cross-Cutting Concerns
+
+**Security:** Keychain cho tokens, không lưu password, `X-Admin-Key` 32+ chars, rate limit in-memory 100/60s/IP, `X-Request-ID` trace.
+
+**Observability:** `structlog` JSON, log `request_id`, `user_id`, `duration`, health `/health` + `/api/v1/health`, `Caddy` access log.
+
+**Backup:** `pg_dump -Fc` daily, retain 7d, rclone offsite, `SharedAppGroupContainer` backup `.bak` trước khi SwiftData migration (fix destructive reset).
+
+**Performance:** Content đọc local <50ms, search SQLite ILIKE 50 từ <100ms (FTS5 sau), `swiftlint` type_body_length/file_length, tách subview cho `ReflexBlitzCardView:588` slow expressions, `COMPILATION_CACHE_ENABLE_CACHING=YES`, `DEBUG_INFORMATION_FORMAT=dwarf` cho Debug, `SwiftData #Index(nextReviewDate)` cho `needsReview`.
+
+**Localization:** `Localizable.xcstrings` `craft.*` + `app.*`, bilingual EN/VI 100%, `manual` + `translated`, format specifier parity.
+
+---
+
+## 12. Phases & Exit Criteria (high-level, mỗi phase sẽ brainstorm riêng)
+
+**Phase 0 — Foundation (1 tuần):**
+- Lock DB schema (Alembic V1) + OpenAPI contract + Swift DTOs + tooling (ruff/mypy/pytest, swiftlint, docker-compose, Caddy, pg backup, X-Request-ID, error envelope).
+- Exit: `docker compose up` pass, `/health` 200, `openapi.json` gen ra Swift DTOs compile, `pytest`/`swift test` pass.
+
+**Phase 1 — Pipeline thô (2-3 tuần):**
+- Crawler/cleaner/normalizer chạy được 50 lemmas batch, ghi `pipeline_jobs`.
+- Exit: `crawl.py --wave 1 --limit 50` chạy end-to-end (crawl→clean→normalize) không lỗi, 50 jobs `human_queue|ai_reviewed`.
+
+**Phase 2 — Translator + AI Reviewer + CMS (2 tuần, song song Phase 1):**
+- NLLB + Qwen qua Ollama, CMS review queue (filter, approve/reject, edit), bump `content_manifest`.
+- Exit: 300 từ đầu `human_approved` (100% human cho 10% random), CMS approve 1 job → `GET /content/manifest` version tăng.
+
+**Phase 3 — SQLite Builder + Content/Progress API (2-3 tuần):**
+- Builder tạo `vocab_dataset.sqlite` từ Postgres, Content API public, Progress API Bearer với SRS port.
+- Exit: `build_sqlite --version X` tạo file 3-5MB, `pytest` >70% cho auth/content/progress, `srs.py` khớp `SRSEngine.swift:15` (test `response_time <2500` quality), `docker compose up` + `curl /content/manifest` + `curl /progress/summary` (với token) 200.
+
+**Phase 4 — iOS Integration (1-2 tuần):**
+- `APIClient/AuthStore/Remote Repos/AppContainer`, `SyncEngine` queue + background + server-wins, `ContentCache` delta apply.
+- Exit: TestFlight internal: login/register hoạt động, đọc 3000 từ từ SQLite 0ms, bookmark/review optimistic + background reconcile, airplane mode học được, online flush 50 ops <2s, `swiftlint` 0, Xcode 0 warnings.
+
+**Phase 5 — Seed 3000 & Release (2 tuần, overlap Phase 3-4):**
+- Wave 1 A1-A2 (1000) → Wave 2 B1 (1000) → Wave 3 B2 (1000), quality gate §6.
+- Exit: `SELECT COUNT(*) WHERE human_approved >=3000`, mỗi entry có `definition_vi`, `example_vi`, `ipa_us`, `cefr`, `source_url`, `vocab_dataset.sqlite` bundled trong IPA, TestFlight release.
+
+**Post-release AI (phase riêng, sau khi có user, brainstorm sau):**
+- Phase 6: Adaptive SRS (logistic regression trên `quick_reflex_attempts`, không LLM).
+- Phase 7: Pronunciation v2 (Wav2Vec2 small local).
+- Phase 8: Chat role-play (Qwen 7B trên Mac mini, SSE, chỉ khi >1000 DAU).
+
+---
+
+## 13. Decisions & Risks
+
+**ADR:**
+- ADR-1: Hybrid SQLite bundled + background sync thay vì cloud-first thuần — vì UX 0ms, offline, và transform Postgres→SQLite là best practice cho content-heavy app (như Duolingo).
+- ADR-2: Modular monolith thay vì microservices — solo dev, 2 tháng, một deploy, folder `modules/*` đủ để sau tách worker.
+- ADR-3: Ollama self-host (`qwen2.5:3b` + `nllb-600M`) thay vì API trả phí — 0 đồng, phù hợp M4, chạy 1 model tại một thời điểm để tiết kiệm RAM.
+- ADR-4: `content_manifest.version` integer monotonic + `checksum` thay vì timestamp — đơn giản cho delta.
+- ADR-5: Server-wins cho progress conflict ở v1 (đơn giản), không merge `easeFactor` phức tạp.
+
+**Risks:**
+- Solo sync complexity → server-wins + optimistic local + flush queue đơn giản, không merge.
+- Ollama M4 memory → chỉ 1 model/1 batch 50.
+- Crawl legal → chỉ CC-BY-SA/CC-BY, ghi `source_url`, langdetect filter.
+- Self-host ops → Docker Compose single host, pg_dump daily, Caddy auto-TLS.
+
+---
+
+## 14. Success Criteria (v1 Release — Source of Truth)
+
+- Data Platform: `pipeline_jobs` 3000+ lemmas processed, `human_approved` ≥3000 với quality gate §6, `content_manifest.total_words=3000`, SQLite 3-5MB verify `sha256`.
+- API Platform: `docker compose up` pass, `openapi.json` gen Swift DTOs, `pytest` >70%, `/health` 200, ETag, `X-Request-ID`.
+- iOS: TestFlight đọc SQLite 0ms, progress persist server, airplane mode học được, online sync <2s/50 ops, `swift test` 100% pass, `swiftlint` 0.
+- Foundation: Alembic V1, OpenAPI lock, tooling pass, không đổi schema giữa chừng.
+
+---
+
+## 15. References & Next Steps
 
 - Current: `VocabCraftApp/App/DI/AppContainer.swift`, `VocabCraftApp/Core/Database/DatasetEngine.swift`, `VocabCraftApp/Core/SRS/SRSEngine.swift`, `VocabCraftApp/Domain/Protocols/*`, `VocabCraftApp/Data/Local/Actors/UserProgressModelActor.swift`, `docs/build-optimization.md`, `Package.swift`.
-- Previous spec: `docs/superpowers/specs/2026-08-31-vocabcraft-backend-platform-design.md` (offline-first, nay superseded).
-- Skills: `swift-architecture`, `swift-concurrency`, `swiftdata-pro`, `xcode-build-orchestrator`, `swiftlint`, `swift-testing`.
+- Superseded: `2026-08-31-vocabcraft-backend-platform-design.md`.
+- Skills: `swift-architecture`, `swift-concurrency`, `swiftdata-pro`, `xcode-build-orchestrator`, `swiftlint`.
+
+**Next steps (bạn sẽ tự lên plan):**
+1. Duyệt spec high-level này.
+2. Brainstorm riêng từng phase (Phase 0 Foundation trước) để ra spec chi tiết + plan task nhỏ (mỗi phase ≤8pt/task, TDD).
+3. Sau Phase 0 lock contract, mới tiến hành Phase 1 pipeline — đảm bảo móng vững xuyên suốt.
 
