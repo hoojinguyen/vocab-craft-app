@@ -24,7 +24,6 @@ public struct MixedReflexDrillView: View {
     @State private var cardPhase: ReflexCardPhase = .activeCountdown
     @State private var typingText: String = ""
     @State private var liveTranscript: String = ""
-    @State private var isKeyboardFallbackActive: Bool = false
     @State private var currentOptions: [ReflexBlitzOption] = []
     @State private var showExitAlert: Bool = false
     @State private var wordStartTime: Date?
@@ -161,45 +160,22 @@ public struct MixedReflexDrillView: View {
 
                 Spacer(minLength: theme.spacing.xs)
 
-                // Skip / Can't Speak Button for Speaking / Typing
-                if cardPhase == .activeCountdown {
-                    if currentItem.assignedMode == .speaking && viewModel.allowSpeakingSkip {
-                        CraftButton(
-                            AppStrings.Practice.cantSpeakNowCTA,
-                            iconName: "waveform.slash",
-                            variant: .outline,
-                            size: .md,
-                            isFullWidth: true,
-                            style: .outlined,
-                            action: {
-                                timerTask?.cancel()
-                                viewModel.skipSpeakingCurrentWord()
-                                if let next = viewModel.currentItem {
-                                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                        startDrillItem(next)
-                                    }
-                                }
-                            }
-                        )
-                        .padding(.horizontal, theme.spacing.lg)
-                        .padding(.bottom, theme.spacing.lg)
-                        .transition(.opacity)
-                    } else if currentItem.assignedMode == .speaking || currentItem.assignedMode == .typing {
-                        CraftButton(
-                            AppStrings.ReflexBlitz.skip,
-                            iconName: "forward.fill",
-                            variant: .outline,
-                            size: .md,
-                            isFullWidth: true,
-                            style: .outlined,
-                            action: {
-                                handleTimeout()
-                            }
-                        )
-                        .padding(.horizontal, theme.spacing.lg)
-                        .padding(.bottom, theme.spacing.lg)
-                        .transition(.opacity)
-                    }
+                // Skip Button for Typing
+                if cardPhase == .activeCountdown && currentItem.assignedMode == .typing {
+                    CraftButton(
+                        AppStrings.ReflexBlitz.skip,
+                        iconName: "forward.fill",
+                        variant: .outline,
+                        size: .md,
+                        isFullWidth: true,
+                        style: .outlined,
+                        action: {
+                            handleTimeout()
+                        }
+                    )
+                    .padding(.horizontal, theme.spacing.lg)
+                    .padding(.bottom, theme.spacing.lg)
+                    .transition(.opacity)
                 }
             }
 
@@ -230,14 +206,15 @@ private extension MixedReflexDrillView {
         let currentHintStage = item.assignedMode.hintStage(forElapsedTimeMs: elapsedTimeMs)
         let isHintActive = currentHintStage >= 1
 
-        if item.assignedMode == .multipleChoice {
+        switch item.assignedMode {
+        case .multipleChoice:
             multipleChoiceChallengeCard(for: item, hintStage: currentHintStage, isHintActive: isHintActive)
-        } else if item.assignedMode == .listening {
+        case .listening:
             listeningChallengeCard(for: item, hintStage: currentHintStage, isHintActive: isHintActive)
-        } else if item.assignedMode == .typing {
+        case .typing:
             typingChallengeCard(for: item, hintStage: currentHintStage, isHintActive: isHintActive)
-        } else {
-            containerChallengeCard(for: item, hintStage: currentHintStage, isHintActive: isHintActive)
+        case .speaking:
+            speakingChallengeCard(for: item, hintStage: currentHintStage, isHintActive: isHintActive)
         }
     }
 
@@ -318,45 +295,38 @@ private extension MixedReflexDrillView {
     }
 
     @ViewBuilder
-    func containerChallengeCard(for item: MixedReflexDrillItem, hintStage: Int, isHintActive: Bool) -> some View {
-        ReflexCardContainerView(
+    func speakingChallengeCard(for item: MixedReflexDrillItem, hintStage: Int, isHintActive: Bool) -> some View {
+        ReflexSpeakingModeView(
+            word: item,
             isReviewed: isReviewed,
-            isCorrect: isResultCorrect,
-            isTimeout: isResultTimeout,
-            timerStage: timerStage
-        ) {
-            if isReviewed {
-                ReflexReviewedConsolidationView(
-                    word: item,
-                    mode: item.assignedMode,
-                    reviewResult: reviewedResult,
-                    displayedSentence: item.completedSentenceWithTargetWord,
-                    onReplayAudio: {
-                        viewModel.playAudioForCurrentWord()
-                    }
-                )
-            } else {
-                switch item.assignedMode {
-                case .speaking:
-                    ReflexSpeakingModeView(
-                        word: item,
-                        liveTranscript: liveTranscript,
-                        elapsedTimeMs: elapsedTimeMs,
-                        showHint: isHintActive,
-                        hintStage: hintStage,
-                        clozeStages: viewModel.currentClozeStages,
-                        clozeParts: ReflexClozeFormatter.extractTemplateParts(from: item.clozeSentenceEn),
-                        displayedSentence: item.clozeSentenceEn,
-                        hintBadgeText: viewModel.currentHintBadgeText,
-                        onSwitchToKeyboard: {
-                            isKeyboardFallbackActive.toggle()
+            isResultCorrect: isResultCorrect,
+            isResultTimeout: isResultTimeout,
+            showHint: isHintActive,
+            hintStage: hintStage,
+            clozeStages: viewModel.currentClozeStages,
+            clozeParts: ReflexClozeFormatter.extractTemplateParts(from: item.clozeSentenceEn),
+            displayedSentence: isReviewed ? item.completedSentenceWithTargetWord : item.clozeSentenceEn,
+            hintBadgeText: viewModel.currentHintBadgeText,
+            speechState: cardPhase == .activeCountdown ? .listening() : .evaluated(overallScore: isResultCorrect ? 100 : 0),
+            liveTranscript: liveTranscript,
+            onCantSpeakNow: {
+                timerTask?.cancel()
+                if viewModel.allowSpeakingSkip {
+                    viewModel.skipSpeakingCurrentWord()
+                    if let next = viewModel.currentItem {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                            startDrillItem(next)
                         }
-                    )
-                case .multipleChoice, .listening, .typing:
-                    EmptyView()
+                    }
+                } else {
+                    handleTimeout()
                 }
+            },
+            onReplayAudio: {
+                viewModel.playAudioForCurrentWord()
             }
-        }
+        )
+        .padding(.horizontal, theme.spacing.base)
     }
 }
 
@@ -369,7 +339,6 @@ private extension MixedReflexDrillView {
         cardPhase = .activeCountdown
         typingText = ""
         liveTranscript = ""
-        isKeyboardFallbackActive = false
         wordStartTime = Date()
 
         if item.assignedMode == .multipleChoice || item.assignedMode == .listening {
