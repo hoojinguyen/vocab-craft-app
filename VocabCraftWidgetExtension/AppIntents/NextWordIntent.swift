@@ -9,8 +9,8 @@ import WidgetKit
 #endif
 
 public struct NextWordIntent: AppIntent {
-    public static var title: LocalizedStringResource = "Từ tiếp theo"
-    public static var description = IntentDescription("Đổi từ vựng mới trên Widget")
+    public static var title: LocalizedStringResource = "app.widget.intent.next_word.title"
+    public static var description = IntentDescription("app.widget.intent.next_word.description")
 
     public init() {}
 

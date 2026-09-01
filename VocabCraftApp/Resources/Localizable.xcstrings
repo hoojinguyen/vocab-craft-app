@@ -1,50 +1,6 @@
 {
   "sourceLanguage": "vi",
   "strings": {
-    " 🔍": {},
-    ":": {},
-    "\"": {},
-    "“": {},
-    "\"%@\"": {},
-    "“%@”": {},
-    "(%@)": {},
-    "[%@] %@": {
-      "localizations": {
-        "vi": {
-          "stringUnit": {
-            "state": "new",
-            "value": "[%1$@] %2$@"
-          }
-        }
-      }
-    },
-    "%@": {},
-    "%@ từ chưa chính xác": {},
-    "%@ từ vựng cốt lõi": {},
-    "%@/%@": {
-      "localizations": {
-        "vi": {
-          "stringUnit": {
-            "state": "new",
-            "value": "%1$@/%2$@"
-          }
-        }
-      }
-    },
-    "%@/%@ ": {
-      "localizations": {
-        "vi": {
-          "stringUnit": {
-            "state": "new",
-            "value": "%1$@/%2$@ "
-          }
-        }
-      }
-    },
-    "%@/3": {},
-    "+%@ XP": {},
-    "📚 %@": {},
-    "A2 - C1": {},
     "Academic Research": {
       "extractionState": "manual",
       "localizations": {
@@ -2459,176 +2415,6 @@
         }
       }
     },
-    "app.search.recent_searches": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Recent Searches"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tìm kiếm gần đây"
-          }
-        }
-      }
-    },
-    "app.search.smart_lookup_desc": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Offline morphological parser, bilingual context sentences..."
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bộ phân tích hình thái học offline, câu ví dụ song ngữ..."
-          }
-        }
-      }
-    },
-    "app.search.smart_lookup_title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Smart Dictionary & AI Lookup"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Từ điển Thông minh & Tra cứu AI"
-          }
-        }
-      }
-    },
-    "app.search.suggested_topics": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Suggested Topics"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chủ đề gợi ý"
-          }
-        }
-      }
-    },
-    "app.search.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tra từ"
-          }
-        }
-      }
-    },
-    "app.search.topic_academic": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Academic Research"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nghiên cứu Học thuật"
-          }
-        }
-      }
-    },
-    "app.search.topic_business": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Business & Tech"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kinh doanh & Công nghệ"
-          }
-        }
-      }
-    },
-    "app.search.topic_daily": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Daily Expressions"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Giao tiếp Hàng ngày"
-          }
-        }
-      }
-    },
-    "app.search.topic_ielts": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "IELTS Band 7.0+"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "IELTS Band 7.0+"
-          }
-        }
-      }
-    },
-    "app.search.upcoming_feature_badge": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "COMING SOON"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SẮP RA MẮT"
-          }
-        }
-      }
-    },
     "app.widget.level_format": {
       "extractionState": "manual",
       "localizations": {
@@ -3938,10 +3724,6 @@
         }
       }
     },
-    "B2 - C1": {},
-    "Bạn có %@ từ vựng cần ôn tập lại.": {},
-    "Bạn đã ôn tập toàn bộ %@ từ yếu trong phiên này.": {},
-    "Bắt đầu Thử thách Chặng (%@ câu)": {},
     "Business & Tech": {
       "extractionState": "manual",
       "localizations": {
@@ -3959,22 +3741,6 @@
         }
       }
     },
-    "Cần Củng Cố Kiến Thức": {},
-    "Cần ôn": {},
-    "Câu %@ / %@": {
-      "localizations": {
-        "vi": {
-          "stringUnit": {
-            "state": "new",
-            "value": "Câu %1$@ / %2$@"
-          }
-        }
-      }
-    },
-    "Chính xác! +10 XP": {},
-    "Chưa đúng": {},
-    "Chưa nhớ": {},
-    "Chuỗi: %@/3": {},
     "common.back": {
       "extractionState": "manual",
       "localizations": {
@@ -4264,9 +4030,6 @@
         }
       }
     },
-    "Đã nhớ": {},
-    "Đã thuộc": {},
-    "Đã tự động thêm vào Kho cá nhân để bạn ôn tập lại.": {},
     "Daily Expressions": {
       "extractionState": "manual",
       "localizations": {
@@ -4284,10 +4047,6 @@
         }
       }
     },
-    "Đang chuẩn bị câu hỏi...": {},
-    "Đáp án: %@": {},
-    "Định nghĩa tiếng Anh": {},
-    "Đóng": {},
     "Giao Tiếp Ngày": {
       "extractionState": "manual",
       "localizations": {
@@ -4305,9 +4064,6 @@
         }
       }
     },
-    "Hiện nghĩa & Ví dụ": {},
-    "Hoàn tất & Quay lại": {},
-    "Hoàn Thành Ôn Tập!": {},
     "homepage.cefrTitle": {
       "extractionState": "manual",
       "localizations": {
@@ -4631,7 +4387,6 @@
         }
       }
     },
-    "IELTS Academic 500": {},
     "IELTS Band 7.0+": {
       "extractionState": "manual",
       "localizations": {
@@ -4649,14 +4404,6 @@
         }
       }
     },
-    "Kho từ của bạn": {},
-    "Không có từ yếu nào!": {},
-    "Luyện tập lại Chặng này": {},
-    "Nạp từ vựng hoặc luyện tập để xem thẻ từ tại đây.": {},
-    "Nghĩa tiếng Việt": {},
-    "Ôn Tập Tập Trung": {},
-    "Ôn tập từ yếu ngay (%@ từ)": {},
-    "Phát âm": {},
     "reflex.audioAlertTitle": {
       "extractionState": "manual",
       "localizations": {
@@ -7326,9 +7073,6 @@
         }
       }
     },
-    "Tất cả từ vựng trong kho của bạn đang được ghi nhớ rất tốt.": {},
-    "Testing...": {},
-    "Toàn bộ từ vựng đều trong trạng thái ghi nhớ tốt.": {},
     "Travel & Food": {
       "extractionState": "manual",
       "localizations": {
@@ -7346,8 +7090,6 @@
         }
       }
     },
-    "Trí Nhớ SRS Ổn Định": {},
-    "Ví dụ ngữ cảnh": {},
     "vocabulary.attemptsLabel %lld %lld": {
       "extractionState": "manual",
       "localizations": {
@@ -8534,6 +8276,312 @@
           "stringUnit": {
             "state": "translated",
             "value": "Đã thuộc"
+          }
+        }
+      }
+    },
+    "tabs.ai_assistant": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI Assistant"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trợ lý AI"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI Assistant"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trợ lý AI"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.badge_coming_soon": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "COMING SOON"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SẮP RA MẮT"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.hero_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VocabCraft AI Copilot"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VocabCraft AI Copilot"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.hero_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your personalized AI language tutor. Conversational drills, contextual feedback, and instant pronunciation analysis powered by next-gen on-device models."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gia sư ngôn ngữ AI cá nhân hoá của bạn. Luyện tập hội thoại, phản hồi theo ngữ cảnh và phân tích phát âm tức thì được hỗ trợ bởi mô hình on-device thế hệ mới."
+          }
+        }
+      }
+    },
+    "app.ai_assistant.upcoming_features_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upcoming Capabilities"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tính năng sắp ra mắt"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.feature_conversation_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI Conversation Partner"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đối tác Luyện hội thoại AI"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.feature_conversation_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interactive roleplay scenarios with instant grammar & natural phrasing tips."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Các tình huống nhập vai tương tác với gợi ý ngữ pháp và diễn đạt tự nhiên tức thì."
+          }
+        }
+      }
+    },
+    "app.ai_assistant.feature_context_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smart Context Generator"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tạo Ngữ cảnh Thông minh"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.feature_context_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generates customized example sentences based on your learning interests."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tự động tạo câu ví dụ mẫu phù hợp với sở thích và ngành nghề của bạn."
+          }
+        }
+      }
+    },
+    "app.ai_assistant.feature_pronunciation_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phonetic & Tone Coach"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Huấn luyện viên Ngữ điệu & Phát âm"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.feature_pronunciation_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Real-time acoustic feedback with visual stress indicators."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phản hồi âm thanh theo thời gian thực với biểu đồ trọng âm trực quan."
+          }
+        }
+      }
+    },
+    "app.widget.display_name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VocabCraft Reflex Widget"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Widget Phản xạ VocabCraft"
+          }
+        }
+      }
+    },
+    "app.widget.description": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Learn vocabulary and reflex patterns continuously on your Home Screen."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Học từ vựng và mẫu câu phản xạ liên tục trên Màn hình chính."
+          }
+        }
+      }
+    },
+    "app.widget.intent.next_word.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next Word"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Từ tiếp theo"
+          }
+        }
+      }
+    },
+    "app.widget.intent.next_word.description": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rotate to the next vocabulary word on Widget"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đổi từ vựng mới trên Widget"
+          }
+        }
+      }
+    },
+    "app.widget.intent.mark_learned.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mark Mastered"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã thuộc"
+          }
+        }
+      }
+    },
+    "app.widget.intent.mark_learned.description": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mark current word as mastered"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đánh dấu từ hiện tại đã thuộc"
           }
         }
       }

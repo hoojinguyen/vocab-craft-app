@@ -9,8 +9,8 @@ import WidgetKit
 #endif
 
 public struct MarkLearnedIntent: AppIntent {
-    public static var title: LocalizedStringResource = "Đã thuộc"
-    public static var description = IntentDescription("Đánh dấu từ hiện tại đã thuộc")
+    public static var title: LocalizedStringResource = "app.widget.intent.mark_learned.title"
+    public static var description = IntentDescription("app.widget.intent.mark_learned.description")
 
     public init() {}
 

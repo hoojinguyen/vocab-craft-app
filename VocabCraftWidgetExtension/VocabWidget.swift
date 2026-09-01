@@ -98,8 +98,8 @@ public struct VocabWidget: Widget {
         StaticConfiguration(kind: kind, provider: VocabWidgetProvider()) { entry in
             VocabWidgetView(entry: entry)
         }
-        .configurationDisplayName("VocabCraft Reflex Widget")
-        .description("Học từ vựng và mẫu câu phản xạ liên tục trên Màn hình chính.")
+        .configurationDisplayName(Text(AppStrings.Widget.displayName))
+        .description(Text(AppStrings.Widget.description))
         #if os(iOS)
         .supportedFamilies([.systemSmall, .systemMedium, .accessoryCircular, .accessoryInline])
         #else
