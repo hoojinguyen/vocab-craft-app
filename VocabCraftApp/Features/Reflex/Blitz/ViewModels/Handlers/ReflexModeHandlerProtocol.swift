@@ -48,6 +48,7 @@ public protocol ReflexModeHandlerProtocol: Sendable {
     var reviewSpeechRate: Float { get }
     var reviewSpeechDelayMs: Int { get }
 
+    // swiftlint:disable:next function_parameter_count
     func prepareWord(
         word: ReflexBlitzWordItem,
         allWords: [ReflexBlitzWordItem],

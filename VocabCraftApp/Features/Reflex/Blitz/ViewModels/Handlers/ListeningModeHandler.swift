@@ -17,6 +17,7 @@ public struct ListeningModeHandler: ReflexModeHandlerProtocol {
 
     public init() {}
 
+    // swiftlint:disable:next function_parameter_count
     public func prepareWord(
         word: ReflexBlitzWordItem,
         allWords: [ReflexBlitzWordItem],

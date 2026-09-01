@@ -57,27 +57,47 @@ public enum ReflexSpeechMatcher {
         return false
     }
 
+    private static func matchesTwoLetterStem(token: String, normalizedTarget: String, targetLen: Int) -> Bool {
+        if token == normalizedTarget { return true }
+        let suffix = token.hasPrefix(normalizedTarget) ? String(token.dropFirst(targetLen)) : ""
+        if normalizedTarget == "go" && (suffix == "es" || suffix == "ing" || suffix == "ne" || token == "went") { return true }
+        if normalizedTarget == "do" && (suffix == "es" || suffix == "ing" || suffix == "ne" || token == "did") { return true }
+        if normalizedTarget == "be" && (suffix == "en" || suffix == "ing" || token == "was" || token == "were" || token == "is" || token == "are" || token == "am") { return true }
+        if normalizedTarget == "ox" && suffix == "en" { return true }
+        if suffix == "s" { return true }
+        return false
+    }
+
+    private static func matchesThreeLetterStem(suffix: String, normalizedTarget: String) -> Bool {
+        if suffix == "s" { return true }
+        if suffix == "es" {
+            if let last = normalizedTarget.last, last == "s" || last == "x" || last == "z" {
+                return true
+            }
+            if normalizedTarget.hasSuffix("sh") || normalizedTarget.hasSuffix("ch") {
+                return true
+            }
+        }
+        let is3LetterCVC: Bool = {
+            let chars = Array(normalizedTarget)
+            guard chars.count == 3 else { return false }
+            let vowels: Set<Character> = ["a", "e", "i", "o", "u"]
+            return !vowels.contains(chars[0]) && vowels.contains(chars[1]) && !vowels.contains(chars[2]) && chars[2] != "x" && chars[2] != "w" && chars[2] != "y"
+        }()
+        if !is3LetterCVC && (suffix == "ed" || suffix == "ing" || suffix == "d") { return true }
+        return false
+    }
+
     private static func matchesStemOrInflection(token: String, normalizedTarget: String, targetLen: Int) -> Bool {
         if targetLen == 2 {
-            if token == normalizedTarget { return true }
-            let suffix = token.hasPrefix(normalizedTarget) ? String(token.dropFirst(targetLen)) : ""
-            // Common 2-letter verbs and nouns
-            if normalizedTarget == "go" && (suffix == "es" || suffix == "ing" || suffix == "ne" || token == "went") { return true }
-            if normalizedTarget == "do" && (suffix == "es" || suffix == "ing" || suffix == "ne" || token == "did") { return true }
-            if normalizedTarget == "be" && (suffix == "en" || suffix == "ing" || token == "was" || token == "were" || token == "is" || token == "are" || token == "am") { return true }
-            if normalizedTarget == "ox" && suffix == "en" { return true }
-            if suffix == "s" { return true }
-            return false
+            return matchesTwoLetterStem(token: token, normalizedTarget: normalizedTarget, targetLen: targetLen)
         }
         guard targetLen >= 3, token.hasPrefix(normalizedTarget) else { return false }
         let suffix = String(token.dropFirst(targetLen))
         if targetLen >= 4 && allowedExtendedSuffixes.contains(suffix) {
-            // Guard false inflection derivations (e.g. lemma "past" + "ed" -> "pasted", which is derived from "paste")
             if normalizedTarget == "past" && suffix == "ed" {
                 return false
             }
-            // 4-letter CVC monosyllables (e.g. "plan", "stop", "drop", "grab") require consonant doubling.
-            // Plain -ed/-ing/-d (e.g. "planed", "stoped") are invalid derivations.
             let is4LetterCVC: Bool = {
                 let chars = Array(normalizedTarget)
                 guard chars.count == 4 else { return false }
@@ -89,29 +109,11 @@ public enum ReflexSpeechMatcher {
             }
             return true
         }
-        // Handle c -> ck spelling transformation (e.g. "panic" -> "panicked", "panicking")
         if normalizedTarget.hasSuffix("c") && (suffix == "ked" || suffix == "king") {
             return true
         }
-        if targetLen == 3 {
-            if suffix == "s" { return true }
-            if suffix == "es" {
-                if let last = normalizedTarget.last, last == "s" || last == "x" || last == "z" {
-                    return true
-                }
-                if normalizedTarget.hasSuffix("sh") || normalizedTarget.hasSuffix("ch") {
-                    return true
-                }
-            }
-            // 3-letter CVC monosyllables (e.g. "can", "pin", "run", "fit", "car") require consonant doubling.
-            // Only non-CVC targets (vowel-initial like "eat", "out", "aim", ending in "x", "w", "y" or clusters like "ask", "fix", "box") allow plain -ed/-ing/-d.
-            let is3LetterCVC: Bool = {
-                let chars = Array(normalizedTarget)
-                guard chars.count == 3 else { return false }
-                let vowels: Set<Character> = ["a", "e", "i", "o", "u"]
-                return !vowels.contains(chars[0]) && vowels.contains(chars[1]) && !vowels.contains(chars[2]) && chars[2] != "x" && chars[2] != "w" && chars[2] != "y"
-            }()
-            if !is3LetterCVC && (suffix == "ed" || suffix == "ing" || suffix == "d") { return true }
+        if targetLen == 3 && matchesThreeLetterStem(suffix: suffix, normalizedTarget: normalizedTarget) {
+            return true
         }
         if suffix.count >= 2, let last = normalizedTarget.last, suffix.first == last {
             let doubledSuffix = String(suffix.dropFirst())

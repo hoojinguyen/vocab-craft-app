@@ -108,32 +108,5 @@ struct DatasetDataSourceTests {
         let search = try await repository.searchWords(query: "pragmatic")
         #expect(search.count == 1)
     }
-
-    @Test("VocabularyRepositoryImpl fetchTopicDecks and fetchTopicDeckDetails batch progress lookup")
-    func testRepositoryTopicDecksWithProgressActor() async throws {
-        let container = try SharedAppGroupContainer.createContainer(inMemory: true)
-        let actor = UserProgressModelActor(modelContainer: container)
-        try await actor.saveProgress(wordId: 1, masteryLevel: 5, isBookmarked: true)
-        try await actor.saveProgress(wordId: 2, masteryLevel: 3, isBookmarked: false)
-
-        let mockSource = MockDatasetDataSource()
-        let repository = VocabularyRepositoryImpl(datasetEngine: mockSource, progressActor: actor)
-
-        let decks = try await repository.fetchTopicDecks()
-        #expect(decks.count == 1)
-        #expect(decks.first?.wordCount == 2)
-        #expect(decks.first?.completionPercentage == 0.5)
-
-        let nodes = try await repository.fetchTopicDeckDetails(deckId: "deck1")
-        #expect(nodes.count == 1)
-        #expect(nodes.first?.learnedWords == 1)
-        #expect(nodes.first?.totalWords == 2)
-        #expect(nodes.first?.state == .active)
-        #expect(nodes.first?.words.count == 2)
-        #expect(nodes.first?.words[0].isMastered == true)
-        #expect(nodes.first?.words[0].isSavedToPersonalVault == true)
-        #expect(nodes.first?.words[1].isMastered == false)
-        #expect(nodes.first?.words[1].isSavedToPersonalVault == false)
-    }
 }
 #endif

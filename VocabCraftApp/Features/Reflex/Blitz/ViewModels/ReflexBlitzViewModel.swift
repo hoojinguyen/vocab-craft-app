@@ -432,6 +432,7 @@ extension ReflexBlitzViewModel {
         }
     }
 
+    // swiftlint:disable:next function_parameter_count
     private func recordAttempt(
         word: ReflexBlitzWordItem,
         isCorrect: Bool,

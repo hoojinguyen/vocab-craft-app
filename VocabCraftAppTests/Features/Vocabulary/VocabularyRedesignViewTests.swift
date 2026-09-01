@@ -64,7 +64,7 @@ struct VocabularyRedesignViewTests {
         row.onTap()
         #expect(tapCount == 1)
 
-        row.onBookmarkTap()
+        row.onBookmarkTap?()
         #expect(bookmarkCount == 1)
     }
 

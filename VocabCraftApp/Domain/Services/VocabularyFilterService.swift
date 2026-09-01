@@ -2,12 +2,12 @@ import Foundation
 
 /// Type-safe filter options for vocabulary items.
 public enum VocabularyFilter: String, CaseIterable, Equatable, Sendable {
-    case all = "all"
-    case needsReview = "needsReview"
-    case mastered = "mastered"
-    case a1a2 = "a1a2"
-    case b1b2 = "b1b2"
-    case c1c2 = "c1c2"
+    case all
+    case needsReview
+    case mastered
+    case a1a2
+    case b1b2
+    case c1c2
 }
 
 /// Domain service providing pure business logic for filtering vocabulary items.

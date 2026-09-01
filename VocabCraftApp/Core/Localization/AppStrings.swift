@@ -368,7 +368,13 @@ extension AppStrings {
         public static var heroTitle: LocalizedStringKey { "app.ai_assistant.hero_title" }
         public static var heroTitleText: String { String(localized: "app.ai_assistant.hero_title", defaultValue: "VocabCraft AI Copilot", bundle: .module) }
         public static var heroDescription: LocalizedStringKey { "app.ai_assistant.hero_desc" }
-        public static var heroDescriptionText: String { String(localized: "app.ai_assistant.hero_desc", defaultValue: "Your personalized AI language tutor. Conversational drills, contextual feedback, and instant pronunciation analysis powered by next-gen on-device models.", bundle: .module) }
+        public static var heroDescriptionText: String {
+            String(
+                localized: "app.ai_assistant.hero_desc",
+                defaultValue: "Your personalized AI language tutor. Conversational drills, contextual feedback, and instant pronunciation analysis powered by next-gen on-device models.",
+                bundle: .module
+            )
+        }
         public static var upcomingFeaturesTitle: LocalizedStringKey { "app.ai_assistant.upcoming_features_title" }
         public static var upcomingFeaturesTitleText: String { String(localized: "app.ai_assistant.upcoming_features_title", defaultValue: "Upcoming Capabilities", bundle: .module) }
         public static var featureConversationTitle: LocalizedStringKey { "app.ai_assistant.feature_conversation_title" }

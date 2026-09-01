@@ -98,8 +98,8 @@ public struct VocabWidget: Widget {
         StaticConfiguration(kind: kind, provider: VocabWidgetProvider()) { entry in
             VocabWidgetView(entry: entry)
         }
-        .configurationDisplayName(Text(AppStrings.Widget.displayName))
-        .description(Text(AppStrings.Widget.description))
+        .configurationDisplayName(LocalizedStringKey("app.widget.display_name"))
+        .description(LocalizedStringKey("app.widget.description"))
         #if os(iOS)
         .supportedFamilies([.systemSmall, .systemMedium, .accessoryCircular, .accessoryInline])
         #else
