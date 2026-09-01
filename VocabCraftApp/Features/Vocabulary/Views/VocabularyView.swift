@@ -9,7 +9,6 @@ public struct VocabularyView: View {
     @Environment(\.craftTheme) private var theme
 
     @State private var vaultVM: PersonalVaultViewModel?
-    @State private var legacyVM: VocabularyViewModel?
     @State private var isSearchHiddenByScroll: Bool = false
     @State private var isScrolledPastHeader: Bool = false
     @State private var measuredHeaderHeight: CGFloat = 50
@@ -22,14 +21,12 @@ public struct VocabularyView: View {
     @MainActor
     public init(
         vaultViewModel: PersonalVaultViewModel? = nil,
-        viewModel: VocabularyViewModel? = nil,
         isSearchVisible: Bool? = nil,
         isSearchHiddenByScroll: Bool = false,
         isScrolledPastHeader: Bool = false
     ) {
         let hiddenByScroll = isSearchVisible.map { !$0 } ?? isSearchHiddenByScroll
         self._vaultVM = State(initialValue: vaultViewModel)
-        self._legacyVM = State(initialValue: viewModel)
         self._isSearchHiddenByScroll = State(initialValue: hiddenByScroll)
         self._isScrolledPastHeader = State(initialValue: isScrolledPastHeader)
         self._searchText = State(initialValue: vaultViewModel?.searchQuery ?? "")

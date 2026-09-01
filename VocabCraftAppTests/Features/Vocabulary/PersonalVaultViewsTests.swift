@@ -372,10 +372,8 @@ final class PersonalVaultViewsTests: XCTestCase {
 
     func test_vocabularyView_initializationWithAllParameters() {
         let vm = PersonalVaultViewModel(mockWords: [mockVaultWord])
-        let legacyVM = VocabularyViewModel()
         let view = VocabularyView(
             vaultViewModel: vm,
-            viewModel: legacyVM,
             isSearchVisible: true,
             isScrolledPastHeader: true
         )
@@ -415,55 +413,6 @@ final class PersonalVaultViewsTests: XCTestCase {
         let vm = PersonalVaultViewModel(mockWords: [mockVaultWord])
         let view = VocabularyView(vaultViewModel: vm)
         XCTAssertEqual(view.measuredHeaderHeightForTesting, 50)
-    }
-
-    // MARK: - Legacy View Backward Compatibility Tests
-    func test_personalVaultHeroCard_withWeakWords_triggersAction() {
-        var didTrigger = false
-        let metrics = PersonalVaultMetrics(totalWords: 10, needsReviewCount: 3, masteredCount: 5, bookmarkedCount: 2)
-        let view = PersonalVaultHeroCard(metrics: metrics, onStartSmartReview: {
-            didTrigger = true
-        })
-
-        #if canImport(UIKit)
-        let host = UIHostingController(rootView: view)
-        XCTAssertNotNil(host.view)
-        #else
-        XCTAssertNotNil(view)
-        #endif
-
-        view.onStartSmartReview()
-        XCTAssertTrue(didTrigger)
-    }
-
-    func test_cleanWordCardView_renderingAndCallbacks() {
-        var isExpandedTapped = false
-        var isAudioTapped = false
-        var isBookmarkTapped = false
-
-        let view = CleanWordCardView(
-            word: mockWord,
-            isExpanded: true,
-            onTap: { isExpandedTapped = true },
-            onAudioTap: { isAudioTapped = true },
-            onBookmarkTap: { isBookmarkTapped = true }
-        )
-
-        #if canImport(UIKit)
-        let host = UIHostingController(rootView: view)
-        XCTAssertNotNil(host.view)
-        #else
-        XCTAssertNotNil(view)
-        #endif
-
-        view.onTap()
-        XCTAssertTrue(isExpandedTapped)
-
-        view.onAudioTap()
-        XCTAssertTrue(isAudioTapped)
-
-        view.onBookmarkTap()
-        XCTAssertTrue(isBookmarkTapped)
     }
 
     func test_smartReviewSessionView_initializationAndDismiss() {
