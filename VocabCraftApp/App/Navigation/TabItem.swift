@@ -5,9 +5,9 @@ import SwiftUI
 public enum TabItem: Int, CaseIterable, Identifiable, Sendable, CraftTabItemProtocol {
     case home = 0
     case vocabulary = 1
-    case search = 4 // Tra từ
-    case reflex = 2 // Phản xạ
-    case settings = 3 // Cài đặt
+    case aiAssistant = 4
+    case reflex = 2
+    case settings = 3
 
     public var id: Int { rawValue }
 
@@ -17,7 +17,7 @@ public enum TabItem: Int, CaseIterable, Identifiable, Sendable, CraftTabItemProt
         switch self {
         case .home: return AppStrings.Tabs.home
         case .vocabulary: return AppStrings.Tabs.vocabulary
-        case .search: return AppStrings.Tabs.search
+        case .aiAssistant: return AppStrings.Tabs.aiAssistant
         case .reflex: return AppStrings.Tabs.reflex
         case .settings: return AppStrings.Tabs.settings
         }
@@ -27,7 +27,7 @@ public enum TabItem: Int, CaseIterable, Identifiable, Sendable, CraftTabItemProt
         switch self {
         case .home: return CraftSymbol.homeFill.rawValue
         case .vocabulary: return CraftSymbol.booksFill.rawValue
-        case .search: return CraftSymbol.search.rawValue
+        case .aiAssistant: return CraftSymbol.sparkles.rawValue
         case .reflex: return CraftSymbol.practice.rawValue
         case .settings: return CraftSymbol.settingsFill.rawValue
         }
@@ -40,6 +40,6 @@ public enum TabItem: Int, CaseIterable, Identifiable, Sendable, CraftTabItemProt
 
     /// The 4 standard navigation tabs rendered on the dock sides.
     public static var navigationTabs: [TabItem] {
-        [.home, .vocabulary, .search, .settings]
+        [.home, .vocabulary, .aiAssistant, .settings]
     }
 }

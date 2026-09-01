@@ -33,6 +33,10 @@ public final class AppRouter {
         selectTab(.reflex)
     }
 
+    public func navigateToAIAssistant() {
+        selectTab(.aiAssistant)
+    }
+
     public func navigateToSettings() {
         selectTab(.settings)
     }

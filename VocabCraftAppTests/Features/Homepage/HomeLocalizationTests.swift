@@ -145,28 +145,23 @@ struct HomeLocalizationTests {
         }
     }
 
-    @Test("Verifies search accessors in AppStrings.Search")
-    func testAppStringsSearchAccessors() {
-        #expect(AppStrings.Search.titleText == "Search")
-        #expect(AppStrings.Search.upcomingFeatureBadgeText == "COMING SOON")
-        #expect(AppStrings.Search.smartLookupTitleText == "Smart Dictionary & AI Lookup")
-        #expect(AppStrings.Search.smartLookupDescriptionText == "Offline morphological parser, bilingual context sentences...")
-        #expect(AppStrings.Search.recentSearchesTitleText == "Recent Searches")
-        #expect(AppStrings.Search.suggestedTopicsTitleText == "Suggested Topics")
-        #expect(AppStrings.Search.topicIeltsText == "IELTS Band 7.0+")
-        #expect(AppStrings.Search.topicBusinessText == "Business & Tech")
-        #expect(AppStrings.Search.topicAcademicText == "Academic Research")
-        #expect(AppStrings.Search.topicDailyText == "Daily Expressions")
-        let _: LocalizedStringKey = AppStrings.Search.title
-        let _: LocalizedStringKey = AppStrings.Search.upcomingFeatureBadge
-        let _: LocalizedStringKey = AppStrings.Search.smartLookupTitle
-        let _: LocalizedStringKey = AppStrings.Search.smartLookupDescription
-        let _: LocalizedStringKey = AppStrings.Search.recentSearchesTitle
-        let _: LocalizedStringKey = AppStrings.Search.suggestedTopicsTitle
-        let _: LocalizedStringKey = AppStrings.Search.topicIelts
-        let _: LocalizedStringKey = AppStrings.Search.topicBusiness
-        let _: LocalizedStringKey = AppStrings.Search.topicAcademic
-        let _: LocalizedStringKey = AppStrings.Search.topicDaily
+    @Test("Verifies AI Assistant accessors in AppStrings.AIAssistant")
+    func testAppStringsAIAssistantAccessors() {
+        #expect(AppStrings.AIAssistant.titleText == "AI Assistant")
+        #expect(AppStrings.AIAssistant.badgeComingSoonText == "COMING SOON")
+        #expect(AppStrings.AIAssistant.heroTitleText == "VocabCraft AI Copilot")
+        #expect(AppStrings.AIAssistant.upcomingFeaturesTitleText == "Upcoming Capabilities")
+        let _: LocalizedStringKey = AppStrings.AIAssistant.title
+        let _: LocalizedStringKey = AppStrings.AIAssistant.badgeComingSoon
+        let _: LocalizedStringKey = AppStrings.AIAssistant.heroTitle
+        let _: LocalizedStringKey = AppStrings.AIAssistant.heroDescription
+        let _: LocalizedStringKey = AppStrings.AIAssistant.upcomingFeaturesTitle
+        let _: LocalizedStringKey = AppStrings.AIAssistant.featureConversationTitle
+        let _: LocalizedStringKey = AppStrings.AIAssistant.featureConversationDescription
+        let _: LocalizedStringKey = AppStrings.AIAssistant.featureContextTitle
+        let _: LocalizedStringKey = AppStrings.AIAssistant.featureContextDescription
+        let _: LocalizedStringKey = AppStrings.AIAssistant.featurePronunciationTitle
+        let _: LocalizedStringKey = AppStrings.AIAssistant.featurePronunciationDescription
     }
 
     @Test("Verifies widget accessors in AppStrings.Widget")
@@ -179,27 +174,24 @@ struct HomeLocalizationTests {
         let _: LocalizedStringKey = AppStrings.Widget.level(3)
     }
 
-    @Test("Verifies search and widget catalog keys integrity")
-    func testSearchAndWidgetCatalogKeysIntegrity() throws {
+    @Test("Verifies AI Assistant and widget catalog keys integrity")
+    func testAIAssistantAndWidgetCatalogKeysIntegrity() throws {
         let strings = try loadCatalogStrings()
 
-        let expectedSearchAndWidgetKeys: [String: (vi: String, en: String)] = [
-            "app.search.title": ("Tra từ", "Search"),
-            "app.search.upcoming_feature_badge": ("SẮP RA MẮT", "COMING SOON"),
-            "app.search.smart_lookup_title": ("Từ điển Thông minh & Tra cứu AI", "Smart Dictionary & AI Lookup"),
-            "app.search.smart_lookup_desc": ("Bộ phân tích hình thái học offline, câu ví dụ song ngữ...", "Offline morphological parser, bilingual context sentences..."),
-            "app.search.recent_searches": ("Tìm kiếm gần đây", "Recent Searches"),
-            "app.search.suggested_topics": ("Chủ đề gợi ý", "Suggested Topics"),
-            "app.search.topic_ielts": ("IELTS Band 7.0+", "IELTS Band 7.0+"),
-            "app.search.topic_business": ("Kinh doanh & Công nghệ", "Business & Tech"),
-            "app.search.topic_academic": ("Nghiên cứu Học thuật", "Academic Research"),
-            "app.search.topic_daily": ("Giao tiếp Hàng ngày", "Daily Expressions"),
+        let expectedAIAssistantAndKeys: [String: (vi: String, en: String)] = [
+            "app.ai_assistant.title": ("Trợ lý AI", "AI Assistant"),
+            "app.ai_assistant.badge_coming_soon": ("SẮP RA MẮT", "COMING SOON"),
+            "app.ai_assistant.hero_title": ("VocabCraft AI Copilot", "VocabCraft AI Copilot"),
+            "app.ai_assistant.upcoming_features_title": ("Tính năng sắp ra mắt", "Upcoming Capabilities"),
+            "app.ai_assistant.feature_conversation_title": ("Đối tác Luyện hội thoại AI", "AI Conversation Partner"),
+            "app.ai_assistant.feature_context_title": ("Tạo Ngữ cảnh Thông minh", "Smart Context Generator"),
+            "app.ai_assistant.feature_pronunciation_title": ("Huấn luyện viên Ngữ điệu & Phát âm", "Phonetic & Tone Coach"),
             "app.widget.next": ("Tiếp", "Next"),
             "app.widget.mastered": ("Thuộc", "Mastered"),
             "app.widget.level_format": ("Cấp độ %lld", "Level %lld")
         ]
 
-        for (key, expected) in expectedSearchAndWidgetKeys {
+        for (key, expected) in expectedAIAssistantAndKeys {
             let entry = try #require(strings[key], "Missing required key: \(key)")
             #expect(
                 entry["extractionState"] as? String == "manual",

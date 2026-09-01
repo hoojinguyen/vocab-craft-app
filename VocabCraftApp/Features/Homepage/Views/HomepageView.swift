@@ -67,12 +67,12 @@ public struct HomepageView: View {
                              HomeSkeletonView()
                         } else if let error = viewModel.errorMessage, viewModel.sections.isEmpty {
                             ContentUnavailableView {
-                                Label(String(localized: "app.home.load_error_title", defaultValue: "Không tải được lộ trình", bundle: .module), systemImage: "wifi.exclamationmark")
+                                Label(String(localized: "app.home.load_error_title", defaultValue: "Failed to load learning path", bundle: .module), systemImage: "wifi.exclamationmark")
                             } description: {
                                 Text(error)
                                     .multilineTextAlignment(.center)
                             } actions: {
-                                CraftButton(String(localized: "common.retry", defaultValue: "Thử lại", bundle: .module), variant: .primary, size: .md) {
+                                CraftButton(String(localized: "common.retry", defaultValue: "Retry", bundle: .module), variant: .primary, size: .md) {
                                     Task { await viewModel.loadLearningPath() }
                                 }
                             }
@@ -120,8 +120,8 @@ public struct HomepageView: View {
 
             case .vocabulary:
                 VocabularyView(vaultViewModel: vaultVM ?? appContainer.makePersonalVaultViewModel())
-            case .search:
-                SearchNewWordView()
+            case .aiAssistant:
+                AIAssistantPlaceholderView()
             case .reflex:
                 ReflexBlitzView(
                     viewModel: reflexBlitzVM ?? appContainer.makeReflexBlitzViewModel(),
@@ -264,8 +264,8 @@ public struct HomepageView: View {
                         CraftHaptics.shared.success()
                         homeConfettiTrigger = true
                         completionToastData = CraftToastData(
-                            title: String(localized: "app.home.toast.completed_title", defaultValue: "Hoàn thành!", bundle: .module),
-                            message: "+\(earnedXP) XP • \(starIcons) \(String(localized: "app.home.toast.stars_suffix", defaultValue: " • Tuyệt vời!", bundle: .module))",
+                            title: String(localized: "app.home.toast.completed_title", defaultValue: "Completed!", bundle: .module),
+                            message: "+\(earnedXP) XP • \(starIcons) \(String(localized: "app.home.toast.stars_suffix", defaultValue: " • Great Job!", bundle: .module))",
                             iconName: "star.fill",
                             style: .success,
                             surfaceStyle: .glass,
@@ -275,7 +275,7 @@ public struct HomepageView: View {
                 } catch {
                     await MainActor.run {
                         completionToastData = CraftToastData(
-                            title: String(localized: "common.error", defaultValue: "Lỗi", bundle: .module),
+                            title: String(localized: "common.error", defaultValue: "Error", bundle: .module),
                             message: error.localizedDescription,
                             iconName: "exclamationmark.triangle.fill",
                             style: .danger,
