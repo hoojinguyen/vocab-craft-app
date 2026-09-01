@@ -235,9 +235,7 @@ public struct ReflexBlitzView: View {
             hintBadgeText: viewModel.currentHintBadgeText,
             speechState: viewModel.cardPhase == .activeCountdown ? .listening() : .evaluated(overallScore: viewModel.currentAttemptIsCorrect ? 100 : 0),
             liveTranscript: viewModel.liveTranscript,
-            onCantSpeakNow: {
-                viewModel.handleTimeout()
-            },
+            onCantSpeakNow: nil,
             onReplayAudio: {
                 viewModel.speakCurrentWord()
             }
@@ -309,6 +307,9 @@ public struct ReflexBlitzView: View {
             showHint: viewModel.showHint,
             hintStage: viewModel.hintStage,
             selectedOptionText: reviewResult?.selectedOption,
+            clozeStages: viewModel.currentClozeStages,
+            clozeParts: ReflexClozeFormatter.extractTemplateParts(from: word.clozeSentenceEn),
+            displayedSentence: isReviewed ? word.completedSentenceWithTargetWord : word.clozeSentenceEn,
             cardBorderColor: theme.colors.hairline.opacity(0.4),
             eliminatedOptionId: eliminatedOptionId,
             onSelectOption: { option in
