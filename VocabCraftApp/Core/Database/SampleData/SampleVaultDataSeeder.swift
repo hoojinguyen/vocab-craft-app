@@ -44,7 +44,7 @@ public enum SampleVaultDataSeeder {
 
     /// Curated sample entries covering unmastered, mastered, and bookmarked words across 4 domains.
     public static let sampleEntries: [SampleProgressEntry] = [
-        // MARK: - Chưa thuộc (Not Mastered - 13 words)
+        // MARK: - Not Mastered (13 words)
         SampleProgressEntry(
             wordId: 1, cefrLevel: "B2", masteryLevel: 1, isBookmarked: true,
             needsReview: true, mistakeCount: 1, streak: 1, modes: [.multipleChoice],
@@ -111,7 +111,7 @@ public enum SampleVaultDataSeeder {
             isMastered: false, sourceDeckId: "deck_academic", sourceNodeId: "stage_acad_2"
         ),
 
-        // MARK: - Đã thuộc (Mastered - 13 words)
+        // MARK: - Mastered (13 words)
         SampleProgressEntry(
             wordId: 4, cefrLevel: "B1", masteryLevel: 5, isBookmarked: true,
             needsReview: false, mistakeCount: 0, streak: 4, modes: [.multipleChoice, .speaking, .typing],

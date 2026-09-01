@@ -7,9 +7,9 @@ import Testing
 #if canImport(Testing)
 @Suite("MasteryEvaluationPolicy Tests")
 struct MasteryEvaluationPolicyTests {
-    @Test("Chưa thuộc khi streak < 3 hoặc chỉ có 1 mode")
+    @Test("Not mastered when streak < 3 or only 1 mode is practiced")
     func testNotMasteredWhenStreakLowOrSingleMode() {
-        // Lần 1 đúng với MultipleChoice
+        // Attempt 1: correct with MultipleChoice
         let result1 = MasteryEvaluationPolicy.evaluate(
             currentStreak: 0,
             practicedModes: [],
@@ -20,7 +20,7 @@ struct MasteryEvaluationPolicyTests {
         #expect(result1.newPracticedModes.contains(.multipleChoice))
         #expect(result1.isMastered == false)
 
-        // Lần 2 đúng vẫn với MultipleChoice (chưa đủ 2 chế độ khác nhau)
+        // Attempt 2: correct still with MultipleChoice (< 2 distinct modes)
         let result2 = MasteryEvaluationPolicy.evaluate(
             currentStreak: 2,
             practicedModes: [.multipleChoice],
@@ -28,10 +28,10 @@ struct MasteryEvaluationPolicyTests {
             currentMode: .multipleChoice
         )
         #expect(result2.newStreak == 3)
-        #expect(result2.isMastered == false) // Sai điều kiện >= 2 modes
+        #expect(result2.isMastered == false) // Fails >= 2 distinct modes condition
     }
 
-    @Test("Thăng hạng Đã thuộc khi streak >= 3 và có >= 2 modes khác nhau")
+    @Test("Promoted to Mastered when streak >= 3 and has >= 2 distinct modes")
     func testMasteredWhenStreakThreeAndTwoModes() {
         let result = MasteryEvaluationPolicy.evaluate(
             currentStreak: 2,
@@ -44,7 +44,7 @@ struct MasteryEvaluationPolicyTests {
         #expect(result.isMastered == true)
     }
 
-    @Test("Sai 1 lần lập tức reset streak về 0 và chuyển về Chưa thuộc")
+    @Test("Single wrong answer immediately resets streak to 0 and marks as unmastered")
     func testWrongAnswerResetsMastery() {
         let result = MasteryEvaluationPolicy.evaluate(
             currentStreak: 5,

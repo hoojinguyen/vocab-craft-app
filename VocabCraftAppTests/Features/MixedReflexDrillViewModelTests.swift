@@ -7,7 +7,7 @@ import Testing
 #if canImport(Testing)
 @Suite("MixedReflexDrillViewModel Tests")
 struct MixedReflexDrillViewModelTests {
-    @Test("Loop-back đẩy từ sai về cuối hàng đợi và đánh dấu isRetry")
+    @Test("Loop-back pushes incorrect word to end of queue and marks isRetry")
     @MainActor
     func testLoopBackOnWrongAnswer() async {
         let words = [
@@ -22,10 +22,10 @@ struct MixedReflexDrillViewModelTests {
         #expect(vm.isCompleted == false)
         let firstWordId = vm.currentItem?.word.id
 
-        // Trả lời sai câu 1
+        // Submit incorrect answer for item 1
         await vm.submitAnswer(isCorrect: false, responseTimeMs: 1500)
 
-        // Hàng đợi tăng lên 3 phần tử, câu 1 được đẩy về cuối với cờ isRetry == true
+        // Queue grows to 3 items, item 1 requeued at end with isRetry flag true
         #expect(vm.queue.count == 3)
         #expect(vm.queue.last?.word.id == firstWordId)
         #expect(vm.queue.last?.isRetry == true)
@@ -35,7 +35,7 @@ struct MixedReflexDrillViewModelTests {
         #expect(vm.comboStreak == 0)
     }
 
-    @Test("Combo streak tăng khi trả lời đúng và reset về 0 khi trả lời sai")
+    @Test("Combo streak increases on correct answer and resets to 0 on incorrect answer")
     @MainActor
     func testComboStreakTracking() async {
         let words = [
@@ -46,32 +46,32 @@ struct MixedReflexDrillViewModelTests {
         let queueUseCase = GenerateMixedReflexQueueUseCase()
         let vm = MixedReflexDrillViewModel(selectedWords: words, queueUseCase: queueUseCase)
 
-        // Câu 1: đúng
+        // Item 1: correct
         await vm.submitAnswer(isCorrect: true, responseTimeMs: 1000)
         vm.advanceToNextItem()
         #expect(vm.comboStreak == 1)
         #expect(vm.maxComboStreak == 1)
 
-        // Câu 2: đúng
+        // Item 2: correct
         await vm.submitAnswer(isCorrect: true, responseTimeMs: 1200)
         vm.advanceToNextItem()
         #expect(vm.comboStreak == 2)
         #expect(vm.maxComboStreak == 2)
 
-        // Câu 3: sai -> comboStreak reset, maxCombo giữ nguyên 2
+        // Item 3: incorrect -> comboStreak resets, maxCombo preserved
         await vm.submitAnswer(isCorrect: false, responseTimeMs: 3000)
         vm.advanceToNextItem()
         #expect(vm.comboStreak == 0)
         #expect(vm.maxComboStreak == 2)
 
-        // Câu 4 (retry của câu 3): đúng
+        // Item 4 (retry of item 3): correct
         await vm.submitAnswer(isCorrect: true, responseTimeMs: 900)
         vm.advanceToNextItem()
         #expect(vm.comboStreak == 1)
         #expect(vm.maxComboStreak == 2)
     }
 
-    @Test("Tiến độ (progress) và hoàn thành phiên luyện tập với sessionSummary")
+    @Test("Progress tracking and session completion with sessionSummary")
     @MainActor
     func testSessionCompletionAndSummary() async {
         let words = [
@@ -85,13 +85,13 @@ struct MixedReflexDrillViewModelTests {
         #expect(vm.isCompleted == false)
         #expect(vm.sessionSummary == nil)
 
-        // Hoàn thành câu 1
+        // Complete item 1
         await vm.submitAnswer(isCorrect: true, responseTimeMs: 1500)
         vm.advanceToNextItem()
         #expect(vm.progress == 0.5)
         #expect(vm.isCompleted == false)
 
-        // Hoàn thành câu 2
+        // Complete item 2
         await vm.submitAnswer(isCorrect: true, responseTimeMs: 1800)
         vm.advanceToNextItem()
         #expect(vm.progress == 1.0)
@@ -103,7 +103,7 @@ struct MixedReflexDrillViewModelTests {
         #expect(vm.sessionSummary?.maxComboStreak == 2)
     }
 
-    @Test("RecordAttemptUseCase được gọi chính xác khi nộp kết quả câu trả lời")
+    @Test("RecordAttemptUseCase called when answer is submitted")
     @MainActor
     func testRecordAttemptUseCaseCalled() async {
         let words = [
@@ -125,7 +125,7 @@ struct MixedReflexDrillViewModelTests {
         #expect(mockRecordUseCase.executedIsCorrect == true)
     }
 
-    @Test("Phát âm từ vựng hiện tại qua TextToSpeech")
+    @Test("Pronounce current word via TextToSpeech")
     @MainActor
     func testPlayAudioForCurrentWord() async {
         let words = [

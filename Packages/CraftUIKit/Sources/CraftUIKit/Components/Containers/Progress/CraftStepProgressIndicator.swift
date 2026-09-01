@@ -20,7 +20,7 @@ public enum CraftStepStatus: Equatable, Sendable {
 public enum CraftStepCounterStyle: Equatable, Sendable, CaseIterable {
     /// Monospaced ratio format (e.g., "1 / 12").
     case ratio
-    /// Localized phrase format (e.g., "Step 1 of 12" / "Bước 1 trên 12").
+    /// Localized phrase format (e.g., "Step 1 of 12").
     case phrase
     /// Counter text is hidden.
     case hidden

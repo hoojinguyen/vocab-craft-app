@@ -19,31 +19,31 @@ struct PersonalVaultViewModelTests {
         #expect(vm.selectedWordIds.isEmpty)
         #expect(vm.selectedWords.isEmpty)
 
-        // Toggle chọn từ 1
+        // Toggle select word 1
         vm.toggleWordSelection(id: 1)
         #expect(vm.selectedWordIds.contains(1))
         #expect(vm.selectedWords.count == 1)
         #expect(vm.selectedWords.first?.id == 1)
 
-        // Toggle bỏ chọn từ 1
+        // Toggle deselect word 1
         vm.toggleWordSelection(id: 1)
         #expect(vm.selectedWordIds.isEmpty)
         #expect(vm.selectedWords.isEmpty)
 
-        // Chọn tất cả
+        // Select all
         vm.selectAll()
         #expect(vm.selectedWordIds.count == 2)
         #expect(vm.selectedWordIds.contains(1))
         #expect(vm.selectedWordIds.contains(2))
         #expect(vm.selectedWords.count == 2)
 
-        // Bỏ chọn tất cả
+        // Deselect all
         vm.deselectAll()
         #expect(vm.selectedWordIds.isEmpty)
         #expect(vm.selectedWords.isEmpty)
     }
 
-    @Test("Chuyển đổi bộ lọc 3 tabs VaultTabFilter")
+    @Test("Switches 3-tab VaultTabFilter correctly")
     @MainActor
     func testVaultTabFilterChanges() async {
         let vm = PersonalVaultViewModel()
@@ -59,7 +59,7 @@ struct PersonalVaultViewModelTests {
         #expect(vm.vaultTabFilter == .notMastered)
     }
 
-    @Test("Tải dữ liệu vaultWords từ FetchPersonalVaultUseCase theo bộ lọc")
+    @Test("Loads vaultWords from FetchPersonalVaultUseCase according to filter")
     @MainActor
     func testLoadVaultWordsFromUseCase() async {
         let mockWords = [
@@ -71,13 +71,13 @@ struct PersonalVaultViewModelTests {
 
         #expect(vm.vaultWords.isEmpty)
 
-        // Mặc định .notMastered -> chỉ trả về resilience
+        // Default .notMastered -> only returns resilience
         await vm.loadData()
         #expect(vm.vaultWords.count == 1)
         #expect(vm.vaultWords.first?.id == 10)
         #expect(vm.vaultWords.first?.lemma == "resilience")
 
-        // Chuyển sang .mastered -> chỉ trả về eloquent
+        // Switch to .mastered -> only returns eloquent
         vm.setVaultFilter(.mastered)
         await vm.loadData()
         #expect(vm.vaultWords.count == 1)
@@ -85,7 +85,7 @@ struct PersonalVaultViewModelTests {
         #expect(vm.vaultWords.first?.lemma == "eloquent")
     }
 
-    @Test("Tìm kiếm và lọc vaultWords qua query")
+    @Test("Search and filter vaultWords via query")
     @MainActor
     func testSearchQueryWithVaultWords() async {
         let mockWords = [
@@ -103,7 +103,7 @@ struct PersonalVaultViewModelTests {
         #expect(vm.vaultWords.first?.lemma == "adaptable")
     }
 
-    @Test("Chuẩn bị danh sách từ ôn luyện theo tab hiện tại")
+    @Test("Prepares review words matching active tab")
     @MainActor
     func testPrepareReviewWordsMatchesActiveTab() async {
         var mockWords: [VaultWordItem] = []
@@ -124,7 +124,7 @@ struct PersonalVaultViewModelTests {
         let vm = PersonalVaultViewModel(mockWords: mockWords)
         #expect(vm.reviewWords.isEmpty)
 
-        // 1. Tab .notMastered: Lấy tối đa 15 từ chưa thuộc, ưu tiên streak thấp
+        // 1. Tab .notMastered: Pick max 15 unmastered words, prioritizing lowest streak
         vm.setVaultFilter(.notMastered)
         let unmasteredReview = vm.prepareReviewWords()
         #expect(unmasteredReview.count == 15)
@@ -135,14 +135,14 @@ struct PersonalVaultViewModelTests {
             #expect(unmasteredReview[0].correctStreak <= unmasteredReview[1].correctStreak)
         }
 
-        // 2. Tab .bookmarked: Lấy các từ đã lưu
+        // 2. Tab .bookmarked: Pick bookmarked words
         vm.setVaultFilter(.bookmarked)
         let bookmarkedReview = vm.prepareReviewWords()
         #expect(!bookmarkedReview.isEmpty)
         #expect(bookmarkedReview.allSatisfy { $0.isBookmarked })
         #expect(vm.reviewWords == bookmarkedReview)
 
-        // 3. Tab .mastered: Lấy các từ đã thuộc
+        // 3. Tab .mastered: Pick mastered words
         vm.setVaultFilter(.mastered)
         let masteredReview = vm.prepareReviewWords()
         #expect(!masteredReview.isEmpty)
@@ -249,14 +249,14 @@ struct PersonalVaultViewModelTests {
         #expect(vm.selectedWordIds.isEmpty)
     }
 
-    @Test("Smart Pick sử dụng dailyGoalCount từ UserSettingsStore làm giá trị mặc định")
+    @Test("Smart Pick uses dailyGoalCount from UserSettingsStore as default value")
     @MainActor
     func testSmartPickWordsDefaultsToDailyGoalCount() async {
         let store = UserSettingsStore()
         store.dailyGoalCount = 3
 
         let words = (1...10).map { id in
-            VaultWordItem(id: Int64(id), lemma: "word\(id)", pos: "n", definitionVi: "nghĩa \(id)")
+            VaultWordItem(id: Int64(id), lemma: "word\(id)", pos: "n", definitionVi: "definition \(id)")
         }
 
         let vm = PersonalVaultViewModel(
@@ -265,7 +265,7 @@ struct PersonalVaultViewModelTests {
             mockWords: words
         )
 
-        // Không truyền targetCount, phải lấy đúng 3 từ theo dailyGoalCount
+        // Without targetCount argument, must select exactly 3 words per dailyGoalCount
         let picks = vm.smartPickWords()
         #expect(picks.count == 3)
         #expect(vm.selectedWordIds.count == 3)

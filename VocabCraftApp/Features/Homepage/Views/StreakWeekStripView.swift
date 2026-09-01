@@ -2,7 +2,7 @@ import CraftUIKit
 import SwiftUI
 
 /// Compact 7-day streak strip for homepage — shows weekday dots, not full Bento card.
-/// Designed for 1-glance “mai mất streak” urgency.
+/// Designed for quick at-a-glance streak urgency and daily progress visualization.
 public struct StreakWeekStripView: View {
     public let streakDays: Int
     public let isCompletedToday: Bool

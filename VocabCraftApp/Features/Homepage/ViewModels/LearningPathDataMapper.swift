@@ -126,7 +126,7 @@ public struct LearningPathDataMapper: Sendable {
             if words.isEmpty { return AppStrings.Home.wordsDuration(words: wordCount, minutes: estimatedMinutes) }
             let preview = words.prefix(2).map(\.lemma).joined(separator: " • ")
             guard !preview.isEmpty else { return AppStrings.Home.wordsDuration(words: wordCount, minutes: estimatedMinutes) }
-            // Use CraftUIKit localization so VI shows "phút" correctly
+            // Use CraftUIKit localization for duration units
             let minutesText = CraftLocalized.format("craft.common.unit.minutes_format", estimatedMinutes)
             return "\(preview) • \(minutesText)"
         }()

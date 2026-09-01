@@ -156,10 +156,10 @@ struct PracticeDrillPlanGeneratorTests {
         let modes = plan.items.map(\.assignedMode)
         let uniqueModes = Set(modes)
 
-        // Phải phân bổ ra nhiều mode thay vì 100% typing
+        // Must distribute across multiple modes instead of 100% typing
         #expect(uniqueModes.count >= 3)
 
-        // Không bao giờ lặp lại 3 lần liên tiếp cùng 1 mode
+        // Never repeat 3 times consecutively with the same mode
         for i in 2..<modes.count {
             let threeInARow = (modes[i] == modes[i - 1] && modes[i] == modes[i - 2])
             #expect(!threeInARow)

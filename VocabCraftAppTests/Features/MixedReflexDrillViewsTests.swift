@@ -156,12 +156,12 @@ struct MixedReflexDrillViewsTests {
         let queueUseCase = GenerateMixedReflexQueueUseCase()
         let vm = MixedReflexDrillViewModel(selectedWords: words, queueUseCase: queueUseCase)
 
-        // Nộp câu 1 đúng, câu 2 sai -> câu 2 được requeue vào cuối hàng đợi
+        // Submit item 1 correct, item 2 incorrect -> item 2 requeued at end of queue
         await vm.submitAnswer(isCorrect: true, responseTimeMs: 1200)
         vm.advanceToNextItem()
         await vm.submitAnswer(isCorrect: false, responseTimeMs: 4000)
         vm.advanceToNextItem()
-        // Nộp câu 3 (retry của câu 2)
+        // Submit item 3 (retry of item 2)
         await vm.submitAnswer(isCorrect: true, responseTimeMs: 1000)
         vm.advanceToNextItem()
 
@@ -169,7 +169,7 @@ struct MixedReflexDrillViewsTests {
         #expect(vm.sessionSummary?.weakWordAttempts.count == 1)
         #expect(vm.sessionSummary?.weakWordAttempts.first?.wordId == 2)
 
-        // Gọi reDrillWeakWords
+        // Call reDrillWeakWords
         vm.reDrillWeakWords()
 
         #expect(vm.isCompleted == false)
@@ -181,7 +181,7 @@ struct MixedReflexDrillViewsTests {
         #expect(vm.comboStreak == 0)
     }
 
-    @Test("MixedReflexDrillView khởi tạo và kết nối với MixedReflexDrillViewModel")
+    @Test("MixedReflexDrillView initializes and binds with MixedReflexDrillViewModel")
     @MainActor
     func testMixedReflexDrillViewInitialization() async {
         let words = [
@@ -199,7 +199,7 @@ struct MixedReflexDrillViewsTests {
         #expect(drillView.viewModel.queue.count == 2)
         #expect(drillView.viewModel.currentItem != nil)
 
-        // Hoàn thành lần lượt cả 2 câu
+        // Complete both items sequentially
         await vm.submitAnswer(isCorrect: true, responseTimeMs: 1200)
         vm.advanceToNextItem()
         #expect(vm.currentIndex == 1)
@@ -453,21 +453,21 @@ struct MixedReflexDrillViewsTests {
         #expect(vm.currentItem?.assignedMode == .speaking)
         #expect(vm.comboStreak == 0)
 
-        // Thực hiện hành động bỏ qua nói
+        // Perform skip speaking action
         vm.skipSpeakingCurrentWord()
 
-        // Hàng đợi tăng thêm 1 từ thay thế ở chế độ khác
+        // Queue increases by 1 item with replacement mode
         #expect(vm.queue.count == 2)
         #expect(vm.queue.last?.assignedMode != .speaking)
         #expect(vm.attempts.isEmpty)
         #expect(vm.comboStreak == 0)
 
-        // Phím CTA text kiểm tra giá trị localized chuẩn
+        // CTA button text validates standard localized value
         #expect(!AppStrings.Practice.cantSpeakNowCTA.isEmpty)
         #expect(AppStrings.Practice.cantSpeakNowCTA == "Không thể nói lúc này" || AppStrings.Practice.cantSpeakNowCTA == "Can't speak now")
     }
 
-    @Test("MixedReflexDrillView tích hợp chính xác với ReflexSpeechEngineProtocol và nhận diện phát âm")
+    @Test("MixedReflexDrillView integrates properly with ReflexSpeechEngineProtocol and speech recognition")
     @MainActor
     func testMixedReflexDrillViewSpeechEngineIntegration() async {
         let words = [
