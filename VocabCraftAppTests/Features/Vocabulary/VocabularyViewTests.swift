@@ -24,7 +24,7 @@ struct VocabularyViewTestingTests {
     @Test("VocabularyView with search visible state")
     @MainActor
     func testVocabularyViewSearchVisibleState() {
-        let view = VocabularyView(isSearchVisible: true)
+        let view = VocabularyView(isSearchHiddenByScroll: true)
         _ = view.body
     }
 
@@ -42,14 +42,14 @@ struct VocabularyViewTestingTests {
             isBookmarked: true
         )
         let vm = PersonalVaultViewModel(mockWords: [mockWord])
-        let view = VocabularyView(vaultViewModel: vm, isSearchVisible: false)
+        let view = VocabularyView(vaultViewModel: vm, isSearchHiddenByScroll: false)
             .environment(\.appContainer, AppContainer.mock)
         #if canImport(UIKit)
         _ = UIHostingController(rootView: view).view
         #endif
 
         vm.setSearchQuery("elo")
-        let searchingView = VocabularyView(vaultViewModel: vm, isSearchVisible: true)
+        let searchingView = VocabularyView(vaultViewModel: vm, isSearchHiddenByScroll: true)
             .environment(\.appContainer, AppContainer.mock)
         #if canImport(UIKit)
         _ = UIHostingController(rootView: searchingView).view
@@ -74,7 +74,7 @@ final class VocabularyViewTests: XCTestCase {
     }
 
     func testVocabularyViewWithSearchVisibleInitialization() {
-        let view = VocabularyView(isSearchVisible: true)
+        let view = VocabularyView(isSearchHiddenByScroll: true)
         #if canImport(UIKit)
         let host = UIHostingController(rootView: view)
         XCTAssertNotNil(host.view)
@@ -95,7 +95,7 @@ final class VocabularyViewTests: XCTestCase {
             isBookmarked: true
         )
         let vm = PersonalVaultViewModel(mockWords: [mockWord])
-        let view = VocabularyView(vaultViewModel: vm, isSearchVisible: false)
+        let view = VocabularyView(vaultViewModel: vm, isSearchHiddenByScroll: false)
             .environment(\.appContainer, AppContainer.mock)
 
         #if canImport(UIKit)
@@ -108,7 +108,7 @@ final class VocabularyViewTests: XCTestCase {
         vm.setSearchQuery("elo")
         XCTAssertEqual(vm.searchQuery, "elo")
 
-        let searchingView = VocabularyView(vaultViewModel: vm, isSearchVisible: true)
+        let searchingView = VocabularyView(vaultViewModel: vm, isSearchHiddenByScroll: true)
             .environment(\.appContainer, AppContainer.mock)
         #if canImport(UIKit)
         let searchingHost = UIHostingController(rootView: searchingView)
