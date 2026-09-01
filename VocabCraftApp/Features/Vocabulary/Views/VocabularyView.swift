@@ -98,9 +98,6 @@ public struct VocabularyView: View {
                                             size: .lg,
                                             isFullWidth: true,
                                             action: {
-                                                if currentVaultVM.selectedWordIds.isEmpty {
-                                                    _ = currentVaultVM.smartPickWords()
-                                                }
                                                 isPresentingPracticeSelection = true
                                             }
                                         )
@@ -234,7 +231,7 @@ public struct VocabularyView: View {
             .fullScreenCover(item: $activeDrillViewModel) { drillVM in
                 MixedReflexDrillView(
                     viewModel: drillVM,
-                    speechService: ContinuousReflexSpeechService(),
+                    speechEngine: ResilientReflexSpeechEngine(),
                     onFinish: {
                         activeDrillViewModel = nil
                         Task {

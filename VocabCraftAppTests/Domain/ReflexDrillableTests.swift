@@ -126,7 +126,7 @@ struct ReflexDrillableTests {
         #expect(drillable.definitionVi == "Khả năng phục hồi")
         #expect(drillable.exampleSentenceEn == "Her resilience inspired everyone.")
         #expect(drillable.exampleSentenceVi == "Sự kiên cường của cô ấy truyền cảm hứng.")
-        #expect(drillable.clozeSentenceEn == "Her resilience inspired everyone.")
+        #expect(drillable.clozeSentenceEn == "Her [ _________ ] inspired everyone.")
         #expect(drillable.cleanLevel == "B2")
         #expect(drillable.cleanInitialLetterHint == "r... • noun")
         #expect(drillable.audioResourceUrl == nil)

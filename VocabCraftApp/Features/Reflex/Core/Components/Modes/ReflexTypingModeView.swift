@@ -347,8 +347,8 @@ public struct ReflexTypingModeView: View {
         if let parts = clozeStages?.initialParts ?? clozeParts {
             return parts
         }
-        let formatted = ReflexClozeFormatter.formatCloze(sentenceEn: word.exampleSentenceEn, lemma: word.lemma)
-        return ReflexClozeFormatter.extractTemplateParts(from: formatted)
+        let sentence = word.exampleSentenceEn.isEmpty ? word.clozeSentenceEn : word.exampleSentenceEn
+        return ReflexClozeFormatter.extractClozeOrLemmaParts(sentenceEn: sentence, lemma: word.lemma)
     }
 
     @ViewBuilder

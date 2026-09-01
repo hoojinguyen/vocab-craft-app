@@ -35,7 +35,8 @@ public struct ReflexReviewedConsolidationView: View {
     }
 
     public var clozeParts: ClozeSentenceParts? {
-        ReflexClozeFormatter.extractTemplateParts(from: word.clozeSentenceEn)
+        let sentence = word.exampleSentenceEn.isEmpty ? word.clozeSentenceEn : word.exampleSentenceEn
+        return ReflexClozeFormatter.extractClozeOrLemmaParts(sentenceEn: sentence, lemma: word.lemma)
     }
 
     public var body: some View {
@@ -143,7 +144,7 @@ private extension ReflexReviewedConsolidationView {
                 .font(theme.typography.bodySerif)
                 .foregroundColor(theme.colors.textPrimary)
             +
-            Text(parts.slot.replacingOccurrences(of: "[ _________ ]", with: word.lemma))
+            Text(parts.slot.contains("_") ? word.lemma : parts.slot)
                 .font(theme.typography.bodySerif.bold())
                 .foregroundColor(isResultCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger)
             +
@@ -151,9 +152,9 @@ private extension ReflexReviewedConsolidationView {
                 .font(theme.typography.bodySerif)
                 .foregroundColor(theme.colors.textPrimary)
         } else {
-            Text(displayedSentence)
-                .font(theme.typography.bodySerif.bold())
-                .foregroundColor(isResultCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger)
+            Text(displayedSentence.isEmpty ? word.completedSentenceWithTargetWord : displayedSentence)
+                .font(theme.typography.bodySerif.weight(.medium))
+                .foregroundColor(theme.colors.textPrimary)
         }
     }
 

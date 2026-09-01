@@ -220,7 +220,7 @@ public struct ReflexMultipleChoiceModeView: View {
 
             // Row 5: Example Sentence & Vietnamese Translation
             VStack(alignment: .leading, spacing: 4) {
-                sentenceView
+                backSentenceView
                     .multilineTextAlignment(.leading)
                     .lineSpacing(4)
                     .fixedSize(horizontal: false, vertical: true)
@@ -245,7 +245,7 @@ public struct ReflexMultipleChoiceModeView: View {
     @ViewBuilder
     private var sentenceArea: some View {
         VStack(spacing: theme.spacing.xs) {
-            sentenceView
+            frontSentenceView
                 .multilineTextAlignment(.center)
                 .lineSpacing(6)
                 .padding(.horizontal, theme.spacing.xs)
@@ -270,18 +270,35 @@ public struct ReflexMultipleChoiceModeView: View {
         }
     }
 
+    // MARK: - Sentence Views & Helpers
+
+    private var effectiveClozeParts: ClozeSentenceParts? {
+        if let parts = clozeStages?.initialParts ?? clozeParts {
+            return parts
+        }
+        let sentence = word.exampleSentenceEn.isEmpty ? word.clozeSentenceEn : word.exampleSentenceEn
+        return ReflexClozeFormatter.extractClozeOrLemmaParts(sentenceEn: sentence, lemma: word.lemma)
+    }
+
     @ViewBuilder
-    private var sentenceView: some View {
-        if let parts = (isReviewed ? clozeParts : activeClozeParts) ?? clozeParts {
-            if isReviewed {
-                reviewedClozeText(parts: parts)
-            } else {
-                activeClozeText(parts: parts)
-            }
+    private var frontSentenceView: some View {
+        if let parts = activeClozeParts ?? effectiveClozeParts {
+            activeClozeText(parts: parts)
         } else {
-            Text(displayedSentence)
-                .font(theme.typography.bodySerif.weight(isReviewed ? .bold : .medium))
-                .foregroundColor(isReviewed ? (isResultCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger) : theme.colors.textPrimary)
+            Text(displayedSentence.isEmpty ? word.clozeSentenceEn : displayedSentence)
+                .font(theme.typography.bodySerif.weight(.medium))
+                .foregroundColor(theme.colors.textPrimary)
+        }
+    }
+
+    @ViewBuilder
+    private var backSentenceView: some View {
+        if let parts = effectiveClozeParts {
+            reviewedClozeText(parts: parts)
+        } else {
+            Text(displayedSentence.isEmpty ? word.completedSentenceWithTargetWord : displayedSentence)
+                .font(theme.typography.bodySerif.weight(.medium))
+                .foregroundColor(theme.colors.textPrimary)
         }
     }
 

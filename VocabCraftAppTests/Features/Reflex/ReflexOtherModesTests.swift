@@ -324,13 +324,104 @@ struct ReflexOtherModesTests {
             isReviewed: true,
             isResultCorrect: false,
             isResultTimeout: true,
-            selectedOptionText: nil
+            selectedOptionText: nil,
+            clozeParts: ReflexClozeFormatter.extractTemplateParts(from: item.clozeSentenceEn),
+            displayedSentence: item.completedSentenceWithTargetWord
         )
         #expect(reviewedTimeout.isReviewed == true)
         #expect(reviewedTimeout.isResultTimeout == true)
         #expect(reviewedTimeout.choiceState(for: correctOpt) == .correct)
         #expect(reviewedTimeout.choiceState(for: wrongOpt) == .disabled)
         #expect(reviewedTimeout.choiceState(for: otherOpt) == .disabled)
+        _ = reviewedTimeout.body
+
+        // 7. Reviewed with clozeParts highlighting
+        let reviewedWithHighlight = ReflexListeningModeView(
+            word: item,
+            options: options,
+            isReviewed: true,
+            isResultCorrect: true,
+            selectedOptionText: "thói quen",
+            clozeParts: ClozeSentenceParts(prefix: "Reading is a ", slot: "habit", suffix: "."),
+            displayedSentence: "Reading is a habit."
+        )
+        #expect(reviewedWithHighlight.isReviewed == true)
+        #expect(reviewedWithHighlight.isResultCorrect == true)
+        #expect(reviewedWithHighlight.clozeParts?.slot == "habit")
+        _ = reviewedWithHighlight.body
+    }
+
+    @Test("ReflexClozeFormatter extractClozeOrLemmaParts bóc tách chuẩn xác từ mục tiêu từ cả câu thô lẫn câu cloze")
+    func testReflexClozeFormatterExtraction() {
+        // 1. Template blank
+        let templateSentence = "He felt [ _________ ] by the workload."
+        let partsFromTemplate = ReflexClozeFormatter.extractClozeOrLemmaParts(sentenceEn: templateSentence, lemma: "overwhelmed")
+        #expect(partsFromTemplate != nil)
+        #expect(partsFromTemplate?.prefix == "He felt ")
+        #expect(partsFromTemplate?.slot == "[ _________ ]")
+        #expect(partsFromTemplate?.suffix == " by the workload.")
+
+        // 2. Full sentence with exact lemma
+        let fullSentence = "He felt overwhelmed by the workload."
+        let partsFromFull = ReflexClozeFormatter.extractClozeOrLemmaParts(sentenceEn: fullSentence, lemma: "overwhelmed")
+        #expect(partsFromFull != nil)
+        #expect(partsFromFull?.prefix == "He felt ")
+        #expect(partsFromFull?.slot == "overwhelmed")
+        #expect(partsFromFull?.suffix == " by the workload.")
+
+        // 3. Full sentence with inflected lemma (e.g. lemma "overwhelm" in "He felt overwhelmed by the workload.")
+        let partsFromInflected = ReflexClozeFormatter.extractClozeOrLemmaParts(sentenceEn: fullSentence, lemma: "overwhelm")
+        #expect(partsFromInflected != nil)
+        #expect(partsFromInflected?.prefix == "He felt ")
+        #expect(partsFromInflected?.slot == "overwhelmed")
+        #expect(partsFromInflected?.suffix == " by the workload.")
+
+        // 4. VaultWordItem clozeSentenceEn creates cloze format
+        let vaultWord = VaultWordItem(
+            id: 99,
+            lemma: "overwhelmed",
+            pos: "adj.",
+            definitionVi: "Bị ngợp",
+            exampleSentenceEn: "He felt overwhelmed by the workload."
+        )
+        #expect(vaultWord.clozeSentenceEn.contains("[ _________ ]"))
+        #expect(vaultWord.clozeSentenceEn == "He felt [ _________ ] by the workload.")
+    }
+
+    @Test("ReflexMultipleChoiceModeView render thẻ củng cố với câu ví dụ chỉ highlight từ mục tiêu")
+    @MainActor
+    func testReflexMultipleChoiceModeViewHighlighting() {
+        let vaultWord = VaultWordItem(
+            id: 99,
+            lemma: "overwhelmed",
+            pos: "adj.",
+            definitionVi: "Bị ngợp",
+            exampleSentenceEn: "He felt overwhelmed by the workload.",
+            exampleSentenceVi: "Anh ấy cảm thấy quá tải."
+        )
+        let item = MixedReflexDrillItem(word: vaultWord, assignedMode: .multipleChoice, isRetry: false)
+        let options = [
+            ReflexBlitzOption(id: "1", text: "overwhelmed", isCorrect: true),
+            ReflexBlitzOption(id: "2", text: "delegation", isCorrect: false)
+        ]
+
+        let mcView = ReflexMultipleChoiceModeView(
+            word: item,
+            options: options,
+            isReviewed: true,
+            isResultCorrect: true,
+            isResultTimeout: false,
+            showHint: false,
+            hintStage: 0,
+            selectedOptionText: "overwhelmed",
+            clozeParts: nil,
+            displayedSentence: item.completedSentenceWithTargetWord,
+            cardBorderColor: .clear
+        )
+
+        #expect(mcView.isReviewed == true)
+        #expect(mcView.isResultCorrect == true)
+        _ = mcView.body
     }
 }
 #endif

@@ -52,7 +52,7 @@ struct MixedReflexDrillViewsTests {
         #expect(urgentBar.isWarning == false)
     }
 
-    @Test("MixedReflexSummaryView hiển thị đầy đủ thông tin tổng kết và danh sách từ")
+    @Test("MixedReflexSummaryView hiển thị đầy đủ thông tin tổng kết và hỗ trợ trạng thái Perfect Score")
     @MainActor
     func testMixedReflexSummaryView() {
         let attempts = [
@@ -88,13 +88,13 @@ struct MixedReflexDrillViewsTests {
             summary: summary,
             practicedWords: practicedWords,
             onSpeakWord: { _ in },
-            onRetry: { retryCalled = true },
-            onDone: { doneCalled = true }
+            onReDrillWeak: { retryCalled = true },
+            onFinish: { doneCalled = true }
         )
 
         #expect(summaryView.summary.totalWords == 2)
         #expect(summaryView.summary.correctWords == 2)
-        #expect(summaryView.practicedWords.count == 2)
+        #expect(summaryView.summary.weakWordAttempts.isEmpty)
         _ = summaryView.body
         _ = summaryView.stickyBottomActionDock
 
@@ -103,6 +103,82 @@ struct MixedReflexDrillViewsTests {
 
         summaryView.onDone()
         #expect(doneCalled == true)
+    }
+
+    @Test("MixedReflexSummaryView hiển thị mục từ yếu khi có câu sai")
+    @MainActor
+    func testMixedReflexSummaryViewWithWeakWords() {
+        let attempts = [
+            ReflexBlitzAttempt(
+                wordId: 1,
+                lemma: "eloquent",
+                pos: "adj.",
+                definitionVi: "Hùng biện",
+                responseTimeMs: 2500,
+                usedHint: false,
+                isCorrect: false
+            )
+        ]
+        let summary = ReflexBlitzSessionSummary.create(from: attempts, maxCombo: 0)
+
+        var redrillCalled = false
+        var finishCalled = false
+        var spokenLemma: String?
+
+        let summaryView = MixedReflexSummaryView(
+            summary: summary,
+            onSpeakWord: { spokenLemma = $0 },
+            onReDrillWeak: { redrillCalled = true },
+            onFinish: { finishCalled = true }
+        )
+
+        #expect(summaryView.summary.weakWordAttempts.count == 1)
+        _ = summaryView.body
+        _ = summaryView.bottomActionDock
+
+        summaryView.onReDrillWeak()
+        #expect(redrillCalled == true)
+
+        summaryView.onFinish()
+        #expect(finishCalled == true)
+
+        summaryView.onSpeakWord?("eloquent")
+        #expect(spokenLemma == "eloquent")
+    }
+
+    @Test("MixedReflexDrillViewModel reDrillWeakWords khởi tạo lại phiên luyện tập với các từ sai")
+    @MainActor
+    func testMixedReflexDrillViewModelReDrillWeakWords() async {
+        let words = [
+            VaultWordItem(id: 1, lemma: "habit", pos: "n.", definitionVi: "Thói quen", exampleSentenceEn: "Reading books daily is a great habit."),
+            VaultWordItem(id: 2, lemma: "eloquent", pos: "adj.", definitionVi: "Hùng biện", exampleSentenceEn: "She gave an eloquent speech.")
+        ]
+        let queueUseCase = GenerateMixedReflexQueueUseCase()
+        let vm = MixedReflexDrillViewModel(selectedWords: words, queueUseCase: queueUseCase)
+
+        // Nộp câu 1 đúng, câu 2 sai -> câu 2 được requeue vào cuối hàng đợi
+        await vm.submitAnswer(isCorrect: true, responseTimeMs: 1200)
+        vm.advanceToNextItem()
+        await vm.submitAnswer(isCorrect: false, responseTimeMs: 4000)
+        vm.advanceToNextItem()
+        // Nộp câu 3 (retry của câu 2)
+        await vm.submitAnswer(isCorrect: true, responseTimeMs: 1000)
+        vm.advanceToNextItem()
+
+        #expect(vm.isCompleted == true)
+        #expect(vm.sessionSummary?.weakWordAttempts.count == 1)
+        #expect(vm.sessionSummary?.weakWordAttempts.first?.wordId == 2)
+
+        // Gọi reDrillWeakWords
+        vm.reDrillWeakWords()
+
+        #expect(vm.isCompleted == false)
+        #expect(vm.selectedWords.count == 1)
+        #expect(vm.selectedWords.first?.id == 2)
+        #expect(vm.queue.count == 1)
+        #expect(vm.queue.first?.word.id == 2)
+        #expect(vm.currentIndex == 0)
+        #expect(vm.comboStreak == 0)
     }
 
     @Test("MixedReflexDrillView khởi tạo và kết nối với MixedReflexDrillViewModel")

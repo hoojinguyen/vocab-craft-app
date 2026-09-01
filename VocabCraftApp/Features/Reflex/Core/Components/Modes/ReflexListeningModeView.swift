@@ -16,6 +16,9 @@ public struct ReflexListeningModeView: View {
     public let showHint: Bool
     public let hintStage: Int
     public let selectedOptionText: String?
+    public let clozeStages: ReflexClozeStageSet?
+    public let clozeParts: ClozeSentenceParts?
+    public let displayedSentence: String
     public let cardBorderColor: Color
     public let eliminatedOptionId: String?
     public let onSelectOption: ((ReflexBlitzOption) -> Void)?
@@ -32,6 +35,9 @@ public struct ReflexListeningModeView: View {
         showHint: Bool = false,
         hintStage: Int = 0,
         selectedOptionText: String? = nil,
+        clozeStages: ReflexClozeStageSet? = nil,
+        clozeParts: ClozeSentenceParts? = nil,
+        displayedSentence: String = "",
         cardBorderColor: Color = .clear,
         eliminatedOptionId: String? = nil,
         onSelectOption: ((ReflexBlitzOption) -> Void)? = nil,
@@ -47,6 +53,9 @@ public struct ReflexListeningModeView: View {
         self.showHint = showHint
         self.hintStage = hintStage
         self.selectedOptionText = selectedOptionText
+        self.clozeStages = clozeStages
+        self.clozeParts = clozeParts
+        self.displayedSentence = displayedSentence.isEmpty ? word.completedSentenceWithTargetWord : displayedSentence
         self.cardBorderColor = cardBorderColor
         self.eliminatedOptionId = eliminatedOptionId
         self.onSelectOption = onSelectOption
@@ -143,7 +152,7 @@ public struct ReflexListeningModeView: View {
                 textAlignment: .center
             )
         }
-        .frame(maxWidth: .infinity, minHeight: 220, alignment: .center)
+        .frame(maxWidth: .infinity, minHeight: 195, alignment: .center)
         .padding(.vertical, theme.spacing.xs)
     }
 
@@ -215,16 +224,12 @@ public struct ReflexListeningModeView: View {
             )
             .padding(.top, 2)
 
-            // Row 5: Completed Sentence & Vietnamese Translation
+            // Row 5: Completed Sentence with Highlighted Target Word & Vietnamese Translation
             VStack(alignment: .leading, spacing: 4) {
-                CraftText(
-                    word.completedSentenceWithTargetWord,
-                    style: .bodySerif,
-                    color: theme.colors.textPrimary,
-                    textAlignment: .leading
-                )
-                .lineSpacing(4)
-                .fixedSize(horizontal: false, vertical: true)
+                backSentenceView
+                    .multilineTextAlignment(.leading)
+                    .lineSpacing(4)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 if !word.exampleSentenceVi.isEmpty {
                     CraftText(
@@ -238,7 +243,43 @@ public struct ReflexListeningModeView: View {
             }
             .padding(.top, 4)
         }
-        .frame(maxWidth: .infinity, minHeight: 220, alignment: .center)
+        .frame(maxWidth: .infinity, minHeight: 195, alignment: .center)
+    }
+
+    // MARK: - Sentence Helpers
+
+    private var effectiveClozeParts: ClozeSentenceParts? {
+        if let parts = clozeStages?.initialParts ?? clozeParts {
+            return parts
+        }
+        let sentence = word.exampleSentenceEn.isEmpty ? word.clozeSentenceEn : word.exampleSentenceEn
+        return ReflexClozeFormatter.extractClozeOrLemmaParts(sentenceEn: sentence, lemma: word.lemma)
+    }
+
+    @ViewBuilder
+    private var backSentenceView: some View {
+        if let parts = effectiveClozeParts {
+            reviewedClozeText(parts: parts)
+        } else {
+            Text(displayedSentence.isEmpty ? word.completedSentenceWithTargetWord : displayedSentence)
+                .font(theme.typography.bodySerif.weight(.medium))
+                .foregroundColor(theme.colors.textPrimary)
+        }
+    }
+
+    private func reviewedClozeText(parts: ClozeSentenceParts) -> Text {
+        let prefixText = Text(parts.prefix)
+            .font(theme.typography.bodySerif)
+            .foregroundColor(theme.colors.textPrimary)
+        let slotColor: Color = isResultCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger
+        let slotWord = parts.slot.contains("_") ? word.lemma : parts.slot
+        let slotText = Text(slotWord)
+            .font(theme.typography.bodySerif.bold())
+            .foregroundColor(slotColor)
+        let suffixText = Text(parts.suffix)
+            .font(theme.typography.bodySerif)
+            .foregroundColor(theme.colors.textPrimary)
+        return prefixText + slotText + suffixText
     }
 
     // MARK: - Options List (Directly on Canvas)
