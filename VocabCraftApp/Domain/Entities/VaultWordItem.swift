@@ -50,6 +50,8 @@ public struct VaultWordItem: Identifiable, Sendable, Equatable, ReflexDrillable 
     }
 
     public var ipa: String { phonetic }
-    public var clozeSentenceEn: String { exampleSentenceEn }
+    public var clozeSentenceEn: String {
+        ReflexClozeFormatter.formatCloze(sentenceEn: exampleSentenceEn, lemma: lemma)
+    }
     public var audioResourceUrl: String? { nil }
 }
