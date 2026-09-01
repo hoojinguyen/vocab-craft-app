@@ -81,7 +81,7 @@ public struct SmartReviewSessionView: View {
                     .padding(.horizontal, 10)
                     .padding(.vertical, 4)
                     .background(theme.colors.accent.opacity(0.18))
-                    .foregroundColor(theme.colors.accent)
+                    .foregroundColor(theme.colors.textPrimary)
                     .cornerRadius(8)
             } else {
                 Color.clear

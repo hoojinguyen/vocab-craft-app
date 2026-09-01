@@ -28,7 +28,11 @@ public final class ReviewWeakWordsUseCase: ReviewWeakWordsUseCaseProtocol, Senda
     public func fetchWeakWords() async throws -> [PersonalWord] {
         let allProgress = try await progressRepo.fetchAllProgress()
         let weakProgress = allProgress.filter(\.needsReview)
-        let wordsMap = try await dataSource.fetchAllWordsMap()
+        guard !weakProgress.isEmpty else { return [] }
+
+        let weakIds = Set(weakProgress.map(\.wordId))
+        let wordsList = try await dataSource.fetchWordsByIds(ids: weakIds)
+        let wordsMap = Dictionary(uniqueKeysWithValues: wordsList.map { ($0.id, $0) })
         var weakWords: [PersonalWord] = []
         weakWords.reserveCapacity(weakProgress.count)
 

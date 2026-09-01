@@ -513,6 +513,10 @@ struct MixedReflexDrillViewsTests {
         try? await Task.sleep(for: .milliseconds(50))
 
         #expect(mockSpeechEngine.isWordActive == false)
+        #expect(drillView.viewModel.attempts.count == 1)
+        #expect(drillView.viewModel.attempts.first?.isCorrect == true)
+
+        drillView.advanceToNextItem()
         #expect(drillView.viewModel.phase == .completed)
     }
 }

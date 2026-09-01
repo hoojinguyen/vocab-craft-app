@@ -81,9 +81,10 @@ graph TD
   - Verify `swift test` builds and passes 100%.
 
 #### 3.1.3 `MarkLearnedIntent` Logic Fix
-* **Problem**: `progress.masteryLevel = max(5, srsResult.nextMastery)` in `MarkLearnedIntent.swift` forces mastery to $\ge 5$ always.
+* **Problem**: `progress.masteryLevel = max(5, srsResult.nextMastery)` in `MarkLearnedIntent.swift` and hardcoded `masteryLevel: 5` in the new progress fallback forced mastery to 5 always.
 * **Solution**:
-  - Update assignment to `progress.masteryLevel = min(5, max(1, srsResult.nextMastery))`, letting mastery advance one step per review instead of being clamped to the maximum.
+  - For existing progress, update assignment to `progress.masteryLevel = min(5, max(1, srsResult.nextMastery))`, letting mastery advance one step per review instead of being clamped to the maximum.
+  - For newly initialized progress records (when `existingProgress == nil`), calculate `srsResult` from initial mastery 0 and set `masteryLevel: min(5, max(1, srsResult.nextMastery))` (Level 1) rather than jumping to 5.
 
 ---
 

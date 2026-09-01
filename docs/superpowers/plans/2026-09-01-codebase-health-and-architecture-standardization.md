@@ -64,18 +64,22 @@ In `VocabCraftApp/Features/Vocabulary/Views/VocabularyView.swift`:
     internal var measuredHeaderHeightForTesting: CGFloat { measuredHeaderHeight }
 
     private func resolvedVaultVM() -> PersonalVaultViewModel {
-        if let vm = vaultVM {
-            return vm
-        }
-        let vm = appContainer.makePersonalVaultViewModel()
-        vaultVM = vm
-        return vm
+        vaultVM ?? appContainer.makePersonalVaultViewModel()
     }
 ```
 And inside `body`:
 ```swift
-        let currentVaultVM = vaultVM ?? resolvedVaultVM()
+        let currentVaultVM = resolvedVaultVM()
         @Bindable var bindableVaultVM = currentVaultVM
+```
+With state initialization deferred to `.task`:
+```swift
+        .task {
+            if vaultVM == nil {
+                vaultVM = appContainer.makePersonalVaultViewModel()
+            }
+            await resolvedVaultVM().loadVaultWords()
+        }
 ```
 
 - [ ] **Step 2: Fix `MarkLearnedIntent.swift` logic calculation**
@@ -258,11 +262,13 @@ public protocol VocabularyDataSourceProtocol: Sendable {
 
 - [ ] **Step 3: Refactor `FetchPersonalVaultUseCase.swift` and `ReviewWeakWordsUseCase.swift`**
 
-In `FetchPersonalVaultUseCase.swift`:
+In `FetchPersonalVaultUseCase.swift` and `ReviewWeakWordsUseCase.swift`:
 ```swift
     public func execute(filter: PersonalVaultFilter = .all, searchQuery: String? = nil) async throws -> PersonalVaultResult {
         let allProgress = try await progressRepo.fetchAllProgress()
-        let wordsMap = try await dataSource.fetchAllWordsMap()
+        let wordIds = Set(allProgress.map(\.wordId))
+        let wordsList = try await dataSource.fetchWordsByIds(ids: wordIds)
+        let wordsMap = Dictionary(uniqueKeysWithValues: wordsList.map { ($0.id, $0) })
         var allPersonalWords: [PersonalWord] = []
         allPersonalWords.reserveCapacity(allProgress.count)
 

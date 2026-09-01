@@ -52,12 +52,18 @@ public struct MarkLearnedIntent: AppIntent {
             progress.nextReviewDate = Calendar.current.date(byAdding: .day, value: srsResult.intervalDays, to: Date()) ?? Date()
             progress.totalReviews += 1
         } else {
+            let srsResult = SRSEngine.calculateNextInterval(
+                currentMastery: 0,
+                easeFactor: 2.5,
+                isCorrect: true,
+                responseTimeMs: 1500
+            )
             let newProgress = UserWordProgress(
                 wordId: wordId,
-                masteryLevel: 5,
-                easeFactor: 2.5,
-                intervalDays: 6,
-                nextReviewDate: Calendar.current.date(byAdding: .day, value: 6, to: Date()) ?? Date(),
+                masteryLevel: min(5, max(1, srsResult.nextMastery)),
+                easeFactor: srsResult.easeFactor,
+                intervalDays: srsResult.intervalDays,
+                nextReviewDate: Calendar.current.date(byAdding: .day, value: srsResult.intervalDays, to: Date()) ?? Date(),
                 lastReviewDate: Date(),
                 totalReviews: 1
             )

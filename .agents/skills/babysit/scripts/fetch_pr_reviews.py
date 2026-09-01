@@ -103,10 +103,13 @@ def is_ai_bot(user_login):
     return False
 
 
-def fetch_github_api(endpoint, owner, repo, token=None):
-    """Fetch endpoint via gh cli if available, otherwise direct HTTPS request."""
+def fetch_github_api(endpoint, owner, repo, token=None, paginate=False):
+    """Fetch endpoint via gh cli if available, otherwise direct HTTPS request with pagination support."""
     # Try gh api first
-    gh_cmd = ["gh", "api", f"repos/{owner}/{repo}/{endpoint}"]
+    gh_cmd = ["gh", "api"]
+    if paginate:
+        gh_cmd.append("--paginate")
+    gh_cmd.append(f"repos/{owner}/{repo}/{endpoint}")
     gh_res = run_command(gh_cmd)
     if gh_res:
         try:
@@ -127,24 +130,42 @@ def fetch_github_api(endpoint, owner, repo, token=None):
         headers["Authorization"] = f"token {os.environ['GH_TOKEN']}"
 
     url = f"https://api.github.com/repos/{owner}/{repo}/{endpoint}"
-    try:
-        req = urllib.request.Request(url, headers=headers)
-        with urllib.request.urlopen(req) as resp:
-            return json.loads(resp.read().decode("utf-8"))
-    except urllib.error.HTTPError as e:
-        sys.stderr.write(f"HTTP Error {e.code}: {e.reason} for {url}\n")
-        return None
-    except Exception as e:
-        sys.stderr.write(f"Error fetching {url}: {e}\n")
-        return None
+    all_items = []
+    while url:
+        try:
+            req = urllib.request.Request(url, headers=headers)
+            with urllib.request.urlopen(req) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                if not paginate or not isinstance(data, list):
+                    return data
+                all_items.extend(data)
+
+                # Check Link header for next page
+                link_header = resp.headers.get("Link", "")
+                next_url = None
+                if link_header:
+                    links = link_header.split(",")
+                    for link in links:
+                        parts = link.split(";")
+                        if len(parts) >= 2 and 'rel="next"' in parts[1]:
+                            next_url = parts[0].strip().strip("<>")
+                            break
+                url = next_url
+        except urllib.error.HTTPError as e:
+            sys.stderr.write(f"HTTP Error {e.code}: {e.reason} for {url}\n")
+            return None if not all_items else all_items
+        except Exception as e:
+            sys.stderr.write(f"Error fetching {url}: {e}\n")
+            return None if not all_items else all_items
+    return all_items
 
 
 def fetch_all_pr_feedback(owner, repo, pr_number, token=None, custom_bot_list=None):
     """Aggregate reviews, review comments, and issue comments for a PR."""
-    pr_data = fetch_github_api(f"pulls/{pr_number}", owner, repo, token)
-    reviews = fetch_github_api(f"pulls/{pr_number}/reviews?per_page=100", owner, repo, token) or []
-    review_comments = fetch_github_api(f"pulls/{pr_number}/comments?per_page=100", owner, repo, token) or []
-    issue_comments = fetch_github_api(f"issues/{pr_number}/comments?per_page=100", owner, repo, token) or []
+    pr_data = fetch_github_api(f"pulls/{pr_number}", owner, repo, token, paginate=False)
+    reviews = fetch_github_api(f"pulls/{pr_number}/reviews?per_page=100", owner, repo, token, paginate=True) or []
+    review_comments = fetch_github_api(f"pulls/{pr_number}/comments?per_page=100", owner, repo, token, paginate=True) or []
+    issue_comments = fetch_github_api(f"issues/{pr_number}/comments?per_page=100", owner, repo, token, paginate=True) or []
 
     # Map bots
     def check_bot(login):

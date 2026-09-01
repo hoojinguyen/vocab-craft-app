@@ -47,6 +47,9 @@ public enum ReflexSpeechMatcher {
             if matchesYtoI(token: token, normalizedTarget: normalizedTarget, targetLen: targetLen) {
                 return true
             }
+            if matchesIEtoY(token: token, normalizedTarget: normalizedTarget, targetLen: targetLen) {
+                return true
+            }
             if matchesTieredFuzzy(token: token, normalizedTarget: normalizedTarget, targetLen: targetLen, toleranceThreshold: toleranceThreshold) {
                 return true
             }
@@ -60,6 +63,17 @@ public enum ReflexSpeechMatcher {
         if targetLen >= 4 && allowedExtendedSuffixes.contains(suffix) {
             // Guard false inflection derivations (e.g. lemma "past" + "ed" -> "pasted", which is derived from "paste")
             if normalizedTarget == "past" && suffix == "ed" {
+                return false
+            }
+            // 4-letter CVC monosyllables (e.g. "plan", "stop", "drop", "grab") require consonant doubling.
+            // Plain -ed/-ing/-d (e.g. "planed", "stoped") are invalid derivations.
+            let is4LetterCVC: Bool = {
+                let chars = Array(normalizedTarget)
+                guard chars.count == 4 else { return false }
+                let vowels: Set<Character> = ["a", "e", "i", "o", "u"]
+                return !vowels.contains(chars[0]) && !vowels.contains(chars[1]) && vowels.contains(chars[2]) && !vowels.contains(chars[3]) && chars[3] != "x" && chars[3] != "w" && chars[3] != "y"
+            }()
+            if is4LetterCVC && (suffix == "ed" || suffix == "ing" || suffix == "d") {
                 return false
             }
             return true
@@ -115,6 +129,14 @@ public enum ReflexSpeechMatcher {
         guard token.hasPrefix(stemWithI) else { return false }
         let suffix = String(token.dropFirst(stemWithI.count))
         return allowedYtoISuffixes.contains(suffix)
+    }
+
+    private static func matchesIEtoY(token: String, normalizedTarget: String, targetLen: Int) -> Bool {
+        guard targetLen >= 3, normalizedTarget.hasSuffix("ie") else { return false }
+        let stemWithoutIE = String(normalizedTarget.dropLast(2))
+        guard token.hasPrefix(stemWithoutIE) else { return false }
+        let suffix = String(token.dropFirst(stemWithoutIE.count))
+        return suffix == "ying"
     }
 
     private static func matchesTieredFuzzy(token: String, normalizedTarget: String, targetLen: Int, toleranceThreshold: Double?) -> Bool {

@@ -64,6 +64,11 @@ final class ReflexSpeechMatcherTests: XCTestCase {
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "loving", targetLemma: "love"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "using", targetLemma: "use"))
 
+        // -ie -> -ying inflection
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "lying", targetLemma: "lie"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "tying", targetLemma: "tie"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "dying", targetLemma: "die"))
+
         // Rejection of non-inflection derivations (e.g. agent nouns, adjectives)
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "rainy", targetLemma: "rain"))
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "farmer", targetLemma: "farm"))
@@ -84,6 +89,8 @@ final class ReflexSpeechMatcherTests: XCTestCase {
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "paste", targetLemma: "past"))
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "pasted", targetLemma: "past"))
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "planet", targetLemma: "plan"))
+        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "planed", targetLemma: "plan"))
+        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "stoped", targetLemma: "stop"))
     }
 
     // MARK: - Medium Words (5 - 7 chars): Threshold 0.80
