@@ -1,3 +1,4 @@
+import CraftUIKit
 import Foundation
 import SwiftUI
 #if canImport(XCTest)
@@ -620,7 +621,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
     private func renderSnapshot<V: View>(view: V, filename: String) {
         let sizedView = view
             .frame(width: 393, height: 852)
-            .background(Color.vocabCanvas)
+            .background(CraftDefaultTheme().colors.canvasBackground)
             .environment(\.colorScheme, .dark)
 
         let renderer = ImageRenderer(content: sizedView)

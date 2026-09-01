@@ -179,6 +179,6 @@ public struct StreakWeekStripView: View {
         StreakWeekStripView(streakDays: 45, isCompletedToday: false)
     }
     .padding()
-    .background(Color.vocabCanvas)
+    .background(CraftDefaultTheme().colors.canvasBackground)
 }
 #endif

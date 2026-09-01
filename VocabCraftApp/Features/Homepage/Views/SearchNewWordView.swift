@@ -1,23 +1,28 @@
+import CraftUIKit
 import SwiftUI
 
 /// Dedicated Search New Word view serving as the entry point for looking up new vocabulary.
 public struct SearchNewWordView: View {
+    @Environment(\.craftTheme) private var theme
     @State private var searchText = ""
     @FocusState private var isSearchFocused: Bool
 
     private let recentSearches = ["resilient", "ubiquitous", "ephemeral", "pragmatic", "meticulous"]
-    private let suggestedTopics = [
-        ("IELTS Band 7.0+", "sparkles", Color.orange),
-        ("Business & Tech", "briefcase.fill", Color.blue),
-        ("Academic Research", "book.closed.fill", Color.purple),
-        ("Daily Expressions", "bubble.left.and.bubble.right.fill", Color.green)
-    ]
+
+    private var suggestedTopics: [(String, String, Color)] {
+        [
+            ("IELTS Band 7.0+", "sparkles", theme.colors.accent),
+            ("Business & Tech", "briefcase.fill", theme.colors.statusInfo),
+            ("Academic Research", "book.closed.fill", theme.colors.statusDanger),
+            ("Daily Expressions", "bubble.left.and.bubble.right.fill", theme.colors.statusSuccess)
+        ]
+    }
 
     public init() {}
 
     public var body: some View {
         ZStack {
-            Color.vocabCanvas
+            theme.colors.canvasBackground
                 .ignoresSafeArea()
 
             ScrollView(.vertical, showsIndicators: false) {
@@ -27,10 +32,10 @@ public struct SearchNewWordView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             (Text(AppStrings.Tabs.search) + Text(" 🔍"))
                                 .font(.system(size: 24, weight: .bold))
-                                .foregroundColor(Color.vocabInk)
+                                .foregroundColor(theme.colors.textPrimary)
                             Text(AppStrings.Homepage.searchPlaceholder)
                                 .font(.system(size: 13, weight: .medium))
-                                .foregroundColor(Color.vocabMuted)
+                                .foregroundColor(theme.colors.textSecondary)
                         }
                         Spacer()
                     }
@@ -41,11 +46,11 @@ public struct SearchNewWordView: View {
                     HStack(spacing: 10) {
                         Image(systemName: "magnifyingglass")
                             .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(Color.vocabMuted)
+                            .foregroundColor(theme.colors.textSecondary)
 
                         TextField(AppStrings.Homepage.searchPlaceholder, text: $searchText)
                             .font(.system(size: 15, weight: .medium))
-                            .foregroundColor(Color.vocabInk)
+                            .foregroundColor(theme.colors.textPrimary)
                             .focused($isSearchFocused)
                             .autocorrectionDisabled(true)
 
@@ -53,21 +58,21 @@ public struct SearchNewWordView: View {
                             Button(action: { searchText = "" }) {
                                 Image(systemName: "xmark.circle.fill")
                                     .font(.system(size: 16))
-                                    .foregroundColor(Color.vocabMuted)
+                                    .foregroundColor(theme.colors.textSecondary)
                             }
                         } else {
                             Image(systemName: "mic.fill")
                                 .font(.system(size: 15))
-                                .foregroundColor(Color.vocabMuted)
+                                .foregroundColor(theme.colors.textSecondary)
                         }
                     }
                     .padding(.horizontal, 16)
                     .frame(height: 48)
-                    .background(Color.vocabSurfaceCard)
+                    .background(theme.colors.surfaceCard)
                     .cornerRadius(24)
                     .overlay(
                         RoundedRectangle(cornerRadius: 24)
-                            .stroke(isSearchFocused ? Color.vocabInk.opacity(0.3) : Color.vocabHairline, lineWidth: 1.5)
+                            .stroke(isSearchFocused ? theme.colors.textPrimary.opacity(0.3) : theme.colors.hairline, lineWidth: 1.5)
                     )
                     .shadow(color: Color.black.opacity(0.04), radius: 8, x: 0, y: 4)
                     .padding(.horizontal)
@@ -77,26 +82,26 @@ public struct SearchNewWordView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "sparkles")
                                 .font(.system(size: 14, weight: .bold))
-                                .foregroundColor(.orange)
+                                .foregroundColor(theme.colors.accent)
                             Text(AppStrings.Search.upcomingFeatureTitle)
                                 .font(.system(size: 11, weight: .bold))
-                                .foregroundColor(.orange)
+                                .foregroundColor(theme.colors.accent)
                             Spacer()
                         }
 
                         Text(AppStrings.Search.smartLookupTitle)
                             .font(.system(size: 16, weight: .bold))
-                            .foregroundColor(Color.vocabInk)
+                            .foregroundColor(theme.colors.textPrimary)
 
                         Text(AppStrings.Search.smartLookupDescription)
                             .font(.system(size: 13))
-                            .foregroundColor(Color.vocabMuted)
+                            .foregroundColor(theme.colors.textSecondary)
                             .lineSpacing(3)
                     }
                     .padding(16)
                     .background(
                         LinearGradient(
-                            colors: [Color.orange.opacity(0.08), Color.vocabSurfaceCard],
+                            colors: [theme.colors.accent.opacity(0.08), theme.colors.surfaceCard],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -104,7 +109,7 @@ public struct SearchNewWordView: View {
                     .cornerRadius(20)
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.orange.opacity(0.2), lineWidth: 1.5)
+                            .stroke(theme.colors.accent.opacity(0.2), lineWidth: 1.5)
                     )
                     .padding(.horizontal)
 
@@ -112,7 +117,7 @@ public struct SearchNewWordView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Text(AppStrings.Search.recentSearchesTitle)
                             .font(.system(size: 15, weight: .bold))
-                            .foregroundColor(Color.vocabInk)
+                            .foregroundColor(theme.colors.textPrimary)
                             .padding(.horizontal)
 
                         ScrollView(.horizontal, showsIndicators: false) {
@@ -125,14 +130,14 @@ public struct SearchNewWordView: View {
                                             Text(word)
                                                 .font(.system(size: 13, weight: .medium))
                                         }
-                                        .foregroundColor(Color.vocabInk)
+                                        .foregroundColor(theme.colors.textPrimary)
                                         .padding(.horizontal, 14)
                                         .padding(.vertical, 8)
-                                        .background(Color.vocabSurfaceCard)
+                                        .background(theme.colors.surfaceCard)
                                         .cornerRadius(16)
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 16)
-                                                .stroke(Color.vocabHairline, lineWidth: 1.5)
+                                                .stroke(theme.colors.hairline, lineWidth: 1.5)
                                         )
                                     }
                                 }
@@ -145,7 +150,7 @@ public struct SearchNewWordView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Text(AppStrings.Search.suggestedTopicsTitle)
                             .font(.system(size: 15, weight: .bold))
-                            .foregroundColor(Color.vocabInk)
+                            .foregroundColor(theme.colors.textPrimary)
                             .padding(.horizontal)
 
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
@@ -160,17 +165,17 @@ public struct SearchNewWordView: View {
 
                                     Text(LocalizedStringKey(topic.0))
                                         .font(.system(size: 13, weight: .bold))
-                                        .foregroundColor(Color.vocabInk)
+                                        .foregroundColor(theme.colors.textPrimary)
                                         .lineLimit(1)
 
                                     Spacer(minLength: 0)
                                 }
                                 .padding(12)
-                                .background(Color.vocabSurfaceCard)
+                                .background(theme.colors.surfaceCard)
                                 .cornerRadius(16)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 16)
-                                        .stroke(Color.vocabHairline, lineWidth: 1.5)
+                                        .stroke(theme.colors.hairline, lineWidth: 1.5)
                                 )
                             }
                         }

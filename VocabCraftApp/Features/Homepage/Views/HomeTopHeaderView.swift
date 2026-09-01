@@ -179,6 +179,6 @@ public struct HomeTopHeaderView: View {
             dailyWordsGoal: 10
         )
     }
-    .background(Color.vocabCanvas)
+    .background(CraftDefaultTheme().colors.canvasBackground)
 }
 #endif

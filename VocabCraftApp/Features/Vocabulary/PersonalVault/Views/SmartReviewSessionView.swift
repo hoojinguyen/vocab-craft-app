@@ -1,8 +1,10 @@
+import CraftUIKit
 import SwiftUI
 
 /// Focused mini-session view to review weak vocabulary words needing reinforcement.
 /// Presents clear flashcard typography, audio pronunciation, definition reveal, and instant mastery grading.
 public struct SmartReviewSessionView: View {
+    @Environment(\.craftTheme) private var theme
     @State private var viewModel: SmartReviewViewModel
     public let onDismiss: () -> Void
 
@@ -16,7 +18,7 @@ public struct SmartReviewSessionView: View {
 
     public var body: some View {
         ZStack {
-            Color.vocabCanvas
+            theme.colors.canvasBackground
                 .ignoresSafeArea()
 
             VStack(spacing: 16) {
@@ -58,9 +60,9 @@ public struct SmartReviewSessionView: View {
             Button(action: onDismiss) {
                 Image(systemName: "xmark")
                     .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(Color.vocabInk)
+                    .foregroundColor(theme.colors.textPrimary)
                     .padding(8)
-                    .background(Color.vocabSurfaceSoft)
+                    .background(theme.colors.surfaceSubtle)
                     .clipShape(Circle())
             }
 
@@ -68,7 +70,7 @@ public struct SmartReviewSessionView: View {
 
             Text("Ôn Tập Tập Trung")
                 .font(.system(size: 16, weight: .bold))
-                .foregroundColor(Color.vocabInk)
+                .foregroundColor(theme.colors.textPrimary)
 
             Spacer()
 
@@ -78,8 +80,8 @@ public struct SmartReviewSessionView: View {
                     .monospacedDigit()
                     .padding(.horizontal, 10)
                     .padding(.vertical, 4)
-                    .background(Color.vocabPeach.opacity(0.18))
-                    .foregroundColor(Color.vocabPeach)
+                    .background(theme.colors.accent.opacity(0.18))
+                    .foregroundColor(theme.colors.accent)
                     .cornerRadius(8)
             } else {
                 Color.clear
@@ -105,14 +107,14 @@ public struct SmartReviewSessionView: View {
     private var progressBar: some View {
         let progressFraction = Double(viewModel.currentIndex + 1) / Double(max(viewModel.weakWords.count, 1))
         return Capsule()
-            .fill(Color.vocabHairline)
+            .fill(theme.colors.hairline)
             .frame(height: 6)
             .overlay(
                 GeometryReader { geo in
                     Capsule()
                         .fill(
                             LinearGradient(
-                                colors: [Color.vocabPeach, Color(hex: "FA9938")],
+                                colors: [theme.colors.accent, theme.colors.accent.opacity(0.85)],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             )
@@ -129,13 +131,13 @@ public struct SmartReviewSessionView: View {
                 VStack(spacing: 8) {
                     Text(word.lemma)
                         .font(.system(size: 32, weight: .bold, design: .serif))
-                        .foregroundColor(Color.vocabInk)
+                        .foregroundColor(theme.colors.textPrimary)
                         .multilineTextAlignment(.center)
 
                     if !word.phonetic.isEmpty {
                         Text(word.phonetic)
                             .font(.system(size: 16, weight: .medium, design: .monospaced))
-                            .foregroundColor(Color.vocabMuted)
+                            .foregroundColor(theme.colors.textSecondary)
                     }
 
                     Button(action: {
@@ -147,10 +149,10 @@ public struct SmartReviewSessionView: View {
                             Text("Phát âm")
                                 .font(.system(size: 13, weight: .semibold))
                         }
-                        .foregroundColor(Color.vocabPeach)
+                        .foregroundColor(theme.colors.accent)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 8)
-                        .background(Color.vocabPeach.opacity(0.12))
+                        .background(theme.colors.accent.opacity(0.12))
                         .clipShape(Capsule())
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -163,11 +165,11 @@ public struct SmartReviewSessionView: View {
             }
             .padding(20)
         }
-        .background(Color.vocabSurfaceCard)
+        .background(theme.colors.surfaceCard)
         .cornerRadius(18)
         .overlay(
             RoundedRectangle(cornerRadius: 18)
-                .stroke(Color.vocabHairline, lineWidth: 1.2)
+                .stroke(theme.colors.hairline, lineWidth: 1.2)
         )
     }
 
@@ -175,29 +177,29 @@ public struct SmartReviewSessionView: View {
     private func revealedContent(word: PersonalWord) -> some View {
         VStack(alignment: .leading, spacing: 14) {
             Divider()
-                .background(Color.vocabHairline)
+                .background(theme.colors.hairline)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text("Nghĩa tiếng Việt")
                     .font(.system(size: 11, weight: .bold))
-                    .foregroundColor(Color.vocabMuted)
+                    .foregroundColor(theme.colors.textSecondary)
                     .textCase(.uppercase)
 
                 Text(word.definitionVi)
                     .font(.system(size: 17, weight: .bold))
-                    .foregroundColor(Color.vocabInk)
+                    .foregroundColor(theme.colors.textPrimary)
             }
 
             if !word.definitionEn.isEmpty {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Định nghĩa tiếng Anh")
                         .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(Color.vocabMuted)
+                        .foregroundColor(theme.colors.textSecondary)
                         .textCase(.uppercase)
 
                     Text(word.definitionEn)
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(Color.vocabInk.opacity(0.85))
+                        .foregroundColor(theme.colors.textPrimary.opacity(0.85))
                 }
             }
 
@@ -205,21 +207,21 @@ public struct SmartReviewSessionView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Ví dụ ngữ cảnh")
                         .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(Color.vocabMuted)
+                        .foregroundColor(theme.colors.textSecondary)
                         .textCase(.uppercase)
 
                     Text(word.exampleEn)
                         .font(.system(size: 14, weight: .medium).italic())
-                        .foregroundColor(Color.vocabInk)
+                        .foregroundColor(theme.colors.textPrimary)
 
                     if !word.exampleVi.isEmpty {
                         Text(word.exampleVi)
                             .font(.system(size: 12, weight: .regular))
-                            .foregroundColor(Color.vocabMuted)
+                            .foregroundColor(theme.colors.textSecondary)
                     }
                 }
                 .padding(12)
-                .background(Color.vocabSurfaceSoft)
+                .background(theme.colors.surfaceSubtle)
                 .cornerRadius(10)
             }
         }
@@ -245,9 +247,9 @@ public struct SmartReviewSessionView: View {
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
-                .background(Color.vocabInk)
+                .background(theme.colors.textPrimary)
                 .clipShape(Capsule())
-                .shadow(color: Color.vocabInk.opacity(0.2), radius: 6, x: 0, y: 3)
+                .shadow(color: theme.colors.textPrimary.opacity(0.2), radius: 6, x: 0, y: 3)
                 .contentShape(Rectangle())
             }
             .buttonStyle(BentoCardButtonStyle())
@@ -266,14 +268,14 @@ public struct SmartReviewSessionView: View {
                         Text("Chưa nhớ")
                             .font(.system(size: 14, weight: .bold))
                     }
-                    .foregroundColor(Color.vocabCoral)
+                    .foregroundColor(theme.colors.statusDanger)
                     .frame(maxWidth: .infinity)
                     .frame(height: 48)
-                    .background(Color.vocabCoral.opacity(0.12))
+                    .background(theme.colors.statusDanger.opacity(0.12))
                     .cornerRadius(14)
                     .overlay(
                         RoundedRectangle(cornerRadius: 14)
-                            .stroke(Color.vocabCoral.opacity(0.3), lineWidth: 1.2)
+                            .stroke(theme.colors.statusDanger.opacity(0.3), lineWidth: 1.2)
                     )
                     .contentShape(Rectangle())
                 }
@@ -297,13 +299,13 @@ public struct SmartReviewSessionView: View {
                     .frame(height: 48)
                     .background(
                         LinearGradient(
-                            colors: [Color.vocabMint, Color(hex: "34D399")],
+                            colors: [theme.colors.statusSuccess, theme.colors.statusSuccess.opacity(0.85)],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
                     )
                     .cornerRadius(14)
-                    .shadow(color: Color.vocabMint.opacity(0.35), radius: 6, x: 0, y: 3)
+                    .shadow(color: theme.colors.statusSuccess.opacity(0.35), radius: 6, x: 0, y: 3)
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(BentoCardButtonStyle())
@@ -318,22 +320,22 @@ public struct SmartReviewSessionView: View {
 
             ZStack {
                 Circle()
-                    .fill(Color.vocabMint.opacity(0.15))
+                    .fill(theme.colors.statusSuccess.opacity(0.15))
                     .frame(width: 88, height: 88)
 
                 Image(systemName: "checkmark.circle.fill")
                     .font(.system(size: 48, weight: .bold))
-                    .foregroundColor(Color.vocabMint)
+                    .foregroundColor(theme.colors.statusSuccess)
             }
 
             VStack(spacing: 6) {
                 Text("Hoàn Thành Ôn Tập!")
                     .font(.system(size: 22, weight: .bold))
-                    .foregroundColor(Color.vocabInk)
+                    .foregroundColor(theme.colors.textPrimary)
 
                 Text("Bạn đã ôn tập toàn bộ \(viewModel.weakWords.count) từ yếu trong phiên này.")
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(Color.vocabMuted)
+                    .foregroundColor(theme.colors.textSecondary)
                     .multilineTextAlignment(.center)
             }
 
@@ -345,9 +347,9 @@ public struct SmartReviewSessionView: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
-                    .background(Color.vocabInk)
+                    .background(theme.colors.textPrimary)
                     .clipShape(Capsule())
-                    .shadow(color: Color.vocabInk.opacity(0.25), radius: 6, x: 0, y: 3)
+                    .shadow(color: theme.colors.textPrimary.opacity(0.25), radius: 6, x: 0, y: 3)
                     .contentShape(Rectangle())
             }
             .buttonStyle(BentoCardButtonStyle())
@@ -362,15 +364,15 @@ public struct SmartReviewSessionView: View {
 
             Image(systemName: "sparkles")
                 .font(.system(size: 44))
-                .foregroundColor(Color.vocabMint)
+                .foregroundColor(theme.colors.statusSuccess)
 
             Text("Không có từ yếu nào!")
                 .font(.system(size: 18, weight: .bold))
-                .foregroundColor(Color.vocabInk)
+                .foregroundColor(theme.colors.textPrimary)
 
             Text("Tất cả từ vựng trong kho của bạn đang được ghi nhớ rất tốt.")
                 .font(.system(size: 13, weight: .medium))
-                .foregroundColor(Color.vocabMuted)
+                .foregroundColor(theme.colors.textSecondary)
                 .multilineTextAlignment(.center)
 
             Spacer()
@@ -378,10 +380,10 @@ public struct SmartReviewSessionView: View {
             Button(action: onDismiss) {
                 Text("Đóng")
                     .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(Color.vocabInk)
+                    .foregroundColor(theme.colors.textPrimary)
                     .frame(maxWidth: .infinity)
                     .frame(height: 44)
-                    .background(Color.vocabSurfaceSoft)
+                    .background(theme.colors.surfaceSubtle)
                     .cornerRadius(12)
             }
         }

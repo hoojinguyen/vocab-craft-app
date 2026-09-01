@@ -10,6 +10,7 @@ public struct TopicRoadmapView: View {
 
     @State private var viewModel: TopicRoadmapViewModel
     @Environment(\.appContainer) private var appContainer
+    @Environment(\.craftTheme) private var theme
 
     public init(
         deckId: String,
@@ -36,7 +37,7 @@ public struct TopicRoadmapView: View {
             }
             .padding(.bottom, 40)
         }
-        .background(Color.vocabCanvas.ignoresSafeArea())
+        .background(theme.colors.canvasBackground.ignoresSafeArea())
         .task {
             viewModel = appContainer.makeTopicRoadmapViewModel(deckId: deckId)
             await viewModel.loadRoadmap()
@@ -50,15 +51,15 @@ public struct TopicRoadmapView: View {
                 Button(action: onBack) {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(Color.vocabInk)
+                        .foregroundColor(theme.colors.textPrimary)
                         .padding(8)
-                        .background(Color.vocabSurfaceSoft)
+                        .background(theme.colors.surfaceSubtle)
                         .clipShape(Circle())
                 }
 
                 Text(deckTitle ?? "Lộ Trình Học")
                     .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(Color.vocabInk)
+                    .foregroundColor(theme.colors.textPrimary)
 
                 Spacer()
 
@@ -66,8 +67,8 @@ public struct TopicRoadmapView: View {
                     .font(.system(size: 11, weight: .bold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(Color.vocabMint.opacity(0.2))
-                    .foregroundColor(Color.vocabInk)
+                    .background(theme.colors.statusSuccess.opacity(0.2))
+                    .foregroundColor(theme.colors.textPrimary)
                     .cornerRadius(6)
             }
 
@@ -80,34 +81,34 @@ public struct TopicRoadmapView: View {
             HStack(spacing: 4) {
                 Text(AppStrings.Vocabulary.progressTitle)
                     .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(Color.vocabMuted)
+                    .foregroundColor(theme.colors.textSecondary)
                 Text(verbatim: "\(percentage)%")
                     .font(.system(size: 13, weight: .bold, design: .rounded))
                     .monospacedDigit()
-                    .foregroundColor(Color.vocabMint)
+                    .foregroundColor(theme.colors.statusSuccess)
                 Text(AppStrings.Vocabulary.progressWordsCount(current: completedWords, total: totalWords))
                     .font(.system(size: 13, weight: .medium))
                     .monospacedDigit()
-                    .foregroundColor(Color.vocabMuted)
+                    .foregroundColor(theme.colors.textSecondary)
                 Spacer()
             }
 
             // Progress Bar
             Capsule()
-                .fill(Color.vocabHairline)
+                .fill(theme.colors.hairline)
                 .frame(height: 8)
                 .overlay(
                     GeometryReader { geo in
                         Capsule()
                             .fill(
                                 LinearGradient(
-                                    colors: [Color.vocabMint, Color(hex: "34D399")],
+                                    colors: [theme.colors.statusSuccess, theme.colors.statusSuccess.opacity(0.85)],
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 )
                             )
                             .frame(width: geo.size.width * CGFloat(viewModel.progressPercentage))
-                            .shadow(color: Color.vocabMint.opacity(0.35), radius: 3, x: 0, y: 1.5)
+                            .shadow(color: theme.colors.statusSuccess.opacity(0.35), radius: 3, x: 0, y: 1.5)
                     }
                 )
 
@@ -128,24 +129,24 @@ public struct TopicRoadmapView: View {
                     .frame(height: 46)
                     .background(
                         LinearGradient(
-                            colors: [Color.vocabPeach, Color(hex: "FA9938")],
+                            colors: [theme.colors.accent, theme.colors.accent.opacity(0.85)],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
                     )
                     .clipShape(Capsule())
-                    .shadow(color: Color.vocabPeach.opacity(0.35), radius: 6, x: 0, y: 3)
+                    .shadow(color: theme.colors.accent.opacity(0.35), radius: 6, x: 0, y: 3)
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(BentoCardButtonStyle())
             }
         }
         .padding(16)
-        .background(Color.vocabSurfaceCard)
+        .background(theme.colors.surfaceCard)
         .cornerRadius(16)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.vocabHairline, lineWidth: 1)
+                .stroke(theme.colors.hairline, lineWidth: 1)
         )
         .padding(.horizontal, 16)
         .padding(.top, 8)
@@ -159,7 +160,7 @@ public struct TopicRoadmapView: View {
                     .padding(.top, 40)
             } else if viewModel.stages.isEmpty {
                 Text(AppStrings.Vocabulary.emptyStageData)
-                    .foregroundColor(Color.vocabMuted)
+                    .foregroundColor(theme.colors.textSecondary)
                     .padding(.top, 40)
             } else {
                 ForEach(Array(viewModel.stages.enumerated()), id: \.element.id) { index, stage in

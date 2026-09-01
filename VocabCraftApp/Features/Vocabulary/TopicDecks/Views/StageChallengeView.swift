@@ -1,7 +1,9 @@
+import CraftUIKit
 import SwiftUI
 
 /// Step 2 of the Stage Learning Flow: Interactive quiz challenge with segmented progress bar, audio pronunciation, real-time feedback, and automatic weak-word flagging.
 public struct StageChallengeView: View {
+    @Environment(\.craftTheme) private var theme
     @State private var viewModel: StageChallengeViewModel
     public let onClose: () -> Void
     public var onCompleted: ((StageCompletionSummary) -> Void)?
@@ -21,7 +23,7 @@ public struct StageChallengeView: View {
 
     public var body: some View {
         ZStack {
-            Color.vocabCanvas.ignoresSafeArea()
+            theme.colors.canvasBackground.ignoresSafeArea()
 
             if let summary = viewModel.summary, viewModel.isCompleted {
                 // If completed and summary is ready, present StageSummarySheet
@@ -48,7 +50,7 @@ public struct StageChallengeView: View {
                         .padding(.bottom, 16)
 
                     Divider()
-                        .background(Color.vocabHairline)
+                        .background(theme.colors.hairline)
 
                     // Scrollable Question & Options
                     ScrollView {
@@ -74,7 +76,7 @@ public struct StageChallengeView: View {
                     ProgressView()
                     Text("Đang chuẩn bị câu hỏi...")
                         .font(.system(size: 14))
-                        .foregroundColor(Color.vocabMuted)
+                        .foregroundColor(theme.colors.textSecondary)
                 }
             }
         }
@@ -133,9 +135,9 @@ public struct StageChallengeView: View {
             Button(action: onClose) {
                 Image(systemName: "xmark")
                     .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(Color.vocabInk)
+                    .foregroundColor(theme.colors.textPrimary)
                     .padding(8)
-                    .background(Color.vocabSurfaceSoft)
+                    .background(theme.colors.surfaceSubtle)
                     .clipShape(Circle())
             }
 
@@ -144,7 +146,7 @@ public struct StageChallengeView: View {
             // Question counter
             Text("Câu \(viewModel.currentIndex + 1) / \(viewModel.questions.count)")
                 .font(.system(size: 13, weight: .semibold, design: .rounded))
-                .foregroundColor(Color.vocabMuted)
+                .foregroundColor(theme.colors.textSecondary)
 
             Spacer()
 
@@ -153,24 +155,24 @@ public struct StageChallengeView: View {
                 if viewModel.streakCount > 1 {
                     Image(systemName: "flame.fill")
                         .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(Color.vocabPeach)
+                        .foregroundColor(theme.colors.accent)
 
                     Text("\(viewModel.streakCount)")
                         .font(.system(size: 12, weight: .bold, design: .rounded))
-                        .foregroundColor(Color.vocabPeach)
+                        .foregroundColor(theme.colors.accent)
                 } else {
                     Text("+\(viewModel.correctCount * 10) XP")
                         .font(.system(size: 12, weight: .bold, design: .rounded))
-                        .foregroundColor(Color.vocabMint)
+                        .foregroundColor(theme.colors.statusSuccess)
                 }
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 5)
-            .background(Color.vocabSurfaceCard)
+            .background(theme.colors.surfaceCard)
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.vocabHairline, lineWidth: 1)
+                    .stroke(theme.colors.hairline, lineWidth: 1)
             )
         }
     }
@@ -191,11 +193,11 @@ public struct StageChallengeView: View {
     private func segmentColor(for index: Int) -> Color {
         if index < viewModel.results.count {
             let result = viewModel.results[index]
-            return result.isCorrect ? Color.vocabMint : Color.vocabCoral
+            return result.isCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger
         } else if index == viewModel.currentIndex {
-            return Color.vocabPeach
+            return theme.colors.accent
         } else {
-            return Color.vocabHairline
+            return theme.colors.hairline
         }
     }
 
@@ -205,7 +207,7 @@ public struct StageChallengeView: View {
             // Prompt Word
             Text(question.prompt)
                 .font(.system(size: 28, weight: .bold, design: .serif))
-                .foregroundColor(Color.vocabInk)
+                .foregroundColor(theme.colors.textPrimary)
                 .multilineTextAlignment(.center)
 
             // Phonetic & Speaker Button
@@ -213,7 +215,7 @@ public struct StageChallengeView: View {
                 if !question.hintPhonetic.isEmpty {
                     Text(question.hintPhonetic)
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(Color.vocabMuted)
+                        .foregroundColor(theme.colors.textSecondary)
                 }
 
                 Button(action: {
@@ -221,9 +223,9 @@ public struct StageChallengeView: View {
                 }) {
                     Image(systemName: "speaker.wave.2.fill")
                         .font(.system(size: 14, weight: .bold))
-                        .foregroundColor(Color.vocabInk)
+                        .foregroundColor(theme.colors.textPrimary)
                         .frame(width: 32, height: 32)
-                        .background(Color.vocabSurfaceSoft)
+                        .background(theme.colors.surfaceSubtle)
                         .clipShape(Circle())
                 }
                 .buttonStyle(BentoCardButtonStyle())
@@ -235,7 +237,7 @@ public struct StageChallengeView: View {
                 Text("“\(question.exampleSentence)”")
                     .font(.system(size: 13, weight: .medium))
                     .italic()
-                    .foregroundColor(Color.vocabInk.opacity(0.8))
+                    .foregroundColor(theme.colors.textPrimary.opacity(0.8))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 12)
                     .padding(.top, 4)
@@ -243,11 +245,11 @@ public struct StageChallengeView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(20)
-        .background(Color.vocabSurfaceCard)
+        .background(theme.colors.surfaceCard)
         .cornerRadius(16)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.vocabHairline, lineWidth: 1)
+                .stroke(theme.colors.hairline, lineWidth: 1)
         )
     }
 
@@ -281,15 +283,15 @@ public struct StageChallengeView: View {
                 if isSubmitted {
                     if isSelected && isCorrect {
                         Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(Color.vocabMint)
+                            .foregroundColor(theme.colors.statusSuccess)
                             .font(.system(size: 18, weight: .bold))
                     } else if isSelected && !isCorrect {
                         Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(Color.vocabCoral)
+                            .foregroundColor(theme.colors.statusDanger)
                             .font(.system(size: 18, weight: .bold))
                     } else if !isSelected && isCorrect {
                         Image(systemName: "checkmark.circle")
-                            .foregroundColor(Color.vocabMint)
+                            .foregroundColor(theme.colors.statusSuccess)
                             .font(.system(size: 18, weight: .semibold))
                     }
                 }
@@ -310,37 +312,37 @@ public struct StageChallengeView: View {
 
     private func optionTextColor(isSelected: Bool, isCorrect: Bool, isSubmitted: Bool) -> Color {
         if isSubmitted {
-            if isSelected && isCorrect { return Color.vocabMint }
-            if isSelected && !isCorrect { return Color.vocabCoral }
-            if !isSelected && isCorrect { return Color.vocabMint }
-            return Color.vocabMuted
+            if isSelected && isCorrect { return theme.colors.statusSuccess }
+            if isSelected && !isCorrect { return theme.colors.statusDanger }
+            if !isSelected && isCorrect { return theme.colors.statusSuccess }
+            return theme.colors.textSecondary
         }
-        return Color.vocabInk
+        return theme.colors.textPrimary
     }
 
     private func optionBackground(isSelected: Bool, isCorrect: Bool, isSubmitted: Bool) -> Color {
         if isSubmitted {
-            if isSelected && isCorrect { return Color.vocabMint.opacity(0.12) }
-            if isSelected && !isCorrect { return Color.vocabCoral.opacity(0.12) }
-            if !isSelected && isCorrect { return Color.vocabMint.opacity(0.06) }
+            if isSelected && isCorrect { return theme.colors.statusSuccess.opacity(0.12) }
+            if isSelected && !isCorrect { return theme.colors.statusDanger.opacity(0.12) }
+            if !isSelected && isCorrect { return theme.colors.statusSuccess.opacity(0.06) }
         }
-        return Color.vocabSurfaceCard
+        return theme.colors.surfaceCard
     }
 
     private func optionBorderColor(isSelected: Bool, isCorrect: Bool, isSubmitted: Bool) -> Color {
         if isSubmitted {
-            if isSelected && isCorrect { return Color.vocabMint }
-            if isSelected && !isCorrect { return Color.vocabCoral }
-            if !isSelected && isCorrect { return Color.vocabMint.opacity(0.7) }
+            if isSelected && isCorrect { return theme.colors.statusSuccess }
+            if isSelected && !isCorrect { return theme.colors.statusDanger }
+            if !isSelected && isCorrect { return theme.colors.statusSuccess.opacity(0.7) }
         }
-        return Color.vocabHairline
+        return theme.colors.hairline
     }
 
     // MARK: - Feedback Action Bar
     private func feedbackActionBar(for question: WordChallengeQuestion) -> some View {
         VStack(spacing: 12) {
             Divider()
-                .background(Color.vocabHairline)
+                .background(theme.colors.hairline)
 
             HStack(spacing: 12) {
                 // Feedback message
@@ -348,23 +350,23 @@ public struct StageChallengeView: View {
                     if viewModel.lastAnswerCorrect {
                         HStack(spacing: 6) {
                             Image(systemName: "checkmark.circle.fill")
-                                .foregroundColor(Color.vocabMint)
+                                .foregroundColor(theme.colors.statusSuccess)
                             Text("Chính xác! +10 XP")
                                 .font(.system(size: 15, weight: .bold))
-                                .foregroundColor(Color.vocabMint)
+                                .foregroundColor(theme.colors.statusSuccess)
                         }
                     } else {
                         VStack(alignment: .leading, spacing: 2) {
                             HStack(spacing: 6) {
                                 Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(Color.vocabCoral)
+                                    .foregroundColor(theme.colors.statusDanger)
                                 Text("Chưa đúng")
                                     .font(.system(size: 15, weight: .bold))
-                                    .foregroundColor(Color.vocabCoral)
+                                    .foregroundColor(theme.colors.statusDanger)
                             }
                             Text("Đáp án: \(question.correctAnswer)")
                                 .font(.system(size: 12, weight: .semibold))
-                                .foregroundColor(Color.vocabInk)
+                                .foregroundColor(theme.colors.textPrimary)
                         }
                     }
                 }
@@ -401,14 +403,14 @@ public struct StageChallengeView: View {
                     .background(
                         LinearGradient(
                             colors: viewModel.lastAnswerCorrect
-                                ? [Color.vocabMint, Color(hex: "34D399")]
-                                : [Color.vocabPeach, Color(hex: "FA9938")],
+                                ? [theme.colors.statusSuccess, theme.colors.statusSuccess.opacity(0.85)]
+                                : [theme.colors.accent, theme.colors.accent.opacity(0.85)],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
                     )
                     .clipShape(Capsule())
-                    .shadow(color: (viewModel.lastAnswerCorrect ? Color.vocabMint : Color.vocabPeach).opacity(0.35), radius: 6, x: 0, y: 3)
+                    .shadow(color: (viewModel.lastAnswerCorrect ? theme.colors.statusSuccess : theme.colors.accent).opacity(0.35), radius: 6, x: 0, y: 3)
                 }
                 .buttonStyle(BentoCardButtonStyle())
                 .disabled(isProcessingCompletion)
@@ -417,7 +419,7 @@ public struct StageChallengeView: View {
             .padding(.top, 4)
             .padding(.bottom, 16)
         }
-        .background(Color.vocabSurfaceCard.ignoresSafeArea(edges: .bottom))
+        .background(theme.colors.surfaceCard.ignoresSafeArea(edges: .bottom))
         .transition(.move(edge: .bottom).combined(with: .opacity))
     }
 }

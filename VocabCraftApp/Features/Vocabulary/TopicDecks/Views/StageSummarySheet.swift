@@ -1,7 +1,10 @@
+import CraftUIKit
 import SwiftUI
 
 /// Step 3 of the Stage Learning Flow: Stage completion summary displaying XP earned, correct count, accuracy, weak words flagged for review, and unlock next stage CTA.
 public struct StageSummarySheet: View {
+    @Environment(\.craftTheme) private var theme
+
     public let summary: StageCompletionSummary
     public let onFinish: () -> Void
     public let onRestart: () -> Void
@@ -29,7 +32,7 @@ public struct StageSummarySheet: View {
 
     public var body: some View {
         ZStack {
-            Color.vocabCanvas.ignoresSafeArea()
+            theme.colors.canvasBackground.ignoresSafeArea()
 
             #if canImport(UIKit)
             if isPassed {
@@ -49,11 +52,11 @@ public struct StageSummarySheet: View {
                 VStack(spacing: 6) {
                     Text(isPassed ? "Hoàn Thành Chặng!" : "Chưa Đạt Mục Tiêu")
                         .font(.system(size: 24, weight: .bold, design: .rounded))
-                        .foregroundColor(Color.vocabInk)
+                        .foregroundColor(theme.colors.textPrimary)
 
                     Text(isPassed ? "Bạn đã nạp thành công các từ vựng vào kho kiến thức." : "Hãy ôn tập lại để củng cố các từ vựng này nhé.")
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(Color.vocabMuted)
+                        .foregroundColor(theme.colors.textSecondary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 24)
                 }
@@ -89,8 +92,8 @@ public struct StageSummarySheet: View {
                 .fill(
                     LinearGradient(
                         colors: isPassed
-                            ? [Color.vocabPeach.opacity(0.2), Color(hex: "FA9938").opacity(0.1)]
-                            : [Color.vocabCoral.opacity(0.2), Color.vocabCoral.opacity(0.05)],
+                            ? [theme.colors.accent.opacity(0.2), theme.colors.accent.opacity(0.1)]
+                            : [theme.colors.statusDanger.opacity(0.2), theme.colors.statusDanger.opacity(0.05)],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
@@ -99,7 +102,7 @@ public struct StageSummarySheet: View {
 
             Image(systemName: isPassed ? "trophy.fill" : "arrow.counterclockwise.circle.fill")
                 .font(.system(size: 48, weight: .bold))
-                .foregroundColor(isPassed ? Color.vocabPeach : Color.vocabCoral)
+                .foregroundColor(isPassed ? theme.colors.accent : theme.colors.statusDanger)
                 .symbolEffect(.bounce, value: triggerHaptic)
         }
     }
@@ -110,19 +113,19 @@ public struct StageSummarySheet: View {
             statMetricCard(
                 title: "+\(max(0, summary.xpEarned)) XP",
                 label: "XP Đạt Được",
-                color: Color.vocabMint
+                color: theme.colors.statusSuccess
             )
 
             statMetricCard(
                 title: "\(summary.correctCount)/\(summary.totalQuestions)",
                 label: "Đúng",
-                color: Color.vocabInk
+                color: theme.colors.textPrimary
             )
 
             statMetricCard(
                 title: "\(accuracyPercentage)%",
                 label: "Chính Xác",
-                color: isPassed ? Color.vocabMint : Color.vocabCoral
+                color: isPassed ? theme.colors.statusSuccess : theme.colors.statusDanger
             )
         }
     }
@@ -135,15 +138,15 @@ public struct StageSummarySheet: View {
 
             Text(label)
                 .font(.system(size: 11, weight: .semibold))
-                .foregroundColor(Color.vocabMuted)
+                .foregroundColor(theme.colors.textSecondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 14)
-        .background(Color.vocabSurfaceCard)
+        .background(theme.colors.surfaceCard)
         .cornerRadius(14)
         .overlay(
             RoundedRectangle(cornerRadius: 14)
-                .stroke(Color.vocabHairline, lineWidth: 1)
+                .stroke(theme.colors.hairline, lineWidth: 1)
         )
     }
 
@@ -152,26 +155,26 @@ public struct StageSummarySheet: View {
         HStack(spacing: 10) {
             Image(systemName: "flag.fill")
                 .font(.system(size: 14, weight: .bold))
-                .foregroundColor(Color.vocabCoral)
+                .foregroundColor(theme.colors.statusDanger)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text("\(summary.weakWordIds.count) từ chưa chính xác")
                     .font(.system(size: 13, weight: .bold))
-                    .foregroundColor(Color.vocabInk)
+                    .foregroundColor(theme.colors.textPrimary)
 
                 Text("Đã tự động thêm vào Kho cá nhân để bạn ôn tập lại.")
                     .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(Color.vocabMuted)
+                    .foregroundColor(theme.colors.textSecondary)
             }
 
             Spacer()
         }
         .padding(12)
-        .background(Color.vocabCoral.opacity(0.08))
+        .background(theme.colors.statusDanger.opacity(0.08))
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.vocabCoral.opacity(0.3), lineWidth: 1)
+                .stroke(theme.colors.statusDanger.opacity(0.3), lineWidth: 1)
         )
     }
 
@@ -193,14 +196,14 @@ public struct StageSummarySheet: View {
                 .background(
                     LinearGradient(
                         colors: isPassed
-                            ? [Color.vocabMint, Color(hex: "34D399")]
-                            : [Color.vocabPeach, Color(hex: "FA9938")],
+                            ? [theme.colors.statusSuccess, theme.colors.statusSuccess.opacity(0.85)]
+                            : [theme.colors.accent, theme.colors.accent.opacity(0.85)],
                         startPoint: .leading,
                         endPoint: .trailing
                     )
                 )
                 .clipShape(Capsule())
-                .shadow(color: (isPassed ? Color.vocabMint : Color.vocabPeach).opacity(0.35), radius: 8, x: 0, y: 4)
+                .shadow(color: (isPassed ? theme.colors.statusSuccess : theme.colors.accent).opacity(0.35), radius: 8, x: 0, y: 4)
                 .contentShape(Rectangle())
             }
             .buttonStyle(BentoCardButtonStyle())
@@ -213,7 +216,7 @@ public struct StageSummarySheet: View {
                     Text("Luyện tập lại Chặng này")
                         .font(.system(size: 13, weight: .semibold))
                 }
-                .foregroundColor(Color.vocabMuted)
+                .foregroundColor(theme.colors.textSecondary)
                 .padding(.vertical, 8)
             }
         }

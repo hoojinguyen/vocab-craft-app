@@ -1,5 +1,6 @@
 import SwiftUI
 
+@available(*, deprecated, message: "Use CraftTheme via CraftUIKit")
 public extension Color {
     // Dynamic Light / Dark mode helper
     static func dynamic(light: Color, dark: Color) -> Color {

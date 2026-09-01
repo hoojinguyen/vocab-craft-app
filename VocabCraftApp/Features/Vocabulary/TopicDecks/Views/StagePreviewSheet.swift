@@ -1,7 +1,10 @@
+import CraftUIKit
 import SwiftUI
 
 /// Step 1 of the Stage Learning Flow: Explore & listen to stage words, phonetic, definition, bilingual examples, and bookmark words before the quiz challenge.
 public struct StagePreviewSheet: View {
+    @Environment(\.craftTheme) private var theme
+
     public let stage: SubTopicStage
     public let onStartChallenge: () -> Void
     public var onToggleBookmark: ((TopicWord) -> Void)?
@@ -36,7 +39,7 @@ public struct StagePreviewSheet: View {
                 .padding(.bottom, 12)
 
             Divider()
-                .background(Color.vocabHairline)
+                .background(theme.colors.hairline)
 
             // Words List
             ScrollView {
@@ -53,7 +56,7 @@ public struct StagePreviewSheet: View {
             // Fixed Bottom CTA
             bottomCtaBar
         }
-        .background(Color.vocabCanvas.ignoresSafeArea())
+        .background(theme.colors.canvasBackground.ignoresSafeArea())
     }
 
     // MARK: - Header
@@ -63,7 +66,7 @@ public struct StagePreviewSheet: View {
                 Circle()
                     .fill(
                         LinearGradient(
-                            colors: [Color.vocabPeach.opacity(0.2), Color(hex: "FA9938").opacity(0.1)],
+                            colors: [theme.colors.accent.opacity(0.2), theme.colors.accent.opacity(0.1)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -72,18 +75,18 @@ public struct StagePreviewSheet: View {
 
                 Image(systemName: stage.iconName)
                     .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(Color.vocabPeach)
+                    .foregroundColor(theme.colors.accent)
             }
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(stage.title)
                     .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(Color.vocabInk)
+                    .foregroundColor(theme.colors.textPrimary)
                     .lineLimit(1)
 
                 Text("\(stage.words.count) từ vựng cốt lõi")
                     .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(Color.vocabMuted)
+                    .foregroundColor(theme.colors.textSecondary)
             }
 
             Spacer()
@@ -92,9 +95,9 @@ public struct StagePreviewSheet: View {
                 Button(action: onClose) {
                     Image(systemName: "xmark")
                         .font(.system(size: 14, weight: .bold))
-                        .foregroundColor(Color.vocabMuted)
+                        .foregroundColor(theme.colors.textSecondary)
                         .padding(8)
-                        .background(Color.vocabSurfaceSoft)
+                        .background(theme.colors.surfaceSubtle)
                         .clipShape(Circle())
                 }
             }
@@ -110,15 +113,15 @@ public struct StagePreviewSheet: View {
             HStack(alignment: .center, spacing: 8) {
                 Text(word.english)
                     .font(.system(size: 19, weight: .bold, design: .serif))
-                    .foregroundColor(Color.vocabInk)
+                    .foregroundColor(theme.colors.textPrimary)
 
                 if !word.partOfSpeech.isEmpty {
                     Text(word.partOfSpeech.lowercased())
                         .font(.system(size: 11, weight: .semibold, design: .monospaced))
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color.vocabMint.opacity(0.15))
-                        .foregroundColor(Color.vocabInk)
+                        .background(theme.colors.statusSuccess.opacity(0.15))
+                        .foregroundColor(theme.colors.textPrimary)
                         .cornerRadius(6)
                 }
 
@@ -130,9 +133,9 @@ public struct StagePreviewSheet: View {
                 }) {
                     Image(systemName: "speaker.wave.2.fill")
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(Color.vocabInk)
+                        .foregroundColor(theme.colors.textPrimary)
                         .frame(width: 32, height: 32)
-                        .background(Color.vocabSurfaceSoft)
+                        .background(theme.colors.surfaceSubtle)
                         .clipShape(Circle())
                 }
                 .buttonStyle(BentoCardButtonStyle())
@@ -149,9 +152,9 @@ public struct StagePreviewSheet: View {
                 }) {
                     Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(isBookmarked ? Color.vocabPeach : Color.vocabMuted)
+                        .foregroundColor(isBookmarked ? theme.colors.accent : theme.colors.textSecondary)
                         .frame(width: 32, height: 32)
-                        .background(isBookmarked ? Color.vocabPeach.opacity(0.12) : Color.vocabSurfaceSoft)
+                        .background(isBookmarked ? theme.colors.accent.opacity(0.12) : theme.colors.surfaceSubtle)
                         .clipShape(Circle())
                 }
                 .buttonStyle(BentoCardButtonStyle())
@@ -162,13 +165,13 @@ public struct StagePreviewSheet: View {
             if !word.phonetic.isEmpty {
                 Text(word.phonetic)
                     .font(.system(size: 13, weight: .regular))
-                    .foregroundColor(Color.vocabMuted)
+                    .foregroundColor(theme.colors.textSecondary)
             }
 
             // Vietnamese Definition
             Text(word.vietnamese)
                 .font(.system(size: 15, weight: .semibold))
-                .foregroundColor(Color.vocabInk)
+                .foregroundColor(theme.colors.textPrimary)
 
             // Example Sentence (Bilingual)
             if !word.example.isEmpty {
@@ -176,33 +179,33 @@ public struct StagePreviewSheet: View {
                     HStack(alignment: .top, spacing: 6) {
                         Text("“")
                             .font(.system(size: 16, weight: .bold, design: .serif))
-                            .foregroundColor(Color.vocabPeach)
+                            .foregroundColor(theme.colors.accent)
 
                         Text(word.example)
                             .font(.system(size: 13, weight: .medium))
                             .italic()
-                            .foregroundColor(Color.vocabInk.opacity(0.85))
+                            .foregroundColor(theme.colors.textPrimary.opacity(0.85))
                     }
 
                     if !word.exampleVi.isEmpty {
                         Text(word.exampleVi)
                             .font(.system(size: 12, weight: .regular))
-                            .foregroundColor(Color.vocabMuted)
+                            .foregroundColor(theme.colors.textSecondary)
                             .padding(.leading, 12)
                     }
                 }
                 .padding(10)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color.vocabCanvas)
+                .background(theme.colors.canvasBackground)
                 .cornerRadius(8)
             }
         }
         .padding(16)
-        .background(Color.vocabSurfaceCard)
+        .background(theme.colors.surfaceCard)
         .cornerRadius(14)
         .overlay(
             RoundedRectangle(cornerRadius: 14)
-                .stroke(Color.vocabHairline, lineWidth: 1)
+                .stroke(theme.colors.hairline, lineWidth: 1)
         )
     }
 
@@ -210,7 +213,7 @@ public struct StagePreviewSheet: View {
     private var bottomCtaBar: some View {
         VStack(spacing: 0) {
             Divider()
-                .background(Color.vocabHairline)
+                .background(theme.colors.hairline)
 
             Button(action: onStartChallenge) {
                 HStack(spacing: 8) {
@@ -225,13 +228,13 @@ public struct StagePreviewSheet: View {
                 .frame(height: 50)
                 .background(
                     LinearGradient(
-                        colors: [Color.vocabPeach, Color(hex: "FA9938")],
+                        colors: [theme.colors.accent, theme.colors.accent.opacity(0.85)],
                         startPoint: .leading,
                         endPoint: .trailing
                     )
                 )
                 .clipShape(Capsule())
-                .shadow(color: Color.vocabPeach.opacity(0.35), radius: 8, x: 0, y: 4)
+                .shadow(color: theme.colors.accent.opacity(0.35), radius: 8, x: 0, y: 4)
                 .contentShape(Rectangle())
             }
             .buttonStyle(BentoCardButtonStyle())
@@ -239,6 +242,6 @@ public struct StagePreviewSheet: View {
             .padding(.top, 12)
             .padding(.bottom, 16)
         }
-        .background(Color.vocabSurfaceCard.ignoresSafeArea(edges: .bottom))
+        .background(theme.colors.surfaceCard.ignoresSafeArea(edges: .bottom))
     }
 }

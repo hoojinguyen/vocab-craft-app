@@ -27,6 +27,8 @@ extension WordTokenResult {
 /// Shared speech visualizer component showing animated sound equalizer bars,
 /// live recognized speech text display, and word token highlight chips across voice features.
 public struct VocabSpeechVisualizerView: View {
+    @Environment(\.craftTheme) private var theme
+
     public let isListening: Bool
     public let recognizedText: String
     public let placeholderText: String
@@ -90,7 +92,7 @@ public struct VocabSpeechVisualizerView: View {
             } else {
                 Text(displayText)
                     .font(.body.weight(recognizedText.isEmpty ? .medium : .semibold))
-                    .foregroundColor(recognizedText.isEmpty ? .vocabMuted.opacity(0.6) : .vocabInk)
+                    .foregroundColor(recognizedText.isEmpty ? theme.colors.textMuted.opacity(0.6) : theme.colors.textPrimary)
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: .infinity, minHeight: 44)
                     .padding(.horizontal, 12)
@@ -101,13 +103,13 @@ public struct VocabSpeechVisualizerView: View {
         .frame(maxWidth: .infinity)
         .background(
             ZStack {
-                Color.vocabSurfaceCard
+                theme.colors.surfaceCard
 
                 if isListening {
                     RoundedRectangle(cornerRadius: 24)
                         .stroke(
                             LinearGradient(
-                                colors: [Color.vocabCoral.opacity(0.6), Color.vocabPeach.opacity(0.4)],
+                                colors: [theme.colors.statusDanger.opacity(0.6), theme.colors.accent.opacity(0.4)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             ),
@@ -115,16 +117,16 @@ public struct VocabSpeechVisualizerView: View {
                         )
                 } else if let eval = evaluationResult, eval.isPassed {
                     RoundedRectangle(cornerRadius: 24)
-                        .stroke(Color.green.opacity(0.4), lineWidth: 1.5)
+                        .stroke(theme.colors.statusSuccess.opacity(0.4), lineWidth: 1.5)
                 } else {
                     RoundedRectangle(cornerRadius: 24)
-                        .stroke(Color.vocabHairline, lineWidth: 1.5)
+                        .stroke(theme.colors.hairline, lineWidth: 1.5)
                 }
             }
         )
         .cornerRadius(24)
         .shadow(
-            color: isListening ? Color.vocabCoral.opacity(0.12) : Color.black.opacity(0.03),
+            color: isListening ? theme.colors.statusDanger.opacity(0.12) : Color.black.opacity(0.03),
             radius: isListening ? 12 : 6,
             x: 0,
             y: isListening ? 6 : 3
@@ -156,11 +158,11 @@ public struct VocabSpeechVisualizerView: View {
 
     private var headerColor: Color {
         if isListening {
-            return .vocabCoral
+            return theme.colors.statusDanger
         } else if let eval = evaluationResult {
-            return eval.isPassed ? .green : .vocabPeach
+            return eval.isPassed ? theme.colors.statusSuccess : theme.colors.accent
         } else {
-            return .vocabMuted
+            return theme.colors.textMuted
         }
     }
 
@@ -169,11 +171,11 @@ public struct VocabSpeechVisualizerView: View {
         HStack(spacing: 4) {
             Text(verbatim: "⚡️ \(Int(eval.overallScore))%")
                 .font(.caption2.bold())
-                .foregroundColor(eval.isPassed ? .green : .orange)
+                .foregroundColor(eval.isPassed ? theme.colors.statusSuccess : theme.colors.statusWarning)
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 3)
-        .background((eval.isPassed ? Color.green : Color.orange).opacity(0.12))
+        .background((eval.isPassed ? theme.colors.statusSuccess : theme.colors.statusWarning).opacity(0.12))
         .clipShape(Capsule())
     }
 
@@ -189,6 +191,7 @@ public struct VocabSpeechVisualizerView: View {
 }
 
 private struct EqualizerBarsView: View {
+    @Environment(\.craftTheme) private var theme
     let isListening: Bool
     @State private var barHeights: [CGFloat] = [12, 24, 18, 30, 16, 26, 14]
 
@@ -198,7 +201,7 @@ private struct EqualizerBarsView: View {
                 RoundedRectangle(cornerRadius: 3)
                     .fill(
                         LinearGradient(
-                            colors: [Color.vocabCoral, Color.vocabPeach],
+                            colors: [theme.colors.statusDanger, theme.colors.accent],
                             startPoint: .bottom,
                             endPoint: .top
                         )
