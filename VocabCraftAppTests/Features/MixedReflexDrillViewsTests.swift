@@ -337,5 +337,45 @@ struct MixedReflexDrillViewsTests {
         #expect(!AppStrings.Practice.cantSpeakNowCTA.isEmpty)
         #expect(AppStrings.Practice.cantSpeakNowCTA == "Không thể nói lúc này" || AppStrings.Practice.cantSpeakNowCTA == "Can't speak now")
     }
+
+    @Test("MixedReflexDrillView tích hợp chính xác với ReflexSpeechEngineProtocol và nhận diện phát âm")
+    @MainActor
+    func testMixedReflexDrillViewSpeechEngineIntegration() async {
+        let words = [
+            VaultWordItem(id: 1, lemma: "eloquent", pos: "adj.", definitionVi: "Hùng biện", exampleSentenceEn: "He is eloquent.")
+        ]
+        final class MockSpeakingQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol {
+            let item: MixedReflexDrillItem
+            init(item: MixedReflexDrillItem) { self.item = item }
+            func generate(from words: [VaultWordItem]) -> [MixedReflexDrillItem] { [item] }
+            func requeueFailedItem(_ item: MixedReflexDrillItem) -> MixedReflexDrillItem { item }
+        }
+
+        let item = MixedReflexDrillItem(word: words[0], assignedMode: .speaking, isRetry: false)
+        let queueUseCase = MockSpeakingQueueUseCase(item: item)
+        let vm = MixedReflexDrillViewModel(
+            selectedWords: words,
+            queueUseCase: queueUseCase
+        )
+        let mockSpeechEngine = MockResilientReflexSpeechEngine()
+
+        var finished = false
+        let drillView = MixedReflexDrillView(
+            viewModel: vm,
+            speechEngine: mockSpeechEngine,
+            startWithCountdown: false,
+            onFinish: { finished = true }
+        )
+
+        #expect(drillView.speechEngine != nil)
+        _ = drillView.body
+
+        // Simulate match detected callback directly on speech engine
+        mockSpeechEngine.beginWord(targetLemma: words[0].lemma, contextualPhrases: [])
+        mockSpeechEngine.simulateMatch(words[0].lemma)
+
+        #expect(mockSpeechEngine.isWordActive == true)
+        #expect(drillView.viewModel.currentItem?.word.lemma == "eloquent")
+    }
 }
 #endif

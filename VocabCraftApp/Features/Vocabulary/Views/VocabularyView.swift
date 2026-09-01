@@ -233,7 +233,7 @@ public struct VocabularyView: View {
             .sheet(item: $activeDrillViewModel) { drillVM in
                 MixedReflexDrillView(
                     viewModel: drillVM,
-                    speechService: ContinuousReflexSpeechService(),
+                    speechEngine: appContainer.makeReflexSpeechEngine(),
                     onFinish: {
                         activeDrillViewModel = nil
                         Task {

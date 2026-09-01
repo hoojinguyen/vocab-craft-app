@@ -213,13 +213,17 @@ public final class AppContainer {
         )
     }
 
+    public func makeReflexSpeechEngine() -> ReflexSpeechEngineProtocol {
+        ResilientReflexSpeechEngine()
+    }
+
     public func makeReflexBlitzViewModel(words: [ReflexBlitzWordItem] = []) -> ReflexBlitzViewModel {
         let blitzWords = !words.isEmpty ? words : ReflexBlitzWordItem.defaultStarterWords
         return ReflexBlitzViewModel(
             words: blitzWords,
             ttsService: ttsService,
             evaluateSRSUseCase: evaluateSRSUseCase,
-            speechEngine: ResilientReflexSpeechEngine()
+            speechEngine: makeReflexSpeechEngine()
         )
     }
 

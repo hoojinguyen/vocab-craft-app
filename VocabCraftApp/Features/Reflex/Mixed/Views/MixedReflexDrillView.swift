@@ -13,7 +13,7 @@ import SwiftUI
 public struct MixedReflexDrillView: View {
     @Environment(\.craftTheme) private var theme
     @Bindable public var viewModel: MixedReflexDrillViewModel
-    public var speechService: ContinuousReflexSpeechProtocol?
+    public var speechEngine: ReflexSpeechEngineProtocol?
     public let onFinish: () -> Void
     public let startWithCountdown: Bool
 
@@ -31,12 +31,12 @@ public struct MixedReflexDrillView: View {
 
     public init(
         viewModel: MixedReflexDrillViewModel,
-        speechService: ContinuousReflexSpeechProtocol? = nil,
+        speechEngine: ReflexSpeechEngineProtocol? = nil,
         startWithCountdown: Bool = true,
         onFinish: @escaping () -> Void
     ) {
         self.viewModel = viewModel
-        self.speechService = speechService
+        self.speechEngine = speechEngine
         self.startWithCountdown = startWithCountdown
         self.onFinish = onFinish
         self._isCountingDown = State(initialValue: startWithCountdown)
@@ -111,7 +111,7 @@ public struct MixedReflexDrillView: View {
         }
         .ignoresSafeArea(edges: .bottom)
         .onAppear {
-            setupSpeechServiceCallbacks()
+            setupSpeechEngineCallbacks()
             if !isCountingDown, let current = viewModel.currentItem {
                 startDrillItem(current)
             }
@@ -173,6 +173,7 @@ public struct MixedReflexDrillView: View {
                             style: .outlined,
                             action: {
                                 timerTask?.cancel()
+                                speechEngine?.endWord()
                                 viewModel.skipSpeakingCurrentWord()
                                 if let next = viewModel.currentItem {
                                     withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
@@ -379,10 +380,16 @@ private extension MixedReflexDrillView {
         }
 
         if item.assignedMode == .speaking {
-            speechService?.setTargetWord(lemma: item.word.lemma, contextualPhrases: [item.word.exampleSentenceEn])
-            speechService?.resumeListening()
+            if let engine = speechEngine, !engine.isSessionActive {
+                let phrases = viewModel.queue.map(\.word.lemma)
+                engine.startSession(contextualPhrases: phrases)
+            }
+            speechEngine?.beginWord(
+                targetLemma: item.word.lemma,
+                contextualPhrases: [item.word.exampleSentenceEn]
+            )
         } else {
-            speechService?.pauseListening()
+            speechEngine?.endWord()
         }
 
         if item.assignedMode == .listening {
@@ -410,6 +417,7 @@ private extension MixedReflexDrillView {
     func selectOption(_ option: ReflexBlitzOption) {
         guard cardPhase == .activeCountdown else { return }
         timerTask?.cancel()
+        speechEngine?.endWord()
 
         withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
             cardPhase = .reviewed(result: ReflexCardResult(
@@ -432,6 +440,7 @@ private extension MixedReflexDrillView {
 
         let isCorrect = cleanText.lowercased() == current.word.lemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         timerTask?.cancel()
+        speechEngine?.endWord()
 
         withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
             cardPhase = .reviewed(result: ReflexCardResult(
@@ -456,6 +465,7 @@ private extension MixedReflexDrillView {
     func handleTimeout() {
         guard cardPhase == .activeCountdown else { return }
         timerTask?.cancel()
+        speechEngine?.endWord()
         fractionRemaining = 0.0
 
         withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
@@ -482,13 +492,14 @@ private extension MixedReflexDrillView {
         }
     }
 
-    func setupSpeechServiceCallbacks() {
-        speechService?.onMatchDetected = { matched in
+    func setupSpeechEngineCallbacks() {
+        speechEngine?.onMatchDetected = { matched in
             Task { @MainActor in
                 guard cardPhase == .activeCountdown, let current = viewModel.currentItem else { return }
                 let isCorrect = matched.lowercased().contains(current.word.lemma.lowercased())
                 if isCorrect {
                     timerTask?.cancel()
+                    speechEngine?.endWord()
                     withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
                         cardPhase = .reviewed(result: ReflexCardResult(
                             isCorrect: true,
@@ -502,15 +513,19 @@ private extension MixedReflexDrillView {
             }
         }
 
-        speechService?.onTranscriptUpdate = { transcript in
+        speechEngine?.onTranscriptUpdate = { transcript in
             Task { @MainActor in
                 self.liveTranscript = transcript
             }
+        }
+
+        speechEngine?.onError = { error in
+            print("[MixedReflexDrillView] Speech engine error: \(error.localizedDescription)")
         }
     }
 
     func stopDrillSession() {
         timerTask?.cancel()
-        speechService?.stopSession()
+        speechEngine?.stopSession()
     }
 }
