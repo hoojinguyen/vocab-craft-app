@@ -504,25 +504,23 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         XCTAssertEqual(vm.words.count, 1)
     }
 
-    func testKeyboardFallbackInputToggleAndSubmit() {
+    func testSpeakingModeCantSpeakNowTriggersTimeout() {
         let (vm, _, _, _, mockSpeechEngine) = makeViewModel()
         vm.selectMode(.speaking)
         vm.beginSessionDirectly()
-        XCTAssertFalse(vm.isKeyboardFallbackActive)
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
         XCTAssertNotNil(view.body)
         XCTAssertNotNil(view.drillingView)
 
-        vm.toggleKeyboardFallback()
-        XCTAssertTrue(vm.isKeyboardFallbackActive)
-        XCTAssertFalse(mockSpeechEngine.isWordActive)
-
-        // Submit via keyboard
-        let targetLemma = vm.currentWord!.lemma
-        vm.submitKeyboardInput(targetLemma)
-        XCTAssertTrue(vm.currentAttemptIsCorrect)
-        XCTAssertEqual(vm.comboStreak, 1)
+        vm.handleTimeout()
+        if case .reviewed(let result) = vm.cardPhase {
+            XCTAssertTrue(result.isTimeout)
+            XCTAssertFalse(result.isCorrect)
+        } else {
+            XCTFail("Expected cardPhase to be .reviewed")
+        }
+        XCTAssertEqual(mockSpeechEngine.endWordCallCount, 1)
     }
 
     func testCancellationTeardownOnDisappear() {

@@ -216,11 +216,7 @@ public struct ReflexBlitzView: View {
         } else if viewModel.selectedMode == .listening {
             listeningCard(for: word)
         } else if viewModel.selectedMode == .speaking {
-            if viewModel.isKeyboardFallbackActive {
-                typingCard(for: word)
-            } else {
-                speakingCard(for: word)
-            }
+            speakingCard(for: word)
         }
     }
 
@@ -239,8 +235,8 @@ public struct ReflexBlitzView: View {
             hintBadgeText: viewModel.currentHintBadgeText,
             speechState: viewModel.cardPhase == .activeCountdown ? .listening() : .evaluated(overallScore: viewModel.currentAttemptIsCorrect ? 100 : 0),
             liveTranscript: viewModel.liveTranscript,
-            onSwitchToKeyboard: {
-                viewModel.toggleKeyboardFallback()
+            onCantSpeakNow: {
+                viewModel.handleTimeout()
             },
             onReplayAudio: {
                 viewModel.speakCurrentWord()
@@ -290,9 +286,6 @@ public struct ReflexBlitzView: View {
             clozeParts: ReflexClozeFormatter.extractTemplateParts(from: word.clozeSentenceEn),
             displayedSentence: isReviewed ? word.completedSentenceWithTargetWord : word.clozeSentenceEn,
             hintBadgeText: viewModel.currentHintBadgeText,
-            onSwitchToVoice: viewModel.selectedMode == .speaking ? {
-                viewModel.toggleKeyboardFallback()
-            } : nil,
             onSubmit: {
                 viewModel.submitTypingAnswer(typingInput)
             },
