@@ -1,9 +1,9 @@
 import CraftUIKit
 import SwiftUI
 
-/// Redesigned Vocabulary Vault (Kho từ) single view.
-/// Features a native search bar, 3-tab segmented category filter (Chưa thuộc, Đã thuộc, Đã lưu),
-/// top review action button, active recall word rows, and a bottom detail sheet.
+/// Redesigned Vocabulary Vault single view.
+/// Features a search bar, 3-tab segmented category filter (Not Mastered, Mastered, Bookmarked),
+/// top review action button, active recall word rows, and a detail sheet.
 public struct VocabularyView: View {
     @Environment(\.appContainer) private var appContainer
     @Environment(\.craftTheme) private var theme

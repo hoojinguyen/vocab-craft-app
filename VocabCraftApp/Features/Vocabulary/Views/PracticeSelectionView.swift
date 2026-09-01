@@ -2,10 +2,8 @@ import CraftUIKit
 import SwiftUI
 
 /// Screen allowing the user to select words for a Mixed Reflex Drill practice session.
-/// Features a navigation header, "Chọn tất cả" toggle action,
-/// lazy scrollable list of selectable words,
-/// and a sticky bottom CTA bar anchored with `.safeAreaInset(edge: .bottom)`
-/// containing instant "⚡️ Luyện tập thông minh" Smart Practice and manual Start Practice.
+/// Features a navigation header, select-all toggle action,
+/// scrollable list of selectable words, and a sticky bottom CTA bar.
 public struct PracticeSelectionView: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.dismiss) private var dismiss
@@ -67,26 +65,19 @@ public struct PracticeSelectionView: View {
     // MARK: - Navigation Header
     private var navigationHeader: some View {
         HStack(alignment: .center) {
-            Button(action: {
-                if let onClose {
-                    onClose()
-                } else {
-                    dismiss()
+            CraftIconButton(
+                symbol: .chevronLeft,
+                size: .md,
+                variant: .ghost,
+                accessibilityLabel: AppStrings.Practice.backText,
+                action: {
+                    if let onClose {
+                        onClose()
+                    } else {
+                        dismiss()
+                    }
                 }
-            }) {
-                HStack(spacing: 6) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 16, weight: .bold))
-                    Text(AppStrings.Practice.back)
-                        .font(theme.typography.label)
-                        .fontWeight(.medium)
-                }
-                .foregroundStyle(theme.colors.textPrimary)
-                .frame(minWidth: 44, minHeight: 44, alignment: .leading)
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(AppStrings.Practice.backText)
+            )
 
             Spacer()
 

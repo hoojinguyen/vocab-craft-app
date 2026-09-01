@@ -42,60 +42,50 @@ struct VocabularyRedesignViewTests {
         )
     ]
 
-    @Test("VaultWordCardView hiển thị trạng thái thu gọn và mở rộng")
+    @Test("VaultWordRowView displays word and handles callbacks")
     @MainActor
-    func testVaultWordCardView() {
+    func testVaultWordRowView() {
         var tapCount = 0
-        var audioCount = 0
         var bookmarkCount = 0
 
-        let card = VaultWordCardView(
+        let row = VaultWordRowView(
             word: mockWords[0],
-            isExpanded: false,
             onTap: { tapCount += 1 },
-            onAudioTap: { audioCount += 1 },
             onBookmarkTap: { bookmarkCount += 1 }
         )
 
         #if canImport(UIKit)
-        let host = UIHostingController(rootView: card)
+        let host = UIHostingController(rootView: row)
         #expect(host.view != nil)
         #endif
 
-        #expect(card.word.lemma == "resilience")
-        #expect(card.isExpanded == false)
+        #expect(row.word.lemma == "resilience")
 
-        card.onTap()
+        row.onTap()
         #expect(tapCount == 1)
 
-        card.onAudioTap()
-        #expect(audioCount == 1)
-
-        card.onBookmarkTap()
+        row.onBookmarkTap()
         #expect(bookmarkCount == 1)
     }
 
-    @Test("VaultWordCardView hiển thị từ đã thuộc với checkmark badge")
+    @Test("VaultWordRowView displays mastered word")
     @MainActor
-    func testVaultWordCardViewMastered() {
-        let card = VaultWordCardView(
+    func testVaultWordRowViewMastered() {
+        let row = VaultWordRowView(
             word: mockWords[1],
-            isExpanded: true,
             onTap: {},
-            onAudioTap: {},
             onBookmarkTap: {}
         )
 
         #if canImport(UIKit)
-        let host = UIHostingController(rootView: card)
+        let host = UIHostingController(rootView: row)
         #expect(host.view != nil)
         #endif
 
-        #expect(card.word.isMastered == true)
-        #expect(card.isExpanded == true)
+        #expect(row.word.isMastered == true)
     }
 
-    @Test("VocabularyView khởi tạo và kết nối với PersonalVaultViewModel")
+    @Test("VocabularyView initializes and connects with PersonalVaultViewModel")
     @MainActor
     func testVocabularyViewInitialization() {
         let vm = PersonalVaultViewModel(mockWords: mockWords)

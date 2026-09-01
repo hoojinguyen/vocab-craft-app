@@ -223,7 +223,7 @@ public struct MixedReflexSummaryView: View {
                 Image(systemName: "exclamationmark.circle.fill")
                     .symbolRenderingMode(.hierarchical)
                     .foregroundStyle(theme.colors.statusDanger)
-                    .font(.headline)
+                    .font(theme.typography.headline)
                     .accessibilityHidden(true)
 
                 Text(AppStrings.ReflexBlitz.weakWordsHeader)

@@ -2,7 +2,7 @@ import CraftUIKit
 import SwiftUI
 
 /// Focused mini-session view to review weak vocabulary words needing reinforcement.
-/// Presents clear flashcard typography, audio pronunciation, definition reveal, and instant mastery grading.
+/// Built 100% with CraftUIKit components and theme tokens.
 public struct SmartReviewSessionView: View {
     @Environment(\.craftTheme) private var theme
     @State private var viewModel: SmartReviewViewModel
@@ -21,7 +21,7 @@ public struct SmartReviewSessionView: View {
             theme.colors.canvasBackground
                 .ignoresSafeArea()
 
-            VStack(spacing: 16) {
+            VStack(spacing: theme.spacing.base) {
                 headerBar
 
                 if viewModel.isCompleted {
@@ -32,9 +32,9 @@ public struct SmartReviewSessionView: View {
                     wordReviewCard(word: word)
                 }
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 16)
-            .padding(.bottom, 24)
+            .padding(.horizontal, theme.spacing.base)
+            .padding(.top, theme.spacing.base)
+            .padding(.bottom, theme.spacing.lg)
         }
         .task {
             await viewModel.loadWeakWords()
@@ -55,44 +55,45 @@ public struct SmartReviewSessionView: View {
     }
 
     // MARK: - Header Bar
+
     private var headerBar: some View {
         HStack {
-            Button(action: onDismiss) {
-                Image(systemName: "xmark")
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(theme.colors.textPrimary)
-                    .padding(8)
-                    .background(theme.colors.surfaceSubtle)
-                    .clipShape(Circle())
-            }
+            CraftIconButton(
+                symbol: .close,
+                size: .md,
+                variant: .subtle,
+                accessibilityLabel: AppStrings.Vault.SmartReview.closeText,
+                action: onDismiss
+            )
 
             Spacer()
 
             Text(AppStrings.Vault.SmartReview.title)
-                .font(.system(size: 16, weight: .bold))
-                .foregroundColor(theme.colors.textPrimary)
+                .font(theme.typography.headline)
+                .fontWeight(.bold)
+                .foregroundStyle(theme.colors.textPrimary)
 
             Spacer()
 
             if !viewModel.weakWords.isEmpty && !viewModel.isCompleted {
-                Text("\(viewModel.currentIndex + 1)/\(viewModel.weakWords.count)")
-                    .font(.system(size: 13, weight: .bold, design: .rounded))
-                    .monospacedDigit()
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(theme.colors.accent.opacity(0.18))
-                    .foregroundColor(theme.colors.textPrimary)
-                    .cornerRadius(8)
+                CraftBadge(
+                    verbatim: "\(viewModel.currentIndex + 1)/\(viewModel.weakWords.count)",
+                    variant: .subtle,
+                    tone: .primary,
+                    size: .sm,
+                    customTint: theme.colors.accent
+                )
             } else {
                 Color.clear
-                    .frame(width: 32, height: 32)
+                    .frame(width: 36, height: 36)
             }
         }
     }
 
     // MARK: - Word Review Flashcard
+
     private func wordReviewCard(word: PersonalWord) -> some View {
-        VStack(spacing: 20) {
+        VStack(spacing: theme.spacing.base) {
             progressBar
             flashcardBody(word: word)
             Spacer()
@@ -101,6 +102,7 @@ public struct SmartReviewSessionView: View {
     }
 
     // MARK: - Progress Bar
+
     private var progressBar: some View {
         let progressFraction = Double(viewModel.currentIndex + 1) / Double(max(viewModel.weakWords.count, 1))
         return Capsule()
@@ -122,104 +124,104 @@ public struct SmartReviewSessionView: View {
     }
 
     // MARK: - Flashcard Body
+
     private func flashcardBody(word: PersonalWord) -> some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                VStack(spacing: 8) {
-                    Text(word.lemma)
-                        .font(.system(size: 32, weight: .bold, design: .serif))
-                        .foregroundColor(theme.colors.textPrimary)
-                        .multilineTextAlignment(.center)
+        CraftCard(
+            style: .elevated,
+            cornerRadius: theme.radii.xl,
+            padding: theme.spacing.lg
+        ) {
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: theme.spacing.base) {
+                    VStack(spacing: theme.spacing.xs) {
+                        Text(word.lemma)
+                            .font(theme.typography.displayLarge)
+                            .fontWeight(.bold)
+                            .foregroundStyle(theme.colors.textPrimary)
+                            .multilineTextAlignment(.center)
 
-                    if !word.phonetic.isEmpty {
-                        Text(word.phonetic)
-                            .font(.system(size: 16, weight: .medium, design: .monospaced))
-                            .foregroundColor(theme.colors.textSecondary)
-                    }
-
-                    Button(action: {
-                        viewModel.playAudio()
-                    }) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "speaker.wave.2.fill")
-                                .font(.system(size: 14, weight: .bold))
-                            Text(AppStrings.Vault.SmartReview.pronounce)
-                                .font(.system(size: 13, weight: .semibold))
+                        if !word.phonetic.isEmpty {
+                            Text(word.phonetic)
+                                .font(theme.typography.phonetic)
+                                .foregroundStyle(theme.colors.textSecondary)
                         }
-                        .foregroundColor(theme.colors.accent)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 8)
-                        .background(theme.colors.accent.opacity(0.12))
-                        .clipShape(Capsule())
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                }
-                .padding(.top, 10)
 
-                if viewModel.isRevealed {
-                    revealedContent(word: word)
+                        CraftButton(
+                            AppStrings.Vault.SmartReview.pronounce,
+                            iconName: CraftSymbol.audio.rawValue,
+                            variant: .secondary,
+                            size: .sm,
+                            action: {
+                                viewModel.playAudio()
+                            }
+                        )
+                        .padding(.top, theme.spacing.xxs)
+                    }
+                    .padding(.top, theme.spacing.xs)
+
+                    if viewModel.isRevealed {
+                        revealedContent(word: word)
+                    }
                 }
             }
-            .padding(20)
         }
-        .background(theme.colors.surfaceCard)
-        .cornerRadius(18)
-        .overlay(
-            RoundedRectangle(cornerRadius: 18)
-                .stroke(theme.colors.hairline, lineWidth: 1.2)
-        )
     }
 
     // MARK: - Revealed Content
+
     private func revealedContent(word: PersonalWord) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: theme.spacing.md) {
             Divider()
                 .background(theme.colors.hairline)
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: theme.spacing.xxs) {
                 Text(AppStrings.Vault.SmartReview.definitionVi)
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundColor(theme.colors.textSecondary)
+                    .font(theme.typography.caption)
+                    .fontWeight(.bold)
+                    .foregroundStyle(theme.colors.textSecondary)
                     .textCase(.uppercase)
 
                 Text(word.definitionVi)
-                    .font(.system(size: 17, weight: .bold))
-                    .foregroundColor(theme.colors.textPrimary)
+                    .font(theme.typography.titleLarge)
+                    .fontWeight(.bold)
+                    .foregroundStyle(theme.colors.textPrimary)
             }
 
             if !word.definitionEn.isEmpty {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: theme.spacing.xxs) {
                     Text(AppStrings.Vault.SmartReview.definitionEn)
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(theme.colors.textSecondary)
+                        .font(theme.typography.caption)
+                        .fontWeight(.bold)
+                        .foregroundStyle(theme.colors.textSecondary)
                         .textCase(.uppercase)
 
                     Text(word.definitionEn)
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(theme.colors.textPrimary.opacity(0.85))
+                        .font(theme.typography.bodyMedium)
+                        .foregroundStyle(theme.colors.textPrimary.opacity(0.85))
                 }
             }
 
             if !word.exampleEn.isEmpty {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: theme.spacing.xxs) {
                     Text(AppStrings.Vault.SmartReview.contextExample)
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(theme.colors.textSecondary)
+                        .font(theme.typography.caption)
+                        .fontWeight(.bold)
+                        .foregroundStyle(theme.colors.textSecondary)
                         .textCase(.uppercase)
 
                     Text(word.exampleEn)
-                        .font(.system(size: 14, weight: .medium).italic())
-                        .foregroundColor(theme.colors.textPrimary)
+                        .font(theme.typography.bodyMedium.italic())
+                        .foregroundStyle(theme.colors.textPrimary)
 
                     if !word.exampleVi.isEmpty {
                         Text(word.exampleVi)
-                            .font(.system(size: 12, weight: .regular))
-                            .foregroundColor(theme.colors.textSecondary)
+                            .font(theme.typography.caption)
+                            .foregroundStyle(theme.colors.textSecondary)
                     }
                 }
-                .padding(12)
+                .padding(theme.spacing.sm)
                 .background(theme.colors.surfaceSubtle)
-                .cornerRadius(10)
+                .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -227,92 +229,61 @@ public struct SmartReviewSessionView: View {
     }
 
     // MARK: - Action Controls
+
     @ViewBuilder
     private var actionControls: some View {
         if !viewModel.isRevealed {
-            Button(action: {
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                    viewModel.revealDefinition()
+            CraftButton(
+                AppStrings.Vault.SmartReview.showAnswer,
+                iconName: CraftSymbol.eye.rawValue,
+                variant: .tactile,
+                size: .lg,
+                isFullWidth: true,
+                action: {
+                    withAnimation(theme.animations.springSmooth) {
+                        viewModel.revealDefinition()
+                    }
                 }
-            }) {
-                HStack(spacing: 8) {
-                    Image(systemName: "eye.fill")
-                        .font(.system(size: 15, weight: .bold))
-                    Text(AppStrings.Vault.SmartReview.showAnswer)
-                        .font(.system(size: 15, weight: .bold))
-                }
-                .foregroundColor(theme.colors.textInverse)
-                .frame(maxWidth: .infinity)
-                .frame(height: 50)
-                .background(theme.colors.textPrimary)
-                .clipShape(Capsule())
-                .shadow(color: theme.colors.textPrimary.opacity(0.2), radius: 6, x: 0, y: 3)
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(BentoCardButtonStyle())
+            )
         } else {
-            HStack(spacing: 12) {
-                Button(action: {
-                    Task {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
-                            _ = Task { await viewModel.markCurrentReviewed(isCorrect: false) }
+            HStack(spacing: theme.spacing.md) {
+                CraftButton(
+                    AppStrings.Vault.SmartReview.notRemembered,
+                    iconName: CraftSymbol.wrongCircle.rawValue,
+                    variant: .secondary,
+                    size: .lg,
+                    isFullWidth: true,
+                    action: {
+                        Task {
+                            withAnimation(theme.animations.springSmooth) {
+                                _ = Task { await viewModel.markCurrentReviewed(isCorrect: false) }
+                            }
                         }
                     }
-                }) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 16, weight: .bold))
-                        Text(AppStrings.Vault.SmartReview.notRemembered)
-                            .font(.system(size: 14, weight: .bold))
-                    }
-                    .foregroundColor(theme.colors.statusDanger)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 48)
-                    .background(theme.colors.statusDanger.opacity(0.12))
-                    .cornerRadius(14)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 14)
-                            .stroke(theme.colors.statusDanger.opacity(0.3), lineWidth: 1.2)
-                    )
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(BentoCardButtonStyle())
+                )
 
-                Button(action: {
-                    Task {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
-                            _ = Task { await viewModel.markCurrentReviewed(isCorrect: true) }
+                CraftButton(
+                    AppStrings.Vault.SmartReview.remembered,
+                    iconName: CraftSymbol.checkmarkCircle.rawValue,
+                    variant: .primary,
+                    size: .lg,
+                    isFullWidth: true,
+                    action: {
+                        Task {
+                            withAnimation(theme.animations.springSmooth) {
+                                _ = Task { await viewModel.markCurrentReviewed(isCorrect: true) }
+                            }
                         }
                     }
-                }) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 16, weight: .bold))
-                        Text(AppStrings.Vault.SmartReview.remembered)
-                            .font(.system(size: 14, weight: .bold))
-                    }
-                    .foregroundColor(theme.colors.textInverse)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 48)
-                    .background(
-                        LinearGradient(
-                            colors: [theme.colors.statusSuccess, theme.colors.statusSuccess.opacity(0.85)],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .cornerRadius(14)
-                    .shadow(color: theme.colors.statusSuccess.opacity(0.35), radius: 6, x: 0, y: 3)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(BentoCardButtonStyle())
+                )
             }
         }
     }
 
     // MARK: - Completion View
+
     private var completionView: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: theme.spacing.lg) {
             Spacer()
 
             ZStack {
@@ -320,69 +291,69 @@ public struct SmartReviewSessionView: View {
                     .fill(theme.colors.statusSuccess.opacity(0.15))
                     .frame(width: 88, height: 88)
 
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 48, weight: .bold))
-                    .foregroundColor(theme.colors.statusSuccess)
+                CraftIcon(
+                    .checkmarkCircle,
+                    size: .xl,
+                    color: theme.colors.statusSuccess
+                )
             }
 
-            VStack(spacing: 6) {
+            VStack(spacing: theme.spacing.xs) {
                 Text(AppStrings.Vault.SmartReview.completedTitle)
-                    .font(.system(size: 22, weight: .bold))
-                    .foregroundColor(theme.colors.textPrimary)
+                    .font(theme.typography.titleLarge)
+                    .fontWeight(.bold)
+                    .foregroundStyle(theme.colors.textPrimary)
 
                 Text(AppStrings.Vault.SmartReview.completedDesc(viewModel.weakWords.count))
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(theme.colors.textSecondary)
+                    .font(theme.typography.bodyMedium)
+                    .foregroundStyle(theme.colors.textSecondary)
                     .multilineTextAlignment(.center)
             }
 
             Spacer()
 
-            Button(action: onDismiss) {
-                Text(AppStrings.Vault.SmartReview.finishAndReturn)
-                    .font(.system(size: 15, weight: .bold))
-                    .foregroundColor(theme.colors.textInverse)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 50)
-                    .background(theme.colors.textPrimary)
-                    .clipShape(Capsule())
-                    .shadow(color: theme.colors.textPrimary.opacity(0.25), radius: 6, x: 0, y: 3)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(BentoCardButtonStyle())
+            CraftButton(
+                AppStrings.Vault.SmartReview.finishAndReturn,
+                variant: .tactile,
+                size: .lg,
+                isFullWidth: true,
+                action: onDismiss
+            )
         }
-        .padding(.horizontal, 10)
+        .padding(.horizontal, theme.spacing.xs)
     }
 
     // MARK: - Empty State View
+
     private var emptyStateView: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: theme.spacing.base) {
             Spacer()
 
-            Image(systemName: "sparkles")
-                .font(.system(size: 44))
-                .foregroundColor(theme.colors.statusSuccess)
+            CraftIcon(
+                .sparkles,
+                size: .xl,
+                color: theme.colors.statusSuccess
+            )
 
             Text(AppStrings.Vault.SmartReview.emptyTitle)
-                .font(.system(size: 18, weight: .bold))
-                .foregroundColor(theme.colors.textPrimary)
+                .font(theme.typography.titleLarge)
+                .fontWeight(.bold)
+                .foregroundStyle(theme.colors.textPrimary)
 
             Text(AppStrings.Vault.SmartReview.emptyDesc)
-                .font(.system(size: 13, weight: .medium))
-                .foregroundColor(theme.colors.textSecondary)
+                .font(theme.typography.bodyMedium)
+                .foregroundStyle(theme.colors.textSecondary)
                 .multilineTextAlignment(.center)
 
             Spacer()
 
-            Button(action: onDismiss) {
-                Text(AppStrings.Vault.SmartReview.close)
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(theme.colors.textPrimary)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 44)
-                    .background(theme.colors.surfaceSubtle)
-                    .cornerRadius(12)
-            }
+            CraftButton(
+                AppStrings.Vault.SmartReview.close,
+                variant: .secondary,
+                size: .md,
+                isFullWidth: true,
+                action: onDismiss
+            )
         }
     }
 }

@@ -54,7 +54,7 @@ public struct ReflexBlitzModeItem: Identifiable, Equatable {
 }
 
 /// Bento-style Mode Selection View allowing the user to select one of 4 Reflex Blitz drill modalities:
-/// Speaking (Luyện nói), Typing (Gõ từ), Multiple Choice (Trắc nghiệm), and Listening (Phản xạ nghe).
+/// Speaking, Typing, Multiple Choice, and Listening.
 /// Includes a 3-card Quick Stats Dashboard and 100% CraftUIKit tokens.
 public struct ReflexBlitzModeSelectionView: View {
     @Environment(\.craftTheme) private var theme

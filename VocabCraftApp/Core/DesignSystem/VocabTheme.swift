@@ -34,24 +34,24 @@ public struct VocabColorTokens: CraftColorTokens {
     public var statusInfo: Color
 
     public init(
-        canvasBackground: Color = .vocabCanvas,
-        surfaceCard: Color = .vocabSurfaceCard,
-        surfaceElevated: Color = .vocabSurfaceCard,
-        surfaceSubtle: Color = .vocabSurfaceSoft,
-        brandPrimary: Color = .vocabHeroTeal,
-        brandSecondary: Color = .vocabHeroAccent,
-        accent: Color = .vocabPeach,
-        textPrimary: Color = .vocabInk,
-        textSecondary: Color = .vocabMuted,
-        textMuted: Color = .vocabMuted,
-        textInverse: Color = .vocabCanvas,
-        borderDefault: Color = .vocabHairline,
-        borderFocus: Color = .vocabHeroAccent,
-        hairline: Color = .vocabHairline,
-        statusSuccess: Color = .vocabMint,
-        statusWarning: Color = .vocabPeach,
-        statusDanger: Color = .vocabCoral,
-        statusInfo: Color = .vocabLavender
+        canvasBackground: Color = .craftDynamic(light: Color(hex: "#FAF9F6"), dark: Color(hex: "#121212")),
+        surfaceCard: Color = .craftDynamic(light: Color.white, dark: Color(hex: "#1E1E1E")),
+        surfaceElevated: Color = .craftDynamic(light: Color.white, dark: Color(hex: "#262626")),
+        surfaceSubtle: Color = .craftDynamic(light: Color(hex: "#F3F2EE"), dark: Color(hex: "#1A1A1A")),
+        brandPrimary: Color = .craftDynamic(light: Color(hex: "#1A3A3A"), dark: Color(hex: "#0F2B2B")),
+        brandSecondary: Color = .craftDynamic(light: Color(hex: "#0A9E73"), dark: Color(hex: "#B5E5D6")),
+        accent: Color = .craftDynamic(light: Color(hex: "#E66E1A"), dark: Color(hex: "#FA9938")),
+        textPrimary: Color = .craftDynamic(light: Color(hex: "#111827"), dark: Color(hex: "#F9FAFB")),
+        textSecondary: Color = .craftDynamic(light: Color(hex: "#6B7280"), dark: Color(hex: "#9CA3AF")),
+        textMuted: Color = .craftDynamic(light: Color(hex: "#6B7280"), dark: Color(hex: "#9CA3AF")),
+        textInverse: Color = .craftDynamic(light: Color(hex: "#FAF9F6"), dark: Color(hex: "#121212")),
+        borderDefault: Color = .craftDynamic(light: Color(hex: "#E5E7EB"), dark: Color.white.opacity(0.12)),
+        borderFocus: Color = .craftDynamic(light: Color(hex: "#0A9E73"), dark: Color(hex: "#B5E5D6")),
+        hairline: Color = .craftDynamic(light: Color(hex: "#E5E7EB"), dark: Color.white.opacity(0.12)),
+        statusSuccess: Color = .craftDynamic(light: Color(hex: "#0A9E73"), dark: Color(hex: "#34D399")),
+        statusWarning: Color = .craftDynamic(light: Color(hex: "#E66E1A"), dark: Color(hex: "#FA9938")),
+        statusDanger: Color = .craftDynamic(light: Color(hex: "#E13847"), dark: Color(hex: "#F87171")),
+        statusInfo: Color = .craftDynamic(light: Color(hex: "#8B5CF6"), dark: Color(hex: "#C8B8F2"))
     ) {
         self.canvasBackground = canvasBackground
         self.surfaceCard = surfaceCard
@@ -85,7 +85,7 @@ public struct VocabGradientTokens: CraftGradientTokens {
 
     public init(
         brandHero: LinearGradient = LinearGradient(
-            colors: [.vocabHeroTeal, .vocabHeroAccent],
+            colors: [Color(hex: "#1A3A3A"), Color(hex: "#0A9E73")],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         ),
@@ -95,7 +95,7 @@ public struct VocabGradientTokens: CraftGradientTokens {
             endPoint: .bottomTrailing
         ),
         accentShine: LinearGradient = LinearGradient(
-            colors: [.vocabPeach, .vocabCoral],
+            colors: [Color(hex: "#E66E1A"), Color(hex: "#E13847")],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         ),

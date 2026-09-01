@@ -342,7 +342,7 @@ private extension MixedReflexDrillView {
 
 // MARK: - Drill Actions & Lifecycle
 public extension MixedReflexDrillView {
-    public func startDrillItem(_ item: MixedReflexDrillItem) {
+    func startDrillItem(_ item: MixedReflexDrillItem) {
         timerTask?.cancel()
         fractionRemaining = 1.0
         elapsedTimeMs = 0
@@ -392,7 +392,7 @@ public extension MixedReflexDrillView {
         }
     }
 
-    public func selectOption(_ option: ReflexBlitzOption) {
+    func selectOption(_ option: ReflexBlitzOption) {
         guard cardPhase == .activeCountdown else { return }
         timerTask?.cancel()
         speechEngine?.finalizeWordAudio()
@@ -412,7 +412,7 @@ public extension MixedReflexDrillView {
         }
     }
 
-    public func submitTypingAnswer(_ text: String) {
+    func submitTypingAnswer(_ text: String) {
         guard cardPhase == .activeCountdown, let current = viewModel.currentItem else { return }
         let cleanText = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleanText.isEmpty else { return }
@@ -442,7 +442,7 @@ public extension MixedReflexDrillView {
         }
     }
 
-    public func handleTimeout() {
+    func handleTimeout() {
         guard cardPhase == .activeCountdown else { return }
         timerTask?.cancel()
         fractionRemaining = 0.0
@@ -466,14 +466,14 @@ public extension MixedReflexDrillView {
         }
     }
 
-    public func advanceToNextItem() {
+    func advanceToNextItem() {
         viewModel.advanceToNextItem()
         if let nextItem = viewModel.currentItem {
             startDrillItem(nextItem)
         }
     }
 
-    public func setupSpeechEngineCallbacks() {
+    func setupSpeechEngineCallbacks() {
         if let speechEngine {
             let vm = viewModel
             speechEngine.onMatchDetected = { [weak speechEngine, weak vm] matched in
@@ -510,7 +510,7 @@ public extension MixedReflexDrillView {
         }
     }
 
-    public func stopDrillSession() {
+    func stopDrillSession() {
         timerTask?.cancel()
         speechEngine?.stopSession()
     }
