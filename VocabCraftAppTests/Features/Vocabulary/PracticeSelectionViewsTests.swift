@@ -42,20 +42,16 @@ struct PracticeSelectionViewsTests {
         )
     ]
 
-    @Test("PracticeSelectionRow kích hoạt onToggle và onAudioTap callback")
+    @Test("PracticeSelectionRow kích hoạt onToggle callback khi nhấn toàn bộ row")
     @MainActor
     func testPracticeSelectionRowCallbacks() {
         var toggleTriggered = false
-        var audioTriggered = false
 
         let row = PracticeSelectionRow(
             word: mockWords[0],
             isSelected: false,
             onToggle: {
                 toggleTriggered = true
-            },
-            onAudioTap: {
-                audioTriggered = true
             }
         )
 
@@ -66,9 +62,6 @@ struct PracticeSelectionViewsTests {
 
         row.onToggle()
         #expect(toggleTriggered == true)
-
-        row.onAudioTap?()
-        #expect(audioTriggered == true)
     }
 
     @Test("PracticeSelectionView hiển thị và thực hiện Chọn tất cả / Bắt đầu luyện tập")
@@ -148,21 +141,16 @@ struct PracticeSelectionViewsTests {
         #expect(vm.selectedWordIds.count == 1)
     }
 
-    @Test("PracticeSelectionRow hiển thị modeStats và các trạng thái hoàn thành")
+    @Test("PracticeSelectionRow hiển thị trạng thái đã chọn")
     @MainActor
-    func testPracticeSelectionRowModeStats() {
-        let wordWithStats = VaultWordItem(
-            id: 10,
-            lemma: "mastery",
-            pos: "n.",
-            definitionVi: "Sự thành thạo",
-            modeStats: ModeSuccessStats(speaking: 1, typing: 0, multipleChoice: 2, listening: 0)
-        )
-
+    func testPracticeSelectionRowSelectedState() {
+        var toggleTriggered = false
         let row = PracticeSelectionRow(
-            word: wordWithStats,
+            word: mockWords[0],
             isSelected: true,
-            onToggle: {}
+            onToggle: {
+                toggleTriggered = true
+            }
         )
 
         #if canImport(UIKit)
@@ -170,10 +158,10 @@ struct PracticeSelectionViewsTests {
         #expect(host.view != nil)
         #endif
 
-        #expect(wordWithStats.modeStats.count(for: .speaking) == 1)
-        #expect(wordWithStats.modeStats.count(for: .typing) == 0)
-        #expect(wordWithStats.modeStats.count(for: .multipleChoice) == 2)
-        #expect(wordWithStats.modeStats.count(for: .listening) == 0)
+        #expect(row.isSelected == true)
+        #expect(row.word.lemma == "resilience")
+        row.onToggle()
+        #expect(toggleTriggered == true)
     }
 }
 #endif
