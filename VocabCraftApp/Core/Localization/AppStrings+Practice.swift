@@ -40,7 +40,7 @@ extension AppStrings {
 
         public static var smartPick: LocalizedStringKey { "app.practice.selection.smart_pick" }
         public static var smartPickText: String {
-            String(localized: "app.practice.selection.smart_pick", defaultValue: "⚡️ Smart Practice", bundle: .module)
+            String(localized: "app.practice.selection.smart_pick", defaultValue: "Smart Practice", bundle: .module)
         }
 
         // CTA & Empty States

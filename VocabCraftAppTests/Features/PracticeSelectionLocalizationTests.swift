@@ -14,7 +14,7 @@ struct PracticeSelectionLocalizationTests {
         "app.practice.selection.selected_count": ("%lld đã chọn", "%lld selected"),
         "app.practice.selection.select_all": ("Chọn tất cả", "Select All"),
         "app.practice.selection.deselect_all": ("Bỏ chọn tất cả", "Deselect All"),
-        "app.practice.selection.smart_pick": ("⚡️ Luyện tập thông minh", "⚡️ Smart Practice"),
+        "app.practice.selection.smart_pick": ("Luyện tập thông minh", "Smart Practice"),
         "app.practice.selection.start_button": ("BẮT ĐẦU (%lld TỪ)", "START PRACTICE (%lld WORDS)"),
         "app.practice.selection.empty_prompt": ("CHỌN TỪ ĐỂ BẮT ĐẦU", "SELECT WORDS TO START"),
         "app.practice.selection.empty_title": ("Chưa có từ vựng", "No vocabulary"),
