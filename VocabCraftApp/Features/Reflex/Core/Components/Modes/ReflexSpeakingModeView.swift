@@ -87,66 +87,6 @@ public struct ReflexSpeakingModeView: View {
         )
     }
 
-    public init(
-        word: any ReflexDrillable,
-        isReviewed: Bool = false,
-        isResultCorrect: Bool = false,
-        isResultTimeout: Bool = false,
-        showHint: Bool = false,
-        hintStage: Int = 0,
-        clozeStages: ReflexClozeStageSet? = nil,
-        clozeParts: ClozeSentenceParts? = nil,
-        displayedSentence: String = "",
-        hintBadgeText: String? = nil,
-        speechState: CraftSpeechState = .listening(),
-        liveTranscript: String = "",
-        onSwitchToKeyboard: (() -> Void)?,
-        onReplayAudio: (() -> Void)? = nil
-    ) {
-        self.init(
-            word: word,
-            isReviewed: isReviewed,
-            isResultCorrect: isResultCorrect,
-            isResultTimeout: isResultTimeout,
-            showHint: showHint,
-            hintStage: hintStage,
-            clozeStages: clozeStages,
-            clozeParts: clozeParts,
-            displayedSentence: displayedSentence,
-            hintBadgeText: hintBadgeText,
-            speechState: speechState,
-            liveTranscript: liveTranscript,
-            onCantSpeakNow: onSwitchToKeyboard,
-            onReplayAudio: onReplayAudio
-        )
-    }
-
-    public init(
-        word: any ReflexDrillable,
-        liveTranscript: String = "",
-        elapsedTimeMs: Int = 0,
-        showHint: Bool = false,
-        hintStage: Int = 0,
-        clozeStages: ReflexClozeStageSet? = nil,
-        clozeParts: ClozeSentenceParts? = nil,
-        displayedSentence: String = "",
-        hintBadgeText: String? = nil,
-        onSwitchToKeyboard: (() -> Void)?
-    ) {
-        self.init(
-            word: word,
-            liveTranscript: liveTranscript,
-            elapsedTimeMs: elapsedTimeMs,
-            showHint: showHint,
-            hintStage: hintStage,
-            clozeStages: clozeStages,
-            clozeParts: clozeParts,
-            displayedSentence: displayedSentence,
-            hintBadgeText: hintBadgeText,
-            onCantSpeakNow: onSwitchToKeyboard
-        )
-    }
-
     public var activeClozeParts: ClozeSentenceParts? {
         guard let stages = clozeStages else { return clozeParts }
         switch hintStage {

@@ -85,41 +85,6 @@ public struct ReflexTypingModeView: View {
         )
     }
 
-    public init(
-        word: any ReflexDrillable,
-        isReviewed: Bool = false,
-        isResultCorrect: Bool = false,
-        isResultTimeout: Bool = false,
-        showHint: Bool = false,
-        hintStage: Int = 0,
-        typingText: Binding<String>,
-        userSubmittedText: String? = nil,
-        clozeStages: ReflexClozeStageSet? = nil,
-        clozeParts: ClozeSentenceParts? = nil,
-        displayedSentence: String = "",
-        hintBadgeText: String? = nil,
-        onSwitchToVoice: (() -> Void)?,
-        onSubmit: (() -> Void)? = nil,
-        onReplayAudio: (() -> Void)? = nil
-    ) {
-        self.init(
-            word: word,
-            isReviewed: isReviewed,
-            isResultCorrect: isResultCorrect,
-            isResultTimeout: isResultTimeout,
-            showHint: showHint,
-            hintStage: hintStage,
-            typingText: typingText,
-            userSubmittedText: userSubmittedText,
-            clozeStages: clozeStages,
-            clozeParts: clozeParts,
-            displayedSentence: displayedSentence,
-            hintBadgeText: hintBadgeText,
-            onSubmit: onSubmit,
-            onReplayAudio: onReplayAudio
-        )
-    }
-
     public var activeClozeParts: ClozeSentenceParts? {
         guard let stages = clozeStages else { return clozeParts }
         switch hintStage {
