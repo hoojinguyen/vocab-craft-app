@@ -58,18 +58,20 @@ public final class ReflexBlitzViewModel {
         }
     }
 
+    public var currentHandler: ReflexModeHandlerProtocol {
+        ReflexModeHandlerFactory.handler(for: selectedMode)
+    }
+
     let speechEngine: ReflexSpeechEngineProtocol
     let ttsService: TextToSpeechProtocol
     let evaluateSRSUseCase: EvaluateSRSUseCaseProtocol
     let soundEffectService: SoundEffectServiceProtocol
 
     private var countdownTask: Task<Void, Never>?
-    private var sessionTimerTask: Task<Void, Never>?
-    private var hintTimerTask: Task<Void, Never>?
-    private var hintStage2Task: Task<Void, Never>?
-    private var hintStage3Task: Task<Void, Never>?
+    private var hintTasks: [Task<Void, Never>] = []
     private var timeoutTimerTask: Task<Void, Never>?
     private var advanceTask: Task<Void, Never>?
+    private var reviewAudioTask: Task<Void, Never>?
     public var wordStartTime: Date?
 
     public var currentWord: ReflexBlitzWordItem? {
@@ -157,11 +159,12 @@ public final class ReflexBlitzViewModel {
     }
 
     func cancelActiveTimers() {
-        hintTimerTask?.cancel()
-        hintStage2Task?.cancel()
-        hintStage3Task?.cancel()
+        for task in hintTasks {
+            task.cancel()
+        }
+        hintTasks.removeAll()
         timeoutTimerTask?.cancel()
-        sessionTimerTask?.cancel()
+        reviewAudioTask?.cancel()
     }
 
     func cancelAllTasks() {
@@ -270,34 +273,24 @@ public final class ReflexBlitzViewModel {
         phase = .drilling
 
         if let plan = sessionPlan, index >= 0 && index < plan.items.count {
-            let planItem = plan.items[index]
-            self.currentPlanItem = planItem
-            self.currentOptions = planItem.options
-            self.currentClozeStages = planItem.clozeStages
-            self.currentEliminatedOptionId = planItem.eliminatedOptionId
-            self.currentHintBadgeText = planItem.hintBadgeText
+            self.currentPlanItem = plan.items[index]
         } else {
             self.currentPlanItem = nil
-            if selectedMode == .multipleChoice || selectedMode == .listening {
-                self.currentOptions = word.generateOptions(mode: selectedMode, allPool: words)
-            } else {
-                self.currentOptions = []
-            }
-            self.currentClozeStages = nil
-            self.currentEliminatedOptionId = nil
-            self.currentHintBadgeText = ""
         }
 
-        if selectedMode == .speaking && !isKeyboardFallbackActive {
-            speechEngine.beginWord(
-                targetLemma: word.lemma,
-                contextualPhrases: [word.lemma]
-            )
-        }
+        let prep = currentHandler.prepareWord(
+            word: word,
+            allWords: words,
+            planItem: currentPlanItem,
+            ttsService: ttsService,
+            speechEngine: speechEngine,
+            isKeyboardFallback: isKeyboardFallbackActive
+        )
 
-        if selectedMode == .listening {
-            ttsService.speak(text: word.lemma, rate: 1.0, locale: "en-US")
-        }
+        self.currentOptions = prep.options
+        self.currentClozeStages = prep.clozeStages
+        self.currentEliminatedOptionId = prep.eliminatedOptionId
+        self.currentHintBadgeText = prep.hintBadgeText
 
         startStopwatch()
     }
@@ -317,79 +310,15 @@ extension ReflexBlitzViewModel {
     }
 
     private func scheduleHintTimers() {
-        switch selectedMode {
-        case .multipleChoice:
-            scheduleMultipleChoiceTimers()
-        case .listening:
-            scheduleListeningTimers()
-        case .typing:
-            scheduleTypingTimers()
-        case .speaking:
-            scheduleSpeakingTimers()
-        }
-    }
-
-    private func scheduleMultipleChoiceTimers() {
-        hintTimerTask = Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .milliseconds(1600))
-            guard !Task.isCancelled, let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
-            self.hintStage = max(self.hintStage, 1)
-        }
-        hintStage2Task = Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .milliseconds(2500))
-            guard !Task.isCancelled, let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
-            self.hintStage = max(self.hintStage, 2)
-        }
-        hintStage3Task = Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .milliseconds(3400))
-            guard !Task.isCancelled, let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
-            self.hintStage = max(self.hintStage, 3)
-        }
-    }
-
-    private func scheduleListeningTimers() {
-        hintTimerTask = Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .milliseconds(1800))
-            guard !Task.isCancelled, let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
-            self.hintStage = max(self.hintStage, 1)
-            self.speakCurrentWord()
-        }
-        hintStage2Task = Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .milliseconds(3000))
-            guard !Task.isCancelled, let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
-            self.hintStage = max(self.hintStage, 2)
-            self.speakCurrentWord()
-        }
-    }
-
-    private func scheduleTypingTimers() {
-        hintTimerTask = Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .milliseconds(2500))
-            guard !Task.isCancelled, let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
-            self.hintStage = max(self.hintStage, 1)
-        }
-        hintStage2Task = Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .milliseconds(4500))
-            guard !Task.isCancelled, let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
-            self.hintStage = max(self.hintStage, 2)
-        }
-    }
-
-    private func scheduleSpeakingTimers() {
-        hintTimerTask = Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .milliseconds(2500))
-            guard !Task.isCancelled, let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
-            self.hintStage = max(self.hintStage, 1)
-        }
-        hintStage2Task = Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .milliseconds(4000))
-            guard !Task.isCancelled, let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
-            self.hintStage = max(self.hintStage, 2)
-        }
-        hintStage3Task = Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .milliseconds(5000))
-            guard !Task.isCancelled, let self, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
-            self.hintStage = max(self.hintStage, 3)
+        let handler = currentHandler
+        for milestone in handler.hintMilestones {
+            let task = Task { @MainActor [weak self] in
+                try? await Task.sleep(for: .milliseconds(milestone.delayMs))
+                guard !Task.isCancelled, let self, self.phase == .drilling, self.cardPhase == .activeCountdown, let word = self.currentWord else { return }
+                self.hintStage = max(self.hintStage, milestone.stage)
+                handler.onHintStageReached(stage: milestone.stage, word: word, ttsService: self.ttsService)
+            }
+            hintTasks.append(task)
         }
     }
 
@@ -401,11 +330,9 @@ extension ReflexBlitzViewModel {
 
             if self.selectedMode == .speaking {
                 // Grace period: stop mic input but let recognition pipeline
-                // process in-flight audio buffers. Words spoken at ~5.3-5.8s
-                // have 300-800ms recognition latency that would be lost otherwise.
+                // process in-flight audio buffers.
                 self.speechEngine.finalizeWordAudio()
                 try? await Task.sleep(for: .milliseconds(500))
-                // If match was detected during grace, cardPhase changed → skip timeout
                 guard !Task.isCancelled, self.phase == .drilling, self.cardPhase == .activeCountdown else { return }
             }
 
@@ -424,24 +351,9 @@ extension ReflexBlitzViewModel {
 
     public func simulateElapsedTime(ms: Int) {
         self.elapsedTimeMs = ms
-        if selectedMode == .multipleChoice {
-            if ms >= 1600 { self.hintStage = max(self.hintStage, 1) }
-            if ms >= 2500 { self.hintStage = max(self.hintStage, 2) }
-            if ms >= 3400 { self.hintStage = max(self.hintStage, 3) }
-        } else if selectedMode == .listening {
-            if ms >= 1800 { self.hintStage = max(self.hintStage, 1) }
-            if ms >= 3000 { self.hintStage = max(self.hintStage, 2) }
-        } else if selectedMode == .typing {
-            if ms >= 2500 { self.hintStage = max(self.hintStage, 1) }
-            if ms >= 4500 { self.hintStage = max(self.hintStage, 2) }
-        } else if selectedMode == .speaking {
-            if ms >= 5000 {
-                self.hintStage = max(self.hintStage, 3)
-            } else if ms >= 4000 {
-                self.hintStage = max(self.hintStage, 2)
-            } else if ms >= 2500 {
-                self.hintStage = max(self.hintStage, 1)
-            }
+        let computed = currentHandler.hintStage(forElapsedTimeMs: ms)
+        if computed > self.hintStage {
+            self.hintStage = computed
         }
         let limitMs = Int(selectedMode.timeLimitSeconds * 1000)
         if ms >= limitMs && phase == .drilling && cardPhase == .activeCountdown {
@@ -457,122 +369,46 @@ extension ReflexBlitzViewModel {
         guard phase == .drilling, cardPhase == .activeCountdown, let word = currentWord else { return }
         cancelActiveTimers()
 
-        let isCorrect = option.isCorrect
+        let isCorrect = currentHandler.validateOption(option)
         currentAttemptIsCorrect = isCorrect
+        let responseMs = calculateResponseTimeMs()
 
-        if isCorrect {
-            soundEffectService.playSuccessChime()
-            comboStreak += 1
-            if comboStreak > maxComboStreak {
-                maxComboStreak = comboStreak
-            }
-        } else {
-            soundEffectService.playIncorrectChime()
-            triggerIncorrectHaptic()
-            comboStreak = 0
-        }
-
-        let responseMs: Int
-        if elapsedTimeMs > 0 {
-            responseMs = elapsedTimeMs
-        } else if let start = wordStartTime {
-            responseMs = max(0, Int(Date().timeIntervalSince(start) * 1000))
-            self.elapsedTimeMs = responseMs
-        } else {
-            responseMs = 0
-        }
-
-        let attempt = ReflexBlitzAttempt(
-            wordId: word.id,
-            lemma: word.lemma,
-            pos: word.pos,
-            ipa: word.ipa,
-            definitionVi: word.definitionVi,
+        recordAttempt(
+            word: word,
+            isCorrect: isCorrect,
             responseTimeMs: responseMs,
-            usedHint: showHint,
-            isCorrect: isCorrect
+            selectedOption: option.text,
+            typedText: nil,
+            recognizedSpoken: nil,
+            isTimeout: false
         )
-        attempts.append(attempt)
 
-        Task {
-            _ = try? await self.evaluateSRSUseCase.recordReview(
-                wordId: Int64(word.id),
-                isCorrect: isCorrect,
-                responseTimeMs: responseMs
-            )
-        }
-
-        withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
-            self.cardPhase = .reviewed(result: ReflexCardResult(
-                isCorrect: isCorrect,
-                responseTimeMs: responseMs,
-                isTimeout: false,
-                selectedOption: option.text,
-                typedText: nil,
-                recognizedSpoken: nil
-            ))
-        }
-
-        if selectedMode != .listening {
-            ttsService.speak(text: word.lemma, rate: 1.0, locale: "en-US")
+        if currentHandler.shouldSpeakOnReviewFlip {
+            ttsService.speak(text: word.lemma, rate: currentHandler.reviewSpeechRate, locale: "en-US")
         }
     }
 
     public func submitTypingAnswer(_ text: String) {
         guard phase == .drilling, cardPhase == .activeCountdown, let word = currentWord else { return }
-        let cleanInput = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !cleanInput.isEmpty else { return }
+        let validation = currentHandler.validateTyping(input: text, targetLemma: word.lemma)
+        guard case .evaluated(let isCorrect, let cleanInput) = validation else { return }
 
         cancelActiveTimers()
-        let isCorrect = cleanInput.lowercased() == word.lemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         currentAttemptIsCorrect = isCorrect
+        let responseMs = calculateResponseTimeMs()
 
-        if isCorrect {
-            soundEffectService.playSuccessChime()
-            comboStreak += 1
-            if comboStreak > maxComboStreak {
-                maxComboStreak = comboStreak
-            }
-        } else {
-            soundEffectService.playIncorrectChime()
-            triggerIncorrectHaptic()
-            comboStreak = 0
-        }
-
-        let responseMs: Int
-        if elapsedTimeMs > 0 {
-            responseMs = elapsedTimeMs
-        } else if let start = wordStartTime {
-            responseMs = max(0, Int(Date().timeIntervalSince(start) * 1000))
-            self.elapsedTimeMs = responseMs
-        } else {
-            responseMs = 0
-        }
-
-        let attempt = ReflexBlitzAttempt(
-            wordId: word.id, lemma: word.lemma, pos: word.pos, ipa: word.ipa,
-            definitionVi: word.definitionVi, responseTimeMs: responseMs,
-            usedHint: showHint, isCorrect: isCorrect
+        recordAttempt(
+            word: word,
+            isCorrect: isCorrect,
+            responseTimeMs: responseMs,
+            selectedOption: nil,
+            typedText: cleanInput,
+            recognizedSpoken: nil,
+            isTimeout: false
         )
-        attempts.append(attempt)
 
-        Task {
-            _ = try? await self.evaluateSRSUseCase.recordReview(
-                wordId: Int64(word.id), isCorrect: isCorrect, responseTimeMs: responseMs
-            )
-        }
-
-        withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
-            self.cardPhase = .reviewed(result: ReflexCardResult(
-                isCorrect: isCorrect, responseTimeMs: responseMs, isTimeout: false,
-                selectedOption: nil, typedText: cleanInput, recognizedSpoken: nil
-            ))
-        }
-
-        Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .milliseconds(250))
-            guard let self, self.cardPhase != .activeCountdown else { return }
-            self.ttsService.speak(text: word.lemma, rate: 0.5, locale: "en-US")
+        if currentHandler.shouldSpeakOnReviewFlip {
+            scheduleReviewSpeech(for: word.lemma, delayMs: currentHandler.reviewSpeechDelayMs, rate: currentHandler.reviewSpeechRate)
         }
     }
 
@@ -582,55 +418,102 @@ extension ReflexBlitzViewModel {
 
     public func handleSpokenMatch(_ matchedLemma: String) {
         guard phase == .drilling, cardPhase == .activeCountdown, !currentAttemptIsCorrect, let word = currentWord else { return }
-        let cleanMatched = matchedLemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        let cleanLemma = word.lemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        guard cleanMatched == cleanLemma || cleanMatched.contains(cleanLemma) else { return }
+        guard currentHandler.validateSpokenMatch(spokenText: matchedLemma, targetLemma: word.lemma) else { return }
 
         cancelActiveTimers()
         currentAttemptIsCorrect = true
-        soundEffectService.playSuccessChime()
-        comboStreak += 1
-        if comboStreak > maxComboStreak {
-            maxComboStreak = comboStreak
-        }
+        let responseMs = calculateResponseTimeMs()
 
-        let responseMs: Int
+        currentHandler.onWordCompleted(speechEngine: speechEngine)
+
+        recordAttempt(
+            word: word,
+            isCorrect: true,
+            responseTimeMs: responseMs,
+            selectedOption: nil,
+            typedText: nil,
+            recognizedSpoken: matchedLemma,
+            isTimeout: false
+        )
+
+        if currentHandler.shouldSpeakOnReviewFlip {
+            scheduleReviewSpeech(for: word.lemma, delayMs: currentHandler.reviewSpeechDelayMs, rate: currentHandler.reviewSpeechRate)
+        }
+    }
+
+    private func calculateResponseTimeMs() -> Int {
         if elapsedTimeMs > 0 {
-            responseMs = elapsedTimeMs
+            return elapsedTimeMs
         } else if let start = wordStartTime {
-            responseMs = max(0, Int(Date().timeIntervalSince(start) * 1000))
+            let responseMs = max(0, Int(Date().timeIntervalSince(start) * 1000))
             self.elapsedTimeMs = responseMs
+            return responseMs
         } else {
-            responseMs = 0
+            return 0
+        }
+    }
+
+    private func recordAttempt(
+        word: ReflexBlitzWordItem,
+        isCorrect: Bool,
+        responseTimeMs: Int,
+        selectedOption: String?,
+        typedText: String?,
+        recognizedSpoken: String?,
+        isTimeout: Bool
+    ) {
+        if isCorrect {
+            soundEffectService.playSuccessChime()
+            comboStreak += 1
+            if comboStreak > maxComboStreak {
+                maxComboStreak = comboStreak
+            }
+        } else {
+            soundEffectService.playIncorrectChime()
+            triggerIncorrectHaptic()
+            comboStreak = 0
         }
 
         let attempt = ReflexBlitzAttempt(
-            wordId: word.id, lemma: word.lemma, pos: word.pos, ipa: word.ipa,
-            definitionVi: word.definitionVi, responseTimeMs: responseMs,
-            usedHint: showHint, isCorrect: true
+            wordId: word.id,
+            lemma: word.lemma,
+            pos: word.pos,
+            ipa: word.ipa,
+            definitionVi: word.definitionVi,
+            responseTimeMs: responseTimeMs,
+            usedHint: showHint,
+            isCorrect: isCorrect
         )
         attempts.append(attempt)
 
         Task {
             _ = try? await self.evaluateSRSUseCase.recordReview(
-                wordId: Int64(word.id), isCorrect: true, responseTimeMs: responseMs
+                wordId: Int64(word.id),
+                isCorrect: isCorrect,
+                responseTimeMs: responseTimeMs
             )
         }
 
-        speechEngine.endWord()
-
         withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
             self.cardPhase = .reviewed(result: ReflexCardResult(
-                isCorrect: true, responseTimeMs: responseMs, isTimeout: false,
-                selectedOption: nil, typedText: nil, recognizedSpoken: matchedLemma
+                isCorrect: isCorrect,
+                responseTimeMs: responseTimeMs,
+                isTimeout: isTimeout,
+                selectedOption: selectedOption,
+                typedText: typedText,
+                recognizedSpoken: recognizedSpoken
             ))
         }
+    }
 
-        // Speak the word after card flip — matching typing/timeout modes
-        Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .milliseconds(250))
+    func scheduleReviewSpeech(for text: String, delayMs: Int, rate: Float) {
+        reviewAudioTask?.cancel()
+        reviewAudioTask = Task { @MainActor [weak self] in
+            if delayMs > 0 {
+                try? await Task.sleep(for: .milliseconds(delayMs))
+            }
             guard let self, self.cardPhase != .activeCountdown else { return }
-            self.ttsService.speak(text: word.lemma, rate: 0.5, locale: "en-US")
+            self.ttsService.speak(text: text, rate: rate, locale: "en-US")
         }
     }
 }

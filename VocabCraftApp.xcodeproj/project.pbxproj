@@ -93,6 +93,11 @@
 		300096513C5AE8139597 /* MobileSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200096513C5AE8139597 /* MobileSearchView.swift */; };
 		300008890465B3CF1A36 /* SearchNewWordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200008890465B3CF1A36 /* SearchNewWordView.swift */; };
 		30005FCC8B8F9D2561CD /* StreakWeekStripView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005FCC8B8F9D2561CD /* StreakWeekStripView.swift */; };
+		3000A6DDA15BE8E427D6 /* ListeningModeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A6DDA15BE8E427D6 /* ListeningModeHandler.swift */; };
+		30006C1F65092CC7DD06 /* MultipleChoiceModeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20006C1F65092CC7DD06 /* MultipleChoiceModeHandler.swift */; };
+		3000E6C5308D6AE8727A /* ReflexModeHandlerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000E6C5308D6AE8727A /* ReflexModeHandlerProtocol.swift */; };
+		3000213A29A4CA40EDCF /* SpeakingModeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000213A29A4CA40EDCF /* SpeakingModeHandler.swift */; };
+		3000889E11027AB6F302 /* TypingModeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000889E11027AB6F302 /* TypingModeHandler.swift */; };
 		3000F03E5BADA15ED6EB /* ReflexBlitzViewModel+Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000F03E5BADA15ED6EB /* ReflexBlitzViewModel+Configuration.swift */; };
 		3000A74013DE879E4E41 /* ReflexBlitzViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A74013DE879E4E41 /* ReflexBlitzViewModel.swift */; };
 		30004E90729BD17C71F2 /* ReflexBlitzModeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20004E90729BD17C71F2 /* ReflexBlitzModeSelectionView.swift */; };
@@ -213,6 +218,7 @@
 		30005D3C583211E4B509 /* ReflexDrillPlanGeneratorTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20005D3C583211E4B509 /* ReflexDrillPlanGeneratorTests.swift */; };
 		300063BF4D501E70F659 /* ReflexDrillPlanModelsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200063BF4D501E70F659 /* ReflexDrillPlanModelsTests.swift */; };
 		3000448452104295EC76 /* ReflexHintMaskGeneratorTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000448452104295EC76 /* ReflexHintMaskGeneratorTests.swift */; };
+		300079180B8DE9CB1F3F /* ReflexModeHandlersTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200079180B8DE9CB1F3F /* ReflexModeHandlersTests.swift */; };
 		3000DBEDA92C50384260 /* ReflexModeTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000DBEDA92C50384260 /* ReflexModeTests.swift */; };
 		3000FDD7FC2E6B9ED692 /* ReflexMultipleChoiceModeViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000FDD7FC2E6B9ED692 /* ReflexMultipleChoiceModeViewTests.swift */; };
 		30004D4BFF1DB0753E89 /* ReflexOtherModesTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20004D4BFF1DB0753E89 /* ReflexOtherModesTests.swift */; };
@@ -390,6 +396,11 @@
 		200096513C5AE8139597 /* MobileSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MobileSearchView.swift"; sourceTree = "<group>"; };
 		200008890465B3CF1A36 /* SearchNewWordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SearchNewWordView.swift"; sourceTree = "<group>"; };
 		20005FCC8B8F9D2561CD /* StreakWeekStripView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StreakWeekStripView.swift"; sourceTree = "<group>"; };
+		2000A6DDA15BE8E427D6 /* ListeningModeHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListeningModeHandler.swift"; sourceTree = "<group>"; };
+		20006C1F65092CC7DD06 /* MultipleChoiceModeHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MultipleChoiceModeHandler.swift"; sourceTree = "<group>"; };
+		2000E6C5308D6AE8727A /* ReflexModeHandlerProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexModeHandlerProtocol.swift"; sourceTree = "<group>"; };
+		2000213A29A4CA40EDCF /* SpeakingModeHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeakingModeHandler.swift"; sourceTree = "<group>"; };
+		2000889E11027AB6F302 /* TypingModeHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TypingModeHandler.swift"; sourceTree = "<group>"; };
 		2000F03E5BADA15ED6EB /* ReflexBlitzViewModel+Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzViewModel+Configuration.swift"; sourceTree = "<group>"; };
 		2000A74013DE879E4E41 /* ReflexBlitzViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzViewModel.swift"; sourceTree = "<group>"; };
 		20004E90729BD17C71F2 /* ReflexBlitzModeSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzModeSelectionView.swift"; sourceTree = "<group>"; };
@@ -500,6 +511,7 @@
 		20005D3C583211E4B509 /* ReflexDrillPlanGeneratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillPlanGeneratorTests.swift"; sourceTree = "<group>"; };
 		200063BF4D501E70F659 /* ReflexDrillPlanModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillPlanModelsTests.swift"; sourceTree = "<group>"; };
 		2000448452104295EC76 /* ReflexHintMaskGeneratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexHintMaskGeneratorTests.swift"; sourceTree = "<group>"; };
+		200079180B8DE9CB1F3F /* ReflexModeHandlersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexModeHandlersTests.swift"; sourceTree = "<group>"; };
 		2000DBEDA92C50384260 /* ReflexModeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexModeTests.swift"; sourceTree = "<group>"; };
 		2000FDD7FC2E6B9ED692 /* ReflexMultipleChoiceModeViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexMultipleChoiceModeViewTests.swift"; sourceTree = "<group>"; };
 		20004D4BFF1DB0753E89 /* ReflexOtherModesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexOtherModesTests.swift"; sourceTree = "<group>"; };
@@ -933,10 +945,23 @@
 		4000627CD7677F216452 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				4000CADA9E12FE8333A4 /* Handlers */,
 				2000F03E5BADA15ED6EB /* ReflexBlitzViewModel+Configuration.swift */,
 				2000A74013DE879E4E41 /* ReflexBlitzViewModel.swift */,
 			);
 			path = "ViewModels";
+			sourceTree = "<group>";
+		};
+		4000CADA9E12FE8333A4 /* Handlers */ = {
+			isa = PBXGroup;
+			children = (
+				2000A6DDA15BE8E427D6 /* ListeningModeHandler.swift */,
+				20006C1F65092CC7DD06 /* MultipleChoiceModeHandler.swift */,
+				2000E6C5308D6AE8727A /* ReflexModeHandlerProtocol.swift */,
+				2000213A29A4CA40EDCF /* SpeakingModeHandler.swift */,
+				2000889E11027AB6F302 /* TypingModeHandler.swift */,
+			);
+			path = "Handlers";
 			sourceTree = "<group>";
 		};
 		400075FFA2C39E5DF250 /* Views */ = {
@@ -1365,6 +1390,7 @@
 				20005D3C583211E4B509 /* ReflexDrillPlanGeneratorTests.swift */,
 				200063BF4D501E70F659 /* ReflexDrillPlanModelsTests.swift */,
 				2000448452104295EC76 /* ReflexHintMaskGeneratorTests.swift */,
+				200079180B8DE9CB1F3F /* ReflexModeHandlersTests.swift */,
 				2000DBEDA92C50384260 /* ReflexModeTests.swift */,
 				2000FDD7FC2E6B9ED692 /* ReflexMultipleChoiceModeViewTests.swift */,
 				20004D4BFF1DB0753E89 /* ReflexOtherModesTests.swift */,
@@ -1661,6 +1687,11 @@
 				300096513C5AE8139597 /* MobileSearchView.swift in Sources */,
 				300008890465B3CF1A36 /* SearchNewWordView.swift in Sources */,
 				30005FCC8B8F9D2561CD /* StreakWeekStripView.swift in Sources */,
+				3000A6DDA15BE8E427D6 /* ListeningModeHandler.swift in Sources */,
+				30006C1F65092CC7DD06 /* MultipleChoiceModeHandler.swift in Sources */,
+				3000E6C5308D6AE8727A /* ReflexModeHandlerProtocol.swift in Sources */,
+				3000213A29A4CA40EDCF /* SpeakingModeHandler.swift in Sources */,
+				3000889E11027AB6F302 /* TypingModeHandler.swift in Sources */,
 				3000F03E5BADA15ED6EB /* ReflexBlitzViewModel+Configuration.swift in Sources */,
 				3000A74013DE879E4E41 /* ReflexBlitzViewModel.swift in Sources */,
 				30004E90729BD17C71F2 /* ReflexBlitzModeSelectionView.swift in Sources */,
@@ -1794,6 +1825,7 @@
 				30005D3C583211E4B509 /* ReflexDrillPlanGeneratorTests.swift in Test Sources */,
 				300063BF4D501E70F659 /* ReflexDrillPlanModelsTests.swift in Test Sources */,
 				3000448452104295EC76 /* ReflexHintMaskGeneratorTests.swift in Test Sources */,
+				300079180B8DE9CB1F3F /* ReflexModeHandlersTests.swift in Test Sources */,
 				3000DBEDA92C50384260 /* ReflexModeTests.swift in Test Sources */,
 				3000FDD7FC2E6B9ED692 /* ReflexMultipleChoiceModeViewTests.swift in Test Sources */,
 				30004D4BFF1DB0753E89 /* ReflexOtherModesTests.swift in Test Sources */,
