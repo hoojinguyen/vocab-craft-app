@@ -32,7 +32,7 @@ public final class ReviewWeakWordsUseCase: ReviewWeakWordsUseCaseProtocol, Senda
 
         let weakIds = Set(weakProgress.map(\.wordId))
         let wordsList = try await dataSource.fetchWordsByIds(ids: weakIds)
-        let wordsMap = Dictionary(uniqueKeysWithValues: wordsList.map { ($0.id, $0) })
+        let wordsMap = Dictionary(wordsList.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
         var weakWords: [PersonalWord] = []
         weakWords.reserveCapacity(weakProgress.count)
 

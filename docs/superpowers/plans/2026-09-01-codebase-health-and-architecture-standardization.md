@@ -268,7 +268,7 @@ In `FetchPersonalVaultUseCase.swift` and `ReviewWeakWordsUseCase.swift`:
         let allProgress = try await progressRepo.fetchAllProgress()
         let wordIds = Set(allProgress.map(\.wordId))
         let wordsList = try await dataSource.fetchWordsByIds(ids: wordIds)
-        let wordsMap = Dictionary(uniqueKeysWithValues: wordsList.map { ($0.id, $0) })
+        let wordsMap = Dictionary(wordsList.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
         var allPersonalWords: [PersonalWord] = []
         allPersonalWords.reserveCapacity(allProgress.count)
 

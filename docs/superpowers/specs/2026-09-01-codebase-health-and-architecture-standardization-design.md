@@ -21,40 +21,34 @@ Following an exhaustive audit of the `VocabCraft` codebase against `AGENTS.md` a
 
 ```mermaid
 graph TD
-    subgraph "Phase 1: Build Health & Core Fixes"
+    subgraph Phase1 ["Phase 1: Build Health & Core Fixes"]
         P1_1["VocabularyView @State Lifecycle"]
         P1_2["Test Suite Compatibility API"]
         P1_3["MarkLearnedIntent Logic Fix"]
     end
 
-    subgraph "Phase 2: Dead Code & Engine Unification"
+    subgraph Phase2 ["Phase 2: Dead Code & Engine Unification"]
         P2_1["Purge 13+ Orphan Bento/Vault Views"]
         P2_2["Remove Legacy VocabularyViewModel & UseCases"]
         P2_3["Standardize on SpeechKit / ResilientReflexSpeechEngine"]
     end
 
-    subgraph "Phase 3: Performance & Architecture"
+    subgraph Phase3 ["Phase 3: Performance & Architecture"]
         P3_1["VocabularyDataSource Batch APIs"]
         P3_2["PersonalVault UseCases O(1) Optimization"]
         P3_3["Reflex Mode Strategy Pattern"]
         P3_4["Domain Entity Standardization"]
     end
 
-    subgraph "Phase 4: Design System & Localization"
+    subgraph Phase4 ["Phase 4: Design System & Localization"]
         P4_1["Migrate Color.vocab* to CraftTheme"]
         P4_2["SearchNewWordView CraftUIKit Redesign"]
         P4_3["100% Bilingual Widget & Search Strings"]
     end
 
-    P1_1 --> P2_1
-    P1_2 --> P2_1
-    P1_3 --> P2_1
-    P2_1 --> P3_1
-    P2_2 --> P3_1
-    P2_3 --> P3_1
-    P3_1 --> P4_1
-    P3_2 --> P4_1
-    P3_3 --> P4_1
+    Phase1 --> Phase2
+    Phase2 --> Phase3
+    Phase3 --> Phase4
 ```
 
 ---

@@ -41,6 +41,20 @@ final class ReflexSpeechMatcherTests: XCTestCase {
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "rowing", targetLemma: "row"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "paying", targetLemma: "pay"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "keyed", targetLemma: "key"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "eating", targetLemma: "eat"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "outing", targetLemma: "out"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "aiming", targetLemma: "aim"))
+
+        // 2-letter regular/irregular verbal inflections
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "goes", targetLemma: "go"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "going", targetLemma: "go"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "gone", targetLemma: "go"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "went", targetLemma: "go"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "does", targetLemma: "do"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "doing", targetLemma: "do"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "did", targetLemma: "do"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "being", targetLemma: "be"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "been", targetLemma: "be"))
 
         // 3-letter consonant doubling (CVC)
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "running", targetLemma: "run"))
