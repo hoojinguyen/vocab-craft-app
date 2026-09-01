@@ -261,7 +261,7 @@ public struct ReflexSpeakingModeView: View {
 
     @ViewBuilder
     private var micHubArea: some View {
-        VStack(spacing: theme.spacing.sm) {
+        VStack(spacing: theme.spacing.base) {
             CraftTactileMicHubView(
                 speechState: isReviewed
                     ? .evaluated(overallScore: isResultCorrect ? 100 : 0)
