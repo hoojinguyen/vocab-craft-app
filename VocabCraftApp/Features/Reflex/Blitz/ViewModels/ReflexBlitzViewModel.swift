@@ -27,16 +27,6 @@ public final class ReflexBlitzViewModel {
     public var comboStreak: Int = 0
     public var maxComboStreak: Int = 0
     public var currentAttemptIsCorrect: Bool = false
-    public var isKeyboardFallbackActive: Bool = false {
-        didSet {
-            guard isKeyboardFallbackActive != oldValue else { return }
-            if isKeyboardFallbackActive {
-                speechEngine.endWord()
-            } else if selectedMode == .speaking && phase == .drilling && cardPhase == .activeCountdown && speechEngine.isSessionActive, let word = currentWord {
-                speechEngine.beginWord(targetLemma: word.lemma, contextualPhrases: [word.lemma])
-            }
-        }
-    }
     public var liveTranscript: String = ""
     public var sessionSummary: ReflexBlitzSessionSummary?
     public var attempts: [ReflexBlitzAttempt] = []
@@ -149,12 +139,8 @@ public final class ReflexBlitzViewModel {
         speechEngine.onTranscriptUpdate = { [weak self] transcript in
             self?.liveTranscript = transcript
         }
-        speechEngine.onError = { [weak self] error in
+        speechEngine.onError = { error in
             print("[ReflexBlitzViewModel] Speech engine error: \(error.localizedDescription)")
-            guard let self else { return }
-            if self.selectedMode == .speaking && !self.isKeyboardFallbackActive {
-                self.isKeyboardFallbackActive = true
-            }
         }
     }
 
@@ -181,7 +167,6 @@ public final class ReflexBlitzViewModel {
     public func startDrillSession(mode: ReflexBlitzMode, words: [ReflexBlitzWordItem]? = nil) {
         cancelAllTasks()
         phase = .countdown
-        self.isKeyboardFallbackActive = false
         if let words, !words.isEmpty {
             self.words = words
         }
@@ -201,7 +186,6 @@ public final class ReflexBlitzViewModel {
     public func startCountdown() {
         cancelAllTasks()
         phase = .countdown
-        self.isKeyboardFallbackActive = false
 
         let plan = ReflexDrillPlanGenerator.generatePlan(words: words, mode: selectedMode)
         self.sessionPlan = plan
@@ -230,7 +214,6 @@ public final class ReflexBlitzViewModel {
         countdownTask?.cancel()
         cancelActiveTimers()
         phase = .countdown
-        self.isKeyboardFallbackActive = false
         if sessionPlan == nil || sessionPlan?.items.count != words.count || sessionPlan?.mode != selectedMode {
             let plan = ReflexDrillPlanGenerator.generatePlan(words: words, mode: selectedMode)
             self.sessionPlan = plan
@@ -284,7 +267,7 @@ public final class ReflexBlitzViewModel {
             planItem: currentPlanItem,
             ttsService: ttsService,
             speechEngine: speechEngine,
-            isKeyboardFallback: isKeyboardFallbackActive
+            isKeyboardFallback: false
         )
 
         self.currentOptions = prep.options
@@ -410,10 +393,6 @@ extension ReflexBlitzViewModel {
         if currentHandler.shouldSpeakOnReviewFlip {
             scheduleReviewSpeech(for: word.lemma, delayMs: currentHandler.reviewSpeechDelayMs, rate: currentHandler.reviewSpeechRate)
         }
-    }
-
-    public func submitKeyboardInput(_ text: String) {
-        submitTypingAnswer(text)
     }
 
     public func handleSpokenMatch(_ matchedLemma: String) {

@@ -230,6 +230,20 @@ public struct VocabularyView: View {
                     }
                 )
             }
+            #if os(iOS)
+            .fullScreenCover(item: $activeDrillViewModel) { drillVM in
+                MixedReflexDrillView(
+                    viewModel: drillVM,
+                    speechService: ContinuousReflexSpeechService(),
+                    onFinish: {
+                        activeDrillViewModel = nil
+                        Task {
+                            await currentVaultVM.loadData()
+                        }
+                    }
+                )
+            }
+            #else
             .sheet(item: $activeDrillViewModel) { drillVM in
                 MixedReflexDrillView(
                     viewModel: drillVM,
@@ -242,6 +256,7 @@ public struct VocabularyView: View {
                     }
                 )
             }
+            #endif
             .sheet(isPresented: $isPresentingPracticeSelection) {
                 PracticeSelectionView(
                     vaultViewModel: currentVaultVM,
@@ -392,6 +407,17 @@ public struct VocabularyView: View {
     private func applyAutomationPresentation(state: String) {
         if state == "practice-selection" {
             isPresentingPracticeSelection = true
+        } else if state == "practice-selection-selected" {
+            _ = vaultVM?.smartPickWords()
+            isPresentingPracticeSelection = true
+        } else if state == "practice-countdown" || state == "practice-drill" {
+            if let words = vaultVM?.smartPickWords(), !words.isEmpty {
+                let drillVM = appContainer.makeMixedReflexDrillViewModel(
+                    selectedWords: words,
+                    allowSpeakingSkip: true
+                )
+                activeDrillViewModel = drillVM
+            }
         } else if state.starts(with: "smart-review") {
             isPresentingSmartReview = true
         }

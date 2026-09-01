@@ -209,6 +209,32 @@ struct MixedReflexDrillViewsTests {
         #expect(drillView.isResultTimeout == false)
     }
 
+    @Test("MixedReflexDrillView khởi tạo và hiển thị card Speaking cho item chế độ speaking")
+    @MainActor
+    func testMixedReflexDrillViewSpeakingModeChallengeCard() async {
+        let words = [
+            VaultWordItem(id: 1, lemma: "eloquent", pos: "adj.", definitionVi: "Hùng biện", exampleSentenceEn: "She gave an eloquent speech.")
+        ]
+        final class MockSpeakingQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol {
+            let item: MixedReflexDrillItem
+            init(item: MixedReflexDrillItem) { self.item = item }
+            func generate(from words: [VaultWordItem]) -> [MixedReflexDrillItem] { [item] }
+            func requeueFailedItem(_ item: MixedReflexDrillItem) -> MixedReflexDrillItem { item }
+        }
+
+        let item = MixedReflexDrillItem(word: words[0], assignedMode: .speaking, isRetry: false)
+        let queueUseCase = MockSpeakingQueueUseCase(item: item)
+        let vm = MixedReflexDrillViewModel(selectedWords: words, queueUseCase: queueUseCase)
+
+        let drillView = MixedReflexDrillView(viewModel: vm, onFinish: {})
+        #expect(drillView.viewModel.queue.count == 1)
+        #expect(drillView.viewModel.currentItem?.assignedMode == .speaking)
+        #expect(drillView.isReviewed == false)
+        #expect(drillView.isResultCorrect == false)
+        #expect(drillView.isResultTimeout == false)
+        _ = drillView.body
+    }
+
     @Test("Mixed Reflex Drill handles incorrect typing submission without silent drop")
     @MainActor
     func testMixedReflexIncorrectTypingSubmission() async {
@@ -254,6 +280,33 @@ struct MixedReflexDrillViewsTests {
 
         #expect(overlay.count == 3)
         #expect(overlay.mode == .speaking)
+        #expect(overlay.title == ReflexBlitzMode.speaking.title)
+        _ = overlay.body
+
+        overlay.onFinish()
+        #expect(finishCalled == true)
+    }
+
+    @Test("ReflexCountdownOverlayView hỗ trợ mixed drill countdown với custom title, subtitle, icon và tint")
+    @MainActor
+    func testReflexCountdownOverlayViewMixedConfiguration() {
+        var finishCalled = false
+        let theme = CraftDefaultTheme()
+        let overlay = ReflexCountdownOverlayView(
+            count: 3,
+            title: AppStrings.Practice.mixedDrillTitleText,
+            subtitle: AppStrings.Practice.mixedDrillSubtitleText,
+            iconName: "bolt.fill",
+            tintColor: theme.colors.brandPrimary,
+            onFinish: { finishCalled = true }
+        )
+
+        #expect(overlay.count == 3)
+        #expect(overlay.title == AppStrings.Practice.mixedDrillTitleText)
+        #expect(overlay.subtitle == AppStrings.Practice.mixedDrillSubtitleText)
+        #expect(overlay.iconName == "bolt.fill")
+        #expect(overlay.tintColor == theme.colors.brandPrimary)
+        #expect(overlay.mode == nil)
         _ = overlay.body
 
         overlay.onFinish()

@@ -121,14 +121,7 @@ extension AppStrings {
         public static var speakingListeningText: String {
             String(localized: "app.reflex.drill.speaking_listening", defaultValue: "Đang lắng nghe phát âm...", bundle: .module)
         }
-        public static var switchToKeyboard: LocalizedStringKey { "app.reflex.drill.switch_to_keyboard" }
-        public static var switchToKeyboardText: String {
-            String(localized: "app.reflex.drill.switch_to_keyboard", defaultValue: "Chuyển sang gõ từ", bundle: .module)
-        }
-        public static var switchToVoice: LocalizedStringKey { "app.reflex.drill.switch_to_voice" }
-        public static var switchToVoiceText: String {
-            String(localized: "app.reflex.drill.switch_to_voice", defaultValue: "Chuyển sang luyện nói", bundle: .module)
-        }
+
         public static var exitDialogTitle: LocalizedStringKey { "app.reflex.drill.exit_title" }
         public static var exitDialogTitleText: String {
             String(localized: "app.reflex.drill.exit_title", defaultValue: "Thoát bài luyện tập?", bundle: .module)

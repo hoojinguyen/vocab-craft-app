@@ -22,7 +22,7 @@ public struct ReflexSpeakingModeView: View {
     // MARK: - Mic & Transcript
     public let speechState: CraftSpeechState
     public let liveTranscript: String
-    public let onSwitchToKeyboard: (() -> Void)?
+    public let onCantSpeakNow: (() -> Void)?
     public let onReplayAudio: (() -> Void)?
 
     public init(
@@ -38,7 +38,7 @@ public struct ReflexSpeakingModeView: View {
         hintBadgeText: String? = nil,
         speechState: CraftSpeechState = .listening(),
         liveTranscript: String = "",
-        onSwitchToKeyboard: (() -> Void)? = nil,
+        onCantSpeakNow: (() -> Void)? = nil,
         onReplayAudio: (() -> Void)? = nil
     ) {
         self.word = word
@@ -53,7 +53,7 @@ public struct ReflexSpeakingModeView: View {
         self.hintBadgeText = hintBadgeText
         self.speechState = speechState
         self.liveTranscript = liveTranscript
-        self.onSwitchToKeyboard = onSwitchToKeyboard
+        self.onCantSpeakNow = onCantSpeakNow
         self.onReplayAudio = onReplayAudio
     }
 
@@ -67,7 +67,7 @@ public struct ReflexSpeakingModeView: View {
         clozeParts: ClozeSentenceParts? = nil,
         displayedSentence: String = "",
         hintBadgeText: String? = nil,
-        onSwitchToKeyboard: (() -> Void)? = nil
+        onCantSpeakNow: (() -> Void)? = nil
     ) {
         self.init(
             word: word,
@@ -82,7 +82,7 @@ public struct ReflexSpeakingModeView: View {
             hintBadgeText: hintBadgeText,
             speechState: .listening(),
             liveTranscript: liveTranscript,
-            onSwitchToKeyboard: onSwitchToKeyboard,
+            onCantSpeakNow: onCantSpeakNow,
             onReplayAudio: nil
         )
     }
@@ -261,7 +261,7 @@ public struct ReflexSpeakingModeView: View {
 
     @ViewBuilder
     private var micHubArea: some View {
-        VStack(spacing: theme.spacing.sm) {
+        VStack(spacing: theme.spacing.base) {
             CraftTactileMicHubView(
                 speechState: isReviewed
                     ? .evaluated(overallScore: isResultCorrect ? 100 : 0)
@@ -279,13 +279,13 @@ public struct ReflexSpeakingModeView: View {
             .equatable()
             .animation(.spring(response: 0.25, dampingFraction: 0.8), value: !liveTranscript.isEmpty)
 
-            if !isReviewed, let onSwitchToKeyboard {
+            if !isReviewed, let onCantSpeakNow {
                 CraftButton(
-                    AppStrings.ReflexBlitz.switchToKeyboardText,
-                    iconName: "keyboard",
+                    AppStrings.Practice.cantSpeakNowCTA,
+                    iconName: "waveform.slash",
                     variant: .ghost,
                     size: .sm,
-                    action: onSwitchToKeyboard
+                    action: onCantSpeakNow
                 )
             }
         }
@@ -334,16 +334,22 @@ public struct ReflexSpeakingModeView: View {
         return prefixText + slotText + suffixText
     }
 
+    private var effectiveClozeParts: ClozeSentenceParts? {
+        if let parts = clozeStages?.initialParts ?? clozeParts {
+            return parts
+        }
+        let formatted = ReflexClozeFormatter.formatCloze(sentenceEn: word.exampleSentenceEn, lemma: word.lemma)
+        return ReflexClozeFormatter.extractTemplateParts(from: formatted)
+    }
+
     @ViewBuilder
     private var backSentenceView: some View {
-        if let parts = clozeParts {
+        if let parts = effectiveClozeParts {
             reviewedClozeText(parts: parts)
         } else {
             Text(word.completedSentenceWithTargetWord)
-                .font(theme.typography.bodySerif.weight(.bold))
-                .foregroundColor(
-                    isResultCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger
-                )
+                .font(theme.typography.bodySerif.weight(.medium))
+                .foregroundColor(theme.colors.textPrimary)
         }
     }
 

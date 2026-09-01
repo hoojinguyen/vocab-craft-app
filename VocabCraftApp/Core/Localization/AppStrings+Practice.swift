@@ -6,7 +6,7 @@ extension AppStrings {
         // Navigation & Titles
         public static var title: LocalizedStringKey { "app.practice.selection.title" }
         public static var titleText: String {
-            String(localized: "app.practice.selection.title", defaultValue: "Practice Selection", bundle: .module)
+            String(localized: "app.practice.selection.title", defaultValue: "Select Words", bundle: .module)
         }
 
         public static var back: LocalizedStringKey { "app.practice.selection.back" }
@@ -40,7 +40,7 @@ extension AppStrings {
 
         public static var smartPick: LocalizedStringKey { "app.practice.selection.smart_pick" }
         public static var smartPickText: String {
-            String(localized: "app.practice.selection.smart_pick", defaultValue: "⚡️ Smart Practice", bundle: .module)
+            String(localized: "app.practice.selection.smart_pick", defaultValue: "Smart Practice", bundle: .module)
         }
 
         // CTA & Empty States
@@ -61,6 +61,17 @@ extension AppStrings {
         public static var emptyMessage: LocalizedStringKey { "app.practice.selection.empty_message" }
         public static var emptyMessageText: String {
             String(localized: "app.practice.selection.empty_message", defaultValue: "No vocabulary found in this section.", bundle: .module)
+        }
+
+        // Countdown & Mixed Drill
+        public static var mixedDrillTitle: LocalizedStringKey { "app.practice.countdown.mixed_title" }
+        public static var mixedDrillTitleText: String {
+            String(localized: "app.practice.countdown.mixed_title", defaultValue: "Mixed Reflex Drill", bundle: .module)
+        }
+
+        public static var mixedDrillSubtitle: LocalizedStringKey { "app.practice.countdown.mixed_subtitle" }
+        public static var mixedDrillSubtitleText: String {
+            String(localized: "app.practice.countdown.mixed_subtitle", defaultValue: "Multi-sensory reflex: Quiz, Typing, Listening & Speaking", bundle: .module)
         }
 
         // In-Drill Fallback

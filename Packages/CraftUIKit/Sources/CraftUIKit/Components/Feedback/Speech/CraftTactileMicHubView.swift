@@ -35,7 +35,7 @@ public struct CraftTactileMicHubView: View {
     }
 
     public var body: some View {
-        VStack(spacing: theme.spacing.sm) {
+        VStack(spacing: theme.spacing.md) {
             Button(action: onTapMic) {
                 ZStack {
                     if isListening && !reduceMotion {
@@ -83,7 +83,7 @@ public struct CraftTactileMicHubView: View {
                             .symbolEffect(.bounce, value: isListening)
                     }
                 }
-                .frame(width: 108, height: 108)
+                .frame(width: 136, height: 136)
                 .contentShape(Circle())
             }
             .buttonStyle(CraftTactileButtonStyle())

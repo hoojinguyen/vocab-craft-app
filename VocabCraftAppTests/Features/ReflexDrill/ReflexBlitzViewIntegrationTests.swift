@@ -504,25 +504,23 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         XCTAssertEqual(vm.words.count, 1)
     }
 
-    func testKeyboardFallbackInputToggleAndSubmit() {
+    func testSpeakingModeCantSpeakNowTriggersTimeout() {
         let (vm, _, _, mockSpeechEngine) = makeViewModel()
         vm.selectMode(.speaking)
         vm.beginSessionDirectly()
-        XCTAssertFalse(vm.isKeyboardFallbackActive)
 
         let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
         XCTAssertNotNil(view.body)
         XCTAssertNotNil(view.drillingView)
 
-        vm.toggleKeyboardFallback()
-        XCTAssertTrue(vm.isKeyboardFallbackActive)
-        XCTAssertFalse(mockSpeechEngine.isWordActive)
-
-        // Submit via keyboard
-        let targetLemma = vm.currentWord!.lemma
-        vm.submitKeyboardInput(targetLemma)
-        XCTAssertTrue(vm.currentAttemptIsCorrect)
-        XCTAssertEqual(vm.comboStreak, 1)
+        vm.handleTimeout()
+        if case .reviewed(let result) = vm.cardPhase {
+            XCTAssertTrue(result.isTimeout)
+            XCTAssertFalse(result.isCorrect)
+        } else {
+            XCTFail("Expected cardPhase to be .reviewed")
+        }
+        XCTAssertEqual(mockSpeechEngine.endWordCallCount, 1)
     }
 
     func testCancellationTeardownOnDisappear() {
@@ -643,7 +641,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         #endif
 
         if let data = pngData {
-            let outputDir = URL(fileURLWithPath: "/Users/hoojinguyen/.gemini/antigravity/brain/dc21b818-b428-4c66-9b3e-f6bbdf8e9f32/screenshots")
+            let outputDir = URL(fileURLWithPath: "/Users/hoojinguyen/.gemini/antigravity/brain/5c2b6bd5-dbf7-4180-b8c7-c977b2354022/screenshots")
             try? FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
             let fileURL = outputDir.appendingPathComponent(filename)
             try? data.write(to: fileURL)
@@ -674,7 +672,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         let countdownView = ReflexBlitzView(viewModel: vmCountdown, onDismiss: {})
         renderSnapshot(view: countdownView, filename: "03_reflex_countdown.png")
 
-        // 4. Drilling Speaking Mode
+        // 4. Drilling Speaking Mode with Ghost "Can't Speak Now" Button
         let (vmSpeak, _, _, _) = makeViewModel()
         vmSpeak.selectMode(.speaking)
         vmSpeak.beginSessionDirectly()
@@ -733,7 +731,35 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         let timeoutView = ReflexBlitzView(viewModel: vmTimeout, onDismiss: {})
         renderSnapshot(view: timeoutView, filename: "09_reflex_drilling_timeout_reviewed.png")
 
-        // 10. Session Summary Screen
+        // 10. Mixed Reflex Drill - Speaking Mode (Direct layout, no nested cards!)
+        let sampleVaultWord = VaultWordItem(
+            id: 1,
+            lemma: "ephemeral",
+            pos: "adj.",
+            definitionVi: "Phù du, chóng tàn",
+            exampleSentenceEn: "Her fame was ephemeral.",
+            exampleSentenceVi: "Danh tiếng của cô ấy chỉ là phù du."
+        )
+        final class SingleSpeakingQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol {
+            let item: MixedReflexDrillItem
+            init(item: MixedReflexDrillItem) { self.item = item }
+            func generate(from words: [VaultWordItem]) -> [MixedReflexDrillItem] { [item] }
+            func requeueFailedItem(_ item: MixedReflexDrillItem) -> MixedReflexDrillItem { item }
+        }
+        let speakingItem = MixedReflexDrillItem(word: sampleVaultWord, assignedMode: .speaking, isRetry: false)
+        let mixedVM = MixedReflexDrillViewModel(
+            selectedWords: [sampleVaultWord],
+            queueUseCase: SingleSpeakingQueueUseCase(item: speakingItem),
+            allowSpeakingSkip: true
+        )
+        let mixedSpeakingView = MixedReflexDrillView(
+            viewModel: mixedVM,
+            startWithCountdown: false,
+            onFinish: {}
+        )
+        renderSnapshot(view: mixedSpeakingView, filename: "10_mixed_reflex_speaking_mode.png")
+
+        // 11. Session Summary Screen
         let (vmSummary, _, _, _) = makeViewModel()
         let attempts = [
             ReflexBlitzAttempt(wordId: 1, lemma: "ephemeral", pos: "adj.", ipa: "/ɪˈfem.ər.əl/", definitionVi: "Phù du, chóng tàn", responseTimeMs: 1400, usedHint: false, isCorrect: true),
@@ -756,7 +782,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
             view: summaryView.summaryContent
                 .padding(.top, 40)
                 .frame(width: 393, alignment: .top),
-            filename: "10_reflex_summary_screen.png"
+            filename: "11_reflex_summary_screen.png"
         )
     }
 

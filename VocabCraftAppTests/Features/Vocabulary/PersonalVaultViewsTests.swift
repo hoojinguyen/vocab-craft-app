@@ -327,9 +327,9 @@ final class PersonalVaultViewsTests: XCTestCase {
 
     func test_vocabularyView_initializationWithSearchVisibleTrue() {
         let vm = PersonalVaultViewModel(mockWords: [mockVaultWord])
-        let view = VocabularyView(vaultViewModel: vm, isSearchVisible: true)
+        let view = VocabularyView(vaultViewModel: vm, isSearchHiddenByScroll: false)
 
-        XCTAssertTrue(view.isSearchVisibleForTesting)
+        XCTAssertFalse(view.isSearchHiddenByScrollForTesting)
         XCTAssertFalse(view.isScrolledPastHeaderForTesting)
 
         #if canImport(UIKit)
@@ -342,9 +342,9 @@ final class PersonalVaultViewsTests: XCTestCase {
 
     func test_vocabularyView_initializationWithSearchVisibleFalse() {
         let vm = PersonalVaultViewModel(mockWords: [mockVaultWord])
-        let view = VocabularyView(vaultViewModel: vm, isSearchVisible: false)
+        let view = VocabularyView(vaultViewModel: vm, isSearchHiddenByScroll: true)
 
-        XCTAssertFalse(view.isSearchVisibleForTesting)
+        XCTAssertTrue(view.isSearchHiddenByScrollForTesting)
         XCTAssertFalse(view.isScrolledPastHeaderForTesting)
 
         #if canImport(UIKit)
@@ -357,9 +357,9 @@ final class PersonalVaultViewsTests: XCTestCase {
 
     func test_vocabularyView_initializationWithScrolledPastHeaderTrue() {
         let vm = PersonalVaultViewModel(mockWords: [mockVaultWord])
-        let view = VocabularyView(vaultViewModel: vm, isSearchVisible: false, isScrolledPastHeader: true)
+        let view = VocabularyView(vaultViewModel: vm, isSearchHiddenByScroll: false, isScrolledPastHeader: true)
 
-        XCTAssertFalse(view.isSearchVisibleForTesting)
+        XCTAssertFalse(view.isSearchHiddenByScrollForTesting)
         XCTAssertTrue(view.isScrolledPastHeaderForTesting)
 
         #if canImport(UIKit)
@@ -374,11 +374,11 @@ final class PersonalVaultViewsTests: XCTestCase {
         let vm = PersonalVaultViewModel(mockWords: [mockVaultWord])
         let view = VocabularyView(
             vaultViewModel: vm,
-            isSearchVisible: true,
+            isSearchHiddenByScroll: true,
             isScrolledPastHeader: true
         )
 
-        XCTAssertTrue(view.isSearchVisibleForTesting)
+        XCTAssertTrue(view.isSearchHiddenByScrollForTesting)
         XCTAssertTrue(view.isScrolledPastHeaderForTesting)
 
         #if canImport(UIKit)
