@@ -81,14 +81,9 @@ extension ReflexBlitzViewModel {
         }
     }
 
-    public func toggleKeyboardFallback() {
-        isKeyboardFallbackActive.toggle()
-    }
-
     public func finishSession() {
         cancelAllTasks()
         speechEngine.stopSession()
-        isKeyboardFallbackActive = false
         sessionSummary = ReflexBlitzSessionSummary.create(from: attempts, maxCombo: maxComboStreak)
         phase = .summary
     }
@@ -106,12 +101,10 @@ extension ReflexBlitzViewModel {
         cancelAllTasks()
         speechEngine.stopSession()
         ttsService.stop()
-        isKeyboardFallbackActive = false
     }
 
     public func resetToModeSelection() {
         cancelSession()
-        isKeyboardFallbackActive = false
         sessionPlan = nil
         currentPlanItem = nil
         currentClozeStages = nil
