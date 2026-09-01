@@ -478,7 +478,7 @@ private extension MixedReflexDrillView {
             let vm = viewModel
             speechEngine.onMatchDetected = { [weak speechEngine, weak vm] matched in
                 Task { @MainActor [weak speechEngine, weak vm] in
-                    guard let vm, let current = vm.currentItem else { return }
+                    guard self.cardPhase == .activeCountdown, let vm, let current = vm.currentItem else { return }
                     let isCorrect = ReflexSpeechMatcher.isReflexMatch(spokenText: matched, targetLemma: current.word.lemma)
                     if isCorrect {
                         self.timerTask?.cancel()

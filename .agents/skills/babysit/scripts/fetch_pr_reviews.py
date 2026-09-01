@@ -153,10 +153,10 @@ def fetch_github_api(endpoint, owner, repo, token=None, paginate=False):
                 url = next_url
         except urllib.error.HTTPError as e:
             sys.stderr.write(f"HTTP Error {e.code}: {e.reason} for {url}\n")
-            return None if not all_items else all_items
+            return None
         except Exception as e:
             sys.stderr.write(f"Error fetching {url}: {e}\n")
-            return None if not all_items else all_items
+            return None
     return all_items
 
 

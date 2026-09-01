@@ -78,7 +78,7 @@ With state initialization deferred to `.task`:
             if vaultVM == nil {
                 vaultVM = appContainer.makePersonalVaultViewModel()
             }
-            await resolvedVaultVM().loadVaultWords()
+            await resolvedVaultVM().loadData()
         }
 ```
 
