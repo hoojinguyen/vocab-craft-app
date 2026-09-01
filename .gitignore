@@ -6,5 +6,5 @@ xcuserdata/
 .build-benchmark/
 .worktrees/
 worktrees/
-
-
+__pycache__/
+*.pyc
