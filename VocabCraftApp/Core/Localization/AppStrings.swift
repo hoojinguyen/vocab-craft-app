@@ -297,6 +297,8 @@ extension AppStrings {
         public static var langEnglish: LocalizedStringKey { "app.settings.learning.lang_en" }
         public static var dailyGoal: LocalizedStringKey { "app.settings.learning.daily_goal" }
         public static var dailyGoalText: String { String(localized: "app.settings.learning.daily_goal", defaultValue: "Daily Goal", bundle: .module) }
+        public static var dailyGoalPlaceholder: LocalizedStringKey { "app.settings.daily_goal_placeholder" }
+        public static var dailyGoalPlaceholderText: String { String(localized: "app.settings.daily_goal_placeholder", defaultValue: "5 - 100 words", bundle: .module) }
         public static var reminders: LocalizedStringKey { "app.settings.learning.reminders" }
         public static var reminderTime: LocalizedStringKey { "app.settings.learning.reminder_time" }
         public static var resetSRS: LocalizedStringKey { "app.settings.learning.reset_srs" }
@@ -359,12 +361,31 @@ extension AppStrings {
 
     // MARK: - Search View
     public enum Search {
-        public static var upcomingFeatureTitle: LocalizedStringKey { "search.upcomingFeatureTitle" }
-        public static var smartLookupTitle: LocalizedStringKey { "search.smartLookupTitle" }
-        public static var smartLookupDescription: LocalizedStringKey { "search.smartLookupDescription" }
-        public static var recentSearchesTitle: LocalizedStringKey { "search.recentSearchesTitle" }
-        public static var suggestedTopicsTitle: LocalizedStringKey { "search.suggestedTopicsTitle" }
-        public static var placeholder: LocalizedStringKey { "search.placeholder" }
+        public static var title: LocalizedStringKey { "app.search.title" }
+        public static var titleText: String { String(localized: "app.search.title", defaultValue: "Search", bundle: .module) }
+        public static var upcomingFeatureBadge: LocalizedStringKey { "app.search.upcoming_feature_badge" }
+        public static var upcomingFeatureBadgeText: String { String(localized: "app.search.upcoming_feature_badge", defaultValue: "COMING SOON", bundle: .module) }
+        public static var smartLookupTitle: LocalizedStringKey { "app.search.smart_lookup_title" }
+        public static var smartLookupTitleText: String { String(localized: "app.search.smart_lookup_title", defaultValue: "Smart Dictionary & AI Lookup", bundle: .module) }
+        public static var smartLookupDescription: LocalizedStringKey { "app.search.smart_lookup_desc" }
+        public static var smartLookupDescriptionText: String { String(localized: "app.search.smart_lookup_desc", defaultValue: "Offline morphological parser, bilingual context sentences...", bundle: .module) }
+        public static var recentSearchesTitle: LocalizedStringKey { "app.search.recent_searches" }
+        public static var recentSearchesTitleText: String { String(localized: "app.search.recent_searches", defaultValue: "Recent Searches", bundle: .module) }
+        public static var suggestedTopicsTitle: LocalizedStringKey { "app.search.suggested_topics" }
+        public static var suggestedTopicsTitleText: String { String(localized: "app.search.suggested_topics", defaultValue: "Suggested Topics", bundle: .module) }
+        public static var topicIelts: LocalizedStringKey { "app.search.topic_ielts" }
+        public static var topicIeltsText: String { String(localized: "app.search.topic_ielts", defaultValue: "IELTS Band 7.0+", bundle: .module) }
+        public static var topicBusiness: LocalizedStringKey { "app.search.topic_business" }
+        public static var topicBusinessText: String { String(localized: "app.search.topic_business", defaultValue: "Business & Tech", bundle: .module) }
+        public static var topicAcademic: LocalizedStringKey { "app.search.topic_academic" }
+        public static var topicAcademicText: String { String(localized: "app.search.topic_academic", defaultValue: "Academic Research", bundle: .module) }
+        public static var topicDaily: LocalizedStringKey { "app.search.topic_daily" }
+        public static var topicDailyText: String { String(localized: "app.search.topic_daily", defaultValue: "Daily Expressions", bundle: .module) }
+        public static var placeholder: LocalizedStringKey { "homepage.searchPlaceholder" }
+        public static var placeholderText: String { String(localized: "homepage.searchPlaceholder", defaultValue: "Search vocabulary or flashcards...", bundle: .module) }
+
+        // Backward-compatibility aliases
+        public static var upcomingFeatureTitle: LocalizedStringKey { upcomingFeatureBadge }
     }
 
     // MARK: - Home Learning Path
@@ -465,6 +486,20 @@ extension AppStrings {
         public static var lockedHint: LocalizedStringKey { "app.home.node.locked_hint" }
         public static var lockedHintText: String {
             String(localized: "app.home.node.locked_hint", defaultValue: "Complete previous lessons to unlock", bundle: .module)
+        }
+    }
+
+    // MARK: - Widget
+    public enum Widget {
+        public static var next: LocalizedStringKey { "app.widget.next" }
+        public static var nextText: String { String(localized: "app.widget.next", defaultValue: "Next", bundle: .module) }
+        public static var mastered: LocalizedStringKey { "app.widget.mastered" }
+        public static var masteredText: String { String(localized: "app.widget.mastered", defaultValue: "Mastered", bundle: .module) }
+        public static func level(_ level: Int) -> LocalizedStringKey {
+            LocalizedStringKey("app.widget.level_format \(level)")
+        }
+        public static func levelText(_ level: Int) -> String {
+            String(format: String(localized: "app.widget.level_format", defaultValue: "Level %lld", bundle: .module), level)
         }
     }
 }

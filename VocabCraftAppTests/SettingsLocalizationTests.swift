@@ -18,6 +18,7 @@ final class SettingsLocalizationTests: XCTestCase {
         "app.settings.learning.lang_vi": ("Tiếng Việt", "Vietnamese"),
         "app.settings.learning.lang_en": ("English", "English"),
         "app.settings.learning.daily_goal": ("Mục tiêu hàng ngày", "Daily Goal"),
+        "app.settings.daily_goal_placeholder": ("5 - 100 từ", "5 - 100 words"),
         "app.settings.learning.reminders": ("Nhắc nhở ôn tập", "Review Reminders"),
         "app.settings.learning.reminder_time": ("Giờ nhắc nhở", "Reminder Time"),
         "app.settings.learning.reset_srs": ("Đặt lại tiến độ SRS", "Reset SRS Progress"),
@@ -73,6 +74,7 @@ final class SettingsLocalizationTests: XCTestCase {
             "app.settings.learning.lang_vi",
             "app.settings.learning.lang_en",
             "app.settings.learning.daily_goal",
+            "app.settings.daily_goal_placeholder",
             "app.settings.learning.reminders",
             "app.settings.learning.reminder_time",
             "app.settings.learning.reset_srs",
@@ -115,7 +117,7 @@ final class SettingsLocalizationTests: XCTestCase {
             "app.profile.badge_oxford_pioneer"
         ]
 
-        XCTAssertEqual(keys.count, 51, "There must be exactly 51 required keys for Settings and Profile")
+        XCTAssertEqual(keys.count, 52, "There must be exactly 52 required keys for Settings and Profile")
 
         for key in keys {
             XCTAssertNotNil(expectedSettingsKeys[key], "Key \(key) should be present in expected dictionary")
@@ -188,6 +190,7 @@ final class SettingsLocalizationTests: XCTestCase {
         XCTAssertEqual(AppStrings.Settings.targetLevelText, "Target Level")
         XCTAssertEqual(AppStrings.Settings.appLanguageText, "App Language")
         XCTAssertEqual(AppStrings.Settings.dailyGoalText, "Daily Goal")
+        XCTAssertEqual(AppStrings.Settings.dailyGoalPlaceholderText, "5 - 100 words")
         XCTAssertEqual(AppStrings.Settings.accentUSText, "US (American)")
         XCTAssertEqual(AppStrings.Settings.accentUKText, "UK (British)")
         XCTAssertEqual(AppStrings.Settings.themeDarkText, "Dark")
@@ -207,6 +210,7 @@ final class SettingsLocalizationTests: XCTestCase {
         XCTAssertNotNil(AppStrings.Settings.langVietnamese)
         XCTAssertNotNil(AppStrings.Settings.langEnglish)
         XCTAssertNotNil(AppStrings.Settings.dailyGoal)
+        XCTAssertNotNil(AppStrings.Settings.dailyGoalPlaceholder)
         XCTAssertNotNil(AppStrings.Settings.reminders)
         XCTAssertNotNil(AppStrings.Settings.reminderTime)
         XCTAssertNotNil(AppStrings.Settings.resetSRS)

@@ -114,7 +114,7 @@ public struct VocabWidgetView: View {
                     Image(systemName: "star.fill")
                         .font(.caption)
                         .foregroundColor(.yellow)
-                    Text("Level \(entry.masteryLevel)")
+                    Text(LocalizedStringKey("app.widget.level_format \(entry.masteryLevel)"))
                         .font(.caption)
                         .fontWeight(.semibold)
                         .foregroundColor(.secondary)
@@ -138,7 +138,7 @@ public struct VocabWidgetView: View {
 
             HStack {
                 Button(intent: NextWordIntent()) {
-                    Label("Next", systemImage: "arrow.forward.circle.fill")
+                    Label(LocalizedStringKey("app.widget.next"), systemImage: "arrow.forward.circle.fill")
                         .font(.caption)
                         .fontWeight(.semibold)
                         .padding(.horizontal, 10)
@@ -151,7 +151,7 @@ public struct VocabWidgetView: View {
                 Spacer()
 
                 Button(intent: MarkLearnedIntent()) {
-                    Label("Thuộc", systemImage: "checkmark.circle.fill")
+                    Label(LocalizedStringKey("app.widget.mastered"), systemImage: "checkmark.circle.fill")
                         .font(.caption)
                         .fontWeight(.semibold)
                         .foregroundColor(.green)
