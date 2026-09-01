@@ -83,20 +83,32 @@ public protocol VocabularyDataSourceProtocol: Sendable {
 
 public extension VocabularyDataSourceProtocol {
     func fetchWordsByIds(ids: Set<Int64>) async throws -> [TopicWordDTO] {
-        try await withThrowingTaskGroup(of: TopicWordDTO?.self) { group in
-            for id in ids {
+        guard !ids.isEmpty else { return [] }
+        let idArray = Array(ids)
+        let chunkSize = 20
+        let chunks = stride(from: 0, to: idArray.count, by: chunkSize).map {
+            Array(idArray[$0..<min($0 + chunkSize, idArray.count)])
+        }
+
+        return try await withThrowingTaskGroup(of: [TopicWordDTO].self) { group in
+            for chunk in chunks {
                 group.addTask {
-                    try await self.fetchWordById(id: id)
+                    var batchResults: [TopicWordDTO] = []
+                    batchResults.reserveCapacity(chunk.count)
+                    for id in chunk {
+                        if let word = try await self.fetchWordById(id: id) {
+                            batchResults.append(word)
+                        }
+                    }
+                    return batchResults
                 }
             }
-            var results: [TopicWordDTO] = []
-            results.reserveCapacity(ids.count)
-            for try await word in group {
-                if let word {
-                    results.append(word)
-                }
+            var allResults: [TopicWordDTO] = []
+            allResults.reserveCapacity(ids.count)
+            for try await batch in group {
+                allResults.append(contentsOf: batch)
             }
-            return results
+            return allResults
         }
     }
 

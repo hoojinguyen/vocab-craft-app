@@ -142,9 +142,9 @@ def fetch_github_api(endpoint, owner, repo, token=None):
 def fetch_all_pr_feedback(owner, repo, pr_number, token=None, custom_bot_list=None):
     """Aggregate reviews, review comments, and issue comments for a PR."""
     pr_data = fetch_github_api(f"pulls/{pr_number}", owner, repo, token)
-    reviews = fetch_github_api(f"pulls/{pr_number}/reviews", owner, repo, token) or []
-    review_comments = fetch_github_api(f"pulls/{pr_number}/comments", owner, repo, token) or []
-    issue_comments = fetch_github_api(f"issues/{pr_number}/comments", owner, repo, token) or []
+    reviews = fetch_github_api(f"pulls/{pr_number}/reviews?per_page=100", owner, repo, token) or []
+    review_comments = fetch_github_api(f"pulls/{pr_number}/comments?per_page=100", owner, repo, token) or []
+    issue_comments = fetch_github_api(f"issues/{pr_number}/comments?per_page=100", owner, repo, token) or []
 
     # Map bots
     def check_bot(login):

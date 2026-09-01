@@ -6,7 +6,7 @@
 
 **Architecture:** Phased clean architecture refactoring. Decouples state ownership via proper SwiftUI `@State` patterns, introduces batch lookup in `VocabularyDataSourceProtocol`, removes dead code from Bento/Vault v1 iterations, standardizes speech recognition on `SpeechKit` via `ResilientReflexSpeechEngine`, and unifies visual styling under `CraftUIKit` design tokens.
 
-**Tech Stack:** Swift 6 / SwiftUI, SwiftData (`@ModelActor`), `Observation` framework (`@Observable`), SPM (`CraftUIKit`, `SpeechKit`), XCTest / Swift Testing, `Localizable.xcstrings`.
+**Tech Stack:** Swift 5.10 / SwiftUI, SwiftData (`@ModelActor`), `Observation` framework (`@Observable`), SPM (`CraftUIKit`, `SpeechKit`), XCTest / Swift Testing, `Localizable.xcstrings`.
 
 ## Global Constraints
 

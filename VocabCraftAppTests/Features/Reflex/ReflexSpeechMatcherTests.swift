@@ -38,6 +38,9 @@ final class ReflexSpeechMatcherTests: XCTestCase {
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "buses", targetLemma: "bus"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "ashes", targetLemma: "ash"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "cats", targetLemma: "cat"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "rowing", targetLemma: "row"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "paying", targetLemma: "pay"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "keyed", targetLemma: "key"))
 
         // 3-letter consonant doubling (CVC)
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "running", targetLemma: "run"))
@@ -79,6 +82,7 @@ final class ReflexSpeechMatcherTests: XCTestCase {
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "pining", targetLemma: "pin"))
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "catch", targetLemma: "cat"))
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "paste", targetLemma: "past"))
+        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "pasted", targetLemma: "past"))
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "planet", targetLemma: "plan"))
     }
 

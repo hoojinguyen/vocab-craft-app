@@ -395,8 +395,8 @@ private extension MixedReflexDrillView {
     func selectOption(_ option: ReflexBlitzOption) {
         guard cardPhase == .activeCountdown else { return }
         timerTask?.cancel()
-        speechEngine?.endWord()
         speechEngine?.finalizeWordAudio()
+        speechEngine?.endWord()
 
         withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
             cardPhase = .reviewed(result: ReflexCardResult(
@@ -419,8 +419,8 @@ private extension MixedReflexDrillView {
 
         let isCorrect = cleanText.lowercased() == current.word.lemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         timerTask?.cancel()
-        speechEngine?.endWord()
         speechEngine?.finalizeWordAudio()
+        speechEngine?.endWord()
 
         withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
             cardPhase = .reviewed(result: ReflexCardResult(
@@ -445,9 +445,9 @@ private extension MixedReflexDrillView {
     func handleTimeout() {
         guard cardPhase == .activeCountdown else { return }
         timerTask?.cancel()
-        speechEngine?.endWord()
         fractionRemaining = 0.0
         speechEngine?.finalizeWordAudio()
+        speechEngine?.endWord()
 
         withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
             cardPhase = .reviewed(result: ReflexCardResult(
@@ -482,6 +482,7 @@ private extension MixedReflexDrillView {
                     if isCorrect {
                         timerTask?.cancel()
                         speechEngine?.finalizeWordAudio()
+                        speechEngine?.endWord()
                         SoundEffectService.shared.playSuccessChime()
                         withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
                             cardPhase = .reviewed(result: ReflexCardResult(

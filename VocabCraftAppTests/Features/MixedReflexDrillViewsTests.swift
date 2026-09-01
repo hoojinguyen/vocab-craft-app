@@ -499,12 +499,21 @@ struct MixedReflexDrillViewsTests {
         #expect(drillView.speechEngine != nil)
         _ = drillView.body
 
+        // Explicitly setup speech engine callbacks & start item
+        drillView.setupSpeechEngineCallbacks()
+        drillView.startDrillItem(item)
+
+        #expect(mockSpeechEngine.onMatchDetected != nil)
+        #expect(mockSpeechEngine.isWordActive == true)
+
         // Simulate match detected callback directly on speech engine
-        mockSpeechEngine.beginWord(targetLemma: words[0].lemma, contextualPhrases: [])
         mockSpeechEngine.simulateMatch(words[0].lemma)
 
-        #expect(mockSpeechEngine.isWordActive == true)
-        #expect(drillView.viewModel.currentItem?.word.lemma == "eloquent")
+        // Give the async Task time to execute
+        try? await Task.sleep(for: .milliseconds(50))
+
+        #expect(mockSpeechEngine.isWordActive == false)
+        #expect(drillView.viewModel.phase == .completed)
     }
 }
 #endif

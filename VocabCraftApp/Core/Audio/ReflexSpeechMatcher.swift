@@ -57,7 +57,13 @@ public enum ReflexSpeechMatcher {
     private static func matchesStemOrInflection(token: String, normalizedTarget: String, targetLen: Int) -> Bool {
         guard targetLen >= 3, token.hasPrefix(normalizedTarget) else { return false }
         let suffix = String(token.dropFirst(targetLen))
-        if targetLen >= 4 && allowedExtendedSuffixes.contains(suffix) { return true }
+        if targetLen >= 4 && allowedExtendedSuffixes.contains(suffix) {
+            // Guard false inflection derivations (e.g. lemma "past" + "ed" -> "pasted", which is derived from "paste")
+            if normalizedTarget == "past" && suffix == "ed" {
+                return false
+            }
+            return true
+        }
         // Handle c -> ck spelling transformation (e.g. "panic" -> "panicked", "panicking")
         if normalizedTarget.hasSuffix("c") && (suffix == "ked" || suffix == "king") {
             return true
@@ -73,12 +79,12 @@ public enum ReflexSpeechMatcher {
                 }
             }
             // 3-letter CVC monosyllables (e.g. "can", "pin", "run", "fit", "car") require consonant doubling.
-            // Only non-CVC targets (ending in "x" or consonant clusters like "ask", "fix", "box") allow plain -ed/-ing/-d.
+            // Only non-CVC targets (ending in "x", "w", "y" or consonant clusters like "ask", "fix", "box", "row", "pay", "key") allow plain -ed/-ing/-d.
             let is3LetterCVC: Bool = {
                 let chars = Array(normalizedTarget)
                 guard chars.count == 3 else { return false }
                 let vowels: Set<Character> = ["a", "e", "i", "o", "u"]
-                return vowels.contains(chars[1]) && !vowels.contains(chars[2]) && chars[2] != "x"
+                return vowels.contains(chars[1]) && !vowels.contains(chars[2]) && chars[2] != "x" && chars[2] != "w" && chars[2] != "y"
             }()
             if !is3LetterCVC && (suffix == "ed" || suffix == "ing" || suffix == "d") { return true }
         }

@@ -2425,7 +2425,7 @@
         }
       }
     },
-    "app.settings.daily_goal_placeholder": {
+    "app.settings.learning.daily_goal_placeholder": {
       "extractionState": "manual",
       "localizations": {
         "en": {

@@ -241,7 +241,7 @@ public struct SmartReviewSessionView: View {
                     Text(AppStrings.Vault.SmartReview.showAnswer)
                         .font(.system(size: 15, weight: .bold))
                 }
-                .foregroundColor(.white)
+                .foregroundColor(theme.colors.textInverse)
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
                 .background(theme.colors.textPrimary)
@@ -291,7 +291,7 @@ public struct SmartReviewSessionView: View {
                         Text(AppStrings.Vault.SmartReview.remembered)
                             .font(.system(size: 14, weight: .bold))
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(theme.colors.textInverse)
                     .frame(maxWidth: .infinity)
                     .frame(height: 48)
                     .background(
@@ -341,7 +341,7 @@ public struct SmartReviewSessionView: View {
             Button(action: onDismiss) {
                 Text(AppStrings.Vault.SmartReview.finishAndReturn)
                     .font(.system(size: 15, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundColor(theme.colors.textInverse)
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
                     .background(theme.colors.textPrimary)

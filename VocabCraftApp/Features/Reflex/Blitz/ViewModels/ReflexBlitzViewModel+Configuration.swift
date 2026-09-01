@@ -167,7 +167,7 @@ extension ReflexBlitzViewModel {
         }
 
         if currentHandler.shouldSpeakOnReviewFlip {
-            scheduleReviewSpeech(for: word.lemma, delayMs: 250, rate: 0.5)
+            scheduleReviewSpeech(for: word.lemma, delayMs: currentHandler.reviewSpeechDelayMs, rate: currentHandler.reviewSpeechRate)
         }
     }
 }

@@ -66,10 +66,10 @@ graph TD
 #### 3.1.1 `VocabularyView` ViewModel Lifecycle Fix
 * **Problem**: `VocabularyView` used a computed property `activeVaultVM` that called `appContainer.makePersonalVaultViewModel()` whenever `vaultVM` was `nil`. When SwiftUI re-evaluates `body` (due to scroll offset, search text change, or theme switch), a new `PersonalVaultViewModel` was instantiated, resetting search queries, tab selections, and discarding ongoing tasks.
 * **Solution**:
-  - Encapsulate `PersonalVaultViewModel` ownership in `@State private var vaultVM: PersonalVaultViewModel`.
+  - Encapsulate `PersonalVaultViewModel` ownership in `@State private var vaultVM: PersonalVaultViewModel?`.
   - In `init(vaultViewModel: PersonalVaultViewModel? = nil, isSearchHiddenByScroll: Bool = false, isScrolledPastHeader: Bool = false, isSearchVisible: Bool? = nil)`:
     - If `vaultViewModel` is provided, initialize `_vaultVM = State(initialValue: vaultViewModel)`.
-    - If `nil`, lazily initialize with a default container instance.
+    - If `nil`, lazily initialize with a default container instance via `.task`.
   - Provide a backward-compatible testing accessor `isSearchVisibleForTesting` that bridges to `!isSearchHiddenByScroll`.
   - Support legacy `isSearchVisible` parameter in `init` by converting `isSearchHiddenByScroll = !isSearchVisible`.
 
@@ -140,7 +140,7 @@ Delete the following obsolete files and remove their references from `project.pb
         Self.wordById
     }
     ```
-  - In `FetchPersonalVaultUseCase` and `ReviewWeakWordsUseCase`, fetch the dictionary/batch once $\rightarrow$ in-memory $O(1)$ mapping with zero async loops.
+  - In `FetchPersonalVaultUseCase` and `ReviewWeakWordsUseCase`, query scoped `fetchWordsByIds(ids:)` $\rightarrow$ in-memory $O(1)$ mapping with zero async loops.
 
 #### 3.3.2 Domain Entity Normalization
 * Standardize the representations of a vocabulary word across the codebase into:

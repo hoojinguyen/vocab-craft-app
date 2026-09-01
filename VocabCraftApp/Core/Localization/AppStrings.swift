@@ -297,8 +297,8 @@ extension AppStrings {
         public static var langEnglish: LocalizedStringKey { "app.settings.learning.lang_en" }
         public static var dailyGoal: LocalizedStringKey { "app.settings.learning.daily_goal" }
         public static var dailyGoalText: String { String(localized: "app.settings.learning.daily_goal", defaultValue: "Daily Goal", bundle: .module) }
-        public static var dailyGoalPlaceholder: LocalizedStringKey { "app.settings.daily_goal_placeholder" }
-        public static var dailyGoalPlaceholderText: String { String(localized: "app.settings.daily_goal_placeholder", defaultValue: "5 - 100 words", bundle: .module) }
+        public static var dailyGoalPlaceholder: LocalizedStringKey { "app.settings.learning.daily_goal_placeholder" }
+        public static var dailyGoalPlaceholderText: String { String(localized: "app.settings.learning.daily_goal_placeholder", defaultValue: "5 - 100 words", bundle: .module) }
         public static var reminders: LocalizedStringKey { "app.settings.learning.reminders" }
         public static var reminderTime: LocalizedStringKey { "app.settings.learning.reminder_time" }
         public static var resetSRS: LocalizedStringKey { "app.settings.learning.reset_srs" }
@@ -536,7 +536,7 @@ extension AppStrings {
         public static var mastered: LocalizedStringKey { "app.widget.mastered" }
         public static var masteredText: String { String(localized: "app.widget.mastered", defaultValue: "Mastered", bundle: .module) }
         public static func level(_ level: Int) -> LocalizedStringKey {
-            LocalizedStringKey("app.widget.level_format \(level)")
+            LocalizedStringKey(levelText(level))
         }
         public static func levelText(_ level: Int) -> String {
             String(format: String(localized: "app.widget.level_format", defaultValue: "Level %lld", bundle: .module), level)
