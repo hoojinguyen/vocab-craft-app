@@ -23,31 +23,35 @@ public struct VocabularyView: View {
     public init(
         vaultViewModel: PersonalVaultViewModel? = nil,
         viewModel: VocabularyViewModel? = nil,
+        isSearchVisible: Bool? = nil,
         isSearchHiddenByScroll: Bool = false,
         isScrolledPastHeader: Bool = false
     ) {
+        let hiddenByScroll = isSearchVisible.map { !$0 } ?? isSearchHiddenByScroll
         self._vaultVM = State(initialValue: vaultViewModel)
         self._legacyVM = State(initialValue: viewModel)
-        self._isSearchHiddenByScroll = State(initialValue: isSearchHiddenByScroll)
+        self._isSearchHiddenByScroll = State(initialValue: hiddenByScroll)
         self._isScrolledPastHeader = State(initialValue: isScrolledPastHeader)
         self._searchText = State(initialValue: vaultViewModel?.searchQuery ?? "")
     }
 
     // MARK: - Testing Inspection Accessors
     internal var isSearchHiddenByScrollForTesting: Bool { isSearchHiddenByScroll }
+    internal var isSearchVisibleForTesting: Bool { !isSearchHiddenByScroll }
     internal var isScrolledPastHeaderForTesting: Bool { isScrolledPastHeader }
     internal var measuredHeaderHeightForTesting: CGFloat { measuredHeaderHeight }
 
-    private var activeVaultVM: PersonalVaultViewModel {
+    private func resolvedVaultVM() -> PersonalVaultViewModel {
         if let vm = vaultVM {
             return vm
         }
         let vm = appContainer.makePersonalVaultViewModel()
+        vaultVM = vm
         return vm
     }
 
     public var body: some View {
-        let currentVaultVM = activeVaultVM
+        let currentVaultVM = vaultVM ?? resolvedVaultVM()
         @Bindable var bindableVaultVM = currentVaultVM
 
         NavigationStack {

@@ -45,7 +45,7 @@ public struct MarkLearnedIntent: AppIntent {
                 isCorrect: true,
                 responseTimeMs: 1500
             )
-            progress.masteryLevel = max(5, srsResult.nextMastery)
+            progress.masteryLevel = min(5, max(1, srsResult.nextMastery))
             progress.easeFactor = srsResult.easeFactor
             progress.intervalDays = srsResult.intervalDays
             progress.lastReviewDate = Date()
