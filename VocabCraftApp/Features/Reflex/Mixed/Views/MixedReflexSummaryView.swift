@@ -10,8 +10,22 @@ public struct MixedReflexSummaryView: View {
     public let summary: ReflexBlitzSessionSummary
     public let practicedWords: [VaultWordItem]
     public let onSpeakWord: ((String) -> Void)?
-    public let onRetry: () -> Void
-    public let onDone: () -> Void
+    public let onReDrillWeak: () -> Void
+    public let onFinish: () -> Void
+
+    public init(
+        summary: ReflexBlitzSessionSummary,
+        practicedWords: [VaultWordItem] = [],
+        onSpeakWord: ((String) -> Void)? = nil,
+        onReDrillWeak: @escaping () -> Void,
+        onFinish: @escaping () -> Void
+    ) {
+        self.summary = summary
+        self.practicedWords = practicedWords
+        self.onSpeakWord = onSpeakWord
+        self.onReDrillWeak = onReDrillWeak
+        self.onFinish = onFinish
+    }
 
     public init(
         summary: ReflexBlitzSessionSummary,
@@ -23,9 +37,12 @@ public struct MixedReflexSummaryView: View {
         self.summary = summary
         self.practicedWords = practicedWords
         self.onSpeakWord = onSpeakWord
-        self.onRetry = onRetry
-        self.onDone = onDone
+        self.onReDrillWeak = onRetry
+        self.onFinish = onDone
     }
+
+    public var onRetry: () -> Void { onReDrillWeak }
+    public var onDone: () -> Void { onFinish }
 
     private var formattedAvgTime: String {
         String(format: "%.1fs", Double(summary.averageResponseTimeMs) / 1000.0)
@@ -35,108 +52,147 @@ public struct MixedReflexSummaryView: View {
         summary.ratingTier.localizedTitle
     }
 
+    private var starCount: Int {
+        summary.ratingTier.starCount
+    }
+
     private var headerIconName: String {
         summary.ratingTier.iconName
+    }
+
+    private var headerAccentColor: Color {
+        switch summary.ratingTier {
+        case .master:
+            return theme.colors.brandPrimary
+        case .swift:
+            return theme.colors.brandSecondary
+        case .steady:
+            return theme.colors.accent
+        }
     }
 
     public var body: some View {
         ZStack(alignment: .bottom) {
             ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: theme.spacing.lg) {
-                    headerSection
-                    metricsBentoGrid
-                    practicedWordsSection
-                }
-                .padding(.bottom, 200)
+                summaryContent
+                    .padding(.bottom, summary.weakWordAttempts.isEmpty ? 140 : 200)
             }
 
-            stickyBottomActionDock
+            bottomActionDock
         }
         .background(theme.colors.canvasBackground.ignoresSafeArea())
     }
 
-    // MARK: - Header Section
-    private var headerSection: some View {
-        VStack(spacing: theme.spacing.md) {
-            Image(systemName: headerIconName)
-                .font(.system(size: 34, weight: .bold))
-                .foregroundColor(theme.colors.brandPrimary)
-                .symbolRenderingMode(.hierarchical)
-                .frame(width: 68, height: 68)
-                .background(.ultraThinMaterial)
-                .clipShape(Circle())
-                .overlay(
-                    Circle()
-                        .stroke(theme.colors.brandPrimary.opacity(0.35), lineWidth: 1.5)
-                )
-                .craftShadow(theme.shadows.sm)
-                .accessibilityHidden(true)
+    public var summaryContent: some View {
+        VStack(spacing: theme.spacing.lg) {
+            headerView
+            bentoMetricsGrid
+
+            if !summary.weakWordAttempts.isEmpty {
+                weakWordsSection
+            } else {
+                perfectScoreView
+            }
+        }
+        .padding(.top, theme.spacing.base)
+    }
+
+    // MARK: - Header
+    private var headerView: some View {
+        VStack(spacing: theme.spacing.sm) {
+            CraftCard(
+                style: .tactile3D,
+                cornerRadius: theme.radii.xl,
+                padding: theme.spacing.base,
+                customTint: headerAccentColor,
+                customBorderColor: headerAccentColor.opacity(0.3),
+                customBottomColor: headerAccentColor.opacity(0.7)
+            ) {
+                Image(systemName: headerIconName)
+                    .font(theme.typography.displayLarge)
+                    .foregroundStyle(.white)
+                    .frame(width: 48, height: 48)
+            }
+            .frame(width: 80, height: 80)
+            .accessibilityHidden(true)
 
             VStack(spacing: theme.spacing.xs) {
                 Text(cleanRatingTitle)
                     .font(theme.typography.titleLarge)
                     .fontWeight(.bold)
                     .fontDesign(.rounded)
-                    .foregroundColor(theme.colors.textPrimary)
+                    .foregroundStyle(theme.colors.textPrimary)
                     .accessibilityAddTraits(.isHeader)
 
-                Text(AppStrings.ReflexBlitz.summaryTitle)
-                    .font(theme.typography.bodyMedium)
-                    .foregroundColor(theme.colors.textMuted)
-                    .multilineTextAlignment(.center)
+                ratingStarsView
             }
         }
-        .padding(.top, theme.spacing.base)
         .padding(.horizontal, theme.spacing.base)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(String(localized: "app.reflex.summary.a11y_header_format \(cleanRatingTitle)"))
     }
 
-    // MARK: - Metrics Bento Grid
-    private var metricsBentoGrid: some View {
+    // MARK: - Rating Stars
+    private var ratingStarsView: some View {
+        HStack(spacing: theme.spacing.xs) {
+            ForEach(1...3, id: \.self) { index in
+                Image(systemName: index <= starCount ? "star.fill" : "star")
+                    .font(theme.typography.caption)
+                    .fontWeight(.bold)
+                    .foregroundStyle(index <= starCount ? theme.colors.accent : theme.colors.textMuted.opacity(0.35))
+            }
+        }
+        .accessibilityHidden(true)
+    }
+
+    // MARK: - Bento Metrics Grid
+    private var bentoMetricsGrid: some View {
         HStack(spacing: theme.spacing.sm) {
-            metricCard(
-                icon: "speedometer",
-                color: theme.colors.brandPrimary,
+            bentoCard(
+                iconName: "speedometer",
+                tint: theme.colors.brandPrimary,
                 value: formattedAvgTime,
-                title: AppStrings.ReflexBlitz.summaryAvgSpeedText,
-                accessibilityLabel: String(format: "%@: %@", AppStrings.ReflexBlitz.summaryAvgSpeedText, formattedAvgTime)
+                title: String(localized: "app.reflex.summary.avg_speed"),
+                accessibilityLabel: String(localized: "app.reflex.summary.a11y_avg_speed \(formattedAvgTime)")
             )
 
-            metricCard(
-                icon: "target",
-                color: theme.colors.statusSuccess,
+            bentoCard(
+                iconName: "target",
+                tint: theme.colors.statusSuccess,
                 value: "\(summary.correctWords)/\(summary.totalWords)",
-                title: AppStrings.ReflexBlitz.summaryAccuracyText,
-                accessibilityLabel: String(format: "%@: %lld/%lld", AppStrings.ReflexBlitz.summaryAccuracyText, summary.correctWords, summary.totalWords)
+                title: String(localized: "app.reflex.summary.accuracy"),
+                accessibilityLabel: String(localized: "app.reflex.summary.a11y_accuracy \(summary.correctWords) \(summary.totalWords)")
             )
 
-            metricCard(
-                icon: "flame.fill",
-                color: theme.colors.brandSecondary,
+            bentoCard(
+                iconName: "flame.fill",
+                tint: theme.colors.brandSecondary,
                 value: "x\(summary.maxComboStreak)",
-                title: AppStrings.ReflexBlitz.summaryMaxComboText,
-                accessibilityLabel: String(format: "%@: %lld", AppStrings.ReflexBlitz.summaryMaxComboText, summary.maxComboStreak)
+                title: String(localized: "app.reflex.summary.max_combo"),
+                accessibilityLabel: String(localized: "app.reflex.summary.a11y_max_combo \(summary.maxComboStreak)")
             )
         }
         .padding(.horizontal, theme.spacing.base)
     }
 
-    private func metricCard(
-        icon: String,
-        color: Color,
+    private func bentoCard(
+        iconName: String,
+        tint: Color,
         value: String,
         title: String,
         accessibilityLabel: String
     ) -> some View {
-        CraftCard(style: .outlined, padding: theme.spacing.md) {
+        CraftCard(style: .tactile3D, padding: theme.spacing.md) {
             VStack(spacing: theme.spacing.xs) {
                 ZStack {
                     Circle()
-                        .fill(color.opacity(0.12))
+                        .fill(tint.opacity(0.12))
                         .frame(width: 36, height: 36)
-                    Image(systemName: icon)
-                        .font(.system(size: 17, weight: .semibold))
+                    Image(systemName: iconName)
+                        .font(theme.typography.bodyLarge)
+                        .fontWeight(.semibold)
                         .symbolRenderingMode(.hierarchical)
-                        .foregroundColor(color)
+                        .foregroundStyle(tint)
                 }
                 .accessibilityHidden(true)
 
@@ -145,13 +201,13 @@ public struct MixedReflexSummaryView: View {
                     .fontWeight(.bold)
                     .fontDesign(.rounded)
                     .monospacedDigit()
-                    .foregroundColor(theme.colors.textPrimary)
+                    .foregroundStyle(theme.colors.textPrimary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
 
                 Text(title)
                     .font(theme.typography.caption)
-                    .foregroundColor(theme.colors.textMuted)
+                    .foregroundStyle(theme.colors.textMuted)
                     .lineLimit(1)
             }
             .frame(maxWidth: .infinity)
@@ -160,164 +216,139 @@ public struct MixedReflexSummaryView: View {
         .accessibilityLabel(accessibilityLabel)
     }
 
-    // MARK: - Practiced Words Section
-    private var practicedWordsSection: some View {
+    // MARK: - Weak Words Section
+    private var weakWordsSection: some View {
         VStack(alignment: .leading, spacing: theme.spacing.sm) {
             HStack(spacing: theme.spacing.xs) {
-                Image(systemName: "character.book.closed.fill")
-                    .font(.subheadline.bold())
+                Image(systemName: "exclamationmark.circle.fill")
                     .symbolRenderingMode(.hierarchical)
-                    .foregroundColor(theme.colors.brandPrimary)
+                    .foregroundStyle(theme.colors.statusDanger)
+                    .font(.headline)
+                    .accessibilityHidden(true)
 
-                Text(String(localized: "app.reflex.summary.practiced_words_count \(summary.attempts.count)"))
+                Text(AppStrings.ReflexBlitz.weakWordsHeader)
                     .font(theme.typography.headline)
                     .fontWeight(.bold)
                     .fontDesign(.rounded)
-                    .foregroundColor(theme.colors.textPrimary)
+                    .foregroundStyle(theme.colors.textPrimary)
             }
             .padding(.horizontal, theme.spacing.base)
             .accessibilityAddTraits(.isHeader)
 
-            LazyVStack(spacing: theme.spacing.sm) {
-                ForEach(summary.attempts) { attempt in
-                    wordAttemptRow(attempt)
+            VStack(spacing: theme.spacing.sm) {
+                ForEach(summary.weakWordAttempts) { weak in
+                    weakWordRow(for: weak)
                 }
             }
             .padding(.horizontal, theme.spacing.base)
         }
     }
 
-    private func wordAttemptRow(_ attempt: ReflexBlitzAttempt) -> some View {
-        let isMastered = isWordMastered(attempt: attempt)
-        let timeFormatted = String(format: "%.1fs", Double(attempt.responseTimeMs) / 1000.0)
+    // MARK: - Active Recall Vocabulary Row
+    private func weakWordRow(for weak: ReflexBlitzAttempt) -> some View {
+        CraftCard(
+            style: .tactile3D,
+            padding: theme.spacing.base,
+            customBorderColor: theme.colors.statusDanger.opacity(0.4),
+            customBottomColor: theme.colors.statusDanger.opacity(0.8)
+        ) {
+            HStack(alignment: .center, spacing: theme.spacing.sm) {
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    Text(weak.lemma)
+                        .font(theme.typography.headline)
+                        .fontWeight(.bold)
+                        .foregroundStyle(theme.colors.textPrimary)
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
 
-        return CraftCard(style: .outlined, padding: theme.spacing.base) {
-            VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                wordAttemptHeader(attempt: attempt, isMasteredWord: isMastered)
-                wordAttemptMeta(attempt: attempt)
-                wordAttemptFooter(attempt: attempt, timeFormatted: timeFormatted)
+                    if !weak.ipa.isEmpty {
+                        Text(weak.ipa)
+                            .font(theme.typography.phonetic)
+                            .foregroundStyle(theme.colors.textSecondary)
+                            .multilineTextAlignment(.leading)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+
+                    HStack(spacing: theme.spacing.xs) {
+                        if !weak.pos.isEmpty {
+                            CraftBadge(
+                                weak.cleanPos,
+                                variant: .subtle,
+                                tone: .neutral,
+                                size: .sm
+                            )
+                        }
+
+                        CraftBadge(
+                            weak.cleanLevel.uppercased(),
+                            variant: .subtle,
+                            tone: .primary,
+                            size: .sm
+                        )
+                    }
+                }
+
+                Spacer(minLength: theme.spacing.xs)
+
+                if let onSpeak = onSpeakWord {
+                    CraftSpeakerButton(
+                        variant: .subtle,
+                        size: .sm,
+                        customTint: theme.colors.brandPrimary
+                    ) {
+                        onSpeak(weak.lemma)
+                    }
+                    .accessibilityLabel(String(localized: "app.reflex.summary.a11y_speak_word \(weak.lemma)"))
+                }
             }
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(attempt.lemma), \(attempt.definitionVi), \(timeFormatted)")
+        .accessibilityLabel("\(weak.lemma), \(weak.cleanPos)")
     }
 
-    private func wordAttemptHeader(attempt: ReflexBlitzAttempt, isMasteredWord: Bool) -> some View {
-        HStack(alignment: .center) {
-            Text(attempt.lemma)
-                .font(theme.typography.headline)
-                .fontWeight(.bold)
-                .fontDesign(.rounded)
-                .foregroundColor(theme.colors.textPrimary)
-
-            if let onSpeak = onSpeakWord {
-                CraftSpeakerButton(
-                    variant: .subtle,
-                    size: .sm,
-                    customTint: theme.colors.brandPrimary
-                ) {
-                    onSpeak(attempt.lemma)
-                }
-                .accessibilityLabel(String(localized: "app.reflex.summary.a11y_speak_word \(attempt.lemma)"))
-            }
-
-            Spacer()
-
-            wordAttemptStatusBadge(attempt: attempt, isMasteredWord: isMasteredWord)
+    // MARK: - Perfect Score State
+    private var perfectScoreView: some View {
+        VStack(spacing: theme.spacing.xs) {
+            Text(AppStrings.ReflexBlitz.perfectDesc)
+                .font(theme.typography.bodyMedium)
+                .foregroundStyle(theme.colors.textSecondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, theme.spacing.xl)
+                .padding(.vertical, theme.spacing.base)
         }
-    }
-
-    @ViewBuilder
-    private func wordAttemptStatusBadge(attempt: ReflexBlitzAttempt, isMasteredWord: Bool) -> some View {
-        if isMasteredWord {
-            CraftBadge(
-                String(localized: "app.reflex.summary.mastered"),
-                iconName: "checkmark.seal.fill",
-                variant: .subtle,
-                tone: .success,
-                size: .sm,
-                shape: .capsule
-            )
-        } else if attempt.isCorrect {
-            CraftBadge(
-                String(localized: "app.reflex.summary.correct"),
-                iconName: "checkmark",
-                variant: .subtle,
-                tone: .primary,
-                size: .sm,
-                shape: .capsule
-            )
-        } else {
-            CraftBadge(
-                String(localized: "app.reflex.summary.retried"),
-                iconName: "arrow.triangle.2.circlepath",
-                variant: .subtle,
-                tone: .warning,
-                size: .sm,
-                shape: .capsule
-            )
-        }
-    }
-
-    @ViewBuilder
-    private func wordAttemptMeta(attempt: ReflexBlitzAttempt) -> some View {
-        let metaParts = [attempt.pos, attempt.ipa].filter { !$0.isEmpty }
-        if !metaParts.isEmpty {
-            Text(metaParts.joined(separator: " • "))
-                .font(theme.typography.phonetic)
-                .foregroundColor(theme.colors.textMuted)
-        }
-    }
-
-    private func wordAttemptFooter(attempt: ReflexBlitzAttempt, timeFormatted: String) -> some View {
-        HStack(alignment: .center, spacing: theme.spacing.xs) {
-            if !attempt.definitionVi.isEmpty {
-                Text(attempt.definitionVi)
-                    .font(theme.typography.bodyMedium)
-                    .foregroundColor(theme.colors.textSecondary)
-                    .lineLimit(2)
-            }
-
-            Spacer()
-
-            CraftBadge(
-                timeFormatted,
-                iconName: "stopwatch.fill",
-                variant: .subtle,
-                tone: attempt.isCorrect ? .primary : .danger,
-                size: .sm,
-                shape: .capsule
-            )
-        }
-    }
-
-    private func isWordMastered(attempt: ReflexBlitzAttempt) -> Bool {
-        if let matchingWord = practicedWords.first(where: { $0.id == attempt.wordId || $0.lemma.lowercased() == attempt.lemma.lowercased() }) {
-            return matchingWord.isMastered
-        }
-        return false
+        .frame(maxWidth: .infinity)
     }
 
     // MARK: - Sticky Bottom Action Dock
-    public var stickyBottomActionDock: some View {
+    public var bottomActionDock: some View {
         VStack(spacing: theme.spacing.md) {
-            CraftButton(
-                String(localized: "app.reflex.summary.retry_drill"),
-                iconName: "arrow.triangle.2.circlepath",
-                variant: .ghost,
-                size: .lg,
-                isFullWidth: true,
-                action: onRetry
-            )
+            if !summary.weakWordAttempts.isEmpty {
+                CraftButton(
+                    AppStrings.ReflexBlitz.redrillWeak,
+                    variant: .tactile,
+                    size: .lg,
+                    isFullWidth: true,
+                    customTint: theme.colors.brandPrimary,
+                    action: onReDrillWeak
+                )
 
-            CraftButton(
-                AppStrings.ReflexBlitz.finishSave,
-                iconName: "checkmark",
-                variant: .primary,
-                size: .lg,
-                isFullWidth: true,
-                action: onDone
-            )
+                CraftButton(
+                    AppStrings.ReflexBlitz.finishSaveText,
+                    variant: .secondary,
+                    size: .lg,
+                    isFullWidth: true,
+                    action: onFinish
+                )
+            } else {
+                CraftButton(
+                    AppStrings.ReflexBlitz.finishSaveText,
+                    variant: .tactile,
+                    size: .lg,
+                    isFullWidth: true,
+                    customTint: theme.colors.brandPrimary,
+                    action: onFinish
+                )
+            }
         }
         .padding(.horizontal, theme.spacing.base)
         .padding(.top, theme.spacing.md)
@@ -335,5 +366,9 @@ public struct MixedReflexSummaryView: View {
             }
             .ignoresSafeArea(edges: .bottom)
         )
+    }
+
+    public var stickyBottomActionDock: some View {
+        bottomActionDock
     }
 }

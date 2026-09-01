@@ -18,8 +18,7 @@ public final class MixedReflexDrillViewModel: Identifiable {
     public private(set) var currentEliminatedOptionId: String?
     public private(set) var currentHintBadgeText: String = ""
     public let allowSpeakingSkip: Bool
-
-    private let selectedWords: [VaultWordItem]
+    public private(set) var selectedWords: [VaultWordItem]
     private let queueUseCase: GenerateMixedReflexQueueUseCaseProtocol
     private let planGenerator: PracticeDrillPlanGeneratorProtocol?
     private let recordAttemptUseCase: RecordMixedDrillAttemptUseCaseProtocol?
@@ -155,6 +154,15 @@ public final class MixedReflexDrillViewModel: Identifiable {
         self.sessionPlan = ReflexDrillSessionPlan(mode: .multipleChoice, items: items)
 
         advanceToNextItem()
+    }
+
+    public func reDrillWeakWords() {
+        guard let summary = sessionSummary, !summary.weakWordAttempts.isEmpty else { return }
+        let weakWordIds = Set(summary.weakWordAttempts.map { Int64($0.wordId) })
+        let weakVaultWords = selectedWords.filter { weakWordIds.contains($0.id) }
+        guard !weakVaultWords.isEmpty else { return }
+        self.selectedWords = weakVaultWords
+        restartSession()
     }
 
     public func restartSession() {
