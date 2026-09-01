@@ -189,9 +189,8 @@ public struct PracticeSelectionView: View {
                 // Top CTA: Smart Practice (Instant launch)
                 CraftButton(
                     verbatim: AppStrings.Practice.smartPickText,
-                    iconName: "bolt.fill",
                     variant: .tactile,
-                    size: .md,
+                    size: .lg,
                     isFullWidth: true,
                     action: {
                         let picked = vaultViewModel.smartPickWords()
@@ -206,7 +205,6 @@ public struct PracticeSelectionView: View {
                     verbatim: selectedWordsCount > 0
                         ? AppStrings.Practice.startButton(selectedWordsCount)
                         : AppStrings.Practice.emptyPromptText,
-                    iconName: "play.fill",
                     variant: .tactile,
                     size: .lg,
                     isFullWidth: true,

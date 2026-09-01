@@ -334,16 +334,22 @@ public struct ReflexSpeakingModeView: View {
         return prefixText + slotText + suffixText
     }
 
+    private var effectiveClozeParts: ClozeSentenceParts? {
+        if let parts = clozeStages?.initialParts ?? clozeParts {
+            return parts
+        }
+        let formatted = ReflexClozeFormatter.formatCloze(sentenceEn: word.exampleSentenceEn, lemma: word.lemma)
+        return ReflexClozeFormatter.extractTemplateParts(from: formatted)
+    }
+
     @ViewBuilder
     private var backSentenceView: some View {
-        if let parts = clozeParts {
+        if let parts = effectiveClozeParts {
             reviewedClozeText(parts: parts)
         } else {
             Text(word.completedSentenceWithTargetWord)
-                .font(theme.typography.bodySerif.weight(.bold))
-                .foregroundColor(
-                    isResultCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger
-                )
+                .font(theme.typography.bodySerif.weight(.medium))
+                .foregroundColor(theme.colors.textPrimary)
         }
     }
 
