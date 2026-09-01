@@ -229,6 +229,20 @@ public struct VocabularyView: View {
                     }
                 )
             }
+            #if os(iOS)
+            .fullScreenCover(item: $activeDrillViewModel) { drillVM in
+                MixedReflexDrillView(
+                    viewModel: drillVM,
+                    speechService: ContinuousReflexSpeechService(),
+                    onFinish: {
+                        activeDrillViewModel = nil
+                        Task {
+                            await currentVaultVM.loadData()
+                        }
+                    }
+                )
+            }
+            #else
             .sheet(item: $activeDrillViewModel) { drillVM in
                 MixedReflexDrillView(
                     viewModel: drillVM,
@@ -241,6 +255,7 @@ public struct VocabularyView: View {
                     }
                 )
             }
+            #endif
             .sheet(isPresented: $isPresentingPracticeSelection) {
                 PracticeSelectionView(
                     vaultViewModel: currentVaultVM,

@@ -280,6 +280,33 @@ struct MixedReflexDrillViewsTests {
 
         #expect(overlay.count == 3)
         #expect(overlay.mode == .speaking)
+        #expect(overlay.title == ReflexBlitzMode.speaking.title)
+        _ = overlay.body
+
+        overlay.onFinish()
+        #expect(finishCalled == true)
+    }
+
+    @Test("ReflexCountdownOverlayView hỗ trợ mixed drill countdown với custom title, subtitle, icon và tint")
+    @MainActor
+    func testReflexCountdownOverlayViewMixedConfiguration() {
+        var finishCalled = false
+        let theme = CraftDefaultTheme()
+        let overlay = ReflexCountdownOverlayView(
+            count: 3,
+            title: AppStrings.Practice.mixedDrillTitleText,
+            subtitle: AppStrings.Practice.mixedDrillSubtitleText,
+            iconName: "bolt.fill",
+            tintColor: theme.colors.brandPrimary,
+            onFinish: { finishCalled = true }
+        )
+
+        #expect(overlay.count == 3)
+        #expect(overlay.title == AppStrings.Practice.mixedDrillTitleText)
+        #expect(overlay.subtitle == AppStrings.Practice.mixedDrillSubtitleText)
+        #expect(overlay.iconName == "bolt.fill")
+        #expect(overlay.tintColor == theme.colors.brandPrimary)
+        #expect(overlay.mode == nil)
         _ = overlay.body
 
         overlay.onFinish()

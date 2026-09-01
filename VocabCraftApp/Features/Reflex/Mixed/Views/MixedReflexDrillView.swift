@@ -94,7 +94,10 @@ public struct MixedReflexDrillView: View {
             } else if isCountingDown, let currentItem = viewModel.currentItem {
                 ReflexCountdownOverlayView(
                     count: 3,
-                    mode: currentItem.assignedMode,
+                    title: AppStrings.Practice.mixedDrillTitleText,
+                    subtitle: AppStrings.Practice.mixedDrillSubtitleText,
+                    iconName: "bolt.fill",
+                    tintColor: theme.colors.brandPrimary,
                     onFinish: {
                         withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                             isCountingDown = false
