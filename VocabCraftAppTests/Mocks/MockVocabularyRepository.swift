@@ -59,12 +59,4 @@ public final class MockVocabularyRepository: VocabularyRepositoryProtocol, @unch
     public func fetchSuggestedWords(limit: Int) async throws -> [SuggestedWord] {
         return []
     }
-
-    public func fetchTopicDecks() async throws -> [TopicDeck] {
-        return []
-    }
-
-    public func fetchTopicDeckDetails(deckId: String) async throws -> [SubTopicNode] {
-        return []
-    }
 }

@@ -57,16 +57,4 @@ public final class MockVocabularyRepository: VocabularyRepositoryProtocol, Senda
     public func fetchSuggestedWords(limit: Int) async throws -> [SuggestedWord] {
         return Array(dataSource.mockSuggestedWords.prefix(limit))
     }
-
-    /// Fetches available topic decks and their associated subtopic nodes.
-    ///
-    /// - Returns: An array of ``TopicDeck`` objects.
-    public func fetchTopicDecks() async throws -> [TopicDeck] {
-        return dataSource.mockTopicDecks
-    }
-
-    /// Fetches the nodes for a specific topic deck.
-    public func fetchTopicDeckDetails(deckId: String) async throws -> [SubTopicNode] {
-        return SubTopicNode.sampleNodes
-    }
 }

@@ -33,9 +33,6 @@ public final class AppContainer {
     public let fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol
     public let completeLessonUseCase: CompleteLessonUseCaseProtocol
 
-    public let fetchTopicDecksUseCase: FetchTopicDecksUseCaseProtocol
-    public let fetchDeckRoadmapUseCase: FetchDeckRoadmapUseCaseProtocol
-    public let completeStageChallengeUseCase: CompleteStageChallengeUseCaseProtocol
     public let fetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProtocol
     public let reviewWeakWordsUseCase: ReviewWeakWordsUseCaseProtocol
     public let toggleWordBookmarkUseCase: ToggleWordBookmarkUseCaseProtocol
@@ -113,19 +110,7 @@ public final class AppContainer {
             progressRepo: resolvedUserProgressRepo
         )
 
-        // Vocabulary Hub Use Cases
-        self.fetchTopicDecksUseCase = FetchTopicDecksUseCase(
-            dataSource: resolvedDataSource,
-            stageRepo: resolvedStageRepo
-        )
-        self.fetchDeckRoadmapUseCase = FetchDeckRoadmapUseCase(
-            dataSource: resolvedDataSource,
-            stageRepo: resolvedStageRepo
-        )
-        self.completeStageChallengeUseCase = CompleteStageChallengeUseCase(
-            stageRepo: resolvedStageRepo,
-            progressRepo: resolvedUserProgressRepo
-        )
+        // Personal Vault & Mixed Reflex Use Cases
         self.fetchPersonalVaultUseCase = FetchPersonalVaultUseCase(
             dataSource: resolvedDataSource,
             progressRepo: resolvedUserProgressRepo
@@ -167,27 +152,6 @@ public final class AppContainer {
     }
 
     // MARK: - View Model Factories
-
-    public func makeTopicDecksViewModel() -> TopicDecksViewModel {
-        TopicDecksViewModel(
-            fetchTopicDecksUseCase: fetchTopicDecksUseCase
-        )
-    }
-
-    public func makeTopicRoadmapViewModel(deckId: String) -> TopicRoadmapViewModel {
-        TopicRoadmapViewModel(
-            deckId: deckId,
-            fetchDeckRoadmapUseCase: fetchDeckRoadmapUseCase
-        )
-    }
-
-    public func makeStageChallengeViewModel(stage: SubTopicStage) -> StageChallengeViewModel {
-        StageChallengeViewModel(
-            stage: stage,
-            completeUseCase: completeStageChallengeUseCase,
-            ttsService: ttsService
-        )
-    }
 
     public func makePersonalVaultViewModel() -> PersonalVaultViewModel {
         PersonalVaultViewModel(

@@ -7,31 +7,32 @@ import XCTest
 #endif
 
 final class ColorTokensTests: XCTestCase {
-    func testSemanticColorTokensExistAndInstantiate() {
-        XCTAssertNotNil(Color.vocabCanvas)
-        XCTAssertNotNil(Color.vocabSurfaceCard)
-        XCTAssertNotNil(Color.vocabHeroTeal)
-        XCTAssertNotNil(Color.vocabInk)
-        XCTAssertNotNil(Color.vocabMuted)
-        XCTAssertNotNil(Color.vocabHairline)
-        XCTAssertNotNil(Color.vocabCoral)
-        XCTAssertNotNil(Color.vocabMint)
-        XCTAssertNotNil(Color.vocabPeach)
-        XCTAssertNotNil(Color.vocabLavender)
+    func testVocabColorTokensInstantiation() {
+        let tokens = VocabColorTokens()
+        XCTAssertNotNil(tokens.canvasBackground)
+        XCTAssertNotNil(tokens.surfaceCard)
+        XCTAssertNotNil(tokens.brandPrimary)
+        XCTAssertNotNil(tokens.brandSecondary)
+        XCTAssertNotNil(tokens.accent)
+        XCTAssertNotNil(tokens.textPrimary)
+        XCTAssertNotNil(tokens.textSecondary)
+        XCTAssertNotNil(tokens.textMuted)
+        XCTAssertNotNil(tokens.textInverse)
+        XCTAssertNotNil(tokens.borderDefault)
+        XCTAssertNotNil(tokens.statusSuccess)
+        XCTAssertNotNil(tokens.statusWarning)
+        XCTAssertNotNil(tokens.statusDanger)
+        XCTAssertNotNil(tokens.statusInfo)
     }
 
-    func testColorHexInitializer() {
-        let redColor = Color(hex: "#FF0000")
-        XCTAssertNotNil(redColor)
-
-        let greenWithoutHash = Color(hex: "00FF00")
-        XCTAssertNotNil(greenWithoutHash)
-    }
-
-    func testSRSSparkleEffectViewLifecycle() {
-        let binding = Binding.constant(true)
-        let view = SRSSparkleEffectView(isEmitting: binding)
-        XCTAssertNotNil(view.body)
+    func testVocabThemeInstantiation() {
+        let theme = VocabTheme()
+        XCTAssertNotNil(theme.colors)
+        XCTAssertNotNil(theme.typography)
+        XCTAssertNotNil(theme.spacing)
+        XCTAssertNotNil(theme.radii)
+        XCTAssertNotNil(theme.shadows)
+        XCTAssertNotNil(theme.gradients)
     }
 
     func testAppThemeManagerPresetSwitching() {

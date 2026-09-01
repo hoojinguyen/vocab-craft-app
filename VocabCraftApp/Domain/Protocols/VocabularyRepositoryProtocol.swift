@@ -31,15 +31,4 @@ public protocol VocabularyRepositoryProtocol: AnyObject, Sendable {
     /// - Parameter limit: The maximum number of suggested words to return.
     /// - Returns: An array of ``SuggestedWord`` entities.
     func fetchSuggestedWords(limit: Int) async throws -> [SuggestedWord]
-
-    /// Fetches available topic decks and their associated subtopic nodes.
-    ///
-    /// - Returns: An array of ``TopicDeck`` objects.
-    func fetchTopicDecks() async throws -> [TopicDeck]
-
-    /// Fetches the nodes for a specific topic deck.
-    ///
-    /// - Parameter deckId: The ID of the topic deck.
-    /// - Returns: An array of ``SubTopicNode`` objects belonging to the deck.
-    func fetchTopicDeckDetails(deckId: String) async throws -> [SubTopicNode]
 }

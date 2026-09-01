@@ -1,5 +1,11 @@
 import Foundation
 
+/// The user's input modality during a quick-reflex attempt.
+public enum QuickReflexInputMode: String, CaseIterable, Equatable, Sendable {
+    case voice
+    case typing
+}
+
 /// The learner's self-reported confidence after a quick-reflex attempt.
 public enum QuickReflexConfidence: String, CaseIterable, Equatable, Sendable {
     case uncertain

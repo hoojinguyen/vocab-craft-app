@@ -83,36 +83,25 @@ public struct MockVocabularyDataSource: Sendable {
         )
     ]
 
-    public let mockTopicDecks: [TopicDeck] = [
-        TopicDeck(
-            id: "tech",
-            title: "Công nghệ & Đổi mới",
-            wordCount: 30,
-            completionPercentage: 0.35,
-            badgeColorHex: "#3B82F6",
-            iconName: "cpu"
-        ),
-        TopicDeck(
-            id: "business",
-            title: "Kinh doanh & Tài chính",
-            wordCount: 45,
-            completionPercentage: 0.60,
-            badgeColorHex: "#10B981",
-            iconName: "chart.bar.fill"
-        )
-    ]
-
     public func fetchTopicDecksSummary() -> [TopicDeckSummaryRecord] {
-        return mockTopicDecks.map { deck in
+        [
             TopicDeckSummaryRecord(
-                id: deck.id,
-                title: deck.title,
-                iconName: deck.iconName,
-                badgeColorHex: deck.badgeColorHex,
+                id: "tech",
+                title: "Công nghệ & Đổi mới",
+                iconName: "cpu",
+                badgeColorHex: "#3B82F6",
                 sortOrder: 1,
-                totalWords: deck.wordCount
+                totalWords: 30
+            ),
+            TopicDeckSummaryRecord(
+                id: "business",
+                title: "Kinh doanh & Tài chính",
+                iconName: "chart.bar.fill",
+                badgeColorHex: "#10B981",
+                sortOrder: 2,
+                totalWords: 45
             )
-        }
+        ]
     }
 
     public func fetchDeckWordIdsMap() -> [String: [Int64]] {

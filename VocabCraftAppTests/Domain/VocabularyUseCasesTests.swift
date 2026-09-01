@@ -192,33 +192,6 @@ final class VocabularyUseCasesTests: XCTestCase {
         stageRepo = StageProgressRepositoryImpl(modelContext: nil)
     }
 
-    func test_fetchTopicDecksUseCase_returnsDecksWithCalculatedWordCounts() async throws {
-        let sut = FetchTopicDecksUseCase(dataSource: dataSource, stageRepo: stageRepo)
-        let decks = try await sut.execute()
-        XCTAssertEqual(decks.count, 4)
-        XCTAssertGreaterThan(decks.first?.totalWords ?? 0, 0)
-    }
-
-    func test_fetchDeckRoadmapUseCase_unlocksFirstStageByDefault() async throws {
-        let sut = FetchDeckRoadmapUseCase(dataSource: dataSource, stageRepo: stageRepo)
-        let stages = try await sut.execute(deckId: "deck_daily")
-        XCTAssertEqual(stages.count, 2)
-        XCTAssertEqual(stages.first?.state, .active)
-        XCTAssertEqual(stages.last?.state, .locked)
-    }
-
-    func test_completeStageChallengeUseCase_flagsIncorrectWordsAndUnlocksNext() async throws {
-        let sut = CompleteStageChallengeUseCase(stageRepo: stageRepo, progressRepo: MockUserProgressActor())
-        let results = [
-            WordChallengeResult(wordId: 1, isCorrect: true, timeTakenMs: 1200),
-            WordChallengeResult(wordId: 2, isCorrect: false, timeTakenMs: 3000)
-        ]
-        let summary = try await sut.execute(stageId: "stage_daily_1", deckId: "deck_daily", results: results)
-        XCTAssertEqual(summary.correctCount, 1)
-        XCTAssertEqual(summary.weakWordIds, [2])
-        XCTAssertEqual(summary.xpEarned, 10)
-    }
-
     func test_fetchPersonalVaultUseCase_filtersByTabAndComputesMetrics() async throws {
         let progressRepo = MockUserProgressActor(initialData: [
             UserWordProgressData(wordId: 1, masteryLevel: 4, isBookmarked: false, needsReview: false, mistakeCount: 0),
