@@ -83,12 +83,6 @@ final class MockTextToSpeechService: TextToSpeechProtocol {
     }
 }
 
-final class MockFetchVocabularyUseCase: FetchVocabularyUseCaseProtocol {
-    func executeFetchWords(limit: Int) async throws -> [Word] { [] }
-    func executeSearch(query: String) async throws -> [Word] { [] }
-    func executeFetchDrills(cefrLevel: String) async throws -> [ReflexDrillItem] { [] }
-}
-
 final class MockEvaluateSRSUseCase: EvaluateSRSUseCaseProtocol {
     func evaluateResponse(currentMastery: Int, easeFactor: Double, isCorrect: Bool, responseTimeMs: Int) -> SRSResult {
         SRSResult(

@@ -42,55 +42,6 @@ struct VocabularyRedesignViewTests {
         )
     ]
 
-    @Test("TopCarouselFlashcardView hiển thị thẻ từ và kích hoạt các callback")
-    @MainActor
-    func testTopCarouselFlashcardView() {
-        var audioWord: VaultWordItem?
-        var bookmarkWord: VaultWordItem?
-        var selectedWord: VaultWordItem?
-
-        let carousel = TopCarouselFlashcardView(
-            words: mockWords,
-            onAudioTap: { word in
-                audioWord = word
-            },
-            onBookmarkTap: { word in
-                bookmarkWord = word
-            },
-            onWordSelected: { word in
-                selectedWord = word
-            }
-        )
-
-        #if canImport(UIKit)
-        let host = UIHostingController(rootView: carousel)
-        #expect(host.view != nil)
-        #endif
-
-        #expect(carousel.words.count == 2)
-        carousel.onAudioTap?(mockWords[0])
-        #expect(audioWord?.id == 1)
-
-        carousel.onBookmarkTap?(mockWords[1])
-        #expect(bookmarkWord?.id == 2)
-
-        carousel.onWordSelected?(mockWords[0])
-        #expect(selectedWord?.id == 1)
-    }
-
-    @Test("TopCarouselFlashcardView xử lý danh sách từ rỗng")
-    @MainActor
-    func testTopCarouselFlashcardViewEmpty() {
-        let carousel = TopCarouselFlashcardView(words: [])
-
-        #if canImport(UIKit)
-        let host = UIHostingController(rootView: carousel)
-        #expect(host.view != nil)
-        #endif
-
-        #expect(carousel.words.isEmpty)
-    }
-
     @Test("VaultWordCardView hiển thị trạng thái thu gọn và mở rộng")
     @MainActor
     func testVaultWordCardView() {

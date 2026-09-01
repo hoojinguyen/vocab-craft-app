@@ -23,6 +23,7 @@ public struct HomepageView: View {
     @State private var completionToastData: CraftToastData?
     @Environment(\.appContainer) private var appContainer
     @Environment(\.appRouter) private var appRouter
+    @Environment(\.craftTheme) private var theme
 
     @MainActor
     public init(viewModel: HomepageViewModel) {
@@ -33,7 +34,7 @@ public struct HomepageView: View {
         @Bindable var router = appRouter
 
         ZStack(alignment: .bottom) {
-            Color.vocabCanvas
+            theme.colors.canvasBackground
                 .ignoresSafeArea()
 
             switch router.selectedTab {
@@ -52,7 +53,7 @@ public struct HomepageView: View {
                             scrollToActiveNonce += 1
                         }
                     )
-                    .background(Color.vocabCanvas)
+                    .background(theme.colors.canvasBackground)
 
                     StreakWeekStripView(
                         streakDays: viewModel.streakDays,
@@ -63,7 +64,7 @@ public struct HomepageView: View {
 
                     Group {
                         if viewModel.isLoading && viewModel.sections.isEmpty {
-                            HomeSkeletonView()
+                             HomeSkeletonView()
                         } else if let error = viewModel.errorMessage, viewModel.sections.isEmpty {
                             ContentUnavailableView {
                                 Label(String(localized: "app.home.load_error_title", defaultValue: "Không tải được lộ trình", bundle: .module), systemImage: "wifi.exclamationmark")
@@ -76,7 +77,7 @@ public struct HomepageView: View {
                                 }
                             }
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .background(Color.vocabCanvas)
+                            .background(theme.colors.canvasBackground)
                         } else {
                     CraftLearningPath(
                         sections: viewModel.sections,

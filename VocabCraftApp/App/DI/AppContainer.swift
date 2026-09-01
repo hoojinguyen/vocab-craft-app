@@ -27,7 +27,6 @@ public final class AppContainer {
     public let speechAssessmentService: SpeechAssessmentProtocol
 
     // MARK: - Domain Use Cases
-    public let fetchVocabularyUseCase: FetchVocabularyUseCaseProtocol
     public let evaluateSRSUseCase: EvaluateSRSUseCaseProtocol
     public let resetUserProgressUseCase: ResetUserProgressUseCaseProtocol
 
@@ -101,7 +100,6 @@ public final class AppContainer {
         self.speechAssessmentService = speechAssessmentService ?? SpeechAssessmentService()
 
         // Existing Use Cases
-        self.fetchVocabularyUseCase = FetchVocabularyUseCase(repository: vocabRepo)
         self.evaluateSRSUseCase = EvaluateSRSUseCase(srsRepository: srsRepo)
         self.resetUserProgressUseCase = ResetUserProgressUseCase(srsRepository: srsRepo)
 
@@ -215,13 +213,17 @@ public final class AppContainer {
         )
     }
 
+    public func makeReflexSpeechEngine() -> ReflexSpeechEngineProtocol {
+        ResilientReflexSpeechEngine()
+    }
+
     public func makeReflexBlitzViewModel(words: [ReflexBlitzWordItem] = []) -> ReflexBlitzViewModel {
         let blitzWords = !words.isEmpty ? words : ReflexBlitzWordItem.defaultStarterWords
         return ReflexBlitzViewModel(
             words: blitzWords,
             ttsService: ttsService,
             evaluateSRSUseCase: evaluateSRSUseCase,
-            speechEngine: ResilientReflexSpeechEngine()
+            speechEngine: makeReflexSpeechEngine()
         )
     }
 
@@ -239,40 +241,11 @@ public final class AppContainer {
         )
     }
 
-    public func makeStudySessionViewModel(words: [TopicWord]) -> StudySessionViewModel {
-        StudySessionViewModel(
-            words: words,
-            ttsService: ttsService
-        )
-    }
-
     public func makeSettingsViewModel() -> SettingsViewModel {
         SettingsViewModel(
             store: userSettingsStore,
             ttsService: ttsService,
             resetProgressUseCase: resetUserProgressUseCase
-        )
-    }
-
-    public func makeVocabularyViewModel() -> VocabularyViewModel {
-        VocabularyViewModel(
-            fetchVocabularyUseCase: fetchVocabularyUseCase,
-            ttsService: ttsService
-        )
-    }
-
-    public func makeQuickReflexDrillViewModel(
-        targetWord: WordItem,
-        allWords: [WordItem]
-    ) -> QuickReflexDrillViewModel {
-        QuickReflexDrillViewModel(
-            targetWord: targetWord,
-            allWords: allWords,
-            ttsService: ttsService,
-            sttService: sttService,
-            speechAssessmentService: speechAssessmentService,
-            evaluateSRSUseCase: evaluateSRSUseCase,
-            attemptRepository: quickReflexAttemptRepository
         )
     }
 

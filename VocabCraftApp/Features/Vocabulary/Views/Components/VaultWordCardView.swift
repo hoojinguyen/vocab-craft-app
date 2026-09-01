@@ -1,9 +1,12 @@
+import CraftUIKit
 import SwiftUI
 
 /// Elegant accordion word card component for displaying a `VaultWordItem` in the Vocabulary Hub.
 /// Follows Apple HIG standards: 44x44pt touch targets, clean typography, CEFR badge,
 /// audio pronunciation trigger, bookmark toggle, and expandable contextual sentences.
 public struct VaultWordCardView: View {
+    @Environment(\.craftTheme) private var theme
+
     public let word: VaultWordItem
     public let isExpanded: Bool
     public let onTap: () -> Void
@@ -33,21 +36,21 @@ public struct VaultWordCardView: View {
                         HStack(spacing: 8) {
                             Text(word.lemma)
                                 .font(.system(size: 17, weight: .bold, design: .serif))
-                                .foregroundColor(Color.vocabInk)
+                                .foregroundColor(theme.colors.textPrimary)
 
                             if !word.phonetic.isEmpty {
                                 Text(word.phonetic)
                                     .font(.system(size: 12, weight: .medium, design: .monospaced))
-                                    .foregroundColor(Color.vocabMuted)
+                                    .foregroundColor(theme.colors.textSecondary)
                             }
 
                             Button(action: onAudioTap) {
                                 Image(systemName: "speaker.wave.2.fill")
-                                    .font(.system(size: 13, weight: .semibold))
-                                    .foregroundColor(Color.vocabHeroAccent)
-                                    .padding(5)
-                                    .background(Color.vocabHeroAccent.opacity(0.12))
-                                    .clipShape(Circle())
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundColor(theme.colors.brandSecondary)
+                                .padding(5)
+                                .background(theme.colors.brandSecondary.opacity(0.12))
+                                .clipShape(Circle())
                             }
                             .buttonStyle(PlainButtonStyle())
                             .frame(minWidth: 44, minHeight: 44)
@@ -61,19 +64,19 @@ public struct VaultWordCardView: View {
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
                                     .background(cefrBadgeBackground(for: word.cefrLevel))
-                                    .foregroundColor(Color.vocabInk)
+                                    .foregroundColor(theme.colors.textPrimary)
                                     .cornerRadius(4)
                             }
 
                             if !word.pos.isEmpty {
                                 Text("(\(word.pos))")
                                     .font(.system(size: 11, weight: .medium).italic())
-                                    .foregroundColor(Color.vocabMuted)
+                                    .foregroundColor(theme.colors.textSecondary)
                             }
 
                             Text(word.definitionVi)
                                 .font(.system(size: 13, weight: .medium))
-                                .foregroundColor(Color.vocabMuted)
+                                .foregroundColor(theme.colors.textSecondary)
                                 .lineLimit(1)
                         }
                     }
@@ -85,8 +88,8 @@ public struct VaultWordCardView: View {
                         if word.isMastered {
                             Image(systemName: "checkmark.seal.fill")
                                 .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(Color.vocabMint)
-                                .accessibilityLabel("Đã thuộc")
+                                .foregroundColor(theme.colors.statusSuccess)
+                                .accessibilityLabel(AppStrings.Vault.statusMasteredText)
                         } else if word.correctStreak > 0 {
                             HStack(spacing: 2) {
                                 Image(systemName: "flame.fill")
@@ -94,17 +97,17 @@ public struct VaultWordCardView: View {
                                 Text("\(word.correctStreak)/3")
                                     .font(.system(size: 11, weight: .bold, design: .rounded))
                             }
-                            .foregroundColor(Color.vocabPeach)
+                            .foregroundColor(theme.colors.accent)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(Color.vocabPeach.opacity(0.15))
+                            .background(theme.colors.accent.opacity(0.15))
                             .clipShape(Capsule())
                         }
 
                         Button(action: onBookmarkTap) {
                             Image(systemName: word.isBookmarked ? "bookmark.fill" : "bookmark")
                                 .font(.system(size: 15, weight: .semibold))
-                                .foregroundColor(word.isBookmarked ? Color.vocabPeach : Color.vocabMuted)
+                                .foregroundColor(word.isBookmarked ? theme.colors.accent : theme.colors.textSecondary)
                                 .frame(width: 36, height: 36)
                                 .contentShape(Rectangle())
                         }
@@ -113,7 +116,7 @@ public struct VaultWordCardView: View {
 
                         Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                             .font(.system(size: 12, weight: .semibold))
-                            .foregroundColor(Color.vocabMuted)
+                            .foregroundColor(theme.colors.textSecondary)
                             .frame(width: 20, height: 44)
                     }
                 }
@@ -127,12 +130,12 @@ public struct VaultWordCardView: View {
             if isExpanded {
                 VStack(alignment: .leading, spacing: 8) {
                     Divider()
-                        .background(Color.vocabHairline)
+                        .background(theme.colors.hairline)
 
                     // Definition
                     Text(word.definitionVi)
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(Color.vocabInk)
+                        .foregroundColor(theme.colors.textPrimary)
 
                     // Example Sentence
                     if !word.exampleSentenceEn.isEmpty {
@@ -140,7 +143,7 @@ public struct VaultWordCardView: View {
                             HStack(alignment: .top, spacing: 6) {
                                 Image(systemName: "quote.opening")
                                     .font(.system(size: 10))
-                                    .foregroundColor(Color.vocabMuted)
+                                    .foregroundColor(theme.colors.textSecondary)
 
                                 highlightedExample(sentence: word.exampleSentenceEn, lemma: word.lemma)
                             }
@@ -148,13 +151,13 @@ public struct VaultWordCardView: View {
                             if !word.exampleSentenceVi.isEmpty {
                                 Text(word.exampleSentenceVi)
                                     .font(.system(size: 12, weight: .regular))
-                                    .foregroundColor(Color.vocabMuted)
+                                    .foregroundColor(theme.colors.textSecondary)
                                     .padding(.leading, 16)
                             }
                         }
                         .padding(10)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.vocabSurfaceSoft)
+                        .background(theme.colors.surfaceSubtle)
                         .cornerRadius(8)
                     }
                 }
@@ -163,12 +166,12 @@ public struct VaultWordCardView: View {
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
-        .background(Color.vocabSurfaceCard)
+        .background(theme.colors.surfaceCard)
         .cornerRadius(14)
         .overlay(
             RoundedRectangle(cornerRadius: 14)
                 .stroke(
-                    word.isMastered ? Color.vocabMint.opacity(0.35) : Color.vocabHairline,
+                    word.isMastered ? theme.colors.statusSuccess.opacity(0.35) : theme.colors.hairline,
                     lineWidth: 1
                 )
         )
@@ -184,33 +187,33 @@ public struct VaultWordCardView: View {
         guard let range = sentence.range(of: lemma, options: .caseInsensitive) else {
             return Text(sentence)
                 .font(.system(size: 13, weight: .medium, design: .serif))
-                .foregroundColor(Color.vocabInk)
+                .foregroundColor(theme.colors.textPrimary)
         }
         let prefix: String = String(sentence[..<range.lowerBound])
         let match: String = String(sentence[range])
         let suffix: String = String(sentence[range.upperBound...])
         let prefixText: Text = Text(prefix)
             .font(.system(size: 13, weight: .medium, design: .serif))
-            .foregroundColor(Color.vocabInk)
+            .foregroundColor(theme.colors.textPrimary)
         let matchText: Text = Text(match)
             .font(.system(size: 13, weight: .bold, design: .serif))
-            .foregroundColor(Color.vocabHeroAccent)
+            .foregroundColor(theme.colors.brandSecondary)
         let suffixText: Text = Text(suffix)
             .font(.system(size: 13, weight: .medium, design: .serif))
-            .foregroundColor(Color.vocabInk)
+            .foregroundColor(theme.colors.textPrimary)
         return prefixText + matchText + suffixText
     }
 
     private func cefrBadgeBackground(for level: String) -> Color {
         switch level.uppercased() {
         case "A1", "A2":
-            return Color.vocabMint.opacity(0.18)
+            return theme.colors.statusSuccess.opacity(0.18)
         case "B1", "B2":
-            return Color.vocabPeach.opacity(0.18)
+            return theme.colors.accent.opacity(0.18)
         case "C1", "C2":
-            return Color.vocabLavender.opacity(0.18)
+            return theme.colors.statusInfo.opacity(0.18)
         default:
-            return Color.vocabSurfaceSoft
+            return theme.colors.surfaceSubtle
         }
     }
 }

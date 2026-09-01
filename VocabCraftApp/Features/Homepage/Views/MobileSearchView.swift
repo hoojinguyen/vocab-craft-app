@@ -1,6 +1,8 @@
+import CraftUIKit
 import SwiftUI
 
 public struct MobileSearchView: View {
+    @Environment(\.craftTheme) private var theme
     @Binding public var searchText: String
     public var onVoiceSearchTapped: () -> Void
 
@@ -13,17 +15,17 @@ public struct MobileSearchView: View {
         HStack(spacing: 10) {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(Color.vocabHeroAccent)
+                .foregroundColor(theme.colors.brandSecondary)
 
             TextField(AppStrings.Search.placeholder, text: $searchText)
                 .font(.system(size: 15, weight: .medium))
-                .foregroundColor(Color.vocabInk)
+                .foregroundColor(theme.colors.textPrimary)
 
             if !searchText.isEmpty {
                 Button(action: { searchText = "" }) {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 16))
-                        .foregroundColor(Color.vocabMuted)
+                        .foregroundColor(theme.colors.textSecondary)
                         .frame(width: 44, height: 44)
                 }
                 .buttonStyle(.plain)
@@ -32,11 +34,11 @@ public struct MobileSearchView: View {
             Button(action: onVoiceSearchTapped) {
                 ZStack {
                     Circle()
-                        .fill(Color.vocabHeroAccent.opacity(0.12))
+                        .fill(theme.colors.brandSecondary.opacity(0.12))
                         .frame(width: 32, height: 32)
                     Image(systemName: "mic.fill")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(Color.vocabHeroAccent)
+                        .foregroundColor(theme.colors.brandSecondary)
                 }
                 .frame(width: 44, height: 44)
             }
@@ -47,13 +49,13 @@ public struct MobileSearchView: View {
         .padding(.vertical, 4)
         .background(
             RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .fill(Color.vocabSurfaceCard)
+                .fill(theme.colors.surfaceCard)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(Color.vocabHairline, lineWidth: 1.5)
+                .stroke(theme.colors.hairline, lineWidth: 1.5)
         )
-        .shadow(color: Color.vocabHeroTeal.opacity(0.05), radius: 6, x: 0, y: 3)
+        .shadow(color: theme.colors.brandPrimary.opacity(0.05), radius: 6, x: 0, y: 3)
         .padding(.horizontal)
     }
 }

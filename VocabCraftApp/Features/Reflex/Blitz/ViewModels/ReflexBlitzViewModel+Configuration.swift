@@ -151,9 +151,7 @@ extension ReflexBlitzViewModel {
         )
         attempts.append(attempt)
 
-        if selectedMode == .speaking {
-            speechEngine.endWord()
-        }
+        currentHandler.onTimeout(speechEngine: speechEngine)
 
         Task {
             _ = try? await self.evaluateSRSUseCase.recordReview(
@@ -168,12 +166,8 @@ extension ReflexBlitzViewModel {
             ))
         }
 
-        if selectedMode != .listening {
-            Task { @MainActor [weak self] in
-                try? await Task.sleep(for: .milliseconds(250))
-                guard let self, self.cardPhase != .activeCountdown else { return }
-                self.ttsService.speak(text: word.lemma, rate: 0.5, locale: "en-US")
-            }
+        if currentHandler.shouldSpeakOnReviewFlip {
+            scheduleReviewSpeech(for: word.lemma, delayMs: currentHandler.reviewSpeechDelayMs, rate: currentHandler.reviewSpeechRate)
         }
     }
 }

@@ -38,6 +38,23 @@ final class ReflexSpeechMatcherTests: XCTestCase {
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "buses", targetLemma: "bus"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "ashes", targetLemma: "ash"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "cats", targetLemma: "cat"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "rowing", targetLemma: "row"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "paying", targetLemma: "pay"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "keyed", targetLemma: "key"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "eating", targetLemma: "eat"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "outing", targetLemma: "out"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "aiming", targetLemma: "aim"))
+
+        // 2-letter regular/irregular verbal inflections
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "goes", targetLemma: "go"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "going", targetLemma: "go"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "gone", targetLemma: "go"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "went", targetLemma: "go"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "does", targetLemma: "do"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "doing", targetLemma: "do"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "did", targetLemma: "do"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "being", targetLemma: "be"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "been", targetLemma: "be"))
 
         // 3-letter consonant doubling (CVC)
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "running", targetLemma: "run"))
@@ -61,6 +78,11 @@ final class ReflexSpeechMatcherTests: XCTestCase {
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "loving", targetLemma: "love"))
         XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "using", targetLemma: "use"))
 
+        // -ie -> -ying inflection
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "lying", targetLemma: "lie"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "tying", targetLemma: "tie"))
+        XCTAssertTrue(ReflexSpeechMatcher.isReflexMatch(spokenText: "dying", targetLemma: "die"))
+
         // Rejection of non-inflection derivations (e.g. agent nouns, adjectives)
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "rainy", targetLemma: "rain"))
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "farmer", targetLemma: "farm"))
@@ -79,7 +101,10 @@ final class ReflexSpeechMatcherTests: XCTestCase {
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "pining", targetLemma: "pin"))
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "catch", targetLemma: "cat"))
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "paste", targetLemma: "past"))
+        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "pasted", targetLemma: "past"))
         XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "planet", targetLemma: "plan"))
+        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "planed", targetLemma: "plan"))
+        XCTAssertFalse(ReflexSpeechMatcher.isReflexMatch(spokenText: "stoped", targetLemma: "stop"))
     }
 
     // MARK: - Medium Words (5 - 7 chars): Threshold 0.80

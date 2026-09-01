@@ -58,9 +58,7 @@ struct HomeLocalizationTests {
         let _: LocalizedStringKey = AppStrings.Home.lockedHint
     }
 
-    @Test("Verifies catalog keys integrity for Home domain")
-    func testHomeCatalogKeysIntegrity() throws {
-        // Find Localizable.xcstrings file
+    private func loadCatalogStrings() throws -> [String: [String: Any]] {
         let potentialPaths: [String?] = [
             Bundle.main.path(forResource: "Localizable", ofType: "xcstrings"),
             URL(fileURLWithPath: #filePath)
@@ -84,10 +82,15 @@ struct HomeLocalizationTests {
             JSONSerialization.jsonObject(with: fileData) as? [String: Any],
             "Catalog should parse as JSON dictionary"
         )
-        let strings = try #require(
+        return try #require(
             json["strings"] as? [String: [String: Any]],
             "Catalog should contain 'strings' key"
         )
+    }
+
+    @Test("Verifies catalog keys integrity for Home domain")
+    func testHomeCatalogKeysIntegrity() throws {
+        let strings = try loadCatalogStrings()
 
         let requiredHomeKeys = [
             "app.home.title",
@@ -137,8 +140,90 @@ struct HomeLocalizationTests {
             let viLoc = try #require(localizations["vi"], "Key \(key) missing VI localization")
             let viUnit = try #require(viLoc["stringUnit"] as? [String: Any], "Key \(key) missing VI stringUnit")
             #expect(viUnit["state"] as? String == "translated", "Key \(key) VI state must be 'translated'")
-            let viVal = try #require(viUnit["value"] as? String, "Key \(key) VI value cannot be empty")
+            let viVal = try #require(viUnit["value"] as? String, "Key \(key) missing VI value")
             #expect(!viVal.isEmpty, "Key \(key) VI value cannot be empty")
+        }
+    }
+
+    @Test("Verifies search accessors in AppStrings.Search")
+    func testAppStringsSearchAccessors() {
+        #expect(AppStrings.Search.titleText == "Search")
+        #expect(AppStrings.Search.upcomingFeatureBadgeText == "COMING SOON")
+        #expect(AppStrings.Search.smartLookupTitleText == "Smart Dictionary & AI Lookup")
+        #expect(AppStrings.Search.smartLookupDescriptionText == "Offline morphological parser, bilingual context sentences...")
+        #expect(AppStrings.Search.recentSearchesTitleText == "Recent Searches")
+        #expect(AppStrings.Search.suggestedTopicsTitleText == "Suggested Topics")
+        #expect(AppStrings.Search.topicIeltsText == "IELTS Band 7.0+")
+        #expect(AppStrings.Search.topicBusinessText == "Business & Tech")
+        #expect(AppStrings.Search.topicAcademicText == "Academic Research")
+        #expect(AppStrings.Search.topicDailyText == "Daily Expressions")
+        let _: LocalizedStringKey = AppStrings.Search.title
+        let _: LocalizedStringKey = AppStrings.Search.upcomingFeatureBadge
+        let _: LocalizedStringKey = AppStrings.Search.smartLookupTitle
+        let _: LocalizedStringKey = AppStrings.Search.smartLookupDescription
+        let _: LocalizedStringKey = AppStrings.Search.recentSearchesTitle
+        let _: LocalizedStringKey = AppStrings.Search.suggestedTopicsTitle
+        let _: LocalizedStringKey = AppStrings.Search.topicIelts
+        let _: LocalizedStringKey = AppStrings.Search.topicBusiness
+        let _: LocalizedStringKey = AppStrings.Search.topicAcademic
+        let _: LocalizedStringKey = AppStrings.Search.topicDaily
+    }
+
+    @Test("Verifies widget accessors in AppStrings.Widget")
+    func testAppStringsWidgetAccessors() {
+        #expect(AppStrings.Widget.nextText == "Next")
+        #expect(AppStrings.Widget.masteredText == "Mastered")
+        #expect(AppStrings.Widget.levelText(3) == "Level 3")
+        let _: LocalizedStringKey = AppStrings.Widget.next
+        let _: LocalizedStringKey = AppStrings.Widget.mastered
+        let _: LocalizedStringKey = AppStrings.Widget.level(3)
+    }
+
+    @Test("Verifies search and widget catalog keys integrity")
+    func testSearchAndWidgetCatalogKeysIntegrity() throws {
+        let strings = try loadCatalogStrings()
+
+        let expectedSearchAndWidgetKeys: [String: (vi: String, en: String)] = [
+            "app.search.title": ("Tra từ", "Search"),
+            "app.search.upcoming_feature_badge": ("SẮP RA MẮT", "COMING SOON"),
+            "app.search.smart_lookup_title": ("Từ điển Thông minh & Tra cứu AI", "Smart Dictionary & AI Lookup"),
+            "app.search.smart_lookup_desc": ("Bộ phân tích hình thái học offline, câu ví dụ song ngữ...", "Offline morphological parser, bilingual context sentences..."),
+            "app.search.recent_searches": ("Tìm kiếm gần đây", "Recent Searches"),
+            "app.search.suggested_topics": ("Chủ đề gợi ý", "Suggested Topics"),
+            "app.search.topic_ielts": ("IELTS Band 7.0+", "IELTS Band 7.0+"),
+            "app.search.topic_business": ("Kinh doanh & Công nghệ", "Business & Tech"),
+            "app.search.topic_academic": ("Nghiên cứu Học thuật", "Academic Research"),
+            "app.search.topic_daily": ("Giao tiếp Hàng ngày", "Daily Expressions"),
+            "app.widget.next": ("Tiếp", "Next"),
+            "app.widget.mastered": ("Thuộc", "Mastered"),
+            "app.widget.level_format": ("Cấp độ %lld", "Level %lld")
+        ]
+
+        for (key, expected) in expectedSearchAndWidgetKeys {
+            let entry = try #require(strings[key], "Missing required key: \(key)")
+            #expect(
+                entry["extractionState"] as? String == "manual",
+                "Key \(key) must have extractionState: manual"
+            )
+
+            let localizations = try #require(
+                entry["localizations"] as? [String: [String: Any]],
+                "Key \(key) must have localizations"
+            )
+
+            // Verify EN
+            let enLoc = try #require(localizations["en"], "Key \(key) missing EN localization")
+            let enUnit = try #require(enLoc["stringUnit"] as? [String: Any], "Key \(key) missing EN stringUnit")
+            #expect(enUnit["state"] as? String == "translated", "Key \(key) EN state must be 'translated'")
+            let enVal = try #require(enUnit["value"] as? String, "Key \(key) missing EN value")
+            #expect(enVal == expected.en, "Key \(key) EN mismatch: expected '\(expected.en)' but got '\(enVal)'")
+
+            // Verify VI
+            let viLoc = try #require(localizations["vi"], "Key \(key) missing VI localization")
+            let viUnit = try #require(viLoc["stringUnit"] as? [String: Any], "Key \(key) missing VI stringUnit")
+            #expect(viUnit["state"] as? String == "translated", "Key \(key) VI state must be 'translated'")
+            let viVal = try #require(viUnit["value"] as? String, "Key \(key) missing VI value")
+            #expect(viVal == expected.vi, "Key \(key) VI mismatch: expected '\(expected.vi)' but got '\(viVal)'")
         }
     }
 }

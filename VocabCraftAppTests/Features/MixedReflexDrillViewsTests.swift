@@ -467,11 +467,11 @@ struct MixedReflexDrillViewsTests {
         #expect(AppStrings.Practice.cantSpeakNowCTA == "Không thể nói lúc này" || AppStrings.Practice.cantSpeakNowCTA == "Can't speak now")
     }
 
-    @Test("MixedReflexDrillView khởi tạo và kết nối với ReflexSpeechEngineProtocol")
+    @Test("MixedReflexDrillView tích hợp chính xác với ReflexSpeechEngineProtocol và nhận diện phát âm")
     @MainActor
-    func testMixedReflexDrillViewWithSpeechEngine() async {
+    func testMixedReflexDrillViewSpeechEngineIntegration() async {
         let words = [
-            VaultWordItem(id: 1, lemma: "eloquent", pos: "adj.", definitionVi: "Hùng biện", exampleSentenceEn: "She gave an eloquent speech.")
+            VaultWordItem(id: 1, lemma: "eloquent", pos: "adj.", definitionVi: "Hùng biện", exampleSentenceEn: "He is eloquent.")
         ]
         final class MockSpeakingQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol {
             let item: MixedReflexDrillItem
@@ -480,57 +480,44 @@ struct MixedReflexDrillViewsTests {
             func requeueFailedItem(_ item: MixedReflexDrillItem) -> MixedReflexDrillItem { item }
         }
 
-        final class MockSpeechEngine: ReflexSpeechEngineProtocol {
-            var isSessionActive: Bool = false
-            var isWordActive: Bool = false
-            var liveTranscript: String = ""
-            var onMatchDetected: ((String) -> Void)?
-            var onTranscriptUpdate: ((String) -> Void)?
-            var onError: ((Error) -> Void)?
-
-            var didStartSession = false
-            var didStopSession = false
-            var startedContextualPhrases: [String] = []
-            var begunWord: String?
-
-            func startSession(contextualPhrases: [String]) {
-                didStartSession = true
-                isSessionActive = true
-                startedContextualPhrases = contextualPhrases
-            }
-
-            func stopSession() {
-                didStopSession = true
-                isSessionActive = false
-            }
-
-            func beginWord(targetLemma: String, contextualPhrases: [String]) {
-                begunWord = targetLemma
-                isWordActive = true
-            }
-
-            func endWord() {
-                isWordActive = false
-            }
-
-            func finalizeWordAudio() {}
-        }
-
         let item = MixedReflexDrillItem(word: words[0], assignedMode: .speaking, isRetry: false)
         let queueUseCase = MockSpeakingQueueUseCase(item: item)
-        let vm = MixedReflexDrillViewModel(selectedWords: words, queueUseCase: queueUseCase)
-        let engine = MockSpeechEngine()
+        let vm = MixedReflexDrillViewModel(
+            selectedWords: words,
+            queueUseCase: queueUseCase
+        )
+        let mockSpeechEngine = MockResilientReflexSpeechEngine()
 
+        var finished = false
         let drillView = MixedReflexDrillView(
             viewModel: vm,
-            speechEngine: engine,
+            speechEngine: mockSpeechEngine,
             startWithCountdown: false,
-            onFinish: {}
+            onFinish: { finished = true }
         )
 
         #expect(drillView.speechEngine != nil)
-        #expect(drillView.viewModel.queue.count == 1)
         _ = drillView.body
+
+        // Explicitly setup speech engine callbacks & start item
+        drillView.setupSpeechEngineCallbacks()
+        drillView.startDrillItem(item)
+
+        #expect(mockSpeechEngine.onMatchDetected != nil)
+        #expect(mockSpeechEngine.isWordActive == true)
+
+        // Simulate match detected callback directly on speech engine
+        mockSpeechEngine.simulateMatch(words[0].lemma)
+
+        // Give the async Task time to execute
+        try? await Task.sleep(for: .milliseconds(50))
+
+        #expect(mockSpeechEngine.isWordActive == false)
+        #expect(drillView.viewModel.attempts.count == 1)
+        #expect(drillView.viewModel.attempts.first?.isCorrect == true)
+
+        drillView.advanceToNextItem()
+        #expect(drillView.viewModel.phase == .completed)
     }
 }
 #endif

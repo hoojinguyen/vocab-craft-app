@@ -33,4 +33,12 @@ public final class SampleVocabularyDataSource: VocabularyDataSourceProtocol, Sen
     public func fetchWordById(id: Int64) async throws -> TopicWordDTO? {
         Self.wordById[id]
     }
+
+    public func fetchWordsByIds(ids: Set<Int64>) async throws -> [TopicWordDTO] {
+        ids.compactMap { Self.wordById[$0] }
+    }
+
+    public func fetchAllWordsMap() async throws -> [Int64: TopicWordDTO] {
+        Self.wordById
+    }
 }

@@ -249,6 +249,56 @@ final class VocabularyUseCasesTests: XCTestCase {
         XCTAssertEqual(searchResult.words.first?.lemma, "Resilience")
     }
 
+    func test_fetchPersonalVaultUseCase_fetchVaultWords_filtersByTabAndQuery() async throws {
+        let progressRepo = MockUserProgressActor(initialData: [
+            UserWordProgressData(wordId: 1, masteryLevel: 5, isBookmarked: false, isMastered: true),
+            UserWordProgressData(wordId: 2, masteryLevel: 1, isBookmarked: true, isMastered: false),
+            UserWordProgressData(wordId: 3, masteryLevel: 4, isBookmarked: true, isMastered: true)
+        ])
+        let sut = FetchPersonalVaultUseCase(dataSource: dataSource, progressRepo: progressRepo)
+
+        let notMastered = try await sut.fetchVaultWords(filter: .notMastered, searchQuery: nil)
+        XCTAssertEqual(notMastered.count, 1)
+        XCTAssertEqual(notMastered.first?.id, 2)
+
+        let mastered = try await sut.fetchVaultWords(filter: .mastered, searchQuery: nil)
+        XCTAssertEqual(mastered.count, 2)
+
+        let bookmarked = try await sut.fetchVaultWords(filter: .bookmarked, searchQuery: nil)
+        XCTAssertEqual(bookmarked.count, 2)
+
+        let searchResult = try await sut.fetchVaultWords(filter: .mastered, searchQuery: "Resilience")
+        XCTAssertEqual(searchResult.count, 1)
+        XCTAssertEqual(searchResult.first?.lemma, "Resilience")
+    }
+
+    func test_fetchPersonalVaultUseCase_skipsNonExistentWordsGracefully() async throws {
+        let progressRepo = MockUserProgressActor(initialData: [
+            UserWordProgressData(wordId: 1, masteryLevel: 4),
+            UserWordProgressData(wordId: 999999, masteryLevel: 4)
+        ])
+        let sut = FetchPersonalVaultUseCase(dataSource: dataSource, progressRepo: progressRepo)
+
+        let result = try await sut.execute(filter: .all, searchQuery: nil)
+        XCTAssertEqual(result.words.count, 1)
+        XCTAssertEqual(result.words.first?.id, 1)
+        XCTAssertEqual(result.metrics.totalWords, 1)
+
+        let vaultWords = try await sut.fetchVaultWords(filter: .mastered, searchQuery: nil)
+        XCTAssertEqual(vaultWords.count, 1)
+        XCTAssertEqual(vaultWords.first?.id, 1)
+    }
+
+    func test_reviewWeakWordsUseCase_skipsNonExistentWordsGracefully() async throws {
+        let progressRepo = MockUserProgressActor(initialData: [
+            UserWordProgressData(wordId: 999999, masteryLevel: 1, needsReview: true)
+        ])
+        let sut = ReviewWeakWordsUseCase(dataSource: dataSource, progressRepo: progressRepo)
+
+        let weakWords = try await sut.fetchWeakWords()
+        XCTAssertTrue(weakWords.isEmpty)
+    }
+
     func test_reviewWeakWordsUseCase_fetchesWeakWordsAndClearsFlag() async throws {
         let progressRepo = MockUserProgressActor(initialData: [
             UserWordProgressData(wordId: 2, masteryLevel: 1, isBookmarked: false, needsReview: true, mistakeCount: 1)

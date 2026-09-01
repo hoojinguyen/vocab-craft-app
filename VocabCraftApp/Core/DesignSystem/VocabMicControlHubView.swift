@@ -1,8 +1,11 @@
+import CraftUIKit
 import SwiftUI
 
 /// Shared microphone control hub component providing tap-to-toggle voice recording
 /// with dynamic pulsing ring animation, sensory feedback, and clear UX instructions.
 public struct VocabMicControlHubView: View {
+    @Environment(\.craftTheme) private var theme
+
     public let isListening: Bool
     public let idleSubtitleText: String
     public let listeningSubtitleText: String
@@ -28,7 +31,7 @@ public struct VocabMicControlHubView: View {
                 ZStack {
                     if isListening {
                         Circle()
-                            .stroke(Color.vocabCoral.opacity(0.35), lineWidth: 4)
+                            .stroke(theme.colors.statusDanger.opacity(0.35), lineWidth: 4)
                             .frame(width: 108, height: 108)
                             .scaleEffect(isMicPulsing ? 1.2 : 1.0)
                             .opacity(isMicPulsing ? 0.2 : 0.8)
@@ -46,19 +49,19 @@ public struct VocabMicControlHubView: View {
                         .fill(
                             isListening
                             ? LinearGradient(
-                                colors: [Color.vocabCoral, Color.vocabCoral.opacity(0.85)],
+                                colors: [theme.colors.statusDanger, theme.colors.statusDanger.opacity(0.85)],
                                 startPoint: .top,
                                 endPoint: .bottom
                             )
                             : LinearGradient(
-                                colors: [Color.vocabHeroAccent, Color.vocabHeroAccent.opacity(0.85)],
+                                colors: [theme.colors.brandSecondary, theme.colors.brandSecondary.opacity(0.85)],
                                 startPoint: .top,
                                 endPoint: .bottom
                             )
                         )
                         .frame(width: 84, height: 84)
                         .shadow(
-                            color: isListening ? Color.vocabCoral.opacity(0.4) : Color.vocabHeroAccent.opacity(0.35),
+                            color: isListening ? theme.colors.statusDanger.opacity(0.4) : theme.colors.brandSecondary.opacity(0.35),
                             radius: 14,
                             x: 0,
                             y: 6
@@ -78,7 +81,7 @@ public struct VocabMicControlHubView: View {
             Text(isListening ? listeningSubtitleText : idleSubtitleText)
                 .font(.caption)
                 .fontWeight(.medium)
-                .foregroundColor(isListening ? .vocabCoral : .vocabMuted)
+                .foregroundColor(isListening ? theme.colors.statusDanger : theme.colors.textMuted)
         }
         .padding(.vertical, 6)
         .sensoryFeedback(.impact(weight: .medium), trigger: isListening)

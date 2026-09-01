@@ -1,6 +1,8 @@
+import CraftUIKit
 import SwiftUI
 
 public struct SRSSparkleEffectView: View {
+    @Environment(\.craftTheme) private var theme
     @Binding public var isEmitting: Bool
 
     @State private var particles: [SparkleParticle] = []
@@ -41,7 +43,7 @@ public struct SRSSparkleEffectView: View {
 
     private func burst() {
         var newParticles: [SparkleParticle] = []
-        let colors: [Color] = [.vocabMint, .vocabPeach, .vocabLavender, .vocabCoral]
+        let colors: [Color] = [theme.colors.statusSuccess, theme.colors.accent, theme.colors.statusInfo, theme.colors.statusDanger]
 
         for i in 0..<12 {
             let angle = Double.pi * 2 / 12 * Double(i) + Double.random(in: -0.2...0.2)

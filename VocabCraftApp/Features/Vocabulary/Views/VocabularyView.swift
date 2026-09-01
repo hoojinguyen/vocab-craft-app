@@ -9,7 +9,6 @@ public struct VocabularyView: View {
     @Environment(\.craftTheme) private var theme
 
     @State private var vaultVM: PersonalVaultViewModel?
-    @State private var legacyVM: VocabularyViewModel?
     @State private var isSearchHiddenByScroll: Bool = false
     @State private var isScrolledPastHeader: Bool = false
     @State private var measuredHeaderHeight: CGFloat = 50
@@ -22,32 +21,29 @@ public struct VocabularyView: View {
     @MainActor
     public init(
         vaultViewModel: PersonalVaultViewModel? = nil,
-        viewModel: VocabularyViewModel? = nil,
+        isSearchVisible: Bool? = nil,
         isSearchHiddenByScroll: Bool = false,
         isScrolledPastHeader: Bool = false
     ) {
+        let hiddenByScroll = isSearchVisible.map { !$0 } ?? isSearchHiddenByScroll
         self._vaultVM = State(initialValue: vaultViewModel)
-        self._legacyVM = State(initialValue: viewModel)
-        self._isSearchHiddenByScroll = State(initialValue: isSearchHiddenByScroll)
+        self._isSearchHiddenByScroll = State(initialValue: hiddenByScroll)
         self._isScrolledPastHeader = State(initialValue: isScrolledPastHeader)
         self._searchText = State(initialValue: vaultViewModel?.searchQuery ?? "")
     }
 
     // MARK: - Testing Inspection Accessors
     internal var isSearchHiddenByScrollForTesting: Bool { isSearchHiddenByScroll }
+    internal var isSearchVisibleForTesting: Bool { !isSearchHiddenByScroll }
     internal var isScrolledPastHeaderForTesting: Bool { isScrolledPastHeader }
     internal var measuredHeaderHeightForTesting: CGFloat { measuredHeaderHeight }
 
-    private var activeVaultVM: PersonalVaultViewModel {
-        if let vm = vaultVM {
-            return vm
-        }
-        let vm = appContainer.makePersonalVaultViewModel()
-        return vm
+    private func resolvedVaultVM() -> PersonalVaultViewModel {
+        vaultVM ?? appContainer.makePersonalVaultViewModel()
     }
 
     public var body: some View {
-        let currentVaultVM = activeVaultVM
+        let currentVaultVM = resolvedVaultVM()
         @Bindable var bindableVaultVM = currentVaultVM
 
         NavigationStack {
@@ -243,7 +239,7 @@ public struct VocabularyView: View {
             .sheet(item: $activeDrillViewModel) { drillVM in
                 MixedReflexDrillView(
                     viewModel: drillVM,
-                    speechEngine: ResilientReflexSpeechEngine(),
+                    speechEngine: appContainer.makeReflexSpeechEngine(),
                     onFinish: {
                         activeDrillViewModel = nil
                         Task {

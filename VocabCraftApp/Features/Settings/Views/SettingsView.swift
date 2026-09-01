@@ -80,7 +80,7 @@ public struct SettingsView: View {
         .sensoryFeedback(.impact(weight: .light), trigger: viewModel.store.isHapticsEnabled) { _, _ in viewModel.store.isHapticsEnabled }
         .sensoryFeedback(.impact(weight: .light), trigger: viewModel.store.isSoundEffectsEnabled) { _, _ in viewModel.store.isHapticsEnabled }
         .alert(AppStrings.Settings.dailyGoal, isPresented: $showGoalInputAlert) {
-            TextField("5 - 100", text: $goalInputText)
+            TextField(AppStrings.Settings.dailyGoalPlaceholder, text: $goalInputText)
                 #if os(iOS)
                 .keyboardType(.numberPad)
                 #endif

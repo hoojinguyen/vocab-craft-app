@@ -102,11 +102,14 @@ public final class FetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProtocol,
 
     public func execute(filter: PersonalVaultFilter = .all, searchQuery: String? = nil) async throws -> PersonalVaultResult {
         let allProgress = try await progressRepo.fetchAllProgress()
+        let wordIds = Set(allProgress.map(\.wordId))
+        let wordsList = try await dataSource.fetchWordsByIds(ids: wordIds)
+        let wordsMap = Dictionary(wordsList.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
         var allPersonalWords: [PersonalWord] = []
         allPersonalWords.reserveCapacity(allProgress.count)
 
         for progress in allProgress {
-            if let wordDTO = try await dataSource.fetchWordById(id: progress.wordId) {
+            if let wordDTO = wordsMap[progress.wordId] {
                 let personalWord = PersonalWord(
                     id: wordDTO.id,
                     lemma: wordDTO.lemma,
@@ -169,11 +172,14 @@ public final class FetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProtocol,
 
     public func fetchVaultWords(filter: VaultTabFilter = .notMastered, searchQuery: String? = nil) async throws -> [VaultWordItem] {
         let allProgress = try await progressRepo.fetchAllProgress()
+        let wordIds = Set(allProgress.map(\.wordId))
+        let wordsList = try await dataSource.fetchWordsByIds(ids: wordIds)
+        let wordsMap = Dictionary(wordsList.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
         var allVaultWords: [VaultWordItem] = []
         allVaultWords.reserveCapacity(allProgress.count)
 
         for progress in allProgress {
-            if let wordDTO = try await dataSource.fetchWordById(id: progress.wordId) {
+            if let wordDTO = wordsMap[progress.wordId] {
                 let isMastered = progress.isMastered || progress.masteryLevel >= 4
                 let vaultWord = VaultWordItem(
                     id: wordDTO.id,

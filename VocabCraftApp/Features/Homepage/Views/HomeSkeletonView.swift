@@ -25,7 +25,7 @@ public struct HomeSkeletonView: View {
             .padding(.top, theme.spacing.xl)
             .padding(.bottom, 220)
         }
-        .background(Color.vocabCanvas)
+        .background(theme.colors.canvasBackground)
         .accessibilityHidden(true)
     }
 

@@ -77,4 +77,59 @@ public protocol VocabularyDataSourceProtocol: Sendable {
     func fetchWordsForStage(stageId: String) async throws -> [TopicWordDTO]
     func searchWords(query: String) async throws -> [TopicWordDTO]
     func fetchWordById(id: Int64) async throws -> TopicWordDTO?
+    func fetchWordsByIds(ids: Set<Int64>) async throws -> [TopicWordDTO]
+    func fetchAllWordsMap() async throws -> [Int64: TopicWordDTO]
+}
+
+public extension VocabularyDataSourceProtocol {
+    func fetchWordsByIds(ids: Set<Int64>) async throws -> [TopicWordDTO] {
+        guard !ids.isEmpty else { return [] }
+        let idArray = Array(ids)
+        let chunkSize = 20
+        let chunks = stride(from: 0, to: idArray.count, by: chunkSize).map {
+            Array(idArray[$0..<min($0 + chunkSize, idArray.count)])
+        }
+
+        return try await withThrowingTaskGroup(of: [TopicWordDTO].self) { group in
+            for chunk in chunks {
+                group.addTask {
+                    var batchResults: [TopicWordDTO] = []
+                    batchResults.reserveCapacity(chunk.count)
+                    for id in chunk {
+                        if let word = try await self.fetchWordById(id: id) {
+                            batchResults.append(word)
+                        }
+                    }
+                    return batchResults
+                }
+            }
+            var allResults: [TopicWordDTO] = []
+            allResults.reserveCapacity(ids.count)
+            for try await batch in group {
+                allResults.append(contentsOf: batch)
+            }
+            return allResults
+        }
+    }
+
+    func fetchAllWordsMap() async throws -> [Int64: TopicWordDTO] {
+        let decks = try await fetchTopicDecks()
+        return try await withThrowingTaskGroup(of: [TopicWordDTO].self) { stageGroup in
+            for deck in decks {
+                let stages = try await self.fetchSubTopicStages(deckId: deck.id)
+                for stage in stages {
+                    stageGroup.addTask {
+                        try await self.fetchWordsForStage(stageId: stage.id)
+                    }
+                }
+            }
+            var map: [Int64: TopicWordDTO] = [:]
+            for try await words in stageGroup {
+                for word in words {
+                    map[word.id] = word
+                }
+            }
+            return map
+        }
+    }
 }
