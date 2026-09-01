@@ -7335,13 +7335,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Practice Selection"
+            "value": "Select Words"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Luyện tập"
+            "value": "Chọn từ luyện tập"
           }
         }
       }
@@ -7460,7 +7460,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "⚡️ Luyện tập nhanh"
+            "value": "⚡️ Luyện tập thông minh"
           }
         }
       }
@@ -7477,7 +7477,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "BẮT ĐẦU LUYỆN TẬP (%lld TỪ)"
+            "value": "BẮT ĐẦU (%lld TỪ)"
           }
         }
       }
@@ -7494,7 +7494,7 @@
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "VUI LÒNG CHỌN TỪ ĐỂ BẮT ĐẦU"
+            "value": "CHỌN TỪ ĐỂ BẮT ĐẦU"
           }
         }
       }
@@ -7546,6 +7546,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Không thể nói lúc này"
+          }
+        }
+      }
+    },
+    "app.practice.countdown.mixed_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mixed Reflex Drill"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Luyện tập tổng hợp"
+          }
+        }
+      }
+    },
+    "app.practice.countdown.mixed_subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Multi-sensory reflex: Quiz, Typing, Listening & Speaking"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phản xạ 4 kỹ năng: Trắc nghiệm, Gõ, Nghe & Nói"
           }
         }
       }
