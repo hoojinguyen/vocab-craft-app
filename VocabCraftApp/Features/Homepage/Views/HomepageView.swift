@@ -55,13 +55,6 @@ public struct HomepageView: View {
                     )
                     .background(theme.colors.canvasBackground)
 
-                    StreakWeekStripView(
-                        streakDays: viewModel.streakDays,
-                        isCompletedToday: viewModel.dailyWordsLearned >= viewModel.dailyWordsGoal && viewModel.dailyWordsGoal > 0
-                    )
-                    .padding(.top, 8)
-                    .padding(.bottom, 4)
-
                     Group {
                         if viewModel.isLoading && viewModel.sections.isEmpty {
                              HomeSkeletonView()
@@ -96,7 +89,7 @@ public struct HomepageView: View {
                         showDetailModal: true,
                         scrollToActive: true,
                         showCelebration: true,
-                        pinSectionHeaders: true,
+                        pinSectionHeaders: false,
                         connectorDotDiameter: 5.0,
                         connectorDotSpacing: 7.0,
                         onTabBarPresentationChange: { presentation in
