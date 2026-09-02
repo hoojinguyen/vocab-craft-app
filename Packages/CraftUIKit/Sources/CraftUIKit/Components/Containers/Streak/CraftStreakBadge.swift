@@ -145,7 +145,7 @@ public struct CraftStreakBadge: View {
                     Capsule()
                         .strokeBorder(theme.depths.topHighlight, lineWidth: 1.0)
                 )
-                .craftShadow(isCompletedToday ? theme.shadows.sm : CraftShadow(color: .clear, radius: 0))
+                .craftShadow(theme.shadows.sm)
         }
     }
 
@@ -179,24 +179,17 @@ public struct CraftStreakBadge: View {
     @ViewBuilder
     private var pillBackground: some View {
         if isCompletedToday {
-            tierBaseColor.opacity(0.12)
+            theme.colors.surfaceCard
+                .overlay(tierBaseColor.opacity(0.06))
         } else {
-            theme.colors.surfaceSubtle.opacity(0.60)
+            theme.colors.surfaceCard
         }
     }
 
     @ViewBuilder
     private var pillBorder: some View {
-        if isCompletedToday {
-            Capsule()
-                .strokeBorder(tierBaseColor.opacity(0.24), lineWidth: 1.0)
-        } else {
-            Capsule()
-                .strokeBorder(
-                    theme.colors.streakPending.opacity(0.45),
-                    style: StrokeStyle(lineWidth: 1.0, dash: [4, 3])
-                )
-        }
+        Capsule()
+            .strokeBorder(theme.colors.borderDefault.opacity(0.4), lineWidth: 1.0)
     }
 
     // MARK: - Visual Helpers
@@ -215,11 +208,11 @@ public struct CraftStreakBadge: View {
     private var tierBaseColor: Color {
         switch tier {
         case .starter:
-            return theme.colors.brandPrimary
+            return theme.colors.streakStarter
         case .blaze:
-            return theme.colors.accent
+            return theme.colors.streakBlaze
         case .legendary:
-            return theme.colors.statusDanger
+            return theme.colors.streakLegendary
         }
     }
 
