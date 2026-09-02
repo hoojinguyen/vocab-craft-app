@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:7e1997eddeacf018ec3f9f9ba90521e8f346b18508c81f1e1ebdf65f3181777a",
+  "claims": [
+    {
+      "id": "claim_a0a9b7e1bedb448d8e0e5a086fd4ed59",
+      "statement": "CraftTheme protocol defines the single entry point for all design tokens (colors, typography, spacing, radii, shadows, gradients, animations, opacities, depths, glass).",
+      "evidence": [
+        {
+          "resource": "repo://Packages/CraftUIKit/Sources/CraftUIKit/Tokens/CraftTheme.swift#L7-L18",
+          "version": "repo-lines-v1:sha256:95174875dd8444b7a439c4152700bfc06754578c29e994bfd96c14b0d06259cd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVkMDViNjAxYjFiYmU5NTQ3OGMwYTQxZWZkMmU4OTUzYTFlMzk2M2I5MmI0MWU4ZjhkOWM3NDE1OGVkNTg2ODciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIxMzQ1N2IzZGY2ODlkYmMyMjBhYjI3OGEwYWU0ZTUwZTkxZjEyOTZlMDA3ZjJkZjhmZDk0NzJiMDlmZmVkODUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI5NDczM2QzOWY1YTBkYWRiMTM1NzYwN2NjMWI3ZGY5YjNkNTJiMjU1ZWVmYjYwNzNjYjFlMzRjODYzNmMzZTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3bee45c5e60849cf9fb0121bcf584b71",
+      "statement": "CraftUIKit is a dedicated Swift Package providing atoms, containers, controls and feedback components that app features must reuse instead of creating ad-hoc views.",
+      "evidence": [
+        {
+          "resource": "repo://Packages/CraftUIKit/Sources/CraftUIKit/Components/Atoms/CraftBadge.swift",
+          "version": "repo-file-v1:sha256:f42c04b1cd30fe3452cd4ebffa6b6466a3aa1cec5d4e897524629ad57f31d283"
+        },
+        {
+          "resource": "repo://Packages/CraftUIKit/Sources/CraftUIKit/Components/Containers/Cards/CraftCard.swift",
+          "version": "repo-file-v1:sha256:efa6a59a02a3c3819db88dbc2f0f141f810539fe5efd5e4b88bf630bd64c71b0"
+        }
+      ]
+    },
+    {
+      "id": "claim_a68a0f0ab48c440c828e8be4a4f508b0",
+      "statement": "VocabCraftApp root view applies .craftTheme and preferredColorScheme from CraftThemeManager.shared to enforce theme discipline.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/App/VocabCraftApp.swift#L125-L127",
+          "version": "repo-lines-v1:sha256:e9a0db67df62cd35e2551b5215f493a0a5a85e55c24ad6794c2633e91799ab61:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTY0NDE5YzA3ZjVlMGRmMDRhOGQ0MTlhZDA5MGUyMWNiODg1MzEzYWZhODRjODkxMGMxZjIxMjJkOTIyZjY1MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTZiMDQ0OTE0Njk3MjJlODM2M2E5NGU0MDQ0NTM4ZTAxM2EyYTIxN2UzNmIxZTU2OGJhNjBhY2I3YjRjOGYyZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2I1NTJiNWM2MTVhZDNmNGU2NzI1NDg0MDBjYWY5ZjYxN2NiNWVmYTBhMzMxZjJkNDY3MTIwOTI0MzM2OTAyOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjIsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzc5NGQwMmE4MTIxOTQ0ZDE3NmQyNjVlOWJiOWNjNTlmNmFiODkwYmNhZGY4YWVmZGViZGJiYjRmMmVhODQ0NCJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.0",
+    "at": "2026-09-02T08:37:35.164Z"
+  }
+}

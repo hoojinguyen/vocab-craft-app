@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:12aae5556d71f6bb7119c789e20363bf15f543ea6e1424b6612bcecaa916809c",
+  "claims": [
+    {
+      "id": "claim_d76702dfa2a94c7a8f220587c7a5b7ba",
+      "statement": "HomepageViewModel fetches learning path via FetchLearningPathUseCase and maps it via LearningPathDataMapper for CraftLearningPath.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Features/Homepage/ViewModels/HomepageViewModel.swift",
+          "version": "repo-file-v1:sha256:bfef11e49ccfefaf88f3a877d0ab051e3aa24b3186cd3e22f84f98b2ab522d62"
+        },
+        {
+          "resource": "repo://VocabCraftApp/Features/Homepage/ViewModels/LearningPathDataMapper.swift",
+          "version": "repo-file-v1:sha256:55254bc76d33501bbaeb5242b62e4590b6e627ba9f3497b20b0eddc733363c36"
+        }
+      ]
+    },
+    {
+      "id": "claim_02e22324c86545a09995700aff98295b",
+      "statement": "LessonEconomyPolicy gates lesson unlocking based on prerequisites and is consumed by Homepage before navigating to drills.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Features/Homepage/ViewModels/LessonEconomyPolicy.swift",
+          "version": "repo-file-v1:sha256:762daf1745fe1b410532d0a7137cf91bf66a134b6f989576de04cd083983befb"
+        }
+      ]
+    },
+    {
+      "id": "claim_45569641d9e04f9da9e8234db8bebf96",
+      "statement": "CraftLearningPath renders snake geometry via CraftSnakePathGeometry and node connectors with animation support.",
+      "evidence": [
+        {
+          "resource": "repo://Packages/CraftUIKit/Sources/CraftUIKit/Components/Containers/LearningPath/CraftLearningPath.swift",
+          "version": "repo-file-v1:sha256:3d26c765c7a0c709580b0f3a4edd59ababea20f153e4e2b578d37f11aff29428"
+        },
+        {
+          "resource": "repo://Packages/CraftUIKit/Sources/CraftUIKit/Components/Containers/LearningPath/CraftSnakePathGeometry.swift",
+          "version": "repo-file-v1:sha256:e25a95412ca9ca783420bc094276acc8287b091b15106299d457ca29b5ee058f"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.0",
+    "at": "2026-09-02T08:37:35.164Z"
+  }
+}

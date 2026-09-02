@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:2ea4a2b006ce1437c16a5a615c39dcd7d9b5934a5b35648e87935c3aaf547c8d",
+  "claims": [
+    {
+      "id": "claim_d7432a9af9e9436898147a0a05010a3e",
+      "statement": "Two-layer localization isolates craft.* keys in CraftUIKit Bundle.module via CraftLocalized and app.* keys in VocabCraftApp via String(localized:).",
+      "evidence": [
+        {
+          "resource": "repo://Packages/CraftUIKit/Sources/CraftUIKit/Environment/CraftLocalized.swift",
+          "version": "repo-file-v1:sha256:35e7eff357c542fb36d10b1e0b494f71674f59d0dbdf00154352b23f5faa6a62"
+        },
+        {
+          "resource": "repo://Packages/CraftUIKit/Sources/CraftUIKit/Resources/Localizable.xcstrings",
+          "version": "repo-file-v1:sha256:86c13098d8df44e3c364f62d1722c1e12e80eb41b477e1fe1aa055054455e2b8"
+        },
+        {
+          "resource": "repo://VocabCraftApp/Resources/Localizable.xcstrings",
+          "version": "repo-file-v1:sha256:7e57bee3148241fb380bf74190bfc8a4af0159d3d4f02403965d5d47a9ef78c5"
+        }
+      ]
+    },
+    {
+      "id": "claim_01e43984a7c94befaa8b105ee73515c2",
+      "statement": "Key taxonomy enforces craft.<scope>.<element>.<role> and app.<feature>.<screen>.<element>.<role> with full EN and VI parity and manual extractionState.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Core/Localization/AppStrings.swift",
+          "version": "repo-file-v1:sha256:57d8266d07788b3d540b510bc895599e2bf12eee961762871ce62dec883fdf15"
+        }
+      ]
+    },
+    {
+      "id": "claim_93aa27fcb00a4c35bb4dbde7fc99fe28",
+      "statement": "CraftTheme and its token presets (colors, typography, spacing, radii, shadows, glass) are switched via CraftThemeManager and VocabTheme bridge.",
+      "evidence": [
+        {
+          "resource": "repo://Packages/CraftUIKit/Sources/CraftUIKit/Tokens/CraftTheme.swift",
+          "version": "repo-file-v1:sha256:a09cad70b459f0efc802370a0114ec2db15a341aeae2fdeffe4fcf5c7a6f54ec"
+        },
+        {
+          "resource": "repo://VocabCraftApp/Core/DesignSystem/VocabTheme.swift",
+          "version": "repo-file-v1:sha256:2a89a8c76ecf93587d7c7d9404f303aeb350843c164ef1fa328627ad63a5ff92"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.0",
+    "at": "2026-09-02T08:37:35.164Z"
+  }
+}

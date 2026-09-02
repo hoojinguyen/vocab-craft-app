@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:98b906ebc9c68fa11eab28224ff7ec02f4820c3dc1188579696d485fa189ba06",
+  "claims": [
+    {
+      "id": "claim_544f342549e2463c8ecacb9e8338d3fc",
+      "statement": "Package.swift defines Swift 5.10 package with VocabCraftApp, VocabCraftWidgetExtension, and local CraftUIKit/SpeechKit dependencies.",
+      "evidence": [
+        {
+          "resource": "repo://Package.swift#L1-L45",
+          "version": "repo-lines-v1:sha256:26c557af79cc71cd935f21059fe6a082b16f92b98234c06d98dc6d90781042e3:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFjYjNhZWM3ZWJhMzQ5MGZmNDM2MDc2YmYzMmU0NWJkZGVmOWNkOGI3NThmM2EzODI2ZDBhNzYwNWZjZTMxZjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0MzNkMGVhOWVjZjJmMzljOWE1MDQwNzM5NWVlNDExNzJmZTY4MmM5Yzg4NWEzNTA4Zjc1YmRlZTE1MWVmZmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZlYTA5MGMyNzU3YzVmNjNhNjExN2FkNjA2ZDk2NjhmZTk3MjM1YmZiNWRmZGNmN2I5MzFmMWM1YTA3MTQ2MWMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5ae8a3115900440dbb6d99ceea8d0e1c",
+      "statement": ".swiftlint.yml enforces design-system and localization rules with zero-tolerance quality gate per AGENTS.md.",
+      "evidence": [
+        {
+          "resource": "repo://.swiftlint.yml",
+          "version": "repo-file-v1:sha256:0b446428b949777ca4bf59a86dad9d964371ba61c5a750833e3517080f8b17bc"
+        }
+      ]
+    },
+    {
+      "id": "claim_4421c6e419b349fbad2116665336e46a",
+      "statement": "docs/build-optimization.md documents clean ~24.8s and incremental ~1.1s baselines and build setting audits.",
+      "evidence": [
+        {
+          "resource": "repo://docs/build-optimization.md",
+          "version": "repo-file-v1:sha256:11e700a8e3960fc63db825041f78a62ba020f7977f880278869a11c2eae0bec3"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.0",
+    "at": "2026-09-02T08:37:35.164Z"
+  }
+}

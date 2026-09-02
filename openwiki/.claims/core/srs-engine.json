@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:f1227fc1bcef630c2c712c565c4d9098ec0f564a29ed8dd74c0dcb3a34d3a45d",
+  "claims": [
+    {
+      "id": "claim_bc9d7cbf7d6b4cdbbc82967273831057",
+      "statement": "SRSEngine.calculateNextInterval applies SM-2 variant with easeFactor floor 1.3, speed-bonus quality, and exponential interval 6 * ease^(mastery-2).",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Core/SRS/SRSEngine.swift#L15-L55",
+          "version": "repo-lines-v1:sha256:ad52aac38f9b729a3f4de38ee6441f2f2430e8c60a86a2de2de21782438be8ed:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE3YmJmY2Y2MmE2MzUzZDdiZWQ4YWU2MjhiZmNiODEzODhmYTY4YmI1N2ZiYWZhMGE5N2I0Nzc5YThiZjgxNTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5ZTc2MzU1Y2YxMTk5NDgwYzNmOTk4MzZiMTQ4NmM4NDFkODkxZmFhZDkwNGM2MDhlMDkzMDIyZDM3NTdhZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0948d323d8bf422fa3fe6ca418c993c7",
+      "statement": "EvaluateSRSUseCase wraps SRSEngine and persists updated UserWordProgress via SRSRepository.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Domain/UseCases/EvaluateSRSUseCase.swift",
+          "version": "repo-file-v1:sha256:4b83444628077f78e362cb6d0dd74133905f230963ff16d8004005dfd1451e87"
+        }
+      ]
+    },
+    {
+      "id": "claim_1271bf9029654be7b96cee2005c0629c",
+      "statement": "ReviewWeakWordsUseCase selects overdue UserWordProgress records for SmartReview sessions.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Domain/UseCases/ReviewWeakWordsUseCase.swift",
+          "version": "repo-file-v1:sha256:4acef2cc83df89c52f855255b731e81acdb80a20a3973303fac09ac1ad6c95dd"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.0",
+    "at": "2026-09-02T08:37:35.164Z"
+  }
+}

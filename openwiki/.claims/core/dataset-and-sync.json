@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:0fc3890edb08e7fd6ede3dc03cb3e6502a6aac3b20d8bdb26ada08bc1a46ef72",
+  "claims": [
+    {
+      "id": "claim_efce8c9177454f4f981c82f62dbca56e",
+      "statement": "DatasetEngine loads and indexes vocabulary dataset from bundle for use by VocabularyDataSource abstractions.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Core/Database/DatasetEngine.swift",
+          "version": "repo-file-v1:sha256:098fb63c5cbd2dd67f56348859aeb8f1a0aa2aa485fb4737ebad9648f55096d1"
+        }
+      ]
+    },
+    {
+      "id": "claim_01629d0133a249cd8d33d60a59b34b63",
+      "statement": "VocabularyDataSourceProtocol abstracts fetchWords/fetchWord/search so FetchLearningPath and Vault use cases remain data-source agnostic.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Core/Database/DataSources/VocabularyDataSourceProtocol.swift",
+          "version": "repo-file-v1:sha256:57d0a3d5cf1a0c4b2c248e56f9acdff4bb3966b7dfe05fa2ed6f74f0d68f27c2"
+        }
+      ]
+    },
+    {
+      "id": "claim_1a339cf3467a47af936f887b39142af4",
+      "statement": "SampleVocabularyDataSource and VocabularySampleDataset provide curated sample data and are used by AppContainer.mock for previews and tests.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Core/Database/SampleData/SampleVocabularyDataSource.swift",
+          "version": "repo-file-v1:sha256:bf6b999a9e2637e01331b1bad2a1382c960eddc9cfa62e732ce8a8f372850f33"
+        },
+        {
+          "resource": "repo://VocabCraftApp/Core/Database/SampleData/VocabularySampleDataset.swift",
+          "version": "repo-file-v1:sha256:06f109f63634629338dadbbe970e3bddfbb744966c32bfc85b1e92371a34d511"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.0",
+    "at": "2026-09-02T08:37:35.164Z"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:df2af135a1c251ee573aa7f1efb730fe5bc47447cd853ed5267c205973ac79e2",
+  "claims": [
+    {
+      "id": "claim_3c31f1d9d50546f8a4c2418da19c6b5d",
+      "statement": "ReflexBlitzViewModel orchestrates modeSelection/countdown/drilling/summary phases and delegates per-mode logic to ReflexModeHandlerProtocol implementations.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Features/Reflex/Blitz/ViewModels/ReflexBlitzViewModel.swift",
+          "version": "repo-file-v1:sha256:8f41d52c2b31ea1fafa02f495bfa71e76eda0ccb4ee787ccf0aa4473ea3c44bf"
+        }
+      ]
+    },
+    {
+      "id": "claim_c04e19242e474e649a9cc55551819907",
+      "statement": "MixedReflexDrillViewModel builds queue from VaultWordItem via GenerateMixedReflexQueueUseCase and plan via PracticeDrillPlanGenerator before delegating to mode views.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Features/Reflex/Mixed/ViewModels/MixedReflexDrillViewModel.swift",
+          "version": "repo-file-v1:sha256:e5c573bb496664fe7217c1b6668d92f5f88275bc87b39ba4cca97cc4e49faf99"
+        }
+      ]
+    },
+    {
+      "id": "claim_5b4d95cab73e4519b691135b42a95eae",
+      "statement": "ReflexHintMaskGenerator and ReflexClozeFormatter implement progressive revealing and blank generation for adaptive drill hints.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Features/Reflex/Core/Utilities/ReflexClozeFormatter.swift",
+          "version": "repo-file-v1:sha256:a984b4a01d4e3f5a8eccedf42f35e92c93a3241426474baabf06782899e8efd6"
+        },
+        {
+          "resource": "repo://VocabCraftApp/Features/Reflex/Core/Utilities/ReflexHintMaskGenerator.swift",
+          "version": "repo-file-v1:sha256:0876b7d4de51a529254e99e96aa4d0fda0d85a9050ba225b2253b038c0db2c08"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.0",
+    "at": "2026-09-02T08:37:35.164Z"
+  }
+}

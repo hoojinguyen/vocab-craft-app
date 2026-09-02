@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:67414e426e555dcf437bc27658f047e45a4180c1a1e8d3454f0b494892abbab1",
+  "claims": [
+    {
+      "id": "claim_a42193f41fa04a2a9df846e0296df8db",
+      "statement": "AppContainer is the centralized Composition Root that owns all data sources, repositories, services and use cases.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/App/DI/AppContainer.swift#L7-L35",
+          "version": "repo-lines-v1:sha256:c841ceff9a8dfc5ca31de7eee770e1f7ed10511ccc4e2bcb3b012e80a62b8bc5:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliMDY3YjYzMjE4MGI5NjlmZmJkNjJhNmUwYTFjNzU4MzY0NDU1YTU5NzJkMmRlNGVjMzkyNjFiYmEwOTI3OWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRlOGFmYmFhZGU0NjdkYWVlMTdkYzZjOGM0N2QwZGRkMDcyOTZjMzQ2ODQwMjAzZTY0MTNjZjllMTE4OTkwMWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRjYWUxYzI4OTg5YjdmZjBhNDM1MTMyNTc2ZTdjZjc4ODUwZWJlNDJmNzM5ODkyZjJjNzZjNDMwODA2NWIwMzgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9e42dc8703d14031962467973d0f6827",
+      "statement": "EnvironmentKeys exposes AppContainer and AppRouter via SwiftUI EnvironmentValues with fallback to .mock.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/App/DI/EnvironmentKeys.swift#L4-L42",
+          "version": "repo-lines-v1:sha256:0bef214d8627b71abf023fee343c6c9b27415249fc0b9a645ded3638fa19390c:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNlZjE1OTg4YWVmMTI4Zjc2ZDk1MDcyYTFhNDU1M2I2YWUwYTgyMjY4MjdmOTRmY2JjNmI1YzlmOGMzZmM3ZTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU1YTU4OGU2NDczMmQwMmQ5MWJjZTkxMjg1MDViZDcxNjEwOTgxZTc0ZTM1ZTg0MTg5NTBiYjVjZjVlZWY2ZTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_6e95ddee43944a17ab21b61440bdd2b8",
+      "statement": "AppRouter handles deep links with vocabcraft:// scheme and maps reflex/vocabulary/settings hosts to tab selection.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/App/Navigation/AppRouter.swift#L44-L92",
+          "version": "repo-lines-v1:sha256:3bdcad7c7e12f7fd95084a0169ad9ea0ad4285408f3fe488aba269dd5d96df43:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZlN2NlOGE0ZWQ5NzMzNGVkY2JlMDk0ZWRmZjhmOWNlMjQwMDNkNTQ1YTg5MjI1ZjdiZTcwMTUzN2QwNjk4NGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI3MzIzOWQ4N2M1Y2JmODI2MDg5YTE3MjhjNzJlNjZiMGE3MWI5ZTdkOTlhODNkZjI1NzQzOGI3NGU5NmI1YzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_57fd001aac4f4cba9b7aaa7fb0aa60b0",
+      "statement": "VocabCraftApp bootstraps ModelContainer via SharedAppGroupContainer and parses ProcessInfo arguments for initial tab and reflex config before constructing AppContainer.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/App/VocabCraftApp.swift#L18-L107",
+          "version": "repo-lines-v1:sha256:21736aca66ba6252610647c8df04bb42ebb9bcf504d0c73cb07e5a989acf7941:eyJzZWxlY3RlZExpbmVDb3VudCI6OTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhiY2M2MTFhZjIzYTkxYzNiNzI3ZDBhY2U0ZGUyMjI0MmZjNDkwNmM3MTk0YTYzNDkxOWI2NWQ3MDNkZDAwYjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRhYTVmYzkwZTFkMzhlZWU3MGNmMmM5Y2E1MDYyYjcwNzUxYmI1ZTU2MWFmZWIxYmY5MDM3NmJkYTRkZTdlNGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBkMjE5MGFjNWM3N2IzZTA5NDYzN2Q0YzdjYzhhNTY4M2M2MjE3YWY4MGYyMzU1YjY5NzlkNDNiZGI5ODkwM2EifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.0",
+    "at": "2026-09-02T08:37:35.164Z"
+  }
+}

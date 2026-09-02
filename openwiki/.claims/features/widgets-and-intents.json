@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:1bcea0f0ea92a39d3280a896a3ee90daf69412305d9cf8c6b87eb14e9bdd045b",
+  "claims": [
+    {
+      "id": "claim_dd495d0bcff6418998b96f904919ec90",
+      "statement": "VocabWidget implements WidgetKit Widget with TimelineProvider that reads WidgetCurrentState from shared ModelContainer.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftWidgetExtension/VocabWidget.swift",
+          "version": "repo-file-v1:sha256:01a0d33c87a743e91aabec71a5ed48c6e7cacdb9bf6663de91ef225dafdef8a4"
+        }
+      ]
+    },
+    {
+      "id": "claim_3c20ffbad4ee42a29b11c8f13652b71d",
+      "statement": "NextWordIntent and MarkLearnedIntent are AppIntents that fetch next word and update progress from the widget.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftWidgetExtension/AppIntents/MarkLearnedIntent.swift",
+          "version": "repo-file-v1:sha256:e7b9055953acb52429c6b36851b24d06306db7a55988196f7dbdf2703b43524a"
+        },
+        {
+          "resource": "repo://VocabCraftWidgetExtension/AppIntents/NextWordIntent.swift",
+          "version": "repo-file-v1:sha256:3400cc0a29bebc5780afecb3f164ab33c51f9739056dd6b20d4205baa8d89491"
+        }
+      ]
+    },
+    {
+      "id": "claim_55895c114c33425c8c66bd9ae2c60a37",
+      "statement": "SharedAppGroupContainer configures ModelContainer with app-group URL so main app and widget extension share persistence.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Core/Database/SharedAppGroupContainer.swift",
+          "version": "repo-file-v1:sha256:96ea4376c9af240371f6eccf710cf5c81e66c1aed8c4ecd564355fd8cb524c96"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.0",
+    "at": "2026-09-02T08:37:35.164Z"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:346385de6c94b7bb58d10d8eb357155a2c2d15b7a9bf1b9f2761a9e1570a7d94",
+  "claims": [
+    {
+      "id": "claim_ad14bf6db5f748dea48a03c72906ad16",
+      "statement": "Domain layer contains Word, PersonalWord, VaultWordItem and drill item entities alongside repository protocols and twelve use cases.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Domain/Entities/Word.swift",
+          "version": "repo-file-v1:sha256:30b285af262d93a03d9d2e5a81d503e4f9974c61ddd55a821ca7190e9a29ee87"
+        },
+        {
+          "resource": "repo://VocabCraftApp/Domain/UseCases/FetchPersonalVaultUseCase.swift",
+          "version": "repo-file-v1:sha256:ed7aa78e63947d0e4655151d128ce4ef367d3e88b41aaa1a02956c4d81ead6f8"
+        }
+      ]
+    },
+    {
+      "id": "claim_56ad23db74d54383a2cb7c84da76c352",
+      "statement": "MasteryEvaluationPolicy encodes the consecutive-correct and interval threshold for promoting words to mastered.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Domain/Policies/MasteryEvaluationPolicy.swift",
+          "version": "repo-file-v1:sha256:0707a3437308a00a15fc2b4560e778052110b7f3c2015601534f1d4d5998eeac"
+        }
+      ]
+    },
+    {
+      "id": "claim_2b1ccf6695f74f009410f2874d12d010",
+      "statement": "Use cases like FetchPersonalVaultUseCase and GenerateMixedReflexQueueUseCase are protocol-driven and injected via AppContainer.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Domain/UseCases/FetchPersonalVaultUseCase.swift",
+          "version": "repo-file-v1:sha256:ed7aa78e63947d0e4655151d128ce4ef367d3e88b41aaa1a02956c4d81ead6f8"
+        },
+        {
+          "resource": "repo://VocabCraftApp/Domain/UseCases/GenerateMixedReflexQueueUseCase.swift",
+          "version": "repo-file-v1:sha256:68d6ed521631abddd5125a3dc855721840d4dab91f17449402c76ed27df7afe5"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.0",
+    "at": "2026-09-02T08:37:35.164Z"
+  }
+}

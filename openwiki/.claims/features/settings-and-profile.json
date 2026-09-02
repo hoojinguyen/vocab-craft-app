@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:ea61f3efbc9a87b2308498c20240eb7a4187e46093fb1d70779f71bad448ce82",
+  "claims": [
+    {
+      "id": "claim_7641b235fabe48c592177ffc004eac22",
+      "statement": "SettingsViewModel exposes UserSettingsStore bindings, TTS preview, and ResetUserProgressUseCase for destructive reset.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Features/Settings/ViewModels/SettingsViewModel.swift",
+          "version": "repo-file-v1:sha256:36ef1c772026f1af1aa967f91c3a28d4f576d8b8edf26e35c7fbfb1ec35c8f7f"
+        }
+      ]
+    },
+    {
+      "id": "claim_4ae2ae5e684b41c297bdd8285f7ba624",
+      "statement": "UserSettingsStore centralizes themePreset, speech rate, streak and onboarding flags with UserDefaults persistence.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Core/Database/UserSettingsStore.swift",
+          "version": "repo-file-v1:sha256:7e71ae44c845549188a16c9183a341e60d51dfbb73443ba4ce05098359011b9c"
+        }
+      ]
+    },
+    {
+      "id": "claim_68ba640590be471d86d4d7798fd95a05",
+      "statement": "HeroProfileCard and ProfileStatsSheet compose CraftUIKit streak and activity components to display profile progress.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Features/Settings/Views/Components/HeroProfileCard.swift",
+          "version": "repo-file-v1:sha256:029bcd1b18b6ee68fd304c2830c99985fdf979cba0d97f5d3cdf71a12b7273a0"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.0",
+    "at": "2026-09-02T08:37:35.164Z"
+  }
+}

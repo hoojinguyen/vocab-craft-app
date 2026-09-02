@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:221ac37550711e80e7eee0b57ee48802dcd3ec9ddf0dd972ce4d36919704e308",
+  "claims": [
+    {
+      "id": "claim_6bc6537307a041bdba9a2027841849fe",
+      "statement": "SpeechKit package provides SpeechAssessmentService, SpeechRecognitionEngine, FuzzySpeechMatcher, SequenceAligner, StringNormalizer and SilenceDetector as distinct modules.",
+      "evidence": [
+        {
+          "resource": "repo://Packages/SpeechKit/Sources/SpeechKit/Evaluation/FuzzySpeechMatcher.swift",
+          "version": "repo-file-v1:sha256:fb999880b710062bd1b6ec5499004e9a13a04402a4bf1922a9ddf3cb4b2ef053"
+        },
+        {
+          "resource": "repo://Packages/SpeechKit/Sources/SpeechKit/SpeechAssessmentService.swift",
+          "version": "repo-file-v1:sha256:be804a31593f92d962cc5924802086d5eeb40fc6878d6bff24313607c0fc03cf"
+        }
+      ]
+    },
+    {
+      "id": "claim_4979ba5d567649eebd90036f6146ed57",
+      "statement": "TextToSpeechService and SpeechRecognitionService in Core/Audio wrap AVSpeechSynthesizer and SFSpeechRecognizer for reflex prompts and recognition.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Core/Audio/SpeechRecognitionService.swift",
+          "version": "repo-file-v1:sha256:18f3f1b3dbbddef5053bd7babcae9ba165269bcee5822cc830f275c27ec3f286"
+        },
+        {
+          "resource": "repo://VocabCraftApp/Core/Audio/TextToSpeechService.swift",
+          "version": "repo-file-v1:sha256:7b683603281f771a16761fed418db48640d6a0487fb1ede61e01a5883d33f810"
+        }
+      ]
+    },
+    {
+      "id": "claim_4d4dd6eba7ac44a490235202d14a7b95",
+      "statement": "SpeakingModeHandler orchestrates TTS prompt → engine start → silence-gated collection → fuzzy evaluation for reflex speaking drills.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Features/Reflex/Blitz/ViewModels/Handlers/SpeakingModeHandler.swift",
+          "version": "repo-file-v1:sha256:ada6b6adfe51cbcadef67badae4e9e30b88a5b317114a0d51d112e2bd7aef47d"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.0",
+    "at": "2026-09-02T08:37:35.164Z"
+  }
+}

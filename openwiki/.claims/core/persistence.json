@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:ba5cb59610e89a6dfcf7cf635946277da3e324049d5906c91699451121f33c9b",
+  "claims": [
+    {
+      "id": "claim_eec41152201c4634925feaa76ebbe35d",
+      "statement": "SwiftDataModels defines UserWordProgress, UserStageProgress, ReflexSessionLog, QuickReflexAttemptRecord and WidgetCurrentState with @Model and unique attributes.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Core/Database/SwiftDataModels.swift#L7-L118",
+          "version": "repo-lines-v1:sha256:2dcacee2ce12d99d89ba928b32da28b33e63c711c8f4ab9ecc5e8e19a78d2170:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEyLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI3MTIyMTdmODM5YjU3MmJhNmViNzgwN2EzZDA2ZDgwYzJhYTUwNDc1NTA1MWU5YTFkNzE5OWIyZWZjYjdhYTJlIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI3NzBkZDk3OTE4NzQwZDk3ZGVlZThmZWVmZTM4MDE1YjgxOTdlNGIzNWRjYTEyYWI5MDkyYWY0YmFjOTUyNDNlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlNzc2ZDRlMWUzZDdiMmRlZjliZGRjMWY3MWE5YTNkMGI5YzBkYWQyOTc0MTEyMzBjOTgyYWUwZWM2YjhiNzAwIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_1cddbb0762d342f5bc418fe1c3cc5e1a",
+      "statement": "UserProgressModelActor is a @ModelActor that serializes all UserWordProgress writes to avoid data races.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Data/Local/Actors/UserProgressModelActor.swift",
+          "version": "repo-file-v1:sha256:5c490413f23a923cf4192a97a5b7551327fb87de27dc83ff4cb959a3a33d36a4"
+        }
+      ]
+    },
+    {
+      "id": "claim_c8e9c1e040dd40d390c5dbce47e73d6b",
+      "statement": "SharedAppGroupContainer creates ModelContainer with app-group URL to share persistence between main app and widget extension.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Core/Database/SharedAppGroupContainer.swift",
+          "version": "repo-file-v1:sha256:96ea4376c9af240371f6eccf710cf5c81e66c1aed8c4ecd564355fd8cb524c96"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.0",
+    "at": "2026-09-02T08:37:35.164Z"
+  }
+}

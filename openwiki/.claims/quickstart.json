@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:27f2e4e536efcf1a5d8d15d8fa102cc7f2617642438de946cc4f8c3e24292772",
+  "claims": [
+    {
+      "id": "claim_043b40925fbd481a823b1107c2ea7fe2",
+      "statement": "VocabCraft is a SwiftUI + SwiftData iOS 17 app with SPM packages CraftUIKit and SpeechKit declared in Package.swift.",
+      "evidence": [
+        {
+          "resource": "repo://Package.swift#L1-L45",
+          "version": "repo-lines-v1:sha256:26c557af79cc71cd935f21059fe6a082b16f92b98234c06d98dc6d90781042e3:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFjYjNhZWM3ZWJhMzQ5MGZmNDM2MDc2YmYzMmU0NWJkZGVmOWNkOGI3NThmM2EzODI2ZDBhNzYwNWZjZTMxZjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0MzNkMGVhOWVjZjJmMzljOWE1MDQwNzM5NWVlNDExNzJmZTY4MmM5Yzg4NWEzNTA4Zjc1YmRlZTE1MWVmZmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZlYTA5MGMyNzU3YzVmNjNhNjExN2FkNjA2ZDk2NjhmZTk3MjM1YmZiNWRmZGNmN2I5MzFmMWM1YTA3MTQ2MWMifQ"
+        },
+        {
+          "resource": "repo://VocabCraftApp/App/VocabCraftApp.swift#L1-L129",
+          "version": "repo-lines-v1:sha256:ae16cfed9c326217e1f8d61821bef418a06922c8b2dc23cf1048ada14539085f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTI5LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI5YjJhMjUyNzFkZDdhNmE4NDE0NTllY2ZlOGY5Zjc2MTc5M2ZkMzkwYWI3NzQ3ZTRkZTlhYjU4Y2M0NGMwY2ZkIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MCwicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_1f1bbebd67ee420e8efb22496d7f0b5a",
+      "statement": "The quality gate requires swift test --filter LocalizationTests, swift test, swiftlint with zero warnings, and zero Xcode warnings.",
+      "evidence": [
+        {
+          "resource": "repo://.swiftlint.yml",
+          "version": "repo-file-v1:sha256:0b446428b949777ca4bf59a86dad9d964371ba61c5a750833e3517080f8b17bc"
+        },
+        {
+          "resource": "repo://AGENTS.md",
+          "version": "repo-file-v1:sha256:2b2755cdeecc568ca3f092a9145a794cc310739fb6d2fd9ca5a491b964930200"
+        }
+      ]
+    },
+    {
+      "id": "claim_6883e05039984c9d8a620d129bb05605",
+      "statement": "AppRouter supports vocabcraft:// deep links and launch args (-tab-reflex, -reflex-mode) to deep-link into Reflex and other tabs.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/App/Navigation/AppRouter.swift#L44-L92",
+          "version": "repo-lines-v1:sha256:3bdcad7c7e12f7fd95084a0169ad9ea0ad4285408f3fe488aba269dd5d96df43:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZlN2NlOGE0ZWQ5NzMzNGVkY2JlMDk0ZWRmZjhmOWNlMjQwMDNkNTQ1YTg5MjI1ZjdiZTcwMTUzN2QwNjk4NGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI3MzIzOWQ4N2M1Y2JmODI2MDg5YTE3MjhjNzJlNjZiMGE3MWI5ZTdkOTlhODNkZjI1NzQzOGI3NGU5NmI1YzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://VocabCraftApp/App/VocabCraftApp.swift#L54-L104",
+          "version": "repo-lines-v1:sha256:8c4d6c02320fc4deb85731f8b967181a05ac7d43e7f93a80bf4772208cde2313:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc2MzljNzgxMjY0NmFiYjA2OWY0MjFkNjdiNWQ3Zjc1MDJlNDExMGExZWZkMjU5NDhkY2QxOTRmNGE0MDYxZGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2YjA0NDkxNDY5NzIyZTgzNjNhOTRlNDA0NDUzOGUwMTNhMmEyMTdlMzZiMWU1NjhiYTYwYWNiN2I0YzhmMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY1NmM0MDgzNzliNmIzOGYzMGM2ZTY2Yjc5N2I0MTM0OWQyZWU4ZWU4MDVlOTljMDRjZWU1ODIyMTVlYWI5MWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVjNmJjZmVhNDk2NWM4Mzk0YWFmMmFlZjBlYzQyN2Q4NjdmNjg4MWQ5MjFkZjdhYjFlMzc4YmU0ODU1ZGRjZGQifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.0",
+    "at": "2026-09-02T08:37:35.164Z"
+  }
+}

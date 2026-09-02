@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:a982861f06d921f73708af81893db9f0407fef1956084d5793234715f7058614",
+  "claims": [
+    {
+      "id": "claim_f48a07d5fb0549509703d7ea5449b9de",
+      "statement": "PersonalVaultViewModel merges VocabularyDataSource and UserProgressRepository via FetchPersonalVaultUseCase to produce filterable VaultWordItem list.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Features/Vocabulary/PersonalVault/ViewModels/PersonalVaultViewModel.swift",
+          "version": "repo-file-v1:sha256:9d9cba336baa99be2886df4d22883e4d60a5f860045830dc2f5e48352d879bf9"
+        }
+      ]
+    },
+    {
+      "id": "claim_ea007e0c78544eb289ff4c22c4112a7f",
+      "statement": "SmartVaultWordSelector picks weakest words using mistakeCount, intervalDays and ModeSuccessStats for SmartReview sessions.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Domain/UseCases/SmartVaultWordSelector.swift",
+          "version": "repo-file-v1:sha256:64a49e498ea33368a0bfbface2f45a84e465672e471e3ed78c4347b912b714cb"
+        }
+      ]
+    },
+    {
+      "id": "claim_6a41e69ea29f4031a1ecfdf772af4952",
+      "statement": "VocabularyFilterService provides query/CEFR/bookmark filtering for both catalog and vault views.",
+      "evidence": [
+        {
+          "resource": "repo://VocabCraftApp/Domain/Services/VocabularyFilterService.swift",
+          "version": "repo-file-v1:sha256:1dadd3ea404beb583b53eb913799809f67fca1d2641f42e3b349214ad1d0cfe7"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.0",
+    "at": "2026-09-02T08:37:35.164Z"
+  }
+}
