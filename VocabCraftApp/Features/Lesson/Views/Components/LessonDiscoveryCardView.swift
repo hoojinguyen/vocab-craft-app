@@ -117,9 +117,10 @@ public struct LessonDiscoveryCardView: View {
 
             CraftButton(
                 AppStrings.Lesson.continueAction,
-                variant: .primary,
+                variant: .tactile,
                 size: .lg,
-                isFullWidth: true
+                isFullWidth: true,
+                style: .tactile3D
             ) {
                 CraftHaptics.shared.medium()
                 onContinue()
@@ -127,7 +128,7 @@ public struct LessonDiscoveryCardView: View {
             .padding(.horizontal, theme.spacing.base)
             .padding(.bottom, theme.spacing.base)
         }
-        .onAppear {
+        .task(id: word.id) {
             onPlayAudio()
         }
     }

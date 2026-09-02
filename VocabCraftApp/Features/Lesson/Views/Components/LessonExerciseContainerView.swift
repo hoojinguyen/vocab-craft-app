@@ -21,120 +21,151 @@ public struct LessonExerciseContainerView: View {
         ReflexBlitzWordItem(from: item.word)
     }
 
+    private var clozeStages: ReflexClozeStageSet {
+        item.clozeStages ?? ReflexHintMaskGenerator.generateStages(
+            lemma: item.word.lemma,
+            sentenceEn: item.word.exampleEn,
+            pos: item.word.pos
+        )
+    }
+
     public var body: some View {
-        VStack(spacing: 0) {
-            ScrollView {
-                VStack(spacing: theme.spacing.md) {
-                    switch item.assignedMode {
-                    case .multipleChoice:
-                        ReflexMultipleChoiceModeView(
-                            word: drillableWord,
-                            options: item.options,
-                            isReviewed: viewModel.isFeedbackPresented,
-                            isResultCorrect: viewModel.lastAttemptCorrect,
-                            isResultTimeout: false,
-                            showHint: false,
-                            hintStage: 0,
-                            selectedOptionText: selectedOption?.text,
-                            displayedSentence: item.word.exampleEn,
-                            cardBorderColor: .clear,
-                            onSelectOption: { option in
-                                guard !viewModel.isFeedbackPresented else { return }
-                                selectedOption = option
-                                viewModel.submitAnswer(isCorrect: option.isCorrect, for: item)
-                            },
-                            onReplayAudio: {
-                                viewModel.playAudio(for: item.word.lemma)
-                            }
-                        )
+        ScrollView {
+            VStack(spacing: theme.spacing.md) {
+                switch item.assignedMode {
+                case .multipleChoice:
+                    ReflexMultipleChoiceModeView(
+                        word: drillableWord,
+                        options: item.options,
+                        isReviewed: viewModel.isFeedbackPresented,
+                        isResultCorrect: viewModel.lastAttemptCorrect,
+                        isResultTimeout: false,
+                        showHint: viewModel.hintStage >= 1,
+                        hintStage: viewModel.hintStage,
+                        selectedOptionText: selectedOption?.text,
+                        clozeStages: clozeStages,
+                        clozeParts: ReflexClozeFormatter.extractTemplateParts(from: clozeStages.initialParts.prefix + clozeStages.initialParts.slot + clozeStages.initialParts.suffix),
+                        displayedSentence: viewModel.isFeedbackPresented ? item.word.exampleEn : "",
+                        cardBorderColor: theme.colors.hairline.opacity(0.4),
+                        eliminatedOptionId: viewModel.eliminatedOptionId,
+                        onSelectOption: { option in
+                            guard !viewModel.isFeedbackPresented else { return }
+                            selectedOption = option
+                            viewModel.submitAnswer(isCorrect: option.isCorrect, for: item)
+                        },
+                        onReplayAudio: {
+                            viewModel.playAudio(for: item.word.lemma)
+                        }
+                    )
 
-                    case .listening:
-                        ReflexListeningModeView(
-                            word: drillableWord,
-                            options: item.options,
-                            elapsedTimeMs: 0,
-                            isReviewed: viewModel.isFeedbackPresented,
-                            isResultCorrect: viewModel.lastAttemptCorrect,
-                            isResultTimeout: false,
-                            showHint: false,
-                            hintStage: 0,
-                            selectedOptionText: selectedOption?.text,
-                            displayedSentence: item.word.exampleEn,
-                            cardBorderColor: .clear,
-                            onSelectOption: { option in
-                                guard !viewModel.isFeedbackPresented else { return }
-                                selectedOption = option
-                                viewModel.submitAnswer(isCorrect: option.isCorrect, for: item)
-                            },
-                            onPlayAudio: {
-                                viewModel.playAudio(for: item.word.lemma)
-                            },
-                            onReplayAudio: {
-                                viewModel.playAudio(for: item.word.lemma)
-                            }
-                        )
+                case .listening:
+                    ReflexListeningModeView(
+                        word: drillableWord,
+                        options: item.options,
+                        elapsedTimeMs: 0,
+                        isReviewed: viewModel.isFeedbackPresented,
+                        isResultCorrect: viewModel.lastAttemptCorrect,
+                        isResultTimeout: false,
+                        showHint: viewModel.hintStage >= 1,
+                        hintStage: viewModel.hintStage,
+                        selectedOptionText: selectedOption?.text,
+                        clozeStages: clozeStages,
+                        clozeParts: ReflexClozeFormatter.extractTemplateParts(from: clozeStages.initialParts.prefix + clozeStages.initialParts.slot + clozeStages.initialParts.suffix),
+                        displayedSentence: viewModel.isFeedbackPresented ? item.word.exampleEn : "",
+                        cardBorderColor: theme.colors.hairline.opacity(0.4),
+                        eliminatedOptionId: viewModel.eliminatedOptionId,
+                        onSelectOption: { option in
+                            guard !viewModel.isFeedbackPresented else { return }
+                            selectedOption = option
+                            viewModel.submitAnswer(isCorrect: option.isCorrect, for: item)
+                        },
+                        onPlayAudio: {
+                            viewModel.playAudio(for: item.word.lemma)
+                        },
+                        onReplayAudio: {
+                            viewModel.playAudio(for: item.word.lemma)
+                        }
+                    )
 
-                    case .speaking:
-                        ReflexSpeakingModeView(
-                            word: drillableWord,
-                            isReviewed: viewModel.isFeedbackPresented,
-                            isResultCorrect: viewModel.lastAttemptCorrect,
-                            isResultTimeout: false,
-                            showHint: false,
-                            hintStage: 0,
-                            displayedSentence: item.word.exampleEn,
-                            speechState: viewModel.speechState,
-                            liveTranscript: viewModel.liveTranscript,
-                            onCantSpeakNow: {
-                                viewModel.skipSpeaking(for: item)
-                            },
-                            onReplayAudio: {
-                                viewModel.playAudio(for: item.word.lemma)
-                            }
-                        )
+                case .speaking:
+                    ReflexSpeakingModeView(
+                        word: drillableWord,
+                        isReviewed: viewModel.isFeedbackPresented,
+                        isResultCorrect: viewModel.lastAttemptCorrect,
+                        isResultTimeout: false,
+                        showHint: viewModel.hintStage >= 1,
+                        hintStage: viewModel.hintStage,
+                        clozeStages: clozeStages,
+                        clozeParts: ReflexClozeFormatter.extractTemplateParts(from: clozeStages.initialParts.prefix + clozeStages.initialParts.slot + clozeStages.initialParts.suffix),
+                        displayedSentence: viewModel.isFeedbackPresented ? item.word.exampleEn : "",
+                        speechState: viewModel.speechState,
+                        liveTranscript: viewModel.liveTranscript,
+                        onCantSpeakNow: {
+                            viewModel.skipExercise(for: item)
+                        },
+                        onReplayAudio: {
+                            viewModel.playAudio(for: item.word.lemma)
+                        }
+                    )
 
-                    case .typing:
-                        ReflexTypingModeView(
-                            word: drillableWord,
-                            isReviewed: viewModel.isFeedbackPresented,
-                            isResultCorrect: viewModel.lastAttemptCorrect,
-                            isResultTimeout: false,
-                            showHint: false,
-                            hintStage: 0,
-                            typingText: $viewModel.typingText,
-                            userSubmittedText: viewModel.typingText,
-                            displayedSentence: item.word.exampleEn,
-                            onSubmit: {
-                                guard !viewModel.isFeedbackPresented else { return }
-                                let isCorrect = viewModel.typingText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == item.word.lemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-                                viewModel.submitAnswer(isCorrect: isCorrect, for: item)
-                            },
-                            onReplayAudio: {
-                                viewModel.playAudio(for: item.word.lemma)
-                            }
-                        )
-                    }
+                case .typing:
+                    ReflexTypingModeView(
+                        word: drillableWord,
+                        isReviewed: viewModel.isFeedbackPresented,
+                        isResultCorrect: viewModel.lastAttemptCorrect,
+                        isResultTimeout: false,
+                        showHint: viewModel.hintStage >= 1,
+                        hintStage: viewModel.hintStage,
+                        typingText: $viewModel.typingText,
+                        userSubmittedText: viewModel.typingText,
+                        clozeStages: clozeStages,
+                        clozeParts: ReflexClozeFormatter.extractTemplateParts(from: clozeStages.initialParts.prefix + clozeStages.initialParts.slot + clozeStages.initialParts.suffix),
+                        displayedSentence: viewModel.isFeedbackPresented ? item.word.exampleEn : "",
+                        onSubmit: {
+                            guard !viewModel.isFeedbackPresented else { return }
+                            let isCorrect = viewModel.typingText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == item.word.lemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+                            viewModel.submitAnswer(isCorrect: isCorrect, for: item)
+                        },
+                        onReplayAudio: {
+                            viewModel.playAudio(for: item.word.lemma)
+                        }
+                    )
                 }
-                .padding(.horizontal, theme.spacing.base)
-                .padding(.top, theme.spacing.xs)
-                .padding(.bottom, theme.spacing.base)
-            }
 
-            if viewModel.isFeedbackPresented {
-                LessonFeedbackBannerView(
-                    isCorrect: viewModel.lastAttemptCorrect,
-                    correctAnswer: item.word.lemma,
-                    onContinue: {
-                        selectedOption = nil
-                        viewModel.advanceStep()
+                // Auxiliary Controls (Hint & Skip)
+                if !viewModel.isFeedbackPresented {
+                    HStack(spacing: theme.spacing.md) {
+                        CraftButton(
+                            AppStrings.Lesson.hintAction,
+                            iconName: "sparkles",
+                            variant: .ghost,
+                            size: .sm
+                        ) {
+                            viewModel.requestHint(for: item)
+                        }
+
+                        if item.assignedMode == .typing {
+                            Spacer()
+
+                            CraftButton(
+                                AppStrings.Lesson.skipAction,
+                                iconName: "forward.fill",
+                                variant: .outline,
+                                size: .sm,
+                                style: .outlined
+                            ) {
+                                viewModel.skipExercise(for: item)
+                            }
+                        }
                     }
-                )
-                .padding(.horizontal, theme.spacing.base)
-                .padding(.bottom, theme.spacing.base)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .padding(.top, theme.spacing.xs)
+                }
             }
+            .padding(.horizontal, theme.spacing.base)
+            .padding(.top, theme.spacing.xs)
+            .padding(.bottom, viewModel.isFeedbackPresented ? 160 : theme.spacing.base)
         }
-        .onAppear {
+        .task(id: item.id) {
             if item.assignedMode == .listening {
                 viewModel.playAudio(for: item.word.lemma)
             } else if item.assignedMode == .speaking {

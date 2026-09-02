@@ -113,9 +113,10 @@ public struct LessonSummaryView: View {
 
             CraftButton(
                 AppStrings.Lesson.finishAction,
-                variant: .primary,
+                variant: .tactile,
                 size: .lg,
-                isFullWidth: true
+                isFullWidth: true,
+                style: .tactile3D
             ) {
                 CraftHaptics.shared.success()
                 onFinish()
