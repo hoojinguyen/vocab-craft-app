@@ -25,10 +25,10 @@ struct PersonalVaultLocalizationTests {
         "app.vault.detail.practiced_modes": ("Chế độ đã luyện", "Practiced modes")
     ]
 
-    @Test("Kiểm tra sự tồn tại của các localization keys trong kho từ")
+    @Test("Verify presence of Vocabulary Vault localization keys")
     func testVaultLocalizationKeysExist() {
         let keys = Array(requiredVaultKeys.keys)
-        #expect(keys.count == 15, "Phải có đủ 15 key cho Vocabulary Vault")
+        #expect(keys.count == 15, "Must have exactly 15 keys for Vocabulary Vault")
 
         let expectedPrefix = "app.vault."
         for key in keys {
@@ -39,7 +39,7 @@ struct PersonalVaultLocalizationTests {
         }
     }
 
-    @Test("Kiểm tra tính toàn vẹn và song ngữ EN/VI trong catalog xcstrings")
+    @Test("Verify bilingual EN/VI integrity in xcstrings catalog")
     func testVaultCatalogIntegrity() throws {
         let potentialPaths: [String?] = [
             Bundle.main.path(forResource: "Localizable", ofType: "xcstrings"),
@@ -96,7 +96,7 @@ struct PersonalVaultLocalizationTests {
         }
     }
 
-    @Test("Kiểm tra typed accessors trong AppStrings.Vault")
+    @Test("Verify typed accessors in AppStrings.Vault")
     func testAppStringsVaultAccessors() {
         #expect(AppStrings.Vault.titleText == "Vocabulary")
         #expect(AppStrings.Vault.searchPlaceholderText == "Search vocabulary...")

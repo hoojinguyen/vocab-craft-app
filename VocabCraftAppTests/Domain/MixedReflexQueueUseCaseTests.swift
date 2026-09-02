@@ -9,7 +9,7 @@ import Testing
 struct MixedReflexQueueUseCaseTests {
     // MARK: - GenerateMixedReflexQueueUseCase Tests
 
-    @Test("Tạo hàng đợi gán ngẫu nhiên 4 mode cho danh sách từ")
+    @Test("Generates randomized queue across 4 modes for input word list")
     func testGenerateQueue() {
         let useCase = GenerateMixedReflexQueueUseCase()
         let words = [
@@ -24,7 +24,7 @@ struct MixedReflexQueueUseCaseTests {
         #expect(queue.allSatisfy { $0.isRetry == false })
     }
 
-    @Test("Requeue từ làm sai chọn mode mới khác mode vừa sai")
+    @Test("Requeue failed item assigns a different mode from the failed one")
     func testRequeueFailedItemDifferentMode() {
         let useCase = GenerateMixedReflexQueueUseCase()
         let word = VaultWordItem(id: 1, lemma: "habit", pos: "n.", definitionVi: "Thói quen")
@@ -36,7 +36,7 @@ struct MixedReflexQueueUseCaseTests {
         #expect(retryItem.assignedMode != .multipleChoice)
     }
 
-    @Test("Requeue nhiều lần luôn đổi sang mode khác với mode hiện tại")
+    @Test("Requeue multiple times always switches to a different mode")
     func testRequeueMultipleTimesAlwaysChangesMode() {
         let useCase = GenerateMixedReflexQueueUseCase()
         let word = VaultWordItem(id: 1, lemma: "habit", pos: "n.", definitionVi: "Thói quen")
@@ -50,7 +50,7 @@ struct MixedReflexQueueUseCaseTests {
 
     // MARK: - RecordMixedDrillAttemptUseCase Tests
 
-    @Test("Ghi nhận kết quả trả lời đúng lần đầu, tăng streak và thêm mode")
+    @Test("Records first correct answer, increments streak, and appends practiced mode")
     func testRecordAttemptFirstCorrectAnswer() async throws {
         let mockRepo = MockUserProgressRepository()
         let mockDataSource = SampleVocabularyDataSource()
@@ -64,7 +64,7 @@ struct MixedReflexQueueUseCaseTests {
         #expect(result?.isMastered == false)
     }
 
-    @Test("Đạt điều kiện thành thạo khi streak >= 3 và có >= 2 modes")
+    @Test("Promotes to mastered when streak >= 3 and has >= 2 modes")
     func testRecordAttemptMasteryPromotion() async throws {
         let mockRepo = MockUserProgressRepository(initialData: [
             UserWordProgressData(
@@ -84,7 +84,7 @@ struct MixedReflexQueueUseCaseTests {
         #expect(result?.isMastered == true)
     }
 
-    @Test("Trả lời sai lập tức reset streak về 0 và huỷ thành thạo")
+    @Test("Wrong answer immediately resets streak to 0 and clears mastery")
     func testRecordAttemptWrongAnswerResetsMastery() async throws {
         let mockRepo = MockUserProgressRepository(initialData: [
             UserWordProgressData(
@@ -104,7 +104,7 @@ struct MixedReflexQueueUseCaseTests {
         #expect(result?.isMastered == false)
     }
 
-    @Test("Từ không tồn tại trong data source trả về nil")
+    @Test("Returns nil for non-existent word ID in data source")
     func testRecordAttemptNonExistentWordReturnsNil() async throws {
         let mockRepo = MockUserProgressRepository()
         let mockDataSource = SampleVocabularyDataSource()
@@ -116,7 +116,7 @@ struct MixedReflexQueueUseCaseTests {
 
     // MARK: - FetchPersonalVaultUseCase Vault Words Mapping Tests
 
-    @Test("FetchPersonalVaultUseCase hỗ trợ fetchVaultWords theo 3 tab lọc")
+    @Test("FetchPersonalVaultUseCase supports fetchVaultWords across 3 filter tabs")
     func testFetchVaultWordsTabs() async throws {
         let mockRepo = MockUserProgressRepository(initialData: [
             UserWordProgressData(

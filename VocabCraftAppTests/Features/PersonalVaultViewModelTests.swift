@@ -7,7 +7,7 @@ import Testing
 #if canImport(Testing)
 @Suite("PersonalVaultViewModel Tests")
 struct PersonalVaultViewModelTests {
-    @Test("Toggle chọn từng từ và Chọn tất cả, Bỏ chọn tất cả")
+    @Test("Toggle word selection, Select All, and Deselect All")
     @MainActor
     func testSelectionManagement() async {
         let mockWords = [
@@ -150,7 +150,7 @@ struct PersonalVaultViewModelTests {
         #expect(vm.reviewWords == masteredReview)
     }
 
-    @Test("Chọn và đóng sheet chi tiết từ vựng")
+    @Test("Select and dismiss vocabulary detail sheet")
     @MainActor
     func testDetailSheetSelection() async {
         let vm = PersonalVaultViewModel()
@@ -165,7 +165,7 @@ struct PersonalVaultViewModelTests {
         #expect(vm.selectedWordForDetail == nil)
     }
 
-    @Test("Phát âm từ vựng VaultWordItem qua TextToSpeech")
+    @Test("Pronounce VaultWordItem through TextToSpeech")
     @MainActor
     func testPlayAudioForVaultWord() async {
         let mockTTS = MockTTS()
@@ -180,7 +180,7 @@ struct PersonalVaultViewModelTests {
         #expect(mockTTS.lastSpokenText == "eloquent")
     }
 
-    @Test("Toggle bookmark tự động làm mới vaultWords và metrics")
+    @Test("Toggle bookmark automatically refreshes vaultWords and metrics")
     @MainActor
     func testToggleBookmarkRefreshesData() async {
         let word1 = VaultWordItem(id: 1, lemma: "adapt", pos: "v.", definitionVi: "Thích nghi", isBookmarked: false)
@@ -201,7 +201,7 @@ struct PersonalVaultViewModelTests {
         #expect(vm.vaultWords.first(where: { $0.id == 1 })?.isBookmarked == true)
     }
 
-    @Test("Smart Pick chọn các từ vựng ưu tiên và cập nhật selectedWordIds với selector xác định")
+    @Test("Smart Pick selects prioritized words and updates selectedWordIds")
     @MainActor
     func testSmartPickWords() async {
         let word1 = VaultWordItem(id: 101, lemma: "weak", pos: "adj", definitionVi: "yếu")
@@ -222,7 +222,7 @@ struct PersonalVaultViewModelTests {
         #expect(picked.first?.id == 101)
     }
 
-    @Test("Smart Pick tuân thủ bộ lọc vaultTabFilter")
+    @Test("Smart Pick respects active vaultTabFilter")
     @MainActor
     func testSmartPickWordsRespectsTabFilter() async {
         let unmastered = VaultWordItem(id: 1, lemma: "learn", pos: "v", definitionVi: "học", isMastered: false)

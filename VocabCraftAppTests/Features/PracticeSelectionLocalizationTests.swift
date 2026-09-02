@@ -25,7 +25,7 @@ struct PracticeSelectionLocalizationTests {
         "app.practice.selection.toggle_a11y": ("Chọn từ %@", "Select word %@")
     ]
 
-    @Test("Kiểm tra sự tồn tại và định dạng của các localization keys trong Practice")
+    @Test("Verify presence and formatting of Practice localization keys")
     func testPracticeLocalizationKeys() {
         for (key, values) in requiredPracticeKeys {
             #expect(!key.isEmpty)
@@ -35,7 +35,7 @@ struct PracticeSelectionLocalizationTests {
         }
     }
 
-    @Test("Kiểm tra tính toàn vẹn và song ngữ EN/VI trong catalog xcstrings cho Practice")
+    @Test("Verify bilingual EN/VI integrity in Practice xcstrings catalog")
     func testPracticeCatalogIntegrity() throws {
         var catalogURL: URL?
 
@@ -100,7 +100,7 @@ struct PracticeSelectionLocalizationTests {
         }
     }
 
-    @Test("Kiểm tra typed accessors trong AppStrings.Practice")
+    @Test("Verify typed accessors in AppStrings.Practice")
     func testAppStringsPracticeAccessors() {
         #expect(!AppStrings.Practice.titleText.isEmpty)
         #expect(!AppStrings.Practice.backText.isEmpty)

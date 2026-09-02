@@ -9,7 +9,7 @@ import Testing
 #if canImport(Testing)
 @Suite("MixedReflexDrillViews Tests")
 struct MixedReflexDrillViewsTests {
-    @Test("DynamicReflexModeBadge hiển thị đúng cho cả 4 chế độ")
+    @Test("DynamicReflexModeBadge renders correctly across all 4 modes")
     @MainActor
     func testDynamicReflexModeBadgeRendering() {
         for mode in ReflexBlitzMode.allCases {
@@ -20,7 +20,7 @@ struct MixedReflexDrillViewsTests {
         }
     }
 
-    @Test("DynamicReflexModeBadge a11y label và localized format hoạt động chính xác")
+    @Test("DynamicReflexModeBadge a11y label and localized format operate accurately")
     func testDynamicReflexModeBadgeA11yLocalization() {
         let label = AppStrings.Reflex.modeA11yLabel(mode: "Trắc nghiệm", duration: "4.5s")
         #expect(!label.isEmpty)
@@ -33,7 +33,7 @@ struct MixedReflexDrillViewsTests {
         #expect(aliasLabel.contains("6.0s"))
     }
 
-    @Test("DynamicPulseTimerBar phân loại đúng 3 cấp độ thời gian (Steady, Warning, Urgent)")
+    @Test("DynamicPulseTimerBar classifies 3 latency stages correctly (Steady, Warning, Urgent)")
     @MainActor
     func testDynamicPulseTimerBarStages() {
         // Steady (> 0.45)
@@ -52,7 +52,7 @@ struct MixedReflexDrillViewsTests {
         #expect(urgentBar.isWarning == false)
     }
 
-    @Test("MixedReflexSummaryView hiển thị đầy đủ thông tin tổng kết và hỗ trợ trạng thái Perfect Score")
+    @Test("MixedReflexSummaryView renders summary data and supports Perfect Score state")
     @MainActor
     func testMixedReflexSummaryView() {
         let attempts = [
@@ -105,7 +105,7 @@ struct MixedReflexDrillViewsTests {
         #expect(doneCalled == true)
     }
 
-    @Test("MixedReflexSummaryView hiển thị mục từ yếu khi có câu sai")
+    @Test("MixedReflexSummaryView displays weak words section when attempts contain mistakes")
     @MainActor
     func testMixedReflexSummaryViewWithWeakWords() {
         let attempts = [
@@ -146,7 +146,7 @@ struct MixedReflexDrillViewsTests {
         #expect(spokenLemma == "eloquent")
     }
 
-    @Test("MixedReflexDrillViewModel reDrillWeakWords khởi tạo lại phiên luyện tập với các từ sai")
+    @Test("MixedReflexDrillViewModel reDrillWeakWords initializes a new drill session with incorrect words")
     @MainActor
     func testMixedReflexDrillViewModelReDrillWeakWords() async {
         let words = [
@@ -213,7 +213,7 @@ struct MixedReflexDrillViewsTests {
         #expect(finished == true)
     }
 
-    @Test("MixedReflexDrillView khởi tạo và hiển thị card Listening cho item chế độ listening")
+    @Test("MixedReflexDrillView initializes and displays Listening challenge card for listening mode item")
     @MainActor
     func testMixedReflexDrillViewListeningModeChallengeCard() async {
         let words = [
@@ -238,7 +238,7 @@ struct MixedReflexDrillViewsTests {
         #expect(drillView.isResultTimeout == false)
     }
 
-    @Test("MixedReflexDrillView tiến triển mượt mà qua các từ với view identity rõ ràng")
+    @Test("MixedReflexDrillView progresses smoothly across words with distinct view identity")
     @MainActor
     func testMixedReflexDrillViewProgressionWithIdentity() async {
         let words = [
@@ -260,7 +260,7 @@ struct MixedReflexDrillViewsTests {
         #expect(drillView.viewModel.currentItem?.word.id == words[1].id)
     }
 
-    @Test("MixedReflexDrillView khởi tạo và hiển thị card Typing cho item chế độ typing")
+    @Test("MixedReflexDrillView initializes and displays Typing challenge card for typing mode item")
     @MainActor
     func testMixedReflexDrillViewTypingModeChallengeCard() async {
         let words = [
@@ -285,7 +285,7 @@ struct MixedReflexDrillViewsTests {
         #expect(drillView.isResultTimeout == false)
     }
 
-    @Test("MixedReflexDrillView khởi tạo và hiển thị card Speaking cho item chế độ speaking")
+    @Test("MixedReflexDrillView initializes and displays Speaking challenge card for speaking mode item")
     @MainActor
     func testMixedReflexDrillViewSpeakingModeChallengeCard() async {
         let words = [
@@ -346,7 +346,7 @@ struct MixedReflexDrillViewsTests {
         #expect(viewModel.queue.last?.isRetry == true)
     }
 
-    @Test("ReflexCountdownOverlayView khởi tạo đúng với count, mode và callback onFinish")
+    @Test("ReflexCountdownOverlayView initializes correctly with count, mode, and onFinish callback")
     @MainActor
     func testReflexCountdownOverlayViewConfiguration() {
         var finishCalled = false
@@ -363,7 +363,7 @@ struct MixedReflexDrillViewsTests {
         #expect(finishCalled == true)
     }
 
-    @Test("ReflexCountdownOverlayView hỗ trợ mixed drill countdown với custom title, subtitle, icon và tint")
+    @Test("ReflexCountdownOverlayView supports mixed drill countdown with custom title, subtitle, icon, and tint")
     @MainActor
     func testReflexCountdownOverlayViewMixedConfiguration() {
         var finishCalled = false
@@ -389,7 +389,7 @@ struct MixedReflexDrillViewsTests {
         #expect(finishCalled == true)
     }
 
-    @Test("MixedReflexDrillView hỗ trợ cờ startWithCountdown để hiển thị overlay trước bài tập")
+    @Test("MixedReflexDrillView supports startWithCountdown flag to present countdown overlay")
     @MainActor
     func testMixedReflexDrillViewCountdownOverlayPresentation() {
         let words = [
@@ -428,7 +428,7 @@ struct MixedReflexDrillViewsTests {
         #expect(finished == false)
     }
 
-    @Test("MixedReflexDrillView nút Không thể nói lúc này bỏ qua từ nói mà không phạt streak")
+    @Test("MixedReflexDrillView skip speaking button bypasses speaking prompt without streak penalty")
     @MainActor
     func testMixedReflexDrillViewSkipSpeakingButtonAction() {
         let words = [

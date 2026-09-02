@@ -42,7 +42,7 @@ struct PracticeSelectionViewsTests {
         )
     ]
 
-    @Test("PracticeSelectionRow kích hoạt onToggle callback khi nhấn toàn bộ row")
+    @Test("PracticeSelectionRow triggers onToggle callback when tapped")
     @MainActor
     func testPracticeSelectionRowCallbacks() {
         var toggleTriggered = false
@@ -64,7 +64,7 @@ struct PracticeSelectionViewsTests {
         #expect(toggleTriggered == true)
     }
 
-    @Test("PracticeSelectionRow hiển thị trạng thái đã chọn")
+    @Test("PracticeSelectionRow renders selected state accurately")
     @MainActor
     func testPracticeSelectionRowSelectedState() {
         var toggleTriggered = false
@@ -87,7 +87,7 @@ struct PracticeSelectionViewsTests {
         #expect(toggleTriggered == true)
     }
 
-    @Test("PracticeSelectionView thực hiện Chọn tất cả / Bỏ chọn tất cả và Bắt đầu luyện tập thủ công")
+    @Test("PracticeSelectionView performs Select All, Deselect All, and manual start")
     @MainActor
     func testPracticeSelectionViewManualSelectionAndStart() async {
         let vm = PersonalVaultViewModel(mockWords: mockWords)
@@ -136,7 +136,7 @@ struct PracticeSelectionViewsTests {
         #expect(closeTriggered == true)
     }
 
-    @Test("PracticeSelectionView khởi chạy Luyện tập thông minh (Smart Practice) ngay lập tức")
+    @Test("PracticeSelectionView launches Smart Practice immediately")
     @MainActor
     func testPracticeSelectionViewInstantSmartPractice() {
         let vm = PersonalVaultViewModel(mockWords: mockWords)
@@ -167,7 +167,7 @@ struct PracticeSelectionViewsTests {
         #expect(startedWords.first?.id == picked.first?.id)
     }
 
-    @Test("PracticeSelectionView render trực tiếp danh sách từ vựng không dùng segmentedFilterBar")
+    @Test("PracticeSelectionView renders word list directly without segmented filter")
     @MainActor
     func testPracticeSelectionViewDirectWordListRendering() {
         let vm = PersonalVaultViewModel(mockWords: mockWords)

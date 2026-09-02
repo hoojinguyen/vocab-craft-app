@@ -351,7 +351,7 @@ struct ReflexOtherModesTests {
         _ = reviewedWithHighlight.body
     }
 
-    @Test("ReflexClozeFormatter extractClozeOrLemmaParts bóc tách chuẩn xác từ mục tiêu từ cả câu thô lẫn câu cloze")
+    @Test("ReflexClozeFormatter extractClozeOrLemmaParts accurately extracts target word from raw and cloze sentences")
     func testReflexClozeFormatterExtraction() {
         // 1. Template blank
         let templateSentence = "He felt [ _________ ] by the workload."
@@ -388,7 +388,7 @@ struct ReflexOtherModesTests {
         #expect(vaultWord.clozeSentenceEn == "He felt [ _________ ] by the workload.")
     }
 
-    @Test("ReflexMultipleChoiceModeView render thẻ củng cố với câu ví dụ chỉ highlight từ mục tiêu")
+    @Test("ReflexMultipleChoiceModeView renders reinforcement card with example highlighting target word only")
     @MainActor
     func testReflexMultipleChoiceModeViewHighlighting() {
         let vaultWord = VaultWordItem(
