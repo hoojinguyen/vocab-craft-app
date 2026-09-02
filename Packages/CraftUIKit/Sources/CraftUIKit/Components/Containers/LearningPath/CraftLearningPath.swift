@@ -748,6 +748,14 @@ public struct CraftLearningPath: View {
     // MARK: - Scrolling Helper
 
     private func performScroll(_ proxy: ScrollViewProxy, to id: String, reducedMotion: Bool) {
+        if let firstSection = sections.first, firstSection.nodes.prefix(3).contains(where: { $0.id == id }) {
+            withAnimation(reducedMotion ? .default : scrollAnimation) {
+                proxy.scrollTo(firstSection.id, anchor: .top)
+                onAutoScrolled?(id)
+            }
+            return
+        }
+
         withAnimation(reducedMotion ? .default : scrollAnimation) {
             proxy.scrollTo(id, anchor: scrollAnchor)
             onAutoScrolled?(id)
