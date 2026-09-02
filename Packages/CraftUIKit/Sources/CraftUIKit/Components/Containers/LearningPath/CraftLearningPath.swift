@@ -453,7 +453,7 @@ public struct CraftLearningPath: View {
                 } else {
                     LazyVStack(spacing: theme.spacing.xxl, pinnedViews: []) {
                         ForEach(sections) { section in
-                            VStack(spacing: theme.spacing.lg) {
+                            VStack(spacing: theme.spacing.xxl) {
                                 CraftLessonSectionHeaderView(
                                     section: section,
                                     onDockChange: { isDocked in

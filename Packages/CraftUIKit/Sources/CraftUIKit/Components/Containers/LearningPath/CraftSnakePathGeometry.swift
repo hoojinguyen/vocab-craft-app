@@ -123,8 +123,8 @@ public struct SnakePathGeometry {
         from: CGPoint,
         to: CGPoint,
         containerWidth: CGFloat,
-        turnRadius: CGFloat = 32.0,
-        edgeInset: CGFloat = 28.0
+        turnRadius: CGFloat = 40.0,
+        edgeInset: CGFloat = 24.0
     ) -> SnakePathSegmentGeometry {
         let key = cacheKey(from: from, to: to, containerWidth: containerWidth, turnRadius: turnRadius, edgeInset: edgeInset)
         if let cached = cache.get(key) {
