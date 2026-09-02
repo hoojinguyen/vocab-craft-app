@@ -303,7 +303,7 @@ public struct MixedReflexSummaryView: View {
             }
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(weak.lemma), \(weak.cleanPos)")
+        .accessibilityLabel(AppStrings.ReflexBlitz.wordPosA11y(lemma: weak.lemma, pos: weak.cleanPos))
     }
 
     // MARK: - Perfect Score State
@@ -333,7 +333,7 @@ public struct MixedReflexSummaryView: View {
                 )
 
                 CraftButton(
-                    AppStrings.ReflexBlitz.finishSaveText,
+                    AppStrings.ReflexBlitz.finishSave,
                     variant: .secondary,
                     size: .lg,
                     isFullWidth: true,
@@ -341,7 +341,7 @@ public struct MixedReflexSummaryView: View {
                 )
             } else {
                 CraftButton(
-                    AppStrings.ReflexBlitz.finishSaveText,
+                    AppStrings.ReflexBlitz.finishSave,
                     variant: .tactile,
                     size: .lg,
                     isFullWidth: true,

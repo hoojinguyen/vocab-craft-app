@@ -4268,23 +4268,6 @@
         }
       }
     },
-    "homepage.searchPlaceholder": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search new words..."
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tra cứu từ mới..."
-          }
-        }
-      }
-    },
     "homepage.srsHeader": {
       "extractionState": "manual",
       "localizations": {
@@ -6240,108 +6223,6 @@
         }
       }
     },
-    "search.placeholder": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search vocabulary or flashcards..."
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tra cứu từ vựng hoặc thẻ bài..."
-          }
-        }
-      }
-    },
-    "search.recentSearchesTitle": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Recent Searches"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Từ vừa tìm kiếm"
-          }
-        }
-      }
-    },
-    "search.smartLookupDescription": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A smart dictionary system with AI context-aware explanations, native pronunciation, and automatic SRS flashcard generation is coming soon."
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hệ thống từ điển thông minh với AI giải thích ngữ cảnh tự nhiên, phát âm bản ngữ và tự động tạo thẻ nhớ SRS chuẩn bị được ra mắt."
-          }
-        }
-      }
-    },
-    "search.smartLookupTitle": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Smart Lookup with AI Context"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tra cứu thông minh bằng AI Context"
-          }
-        }
-      }
-    },
-    "search.suggestedTopicsTitle": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Suggested Topics"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chủ đề từ vựng gợi ý"
-          }
-        }
-      }
-    },
-    "search.upcomingFeatureTitle": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "UPCOMING FEATURE"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "TÍNH NĂNG SẮP RA MẮT"
-          }
-        }
-      }
-    },
     "settings.appLanguage": {
       "extractionState": "manual",
       "localizations": {
@@ -7018,23 +6899,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Phản xạ"
-          }
-        }
-      }
-    },
-    "tabs.search": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tra cứu"
           }
         }
       }
@@ -8582,6 +8446,57 @@
           "stringUnit": {
             "state": "translated",
             "value": "Đánh dấu từ hiện tại đã thuộc"
+          }
+        }
+      }
+    },
+    "app.settings.profile.level_badge": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "B2 Intermediate"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "B2 Trung cấp"
+          }
+        }
+      }
+    },
+    "app.reflex.summary.word_pos_a11y": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, %@"
+          }
+        }
+      }
+    },
+    "common.error": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lỗi"
           }
         }
       }

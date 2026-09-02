@@ -213,7 +213,7 @@ private struct SettingsLearningCard: View {
                     iconColor: theme.colors.brandPrimary,
                     iconBackgroundColor: theme.colors.surfaceSubtle
                 ) {
-                    CraftBadge("B2 Intermediate", symbol: .star, variant: .subtle, tone: .primary, size: .sm)
+                    CraftBadge(AppStrings.Settings.levelBadge, symbol: .star, variant: .subtle, tone: .primary, size: .sm)
                 }
 
                 CraftDivider()

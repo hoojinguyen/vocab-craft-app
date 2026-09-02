@@ -28,6 +28,10 @@ public enum AppStrings {
         public static var wordUnitText: String {
             String(localized: "common.wordUnit", defaultValue: "words", bundle: .module)
         }
+        public static var error: LocalizedStringKey { "common.error" }
+        public static var errorText: String {
+            String(localized: "common.error", defaultValue: "Error", bundle: .module)
+        }
         public static var delete: LocalizedStringKey { "common.delete" }
         public static var `continue`: LocalizedStringKey { "common.continue" }
         public static var skip: LocalizedStringKey { "common.skip" }
@@ -66,7 +70,6 @@ public enum AppStrings {
         public static var vocabLibrarySubtitle: LocalizedStringKey { "homepage.vocabLibrarySubtitle" }
         public static var explore: LocalizedStringKey { "homepage.explore" }
         public static var cefrTitle: LocalizedStringKey { "homepage.cefrTitle" }
-        public static var searchPlaceholder: LocalizedStringKey { "homepage.searchPlaceholder" }
         public static var newWordBadge: LocalizedStringKey { "homepage.newWordBadge" }
         public static var saved: LocalizedStringKey { "homepage.saved" }
         public static var saveWord: LocalizedStringKey { "homepage.saveWord" }
@@ -341,22 +344,8 @@ extension AppStrings {
         public static var synced: LocalizedStringKey { "app.settings.about.synced" }
         public static var clearCache: LocalizedStringKey { "app.settings.about.clear_cache" }
         public static var appVersion: LocalizedStringKey { "app.settings.about.app_version" }
-
-        // Backward-compatibility aliases for legacy views prior to Task 3 refactor
-        public static var sectionLearningSRS: LocalizedStringKey { sectionLearning }
-        public static var sectionAudioTTS: LocalizedStringKey { sectionAudio }
-        public static var sectionLanguage: LocalizedStringKey { sectionLearning }
-        public static var sectionAppData: LocalizedStringKey { sectionAbout }
-        public static var sectionDeveloper: LocalizedStringKey { sectionDevTools }
-        public static var reminderNotification: LocalizedStringKey { reminders }
-        public static var englishVoice: LocalizedStringKey { audioAccent }
-        public static var playingAudio: LocalizedStringKey { playingPreview }
-        public static var appTheme: LocalizedStringKey { appearanceMode }
-        public static var voiceUS: LocalizedStringKey { accentUS }
-        public static var voiceUK: LocalizedStringKey { accentUK }
-        public static var profileBadge: LocalizedStringKey { membershipActive }
-        public static var inputGoalTitle: LocalizedStringKey { dailyGoal }
-        public static var inputGoalMessage: LocalizedStringKey { dailyGoal }
+        public static var levelBadge: LocalizedStringKey { "app.settings.profile.level_badge" }
+        public static var levelBadgeText: String { String(localized: "app.settings.profile.level_badge", defaultValue: "B2 Intermediate", bundle: .module) }
     }
 
     // MARK: - AI Assistant View

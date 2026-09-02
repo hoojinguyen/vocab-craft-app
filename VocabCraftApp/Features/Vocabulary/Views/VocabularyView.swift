@@ -88,7 +88,7 @@ public struct VocabularyView: View {
                                     VStack(spacing: theme.spacing.md) {
                                         // Practice button — scrolls with content
                                         CraftButton(
-                                            verbatim: AppStrings.Vault.actionPracticeText,
+                                            AppStrings.Vault.actionPractice,
                                             variant: .tactile,
                                             size: .lg,
                                             isFullWidth: true,

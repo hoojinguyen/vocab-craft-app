@@ -110,7 +110,7 @@ public struct PracticeSelectionView: View {
 
             // Select All / Deselect All Toggle Button
             CraftButton(
-                verbatim: isAllSelected ? AppStrings.Practice.deselectAllText : AppStrings.Practice.selectAllText,
+                isAllSelected ? AppStrings.Practice.deselectAll : AppStrings.Practice.selectAll,
                 iconName: isAllSelected ? "xmark.circle" : "checkmark.circle",
                 variant: .ghost,
                 size: .sm,
@@ -179,7 +179,7 @@ public struct PracticeSelectionView: View {
             VStack(spacing: theme.spacing.sm) {
                 // Top CTA: Smart Practice (Instant launch)
                 CraftButton(
-                    verbatim: AppStrings.Practice.smartPickText,
+                    AppStrings.Practice.smartPick,
                     variant: .secondary,
                     size: .lg,
                     isFullWidth: true,
@@ -192,20 +192,28 @@ public struct PracticeSelectionView: View {
                 .disabled(vaultViewModel.vaultWords.isEmpty)
 
                 // Bottom CTA: Manual Selection Start
-                CraftButton(
-                    verbatim: selectedWordsCount > 0
-                        ? AppStrings.Practice.startButton(selectedWordsCount)
-                        : AppStrings.Practice.emptyPromptText,
-                    variant: .tactile,
-                    size: .lg,
-                    isFullWidth: true,
-                    action: {
-                        let selected = vaultViewModel.selectedWords
-                        guard !selected.isEmpty else { return }
-                        onStartPractice(selected)
-                    }
-                )
-                .disabled(selectedWordsCount == 0)
+                if selectedWordsCount > 0 {
+                    CraftButton(
+                        AppStrings.Practice.startButton(selectedWordsCount),
+                        variant: .tactile,
+                        size: .lg,
+                        isFullWidth: true,
+                        action: {
+                            let selected = vaultViewModel.selectedWords
+                            guard !selected.isEmpty else { return }
+                            onStartPractice(selected)
+                        }
+                    )
+                } else {
+                    CraftButton(
+                        AppStrings.Practice.emptyPrompt,
+                        variant: .tactile,
+                        size: .lg,
+                        isFullWidth: true,
+                        action: {}
+                    )
+                    .disabled(true)
+                }
             }
             .padding(.horizontal, theme.spacing.base)
             .padding(.top, theme.spacing.sm)

@@ -72,7 +72,7 @@ public struct HomepageView: View {
                                 Text(error)
                                     .multilineTextAlignment(.center)
                             } actions: {
-                                CraftButton(String(localized: "common.retry", defaultValue: "Retry", bundle: .module), variant: .primary, size: .md) {
+                                CraftButton(AppStrings.Common.retry, variant: .primary, size: .md) {
                                     Task { await viewModel.loadLearningPath() }
                                 }
                             }

@@ -14,12 +14,15 @@ extension AppStrings {
         public static var searchToggleA11y: String {
             String(localized: "app.vault.header.search_toggle", defaultValue: "Toggle Search", bundle: .module)
         }
+        public static var filterNotMasteredTitleKey: LocalizedStringKey { "app.vault.filter.not_mastered_title" }
         public static var filterNotMasteredTitle: String {
             String(localized: "app.vault.filter.not_mastered_title", defaultValue: "Learning", bundle: .module)
         }
+        public static var filterMasteredTitleKey: LocalizedStringKey { "app.vault.filter.mastered_title" }
         public static var filterMasteredTitle: String {
             String(localized: "app.vault.filter.mastered_title", defaultValue: "Mastered", bundle: .module)
         }
+        public static var filterBookmarkedTitleKey: LocalizedStringKey { "app.vault.filter.bookmarked_title" }
         public static var filterBookmarkedTitle: String {
             String(localized: "app.vault.filter.bookmarked_title", defaultValue: "Saved", bundle: .module)
         }
