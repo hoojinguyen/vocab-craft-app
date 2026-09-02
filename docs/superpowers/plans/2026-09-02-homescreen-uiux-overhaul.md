@@ -29,7 +29,7 @@
 - Consumes: `CraftTheme`, `CraftStreakBadge`, `CraftProgressRing`, `AppStrings.Home`
 - Produces: Clean 36pt action bar trailing group with exact vertical baseline alignment
 
-- [ ] **Step 1: Write Unit Test for 36pt layout sizing**
+- [ ] **Step 1: Write Unit Test for Header View Initialization and Properties**
 
 In `VocabCraftAppTests/Features/Homepage/HomeTopHeaderViewTests.swift`:
 ```swift
@@ -47,6 +47,10 @@ final class HomeTopHeaderViewTests: XCTestCase {
             dailyWordsGoal: 10
         )
         XCTAssertNotNil(view.body)
+        XCTAssertEqual(view.userName, "Alex")
+        XCTAssertEqual(view.streakDays, 5)
+        XCTAssertEqual(view.dailyWordsLearned, 8)
+        XCTAssertEqual(view.dailyWordsGoal, 10)
     }
 }
 ```
@@ -67,7 +71,7 @@ Expected: PASS.
 - [ ] **Step 4: Commit**
 
 ```bash
-git add VocabCraftApp/Features/Homepage/Views/HomeTopHeaderView.swift
+git add VocabCraftApp/Features/Homepage/Views/HomeTopHeaderView.swift VocabCraftAppTests/Features/Homepage/HomeTopHeaderViewTests.swift
 git commit -m "fix(home): balance avatar and progress ring styling to 36pt baseline"
 ```
 

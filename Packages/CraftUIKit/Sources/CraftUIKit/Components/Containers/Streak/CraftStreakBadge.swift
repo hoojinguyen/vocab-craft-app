@@ -142,8 +142,12 @@ public struct CraftStreakBadge: View {
                 .clipShape(Capsule())
                 .overlay(pillBorder)
                 .overlay(
-                    Capsule()
-                        .strokeBorder(theme.depths.topHighlight, lineWidth: 1.0)
+                    Group {
+                        if isCompletedToday {
+                            Capsule()
+                                .strokeBorder(theme.depths.topHighlight, lineWidth: 1.0)
+                        }
+                    }
                 )
                 .craftShadow(theme.shadows.sm)
         }
