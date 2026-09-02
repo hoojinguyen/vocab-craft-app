@@ -447,7 +447,7 @@ public struct CraftLearningPath: View {
                                 }
                             }
                         }
-                        Color.clear.frame(height: 120)
+                        Color.clear.frame(height: smartBottomPadding)
                     }
                     .padding(.top, topHeaderBuilder != nil ? theme.spacing.sm : theme.spacing.xl)
                 } else {
@@ -482,7 +482,7 @@ public struct CraftLearningPath: View {
                             }
                             .onAppear { onSectionAppear?(section) }
                         }
-                        Color.clear.frame(height: 120)
+                        Color.clear.frame(height: smartBottomPadding)
                     }
                     .padding(.top, topHeaderBuilder != nil ? theme.spacing.sm : theme.spacing.xl)
                 }

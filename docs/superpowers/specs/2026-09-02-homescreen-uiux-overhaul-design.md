@@ -42,7 +42,7 @@ During interactive verification on iOS Simulator (iPhone 17, iOS 26.5), several 
   - Tapping the capsule smoothly scrolls back to the top of the active Unit.
   - Smooth spring transition (`.move(edge: .top).combined(with: .opacity)`) when switching between Units, preventing card overlapping.
 - **Node Spacing & Breathing Room**:
-  - Add explicit top padding (`theme.spacing.xl` / 28–32pt) between the bottom of `CraftLessonSectionHeaderView` and the first `CraftLessonRow`.
+  - Add explicit vertical spacing (`theme.spacing.xl` / 32pt) between `CraftLessonSectionHeaderView` and `CraftLessonSectionBodyView`.
 
 ### 2.4 Organic Snake Path Geometry (`CraftSnakePathGeometry`)
 - Upgrade turning radii (`turnRadius: 40pt`, `edgeInset: 24pt`) and smooth out tangent circular fillet arcs in `SnakePathSegmentGeometry`.

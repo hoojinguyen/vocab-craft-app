@@ -108,7 +108,7 @@ public struct HomeTopHeaderView: View {
             CraftProgressRing(
                 progress: dailyGoalProgress,
                 lineWidth: 2.5,
-                size: 34,
+                size: 33.5,
                 tintColor: theme.colors.brandPrimary,
                 trackColor: theme.colors.borderDefault.opacity(0.4),
                 animated: true,

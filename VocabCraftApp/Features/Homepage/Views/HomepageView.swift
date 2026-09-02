@@ -24,6 +24,7 @@ public struct HomepageView: View {
     @Environment(\.appContainer) private var appContainer
     @Environment(\.appRouter) private var appRouter
     @Environment(\.craftTheme) private var theme
+    @Environment(\.accessibilityReduceMotion) private var isReducedMotion
 
     @MainActor
     public init(viewModel: HomepageViewModel) {
@@ -95,8 +96,12 @@ public struct HomepageView: View {
                         onTabBarPresentationChange: { presentation in
                             MainActor.assumeIsolated {
                                 if tabBarPresentation != presentation {
-                                    withAnimation(.smooth(duration: 0.2)) {
+                                    if isReducedMotion {
                                         tabBarPresentation = presentation
+                                    } else {
+                                        withAnimation(.smooth(duration: 0.2)) {
+                                            tabBarPresentation = presentation
+                                        }
                                     }
                                 }
                             }

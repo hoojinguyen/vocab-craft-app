@@ -195,8 +195,8 @@ struct ReflexBlitzLocalizationTests {
 
         #expect(AppStrings.ReflexBlitz.weeklyWords(10).contains("10"))
         #expect(AppStrings.ReflexBlitz.weakWords(3).contains("3"))
-        #expect(!AppStrings.ReflexBlitz.redrillWeak.isEmpty)
-        #expect(!AppStrings.ReflexBlitz.weakWordsHeader.isEmpty)
+        #expect(!AppStrings.ReflexBlitz.redrillWeakText.isEmpty)
+        #expect(!AppStrings.ReflexBlitz.weakWordsHeaderText.isEmpty)
         #expect(!AppStrings.ReflexBlitz.statusIncorrect.isEmpty)
         #expect(AppStrings.ReflexBlitz.statusSlow("4.5s").contains("4.5s"))
         let masterTitle = AppStrings.ReflexBlitz.localizedRatingTitle(for: "⚡️ Reflex Master")

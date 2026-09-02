@@ -385,7 +385,7 @@ public struct CraftLessonSectionView: View {
     // MARK: - Body
 
     public var body: some View {
-        VStack(spacing: theme.spacing.xxl) {
+        VStack(spacing: theme.spacing.xl) {
             CraftLessonSectionHeaderView(
                 section: section,
                 dockThreshold: dockThreshold,

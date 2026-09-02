@@ -180,16 +180,24 @@ public struct CraftStreakBadge: View {
     private var pillBackground: some View {
         if isCompletedToday {
             theme.colors.surfaceCard
-                .overlay(tierBaseColor.opacity(0.06))
+                .overlay(tierBaseColor.opacity(0.08))
         } else {
-            theme.colors.surfaceCard
+            theme.colors.surfaceSubtle.opacity(0.60)
         }
     }
 
     @ViewBuilder
     private var pillBorder: some View {
-        Capsule()
-            .strokeBorder(theme.colors.borderDefault.opacity(0.4), lineWidth: 1.0)
+        if isCompletedToday {
+            Capsule()
+                .strokeBorder(tierBaseColor.opacity(0.24), lineWidth: 1.0)
+        } else {
+            Capsule()
+                .strokeBorder(
+                    theme.colors.streakPending.opacity(0.45),
+                    style: StrokeStyle(lineWidth: 1.0, dash: [4, 3])
+                )
+        }
     }
 
     // MARK: - Visual Helpers
