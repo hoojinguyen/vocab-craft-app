@@ -51,7 +51,7 @@ public struct LessonDiscoveryCardView: View {
                         Spacer()
 
                         CraftSpeakerButton(
-                            variant: .primary,
+                            variant: .subtle,
                             size: .md,
                             isPlaying: false,
                             label: nil,

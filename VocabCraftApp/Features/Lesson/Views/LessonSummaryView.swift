@@ -47,7 +47,7 @@ public struct LessonSummaryView: View {
 
             // Metrics Row
             HStack(spacing: theme.spacing.md) {
-                CraftCard(style: .subtle) {
+                CraftCard(style: .outlined) {
                     VStack(spacing: 4) {
                         CraftText(
                             AppStrings.Lesson.xpEarnedFormat(summary.xpEarned),
@@ -63,7 +63,7 @@ public struct LessonSummaryView: View {
                     .frame(maxWidth: .infinity)
                 }
 
-                CraftCard(style: .subtle) {
+                CraftCard(style: .outlined) {
                     VStack(spacing: 4) {
                         let pct = Int(summary.accuracyFraction * 100)
                         CraftText(
@@ -97,8 +97,9 @@ public struct LessonSummaryView: View {
                             CraftListRow(
                                 title: word.lemma,
                                 subtitle: word.definitionVi,
-                                leadingIcon: "character.book.closed.fill",
-                                trailingAction: {
+                                iconName: "speaker.wave.2.fill",
+                                showChevron: false,
+                                action: {
                                     onReplayAudio(word)
                                 }
                             )
