@@ -121,18 +121,29 @@ public struct ReflexListeningModeView: View {
     // MARK: - Front Prompt Face
 
     private var frontPromptFace: some View {
-        VStack(spacing: theme.spacing.md) {
+        VStack(spacing: theme.spacing.sm) {
             CraftWaveformView(
                 barCount: 16,
                 spacing: theme.spacing.xs,
                 minHeight: 6,
-                maxHeight: 40,
+                maxHeight: 32,
                 barWidth: 4,
                 isRecording: !isReviewed,
                 activeColor: theme.colors.brandPrimary
             )
-            .frame(height: 40)
+            .frame(height: 32)
             .accessibilityHidden(true)
+
+            if let playAction = onReplayAudio ?? onPlayAudio {
+                CraftSpeakerButton(
+                    variant: .filled,
+                    size: .md,
+                    isPlaying: false,
+                    label: nil,
+                    action: playAction
+                )
+                .padding(.vertical, 2)
+            }
 
             if hintStage >= 1 && !word.cleanPos.isEmpty {
                 CraftBadge(
