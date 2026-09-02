@@ -14,12 +14,6 @@ public protocol VocabularyRepositoryProtocol: AnyObject, Sendable {
     /// - Returns: The matching ``Word`` if found, or `nil`.
     func fetchWord(id: Int64) async throws -> Word?
 
-    /// Fetches reflex drill prompt records matching the specified CEFR level.
-    ///
-    /// - Parameter cefrLevel: The target CEFR level (e.g., "A1", "B1", "C1").
-    /// - Returns: An array of ``ReflexDrillItem`` objects.
-    func fetchReflexDrillRecords(cefrLevel: String) async throws -> [ReflexDrillItem]
-
     /// Searches vocabulary words matching the given query string.
     ///
     /// - Parameter query: The search string to match against word lemmas and definitions.

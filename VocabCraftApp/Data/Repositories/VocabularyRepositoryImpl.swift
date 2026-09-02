@@ -49,22 +49,6 @@ public final class VocabularyRepositoryImpl: VocabularyRepositoryProtocol {
         )
     }
 
-    /// Fetches reflex drill prompt records matching the specified CEFR level.
-    public func fetchReflexDrillRecords(cefrLevel: String) async throws -> [ReflexDrillItem] {
-        guard let engine = datasetEngine, let record = engine.getRandomReflexDrill(cefrLevel: cefrLevel) else { return [] }
-        return [
-            ReflexDrillItem(
-                id: record.id,
-                drillType: record.drillType,
-                promptText: record.promptText,
-                correctAnswer: record.correctAnswer,
-                distractors: record.distractors,
-                targetTimeMs: record.targetTimeMs,
-                sentenceTextEn: record.sentenceTextEn
-            )
-        ]
-    }
-
     /// Searches vocabulary words matching the given query string.
     public func searchWords(query: String) async throws -> [Word] {
         guard let engine = datasetEngine else { return [] }
@@ -101,7 +85,7 @@ public final class VocabularyRepositoryImpl: VocabularyRepositoryProtocol {
                 definitionEn: r.definitionEn ?? "",
                 example: r.example ?? "",
                 isBookmarked: false,
-                topicTag: "Từ vựng nổi bật"
+                topicTag: "Featured Vocabulary"
             )
         }
     }

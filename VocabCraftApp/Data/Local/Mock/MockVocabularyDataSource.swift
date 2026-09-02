@@ -64,25 +64,6 @@ public struct MockVocabularyDataSource: Sendable {
         )
     ]
 
-    public let mockReflexDrills: [ReflexDrillItem] = [
-        ReflexDrillItem(
-            id: 101,
-            drillType: "multiple_choice",
-            promptText: "Chọn nghĩa chính xác của 'Ephemeral':",
-            correctAnswer: "Phù du, ngắn ngủi",
-            distractors: ["Lâu dài", "Vĩnh cửu", "Kiên cường"],
-            targetTimeMs: 3000
-        ),
-        ReflexDrillItem(
-            id: 102,
-            drillType: "multiple_choice",
-            promptText: "Chọn nghĩa chính xác của 'Resilience':",
-            correctAnswer: "Sự phục hồi, kiên cường",
-            distractors: ["Ngắn ngủi", "Nhân tạo", "Trí tuệ"],
-            targetTimeMs: 3000
-        )
-    ]
-
     public func fetchTopicDecksSummary() -> [TopicDeckSummaryRecord] {
         [
             TopicDeckSummaryRecord(
