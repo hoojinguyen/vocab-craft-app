@@ -7,19 +7,24 @@ import Testing
 #if canImport(Testing)
 @Suite("Domain Entities Clean Architecture Tests")
 struct DomainEntitiesTests {
-    @Test("ReflexDrillItem domain entity initialization")
-    func testReflexDrillItem() {
-        let item = ReflexDrillItem(
+    @Test("MixedReflexDrillItem domain entity initialization")
+    func testMixedReflexDrillItem() {
+        let word = VaultWordItem(
             id: 101,
-            drillType: "speed",
-            promptText: "Thói quen",
-            correctAnswer: "habit",
-            distractors: ["hobby", "habitat"],
-            targetTimeMs: 2500,
-            sentenceTextEn: "It is a good habit."
+            lemma: "habit",
+            pos: "n.",
+            phonetic: "/ˈhæb.ɪt/",
+            definitionVi: "Thói quen",
+            exampleSentenceEn: "It is a good habit.",
+            exampleSentenceVi: "Đó là một thói quen tốt."
         )
-        #expect(item.id == "101")
-        #expect(item.correctAnswer == "habit")
+        let item = MixedReflexDrillItem(
+            word: word,
+            assignedMode: .multipleChoice
+        )
+        #expect(item.lemma == "habit")
+        #expect(item.assignedMode == .multipleChoice)
+        #expect(item.definitionVi == "Thói quen")
     }
 }
 #endif

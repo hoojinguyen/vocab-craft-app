@@ -100,13 +100,17 @@ public struct HomeTopHeaderView: View {
     }
 
     private var progressRingView: some View {
-        VStack(spacing: 2) {
+        ZStack {
+            Circle()
+                .fill(theme.colors.surfaceCard)
+                .frame(width: 36, height: 36)
+
             CraftProgressRing(
                 progress: dailyGoalProgress,
                 lineWidth: 2.5,
-                size: 36,
+                size: 33.5,
                 tintColor: theme.colors.brandPrimary,
-                trackColor: theme.colors.surfaceSubtle,
+                trackColor: theme.colors.borderDefault.opacity(0.4),
                 animated: true,
                 accessibilityLabel: AppStrings.Home.dailyGoalA11y(completed: dailyWordsLearned, goal: dailyWordsGoal)
             ) {
@@ -117,13 +121,9 @@ public struct HomeTopHeaderView: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
             }
-            Text(AppStrings.Home.todayLabelText)
-                .font(theme.typography.caption.weight(.semibold))
-                .foregroundStyle(theme.colors.textSecondary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-                .accessibilityHidden(true)
         }
+        .frame(width: 36, height: 36)
+        .craftShadow(theme.shadows.sm)
     }
 
     // MARK: - Avatar Button
@@ -138,7 +138,7 @@ public struct HomeTopHeaderView: View {
                     .frame(width: 36, height: 36)
                     .overlay(
                         Circle()
-                            .strokeBorder(theme.colors.borderDefault, lineWidth: 1)
+                            .strokeBorder(theme.colors.borderDefault.opacity(0.4), lineWidth: 1)
                     )
                     .craftShadow(theme.shadows.sm)
 
@@ -146,6 +146,7 @@ public struct HomeTopHeaderView: View {
                     .font(theme.typography.caption.weight(.bold))
                     .foregroundStyle(theme.colors.textInverse)
             }
+            .frame(width: 36, height: 36)
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .combine)

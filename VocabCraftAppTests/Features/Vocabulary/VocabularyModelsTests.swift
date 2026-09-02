@@ -5,23 +5,27 @@ import XCTest
 #endif
 
 final class VocabularyModelsTests: XCTestCase {
-    func testWordItemInitializationAndMockData() {
-        let item = WordItem(
+    func testVaultWordItemInitialization() {
+        let item = VaultWordItem(
             id: 101,
             lemma: "Ephemeral",
-            phonetic: "/ɪˈfem.ər.əl/",
             pos: "adj.",
-            definition: "Phù du, chóng phai",
+            phonetic: "/ɪˈfem.ər.əl/",
+            definitionVi: "Phù du, chóng phai",
             exampleSentenceEn: "Her fame proved to be ephemeral.",
             exampleSentenceVi: "Sự nổi tiếng của cô ấy tỏ ra rất ngắn ngủi.",
             cefrLevel: "B2",
-            masteryLevel: 4,
-            nextReviewDate: Date()
+            isMastered: true,
+            isBookmarked: false,
+            correctStreak: 4
         )
         XCTAssertEqual(item.id, 101)
         XCTAssertEqual(item.lemma, "Ephemeral")
+        XCTAssertEqual(item.pos, "adj.")
         XCTAssertEqual(item.cefrLevel, "B2")
-        XCTAssertEqual(item.masteryLevel, 4)
-        XCTAssertFalse(WordItem.mockData.isEmpty)
+        XCTAssertEqual(item.correctStreak, 4)
+        XCTAssertTrue(item.isMastered)
+        XCTAssertFalse(item.isBookmarked)
+        XCTAssertEqual(item.ipa, "/ɪˈfem.ər.əl/")
     }
 }

@@ -168,9 +168,7 @@ public struct CraftLessonSectionHeaderView: View {
                         .onChange(of: maxY) { _, newValue in
                             let docked = newValue <= dockThreshold
                             if isDocked != docked {
-                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                    isDocked = docked
-                                }
+                                isDocked = docked
                                 onDockChange?(docked)
                             }
                         }
@@ -387,7 +385,7 @@ public struct CraftLessonSectionView: View {
     // MARK: - Body
 
     public var body: some View {
-        VStack(spacing: theme.spacing.lg) {
+        VStack(spacing: theme.spacing.xl) {
             CraftLessonSectionHeaderView(
                 section: section,
                 dockThreshold: dockThreshold,

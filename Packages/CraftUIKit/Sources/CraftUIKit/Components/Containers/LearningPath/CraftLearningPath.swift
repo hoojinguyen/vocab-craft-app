@@ -5,7 +5,7 @@ import SwiftUI
 /// A top-level organism container view rendering a complete gamified learning journey path.
 ///
 /// Encapsulates:
-/// 1. Auto-scrolling via `ScrollViewReader` to the `.active` node ID on initial render with smooth spring animation after layout stabilization (300ms delay).
+/// 1. Non-animated auto-scrolling via `ScrollViewReader` to the `.active` node ID on initial render, preventing visible scroll bounce by positioning instantly after a single-frame layout yield.
 /// 2. Modular `LazyVStack` rendering of multiple `CraftLessonSectionView` units with continuous Serpentine winding layout.
 /// 3. Interactive `CraftLessonDetailSheet` modal sheet presentation on unlocked node tap.
 /// 4. Atmospheric brand gradient background wash.
@@ -429,8 +429,7 @@ public struct CraftLearningPath: View {
                                 )
                                 .scrollTransition(.animated) { content, phase in
                                     content
-                                        .opacity(isReducedMotion ? 1.0 : (1.0 - abs(phase.value) * 0.25))
-                                        .scaleEffect(isReducedMotion ? 1.0 : (1.0 - abs(phase.value) * 0.04))
+                                        .opacity(isReducedMotion ? 1.0 : (1.0 - abs(phase.value) * 0.15))
                                 }
                                 .onAppear { onSectionAppear?(section) }
                             } header: {
@@ -448,12 +447,13 @@ public struct CraftLearningPath: View {
                                 }
                             }
                         }
+                        Color.clear.frame(height: smartBottomPadding)
                     }
                     .padding(.top, topHeaderBuilder != nil ? theme.spacing.sm : theme.spacing.xl)
                 } else {
                     LazyVStack(spacing: theme.spacing.xxl, pinnedViews: []) {
                         ForEach(sections) { section in
-                            VStack(spacing: theme.spacing.lg) {
+                            VStack(spacing: theme.spacing.xl) {
                                 CraftLessonSectionHeaderView(
                                     section: section,
                                     onDockChange: { isDocked in
@@ -478,19 +478,16 @@ public struct CraftLearningPath: View {
                             }
                             .scrollTransition(.animated) { content, phase in
                                 content
-                                    .opacity(isReducedMotion ? 1.0 : (1.0 - abs(phase.value) * 0.25))
-                                    .scaleEffect(isReducedMotion ? 1.0 : (1.0 - abs(phase.value) * 0.04))
+                                    .opacity(isReducedMotion ? 1.0 : (1.0 - abs(phase.value) * 0.15))
                             }
                             .onAppear { onSectionAppear?(section) }
                         }
+                        Color.clear.frame(height: smartBottomPadding)
                     }
                     .padding(.top, topHeaderBuilder != nil ? theme.spacing.sm : theme.spacing.xl)
                 }
             }
             .coordinateSpace(name: Self.scrollCoordinateSpaceName)
-            .safeAreaInset(edge: .bottom) {
-                Color.clear.frame(height: smartBottomPadding)
-            }
             .contentMargins(.bottom, theme.spacing.base, for: .scrollContent)
             .contentMargins(.top, theme.spacing.sm, for: .scrollContent)
             .overlay(alignment: .top) {
@@ -498,10 +495,14 @@ public struct CraftLearningPath: View {
             }
             .onAppear {
                 if scrollToActive, !hasScrolledToActive, let targetID = activeNodeID {
+                    // Perform an instant (non-animated) scroll on initial appear to prevent
+                    // the jarring bounce where content renders at the top then jumps down.
+                    // We yield one frame to allow LazyVStack to lay out content, then scroll
+                    // without animation so the user never sees the "wrong" scroll position.
                     Task { @MainActor in
-                        try? await Task.sleep(for: .milliseconds(300))
+                        try? await Task.sleep(for: .milliseconds(50))
                         guard !Task.isCancelled else { return }
-                        performScroll(proxy, to: targetID, reducedMotion: isReducedMotion)
+                        performInitialScroll(proxy, to: targetID)
                         hasScrolledToActive = true
                     }
                 }
@@ -514,7 +515,8 @@ public struct CraftLearningPath: View {
                 dockDebounceTask?.cancel()
                 dockedSection = newSections.last(where: { dockedSectionIDs.contains($0.id) })
                 guard scrollToActive, !hasScrolledToActive, let id = activeNodeID else { return }
-                performScroll(proxy, to: id, reducedMotion: isReducedMotion)
+                // Use non-animated scroll for first-time positioning to avoid bounce
+                performInitialScroll(proxy, to: id)
                 hasScrolledToActive = true
             }
             .onChange(of: externalScrollTrigger) { _, _ in
@@ -745,9 +747,30 @@ public struct CraftLearningPath: View {
         }
     }
 
+    /// Performs a non-animated (instant) scroll to the target ID.
+    /// Used for initial positioning so the user never sees content at the wrong scroll offset.
+    private func performInitialScroll(_ proxy: ScrollViewProxy, to id: String) {
+        if let firstSection = sections.first, firstSection.nodes.prefix(3).contains(where: { $0.id == id }) {
+            proxy.scrollTo(firstSection.id, anchor: .top)
+            onAutoScrolled?(id)
+            return
+        }
+
+        proxy.scrollTo(id, anchor: scrollAnchor)
+        onAutoScrolled?(id)
+    }
+
     // MARK: - Scrolling Helper
 
     private func performScroll(_ proxy: ScrollViewProxy, to id: String, reducedMotion: Bool) {
+        if let firstSection = sections.first, firstSection.nodes.prefix(3).contains(where: { $0.id == id }) {
+            withAnimation(reducedMotion ? .default : scrollAnimation) {
+                proxy.scrollTo(firstSection.id, anchor: .top)
+                onAutoScrolled?(id)
+            }
+            return
+        }
+
         withAnimation(reducedMotion ? .default : scrollAnimation) {
             proxy.scrollTo(id, anchor: scrollAnchor)
             onAutoScrolled?(id)

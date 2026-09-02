@@ -34,8 +34,8 @@ public extension CraftSpacingTokens {
     var xxs: CGFloat { 2 }
     var pathDotDiameter: CGFloat { 5.5 }
     var pathDotSpacing: CGFloat { 6.0 }
-    var pathTurnRadius: CGFloat { 32.0 }
-    var pathEdgeInset: CGFloat { 16.0 }
+    var pathTurnRadius: CGFloat { 40.0 }
+    var pathEdgeInset: CGFloat { 24.0 }
     var pathRowSpacing: CGFloat { 44.0 }
 }
 
@@ -70,8 +70,8 @@ public struct CraftDefaultSpacingTokens: CraftSpacingTokens {
         xxl: CGFloat = 48,
         pathDotDiameter: CGFloat = 5.5,
         pathDotSpacing: CGFloat = 6.0,
-        pathTurnRadius: CGFloat = 32.0,
-        pathEdgeInset: CGFloat = 16.0,
+        pathTurnRadius: CGFloat = 40.0,
+        pathEdgeInset: CGFloat = 24.0,
         pathRowSpacing: CGFloat = 44.0
     ) {
         self.xxs = xxs
