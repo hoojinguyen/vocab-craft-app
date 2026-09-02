@@ -26,15 +26,15 @@ public struct LessonSummaryView: View {
 
             // Star Rating Header
             VStack(spacing: theme.spacing.sm) {
-                HStack(spacing: 8) {
+                HStack(spacing: theme.spacing.xs) {
                     ForEach(0..<3, id: \.self) { idx in
-                        Image(systemName: idx < summary.stars ? "star.fill" : "star")
-                            .font(.system(size: 36, weight: .bold))
-                            .foregroundStyle(
-                                idx < summary.stars
-                                    ? theme.colors.accent
-                                    : theme.colors.borderDefault
-                            )
+                        CraftIcon(
+                            idx < summary.stars ? "star.fill" : "star",
+                            size: .xl,
+                            color: idx < summary.stars
+                                ? theme.colors.accent
+                                : theme.colors.borderDefault
+                        )
                     }
                 }
 
@@ -48,14 +48,14 @@ public struct LessonSummaryView: View {
             // Metrics Row
             HStack(spacing: theme.spacing.md) {
                 CraftCard(style: .outlined) {
-                    VStack(spacing: 4) {
+                    VStack(spacing: theme.spacing.xxs) {
                         CraftText(
-                            AppStrings.Lesson.xpEarnedFormat(summary.xpEarned),
+                            "+\(summary.xpEarned)",
                             style: .headline,
                             color: theme.colors.accent
                         )
                         CraftText(
-                            "XP",
+                            AppStrings.Lesson.xpTitleText,
                             style: .caption,
                             color: theme.colors.textMuted
                         )
@@ -64,7 +64,7 @@ public struct LessonSummaryView: View {
                 }
 
                 CraftCard(style: .outlined) {
-                    VStack(spacing: 4) {
+                    VStack(spacing: theme.spacing.xxs) {
                         let pct = Int(summary.accuracyFraction * 100)
                         CraftText(
                             "\(pct)%",
@@ -82,30 +82,63 @@ public struct LessonSummaryView: View {
             }
             .padding(.horizontal, theme.spacing.base)
 
-            // Mastered Words List
-            VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                CraftText(
-                    AppStrings.Lesson.masteredWordsText,
-                    style: .headline,
-                    color: theme.colors.textPrimary
-                )
-                .padding(.horizontal, theme.spacing.base)
+            // Learned Words List (Separated into Mastered and Needs Review)
+            let masteredWords = summary.learnedWords.filter { !summary.weakWordIds.contains($0.id) }
+            let reviewWords = summary.learnedWords.filter { summary.weakWordIds.contains($0.id) }
 
-                ScrollView {
-                    VStack(spacing: theme.spacing.xs) {
-                        ForEach(summary.learnedWords, id: \.id) { word in
-                            CraftListRow(
-                                title: word.lemma,
-                                subtitle: word.definitionVi,
-                                iconName: "speaker.wave.2.fill",
-                                showChevron: false,
-                                action: {
-                                    onReplayAudio(word)
-                                }
+            ScrollView {
+                VStack(alignment: .leading, spacing: theme.spacing.md) {
+                    if !masteredWords.isEmpty {
+                        VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                            CraftText(
+                                AppStrings.Lesson.masteredWordsText,
+                                style: .headline,
+                                color: theme.colors.textPrimary
                             )
+                            .padding(.horizontal, theme.spacing.base)
+
+                            VStack(spacing: theme.spacing.xs) {
+                                ForEach(masteredWords, id: \.id) { word in
+                                    CraftListRow(
+                                        title: word.lemma,
+                                        subtitle: word.definitionVi,
+                                        iconName: "speaker.wave.2.fill",
+                                        showChevron: false,
+                                        action: {
+                                            onReplayAudio(word)
+                                        }
+                                    )
+                                }
+                            }
+                            .padding(.horizontal, theme.spacing.base)
                         }
                     }
-                    .padding(.horizontal, theme.spacing.base)
+
+                    if !reviewWords.isEmpty {
+                        VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                            CraftText(
+                                AppStrings.Lesson.reviewWordsText,
+                                style: .headline,
+                                color: theme.colors.statusWarning
+                            )
+                            .padding(.horizontal, theme.spacing.base)
+
+                            VStack(spacing: theme.spacing.xs) {
+                                ForEach(reviewWords, id: \.id) { word in
+                                    CraftListRow(
+                                        title: word.lemma,
+                                        subtitle: word.definitionVi,
+                                        iconName: "speaker.wave.2.fill",
+                                        showChevron: false,
+                                        action: {
+                                            onReplayAudio(word)
+                                        }
+                                    )
+                                }
+                            }
+                            .padding(.horizontal, theme.spacing.base)
+                        }
+                    }
                 }
             }
 

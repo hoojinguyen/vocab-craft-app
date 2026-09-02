@@ -146,6 +146,9 @@ public struct LessonLearningView: View {
             viewModel.startSpeechSession()
         }
         .onDisappear {
+            if !viewModel.isCompleted {
+                onDismiss()
+            }
             viewModel.stopSpeechSession()
         }
         .alert(

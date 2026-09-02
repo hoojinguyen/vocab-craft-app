@@ -799,7 +799,6 @@
 				400035A206369F2FAA77 /* Homepage */,
 				4000CA8EE8BA0E41C918 /* Lesson */,
 				40003C02F9B5FF46EF35 /* Reflex */,
-				4000A827BA6524C5D45F /* ReflexDrill */,
 				4000D4D5BFC6AFCDAB4C /* Settings */,
 				4000235BDB4106301AF2 /* Vocabulary */,
 			);
@@ -1042,22 +1041,6 @@
 				2000D07E0E768FC0CEF3 /* MixedReflexSummaryView.swift */,
 			);
 			path = "Views";
-			sourceTree = "<group>";
-		};
-		4000A827BA6524C5D45F /* ReflexDrill */ = {
-			isa = PBXGroup;
-			children = (
-				40009386A2E4BCFB13A3 /* Services */,
-			);
-			path = "ReflexDrill";
-			sourceTree = "<group>";
-		};
-		40009386A2E4BCFB13A3 /* Services */ = {
-			isa = PBXGroup;
-			children = (
-
-			);
-			path = "Services";
 			sourceTree = "<group>";
 		};
 		4000D4D5BFC6AFCDAB4C /* Settings */ = {

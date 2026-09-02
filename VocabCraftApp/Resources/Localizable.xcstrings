@@ -8823,6 +8823,57 @@
           }
         }
       }
+    },
+    "app.lesson.summary.xp_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "XP"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "XP"
+          }
+        }
+      }
+    },
+    "app.lesson.summary.learned_words": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Words Learned"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Từ vựng đã học"
+          }
+        }
+      }
+    },
+    "app.lesson.summary.review_words": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Needs Review"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cần ôn tập"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

@@ -202,28 +202,30 @@ public struct HomepageView: View {
         }
         .environment(\.locale, appContainer.userSettingsStore.appLocale ?? .autoupdatingCurrent)
         #if os(iOS)
-        .fullScreenCover(item: $activeLessonLearningVM) { vm in
+        .fullScreenCover(item: $activeLessonLearningVM, onDismiss: {
+            activeLessonLearningVM = nil
+        }) { vm in
             LessonLearningView(
                 viewModel: vm,
                 onDismiss: {
                     activeLessonLearningVM = nil
-                    activeLessonNode = nil
                 },
                 onFinished: { summary in
-                    handleLessonFinished(summary: summary)
+                    handleLessonFinished(vm: vm, summary: summary)
                 }
             )
         }
         #else
-        .sheet(item: $activeLessonLearningVM) { vm in
+        .sheet(item: $activeLessonLearningVM, onDismiss: {
+            activeLessonLearningVM = nil
+        }) { vm in
             LessonLearningView(
                 viewModel: vm,
                 onDismiss: {
                     activeLessonLearningVM = nil
-                    activeLessonNode = nil
                 },
                 onFinished: { summary in
-                    handleLessonFinished(summary: summary)
+                    handleLessonFinished(vm: vm, summary: summary)
                 }
             )
         }
@@ -276,16 +278,16 @@ public struct HomepageView: View {
                 deckId: deckId,
                 words: effectiveWords
             )
-            self.activeLessonNode = node
             self.activeLessonLearningVM = vm
         }
     }
 
-    private func handleLessonFinished(summary: LessonSummaryModel) {
+    private func handleLessonFinished(vm: LessonLearningViewModel, summary: LessonSummaryModel) {
         activeLessonLearningVM = nil
-        activeLessonNode = nil
 
         Task {
+            // Await persistence completion before reloading learning path
+            _ = try? await vm.awaitCompletion()
             await viewModel.loadLearningPath()
             await MainActor.run {
                 let starIcons = String(repeating: "★", count: summary.stars)

@@ -26,94 +26,107 @@ public struct LessonDiscoveryCardView: View {
     }
 
     public var body: some View {
-        VStack(spacing: theme.spacing.lg) {
-            Spacer(minLength: theme.spacing.xs)
+        VStack(spacing: 0) {
+            ScrollView {
+                VStack(spacing: theme.spacing.lg) {
+                    Spacer(minLength: theme.spacing.xs)
 
-            CraftCard(style: .tactile3D) {
-                VStack(alignment: .leading, spacing: theme.spacing.md) {
-                    HStack(alignment: .top) {
-                        VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftCard(style: .tactile3D) {
+                        VStack(alignment: .leading, spacing: theme.spacing.md) {
+                            HStack(alignment: .top) {
+                                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                                    CraftText(
+                                        word.lemma,
+                                        style: .titleLargeSerif,
+                                        color: theme.colors.textPrimary
+                                    )
+
+                                    if !word.phonetic.isEmpty {
+                                        CraftText(
+                                            word.phonetic,
+                                            style: .caption,
+                                            color: theme.colors.textMuted
+                                        )
+                                    }
+                                }
+
+                                Spacer()
+
+                                CraftSpeakerButton(
+                                    variant: .subtle,
+                                    size: .md,
+                                    isPlaying: false,
+                                    label: nil,
+                                    action: onPlayAudio
+                                )
+                            }
+
+                            HStack(spacing: theme.spacing.xs) {
+                                if totalInCycle > 0 {
+                                    CraftBadge(
+                                        "\(indexInCycle)/\(totalInCycle)",
+                                        variant: .subtle,
+                                        tone: .neutral,
+                                        size: .sm,
+                                        shape: .capsule
+                                    )
+                                }
+
+                                if !word.pos.isEmpty {
+                                    CraftBadge(
+                                        word.pos,
+                                        variant: .subtle,
+                                        tone: .neutral,
+                                        size: .sm,
+                                        shape: .capsule
+                                    )
+                                }
+
+                                if !word.cefrLevel.isEmpty {
+                                    CraftBadge(
+                                        word.cefrLevel,
+                                        variant: .subtle,
+                                        tone: .warning,
+                                        size: .sm,
+                                        shape: .capsule
+                                    )
+                                }
+                            }
+
+                            CraftDivider()
+
                             CraftText(
-                                word.lemma,
-                                style: .titleLargeSerif,
+                                word.definitionVi,
+                                style: .titleMedium,
                                 color: theme.colors.textPrimary
                             )
 
-                            if !word.phonetic.isEmpty {
-                                CraftText(
-                                    word.phonetic,
-                                    style: .caption,
-                                    color: theme.colors.textMuted
-                                )
+                            if !word.exampleEn.isEmpty {
+                                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                                    Text(word.exampleEn)
+                                        .font(theme.typography.bodySerif)
+                                        .foregroundStyle(theme.colors.textPrimary)
+
+                                    if !word.exampleVi.isEmpty {
+                                        CraftText(
+                                            word.exampleVi,
+                                            style: .caption,
+                                            color: theme.colors.textMuted
+                                        )
+                                    }
+                                }
+                                .padding(theme.spacing.sm)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(theme.colors.surfaceSubtle)
+                                .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
                             }
                         }
-
-                        Spacer()
-
-                        CraftSpeakerButton(
-                            variant: .subtle,
-                            size: .md,
-                            isPlaying: false,
-                            label: nil,
-                            action: onPlayAudio
-                        )
+                        .padding(.vertical, theme.spacing.xs)
                     }
-
-                    HStack(spacing: theme.spacing.xs) {
-                        if !word.pos.isEmpty {
-                            CraftBadge(
-                                word.pos,
-                                variant: .subtle,
-                                tone: .neutral,
-                                size: .sm,
-                                shape: .capsule
-                            )
-                        }
-
-                        if !word.cefrLevel.isEmpty {
-                            CraftBadge(
-                                word.cefrLevel,
-                                variant: .subtle,
-                                tone: .warning,
-                                size: .sm,
-                                shape: .capsule
-                            )
-                        }
-                    }
-
-                    CraftDivider()
-
-                    CraftText(
-                        word.definitionVi,
-                        style: .titleMedium,
-                        color: theme.colors.textPrimary
-                    )
-
-                    if !word.exampleEn.isEmpty {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text(word.exampleEn)
-                                .font(theme.typography.bodySerif)
-                                .foregroundStyle(theme.colors.textPrimary)
-
-                            if !word.exampleVi.isEmpty {
-                                CraftText(
-                                    word.exampleVi,
-                                    style: .caption,
-                                    color: theme.colors.textMuted
-                                )
-                            }
-                        }
-                        .padding(theme.spacing.sm)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(theme.colors.surfaceSubtle)
-                        .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
-                    }
+                    .padding(.horizontal, theme.spacing.base)
+                    .padding(.vertical, theme.spacing.md)
                 }
-                .padding(.vertical, theme.spacing.xs)
             }
-            .padding(.horizontal, theme.spacing.base)
-
-            Spacer()
 
             CraftButton(
                 AppStrings.Lesson.continueAction,

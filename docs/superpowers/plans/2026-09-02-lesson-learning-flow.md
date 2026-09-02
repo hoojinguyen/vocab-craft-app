@@ -515,18 +515,18 @@ public struct LessonSummaryView: View {
             // Metrics Chips
             HStack(spacing: theme.spacing.md) {
                 CraftCard(style: .subtle) {
-                    VStack(spacing: 4) {
-                        CraftText(AppStrings.Lesson.xpEarnedFormat(summary.xpEarned), style: .headline, color: theme.colors.accent)
-                        CraftText("XP", style: .caption, color: theme.colors.textMuted)
+                    VStack(spacing: theme.spacing.xxs) {
+                        CraftText("+\(summary.xpEarned)", style: .headline, color: theme.colors.accent)
+                        CraftText(AppStrings.Lesson.xpTitleText, style: .caption, color: theme.colors.textMuted)
                     }
                     .frame(maxWidth: .infinity)
                 }
 
                 CraftCard(style: .subtle) {
-                    VStack(spacing: 4) {
+                    VStack(spacing: theme.spacing.xxs) {
                         let pct = Int(summary.accuracyFraction * 100)
                         CraftText("\(pct)%", style: .headline, color: theme.colors.statusSuccess)
-                        CraftText("Accuracy", style: .caption, color: theme.colors.textMuted)
+                        CraftText(AppStrings.Lesson.accuracyText, style: .caption, color: theme.colors.textMuted)
                     }
                     .frame(maxWidth: .infinity)
                 }
@@ -556,7 +556,7 @@ public struct LessonSummaryView: View {
             Spacer()
 
             CraftButton(
-                "Hoàn thành",
+                AppStrings.Lesson.finishAction,
                 variant: .primary,
                 size: .lg,
                 isFullWidth: true
@@ -722,14 +722,16 @@ public final class LessonLearningViewModel {
             mistakeCount += 1
             weakWordIds.insert(item.word.id)
             soundEffectService.playIncorrect()
-            let retryItem = LessonExerciseItem(
-                id: "\(item.id)-retry",
-                word: item.word,
-                assignedMode: item.assignedMode,
-                options: item.options,
-                isRequeued: true
-            )
-            steps.append(.exercise(item: retryItem))
+            if !item.isRequeued {
+                let retryItem = LessonExerciseItem(
+                    id: "\(item.id)-retry",
+                    word: item.word,
+                    assignedMode: .multipleChoice,
+                    options: item.options,
+                    isRequeued: true
+                )
+                steps.append(.exercise(item: retryItem))
+            }
         }
         isFeedbackPresented = true
     }

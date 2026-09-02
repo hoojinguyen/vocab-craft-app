@@ -229,6 +229,41 @@ struct LessonLearningViewModelTests {
         vm.requestHint(for: exerciseItem)
         #expect(vm.hintStage == 2)
         #expect(vm.eliminatedOptionId == "opt-2" || vm.eliminatedOptionId == "opt-3")
+        let firstEliminated = vm.eliminatedOptionId
+
+        // Extra hint request should cap at stage 3 and preserve eliminated option
+        vm.requestHint(for: exerciseItem)
+        #expect(vm.hintStage == 3)
+        #expect(vm.eliminatedOptionId == firstEliminated)
+
+        vm.requestHint(for: exerciseItem)
+        #expect(vm.hintStage == 3)
+        #expect(vm.eliminatedOptionId == firstEliminated)
+    }
+
+    @Test("Progress does not jump backwards when an exercise is requeued on error")
+    func testProgressDoesNotJumpBackwardsOnRequeue() {
+        let words = makeSampleWords()
+        let vm = LessonLearningViewModel(
+            stageId: "stage_1",
+            deckId: "deck_1",
+            words: words,
+            completeLessonUseCase: MockCompleteLessonUseCase(),
+            ttsService: MockTextToSpeechService(),
+            soundEffectService: MockSoundEffectService(),
+            speechEngine: MockResilientReflexSpeechEngine()
+        )
+
+        // Advance to first exercise step
+        while vm.currentExerciseItem == nil && !vm.isCompleted {
+            vm.advanceStep()
+        }
+
+        guard let item = vm.currentExerciseItem else { return }
+        let progressBefore = vm.progress
+        vm.submitAnswer(isCorrect: false, for: item)
+        let progressAfter = vm.progress
+        #expect(progressAfter >= progressBefore, "Progress should never decrease upon requeue")
     }
 
     @Test("Skipping exercise submits incorrect answer and triggers feedback")
@@ -258,8 +293,8 @@ struct LessonLearningViewModelTests {
         #expect(vm.mistakeCount == 1)
     }
 
-    @Test("Completing all steps calculates 3 stars when 0 mistakes made")
-    func testFinishLessonWithThreeStars() {
+    @Test("Completing all steps calculates 3 stars when 0 mistakes made and persists progress")
+    func testFinishLessonWithThreeStars() async throws {
         let words = makeSampleWords()
         let completeUseCase = MockCompleteLessonUseCase()
         let vm = LessonLearningViewModel(
@@ -281,6 +316,15 @@ struct LessonLearningViewModelTests {
         #expect(vm.summary != nil)
         #expect(vm.summary?.stars == 3)
         #expect(vm.summary?.xpEarned == 25)
+
+        // Await and verify completeLessonUseCase execution
+        let result = try await vm.awaitCompletion()
+        #expect(result != nil)
+        #expect(completeUseCase.executedStars == 3)
+        #expect(completeUseCase.executedStageId == "stage_1")
+        #expect(completeUseCase.executedDeckId == "deck_1")
+        #expect(completeUseCase.executedProgressFraction == 1.0)
+        #expect(completeUseCase.executedWeakWordIds?.isEmpty == true)
     }
 }
 #endif

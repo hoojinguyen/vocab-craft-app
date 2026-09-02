@@ -25,7 +25,7 @@ In the current implementation of VocabCraft:
 ## 2. Core Architecture & Pedagogical Model
 
 ### 2.1 The 3-Stage Scaffolded Micro-Cycles Model
-Lessons are broken down into **Micro-Cycles** (chunks of 2–3 words) to minimize cognitive load:
+Lessons are broken down into **Micro-Cycles** (chunks of 3–4 words) to minimize cognitive load:
 
 ```
 [Lesson Start]
@@ -59,7 +59,7 @@ Lessons are broken down into **Micro-Cycles** (chunks of 2–3 words) to minimiz
 
 ### 2.2 The Mastery Loop (Untimed & Re-queue)
 - **Untimed / Relaxed**: No timeout failure countdown during Lesson Learning. Learners have ample time to listen, speak, and type.
-- **Re-queue on Mistake**: If a learner makes an error during practice, the system explains the correct answer and appends the question to the end of the micro-cycle queue until answered correctly.
+- **Re-queue on Mistake**: If a learner makes an error during practice, the system explains the correct answer and appends a single retry of the question to the end of the micro-cycle queue, downgraded to multiple choice and capped at max 1 retry per word to avoid infinite loops.
 - **Star Scoring Policy**:
   - 0 errors: **3 Stars (Mastery)**
   - 1–2 errors: **2 Stars (Proficient)**
@@ -104,10 +104,10 @@ public enum LessonStep: Identifiable, Sendable {
    - `ReflexMultipleChoiceModeView`: Cloze sentence + Vietnamese meaning ➔ 4 `CraftChoiceCard` options.
    - `ReflexSpeakingModeView`: Meaning + Cloze prompt ➔ `CraftVoiceMatchCard` with "Không tiện nói lúc này" (Skip to non-speaking mode) fallback.
    - `ReflexTypingModeView`: Meaning + Cloze prompt ➔ `CraftTextField` with keyboard auto-focus and return key submission.
-4. **`LessonFeedbackFooterView`**:
-   - Glassmorphic bottom banner appearing upon answer submission.
+4. **`CraftFeedbackSheet` (docked bottom sheet)**:
+   - Screen-level sheet (`.tactile3D`) flush to the bottom edge, appearing upon answer submission.
    - Correct: Green accent, celebratory sound effect, "Tiếp tục" button.
-   - Incorrect: Red accent, incorrect sound effect, displays correct answer + brief explanation, "Đã hiểu" button (re-queues question).
+   - Incorrect: Red accent, incorrect sound effect, displays correct answer + brief explanation, "Tiếp tục" button (re-queues question).
 5. **`LessonSummaryView`**:
    - Hero star animation + `craftConfetti` for 3-star runs.
    - XP badge and accuracy metrics.

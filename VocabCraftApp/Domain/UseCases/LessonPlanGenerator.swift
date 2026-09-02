@@ -10,14 +10,12 @@ public final class LessonPlanGenerator: LessonPlanGeneratorProtocol, Sendable {
     public func generatePlan(from words: [TopicWordDTO], distractorPool: [TopicWordDTO]) -> [LessonStep] {
         guard !words.isEmpty else { return [] }
 
-        let chunkSize = words.count <= 4 ? words.count : 3
-        let chunks = stride(from: 0, to: words.count, by: chunkSize).map {
-            Array(words[$0..<min($0 + chunkSize, words.count)])
-        }
+        let chunks = partitionIntoMicroCycles(words)
 
         var steps: [LessonStep] = []
         let allModes: [ReflexBlitzMode] = [.listening, .multipleChoice, .speaking, .typing]
         let pool = distractorPool.isEmpty ? words : distractorPool
+        var globalWordIndex = 0
 
         for chunk in chunks {
             // 1. Discovery Phase for words in this micro-cycle
@@ -26,8 +24,10 @@ public final class LessonPlanGenerator: LessonPlanGeneratorProtocol, Sendable {
             }
 
             // 2. Interactive Practice Phase across 4 modalities
-            for (wIdx, word) in chunk.enumerated() {
-                let mode = allModes[wIdx % allModes.count]
+            for word in chunk {
+                let mode = allModes[globalWordIndex % allModes.count]
+                globalWordIndex += 1
+
                 let options: [ReflexBlitzOption] = (mode == .multipleChoice || mode == .listening)
                     ? ReflexDistractorGenerator.generateOptions(
                         mode: mode,
@@ -54,5 +54,25 @@ public final class LessonPlanGenerator: LessonPlanGeneratorProtocol, Sendable {
         }
 
         return steps
+    }
+
+    private func partitionIntoMicroCycles(_ words: [TopicWordDTO]) -> [[TopicWordDTO]] {
+        guard words.count > 4 else { return [words] }
+        var chunks: [[TopicWordDTO]] = []
+        var remaining = words[...]
+        while !remaining.isEmpty {
+            let count = remaining.count
+            let take: Int
+            if count <= 4 {
+                take = count
+            } else if count % 3 == 1 || count == 8 {
+                take = 4
+            } else {
+                take = 3
+            }
+            chunks.append(Array(remaining.prefix(take)))
+            remaining = remaining.dropFirst(take)
+        }
+        return chunks
     }
 }

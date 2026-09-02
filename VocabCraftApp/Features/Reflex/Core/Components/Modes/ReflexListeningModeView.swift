@@ -134,7 +134,7 @@ public struct ReflexListeningModeView: View {
             .frame(height: 32)
             .accessibilityHidden(true)
 
-            if let playAction = onReplayAudio ?? onPlayAudio {
+            if let playAction = onPlayAudio ?? onReplayAudio {
                 CraftSpeakerButton(
                     variant: .filled,
                     size: .md,

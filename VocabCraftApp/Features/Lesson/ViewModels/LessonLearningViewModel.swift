@@ -32,6 +32,10 @@ public final class LessonLearningViewModel: Identifiable {
     private let ttsService: TextToSpeechProtocol
     private let soundEffectService: SoundEffectServiceProtocol
     private let speechEngine: ReflexSpeechEngineProtocol
+    private let initialStepCount: Int
+
+    public private(set) var completionTask: Task<LessonCompletionResult, Error>?
+    public private(set) var persistenceError: (any Error)?
 
     public init(
         stageId: String,
@@ -51,7 +55,9 @@ public final class LessonLearningViewModel: Identifiable {
         self.ttsService = ttsService
         self.soundEffectService = soundEffectService
         self.speechEngine = speechEngine
-        self.steps = planGenerator.generatePlan(from: words, distractorPool: words)
+        let generatedSteps = planGenerator.generatePlan(from: words, distractorPool: words)
+        self.steps = generatedSteps
+        self.initialStepCount = generatedSteps.count
 
         setupSpeechEngineCallbacks()
     }
@@ -77,7 +83,8 @@ public final class LessonLearningViewModel: Identifiable {
 
     public var progress: Double {
         guard !steps.isEmpty else { return 1.0 }
-        return Double(currentStepIndex) / Double(steps.count)
+        let effectiveTotal = currentStepIndex < initialStepCount ? initialStepCount : steps.count
+        return Double(currentStepIndex) / Double(max(effectiveTotal, 1))
     }
 
     public func startSpeechSession() {
@@ -125,26 +132,12 @@ public final class LessonLearningViewModel: Identifiable {
 
             // Smart Requeue (Option A): Max 1 retry per word with mode downgrading
             if currentWordAttempts == 1 {
-                let fallbackMode: ReflexBlitzMode
-                let fallbackOptions: [ReflexBlitzOption]
-
-                switch item.assignedMode {
-                case .typing, .speaking:
-                    // Downgrade active production to passive recognition
-                    fallbackMode = .multipleChoice
-                    fallbackOptions = ReflexDistractorGenerator.generateOptions(
-                        mode: .multipleChoice,
-                        target: ReflexBlitzWordItem(from: item.word),
-                        pool: words.map { ReflexBlitzWordItem(from: $0) }
-                    )
-                case .multipleChoice, .listening:
-                    fallbackMode = .multipleChoice
-                    fallbackOptions = ReflexDistractorGenerator.generateOptions(
-                        mode: .multipleChoice,
-                        target: ReflexBlitzWordItem(from: item.word),
-                        pool: words.map { ReflexBlitzWordItem(from: $0) }
-                    )
-                }
+                let fallbackMode: ReflexBlitzMode = .multipleChoice
+                let fallbackOptions = ReflexDistractorGenerator.generateOptions(
+                    mode: .multipleChoice,
+                    target: ReflexBlitzWordItem(from: item.word),
+                    pool: words.map { ReflexBlitzWordItem(from: $0) }
+                )
 
                 let clozeStages = item.clozeStages ?? ReflexHintMaskGenerator.generateStages(
                     lemma: item.word.lemma,
@@ -170,13 +163,14 @@ public final class LessonLearningViewModel: Identifiable {
 
     public func requestHint(for item: LessonExerciseItem) {
         guard !isFeedbackPresented else { return }
+        guard hintStage < 3 else { return }
         CraftHaptics.shared.selection()
         hintStage += 1
 
         if hintStage >= 2 && (item.assignedMode == .multipleChoice || item.assignedMode == .listening) {
-            let wrongOptions = item.options.filter { !$0.isCorrect }
-            if let firstWrong = wrongOptions.first(where: { $0.id != eliminatedOptionId }) {
-                eliminatedOptionId = firstWrong.id
+            if eliminatedOptionId == nil {
+                let wrongOptions = item.options.filter { !$0.isCorrect }
+                eliminatedOptionId = wrongOptions.first?.id
             }
         }
     }
@@ -201,7 +195,7 @@ public final class LessonLearningViewModel: Identifiable {
 
         speechEngine.onMatchDetected = { [weak self] _ in
             Task { @MainActor in
-                guard let self, !self.isFeedbackPresented else { return }
+                guard let self, !self.isFeedbackPresented, self.currentExerciseItem?.id == item.id else { return }
                 self.speechState = .evaluated(overallScore: 1.0)
                 self.submitAnswer(isCorrect: true, for: item)
             }
@@ -249,14 +243,27 @@ public final class LessonLearningViewModel: Identifiable {
         self.steps.append(.summary(summary: summaryModel))
         self.isCompleted = true
 
-        Task {
-            _ = try? await completeLessonUseCase.execute(
-                stageId: stageId,
-                deckId: deckId,
-                stars: stars,
-                weakWordIds: Array(weakWordIds),
-                progressFraction: 1.0
-            )
+        self.completionTask = Task {
+            do {
+                let result = try await completeLessonUseCase.execute(
+                    stageId: stageId,
+                    deckId: deckId,
+                    stars: stars,
+                    weakWordIds: Array(weakWordIds),
+                    progressFraction: 1.0
+                )
+                return result
+            } catch {
+                await MainActor.run {
+                    self.persistenceError = error
+                }
+                throw error
+            }
         }
+    }
+
+    @discardableResult
+    public func awaitCompletion() async throws -> LessonCompletionResult? {
+        try await completionTask?.value
     }
 }
