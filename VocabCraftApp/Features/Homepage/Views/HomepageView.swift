@@ -94,7 +94,11 @@ public struct HomepageView: View {
                         connectorDotSpacing: 7.0,
                         onTabBarPresentationChange: { presentation in
                             MainActor.assumeIsolated {
-                                tabBarPresentation = presentation
+                                if tabBarPresentation != presentation {
+                                    withAnimation(.smooth(duration: 0.2)) {
+                                        tabBarPresentation = presentation
+                                    }
+                                }
                             }
                         },
                         externalScrollTrigger: scrollToActiveNonce

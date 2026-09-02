@@ -429,8 +429,7 @@ public struct CraftLearningPath: View {
                                 )
                                 .scrollTransition(.animated) { content, phase in
                                     content
-                                        .opacity(isReducedMotion ? 1.0 : (1.0 - abs(phase.value) * 0.25))
-                                        .scaleEffect(isReducedMotion ? 1.0 : (1.0 - abs(phase.value) * 0.04))
+                                        .opacity(isReducedMotion ? 1.0 : (1.0 - abs(phase.value) * 0.15))
                                 }
                                 .onAppear { onSectionAppear?(section) }
                             } header: {
@@ -448,6 +447,7 @@ public struct CraftLearningPath: View {
                                 }
                             }
                         }
+                        Color.clear.frame(height: 120)
                     }
                     .padding(.top, topHeaderBuilder != nil ? theme.spacing.sm : theme.spacing.xl)
                 } else {
@@ -478,19 +478,16 @@ public struct CraftLearningPath: View {
                             }
                             .scrollTransition(.animated) { content, phase in
                                 content
-                                    .opacity(isReducedMotion ? 1.0 : (1.0 - abs(phase.value) * 0.25))
-                                    .scaleEffect(isReducedMotion ? 1.0 : (1.0 - abs(phase.value) * 0.04))
+                                    .opacity(isReducedMotion ? 1.0 : (1.0 - abs(phase.value) * 0.15))
                             }
                             .onAppear { onSectionAppear?(section) }
                         }
+                        Color.clear.frame(height: 120)
                     }
                     .padding(.top, topHeaderBuilder != nil ? theme.spacing.sm : theme.spacing.xl)
                 }
             }
             .coordinateSpace(name: Self.scrollCoordinateSpaceName)
-            .safeAreaInset(edge: .bottom) {
-                Color.clear.frame(height: smartBottomPadding)
-            }
             .contentMargins(.bottom, theme.spacing.base, for: .scrollContent)
             .contentMargins(.top, theme.spacing.sm, for: .scrollContent)
             .overlay(alignment: .top) {
