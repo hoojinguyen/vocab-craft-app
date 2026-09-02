@@ -35,11 +35,18 @@ public final class LessonPlanGenerator: LessonPlanGeneratorProtocol, Sendable {
                         pool: pool.map { ReflexBlitzWordItem(from: $0) }
                     )
                     : []
+                let clozeStages = ReflexHintMaskGenerator.generateStages(
+                    lemma: word.lemma,
+                    sentenceEn: word.exampleEn,
+                    pos: word.pos
+                )
                 let item = LessonExerciseItem(
                     id: "\(mode.rawValue)-\(word.id)-\(UUID().uuidString.prefix(6))",
                     word: word,
                     assignedMode: mode,
                     options: options,
+                    clozeStages: clozeStages,
+                    attemptCount: 1,
                     isRequeued: false
                 )
                 steps.append(.exercise(item: item))

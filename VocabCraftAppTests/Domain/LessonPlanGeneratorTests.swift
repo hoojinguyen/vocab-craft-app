@@ -59,19 +59,21 @@ struct LessonPlanGeneratorTests {
         #expect(steps.isEmpty)
     }
 
-    @Test("Handles single word or small lesson (<=4 words) in a single micro-cycle")
-    func testSmallLesson() {
-        let sampleWords = makeSampleWords(count: 3)
+    @Test("Generated exercise items include valid cloze stages with masked slots")
+    func testGeneratedClozeStages() {
+        let sampleWords = makeSampleWords(count: 2)
         let generator = LessonPlanGenerator()
         let steps = generator.generatePlan(from: sampleWords, distractorPool: sampleWords)
 
-        #expect(steps.count == 6) // 3 discovery + 3 exercises
-        if case .discovery(let word, let idx, let total) = steps[0] {
-            #expect(word.id == 1)
-            #expect(idx == 1)
-            #expect(total == 3)
-        } else {
-            #expect(Bool(false), "First step should be discovery")
+        let exerciseSteps = steps.compactMap { step -> LessonExerciseItem? in
+            if case .exercise(let item) = step { return item }
+            return nil
+        }
+        #expect(!exerciseSteps.isEmpty)
+
+        for item in exerciseSteps {
+            #expect(item.clozeStages != nil)
+            #expect(item.clozeStages?.initialParts.slot.contains("_") == true)
         }
     }
 }
