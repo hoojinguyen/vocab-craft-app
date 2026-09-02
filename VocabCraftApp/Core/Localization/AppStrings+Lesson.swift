@@ -80,5 +80,20 @@ extension AppStrings {
         public static var skipSpeakingText: String {
             String(localized: "app.lesson.exercise.skip_speaking", defaultValue: "Không tiện nói lúc này", bundle: .module)
         }
+
+        public static var hintAction: LocalizedStringKey { "app.lesson.exercise.hint_action" }
+        public static var hintActionText: String {
+            String(localized: "app.lesson.exercise.hint_action", defaultValue: "Gợi ý", bundle: .module)
+        }
+
+        public static var skipAction: LocalizedStringKey { "app.lesson.exercise.skip_action" }
+        public static var skipActionText: String {
+            String(localized: "app.lesson.exercise.skip_action", defaultValue: "Bỏ qua", bundle: .module)
+        }
+
+        public static var countdownSubtitle: LocalizedStringKey { "app.lesson.countdown.subtitle" }
+        public static var countdownSubtitleText: String {
+            String(localized: "app.lesson.countdown.subtitle", defaultValue: "Chuẩn bị khám phá từ vựng và làm chủ bài học", bundle: .module)
+        }
     }
 }

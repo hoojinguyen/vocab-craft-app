@@ -23,13 +23,16 @@ struct LessonLocalizationTests {
         "app.lesson.exit_alert.message": ("Tiến độ bài học hiện tại sẽ không được lưu nếu bạn rời khỏi bây giờ.", "Your progress for this lesson will not be saved if you leave now."),
         "app.lesson.exit_alert.confirm": ("Rời khỏi", "Quit"),
         "app.lesson.exit_alert.cancel": ("Tiếp tục học", "Keep Learning"),
-        "app.lesson.exercise.skip_speaking": ("Không tiện nói lúc này", "Can't speak now")
+        "app.lesson.exercise.skip_speaking": ("Không tiện nói lúc này", "Can't speak now"),
+        "app.lesson.exercise.hint_action": ("Gợi ý", "Hint"),
+        "app.lesson.exercise.skip_action": ("Bỏ qua", "Skip"),
+        "app.lesson.countdown.subtitle": ("Chuẩn bị khám phá từ vựng và làm chủ bài học", "Get ready to discover words and master skills")
     ]
 
     @Test("All app.lesson keys exist with non-empty en and vi strings")
     func testLessonLocalizationKeysDictionary() {
         let keys = Array(requiredLessonKeys.keys)
-        #expect(keys.count >= 16)
+        #expect(keys.count >= 19)
 
         let expectedPrefix = "app.lesson."
         for key in keys {
@@ -46,6 +49,7 @@ struct LessonLocalizationTests {
             Bundle.main.path(forResource: "Localizable", ofType: "xcstrings"),
             Bundle(for: LessonLocalizationTestsMarker.self).path(forResource: "Localizable", ofType: "xcstrings"),
             URL(fileURLWithPath: #filePath)
+                .deletingLastPathComponent()
                 .deletingLastPathComponent()
                 .deletingLastPathComponent()
                 .deletingLastPathComponent()
