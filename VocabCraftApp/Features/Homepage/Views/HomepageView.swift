@@ -17,6 +17,7 @@ public struct HomepageView: View {
     @State private var settingsVM: SettingsViewModel?
     @State private var reflexBlitzVM: ReflexBlitzViewModel?
     @State private var activeLessonNode: LessonNodeModel?
+    @State private var activeLessonLearningVM: LessonLearningViewModel?
     @State private var tabBarPresentation: CraftTabBarPresentation = .expanded
     @State private var scrollToActiveNonce: Int = 0
     @State private var homeConfettiTrigger: Bool = false
@@ -200,15 +201,42 @@ public struct HomepageView: View {
             )
         }
         .environment(\.locale, appContainer.userSettingsStore.appLocale ?? .autoupdatingCurrent)
+        #if os(iOS)
+        .fullScreenCover(item: $activeLessonLearningVM) { vm in
+            LessonLearningView(
+                viewModel: vm,
+                onDismiss: {
+                    activeLessonLearningVM = nil
+                    activeLessonNode = nil
+                },
+                onFinished: { summary in
+                    handleLessonFinished(summary: summary)
+                }
+            )
+        }
+        #else
+        .sheet(item: $activeLessonLearningVM) { vm in
+            LessonLearningView(
+                viewModel: vm,
+                onDismiss: {
+                    activeLessonLearningVM = nil
+                    activeLessonNode = nil
+                },
+                onFinished: { summary in
+                    handleLessonFinished(summary: summary)
+                }
+            )
+        }
+        #endif
     }
 
     private func startLesson(for node: LessonNodeModel) {
         Task {
             let words: [TopicWordDTO]
+            let deckId: String
             if node.id.hasPrefix("checkpoint_") {
-                let deckId = String(node.id.dropFirst("checkpoint_".count))
+                deckId = String(node.id.dropFirst("checkpoint_".count))
                 let stages = (try? await appContainer.vocabularyDataSource.fetchSubTopicStages(deckId: deckId)) ?? []
-                // Fetch checkpoint words in parallel
                 let deckWords: [TopicWordDTO] = await withTaskGroup(of: [TopicWordDTO].self) { group in
                     for stage in stages {
                         group.addTask {
@@ -224,14 +252,54 @@ public struct HomepageView: View {
                 }
                 words = deckWords
             } else {
+                deckId = viewModel.sections.first(where: { sec in sec.nodes.contains(where: { $0.id == node.id }) })?.id ?? ""
                 words = (try? await appContainer.vocabularyDataSource.fetchWordsForStage(stageId: node.id)) ?? []
             }
 
-            let blitzWords = words.map { ReflexBlitzWordItem(from: $0) }
-            let vm = appContainer.makeReflexBlitzViewModel(words: blitzWords.isEmpty ? ReflexBlitzWordItem.defaultStarterWords : blitzWords)
+            let effectiveWords = words.isEmpty ? ReflexBlitzWordItem.defaultStarterWords.map {
+                TopicWordDTO(
+                    id: Int64($0.id),
+                    stageId: node.id,
+                    lemma: $0.lemma,
+                    phonetic: $0.ipa,
+                    pos: $0.pos,
+                    cefrLevel: $0.level,
+                    definitionVi: $0.definitionVi,
+                    definitionEn: "",
+                    exampleEn: $0.exampleSentenceEn,
+                    exampleVi: $0.exampleSentenceVi
+                )
+            } : words
+
+            let vm = appContainer.makeLessonLearningViewModel(
+                stageId: node.id,
+                deckId: deckId,
+                words: effectiveWords
+            )
             self.activeLessonNode = node
-            self.reflexBlitzVM = vm
-            self.appRouter.navigateToReflex()
+            self.activeLessonLearningVM = vm
+        }
+    }
+
+    private func handleLessonFinished(summary: LessonSummaryModel) {
+        activeLessonLearningVM = nil
+        activeLessonNode = nil
+
+        Task {
+            await viewModel.loadLearningPath()
+            await MainActor.run {
+                let starIcons = String(repeating: "★", count: summary.stars)
+                CraftHaptics.shared.success()
+                homeConfettiTrigger = true
+                completionToastData = CraftToastData(
+                    title: String(localized: "app.home.toast.completed_title", defaultValue: "Completed!", bundle: .module),
+                    message: "+\(summary.xpEarned) XP • \(starIcons) \(String(localized: "app.home.toast.stars_suffix", defaultValue: " • Great Job!", bundle: .module))",
+                    iconName: "star.fill",
+                    style: .success,
+                    surfaceStyle: .glass,
+                    duration: 3.0
+                )
+            }
         }
     }
 
