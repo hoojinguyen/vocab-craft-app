@@ -100,30 +100,23 @@ public struct HomeTopHeaderView: View {
     }
 
     private var progressRingView: some View {
-        VStack(spacing: 2) {
-            CraftProgressRing(
-                progress: dailyGoalProgress,
-                lineWidth: 2.5,
-                size: 36,
-                tintColor: theme.colors.brandPrimary,
-                trackColor: theme.colors.surfaceSubtle,
-                animated: true,
-                accessibilityLabel: AppStrings.Home.dailyGoalA11y(completed: dailyWordsLearned, goal: dailyWordsGoal)
-            ) {
-                Text(AppStrings.Home.dailyGoalCount(completed: dailyWordsLearned, goal: dailyWordsGoal))
-                    .font(theme.typography.caption.weight(.bold))
-                    .monospacedDigit()
-                    .foregroundStyle(theme.colors.textPrimary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-            }
-            Text(AppStrings.Home.todayLabelText)
-                .font(theme.typography.caption.weight(.semibold))
-                .foregroundStyle(theme.colors.textSecondary)
+        CraftProgressRing(
+            progress: dailyGoalProgress,
+            lineWidth: 2.5,
+            size: 36,
+            tintColor: theme.colors.brandPrimary,
+            trackColor: theme.colors.surfaceSubtle,
+            animated: true,
+            accessibilityLabel: AppStrings.Home.dailyGoalA11y(completed: dailyWordsLearned, goal: dailyWordsGoal)
+        ) {
+            Text(AppStrings.Home.dailyGoalCount(completed: dailyWordsLearned, goal: dailyWordsGoal))
+                .font(theme.typography.caption.weight(.bold))
+                .monospacedDigit()
+                .foregroundStyle(theme.colors.textPrimary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
-                .accessibilityHidden(true)
         }
+        .frame(width: 36, height: 36)
     }
 
     // MARK: - Avatar Button
