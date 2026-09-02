@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3000A111B222C333D444 /* VaultWordItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A111B222C333D444 /* VaultWordItem.swift */; };
+		3000A222B333C444D555 /* MixedReflexDrillItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A222B333C444D555 /* MixedReflexDrillItem.swift */; };
+		3000A333B444C555D666 /* ReflexBlitzWordItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A333B444C555D666 /* ReflexBlitzWordItem.swift */; };
 		3000A1A55157A1770003 /* WordTokenResult+CraftUIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A55157A1770003 /* WordTokenResult+CraftUIKit.swift */; };
 		3000A1A55157A1770001 /* AIAssistantPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A55157A1770001 /* AIAssistantPlaceholderView.swift */; };
 		3000DE9D056D85598F6E /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DE9D056D85598F6E /* AppContainer.swift */; };
@@ -257,6 +260,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2000A111B222C333D444 /* VaultWordItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VaultWordItem.swift"; sourceTree = "<group>"; };
+		2000A222B333C444D555 /* MixedReflexDrillItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MixedReflexDrillItem.swift"; sourceTree = "<group>"; };
+		2000A333B444C555D666 /* ReflexBlitzWordItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzWordItem.swift"; sourceTree = "<group>"; };
 		2000A1A55157A1770003 /* WordTokenResult+CraftUIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WordTokenResult+CraftUIKit.swift"; sourceTree = "<group>"; };
 		2000A1A55157A1770001 /* AIAssistantPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAssistantPlaceholderView.swift"; sourceTree = "<group>"; };
 		200000002D50000000000000 /* VocabCraftApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VocabCraftApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -720,6 +726,8 @@
 		4000C597CF74B9A0760A /* Entities */ = {
 			isa = PBXGroup;
 			children = (
+				2000A111B222C333D444 /* VaultWordItem.swift */,
+				2000A222B333C444D555 /* MixedReflexDrillItem.swift */,
 				20002627066D66426216 /* ModeSuccessStats.swift */,
 				20006D9EA1897EAFCD94 /* ModeSuccessStatsCodec.swift */,
 				200039AC794CAA307947 /* PersonalWord.swift */,
@@ -929,6 +937,7 @@
 		4000295DFD5C25EC5ED2 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				2000A333B444C555D666 /* ReflexBlitzWordItem.swift */,
 				2000621CAF6C8F4749A9 /* ReflexBlitzOption.swift */,
 				20006FD292D796CEC687 /* ReflexBlitzPhase.swift */,
 				20007475E8BBCA8EF409 /* ReflexCardPhase.swift */,
@@ -1472,6 +1481,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3000A111B222C333D444 /* VaultWordItem.swift in Sources */,
+				3000A222B333C444D555 /* MixedReflexDrillItem.swift in Sources */,
+				3000A333B444C555D666 /* ReflexBlitzWordItem.swift in Sources */,
 				3000A1A55157A1770003 /* WordTokenResult+CraftUIKit.swift in Sources */,
 				3000A1A55157A1770001 /* AIAssistantPlaceholderView.swift in Sources */,
 				3000DE9D056D85598F6E /* AppContainer.swift in Sources */,

@@ -79,16 +79,16 @@ public struct ReflexBlitzWordItem: Identifiable, Equatable, Sendable, ReflexDril
         self.initialLetterHint = "\(firstLetter)... • \(formattedPos)"
     }
 
-    public init(from wordItem: WordItem) {
+    public init(from vaultWord: VaultWordItem) {
         self.init(
-            id: Int(wordItem.id),
-            lemma: wordItem.lemma,
-            pos: wordItem.pos,
-            ipa: wordItem.phonetic,
-            definitionVi: wordItem.definition,
-            exampleSentenceEn: wordItem.exampleSentenceEn,
-            exampleSentenceVi: wordItem.exampleSentenceVi,
-            level: wordItem.cefrLevel.isEmpty ? "B2" : wordItem.cefrLevel
+            id: Int(vaultWord.id),
+            lemma: vaultWord.lemma,
+            pos: vaultWord.pos,
+            ipa: vaultWord.phonetic,
+            definitionVi: vaultWord.definitionVi,
+            exampleSentenceEn: vaultWord.exampleSentenceEn,
+            exampleSentenceVi: vaultWord.exampleSentenceVi,
+            level: vaultWord.cefrLevel.isEmpty ? "B2" : vaultWord.cefrLevel
         )
     }
 

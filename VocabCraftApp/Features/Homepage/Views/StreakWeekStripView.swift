@@ -74,7 +74,7 @@ public struct StreakWeekStripView: View {
             ForEach(weekDays) { day in
                 VStack(spacing: 4) {
                     Text(day.weekdaySymbol)
-                        .font(theme.typography.captionSmall)
+                        .font(theme.typography.caption)
                         .fontWeight(day.isToday ? .bold : .medium)
                         .foregroundStyle(day.isToday ? theme.colors.textPrimary : theme.colors.textMuted)
 
@@ -121,7 +121,7 @@ public struct StreakWeekStripView: View {
                     .fill(theme.gradients.brandHero)
                     .frame(width: size, height: size)
                 Image(systemName: "flame.fill")
-                    .font(theme.typography.captionSmall)
+                    .font(theme.typography.caption)
                     .foregroundStyle(theme.colors.textInverse)
             }
             .overlay(
@@ -138,7 +138,7 @@ public struct StreakWeekStripView: View {
                             .strokeBorder(theme.colors.streakFreeze.opacity(0.3), lineWidth: 1)
                     )
                 Image(systemName: "snowflake")
-                    .font(theme.typography.captionSmall)
+                    .font(theme.typography.caption)
                     .foregroundStyle(theme.colors.streakFreeze)
             }
         case .pending:
@@ -152,7 +152,7 @@ public struct StreakWeekStripView: View {
                 )
                 .overlay(
                     Image(systemName: "exclamationmark")
-                        .font(theme.typography.captionSmall)
+                        .font(theme.typography.caption)
                         .foregroundStyle(theme.colors.brandPrimary)
                 )
         case .upcoming:

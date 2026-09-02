@@ -179,7 +179,7 @@ public struct ProfileStatsSheet: View {
     ) -> some View {
         HStack(spacing: 4) {
             Image(systemName: icon)
-                .font(theme.typography.captionSmall)
+                .font(theme.typography.caption)
                 .foregroundStyle(tintColor)
 
             Text(title)

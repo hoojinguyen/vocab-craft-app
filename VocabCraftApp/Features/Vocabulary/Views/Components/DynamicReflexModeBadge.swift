@@ -49,7 +49,7 @@ public struct DynamicReflexModeBadge: View {
         HStack(spacing: isCompact ? 6 : theme.spacing.sm) {
             // Mode SF Symbol Icon
             Image(systemName: modeIconName)
-                .font(isCompact ? theme.typography.captionSmall : theme.typography.caption)
+                .font(theme.typography.caption)
                 .foregroundStyle(accentColor)
                 .symbolRenderingMode(.hierarchical)
                 .frame(width: isCompact ? 22 : 26, height: isCompact ? 22 : 26)
@@ -58,18 +58,18 @@ public struct DynamicReflexModeBadge: View {
 
             // Mode Title
             Text(mode.title)
-                .font(isCompact ? theme.typography.captionSmall : theme.typography.label)
+                .font(isCompact ? theme.typography.caption : theme.typography.label)
                 .fontWeight(.bold)
                 .foregroundStyle(theme.colors.textPrimary)
 
             // Duration Pill Tag
             HStack(spacing: 3) {
                 Image(systemName: "stopwatch")
-                    .font(theme.typography.captionSmall)
+                    .font(theme.typography.caption)
                     .foregroundStyle(accentColor)
 
                 Text(formattedDuration)
-                    .font(theme.typography.captionSmall)
+                    .font(theme.typography.caption)
                     .fontWeight(.bold)
                     .monospacedDigit()
                     .foregroundStyle(accentColor)
