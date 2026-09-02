@@ -33,7 +33,7 @@ public struct PracticeSelectionRow: View {
                 Spacer(minLength: theme.spacing.xs)
 
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .font(.system(size: 24, weight: .semibold))
+                    .font(theme.typography.titleLarge)
                     .foregroundStyle(isSelected ? theme.colors.brandPrimary : theme.colors.textMuted.opacity(0.4))
                     .contentTransition(.symbolEffect(.replace))
                     .frame(minWidth: 44, minHeight: 44)

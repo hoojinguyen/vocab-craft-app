@@ -32,21 +32,21 @@ public struct HomeSkeletonView: View {
     private var skeletonUnitHeader: some View {
         VStack(alignment: .leading, spacing: theme.spacing.sm) {
             HStack {
-                RoundedRectangle(cornerRadius: 6)
+                RoundedRectangle(cornerRadius: theme.radii.xs)
                     .fill(theme.colors.surfaceSubtle)
                     .frame(width: 60, height: 18)
                     .craftShimmer(isActive: true)
                 Spacer()
-                RoundedRectangle(cornerRadius: 10)
+                RoundedRectangle(cornerRadius: theme.radii.sm)
                     .fill(theme.colors.surfaceSubtle)
                     .frame(width: 50, height: 18)
                     .craftShimmer(isActive: true)
             }
-            RoundedRectangle(cornerRadius: 6)
+            RoundedRectangle(cornerRadius: theme.radii.xs)
                 .fill(theme.colors.surfaceSubtle)
                 .frame(height: 22)
                 .craftShimmer(isActive: true)
-            RoundedRectangle(cornerRadius: 2)
+            Capsule()
                 .fill(theme.colors.surfaceSubtle)
                 .frame(height: 4)
                 .craftShimmer(isActive: true)

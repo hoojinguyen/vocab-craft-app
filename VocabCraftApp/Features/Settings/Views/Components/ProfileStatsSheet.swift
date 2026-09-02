@@ -123,7 +123,7 @@ public struct ProfileStatsSheet: View {
                     )
 
                 Image(systemName: "trophy.fill")
-                    .font(.system(size: 24, weight: .bold))
+                    .font(theme.typography.titleLarge)
                     .foregroundStyle(theme.colors.textInverse)
             }
             .frame(width: 56, height: 56)
@@ -179,7 +179,7 @@ public struct ProfileStatsSheet: View {
     ) -> some View {
         HStack(spacing: 4) {
             Image(systemName: icon)
-                .font(.system(size: 11, weight: .bold))
+                .font(theme.typography.captionSmall)
                 .foregroundStyle(tintColor)
 
             Text(title)
@@ -207,7 +207,7 @@ public struct ProfileStatsSheet: View {
             VStack(alignment: .leading, spacing: theme.spacing.sm) {
                 HStack(spacing: 8) {
                     Image(systemName: "chart.bar.fill")
-                        .font(.system(size: 15, weight: .bold))
+                        .font(theme.typography.headline)
                         .foregroundStyle(theme.colors.brandPrimary)
 
                     Text(AppStrings.Profile.cefrMastery)
@@ -261,7 +261,7 @@ public struct ProfileStatsSheet: View {
             VStack(alignment: .leading, spacing: theme.spacing.sm) {
                 HStack(spacing: 8) {
                     Image(systemName: "trophy.fill")
-                        .font(.system(size: 15, weight: .bold))
+                        .font(theme.typography.headline)
                         .foregroundStyle(theme.colors.statusWarning)
 
                     Text(AppStrings.Profile.achievements)

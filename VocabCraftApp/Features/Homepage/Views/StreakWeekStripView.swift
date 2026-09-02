@@ -74,7 +74,8 @@ public struct StreakWeekStripView: View {
             ForEach(weekDays) { day in
                 VStack(spacing: 4) {
                     Text(day.weekdaySymbol)
-                        .font(.system(size: 10, weight: day.isToday ? .bold : .medium))
+                        .font(theme.typography.captionSmall)
+                        .fontWeight(day.isToday ? .bold : .medium)
                         .foregroundStyle(day.isToday ? theme.colors.textPrimary : theme.colors.textMuted)
 
                     dayNode(for: day)
@@ -95,9 +96,9 @@ public struct StreakWeekStripView: View {
         .craftShadow(theme.shadows.sm)
         .padding(.horizontal, theme.spacing.base)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(Text(String(format: String(localized: "app.home.streak.week_a11y", defaultValue: "Chuỗi %lld ngày", bundle: .module), streakDays)))
+        .accessibilityLabel(Text(String(format: String(localized: "app.home.streak.week_a11y", defaultValue: "%lld-day streak", bundle: .module), streakDays)))
         .accessibilityValue(Text(weekDays.map { "\($0.weekdaySymbol) \(statusLabel(for: $0.status))" }.joined(separator: ", ")))
-        .accessibilityHint(Text(String(localized: "app.home.streak.week_hint", defaultValue: "Nhấn để xem chi tiết chuỗi", bundle: .module)))
+        .accessibilityHint(Text(String(localized: "app.home.streak.week_hint", defaultValue: "Tap to view streak details", bundle: .module)))
     }
 
     private func statusLabel(for status: CraftStreakDayStatus) -> String {
@@ -120,12 +121,12 @@ public struct StreakWeekStripView: View {
                     .fill(theme.gradients.brandHero)
                     .frame(width: size, height: size)
                 Image(systemName: "flame.fill")
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundStyle(.white)
+                    .font(theme.typography.captionSmall)
+                    .foregroundStyle(theme.colors.textInverse)
             }
             .overlay(
                 Circle()
-                    .strokeBorder(Color.white.opacity(0.9), lineWidth: 1.5)
+                    .strokeBorder(theme.colors.textInverse.opacity(0.9), lineWidth: 1.5)
             )
         case .frozen:
             ZStack {
@@ -137,7 +138,7 @@ public struct StreakWeekStripView: View {
                             .strokeBorder(theme.colors.streakFreeze.opacity(0.3), lineWidth: 1)
                     )
                 Image(systemName: "snowflake")
-                    .font(.system(size: 11, weight: .bold))
+                    .font(theme.typography.captionSmall)
                     .foregroundStyle(theme.colors.streakFreeze)
             }
         case .pending:
@@ -151,7 +152,7 @@ public struct StreakWeekStripView: View {
                 )
                 .overlay(
                     Image(systemName: "exclamationmark")
-                        .font(.system(size: 8, weight: .bold))
+                        .font(theme.typography.captionSmall)
                         .foregroundStyle(theme.colors.brandPrimary)
                 )
         case .upcoming:
