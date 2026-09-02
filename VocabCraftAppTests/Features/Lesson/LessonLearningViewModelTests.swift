@@ -115,7 +115,7 @@ struct LessonLearningViewModelTests {
         #expect(vm.mistakeCount == 0)
     }
 
-    @Test("Submitting an incorrect answer re-queues the question at the end")
+    @Test("Submitting an incorrect answer downgrades active mode and requeues")
     func testIncorrectAnswerRequeuing() {
         let words = makeSampleWords()
         let vm = LessonLearningViewModel(
@@ -143,10 +143,19 @@ struct LessonLearningViewModelTests {
         #expect(vm.mistakeCount == 1)
         #expect(vm.weakWordIds.contains(1))
         #expect(vm.steps.count == initialStepCount + 1)
+
+        // Verify downgraded mode is multipleChoice
+        if case .exercise(let retryItem) = vm.steps.last {
+            #expect(retryItem.assignedMode == .multipleChoice)
+            #expect(retryItem.isRequeued)
+            #expect(retryItem.attemptCount == 2)
+        } else {
+            #expect(Bool(false), "Expected retry exercise step")
+        }
     }
 
-    @Test("Skipping speaking question creates typing fallback and advances")
-    func testSkipSpeaking() {
+    @Test("Second failure on same word does not requeue endlessly (Max 1 retry)")
+    func testMaxOneRetryRule() {
         let words = makeSampleWords()
         let vm = LessonLearningViewModel(
             stageId: "stage_1",
@@ -158,18 +167,95 @@ struct LessonLearningViewModelTests {
             speechEngine: MockResilientReflexSpeechEngine()
         )
 
-        let initialStepCount = vm.steps.count
         let exerciseItem = LessonExerciseItem(
-            id: "speaking-1",
+            id: "typing-1",
             word: words[0],
-            assignedMode: .speaking,
+            assignedMode: .typing,
             options: []
         )
 
-        vm.skipSpeaking(for: exerciseItem)
+        // First attempt (fails -> requeues)
+        vm.submitAnswer(isCorrect: false, for: exerciseItem)
+        let stepCountAfterFirstFail = vm.steps.count
 
-        #expect(vm.steps.count == initialStepCount + 1)
-        #expect(vm.currentStepIndex == 1)
+        vm.advanceStep()
+
+        // Second attempt on same word
+        let retryItem = LessonExerciseItem(
+            id: "mc-retry-1",
+            word: words[0],
+            assignedMode: .multipleChoice,
+            options: [],
+            attemptCount: 2
+        )
+        vm.submitAnswer(isCorrect: false, for: retryItem)
+
+        // Does NOT append another step
+        #expect(vm.steps.count == stepCountAfterFirstFail)
+        #expect(vm.weakWordIds.contains(1))
+    }
+
+    @Test("Requesting hint advances hintStage and eliminates wrong distractor")
+    func testHintRequest() {
+        let words = makeSampleWords()
+        let vm = LessonLearningViewModel(
+            stageId: "stage_1",
+            deckId: "deck_1",
+            words: words,
+            completeLessonUseCase: MockCompleteLessonUseCase(),
+            ttsService: MockTextToSpeechService(),
+            soundEffectService: MockSoundEffectService(),
+            speechEngine: MockResilientReflexSpeechEngine()
+        )
+
+        let options = [
+            ReflexBlitzOption(id: "opt-1", text: "apple", isCorrect: true),
+            ReflexBlitzOption(id: "opt-2", text: "banana", isCorrect: false),
+            ReflexBlitzOption(id: "opt-3", text: "orange", isCorrect: false)
+        ]
+        let exerciseItem = LessonExerciseItem(
+            id: "mc-1",
+            word: words[0],
+            assignedMode: .multipleChoice,
+            options: options
+        )
+
+        #expect(vm.hintStage == 0)
+        #expect(vm.eliminatedOptionId == nil)
+
+        vm.requestHint(for: exerciseItem)
+        #expect(vm.hintStage == 1)
+
+        vm.requestHint(for: exerciseItem)
+        #expect(vm.hintStage == 2)
+        #expect(vm.eliminatedOptionId == "opt-2" || vm.eliminatedOptionId == "opt-3")
+    }
+
+    @Test("Skipping exercise submits incorrect answer and triggers feedback")
+    func testSkipExercise() {
+        let words = makeSampleWords()
+        let vm = LessonLearningViewModel(
+            stageId: "stage_1",
+            deckId: "deck_1",
+            words: words,
+            completeLessonUseCase: MockCompleteLessonUseCase(),
+            ttsService: MockTextToSpeechService(),
+            soundEffectService: MockSoundEffectService(),
+            speechEngine: MockResilientReflexSpeechEngine()
+        )
+
+        let exerciseItem = LessonExerciseItem(
+            id: "typing-1",
+            word: words[0],
+            assignedMode: .typing,
+            options: []
+        )
+
+        vm.skipExercise(for: exerciseItem)
+
+        #expect(vm.isFeedbackPresented)
+        #expect(!vm.lastAttemptCorrect)
+        #expect(vm.mistakeCount == 1)
     }
 
     @Test("Completing all steps calculates 3 stars when 0 mistakes made")

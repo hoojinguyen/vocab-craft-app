@@ -23,6 +23,10 @@ public final class LessonLearningViewModel: Identifiable {
     public var liveTranscript: String = ""
     public var speechState: CraftSpeechState = .idle
 
+    public private(set) var hintStage: Int = 0
+    public private(set) var eliminatedOptionId: String?
+    private var attemptCountPerWord: [Int64: Int] = [:]
+
     private let planGenerator: LessonPlanGeneratorProtocol
     private let completeLessonUseCase: CompleteLessonUseCaseProtocol
     private let ttsService: TextToSpeechProtocol
@@ -57,9 +61,33 @@ public final class LessonLearningViewModel: Identifiable {
         return steps[currentStepIndex]
     }
 
+    public var currentExerciseItem: LessonExerciseItem? {
+        if case .exercise(let item) = currentStep {
+            return item
+        }
+        return nil
+    }
+
+    public var isSummaryStep: Bool {
+        if case .summary = currentStep {
+            return true
+        }
+        return false
+    }
+
     public var progress: Double {
         guard !steps.isEmpty else { return 1.0 }
         return Double(currentStepIndex) / Double(steps.count)
+    }
+
+    public func startSpeechSession() {
+        let contextualPhrases = words.map(\.lemma)
+        speechEngine.startSession(contextualPhrases: contextualPhrases)
+    }
+
+    public func stopSpeechSession() {
+        stopListeningForSpeaking()
+        speechEngine.stopSession()
     }
 
     public func advanceStep() {
@@ -68,6 +96,8 @@ public final class LessonLearningViewModel: Identifiable {
         typingText = ""
         liveTranscript = ""
         speechState = .idle
+        hintStage = 0
+        eliminatedOptionId = nil
         currentStepIndex += 1
         if currentStepIndex >= steps.count {
             finishLesson()
@@ -80,6 +110,9 @@ public final class LessonLearningViewModel: Identifiable {
         totalAnswered += 1
         lastAttemptCorrect = isCorrect
 
+        let currentWordAttempts = attemptCountPerWord[item.word.id, default: 0] + 1
+        attemptCountPerWord[item.word.id] = currentWordAttempts
+
         if isCorrect {
             correctAnswers += 1
             soundEffectService.playSuccessChime()
@@ -90,31 +123,66 @@ public final class LessonLearningViewModel: Identifiable {
             soundEffectService.playIncorrectChime()
             CraftHaptics.shared.error()
 
-            let retryItem = LessonExerciseItem(
-                id: "\(item.assignedMode.rawValue)-\(item.word.id)-retry-\(UUID().uuidString.prefix(4))",
-                word: item.word,
-                assignedMode: item.assignedMode,
-                options: item.options,
-                isRequeued: true
-            )
-            steps.append(.exercise(item: retryItem))
+            // Smart Requeue (Option A): Max 1 retry per word with mode downgrading
+            if currentWordAttempts == 1 {
+                let fallbackMode: ReflexBlitzMode
+                let fallbackOptions: [ReflexBlitzOption]
+
+                switch item.assignedMode {
+                case .typing, .speaking:
+                    // Downgrade active production to passive recognition
+                    fallbackMode = .multipleChoice
+                    fallbackOptions = ReflexDistractorGenerator.generateOptions(
+                        mode: .multipleChoice,
+                        target: ReflexBlitzWordItem(from: item.word),
+                        pool: words.map { ReflexBlitzWordItem(from: $0) }
+                    )
+                case .multipleChoice, .listening:
+                    fallbackMode = .multipleChoice
+                    fallbackOptions = ReflexDistractorGenerator.generateOptions(
+                        mode: .multipleChoice,
+                        target: ReflexBlitzWordItem(from: item.word),
+                        pool: words.map { ReflexBlitzWordItem(from: $0) }
+                    )
+                }
+
+                let clozeStages = item.clozeStages ?? ReflexHintMaskGenerator.generateStages(
+                    lemma: item.word.lemma,
+                    sentenceEn: item.word.exampleEn,
+                    pos: item.word.pos
+                )
+
+                let retryItem = LessonExerciseItem(
+                    id: "\(fallbackMode.rawValue)-\(item.word.id)-retry-\(UUID().uuidString.prefix(4))",
+                    word: item.word,
+                    assignedMode: fallbackMode,
+                    options: fallbackOptions,
+                    clozeStages: clozeStages,
+                    attemptCount: currentWordAttempts + 1,
+                    isRequeued: true
+                )
+                steps.append(.exercise(item: retryItem))
+            }
         }
 
         isFeedbackPresented = true
     }
 
-    public func skipSpeaking(for item: LessonExerciseItem) {
-        stopListeningForSpeaking()
-        let fallbackMode: ReflexBlitzMode = .typing
-        let retryItem = LessonExerciseItem(
-            id: "\(fallbackMode.rawValue)-\(item.word.id)-skip-\(UUID().uuidString.prefix(4))",
-            word: item.word,
-            assignedMode: fallbackMode,
-            options: item.options,
-            isRequeued: true
-        )
-        steps.append(.exercise(item: retryItem))
-        advanceStep()
+    public func requestHint(for item: LessonExerciseItem) {
+        guard !isFeedbackPresented else { return }
+        CraftHaptics.shared.selection()
+        hintStage += 1
+
+        if hintStage >= 2 && (item.assignedMode == .multipleChoice || item.assignedMode == .listening) {
+            let wrongOptions = item.options.filter { !$0.isCorrect }
+            if let firstWrong = wrongOptions.first(where: { $0.id != eliminatedOptionId }) {
+                eliminatedOptionId = firstWrong.id
+            }
+        }
+    }
+
+    public func skipExercise(for item: LessonExerciseItem) {
+        submitAnswer(isCorrect: false, for: item)
     }
 
     public func playAudio(for text: String) {
@@ -139,13 +207,14 @@ public final class LessonLearningViewModel: Identifiable {
             }
         }
 
-        speechEngine.startSession(contextualPhrases: [targetLemma])
-        speechEngine.beginWord(targetLemma: targetLemma, contextualPhrases: [targetLemma])
+        if !speechEngine.isSessionActive {
+            startSpeechSession()
+        }
+        speechEngine.beginWord(targetLemma: targetLemma, contextualPhrases: [targetLemma, item.word.exampleEn])
     }
 
     public func stopListeningForSpeaking() {
         speechEngine.endWord()
-        speechEngine.stopSession()
         speechEngine.onMatchDetected = nil
         speechEngine.onTranscriptUpdate = nil
     }
@@ -159,6 +228,8 @@ public final class LessonLearningViewModel: Identifiable {
     }
 
     private func finishLesson() {
+        stopSpeechSession()
+
         let stars = mistakeCount == 0 ? 3 : (mistakeCount <= 2 ? 2 : 1)
         let isCheckpoint = stageId.hasPrefix("checkpoint_")
         let xpEarned = isCheckpoint ? 80 : 25
