@@ -4,7 +4,8 @@ import Observation
 
 @MainActor
 @Observable
-public final class LessonLearningViewModel {
+public final class LessonLearningViewModel: Identifiable {
+    public let id: UUID = UUID()
     public let stageId: String
     public let deckId: String
     public let words: [TopicWordDTO]
