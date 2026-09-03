@@ -28,6 +28,21 @@ public final class HomepageViewModel {
         return Double(dailyWordsLearned) / Double(dailyWordsGoal)
     }
 
+    public var currentDeckTitle: String? {
+        guard let first = sections.first else { return nil }
+        if let level = first.level, !level.isEmpty {
+            return "\(level) • \(first.title)"
+        }
+        return first.title
+    }
+
+    public var currentDeckSubtitle: String? {
+        if let active = sections.flatMap(\.nodes).first(where: { $0.state == .active || $0.state == .inProgress }) {
+            return active.title
+        }
+        return sections.first?.nodes.first?.title
+    }
+
     private let fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol?
     private let ttsService: TextToSpeechProtocol?
 

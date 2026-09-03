@@ -299,6 +299,37 @@ struct HomepageViewModelTestingTests {
         #expect(vm.selectedNode == nil)
         #expect(!vm.isDetailSheetPresented)
     }
+
+    @Test("Current deck title and subtitle resolution")
+    @MainActor
+    func testCurrentDeckTitleAndSubtitleResolution() {
+        let stage1 = LessonNodeModel(id: "s1", title: "Present Simple", state: .active)
+        let section1 = LessonSection(id: "sec1", title: "Unit 1: Everyday Conversations", level: "A2", nodes: [stage1])
+        let viewModel = HomepageViewModel(sections: [section1])
+
+        #expect(viewModel.currentDeckTitle == "A2 • Unit 1: Everyday Conversations")
+        #expect(viewModel.currentDeckSubtitle == "Present Simple")
+    }
+
+    @Test("Current deck title and subtitle fallback scenarios")
+    @MainActor
+    func testCurrentDeckTitleAndSubtitleFallbacks() {
+        let emptyViewModel = HomepageViewModel(sections: [])
+        #expect(emptyViewModel.currentDeckTitle == nil)
+        #expect(emptyViewModel.currentDeckSubtitle == nil)
+
+        let stageNoLevel = LessonNodeModel(id: "s1", title: "Present Simple", state: .upcoming)
+        let sectionNoLevel = LessonSection(id: "sec1", title: "Everyday Conversations", level: nil, nodes: [stageNoLevel])
+        let vmNoLevel = HomepageViewModel(sections: [sectionNoLevel])
+        #expect(vmNoLevel.currentDeckTitle == "Everyday Conversations")
+        #expect(vmNoLevel.currentDeckSubtitle == "Present Simple")
+
+        let nodeCompleted = LessonNodeModel(id: "s1", title: "Greetings", state: .completed)
+        let nodeActive = LessonNodeModel(id: "s2", title: "Present Simple", state: .active)
+        let sectionMulti = LessonSection(id: "sec1", title: "Unit 1", level: "A1", nodes: [nodeCompleted, nodeActive])
+        let vmMulti = HomepageViewModel(sections: [sectionMulti])
+        #expect(vmMulti.currentDeckSubtitle == "Present Simple")
+    }
 }
 #endif
 
@@ -490,5 +521,35 @@ final class HomepageViewModelTests: XCTestCase {
         vm.dismissDetailSheet()
         XCTAssertNil(vm.selectedNode)
         XCTAssertFalse(vm.isDetailSheetPresented)
+    }
+
+    func testCurrentDeckTitleAndSubtitleResolution() {
+        let stage1 = LessonNodeModel(id: "s1", title: "Present Simple", state: .active)
+        let section1 = LessonSection(id: "sec1", title: "Unit 1: Everyday Conversations", level: "A2", nodes: [stage1])
+        let viewModel = HomepageViewModel(sections: [section1])
+
+        XCTAssertEqual(viewModel.currentDeckTitle, "A2 • Unit 1: Everyday Conversations")
+        XCTAssertEqual(viewModel.currentDeckSubtitle, "Present Simple")
+    }
+
+    func testCurrentDeckTitleAndSubtitleFallbacks() {
+        // Empty sections
+        let emptyViewModel = HomepageViewModel(sections: [])
+        XCTAssertNil(emptyViewModel.currentDeckTitle)
+        XCTAssertNil(emptyViewModel.currentDeckSubtitle)
+
+        // Section without level
+        let stageNoLevel = LessonNodeModel(id: "s1", title: "Present Simple", state: .upcoming)
+        let sectionNoLevel = LessonSection(id: "sec1", title: "Everyday Conversations", level: nil, nodes: [stageNoLevel])
+        let vmNoLevel = HomepageViewModel(sections: [sectionNoLevel])
+        XCTAssertEqual(vmNoLevel.currentDeckTitle, "Everyday Conversations")
+        XCTAssertEqual(vmNoLevel.currentDeckSubtitle, "Present Simple")
+
+        // Active node priority over completed first node
+        let nodeCompleted = LessonNodeModel(id: "s1", title: "Greetings", state: .completed)
+        let nodeActive = LessonNodeModel(id: "s2", title: "Present Simple", state: .active)
+        let sectionMulti = LessonSection(id: "sec1", title: "Unit 1", level: "A1", nodes: [nodeCompleted, nodeActive])
+        let vmMulti = HomepageViewModel(sections: [sectionMulti])
+        XCTAssertEqual(vmMulti.currentDeckSubtitle, "Present Simple")
     }
 }

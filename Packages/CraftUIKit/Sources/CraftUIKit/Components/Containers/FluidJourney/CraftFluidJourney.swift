@@ -345,6 +345,20 @@ public extension CraftFluidJourney {
             nodes: docked.nodes
         )
     }
+
+    /// Resolves the title displayed by the milestone pill for a given section.
+    ///
+    /// Prioritizes the section subtitle (e.g. subtopic name) or the first node's title
+    /// over repeating the section/unit title.
+    public func milestoneTitle(for section: LessonSection) -> String {
+        if let subtitle = section.subtitle, !subtitle.isEmpty {
+            return subtitle
+        }
+        if let firstNodeTitle = section.nodes.first?.title, !firstNodeTitle.isEmpty {
+            return firstNodeTitle
+        }
+        return section.title
+    }
 }
 
 // MARK: - Subviews Extension
@@ -355,7 +369,7 @@ extension CraftFluidJourney {
         VStack(spacing: theme.spacing.xl) {
             CraftMilestonePill(
                 sectionId: section.id,
-                title: section.title,
+                title: milestoneTitle(for: section),
                 surfaceStyle: surfaceStyle,
                 coordinateSpaceName: Self.scrollCoordinateSpaceName
             )

@@ -305,6 +305,8 @@ final class HomepageViewTests: XCTestCase {
         var startedNode: LessonNodeModel?
         let journey = CraftFluidJourney(
             sections: [section],
+            deckTitle: "UNIT 1 • Everyday Phrases",
+            deckSubtitle: "Intro",
             onNodeTap: { node in
                 tappedNode = node
             },
@@ -315,6 +317,8 @@ final class HomepageViewTests: XCTestCase {
         )
 
         XCTAssertEqual(journey.sections.count, 1)
+        XCTAssertEqual(journey.deckTitle, "UNIT 1 • Everyday Phrases")
+        XCTAssertEqual(journey.deckSubtitle, "Intro")
         XCTAssertEqual(journey.externalScrollTrigger, 2)
         journey.onNodeTap?(section.nodes[0])
         journey.onStartLesson?(section.nodes[0])

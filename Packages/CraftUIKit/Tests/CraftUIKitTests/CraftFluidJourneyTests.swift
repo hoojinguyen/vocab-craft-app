@@ -329,4 +329,36 @@ struct CraftFluidJourneyTests {
         let explicitJourney = CraftFluidJourney(sections: [section1], surfaceStyle: .glass)
         #expect(explicitJourney.surfaceStyle == .glass)
     }
+
+    @Test("CraftFluidJourney milestoneTitle resolves subtitle then node title then section title")
+    func testMilestoneTitleResolution() {
+        let journey = CraftFluidJourney(sections: [])
+
+        // 1. With subtitle: uses subtitle
+        let secWithSubtitle = LessonSection(
+            id: "s1",
+            title: "Unit 1: Basics",
+            subtitle: "Greetings & Polite Phrases",
+            nodes: [LessonNodeModel(id: "n1", title: "Hello")]
+        )
+        #expect(journey.milestoneTitle(for: secWithSubtitle) == "Greetings & Polite Phrases")
+
+        // 2. Without subtitle, with first node: uses first node title
+        let secWithNodes = LessonSection(
+            id: "s2",
+            title: "Unit 2: Daily Life",
+            subtitle: nil,
+            nodes: [LessonNodeModel(id: "n2", title: "Morning Routine")]
+        )
+        #expect(journey.milestoneTitle(for: secWithNodes) == "Morning Routine")
+
+        // 3. Without subtitle and empty nodes: falls back to section title
+        let secEmpty = LessonSection(
+            id: "s3",
+            title: "Unit 3: Wrap Up",
+            subtitle: nil,
+            nodes: []
+        )
+        #expect(journey.milestoneTitle(for: secEmpty) == "Unit 3: Wrap Up")
+    }
 }
