@@ -5,7 +5,7 @@ import SwiftData
 #endif
 import WidgetKit
 #if !WIDGET_EXTENSION && canImport(VocabCraftApp)
-@testable import VocabCraftApp
+import VocabCraftApp
 #endif
 
 public struct NextWordIntent: AppIntent {
