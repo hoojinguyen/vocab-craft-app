@@ -131,9 +131,9 @@ public struct CraftMilestonePill: View, Equatable {
                 .fill(theme.colors.surfaceCard)
                 .overlay(
                     Capsule()
-                        .strokeBorder(theme.colors.hairline, lineWidth: 1)
+                        .strokeBorder(theme.depths.topHighlight, lineWidth: 1)
                 )
-                .craftShadow(theme.shadows.sm)
+                .craftShadow(theme.shadows.md)
         case .outlined:
             Capsule()
                 .fill(theme.colors.surfaceCard)
@@ -152,10 +152,6 @@ public struct CraftMilestonePill: View, Equatable {
 
                 Capsule()
                     .fill(theme.colors.surfaceCard)
-                    .overlay(
-                        Capsule()
-                            .strokeBorder(theme.colors.hairline, lineWidth: 1)
-                    )
                     .overlay(
                         Capsule()
                             .strokeBorder(theme.depths.topHighlight, lineWidth: 1)

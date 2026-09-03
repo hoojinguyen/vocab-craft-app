@@ -1,5 +1,34 @@
 import SwiftUI
 
+// MARK: - Tactile Button Style
+
+/// Button style providing mechanical tactile press feedback with vertical translation depression.
+public struct TactileButtonStyle: ButtonStyle {
+    public let depth: CGFloat
+
+    @Environment(\.craftTheme) private var theme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    public init(depth: CGFloat = 4) {
+        self.depth = depth
+    }
+
+    public func makeBody(configuration: Configuration) -> some View {
+        let isPressed = configuration.isPressed
+        configuration.label
+            .offset(y: (isPressed && !reduceMotion) ? depth : 0)
+            .scaleEffect((isPressed && !reduceMotion) ? 0.99 : 1.0)
+            .animation(theme.animations.springSnappy, value: isPressed)
+    }
+}
+
+public extension ButtonStyle where Self == TactileButtonStyle {
+    /// Convenience helper for applying the tactile 3D press button style.
+    static func tactile(depth: CGFloat = 4) -> TactileButtonStyle {
+        TactileButtonStyle(depth: depth)
+    }
+}
+
 // MARK: - CraftPinnedUnitHeader Component
 
 /// A sticky floating navigation card representing the current unit/section in `CraftFluidJourney`.
@@ -22,6 +51,9 @@ public struct CraftPinnedUnitHeader: View, Equatable {
     /// Lesson section DTO representing the currently pinned unit.
     public let section: LessonSection
 
+    /// Surface style applied to the header card, or `nil` to resolve dynamically from theme/environment.
+    public let surfaceStyle: CraftSurfaceStyle?
+
     /// Corner radius for the card surface. Defaults to nil (resolving to theme.radii.xl).
     public let cornerRadius: CGFloat?
 
@@ -36,7 +68,14 @@ public struct CraftPinnedUnitHeader: View, Equatable {
     // MARK: - Environment
 
     @Environment(\.craftTheme) private var theme
+    @Environment(\.craftSurfaceStyle) private var environmentSurfaceStyle
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    // MARK: - Surface Style Resolution
+
+    public var effectiveSurfaceStyle: CraftSurfaceStyle {
+        surfaceStyle ?? (environmentSurfaceStyle != .flat ? environmentSurfaceStyle : theme.surfaceStyle)
+    }
 
     // MARK: - Initializers
 
@@ -44,14 +83,17 @@ public struct CraftPinnedUnitHeader: View, Equatable {
     ///
     /// - Parameters:
     ///   - section: The current lesson section DTO.
+    ///   - surfaceStyle: Surface style applied to the header card, or `nil` to resolve dynamically.
     ///   - cornerRadius: Custom corner radius, or `nil` to resolve using `theme.radii.xl`.
     ///   - onTap: Callback closure invoked when tapped.
     public init(
         section: LessonSection,
+        surfaceStyle: CraftSurfaceStyle? = nil,
         cornerRadius: CGFloat? = nil,
         onTap: (@Sendable () -> Void)? = nil
     ) {
         self.section = section
+        self.surfaceStyle = surfaceStyle
         self.cornerRadius = cornerRadius
         self.onTap = onTap
     }
@@ -60,21 +102,24 @@ public struct CraftPinnedUnitHeader: View, Equatable {
     ///
     /// - Parameters:
     ///   - section: The current lesson section DTO.
+    ///   - surfaceStyle: Surface style applied to the header card, or `nil` to resolve dynamically.
     ///   - cornerRadius: Custom corner radius, or `nil` to resolve using `theme.radii.xl`.
     ///   - onHeaderTap: Callback closure invoked when tapped.
     public init(
         section: LessonSection,
+        surfaceStyle: CraftSurfaceStyle? = nil,
         cornerRadius: CGFloat? = nil,
         onHeaderTap: (@Sendable () -> Void)?
     ) {
-        self.init(section: section, cornerRadius: cornerRadius, onTap: onHeaderTap)
+        self.init(section: section, surfaceStyle: surfaceStyle, cornerRadius: cornerRadius, onTap: onHeaderTap)
     }
 
     // MARK: - Equatable Conformance
 
     public static func == (lhs: CraftPinnedUnitHeader, rhs: CraftPinnedUnitHeader) -> Bool {
         lhs.section == rhs.section &&
-        lhs.cornerRadius == rhs.cornerRadius
+        lhs.cornerRadius == rhs.cornerRadius &&
+        lhs.surfaceStyle == rhs.surfaceStyle
     }
 
     // MARK: - Accessibility Helpers
@@ -100,12 +145,23 @@ public struct CraftPinnedUnitHeader: View, Equatable {
     // MARK: - Body
 
     public var body: some View {
-        Button {
-            onTap?()
-        } label: {
-            cardBody
+        Group {
+            if effectiveSurfaceStyle == .tactile3D {
+                Button {
+                    onTap?()
+                } label: {
+                    cardBody
+                }
+                .buttonStyle(TactileButtonStyle(depth: 4))
+            } else {
+                Button {
+                    onTap?()
+                } label: {
+                    cardBody
+                }
+                .buttonStyle(.craftPress(scale: 0.98))
+            }
         }
-        .buttonStyle(.craftPress(scale: 0.98))
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityLabelText)
         .accessibilityHint(accessibilityHintText)
@@ -115,10 +171,7 @@ public struct CraftPinnedUnitHeader: View, Equatable {
     // MARK: - Card Content & Styling
 
     private var cardBody: some View {
-        let effectiveRadius = cornerRadius ?? theme.radii.xl
-        let shape = RoundedRectangle(cornerRadius: effectiveRadius, style: .continuous)
-
-        return HStack(spacing: theme.spacing.md) {
+        HStack(spacing: theme.spacing.md) {
             ZStack(alignment: .leading) {
                 sectionInfoBlock
             }
@@ -129,18 +182,65 @@ public struct CraftPinnedUnitHeader: View, Equatable {
         }
         .padding(.horizontal, theme.spacing.base)
         .padding(.vertical, theme.spacing.md)
-        .background(
+        .background(cardBackground)
+        .animation(reduceMotion ? nil : .smooth(duration: 0.28), value: section.id)
+    }
+
+    @ViewBuilder
+    private var cardBackground: some View {
+        let effectiveRadius = cornerRadius ?? theme.radii.xl
+        let shape = RoundedRectangle(cornerRadius: effectiveRadius, style: .continuous)
+
+        switch effectiveSurfaceStyle {
+        case .tactile3D:
+            ZStack {
+                // 3D bottom rim bevel extrusion layer
+                shape
+                    .fill(theme.colors.borderDefault)
+                    .offset(y: theme.depths.depthMd)
+
+                // Top surface face
+                shape
+                    .fill(theme.colors.surfaceCard)
+                    .overlay(
+                        shape.strokeBorder(theme.depths.topHighlight, lineWidth: 1.5)
+                    )
+            }
+            .craftShadow(theme.shadows.sm)
+
+        case .glass:
             ZStack {
                 shape.fill(.ultraThinMaterial)
                 shape.fill(theme.colors.surfaceCard.opacity(theme.glass.tintOpacity))
             }
-        )
-        .overlay(
-            shape.strokeBorder(theme.glass.borderGradient, lineWidth: 1)
-        )
-        .clipShape(shape)
-        .craftShadow(theme.shadows.sm)
-        .animation(reduceMotion ? nil : .smooth(duration: 0.28), value: section.id)
+            .overlay(
+                shape.strokeBorder(theme.glass.borderGradient, lineWidth: 1)
+            )
+            .clipShape(shape)
+            .craftShadow(theme.shadows.sm)
+
+        case .elevated:
+            shape
+                .fill(theme.colors.surfaceCard)
+                .overlay(
+                    shape.strokeBorder(theme.depths.topHighlight, lineWidth: 1)
+                )
+                .clipShape(shape)
+                .craftShadow(theme.shadows.md)
+
+        case .outlined:
+            shape
+                .fill(theme.colors.surfaceCard)
+                .overlay(
+                    shape.strokeBorder(theme.colors.borderDefault, lineWidth: 1.5)
+                )
+                .clipShape(shape)
+
+        case .flat:
+            shape
+                .fill(theme.colors.surfaceSubtle)
+                .clipShape(shape)
+        }
     }
 
     // MARK: - Subviews

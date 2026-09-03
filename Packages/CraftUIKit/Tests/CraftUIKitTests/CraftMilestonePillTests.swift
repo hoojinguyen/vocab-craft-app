@@ -67,4 +67,11 @@ struct CraftMilestonePillTests {
         let pillGlass2 = CraftMilestonePill(sectionId: "sec-1", title: "Title 1", surfaceStyle: .glass)
         #expect(pillGlass == pillGlass2)
     }
+
+    @Test("Verify milestone pill supports tactile3D surface style")
+    func testMilestonePillSupportsTactile3D() {
+        let pill = CraftMilestonePill(sectionId: "s1", title: "Topic", surfaceStyle: .tactile3D)
+        #expect(pill.effectiveSurfaceStyle == .tactile3D)
+        #expect(pill.surfaceStyle == .tactile3D)
+    }
 }

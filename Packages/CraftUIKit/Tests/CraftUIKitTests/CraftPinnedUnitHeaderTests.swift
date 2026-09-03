@@ -102,4 +102,33 @@ struct CraftPinnedUnitHeaderTests {
         let customHeader = CraftPinnedUnitHeader(section: section, cornerRadius: 16)
         #expect(customHeader.cornerRadius == 16)
     }
+
+    @Test("Verify pinned unit header supports tactile3D surface style")
+    func testPinnedUnitHeaderSupportsTactile3D() {
+        let section = LessonSection(id: "sec-1", title: "Unit 1", nodes: [])
+        let header = CraftPinnedUnitHeader(section: section, surfaceStyle: .tactile3D)
+        #expect(header.effectiveSurfaceStyle == .tactile3D)
+        #expect(header.surfaceStyle == .tactile3D)
+    }
+
+    @Test("Verify pinned unit header default surface style resolution")
+    func testPinnedUnitHeaderDefaultSurfaceStyle() {
+        let section = LessonSection(id: "sec-1", title: "Unit 1", nodes: [])
+        let header = CraftPinnedUnitHeader(section: section)
+        #expect(header.surfaceStyle == nil)
+        #expect(header.effectiveSurfaceStyle == .elevated)
+    }
+
+    @Test("Verify pinned unit header equatable with surface style")
+    func testPinnedUnitHeaderSurfaceStyleEquatable() {
+        let section = LessonSection(id: "sec-1", title: "Unit 1", nodes: [])
+        let header1 = CraftPinnedUnitHeader(section: section, surfaceStyle: .tactile3D)
+        let header2 = CraftPinnedUnitHeader(section: section, surfaceStyle: .tactile3D)
+        let header3 = CraftPinnedUnitHeader(section: section, surfaceStyle: .glass)
+        let headerDefault = CraftPinnedUnitHeader(section: section)
+
+        #expect(header1 == header2)
+        #expect(header1 != header3)
+        #expect(headerDefault != header1)
+    }
 }

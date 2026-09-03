@@ -30,5 +30,10 @@ public extension CraftTheme {
     var journeySurfaceStyle: CraftSurfaceStyle {
         .elevated
     }
+
+    /// The default surface style for cards and headers, resolving to `journeySurfaceStyle`.
+    var surfaceStyle: CraftSurfaceStyle {
+        journeySurfaceStyle
+    }
 }
 
