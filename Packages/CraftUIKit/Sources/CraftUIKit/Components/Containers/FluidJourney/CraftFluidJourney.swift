@@ -348,16 +348,9 @@ public extension CraftFluidJourney {
 
     /// Resolves the title displayed by the milestone pill for a given section.
     ///
-    /// Prioritizes the section subtitle (e.g. subtopic name) or the first node's title
-    /// over repeating the section/unit title.
+    /// Milestone pills represent transitions between curriculum decks, displaying the deck title directly.
     func milestoneTitle(for section: LessonSection) -> String {
-        if let subtitle = section.subtitle, !subtitle.isEmpty {
-            return subtitle
-        }
-        if let firstNodeTitle = section.nodes.first?.title, !firstNodeTitle.isEmpty {
-            return firstNodeTitle
-        }
-        return section.title
+        section.title
     }
 
     /// Determines whether an active callout bubble should be displayed for the given node.
@@ -377,13 +370,15 @@ extension CraftFluidJourney {
     @ViewBuilder
     func sectionBlock(section: LessonSection) -> some View {
         VStack(spacing: theme.spacing.xl) {
-            CraftMilestonePill(
-                sectionId: section.id,
-                title: milestoneTitle(for: section),
-                surfaceStyle: surfaceStyle,
-                coordinateSpaceName: Self.scrollCoordinateSpaceName
-            )
-            .id("milestone-\(section.id)")
+            if section.id != sections.first?.id {
+                CraftMilestonePill(
+                    sectionId: section.id,
+                    title: milestoneTitle(for: section),
+                    surfaceStyle: surfaceStyle,
+                    coordinateSpaceName: Self.scrollCoordinateSpaceName
+                )
+                .id("milestone-\(section.id)")
+            }
 
             VStack(spacing: theme.spacing.xxl) {
                 ForEach(section.nodes) { node in

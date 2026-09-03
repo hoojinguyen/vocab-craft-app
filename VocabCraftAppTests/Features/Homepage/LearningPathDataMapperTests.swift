@@ -277,7 +277,8 @@ final class LearningPathDataMapperTests: XCTestCase {
         )
 
         let section1 = sections[0]
-        XCTAssertEqual(section1.title, AppStrings.Home.unitTitle(number: 1, title: "Daily Life"))
+        XCTAssertEqual(section1.title, "Daily Life")
+        XCTAssertFalse(section1.title.contains("Unit"))
         XCTAssertNil(section1.subtitle)
         XCTAssertEqual(section1.level, "A2 - B1")
         XCTAssertEqual(section1.bannerIcon, "bubble.left")
@@ -348,5 +349,18 @@ final class LearningPathDataMapperTests: XCTestCase {
         XCTAssertEqual(sections[0].nodes[1].id, "stage_daily_2")
         XCTAssertEqual(sections[0].nodes[2].id, "checkpoint_deck_daily")
         XCTAssertEqual(sections[0].nodes[3].id, "treasure_deck_daily")
+    }
+
+    func testLearningPathDataMapperUsesCleanDeckTitlesWithoutUnitPrefix() {
+        let sections = LearningPathDataMapper.map(
+            decks: sampleDecks,
+            stages: sampleStages,
+            words: sampleWords,
+            progressList: []
+        )
+        XCTAssertEqual(sections.first?.title, "Daily Life")
+        XCTAssertFalse(sections.first?.title.contains("Unit") ?? true)
+        XCTAssertEqual(sections[1].title, "Business")
+        XCTAssertFalse(sections[1].title.contains("Unit"))
     }
 }

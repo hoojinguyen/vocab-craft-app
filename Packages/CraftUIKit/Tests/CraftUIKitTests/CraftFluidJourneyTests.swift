@@ -339,36 +339,25 @@ struct CraftFluidJourneyTests {
         #expect(explicitJourney.surfaceStyle == .glass)
     }
 
-    @Test("CraftFluidJourney milestoneTitle resolves subtitle then node title then section title")
+    @Test("CraftFluidJourney milestoneTitle resolves section deck title directly")
     func testMilestoneTitleResolution() {
         let journey = CraftFluidJourney(sections: [])
 
-        // 1. With subtitle: uses subtitle
-        let secWithSubtitle = LessonSection(
+        let sec1 = LessonSection(
             id: "s1",
-            title: "Unit 1: Basics",
-            subtitle: "Greetings & Polite Phrases",
-            nodes: [LessonNodeModel(id: "n1", title: "Hello")]
+            title: "Giao Tiếp Hằng Ngày",
+            subtitle: "Thói quen & Cảm xúc",
+            nodes: [LessonNodeModel(id: "n1", title: "Bài 1")]
         )
-        #expect(journey.milestoneTitle(for: secWithSubtitle) == "Greetings & Polite Phrases")
+        #expect(journey.milestoneTitle(for: sec1) == "Giao Tiếp Hằng Ngày")
 
-        // 2. Without subtitle, with first node: uses first node title
-        let secWithNodes = LessonSection(
+        let sec2 = LessonSection(
             id: "s2",
-            title: "Unit 2: Daily Life",
+            title: "Công Sở & Kinh Doanh",
             subtitle: nil,
-            nodes: [LessonNodeModel(id: "n2", title: "Morning Routine")]
+            nodes: [LessonNodeModel(id: "n2", title: "Bài 1")]
         )
-        #expect(journey.milestoneTitle(for: secWithNodes) == "Morning Routine")
-
-        // 3. Without subtitle and empty nodes: falls back to section title
-        let secEmpty = LessonSection(
-            id: "s3",
-            title: "Unit 3: Wrap Up",
-            subtitle: nil,
-            nodes: []
-        )
-        #expect(journey.milestoneTitle(for: secEmpty) == "Unit 3: Wrap Up")
+        #expect(journey.milestoneTitle(for: sec2) == "Công Sở & Kinh Doanh")
     }
 
     // MARK: - Active Callout Bubble Tests
