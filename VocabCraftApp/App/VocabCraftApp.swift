@@ -65,6 +65,9 @@ struct VocabCraftApp: App {
         }
         let router = Self.createAppRouter(from: args)
         self.appContainer = AppContainer(datasetEngine: engine, modelContainer: container, appRouter: router)
+        if args.contains("-test-lesson-feedback-incorrect") || args.contains("-test-lesson-feedback-correct") {
+            self.appContainer.userSettingsStore.hasCompletedOnboarding = true
+        }
     }
 
     private static func createAppRouter(from args: [String]) -> AppRouter {
