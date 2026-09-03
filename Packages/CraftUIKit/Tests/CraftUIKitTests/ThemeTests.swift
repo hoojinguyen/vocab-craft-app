@@ -592,6 +592,24 @@ final class ThemeTests: XCTestCase {
             #endif
         }
     }
+
+    func testThemeJourneySurfaceStyleDefaultsAndOverrides() {
+        let defaultTheme = CraftDefaultTheme()
+        XCTAssertEqual(defaultTheme.journeySurfaceStyle, .elevated)
+
+        let tactileClayTheme = CraftTactileClayTheme()
+        XCTAssertEqual(tactileClayTheme.journeySurfaceStyle, .tactile3D)
+
+        let aiAcousticTheme = CraftAIAcousticTheme()
+        XCTAssertEqual(aiAcousticTheme.journeySurfaceStyle, .glass)
+
+        let nordicZenTheme = CraftNordicZenTheme()
+        XCTAssertEqual(nordicZenTheme.journeySurfaceStyle, .flat)
+
+        let oxfordTheme = CraftOxfordHeritageTheme()
+        XCTAssertEqual(oxfordTheme.journeySurfaceStyle, .outlined)
+
+        let neoArcadeTheme = CraftNeoArcadeTheme()
+        XCTAssertEqual(neoArcadeTheme.journeySurfaceStyle, .tactile3D)
+    }
 }
-
-
