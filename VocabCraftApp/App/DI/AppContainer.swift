@@ -185,20 +185,11 @@ public final class AppContainer {
     }
 
     public func makeHomepageViewModel() -> HomepageViewModel {
-        let learnedCount: Int
-        if userSettingsStore.currentStreak == 1 {
-            learnedCount = 3
-        } else if userSettingsStore.currentStreak == 0 {
-            learnedCount = 0
-        } else {
-            learnedCount = 8
-        }
-
-        return HomepageViewModel(
+        HomepageViewModel(
             fetchLearningPathUseCase: fetchLearningPathUseCase,
             ttsService: ttsService,
-            streakDays: userSettingsStore.currentStreak > 0 ? userSettingsStore.currentStreak : 14,
-            dailyWordsLearned: learnedCount,
+            streakDays: userSettingsStore.currentStreak,
+            dailyWordsLearned: userSettingsStore.todayWordsLearned,
             dailyWordsGoal: userSettingsStore.dailyGoalCount
         )
     }
@@ -270,7 +261,13 @@ public final class AppContainer {
     }
 
     public static var mock: AppContainer {
-        AppContainer(useMockData: true, useSampleData: true)
+        let defaults = UserDefaults(suiteName: "mock_app_container_\(UUID().uuidString)")!
+        defaults.set(14, forKey: "current_streak")
+        defaults.set(8, forKey: "today_words_learned")
+        defaults.set(10, forKey: "daily_goal_count")
+        defaults.set(true, forKey: "has_completed_onboarding")
+        let settings = UserSettingsStore(defaults: defaults)
+        return AppContainer(useMockData: true, useSampleData: true, userSettingsStore: settings)
     }
     public static let shared = AppContainer(useMockData: false, useSampleData: false)
 }

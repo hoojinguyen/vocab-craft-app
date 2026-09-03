@@ -9707,6 +9707,23 @@
           }
         }
       }
+    },
+    "app.onboarding.reveal.retry": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thử lại"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

@@ -51,7 +51,9 @@ final class InitializeUserRoadmapUseCaseTests: XCTestCase {
 
         // No stages should be marked completed for A1
         let allProgress = try await stageRepo.fetchAllStageProgress()
-        XCTAssertTrue(allProgress.isEmpty || allProgress.allSatisfy { !$0.isCompleted })
+        let stage1 = allProgress.first { $0.stageId == "stage_daily_1" }
+        XCTAssertNotNil(stage1)
+        XCTAssertEqual(stage1?.isCompleted, false)
     }
 
     @MainActor

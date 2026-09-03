@@ -40,30 +40,28 @@ final class MockInitializeUserRoadmapUseCase: InitializeUserRoadmapUseCaseProtoc
 
 @MainActor
 final class OnboardingViewModelTests: XCTestCase {
-    private func clearDefaults() {
-        let defaults = UserDefaults.standard
-        defaults.removeObject(forKey: "has_completed_onboarding")
-        defaults.removeObject(forKey: "selected_goal_deck_id")
-        defaults.removeObject(forKey: "assessed_cefr_level")
-        defaults.removeObject(forKey: "daily_goal_count")
-        defaults.removeObject(forKey: "notification_time_interval")
-        defaults.removeObject(forKey: "current_streak")
-        defaults.removeObject(forKey: "is_notification_enabled")
-        defaults.removeObject(forKey: "did_perform_legacy_onboarding_migration")
+    private var testDefaults: UserDefaults!
+    private var suiteName: String!
+
+    private func makeSettings() -> UserSettingsStore {
+        UserSettingsStore(defaults: testDefaults)
     }
 
     override func setUp() {
         super.setUp()
-        clearDefaults()
+        suiteName = "test_onboarding_\(UUID().uuidString)"
+        testDefaults = UserDefaults(suiteName: suiteName)!
     }
 
     override func tearDown() {
+        if let suiteName {
+            testDefaults?.removePersistentDomain(forName: suiteName)
+        }
         super.tearDown()
-        clearDefaults()
     }
 
     func testInitialStateAndStepProgression() {
-        let settings = UserSettingsStore()
+        let settings = makeSettings()
         let useCase = MockInitializeUserRoadmapUseCase()
         let vm = OnboardingViewModel(useCase: useCase, userSettings: settings)
 
@@ -87,7 +85,7 @@ final class OnboardingViewModelTests: XCTestCase {
     }
 
     func testSkipSetsDefaultsAndCompletes() {
-        let settings = UserSettingsStore()
+        let settings = makeSettings()
         settings.hasCompletedOnboarding = false
         let useCase = MockInitializeUserRoadmapUseCase()
         let vm = OnboardingViewModel(useCase: useCase, userSettings: settings)
@@ -101,7 +99,7 @@ final class OnboardingViewModelTests: XCTestCase {
     }
 
     func testGenerateRoadmapPopulatesResult() async {
-        let settings = UserSettingsStore()
+        let settings = makeSettings()
         let useCase = MockInitializeUserRoadmapUseCase()
         let vm = OnboardingViewModel(useCase: useCase, userSettings: settings)
 
@@ -120,7 +118,7 @@ final class OnboardingViewModelTests: XCTestCase {
     }
 
     func testSynthesizeRoadmapFailureSetsLocalizedErrorMessage() async {
-        let settings = UserSettingsStore()
+        let settings = makeSettings()
         let failingUseCase = FailingInitializeUserRoadmapUseCase()
         let vm = OnboardingViewModel(useCase: failingUseCase, userSettings: settings)
 
@@ -132,7 +130,7 @@ final class OnboardingViewModelTests: XCTestCase {
     }
 
     func testRetrySynthesisCancelsOldTaskAndStartsNewTask() {
-        let settings = UserSettingsStore()
+        let settings = makeSettings()
         let useCase = MockInitializeUserRoadmapUseCase()
         let vm = OnboardingViewModel(useCase: useCase, userSettings: settings)
         vm.currentStep = .roadmapReveal
@@ -153,7 +151,7 @@ final class OnboardingViewModelTests: XCTestCase {
     }
 
     func testReplacedSynthesisTaskDoesNotResetIsSynthesizingPrematurely() async {
-        let settings = UserSettingsStore()
+        let settings = makeSettings()
         let useCase = MockInitializeUserRoadmapUseCase()
         let vm = OnboardingViewModel(useCase: useCase, userSettings: settings)
 
@@ -170,7 +168,7 @@ final class OnboardingViewModelTests: XCTestCase {
     }
 
     func testUpdateNotificationPermissionTrueSchedulesReminder() async {
-        let settings = UserSettingsStore()
+        let settings = makeSettings()
         let useCase = MockInitializeUserRoadmapUseCase()
         let scheduler = MockNotificationScheduler()
         let vm = OnboardingViewModel(useCase: useCase, userSettings: settings, notificationScheduler: scheduler)
@@ -184,7 +182,7 @@ final class OnboardingViewModelTests: XCTestCase {
     }
 
     func testUpdateNotificationPermissionFalseCancelsReminder() async {
-        let settings = UserSettingsStore()
+        let settings = makeSettings()
         let useCase = MockInitializeUserRoadmapUseCase()
         let scheduler = MockNotificationScheduler()
         let vm = OnboardingViewModel(useCase: useCase, userSettings: settings, notificationScheduler: scheduler)
@@ -197,7 +195,7 @@ final class OnboardingViewModelTests: XCTestCase {
     }
 
     func testSkipOnboardingDisablesNotificationWhenPermissionNotGranted() async {
-        let settings = UserSettingsStore()
+        let settings = makeSettings()
         settings.hasCompletedOnboarding = false
         settings.isNotificationEnabled = true
         let useCase = MockInitializeUserRoadmapUseCase()
@@ -213,7 +211,7 @@ final class OnboardingViewModelTests: XCTestCase {
     }
 
     func testSkipOnboardingReschedulesNotificationToDefaultTimeWhenPermissionGranted() async {
-        let settings = UserSettingsStore()
+        let settings = makeSettings()
         settings.hasCompletedOnboarding = false
         let useCase = MockInitializeUserRoadmapUseCase()
         let scheduler = MockNotificationScheduler()
@@ -232,7 +230,7 @@ final class OnboardingViewModelTests: XCTestCase {
     }
 
     func testRapidNotificationPermissionTogglesSerializeDeterministically() async {
-        let settings = UserSettingsStore()
+        let settings = makeSettings()
         let useCase = MockInitializeUserRoadmapUseCase()
         let scheduler = MockNotificationScheduler()
         let vm = OnboardingViewModel(useCase: useCase, userSettings: settings, notificationScheduler: scheduler)
@@ -249,7 +247,7 @@ final class OnboardingViewModelTests: XCTestCase {
     }
 
     func testLateNotificationPermissionCallbackAfterSkipIsIgnored() async {
-        let settings = UserSettingsStore()
+        let settings = makeSettings()
         settings.hasCompletedOnboarding = false
         let useCase = MockInitializeUserRoadmapUseCase()
         let scheduler = MockNotificationScheduler()
@@ -268,7 +266,7 @@ final class OnboardingViewModelTests: XCTestCase {
     }
 
     func testImmediatePreviousStepCancelsSynthesisWithoutLeavingIsSynthesizingTrue() async {
-        let settings = UserSettingsStore()
+        let settings = makeSettings()
         let useCase = MockInitializeUserRoadmapUseCase()
         let vm = OnboardingViewModel(useCase: useCase, userSettings: settings)
 
@@ -283,7 +281,7 @@ final class OnboardingViewModelTests: XCTestCase {
     }
 
     func testSynthesizeRoadmapSchedulesReminderWhenNotificationEnabled() async {
-        let settings = UserSettingsStore()
+        let settings = makeSettings()
         settings.isNotificationEnabled = true
         let useCase = MockInitializeUserRoadmapUseCase()
         let scheduler = MockNotificationScheduler()
@@ -296,7 +294,7 @@ final class OnboardingViewModelTests: XCTestCase {
     }
 
     func testCompleteOnboardingAndDismissPersistsStarterWordsAndStageProgress() async {
-        let settings = UserSettingsStore()
+        let settings = makeSettings()
         settings.hasCompletedOnboarding = false
         settings.currentStreak = 0
         let useCase = MockInitializeUserRoadmapUseCase()
@@ -326,7 +324,7 @@ final class OnboardingViewModelTests: XCTestCase {
     }
 
     func testSkipOnboardingDoesNotPersistProgressOrAdvanceStreak() async {
-        let settings = UserSettingsStore()
+        let settings = makeSettings()
         settings.hasCompletedOnboarding = false
         settings.currentStreak = 0
         let useCase = MockInitializeUserRoadmapUseCase()
@@ -349,7 +347,7 @@ final class OnboardingViewModelTests: XCTestCase {
     }
 
     func testCompleteOnboardingAndDismissAbortsStageSaveWhenFetchFails() async {
-        let settings = UserSettingsStore()
+        let settings = makeSettings()
         let useCase = MockInitializeUserRoadmapUseCase()
         let progressRepo = MockUserProgressRepository()
         let throwingStageRepo = ThrowingFetchStageProgressRepository()
@@ -376,7 +374,7 @@ final class OnboardingViewModelTests: XCTestCase {
     }
 
     func testCompleteOnboardingRetryDoesNotDuplicateWordProgress() async {
-        let settings = UserSettingsStore()
+        let settings = makeSettings()
         let useCase = MockInitializeUserRoadmapUseCase()
         let progressRepo = MockUserProgressRepository()
         let flakyStageRepo = FlakyStageProgressRepository()

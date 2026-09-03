@@ -114,6 +114,7 @@ public final class OnboardingViewModel {
         userSettings.dailyGoalCount = 10
         userSettings.notificationTimeInterval = 72000
         userSettings.currentStreak = 0
+        userSettings.todayWordsLearned = 0
         userSettings.hasCompletedOnboarding = true
 
         let previousTask = notificationTask
@@ -237,6 +238,7 @@ public final class OnboardingViewModel {
                 guard !Task.isCancelled else { return }
                 userSettings.hasCompletedOnboarding = true
                 userSettings.currentStreak = max(userSettings.currentStreak, 1)
+                userSettings.todayWordsLearned = starterWords.count
             } catch is CancellationError {
                 // Task cancelled
             } catch {

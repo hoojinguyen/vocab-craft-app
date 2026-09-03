@@ -54,7 +54,7 @@ public struct OnboardingRoadmapRevealStepView: View {
 
                                 let projectedWords = Int64(viewModel.selectedDailyWords * 30)
                                 let projectionText = String(
-                                    format: String(localized: "app.onboarding.reveal.projection_format", defaultValue: "With %lld words/day, you'll master %lld words in 30 days!", bundle: .module),
+                                    format: String(localized: "app.onboarding.reveal.projection_format", bundle: .module),
                                     Int64(viewModel.selectedDailyWords),
                                     projectedWords
                                 )
@@ -79,7 +79,7 @@ public struct OnboardingRoadmapRevealStepView: View {
                     let isRetry = viewModel.errorMessage != nil || viewModel.isCompleting
                     CraftButton(
                         isRetry
-                            ? LocalizedStringKey("craft.common.action.retry")
+                            ? LocalizedStringKey("app.onboarding.reveal.retry")
                             : LocalizedStringKey("app.onboarding.reveal.cta"),
                         variant: .primary,
                         size: .lg,

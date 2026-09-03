@@ -105,6 +105,12 @@ public final class UserSettingsStore {
         }
     }
 
+    public var todayWordsLearned: Int {
+        didSet {
+            defaults.set(todayWordsLearned, forKey: "today_words_learned")
+        }
+    }
+
     public var appLanguage: String {
         didSet {
             defaults.set(appLanguage, forKey: "app_language")
@@ -155,16 +161,27 @@ public final class UserSettingsStore {
                     : (hasLegacyUserData ? 14 : 0)
                 defaults.set(streak, forKey: "current_streak")
                 self.currentStreak = streak
+                let learned = defaults.object(forKey: "today_words_learned") != nil
+                    ? defaults.integer(forKey: "today_words_learned")
+                    : (hasLegacyUserData ? 8 : 0)
+                defaults.set(learned, forKey: "today_words_learned")
+                self.todayWordsLearned = learned
             } else {
                 completedOnboarding = false
                 self.currentStreak = defaults.object(forKey: "current_streak") != nil
                     ? defaults.integer(forKey: "current_streak")
+                    : 0
+                self.todayWordsLearned = defaults.object(forKey: "today_words_learned") != nil
+                    ? defaults.integer(forKey: "today_words_learned")
                     : 0
             }
         } else {
             completedOnboarding = defaults.bool(forKey: "has_completed_onboarding")
             self.currentStreak = defaults.object(forKey: "current_streak") != nil
                 ? defaults.integer(forKey: "current_streak")
+                : 0
+            self.todayWordsLearned = defaults.object(forKey: "today_words_learned") != nil
+                ? defaults.integer(forKey: "today_words_learned")
                 : 0
         }
         self.hasCompletedOnboarding = completedOnboarding
