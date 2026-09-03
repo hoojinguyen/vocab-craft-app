@@ -201,25 +201,19 @@ public final class LessonLearningViewModel: Identifiable {
         liveTranscript = ""
 
         speechEngine.onTranscriptUpdate = { [weak self] transcript in
-            Task { @MainActor in
-                guard let self, self.currentExerciseItem?.id == item.id else { return }
-                self.liveTranscript = transcript
-            }
+            guard let self, self.currentExerciseItem?.id == item.id else { return }
+            self.liveTranscript = transcript
         }
 
         speechEngine.onMatchDetected = { [weak self] _ in
-            Task { @MainActor in
-                guard let self, !self.isFeedbackPresented, self.currentExerciseItem?.id == item.id else { return }
-                self.speechState = .evaluated(overallScore: 1.0)
-                self.submitAnswer(isCorrect: true, for: item)
-            }
+            guard let self, !self.isFeedbackPresented, self.currentExerciseItem?.id == item.id else { return }
+            self.speechState = .evaluated(overallScore: 1.0)
+            self.submitAnswer(isCorrect: true, for: item)
         }
 
         speechEngine.onError = { [weak self] _ in
-            Task { @MainActor in
-                guard let self, self.currentExerciseItem?.id == item.id else { return }
-                self.speechState = .idle
-            }
+            guard let self, self.currentExerciseItem?.id == item.id else { return }
+            self.speechState = .idle
         }
 
         if !speechEngine.isSessionActive {
@@ -233,6 +227,12 @@ public final class LessonLearningViewModel: Identifiable {
         speechEngine.onMatchDetected = nil
         speechEngine.onTranscriptUpdate = nil
         speechEngine.onError = nil
+    }
+
+    public func retrySpeaking(for item: LessonExerciseItem) {
+        guard currentExerciseItem?.id == item.id, !isFeedbackPresented else { return }
+        stopListeningForSpeaking()
+        startListeningForSpeaking(targetLemma: item.word.lemma, item: item)
     }
 
     private func finishLesson() {

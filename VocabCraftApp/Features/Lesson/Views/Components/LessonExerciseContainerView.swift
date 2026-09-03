@@ -150,6 +150,20 @@ public struct LessonExerciseContainerView: View {
                             viewModel.requestHint(for: item)
                         }
 
+                        if item.assignedMode == .speaking && viewModel.speechState == .idle {
+                            Spacer()
+
+                            CraftButton(
+                                AppStrings.Common.retry,
+                                iconName: "mic.fill",
+                                variant: .outline,
+                                size: .sm,
+                                style: .outlined
+                            ) {
+                                viewModel.retrySpeaking(for: item)
+                            }
+                        }
+
                         if item.assignedMode == .typing {
                             Spacer()
 

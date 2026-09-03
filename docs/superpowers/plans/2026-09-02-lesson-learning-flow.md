@@ -407,83 +407,39 @@ git commit -m "feat(lesson): implement LessonDiscoveryCardView"
 
 ---
 
-### Task 4: Interactive Lesson Exercise Container & Feedback Banner
+### Task 4: Interactive Lesson Exercise Container & Docked Feedback Sheet
 
 **Files:**
-- Create: `VocabCraftApp/Features/Lesson/Views/Components/LessonFeedbackBannerView.swift`
 - Create: `VocabCraftApp/Features/Lesson/Views/Components/LessonExerciseContainerView.swift`
 
 **Interfaces:**
-- Reuses: `ReflexListeningModeView`, `ReflexMultipleChoiceModeView`, `ReflexSpeakingModeView`, `ReflexTypingModeView`.
-- Produces: Untimed interactive exercise UI with instant feedback and re-queuing trigger.
+- Reuses: `ReflexListeningModeView`, `ReflexMultipleChoiceModeView`, `ReflexSpeakingModeView`, `ReflexTypingModeView`, and `CraftFeedbackSheet(style: .tactile3D)`.
+- Produces: Untimed interactive exercise UI with instant feedback docked sheet, hint elimination, retry speaking, and re-queuing trigger.
 
-- [ ] **Step 1: Implement `LessonFeedbackBannerView.swift`**
+- [ ] **Step 1: Implement `LessonExerciseContainerView.swift` with Docked `CraftFeedbackSheet`**
 
+Wire the 4 existing modality views with untimed parameters, binding typing text, live transcript, hint requests, retry speaking, and feedback presentation via docked `CraftFeedbackSheet` from `CraftUIKit`:
 ```swift
-import CraftUIKit
-import SwiftUI
-
-public struct LessonFeedbackBannerView: View {
-    public let isCorrect: Bool
-    public let correctAnswer: String
-    public let onContinue: () -> Void
-    @Environment(\.craftTheme) private var theme
-
-    public var body: some View {
-        VStack(spacing: theme.spacing.sm) {
-            HStack(spacing: theme.spacing.sm) {
-                Image(systemName: isCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
-                    .font(.system(size: 24, weight: .bold))
-                    .foregroundStyle(isCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger)
-                
-                VStack(alignment: .leading, spacing: 2) {
-                    CraftText(
-                        isCorrect ? AppStrings.Lesson.correctFeedback : AppStrings.Lesson.incorrectFeedback,
-                        style: .headline,
-                        color: isCorrect ? theme.colors.statusSuccess : theme.colors.statusDanger
-                    )
-                    if !isCorrect {
-                        CraftText(
-                            AppStrings.Lesson.correctAnswerFormat(correctAnswer),
-                            style: .bodyMedium,
-                            color: theme.colors.textSecondary
-                        )
-                    }
-                }
-                Spacer()
-            }
-
-            CraftButton(
-                AppStrings.Lesson.continueAction,
-                variant: isCorrect ? .primary : .secondary,
-                size: .lg,
-                isFullWidth: true
-            ) {
-                CraftHaptics.shared.medium()
-                onContinue()
-            }
-        }
-        .padding(theme.spacing.base)
-        .background(theme.colors.surfaceCard)
-        .clipShape(RoundedRectangle(cornerRadius: theme.radii.lg))
-        .overlay(
-            RoundedRectangle(cornerRadius: theme.radii.lg)
-                .stroke(isCorrect ? theme.colors.statusSuccess.opacity(0.4) : theme.colors.statusDanger.opacity(0.4), lineWidth: 1.5)
-        )
-        .shadow(color: Color.black.opacity(0.08), radius: 12, y: -4)
+CraftFeedbackSheet(
+    isPresented: Binding(
+        get: { viewModel.isFeedbackPresented },
+        set: { viewModel.isFeedbackPresented = $0 }
+    ),
+    isCorrect: viewModel.lastAttemptCorrect,
+    correctAnswer: viewModel.lastAttemptCorrect ? nil : item.word.lemma,
+    actionTitle: AppStrings.Lesson.continueAction,
+    style: .tactile3D,
+    onAction: {
+        viewModel.advanceStep()
     }
-}
+)
 ```
 
-- [ ] **Step 2: Implement `LessonExerciseContainerView.swift`**
-
-Wire the 4 existing mode views with untimed parameters, binding typing text, live transcript, and feedback triggers.
-
-- [ ] **Step 3: Commit**
+- [ ] **Step 2: Commit**
 
 ```bash
-git add VocabCraftApp/Features/Lesson/Views/Components/LessonFeedbackBannerView.swift VocabCraftApp/Features/Lesson/Views/Components/LessonExerciseContainerView.swift
-git commit -m "feat(lesson): implement LessonFeedbackBannerView and LessonExerciseContainerView"
+git add VocabCraftApp/Features/Lesson/Views/Components/LessonExerciseContainerView.swift
+git commit -m "feat(lesson): implement LessonExerciseContainerView with CraftFeedbackSheet"
 ```
 
 ---
@@ -674,6 +630,10 @@ public final class LessonLearningViewModel: Identifiable {
     public private(set) var weakWordIds: Set<Int64> = []
     public private(set) var isCompleted: Bool = false
     public private(set) var summary: LessonSummaryModel?
+    public private(set) var hintStage: Int = 0
+    public private(set) var eliminatedOptionId: String?
+    public private(set) var speechState: CraftSpeechState = .idle
+    public private(set) var persistenceError: Error?
     public var isFeedbackPresented: Bool = false
     public var lastAttemptCorrect: Bool = false
     public var typingText: String = ""
@@ -684,6 +644,7 @@ public final class LessonLearningViewModel: Identifiable {
     private let ttsService: TextToSpeechProtocol
     private let soundEffectService: SoundEffectServiceProtocol
     private let speechEngine: ReflexSpeechEngineProtocol
+    private var completionTask: Task<LessonCompletionResult, Error>?
 
     public init(
         stageId: String,
@@ -722,6 +683,13 @@ public final class LessonLearningViewModel: Identifiable {
         return false
     }
 
+    public var currentExerciseItem: LessonExerciseItem? {
+        if case .exercise(let item) = currentStep {
+            return item
+        }
+        return nil
+    }
+
     public var progress: Double {
         guard !steps.isEmpty else { return 1.0 }
         let effectiveTotal = max(initialStepCount, steps.count)
@@ -729,9 +697,13 @@ public final class LessonLearningViewModel: Identifiable {
     }
 
     public func advanceStep() {
+        guard !isSummaryStep else { return }
         isFeedbackPresented = false
         typingText = ""
         liveTranscript = ""
+        hintStage = 0
+        eliminatedOptionId = nil
+        speechState = .idle
         currentStepIndex += 1
         if currentStepIndex >= steps.count {
             finishLesson()
@@ -739,6 +711,7 @@ public final class LessonLearningViewModel: Identifiable {
     }
 
     public func submitAnswer(isCorrect: Bool, for item: LessonExerciseItem) {
+        guard currentExerciseItem?.id == item.id else { return }
         totalAnswered += 1
         lastAttemptCorrect = isCorrect
         if isCorrect {
@@ -759,7 +732,8 @@ public final class LessonLearningViewModel: Identifiable {
                     word: item.word,
                     assignedMode: .multipleChoice,
                     options: options,
-                    isRequeued: true
+                    isRequeued: true,
+                    attemptCount: item.attemptCount + 1
                 )
                 steps.append(.exercise(item: retryItem))
             }
@@ -767,28 +741,89 @@ public final class LessonLearningViewModel: Identifiable {
         isFeedbackPresented = true
     }
 
-    public func skipSpeaking(for item: LessonExerciseItem) {
-        let alternativeMode: ReflexBlitzMode = .typing
-        let retryItem = LessonExerciseItem(
-            id: "\(alternativeMode.rawValue)-\(item.word.id)-skip",
-            word: item.word,
-            assignedMode: alternativeMode,
-            options: item.options,
-            isRequeued: true
-        )
-        steps.append(.exercise(item: retryItem))
-        advanceStep()
+    public func requestHint(for item: LessonExerciseItem) {
+        guard currentExerciseItem?.id == item.id else { return }
+        hintStage = min(hintStage + 1, 3)
+        if hintStage >= 2 && eliminatedOptionId == nil {
+            eliminatedOptionId = item.options.first(where: { !$0.isCorrect })?.id
+        }
+    }
+
+    public func skipExercise(for item: LessonExerciseItem) {
+        guard currentExerciseItem?.id == item.id else { return }
+        submitAnswer(isCorrect: false, for: item)
+    }
+
+    public func startListeningForSpeaking(targetLemma: String, item: LessonExerciseItem) {
+        speechState = .listening(audioLevels: [0.5, 0.6, 0.4])
+        liveTranscript = ""
+
+        speechEngine.onTranscriptUpdate = { [weak self] transcript in
+            Task { @MainActor in
+                guard let self, self.currentExerciseItem?.id == item.id else { return }
+                self.liveTranscript = transcript
+            }
+        }
+
+        speechEngine.onMatchDetected = { [weak self] _ in
+            Task { @MainActor in
+                guard let self, !self.isFeedbackPresented, self.currentExerciseItem?.id == item.id else { return }
+                self.speechState = .evaluated(overallScore: 1.0)
+                self.submitAnswer(isCorrect: true, for: item)
+            }
+        }
+
+        speechEngine.onError = { [weak self] _ in
+            Task { @MainActor in
+                guard let self, self.currentExerciseItem?.id == item.id else { return }
+                self.speechState = .idle
+            }
+        }
+
+        if !speechEngine.isSessionActive {
+            startSpeechSession()
+        }
+        speechEngine.beginWord(targetLemma: targetLemma, contextualPhrases: [targetLemma, item.word.exampleEn])
+    }
+
+    public func stopListeningForSpeaking() {
+        speechEngine.endWord()
+        speechEngine.onMatchDetected = nil
+        speechEngine.onTranscriptUpdate = nil
+        speechEngine.onError = nil
+    }
+
+    public func retrySpeaking(for item: LessonExerciseItem) {
+        guard currentExerciseItem?.id == item.id, !isFeedbackPresented else { return }
+        stopListeningForSpeaking()
+        startListeningForSpeaking(targetLemma: item.word.lemma, item: item)
     }
 
     public func playAudio(for text: String) {
         ttsService.speak(text: text)
     }
 
+    public func stopAudio() {
+        ttsService.stop()
+    }
+
+    public func startSpeechSession() {
+        speechEngine.startSession()
+    }
+
+    public func stopSpeechSession() {
+        speechEngine.endSession()
+    }
+
     private func finishLesson() {
+        guard completionTask == nil else { return }
+        stopSpeechSession()
+
         let stars = mistakeCount == 0 ? 3 : (mistakeCount <= 2 ? 2 : 1)
         let isCheckpoint = stageId.hasPrefix("checkpoint_")
         let xpEarned = isCheckpoint ? 80 : 25
         let accuracy = totalAnswered > 0 ? Double(correctAnswers) / Double(totalAnswered) : 1.0
+
         let summaryModel = LessonSummaryModel(
             stageId: stageId,
             deckId: deckId,
@@ -798,18 +833,74 @@ public final class LessonLearningViewModel: Identifiable {
             learnedWords: words,
             weakWordIds: Array(weakWordIds)
         )
+
         self.summary = summaryModel
         self.steps.append(.summary(summary: summaryModel))
-        self.isCompleted = true
-        Task {
-            _ = try? await completeLessonUseCase.execute(
-                stageId: stageId,
-                deckId: deckId,
-                stars: stars,
-                weakWordIds: Array(weakWordIds),
-                progressFraction: 1.0
-            )
+
+        self.completionTask = Task {
+            do {
+                let result = try await completeLessonUseCase.execute(
+                    stageId: stageId,
+                    deckId: deckId,
+                    stars: stars,
+                    weakWordIds: Array(weakWordIds),
+                    progressFraction: 1.0
+                )
+                await MainActor.run {
+                    self.isCompleted = true
+                }
+                return result
+            } catch {
+                await MainActor.run {
+                    self.persistenceError = error
+                    self.completionTask = nil
+                }
+                throw error
+            }
         }
+    }
+
+    @discardableResult
+    public func retryCompletion() async throws -> LessonCompletionResult? {
+        if isCompleted {
+            return nil
+        }
+        guard let summary else { return nil }
+        persistenceError = nil
+        let task = Task {
+            do {
+                let result = try await completeLessonUseCase.execute(
+                    stageId: stageId,
+                    deckId: deckId,
+                    stars: summary.stars,
+                    weakWordIds: Array(weakWordIds),
+                    progressFraction: 1.0
+                )
+                await MainActor.run {
+                    self.isCompleted = true
+                }
+                return result
+            } catch {
+                await MainActor.run {
+                    self.persistenceError = error
+                    self.completionTask = nil
+                }
+                throw error
+            }
+        }
+        self.completionTask = task
+        return try await task.value
+    }
+
+    @discardableResult
+    public func awaitCompletion() async throws -> LessonCompletionResult? {
+        if let completionTask {
+            return try await completionTask.value
+        }
+        if !isCompleted && summary != nil {
+            return try await retryCompletion()
+        }
+        return nil
     }
 }
 ```

@@ -42,8 +42,8 @@ final class MockCompleteLessonUseCase: CompleteLessonUseCaseProtocol, @unchecked
 @Suite("Lesson Learning ViewModel Tests")
 @MainActor
 struct LessonLearningViewModelTests {
-    private func makeSampleWords() -> [TopicWordDTO] {
-        [
+    private func makeSampleWords(count: Int = 2) -> [TopicWordDTO] {
+        let all = [
             TopicWordDTO(
                 id: 1,
                 stageId: "stage_1",
@@ -67,8 +67,33 @@ struct LessonLearningViewModelTests {
                 definitionEn: "a long yellow fruit",
                 exampleEn: "Monkeys like bananas.",
                 exampleVi: "Khỉ thích chuối."
+            ),
+            TopicWordDTO(
+                id: 3,
+                stageId: "stage_1",
+                lemma: "cat",
+                phonetic: "/kæt/",
+                pos: "noun",
+                cefrLevel: "A1",
+                definitionVi: "con mèo",
+                definitionEn: "a small domesticated carnivorous mammal",
+                exampleEn: "The cat sleeps.",
+                exampleVi: "Con mèo đang ngủ."
+            ),
+            TopicWordDTO(
+                id: 4,
+                stageId: "stage_1",
+                lemma: "dog",
+                phonetic: "/dɒɡ/",
+                pos: "noun",
+                cefrLevel: "A1",
+                definitionVi: "con chó",
+                definitionEn: "a domesticated carnivorous mammal",
+                exampleEn: "The dog barks.",
+                exampleVi: "Con chó sủa."
             )
         ]
+        return Array(all.prefix(count))
     }
 
     @Test("Initializes with discovery and exercise steps")
@@ -103,7 +128,7 @@ struct LessonLearningViewModelTests {
             speechEngine: MockResilientReflexSpeechEngine()
         )
 
-        while vm.currentExerciseItem == nil && !vm.isCompleted {
+        while vm.currentExerciseItem == nil && !vm.isSummaryStep {
             vm.advanceStep()
         }
 
@@ -130,7 +155,7 @@ struct LessonLearningViewModelTests {
             speechEngine: MockResilientReflexSpeechEngine()
         )
 
-        while vm.currentExerciseItem == nil && !vm.isCompleted {
+        while vm.currentExerciseItem == nil && !vm.isSummaryStep {
             vm.advanceStep()
         }
 
@@ -170,7 +195,7 @@ struct LessonLearningViewModelTests {
         )
 
         // Advance to first exercise
-        while vm.currentExerciseItem == nil && !vm.isCompleted {
+        while vm.currentExerciseItem == nil && !vm.isSummaryStep {
             vm.advanceStep()
         }
 
@@ -181,7 +206,7 @@ struct LessonLearningViewModelTests {
         let stepCountAfterFirstFail = vm.steps.count
 
         // Advance until reaching the retry step for this word (attemptCount == 2)
-        while (vm.currentExerciseItem?.attemptCount ?? 1) < 2 && !vm.isCompleted {
+        while (vm.currentExerciseItem?.attemptCount ?? 1) < 2 && !vm.isSummaryStep {
             vm.advanceStep()
         }
 
@@ -211,7 +236,7 @@ struct LessonLearningViewModelTests {
         )
 
         // Advance to first exercise with options
-        while (vm.currentExerciseItem?.options.count ?? 0) < 2 && !vm.isCompleted {
+        while (vm.currentExerciseItem?.options.count ?? 0) < 2 && !vm.isSummaryStep {
             vm.advanceStep()
         }
 
@@ -252,7 +277,7 @@ struct LessonLearningViewModelTests {
         )
 
         // Advance to first exercise step
-        while vm.currentExerciseItem == nil && !vm.isCompleted {
+        while vm.currentExerciseItem == nil && !vm.isSummaryStep {
             vm.advanceStep()
         }
 
@@ -276,7 +301,7 @@ struct LessonLearningViewModelTests {
             speechEngine: MockResilientReflexSpeechEngine()
         )
 
-        while vm.currentExerciseItem == nil && !vm.isCompleted {
+        while vm.currentExerciseItem == nil && !vm.isSummaryStep {
             vm.advanceStep()
         }
 
@@ -358,6 +383,43 @@ struct LessonLearningViewModelTests {
         #expect(retryResult != nil)
         #expect(vm.isCompleted)
         #expect(vm.persistenceError == nil)
+    }
+
+    @Test("Retrying speaking restarts speech engine listening for current item")
+    func testRetrySpeaking() throws {
+        let words = makeSampleWords(count: 4)
+        let speechEngine = MockResilientReflexSpeechEngine()
+        let vm = LessonLearningViewModel(
+            stageId: "stage_1",
+            deckId: "deck_1",
+            words: words,
+            completeLessonUseCase: MockCompleteLessonUseCase(),
+            ttsService: MockTextToSpeechService(),
+            soundEffectService: MockSoundEffectService(),
+            speechEngine: speechEngine
+        )
+
+        // Advance to speaking exercise
+        while vm.currentExerciseItem?.assignedMode != .speaking && !vm.isSummaryStep {
+            vm.advanceStep()
+        }
+
+        let exerciseItem = try #require(vm.currentExerciseItem)
+        vm.startListeningForSpeaking(targetLemma: exerciseItem.word.lemma, item: exerciseItem)
+        #expect(speechEngine.isSessionActive)
+
+        // Simulate error leading to idle
+        speechEngine.simulateError(URLError(.timedOut))
+        #expect(vm.speechState == .idle)
+
+        // Retry speaking
+        vm.retrySpeaking(for: exerciseItem)
+        #expect(speechEngine.isSessionActive)
+        if case .listening = vm.speechState {
+            #expect(Bool(true))
+        } else {
+            #expect(Bool(false), "Expected speechState to be listening after retry")
+        }
     }
 }
 #endif

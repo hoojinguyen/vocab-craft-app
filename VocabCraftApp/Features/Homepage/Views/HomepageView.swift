@@ -240,6 +240,26 @@ public struct HomepageView: View {
 
     private func startLesson(for node: LessonNodeModel) {
         guard !isLaunchingLesson && activeLessonLearningVM == nil else { return }
+
+        let resolvedDeckId: String
+        if node.id.hasPrefix("checkpoint_") {
+            resolvedDeckId = String(node.id.dropFirst("checkpoint_".count))
+        } else {
+            resolvedDeckId = viewModel.sections.first(where: { sec in sec.nodes.contains(where: { $0.id == node.id }) })?.id ?? ""
+        }
+
+        guard !resolvedDeckId.isEmpty else {
+            completionToastData = CraftToastData(
+                title: AppStrings.Common.errorText,
+                message: AppStrings.Lesson.loadErrorText,
+                iconName: "exclamationmark.triangle.fill",
+                style: .danger,
+                surfaceStyle: .glass,
+                duration: 3.0
+            )
+            return
+        }
+
         isLaunchingLesson = true
         lessonLaunchTask?.cancel()
         lessonLaunchTask = Task {
@@ -250,9 +270,8 @@ public struct HomepageView: View {
             }
 
             let words: [TopicWordDTO]
-            let deckId: String
+            let deckId: String = resolvedDeckId
             if node.id.hasPrefix("checkpoint_") {
-                deckId = String(node.id.dropFirst("checkpoint_".count))
                 let stages = (try? await appContainer.vocabularyDataSource.fetchSubTopicStages(deckId: deckId)) ?? []
                 let deckWords: [TopicWordDTO] = await withTaskGroup(of: [TopicWordDTO].self) { group in
                     for stage in stages {
@@ -269,7 +288,6 @@ public struct HomepageView: View {
                 }
                 words = deckWords
             } else {
-                deckId = viewModel.sections.first(where: { sec in sec.nodes.contains(where: { $0.id == node.id }) })?.id ?? ""
                 words = (try? await appContainer.vocabularyDataSource.fetchWordsForStage(stageId: node.id)) ?? []
             }
 
