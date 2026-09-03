@@ -374,6 +374,61 @@ final class OnboardingViewModelTests: XCTestCase {
         XCTAssertEqual(progressRepo.recordChallengeCallCount, 3)
         XCTAssertEqual(throwingStageRepo.saveCallCount, 0)
     }
+
+    func testCompleteOnboardingRetryDoesNotDuplicateWordProgress() async {
+        let settings = UserSettingsStore()
+        let useCase = MockInitializeUserRoadmapUseCase()
+        let progressRepo = MockUserProgressRepository()
+        let flakyStageRepo = FlakyStageProgressRepository()
+        let vm = OnboardingViewModel(
+            useCase: useCase,
+            userSettings: settings,
+            progressRepo: progressRepo,
+            stageRepo: flakyStageRepo
+        )
+
+        await vm.synthesizeRoadmap()
+        vm.startFirstLesson()
+
+        flakyStageRepo.shouldThrow = true
+        vm.completeOnboardingAndDismiss()
+        XCTAssertTrue(vm.isCompleting)
+        await vm.completionTask?.value
+
+        XCTAssertFalse(vm.isCompleting)
+        XCTAssertFalse(settings.hasCompletedOnboarding)
+        XCTAssertEqual(progressRepo.recordChallengeCallCount, 3)
+
+        flakyStageRepo.shouldThrow = false
+        vm.completeOnboardingAndDismiss()
+        XCTAssertTrue(vm.isCompleting)
+        await vm.completionTask?.value
+
+        XCTAssertFalse(vm.isCompleting)
+        XCTAssertTrue(settings.hasCompletedOnboarding)
+        XCTAssertEqual(settings.currentStreak, 1)
+        XCTAssertEqual(progressRepo.recordChallengeCallCount, 3)
+        XCTAssertEqual(flakyStageRepo.saveCallCount, 1)
+    }
+}
+
+final class FlakyStageProgressRepository: StageProgressRepositoryProtocol, @unchecked Sendable {
+    @MainActor var shouldThrow: Bool = false
+    @MainActor var saveCallCount: Int = 0
+
+    @MainActor func fetchStageProgress(stageId: String) async throws -> UserStageProgress? {
+        if shouldThrow {
+            struct FlakyError: Error {}
+            throw FlakyError()
+        }
+        return nil
+    }
+
+    @MainActor func fetchCompletedStageIds(deckId: String) async throws -> Set<String> { [] }
+    @MainActor func fetchAllStageProgress() async throws -> [UserStageProgress] { [] }
+    @MainActor func saveStageProgress(stageId: String, deckId: String, isCompleted: Bool, score: Int, progressFraction: Double) async throws {
+        saveCallCount += 1
+    }
 }
 
 final class ThrowingFetchStageProgressRepository: StageProgressRepositoryProtocol, @unchecked Sendable {

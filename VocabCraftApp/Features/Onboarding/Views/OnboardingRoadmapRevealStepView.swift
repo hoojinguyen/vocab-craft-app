@@ -76,21 +76,23 @@ public struct OnboardingRoadmapRevealStepView: View {
                             .padding(.horizontal, theme.spacing.base)
                     }
 
+                    let isRetry = viewModel.errorMessage != nil || viewModel.isCompleting
                     CraftButton(
-                        viewModel.errorMessage != nil
+                        isRetry
                             ? LocalizedStringKey("craft.common.action.retry")
                             : LocalizedStringKey("app.onboarding.reveal.cta"),
                         variant: .primary,
                         size: .lg,
+                        isLoading: viewModel.isCompleting,
                         isFullWidth: true
                     ) {
-                        if viewModel.errorMessage != nil {
-                            viewModel.errorMessage = nil
+                        if isRetry {
                             viewModel.completeOnboardingAndDismiss()
                         } else {
                             viewModel.startFirstLesson()
                         }
                     }
+                    .disabled(viewModel.isCompleting)
                     .padding(.horizontal, theme.spacing.base)
                 }
                 .transition(.scale.combined(with: .opacity))

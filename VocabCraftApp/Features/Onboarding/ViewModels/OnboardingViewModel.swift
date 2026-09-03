@@ -24,7 +24,9 @@ public final class OnboardingViewModel {
     public private(set) var synthesisTask: Task<Void, Never>?
     public private(set) var notificationTask: Task<Void, Never>?
     public private(set) var completionTask: Task<Void, Never>?
+    public private(set) var isCompleting: Bool = false
     public private(set) var hasGrantedNotificationPermission: Bool = false
+    private var recordedWordIds: Set<Int64> = []
     private var synthesisGeneration: Int = 0
     private var notificationGeneration: Int = 0
 
@@ -104,6 +106,8 @@ public final class OnboardingViewModel {
         synthesisTask = nil
         completionTask?.cancel()
         completionTask = nil
+        isCompleting = false
+        recordedWordIds.removeAll()
         isSynthesizing = false
         userSettings.selectedGoalDeckId = "deck_daily"
         userSettings.assessedCefrLevel = "A1"
@@ -193,11 +197,17 @@ public final class OnboardingViewModel {
         let stageId = roadmapResult?.startingStage.id ?? "stage_daily_1"
         let deckId = userSettings.selectedGoalDeckId
 
+        isCompleting = true
+        errorMessage = nil
+
         completionTask?.cancel()
         completionTask = Task { @MainActor in
+            defer {
+                self.isCompleting = false
+            }
             do {
                 if let progressRepo = self.progressRepo {
-                    for word in starterWords {
+                    for word in starterWords where !self.recordedWordIds.contains(word.id) {
                         guard !Task.isCancelled else { return }
                         try await progressRepo.recordChallengeResult(
                             wordId: word.id,
@@ -205,6 +215,7 @@ public final class OnboardingViewModel {
                             stageId: stageId,
                             deckId: deckId
                         )
+                        self.recordedWordIds.insert(word.id)
                     }
                 }
 
