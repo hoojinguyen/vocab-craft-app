@@ -38,6 +38,17 @@ public enum AppMigrationPlan: SchemaMigrationPlan {
 public struct SharedAppGroupContainer {
     public static let appGroupID = "group.com.hoojinguyen.vocabcraft"
 
+    public static func persistedStoreURL(fileManager: FileManager = .default) -> URL {
+        if let groupURL = fileManager.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) {
+            return groupURL.appendingPathComponent("user_progress.sqlite")
+        } else if let baseSupportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
+            let appSupportURL = baseSupportURL.appendingPathComponent("VocabCraft", isDirectory: true)
+            return appSupportURL.appendingPathComponent("user_progress.sqlite")
+        } else {
+            return URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("user_progress.sqlite")
+        }
+    }
+
     public static func createContainer(inMemory: Bool = false) throws -> ModelContainer {
         let schema = Schema(versionedSchema: SchemaV2.self)
 
@@ -47,15 +58,7 @@ public struct SharedAppGroupContainer {
             return try ModelContainer(for: schema, migrationPlan: AppMigrationPlan.self, configurations: [config])
         }
 
-        let storeURL: URL
-        if let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) {
-            storeURL = groupURL.appendingPathComponent("user_progress.sqlite")
-        } else if let baseSupportURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
-            let appSupportURL = baseSupportURL.appendingPathComponent("VocabCraft", isDirectory: true)
-            storeURL = appSupportURL.appendingPathComponent("user_progress.sqlite")
-        } else {
-            storeURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("user_progress.sqlite")
-        }
+        let storeURL = persistedStoreURL()
 
         try? FileManager.default.createDirectory(at: storeURL.deletingLastPathComponent(), withIntermediateDirectories: true)
         let config = ModelConfiguration(schema: schema, url: storeURL)
@@ -71,12 +74,50 @@ public struct SharedAppGroupContainer {
             return try ModelContainer(for: schema, migrationPlan: AppMigrationPlan.self, configurations: [config])
         }
     }
+
+    public static func hasPersistedStore(fileManager: FileManager = .default) -> Bool {
+        let url = persistedStoreURL(fileManager: fileManager)
+        return fileManager.fileExists(atPath: url.path)
+    }
+
+    public static func hasPersistedUserRecords(in container: ModelContainer) -> Bool {
+        let context = container.mainContext
+        var wordDesc = FetchDescriptor<UserWordProgress>()
+        wordDesc.fetchLimit = 1
+        if (try? context.fetchCount(wordDesc)) ?? 0 > 0 { return true }
+
+        var stageDesc = FetchDescriptor<UserStageProgress>()
+        stageDesc.fetchLimit = 1
+        if (try? context.fetchCount(stageDesc)) ?? 0 > 0 { return true }
+
+        var sessionDesc = FetchDescriptor<ReflexSessionLog>()
+        sessionDesc.fetchLimit = 1
+        if (try? context.fetchCount(sessionDesc)) ?? 0 > 0 { return true }
+
+        var attemptDesc = FetchDescriptor<QuickReflexAttemptRecord>()
+        attemptDesc.fetchLimit = 1
+        if (try? context.fetchCount(attemptDesc)) ?? 0 > 0 { return true }
+
+        return false
+    }
 }
 #else
 public struct SharedAppGroupContainer {
     public static let appGroupID = "group.com.hoojinguyen.vocabcraft"
     public static func createContainer(inMemory: Bool = false) throws -> Any? {
         nil
+    }
+
+    public static func persistedStoreURL(fileManager: FileManager = .default) -> URL {
+        URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("user_progress.sqlite")
+    }
+
+    public static func hasPersistedStore(fileManager: FileManager = .default) -> Bool {
+        false
+    }
+
+    public static func hasPersistedUserRecords(in container: Any?) -> Bool {
+        false
     }
 }
 #endif

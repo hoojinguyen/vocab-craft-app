@@ -290,4 +290,29 @@ public enum VocabularySampleDataset {
             exampleEn: "Engineers tested the technical feasibility of the design.", exampleVi: "Các kỹ sư đã kiểm tra tính khả thi kỹ thuật của thiết kế."
         )
     ]
+
+    public static func starterWords(forStageId stageId: String? = nil) -> [TopicWordDTO] {
+        if let stageId {
+            let matching = words.filter { $0.stageId == stageId }
+            if matching.count >= 3 {
+                return Array(matching.prefix(3))
+            }
+            if !matching.isEmpty {
+                return matching
+            }
+
+            // Fall back to words within the same deck/topic prefix (e.g., stage_biz, stage_tech, stage_acad, stage_daily)
+            let prefixParts = stageId.components(separatedBy: "_")
+            if prefixParts.count >= 2 {
+                let deckPrefix = prefixParts.prefix(2).joined(separator: "_")
+                let deckMatching = words.filter { $0.stageId.hasPrefix(deckPrefix) }
+                if deckMatching.count >= 3 {
+                    return Array(deckMatching.prefix(3))
+                } else if !deckMatching.isEmpty {
+                    return deckMatching
+                }
+            }
+        }
+        return Array(words.prefix(3))
+    }
 }

@@ -1,5 +1,8 @@
 import CraftUIKit
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 enum HomepageTabBarPresentationPolicy {
     static func presentation(
@@ -163,6 +166,7 @@ public struct HomepageView: View {
         .craftConfetti(isTriggered: $homeConfettiTrigger, particleCount: 36)
         .craftToast(item: $completionToastData, position: .top)
         .onAppear {
+            viewModel.refreshDailyProgress()
             if vaultVM == nil {
                 vaultVM = appContainer.makePersonalVaultViewModel()
             }
@@ -179,6 +183,11 @@ public struct HomepageView: View {
                 self.reflexBlitzVM = vm
             }
         }
+        #if canImport(UIKit)
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.significantTimeChangeNotification)) { _ in
+            viewModel.refreshDailyProgress()
+        }
+        #endif
         .onOpenURL { url in
             appRouter.handleDeepLink(url: url)
             if let config = appRouter.pendingReflexBlitzConfig {
@@ -195,6 +204,9 @@ public struct HomepageView: View {
             }
         }
         .onChange(of: appRouter.selectedTab) { _, newTab in
+            if newTab == .home {
+                viewModel.refreshDailyProgress()
+            }
             if newTab != .home {
                 lessonLaunchTask?.cancel()
             }

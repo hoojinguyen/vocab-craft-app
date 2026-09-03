@@ -111,16 +111,22 @@ struct VocabCraftApp: App {
             Group {
                 if NSClassFromString("XCTestCase") != nil {
                     Text("Testing...")
+                } else if !appContainer.userSettingsStore.hasCompletedOnboarding {
+                    OnboardingCoordinatorView(viewModel: appContainer.makeOnboardingViewModel())
+                        .environment(\.appContainer, appContainer)
+                        .environment(\.appRouter, appContainer.appRouter)
+                        .environment(\.ttsService, appContainer.ttsService)
+                        .environment(\.speechAssessmentService, appContainer.speechAssessmentService)
                 } else {
                     HomepageView(viewModel: appContainer.makeHomepageViewModel())
                         .environment(\.appContainer, appContainer)
                         .environment(\.appRouter, appContainer.appRouter)
                         .environment(\.ttsService, appContainer.ttsService)
                         .environment(\.speechAssessmentService, appContainer.speechAssessmentService)
-                        .onOpenURL { url in
-                            appContainer.appRouter.handleDeepLink(url: url)
-                        }
                 }
+            }
+            .onOpenURL { url in
+                appContainer.appRouter.handleDeepLink(url: url)
             }
             .craftTheme(themeManager.currentPreset.theme)
             .preferredColorScheme(themeManager.preferredColorScheme)

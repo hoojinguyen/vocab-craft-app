@@ -39,6 +39,7 @@ public final class AppContainer {
     public let generateMixedReflexQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol
     public let practiceDrillPlanGenerator: PracticeDrillPlanGeneratorProtocol
     public let recordMixedDrillAttemptUseCase: RecordMixedDrillAttemptUseCaseProtocol
+    public let initializeUserRoadmapUseCase: InitializeUserRoadmapUseCaseProtocol
 
     // MARK: - Stores & Navigation
     public let userSettingsStore: UserSettingsStore
@@ -57,6 +58,7 @@ public final class AppContainer {
         generateMixedReflexQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol? = nil,
         practiceDrillPlanGenerator: PracticeDrillPlanGeneratorProtocol? = nil,
         recordMixedDrillAttemptUseCase: RecordMixedDrillAttemptUseCaseProtocol? = nil,
+        initializeUserRoadmapUseCase: InitializeUserRoadmapUseCaseProtocol? = nil,
         ttsService: TextToSpeechProtocol? = nil,
         sttService: SpeechRecognitionProtocol? = nil,
         speechAssessmentService: SpeechAssessmentProtocol? = nil,
@@ -129,8 +131,20 @@ public final class AppContainer {
             dataSource: resolvedDataSource
         )
 
-        self.userSettingsStore = userSettingsStore ?? UserSettingsStore()
+        #if canImport(SwiftDataMacros)
+        let hasPersistedRecords = modelContainer.map { SharedAppGroupContainer.hasPersistedUserRecords(in: $0) } ?? false
+        #else
+        let hasPersistedRecords = false
+        #endif
+        let effectiveUserSettingsStore = userSettingsStore ?? UserSettingsStore(hasPersistedAppData: hasPersistedRecords)
+        self.userSettingsStore = effectiveUserSettingsStore
         self.appRouter = appRouter ?? AppRouter()
+
+        self.initializeUserRoadmapUseCase = initializeUserRoadmapUseCase ?? InitializeUserRoadmapUseCase(
+            dataSource: resolvedDataSource,
+            stageRepo: resolvedStageRepo,
+            userSettings: effectiveUserSettingsStore
+        )
     }
 
     // MARK: - Use Case Factories
@@ -173,7 +187,8 @@ public final class AppContainer {
     public func makeHomepageViewModel() -> HomepageViewModel {
         HomepageViewModel(
             fetchLearningPathUseCase: fetchLearningPathUseCase,
-            ttsService: ttsService
+            ttsService: ttsService,
+            userSettings: userSettingsStore
         )
     }
 
@@ -229,8 +244,28 @@ public final class AppContainer {
         )
     }
 
+    public func makeInitializeUserRoadmapUseCase() -> InitializeUserRoadmapUseCaseProtocol {
+        initializeUserRoadmapUseCase
+    }
+
+    public func makeOnboardingViewModel() -> OnboardingViewModel {
+        OnboardingViewModel(
+            useCase: makeInitializeUserRoadmapUseCase(),
+            userSettings: userSettingsStore,
+            notificationScheduler: AppNotificationScheduler(),
+            progressRepo: userProgressRepository,
+            stageRepo: stageProgressRepository
+        )
+    }
+
     public static var mock: AppContainer {
-        AppContainer(useMockData: true, useSampleData: true)
+        let defaults = UserDefaults(suiteName: "mock_app_container_\(UUID().uuidString)")!
+        defaults.set(14, forKey: "current_streak")
+        defaults.set(8, forKey: "today_words_learned")
+        defaults.set(10, forKey: "daily_goal_count")
+        defaults.set(true, forKey: "has_completed_onboarding")
+        let settings = UserSettingsStore(defaults: defaults)
+        return AppContainer(useMockData: true, useSampleData: true, userSettingsStore: settings)
     }
     public static let shared = AppContainer(useMockData: false, useSampleData: false)
 }

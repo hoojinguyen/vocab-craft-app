@@ -5,6 +5,8 @@ import SwiftUI
 @MainActor
 @Observable
 public final class UserSettingsStore {
+    private let defaults: UserDefaults
+
     public var themePreset: CraftThemePreset {
         get { CraftThemeManager.shared.currentPreset }
         set { CraftThemeManager.shared.setPreset(newValue) }
@@ -12,19 +14,19 @@ public final class UserSettingsStore {
 
     public var dailyGoalCount: Int {
         didSet {
-            UserDefaults.standard.set(dailyGoalCount, forKey: "daily_goal_count")
+            defaults.set(dailyGoalCount, forKey: "daily_goal_count")
         }
     }
 
     public var isNotificationEnabled: Bool {
         didSet {
-            UserDefaults.standard.set(isNotificationEnabled, forKey: "is_notification_enabled")
+            defaults.set(isNotificationEnabled, forKey: "is_notification_enabled")
         }
     }
 
     public var notificationTimeInterval: Double {
         didSet {
-            UserDefaults.standard.set(notificationTimeInterval, forKey: "notification_time_interval")
+            defaults.set(notificationTimeInterval, forKey: "notification_time_interval")
         }
     }
 
@@ -43,13 +45,13 @@ public final class UserSettingsStore {
 
     public var ttsVoiceGender: String {
         didSet {
-            UserDefaults.standard.set(ttsVoiceGender, forKey: "tts_voice_gender")
+            defaults.set(ttsVoiceGender, forKey: "tts_voice_gender")
         }
     }
 
     public var ttsSpeed: Double {
         didSet {
-            UserDefaults.standard.set(ttsSpeed, forKey: "tts_speed")
+            defaults.set(ttsSpeed, forKey: "tts_speed")
         }
     }
 
@@ -69,19 +71,66 @@ public final class UserSettingsStore {
 
     public var isHapticsEnabled: Bool {
         didSet {
-            UserDefaults.standard.set(isHapticsEnabled, forKey: "is_haptics_enabled")
+            defaults.set(isHapticsEnabled, forKey: "is_haptics_enabled")
         }
     }
 
     public var isSoundEffectsEnabled: Bool {
         didSet {
-            UserDefaults.standard.set(isSoundEffectsEnabled, forKey: "is_sound_effects_enabled")
+            defaults.set(isSoundEffectsEnabled, forKey: "is_sound_effects_enabled")
+        }
+    }
+
+    public var hasCompletedOnboarding: Bool {
+        didSet {
+            defaults.set(hasCompletedOnboarding, forKey: "has_completed_onboarding")
+        }
+    }
+
+    public var selectedGoalDeckId: String {
+        didSet {
+            defaults.set(selectedGoalDeckId, forKey: "selected_goal_deck_id")
+        }
+    }
+
+    public var assessedCefrLevel: String {
+        didSet {
+            defaults.set(assessedCefrLevel, forKey: "assessed_cefr_level")
+        }
+    }
+
+    public var currentStreak: Int {
+        didSet {
+            defaults.set(currentStreak, forKey: "current_streak")
+        }
+    }
+
+    public var todayWordsLearnedDate: Date? {
+        didSet {
+            if let todayWordsLearnedDate {
+                defaults.set(todayWordsLearnedDate.timeIntervalSince1970, forKey: "today_words_learned_date")
+            } else {
+                defaults.removeObject(forKey: "today_words_learned_date")
+            }
+        }
+    }
+
+    public var todayWordsLearned: Int {
+        get {
+            guard let date = todayWordsLearnedDate, Calendar.current.isDateInToday(date) else {
+                return 0
+            }
+            return defaults.integer(forKey: "today_words_learned")
+        }
+        set {
+            todayWordsLearnedDate = Date()
+            defaults.set(newValue, forKey: "today_words_learned")
         }
     }
 
     public var appLanguage: String {
         didSet {
-            UserDefaults.standard.set(appLanguage, forKey: "app_language")
+            defaults.set(appLanguage, forKey: "app_language")
         }
     }
 
@@ -97,8 +146,8 @@ public final class UserSettingsStore {
         CraftThemeManager.shared.preferredColorScheme
     }
 
-    public init() {
-        let defaults = UserDefaults.standard
+    public init(defaults: UserDefaults = .standard, hasPersistedAppData: Bool = false) {
+        self.defaults = defaults
         self.dailyGoalCount = defaults.object(forKey: "daily_goal_count") != nil ? defaults.integer(forKey: "daily_goal_count") : 15
         self.isNotificationEnabled = defaults.object(forKey: "is_notification_enabled") != nil ? defaults.bool(forKey: "is_notification_enabled") : true
         self.notificationTimeInterval = defaults.object(forKey: "notification_time_interval") != nil ? defaults.double(forKey: "notification_time_interval") : 72000
@@ -107,5 +156,64 @@ public final class UserSettingsStore {
         self.appLanguage = defaults.string(forKey: "app_language") ?? "system"
         self.isHapticsEnabled = defaults.object(forKey: "is_haptics_enabled") != nil ? defaults.bool(forKey: "is_haptics_enabled") : true
         self.isSoundEffectsEnabled = defaults.object(forKey: "is_sound_effects_enabled") != nil ? defaults.bool(forKey: "is_sound_effects_enabled") : true
+
+        if let timestamp = defaults.object(forKey: "today_words_learned_date") as? Double {
+            self.todayWordsLearnedDate = Date(timeIntervalSince1970: timestamp)
+        } else {
+            self.todayWordsLearnedDate = nil
+        }
+
+        let completedOnboarding: Bool
+        if defaults.object(forKey: "has_completed_onboarding") == nil {
+            if defaults.object(forKey: "did_perform_legacy_onboarding_migration") == nil {
+                let hasLegacyUserData = defaults.object(forKey: "daily_goal_count") != nil
+                    || defaults.object(forKey: "is_notification_enabled") != nil
+                    || defaults.object(forKey: "notification_time_interval") != nil
+                    || defaults.object(forKey: "tts_voice_gender") != nil
+                    || defaults.object(forKey: "tts_speed") != nil
+                    || defaults.object(forKey: "is_haptics_enabled") != nil
+                    || defaults.object(forKey: "is_sound_effects_enabled") != nil
+                    || defaults.object(forKey: "app_language") != nil
+                    || defaults.object(forKey: "selected_goal_deck_id") != nil
+                    || hasPersistedAppData
+                defaults.set(true, forKey: "did_perform_legacy_onboarding_migration")
+                defaults.set(hasLegacyUserData, forKey: "has_completed_onboarding")
+                completedOnboarding = hasLegacyUserData
+                let streak = defaults.object(forKey: "current_streak") != nil
+                    ? defaults.integer(forKey: "current_streak")
+                    : (hasLegacyUserData ? 14 : 0)
+                defaults.set(streak, forKey: "current_streak")
+                self.currentStreak = streak
+                if hasLegacyUserData {
+                    self.todayWordsLearnedDate = Date()
+                    defaults.set(Date().timeIntervalSince1970, forKey: "today_words_learned_date")
+                    let existingLearned = defaults.object(forKey: "today_words_learned") != nil
+                        ? defaults.integer(forKey: "today_words_learned")
+                        : 8
+                    defaults.set(existingLearned, forKey: "today_words_learned")
+                } else {
+                    self.todayWordsLearnedDate = nil
+                    defaults.set(0, forKey: "today_words_learned")
+                }
+            } else {
+                completedOnboarding = false
+                self.currentStreak = defaults.object(forKey: "current_streak") != nil
+                    ? defaults.integer(forKey: "current_streak")
+                    : 0
+            }
+        } else {
+            completedOnboarding = defaults.bool(forKey: "has_completed_onboarding")
+            self.currentStreak = defaults.object(forKey: "current_streak") != nil
+                ? defaults.integer(forKey: "current_streak")
+                : 0
+            if defaults.object(forKey: "today_words_learned_date") == nil,
+               defaults.object(forKey: "today_words_learned") != nil {
+                self.todayWordsLearnedDate = Date()
+                defaults.set(Date().timeIntervalSince1970, forKey: "today_words_learned_date")
+            }
+        }
+        self.hasCompletedOnboarding = completedOnboarding
+        self.selectedGoalDeckId = defaults.string(forKey: "selected_goal_deck_id") ?? "deck_daily"
+        self.assessedCefrLevel = defaults.string(forKey: "assessed_cefr_level") ?? "A1"
     }
 }
