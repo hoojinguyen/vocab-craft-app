@@ -135,26 +135,6 @@ public struct CraftLessonDetailSheet: View {
 
     public var body: some View {
         VStack(spacing: 0) {
-            // Header Bar with Dismiss Button
-            HStack {
-                Spacer()
-                Button {
-                    triggerDismissFeedback()
-                    onDismiss?()
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 24, weight: .semibold))
-                        .foregroundStyle(theme.colors.textMuted)
-                        .frame(width: 44, height: 44)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(CraftLocalized.string("craft.common.action.close"))
-                .accessibilityHint(CraftLocalized.string("craft.learning_path.close_sheet_hint"))
-            }
-            .padding(.horizontal, theme.spacing.base)
-            .padding(.top, theme.spacing.md)
-
             ScrollView {
                 VStack(spacing: theme.spacing.base) {
                     // Header Section: Tactile 3D Icon, Title, Stars (if completed), Status Badge
@@ -167,6 +147,7 @@ public struct CraftLessonDetailSheet: View {
                     objectivesCard
                 }
                 .padding(.horizontal, theme.spacing.base)
+                .padding(.top, theme.spacing.lg)
                 .padding(.bottom, theme.spacing.sm)
             }
 
@@ -174,10 +155,10 @@ public struct CraftLessonDetailSheet: View {
             actionButton
                 .padding(.horizontal, theme.spacing.base)
                 .padding(.top, theme.spacing.xs)
-                .padding(.bottom, theme.spacing.base)
+                .padding(.bottom, theme.spacing.lg)
         }
-        .presentationBackground(theme.colors.surfaceCard)
-        .presentationCornerRadius(theme.radii.xl)
+        .background(theme.colors.canvasBackground)
+        .presentationBackground(theme.colors.canvasBackground)
         .presentationDragIndicator(.visible)
         .accessibilityAction(.escape) {
             triggerDismissFeedback()
