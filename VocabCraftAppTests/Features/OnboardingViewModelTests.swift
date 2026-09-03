@@ -165,8 +165,8 @@ final class OnboardingViewModelTests: XCTestCase {
 
         vm.selectedReminderInterval = 45000
         vm.updateNotificationPermission(granted: true)
+        await vm.notificationTask?.value
 
-        try? await Task.sleep(nanoseconds: 50_000_000)
         XCTAssertTrue(settings.isNotificationEnabled)
         XCTAssertEqual(scheduler.scheduledInterval, 45000)
     }
@@ -178,10 +178,41 @@ final class OnboardingViewModelTests: XCTestCase {
         let vm = OnboardingViewModel(useCase: useCase, userSettings: settings, notificationScheduler: scheduler)
 
         vm.updateNotificationPermission(granted: false)
+        await vm.notificationTask?.value
 
-        try? await Task.sleep(nanoseconds: 50_000_000)
         XCTAssertFalse(settings.isNotificationEnabled)
         XCTAssertTrue(scheduler.didCancel)
+    }
+
+    func testSkipOnboardingReschedulesNotificationToDefaultTimeWhenEnabled() async {
+        let settings = UserSettingsStore()
+        settings.hasCompletedOnboarding = false
+        settings.isNotificationEnabled = true
+        let useCase = MockInitializeUserRoadmapUseCase()
+        let scheduler = MockNotificationScheduler()
+        let vm = OnboardingViewModel(useCase: useCase, userSettings: settings, notificationScheduler: scheduler)
+
+        vm.skipOnboarding()
+        await vm.notificationTask?.value
+
+        XCTAssertTrue(settings.hasCompletedOnboarding)
+        XCTAssertEqual(settings.notificationTimeInterval, 72000)
+        XCTAssertEqual(scheduler.scheduledInterval, 72000)
+    }
+
+    func testImmediatePreviousStepCancelsSynthesisWithoutLeavingIsSynthesizingTrue() async {
+        let settings = UserSettingsStore()
+        let useCase = MockInitializeUserRoadmapUseCase()
+        let vm = OnboardingViewModel(useCase: useCase, userSettings: settings)
+
+        vm.currentStep = .habit
+        vm.nextStep()
+        vm.previousStep()
+
+        await vm.synthesisTask?.value
+        XCTAssertEqual(vm.currentStep, .habit)
+        XCTAssertFalse(vm.isSynthesizing)
+        XCTAssertNil(vm.roadmapResult)
     }
 
     func testSynthesizeRoadmapSchedulesReminderWhenNotificationEnabled() async {

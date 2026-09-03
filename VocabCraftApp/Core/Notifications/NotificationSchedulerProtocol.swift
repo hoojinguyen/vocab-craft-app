@@ -15,8 +15,16 @@ public final class AppNotificationScheduler: NotificationSchedulerProtocol {
         #if canImport(UserNotifications)
         let center = UNUserNotificationCenter.current()
         let content = UNMutableNotificationContent()
-        content.title = String(localized: "app.notification.daily_title")
-        content.body = String(localized: "app.notification.daily_body")
+        content.title = String(
+            localized: "app.notification.daily_title",
+            defaultValue: "Time for your daily vocabulary practice!",
+            bundle: .module
+        )
+        content.body = String(
+            localized: "app.notification.daily_body",
+            defaultValue: "Keep your learning streak alive with just a few minutes of practice.",
+            bundle: .module
+        )
         content.sound = .default
 
         let totalSeconds = Int(timeInterval)

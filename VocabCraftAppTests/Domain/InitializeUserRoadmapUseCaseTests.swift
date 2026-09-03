@@ -193,6 +193,12 @@ final class InitializeUserRoadmapUseCaseTests: XCTestCase {
         let updatedProgress = try await stageRepo.fetchAllStageProgress()
         XCTAssertFalse(updatedProgress.first { $0.stageId == "stage_daily_1" }?.isCompleted == true)
     }
+
+    func testOnboardingDomainErrorLocalizedDescription() {
+        let error = OnboardingDomainError.stageNotFound("deck_test")
+        let description = error.localizedDescription
+        XCTAssertTrue(description.contains("deck_test"))
+    }
 }
 
 private final class TestOneWordVocabularyDataSource: VocabularyDataSourceProtocol, @unchecked Sendable {

@@ -9265,6 +9265,23 @@
           }
         }
       }
+    },
+    "app.onboarding.error.stage_not_found": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No stages found for deck: %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không tìm thấy chặng nào cho bộ từ: %@"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

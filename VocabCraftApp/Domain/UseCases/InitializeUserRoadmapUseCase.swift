@@ -10,13 +10,20 @@ public struct RoadmapInitializationResult: Sendable, Equatable {
     }
 }
 
-public enum OnboardingDomainError: Error, LocalizedError {
+public enum OnboardingDomainError: Error, LocalizedError, Equatable {
     case stageNotFound(String)
 
     public var errorDescription: String? {
         switch self {
         case .stageNotFound(let deckId):
-            return "No stages found for deck: \(deckId)"
+            return String(
+                format: String(
+                    localized: "app.onboarding.error.stage_not_found",
+                    defaultValue: "No stages found for deck: %@",
+                    bundle: .module
+                ),
+                deckId
+            )
         }
     }
 }
@@ -97,6 +104,7 @@ public final class InitializeUserRoadmapUseCase: InitializeUserRoadmapUseCasePro
         }
 
         // 3. Reconcile foundational stage 1 progress based on assessed level
+        try Task.checkCancellation()
         if isAdvancedLevel && sortedStages.count > 1 {
             try await stageRepo.saveStageProgress(
                 stageId: firstStage.id,
@@ -114,6 +122,8 @@ public final class InitializeUserRoadmapUseCase: InitializeUserRoadmapUseCasePro
                 progressFraction: 0.0
             )
         }
+
+        try Task.checkCancellation()
 
         // 4. Persist user preferences only after roadmap synthesis succeeds
         userSettings.selectedGoalDeckId = deckId

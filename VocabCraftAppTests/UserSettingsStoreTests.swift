@@ -93,9 +93,21 @@ final class UserSettingsStoreTests: XCTestCase {
         let suite = "test_fresh_\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!
 
-        let store = UserSettingsStore(defaults: defaults)
+        let store = UserSettingsStore(defaults: defaults, hasPersistedAppData: false)
         XCTAssertFalse(store.hasCompletedOnboarding)
         XCTAssertFalse(defaults.bool(forKey: "has_completed_onboarding"))
+        XCTAssertTrue(defaults.bool(forKey: "did_perform_legacy_onboarding_migration"))
+
+        defaults.removePersistentDomain(forName: suite)
+    }
+
+    func testExistingUserWithPersistedAppDataMarksOnboardingCompleted() {
+        let suite = "test_persisted_\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+
+        let store = UserSettingsStore(defaults: defaults, hasPersistedAppData: true)
+        XCTAssertTrue(store.hasCompletedOnboarding)
+        XCTAssertTrue(defaults.bool(forKey: "has_completed_onboarding"))
         XCTAssertTrue(defaults.bool(forKey: "did_perform_legacy_onboarding_migration"))
 
         defaults.removePersistentDomain(forName: suite)

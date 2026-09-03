@@ -71,12 +71,24 @@ public struct SharedAppGroupContainer {
             return try ModelContainer(for: schema, migrationPlan: AppMigrationPlan.self, configurations: [config])
         }
     }
+
+    public static func hasPersistedStore(fileManager: FileManager = .default) -> Bool {
+        let candidateURLs: [URL?] = [
+            fileManager.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)?.appendingPathComponent("user_progress.sqlite"),
+            fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?.appendingPathComponent("VocabCraft", isDirectory: true).appendingPathComponent("user_progress.sqlite")
+        ]
+        return candidateURLs.compactMap { $0 }.contains { fileManager.fileExists(atPath: $0.path) }
+    }
 }
 #else
 public struct SharedAppGroupContainer {
     public static let appGroupID = "group.com.hoojinguyen.vocabcraft"
     public static func createContainer(inMemory: Bool = false) throws -> Any? {
         nil
+    }
+
+    public static func hasPersistedStore(fileManager: FileManager = .default) -> Bool {
+        false
     }
 }
 #endif

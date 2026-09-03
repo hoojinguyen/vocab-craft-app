@@ -20,6 +20,7 @@ public final class OnboardingViewModel {
     private let userSettings: UserSettingsStore
     private let notificationScheduler: (any NotificationSchedulerProtocol)?
     public private(set) var synthesisTask: Task<Void, Never>?
+    public private(set) var notificationTask: Task<Void, Never>?
     private var synthesisGeneration: Int = 0
 
     public init(
@@ -69,12 +70,13 @@ public final class OnboardingViewModel {
 
     public func updateNotificationPermission(granted: Bool) {
         userSettings.isNotificationEnabled = granted
+        notificationTask?.cancel()
         if granted {
-            Task {
+            notificationTask = Task {
                 await notificationScheduler?.scheduleDailyReminder(at: selectedReminderInterval)
             }
         } else {
-            Task {
+            notificationTask = Task {
                 await notificationScheduler?.cancelDailyReminder()
             }
         }
@@ -90,6 +92,13 @@ public final class OnboardingViewModel {
         userSettings.dailyGoalCount = 10
         userSettings.notificationTimeInterval = 72000
         userSettings.hasCompletedOnboarding = true
+
+        if userSettings.isNotificationEnabled {
+            notificationTask?.cancel()
+            notificationTask = Task {
+                await notificationScheduler?.scheduleDailyReminder(at: 72000)
+            }
+        }
     }
 
     public func retrySynthesis() {
@@ -101,6 +110,7 @@ public final class OnboardingViewModel {
     }
 
     public func synthesizeRoadmap() async {
+        guard !Task.isCancelled else { return }
         synthesisGeneration += 1
         let currentGen = synthesisGeneration
         isSynthesizing = true
