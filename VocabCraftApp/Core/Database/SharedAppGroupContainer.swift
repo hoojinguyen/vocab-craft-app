@@ -94,6 +94,10 @@ public struct SharedAppGroupContainer {
         sessionDesc.fetchLimit = 1
         if (try? context.fetchCount(sessionDesc)) ?? 0 > 0 { return true }
 
+        var attemptDesc = FetchDescriptor<QuickReflexAttemptRecord>()
+        attemptDesc.fetchLimit = 1
+        if (try? context.fetchCount(attemptDesc)) ?? 0 > 0 { return true }
+
         return false
     }
 }

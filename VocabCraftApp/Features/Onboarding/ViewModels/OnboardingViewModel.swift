@@ -71,6 +71,7 @@ public final class OnboardingViewModel {
     }
 
     public func updateNotificationPermission(granted: Bool) {
+        guard !userSettings.hasCompletedOnboarding else { return }
         hasGrantedNotificationPermission = granted
         userSettings.isNotificationEnabled = granted
 

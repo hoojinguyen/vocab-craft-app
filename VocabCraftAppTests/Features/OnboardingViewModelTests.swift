@@ -236,6 +236,25 @@ final class OnboardingViewModelTests: XCTestCase {
         XCTAssertEqual(scheduler.scheduledInterval, 28800)
     }
 
+    func testLateNotificationPermissionCallbackAfterSkipIsIgnored() async {
+        let settings = UserSettingsStore()
+        settings.hasCompletedOnboarding = false
+        let useCase = MockInitializeUserRoadmapUseCase()
+        let scheduler = MockNotificationScheduler()
+        let vm = OnboardingViewModel(useCase: useCase, userSettings: settings, notificationScheduler: scheduler)
+
+        vm.skipOnboarding()
+        await vm.notificationTask?.value
+        XCTAssertFalse(settings.isNotificationEnabled)
+
+        // Late callback from async system dialog after skip
+        vm.updateNotificationPermission(granted: true)
+        await vm.notificationTask?.value
+
+        XCTAssertFalse(settings.isNotificationEnabled)
+        XCTAssertFalse(vm.hasGrantedNotificationPermission)
+    }
+
     func testImmediatePreviousStepCancelsSynthesisWithoutLeavingIsSynthesizingTrue() async {
         let settings = UserSettingsStore()
         let useCase = MockInitializeUserRoadmapUseCase()
