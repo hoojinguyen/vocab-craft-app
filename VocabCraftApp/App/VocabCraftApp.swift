@@ -54,6 +54,12 @@ struct VocabCraftApp: App {
         let engine = DatasetEngine()
         self.datasetEngine = engine
         let args = ProcessInfo.processInfo.arguments
+        if args.contains("-reset-progress") {
+            #if canImport(SwiftDataMacros)
+            try? container.mainContext.delete(model: UserStageProgress.self)
+            try? container.mainContext.save()
+            #endif
+        }
         let initialTab: TabItem
         if args.contains("-tab-reflex") || args.contains("-reflex-mode") || args.contains("-reflex-phase") {
             initialTab = .reflex
@@ -111,6 +117,8 @@ struct VocabCraftApp: App {
             Group {
                 if NSClassFromString("XCTestCase") != nil {
                     Text("Testing...")
+                } else if ProcessInfo.processInfo.arguments.contains("-show-catalog") {
+                    CraftCatalogView()
                 } else {
                     HomepageView(viewModel: appContainer.makeHomepageViewModel())
                         .environment(\.appContainer, appContainer)

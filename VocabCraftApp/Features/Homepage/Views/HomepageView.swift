@@ -79,8 +79,6 @@ public struct HomepageView: View {
                         } else {
                             CraftFluidJourney(
                                 sections: viewModel.sections,
-                                deckTitle: viewModel.currentDeckTitle,
-                                deckSubtitle: viewModel.currentDeckSubtitle,
                                 onNodeTap: { node in
                                     MainActor.assumeIsolated {
                                         viewModel.handleNodeTap(node)

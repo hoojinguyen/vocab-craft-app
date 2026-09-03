@@ -338,15 +338,29 @@ public extension CraftFluidJourney {
             .filter { !$0.isEmpty }
         return parts.joined(separator: " • ")
     }
-    /// Generates the section model for the pinned header, injecting deck and level context when provided.
-    func headerSection(for docked: LessonSection) -> LessonSection {
-        guard let deckTitle, !deckTitle.isEmpty else {
-            return docked
+    /// Resolves the dynamic stage or subtopic subtitle displayed in the pinned header.
+    func headerSubtitle(for docked: LessonSection) -> String? {
+        if let subtitle = docked.subtitle, !subtitle.isEmpty {
+            return subtitle
         }
+        if let activeNode = docked.nodes.first(where: { $0.state == .active || $0.state == .inProgress }) {
+            return activeNode.title
+        }
+        return docked.nodes.first?.title
+    }
+
+    /// Generates the section model for the pinned header, dynamically reflecting the docked section.
+    func headerSection(for docked: LessonSection) -> LessonSection {
+        let resolvedTitle: String = {
+            if !docked.title.isEmpty { return docked.title }
+            if let deckTitle, !deckTitle.isEmpty { return deckTitle }
+            return ""
+        }()
+
         return LessonSection(
             id: docked.id,
-            title: deckTitle,
-            subtitle: docked.title,
+            title: resolvedTitle,
+            subtitle: headerSubtitle(for: docked),
             level: docked.level ?? sections.first?.level,
             nodes: docked.nodes
         )
@@ -470,7 +484,7 @@ extension CraftFluidJourney {
     }
 
     var headerClearanceHeight: CGFloat {
-        theme.spacing.xxl + theme.spacing.xl + theme.spacing.sm
+        110
     }
 
     var smartBottomPadding: CGFloat {

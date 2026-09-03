@@ -2596,8 +2596,6 @@ private struct CatalogFluidJourneySection: View {
                 CraftFluidJourney(
                     sections: CatalogLearningPathMockData.fluidJourneySections,
                     surfaceStyle: fluidSurfaceStyle,
-                    deckTitle: "Giao Tiếp Hằng Ngày",
-                    deckSubtitle: "A2 · B1 • 5 Bài học",
                     onNodeTap: { node in
                         selectedNodeTitle = node.title
                     },

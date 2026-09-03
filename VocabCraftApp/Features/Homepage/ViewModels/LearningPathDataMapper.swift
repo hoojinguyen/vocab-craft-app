@@ -133,7 +133,7 @@ public struct LearningPathDataMapper: Sendable {
 
         return LessonNodeModel(
             id: stage.id,
-            title: stage.title,
+            title: cleanStageTitle(stage.title),
             subtitle: previewSubtitle,
             iconName: stage.iconName.isEmpty ? "book.fill" : stage.iconName,
             state: state,
@@ -305,5 +305,14 @@ public struct LearningPathDataMapper: Sendable {
         } else {
             return 1
         }
+    }
+
+    private static func cleanStageTitle(_ title: String) -> String {
+        let pattern = #"^Chặng\s+\d+:\s*"#
+        if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) {
+            let range = NSRange(location: 0, length: title.utf16.count)
+            return regex.stringByReplacingMatches(in: title, options: [], range: range, withTemplate: "")
+        }
+        return title
     }
 }

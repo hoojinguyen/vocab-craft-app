@@ -163,14 +163,8 @@ public struct CraftJourneyNode: View, Equatable {
             tapTrigger.toggle()
             onTap?()
         } label: {
-            ZStack {
-                if node.state == .active || node.state == .inProgress {
-                    activeGlowBackground
-                }
-
-                nodeFace
-            }
-            .frame(width: currentDiameter, height: currentDiameter)
+            nodeFaceView
+                .frame(width: currentDiameter, height: currentDiameter)
         }
         .buttonStyle(
             JourneyNodeButtonStyle(
@@ -188,6 +182,26 @@ public struct CraftJourneyNode: View, Equatable {
     }
 
     // MARK: - Node Face
+
+    @ViewBuilder
+    private var nodeFaceView: some View {
+        if node.state == .active, !reduceMotion {
+            PhaseAnimator(GlowPhase.allCases) { phase in
+                nodeFace
+                    .scaleEffect(phase == .glowing ? 1.03 : 1.0)
+                    .shadow(
+                        color: theme.colors.brandPrimary.opacity(phase == .glowing ? 0.45 : 0.20),
+                        radius: phase == .glowing ? 10 : 5,
+                        x: 0,
+                        y: phase == .glowing ? 4 : 2
+                    )
+            } animation: { _ in
+                .craftGlow
+            }
+        } else {
+            nodeFace
+        }
+    }
 
     @ViewBuilder
     private var nodeFace: some View {
@@ -215,8 +229,23 @@ public struct CraftJourneyNode: View, Equatable {
         }
     }
 
+    /// Resolves the SF Symbol name, automatically preferring filled variants when available.
+    public var resolvedIconName: String {
+        let base = displayedIconName
+        if base.hasSuffix(".fill") || base.contains(".fill.") {
+            return base
+        }
+        let filled = "\(base).fill"
+        #if canImport(UIKit)
+        if UIImage(systemName: filled) != nil {
+            return filled
+        }
+        #endif
+        return base
+    }
+
     private var iconView: some View {
-        Image(systemName: displayedIconName)
+        Image(systemName: resolvedIconName)
             .font(.system(size: iconSize, weight: iconFontWeight))
             .foregroundStyle(iconForegroundColor)
     }
@@ -397,12 +426,7 @@ public struct CraftJourneyNode: View, Equatable {
     private var iconForegroundColor: Color {
         switch node.state {
         case .active, .inProgress:
-            switch effectiveSurfaceStyle {
-            case .outlined, .glass:
-                return theme.colors.brandPrimary
-            case .elevated, .flat, .tactile3D:
-                return theme.colors.textInverse
-            }
+            return Color.white
         case .completed:
             return theme.colors.brandPrimary
         case .bonus:
@@ -421,7 +445,7 @@ public struct CraftJourneyNode: View, Equatable {
 
             Image(systemName: "checkmark")
                 .font(.system(size: 13, weight: .bold))
-                .foregroundStyle(theme.colors.textInverse)
+                .foregroundStyle(Color.white)
         }
         .frame(width: 26, height: 26)
         .overlay(
@@ -429,55 +453,5 @@ public struct CraftJourneyNode: View, Equatable {
                 .strokeBorder(theme.colors.canvasBackground, lineWidth: 2.5)
         )
         .accessibilityHidden(true)
-    }
-
-    // MARK: - Active Breathing Glow
-
-    @ViewBuilder
-    private var activeGlowBackground: some View {
-        let haloSize = currentDiameter + 24
-        let haloGradient = RadialGradient(
-            colors: [
-                theme.colors.brandPrimary.opacity(0.35),
-                theme.colors.brandPrimary.opacity(0.12),
-                Color.clear
-            ],
-            center: .center,
-            startRadius: currentDiameter * 0.35,
-            endRadius: haloSize * 0.5
-        )
-
-        let glowCornerRadius: CGFloat = 38 * baseScale
-
-        if reduceMotion {
-            RoundedRectangle(cornerRadius: glowCornerRadius, style: .continuous)
-                .fill(haloGradient)
-                .frame(width: haloSize, height: haloSize)
-                .opacity(0.8)
-
-            RoundedRectangle(cornerRadius: glowCornerRadius, style: .continuous)
-                .stroke(theme.colors.brandPrimary.opacity(0.25), lineWidth: 1.5)
-                .frame(width: haloSize, height: haloSize)
-        } else {
-            PhaseAnimator(GlowPhase.allCases) { phase in
-                ZStack {
-                    RoundedRectangle(cornerRadius: glowCornerRadius, style: .continuous)
-                        .fill(haloGradient)
-                        .frame(width: haloSize, height: haloSize)
-                        .opacity(phase == .glowing ? 1.0 : 0.65)
-                        .scaleEffect(phase == .glowing ? 1.05 : 0.98)
-
-                    RoundedRectangle(cornerRadius: glowCornerRadius, style: .continuous)
-                        .stroke(
-                            theme.colors.brandPrimary.opacity(phase == .glowing ? 0.38 : 0.16),
-                            lineWidth: 1.5
-                        )
-                        .frame(width: haloSize, height: haloSize)
-                        .scaleEffect(phase == .glowing ? 1.04 : 0.98)
-                }
-            } animation: { _ in
-                .craftGlow
-            }
-        }
     }
 }

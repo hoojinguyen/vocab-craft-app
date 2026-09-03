@@ -310,21 +310,26 @@ struct CraftFluidJourneyTests {
         #expect(journey.resolvedDeckTitle == "Personal Details Vocabulary")
     }
 
-    @Test("CraftFluidJourney pinnedHeaderSection includes deck and subtopic context")
+    @Test("CraftFluidJourney pinnedHeaderSection reflects docked section title and stage subtitle")
     func testFluidJourneyPinnedHeaderSectionContext() {
-        let section1 = LessonSection(id: "s1", title: "Present Simple", subtitle: "Basics", level: "A2", nodes: [])
-        let journeyWithDeck = CraftFluidJourney(sections: [section1], deckTitle: "Personal Details Vocabulary")
-        let headerSec = journeyWithDeck.headerSection(for: section1)
+        let node1 = LessonNodeModel(id: "n1", title: "Habits & Moods", state: .active)
+        let section1 = LessonSection(id: "s1", title: "Daily Conversations", level: "A2", nodes: [node1])
+        let section2 = LessonSection(id: "s2", title: "Business & Work", level: "B1", nodes: [
+            LessonNodeModel(id: "n2", title: "Meetings", state: .locked)
+        ])
+        let journey = CraftFluidJourney(sections: [section1, section2])
+        let headerSec1 = journey.headerSection(for: section1)
 
-        #expect(headerSec.id == "s1")
-        #expect(headerSec.title == "Personal Details Vocabulary")
-        #expect(headerSec.subtitle == "Present Simple")
-        #expect(headerSec.level == "A2")
+        #expect(headerSec1.id == "s1")
+        #expect(headerSec1.title == "Daily Conversations")
+        #expect(headerSec1.subtitle == "Habits & Moods")
+        #expect(headerSec1.level == "A2")
 
-        let journeyWithoutDeck = CraftFluidJourney(sections: [section1])
-        let unchangedHeaderSec = journeyWithoutDeck.headerSection(for: section1)
-        #expect(unchangedHeaderSec.title == "Present Simple")
-        #expect(unchangedHeaderSec.subtitle == "Basics")
+        let headerSec2 = journey.headerSection(for: section2)
+        #expect(headerSec2.id == "s2")
+        #expect(headerSec2.title == "Business & Work")
+        #expect(headerSec2.subtitle == "Meetings")
+        #expect(headerSec2.level == "B1")
     }
 
     @Test("CraftFluidJourney surfaceStyle property propagation")

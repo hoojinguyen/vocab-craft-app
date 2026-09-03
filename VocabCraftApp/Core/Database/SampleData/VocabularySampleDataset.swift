@@ -2,25 +2,25 @@ import Foundation
 
 public enum VocabularySampleDataset {
     public static let decks: [TopicDeckDTO] = [
-        TopicDeckDTO(id: "deck_daily", title: "Giao Tiếp Hằng Ngày", iconName: "bubble.left.and.bubble.right",
+        TopicDeckDTO(id: "deck_daily", title: "Giao Tiếp Hằng Ngày", iconName: "bubble.left.and.bubble.right.fill",
                      badgeColorHex: "#38B2AC", cefrLevel: "A2 - B1", sortOrder: 1),
-        TopicDeckDTO(id: "deck_business", title: "Công Sở & Kinh Doanh", iconName: "briefcase",
+        TopicDeckDTO(id: "deck_business", title: "Công Sở & Kinh Doanh", iconName: "briefcase.fill",
                      badgeColorHex: "#ED8936", cefrLevel: "B1 - B2", sortOrder: 2),
-        TopicDeckDTO(id: "deck_tech", title: "Công Nghệ & AI", iconName: "cpu",
+        TopicDeckDTO(id: "deck_tech", title: "Công Nghệ & AI", iconName: "cpu.fill",
                      badgeColorHex: "#4299E1", cefrLevel: "B2 - C1", sortOrder: 3),
-        TopicDeckDTO(id: "deck_academic", title: "Học Thuật & IELTS", iconName: "graduationcap",
+        TopicDeckDTO(id: "deck_academic", title: "Học Thuật & IELTS", iconName: "graduationcap.fill",
                      badgeColorHex: "#9F7AEA", cefrLevel: "B2 - C1", sortOrder: 4)
     ]
 
     public static let stages: [SubTopicStageDTO] = [
-        SubTopicStageDTO(id: "stage_daily_1", deckId: "deck_daily", title: "Chặng 1: Thói quen & Cảm xúc", iconName: "heart", sortOrder: 1),
-        SubTopicStageDTO(id: "stage_daily_2", deckId: "deck_daily", title: "Chặng 2: Giao tiếp & Ứng xử", iconName: "person.2", sortOrder: 2),
-        SubTopicStageDTO(id: "stage_biz_1", deckId: "deck_business", title: "Chặng 1: Quản lý & Kế hoạch", iconName: "checklist", sortOrder: 1),
-        SubTopicStageDTO(id: "stage_biz_2", deckId: "deck_business", title: "Chặng 2: Đàm phán & Năng lực", iconName: "chart.line.uptrend.xyaxis", sortOrder: 2),
-        SubTopicStageDTO(id: "stage_tech_1", deckId: "deck_tech", title: "Chặng 1: Kỷ nguyên Số", iconName: "network", sortOrder: 1),
-        SubTopicStageDTO(id: "stage_tech_2", deckId: "deck_tech", title: "Chặng 2: Trí tuệ Nhân tạo", iconName: "sparkles", sortOrder: 2),
-        SubTopicStageDTO(id: "stage_acad_1", deckId: "deck_academic", title: "Chặng 1: Môi trường & Xã hội", iconName: "leaf", sortOrder: 1),
-        SubTopicStageDTO(id: "stage_acad_2", deckId: "deck_academic", title: "Chặng 2: Tư duy & Toàn cầu", iconName: "globe", sortOrder: 2)
+        SubTopicStageDTO(id: "stage_daily_1", deckId: "deck_daily", title: "Thói quen & Cảm xúc", iconName: "heart.fill", sortOrder: 1),
+        SubTopicStageDTO(id: "stage_daily_2", deckId: "deck_daily", title: "Giao tiếp & Ứng xử", iconName: "person.2.fill", sortOrder: 2),
+        SubTopicStageDTO(id: "stage_biz_1", deckId: "deck_business", title: "Quản lý & Kế hoạch", iconName: "list.clipboard.fill", sortOrder: 1),
+        SubTopicStageDTO(id: "stage_biz_2", deckId: "deck_business", title: "Đàm phán & Năng lực", iconName: "chart.line.uptrend.xyaxis", sortOrder: 2),
+        SubTopicStageDTO(id: "stage_tech_1", deckId: "deck_tech", title: "Kỷ nguyên Số", iconName: "network", sortOrder: 1),
+        SubTopicStageDTO(id: "stage_tech_2", deckId: "deck_tech", title: "Trí tuệ Nhân tạo", iconName: "sparkles", sortOrder: 2),
+        SubTopicStageDTO(id: "stage_acad_1", deckId: "deck_academic", title: "Môi trường & Xã hội", iconName: "leaf.fill", sortOrder: 1),
+        SubTopicStageDTO(id: "stage_acad_2", deckId: "deck_academic", title: "Tư duy & Toàn cầu", iconName: "globe", sortOrder: 2)
     ]
 
     public static let words: [TopicWordDTO] = [

@@ -90,4 +90,20 @@ struct CraftJourneyNodeTests {
         #expect(lockedView.accessibilityTraits == [])
         #expect(upcomingView.accessibilityTraits == .isButton)
     }
+
+    @Test("Verify resolvedIconName automatically prefers filled variants")
+    func testResolvedIconNamePrefersFilledVariant() {
+        let node = LessonNodeModel(id: "n-heart", title: "Heart Lesson", iconName: "heart", state: .active)
+        let view = CraftJourneyNode(node: node)
+        #expect(view.displayedIconName == "heart")
+        #if canImport(UIKit)
+        #expect(view.resolvedIconName == "heart.fill")
+        #else
+        #expect(view.resolvedIconName == "heart")
+        #endif
+
+        let filledNode = LessonNodeModel(id: "n-star", title: "Star Lesson", iconName: "star.fill", state: .completed)
+        let filledView = CraftJourneyNode(node: filledNode)
+        #expect(filledView.resolvedIconName == "star.fill")
+    }
 }
