@@ -865,6 +865,24 @@
         }
       }
     },
+    "craft.fluid_journey.deck_summary_format": {
+      "comment": "Summary of lessons and words in a deck",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld lessons • %lld words"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld bài học • %lld từ vựng"
+          }
+        }
+      }
+    },
     "craft.fluid_journey.unit_picker_title": {
       "comment": "Title for unit drawer sheet",
       "extractionState": "manual",

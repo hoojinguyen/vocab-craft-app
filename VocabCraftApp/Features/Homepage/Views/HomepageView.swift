@@ -79,6 +79,7 @@ public struct HomepageView: View {
                         } else {
                             CraftFluidJourney(
                                 sections: viewModel.sections,
+                                surfaceStyle: .tactile3D,
                                 onNodeTap: { node in
                                     MainActor.assumeIsolated {
                                         viewModel.handleNodeTap(node)

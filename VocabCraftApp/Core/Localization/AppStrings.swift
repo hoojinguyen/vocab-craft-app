@@ -410,6 +410,9 @@ extension AppStrings {
         public static func sectionProgress(completed: Int, total: Int) -> String {
             String(format: String(localized: "app.home.section.progress_format", defaultValue: "%lld/%lld lessons", bundle: .module), completed, total)
         }
+        public static func deckSummary(lessons: Int, words: Int) -> String {
+            String(format: String(localized: "app.home.section.deck_summary_format", defaultValue: "%lld lessons • %lld words", bundle: .module), lessons, words)
+        }
         public static var todayLabelText: String {
             String(localized: "app.home.header.today_label", defaultValue: "today", bundle: .module)
         }

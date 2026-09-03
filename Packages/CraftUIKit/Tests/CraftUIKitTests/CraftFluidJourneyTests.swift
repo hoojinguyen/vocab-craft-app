@@ -310,25 +310,37 @@ struct CraftFluidJourneyTests {
         #expect(journey.resolvedDeckTitle == "Personal Details Vocabulary")
     }
 
-    @Test("CraftFluidJourney pinnedHeaderSection reflects docked section title and stage subtitle")
+    @Test("CraftFluidJourney pinnedHeaderSection reflects docked section title and topic summary subtitle")
     func testFluidJourneyPinnedHeaderSectionContext() {
         let node1 = LessonNodeModel(id: "n1", title: "Habits & Moods", state: .active)
-        let section1 = LessonSection(id: "s1", title: "Daily Conversations", level: "A2", nodes: [node1])
-        let section2 = LessonSection(id: "s2", title: "Business & Work", level: "B1", nodes: [
-            LessonNodeModel(id: "n2", title: "Meetings", state: .locked)
-        ])
+        let section1 = LessonSection(
+            id: "s1",
+            title: "Daily Conversations",
+            subtitle: "4 lessons • 24 words",
+            level: "A2",
+            nodes: [node1]
+        )
+        let section2 = LessonSection(
+            id: "s2",
+            title: "Business & Work",
+            subtitle: "3 lessons • 18 words",
+            level: "B1",
+            nodes: [
+                LessonNodeModel(id: "n2", title: "Meetings", state: .locked)
+            ]
+        )
         let journey = CraftFluidJourney(sections: [section1, section2])
         let headerSec1 = journey.headerSection(for: section1)
 
         #expect(headerSec1.id == "s1")
         #expect(headerSec1.title == "Daily Conversations")
-        #expect(headerSec1.subtitle == "Habits & Moods")
+        #expect(headerSec1.subtitle == "4 lessons • 24 words")
         #expect(headerSec1.level == "A2")
 
         let headerSec2 = journey.headerSection(for: section2)
         #expect(headerSec2.id == "s2")
         #expect(headerSec2.title == "Business & Work")
-        #expect(headerSec2.subtitle == "Meetings")
+        #expect(headerSec2.subtitle == "3 lessons • 18 words")
         #expect(headerSec2.level == "B1")
     }
 

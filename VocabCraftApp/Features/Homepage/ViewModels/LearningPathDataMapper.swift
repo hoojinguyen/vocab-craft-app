@@ -63,7 +63,12 @@ public struct LearningPathDataMapper: Sendable {
                 sectionNodes[activeIdx + 1] = withState(sectionNodes[activeIdx + 1], state: .upcoming)
             }
 
-            let section = buildSection(deck: deck, deckIndex: deckIndex, nodes: sectionNodes)
+            let section = buildSection(
+                deck: deck,
+                deckIndex: deckIndex,
+                nodes: sectionNodes,
+                deckWordCount: deckWordCount
+            )
             sections.append(section)
         }
 
@@ -266,13 +271,15 @@ public struct LearningPathDataMapper: Sendable {
     private static func buildSection(
         deck: TopicDeckDTO,
         deckIndex: Int,
-        nodes: [LessonNodeModel]
+        nodes: [LessonNodeModel],
+        deckWordCount: Int
     ) -> LessonSection {
         // Exclude treasureChest from progress denominator (bonus, not required)
         let progressNodes = nodes.filter { $0.kind != .treasureChest }
         let completedCount = progressNodes.filter { $0.state == .completed }.count
         let totalCount = progressNodes.count
         let progressText = AppStrings.Home.sectionProgress(completed: completedCount, total: totalCount)
+        let subtitleText = AppStrings.Home.deckSummary(lessons: totalCount, words: deckWordCount)
         // Honest progress: active/inProgress/bonus counts as 0.5, so bar is not flat 0 when learner started
         let hasActive = progressNodes.contains { $0.state == .active || $0.state == .inProgress || $0.state == .bonus }
         let effectiveCompleted = Double(completedCount) + (hasActive ? 0.5 : 0.0)
@@ -281,7 +288,7 @@ public struct LearningPathDataMapper: Sendable {
         return LessonSection(
             id: deck.id,
             title: deck.title,
-            subtitle: nil,
+            subtitle: subtitleText,
             level: deck.cefrLevel,
             progressText: progressText,
             progressValue: progressValue,

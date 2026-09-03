@@ -409,6 +409,23 @@
         }
       }
     },
+    "app.home.section.deck_summary_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld lessons • %lld words"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld bài học • %lld từ vựng"
+          }
+        }
+      }
+    },
     "app.home.section.progress_format": {
       "extractionState": "manual",
       "localizations": {

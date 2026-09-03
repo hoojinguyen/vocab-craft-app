@@ -72,7 +72,13 @@ public struct CraftFluidJourney: View {
     // MARK: - Environment
 
     @Environment(\.craftTheme) var theme
+    @Environment(\.craftSurfaceStyle) var environmentStyle
     @Environment(\.accessibilityReduceMotion) var reduceMotion
+
+    /// Effective surface style resolved from explicit parameter, environment, or theme default.
+    public var effectiveSurfaceStyle: CraftSurfaceStyle {
+        surfaceStyle ?? (environmentStyle != .flat ? environmentStyle : theme.journeySurfaceStyle)
+    }
 
     // MARK: - State
 
@@ -103,6 +109,11 @@ public struct CraftFluidJourney: View {
             }
         }) { node in
             lessonDetailSheet(for: node)
+        }
+        .onAppear {
+            if ProcessInfo.processInfo.arguments.contains("-open-detail-node") {
+                selectedNodeForDetail = sections.first?.nodes.first(where: { $0.state == .active })
+            }
         }
     }
 
@@ -338,15 +349,12 @@ public extension CraftFluidJourney {
             .filter { !$0.isEmpty }
         return parts.joined(separator: " • ")
     }
-    /// Resolves the dynamic stage or subtopic subtitle displayed in the pinned header.
+    /// Resolves the dynamic topic summary subtitle displayed in the pinned header.
     func headerSubtitle(for docked: LessonSection) -> String? {
         if let subtitle = docked.subtitle, !subtitle.isEmpty {
             return subtitle
         }
-        if let activeNode = docked.nodes.first(where: { $0.state == .active || $0.state == .inProgress }) {
-            return activeNode.title
-        }
-        return docked.nodes.first?.title
+        return docked.progressText
     }
 
     /// Generates the section model for the pinned header, dynamically reflecting the docked section.
@@ -471,6 +479,7 @@ extension CraftFluidJourney {
         } else {
             CraftLessonDetailSheet(
                 node: node,
+                surfaceStyle: effectiveSurfaceStyle,
                 onStart: { started in
                     pendingLessonToStart = started
                     selectedNodeForDetail = nil
@@ -479,6 +488,7 @@ extension CraftFluidJourney {
                     selectedNodeForDetail = nil
                 }
             )
+            .craftSurfaceStyle(effectiveSurfaceStyle)
             .presentationDetents([.fraction(0.70), .large])
         }
     }

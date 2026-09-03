@@ -60,6 +60,11 @@ struct VocabCraftApp: App {
             try? container.mainContext.save()
             #endif
         }
+        let router = Self.createAppRouter(from: args)
+        self.appContainer = AppContainer(datasetEngine: engine, modelContainer: container, appRouter: router)
+    }
+
+    private static func createAppRouter(from args: [String]) -> AppRouter {
         let initialTab: TabItem
         if args.contains("-tab-reflex") || args.contains("-reflex-mode") || args.contains("-reflex-phase") {
             initialTab = .reflex
@@ -108,8 +113,7 @@ struct VocabCraftApp: App {
                 )
             }
         }
-
-        self.appContainer = AppContainer(datasetEngine: engine, modelContainer: container, appRouter: router)
+        return router
     }
 
     var body: some Scene {

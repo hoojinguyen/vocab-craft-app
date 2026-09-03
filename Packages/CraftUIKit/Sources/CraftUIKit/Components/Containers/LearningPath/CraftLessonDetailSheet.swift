@@ -9,10 +9,12 @@ import UIKit
 /// learning objectives, and a context-sensitive primary call-to-action button.
 public struct CraftLessonDetailSheet: View {
     public let node: LessonNodeModel
+    public let surfaceStyle: CraftSurfaceStyle?
     public let onStart: (@Sendable (LessonNodeModel) -> Void)?
     public let onDismiss: (@Sendable () -> Void)?
 
     @Environment(\.craftTheme) private var theme
+    @Environment(\.craftSurfaceStyle) private var environmentStyle
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AccessibilityFocusState private var isHeaderFocused: Bool
     @ScaledMetric(relativeTo: .body) private var baseScale: CGFloat = 1.0
@@ -21,12 +23,19 @@ public struct CraftLessonDetailSheet: View {
 
     public init(
         node: LessonNodeModel,
+        surfaceStyle: CraftSurfaceStyle? = nil,
         onStart: (@Sendable (LessonNodeModel) -> Void)? = nil,
         onDismiss: (@Sendable () -> Void)? = nil
     ) {
         self.node = node
+        self.surfaceStyle = surfaceStyle
         self.onStart = onStart
         self.onDismiss = onDismiss
+    }
+
+    /// Effective surface style resolved from explicit parameter, environment, or theme default.
+    public var effectiveSurfaceStyle: CraftSurfaceStyle {
+        surfaceStyle ?? (environmentStyle != .flat ? environmentStyle : theme.journeySurfaceStyle)
     }
 
     // MARK: - Computed Properties
@@ -247,13 +256,30 @@ private extension CraftLessonDetailSheet {
 
 private extension CraftLessonDetailSheet {
     var tactile3DNodeIcon: some View {
-        ZStack {
-            // Bottom 3D Bevel/Rim
-            bottomRimShape
-                .offset(y: node.state == .locked ? 0 : 4)
+        ZStack(alignment: .bottomTrailing) {
+            ZStack {
+                // Bottom 3D Bevel/Rim
+                bottomRimShape
+                    .offset(y: node.state == .locked ? 0 : 4)
 
-            // Top Face
-            topFaceShape
+                // Top Face
+                topFaceShape
+            }
+
+            if node.state == .completed {
+                ZStack {
+                    Circle()
+                        .fill(theme.colors.surfaceCard)
+                        .frame(width: 26, height: 26)
+                    Circle()
+                        .fill(theme.colors.statusSuccess)
+                        .frame(width: 22, height: 22)
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(Color.white)
+                }
+                .offset(x: 4, y: 4)
+            }
         }
         .frame(width: tactileDiameter, height: tactileDiameter + (node.state == .locked ? 0 : 4))
         .accessibilityHidden(true)
@@ -267,7 +293,7 @@ private extension CraftLessonDetailSheet {
                 .fill(rimColor)
                 .frame(width: tactileDiameter, height: tactileDiameter)
         case .standard, .treasureChest:
-            Circle()
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
                 .fill(rimColor)
                 .frame(width: tactileDiameter, height: tactileDiameter)
         }
@@ -313,27 +339,28 @@ private extension CraftLessonDetailSheet {
                 }
             }
         case .standard:
+            let squircle = RoundedRectangle(cornerRadius: 22, style: .continuous)
             ZStack {
                 switch node.state {
                 case .completed:
-                    Circle().fill(theme.colors.statusSuccess)
+                    squircle.fill(theme.colors.brandPrimary.opacity(0.14))
                 case .active:
-                    Circle().fill(theme.gradients.brandHero)
+                    squircle.fill(theme.gradients.brandHero)
                 case .inProgress:
-                    Circle().fill(theme.colors.surfaceElevated)
+                    squircle.fill(theme.colors.surfaceElevated)
                 case .upcoming, .locked:
-                    Circle().fill(theme.colors.surfaceSubtle)
+                    squircle.fill(theme.colors.surfaceSubtle)
                 case .bonus:
-                    Circle().fill(theme.gradients.accentShine)
+                    squircle.fill(theme.gradients.accentShine)
                 }
 
                 if node.state == .upcoming || node.state == .locked {
-                    Circle()
+                    squircle
                         .stroke(theme.colors.borderDefault, lineWidth: 1.5)
                 }
             }
         case .treasureChest:
-            Circle()
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
                 .fill(theme.gradients.accentShine)
         }
     }
@@ -356,7 +383,7 @@ private extension CraftLessonDetailSheet {
                     lineWidth: 1.5
                 )
         case .standard, .treasureChest:
-            Circle()
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
                 .stroke(
                     LinearGradient(
                         colors: [
@@ -379,7 +406,7 @@ private extension CraftLessonDetailSheet {
         case .standard, .checkpoint:
             switch node.state {
             case .completed:
-                return theme.colors.statusSuccess.opacity(0.85)
+                return theme.colors.brandPrimary.opacity(0.3)
             case .active:
                 return theme.colors.brandPrimary.opacity(0.85)
             case .inProgress, .upcoming:
@@ -397,27 +424,40 @@ private extension CraftLessonDetailSheet {
             return (node.iconName == "book.fill" || node.iconName.isEmpty) ? "gift.fill" : node.iconName
         }
 
+        if node.kind == .checkpoint && (node.iconName == "book.fill" || node.iconName.isEmpty) {
+            return "crown.fill"
+        }
+
+        if !node.iconName.isEmpty {
+            #if os(iOS)
+            let candidate = node.iconName.hasSuffix(".fill") ? node.iconName : "\(node.iconName).fill"
+            if UIImage(systemName: candidate) != nil {
+                return candidate
+            }
+            #endif
+            return node.iconName
+        }
+
         switch node.state {
         case .completed:
             return "checkmark"
         case .locked:
             return "lock.fill"
         case .bonus:
-            return node.iconName.isEmpty ? "star.fill" : node.iconName
+            return "star.fill"
         case .active, .inProgress, .upcoming:
-            if node.kind == .checkpoint && (node.iconName == "book.fill" || node.iconName.isEmpty) {
-                return "crown.fill"
-            }
-            return node.iconName.isEmpty ? "book.fill" : node.iconName
+            return "book.fill"
         }
     }
 
     var effectiveIconColor: Color {
         switch node.state {
-        case .completed, .active, .bonus:
+        case .completed:
+            return theme.colors.brandPrimary
+        case .active, .bonus:
             return .white
         case .inProgress:
-            return theme.colors.brandPrimary
+            return .white
         case .upcoming, .locked:
             return theme.colors.textMuted
         }
@@ -466,7 +506,11 @@ private extension CraftLessonDetailSheet {
         tintColor: Color,
         backgroundColor: Color
     ) -> some View {
-        HStack(spacing: 5) {
+        let isTactile = (effectiveSurfaceStyle == .tactile3D)
+        let chipCornerRadius = theme.radii.md
+        let bottomRimDepth: CGFloat = isTactile ? 2.5 : 0
+
+        let chipContent = HStack(spacing: 5) {
             Image(systemName: icon)
                 .font(.system(size: 12, weight: .bold))
                 .foregroundStyle(tintColor)
@@ -481,12 +525,33 @@ private extension CraftLessonDetailSheet {
         .padding(.horizontal, 10)
         .padding(.vertical, 7)
         .frame(maxWidth: .infinity)
-        .background(backgroundColor)
-        .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
-        .overlay(
-            RoundedRectangle(cornerRadius: theme.radii.md)
-                .stroke(theme.colors.borderDefault.opacity(0.5), lineWidth: 1)
+        .background(
+            isTactile ? theme.colors.surfaceCard : backgroundColor
         )
+        .clipShape(RoundedRectangle(cornerRadius: chipCornerRadius, style: .continuous))
+        .overlay {
+            if isTactile {
+                RoundedRectangle(cornerRadius: chipCornerRadius, style: .continuous)
+                    .stroke(theme.depths.topHighlight, lineWidth: 1)
+            } else {
+                RoundedRectangle(cornerRadius: chipCornerRadius, style: .continuous)
+                    .stroke(theme.colors.borderDefault.opacity(0.5), lineWidth: 1)
+            }
+        }
+
+        return Group {
+            if isTactile {
+                ZStack {
+                    RoundedRectangle(cornerRadius: chipCornerRadius, style: .continuous)
+                        .fill(theme.colors.surfaceElevated)
+                        .offset(y: bottomRimDepth)
+                    chipContent
+                }
+                .padding(.bottom, bottomRimDepth)
+            } else {
+                chipContent
+            }
+        }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabel ?? title)
     }
@@ -502,7 +567,7 @@ private extension CraftLessonDetailSheet {
     }
 
     var objectivesCard: some View {
-        CraftCard(style: .outlined) {
+        CraftCard(style: effectiveSurfaceStyle == .tactile3D ? .tactile3D : .outlined) {
             VStack(alignment: .leading, spacing: theme.spacing.sm) {
                 HStack(spacing: 8) {
                     Image(systemName: "target")
@@ -546,9 +611,10 @@ private extension CraftLessonDetailSheet {
     var actionButton: some View {
         CraftButton(
             ctaTitle,
-            variant: ctaVariant,
+            variant: (effectiveSurfaceStyle == .tactile3D && ctaVariant == .primary) ? .tactile : ctaVariant,
             size: .lg,
-            isFullWidth: true
+            isFullWidth: true,
+            style: effectiveSurfaceStyle
         ) {
             triggerTapFeedback()
             if !isCtaDisabled {

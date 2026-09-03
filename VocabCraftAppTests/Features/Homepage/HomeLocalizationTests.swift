@@ -27,6 +27,7 @@ struct HomeLocalizationTests {
     @Test("Verifies section and checkpoint accessors in AppStrings.Home")
     func testAppStringsHomeSectionAccessors() {
         #expect(AppStrings.Home.unitTitle(number: 1, title: "Foundations") == "Unit 1: Foundations")
+        #expect(AppStrings.Home.deckSummary(lessons: 4, words: 24) == "4 lessons • 24 words")
         #expect(AppStrings.Home.checkpointTitleText == "Unit Review Exam")
         #expect(AppStrings.Home.checkpointSubtitleText == "Comprehensive exam covering all unit words")
         let _: LocalizedStringKey = AppStrings.Home.checkpointTitle
@@ -100,6 +101,7 @@ struct HomeLocalizationTests {
             "app.home.header.daily_goal_a11y_format",
             "app.home.header.streak_format",
             "app.home.section.unit_title_format",
+            "app.home.section.deck_summary_format",
             "app.home.section.checkpoint_title",
             "app.home.section.checkpoint_subtitle",
             "app.home.node.words_duration_format",
@@ -115,7 +117,7 @@ struct HomeLocalizationTests {
             "app.home.node.locked_hint"
         ]
 
-        #expect(requiredHomeKeys.count == 20)
+        #expect(requiredHomeKeys.count == 21)
 
         for key in requiredHomeKeys {
             let entry = try #require(strings[key], "Missing required key: \(key)")
