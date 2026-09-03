@@ -17,6 +17,10 @@ public struct HomepageView: View {
     @State private var settingsVM: SettingsViewModel?
     @State private var reflexBlitzVM: ReflexBlitzViewModel?
     @State private var activeLessonNode: LessonNodeModel?
+    @State private var activeLessonLearningVM: LessonLearningViewModel?
+    @State private var lessonLaunchTask: Task<Void, Never>?
+    @State private var isLaunchingLesson: Bool = false
+    @State private var isHandlingLessonFinished: Bool = false
     @State private var tabBarPresentation: CraftTabBarPresentation = .expanded
     @State private var scrollToActiveNonce: Int = 0
     @State private var homeConfettiTrigger: Bool = false
@@ -191,6 +195,9 @@ public struct HomepageView: View {
             }
         }
         .onChange(of: appRouter.selectedTab) { _, newTab in
+            if newTab != .home {
+                lessonLaunchTask?.cancel()
+            }
             if newTab == .reflex && reflexBlitzVM == nil {
                 self.reflexBlitzVM = appContainer.makeReflexBlitzViewModel()
             }
@@ -200,15 +207,72 @@ public struct HomepageView: View {
             )
         }
         .environment(\.locale, appContainer.userSettingsStore.appLocale ?? .autoupdatingCurrent)
+        #if os(iOS)
+        .fullScreenCover(item: $activeLessonLearningVM, onDismiss: {
+            activeLessonLearningVM = nil
+        }) { vm in
+            LessonLearningView(
+                viewModel: vm,
+                onDismiss: {
+                    activeLessonLearningVM = nil
+                },
+                onFinished: { summary in
+                    handleLessonFinished(vm: vm, summary: summary)
+                }
+            )
+        }
+        #else
+        .sheet(item: $activeLessonLearningVM, onDismiss: {
+            activeLessonLearningVM = nil
+        }) { vm in
+            LessonLearningView(
+                viewModel: vm,
+                onDismiss: {
+                    activeLessonLearningVM = nil
+                },
+                onFinished: { summary in
+                    handleLessonFinished(vm: vm, summary: summary)
+                }
+            )
+        }
+        #endif
     }
 
     private func startLesson(for node: LessonNodeModel) {
-        Task {
+        guard !isLaunchingLesson && activeLessonLearningVM == nil else { return }
+
+        let resolvedDeckId: String
+        if node.id.hasPrefix("checkpoint_") {
+            resolvedDeckId = String(node.id.dropFirst("checkpoint_".count))
+        } else {
+            resolvedDeckId = viewModel.sections.first(where: { sec in sec.nodes.contains(where: { $0.id == node.id }) })?.id ?? ""
+        }
+
+        guard !resolvedDeckId.isEmpty else {
+            completionToastData = CraftToastData(
+                title: AppStrings.Common.errorText,
+                message: AppStrings.Lesson.loadErrorText,
+                iconName: "exclamationmark.triangle.fill",
+                style: .danger,
+                surfaceStyle: .glass,
+                duration: 3.0
+            )
+            return
+        }
+
+        isLaunchingLesson = true
+        lessonLaunchTask?.cancel()
+        lessonLaunchTask = Task {
+            defer {
+                Task { @MainActor in
+                    isLaunchingLesson = false
+                }
+            }
+
             let words: [TopicWordDTO]
+            let deckId: String = resolvedDeckId
             if node.id.hasPrefix("checkpoint_") {
-                let deckId = String(node.id.dropFirst("checkpoint_".count))
                 let stages = (try? await appContainer.vocabularyDataSource.fetchSubTopicStages(deckId: deckId)) ?? []
-                // Fetch checkpoint words in parallel
                 let deckWords: [TopicWordDTO] = await withTaskGroup(of: [TopicWordDTO].self) { group in
                     for stage in stages {
                         group.addTask {
@@ -227,11 +291,80 @@ public struct HomepageView: View {
                 words = (try? await appContainer.vocabularyDataSource.fetchWordsForStage(stageId: node.id)) ?? []
             }
 
-            let blitzWords = words.map { ReflexBlitzWordItem(from: $0) }
-            let vm = appContainer.makeReflexBlitzViewModel(words: blitzWords.isEmpty ? ReflexBlitzWordItem.defaultStarterWords : blitzWords)
-            self.activeLessonNode = node
-            self.reflexBlitzVM = vm
-            self.appRouter.navigateToReflex()
+            guard !Task.isCancelled else { return }
+
+            guard !words.isEmpty else {
+                await MainActor.run {
+                    guard !Task.isCancelled else { return }
+                    completionToastData = CraftToastData(
+                        title: AppStrings.Common.errorText,
+                        message: AppStrings.Lesson.loadErrorText,
+                        iconName: "exclamationmark.triangle.fill",
+                        style: .danger,
+                        surfaceStyle: .glass,
+                        duration: 3.0
+                    )
+                }
+                return
+            }
+
+            let vm = appContainer.makeLessonLearningViewModel(
+                stageId: node.id,
+                deckId: deckId,
+                words: words
+            )
+            await MainActor.run {
+                guard !Task.isCancelled, appRouter.selectedTab == .home else { return }
+                self.activeLessonLearningVM = vm
+            }
+        }
+    }
+
+    private func handleLessonFinished(vm: LessonLearningViewModel, summary: LessonSummaryModel) {
+        guard !isHandlingLessonFinished else { return }
+        isHandlingLessonFinished = true
+
+        Task {
+            defer {
+                Task { @MainActor in
+                    isHandlingLessonFinished = false
+                }
+            }
+
+            // Await persistence completion before dismissing and reloading learning path
+            do {
+                _ = try await vm.awaitCompletion()
+            } catch {
+                await MainActor.run {
+                    completionToastData = CraftToastData(
+                        title: AppStrings.Common.errorText,
+                        message: error.localizedDescription,
+                        iconName: "exclamationmark.triangle.fill",
+                        style: .danger,
+                        surfaceStyle: .glass,
+                        duration: 3.0
+                    )
+                }
+                return
+            }
+
+            await MainActor.run {
+                activeLessonLearningVM = nil
+            }
+            await viewModel.loadLearningPath()
+            await MainActor.run {
+                let starIcons = String(repeating: "★", count: summary.stars)
+                CraftHaptics.shared.success()
+                homeConfettiTrigger = true
+                completionToastData = CraftToastData(
+                    title: String(localized: "app.home.toast.completed_title", defaultValue: "Completed!", bundle: .module),
+                    message: "+\(summary.xpEarned) XP • \(starIcons)\(String(localized: "app.home.toast.stars_suffix", defaultValue: " • Amazing!", bundle: .module))",
+                    iconName: "star.fill",
+                    style: .success,
+                    surfaceStyle: .glass,
+                    duration: 3.0
+                )
+            }
         }
     }
 

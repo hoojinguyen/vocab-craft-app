@@ -1,0 +1,177 @@
+import CraftUIKit
+import SwiftUI
+
+/// Summary view presented upon finishing all micro-cycles and exercises in a lesson.
+public struct LessonSummaryView: View {
+    public let summary: LessonSummaryModel
+    public let onFinish: () -> Void
+    public let onReplayAudio: (TopicWordDTO) -> Void
+
+    @Environment(\.craftTheme) private var theme
+    @Environment(\.locale) private var locale
+    @State private var confettiTrigger: Bool = false
+
+    public init(
+        summary: LessonSummaryModel,
+        onFinish: @escaping () -> Void,
+        onReplayAudio: @escaping (TopicWordDTO) -> Void
+    ) {
+        self.summary = summary
+        self.onFinish = onFinish
+        self.onReplayAudio = onReplayAudio
+    }
+
+    public var body: some View {
+        VStack(spacing: theme.spacing.lg) {
+            Spacer(minLength: theme.spacing.xs)
+
+            // Star Rating Header
+            VStack(spacing: theme.spacing.sm) {
+                HStack(spacing: theme.spacing.xs) {
+                    ForEach(0..<3, id: \.self) { idx in
+                        CraftIcon(
+                            idx < summary.stars ? "star.fill" : "star",
+                            size: .xl,
+                            color: idx < summary.stars
+                                ? theme.colors.accent
+                                : theme.colors.borderDefault
+                        )
+                    }
+                }
+
+                CraftText(
+                    AppStrings.Lesson.summaryTitleText,
+                    style: .titleLarge,
+                    color: theme.colors.textPrimary
+                )
+            }
+
+            // Metrics Row
+            HStack(spacing: theme.spacing.md) {
+                CraftCard(style: .outlined) {
+                    VStack(spacing: theme.spacing.xxs) {
+                        CraftText(
+                            AppStrings.Lesson.xpEarnedFormat(summary.xpEarned),
+                            style: .headline,
+                            color: theme.colors.accent
+                        )
+                        CraftText(
+                            AppStrings.Lesson.xpTitleText,
+                            style: .caption,
+                            color: theme.colors.textMuted
+                        )
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+
+                CraftCard(style: .outlined) {
+                    VStack(spacing: theme.spacing.xxs) {
+                        let pct = Int(summary.accuracyFraction * 100)
+                        CraftText(
+                            AppStrings.Lesson.accuracyFormat(pct),
+                            style: .headline,
+                            color: theme.colors.statusSuccess
+                        )
+                        CraftText(
+                            AppStrings.Lesson.accuracyText,
+                            style: .caption,
+                            color: theme.colors.textMuted
+                        )
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+            }
+            .padding(.horizontal, theme.spacing.base)
+
+            // Learned Words List (Separated into Mastered and Needs Review)
+            let masteredWords = summary.learnedWords.filter { !summary.weakWordIds.contains($0.id) }
+            let reviewWords = summary.learnedWords.filter { summary.weakWordIds.contains($0.id) }
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: theme.spacing.md) {
+                    if !masteredWords.isEmpty {
+                        VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                            CraftText(
+                                AppStrings.Lesson.masteredWordsText,
+                                style: .headline,
+                                color: theme.colors.textPrimary
+                            )
+                            .padding(.horizontal, theme.spacing.base)
+
+                            VStack(spacing: theme.spacing.xs) {
+                                ForEach(masteredWords, id: \.id) { word in
+                                    CraftListRow(
+                                        title: word.lemma,
+                                        subtitle: definition(for: word),
+                                        iconName: "speaker.wave.2.fill",
+                                        showChevron: false,
+                                        action: {
+                                            onReplayAudio(word)
+                                        }
+                                    )
+                                }
+                            }
+                            .padding(.horizontal, theme.spacing.base)
+                        }
+                    }
+
+                    if !reviewWords.isEmpty {
+                        VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                            CraftText(
+                                AppStrings.Lesson.reviewWordsText,
+                                style: .headline,
+                                color: theme.colors.statusWarning
+                            )
+                            .padding(.horizontal, theme.spacing.base)
+
+                            VStack(spacing: theme.spacing.xs) {
+                                ForEach(reviewWords, id: \.id) { word in
+                                    CraftListRow(
+                                        title: word.lemma,
+                                        subtitle: definition(for: word),
+                                        iconName: "speaker.wave.2.fill",
+                                        showChevron: false,
+                                        action: {
+                                            onReplayAudio(word)
+                                        }
+                                    )
+                                }
+                            }
+                            .padding(.horizontal, theme.spacing.base)
+                        }
+                    }
+                }
+            }
+
+            Spacer()
+
+            CraftButton(
+                AppStrings.Lesson.finishAction,
+                variant: .tactile,
+                size: .lg,
+                isFullWidth: true,
+                style: .tactile3D
+            ) {
+                CraftHaptics.shared.success()
+                onFinish()
+            }
+            .padding(.horizontal, theme.spacing.base)
+            .padding(.bottom, theme.spacing.base)
+        }
+        .craftConfetti(isTriggered: $confettiTrigger, particleCount: 36)
+        .onAppear {
+            if summary.stars == 3 {
+                confettiTrigger = true
+            }
+        }
+    }
+
+    private func definition(for word: TopicWordDTO) -> String {
+        let isVietnamese = locale.identifier.hasPrefix("vi")
+        if isVietnamese {
+            return word.definitionVi.isEmpty ? word.definitionEn : word.definitionVi
+        } else {
+            return word.definitionEn.isEmpty ? word.definitionVi : word.definitionEn
+        }
+    }
+}

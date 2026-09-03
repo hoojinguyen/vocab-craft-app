@@ -68,7 +68,7 @@ public struct ReflexMultipleChoiceModeView: View {
 
     public func choiceState(for option: ReflexBlitzOption) -> CraftChoiceState {
         guard isReviewed else {
-            if hintStage >= 3 && option.id == eliminatedOptionId {
+            if (hintStage >= 2 || eliminatedOptionId != nil) && option.id == eliminatedOptionId {
                 return .disabled
             }
             return .idle
