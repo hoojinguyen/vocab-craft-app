@@ -54,6 +54,9 @@ public struct CraftFluidJourney: View {
     /// Whether to automatically scroll to the active node upon initial appearance.
     public let scrollToActive: Bool
 
+    /// Precomputed mapping of node identifiers to continuous global index along the journey path.
+    public let nodeIndexLookup: [String: Int]
+
     /// Optional custom builder for the lesson detail sheet.
     public let detailSheetBuilder: (@Sendable (LessonNodeModel, @escaping (LessonNodeModel) -> Void, @escaping () -> Void) -> AnyView)?
 
@@ -170,6 +173,16 @@ public extension CraftFluidJourney {
         self.scrollToActive = scrollToActive
         self.detailSheetBuilder = detailSheetBuilder
         self.emptyStateViewBuilder = emptyStateViewBuilder
+
+        var lookup: [String: Int] = [:]
+        var currentIndex = 0
+        for section in sections {
+            for node in section.nodes {
+                lookup[node.id] = currentIndex
+                currentIndex += 1
+            }
+        }
+        self.nodeIndexLookup = lookup
     }
 
     /// Convenience initializer creating a single-section fluid journey learning path.
@@ -254,19 +267,6 @@ public extension CraftFluidJourney {
             return matched
         }
         return defaultSection
-    }
-
-    /// Precomputed mapping of node identifiers to continuous global index along the journey path.
-    var nodeIndexLookup: [String: Int] {
-        var lookup: [String: Int] = [:]
-        var currentIndex = 0
-        for section in sections {
-            for node in section.nodes {
-                lookup[node.id] = currentIndex
-                currentIndex += 1
-            }
-        }
-        return lookup
     }
 
     /// Resolves the horizontal S-curve offset in points for a given node identifier.
@@ -498,6 +498,7 @@ extension CraftFluidJourney {
         nodeId: String,
         scrollProxy: ScrollViewProxy
     ) {
+        milestonePositions.removeAll()
         isDrawerPresented = false
         withAnimation(reduceMotion ? nil : .smooth(duration: 0.28)) {
             dockedSectionId = sectionId
@@ -515,11 +516,11 @@ extension CraftFluidJourney {
 
     func handleInitialScroll(scrollProxy: ScrollViewProxy) {
         guard scrollToActive, !hasScrolledToActive, let targetID = activeNodeID else { return }
+        hasScrolledToActive = true
         Task { @MainActor in
             try? await Task.sleep(for: .milliseconds(50))
             guard !Task.isCancelled else { return }
             scrollProxy.scrollTo(targetID, anchor: .center)
-            hasScrolledToActive = true
         }
     }
 
