@@ -81,7 +81,7 @@ public struct ReflexClozeFormatter: Sendable {
         let escapedLemma = NSRegularExpression.escapedPattern(for: cleanLemma)
 
         // 1. Exact match and direct suffixes (e.g. walk -> walks, walked, walking; focus -> focuses)
-        patterns.append("(?i)\\b" + escapedLemma + "(?:s|es|ed|ing|d|er|est)?\\b")
+        patterns.append("(?i)\\b" + escapedLemma + "(?:s|es|ed|ing|d)?\\b")
 
         // 2. Silent 'e' dropped before suffix (e.g. take -> taking, create -> creating)
         if cleanLemma.hasSuffix("e") && cleanLemma.count > 2 {
@@ -90,11 +90,11 @@ public struct ReflexClozeFormatter: Sendable {
             patterns.append("(?i)\\b" + escapedStem + "(?:ing|ed|en)\\b")
         }
 
-        // 3. 'y' mutated to 'i' before suffix (e.g. study -> studies, studied; try -> tries, tried; happy -> happier)
+        // 3. 'y' mutated to 'i' before suffix (e.g. study -> studies, studied; try -> tries, tried)
         if cleanLemma.hasSuffix("y") && cleanLemma.count > 2 {
             let stem = String(cleanLemma.dropLast())
             let escapedStem = NSRegularExpression.escapedPattern(for: stem)
-            patterns.append("(?i)\\b" + escapedStem + "(?:ies|ied|ier|iest)\\b")
+            patterns.append("(?i)\\b" + escapedStem + "(?:ies|ied)\\b")
         }
 
         // 4. Consonant doubling (e.g. stop -> stopped, stopping; plan -> planned, planning; run -> running)

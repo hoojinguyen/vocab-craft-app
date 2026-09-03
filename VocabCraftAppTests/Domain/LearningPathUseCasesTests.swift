@@ -196,5 +196,10 @@ final class LearningPathUseCasesTests: XCTestCase {
         let (res1, res2) = try await (first, second)
         XCTAssertEqual(res1, res2)
         XCTAssertEqual(res1.score, 3)
+
+        // Verifies dedup: stage progress was saved exactly once, and weak words were recorded once (2 words * 1)
+        let saveCount = await stageRepo.saveCallCount
+        XCTAssertEqual(saveCount, 1)
+        XCTAssertEqual(progressRepo.recordChallengeCallCount, 2)
     }
 }

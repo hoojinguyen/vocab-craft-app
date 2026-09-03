@@ -3,6 +3,7 @@ import Foundation
 /// In-memory mock implementation of `UserProgressRepositoryProtocol` for testing, previews, and mock container mode.
 public final class MockUserProgressRepository: UserProgressRepositoryProtocol, @unchecked Sendable {
     private var storage: [Int64: UserWordProgressData] = [:]
+    public private(set) var recordChallengeCallCount: Int = 0
 
     public init(initialData: [UserWordProgressData] = []) {
         for item in initialData {
@@ -11,6 +12,7 @@ public final class MockUserProgressRepository: UserProgressRepositoryProtocol, @
     }
 
     public func recordChallengeResult(wordId: Int64, isCorrect: Bool, stageId: String?, deckId: String?) async throws {
+        recordChallengeCallCount += 1
         if let existing = storage[wordId] {
             let updatedMastery = isCorrect ? min(5, existing.masteryLevel + 1) : existing.masteryLevel
             let updatedMistakes = isCorrect ? existing.mistakeCount : existing.mistakeCount + 1

@@ -62,7 +62,7 @@ public struct LessonLearningView: View {
                                 showExitAlert = true
                             } label: {
                                 Image(systemName: "xmark")
-                                    .font(.system(size: 16, weight: .bold))
+                                    .font(theme.typography.bodyMedium.bold())
                                     .foregroundStyle(theme.colors.textMuted)
                                     .frame(width: 44, height: 44)
                                     .contentShape(Rectangle())
@@ -148,7 +148,7 @@ public struct LessonLearningView: View {
         }
         .animation(.smooth(duration: 0.28), value: viewModel.currentStepIndex)
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: isCountingDown)
-        .interactiveDismissDisabled(viewModel.isSummaryStep)
+        .interactiveDismissDisabled()
         .onDisappear {
             if !viewModel.isCompleted {
                 dismissOnce()

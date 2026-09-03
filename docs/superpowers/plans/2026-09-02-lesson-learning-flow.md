@@ -41,24 +41,21 @@ struct LessonLocalizationTests {
     @Test("Verify all lesson string keys exist in English and Vietnamese")
     func testLessonStringsExist() {
         let bundle = Bundle(for: AppRouter.self)
-        let keys = [
-            "app.lesson.discovery.title",
-            "app.lesson.discovery.continue_action",
-            "app.lesson.exercise.check_action",
-            "app.lesson.feedback.correct",
-            "app.lesson.feedback.incorrect",
-            "app.lesson.feedback.correct_answer_format",
-            "app.lesson.summary.title",
-            "app.lesson.summary.xp_title",
-            "app.lesson.summary.xp_earned_format",
-            "app.lesson.summary.mastered_words",
-            "app.lesson.summary.accuracy",
-            "app.lesson.summary.accuracy_format",
-            "app.lesson.summary.finish_action",
-            "app.lesson.exit_alert.title",
-            "app.lesson.exit_alert.message",
-            "app.lesson.exit_alert.confirm",
-            "app.lesson.exit_alert.cancel"
+        let expectedPairs: [String: (en: String, vi: String)] = [
+            "app.lesson.discovery.title": ("Discover New Words", "Khám phá từ mới"),
+            "app.lesson.discovery.continue_action": ("Continue", "Tiếp tục"),
+            "app.lesson.exercise.check_action": ("Check", "Kiểm tra"),
+            "app.lesson.feedback.correct": ("Correct!", "Chính xác!"),
+            "app.lesson.feedback.incorrect": ("Incorrect", "Chưa chính xác"),
+            "app.lesson.summary.title": ("Lesson Completed!", "Hoàn thành bài học!"),
+            "app.lesson.summary.xp_title": ("XP", "XP"),
+            "app.lesson.summary.mastered_words": ("Mastered Words", "Từ vựng đã làm chủ"),
+            "app.lesson.summary.accuracy": ("Accuracy", "Độ chính xác"),
+            "app.lesson.summary.finish_action": ("Finish Lesson", "Hoàn tất bài học"),
+            "app.lesson.exit_alert.title": ("Leave Lesson?", "Dừng bài học?"),
+            "app.lesson.exit_alert.message": ("Your current lesson progress will not be saved if you leave now.", "Tiến độ bài học hiện tại sẽ không được lưu nếu bạn thoát bây giờ."),
+            "app.lesson.exit_alert.confirm": ("Leave", "Rời khỏi"),
+            "app.lesson.exit_alert.cancel": ("Keep Learning", "Tiếp tục học")
         ]
         for (key, expected) in expectedPairs {
             let enVal = String(localized: String.LocalizationValue(key), bundle: bundle, locale: Locale(identifier: "en"))
@@ -588,7 +585,7 @@ public struct LessonSummaryView: View {
 
                 ScrollView {
                     VStack(spacing: theme.spacing.xs) {
-                        ForEach(summary.masteredWords, id: \.id) { word in
+                        ForEach(summary.learnedWords, id: \.id) { word in
                             CraftListRow(
                                 title: word.lemma,
                                 subtitle: word.definitionVi,
@@ -914,18 +911,13 @@ public final class LessonLearningViewModel: Identifiable {
         let xpEarned = isCheckpoint ? 80 : 25
         let accuracy = totalAnswered > 0 ? Double(correctAnswers) / Double(totalAnswered) : 1.0
 
-        let weakSet = weakWordIds
-        let mastered = words.filter { !weakSet.contains($0.id) }
-        let review = words.filter { weakSet.contains($0.id) }
-
         let summaryModel = LessonSummaryModel(
             stageId: stageId,
             deckId: deckId,
             stars: stars,
             xpEarned: xpEarned,
             accuracyFraction: accuracy,
-            masteredWords: mastered,
-            reviewWords: review,
+            learnedWords: words,
             weakWordIds: Array(weakWordIds)
         )
 

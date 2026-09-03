@@ -36,6 +36,7 @@ struct ReflexCoreUtilitiesTests {
         #expect(ReflexClozeFormatter.formatCloze(sentenceEn: "He studied hard and tries again", lemma: "study") == "He [ _________ ] hard and tries again")
         #expect(ReflexClozeFormatter.formatCloze(sentenceEn: "The bus stopped suddenly", lemma: "stop") == "The bus [ _________ ] suddenly")
         #expect(ReflexClozeFormatter.formatCloze(sentenceEn: "I walk every day and I was walking yesterday", lemma: "walk") == "I [ _________ ] every day and I was [ _________ ] yesterday")
+        #expect(ReflexClozeFormatter.formatCloze(sentenceEn: "He is an avid reader", lemma: "read") == "He is an avid reader")
     }
 
     @Test("Distractor generator creates 4 unique options including target")

@@ -135,6 +135,7 @@ public final class StageProgressRepositoryImpl: StageProgressRepositoryProtocol,
 
 public final class MockStageProgressRepository: StageProgressRepositoryProtocol, @unchecked Sendable {
     private var records: [String: UserStageProgress] = [:]
+    public private(set) var saveCallCount: Int = 0
 
     public init(records: [String: UserStageProgress] = [:]) {
         self.records = records
@@ -164,6 +165,7 @@ public final class MockStageProgressRepository: StageProgressRepositoryProtocol,
         score: Int,
         progressFraction: Double
     ) async throws {
+        saveCallCount += 1
         if let existing = records[stageId] {
             existing.isCompleted = isCompleted
             existing.score = score
