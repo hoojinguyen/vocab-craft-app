@@ -213,6 +213,21 @@ public final class AppContainer {
         )
     }
 
+    public func makeInitializeUserRoadmapUseCase() -> InitializeUserRoadmapUseCaseProtocol {
+        InitializeUserRoadmapUseCase(
+            dataSource: vocabularyDataSource,
+            stageRepo: stageProgressRepository,
+            userSettings: userSettingsStore
+        )
+    }
+
+    public func makeOnboardingViewModel() -> OnboardingViewModel {
+        OnboardingViewModel(
+            useCase: makeInitializeUserRoadmapUseCase(),
+            userSettings: userSettingsStore
+        )
+    }
+
     public static var mock: AppContainer {
         AppContainer(useMockData: true, useSampleData: true)
     }
