@@ -29,26 +29,41 @@ struct LessonLocalizationTests {
         "app.lesson.exercise.skip_speaking": ("Không tiện nói lúc này", "Can't speak now"),
         "app.lesson.exercise.hint_action": ("Gợi ý", "Hint"),
         "app.lesson.exercise.skip_action": ("Bỏ qua", "Skip"),
-        "app.lesson.countdown.subtitle": ("Chuẩn bị khám phá từ vựng và làm chủ bài học", "Get ready to discover words and master skills")
+        "app.lesson.countdown.subtitle": ("Chuẩn bị khám phá từ vựng và làm chủ bài học", "Get ready to discover words and master skills"),
+        "app.lesson.load_error": ("Không thể tải từ vựng cho bài học này.", "Unable to load words for this lesson.")
     ]
 
-    @Test("All app.lesson keys exist with non-empty en and vi strings")
-    func testLessonLocalizationKeysDictionary() {
-        let keys = Array(requiredLessonKeys.keys)
-        #expect(keys.count >= 19)
-
-        let expectedPrefix = "app.lesson."
-        for key in keys {
-            #expect(!key.isEmpty, "Key cannot be empty")
-            #expect(key.hasPrefix(expectedPrefix), "Key \(key) must have prefix \(expectedPrefix)")
-            #expect(requiredLessonKeys[key]?.vi.isEmpty == false, "Key \(key) missing Vietnamese translation")
-            #expect(requiredLessonKeys[key]?.en.isEmpty == false, "Key \(key) missing English translation")
-        }
+    @Test("AppStrings.Lesson accessors return valid non-empty values")
+    func testAppStringsLessonAccessors() {
+        #expect(!AppStrings.Lesson.discoveryTitleText.isEmpty)
+        #expect(!AppStrings.Lesson.continueActionText.isEmpty)
+        #expect(!AppStrings.Lesson.checkActionText.isEmpty)
+        #expect(!AppStrings.Lesson.correctFeedbackText.isEmpty)
+        #expect(!AppStrings.Lesson.incorrectFeedbackText.isEmpty)
+        #expect(!AppStrings.Lesson.summaryTitleText.isEmpty)
+        #expect(!AppStrings.Lesson.xpTitleText.isEmpty)
+        #expect(!AppStrings.Lesson.masteredWordsText.isEmpty)
+        #expect(!AppStrings.Lesson.learnedWordsText.isEmpty)
+        #expect(!AppStrings.Lesson.reviewWordsText.isEmpty)
+        #expect(!AppStrings.Lesson.accuracyText.isEmpty)
+        #expect(!AppStrings.Lesson.finishActionText.isEmpty)
+        #expect(!AppStrings.Lesson.exitAlertTitleText.isEmpty)
+        #expect(!AppStrings.Lesson.exitAlertMessageText.isEmpty)
+        #expect(!AppStrings.Lesson.exitAlertConfirmText.isEmpty)
+        #expect(!AppStrings.Lesson.exitAlertCancelText.isEmpty)
+        #expect(!AppStrings.Lesson.skipSpeakingText.isEmpty)
+        #expect(!AppStrings.Lesson.hintActionText.isEmpty)
+        #expect(!AppStrings.Lesson.skipActionText.isEmpty)
+        #expect(!AppStrings.Lesson.countdownSubtitleText.isEmpty)
+        #expect(!AppStrings.Lesson.loadErrorText.isEmpty)
+        #expect(AppStrings.Lesson.correctAnswerFormat("apple").contains("apple"))
+        #expect(AppStrings.Lesson.xpEarnedFormat(25).contains("25"))
     }
 
     @Test("Catalog integrity check for app.lesson.* keys in Localizable.xcstrings")
     func testLessonCatalogIntegrity() throws {
         let potentialPaths: [String?] = [
+            Bundle.module.path(forResource: "Localizable", ofType: "xcstrings"),
             Bundle.main.path(forResource: "Localizable", ofType: "xcstrings"),
             Bundle(for: LessonLocalizationTestsMarker.self).path(forResource: "Localizable", ofType: "xcstrings"),
             URL(fileURLWithPath: #filePath)

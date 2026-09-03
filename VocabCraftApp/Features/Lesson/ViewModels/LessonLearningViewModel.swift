@@ -183,13 +183,18 @@ public final class LessonLearningViewModel: Identifiable {
         ttsService.speak(text: text)
     }
 
+    public func stopAudio() {
+        ttsService.stop()
+    }
+
     public func startListeningForSpeaking(targetLemma: String, item: LessonExerciseItem) {
         speechState = .listening(audioLevels: [0.5, 0.6, 0.4])
         liveTranscript = ""
 
         speechEngine.onTranscriptUpdate = { [weak self] transcript in
             Task { @MainActor in
-                self?.liveTranscript = transcript
+                guard let self, self.currentExerciseItem?.id == item.id else { return }
+                self.liveTranscript = transcript
             }
         }
 
@@ -222,6 +227,7 @@ public final class LessonLearningViewModel: Identifiable {
     }
 
     private func finishLesson() {
+        guard !isCompleted else { return }
         stopSpeechSession()
 
         let stars = mistakeCount == 0 ? 3 : (mistakeCount <= 2 ? 2 : 1)

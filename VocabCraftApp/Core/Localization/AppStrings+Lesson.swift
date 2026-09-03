@@ -110,5 +110,10 @@ extension AppStrings {
         public static var countdownSubtitleText: String {
             String(localized: "app.lesson.countdown.subtitle", defaultValue: "Get ready to discover words and master skills", bundle: .module)
         }
+
+        public static var loadError: LocalizedStringKey { "app.lesson.load_error" }
+        public static var loadErrorText: String {
+            String(localized: "app.lesson.load_error", defaultValue: "Unable to load words for this lesson.", bundle: .module)
+        }
     }
 }

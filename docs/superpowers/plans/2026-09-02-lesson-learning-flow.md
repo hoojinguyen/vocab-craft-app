@@ -47,6 +47,7 @@ struct LessonLocalizationTests {
             "app.lesson.exercise.check_action",
             "app.lesson.feedback.correct",
             "app.lesson.feedback.incorrect",
+            "app.lesson.feedback.correct_answer_format",
             "app.lesson.summary.title",
             "app.lesson.summary.xp_earned_format",
             "app.lesson.summary.mastered_words",
@@ -238,13 +239,15 @@ public final class LessonPlanGenerator: LessonPlanGeneratorProtocol, Sendable {
         
         var steps: [LessonStep] = []
         let allModes: [ReflexBlitzMode] = [.listening, .multipleChoice, .speaking, .typing]
+        var globalWordIndex = 0
         
         for chunk in chunks {
             for (index, word) in chunk.enumerated() {
                 steps.append(.discovery(word: word, index: index + 1, totalInCycle: chunk.count))
             }
-            for (wIdx, word) in chunk.enumerated() {
-                let mode = allModes[wIdx % allModes.count]
+            for word in chunk {
+                let mode = allModes[globalWordIndex % allModes.count]
+                globalWordIndex += 1
                 let options: [ReflexBlitzOption] = (mode == .multipleChoice || mode == .listening)
                     ? ReflexDistractorGenerator.generateOptions(
                         mode: mode,
@@ -648,7 +651,8 @@ import Observation
 
 @MainActor
 @Observable
-public final class LessonLearningViewModel {
+public final class LessonLearningViewModel: Identifiable {
+    public let id: UUID = UUID()
     public let stageId: String
     public let deckId: String
     public let words: [TopicWordDTO]
@@ -689,8 +693,12 @@ public final class LessonLearningViewModel {
         self.ttsService = ttsService
         self.soundEffectService = soundEffectService
         self.speechEngine = speechEngine
-        self.steps = planGenerator.generatePlan(from: words, distractorPool: words)
+        let generatedSteps = planGenerator.generatePlan(from: words, distractorPool: words)
+        self.steps = generatedSteps
+        self.initialStepCount = generatedSteps.count
     }
+
+    private let initialStepCount: Int
 
     public var currentStep: LessonStep? {
         guard currentStepIndex >= 0 && currentStepIndex < steps.count else { return nil }
@@ -699,7 +707,8 @@ public final class LessonLearningViewModel {
 
     public var progress: Double {
         guard !steps.isEmpty else { return 1.0 }
-        return Double(currentStepIndex) / Double(steps.count)
+        let total = currentStepIndex < initialStepCount ? initialStepCount : steps.count
+        return Double(currentStepIndex) / Double(max(total, 1))
     }
 
     public func advanceStep() {
@@ -723,11 +732,16 @@ public final class LessonLearningViewModel {
             weakWordIds.insert(item.word.id)
             soundEffectService.playIncorrect()
             if !item.isRequeued {
+                let options = ReflexDistractorGenerator.generateOptions(
+                    mode: .multipleChoice,
+                    target: ReflexBlitzWordItem(from: item.word),
+                    pool: words.map { ReflexBlitzWordItem(from: $0) }
+                )
                 let retryItem = LessonExerciseItem(
                     id: "\(item.id)-retry",
                     word: item.word,
                     assignedMode: .multipleChoice,
-                    options: item.options,
+                    options: options,
                     isRequeued: true
                 )
                 steps.append(.exercise(item: retryItem))

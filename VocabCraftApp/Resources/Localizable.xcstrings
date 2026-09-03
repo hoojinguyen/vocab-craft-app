@@ -8501,19 +8501,19 @@
         }
       }
     },
-    "app.lesson.discovery.title": {
+    "app.lesson.countdown.subtitle": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Discover New Words"
+            "value": "Get ready to discover words and master skills"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Khám phá từ mới"
+            "value": "Chuẩn bị khám phá từ vựng và làm chủ bài học"
           }
         }
       }
@@ -8535,6 +8535,23 @@
         }
       }
     },
+    "app.lesson.discovery.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discover New Words"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Khám phá từ mới"
+          }
+        }
+      }
+    },
     "app.lesson.exercise.check_action": {
       "extractionState": "manual",
       "localizations": {
@@ -8548,227 +8565,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Kiểm tra"
-          }
-        }
-      }
-    },
-    "app.lesson.feedback.correct": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Correct!"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chính xác!"
-          }
-        }
-      }
-    },
-    "app.lesson.feedback.incorrect": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Incorrect"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chưa chính xác"
-          }
-        }
-      }
-    },
-    "app.lesson.feedback.correct_answer_format": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Correct answer: %@"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Đáp án đúng: %@"
-          }
-        }
-      }
-    },
-    "app.lesson.summary.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lesson Completed!"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hoàn thành bài học!"
-          }
-        }
-      }
-    },
-    "app.lesson.summary.xp_earned_format": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "+%lld XP"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "+%lld XP"
-          }
-        }
-      }
-    },
-    "app.lesson.summary.mastered_words": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mastered Words"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Từ vựng đã làm chủ"
-          }
-        }
-      }
-    },
-    "app.lesson.summary.accuracy": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Accuracy"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Độ chính xác"
-          }
-        }
-      }
-    },
-    "app.lesson.summary.finish_action": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Finish Lesson"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hoàn tất bài học"
-          }
-        }
-      }
-    },
-    "app.lesson.exit_alert.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Quit Lesson?"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dừng bài học?"
-          }
-        }
-      }
-    },
-    "app.lesson.exit_alert.message": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Your progress for this lesson will not be saved if you leave now."
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tiến độ bài học hiện tại sẽ không được lưu nếu bạn rời khỏi bây giờ."
-          }
-        }
-      }
-    },
-    "app.lesson.exit_alert.confirm": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Quit"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rời khỏi"
-          }
-        }
-      }
-    },
-    "app.lesson.exit_alert.cancel": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keep Learning"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tiếp tục học"
-          }
-        }
-      }
-    },
-    "app.lesson.exercise.skip_speaking": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Can't speak now"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Không tiện nói lúc này"
           }
         }
       }
@@ -8807,36 +8603,189 @@
         }
       }
     },
-    "app.lesson.countdown.subtitle": {
+    "app.lesson.exercise.skip_speaking": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get ready to discover words and master skills"
+            "value": "Can't speak now"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chuẩn bị khám phá từ vựng và làm chủ bài học"
+            "value": "Không tiện nói lúc này"
           }
         }
       }
     },
-    "app.lesson.summary.xp_title": {
+    "app.lesson.exit_alert.cancel": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "XP"
+            "value": "Keep Learning"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "XP"
+            "value": "Tiếp tục học"
+          }
+        }
+      }
+    },
+    "app.lesson.exit_alert.confirm": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quit"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rời khỏi"
+          }
+        }
+      }
+    },
+    "app.lesson.exit_alert.message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your progress for this lesson will not be saved if you leave now."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiến độ bài học hiện tại sẽ không được lưu nếu bạn rời khỏi bây giờ."
+          }
+        }
+      }
+    },
+    "app.lesson.exit_alert.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quit Lesson?"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dừng bài học?"
+          }
+        }
+      }
+    },
+    "app.lesson.feedback.correct": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Correct!"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chính xác!"
+          }
+        }
+      }
+    },
+    "app.lesson.feedback.correct_answer_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Correct answer: %@"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đáp án đúng: %@"
+          }
+        }
+      }
+    },
+    "app.lesson.feedback.incorrect": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incorrect"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chưa chính xác"
+          }
+        }
+      }
+    },
+    "app.lesson.load_error": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to load words for this lesson."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể tải từ vựng cho bài học này."
+          }
+        }
+      }
+    },
+    "app.lesson.summary.accuracy": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accuracy"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Độ chính xác"
+          }
+        }
+      }
+    },
+    "app.lesson.summary.finish_action": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish Lesson"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hoàn tất bài học"
           }
         }
       }
@@ -8858,6 +8807,23 @@
         }
       }
     },
+    "app.lesson.summary.mastered_words": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mastered Words"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Từ vựng đã làm chủ"
+          }
+        }
+      }
+    },
     "app.lesson.summary.review_words": {
       "extractionState": "manual",
       "localizations": {
@@ -8871,6 +8837,57 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cần ôn tập"
+          }
+        }
+      }
+    },
+    "app.lesson.summary.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lesson Completed!"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hoàn thành bài học!"
+          }
+        }
+      }
+    },
+    "app.lesson.summary.xp_earned_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%lld XP"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%lld XP"
+          }
+        }
+      }
+    },
+    "app.lesson.summary.xp_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "XP"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "XP"
           }
         }
       }

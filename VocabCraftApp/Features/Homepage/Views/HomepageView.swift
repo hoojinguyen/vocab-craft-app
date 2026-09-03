@@ -258,25 +258,24 @@ public struct HomepageView: View {
                 words = (try? await appContainer.vocabularyDataSource.fetchWordsForStage(stageId: node.id)) ?? []
             }
 
-            let effectiveWords = words.isEmpty ? ReflexBlitzWordItem.defaultStarterWords.map {
-                TopicWordDTO(
-                    id: Int64($0.id),
-                    stageId: node.id,
-                    lemma: $0.lemma,
-                    phonetic: $0.ipa,
-                    pos: $0.pos,
-                    cefrLevel: $0.level,
-                    definitionVi: $0.definitionVi,
-                    definitionEn: "",
-                    exampleEn: $0.exampleSentenceEn,
-                    exampleVi: $0.exampleSentenceVi
-                )
-            } : words
+            guard !words.isEmpty else {
+                await MainActor.run {
+                    completionToastData = CraftToastData(
+                        title: AppStrings.Common.errorText,
+                        message: AppStrings.Lesson.loadErrorText,
+                        iconName: "exclamationmark.triangle.fill",
+                        style: .danger,
+                        surfaceStyle: .glass,
+                        duration: 3.0
+                    )
+                }
+                return
+            }
 
             let vm = appContainer.makeLessonLearningViewModel(
                 stageId: node.id,
                 deckId: deckId,
-                words: effectiveWords
+                words: words
             )
             self.activeLessonLearningVM = vm
         }

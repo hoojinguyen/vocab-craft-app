@@ -6,6 +6,7 @@ public struct LessonLearningView: View {
     @State private var viewModel: LessonLearningViewModel
     @State private var showExitAlert: Bool = false
     @State private var isCountingDown: Bool
+    @State private var hasDismissed: Bool = false
     public let onDismiss: () -> Void
     public let onFinished: (LessonSummaryModel) -> Void
     public let startWithCountdown: Bool
@@ -23,6 +24,12 @@ public struct LessonLearningView: View {
         self._isCountingDown = State(initialValue: startWithCountdown)
         self.onDismiss = onDismiss
         self.onFinished = onFinished
+    }
+
+    private func dismissOnce() {
+        guard !hasDismissed else { return }
+        hasDismissed = true
+        onDismiss()
     }
 
     public var body: some View {
@@ -86,6 +93,7 @@ public struct LessonLearningView: View {
                                     indexInCycle: idx,
                                     totalInCycle: total,
                                     onContinue: {
+                                        viewModel.stopAudio()
                                         viewModel.advanceStep()
                                     },
                                     onPlayAudio: {
@@ -147,7 +155,7 @@ public struct LessonLearningView: View {
         }
         .onDisappear {
             if !viewModel.isCompleted {
-                onDismiss()
+                dismissOnce()
             }
             viewModel.stopSpeechSession()
         }
@@ -156,7 +164,7 @@ public struct LessonLearningView: View {
             isPresented: $showExitAlert
         ) {
             Button(AppStrings.Lesson.exitAlertConfirmText, role: .destructive) {
-                onDismiss()
+                dismissOnce()
             }
             Button(AppStrings.Lesson.exitAlertCancelText, role: .cancel) {}
         } message: {

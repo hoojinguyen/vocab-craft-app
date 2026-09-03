@@ -82,8 +82,8 @@ public enum LessonStep: Identifiable, Sendable {
             return "discovery-\(word.id)-\(index)"
         case .exercise(let item):
             return "exercise-\(item.id)"
-        case .summary:
-            return "summary"
+        case .summary(let summary):
+            return "summary-\(summary.stageId)"
         }
     }
 }
@@ -140,19 +140,29 @@ public enum LessonStep: Identifiable, Sendable {
 
 ### 5.1 Zero Hardcoded Strings
 All strings are declared in `VocabCraftApp/Resources/Localizable.xcstrings` and accessed via `AppStrings.Lesson.*`:
-- `app.lesson.discovery.title`
+- `app.lesson.countdown.subtitle`
 - `app.lesson.discovery.continue_action`
+- `app.lesson.discovery.title`
 - `app.lesson.exercise.check_action`
+- `app.lesson.exercise.hint_action`
+- `app.lesson.exercise.skip_action`
+- `app.lesson.exercise.skip_speaking`
+- `app.lesson.exit_alert.cancel`
+- `app.lesson.exit_alert.confirm`
+- `app.lesson.exit_alert.message`
+- `app.lesson.exit_alert.title`
 - `app.lesson.feedback.correct`
-- `app.lesson.feedback.incorrect`
 - `app.lesson.feedback.correct_answer_format`
+- `app.lesson.feedback.incorrect`
+- `app.lesson.load_error`
+- `app.lesson.summary.accuracy`
+- `app.lesson.summary.finish_action`
+- `app.lesson.summary.learned_words`
+- `app.lesson.summary.mastered_words`
+- `app.lesson.summary.review_words`
 - `app.lesson.summary.title`
 - `app.lesson.summary.xp_earned_format`
-- `app.lesson.summary.mastered_words`
-- `app.lesson.exit_alert.title`
-- `app.lesson.exit_alert.message`
-- `app.lesson.exit_alert.confirm`
-- `app.lesson.exit_alert.cancel`
+- `app.lesson.summary.xp_title`
 
 ### 5.2 Zero Raw Styling
 - Strict conformance to `CraftColorTokens`, `CraftTypographyTokens`, `CraftSpacingTokens`, `CraftRadiusTokens`, and `CraftShadowTokens`.

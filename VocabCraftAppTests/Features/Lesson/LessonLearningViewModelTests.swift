@@ -242,7 +242,7 @@ struct LessonLearningViewModelTests {
     }
 
     @Test("Progress does not jump backwards when an exercise is requeued on error")
-    func testProgressDoesNotJumpBackwardsOnRequeue() {
+    func testProgressDoesNotJumpBackwardsOnRequeue() throws {
         let words = makeSampleWords()
         let vm = LessonLearningViewModel(
             stageId: "stage_1",
@@ -259,7 +259,7 @@ struct LessonLearningViewModelTests {
             vm.advanceStep()
         }
 
-        guard let item = vm.currentExerciseItem else { return }
+        let item = try #require(vm.currentExerciseItem)
         let progressBefore = vm.progress
         vm.submitAnswer(isCorrect: false, for: item)
         let progressAfter = vm.progress
