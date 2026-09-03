@@ -137,7 +137,7 @@ public struct LessonLearningView: View {
                         CraftFeedbackSheet(
                             status: viewModel.lastAttemptCorrect ? .success : .error,
                             title: viewModel.lastAttemptCorrect ? AppStrings.ReflexBlitz.correctTitleText : AppStrings.ReflexBlitz.incorrectTitleText,
-                            message: nil,
+                            message: viewModel.lastAttemptCorrect ? nil : (viewModel.currentExerciseItem.map { AppStrings.Lesson.correctAnswerFormat($0.word.lemma) }),
                             actionTitle: AppStrings.ReflexBlitz.continueCTAText,
                             streakCount: nil,
                             style: .tactile3D,

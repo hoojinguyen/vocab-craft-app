@@ -477,6 +477,10 @@ public struct CraftJourneyNode: View, Equatable {
                 .foregroundStyle(Color.white)
         }
         .frame(width: 26, height: 26)
+        .overlay(
+            Circle()
+                .strokeBorder(theme.colors.canvasBackground, lineWidth: 2.5)
+        )
         .accessibilityHidden(true)
     }
 }

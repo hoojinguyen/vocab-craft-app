@@ -119,6 +119,11 @@ struct VocabCraftApp: App {
         return router
     }
 
+    private var isFeedbackTestLaunch: Bool {
+        let args = ProcessInfo.processInfo.arguments
+        return args.contains("-test-lesson-feedback-incorrect") || args.contains("-test-lesson-feedback-correct")
+    }
+
     var body: some Scene {
         WindowGroup {
             Group {
@@ -126,7 +131,7 @@ struct VocabCraftApp: App {
                     Text("Testing...")
                 } else if ProcessInfo.processInfo.arguments.contains("-show-catalog") {
                     CraftCatalogView()
-                } else if !appContainer.userSettingsStore.hasCompletedOnboarding {
+                } else if !appContainer.userSettingsStore.hasCompletedOnboarding && !isFeedbackTestLaunch {
                     OnboardingCoordinatorView(viewModel: appContainer.makeOnboardingViewModel())
                         .environment(\.appContainer, appContainer)
                         .environment(\.appRouter, appContainer.appRouter)
