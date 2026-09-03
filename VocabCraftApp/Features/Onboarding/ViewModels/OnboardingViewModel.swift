@@ -18,12 +18,18 @@ public final class OnboardingViewModel {
 
     private let useCase: InitializeUserRoadmapUseCaseProtocol
     private let userSettings: UserSettingsStore
+    private let notificationScheduler: (any NotificationSchedulerProtocol)?
     public private(set) var synthesisTask: Task<Void, Never>?
     private var synthesisGeneration: Int = 0
 
-    public init(useCase: InitializeUserRoadmapUseCaseProtocol, userSettings: UserSettingsStore) {
+    public init(
+        useCase: InitializeUserRoadmapUseCaseProtocol,
+        userSettings: UserSettingsStore,
+        notificationScheduler: (any NotificationSchedulerProtocol)? = nil
+    ) {
         self.useCase = useCase
         self.userSettings = userSettings
+        self.notificationScheduler = notificationScheduler
     }
 
     public var canGoBack: Bool {
@@ -63,6 +69,15 @@ public final class OnboardingViewModel {
 
     public func updateNotificationPermission(granted: Bool) {
         userSettings.isNotificationEnabled = granted
+        if granted {
+            Task {
+                await notificationScheduler?.scheduleDailyReminder(at: selectedReminderInterval)
+            }
+        } else {
+            Task {
+                await notificationScheduler?.cancelDailyReminder()
+            }
+        }
     }
 
     public func skipOnboarding() {
@@ -78,6 +93,9 @@ public final class OnboardingViewModel {
     }
 
     public func retrySynthesis() {
+        synthesisGeneration += 1
+        isSynthesizing = true
+        errorMessage = nil
         synthesisTask?.cancel()
         synthesisTask = Task { await synthesizeRoadmap() }
     }
@@ -108,6 +126,9 @@ public final class OnboardingViewModel {
             guard !Task.isCancelled, synthesisGeneration == currentGen else { return }
             self.roadmapResult = result
             self.synthesisPhaseTextKey = "app.onboarding.reveal.ready"
+            if userSettings.isNotificationEnabled {
+                await notificationScheduler?.scheduleDailyReminder(at: selectedReminderInterval)
+            }
         } catch is CancellationError {
             guard !Task.isCancelled, synthesisGeneration == currentGen else { return }
         } catch {

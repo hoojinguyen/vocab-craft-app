@@ -9231,6 +9231,40 @@
           }
         }
       }
+    },
+    "app.notification.daily_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time for your daily vocabulary practice!"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đến giờ luyện từ vựng hôm nay rồi!"
+          }
+        }
+      }
+    },
+    "app.notification.daily_body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep your learning streak alive with just a few minutes of practice."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duy trì chuỗi ngày học phản xạ chỉ với vài phút luyện tập nhé."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

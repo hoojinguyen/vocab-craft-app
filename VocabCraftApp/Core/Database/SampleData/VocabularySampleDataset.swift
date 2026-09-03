@@ -300,6 +300,18 @@ public enum VocabularySampleDataset {
             if !matching.isEmpty {
                 return matching
             }
+
+            // Fall back to words within the same deck/topic prefix (e.g., stage_biz, stage_tech, stage_acad, stage_daily)
+            let prefixParts = stageId.components(separatedBy: "_")
+            if prefixParts.count >= 2 {
+                let deckPrefix = prefixParts.prefix(2).joined(separator: "_")
+                let deckMatching = words.filter { $0.stageId.hasPrefix(deckPrefix) }
+                if deckMatching.count >= 3 {
+                    return Array(deckMatching.prefix(3))
+                } else if !deckMatching.isEmpty {
+                    return deckMatching
+                }
+            }
         }
         return Array(words.prefix(3))
     }

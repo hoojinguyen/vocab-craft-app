@@ -160,6 +160,39 @@ final class InitializeUserRoadmapUseCaseTests: XCTestCase {
         XCTAssertEqual(result.starterWords.count, 3)
         XCTAssertEqual(result.starterWords[0].lemma, "UniqueSingleWord")
     }
+
+    @MainActor
+    func testInitializeRoadmapReconcilesStage1WhenChangingFromAdvancedToBeginner() async throws {
+        let dataSource = SampleVocabularyDataSource()
+        let stageRepo = MockStageProgressRepository()
+        let settings = UserSettingsStore(defaults: testDefaults)
+
+        let useCase = InitializeUserRoadmapUseCase(
+            dataSource: dataSource,
+            stageRepo: stageRepo,
+            userSettings: settings
+        )
+
+        // First synthesize as B1 (stage 1 completed)
+        _ = try await useCase.execute(
+            deckId: "deck_daily",
+            cefrLevel: "B1",
+            dailyGoalCount: 15,
+            notificationTimeInterval: 28800
+        )
+        let initialProgress = try await stageRepo.fetchAllStageProgress()
+        XCTAssertTrue(initialProgress.first { $0.stageId == "stage_daily_1" }?.isCompleted == true)
+
+        // User goes back and chooses A1
+        _ = try await useCase.execute(
+            deckId: "deck_daily",
+            cefrLevel: "A1",
+            dailyGoalCount: 10,
+            notificationTimeInterval: 72000
+        )
+        let updatedProgress = try await stageRepo.fetchAllStageProgress()
+        XCTAssertFalse(updatedProgress.first { $0.stageId == "stage_daily_1" }?.isCompleted == true)
+    }
 }
 
 private final class TestOneWordVocabularyDataSource: VocabularyDataSourceProtocol, @unchecked Sendable {

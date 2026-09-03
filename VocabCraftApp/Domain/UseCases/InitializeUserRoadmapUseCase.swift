@@ -96,7 +96,7 @@ public final class InitializeUserRoadmapUseCase: InitializeUserRoadmapUseCasePro
             starterWords = combined
         }
 
-        // 3. Auto-unlock foundational stage 1 after words are guaranteed
+        // 3. Reconcile foundational stage 1 progress based on assessed level
         if isAdvancedLevel && sortedStages.count > 1 {
             try await stageRepo.saveStageProgress(
                 stageId: firstStage.id,
@@ -104,6 +104,14 @@ public final class InitializeUserRoadmapUseCase: InitializeUserRoadmapUseCasePro
                 isCompleted: true,
                 score: 100,
                 progressFraction: 1.0
+            )
+        } else if !isAdvancedLevel && sortedStages.count > 1 {
+            try await stageRepo.saveStageProgress(
+                stageId: firstStage.id,
+                deckId: deckId,
+                isCompleted: false,
+                score: 0,
+                progressFraction: 0.0
             )
         }
 

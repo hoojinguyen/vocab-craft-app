@@ -150,6 +150,64 @@ final class OnboardingViewModelTests: XCTestCase {
 
         vm.retrySynthesis()
         XCTAssertTrue(vm.isSynthesizing)
+
+        // Wait for active synthesis task to finish
+        await vm.synthesisTask?.value
+        XCTAssertFalse(vm.isSynthesizing)
+        XCTAssertNotNil(vm.roadmapResult)
+    }
+
+    func testUpdateNotificationPermissionTrueSchedulesReminder() async {
+        let settings = UserSettingsStore()
+        let useCase = MockInitializeUserRoadmapUseCase()
+        let scheduler = MockNotificationScheduler()
+        let vm = OnboardingViewModel(useCase: useCase, userSettings: settings, notificationScheduler: scheduler)
+
+        vm.selectedReminderInterval = 45000
+        vm.updateNotificationPermission(granted: true)
+
+        try? await Task.sleep(nanoseconds: 50_000_000)
+        XCTAssertTrue(settings.isNotificationEnabled)
+        XCTAssertEqual(scheduler.scheduledInterval, 45000)
+    }
+
+    func testUpdateNotificationPermissionFalseCancelsReminder() async {
+        let settings = UserSettingsStore()
+        let useCase = MockInitializeUserRoadmapUseCase()
+        let scheduler = MockNotificationScheduler()
+        let vm = OnboardingViewModel(useCase: useCase, userSettings: settings, notificationScheduler: scheduler)
+
+        vm.updateNotificationPermission(granted: false)
+
+        try? await Task.sleep(nanoseconds: 50_000_000)
+        XCTAssertFalse(settings.isNotificationEnabled)
+        XCTAssertTrue(scheduler.didCancel)
+    }
+
+    func testSynthesizeRoadmapSchedulesReminderWhenNotificationEnabled() async {
+        let settings = UserSettingsStore()
+        settings.isNotificationEnabled = true
+        let useCase = MockInitializeUserRoadmapUseCase()
+        let scheduler = MockNotificationScheduler()
+        let vm = OnboardingViewModel(useCase: useCase, userSettings: settings, notificationScheduler: scheduler)
+
+        vm.selectedReminderInterval = 36000
+        await vm.synthesizeRoadmap()
+
+        XCTAssertEqual(scheduler.scheduledInterval, 36000)
+    }
+}
+
+final class MockNotificationScheduler: NotificationSchedulerProtocol, @unchecked Sendable {
+    var scheduledInterval: Double?
+    var didCancel: Bool = false
+
+    func scheduleDailyReminder(at timeInterval: Double) async {
+        scheduledInterval = timeInterval
+    }
+
+    func cancelDailyReminder() async {
+        didCancel = true
     }
 }
 

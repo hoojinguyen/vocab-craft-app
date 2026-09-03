@@ -11,6 +11,7 @@ final class UserSettingsStoreTests: XCTestCase {
         super.tearDown()
         let defaults = UserDefaults.standard
         defaults.removeObject(forKey: "has_completed_onboarding")
+        defaults.removeObject(forKey: "did_perform_legacy_onboarding_migration")
         defaults.removeObject(forKey: "selected_goal_deck_id")
         defaults.removeObject(forKey: "assessed_cefr_level")
         defaults.removeObject(forKey: "daily_goal_count")
@@ -56,13 +57,10 @@ final class UserSettingsStoreTests: XCTestCase {
     }
 
     func testOnboardingSettingsDefaultAndPersistence() {
-        let defaults = UserDefaults.standard
-        defaults.removeObject(forKey: "has_completed_onboarding")
-        defaults.removeObject(forKey: "selected_goal_deck_id")
-        defaults.removeObject(forKey: "assessed_cefr_level")
-        defaults.removeObject(forKey: "daily_goal_count")
+        let suite = "test_onboarding_\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
 
-        let store = UserSettingsStore()
+        let store = UserSettingsStore(defaults: defaults)
         XCTAssertFalse(store.hasCompletedOnboarding)
         XCTAssertEqual(store.selectedGoalDeckId, "deck_daily")
         XCTAssertEqual(store.assessedCefrLevel, "A1")
@@ -74,6 +72,8 @@ final class UserSettingsStoreTests: XCTestCase {
         XCTAssertTrue(defaults.bool(forKey: "has_completed_onboarding"))
         XCTAssertEqual(defaults.string(forKey: "selected_goal_deck_id"), "deck_business")
         XCTAssertEqual(defaults.string(forKey: "assessed_cefr_level"), "B2")
+
+        defaults.removePersistentDomain(forName: suite)
     }
 
     func testExistingUserMigrationMarksOnboardingCompleted() {

@@ -229,7 +229,8 @@ public final class AppContainer {
     public func makeOnboardingViewModel() -> OnboardingViewModel {
         OnboardingViewModel(
             useCase: makeInitializeUserRoadmapUseCase(),
-            userSettings: userSettingsStore
+            userSettings: userSettingsStore,
+            notificationScheduler: AppNotificationScheduler()
         )
     }
 

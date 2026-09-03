@@ -131,7 +131,13 @@ public final class UserSettingsStore {
         if defaults.object(forKey: "has_completed_onboarding") == nil {
             if defaults.object(forKey: "did_perform_legacy_onboarding_migration") == nil {
                 let hasLegacyUserData = defaults.object(forKey: "daily_goal_count") != nil
+                    || defaults.object(forKey: "is_notification_enabled") != nil
+                    || defaults.object(forKey: "notification_time_interval") != nil
+                    || defaults.object(forKey: "tts_voice_gender") != nil
+                    || defaults.object(forKey: "tts_speed") != nil
                     || defaults.object(forKey: "is_haptics_enabled") != nil
+                    || defaults.object(forKey: "is_sound_effects_enabled") != nil
+                    || defaults.object(forKey: "app_language") != nil
                     || defaults.object(forKey: "selected_goal_deck_id") != nil
                 defaults.set(true, forKey: "did_perform_legacy_onboarding_migration")
                 defaults.set(hasLegacyUserData, forKey: "has_completed_onboarding")
