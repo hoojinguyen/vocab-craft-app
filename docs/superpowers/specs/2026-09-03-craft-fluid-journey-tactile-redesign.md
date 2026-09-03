@@ -14,10 +14,10 @@ Following the initial overhaul in `Craft Journey UI Improvements`, extensive vis
 1. **Active Node Label Clipping**: The `"START LESSON"` capsule in `CraftJourneyNode` was placed in a tight `VStack` below the 72pt node, overlapping directly onto the 96pt pulsing halo stroke border.
 2. **Node Sizing Disparity**: The 72pt node was significantly undersized on modern 393pt viewports (less than 18% screen width), creating vast empty negative space. Reference apps feature prominent, tactile nodes measuring 88–96pt (~25% viewport width) with large, recognizable icons.
 3. **First Node Alignment Asymmetry**: The S-curve offset sequence `[-45, 0, 45, 0]` assigned `-45pt` to index 0, pushing the opening lesson node far to the left margin. In reference designs, the opening node is **strictly centered (`x = 0`)**, providing a stable visual anchor directly beneath the milestone pill.
-4. **Curriculum Hierarchy Inversion & "Unit" Clutter**: Milestone pills were mistakenly labeled with stage titles (e.g. *"Chặng 1: Thói quen & Cảm xúc"*), while headers redundantly displayed *"Unit 1: ..."*. The correct pedagogical hierarchy requires:
-   - **Topic/Deck**: The top-level learning domain.
-   - **Milestones/Sub-topics**: Represented by in-scroll pills (clean topic names, e.g. *"Thói quen & Cảm xúc"*, without *"Chặng"* or *"Unit"* prefixes).
-   - **Nodes**: Each individual lesson milestone along the fluid path. Node counts per milestone are dynamic based on backend data.
+4. **Curriculum Hierarchy & Nomenclature**:
+   - **Pinned Header**: Represents the current **Deck** (e.g. `A2 · B1 • Giao Tiếp Hằng Ngày`, no redundant "Unit 1:" prefix).
+   - **Milestone Pills**: Represent the **Deck** boundaries (e.g. *"Công Sở & Kinh Doanh"*, *"Công Nghệ & AI"*), separating curriculum decks along the path. Pills do NOT take stage names.
+   - **Nodes**: Each node corresponds to an individual **Stage** from data (e.g. Stage 1: *"Thói quen & Cảm xúc"*, Stage 2: *"Giao tiếp & Ứng xử"*), as well as mapper-generated stages (Checkpoint Boss Exam and Treasure Chest).
 5. **Tactile 3D Design Language Dilution**: While `.tactile3D` was selected, `CraftPinnedUnitHeader` only offered a flat Liquid Glass surface, and `CraftMilestonePill` lacked 3D extrusion, bevel depth, and specular highlights.
 6. **Completed (Done) Node State Visuals & Preview Gap**: Reference applications preserve the semantic lesson icon in full vibrant brand color on a soft pastel background, pinned with a crisp circular green checkmark badge (`✓`) at the bottom-trailing corner. KIT lacked a comprehensive preview for this progression state.
 7. **Lesson Launch Abrupt Dismissal Bug**: Tapping "Start Lesson" inside `CraftLessonDetailSheet` triggered sheet dismissal (`selectedNodeForDetail = nil`) and synchronously invoked `startLesson`, which presented `LessonLearningView` via `.fullScreenCover`. In UIKit/SwiftUI, presenting a view controller while another is actively dismissing causes presentation cancellation, immediately dumping the learner back to the Home screen.
@@ -27,37 +27,44 @@ Following the initial overhaul in `Craft Journey UI Improvements`, extensive vis
 ## 2. Architecture & Design Specifications
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                 CraftPinnedUnitHeader                       │
-│    [A2 · B1]  Giao Tiếp Hằng Ngày                           │
-│    6 bài học • Sơ cấp                              [ › ]    │
-│    (Tactile 3D: Top Highlight + 4pt Bottom Bevel Rim)       │
-└─────────────────────────────────────────────────────────────┘
-                               │
-                               ▼
-            ┌──────────────────────────────────────┐
-            │   CraftMilestonePill (Tactile 3D)    │
-            │        Thói quen & Cảm xúc           │
-            └──────────────────────────────────────┘
-                               │
-                               ▼
-                     [ BẮT ĐẦU ]  (ActiveCalloutBubble)
-                          ▼  (CaretDown)
-                   ┌──────────────┐
-                   │  (Node 1)    │  (88pt Centered x = 0, Active White Icon)
-                   └──────────────┘
-                          \
-                           \  (S-Curve x = -48pt)
-                            ▼
-                     ┌──────────────┐
-                     │  (Node 2) [✓]│  (88pt Done: Pastel tint + Green Checkmark Badge)
-                     └──────────────┘
-                            /
-                           /  (S-Curve x = 0 or +12pt)
-                          ▼
-                     ┌──────────────┐
-                     │  (Node 3)    │  (88pt Locked: Muted Gray Semantic Icon)
-                     └──────────────┘
+========================================================================
+[ PINNED HEADER ] (Deck 1 hiện tại)
+A2 · B1 • Giao Tiếp Hằng Ngày
+========================================================================
+
+     [ BẮT ĐẦU ]  (ActiveCalloutBubble)
+         ▼
+     ● Node 1 (88pt - Stage 1: "Thói quen & Cảm xúc" - icon: heart)
+         \
+          \
+           ● Node 2 (88pt - Stage 2: "Giao tiếp & Ứng xử" - icon: person.2)
+           /
+          /
+         ● Node 3 (88pt - Checkpoint Boss Exam - icon: crown.fill)
+         \
+          \
+           ● Node 4 (88pt - Rương kho báu - icon: gift.fill)
+
+------------------------------------------------------------------------
+   [ VIÊN THUỐC (CraftMilestonePill) - ĐẠI DIỆN CHO DECK 2 ]
+   "Công Sở & Kinh Doanh"
+------------------------------------------------------------------------
+
+     ● Node 5 (88pt - Stage 1: "Quản lý & Kế hoạch" - icon: checklist)
+         \
+          \
+           ● Node 6 (88pt - Stage 2: "Đàm phán & Năng lực" - icon: chart)
+           /
+          /
+         ● Node 7 (88pt - Checkpoint Boss Exam - icon: crown.fill)
+         \
+          \
+           ● Node 8 (88pt - Rương kho báu - icon: gift.fill)
+
+------------------------------------------------------------------------
+   [ VIÊN THUỐC - ĐẠI DIỆN CHO DECK 3 ]
+   "Công Nghệ & AI"
+------------------------------------------------------------------------
 ```
 
 ### 2.1 Component Geometry & S-Curve Layout
@@ -78,13 +85,15 @@ Following the initial overhaul in `Craft Journey UI Improvements`, extensive vis
   - Positioned above the active node with an 8pt–10pt clearance gap from the halo stroke.
   - Structure: Capsule containing uppercase localized text (`START LESSON` / `BẮT ĐẦU`) + downward triangle caret (`CaretDownShape`) pointing at the node's top edge.
   - Subtle vertical bobbing animation (`PhaseAnimator`, -2pt to +2pt) when Reduce Motion is off.
-- **Semantic Icon Preservation Matrix**:
+- **Icon Source & Semantic Icon Preservation Matrix**:
+  - **Origin**: Semantic icon names (`iconName`) originate from `SubTopicStageDTO` in data/backend (e.g. `"heart"`, `"person.2"`, `"checklist"`, `"dumbbell.fill"`, `"character.bubble.fill"`, `"trophy.fill"`). The mapper routes them to `LessonNodeModel.iconName`.
+  - Component views NEVER replace the semantic icon with padlocks or giant checkmarks. The semantic icon is styled strictly by progression state:
   | State | Surface Background | Semantic Icon Styling | Corner Badge |
   | :--- | :--- | :--- | :--- |
   | **Active** | Vibrant brand hero gradient | Pure White (`#FFFFFF`), bold weight | None (halo pulse + callout bubble) |
   | **Completed (Done)** | Soft brand pastel tint (`brandPrimary.opacity(0.12)`) | Vibrant Brand Primary (`brandPrimary`), bold weight | 26pt circular green badge (`#22C55E`) with white checkmark `✓` and 2pt background cutout stroke at `.bottomTrailing` |
   | **In-Progress** | Soft brand tint + 3pt progress trim arc | Vibrant Brand Primary | None |
-  | **Locked / Upcoming** | Soft neutral card (`surfaceSubtle`) | Muted Gray (`textMuted`), semibold weight (never replaced with padlock) | None |
+  | **Locked / Upcoming** | Soft neutral card (`surfaceSubtle`) | Muted Gray (`textMuted`), semibold weight | None |
   | **Bonus / Treasure** | Accent shine gradient | Pure White or Accent Gold | None |
 
 ### 2.3 Tactile 3D Design System Adoption
@@ -100,6 +109,7 @@ Following the initial overhaul in `Craft Journey UI Improvements`, extensive vis
   - In `.tactile3D`: Solid capsule background with 2.5pt bottom bevel rim (`theme.depths.depthSm`), `topHighlight` stroke, and `shadows.sm` elevation.
   - In `.elevated`: Elevated surface card with subtle highlight and `shadows.md`.
   - In `.glass`: Translucent material with hairline stroke.
+  - In `.outlined` & `.flat`: Standard flat or outlined capsule.
 - **`CraftJourneyNode`**:
   - Mechanical press button style translating 4pt downward upon depress.
   - Bottom rim extrusion layer (`bottomRimShape`) rendered 5pt lower than top face.
@@ -107,13 +117,13 @@ Following the initial overhaul in `Craft Journey UI Improvements`, extensive vis
 
 ### 2.4 Curriculum Hierarchy & Data Mapping
 
-- **Elimination of "Unit" and "Chặng"**:
-  - Top card title: Displays clean Topic Deck title (e.g. *"Giao Tiếp Hằng Ngày"*), CEFR level (e.g. *"A2 · B1"*), and dynamic lesson count.
-  - Milestone pills: Displays clean Milestone/Sub-topic title (e.g. *"Thói quen & Cảm xúc"*, *"Present Simple for Personal Facts"*).
-  - Nodes: Represent each stage in the sub-topic with dynamic count from backend (not fixed to 4).
+- **Hierarchy Alignment**:
+  - **Header**: Displays current Deck (`deck.title`, e.g. *"Giao Tiếp Hằng Ngày"*), CEFR level (e.g. *"A2 · B1"*), and dynamic lesson count.
+  - **Milestone Pills**: Display Deck titles separating sections (e.g. *"Công Sở & Kinh Doanh"*, *"Công Nghệ & AI"*). `milestoneTitle(for: section)` returns `section.title` (Deck title) directly, never pulling `firstNodeTitle`.
+  - **Nodes**: Each represents a Stage from backend or mapper-generated Checkpoint/Treasure.
 - **Mapper Updates (`LearningPathDataMapper`)**:
-  - Refactors section title generation to omit `"Unit %lld:"` prefix.
-  - Refactors milestone titles to display natural sub-topic labels.
+  - `section.title` maps directly to `deck.title` without `"Unit %lld:"` prefix.
+  - Eliminates `"Chặng %lld:"` prefix hardcoding in stage titles where appropriate.
 
 ### 2.5 Lesson Launch Transition Lifecycle Fix
 
@@ -162,11 +172,11 @@ Following the initial overhaul in `Craft Journey UI Improvements`, extensive vis
 | :--- | :--- | :--- |
 | `CraftUIKit` | `Sources/CraftUIKit/Components/Containers/FluidJourney/CraftJourneyNode.swift` | **Modify**: 88pt diameter, icon sizing, 3D tactile extrusion, completed checkmark badge, remove sub-tag |
 | `CraftUIKit` | `Sources/CraftUIKit/Components/Containers/FluidJourney/CraftFluidJourneyModels.swift` | **Modify**: S-curve sequence `[0, -48, 0, 48]` |
-| `CraftUIKit` | `Sources/CraftUIKit/Components/Containers/FluidJourney/CraftFluidJourney.swift` | **Modify**: Callout bubble integration, safe sheet `onDismiss` launch, spacing refinement |
+| `CraftUIKit` | `Sources/CraftUIKit/Components/Containers/FluidJourney/CraftFluidJourney.swift` | **Modify**: Callout bubble integration, safe sheet `onDismiss` launch, deck title for milestone pill |
 | `CraftUIKit` | `Sources/CraftUIKit/Components/Containers/FluidJourney/CraftPinnedUnitHeader.swift` | **Modify**: Add `.tactile3D` surface style, 3D bottom bevel rim, tactile press button style |
 | `CraftUIKit` | `Sources/CraftUIKit/Components/Containers/FluidJourney/CraftMilestonePill.swift` | **Modify**: Implement full `.tactile3D` and `.elevated` surface styles |
 | `CraftUIKit` | `Sources/CraftUIKit/Previews/CraftCatalogView.swift` | **Modify**: Add complete interactive Fluid Journey preview section |
-| `VocabCraftApp` | `Features/Homepage/ViewModels/LearningPathDataMapper.swift` | **Modify**: Remove "Unit" and "Chặng" prefixes, clean topic title mapping |
+| `VocabCraftApp` | `Features/Homepage/ViewModels/LearningPathDataMapper.swift` | **Modify**: Remove "Unit" and "Chặng" prefixes, clean deck title mapping |
 | `VocabCraftApp` | `Features/Homepage/Views/HomepageView.swift` | **Modify**: Seamless presentation integration with safe dismissal hook |
 | Tests | `CraftUIKitTests/CraftJourneyNodeTests.swift`, `CraftFluidJourneyTests.swift`, `CraftMilestonePillTests.swift`, `HomepageViewModelTests.swift` | **Modify/Add**: Unit test coverage for new dimensions, offsets, tactile styles, and lifecycle |
 
@@ -178,7 +188,7 @@ Following the initial overhaul in `Craft Journey UI Improvements`, extensive vis
    - `swift test --filter CraftJourneyNodeTests`: Verify 88pt diameter, semantic icon preservation, green checkmark badge visibility in completed state.
    - `swift test --filter CraftFluidJourneyTests`: Verify index 0 offset is `0.0pt`, subsequent S-curve coordinates, and `pendingLessonToStart` lifecycle.
    - `swift test --filter CraftMilestonePillTests`: Verify 5 surface styles.
-   - `swift test --filter LearningPathDataMapperTests`: Verify no "Unit" or "Chặng" prefixes in titles.
+   - `swift test --filter LearningPathDataMapperTests`: Verify deck titles map cleanly without "Unit" prefixes.
 2. **Interactive Simulator Verification (iOS Simulator)**:
    - Run `VocabCraftApp` on iPhone 16 Pro simulator.
    - Verify Node 1 is centered beneath the milestone pill.
