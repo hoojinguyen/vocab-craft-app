@@ -123,10 +123,10 @@ struct VocabCraftApp: App {
                         .environment(\.appRouter, appContainer.appRouter)
                         .environment(\.ttsService, appContainer.ttsService)
                         .environment(\.speechAssessmentService, appContainer.speechAssessmentService)
-                        .onOpenURL { url in
-                            appContainer.appRouter.handleDeepLink(url: url)
-                        }
                 }
+            }
+            .onOpenURL { url in
+                appContainer.appRouter.handleDeepLink(url: url)
             }
             .craftTheme(themeManager.currentPreset.theme)
             .preferredColorScheme(themeManager.preferredColorScheme)

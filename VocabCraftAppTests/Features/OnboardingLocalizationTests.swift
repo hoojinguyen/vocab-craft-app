@@ -45,6 +45,7 @@ final class OnboardingLocalizationTests: XCTestCase {
         "app.onboarding.reveal.cta": ("Bắt đầu bài học đầu tiên (1 phút)", "Start First Lesson (1 min)"),
         "app.onboarding.mini_lesson.next_cta": ("Tiếp tục", "Continue"),
         "app.onboarding.mini_lesson.check_cta": ("Hoàn thành", "Finish"),
+        "app.onboarding.mini_lesson.pronounce_a11y": ("Phát âm từ", "Pronounce word"),
         "app.onboarding.celebration.title": ("🔥 Đã kích hoạt Streak Ngày 1!", "🔥 Day 1 Streak Unlocked!"),
         "app.onboarding.celebration.subtitle": ("Bạn đã hoàn thành xuất sắc bài học đầu tiên. Hãy duy trì thói quen mỗi ngày nhé!", "You crushed your first lesson! Keep the momentum going tomorrow."),
         "app.onboarding.celebration.cta": ("Khám phá lộ trình học", "Explore My Learning Path")
@@ -54,6 +55,7 @@ final class OnboardingLocalizationTests: XCTestCase {
         let potentialPaths: [String?] = [
             Bundle.main.path(forResource: "Localizable", ofType: "xcstrings"),
             URL(fileURLWithPath: #file)
+                .deletingLastPathComponent()
                 .deletingLastPathComponent()
                 .deletingLastPathComponent()
                 .appendingPathComponent("VocabCraftApp/Resources/Localizable.xcstrings").path,

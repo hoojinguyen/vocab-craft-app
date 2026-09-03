@@ -79,6 +79,24 @@ public struct OnboardingRoadmapRevealStepView: View {
                     .padding(.horizontal, theme.spacing.base)
                 }
                 .transition(.scale.combined(with: .opacity))
+            } else if let errorMsg = viewModel.errorMessage {
+                VStack(spacing: theme.spacing.lg) {
+                    Text(errorMsg)
+                        .font(theme.typography.bodyMedium)
+                        .foregroundStyle(theme.colors.textSecondary)
+                        .multilineTextAlignment(.center)
+
+                    CraftButton(
+                        "craft.common.action.retry",
+                        variant: .secondary,
+                        size: .md
+                    ) {
+                        Task {
+                            await viewModel.synthesizeRoadmap()
+                        }
+                    }
+                }
+                .padding(.horizontal, theme.spacing.base)
             }
 
             Spacer()

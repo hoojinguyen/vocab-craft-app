@@ -5,11 +5,11 @@ public struct OnboardingGoalStepView: View {
     @Bindable var viewModel: OnboardingViewModel
     @Environment(\.craftTheme) private var theme
 
-    private let goals: [(id: String, titleKey: LocalizedStringKey, descKey: LocalizedStringKey, icon: String)] = [
-        ("deck_daily", "app.onboarding.goal.daily", "app.onboarding.goal.daily_desc", "bubble.left.and.bubble.right"),
-        ("deck_business", "app.onboarding.goal.business", "app.onboarding.goal.business_desc", "briefcase"),
-        ("deck_academic", "app.onboarding.goal.academic", "app.onboarding.goal.academic_desc", "graduationcap"),
-        ("deck_tech", "app.onboarding.goal.tech", "app.onboarding.goal.tech_desc", "cpu")
+    private let goals: [(id: String, titleKey: LocalizedStringKey, descKey: LocalizedStringKey)] = [
+        ("deck_daily", "app.onboarding.goal.daily", "app.onboarding.goal.daily_desc"),
+        ("deck_business", "app.onboarding.goal.business", "app.onboarding.goal.business_desc"),
+        ("deck_academic", "app.onboarding.goal.academic", "app.onboarding.goal.academic_desc"),
+        ("deck_tech", "app.onboarding.goal.tech", "app.onboarding.goal.tech_desc")
     ]
 
     public init(viewModel: OnboardingViewModel) {

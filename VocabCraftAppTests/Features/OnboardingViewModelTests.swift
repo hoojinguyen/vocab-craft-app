@@ -40,6 +40,16 @@ final class MockInitializeUserRoadmapUseCase: InitializeUserRoadmapUseCaseProtoc
 
 @MainActor
 final class OnboardingViewModelTests: XCTestCase {
+    override func tearDown() {
+        super.tearDown()
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: "has_completed_onboarding")
+        defaults.removeObject(forKey: "selected_goal_deck_id")
+        defaults.removeObject(forKey: "assessed_cefr_level")
+        defaults.removeObject(forKey: "daily_goal_count")
+        defaults.removeObject(forKey: "notification_time_interval")
+    }
+
     func testInitialStateAndStepProgression() {
         let settings = UserSettingsStore()
         let useCase = MockInitializeUserRoadmapUseCase()
@@ -61,6 +71,7 @@ final class OnboardingViewModelTests: XCTestCase {
 
         vm.previousStep()
         XCTAssertEqual(vm.currentStep, .habit)
+        vm.synthesisTask?.cancel()
     }
 
     func testSkipSetsDefaultsAndCompletes() {

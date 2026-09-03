@@ -9147,6 +9147,23 @@
         }
       }
     },
+    "app.onboarding.mini_lesson.pronounce_a11y": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pronounce word"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phát âm từ"
+          }
+        }
+      }
+    },
     "app.onboarding.celebration.title": {
       "extractionState": "manual",
       "localizations": {

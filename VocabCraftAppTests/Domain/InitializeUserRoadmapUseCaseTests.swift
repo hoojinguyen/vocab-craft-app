@@ -5,6 +5,15 @@ import XCTest
 #endif
 
 final class InitializeUserRoadmapUseCaseTests: XCTestCase {
+    override func tearDown() {
+        super.tearDown()
+        UserDefaults.standard.removeObject(forKey: "has_completed_onboarding")
+        UserDefaults.standard.removeObject(forKey: "selected_goal_deck_id")
+        UserDefaults.standard.removeObject(forKey: "assessed_cefr_level")
+        UserDefaults.standard.removeObject(forKey: "daily_goal_count")
+        UserDefaults.standard.removeObject(forKey: "notification_time_interval")
+    }
+
     @MainActor
     func testInitializeRoadmapForBeginnerA1() async throws {
         let dataSource = SampleVocabularyDataSource()

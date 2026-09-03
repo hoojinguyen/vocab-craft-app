@@ -50,18 +50,31 @@ public struct OnboardingHabitStepView: View {
                                 Int64(opt.minutes)
                             )
 
-                            CraftChoiceCard(
-                                prefix: nil as String?,
-                                prefixStyle: .none,
-                                title: titleStr,
-                                subtitle: subStr,
-                                state: viewModel.selectedDailyWords == opt.words ? .selected : .idle,
-                                showsStatusIndicator: false,
-                                action: {
-                                    CraftHaptics.shared.selection()
-                                    viewModel.selectedDailyWords = opt.words
+                            ZStack(alignment: .topTrailing) {
+                                CraftChoiceCard(
+                                    prefix: nil as String?,
+                                    prefixStyle: .none,
+                                    title: titleStr,
+                                    subtitle: subStr,
+                                    state: viewModel.selectedDailyWords == opt.words ? .selected : .idle,
+                                    showsStatusIndicator: false,
+                                    action: {
+                                        CraftHaptics.shared.selection()
+                                        viewModel.selectedDailyWords = opt.words
+                                    }
+                                )
+
+                                if opt.isPopular {
+                                    CraftBadge(
+                                        String(localized: "app.onboarding.habit.popular_badge", bundle: .module),
+                                        variant: .subtle,
+                                        tone: .primary,
+                                        size: .sm
+                                    )
+                                    .padding(.trailing, theme.spacing.base)
+                                    .padding(.top, theme.spacing.sm)
                                 }
-                            )
+                            }
                         }
                     }
 
@@ -124,8 +137,9 @@ public struct OnboardingHabitStepView: View {
     }
 
     private func requestNotificationPermissionAndAdvance() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { _, _ in
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, _ in
             DispatchQueue.main.async {
+                viewModel.updateNotificationPermission(granted: granted)
                 viewModel.nextStep()
             }
         }

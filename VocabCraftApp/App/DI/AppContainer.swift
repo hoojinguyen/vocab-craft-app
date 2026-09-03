@@ -39,6 +39,7 @@ public final class AppContainer {
     public let generateMixedReflexQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol
     public let practiceDrillPlanGenerator: PracticeDrillPlanGeneratorProtocol
     public let recordMixedDrillAttemptUseCase: RecordMixedDrillAttemptUseCaseProtocol
+    public let initializeUserRoadmapUseCase: InitializeUserRoadmapUseCaseProtocol
 
     // MARK: - Stores & Navigation
     public let userSettingsStore: UserSettingsStore
@@ -57,6 +58,7 @@ public final class AppContainer {
         generateMixedReflexQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol? = nil,
         practiceDrillPlanGenerator: PracticeDrillPlanGeneratorProtocol? = nil,
         recordMixedDrillAttemptUseCase: RecordMixedDrillAttemptUseCaseProtocol? = nil,
+        initializeUserRoadmapUseCase: InitializeUserRoadmapUseCaseProtocol? = nil,
         ttsService: TextToSpeechProtocol? = nil,
         sttService: SpeechRecognitionProtocol? = nil,
         speechAssessmentService: SpeechAssessmentProtocol? = nil,
@@ -129,8 +131,15 @@ public final class AppContainer {
             dataSource: resolvedDataSource
         )
 
-        self.userSettingsStore = userSettingsStore ?? UserSettingsStore()
+        let effectiveUserSettingsStore = userSettingsStore ?? UserSettingsStore()
+        self.userSettingsStore = effectiveUserSettingsStore
         self.appRouter = appRouter ?? AppRouter()
+
+        self.initializeUserRoadmapUseCase = initializeUserRoadmapUseCase ?? InitializeUserRoadmapUseCase(
+            dataSource: resolvedDataSource,
+            stageRepo: resolvedStageRepo,
+            userSettings: effectiveUserSettingsStore
+        )
     }
 
     // MARK: - Use Case Factories
@@ -214,11 +223,7 @@ public final class AppContainer {
     }
 
     public func makeInitializeUserRoadmapUseCase() -> InitializeUserRoadmapUseCaseProtocol {
-        InitializeUserRoadmapUseCase(
-            dataSource: vocabularyDataSource,
-            stageRepo: stageProgressRepository,
-            userSettings: userSettingsStore
-        )
+        initializeUserRoadmapUseCase
     }
 
     public func makeOnboardingViewModel() -> OnboardingViewModel {

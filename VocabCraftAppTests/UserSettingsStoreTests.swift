@@ -7,6 +7,19 @@ import XCTest
 
 @MainActor
 final class UserSettingsStoreTests: XCTestCase {
+    override func tearDown() {
+        super.tearDown()
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: "has_completed_onboarding")
+        defaults.removeObject(forKey: "selected_goal_deck_id")
+        defaults.removeObject(forKey: "assessed_cefr_level")
+        defaults.removeObject(forKey: "daily_goal_count")
+        defaults.removeObject(forKey: "tts_voice_gender")
+        defaults.removeObject(forKey: "tts_speed")
+        defaults.removeObject(forKey: "is_haptics_enabled")
+        defaults.removeObject(forKey: "is_sound_effects_enabled")
+    }
+
     func testDefaultUserSettingsValues() {
         let defaults = UserDefaults.standard
         defaults.removeObject(forKey: "daily_goal_count")

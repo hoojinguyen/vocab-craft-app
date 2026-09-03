@@ -25,6 +25,30 @@ public struct OnboardingFirstLessonView: View {
                 definitionEn: "Ability to recover quickly",
                 exampleEn: "Her resilience inspired everyone.",
                 exampleVi: "Sự kiên cường của cô ấy đã truyền cảm hứng."
+            ),
+            TopicWordDTO(
+                id: 2,
+                stageId: "starter",
+                lemma: "Innovation",
+                phonetic: "/ˌɪn.əˈveɪ.ʃən/",
+                pos: "noun",
+                cefrLevel: "B1",
+                definitionVi: "Sự đổi mới, sáng tạo",
+                definitionEn: "A new method, idea, or product",
+                exampleEn: "Innovation drives progress.",
+                exampleVi: "Sự đổi mới thúc đẩy tiến bộ."
+            ),
+            TopicWordDTO(
+                id: 3,
+                stageId: "starter",
+                lemma: "Momentum",
+                phonetic: "/moʊˈmen.təm/",
+                pos: "noun",
+                cefrLevel: "B1",
+                definitionVi: "Đà phát triển",
+                definitionEn: "The force that keeps something moving",
+                exampleEn: "Maintain your study momentum.",
+                exampleVi: "Duy trì đà học tập của bạn."
             )
         ] : words
         self.onFinish = onFinish
@@ -65,7 +89,7 @@ public struct OnboardingFirstLessonView: View {
                     CraftIconButton(
                         symbol: .audio,
                         size: .lg,
-                        accessibilityLabel: "Pronounce"
+                        accessibilityLabelKey: "app.onboarding.mini_lesson.pronounce_a11y"
                     ) {
                         ttsService?.speak(text: currentWord.lemma)
                     }
@@ -94,8 +118,8 @@ public struct OnboardingFirstLessonView: View {
 
                 CraftButton(
                     currentIndex == words.count - 1
-                        ? "app.onboarding.mini_lesson.check_cta"
-                        : "app.onboarding.mini_lesson.next_cta",
+                        ? LocalizedStringKey("app.onboarding.mini_lesson.check_cta")
+                        : LocalizedStringKey("app.onboarding.mini_lesson.next_cta"),
                     variant: .primary,
                     size: .lg,
                     isFullWidth: true

@@ -20,7 +20,7 @@ public struct OnboardingCoordinatorView: View {
                         CraftIconButton(
                             symbol: .chevronLeft,
                             size: .md,
-                            accessibilityLabel: "Back"
+                            accessibilityLabelKey: "craft.common.action.back"
                         ) {
                             viewModel.previousStep()
                         }
@@ -43,9 +43,10 @@ public struct OnboardingCoordinatorView: View {
                     } label: {
                         Text("app.onboarding.common.skip")
                             .font(theme.typography.caption)
-                            .foregroundStyle(theme.colors.textSecondary)
+                            .foregroundStyle(theme.colors.textSecondary.opacity(viewModel.isSynthesizing ? 0.35 : 1.0))
                     }
                     .buttonStyle(.plain)
+                    .disabled(viewModel.isSynthesizing)
                     .frame(minWidth: 44, minHeight: 44)
                 }
                 .padding(.horizontal, theme.spacing.base)

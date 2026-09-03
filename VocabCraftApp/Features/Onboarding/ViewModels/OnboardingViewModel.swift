@@ -18,6 +18,7 @@ public final class OnboardingViewModel {
 
     private let useCase: InitializeUserRoadmapUseCaseProtocol
     private let userSettings: UserSettingsStore
+    public private(set) var synthesisTask: Task<Void, Never>?
 
     public init(useCase: InitializeUserRoadmapUseCaseProtocol, userSettings: UserSettingsStore) {
         self.useCase = useCase
@@ -45,16 +46,25 @@ public final class OnboardingViewModel {
         guard let next = OnboardingStep(rawValue: currentStep.rawValue + 1) else { return }
         currentStep = next
         if currentStep == .roadmapReveal && roadmapResult == nil {
-            Task { await synthesizeRoadmap() }
+            synthesisTask = Task { await synthesizeRoadmap() }
         }
     }
 
     public func previousStep() {
         guard let prev = OnboardingStep(rawValue: currentStep.rawValue - 1) else { return }
         currentStep = prev
+        roadmapResult = nil
+        synthesisTask?.cancel()
+        synthesisTask = nil
+    }
+
+    public func updateNotificationPermission(granted: Bool) {
+        userSettings.isNotificationEnabled = granted
     }
 
     public func skipOnboarding() {
+        synthesisTask?.cancel()
+        synthesisTask = nil
         userSettings.selectedGoalDeckId = "deck_daily"
         userSettings.assessedCefrLevel = "A1"
         userSettings.dailyGoalCount = 10
@@ -68,10 +78,13 @@ public final class OnboardingViewModel {
 
         // Visual animation staging
         synthesisPhaseTextKey = "app.onboarding.reveal.analyzing"
+        guard !Task.isCancelled else { isSynthesizing = false; return }
         try? await Task.sleep(nanoseconds: 300_000_000)
+        guard !Task.isCancelled else { isSynthesizing = false; return }
 
         synthesisPhaseTextKey = "app.onboarding.reveal.curating"
         try? await Task.sleep(nanoseconds: 300_000_000)
+        guard !Task.isCancelled else { isSynthesizing = false; return }
 
         do {
             let result = try await useCase.execute(
@@ -80,9 +93,11 @@ public final class OnboardingViewModel {
                 dailyGoalCount: selectedDailyWords,
                 notificationTimeInterval: selectedReminderInterval
             )
+            guard !Task.isCancelled else { isSynthesizing = false; return }
             self.roadmapResult = result
             self.synthesisPhaseTextKey = "app.onboarding.reveal.ready"
         } catch {
+            guard !Task.isCancelled else { isSynthesizing = false; return }
             self.errorMessage = error.localizedDescription
         }
 
