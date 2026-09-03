@@ -8500,6 +8500,703 @@
           }
         }
       }
+    },
+    "app.onboarding.common.skip": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bỏ qua"
+          }
+        }
+      }
+    },
+    "app.onboarding.common.continue": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiếp tục"
+          }
+        }
+      }
+    },
+    "app.onboarding.goal.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What is your English learning goal?"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mục tiêu học tiếng Anh của bạn là gì?"
+          }
+        }
+      }
+    },
+    "app.onboarding.goal.subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We'll tailor vocabulary you actually use in daily life."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chúng tôi sẽ tập trung vào nhóm từ vựng bạn thực sự cần."
+          }
+        }
+      }
+    },
+    "app.onboarding.goal.daily": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daily Communication"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giao tiếp hằng ngày"
+          }
+        }
+      }
+    },
+    "app.onboarding.goal.daily_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Travel, making friends, everyday life"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du lịch, kết bạn, đời sống"
+          }
+        }
+      }
+    },
+    "app.onboarding.goal.business": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Career & Business"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Công sở & Sự nghiệp"
+          }
+        }
+      }
+    },
+    "app.onboarding.goal.business_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meetings, negotiations, professional emails"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Họp hành, đàm phán, viết email"
+          }
+        }
+      }
+    },
+    "app.onboarding.goal.academic": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Academic & Exam Prep"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Học thuật & Luyện thi"
+          }
+        }
+      }
+    },
+    "app.onboarding.goal.academic_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IELTS, TOEIC, studying abroad"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IELTS, TOEIC, du học"
+          }
+        }
+      }
+    },
+    "app.onboarding.goal.tech": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Technology & AI"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Công nghệ & AI"
+          }
+        }
+      }
+    },
+    "app.onboarding.goal.tech_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coding, software, tech innovation"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lập trình, đổi mới sáng tạo"
+          }
+        }
+      }
+    },
+    "app.onboarding.level.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What is your current English level?"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trình độ tiếng Anh hiện tại của bạn?"
+          }
+        }
+      }
+    },
+    "app.onboarding.level.subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can always adjust your starting level in Settings."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đừng lo, bạn có thể điều chỉnh lại bất cứ lúc nào trong Cài đặt."
+          }
+        }
+      }
+    },
+    "app.onboarding.level.a1": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beginner (A1)"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mới bắt đầu / Mất gốc (A1)"
+          }
+        }
+      }
+    },
+    "app.onboarding.level.a1_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting fresh with everyday fundamentals"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chưa có nhiều từ vựng, muốn học từ nền tảng"
+          }
+        }
+      }
+    },
+    "app.onboarding.level.a2": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elementary (A2)"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sơ cấp (A2)"
+          }
+        }
+      }
+    },
+    "app.onboarding.level.a2_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Know basic words, but hesitate when speaking"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Biết các từ đơn giản, nhưng phản xạ còn ngập ngừng"
+          }
+        }
+      }
+    },
+    "app.onboarding.level.b1_b2": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intermediate (B1 - B2)"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trung cấp (B1 - B2)"
+          }
+        }
+      }
+    },
+    "app.onboarding.level.b1_b2_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comfortable in routine situations, want deeper fluency"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tự tin trong các tình huống quen thuộc, muốn nói lưu loát hơn"
+          }
+        }
+      }
+    },
+    "app.onboarding.level.c1": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Advanced (C1)"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nâng cao (C1)"
+          }
+        }
+      }
+    },
+    "app.onboarding.level.c1_desc": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aiming for nuanced, academic, and native expressions"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muốn làm chủ từ vựng chuyên sâu và tự nhiên"
+          }
+        }
+      }
+    },
+    "app.onboarding.habit.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How many words do you want to learn each day?"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bạn muốn học bao nhiêu từ mỗi ngày?"
+          }
+        }
+      }
+    },
+    "app.onboarding.habit.subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consistency is the secret to fluent vocabulary recall."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Học đều đặn mỗi ngày là bí quyết ghi nhớ phản xạ lâu dài."
+          }
+        }
+      }
+    },
+    "app.onboarding.habit.words_per_day_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld words per day"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld từ mỗi ngày"
+          }
+        }
+      }
+    },
+    "app.onboarding.habit.minutes_per_day_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld min / day"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld phút / ngày"
+          }
+        }
+      }
+    },
+    "app.onboarding.habit.popular_badge": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Most Popular"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phổ biến nhất"
+          }
+        }
+      }
+    },
+    "app.onboarding.habit.reminder_header": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daily Reminder"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giờ nhắc nhở hằng ngày"
+          }
+        }
+      }
+    },
+    "app.onboarding.habit.reminder_morning": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Morning 08:00"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sáng 08:00"
+          }
+        }
+      }
+    },
+    "app.onboarding.habit.reminder_lunch": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lunch 12:30"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trưa 12:30"
+          }
+        }
+      }
+    },
+    "app.onboarding.habit.reminder_evening": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evening 20:00"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tối 20:00"
+          }
+        }
+      }
+    },
+    "app.onboarding.reveal.analyzing": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyzing your profile & goals..."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang phân tích mục tiêu & trình độ..."
+          }
+        }
+      }
+    },
+    "app.onboarding.reveal.curating": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Curating personalized vocabulary decks..."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang cá nhân hóa bộ từ vựng tối ưu..."
+          }
+        }
+      }
+    },
+    "app.onboarding.reveal.ready": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your personalized roadmap is ready!"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lộ trình hoàn hảo của bạn đã sẵn sàng!"
+          }
+        }
+      }
+    },
+    "app.onboarding.reveal.projection_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "At %lld words/day, you'll master %lld words in 30 days!"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Với %lld từ/ngày, bạn sẽ làm chủ %lld từ vựng sau 30 ngày!"
+          }
+        }
+      }
+    },
+    "app.onboarding.reveal.cta": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start First Lesson (1 min)"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bắt đầu bài học đầu tiên (1 phút)"
+          }
+        }
+      }
+    },
+    "app.onboarding.mini_lesson.next_cta": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiếp tục"
+          }
+        }
+      }
+    },
+    "app.onboarding.mini_lesson.check_cta": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finish"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hoàn thành"
+          }
+        }
+      }
+    },
+    "app.onboarding.celebration.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🔥 Day 1 Streak Unlocked!"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🔥 Đã kích hoạt Streak Ngày 1!"
+          }
+        }
+      }
+    },
+    "app.onboarding.celebration.subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You crushed your first lesson! Keep the momentum going tomorrow."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bạn đã hoàn thành xuất sắc bài học đầu tiên. Hãy duy trì thói quen mỗi ngày nhé!"
+          }
+        }
+      }
+    },
+    "app.onboarding.celebration.cta": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Explore My Learning Path"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Khám phá lộ trình học"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
