@@ -13,9 +13,34 @@ import Observation
 @MainActor
 public final class HomepageViewModel {
     public var userName: String
-    public var streakDays: Int
-    public var dailyWordsLearned: Int
-    public var dailyWordsGoal: Int
+    private var _streakDays: Int
+    private var _dailyWordsLearned: Int
+    private var _dailyWordsGoal: Int
+
+    public var streakDays: Int {
+        get { userSettings?.currentStreak ?? _streakDays }
+        set {
+            _streakDays = newValue
+            userSettings?.currentStreak = newValue
+        }
+    }
+
+    public var dailyWordsLearned: Int {
+        get { userSettings?.todayWordsLearned ?? _dailyWordsLearned }
+        set {
+            _dailyWordsLearned = newValue
+            userSettings?.todayWordsLearned = newValue
+        }
+    }
+
+    public var dailyWordsGoal: Int {
+        get { userSettings?.dailyGoalCount ?? _dailyWordsGoal }
+        set {
+            _dailyWordsGoal = newValue
+            userSettings?.dailyGoalCount = newValue
+        }
+    }
+
     public var unreadNotifications: Bool
     public var sections: [LessonSection]
     public var selectedNode: LessonNodeModel?
@@ -47,9 +72,9 @@ public final class HomepageViewModel {
         self.ttsService = ttsService
         self.userSettings = userSettings
         self.userName = userName
-        self.streakDays = userSettings?.currentStreak ?? streakDays
-        self.dailyWordsLearned = userSettings?.todayWordsLearned ?? dailyWordsLearned
-        self.dailyWordsGoal = userSettings?.dailyGoalCount ?? dailyWordsGoal
+        self._streakDays = userSettings?.currentStreak ?? streakDays
+        self._dailyWordsLearned = userSettings?.todayWordsLearned ?? dailyWordsLearned
+        self._dailyWordsGoal = userSettings?.dailyGoalCount ?? dailyWordsGoal
         self.unreadNotifications = unreadNotifications
         self.sections = sections
         self.selectedNode = nil
@@ -60,9 +85,9 @@ public final class HomepageViewModel {
 
     public func refreshDailyProgress() {
         if let userSettings {
-            self.streakDays = userSettings.currentStreak
-            self.dailyWordsLearned = userSettings.todayWordsLearned
-            self.dailyWordsGoal = userSettings.dailyGoalCount
+            self._streakDays = userSettings.currentStreak
+            self._dailyWordsLearned = userSettings.todayWordsLearned
+            self._dailyWordsGoal = userSettings.dailyGoalCount
         }
     }
 

@@ -204,6 +204,9 @@ public struct HomepageView: View {
             }
         }
         .onChange(of: appRouter.selectedTab) { _, newTab in
+            if newTab == .home {
+                viewModel.refreshDailyProgress()
+            }
             if newTab != .home {
                 lessonLaunchTask?.cancel()
             }
