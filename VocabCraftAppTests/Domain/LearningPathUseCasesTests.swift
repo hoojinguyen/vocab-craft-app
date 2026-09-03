@@ -173,6 +173,7 @@ final class LearningPathUseCasesTests: XCTestCase {
     }
 
     func test_completeLessonUseCase_concurrentExecution_sharesInFlightTask() async throws {
+        stageRepo.delayNanoseconds = 100_000_000
         let sut = CompleteLessonUseCase(
             stageRepo: stageRepo,
             progressRepo: progressRepo

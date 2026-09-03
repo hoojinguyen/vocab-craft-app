@@ -47,10 +47,13 @@ struct LessonLocalizationTests {
             "app.lesson.exercise.check_action": ("Check", "Kiểm tra"),
             "app.lesson.feedback.correct": ("Correct!", "Chính xác!"),
             "app.lesson.feedback.incorrect": ("Incorrect", "Chưa chính xác"),
+            "app.lesson.feedback.correct_answer_format": ("Correct answer: %@", "Đáp án đúng: %@"),
             "app.lesson.summary.title": ("Lesson Completed!", "Hoàn thành bài học!"),
             "app.lesson.summary.xp_title": ("XP", "XP"),
+            "app.lesson.summary.xp_earned_format": ("+%lld XP", "+%lld XP"),
             "app.lesson.summary.mastered_words": ("Mastered Words", "Từ vựng đã làm chủ"),
             "app.lesson.summary.accuracy": ("Accuracy", "Độ chính xác"),
+            "app.lesson.summary.accuracy_format": ("%lld%%", "%lld%%"),
             "app.lesson.summary.finish_action": ("Finish Lesson", "Hoàn tất bài học"),
             "app.lesson.exit_alert.title": ("Leave Lesson?", "Dừng bài học?"),
             "app.lesson.exit_alert.message": ("Your current lesson progress will not be saved if you leave now.", "Tiến độ bài học hiện tại sẽ không được lưu nếu bạn thoát bây giờ."),
@@ -547,11 +550,13 @@ public struct LessonSummaryView: View {
 
             // Star Rating Header
             VStack(spacing: theme.spacing.xs) {
-                HStack(spacing: 8) {
+                HStack(spacing: theme.spacing.xs) {
                     ForEach(0..<3, id: \.self) { idx in
-                        Image(systemName: idx < summary.stars ? "star.fill" : "star")
-                            .font(.system(size: 36, weight: .bold))
-                            .foregroundStyle(idx < summary.stars ? theme.colors.accent : theme.colors.borderDefault)
+                        CraftIcon(
+                            idx < summary.stars ? "star.fill" : "star",
+                            size: .xl,
+                            color: idx < summary.stars ? theme.colors.accent : theme.colors.borderDefault
+                        )
                     }
                 }
                 CraftText(AppStrings.Lesson.summaryTitle, style: .titleLarge, color: theme.colors.textPrimary)
@@ -578,24 +583,50 @@ public struct LessonSummaryView: View {
             }
             .padding(.horizontal, theme.spacing.base)
 
-            // Mastered Words List
-            VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                CraftText(AppStrings.Lesson.masteredWords, style: .headline, color: theme.colors.textPrimary)
-                    .padding(.horizontal, theme.spacing.base)
+            // Learned Words List (Separated into Mastered and Needs Review)
+            let masteredWords = summary.learnedWords.filter { !summary.weakWordIds.contains($0.id) }
+            let reviewWords = summary.learnedWords.filter { summary.weakWordIds.contains($0.id) }
 
-                ScrollView {
-                    VStack(spacing: theme.spacing.xs) {
-                        ForEach(summary.learnedWords, id: \.id) { word in
-                            CraftListRow(
-                                title: word.lemma,
-                                subtitle: word.definitionVi,
-                                iconName: "speaker.wave.2.fill",
-                                showChevron: false,
-                                action: { onReplayAudio(word) }
-                            )
+            ScrollView {
+                VStack(alignment: .leading, spacing: theme.spacing.md) {
+                    if !masteredWords.isEmpty {
+                        VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                            CraftText(AppStrings.Lesson.masteredWords, style: .headline, color: theme.colors.textPrimary)
+                                .padding(.horizontal, theme.spacing.base)
+
+                            VStack(spacing: theme.spacing.xs) {
+                                ForEach(masteredWords, id: \.id) { word in
+                                    CraftListRow(
+                                        title: word.lemma,
+                                        subtitle: word.definitionVi,
+                                        iconName: "speaker.wave.2.fill",
+                                        showChevron: false,
+                                        action: { onReplayAudio(word) }
+                                    )
+                                }
+                            }
+                            .padding(.horizontal, theme.spacing.base)
                         }
                     }
-                    .padding(.horizontal, theme.spacing.base)
+                    if !reviewWords.isEmpty {
+                        VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                            CraftText(AppStrings.Lesson.reviewWordsTitleText, style: .headline, color: theme.colors.textPrimary)
+                                .padding(.horizontal, theme.spacing.base)
+
+                            VStack(spacing: theme.spacing.xs) {
+                                ForEach(reviewWords, id: \.id) { word in
+                                    CraftListRow(
+                                        title: word.lemma,
+                                        subtitle: word.definitionVi,
+                                        iconName: "speaker.wave.2.fill",
+                                        showChevron: false,
+                                        action: { onReplayAudio(word) }
+                                    )
+                                }
+                            }
+                            .padding(.horizontal, theme.spacing.base)
+                        }
+                    }
                 }
             }
 
@@ -771,23 +802,26 @@ public final class LessonLearningViewModel: Identifiable {
 
     public var progress: Double {
         guard !steps.isEmpty else { return 1.0 }
-        let effectiveTotal = max(initialStepCount, steps.count)
-        return Double(currentStepIndex) / Double(max(effectiveTotal, 1))
+        let effectiveTotal = max(initialStepCount, 1)
+        return Double(min(currentStepIndex, initialStepCount)) / Double(effectiveTotal)
     }
 
     public func advanceStep() {
         guard !isSummaryStep else { return }
         ttsService.stop()
         stopListeningForSpeaking()
+        stopSpeechSession()
         isFeedbackPresented = false
         typingText = ""
         liveTranscript = ""
+        speechState = .idle
         hintStage = 0
         eliminatedOptionId = nil
-        speechState = .idle
-        currentStepIndex += 1
-        if currentStepIndex >= steps.count {
+        if steps.isEmpty || currentStepIndex + 1 >= steps.count {
             finishLesson()
+            currentStepIndex = max(0, steps.count - 1)
+        } else {
+            currentStepIndex += 1
         }
     }
 
@@ -1052,16 +1086,14 @@ public struct LessonLearningView: View {
                             showExitAlert = true
                         } label: {
                             Image(systemName: "xmark")
-                                .font(.system(size: 18, weight: .bold))
+                                .font(theme.typography.bodyMedium.bold())
                                 .foregroundStyle(theme.colors.textMuted)
                                 .frame(width: 44, height: 44)
                         }
 
                         CraftProgressBar(
                             progress: viewModel.progress,
-                            height: 8,
-                            tone: .primary,
-                            style: .rounded
+                            height: 8
                         )
 
                         Spacer(minLength: 44)
@@ -1099,8 +1131,19 @@ public struct LessonLearningView: View {
             }
         }
         .animation(.smooth(duration: 0.3), value: viewModel.currentStepIndex)
+        .interactiveDismissDisabled(!viewModel.isSummaryStep)
+        .onDisappear {
+            if !viewModel.isCompleted {
+                onDismiss()
+            }
+            viewModel.stopSpeechSession()
+        }
         .alert(AppStrings.Lesson.exitAlertTitle, isPresented: $showExitAlert) {
-            Button(AppStrings.Lesson.exitAlertConfirm, role: .destructive) { onDismiss() }
+            Button(AppStrings.Lesson.exitAlertConfirm, role: .destructive) {
+                viewModel.stopAudio()
+                viewModel.stopSpeechSession()
+                onDismiss()
+            }
             Button(AppStrings.Lesson.exitAlertCancel, role: .cancel) {}
         } message: {
             Text(AppStrings.Lesson.exitAlertMessage)

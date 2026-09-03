@@ -37,6 +37,19 @@ struct ReflexCoreUtilitiesTests {
         #expect(ReflexClozeFormatter.formatCloze(sentenceEn: "The bus stopped suddenly", lemma: "stop") == "The bus [ _________ ] suddenly")
         #expect(ReflexClozeFormatter.formatCloze(sentenceEn: "I walk every day and I was walking yesterday", lemma: "walk") == "I [ _________ ] every day and I was [ _________ ] yesterday")
         #expect(ReflexClozeFormatter.formatCloze(sentenceEn: "He is an avid reader", lemma: "read") == "He is an avid reader")
+
+        // Adjective comparatives & superlatives
+        #expect(ReflexClozeFormatter.formatCloze(sentenceEn: "The box is bigger than mine.", lemma: "big", pos: "adj") == "The box is [ _________ ] than mine.")
+        #expect(ReflexClozeFormatter.formatCloze(sentenceEn: "He is faster than anyone.", lemma: "fast", pos: "adjective") == "He is [ _________ ] than anyone.")
+        #expect(ReflexClozeFormatter.formatCloze(sentenceEn: "She is happier now.", lemma: "happy", pos: "adj") == "She is [ _________ ] now.")
+
+        // Short lemma precision (e.g. 'be' must NOT match 'bees')
+        #expect(ReflexClozeFormatter.formatCloze(sentenceEn: "Bees collect pollen.", lemma: "be") == "Bees collect pollen.")
+        #expect(ReflexClozeFormatter.formatCloze(sentenceEn: "They were happy to be there.", lemma: "be") == "They [ _________ ] happy to [ _________ ] there.")
+
+        // Irregular verbs
+        #expect(ReflexClozeFormatter.formatCloze(sentenceEn: "She went to the market.", lemma: "go") == "She [ _________ ] to the market.")
+        #expect(ReflexClozeFormatter.formatCloze(sentenceEn: "I bought a book.", lemma: "buy") == "I [ _________ ] a book.")
     }
 
     @Test("Distractor generator creates 4 unique options including target")

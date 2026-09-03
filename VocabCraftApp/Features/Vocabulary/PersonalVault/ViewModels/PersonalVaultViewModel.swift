@@ -61,17 +61,22 @@ public final class PersonalVaultViewModel {
                     filter: selectedFilter,
                     searchQuery: effectiveQuery
                 )
+                guard !Task.isCancelled else { return }
                 words = result.words
                 metrics = result.metrics
 
-                vaultWords = try await fetchVaultUseCase.fetchVaultWords(
+                let fetchedWords = try await fetchVaultUseCase.fetchVaultWords(
                     filter: vaultTabFilter,
                     searchQuery: effectiveQuery
                 )
+                guard !Task.isCancelled else { return }
+                vaultWords = fetchedWords
             }
         } catch {
+            guard !Task.isCancelled else { return }
             errorMessage = error.localizedDescription
         }
+        guard !Task.isCancelled else { return }
         isLoading = false
     }
 
@@ -136,19 +141,30 @@ public final class PersonalVaultViewModel {
         return picked
     }
 
+    private var searchTask: Task<Void, Never>?
+
     public func setVaultFilter(_ filter: VaultTabFilter) {
         vaultTabFilter = filter
-        Task { await loadData() }
+        searchTask?.cancel()
+        searchTask = Task { [weak self] in
+            await self?.loadData()
+        }
     }
 
     public func setFilter(_ filter: PersonalVaultFilter) {
         selectedFilter = filter
-        Task { await loadData() }
+        searchTask?.cancel()
+        searchTask = Task { [weak self] in
+            await self?.loadData()
+        }
     }
 
     public func setSearchQuery(_ query: String) {
         searchQuery = query
-        Task { await loadData() }
+        searchTask?.cancel()
+        searchTask = Task { [weak self] in
+            await self?.loadData()
+        }
     }
 
     public func toggleBookmark(wordId: Int64) async {

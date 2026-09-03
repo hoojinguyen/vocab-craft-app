@@ -35,9 +35,9 @@ public struct ReflexHintMaskGenerator: Sendable {
         let patternSlotStr = "[ \(patternRevealedWord) ]"
 
         // Extract cloze sentence parts
-        let formattedSentence = ReflexClozeFormatter.formatCloze(sentenceEn: sentenceEn, lemma: cleanLemma)
+        let formattedSentence = ReflexClozeFormatter.formatCloze(sentenceEn: sentenceEn, lemma: cleanLemma, pos: pos)
         let partsInitial = ReflexClozeFormatter.extractTemplateParts(from: formattedSentence)
-            ?? ClozeSentenceParts(prefix: sentenceEn, slot: lengthSlotStr, suffix: "")
+            ?? ClozeSentenceParts(prefix: "", slot: lengthSlotStr, suffix: "")
 
         let partsInitialStable = ClozeSentenceParts(
             prefix: partsInitial.prefix,
