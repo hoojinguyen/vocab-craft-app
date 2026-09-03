@@ -76,7 +76,7 @@ public struct OnboardingRoadmapRevealStepView: View {
                             .padding(.horizontal, theme.spacing.base)
                     }
 
-                    let isRetry = viewModel.errorMessage != nil || viewModel.isCompleting
+                    let isRetry = viewModel.errorMessage != nil
                     CraftButton(
                         isRetry
                             ? LocalizedStringKey("app.onboarding.reveal.retry")

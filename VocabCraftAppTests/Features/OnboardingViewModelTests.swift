@@ -408,6 +408,32 @@ final class OnboardingViewModelTests: XCTestCase {
         XCTAssertEqual(progressRepo.recordChallengeCallCount, 3)
         XCTAssertEqual(flakyStageRepo.saveCallCount, 1)
     }
+
+    func testCompleteOnboardingWhileIsCompletingIsIgnored() async {
+        let settings = makeSettings()
+        let useCase = MockInitializeUserRoadmapUseCase()
+        let progressRepo = MockUserProgressRepository()
+        let stageRepo = MockStageProgressRepository()
+        let vm = OnboardingViewModel(
+            useCase: useCase,
+            userSettings: settings,
+            progressRepo: progressRepo,
+            stageRepo: stageRepo
+        )
+
+        await vm.synthesizeRoadmap()
+        vm.completeOnboardingAndDismiss()
+        XCTAssertTrue(vm.isCompleting)
+
+        let initialTask = vm.completionTask
+        vm.completeOnboardingAndDismiss()
+        XCTAssertEqual(vm.completionTask, initialTask)
+
+        await vm.completionTask?.value
+        XCTAssertFalse(vm.isCompleting)
+        XCTAssertTrue(settings.hasCompletedOnboarding)
+        XCTAssertEqual(progressRepo.recordChallengeCallCount, 3)
+    }
 }
 
 final class FlakyStageProgressRepository: StageProgressRepositoryProtocol, @unchecked Sendable {
