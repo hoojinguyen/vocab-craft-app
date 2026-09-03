@@ -187,7 +187,10 @@ public final class UserSettingsStore {
                 if hasLegacyUserData {
                     self.todayWordsLearnedDate = Date()
                     defaults.set(Date().timeIntervalSince1970, forKey: "today_words_learned_date")
-                    defaults.set(8, forKey: "today_words_learned")
+                    let existingLearned = defaults.object(forKey: "today_words_learned") != nil
+                        ? defaults.integer(forKey: "today_words_learned")
+                        : 8
+                    defaults.set(existingLearned, forKey: "today_words_learned")
                 } else {
                     self.todayWordsLearnedDate = nil
                     defaults.set(0, forKey: "today_words_learned")

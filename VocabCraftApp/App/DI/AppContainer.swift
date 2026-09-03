@@ -188,9 +188,7 @@ public final class AppContainer {
         HomepageViewModel(
             fetchLearningPathUseCase: fetchLearningPathUseCase,
             ttsService: ttsService,
-            streakDays: userSettingsStore.currentStreak,
-            dailyWordsLearned: userSettingsStore.todayWordsLearned,
-            dailyWordsGoal: userSettingsStore.dailyGoalCount
+            userSettings: userSettingsStore
         )
     }
 

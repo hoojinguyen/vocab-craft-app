@@ -491,4 +491,26 @@ final class HomepageViewModelTests: XCTestCase {
         XCTAssertNil(vm.selectedNode)
         XCTAssertFalse(vm.isDetailSheetPresented)
     }
+
+    func testRefreshDailyProgressUpdatesFromUserSettings() {
+        let suite = "test_homepage_vm_\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        let settings = UserSettingsStore(defaults: defaults)
+        settings.todayWordsLearned = 5
+        settings.currentStreak = 3
+        settings.dailyGoalCount = 12
+
+        let vm = HomepageViewModel(userSettings: settings)
+        XCTAssertEqual(vm.dailyWordsLearned, 5)
+        XCTAssertEqual(vm.streakDays, 3)
+        XCTAssertEqual(vm.dailyWordsGoal, 12)
+
+        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
+        settings.todayWordsLearnedDate = yesterday
+
+        vm.refreshDailyProgress()
+        XCTAssertEqual(vm.dailyWordsLearned, 0)
+
+        defaults.removePersistentDomain(forName: suite)
+    }
 }

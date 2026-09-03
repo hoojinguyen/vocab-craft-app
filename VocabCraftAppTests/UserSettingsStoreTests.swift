@@ -181,5 +181,17 @@ final class UserSettingsStoreTests: XCTestCase {
 
         defaults.removePersistentDomain(forName: suite)
     }
+
+    func testLegacyMigrationPreservesExistingTodayWordsLearnedIfPresent() {
+        let suite = "test_legacy_migration_preserve_\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defaults.set(15, forKey: "daily_goal_count")
+        defaults.set(6, forKey: "today_words_learned")
+
+        let store = UserSettingsStore(defaults: defaults)
+        XCTAssertEqual(store.todayWordsLearned, 6)
+
+        defaults.removePersistentDomain(forName: suite)
+    }
 }
 
