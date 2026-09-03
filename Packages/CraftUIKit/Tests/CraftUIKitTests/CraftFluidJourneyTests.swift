@@ -485,5 +485,30 @@ struct CraftFluidJourneyTests {
         #expect(builderTriggeredNode?.id == "node-safe-launch")
         #expect(startedNodeId == "node-safe-launch")
     }
+
+    // MARK: - Locked Node Interaction Tests
+
+    @Test("Verify handleNodeTap ignores locked nodes without invoking callback")
+    func testHandleNodeTapIgnoresLockedNode() {
+        var tappedNodeId: String?
+        let lockedNode = LessonNodeModel(id: "node-locked-test", title: "Locked Lesson", state: .locked)
+        let activeNode = LessonNodeModel(id: "node-active-test", title: "Active Lesson", state: .active)
+        let section = LessonSection(id: "sec-tap-test", title: "Tap Test Unit", nodes: [lockedNode, activeNode])
+
+        let journey = CraftFluidJourney(
+            sections: [section],
+            onNodeTap: { node in
+                tappedNodeId = node.id
+            }
+        )
+
+        // Attempt tap on locked node - must be completely ignored
+        journey.handleNodeTap(lockedNode)
+        #expect(tappedNodeId == nil, "Locked node tap must not invoke onNodeTap callback")
+
+        // Attempt tap on active node - should invoke callback
+        journey.handleNodeTap(activeNode)
+        #expect(tappedNodeId == "node-active-test", "Active node tap must invoke onNodeTap callback")
+    }
 }
 

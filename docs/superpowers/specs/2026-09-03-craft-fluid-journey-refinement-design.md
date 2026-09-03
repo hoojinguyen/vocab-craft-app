@@ -120,11 +120,11 @@ Surface style is resolved in order:
 | :--- | :--- | :--- |
 | **Tokens** | `CraftUIKit/Tokens/CraftTheme.swift` | Add `journeySurfaceStyle: CraftSurfaceStyle` token to protocol + default extension. |
 | **Themes** | `CraftUIKit/Tokens/Themes/*.swift` | Configure `journeySurfaceStyle` across all preset themes (`TactileClay`, `AIAcoustic`, `NordicZen`, `OxfordHeritage`, etc.). |
-| **Component** | `CraftUIKit/Components/Containers/FluidJourney/CraftJourneyNode.swift` | Refactor to 72x72pt continuous squircle, preserve topic icons (no lock.fill), implement all 5 `CraftSurfaceStyle` variants. |
+| **Component** | `CraftUIKit/Components/Containers/FluidJourney/CraftJourneyNode.swift` | Refactor to 88x88pt continuous squircle, preserve topic icons (no lock.fill), implement all 5 `CraftSurfaceStyle` variants. |
 | **Component** | `CraftUIKit/Components/Containers/FluidJourney/CraftMilestonePill.swift` | Align surface styling with `journeySurfaceStyle` tokens. |
 | **Component** | `CraftUIKit/Components/Containers/FluidJourney/CraftFluidJourney.swift` | Pass `surfaceStyle` downstream, refine milestone docking offset to prevent duplicate Unit 1 pill at top. |
 | **App / Host**| `VocabCraftApp/Features/Homepage/Views/HomepageView.swift` & `ViewModels/` | Ensure learning path sections supply distinct sub-topic milestone titles for pills. |
-| **Tests** | `CraftUIKitTests/CraftFluidJourneyTests.swift` | Comprehensive unit tests for 72pt squircle sizing, icon preservation on locked nodes, and 5 surface style rendering paths. |
+| **Tests** | `CraftUIKitTests/CraftFluidJourneyTests.swift` | Comprehensive unit tests for 88pt squircle sizing, icon preservation on locked nodes, and 5 surface style rendering paths. |
 
 ---
 

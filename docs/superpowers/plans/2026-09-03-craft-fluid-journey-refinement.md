@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Refactor `CraftFluidJourney` to adopt uniform 72x72pt continuous squircle nodes, preserve distinct lesson icons without generic padlock overrides, support all 5 `CraftSurfaceStyle` variants customizable via `CraftTheme`, and eliminate redundant "Unit 1" milestone pill duplication.
+**Goal:** Refactor `CraftFluidJourney` to adopt uniform 88x88pt continuous squircle nodes, preserve distinct lesson icons without generic padlock overrides, support all 5 `CraftSurfaceStyle` variants customizable via `CraftTheme`, and eliminate redundant "Unit 1" milestone pill duplication.
 
-**Architecture:** Expand `CraftTheme` protocol with `journeySurfaceStyle: CraftSurfaceStyle` token across preset themes; refactor `CraftJourneyNode` to render continuous squircle geometry (`RoundedRectangle(cornerRadius: 28, style: .continuous)`) with cascading surface style resolution and distinct lesson icons; adjust `CraftFluidJourney` and `CraftMilestonePill` hierarchy so the pinned header acts as Deck portal while in-scroll pills indicate sub-topics.
+**Architecture:** Expand `CraftTheme` protocol with `journeySurfaceStyle: CraftSurfaceStyle` token across preset themes; refactor `CraftJourneyNode` to render continuous squircle geometry (`RoundedRectangle(cornerRadius: 30 * baseScale, style: .continuous)`) with cascading surface style resolution and distinct lesson icons; adjust `CraftFluidJourney` and `CraftMilestonePill` hierarchy so the pinned header acts as Deck portal while in-scroll pills indicate sub-topics.
 
 **Tech Stack:** Swift 5.10, SwiftUI, CraftUIKit Design System, XCTest / Swift Testing.
 
@@ -137,7 +137,7 @@ git commit -m "feat(CraftUIKit): add journeySurfaceStyle token to CraftTheme and
 
 ---
 
-### Task 2: Refactor `CraftJourneyNode` to 72pt Uniform Squircle, 5 Surface Styles, and Topic Icons
+### Task 2: Refactor `CraftJourneyNode` to 88pt Uniform Squircle, 5 Surface Styles, and Topic Icons
 
 **Files:**
 - Modify: `Packages/CraftUIKit/Sources/CraftUIKit/Components/Containers/FluidJourney/CraftJourneyNode.swift`
@@ -145,7 +145,7 @@ git commit -m "feat(CraftUIKit): add journeySurfaceStyle token to CraftTheme and
 
 **Interfaces:**
 - Consumes: `LessonNodeModel`, `CraftSurfaceStyle`, `CraftTheme.journeySurfaceStyle`, `@Environment(\.craftSurfaceStyle)`
-- Produces: 72x72pt continuous squircle node (`RoundedRectangle(cornerRadius: 28, style: .continuous)`) rendering:
+- Produces: 88x88pt continuous squircle node (`RoundedRectangle(cornerRadius: 30 * baseScale, style: .continuous)`) rendering:
   - 5 surface styles: `elevated`, `flat`, `outlined`, `tactile3D`, `glass`
   - Preserved lesson icons on locked nodes (`node.iconName`, muted tone, no `lock.fill` replacement)
   - Breathing glow aura on active node without mechanical scale ballooning
@@ -238,7 +238,7 @@ Expected: PASS.
 
 ```bash
 git add Packages/CraftUIKit/Sources/CraftUIKit/Components/Containers/FluidJourney/CraftJourneyNode.swift Packages/CraftUIKit/Tests/CraftUIKitTests/CraftFluidJourneyTests.swift
-git commit -m "feat(CraftUIKit): standardize CraftJourneyNode to 72pt squircle with 5 surface styles and icon preservation"
+git commit -m "feat(CraftUIKit): standardize CraftJourneyNode to 88pt squircle with 5 surface styles and icon preservation"
 ```
 
 ---

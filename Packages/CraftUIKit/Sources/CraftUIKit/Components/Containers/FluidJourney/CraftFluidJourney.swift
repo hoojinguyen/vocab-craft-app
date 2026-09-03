@@ -338,7 +338,7 @@ public extension CraftFluidJourney {
             return matchingSection
         }
         if !preferences.isEmpty {
-            return sections.first ?? defaultSection
+            return sections.first
         }
         return defaultSection
     }
@@ -460,7 +460,7 @@ extension CraftFluidJourney {
                         CraftJourneyNode(
                             node: node,
                             surfaceStyle: surfaceStyle,
-                            onTap: {
+                            onTap: node.state == .locked ? nil : {
                                 handleNodeTap(node)
                             }
                         )
@@ -609,8 +609,10 @@ extension CraftFluidJourney {
 
 extension CraftFluidJourney {
     func handleNodeTap(_ node: LessonNodeModel) {
+        guard node.state != .locked else { return }
+
         onNodeTap?(node)
-        if showDetailModal, node.state != .locked {
+        if showDetailModal {
             selectedNodeForDetail = node
         }
     }

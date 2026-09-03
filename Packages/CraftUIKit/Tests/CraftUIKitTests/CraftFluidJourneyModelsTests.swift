@@ -100,5 +100,12 @@ struct CraftFluidJourneyModelsTests {
 
         let emptySection = LessonSection(id: "s4", title: "Unit 4", nodes: [])
         #expect(FluidJourneySectionState.state(for: emptySection) == .upcoming)
+
+        let bonusOnlySection = LessonSection(
+            id: "s_bonus_only",
+            title: "Bonus Only Unit",
+            nodes: [LessonNodeModel(id: "n_bonus_only", title: "Bonus Only", state: .bonus)]
+        )
+        #expect(FluidJourneySectionState.state(for: bonusOnlySection) == .upcoming)
     }
 }

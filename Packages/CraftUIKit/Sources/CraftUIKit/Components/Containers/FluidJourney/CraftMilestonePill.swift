@@ -6,7 +6,7 @@ import SwiftUI
 /// styled with the active design system surface colors and a hairline stroke.
 ///
 /// It embeds a `GeometryReader` that observes its vertical scroll position (`minY`) in the designated
-/// coordinate space (defaulting to `"CraftFluidJourneySpace"`) and posts the coordinate via
+/// coordinate space (defaulting to `CraftMilestonePill.coordinateSpaceName`) and posts the coordinate via
 /// `FluidJourneyMilestonePreferenceKey` so parent containers can track section docking.
 public struct CraftMilestonePill: View, Equatable {
     // MARK: - Constants
@@ -52,7 +52,7 @@ public struct CraftMilestonePill: View, Equatable {
     ///   - sectionId: Unique identifier of the section.
     ///   - title: Title text displayed inside the capsule.
     ///   - surfaceStyle: Optional explicit surface style variant. Defaults to `nil`.
-    ///   - coordinateSpaceName: Named coordinate space for geometry tracking. Defaults to `"CraftFluidJourneySpace"`.
+    ///   - coordinateSpaceName: Named coordinate space for geometry tracking. Defaults to `CraftMilestonePill.coordinateSpaceName`.
     public init(
         sectionId: String,
         title: String,
