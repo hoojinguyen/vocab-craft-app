@@ -462,6 +462,100 @@ public enum CatalogLearningPathMockData {
             )
         ]
     }
+
+    /// Sample multi-state curriculum sections specifically configured for the Fluid Journey showcase.
+    public static var fluidJourneySections: [LessonSection] {
+        let deck1Nodes = [
+            LessonNodeModel(
+                id: "fj_node_active",
+                title: "Chào hỏi & Làm quen",
+                subtitle: "10 từ mới • 3m",
+                iconName: "heart.fill",
+                state: .active,
+                kind: .standard,
+                xpReward: 20
+            ),
+            LessonNodeModel(
+                id: "fj_node_completed",
+                title: "Thói quen & Cảm xúc",
+                subtitle: "Đã hoàn thành",
+                iconName: "flame.fill",
+                state: .completed,
+                kind: .standard,
+                xpReward: 30,
+                stars: 3
+            ),
+            LessonNodeModel(
+                id: "fj_node_inprogress",
+                title: "Giao tiếp & Ứng xử",
+                subtitle: "Đang học dở dang",
+                iconName: "bubble.left.fill",
+                state: .inProgress,
+                kind: .standard,
+                progress: 0.65,
+                xpReward: 25
+            ),
+            LessonNodeModel(
+                id: "fj_node_locked",
+                title: "Từ vựng Công sở",
+                subtitle: "Chưa mở khóa",
+                iconName: "briefcase.fill",
+                state: .locked,
+                kind: .standard,
+                xpReward: 35
+            ),
+            LessonNodeModel(
+                id: "fj_node_bonus",
+                title: "Checkpoint Đấu Boss",
+                subtitle: "Thử thách tổng hợp",
+                iconName: "crown.fill",
+                state: .bonus,
+                kind: .checkpoint,
+                xpReward: 100
+            )
+        ]
+
+        let deck2Nodes = [
+            LessonNodeModel(
+                id: "fj_node_deck2_1",
+                title: "Đàm phán & Hợp đồng",
+                subtitle: "15 từ mới • 5m",
+                iconName: "chart.line.uptrend.xyaxis",
+                state: .locked,
+                kind: .standard,
+                xpReward: 40
+            )
+        ]
+
+        return [
+            LessonSection(
+                id: "deck_giao_tiep",
+                title: "Giao Tiếp Hằng Ngày",
+                subtitle: "A2 · B1 • 5 Bài học",
+                level: "A2 · B1",
+                progressText: "1/5",
+                progressValue: 0.35,
+                bannerIcon: "bubble.left.and.bubble.right.fill",
+                nodes: deck1Nodes,
+                winding: .standard,
+                connectorStyle: .dashed,
+                rowPattern: .standard
+            ),
+            LessonSection(
+                id: "deck_cong_so",
+                title: "Công Sở & Kinh Doanh",
+                subtitle: "B1 · B2 • Chuyên ngành",
+                level: "B1 · B2",
+                progressText: "0/1",
+                progressValue: 0.0,
+                bannerIcon: "briefcase.fill",
+                nodes: deck2Nodes,
+                winding: .standard,
+                connectorStyle: .dashed,
+                rowPattern: .standard
+            )
+        ]
+    }
 }
 
 // MARK: - Custom Emerald Theme
@@ -824,6 +918,16 @@ private struct CraftCatalogContentView: View {
                         )
                         .id("learning_path")
 
+                        // e.1. Fluid Journey (Tactile 3D) Section
+                        CatalogFluidJourneySection(
+                            toastStyle: $toastStyle,
+                            toastSurfaceStyle: $toastSurfaceStyle,
+                            isToastPresented: $isToastPresented,
+                            toastTitle: $toastTitle,
+                            toastMessage: $toastMessage
+                        )
+                        .id("fluid_journey")
+
                         // f. Universal Activity & Streak Tracker Section
                         CatalogActivityStreakSection(
                             selectedPreset: $selectedStreakPreset,
@@ -904,6 +1008,8 @@ private struct CraftCatalogContentView: View {
                             withAnimation { scrollProxy.scrollTo("streak", anchor: .top) }
                         } else if args.contains("-catalog-scroll-path") {
                             withAnimation { scrollProxy.scrollTo("learning_path", anchor: .top) }
+                        } else if args.contains("-catalog-scroll-fluid") {
+                            withAnimation { scrollProxy.scrollTo("fluid_journey", anchor: .top) }
                         } else if args.contains("-catalog-scroll-feedback") || args.contains("-catalog-scroll-overlays") {
                             withAnimation { scrollProxy.scrollTo("overlays", anchor: .top) }
                         } else if args.contains("-catalog-scroll-voice") {
@@ -2418,6 +2524,97 @@ private struct CatalogJourneyPathSection: View {
                             .stroke(theme.colors.borderDefault, lineWidth: 1)
                     )
                 }
+            }
+        }
+    }
+}
+
+// MARK: - Section 5.1: Fluid Journey (Tactile 3D) Showcase
+
+private struct CatalogFluidJourneySection: View {
+    @Environment(\.craftTheme) private var theme
+    @Binding var toastStyle: CraftToastStyle
+    @Binding var toastSurfaceStyle: CraftSurfaceStyle
+    @Binding var isToastPresented: Bool
+    @Binding var toastTitle: String
+    @Binding var toastMessage: String
+
+    @State private var fluidSurfaceStyle: CraftSurfaceStyle = .tactile3D
+    @State private var selectedNodeTitle: String = "Chào hỏi & Làm quen"
+
+    private let sampleSurfaceStyles: [CraftSurfaceStyle] = [.tactile3D, .elevated, .glass, .outlined, .flat]
+
+    var body: some View {
+        CraftCard(style: .elevated) {
+            VStack(alignment: .leading, spacing: theme.spacing.base) {
+                CatalogSectionHeader(
+                    title: "5.1. Fluid Journey (Tactile 3D & Ethereal Path)",
+                    iconName: "point.topleft.down.curvedto.point.bottomright.up"
+                )
+
+                CraftText(
+                    "Features 88pt tactile 3D lesson nodes, centered opening, floating speech bubble callouts, semantic icon preservation with corner checkmark badges, and sticky deck headers.",
+                    style: .caption,
+                    color: theme.colors.textSecondary
+                )
+
+                // Surface Style Switcher
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    CraftText("Surface Style Switcher", style: .headline)
+
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: theme.spacing.xs) {
+                            ForEach(sampleSurfaceStyles, id: \.self) { style in
+                                Button {
+                                    withAnimation(theme.animations.springSmooth) {
+                                        fluidSurfaceStyle = style
+                                    }
+                                } label: {
+                                    Text(style.rawValue.capitalized)
+                                        .font(.system(.caption, design: .rounded, weight: fluidSurfaceStyle == style ? .bold : .medium))
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 6)
+                                        .background(fluidSurfaceStyle == style ? theme.colors.brandPrimary : theme.colors.surfaceSubtle)
+                                        .foregroundStyle(fluidSurfaceStyle == style ? Color.white : theme.colors.textPrimary)
+                                        .clipShape(Capsule())
+                                        .overlay(
+                                            Capsule()
+                                                .strokeBorder(
+                                                    fluidSurfaceStyle == style ? theme.colors.brandPrimary : theme.colors.borderDefault,
+                                                    lineWidth: 1
+                                                )
+                                        )
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                        .padding(.vertical, 2)
+                    }
+                }
+
+                // Interactive Journey Container
+                CraftFluidJourney(
+                    sections: CatalogLearningPathMockData.fluidJourneySections,
+                    surfaceStyle: fluidSurfaceStyle,
+                    deckTitle: "Giao Tiếp Hằng Ngày",
+                    deckSubtitle: "A2 · B1 • 5 Bài học",
+                    onNodeTap: { node in
+                        selectedNodeTitle = node.title
+                    },
+                    onStartLesson: { node in
+                        toastTitle = "Bắt đầu học"
+                        toastMessage = node.title
+                        toastStyle = .success
+                        toastSurfaceStyle = fluidSurfaceStyle
+                        isToastPresented = true
+                    }
+                )
+                .frame(height: 520)
+                .clipShape(RoundedRectangle(cornerRadius: theme.radii.lg))
+                .overlay(
+                    RoundedRectangle(cornerRadius: theme.radii.lg)
+                        .stroke(theme.colors.borderDefault, lineWidth: 1)
+                )
             }
         }
     }

@@ -679,6 +679,42 @@ final class CatalogViewTests: XCTestCase {
             XCTAssertEqual(chipView.token.status, status)
         }
     }
+
+    // MARK: - Fluid Journey Showcase Tests
+
+    func testCatalogFluidJourneyShowcaseConfiguration() {
+        let sections = CatalogLearningPathMockData.fluidJourneySections
+        XCTAssertEqual(sections.count, 2)
+
+        let section1 = sections[0]
+        XCTAssertEqual(section1.title, "Giao Tiếp Hằng Ngày")
+        XCTAssertEqual(section1.nodes.count, 5)
+
+        // Verify Node 1: Active
+        XCTAssertEqual(section1.nodes[0].state, .active)
+        XCTAssertEqual(section1.nodes[0].iconName, "heart.fill")
+
+        // Verify Node 2: Completed
+        XCTAssertEqual(section1.nodes[1].state, .completed)
+        XCTAssertEqual(section1.nodes[1].stars, 3)
+
+        // Verify Node 3: In-Progress
+        XCTAssertEqual(section1.nodes[2].state, .inProgress)
+        XCTAssertEqual(section1.nodes[2].progress, 0.65)
+
+        // Verify Node 4: Locked
+        XCTAssertEqual(section1.nodes[3].state, .locked)
+        XCTAssertEqual(section1.nodes[3].iconName, "briefcase.fill")
+
+        // Verify Node 5: Bonus Checkpoint
+        XCTAssertEqual(section1.nodes[4].state, .bonus)
+        XCTAssertEqual(section1.nodes[4].kind, .checkpoint)
+
+        // Verify Section 2: Milestone boundary transition
+        let section2 = sections[1]
+        XCTAssertEqual(section2.title, "Công Sở & Kinh Doanh")
+        XCTAssertEqual(section2.nodes.count, 1)
+    }
 }
 
 

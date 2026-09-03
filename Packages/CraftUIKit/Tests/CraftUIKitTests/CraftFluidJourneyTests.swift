@@ -421,6 +421,8 @@ struct CraftFluidJourneyTests {
 
         #expect(journey.sections.count == 1)
         #expect(journey.onStartLesson != nil)
+        journey.onStartLesson?(testNode)
+        #expect(startedNodeId == "node-safe-launch")
     }
 }
 
