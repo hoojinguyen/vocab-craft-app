@@ -117,7 +117,7 @@ public final class UserSettingsStore {
         CraftThemeManager.shared.preferredColorScheme
     }
 
-    public init(defaults: UserDefaults = .standard, hasPersistedAppData: Bool? = nil) {
+    public init(defaults: UserDefaults = .standard, hasPersistedAppData: Bool = false) {
         self.defaults = defaults
         self.dailyGoalCount = defaults.object(forKey: "daily_goal_count") != nil ? defaults.integer(forKey: "daily_goal_count") : 15
         self.isNotificationEnabled = defaults.object(forKey: "is_notification_enabled") != nil ? defaults.bool(forKey: "is_notification_enabled") : true
@@ -130,7 +130,6 @@ public final class UserSettingsStore {
 
         if defaults.object(forKey: "has_completed_onboarding") == nil {
             if defaults.object(forKey: "did_perform_legacy_onboarding_migration") == nil {
-                let hasPersistedStore = hasPersistedAppData ?? (defaults == .standard && SharedAppGroupContainer.hasPersistedStore())
                 let hasLegacyUserData = defaults.object(forKey: "daily_goal_count") != nil
                     || defaults.object(forKey: "is_notification_enabled") != nil
                     || defaults.object(forKey: "notification_time_interval") != nil
@@ -140,7 +139,7 @@ public final class UserSettingsStore {
                     || defaults.object(forKey: "is_sound_effects_enabled") != nil
                     || defaults.object(forKey: "app_language") != nil
                     || defaults.object(forKey: "selected_goal_deck_id") != nil
-                    || hasPersistedStore
+                    || hasPersistedAppData
                 defaults.set(true, forKey: "did_perform_legacy_onboarding_migration")
                 defaults.set(hasLegacyUserData, forKey: "has_completed_onboarding")
                 self.hasCompletedOnboarding = hasLegacyUserData

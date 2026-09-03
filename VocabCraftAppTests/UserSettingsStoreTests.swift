@@ -93,7 +93,7 @@ final class UserSettingsStoreTests: XCTestCase {
         let suite = "test_fresh_\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!
 
-        let store = UserSettingsStore(defaults: defaults, hasPersistedAppData: false)
+        let store = UserSettingsStore(defaults: defaults)
         XCTAssertFalse(store.hasCompletedOnboarding)
         XCTAssertFalse(defaults.bool(forKey: "has_completed_onboarding"))
         XCTAssertTrue(defaults.bool(forKey: "did_perform_legacy_onboarding_migration"))

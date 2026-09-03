@@ -13,6 +13,7 @@ public final class AppNotificationScheduler: NotificationSchedulerProtocol {
 
     public func scheduleDailyReminder(at timeInterval: Double) async {
         #if canImport(UserNotifications)
+        guard !Task.isCancelled else { return }
         let center = UNUserNotificationCenter.current()
         let content = UNMutableNotificationContent()
         content.title = String(
@@ -38,6 +39,7 @@ public final class AppNotificationScheduler: NotificationSchedulerProtocol {
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
         let request = UNNotificationRequest(identifier: "vocabcraft_daily_reminder", content: content, trigger: trigger)
 
+        guard !Task.isCancelled else { return }
         try? await center.add(request)
         #endif
     }

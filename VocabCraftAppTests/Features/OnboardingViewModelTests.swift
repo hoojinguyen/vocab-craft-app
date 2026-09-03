@@ -184,7 +184,7 @@ final class OnboardingViewModelTests: XCTestCase {
         XCTAssertTrue(scheduler.didCancel)
     }
 
-    func testSkipOnboardingReschedulesNotificationToDefaultTimeWhenEnabled() async {
+    func testSkipOnboardingDisablesNotificationWhenPermissionNotGranted() async {
         let settings = UserSettingsStore()
         settings.hasCompletedOnboarding = false
         settings.isNotificationEnabled = true
@@ -196,8 +196,44 @@ final class OnboardingViewModelTests: XCTestCase {
         await vm.notificationTask?.value
 
         XCTAssertTrue(settings.hasCompletedOnboarding)
+        XCTAssertFalse(settings.isNotificationEnabled)
+        XCTAssertTrue(scheduler.didCancel)
+    }
+
+    func testSkipOnboardingReschedulesNotificationToDefaultTimeWhenPermissionGranted() async {
+        let settings = UserSettingsStore()
+        settings.hasCompletedOnboarding = false
+        let useCase = MockInitializeUserRoadmapUseCase()
+        let scheduler = MockNotificationScheduler()
+        let vm = OnboardingViewModel(useCase: useCase, userSettings: settings, notificationScheduler: scheduler)
+
+        vm.updateNotificationPermission(granted: true)
+        await vm.notificationTask?.value
+
+        vm.skipOnboarding()
+        await vm.notificationTask?.value
+
+        XCTAssertTrue(settings.hasCompletedOnboarding)
+        XCTAssertTrue(settings.isNotificationEnabled)
         XCTAssertEqual(settings.notificationTimeInterval, 72000)
         XCTAssertEqual(scheduler.scheduledInterval, 72000)
+    }
+
+    func testRapidNotificationPermissionTogglesSerializeDeterministically() async {
+        let settings = UserSettingsStore()
+        let useCase = MockInitializeUserRoadmapUseCase()
+        let scheduler = MockNotificationScheduler()
+        let vm = OnboardingViewModel(useCase: useCase, userSettings: settings, notificationScheduler: scheduler)
+
+        vm.selectedReminderInterval = 28800
+        vm.updateNotificationPermission(granted: true)
+        vm.updateNotificationPermission(granted: false)
+        vm.updateNotificationPermission(granted: true)
+
+        await vm.notificationTask?.value
+
+        XCTAssertTrue(settings.isNotificationEnabled)
+        XCTAssertEqual(scheduler.scheduledInterval, 28800)
     }
 
     func testImmediatePreviousStepCancelsSynthesisWithoutLeavingIsSynthesizingTrue() async {

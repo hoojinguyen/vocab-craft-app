@@ -131,7 +131,12 @@ public final class AppContainer {
             dataSource: resolvedDataSource
         )
 
-        let effectiveUserSettingsStore = userSettingsStore ?? UserSettingsStore()
+        #if canImport(SwiftDataMacros)
+        let hasPersistedRecords = modelContainer.map { SharedAppGroupContainer.hasPersistedUserRecords(in: $0) } ?? false
+        #else
+        let hasPersistedRecords = false
+        #endif
+        let effectiveUserSettingsStore = userSettingsStore ?? UserSettingsStore(hasPersistedAppData: hasPersistedRecords)
         self.userSettingsStore = effectiveUserSettingsStore
         self.appRouter = appRouter ?? AppRouter()
 

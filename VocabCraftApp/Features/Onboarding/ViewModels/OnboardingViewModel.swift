@@ -21,7 +21,9 @@ public final class OnboardingViewModel {
     private let notificationScheduler: (any NotificationSchedulerProtocol)?
     public private(set) var synthesisTask: Task<Void, Never>?
     public private(set) var notificationTask: Task<Void, Never>?
+    public private(set) var hasGrantedNotificationPermission: Bool = false
     private var synthesisGeneration: Int = 0
+    private var notificationGeneration: Int = 0
 
     public init(
         useCase: InitializeUserRoadmapUseCaseProtocol,
@@ -69,14 +71,20 @@ public final class OnboardingViewModel {
     }
 
     public func updateNotificationPermission(granted: Bool) {
+        hasGrantedNotificationPermission = granted
         userSettings.isNotificationEnabled = granted
+
+        let previousTask = notificationTask
+        notificationGeneration += 1
+        let currentGen = notificationGeneration
         notificationTask?.cancel()
-        if granted {
-            notificationTask = Task {
+
+        notificationTask = Task {
+            _ = await previousTask?.result
+            guard !Task.isCancelled, notificationGeneration == currentGen else { return }
+            if granted {
                 await notificationScheduler?.scheduleDailyReminder(at: selectedReminderInterval)
-            }
-        } else {
-            notificationTask = Task {
+            } else {
                 await notificationScheduler?.cancelDailyReminder()
             }
         }
@@ -93,10 +101,24 @@ public final class OnboardingViewModel {
         userSettings.notificationTimeInterval = 72000
         userSettings.hasCompletedOnboarding = true
 
-        if userSettings.isNotificationEnabled {
-            notificationTask?.cancel()
+        let previousTask = notificationTask
+        notificationGeneration += 1
+        let currentGen = notificationGeneration
+        notificationTask?.cancel()
+
+        if hasGrantedNotificationPermission {
+            userSettings.isNotificationEnabled = true
             notificationTask = Task {
+                _ = await previousTask?.result
+                guard !Task.isCancelled, notificationGeneration == currentGen else { return }
                 await notificationScheduler?.scheduleDailyReminder(at: 72000)
+            }
+        } else {
+            userSettings.isNotificationEnabled = false
+            notificationTask = Task {
+                _ = await previousTask?.result
+                guard !Task.isCancelled, notificationGeneration == currentGen else { return }
+                await notificationScheduler?.cancelDailyReminder()
             }
         }
     }
