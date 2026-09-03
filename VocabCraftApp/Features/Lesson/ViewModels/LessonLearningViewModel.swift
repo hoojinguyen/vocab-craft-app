@@ -81,10 +81,14 @@ public final class LessonLearningViewModel: Identifiable {
         return false
     }
 
+    private var maxProgress: Double = 0.0
+
     public var progress: Double {
         guard !steps.isEmpty else { return 1.0 }
-        let effectiveTotal = currentStepIndex < initialStepCount ? initialStepCount : steps.count
-        return Double(currentStepIndex) / Double(max(effectiveTotal, 1))
+        if isCompleted || isSummaryStep { return 1.0 }
+        let effectiveTotal = max(initialStepCount, steps.count)
+        let current = min(1.0, Double(currentStepIndex) / Double(max(effectiveTotal, 1)))
+        return max(maxProgress, current)
     }
 
     public func startSpeechSession() {
@@ -93,11 +97,14 @@ public final class LessonLearningViewModel: Identifiable {
     }
 
     public func stopSpeechSession() {
+        ttsService.stop()
         stopListeningForSpeaking()
         speechEngine.stopSession()
     }
 
     public func advanceStep() {
+        maxProgress = max(maxProgress, progress)
+        ttsService.stop()
         stopListeningForSpeaking()
         isFeedbackPresented = false
         typingText = ""
@@ -113,6 +120,7 @@ public final class LessonLearningViewModel: Identifiable {
 
     public func submitAnswer(isCorrect: Bool, for item: LessonExerciseItem) {
         guard !isFeedbackPresented else { return }
+        maxProgress = max(maxProgress, progress)
         stopListeningForSpeaking()
         totalAnswered += 1
         lastAttemptCorrect = isCorrect
@@ -227,7 +235,7 @@ public final class LessonLearningViewModel: Identifiable {
     }
 
     private func finishLesson() {
-        guard !isCompleted else { return }
+        guard completionTask == nil else { return }
         stopSpeechSession()
 
         let stars = mistakeCount == 0 ? 3 : (mistakeCount <= 2 ? 2 : 1)
@@ -247,7 +255,6 @@ public final class LessonLearningViewModel: Identifiable {
 
         self.summary = summaryModel
         self.steps.append(.summary(summary: summaryModel))
-        self.isCompleted = true
 
         self.completionTask = Task {
             do {
@@ -258,6 +265,9 @@ public final class LessonLearningViewModel: Identifiable {
                     weakWordIds: Array(weakWordIds),
                     progressFraction: 1.0
                 )
+                await MainActor.run {
+                    self.isCompleted = true
+                }
                 return result
             } catch {
                 await MainActor.run {

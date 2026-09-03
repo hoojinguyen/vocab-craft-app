@@ -107,6 +107,12 @@ public struct LessonExerciseContainerView: View {
                             viewModel.playAudio(for: item.word.lemma)
                         }
                     )
+                    .onAppear {
+                        viewModel.startSpeechSession()
+                    }
+                    .onDisappear {
+                        viewModel.stopSpeechSession()
+                    }
 
                 case .typing:
                     ReflexTypingModeView(

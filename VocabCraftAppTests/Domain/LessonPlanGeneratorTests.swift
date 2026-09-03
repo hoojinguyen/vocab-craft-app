@@ -18,10 +18,25 @@ struct LessonPlanGeneratorTests {
                 cefrLevel: "A1",
                 definitionVi: "từ số \(idx)",
                 definitionEn: "word number \(idx)",
-                exampleEn: "This is word \(idx).",
+                exampleEn: "This is word\(idx).",
                 exampleVi: "Đây là từ số \(idx)."
             )
         }
+    }
+
+    @Test("Partitions 5 words into two 3-word micro-cycles so final cycle contains 3 words")
+    func testPartitioningFiveWords() {
+        let sampleWords = makeSampleWords(count: 5)
+        let generator = LessonPlanGenerator()
+        let steps = generator.generatePlan(from: sampleWords, distractorPool: sampleWords)
+
+        let discoverySteps = steps.compactMap { step -> (Int, Int)? in
+            if case .discovery(_, let idx, let total) = step { return (idx, total) }
+            return nil
+        }
+        #expect(discoverySteps.count == 6)
+        let totals = discoverySteps.map(\.1)
+        #expect(totals == [3, 3, 3, 3, 3, 3])
     }
 
     @Test("Partitions 6 words into 2 micro-cycles with discovery and exercises")

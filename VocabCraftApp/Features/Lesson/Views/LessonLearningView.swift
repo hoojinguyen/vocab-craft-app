@@ -150,9 +150,6 @@ public struct LessonLearningView: View {
         }
         .animation(.smooth(duration: 0.28), value: viewModel.currentStepIndex)
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: isCountingDown)
-        .onAppear {
-            viewModel.startSpeechSession()
-        }
         .onDisappear {
             if !viewModel.isCompleted {
                 dismissOnce()

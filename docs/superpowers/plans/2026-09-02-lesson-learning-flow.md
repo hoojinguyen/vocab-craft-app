@@ -49,8 +49,11 @@ struct LessonLocalizationTests {
             "app.lesson.feedback.incorrect",
             "app.lesson.feedback.correct_answer_format",
             "app.lesson.summary.title",
+            "app.lesson.summary.xp_title",
             "app.lesson.summary.xp_earned_format",
             "app.lesson.summary.mastered_words",
+            "app.lesson.summary.accuracy",
+            "app.lesson.summary.finish_action",
             "app.lesson.exit_alert.title",
             "app.lesson.exit_alert.message",
             "app.lesson.exit_alert.confirm",
@@ -88,10 +91,13 @@ extension AppStrings {
             String(localized: "app.lesson.feedback.correct_answer_format", defaultValue: "Đáp án đúng: \(answer)", bundle: .module)
         }
         public static let summaryTitle = String(localized: "app.lesson.summary.title", defaultValue: "Hoàn thành bài học!", bundle: .module)
+        public static let xpTitleText = String(localized: "app.lesson.summary.xp_title", defaultValue: "XP", bundle: .module)
         public static func xpEarnedFormat(_ xp: Int) -> String {
             String(localized: "app.lesson.summary.xp_earned_format", defaultValue: "+\(xp) XP", bundle: .module)
         }
         public static let masteredWords = String(localized: "app.lesson.summary.mastered_words", defaultValue: "Từ vựng đã làm chủ", bundle: .module)
+        public static let accuracyText = String(localized: "app.lesson.summary.accuracy", defaultValue: "Độ chính xác", bundle: .module)
+        public static let finishActionText = String(localized: "app.lesson.summary.finish_action", defaultValue: "Hoàn tất bài học", bundle: .module)
         public static let exitAlertTitle = String(localized: "app.lesson.exit_alert.title", defaultValue: "Dừng bài học?", bundle: .module)
         public static let exitAlertMessage = String(localized: "app.lesson.exit_alert.message", defaultValue: "Tiến độ bài học hiện tại sẽ không được lưu nếu bạn thoát bây giờ.", bundle: .module)
         public static let exitAlertConfirm = String(localized: "app.lesson.exit_alert.confirm", defaultValue: "Rời khỏi", bundle: .module)
@@ -216,8 +222,8 @@ public enum LessonStep: Identifiable, Sendable {
             return "discovery-\(word.id)-\(index)"
         case .exercise(let item):
             return "exercise-\(item.id)"
-        case .summary:
-            return "summary"
+        case .summary(let summary):
+            return "summary-\(summary.stageId)"
         }
     }
 }
@@ -707,8 +713,8 @@ public final class LessonLearningViewModel: Identifiable {
 
     public var progress: Double {
         guard !steps.isEmpty else { return 1.0 }
-        let total = currentStepIndex < initialStepCount ? initialStepCount : steps.count
-        return Double(currentStepIndex) / Double(max(total, 1))
+        let effectiveTotal = max(initialStepCount, steps.count)
+        return Double(currentStepIndex) / Double(max(effectiveTotal, 1))
     }
 
     public func advanceStep() {

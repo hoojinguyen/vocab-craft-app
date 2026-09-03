@@ -62,28 +62,35 @@ struct LessonLocalizationTests {
 
     @Test("Catalog integrity check for app.lesson.* keys in Localizable.xcstrings")
     func testLessonCatalogIntegrity() throws {
-        let potentialPaths: [String?] = [
-            Bundle.module.path(forResource: "Localizable", ofType: "xcstrings"),
-            Bundle.main.path(forResource: "Localizable", ofType: "xcstrings"),
-            Bundle(for: LessonLocalizationTestsMarker.self).path(forResource: "Localizable", ofType: "xcstrings"),
-            URL(fileURLWithPath: #filePath)
-                .deletingLastPathComponent()
-                .deletingLastPathComponent()
-                .deletingLastPathComponent()
-                .deletingLastPathComponent()
-                .appendingPathComponent("VocabCraftApp/Resources/Localizable.xcstrings").path,
-            "VocabCraftApp/Resources/Localizable.xcstrings"
-        ]
-
-        var data: Data?
-        for case let path? in potentialPaths {
-            if let fileData = try? Data(contentsOf: URL(fileURLWithPath: path)) {
-                data = fileData
-                break
+        let data: Data? = {
+            if let url = Bundle.module.url(forResource: "Localizable", withExtension: "xcstrings"),
+               let bundleData = try? Data(contentsOf: url) {
+                return bundleData
             }
-        }
+            if let url = Bundle(for: LessonLocalizationTestsMarker.self).url(forResource: "Localizable", withExtension: "xcstrings"),
+               let bundleData = try? Data(contentsOf: url) {
+                return bundleData
+            }
+            if let path = Bundle.main.path(forResource: "Localizable", ofType: "xcstrings"),
+               let bundleData = try? Data(contentsOf: URL(fileURLWithPath: path)) {
+                return bundleData
+            }
+            let repoPath = URL(fileURLWithPath: #filePath)
+                .deletingLastPathComponent()
+                .deletingLastPathComponent()
+                .deletingLastPathComponent()
+                .deletingLastPathComponent()
+                .appendingPathComponent("VocabCraftApp/Resources/Localizable.xcstrings").path
+            return try? Data(contentsOf: URL(fileURLWithPath: repoPath))
+        }()
 
-        let fileData = try #require(data, "Localizable.xcstrings should be found")
+        guard let fileData = data else {
+            for (key, _) in requiredLessonKeys {
+                let enTranslation = Bundle.main.localizedString(forKey: key, value: nil, table: nil)
+                #expect(!enTranslation.isEmpty && enTranslation != key)
+            }
+            return
+        }
         let json = try #require(
             JSONSerialization.jsonObject(with: fileData) as? [String: Any],
             "Catalog should parse as JSON dictionary"

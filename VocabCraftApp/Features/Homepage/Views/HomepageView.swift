@@ -286,7 +286,22 @@ public struct HomepageView: View {
 
         Task {
             // Await persistence completion before reloading learning path
-            _ = try? await vm.awaitCompletion()
+            do {
+                _ = try await vm.awaitCompletion()
+            } catch {
+                await MainActor.run {
+                    completionToastData = CraftToastData(
+                        title: AppStrings.Common.errorText,
+                        message: error.localizedDescription,
+                        iconName: "exclamationmark.triangle.fill",
+                        style: .danger,
+                        surfaceStyle: .glass,
+                        duration: 3.0
+                    )
+                }
+                return
+            }
+
             await viewModel.loadLearningPath()
             await MainActor.run {
                 let starIcons = String(repeating: "★", count: summary.stars)
