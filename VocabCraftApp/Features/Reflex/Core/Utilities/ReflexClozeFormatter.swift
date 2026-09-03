@@ -51,10 +51,10 @@ public struct ReflexClozeFormatter: Sendable {
             return ClozeSentenceParts(prefix: prefix, slot: slot, suffix: suffix)
         }
 
-        // 3. Try fuzzy stem matching for inflections (e.g. "overwhelmed" vs "overwhelm", "focuses" vs "focus")
+        // 3. Try recognized inflection matching (e.g. "overwhelmed" vs "overwhelm", "focuses" vs "focus")
         let cleanLemma = lemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        let stem = cleanLemma.count > 4 ? String(cleanLemma.prefix(cleanLemma.count - 2)) : cleanLemma
-        let fuzzyPattern = "(?i)\\b" + NSRegularExpression.escapedPattern(for: stem) + "[a-z]*\\b"
+        guard !cleanLemma.isEmpty else { return nil }
+        let fuzzyPattern = "(?i)\\b" + NSRegularExpression.escapedPattern(for: cleanLemma) + "(?:s|es|ed|ing|d)\\b"
         if let regex = try? NSRegularExpression(pattern: fuzzyPattern),
            let match = regex.firstMatch(in: sentenceEn, options: [], range: NSRange(sentenceEn.startIndex..., in: sentenceEn)),
            let matchRange = Range(match.range, in: sentenceEn) {
@@ -70,8 +70,11 @@ public struct ReflexClozeFormatter: Sendable {
     public static func formatCloze(sentenceEn: String, lemma: String) -> String {
         guard !sentenceEn.isEmpty, !lemma.isEmpty else { return sentenceEn }
 
+        let cleanLemma = lemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !cleanLemma.isEmpty else { return sentenceEn }
+
         // 1. Try exact lemma word boundary match (case-insensitive) for all occurrences
-        let exactPattern = "(?i)\\b" + NSRegularExpression.escapedPattern(for: lemma) + "\\b"
+        let exactPattern = "(?i)\\b" + NSRegularExpression.escapedPattern(for: cleanLemma) + "\\b"
         if let regex = try? NSRegularExpression(pattern: exactPattern) {
             let range = NSRange(sentenceEn.startIndex..., in: sentenceEn)
             let replaced = regex.stringByReplacingMatches(in: sentenceEn, options: [], range: range, withTemplate: "[ _________ ]")
@@ -80,10 +83,8 @@ public struct ReflexClozeFormatter: Sendable {
             }
         }
 
-        // 2. Try fuzzy stem matching for inflections (e.g. "overwhelmed" vs "overwhelm", "focuses" vs "focus")
-        let cleanLemma = lemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        let stem = cleanLemma.count > 4 ? String(cleanLemma.prefix(cleanLemma.count - 2)) : cleanLemma
-        let fuzzyPattern = "(?i)\\b" + NSRegularExpression.escapedPattern(for: stem) + "[a-z]*\\b"
+        // 2. Try recognized inflection matching (e.g. "overwhelmed" vs "overwhelm", "focuses" vs "focus")
+        let fuzzyPattern = "(?i)\\b" + NSRegularExpression.escapedPattern(for: cleanLemma) + "(?:s|es|ed|ing|d)\\b"
         if let regex = try? NSRegularExpression(pattern: fuzzyPattern) {
             let range = NSRange(sentenceEn.startIndex..., in: sentenceEn)
             let replaced = regex.stringByReplacingMatches(in: sentenceEn, options: [], range: range, withTemplate: "[ _________ ]")
@@ -92,6 +93,6 @@ public struct ReflexClozeFormatter: Sendable {
             }
         }
 
-        return sentenceEn.replacingOccurrences(of: lemma, with: "[ _________ ]", options: .caseInsensitive)
+        return sentenceEn
     }
 }

@@ -505,5 +505,23 @@ struct LessonLearningViewModelTests {
         #expect(vm.isCompleted)
         #expect(completeUseCase.executeCallCount == 1)
     }
+
+    @Test("Empty words session advances to summary and sets isSummaryStep to true")
+    func testEmptyWordsSessionAdvancesToSummary() {
+        let vm = LessonLearningViewModel(
+            stageId: "stage_1",
+            deckId: "deck_1",
+            words: [],
+            completeLessonUseCase: MockCompleteLessonUseCase(),
+            ttsService: MockTextToSpeechService(),
+            soundEffectService: MockSoundEffectService(),
+            speechEngine: MockResilientReflexSpeechEngine()
+        )
+
+        #expect(!vm.isSummaryStep)
+        vm.advanceStep()
+        #expect(vm.isSummaryStep)
+        #expect(vm.summary != nil)
+    }
 }
 #endif

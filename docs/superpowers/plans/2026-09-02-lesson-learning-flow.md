@@ -83,29 +83,29 @@ import Foundation
 
 extension AppStrings {
     public enum Lesson {
-        public static let discoveryTitle = String(localized: "app.lesson.discovery.title", defaultValue: "Khám phá từ mới", bundle: .module)
-        public static let continueAction = String(localized: "app.lesson.discovery.continue_action", defaultValue: "Tiếp tục", bundle: .module)
-        public static let checkAction = String(localized: "app.lesson.exercise.check_action", defaultValue: "Kiểm tra", bundle: .module)
-        public static let correctFeedback = String(localized: "app.lesson.feedback.correct", defaultValue: "Chính xác!", bundle: .module)
-        public static let incorrectFeedback = String(localized: "app.lesson.feedback.incorrect", defaultValue: "Chưa chính xác", bundle: .module)
+        public static let discoveryTitle = String(localized: "app.lesson.discovery.title", defaultValue: "Discover New Words", bundle: .module)
+        public static let continueAction = String(localized: "app.lesson.discovery.continue_action", defaultValue: "Continue", bundle: .module)
+        public static let checkAction = String(localized: "app.lesson.exercise.check_action", defaultValue: "Check", bundle: .module)
+        public static let correctFeedback = String(localized: "app.lesson.feedback.correct", defaultValue: "Correct!", bundle: .module)
+        public static let incorrectFeedback = String(localized: "app.lesson.feedback.incorrect", defaultValue: "Incorrect", bundle: .module)
         public static func correctAnswerFormat(_ answer: String) -> String {
-            String(localized: "app.lesson.feedback.correct_answer_format", defaultValue: "Đáp án đúng: \(answer)", bundle: .module)
+            String(localized: "app.lesson.feedback.correct_answer_format", defaultValue: "Correct answer: \(answer)", bundle: .module)
         }
-        public static let summaryTitle = String(localized: "app.lesson.summary.title", defaultValue: "Hoàn thành bài học!", bundle: .module)
+        public static let summaryTitle = String(localized: "app.lesson.summary.title", defaultValue: "Lesson Completed!", bundle: .module)
         public static let xpTitleText = String(localized: "app.lesson.summary.xp_title", defaultValue: "XP", bundle: .module)
         public static func xpEarnedFormat(_ xp: Int) -> String {
             String(localized: "app.lesson.summary.xp_earned_format", defaultValue: "+\(xp) XP", bundle: .module)
         }
-        public static let masteredWords = String(localized: "app.lesson.summary.mastered_words", defaultValue: "Từ vựng đã làm chủ", bundle: .module)
-        public static let accuracyText = String(localized: "app.lesson.summary.accuracy", defaultValue: "Độ chính xác", bundle: .module)
+        public static let masteredWords = String(localized: "app.lesson.summary.mastered_words", defaultValue: "Mastered Words", bundle: .module)
+        public static let accuracyText = String(localized: "app.lesson.summary.accuracy", defaultValue: "Accuracy", bundle: .module)
         public static func accuracyFormat(_ percentage: Int) -> String {
             String(localized: "app.lesson.summary.accuracy_format", defaultValue: "\(percentage)%", bundle: .module)
         }
-        public static let finishActionText = String(localized: "app.lesson.summary.finish_action", defaultValue: "Hoàn tất bài học", bundle: .module)
-        public static let exitAlertTitle = String(localized: "app.lesson.exit_alert.title", defaultValue: "Dừng bài học?", bundle: .module)
-        public static let exitAlertMessage = String(localized: "app.lesson.exit_alert.message", defaultValue: "Tiến độ bài học hiện tại sẽ không được lưu nếu bạn thoát bây giờ.", bundle: .module)
-        public static let exitAlertConfirm = String(localized: "app.lesson.exit_alert.confirm", defaultValue: "Rời khỏi", bundle: .module)
-        public static let exitAlertCancel = String(localized: "app.lesson.exit_alert.cancel", defaultValue: "Tiếp tục học", bundle: .module)
+        public static let finishActionText = String(localized: "app.lesson.summary.finish_action", defaultValue: "Finish Lesson", bundle: .module)
+        public static let exitAlertTitle = String(localized: "app.lesson.exit_alert.title", defaultValue: "Leave Lesson?", bundle: .module)
+        public static let exitAlertMessage = String(localized: "app.lesson.exit_alert.message", defaultValue: "Your current lesson progress will not be saved if you leave now.", bundle: .module)
+        public static let exitAlertConfirm = String(localized: "app.lesson.exit_alert.confirm", defaultValue: "Leave", bundle: .module)
+        public static let exitAlertCancel = String(localized: "app.lesson.exit_alert.cancel", defaultValue: "Keep Learning", bundle: .module)
     }
 }
 ```
@@ -351,7 +351,7 @@ public struct LessonDiscoveryCardView: View {
                             }
                         }
                         Spacer()
-                        CraftSpeakerButton(variant: .primary, size: .md, isPlaying: false, label: nil, action: onPlayAudio)
+                        CraftSpeakerButton(variant: .filled, size: .md, isPlaying: false, label: nil, action: onPlayAudio)
                     }
 
                     HStack(spacing: theme.spacing.xs) {
@@ -428,15 +428,13 @@ git commit -m "feat(lesson): implement LessonDiscoveryCardView"
 Wire the 4 existing modality views with untimed parameters, binding typing text, live transcript, hint requests, retry speaking, and feedback presentation via docked `CraftFeedbackSheet` from `CraftUIKit`:
 ```swift
 CraftFeedbackSheet(
-    isPresented: Binding(
-        get: { viewModel.isFeedbackPresented },
-        set: { viewModel.isFeedbackPresented = $0 }
-    ),
-    isCorrect: viewModel.lastAttemptCorrect,
-    correctAnswer: viewModel.lastAttemptCorrect ? nil : item.word.lemma,
-    actionTitle: AppStrings.Lesson.continueAction,
+    status: viewModel.lastAttemptCorrect ? .success : .error,
+    title: viewModel.lastAttemptCorrect ? AppStrings.ReflexBlitz.correctTitleText : AppStrings.ReflexBlitz.incorrectTitleText,
+    message: viewModel.lastAttemptCorrect ? nil : AppStrings.Lesson.correctAnswerFormat(item.word.lemma),
+    actionTitle: AppStrings.ReflexBlitz.continueCTAText,
+    streakCount: nil,
     style: .tactile3D,
-    onAction: {
+    onContinue: {
         viewModel.advanceStep()
     }
 )

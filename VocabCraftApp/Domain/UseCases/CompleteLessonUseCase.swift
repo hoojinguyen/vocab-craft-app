@@ -1,4 +1,5 @@
 import Foundation
+import os
 
 public struct LessonCompletionResult: Sendable, Equatable {
     public let stageId: String
@@ -38,6 +39,7 @@ public protocol CompleteLessonUseCaseProtocol: Sendable {
 public final class CompleteLessonUseCase: CompleteLessonUseCaseProtocol, Sendable {
     private let stageRepo: StageProgressRepositoryProtocol
     private let progressRepo: (any UserProgressRepositoryProtocol)?
+    private let recordedWeakWordsLock = OSAllocatedUnfairLock(initialState: [String: Set<Int64>]())
 
     public init(
         stageRepo: StageProgressRepositoryProtocol,
@@ -66,15 +68,27 @@ public final class CompleteLessonUseCase: CompleteLessonUseCaseProtocol, Sendabl
             progressFraction: progressFraction
         )
 
+        let sessionKey = "\(deckId):\(stageId)"
         if let progressRepo, !weakWordIds.isEmpty {
             for wordId in weakWordIds {
-                try await progressRepo.recordChallengeResult(
-                    wordId: wordId,
-                    isCorrect: false,
-                    stageId: stageId,
-                    deckId: deckId
-                )
+                let alreadyRecorded = recordedWeakWordsLock.withLock { state in
+                    state[sessionKey, default: []].contains(wordId)
+                }
+                if !alreadyRecorded {
+                    try await progressRepo.recordChallengeResult(
+                        wordId: wordId,
+                        isCorrect: false,
+                        stageId: stageId,
+                        deckId: deckId
+                    )
+                    recordedWeakWordsLock.withLock { state in
+                        state[sessionKey, default: []].insert(wordId)
+                    }
+                }
             }
+        }
+        recordedWeakWordsLock.withLock { state in
+            state.removeValue(forKey: sessionKey)
         }
 
         return LessonCompletionResult(

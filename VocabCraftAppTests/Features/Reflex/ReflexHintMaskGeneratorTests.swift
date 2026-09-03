@@ -110,5 +110,18 @@ struct ReflexHintMaskGeneratorTests {
         #expect(!suffixLower.contains("focus"))
         #expect(stages.initialParts.slot.contains("_"))
     }
+
+    @Test("Multiple occurrences of target lemma in example sentence are all masked")
+    func testMultipleOccurrencesMasking() {
+        let stages = ReflexHintMaskGenerator.generateStages(
+            lemma: "book",
+            sentenceEn: "A book is a good book.",
+            pos: "noun"
+        )
+        let prefixLower = stages.initialParts.prefix.lowercased()
+        let suffixLower = stages.initialParts.suffix.lowercased()
+        #expect(!prefixLower.contains("book"))
+        #expect(!suffixLower.contains("book"))
+    }
 }
 #endif

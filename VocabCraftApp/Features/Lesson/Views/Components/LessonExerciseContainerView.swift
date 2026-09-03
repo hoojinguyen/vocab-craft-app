@@ -179,7 +179,7 @@ public struct LessonExerciseContainerView: View {
             }
             .padding(.horizontal, theme.spacing.base)
             .padding(.top, theme.spacing.xs)
-            .padding(.bottom, viewModel.isFeedbackPresented ? 160 : theme.spacing.base)
+            .padding(.bottom, theme.spacing.base)
         }
         .task(id: item.id) {
             if item.assignedMode == .listening {

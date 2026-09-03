@@ -111,9 +111,11 @@ public final class LessonLearningViewModel: Identifiable {
         speechState = .idle
         hintStage = 0
         eliminatedOptionId = nil
-        currentStepIndex += 1
-        if currentStepIndex >= steps.count {
+        if steps.isEmpty || currentStepIndex + 1 >= steps.count {
             finishLesson()
+            currentStepIndex = max(0, steps.count - 1)
+        } else {
+            currentStepIndex += 1
         }
     }
 

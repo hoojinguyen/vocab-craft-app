@@ -128,24 +128,22 @@ public struct LessonLearningView: View {
                         ))
                     }
                 }
-            }
-
-            // Docked Bottom Feedback Sheet Overlay
-            if viewModel.isFeedbackPresented, let currentExercise = viewModel.currentExerciseItem {
-                CraftFeedbackSheet(
-                    status: viewModel.lastAttemptCorrect ? .success : .error,
-                    title: viewModel.lastAttemptCorrect ? AppStrings.ReflexBlitz.correctTitleText : AppStrings.ReflexBlitz.incorrectTitleText,
-                    message: viewModel.lastAttemptCorrect ? nil : AppStrings.Lesson.correctAnswerFormat(currentExercise.word.lemma),
-                    actionTitle: AppStrings.ReflexBlitz.continueCTAText,
-                    streakCount: nil,
-                    style: .tactile3D,
-                    onContinue: {
-                        viewModel.advanceStep()
+                .safeAreaInset(edge: .bottom) {
+                    if viewModel.isFeedbackPresented, let currentExercise = viewModel.currentExerciseItem {
+                        CraftFeedbackSheet(
+                            status: viewModel.lastAttemptCorrect ? .success : .error,
+                            title: viewModel.lastAttemptCorrect ? AppStrings.ReflexBlitz.correctTitleText : AppStrings.ReflexBlitz.incorrectTitleText,
+                            message: viewModel.lastAttemptCorrect ? nil : AppStrings.Lesson.correctAnswerFormat(currentExercise.word.lemma),
+                            actionTitle: AppStrings.ReflexBlitz.continueCTAText,
+                            streakCount: nil,
+                            style: .tactile3D,
+                            onContinue: {
+                                viewModel.advanceStep()
+                            }
+                        )
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
-                )
-                .ignoresSafeArea(edges: .bottom)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-                .zIndex(100)
+                }
             }
         }
         .animation(.smooth(duration: 0.28), value: viewModel.currentStepIndex)
