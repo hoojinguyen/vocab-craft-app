@@ -350,7 +350,7 @@ public extension CraftFluidJourney {
     ///
     /// Prioritizes the section subtitle (e.g. subtopic name) or the first node's title
     /// over repeating the section/unit title.
-    public func milestoneTitle(for section: LessonSection) -> String {
+    func milestoneTitle(for section: LessonSection) -> String {
         if let subtitle = section.subtitle, !subtitle.isEmpty {
             return subtitle
         }
