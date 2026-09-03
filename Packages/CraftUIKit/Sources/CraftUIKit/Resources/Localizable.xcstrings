@@ -289,6 +289,42 @@
         }
       }
     },
+    "craft.common.state.collapsed": {
+      "comment": "Collapsed state",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collapsed"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã thu gọn"
+          }
+        }
+      }
+    },
+    "craft.common.state.expanded": {
+      "comment": "Expanded state",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expanded"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã mở rộng"
+          }
+        }
+      }
+    },
     "craft.common.state.empty": {
       "comment": "General empty state",
       "extractionState": "manual",
@@ -865,20 +901,38 @@
         }
       }
     },
-    "craft.fluid_journey.deck_summary_format": {
-      "comment": "Summary of lessons and words in a deck",
+    "craft.fluid_journey.collapse_unit_hint": {
+      "comment": "Hint for collapsing accordion section in unit drawer",
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld lessons • %lld words"
+            "value": "Double tap to collapse lessons"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld bài học • %lld từ vựng"
+            "value": "Chạm hai lần để thu gọn bài học"
+          }
+        }
+      }
+    },
+    "craft.fluid_journey.expand_unit_hint": {
+      "comment": "Hint for expanding accordion section in unit drawer",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Double tap to expand lessons"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chạm hai lần để mở rộng bài học"
           }
         }
       }

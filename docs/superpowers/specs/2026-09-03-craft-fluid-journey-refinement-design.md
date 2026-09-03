@@ -35,13 +35,13 @@ Interactive testing on real iOS device ("Hooji") with `feature/craft-fluid-journ
 
 ### 2.2 Uniform Smooth Continuous Squircle Nodes
 - **Uniform Dimensions**:
-  - All progression states (`active`, `inProgress`, `completed`, `upcoming`, `locked`, `bonus`) share the identical base size: **72x72pt** (scaled dynamically with `@ScaledMetric`).
+  - All progression states (`active`, `inProgress`, `completed`, `upcoming`, `locked`, `bonus`) share the identical base size: **88x88pt** (scaled dynamically with `@ScaledMetric`).
 - **Organic Geometry**:
   - Replaces rigid `Circle()` with iOS continuous superellipse:
-    `RoundedRectangle(cornerRadius: 28, style: .continuous)`.
+    `RoundedRectangle(cornerRadius: 30 * baseScale, style: .continuous)`.
 - **Active State Distinction (No Size Ballooning)**:
-  - Does NOT mechanically expand to a massive 96pt circle.
-  - Retains the 72x72pt squircle footprint.
+  - Does NOT mechanically expand to a massive circle.
+  - Retains the 88x88pt squircle footprint.
   - Stands out prominently via:
     1. Rich solid brand primary fill (`theme.gradients.brandHero` or `theme.colors.brandPrimary`).
     2. Pure white icon (`theme.colors.textInverse`) in bold weight.

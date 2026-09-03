@@ -1,4 +1,10 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
+#if canImport(AppKit)
+import AppKit
+#endif
 
 // MARK: - Journey Node Button Style
 
@@ -188,7 +194,7 @@ public struct CraftJourneyNode: View, Equatable {
         if node.state == .active, !reduceMotion {
             PhaseAnimator(GlowPhase.allCases) { phase in
                 nodeFace
-                    .scaleEffect(phase == .glowing ? 1.03 : 1.0)
+                    .scaleEffect(1.0)
                     .shadow(
                         color: theme.colors.brandPrimary.opacity(phase == .glowing ? 0.45 : 0.20),
                         radius: phase == .glowing ? 10 : 5,
@@ -238,6 +244,10 @@ public struct CraftJourneyNode: View, Equatable {
         let filled = "\(base).fill"
         #if canImport(UIKit)
         if UIImage(systemName: filled) != nil {
+            return filled
+        }
+        #elseif canImport(AppKit)
+        if NSImage(systemSymbolName: filled, accessibilityDescription: nil) != nil {
             return filled
         }
         #endif

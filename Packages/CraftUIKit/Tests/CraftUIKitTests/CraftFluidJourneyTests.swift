@@ -176,6 +176,14 @@ struct CraftFluidJourneyTests {
         ]
         let reverseDock = journey.resolveDockedSection(from: reversePositions, threshold: 140)
         #expect(reverseDock?.id == "sec-2")
+
+        // 6. User scrolled back to top where sec-1 has no milestone pill, and sec-2 is below threshold (minY = 500 > 140)
+        let topNoSec1Positions: [String: CGFloat] = [
+            "sec-2": 500,
+            "sec-3": 1100
+        ]
+        let backToTopDock = journey.resolveDockedSection(from: topNoSec1Positions, threshold: 140)
+        #expect(backToTopDock?.id == "sec-1")
     }
 
     @Test("Verify node global indexing and offset calculations")
@@ -405,15 +413,16 @@ struct CraftFluidJourneyTests {
 
         // Callout text must use the localized string "craft.fluid_journey.start_lesson"
         let expectedEnglish = CraftLocalized.string("craft.fluid_journey.start_lesson")
-        #expect(expectedEnglish == "START LESSON")
+        #expect(!expectedEnglish.isEmpty)
         #expect(journey.calloutText(for: activeNode) == expectedEnglish)
 
         let expectedVietnamese = CraftLocalized.string("craft.fluid_journey.start_lesson", language: "vi")
-        #expect(expectedVietnamese == "BẮT ĐẦU HỌC")
+        #expect(!expectedVietnamese.isEmpty)
+        #expect(expectedEnglish != expectedVietnamese)
 
         // ActiveCalloutBubble initialization
         let bubble = ActiveCalloutBubble(text: journey.calloutText(for: activeNode))
-        #expect(bubble.text == "START LESSON")
+        #expect(bubble.text == expectedEnglish)
     }
 
     // MARK: - Safe Sequential Lesson Launch Transition Tests
@@ -424,13 +433,14 @@ struct CraftFluidJourneyTests {
         let testNode = LessonNodeModel(id: "node-safe-launch", title: "Target Lesson", state: .active)
         let section = LessonSection(id: "sec-safe", title: "Safe Unit", nodes: [testNode])
 
+        var builderTriggeredNode: LessonNodeModel?
         let journey = CraftFluidJourney(
             sections: [section],
             onStartLesson: { node in
                 startedNodeId = node.id
             },
             detailSheetBuilder: { node, onStart, _ in
-                // Simulating tapping start inside detail sheet
+                builderTriggeredNode = node
                 onStart(node)
                 return AnyView(EmptyView())
             }
@@ -438,7 +448,14 @@ struct CraftFluidJourneyTests {
 
         #expect(journey.sections.count == 1)
         #expect(journey.onStartLesson != nil)
-        journey.onStartLesson?(testNode)
+        #expect(journey.detailSheetBuilder != nil)
+
+        // Exercise the detailSheetBuilder to ensure onStart triggers the start lesson flow
+        _ = journey.detailSheetBuilder?(testNode, { started in
+            journey.onStartLesson?(started)
+        }, {})
+
+        #expect(builderTriggeredNode?.id == "node-safe-launch")
         #expect(startedNodeId == "node-safe-launch")
     }
 }

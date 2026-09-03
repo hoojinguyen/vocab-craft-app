@@ -48,13 +48,7 @@ Packages/CraftUIKit/Sources/CraftUIKit/Components/Containers/FluidJourney/
 Provides presentation models and coordinate preference keys:
 
 ```swift
-public struct FluidJourneyMilestoneGeometry: Equatable, Sendable {
-    public let sectionId: String
-    public let minY: CGFloat
-    public let height: CGFloat
-}
-
-public struct FluidJourneyMilestonePreferenceKey: PreferenceKey {
+public struct FluidJourneyMilestonePreferenceKey: PreferenceKey, Sendable {
     public static var defaultValue: [String: CGFloat] = [:]
     public static func reduce(value: inout [String: CGFloat], nextValue: () -> [String: CGFloat]) {
         value.merge(nextValue(), uniquingKeysWith: { $1 })

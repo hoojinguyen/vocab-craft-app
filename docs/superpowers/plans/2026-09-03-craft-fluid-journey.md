@@ -141,9 +141,9 @@ struct CraftJourneyNodeTests {
         let completedNode = LessonNodeModel(id: "2", title: "Completed", state: .completed)
         let lockedNode = LessonNodeModel(id: "3", title: "Locked", state: .locked)
 
-        #expect(CraftJourneyNode.diameter(for: activeNode.state) == 82)
-        #expect(CraftJourneyNode.diameter(for: completedNode.state) == 68)
-        #expect(CraftJourneyNode.diameter(for: lockedNode.state) == 60)
+        #expect(CraftJourneyNode.diameter(for: activeNode.state) == 88)
+        #expect(CraftJourneyNode.diameter(for: completedNode.state) == 88)
+        #expect(CraftJourneyNode.diameter(for: lockedNode.state) == 88)
     }
 }
 ```
@@ -156,7 +156,7 @@ Expected: FAIL with "cannot find 'CraftJourneyNode' in scope"
 - [ ] **Step 3: Implement `CraftJourneyNode.swift`**
 
 Create `Packages/CraftUIKit/Sources/CraftUIKit/Components/Containers/FluidJourney/CraftJourneyNode.swift`:
-- Handle 3 visual states: `.completed` (68pt, checkmark `✓` badge), `.active` (82pt, gradient fill, `PhaseAnimator` breathing glow, "START LESSON" sub-tag), `.upcoming`/`.locked` (60pt, muted disc).
+- Handle visual states with uniform 88pt continuous squircle nodes across all states, preserving semantic icons and tactile 3D extrusion.
 - Support `.sensoryFeedback(.impact(weight: .medium), trigger: tapTrigger)`.
 - Support `@Environment(\.accessibilityReduceMotion)`.
 

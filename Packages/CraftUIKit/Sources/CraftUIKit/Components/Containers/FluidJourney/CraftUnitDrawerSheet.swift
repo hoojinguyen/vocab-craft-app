@@ -214,7 +214,9 @@ private extension CraftUnitDrawerSheet {
             closeButton
             deckInfoBlock
             Spacer(minLength: theme.spacing.xs)
-            adjustPlanButton
+            if onAdjustPlan != nil {
+                adjustPlanButton
+            }
         }
     }
 
@@ -317,7 +319,8 @@ private extension CraftUnitDrawerSheet {
             .buttonStyle(.craftPress(scale: 0.99))
             .accessibilityElement(children: .combine)
             .accessibilityLabel(sectionAccessibilityLabel(for: section, isExpanded: isExpanded))
-            .accessibilityHint(CraftLocalized.string("craft.fluid_journey.select_unit_hint"))
+            .accessibilityValue(isExpanded ? CraftLocalized.string("craft.common.state.expanded") : CraftLocalized.string("craft.common.state.collapsed"))
+            .accessibilityHint(isExpanded ? CraftLocalized.string("craft.fluid_journey.collapse_unit_hint") : CraftLocalized.string("craft.fluid_journey.expand_unit_hint"))
 
             if isExpanded && !section.nodes.isEmpty {
                 Divider()
@@ -488,6 +491,7 @@ private extension CraftUnitDrawerSheet {
             .contentShape(Rectangle())
         }
         .buttonStyle(.craftPress(scale: 0.98))
+        .disabled(node.state == .locked)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(lessonAccessibilityLabel(for: node))
         .accessibilityHint(CraftLocalized.string("craft.fluid_journey.select_unit_hint"))

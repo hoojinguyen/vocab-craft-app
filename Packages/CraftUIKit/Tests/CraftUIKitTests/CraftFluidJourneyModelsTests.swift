@@ -58,6 +58,17 @@ struct CraftFluidJourneyModelsTests {
         )
         #expect(FluidJourneySectionState.state(for: completedSection) == .completed)
 
+        let completedSectionWithBonus = LessonSection(
+            id: "s1b",
+            title: "Unit 1B",
+            nodes: [
+                LessonNodeModel(id: "n1b", title: "L1", state: .completed),
+                LessonNodeModel(id: "n2b", title: "L2", state: .completed),
+                LessonNodeModel(id: "n_bonus", title: "Bonus", state: .bonus)
+            ]
+        )
+        #expect(FluidJourneySectionState.state(for: completedSectionWithBonus) == .completed)
+
         let activeSection = LessonSection(
             id: "s2",
             title: "Unit 2",

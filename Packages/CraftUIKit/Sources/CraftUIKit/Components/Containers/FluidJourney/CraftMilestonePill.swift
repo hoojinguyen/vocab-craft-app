@@ -12,7 +12,7 @@ public struct CraftMilestonePill: View, Equatable {
     // MARK: - Constants
 
     /// Default coordinate space name used for scroll offset tracking across fluid journey components.
-    public static let coordinateSpaceName = "CraftFluidJourneySpace"
+    public static let coordinateSpaceName = CraftFluidJourney.scrollCoordinateSpaceName
 
     /// Alias for default coordinate space name for consistency across component APIs.
     public static let defaultCoordinateSpaceName = coordinateSpaceName

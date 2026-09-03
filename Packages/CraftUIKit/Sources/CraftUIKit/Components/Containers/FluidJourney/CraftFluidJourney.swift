@@ -325,7 +325,13 @@ public extension CraftFluidJourney {
             guard let yPosition = preferences[section.id] else { return false }
             return yPosition <= threshold
         }
-        return matchingSection ?? defaultSection
+        if let matchingSection {
+            return matchingSection
+        }
+        if !preferences.isEmpty {
+            return sections.first ?? defaultSection
+        }
+        return defaultSection
     }
 
     /// Resolves the title displayed in the curriculum drawer header.
@@ -571,15 +577,13 @@ extension CraftFluidJourney {
 extension CraftFluidJourney {
     func handleNodeTap(_ node: LessonNodeModel) {
         onNodeTap?(node)
-        if showDetailModal {
+        if showDetailModal, node.state != .locked {
             selectedNodeForDetail = node
         }
     }
 
     func handleMilestonePreferenceChange(_ positions: [String: CGFloat]) {
-        for (id, pos) in positions {
-            milestonePositions[id] = pos
-        }
+        milestonePositions = positions
 
         if let resolved = resolveDockedSection(from: milestonePositions) {
             if dockedSectionId != resolved.id {

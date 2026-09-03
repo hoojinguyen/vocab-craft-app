@@ -98,7 +98,7 @@ Expected: FAIL (was 72pt).
 
 - [ ] **Step 3: Update `CraftJourneyNode` implementation**
 - Change `diameter(for:)` to return `88`.
-- Change `iconSize` to return `34` for active/inProgress, `32` for completed/locked.
+- Change `iconSize` to return `34` for active/inProgress, `32` for completed/locked/upcoming/bonus.
 - Update `squircleShape` to `RoundedRectangle(cornerRadius: 30 * baseScale, style: .continuous)`.
 - Update `activeGlowBackground` to use `haloSize = currentDiameter + 24` (112pt) with corner radius `38 * baseScale`.
 - In `tactile3DFace`: Set bottom rim extrusion layer offset to `theme.depths.depthMd` (5pt) with `theme.depths.topHighlight` hairline border.
@@ -122,7 +122,7 @@ Expected: PASS.
 
 **Interfaces:**
 - Consumes: `ActiveCalloutBubble`, `CraftJourneyNode`
-- Produces: `ActiveCalloutBubble` positioned floating above active nodes with 8pt clearance and bobbing motion.
+- Produces: `ActiveCalloutBubble` positioned floating above active nodes with clearance and bobbing motion.
 
 - [ ] **Step 1: Write test for active callout bubble presence in fluid journey**
 In `CraftFluidJourneyTests.swift`:
@@ -135,7 +135,7 @@ Run: `swift test --filter CraftFluidJourneyTests`
 In `CraftFluidJourney.swift`:
 ```swift
 ForEach(section.nodes) { node in
-    VStack(spacing: 8) {
+    VStack(spacing: theme.spacing.sm) {
         if node.state == .active {
             ActiveCalloutBubble(
                 text: CraftLocalized.string("craft.fluid_journey.start_lesson")

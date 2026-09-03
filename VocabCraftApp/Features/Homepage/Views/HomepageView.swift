@@ -83,6 +83,8 @@ public struct HomepageView: View {
                             CraftFluidJourney(
                                 sections: viewModel.sections,
                                 surfaceStyle: .tactile3D,
+                                deckTitle: viewModel.currentDeckTitle,
+                                deckSubtitle: viewModel.currentDeckSubtitle,
                                 onNodeTap: { node in
                                     MainActor.assumeIsolated {
                                         viewModel.handleNodeTap(node)

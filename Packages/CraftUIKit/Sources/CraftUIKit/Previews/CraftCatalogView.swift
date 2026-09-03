@@ -2598,6 +2598,11 @@ private struct CatalogFluidJourneySection: View {
                     surfaceStyle: fluidSurfaceStyle,
                     onNodeTap: { node in
                         selectedNodeTitle = node.title
+                        toastTitle = "Bài học"
+                        toastMessage = node.title
+                        toastStyle = .info
+                        toastSurfaceStyle = fluidSurfaceStyle
+                        isToastPresented = true
                     },
                     onStartLesson: { node in
                         toastTitle = "Bắt đầu học"

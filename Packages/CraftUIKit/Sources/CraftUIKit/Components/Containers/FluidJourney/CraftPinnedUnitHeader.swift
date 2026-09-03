@@ -152,7 +152,7 @@ public struct CraftPinnedUnitHeader: View, Equatable {
                 } label: {
                     cardBody
                 }
-                .buttonStyle(TactileButtonStyle(depth: 4))
+                .buttonStyle(TactileButtonStyle(depth: theme.depths.depthMd))
             } else {
                 Button {
                     onTap?()

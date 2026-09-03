@@ -9,7 +9,7 @@ struct CraftMilestonePillTests {
         let pill = CraftMilestonePill(sectionId: "sec-1", title: "Present Simple for Personal Facts")
         #expect(pill.sectionId == "sec-1")
         #expect(pill.title == "Present Simple for Personal Facts")
-        #expect(pill.coordinateSpaceName == "CraftFluidJourneySpace")
+        #expect(pill.coordinateSpaceName == "CraftFluidJourneyScrollCoordinateSpace")
         #expect(pill.coordinateSpaceName == CraftMilestonePill.coordinateSpaceName)
     }
 
@@ -47,8 +47,8 @@ struct CraftMilestonePillTests {
 
     @Test("Verify coordinate space constant")
     func testCoordinateSpaceConstant() {
-        #expect(CraftMilestonePill.coordinateSpaceName == "CraftFluidJourneySpace")
-        #expect(CraftMilestonePill.defaultCoordinateSpaceName == "CraftFluidJourneySpace")
+        #expect(CraftMilestonePill.coordinateSpaceName == "CraftFluidJourneyScrollCoordinateSpace")
+        #expect(CraftMilestonePill.defaultCoordinateSpaceName == "CraftFluidJourneyScrollCoordinateSpace")
     }
 
     @Test("Verify surface style property and equatable with surface style")

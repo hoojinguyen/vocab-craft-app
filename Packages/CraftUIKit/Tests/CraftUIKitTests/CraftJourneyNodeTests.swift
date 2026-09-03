@@ -96,7 +96,7 @@ struct CraftJourneyNodeTests {
         let node = LessonNodeModel(id: "n-heart", title: "Heart Lesson", iconName: "heart", state: .active)
         let view = CraftJourneyNode(node: node)
         #expect(view.displayedIconName == "heart")
-        #if canImport(UIKit)
+        #if canImport(UIKit) || canImport(AppKit)
         #expect(view.resolvedIconName == "heart.fill")
         #else
         #expect(view.resolvedIconName == "heart")

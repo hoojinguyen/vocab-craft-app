@@ -162,11 +162,11 @@ func testCraftJourneyNodeUniformSizingAcrossStates() {
     let locked = CraftJourneyNode.diameter(for: .locked)
     let upcoming = CraftJourneyNode.diameter(for: .upcoming)
 
-    XCTAssertEqual(completed, 72, "Completed node must be 72pt")
-    XCTAssertEqual(active, 72, "Active node base diameter must be 72pt, matching other nodes")
-    XCTAssertEqual(inProgress, 72, "InProgress node must be 72pt")
-    XCTAssertEqual(locked, 72, "Locked node must be 72pt")
-    XCTAssertEqual(upcoming, 72, "Upcoming node must be 72pt")
+    XCTAssertEqual(completed, 88, "Completed node must be 88pt")
+    XCTAssertEqual(active, 88, "Active node base diameter must be 88pt, matching other nodes")
+    XCTAssertEqual(inProgress, 88, "InProgress node must be 88pt")
+    XCTAssertEqual(locked, 88, "Locked node must be 88pt")
+    XCTAssertEqual(upcoming, 88, "Upcoming node must be 88pt")
 }
 
 func testCraftJourneyNodePreservesLessonIconWhenLocked() {
@@ -198,7 +198,7 @@ Update `Packages/CraftUIKit/Sources/CraftUIKit/Components/Containers/FluidJourne
 1. Sizing:
    ```swift
    public static func diameter(for state: LessonNodeState) -> CGFloat {
-       72
+       88
    }
    ```
 2. Icon preservation:
@@ -223,7 +223,7 @@ Update `Packages/CraftUIKit/Sources/CraftUIKit/Components/Containers/FluidJourne
    }
    ```
 4. Squircle shape body with all 5 styles:
-   - Geometry: `RoundedRectangle(cornerRadius: 28, style: .continuous)`
+   - Geometry: `RoundedRectangle(cornerRadius: 30 * baseScale, style: .continuous)`
    - Implement `faceBackgroundView` supporting `.elevated`, `.flat`, `.outlined`, `.tactile3D`, `.glass`
    - Active breathing glow aura without scale ballooning
    - Completed badge: bottom-right green circle with white checkmark

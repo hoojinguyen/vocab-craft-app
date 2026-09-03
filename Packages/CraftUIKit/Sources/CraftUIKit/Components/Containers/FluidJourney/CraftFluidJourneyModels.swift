@@ -31,7 +31,9 @@ public enum FluidJourneySectionState: String, Sendable, CaseIterable, Equatable,
 
     /// Infers the section progression state based on the states of its child nodes.
     public static func state(for section: LessonSection) -> FluidJourneySectionState {
-        if !section.nodes.isEmpty && section.nodes.allSatisfy({ $0.state == .completed }) {
+        let regularNodes = section.nodes.filter { $0.state != .bonus }
+        let nodesToEvaluate = regularNodes.isEmpty ? section.nodes : regularNodes
+        if !nodesToEvaluate.isEmpty && nodesToEvaluate.allSatisfy({ $0.state == .completed }) {
             return .completed
         } else if section.nodes.contains(where: { $0.state == .active || $0.state == .inProgress }) {
             return .current

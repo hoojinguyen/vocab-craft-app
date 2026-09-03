@@ -32,34 +32,34 @@ Following the initial overhaul in `Craft Journey UI Improvements`, extensive vis
 A2 · B1 • Giao Tiếp Hằng Ngày
 ========================================================================
 
-     [ BẮT ĐẦU ]  (ActiveCalloutBubble)
-         ▼
-     ● Node 1 (88pt - Stage 1: "Thói quen & Cảm xúc" - icon: heart)
-         \
-          \
-           ● Node 2 (88pt - Stage 2: "Giao tiếp & Ứng xử" - icon: person.2)
-           /
-          /
-         ● Node 3 (88pt - Checkpoint Boss Exam - icon: crown.fill)
-         \
-          \
-           ● Node 4 (88pt - Rương kho báu - icon: gift.fill)
+           [ BẮT ĐẦU ]  (ActiveCalloutBubble)
+               ▼
+           ● Node 1 (88pt - Stage 1: "Thói quen & Cảm xúc" - icon: heart)
+              /
+             /
+     ● Node 2 (88pt - Stage 2: "Giao tiếp & Ứng xử" - icon: person.2)
+             \
+              \
+           ● Node 3 (88pt - Checkpoint Boss Exam - icon: crown.fill)
+              \
+               \
+                 ● Node 4 (88pt - Rương kho báu - icon: gift.fill)
 
 ------------------------------------------------------------------------
    [ VIÊN THUỐC (CraftMilestonePill) - ĐẠI DIỆN CHO DECK 2 ]
    "Công Sở & Kinh Doanh"
 ------------------------------------------------------------------------
 
-     ● Node 5 (88pt - Stage 1: "Quản lý & Kế hoạch" - icon: checklist)
-         \
-          \
-           ● Node 6 (88pt - Stage 2: "Đàm phán & Năng lực" - icon: chart)
-           /
-          /
-         ● Node 7 (88pt - Checkpoint Boss Exam - icon: crown.fill)
-         \
-          \
-           ● Node 8 (88pt - Rương kho báu - icon: gift.fill)
+           ● Node 5 (88pt - Stage 1: "Quản lý & Kế hoạch" - icon: checklist)
+              /
+             /
+     ● Node 6 (88pt - Stage 2: "Đàm phán & Năng lực" - icon: chart)
+             \
+              \
+           ● Node 7 (88pt - Checkpoint Boss Exam - icon: crown.fill)
+              \
+               \
+                 ● Node 8 (88pt - Rương kho báu - icon: gift.fill)
 
 ------------------------------------------------------------------------
    [ VIÊN THUỐC - ĐẠI DIỆN CHO DECK 3 ]

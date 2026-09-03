@@ -611,5 +611,8 @@ final class ThemeTests: XCTestCase {
 
         let neoArcadeTheme = CraftNeoArcadeTheme()
         XCTAssertEqual(neoArcadeTheme.journeySurfaceStyle, .tactile3D)
+
+        let playfulOwlTheme = CraftPlayfulOwlTheme()
+        XCTAssertEqual(playfulOwlTheme.journeySurfaceStyle, .tactile3D)
     }
 }

@@ -56,7 +56,10 @@ struct VocabCraftApp: App {
         let args = ProcessInfo.processInfo.arguments
         if args.contains("-reset-progress") {
             #if canImport(SwiftDataMacros)
+            try? container.mainContext.delete(model: UserWordProgress.self)
             try? container.mainContext.delete(model: UserStageProgress.self)
+            try? container.mainContext.delete(model: ReflexSessionLog.self)
+            try? container.mainContext.delete(model: QuickReflexAttemptRecord.self)
             try? container.mainContext.save()
             #endif
         }

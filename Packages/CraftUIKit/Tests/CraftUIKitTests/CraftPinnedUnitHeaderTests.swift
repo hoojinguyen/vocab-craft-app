@@ -39,7 +39,7 @@ struct CraftPinnedUnitHeaderTests {
         let header = CraftPinnedUnitHeader(section: section, onHeaderTap: {
             tapped = true
         })
-        header.onTap?()
+        header.onHeaderTap?()
         #expect(tapped == true)
     }
 
