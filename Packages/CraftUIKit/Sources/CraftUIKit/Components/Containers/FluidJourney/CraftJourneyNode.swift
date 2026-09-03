@@ -2,13 +2,17 @@ import SwiftUI
 
 // MARK: - Journey Node Button Style
 
-/// Button style providing spring-based mechanical depress scale feedback for journey nodes.
+/// Button style providing spring-based mechanical depress scale and tactile translation feedback for journey nodes.
 private struct JourneyNodeButtonStyle: ButtonStyle {
     let isLocked: Bool
+    let surfaceStyle: CraftSurfaceStyle
+    let depth: CGFloat
 
     func makeBody(configuration: Configuration) -> some View {
+        let isDepressed = !isLocked && configuration.isPressed
         configuration.label
-            .scaleEffect(!isLocked && configuration.isPressed ? 0.95 : 1.0)
+            .offset(y: (isDepressed && surfaceStyle == .tactile3D) ? depth : 0)
+            .scaleEffect(isDepressed ? (surfaceStyle == .tactile3D ? 1.0 : 0.95) : 1.0)
             .animation(.spring(response: 0.2, dampingFraction: 0.6), value: configuration.isPressed)
     }
 }
@@ -175,7 +179,13 @@ public struct CraftJourneyNode: View, Equatable {
                 }
             }
         }
-        .buttonStyle(JourneyNodeButtonStyle(isLocked: node.state == .locked))
+        .buttonStyle(
+            JourneyNodeButtonStyle(
+                isLocked: node.state == .locked,
+                surfaceStyle: effectiveSurfaceStyle,
+                depth: theme.depths.depthMd
+            )
+        )
         .disabled(node.state == .locked && onTap == nil)
         .sensoryFeedback(.impact(weight: .medium), trigger: tapTrigger)
         .accessibilityElement(children: .ignore)
@@ -191,9 +201,7 @@ public struct CraftJourneyNode: View, Equatable {
         ZStack {
             faceBackgroundView
 
-            Image(systemName: displayedIconName)
-                .font(.system(size: iconSize, weight: (node.state == .active || node.state == .inProgress) ? .bold : .semibold))
-                .foregroundStyle(iconForegroundColor)
+            iconView
         }
         .frame(width: currentDiameter, height: currentDiameter)
         .opacity(node.state == .locked ? 0.8 : 1.0)
@@ -205,13 +213,19 @@ public struct CraftJourneyNode: View, Equatable {
         }
     }
 
+    private var iconView: some View {
+        Image(systemName: displayedIconName)
+            .font(.system(size: iconSize, weight: (node.state == .active || node.state == .inProgress) ? .bold : .semibold))
+            .foregroundStyle(iconForegroundColor)
+    }
+
     // MARK: - Shape Helper
 
     private var squircleShape: RoundedRectangle {
         RoundedRectangle(cornerRadius: 28 * baseScale, style: .continuous)
     }
 
-    // MARK: - Face Background View
+    // MARK: - Face Backgrounds by Style
 
     @ViewBuilder
     private var faceBackgroundView: some View {
@@ -239,24 +253,31 @@ public struct CraftJourneyNode: View, Equatable {
             switch node.state {
             case .active, .inProgress:
                 squircleShape
-                    .fill(theme.colors.brandPrimary.opacity(0.25))
+                    .fill(theme.colors.brandPrimary.opacity(0.18))
+
+                squircleShape
+                    .strokeBorder(theme.glass.borderGradient, lineWidth: 1.5)
             case .completed:
                 squircleShape
-                    .fill(theme.colors.statusSuccess.opacity(0.18))
+                    .fill(theme.colors.brandPrimary.opacity(0.10))
+
+                squircleShape
+                    .strokeBorder(theme.colors.brandPrimary.opacity(0.3), lineWidth: 1)
             case .bonus:
                 squircleShape
-                    .fill(theme.colors.accent.opacity(0.20))
+                    .fill(theme.colors.accent.opacity(0.15))
+
+                squircleShape
+                    .strokeBorder(theme.colors.accent.opacity(0.3), lineWidth: 1)
             case .upcoming, .locked:
                 squircleShape
-                    .fill(theme.colors.surfaceSubtle.opacity(theme.glass.tintOpacity))
-            }
+                    .fill(theme.colors.surfaceSubtle.opacity(0.6))
 
-            squircleShape
-                .strokeBorder(theme.glass.borderGradient, lineWidth: 1)
-            squircleShape
-                .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
+                squircleShape
+                    .strokeBorder(theme.colors.borderDefault.opacity(0.5), lineWidth: 1)
+            }
         }
-        .craftShadow(theme.shadows.sm)
+        .craftShadow(node.state == .active || node.state == .inProgress ? theme.shadows.md : theme.shadows.sm)
     }
 
     private var elevatedFace: some View {
@@ -277,18 +298,7 @@ public struct CraftJourneyNode: View, Equatable {
             }
 
             squircleShape
-                .strokeBorder(
-                    LinearGradient(
-                        stops: [
-                            .init(color: .craftDynamic(light: Color.white.opacity(0.7), dark: Color.white.opacity(0.16)), location: 0.0),
-                            .init(color: .craftDynamic(light: theme.colors.hairline.opacity(0.4), dark: Color.white.opacity(0.04)), location: 0.5),
-                            .init(color: .clear, location: 1.0)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 1
-                )
+                .strokeBorder(theme.depths.topHighlight, lineWidth: 1)
         }
         .craftShadow(node.state == .active || node.state == .inProgress ? theme.shadows.md : theme.shadows.sm)
     }
@@ -336,6 +346,16 @@ public struct CraftJourneyNode: View, Equatable {
 
     private var tactile3DFace: some View {
         ZStack {
+            // 3D Bevel Extrusion Rim Layer
+            squircleShape
+                .fill(
+                    (node.state == .active || node.state == .inProgress)
+                        ? theme.colors.brandPrimary.opacity(0.80)
+                        : (node.state == .completed ? theme.colors.brandPrimary.opacity(0.25) : theme.colors.borderDefault)
+                )
+                .offset(y: theme.depths.depthMd)
+
+            // Top Face Layer
             switch node.state {
             case .active, .inProgress:
                 squircleShape
@@ -363,14 +383,7 @@ public struct CraftJourneyNode: View, Equatable {
                     .strokeBorder(theme.colors.borderDefault, lineWidth: 1.5)
             }
         }
-        .shadow(
-            color: (node.state == .active || node.state == .inProgress)
-                ? theme.colors.brandPrimary.opacity(0.40)
-                : (node.state == .completed ? theme.colors.brandPrimary.opacity(0.08) : Color.clear),
-            radius: (node.state == .active || node.state == .inProgress) ? 12 : 6,
-            x: 0,
-            y: (node.state == .active || node.state == .inProgress) ? 5 : 3
-        )
+        .craftShadow(node.state == .active || node.state == .inProgress ? theme.shadows.md : theme.shadows.sm)
     }
 
     // MARK: - Foreground Colors

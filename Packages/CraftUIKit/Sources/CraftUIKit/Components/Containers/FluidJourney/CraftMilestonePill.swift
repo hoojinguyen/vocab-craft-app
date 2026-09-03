@@ -145,17 +145,23 @@ public struct CraftMilestonePill: View, Equatable {
             Capsule()
                 .fill(theme.colors.surfaceSubtle)
         case .tactile3D:
-            Capsule()
-                .fill(theme.colors.surfaceCard)
-                .overlay(
-                    Capsule()
-                        .strokeBorder(theme.colors.hairline, lineWidth: 1)
-                )
-                .overlay(
-                    Capsule()
-                        .strokeBorder(theme.depths.topHighlight, lineWidth: 1)
-                )
-                .craftShadow(theme.shadows.sm)
+            ZStack {
+                Capsule()
+                    .fill(theme.colors.borderDefault)
+                    .offset(y: theme.depths.depthSm)
+
+                Capsule()
+                    .fill(theme.colors.surfaceCard)
+                    .overlay(
+                        Capsule()
+                            .strokeBorder(theme.colors.hairline, lineWidth: 1)
+                    )
+                    .overlay(
+                        Capsule()
+                            .strokeBorder(theme.depths.topHighlight, lineWidth: 1)
+                    )
+            }
+            .craftShadow(theme.shadows.sm)
         }
     }
 }
