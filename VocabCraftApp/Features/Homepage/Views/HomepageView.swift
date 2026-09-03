@@ -194,6 +194,9 @@ public struct HomepageView: View {
             }
         }
         .onChange(of: appRouter.selectedTab) { _, newTab in
+            if newTab != .home {
+                lessonLaunchTask?.cancel()
+            }
             if newTab == .reflex && reflexBlitzVM == nil {
                 self.reflexBlitzVM = appContainer.makeReflexBlitzViewModel()
             }
@@ -292,17 +295,15 @@ public struct HomepageView: View {
                 words: words
             )
             await MainActor.run {
-                guard !Task.isCancelled else { return }
+                guard !Task.isCancelled, appRouter.selectedTab == .home else { return }
                 self.activeLessonLearningVM = vm
             }
         }
     }
 
     private func handleLessonFinished(vm: LessonLearningViewModel, summary: LessonSummaryModel) {
-        activeLessonLearningVM = nil
-
         Task {
-            // Await persistence completion before reloading learning path
+            // Await persistence completion before dismissing and reloading learning path
             do {
                 _ = try await vm.awaitCompletion()
             } catch {
@@ -319,6 +320,9 @@ public struct HomepageView: View {
                 return
             }
 
+            await MainActor.run {
+                activeLessonLearningVM = nil
+            }
             await viewModel.loadLearningPath()
             await MainActor.run {
                 let starIcons = String(repeating: "★", count: summary.stars)

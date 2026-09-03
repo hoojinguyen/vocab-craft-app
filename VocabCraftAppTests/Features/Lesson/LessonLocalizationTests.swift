@@ -57,9 +57,9 @@ struct LessonLocalizationTests {
         #expect(!AppStrings.Lesson.skipActionText.isEmpty)
         #expect(!AppStrings.Lesson.countdownSubtitleText.isEmpty)
         #expect(!AppStrings.Lesson.loadErrorText.isEmpty)
-        #expect(AppStrings.Lesson.correctAnswerFormat("apple").contains("apple"))
-        #expect(AppStrings.Lesson.xpEarnedFormat(25).contains("25"))
-        #expect(AppStrings.Lesson.accuracyFormat(85).contains("85"))
+        #expect(AppStrings.Lesson.correctAnswerFormat("apple") == "Correct answer: apple")
+        #expect(AppStrings.Lesson.xpEarnedFormat(25) == "+25 XP")
+        #expect(AppStrings.Lesson.accuracyFormat(85) == "85%")
     }
 
     @Test("Catalog integrity check for app.lesson.* keys in Localizable.xcstrings")

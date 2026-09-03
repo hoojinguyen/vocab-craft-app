@@ -58,8 +58,6 @@ public final class LessonLearningViewModel: Identifiable {
         let generatedSteps = planGenerator.generatePlan(from: words, distractorPool: words)
         self.steps = generatedSteps
         self.initialStepCount = generatedSteps.count
-
-        setupSpeechEngineCallbacks()
     }
 
     public var currentStep: LessonStep? {
@@ -217,6 +215,13 @@ public final class LessonLearningViewModel: Identifiable {
             }
         }
 
+        speechEngine.onError = { [weak self] _ in
+            Task { @MainActor in
+                guard let self, self.currentExerciseItem?.id == item.id else { return }
+                self.speechState = .idle
+            }
+        }
+
         if !speechEngine.isSessionActive {
             startSpeechSession()
         }
@@ -227,14 +232,7 @@ public final class LessonLearningViewModel: Identifiable {
         speechEngine.endWord()
         speechEngine.onMatchDetected = nil
         speechEngine.onTranscriptUpdate = nil
-    }
-
-    private func setupSpeechEngineCallbacks() {
-        speechEngine.onError = { [weak self] _ in
-            Task { @MainActor in
-                self?.speechState = .idle
-            }
-        }
+        speechEngine.onError = nil
     }
 
     private func finishLesson() {

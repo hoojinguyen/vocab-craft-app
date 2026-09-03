@@ -146,6 +146,7 @@ struct LessonLearningViewModelTests {
             #expect(retryItem.word.id == exerciseItem.word.id)
             #expect(retryItem.isRequeued)
             #expect(retryItem.attemptCount == 2)
+            #expect(retryItem.assignedMode == .multipleChoice)
         } else {
             #expect(Bool(false), "Expected retry exercise step")
         }

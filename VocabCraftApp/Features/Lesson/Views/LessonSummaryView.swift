@@ -8,6 +8,7 @@ public struct LessonSummaryView: View {
     public let onReplayAudio: (TopicWordDTO) -> Void
 
     @Environment(\.craftTheme) private var theme
+    @Environment(\.locale) private var locale
     @State private var confettiTrigger: Bool = false
 
     public init(
@@ -101,7 +102,7 @@ public struct LessonSummaryView: View {
                                 ForEach(masteredWords, id: \.id) { word in
                                     CraftListRow(
                                         title: word.lemma,
-                                        subtitle: word.definitionVi,
+                                        subtitle: definition(for: word),
                                         iconName: "speaker.wave.2.fill",
                                         showChevron: false,
                                         action: {
@@ -127,7 +128,7 @@ public struct LessonSummaryView: View {
                                 ForEach(reviewWords, id: \.id) { word in
                                     CraftListRow(
                                         title: word.lemma,
-                                        subtitle: word.definitionVi,
+                                        subtitle: definition(for: word),
                                         iconName: "speaker.wave.2.fill",
                                         showChevron: false,
                                         action: {
@@ -162,6 +163,15 @@ public struct LessonSummaryView: View {
             if summary.stars == 3 {
                 confettiTrigger = true
             }
+        }
+    }
+
+    private func definition(for word: TopicWordDTO) -> String {
+        let isVietnamese = locale.identifier.hasPrefix("vi")
+        if isVietnamese {
+            return word.definitionVi.isEmpty ? word.definitionEn : word.definitionVi
+        } else {
+            return word.definitionEn.isEmpty ? word.definitionVi : word.definitionEn
         }
     }
 }
