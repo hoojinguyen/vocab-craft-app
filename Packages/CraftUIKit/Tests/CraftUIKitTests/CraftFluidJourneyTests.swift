@@ -370,4 +370,44 @@ struct CraftFluidJourneyTests {
         )
         #expect(journey.milestoneTitle(for: secEmpty) == "Unit 3: Wrap Up")
     }
+
+    // MARK: - Active Callout Bubble Tests
+
+    @Test("Verify ActiveCalloutBubble attached above active node with clearance")
+    func testActiveCalloutBubbleAttachedToActiveNode() {
+        let activeNode = LessonNodeModel(id: "n-active", title: "Active Lesson", state: .active)
+        let lockedNode = LessonNodeModel(id: "n-locked", title: "Locked Lesson", state: .locked)
+        let completedNode = LessonNodeModel(id: "n-comp", title: "Completed Lesson", state: .completed)
+        let upcomingNode = LessonNodeModel(id: "n-upcoming", title: "Upcoming Lesson", state: .upcoming)
+        let inProgressNode = LessonNodeModel(id: "n-in-progress", title: "In Progress Lesson", state: .inProgress)
+        let bonusNode = LessonNodeModel(id: "n-bonus", title: "Bonus Lesson", state: .bonus)
+
+        let section = LessonSection(
+            id: "sec-active-test",
+            title: "Unit 1",
+            nodes: [activeNode, lockedNode, completedNode, upcomingNode, inProgressNode, bonusNode]
+        )
+        let journey = CraftFluidJourney(sections: [section])
+
+        // Only active node should display the callout bubble
+        #expect(journey.shouldShowCallout(for: activeNode) == true)
+        #expect(journey.shouldShowCallout(for: lockedNode) == false)
+        #expect(journey.shouldShowCallout(for: completedNode) == false)
+        #expect(journey.shouldShowCallout(for: upcomingNode) == false)
+        #expect(journey.shouldShowCallout(for: inProgressNode) == false)
+        #expect(journey.shouldShowCallout(for: bonusNode) == false)
+
+        // Callout text must use the localized string "craft.fluid_journey.start_lesson"
+        let expectedEnglish = CraftLocalized.string("craft.fluid_journey.start_lesson")
+        #expect(expectedEnglish == "START LESSON")
+        #expect(journey.calloutText(for: activeNode) == expectedEnglish)
+
+        let expectedVietnamese = CraftLocalized.string("craft.fluid_journey.start_lesson", language: "vi")
+        #expect(expectedVietnamese == "BẮT ĐẦU HỌC")
+
+        // ActiveCalloutBubble initialization
+        let bubble = ActiveCalloutBubble(text: journey.calloutText(for: activeNode))
+        #expect(bubble.text == "START LESSON")
+    }
 }
+

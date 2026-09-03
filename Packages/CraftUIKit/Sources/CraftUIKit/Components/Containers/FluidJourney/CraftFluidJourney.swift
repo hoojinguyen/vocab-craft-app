@@ -359,6 +359,16 @@ public extension CraftFluidJourney {
         }
         return section.title
     }
+
+    /// Determines whether an active callout bubble should be displayed for the given node.
+    func shouldShowCallout(for node: LessonNodeModel) -> Bool {
+        node.state == .active
+    }
+
+    /// Resolves the localized callout text for an active node in the fluid journey.
+    func calloutText(for node: LessonNodeModel) -> String {
+        CraftLocalized.string("craft.fluid_journey.start_lesson")
+    }
 }
 
 // MARK: - Subviews Extension
@@ -377,13 +387,22 @@ extension CraftFluidJourney {
 
             VStack(spacing: theme.spacing.xxl) {
                 ForEach(section.nodes) { node in
-                    CraftJourneyNode(
-                        node: node,
-                        surfaceStyle: surfaceStyle,
-                        onTap: {
-                            handleNodeTap(node)
+                    VStack(spacing: theme.spacing.sm) {
+                        if shouldShowCallout(for: node) {
+                            ActiveCalloutBubble(
+                                text: calloutText(for: node)
+                            )
+                            .transition(.opacity.combined(with: .scale(scale: 0.9)))
                         }
-                    )
+
+                        CraftJourneyNode(
+                            node: node,
+                            surfaceStyle: surfaceStyle,
+                            onTap: {
+                                handleNodeTap(node)
+                            }
+                        )
+                    }
                     .offset(x: offset(for: node.id))
                     .id(node.id)
                 }
