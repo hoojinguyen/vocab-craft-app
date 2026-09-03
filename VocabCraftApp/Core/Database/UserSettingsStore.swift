@@ -99,6 +99,12 @@ public final class UserSettingsStore {
         }
     }
 
+    public var currentStreak: Int {
+        didSet {
+            defaults.set(currentStreak, forKey: "current_streak")
+        }
+    }
+
     public var appLanguage: String {
         didSet {
             defaults.set(appLanguage, forKey: "app_language")
@@ -128,6 +134,7 @@ public final class UserSettingsStore {
         self.isHapticsEnabled = defaults.object(forKey: "is_haptics_enabled") != nil ? defaults.bool(forKey: "is_haptics_enabled") : true
         self.isSoundEffectsEnabled = defaults.object(forKey: "is_sound_effects_enabled") != nil ? defaults.bool(forKey: "is_sound_effects_enabled") : true
 
+        let completedOnboarding: Bool
         if defaults.object(forKey: "has_completed_onboarding") == nil {
             if defaults.object(forKey: "did_perform_legacy_onboarding_migration") == nil {
                 let hasLegacyUserData = defaults.object(forKey: "daily_goal_count") != nil
@@ -142,13 +149,23 @@ public final class UserSettingsStore {
                     || hasPersistedAppData
                 defaults.set(true, forKey: "did_perform_legacy_onboarding_migration")
                 defaults.set(hasLegacyUserData, forKey: "has_completed_onboarding")
-                self.hasCompletedOnboarding = hasLegacyUserData
+                completedOnboarding = hasLegacyUserData
+                self.currentStreak = defaults.object(forKey: "current_streak") != nil
+                    ? defaults.integer(forKey: "current_streak")
+                    : (hasLegacyUserData ? 14 : 0)
             } else {
-                self.hasCompletedOnboarding = false
+                completedOnboarding = false
+                self.currentStreak = defaults.object(forKey: "current_streak") != nil
+                    ? defaults.integer(forKey: "current_streak")
+                    : 0
             }
         } else {
-            self.hasCompletedOnboarding = defaults.bool(forKey: "has_completed_onboarding")
+            completedOnboarding = defaults.bool(forKey: "has_completed_onboarding")
+            self.currentStreak = defaults.object(forKey: "current_streak") != nil
+                ? defaults.integer(forKey: "current_streak")
+                : (completedOnboarding ? 14 : 0)
         }
+        self.hasCompletedOnboarding = completedOnboarding
         self.selectedGoalDeckId = defaults.string(forKey: "selected_goal_deck_id") ?? "deck_daily"
         self.assessedCefrLevel = defaults.string(forKey: "assessed_cefr_level") ?? "A1"
     }

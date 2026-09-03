@@ -19,8 +19,11 @@ public final class OnboardingViewModel {
     private let useCase: InitializeUserRoadmapUseCaseProtocol
     private let userSettings: UserSettingsStore
     private let notificationScheduler: (any NotificationSchedulerProtocol)?
+    private let progressRepo: (any UserProgressRepositoryProtocol)?
+    private let stageRepo: (any StageProgressRepositoryProtocol)?
     public private(set) var synthesisTask: Task<Void, Never>?
     public private(set) var notificationTask: Task<Void, Never>?
+    public private(set) var completionTask: Task<Void, Never>?
     public private(set) var hasGrantedNotificationPermission: Bool = false
     private var synthesisGeneration: Int = 0
     private var notificationGeneration: Int = 0
@@ -28,11 +31,15 @@ public final class OnboardingViewModel {
     public init(
         useCase: InitializeUserRoadmapUseCaseProtocol,
         userSettings: UserSettingsStore,
-        notificationScheduler: (any NotificationSchedulerProtocol)? = nil
+        notificationScheduler: (any NotificationSchedulerProtocol)? = nil,
+        progressRepo: (any UserProgressRepositoryProtocol)? = nil,
+        stageRepo: (any StageProgressRepositoryProtocol)? = nil
     ) {
         self.useCase = useCase
         self.userSettings = userSettings
         self.notificationScheduler = notificationScheduler
+        self.progressRepo = progressRepo
+        self.stageRepo = stageRepo
     }
 
     public var canGoBack: Bool {
@@ -95,6 +102,8 @@ public final class OnboardingViewModel {
         synthesisGeneration += 1
         synthesisTask?.cancel()
         synthesisTask = nil
+        completionTask?.cancel()
+        completionTask = nil
         isSynthesizing = false
         userSettings.selectedGoalDeckId = "deck_daily"
         userSettings.assessedCefrLevel = "A1"
@@ -180,5 +189,40 @@ public final class OnboardingViewModel {
 
     public func completeOnboardingAndDismiss() {
         userSettings.hasCompletedOnboarding = true
+        userSettings.currentStreak = max(userSettings.currentStreak, 1)
+
+        let starterWords = roadmapResult?.starterWords ?? VocabularySampleDataset.starterWords()
+        let stageId = roadmapResult?.startingStage.id ?? "stage_daily_1"
+        let deckId = userSettings.selectedGoalDeckId
+
+        completionTask?.cancel()
+        completionTask = Task { @MainActor in
+            if let progressRepo = self.progressRepo {
+                for word in starterWords {
+                    guard !Task.isCancelled else { return }
+                    try? await progressRepo.recordChallengeResult(
+                        wordId: word.id,
+                        isCorrect: true,
+                        stageId: stageId,
+                        deckId: deckId
+                    )
+                }
+            }
+
+            guard !Task.isCancelled else { return }
+            if let stageRepo = self.stageRepo {
+                let existing = try? await stageRepo.fetchStageProgress(stageId: stageId)
+                let isCompleted = existing?.isCompleted ?? false
+                let newScore = max(existing?.score ?? 0, starterWords.count)
+                let newFraction = max(existing?.progressFraction ?? 0.0, 0.3)
+                try? await stageRepo.saveStageProgress(
+                    stageId: stageId,
+                    deckId: deckId,
+                    isCompleted: isCompleted,
+                    score: newScore,
+                    progressFraction: newFraction
+                )
+            }
+        }
     }
 }

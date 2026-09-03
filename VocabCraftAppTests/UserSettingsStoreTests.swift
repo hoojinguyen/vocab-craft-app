@@ -112,5 +112,32 @@ final class UserSettingsStoreTests: XCTestCase {
 
         defaults.removePersistentDomain(forName: suite)
     }
+
+    func testCurrentStreakPersistenceAndDefaults() {
+        let suite = "test_streak_\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+
+        let freshStore = UserSettingsStore(defaults: defaults)
+        XCTAssertEqual(freshStore.currentStreak, 0)
+
+        freshStore.currentStreak = 5
+        XCTAssertEqual(defaults.integer(forKey: "current_streak"), 5)
+
+        let reloadedStore = UserSettingsStore(defaults: defaults)
+        XCTAssertEqual(reloadedStore.currentStreak, 5)
+
+        defaults.removePersistentDomain(forName: suite)
+    }
+
+    func testLegacyMigratedUserDefaultsStreakTo14() {
+        let suite = "test_legacy_streak_\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defaults.set(15, forKey: "daily_goal_count")
+
+        let store = UserSettingsStore(defaults: defaults)
+        XCTAssertEqual(store.currentStreak, 14)
+
+        defaults.removePersistentDomain(forName: suite)
+    }
 }
 

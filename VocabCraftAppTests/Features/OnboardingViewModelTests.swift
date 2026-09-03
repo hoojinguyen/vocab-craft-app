@@ -282,6 +282,59 @@ final class OnboardingViewModelTests: XCTestCase {
 
         XCTAssertEqual(scheduler.scheduledInterval, 36000)
     }
+
+    func testCompleteOnboardingAndDismissPersistsStarterWordsAndStageProgress() async {
+        let settings = UserSettingsStore()
+        settings.hasCompletedOnboarding = false
+        settings.currentStreak = 0
+        let useCase = MockInitializeUserRoadmapUseCase()
+        let progressRepo = MockUserProgressRepository()
+        let stageRepo = MockStageProgressRepository()
+        let vm = OnboardingViewModel(
+            useCase: useCase,
+            userSettings: settings,
+            progressRepo: progressRepo,
+            stageRepo: stageRepo
+        )
+
+        await vm.synthesizeRoadmap()
+        XCTAssertNotNil(vm.roadmapResult)
+
+        vm.completeOnboardingAndDismiss()
+        await vm.completionTask?.value
+
+        XCTAssertTrue(settings.hasCompletedOnboarding)
+        XCTAssertEqual(settings.currentStreak, 1)
+        XCTAssertEqual(progressRepo.recordChallengeCallCount, 3)
+        XCTAssertGreaterThanOrEqual(stageRepo.saveCallCount, 1)
+
+        let savedStage = try? await stageRepo.fetchStageProgress(stageId: vm.roadmapResult!.startingStage.id)
+        XCTAssertNotNil(savedStage)
+        XCTAssertEqual(savedStage?.score, 3)
+    }
+
+    func testSkipOnboardingDoesNotPersistProgressOrAdvanceStreak() async {
+        let settings = UserSettingsStore()
+        settings.hasCompletedOnboarding = false
+        settings.currentStreak = 0
+        let useCase = MockInitializeUserRoadmapUseCase()
+        let progressRepo = MockUserProgressRepository()
+        let stageRepo = MockStageProgressRepository()
+        let vm = OnboardingViewModel(
+            useCase: useCase,
+            userSettings: settings,
+            progressRepo: progressRepo,
+            stageRepo: stageRepo
+        )
+
+        vm.skipOnboarding()
+        await vm.completionTask?.value
+
+        XCTAssertTrue(settings.hasCompletedOnboarding)
+        XCTAssertEqual(settings.currentStreak, 0)
+        XCTAssertEqual(progressRepo.recordChallengeCallCount, 0)
+        XCTAssertEqual(stageRepo.saveCallCount, 0)
+    }
 }
 
 final class MockNotificationScheduler: NotificationSchedulerProtocol, @unchecked Sendable {

@@ -187,7 +187,9 @@ public final class AppContainer {
     public func makeHomepageViewModel() -> HomepageViewModel {
         HomepageViewModel(
             fetchLearningPathUseCase: fetchLearningPathUseCase,
-            ttsService: ttsService
+            ttsService: ttsService,
+            streakDays: userSettingsStore.currentStreak > 0 ? userSettingsStore.currentStreak : 14,
+            dailyWordsGoal: userSettingsStore.dailyGoalCount
         )
     }
 
@@ -251,7 +253,9 @@ public final class AppContainer {
         OnboardingViewModel(
             useCase: makeInitializeUserRoadmapUseCase(),
             userSettings: userSettingsStore,
-            notificationScheduler: AppNotificationScheduler()
+            notificationScheduler: AppNotificationScheduler(),
+            progressRepo: userProgressRepository,
+            stageRepo: stageProgressRepository
         )
     }
 
