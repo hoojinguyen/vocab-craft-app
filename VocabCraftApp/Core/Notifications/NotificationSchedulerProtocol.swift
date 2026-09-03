@@ -28,6 +28,7 @@ public final class AppNotificationScheduler: NotificationSchedulerProtocol {
         )
         content.sound = .default
 
+        guard timeInterval.isFinite, timeInterval >= 0, timeInterval < 86_400 else { return }
         let totalSeconds = Int(timeInterval)
         let hours = (totalSeconds / 3600) % 24
         let minutes = (totalSeconds % 3600) / 60

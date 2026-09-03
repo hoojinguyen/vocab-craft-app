@@ -185,10 +185,20 @@ public final class AppContainer {
     }
 
     public func makeHomepageViewModel() -> HomepageViewModel {
-        HomepageViewModel(
+        let learnedCount: Int
+        if userSettingsStore.currentStreak == 1 {
+            learnedCount = 3
+        } else if userSettingsStore.currentStreak == 0 {
+            learnedCount = 0
+        } else {
+            learnedCount = 8
+        }
+
+        return HomepageViewModel(
             fetchLearningPathUseCase: fetchLearningPathUseCase,
             ttsService: ttsService,
             streakDays: userSettingsStore.currentStreak > 0 ? userSettingsStore.currentStreak : 14,
+            dailyWordsLearned: learnedCount,
             dailyWordsGoal: userSettingsStore.dailyGoalCount
         )
     }

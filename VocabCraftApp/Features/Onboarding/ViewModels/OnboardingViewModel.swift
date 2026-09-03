@@ -189,30 +189,27 @@ public final class OnboardingViewModel {
     }
 
     public func completeOnboardingAndDismiss() {
-        userSettings.hasCompletedOnboarding = true
-        userSettings.currentStreak = max(userSettings.currentStreak, 1)
-
         let starterWords = roadmapResult?.starterWords ?? VocabularySampleDataset.starterWords()
         let stageId = roadmapResult?.startingStage.id ?? "stage_daily_1"
         let deckId = userSettings.selectedGoalDeckId
 
         completionTask?.cancel()
         completionTask = Task { @MainActor in
-            if let progressRepo = self.progressRepo {
-                for word in starterWords {
-                    guard !Task.isCancelled else { return }
-                    try? await progressRepo.recordChallengeResult(
-                        wordId: word.id,
-                        isCorrect: true,
-                        stageId: stageId,
-                        deckId: deckId
-                    )
+            do {
+                if let progressRepo = self.progressRepo {
+                    for word in starterWords {
+                        guard !Task.isCancelled else { return }
+                        try await progressRepo.recordChallengeResult(
+                            wordId: word.id,
+                            isCorrect: true,
+                            stageId: stageId,
+                            deckId: deckId
+                        )
+                    }
                 }
-            }
 
-            guard !Task.isCancelled else { return }
-            if let stageRepo = self.stageRepo {
-                do {
+                guard !Task.isCancelled else { return }
+                if let stageRepo = self.stageRepo {
                     let existing = try await stageRepo.fetchStageProgress(stageId: stageId)
                     let isCompleted = existing?.isCompleted ?? false
                     let newScore = max(existing?.score ?? 0, starterWords.count)
@@ -224,9 +221,20 @@ public final class OnboardingViewModel {
                         score: newScore,
                         progressFraction: newFraction
                     )
-                } catch {
-                    // Abort save on fetch failure to prevent corrupting existing stage completion state
                 }
+
+                guard !Task.isCancelled else { return }
+                userSettings.hasCompletedOnboarding = true
+                userSettings.currentStreak = max(userSettings.currentStreak, 1)
+            } catch is CancellationError {
+                // Task cancelled
+            } catch {
+                guard !Task.isCancelled else { return }
+                errorMessage = String(
+                    localized: "app.onboarding.error.save_progress_failed",
+                    defaultValue: "Failed to save progress. Please try again.",
+                    bundle: .module
+                )
             }
         }
     }

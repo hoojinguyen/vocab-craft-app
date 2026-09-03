@@ -40,14 +40,26 @@ final class MockInitializeUserRoadmapUseCase: InitializeUserRoadmapUseCaseProtoc
 
 @MainActor
 final class OnboardingViewModelTests: XCTestCase {
-    override func tearDown() {
-        super.tearDown()
+    private func clearDefaults() {
         let defaults = UserDefaults.standard
         defaults.removeObject(forKey: "has_completed_onboarding")
         defaults.removeObject(forKey: "selected_goal_deck_id")
         defaults.removeObject(forKey: "assessed_cefr_level")
         defaults.removeObject(forKey: "daily_goal_count")
         defaults.removeObject(forKey: "notification_time_interval")
+        defaults.removeObject(forKey: "current_streak")
+        defaults.removeObject(forKey: "is_notification_enabled")
+        defaults.removeObject(forKey: "did_perform_legacy_onboarding_migration")
+    }
+
+    override func setUp() {
+        super.setUp()
+        clearDefaults()
+    }
+
+    override func tearDown() {
+        super.tearDown()
+        clearDefaults()
     }
 
     func testInitialStateAndStepProgression() {
@@ -352,7 +364,9 @@ final class OnboardingViewModelTests: XCTestCase {
         vm.completeOnboardingAndDismiss()
         await vm.completionTask?.value
 
-        XCTAssertTrue(settings.hasCompletedOnboarding)
+        XCTAssertFalse(settings.hasCompletedOnboarding)
+        XCTAssertEqual(settings.currentStreak, 0)
+        XCTAssertNotNil(vm.errorMessage)
         XCTAssertEqual(progressRepo.recordChallengeCallCount, 3)
         XCTAssertEqual(throwingStageRepo.saveCallCount, 0)
     }

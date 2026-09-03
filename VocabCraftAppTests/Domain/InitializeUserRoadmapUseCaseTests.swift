@@ -191,7 +191,7 @@ final class InitializeUserRoadmapUseCaseTests: XCTestCase {
             notificationTimeInterval: 72000
         )
         let updatedProgress = try await stageRepo.fetchAllStageProgress()
-        XCTAssertFalse(updatedProgress.first { $0.stageId == "stage_daily_1" }?.isCompleted == true)
+        XCTAssertEqual(updatedProgress.first { $0.stageId == "stage_daily_1" }?.isCompleted, false)
     }
 
     func testOnboardingDomainErrorLocalizedDescription() {

@@ -9690,6 +9690,23 @@
           }
         }
       }
+    },
+    "app.onboarding.error.save_progress_failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to save progress. Please try again."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lưu tiến độ thất bại. Vui lòng thử lại."
+          }
+        }
+      }
     }
   },
   "version": "1.0"
