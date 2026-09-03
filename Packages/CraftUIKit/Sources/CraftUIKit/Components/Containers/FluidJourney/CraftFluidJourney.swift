@@ -27,6 +27,9 @@ public struct CraftFluidJourney: View {
     /// Curriculum sections displayed along the fluid journey path.
     public let sections: [LessonSection]
 
+    /// Optional explicit surface style applied to journey nodes and milestone pills.
+    public let surfaceStyle: CraftSurfaceStyle?
+
     /// Optional deck title shown in the unit curriculum drawer.
     public let deckTitle: String?
 
@@ -145,7 +148,8 @@ public extension CraftFluidJourney {
     ///
     /// - Parameters:
     ///   - sections: Array of `LessonSection` models to display.
-    ///   - deckTitle: Optional custom deck title for the curriculum drawer.
+    ///   - surfaceStyle: Optional explicit surface style applied to nodes and milestone pills.
+    ///   - deckTitle: Optional custom deck title for the curriculum drawer and pinned header.
     ///   - deckSubtitle: Optional custom deck subtitle for the curriculum drawer.
     ///   - onNodeTap: Optional closure invoked when a node is tapped.
     ///   - onStartLesson: Optional closure invoked when a lesson starts.
@@ -159,6 +163,7 @@ public extension CraftFluidJourney {
     ///   - emptyStateViewBuilder: Optional custom builder for the empty state view.
     init(
         sections: [LessonSection],
+        surfaceStyle: CraftSurfaceStyle? = nil,
         deckTitle: String? = nil,
         deckSubtitle: String? = nil,
         onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
@@ -173,6 +178,7 @@ public extension CraftFluidJourney {
         emptyStateViewBuilder: (() -> AnyView)? = nil
     ) {
         self.sections = sections
+        self.surfaceStyle = surfaceStyle
         self.deckTitle = deckTitle
         self.deckSubtitle = deckSubtitle
         self.onNodeTap = onNodeTap
@@ -201,7 +207,8 @@ public extension CraftFluidJourney {
     ///
     /// - Parameters:
     ///   - section: The single `LessonSection` to display.
-    ///   - deckTitle: Optional custom deck title for the curriculum drawer.
+    ///   - surfaceStyle: Optional explicit surface style applied to nodes and milestone pills.
+    ///   - deckTitle: Optional custom deck title for the curriculum drawer and pinned header.
     ///   - deckSubtitle: Optional custom deck subtitle for the curriculum drawer.
     ///   - onNodeTap: Optional closure invoked when a node is tapped.
     ///   - onStartLesson: Optional closure invoked when a lesson starts.
@@ -215,6 +222,7 @@ public extension CraftFluidJourney {
     ///   - emptyStateViewBuilder: Optional custom builder for the empty state view.
     init(
         section: LessonSection,
+        surfaceStyle: CraftSurfaceStyle? = nil,
         deckTitle: String? = nil,
         deckSubtitle: String? = nil,
         onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
@@ -230,6 +238,7 @@ public extension CraftFluidJourney {
     ) {
         self.init(
             sections: [section],
+            surfaceStyle: surfaceStyle,
             deckTitle: deckTitle,
             deckSubtitle: deckSubtitle,
             onNodeTap: onNodeTap,
@@ -323,6 +332,19 @@ public extension CraftFluidJourney {
             .filter { !$0.isEmpty }
         return parts.joined(separator: " • ")
     }
+    /// Generates the section model for the pinned header, injecting deck and level context when provided.
+    func headerSection(for docked: LessonSection) -> LessonSection {
+        guard let deckTitle, !deckTitle.isEmpty else {
+            return docked
+        }
+        return LessonSection(
+            id: docked.id,
+            title: deckTitle,
+            subtitle: docked.title,
+            level: docked.level ?? sections.first?.level,
+            nodes: docked.nodes
+        )
+    }
 }
 
 // MARK: - Subviews Extension
@@ -334,6 +356,7 @@ extension CraftFluidJourney {
             CraftMilestonePill(
                 sectionId: section.id,
                 title: section.title,
+                surfaceStyle: surfaceStyle,
                 coordinateSpaceName: Self.scrollCoordinateSpaceName
             )
             .id("milestone-\(section.id)")
@@ -342,6 +365,7 @@ extension CraftFluidJourney {
                 ForEach(section.nodes) { node in
                     CraftJourneyNode(
                         node: node,
+                        surfaceStyle: surfaceStyle,
                         onTap: {
                             handleNodeTap(node)
                         }
@@ -357,7 +381,7 @@ extension CraftFluidJourney {
     func pinnedHeaderOverlay(scrollProxy: ScrollViewProxy) -> some View {
         if let docked = currentlyDockedSection {
             CraftPinnedUnitHeader(
-                section: docked,
+                section: headerSection(for: docked),
                 onTap: {
                     isDrawerPresented = true
                 }

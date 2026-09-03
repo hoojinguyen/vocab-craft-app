@@ -277,4 +277,56 @@ struct CraftFluidJourneyTests {
         let explicitNode = CraftJourneyNode(node: node, surfaceStyle: .glass)
         #expect(explicitNode.surfaceStyle == .glass)
     }
+
+    // MARK: - Milestone Pill & Docking Hierarchy Tests
+
+    @Test("CraftMilestonePill initialization and surface styles")
+    func testMilestonePillInitializationAndProperties() {
+        let pill = CraftMilestonePill(sectionId: "s1", title: "Present Simple for Personal Facts")
+        #expect(pill.sectionId == "s1")
+        #expect(pill.title == "Present Simple for Personal Facts")
+        #expect(pill.accessibilityLabelText == "Present Simple for Personal Facts")
+        #expect(pill.surfaceStyle == nil)
+
+        let explicitGlassPill = CraftMilestonePill(sectionId: "s2", title: "Reading Bios", surfaceStyle: .glass)
+        #expect(explicitGlassPill.surfaceStyle == .glass)
+    }
+
+    @Test("CraftFluidJourney resolves deck and subtopic correctly")
+    func testFluidJourneyDockingResolvesDeckAndSubtopic() {
+        let section1 = LessonSection(id: "s1", title: "Present Simple", subtitle: "Basics", level: "A2", nodes: [])
+        let section2 = LessonSection(id: "s2", title: "Reading Bios", subtitle: "Intermediate", level: "A2", nodes: [])
+        let journey = CraftFluidJourney(sections: [section1, section2], deckTitle: "Personal Details Vocabulary")
+
+        #expect(journey.resolvedDeckTitle == "Personal Details Vocabulary")
+    }
+
+    @Test("CraftFluidJourney pinnedHeaderSection includes deck and subtopic context")
+    func testFluidJourneyPinnedHeaderSectionContext() {
+        let section1 = LessonSection(id: "s1", title: "Present Simple", subtitle: "Basics", level: "A2", nodes: [])
+        let journeyWithDeck = CraftFluidJourney(sections: [section1], deckTitle: "Personal Details Vocabulary")
+        let headerSec = journeyWithDeck.headerSection(for: section1)
+
+        #expect(headerSec.id == "s1")
+        #expect(headerSec.title == "Personal Details Vocabulary")
+        #expect(headerSec.subtitle == "Present Simple")
+        #expect(headerSec.level == "A2")
+
+        let journeyWithoutDeck = CraftFluidJourney(sections: [section1])
+        let unchangedHeaderSec = journeyWithoutDeck.headerSection(for: section1)
+        #expect(unchangedHeaderSec.title == "Present Simple")
+        #expect(unchangedHeaderSec.subtitle == "Basics")
+    }
+
+    @Test("CraftFluidJourney surfaceStyle property propagation")
+    func testFluidJourneySurfaceStylePropagation() {
+        let section1 = LessonSection(id: "s1", title: "Present Simple", level: "A2", nodes: [
+            LessonNodeModel(id: "n1", title: "Lesson 1", state: .active)
+        ])
+        let defaultJourney = CraftFluidJourney(sections: [section1])
+        #expect(defaultJourney.surfaceStyle == nil)
+
+        let explicitJourney = CraftFluidJourney(sections: [section1], surfaceStyle: .glass)
+        #expect(explicitJourney.surfaceStyle == .glass)
+    }
 }

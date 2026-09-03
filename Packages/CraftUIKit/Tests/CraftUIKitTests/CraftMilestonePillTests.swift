@@ -50,4 +50,21 @@ struct CraftMilestonePillTests {
         #expect(CraftMilestonePill.coordinateSpaceName == "CraftFluidJourneySpace")
         #expect(CraftMilestonePill.defaultCoordinateSpaceName == "CraftFluidJourneySpace")
     }
+
+    @Test("Verify surface style property and equatable with surface style")
+    func testPillSurfaceStyleEquatable() {
+        let pillDefault = CraftMilestonePill(sectionId: "sec-1", title: "Title 1")
+        let pillGlass = CraftMilestonePill(sectionId: "sec-1", title: "Title 1", surfaceStyle: .glass)
+        let pillElevated = CraftMilestonePill(sectionId: "sec-1", title: "Title 1", surfaceStyle: .elevated)
+
+        #expect(pillDefault.surfaceStyle == nil)
+        #expect(pillGlass.surfaceStyle == .glass)
+        #expect(pillElevated.surfaceStyle == .elevated)
+
+        #expect(pillDefault != pillGlass)
+        #expect(pillGlass != pillElevated)
+
+        let pillGlass2 = CraftMilestonePill(sectionId: "sec-1", title: "Title 1", surfaceStyle: .glass)
+        #expect(pillGlass == pillGlass2)
+    }
 }
