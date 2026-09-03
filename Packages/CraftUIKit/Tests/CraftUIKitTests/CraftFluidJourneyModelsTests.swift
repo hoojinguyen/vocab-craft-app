@@ -28,18 +28,18 @@ struct CraftFluidJourneyModelsTests {
 
     @Test("Test FluidJourneyNodeOffset sequence")
     func testNodeOffsetSequence() {
-        #expect(FluidJourneyNodeOffset.offset(for: 0) == -45)
-        #expect(FluidJourneyNodeOffset.offset(for: 1) == 0)
-        #expect(FluidJourneyNodeOffset.offset(for: 2) == 45)
-        #expect(FluidJourneyNodeOffset.offset(for: 3) == 0)
-        #expect(FluidJourneyNodeOffset.offset(for: 4) == -45)
-        #expect(FluidJourneyNodeOffset.offset(for: 5) == 0)
-        #expect(FluidJourneyNodeOffset.offset(for: 6) == 45)
-        #expect(FluidJourneyNodeOffset.offset(for: 7) == 0)
+        #expect(FluidJourneyNodeOffset.offset(for: 0) == 0)
+        #expect(FluidJourneyNodeOffset.offset(for: 1) == -48)
+        #expect(FluidJourneyNodeOffset.offset(for: 2) == 0)
+        #expect(FluidJourneyNodeOffset.offset(for: 3) == 48)
+        #expect(FluidJourneyNodeOffset.offset(for: 4) == 0)
+        #expect(FluidJourneyNodeOffset.offset(for: 5) == -48)
+        #expect(FluidJourneyNodeOffset.offset(for: 6) == 0)
+        #expect(FluidJourneyNodeOffset.offset(for: 7) == 48)
 
         // Negative index clamped to 0
-        #expect(FluidJourneyNodeOffset.offset(for: -1) == -45)
-        #expect(FluidJourneyNodeOffset.offset(for: -10) == -45)
+        #expect(FluidJourneyNodeOffset.offset(for: -1) == 0)
+        #expect(FluidJourneyNodeOffset.offset(for: -10) == 0)
     }
 
     @Test("Test FluidJourneySectionState enum and inference")

@@ -3,7 +3,7 @@ import SwiftUI
 
 /// Horizontal offset sequence helper for arranging nodes along a gentle S-curve in the fluid journey.
 public enum FluidJourneyNodeOffset {
-    private static let sequence: [CGFloat] = [-45, 0, 45, 0]
+    private static let sequence: [CGFloat] = [0, -48, 0, 48]
 
     /// Calculates the horizontal offset (in points) for a node at the given index.
     /// Clamps negative indices to 0.

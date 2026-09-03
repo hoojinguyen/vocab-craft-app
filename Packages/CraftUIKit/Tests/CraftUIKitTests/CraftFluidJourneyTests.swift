@@ -198,11 +198,20 @@ struct CraftFluidJourneyTests {
         #expect(lookup["n-3"] == 3)
         #expect(lookup["n-4"] == 4)
 
-        #expect(journey.offset(for: "n-0") == -45)
-        #expect(journey.offset(for: "n-1") == 0)
-        #expect(journey.offset(for: "n-2") == 45)
-        #expect(journey.offset(for: "n-3") == 0)
-        #expect(journey.offset(for: "n-4") == -45)
+        #expect(journey.offset(for: "n-0") == 0)
+        #expect(journey.offset(for: "n-1") == -48)
+        #expect(journey.offset(for: "n-2") == 0)
+        #expect(journey.offset(for: "n-3") == 48)
+        #expect(journey.offset(for: "n-4") == 0)
+    }
+
+    @Test("Verify fluid journey node offset sequence starts at center")
+    func testFluidJourneyNodeOffsetSequenceStartsAtCenter() {
+        #expect(FluidJourneyNodeOffset.offset(for: 0) == 0.0)
+        #expect(FluidJourneyNodeOffset.offset(for: 1) == -48.0)
+        #expect(FluidJourneyNodeOffset.offset(for: 2) == 0.0)
+        #expect(FluidJourneyNodeOffset.offset(for: 3) == 48.0)
+        #expect(FluidJourneyNodeOffset.offset(for: 4) == 0.0)
     }
 
     @Test("Verify callbacks execution")
