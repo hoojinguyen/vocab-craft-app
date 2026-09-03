@@ -123,7 +123,7 @@ public struct CraftFluidJourney: View {
                     }
                 )
                 .onChange(of: externalScrollTrigger) { _, newValue in
-                    guard newValue > 0, scrollToActive, let targetID = activeNodeID else { return }
+                    guard newValue > 0, let targetID = activeNodeID else { return }
                     withAnimation(reduceMotion ? nil : .smooth(duration: 0.45)) {
                         scrollProxy.scrollTo(targetID, anchor: .center)
                     }

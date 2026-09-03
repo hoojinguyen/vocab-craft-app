@@ -22,8 +22,8 @@ public struct CraftPinnedUnitHeader: View, Equatable {
     /// Lesson section DTO representing the currently pinned unit.
     public let section: LessonSection
 
-    /// Corner radius for the card surface. Defaults to 20pt.
-    public let cornerRadius: CGFloat
+    /// Corner radius for the card surface. Defaults to nil (resolving to theme.radii.xl).
+    public let cornerRadius: CGFloat?
 
     /// Action closure triggered when the user taps the header card.
     public let onTap: (@Sendable () -> Void)?
@@ -44,11 +44,11 @@ public struct CraftPinnedUnitHeader: View, Equatable {
     ///
     /// - Parameters:
     ///   - section: The current lesson section DTO.
-    ///   - cornerRadius: Custom corner radius. Defaults to 20pt.
+    ///   - cornerRadius: Custom corner radius, or `nil` to resolve using `theme.radii.xl`.
     ///   - onTap: Callback closure invoked when tapped.
     public init(
         section: LessonSection,
-        cornerRadius: CGFloat = CraftPinnedUnitHeader.defaultCornerRadius,
+        cornerRadius: CGFloat? = nil,
         onTap: (@Sendable () -> Void)? = nil
     ) {
         self.section = section
@@ -60,11 +60,11 @@ public struct CraftPinnedUnitHeader: View, Equatable {
     ///
     /// - Parameters:
     ///   - section: The current lesson section DTO.
-    ///   - cornerRadius: Custom corner radius. Defaults to 20pt.
+    ///   - cornerRadius: Custom corner radius, or `nil` to resolve using `theme.radii.xl`.
     ///   - onHeaderTap: Callback closure invoked when tapped.
     public init(
         section: LessonSection,
-        cornerRadius: CGFloat = CraftPinnedUnitHeader.defaultCornerRadius,
+        cornerRadius: CGFloat? = nil,
         onHeaderTap: (@Sendable () -> Void)?
     ) {
         self.init(section: section, cornerRadius: cornerRadius, onTap: onHeaderTap)
@@ -115,7 +115,8 @@ public struct CraftPinnedUnitHeader: View, Equatable {
     // MARK: - Card Content & Styling
 
     private var cardBody: some View {
-        let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+        let effectiveRadius = cornerRadius ?? theme.radii.xl
+        let shape = RoundedRectangle(cornerRadius: effectiveRadius, style: .continuous)
 
         return HStack(spacing: theme.spacing.md) {
             ZStack(alignment: .leading) {

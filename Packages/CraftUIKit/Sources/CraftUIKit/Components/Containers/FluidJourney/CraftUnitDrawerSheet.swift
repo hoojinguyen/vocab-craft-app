@@ -129,6 +129,16 @@ public struct CraftUnitDrawerSheet: View, Equatable {
         currentExpandedSectionIds.contains(sectionId)
     }
 
+    /// Synchronizes the active section into expanded sections if not already present.
+    public func synchronizeActiveSection() {
+        guard !activeSectionId.isEmpty else { return }
+        var updated = currentExpandedSectionIds
+        if !updated.contains(activeSectionId) {
+            updated.insert(activeSectionId)
+            currentExpandedSectionIds = updated
+        }
+    }
+
     /// Selects a lesson and immediately dismisses the drawer sheet.
     public func selectLesson(sectionId: String, nodeId: String) {
         onSelectLesson(sectionId, nodeId)
@@ -175,6 +185,12 @@ public struct CraftUnitDrawerSheet: View, Equatable {
         .presentationBackground(theme.colors.surfaceCard)
         .presentationCornerRadius(theme.radii.xl)
         .presentationDragIndicator(.hidden)
+        .onAppear {
+            synchronizeActiveSection()
+        }
+        .onChange(of: activeSectionId) { _, _ in
+            synchronizeActiveSection()
+        }
         .accessibilityAction(.escape) {
             onDismiss()
         }
@@ -448,7 +464,7 @@ private extension CraftUnitDrawerSheet {
                 Spacer(minLength: theme.spacing.xs)
 
                 if let xp = node.xpReward, xp > 0 {
-                    Text("+\(xp) XP")
+                    Text(CraftLocalized.format("craft.fluid_journey.reward_xp", xp))
                         .font(theme.typography.caption.weight(.semibold))
                         .foregroundStyle(theme.colors.brandPrimary)
                 } else if let minutes = node.estimatedMinutes, minutes > 0 {
@@ -526,7 +542,7 @@ private extension CraftUnitDrawerSheet {
             components.append(subtitle)
         }
         if let xp = node.xpReward, xp > 0 {
-            components.append("+\(xp) XP")
+            components.append(CraftLocalized.format("craft.fluid_journey.reward_xp", xp))
         }
         return components.joined(separator: ", ")
     }

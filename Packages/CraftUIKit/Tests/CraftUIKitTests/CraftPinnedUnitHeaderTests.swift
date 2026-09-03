@@ -96,7 +96,7 @@ struct CraftPinnedUnitHeaderTests {
     func testCornerRadiusConfiguration() {
         let section = LessonSection(id: "sec-1", title: "Unit 1", nodes: [])
         let defaultHeader = CraftPinnedUnitHeader(section: section)
-        #expect(defaultHeader.cornerRadius == CraftPinnedUnitHeader.defaultCornerRadius)
+        #expect(defaultHeader.cornerRadius == nil)
         #expect(CraftPinnedUnitHeader.defaultCornerRadius == 20)
 
         let customHeader = CraftPinnedUnitHeader(section: section, cornerRadius: 16)

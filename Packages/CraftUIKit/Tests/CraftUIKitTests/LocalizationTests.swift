@@ -365,6 +365,9 @@ final class LocalizationTests: XCTestCase {
 
         XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.select_unit_hint"), "Double tap to switch to this unit")
         XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.select_unit_hint", language: "vi"), "Chạm hai lần để chuyển sang chủ đề này")
+
+        XCTAssertEqual(CraftLocalized.format("craft.fluid_journey.reward_xp", 25), "+25 XP")
+        XCTAssertEqual(CraftLocalized.format("craft.fluid_journey.reward_xp", language: "vi", 25), "+25 XP")
     }
 
     // MARK: - Navigation, Feedback & Audio Scope

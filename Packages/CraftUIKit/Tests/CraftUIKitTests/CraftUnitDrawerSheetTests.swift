@@ -191,4 +191,29 @@ struct CraftUnitDrawerSheetTests {
         #expect(sheet1 == sheet2)
         #expect(sheet1 != sheet3)
     }
+
+    @Test("Verify active section synchronization")
+    func testActiveSectionSynchronization() {
+        let sections = [
+            LessonSection(id: "sec-1", title: "Unit 1", nodes: []),
+            LessonSection(id: "sec-2", title: "Unit 2", nodes: [])
+        ]
+        var expanded: Set<String> = []
+        let binding = Binding(
+            get: { expanded },
+            set: { expanded = $0 }
+        )
+        let sheet = CraftUnitDrawerSheet(
+            sections: sections,
+            deckTitle: "Deck Title",
+            deckSubtitle: "Subtitle",
+            activeSectionId: "sec-2",
+            expandedSectionIds: binding,
+            onSelectLesson: { _, _ in },
+            onDismiss: {}
+        )
+        #expect(sheet.isSectionExpanded("sec-2") == false)
+        sheet.synchronizeActiveSection()
+        #expect(sheet.isSectionExpanded("sec-2") == true)
+    }
 }

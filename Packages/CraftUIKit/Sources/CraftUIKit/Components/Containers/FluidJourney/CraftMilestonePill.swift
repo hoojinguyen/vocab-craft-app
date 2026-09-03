@@ -76,7 +76,7 @@ public struct CraftMilestonePill: View, Equatable {
         Text(title)
             .font(theme.typography.label)
             .fontWeight(.semibold)
-            .foregroundColor(theme.colors.textSecondary)
+            .foregroundStyle(theme.colors.textSecondary)
             .lineLimit(1)
             .truncationMode(.tail)
             .padding(.horizontal, theme.spacing.base)

@@ -811,6 +811,24 @@
         }
       }
     },
+    "craft.fluid_journey.reward_xp": {
+      "comment": "Bonus XP earned for completing lesson in curriculum drawer",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%lld XP"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%lld XP"
+          }
+        }
+      }
+    },
     "craft.fluid_journey.select_unit_hint": {
       "comment": "Accessibility hint to switch to selected unit in curriculum drawer",
       "extractionState": "manual",
