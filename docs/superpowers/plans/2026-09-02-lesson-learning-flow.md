@@ -147,14 +147,15 @@ struct LessonPlanGeneratorTests {
         let sampleWords = (1...6).map { idx in
             TopicWordDTO(
                 id: Int64(idx),
+                stageId: "stage_1",
                 lemma: "word\(idx)",
+                phonetic: "/wɜːd\(idx)/",
                 pos: "noun",
-                ipa: "/wɜːd\(idx)/",
                 cefrLevel: "A1",
                 definitionVi: "từ số \(idx)",
+                definitionEn: "word number \(idx)",
                 exampleEn: "This is word \(idx).",
-                exampleVi: "Đây là từ số \(idx).",
-                stageId: "stage_1"
+                exampleVi: "Đây là từ số \(idx)."
             )
         }
         let generator = LessonPlanGenerator()
@@ -345,8 +346,8 @@ public struct LessonDiscoveryCardView: View {
                     HStack(alignment: .top) {
                         VStack(alignment: .leading, spacing: theme.spacing.xs) {
                             CraftText(word.lemma, style: .titleLargeSerif, color: theme.colors.textPrimary)
-                            if !word.ipa.isEmpty {
-                                CraftText(word.ipa, style: .caption, color: theme.colors.textMuted)
+                            if !word.phonetic.isEmpty {
+                                CraftText(word.phonetic, style: .caption, color: theme.colors.textMuted)
                             }
                         }
                         Spacer()
@@ -583,14 +584,15 @@ struct LessonLearningViewModelTests {
     func testLessonStepAdvancement() async {
         let sampleWord = TopicWordDTO(
             id: 1,
+            stageId: "stage_1",
             lemma: "test",
+            phonetic: "/test/",
             pos: "noun",
-            ipa: "/test/",
             cefrLevel: "A1",
             definitionVi: "bài kiểm tra",
+            definitionEn: "a test",
             exampleEn: "This is a test.",
-            exampleVi: "Đây là bài kiểm tra.",
-            stageId: "stage_1"
+            exampleVi: "Đây là bài kiểm tra."
         )
         let vm = LessonLearningViewModel(
             stageId: "stage_1",
@@ -704,6 +706,8 @@ public final class LessonLearningViewModel: Identifiable {
 
     public func advanceStep() {
         guard !isSummaryStep else { return }
+        ttsService.stop()
+        stopListeningForSpeaking()
         isFeedbackPresented = false
         typingText = ""
         liveTranscript = ""
@@ -717,16 +721,17 @@ public final class LessonLearningViewModel: Identifiable {
     }
 
     public func submitAnswer(isCorrect: Bool, for item: LessonExerciseItem) {
+        guard !isFeedbackPresented else { return }
         guard currentExerciseItem?.id == item.id else { return }
         totalAnswered += 1
         lastAttemptCorrect = isCorrect
         if isCorrect {
             correctAnswers += 1
-            soundEffectService.playCorrect()
+            soundEffectService.playSuccessChime()
         } else {
             mistakeCount += 1
             weakWordIds.insert(item.word.id)
-            soundEffectService.playIncorrect()
+            soundEffectService.playIncorrectChime()
             if !item.isRequeued {
                 let options = ReflexDistractorGenerator.generateOptions(
                     mode: .multipleChoice,
@@ -748,10 +753,15 @@ public final class LessonLearningViewModel: Identifiable {
     }
 
     public func requestHint(for item: LessonExerciseItem) {
+        guard !isFeedbackPresented else { return }
         guard currentExerciseItem?.id == item.id else { return }
-        hintStage = min(hintStage + 1, 3)
-        if hintStage >= 2 && eliminatedOptionId == nil {
-            eliminatedOptionId = item.options.first(where: { !$0.isCorrect })?.id
+        let maxHintStage = (item.assignedMode == .speaking) ? 3 : 2
+        guard hintStage < maxHintStage else { return }
+        hintStage += 1
+        if hintStage >= 2 && (item.assignedMode == .multipleChoice || item.assignedMode == .listening) {
+            if eliminatedOptionId == nil {
+                eliminatedOptionId = item.options.first(where: { !$0.isCorrect })?.id
+            }
         }
     }
 
@@ -814,7 +824,7 @@ public final class LessonLearningViewModel: Identifiable {
     }
 
     public func startSpeechSession() {
-        speechEngine.startSession()
+        speechEngine.startSession(contextualPhrases: words.map(\.lemma))
     }
 
     public func stopSpeechSession() {

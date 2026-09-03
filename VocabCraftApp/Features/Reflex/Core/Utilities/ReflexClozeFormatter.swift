@@ -69,11 +69,29 @@ public struct ReflexClozeFormatter: Sendable {
 
     public static func formatCloze(sentenceEn: String, lemma: String) -> String {
         guard !sentenceEn.isEmpty, !lemma.isEmpty else { return sentenceEn }
-        let pattern = "(?i)\\b" + NSRegularExpression.escapedPattern(for: lemma) + "\\b"
-        guard let regex = try? NSRegularExpression(pattern: pattern) else {
-            return sentenceEn.replacingOccurrences(of: lemma, with: "[ _________ ]", options: .caseInsensitive)
+
+        // 1. Try exact lemma word boundary match (case-insensitive) for all occurrences
+        let exactPattern = "(?i)\\b" + NSRegularExpression.escapedPattern(for: lemma) + "\\b"
+        if let regex = try? NSRegularExpression(pattern: exactPattern) {
+            let range = NSRange(sentenceEn.startIndex..., in: sentenceEn)
+            let replaced = regex.stringByReplacingMatches(in: sentenceEn, options: [], range: range, withTemplate: "[ _________ ]")
+            if replaced != sentenceEn {
+                return replaced
+            }
         }
-        let range = NSRange(sentenceEn.startIndex..., in: sentenceEn)
-        return regex.stringByReplacingMatches(in: sentenceEn, options: [], range: range, withTemplate: "[ _________ ]")
+
+        // 2. Try fuzzy stem matching for inflections (e.g. "overwhelmed" vs "overwhelm", "focuses" vs "focus")
+        let cleanLemma = lemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let stem = cleanLemma.count > 4 ? String(cleanLemma.prefix(cleanLemma.count - 2)) : cleanLemma
+        let fuzzyPattern = "(?i)\\b" + NSRegularExpression.escapedPattern(for: stem) + "[a-z]*\\b"
+        if let regex = try? NSRegularExpression(pattern: fuzzyPattern) {
+            let range = NSRange(sentenceEn.startIndex..., in: sentenceEn)
+            let replaced = regex.stringByReplacingMatches(in: sentenceEn, options: [], range: range, withTemplate: "[ _________ ]")
+            if replaced != sentenceEn {
+                return replaced
+            }
+        }
+
+        return sentenceEn.replacingOccurrences(of: lemma, with: "[ _________ ]", options: .caseInsensitive)
     }
 }

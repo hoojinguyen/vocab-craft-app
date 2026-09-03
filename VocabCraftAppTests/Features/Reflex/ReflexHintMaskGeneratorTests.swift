@@ -96,5 +96,19 @@ struct ReflexHintMaskGeneratorTests {
         #expect(stages.lengthMaskedParts.slot.count == stages.patternRevealedParts.slot.count)
         #expect(stages.initialParts.slot == stages.lengthMaskedParts.slot)
     }
+
+    @Test("Inflected forms in example sentences are masked and not revealed in prefix")
+    func testInflectedFormMasking() {
+        let stages = ReflexHintMaskGenerator.generateStages(
+            lemma: "focus",
+            sentenceEn: "She focuses on her studies every day.",
+            pos: "verb"
+        )
+        let prefixLower = stages.initialParts.prefix.lowercased()
+        let suffixLower = stages.initialParts.suffix.lowercased()
+        #expect(!prefixLower.contains("focus"))
+        #expect(!suffixLower.contains("focus"))
+        #expect(stages.initialParts.slot.contains("_"))
+    }
 }
 #endif

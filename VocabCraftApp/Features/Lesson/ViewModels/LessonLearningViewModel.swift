@@ -147,11 +147,7 @@ public final class LessonLearningViewModel: Identifiable {
                     pool: words.map { ReflexBlitzWordItem(from: $0) }
                 )
 
-                let clozeStages = item.clozeStages ?? ReflexHintMaskGenerator.generateStages(
-                    lemma: item.word.lemma,
-                    sentenceEn: item.word.exampleEn,
-                    pos: item.word.pos
-                )
+                let clozeStages = item.clozeStages
 
                 let retryItem = LessonExerciseItem(
                     id: "\(fallbackMode.rawValue)-\(item.word.id)-retry-\(UUID().uuidString.prefix(4))",
@@ -172,7 +168,7 @@ public final class LessonLearningViewModel: Identifiable {
     public func requestHint(for item: LessonExerciseItem) {
         guard !isFeedbackPresented else { return }
         guard currentExerciseItem?.id == item.id else { return }
-        let maxHintStage = (item.assignedMode == .typing) ? 2 : 3
+        let maxHintStage = (item.assignedMode == .speaking) ? 3 : 2
         guard hintStage < maxHintStage else { return }
         CraftHaptics.shared.selection()
         hintStage += 1

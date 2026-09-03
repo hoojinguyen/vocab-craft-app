@@ -6,7 +6,7 @@ public struct LessonExerciseItem: Identifiable, Sendable, Equatable {
     public let word: TopicWordDTO
     public let assignedMode: ReflexBlitzMode
     public let options: [ReflexBlitzOption]
-    public let clozeStages: ReflexClozeStageSet?
+    public let clozeStages: ReflexClozeStageSet
     public let attemptCount: Int
     public let isRequeued: Bool
 

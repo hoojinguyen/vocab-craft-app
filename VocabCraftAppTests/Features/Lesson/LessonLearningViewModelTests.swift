@@ -255,13 +255,13 @@ struct LessonLearningViewModelTests {
         #expect(vm.eliminatedOptionId != nil)
         let firstEliminated = vm.eliminatedOptionId
 
-        // Extra hint request should cap at stage 3 and preserve eliminated option
+        // Extra hint request should cap at stage 2 for multiple choice and preserve eliminated option
         vm.requestHint(for: exerciseItem)
-        #expect(vm.hintStage == 3)
+        #expect(vm.hintStage == 2)
         #expect(vm.eliminatedOptionId == firstEliminated)
 
         vm.requestHint(for: exerciseItem)
-        #expect(vm.hintStage == 3)
+        #expect(vm.hintStage == 2)
         #expect(vm.eliminatedOptionId == firstEliminated)
     }
 
@@ -424,8 +424,8 @@ struct LessonLearningViewModelTests {
         }
     }
 
-    @Test("Hint requests are capped at 2 for typing exercises and 3 for others")
-    func testHintCapForTyping() throws {
+    @Test("Hint requests are capped at 2 for non-speaking exercises and 3 for speaking")
+    func testHintCapPerMode() throws {
         let words = makeSampleWords(count: 4)
         let vm = LessonLearningViewModel(
             stageId: "stage_1",
@@ -437,23 +437,44 @@ struct LessonLearningViewModelTests {
             speechEngine: MockResilientReflexSpeechEngine()
         )
 
-        // Advance to typing exercise
-        while vm.currentExerciseItem?.assignedMode != .typing && !vm.isSummaryStep {
+        // Advance to multiple choice exercise
+        while vm.currentExerciseItem?.assignedMode != .multipleChoice && !vm.isSummaryStep {
             vm.advanceStep()
         }
 
-        let typingItem = try #require(vm.currentExerciseItem)
-        #expect(typingItem.assignedMode == .typing)
+        let mcItem = try #require(vm.currentExerciseItem)
+        #expect(mcItem.assignedMode == .multipleChoice)
 
-        vm.requestHint(for: typingItem)
+        vm.requestHint(for: mcItem)
         #expect(vm.hintStage == 1)
 
-        vm.requestHint(for: typingItem)
+        vm.requestHint(for: mcItem)
         #expect(vm.hintStage == 2)
 
-        // Third request should be ignored for typing
-        vm.requestHint(for: typingItem)
+        // Third request should be ignored for multipleChoice
+        vm.requestHint(for: mcItem)
         #expect(vm.hintStage == 2)
+
+        // Advance to speaking exercise
+        while vm.currentExerciseItem?.assignedMode != .speaking && !vm.isSummaryStep {
+            vm.advanceStep()
+        }
+
+        let speakingItem = try #require(vm.currentExerciseItem)
+        #expect(speakingItem.assignedMode == .speaking)
+
+        vm.requestHint(for: speakingItem)
+        #expect(vm.hintStage == 1)
+
+        vm.requestHint(for: speakingItem)
+        #expect(vm.hintStage == 2)
+
+        vm.requestHint(for: speakingItem)
+        #expect(vm.hintStage == 3)
+
+        // Fourth request should be ignored for speaking
+        vm.requestHint(for: speakingItem)
+        #expect(vm.hintStage == 3)
     }
 
     @Test("retryCompletion reuses in-flight completionTask instead of spawning duplicate")
