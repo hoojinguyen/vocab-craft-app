@@ -351,6 +351,24 @@ final class LocalizationTests: XCTestCase {
         XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.start_lesson"), "START LESSON")
         XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.start_lesson", language: "vi"), "BẮT ĐẦU HỌC")
 
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.start"), "START")
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.start", language: "vi"), "BẮT ĐẦU")
+
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.continue"), "CONTINUE")
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.continue", language: "vi"), "TIẾP TỤC")
+
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.keep_going"), "KEEP GOING!")
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.keep_going", language: "vi"), "TIẾP BƯỚC!")
+
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.almost_there"), "ALMOST THERE!")
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.almost_there", language: "vi"), "SẮP VỀ ĐÍCH!")
+
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.challenge"), "CHALLENGE!")
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.challenge", language: "vi"), "THỬ THÁCH!")
+
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.claim_gift"), "CLAIM GIFT")
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.claim_gift", language: "vi"), "MỞ QUÀ")
+
         XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.completed_status"), "Completed")
         XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.completed_status", language: "vi"), "Đã xong")
 

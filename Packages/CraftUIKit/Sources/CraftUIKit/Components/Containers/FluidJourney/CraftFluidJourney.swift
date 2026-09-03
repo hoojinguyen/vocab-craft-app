@@ -69,6 +69,9 @@ public struct CraftFluidJourney: View {
     /// Optional custom builder for the empty state placeholder.
     public let emptyStateViewBuilder: (() -> AnyView)?
 
+    /// Optional closure providing custom callout text for active nodes.
+    public let calloutTextProvider: (@Sendable (LessonNodeModel, Int, Int) -> String)?
+
     // MARK: - Environment
 
     @Environment(\.craftTheme) var theme
@@ -178,6 +181,7 @@ public extension CraftFluidJourney {
     ///   - externalScrollTrigger: Trigger value incremented to request smooth scroll to active node (default: `0`).
     ///   - detailSheetBuilder: Optional custom builder for the lesson detail sheet.
     ///   - emptyStateViewBuilder: Optional custom builder for the empty state view.
+    ///   - calloutTextProvider: Optional custom closure resolving callout bubble text for active nodes.
     init(
         sections: [LessonSection],
         surfaceStyle: CraftSurfaceStyle? = nil,
@@ -192,7 +196,8 @@ public extension CraftFluidJourney {
         scrollToActive: Bool = true,
         externalScrollTrigger: Int = 0,
         detailSheetBuilder: (@Sendable (LessonNodeModel, @escaping (LessonNodeModel) -> Void, @escaping () -> Void) -> AnyView)? = nil,
-        emptyStateViewBuilder: (() -> AnyView)? = nil
+        emptyStateViewBuilder: (() -> AnyView)? = nil,
+        calloutTextProvider: (@Sendable (LessonNodeModel, Int, Int) -> String)? = nil
     ) {
         self.sections = sections
         self.surfaceStyle = surfaceStyle
@@ -208,6 +213,7 @@ public extension CraftFluidJourney {
         self.externalScrollTrigger = externalScrollTrigger
         self.detailSheetBuilder = detailSheetBuilder
         self.emptyStateViewBuilder = emptyStateViewBuilder
+        self.calloutTextProvider = calloutTextProvider
 
         var lookup: [String: Int] = [:]
         var currentIndex = 0
@@ -237,6 +243,7 @@ public extension CraftFluidJourney {
     ///   - externalScrollTrigger: Trigger value incremented to request smooth scroll to active node (default: `0`).
     ///   - detailSheetBuilder: Optional custom builder for the lesson detail sheet.
     ///   - emptyStateViewBuilder: Optional custom builder for the empty state view.
+    ///   - calloutTextProvider: Optional custom closure resolving callout bubble text for active nodes.
     init(
         section: LessonSection,
         surfaceStyle: CraftSurfaceStyle? = nil,
@@ -251,7 +258,8 @@ public extension CraftFluidJourney {
         scrollToActive: Bool = true,
         externalScrollTrigger: Int = 0,
         detailSheetBuilder: (@Sendable (LessonNodeModel, @escaping (LessonNodeModel) -> Void, @escaping () -> Void) -> AnyView)? = nil,
-        emptyStateViewBuilder: (() -> AnyView)? = nil
+        emptyStateViewBuilder: (() -> AnyView)? = nil,
+        calloutTextProvider: (@Sendable (LessonNodeModel, Int, Int) -> String)? = nil
     ) {
         self.init(
             sections: [section],
@@ -267,7 +275,8 @@ public extension CraftFluidJourney {
             scrollToActive: scrollToActive,
             externalScrollTrigger: externalScrollTrigger,
             detailSheetBuilder: detailSheetBuilder,
-            emptyStateViewBuilder: emptyStateViewBuilder
+            emptyStateViewBuilder: emptyStateViewBuilder,
+            calloutTextProvider: calloutTextProvider
         )
     }
 }
@@ -393,8 +402,32 @@ public extension CraftFluidJourney {
     }
 
     /// Resolves the localized callout text for an active node in the fluid journey.
-    func calloutText(for node: LessonNodeModel) -> String {
-        CraftLocalized.string("craft.fluid_journey.start_lesson")
+    func calloutText(for node: LessonNodeModel, at index: Int = 0, totalNodes: Int = 1) -> String {
+        if let custom = calloutTextProvider?(node, index, totalNodes) {
+            return custom
+        }
+
+        if node.kind == .checkpoint {
+            return CraftLocalized.string("craft.fluid_journey.challenge")
+        }
+
+        if node.kind == .treasureChest {
+            return CraftLocalized.string("craft.fluid_journey.claim_gift")
+        }
+
+        if let progress = node.progress, progress > 0.0 {
+            return CraftLocalized.string("craft.fluid_journey.continue")
+        }
+
+        if index == 0 {
+            return CraftLocalized.string("craft.fluid_journey.start")
+        }
+
+        if totalNodes > 2 && index >= totalNodes - 2 {
+            return CraftLocalized.string("craft.fluid_journey.almost_there")
+        }
+
+        return CraftLocalized.string("craft.fluid_journey.keep_going")
     }
 }
 
@@ -415,11 +448,11 @@ extension CraftFluidJourney {
             }
 
             VStack(spacing: theme.spacing.xxl) {
-                ForEach(section.nodes) { node in
+                ForEach(Array(section.nodes.enumerated()), id: \.element.id) { index, node in
                     VStack(spacing: theme.spacing.sm) {
                         if shouldShowCallout(for: node) {
                             ActiveCalloutBubble(
-                                text: calloutText(for: node)
+                                text: calloutText(for: node, at: index, totalNodes: section.nodes.count)
                             )
                             .transition(.opacity.combined(with: .scale(scale: 0.9)))
                         }

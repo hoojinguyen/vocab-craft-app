@@ -34,8 +34,7 @@ public extension ButtonStyle where Self == TactileButtonStyle {
 /// A sticky floating navigation card representing the current unit/section in `CraftFluidJourney`.
 ///
 /// `CraftPinnedUnitHeader` renders a translucent glass card featuring:
-/// - A level badge (e.g. "A2") with numeric content transition
-/// - The active section title and subtitle
+/// - The active section title and integrated level/subtitle
 /// - A trailing chevron indicating that tapping opens the curriculum drawer
 /// - A smooth asymmetric morphing transition (`.move(edge: .bottom)` / `.move(edge: .top)`)
 ///   when the active unit changes during scrolling, layered inside a `ZStack` to prevent squishing
@@ -245,20 +244,22 @@ public struct CraftPinnedUnitHeader: View, Equatable {
 
     // MARK: - Subviews
 
+    private var combinedSubtitle: String? {
+        let parts = [section.level, section.subtitle]
+            .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        return parts.isEmpty ? nil : parts.joined(separator: " • ")
+    }
+
     private var sectionInfoBlock: some View {
         VStack(alignment: .leading, spacing: theme.spacing.xxs) {
-            if let level = section.level, !level.isEmpty {
-                CraftBadge(level, variant: .subtle, tone: .primary, size: .sm)
-                    .contentTransition(.numericText())
-            }
-
             Text(section.title)
                 .font(theme.typography.titleMedium.weight(.bold))
                 .foregroundStyle(theme.colors.textPrimary)
                 .lineLimit(1)
                 .truncationMode(.tail)
 
-            if let subtitle = section.subtitle, !subtitle.isEmpty {
+            if let subtitle = combinedSubtitle {
                 Text(subtitle)
                     .font(theme.typography.caption)
                     .foregroundStyle(theme.colors.textSecondary)

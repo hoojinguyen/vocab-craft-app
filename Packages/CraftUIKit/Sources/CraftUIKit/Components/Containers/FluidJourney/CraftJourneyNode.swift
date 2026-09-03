@@ -1,9 +1,10 @@
 import SwiftUI
+
 #if canImport(UIKit)
-import UIKit
+    import UIKit
 #endif
 #if canImport(AppKit)
-import AppKit
+    import AppKit
 #endif
 
 // MARK: - Journey Node Button Style
@@ -97,10 +98,11 @@ public struct CraftJourneyNode: View, Equatable {
 
     /// Dynamic icon size proportional to node diameter.
     public var iconSize: CGFloat {
-        let unscaled: CGFloat = switch node.state {
-        case .active, .inProgress: 34
-        case .completed, .upcoming, .locked, .bonus: 32
-        }
+        let unscaled: CGFloat =
+            switch node.state {
+            case .active, .inProgress: 34
+            case .completed, .upcoming, .locked, .bonus: 32
+            }
         return unscaled * baseScale
     }
 
@@ -119,16 +121,19 @@ public struct CraftJourneyNode: View, Equatable {
         case .active:
             if let progress = node.progress {
                 let percent = Int((progress * 100).rounded())
-                base = CraftLocalized.format("craft.learning_path.node_current_format_a11y", node.title, percent)
+                base = CraftLocalized.format(
+                    "craft.learning_path.node_current_format_a11y", node.title, percent)
             } else {
                 base = CraftLocalized.format("craft.learning_path.node_current_a11y", node.title)
             }
         case .inProgress:
             if let progress = node.progress {
                 let percent = Int((progress * 100).rounded())
-                base = CraftLocalized.format("craft.learning_path.node_in_progress_format_a11y", node.title, percent)
+                base = CraftLocalized.format(
+                    "craft.learning_path.node_in_progress_format_a11y", node.title, percent)
             } else {
-                base = CraftLocalized.format("craft.learning_path.node_in_progress_a11y", node.title)
+                base = CraftLocalized.format(
+                    "craft.learning_path.node_in_progress_a11y", node.title)
             }
         case .upcoming:
             base = CraftLocalized.format("craft.learning_path.node_upcoming_a11y", node.title)
@@ -243,13 +248,13 @@ public struct CraftJourneyNode: View, Equatable {
         }
         let filled = "\(base).fill"
         #if canImport(UIKit)
-        if UIImage(systemName: filled) != nil {
-            return filled
-        }
+            if UIImage(systemName: filled) != nil {
+                return filled
+            }
         #elseif canImport(AppKit)
-        if NSImage(systemSymbolName: filled, accessibilityDescription: nil) != nil {
-            return filled
-        }
+            if NSImage(systemSymbolName: filled, accessibilityDescription: nil) != nil {
+                return filled
+            }
         #endif
         return base
     }
@@ -318,7 +323,9 @@ public struct CraftJourneyNode: View, Equatable {
                     .strokeBorder(theme.colors.borderDefault.opacity(0.5), lineWidth: 1)
             }
         }
-        .craftShadow(node.state == .active || node.state == .inProgress ? theme.shadows.md : theme.shadows.sm)
+        .craftShadow(
+            node.state == .active || node.state == .inProgress ? theme.shadows.md : theme.shadows.sm
+        )
     }
 
     private var elevatedFace: some View {
@@ -341,7 +348,9 @@ public struct CraftJourneyNode: View, Equatable {
             squircleShape
                 .strokeBorder(theme.depths.topHighlight, lineWidth: 1)
         }
-        .craftShadow(node.state == .active || node.state == .inProgress ? theme.shadows.md : theme.shadows.sm)
+        .craftShadow(
+            node.state == .active || node.state == .inProgress ? theme.shadows.md : theme.shadows.sm
+        )
     }
 
     private var outlinedFace: some View {
@@ -388,9 +397,9 @@ public struct CraftJourneyNode: View, Equatable {
     private var bottomRimShape: some View {
         squircleShape
             .fill(
-                (node.state == .active || node.state == .inProgress)
+                (node.state == .active || node.state == .inProgress || node.state == .completed)
                     ? theme.colors.brandPrimary.opacity(0.80)
-                    : (node.state == .completed ? theme.colors.brandPrimary.opacity(0.25) : theme.colors.borderDefault)
+                    : theme.colors.borderDefault
             )
             .offset(y: theme.depths.depthMd)
     }
@@ -406,12 +415,20 @@ public struct CraftJourneyNode: View, Equatable {
                 squircleShape
                     .fill(theme.gradients.brandHero)
             case .completed:
+                // Opaque surfaceCard base prevents 3D rim bleedthrough
                 squircleShape
-                    .fill(theme.colors.brandPrimary.opacity(0.12))
+                    .fill(theme.colors.surfaceCard)
+
+                // Soft theme pastel wash matching current theme palette
+                squircleShape
+                    .fill(theme.colors.brandPrimary.opacity(0.08))
 
                 squircleShape
                     .strokeBorder(theme.colors.brandPrimary.opacity(0.25), lineWidth: 1.5)
             case .bonus:
+                squircleShape
+                    .fill(theme.colors.surfaceCard)
+
                 squircleShape
                     .fill(theme.colors.accent.opacity(0.15))
 
@@ -428,7 +445,9 @@ public struct CraftJourneyNode: View, Equatable {
             squircleShape
                 .strokeBorder(theme.depths.topHighlight, lineWidth: 1.5)
         }
-        .craftShadow(node.state == .active || node.state == .inProgress ? theme.shadows.md : theme.shadows.sm)
+        .craftShadow(
+            node.state == .active || node.state == .inProgress ? theme.shadows.md : theme.shadows.sm
+        )
     }
 
     // MARK: - Foreground Colors
@@ -458,10 +477,6 @@ public struct CraftJourneyNode: View, Equatable {
                 .foregroundStyle(Color.white)
         }
         .frame(width: 26, height: 26)
-        .overlay(
-            Circle()
-                .strokeBorder(theme.colors.canvasBackground, lineWidth: 2.5)
-        )
         .accessibilityHidden(true)
     }
 }

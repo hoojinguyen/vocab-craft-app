@@ -1,2543 +1,2654 @@
 {
-  "sourceLanguage": "en",
-  "strings": {
-    "craft.audio.playing": {
-      "comment": "Speaker button accessibility label when audio is playing",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Playing pronunciation..."
+  "sourceLanguage" : "en",
+  "strings" : {
+    "" : {
+
+    },
+    "craft.audio.playing" : {
+      "comment" : "Speaker button accessibility label when audio is playing",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Playing pronunciation..."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đang phát âm..."
+          }
+        }
+      }
+    },
+    "craft.audio.pronounce" : {
+      "comment" : "Speaker button accessibility label when audio is idle",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pronounce word"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Phát âm từ vựng"
+          }
+        }
+      }
+    },
+    "craft.button.loading_a11y" : {
+      "comment" : "Button loading accessibility",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đang tải"
+          }
+        }
+      }
+    },
+    "craft.choice.correct_a11y" : {
+      "comment" : "Choice card correct state",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Correct Answer"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đáp án đúng"
+          }
+        }
+      }
+    },
+    "craft.choice.disabled_a11y" : {
+      "comment" : "Choice card disabled state",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disabled"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vô hiệu hóa"
+          }
+        }
+      }
+    },
+    "craft.choice.selected_a11y" : {
+      "comment" : "Choice card selected state",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selected"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã chọn"
+          }
+        }
+      }
+    },
+    "craft.choice.wrong_a11y" : {
+      "comment" : "Choice card wrong state",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incorrect Answer"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Đang phát âm..."
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đáp án chưa đúng"
           }
         }
       }
     },
-    "craft.audio.pronounce": {
-      "comment": "Speaker button accessibility label when audio is idle",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pronounce word"
+    "craft.common.action.action" : {
+      "comment" : "Fallback generic button label",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Action"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Phát âm từ vựng"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tác vụ"
           }
         }
       }
     },
-    "craft.button.loading_a11y": {
-      "comment": "Button loading accessibility",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Loading"
+    "craft.common.action.cancel" : {
+      "comment" : "Standard cancel action",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Đang tải"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hủy"
           }
         }
       }
     },
-    "craft.choice.correct_a11y": {
-      "comment": "Choice card correct state",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Correct Answer"
+    "craft.common.action.close" : {
+      "comment" : "Standard close action",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Đáp án đúng"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đóng"
           }
         }
       }
     },
-    "craft.choice.disabled_a11y": {
-      "comment": "Choice card disabled state",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Disabled"
+    "craft.common.action.confirm" : {
+      "comment" : "Standard confirmation action",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vô hiệu hóa"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xác nhận"
           }
         }
       }
     },
-    "craft.choice.selected_a11y": {
-      "comment": "Choice card selected state",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Selected"
+    "craft.common.action.continue" : {
+      "comment" : "Standard continue action",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Đã chọn"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiếp tục"
           }
         }
       }
     },
-    "craft.choice.wrong_a11y": {
-      "comment": "Choice card wrong state",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Incorrect Answer"
+    "craft.common.action.dismiss" : {
+      "comment" : "Standard dismiss action",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dismiss"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Đáp án chưa đúng"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đóng"
           }
         }
       }
     },
-    "craft.common.action.action": {
-      "comment": "Fallback generic button label",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Action"
+    "craft.common.action.retry" : {
+      "comment" : "Standard retry action",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retry"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tác vụ"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thử lại"
           }
         }
       }
     },
-    "craft.common.action.cancel": {
-      "comment": "Standard cancel action",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cancel"
+    "craft.common.state.active" : {
+      "comment" : "Active state",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hủy"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đang hoạt động"
           }
         }
       }
     },
-    "craft.common.action.close": {
-      "comment": "Standard close action",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Close"
+    "craft.common.state.collapsed" : {
+      "comment" : "Collapsed state",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Collapsed"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Đóng"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã thu gọn"
           }
         }
       }
     },
-    "craft.common.action.confirm": {
-      "comment": "Standard confirmation action",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Confirm"
+    "craft.common.state.completed" : {
+      "comment" : "Completed state",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Completed"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Xác nhận"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã hoàn thành"
           }
         }
       }
     },
-    "craft.common.action.continue": {
-      "comment": "Standard continue action",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Continue"
+    "craft.common.state.empty" : {
+      "comment" : "General empty state",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empty"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tiếp tục"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trống"
           }
         }
       }
     },
-    "craft.common.action.dismiss": {
-      "comment": "Standard dismiss action",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dismiss"
+    "craft.common.state.expanded" : {
+      "comment" : "Expanded state",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Expanded"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Đóng"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã mở rộng"
           }
         }
       }
     },
-    "craft.common.action.retry": {
-      "comment": "Standard retry action",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Retry"
+    "craft.common.state.loading" : {
+      "comment" : "General loading state",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Thử lại"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đang tải"
           }
         }
       }
     },
-    "craft.common.state.active": {
-      "comment": "Active state",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Active"
+    "craft.common.state.locked" : {
+      "comment" : "Locked state",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Locked"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Đang hoạt động"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đang khóa"
           }
         }
       }
     },
-    "craft.common.state.completed": {
-      "comment": "Completed state",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Completed"
+    "craft.common.state.off" : {
+      "comment" : "Toggle/switch state OFF",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Off"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Đã hoàn thành"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tắt"
           }
         }
       }
     },
-    "craft.common.state.collapsed": {
-      "comment": "Collapsed state",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Collapsed"
+    "craft.common.state.on" : {
+      "comment" : "Toggle/switch state ON",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Đã thu gọn"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bật"
           }
         }
       }
     },
-    "craft.common.state.expanded": {
-      "comment": "Expanded state",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Expanded"
+    "craft.common.state.upcoming" : {
+      "comment" : "Upcoming state",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upcoming"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Đã mở rộng"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa đến"
           }
         }
       }
     },
-    "craft.common.state.empty": {
-      "comment": "General empty state",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Empty"
+    "craft.common.unit.days_format" : {
+      "comment" : "Pluralized/quantified days",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld days"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Trống"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld ngày"
           }
         }
       }
     },
-    "craft.common.state.loading": {
-      "comment": "General loading state",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Loading"
+    "craft.common.unit.days_single" : {
+      "comment" : "Unit word for days",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "days"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Đang tải"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ngày"
           }
         }
       }
     },
-    "craft.common.state.locked": {
-      "comment": "Locked state",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Locked"
+    "craft.common.unit.minutes_format" : {
+      "comment" : "Quantified minutes",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Đang khóa"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld phút"
           }
         }
       }
     },
-    "craft.common.state.off": {
-      "comment": "Toggle/switch state OFF",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Off"
+    "craft.common.unit.percent_format" : {
+      "comment" : "Visual percentage",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tắt"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@"
           }
         }
       }
     },
-    "craft.common.state.on": {
-      "comment": "Toggle/switch state ON",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "On"
+    "craft.common.unit.percent_word_format" : {
+      "comment" : "VoiceOver percentage",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld percent"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bật"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld phần trăm"
           }
         }
       }
     },
-    "craft.common.state.upcoming": {
-      "comment": "Upcoming state",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Upcoming"
+    "craft.common.unit.words_format" : {
+      "comment" : "Quantified vocabulary count",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld new words"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chưa đến"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld từ vựng mới"
           }
         }
       }
     },
-    "craft.common.unit.days_format": {
-      "comment": "Pluralized/quantified days",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld days"
+    "craft.countdown.go_text" : {
+      "comment" : "Countdown finish banner",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GO!"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld ngày"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BẮT ĐẦU!"
           }
         }
       }
     },
-    "craft.common.unit.days_single": {
-      "comment": "Unit word for days",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "days"
+    "craft.countdown.label_format" : {
+      "comment" : "Countdown voiceover label",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Countdown %lld"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ngày"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đếm ngược %lld"
           }
         }
       }
     },
-    "craft.common.unit.minutes_format": {
-      "comment": "Quantified minutes",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld min"
+    "craft.countdown.tap_to_skip" : {
+      "comment" : "Countdown tap to skip action hint",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap anywhere to skip"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld phút"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chạm để bỏ qua"
           }
         }
       }
     },
-    "craft.common.unit.percent_format": {
-      "comment": "Visual percentage",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@"
+    "craft.countdown.tap_to_skip_hint" : {
+      "comment" : "Countdown accessibility skip hint",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double tap to start immediately"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhấn đúp để bắt đầu ngay"
           }
         }
       }
     },
-    "craft.common.unit.percent_word_format": {
-      "comment": "VoiceOver percentage",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld percent"
+    "craft.countdown.time_remaining_label" : {
+      "comment" : "Countdown timer bar accessibility label",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time remaining"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld phần trăm"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thời gian còn lại"
           }
         }
       }
     },
-    "craft.common.unit.words_format": {
-      "comment": "Quantified vocabulary count",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld new words"
+    "craft.feedback.continue_action" : {
+      "comment" : "Feedback sheet continue action button label",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld từ vựng mới"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiếp tục"
           }
         }
       }
     },
-    "craft.countdown.go_text": {
-      "comment": "Countdown finish banner",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "GO!"
+    "craft.feedback.error_title" : {
+      "comment" : "Feedback sheet error banner title",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incorrect"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "BẮT ĐẦU!"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa chính xác"
           }
         }
       }
     },
-    "craft.countdown.label_format": {
-      "comment": "Countdown voiceover label",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Countdown %lld"
+    "craft.feedback.info_title" : {
+      "comment" : "Feedback sheet info banner title",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Explanation"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Đếm ngược %lld"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giải thích"
           }
         }
       }
     },
-    "craft.countdown.tap_to_skip": {
-      "comment": "Countdown tap to skip action hint",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tap anywhere to skip"
+    "craft.feedback.success_title" : {
+      "comment" : "Feedback sheet success banner title",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nice work!"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chạm để bỏ qua"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chính xác!"
           }
         }
       }
     },
-    "craft.countdown.tap_to_skip_hint": {
-      "comment": "Countdown accessibility skip hint",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Double tap to start immediately"
+    "craft.feedback.warning_title" : {
+      "comment" : "Feedback sheet warning banner title",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Almost!"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nhấn đúp để bắt đầu ngay"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gần đúng!"
           }
         }
       }
     },
-    "craft.countdown.time_remaining_label": {
-      "comment": "Countdown timer bar accessibility label",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Time remaining"
+    "craft.flipcard.back_side_hint" : {
+      "comment" : "Flip card back hint",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back of card"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Thời gian còn lại"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mặt sau của thẻ"
           }
         }
       }
     },
-    "craft.feedback.continue_action": {
-      "comment": "Feedback sheet continue action button label",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Continue"
+    "craft.flipcard.flip_to_back_action" : {
+      "comment" : "Flip card flip action",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flip to back"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tiếp tục"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lật ra mặt sau"
           }
         }
       }
     },
-    "craft.feedback.error_title": {
-      "comment": "Feedback sheet error banner title",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Incorrect"
+    "craft.flipcard.flip_to_front_action" : {
+      "comment" : "Flip card flip action",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flip to front"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chưa chính xác"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lật ra mặt trước"
           }
         }
       }
     },
-    "craft.feedback.info_title": {
-      "comment": "Feedback sheet info banner title",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Explanation"
+    "craft.flipcard.front_side_hint" : {
+      "comment" : "Flip card front hint",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Front of card"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Giải thích"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mặt trước của thẻ"
           }
         }
       }
     },
-    "craft.feedback.success_title": {
-      "comment": "Feedback sheet success banner title",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nice work!"
+    "craft.fluid_journey.adjust_plan" : {
+      "comment" : "Adjust learning plan action button in curriculum drawer",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adjust plan"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chính xác!"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tuỳ chỉnh lộ trình"
           }
         }
       }
     },
-    "craft.feedback.warning_title": {
-      "comment": "Feedback sheet warning banner title",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Almost!"
+    "craft.fluid_journey.almost_there" : {
+      "comment" : "Almost there callout badge on node right before checkpoint",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ALMOST THERE!"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gần đúng!"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SẮP VỀ ĐÍCH!"
           }
         }
       }
     },
-    "craft.flipcard.back_side_hint": {
-      "comment": "Flip card back hint",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Back of card"
+    "craft.fluid_journey.challenge" : {
+      "comment" : "Challenge callout badge on checkpoint node in fluid journey",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CHALLENGE!"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mặt sau của thẻ"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "THỬ THÁCH!"
           }
         }
       }
     },
-    "craft.flipcard.flip_to_back_action": {
-      "comment": "Flip card flip action",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Flip to back"
+    "craft.fluid_journey.claim_gift" : {
+      "comment" : "Claim gift callout badge on milestone treasure node in fluid journey",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CLAIM GIFT"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lật ra mặt sau"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MỞ QUÀ"
           }
         }
       }
     },
-    "craft.flipcard.flip_to_front_action": {
-      "comment": "Flip card flip action",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Flip to front"
+    "craft.fluid_journey.collapse_unit_hint" : {
+      "comment" : "Hint for collapsing accordion section in unit drawer",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double tap to collapse lessons"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lật ra mặt trước"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chạm hai lần để thu gọn bài học"
           }
         }
       }
     },
-    "craft.flipcard.front_side_hint": {
-      "comment": "Flip card front hint",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Front of card"
+    "craft.fluid_journey.completed_status" : {
+      "comment" : "Unit completed status label in curriculum drawer",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Completed"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mặt trước của thẻ"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã xong"
           }
         }
       }
     },
-    "craft.fluid_journey.adjust_plan": {
-      "comment": "Adjust learning plan action button in curriculum drawer",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Adjust plan"
+    "craft.fluid_journey.continue" : {
+      "comment" : "Continue callout badge on active node in fluid journey",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CONTINUE"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tuỳ chỉnh lộ trình"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TIẾP TỤC"
           }
         }
       }
     },
-    "craft.fluid_journey.completed_status": {
-      "comment": "Unit completed status label in curriculum drawer",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Completed"
+    "craft.fluid_journey.current_status" : {
+      "comment" : "Unit currently active status label in curriculum drawer",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Current"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Đã xong"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đang học"
           }
         }
       }
     },
-    "craft.fluid_journey.current_status": {
-      "comment": "Unit currently active status label in curriculum drawer",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Current"
+    "craft.fluid_journey.expand_unit_hint" : {
+      "comment" : "Hint for expanding accordion section in unit drawer",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double tap to expand lessons"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Đang học"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chạm hai lần để mở rộng bài học"
           }
         }
       }
     },
-    "craft.fluid_journey.reward_xp": {
-      "comment": "Bonus XP earned for completing lesson in curriculum drawer",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "+%lld XP"
+    "craft.fluid_journey.keep_going" : {
+      "comment" : "Keep going callout badge on active node in fluid journey",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "KEEP GOING!"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "+%lld XP"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TIẾP BƯỚC!"
           }
         }
       }
     },
-    "craft.fluid_journey.select_unit_hint": {
-      "comment": "Accessibility hint to switch to selected unit in curriculum drawer",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Double tap to switch to this unit"
+    "craft.fluid_journey.reward_xp" : {
+      "comment" : "Bonus XP earned for completing lesson in curriculum drawer",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+%lld XP"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chạm hai lần để chuyển sang chủ đề này"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+%lld XP"
           }
         }
       }
     },
-    "craft.fluid_journey.start_lesson": {
-      "comment": "Start lesson badge on active hero journey node",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "START LESSON"
+    "craft.fluid_journey.select_unit_hint" : {
+      "comment" : "Accessibility hint to switch to selected unit in curriculum drawer",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double tap to switch to this unit"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "BẮT ĐẦU HỌC"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chạm hai lần để chuyển sang chủ đề này"
           }
         }
       }
     },
-    "craft.fluid_journey.collapse_unit_hint": {
-      "comment": "Hint for collapsing accordion section in unit drawer",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Double tap to collapse lessons"
+    "craft.fluid_journey.start" : {
+      "comment" : "Start callout badge on first active node in fluid journey",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "START"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chạm hai lần để thu gọn bài học"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BẮT ĐẦU"
           }
         }
       }
     },
-    "craft.fluid_journey.expand_unit_hint": {
-      "comment": "Hint for expanding accordion section in unit drawer",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Double tap to expand lessons"
+    "craft.fluid_journey.start_lesson" : {
+      "comment" : "Start lesson badge on active hero journey node",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "START LESSON"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chạm hai lần để mở rộng bài học"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BẮT ĐẦU HỌC"
           }
         }
       }
     },
-    "craft.fluid_journey.unit_picker_title": {
-      "comment": "Title for unit drawer sheet",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Curriculum & Units"
+    "craft.fluid_journey.unit_picker_title" : {
+      "comment" : "Title for unit drawer sheet",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Curriculum & Units"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lộ trình & Chủ đề"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lộ trình & Chủ đề"
           }
         }
       }
     },
-    "craft.header.a11y.search_toggle": {
-      "comment": "Header search toggle button accessibility label",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Toggle Search"
+    "craft.header.a11y.search_toggle" : {
+      "comment" : "Header search toggle button accessibility label",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toggle Search"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bật tắt tìm kiếm"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bật tắt tìm kiếm"
           }
         }
       }
     },
-    "craft.header.a11y.title": {
-      "comment": "Page header container accessibility label",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Page Header"
+    "craft.header.a11y.title" : {
+      "comment" : "Page header container accessibility label",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Page Header"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tiêu đề trang"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiêu đề trang"
           }
         }
       }
     },
-    "craft.learning_path.challenge_lesson": {
-      "comment": "Modal sheet CTA checkpoint",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "CONQUER CHALLENGE"
+    "craft.learning_path.challenge_lesson" : {
+      "comment" : "Modal sheet CTA checkpoint",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CONQUER CHALLENGE"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "CHINH PHỤC THỬ THÁCH"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CHINH PHỤC THỬ THÁCH"
           }
         }
       }
     },
-    "craft.learning_path.close_sheet_hint": {
-      "comment": "Detail sheet close button hint",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Double tap to close lesson details"
+    "craft.learning_path.close_sheet_hint" : {
+      "comment" : "Detail sheet close button hint",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double tap to close lesson details"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nhấn đúp để đóng thông tin bài học"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhấn đúp để đóng thông tin bài học"
           }
         }
       }
     },
-    "craft.learning_path.continue_callout": {
-      "comment": "Active node speech bubble callout",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "CONTINUE"
+    "craft.learning_path.continue_callout" : {
+      "comment" : "Active node speech bubble callout",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CONTINUE"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "TIẾP TỤC"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TIẾP TỤC"
           }
         }
       }
     },
-    "craft.learning_path.continue_lesson_format": {
-      "comment": "Modal sheet CTA to resume",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "CONTINUE (%@)"
+    "craft.learning_path.continue_lesson_format" : {
+      "comment" : "Modal sheet CTA to resume",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CONTINUE (%@)"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "TIẾP TỤC HỌC (%@)"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TIẾP TỤC HỌC (%@)"
           }
         }
       }
     },
-    "craft.learning_path.default_objective_1": {
-      "comment": "Fallback objective 1",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Master standard pronunciation and core vocabulary meanings"
+    "craft.learning_path.default_objective_1" : {
+      "comment" : "Fallback objective 1",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Master standard pronunciation and core vocabulary meanings"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nắm vững phát âm chuẩn và ý nghĩa từ vựng trọng tâm"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nắm vững phát âm chuẩn và ý nghĩa từ vựng trọng tâm"
           }
         }
       }
     },
-    "craft.learning_path.default_objective_2": {
-      "comment": "Fallback objective 2",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Practice sentence reflex via interactive Spaced Repetition drills"
+    "craft.learning_path.default_objective_2" : {
+      "comment" : "Fallback objective 2",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Practice sentence reflex via interactive Spaced Repetition drills"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Thực hành phản xạ câu qua bài tập tương tác Spaced Repetition"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thực hành phản xạ câu qua bài tập tương tác Spaced Repetition"
           }
         }
       }
     },
-    "craft.learning_path.default_objective_3_format": {
-      "comment": "Fallback objective 3 format",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Earn %@ and maintain daily study streak"
+    "craft.learning_path.default_objective_3_format" : {
+      "comment" : "Fallback objective 3 format",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Earn %@ and maintain daily study streak"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tích lũy %@ và duy trì chuỗi Streak học tập"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tích lũy %@ và duy trì chuỗi Streak học tập"
           }
         }
       }
     },
-    "craft.learning_path.default_unit_label": {
-      "comment": "Section gateway fallback label",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "UNIT"
+    "craft.learning_path.default_unit_label" : {
+      "comment" : "Section gateway fallback label",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UNIT"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "BÀI HỌC"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BÀI HỌC"
           }
         }
       }
     },
-    "craft.learning_path.duration_format_a11y": {
-      "comment": "Detail sheet duration accessibility label",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Duration: %@"
+    "craft.learning_path.duration_format_a11y" : {
+      "comment" : "Detail sheet duration accessibility label",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duration: %@"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Thời lượng: %@"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thời lượng: %@"
           }
         }
       }
     },
-    "craft.learning_path.empty_desc": {
-      "comment": "Empty learning path description",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "There are no lesson sections available in this learning path."
+    "craft.learning_path.empty_desc" : {
+      "comment" : "Empty learning path description",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There are no lesson sections available in this learning path."
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hiện chưa có bài học nào trong lộ trình này."
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hiện chưa có bài học nào trong lộ trình này."
           }
         }
       }
     },
-    "craft.learning_path.empty_title": {
-      "comment": "Empty learning path title",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No Lessons Available"
+    "craft.learning_path.empty_title" : {
+      "comment" : "Empty learning path title",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Lessons Available"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chưa có bài học nào"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa có bài học nào"
           }
         }
       }
     },
-    "craft.learning_path.locked_lesson": {
-      "comment": "Modal sheet CTA locked",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "LESSON LOCKED"
+    "craft.learning_path.locked_lesson" : {
+      "comment" : "Modal sheet CTA locked",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "LESSON LOCKED"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "BÀI HỌC ĐANG KHÓA"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BÀI HỌC ĐANG KHÓA"
           }
         }
       }
     },
-    "craft.learning_path.node_bonus_a11y": {
-      "comment": "Bonus node accessibility",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bonus Lesson: %@"
+    "craft.learning_path.node_bonus_a11y" : {
+      "comment" : "Bonus node accessibility",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bonus Lesson: %@"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bài học thử thách: %@"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bài học thử thách: %@"
           }
         }
       }
     },
-    "craft.learning_path.node_completed_a11y": {
-      "comment": "Node completed accessibility label",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lesson: %@, Completed"
+    "craft.learning_path.node_completed_a11y" : {
+      "comment" : "Node completed accessibility label",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lesson: %@, Completed"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bài học: %@, Đã hoàn thành"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bài học: %@, Đã hoàn thành"
           }
         }
       }
     },
-    "craft.learning_path.node_current_a11y": {
-      "comment": "Node active accessibility without %",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lesson: %@, Current lesson"
+    "craft.learning_path.node_current_a11y" : {
+      "comment" : "Node active accessibility without %",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lesson: %@, Current lesson"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bài học: %@, Bài học hiện tại"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bài học: %@, Bài học hiện tại"
           }
         }
       }
     },
-    "craft.learning_path.node_current_format_a11y": {
-      "comment": "Node active accessibility with %",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lesson: %1$@, Current lesson. %2$@ complete"
+    "craft.learning_path.node_current_format_a11y" : {
+      "comment" : "Node active accessibility with %",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lesson: %1$@, Current lesson. %2$@ complete"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bài học: %1$@, Bài học hiện tại. Đã hoàn thành %2$@"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bài học: %1$@, Bài học hiện tại. Đã hoàn thành %2$@"
           }
         }
       }
     },
-    "craft.learning_path.node_in_progress_a11y": {
-      "comment": "Node in-progress accessibility without %",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lesson: %@, In progress"
+    "craft.learning_path.node_in_progress_a11y" : {
+      "comment" : "Node in-progress accessibility without %",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lesson: %@, In progress"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bài học: %@, Đang học dở"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bài học: %@, Đang học dở"
           }
         }
       }
     },
-    "craft.learning_path.node_in_progress_format_a11y": {
-      "comment": "Node in-progress accessibility with %",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lesson: %1$@, In progress. %2$@ complete"
+    "craft.learning_path.node_in_progress_format_a11y" : {
+      "comment" : "Node in-progress accessibility with %",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lesson: %1$@, In progress. %2$@ complete"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bài học: %1$@, Đang học dở. Đã hoàn thành %2$@"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bài học: %1$@, Đang học dở. Đã hoàn thành %2$@"
           }
         }
       }
     },
-    "craft.learning_path.node_locked_a11y": {
-      "comment": "Node locked accessibility",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lesson: %@, Locked"
+    "craft.learning_path.node_locked_a11y" : {
+      "comment" : "Node locked accessibility",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lesson: %@, Locked"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bài học: %@, Đang khóa"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bài học: %@, Đang khóa"
           }
         }
       }
     },
-    "craft.learning_path.node_upcoming_a11y": {
-      "comment": "Node upcoming accessibility",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lesson: %@, Upcoming lesson"
+    "craft.learning_path.node_upcoming_a11y" : {
+      "comment" : "Node upcoming accessibility",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lesson: %@, Upcoming lesson"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bài học: %@, Bài học sắp tới"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bài học: %@, Bài học sắp tới"
           }
         }
       }
     },
-    "craft.learning_path.objectives_header": {
-      "comment": "Sheet objectives section header",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lesson Objectives"
+    "craft.learning_path.objectives_header" : {
+      "comment" : "Sheet objectives section header",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lesson Objectives"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mục tiêu bài học"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mục tiêu bài học"
           }
         }
       }
     },
-    "craft.learning_path.review_lesson_format": {
-      "comment": "Modal sheet CTA to review",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "REVIEW (+%lld XP)"
+    "craft.learning_path.review_lesson_format" : {
+      "comment" : "Modal sheet CTA to review",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "REVIEW (+%lld XP)"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ÔN TẬP LẠI (+%lld XP)"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ÔN TẬP LẠI (+%lld XP)"
           }
         }
       }
     },
-    "craft.learning_path.reward_format_a11y": {
-      "comment": "Node XP reward accessibility",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Reward: %lld XP"
+    "craft.learning_path.reward_format_a11y" : {
+      "comment" : "Node XP reward accessibility",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reward: %lld XP"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Phần thưởng: %lld XP"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Phần thưởng: %lld XP"
           }
         }
       }
     },
-    "craft.learning_path.start_lesson": {
-      "comment": "Modal sheet CTA to start",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "START LESSON"
+    "craft.learning_path.start_lesson" : {
+      "comment" : "Modal sheet CTA to start",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "START LESSON"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "BẮT ĐẦU HỌC"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BẮT ĐẦU HỌC"
           }
         }
       }
     },
-    "craft.learning_path.sticky_hud_progress_format": {
-      "comment": "Sticky HUD progress format",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@"
+    "craft.learning_path.sticky_hud_progress_format" : {
+      "comment" : "Sticky HUD progress format",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@"
           }
         }
       }
     },
-    "craft.learning_path.tap_to_continue_hint": {
-      "comment": "Node resume hint",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Double tap to continue"
+    "craft.learning_path.tap_to_continue_hint" : {
+      "comment" : "Node resume hint",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double tap to continue"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nhấn đúp để tiếp tục học"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhấn đúp để tiếp tục học"
           }
         }
       }
     },
-    "craft.learning_path.tap_to_review_hint": {
-      "comment": "Node review hint",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Double tap to review"
+    "craft.learning_path.tap_to_review_hint" : {
+      "comment" : "Node review hint",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double tap to review"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nhấn đúp để ôn tập"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhấn đúp để ôn tập"
           }
         }
       }
     },
-    "craft.learning_path.tap_to_scroll_unit_hint": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Double tap to scroll to the top of this unit"
+    "craft.learning_path.tap_to_scroll_unit_hint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double tap to scroll to the top of this unit"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chạm hai lần để cuộn về đầu bài học này"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chạm hai lần để cuộn về đầu bài học này"
           }
         }
       }
     },
-    "craft.learning_path.tap_to_start_hint": {
-      "comment": "Node start hint",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Double tap to start"
+    "craft.learning_path.tap_to_start_hint" : {
+      "comment" : "Node start hint",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double tap to start"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nhấn đúp để bắt đầu học"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhấn đúp để bắt đầu học"
           }
         }
       }
     },
-    "craft.learning_path.unlock_requirement_hint": {
-      "comment": "Locked node hint",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Complete previous lessons to unlock"
+    "craft.learning_path.unlock_requirement_hint" : {
+      "comment" : "Locked node hint",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complete previous lessons to unlock"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hoàn thành bài học trước để mở khóa"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoàn thành bài học trước để mở khóa"
           }
         }
       }
     },
-    "craft.progress.label": {
-      "comment": "Progress bar/ring label",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Progress"
+    "craft.progress.label" : {
+      "comment" : "Progress bar/ring label",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progress"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tiến độ"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiến độ"
           }
         }
       }
     },
-    "craft.search.clear_a11y": {
-      "comment": "Search bar clear button",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clear search"
+    "craft.search.clear_a11y" : {
+      "comment" : "Search bar clear button",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear search"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Xóa tìm kiếm"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xóa tìm kiếm"
           }
         }
       }
     },
-    "craft.search.placeholder": {
-      "comment": "Search bar placeholder",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search..."
+    "craft.search.placeholder" : {
+      "comment" : "Search bar placeholder",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search..."
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tìm kiếm..."
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tìm kiếm..."
           }
         }
       }
     },
-    "craft.search.trailing_action_a11y": {
-      "comment": "Search bar trailing icon",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Trailing action"
+    "craft.search.trailing_action_a11y" : {
+      "comment" : "Search bar trailing icon",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trailing action"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tác vụ mở rộng"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tác vụ mở rộng"
           }
         }
       }
     },
-    "craft.segmented_bar.label_a11y": {
-      "comment": "Segmented bar label",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Segmented metric bar"
+    "craft.segmented_bar.label_a11y" : {
+      "comment" : "Segmented bar label",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Segmented metric bar"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Thanh tỉ lệ phân đoạn"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thanh tỉ lệ phân đoạn"
           }
         }
       }
     },
-    "craft.segmented_bar.segment_fallback": {
-      "comment": "Segment item fallback",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Segment"
+    "craft.segmented_bar.segment_fallback" : {
+      "comment" : "Segment item fallback",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Segment"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Phân đoạn"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Phân đoạn"
           }
         }
       }
     },
-    "craft.sparkle.celebration_label": {
-      "comment": "Confetti reduce motion fallback text",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Celebration!"
+    "craft.sparkle.celebration_label" : {
+      "comment" : "Confetti reduce motion fallback text",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Celebration!"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chúc mừng!"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chúc mừng!"
           }
         }
       }
     },
-    "craft.sparkle.sparkle_label": {
-      "comment": "Sparkle reduce motion fallback text",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sparkle!"
+    "craft.sparkle.sparkle_label" : {
+      "comment" : "Sparkle reduce motion fallback text",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sparkle!"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lấp lánh!"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lấp lánh!"
           }
         }
       }
     },
-    "craft.speech.analyzing": {
-      "comment": "Speech recognition analyzing pronunciation state",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Analyzing pronunciation..."
+    "craft.speech.analyzing" : {
+      "comment" : "Speech recognition analyzing pronunciation state",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analyzing pronunciation..."
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Đang phân tích phát âm..."
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đang phân tích phát âm..."
           }
         }
       }
     },
-    "craft.speech.listening": {
-      "comment": "Speech recognition listening state",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Listening..."
+    "craft.speech.listening" : {
+      "comment" : "Speech recognition listening state",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Listening..."
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Đang lắng nghe..."
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đang lắng nghe..."
           }
         }
       }
     },
-    "craft.speech.mic_start_a11y": {
-      "comment": "Microphone start speaking accessibility label",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Start speaking"
+    "craft.speech.mic_start_a11y" : {
+      "comment" : "Microphone start speaking accessibility label",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start speaking"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bắt đầu nói"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bắt đầu nói"
           }
         }
       }
     },
-    "craft.speech.mic_stop_a11y": {
-      "comment": "Microphone stop recording accessibility label",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stop recording"
+    "craft.speech.mic_stop_a11y" : {
+      "comment" : "Microphone stop recording accessibility label",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop recording"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dừng ghi âm"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dừng ghi âm"
           }
         }
       }
     },
-    "craft.speech.score_format": {
-      "comment": "Pronunciation score percentage format",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Score: %@"
+    "craft.speech.score_format" : {
+      "comment" : "Pronunciation score percentage format",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Score: %@"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Điểm: %@"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Điểm: %@"
           }
         }
       }
     },
-    "craft.speech.tap_to_speak": {
-      "comment": "Speech recognition tap to speak prompt",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tap to speak"
+    "craft.speech.tap_to_speak" : {
+      "comment" : "Speech recognition tap to speak prompt",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap to speak"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chạm để nói"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chạm để nói"
           }
         }
       }
     },
-    "craft.speech.try_again": {
-      "comment": "Speech recognition retry speaking prompt",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Try speaking again"
+    "craft.speech.try_again" : {
+      "comment" : "Speech recognition retry speaking prompt",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try speaking again"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Thử nói lại"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thử nói lại"
           }
         }
       }
     },
-    "craft.step_node.step_format": {
-      "comment": "Step node label format",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Step %lld: %@"
+    "craft.step_node.step_format" : {
+      "comment" : "Step node label format",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Step %lld: %@"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bước %lld: %@"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bước %lld: %@"
           }
         }
       }
     },
-    "craft.step_node.tap_hint": {
-      "comment": "Step node selection hint",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Double tap to select this step"
+    "craft.step_node.tap_hint" : {
+      "comment" : "Step node selection hint",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double tap to select this step"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chạm hai lần để chọn bước này"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chạm hai lần để chọn bước này"
           }
         }
       }
     },
-    "craft.step_progress.a11y_value_format": {
-      "comment": "Step indicator voiceover value format",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Step %lld of %lld"
+    "craft.step_progress.a11y_value_format" : {
+      "comment" : "Step indicator voiceover value format",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Step %lld of %lld"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bước %lld trên %lld"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bước %lld trên %lld"
           }
         }
       }
     },
-    "craft.stepper.decrease_a11y": {
-      "comment": "Stepper minus button",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Decrease"
+    "craft.stepper.decrease_a11y" : {
+      "comment" : "Stepper minus button",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decrease"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Giảm"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giảm"
           }
         }
       }
     },
-    "craft.stepper.default_label": {
-      "comment": "Stepper fallback label",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stepper"
+    "craft.stepper.default_label" : {
+      "comment" : "Stepper fallback label",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stepper"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bộ đếm"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bộ đếm"
           }
         }
       }
     },
-    "craft.stepper.increase_a11y": {
-      "comment": "Stepper plus button",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Increase"
+    "craft.stepper.increase_a11y" : {
+      "comment" : "Stepper plus button",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Increase"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tăng"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tăng"
           }
         }
       }
     },
-    "craft.streak.badge_a11y_format": {
-      "comment": "Streak badge accessibility",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld-day study streak, %@ tier. %@"
+    "craft.streak.badge_a11y_format" : {
+      "comment" : "Streak badge accessibility",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld-day study streak, %@ tier. %@"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chuỗi %lld ngày học liên tiếp, Cấp độ %@. %@"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chuỗi %lld ngày học liên tiếp, Cấp độ %@. %@"
           }
         }
       }
     },
-    "craft.streak.badge_a11y_hint": {
-      "comment": "Streak badge hint",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Double tap to view streak details."
+    "craft.streak.badge_a11y_hint" : {
+      "comment" : "Streak badge hint",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double tap to view streak details."
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chạm hai lần để xem chi tiết chuỗi ngày."
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chạm hai lần để xem chi tiết chuỗi ngày."
           }
         }
       }
     },
-    "craft.streak.best_record_format": {
-      "comment": "Best streak record",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Best: %lld days"
+    "craft.streak.best_record_format" : {
+      "comment" : "Best streak record",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Best: %lld days"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kỷ lục: %lld ngày"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kỷ lục: %lld ngày"
           }
         }
       }
     },
-    "craft.streak.card_a11y_overview": {
-      "comment": "Streak card overview hint",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Displays weekly streak overview and activity status."
+    "craft.streak.card_a11y_overview" : {
+      "comment" : "Streak card overview hint",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Displays weekly streak overview and activity status."
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hiển thị tổng quan chuỗi ngày học trong tuần."
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hiển thị tổng quan chuỗi ngày học trong tuần."
           }
         }
       }
     },
-    "craft.streak.celebration_hint": {
-      "comment": "Celebration sheet hint",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Double tap to dismiss and continue learning."
+    "craft.streak.celebration_hint" : {
+      "comment" : "Celebration sheet hint",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double tap to dismiss and continue learning."
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chạm hai lần để đóng màn hình và tiếp tục học."
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chạm hai lần để đóng màn hình và tiếp tục học."
           }
         }
       }
     },
-    "craft.streak.celebration_title": {
-      "comment": "Regular celebration title",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Streak Extended!"
+    "craft.streak.celebration_title" : {
+      "comment" : "Regular celebration title",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Streak Extended!"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chuỗi ngày rực lửa!"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chuỗi ngày rực lửa!"
           }
         }
       }
     },
-    "craft.streak.continue_action": {
-      "comment": "Celebration sheet CTA",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Continue Learning"
+    "craft.streak.continue_action" : {
+      "comment" : "Celebration sheet CTA",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue Learning"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tiếp tục học"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiếp tục học"
           }
         }
       }
     },
-    "craft.streak.day_inspect_hint": {
-      "comment": "Day node inspection hint",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Double tap to inspect day details."
+    "craft.streak.day_inspect_hint" : {
+      "comment" : "Day node inspection hint",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double tap to inspect day details."
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chạm hai lần để kiểm tra chi tiết ngày."
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chạm hai lần để kiểm tra chi tiết ngày."
           }
         }
       }
     },
-    "craft.streak.day_status_completed": {
-      "comment": "Day node completed status",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Completed"
+    "craft.streak.day_status_completed" : {
+      "comment" : "Day node completed status",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Completed"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Đã hoàn thành"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã hoàn thành"
           }
         }
       }
     },
-    "craft.streak.day_status_missed": {
-      "comment": "Day node missed status",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Missed"
+    "craft.streak.day_status_missed" : {
+      "comment" : "Day node missed status",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Missed"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bỏ lỡ"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bỏ lỡ"
           }
         }
       }
     },
-    "craft.streak.day_status_pending": {
-      "comment": "Day node pending status",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pending"
+    "craft.streak.day_status_pending" : {
+      "comment" : "Day node pending status",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pending"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Đang chờ hoàn thành"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đang chờ hoàn thành"
           }
         }
       }
     },
-    "craft.streak.day_status_saved": {
-      "comment": "Day node shielded status",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Freeze shield used"
+    "craft.streak.day_status_saved" : {
+      "comment" : "Day node shielded status",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Freeze shield used"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Đã dùng khiên bảo vệ"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã dùng khiên bảo vệ"
           }
         }
       }
     },
-    "craft.streak.day_status_upcoming": {
-      "comment": "Day node upcoming status",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Upcoming"
+    "craft.streak.day_status_upcoming" : {
+      "comment" : "Day node upcoming status",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upcoming"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chưa đến"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chưa đến"
           }
         }
       }
     },
-    "craft.streak.freeze_shield_format": {
-      "comment": "Freeze shields counter",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld/%lld Shields"
+    "craft.streak.freeze_shield_format" : {
+      "comment" : "Freeze shields counter",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld/%lld Shields"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld/%lld Khiên"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld/%lld Khiên"
           }
         }
       }
     },
-    "craft.streak.milestone_title_format": {
-      "comment": "Milestone celebration title",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld-Day Milestone!"
+    "craft.streak.milestone_title_format" : {
+      "comment" : "Milestone celebration title",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld-Day Milestone!"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cột mốc %lld ngày!"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cột mốc %lld ngày!"
           }
         }
       }
     },
-    "craft.streak.msg_blaze": {
-      "comment": "Motivational message",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Great streak! Your learning flame is burning bright."
+    "craft.streak.msg_blaze" : {
+      "comment" : "Motivational message",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Great streak! Your learning flame is burning bright."
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Phong độ tuyệt vời! Ngọn lửa học tập của bạn đang rực sáng."
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Phong độ tuyệt vời! Ngọn lửa học tập của bạn đang rực sáng."
           }
         }
       }
     },
-    "craft.streak.msg_blaze_milestone": {
-      "comment": "Motivational message",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Awesome! You've achieved a blaze streak, keep up the momentum!"
+    "craft.streak.msg_blaze_milestone" : {
+      "comment" : "Motivational message",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Awesome! You've achieved a blaze streak, keep up the momentum!"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Đẳng cấp! Bạn đã đạt chuỗi rực lửa, tiếp tục duy trì đà tiến bộ này!"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đẳng cấp! Bạn đã đạt chuỗi rực lửa, tiếp tục duy trì đà tiến bộ này!"
           }
         }
       }
     },
-    "craft.streak.msg_legendary": {
-      "comment": "Motivational message",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Unstoppable! You are an inspiring example of consistency."
+    "craft.streak.msg_legendary" : {
+      "comment" : "Motivational message",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unstoppable! You are an inspiring example of consistency."
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Không thể ngăn cản! Bạn là tấm gương học tập đầy cảm hứng."
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không thể ngăn cản! Bạn là tấm gương học tập đầy cảm hứng."
           }
         }
       }
     },
-    "craft.streak.msg_legendary_milestone": {
-      "comment": "Motivational message",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Legendary! You've reached a pinnacle milestone with extraordinary dedication!"
+    "craft.streak.msg_legendary_milestone" : {
+      "comment" : "Motivational message",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Legendary! You've reached a pinnacle milestone with extraordinary dedication!"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Huyền thoại! Bạn đã chinh phục cột mốc đỉnh cao với sự kiên trì phi thường!"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Huyền thoại! Bạn đã chinh phục cột mốc đỉnh cao với sự kiên trì phi thường!"
           }
         }
       }
     },
-    "craft.streak.msg_starter": {
-      "comment": "Motivational message",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Great progress! You are building a solid learning habit."
+    "craft.streak.msg_starter" : {
+      "comment" : "Motivational message",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Great progress! You are building a solid learning habit."
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tuyệt vời! Bạn đang xây dựng một thói quen học tập vững chắc."
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tuyệt vời! Bạn đang xây dựng một thói quen học tập vững chắc."
           }
         }
       }
     },
-    "craft.streak.msg_starter_1": {
-      "comment": "Motivational message",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Great start! Keep up the daily habit of learning."
+    "craft.streak.msg_starter_1" : {
+      "comment" : "Motivational message",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Great start! Keep up the daily habit of learning."
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Khởi đầu tuyệt vời! Hãy duy trì thói quen học mỗi ngày nhé."
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Khởi đầu tuyệt vời! Hãy duy trì thói quen học mỗi ngày nhé."
           }
         }
       }
     },
-    "craft.streak.tier_blaze": {
-      "comment": "Blaze tier name",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Blaze Streak"
+    "craft.streak.tier_blaze" : {
+      "comment" : "Blaze tier name",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blaze Streak"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chuỗi rực lửa"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chuỗi rực lửa"
           }
         }
       }
     },
-    "craft.streak.tier_legendary": {
-      "comment": "Legendary tier name",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Legendary Streak"
+    "craft.streak.tier_legendary" : {
+      "comment" : "Legendary tier name",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Legendary Streak"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chuỗi huyền thoại"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chuỗi huyền thoại"
           }
         }
       }
     },
-    "craft.streak.tier_starter": {
-      "comment": "Starter tier name",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Starter Streak"
+    "craft.streak.tier_starter" : {
+      "comment" : "Starter tier name",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Starter Streak"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chuỗi khởi đầu"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chuỗi khởi đầu"
           }
         }
       }
     },
-    "craft.streak.today_completed": {
-      "comment": "Daily completion status",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Completed for today"
+    "craft.streak.today_completed" : {
+      "comment" : "Daily completion status",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Completed for today"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hôm nay đã hoàn thành"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hôm nay đã hoàn thành"
           }
         }
       }
     },
-    "craft.streak.today_pending": {
-      "comment": "Daily pending status",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pending completion for today"
+    "craft.streak.today_pending" : {
+      "comment" : "Daily pending status",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pending completion for today"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hôm nay chưa hoàn thành"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hôm nay chưa hoàn thành"
           }
         }
       }
     },
-    "craft.streak.view_milestone_action": {
-      "comment": "Custom accessibility action",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "View milestone rewards"
+    "craft.streak.view_milestone_action" : {
+      "comment" : "Custom accessibility action",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View milestone rewards"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Xem mốc thưởng"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xem mốc thưởng"
           }
         }
       }
     },
-    "craft.streak.view_shield_action": {
-      "comment": "Custom accessibility action",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "View freeze shields"
+    "craft.streak.view_shield_action" : {
+      "comment" : "Custom accessibility action",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View freeze shields"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Xem khiên bảo vệ"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xem khiên bảo vệ"
           }
         }
       }
     },
-    "craft.tab_bar.badge_count_format": {
-      "comment": "Tab bar badge item accessibility",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld new items"
+    "craft.tab_bar.badge_count_format" : {
+      "comment" : "Tab bar badge item accessibility",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld new items"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld mục mới"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld mục mới"
           }
         }
       }
     },
-    "craft.tab_bar.center_action_fallback": {
-      "comment": "Tab bar center FAB fallback",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Action"
+    "craft.tab_bar.center_action_fallback" : {
+      "comment" : "Tab bar center FAB fallback",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Action"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tác vụ"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tác vụ"
           }
         }
       }
     },
-    "craft.textfield.hide_password_a11y": {
-      "comment": "Secure field hide button",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hide password"
+    "craft.textfield.hide_password_a11y" : {
+      "comment" : "Secure field hide button",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide password"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ẩn mật khẩu"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ẩn mật khẩu"
           }
         }
       }
     },
-    "craft.textfield.show_password_a11y": {
-      "comment": "Secure field show button",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Show password"
+    "craft.textfield.show_password_a11y" : {
+      "comment" : "Secure field show button",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show password"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hiện mật khẩu"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hiện mật khẩu"
           }
         }
       }
     },
-    "craft.waveform.audio_level_format": {
-      "comment": "Waveform audio level value",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld percent average audio level"
+    "craft.waveform.audio_level_format" : {
+      "comment" : "Waveform audio level value",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld percent average audio level"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mức âm thanh trung bình %lld phần trăm"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mức âm thanh trung bình %lld phần trăm"
           }
         }
       }
     },
-    "craft.waveform.recording_active_a11y": {
-      "comment": "Waveform active recording a11y",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Audio waveform recording active"
+    "craft.waveform.recording_active_a11y" : {
+      "comment" : "Waveform active recording a11y",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Audio waveform recording active"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Đang thu âm sóng âm thanh"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đang thu âm sóng âm thanh"
           }
         }
       }
     },
-    "craft.waveform.visualizer_a11y": {
-      "comment": "Waveform idle visualizer a11y",
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Audio waveform visualizer"
+    "craft.waveform.visualizer_a11y" : {
+      "comment" : "Waveform idle visualizer a11y",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Audio waveform visualizer"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Trình hiển thị sóng âm"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trình hiển thị sóng âm"
           }
         }
       }
     }
   },
-  "version": "1.0"
+  "version" : "1.0"
 }

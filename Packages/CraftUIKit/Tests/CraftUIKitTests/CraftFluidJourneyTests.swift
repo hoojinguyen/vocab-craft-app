@@ -411,18 +411,45 @@ struct CraftFluidJourneyTests {
         #expect(journey.shouldShowCallout(for: inProgressNode) == false)
         #expect(journey.shouldShowCallout(for: bonusNode) == false)
 
-        // Callout text must use the localized string "craft.fluid_journey.start_lesson"
-        let expectedEnglish = CraftLocalized.string("craft.fluid_journey.start_lesson")
-        #expect(!expectedEnglish.isEmpty)
-        #expect(journey.calloutText(for: activeNode) == expectedEnglish)
+        // Dynamic contextual callout text resolution
+        let startEnglish = CraftLocalized.string("craft.fluid_journey.start")
+        #expect(!startEnglish.isEmpty)
+        #expect(journey.calloutText(for: activeNode, at: 0, totalNodes: 6) == startEnglish)
 
-        let expectedVietnamese = CraftLocalized.string("craft.fluid_journey.start_lesson", language: "vi")
-        #expect(!expectedVietnamese.isEmpty)
-        #expect(expectedEnglish != expectedVietnamese)
+        let startVietnamese = CraftLocalized.string("craft.fluid_journey.start", language: "vi")
+        #expect(!startVietnamese.isEmpty)
+        #expect(startEnglish != startVietnamese)
+
+        // Middle node in sequence
+        let middleNode = LessonNodeModel(id: "node-mid", title: "Middle", state: .active)
+        #expect(journey.calloutText(for: middleNode, at: 1, totalNodes: 6) == CraftLocalized.string("craft.fluid_journey.keep_going"))
+
+        // In-progress node with progress fraction > 0
+        let inProgressActiveNode = LessonNodeModel(id: "node-prog", title: "Progress", state: .active, progress: 0.5)
+        #expect(journey.calloutText(for: inProgressActiveNode, at: 1, totalNodes: 6) == CraftLocalized.string("craft.fluid_journey.continue"))
+
+        // Almost there (penultimate node)
+        let almostThereNode = LessonNodeModel(id: "node-almost", title: "Near End", state: .active)
+        #expect(journey.calloutText(for: almostThereNode, at: 4, totalNodes: 6) == CraftLocalized.string("craft.fluid_journey.almost_there"))
+
+        // Checkpoint node
+        let checkpointActiveNode = LessonNodeModel(id: "node-cp", title: "Boss", state: .active, kind: .checkpoint)
+        #expect(journey.calloutText(for: checkpointActiveNode, at: 5, totalNodes: 6) == CraftLocalized.string("craft.fluid_journey.challenge"))
+
+        // Milestone treasure chest node
+        let treasureActiveNode = LessonNodeModel(id: "node-tr", title: "Gift", state: .active, kind: .treasureChest)
+        #expect(journey.calloutText(for: treasureActiveNode, at: 5, totalNodes: 6) == CraftLocalized.string("craft.fluid_journey.claim_gift"))
+
+        // Custom calloutTextProvider override
+        let customJourney = CraftFluidJourney(
+            sections: [section],
+            calloutTextProvider: { node, _, _ in "CUSTOM:\(node.id)" }
+        )
+        #expect(customJourney.calloutText(for: activeNode, at: 0, totalNodes: 6) == "CUSTOM:n-active")
 
         // ActiveCalloutBubble initialization
-        let bubble = ActiveCalloutBubble(text: journey.calloutText(for: activeNode))
-        #expect(bubble.text == expectedEnglish)
+        let bubble = ActiveCalloutBubble(text: journey.calloutText(for: activeNode, at: 0, totalNodes: 6))
+        #expect(bubble.text == startEnglish)
     }
 
     // MARK: - Safe Sequential Lesson Launch Transition Tests
