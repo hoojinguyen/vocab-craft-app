@@ -64,7 +64,7 @@ public struct HomepageView: View {
                     .background(theme.colors.canvasBackground)
 
                     Group {
-                        if viewModel.isLoading && viewModel.sections.isEmpty {
+                        if (viewModel.isLoading && viewModel.sections.isEmpty) || ProcessInfo.processInfo.arguments.contains("-test-home-skeleton") {
                              HomeSkeletonView()
                         } else if let error = viewModel.errorMessage, viewModel.sections.isEmpty {
                             ContentUnavailableView {
@@ -116,7 +116,7 @@ public struct HomepageView: View {
                         }
                     }
                     .task {
-                        if viewModel.sections.isEmpty {
+                        if viewModel.sections.isEmpty && !ProcessInfo.processInfo.arguments.contains("-test-home-skeleton") {
                             await viewModel.loadLearningPath()
                         }
                     }
@@ -177,6 +177,7 @@ public struct HomepageView: View {
                 let vm = appContainer.makeReflexBlitzViewModel()
                 self.reflexBlitzVM = vm
             }
+            handleTestLaunchArguments()
         }
         #if canImport(UIKit)
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.significantTimeChangeNotification)) { _ in
@@ -244,8 +245,41 @@ public struct HomepageView: View {
         }
         #endif
     }
+}
 
-    private func startLesson(for node: LessonNodeModel) {
+// MARK: - Lesson & Reflex Orchestration Extension
+
+private extension HomepageView {
+    func handleTestLaunchArguments() {
+        let args = ProcessInfo.processInfo.arguments
+        guard args.contains("-test-lesson-feedback-incorrect") || args.contains("-test-lesson-feedback-correct") else { return }
+        let isCorrect = args.contains("-test-lesson-feedback-correct")
+        Task {
+            try? await Task.sleep(for: .milliseconds(150))
+            let words = (try? await appContainer.vocabularyDataSource.fetchWordsForStage(stageId: "stage_daily_1")) ?? []
+            guard !words.isEmpty else { return }
+            let vm = appContainer.makeLessonLearningViewModel(
+                stageId: "stage_daily_1",
+                deckId: "deck_daily",
+                words: words
+            )
+            if let firstExIndex = vm.steps.firstIndex(where: { step in
+                if case .exercise = step { return true }
+                return false
+            }) {
+                for _ in 0..<firstExIndex {
+                    vm.advanceStep()
+                }
+            }
+            vm.isFeedbackPresented = true
+            vm.lastAttemptCorrect = isCorrect
+            await MainActor.run {
+                self.activeLessonLearningVM = vm
+            }
+        }
+    }
+
+    func startLesson(for node: LessonNodeModel) {
         guard !isLaunchingLesson && activeLessonLearningVM == nil else { return }
 
         let resolvedDeckId: String

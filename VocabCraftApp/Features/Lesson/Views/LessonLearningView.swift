@@ -21,7 +21,8 @@ public struct LessonLearningView: View {
     ) {
         self._viewModel = State(initialValue: viewModel)
         self.startWithCountdown = startWithCountdown
-        self._isCountingDown = State(initialValue: startWithCountdown)
+        let skipCountdown = ProcessInfo.processInfo.arguments.contains("-test-lesson-feedback-incorrect") || ProcessInfo.processInfo.arguments.contains("-test-lesson-feedback-correct")
+        self._isCountingDown = State(initialValue: startWithCountdown && !skipCountdown)
         self.onDismiss = onDismiss
         self.onFinished = onFinished
     }
@@ -128,12 +129,15 @@ public struct LessonLearningView: View {
                         ))
                     }
                 }
-                .safeAreaInset(edge: .bottom) {
-                    if viewModel.isFeedbackPresented, let currentExercise = viewModel.currentExerciseItem {
+
+                // Floating Bottom Feedback Sheet Overlay
+                if viewModel.isFeedbackPresented {
+                    VStack(spacing: 0) {
+                        Spacer()
                         CraftFeedbackSheet(
                             status: viewModel.lastAttemptCorrect ? .success : .error,
                             title: viewModel.lastAttemptCorrect ? AppStrings.ReflexBlitz.correctTitleText : AppStrings.ReflexBlitz.incorrectTitleText,
-                            message: viewModel.lastAttemptCorrect ? nil : AppStrings.Lesson.correctAnswerFormat(currentExercise.word.lemma),
+                            message: nil,
                             actionTitle: AppStrings.ReflexBlitz.continueCTAText,
                             streakCount: nil,
                             style: .tactile3D,
@@ -141,12 +145,14 @@ public struct LessonLearningView: View {
                                 viewModel.advanceStep()
                             }
                         )
-                        .ignoresSafeArea(edges: .bottom)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
+                    .ignoresSafeArea(edges: .bottom)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .zIndex(100)
                 }
             }
         }
+        .ignoresSafeArea(edges: .bottom)
         .animation(.smooth(duration: 0.28), value: viewModel.currentStepIndex)
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: isCountingDown)
         .interactiveDismissDisabled(!viewModel.isSummaryStep)
