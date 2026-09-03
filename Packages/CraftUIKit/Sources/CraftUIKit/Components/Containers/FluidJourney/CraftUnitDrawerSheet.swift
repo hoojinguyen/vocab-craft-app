@@ -224,7 +224,7 @@ private extension CraftUnitDrawerSheet {
 
     var deckInfoBlock: some View {
         VStack(alignment: .leading, spacing: theme.spacing.xxs) {
-            HStack(spacing: 4) {
+            HStack(spacing: theme.spacing.xs) {
                 Text(deckTitle)
                     .font(theme.typography.headline.weight(.bold))
                     .foregroundStyle(theme.colors.textPrimary)
@@ -251,14 +251,14 @@ private extension CraftUnitDrawerSheet {
         Button {
             onAdjustPlan?()
         } label: {
-            HStack(spacing: 4) {
+            HStack(spacing: theme.spacing.xs) {
                 Image(systemName: "slider.horizontal.3")
                     .font(.system(size: 11, weight: .semibold))
                 Text(CraftLocalized.string("craft.fluid_journey.adjust_plan"))
                     .font(theme.typography.label.weight(.semibold))
             }
             .padding(.horizontal, theme.spacing.sm)
-            .padding(.vertical, 7)
+            .padding(.vertical, theme.spacing.xs)
             .background(theme.colors.surfaceSubtle)
             .foregroundStyle(theme.colors.textPrimary)
             .clipShape(Capsule())
@@ -431,7 +431,7 @@ private extension CraftUnitDrawerSheet {
             HStack(spacing: theme.spacing.sm) {
                 lessonNodeStatusIcon(for: node.state)
 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: theme.spacing.xxs) {
                     Text(node.title)
                         .font(theme.typography.bodyMedium.weight(node.state == .active ? .bold : .medium))
                         .foregroundStyle(node.state == .locked ? theme.colors.textMuted : theme.colors.textPrimary)
