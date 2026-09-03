@@ -219,6 +219,22 @@ public final class AppContainer {
         )
     }
 
+    public func makeLessonLearningViewModel(
+        stageId: String,
+        deckId: String,
+        words: [TopicWordDTO]
+    ) -> LessonLearningViewModel {
+        LessonLearningViewModel(
+            stageId: stageId,
+            deckId: deckId,
+            words: words,
+            completeLessonUseCase: completeLessonUseCase,
+            ttsService: ttsService,
+            soundEffectService: SoundEffectService.shared,
+            speechEngine: makeReflexSpeechEngine()
+        )
+    }
+
     public func makeSettingsViewModel() -> SettingsViewModel {
         SettingsViewModel(
             store: userSettingsStore,
