@@ -13,44 +13,7 @@ public struct OnboardingFirstLessonView: View {
     @Environment(\.ttsService) private var ttsService
 
     public init(words: [TopicWordDTO], onFinish: @escaping () -> Void) {
-        self.words = words.isEmpty ? [
-            TopicWordDTO(
-                id: 1,
-                stageId: "starter",
-                lemma: "Resilience",
-                phonetic: "/rɪˈzɪl.jəns/",
-                pos: "noun",
-                cefrLevel: "B1",
-                definitionVi: "Sự kiên cường",
-                definitionEn: "Ability to recover quickly",
-                exampleEn: "Her resilience inspired everyone.",
-                exampleVi: "Sự kiên cường của cô ấy đã truyền cảm hứng."
-            ),
-            TopicWordDTO(
-                id: 2,
-                stageId: "starter",
-                lemma: "Innovation",
-                phonetic: "/ˌɪn.əˈveɪ.ʃən/",
-                pos: "noun",
-                cefrLevel: "B1",
-                definitionVi: "Sự đổi mới, sáng tạo",
-                definitionEn: "A new method, idea, or product",
-                exampleEn: "Innovation drives progress.",
-                exampleVi: "Sự đổi mới thúc đẩy tiến bộ."
-            ),
-            TopicWordDTO(
-                id: 3,
-                stageId: "starter",
-                lemma: "Momentum",
-                phonetic: "/moʊˈmen.təm/",
-                pos: "noun",
-                cefrLevel: "B1",
-                definitionVi: "Đà phát triển",
-                definitionEn: "The force that keeps something moving",
-                exampleEn: "Maintain your study momentum.",
-                exampleVi: "Duy trì đà học tập của bạn."
-            )
-        ] : words
+        self.words = words.isEmpty ? TopicWordDTO.fallbackStarterWords(stageId: "starter") : words
         self.onFinish = onFinish
     }
 

@@ -20,7 +20,7 @@ public struct OnboardingCoordinatorView: View {
                         CraftIconButton(
                             symbol: .chevronLeft,
                             size: .md,
-                            accessibilityLabelKey: "craft.common.action.back"
+                            accessibilityLabelKey: "common.back"
                         ) {
                             viewModel.previousStep()
                         }

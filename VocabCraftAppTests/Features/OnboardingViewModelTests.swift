@@ -102,4 +102,23 @@ final class OnboardingViewModelTests: XCTestCase {
         XCTAssertNotNil(vm.roadmapResult)
         XCTAssertEqual(vm.roadmapResult?.starterWords.count, 3)
     }
+
+    func testRetrySynthesisCancelsOldTaskAndStartsNewTask() {
+        let settings = UserSettingsStore()
+        let useCase = MockInitializeUserRoadmapUseCase()
+        let vm = OnboardingViewModel(useCase: useCase, userSettings: settings)
+
+        vm.retrySynthesis()
+        let task1 = vm.synthesisTask
+        XCTAssertNotNil(task1)
+
+        vm.retrySynthesis()
+        let task2 = vm.synthesisTask
+        XCTAssertNotNil(task2)
+        XCTAssertTrue(task1?.isCancelled == true)
+
+        vm.previousStep()
+        XCTAssertNil(vm.synthesisTask)
+        XCTAssertTrue(task2?.isCancelled == true)
+    }
 }

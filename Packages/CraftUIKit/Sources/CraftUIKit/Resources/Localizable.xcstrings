@@ -145,6 +145,24 @@
         }
       }
     },
+    "craft.common.action.back": {
+      "comment": "Standard back navigation action",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quay lại"
+          }
+        }
+      }
+    },
     "craft.common.action.cancel": {
       "comment": "Standard cancel action",
       "extractionState": "manual",

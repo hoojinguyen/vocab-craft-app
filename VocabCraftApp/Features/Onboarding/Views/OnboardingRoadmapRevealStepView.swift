@@ -91,9 +91,7 @@ public struct OnboardingRoadmapRevealStepView: View {
                         variant: .secondary,
                         size: .md
                     ) {
-                        Task {
-                            await viewModel.synthesizeRoadmap()
-                        }
+                        viewModel.retrySynthesis()
                     }
                 }
                 .padding(.horizontal, theme.spacing.base)

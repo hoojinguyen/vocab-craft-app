@@ -69,6 +69,47 @@ public struct TopicWordDTO: Identifiable, Sendable, Equatable {
         self.exampleEn = exampleEn
         self.exampleVi = exampleVi
     }
+
+    public static func fallbackStarterWords(stageId: String = "starter") -> [TopicWordDTO] {
+        [
+            TopicWordDTO(
+                id: 1,
+                stageId: stageId,
+                lemma: "Resilience",
+                phonetic: "/rɪˈzɪl.jəns/",
+                pos: "noun",
+                cefrLevel: "B1",
+                definitionVi: "Sự kiên cường",
+                definitionEn: "Ability to recover quickly",
+                exampleEn: "Her resilience inspired everyone.",
+                exampleVi: "Sự kiên cường của cô ấy đã truyền cảm hứng."
+            ),
+            TopicWordDTO(
+                id: 2,
+                stageId: stageId,
+                lemma: "Innovation",
+                phonetic: "/ˌɪn.əˈveɪ.ʃən/",
+                pos: "noun",
+                cefrLevel: "B1",
+                definitionVi: "Sự đổi mới, sáng tạo",
+                definitionEn: "A new method, idea, or product",
+                exampleEn: "Innovation drives progress.",
+                exampleVi: "Sự đổi mới thúc đẩy tiến bộ."
+            ),
+            TopicWordDTO(
+                id: 3,
+                stageId: stageId,
+                lemma: "Momentum",
+                phonetic: "/moʊˈmen.təm/",
+                pos: "noun",
+                cefrLevel: "B1",
+                definitionVi: "Đà phát triển",
+                definitionEn: "The force that keeps something moving",
+                exampleEn: "Maintain your study momentum.",
+                exampleVi: "Duy trì đà học tập của bạn."
+            )
+        ]
+    }
 }
 
 public protocol VocabularyDataSourceProtocol: Sendable {

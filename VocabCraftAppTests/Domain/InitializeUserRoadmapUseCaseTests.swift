@@ -77,4 +77,81 @@ final class InitializeUserRoadmapUseCaseTests: XCTestCase {
         XCTAssertEqual(result.startingStage.id, "stage_daily_2")
         XCTAssertEqual(result.starterWords.count, 3)
     }
+
+    @MainActor
+    func testInitializeRoadmapFallbackWhenDataSourceFails() async throws {
+        let failingDataSource = TestFailingVocabularyDataSource(shouldCancel: false)
+        let stageRepo = MockStageProgressRepository()
+        let settings = UserSettingsStore()
+
+        let useCase = InitializeUserRoadmapUseCase(
+            dataSource: failingDataSource,
+            stageRepo: stageRepo,
+            userSettings: settings
+        )
+
+        let result = try await useCase.execute(
+            deckId: "deck_test",
+            cefrLevel: "A1",
+            dailyGoalCount: 10,
+            notificationTimeInterval: 72000
+        )
+
+        XCTAssertEqual(result.starterWords.count, 3)
+        XCTAssertEqual(result.starterWords.first?.lemma, "Resilience")
+        XCTAssertEqual(result.starterWords.first?.stageId, "stage_fallback_1")
+    }
+
+    @MainActor
+    func testInitializeRoadmapCancellationDoesNotMutateProgress() async throws {
+        let cancellingDataSource = TestFailingVocabularyDataSource(shouldCancel: true)
+        let stageRepo = MockStageProgressRepository()
+        let settings = UserSettingsStore()
+
+        let useCase = InitializeUserRoadmapUseCase(
+            dataSource: cancellingDataSource,
+            stageRepo: stageRepo,
+            userSettings: settings
+        )
+
+        do {
+            _ = try await useCase.execute(
+                deckId: "deck_test",
+                cefrLevel: "B1",
+                dailyGoalCount: 15,
+                notificationTimeInterval: 28800
+            )
+            XCTFail("Expected CancellationError to be thrown")
+        } catch is CancellationError {
+            // Expected
+        }
+
+        let progressList = try await stageRepo.fetchAllStageProgress()
+        XCTAssertTrue(progressList.isEmpty, "Progress should not be saved if synthesis was cancelled")
+    }
+}
+
+private final class TestFailingVocabularyDataSource: VocabularyDataSourceProtocol, @unchecked Sendable {
+    let shouldCancel: Bool
+
+    init(shouldCancel: Bool) {
+        self.shouldCancel = shouldCancel
+    }
+
+    func fetchTopicDecks() async throws -> [TopicDeckDTO] { [] }
+    func fetchSubTopicStages(deckId: String) async throws -> [SubTopicStageDTO] {
+        [
+            SubTopicStageDTO(id: "stage_fallback_1", deckId: deckId, title: "Stage 1", iconName: "star", sortOrder: 1),
+            SubTopicStageDTO(id: "stage_fallback_2", deckId: deckId, title: "Stage 2", iconName: "star", sortOrder: 2)
+        ]
+    }
+    func fetchWordsForStage(stageId: String) async throws -> [TopicWordDTO] {
+        if shouldCancel {
+            throw CancellationError()
+        }
+        throw NSError(domain: "TestError", code: 500)
+    }
+    func searchWords(query: String) async throws -> [TopicWordDTO] { [] }
+    func fetchWordById(id: Int64) async throws -> TopicWordDTO? { nil }
+    func fetchAllWordsMap() async throws -> [Int64: TopicWordDTO] { [:] }
 }

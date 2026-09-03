@@ -73,6 +73,7 @@ public struct OnboardingHabitStepView: View {
                                     )
                                     .padding(.trailing, theme.spacing.base)
                                     .padding(.top, theme.spacing.sm)
+                                    .allowsHitTesting(false)
                                 }
                             }
                         }

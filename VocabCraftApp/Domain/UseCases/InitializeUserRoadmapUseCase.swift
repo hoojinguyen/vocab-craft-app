@@ -77,51 +77,24 @@ public final class InitializeUserRoadmapUseCase: InitializeUserRoadmapUseCasePro
         }
 
         // 3. Fetch starter words with safe fallback before mutating progress
-        let fetchedWords = (try? await dataSource.fetchWordsForStage(stageId: startingStage.id)) ?? []
+        let fetchedWords: [TopicWordDTO]
+        do {
+            fetchedWords = try await dataSource.fetchWordsForStage(stageId: startingStage.id)
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            fetchedWords = []
+        }
+
+        try Task.checkCancellation()
+
         let starterWords: [TopicWordDTO]
         if fetchedWords.count >= 3 {
             starterWords = Array(fetchedWords.prefix(3))
         } else if !fetchedWords.isEmpty {
             starterWords = fetchedWords
         } else {
-            starterWords = [
-                TopicWordDTO(
-                    id: 1,
-                    stageId: startingStage.id,
-                    lemma: "Resilience",
-                    phonetic: "/rɪˈzɪl.jəns/",
-                    pos: "noun",
-                    cefrLevel: "B1",
-                    definitionVi: "Sự kiên cường",
-                    definitionEn: "Ability to recover quickly",
-                    exampleEn: "Her resilience inspired everyone.",
-                    exampleVi: "Sự kiên cường của cô ấy đã truyền cảm hứng."
-                ),
-                TopicWordDTO(
-                    id: 2,
-                    stageId: startingStage.id,
-                    lemma: "Innovation",
-                    phonetic: "/ˌɪn.əˈveɪ.ʃən/",
-                    pos: "noun",
-                    cefrLevel: "B1",
-                    definitionVi: "Sự đổi mới, sáng tạo",
-                    definitionEn: "A new method, idea, or product",
-                    exampleEn: "Innovation drives progress.",
-                    exampleVi: "Sự đổi mới thúc đẩy tiến bộ."
-                ),
-                TopicWordDTO(
-                    id: 3,
-                    stageId: startingStage.id,
-                    lemma: "Momentum",
-                    phonetic: "/moʊˈmen.təm/",
-                    pos: "noun",
-                    cefrLevel: "B1",
-                    definitionVi: "Đà phát triển",
-                    definitionEn: "The force that keeps something moving",
-                    exampleEn: "Maintain your study momentum.",
-                    exampleVi: "Duy trì đà học tập của bạn."
-                )
-            ]
+            starterWords = TopicWordDTO.fallbackStarterWords(stageId: startingStage.id)
         }
 
         // 4. Auto-unlock foundational stage 1 after words are guaranteed

@@ -72,6 +72,11 @@ public final class OnboardingViewModel {
         userSettings.hasCompletedOnboarding = true
     }
 
+    public func retrySynthesis() {
+        synthesisTask?.cancel()
+        synthesisTask = Task { await synthesizeRoadmap() }
+    }
+
     public func synthesizeRoadmap() async {
         isSynthesizing = true
         errorMessage = nil
