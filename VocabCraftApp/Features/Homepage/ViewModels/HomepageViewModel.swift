@@ -13,9 +13,34 @@ import Observation
 @MainActor
 public final class HomepageViewModel {
     public var userName: String
-    public var streakDays: Int
-    public var dailyWordsLearned: Int
-    public var dailyWordsGoal: Int
+    private var _streakDays: Int
+    private var _dailyWordsLearned: Int
+    private var _dailyWordsGoal: Int
+
+    public var streakDays: Int {
+        get { userSettings?.currentStreak ?? _streakDays }
+        set {
+            _streakDays = newValue
+            userSettings?.currentStreak = newValue
+        }
+    }
+
+    public var dailyWordsLearned: Int {
+        get { userSettings?.todayWordsLearned ?? _dailyWordsLearned }
+        set {
+            _dailyWordsLearned = newValue
+            userSettings?.todayWordsLearned = newValue
+        }
+    }
+
+    public var dailyWordsGoal: Int {
+        get { userSettings?.dailyGoalCount ?? _dailyWordsGoal }
+        set {
+            _dailyWordsGoal = newValue
+            userSettings?.dailyGoalCount = newValue
+        }
+    }
+
     public var unreadNotifications: Bool
     public var sections: [LessonSection]
     public var selectedNode: LessonNodeModel?
@@ -45,10 +70,12 @@ public final class HomepageViewModel {
 
     private let fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol?
     private let ttsService: TextToSpeechProtocol?
+    private let userSettings: UserSettingsStore?
 
     public init(
         fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol? = nil,
         ttsService: TextToSpeechProtocol? = nil,
+        userSettings: UserSettingsStore? = nil,
         userName: String = "Hooji N.",
         streakDays: Int = 14,
         dailyWordsLearned: Int = 8,
@@ -58,10 +85,11 @@ public final class HomepageViewModel {
     ) {
         self.fetchLearningPathUseCase = fetchLearningPathUseCase
         self.ttsService = ttsService
+        self.userSettings = userSettings
         self.userName = userName
-        self.streakDays = streakDays
-        self.dailyWordsLearned = dailyWordsLearned
-        self.dailyWordsGoal = dailyWordsGoal
+        self._streakDays = userSettings?.currentStreak ?? streakDays
+        self._dailyWordsLearned = userSettings?.todayWordsLearned ?? dailyWordsLearned
+        self._dailyWordsGoal = userSettings?.dailyGoalCount ?? dailyWordsGoal
         self.unreadNotifications = unreadNotifications
         self.sections = sections
         self.selectedNode = nil
@@ -70,7 +98,16 @@ public final class HomepageViewModel {
         self.errorMessage = nil
     }
 
+    public func refreshDailyProgress() {
+        if let userSettings {
+            self._streakDays = userSettings.currentStreak
+            self._dailyWordsLearned = userSettings.todayWordsLearned
+            self._dailyWordsGoal = userSettings.dailyGoalCount
+        }
+    }
+
     public func loadLearningPath() async {
+        refreshDailyProgress()
         guard let useCase = fetchLearningPathUseCase else { return }
         isLoading = true
         errorMessage = nil

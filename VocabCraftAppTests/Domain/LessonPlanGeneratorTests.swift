@@ -128,13 +128,11 @@ struct LessonPlanGeneratorTests {
         #expect(!exerciseSteps.isEmpty)
 
         for item in exerciseSteps {
-            #expect(item.clozeStages != nil)
-            if let stages = item.clozeStages {
-                #expect(stages.initialParts.slot.contains("_"))
-                let lemma = item.word.lemma.lowercased()
-                #expect(!stages.initialParts.prefix.lowercased().contains(lemma))
-                #expect(!stages.initialParts.suffix.lowercased().contains(lemma))
-            }
+            let stages = item.clozeStages
+            #expect(stages.initialParts.slot.contains("_"))
+            let lemma = item.word.lemma.lowercased()
+            #expect(!stages.initialParts.prefix.lowercased().contains(lemma))
+            #expect(!stages.initialParts.suffix.lowercased().contains(lemma))
         }
     }
 }

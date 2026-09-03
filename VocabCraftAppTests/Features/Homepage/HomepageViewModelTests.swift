@@ -552,4 +552,45 @@ final class HomepageViewModelTests: XCTestCase {
         let vmMulti = HomepageViewModel(sections: [sectionMulti])
         XCTAssertEqual(vmMulti.currentDeckSubtitle, "Present Simple")
     }
+
+    func testRefreshDailyProgressUpdatesFromUserSettings() {
+        let suite = "test_homepage_vm_\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        let settings = UserSettingsStore(defaults: defaults)
+        settings.todayWordsLearned = 5
+        settings.currentStreak = 3
+        settings.dailyGoalCount = 12
+
+        let vm = HomepageViewModel(userSettings: settings)
+        XCTAssertEqual(vm.dailyWordsLearned, 5)
+        XCTAssertEqual(vm.streakDays, 3)
+        XCTAssertEqual(vm.dailyWordsGoal, 12)
+
+        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
+        settings.todayWordsLearnedDate = yesterday
+
+        vm.refreshDailyProgress()
+        XCTAssertEqual(vm.dailyWordsLearned, 0)
+
+        defaults.removePersistentDomain(forName: suite)
+    }
+
+    func testSettingsChangesReflectDirectlyInHomepageViewModelWithoutManualRefresh() {
+        let suite = "test_homepage_direct_store_\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        let settings = UserSettingsStore(defaults: defaults)
+        settings.dailyGoalCount = 10
+        settings.currentStreak = 1
+
+        let vm = HomepageViewModel(userSettings: settings)
+        XCTAssertEqual(vm.dailyWordsGoal, 10)
+
+        settings.dailyGoalCount = 25
+        XCTAssertEqual(vm.dailyWordsGoal, 25)
+
+        settings.currentStreak = 5
+        XCTAssertEqual(vm.streakDays, 5)
+
+        defaults.removePersistentDomain(forName: suite)
+    }
 }

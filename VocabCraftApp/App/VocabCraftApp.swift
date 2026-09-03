@@ -123,16 +123,22 @@ struct VocabCraftApp: App {
                     Text("Testing...")
                 } else if ProcessInfo.processInfo.arguments.contains("-show-catalog") {
                     CraftCatalogView()
+                } else if !appContainer.userSettingsStore.hasCompletedOnboarding {
+                    OnboardingCoordinatorView(viewModel: appContainer.makeOnboardingViewModel())
+                        .environment(\.appContainer, appContainer)
+                        .environment(\.appRouter, appContainer.appRouter)
+                        .environment(\.ttsService, appContainer.ttsService)
+                        .environment(\.speechAssessmentService, appContainer.speechAssessmentService)
                 } else {
                     HomepageView(viewModel: appContainer.makeHomepageViewModel())
                         .environment(\.appContainer, appContainer)
                         .environment(\.appRouter, appContainer.appRouter)
                         .environment(\.ttsService, appContainer.ttsService)
                         .environment(\.speechAssessmentService, appContainer.speechAssessmentService)
-                        .onOpenURL { url in
-                            appContainer.appRouter.handleDeepLink(url: url)
-                        }
                 }
+            }
+            .onOpenURL { url in
+                appContainer.appRouter.handleDeepLink(url: url)
             }
             .craftTheme(themeManager.currentPreset.theme)
             .preferredColorScheme(themeManager.preferredColorScheme)

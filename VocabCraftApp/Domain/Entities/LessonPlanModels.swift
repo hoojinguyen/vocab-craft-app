@@ -6,7 +6,7 @@ public struct LessonExerciseItem: Identifiable, Sendable, Equatable {
     public let word: TopicWordDTO
     public let assignedMode: ReflexBlitzMode
     public let options: [ReflexBlitzOption]
-    public let clozeStages: ReflexClozeStageSet?
+    public let clozeStages: ReflexClozeStageSet
     public let attemptCount: Int
     public let isRequeued: Bool
 
@@ -23,7 +23,11 @@ public struct LessonExerciseItem: Identifiable, Sendable, Equatable {
         self.word = word
         self.assignedMode = assignedMode
         self.options = options
-        self.clozeStages = clozeStages
+        self.clozeStages = clozeStages ?? ReflexHintMaskGenerator.generateStages(
+            lemma: word.lemma,
+            sentenceEn: word.exampleEn,
+            pos: word.pos
+        )
         self.attemptCount = attemptCount
         self.isRequeued = isRequeued
     }

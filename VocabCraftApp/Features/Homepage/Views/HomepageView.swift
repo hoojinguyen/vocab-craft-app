@@ -1,5 +1,8 @@
 import CraftUIKit
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 enum HomepageTabBarPresentationPolicy {
     static func presentation(
@@ -156,6 +159,7 @@ public struct HomepageView: View {
         .craftConfetti(isTriggered: $homeConfettiTrigger, particleCount: 36)
         .craftToast(item: $completionToastData, position: .top)
         .onAppear {
+            viewModel.refreshDailyProgress()
             if vaultVM == nil {
                 vaultVM = appContainer.makePersonalVaultViewModel()
             }
@@ -172,6 +176,11 @@ public struct HomepageView: View {
                 self.reflexBlitzVM = vm
             }
         }
+        #if canImport(UIKit)
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.significantTimeChangeNotification)) { _ in
+            viewModel.refreshDailyProgress()
+        }
+        #endif
         .onOpenURL { url in
             appRouter.handleDeepLink(url: url)
             if let config = appRouter.pendingReflexBlitzConfig {
@@ -188,6 +197,9 @@ public struct HomepageView: View {
             }
         }
         .onChange(of: appRouter.selectedTab) { _, newTab in
+            if newTab == .home {
+                viewModel.refreshDailyProgress()
+            }
             if newTab != .home {
                 lessonLaunchTask?.cancel()
             }
@@ -351,7 +363,7 @@ public struct HomepageView: View {
                 homeConfettiTrigger = true
                 completionToastData = CraftToastData(
                     title: String(localized: "app.home.toast.completed_title", defaultValue: "Completed!", bundle: .module),
-                    message: "+\(summary.xpEarned) XP • \(starIcons) \(String(localized: "app.home.toast.stars_suffix", defaultValue: " • Great Job!", bundle: .module))",
+                    message: "+\(summary.xpEarned) XP • \(starIcons)\(String(localized: "app.home.toast.stars_suffix", defaultValue: " • Amazing!", bundle: .module))",
                     iconName: "star.fill",
                     style: .success,
                     surfaceStyle: .glass,

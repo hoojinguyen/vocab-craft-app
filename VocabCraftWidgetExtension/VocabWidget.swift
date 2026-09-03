@@ -4,7 +4,7 @@ import SwiftData
 import SwiftUI
 import WidgetKit
 #if !WIDGET_EXTENSION && canImport(VocabCraftApp)
-@testable import VocabCraftApp
+import VocabCraftApp
 #endif
 
 #if canImport(SwiftDataMacros)

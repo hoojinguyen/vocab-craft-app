@@ -1,7 +1,7 @@
 import AppIntents
 import SwiftUI
 #if !WIDGET_EXTENSION && canImport(VocabCraftApp)
-@testable import VocabCraftApp
+import VocabCraftApp
 #endif
 import WidgetKit
 

@@ -62,7 +62,7 @@ public struct LessonLearningView: View {
                                 showExitAlert = true
                             } label: {
                                 Image(systemName: "xmark")
-                                    .font(.system(size: 16, weight: .bold))
+                                    .font(theme.typography.bodyMedium.bold())
                                     .foregroundStyle(theme.colors.textMuted)
                                     .frame(width: 44, height: 44)
                                     .contentShape(Rectangle())
@@ -128,28 +128,28 @@ public struct LessonLearningView: View {
                         ))
                     }
                 }
-            }
-
-            // Docked Bottom Feedback Sheet Overlay
-            if viewModel.isFeedbackPresented, let currentExercise = viewModel.currentExerciseItem {
-                CraftFeedbackSheet(
-                    status: viewModel.lastAttemptCorrect ? .success : .error,
-                    title: viewModel.lastAttemptCorrect ? AppStrings.ReflexBlitz.correctTitleText : AppStrings.ReflexBlitz.incorrectTitleText,
-                    message: viewModel.lastAttemptCorrect ? nil : AppStrings.Lesson.correctAnswerFormat(currentExercise.word.lemma),
-                    actionTitle: AppStrings.ReflexBlitz.continueCTAText,
-                    streakCount: nil,
-                    style: .tactile3D,
-                    onContinue: {
-                        viewModel.advanceStep()
+                .safeAreaInset(edge: .bottom) {
+                    if viewModel.isFeedbackPresented, let currentExercise = viewModel.currentExerciseItem {
+                        CraftFeedbackSheet(
+                            status: viewModel.lastAttemptCorrect ? .success : .error,
+                            title: viewModel.lastAttemptCorrect ? AppStrings.ReflexBlitz.correctTitleText : AppStrings.ReflexBlitz.incorrectTitleText,
+                            message: viewModel.lastAttemptCorrect ? nil : AppStrings.Lesson.correctAnswerFormat(currentExercise.word.lemma),
+                            actionTitle: AppStrings.ReflexBlitz.continueCTAText,
+                            streakCount: nil,
+                            style: .tactile3D,
+                            onContinue: {
+                                viewModel.advanceStep()
+                            }
+                        )
+                        .ignoresSafeArea(edges: .bottom)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
-                )
-                .ignoresSafeArea(edges: .bottom)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-                .zIndex(100)
+                }
             }
         }
         .animation(.smooth(duration: 0.28), value: viewModel.currentStepIndex)
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: isCountingDown)
+        .interactiveDismissDisabled(!viewModel.isSummaryStep)
         .onDisappear {
             if !viewModel.isCompleted {
                 dismissOnce()

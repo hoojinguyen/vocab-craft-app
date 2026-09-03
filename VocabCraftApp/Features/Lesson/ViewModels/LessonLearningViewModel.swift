@@ -111,9 +111,11 @@ public final class LessonLearningViewModel: Identifiable {
         speechState = .idle
         hintStage = 0
         eliminatedOptionId = nil
-        currentStepIndex += 1
-        if currentStepIndex >= steps.count {
+        if steps.isEmpty || currentStepIndex + 1 >= steps.count {
             finishLesson()
+            currentStepIndex = max(0, steps.count - 1)
+        } else {
+            currentStepIndex += 1
         }
     }
 
@@ -147,11 +149,7 @@ public final class LessonLearningViewModel: Identifiable {
                     pool: words.map { ReflexBlitzWordItem(from: $0) }
                 )
 
-                let clozeStages = item.clozeStages ?? ReflexHintMaskGenerator.generateStages(
-                    lemma: item.word.lemma,
-                    sentenceEn: item.word.exampleEn,
-                    pos: item.word.pos
-                )
+                let clozeStages = item.clozeStages
 
                 let retryItem = LessonExerciseItem(
                     id: "\(fallbackMode.rawValue)-\(item.word.id)-retry-\(UUID().uuidString.prefix(4))",
@@ -172,7 +170,8 @@ public final class LessonLearningViewModel: Identifiable {
     public func requestHint(for item: LessonExerciseItem) {
         guard !isFeedbackPresented else { return }
         guard currentExerciseItem?.id == item.id else { return }
-        guard hintStage < 3 else { return }
+        let maxHintStage = (item.assignedMode == .speaking) ? 3 : 2
+        guard hintStage < maxHintStage else { return }
         CraftHaptics.shared.selection()
         hintStage += 1
 
@@ -213,6 +212,7 @@ public final class LessonLearningViewModel: Identifiable {
 
         speechEngine.onError = { [weak self] _ in
             guard let self, self.currentExerciseItem?.id == item.id else { return }
+            self.speechEngine.stopSession()
             self.speechState = .idle
         }
 
@@ -284,6 +284,9 @@ public final class LessonLearningViewModel: Identifiable {
     public func retryCompletion() async throws -> LessonCompletionResult? {
         if isCompleted {
             return nil
+        }
+        if let completionTask {
+            return try await completionTask.value
         }
         guard let summary else { return nil }
         persistenceError = nil
