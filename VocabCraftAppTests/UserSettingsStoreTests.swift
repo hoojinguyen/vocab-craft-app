@@ -139,5 +139,16 @@ final class UserSettingsStoreTests: XCTestCase {
 
         defaults.removePersistentDomain(forName: suite)
     }
+
+    func testCompletedOnboardingWithoutStreakDefaultsToZeroOnSubsequentLaunch() {
+        let suite = "test_onboarded_no_streak_\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defaults.set(true, forKey: "has_completed_onboarding")
+
+        let store = UserSettingsStore(defaults: defaults)
+        XCTAssertEqual(store.currentStreak, 0)
+
+        defaults.removePersistentDomain(forName: suite)
+    }
 }
 

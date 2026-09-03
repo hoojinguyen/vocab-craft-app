@@ -150,9 +150,11 @@ public final class UserSettingsStore {
                 defaults.set(true, forKey: "did_perform_legacy_onboarding_migration")
                 defaults.set(hasLegacyUserData, forKey: "has_completed_onboarding")
                 completedOnboarding = hasLegacyUserData
-                self.currentStreak = defaults.object(forKey: "current_streak") != nil
+                let streak = defaults.object(forKey: "current_streak") != nil
                     ? defaults.integer(forKey: "current_streak")
                     : (hasLegacyUserData ? 14 : 0)
+                defaults.set(streak, forKey: "current_streak")
+                self.currentStreak = streak
             } else {
                 completedOnboarding = false
                 self.currentStreak = defaults.object(forKey: "current_streak") != nil
@@ -163,7 +165,7 @@ public final class UserSettingsStore {
             completedOnboarding = defaults.bool(forKey: "has_completed_onboarding")
             self.currentStreak = defaults.object(forKey: "current_streak") != nil
                 ? defaults.integer(forKey: "current_streak")
-                : (completedOnboarding ? 14 : 0)
+                : 0
         }
         self.hasCompletedOnboarding = completedOnboarding
         self.selectedGoalDeckId = defaults.string(forKey: "selected_goal_deck_id") ?? "deck_daily"

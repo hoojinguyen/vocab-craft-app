@@ -109,6 +109,7 @@ public final class OnboardingViewModel {
         userSettings.assessedCefrLevel = "A1"
         userSettings.dailyGoalCount = 10
         userSettings.notificationTimeInterval = 72000
+        userSettings.currentStreak = 0
         userSettings.hasCompletedOnboarding = true
 
         let previousTask = notificationTask
@@ -211,17 +212,21 @@ public final class OnboardingViewModel {
 
             guard !Task.isCancelled else { return }
             if let stageRepo = self.stageRepo {
-                let existing = try? await stageRepo.fetchStageProgress(stageId: stageId)
-                let isCompleted = existing?.isCompleted ?? false
-                let newScore = max(existing?.score ?? 0, starterWords.count)
-                let newFraction = max(existing?.progressFraction ?? 0.0, 0.3)
-                try? await stageRepo.saveStageProgress(
-                    stageId: stageId,
-                    deckId: deckId,
-                    isCompleted: isCompleted,
-                    score: newScore,
-                    progressFraction: newFraction
-                )
+                do {
+                    let existing = try await stageRepo.fetchStageProgress(stageId: stageId)
+                    let isCompleted = existing?.isCompleted ?? false
+                    let newScore = max(existing?.score ?? 0, starterWords.count)
+                    let newFraction = max(existing?.progressFraction ?? 0.0, 0.3)
+                    try await stageRepo.saveStageProgress(
+                        stageId: stageId,
+                        deckId: deckId,
+                        isCompleted: isCompleted,
+                        score: newScore,
+                        progressFraction: newFraction
+                    )
+                } catch {
+                    // Abort save on fetch failure to prevent corrupting existing stage completion state
+                }
             }
         }
     }

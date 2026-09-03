@@ -335,6 +335,42 @@ final class OnboardingViewModelTests: XCTestCase {
         XCTAssertEqual(progressRepo.recordChallengeCallCount, 0)
         XCTAssertEqual(stageRepo.saveCallCount, 0)
     }
+
+    func testCompleteOnboardingAndDismissAbortsStageSaveWhenFetchFails() async {
+        let settings = UserSettingsStore()
+        let useCase = MockInitializeUserRoadmapUseCase()
+        let progressRepo = MockUserProgressRepository()
+        let throwingStageRepo = ThrowingFetchStageProgressRepository()
+        let vm = OnboardingViewModel(
+            useCase: useCase,
+            userSettings: settings,
+            progressRepo: progressRepo,
+            stageRepo: throwingStageRepo
+        )
+
+        await vm.synthesizeRoadmap()
+        vm.completeOnboardingAndDismiss()
+        await vm.completionTask?.value
+
+        XCTAssertTrue(settings.hasCompletedOnboarding)
+        XCTAssertEqual(progressRepo.recordChallengeCallCount, 3)
+        XCTAssertEqual(throwingStageRepo.saveCallCount, 0)
+    }
+}
+
+final class ThrowingFetchStageProgressRepository: StageProgressRepositoryProtocol, @unchecked Sendable {
+    @MainActor var saveCallCount: Int = 0
+
+    @MainActor func fetchStageProgress(stageId: String) async throws -> UserStageProgress? {
+        struct TestFetchError: Error {}
+        throw TestFetchError()
+    }
+
+    @MainActor func fetchCompletedStageIds(deckId: String) async throws -> Set<String> { [] }
+    @MainActor func fetchAllStageProgress() async throws -> [UserStageProgress] { [] }
+    @MainActor func saveStageProgress(stageId: String, deckId: String, isCompleted: Bool, score: Int, progressFraction: Double) async throws {
+        saveCallCount += 1
+    }
 }
 
 final class MockNotificationScheduler: NotificationSchedulerProtocol, @unchecked Sendable {
