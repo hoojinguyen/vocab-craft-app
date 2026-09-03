@@ -79,6 +79,7 @@ public struct CraftFluidJourney: View {
     @State private var dockedSectionId: String?
     @State private var milestonePositions: [String: CGFloat] = [:]
     @State private var selectedNodeForDetail: LessonNodeModel?
+    @State private var pendingLessonToStart: LessonNodeModel?
     @State private var isDrawerPresented: Bool = false
     @State private var hasScrolledToActive: Bool = false
     @State private var tabBarScrollReducer = CraftTabBarScrollPresentationReducer()
@@ -95,7 +96,12 @@ public struct CraftFluidJourney: View {
             }
         }
         .background(ambientEtherealBackground)
-        .sheet(item: $selectedNodeForDetail) { node in
+        .sheet(item: $selectedNodeForDetail, onDismiss: {
+            if let node = pendingLessonToStart {
+                pendingLessonToStart = nil
+                onStartLesson?(node)
+            }
+        }) { node in
             lessonDetailSheet(for: node)
         }
     }
@@ -443,8 +449,8 @@ extension CraftFluidJourney {
             builder(
                 node,
                 { started in
+                    pendingLessonToStart = started
                     selectedNodeForDetail = nil
-                    onStartLesson?(started)
                 },
                 { selectedNodeForDetail = nil }
             )
@@ -452,8 +458,8 @@ extension CraftFluidJourney {
             CraftLessonDetailSheet(
                 node: node,
                 onStart: { started in
+                    pendingLessonToStart = started
                     selectedNodeForDetail = nil
-                    onStartLesson?(started)
                 },
                 onDismiss: {
                     selectedNodeForDetail = nil

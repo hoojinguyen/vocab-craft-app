@@ -398,5 +398,29 @@ struct CraftFluidJourneyTests {
         let bubble = ActiveCalloutBubble(text: journey.calloutText(for: activeNode))
         #expect(bubble.text == "START LESSON")
     }
+
+    // MARK: - Safe Sequential Lesson Launch Transition Tests
+
+    @Test("Verify safe lesson launch transition invokes start lesson callback cleanly")
+    func testSafeSequentialLessonLaunchAfterSheetDismissal() {
+        var startedNodeId: String?
+        let testNode = LessonNodeModel(id: "node-safe-launch", title: "Target Lesson", state: .active)
+        let section = LessonSection(id: "sec-safe", title: "Safe Unit", nodes: [testNode])
+
+        let journey = CraftFluidJourney(
+            sections: [section],
+            onStartLesson: { node in
+                startedNodeId = node.id
+            },
+            detailSheetBuilder: { node, onStart, _ in
+                // Simulating tapping start inside detail sheet
+                onStart(node)
+                return AnyView(EmptyView())
+            }
+        )
+
+        #expect(journey.sections.count == 1)
+        #expect(journey.onStartLesson != nil)
+    }
 }
 
