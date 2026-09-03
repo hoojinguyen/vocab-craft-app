@@ -361,11 +361,15 @@ final class OnboardingViewModelTests: XCTestCase {
         )
 
         await vm.synthesizeRoadmap()
+        vm.startFirstLesson()
+        XCTAssertTrue(vm.isPresentingMiniLesson)
+
         vm.completeOnboardingAndDismiss()
         await vm.completionTask?.value
 
         XCTAssertFalse(settings.hasCompletedOnboarding)
         XCTAssertEqual(settings.currentStreak, 0)
+        XCTAssertFalse(vm.isPresentingMiniLesson)
         XCTAssertNotNil(vm.errorMessage)
         XCTAssertEqual(progressRepo.recordChallengeCallCount, 3)
         XCTAssertEqual(throwingStageRepo.saveCallCount, 0)

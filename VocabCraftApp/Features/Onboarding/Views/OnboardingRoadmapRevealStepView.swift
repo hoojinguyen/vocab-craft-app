@@ -68,13 +68,28 @@ public struct OnboardingRoadmapRevealStepView: View {
                     }
                     .padding(.horizontal, theme.spacing.base)
 
+                    if let errorMsg = viewModel.errorMessage {
+                        Text(errorMsg)
+                            .font(theme.typography.caption)
+                            .foregroundStyle(theme.colors.statusDanger)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, theme.spacing.base)
+                    }
+
                     CraftButton(
-                        "app.onboarding.reveal.cta",
+                        viewModel.errorMessage != nil
+                            ? LocalizedStringKey("craft.common.action.retry")
+                            : LocalizedStringKey("app.onboarding.reveal.cta"),
                         variant: .primary,
                         size: .lg,
                         isFullWidth: true
                     ) {
-                        viewModel.startFirstLesson()
+                        if viewModel.errorMessage != nil {
+                            viewModel.errorMessage = nil
+                            viewModel.completeOnboardingAndDismiss()
+                        } else {
+                            viewModel.startFirstLesson()
+                        }
                     }
                     .padding(.horizontal, theme.spacing.base)
                 }

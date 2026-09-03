@@ -230,6 +230,7 @@ public final class OnboardingViewModel {
                 // Task cancelled
             } catch {
                 guard !Task.isCancelled else { return }
+                isPresentingMiniLesson = false
                 errorMessage = String(
                     localized: "app.onboarding.error.save_progress_failed",
                     defaultValue: "Failed to save progress. Please try again.",
