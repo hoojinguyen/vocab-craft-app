@@ -43,11 +43,15 @@ struct CraftFluidJourneyTests {
         #expect(journey.deckSubtitle == nil)
         #expect(journey.showDetailModal == true)
         #expect(journey.scrollToActive == true)
+        #expect(journey.externalScrollTrigger == 0)
         #expect(journey.onNodeTap == nil)
         #expect(journey.onStartLesson == nil)
         #expect(journey.onTabBarPresentationChange == nil)
         #expect(journey.onSelectLesson == nil)
         #expect(journey.onAdjustPlan == nil)
+
+        let customTriggerJourney = CraftFluidJourney(sections: sections, externalScrollTrigger: 42)
+        #expect(customTriggerJourney.externalScrollTrigger == 42)
     }
 
     @Test("Verify empty state detection")

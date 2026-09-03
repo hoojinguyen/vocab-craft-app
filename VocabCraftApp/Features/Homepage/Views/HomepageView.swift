@@ -10,7 +10,7 @@ enum HomepageTabBarPresentationPolicy {
     }
 }
 
-/// Integrated Homepage view showcasing in-scroll HomeTopHeaderView, CraftLearningPath gamified journey, and liquid glass navigation.
+/// Integrated Homepage view showcasing in-scroll HomeTopHeaderView, CraftFluidJourney gamified journey, and liquid glass navigation.
 public struct HomepageView: View {
     @State private var viewModel: HomepageViewModel
     @State private var vaultVM: PersonalVaultViewModel?
@@ -77,41 +77,33 @@ public struct HomepageView: View {
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .background(theme.colors.canvasBackground)
                         } else {
-                    CraftLearningPath(
-                        sections: viewModel.sections,
-                        winding: .standard,
-                        rowPattern: .standard,
-                        onNodeTap: { node in
-                            MainActor.assumeIsolated {
-                                viewModel.handleNodeTap(node)
-                            }
-                        },
-                        onStartLesson: { node in
-                            MainActor.assumeIsolated {
-                                startLesson(for: node)
-                            }
-                        },
-                        showDetailModal: true,
-                        scrollToActive: true,
-                        showCelebration: true,
-                        pinSectionHeaders: false,
-                        connectorDotDiameter: 5.0,
-                        connectorDotSpacing: 7.0,
-                        onTabBarPresentationChange: { presentation in
-                            MainActor.assumeIsolated {
-                                if tabBarPresentation != presentation {
-                                    if isReducedMotion {
-                                        tabBarPresentation = presentation
-                                    } else {
-                                        withAnimation(.smooth(duration: 0.2)) {
-                                            tabBarPresentation = presentation
+                            CraftFluidJourney(
+                                sections: viewModel.sections,
+                                onNodeTap: { node in
+                                    MainActor.assumeIsolated {
+                                        viewModel.handleNodeTap(node)
+                                    }
+                                },
+                                onStartLesson: { node in
+                                    MainActor.assumeIsolated {
+                                        startLesson(for: node)
+                                    }
+                                },
+                                onTabBarPresentationChange: { presentation in
+                                    MainActor.assumeIsolated {
+                                        if tabBarPresentation != presentation {
+                                            if isReducedMotion {
+                                                tabBarPresentation = presentation
+                                            } else {
+                                                withAnimation(.smooth(duration: 0.2)) {
+                                                    tabBarPresentation = presentation
+                                                }
+                                            }
                                         }
                                     }
-                                }
-                            }
-                        },
-                        externalScrollTrigger: scrollToActiveNonce
-                    )
+                                },
+                                externalScrollTrigger: scrollToActiveNonce
+                            )
                             .refreshable {
                                 await viewModel.loadLearningPath()
                             }

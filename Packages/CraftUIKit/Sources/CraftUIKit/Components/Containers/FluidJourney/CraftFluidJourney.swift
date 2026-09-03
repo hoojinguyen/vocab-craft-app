@@ -54,6 +54,9 @@ public struct CraftFluidJourney: View {
     /// Whether to automatically scroll to the active node upon initial appearance.
     public let scrollToActive: Bool
 
+    /// External trigger incremented by parent views to request scrolling to the active lesson node.
+    public let externalScrollTrigger: Int
+
     /// Precomputed mapping of node identifiers to continuous global index along the journey path.
     public let nodeIndexLookup: [String: Int]
 
@@ -119,6 +122,12 @@ public struct CraftFluidJourney: View {
                         handleInitialScroll(scrollProxy: scrollProxy)
                     }
                 )
+                .onChange(of: externalScrollTrigger) { _, newValue in
+                    guard newValue > 0, scrollToActive, let targetID = activeNodeID else { return }
+                    withAnimation(reduceMotion ? nil : .smooth(duration: 0.45)) {
+                        scrollProxy.scrollTo(targetID, anchor: .center)
+                    }
+                }
 
                 pinnedHeaderOverlay(scrollProxy: scrollProxy)
             }
@@ -145,6 +154,7 @@ public extension CraftFluidJourney {
     ///   - onAdjustPlan: Optional closure invoked when adjust plan is tapped in the curriculum drawer.
     ///   - showDetailModal: Whether tapping a node presents the detail modal (default: `true`).
     ///   - scrollToActive: Whether to auto-scroll to the active node on appear (default: `true`).
+    ///   - externalScrollTrigger: Trigger value incremented to request smooth scroll to active node (default: `0`).
     ///   - detailSheetBuilder: Optional custom builder for the lesson detail sheet.
     ///   - emptyStateViewBuilder: Optional custom builder for the empty state view.
     init(
@@ -158,6 +168,7 @@ public extension CraftFluidJourney {
         onAdjustPlan: (@Sendable () -> Void)? = nil,
         showDetailModal: Bool = true,
         scrollToActive: Bool = true,
+        externalScrollTrigger: Int = 0,
         detailSheetBuilder: (@Sendable (LessonNodeModel, @escaping (LessonNodeModel) -> Void, @escaping () -> Void) -> AnyView)? = nil,
         emptyStateViewBuilder: (() -> AnyView)? = nil
     ) {
@@ -171,6 +182,7 @@ public extension CraftFluidJourney {
         self.onAdjustPlan = onAdjustPlan
         self.showDetailModal = showDetailModal
         self.scrollToActive = scrollToActive
+        self.externalScrollTrigger = externalScrollTrigger
         self.detailSheetBuilder = detailSheetBuilder
         self.emptyStateViewBuilder = emptyStateViewBuilder
 
@@ -198,6 +210,7 @@ public extension CraftFluidJourney {
     ///   - onAdjustPlan: Optional closure invoked when adjust plan is tapped in the curriculum drawer.
     ///   - showDetailModal: Whether tapping a node presents the detail modal (default: `true`).
     ///   - scrollToActive: Whether to auto-scroll to the active node on appear (default: `true`).
+    ///   - externalScrollTrigger: Trigger value incremented to request smooth scroll to active node (default: `0`).
     ///   - detailSheetBuilder: Optional custom builder for the lesson detail sheet.
     ///   - emptyStateViewBuilder: Optional custom builder for the empty state view.
     init(
@@ -211,6 +224,7 @@ public extension CraftFluidJourney {
         onAdjustPlan: (@Sendable () -> Void)? = nil,
         showDetailModal: Bool = true,
         scrollToActive: Bool = true,
+        externalScrollTrigger: Int = 0,
         detailSheetBuilder: (@Sendable (LessonNodeModel, @escaping (LessonNodeModel) -> Void, @escaping () -> Void) -> AnyView)? = nil,
         emptyStateViewBuilder: (() -> AnyView)? = nil
     ) {
@@ -225,6 +239,7 @@ public extension CraftFluidJourney {
             onAdjustPlan: onAdjustPlan,
             showDetailModal: showDetailModal,
             scrollToActive: scrollToActive,
+            externalScrollTrigger: externalScrollTrigger,
             detailSheetBuilder: detailSheetBuilder,
             emptyStateViewBuilder: emptyStateViewBuilder
         )
