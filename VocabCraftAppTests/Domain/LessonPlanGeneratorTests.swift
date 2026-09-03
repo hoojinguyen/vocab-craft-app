@@ -24,19 +24,20 @@ struct LessonPlanGeneratorTests {
         }
     }
 
-    @Test("Partitions 5 words into two 3-word micro-cycles so final cycle contains 3 words")
+    @Test("Partitions 5 words into single cycle with exactly 5 discovery words and no duplicates")
     func testPartitioningFiveWords() {
         let sampleWords = makeSampleWords(count: 5)
         let generator = LessonPlanGenerator()
         let steps = generator.generatePlan(from: sampleWords, distractorPool: sampleWords)
 
-        let discoverySteps = steps.compactMap { step -> (Int, Int)? in
-            if case .discovery(_, let idx, let total) = step { return (idx, total) }
+        let discoveryWords = steps.compactMap { step -> TopicWordDTO? in
+            if case .discovery(let word, _, _) = step { return word }
             return nil
         }
-        #expect(discoverySteps.count == 6)
-        let totals = discoverySteps.map(\.1)
-        #expect(totals == [3, 3, 3, 3, 3, 3])
+        #expect(discoveryWords.count == 5)
+        let uniqueIds = Set(discoveryWords.map(\.id))
+        #expect(uniqueIds.count == 5, "Discovery steps must contain exactly 5 unique words without duplicates")
+        #expect(uniqueIds == Set(sampleWords.map(\.id)))
     }
 
     @Test("Partitions 6 words into 2 micro-cycles with discovery and exercises")

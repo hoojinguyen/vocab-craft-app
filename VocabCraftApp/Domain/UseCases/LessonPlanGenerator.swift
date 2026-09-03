@@ -57,13 +57,7 @@ public final class LessonPlanGenerator: LessonPlanGeneratorProtocol, Sendable {
     }
 
     private func partitionIntoMicroCycles(_ words: [TopicWordDTO]) -> [[TopicWordDTO]] {
-        guard words.count > 4 else { return [words] }
-        if words.count == 5 {
-            return [
-                Array(words[0..<3]),
-                Array(words[2..<5])
-            ]
-        }
+        guard words.count > 5 else { return [words] }
         var chunks: [[TopicWordDTO]] = []
         var remaining = words[...]
         while !remaining.isEmpty {

@@ -525,7 +525,7 @@ public struct LessonSummaryView: View {
             HStack(spacing: theme.spacing.md) {
                 CraftCard(style: .subtle) {
                     VStack(spacing: theme.spacing.xxs) {
-                        CraftText("+\(summary.xpEarned)", style: .headline, color: theme.colors.accent)
+                        CraftText(AppStrings.Lesson.xpEarnedFormat(summary.xpEarned), style: .headline, color: theme.colors.accent)
                         CraftText(AppStrings.Lesson.xpTitleText, style: .caption, color: theme.colors.textMuted)
                     }
                     .frame(maxWidth: .infinity)
@@ -534,7 +534,7 @@ public struct LessonSummaryView: View {
                 CraftCard(style: .subtle) {
                     VStack(spacing: theme.spacing.xxs) {
                         let pct = Int(summary.accuracyFraction * 100)
-                        CraftText("\(pct)%", style: .headline, color: theme.colors.statusSuccess)
+                        CraftText(AppStrings.Lesson.accuracyFormat(pct), style: .headline, color: theme.colors.statusSuccess)
                         CraftText(AppStrings.Lesson.accuracyText, style: .caption, color: theme.colors.textMuted)
                     }
                     .frame(maxWidth: .infinity)
@@ -565,7 +565,7 @@ public struct LessonSummaryView: View {
             Spacer()
 
             CraftButton(
-                AppStrings.Lesson.finishAction,
+                AppStrings.Lesson.finishActionText,
                 variant: .primary,
                 size: .lg,
                 isFullWidth: true

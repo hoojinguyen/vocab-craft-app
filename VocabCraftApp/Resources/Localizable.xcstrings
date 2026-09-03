@@ -8891,6 +8891,23 @@
           }
         }
       }
+    },
+    "app.lesson.summary.accuracy_format": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%%"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%%"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

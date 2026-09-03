@@ -50,7 +50,7 @@ public struct LessonSummaryView: View {
                 CraftCard(style: .outlined) {
                     VStack(spacing: theme.spacing.xxs) {
                         CraftText(
-                            "+\(summary.xpEarned)",
+                            AppStrings.Lesson.xpEarnedFormat(summary.xpEarned),
                             style: .headline,
                             color: theme.colors.accent
                         )
@@ -67,7 +67,7 @@ public struct LessonSummaryView: View {
                     VStack(spacing: theme.spacing.xxs) {
                         let pct = Int(summary.accuracyFraction * 100)
                         CraftText(
-                            "\(pct)%",
+                            AppStrings.Lesson.accuracyFormat(pct),
                             style: .headline,
                             color: theme.colors.statusSuccess
                         )

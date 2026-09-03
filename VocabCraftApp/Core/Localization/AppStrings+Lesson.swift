@@ -66,6 +66,10 @@ extension AppStrings {
             String(localized: "app.lesson.summary.accuracy", defaultValue: "Accuracy", bundle: .module)
         }
 
+        public static func accuracyFormat(_ percentage: Int) -> String {
+            String(format: String(localized: "app.lesson.summary.accuracy_format", defaultValue: "%lld%%", bundle: .module), percentage)
+        }
+
         public static var finishAction: LocalizedStringKey { "app.lesson.summary.finish_action" }
         public static var finishActionText: String {
             String(localized: "app.lesson.summary.finish_action", defaultValue: "Finish Lesson", bundle: .module)

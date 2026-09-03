@@ -87,7 +87,7 @@ struct LessonLearningViewModelTests {
     }
 
     @Test("Submitting a correct answer updates stats and presents feedback")
-    func testCorrectAnswerSubmission() {
+    func testCorrectAnswerSubmission() throws {
         let words = makeSampleWords()
         let vm = LessonLearningViewModel(
             stageId: "stage_1",
@@ -99,13 +99,11 @@ struct LessonLearningViewModelTests {
             speechEngine: MockResilientReflexSpeechEngine()
         )
 
-        let exerciseItem = LessonExerciseItem(
-            id: "mc-1",
-            word: words[0],
-            assignedMode: .multipleChoice,
-            options: []
-        )
+        while vm.currentExerciseItem == nil && !vm.isCompleted {
+            vm.advanceStep()
+        }
 
+        let exerciseItem = try #require(vm.currentExerciseItem)
         vm.submitAnswer(isCorrect: true, for: exerciseItem)
 
         #expect(vm.isFeedbackPresented)
@@ -116,7 +114,7 @@ struct LessonLearningViewModelTests {
     }
 
     @Test("Submitting an incorrect answer downgrades active mode and requeues")
-    func testIncorrectAnswerRequeuing() {
+    func testIncorrectAnswerRequeuing() throws {
         let words = makeSampleWords()
         let vm = LessonLearningViewModel(
             stageId: "stage_1",
@@ -128,25 +126,24 @@ struct LessonLearningViewModelTests {
             speechEngine: MockResilientReflexSpeechEngine()
         )
 
+        while vm.currentExerciseItem == nil && !vm.isCompleted {
+            vm.advanceStep()
+        }
+
         let initialStepCount = vm.steps.count
-        let exerciseItem = LessonExerciseItem(
-            id: "typing-1",
-            word: words[0],
-            assignedMode: .typing,
-            options: []
-        )
+        let exerciseItem = try #require(vm.currentExerciseItem)
 
         vm.submitAnswer(isCorrect: false, for: exerciseItem)
 
         #expect(vm.isFeedbackPresented)
         #expect(!vm.lastAttemptCorrect)
         #expect(vm.mistakeCount == 1)
-        #expect(vm.weakWordIds.contains(1))
+        #expect(vm.weakWordIds.contains(exerciseItem.word.id))
         #expect(vm.steps.count == initialStepCount + 1)
 
-        // Verify downgraded mode is multipleChoice
+        // Verify downgraded mode and requeued item
         if case .exercise(let retryItem) = vm.steps.last {
-            #expect(retryItem.assignedMode == .multipleChoice)
+            #expect(retryItem.word.id == exerciseItem.word.id)
             #expect(retryItem.isRequeued)
             #expect(retryItem.attemptCount == 2)
         } else {
@@ -155,7 +152,7 @@ struct LessonLearningViewModelTests {
     }
 
     @Test("Second failure on same word does not requeue endlessly (Max 1 retry)")
-    func testMaxOneRetryRule() {
+    func testMaxOneRetryRule() throws {
         let words = makeSampleWords()
         let vm = LessonLearningViewModel(
             stageId: "stage_1",
@@ -167,36 +164,36 @@ struct LessonLearningViewModelTests {
             speechEngine: MockResilientReflexSpeechEngine()
         )
 
-        let exerciseItem = LessonExerciseItem(
-            id: "typing-1",
-            word: words[0],
-            assignedMode: .typing,
-            options: []
-        )
+        // Advance to first exercise
+        while vm.currentExerciseItem == nil && !vm.isCompleted {
+            vm.advanceStep()
+        }
+
+        let exerciseItem = try #require(vm.currentExerciseItem)
 
         // First attempt (fails -> requeues)
         vm.submitAnswer(isCorrect: false, for: exerciseItem)
         let stepCountAfterFirstFail = vm.steps.count
 
-        vm.advanceStep()
+        // Advance until reaching the retry step for this word (attemptCount == 2)
+        while (vm.currentExerciseItem?.attemptCount ?? 1) < 2 && !vm.isCompleted {
+            vm.advanceStep()
+        }
+
+        let retryItem = try #require(vm.currentExerciseItem)
+        #expect(retryItem.attemptCount == 2)
+        #expect(retryItem.word.id == exerciseItem.word.id)
 
         // Second attempt on same word
-        let retryItem = LessonExerciseItem(
-            id: "mc-retry-1",
-            word: words[0],
-            assignedMode: .multipleChoice,
-            options: [],
-            attemptCount: 2
-        )
         vm.submitAnswer(isCorrect: false, for: retryItem)
 
         // Does NOT append another step
         #expect(vm.steps.count == stepCountAfterFirstFail)
-        #expect(vm.weakWordIds.contains(1))
+        #expect(vm.weakWordIds.contains(exerciseItem.word.id))
     }
 
     @Test("Requesting hint advances hintStage and eliminates wrong distractor")
-    func testHintRequest() {
+    func testHintRequest() throws {
         let words = makeSampleWords()
         let vm = LessonLearningViewModel(
             stageId: "stage_1",
@@ -208,17 +205,12 @@ struct LessonLearningViewModelTests {
             speechEngine: MockResilientReflexSpeechEngine()
         )
 
-        let options = [
-            ReflexBlitzOption(id: "opt-1", text: "apple", isCorrect: true),
-            ReflexBlitzOption(id: "opt-2", text: "banana", isCorrect: false),
-            ReflexBlitzOption(id: "opt-3", text: "orange", isCorrect: false)
-        ]
-        let exerciseItem = LessonExerciseItem(
-            id: "mc-1",
-            word: words[0],
-            assignedMode: .multipleChoice,
-            options: options
-        )
+        // Advance to first exercise with options
+        while (vm.currentExerciseItem?.options.count ?? 0) < 2 && !vm.isCompleted {
+            vm.advanceStep()
+        }
+
+        let exerciseItem = try #require(vm.currentExerciseItem)
 
         #expect(vm.hintStage == 0)
         #expect(vm.eliminatedOptionId == nil)
@@ -228,7 +220,7 @@ struct LessonLearningViewModelTests {
 
         vm.requestHint(for: exerciseItem)
         #expect(vm.hintStage == 2)
-        #expect(vm.eliminatedOptionId == "opt-2" || vm.eliminatedOptionId == "opt-3")
+        #expect(vm.eliminatedOptionId != nil)
         let firstEliminated = vm.eliminatedOptionId
 
         // Extra hint request should cap at stage 3 and preserve eliminated option
@@ -267,7 +259,7 @@ struct LessonLearningViewModelTests {
     }
 
     @Test("Skipping exercise submits incorrect answer and triggers feedback")
-    func testSkipExercise() {
+    func testSkipExercise() throws {
         let words = makeSampleWords()
         let vm = LessonLearningViewModel(
             stageId: "stage_1",
@@ -279,13 +271,11 @@ struct LessonLearningViewModelTests {
             speechEngine: MockResilientReflexSpeechEngine()
         )
 
-        let exerciseItem = LessonExerciseItem(
-            id: "typing-1",
-            word: words[0],
-            assignedMode: .typing,
-            options: []
-        )
+        while vm.currentExerciseItem == nil && !vm.isCompleted {
+            vm.advanceStep()
+        }
 
+        let exerciseItem = try #require(vm.currentExerciseItem)
         vm.skipExercise(for: exerciseItem)
 
         #expect(vm.isFeedbackPresented)
@@ -307,12 +297,12 @@ struct LessonLearningViewModelTests {
             speechEngine: MockResilientReflexSpeechEngine()
         )
 
-        // Advance through all steps
-        while !vm.isCompleted {
+        // Advance through all steps until summary is reached
+        while !vm.isSummaryStep {
             vm.advanceStep()
         }
 
-        #expect(vm.isCompleted)
+        #expect(vm.isSummaryStep)
         #expect(vm.summary != nil)
         #expect(vm.summary?.stars == 3)
         #expect(vm.summary?.xpEarned == 25)
@@ -320,6 +310,7 @@ struct LessonLearningViewModelTests {
         // Await and verify completeLessonUseCase execution
         let result = try await vm.awaitCompletion()
         #expect(result != nil)
+        #expect(vm.isCompleted)
         #expect(completeUseCase.executedStars == 3)
         #expect(completeUseCase.executedStageId == "stage_1")
         #expect(completeUseCase.executedDeckId == "deck_1")

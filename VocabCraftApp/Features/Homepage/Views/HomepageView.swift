@@ -18,6 +18,8 @@ public struct HomepageView: View {
     @State private var reflexBlitzVM: ReflexBlitzViewModel?
     @State private var activeLessonNode: LessonNodeModel?
     @State private var activeLessonLearningVM: LessonLearningViewModel?
+    @State private var lessonLaunchTask: Task<Void, Never>?
+    @State private var isLaunchingLesson: Bool = false
     @State private var tabBarPresentation: CraftTabBarPresentation = .expanded
     @State private var scrollToActiveNonce: Int = 0
     @State private var homeConfettiTrigger: Bool = false
@@ -233,7 +235,16 @@ public struct HomepageView: View {
     }
 
     private func startLesson(for node: LessonNodeModel) {
-        Task {
+        guard !isLaunchingLesson && activeLessonLearningVM == nil else { return }
+        isLaunchingLesson = true
+        lessonLaunchTask?.cancel()
+        lessonLaunchTask = Task {
+            defer {
+                Task { @MainActor in
+                    isLaunchingLesson = false
+                }
+            }
+
             let words: [TopicWordDTO]
             let deckId: String
             if node.id.hasPrefix("checkpoint_") {
@@ -258,8 +269,11 @@ public struct HomepageView: View {
                 words = (try? await appContainer.vocabularyDataSource.fetchWordsForStage(stageId: node.id)) ?? []
             }
 
+            guard !Task.isCancelled else { return }
+
             guard !words.isEmpty else {
                 await MainActor.run {
+                    guard !Task.isCancelled else { return }
                     completionToastData = CraftToastData(
                         title: AppStrings.Common.errorText,
                         message: AppStrings.Lesson.loadErrorText,
@@ -277,7 +291,10 @@ public struct HomepageView: View {
                 deckId: deckId,
                 words: words
             )
-            self.activeLessonLearningVM = vm
+            await MainActor.run {
+                guard !Task.isCancelled else { return }
+                self.activeLessonLearningVM = vm
+            }
         }
     }
 

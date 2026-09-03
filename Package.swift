@@ -51,8 +51,7 @@ let package = Package(
                 .product(name: "CraftUIKit", package: "CraftUIKit"),
                 .product(name: "SpeechKit", package: "SpeechKit")
             ],
-            path: "VocabCraftAppTests",
-            resources: [.process("Resources")]
+            path: "VocabCraftAppTests"
         )
     ]
 )

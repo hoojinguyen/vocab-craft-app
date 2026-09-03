@@ -103,6 +103,7 @@ public final class LessonLearningViewModel: Identifiable {
     }
 
     public func advanceStep() {
+        guard !isSummaryStep else { return }
         maxProgress = max(maxProgress, progress)
         ttsService.stop()
         stopListeningForSpeaking()
@@ -120,6 +121,7 @@ public final class LessonLearningViewModel: Identifiable {
 
     public func submitAnswer(isCorrect: Bool, for item: LessonExerciseItem) {
         guard !isFeedbackPresented else { return }
+        guard currentExerciseItem?.id == item.id else { return }
         maxProgress = max(maxProgress, progress)
         stopListeningForSpeaking()
         totalAnswered += 1
@@ -171,6 +173,7 @@ public final class LessonLearningViewModel: Identifiable {
 
     public func requestHint(for item: LessonExerciseItem) {
         guard !isFeedbackPresented else { return }
+        guard currentExerciseItem?.id == item.id else { return }
         guard hintStage < 3 else { return }
         CraftHaptics.shared.selection()
         hintStage += 1

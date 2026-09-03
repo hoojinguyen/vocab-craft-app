@@ -21,6 +21,7 @@ struct LessonLocalizationTests {
         "app.lesson.summary.learned_words": ("Từ vựng đã học", "Words Learned"),
         "app.lesson.summary.review_words": ("Cần ôn tập", "Needs Review"),
         "app.lesson.summary.accuracy": ("Độ chính xác", "Accuracy"),
+        "app.lesson.summary.accuracy_format": ("%lld%%", "%lld%%"),
         "app.lesson.summary.finish_action": ("Hoàn tất bài học", "Finish Lesson"),
         "app.lesson.exit_alert.title": ("Dừng bài học?", "Quit Lesson?"),
         "app.lesson.exit_alert.message": ("Tiến độ bài học hiện tại sẽ không được lưu nếu bạn rời khỏi bây giờ.", "Your progress for this lesson will not be saved if you leave now."),
@@ -58,6 +59,7 @@ struct LessonLocalizationTests {
         #expect(!AppStrings.Lesson.loadErrorText.isEmpty)
         #expect(AppStrings.Lesson.correctAnswerFormat("apple").contains("apple"))
         #expect(AppStrings.Lesson.xpEarnedFormat(25).contains("25"))
+        #expect(AppStrings.Lesson.accuracyFormat(85).contains("85"))
     }
 
     @Test("Catalog integrity check for app.lesson.* keys in Localizable.xcstrings")
