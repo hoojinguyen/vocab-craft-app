@@ -101,6 +101,22 @@ final class OnboardingViewModelTests: XCTestCase {
 
         XCTAssertNotNil(vm.roadmapResult)
         XCTAssertEqual(vm.roadmapResult?.starterWords.count, 3)
+        XCTAssertEqual(useCase.invokedDeckId, "deck_business")
+        XCTAssertEqual(useCase.invokedCefrLevel, "B1")
+        XCTAssertEqual(useCase.invokedDailyGoalCount, 15)
+        XCTAssertEqual(useCase.invokedNotificationTimeInterval, vm.selectedReminderInterval)
+    }
+
+    func testSynthesizeRoadmapFailureSetsLocalizedErrorMessage() async {
+        let settings = UserSettingsStore()
+        let failingUseCase = FailingInitializeUserRoadmapUseCase()
+        let vm = OnboardingViewModel(useCase: failingUseCase, userSettings: settings)
+
+        await vm.synthesizeRoadmap()
+
+        XCTAssertNil(vm.roadmapResult)
+        XCTAssertNotNil(vm.errorMessage)
+        XCTAssertEqual(vm.errorMessage, String(localized: "app.onboarding.reveal.error_generic"))
     }
 
     func testRetrySynthesisCancelsOldTaskAndStartsNewTask() {
@@ -120,5 +136,16 @@ final class OnboardingViewModelTests: XCTestCase {
         vm.previousStep()
         XCTAssertNil(vm.synthesisTask)
         XCTAssertTrue(task2?.isCancelled == true)
+    }
+}
+
+final class FailingInitializeUserRoadmapUseCase: InitializeUserRoadmapUseCaseProtocol, @unchecked Sendable {
+    func execute(
+        deckId: String,
+        cefrLevel: String,
+        dailyGoalCount: Int,
+        notificationTimeInterval: Double
+    ) async throws -> RoadmapInitializationResult {
+        throw OnboardingDomainError.stageNotFound(deckId)
     }
 }

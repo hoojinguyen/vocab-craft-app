@@ -60,6 +60,7 @@ final class UserSettingsStoreTests: XCTestCase {
         defaults.removeObject(forKey: "has_completed_onboarding")
         defaults.removeObject(forKey: "selected_goal_deck_id")
         defaults.removeObject(forKey: "assessed_cefr_level")
+        defaults.removeObject(forKey: "daily_goal_count")
 
         let store = UserSettingsStore()
         XCTAssertFalse(store.hasCompletedOnboarding)
@@ -73,6 +74,15 @@ final class UserSettingsStoreTests: XCTestCase {
         XCTAssertTrue(defaults.bool(forKey: "has_completed_onboarding"))
         XCTAssertEqual(defaults.string(forKey: "selected_goal_deck_id"), "deck_business")
         XCTAssertEqual(defaults.string(forKey: "assessed_cefr_level"), "B2")
+    }
+
+    func testExistingUserMigrationMarksOnboardingCompleted() {
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: "has_completed_onboarding")
+        defaults.set(20, forKey: "daily_goal_count")
+
+        let store = UserSettingsStore()
+        XCTAssertTrue(store.hasCompletedOnboarding)
     }
 }
 

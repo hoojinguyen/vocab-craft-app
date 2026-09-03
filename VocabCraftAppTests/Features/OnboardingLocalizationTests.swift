@@ -43,6 +43,7 @@ final class OnboardingLocalizationTests: XCTestCase {
         "app.onboarding.reveal.ready": ("Lộ trình hoàn hảo của bạn đã sẵn sàng!", "Your personalized roadmap is ready!"),
         "app.onboarding.reveal.projection_format": ("Với %lld từ/ngày, bạn sẽ làm chủ %lld từ vựng sau 30 ngày!", "At %lld words/day, you'll master %lld words in 30 days!"),
         "app.onboarding.reveal.cta": ("Bắt đầu bài học đầu tiên (1 phút)", "Start First Lesson (1 min)"),
+        "app.onboarding.reveal.error_generic": ("Không thể khởi tạo lộ trình học cá nhân. Vui lòng thử lại.", "Unable to synthesize your personalized roadmap. Please try again."),
         "app.onboarding.mini_lesson.next_cta": ("Tiếp tục", "Continue"),
         "app.onboarding.mini_lesson.check_cta": ("Hoàn thành", "Finish"),
         "app.onboarding.mini_lesson.pronounce_a11y": ("Phát âm từ", "Pronounce word"),

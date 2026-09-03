@@ -9113,6 +9113,23 @@
         }
       }
     },
+    "app.onboarding.reveal.error_generic": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to synthesize your personalized roadmap. Please try again."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể khởi tạo lộ trình học cá nhân. Vui lòng thử lại."
+          }
+        }
+      }
+    },
     "app.onboarding.mini_lesson.next_cta": {
       "extractionState": "manual",
       "localizations": {

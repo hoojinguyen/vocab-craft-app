@@ -71,44 +71,20 @@ public struct TopicWordDTO: Identifiable, Sendable, Equatable {
     }
 
     public static func fallbackStarterWords(stageId: String = "starter") -> [TopicWordDTO] {
-        [
+        Array(VocabularySampleDataset.words.prefix(3)).map { word in
             TopicWordDTO(
-                id: 1,
+                id: word.id,
                 stageId: stageId,
-                lemma: "Resilience",
-                phonetic: "/rɪˈzɪl.jəns/",
-                pos: "noun",
-                cefrLevel: "B1",
-                definitionVi: "Sự kiên cường",
-                definitionEn: "Ability to recover quickly",
-                exampleEn: "Her resilience inspired everyone.",
-                exampleVi: "Sự kiên cường của cô ấy đã truyền cảm hứng."
-            ),
-            TopicWordDTO(
-                id: 2,
-                stageId: stageId,
-                lemma: "Innovation",
-                phonetic: "/ˌɪn.əˈveɪ.ʃən/",
-                pos: "noun",
-                cefrLevel: "B1",
-                definitionVi: "Sự đổi mới, sáng tạo",
-                definitionEn: "A new method, idea, or product",
-                exampleEn: "Innovation drives progress.",
-                exampleVi: "Sự đổi mới thúc đẩy tiến bộ."
-            ),
-            TopicWordDTO(
-                id: 3,
-                stageId: stageId,
-                lemma: "Momentum",
-                phonetic: "/moʊˈmen.təm/",
-                pos: "noun",
-                cefrLevel: "B1",
-                definitionVi: "Đà phát triển",
-                definitionEn: "The force that keeps something moving",
-                exampleEn: "Maintain your study momentum.",
-                exampleVi: "Duy trì đà học tập của bạn."
+                lemma: word.lemma,
+                phonetic: word.phonetic,
+                pos: word.pos,
+                cefrLevel: word.cefrLevel,
+                definitionVi: word.definitionVi,
+                definitionEn: word.definitionEn,
+                exampleEn: word.exampleEn,
+                exampleVi: word.exampleVi
             )
-        ]
+        }
     }
 }
 

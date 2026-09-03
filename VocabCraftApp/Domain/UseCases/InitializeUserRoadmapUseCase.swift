@@ -53,13 +53,7 @@ public final class InitializeUserRoadmapUseCase: InitializeUserRoadmapUseCasePro
         dailyGoalCount: Int,
         notificationTimeInterval: Double
     ) async throws -> RoadmapInitializationResult {
-        // 1. Persist user preferences
-        userSettings.selectedGoalDeckId = deckId
-        userSettings.assessedCefrLevel = cefrLevel
-        userSettings.dailyGoalCount = dailyGoalCount
-        userSettings.notificationTimeInterval = notificationTimeInterval
-
-        // 2. Fetch stages for the target deck
+        // 1. Fetch stages for the target deck
         let stages = try await dataSource.fetchSubTopicStages(deckId: deckId)
         let sortedStages = stages.sorted { $0.sortOrder < $1.sortOrder }
 
@@ -76,7 +70,7 @@ public final class InitializeUserRoadmapUseCase: InitializeUserRoadmapUseCasePro
             startingStage = firstStage
         }
 
-        // 3. Fetch starter words with safe fallback before mutating progress
+        // 2. Fetch starter words with safe fallback before mutating progress
         let fetchedWords: [TopicWordDTO]
         do {
             fetchedWords = try await dataSource.fetchWordsForStage(stageId: startingStage.id)
@@ -91,13 +85,18 @@ public final class InitializeUserRoadmapUseCase: InitializeUserRoadmapUseCasePro
         let starterWords: [TopicWordDTO]
         if fetchedWords.count >= 3 {
             starterWords = Array(fetchedWords.prefix(3))
-        } else if !fetchedWords.isEmpty {
-            starterWords = fetchedWords
         } else {
-            starterWords = TopicWordDTO.fallbackStarterWords(stageId: startingStage.id)
+            var combined = fetchedWords
+            let fallbacks = TopicWordDTO.fallbackStarterWords(stageId: startingStage.id)
+            for fallback in fallbacks where combined.count < 3 {
+                if !combined.contains(where: { $0.lemma.caseInsensitiveCompare(fallback.lemma) == .orderedSame }) {
+                    combined.append(fallback)
+                }
+            }
+            starterWords = combined
         }
 
-        // 4. Auto-unlock foundational stage 1 after words are guaranteed
+        // 3. Auto-unlock foundational stage 1 after words are guaranteed
         if isAdvancedLevel && sortedStages.count > 1 {
             try await stageRepo.saveStageProgress(
                 stageId: firstStage.id,
@@ -107,6 +106,12 @@ public final class InitializeUserRoadmapUseCase: InitializeUserRoadmapUseCasePro
                 progressFraction: 1.0
             )
         }
+
+        // 4. Persist user preferences only after roadmap synthesis succeeds
+        userSettings.selectedGoalDeckId = deckId
+        userSettings.assessedCefrLevel = cefrLevel
+        userSettings.dailyGoalCount = dailyGoalCount
+        userSettings.notificationTimeInterval = notificationTimeInterval
 
         return RoadmapInitializationResult(
             startingStage: startingStage,

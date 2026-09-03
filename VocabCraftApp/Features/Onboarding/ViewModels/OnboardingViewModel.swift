@@ -101,9 +101,11 @@ public final class OnboardingViewModel {
             guard !Task.isCancelled else { isSynthesizing = false; return }
             self.roadmapResult = result
             self.synthesisPhaseTextKey = "app.onboarding.reveal.ready"
+        } catch is CancellationError {
+            guard !Task.isCancelled else { isSynthesizing = false; return }
         } catch {
             guard !Task.isCancelled else { isSynthesizing = false; return }
-            self.errorMessage = error.localizedDescription
+            self.errorMessage = String(localized: "app.onboarding.reveal.error_generic")
         }
 
         try? await Task.sleep(nanoseconds: 200_000_000)

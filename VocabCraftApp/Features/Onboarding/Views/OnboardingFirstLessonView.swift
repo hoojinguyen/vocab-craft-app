@@ -99,6 +99,7 @@ public struct OnboardingFirstLessonView: View {
                 isCelebrationPresented = false
                 onFinish()
             }
+            .interactiveDismissDisabled()
         }
         .onAppear {
             ttsService?.speak(text: currentWord.lemma)
