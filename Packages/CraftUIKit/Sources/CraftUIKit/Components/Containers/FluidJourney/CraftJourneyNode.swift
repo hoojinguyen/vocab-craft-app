@@ -15,51 +15,69 @@ private struct JourneyNodeButtonStyle: ButtonStyle {
 
 // MARK: - CraftJourneyNode Component
 
-/// A 3D tactile floating node within the fluid journey learning path.
+/// A 72pt uniform continuous squircle floating node within the fluid journey learning path.
 ///
-/// Features 3 primary visual states:
-/// - `.completed`: 68pt translucent mint disc with a checkmark badge (`✓`)
-/// - `.active`: 82pt saturated hero orb with breathing glow (`PhaseAnimator`) and "START LESSON" sub-tag
-/// - `.upcoming` / `.locked`: 60pt muted surface disc
+/// Features:
+/// - 72pt unscaled diameter across all states (`RoundedRectangle(cornerRadius: 28, style: .continuous)`)
+/// - 5 surface styles: `.elevated`, `.flat`, `.outlined`, `.tactile3D`, `.glass`
+/// - Preserved lesson icons on locked/upcoming nodes in a muted tone (no `lock.fill` replacement)
+/// - Active breathing glow aura without mechanical scale ballooning
+/// - Bottom-right checkmark badge on completed nodes
 public struct CraftJourneyNode: View, Equatable {
     public let node: LessonNodeModel
+    public let surfaceStyle: CraftSurfaceStyle?
     public let onTap: (@Sendable () -> Void)?
 
     @Environment(\.craftTheme) private var theme
+    @Environment(\.craftSurfaceStyle) private var environmentSurfaceStyle
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @ScaledMetric(relativeTo: .body) private var baseScale: CGFloat = 1.0
 
     @State private var tapTrigger: Bool = false
 
-    // MARK: - Initializer
+    // MARK: - Initializers
 
-    public init(node: LessonNodeModel, onTap: (@Sendable () -> Void)? = nil) {
+    public init(
+        node: LessonNodeModel,
+        surfaceStyle: CraftSurfaceStyle? = nil,
+        onTap: (@Sendable () -> Void)? = nil
+    ) {
         self.node = node
+        self.surfaceStyle = surfaceStyle
         self.onTap = onTap
     }
 
-    public init(model: LessonNodeModel, onTap: (@Sendable () -> Void)? = nil) {
-        self.init(node: model, onTap: onTap)
+    public init(
+        model: LessonNodeModel,
+        surfaceStyle: CraftSurfaceStyle? = nil,
+        onTap: (@Sendable () -> Void)? = nil
+    ) {
+        self.init(node: model, surfaceStyle: surfaceStyle, onTap: onTap)
     }
 
     // MARK: - Equatable Conformance
 
     public static func == (lhs: CraftJourneyNode, rhs: CraftJourneyNode) -> Bool {
-        lhs.node == rhs.node
+        lhs.node == rhs.node && lhs.surfaceStyle == rhs.surfaceStyle
+    }
+
+    // MARK: - Surface Style Resolution
+
+    public var effectiveSurfaceStyle: CraftSurfaceStyle {
+        if let surfaceStyle {
+            return surfaceStyle
+        }
+        if environmentSurfaceStyle != .flat {
+            return environmentSurfaceStyle
+        }
+        return theme.journeySurfaceStyle
     }
 
     // MARK: - Sizing Metrics
 
     /// Returns the standard unscaled diameter in points for a node in the given progression state.
     public static func diameter(for state: LessonNodeState) -> CGFloat {
-        switch state {
-        case .active, .inProgress:
-            return 82
-        case .completed:
-            return 68
-        case .upcoming, .locked, .bonus:
-            return 60
-        }
+        72
     }
 
     /// Dynamic scaled diameter accounting for user accessibility scale.
@@ -70,11 +88,16 @@ public struct CraftJourneyNode: View, Equatable {
     /// Dynamic icon size proportional to node diameter.
     public var iconSize: CGFloat {
         let unscaled: CGFloat = switch node.state {
-        case .active, .inProgress: 32
+        case .active, .inProgress: 28
         case .completed: 26
-        case .upcoming, .locked, .bonus: 22
+        case .upcoming, .locked, .bonus: 24
         }
         return unscaled * baseScale
+    }
+
+    /// Preserved lesson icon name across all progression states.
+    public var displayedIconName: String {
+        node.iconName.isEmpty ? "book.fill" : node.iconName
     }
 
     // MARK: - Accessibility Helpers
@@ -143,7 +166,7 @@ public struct CraftJourneyNode: View, Equatable {
                         activeGlowBackground
                     }
 
-                    orbBody
+                    nodeFace
                 }
                 .frame(width: currentDiameter, height: currentDiameter)
 
@@ -161,78 +184,215 @@ public struct CraftJourneyNode: View, Equatable {
         .accessibilityAddTraits(accessibilityTraits)
     }
 
-    // MARK: - Orb Body
+    // MARK: - Node Face
 
     @ViewBuilder
-    private var orbBody: some View {
+    private var nodeFace: some View {
         ZStack {
-            switch node.state {
-            case .completed:
-                completedOrb
-            case .active, .inProgress:
-                activeOrb
-            case .upcoming, .locked, .bonus:
-                mutedOrb
-            }
+            faceBackgroundView
+
+            Image(systemName: displayedIconName)
+                .font(.system(size: iconSize, weight: (node.state == .active || node.state == .inProgress) ? .bold : .semibold))
+                .foregroundStyle(iconForegroundColor)
         }
         .frame(width: currentDiameter, height: currentDiameter)
+        .opacity(node.state == .locked ? 0.8 : 1.0)
         .overlay(alignment: .bottomTrailing) {
             if node.state == .completed {
                 completedCheckmarkBadge
-                    .offset(x: theme.spacing.xxs, y: theme.spacing.xxs)
+                    .offset(x: 4, y: 4)
             }
         }
     }
 
-    // MARK: - Completed Orb
+    // MARK: - Shape Helper
 
-    private var completedOrb: some View {
-        ZStack {
-            Circle()
-                .fill(theme.colors.brandPrimary.opacity(0.12))
-
-            Circle()
-                .strokeBorder(theme.colors.brandPrimary.opacity(0.25), lineWidth: 1.5)
-
-            Image(systemName: displayedIconName)
-                .font(.system(size: iconSize, weight: .semibold))
-                .foregroundStyle(theme.colors.brandPrimary)
-        }
-        .shadow(color: theme.colors.brandPrimary.opacity(0.08), radius: 6, x: 0, y: 3)
+    private var squircleShape: RoundedRectangle {
+        RoundedRectangle(cornerRadius: 28 * baseScale, style: .continuous)
     }
 
-    // MARK: - Active Hero Orb
+    // MARK: - Face Background View
 
-    private var activeOrb: some View {
-        ZStack {
-            Circle()
-                .fill(theme.gradients.brandHero)
-
-            Circle()
-                .strokeBorder(theme.depths.topHighlight, lineWidth: 1.5)
-
-            Image(systemName: displayedIconName)
-                .font(.system(size: iconSize, weight: .bold))
-                .foregroundStyle(theme.colors.textInverse)
+    @ViewBuilder
+    private var faceBackgroundView: some View {
+        switch effectiveSurfaceStyle {
+        case .glass:
+            glassFace
+        case .elevated:
+            elevatedFace
+        case .outlined:
+            outlinedFace
+        case .flat:
+            flatFace
+        case .tactile3D:
+            tactile3DFace
         }
-        .shadow(color: theme.colors.brandPrimary.opacity(0.40), radius: 14, x: 0, y: 6)
     }
 
-    // MARK: - Muted Upcoming / Locked Orb
+    // MARK: - Surface Style Faces
 
-    private var mutedOrb: some View {
+    private var glassFace: some View {
         ZStack {
-            Circle()
-                .fill(theme.colors.surfaceSubtle)
+            squircleShape
+                .fill(.ultraThinMaterial)
 
-            Circle()
-                .strokeBorder(theme.colors.borderDefault, lineWidth: 1.5)
+            switch node.state {
+            case .active, .inProgress:
+                squircleShape
+                    .fill(theme.colors.brandPrimary.opacity(0.25))
+            case .completed:
+                squircleShape
+                    .fill(theme.colors.statusSuccess.opacity(0.18))
+            case .bonus:
+                squircleShape
+                    .fill(theme.colors.accent.opacity(0.20))
+            case .upcoming, .locked:
+                squircleShape
+                    .fill(theme.colors.surfaceSubtle.opacity(theme.glass.tintOpacity))
+            }
 
-            Image(systemName: displayedIconName)
-                .font(.system(size: iconSize, weight: .semibold))
-                .foregroundStyle(theme.colors.textMuted)
+            squircleShape
+                .strokeBorder(theme.glass.borderGradient, lineWidth: 1)
+            squircleShape
+                .strokeBorder(theme.depths.topHighlight, lineWidth: 0.8)
         }
-        .opacity(node.state == .locked ? 0.6 : 0.85)
+        .craftShadow(theme.shadows.sm)
+    }
+
+    private var elevatedFace: some View {
+        ZStack {
+            switch node.state {
+            case .active, .inProgress:
+                squircleShape
+                    .fill(theme.gradients.brandHero)
+            case .completed:
+                squircleShape
+                    .fill(theme.colors.brandPrimary.opacity(0.12))
+            case .bonus:
+                squircleShape
+                    .fill(theme.colors.accent.opacity(0.15))
+            case .upcoming, .locked:
+                squircleShape
+                    .fill(theme.colors.surfaceElevated)
+            }
+
+            squircleShape
+                .strokeBorder(
+                    LinearGradient(
+                        stops: [
+                            .init(color: .craftDynamic(light: Color.white.opacity(0.7), dark: Color.white.opacity(0.16)), location: 0.0),
+                            .init(color: .craftDynamic(light: theme.colors.hairline.opacity(0.4), dark: Color.white.opacity(0.04)), location: 0.5),
+                            .init(color: .clear, location: 1.0)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
+        }
+        .craftShadow(node.state == .active || node.state == .inProgress ? theme.shadows.md : theme.shadows.sm)
+    }
+
+    private var outlinedFace: some View {
+        ZStack {
+            squircleShape
+                .fill(theme.colors.surfaceCard)
+
+            switch node.state {
+            case .active, .inProgress:
+                squircleShape
+                    .strokeBorder(theme.colors.brandPrimary, lineWidth: 2)
+            case .completed:
+                squircleShape
+                    .strokeBorder(theme.colors.statusSuccess, lineWidth: 1.5)
+            case .bonus:
+                squircleShape
+                    .strokeBorder(theme.colors.accent, lineWidth: 1.5)
+            case .upcoming, .locked:
+                squircleShape
+                    .strokeBorder(theme.colors.borderDefault, lineWidth: 1.5)
+            }
+        }
+    }
+
+    private var flatFace: some View {
+        ZStack {
+            switch node.state {
+            case .active, .inProgress:
+                squircleShape
+                    .fill(theme.gradients.brandHero)
+            case .completed:
+                squircleShape
+                    .fill(theme.colors.brandPrimary.opacity(0.12))
+            case .bonus:
+                squircleShape
+                    .fill(theme.colors.accent.opacity(0.15))
+            case .upcoming, .locked:
+                squircleShape
+                    .fill(theme.colors.surfaceSubtle)
+            }
+        }
+    }
+
+    private var tactile3DFace: some View {
+        ZStack {
+            switch node.state {
+            case .active, .inProgress:
+                squircleShape
+                    .fill(theme.gradients.brandHero)
+
+                squircleShape
+                    .strokeBorder(theme.depths.topHighlight, lineWidth: 1.5)
+            case .completed:
+                squircleShape
+                    .fill(theme.colors.brandPrimary.opacity(0.12))
+
+                squircleShape
+                    .strokeBorder(theme.colors.brandPrimary.opacity(0.25), lineWidth: 1.5)
+            case .bonus:
+                squircleShape
+                    .fill(theme.colors.accent.opacity(0.15))
+
+                squircleShape
+                    .strokeBorder(theme.colors.accent.opacity(0.3), lineWidth: 1.5)
+            case .upcoming, .locked:
+                squircleShape
+                    .fill(theme.colors.surfaceSubtle)
+
+                squircleShape
+                    .strokeBorder(theme.colors.borderDefault, lineWidth: 1.5)
+            }
+        }
+        .shadow(
+            color: (node.state == .active || node.state == .inProgress)
+                ? theme.colors.brandPrimary.opacity(0.40)
+                : (node.state == .completed ? theme.colors.brandPrimary.opacity(0.08) : Color.clear),
+            radius: (node.state == .active || node.state == .inProgress) ? 12 : 6,
+            x: 0,
+            y: (node.state == .active || node.state == .inProgress) ? 5 : 3
+        )
+    }
+
+    // MARK: - Foreground Colors
+
+    private var iconForegroundColor: Color {
+        switch node.state {
+        case .active, .inProgress:
+            switch effectiveSurfaceStyle {
+            case .outlined, .glass:
+                return theme.colors.brandPrimary
+            case .elevated, .flat, .tactile3D:
+                return theme.colors.textInverse
+            }
+        case .completed:
+            return theme.colors.brandPrimary
+        case .bonus:
+            return theme.colors.accent
+        case .upcoming:
+            return theme.colors.textMuted
+        case .locked:
+            return theme.colors.textMuted.opacity(0.70)
+        }
     }
 
     // MARK: - Checkmark Badge
@@ -245,10 +405,10 @@ public struct CraftJourneyNode: View, Equatable {
 
             Circle()
                 .fill(theme.colors.statusSuccess)
-                .frame(width: 22, height: 22)
+                .frame(width: 20, height: 20)
 
             Image(systemName: "checkmark")
-                .font(.system(size: 11, weight: .bold))
+                .font(.system(size: 10, weight: .bold))
                 .foregroundStyle(theme.colors.textInverse)
         }
         .accessibilityHidden(true)
@@ -258,7 +418,7 @@ public struct CraftJourneyNode: View, Equatable {
 
     @ViewBuilder
     private var activeGlowBackground: some View {
-        let haloSize = currentDiameter + 28
+        let haloSize = currentDiameter + 24
         let haloGradient = RadialGradient(
             colors: [
                 theme.colors.brandPrimary.opacity(0.35),
@@ -270,25 +430,27 @@ public struct CraftJourneyNode: View, Equatable {
             endRadius: haloSize * 0.5
         )
 
+        let glowCornerRadius: CGFloat = 34 * baseScale
+
         if reduceMotion {
-            Circle()
+            RoundedRectangle(cornerRadius: glowCornerRadius, style: .continuous)
                 .fill(haloGradient)
                 .frame(width: haloSize, height: haloSize)
                 .opacity(0.8)
 
-            Circle()
+            RoundedRectangle(cornerRadius: glowCornerRadius, style: .continuous)
                 .stroke(theme.colors.brandPrimary.opacity(0.25), lineWidth: 1.5)
                 .frame(width: haloSize, height: haloSize)
         } else {
             PhaseAnimator(GlowPhase.allCases) { phase in
                 ZStack {
-                    Circle()
+                    RoundedRectangle(cornerRadius: glowCornerRadius, style: .continuous)
                         .fill(haloGradient)
                         .frame(width: haloSize, height: haloSize)
                         .opacity(phase == .glowing ? 1.0 : 0.65)
-                        .scaleEffect(phase == .glowing ? 1.06 : 0.96)
+                        .scaleEffect(phase == .glowing ? 1.05 : 0.98)
 
-                    Circle()
+                    RoundedRectangle(cornerRadius: glowCornerRadius, style: .continuous)
                         .stroke(
                             theme.colors.brandPrimary.opacity(phase == .glowing ? 0.38 : 0.16),
                             lineWidth: 1.5
@@ -320,14 +482,5 @@ public struct CraftJourneyNode: View, Equatable {
             )
             .shadow(color: theme.colors.brandPrimary.opacity(0.35), radius: 6, x: 0, y: 3)
             .accessibilityHidden(true)
-    }
-
-    // MARK: - Helpers
-
-    private var displayedIconName: String {
-        if node.state == .locked {
-            return "lock.fill"
-        }
-        return node.iconName.isEmpty ? "book.fill" : node.iconName
     }
 }

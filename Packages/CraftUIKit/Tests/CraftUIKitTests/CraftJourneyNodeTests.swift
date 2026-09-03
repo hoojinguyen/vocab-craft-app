@@ -13,12 +13,12 @@ struct CraftJourneyNodeTests {
         let upcomingNode = LessonNodeModel(id: "4", title: "Upcoming", state: .upcoming)
         let bonusNode = LessonNodeModel(id: "5", title: "Bonus", state: .bonus)
 
-        #expect(CraftJourneyNode.diameter(for: activeNode.state) == 82)
-        #expect(CraftJourneyNode.diameter(for: inProgressNode.state) == 82)
-        #expect(CraftJourneyNode.diameter(for: completedNode.state) == 68)
-        #expect(CraftJourneyNode.diameter(for: lockedNode.state) == 60)
-        #expect(CraftJourneyNode.diameter(for: upcomingNode.state) == 60)
-        #expect(CraftJourneyNode.diameter(for: bonusNode.state) == 60)
+        #expect(CraftJourneyNode.diameter(for: activeNode.state) == 72)
+        #expect(CraftJourneyNode.diameter(for: inProgressNode.state) == 72)
+        #expect(CraftJourneyNode.diameter(for: completedNode.state) == 72)
+        #expect(CraftJourneyNode.diameter(for: lockedNode.state) == 72)
+        #expect(CraftJourneyNode.diameter(for: upcomingNode.state) == 72)
+        #expect(CraftJourneyNode.diameter(for: bonusNode.state) == 72)
     }
 
     @Test("Verify node view initialization and model properties")

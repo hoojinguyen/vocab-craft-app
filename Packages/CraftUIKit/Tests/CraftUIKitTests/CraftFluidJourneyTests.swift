@@ -241,4 +241,40 @@ struct CraftFluidJourneyTests {
         journey.onAdjustPlan?()
         #expect(adjustPlanTapped == true)
     }
+
+    // MARK: - CraftJourneyNode Refinement Tests
+
+    @Test("Verify CraftJourneyNode uniform sizing across states")
+    func testCraftJourneyNodeUniformSizingAcrossStates() {
+        let completed = CraftJourneyNode.diameter(for: .completed)
+        let active = CraftJourneyNode.diameter(for: .active)
+        let inProgress = CraftJourneyNode.diameter(for: .inProgress)
+        let locked = CraftJourneyNode.diameter(for: .locked)
+        let upcoming = CraftJourneyNode.diameter(for: .upcoming)
+
+        #expect(completed == 72, "Completed node must be 72pt")
+        #expect(active == 72, "Active node base diameter must be 72pt, matching other nodes")
+        #expect(inProgress == 72, "InProgress node must be 72pt")
+        #expect(locked == 72, "Locked node must be 72pt")
+        #expect(upcoming == 72, "Upcoming node must be 72pt")
+    }
+
+    @Test("Verify CraftJourneyNode preserves lesson icon when locked")
+    func testCraftJourneyNodePreservesLessonIconWhenLocked() {
+        let node = LessonNodeModel(
+            id: "lesson_1",
+            title: "Vocabulary Basics",
+            iconName: "bubble.left.and.bubble.right.fill",
+            state: .locked
+        )
+        let journeyNode = CraftJourneyNode(node: node)
+        #expect(journeyNode.displayedIconName == "bubble.left.and.bubble.right.fill", "Locked node must preserve original lesson icon instead of lock.fill")
+    }
+
+    @Test("Verify CraftJourneyNode surface style resolution")
+    func testCraftJourneyNodeSurfaceStyleResolution() {
+        let node = LessonNodeModel(id: "n1", title: "Test", iconName: "book.fill", state: .active)
+        let explicitNode = CraftJourneyNode(node: node, surfaceStyle: .glass)
+        #expect(explicitNode.surfaceStyle == .glass)
+    }
 }
