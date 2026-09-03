@@ -358,7 +358,7 @@ public struct HomepageView: View {
                 homeConfettiTrigger = true
                 completionToastData = CraftToastData(
                     title: String(localized: "app.home.toast.completed_title", defaultValue: "Completed!", bundle: .module),
-                    message: "+\(summary.xpEarned) XP • \(starIcons) \(String(localized: "app.home.toast.stars_suffix", defaultValue: " • Great Job!", bundle: .module))",
+                    message: "+\(summary.xpEarned) XP • \(starIcons)\(String(localized: "app.home.toast.stars_suffix", defaultValue: " • Amazing!", bundle: .module))",
                     iconName: "star.fill",
                     style: .success,
                     surfaceStyle: .glass,

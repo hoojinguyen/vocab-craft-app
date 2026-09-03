@@ -172,7 +172,8 @@ public final class LessonLearningViewModel: Identifiable {
     public func requestHint(for item: LessonExerciseItem) {
         guard !isFeedbackPresented else { return }
         guard currentExerciseItem?.id == item.id else { return }
-        guard hintStage < 3 else { return }
+        let maxHintStage = (item.assignedMode == .typing) ? 2 : 3
+        guard hintStage < maxHintStage else { return }
         CraftHaptics.shared.selection()
         hintStage += 1
 
@@ -284,6 +285,9 @@ public final class LessonLearningViewModel: Identifiable {
     public func retryCompletion() async throws -> LessonCompletionResult? {
         if isCompleted {
             return nil
+        }
+        if let completionTask {
+            return try await completionTask.value
         }
         guard let summary else { return nil }
         persistenceError = nil

@@ -17,12 +17,20 @@ public struct LessonExerciseContainerView: View {
         self.viewModel = viewModel
     }
 
+    @State private var cachedClozeStages: ReflexClozeStageSet?
+
     private var drillableWord: ReflexBlitzWordItem {
         ReflexBlitzWordItem(from: item.word)
     }
 
     private var clozeStages: ReflexClozeStageSet {
-        item.clozeStages ?? ReflexHintMaskGenerator.generateStages(
+        if let stages = item.clozeStages {
+            return stages
+        }
+        if let cached = cachedClozeStages {
+            return cached
+        }
+        return ReflexHintMaskGenerator.generateStages(
             lemma: item.word.lemma,
             sentenceEn: item.word.exampleEn,
             pos: item.word.pos
@@ -186,6 +194,13 @@ public struct LessonExerciseContainerView: View {
             .padding(.bottom, viewModel.isFeedbackPresented ? 160 : theme.spacing.base)
         }
         .task(id: item.id) {
+            if cachedClozeStages == nil {
+                cachedClozeStages = item.clozeStages ?? ReflexHintMaskGenerator.generateStages(
+                    lemma: item.word.lemma,
+                    sentenceEn: item.word.exampleEn,
+                    pos: item.word.pos
+                )
+            }
             if item.assignedMode == .listening {
                 viewModel.playAudio(for: item.word.lemma)
             } else if item.assignedMode == .speaking {

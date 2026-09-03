@@ -188,6 +188,8 @@ public struct LessonExerciseItem: Identifiable, Sendable {
     public let word: TopicWordDTO
     public let assignedMode: ReflexBlitzMode
     public let options: [ReflexBlitzOption]
+    public let clozeStages: ReflexClozeStageSet?
+    public let attemptCount: Int
     public let isRequeued: Bool
 
     public init(
@@ -195,12 +197,16 @@ public struct LessonExerciseItem: Identifiable, Sendable {
         word: TopicWordDTO,
         assignedMode: ReflexBlitzMode,
         options: [ReflexBlitzOption] = [],
+        clozeStages: ReflexClozeStageSet? = nil,
+        attemptCount: Int = 1,
         isRequeued: Bool = false
     ) {
         self.id = id
         self.word = word
         self.assignedMode = assignedMode
         self.options = options
+        self.clozeStages = clozeStages
+        self.attemptCount = attemptCount
         self.isRequeued = isRequeued
     }
 }

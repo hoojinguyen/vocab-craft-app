@@ -23,7 +23,11 @@ public struct LessonExerciseItem: Identifiable, Sendable, Equatable {
         self.word = word
         self.assignedMode = assignedMode
         self.options = options
-        self.clozeStages = clozeStages
+        self.clozeStages = clozeStages ?? ReflexHintMaskGenerator.generateStages(
+            lemma: word.lemma,
+            sentenceEn: word.exampleEn,
+            pos: word.pos
+        )
         self.attemptCount = attemptCount
         self.isRequeued = isRequeued
     }

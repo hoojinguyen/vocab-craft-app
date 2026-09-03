@@ -11,6 +11,7 @@ final class MockCompleteLessonUseCase: CompleteLessonUseCaseProtocol, @unchecked
     var executedWeakWordIds: [Int64]?
     var executedProgressFraction: Double?
     var shouldFail: Bool = false
+    var executeCallCount: Int = 0
 
     func execute(
         stageId: String,
@@ -19,6 +20,7 @@ final class MockCompleteLessonUseCase: CompleteLessonUseCaseProtocol, @unchecked
         weakWordIds: [Int64],
         progressFraction: Double
     ) async throws -> LessonCompletionResult {
+        executeCallCount += 1
         if shouldFail {
             throw URLError(.timedOut)
         }
@@ -420,6 +422,67 @@ struct LessonLearningViewModelTests {
         } else {
             #expect(Bool(false), "Expected speechState to be listening after retry")
         }
+    }
+
+    @Test("Hint requests are capped at 2 for typing exercises and 3 for others")
+    func testHintCapForTyping() throws {
+        let words = makeSampleWords(count: 4)
+        let vm = LessonLearningViewModel(
+            stageId: "stage_1",
+            deckId: "deck_1",
+            words: words,
+            completeLessonUseCase: MockCompleteLessonUseCase(),
+            ttsService: MockTextToSpeechService(),
+            soundEffectService: MockSoundEffectService(),
+            speechEngine: MockResilientReflexSpeechEngine()
+        )
+
+        // Advance to typing exercise
+        while vm.currentExerciseItem?.assignedMode != .typing && !vm.isSummaryStep {
+            vm.advanceStep()
+        }
+
+        let typingItem = try #require(vm.currentExerciseItem)
+        #expect(typingItem.assignedMode == .typing)
+
+        vm.requestHint(for: typingItem)
+        #expect(vm.hintStage == 1)
+
+        vm.requestHint(for: typingItem)
+        #expect(vm.hintStage == 2)
+
+        // Third request should be ignored for typing
+        vm.requestHint(for: typingItem)
+        #expect(vm.hintStage == 2)
+    }
+
+    @Test("retryCompletion reuses in-flight completionTask instead of spawning duplicate")
+    func testRetryCompletionReusesInFlightTask() async throws {
+        let words = makeSampleWords()
+        let completeUseCase = MockCompleteLessonUseCase()
+        let vm = LessonLearningViewModel(
+            stageId: "stage_1",
+            deckId: "deck_1",
+            words: words,
+            completeLessonUseCase: completeUseCase,
+            ttsService: MockTextToSpeechService(),
+            soundEffectService: MockSoundEffectService(),
+            speechEngine: MockResilientReflexSpeechEngine()
+        )
+
+        while !vm.isSummaryStep {
+            vm.advanceStep()
+        }
+
+        // Multiple concurrent calls to retryCompletion should reuse the task
+        async let first = vm.retryCompletion()
+        async let second = vm.retryCompletion()
+
+        let (result1, result2) = try await (first, second)
+        #expect(result1 != nil)
+        #expect(result2 != nil)
+        #expect(vm.isCompleted)
+        #expect(completeUseCase.executeCallCount == 1)
     }
 }
 #endif
