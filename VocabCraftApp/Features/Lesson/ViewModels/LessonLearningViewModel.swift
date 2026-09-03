@@ -212,6 +212,7 @@ public final class LessonLearningViewModel: Identifiable {
 
         speechEngine.onError = { [weak self] _ in
             guard let self, self.currentExerciseItem?.id == item.id else { return }
+            self.speechEngine.stopSession()
             self.speechState = .idle
         }
 

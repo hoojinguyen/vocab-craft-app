@@ -171,4 +171,30 @@ final class LearningPathUseCasesTests: XCTestCase {
         XCTAssertNotNil(savedProgress)
         XCTAssertEqual(savedProgress?.isCompleted, true)
     }
+
+    func test_completeLessonUseCase_concurrentExecution_sharesInFlightTask() async throws {
+        let sut = CompleteLessonUseCase(
+            stageRepo: stageRepo,
+            progressRepo: progressRepo
+        )
+
+        async let first = sut.execute(
+            stageId: "stage_concurrent",
+            deckId: "deck_daily",
+            stars: 3,
+            weakWordIds: [101, 102],
+            progressFraction: 1.0
+        )
+        async let second = sut.execute(
+            stageId: "stage_concurrent",
+            deckId: "deck_daily",
+            stars: 3,
+            weakWordIds: [101, 102],
+            progressFraction: 1.0
+        )
+
+        let (res1, res2) = try await (first, second)
+        XCTAssertEqual(res1, res2)
+        XCTAssertEqual(res1.score, 3)
+    }
 }

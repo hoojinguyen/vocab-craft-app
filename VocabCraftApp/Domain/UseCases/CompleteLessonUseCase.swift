@@ -39,7 +39,7 @@ public protocol CompleteLessonUseCaseProtocol: Sendable {
 public final class CompleteLessonUseCase: CompleteLessonUseCaseProtocol, Sendable {
     private let stageRepo: StageProgressRepositoryProtocol
     private let progressRepo: (any UserProgressRepositoryProtocol)?
-    private let recordedWeakWordsLock = OSAllocatedUnfairLock(initialState: [String: Set<Int64>]())
+    private let inFlightTasksLock = OSAllocatedUnfairLock(initialState: [String: Task<LessonCompletionResult, any Error>]())
 
     public init(
         stageRepo: StageProgressRepositoryProtocol,
@@ -50,6 +50,40 @@ public final class CompleteLessonUseCase: CompleteLessonUseCaseProtocol, Sendabl
     }
 
     public func execute(
+        stageId: String,
+        deckId: String,
+        stars: Int,
+        weakWordIds: [Int64],
+        progressFraction: Double
+    ) async throws -> LessonCompletionResult {
+        let sessionKey = "\(deckId):\(stageId)"
+
+        let sessionTask: Task<LessonCompletionResult, any Error> = inFlightTasksLock.withLock { state in
+            if let existing = state[sessionKey] {
+                return existing
+            }
+            let newTask = Task { [self] in
+                defer {
+                    self.inFlightTasksLock.withLock { state in
+                        _ = state.removeValue(forKey: sessionKey)
+                    }
+                }
+                return try await self.performExecution(
+                    stageId: stageId,
+                    deckId: deckId,
+                    stars: stars,
+                    weakWordIds: weakWordIds,
+                    progressFraction: progressFraction
+                )
+            }
+            state[sessionKey] = newTask
+            return newTask
+        }
+
+        return try await sessionTask.value
+    }
+
+    private func performExecution(
         stageId: String,
         deckId: String,
         stars: Int,
@@ -68,27 +102,15 @@ public final class CompleteLessonUseCase: CompleteLessonUseCaseProtocol, Sendabl
             progressFraction: progressFraction
         )
 
-        let sessionKey = "\(deckId):\(stageId)"
         if let progressRepo, !weakWordIds.isEmpty {
             for wordId in weakWordIds {
-                let alreadyRecorded = recordedWeakWordsLock.withLock { state in
-                    state[sessionKey, default: []].contains(wordId)
-                }
-                if !alreadyRecorded {
-                    try await progressRepo.recordChallengeResult(
-                        wordId: wordId,
-                        isCorrect: false,
-                        stageId: stageId,
-                        deckId: deckId
-                    )
-                    recordedWeakWordsLock.withLock { state in
-                        state[sessionKey, default: []].insert(wordId)
-                    }
-                }
+                try await progressRepo.recordChallengeResult(
+                    wordId: wordId,
+                    isCorrect: false,
+                    stageId: stageId,
+                    deckId: deckId
+                )
             }
-        }
-        recordedWeakWordsLock.withLock { state in
-            state.removeValue(forKey: sessionKey)
         }
 
         return LessonCompletionResult(

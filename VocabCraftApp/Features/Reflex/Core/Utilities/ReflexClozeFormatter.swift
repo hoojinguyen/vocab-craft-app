@@ -40,28 +40,19 @@ public struct ReflexClozeFormatter: Sendable {
         }
         guard !sentenceEn.isEmpty, !lemma.isEmpty else { return nil }
 
-        // 2. Try exact lemma word boundary match (case-insensitive)
-        let exactPattern = "(?i)\\b" + NSRegularExpression.escapedPattern(for: lemma) + "\\b"
-        if let regex = try? NSRegularExpression(pattern: exactPattern),
-           let match = regex.firstMatch(in: sentenceEn, options: [], range: NSRange(sentenceEn.startIndex..., in: sentenceEn)),
-           let matchRange = Range(match.range, in: sentenceEn) {
-            let prefix = String(sentenceEn[..<matchRange.lowerBound])
-            let slot = String(sentenceEn[matchRange])
-            let suffix = String(sentenceEn[matchRange.upperBound...])
-            return ClozeSentenceParts(prefix: prefix, slot: slot, suffix: suffix)
-        }
-
-        // 3. Try recognized inflection matching (e.g. "overwhelmed" vs "overwhelm", "focuses" vs "focus")
+        // 2. Try exact and inflection patterns
         let cleanLemma = lemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard !cleanLemma.isEmpty else { return nil }
-        let fuzzyPattern = "(?i)\\b" + NSRegularExpression.escapedPattern(for: cleanLemma) + "(?:s|es|ed|ing|d)\\b"
-        if let regex = try? NSRegularExpression(pattern: fuzzyPattern),
-           let match = regex.firstMatch(in: sentenceEn, options: [], range: NSRange(sentenceEn.startIndex..., in: sentenceEn)),
-           let matchRange = Range(match.range, in: sentenceEn) {
-            let prefix = String(sentenceEn[..<matchRange.lowerBound])
-            let slot = String(sentenceEn[matchRange])
-            let suffix = String(sentenceEn[matchRange.upperBound...])
-            return ClozeSentenceParts(prefix: prefix, slot: slot, suffix: suffix)
+
+        for pattern in inflectionPatterns(for: cleanLemma) {
+            if let regex = try? NSRegularExpression(pattern: pattern),
+               let match = regex.firstMatch(in: sentenceEn, options: [], range: NSRange(sentenceEn.startIndex..., in: sentenceEn)),
+               let matchRange = Range(match.range, in: sentenceEn) {
+                let prefix = String(sentenceEn[..<matchRange.lowerBound])
+                let slot = String(sentenceEn[matchRange])
+                let suffix = String(sentenceEn[matchRange.upperBound...])
+                return ClozeSentenceParts(prefix: prefix, slot: slot, suffix: suffix)
+            }
         }
 
         return nil
@@ -73,26 +64,44 @@ public struct ReflexClozeFormatter: Sendable {
         let cleanLemma = lemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard !cleanLemma.isEmpty else { return sentenceEn }
 
-        // 1. Try exact lemma word boundary match (case-insensitive) for all occurrences
-        let exactPattern = "(?i)\\b" + NSRegularExpression.escapedPattern(for: cleanLemma) + "\\b"
-        if let regex = try? NSRegularExpression(pattern: exactPattern) {
-            let range = NSRange(sentenceEn.startIndex..., in: sentenceEn)
-            let replaced = regex.stringByReplacingMatches(in: sentenceEn, options: [], range: range, withTemplate: "[ _________ ]")
-            if replaced != sentenceEn {
-                return replaced
+        var currentText = sentenceEn
+        for pattern in inflectionPatterns(for: cleanLemma) {
+            if let regex = try? NSRegularExpression(pattern: pattern) {
+                let range = NSRange(currentText.startIndex..., in: currentText)
+                currentText = regex.stringByReplacingMatches(in: currentText, options: [], range: range, withTemplate: "[ _________ ]")
             }
         }
 
-        // 2. Try recognized inflection matching (e.g. "overwhelmed" vs "overwhelm", "focuses" vs "focus")
-        let fuzzyPattern = "(?i)\\b" + NSRegularExpression.escapedPattern(for: cleanLemma) + "(?:s|es|ed|ing|d)\\b"
-        if let regex = try? NSRegularExpression(pattern: fuzzyPattern) {
-            let range = NSRange(sentenceEn.startIndex..., in: sentenceEn)
-            let replaced = regex.stringByReplacingMatches(in: sentenceEn, options: [], range: range, withTemplate: "[ _________ ]")
-            if replaced != sentenceEn {
-                return replaced
-            }
+        return currentText
+    }
+
+    /// Generates regex patterns for exact match and English inflection variants with spelling alternations.
+    private static func inflectionPatterns(for cleanLemma: String) -> [String] {
+        var patterns: [String] = []
+        let escapedLemma = NSRegularExpression.escapedPattern(for: cleanLemma)
+
+        // 1. Exact match and direct suffixes (e.g. walk -> walks, walked, walking; focus -> focuses)
+        patterns.append("(?i)\\b" + escapedLemma + "(?:s|es|ed|ing|d|er|est)?\\b")
+
+        // 2. Silent 'e' dropped before suffix (e.g. take -> taking, create -> creating)
+        if cleanLemma.hasSuffix("e") && cleanLemma.count > 2 {
+            let stem = String(cleanLemma.dropLast())
+            let escapedStem = NSRegularExpression.escapedPattern(for: stem)
+            patterns.append("(?i)\\b" + escapedStem + "(?:ing|ed|en)\\b")
         }
 
-        return sentenceEn
+        // 3. 'y' mutated to 'i' before suffix (e.g. study -> studies, studied; try -> tries, tried; happy -> happier)
+        if cleanLemma.hasSuffix("y") && cleanLemma.count > 2 {
+            let stem = String(cleanLemma.dropLast())
+            let escapedStem = NSRegularExpression.escapedPattern(for: stem)
+            patterns.append("(?i)\\b" + escapedStem + "(?:ies|ied|ier|iest)\\b")
+        }
+
+        // 4. Consonant doubling (e.g. stop -> stopped, stopping; plan -> planned, planning; run -> running)
+        if let lastChar = cleanLemma.last, "bcdfghjklmnpqrstvwxyz".contains(lastChar), cleanLemma.count >= 3 {
+            patterns.append("(?i)\\b" + escapedLemma + String(lastChar) + "(?:ed|ing)\\b")
+        }
+
+        return patterns
     }
 }

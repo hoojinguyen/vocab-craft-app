@@ -60,11 +60,11 @@ struct LessonLocalizationTests {
             "app.lesson.exit_alert.confirm",
             "app.lesson.exit_alert.cancel"
         ]
-        for key in keys {
+        for (key, expected) in expectedPairs {
             let enVal = String(localized: String.LocalizationValue(key), bundle: bundle, locale: Locale(identifier: "en"))
             let viVal = String(localized: String.LocalizationValue(key), bundle: bundle, locale: Locale(identifier: "vi"))
-            #expect(!enVal.isEmpty && enVal != key)
-            #expect(!viVal.isEmpty && viVal != key)
+            #expect(enVal == expected.en)
+            #expect(viVal == expected.vi)
         }
     }
 }
@@ -79,33 +79,84 @@ Expected: FAIL due to missing keys in `Localizable.xcstrings`.
 
 Add all lesson keys with English and Vietnamese translations, and create `AppStrings+Lesson.swift`:
 ```swift
-import Foundation
+import SwiftUI
 
 extension AppStrings {
     public enum Lesson {
-        public static let discoveryTitle = String(localized: "app.lesson.discovery.title", defaultValue: "Discover New Words", bundle: .module)
-        public static let continueAction = String(localized: "app.lesson.discovery.continue_action", defaultValue: "Continue", bundle: .module)
-        public static let checkAction = String(localized: "app.lesson.exercise.check_action", defaultValue: "Check", bundle: .module)
-        public static let correctFeedback = String(localized: "app.lesson.feedback.correct", defaultValue: "Correct!", bundle: .module)
-        public static let incorrectFeedback = String(localized: "app.lesson.feedback.incorrect", defaultValue: "Incorrect", bundle: .module)
+        public static var discoveryTitle: LocalizedStringKey { "app.lesson.discovery.title" }
+        public static var discoveryTitleText: String {
+            String(localized: "app.lesson.discovery.title", defaultValue: "Discover New Words", bundle: .module)
+        }
+
+        public static var continueAction: LocalizedStringKey { "app.lesson.discovery.continue_action" }
+        public static var continueActionText: String {
+            String(localized: "app.lesson.discovery.continue_action", defaultValue: "Continue", bundle: .module)
+        }
+
+        public static var checkAction: LocalizedStringKey { "app.lesson.exercise.check_action" }
+        public static var checkActionText: String {
+            String(localized: "app.lesson.exercise.check_action", defaultValue: "Check", bundle: .module)
+        }
+
+        public static var correctFeedback: LocalizedStringKey { "app.lesson.feedback.correct" }
+        public static var correctFeedbackText: String {
+            String(localized: "app.lesson.feedback.correct", defaultValue: "Correct!", bundle: .module)
+        }
+
+        public static var incorrectFeedback: LocalizedStringKey { "app.lesson.feedback.incorrect" }
+        public static var incorrectFeedbackText: String {
+            String(localized: "app.lesson.feedback.incorrect", defaultValue: "Incorrect", bundle: .module)
+        }
+
         public static func correctAnswerFormat(_ answer: String) -> String {
-            String(localized: "app.lesson.feedback.correct_answer_format", defaultValue: "Correct answer: \(answer)", bundle: .module)
+            String(format: String(localized: "app.lesson.feedback.correct_answer_format", defaultValue: "Correct answer: %@", bundle: .module), answer)
         }
-        public static let summaryTitle = String(localized: "app.lesson.summary.title", defaultValue: "Lesson Completed!", bundle: .module)
-        public static let xpTitleText = String(localized: "app.lesson.summary.xp_title", defaultValue: "XP", bundle: .module)
+
+        public static var summaryTitle: LocalizedStringKey { "app.lesson.summary.title" }
+        public static var summaryTitleText: String {
+            String(localized: "app.lesson.summary.title", defaultValue: "Lesson Completed!", bundle: .module)
+        }
+
         public static func xpEarnedFormat(_ xp: Int) -> String {
-            String(localized: "app.lesson.summary.xp_earned_format", defaultValue: "+\(xp) XP", bundle: .module)
+            String(format: String(localized: "app.lesson.summary.xp_earned_format", defaultValue: "+%lld XP", bundle: .module), xp)
         }
-        public static let masteredWords = String(localized: "app.lesson.summary.mastered_words", defaultValue: "Mastered Words", bundle: .module)
-        public static let accuracyText = String(localized: "app.lesson.summary.accuracy", defaultValue: "Accuracy", bundle: .module)
+
+        public static var xpTitle: LocalizedStringKey { "app.lesson.summary.xp_title" }
+        public static var xpTitleText: String {
+            String(localized: "app.lesson.summary.xp_title", defaultValue: "XP", bundle: .module)
+        }
+
+        public static var masteredWords: LocalizedStringKey { "app.lesson.summary.mastered_words" }
+        public static var masteredWordsText: String {
+            String(localized: "app.lesson.summary.mastered_words", defaultValue: "Mastered Words", bundle: .module)
+        }
+
+        public static var accuracyText: LocalizedStringKey { "app.lesson.summary.accuracy" }
+        public static var accuracyTextString: String {
+            String(localized: "app.lesson.summary.accuracy", defaultValue: "Accuracy", bundle: .module)
+        }
+
         public static func accuracyFormat(_ percentage: Int) -> String {
-            String(localized: "app.lesson.summary.accuracy_format", defaultValue: "\(percentage)%", bundle: .module)
+            String(format: String(localized: "app.lesson.summary.accuracy_format", defaultValue: "%lld%%", bundle: .module), percentage)
         }
-        public static let finishActionText = String(localized: "app.lesson.summary.finish_action", defaultValue: "Finish Lesson", bundle: .module)
-        public static let exitAlertTitle = String(localized: "app.lesson.exit_alert.title", defaultValue: "Leave Lesson?", bundle: .module)
-        public static let exitAlertMessage = String(localized: "app.lesson.exit_alert.message", defaultValue: "Your current lesson progress will not be saved if you leave now.", bundle: .module)
-        public static let exitAlertConfirm = String(localized: "app.lesson.exit_alert.confirm", defaultValue: "Leave", bundle: .module)
-        public static let exitAlertCancel = String(localized: "app.lesson.exit_alert.cancel", defaultValue: "Keep Learning", bundle: .module)
+
+        public static var finishActionText: LocalizedStringKey { "app.lesson.summary.finish_action" }
+        public static var finishActionTextString: String {
+            String(localized: "app.lesson.summary.finish_action", defaultValue: "Finish Lesson", bundle: .module)
+        }
+
+        public static var exitAlertTitleText: String {
+            String(localized: "app.lesson.exit_alert.title", defaultValue: "Leave Lesson?", bundle: .module)
+        }
+        public static var exitAlertMessageText: String {
+            String(localized: "app.lesson.exit_alert.message", defaultValue: "Your current lesson progress will not be saved if you leave now.", bundle: .module)
+        }
+        public static var exitAlertConfirmText: String {
+            String(localized: "app.lesson.exit_alert.confirm", defaultValue: "Leave", bundle: .module)
+        }
+        public static var exitAlertCancelText: String {
+            String(localized: "app.lesson.exit_alert.cancel", defaultValue: "Keep Learning", bundle: .module)
+        }
     }
 }
 ```
@@ -249,11 +300,7 @@ public final class LessonPlanGenerator: LessonPlanGeneratorProtocol, Sendable {
     public func generatePlan(from words: [TopicWordDTO], distractorPool: [TopicWordDTO]) -> [LessonStep] {
         guard !words.isEmpty else { return [] }
         
-        let chunkSize = words.count <= 4 ? words.count : 3
-        let chunks = stride(from: 0, to: words.count, by: chunkSize).map {
-            Array(words[$0..<min($0 + chunkSize, words.count)])
-        }
-        
+        let chunks = partitionIntoMicroCycles(words)
         var steps: [LessonStep] = []
         let allModes: [ReflexBlitzMode] = [.listening, .multipleChoice, .speaking, .typing]
         var globalWordIndex = 0
@@ -272,17 +319,44 @@ public final class LessonPlanGenerator: LessonPlanGeneratorProtocol, Sendable {
                         pool: distractorPool.map { ReflexBlitzWordItem(from: $0) }
                     )
                     : []
+                let clozeStages = ReflexHintMaskGenerator.generateStages(
+                    lemma: word.lemma,
+                    sentenceEn: word.exampleEn,
+                    pos: word.pos
+                )
                 let item = LessonExerciseItem(
                     id: "\(mode.rawValue)-\(word.id)-\(UUID().uuidString.prefix(6))",
                     word: word,
                     assignedMode: mode,
                     options: options,
+                    clozeStages: clozeStages,
+                    attemptCount: 1,
                     isRequeued: false
                 )
                 steps.append(.exercise(item: item))
             }
         }
         return steps
+    }
+
+    private func partitionIntoMicroCycles(_ words: [TopicWordDTO]) -> [[TopicWordDTO]] {
+        guard words.count > 5 else { return [words] }
+        var chunks: [[TopicWordDTO]] = []
+        var remaining = words[...]
+        while !remaining.isEmpty {
+            let count = remaining.count
+            let take: Int
+            if count <= 4 {
+                take = count
+            } else if count % 3 == 1 || count == 8 {
+                take = 4
+            } else {
+                take = 3
+            }
+            chunks.append(Array(remaining.prefix(take)))
+            remaining = remaining.dropFirst(take)
+        }
+        return chunks
     }
 }
 ```
@@ -514,12 +588,13 @@ public struct LessonSummaryView: View {
 
                 ScrollView {
                     VStack(spacing: theme.spacing.xs) {
-                        ForEach(summary.learnedWords, id: \.id) { word in
+                        ForEach(summary.masteredWords, id: \.id) { word in
                             CraftListRow(
                                 title: word.lemma,
                                 subtitle: word.definitionVi,
-                                leadingIcon: "character.book.closed.fill",
-                                trailingAction: { onReplayAudio(word) }
+                                iconName: "speaker.wave.2.fill",
+                                showChevron: false,
+                                action: { onReplayAudio(word) }
                             )
                         }
                     }
@@ -618,6 +693,7 @@ Expected: FAIL due to missing `LessonLearningViewModel`.
 - [ ] **Step 3: Implement `LessonLearningViewModel.swift`**
 
 ```swift
+import CraftUIKit
 import Foundation
 import Observation
 
@@ -826,7 +902,7 @@ public final class LessonLearningViewModel: Identifiable {
     }
 
     public func stopSpeechSession() {
-        speechEngine.endSession()
+        speechEngine.stopSession()
     }
 
     private func finishLesson() {
@@ -838,13 +914,18 @@ public final class LessonLearningViewModel: Identifiable {
         let xpEarned = isCheckpoint ? 80 : 25
         let accuracy = totalAnswered > 0 ? Double(correctAnswers) / Double(totalAnswered) : 1.0
 
+        let weakSet = weakWordIds
+        let mastered = words.filter { !weakSet.contains($0.id) }
+        let review = words.filter { weakSet.contains($0.id) }
+
         let summaryModel = LessonSummaryModel(
             stageId: stageId,
             deckId: deckId,
             stars: stars,
             xpEarned: xpEarned,
             accuracyFraction: accuracy,
-            learnedWords: words,
+            masteredWords: mastered,
+            reviewWords: review,
             weakWordIds: Array(weakWordIds)
         )
 
