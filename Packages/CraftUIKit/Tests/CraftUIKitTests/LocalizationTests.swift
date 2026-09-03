@@ -345,6 +345,28 @@ final class LocalizationTests: XCTestCase {
         XCTAssertEqual(viValue, "Chạm hai lần để cuộn về đầu bài học này")
     }
 
+    // MARK: - Fluid Journey Scope
+
+    func testFluidJourneyStrings() {
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.start_lesson"), "START LESSON")
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.start_lesson", language: "vi"), "BẮT ĐẦU HỌC")
+
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.completed_status"), "Completed")
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.completed_status", language: "vi"), "Đã xong")
+
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.current_status"), "Current")
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.current_status", language: "vi"), "Đang học")
+
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.unit_picker_title"), "Curriculum & Units")
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.unit_picker_title", language: "vi"), "Lộ trình & Chủ đề")
+
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.adjust_plan"), "Adjust plan")
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.adjust_plan", language: "vi"), "Tuỳ chỉnh lộ trình")
+
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.select_unit_hint"), "Double tap to switch to this unit")
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.select_unit_hint", language: "vi"), "Chạm hai lần để chuyển sang chủ đề này")
+    }
+
     // MARK: - Navigation, Feedback & Audio Scope
     
     func testNavigationAndAudioFeedbackStrings() {

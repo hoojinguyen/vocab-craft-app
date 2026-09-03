@@ -757,6 +757,114 @@
         }
       }
     },
+    "craft.fluid_journey.adjust_plan": {
+      "comment": "Adjust learning plan action button in curriculum drawer",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adjust plan"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tuỳ chỉnh lộ trình"
+          }
+        }
+      }
+    },
+    "craft.fluid_journey.completed_status": {
+      "comment": "Unit completed status label in curriculum drawer",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Completed"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã xong"
+          }
+        }
+      }
+    },
+    "craft.fluid_journey.current_status": {
+      "comment": "Unit currently active status label in curriculum drawer",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang học"
+          }
+        }
+      }
+    },
+    "craft.fluid_journey.select_unit_hint": {
+      "comment": "Accessibility hint to switch to selected unit in curriculum drawer",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Double tap to switch to this unit"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chạm hai lần để chuyển sang chủ đề này"
+          }
+        }
+      }
+    },
+    "craft.fluid_journey.start_lesson": {
+      "comment": "Start lesson badge on active hero journey node",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "START LESSON"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "BẮT ĐẦU HỌC"
+          }
+        }
+      }
+    },
+    "craft.fluid_journey.unit_picker_title": {
+      "comment": "Title for unit drawer sheet",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Curriculum & Units"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lộ trình & Chủ đề"
+          }
+        }
+      }
+    },
     "craft.header.a11y.search_toggle": {
       "comment": "Header search toggle button accessibility label",
       "extractionState": "manual",
