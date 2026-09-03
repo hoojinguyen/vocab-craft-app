@@ -150,5 +150,36 @@ final class UserSettingsStoreTests: XCTestCase {
 
         defaults.removePersistentDomain(forName: suite)
     }
+
+    func testTodayWordsLearnedReturnsZeroWhenDateIsPast() {
+        let suite = "test_learned_past_date_\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        let store = UserSettingsStore(defaults: defaults)
+
+        store.todayWordsLearned = 5
+        XCTAssertEqual(store.todayWordsLearned, 5)
+
+        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
+        store.todayWordsLearnedDate = yesterday
+
+        XCTAssertEqual(store.todayWordsLearned, 0)
+
+        defaults.removePersistentDomain(forName: suite)
+    }
+
+    func testTodayWordsLearnedPersistsForCurrentDay() {
+        let suite = "test_learned_today_\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        let store = UserSettingsStore(defaults: defaults)
+
+        XCTAssertEqual(store.todayWordsLearned, 0)
+        store.todayWordsLearned = 3
+        XCTAssertEqual(store.todayWordsLearned, 3)
+
+        let store2 = UserSettingsStore(defaults: defaults)
+        XCTAssertEqual(store2.todayWordsLearned, 3)
+
+        defaults.removePersistentDomain(forName: suite)
+    }
 }
 

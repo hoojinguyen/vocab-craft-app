@@ -105,9 +105,26 @@ public final class UserSettingsStore {
         }
     }
 
-    public var todayWordsLearned: Int {
+    public var todayWordsLearnedDate: Date? {
         didSet {
-            defaults.set(todayWordsLearned, forKey: "today_words_learned")
+            if let todayWordsLearnedDate {
+                defaults.set(todayWordsLearnedDate.timeIntervalSince1970, forKey: "today_words_learned_date")
+            } else {
+                defaults.removeObject(forKey: "today_words_learned_date")
+            }
+        }
+    }
+
+    public var todayWordsLearned: Int {
+        get {
+            guard let date = todayWordsLearnedDate, Calendar.current.isDateInToday(date) else {
+                return 0
+            }
+            return defaults.integer(forKey: "today_words_learned")
+        }
+        set {
+            todayWordsLearnedDate = Date()
+            defaults.set(newValue, forKey: "today_words_learned")
         }
     }
 
@@ -140,6 +157,12 @@ public final class UserSettingsStore {
         self.isHapticsEnabled = defaults.object(forKey: "is_haptics_enabled") != nil ? defaults.bool(forKey: "is_haptics_enabled") : true
         self.isSoundEffectsEnabled = defaults.object(forKey: "is_sound_effects_enabled") != nil ? defaults.bool(forKey: "is_sound_effects_enabled") : true
 
+        if let timestamp = defaults.object(forKey: "today_words_learned_date") as? Double {
+            self.todayWordsLearnedDate = Date(timeIntervalSince1970: timestamp)
+        } else {
+            self.todayWordsLearnedDate = nil
+        }
+
         let completedOnboarding: Bool
         if defaults.object(forKey: "has_completed_onboarding") == nil {
             if defaults.object(forKey: "did_perform_legacy_onboarding_migration") == nil {
@@ -161,18 +184,18 @@ public final class UserSettingsStore {
                     : (hasLegacyUserData ? 14 : 0)
                 defaults.set(streak, forKey: "current_streak")
                 self.currentStreak = streak
-                let learned = defaults.object(forKey: "today_words_learned") != nil
-                    ? defaults.integer(forKey: "today_words_learned")
-                    : (hasLegacyUserData ? 8 : 0)
-                defaults.set(learned, forKey: "today_words_learned")
-                self.todayWordsLearned = learned
+                if hasLegacyUserData {
+                    self.todayWordsLearnedDate = Date()
+                    defaults.set(Date().timeIntervalSince1970, forKey: "today_words_learned_date")
+                    defaults.set(8, forKey: "today_words_learned")
+                } else {
+                    self.todayWordsLearnedDate = nil
+                    defaults.set(0, forKey: "today_words_learned")
+                }
             } else {
                 completedOnboarding = false
                 self.currentStreak = defaults.object(forKey: "current_streak") != nil
                     ? defaults.integer(forKey: "current_streak")
-                    : 0
-                self.todayWordsLearned = defaults.object(forKey: "today_words_learned") != nil
-                    ? defaults.integer(forKey: "today_words_learned")
                     : 0
             }
         } else {
@@ -180,9 +203,11 @@ public final class UserSettingsStore {
             self.currentStreak = defaults.object(forKey: "current_streak") != nil
                 ? defaults.integer(forKey: "current_streak")
                 : 0
-            self.todayWordsLearned = defaults.object(forKey: "today_words_learned") != nil
-                ? defaults.integer(forKey: "today_words_learned")
-                : 0
+            if defaults.object(forKey: "today_words_learned_date") == nil,
+               defaults.object(forKey: "today_words_learned") != nil {
+                self.todayWordsLearnedDate = Date()
+                defaults.set(Date().timeIntervalSince1970, forKey: "today_words_learned_date")
+            }
         }
         self.hasCompletedOnboarding = completedOnboarding
         self.selectedGoalDeckId = defaults.string(forKey: "selected_goal_deck_id") ?? "deck_daily"
