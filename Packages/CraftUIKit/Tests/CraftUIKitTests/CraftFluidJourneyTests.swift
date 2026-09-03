@@ -1,0 +1,240 @@
+@testable import CraftUIKit
+import SwiftUI
+import Testing
+
+@Suite("CraftFluidJourney Tests")
+struct CraftFluidJourneyTests {
+    @Test("Verify container initialization with sections")
+    func testContainerInit() {
+        let sections = [
+            LessonSection(id: "sec-1", title: "Unit 1", level: "A2", nodes: [
+                LessonNodeModel(id: "n-1", title: "Node 1", state: .completed),
+                LessonNodeModel(id: "n-2", title: "Node 2", state: .active)
+            ])
+        ]
+        let journey = CraftFluidJourney(sections: sections)
+        #expect(journey.sections.count == 1)
+        #expect(journey.sections.first?.nodes.count == 2)
+    }
+
+    @Test("Verify single-section convenience initialization")
+    func testSingleSectionInit() {
+        let section = LessonSection(
+            id: "sec-single",
+            title: "Basics",
+            level: "A1",
+            nodes: [
+                LessonNodeModel(id: "n-single", title: "Greeting", state: .upcoming)
+            ]
+        )
+        let journey = CraftFluidJourney(section: section)
+        #expect(journey.sections.count == 1)
+        #expect(journey.sections.first?.id == "sec-single")
+        #expect(journey.sections.first?.nodes.count == 1)
+    }
+
+    @Test("Verify default configuration properties")
+    func testDefaultConfiguration() {
+        let sections = [
+            LessonSection(id: "sec-1", title: "Unit 1", nodes: [])
+        ]
+        let journey = CraftFluidJourney(sections: sections)
+        #expect(journey.deckTitle == nil)
+        #expect(journey.deckSubtitle == nil)
+        #expect(journey.showDetailModal == true)
+        #expect(journey.scrollToActive == true)
+        #expect(journey.onNodeTap == nil)
+        #expect(journey.onStartLesson == nil)
+        #expect(journey.onTabBarPresentationChange == nil)
+        #expect(journey.onSelectLesson == nil)
+        #expect(journey.onAdjustPlan == nil)
+    }
+
+    @Test("Verify empty state detection")
+    func testEmptyStateDetection() {
+        let emptySectionsJourney = CraftFluidJourney(sections: [])
+        #expect(emptySectionsJourney.isEmpty == true)
+
+        let sectionsWithNoNodesJourney = CraftFluidJourney(sections: [
+            LessonSection(id: "sec-1", title: "Unit 1", nodes: []),
+            LessonSection(id: "sec-2", title: "Unit 2", nodes: [])
+        ])
+        #expect(sectionsWithNoNodesJourney.isEmpty == true)
+
+        let populatedJourney = CraftFluidJourney(sections: [
+            LessonSection(id: "sec-1", title: "Unit 1", nodes: [
+                LessonNodeModel(id: "n-1", title: "Node 1", state: .active)
+            ])
+        ])
+        #expect(populatedJourney.isEmpty == false)
+    }
+
+    @Test("Verify active node identifier resolution")
+    func testActiveNodeIDResolution() {
+        let sections = [
+            LessonSection(id: "sec-1", title: "Unit 1", nodes: [
+                LessonNodeModel(id: "n-1", title: "Node 1", state: .completed),
+                LessonNodeModel(id: "n-2", title: "Node 2", state: .completed)
+            ]),
+            LessonSection(id: "sec-2", title: "Unit 2", nodes: [
+                LessonNodeModel(id: "n-3", title: "Node 3", state: .active),
+                LessonNodeModel(id: "n-4", title: "Node 4", state: .upcoming)
+            ])
+        ]
+        let journey = CraftFluidJourney(sections: sections)
+        #expect(journey.activeNodeID == "n-3")
+
+        let noActiveSections = [
+            LessonSection(id: "sec-1", title: "Unit 1", nodes: [
+                LessonNodeModel(id: "n-1", title: "Node 1", state: .completed)
+            ])
+        ]
+        let noActiveJourney = CraftFluidJourney(sections: noActiveSections)
+        #expect(noActiveJourney.activeNodeID == nil)
+    }
+
+    @Test("Verify active and default section resolution")
+    func testActiveAndDefaultSectionResolution() {
+        let sec1 = LessonSection(id: "sec-1", title: "Unit 1", nodes: [
+            LessonNodeModel(id: "n-1", title: "Node 1", state: .completed)
+        ])
+        let sec2 = LessonSection(id: "sec-2", title: "Unit 2", nodes: [
+            LessonNodeModel(id: "n-2", title: "Node 2", state: .active)
+        ])
+        let sec3 = LessonSection(id: "sec-3", title: "Unit 3", nodes: [
+            LessonNodeModel(id: "n-3", title: "Node 3", state: .upcoming)
+        ])
+
+        let journey = CraftFluidJourney(sections: [sec1, sec2, sec3])
+        #expect(journey.activeSection?.id == "sec-2")
+        #expect(journey.defaultSection?.id == "sec-2")
+
+        let allCompletedSections = [sec1, sec1]
+        let completedJourney = CraftFluidJourney(sections: allCompletedSections)
+        #expect(completedJourney.activeSection == nil)
+        #expect(completedJourney.defaultSection?.id == "sec-1")
+    }
+
+    @Test("Verify scroll coordinate space constant")
+    func testCoordinateSpaceConstant() {
+        #expect(CraftFluidJourney.scrollCoordinateSpaceName == "CraftFluidJourneyScrollCoordinateSpace")
+    }
+
+    @Test("Verify milestone docking resolution logic")
+    func testMilestoneDockingResolution() {
+        let sec1 = LessonSection(id: "sec-1", title: "Unit 1", nodes: [
+            LessonNodeModel(id: "n-1", title: "Node 1", state: .completed)
+        ])
+        let sec2 = LessonSection(id: "sec-2", title: "Unit 2", nodes: [
+            LessonNodeModel(id: "n-2", title: "Node 2", state: .active)
+        ])
+        let sec3 = LessonSection(id: "sec-3", title: "Unit 3", nodes: [
+            LessonNodeModel(id: "n-3", title: "Node 3", state: .upcoming)
+        ])
+        let journey = CraftFluidJourney(sections: [sec1, sec2, sec3])
+
+        // 1. Initial / empty positions -> falls back to default section (sec-2 because it's active)
+        let initialDock = journey.resolveDockedSection(from: [:], threshold: 140)
+        #expect(initialDock?.id == "sec-2")
+
+        // 2. User scrolled to top, sec-1 pill is near top (minY = 100 <= 140), sec-2 is below (minY = 600)
+        let topPositions: [String: CGFloat] = [
+            "sec-1": 100,
+            "sec-2": 600,
+            "sec-3": 1200
+        ]
+        let topDock = journey.resolveDockedSection(from: topPositions, threshold: 140)
+        #expect(topDock?.id == "sec-1")
+
+        // 3. User scrolled down, sec-1 is off-screen (minY = -400), sec-2 reached threshold (minY = 120)
+        let scrolledPositions: [String: CGFloat] = [
+            "sec-1": -400,
+            "sec-2": 120,
+            "sec-3": 700
+        ]
+        let scrolledDock = journey.resolveDockedSection(from: scrolledPositions, threshold: 140)
+        #expect(scrolledDock?.id == "sec-2")
+
+        // 4. User scrolled further, sec-2 is off-screen (minY = -200), sec-3 reached threshold (minY = 90)
+        let deepPositions: [String: CGFloat] = [
+            "sec-1": -1000,
+            "sec-2": -200,
+            "sec-3": 90
+        ]
+        let deepDock = journey.resolveDockedSection(from: deepPositions, threshold: 140)
+        #expect(deepDock?.id == "sec-3")
+
+        // 5. User scrolled back up, sec-3 moved down (minY = 300), sec-2 is now visible (minY = 80)
+        let reversePositions: [String: CGFloat] = [
+            "sec-1": -600,
+            "sec-2": 80,
+            "sec-3": 300
+        ]
+        let reverseDock = journey.resolveDockedSection(from: reversePositions, threshold: 140)
+        #expect(reverseDock?.id == "sec-2")
+    }
+
+    @Test("Verify node global indexing and offset calculations")
+    func testNodeOffsets() {
+        let sec1 = LessonSection(id: "sec-1", title: "Unit 1", nodes: [
+            LessonNodeModel(id: "n-0", title: "Node 0"),
+            LessonNodeModel(id: "n-1", title: "Node 1"),
+            LessonNodeModel(id: "n-2", title: "Node 2")
+        ])
+        let sec2 = LessonSection(id: "sec-2", title: "Unit 2", nodes: [
+            LessonNodeModel(id: "n-3", title: "Node 3"),
+            LessonNodeModel(id: "n-4", title: "Node 4")
+        ])
+        let journey = CraftFluidJourney(sections: [sec1, sec2])
+
+        let lookup = journey.nodeIndexLookup
+        #expect(lookup["n-0"] == 0)
+        #expect(lookup["n-1"] == 1)
+        #expect(lookup["n-2"] == 2)
+        #expect(lookup["n-3"] == 3)
+        #expect(lookup["n-4"] == 4)
+
+        #expect(journey.offset(for: "n-0") == -45)
+        #expect(journey.offset(for: "n-1") == 0)
+        #expect(journey.offset(for: "n-2") == 45)
+        #expect(journey.offset(for: "n-3") == 0)
+        #expect(journey.offset(for: "n-4") == -45)
+    }
+
+    @Test("Verify callbacks execution")
+    func testCallbacks() {
+        var tappedNode: LessonNodeModel?
+        var startedNode: LessonNodeModel?
+        var tabPresentation: CraftTabBarPresentation?
+        var selectedSectionNode: (String, String)?
+        var adjustPlanTapped = false
+
+        let node = LessonNodeModel(id: "test-node", title: "Test")
+        let section = LessonSection(id: "test-sec", title: "Unit", nodes: [node])
+
+        let journey = CraftFluidJourney(
+            sections: [section],
+            onNodeTap: { node in tappedNode = node },
+            onStartLesson: { node in startedNode = node },
+            onTabBarPresentationChange: { presentation in tabPresentation = presentation },
+            onSelectLesson: { secId, nId in selectedSectionNode = (secId, nId) },
+            onAdjustPlan: { adjustPlanTapped = true }
+        )
+
+        journey.onNodeTap?(node)
+        #expect(tappedNode?.id == "test-node")
+
+        journey.onStartLesson?(node)
+        #expect(startedNode?.id == "test-node")
+
+        journey.onTabBarPresentationChange?(.compact)
+        #expect(tabPresentation == .compact)
+
+        journey.onSelectLesson?("test-sec", "test-node")
+        #expect(selectedSectionNode?.0 == "test-sec")
+        #expect(selectedSectionNode?.1 == "test-node")
+
+        journey.onAdjustPlan?()
+        #expect(adjustPlanTapped == true)
+    }
+}
