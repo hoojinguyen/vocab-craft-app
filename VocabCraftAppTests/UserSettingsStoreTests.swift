@@ -77,12 +77,28 @@ final class UserSettingsStoreTests: XCTestCase {
     }
 
     func testExistingUserMigrationMarksOnboardingCompleted() {
-        let defaults = UserDefaults.standard
-        defaults.removeObject(forKey: "has_completed_onboarding")
+        let suite = "test_migration_\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
         defaults.set(20, forKey: "daily_goal_count")
 
-        let store = UserSettingsStore()
+        let store = UserSettingsStore(defaults: defaults)
         XCTAssertTrue(store.hasCompletedOnboarding)
+        XCTAssertTrue(defaults.bool(forKey: "has_completed_onboarding"))
+        XCTAssertTrue(defaults.bool(forKey: "did_perform_legacy_onboarding_migration"))
+
+        defaults.removePersistentDomain(forName: suite)
+    }
+
+    func testFreshInstallDoesNotMarkOnboardingCompleted() {
+        let suite = "test_fresh_\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+
+        let store = UserSettingsStore(defaults: defaults)
+        XCTAssertFalse(store.hasCompletedOnboarding)
+        XCTAssertFalse(defaults.bool(forKey: "has_completed_onboarding"))
+        XCTAssertTrue(defaults.bool(forKey: "did_perform_legacy_onboarding_migration"))
+
+        defaults.removePersistentDomain(forName: suite)
     }
 }
 

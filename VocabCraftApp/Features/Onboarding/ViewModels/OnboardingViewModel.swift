@@ -19,6 +19,7 @@ public final class OnboardingViewModel {
     private let useCase: InitializeUserRoadmapUseCaseProtocol
     private let userSettings: UserSettingsStore
     public private(set) var synthesisTask: Task<Void, Never>?
+    private var synthesisGeneration: Int = 0
 
     public init(useCase: InitializeUserRoadmapUseCaseProtocol, userSettings: UserSettingsStore) {
         self.useCase = useCase
@@ -54,8 +55,10 @@ public final class OnboardingViewModel {
         guard let prev = OnboardingStep(rawValue: currentStep.rawValue - 1) else { return }
         currentStep = prev
         roadmapResult = nil
+        synthesisGeneration += 1
         synthesisTask?.cancel()
         synthesisTask = nil
+        isSynthesizing = false
     }
 
     public func updateNotificationPermission(granted: Bool) {
@@ -63,8 +66,10 @@ public final class OnboardingViewModel {
     }
 
     public func skipOnboarding() {
+        synthesisGeneration += 1
         synthesisTask?.cancel()
         synthesisTask = nil
+        isSynthesizing = false
         userSettings.selectedGoalDeckId = "deck_daily"
         userSettings.assessedCefrLevel = "A1"
         userSettings.dailyGoalCount = 10
@@ -78,18 +83,20 @@ public final class OnboardingViewModel {
     }
 
     public func synthesizeRoadmap() async {
+        synthesisGeneration += 1
+        let currentGen = synthesisGeneration
         isSynthesizing = true
         errorMessage = nil
 
         // Visual animation staging
         synthesisPhaseTextKey = "app.onboarding.reveal.analyzing"
-        guard !Task.isCancelled else { isSynthesizing = false; return }
+        guard !Task.isCancelled, synthesisGeneration == currentGen else { return }
         try? await Task.sleep(nanoseconds: 300_000_000)
-        guard !Task.isCancelled else { isSynthesizing = false; return }
+        guard !Task.isCancelled, synthesisGeneration == currentGen else { return }
 
         synthesisPhaseTextKey = "app.onboarding.reveal.curating"
         try? await Task.sleep(nanoseconds: 300_000_000)
-        guard !Task.isCancelled else { isSynthesizing = false; return }
+        guard !Task.isCancelled, synthesisGeneration == currentGen else { return }
 
         do {
             let result = try await useCase.execute(
@@ -98,17 +105,18 @@ public final class OnboardingViewModel {
                 dailyGoalCount: selectedDailyWords,
                 notificationTimeInterval: selectedReminderInterval
             )
-            guard !Task.isCancelled else { isSynthesizing = false; return }
+            guard !Task.isCancelled, synthesisGeneration == currentGen else { return }
             self.roadmapResult = result
             self.synthesisPhaseTextKey = "app.onboarding.reveal.ready"
         } catch is CancellationError {
-            guard !Task.isCancelled else { isSynthesizing = false; return }
+            guard !Task.isCancelled, synthesisGeneration == currentGen else { return }
         } catch {
-            guard !Task.isCancelled else { isSynthesizing = false; return }
+            guard !Task.isCancelled, synthesisGeneration == currentGen else { return }
             self.errorMessage = String(localized: "app.onboarding.reveal.error_generic")
         }
 
         try? await Task.sleep(nanoseconds: 200_000_000)
+        guard synthesisGeneration == currentGen else { return }
         self.isSynthesizing = false
     }
 

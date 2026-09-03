@@ -87,7 +87,7 @@ public final class InitializeUserRoadmapUseCase: InitializeUserRoadmapUseCasePro
             starterWords = Array(fetchedWords.prefix(3))
         } else {
             var combined = fetchedWords
-            let fallbacks = TopicWordDTO.fallbackStarterWords(stageId: startingStage.id)
+            let fallbacks = VocabularySampleDataset.starterWords(forStageId: startingStage.id)
             for fallback in fallbacks where combined.count < 3 {
                 if !combined.contains(where: { $0.lemma.caseInsensitiveCompare(fallback.lemma) == .orderedSame }) {
                     combined.append(fallback)

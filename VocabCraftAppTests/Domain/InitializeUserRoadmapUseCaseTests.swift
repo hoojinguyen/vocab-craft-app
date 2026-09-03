@@ -5,20 +5,27 @@ import XCTest
 #endif
 
 final class InitializeUserRoadmapUseCaseTests: XCTestCase {
+    private var testSuiteName: String!
+    private var testDefaults: UserDefaults!
+
+    override func setUp() {
+        super.setUp()
+        testSuiteName = "test_roadmap_\(UUID().uuidString)"
+        testDefaults = UserDefaults(suiteName: testSuiteName)!
+    }
+
     override func tearDown() {
         super.tearDown()
-        UserDefaults.standard.removeObject(forKey: "has_completed_onboarding")
-        UserDefaults.standard.removeObject(forKey: "selected_goal_deck_id")
-        UserDefaults.standard.removeObject(forKey: "assessed_cefr_level")
-        UserDefaults.standard.removeObject(forKey: "daily_goal_count")
-        UserDefaults.standard.removeObject(forKey: "notification_time_interval")
+        testDefaults.removePersistentDomain(forName: testSuiteName)
+        testDefaults = nil
+        testSuiteName = nil
     }
 
     @MainActor
     func testInitializeRoadmapForBeginnerA1() async throws {
         let dataSource = SampleVocabularyDataSource()
         let stageRepo = MockStageProgressRepository()
-        let settings = UserSettingsStore()
+        let settings = UserSettingsStore(defaults: testDefaults)
 
         let useCase = InitializeUserRoadmapUseCase(
             dataSource: dataSource,
@@ -51,7 +58,7 @@ final class InitializeUserRoadmapUseCaseTests: XCTestCase {
     func testInitializeRoadmapForIntermediateB1AutoUnlocksFoundationalStage() async throws {
         let dataSource = SampleVocabularyDataSource()
         let stageRepo = MockStageProgressRepository()
-        let settings = UserSettingsStore()
+        let settings = UserSettingsStore(defaults: testDefaults)
 
         let useCase = InitializeUserRoadmapUseCase(
             dataSource: dataSource,
@@ -82,7 +89,7 @@ final class InitializeUserRoadmapUseCaseTests: XCTestCase {
     func testInitializeRoadmapFallbackWhenDataSourceFails() async throws {
         let failingDataSource = TestFailingVocabularyDataSource(shouldCancel: false)
         let stageRepo = MockStageProgressRepository()
-        let settings = UserSettingsStore()
+        let settings = UserSettingsStore(defaults: testDefaults)
 
         let useCase = InitializeUserRoadmapUseCase(
             dataSource: failingDataSource,
@@ -99,14 +106,14 @@ final class InitializeUserRoadmapUseCaseTests: XCTestCase {
 
         XCTAssertEqual(result.starterWords.count, 3)
         XCTAssertEqual(result.starterWords.first?.lemma, "Resilience")
-        XCTAssertEqual(result.starterWords.first?.stageId, "stage_fallback_1")
+        XCTAssertEqual(result.starterWords.first?.stageId, "stage_daily_1")
     }
 
     @MainActor
     func testInitializeRoadmapCancellationDoesNotMutateProgress() async throws {
         let cancellingDataSource = TestFailingVocabularyDataSource(shouldCancel: true)
         let stageRepo = MockStageProgressRepository()
-        let settings = UserSettingsStore()
+        let settings = UserSettingsStore(defaults: testDefaults)
 
         let useCase = InitializeUserRoadmapUseCase(
             dataSource: cancellingDataSource,
@@ -135,7 +142,7 @@ final class InitializeUserRoadmapUseCaseTests: XCTestCase {
     func testInitializeRoadmapShortStagePadsToThreeWords() async throws {
         let oneWordDataSource = TestOneWordVocabularyDataSource()
         let stageRepo = MockStageProgressRepository()
-        let settings = UserSettingsStore()
+        let settings = UserSettingsStore(defaults: testDefaults)
 
         let useCase = InitializeUserRoadmapUseCase(
             dataSource: oneWordDataSource,

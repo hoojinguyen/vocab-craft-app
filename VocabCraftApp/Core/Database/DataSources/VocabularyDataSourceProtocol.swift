@@ -69,23 +69,6 @@ public struct TopicWordDTO: Identifiable, Sendable, Equatable {
         self.exampleEn = exampleEn
         self.exampleVi = exampleVi
     }
-
-    public static func fallbackStarterWords(stageId: String = "starter") -> [TopicWordDTO] {
-        Array(VocabularySampleDataset.words.prefix(3)).map { word in
-            TopicWordDTO(
-                id: word.id,
-                stageId: stageId,
-                lemma: word.lemma,
-                phonetic: word.phonetic,
-                pos: word.pos,
-                cefrLevel: word.cefrLevel,
-                definitionVi: word.definitionVi,
-                definitionEn: word.definitionEn,
-                exampleEn: word.exampleEn,
-                exampleVi: word.exampleVi
-            )
-        }
-    }
 }
 
 public protocol VocabularyDataSourceProtocol: Sendable {

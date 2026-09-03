@@ -290,4 +290,17 @@ public enum VocabularySampleDataset {
             exampleEn: "Engineers tested the technical feasibility of the design.", exampleVi: "Các kỹ sư đã kiểm tra tính khả thi kỹ thuật của thiết kế."
         )
     ]
+
+    public static func starterWords(forStageId stageId: String? = nil) -> [TopicWordDTO] {
+        if let stageId {
+            let matching = words.filter { $0.stageId == stageId }
+            if matching.count >= 3 {
+                return Array(matching.prefix(3))
+            }
+            if !matching.isEmpty {
+                return matching
+            }
+        }
+        return Array(words.prefix(3))
+    }
 }

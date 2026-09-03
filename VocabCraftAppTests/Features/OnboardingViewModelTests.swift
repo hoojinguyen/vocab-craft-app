@@ -123,6 +123,7 @@ final class OnboardingViewModelTests: XCTestCase {
         let settings = UserSettingsStore()
         let useCase = MockInitializeUserRoadmapUseCase()
         let vm = OnboardingViewModel(useCase: useCase, userSettings: settings)
+        vm.currentStep = .roadmapReveal
 
         vm.retrySynthesis()
         let task1 = vm.synthesisTask
@@ -136,6 +137,19 @@ final class OnboardingViewModelTests: XCTestCase {
         vm.previousStep()
         XCTAssertNil(vm.synthesisTask)
         XCTAssertTrue(task2?.isCancelled == true)
+        XCTAssertEqual(vm.currentStep, .habit)
+    }
+
+    func testReplacedSynthesisTaskDoesNotResetIsSynthesizingPrematurely() async {
+        let settings = UserSettingsStore()
+        let useCase = MockInitializeUserRoadmapUseCase()
+        let vm = OnboardingViewModel(useCase: useCase, userSettings: settings)
+
+        vm.retrySynthesis()
+        XCTAssertTrue(vm.isSynthesizing)
+
+        vm.retrySynthesis()
+        XCTAssertTrue(vm.isSynthesizing)
     }
 }
 

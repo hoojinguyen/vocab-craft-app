@@ -5,6 +5,8 @@ import SwiftUI
 @MainActor
 @Observable
 public final class UserSettingsStore {
+    private let defaults: UserDefaults
+
     public var themePreset: CraftThemePreset {
         get { CraftThemeManager.shared.currentPreset }
         set { CraftThemeManager.shared.setPreset(newValue) }
@@ -12,19 +14,19 @@ public final class UserSettingsStore {
 
     public var dailyGoalCount: Int {
         didSet {
-            UserDefaults.standard.set(dailyGoalCount, forKey: "daily_goal_count")
+            defaults.set(dailyGoalCount, forKey: "daily_goal_count")
         }
     }
 
     public var isNotificationEnabled: Bool {
         didSet {
-            UserDefaults.standard.set(isNotificationEnabled, forKey: "is_notification_enabled")
+            defaults.set(isNotificationEnabled, forKey: "is_notification_enabled")
         }
     }
 
     public var notificationTimeInterval: Double {
         didSet {
-            UserDefaults.standard.set(notificationTimeInterval, forKey: "notification_time_interval")
+            defaults.set(notificationTimeInterval, forKey: "notification_time_interval")
         }
     }
 
@@ -43,13 +45,13 @@ public final class UserSettingsStore {
 
     public var ttsVoiceGender: String {
         didSet {
-            UserDefaults.standard.set(ttsVoiceGender, forKey: "tts_voice_gender")
+            defaults.set(ttsVoiceGender, forKey: "tts_voice_gender")
         }
     }
 
     public var ttsSpeed: Double {
         didSet {
-            UserDefaults.standard.set(ttsSpeed, forKey: "tts_speed")
+            defaults.set(ttsSpeed, forKey: "tts_speed")
         }
     }
 
@@ -69,37 +71,37 @@ public final class UserSettingsStore {
 
     public var isHapticsEnabled: Bool {
         didSet {
-            UserDefaults.standard.set(isHapticsEnabled, forKey: "is_haptics_enabled")
+            defaults.set(isHapticsEnabled, forKey: "is_haptics_enabled")
         }
     }
 
     public var isSoundEffectsEnabled: Bool {
         didSet {
-            UserDefaults.standard.set(isSoundEffectsEnabled, forKey: "is_sound_effects_enabled")
+            defaults.set(isSoundEffectsEnabled, forKey: "is_sound_effects_enabled")
         }
     }
 
     public var hasCompletedOnboarding: Bool {
         didSet {
-            UserDefaults.standard.set(hasCompletedOnboarding, forKey: "has_completed_onboarding")
+            defaults.set(hasCompletedOnboarding, forKey: "has_completed_onboarding")
         }
     }
 
     public var selectedGoalDeckId: String {
         didSet {
-            UserDefaults.standard.set(selectedGoalDeckId, forKey: "selected_goal_deck_id")
+            defaults.set(selectedGoalDeckId, forKey: "selected_goal_deck_id")
         }
     }
 
     public var assessedCefrLevel: String {
         didSet {
-            UserDefaults.standard.set(assessedCefrLevel, forKey: "assessed_cefr_level")
+            defaults.set(assessedCefrLevel, forKey: "assessed_cefr_level")
         }
     }
 
     public var appLanguage: String {
         didSet {
-            UserDefaults.standard.set(appLanguage, forKey: "app_language")
+            defaults.set(appLanguage, forKey: "app_language")
         }
     }
 
@@ -115,8 +117,8 @@ public final class UserSettingsStore {
         CraftThemeManager.shared.preferredColorScheme
     }
 
-    public init() {
-        let defaults = UserDefaults.standard
+    public init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
         self.dailyGoalCount = defaults.object(forKey: "daily_goal_count") != nil ? defaults.integer(forKey: "daily_goal_count") : 15
         self.isNotificationEnabled = defaults.object(forKey: "is_notification_enabled") != nil ? defaults.bool(forKey: "is_notification_enabled") : true
         self.notificationTimeInterval = defaults.object(forKey: "notification_time_interval") != nil ? defaults.double(forKey: "notification_time_interval") : 72000
@@ -125,10 +127,18 @@ public final class UserSettingsStore {
         self.appLanguage = defaults.string(forKey: "app_language") ?? "system"
         self.isHapticsEnabled = defaults.object(forKey: "is_haptics_enabled") != nil ? defaults.bool(forKey: "is_haptics_enabled") : true
         self.isSoundEffectsEnabled = defaults.object(forKey: "is_sound_effects_enabled") != nil ? defaults.bool(forKey: "is_sound_effects_enabled") : true
+
         if defaults.object(forKey: "has_completed_onboarding") == nil {
-            let hasExistingSettings = defaults.object(forKey: "daily_goal_count") != nil
-                || defaults.object(forKey: "selected_goal_deck_id") != nil
-            self.hasCompletedOnboarding = hasExistingSettings
+            if defaults.object(forKey: "did_perform_legacy_onboarding_migration") == nil {
+                let hasLegacyUserData = defaults.object(forKey: "daily_goal_count") != nil
+                    || defaults.object(forKey: "is_haptics_enabled") != nil
+                    || defaults.object(forKey: "selected_goal_deck_id") != nil
+                defaults.set(true, forKey: "did_perform_legacy_onboarding_migration")
+                defaults.set(hasLegacyUserData, forKey: "has_completed_onboarding")
+                self.hasCompletedOnboarding = hasLegacyUserData
+            } else {
+                self.hasCompletedOnboarding = false
+            }
         } else {
             self.hasCompletedOnboarding = defaults.bool(forKey: "has_completed_onboarding")
         }
