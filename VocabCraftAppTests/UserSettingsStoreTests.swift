@@ -41,4 +41,25 @@ final class UserSettingsStoreTests: XCTestCase {
         store.themePreset = .kyotoMatcha
         XCTAssertEqual(CraftThemeManager.shared.currentPreset, .kyotoMatcha)
     }
+
+    func testOnboardingSettingsDefaultAndPersistence() {
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: "has_completed_onboarding")
+        defaults.removeObject(forKey: "selected_goal_deck_id")
+        defaults.removeObject(forKey: "assessed_cefr_level")
+
+        let store = UserSettingsStore()
+        XCTAssertFalse(store.hasCompletedOnboarding)
+        XCTAssertEqual(store.selectedGoalDeckId, "deck_daily")
+        XCTAssertEqual(store.assessedCefrLevel, "A1")
+
+        store.hasCompletedOnboarding = true
+        store.selectedGoalDeckId = "deck_business"
+        store.assessedCefrLevel = "B2"
+
+        XCTAssertTrue(defaults.bool(forKey: "has_completed_onboarding"))
+        XCTAssertEqual(defaults.string(forKey: "selected_goal_deck_id"), "deck_business")
+        XCTAssertEqual(defaults.string(forKey: "assessed_cefr_level"), "B2")
+    }
 }
+

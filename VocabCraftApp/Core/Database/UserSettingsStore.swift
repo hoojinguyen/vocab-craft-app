@@ -79,6 +79,24 @@ public final class UserSettingsStore {
         }
     }
 
+    public var hasCompletedOnboarding: Bool {
+        didSet {
+            UserDefaults.standard.set(hasCompletedOnboarding, forKey: "has_completed_onboarding")
+        }
+    }
+
+    public var selectedGoalDeckId: String {
+        didSet {
+            UserDefaults.standard.set(selectedGoalDeckId, forKey: "selected_goal_deck_id")
+        }
+    }
+
+    public var assessedCefrLevel: String {
+        didSet {
+            UserDefaults.standard.set(assessedCefrLevel, forKey: "assessed_cefr_level")
+        }
+    }
+
     public var appLanguage: String {
         didSet {
             UserDefaults.standard.set(appLanguage, forKey: "app_language")
@@ -107,5 +125,8 @@ public final class UserSettingsStore {
         self.appLanguage = defaults.string(forKey: "app_language") ?? "system"
         self.isHapticsEnabled = defaults.object(forKey: "is_haptics_enabled") != nil ? defaults.bool(forKey: "is_haptics_enabled") : true
         self.isSoundEffectsEnabled = defaults.object(forKey: "is_sound_effects_enabled") != nil ? defaults.bool(forKey: "is_sound_effects_enabled") : true
+        self.hasCompletedOnboarding = defaults.bool(forKey: "has_completed_onboarding")
+        self.selectedGoalDeckId = defaults.string(forKey: "selected_goal_deck_id") ?? "deck_daily"
+        self.assessedCefrLevel = defaults.string(forKey: "assessed_cefr_level") ?? "A1"
     }
 }
