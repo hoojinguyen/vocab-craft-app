@@ -261,11 +261,11 @@ struct CraftFluidJourneyTests {
         let locked = CraftJourneyNode.diameter(for: .locked)
         let upcoming = CraftJourneyNode.diameter(for: .upcoming)
 
-        #expect(completed == 72, "Completed node must be 72pt")
-        #expect(active == 72, "Active node base diameter must be 72pt, matching other nodes")
-        #expect(inProgress == 72, "InProgress node must be 72pt")
-        #expect(locked == 72, "Locked node must be 72pt")
-        #expect(upcoming == 72, "Upcoming node must be 72pt")
+        #expect(completed == 88, "Completed node must be 88pt")
+        #expect(active == 88, "Active node base diameter must be 88pt, matching other nodes")
+        #expect(inProgress == 88, "InProgress node must be 88pt")
+        #expect(locked == 88, "Locked node must be 88pt")
+        #expect(upcoming == 88, "Upcoming node must be 88pt")
     }
 
     @Test("Verify CraftJourneyNode preserves lesson icon when locked")

@@ -13,12 +13,43 @@ struct CraftJourneyNodeTests {
         let upcomingNode = LessonNodeModel(id: "4", title: "Upcoming", state: .upcoming)
         let bonusNode = LessonNodeModel(id: "5", title: "Bonus", state: .bonus)
 
-        #expect(CraftJourneyNode.diameter(for: activeNode.state) == 72)
-        #expect(CraftJourneyNode.diameter(for: inProgressNode.state) == 72)
-        #expect(CraftJourneyNode.diameter(for: completedNode.state) == 72)
-        #expect(CraftJourneyNode.diameter(for: lockedNode.state) == 72)
-        #expect(CraftJourneyNode.diameter(for: upcomingNode.state) == 72)
-        #expect(CraftJourneyNode.diameter(for: bonusNode.state) == 72)
+        #expect(CraftJourneyNode.diameter(for: activeNode.state) == 88)
+        #expect(CraftJourneyNode.diameter(for: inProgressNode.state) == 88)
+        #expect(CraftJourneyNode.diameter(for: completedNode.state) == 88)
+        #expect(CraftJourneyNode.diameter(for: lockedNode.state) == 88)
+        #expect(CraftJourneyNode.diameter(for: upcomingNode.state) == 88)
+        #expect(CraftJourneyNode.diameter(for: bonusNode.state) == 88)
+    }
+
+    @Test("Verify CraftJourneyNode diameter is 88pt")
+    func testCraftJourneyNodeDiameterIs88pt() {
+        #expect(CraftJourneyNode.diameter(for: .active) == 88)
+        #expect(CraftJourneyNode.diameter(for: .completed) == 88)
+        #expect(CraftJourneyNode.diameter(for: .locked) == 88)
+    }
+
+    @Test("Verify CraftJourneyNode preserves semantic icon across states")
+    func testCraftJourneyNodePreservesSemanticIconAcrossStates() {
+        let node = LessonNodeModel(id: "n1", title: "Empathy", iconName: "heart", state: .completed)
+        let view = CraftJourneyNode(node: node)
+        #expect(view.displayedIconName == "heart")
+
+        let lockedNode = LessonNodeModel(id: "n2", title: "Leadership", iconName: "star.fill", state: .locked)
+        let lockedView = CraftJourneyNode(node: lockedNode)
+        #expect(lockedView.displayedIconName == "star.fill")
+    }
+
+    @Test("Verify semantic icon size across states")
+    func testCraftJourneyNodeIconSize() {
+        let activeView = CraftJourneyNode(node: LessonNodeModel(id: "1", title: "Active", state: .active))
+        let inProgressView = CraftJourneyNode(node: LessonNodeModel(id: "2", title: "In Progress", state: .inProgress))
+        let completedView = CraftJourneyNode(node: LessonNodeModel(id: "3", title: "Completed", state: .completed))
+        let lockedView = CraftJourneyNode(node: LessonNodeModel(id: "4", title: "Locked", state: .locked))
+
+        #expect(activeView.iconSize == 34)
+        #expect(inProgressView.iconSize == 34)
+        #expect(completedView.iconSize == 32)
+        #expect(lockedView.iconSize == 32)
     }
 
     @Test("Verify node view initialization and model properties")

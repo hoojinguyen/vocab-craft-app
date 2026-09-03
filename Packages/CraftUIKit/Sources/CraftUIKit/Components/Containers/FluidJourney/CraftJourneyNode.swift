@@ -19,10 +19,10 @@ private struct JourneyNodeButtonStyle: ButtonStyle {
 
 // MARK: - CraftJourneyNode Component
 
-/// A 72pt uniform continuous squircle floating node within the fluid journey learning path.
+/// An 88pt uniform continuous squircle floating node within the fluid journey learning path.
 ///
 /// Features:
-/// - 72pt unscaled diameter across all states (`RoundedRectangle(cornerRadius: 28, style: .continuous)`)
+/// - 88pt unscaled diameter across all states (`RoundedRectangle(cornerRadius: 30, style: .continuous)`)
 /// - 5 surface styles: `.elevated`, `.flat`, `.outlined`, `.tactile3D`, `.glass`
 /// - Preserved lesson icons on locked/upcoming nodes in a muted tone (no `lock.fill` replacement)
 /// - Active breathing glow aura without mechanical scale ballooning
@@ -81,7 +81,7 @@ public struct CraftJourneyNode: View, Equatable {
 
     /// Returns the standard unscaled diameter in points for a node in the given progression state.
     public static func diameter(for state: LessonNodeState) -> CGFloat {
-        72
+        88
     }
 
     /// Dynamic scaled diameter accounting for user accessibility scale.
@@ -92,9 +92,8 @@ public struct CraftJourneyNode: View, Equatable {
     /// Dynamic icon size proportional to node diameter.
     public var iconSize: CGFloat {
         let unscaled: CGFloat = switch node.state {
-        case .active, .inProgress: 28
-        case .completed: 26
-        case .upcoming, .locked, .bonus: 24
+        case .active, .inProgress: 34
+        case .completed, .upcoming, .locked, .bonus: 32
         }
         return unscaled * baseScale
     }
@@ -164,20 +163,14 @@ public struct CraftJourneyNode: View, Equatable {
             tapTrigger.toggle()
             onTap?()
         } label: {
-            VStack(spacing: theme.spacing.xs) {
-                ZStack {
-                    if node.state == .active || node.state == .inProgress {
-                        activeGlowBackground
-                    }
-
-                    nodeFace
-                }
-                .frame(width: currentDiameter, height: currentDiameter)
-
+            ZStack {
                 if node.state == .active || node.state == .inProgress {
-                    activeStartTag
+                    activeGlowBackground
                 }
+
+                nodeFace
             }
+            .frame(width: currentDiameter, height: currentDiameter)
         }
         .buttonStyle(
             JourneyNodeButtonStyle(
@@ -213,16 +206,25 @@ public struct CraftJourneyNode: View, Equatable {
         }
     }
 
+    private var iconFontWeight: Font.Weight {
+        switch node.state {
+        case .active, .inProgress, .completed:
+            return .bold
+        case .upcoming, .locked, .bonus:
+            return .semibold
+        }
+    }
+
     private var iconView: some View {
         Image(systemName: displayedIconName)
-            .font(.system(size: iconSize, weight: (node.state == .active || node.state == .inProgress) ? .bold : .semibold))
+            .font(.system(size: iconSize, weight: iconFontWeight))
             .foregroundStyle(iconForegroundColor)
     }
 
     // MARK: - Shape Helper
 
     private var squircleShape: RoundedRectangle {
-        RoundedRectangle(cornerRadius: 28 * baseScale, style: .continuous)
+        RoundedRectangle(cornerRadius: 30 * baseScale, style: .continuous)
     }
 
     // MARK: - Face Backgrounds by Style
@@ -344,25 +346,26 @@ public struct CraftJourneyNode: View, Equatable {
         }
     }
 
+    private var bottomRimShape: some View {
+        squircleShape
+            .fill(
+                (node.state == .active || node.state == .inProgress)
+                    ? theme.colors.brandPrimary.opacity(0.80)
+                    : (node.state == .completed ? theme.colors.brandPrimary.opacity(0.25) : theme.colors.borderDefault)
+            )
+            .offset(y: theme.depths.depthMd)
+    }
+
     private var tactile3DFace: some View {
         ZStack {
             // 3D Bevel Extrusion Rim Layer
-            squircleShape
-                .fill(
-                    (node.state == .active || node.state == .inProgress)
-                        ? theme.colors.brandPrimary.opacity(0.80)
-                        : (node.state == .completed ? theme.colors.brandPrimary.opacity(0.25) : theme.colors.borderDefault)
-                )
-                .offset(y: theme.depths.depthMd)
+            bottomRimShape
 
             // Top Face Layer
             switch node.state {
             case .active, .inProgress:
                 squircleShape
                     .fill(theme.gradients.brandHero)
-
-                squircleShape
-                    .strokeBorder(theme.depths.topHighlight, lineWidth: 1.5)
             case .completed:
                 squircleShape
                     .fill(theme.colors.brandPrimary.opacity(0.12))
@@ -382,6 +385,9 @@ public struct CraftJourneyNode: View, Equatable {
                 squircleShape
                     .strokeBorder(theme.colors.borderDefault, lineWidth: 1.5)
             }
+
+            squircleShape
+                .strokeBorder(theme.depths.topHighlight, lineWidth: 1.5)
         }
         .craftShadow(node.state == .active || node.state == .inProgress ? theme.shadows.md : theme.shadows.sm)
     }
@@ -401,10 +407,8 @@ public struct CraftJourneyNode: View, Equatable {
             return theme.colors.brandPrimary
         case .bonus:
             return theme.colors.accent
-        case .upcoming:
+        case .upcoming, .locked:
             return theme.colors.textMuted
-        case .locked:
-            return theme.colors.textMuted.opacity(0.70)
         }
     }
 
@@ -413,17 +417,17 @@ public struct CraftJourneyNode: View, Equatable {
     private var completedCheckmarkBadge: some View {
         ZStack {
             Circle()
-                .fill(theme.colors.surfaceCard)
-                .frame(width: 24, height: 24)
-
-            Circle()
                 .fill(theme.colors.statusSuccess)
-                .frame(width: 20, height: 20)
 
             Image(systemName: "checkmark")
-                .font(.system(size: 10, weight: .bold))
+                .font(.system(size: 13, weight: .bold))
                 .foregroundStyle(theme.colors.textInverse)
         }
+        .frame(width: 26, height: 26)
+        .overlay(
+            Circle()
+                .strokeBorder(theme.colors.canvasBackground, lineWidth: 2.5)
+        )
         .accessibilityHidden(true)
     }
 
@@ -443,7 +447,7 @@ public struct CraftJourneyNode: View, Equatable {
             endRadius: haloSize * 0.5
         )
 
-        let glowCornerRadius: CGFloat = 34 * baseScale
+        let glowCornerRadius: CGFloat = 38 * baseScale
 
         if reduceMotion {
             RoundedRectangle(cornerRadius: glowCornerRadius, style: .continuous)
@@ -475,25 +479,5 @@ public struct CraftJourneyNode: View, Equatable {
                 .craftGlow
             }
         }
-    }
-
-    // MARK: - Start Lesson Sub-tag
-
-    private var activeStartTag: some View {
-        Text(CraftLocalized.string("craft.fluid_journey.start_lesson").uppercased())
-            .font(theme.typography.caption.weight(.bold))
-            .foregroundStyle(theme.colors.textInverse)
-            .padding(.horizontal, theme.spacing.md)
-            .padding(.vertical, theme.spacing.xs)
-            .background(
-                Capsule()
-                    .fill(theme.gradients.brandHero)
-            )
-            .overlay(
-                Capsule()
-                    .strokeBorder(theme.colors.textInverse.opacity(0.35), lineWidth: 1)
-            )
-            .shadow(color: theme.colors.brandPrimary.opacity(0.35), radius: 6, x: 0, y: 3)
-            .accessibilityHidden(true)
     }
 }
