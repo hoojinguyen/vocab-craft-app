@@ -10,6 +10,7 @@ final class MockCompleteLessonUseCase: CompleteLessonUseCaseProtocol, @unchecked
     var executedStars: Int?
     var executedWeakWordIds: [Int64]?
     var executedProgressFraction: Double?
+    var shouldFail: Bool = false
 
     func execute(
         stageId: String,
@@ -18,6 +19,9 @@ final class MockCompleteLessonUseCase: CompleteLessonUseCaseProtocol, @unchecked
         weakWordIds: [Int64],
         progressFraction: Double
     ) async throws -> LessonCompletionResult {
+        if shouldFail {
+            throw URLError(.timedOut)
+        }
         self.executedStageId = stageId
         self.executedDeckId = deckId
         self.executedStars = stars
@@ -317,6 +321,43 @@ struct LessonLearningViewModelTests {
         #expect(completeUseCase.executedDeckId == "deck_1")
         #expect(completeUseCase.executedProgressFraction == 1.0)
         #expect(completeUseCase.executedWeakWordIds?.isEmpty == true)
+    }
+
+    @Test("Transient persistence failure allows retry via awaitCompletion or retryCompletion")
+    func testPersistenceFailureAndRetry() async throws {
+        let words = makeSampleWords()
+        let completeUseCase = MockCompleteLessonUseCase()
+        completeUseCase.shouldFail = true
+
+        let vm = LessonLearningViewModel(
+            stageId: "stage_1",
+            deckId: "deck_1",
+            words: words,
+            completeLessonUseCase: completeUseCase,
+            ttsService: MockTextToSpeechService(),
+            soundEffectService: MockSoundEffectService(),
+            speechEngine: MockResilientReflexSpeechEngine()
+        )
+
+        while !vm.isSummaryStep {
+            vm.advanceStep()
+        }
+
+        // Initial completion fails
+        do {
+            _ = try await vm.awaitCompletion()
+            #expect(Bool(false), "Expected persistence error")
+        } catch {
+            #expect(!vm.isCompleted)
+            #expect(vm.persistenceError != nil)
+        }
+
+        // Fix transient error and retry
+        completeUseCase.shouldFail = false
+        let retryResult = try await vm.awaitCompletion()
+        #expect(retryResult != nil)
+        #expect(vm.isCompleted)
+        #expect(vm.persistenceError == nil)
     }
 }
 #endif

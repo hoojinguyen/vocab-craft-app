@@ -86,13 +86,7 @@ struct LessonLocalizationTests {
             return try? Data(contentsOf: URL(fileURLWithPath: repoPath))
         }()
 
-        guard let fileData = data else {
-            for (key, _) in requiredLessonKeys {
-                let enTranslation = Bundle.main.localizedString(forKey: key, value: nil, table: nil)
-                #expect(!enTranslation.isEmpty && enTranslation != key)
-            }
-            return
-        }
+        let fileData = try #require(data, "Localizable.xcstrings must be found for catalog verification")
         let json = try #require(
             JSONSerialization.jsonObject(with: fileData) as? [String: Any],
             "Catalog should parse as JSON dictionary"

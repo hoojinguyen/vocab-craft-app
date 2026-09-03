@@ -20,6 +20,7 @@ public struct HomepageView: View {
     @State private var activeLessonLearningVM: LessonLearningViewModel?
     @State private var lessonLaunchTask: Task<Void, Never>?
     @State private var isLaunchingLesson: Bool = false
+    @State private var isHandlingLessonFinished: Bool = false
     @State private var tabBarPresentation: CraftTabBarPresentation = .expanded
     @State private var scrollToActiveNonce: Int = 0
     @State private var homeConfettiTrigger: Bool = false
@@ -302,7 +303,16 @@ public struct HomepageView: View {
     }
 
     private func handleLessonFinished(vm: LessonLearningViewModel, summary: LessonSummaryModel) {
+        guard !isHandlingLessonFinished else { return }
+        isHandlingLessonFinished = true
+
         Task {
+            defer {
+                Task { @MainActor in
+                    isHandlingLessonFinished = false
+                }
+            }
+
             // Await persistence completion before dismissing and reloading learning path
             do {
                 _ = try await vm.awaitCompletion()

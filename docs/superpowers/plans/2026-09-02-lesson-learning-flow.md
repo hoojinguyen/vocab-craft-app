@@ -715,6 +715,13 @@ public final class LessonLearningViewModel: Identifiable {
         return steps[currentStepIndex]
     }
 
+    public var isSummaryStep: Bool {
+        if case .summary = currentStep {
+            return true
+        }
+        return false
+    }
+
     public var progress: Double {
         guard !steps.isEmpty else { return 1.0 }
         let effectiveTotal = max(initialStepCount, steps.count)

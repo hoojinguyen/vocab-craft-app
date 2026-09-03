@@ -273,6 +273,7 @@ public final class LessonLearningViewModel: Identifiable {
             } catch {
                 await MainActor.run {
                     self.persistenceError = error
+                    self.completionTask = nil
                 }
                 throw error
             }
@@ -280,7 +281,45 @@ public final class LessonLearningViewModel: Identifiable {
     }
 
     @discardableResult
+    public func retryCompletion() async throws -> LessonCompletionResult? {
+        if isCompleted {
+            return nil
+        }
+        guard let summary else { return nil }
+        persistenceError = nil
+        let task = Task {
+            do {
+                let result = try await completeLessonUseCase.execute(
+                    stageId: stageId,
+                    deckId: deckId,
+                    stars: summary.stars,
+                    weakWordIds: Array(weakWordIds),
+                    progressFraction: 1.0
+                )
+                await MainActor.run {
+                    self.isCompleted = true
+                }
+                return result
+            } catch {
+                await MainActor.run {
+                    self.persistenceError = error
+                    self.completionTask = nil
+                }
+                throw error
+            }
+        }
+        self.completionTask = task
+        return try await task.value
+    }
+
+    @discardableResult
     public func awaitCompletion() async throws -> LessonCompletionResult? {
-        try await completionTask?.value
+        if let completionTask {
+            return try await completionTask.value
+        }
+        if !isCompleted && summary != nil {
+            return try await retryCompletion()
+        }
+        return nil
     }
 }
