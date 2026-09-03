@@ -9,7 +9,7 @@ import SwiftUI
 /// - The active section title and subtitle
 /// - A trailing chevron indicating that tapping opens the curriculum drawer
 /// - A smooth asymmetric morphing transition (`.move(edge: .bottom)` / `.move(edge: .top)`)
-///   when the active unit changes during scrolling
+///   when the active unit changes during scrolling, layered inside a `ZStack` to prevent squishing
 /// - Tactile spring-based depress feedback and full VoiceOver accessibility
 public struct CraftPinnedUnitHeader: View, Equatable {
     // MARK: - Constants
@@ -38,7 +38,7 @@ public struct CraftPinnedUnitHeader: View, Equatable {
     @Environment(\.craftTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    // MARK: - Initializer
+    // MARK: - Initializers
 
     /// Creates a pinned unit header card.
     ///
@@ -54,6 +54,20 @@ public struct CraftPinnedUnitHeader: View, Equatable {
         self.section = section
         self.cornerRadius = cornerRadius
         self.onTap = onTap
+    }
+
+    /// Convenience initializer supporting `onHeaderTap` parameter naming.
+    ///
+    /// - Parameters:
+    ///   - section: The current lesson section DTO.
+    ///   - cornerRadius: Custom corner radius. Defaults to 20pt.
+    ///   - onHeaderTap: Callback closure invoked when tapped.
+    public init(
+        section: LessonSection,
+        cornerRadius: CGFloat = CraftPinnedUnitHeader.defaultCornerRadius,
+        onHeaderTap: (@Sendable () -> Void)?
+    ) {
+        self.init(section: section, cornerRadius: cornerRadius, onTap: onHeaderTap)
     }
 
     // MARK: - Equatable Conformance
@@ -104,7 +118,9 @@ public struct CraftPinnedUnitHeader: View, Equatable {
         let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
 
         return HStack(spacing: theme.spacing.md) {
-            sectionInfoBlock
+            ZStack(alignment: .leading) {
+                sectionInfoBlock
+            }
 
             Spacer(minLength: 0)
 

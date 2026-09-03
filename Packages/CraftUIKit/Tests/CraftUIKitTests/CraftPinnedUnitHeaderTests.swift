@@ -20,16 +20,27 @@ struct CraftPinnedUnitHeaderTests {
         #expect(header.section.subtitle == "Habits & Moods")
     }
 
-    @Test("Verify header tap invokes callback")
-    func testHeaderTapCallback() {
+    @Test("Verify header tap invokes onTap callback")
+    func testHeaderOnTapCallback() {
         var tapped = false
         let section = LessonSection(id: "sec-1", title: "Unit 1", nodes: [])
-        let header = CraftPinnedUnitHeader(section: section) {
+        let header = CraftPinnedUnitHeader(section: section, onTap: {
             tapped = true
-        }
+        })
         header.onTap?()
         #expect(tapped == true)
         #expect(header.onHeaderTap != nil)
+    }
+
+    @Test("Verify header tap invokes onHeaderTap callback")
+    func testHeaderOnHeaderTapCallback() {
+        var tapped = false
+        let section = LessonSection(id: "sec-1", title: "Unit 1", nodes: [])
+        let header = CraftPinnedUnitHeader(section: section, onHeaderTap: {
+            tapped = true
+        })
+        header.onTap?()
+        #expect(tapped == true)
     }
 
     @Test("Verify custom corner radius and tap callback")
