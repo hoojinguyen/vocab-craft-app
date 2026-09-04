@@ -415,6 +415,30 @@ struct SpeechEngineReadinessTests {
             try await task.value
         }
     }
+
+    @Test("SuspendedMockReflexSpeechEngine supports suspendable startListening and stopSession cancellation")
+    @MainActor
+    func suspendedMockSupportsSuspendableStartListeningAndCancellation() async throws {
+        let mock = SuspendedMockReflexSpeechEngine()
+        mock.startSession(contextualPhrases: [])
+
+        let task = Task { try await mock.startListening(targetLemma: "hello", contextualPhrases: []) }
+        await mock.waitUntilStartListeningStarts()
+        #expect(mock.startListeningCallCount == 1)
+        #expect(mock.isWordActive == false)
+
+        mock.completeStartListening()
+        try await task.value
+        #expect(mock.isWordActive == true)
+        #expect(mock.lastTargetLemma == "hello")
+
+        let secondTask = Task { try await mock.startListening(targetLemma: "world", contextualPhrases: []) }
+        await mock.waitUntilStartListeningStarts(expectedCount: 2)
+        mock.stopSession()
+        await #expect(throws: CancellationError.self) {
+            try await secondTask.value
+        }
+    }
 }
 
 @Suite("TTS Audio Session Tests")
@@ -629,6 +653,195 @@ struct TTSAudioSessionTests {
     }
 }
 
+@Suite("Speech Engine Startup Atomicity Tests")
+struct SpeechEngineStartupAtomicityTests {
+    @Test("startListening does not open word before lease and engine are ready")
+    @MainActor
+    func startListeningDoesNotOpenWordBeforeLeaseAndEngineAreReady() async throws {
+        let mockHardware = MockAudioSessionHardware()
+        let coordinator = AudioSessionCoordinator(hardware: mockHardware)
+        let controller = SuspendedSpeechAudioEngineController()
+        let engine = ResilientReflexSpeechEngine(
+            audioController: controller,
+            audioSessionCoordinator: coordinator
+        )
+        engine.startSession(contextualPhrases: [])
+
+        let startTask = Task {
+            try await engine.startListening(targetLemma: "apple", contextualPhrases: ["apple"])
+        }
+
+        await controller.waitUntilPreparationStarts()
+        #expect(engine.isWordActive == false)
+        #expect(engine.isEngineReady == false)
+
+        await controller.completePreparation()
+        try await startTask.value
+
+        #expect(engine.isWordActive == true)
+        #expect(engine.isEngineReady == true)
+        #expect(await coordinator.activeLeaseCount == 1)
+        #expect(await coordinator.effectiveIntent == .duplexSpeech)
+
+        engine.stopSession()
+        _ = await engine.audioLifecycleTask?.value
+        _ = await engine.sessionReleaseTask?.value
+        #expect(await coordinator.activeLeaseCount == 0)
+    }
+
+    @Test("cancelled start releases its lease and does not open word")
+    @MainActor
+    func cancelledStartReleasesItsLeaseAndDoesNotOpenWord() async {
+        let mockHardware = MockAudioSessionHardware()
+        let coordinator = AudioSessionCoordinator(hardware: mockHardware)
+        let controller = SuspendedSpeechAudioEngineController()
+        let engine = ResilientReflexSpeechEngine(
+            audioController: controller,
+            audioSessionCoordinator: coordinator
+        )
+        engine.startSession(contextualPhrases: [])
+
+        let startTask = Task {
+            try await engine.startListening(targetLemma: "apple", contextualPhrases: [])
+        }
+
+        await controller.waitUntilPreparationStarts()
+        startTask.cancel()
+        await controller.completePreparation()
+
+        let threwError = await Task {
+            do {
+                try await startTask.value
+                return false
+            } catch {
+                return true
+            }
+        }.value
+
+        #expect(threwError == true)
+        #expect(engine.isWordActive == false)
+        _ = await engine.audioLifecycleTask?.value
+        _ = await engine.sessionReleaseTask?.value
+        #expect(await coordinator.activeLeaseCount == 0)
+    }
+
+    @Test("stale start cannot replace newer word")
+    @MainActor
+    func staleStartCannotReplaceNewerWord() async throws {
+        let mockHardware = MockAudioSessionHardware()
+        let coordinator = AudioSessionCoordinator(hardware: mockHardware)
+        let controller = SuspendedSpeechAudioEngineController()
+        let engine = ResilientReflexSpeechEngine(
+            audioController: controller,
+            audioSessionCoordinator: coordinator
+        )
+        engine.startSession(contextualPhrases: [])
+
+        let firstStartTask = Task {
+            try await engine.startListening(targetLemma: "first", contextualPhrases: [])
+        }
+        await controller.waitUntilPreparationStarts(expectedCount: 1)
+
+        let secondStartTask = Task {
+            try await engine.startListening(targetLemma: "second", contextualPhrases: [])
+        }
+
+        await controller.completePreparation()
+
+        _ = try? await firstStartTask.value
+        try await secondStartTask.value
+
+        #expect(engine.isWordActive == true)
+        var matchedLemma: String?
+        engine.onMatchDetected = { matchedLemma = $0 }
+        engine.simulateTranscript("first")
+        #expect(matchedLemma == nil)
+
+        engine.simulateTranscript("second")
+        #expect(matchedLemma == "second")
+
+        #expect(await coordinator.activeLeaseCount == 1)
+
+        engine.stopSession()
+        _ = await engine.audioLifecycleTask?.value
+        _ = await engine.sessionReleaseTask?.value
+        #expect(await coordinator.activeLeaseCount == 0)
+    }
+
+    @Test("stop during start joins cleanup before restart")
+    @MainActor
+    func stopDuringStartJoinsCleanupBeforeRestart() async throws {
+        let mockHardware = MockAudioSessionHardware()
+        let coordinator = AudioSessionCoordinator(hardware: mockHardware)
+        let controller = SuspendedSpeechAudioEngineController()
+        let engine = ResilientReflexSpeechEngine(
+            audioController: controller,
+            audioSessionCoordinator: coordinator
+        )
+        engine.startSession(contextualPhrases: [])
+
+        let startTask = Task {
+            try await engine.startListening(targetLemma: "apple", contextualPhrases: [])
+        }
+        await controller.waitUntilPreparationStarts(expectedCount: 1)
+
+        engine.stopSession()
+        #expect(engine.isSessionActive == false)
+
+        await controller.completePreparation()
+        _ = try? await startTask.value
+
+        _ = await engine.audioLifecycleTask?.value
+        _ = await engine.sessionReleaseTask?.value
+        #expect(engine.isWordActive == false)
+        #expect(await coordinator.activeLeaseCount == 0)
+
+        // Restart session and start second word
+        engine.startSession(contextualPhrases: [])
+        let restartTask = Task {
+            try await engine.startListening(targetLemma: "banana", contextualPhrases: [])
+        }
+        await controller.waitUntilPreparationStarts(expectedCount: 2)
+        await controller.completePreparation()
+        try await restartTask.value
+
+        #expect(engine.isSessionActive == true)
+        #expect(engine.isWordActive == true)
+        #expect(await coordinator.activeLeaseCount == 1)
+
+        engine.stopSession()
+        _ = await engine.audioLifecycleTask?.value
+        _ = await engine.sessionReleaseTask?.value
+        #expect(await coordinator.activeLeaseCount == 0)
+    }
+
+    @Test("denied microphone throws typed permission error")
+    @MainActor
+    func deniedMicrophoneThrowsTypedPermissionError() async {
+        let mockAuthorizer = MockSpeechAuthorizer(
+            speechAuthorized: true,
+            microphoneAuthorized: false
+        )
+        let controller = SuspendedSpeechAudioEngineController()
+        let engine = ResilientReflexSpeechEngine(
+            audioController: controller,
+            authorizer: mockAuthorizer
+        )
+        engine.startSession(contextualPhrases: [])
+
+        do {
+            try await engine.startListening(targetLemma: "apple", contextualPhrases: [])
+            Issue.record("Expected microphoneDenied error to be thrown")
+        } catch let error as SpeechCaptureError {
+            #expect(error == .microphoneDenied)
+        } catch {
+            Issue.record("Expected SpeechCaptureError.microphoneDenied, got \(error)")
+        }
+
+        #expect(engine.isWordActive == false)
+    }
+}
+
 actor SuspendedSpeechAudioEngineController: SpeechAudioEngineControlling {
     private var preparationContinuations: [UUID: CheckedContinuation<Void, Error>] = [:]
     private var preparationStartWaiters: [CheckedContinuation<Void, Never>] = []
@@ -716,6 +929,24 @@ actor SuspendedSpeechAudioEngineController: SpeechAudioEngineControlling {
         for continuation in continuations {
             continuation.resume(throwing: CancellationError())
         }
+    }
+}
+
+final class MockSpeechAuthorizer: SpeechAuthorizing, @unchecked Sendable {
+    var speechAuthorized: Bool
+    var microphoneAuthorized: Bool
+
+    init(speechAuthorized: Bool = true, microphoneAuthorized: Bool = true) {
+        self.speechAuthorized = speechAuthorized
+        self.microphoneAuthorized = microphoneAuthorized
+    }
+
+    func requestSpeechAuthorization() async -> Bool {
+        speechAuthorized
+    }
+
+    func requestMicrophoneAuthorization() async -> Bool {
+        microphoneAuthorized
     }
 }
 #endif

@@ -157,12 +157,18 @@ final class SuspendedMockReflexSpeechEngine: ReflexSpeechEngineProtocol {
     var onError: ((Error) -> Void)?
 
     private(set) var prepareCallCount = 0
+    private(set) var startListeningCallCount = 0
     private(set) var beginWordCallCount = 0
     private(set) var resumeListeningCallCount = 0
     private(set) var pauseListeningCallCount = 0
     private(set) var stopSessionCallCount = 0
+    private(set) var lastTargetLemma: String = ""
+    private(set) var lastContextualPhrases: [String] = []
+    var simulatedStartListeningError: (any Error)?
     private var preparationContinuations: [UUID: CheckedContinuation<Void, Error>] = [:]
     private var preparationStartWaiters: [CheckedContinuation<Void, Never>] = []
+    private var startListeningContinuations: [UUID: CheckedContinuation<Void, Error>] = [:]
+    private var startListeningStartWaiters: [CheckedContinuation<Void, Never>] = []
     private var isCompleted = false
     private var pendingError: Error?
 
@@ -184,6 +190,11 @@ final class SuspendedMockReflexSpeechEngine: ReflexSpeechEngineProtocol {
         let continuations = Array(preparationContinuations.values)
         preparationContinuations.removeAll()
         for continuation in continuations {
+            continuation.resume(throwing: CancellationError())
+        }
+        let startContinuations = Array(startListeningContinuations.values)
+        startListeningContinuations.removeAll()
+        for continuation in startContinuations {
             continuation.resume(throwing: CancellationError())
         }
     }
@@ -251,8 +262,77 @@ final class SuspendedMockReflexSpeechEngine: ReflexSpeechEngineProtocol {
         }
     }
 
+    func waitUntilStartListeningStarts(expectedCount: Int = 1) async {
+        guard startListeningCallCount < expectedCount else { return }
+        await withCheckedContinuation { continuation in
+            startListeningStartWaiters.append(continuation)
+        }
+    }
+
+    func completeStartListening() {
+        let continuations = Array(startListeningContinuations.values)
+        startListeningContinuations.removeAll()
+        for continuation in continuations {
+            continuation.resume()
+        }
+    }
+
+    func failStartListening(with error: Error) {
+        simulatedStartListeningError = error
+        let continuations = Array(startListeningContinuations.values)
+        startListeningContinuations.removeAll()
+        for continuation in continuations {
+            continuation.resume(throwing: error)
+        }
+    }
+
+    func startListening(targetLemma: String, contextualPhrases: [String]) async throws {
+        startListeningCallCount += 1
+        lastTargetLemma = targetLemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        lastContextualPhrases = contextualPhrases
+
+        for waiter in startListeningStartWaiters {
+            waiter.resume()
+        }
+        startListeningStartWaiters.removeAll()
+
+        if let simulatedStartListeningError {
+            throw simulatedStartListeningError
+        }
+
+        guard isSessionActive else {
+            throw CancellationError()
+        }
+
+        let continuationID = UUID()
+        try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                if Task.isCancelled {
+                    continuation.resume(throwing: CancellationError())
+                } else {
+                    startListeningContinuations[continuationID] = continuation
+                }
+            }
+        } onCancel: {
+            Task { @MainActor [weak self] in
+                if let continuation = self?.startListeningContinuations.removeValue(forKey: continuationID) {
+                    continuation.resume(throwing: CancellationError())
+                }
+            }
+        }
+
+        guard isSessionActive else {
+            throw CancellationError()
+        }
+
+        isWordActive = true
+        liveTranscript = ""
+    }
+
     func beginWord(targetLemma: String, contextualPhrases: [String]) {
         beginWordCallCount += 1
+        lastTargetLemma = targetLemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        lastContextualPhrases = contextualPhrases
         isWordActive = true
     }
 

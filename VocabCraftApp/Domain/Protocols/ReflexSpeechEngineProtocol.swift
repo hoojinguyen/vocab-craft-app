@@ -15,6 +15,7 @@ public protocol ReflexSpeechEngineProtocol: AnyObject {
     func pauseListening()
     func resumeListening()
     func prepareEngineIfNeeded() async throws
+    func startListening(targetLemma: String, contextualPhrases: [String]) async throws
     func beginWord(targetLemma: String, contextualPhrases: [String])
     func endWord()
     /// Signal end of audio input without cancelling the recognition task.
@@ -30,5 +31,8 @@ public extension ReflexSpeechEngineProtocol {
     func pauseListening() {}
     func resumeListening() {}
     func prepareEngineIfNeeded() async throws {}
+    func startListening(targetLemma: String, contextualPhrases: [String]) async throws {
+        beginWord(targetLemma: targetLemma, contextualPhrases: contextualPhrases)
+    }
     var isListeningPaused: Bool { false }
 }

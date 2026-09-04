@@ -83,4 +83,48 @@ final class MockResilientReflexSpeechEngineTests: XCTestCase {
         engine.simulateError(TestError())
         XCTAssertNotNil(receivedError)
     }
+
+    func testStartListening_setsTargetAndActivates() async throws {
+        engine.startSession(contextualPhrases: [])
+        try await engine.startListening(targetLemma: "Ephemeral", contextualPhrases: ["test"])
+        XCTAssertTrue(engine.isWordActive)
+        XCTAssertEqual(engine.lastTargetLemma, "ephemeral")
+        XCTAssertEqual(engine.startListeningCallCount, 1)
+    }
+
+    func testStartListening_simulatedErrorThrows() async {
+        engine.startSession(contextualPhrases: [])
+        engine.simulatedStartListeningError = SpeechCaptureError.microphoneDenied
+
+        do {
+            try await engine.startListening(targetLemma: "test", contextualPhrases: [])
+            XCTFail("Expected startListening to throw")
+        } catch let error as SpeechCaptureError {
+            XCTAssertEqual(error, .microphoneDenied)
+        } catch {
+            XCTFail("Unexpected error type: \(error)")
+        }
+    }
+
+    func testStartListening_suspensionAndContinuation() async throws {
+        engine.startSession(contextualPhrases: [])
+        engine.shouldSuspendStartListening = true
+
+        let task = Task {
+            try await engine.startListening(targetLemma: "suspended", contextualPhrases: [])
+        }
+
+        // Allow task to suspend
+        for _ in 0..<10 {
+            if engine.startListeningContinuation != nil { break }
+            await Task.yield()
+        }
+
+        XCTAssertNotNil(engine.startListeningContinuation)
+        engine.startListeningContinuation?.resume()
+        try await task.value
+
+        XCTAssertTrue(engine.isWordActive)
+        XCTAssertEqual(engine.lastTargetLemma, "suspended")
+    }
 }

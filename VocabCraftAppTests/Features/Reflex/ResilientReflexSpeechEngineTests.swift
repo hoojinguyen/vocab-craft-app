@@ -41,6 +41,29 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
         XCTAssertEqual(engine.liveTranscript, "")
     }
 
+    func testStartListening_activatesWordAndSimulatesMatch() async throws {
+        var matchedLemma: String?
+        engine.onMatchDetected = { matchedLemma = $0 }
+        engine.startSession(contextualPhrases: [])
+        try await engine.startListening(targetLemma: "ephemeral", contextualPhrases: ["test"])
+        XCTAssertTrue(engine.isWordActive)
+        XCTAssertEqual(engine.liveTranscript, "")
+
+        engine.simulateTranscript("ephemeral")
+        XCTAssertEqual(matchedLemma, "ephemeral")
+    }
+
+    func testStartListening_whenSessionInactiveThrowsCancelled() async {
+        do {
+            try await engine.startListening(targetLemma: "ephemeral", contextualPhrases: [])
+            XCTFail("Expected startListening to throw when session is inactive")
+        } catch let error as SpeechCaptureError {
+            XCTAssertEqual(error, .cancelled)
+        } catch {
+            XCTFail("Unexpected error type: \(error)")
+        }
+    }
+
     func testEndWord_deactivatesWordKeepsSession() {
         engine.startSession(contextualPhrases: [])
         engine.beginWord(targetLemma: "test", contextualPhrases: [])

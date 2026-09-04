@@ -12,8 +12,7 @@ enum LessonPerformanceDiagnostics {
 
     static func event(_ name: StaticString, detail: String = "") {
         #if DEBUG
-        let nameText = String(describing: name)
-        logger.notice("event=\(nameText, privacy: .public) detail=\(detail, privacy: .public)")
+        logger.notice("event=\(String(describing: name), privacy: .public) detail=\(detail, privacy: .public)")
         os_signpost(.event, log: signpostLog, name: name, "%{public}@", detail as NSString)
         #endif
     }
@@ -21,9 +20,7 @@ enum LessonPerformanceDiagnostics {
     static func error(_ operation: String, error: Error) {
         #if DEBUG
         let nsError = error as NSError
-        logger.error(
-            "operation=\(operation, privacy: .public) domain=\(nsError.domain, privacy: .public) code=\(nsError.code)"
-        )
+        logger.error("operation=\(operation, privacy: .public) domain=\(nsError.domain, privacy: .public) code=\(nsError.code)")
         #endif
     }
 }
@@ -38,41 +35,31 @@ public final class AudioBufferRelay: @unchecked Sendable {
     public init() {}
 
     public var isCurrentlyMuted: Bool {
-        lock.lock()
-        defer { lock.unlock() }
-        return isMuted
+        lock.lock(); defer { lock.unlock() }; return isMuted
     }
 
     public var currentRequest: SFSpeechAudioBufferRecognitionRequest? {
-        lock.lock()
-        defer { lock.unlock() }
-        return activeRequest
+        lock.lock(); defer { lock.unlock() }; return activeRequest
     }
 
     public func setRequest(_ request: SFSpeechAudioBufferRecognitionRequest?) {
-        lock.lock()
-        defer { lock.unlock() }
+        lock.lock(); defer { lock.unlock() }
         activeRequest = request
         isMuted = false
     }
 
     public func mute() {
-        lock.lock()
-        defer { lock.unlock() }
-        isMuted = true
+        lock.lock(); defer { lock.unlock() }; isMuted = true
     }
 
     public func unmute() {
-        lock.lock()
-        defer { lock.unlock() }
-        isMuted = false
+        lock.lock(); defer { lock.unlock() }; isMuted = false
     }
 
     /// Atomically detaches the active request and invokes endAudio() on it.
     /// Guarantees that no background tap buffer can ever be appended after endAudio() is called.
     public func detachAndEnd() {
-        lock.lock()
-        defer { lock.unlock() }
+        lock.lock(); defer { lock.unlock() }
         let requestToEnd = activeRequest
         activeRequest = nil
         isMuted = true
@@ -80,11 +67,8 @@ public final class AudioBufferRelay: @unchecked Sendable {
     }
 
     public func append(_ buffer: AVAudioPCMBuffer) {
-        lock.lock()
-        defer { lock.unlock() }
-        guard !isMuted, let request = activeRequest else {
-            return
-        }
+        lock.lock(); defer { lock.unlock() }
+        guard !isMuted, let request = activeRequest else { return }
         request.append(buffer)
     }
 }
@@ -95,23 +79,13 @@ private final class InterruptionObserverToken: @unchecked Sendable {
     private let lock = NSLock()
     private var observer: (any NSObjectProtocol)?
 
-    init(observer: (any NSObjectProtocol)?) {
-        self.observer = observer
-    }
-
-    deinit {
-        cancel()
-    }
+    init(observer: (any NSObjectProtocol)?) { self.observer = observer }
+    deinit { cancel() }
 
     func cancel() {
         #if os(iOS)
-        lock.lock()
-        let obs = observer
-        observer = nil
-        lock.unlock()
-        if let obs {
-            NotificationCenter.default.removeObserver(obs)
-        }
+        lock.lock(); let obs = observer; observer = nil; lock.unlock()
+        if let obs { NotificationCenter.default.removeObserver(obs) }
         #endif
     }
 }
@@ -136,7 +110,12 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     public private(set) var isEngineReady: Bool = false
     private var sessionContextualPhrases: [String] = []
     private var pendingPreparationTask: Task<Void, Never>?
-    private var audioLifecycleTask: Task<Void, Never>?
+    public private(set) var audioLifecycleTask: Task<Void, Never>?
+    public private(set) var sessionReleaseTask: Task<Void, Never>?
+    public private(set) var activeLease: AudioSessionLease?
+    private var activeStartTask: Task<Void, Error>?
+    private var wordGeneration: UInt = 0
+    private let authorizer: any SpeechAuthorizing
     private let bufferRelay = AudioBufferRelay()
 
     var currentSpeechRecognizer: SFSpeechRecognizer? {
@@ -183,16 +162,19 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         self.audioController = SpeechAudioEngineController()
         self.audioSessionCoordinator = audioSessionCoordinator
         self.speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
+        self.authorizer = LiveSpeechAuthorizer()
     }
 
     init(
         audioController: any SpeechAudioEngineControlling = SpeechAudioEngineController(),
         audioSessionCoordinator: (any AudioSessionCoordinating)? = nil,
-        speechRecognizer: SFSpeechRecognizer? = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
+        speechRecognizer: SFSpeechRecognizer? = SFSpeechRecognizer(locale: Locale(identifier: "en-US")),
+        authorizer: any SpeechAuthorizing = LiveSpeechAuthorizer()
     ) {
         self.audioController = audioController
         self.audioSessionCoordinator = audioSessionCoordinator
         self.speechRecognizer = speechRecognizer
+        self.authorizer = authorizer
     }
 
     // MARK: - Session Lifecycle
@@ -222,19 +204,26 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         removeInterruptionObserver()
         pendingPreparationTask?.cancel()
         pendingPreparationTask = nil
+        activeStartTask?.cancel()
+        activeStartTask = nil
+        wordGeneration &+= 1
         isListeningPaused = false
         isSessionActive = false
         isEngineReady = false
         endWord()
+        let leaseToRelease = activeLease
+        activeLease = nil
+        let coordinator = audioSessionCoordinator
+        let releaseTask = Task {
+            if let leaseToRelease {
+                await coordinator?.release(leaseToRelease)
+            }
+        }
+        self.sessionReleaseTask = releaseTask
         enqueueAudioTransition { controller in
             await controller.teardown()
+            await releaseTask.value
         }
-        #if os(iOS)
-        Task.detached(priority: .userInitiated) {
-            let session = AVAudioSession.sharedInstance()
-            try? session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
-        }
-        #endif
         sessionContextualPhrases = []
     }
 
@@ -282,53 +271,12 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     }
 
     private func requestAuthorizationIfNeeded() async throws {
-        #if os(iOS) && !targetEnvironment(simulator)
-        let speechStatus = SFSpeechRecognizer.authorizationStatus()
-        switch speechStatus {
-        case .authorized:
-            if speechRecognizer == nil {
-                self.speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
-            }
-        case .notDetermined:
-            let speechGranted = await withCheckedContinuation { continuation in
-                SFSpeechRecognizer.requestAuthorization { status in
-                    continuation.resume(returning: status == .authorized)
-                }
-            }
-            guard speechGranted else {
-                throw NSError(
-                    domain: "ResilientReflexSpeech",
-                    code: 401,
-                    userInfo: [NSLocalizedDescriptionKey: "Speech recognition not authorized."]
-                )
-            }
-            self.speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
-        default:
-            throw NSError(
-                domain: "ResilientReflexSpeech",
-                code: 401,
-                userInfo: [NSLocalizedDescriptionKey: "Speech recognition not authorized."]
-            )
+        guard await authorizer.requestSpeechAuthorization() else {
+            throw SpeechCaptureError.speechRecognitionDenied
         }
-
-        let micGranted: Bool
-        if #available(iOS 17.0, *) {
-            micGranted = await AVAudioApplication.requestRecordPermission()
-        } else {
-            micGranted = await withCheckedContinuation { continuation in
-                AVAudioSession.sharedInstance().requestRecordPermission { granted in
-                    continuation.resume(returning: granted)
-                }
-            }
+        guard await authorizer.requestMicrophoneAuthorization() else {
+            throw SpeechCaptureError.microphoneDenied
         }
-        guard micGranted else {
-            throw NSError(
-                domain: "ResilientReflexSpeech",
-                code: 403,
-                userInfo: [NSLocalizedDescriptionKey: "Microphone permission denied."]
-            )
-        }
-        #endif
     }
 
     public func prepareEngineIfNeeded() async throws {
@@ -341,17 +289,6 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         guard isSessionActive, !Task.isCancelled else {
             throw CancellationError()
         }
-        #if os(iOS) && !targetEnvironment(simulator)
-        let session = AVAudioSession.sharedInstance()
-        try session.setCategory(
-            .playAndRecord,
-            mode: .default,
-            options: [.defaultToSpeaker, .allowBluetoothHFP]
-        )
-        try session.setActive(true, options: .notifyOthersOnDeactivation)
-        try? session.overrideOutputAudioPort(.speaker)
-        try await Task.sleep(for: .milliseconds(100))
-        #endif
         do {
             try await audioController.prepare(relay: bufferRelay)
         } catch {
@@ -371,6 +308,124 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         isEngineReady = true
         isListeningPaused = false
         bufferRelay.unmute()
+    }
+
+    private func ensureCurrentAndActive(generation: UInt) throws {
+        guard isSessionActive, !Task.isCancelled, self.wordGeneration == generation else {
+            throw SpeechCaptureError.cancelled
+        }
+    }
+
+    private func checkPermissions(generation: UInt) async throws {
+        try ensureCurrentAndActive(generation: generation)
+        guard await authorizer.requestSpeechAuthorization() else {
+            throw SpeechCaptureError.speechRecognitionDenied
+        }
+        try ensureCurrentAndActive(generation: generation)
+        guard await authorizer.requestMicrophoneAuthorization() else {
+            throw SpeechCaptureError.microphoneDenied
+        }
+        try ensureCurrentAndActive(generation: generation)
+    }
+
+    private func acquireDuplexLease(generation: UInt) async throws -> AudioSessionLease? {
+        guard let coordinator = audioSessionCoordinator else { return nil }
+        do {
+            return try await coordinator.acquire(.duplexSpeech)
+        } catch {
+            throw SpeechCaptureError.audioSessionActivationFailed
+        }
+    }
+
+    private func prepareAndResumeAudio(relay: AudioBufferRelay) async throws {
+        do {
+            try await audioController.prepare(relay: relay)
+            try await audioController.resume()
+        } catch {
+            if error is CancellationError {
+                throw SpeechCaptureError.cancelled
+            }
+            onError?(error)
+            throw SpeechCaptureError.enginePreparationFailed
+        }
+    }
+
+    private func activateWordCapture(targetLemma: String, contextualPhrases: [String]) throws {
+        if isWordActive {
+            endWord()
+        }
+
+        let token = UUID()
+        currentWordSessionToken = token
+        currentTargetLemma = targetLemma
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+        liveTranscript = ""
+        hasReportedFirstRecognitionResult = false
+        isWordActive = true
+
+        #if !targetEnvironment(simulator) && !os(macOS)
+        guard let recognizer = resolveSpeechRecognizer(), recognizer.isAvailable else {
+            isWordActive = false
+            let error = SpeechCaptureError.recognizerUnavailable
+            onError?(error)
+            throw error
+        }
+
+        startRecognitionRequest(
+            targetLemma: currentTargetLemma,
+            contextualPhrases: contextualPhrases,
+            sessionToken: token
+        )
+        #endif
+    }
+
+    public func startListening(targetLemma: String, contextualPhrases: [String]) async throws {
+        guard isSessionActive else {
+            throw SpeechCaptureError.cancelled
+        }
+
+        wordGeneration &+= 1
+        let generation = wordGeneration
+        activeStartTask?.cancel()
+
+        if let audioLifecycleTask {
+            await audioLifecycleTask.value
+        }
+
+        try await checkPermissions(generation: generation)
+        let acquiredLease = try await acquireDuplexLease(generation: generation)
+
+        do {
+            try ensureCurrentAndActive(generation: generation)
+            try await prepareAndResumeAudio(relay: bufferRelay)
+            try ensureCurrentAndActive(generation: generation)
+        } catch {
+            if let acquiredLease {
+                await audioSessionCoordinator?.release(acquiredLease)
+            }
+            throw error
+        }
+
+        let oldLease = self.activeLease
+        self.activeLease = acquiredLease
+        if let oldLease, oldLease != acquiredLease {
+            await audioSessionCoordinator?.release(oldLease)
+        }
+
+        isEngineReady = true
+        isListeningPaused = false
+        bufferRelay.unmute()
+
+        do {
+            try activateWordCapture(targetLemma: targetLemma, contextualPhrases: contextualPhrases)
+        } catch {
+            if let activeLease {
+                self.activeLease = nil
+                await audioSessionCoordinator?.release(activeLease)
+            }
+            throw error
+        }
     }
 
     // MARK: - Word Lifecycle
@@ -489,12 +544,6 @@ extension ResilientReflexSpeechEngine {
             if let rawOptions {
                 let options = AVAudioSession.InterruptionOptions(rawValue: rawOptions)
                 if options.contains(.shouldResume) {
-                    #if !targetEnvironment(simulator) && !os(macOS)
-                    if isSessionActive {
-                        let session = AVAudioSession.sharedInstance()
-                        try? session.setActive(true, options: .notifyOthersOnDeactivation)
-                    }
-                    #endif
                     resumeListening()
                 }
             }
@@ -546,11 +595,7 @@ extension ResilientReflexSpeechEngine {
         sessionToken: UUID
     ) {
         guard let recognizer = resolveSpeechRecognizer(), recognizer.isAvailable else {
-            onError?(NSError(
-                domain: "ResilientReflexSpeech",
-                code: 503,
-                userInfo: [NSLocalizedDescriptionKey: "Speech recognizer unavailable."]
-            ))
+            onError?(SpeechCaptureError.recognizerUnavailable)
             return
         }
 

@@ -16,11 +16,15 @@ public final class MockResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     public var pauseListeningCallCount: Int = 0
     public var resumeListeningCallCount: Int = 0
     public var prepareEngineIfNeededCallCount: Int = 0
+    public var startListeningCallCount: Int = 0
     public var beginWordCallCount: Int = 0
     public var endWordCallCount: Int = 0
     public var lastTargetLemma: String = ""
     public var lastContextualPhrases: [String] = []
     public var lastStartSessionWasLazy: Bool = false
+    public var simulatedStartListeningError: (any Error)?
+    public var shouldSuspendStartListening: Bool = false
+    public var startListeningContinuation: CheckedContinuation<Void, Error>?
 
     public init() {}
 
@@ -41,6 +45,8 @@ public final class MockResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         isListeningPaused = false
         liveTranscript = ""
         stopSessionCallCount += 1
+        startListeningContinuation?.resume(throwing: CancellationError())
+        startListeningContinuation = nil
     }
 
     public func pauseListening() {
@@ -56,6 +62,25 @@ public final class MockResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
 
     public func prepareEngineIfNeeded() async throws {
         prepareEngineIfNeededCallCount += 1
+    }
+
+    public func startListening(targetLemma: String, contextualPhrases: [String]) async throws {
+        startListeningCallCount += 1
+        lastTargetLemma = targetLemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        lastContextualPhrases = contextualPhrases
+
+        if let error = simulatedStartListeningError {
+            throw error
+        }
+
+        if shouldSuspendStartListening {
+            try await withCheckedThrowingContinuation { continuation in
+                startListeningContinuation = continuation
+            }
+        }
+
+        isWordActive = true
+        liveTranscript = ""
     }
 
     public func beginWord(targetLemma: String, contextualPhrases: [String]) {

@@ -31,6 +31,7 @@
 		3000AF0C814D7D13DB80 /* ResilientReflexSpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000AF0C814D7D13DB80 /* ResilientReflexSpeechEngine.swift */; };
 		3000A11D88B94E21AC01 /* AudioSessionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A11D88B94E21AC01 /* AudioSessionCoordinator.swift */; };
 		3000D9A22B3C4D5E6F70 /* SpeechAudioEngineController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000D9A22B3C4D5E6F70 /* SpeechAudioEngineController.swift */; };
+		3000E00188B94E21AC01 /* SpeechCaptureError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000E00188B94E21AC01 /* SpeechCaptureError.swift */; };
 		3000087B04314FDDF262 /* SoundEffectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000087B04314FDDF262 /* SoundEffectService.swift */; };
 		300054D51843DFDCEB06 /* SpeechRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200054D51843DFDCEB06 /* SpeechRecognitionService.swift */; };
 		3000BEA090FB6DD9E928 /* TextToSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000BEA090FB6DD9E928 /* TextToSpeechService.swift */; };
@@ -317,6 +318,7 @@
 		2000AF0C814D7D13DB80 /* ResilientReflexSpeechEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ResilientReflexSpeechEngine.swift"; sourceTree = "<group>"; };
 		2000A11D88B94E21AC01 /* AudioSessionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AudioSessionCoordinator.swift"; sourceTree = "<group>"; };
 		2000D9A22B3C4D5E6F70 /* SpeechAudioEngineController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeechAudioEngineController.swift"; sourceTree = "<group>"; };
+		2000E00188B94E21AC01 /* SpeechCaptureError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeechCaptureError.swift"; sourceTree = "<group>"; };
 		2000087B04314FDDF262 /* SoundEffectService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SoundEffectService.swift"; sourceTree = "<group>"; };
 		200054D51843DFDCEB06 /* SpeechRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeechRecognitionService.swift"; sourceTree = "<group>"; };
 		2000BEA090FB6DD9E928 /* TextToSpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TextToSpeechService.swift"; sourceTree = "<group>"; };
@@ -631,6 +633,7 @@
 				2000AF0C814D7D13DB80 /* ResilientReflexSpeechEngine.swift */,
 				2000A11D88B94E21AC01 /* AudioSessionCoordinator.swift */,
 				2000D9A22B3C4D5E6F70 /* SpeechAudioEngineController.swift */,
+				2000E00188B94E21AC01 /* SpeechCaptureError.swift */,
 				2000087B04314FDDF262 /* SoundEffectService.swift */,
 				200054D51843DFDCEB06 /* SpeechRecognitionService.swift */,
 				2000BEA090FB6DD9E928 /* TextToSpeechService.swift */,
@@ -1614,6 +1617,7 @@
 				3000AF0C814D7D13DB80 /* ResilientReflexSpeechEngine.swift in Sources */,
 				3000A11D88B94E21AC01 /* AudioSessionCoordinator.swift in Sources */,
 				3000D9A22B3C4D5E6F70 /* SpeechAudioEngineController.swift in Sources */,
+				3000E00188B94E21AC01 /* SpeechCaptureError.swift in Sources */,
 				3000087B04314FDDF262 /* SoundEffectService.swift in Sources */,
 				300054D51843DFDCEB06 /* SpeechRecognitionService.swift in Sources */,
 				3000BEA090FB6DD9E928 /* TextToSpeechService.swift in Sources */,
