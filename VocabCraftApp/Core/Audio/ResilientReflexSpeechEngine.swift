@@ -131,13 +131,27 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     public var onError: ((Error) -> Void)?
 
     // MARK: - Engine layer (session-scoped)
-    private let speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
+    private var speechRecognizer: SFSpeechRecognizer? = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
     private let audioController: any SpeechAudioEngineControlling
     public private(set) var isEngineReady: Bool = false
     private var sessionContextualPhrases: [String] = []
     private var pendingPreparationTask: Task<Void, Never>?
     private var audioLifecycleTask: Task<Void, Never>?
     private let bufferRelay = AudioBufferRelay()
+
+    var currentSpeechRecognizer: SFSpeechRecognizer? {
+        speechRecognizer
+    }
+
+    @discardableResult
+    func resolveSpeechRecognizer() -> SFSpeechRecognizer? {
+        if let recognizer = speechRecognizer, recognizer.isAvailable {
+            return recognizer
+        }
+        let refreshed = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
+        self.speechRecognizer = refreshed
+        return refreshed
+    }
 
     // MARK: - Request layer (word-scoped)
     private var activeRequest: SFSpeechAudioBufferRecognitionRequest?
@@ -163,10 +177,15 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
 
     public init() {
         self.audioController = SpeechAudioEngineController()
+        self.speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
     }
 
-    init(audioController: any SpeechAudioEngineControlling) {
+    init(
+        audioController: any SpeechAudioEngineControlling = SpeechAudioEngineController(),
+        speechRecognizer: SFSpeechRecognizer? = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
+    ) {
         self.audioController = audioController
+        self.speechRecognizer = speechRecognizer
     }
 
     // MARK: - Session Lifecycle
@@ -277,7 +296,9 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         let speechStatus = SFSpeechRecognizer.authorizationStatus()
         switch speechStatus {
         case .authorized:
-            break
+            if speechRecognizer == nil {
+                self.speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
+            }
         case .notDetermined:
             let speechGranted = await withCheckedContinuation { continuation in
                 SFSpeechRecognizer.requestAuthorization { status in
@@ -291,6 +312,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
                     userInfo: [NSLocalizedDescriptionKey: "Speech recognition not authorized."]
                 )
             }
+            self.speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
         default:
             throw NSError(
                 domain: "ResilientReflexSpeech",
@@ -335,6 +357,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
             options: [.defaultToSpeaker, .allowBluetoothHFP, .allowBluetoothA2DP, .duckOthers]
         )
         try session.setActive(true, options: .notifyOthersOnDeactivation)
+        try await Task.sleep(for: .milliseconds(150))
         #endif
         do {
             try await audioController.prepare(relay: bufferRelay)
@@ -529,7 +552,7 @@ extension ResilientReflexSpeechEngine {
         contextualPhrases: [String],
         sessionToken: UUID
     ) {
-        guard let recognizer = speechRecognizer, recognizer.isAvailable else {
+        guard let recognizer = resolveSpeechRecognizer(), recognizer.isAvailable else {
             onError?(NSError(
                 domain: "ResilientReflexSpeech",
                 code: 503,

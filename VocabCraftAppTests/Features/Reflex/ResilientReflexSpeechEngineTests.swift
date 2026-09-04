@@ -117,6 +117,21 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
         XCTAssertEqual(engine.liveTranscript, "")
     }
 
+    func testResolveSpeechRecognizer_refreshesWhenNil() {
+        let testEngine = ResilientReflexSpeechEngine(speechRecognizer: nil)
+        XCTAssertNil(testEngine.currentSpeechRecognizer)
+        let resolved = testEngine.resolveSpeechRecognizer()
+        XCTAssertNotNil(resolved)
+        XCTAssertNotNil(testEngine.currentSpeechRecognizer)
+    }
+
+    func testResolveSpeechRecognizer_returnsExistingWhenAvailable() {
+        let existing = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
+        let testEngine = ResilientReflexSpeechEngine(speechRecognizer: existing)
+        let resolved = testEngine.resolveSpeechRecognizer()
+        XCTAssertNotNil(resolved)
+    }
+
     func testAudioBufferRelay_threadSafetyAndNilHandling() {
         let relay = AudioBufferRelay()
         relay.setRequest(nil)
