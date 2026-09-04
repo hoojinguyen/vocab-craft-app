@@ -216,4 +216,83 @@ struct CraftUnitDrawerSheetTests {
         sheet.synchronizeActiveSection()
         #expect(sheet.isSectionExpanded("sec-2") == true)
     }
+
+    @Test("Verify section meta subtitle merges level and summary")
+    func testSectionMetaSubtitle() {
+        let sheet = CraftUnitDrawerSheet(
+            sections: [],
+            deckTitle: "Deck",
+            deckSubtitle: "Sub",
+            activeSectionId: "sec-1",
+            onSelectLesson: { _, _ in },
+            onDismiss: {}
+        )
+        let full = LessonSection(
+            id: "sec-1",
+            title: "Giao Tiếp Hằng Ngày",
+            subtitle: "3 lessons • 13 words",
+            level: "A2 - B1",
+            nodes: []
+        )
+        #expect(sheet.sectionMetaSubtitle(for: full) == "A2 - B1 • 3 lessons • 13 words")
+
+        let noLevel = LessonSection(id: "sec-2", title: "Unit 2", subtitle: "3 lessons", nodes: [])
+        #expect(sheet.sectionMetaSubtitle(for: noLevel) == "3 lessons")
+
+        let bare = LessonSection(id: "sec-3", title: "Unit 3", nodes: [])
+        #expect(sheet.sectionMetaSubtitle(for: bare) == nil)
+    }
+
+    @Test("Verify section completion requires all nodes completed")
+    func testSectionCompletion() {
+        let sheet = CraftUnitDrawerSheet(
+            sections: [],
+            deckTitle: "Deck",
+            deckSubtitle: "Sub",
+            activeSectionId: "sec-1",
+            onSelectLesson: { _, _ in },
+            onDismiss: {}
+        )
+        let done = LessonSection(id: "sec-1", title: "Unit 1", nodes: [
+            LessonNodeModel(id: "n-1", title: "L1", state: .completed),
+            LessonNodeModel(id: "n-2", title: "L2", state: .completed)
+        ])
+        #expect(sheet.isSectionCompleted(done) == true)
+
+        let partial = LessonSection(id: "sec-2", title: "Unit 2", nodes: [
+            LessonNodeModel(id: "n-3", title: "L3", state: .completed),
+            LessonNodeModel(id: "n-4", title: "L4", state: .active)
+        ])
+        #expect(sheet.isSectionCompleted(partial) == false)
+
+        let empty = LessonSection(id: "sec-3", title: "Unit 3", nodes: [])
+        #expect(sheet.isSectionCompleted(empty) == false)
+    }
+
+    @Test("Verify lesson status text reuses localized journey keys")
+    func testLessonStatusText() {
+        let sheet = CraftUnitDrawerSheet(
+            sections: [],
+            deckTitle: "Deck",
+            deckSubtitle: "Sub",
+            activeSectionId: "sec-1",
+            onSelectLesson: { _, _ in },
+            onDismiss: {}
+        )
+        #expect(
+            sheet.lessonStatusText(for: LessonNodeModel(id: "n-1", title: "L1", state: .completed))
+                == CraftLocalized.string("craft.fluid_journey.completed_status")
+        )
+        #expect(
+            sheet.lessonStatusText(for: LessonNodeModel(id: "n-2", title: "L2", state: .active))
+                == CraftLocalized.string("craft.fluid_journey.current_status")
+        )
+        #expect(
+            sheet.lessonStatusText(for: LessonNodeModel(id: "n-3", title: "L3", state: .inProgress))
+                == CraftLocalized.string("craft.fluid_journey.current_status")
+        )
+        #expect(sheet.lessonStatusText(for: LessonNodeModel(id: "n-4", title: "L4", state: .upcoming)) == nil)
+        #expect(sheet.lessonStatusText(for: LessonNodeModel(id: "n-5", title: "L5", state: .locked)) == nil)
+        #expect(sheet.lessonStatusText(for: LessonNodeModel(id: "n-6", title: "L6", state: .bonus)) == nil)
+    }
 }

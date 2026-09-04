@@ -375,6 +375,12 @@ final class LocalizationTests: XCTestCase {
         XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.current_status"), "Current")
         XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.current_status", language: "vi"), "Đang học")
 
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.drawer_title"), "Learning Path")
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.drawer_title", language: "vi"), "Lộ trình học")
+
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.drawer_subtitle"), "Pick a topic to jump to")
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.drawer_subtitle", language: "vi"), "Chọn topic để đi tới")
+
         XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.unit_picker_title"), "Curriculum & Units")
         XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.unit_picker_title", language: "vi"), "Lộ trình & Chủ đề")
 
