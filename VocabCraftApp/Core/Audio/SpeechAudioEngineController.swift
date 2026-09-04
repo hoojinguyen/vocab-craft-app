@@ -29,7 +29,7 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
     private var lifecycleGeneration: UInt = 0
     private var isPaused = false
     private var pauseRequested = false
-    private var pauseInFlight = false
+    private var pauseInFlightGeneration: UInt?
     private let hardware: any SpeechAudioHardware
 
     init() {
@@ -51,7 +51,7 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
         if state == .ready {
             if isPaused {
                 pauseRequested = false
-                guard !pauseInFlight else {
+                guard !hasPauseInFlight else {
                     return
                 }
                 try await hardware.resume()
@@ -112,7 +112,7 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
             return
         }
 
-        guard !pauseInFlight else {
+        guard !hasPauseInFlight else {
             return
         }
         isPaused = false
@@ -135,7 +135,7 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
 
         let generation = lifecycleGeneration
         isPaused = true
-        pauseInFlight = true
+        pauseInFlightGeneration = generation
         await hardware.pause()
         do {
             try await completePause(after: generation)
@@ -186,15 +186,17 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
         }
 
         isPaused = true
-        pauseInFlight = true
+        pauseInFlightGeneration = completedGeneration
         await hardware.pause()
         try await completePause(after: completedGeneration)
     }
 
     private func completePause(after completedGeneration: UInt) async throws {
-        pauseInFlight = false
         guard lifecycleGeneration == completedGeneration, state != .idle else {
             throw CancellationError()
+        }
+        if pauseInFlightGeneration == completedGeneration {
+            pauseInFlightGeneration = nil
         }
         guard !pauseRequested else {
             return
@@ -212,6 +214,10 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
         guard lifecycleGeneration == completedGeneration, state != .idle else {
             throw CancellationError()
         }
+    }
+
+    private var hasPauseInFlight: Bool {
+        pauseInFlightGeneration == lifecycleGeneration
     }
 }
 

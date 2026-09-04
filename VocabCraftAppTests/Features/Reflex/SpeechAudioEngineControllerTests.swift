@@ -185,6 +185,7 @@ struct SpeechAudioEngineControllerTests {
         let teardownTask = Task {
             await controller.teardown()
         }
+        await hardware.waitUntilTeardownStarts()
         await hardware.completeResume()
         await teardownTask.value
 
@@ -192,6 +193,34 @@ struct SpeechAudioEngineControllerTests {
             try await prepareTask.value
         }
         #expect(await controller.state == .idle)
+    }
+
+    @Test("Old pause completion does not clear a new lifecycle pause marker")
+    func oldPauseCompletionDoesNotClearNewLifecyclePauseMarker() async throws {
+        let hardware = MockSpeechAudioHardware(blockPause: true)
+        let controller = SpeechAudioEngineController(hardware: hardware)
+        try await controller.prepare(relay: AudioBufferRelay())
+
+        let oldPauseTask = Task {
+            await controller.pause()
+        }
+        await hardware.waitUntilPauseStarts()
+        await controller.teardown()
+        try await controller.prepare(relay: AudioBufferRelay())
+
+        let newPauseTask = Task {
+            await controller.pause()
+        }
+        await hardware.waitUntilPauseStarts(count: 2)
+        await hardware.completeNextPause()
+        await oldPauseTask.value
+
+        try await controller.resume()
+        #expect(await hardware.resumeCallCount == 0)
+
+        await hardware.completeNextPause()
+        await newPauseTask.value
+        #expect(await hardware.isRunning)
     }
 
     @Test("Resume during a pending ready-state pause keeps hardware running")
@@ -276,12 +305,14 @@ private actor MockSpeechAudioHardware: SpeechAudioHardware {
     private var preparationStarted = false
     private var preparationStartWaiters: [CheckedContinuation<Void, Never>] = []
     private var preparationContinuation: CheckedContinuation<Void, Never>?
-    private var pauseStarted = false
-    private var pauseStartWaiters: [CheckedContinuation<Void, Never>] = []
-    private var pauseContinuation: CheckedContinuation<Void, Never>?
+    private var pauseStartCount = 0
+    private var pauseStartWaiters: [(Int, CheckedContinuation<Void, Never>)] = []
+    private var pauseContinuations: [CheckedContinuation<Void, Never>] = []
     private var resumeStarted = false
     private var resumeStartWaiters: [CheckedContinuation<Void, Never>] = []
     private var resumeContinuation: CheckedContinuation<Void, Never>?
+    private var teardownStarted = false
+    private var teardownStartWaiters: [CheckedContinuation<Void, Never>] = []
 
     init(
         blockPreparation: Bool = false,
@@ -333,10 +364,15 @@ private actor MockSpeechAudioHardware: SpeechAudioHardware {
         pauseCallCount += 1
         if blockPause {
             await withCheckedContinuation { continuation in
-                pauseContinuation = continuation
-                pauseStarted = true
-                pauseStartWaiters.forEach { $0.resume() }
-                pauseStartWaiters.removeAll()
+                pauseContinuations.append(continuation)
+                pauseStartCount += 1
+                pauseStartWaiters.removeAll { waiter in
+                    guard pauseStartCount >= waiter.0 else {
+                        return false
+                    }
+                    waiter.1.resume()
+                    return true
+                }
             }
         }
         isRunning = false
@@ -344,6 +380,9 @@ private actor MockSpeechAudioHardware: SpeechAudioHardware {
 
     func teardown() async {
         teardownCallCount += 1
+        teardownStarted = true
+        teardownStartWaiters.forEach { $0.resume() }
+        teardownStartWaiters.removeAll()
         isPrepared = false
         isRunning = false
     }
@@ -363,19 +402,25 @@ private actor MockSpeechAudioHardware: SpeechAudioHardware {
         preparationContinuation = nil
     }
 
-    func waitUntilPauseStarts() async {
-        guard !pauseStarted else {
+    func waitUntilPauseStarts(count: Int = 1) async {
+        guard pauseStartCount < count else {
             return
         }
 
         await withCheckedContinuation { continuation in
-            pauseStartWaiters.append(continuation)
+            pauseStartWaiters.append((count, continuation))
         }
     }
 
     func completePause() {
-        pauseContinuation?.resume()
-        pauseContinuation = nil
+        completeNextPause()
+    }
+
+    func completeNextPause() {
+        guard !pauseContinuations.isEmpty else {
+            return
+        }
+        pauseContinuations.removeFirst().resume()
     }
 
     func waitUntilResumeStarts() async {
@@ -391,6 +436,16 @@ private actor MockSpeechAudioHardware: SpeechAudioHardware {
     func completeResume() {
         resumeContinuation?.resume()
         resumeContinuation = nil
+    }
+
+    func waitUntilTeardownStarts() async {
+        guard !teardownStarted else {
+            return
+        }
+
+        await withCheckedContinuation { continuation in
+            teardownStartWaiters.append(continuation)
+        }
     }
 }
 #endif
