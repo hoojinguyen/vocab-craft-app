@@ -256,9 +256,18 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
 
     func testStopSessionDeregistersInterruptionObserver() {
         engine.startSession(contextualPhrases: ["apple"])
+        #if os(iOS)
+        XCTAssertTrue(engine.hasInterruptionObserver, "Interruption observer must be registered when session starts")
+        #endif
+
         engine.stopSession()
 
-        // Posting notification through NotificationCenter verifies observer was deregistered
+        #if os(iOS)
+        XCTAssertFalse(engine.hasInterruptionObserver, "Interruption observer must be deregistered when session stops")
+        #endif
+        XCTAssertFalse(engine.isSessionActive)
+
+        // Posting notification through NotificationCenter after deregistration is harmless
         NotificationCenter.default.post(
             name: AVAudioSession.interruptionNotification,
             object: nil,

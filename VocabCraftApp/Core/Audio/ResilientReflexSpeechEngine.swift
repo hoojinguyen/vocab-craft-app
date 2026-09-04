@@ -127,6 +127,13 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     private let throttleInterval: CFAbsoluteTime = 0.15
 
     private var interruptionToken: InterruptionObserverToken?
+    var hasInterruptionObserver: Bool {
+        #if os(iOS)
+        interruptionToken != nil
+        #else
+        false
+        #endif
+    }
 
     public init() {}
 
