@@ -14,7 +14,6 @@ enum LessonPerformanceDiagnostics {
         #if DEBUG
         let nameText = String(describing: name)
         logger.notice("event=\(nameText, privacy: .public) detail=\(detail, privacy: .public)")
-        NSLog("[LessonPerformance] event=%@ detail=%@", nameText, detail)
         os_signpost(.event, log: signpostLog, name: name, "%{public}@", detail as NSString)
         #endif
     }
@@ -24,12 +23,6 @@ enum LessonPerformanceDiagnostics {
         let nsError = error as NSError
         logger.error(
             "operation=\(operation, privacy: .public) domain=\(nsError.domain, privacy: .public) code=\(nsError.code)"
-        )
-        NSLog(
-            "[LessonPerformance] operation=%@ domain=%@ code=%ld",
-            operation,
-            nsError.domain,
-            nsError.code
         )
         #endif
     }
