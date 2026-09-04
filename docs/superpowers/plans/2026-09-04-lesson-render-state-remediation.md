@@ -152,7 +152,8 @@ git commit -m "perf: isolate lesson typing draft state"
 @Test("Sparkle timeline stops at animation duration")
 @MainActor
 func sparkleStopsAtDuration() async {
-    let clock = TestClock()
+    // ManualTestClock is a lightweight in-tree Clock<Duration> test double
+    let clock = ManualTestClock()
     let model = CraftSparkleLifecycle(clock: clock)
     model.start()
     await clock.advance(by: .seconds(1))

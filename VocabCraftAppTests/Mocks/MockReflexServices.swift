@@ -145,3 +145,79 @@ final class MockSpeechAssessmentService: SpeechAssessmentProtocol {
 }
 
 typealias MockSpeechAssessmentServiceForViewModel = MockSpeechAssessmentService
+
+@MainActor
+final class SuspendedMockReflexSpeechEngine: ReflexSpeechEngineProtocol {
+    var isSessionActive: Bool = true
+    var isWordActive: Bool = false
+    var liveTranscript: String = ""
+    var isListeningPaused: Bool = false
+    var onMatchDetected: ((String) -> Void)?
+    var onTranscriptUpdate: ((String) -> Void)?
+    var onError: ((Error) -> Void)?
+
+    private(set) var prepareCallCount = 0
+    private(set) var beginWordCallCount = 0
+    private(set) var resumeListeningCallCount = 0
+    private(set) var pauseListeningCallCount = 0
+    private(set) var stopSessionCallCount = 0
+    private var preparationContinuation: CheckedContinuation<Void, Error>?
+    private var preparationStartWaiters: [CheckedContinuation<Void, Never>] = []
+    private var isCompleted = false
+    private var pendingError: Error?
+
+    func startSession(contextualPhrases: [String]) { isSessionActive = true }
+    func startSession(contextualPhrases: [String], lazy: Bool) { isSessionActive = true }
+    func stopSession() { isSessionActive = false; stopSessionCallCount += 1 }
+    func pauseListening() { isListeningPaused = true; pauseListeningCallCount += 1 }
+    func resumeListening() { isListeningPaused = false; resumeListeningCallCount += 1 }
+
+    func waitUntilPreparationStarts(expectedCount: Int = 1) async {
+        guard prepareCallCount < expectedCount else { return }
+        await withCheckedContinuation { continuation in
+            preparationStartWaiters.append(continuation)
+        }
+    }
+
+    func prepareEngineIfNeeded() async throws {
+        prepareCallCount += 1
+        for waiter in preparationStartWaiters {
+            waiter.resume()
+        }
+        preparationStartWaiters.removeAll()
+
+        if let pendingError {
+            throw pendingError
+        }
+        if isCompleted {
+            return
+        }
+
+        try await withCheckedThrowingContinuation { continuation in
+            preparationContinuation = continuation
+        }
+    }
+
+    func completePreparation() {
+        isCompleted = true
+        preparationContinuation?.resume()
+        preparationContinuation = nil
+    }
+
+    func failPreparation(with error: Error) {
+        pendingError = error
+        preparationContinuation?.resume(throwing: error)
+        preparationContinuation = nil
+    }
+
+    func beginWord(targetLemma: String, contextualPhrases: [String]) {
+        beginWordCallCount += 1
+        isWordActive = true
+    }
+
+    func endWord() {
+        isWordActive = false
+    }
+
+    func finalizeWordAudio() {}
+}

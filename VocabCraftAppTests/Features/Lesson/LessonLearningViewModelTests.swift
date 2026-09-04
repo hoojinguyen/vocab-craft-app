@@ -560,7 +560,8 @@ struct LessonLearningViewModelTests {
 
         let speakingItem = try #require(vm.currentExerciseItem)
         vm.startListeningForSpeaking(targetLemma: speakingItem.word.lemma, item: speakingItem)
-        while speechEngine.beginWordCallCount == 0 {
+        let deadline1 = ContinuousClock.now.advanced(by: .seconds(2))
+        while speechEngine.beginWordCallCount == 0 && ContinuousClock.now < deadline1 {
             await Task.yield()
         }
 
@@ -601,7 +602,8 @@ struct LessonLearningViewModelTests {
         await speech.waitUntilPreparationStarts()
         #expect(speech.beginWordCallCount == 0)
         speech.completePreparation()
-        while speech.beginWordCallCount == 0 {
+        let deadline2 = ContinuousClock.now.advanced(by: .seconds(2))
+        while speech.beginWordCallCount == 0 && ContinuousClock.now < deadline2 {
             await Task.yield()
         }
         #expect(speech.beginWordCallCount == 1)

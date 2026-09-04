@@ -58,7 +58,13 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
                 state = .ready
                 if isPaused {
                     await hardware.pause()
+                    guard lifecycleGeneration == completedGeneration, state != .idle else {
+                        throw CancellationError()
+                    }
                 }
+            }
+            guard lifecycleGeneration == completedGeneration, state != .idle else {
+                throw CancellationError()
             }
             return
         }
@@ -82,6 +88,9 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
             state = .ready
             if isPaused {
                 await hardware.pause()
+                guard lifecycleGeneration == completedGeneration, state != .idle else {
+                    throw CancellationError()
+                }
             }
             preparationTask = nil
         } catch {

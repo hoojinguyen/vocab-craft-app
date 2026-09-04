@@ -244,8 +244,21 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         isListeningPaused = false
         bufferRelay.unmute()
         if isSessionActive {
-            enqueueAudioTransition { controller in
-                try? await controller.resume()
+            if !isEngineReady {
+                pendingPreparationTask?.cancel()
+                pendingPreparationTask = Task { [weak self] in
+                    try? await self?.prepareEngineIfNeeded()
+                }
+            } else {
+                enqueueAudioTransition { [weak self] controller in
+                    do {
+                        try await controller.resume()
+                    } catch {
+                        Task { @MainActor [weak self] in
+                            self?.onError?(error)
+                        }
+                    }
+                }
             }
         }
     }
@@ -259,13 +272,70 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         }
     }
 
+    private func requestAuthorizationIfNeeded() async throws {
+        #if os(iOS) && !targetEnvironment(simulator)
+        let speechStatus = SFSpeechRecognizer.authorizationStatus()
+        switch speechStatus {
+        case .authorized:
+            break
+        case .notDetermined:
+            let speechGranted = await withCheckedContinuation { continuation in
+                SFSpeechRecognizer.requestAuthorization { status in
+                    continuation.resume(returning: status == .authorized)
+                }
+            }
+            guard speechGranted else {
+                throw NSError(
+                    domain: "ResilientReflexSpeech",
+                    code: 401,
+                    userInfo: [NSLocalizedDescriptionKey: "Speech recognition not authorized."]
+                )
+            }
+        default:
+            throw NSError(
+                domain: "ResilientReflexSpeech",
+                code: 401,
+                userInfo: [NSLocalizedDescriptionKey: "Speech recognition not authorized."]
+            )
+        }
+
+        let micGranted: Bool
+        if #available(iOS 17.0, *) {
+            micGranted = await AVAudioApplication.requestRecordPermission()
+        } else {
+            micGranted = await withCheckedContinuation { continuation in
+                AVAudioSession.sharedInstance().requestRecordPermission { granted in
+                    continuation.resume(returning: granted)
+                }
+            }
+        }
+        guard micGranted else {
+            throw NSError(
+                domain: "ResilientReflexSpeech",
+                code: 403,
+                userInfo: [NSLocalizedDescriptionKey: "Microphone permission denied."]
+            )
+        }
+        #endif
+    }
+
     public func prepareEngineIfNeeded() async throws {
-        guard isSessionActive, !isListeningPaused else { return }
+        guard isSessionActive else { return }
         if let audioLifecycleTask {
             await audioLifecycleTask.value
         }
-        guard isSessionActive, !isListeningPaused else { return }
+        guard isSessionActive else { return }
         if isEngineReady { return }
+        try await requestAuthorizationIfNeeded()
+        #if os(iOS) && !targetEnvironment(simulator)
+        let session = AVAudioSession.sharedInstance()
+        try session.setCategory(
+            .playAndRecord,
+            mode: .spokenAudio,
+            options: [.defaultToSpeaker, .allowBluetoothHFP, .allowBluetoothA2DP, .duckOthers]
+        )
+        try session.setActive(true, options: .notifyOthersOnDeactivation)
+        #endif
         do {
             try await audioController.prepare(relay: bufferRelay)
         } catch {
@@ -276,8 +346,9 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         }
         guard isSessionActive, !Task.isCancelled else {
             isEngineReady = false
-            let controller = audioController
-            await controller.teardown()
+            enqueueAudioTransition { controller in
+                await controller.teardown()
+            }
             if Task.isCancelled {
                 throw CancellationError()
             }

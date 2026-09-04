@@ -26,6 +26,7 @@ public final class LessonLearningViewModel: Identifiable {
     public private(set) var isSpeakingDisabledForLesson: Bool = false
     private(set) var autoPronounceTask: Task<Void, Never>?
     private var speechStartTask: Task<Void, Never>?
+    private var speakingRequestGeneration: UInt = 0
 
     public private(set) var hintStage: Int = 0
     public private(set) var eliminatedOptionId: String?
@@ -251,6 +252,9 @@ public final class LessonLearningViewModel: Identifiable {
             startSpeechSession()
         }
 
+        speakingRequestGeneration &+= 1
+        let requestGeneration = speakingRequestGeneration
+
         speechStartTask?.cancel()
         speechStartTask = Task { @MainActor [weak self] in
             guard let self else { return }
@@ -258,7 +262,7 @@ public final class LessonLearningViewModel: Identifiable {
                 try await speechEngine.prepareEngineIfNeeded()
                 try Task.checkCancellation()
                 guard currentExerciseItem?.id == item.id, !isFeedbackPresented else {
-                    if speechState != .idle {
+                    if speechState != .idle && requestGeneration == speakingRequestGeneration {
                         speechState = .idle
                     }
                     return
@@ -266,13 +270,15 @@ public final class LessonLearningViewModel: Identifiable {
                 speechEngine.resumeListening()
                 speechEngine.beginWord(targetLemma: targetLemma, contextualPhrases: [targetLemma, item.word.exampleEn])
             } catch is CancellationError {
-                if speechState != .idle && currentExerciseItem?.id == item.id {
+                if speechState != .idle && requestGeneration == speakingRequestGeneration && currentExerciseItem?.id == item.id {
                     speechState = .idle
                 }
                 return
             } catch {
                 LessonPerformanceDiagnostics.error("lesson.speaking.prepare", error: error)
-                speechState = .idle
+                if requestGeneration == speakingRequestGeneration {
+                    speechState = .idle
+                }
             }
         }
     }
@@ -351,7 +357,24 @@ public final class LessonLearningViewModel: Identifiable {
         startListeningForSpeaking(targetLemma: item.word.lemma, item: item)
     }
 
-    private func finishLesson() {
+    deinit {
+        if Thread.isMainThread {
+            MainActor.assumeIsolated {
+                cleanup()
+            }
+        } else {
+            Task { @MainActor [speechEngine] in
+                speechEngine.pauseListening()
+                speechEngine.stopSession()
+            }
+        }
+    }
+}
+
+// MARK: - Lesson Completion & Persistence
+
+extension LessonLearningViewModel {
+    func finishLesson() {
         guard completionTask == nil else { return }
         ttsService.stop()
         cleanup()
@@ -441,18 +464,5 @@ public final class LessonLearningViewModel: Identifiable {
             return try await retryCompletion()
         }
         return nil
-    }
-
-    deinit {
-        if Thread.isMainThread {
-            MainActor.assumeIsolated {
-                cleanup()
-            }
-        } else {
-            Task { @MainActor [speechEngine] in
-                speechEngine.pauseListening()
-                speechEngine.stopSession()
-            }
-        }
     }
 }
