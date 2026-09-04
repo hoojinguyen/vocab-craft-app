@@ -2,21 +2,6 @@ import AVFoundation
 import Foundation
 import Observation
 
-#if os(iOS)
-protocol AudioSessionControlling: AnyObject {
-    var category: AVAudioSession.Category { get }
-    func setCategory(
-        _ category: AVAudioSession.Category,
-        mode: AVAudioSession.Mode,
-        options: AVAudioSession.CategoryOptions
-    ) throws
-    func setActive(_ active: Bool, options: AVAudioSession.SetActiveOptions) throws
-    func overrideOutputAudioPort(_ portOverride: AVAudioSession.PortOverride) throws
-}
-
-extension AVAudioSession: AudioSessionControlling {}
-#endif
-
 @MainActor
 @Observable
 public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, TextToSpeechProtocol {
@@ -25,79 +10,29 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
     private var activeContinuation: CheckedContinuation<Void, Never>?
     private var interruptionObserver: (any NSObjectProtocol)?
 
-    private var isAudioSessionConfigured: Bool = false
+    public let audioSessionCoordinator: any AudioSessionCoordinating
+    private(set) var activeLease: AudioSessionLease?
+    private(set) var playbackStartTask: Task<Void, Never>?
+    private(set) var playbackReleaseTask: Task<Void, Never>?
+    private var requestGeneration: UInt = 0
+
     #if os(iOS)
-    private let audioSession: any AudioSessionControlling
-
     public override convenience init() {
-        self.init(audioSession: AVAudioSession.sharedInstance())
+        self.init(audioSessionCoordinator: AudioSessionCoordinator())
     }
+    #endif
 
-    init(audioSession: any AudioSessionControlling) {
-        self.audioSession = audioSession
+    public init(audioSessionCoordinator: any AudioSessionCoordinating) {
+        self.audioSessionCoordinator = audioSessionCoordinator
         super.init()
         synthesizer.delegate = self
         setupInterruptionObserver()
         prewarm()
     }
-    #else
-    public override init() {
-        super.init()
-        synthesizer.delegate = self
-        prewarm()
-    }
-    #endif
 
     public func prewarm() {
-        #if os(iOS) && !targetEnvironment(simulator)
-        Task.detached(priority: .utility) {
-            do {
-                let audioSession = AVAudioSession.sharedInstance()
-                try audioSession.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
-            } catch {
-                // Non-fatal pre-warming failure
-            }
-        }
-        #endif
         _ = Self.resolveVoice(for: "en-US")
     }
-
-    #if os(iOS)
-    private func ensureAudioSessionActive() {
-        #if targetEnvironment(simulator)
-        if audioSession is AVAudioSession { return }
-        #endif
-        let startedAt = CFAbsoluteTimeGetCurrent()
-        LessonPerformanceDiagnostics.event("TTSAudioSessionStart")
-        do {
-            // When speech recognition is active, the session is already .playAndRecord
-            // which supports both mic input AND audio output.
-            // The speech session already activated the audio session, so we reuse it without
-            // calling setActive(true), avoiding redundant main-thread stalls.
-            if audioSession.category == .playAndRecord {
-                try? audioSession.overrideOutputAudioPort(.speaker)
-                let elapsed = CFAbsoluteTimeGetCurrent() - startedAt
-                LessonPerformanceDiagnostics.event(
-                    "TTSAudioSessionReady",
-                    detail: "elapsedMs=\(Int(elapsed * 1_000)) reusedPlayAndRecord=true"
-                )
-                return
-            }
-            if !isAudioSessionConfigured || audioSession.category != .playback {
-                try audioSession.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
-                isAudioSessionConfigured = true
-            }
-            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
-            let elapsed = CFAbsoluteTimeGetCurrent() - startedAt
-            LessonPerformanceDiagnostics.event(
-                "TTSAudioSessionReady",
-                detail: "elapsedMs=\(Int(elapsed * 1_000)) reusedPlayAndRecord=false"
-            )
-        } catch {
-            LessonPerformanceDiagnostics.error("tts.audioSession.activate", error: error)
-        }
-    }
-    #endif
 
     private func setupInterruptionObserver() {
         #if os(iOS) && !targetEnvironment(simulator)
@@ -138,6 +73,40 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         return voice
     }
 
+    @discardableResult
+    private func acquirePlaybackLease(generation: UInt) async -> Bool {
+        let lease: AudioSessionLease
+        do {
+            lease = try await audioSessionCoordinator.acquire(.playback)
+        } catch {
+            LessonPerformanceDiagnostics.error("tts.audioSession.acquire", error: error)
+            if self.requestGeneration == generation {
+                self.isSpeaking = false
+            }
+            return false
+        }
+
+        guard !Task.isCancelled, self.requestGeneration == generation else {
+            await self.audioSessionCoordinator.release(lease)
+            return false
+        }
+
+        self.activeLease = lease
+        return true
+    }
+
+    @discardableResult
+    func releaseActiveLease() -> Task<Void, Never>? {
+        guard let lease = activeLease else { return nil }
+        activeLease = nil
+        let coordinator = audioSessionCoordinator
+        let task = Task {
+            await coordinator.release(lease)
+        }
+        playbackReleaseTask = task
+        return task
+    }
+
     public func speak(text: String, rate: Float = 1.0, locale: String = "en-US") {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
@@ -155,17 +124,21 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
             utterance.voice = voice
         }
 
-#if os(iOS)
-        ensureAudioSessionActive()
-#endif
-
         isSpeaking = true
-        let isTesting = NSClassFromString("XCTestCase") != nil
-        if isTesting {
-            self.isSpeaking = true
-            return
+        requestGeneration += 1
+        let currentGeneration = requestGeneration
+
+        playbackStartTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            let acquired = await self.acquirePlaybackLease(generation: currentGeneration)
+            guard acquired, !Task.isCancelled, self.requestGeneration == currentGeneration else { return }
+
+            let isTesting = NSClassFromString("XCTestCase") != nil
+            if isTesting {
+                return
+            }
+            self.synthesizer.speak(utterance)
         }
-        synthesizer.speak(utterance)
     }
 
     public func speakAsync(text: String, rate: Float = 1.0, locale: String = "en-US") async {
@@ -185,13 +158,28 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
 
         utterance.voice = Self.resolveVoice(for: locale)
 
-#if os(iOS)
-        ensureAudioSessionActive()
-#endif
+        isSpeaking = true
+        requestGeneration += 1
+        let currentGeneration = requestGeneration
+
+        let startTask = Task { @MainActor [weak self] in
+            guard let self else { return false }
+            return await self.acquirePlaybackLease(generation: currentGeneration)
+        }
+        playbackStartTask = Task {
+            _ = await startTask.value
+        }
+
+        let acquired = await startTask.value
+        guard acquired, !Task.isCancelled, self.requestGeneration == currentGeneration else {
+            self.isSpeaking = false
+            return
+        }
 
         let isTesting = NSClassFromString("XCTestCase") != nil
         if isTesting {
             self.isSpeaking = false
+            self.releaseActiveLease()
             return
         }
 
@@ -224,6 +212,10 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
     }
 
     public func stop() {
+        playbackStartTask?.cancel()
+        playbackStartTask = nil
+        requestGeneration += 1
+
         if synthesizer.isSpeaking {
             synthesizer.stopSpeaking(at: .immediate)
         }
@@ -232,6 +224,7 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
             activeContinuation = nil
             continuation.resume()
         }
+        releaseActiveLease()
     }
 
     // MARK: - AVSpeechSynthesizerDelegate
@@ -245,6 +238,7 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
                 self.activeContinuation = nil
                 continuation.resume()
             }
+            self.releaseActiveLease()
         }
     }
 
@@ -257,6 +251,7 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
                 self.activeContinuation = nil
                 continuation.resume()
             }
+            self.releaseActiveLease()
         }
     }
 }

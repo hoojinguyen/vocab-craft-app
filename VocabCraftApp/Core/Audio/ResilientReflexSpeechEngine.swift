@@ -175,16 +175,23 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         #endif
     }
 
-    public init() {
+    public let audioSessionCoordinator: (any AudioSessionCoordinating)?
+
+    public init(
+        audioSessionCoordinator: (any AudioSessionCoordinating)? = nil
+    ) {
         self.audioController = SpeechAudioEngineController()
+        self.audioSessionCoordinator = audioSessionCoordinator
         self.speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
     }
 
     init(
         audioController: any SpeechAudioEngineControlling = SpeechAudioEngineController(),
+        audioSessionCoordinator: (any AudioSessionCoordinating)? = nil,
         speechRecognizer: SFSpeechRecognizer? = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
     ) {
         self.audioController = audioController
+        self.audioSessionCoordinator = audioSessionCoordinator
         self.speechRecognizer = speechRecognizer
     }
 

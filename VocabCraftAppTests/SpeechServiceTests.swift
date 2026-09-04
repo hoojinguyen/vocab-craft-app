@@ -419,78 +419,77 @@ struct SpeechEngineReadinessTests {
 
 @Suite("TTS Audio Session Tests")
 struct TTSAudioSessionTests {
-    @Test("TTS reuses active play-and-record session")
+    @Test("TTS activates playback session when no duplex active")
     @MainActor
-    func ttsDoesNotReactivateLessonSession() {
-        let session = MockAudioSession(category: .playAndRecord, isActive: true)
-        let service = TextToSpeechService(audioSession: session)
-        service.speak(text: "test")
-        #expect(session.setActiveCallCount == 0)
-        #expect(session.overrideOutputAudioPortCallCount == 1)
+    func ttsActivatesPlaybackWhenNoDuplexActive() async throws {
+        let mockHardware = MockAudioSessionHardware()
+        let coordinator = AudioSessionCoordinator(hardware: mockHardware)
+        let tts = TextToSpeechService(audioSessionCoordinator: coordinator)
+        tts.speak(text: "test")
+        await tts.playbackStartTask?.value
+
+        #expect(await coordinator.effectiveIntent == .playback)
+        #expect(await coordinator.activeLeaseCount == 1)
+        #expect(mockHardware.operations.contains { operation in
+            if case .setCategory(.playback, mode: .spokenAudio, options: [.duckOthers]) = operation { return true }
+            return false
+        })
+
+        tts.stop()
+        _ = await tts.playbackReleaseTask?.value
+        #expect(await coordinator.activeLeaseCount == 0)
+        #expect(mockHardware.operations.last == .setActive(false, options: [.notifyOthersOnDeactivation]))
     }
 
-    @Test("TTS activates playback session when not in play-and-record")
+    @Test("TTS playback acquire does not replace active duplex lease")
     @MainActor
-    func ttsActivatesPlaybackSession() {
-        let session = MockAudioSession(category: .playback, isActive: false)
-        let service = TextToSpeechService(audioSession: session)
-        service.speak(text: "test")
-        #expect(session.setActiveCallCount == 1)
-        #expect(session.setCategoryCallCount == 1)
+    func ttsPlaybackAcquireDoesNotReplaceActiveDuplexLease() async throws {
+        let mockHardware = MockAudioSessionHardware()
+        let coordinator = AudioSessionCoordinator(hardware: mockHardware)
+        let duplexLease = try await coordinator.acquire(.duplexSpeech)
+
+        let tts = TextToSpeechService(audioSessionCoordinator: coordinator)
+        tts.speak(text: "Hello world")
+        await tts.playbackStartTask?.value
+
+        #expect(await coordinator.effectiveIntent == .duplexSpeech)
+        #expect(await coordinator.activeLeaseCount == 2)
+        #expect(!mockHardware.operations.contains { operation in
+            if case .setCategory(.playback, _, _) = operation { return true }
+            return false
+        })
+
+        tts.stop()
+        _ = await tts.playbackReleaseTask?.value
+        await coordinator.release(duplexLease)
     }
 
-    @Test("TTS reconfigures category if switched away from playback")
+    @Test("TTS stop releases only its playback lease")
     @MainActor
-    func ttsReconfiguresCategoryIfSwitchedAwayFromPlayback() {
-        let session = MockAudioSession(category: .playback, isActive: false)
-        let service = TextToSpeechService(audioSession: session)
-        service.speak(text: "test1")
-        #expect(session.setCategoryCallCount == 1)
+    func ttsStopReleasesOnlyItsPlaybackLease() async throws {
+        let mockHardware = MockAudioSessionHardware()
+        let coordinator = AudioSessionCoordinator(hardware: mockHardware)
+        let duplexLease = try await coordinator.acquire(.duplexSpeech)
 
-        // Second speak without category change should not call setCategory again
-        service.speak(text: "test2")
-        #expect(session.setCategoryCallCount == 1)
+        let tts = TextToSpeechService(audioSessionCoordinator: coordinator)
+        tts.speak(text: "Hello world")
+        await tts.playbackStartTask?.value
 
-        // Simulating external category change to ambient
-        session.category = .ambient
-        service.speak(text: "test3")
-        #expect(session.setCategoryCallCount == 2)
-        #expect(session.category == .playback)
+        #expect(await coordinator.activeLeaseCount == 2)
+        #expect(await coordinator.effectiveIntent == .duplexSpeech)
+
+        tts.stop()
+        _ = await tts.playbackReleaseTask?.value
+
+        #expect(await coordinator.activeLeaseCount == 1)
+        #expect(await coordinator.effectiveIntent == .duplexSpeech)
+        #expect(mockHardware.operations.last != .setActive(false, options: [.notifyOthersOnDeactivation]))
+
+        await coordinator.release(duplexLease)
+        #expect(await coordinator.activeLeaseCount == 0)
+        #expect(mockHardware.operations.last == .setActive(false, options: [.notifyOthersOnDeactivation]))
     }
 }
-
-#if os(iOS)
-final class MockAudioSession: AudioSessionControlling {
-    var category: AVAudioSession.Category
-    var isActive: Bool
-    private(set) var setActiveCallCount = 0
-    private(set) var setCategoryCallCount = 0
-    private(set) var overrideOutputAudioPortCallCount = 0
-
-    init(category: AVAudioSession.Category = .playback, isActive: Bool = false) {
-        self.category = category
-        self.isActive = isActive
-    }
-
-    func setCategory(
-        _ category: AVAudioSession.Category,
-        mode: AVAudioSession.Mode,
-        options: AVAudioSession.CategoryOptions
-    ) throws {
-        self.category = category
-        setCategoryCallCount += 1
-    }
-
-    func setActive(_ active: Bool, options: AVAudioSession.SetActiveOptions) throws {
-        self.isActive = active
-        setActiveCallCount += 1
-    }
-
-    func overrideOutputAudioPort(_ portOverride: AVAudioSession.PortOverride) throws {
-        overrideOutputAudioPortCallCount += 1
-    }
-}
-#endif
 
 actor SuspendedSpeechAudioEngineController: SpeechAudioEngineControlling {
     private var preparationContinuations: [UUID: CheckedContinuation<Void, Error>] = [:]
