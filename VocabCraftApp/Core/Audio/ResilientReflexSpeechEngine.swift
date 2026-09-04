@@ -65,6 +65,41 @@ public final class AudioBufferRelay: @unchecked Sendable {
     }
 }
 
+/// Thread-safe holder for an NSNotificationCenter observer token.
+/// Automatically removes the observer when deallocated or explicitly cancelled.
+private final class InterruptionObserverToken: @unchecked Sendable {
+    private let lock = NSLock()
+    private var observer: (any NSObjectProtocol)?
+
+    init(observer: (any NSObjectProtocol)?) {
+        self.observer = observer
+    }
+
+    deinit {
+        #if os(iOS)
+        lock.lock()
+        let obs = observer
+        observer = nil
+        lock.unlock()
+        if let obs {
+            NotificationCenter.default.removeObserver(obs)
+        }
+        #endif
+    }
+
+    func cancel() {
+        #if os(iOS)
+        lock.lock()
+        let obs = observer
+        observer = nil
+        lock.unlock()
+        if let obs {
+            NotificationCenter.default.removeObserver(obs)
+        }
+        #endif
+    }
+}
+
 @MainActor
 @Observable
 public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
@@ -99,11 +134,9 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     /// Minimum interval between MainActor dispatches for partial results (seconds)
     private let throttleInterval: CFAbsoluteTime = 0.15
 
-    public init() {}
+    private var interruptionToken: InterruptionObserverToken?
 
-    deinit {
-        // Clean up is handled by stopSession
-    }
+    public init() {}
 
     // MARK: - Session Lifecycle
 
@@ -114,6 +147,23 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         self.needsEngineRenew = false
         self.isStartingEngine = false
         self.isSessionActive = true
+        setupInterruptionObserver()
+
+        #if os(iOS)
+        Task.detached(priority: .userInitiated) {
+            do {
+                let session = AVAudioSession.sharedInstance()
+                try session.setCategory(
+                    .playAndRecord,
+                    mode: .spokenAudio,
+                    options: [.defaultToSpeaker, .allowBluetoothHFP, .allowBluetoothA2DP, .duckOthers]
+                )
+                try session.setActive(true, options: .notifyOthersOnDeactivation)
+            } catch {
+                // Non-fatal early audio session configuration
+            }
+        }
+        #endif
 
         if !lazy {
             #if targetEnvironment(simulator) || os(macOS)
@@ -129,6 +179,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     }
 
     public func stopSession() {
+        removeInterruptionObserver()
         isStartingEngine = false
         isSessionActive = false
         endWord()
@@ -409,6 +460,68 @@ extension ResilientReflexSpeechEngine {
         needsEngineRenew = false
         sessionStartTime = Date()
     }
+}
+
+// MARK: - Audio Interruption Management
+
+extension ResilientReflexSpeechEngine {
+    private func setupInterruptionObserver() {
+        #if os(iOS)
+        guard interruptionToken == nil else { return }
+        let observer = NotificationCenter.default.addObserver(
+            forName: AVAudioSession.interruptionNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            if Thread.isMainThread {
+                MainActor.assumeIsolated {
+                    self?.handleAudioInterruption(notification)
+                }
+            } else {
+                Task { @MainActor [weak self] in
+                    self?.handleAudioInterruption(notification)
+                }
+            }
+        }
+        interruptionToken = InterruptionObserverToken(observer: observer)
+        #endif
+    }
+
+    private func removeInterruptionObserver() {
+        #if os(iOS)
+        interruptionToken?.cancel()
+        interruptionToken = nil
+        #endif
+    }
+
+    #if os(iOS)
+    func handleAudioInterruption(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
+              let type = AVAudioSession.InterruptionType(rawValue: typeValue) else {
+            return
+        }
+
+        switch type {
+        case .began:
+            pauseListening()
+        case .ended:
+            if let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt {
+                let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
+                if options.contains(.shouldResume) {
+                    #if !targetEnvironment(simulator) && !os(macOS)
+                    if let engine = audioEngine, !engine.isRunning, isSessionActive {
+                        try? engine.start()
+                    }
+                    #endif
+                    resumeListening()
+                }
+            }
+        @unknown default:
+            break
+        }
+    }
+    #endif
 }
 
 // MARK: - Recognition Request Management

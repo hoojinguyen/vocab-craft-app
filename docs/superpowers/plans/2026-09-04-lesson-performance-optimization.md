@@ -29,7 +29,7 @@
 - Consumes: `FluidJourneyMilestonePreferenceKey`, `theme.colors.canvasBackground`
 - Produces: `CraftFluidJourney.init(..., isSuspended: Bool = false)`, removal of `@State private var milestonePositions`
 
-- [ ] **Step 1: Write the failing test for `isSuspended` and preference key handling**
+- [x] **Step 1: Write the failing test for `isSuspended` and preference key handling**
 
 In `Packages/CraftUIKit/Tests/CraftUIKitTests/CraftFluidJourneyTests.swift`:
 ```swift
@@ -47,12 +47,12 @@ func testIsSuspendedConfiguration() {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `swift test --package-path Packages/CraftUIKit --filter CraftFluidJourneyTests/testIsSuspendedConfiguration`
 Expected: FAIL with "value of type 'CraftFluidJourney' has no member 'isSuspended'"
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 In `Packages/CraftUIKit/Sources/CraftUIKit/Components/Containers/FluidJourney/CraftFluidJourney.swift`:
 1. Remove `@State private var milestonePositions: [String: CGFloat] = [:]`.
@@ -121,12 +121,12 @@ var ambientEtherealBackground: some View {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `swift test --package-path Packages/CraftUIKit --filter CraftFluidJourneyTests`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add Packages/CraftUIKit/Sources/CraftUIKit/Components/Containers/FluidJourney/CraftFluidJourney.swift Packages/CraftUIKit/Tests/CraftUIKitTests/CraftFluidJourneyTests.swift
@@ -146,7 +146,7 @@ git commit -m "perf(craft-fluid-journey): drop milestonePositions state and add 
 - Consumes: `UIImage(systemName:)`
 - Produces: `CraftJourneyNode.init(..., isSuspended: Bool = false)`, thread-safe static symbol validation cache, suspended static shadow rendering
 
-- [ ] **Step 1: Write the failing test for symbol caching and node suspension**
+- [x] **Step 1: Write the failing test for symbol caching and node suspension**
 
 In `Packages/CraftUIKit/Tests/CraftUIKitTests/CraftJourneyNodeTests.swift`:
 ```swift
@@ -160,12 +160,12 @@ func testResolvedIconNameAndSuspension() {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `swift test --package-path Packages/CraftUIKit --filter CraftJourneyNodeTests/testResolvedIconNameAndSuspension`
 Expected: FAIL with "extra argument 'isSuspended' in call"
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 In `Packages/CraftUIKit/Sources/CraftUIKit/Components/Containers/FluidJourney/CraftJourneyNode.swift`:
 1. Add static cache:
@@ -229,12 +229,12 @@ if node.state == .active, !reduceMotion, !isSuspended {
 5. Pass `isSuspended` from `CraftFluidJourney` into `CraftJourneyNode`.
 6. Similarly guard `ActiveCalloutBubble` bobbing in `CraftLessonNode.swift`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `swift test --package-path Packages/CraftUIKit --filter CraftJourneyNodeTests`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add Packages/CraftUIKit/Sources/CraftUIKit/Components/Containers/FluidJourney/CraftJourneyNode.swift Packages/CraftUIKit/Sources/CraftUIKit/Components/Containers/FluidJourney/CraftFluidJourney.swift Packages/CraftUIKit/Sources/CraftUIKit/Components/Containers/LearningPath/CraftLessonNode.swift Packages/CraftUIKit/Tests/CraftUIKitTests/CraftJourneyNodeTests.swift
@@ -253,7 +253,7 @@ git commit -m "perf(craft-ui): cache SF symbol validation and suspend node anima
 - Consumes: `AVAudioSession`, `AVAudioEngine`
 - Produces: `prepareEngineIfNeeded()`, `pauseListening()`, `resumeListening()`, safe non-flapping `teardownEngine()`
 
-- [ ] **Step 1: Write the failing test for pause/resume listening without teardown**
+- [x] **Step 1: Write the failing test for pause/resume listening without teardown**
 
 In `VocabCraftAppTests/SpeechServiceTests.swift`:
 ```swift
@@ -271,12 +271,12 @@ func testEnginePauseAndResumeRetainsSession() {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `xcodebuild test -scheme VocabCraftApp -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:VocabCraftAppTests/SpeechServiceTests/testEnginePauseAndResumeRetainsSession`
 Expected: FAIL with "value of type 'ResilientReflexSpeechEngine' has no member 'pauseListening'"
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 In `VocabCraftApp/Core/Audio/ResilientReflexSpeechEngine.swift`:
 1. Add methods to `ResilientReflexSpeechEngine`:
@@ -315,12 +315,12 @@ private func teardownEngine() {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `xcodebuild test -scheme VocabCraftApp -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:VocabCraftAppTests/SpeechServiceTests`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add VocabCraftApp/Core/Audio/ResilientReflexSpeechEngine.swift VocabCraftAppTests/SpeechServiceTests.swift
@@ -339,7 +339,7 @@ git commit -m "refactor(audio): make speech engine pauseable and move audio sess
 - Consumes: `ResilientReflexSpeechEngine.startSession()`, `pauseListening()`, `stopSession()`
 - Produces: `LessonLearningViewModel` manages session-level audio lifecycle without per-card flapping
 
-- [ ] **Step 1: Write the failing test for speech transition without session flapping**
+- [x] **Step 1: Write the failing test for speech transition without session flapping**
 
 In `VocabCraftAppTests/Features/Lesson/LessonLearningViewModelTests.swift`:
 ```swift
@@ -356,12 +356,12 @@ func testTransitionMaintainsSpeechSession() {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `xcodebuild test -scheme VocabCraftApp -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:VocabCraftAppTests/LessonLearningViewModelTests`
 Expected: FAIL if `cleanup()` does not exist or behavior differs
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 In `VocabCraftApp/Features/Lesson/ViewModels/LessonLearningViewModel.swift`:
 1. Add `public func cleanup()`:
@@ -382,12 +382,12 @@ public func stopListeningForSpeaking() {
 ```
 3. Update `finishLesson()` to call `cleanup()`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `xcodebuild test -scheme VocabCraftApp -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:VocabCraftAppTests/LessonLearningViewModelTests`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add VocabCraftApp/Features/Lesson/ViewModels/LessonLearningViewModel.swift VocabCraftAppTests/Features/Lesson/LessonLearningViewModelTests.swift
@@ -407,7 +407,7 @@ git commit -m "refactor(lesson): manage speech session at lesson scope and pause
 - Consumes: `clozeStages.initialParts`
 - Produces: Delayed TTS playback on discovery card entry, zero regex overhead in `LessonExerciseContainerView`, zero view-level audio session lifecycle calls
 
-- [ ] **Step 1: Write the test verifying clozeParts direct assignment without regex parsing**
+- [x] **Step 1: Write the test verifying clozeParts direct assignment without regex parsing**
 
 In `VocabCraftAppTests/Reflex/ReflexDrillableTests.swift`:
 ```swift
@@ -422,12 +422,12 @@ func testInitialPartsDirectStructure() {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it passes**
+- [x] **Step 2: Run test to verify it passes**
 
 Run: `xcodebuild test -scheme VocabCraftApp -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:VocabCraftAppTests/ReflexDrillableTests`
 Expected: PASS
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 1. In `VocabCraftApp/Features/Lesson/Views/Components/LessonDiscoveryCardView.swift`:
 ```swift
@@ -451,12 +451,12 @@ across all 4 modes (`.multipleChoice`, `.listening`, `.speaking`, `.typing`).
 3. In the `.speaking` case of `LessonExerciseContainerView.swift`:
 Remove `.onAppear { viewModel.startSpeechSession() }` and `.onDisappear { viewModel.stopSpeechSession() }`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `xcodebuild test -scheme VocabCraftApp -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:VocabCraftAppTests/ReflexDrillableTests`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add VocabCraftApp/Features/Lesson/Views/Components/LessonDiscoveryCardView.swift VocabCraftApp/Features/Lesson/Views/Components/LessonExerciseContainerView.swift
@@ -476,7 +476,7 @@ git commit -m "perf(lesson): delay discovery TTS for spring animation and remove
 - Consumes: `CraftFluidJourney(..., isSuspended:)`
 - Produces: `HomepageViewModel.applyCompletedLesson(stageId:)`, coordinated smooth modal transition
 
-- [ ] **Step 1: Write the failing test for `applyCompletedLesson` in-place mutation**
+- [x] **Step 1: Write the failing test for `applyCompletedLesson` in-place mutation**
 
 In `VocabCraftAppTests/Features/Homepage/HomepageViewModelTests.swift`:
 ```swift
@@ -494,12 +494,12 @@ func testApplyCompletedLessonInPlace() {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `xcodebuild test -scheme VocabCraftApp -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:VocabCraftAppTests/HomepageViewModelTests/testApplyCompletedLessonInPlace`
 Expected: FAIL with "value of type 'HomepageViewModel' has no member 'applyCompletedLesson'"
 
-- [ ] **Step 3: Write minimal implementation**
+- [x] **Step 3: Write minimal implementation**
 
 1. In `VocabCraftApp/Features/Homepage/ViewModels/HomepageViewModel.swift`:
 ```swift
@@ -543,12 +543,12 @@ public func applyCompletedLesson(stageId: String) {
 - In `handleLessonFinished`, call `viewModel.applyCompletedLesson(stageId: summary.stageId)` directly instead of `loadLearningPath()`.
 - In `startLesson`, introduce a coordinated 150ms post-dismiss buffer to allow CoreAnimation clean buffer recovery before `activeLessonLearningVM` presentation.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `xcodebuild test -scheme VocabCraftApp -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:VocabCraftAppTests/HomepageViewModelTests`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add VocabCraftApp/Features/Homepage/ViewModels/HomepageViewModel.swift VocabCraftApp/Features/Homepage/Views/HomepageView.swift VocabCraftAppTests/Features/Homepage/HomepageViewModelTests.swift
@@ -562,27 +562,27 @@ git commit -m "feat(home): add in-place lesson progress mutation and suspend jou
 **Files:**
 - Repository-wide verification
 
-- [ ] **Step 1: Run CraftUIKit localization test**
+- [x] **Step 1: Run CraftUIKit localization test**
 
 Run: `swift test --package-path Packages/CraftUIKit --filter LocalizationTests`
 Expected: PASS with 0 failures
 
-- [ ] **Step 2: Run full CraftUIKit test suite**
+- [x] **Step 2: Run full CraftUIKit test suite**
 
 Run: `swift test --package-path Packages/CraftUIKit`
 Expected: PASS with 100% tests passing
 
-- [ ] **Step 3: Run SwiftLint compliance check**
+- [x] **Step 3: Run SwiftLint compliance check**
 
 Run: `swiftlint`
 Expected: 0 errors, 0 warnings
 
-- [ ] **Step 4: Build project with Xcode to ensure zero errors and zero warnings**
+- [x] **Step 4: Build project with Xcode to ensure zero errors and zero warnings**
 
 Run: `xcodebuild clean build -workspace VocabCraftApp.xcworkspace -scheme VocabCraftApp -destination 'platform=iOS Simulator,name=iPhone 16' SWIFT_TREAT_WARNINGS_AS_ERRORS=YES`
 Expected: BUILD SUCCEEDED with 0 warnings and 0 errors
 
-- [ ] **Step 5: Final branch verification commit**
+- [x] **Step 5: Final branch verification commit**
 
 ```bash
 git status

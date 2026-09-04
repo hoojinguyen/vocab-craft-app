@@ -81,6 +81,10 @@ final class FeedbackFXTests: XCTestCase {
         XCTAssertTrue(CraftSparkleStyle.allCases.contains(.confetti))
     }
 
+    func testSparkleDurationConstant() {
+        XCTAssertEqual(CraftSparkleView.animationDuration, 1.0)
+    }
+
     func testSparkleViewInit() {
         var isTriggered = true
         let binding = Binding(get: { isTriggered }, set: { isTriggered = $0 })

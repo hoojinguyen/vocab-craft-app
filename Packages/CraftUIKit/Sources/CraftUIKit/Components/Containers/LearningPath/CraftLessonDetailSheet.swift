@@ -1,7 +1,4 @@
 import SwiftUI
-#if os(iOS)
-import UIKit
-#endif
 
 // MARK: - CraftLessonDetailSheet Component
 
@@ -410,13 +407,7 @@ private extension CraftLessonDetailSheet {
         }
 
         if !node.iconName.isEmpty {
-            #if os(iOS)
-            let candidate = node.iconName.hasSuffix(".fill") ? node.iconName : "\(node.iconName).fill"
-            if UIImage(systemName: candidate) != nil {
-                return candidate
-            }
-            #endif
-            return node.iconName
+            return CraftJourneyNode.resolveIconName(for: node.iconName)
         }
 
         switch node.state {

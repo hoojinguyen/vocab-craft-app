@@ -331,7 +331,7 @@ struct HomepageViewModelTestingTests {
         #expect(vmMulti.currentDeckSubtitle == "Present Simple")
     }
 
-    @Test("Verify applyCompletedLesson marks node completed and unlocks next node in-place")
+    @Test("Verify applyCompletedLesson marks node completed, unlocks next node, and updates progress in-place")
     @MainActor
     func testApplyCompletedLessonInPlace() {
         let firstNode = LessonNodeModel(id: "node_1", title: "Lesson 1", state: .active)
@@ -343,6 +343,8 @@ struct HomepageViewModelTestingTests {
 
         #expect(vm.sections.first?.nodes[0].state == .completed)
         #expect(vm.sections.first?.nodes[1].state == .active)
+        #expect(vm.sections.first?.progressValue == 0.75)
+        #expect(vm.sections.first?.progressText == AppStrings.Home.sectionProgress(completed: 1, total: 2))
     }
 }
 #endif

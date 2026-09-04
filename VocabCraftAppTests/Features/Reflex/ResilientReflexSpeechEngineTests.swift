@@ -161,4 +161,90 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
         let result = group.wait(timeout: .now() + 5.0)
         XCTAssertEqual(result, .success)
     }
+
+    #if os(iOS)
+    func testAudioInterruptionBegan_pausesListening() {
+        engine.startSession(contextualPhrases: ["apple"])
+        engine.beginWord(targetLemma: "apple", contextualPhrases: ["apple"])
+        XCTAssertTrue(engine.isWordActive)
+        XCTAssertTrue(engine.isSessionActive)
+
+        NotificationCenter.default.post(
+            name: AVAudioSession.interruptionNotification,
+            object: nil,
+            userInfo: [AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.began.rawValue]
+        )
+
+        XCTAssertFalse(engine.isWordActive, "Interruption began must pause listening and deactivate current word")
+        XCTAssertTrue(engine.isSessionActive, "Session must remain active across interruption")
+    }
+
+    func testAudioInterruptionEndedWithShouldResume_resumesListening() {
+        engine.startSession(contextualPhrases: ["apple"])
+        engine.beginWord(targetLemma: "apple", contextualPhrases: ["apple"])
+
+        // Interruption began
+        NotificationCenter.default.post(
+            name: AVAudioSession.interruptionNotification,
+            object: nil,
+            userInfo: [AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.began.rawValue]
+        )
+        XCTAssertFalse(engine.isWordActive)
+
+        // Interruption ended with shouldResume
+        NotificationCenter.default.post(
+            name: AVAudioSession.interruptionNotification,
+            object: nil,
+            userInfo: [
+                AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.ended.rawValue,
+                AVAudioSessionInterruptionOptionKey: AVAudioSession.InterruptionOptions.shouldResume.rawValue
+            ]
+        )
+
+        XCTAssertTrue(engine.isSessionActive)
+        // Can begin word and match normally after resuming
+        var matchedLemma: String?
+        engine.onMatchDetected = { matchedLemma = $0 }
+        engine.beginWord(targetLemma: "apple", contextualPhrases: ["apple"])
+        engine.simulateTranscript("apple")
+        XCTAssertEqual(matchedLemma, "apple")
+    }
+
+    func testAudioInterruptionEndedWithoutShouldResume_doesNotResume() {
+        engine.startSession(contextualPhrases: ["apple"])
+        engine.beginWord(targetLemma: "apple", contextualPhrases: ["apple"])
+
+        // Interruption began
+        NotificationCenter.default.post(
+            name: AVAudioSession.interruptionNotification,
+            object: nil,
+            userInfo: [AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.began.rawValue]
+        )
+        XCTAssertFalse(engine.isWordActive)
+
+        // Interruption ended without options
+        NotificationCenter.default.post(
+            name: AVAudioSession.interruptionNotification,
+            object: nil,
+            userInfo: [AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.ended.rawValue]
+        )
+
+        XCTAssertTrue(engine.isSessionActive)
+        XCTAssertFalse(engine.isWordActive)
+    }
+
+    func testStopSessionDeregistersInterruptionObserver() {
+        engine.startSession(contextualPhrases: ["apple"])
+        engine.stopSession()
+
+        // Posting notification after session stopped should be safely ignored
+        NotificationCenter.default.post(
+            name: AVAudioSession.interruptionNotification,
+            object: nil,
+            userInfo: [AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.began.rawValue]
+        )
+
+        XCTAssertFalse(engine.isSessionActive)
+    }
+    #endif
 }

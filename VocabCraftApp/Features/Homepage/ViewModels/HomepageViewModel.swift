@@ -159,9 +159,30 @@ public final class HomepageViewModel {
                 nextNode.state = .active
                 updatedSections[sIdx + 1].nodes[0] = nextNode
             }
+            updateSectionProgress(at: sIdx + 1, in: &updatedSections)
         }
+
+        updateSectionProgress(at: sIdx, in: &updatedSections)
 
         self.sections = updatedSections
         refreshDailyProgress()
+    }
+
+    private func updateSectionProgress(at index: Int, in sections: inout [LessonSection]) {
+        guard index >= 0 && index < sections.count else { return }
+        let section = sections[index]
+        let relevantNodes = section.nodes.filter { $0.kind != .treasureChest }
+        let countNodes = relevantNodes.isEmpty ? section.nodes : relevantNodes
+        let totalCount = countNodes.count
+        guard totalCount > 0 else { return }
+
+        let completedCount = countNodes.filter { $0.state == .completed }.count
+        let hasActive = countNodes.contains { $0.state == .active || $0.state == .inProgress || $0.state == .bonus }
+        let effectiveCompleted = Double(completedCount) + (hasActive ? 0.5 : 0.0)
+        let newProgressValue = min(1.0, effectiveCompleted / Double(totalCount))
+        let newProgressText = AppStrings.Home.sectionProgress(completed: completedCount, total: totalCount)
+
+        sections[index].progressValue = newProgressValue
+        sections[index].progressText = newProgressText
     }
 }

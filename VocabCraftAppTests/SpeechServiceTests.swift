@@ -239,5 +239,35 @@ final class SpeechServiceTests: XCTestCase {
         engine.stopSession()
         XCTAssertFalse(engine.isSessionActive)
     }
+
+    func testEngineAudioInterruptionPausesAndResumesListening() {
+        let engine = ResilientReflexSpeechEngine()
+        engine.startSession(contextualPhrases: ["test"])
+        engine.beginWord(targetLemma: "test", contextualPhrases: ["test"])
+        XCTAssertTrue(engine.isWordActive)
+
+        // Interruption began
+        NotificationCenter.default.post(
+            name: AVAudioSession.interruptionNotification,
+            object: nil,
+            userInfo: [AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.began.rawValue]
+        )
+        XCTAssertFalse(engine.isWordActive)
+        XCTAssertTrue(engine.isSessionActive)
+
+        // Interruption ended with shouldResume
+        NotificationCenter.default.post(
+            name: AVAudioSession.interruptionNotification,
+            object: nil,
+            userInfo: [
+                AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.ended.rawValue,
+                AVAudioSessionInterruptionOptionKey: AVAudioSession.InterruptionOptions.shouldResume.rawValue
+            ]
+        )
+        XCTAssertTrue(engine.isSessionActive)
+
+        engine.stopSession()
+        XCTAssertFalse(engine.isSessionActive)
+    }
 }
 #endif

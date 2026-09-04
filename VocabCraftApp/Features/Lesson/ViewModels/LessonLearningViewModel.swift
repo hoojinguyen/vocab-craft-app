@@ -1,3 +1,6 @@
+#if os(iOS)
+import AVFoundation
+#endif
 import CraftUIKit
 import Foundation
 import Observation
@@ -92,6 +95,21 @@ public final class LessonLearningViewModel: Identifiable {
     public func startSpeechSession() {
         let contextualPhrases = words.map(\.lemma)
         speechEngine.startSession(contextualPhrases: contextualPhrases, lazy: true)
+        #if os(iOS)
+        Task.detached(priority: .userInitiated) {
+            do {
+                let session = AVAudioSession.sharedInstance()
+                try session.setCategory(
+                    .playAndRecord,
+                    mode: .spokenAudio,
+                    options: [.defaultToSpeaker, .allowBluetoothHFP, .allowBluetoothA2DP, .duckOthers]
+                )
+                try session.setActive(true, options: .notifyOthersOnDeactivation)
+            } catch {
+                // Non-fatal audio session configuration error
+            }
+        }
+        #endif
     }
 
     public func stopSpeechSession() {

@@ -179,8 +179,8 @@ public struct LessonSection: Identifiable, Sendable, Equatable {
     public let title: String
     public let subtitle: String?
     public let level: String?
-    public let progressText: String?
-    public let progressValue: Double?
+    public var progressText: String?
+    public var progressValue: Double?
     public let bannerIcon: String?
     public var nodes: [LessonNodeModel]
     public let winding: SerpentineWinding
