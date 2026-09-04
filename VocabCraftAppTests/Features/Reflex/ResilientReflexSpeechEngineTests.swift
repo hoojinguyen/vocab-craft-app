@@ -130,6 +130,9 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
         let testEngine = ResilientReflexSpeechEngine(speechRecognizer: existing)
         let resolved = testEngine.resolveSpeechRecognizer()
         XCTAssertNotNil(resolved)
+        if let existing, existing.isAvailable {
+            XCTAssertTrue(resolved === existing)
+        }
     }
 
     func testAudioBufferRelay_threadSafetyAndNilHandling() {
