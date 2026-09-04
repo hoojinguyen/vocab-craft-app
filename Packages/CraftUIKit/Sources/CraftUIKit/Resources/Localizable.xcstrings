@@ -940,6 +940,42 @@
         }
       }
     },
+    "craft.fluid_journey.drawer_subtitle" : {
+      "comment" : "Subtitle of curriculum drawer header",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick a topic to jump to"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chọn topic để đi tới"
+          }
+        }
+      }
+    },
+    "craft.fluid_journey.drawer_title" : {
+      "comment" : "Title of curriculum drawer header",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learning Path"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lộ trình học"
+          }
+        }
+      }
+    },
     "craft.fluid_journey.expand_unit_hint" : {
       "comment" : "Hint for expanding accordion section in unit drawer",
       "extractionState" : "manual",

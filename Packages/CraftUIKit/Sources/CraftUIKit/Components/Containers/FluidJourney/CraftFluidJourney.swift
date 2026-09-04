@@ -22,6 +22,10 @@ public struct CraftFluidJourney: View {
     /// Default vertical threshold (in points) at which a milestone pill triggers unit docking.
     public static let defaultDockThreshold: CGFloat = 140
 
+    /// Scroll anchor positioning a lesson node near the top of the viewport, just below
+    /// the floating pinned header overlay.
+    public static let nodeTopAnchor = UnitPoint(x: 0.5, y: 0.12)
+
     // MARK: - Properties
 
     /// Curriculum sections displayed along the fluid journey path.
@@ -92,6 +96,7 @@ public struct CraftFluidJourney: View {
     @State private var selectedNodeForDetail: LessonNodeModel?
     @State private var pendingLessonToStart: LessonNodeModel?
     @State private var isDrawerPresented: Bool = false
+    @State private var drawerExpandedSectionIds: Set<String> = []
     @State private var hasScrolledToActive: Bool = false
     @State private var tabBarScrollReducer = CraftTabBarScrollPresentationReducer()
     @State private var tracksUserTabBarScroll: Bool = false
@@ -150,7 +155,7 @@ public struct CraftFluidJourney: View {
                 .onChange(of: externalScrollTrigger) { _, newValue in
                     guard newValue > 0, let targetID = activeNodeID else { return }
                     withAnimation(reduceMotion ? nil : .smooth(duration: 0.45)) {
-                        scrollProxy.scrollTo(targetID, anchor: .center)
+                        scrollProxy.scrollTo(targetID, anchor: Self.nodeTopAnchor)
                     }
                 }
 
@@ -488,6 +493,11 @@ extension CraftFluidJourney {
             CraftPinnedUnitHeader(
                 section: headerSection(for: docked),
                 onTap: {
+                    // Parent-owned expansion state: survives sheet rebuilds and
+                    // guarantees the drawer re-renders on every toggle.
+                    if let dockedId = currentlyDockedSection?.id {
+                        drawerExpandedSectionIds = [dockedId]
+                    }
                     isDrawerPresented = true
                 }
             )
@@ -504,6 +514,7 @@ extension CraftFluidJourney {
             deckTitle: resolvedDeckTitle,
             deckSubtitle: resolvedDeckSubtitle,
             activeSectionId: currentlyDockedSection?.id ?? sections.first?.id ?? "",
+            expandedSectionIds: $drawerExpandedSectionIds,
             onAdjustPlan: onAdjustPlan,
             onSelectLesson: { sectionId, nodeId in
                 handleLessonSelection(sectionId: sectionId, nodeId: nodeId, scrollProxy: scrollProxy)
@@ -652,7 +663,7 @@ extension CraftFluidJourney {
             try? await Task.sleep(for: .milliseconds(250))
             guard !Task.isCancelled else { return }
             withAnimation(reduceMotion ? nil : .smooth(duration: 0.45)) {
-                scrollProxy.scrollTo(nodeId, anchor: .center)
+                scrollProxy.scrollTo(nodeId, anchor: Self.nodeTopAnchor)
             }
         }
     }
@@ -663,7 +674,7 @@ extension CraftFluidJourney {
         Task { @MainActor in
             try? await Task.sleep(for: .milliseconds(50))
             guard !Task.isCancelled else { return }
-            scrollProxy.scrollTo(targetID, anchor: .center)
+            scrollProxy.scrollTo(targetID, anchor: Self.nodeTopAnchor)
         }
     }
 

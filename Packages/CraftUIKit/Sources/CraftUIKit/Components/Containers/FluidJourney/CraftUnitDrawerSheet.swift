@@ -166,6 +166,31 @@ public struct CraftUnitDrawerSheet: View, Equatable {
         }
     }
 
+    /// Merges CEFR level and deck summary into a single meta subtitle (e.g. "A2 - B1 • 3 lessons • 13 words").
+    func sectionMetaSubtitle(for section: LessonSection) -> String? {
+        let parts = [section.level, section.subtitle]
+            .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        return parts.isEmpty ? nil : parts.joined(separator: " • ")
+    }
+
+    /// Whether every node in the section is completed.
+    func isSectionCompleted(_ section: LessonSection) -> Bool {
+        !section.nodes.isEmpty && section.nodes.allSatisfy { $0.state == .completed }
+    }
+
+    /// Localized trailing status for lesson rows, reusing the existing fluid journey keys.
+    func lessonStatusText(for node: LessonNodeModel) -> String? {
+        switch node.state {
+        case .completed:
+            return CraftLocalized.string("craft.fluid_journey.completed_status")
+        case .active, .inProgress:
+            return CraftLocalized.string("craft.fluid_journey.current_status")
+        case .bonus, .locked, .upcoming:
+            return nil
+        }
+    }
+
     // MARK: - Body
 
     public var body: some View {
@@ -242,26 +267,17 @@ private extension CraftUnitDrawerSheet {
 
     var deckInfoBlock: some View {
         VStack(alignment: .leading, spacing: theme.spacing.xxs) {
-            HStack(spacing: theme.spacing.xs) {
-                Text(deckTitle)
-                    .font(theme.typography.headline.weight(.bold))
-                    .foregroundStyle(theme.colors.textPrimary)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
+            Text(CraftLocalized.string("craft.fluid_journey.drawer_title"))
+                .font(theme.typography.headline.weight(.bold))
+                .foregroundStyle(theme.colors.textPrimary)
+                .lineLimit(1)
+                .truncationMode(.tail)
 
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundStyle(theme.colors.textSecondary)
-                    .accessibilityHidden(true)
-            }
-
-            if !deckSubtitle.isEmpty {
-                Text(deckSubtitle)
-                    .font(theme.typography.caption)
-                    .foregroundStyle(theme.colors.textSecondary)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-            }
+            Text(CraftLocalized.string("craft.fluid_journey.drawer_subtitle"))
+                .font(theme.typography.caption)
+                .foregroundStyle(theme.colors.textSecondary)
+                .lineLimit(1)
+                .truncationMode(.tail)
         }
     }
 
@@ -334,7 +350,6 @@ private extension CraftUnitDrawerSheet {
                 }
                 .padding(.horizontal, theme.spacing.sm)
                 .padding(.vertical, theme.spacing.xs)
-                .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
         .background(theme.colors.surfaceCard)
@@ -356,27 +371,22 @@ private extension CraftUnitDrawerSheet {
         HStack(spacing: theme.spacing.md) {
             VStack(alignment: .leading, spacing: theme.spacing.xxs) {
                 HStack(spacing: theme.spacing.xs) {
-                    if let level = section.level, !level.isEmpty {
-                        CraftBadge(level, variant: .subtle, tone: isActive ? .primary : .neutral, size: .sm)
-                    }
                     if isActive {
-                        CraftBadge(
-                            CraftLocalized.string("craft.fluid_journey.current_status"),
-                            variant: .solid,
-                            tone: .primary,
-                            size: .sm
-                        )
+                        Circle()
+                            .fill(theme.colors.brandPrimary)
+                            .frame(width: 8, height: 8)
+                            .accessibilityHidden(true)
                     }
+
+                    Text(section.title)
+                        .font(theme.typography.headline.weight(.bold))
+                        .foregroundStyle(theme.colors.textPrimary)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
                 }
 
-                Text(section.title)
-                    .font(theme.typography.headline.weight(.bold))
-                    .foregroundStyle(theme.colors.textPrimary)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-
-                if let subtitle = section.subtitle, !subtitle.isEmpty {
-                    Text(subtitle)
+                if let meta = sectionMetaSubtitle(for: section) {
+                    Text(meta)
                         .font(theme.typography.caption)
                         .foregroundStyle(theme.colors.textSecondary)
                         .lineLimit(1)
@@ -386,57 +396,23 @@ private extension CraftUnitDrawerSheet {
 
             Spacer(minLength: theme.spacing.xs)
 
-            sectionStatusIndicator(for: section)
+            if isSectionCompleted(section) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundStyle(theme.colors.statusSuccess)
+                    .accessibilityHidden(true)
+            }
 
-            Image(systemName: "chevron.down")
-                .font(.system(size: 12, weight: .semibold))
+            Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(theme.colors.textSecondary)
-                .rotationEffect(isExpanded ? .degrees(180) : .zero)
-                .animation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.8), value: isExpanded)
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
                 .accessibilityHidden(true)
         }
         .padding(.horizontal, theme.spacing.base)
         .padding(.vertical, theme.spacing.md)
         .contentShape(Rectangle())
-    }
-
-    func sectionStatusIndicator(for section: LessonSection) -> some View {
-        let total = section.nodes.count
-        let completed = section.nodes.filter { $0.state == .completed }.count
-        let progress = total > 0 ? Double(completed) / Double(total) : 0.0
-        let isCompleted = total > 0 && completed == total
-
-        return Group {
-            if isCompleted {
-                CraftProgressRing(
-                    progress: 1.0,
-                    lineWidth: 2.5,
-                    size: 26,
-                    tintColor: theme.colors.statusSuccess,
-                    trackColor: theme.colors.surfaceSubtle
-                ) {
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundStyle(theme.colors.statusSuccess)
-                }
-            } else if progress > 0 || section.id == activeSectionId {
-                CraftProgressRing(
-                    progress: progress,
-                    lineWidth: 2.5,
-                    size: 26,
-                    tintColor: theme.colors.brandPrimary,
-                    trackColor: theme.colors.surfaceSubtle
-                ) {
-                    Circle()
-                        .fill(theme.colors.brandPrimary)
-                        .frame(width: 8, height: 8)
-                }
-            } else {
-                Circle()
-                    .strokeBorder(theme.colors.borderDefault, lineWidth: 2)
-                    .frame(width: 26, height: 26)
-            }
-        }
     }
 }
 
@@ -455,31 +431,9 @@ private extension CraftUnitDrawerSheet {
                         .font(theme.typography.bodyMedium.weight(node.state == .active ? .bold : .medium))
                         .foregroundStyle(node.state == .locked ? theme.colors.textMuted : theme.colors.textPrimary)
                         .lineLimit(1)
-
-                    if let subtitle = node.subtitle, !subtitle.isEmpty {
-                        Text(subtitle)
-                            .font(theme.typography.caption)
-                            .foregroundStyle(theme.colors.textSecondary)
-                            .lineLimit(1)
-                    }
                 }
 
                 Spacer(minLength: theme.spacing.xs)
-
-                if let xp = node.xpReward, xp > 0 {
-                    Text(CraftLocalized.format("craft.fluid_journey.reward_xp", xp))
-                        .font(theme.typography.caption.weight(.semibold))
-                        .foregroundStyle(theme.colors.brandPrimary)
-                } else if let minutes = node.estimatedMinutes, minutes > 0 {
-                    Text(CraftLocalized.format("craft.common.unit.minutes_format", minutes))
-                        .font(theme.typography.caption)
-                        .foregroundStyle(theme.colors.textSecondary)
-                }
-
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundStyle(theme.colors.textMuted)
-                    .accessibilityHidden(true)
             }
             .padding(.horizontal, theme.spacing.sm)
             .padding(.vertical, theme.spacing.sm)
@@ -526,13 +480,9 @@ private extension CraftUnitDrawerSheet {
     }
 
     func sectionAccessibilityLabel(for section: LessonSection, isExpanded: Bool) -> String {
-        var components: [String] = []
-        if let level = section.level, !level.isEmpty {
-            components.append(level)
-        }
-        components.append(section.title)
-        if let subtitle = section.subtitle, !subtitle.isEmpty {
-            components.append(subtitle)
+        var components: [String] = [section.title]
+        if let meta = sectionMetaSubtitle(for: section) {
+            components.append(meta)
         }
         if section.id == activeSectionId {
             components.append(CraftLocalized.string("craft.fluid_journey.current_status"))
@@ -542,11 +492,8 @@ private extension CraftUnitDrawerSheet {
 
     func lessonAccessibilityLabel(for node: LessonNodeModel) -> String {
         var components: [String] = [node.title]
-        if let subtitle = node.subtitle, !subtitle.isEmpty {
-            components.append(subtitle)
-        }
-        if let xp = node.xpReward, xp > 0 {
-            components.append(CraftLocalized.format("craft.fluid_journey.reward_xp", xp))
+        if let status = lessonStatusText(for: node) {
+            components.append(status)
         }
         return components.joined(separator: ", ")
     }
