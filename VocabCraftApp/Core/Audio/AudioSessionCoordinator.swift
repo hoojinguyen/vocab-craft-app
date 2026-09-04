@@ -141,7 +141,7 @@ public actor AudioSessionCoordinator: AudioSessionCoordinating {
             if effectiveIntent == nil {
                 try hardware.setActive(true, options: [])
             }
-            try hardware.overrideOutputAudioPort(.speaker)
+            try? hardware.overrideOutputAudioPort(.speaker)
 
         case .playback:
             try hardware.setCategory(

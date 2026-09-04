@@ -128,6 +128,19 @@ struct AudioSessionCoordinatorTests {
         #expect(await coordinator.activeLeaseCount == 0)
         #expect(await coordinator.effectiveIntent == nil)
     }
+
+    @Test("Port override failure does not prevent lease publication")
+    func portOverrideFailureDoesNotPreventLeasePublication() async throws {
+        let mock = MockAudioSessionHardware()
+        mock.shouldFailPortOverride = true
+        let coordinator = AudioSessionCoordinator(hardware: mock)
+
+        let lease = try await coordinator.acquire(.speechCapture)
+
+        #expect(lease.intent == .speechCapture)
+        #expect(await coordinator.activeLeaseCount == 1)
+        #expect(mock.operations.contains(.overrideOutputAudioPort(.speaker)))
+    }
 }
 
 // MARK: - MockAudioSessionHardware
@@ -142,6 +155,7 @@ enum MockAudioSessionOperation: Equatable, Sendable {
 enum MockAudioSessionError: Error, Sendable {
     case simulatedActivationFailure
     case simulatedCategoryFailure
+    case simulatedPortOverrideFailure
 }
 
 final class MockAudioSessionHardware: AudioSessionHardware, @unchecked Sendable {
@@ -149,6 +163,7 @@ final class MockAudioSessionHardware: AudioSessionHardware, @unchecked Sendable 
     private var _operations: [MockAudioSessionOperation] = []
     var shouldFailSetActive: Bool = false
     var shouldFailSetCategory: Bool = false
+    var shouldFailPortOverride: Bool = false
 
     var operations: [MockAudioSessionOperation] {
         lock.withLock { _operations }
@@ -185,6 +200,9 @@ final class MockAudioSessionHardware: AudioSessionHardware, @unchecked Sendable 
     func overrideOutputAudioPort(_ portOverride: AVAudioSession.PortOverride) throws {
         lock.withLock {
             _operations.append(.overrideOutputAudioPort(portOverride))
+        }
+        if shouldFailPortOverride {
+            throw MockAudioSessionError.simulatedPortOverrideFailure
         }
     }
 }
