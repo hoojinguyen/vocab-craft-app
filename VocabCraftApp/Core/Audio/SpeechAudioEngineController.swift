@@ -29,6 +29,7 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
     private var lifecycleGeneration: UInt = 0
     private var isPaused = false
     private var pauseRequested = false
+    private var pauseInFlight = false
     private let hardware: any SpeechAudioHardware
 
     init() {
@@ -49,9 +50,12 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
         }
         if state == .ready {
             if isPaused {
+                pauseRequested = false
+                guard !pauseInFlight else {
+                    return
+                }
                 try await hardware.resume()
                 isPaused = false
-                pauseRequested = false
             }
             return
         }
@@ -62,10 +66,7 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
             }
             if state == .preparing {
                 state = .ready
-                isPaused = pauseRequested
-                if pauseRequested {
-                    await hardware.pause()
-                }
+                try await applyPauseIntent(after: completedGeneration)
             }
             guard lifecycleGeneration == completedGeneration, state != .idle else {
                 throw CancellationError()
@@ -90,13 +91,7 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
                 throw CancellationError()
             }
             state = .ready
-            isPaused = pauseRequested
-            if pauseRequested {
-                await hardware.pause()
-            }
-            guard lifecycleGeneration == completedGeneration, state != .idle else {
-                throw CancellationError()
-            }
+            try await applyPauseIntent(after: completedGeneration)
             preparationTask = nil
         } catch {
             if generation == lifecycleGeneration {
@@ -117,6 +112,9 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
             return
         }
 
+        guard !pauseInFlight else {
+            return
+        }
         isPaused = false
         do {
             try await hardware.resume()
@@ -167,6 +165,31 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
         teardownTask = task
         await task.value
         teardownTask = nil
+    }
+
+    private func applyPauseIntent(after completedGeneration: UInt) async throws {
+        guard lifecycleGeneration == completedGeneration, state != .idle else {
+            throw CancellationError()
+        }
+        guard pauseRequested else {
+            isPaused = false
+            return
+        }
+
+        isPaused = true
+        pauseInFlight = true
+        await hardware.pause()
+        pauseInFlight = false
+
+        guard lifecycleGeneration == completedGeneration, state != .idle else {
+            throw CancellationError()
+        }
+        guard !pauseRequested else {
+            return
+        }
+
+        isPaused = false
+        try await hardware.resume()
     }
 }
 

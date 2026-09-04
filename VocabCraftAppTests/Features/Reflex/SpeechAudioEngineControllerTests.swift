@@ -144,6 +144,25 @@ struct SpeechAudioEngineControllerTests {
         #expect(await hardware.pauseCallCount == 0)
     }
 
+    @Test("Resume during a pending pause keeps hardware running")
+    func resumeDuringPendingPauseKeepsHardwareRunning() async throws {
+        let hardware = MockSpeechAudioHardware(blockPreparation: true, blockPause: true)
+        let controller = SpeechAudioEngineController(hardware: hardware)
+        let prepareTask = Task {
+            try await controller.prepare(relay: AudioBufferRelay())
+        }
+
+        await hardware.waitUntilPreparationStarts()
+        await controller.pause()
+        await hardware.completePreparation()
+        await hardware.waitUntilPauseStarts()
+        try await controller.resume()
+        await hardware.completePause()
+        try await prepareTask.value
+
+        #expect(await hardware.isRunning)
+    }
+
     @Test("Prepare after failure retries hardware setup cleanly")
     func prepareAfterFailureRetriesHardwareSetup() async throws {
         let hardware = MockSpeechAudioHardware(failCount: 1)
@@ -201,14 +220,20 @@ private actor MockSpeechAudioHardware: SpeechAudioHardware {
     private(set) var pauseCallCount = 0
     private(set) var teardownCallCount = 0
     private(set) var isPrepared = false
+    private(set) var isRunning = false
     private let blockPreparation: Bool
+    private let blockPause: Bool
     private var failCount: Int
     private var preparationStarted = false
     private var preparationStartWaiters: [CheckedContinuation<Void, Never>] = []
     private var preparationContinuation: CheckedContinuation<Void, Never>?
+    private var pauseStarted = false
+    private var pauseStartWaiters: [CheckedContinuation<Void, Never>] = []
+    private var pauseContinuation: CheckedContinuation<Void, Never>?
 
-    init(blockPreparation: Bool = false, failCount: Int = 0) {
+    init(blockPreparation: Bool = false, blockPause: Bool = false, failCount: Int = 0) {
         self.blockPreparation = blockPreparation
+        self.blockPause = blockPause
         self.failCount = failCount
     }
 
@@ -230,19 +255,31 @@ private actor MockSpeechAudioHardware: SpeechAudioHardware {
             try await Task.sleep(nanoseconds: 50_000_000)
         }
         isPrepared = true
+        isRunning = true
     }
 
     func resume() async throws {
         resumeCallCount += 1
+        isRunning = true
     }
 
     func pause() async {
         pauseCallCount += 1
+        if blockPause {
+            await withCheckedContinuation { continuation in
+                pauseContinuation = continuation
+                pauseStarted = true
+                pauseStartWaiters.forEach { $0.resume() }
+                pauseStartWaiters.removeAll()
+            }
+        }
+        isRunning = false
     }
 
     func teardown() async {
         teardownCallCount += 1
         isPrepared = false
+        isRunning = false
     }
 
     func waitUntilPreparationStarts() async {
@@ -258,6 +295,21 @@ private actor MockSpeechAudioHardware: SpeechAudioHardware {
     func completePreparation() {
         preparationContinuation?.resume()
         preparationContinuation = nil
+    }
+
+    func waitUntilPauseStarts() async {
+        guard !pauseStarted else {
+            return
+        }
+
+        await withCheckedContinuation { continuation in
+            pauseStartWaiters.append(continuation)
+        }
+    }
+
+    func completePause() {
+        pauseContinuation?.resume()
+        pauseContinuation = nil
     }
 }
 #endif
