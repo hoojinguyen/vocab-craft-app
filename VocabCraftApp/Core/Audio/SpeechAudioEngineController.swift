@@ -25,6 +25,8 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
     private(set) var state: State = .idle
 
     private var preparationTask: Task<Void, Error>?
+    private var teardownTask: Task<Void, Never>?
+    private var lifecycleGeneration: UInt = 0
     private var isPaused = false
     private let hardware: any SpeechAudioHardware
 
@@ -37,6 +39,9 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
     }
 
     func prepare(relay: AudioBufferRelay) async throws {
+        if let teardownTask {
+            await teardownTask.value
+        }
         if state == .ready {
             return
         }
@@ -45,20 +50,28 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
         }
 
         state = .preparing
+        let generation = lifecycleGeneration
         let hardware = self.hardware
         let task = Task {
+            try Task.checkCancellation()
             try await hardware.prepare(relay: relay)
+            try Task.checkCancellation()
         }
         preparationTask = task
 
         do {
             try await task.value
+            guard generation == lifecycleGeneration else {
+                return
+            }
             state = .ready
             isPaused = false
             preparationTask = nil
         } catch {
-            state = .failed
-            preparationTask = nil
+            if generation == lifecycleGeneration {
+                state = .failed
+                preparationTask = nil
+            }
             throw error
         }
     }
@@ -87,13 +100,31 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
     }
 
     func teardown() async {
+        if let teardownTask {
+            await teardownTask.value
+            return
+        }
         guard state != .idle else {
             return
         }
 
+        lifecycleGeneration &+= 1
+        let preparationTask = self.preparationTask
+        preparationTask?.cancel()
+        self.preparationTask = nil
         state = .idle
         isPaused = false
-        await hardware.teardown()
+
+        let hardware = self.hardware
+        let task = Task {
+            if let preparationTask {
+                _ = try? await preparationTask.value
+            }
+            await hardware.teardown()
+        }
+        teardownTask = task
+        await task.value
+        teardownTask = nil
     }
 }
 

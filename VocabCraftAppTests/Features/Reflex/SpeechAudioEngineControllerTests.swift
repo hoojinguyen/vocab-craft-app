@@ -59,6 +59,31 @@ struct SpeechAudioEngineControllerTests {
         #expect(await hardware.teardownCallCount == 1)
         #expect(await controller.state == .idle)
     }
+
+    @Test("Teardown during preparation leaves the controller idle")
+    func teardownDuringPrepareStaysIdle() async {
+        let hardware = MockSpeechAudioHardware(blockPreparation: true)
+        let controller = SpeechAudioEngineController(hardware: hardware)
+        let prepareTask = Task {
+            try? await controller.prepare(relay: AudioBufferRelay())
+        }
+
+        await hardware.waitUntilPreparationStarts()
+        let teardownTask = Task {
+            await controller.teardown()
+        }
+        while await controller.state != .idle {
+            await Task.yield()
+        }
+        await hardware.completePreparation()
+        await prepareTask.value
+        await teardownTask.value
+
+        #expect(await hardware.prepareCallCount == 1)
+        #expect(await hardware.teardownCallCount == 1)
+        #expect(await !hardware.isPrepared)
+        #expect(await controller.state == .idle)
+    }
 }
 
 private actor MockSpeechAudioHardware: SpeechAudioHardware {
@@ -66,10 +91,30 @@ private actor MockSpeechAudioHardware: SpeechAudioHardware {
     private(set) var resumeCallCount = 0
     private(set) var pauseCallCount = 0
     private(set) var teardownCallCount = 0
+    private(set) var isPrepared = false
+    private let blockPreparation: Bool
+    private var preparationStarted = false
+    private var preparationStartWaiters: [CheckedContinuation<Void, Never>] = []
+    private var preparationContinuation: CheckedContinuation<Void, Never>?
+
+    init(blockPreparation: Bool = false) {
+        self.blockPreparation = blockPreparation
+    }
 
     func prepare(relay: AudioBufferRelay) async throws {
         prepareCallCount += 1
-        try await Task.sleep(nanoseconds: 50_000_000)
+        preparationStarted = true
+        preparationStartWaiters.forEach { $0.resume() }
+        preparationStartWaiters.removeAll()
+
+        if blockPreparation {
+            await withCheckedContinuation { continuation in
+                preparationContinuation = continuation
+            }
+        } else {
+            try await Task.sleep(nanoseconds: 50_000_000)
+        }
+        isPrepared = true
     }
 
     func resume() async throws {
@@ -82,6 +127,22 @@ private actor MockSpeechAudioHardware: SpeechAudioHardware {
 
     func teardown() async {
         teardownCallCount += 1
+        isPrepared = false
+    }
+
+    func waitUntilPreparationStarts() async {
+        guard !preparationStarted else {
+            return
+        }
+
+        await withCheckedContinuation { continuation in
+            preparationStartWaiters.append(continuation)
+        }
+    }
+
+    func completePreparation() {
+        preparationContinuation?.resume()
+        preparationContinuation = nil
     }
 }
 #endif
