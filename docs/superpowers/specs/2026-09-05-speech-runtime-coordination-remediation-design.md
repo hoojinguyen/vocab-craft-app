@@ -50,7 +50,7 @@ This is intentionally the narrow migration. The abstractions and dependency dire
 The app-core boundary exposes explicit intent instead of raw category switching:
 
 ```swift
-enum AudioSessionIntent: Sendable {
+enum AudioSessionIntent: Hashable, Sendable {
     case playback
     case speechCapture
     case duplexSpeech
