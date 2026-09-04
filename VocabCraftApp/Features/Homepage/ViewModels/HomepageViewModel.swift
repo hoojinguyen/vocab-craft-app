@@ -132,40 +132,73 @@ public final class HomepageViewModel {
 
     public func applyCompletedLesson(stageId: String) {
         var updatedSections = sections
-        var foundLocation: (secIdx: Int, nodeIdx: Int)?
-
-        for (sIdx, sec) in updatedSections.enumerated() {
-            if let nIdx = sec.nodes.firstIndex(where: { $0.id == stageId }) {
-                foundLocation = (sIdx, nIdx)
-                break
-            }
-        }
-
-        guard let (sIdx, nIdx) = foundLocation else { return }
+        guard let (sIdx, nIdx) = findNodeLocation(for: stageId, in: updatedSections) else { return }
 
         var completedNode = updatedSections[sIdx].nodes[nIdx]
         completedNode.state = .completed
         updatedSections[sIdx].nodes[nIdx] = completedNode
 
-        if nIdx + 1 < updatedSections[sIdx].nodes.count {
-            var nextNode = updatedSections[sIdx].nodes[nIdx + 1]
-            if nextNode.state == .locked || nextNode.state == .upcoming {
-                nextNode.state = .active
-                updatedSections[sIdx].nodes[nIdx + 1] = nextNode
-            }
-        } else if sIdx + 1 < updatedSections.count, !updatedSections[sIdx + 1].nodes.isEmpty {
-            var nextNode = updatedSections[sIdx + 1].nodes[0]
-            if nextNode.state == .locked || nextNode.state == .upcoming {
-                nextNode.state = .active
-                updatedSections[sIdx + 1].nodes[0] = nextNode
-            }
-            updateSectionProgress(at: sIdx + 1, in: &updatedSections)
+        switch completedNode.kind {
+        case .checkpoint:
+            handleCheckpointCompletion(sIdx: sIdx, nIdx: nIdx, in: &updatedSections)
+        case .treasureChest:
+            unlockNextSection(after: sIdx, in: &updatedSections)
+        default:
+            handleStandardNodeCompletion(sIdx: sIdx, nIdx: nIdx, in: &updatedSections)
         }
 
         updateSectionProgress(at: sIdx, in: &updatedSections)
-
         self.sections = updatedSections
         refreshDailyProgress()
+    }
+
+    private func findNodeLocation(for stageId: String, in sections: [LessonSection]) -> (sIdx: Int, nIdx: Int)? {
+        for (sIdx, sec) in sections.enumerated() {
+            if let nIdx = sec.nodes.firstIndex(where: { $0.id == stageId }) {
+                return (sIdx, nIdx)
+            }
+        }
+        return nil
+    }
+
+    private func handleCheckpointCompletion(sIdx: Int, nIdx: Int, in sections: inout [LessonSection]) {
+        if nIdx + 1 < sections[sIdx].nodes.count && sections[sIdx].nodes[nIdx + 1].kind == .treasureChest {
+            var treasureNode = sections[sIdx].nodes[nIdx + 1]
+            if treasureNode.state != .completed {
+                treasureNode.state = .bonus
+                treasureNode.badgeText = "HOT"
+                sections[sIdx].nodes[nIdx + 1] = treasureNode
+            }
+        }
+        unlockNextSection(after: sIdx, in: &sections)
+    }
+
+    private func handleStandardNodeCompletion(sIdx: Int, nIdx: Int, in sections: inout [LessonSection]) {
+        if nIdx + 1 < sections[sIdx].nodes.count {
+            var nextNode = sections[sIdx].nodes[nIdx + 1]
+            if nextNode.state == .locked || nextNode.state == .upcoming {
+                nextNode.state = .active
+                sections[sIdx].nodes[nIdx + 1] = nextNode
+            }
+            if nIdx + 2 < sections[sIdx].nodes.count && sections[sIdx].nodes[nIdx + 2].state == .locked {
+                sections[sIdx].nodes[nIdx + 2].state = .upcoming
+            }
+        } else {
+            unlockNextSection(after: sIdx, in: &sections)
+        }
+    }
+
+    private func unlockNextSection(after sIdx: Int, in sections: inout [LessonSection]) {
+        guard sIdx + 1 < sections.count, !sections[sIdx + 1].nodes.isEmpty else { return }
+        var nextSectionFirstNode = sections[sIdx + 1].nodes[0]
+        if nextSectionFirstNode.state == .locked || nextSectionFirstNode.state == .upcoming {
+            nextSectionFirstNode.state = .active
+            sections[sIdx + 1].nodes[0] = nextSectionFirstNode
+        }
+        if sections[sIdx + 1].nodes.count > 1 && sections[sIdx + 1].nodes[1].state == .locked {
+            sections[sIdx + 1].nodes[1].state = .upcoming
+        }
+        updateSectionProgress(at: sIdx + 1, in: &sections)
     }
 
     private func updateSectionProgress(at index: Int, in sections: inout [LessonSection]) {

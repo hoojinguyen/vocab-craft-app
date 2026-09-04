@@ -126,6 +126,16 @@ final class FeedbackFXTests: XCTestCase {
         XCTAssertNotNil(confettiModified)
     }
 
+    func testSparkleDismissImmediately() {
+        var isTriggered = true
+        let binding = Binding(get: { isTriggered }, set: { isTriggered = $0 })
+        let view = CraftSparkleView(isTriggered: binding, style: .sparkles)
+        XCTAssertTrue(isTriggered)
+
+        view.dismissImmediately()
+        XCTAssertFalse(isTriggered, "dismissImmediately must reset isTriggered binding to false")
+    }
+
     // MARK: - CraftCountdownOverlay Tests
 
     func testCountdownInit() {

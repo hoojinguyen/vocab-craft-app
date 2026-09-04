@@ -246,5 +246,47 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
 
         XCTAssertFalse(engine.isSessionActive)
     }
+
+    func testAudioInterruptionWithNSNumberKeys() {
+        engine.startSession(contextualPhrases: ["apple"])
+        engine.beginWord(targetLemma: "apple", contextualPhrases: ["apple"])
+
+        // Began with NSNumber
+        let beganType = NSNumber(value: AVAudioSession.InterruptionType.began.rawValue)
+        NotificationCenter.default.post(
+            name: AVAudioSession.interruptionNotification,
+            object: nil,
+            userInfo: [AVAudioSessionInterruptionTypeKey: beganType]
+        )
+        XCTAssertFalse(engine.isWordActive)
+
+        // Ended with NSNumbers
+        let endedType = NSNumber(value: AVAudioSession.InterruptionType.ended.rawValue)
+        let shouldResumeOpt = NSNumber(value: AVAudioSession.InterruptionOptions.shouldResume.rawValue)
+        NotificationCenter.default.post(
+            name: AVAudioSession.interruptionNotification,
+            object: nil,
+            userInfo: [
+                AVAudioSessionInterruptionTypeKey: endedType,
+                AVAudioSessionInterruptionOptionKey: shouldResumeOpt
+            ]
+        )
+        XCTAssertTrue(engine.isSessionActive)
+    }
+
+    func testHandleInterruptionWhenSessionInactiveDoesNothing() {
+        XCTAssertFalse(engine.isSessionActive)
+        let notification = Notification(
+            name: AVAudioSession.interruptionNotification,
+            object: nil,
+            userInfo: [
+                AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.ended.rawValue,
+                AVAudioSessionInterruptionOptionKey: AVAudioSession.InterruptionOptions.shouldResume.rawValue
+            ]
+        )
+        engine.handleAudioInterruption(notification)
+        XCTAssertFalse(engine.isSessionActive)
+        XCTAssertFalse(engine.isWordActive)
+    }
     #endif
 }

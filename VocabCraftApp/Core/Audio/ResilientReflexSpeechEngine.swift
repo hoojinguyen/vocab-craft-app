@@ -76,15 +76,7 @@ private final class InterruptionObserverToken: @unchecked Sendable {
     }
 
     deinit {
-        #if os(iOS)
-        lock.lock()
-        let obs = observer
-        observer = nil
-        lock.unlock()
-        if let obs {
-            NotificationCenter.default.removeObserver(obs)
-        }
-        #endif
+        cancel()
     }
 
     func cancel() {
@@ -496,9 +488,10 @@ extension ResilientReflexSpeechEngine {
 
     #if os(iOS)
     func handleAudioInterruption(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-              let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
-              let type = AVAudioSession.InterruptionType(rawValue: typeValue) else {
+        guard isSessionActive, let userInfo = notification.userInfo else { return }
+        let rawType = (userInfo[AVAudioSessionInterruptionTypeKey] as? UInt)
+            ?? ((userInfo[AVAudioSessionInterruptionTypeKey] as? NSNumber)?.uintValue)
+        guard let rawType, let type = AVAudioSession.InterruptionType(rawValue: rawType) else {
             return
         }
 
@@ -506,12 +499,18 @@ extension ResilientReflexSpeechEngine {
         case .began:
             pauseListening()
         case .ended:
-            if let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt {
-                let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
+            let rawOptions = (userInfo[AVAudioSessionInterruptionOptionKey] as? UInt)
+                ?? ((userInfo[AVAudioSessionInterruptionOptionKey] as? NSNumber)?.uintValue)
+            if let rawOptions {
+                let options = AVAudioSession.InterruptionOptions(rawValue: rawOptions)
                 if options.contains(.shouldResume) {
                     #if !targetEnvironment(simulator) && !os(macOS)
-                    if let engine = audioEngine, !engine.isRunning, isSessionActive {
-                        try? engine.start()
+                    if isSessionActive {
+                        let session = AVAudioSession.sharedInstance()
+                        try? session.setActive(true, options: .notifyOthersOnDeactivation)
+                        if let engine = audioEngine, !engine.isRunning {
+                            try? engine.start()
+                        }
                     }
                     #endif
                     resumeListening()

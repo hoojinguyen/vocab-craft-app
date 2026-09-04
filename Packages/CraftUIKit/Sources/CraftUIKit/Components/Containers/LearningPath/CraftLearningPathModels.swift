@@ -43,9 +43,9 @@ public struct LessonNodeModel: Identifiable, Sendable, Equatable, Hashable {
     public let progress: Double?
     public let xpReward: Int?
     public let estimatedMinutes: Int?
-    public let stars: Int?
+    public var stars: Int?
     public let badgeCount: Int?
-    public let badgeText: String?
+    public var badgeText: String?
     public let objectives: [String]?
     public let objectiveKeys: [String]?
 

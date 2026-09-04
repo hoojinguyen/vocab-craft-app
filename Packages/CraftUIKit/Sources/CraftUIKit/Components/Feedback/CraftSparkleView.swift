@@ -66,7 +66,7 @@ public struct CraftSparkleView: View {
         self.particleCount = max(1, particleCount)
     }
 
-    private func dismissImmediately() {
+    internal func dismissImmediately() {
         isRunning = false
         particles.removeAll()
         animationStartDate = nil
