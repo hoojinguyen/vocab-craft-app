@@ -12,6 +12,9 @@ public final class MockResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     // Test tracking
     public var startSessionCallCount: Int = 0
     public var stopSessionCallCount: Int = 0
+    public var pauseListeningCallCount: Int = 0
+    public var resumeListeningCallCount: Int = 0
+    public var prepareEngineIfNeededCallCount: Int = 0
     public var beginWordCallCount: Int = 0
     public var endWordCallCount: Int = 0
     public var lastTargetLemma: String = ""
@@ -29,6 +32,19 @@ public final class MockResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         isWordActive = false
         liveTranscript = ""
         stopSessionCallCount += 1
+    }
+
+    public func pauseListening() {
+        pauseListeningCallCount += 1
+        endWord()
+    }
+
+    public func resumeListening() {
+        resumeListeningCallCount += 1
+    }
+
+    public func prepareEngineIfNeeded() {
+        prepareEngineIfNeededCallCount += 1
     }
 
     public func beginWord(targetLemma: String, contextualPhrases: [String]) {

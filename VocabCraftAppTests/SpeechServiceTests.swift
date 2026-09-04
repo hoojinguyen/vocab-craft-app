@@ -100,5 +100,130 @@ final class SpeechServiceTests: XCTestCase {
         waitForExpectations(timeout: 5.0, handler: nil)
         #endif
     }
+
+    // MARK: - ResilientReflexSpeechEngine Tests
+
+    func testEnginePauseAndResumeRetainsSession() {
+        let engine = ResilientReflexSpeechEngine()
+        engine.startSession(contextualPhrases: ["test"])
+        XCTAssertEqual(engine.isSessionActive, true)
+        engine.pauseListening()
+        XCTAssertEqual(engine.isSessionActive, true)
+        engine.resumeListening()
+        XCTAssertEqual(engine.isSessionActive, true)
+        engine.stopSession()
+        XCTAssertEqual(engine.isSessionActive, false)
+    }
+
+    func testEnginePauseListeningEndsActiveWord() {
+        let engine = ResilientReflexSpeechEngine()
+        engine.startSession(contextualPhrases: ["test"])
+        engine.beginWord(targetLemma: "apple", contextualPhrases: ["apple"])
+        XCTAssertTrue(engine.isWordActive)
+
+        engine.pauseListening()
+        XCTAssertFalse(engine.isWordActive, "pauseListening must end the active word")
+        XCTAssertTrue(engine.isSessionActive, "pauseListening must retain the active session")
+
+        engine.resumeListening()
+        XCTAssertTrue(engine.isSessionActive, "resumeListening must retain the active session")
+        XCTAssertFalse(engine.isWordActive, "resumeListening must not automatically reactivate word before beginWord")
+
+        engine.stopSession()
+        XCTAssertFalse(engine.isSessionActive)
+    }
+
+    func testEnginePauseListeningPreventsSimulatedMatchingUntilResumed() {
+        let engine = ResilientReflexSpeechEngine()
+        engine.startSession(contextualPhrases: ["apple", "banana"])
+        engine.beginWord(targetLemma: "apple", contextualPhrases: ["apple"])
+
+        var matchedLemma: String?
+        engine.onMatchDetected = { lemma in
+            matchedLemma = lemma
+        }
+
+        engine.simulateTranscript("apple")
+        XCTAssertEqual(matchedLemma, "apple")
+
+        // Pause listening: simulated transcript should no longer match
+        matchedLemma = nil
+        engine.pauseListening()
+        engine.simulateTranscript("apple")
+        XCTAssertNil(matchedLemma, "No matches should be emitted while engine is paused")
+
+        // Resume listening and begin new word
+        engine.resumeListening()
+        engine.beginWord(targetLemma: "banana", contextualPhrases: ["banana"])
+        engine.simulateTranscript("banana")
+        XCTAssertEqual(matchedLemma, "banana")
+
+        engine.stopSession()
+    }
+
+    func testEnginePrepareIfNeededRetainsStateAndIsSafe() {
+        let engine = ResilientReflexSpeechEngine()
+        // Calling before startSession should not activate session prematurely
+        engine.prepareEngineIfNeeded()
+        XCTAssertFalse(engine.isSessionActive)
+
+        engine.startSession(contextualPhrases: ["test"])
+        XCTAssertTrue(engine.isSessionActive)
+
+        // Calling during active session should retain session state
+        engine.prepareEngineIfNeeded()
+        XCTAssertTrue(engine.isSessionActive)
+
+        // Multiple rapid calls should be safe and idempotent
+        engine.prepareEngineIfNeeded()
+        engine.prepareEngineIfNeeded()
+        XCTAssertTrue(engine.isSessionActive)
+
+        engine.stopSession()
+        XCTAssertFalse(engine.isSessionActive)
+    }
+
+    func testEngineMultiplePauseResumeCallsAreIdempotent() {
+        let engine = ResilientReflexSpeechEngine()
+        engine.startSession(contextualPhrases: ["test"])
+
+        // Multiple pauses
+        engine.pauseListening()
+        engine.pauseListening()
+        XCTAssertTrue(engine.isSessionActive)
+
+        // Multiple resumes
+        engine.resumeListening()
+        engine.resumeListening()
+        XCTAssertTrue(engine.isSessionActive)
+
+        engine.stopSession()
+        XCTAssertFalse(engine.isSessionActive)
+
+        // Stop session when already stopped
+        engine.stopSession()
+        XCTAssertFalse(engine.isSessionActive)
+    }
+
+    func testMockEngineTracksPauseResumeAndPrepareCalls() {
+        let concreteMock = MockResilientReflexSpeechEngine()
+        let mock: ReflexSpeechEngineProtocol = concreteMock
+        XCTAssertFalse(mock.isSessionActive)
+
+        mock.startSession(contextualPhrases: ["test"])
+        XCTAssertTrue(mock.isSessionActive)
+
+        mock.prepareEngineIfNeeded()
+        mock.pauseListening()
+        mock.resumeListening()
+        mock.stopSession()
+        XCTAssertFalse(mock.isSessionActive)
+
+        XCTAssertEqual(concreteMock.startSessionCallCount, 1)
+        XCTAssertEqual(concreteMock.prepareEngineIfNeededCallCount, 1)
+        XCTAssertEqual(concreteMock.pauseListeningCallCount, 1)
+        XCTAssertEqual(concreteMock.resumeListeningCallCount, 1)
+        XCTAssertEqual(concreteMock.stopSessionCallCount, 1)
+    }
 }
 #endif
