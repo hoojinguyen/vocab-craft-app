@@ -234,30 +234,13 @@ private extension CraftLessonDetailSheet {
 
 private extension CraftLessonDetailSheet {
     var tactile3DNodeIcon: some View {
-        ZStack(alignment: .bottomTrailing) {
-            ZStack {
-                // Bottom 3D Bevel/Rim
-                bottomRimShape
-                    .offset(y: node.state == .locked ? 0 : 4)
+        ZStack {
+            // Bottom 3D Bevel/Rim
+            bottomRimShape
+                .offset(y: node.state == .locked ? 0 : 4)
 
-                // Top Face
-                topFaceShape
-            }
-
-            if node.state == .completed {
-                ZStack {
-                    Circle()
-                        .fill(theme.colors.surfaceCard)
-                        .frame(width: 26, height: 26)
-                    Circle()
-                        .fill(theme.colors.statusSuccess)
-                        .frame(width: 22, height: 22)
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundStyle(Color.white)
-                }
-                .offset(x: 4, y: 4)
-            }
+            // Top Face
+            topFaceShape
         }
         .frame(width: tactileDiameter, height: tactileDiameter + (node.state == .locked ? 0 : 4))
         .accessibilityHidden(true)
@@ -300,7 +283,9 @@ private extension CraftLessonDetailSheet {
             ZStack {
                 switch node.state {
                 case .completed:
-                    HexagonShape().fill(theme.colors.statusSuccess)
+                    HexagonShape().fill(theme.colors.surfaceCard)
+                    HexagonShape().fill(theme.colors.brandPrimary.opacity(0.08))
+                    HexagonShape().stroke(theme.colors.brandPrimary.opacity(0.25), lineWidth: 1.5)
                 case .active:
                     HexagonShape().fill(theme.gradients.brandHero)
                 case .inProgress:
@@ -321,7 +306,9 @@ private extension CraftLessonDetailSheet {
             ZStack {
                 switch node.state {
                 case .completed:
-                    squircle.fill(theme.colors.brandPrimary.opacity(0.14))
+                    squircle.fill(theme.colors.surfaceCard)
+                    squircle.fill(theme.colors.brandPrimary.opacity(0.08))
+                    squircle.stroke(theme.colors.brandPrimary.opacity(0.25), lineWidth: 1.5)
                 case .active:
                     squircle.fill(theme.gradients.brandHero)
                 case .inProgress:
@@ -384,7 +371,7 @@ private extension CraftLessonDetailSheet {
         case .standard, .checkpoint:
             switch node.state {
             case .completed:
-                return theme.colors.brandPrimary.opacity(0.3)
+                return theme.colors.brandPrimary.opacity(0.80)
             case .active:
                 return theme.colors.brandPrimary.opacity(0.85)
             case .inProgress, .upcoming:
