@@ -342,13 +342,16 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     }
 
     public func prepareEngineIfNeeded() async throws {
-        guard isSessionActive else { return }
+        guard isSessionActive, !isListeningPaused else { return }
         if let audioLifecycleTask {
             await audioLifecycleTask.value
         }
-        guard isSessionActive else { return }
+        guard isSessionActive, !isListeningPaused else { return }
         if isEngineReady { return }
         try await requestAuthorizationIfNeeded()
+        guard isSessionActive, !isListeningPaused, !Task.isCancelled else {
+            throw CancellationError()
+        }
         #if os(iOS) && !targetEnvironment(simulator)
         let session = AVAudioSession.sharedInstance()
         try session.setCategory(

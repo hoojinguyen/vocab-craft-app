@@ -360,6 +360,57 @@ struct SpeechEngineReadinessTests {
         #expect(await controller.teardownCallCount == 1)
         #expect(await controller.prepareCallCount == 2)
     }
+
+    @Test("Preparing engine does nothing when listening is paused")
+    @MainActor
+    func prepareEngineDoesNothingWhenListeningIsPaused() async throws {
+        let controller = SuspendedSpeechAudioEngineController()
+        let engine = ResilientReflexSpeechEngine(audioController: controller)
+        engine.startSession(contextualPhrases: [], lazy: true)
+        engine.pauseListening()
+        #expect(engine.isListeningPaused)
+
+        try await engine.prepareEngineIfNeeded()
+        #expect(engine.isEngineReady == false)
+        #expect(await controller.prepareCallCount == 0)
+    }
+
+    @Test("SuspendedMockReflexSpeechEngine supports concurrent preparations and cancellation")
+    @MainActor
+    func suspendedMockSupportsConcurrentPreparationsAndCancellation() async throws {
+        let mock = SuspendedMockReflexSpeechEngine()
+        mock.startSession(contextualPhrases: [], lazy: true)
+
+        let task1 = Task { try await mock.prepareEngineIfNeeded() }
+        let task2 = Task { try await mock.prepareEngineIfNeeded() }
+
+        await mock.waitUntilPreparationStarts(expectedCount: 2)
+        #expect(mock.prepareCallCount == 2)
+
+        task1.cancel()
+        await #expect(throws: CancellationError.self) {
+            try await task1.value
+        }
+
+        mock.completePreparation()
+        try await task2.value
+    }
+
+    @Test("SuspendedMockReflexSpeechEngine releases pending continuations on stopSession")
+    @MainActor
+    func suspendedMockReleasesContinuationsOnStopSession() async throws {
+        let mock = SuspendedMockReflexSpeechEngine()
+        mock.startSession(contextualPhrases: [], lazy: true)
+
+        let task = Task { try await mock.prepareEngineIfNeeded() }
+        await mock.waitUntilPreparationStarts()
+        #expect(mock.prepareCallCount == 1)
+
+        mock.stopSession()
+        await #expect(throws: CancellationError.self) {
+            try await task.value
+        }
+    }
 }
 
 @Suite("TTS Audio Session Tests")
@@ -432,7 +483,7 @@ final class MockAudioSession: AudioSessionControlling {
 #endif
 
 actor SuspendedSpeechAudioEngineController: SpeechAudioEngineControlling {
-    private var preparationContinuation: CheckedContinuation<Void, Error>?
+    private var preparationContinuations: [UUID: CheckedContinuation<Void, Error>] = [:]
     private var preparationStartWaiters: [CheckedContinuation<Void, Never>] = []
     private var isCompleted = false
     private var pendingError: Error?
@@ -462,21 +513,44 @@ actor SuspendedSpeechAudioEngineController: SpeechAudioEngineControlling {
             return
         }
 
-        try await withCheckedThrowingContinuation { continuation in
-            preparationContinuation = continuation
+        let continuationID = UUID()
+        try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                if Task.isCancelled {
+                    continuation.resume(throwing: CancellationError())
+                } else {
+                    preparationContinuations[continuationID] = continuation
+                }
+            }
+        } onCancel: {
+            Task { [weak self] in
+                await self?.cancelContinuation(id: continuationID)
+            }
+        }
+    }
+
+    private func cancelContinuation(id: UUID) {
+        if let continuation = preparationContinuations.removeValue(forKey: id) {
+            continuation.resume(throwing: CancellationError())
         }
     }
 
     func completePreparation() {
         isCompleted = true
-        preparationContinuation?.resume()
-        preparationContinuation = nil
+        let continuations = Array(preparationContinuations.values)
+        preparationContinuations.removeAll()
+        for continuation in continuations {
+            continuation.resume()
+        }
     }
 
     func failPreparation(with error: Error) {
         pendingError = error
-        preparationContinuation?.resume(throwing: error)
-        preparationContinuation = nil
+        let continuations = Array(preparationContinuations.values)
+        preparationContinuations.removeAll()
+        for continuation in continuations {
+            continuation.resume(throwing: error)
+        }
     }
 
     func resume() async throws {
@@ -490,8 +564,11 @@ actor SuspendedSpeechAudioEngineController: SpeechAudioEngineControlling {
     func teardown() async {
         teardownCallCount += 1
         isCompleted = false
-        preparationContinuation?.resume(throwing: CancellationError())
-        preparationContinuation = nil
+        let continuations = Array(preparationContinuations.values)
+        preparationContinuations.removeAll()
+        for continuation in continuations {
+            continuation.resume(throwing: CancellationError())
+        }
     }
 }
 #endif

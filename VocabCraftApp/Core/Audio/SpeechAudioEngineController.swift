@@ -103,7 +103,7 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
     }
 
     func resume() async throws {
-        if state == .preparing {
+        if state == .idle || state == .preparing {
             isPaused = false
             return
         }
@@ -121,7 +121,7 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
     }
 
     func pause() async {
-        if state == .preparing {
+        if state == .idle || state == .preparing {
             isPaused = true
             return
         }

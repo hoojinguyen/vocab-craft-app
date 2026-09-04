@@ -161,14 +161,33 @@ final class SuspendedMockReflexSpeechEngine: ReflexSpeechEngineProtocol {
     private(set) var resumeListeningCallCount = 0
     private(set) var pauseListeningCallCount = 0
     private(set) var stopSessionCallCount = 0
-    private var preparationContinuation: CheckedContinuation<Void, Error>?
+    private var preparationContinuations: [UUID: CheckedContinuation<Void, Error>] = [:]
     private var preparationStartWaiters: [CheckedContinuation<Void, Never>] = []
     private var isCompleted = false
     private var pendingError: Error?
 
-    func startSession(contextualPhrases: [String]) { isSessionActive = true }
-    func startSession(contextualPhrases: [String], lazy: Bool) { isSessionActive = true }
-    func stopSession() { isSessionActive = false; stopSessionCallCount += 1 }
+    func startSession(contextualPhrases: [String]) {
+        isSessionActive = true
+        isCompleted = false
+        pendingError = nil
+    }
+
+    func startSession(contextualPhrases: [String], lazy: Bool) {
+        isSessionActive = true
+        isCompleted = false
+        pendingError = nil
+    }
+
+    func stopSession() {
+        isSessionActive = false
+        stopSessionCallCount += 1
+        let continuations = Array(preparationContinuations.values)
+        preparationContinuations.removeAll()
+        for continuation in continuations {
+            continuation.resume(throwing: CancellationError())
+        }
+    }
+
     func pauseListening() { isListeningPaused = true; pauseListeningCallCount += 1 }
     func resumeListening() { isListeningPaused = false; resumeListeningCallCount += 1 }
 
@@ -192,22 +211,44 @@ final class SuspendedMockReflexSpeechEngine: ReflexSpeechEngineProtocol {
         if isCompleted {
             return
         }
+        guard isSessionActive else {
+            throw CancellationError()
+        }
 
-        try await withCheckedThrowingContinuation { continuation in
-            preparationContinuation = continuation
+        let continuationID = UUID()
+        try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                if Task.isCancelled {
+                    continuation.resume(throwing: CancellationError())
+                } else {
+                    preparationContinuations[continuationID] = continuation
+                }
+            }
+        } onCancel: {
+            Task { @MainActor [weak self] in
+                if let continuation = self?.preparationContinuations.removeValue(forKey: continuationID) {
+                    continuation.resume(throwing: CancellationError())
+                }
+            }
         }
     }
 
     func completePreparation() {
         isCompleted = true
-        preparationContinuation?.resume()
-        preparationContinuation = nil
+        let continuations = Array(preparationContinuations.values)
+        preparationContinuations.removeAll()
+        for continuation in continuations {
+            continuation.resume()
+        }
     }
 
     func failPreparation(with error: Error) {
         pendingError = error
-        preparationContinuation?.resume(throwing: error)
-        preparationContinuation = nil
+        let continuations = Array(preparationContinuations.values)
+        preparationContinuations.removeAll()
+        for continuation in continuations {
+            continuation.resume(throwing: error)
+        }
     }
 
     func beginWord(targetLemma: String, contextualPhrases: [String]) {

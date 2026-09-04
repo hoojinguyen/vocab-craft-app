@@ -158,6 +158,31 @@ struct SpeechAudioEngineControllerTests {
         #expect(await controller.state == .ready)
         #expect(await hardware.prepareCallCount == 2)
     }
+
+    @Test("Pause while idle pauses hardware upon preparation completion")
+    func pauseWhileIdlePausesHardwareOnCompletion() async throws {
+        let hardware = MockSpeechAudioHardware()
+        let controller = SpeechAudioEngineController(hardware: hardware)
+
+        await controller.pause()
+        try await controller.prepare(relay: AudioBufferRelay())
+
+        #expect(await controller.state == .ready)
+        #expect(await hardware.pauseCallCount == 1)
+    }
+
+    @Test("Resume while idle cancels idle pause intent")
+    func resumeWhileIdleCancelsIdlePause() async throws {
+        let hardware = MockSpeechAudioHardware()
+        let controller = SpeechAudioEngineController(hardware: hardware)
+
+        await controller.pause()
+        try await controller.resume()
+        try await controller.prepare(relay: AudioBufferRelay())
+
+        #expect(await controller.state == .ready)
+        #expect(await hardware.pauseCallCount == 0)
+    }
 }
 
 private actor MockSpeechAudioHardware: SpeechAudioHardware {
