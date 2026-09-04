@@ -311,6 +311,56 @@ struct SpeechEngineReadinessTests {
     }
 }
 
+@Suite("TTS Audio Session Tests")
+struct TTSAudioSessionTests {
+    @Test("TTS reuses active play-and-record session")
+    @MainActor
+    func ttsDoesNotReactivateLessonSession() {
+        let session = MockAudioSession(category: .playAndRecord, isActive: true)
+        let service = TextToSpeechService(audioSession: session)
+        service.speak(text: "test")
+        #expect(session.setActiveCallCount == 0)
+    }
+
+    @Test("TTS activates playback session when not in play-and-record")
+    @MainActor
+    func ttsActivatesPlaybackSession() {
+        let session = MockAudioSession(category: .playback, isActive: false)
+        let service = TextToSpeechService(audioSession: session)
+        service.speak(text: "test")
+        #expect(session.setActiveCallCount == 1)
+        #expect(session.setCategoryCallCount == 1)
+    }
+}
+
+#if os(iOS)
+final class MockAudioSession: AudioSessionControlling {
+    var category: AVAudioSession.Category
+    var isActive: Bool
+    private(set) var setActiveCallCount = 0
+    private(set) var setCategoryCallCount = 0
+
+    init(category: AVAudioSession.Category = .playback, isActive: Bool = false) {
+        self.category = category
+        self.isActive = isActive
+    }
+
+    func setCategory(
+        _ category: AVAudioSession.Category,
+        mode: AVAudioSession.Mode,
+        options: AVAudioSession.CategoryOptions
+    ) throws {
+        self.category = category
+        setCategoryCallCount += 1
+    }
+
+    func setActive(_ active: Bool, options: AVAudioSession.SetActiveOptions) throws {
+        self.isActive = active
+        setActiveCallCount += 1
+    }
+}
+#endif
+
 actor SuspendedSpeechAudioEngineController: SpeechAudioEngineControlling {
     private var preparationContinuation: CheckedContinuation<Void, Error>?
     private var preparationStartWaiters: [CheckedContinuation<Void, Never>] = []

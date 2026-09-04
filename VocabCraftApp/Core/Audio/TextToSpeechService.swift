@@ -2,6 +2,20 @@ import AVFoundation
 import Foundation
 import Observation
 
+#if os(iOS)
+protocol AudioSessionControlling: AnyObject {
+    var category: AVAudioSession.Category { get }
+    func setCategory(
+        _ category: AVAudioSession.Category,
+        mode: AVAudioSession.Mode,
+        options: AVAudioSession.CategoryOptions
+    ) throws
+    func setActive(_ active: Bool, options: AVAudioSession.SetActiveOptions) throws
+}
+
+extension AVAudioSession: AudioSessionControlling {}
+#endif
+
 @MainActor
 @Observable
 public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, TextToSpeechProtocol {
@@ -11,13 +25,27 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
     private var interruptionObserver: (any NSObjectProtocol)?
 
     private var isAudioSessionConfigured: Bool = false
+    #if os(iOS)
+    private let audioSession: any AudioSessionControlling
 
-    public override init() {
+    public override convenience init() {
+        self.init(audioSession: AVAudioSession.sharedInstance())
+    }
+
+    init(audioSession: any AudioSessionControlling) {
+        self.audioSession = audioSession
         super.init()
         synthesizer.delegate = self
         setupInterruptionObserver()
         prewarm()
     }
+    #else
+    public override init() {
+        super.init()
+        synthesizer.delegate = self
+        prewarm()
+    }
+    #endif
 
     public func prewarm() {
         #if os(iOS) && !targetEnvironment(simulator)
@@ -35,17 +63,17 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
 
     #if os(iOS)
     private func ensureAudioSessionActive() {
-        #if !targetEnvironment(simulator)
+        #if targetEnvironment(simulator)
+        if audioSession is AVAudioSession { return }
+        #endif
         let startedAt = CFAbsoluteTimeGetCurrent()
         LessonPerformanceDiagnostics.event("TTSAudioSessionStart")
         do {
-            let audioSession = AVAudioSession.sharedInstance()
             // When speech recognition is active, the session is already .playAndRecord
-            // which supports both mic input AND audio output. Switching to .playback
-            // would kill the mic and cause hardware audio crackling/pops.
+            // which supports both mic input AND audio output.
+            // The speech session already activated the audio session, so we reuse it without
+            // calling setActive(true), avoiding redundant main-thread stalls.
             if audioSession.category == .playAndRecord {
-                // Already configured for simultaneous record + playback — just ensure active
-                try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
                 let elapsed = CFAbsoluteTimeGetCurrent() - startedAt
                 LessonPerformanceDiagnostics.event(
                     "TTSAudioSessionReady",
@@ -66,7 +94,6 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         } catch {
             LessonPerformanceDiagnostics.error("tts.audioSession.activate", error: error)
         }
-        #endif
     }
     #endif
 
