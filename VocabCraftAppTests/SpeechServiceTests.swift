@@ -597,6 +597,36 @@ struct TTSAudioSessionTests {
         #expect(await coordinator.activeLeaseCount == 0)
         #expect(tts.isSpeaking == false)
     }
+
+    @Test("Superseding speakAsync with newer request does not release newer active lease")
+    @MainActor
+    func ttsSupersededSpeakAsyncTaskDoesNotReleaseNewerActiveLease() async throws {
+        let mockHardware = MockAudioSessionHardware()
+        let coordinator = AudioSessionCoordinator(hardware: mockHardware)
+        let tts = TextToSpeechService(audioSessionCoordinator: coordinator)
+
+        let supersededAsyncTask = Task {
+            await tts.speakAsync(text: "First async text")
+        }
+        await Task.yield()
+
+        // Start newer request, superseding the first request while it was in flight
+        tts.speak(text: "Second newer request")
+        let newerPlaybackTask = tts.playbackStartTask
+
+        await supersededAsyncTask.value
+        await newerPlaybackTask?.value
+
+        #expect(tts.isSpeaking == true)
+        #expect(tts.currentUtterance?.speechString == "Second newer request")
+        #expect(await coordinator.activeLeaseCount == 1)
+        #expect(await coordinator.effectiveIntent == .playback)
+
+        tts.stop()
+        _ = await tts.playbackReleaseTask?.value
+        #expect(await coordinator.activeLeaseCount == 0)
+        #expect(tts.isSpeaking == false)
+    }
 }
 
 actor SuspendedSpeechAudioEngineController: SpeechAudioEngineControlling {

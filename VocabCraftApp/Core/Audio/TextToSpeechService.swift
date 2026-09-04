@@ -185,9 +185,11 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
 
         let acquired = await startTask.value
         guard acquired, !Task.isCancelled, self.requestGeneration == currentGeneration else {
-            self.isSpeaking = false
-            self.currentUtterance = nil
-            self.releaseActiveLease()
+            if self.requestGeneration == currentGeneration {
+                self.isSpeaking = false
+                self.currentUtterance = nil
+                self.releaseActiveLease()
+            }
             return
         }
 
@@ -195,9 +197,11 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
 
         let isTesting = NSClassFromString("XCTestCase") != nil
         if isTesting {
-            self.isSpeaking = false
-            self.currentUtterance = nil
-            self.releaseActiveLease()
+            if self.requestGeneration == currentGeneration {
+                self.isSpeaking = false
+                self.currentUtterance = nil
+                self.releaseActiveLease()
+            }
             return
         }
 
