@@ -133,8 +133,17 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
             return
         }
 
+        let generation = lifecycleGeneration
         isPaused = true
+        pauseInFlight = true
         await hardware.pause()
+        do {
+            try await completePause(after: generation)
+        } catch {
+            if lifecycleGeneration == generation, state != .idle {
+                isPaused = true
+            }
+        }
     }
 
     func teardown() async {
@@ -179,8 +188,11 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
         isPaused = true
         pauseInFlight = true
         await hardware.pause()
-        pauseInFlight = false
+        try await completePause(after: completedGeneration)
+    }
 
+    private func completePause(after completedGeneration: UInt) async throws {
+        pauseInFlight = false
         guard lifecycleGeneration == completedGeneration, state != .idle else {
             throw CancellationError()
         }
@@ -189,7 +201,17 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
         }
 
         isPaused = false
-        try await hardware.resume()
+        do {
+            try await hardware.resume()
+        } catch {
+            if lifecycleGeneration == completedGeneration, state != .idle {
+                isPaused = true
+            }
+            throw error
+        }
+        guard lifecycleGeneration == completedGeneration, state != .idle else {
+            throw CancellationError()
+        }
     }
 }
 

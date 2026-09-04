@@ -163,6 +163,54 @@ struct SpeechAudioEngineControllerTests {
         #expect(await hardware.isRunning)
     }
 
+    @Test("Teardown during deferred post-prepare resume cancels preparation")
+    func teardownDuringDeferredPostPrepareResumeCancelsPreparation() async {
+        let hardware = MockSpeechAudioHardware(
+            blockPreparation: true,
+            blockPause: true,
+            blockResume: true
+        )
+        let controller = SpeechAudioEngineController(hardware: hardware)
+        let prepareTask = Task {
+            try await controller.prepare(relay: AudioBufferRelay())
+        }
+
+        await hardware.waitUntilPreparationStarts()
+        await controller.pause()
+        await hardware.completePreparation()
+        await hardware.waitUntilPauseStarts()
+        try? await controller.resume()
+        await hardware.completePause()
+        await hardware.waitUntilResumeStarts()
+        let teardownTask = Task {
+            await controller.teardown()
+        }
+        await hardware.completeResume()
+        await teardownTask.value
+
+        await #expect(throws: CancellationError.self) {
+            try await prepareTask.value
+        }
+        #expect(await controller.state == .idle)
+    }
+
+    @Test("Resume during a pending ready-state pause keeps hardware running")
+    func resumeDuringPendingReadyStatePauseKeepsHardwareRunning() async throws {
+        let hardware = MockSpeechAudioHardware(blockPause: true)
+        let controller = SpeechAudioEngineController(hardware: hardware)
+        try await controller.prepare(relay: AudioBufferRelay())
+
+        let pauseTask = Task {
+            await controller.pause()
+        }
+        await hardware.waitUntilPauseStarts()
+        try await controller.resume()
+        await hardware.completePause()
+        await pauseTask.value
+
+        #expect(await hardware.isRunning)
+    }
+
     @Test("Prepare after failure retries hardware setup cleanly")
     func prepareAfterFailureRetriesHardwareSetup() async throws {
         let hardware = MockSpeechAudioHardware(failCount: 1)
@@ -223,6 +271,7 @@ private actor MockSpeechAudioHardware: SpeechAudioHardware {
     private(set) var isRunning = false
     private let blockPreparation: Bool
     private let blockPause: Bool
+    private let blockResume: Bool
     private var failCount: Int
     private var preparationStarted = false
     private var preparationStartWaiters: [CheckedContinuation<Void, Never>] = []
@@ -230,10 +279,19 @@ private actor MockSpeechAudioHardware: SpeechAudioHardware {
     private var pauseStarted = false
     private var pauseStartWaiters: [CheckedContinuation<Void, Never>] = []
     private var pauseContinuation: CheckedContinuation<Void, Never>?
+    private var resumeStarted = false
+    private var resumeStartWaiters: [CheckedContinuation<Void, Never>] = []
+    private var resumeContinuation: CheckedContinuation<Void, Never>?
 
-    init(blockPreparation: Bool = false, blockPause: Bool = false, failCount: Int = 0) {
+    init(
+        blockPreparation: Bool = false,
+        blockPause: Bool = false,
+        blockResume: Bool = false,
+        failCount: Int = 0
+    ) {
         self.blockPreparation = blockPreparation
         self.blockPause = blockPause
+        self.blockResume = blockResume
         self.failCount = failCount
     }
 
@@ -260,6 +318,14 @@ private actor MockSpeechAudioHardware: SpeechAudioHardware {
 
     func resume() async throws {
         resumeCallCount += 1
+        if blockResume {
+            await withCheckedContinuation { continuation in
+                resumeContinuation = continuation
+                resumeStarted = true
+                resumeStartWaiters.forEach { $0.resume() }
+                resumeStartWaiters.removeAll()
+            }
+        }
         isRunning = true
     }
 
@@ -310,6 +376,21 @@ private actor MockSpeechAudioHardware: SpeechAudioHardware {
     func completePause() {
         pauseContinuation?.resume()
         pauseContinuation = nil
+    }
+
+    func waitUntilResumeStarts() async {
+        guard !resumeStarted else {
+            return
+        }
+
+        await withCheckedContinuation { continuation in
+            resumeStartWaiters.append(continuation)
+        }
+    }
+
+    func completeResume() {
+        resumeContinuation?.resume()
+        resumeContinuation = nil
     }
 }
 #endif
