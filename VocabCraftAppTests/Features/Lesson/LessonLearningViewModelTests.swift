@@ -537,7 +537,7 @@ struct LessonLearningViewModelTests {
     }
 
     @Test("Verify startListeningForSpeaking lazily prepares engine and resumes listening")
-    func testStartListeningPreparesEngineAndResumesListening() throws {
+    func testStartListeningPreparesEngineAndResumesListening() async throws {
         let words = makeSampleWords(count: 4)
         let speechEngine = MockResilientReflexSpeechEngine()
         let vm = LessonLearningViewModel(
@@ -560,9 +560,13 @@ struct LessonLearningViewModelTests {
 
         let speakingItem = try #require(vm.currentExerciseItem)
         vm.startListeningForSpeaking(targetLemma: speakingItem.word.lemma, item: speakingItem)
+        while speechEngine.beginWordCallCount == 0 {
+            await Task.yield()
+        }
 
         #expect(speechEngine.prepareEngineIfNeededCallCount == 1)
         #expect(speechEngine.resumeListeningCallCount == 1)
+        #expect(speechEngine.beginWordCallCount == 1)
 
         vm.stopListeningForSpeaking()
         #expect(speechEngine.pauseListeningCallCount == 1)
@@ -571,6 +575,66 @@ struct LessonLearningViewModelTests {
         vm.cleanup()
         #expect(speechEngine.isSessionActive == false)
         #expect(speechEngine.stopSessionCallCount == 1)
+    }
+
+    @Test("Speaking begins only after engine preparation completes")
+    @MainActor
+    func speakingAwaitsPreparation() async throws {
+        let speech = SuspendedMockReflexSpeechEngine()
+        let words = makeSampleWords(count: 4)
+        let vm = LessonLearningViewModel(
+            stageId: "stage_test",
+            deckId: "deck_test",
+            words: words,
+            completeLessonUseCase: MockCompleteLessonUseCase(),
+            ttsService: MockTextToSpeechService(),
+            soundEffectService: MockSoundEffectService(),
+            speechEngine: speech
+        )
+        vm.startSpeechSession()
+        while vm.currentExerciseItem?.assignedMode != .speaking && !vm.isSummaryStep {
+            vm.advanceStep()
+        }
+        let item = try #require(vm.currentExerciseItem)
+
+        vm.startListeningForSpeaking(targetLemma: item.word.lemma, item: item)
+        await speech.waitUntilPreparationStarts()
+        #expect(speech.beginWordCallCount == 0)
+        speech.completePreparation()
+        while speech.beginWordCallCount == 0 {
+            await Task.yield()
+        }
+        #expect(speech.beginWordCallCount == 1)
+    }
+
+    @Test("Stale item cancellation prevents beginWord for previous exercise")
+    @MainActor
+    func staleItemPreventsBeginWord() async throws {
+        let speech = SuspendedMockReflexSpeechEngine()
+        let words = makeSampleWords(count: 4)
+        let vm = LessonLearningViewModel(
+            stageId: "stage_test",
+            deckId: "deck_test",
+            words: words,
+            completeLessonUseCase: MockCompleteLessonUseCase(),
+            ttsService: MockTextToSpeechService(),
+            soundEffectService: MockSoundEffectService(),
+            speechEngine: speech
+        )
+        vm.startSpeechSession()
+        while vm.currentExerciseItem?.assignedMode != .speaking && !vm.isSummaryStep {
+            vm.advanceStep()
+        }
+        let item = try #require(vm.currentExerciseItem)
+
+        vm.startListeningForSpeaking(targetLemma: item.word.lemma, item: item)
+        await speech.waitUntilPreparationStarts()
+        // Advance step before preparation completes, making item stale
+        vm.advanceStep()
+
+        speech.completePreparation()
+        await Task.yield()
+        #expect(speech.beginWordCallCount == 0)
     }
 
     @Test("Verify finishLesson triggers cleanup and deactivates speech session")
@@ -657,7 +721,7 @@ struct LessonLearningViewModelTests {
     }
 
     @Test("Verify startListeningForSpeaking is a no-op when feedback is presented or speechState is not idle")
-    func testStartListeningForSpeakingGuardedAgainstFeedbackAndNonIdle() throws {
+    func testStartListeningForSpeakingGuardedAgainstFeedbackAndNonIdle() async throws {
         let words = makeSampleWords(count: 4)
         let speechEngine = MockResilientReflexSpeechEngine()
         let vm = LessonLearningViewModel(
@@ -700,6 +764,9 @@ struct LessonLearningViewModelTests {
             #expect(Bool(true))
         } else {
             #expect(Bool(false), "Expected speechState to be listening")
+        }
+        while speechEngine.beginWordCallCount == 0 {
+            await Task.yield()
         }
         #expect(speechEngine.beginWordCallCount == 1)
     }

@@ -25,6 +25,7 @@ public final class LessonLearningViewModel: Identifiable {
     public var speechState: CraftSpeechState = .idle
     public private(set) var isSpeakingDisabledForLesson: Bool = false
     private(set) var autoPronounceTask: Task<Void, Never>?
+    private var speechStartTask: Task<Void, Never>?
 
     public private(set) var hintStage: Int = 0
     public private(set) var eliminatedOptionId: String?
@@ -249,14 +250,28 @@ public final class LessonLearningViewModel: Identifiable {
         if !speechEngine.isSessionActive {
             startSpeechSession()
         }
-        Task { [speechEngine] in
-            try? await speechEngine.prepareEngineIfNeeded()
+
+        speechStartTask?.cancel()
+        speechStartTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                try await speechEngine.prepareEngineIfNeeded()
+                try Task.checkCancellation()
+                guard currentExerciseItem?.id == item.id, !isFeedbackPresented else { return }
+                speechEngine.resumeListening()
+                speechEngine.beginWord(targetLemma: targetLemma, contextualPhrases: [targetLemma, item.word.exampleEn])
+            } catch is CancellationError {
+                return
+            } catch {
+                LessonPerformanceDiagnostics.error("lesson.speaking.prepare", error: error)
+                speechState = .idle
+            }
         }
-        speechEngine.resumeListening()
-        speechEngine.beginWord(targetLemma: targetLemma, contextualPhrases: [targetLemma, item.word.exampleEn])
     }
 
     public func stopListeningForSpeaking() {
+        speechStartTask?.cancel()
+        speechStartTask = nil
         speechEngine.pauseListening()
         speechEngine.onMatchDetected = nil
         speechEngine.onTranscriptUpdate = nil
@@ -314,6 +329,8 @@ public final class LessonLearningViewModel: Identifiable {
     }
 
     public func cleanup() {
+        speechStartTask?.cancel()
+        speechStartTask = nil
         autoPronounceTask?.cancel()
         autoPronounceTask = nil
         stopListeningForSpeaking()
