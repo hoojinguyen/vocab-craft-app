@@ -30,6 +30,9 @@ public struct CraftFluidJourney: View {
     /// Optional explicit surface style applied to journey nodes and milestone pills.
     public let surfaceStyle: CraftSurfaceStyle?
 
+    /// Whether background blur rendering is suspended (e.g. when covered by an overlay or sheet).
+    public var isSuspended: Bool
+
     /// Optional deck title shown in the unit curriculum drawer.
     public let deckTitle: String?
 
@@ -86,7 +89,6 @@ public struct CraftFluidJourney: View {
     // MARK: - State
 
     @State private var dockedSectionId: String?
-    @State private var milestonePositions: [String: CGFloat] = [:]
     @State private var selectedNodeForDetail: LessonNodeModel?
     @State private var pendingLessonToStart: LessonNodeModel?
     @State private var isDrawerPresented: Bool = false
@@ -169,6 +171,7 @@ public extension CraftFluidJourney {
     /// - Parameters:
     ///   - sections: Array of `LessonSection` models to display.
     ///   - surfaceStyle: Optional explicit surface style applied to nodes and milestone pills.
+    ///   - isSuspended: Whether heavy background Gaussian blurs are suspended when covered (default: `false`).
     ///   - deckTitle: Optional custom deck title for the curriculum drawer and pinned header.
     ///   - deckSubtitle: Optional custom deck subtitle for the curriculum drawer.
     ///   - onNodeTap: Optional closure invoked when a node is tapped.
@@ -185,6 +188,7 @@ public extension CraftFluidJourney {
     init(
         sections: [LessonSection],
         surfaceStyle: CraftSurfaceStyle? = nil,
+        isSuspended: Bool = false,
         deckTitle: String? = nil,
         deckSubtitle: String? = nil,
         onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
@@ -201,6 +205,7 @@ public extension CraftFluidJourney {
     ) {
         self.sections = sections
         self.surfaceStyle = surfaceStyle
+        self.isSuspended = isSuspended
         self.deckTitle = deckTitle
         self.deckSubtitle = deckSubtitle
         self.onNodeTap = onNodeTap
@@ -231,6 +236,7 @@ public extension CraftFluidJourney {
     /// - Parameters:
     ///   - section: The single `LessonSection` to display.
     ///   - surfaceStyle: Optional explicit surface style applied to nodes and milestone pills.
+    ///   - isSuspended: Whether heavy background Gaussian blurs are suspended when covered (default: `false`).
     ///   - deckTitle: Optional custom deck title for the curriculum drawer and pinned header.
     ///   - deckSubtitle: Optional custom deck subtitle for the curriculum drawer.
     ///   - onNodeTap: Optional closure invoked when a node is tapped.
@@ -247,6 +253,7 @@ public extension CraftFluidJourney {
     init(
         section: LessonSection,
         surfaceStyle: CraftSurfaceStyle? = nil,
+        isSuspended: Bool = false,
         deckTitle: String? = nil,
         deckSubtitle: String? = nil,
         onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
@@ -264,6 +271,7 @@ public extension CraftFluidJourney {
         self.init(
             sections: [section],
             surfaceStyle: surfaceStyle,
+            isSuspended: isSuspended,
             deckTitle: deckTitle,
             deckSubtitle: deckSubtitle,
             onNodeTap: onNodeTap,
@@ -545,46 +553,48 @@ extension CraftFluidJourney {
             theme.colors.canvasBackground
                 .ignoresSafeArea()
 
-            GeometryReader { proxy in
-                let size = proxy.size
-                let topAuraSize = size.width * 1.3
-                let bottomAuraSize = size.width * 1.1
+            if !isSuspended {
+                GeometryReader { proxy in
+                    let size = proxy.size
+                    let topAuraSize = size.width * 1.3
+                    let bottomAuraSize = size.width * 1.1
 
-                Circle()
-                    .fill(
-                        RadialGradient(
-                            colors: [
-                                theme.colors.brandPrimary.opacity(0.12),
-                                theme.colors.brandPrimary.opacity(0.04),
-                                Color.clear
-                            ],
-                            center: .center,
-                            startRadius: 0,
-                            endRadius: size.width * 0.65
+                    Circle()
+                        .fill(
+                            RadialGradient(
+                                colors: [
+                                    theme.colors.brandPrimary.opacity(0.12),
+                                    theme.colors.brandPrimary.opacity(0.04),
+                                    Color.clear
+                                ],
+                                center: .center,
+                                startRadius: 0,
+                                endRadius: size.width * 0.65
+                            )
                         )
-                    )
-                    .frame(width: topAuraSize, height: topAuraSize)
-                    .position(x: size.width * 0.85, y: size.height * 0.2)
-                    .blur(radius: 40)
+                        .frame(width: topAuraSize, height: topAuraSize)
+                        .position(x: size.width * 0.85, y: size.height * 0.2)
+                        .blur(radius: 40)
 
-                Circle()
-                    .fill(
-                        RadialGradient(
-                            colors: [
-                                theme.colors.brandSecondary.opacity(0.08),
-                                theme.colors.brandSecondary.opacity(0.02),
-                                Color.clear
-                            ],
-                            center: .center,
-                            startRadius: 0,
-                            endRadius: size.width * 0.55
+                    Circle()
+                        .fill(
+                            RadialGradient(
+                                colors: [
+                                    theme.colors.brandSecondary.opacity(0.08),
+                                    theme.colors.brandSecondary.opacity(0.02),
+                                    Color.clear
+                                ],
+                                center: .center,
+                                startRadius: 0,
+                                endRadius: size.width * 0.55
+                            )
                         )
-                    )
-                    .frame(width: bottomAuraSize, height: bottomAuraSize)
-                    .position(x: size.width * 0.15, y: size.height * 0.65)
-                    .blur(radius: 50)
+                        .frame(width: bottomAuraSize, height: bottomAuraSize)
+                        .position(x: size.width * 0.15, y: size.height * 0.65)
+                        .blur(radius: 50)
+                }
+                .ignoresSafeArea()
             }
-            .ignoresSafeArea()
         }
         .allowsHitTesting(false)
     }
@@ -618,13 +628,9 @@ extension CraftFluidJourney {
     }
 
     func handleMilestonePreferenceChange(_ positions: [String: CGFloat]) {
-        milestonePositions = positions
-
-        if let resolved = resolveDockedSection(from: milestonePositions) {
-            if dockedSectionId != resolved.id {
-                withAnimation(reduceMotion ? nil : .smooth(duration: 0.28)) {
-                    dockedSectionId = resolved.id
-                }
+        if let resolved = resolveDockedSection(from: positions), dockedSectionId != resolved.id {
+            withAnimation(reduceMotion ? nil : .smooth(duration: 0.28)) {
+                dockedSectionId = resolved.id
             }
         }
     }
@@ -634,7 +640,6 @@ extension CraftFluidJourney {
         nodeId: String,
         scrollProxy: ScrollViewProxy
     ) {
-        milestonePositions.removeAll()
         isDrawerPresented = false
         withAnimation(reduceMotion ? nil : .smooth(duration: 0.28)) {
             dockedSectionId = sectionId

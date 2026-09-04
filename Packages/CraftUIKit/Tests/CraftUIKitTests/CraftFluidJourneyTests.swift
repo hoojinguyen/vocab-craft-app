@@ -49,9 +49,56 @@ struct CraftFluidJourneyTests {
         #expect(journey.onTabBarPresentationChange == nil)
         #expect(journey.onSelectLesson == nil)
         #expect(journey.onAdjustPlan == nil)
+        #expect(journey.isSuspended == false)
 
         let customTriggerJourney = CraftFluidJourney(sections: sections, externalScrollTrigger: 42)
         #expect(customTriggerJourney.externalScrollTrigger == 42)
+    }
+
+    @Test("Verify isSuspended parameter propagates and controls background rendering")
+    func testIsSuspendedConfiguration() {
+        let sections = [
+            LessonSection(id: "sec-1", title: "Unit 1", nodes: [
+                LessonNodeModel(id: "n-1", title: "Node 1", state: .active)
+            ])
+        ]
+        let normalJourney = CraftFluidJourney(sections: sections, isSuspended: false)
+        let suspendedJourney = CraftFluidJourney(sections: sections, isSuspended: true)
+        #expect(normalJourney.isSuspended == false)
+        #expect(suspendedJourney.isSuspended == true)
+
+        let normalDesc = String(describing: normalJourney.ambientEtherealBackground)
+        let suspendedDesc = String(describing: suspendedJourney.ambientEtherealBackground)
+        #expect(normalDesc.contains("Optional(SwiftUI.ModifiedContent<SwiftUI.GeometryReader"))
+        #expect(suspendedDesc.contains(", nil)"))
+    }
+
+    @Test("Verify handleMilestonePreferenceChange executes and resolves docked section")
+    func testHandleMilestonePreferenceChange() {
+        let sec1 = LessonSection(id: "sec-1", title: "Unit 1", nodes: [
+            LessonNodeModel(id: "n-1", title: "Node 1", state: .completed)
+        ])
+        let sec2 = LessonSection(id: "sec-2", title: "Unit 2", nodes: [
+            LessonNodeModel(id: "n-2", title: "Node 2", state: .active)
+        ])
+        let journey = CraftFluidJourney(sections: [sec1, sec2])
+        // Verify resolveDockedSection matches docking resolution for milestone coordinates
+        let resolved = journey.resolveDockedSection(from: ["sec-1": 100, "sec-2": 600])
+        #expect(resolved?.id == "sec-1")
+
+        // Verify handleMilestonePreferenceChange executes safely without state crashes
+        journey.handleMilestonePreferenceChange(["sec-1": 100, "sec-2": 600])
+        journey.handleMilestonePreferenceChange([:])
+    }
+
+    @Test("Verify convenience single-section initializer supports isSuspended")
+    func testSingleSectionIsSuspended() {
+        let section = LessonSection(id: "s-single", title: "Single", nodes: [])
+        let defaultJourney = CraftFluidJourney(section: section)
+        #expect(defaultJourney.isSuspended == false)
+
+        let suspendedJourney = CraftFluidJourney(section: section, isSuspended: true)
+        #expect(suspendedJourney.isSuspended == true)
     }
 
     @Test("Verify empty state detection")
@@ -511,4 +558,3 @@ struct CraftFluidJourneyTests {
         #expect(tappedNodeId == "node-active-test", "Active node tap must invoke onNodeTap callback")
     }
 }
-
