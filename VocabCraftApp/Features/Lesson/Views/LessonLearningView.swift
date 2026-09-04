@@ -153,7 +153,6 @@ public struct LessonLearningView: View {
                 }
             }
         }
-        .ignoresSafeArea(edges: .bottom)
         .animation(.spring(response: 0.35, dampingFraction: 0.85), value: viewModel.currentStepIndex)
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: isCountingDown)
         .interactiveDismissDisabled(!viewModel.isSummaryStep)

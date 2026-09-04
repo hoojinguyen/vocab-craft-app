@@ -153,8 +153,6 @@ public struct LessonExerciseContainerView: View {
                         }
 
                         if item.assignedMode == .typing || item.assignedMode == .speaking {
-                            Spacer()
-
                             CraftButton(
                                 AppStrings.Lesson.skipAction,
                                 iconName: "forward.fill",
@@ -166,6 +164,7 @@ public struct LessonExerciseContainerView: View {
                             }
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.top, theme.spacing.xs)
                 }
             }
