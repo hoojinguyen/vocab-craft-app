@@ -6,6 +6,9 @@ import Speech
 #if canImport(XCTest)
 import XCTest
 #endif
+#if canImport(Testing)
+import Testing
+#endif
 
 @MainActor
 final class SpeechServiceTests: XCTestCase {
@@ -161,22 +164,22 @@ final class SpeechServiceTests: XCTestCase {
         engine.stopSession()
     }
 
-    func testEnginePrepareIfNeededRetainsStateAndIsSafe() {
+    func testEnginePrepareIfNeededRetainsStateAndIsSafe() async throws {
         let engine = ResilientReflexSpeechEngine()
         // Calling before startSession should not activate session prematurely
-        engine.prepareEngineIfNeeded()
+        try await engine.prepareEngineIfNeeded()
         XCTAssertFalse(engine.isSessionActive)
 
         engine.startSession(contextualPhrases: ["test"])
         XCTAssertTrue(engine.isSessionActive)
 
         // Calling during active session should retain session state
-        engine.prepareEngineIfNeeded()
+        try await engine.prepareEngineIfNeeded()
         XCTAssertTrue(engine.isSessionActive)
 
         // Multiple rapid calls should be safe and idempotent
-        engine.prepareEngineIfNeeded()
-        engine.prepareEngineIfNeeded()
+        try await engine.prepareEngineIfNeeded()
+        try await engine.prepareEngineIfNeeded()
         XCTAssertTrue(engine.isSessionActive)
 
         engine.stopSession()
@@ -205,7 +208,7 @@ final class SpeechServiceTests: XCTestCase {
         XCTAssertFalse(engine.isSessionActive)
     }
 
-    func testMockEngineTracksPauseResumeAndPrepareCalls() {
+    func testMockEngineTracksPauseResumeAndPrepareCalls() async throws {
         let concreteMock = MockResilientReflexSpeechEngine()
         let mock: ReflexSpeechEngineProtocol = concreteMock
         XCTAssertFalse(mock.isSessionActive)
@@ -213,7 +216,7 @@ final class SpeechServiceTests: XCTestCase {
         mock.startSession(contextualPhrases: ["test"])
         XCTAssertTrue(mock.isSessionActive)
 
-        mock.prepareEngineIfNeeded()
+        try await mock.prepareEngineIfNeeded()
         mock.pauseListening()
         mock.resumeListening()
         mock.stopSession()
@@ -226,18 +229,149 @@ final class SpeechServiceTests: XCTestCase {
         XCTAssertEqual(concreteMock.stopSessionCallCount, 1)
     }
 
-    func testEngineLazySessionInitialization() {
+    func testEngineLazySessionInitialization() async throws {
         let engine = ResilientReflexSpeechEngine()
         XCTAssertFalse(engine.isSessionActive)
 
         engine.startSession(contextualPhrases: ["test"], lazy: true)
         XCTAssertTrue(engine.isSessionActive)
 
-        engine.prepareEngineIfNeeded()
+        try await engine.prepareEngineIfNeeded()
         XCTAssertTrue(engine.isSessionActive)
 
         engine.stopSession()
         XCTAssertFalse(engine.isSessionActive)
     }
 }
+
+#if canImport(Testing)
+@Suite("Speech Engine Readiness Tests")
+struct SpeechEngineReadinessTests {
+    @Test("Word recognition waits until hardware preparation succeeds")
+    @MainActor
+    func wordWaitsForEngineReadiness() async throws {
+        let controller = SuspendedSpeechAudioEngineController()
+        let engine = ResilientReflexSpeechEngine(audioController: controller)
+        engine.startSession(contextualPhrases: [], lazy: true)
+
+        let task = Task { try await engine.prepareEngineIfNeeded() }
+        await controller.waitUntilPreparationStarts()
+        #expect(engine.isEngineReady == false)
+        await controller.completePreparation()
+        try await task.value
+        #expect(engine.isEngineReady)
+    }
+
+    @Test("Cancellation during preparation prevents engine readiness")
+    @MainActor
+    func cancellationDuringPreparationPreventsReadiness() async throws {
+        let controller = SuspendedSpeechAudioEngineController()
+        let engine = ResilientReflexSpeechEngine(audioController: controller)
+        engine.startSession(contextualPhrases: [], lazy: true)
+
+        let task = Task {
+            try await engine.prepareEngineIfNeeded()
+        }
+        await controller.waitUntilPreparationStarts()
+        task.cancel()
+        await controller.completePreparation()
+        _ = try? await task.value
+
+        #expect(engine.isEngineReady == false)
+        #expect(await controller.teardownCallCount == 1)
+    }
+
+    @Test("Hardware preparation failure preserves error and delivers to onError")
+    @MainActor
+    func preparationFailureDeliversError() async throws {
+        let controller = SuspendedSpeechAudioEngineController()
+        let engine = ResilientReflexSpeechEngine(audioController: controller)
+        engine.startSession(contextualPhrases: [], lazy: true)
+
+        var deliveredError: (any Error)?
+        engine.onError = { error in
+            deliveredError = error
+        }
+
+        let expectedError = NSError(domain: "TestAudioError", code: 42, userInfo: nil)
+        let task = Task {
+            try await engine.prepareEngineIfNeeded()
+        }
+        await controller.waitUntilPreparationStarts()
+        await controller.failPreparation(with: expectedError)
+
+        await #expect(throws: Error.self) {
+            try await task.value
+        }
+
+        #expect(engine.isEngineReady == false)
+        let nsDelivered = deliveredError as? NSError
+        #expect(nsDelivered?.domain == "TestAudioError")
+        #expect(nsDelivered?.code == 42)
+    }
+}
+
+actor SuspendedSpeechAudioEngineController: SpeechAudioEngineControlling {
+    private var preparationContinuation: CheckedContinuation<Void, Error>?
+    private var preparationStartWaiters: [CheckedContinuation<Void, Never>] = []
+    private var isCompleted = false
+    private var pendingError: Error?
+    private(set) var prepareCallCount = 0
+    private(set) var teardownCallCount = 0
+    private(set) var resumeCallCount = 0
+    private(set) var pauseCallCount = 0
+
+    func waitUntilPreparationStarts() async {
+        guard prepareCallCount == 0 else { return }
+        await withCheckedContinuation { continuation in
+            preparationStartWaiters.append(continuation)
+        }
+    }
+
+    func prepare(relay: AudioBufferRelay) async throws {
+        prepareCallCount += 1
+        for waiter in preparationStartWaiters {
+            waiter.resume()
+        }
+        preparationStartWaiters.removeAll()
+
+        if let pendingError {
+            throw pendingError
+        }
+        if isCompleted {
+            return
+        }
+
+        try await withCheckedThrowingContinuation { continuation in
+            preparationContinuation = continuation
+        }
+    }
+
+    func completePreparation() {
+        isCompleted = true
+        preparationContinuation?.resume()
+        preparationContinuation = nil
+    }
+
+    func failPreparation(with error: Error) {
+        pendingError = error
+        preparationContinuation?.resume(throwing: error)
+        preparationContinuation = nil
+    }
+
+    func resume() async throws {
+        resumeCallCount += 1
+    }
+
+    func pause() async {
+        pauseCallCount += 1
+    }
+
+    func teardown() async {
+        teardownCallCount += 1
+        preparationContinuation?.resume(throwing: CancellationError())
+        preparationContinuation = nil
+    }
+}
+#endif
 #endif

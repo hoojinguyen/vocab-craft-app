@@ -249,7 +249,9 @@ public final class LessonLearningViewModel: Identifiable {
         if !speechEngine.isSessionActive {
             startSpeechSession()
         }
-        speechEngine.prepareEngineIfNeeded()
+        Task { [speechEngine] in
+            try? await speechEngine.prepareEngineIfNeeded()
+        }
         speechEngine.resumeListening()
         speechEngine.beginWord(targetLemma: targetLemma, contextualPhrases: [targetLemma, item.word.exampleEn])
     }

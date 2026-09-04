@@ -31,7 +31,11 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
     private let hardware: any SpeechAudioHardware
 
     init() {
+        #if targetEnvironment(simulator) || os(macOS)
+        hardware = SimulatorSpeechAudioHardware()
+        #else
         hardware = AVSpeechAudioHardware()
+        #endif
     }
 
     init(hardware: any SpeechAudioHardware) {
@@ -131,6 +135,15 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
 private enum SpeechAudioHardwareError: Error {
     case invalidInputFormat
 }
+
+#if targetEnvironment(simulator) || os(macOS)
+private actor SimulatorSpeechAudioHardware: SpeechAudioHardware {
+    func prepare(relay: AudioBufferRelay) async throws {}
+    func resume() async throws {}
+    func pause() async {}
+    func teardown() async {}
+}
+#endif
 
 private actor AVSpeechAudioHardware: SpeechAudioHardware {
     private var audioEngine: AVAudioEngine?

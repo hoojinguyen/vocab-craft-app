@@ -54,7 +54,7 @@ public final class MockResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         resumeListeningCallCount += 1
     }
 
-    public func prepareEngineIfNeeded() {
+    public func prepareEngineIfNeeded() async throws {
         prepareEngineIfNeededCallCount += 1
     }
 
