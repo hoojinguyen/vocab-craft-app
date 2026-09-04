@@ -46,6 +46,7 @@ public struct LessonLearningView: View {
                     iconName: "book.pages.fill",
                     tintColor: theme.colors.brandPrimary,
                     onFinish: {
+                        LessonPerformanceDiagnostics.event("LessonCountdownFinished")
                         withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                             isCountingDown = false
                         }
@@ -157,9 +158,11 @@ public struct LessonLearningView: View {
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: isCountingDown)
         .interactiveDismissDisabled(!viewModel.isSummaryStep)
         .onAppear {
+            LessonPerformanceDiagnostics.event("LessonScreenAppeared", detail: "countdown=\(isCountingDown)")
             viewModel.startSpeechSession()
         }
         .onDisappear {
+            LessonPerformanceDiagnostics.event("LessonScreenDisappeared")
             if !viewModel.isCompleted {
                 dismissOnce()
             }

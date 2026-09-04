@@ -1,8 +1,39 @@
 import AVFoundation
 import Foundation
 import Observation
+import os
 import Speech
 import SpeechKit
+
+enum LessonPerformanceDiagnostics {
+    private static let subsystem = Bundle.main.bundleIdentifier ?? "VocabCraftApp"
+    private static let logger = Logger(subsystem: subsystem, category: "LessonPerformance")
+    private static let signpostLog = OSLog(subsystem: subsystem, category: .pointsOfInterest)
+
+    static func event(_ name: StaticString, detail: String = "") {
+        #if DEBUG
+        let nameText = String(describing: name)
+        logger.notice("event=\(nameText, privacy: .public) detail=\(detail, privacy: .public)")
+        NSLog("[LessonPerformance] event=%@ detail=%@", nameText, detail)
+        os_signpost(.event, log: signpostLog, name: name, "%{public}@", detail as NSString)
+        #endif
+    }
+
+    static func error(_ operation: String, error: Error) {
+        #if DEBUG
+        let nsError = error as NSError
+        logger.error(
+            "operation=\(operation, privacy: .public) domain=\(nsError.domain, privacy: .public) code=\(nsError.code)"
+        )
+        NSLog(
+            "[LessonPerformance] operation=%@ domain=%@ code=%ld",
+            operation,
+            nsError.domain,
+            nsError.code
+        )
+        #endif
+    }
+}
 
 /// Thread-safe buffer relay to bridge AVAudioEngine real-time audio tap callbacks with
 /// SFSpeechAudioBufferRecognitionRequest without capturing @MainActor isolated references.
@@ -119,6 +150,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     private var activeTask: SFSpeechRecognitionTask?
     private var currentTargetLemma: String = ""
     private var currentWordSessionToken: UUID = UUID()
+    private var hasReportedFirstRecognitionResult: Bool = false
 
     // MARK: - Throttle (nonisolated for real-time callback)
     private let throttleLock = NSLock()
@@ -141,6 +173,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
 
     public func startSession(contextualPhrases: [String], lazy: Bool = false) {
         guard !isSessionActive else { return }
+        LessonPerformanceDiagnostics.event("SpeechSessionStart", detail: "lazy=\(lazy)")
         self.sessionContextualPhrases = contextualPhrases
         self.isStartingEngine = false
         self.isListeningPaused = false
@@ -158,6 +191,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
                 )
                 try session.setActive(true, options: .notifyOthersOnDeactivation)
             } catch {
+                LessonPerformanceDiagnostics.error("speech.session.prewarm", error: error)
                 // Non-fatal early audio session configuration
             }
         }
@@ -177,6 +211,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     }
 
     public func stopSession() {
+        LessonPerformanceDiagnostics.event("SpeechSessionStop")
         removeInterruptionObserver()
         pendingSetupTask?.cancel()
         pendingSetupTask = nil
@@ -232,6 +267,10 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     // MARK: - Word Lifecycle
 
     public func beginWord(targetLemma: String, contextualPhrases: [String]) {
+        LessonPerformanceDiagnostics.event(
+            "SpeechWordBegin",
+            detail: "engineReady=\(audioEngine?.isRunning == true) sessionActive=\(isSessionActive)"
+        )
         // End previous word if still active
         if isWordActive {
             endWord()
@@ -256,6 +295,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .lowercased()
         liveTranscript = ""
+        hasReportedFirstRecognitionResult = false
         isWordActive = true
 
         #if targetEnvironment(simulator) || os(macOS)
@@ -306,9 +346,11 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
 extension ResilientReflexSpeechEngine {
     #if !targetEnvironment(simulator) && !os(macOS)
     private func requestAuthorizationAndStartEngine() {
+        LessonPerformanceDiagnostics.event("SpeechAuthorizationRequest")
         SFSpeechRecognizer.requestAuthorization { [weak self] status in
             Task { @MainActor [weak self] in
                 guard let self, self.isSessionActive else { return }
+                LessonPerformanceDiagnostics.event("SpeechAuthorizationResult", detail: "status=\(status.rawValue)")
                 guard status == .authorized else {
                     self.onError?(NSError(
                         domain: "ResilientReflexSpeech",
@@ -363,6 +405,8 @@ extension ResilientReflexSpeechEngine {
     private func setupAndStartEngine() {
         guard !isStartingEngine, !isListeningPaused else { return }
         isStartingEngine = true
+        let setupStartedAt = CFAbsoluteTimeGetCurrent()
+        LessonPerformanceDiagnostics.event("SpeechEngineSetupStart")
 
         pendingSetupTask?.cancel()
         pendingSetupTask = Task(priority: .userInitiated) {
@@ -398,8 +442,14 @@ extension ResilientReflexSpeechEngine {
 
             switch sessionResult {
             case .success:
+                let elapsed = CFAbsoluteTimeGetCurrent() - setupStartedAt
+                LessonPerformanceDiagnostics.event(
+                    "SpeechAudioSessionReady",
+                    detail: "elapsedMs=\(Int(elapsed * 1_000))"
+                )
                 self.startAudioEngine()
             case .failure(let error):
+                LessonPerformanceDiagnostics.error("speech.audioSession.activate", error: error)
                 self.onError?(error)
             }
             #else
@@ -411,6 +461,8 @@ extension ResilientReflexSpeechEngine {
     }
 
     private func startAudioEngine() {
+        let engineStartedAt = CFAbsoluteTimeGetCurrent()
+        LessonPerformanceDiagnostics.event("SpeechAudioEngineStart")
         do {
             if let existingEngine = audioEngine {
                 existingEngine.inputNode.removeTap(onBus: 0)
@@ -450,7 +502,13 @@ extension ResilientReflexSpeechEngine {
             engine.prepare()
             try engine.start()
             self.audioEngine = engine
+            let elapsed = CFAbsoluteTimeGetCurrent() - engineStartedAt
+            LessonPerformanceDiagnostics.event(
+                "SpeechAudioEngineReady",
+                detail: "elapsedMs=\(Int(elapsed * 1_000)) sampleRate=\(Int(recordingFormat.sampleRate)) channels=\(recordingFormat.channelCount)"
+            )
         } catch {
+            LessonPerformanceDiagnostics.error("speech.audioEngine.start", error: error)
             onError?(error)
         }
     }
@@ -615,6 +673,7 @@ extension ResilientReflexSpeechEngine {
 
             // Error handling — always dispatch immediately
             if let error {
+                LessonPerformanceDiagnostics.error("speech.recognition", error: error)
                 Task { @MainActor [weak self] in
                     guard let self,
                           self.isWordActive,
@@ -638,6 +697,15 @@ extension ResilientReflexSpeechEngine {
 
             guard let result else { return }
             let spoken = result.bestTranscription.formattedString
+
+            Task { @MainActor [weak self] in
+                guard let self,
+                      self.isWordActive,
+                      self.currentWordSessionToken == sessionToken,
+                      !self.hasReportedFirstRecognitionResult else { return }
+                self.hasReportedFirstRecognitionResult = true
+                LessonPerformanceDiagnostics.event("SpeechFirstRecognitionResult")
+            }
 
             // Check match first — always dispatch match detection immediately
             let isMatch = ReflexSpeechMatcher.isReflexMatch(

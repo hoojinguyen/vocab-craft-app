@@ -36,6 +36,8 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
     #if os(iOS)
     private func ensureAudioSessionActive() {
         #if !targetEnvironment(simulator)
+        let startedAt = CFAbsoluteTimeGetCurrent()
+        LessonPerformanceDiagnostics.event("TTSAudioSessionStart")
         do {
             let audioSession = AVAudioSession.sharedInstance()
             // When speech recognition is active, the session is already .playAndRecord
@@ -44,6 +46,11 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
             if audioSession.category == .playAndRecord {
                 // Already configured for simultaneous record + playback — just ensure active
                 try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+                let elapsed = CFAbsoluteTimeGetCurrent() - startedAt
+                LessonPerformanceDiagnostics.event(
+                    "TTSAudioSessionReady",
+                    detail: "elapsedMs=\(Int(elapsed * 1_000)) reusedPlayAndRecord=true"
+                )
                 return
             }
             if !isAudioSessionConfigured {
@@ -51,8 +58,13 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
                 isAudioSessionConfigured = true
             }
             try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+            let elapsed = CFAbsoluteTimeGetCurrent() - startedAt
+            LessonPerformanceDiagnostics.event(
+                "TTSAudioSessionReady",
+                detail: "elapsedMs=\(Int(elapsed * 1_000)) reusedPlayAndRecord=false"
+            )
         } catch {
-            print("Failed to activate AVAudioSession for TTS: \(error)")
+            LessonPerformanceDiagnostics.error("tts.audioSession.activate", error: error)
         }
         #endif
     }
@@ -100,6 +112,7 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
     public func speak(text: String, rate: Float = 1.0, locale: String = "en-US") {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
+        LessonPerformanceDiagnostics.event("TTSRequest")
 
         stop()
 
@@ -196,6 +209,7 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
 
     public nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
         Task { @MainActor [weak self] in
+            LessonPerformanceDiagnostics.event("TTSFinished")
             guard let self = self else { return }
             self.isSpeaking = false
             if let continuation = self.activeContinuation {
@@ -207,6 +221,7 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
 
     public nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
         Task { @MainActor [weak self] in
+            LessonPerformanceDiagnostics.event("TTSCancelled")
             guard let self = self else { return }
             self.isSpeaking = false
             if let continuation = self.activeContinuation {

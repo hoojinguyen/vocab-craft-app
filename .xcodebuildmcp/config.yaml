@@ -1,0 +1,10 @@
+schemaVersion: 1
+
+enabledWorkflows:
+  - simulator
+  - device
+  - debugging
+
+sessionDefaults:
+  workspacePath: ./VocabCraft.xcworkspace
+  scheme: VocabCraftApp

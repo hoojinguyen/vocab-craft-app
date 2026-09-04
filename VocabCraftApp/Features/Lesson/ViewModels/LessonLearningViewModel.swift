@@ -61,6 +61,7 @@ public final class LessonLearningViewModel: Identifiable {
         let generatedSteps = planGenerator.generatePlan(from: words, distractorPool: words)
         self.steps = generatedSteps
         self.initialStepCount = generatedSteps.count
+        LessonPerformanceDiagnostics.event("LessonPlanReady", detail: "stepCount=\(generatedSteps.count)")
     }
 
     public var currentStep: LessonStep? {
@@ -105,6 +106,10 @@ public final class LessonLearningViewModel: Identifiable {
 
     public func advanceStep() {
         guard !isSummaryStep else { return }
+        LessonPerformanceDiagnostics.event(
+            "LessonStepAdvance",
+            detail: "fromIndex=\(currentStepIndex) stepCount=\(steps.count)"
+        )
         maxProgress = max(maxProgress, progress)
         autoPronounceTask?.cancel()
         autoPronounceTask = nil
@@ -217,6 +222,10 @@ public final class LessonLearningViewModel: Identifiable {
     public func startListeningForSpeaking(targetLemma: String, item: LessonExerciseItem) {
         guard !isSpeakingDisabledForLesson else { return }
         guard !isFeedbackPresented && speechState == .idle else { return }
+        LessonPerformanceDiagnostics.event(
+            "LessonSpeakingStart",
+            detail: "engineSessionActive=\(speechEngine.isSessionActive)"
+        )
         speechState = .listening(audioLevels: [0.5, 0.6, 0.4])
         liveTranscript = ""
 
@@ -231,8 +240,9 @@ public final class LessonLearningViewModel: Identifiable {
             self.submitAnswer(isCorrect: true, for: item)
         }
 
-        speechEngine.onError = { [weak self] _ in
+        speechEngine.onError = { [weak self] error in
             guard let self, self.currentExerciseItem?.id == item.id else { return }
+            LessonPerformanceDiagnostics.error("lesson.speaking", error: error)
             self.speechState = .idle
         }
 
