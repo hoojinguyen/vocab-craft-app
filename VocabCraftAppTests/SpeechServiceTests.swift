@@ -361,18 +361,22 @@ struct SpeechEngineReadinessTests {
         #expect(await controller.prepareCallCount == 2)
     }
 
-    @Test("Preparing engine does nothing when listening is paused")
+    @Test("Preparing engine succeeds and readies the engine even when listening was paused")
     @MainActor
-    func prepareEngineDoesNothingWhenListeningIsPaused() async throws {
+    func prepareEngineWhenListeningIsPausedSucceeds() async throws {
         let controller = SuspendedSpeechAudioEngineController()
         let engine = ResilientReflexSpeechEngine(audioController: controller)
         engine.startSession(contextualPhrases: [], lazy: true)
         engine.pauseListening()
         #expect(engine.isListeningPaused)
 
-        try await engine.prepareEngineIfNeeded()
-        #expect(engine.isEngineReady == false)
-        #expect(await controller.prepareCallCount == 0)
+        let prepTask = Task { try await engine.prepareEngineIfNeeded() }
+        await controller.waitUntilPreparationStarts()
+        await controller.completePreparation()
+        try await prepTask.value
+
+        #expect(engine.isEngineReady == true)
+        #expect(await controller.prepareCallCount == 1)
     }
 
     @Test("SuspendedMockReflexSpeechEngine supports concurrent preparations and cancellation")
@@ -422,6 +426,7 @@ struct TTSAudioSessionTests {
         let service = TextToSpeechService(audioSession: session)
         service.speak(text: "test")
         #expect(session.setActiveCallCount == 0)
+        #expect(session.overrideOutputAudioPortCallCount == 1)
     }
 
     @Test("TTS activates playback session when not in play-and-record")
@@ -460,6 +465,7 @@ final class MockAudioSession: AudioSessionControlling {
     var isActive: Bool
     private(set) var setActiveCallCount = 0
     private(set) var setCategoryCallCount = 0
+    private(set) var overrideOutputAudioPortCallCount = 0
 
     init(category: AVAudioSession.Category = .playback, isActive: Bool = false) {
         self.category = category
@@ -478,6 +484,10 @@ final class MockAudioSession: AudioSessionControlling {
     func setActive(_ active: Bool, options: AVAudioSession.SetActiveOptions) throws {
         self.isActive = active
         setActiveCallCount += 1
+    }
+
+    func overrideOutputAudioPort(_ portOverride: AVAudioSession.PortOverride) throws {
+        overrideOutputAudioPortCallCount += 1
     }
 }
 #endif

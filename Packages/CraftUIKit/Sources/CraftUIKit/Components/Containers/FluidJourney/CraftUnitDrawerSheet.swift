@@ -39,6 +39,7 @@ public struct CraftUnitDrawerSheet: View, Equatable {
 
     @Environment(\.craftTheme) var theme
     @Environment(\.accessibilityReduceMotion) var reduceMotion
+    @Environment(\.locale) var locale
 
     // MARK: - State
 
@@ -50,11 +51,8 @@ public struct CraftUnitDrawerSheet: View, Equatable {
             customExpandedSectionIds?.wrappedValue ?? internalExpandedSectionIds
         }
         nonmutating set {
-            if let custom = customExpandedSectionIds {
-                custom.wrappedValue = newValue
-            } else {
-                internalExpandedSectionIds = newValue
-            }
+            customExpandedSectionIds?.wrappedValue = newValue
+            internalExpandedSectionIds = newValue
         }
     }
 
@@ -119,7 +117,8 @@ public struct CraftUnitDrawerSheet: View, Equatable {
         lhs.sections == rhs.sections &&
         lhs.deckTitle == rhs.deckTitle &&
         lhs.deckSubtitle == rhs.deckSubtitle &&
-        lhs.activeSectionId == rhs.activeSectionId
+        lhs.activeSectionId == rhs.activeSectionId &&
+        lhs.currentExpandedSectionIds == rhs.currentExpandedSectionIds
     }
 
     // MARK: - Public Actions & Queries
@@ -183,9 +182,9 @@ public struct CraftUnitDrawerSheet: View, Equatable {
     func lessonStatusText(for node: LessonNodeModel) -> String? {
         switch node.state {
         case .completed:
-            return CraftLocalized.string("craft.fluid_journey.completed_status")
+            return CraftLocalized.string("craft.fluid_journey.completed_status", locale: locale)
         case .active, .inProgress:
-            return CraftLocalized.string("craft.fluid_journey.current_status")
+            return CraftLocalized.string("craft.fluid_journey.current_status", locale: locale)
         case .bonus, .locked, .upcoming:
             return nil
         }
@@ -262,18 +261,18 @@ private extension CraftUnitDrawerSheet {
                 .contentShape(Circle())
         }
         .buttonStyle(.craftPress(scale: 0.95))
-        .accessibilityLabel(CraftLocalized.string("craft.common.action.close"))
+        .accessibilityLabel(CraftLocalized.string("craft.common.action.close", locale: locale))
     }
 
     var deckInfoBlock: some View {
         VStack(alignment: .leading, spacing: theme.spacing.xxs) {
-            Text(CraftLocalized.string("craft.fluid_journey.drawer_title"))
+            Text(CraftLocalized.string("craft.fluid_journey.drawer_title", locale: locale))
                 .font(theme.typography.headline.weight(.bold))
                 .foregroundStyle(theme.colors.textPrimary)
                 .lineLimit(1)
                 .truncationMode(.tail)
 
-            Text(CraftLocalized.string("craft.fluid_journey.drawer_subtitle"))
+            Text(CraftLocalized.string("craft.fluid_journey.drawer_subtitle", locale: locale))
                 .font(theme.typography.caption)
                 .foregroundStyle(theme.colors.textSecondary)
                 .lineLimit(1)
@@ -288,7 +287,7 @@ private extension CraftUnitDrawerSheet {
             HStack(spacing: theme.spacing.xs) {
                 Image(systemName: "slider.horizontal.3")
                     .font(.system(size: 11, weight: .semibold))
-                Text(CraftLocalized.string("craft.fluid_journey.adjust_plan"))
+                Text(CraftLocalized.string("craft.fluid_journey.adjust_plan", locale: locale))
                     .font(theme.typography.label.weight(.semibold))
             }
             .padding(.horizontal, theme.spacing.sm)
@@ -302,7 +301,7 @@ private extension CraftUnitDrawerSheet {
             .contentShape(Capsule())
         }
         .buttonStyle(.craftPress(scale: 0.96))
-        .accessibilityLabel(CraftLocalized.string("craft.fluid_journey.adjust_plan"))
+        .accessibilityLabel(CraftLocalized.string("craft.fluid_journey.adjust_plan", locale: locale))
     }
 }
 
@@ -335,8 +334,8 @@ private extension CraftUnitDrawerSheet {
             .buttonStyle(.craftPress(scale: 0.99))
             .accessibilityElement(children: .combine)
             .accessibilityLabel(sectionAccessibilityLabel(for: section, isExpanded: isExpanded))
-            .accessibilityValue(isExpanded ? CraftLocalized.string("craft.common.state.expanded") : CraftLocalized.string("craft.common.state.collapsed"))
-            .accessibilityHint(isExpanded ? CraftLocalized.string("craft.fluid_journey.collapse_unit_hint") : CraftLocalized.string("craft.fluid_journey.expand_unit_hint"))
+            .accessibilityValue(isExpanded ? CraftLocalized.string("craft.common.state.expanded", locale: locale) : CraftLocalized.string("craft.common.state.collapsed", locale: locale))
+            .accessibilityHint(isExpanded ? CraftLocalized.string("craft.fluid_journey.collapse_unit_hint", locale: locale) : CraftLocalized.string("craft.fluid_journey.expand_unit_hint", locale: locale))
 
             if isExpanded && !section.nodes.isEmpty {
                 Divider()
@@ -370,20 +369,11 @@ private extension CraftUnitDrawerSheet {
     ) -> some View {
         HStack(spacing: theme.spacing.md) {
             VStack(alignment: .leading, spacing: theme.spacing.xxs) {
-                HStack(spacing: theme.spacing.xs) {
-                    if isActive {
-                        Circle()
-                            .fill(theme.colors.brandPrimary)
-                            .frame(width: 8, height: 8)
-                            .accessibilityHidden(true)
-                    }
-
-                    Text(section.title)
-                        .font(theme.typography.headline.weight(.bold))
-                        .foregroundStyle(theme.colors.textPrimary)
-                        .lineLimit(1)
-                        .truncationMode(.tail)
-                }
+                Text(section.title)
+                    .font(theme.typography.headline.weight(.bold))
+                    .foregroundStyle(theme.colors.textPrimary)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
 
                 if let meta = sectionMetaSubtitle(for: section) {
                     Text(meta)
@@ -448,7 +438,7 @@ private extension CraftUnitDrawerSheet {
         .disabled(node.state == .locked)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(lessonAccessibilityLabel(for: node))
-        .accessibilityHint(CraftLocalized.string("craft.fluid_journey.select_unit_hint"))
+        .accessibilityHint(CraftLocalized.string("craft.fluid_journey.select_unit_hint", locale: locale))
     }
 
     func lessonNodeStatusIcon(for state: LessonNodeState) -> some View {
@@ -485,7 +475,7 @@ private extension CraftUnitDrawerSheet {
             components.append(meta)
         }
         if section.id == activeSectionId {
-            components.append(CraftLocalized.string("craft.fluid_journey.current_status"))
+            components.append(CraftLocalized.string("craft.fluid_journey.current_status", locale: locale))
         }
         return components.joined(separator: ", ")
     }

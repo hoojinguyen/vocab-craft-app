@@ -199,23 +199,6 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         self.isEngineReady = false
         setupInterruptionObserver()
 
-        #if os(iOS)
-        Task.detached(priority: .userInitiated) {
-            do {
-                let session = AVAudioSession.sharedInstance()
-                try session.setCategory(
-                    .playAndRecord,
-                    mode: .spokenAudio,
-                    options: [.defaultToSpeaker, .allowBluetoothHFP, .allowBluetoothA2DP, .duckOthers]
-                )
-                try session.setActive(true, options: .notifyOthersOnDeactivation)
-            } catch {
-                LessonPerformanceDiagnostics.error("speech.session.prewarm", error: error)
-                // Non-fatal early audio session configuration
-            }
-        }
-        #endif
-
         if !lazy {
             pendingPreparationTask = Task { [weak self] in
                 try? await self?.prepareEngineIfNeeded()
@@ -342,25 +325,25 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     }
 
     public func prepareEngineIfNeeded() async throws {
-        guard isSessionActive, !isListeningPaused else { return }
+        guard isSessionActive else { return }
         if let audioLifecycleTask {
             await audioLifecycleTask.value
         }
-        guard isSessionActive, !isListeningPaused else { return }
-        if isEngineReady { return }
+        guard isSessionActive else { return }
         try await requestAuthorizationIfNeeded()
-        guard isSessionActive, !isListeningPaused, !Task.isCancelled else {
+        guard isSessionActive, !Task.isCancelled else {
             throw CancellationError()
         }
         #if os(iOS) && !targetEnvironment(simulator)
         let session = AVAudioSession.sharedInstance()
         try session.setCategory(
             .playAndRecord,
-            mode: .spokenAudio,
-            options: [.defaultToSpeaker, .allowBluetoothHFP, .allowBluetoothA2DP, .duckOthers]
+            mode: .default,
+            options: [.defaultToSpeaker, .allowBluetoothHFP]
         )
         try session.setActive(true, options: .notifyOthersOnDeactivation)
-        try await Task.sleep(for: .milliseconds(150))
+        try? session.overrideOutputAudioPort(.speaker)
+        try await Task.sleep(for: .milliseconds(100))
         #endif
         do {
             try await audioController.prepare(relay: bufferRelay)
@@ -372,15 +355,15 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         }
         guard isSessionActive, !Task.isCancelled else {
             isEngineReady = false
-            enqueueAudioTransition { controller in
-                await controller.teardown()
-            }
+            await audioController.teardown()
             if Task.isCancelled {
                 throw CancellationError()
             }
             return
         }
         isEngineReady = true
+        isListeningPaused = false
+        bufferRelay.unmute()
     }
 
     // MARK: - Word Lifecycle
@@ -597,7 +580,7 @@ extension ResilientReflexSpeechEngine {
                             targetLemma: targetLemma,
                             contextualPhrases: contextualPhrases
                         )
-                    } else if nsError.code != 216 {
+                    } else if nsError.code != 216 && nsError.code != 203 && nsError.code != 301 {
                         self.onError?(error)
                     }
                 }

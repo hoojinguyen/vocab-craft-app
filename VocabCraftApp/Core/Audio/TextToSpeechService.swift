@@ -11,6 +11,7 @@ protocol AudioSessionControlling: AnyObject {
         options: AVAudioSession.CategoryOptions
     ) throws
     func setActive(_ active: Bool, options: AVAudioSession.SetActiveOptions) throws
+    func overrideOutputAudioPort(_ portOverride: AVAudioSession.PortOverride) throws
 }
 
 extension AVAudioSession: AudioSessionControlling {}
@@ -74,6 +75,7 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
             // The speech session already activated the audio session, so we reuse it without
             // calling setActive(true), avoiding redundant main-thread stalls.
             if audioSession.category == .playAndRecord {
+                try? audioSession.overrideOutputAudioPort(.speaker)
                 let elapsed = CFAbsoluteTimeGetCurrent() - startedAt
                 LessonPerformanceDiagnostics.event(
                     "TTSAudioSessionReady",

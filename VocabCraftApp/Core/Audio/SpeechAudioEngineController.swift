@@ -47,6 +47,10 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
             await teardownTask.value
         }
         if state == .ready {
+            if isPaused {
+                try await hardware.resume()
+                isPaused = false
+            }
             return
         }
         if let preparationTask {
@@ -56,12 +60,7 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
             }
             if state == .preparing {
                 state = .ready
-                if isPaused {
-                    await hardware.pause()
-                    guard lifecycleGeneration == completedGeneration, state != .idle else {
-                        throw CancellationError()
-                    }
-                }
+                isPaused = false
             }
             guard lifecycleGeneration == completedGeneration, state != .idle else {
                 throw CancellationError()
@@ -86,12 +85,7 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
                 throw CancellationError()
             }
             state = .ready
-            if isPaused {
-                await hardware.pause()
-                guard lifecycleGeneration == completedGeneration, state != .idle else {
-                    throw CancellationError()
-                }
-            }
+            isPaused = false
             preparationTask = nil
         } catch {
             if generation == lifecycleGeneration {
@@ -122,7 +116,6 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
 
     func pause() async {
         if state == .idle || state == .preparing {
-            isPaused = true
             return
         }
         guard state == .ready, !isPaused else {
@@ -186,16 +179,12 @@ private actor AVSpeechAudioHardware: SpeechAudioHardware {
         let engine = AVAudioEngine()
         let inputNode = engine.inputNode
 
-        #if os(iOS)
-        try? inputNode.setVoiceProcessingEnabled(true)
-        #endif
-
         let recordingFormat = inputNode.outputFormat(forBus: 0)
         guard recordingFormat.sampleRate > 0, recordingFormat.channelCount > 0 else {
             throw SpeechAudioHardwareError.invalidInputFormat
         }
 
-        inputNode.installTap(onBus: 0, bufferSize: 2_048, format: recordingFormat) { [relay] buffer, _ in
+        inputNode.installTap(onBus: 0, bufferSize: 1_024, format: recordingFormat) { [relay] buffer, _ in
             relay.append(buffer)
         }
 
