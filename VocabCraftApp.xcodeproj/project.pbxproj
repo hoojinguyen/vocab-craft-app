@@ -29,6 +29,7 @@
 		300086880CE4B0BD22E3 /* MockResilientReflexSpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200086880CE4B0BD22E3 /* MockResilientReflexSpeechEngine.swift */; };
 		3000392E0AAFBD46F158 /* ReflexSpeechMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000392E0AAFBD46F158 /* ReflexSpeechMatcher.swift */; };
 		3000AF0C814D7D13DB80 /* ResilientReflexSpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000AF0C814D7D13DB80 /* ResilientReflexSpeechEngine.swift */; };
+		3000D9A22B3C4D5E6F70 /* SpeechAudioEngineController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000D9A22B3C4D5E6F70 /* SpeechAudioEngineController.swift */; };
 		3000087B04314FDDF262 /* SoundEffectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000087B04314FDDF262 /* SoundEffectService.swift */; };
 		300054D51843DFDCEB06 /* SpeechRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200054D51843DFDCEB06 /* SpeechRecognitionService.swift */; };
 		3000BEA090FB6DD9E928 /* TextToSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000BEA090FB6DD9E928 /* TextToSpeechService.swift */; };
@@ -217,6 +218,7 @@
 		30004D4BFF1DB0753E89 /* ReflexOtherModesTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20004D4BFF1DB0753E89 /* ReflexOtherModesTests.swift */; };
 		3000A63A6ABE7B4F2827 /* ReflexSpeechMatcherTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000A63A6ABE7B4F2827 /* ReflexSpeechMatcherTests.swift */; };
 		30004FB8278DD289362C /* ResilientReflexSpeechEngineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20004FB8278DD289362C /* ResilientReflexSpeechEngineTests.swift */; };
+		3000C8F11A2B3C4D5E6F /* SpeechAudioEngineControllerTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C8F11A2B3C4D5E6F /* SpeechAudioEngineControllerTests.swift */; };
 		30000F377D3FDF561ADC /* ReflexBlitzComponentsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20000F377D3FDF561ADC /* ReflexBlitzComponentsTests.swift */; };
 		30005EACC20F793C36CE /* ReflexBlitzLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20005EACC20F793C36CE /* ReflexBlitzLocalizationTests.swift */; };
 		3000F1F3611358E0328E /* ReflexBlitzModeSelectionViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000F1F3611358E0328E /* ReflexBlitzModeSelectionViewTests.swift */; };
@@ -311,6 +313,7 @@
 		200086880CE4B0BD22E3 /* MockResilientReflexSpeechEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockResilientReflexSpeechEngine.swift"; sourceTree = "<group>"; };
 		2000392E0AAFBD46F158 /* ReflexSpeechMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexSpeechMatcher.swift"; sourceTree = "<group>"; };
 		2000AF0C814D7D13DB80 /* ResilientReflexSpeechEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ResilientReflexSpeechEngine.swift"; sourceTree = "<group>"; };
+		2000D9A22B3C4D5E6F70 /* SpeechAudioEngineController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeechAudioEngineController.swift"; sourceTree = "<group>"; };
 		2000087B04314FDDF262 /* SoundEffectService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SoundEffectService.swift"; sourceTree = "<group>"; };
 		200054D51843DFDCEB06 /* SpeechRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeechRecognitionService.swift"; sourceTree = "<group>"; };
 		2000BEA090FB6DD9E928 /* TextToSpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TextToSpeechService.swift"; sourceTree = "<group>"; };
@@ -489,6 +492,7 @@
 		20004D4BFF1DB0753E89 /* ReflexOtherModesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexOtherModesTests.swift"; sourceTree = "<group>"; };
 		2000A63A6ABE7B4F2827 /* ReflexSpeechMatcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexSpeechMatcherTests.swift"; sourceTree = "<group>"; };
 		20004FB8278DD289362C /* ResilientReflexSpeechEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ResilientReflexSpeechEngineTests.swift"; sourceTree = "<group>"; };
+		2000C8F11A2B3C4D5E6F /* SpeechAudioEngineControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeechAudioEngineControllerTests.swift"; sourceTree = "<group>"; };
 		20000F377D3FDF561ADC /* ReflexBlitzComponentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzComponentsTests.swift"; sourceTree = "<group>"; };
 		20005EACC20F793C36CE /* ReflexBlitzLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzLocalizationTests.swift"; sourceTree = "<group>"; };
 		2000F1F3611358E0328E /* ReflexBlitzModeSelectionViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexBlitzModeSelectionViewTests.swift"; sourceTree = "<group>"; };
@@ -621,6 +625,7 @@
 				200086880CE4B0BD22E3 /* MockResilientReflexSpeechEngine.swift */,
 				2000392E0AAFBD46F158 /* ReflexSpeechMatcher.swift */,
 				2000AF0C814D7D13DB80 /* ResilientReflexSpeechEngine.swift */,
+				2000D9A22B3C4D5E6F70 /* SpeechAudioEngineController.swift */,
 				2000087B04314FDDF262 /* SoundEffectService.swift */,
 				200054D51843DFDCEB06 /* SpeechRecognitionService.swift */,
 				2000BEA090FB6DD9E928 /* TextToSpeechService.swift */,
@@ -1339,6 +1344,7 @@
 				20004D4BFF1DB0753E89 /* ReflexOtherModesTests.swift */,
 				2000A63A6ABE7B4F2827 /* ReflexSpeechMatcherTests.swift */,
 				20004FB8278DD289362C /* ResilientReflexSpeechEngineTests.swift */,
+				2000C8F11A2B3C4D5E6F /* SpeechAudioEngineControllerTests.swift */,
 			);
 			path = "Reflex";
 			sourceTree = "<group>";
@@ -1600,6 +1606,7 @@
 				300086880CE4B0BD22E3 /* MockResilientReflexSpeechEngine.swift in Sources */,
 				3000392E0AAFBD46F158 /* ReflexSpeechMatcher.swift in Sources */,
 				3000AF0C814D7D13DB80 /* ResilientReflexSpeechEngine.swift in Sources */,
+				3000D9A22B3C4D5E6F70 /* SpeechAudioEngineController.swift in Sources */,
 				3000087B04314FDDF262 /* SoundEffectService.swift in Sources */,
 				300054D51843DFDCEB06 /* SpeechRecognitionService.swift in Sources */,
 				3000BEA090FB6DD9E928 /* TextToSpeechService.swift in Sources */,
@@ -1804,6 +1811,7 @@
 				30004D4BFF1DB0753E89 /* ReflexOtherModesTests.swift in Test Sources */,
 				3000A63A6ABE7B4F2827 /* ReflexSpeechMatcherTests.swift in Test Sources */,
 				30004FB8278DD289362C /* ResilientReflexSpeechEngineTests.swift in Test Sources */,
+				3000C8F11A2B3C4D5E6F /* SpeechAudioEngineControllerTests.swift in Test Sources */,
 				30000F377D3FDF561ADC /* ReflexBlitzComponentsTests.swift in Test Sources */,
 				30005EACC20F793C36CE /* ReflexBlitzLocalizationTests.swift in Test Sources */,
 				3000F1F3611358E0328E /* ReflexBlitzModeSelectionViewTests.swift in Test Sources */,
