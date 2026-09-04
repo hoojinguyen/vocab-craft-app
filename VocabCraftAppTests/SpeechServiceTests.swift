@@ -489,6 +489,114 @@ struct TTSAudioSessionTests {
         #expect(await coordinator.activeLeaseCount == 0)
         #expect(mockHardware.operations.last == .setActive(false, options: [.notifyOthersOnDeactivation]))
     }
+
+    @Test("Consecutive speak calls cancel earlier pending acquisitions and retain only latest lease")
+    @MainActor
+    func ttsConsecutiveSpeakCallsCancelEarlierPendingAcquisitions() async throws {
+        let mockHardware = MockAudioSessionHardware()
+        let coordinator = AudioSessionCoordinator(hardware: mockHardware)
+        let tts = TextToSpeechService(audioSessionCoordinator: coordinator)
+
+        tts.speak(text: "First request")
+        let firstTask = tts.playbackStartTask
+        tts.speak(text: "Second request")
+        let secondTask = tts.playbackStartTask
+
+        await firstTask?.value
+        await secondTask?.value
+
+        #expect(await coordinator.activeLeaseCount == 1)
+        #expect(await coordinator.effectiveIntent == .playback)
+
+        tts.stop()
+        _ = await tts.playbackReleaseTask?.value
+        #expect(await coordinator.activeLeaseCount == 0)
+    }
+
+    @Test("Synthesizer delegate releases lease only for matching utterance and ignores stale utterance")
+    @MainActor
+    func ttsDelegateReleasesLeaseOnlyForMatchingUtterance() async throws {
+        let mockHardware = MockAudioSessionHardware()
+        let coordinator = AudioSessionCoordinator(hardware: mockHardware)
+        let tts = TextToSpeechService(audioSessionCoordinator: coordinator)
+
+        tts.speak(text: "Active text")
+        await tts.playbackStartTask?.value
+
+        #expect(await coordinator.activeLeaseCount == 1)
+        guard let activeUtterance = tts.currentUtterance else {
+            Issue.record("Expected currentUtterance to be non-nil while active")
+            return
+        }
+
+        let dummySynthesizer = AVSpeechSynthesizer()
+        let staleUtterance = AVSpeechUtterance(string: "Stale text")
+
+        // Invoking didCancel with a stale utterance must NOT release active lease
+        tts.speechSynthesizer(dummySynthesizer, didCancel: staleUtterance)
+        await Task.yield()
+
+        #expect(await coordinator.activeLeaseCount == 1)
+        #expect(tts.currentUtterance === activeUtterance)
+
+        // Invoking didFinish with a stale utterance must NOT release active lease
+        tts.speechSynthesizer(dummySynthesizer, didFinish: staleUtterance)
+        await Task.yield()
+
+        #expect(await coordinator.activeLeaseCount == 1)
+        #expect(tts.currentUtterance === activeUtterance)
+
+        // Invoking didFinish with the matching active utterance MUST release the lease
+        tts.speechSynthesizer(dummySynthesizer, didFinish: activeUtterance)
+        for _ in 0..<20 {
+            if await coordinator.activeLeaseCount == 0 { break }
+            await Task.yield()
+            _ = await tts.playbackReleaseTask?.value
+        }
+
+        #expect(await coordinator.activeLeaseCount == 0)
+        #expect(tts.currentUtterance == nil)
+        #expect(tts.isSpeaking == false)
+
+        // Now test didCancel with a matching active utterance
+        tts.speak(text: "Second active text")
+        await tts.playbackStartTask?.value
+        #expect(await coordinator.activeLeaseCount == 1)
+        guard let secondUtterance = tts.currentUtterance else {
+            Issue.record("Expected currentUtterance to be non-nil for second request")
+            return
+        }
+
+        tts.speechSynthesizer(dummySynthesizer, didCancel: secondUtterance)
+        for _ in 0..<20 {
+            if await coordinator.activeLeaseCount == 0 { break }
+            await Task.yield()
+            _ = await tts.playbackReleaseTask?.value
+        }
+
+        #expect(await coordinator.activeLeaseCount == 0)
+        #expect(tts.currentUtterance == nil)
+        #expect(tts.isSpeaking == false)
+    }
+
+    @Test("Cancelling speakAsync task releases acquired lease")
+    @MainActor
+    func ttsCancellingSpeakAsyncTaskReleasesAcquiredLease() async throws {
+        let mockHardware = MockAudioSessionHardware()
+        let coordinator = AudioSessionCoordinator(hardware: mockHardware)
+        let tts = TextToSpeechService(audioSessionCoordinator: coordinator)
+
+        let speakTask = Task {
+            await tts.speakAsync(text: "Async speak to be cancelled")
+        }
+
+        speakTask.cancel()
+        await speakTask.value
+        _ = await tts.playbackReleaseTask?.value
+
+        #expect(await coordinator.activeLeaseCount == 0)
+        #expect(tts.isSpeaking == false)
+    }
 }
 
 actor SuspendedSpeechAudioEngineController: SpeechAudioEngineControlling {
