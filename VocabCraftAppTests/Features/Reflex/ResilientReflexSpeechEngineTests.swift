@@ -258,15 +258,26 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
         engine.startSession(contextualPhrases: ["apple"])
         engine.stopSession()
 
-        // Calling handleAudioInterruption after session stopped should be safely ignored
-        let notification = Notification(
+        // Posting notification through NotificationCenter verifies observer was deregistered
+        NotificationCenter.default.post(
             name: AVAudioSession.interruptionNotification,
             object: nil,
             userInfo: [AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.began.rawValue]
         )
-        engine.handleAudioInterruption(notification)
 
         XCTAssertFalse(engine.isSessionActive)
+    }
+
+    func testPauseListeningResetsIsStartingEngineAndAllowsResume() {
+        engine.startSession(contextualPhrases: ["apple"], lazy: true)
+        XCTAssertTrue(engine.isSessionActive)
+
+        engine.pauseListening()
+        XCTAssertTrue(engine.isListeningPaused)
+
+        // Resume listening should be permitted and reset paused state
+        engine.resumeListening()
+        XCTAssertFalse(engine.isListeningPaused)
     }
 
     func testAudioInterruptionWithNSNumberKeys() {

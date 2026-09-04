@@ -185,6 +185,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         isListeningPaused = true
         pendingSetupTask?.cancel()
         pendingSetupTask = nil
+        isStartingEngine = false
         bufferRelay.mute()
         endWord()
         #if !targetEnvironment(simulator) && !os(macOS)
