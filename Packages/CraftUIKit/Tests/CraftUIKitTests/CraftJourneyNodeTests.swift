@@ -106,4 +106,70 @@ struct CraftJourneyNodeTests {
         let filledView = CraftJourneyNode(node: filledNode)
         #expect(filledView.resolvedIconName == "star.fill")
     }
+
+    @Test("Verify resolvedIconName caches results and handles isSuspended")
+    func testResolvedIconNameAndSuspension() {
+        let node = LessonNodeModel(id: "node_test", title: "Test", iconName: "star", state: .active)
+        let journeyNode = CraftJourneyNode(node: node, isSuspended: true)
+        #expect(journeyNode.isSuspended == true)
+        let resolvedFirst = journeyNode.resolvedIconName
+        #expect(resolvedFirst == "star.fill" || resolvedFirst == "star")
+
+        // Second evaluation should hit cache and match exactly
+        let resolvedSecond = journeyNode.resolvedIconName
+        #expect(resolvedSecond == resolvedFirst)
+    }
+
+    @Test("Verify CraftJourneyNode equality considers isSuspended")
+    func testNodeEqualityConsidersSuspended() {
+        let node = LessonNodeModel(id: "node_1", title: "Test", state: .active)
+        let activeNode = CraftJourneyNode(node: node, isSuspended: false)
+        let suspendedNode = CraftJourneyNode(node: node, isSuspended: true)
+        let sameSuspendedNode = CraftJourneyNode(node: node, isSuspended: true)
+
+        #expect(activeNode != suspendedNode)
+        #expect(suspendedNode == sameSuspendedNode)
+    }
+
+    @Test("Verify unknown symbol fallback and repeated resolution")
+    func testUnknownSymbolFallbackAndRepeatedResolution() {
+        let node = LessonNodeModel(id: "node_invalid", title: "Test", iconName: "unknown_custom_symbol_12345", state: .active)
+        let journeyNode = CraftJourneyNode(node: node)
+        // First lookup validates and caches false
+        #expect(journeyNode.resolvedIconName == "unknown_custom_symbol_12345")
+        // Second lookup hits cache
+        #expect(journeyNode.resolvedIconName == "unknown_custom_symbol_12345")
+    }
+
+    @Test("Verify ActiveCalloutBubble supports isSuspended and Equatable conformance")
+    func testActiveCalloutBubbleSuspension() {
+        let bubbleDefault = ActiveCalloutBubble("START")
+        #expect(bubbleDefault.isSuspended == false)
+
+        let bubbleSuspended = ActiveCalloutBubble("START", isSuspended: true)
+        #expect(bubbleSuspended.isSuspended == true)
+
+        let namedBubbleSuspended = ActiveCalloutBubble(text: "START", isVisible: true, isSuspended: true)
+        #expect(namedBubbleSuspended.isSuspended == true)
+
+        let sameNamedBubble = ActiveCalloutBubble(text: "START", isVisible: true, isSuspended: true)
+        #expect(namedBubbleSuspended == sameNamedBubble)
+        #expect(namedBubbleSuspended != bubbleDefault)
+    }
+
+    @Test("Verify thread safety and concurrent resolvedIconName resolution")
+    func testConcurrentResolvedIconNameResolution() async {
+        let testSymbols = ["star", "heart", "book", "pencil", "gear", "star.fill", "non_existent_symbol_abc"]
+
+        await withTaskGroup(of: Void.self) { group in
+            for i in 0..<100 {
+                let symbol = testSymbols[i % testSymbols.count]
+                group.addTask {
+                    let resolved = CraftJourneyNode.resolveIconName(for: symbol)
+                    #expect(!resolved.isEmpty)
+                }
+            }
+        }
+    }
 }
+

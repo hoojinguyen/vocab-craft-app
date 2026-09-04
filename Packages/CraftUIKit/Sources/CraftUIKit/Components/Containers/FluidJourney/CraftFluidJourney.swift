@@ -460,7 +460,8 @@ extension CraftFluidJourney {
                     VStack(spacing: theme.spacing.sm) {
                         if shouldShowCallout(for: node) {
                             ActiveCalloutBubble(
-                                text: calloutText(for: node, at: index, totalNodes: section.nodes.count)
+                                text: calloutText(for: node, at: index, totalNodes: section.nodes.count),
+                                isSuspended: isSuspended
                             )
                             .transition(.opacity.combined(with: .scale(scale: 0.9)))
                         }
@@ -468,6 +469,7 @@ extension CraftFluidJourney {
                         CraftJourneyNode(
                             node: node,
                             surfaceStyle: surfaceStyle,
+                            isSuspended: isSuspended,
                             onTap: node.state == .locked ? nil : {
                                 handleNodeTap(node)
                             }

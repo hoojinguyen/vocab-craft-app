@@ -1,3 +1,4 @@
+import Foundation
 import SwiftUI
 
 #if canImport(UIKit)
@@ -37,6 +38,7 @@ private struct JourneyNodeButtonStyle: ButtonStyle {
 public struct CraftJourneyNode: View, Equatable {
     public let node: LessonNodeModel
     public let surfaceStyle: CraftSurfaceStyle?
+    public let isSuspended: Bool
     public let onTap: (@Sendable () -> Void)?
 
     @Environment(\.craftTheme) private var theme
@@ -46,30 +48,38 @@ public struct CraftJourneyNode: View, Equatable {
 
     @State private var tapTrigger: Bool = false
 
+    // MARK: - Symbol Validation Cache
+
+    private nonisolated(unsafe) static var symbolValidationCache: [String: Bool] = [:]
+    private nonisolated static let cacheLock = NSLock()
+
     // MARK: - Initializers
 
     public init(
         node: LessonNodeModel,
         surfaceStyle: CraftSurfaceStyle? = nil,
+        isSuspended: Bool = false,
         onTap: (@Sendable () -> Void)? = nil
     ) {
         self.node = node
         self.surfaceStyle = surfaceStyle
+        self.isSuspended = isSuspended
         self.onTap = onTap
     }
 
     public init(
         model: LessonNodeModel,
         surfaceStyle: CraftSurfaceStyle? = nil,
+        isSuspended: Bool = false,
         onTap: (@Sendable () -> Void)? = nil
     ) {
-        self.init(node: model, surfaceStyle: surfaceStyle, onTap: onTap)
+        self.init(node: model, surfaceStyle: surfaceStyle, isSuspended: isSuspended, onTap: onTap)
     }
 
     // MARK: - Equatable Conformance
 
     public static func == (lhs: CraftJourneyNode, rhs: CraftJourneyNode) -> Bool {
-        lhs.node == rhs.node && lhs.surfaceStyle == rhs.surfaceStyle
+        lhs.node == rhs.node && lhs.surfaceStyle == rhs.surfaceStyle && lhs.isSuspended == rhs.isSuspended
     }
 
     // MARK: - Surface Style Resolution
@@ -196,18 +206,27 @@ public struct CraftJourneyNode: View, Equatable {
 
     @ViewBuilder
     private var nodeFaceView: some View {
-        if node.state == .active, !reduceMotion {
-            PhaseAnimator(GlowPhase.allCases) { phase in
+        if node.state == .active {
+            if !reduceMotion, !isSuspended {
+                PhaseAnimator(GlowPhase.allCases) { phase in
+                    nodeFace
+                        .shadow(
+                            color: theme.colors.brandPrimary.opacity(phase == .glowing ? 0.45 : 0.20),
+                            radius: phase == .glowing ? 10 : 5,
+                            x: 0,
+                            y: phase == .glowing ? 4 : 2
+                        )
+                } animation: { _ in
+                    .craftGlow
+                }
+            } else {
                 nodeFace
-                    .scaleEffect(1.0)
                     .shadow(
-                        color: theme.colors.brandPrimary.opacity(phase == .glowing ? 0.45 : 0.20),
-                        radius: phase == .glowing ? 10 : 5,
+                        color: theme.colors.brandPrimary.opacity(0.30),
+                        radius: 6,
                         x: 0,
-                        y: phase == .glowing ? 4 : 2
+                        y: 3
                     )
-            } animation: { _ in
-                .craftGlow
             }
         } else {
             nodeFace
@@ -242,21 +261,41 @@ public struct CraftJourneyNode: View, Equatable {
 
     /// Resolves the SF Symbol name, automatically preferring filled variants when available.
     public var resolvedIconName: String {
-        let base = displayedIconName
+        Self.resolveIconName(for: displayedIconName)
+    }
+
+    /// Thread-safe static resolver for SF Symbol names that prefers filled variants and caches results.
+    public nonisolated static func resolveIconName(for iconName: String) -> String {
+        let base = iconName.isEmpty ? "book.fill" : iconName
         if base.hasSuffix(".fill") || base.contains(".fill.") {
             return base
         }
         let filled = "\(base).fill"
-        #if canImport(UIKit)
-            if UIImage(systemName: filled) != nil {
-                return filled
+        #if canImport(UIKit) || canImport(AppKit)
+            let cached = cacheLock.withLock {
+                symbolValidationCache[filled]
             }
-        #elseif canImport(AppKit)
-            if NSImage(systemSymbolName: filled, accessibilityDescription: nil) != nil {
-                return filled
+            if let cached {
+                return cached ? filled : base
             }
+
+            let isValid: Bool
+            #if canImport(UIKit)
+                isValid = UIImage(systemName: filled) != nil
+            #elseif canImport(AppKit)
+                isValid = NSImage(systemSymbolName: filled, accessibilityDescription: nil) != nil
+            #else
+                isValid = false
+            #endif
+
+            cacheLock.withLock {
+                symbolValidationCache[filled] = isValid
+            }
+
+            return isValid ? filled : base
+        #else
+            return base
         #endif
-        return base
     }
 
     private var iconView: some View {
