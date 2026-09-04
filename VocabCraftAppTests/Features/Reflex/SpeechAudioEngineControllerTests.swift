@@ -84,6 +84,80 @@ struct SpeechAudioEngineControllerTests {
         #expect(await !hardware.isPrepared)
         #expect(await controller.state == .idle)
     }
+
+    @Test("Teardown during preparation causes prepare to throw CancellationError")
+    func teardownDuringPrepareThrowsCancellationError() async {
+        let hardware = MockSpeechAudioHardware(blockPreparation: true)
+        let controller = SpeechAudioEngineController(hardware: hardware)
+        let prepareTask = Task {
+            try await controller.prepare(relay: AudioBufferRelay())
+        }
+
+        await hardware.waitUntilPreparationStarts()
+        let teardownTask = Task {
+            await controller.teardown()
+        }
+        while await controller.state != .idle {
+            await Task.yield()
+        }
+        await hardware.completePreparation()
+        await teardownTask.value
+
+        await #expect(throws: CancellationError.self) {
+            try await prepareTask.value
+        }
+        #expect(await controller.state == .idle)
+    }
+
+    @Test("Pause during preparation pauses hardware upon completion")
+    func pauseDuringPreparationPausesHardwareOnCompletion() async throws {
+        let hardware = MockSpeechAudioHardware(blockPreparation: true)
+        let controller = SpeechAudioEngineController(hardware: hardware)
+        let prepareTask = Task {
+            try await controller.prepare(relay: AudioBufferRelay())
+        }
+
+        await hardware.waitUntilPreparationStarts()
+        await controller.pause()
+        await hardware.completePreparation()
+        try await prepareTask.value
+
+        #expect(await controller.state == .ready)
+        #expect(await hardware.pauseCallCount == 1)
+    }
+
+    @Test("Resume during preparation un-pauses hardware before completion")
+    func resumeDuringPreparationCancelsPause() async throws {
+        let hardware = MockSpeechAudioHardware(blockPreparation: true)
+        let controller = SpeechAudioEngineController(hardware: hardware)
+        let prepareTask = Task {
+            try await controller.prepare(relay: AudioBufferRelay())
+        }
+
+        await hardware.waitUntilPreparationStarts()
+        await controller.pause()
+        try await controller.resume()
+        await hardware.completePreparation()
+        try await prepareTask.value
+
+        #expect(await controller.state == .ready)
+        #expect(await hardware.pauseCallCount == 0)
+    }
+
+    @Test("Prepare after failure retries hardware setup cleanly")
+    func prepareAfterFailureRetriesHardwareSetup() async throws {
+        let hardware = MockSpeechAudioHardware(failCount: 1)
+        let controller = SpeechAudioEngineController(hardware: hardware)
+
+        await #expect(throws: Error.self) {
+            try await controller.prepare(relay: AudioBufferRelay())
+        }
+        #expect(await controller.state == .failed)
+
+        try await controller.prepare(relay: AudioBufferRelay())
+        #expect(await controller.state == .ready)
+        #expect(await hardware.prepareCallCount == 2)
+    }
 }
 
 private actor MockSpeechAudioHardware: SpeechAudioHardware {
@@ -93,16 +167,22 @@ private actor MockSpeechAudioHardware: SpeechAudioHardware {
     private(set) var teardownCallCount = 0
     private(set) var isPrepared = false
     private let blockPreparation: Bool
+    private var failCount: Int
     private var preparationStarted = false
     private var preparationStartWaiters: [CheckedContinuation<Void, Never>] = []
     private var preparationContinuation: CheckedContinuation<Void, Never>?
 
-    init(blockPreparation: Bool = false) {
+    init(blockPreparation: Bool = false, failCount: Int = 0) {
         self.blockPreparation = blockPreparation
+        self.failCount = failCount
     }
 
     func prepare(relay: AudioBufferRelay) async throws {
         prepareCallCount += 1
+        if failCount > 0 {
+            failCount -= 1
+            throw NSError(domain: "MockAudioHardware", code: -1)
+        }
         preparationStarted = true
         preparationStartWaiters.forEach { $0.resume() }
         preparationStartWaiters.removeAll()

@@ -81,7 +81,7 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
                 )
                 return
             }
-            if !isAudioSessionConfigured {
+            if !isAudioSessionConfigured || audioSession.category != .playback {
                 try audioSession.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
                 isAudioSessionConfigured = true
             }

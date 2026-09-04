@@ -257,10 +257,18 @@ public final class LessonLearningViewModel: Identifiable {
             do {
                 try await speechEngine.prepareEngineIfNeeded()
                 try Task.checkCancellation()
-                guard currentExerciseItem?.id == item.id, !isFeedbackPresented else { return }
+                guard currentExerciseItem?.id == item.id, !isFeedbackPresented else {
+                    if speechState != .idle {
+                        speechState = .idle
+                    }
+                    return
+                }
                 speechEngine.resumeListening()
                 speechEngine.beginWord(targetLemma: targetLemma, contextualPhrases: [targetLemma, item.word.exampleEn])
             } catch is CancellationError {
+                if speechState != .idle && currentExerciseItem?.id == item.id {
+                    speechState = .idle
+                }
                 return
             } catch {
                 LessonPerformanceDiagnostics.error("lesson.speaking.prepare", error: error)

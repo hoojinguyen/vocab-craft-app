@@ -136,6 +136,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     public private(set) var isEngineReady: Bool = false
     private var sessionContextualPhrases: [String] = []
     private var pendingPreparationTask: Task<Void, Never>?
+    private var audioLifecycleTask: Task<Void, Never>?
     private let bufferRelay = AudioBufferRelay()
 
     // MARK: - Request layer (word-scoped)
@@ -216,8 +217,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         isSessionActive = false
         isEngineReady = false
         endWord()
-        let controller = audioController
-        Task {
+        enqueueAudioTransition { controller in
             await controller.teardown()
         }
         #if os(iOS)
@@ -235,8 +235,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         pendingPreparationTask = nil
         bufferRelay.mute()
         endWord()
-        let controller = audioController
-        Task {
+        enqueueAudioTransition { controller in
             await controller.pause()
         }
     }
@@ -245,26 +244,43 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         isListeningPaused = false
         bufferRelay.unmute()
         if isSessionActive {
-            let controller = audioController
-            Task {
+            enqueueAudioTransition { controller in
                 try? await controller.resume()
             }
         }
     }
 
+    private func enqueueAudioTransition(_ operation: @escaping @Sendable (any SpeechAudioEngineControlling) async -> Void) {
+        let previousTask = audioLifecycleTask
+        let controller = audioController
+        audioLifecycleTask = Task {
+            _ = await previousTask?.value
+            await operation(controller)
+        }
+    }
+
     public func prepareEngineIfNeeded() async throws {
+        guard isSessionActive, !isListeningPaused else { return }
+        if let audioLifecycleTask {
+            await audioLifecycleTask.value
+        }
         guard isSessionActive, !isListeningPaused else { return }
         if isEngineReady { return }
         do {
             try await audioController.prepare(relay: bufferRelay)
         } catch {
-            onError?(error)
+            if !(error is CancellationError) {
+                onError?(error)
+            }
             throw error
         }
         guard isSessionActive, !Task.isCancelled else {
             isEngineReady = false
             let controller = audioController
             await controller.teardown()
+            if Task.isCancelled {
+                throw CancellationError()
+            }
             return
         }
         isEngineReady = true

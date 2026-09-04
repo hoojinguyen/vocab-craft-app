@@ -309,6 +309,57 @@ struct SpeechEngineReadinessTests {
         #expect(nsDelivered?.domain == "TestAudioError")
         #expect(nsDelivered?.code == 42)
     }
+
+    @Test("Cancellation during preparation does not invoke onError")
+    @MainActor
+    func cancellationDuringPreparationDoesNotInvokeOnError() async throws {
+        let controller = SuspendedSpeechAudioEngineController()
+        let engine = ResilientReflexSpeechEngine(audioController: controller)
+        engine.startSession(contextualPhrases: [], lazy: true)
+
+        var errorDelivered = false
+        engine.onError = { _ in
+            errorDelivered = true
+        }
+
+        let task = Task {
+            try await engine.prepareEngineIfNeeded()
+        }
+        await controller.waitUntilPreparationStarts()
+        task.cancel()
+        await controller.completePreparation()
+        _ = try? await task.value
+
+        #expect(errorDelivered == false)
+        #expect(engine.isEngineReady == false)
+    }
+
+    @Test("Sequential stop and prepare executes teardown before next prepare")
+    @MainActor
+    func sequentialStopAndPrepareExecutesTeardownFirst() async throws {
+        let controller = SuspendedSpeechAudioEngineController()
+        let engine = ResilientReflexSpeechEngine(audioController: controller)
+        engine.startSession(contextualPhrases: [], lazy: true)
+
+        let prepTask = Task { try await engine.prepareEngineIfNeeded() }
+        await controller.waitUntilPreparationStarts()
+        await controller.completePreparation()
+        try await prepTask.value
+        #expect(engine.isEngineReady)
+
+        engine.stopSession()
+        #expect(engine.isSessionActive == false)
+
+        engine.startSession(contextualPhrases: [], lazy: true)
+        let secondPrepTask = Task { try await engine.prepareEngineIfNeeded() }
+        await controller.waitUntilPreparationStarts()
+        await controller.completePreparation()
+        try await secondPrepTask.value
+
+        #expect(engine.isEngineReady)
+        #expect(await controller.teardownCallCount == 1)
+        #expect(await controller.prepareCallCount == 2)
+    }
 }
 
 @Suite("TTS Audio Session Tests")
@@ -330,6 +381,25 @@ struct TTSAudioSessionTests {
         service.speak(text: "test")
         #expect(session.setActiveCallCount == 1)
         #expect(session.setCategoryCallCount == 1)
+    }
+
+    @Test("TTS reconfigures category if switched away from playback")
+    @MainActor
+    func ttsReconfiguresCategoryIfSwitchedAwayFromPlayback() {
+        let session = MockAudioSession(category: .playback, isActive: false)
+        let service = TextToSpeechService(audioSession: session)
+        service.speak(text: "test1")
+        #expect(session.setCategoryCallCount == 1)
+
+        // Second speak without category change should not call setCategory again
+        service.speak(text: "test2")
+        #expect(session.setCategoryCallCount == 1)
+
+        // Simulating external category change to ambient
+        session.category = .ambient
+        service.speak(text: "test3")
+        #expect(session.setCategoryCallCount == 2)
+        #expect(session.category == .playback)
     }
 }
 

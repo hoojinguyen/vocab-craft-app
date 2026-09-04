@@ -24,7 +24,7 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
 
     private(set) var state: State = .idle
 
-    private var preparationTask: Task<Void, Error>?
+    private var preparationTask: Task<UInt, Error>?
     private var teardownTask: Task<Void, Never>?
     private var lifecycleGeneration: UInt = 0
     private var isPaused = false
@@ -50,7 +50,17 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
             return
         }
         if let preparationTask {
-            return try await preparationTask.value
+            let completedGeneration = try await preparationTask.value
+            guard completedGeneration == lifecycleGeneration else {
+                throw CancellationError()
+            }
+            if state == .preparing {
+                state = .ready
+                if isPaused {
+                    await hardware.pause()
+                }
+            }
+            return
         }
 
         state = .preparing
@@ -60,16 +70,19 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
             try Task.checkCancellation()
             try await hardware.prepare(relay: relay)
             try Task.checkCancellation()
+            return generation
         }
         preparationTask = task
 
         do {
-            try await task.value
-            guard generation == lifecycleGeneration else {
-                return
+            let completedGeneration = try await task.value
+            guard completedGeneration == lifecycleGeneration else {
+                throw CancellationError()
             }
             state = .ready
-            isPaused = false
+            if isPaused {
+                await hardware.pause()
+            }
             preparationTask = nil
         } catch {
             if generation == lifecycleGeneration {
@@ -81,6 +94,10 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
     }
 
     func resume() async throws {
+        if state == .preparing {
+            isPaused = false
+            return
+        }
         guard state == .ready, isPaused else {
             return
         }
@@ -95,6 +112,10 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
     }
 
     func pause() async {
+        if state == .preparing {
+            isPaused = true
+            return
+        }
         guard state == .ready, !isPaused else {
             return
         }
