@@ -97,7 +97,7 @@ public struct LessonExerciseContainerView: View {
                         speechState: viewModel.speechState,
                         liveTranscript: viewModel.liveTranscript,
                         onCantSpeakNow: {
-                            viewModel.skipExercise(for: item)
+                            viewModel.handleCantSpeakNow(for: item)
                         },
                         onReplayAudio: {
                             viewModel.playAudio(for: item.word.lemma)
@@ -141,8 +141,6 @@ public struct LessonExerciseContainerView: View {
                         }
 
                         if item.assignedMode == .speaking && viewModel.speechState == .idle {
-                            Spacer()
-
                             CraftButton(
                                 AppStrings.Common.retry,
                                 iconName: "mic.fill",
@@ -154,7 +152,7 @@ public struct LessonExerciseContainerView: View {
                             }
                         }
 
-                        if item.assignedMode == .typing {
+                        if item.assignedMode == .typing || item.assignedMode == .speaking {
                             Spacer()
 
                             CraftButton(
@@ -176,6 +174,10 @@ public struct LessonExerciseContainerView: View {
             .padding(.bottom, theme.spacing.base)
         }
         .task(id: item.id) {
+            // 300ms buffer to allow spring transition animation to complete smoothly at 120Hz
+            try? await Task.sleep(for: .milliseconds(300))
+            guard !Task.isCancelled else { return }
+
             if item.assignedMode == .listening {
                 viewModel.playAudio(for: item.word.lemma)
             } else if item.assignedMode == .speaking {

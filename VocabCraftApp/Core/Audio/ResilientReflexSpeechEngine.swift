@@ -109,8 +109,6 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     private let speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
     private var audioEngine: AVAudioEngine?
     private var sessionContextualPhrases: [String] = []
-    private var sessionStartTime: Date?
-    private var needsEngineRenew: Bool = false
     private var isStartingEngine: Bool = false
     private let bufferRelay = AudioBufferRelay()
 
@@ -135,8 +133,6 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     public func startSession(contextualPhrases: [String], lazy: Bool = false) {
         guard !isSessionActive else { return }
         self.sessionContextualPhrases = contextualPhrases
-        self.sessionStartTime = Date()
-        self.needsEngineRenew = false
         self.isStartingEngine = false
         self.isSessionActive = true
         setupInterruptionObserver()
@@ -177,17 +173,29 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         endWord()
         teardownEngine()
         sessionContextualPhrases = []
-        sessionStartTime = nil
-        needsEngineRenew = false
     }
 
     public func pauseListening() {
         bufferRelay.mute()
         endWord()
+        #if !targetEnvironment(simulator) && !os(macOS)
+        if let engine = audioEngine, engine.isRunning {
+            engine.stop()
+        }
+        #endif
     }
 
     public func resumeListening() {
         bufferRelay.unmute()
+        #if !targetEnvironment(simulator) && !os(macOS)
+        if isSessionActive, let engine = audioEngine, !engine.isRunning {
+            do {
+                try engine.start()
+            } catch {
+                onError?(error)
+            }
+        }
+        #endif
     }
 
     public func prepareEngineIfNeeded() {
@@ -205,10 +213,15 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
             endWord()
         }
 
-        // Proactive engine renewal if near 60s limit
-        if needsEngineRenew {
-            renewEngine()
+        #if !targetEnvironment(simulator) && !os(macOS)
+        if isSessionActive, let engine = audioEngine, !engine.isRunning {
+            do {
+                try engine.start()
+            } catch {
+                onError?(error)
+            }
         }
+        #endif
 
         let token = UUID()
         currentWordSessionToken = token
@@ -237,12 +250,6 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         activeRequest = nil
         activeTask = nil
         isWordActive = false
-
-        // Check if engine needs renewal for next word
-        if let start = sessionStartTime,
-           Date().timeIntervalSince(start) > 50 {
-            needsEngineRenew = true
-        }
     }
 
     public func finalizeWordAudio() {
@@ -353,10 +360,9 @@ extension ResilientReflexSpeechEngine {
             case .success:
                 guard self.isSessionActive else {
                     // Session was stopped while audio session activation was in-flight.
-                    // Clean up immediately to avoid leaving AVAudioSession dangling in active state.
+                    // Switch back to playback category without deactivating shared session to protect CoreHaptics.
                     Task.detached(priority: .userInitiated) {
                         let session = AVAudioSession.sharedInstance()
-                        try? session.setActive(false, options: .notifyOthersOnDeactivation)
                         try? session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
                     }
                     return
@@ -413,7 +419,6 @@ extension ResilientReflexSpeechEngine {
             engine.prepare()
             try engine.start()
             self.audioEngine = engine
-            self.sessionStartTime = Date()
         } catch {
             onError?(error)
         }
@@ -436,21 +441,11 @@ extension ResilientReflexSpeechEngine {
         if !isSessionActive {
             Task.detached(priority: .userInitiated) {
                 let session = AVAudioSession.sharedInstance()
-                try? session.setActive(false, options: .notifyOthersOnDeactivation)
                 try? session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
             }
         }
         #endif
         #endif
-    }
-
-    private func renewEngine() {
-        #if !targetEnvironment(simulator) && !os(macOS)
-        teardownEngine()
-        setupAndStartEngine()
-        #endif
-        needsEngineRenew = false
-        sessionStartTime = Date()
     }
 }
 
@@ -508,9 +503,6 @@ extension ResilientReflexSpeechEngine {
                     if isSessionActive {
                         let session = AVAudioSession.sharedInstance()
                         try? session.setActive(true, options: .notifyOthersOnDeactivation)
-                        if let engine = audioEngine, !engine.isRunning {
-                            try? engine.start()
-                        }
                     }
                     #endif
                     resumeListening()

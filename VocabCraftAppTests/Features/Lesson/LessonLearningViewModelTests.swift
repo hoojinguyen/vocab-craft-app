@@ -601,6 +601,191 @@ struct LessonLearningViewModelTests {
         #expect(speechEngine.isSessionActive == false)
         #expect(speechEngine.stopSessionCallCount >= 1)
     }
+
+    @Test("Verify handleCantSpeakNow disables speaking, stops session, and converts all speaking items to multiple choice")
+    func testHandleCantSpeakNowDisablesSpeakingAndConvertsExercises() throws {
+        let words = makeSampleWords(count: 4)
+        let speechEngine = MockResilientReflexSpeechEngine()
+        let vm = LessonLearningViewModel(
+            stageId: "stage_test",
+            deckId: "deck_test",
+            words: words,
+            completeLessonUseCase: MockCompleteLessonUseCase(),
+            ttsService: MockTextToSpeechService(),
+            soundEffectService: MockSoundEffectService(),
+            speechEngine: speechEngine
+        )
+        vm.startSpeechSession()
+        #expect(speechEngine.isSessionActive == true)
+
+        // Advance to speaking exercise
+        while vm.currentExerciseItem?.assignedMode != .speaking && !vm.isSummaryStep {
+            vm.advanceStep()
+        }
+
+        let speakingItem = try #require(vm.currentExerciseItem)
+        #expect(speakingItem.assignedMode == .speaking)
+
+        // Request hint in speaking mode to test state reset
+        vm.requestHint(for: speakingItem)
+        #expect(vm.hintStage >= 1)
+
+        vm.handleCantSpeakNow(for: speakingItem)
+
+        #expect(vm.isSpeakingDisabledForLesson == true)
+        #expect(vm.hintStage == 0)
+        #expect(vm.eliminatedOptionId == nil)
+        #expect(speechEngine.isSessionActive == false)
+        #expect(speechEngine.stopSessionCallCount >= 1)
+
+        // Current item should now be converted to multiple choice
+        let convertedItem = try #require(vm.currentExerciseItem)
+        #expect(convertedItem.assignedMode == .multipleChoice)
+        #expect(!convertedItem.options.isEmpty)
+        #expect(convertedItem.word.id == speakingItem.word.id)
+
+        // All subsequent steps with speaking mode should be converted to multiple choice
+        for step in vm.steps {
+            if case .exercise(let item) = step {
+                #expect(item.assignedMode != .speaking)
+            }
+        }
+
+        // Calling startSpeechSession after cantSpeakNow should be a no-op
+        vm.startSpeechSession()
+        #expect(speechEngine.isSessionActive == false)
+    }
+
+    @Test("Verify autoPronounceTask speaks vocabulary word after 250ms for non-listening exercise")
+    func testAutoPronounceTaskSpeaksForNonListening() async throws {
+        let words = makeSampleWords(count: 2)
+        let tts = MockTextToSpeechService()
+        let vm = LessonLearningViewModel(
+            stageId: "stage_test",
+            deckId: "deck_test",
+            words: words,
+            completeLessonUseCase: MockCompleteLessonUseCase(),
+            ttsService: tts,
+            soundEffectService: MockSoundEffectService(),
+            speechEngine: MockResilientReflexSpeechEngine()
+        )
+
+        // Advance to non-listening exercise (multiple choice or typing)
+        while (vm.currentExerciseItem == nil || vm.currentExerciseItem?.assignedMode == .listening) && !vm.isSummaryStep {
+            vm.advanceStep()
+        }
+
+        let item = try #require(vm.currentExerciseItem)
+        #expect(item.assignedMode != .listening)
+
+        tts.speakCallCount = 0
+        vm.submitAnswer(isCorrect: true, for: item)
+
+        // Before task completes, speak should not have been called immediately
+        #expect(tts.speakCallCount == 0)
+
+        // Await the autoPronounceTask directly to guarantee completion regardless of runner thread load
+        _ = await vm.autoPronounceTask?.value
+
+        #expect(tts.speakCallCount == 1)
+        #expect(tts.lastSpokenText == item.word.lemma)
+    }
+
+    @Test("Verify autoPronounceTask does not speak for listening exercises")
+    func testAutoPronounceTaskDoesNotSpeakForListening() async throws {
+        let words = makeSampleWords(count: 4)
+        let tts = MockTextToSpeechService()
+        let vm = LessonLearningViewModel(
+            stageId: "stage_test",
+            deckId: "deck_test",
+            words: words,
+            completeLessonUseCase: MockCompleteLessonUseCase(),
+            ttsService: tts,
+            soundEffectService: MockSoundEffectService(),
+            speechEngine: MockResilientReflexSpeechEngine()
+        )
+
+        // Advance to listening exercise
+        while vm.currentExerciseItem?.assignedMode != .listening && !vm.isSummaryStep {
+            vm.advanceStep()
+        }
+
+        let item = try #require(vm.currentExerciseItem)
+        #expect(item.assignedMode == .listening)
+
+        tts.speakCallCount = 0
+        vm.submitAnswer(isCorrect: true, for: item)
+
+        #expect(vm.autoPronounceTask == nil)
+        #expect(tts.speakCallCount == 0)
+    }
+
+    @Test("Verify advanceStep cancels in-flight autoPronounceTask")
+    func testAdvanceStepCancelsAutoPronounceTask() async throws {
+        let words = makeSampleWords(count: 4)
+        let tts = MockTextToSpeechService()
+        let vm = LessonLearningViewModel(
+            stageId: "stage_test",
+            deckId: "deck_test",
+            words: words,
+            completeLessonUseCase: MockCompleteLessonUseCase(),
+            ttsService: tts,
+            soundEffectService: MockSoundEffectService(),
+            speechEngine: MockResilientReflexSpeechEngine()
+        )
+
+        // Advance to non-listening exercise
+        while (vm.currentExerciseItem == nil || vm.currentExerciseItem?.assignedMode == .listening) && !vm.isSummaryStep {
+            vm.advanceStep()
+        }
+
+        let item = try #require(vm.currentExerciseItem)
+        tts.speakCallCount = 0
+        vm.submitAnswer(isCorrect: true, for: item)
+
+        let task = vm.autoPronounceTask
+        #expect(task != nil)
+
+        // Immediately advance step before 250ms delay
+        vm.advanceStep()
+
+        #expect(task?.isCancelled == true)
+        _ = await task?.value
+
+        #expect(tts.speakCallCount == 0)
+    }
+
+    @Test("Verify speechEngine onError does not terminate session and resets speechState to idle")
+    func testSpeechEngineOnErrorKeepsSessionAlive() throws {
+        let words = makeSampleWords(count: 4)
+        let speechEngine = MockResilientReflexSpeechEngine()
+        let vm = LessonLearningViewModel(
+            stageId: "stage_test",
+            deckId: "deck_test",
+            words: words,
+            completeLessonUseCase: MockCompleteLessonUseCase(),
+            ttsService: MockTextToSpeechService(),
+            soundEffectService: MockSoundEffectService(),
+            speechEngine: speechEngine
+        )
+        vm.startSpeechSession()
+
+        // Advance to speaking exercise
+        while vm.currentExerciseItem?.assignedMode != .speaking && !vm.isSummaryStep {
+            vm.advanceStep()
+        }
+
+        let speakingItem = try #require(vm.currentExerciseItem)
+        vm.startListeningForSpeaking(targetLemma: speakingItem.word.lemma, item: speakingItem)
+        #expect(speechEngine.isSessionActive == true)
+
+        // Simulate error callback
+        speechEngine.onError?(NSError(domain: "test.speech", code: 500))
+
+        #expect(vm.speechState == .idle)
+        #expect(speechEngine.isSessionActive == true)
+        #expect(speechEngine.stopSessionCallCount == 0)
+    }
 }
 
 extension TopicWordDTO {

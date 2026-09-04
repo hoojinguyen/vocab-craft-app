@@ -137,7 +137,7 @@ public struct LessonLearningView: View {
                         CraftFeedbackSheet(
                             status: viewModel.lastAttemptCorrect ? .success : .error,
                             title: viewModel.lastAttemptCorrect ? AppStrings.ReflexBlitz.correctTitleText : AppStrings.ReflexBlitz.incorrectTitleText,
-                            message: viewModel.lastAttemptCorrect ? nil : (viewModel.currentExerciseItem.map { AppStrings.Lesson.correctAnswerFormat($0.word.lemma) }),
+                            message: nil,
                             actionTitle: AppStrings.ReflexBlitz.continueCTAText,
                             streakCount: nil,
                             style: .tactile3D,
@@ -153,7 +153,7 @@ public struct LessonLearningView: View {
             }
         }
         .ignoresSafeArea(edges: .bottom)
-        .animation(.smooth(duration: 0.28), value: viewModel.currentStepIndex)
+        .animation(.spring(response: 0.35, dampingFraction: 0.85), value: viewModel.currentStepIndex)
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: isCountingDown)
         .interactiveDismissDisabled(!viewModel.isSummaryStep)
         .onAppear {

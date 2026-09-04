@@ -49,6 +49,19 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
         XCTAssertTrue(engine.isSessionActive)
     }
 
+    func testPauseAndResumeListening_lifecycle() {
+        engine.startSession(contextualPhrases: ["test"])
+        engine.beginWord(targetLemma: "test", contextualPhrases: [])
+        XCTAssertTrue(engine.isWordActive)
+
+        engine.pauseListening()
+        XCTAssertFalse(engine.isWordActive)
+        XCTAssertTrue(engine.isSessionActive)
+
+        engine.resumeListening()
+        XCTAssertTrue(engine.isSessionActive)
+    }
+
     func testMultipleWordCycles_nocrash() {
         engine.startSession(contextualPhrases: [])
         for i in 0..<10 {
