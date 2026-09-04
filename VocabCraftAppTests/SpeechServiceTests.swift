@@ -225,5 +225,19 @@ final class SpeechServiceTests: XCTestCase {
         XCTAssertEqual(concreteMock.resumeListeningCallCount, 1)
         XCTAssertEqual(concreteMock.stopSessionCallCount, 1)
     }
+
+    func testEngineLazySessionInitialization() {
+        let engine = ResilientReflexSpeechEngine()
+        XCTAssertFalse(engine.isSessionActive)
+
+        engine.startSession(contextualPhrases: ["test"], lazy: true)
+        XCTAssertTrue(engine.isSessionActive)
+
+        engine.prepareEngineIfNeeded()
+        XCTAssertTrue(engine.isSessionActive)
+
+        engine.stopSession()
+        XCTAssertFalse(engine.isSessionActive)
+    }
 }
 #endif

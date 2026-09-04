@@ -523,5 +523,126 @@ struct LessonLearningViewModelTests {
         #expect(vm.isSummaryStep)
         #expect(vm.summary != nil)
     }
+
+    @Test("Verify transition from speaking to non-speaking pauses rather than stops speech session")
+    func testTransitionMaintainsSpeechSession() {
+        let mockWord = TopicWordDTO(id: "w1", lemma: "apple", phonetics: "/ˈæp.əl/", meaningVi: "quả táo", exampleEn: "An apple a day", exampleVi: "Một quả táo mỗi ngày", partOfSpeech: "noun")
+        let vm = LessonLearningViewModel(stageId: "stage_test", deckId: "deck_test", words: [mockWord])
+        vm.startSpeechSession()
+        #expect(vm.speechEngine.isSessionActive == true)
+        vm.stopListeningForSpeaking()
+        #expect(vm.speechEngine.isSessionActive == true)
+        vm.cleanup()
+        #expect(vm.speechEngine.isSessionActive == false)
+    }
+
+    @Test("Verify startListeningForSpeaking lazily prepares engine and resumes listening")
+    func testStartListeningPreparesEngineAndResumesListening() throws {
+        let words = makeSampleWords(count: 4)
+        let speechEngine = MockResilientReflexSpeechEngine()
+        let vm = LessonLearningViewModel(
+            stageId: "stage_test",
+            deckId: "deck_test",
+            words: words,
+            completeLessonUseCase: MockCompleteLessonUseCase(),
+            ttsService: MockTextToSpeechService(),
+            soundEffectService: MockSoundEffectService(),
+            speechEngine: speechEngine
+        )
+        vm.startSpeechSession()
+        #expect(speechEngine.isSessionActive == true)
+        #expect(speechEngine.prepareEngineIfNeededCallCount == 0)
+
+        // Advance to speaking exercise
+        while vm.currentExerciseItem?.assignedMode != .speaking && !vm.isSummaryStep {
+            vm.advanceStep()
+        }
+
+        let speakingItem = try #require(vm.currentExerciseItem)
+        vm.startListeningForSpeaking(targetLemma: speakingItem.word.lemma, item: speakingItem)
+
+        #expect(speechEngine.prepareEngineIfNeededCallCount == 1)
+        #expect(speechEngine.resumeListeningCallCount == 1)
+
+        vm.stopListeningForSpeaking()
+        #expect(speechEngine.pauseListeningCallCount == 1)
+        #expect(speechEngine.isSessionActive == true)
+
+        vm.cleanup()
+        #expect(speechEngine.isSessionActive == false)
+        #expect(speechEngine.stopSessionCallCount == 1)
+    }
+
+    @Test("Verify finishLesson triggers cleanup and deactivates speech session")
+    func testFinishLessonPerformsSpeechCleanup() {
+        let words = makeSampleWords(count: 2)
+        let speechEngine = MockResilientReflexSpeechEngine()
+        let vm = LessonLearningViewModel(
+            stageId: "stage_test",
+            deckId: "deck_test",
+            words: words,
+            completeLessonUseCase: MockCompleteLessonUseCase(),
+            ttsService: MockTextToSpeechService(),
+            soundEffectService: MockSoundEffectService(),
+            speechEngine: speechEngine
+        )
+        vm.startSpeechSession()
+        #expect(speechEngine.isSessionActive == true)
+
+        // Advance through all steps to complete lesson
+        while !vm.isSummaryStep {
+            if let item = vm.currentExerciseItem {
+                vm.submitAnswer(isCorrect: true, for: item)
+            }
+            vm.advanceStep()
+        }
+
+        #expect(vm.isSummaryStep == true)
+        #expect(speechEngine.isSessionActive == false)
+        #expect(speechEngine.stopSessionCallCount >= 1)
+    }
+}
+
+extension TopicWordDTO {
+    fileprivate init(
+        id: String,
+        lemma: String,
+        phonetics: String,
+        meaningVi: String,
+        exampleEn: String,
+        exampleVi: String,
+        partOfSpeech: String
+    ) {
+        self.init(
+            id: Int64(id.filter(\.isNumber)) ?? 1,
+            stageId: "stage_test",
+            lemma: lemma,
+            phonetic: phonetics,
+            pos: partOfSpeech,
+            cefrLevel: "A1",
+            definitionVi: meaningVi,
+            definitionEn: "",
+            exampleEn: exampleEn,
+            exampleVi: exampleVi
+        )
+    }
+}
+
+extension LessonLearningViewModel {
+    fileprivate convenience init(
+        stageId: String,
+        deckId: String,
+        words: [TopicWordDTO]
+    ) {
+        self.init(
+            stageId: stageId,
+            deckId: deckId,
+            words: words,
+            completeLessonUseCase: MockCompleteLessonUseCase(),
+            ttsService: MockTextToSpeechService(),
+            soundEffectService: MockSoundEffectService(),
+            speechEngine: MockResilientReflexSpeechEngine()
+        )
+    }
 }
 #endif

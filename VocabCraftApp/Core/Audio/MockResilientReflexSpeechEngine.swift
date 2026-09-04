@@ -19,12 +19,18 @@ public final class MockResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     public var endWordCallCount: Int = 0
     public var lastTargetLemma: String = ""
     public var lastContextualPhrases: [String] = []
+    public var lastStartSessionWasLazy: Bool = false
 
     public init() {}
 
-    public func startSession(contextualPhrases: [String]) {
+    public func startSession(contextualPhrases: [String], lazy: Bool = false) {
         isSessionActive = true
         startSessionCallCount += 1
+        lastStartSessionWasLazy = lazy
+    }
+
+    public func startSession(contextualPhrases: [String]) {
+        startSession(contextualPhrases: contextualPhrases, lazy: false)
     }
 
     public func stopSession() {

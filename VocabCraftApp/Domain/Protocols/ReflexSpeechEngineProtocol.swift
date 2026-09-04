@@ -10,6 +10,7 @@ public protocol ReflexSpeechEngineProtocol: AnyObject {
     var onError: ((Error) -> Void)? { get set }
 
     func startSession(contextualPhrases: [String])
+    func startSession(contextualPhrases: [String], lazy: Bool)
     func stopSession()
     func pauseListening()
     func resumeListening()
@@ -22,6 +23,9 @@ public protocol ReflexSpeechEngineProtocol: AnyObject {
 }
 
 public extension ReflexSpeechEngineProtocol {
+    func startSession(contextualPhrases: [String], lazy: Bool) {
+        startSession(contextualPhrases: contextualPhrases)
+    }
     func pauseListening() {}
     func resumeListening() {}
     func prepareEngineIfNeeded() {}

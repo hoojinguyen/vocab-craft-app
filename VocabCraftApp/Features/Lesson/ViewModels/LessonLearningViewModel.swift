@@ -31,7 +31,7 @@ public final class LessonLearningViewModel: Identifiable {
     private let completeLessonUseCase: CompleteLessonUseCaseProtocol
     private let ttsService: TextToSpeechProtocol
     private let soundEffectService: SoundEffectServiceProtocol
-    private let speechEngine: ReflexSpeechEngineProtocol
+    public let speechEngine: ReflexSpeechEngineProtocol
     private let initialStepCount: Int
 
     public private(set) var completionTask: Task<LessonCompletionResult, Error>?
@@ -91,20 +91,21 @@ public final class LessonLearningViewModel: Identifiable {
 
     public func startSpeechSession() {
         let contextualPhrases = words.map(\.lemma)
-        speechEngine.startSession(contextualPhrases: contextualPhrases)
+        speechEngine.startSession(contextualPhrases: contextualPhrases, lazy: true)
     }
 
     public func stopSpeechSession() {
         ttsService.stop()
-        stopListeningForSpeaking()
-        speechEngine.stopSession()
+        cleanup()
     }
 
     public func advanceStep() {
         guard !isSummaryStep else { return }
         maxProgress = max(maxProgress, progress)
         ttsService.stop()
-        stopListeningForSpeaking()
+        if speechEngine.isWordActive || speechState != .idle {
+            stopListeningForSpeaking()
+        }
         isFeedbackPresented = false
         typingText = ""
         liveTranscript = ""
@@ -219,14 +220,22 @@ public final class LessonLearningViewModel: Identifiable {
         if !speechEngine.isSessionActive {
             startSpeechSession()
         }
+        speechEngine.prepareEngineIfNeeded()
+        speechEngine.resumeListening()
         speechEngine.beginWord(targetLemma: targetLemma, contextualPhrases: [targetLemma, item.word.exampleEn])
     }
 
     public func stopListeningForSpeaking() {
-        speechEngine.endWord()
+        speechEngine.pauseListening()
         speechEngine.onMatchDetected = nil
         speechEngine.onTranscriptUpdate = nil
         speechEngine.onError = nil
+        speechState = .idle
+    }
+
+    public func cleanup() {
+        stopListeningForSpeaking()
+        speechEngine.stopSession()
     }
 
     public func retrySpeaking(for item: LessonExerciseItem) {
@@ -237,7 +246,8 @@ public final class LessonLearningViewModel: Identifiable {
 
     private func finishLesson() {
         guard completionTask == nil else { return }
-        stopSpeechSession()
+        ttsService.stop()
+        cleanup()
 
         let stars = mistakeCount == 0 ? 3 : (mistakeCount <= 2 ? 2 : 1)
         let isCheckpoint = stageId.hasPrefix("checkpoint_")
@@ -324,5 +334,18 @@ public final class LessonLearningViewModel: Identifiable {
             return try await retryCompletion()
         }
         return nil
+    }
+
+    deinit {
+        if Thread.isMainThread {
+            MainActor.assumeIsolated {
+                cleanup()
+            }
+        } else {
+            Task { @MainActor [speechEngine] in
+                speechEngine.pauseListening()
+                speechEngine.stopSession()
+            }
+        }
     }
 }

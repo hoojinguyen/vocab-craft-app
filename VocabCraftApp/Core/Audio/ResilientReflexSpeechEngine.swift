@@ -107,7 +107,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
 
     // MARK: - Session Lifecycle
 
-    public func startSession(contextualPhrases: [String]) {
+    public func startSession(contextualPhrases: [String], lazy: Bool = false) {
         guard !isSessionActive else { return }
         self.sessionContextualPhrases = contextualPhrases
         self.sessionStartTime = Date()
@@ -115,18 +115,24 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         self.isStartingEngine = false
         self.isSessionActive = true
 
-        #if targetEnvironment(simulator) || os(macOS)
-        // Simulator: no real audio engine
-        #else
-        requestAuthorizationAndStartEngine()
-        #endif
+        if !lazy {
+            #if targetEnvironment(simulator) || os(macOS)
+            // Simulator: no real audio engine
+            #else
+            requestAuthorizationAndStartEngine()
+            #endif
+        }
+    }
+
+    public func startSession(contextualPhrases: [String]) {
+        startSession(contextualPhrases: contextualPhrases, lazy: false)
     }
 
     public func stopSession() {
         isStartingEngine = false
+        isSessionActive = false
         endWord()
         teardownEngine()
-        isSessionActive = false
         sessionContextualPhrases = []
         sessionStartTime = nil
         needsEngineRenew = false
@@ -384,10 +390,12 @@ extension ResilientReflexSpeechEngine {
         audioEngine = nil
 
         #if os(iOS)
-        Task.detached(priority: .userInitiated) {
-            let session = AVAudioSession.sharedInstance()
-            try? session.setActive(false, options: .notifyOthersOnDeactivation)
-            try? session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
+        if !isSessionActive {
+            Task.detached(priority: .userInitiated) {
+                let session = AVAudioSession.sharedInstance()
+                try? session.setActive(false, options: .notifyOthersOnDeactivation)
+                try? session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
+            }
         }
         #endif
         #endif
