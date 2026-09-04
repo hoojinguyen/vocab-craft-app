@@ -83,6 +83,7 @@ public struct HomepageView: View {
                             CraftFluidJourney(
                                 sections: viewModel.sections,
                                 surfaceStyle: .tactile3D,
+                                isSuspended: activeLessonLearningVM != nil,
                                 deckTitle: viewModel.currentDeckTitle,
                                 deckSubtitle: viewModel.currentDeckSubtitle,
                                 onNodeTap: { node in
@@ -354,6 +355,8 @@ private extension HomepageView {
                 deckId: deckId,
                 words: words
             )
+            // Allow CoreAnimation buffer recovery (~150ms) after sheet dismissal before presenting cover
+            try? await Task.sleep(for: .milliseconds(150))
             await MainActor.run {
                 guard !Task.isCancelled, appRouter.selectedTab == .home else { return }
                 self.activeLessonLearningVM = vm
@@ -391,8 +394,8 @@ private extension HomepageView {
 
             await MainActor.run {
                 activeLessonLearningVM = nil
+                viewModel.applyCompletedLesson(stageId: summary.stageId)
             }
-            await viewModel.loadLearningPath()
             await MainActor.run {
                 let starIcons = String(repeating: "★", count: summary.stars)
                 CraftHaptics.shared.success()

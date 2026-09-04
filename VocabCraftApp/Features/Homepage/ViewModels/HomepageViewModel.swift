@@ -129,4 +129,39 @@ public final class HomepageViewModel {
         self.isDetailSheetPresented = false
         self.selectedNode = nil
     }
+
+    public func applyCompletedLesson(stageId: String) {
+        var updatedSections = sections
+        var foundLocation: (secIdx: Int, nodeIdx: Int)?
+
+        for (sIdx, sec) in updatedSections.enumerated() {
+            if let nIdx = sec.nodes.firstIndex(where: { $0.id == stageId }) {
+                foundLocation = (sIdx, nIdx)
+                break
+            }
+        }
+
+        guard let (sIdx, nIdx) = foundLocation else { return }
+
+        var completedNode = updatedSections[sIdx].nodes[nIdx]
+        completedNode.state = .completed
+        updatedSections[sIdx].nodes[nIdx] = completedNode
+
+        if nIdx + 1 < updatedSections[sIdx].nodes.count {
+            var nextNode = updatedSections[sIdx].nodes[nIdx + 1]
+            if nextNode.state == .locked || nextNode.state == .upcoming {
+                nextNode.state = .active
+                updatedSections[sIdx].nodes[nIdx + 1] = nextNode
+            }
+        } else if sIdx + 1 < updatedSections.count, !updatedSections[sIdx + 1].nodes.isEmpty {
+            var nextNode = updatedSections[sIdx + 1].nodes[0]
+            if nextNode.state == .locked || nextNode.state == .upcoming {
+                nextNode.state = .active
+                updatedSections[sIdx + 1].nodes[0] = nextNode
+            }
+        }
+
+        self.sections = updatedSections
+        refreshDailyProgress()
+    }
 }

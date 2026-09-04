@@ -330,6 +330,20 @@ struct HomepageViewModelTestingTests {
         let vmMulti = HomepageViewModel(sections: [sectionMulti])
         #expect(vmMulti.currentDeckSubtitle == "Present Simple")
     }
+
+    @Test("Verify applyCompletedLesson marks node completed and unlocks next node in-place")
+    @MainActor
+    func testApplyCompletedLessonInPlace() {
+        let firstNode = LessonNodeModel(id: "node_1", title: "Lesson 1", state: .active)
+        let secondNode = LessonNodeModel(id: "node_2", title: "Lesson 2", state: .upcoming)
+        let section = LessonSection(id: "sec_1", title: "Unit 1", nodes: [firstNode, secondNode])
+        let vm = HomepageViewModel(sections: [section])
+
+        vm.applyCompletedLesson(stageId: "node_1")
+
+        #expect(vm.sections.first?.nodes[0].state == .completed)
+        #expect(vm.sections.first?.nodes[1].state == .active)
+    }
 }
 #endif
 

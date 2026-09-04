@@ -38,7 +38,7 @@ public struct LessonNodeModel: Identifiable, Sendable, Equatable, Hashable {
     public let title: String
     public let subtitle: String?
     public let iconName: String
-    public let state: LessonNodeState
+    public var state: LessonNodeState
     public let kind: LessonNodeKind
     public let progress: Double?
     public let xpReward: Int?
@@ -166,6 +166,7 @@ public enum SmartConnectorStyle: String, Sendable, Equatable, Hashable, CaseIter
 public enum ConnectorStyle: Sendable, Equatable {
     case dashed                             // Dotted/dashed line (default)
     case solid                              // Continuous solid line
+    // swiftlint:disable:next identifier_name
     case gradient(from: Color, to: Color)   // Gradient fill along path
     case animated                           // Flowing dots animation
 }
@@ -181,7 +182,7 @@ public struct LessonSection: Identifiable, Sendable, Equatable {
     public let progressText: String?
     public let progressValue: Double?
     public let bannerIcon: String?
-    public let nodes: [LessonNodeModel]
+    public var nodes: [LessonNodeModel]
     public let winding: SerpentineWinding
     public let connectorStyle: ConnectorStyle
     public let rowPattern: RowPattern
@@ -237,7 +238,7 @@ public struct LessonSection: Identifiable, Sendable, Equatable {
 }
 
 // MARK: - RowPattern
- 
+
 /// Layout pattern determining how sequential lesson nodes are grouped across rows.
 public enum RowPattern: Sendable, Equatable {
     case standard           // [1, 2, 1, 2, ...]
