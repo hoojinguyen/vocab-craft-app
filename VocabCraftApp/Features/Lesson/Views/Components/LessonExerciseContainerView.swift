@@ -40,7 +40,7 @@ public struct LessonExerciseContainerView: View {
                         hintStage: viewModel.hintStage,
                         selectedOptionText: selectedOption?.text,
                         clozeStages: clozeStages,
-                        clozeParts: ReflexClozeFormatter.extractTemplateParts(from: clozeStages.initialParts.prefix + clozeStages.initialParts.slot + clozeStages.initialParts.suffix),
+                        clozeParts: clozeStages.initialParts,
                         displayedSentence: viewModel.isFeedbackPresented ? item.word.exampleEn : "",
                         cardBorderColor: theme.colors.hairline.opacity(0.4),
                         eliminatedOptionId: viewModel.eliminatedOptionId,
@@ -66,7 +66,7 @@ public struct LessonExerciseContainerView: View {
                         hintStage: viewModel.hintStage,
                         selectedOptionText: selectedOption?.text,
                         clozeStages: clozeStages,
-                        clozeParts: ReflexClozeFormatter.extractTemplateParts(from: clozeStages.initialParts.prefix + clozeStages.initialParts.slot + clozeStages.initialParts.suffix),
+                        clozeParts: clozeStages.initialParts,
                         displayedSentence: viewModel.isFeedbackPresented ? item.word.exampleEn : "",
                         cardBorderColor: theme.colors.hairline.opacity(0.4),
                         eliminatedOptionId: viewModel.eliminatedOptionId,
@@ -92,7 +92,7 @@ public struct LessonExerciseContainerView: View {
                         showHint: viewModel.hintStage >= 1,
                         hintStage: viewModel.hintStage,
                         clozeStages: clozeStages,
-                        clozeParts: ReflexClozeFormatter.extractTemplateParts(from: clozeStages.initialParts.prefix + clozeStages.initialParts.slot + clozeStages.initialParts.suffix),
+                        clozeParts: clozeStages.initialParts,
                         displayedSentence: viewModel.isFeedbackPresented ? item.word.exampleEn : "",
                         speechState: viewModel.speechState,
                         liveTranscript: viewModel.liveTranscript,
@@ -103,12 +103,6 @@ public struct LessonExerciseContainerView: View {
                             viewModel.playAudio(for: item.word.lemma)
                         }
                     )
-                    .onAppear {
-                        viewModel.startSpeechSession()
-                    }
-                    .onDisappear {
-                        viewModel.stopSpeechSession()
-                    }
 
                 case .typing:
                     ReflexTypingModeView(
@@ -121,7 +115,7 @@ public struct LessonExerciseContainerView: View {
                         typingText: $viewModel.typingText,
                         userSubmittedText: viewModel.typingText,
                         clozeStages: clozeStages,
-                        clozeParts: ReflexClozeFormatter.extractTemplateParts(from: clozeStages.initialParts.prefix + clozeStages.initialParts.slot + clozeStages.initialParts.suffix),
+                        clozeParts: clozeStages.initialParts,
                         displayedSentence: viewModel.isFeedbackPresented ? item.word.exampleEn : "",
                         onSubmit: {
                             guard !viewModel.isFeedbackPresented else { return }

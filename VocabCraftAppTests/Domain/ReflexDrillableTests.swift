@@ -157,5 +157,16 @@ struct ReflexDrillableTests {
         #expect(drillable.cleanLevel == "B1")
         #expect(drillable.cleanInitialLetterHint == "a... • verb")
     }
+
+    @Test("Verify initialParts matches cloze sentence structure directly")
+    func testInitialPartsDirectStructure() {
+        let stages = ReflexHintMaskGenerator.generateStages(
+            lemma: "apple",
+            sentenceEn: "She has an apple for breakfast."
+        )
+        #expect(stages.initialParts.slot == "[ _ _ _ _ _ ]")
+        #expect(stages.initialParts.prefix.contains("She has an"))
+        #expect(stages.initialParts.suffix.contains("for breakfast."))
+    }
 }
 #endif
