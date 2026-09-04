@@ -176,7 +176,7 @@ public struct LessonExerciseContainerView: View {
         .task(id: item.id) {
             // 300ms buffer to allow spring transition animation to complete smoothly at 120Hz
             try? await Task.sleep(for: .milliseconds(300))
-            guard !Task.isCancelled else { return }
+            guard !Task.isCancelled, !viewModel.isFeedbackPresented, viewModel.speechState == .idle else { return }
 
             if item.assignedMode == .listening {
                 viewModel.playAudio(for: item.word.lemma)

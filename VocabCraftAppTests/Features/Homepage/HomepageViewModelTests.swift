@@ -379,6 +379,30 @@ struct HomepageViewModelTestingTests {
         #expect(vm.sections[1].progressValue == 0.5 / 2.0)
         #expect(vm.sections[1].progressText == AppStrings.Home.sectionProgress(completed: 0, total: 2))
     }
+
+    @Test("Verify applyCompletedLesson on treasure node does not unlock next unit")
+    @MainActor
+    func testApplyCompletedLessonOnTreasureDoesNotUnlockNextUnit() {
+        let node1 = LessonNodeModel(id: "s1", title: "L1", state: .completed)
+        let checkpoint = LessonNodeModel(id: "cp1", title: "Checkpoint", state: .active, kind: .checkpoint)
+        let treasure = LessonNodeModel(id: "tr1", title: "Treasure", state: .upcoming, kind: .treasureChest)
+        let sec1 = LessonSection(id: "unit_1", title: "Unit 1", nodes: [node1, checkpoint, treasure])
+
+        let sec2Node1 = LessonNodeModel(id: "s2_1", title: "L2.1", state: .locked)
+        let sec2Node2 = LessonNodeModel(id: "s2_2", title: "L2.2", state: .locked)
+        let sec2 = LessonSection(id: "unit_2", title: "Unit 2", nodes: [sec2Node1, sec2Node2])
+
+        let vm = HomepageViewModel(sections: [sec1, sec2])
+
+        vm.applyCompletedLesson(stageId: "tr1")
+
+        // Section 1 checks: treasure is completed
+        #expect(vm.sections[0].nodes[2].state == .completed)
+
+        // Section 2 checks: remains locked
+        #expect(vm.sections[1].nodes[0].state == .locked)
+        #expect(vm.sections[1].nodes[1].state == .locked)
+    }
 }
 #endif
 

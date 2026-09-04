@@ -20,6 +20,7 @@ public protocol ReflexSpeechEngineProtocol: AnyObject {
     /// Signal end of audio input without cancelling the recognition task.
     /// Allows in-flight audio buffers to be processed before full teardown.
     func finalizeWordAudio()
+    var isListeningPaused: Bool { get }
 }
 
 public extension ReflexSpeechEngineProtocol {
@@ -29,4 +30,5 @@ public extension ReflexSpeechEngineProtocol {
     func pauseListening() {}
     func resumeListening() {}
     func prepareEngineIfNeeded() {}
+    var isListeningPaused: Bool { false }
 }

@@ -98,6 +98,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     // MARK: - Observable State
     public private(set) var isSessionActive: Bool = false
     public private(set) var isWordActive: Bool = false
+    public private(set) var isListeningPaused: Bool = false
     public private(set) var liveTranscript: String = ""
 
     // MARK: - Callbacks
@@ -110,6 +111,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     private var audioEngine: AVAudioEngine?
     private var sessionContextualPhrases: [String] = []
     private var isStartingEngine: Bool = false
+    private var pendingSetupTask: Task<Void, Never>?
     private let bufferRelay = AudioBufferRelay()
 
     // MARK: - Request layer (word-scoped)
@@ -134,6 +136,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         guard !isSessionActive else { return }
         self.sessionContextualPhrases = contextualPhrases
         self.isStartingEngine = false
+        self.isListeningPaused = false
         self.isSessionActive = true
         setupInterruptionObserver()
 
@@ -168,7 +171,10 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
 
     public func stopSession() {
         removeInterruptionObserver()
+        pendingSetupTask?.cancel()
+        pendingSetupTask = nil
         isStartingEngine = false
+        isListeningPaused = false
         isSessionActive = false
         endWord()
         teardownEngine()
@@ -176,6 +182,9 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     }
 
     public func pauseListening() {
+        isListeningPaused = true
+        pendingSetupTask?.cancel()
+        pendingSetupTask = nil
         bufferRelay.mute()
         endWord()
         #if !targetEnvironment(simulator) && !os(macOS)
@@ -186,13 +195,20 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     }
 
     public func resumeListening() {
+        isListeningPaused = false
         bufferRelay.unmute()
         #if !targetEnvironment(simulator) && !os(macOS)
-        if isSessionActive, let engine = audioEngine, !engine.isRunning {
-            do {
-                try engine.start()
-            } catch {
-                onError?(error)
+        if isSessionActive {
+            if let engine = audioEngine {
+                if !engine.isRunning {
+                    do {
+                        try engine.start()
+                    } catch {
+                        onError?(error)
+                    }
+                }
+            } else if !isStartingEngine {
+                prepareEngineIfNeeded()
             }
         }
         #endif
@@ -200,7 +216,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
 
     public func prepareEngineIfNeeded() {
         #if !targetEnvironment(simulator) && !os(macOS)
-        guard isSessionActive, audioEngine == nil, !isStartingEngine else { return }
+        guard isSessionActive, !isListeningPaused, audioEngine == nil, !isStartingEngine else { return }
         requestAuthorizationAndStartEngine()
         #endif
     }
@@ -213,12 +229,15 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
             endWord()
         }
 
+        isListeningPaused = false
+
         #if !targetEnvironment(simulator) && !os(macOS)
         if isSessionActive, let engine = audioEngine, !engine.isRunning {
             do {
                 try engine.start()
             } catch {
                 onError?(error)
+                return
             }
         }
         #endif
@@ -334,10 +353,11 @@ extension ResilientReflexSpeechEngine {
     }
 
     private func setupAndStartEngine() {
-        guard !isStartingEngine else { return }
+        guard !isStartingEngine, !isListeningPaused else { return }
         isStartingEngine = true
 
-        Task(priority: .userInitiated) {
+        pendingSetupTask?.cancel()
+        pendingSetupTask = Task(priority: .userInitiated) {
             #if os(iOS)
             let sessionResult = await Task.detached(priority: .userInitiated) { () -> Result<Void, Error> in
                 do {
@@ -356,24 +376,27 @@ extension ResilientReflexSpeechEngine {
 
             self.isStartingEngine = false
 
-            switch sessionResult {
-            case .success:
-                guard self.isSessionActive else {
+            guard !Task.isCancelled, self.isSessionActive, !self.isListeningPaused else {
+                if !self.isSessionActive {
                     // Session was stopped while audio session activation was in-flight.
                     // Switch back to playback category without deactivating shared session to protect CoreHaptics.
                     Task.detached(priority: .userInitiated) {
                         let session = AVAudioSession.sharedInstance()
                         try? session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
                     }
-                    return
                 }
+                return
+            }
+
+            switch sessionResult {
+            case .success:
                 self.startAudioEngine()
             case .failure(let error):
                 self.onError?(error)
             }
             #else
             self.isStartingEngine = false
-            guard self.isSessionActive else { return }
+            guard !Task.isCancelled, self.isSessionActive, !self.isListeningPaused else { return }
             self.startAudioEngine()
             #endif
         }
@@ -427,6 +450,8 @@ extension ResilientReflexSpeechEngine {
 
     private func teardownEngine() {
         #if !targetEnvironment(simulator) && !os(macOS)
+        pendingSetupTask?.cancel()
+        pendingSetupTask = nil
         isStartingEngine = false
         bufferRelay.detachAndEnd()
         if let engine = audioEngine {

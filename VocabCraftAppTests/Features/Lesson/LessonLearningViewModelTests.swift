@@ -656,6 +656,54 @@ struct LessonLearningViewModelTests {
         #expect(speechEngine.isSessionActive == false)
     }
 
+    @Test("Verify startListeningForSpeaking is a no-op when feedback is presented or speechState is not idle")
+    func testStartListeningForSpeakingGuardedAgainstFeedbackAndNonIdle() throws {
+        let words = makeSampleWords(count: 4)
+        let speechEngine = MockResilientReflexSpeechEngine()
+        let vm = LessonLearningViewModel(
+            stageId: "stage_test",
+            deckId: "deck_test",
+            words: words,
+            completeLessonUseCase: MockCompleteLessonUseCase(),
+            ttsService: MockTextToSpeechService(),
+            soundEffectService: MockSoundEffectService(),
+            speechEngine: speechEngine
+        )
+
+        // Advance to speaking exercise
+        while vm.currentExerciseItem?.assignedMode != .speaking && !vm.isSummaryStep {
+            vm.advanceStep()
+        }
+
+        let speakingItem = try #require(vm.currentExerciseItem)
+        #expect(vm.speechState == .idle)
+
+        // Case 1: When isFeedbackPresented is true, startListeningForSpeaking should do nothing
+        vm.isFeedbackPresented = true
+        vm.startListeningForSpeaking(targetLemma: speakingItem.word.lemma, item: speakingItem)
+        #expect(vm.speechState == .idle)
+        #expect(speechEngine.beginWordCallCount == 0)
+
+        // Reset feedback
+        vm.isFeedbackPresented = false
+
+        // Case 2: When speechState is already non-idle (e.g. evaluating or listening), calling it should not restart
+        vm.speechState = .evaluated(overallScore: 1.0)
+        vm.startListeningForSpeaking(targetLemma: speakingItem.word.lemma, item: speakingItem)
+        #expect(vm.speechState == .evaluated(overallScore: 1.0))
+        #expect(speechEngine.beginWordCallCount == 0)
+
+        // Case 3: When idle and feedback not presented, startListeningForSpeaking starts normally
+        vm.speechState = .idle
+        vm.startListeningForSpeaking(targetLemma: speakingItem.word.lemma, item: speakingItem)
+        if case .listening = vm.speechState {
+            #expect(Bool(true))
+        } else {
+            #expect(Bool(false), "Expected speechState to be listening")
+        }
+        #expect(speechEngine.beginWordCallCount == 1)
+    }
+
     @Test("Verify autoPronounceTask speaks vocabulary word after 250ms for non-listening exercise")
     func testAutoPronounceTaskSpeaksForNonListening() async throws {
         let words = makeSampleWords(count: 2)

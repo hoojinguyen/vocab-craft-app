@@ -216,6 +216,7 @@ public final class LessonLearningViewModel: Identifiable {
 
     public func startListeningForSpeaking(targetLemma: String, item: LessonExerciseItem) {
         guard !isSpeakingDisabledForLesson else { return }
+        guard !isFeedbackPresented && speechState == .idle else { return }
         speechState = .listening(audioLevels: [0.5, 0.6, 0.4])
         liveTranscript = ""
 

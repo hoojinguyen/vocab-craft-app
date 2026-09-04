@@ -90,12 +90,7 @@ public struct CraftSparkleView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .contentShape(Rectangle())
-            .onTapGesture {
-                guard isRunning else { return }
-                dismissImmediately()
-            }
-            .allowsHitTesting(isRunning)
+            .allowsHitTesting(false)
             .onAppear {
                 if geometry.size.width > 0 && geometry.size.height > 0 {
                     containerSize = geometry.size

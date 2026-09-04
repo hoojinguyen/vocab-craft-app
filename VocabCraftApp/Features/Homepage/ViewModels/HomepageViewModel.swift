@@ -142,7 +142,7 @@ public final class HomepageViewModel {
         case .checkpoint:
             handleCheckpointCompletion(sIdx: sIdx, nIdx: nIdx, in: &updatedSections)
         case .treasureChest:
-            unlockNextSection(after: sIdx, in: &updatedSections)
+            break
         default:
             handleStandardNodeCompletion(sIdx: sIdx, nIdx: nIdx, in: &updatedSections)
         }

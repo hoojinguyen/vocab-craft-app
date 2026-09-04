@@ -4,6 +4,7 @@ import Foundation
 public final class MockResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     public var isSessionActive: Bool = false
     public var isWordActive: Bool = false
+    public var isListeningPaused: Bool = false
     public var liveTranscript: String = ""
     public var onMatchDetected: ((String) -> Void)?
     public var onTranscriptUpdate: ((String) -> Void)?
@@ -25,6 +26,7 @@ public final class MockResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
 
     public func startSession(contextualPhrases: [String], lazy: Bool = false) {
         isSessionActive = true
+        isListeningPaused = false
         startSessionCallCount += 1
         lastStartSessionWasLazy = lazy
     }
@@ -36,16 +38,19 @@ public final class MockResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     public func stopSession() {
         isSessionActive = false
         isWordActive = false
+        isListeningPaused = false
         liveTranscript = ""
         stopSessionCallCount += 1
     }
 
     public func pauseListening() {
+        isListeningPaused = true
         pauseListeningCallCount += 1
         endWord()
     }
 
     public func resumeListening() {
+        isListeningPaused = false
         resumeListeningCallCount += 1
     }
 
