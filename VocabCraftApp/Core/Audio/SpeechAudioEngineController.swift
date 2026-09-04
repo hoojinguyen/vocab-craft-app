@@ -28,6 +28,7 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
     private var teardownTask: Task<Void, Never>?
     private var lifecycleGeneration: UInt = 0
     private var isPaused = false
+    private var pauseRequested = false
     private let hardware: any SpeechAudioHardware
 
     init() {
@@ -50,6 +51,7 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
             if isPaused {
                 try await hardware.resume()
                 isPaused = false
+                pauseRequested = false
             }
             return
         }
@@ -60,7 +62,10 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
             }
             if state == .preparing {
                 state = .ready
-                isPaused = false
+                isPaused = pauseRequested
+                if pauseRequested {
+                    await hardware.pause()
+                }
             }
             guard lifecycleGeneration == completedGeneration, state != .idle else {
                 throw CancellationError()
@@ -85,7 +90,13 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
                 throw CancellationError()
             }
             state = .ready
-            isPaused = false
+            isPaused = pauseRequested
+            if pauseRequested {
+                await hardware.pause()
+            }
+            guard lifecycleGeneration == completedGeneration, state != .idle else {
+                throw CancellationError()
+            }
             preparationTask = nil
         } catch {
             if generation == lifecycleGeneration {
@@ -97,6 +108,7 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
     }
 
     func resume() async throws {
+        pauseRequested = false
         if state == .idle || state == .preparing {
             isPaused = false
             return
@@ -115,6 +127,7 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
     }
 
     func pause() async {
+        pauseRequested = true
         if state == .idle || state == .preparing {
             return
         }
@@ -131,11 +144,13 @@ actor SpeechAudioEngineController: SpeechAudioEngineControlling {
             await teardownTask.value
             return
         }
+        lifecycleGeneration &+= 1
+        pauseRequested = false
         guard state != .idle else {
+            isPaused = false
             return
         }
 
-        lifecycleGeneration &+= 1
         let preparationTask = self.preparationTask
         preparationTask?.cancel()
         self.preparationTask = nil

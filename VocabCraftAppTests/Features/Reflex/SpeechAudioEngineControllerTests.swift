@@ -183,6 +183,16 @@ struct SpeechAudioEngineControllerTests {
         #expect(await controller.state == .ready)
         #expect(await hardware.pauseCallCount == 0)
     }
+
+    @Test("Teardown clears pending pause before the next lifecycle")
+    func teardownClearsPendingPause() async throws {
+        let hardware = MockSpeechAudioHardware()
+        let controller = SpeechAudioEngineController(hardware: hardware)
+        await controller.pause()
+        await controller.teardown()
+        try await controller.prepare(relay: AudioBufferRelay())
+        #expect(await hardware.pauseCallCount == 0)
+    }
 }
 
 private actor MockSpeechAudioHardware: SpeechAudioHardware {
