@@ -142,6 +142,9 @@ public struct LessonDiscoveryCardView: View {
             .padding(.bottom, theme.spacing.base)
         }
         .task(id: word.id) {
+            // Give spring transition 300ms to complete smoothly before starting TTS
+            try? await Task.sleep(for: .milliseconds(300))
+            guard !Task.isCancelled else { return }
             onPlayAudio()
         }
     }

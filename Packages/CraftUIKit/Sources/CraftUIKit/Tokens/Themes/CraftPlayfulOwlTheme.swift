@@ -42,6 +42,10 @@ public struct CraftPlayfulOwlTheme: CraftTheme {
         self.depths = depths
         self.glass = glass
     }
+
+    public var journeySurfaceStyle: CraftSurfaceStyle {
+        .tactile3D
+    }
 }
 
 // MARK: - Color Tokens

@@ -216,4 +216,43 @@ final class CraftLessonDetailSheetTests: XCTestCase {
             XCTAssertNotNil(sheet.body)
         }
     }
+
+    func testTactile3DSurfaceStyleResolution() {
+        let node = LessonNodeModel(id: "tac_node", title: "Tactile Test", state: .active)
+        let defaultSheet = CraftLessonDetailSheet(node: node)
+        XCTAssertNil(defaultSheet.surfaceStyle)
+
+        let tactileSheet = CraftLessonDetailSheet(node: node, surfaceStyle: .tactile3D)
+        XCTAssertEqual(tactileSheet.surfaceStyle, .tactile3D)
+        XCTAssertEqual(tactileSheet.effectiveSurfaceStyle, .tactile3D)
+
+        let glassSheet = CraftLessonDetailSheet(node: node, surfaceStyle: .glass)
+        XCTAssertEqual(glassSheet.surfaceStyle, .glass)
+        XCTAssertEqual(glassSheet.effectiveSurfaceStyle, .glass)
+    }
+
+    func testTactile3DBodyRendering() {
+        let activeNode = LessonNodeModel(
+            id: "tac_active",
+            title: "Tactile Active",
+            subtitle: "3 words • 2 min",
+            iconName: "heart.fill",
+            state: .active,
+            xpReward: 25,
+            objectives: ["Objective A", "Objective B"]
+        )
+        let tactileSheet = CraftLessonDetailSheet(node: activeNode, surfaceStyle: .tactile3D)
+        XCTAssertNotNil(tactileSheet.body)
+
+        let completedNode = LessonNodeModel(
+            id: "tac_completed",
+            title: "Tactile Completed",
+            iconName: "dumbbell.fill",
+            state: .completed,
+            xpReward: 20,
+            stars: 3
+        )
+        let completedTactileSheet = CraftLessonDetailSheet(node: completedNode, surfaceStyle: .tactile3D)
+        XCTAssertNotNil(completedTactileSheet.body)
+    }
 }

@@ -40,7 +40,7 @@ public struct LessonExerciseContainerView: View {
                         hintStage: viewModel.hintStage,
                         selectedOptionText: selectedOption?.text,
                         clozeStages: clozeStages,
-                        clozeParts: ReflexClozeFormatter.extractTemplateParts(from: clozeStages.initialParts.prefix + clozeStages.initialParts.slot + clozeStages.initialParts.suffix),
+                        clozeParts: clozeStages.initialParts,
                         displayedSentence: viewModel.isFeedbackPresented ? item.word.exampleEn : "",
                         cardBorderColor: theme.colors.hairline.opacity(0.4),
                         eliminatedOptionId: viewModel.eliminatedOptionId,
@@ -66,7 +66,7 @@ public struct LessonExerciseContainerView: View {
                         hintStage: viewModel.hintStage,
                         selectedOptionText: selectedOption?.text,
                         clozeStages: clozeStages,
-                        clozeParts: ReflexClozeFormatter.extractTemplateParts(from: clozeStages.initialParts.prefix + clozeStages.initialParts.slot + clozeStages.initialParts.suffix),
+                        clozeParts: clozeStages.initialParts,
                         displayedSentence: viewModel.isFeedbackPresented ? item.word.exampleEn : "",
                         cardBorderColor: theme.colors.hairline.opacity(0.4),
                         eliminatedOptionId: viewModel.eliminatedOptionId,
@@ -92,23 +92,17 @@ public struct LessonExerciseContainerView: View {
                         showHint: viewModel.hintStage >= 1,
                         hintStage: viewModel.hintStage,
                         clozeStages: clozeStages,
-                        clozeParts: ReflexClozeFormatter.extractTemplateParts(from: clozeStages.initialParts.prefix + clozeStages.initialParts.slot + clozeStages.initialParts.suffix),
+                        clozeParts: clozeStages.initialParts,
                         displayedSentence: viewModel.isFeedbackPresented ? item.word.exampleEn : "",
                         speechState: viewModel.speechState,
                         liveTranscript: viewModel.liveTranscript,
                         onCantSpeakNow: {
-                            viewModel.skipExercise(for: item)
+                            viewModel.handleCantSpeakNow(for: item)
                         },
                         onReplayAudio: {
                             viewModel.playAudio(for: item.word.lemma)
                         }
                     )
-                    .onAppear {
-                        viewModel.startSpeechSession()
-                    }
-                    .onDisappear {
-                        viewModel.stopSpeechSession()
-                    }
 
                 case .typing:
                     ReflexTypingModeView(
@@ -121,7 +115,7 @@ public struct LessonExerciseContainerView: View {
                         typingText: $viewModel.typingText,
                         userSubmittedText: viewModel.typingText,
                         clozeStages: clozeStages,
-                        clozeParts: ReflexClozeFormatter.extractTemplateParts(from: clozeStages.initialParts.prefix + clozeStages.initialParts.slot + clozeStages.initialParts.suffix),
+                        clozeParts: clozeStages.initialParts,
                         displayedSentence: viewModel.isFeedbackPresented ? item.word.exampleEn : "",
                         onSubmit: {
                             guard !viewModel.isFeedbackPresented else { return }
@@ -147,8 +141,6 @@ public struct LessonExerciseContainerView: View {
                         }
 
                         if item.assignedMode == .speaking && viewModel.speechState == .idle {
-                            Spacer()
-
                             CraftButton(
                                 AppStrings.Common.retry,
                                 iconName: "mic.fill",
@@ -160,7 +152,7 @@ public struct LessonExerciseContainerView: View {
                             }
                         }
 
-                        if item.assignedMode == .typing {
+                        if item.assignedMode == .typing || item.assignedMode == .speaking {
                             Spacer()
 
                             CraftButton(
@@ -182,6 +174,10 @@ public struct LessonExerciseContainerView: View {
             .padding(.bottom, theme.spacing.base)
         }
         .task(id: item.id) {
+            // 300ms buffer to allow spring transition animation to complete smoothly at 120Hz
+            try? await Task.sleep(for: .milliseconds(300))
+            guard !Task.isCancelled, !viewModel.isFeedbackPresented, viewModel.speechState == .idle else { return }
+
             if item.assignedMode == .listening {
                 viewModel.playAudio(for: item.word.lemma)
             } else if item.assignedMode == .speaking {

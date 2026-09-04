@@ -15,6 +15,7 @@ public protocol CraftTheme: Sendable {
     var opacities: CraftOpacityTokens { get }
     var depths: CraftDepthTokens { get }
     var glass: CraftGlassTokens { get }
+    var journeySurfaceStyle: CraftSurfaceStyle { get }
 }
 
 public extension CraftTheme {
@@ -24,6 +25,15 @@ public extension CraftTheme {
 
     var glass: CraftGlassTokens {
         CraftDefaultGlassTokens()
+    }
+
+    var journeySurfaceStyle: CraftSurfaceStyle {
+        .elevated
+    }
+
+    /// The default surface style for cards and headers, resolving to `journeySurfaceStyle`.
+    var surfaceStyle: CraftSurfaceStyle {
+        journeySurfaceStyle
     }
 }
 

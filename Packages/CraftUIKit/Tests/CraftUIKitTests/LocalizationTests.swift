@@ -345,6 +345,49 @@ final class LocalizationTests: XCTestCase {
         XCTAssertEqual(viValue, "Chạm hai lần để cuộn về đầu bài học này")
     }
 
+    // MARK: - Fluid Journey Scope
+
+    func testFluidJourneyStrings() {
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.start_lesson"), "START LESSON")
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.start_lesson", language: "vi"), "BẮT ĐẦU HỌC")
+
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.start"), "START")
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.start", language: "vi"), "BẮT ĐẦU")
+
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.continue"), "CONTINUE")
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.continue", language: "vi"), "TIẾP TỤC")
+
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.keep_going"), "KEEP GOING!")
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.keep_going", language: "vi"), "TIẾP BƯỚC!")
+
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.almost_there"), "ALMOST THERE!")
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.almost_there", language: "vi"), "SẮP VỀ ĐÍCH!")
+
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.challenge"), "CHALLENGE!")
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.challenge", language: "vi"), "THỬ THÁCH!")
+
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.claim_gift"), "CLAIM GIFT")
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.claim_gift", language: "vi"), "MỞ QUÀ")
+
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.completed_status"), "Completed")
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.completed_status", language: "vi"), "Đã xong")
+
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.current_status"), "Current")
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.current_status", language: "vi"), "Đang học")
+
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.unit_picker_title"), "Curriculum & Units")
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.unit_picker_title", language: "vi"), "Lộ trình & Chủ đề")
+
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.adjust_plan"), "Adjust plan")
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.adjust_plan", language: "vi"), "Tuỳ chỉnh lộ trình")
+
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.select_unit_hint"), "Double tap to switch to this unit")
+        XCTAssertEqual(CraftLocalized.string("craft.fluid_journey.select_unit_hint", language: "vi"), "Chạm hai lần để chuyển sang chủ đề này")
+
+        XCTAssertEqual(CraftLocalized.format("craft.fluid_journey.reward_xp", 25), "+25 XP")
+        XCTAssertEqual(CraftLocalized.format("craft.fluid_journey.reward_xp", language: "vi", 25), "+25 XP")
+    }
+
     // MARK: - Navigation, Feedback & Audio Scope
     
     func testNavigationAndAudioFeedbackStrings() {

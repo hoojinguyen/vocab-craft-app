@@ -63,7 +63,12 @@ public struct LearningPathDataMapper: Sendable {
                 sectionNodes[activeIdx + 1] = withState(sectionNodes[activeIdx + 1], state: .upcoming)
             }
 
-            let section = buildSection(deck: deck, deckIndex: deckIndex, nodes: sectionNodes)
+            let section = buildSection(
+                deck: deck,
+                deckIndex: deckIndex,
+                nodes: sectionNodes,
+                deckWordCount: deckWordCount
+            )
             sections.append(section)
         }
 
@@ -133,7 +138,7 @@ public struct LearningPathDataMapper: Sendable {
 
         return LessonNodeModel(
             id: stage.id,
-            title: stage.title,
+            title: cleanStageTitle(stage.title),
             subtitle: previewSubtitle,
             iconName: stage.iconName.isEmpty ? "book.fill" : stage.iconName,
             state: state,
@@ -266,13 +271,15 @@ public struct LearningPathDataMapper: Sendable {
     private static func buildSection(
         deck: TopicDeckDTO,
         deckIndex: Int,
-        nodes: [LessonNodeModel]
+        nodes: [LessonNodeModel],
+        deckWordCount: Int
     ) -> LessonSection {
         // Exclude treasureChest from progress denominator (bonus, not required)
         let progressNodes = nodes.filter { $0.kind != .treasureChest }
         let completedCount = progressNodes.filter { $0.state == .completed }.count
         let totalCount = progressNodes.count
         let progressText = AppStrings.Home.sectionProgress(completed: completedCount, total: totalCount)
+        let subtitleText = AppStrings.Home.deckSummary(lessons: totalCount, words: deckWordCount)
         // Honest progress: active/inProgress/bonus counts as 0.5, so bar is not flat 0 when learner started
         let hasActive = progressNodes.contains { $0.state == .active || $0.state == .inProgress || $0.state == .bonus }
         let effectiveCompleted = Double(completedCount) + (hasActive ? 0.5 : 0.0)
@@ -280,8 +287,8 @@ public struct LearningPathDataMapper: Sendable {
 
         return LessonSection(
             id: deck.id,
-            title: AppStrings.Home.unitTitle(number: deckIndex + 1, title: deck.title),
-            subtitle: nil,
+            title: deck.title,
+            subtitle: subtitleText,
             level: deck.cefrLevel,
             progressText: progressText,
             progressValue: progressValue,
@@ -305,5 +312,14 @@ public struct LearningPathDataMapper: Sendable {
         } else {
             return 1
         }
+    }
+
+    private static func cleanStageTitle(_ title: String) -> String {
+        let pattern = #"^Chặng\s+\d+:\s*"#
+        if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) {
+            let range = NSRange(location: 0, length: title.utf16.count)
+            return regex.stringByReplacingMatches(in: title, options: [], range: range, withTemplate: "")
+        }
+        return title
     }
 }

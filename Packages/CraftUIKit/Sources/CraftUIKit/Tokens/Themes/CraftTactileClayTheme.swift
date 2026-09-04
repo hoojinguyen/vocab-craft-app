@@ -17,6 +17,7 @@ public struct CraftTactileClayTheme: CraftTheme {
     public var opacities: CraftOpacityTokens
     public var depths: CraftDepthTokens
     public var glass: CraftGlassTokens
+    public var journeySurfaceStyle: CraftSurfaceStyle { .tactile3D }
 
     public init(
         colors: CraftColorTokens = CraftTactileClayColorTokens(),

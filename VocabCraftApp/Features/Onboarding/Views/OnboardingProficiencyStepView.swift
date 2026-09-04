@@ -5,11 +5,17 @@ public struct OnboardingProficiencyStepView: View {
     @Bindable var viewModel: OnboardingViewModel
     @Environment(\.craftTheme) private var theme
 
-    private let levels: [(id: String, titleKey: LocalizedStringKey, descKey: LocalizedStringKey)] = [
-        ("A1", "app.onboarding.level.a1", "app.onboarding.level.a1_desc"),
-        ("A2", "app.onboarding.level.a2", "app.onboarding.level.a2_desc"),
-        ("B1", "app.onboarding.level.b1_b2", "app.onboarding.level.b1_b2_desc"),
-        ("C1", "app.onboarding.level.c1", "app.onboarding.level.c1_desc")
+    private struct ProficiencyLevelItem: Identifiable {
+        let id: String
+        let titleKey: LocalizedStringKey
+        let descKey: LocalizedStringKey
+    }
+
+    private let levels: [ProficiencyLevelItem] = [
+        ProficiencyLevelItem(id: "A1", titleKey: "app.onboarding.level.a1", descKey: "app.onboarding.level.a1_desc"),
+        ProficiencyLevelItem(id: "A2", titleKey: "app.onboarding.level.a2", descKey: "app.onboarding.level.a2_desc"),
+        ProficiencyLevelItem(id: "B1", titleKey: "app.onboarding.level.b1_b2", descKey: "app.onboarding.level.b1_b2_desc"),
+        ProficiencyLevelItem(id: "C1", titleKey: "app.onboarding.level.c1", descKey: "app.onboarding.level.c1_desc")
     ]
 
     public init(viewModel: OnboardingViewModel) {

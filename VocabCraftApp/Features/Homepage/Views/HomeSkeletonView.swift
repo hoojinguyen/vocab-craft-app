@@ -10,10 +10,8 @@ public struct HomeSkeletonView: View {
     public var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: theme.spacing.xxl) {
-                // Two skeleton unit headers
-                ForEach(0..<2, id: \.self) { _ in
-                    skeletonUnitHeader
-                }
+                // Single skeleton unit header matching real UI pinned header
+                skeletonUnitHeader
                 // Skeleton path nodes
                 VStack(spacing: theme.spacing.pathRowSpacing) {
                     skeletonNodeRow(isActive: true)

@@ -17,6 +17,7 @@ public struct CraftAIAcousticTheme: CraftTheme {
     public var opacities: CraftOpacityTokens
     public var depths: CraftDepthTokens
     public var glass: CraftGlassTokens
+    public var journeySurfaceStyle: CraftSurfaceStyle { .glass }
 
     public init(
         colors: CraftColorTokens = CraftAIAcousticColorTokens(),

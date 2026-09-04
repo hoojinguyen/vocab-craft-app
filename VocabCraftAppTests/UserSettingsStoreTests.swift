@@ -194,4 +194,3 @@ final class UserSettingsStoreTests: XCTestCase {
         defaults.removePersistentDomain(forName: suite)
     }
 }
-

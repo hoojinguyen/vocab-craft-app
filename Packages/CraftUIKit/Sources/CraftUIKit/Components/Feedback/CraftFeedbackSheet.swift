@@ -206,9 +206,13 @@ public struct CraftFeedbackSheet<ExtraContent: View>: View {
         .padding(.bottom, theme.spacing.xl)
         .frame(maxWidth: .infinity, alignment: .leading)
         .craftSurfaceStyle(resolvedSurfaceStyle)
-        .background(surfaceBackground(shape: sheetShape))
-        .clipShape(sheetShape)
-        .overlay(surfaceBorder(shape: sheetShape))
+        .background {
+            ZStack {
+                surfaceBackground(shape: sheetShape)
+                surfaceBorder(shape: sheetShape)
+            }
+            .ignoresSafeArea(edges: .bottom)
+        }
         .modifier(FeedbackSheetShadowModifier(style: resolvedSurfaceStyle, theme: theme))
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityDescription)

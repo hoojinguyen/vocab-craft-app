@@ -13,7 +13,7 @@ enum HomepageTabBarPresentationPolicy {
     }
 }
 
-/// Integrated Homepage view showcasing in-scroll HomeTopHeaderView, CraftLearningPath gamified journey, and liquid glass navigation.
+/// Integrated Homepage view showcasing in-scroll HomeTopHeaderView, CraftFluidJourney gamified journey, and liquid glass navigation.
 public struct HomepageView: View {
     @State private var viewModel: HomepageViewModel
     @State private var vaultVM: PersonalVaultViewModel?
@@ -64,7 +64,7 @@ public struct HomepageView: View {
                     .background(theme.colors.canvasBackground)
 
                     Group {
-                        if viewModel.isLoading && viewModel.sections.isEmpty {
+                        if (viewModel.isLoading && viewModel.sections.isEmpty) || ProcessInfo.processInfo.arguments.contains("-test-home-skeleton") {
                              HomeSkeletonView()
                         } else if let error = viewModel.errorMessage, viewModel.sections.isEmpty {
                             ContentUnavailableView {
@@ -80,48 +80,44 @@ public struct HomepageView: View {
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .background(theme.colors.canvasBackground)
                         } else {
-                    CraftLearningPath(
-                        sections: viewModel.sections,
-                        winding: .standard,
-                        rowPattern: .standard,
-                        onNodeTap: { node in
-                            MainActor.assumeIsolated {
-                                viewModel.handleNodeTap(node)
-                            }
-                        },
-                        onStartLesson: { node in
-                            MainActor.assumeIsolated {
-                                startLesson(for: node)
-                            }
-                        },
-                        showDetailModal: true,
-                        scrollToActive: true,
-                        showCelebration: true,
-                        pinSectionHeaders: false,
-                        connectorDotDiameter: 5.0,
-                        connectorDotSpacing: 7.0,
-                        onTabBarPresentationChange: { presentation in
-                            MainActor.assumeIsolated {
-                                if tabBarPresentation != presentation {
-                                    if isReducedMotion {
-                                        tabBarPresentation = presentation
-                                    } else {
-                                        withAnimation(.smooth(duration: 0.2)) {
-                                            tabBarPresentation = presentation
+                            CraftFluidJourney(
+                                sections: viewModel.sections,
+                                surfaceStyle: .tactile3D,
+                                isSuspended: activeLessonLearningVM != nil,
+                                deckTitle: viewModel.currentDeckTitle,
+                                deckSubtitle: viewModel.currentDeckSubtitle,
+                                onNodeTap: { node in
+                                    MainActor.assumeIsolated {
+                                        viewModel.handleNodeTap(node)
+                                    }
+                                },
+                                onStartLesson: { node in
+                                    MainActor.assumeIsolated {
+                                        startLesson(for: node)
+                                    }
+                                },
+                                onTabBarPresentationChange: { presentation in
+                                    MainActor.assumeIsolated {
+                                        if tabBarPresentation != presentation {
+                                            if isReducedMotion {
+                                                tabBarPresentation = presentation
+                                            } else {
+                                                withAnimation(.smooth(duration: 0.2)) {
+                                                    tabBarPresentation = presentation
+                                                }
+                                            }
                                         }
                                     }
-                                }
-                            }
-                        },
-                        externalScrollTrigger: scrollToActiveNonce
-                    )
+                                },
+                                externalScrollTrigger: scrollToActiveNonce
+                            )
                             .refreshable {
                                 await viewModel.loadLearningPath()
                             }
                         }
                     }
                     .task {
-                        if viewModel.sections.isEmpty {
+                        if viewModel.sections.isEmpty && !ProcessInfo.processInfo.arguments.contains("-test-home-skeleton") {
                             await viewModel.loadLearningPath()
                         }
                     }
@@ -182,6 +178,7 @@ public struct HomepageView: View {
                 let vm = appContainer.makeReflexBlitzViewModel()
                 self.reflexBlitzVM = vm
             }
+            handleTestLaunchArguments()
         }
         #if canImport(UIKit)
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.significantTimeChangeNotification)) { _ in
@@ -249,8 +246,41 @@ public struct HomepageView: View {
         }
         #endif
     }
+}
 
-    private func startLesson(for node: LessonNodeModel) {
+// MARK: - Lesson & Reflex Orchestration Extension
+
+private extension HomepageView {
+    func handleTestLaunchArguments() {
+        let args = ProcessInfo.processInfo.arguments
+        guard args.contains("-test-lesson-feedback-incorrect") || args.contains("-test-lesson-feedback-correct") else { return }
+        let isCorrect = args.contains("-test-lesson-feedback-correct")
+        Task {
+            try? await Task.sleep(for: .milliseconds(150))
+            let words = (try? await appContainer.vocabularyDataSource.fetchWordsForStage(stageId: "stage_daily_1")) ?? []
+            guard !words.isEmpty else { return }
+            let vm = appContainer.makeLessonLearningViewModel(
+                stageId: "stage_daily_1",
+                deckId: "deck_daily",
+                words: words
+            )
+            if let firstExIndex = vm.steps.firstIndex(where: { step in
+                if case .exercise = step { return true }
+                return false
+            }) {
+                for _ in 0..<firstExIndex {
+                    vm.advanceStep()
+                }
+            }
+            vm.isFeedbackPresented = true
+            vm.lastAttemptCorrect = isCorrect
+            await MainActor.run {
+                self.activeLessonLearningVM = vm
+            }
+        }
+    }
+
+    func startLesson(for node: LessonNodeModel) {
         guard !isLaunchingLesson && activeLessonLearningVM == nil else { return }
 
         let resolvedDeckId: String
@@ -325,6 +355,8 @@ public struct HomepageView: View {
                 deckId: deckId,
                 words: words
             )
+            // Allow CoreAnimation buffer recovery (~150ms) after sheet dismissal before presenting cover
+            try? await Task.sleep(for: .milliseconds(150))
             await MainActor.run {
                 guard !Task.isCancelled, appRouter.selectedTab == .home else { return }
                 self.activeLessonLearningVM = vm
@@ -362,8 +394,8 @@ public struct HomepageView: View {
 
             await MainActor.run {
                 activeLessonLearningVM = nil
+                viewModel.applyCompletedLesson(stageId: summary.stageId)
             }
-            await viewModel.loadLearningPath()
             await MainActor.run {
                 let starIcons = String(repeating: "★", count: summary.stars)
                 CraftHaptics.shared.success()

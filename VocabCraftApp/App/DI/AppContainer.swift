@@ -259,7 +259,7 @@ public final class AppContainer {
     }
 
     public static var mock: AppContainer {
-        let defaults = UserDefaults(suiteName: "mock_app_container_\(UUID().uuidString)")!
+        let defaults = UserDefaults(suiteName: "mock_app_container_\(UUID().uuidString)") ?? .standard
         defaults.set(14, forKey: "current_streak")
         defaults.set(8, forKey: "today_words_learned")
         defaults.set(10, forKey: "daily_goal_count")

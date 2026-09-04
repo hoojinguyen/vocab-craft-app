@@ -54,6 +54,20 @@ struct VocabCraftApp: App {
         let engine = DatasetEngine()
         self.datasetEngine = engine
         let args = ProcessInfo.processInfo.arguments
+        if args.contains("-reset-progress") {
+            #if canImport(SwiftDataMacros)
+            try? container.mainContext.delete(model: UserWordProgress.self)
+            try? container.mainContext.delete(model: UserStageProgress.self)
+            try? container.mainContext.delete(model: ReflexSessionLog.self)
+            try? container.mainContext.delete(model: QuickReflexAttemptRecord.self)
+            try? container.mainContext.save()
+            #endif
+        }
+        let router = Self.createAppRouter(from: args)
+        self.appContainer = AppContainer(datasetEngine: engine, modelContainer: container, appRouter: router)
+    }
+
+    private static func createAppRouter(from args: [String]) -> AppRouter {
         let initialTab: TabItem
         if args.contains("-tab-reflex") || args.contains("-reflex-mode") || args.contains("-reflex-phase") {
             initialTab = .reflex
@@ -102,8 +116,12 @@ struct VocabCraftApp: App {
                 )
             }
         }
+        return router
+    }
 
-        self.appContainer = AppContainer(datasetEngine: engine, modelContainer: container, appRouter: router)
+    private var isFeedbackTestLaunch: Bool {
+        let args = ProcessInfo.processInfo.arguments
+        return args.contains("-test-lesson-feedback-incorrect") || args.contains("-test-lesson-feedback-correct")
     }
 
     var body: some Scene {
@@ -111,7 +129,9 @@ struct VocabCraftApp: App {
             Group {
                 if NSClassFromString("XCTestCase") != nil {
                     Text("Testing...")
-                } else if !appContainer.userSettingsStore.hasCompletedOnboarding {
+                } else if ProcessInfo.processInfo.arguments.contains("-show-catalog") {
+                    CraftCatalogView()
+                } else if !appContainer.userSettingsStore.hasCompletedOnboarding && !isFeedbackTestLaunch {
                     OnboardingCoordinatorView(viewModel: appContainer.makeOnboardingViewModel())
                         .environment(\.appContainer, appContainer)
                         .environment(\.appRouter, appContainer.appRouter)

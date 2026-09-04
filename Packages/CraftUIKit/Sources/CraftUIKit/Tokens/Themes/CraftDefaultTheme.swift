@@ -14,6 +14,7 @@ public struct CraftDefaultTheme: CraftTheme {
     public var opacities: CraftOpacityTokens
     public var depths: CraftDepthTokens
     public var glass: CraftGlassTokens
+    public var journeySurfaceStyle: CraftSurfaceStyle { .elevated }
 
     public init(
         colors: CraftColorTokens = CraftDefaultColorTokens(),

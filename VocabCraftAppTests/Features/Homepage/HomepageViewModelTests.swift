@@ -299,6 +299,110 @@ struct HomepageViewModelTestingTests {
         #expect(vm.selectedNode == nil)
         #expect(!vm.isDetailSheetPresented)
     }
+
+    @Test("Current deck title and subtitle resolution")
+    @MainActor
+    func testCurrentDeckTitleAndSubtitleResolution() {
+        let stage1 = LessonNodeModel(id: "s1", title: "Present Simple", state: .active)
+        let section1 = LessonSection(id: "sec1", title: "Unit 1: Everyday Conversations", level: "A2", nodes: [stage1])
+        let viewModel = HomepageViewModel(sections: [section1])
+
+        #expect(viewModel.currentDeckTitle == "A2 • Unit 1: Everyday Conversations")
+        #expect(viewModel.currentDeckSubtitle == "Present Simple")
+    }
+
+    @Test("Current deck title and subtitle fallback scenarios")
+    @MainActor
+    func testCurrentDeckTitleAndSubtitleFallbacks() {
+        let emptyViewModel = HomepageViewModel(sections: [])
+        #expect(emptyViewModel.currentDeckTitle == nil)
+        #expect(emptyViewModel.currentDeckSubtitle == nil)
+
+        let stageNoLevel = LessonNodeModel(id: "s1", title: "Present Simple", state: .upcoming)
+        let sectionNoLevel = LessonSection(id: "sec1", title: "Everyday Conversations", level: nil, nodes: [stageNoLevel])
+        let vmNoLevel = HomepageViewModel(sections: [sectionNoLevel])
+        #expect(vmNoLevel.currentDeckTitle == "Everyday Conversations")
+        #expect(vmNoLevel.currentDeckSubtitle == "Present Simple")
+
+        let nodeCompleted = LessonNodeModel(id: "s1", title: "Greetings", state: .completed)
+        let nodeActive = LessonNodeModel(id: "s2", title: "Present Simple", state: .active)
+        let sectionMulti = LessonSection(id: "sec1", title: "Unit 1", level: "A1", nodes: [nodeCompleted, nodeActive])
+        let vmMulti = HomepageViewModel(sections: [sectionMulti])
+        #expect(vmMulti.currentDeckSubtitle == "Present Simple")
+    }
+
+    @Test("Verify applyCompletedLesson marks node completed, unlocks next node, promotes curiosity gap, and updates progress in-place")
+    @MainActor
+    func testApplyCompletedLessonInPlace() {
+        let firstNode = LessonNodeModel(id: "node_1", title: "Lesson 1", state: .active)
+        let secondNode = LessonNodeModel(id: "node_2", title: "Lesson 2", state: .upcoming)
+        let thirdNode = LessonNodeModel(id: "node_3", title: "Lesson 3", state: .locked)
+        let section = LessonSection(id: "sec_1", title: "Unit 1", nodes: [firstNode, secondNode, thirdNode])
+        let vm = HomepageViewModel(sections: [section])
+
+        vm.applyCompletedLesson(stageId: "node_1")
+
+        #expect(vm.sections.first?.nodes[0].state == .completed)
+        #expect(vm.sections.first?.nodes[1].state == .active)
+        #expect(vm.sections.first?.nodes[2].state == .upcoming)
+        #expect(vm.sections.first?.progressValue == 1.5 / 3.0)
+        #expect(vm.sections.first?.progressText == AppStrings.Home.sectionProgress(completed: 1, total: 3))
+    }
+
+    @Test("Verify applyCompletedLesson on checkpoint node unlocks next unit, marks treasure bonus, and updates progress")
+    @MainActor
+    func testApplyCompletedLessonOnCheckpointUnlocksNextUnit() {
+        let node1 = LessonNodeModel(id: "s1", title: "L1", state: .completed)
+        let checkpoint = LessonNodeModel(id: "cp1", title: "Checkpoint", state: .active, kind: .checkpoint)
+        let treasure = LessonNodeModel(id: "tr1", title: "Treasure", state: .locked, kind: .treasureChest)
+        let sec1 = LessonSection(id: "unit_1", title: "Unit 1", nodes: [node1, checkpoint, treasure])
+
+        let sec2Node1 = LessonNodeModel(id: "s2_1", title: "L2.1", state: .locked)
+        let sec2Node2 = LessonNodeModel(id: "s2_2", title: "L2.2", state: .locked)
+        let sec2 = LessonSection(id: "unit_2", title: "Unit 2", nodes: [sec2Node1, sec2Node2])
+
+        let vm = HomepageViewModel(sections: [sec1, sec2])
+
+        vm.applyCompletedLesson(stageId: "cp1")
+
+        // Section 1 checks
+        #expect(vm.sections[0].nodes[1].state == .completed)
+        #expect(vm.sections[0].nodes[2].kind == .treasureChest)
+        #expect(vm.sections[0].nodes[2].state == .bonus)
+        #expect(vm.sections[0].nodes[2].badgeText == "HOT")
+        #expect(vm.sections[0].progressValue == 1.0)
+        #expect(vm.sections[0].progressText == AppStrings.Home.sectionProgress(completed: 2, total: 2))
+
+        // Section 2 checks: Node 1 unlocked to active, Node 2 promoted to upcoming
+        #expect(vm.sections[1].nodes[0].state == .active)
+        #expect(vm.sections[1].nodes[1].state == .upcoming)
+        #expect(vm.sections[1].progressValue == 0.5 / 2.0)
+        #expect(vm.sections[1].progressText == AppStrings.Home.sectionProgress(completed: 0, total: 2))
+    }
+
+    @Test("Verify applyCompletedLesson on treasure node does not unlock next unit")
+    @MainActor
+    func testApplyCompletedLessonOnTreasureDoesNotUnlockNextUnit() {
+        let node1 = LessonNodeModel(id: "s1", title: "L1", state: .completed)
+        let checkpoint = LessonNodeModel(id: "cp1", title: "Checkpoint", state: .active, kind: .checkpoint)
+        let treasure = LessonNodeModel(id: "tr1", title: "Treasure", state: .upcoming, kind: .treasureChest)
+        let sec1 = LessonSection(id: "unit_1", title: "Unit 1", nodes: [node1, checkpoint, treasure])
+
+        let sec2Node1 = LessonNodeModel(id: "s2_1", title: "L2.1", state: .locked)
+        let sec2Node2 = LessonNodeModel(id: "s2_2", title: "L2.2", state: .locked)
+        let sec2 = LessonSection(id: "unit_2", title: "Unit 2", nodes: [sec2Node1, sec2Node2])
+
+        let vm = HomepageViewModel(sections: [sec1, sec2])
+
+        vm.applyCompletedLesson(stageId: "tr1")
+
+        // Section 1 checks: treasure is completed
+        #expect(vm.sections[0].nodes[2].state == .completed)
+
+        // Section 2 checks: remains locked
+        #expect(vm.sections[1].nodes[0].state == .locked)
+        #expect(vm.sections[1].nodes[1].state == .locked)
+    }
 }
 #endif
 
@@ -490,6 +594,36 @@ final class HomepageViewModelTests: XCTestCase {
         vm.dismissDetailSheet()
         XCTAssertNil(vm.selectedNode)
         XCTAssertFalse(vm.isDetailSheetPresented)
+    }
+
+    func testCurrentDeckTitleAndSubtitleResolution() {
+        let stage1 = LessonNodeModel(id: "s1", title: "Present Simple", state: .active)
+        let section1 = LessonSection(id: "sec1", title: "Unit 1: Everyday Conversations", level: "A2", nodes: [stage1])
+        let viewModel = HomepageViewModel(sections: [section1])
+
+        XCTAssertEqual(viewModel.currentDeckTitle, "A2 • Unit 1: Everyday Conversations")
+        XCTAssertEqual(viewModel.currentDeckSubtitle, "Present Simple")
+    }
+
+    func testCurrentDeckTitleAndSubtitleFallbacks() {
+        // Empty sections
+        let emptyViewModel = HomepageViewModel(sections: [])
+        XCTAssertNil(emptyViewModel.currentDeckTitle)
+        XCTAssertNil(emptyViewModel.currentDeckSubtitle)
+
+        // Section without level
+        let stageNoLevel = LessonNodeModel(id: "s1", title: "Present Simple", state: .upcoming)
+        let sectionNoLevel = LessonSection(id: "sec1", title: "Everyday Conversations", level: nil, nodes: [stageNoLevel])
+        let vmNoLevel = HomepageViewModel(sections: [sectionNoLevel])
+        XCTAssertEqual(vmNoLevel.currentDeckTitle, "Everyday Conversations")
+        XCTAssertEqual(vmNoLevel.currentDeckSubtitle, "Present Simple")
+
+        // Active node priority over completed first node
+        let nodeCompleted = LessonNodeModel(id: "s1", title: "Greetings", state: .completed)
+        let nodeActive = LessonNodeModel(id: "s2", title: "Present Simple", state: .active)
+        let sectionMulti = LessonSection(id: "sec1", title: "Unit 1", level: "A1", nodes: [nodeCompleted, nodeActive])
+        let vmMulti = HomepageViewModel(sections: [sectionMulti])
+        XCTAssertEqual(vmMulti.currentDeckSubtitle, "Present Simple")
     }
 
     func testRefreshDailyProgressUpdatesFromUserSettings() {

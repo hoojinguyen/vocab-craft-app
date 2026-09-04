@@ -17,6 +17,7 @@ public struct CraftOxfordHeritageTheme: CraftTheme {
     public var opacities: CraftOpacityTokens
     public var depths: CraftDepthTokens
     public var glass: CraftGlassTokens
+    public var journeySurfaceStyle: CraftSurfaceStyle { .outlined }
 
     public init(
         colors: CraftColorTokens = CraftOxfordHeritageColorTokens(),

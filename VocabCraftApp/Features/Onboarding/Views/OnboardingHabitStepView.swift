@@ -6,11 +6,17 @@ public struct OnboardingHabitStepView: View {
     @Bindable var viewModel: OnboardingViewModel
     @Environment(\.craftTheme) private var theme
 
-    private let wordOptions: [(words: Int, minutes: Int, isPopular: Bool)] = [
-        (5, 5, false),
-        (10, 10, true),
-        (15, 15, false),
-        (20, 20, false)
+    private struct HabitWordOption {
+        let words: Int
+        let minutes: Int
+        let isPopular: Bool
+    }
+
+    private let wordOptions: [HabitWordOption] = [
+        HabitWordOption(words: 5, minutes: 5, isPopular: false),
+        HabitWordOption(words: 10, minutes: 10, isPopular: true),
+        HabitWordOption(words: 15, minutes: 15, isPopular: false),
+        HabitWordOption(words: 20, minutes: 20, isPopular: false)
     ]
 
     private let reminderOptions: [(titleKey: LocalizedStringKey, interval: Double)] = [

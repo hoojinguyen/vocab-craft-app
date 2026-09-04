@@ -30,9 +30,42 @@ final class MockInitializeUserRoadmapUseCase: InitializeUserRoadmapUseCaseProtoc
                 sortOrder: 1
             ),
             starterWords: [
-                TopicWordDTO(id: 1, stageId: "stage_test", lemma: "Hello", phonetic: "/həˈloʊ/", pos: "noun", cefrLevel: "A1", definitionVi: "Xin chào", definitionEn: "Used as a greeting", exampleEn: "Hello world", exampleVi: "Xin chào thế giới"),
-                TopicWordDTO(id: 2, stageId: "stage_test", lemma: "World", phonetic: "/wɜːrld/", pos: "noun", cefrLevel: "A1", definitionVi: "Thế giới", definitionEn: "The earth with its countries", exampleEn: "Around the world", exampleVi: "Khắp thế giới"),
-                TopicWordDTO(id: 3, stageId: "stage_test", lemma: "Craft", phonetic: "/kræft/", pos: "noun", cefrLevel: "B1", definitionVi: "Kỹ nghệ", definitionEn: "An activity involving skill", exampleEn: "Learn the craft", exampleVi: "Học kỹ nghệ")
+                TopicWordDTO(
+                    id: 1,
+                    stageId: "stage_test",
+                    lemma: "Hello",
+                    phonetic: "/həˈloʊ/",
+                    pos: "noun",
+                    cefrLevel: "A1",
+                    definitionVi: "Xin chào",
+                    definitionEn: "Used as a greeting",
+                    exampleEn: "Hello world",
+                    exampleVi: "Xin chào thế giới"
+                ),
+                TopicWordDTO(
+                    id: 2,
+                    stageId: "stage_test",
+                    lemma: "World",
+                    phonetic: "/wɜːrld/",
+                    pos: "noun",
+                    cefrLevel: "A1",
+                    definitionVi: "Thế giới",
+                    definitionEn: "The earth with its countries",
+                    exampleEn: "Around the world",
+                    exampleVi: "Khắp thế giới"
+                ),
+                TopicWordDTO(
+                    id: 3,
+                    stageId: "stage_test",
+                    lemma: "Craft",
+                    phonetic: "/kræft/",
+                    pos: "noun",
+                    cefrLevel: "B1",
+                    definitionVi: "Kỹ nghệ",
+                    definitionEn: "An activity involving skill",
+                    exampleEn: "Learn the craft",
+                    exampleVi: "Học kỹ nghệ"
+                )
             ]
         )
     }

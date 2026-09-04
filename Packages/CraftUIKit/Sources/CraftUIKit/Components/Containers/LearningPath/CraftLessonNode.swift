@@ -104,21 +104,36 @@ public struct TactileNodeButtonStyle: ButtonStyle {
 // MARK: - ActiveCalloutBubble
 
 /// Floating speech bubble positioned above active nodes with subtle bobbing oscillation.
-public struct ActiveCalloutBubble: View {
+public struct ActiveCalloutBubble: View, Equatable {
     public let text: String
     public let isVisible: Bool
+    public let isSuspended: Bool
 
     @Environment(\.craftTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    public init(text: String = CraftLocalized.string("craft.learning_path.continue_callout"), isVisible: Bool = true) {
+    public init(
+        text: String = CraftLocalized.string("craft.learning_path.continue_callout"),
+        isVisible: Bool = true,
+        isSuspended: Bool = false
+    ) {
         self.text = text
         self.isVisible = isVisible
+        self.isSuspended = isSuspended
     }
 
-    public init(_ text: String, isVisible: Bool = true) {
+    public init(_ text: String, isVisible: Bool = true, isSuspended: Bool = false) {
         self.text = text
         self.isVisible = isVisible
+        self.isSuspended = isSuspended
+    }
+
+    // MARK: - Equatable Conformance
+
+    public static func == (lhs: ActiveCalloutBubble, rhs: ActiveCalloutBubble) -> Bool {
+        lhs.text == rhs.text &&
+        lhs.isVisible == rhs.isVisible &&
+        lhs.isSuspended == rhs.isSuspended
     }
 
     public var body: some View {
@@ -128,7 +143,7 @@ public struct ActiveCalloutBubble: View {
 
     @ViewBuilder
     private var content: some View {
-        if reduceMotion || !isVisible {
+        if reduceMotion || !isVisible || isSuspended {
             bubbleView
         } else {
             PhaseAnimator(BobbingPhase.allCases) { phase in

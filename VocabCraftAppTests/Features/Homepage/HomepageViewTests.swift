@@ -290,6 +290,43 @@ final class HomepageViewTests: XCTestCase {
         XCTAssertNotNil(path.body)
     }
 
+    func testHomepageViewFluidJourneyIntegrationConfig() {
+        let section = LessonSection(
+            id: "sec_unit_1",
+            title: "Everyday Phrases",
+            level: "UNIT 1",
+            progressText: "4/8",
+            nodes: [
+                LessonNodeModel(id: "node_1", title: "Intro", state: .active)
+            ]
+        )
+
+        var tappedNode: LessonNodeModel?
+        var startedNode: LessonNodeModel?
+        let journey = CraftFluidJourney(
+            sections: [section],
+            deckTitle: "UNIT 1 • Everyday Phrases",
+            deckSubtitle: "Intro",
+            onNodeTap: { node in
+                tappedNode = node
+            },
+            onStartLesson: { node in
+                startedNode = node
+            },
+            externalScrollTrigger: 2
+        )
+
+        XCTAssertEqual(journey.sections.count, 1)
+        XCTAssertEqual(journey.deckTitle, "UNIT 1 • Everyday Phrases")
+        XCTAssertEqual(journey.deckSubtitle, "Intro")
+        XCTAssertEqual(journey.externalScrollTrigger, 2)
+        journey.onNodeTap?(section.nodes[0])
+        journey.onStartLesson?(section.nodes[0])
+        XCTAssertEqual(tappedNode?.id, "node_1")
+        XCTAssertEqual(startedNode?.id, "node_1")
+        XCTAssertNotNil(journey.body)
+    }
+
     func testHomeTopHeaderAvatarTapNavigatesToSettings() {
         let router = AppRouter(initialTab: .home)
         var avatarTapped = false

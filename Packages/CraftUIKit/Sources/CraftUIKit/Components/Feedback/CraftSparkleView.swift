@@ -48,6 +48,8 @@ public struct CraftSparkleView: View {
     public let style: CraftSparkleStyle
     public let particleCount: Int
 
+    public static let animationDuration: Double = 1.0
+
     @State private var particles: [FXParticle] = []
     @State private var animationStartDate: Date?
     @State private var isRunning: Bool = false
@@ -62,6 +64,14 @@ public struct CraftSparkleView: View {
         self._isTriggered = isTriggered
         self.style = style
         self.particleCount = max(1, particleCount)
+    }
+
+    internal func dismissImmediately() {
+        isRunning = false
+        particles.removeAll()
+        animationStartDate = nil
+        staticOpacity = 0.0
+        isTriggered = false
     }
 
     public var body: some View {
@@ -94,39 +104,32 @@ public struct CraftSparkleView: View {
         }
         .task(id: isTriggered) {
             guard isTriggered else {
-                isRunning = false
-                particles.removeAll()
-                animationStartDate = nil
-                staticOpacity = 0.0
+                dismissImmediately()
                 return
             }
 
             if reduceMotion {
                 isRunning = true
-                withAnimation(.easeIn(duration: 0.2)) {
+                withAnimation(.easeIn(duration: 0.15)) {
                     staticOpacity = 1.0
                 }
-                try? await Task.sleep(nanoseconds: 1_200_000_000)
-                guard !Task.isCancelled else { return }
-                withAnimation(.easeOut(duration: 0.3)) {
+                try? await Task.sleep(nanoseconds: 700_000_000)
+                guard !Task.isCancelled, isRunning else { return }
+                withAnimation(.easeOut(duration: 0.15)) {
                     staticOpacity = 0.0
                 }
-                try? await Task.sleep(nanoseconds: 350_000_000)
-                guard !Task.isCancelled else { return }
-                isRunning = false
-                isTriggered = false
+                try? await Task.sleep(nanoseconds: 150_000_000)
+                guard !Task.isCancelled, isRunning else { return }
+                dismissImmediately()
             } else {
                 particles = generateParticles(in: containerSize)
                 animationStartDate = Date()
                 isRunning = true
 
-                let duration: Double = style == .sparkles ? 1.4 : 2.2
+                let duration: Double = Self.animationDuration
                 try? await Task.sleep(nanoseconds: UInt64(duration * 1_000_000_000))
-                guard !Task.isCancelled else { return }
-                isRunning = false
-                particles.removeAll()
-                animationStartDate = nil
-                isTriggered = false
+                guard !Task.isCancelled, isRunning else { return }
+                dismissImmediately()
             }
         }
     }
@@ -225,7 +228,7 @@ public struct CraftSparkleView: View {
     // MARK: - Canvas Rendering
 
     private func drawParticles(context: GraphicsContext, size: CGSize, elapsed: Double) {
-        let maxDuration: Double = style == .sparkles ? 1.4 : 2.2
+        let maxDuration: Double = Self.animationDuration
         let progress = min(elapsed / maxDuration, 1.0)
         let fadeThreshold = 0.65
         let fadeFactor = progress > fadeThreshold ? max(0.0, 1.0 - (progress - fadeThreshold) / (1.0 - fadeThreshold)) : 1.0

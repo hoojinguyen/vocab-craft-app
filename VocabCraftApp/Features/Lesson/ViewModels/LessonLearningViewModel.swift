@@ -1,6 +1,7 @@
 import CraftUIKit
 import Foundation
 import Observation
+import SwiftUI
 
 @MainActor
 @Observable
@@ -22,6 +23,8 @@ public final class LessonLearningViewModel: Identifiable {
     public var typingText: String = ""
     public var liveTranscript: String = ""
     public var speechState: CraftSpeechState = .idle
+    public private(set) var isSpeakingDisabledForLesson: Bool = false
+    private(set) var autoPronounceTask: Task<Void, Never>?
 
     public private(set) var hintStage: Int = 0
     public private(set) var eliminatedOptionId: String?
@@ -31,7 +34,7 @@ public final class LessonLearningViewModel: Identifiable {
     private let completeLessonUseCase: CompleteLessonUseCaseProtocol
     private let ttsService: TextToSpeechProtocol
     private let soundEffectService: SoundEffectServiceProtocol
-    private let speechEngine: ReflexSpeechEngineProtocol
+    public let speechEngine: ReflexSpeechEngineProtocol
     private let initialStepCount: Int
 
     public private(set) var completionTask: Task<LessonCompletionResult, Error>?
@@ -90,32 +93,38 @@ public final class LessonLearningViewModel: Identifiable {
     }
 
     public func startSpeechSession() {
+        guard !isSpeakingDisabledForLesson else { return }
         let contextualPhrases = words.map(\.lemma)
-        speechEngine.startSession(contextualPhrases: contextualPhrases)
+        speechEngine.startSession(contextualPhrases: contextualPhrases, lazy: true)
     }
 
     public func stopSpeechSession() {
         ttsService.stop()
-        stopListeningForSpeaking()
-        speechEngine.stopSession()
+        cleanup()
     }
 
     public func advanceStep() {
         guard !isSummaryStep else { return }
         maxProgress = max(maxProgress, progress)
+        autoPronounceTask?.cancel()
+        autoPronounceTask = nil
         ttsService.stop()
-        stopListeningForSpeaking()
-        isFeedbackPresented = false
-        typingText = ""
-        liveTranscript = ""
-        speechState = .idle
-        hintStage = 0
-        eliminatedOptionId = nil
-        if steps.isEmpty || currentStepIndex + 1 >= steps.count {
-            finishLesson()
-            currentStepIndex = max(0, steps.count - 1)
-        } else {
-            currentStepIndex += 1
+        if speechEngine.isWordActive || speechState != .idle {
+            stopListeningForSpeaking()
+        }
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+            isFeedbackPresented = false
+            typingText = ""
+            liveTranscript = ""
+            speechState = .idle
+            hintStage = 0
+            eliminatedOptionId = nil
+            if steps.isEmpty || currentStepIndex + 1 >= steps.count {
+                finishLesson()
+                currentStepIndex = max(0, steps.count - 1)
+            } else {
+                currentStepIndex += 1
+            }
         }
     }
 
@@ -164,6 +173,16 @@ public final class LessonLearningViewModel: Identifiable {
             }
         }
 
+        // Auto-pronounce vocabulary word for non-listening modes after feedback sound
+        autoPronounceTask?.cancel()
+        if item.assignedMode != .listening {
+            autoPronounceTask = Task { @MainActor in
+                try? await Task.sleep(for: .milliseconds(250))
+                guard !Task.isCancelled else { return }
+                self.ttsService.speak(text: item.word.lemma)
+            }
+        }
+
         isFeedbackPresented = true
     }
 
@@ -196,6 +215,8 @@ public final class LessonLearningViewModel: Identifiable {
     }
 
     public func startListeningForSpeaking(targetLemma: String, item: LessonExerciseItem) {
+        guard !isSpeakingDisabledForLesson else { return }
+        guard !isFeedbackPresented && speechState == .idle else { return }
         speechState = .listening(audioLevels: [0.5, 0.6, 0.4])
         liveTranscript = ""
 
@@ -212,21 +233,79 @@ public final class LessonLearningViewModel: Identifiable {
 
         speechEngine.onError = { [weak self] _ in
             guard let self, self.currentExerciseItem?.id == item.id else { return }
-            self.speechEngine.stopSession()
             self.speechState = .idle
         }
 
         if !speechEngine.isSessionActive {
             startSpeechSession()
         }
+        speechEngine.prepareEngineIfNeeded()
+        speechEngine.resumeListening()
         speechEngine.beginWord(targetLemma: targetLemma, contextualPhrases: [targetLemma, item.word.exampleEn])
     }
 
     public func stopListeningForSpeaking() {
-        speechEngine.endWord()
+        speechEngine.pauseListening()
         speechEngine.onMatchDetected = nil
         speechEngine.onTranscriptUpdate = nil
         speechEngine.onError = nil
+        speechState = .idle
+    }
+
+    public func handleCantSpeakNow(for item: LessonExerciseItem) {
+        guard currentExerciseItem?.id == item.id, !isFeedbackPresented else { return }
+        stopListeningForSpeaking()
+        speechEngine.stopSession()
+        isSpeakingDisabledForLesson = true
+        hintStage = 0
+        eliminatedOptionId = nil
+
+        // Convert current exercise item to multiple choice
+        let fallbackOptions = ReflexDistractorGenerator.generateOptions(
+            mode: .multipleChoice,
+            target: ReflexBlitzWordItem(from: item.word),
+            pool: words.map { ReflexBlitzWordItem(from: $0) }
+        )
+        let convertedCurrentItem = LessonExerciseItem(
+            id: "mc-\(item.word.id)-fallback-\(UUID().uuidString.prefix(4))",
+            word: item.word,
+            assignedMode: .multipleChoice,
+            options: fallbackOptions,
+            clozeStages: item.clozeStages,
+            attemptCount: item.attemptCount,
+            isRequeued: item.isRequeued
+        )
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+            steps[currentStepIndex] = .exercise(item: convertedCurrentItem)
+        }
+
+        // Convert any remaining speaking exercises in subsequent steps to multiple choice
+        for index in (currentStepIndex + 1)..<steps.count {
+            if case .exercise(let stepItem) = steps[index], stepItem.assignedMode == .speaking {
+                let options = ReflexDistractorGenerator.generateOptions(
+                    mode: .multipleChoice,
+                    target: ReflexBlitzWordItem(from: stepItem.word),
+                    pool: words.map { ReflexBlitzWordItem(from: $0) }
+                )
+                let convertedItem = LessonExerciseItem(
+                    id: "mc-\(stepItem.word.id)-fallback-\(UUID().uuidString.prefix(4))",
+                    word: stepItem.word,
+                    assignedMode: .multipleChoice,
+                    options: options,
+                    clozeStages: stepItem.clozeStages,
+                    attemptCount: stepItem.attemptCount,
+                    isRequeued: stepItem.isRequeued
+                )
+                steps[index] = .exercise(item: convertedItem)
+            }
+        }
+    }
+
+    public func cleanup() {
+        autoPronounceTask?.cancel()
+        autoPronounceTask = nil
+        stopListeningForSpeaking()
+        speechEngine.stopSession()
     }
 
     public func retrySpeaking(for item: LessonExerciseItem) {
@@ -237,7 +316,8 @@ public final class LessonLearningViewModel: Identifiable {
 
     private func finishLesson() {
         guard completionTask == nil else { return }
-        stopSpeechSession()
+        ttsService.stop()
+        cleanup()
 
         let stars = mistakeCount == 0 ? 3 : (mistakeCount <= 2 ? 2 : 1)
         let isCheckpoint = stageId.hasPrefix("checkpoint_")
@@ -324,5 +404,18 @@ public final class LessonLearningViewModel: Identifiable {
             return try await retryCompletion()
         }
         return nil
+    }
+
+    deinit {
+        if Thread.isMainThread {
+            MainActor.assumeIsolated {
+                cleanup()
+            }
+        } else {
+            Task { @MainActor [speechEngine] in
+                speechEngine.pauseListening()
+                speechEngine.stopSession()
+            }
+        }
     }
 }

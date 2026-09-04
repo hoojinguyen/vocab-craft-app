@@ -327,8 +327,13 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
                 .accessibilityHidden(!isFlipped)
         }
         .onPreferenceChange(CraftCardFaceHeightPreferenceKey.self) { measuredHeight in
-            if measuredHeight > 0 && abs(synchronizedHeight - measuredHeight) > 0.5 {
-                synchronizedHeight = measuredHeight
+            guard measuredHeight > 0 else { return }
+            if abs(synchronizedHeight - measuredHeight) > 1.0 {
+                var transaction = Transaction()
+                transaction.disablesAnimations = true
+                withTransaction(transaction) {
+                    synchronizedHeight = measuredHeight
+                }
             }
         }
         .contentShape(RoundedRectangle(cornerRadius: radius, style: .continuous))

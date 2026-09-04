@@ -7,6 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		300033436BDC3D083F6444E8 /* NotificationSchedulerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200033436BDC3D083F6444E8 /* NotificationSchedulerProtocol.swift */; };
+		30004508B4D59250A4070162 /* InitializeUserRoadmapUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20004508B4D59250A4070162 /* InitializeUserRoadmapUseCase.swift */; };
+		3000FE27BE7D4473EF95C369 /* OnboardingStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FE27BE7D4473EF95C369 /* OnboardingStep.swift */; };
+		300047F623A7F270F6FF5CC0 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200047F623A7F270F6FF5CC0 /* OnboardingViewModel.swift */; };
+		3000B06C15251F87FE804C1D /* OnboardingCelebrationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B06C15251F87FE804C1D /* OnboardingCelebrationSheet.swift */; };
+		300024CE82D0C335D4920A55 /* OnboardingCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200024CE82D0C335D4920A55 /* OnboardingCoordinatorView.swift */; };
+		3000A82419F9D9F63A301757 /* OnboardingFirstLessonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A82419F9D9F63A301757 /* OnboardingFirstLessonView.swift */; };
+		30003CB11D20559AA7C42104 /* OnboardingGoalStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003CB11D20559AA7C42104 /* OnboardingGoalStepView.swift */; };
+		300009FB6A46D77791D93021 /* OnboardingHabitStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200009FB6A46D77791D93021 /* OnboardingHabitStepView.swift */; };
+		3000A2D65FC578EE2342F626 /* OnboardingProficiencyStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A2D65FC578EE2342F626 /* OnboardingProficiencyStepView.swift */; };
+		300061409F3485936CA29C75 /* OnboardingRoadmapRevealStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200061409F3485936CA29C75 /* OnboardingRoadmapRevealStepView.swift */; };
+		3000FC19DB2741B6B490978F /* InitializeUserRoadmapUseCaseTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000FC19DB2741B6B490978F /* InitializeUserRoadmapUseCaseTests.swift */; };
+		3000B3EC061F36603D2978AA /* OnboardingLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B3EC061F36603D2978AA /* OnboardingLocalizationTests.swift */; };
+		3000AE08215AC6293BB16ED9 /* OnboardingViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000AE08215AC6293BB16ED9 /* OnboardingViewModelTests.swift */; };
 		3000DE9D056D85598F6E /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DE9D056D85598F6E /* AppContainer.swift */; };
 		3000FAD85B1C0D0923C5 /* EnvironmentKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FAD85B1C0D0923C5 /* EnvironmentKeys.swift */; };
 		300012A79BAC11C11690 /* AppRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200012A79BAC11C11690 /* AppRouter.swift */; };
@@ -270,6 +284,20 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		200033436BDC3D083F6444E8 /* NotificationSchedulerProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NotificationSchedulerProtocol.swift"; sourceTree = "<group>"; };
+		20004508B4D59250A4070162 /* InitializeUserRoadmapUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InitializeUserRoadmapUseCase.swift"; sourceTree = "<group>"; };
+		2000FE27BE7D4473EF95C369 /* OnboardingStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnboardingStep.swift"; sourceTree = "<group>"; };
+		200047F623A7F270F6FF5CC0 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnboardingViewModel.swift"; sourceTree = "<group>"; };
+		2000B06C15251F87FE804C1D /* OnboardingCelebrationSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnboardingCelebrationSheet.swift"; sourceTree = "<group>"; };
+		200024CE82D0C335D4920A55 /* OnboardingCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnboardingCoordinatorView.swift"; sourceTree = "<group>"; };
+		2000A82419F9D9F63A301757 /* OnboardingFirstLessonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnboardingFirstLessonView.swift"; sourceTree = "<group>"; };
+		20003CB11D20559AA7C42104 /* OnboardingGoalStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnboardingGoalStepView.swift"; sourceTree = "<group>"; };
+		200009FB6A46D77791D93021 /* OnboardingHabitStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnboardingHabitStepView.swift"; sourceTree = "<group>"; };
+		2000A2D65FC578EE2342F626 /* OnboardingProficiencyStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnboardingProficiencyStepView.swift"; sourceTree = "<group>"; };
+		200061409F3485936CA29C75 /* OnboardingRoadmapRevealStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnboardingRoadmapRevealStepView.swift"; sourceTree = "<group>"; };
+		2000FC19DB2741B6B490978F /* InitializeUserRoadmapUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InitializeUserRoadmapUseCaseTests.swift"; sourceTree = "<group>"; };
+		2000B3EC061F36603D2978AA /* OnboardingLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnboardingLocalizationTests.swift"; sourceTree = "<group>"; };
+		2000AE08215AC6293BB16ED9 /* OnboardingViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OnboardingViewModelTests.swift"; sourceTree = "<group>"; };
 		200000002D50000000000000 /* VocabCraftApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VocabCraftApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000402D50000000000000 /* VocabCraftWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VocabCraftWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000502D50000000000000 /* VocabCraftAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VocabCraftAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -576,6 +604,8 @@
 		400071CFB0497F428E99 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				400070C22EDAE209F760D688 /* Notifications */,
+
 				4000778F3AC70FE2B174 /* Audio */,
 				4000B9FD3CB2F2042047 /* Database */,
 				40003153465D574812BC /* DesignSystem */,
@@ -776,6 +806,8 @@
 		40008298FFEC52A63E9E /* UseCases */ = {
 			isa = PBXGroup;
 			children = (
+				20004508B4D59250A4070162 /* InitializeUserRoadmapUseCase.swift */,
+
 				200063C6A8B57B3C3299 /* CompleteLessonUseCase.swift */,
 				2000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift */,
 				2000C3390C35C064E34A /* FetchLearningPathUseCase.swift */,
@@ -795,6 +827,8 @@
 		4000DCA222F51AEF85D4 /* Features */ = {
 			isa = PBXGroup;
 			children = (
+				4000040AE00F13631D481438 /* Onboarding */,
+
 				40009832B6EBBEFE8B72 /* AIAssistant */,
 				400035A206369F2FAA77 /* Homepage */,
 				4000CA8EE8BA0E41C918 /* Lesson */,
@@ -1232,6 +1266,8 @@
 		40002E4285B41EEC7F8B /* Domain */ = {
 			isa = PBXGroup;
 			children = (
+				2000FC19DB2741B6B490978F /* InitializeUserRoadmapUseCaseTests.swift */,
+
 				20006B99E7C69FF14341 /* LearningPathUseCasesTests.swift */,
 				20009EAC1D6A8D6BBC1E /* LessonPlanGeneratorTests.swift */,
 				2000AFFB3F242012EAF1 /* MasteryEvaluationPolicyTests.swift */,
@@ -1249,6 +1285,8 @@
 		4000538975BBBF45E56C /* Features */ = {
 			isa = PBXGroup;
 			children = (
+				2000B3EC061F36603D2978AA /* OnboardingLocalizationTests.swift */,
+				2000AE08215AC6293BB16ED9 /* OnboardingViewModelTests.swift */,
 				40004A7D1798887BBCBC /* Homepage */,
 				400095848A6A5A497042 /* Lesson */,
 				200014E43621CC60A580 /* MixedReflexDrillViewModelTests.swift */,
@@ -1367,6 +1405,54 @@
 				200000502D50000000000000 /* VocabCraftAppTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		400070C22EDAE209F760D688 /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				200033436BDC3D083F6444E8 /* NotificationSchedulerProtocol.swift */,
+			);
+			path = "Notifications";
+			sourceTree = "<group>";
+		};
+		4000040AE00F13631D481438 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				4000E6649D295FF8A92E6177 /* Models */,
+				4000D31202E19A4D8D9B51BF /* ViewModels */,
+				4000825F9CB0F1789C8E75E0 /* Views */,
+			);
+			path = "Onboarding";
+			sourceTree = "<group>";
+		};
+		4000E6649D295FF8A92E6177 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				2000FE27BE7D4473EF95C369 /* OnboardingStep.swift */,
+			);
+			path = "Models";
+			sourceTree = "<group>";
+		};
+		4000D31202E19A4D8D9B51BF /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				200047F623A7F270F6FF5CC0 /* OnboardingViewModel.swift */,
+			);
+			path = "ViewModels";
+			sourceTree = "<group>";
+		};
+		4000825F9CB0F1789C8E75E0 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				2000B06C15251F87FE804C1D /* OnboardingCelebrationSheet.swift */,
+				200024CE82D0C335D4920A55 /* OnboardingCoordinatorView.swift */,
+				2000A82419F9D9F63A301757 /* OnboardingFirstLessonView.swift */,
+				20003CB11D20559AA7C42104 /* OnboardingGoalStepView.swift */,
+				200009FB6A46D77791D93021 /* OnboardingHabitStepView.swift */,
+				2000A2D65FC578EE2342F626 /* OnboardingProficiencyStepView.swift */,
+				200061409F3485936CA29C75 /* OnboardingRoadmapRevealStepView.swift */,
+			);
+			path = "Views";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1495,6 +1581,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				300033436BDC3D083F6444E8 /* NotificationSchedulerProtocol.swift in Sources */,
+				30004508B4D59250A4070162 /* InitializeUserRoadmapUseCase.swift in Sources */,
+				3000FE27BE7D4473EF95C369 /* OnboardingStep.swift in Sources */,
+				300047F623A7F270F6FF5CC0 /* OnboardingViewModel.swift in Sources */,
+				3000B06C15251F87FE804C1D /* OnboardingCelebrationSheet.swift in Sources */,
+				300024CE82D0C335D4920A55 /* OnboardingCoordinatorView.swift in Sources */,
+				3000A82419F9D9F63A301757 /* OnboardingFirstLessonView.swift in Sources */,
+				30003CB11D20559AA7C42104 /* OnboardingGoalStepView.swift in Sources */,
+				300009FB6A46D77791D93021 /* OnboardingHabitStepView.swift in Sources */,
+				3000A2D65FC578EE2342F626 /* OnboardingProficiencyStepView.swift in Sources */,
+				300061409F3485936CA29C75 /* OnboardingRoadmapRevealStepView.swift in Sources */,
 				3000DE9D056D85598F6E /* AppContainer.swift in Sources */,
 				3000FAD85B1C0D0923C5 /* EnvironmentKeys.swift in Sources */,
 				300012A79BAC11C11690 /* AppRouter.swift in Sources */,
@@ -1651,6 +1748,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3000FC19DB2741B6B490978F /* InitializeUserRoadmapUseCaseTests.swift in Test Sources */,
+				3000B3EC061F36603D2978AA /* OnboardingLocalizationTests.swift in Test Sources */,
+				3000AE08215AC6293BB16ED9 /* OnboardingViewModelTests.swift in Test Sources */,
 				300235B0F0A087879BE8 /* MarkLearnedIntent.swift in Test Sources */,
 				3002883BA9872E20B13D /* NextWordIntent.swift in Test Sources */,
 				300293ED2147CD09D799 /* VocabWidget.swift in Test Sources */,
