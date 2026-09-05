@@ -8,3 +8,4 @@ xcuserdata/
 worktrees/
 __pycache__/
 *.pyc
+.performance-traces/
