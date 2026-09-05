@@ -114,9 +114,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     public convenience init(audioSessionCoordinator: (any AudioSessionCoordinating)? = nil) {
         self.init(
             audioController: SpeechAudioEngineController(),
-            audioSessionCoordinator: audioSessionCoordinator,
-            speechRecognizer: SFSpeechRecognizer(locale: Locale(identifier: "en-US")),
-            authorizer: LiveSpeechAuthorizer()
+            audioSessionCoordinator: audioSessionCoordinator
         )
     }
 
@@ -426,11 +424,13 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
 
     // MARK: - Word Lifecycle
 
+    @available(*, deprecated, message: "Use startListening(targetLemma:contextualPhrases:) instead")
     public func beginWord(targetLemma: String, contextualPhrases: [String]) {
-        LessonPerformanceDiagnostics.event(
-            "SpeechWordBegin",
-            detail: "engineReady=\(isEngineReady) sessionActive=\(isSessionActive)"
-        )
+        guard isSessionActive else {
+            LessonPerformanceDiagnostics.event("SpeechWordBeginIgnored", detail: "sessionInactive")
+            return
+        }
+        LessonPerformanceDiagnostics.event("SpeechWordBegin", detail: "engineReady=\(isEngineReady) sessionActive=\(isSessionActive)")
         if isWordActive {
             endWord()
         }
@@ -445,11 +445,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         #if targetEnvironment(simulator) || os(macOS)
         // Simulator: no real recognition, test via simulateTranscript
         #else
-        startRecognitionRequest(
-            targetLemma: currentTargetLemma,
-            contextualPhrases: contextualPhrases,
-            sessionToken: token
-        )
+        startRecognitionRequest(targetLemma: currentTargetLemma, contextualPhrases: contextualPhrases, sessionToken: token)
         #endif
     }
 
