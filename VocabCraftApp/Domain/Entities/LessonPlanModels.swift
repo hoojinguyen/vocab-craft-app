@@ -54,6 +54,34 @@ public struct LessonExerciseItem: Identifiable, Sendable, Equatable {
 
     public init(
         id: String,
+        word: TopicWordDTO,
+        senseDetail: SenseDetail?,
+        assignedMode: ReflexBlitzMode,
+        options: [ReflexBlitzOption] = [],
+        clozeStages: ReflexClozeStageSet? = nil,
+        attemptCount: Int = 1,
+        isRequeued: Bool = false
+    ) {
+        self.id = id
+        self.word = word
+        self.senseDetail = senseDetail
+        self.senseID = senseDetail?.id
+        self.assignedMode = assignedMode
+        self.options = options
+        let targetLemma = senseDetail?.headword ?? word.lemma
+        let targetSentence = senseDetail?.examples.first?.textEN ?? word.exampleEn
+        let targetPos = senseDetail?.partOfSpeech.rawValue ?? word.pos
+        self.clozeStages = clozeStages ?? ReflexHintMaskGenerator.generateStages(
+            lemma: targetLemma,
+            sentenceEn: targetSentence,
+            pos: targetPos
+        )
+        self.attemptCount = attemptCount
+        self.isRequeued = isRequeued
+    }
+
+    public init(
+        id: String,
         sense: SenseDetail,
         assignedMode: ReflexBlitzMode,
         options: [ReflexBlitzOption] = [],

@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import CraftUIKit
 import Foundation
 import Observation
@@ -8,6 +9,7 @@ import UIKit
 
 @MainActor
 @Observable
+// swiftlint:disable:next type_body_length
 public final class LessonLearningViewModel: Identifiable {
     public let id: UUID = UUID()
     public let stageId: String
@@ -47,10 +49,26 @@ public final class LessonLearningViewModel: Identifiable {
 
     private let planGenerator: LessonPlanGeneratorProtocol
     private let completeLessonUseCase: CompleteLessonUseCaseProtocol
+    private let recordSenseAttemptUseCase: (any RecordSenseAttemptUseCaseProtocol)?
     private let ttsService: TextToSpeechProtocol
     private let soundEffectService: SoundEffectServiceProtocol
     public let speechEngine: ReflexSpeechEngineProtocol
     private let initialStepCount: Int
+
+    public let contentVersion: Int
+    public let lessonRevision: Int
+    public let profileID: ProfileID
+    public let deviceID: DeviceID
+    public let lessonID: LessonID?
+
+    public private(set) var isSubmittingAnswer: Bool = false
+    public private(set) var pendingAttemptID: AttemptID?
+    public private(set) var pendingAttempt: AttemptSubmission?
+    public var attemptPersistenceError: (any Error)?
+    public var showAttemptPersistenceError: Bool = false
+    public private(set) var completionEventID: EventID?
+    private var stepStartTime: Date = Date()
+    public private(set) var submissionTask: Task<AppendResult?, Error>?
 
     public private(set) var completionTask: Task<LessonCompletionResult, Error>?
     public private(set) var persistenceError: (any Error)?
@@ -61,6 +79,11 @@ public final class LessonLearningViewModel: Identifiable {
         words: [TopicWordDTO],
         planGenerator: LessonPlanGeneratorProtocol = LessonPlanGenerator(),
         completeLessonUseCase: CompleteLessonUseCaseProtocol,
+        recordSenseAttemptUseCase: (any RecordSenseAttemptUseCaseProtocol)? = nil,
+        contentVersion: Int = 1,
+        lessonRevision: Int = 1,
+        profileID: ProfileID = LearningJournal.defaultGuestProfileID,
+        deviceID: DeviceID = LearningJournal.defaultDeviceID(),
         ttsService: TextToSpeechProtocol,
         soundEffectService: SoundEffectServiceProtocol,
         speechEngine: ReflexSpeechEngineProtocol
@@ -70,6 +93,12 @@ public final class LessonLearningViewModel: Identifiable {
         self.words = words
         self.planGenerator = planGenerator
         self.completeLessonUseCase = completeLessonUseCase
+        self.recordSenseAttemptUseCase = recordSenseAttemptUseCase
+        self.contentVersion = contentVersion
+        self.lessonRevision = lessonRevision
+        self.profileID = profileID
+        self.deviceID = deviceID
+        self.lessonID = LessonID(uuidString: stageId)
         self.ttsService = ttsService
         self.soundEffectService = soundEffectService
         self.speechEngine = speechEngine
@@ -132,6 +161,9 @@ public final class LessonLearningViewModel: Identifiable {
         if speechEngine.isWordActive || speechState != .idle {
             stopListeningForSpeaking()
         }
+        stepStartTime = Date()
+        attemptPersistenceError = nil
+        showAttemptPersistenceError = false
         withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
             isFeedbackPresented = false
             typingText = ""
@@ -149,8 +181,93 @@ public final class LessonLearningViewModel: Identifiable {
     }
 
     public func submitAnswer(isCorrect: Bool, for item: LessonExerciseItem) {
-        guard !isFeedbackPresented else { return }
-        guard currentExerciseItem?.id == item.id else { return }
+        if recordSenseAttemptUseCase == nil {
+            guard !isFeedbackPresented, !isSubmittingAnswer else { return }
+            guard currentExerciseItem?.id == item.id else { return }
+            applySuccessfulSubmission(isCorrect: isCorrect, for: item)
+        } else {
+            submissionTask = Task { @MainActor in
+                try await self.submitAnswerAsync(isCorrect: isCorrect, for: item)
+            }
+        }
+    }
+
+    @discardableResult
+    public func submitAnswerAsync(isCorrect: Bool, for item: LessonExerciseItem) async throws -> AppendResult? {
+        guard !isFeedbackPresented, !isSubmittingAnswer else { return nil }
+        guard currentExerciseItem?.id == item.id else { return nil }
+        isSubmittingAnswer = true
+
+        guard let recordSenseAttemptUseCase else {
+            isSubmittingAnswer = false
+            applySuccessfulSubmission(isCorrect: isCorrect, for: item)
+            return nil
+        }
+
+        let attemptID = AttemptID(rawValue: UUID())
+        let submission = makeAttemptSubmission(attemptID: attemptID, isCorrect: isCorrect, for: item)
+        self.pendingAttempt = submission
+        self.pendingAttemptID = attemptID
+
+        do {
+            let result = try await recordSenseAttemptUseCase.execute(attempt: submission)
+            self.pendingAttempt = nil
+            self.pendingAttemptID = nil
+            self.attemptPersistenceError = nil
+            self.showAttemptPersistenceError = false
+            self.isSubmittingAnswer = false
+            self.applySuccessfulSubmission(isCorrect: isCorrect, for: item)
+            return result
+        } catch {
+            self.attemptPersistenceError = error
+            self.showAttemptPersistenceError = true
+            self.isSubmittingAnswer = false
+            throw error
+        }
+    }
+
+    @discardableResult
+    public func retryPendingAttempt() async throws -> AppendResult? {
+        guard let pending = pendingAttempt else { return nil }
+        guard let recordSenseAttemptUseCase else { return nil }
+        guard !isSubmittingAnswer else { return nil }
+        isSubmittingAnswer = true
+
+        do {
+            let result = try await recordSenseAttemptUseCase.execute(attempt: pending)
+            self.pendingAttempt = nil
+            self.pendingAttemptID = nil
+            self.attemptPersistenceError = nil
+            self.showAttemptPersistenceError = false
+            self.isSubmittingAnswer = false
+
+            if let currentItem = currentExerciseItem {
+                let isCorrect = (pending.outcome == .correct)
+                self.applySuccessfulSubmission(isCorrect: isCorrect, for: currentItem)
+            }
+            return result
+        } catch {
+            self.attemptPersistenceError = error
+            self.showAttemptPersistenceError = true
+            self.isSubmittingAnswer = false
+            throw error
+        }
+    }
+
+    @discardableResult
+    public func retryAttempt() async throws -> AppendResult? {
+        try await retryPendingAttempt()
+    }
+
+    @discardableResult
+    public func awaitSubmission() async throws -> AppendResult? {
+        if let submissionTask {
+            return try await submissionTask.value
+        }
+        return nil
+    }
+
+    private func applySuccessfulSubmission(isCorrect: Bool, for item: LessonExerciseItem) {
         maxProgress = max(maxProgress, progress)
         stopListeningForSpeaking()
         totalAnswered += 1
@@ -183,6 +300,7 @@ public final class LessonLearningViewModel: Identifiable {
                 let retryItem = LessonExerciseItem(
                     id: "\(fallbackMode.rawValue)-\(item.word.id)-retry-\(UUID().uuidString.prefix(4))",
                     word: item.word,
+                    senseDetail: item.senseDetail,
                     assignedMode: fallbackMode,
                     options: fallbackOptions,
                     clozeStages: clozeStages,
@@ -449,7 +567,7 @@ public final class LessonLearningViewModel: Identifiable {
 
 extension LessonLearningViewModel {
     func finishLesson() {
-        guard completionTask == nil else { return }
+        guard completionTask == nil, !isCompleted, !isSummaryStep else { return }
         ttsService.stop()
         cleanup()
 
@@ -471,6 +589,10 @@ extension LessonLearningViewModel {
         self.summary = summaryModel
         self.steps.append(.summary(summary: summaryModel))
 
+        let stableEventID = self.completionEventID ?? EventID(rawValue: UUID())
+        self.completionEventID = stableEventID
+        let completion = makeLessonCompletion(eventID: stableEventID)
+
         self.completionTask = Task {
             do {
                 let result = try await completeLessonUseCase.execute(
@@ -478,7 +600,8 @@ extension LessonLearningViewModel {
                     deckId: deckId,
                     stars: stars,
                     weakWordIds: Array(weakWordIds),
-                    progressFraction: 1.0
+                    progressFraction: 1.0,
+                    completion: completion
                 )
                 await MainActor.run {
                     self.isCompleted = true
@@ -504,6 +627,11 @@ extension LessonLearningViewModel {
         }
         guard let summary else { return nil }
         persistenceError = nil
+
+        let stableEventID = self.completionEventID ?? EventID(rawValue: UUID())
+        self.completionEventID = stableEventID
+        let completion = makeLessonCompletion(eventID: stableEventID)
+
         let task = Task {
             do {
                 let result = try await completeLessonUseCase.execute(
@@ -511,7 +639,8 @@ extension LessonLearningViewModel {
                     deckId: deckId,
                     stars: summary.stars,
                     weakWordIds: Array(weakWordIds),
-                    progressFraction: 1.0
+                    progressFraction: 1.0,
+                    completion: completion
                 )
                 await MainActor.run {
                     self.isCompleted = true
@@ -538,5 +667,104 @@ extension LessonLearningViewModel {
             return try await retryCompletion()
         }
         return nil
+    }
+
+    private func makeLessonCompletion(eventID: EventID) -> LessonCompletion {
+        let lessonIdentifier = lessonID ?? LessonID(uuidString: stageId) ?? LessonID(rawValue: UUID())
+        return LessonCompletion(
+            eventID: eventID,
+            originProfileID: profileID,
+            deviceID: deviceID,
+            deviceSequence: 1,
+            eventSchemaVersion: 1,
+            lessonID: lessonIdentifier,
+            lessonRevision: lessonRevision,
+            contentVersion: contentVersion,
+            completedAt: ISO8601DateFormatter().string(from: Date())
+        )
+    }
+
+    private func resolveSenseID(for item: LessonExerciseItem) -> SenseID {
+        if let senseID = item.senseID {
+            return senseID
+        }
+        if let senseID = item.senseDetail?.id {
+            return senseID
+        }
+        let formatted = String(format: "00000000-0000-4000-8000-%012llx", abs(item.word.id))
+        return SenseID(uuidString: formatted) ?? SenseID(rawValue: UUID())
+    }
+
+    private func makeAttemptSubmission(
+        attemptID: AttemptID,
+        isCorrect: Bool,
+        for item: LessonExerciseItem
+    ) -> AttemptSubmission {
+        let senseID = resolveSenseID(for: item)
+        let elapsedMs = max(500, Int(Date().timeIntervalSince(stepStartTime) * 1000))
+
+        let kind: ExerciseKind
+        let capability: Capability?
+        let inputModes: [InputMode]
+        let responseMode: ResponseMode
+        let outcome: ExerciseOutcome = isCorrect ? .correct : .incorrect
+        let scoreMilli: Int? = isCorrect ? 1000 : 0
+        let evaluatorVersion: String
+        let pronunciationScore: Int?
+
+        switch item.assignedMode {
+        case .speaking:
+            kind = .pronunciation
+            capability = nil
+            inputModes = [.audio]
+            responseMode = .speech
+            evaluatorVersion = "speech_v1"
+            pronunciationScore = isCorrect ? 1000 : 0
+        case .typing:
+            kind = .recallText
+            capability = .recall
+            inputModes = [.text]
+            responseMode = .text
+            evaluatorVersion = "exact_match_v1"
+            pronunciationScore = nil
+        case .multipleChoice:
+            kind = .recognitionChoice
+            capability = .recognition
+            inputModes = [.text]
+            responseMode = .choice
+            evaluatorVersion = "exact_match_v1"
+            pronunciationScore = nil
+        case .listening:
+            kind = .recognitionChoice
+            capability = .recognition
+            inputModes = [.audio]
+            responseMode = .choice
+            evaluatorVersion = "exact_match_v1"
+            pronunciationScore = nil
+        }
+
+        return AttemptSubmission(
+            attemptID: attemptID,
+            eventSchemaVersion: 1,
+            senseID: senseID,
+            senseRevision: item.senseDetail?.revision ?? 1,
+            contentVersion: contentVersion,
+            lessonID: lessonID ?? LessonID(uuidString: stageId),
+            lessonRevision: lessonRevision,
+            exerciseKind: kind,
+            capability: capability,
+            inputModes: inputModes,
+            responseMode: responseMode,
+            outcome: outcome,
+            scoreMilli: scoreMilli,
+            hintCount: hintStage,
+            retryCount: max(0, item.attemptCount - 1),
+            responseTimeMs: elapsedMs,
+            occurredAt: ISO8601DateFormatter().string(from: Date()),
+            elapsedSincePreviousMs: nil,
+            clientSRSAlgorithmVersion: "none",
+            evaluatorVersion: evaluatorVersion,
+            pronunciationScoreMilli: pronunciationScore
+        )
     }
 }

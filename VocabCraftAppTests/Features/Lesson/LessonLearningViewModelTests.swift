@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import Foundation
 #if canImport(Testing)
 import Testing
@@ -10,15 +11,18 @@ final class MockCompleteLessonUseCase: CompleteLessonUseCaseProtocol, @unchecked
     var executedStars: Int?
     var executedWeakWordIds: [Int64]?
     var executedProgressFraction: Double?
+    var executedCompletion: LessonCompletion?
     var shouldFail: Bool = false
     var executeCallCount: Int = 0
 
+    // swiftlint:disable:next function_parameter_count
     func execute(
         stageId: String,
         deckId: String,
         stars: Int,
         weakWordIds: [Int64],
-        progressFraction: Double
+        progressFraction: Double,
+        completion: LessonCompletion? = nil
     ) async throws -> LessonCompletionResult {
         executeCallCount += 1
         if shouldFail {
@@ -29,6 +33,7 @@ final class MockCompleteLessonUseCase: CompleteLessonUseCaseProtocol, @unchecked
         self.executedStars = stars
         self.executedWeakWordIds = weakWordIds
         self.executedProgressFraction = progressFraction
+        self.executedCompletion = completion
         return LessonCompletionResult(
             stageId: stageId,
             deckId: deckId,
@@ -37,6 +42,23 @@ final class MockCompleteLessonUseCase: CompleteLessonUseCaseProtocol, @unchecked
             weakWordIds: weakWordIds,
             isUnitCheckpoint: false
         )
+    }
+}
+
+final class MockRecordSenseAttemptUseCase: RecordSenseAttemptUseCaseProtocol, @unchecked Sendable {
+    var executedAttempts: [AttemptSubmission] = []
+    var shouldFail: Bool = false
+    var failureError: Error = NSError(domain: "DiskFailure", code: -1)
+
+    func execute(attempt: AttemptSubmission) async throws -> AppendResult {
+        if shouldFail {
+            throw failureError
+        }
+        if executedAttempts.contains(where: { $0.attemptID == attempt.attemptID }) {
+            return .duplicate
+        }
+        executedAttempts.append(attempt)
+        return .inserted
     }
 }
 
@@ -75,6 +97,7 @@ struct LessonLearningViewModelTests {
         deckId: String = "deck_1",
         words: [TopicWordDTO]? = nil,
         completeLessonUseCase: CompleteLessonUseCaseProtocol? = nil,
+        recordSenseAttemptUseCase: (any RecordSenseAttemptUseCaseProtocol)? = nil,
         ttsService: TextToSpeechProtocol? = nil,
         soundEffectService: SoundEffectServiceProtocol? = nil,
         speechEngine: ReflexSpeechEngineProtocol? = nil
@@ -84,6 +107,7 @@ struct LessonLearningViewModelTests {
             deckId: deckId,
             words: words ?? makeSampleWords(),
             completeLessonUseCase: completeLessonUseCase ?? MockCompleteLessonUseCase(),
+            recordSenseAttemptUseCase: recordSenseAttemptUseCase,
             ttsService: ttsService ?? MockTextToSpeechService(),
             soundEffectService: soundEffectService ?? MockSoundEffectService(),
             speechEngine: speechEngine ?? MockResilientReflexSpeechEngine()
@@ -943,6 +967,131 @@ struct LessonLearningViewModelTests {
         // Trigger permission denial logic again
         vm.handlePermissionDenied(for: speakingItem)
         #expect(vm.permissionNotice == nil)
+    }
+
+    @Test("Submitting answer writes attempt to recorder and lesson finish writes completion")
+    func testSubmissionRecordsToJournalAndCompletionCallsComplete() async throws {
+        let mockRecorder = MockRecordSenseAttemptUseCase()
+        let mockComplete = MockCompleteLessonUseCase()
+        let vm = makeVM(
+            completeLessonUseCase: mockComplete,
+            recordSenseAttemptUseCase: mockRecorder
+        )
+
+        while vm.currentExerciseItem == nil && !vm.isSummaryStep {
+            vm.advanceStep()
+        }
+        let exerciseItem = try #require(vm.currentExerciseItem)
+
+        let result = try await vm.submitAnswerAsync(isCorrect: true, for: exerciseItem)
+        #expect(result == .inserted)
+        #expect(mockRecorder.executedAttempts.count == 1)
+
+        let recordedAttempt = try #require(mockRecorder.executedAttempts.first)
+        #expect(recordedAttempt.contentVersion == 1)
+        #expect(recordedAttempt.lessonRevision == 1)
+        #expect(recordedAttempt.outcome == .correct)
+
+        while !vm.isCompleted && !vm.isSummaryStep {
+            if let current = vm.currentExerciseItem {
+                _ = try await vm.submitAnswerAsync(isCorrect: true, for: current)
+            }
+            vm.advanceStep()
+        }
+
+        if let completionTask = vm.completionTask {
+            _ = try await completionTask.value
+        }
+
+        #expect(mockComplete.executeCallCount == 1)
+        #expect(mockComplete.executedStars == 3)
+        let completion = try #require(mockComplete.executedCompletion)
+        #expect(completion.eventID == vm.completionEventID)
+    }
+
+    @Test("Storage failure retains pending attempt and retry uses the exact same attempt ID")
+    func testRetryDoesNotChangeAttemptID() async throws {
+        let mockRecorder = MockRecordSenseAttemptUseCase()
+        mockRecorder.shouldFail = true
+        let vm = makeVM(recordSenseAttemptUseCase: mockRecorder)
+
+        while vm.currentExerciseItem == nil && !vm.isSummaryStep {
+            vm.advanceStep()
+        }
+        let exerciseItem = try #require(vm.currentExerciseItem)
+
+        vm.submitAnswer(isCorrect: true, for: exerciseItem)
+        do {
+            _ = try await vm.awaitSubmission()
+        } catch {
+            // Expected failure
+        }
+
+        #expect(vm.attemptPersistenceError != nil)
+        #expect(vm.showAttemptPersistenceError == true)
+        #expect(!vm.isFeedbackPresented)
+        let pendingID = try #require(vm.pendingAttemptID)
+        #expect(vm.pendingAttempt?.attemptID == pendingID)
+
+        mockRecorder.shouldFail = false
+        let retryResult = try await vm.retryPendingAttempt()
+
+        #expect(retryResult == .inserted)
+        #expect(vm.attemptPersistenceError == nil)
+        #expect(vm.showAttemptPersistenceError == false)
+        #expect(vm.isFeedbackPresented)
+        #expect(mockRecorder.executedAttempts.count == 1)
+        #expect(mockRecorder.executedAttempts.first?.attemptID == pendingID)
+    }
+
+    @Test("Intentional new answer uses a distinct attempt ID")
+    func testIntentionalNewAnswerUsesNewAttemptID() async throws {
+        let mockRecorder = MockRecordSenseAttemptUseCase()
+        let vm = makeVM(recordSenseAttemptUseCase: mockRecorder)
+
+        while vm.currentExerciseItem == nil && !vm.isSummaryStep {
+            vm.advanceStep()
+        }
+        let firstItem = try #require(vm.currentExerciseItem)
+        _ = try await vm.submitAnswerAsync(isCorrect: true, for: firstItem)
+        #expect(mockRecorder.executedAttempts.count == 1)
+        let firstAttemptID = mockRecorder.executedAttempts[0].attemptID
+
+        vm.advanceStep()
+        while vm.currentExerciseItem == nil && !vm.isSummaryStep {
+            vm.advanceStep()
+        }
+        let secondItem = try #require(vm.currentExerciseItem)
+        _ = try await vm.submitAnswerAsync(isCorrect: false, for: secondItem)
+        #expect(mockRecorder.executedAttempts.count == 2)
+        let secondAttemptID = mockRecorder.executedAttempts[1].attemptID
+
+        #expect(firstAttemptID != secondAttemptID)
+    }
+
+    @Test("Completion occurs once by event ID and repeated finish calls are ignored")
+    func testCompletionOccursOnceByEventIDNotOnViewReappear() async throws {
+        let mockComplete = MockCompleteLessonUseCase()
+        let vm = makeVM(completeLessonUseCase: mockComplete)
+
+        while !vm.isCompleted && !vm.isSummaryStep {
+            if let current = vm.currentExerciseItem {
+                vm.submitAnswer(isCorrect: true, for: current)
+            }
+            vm.advanceStep()
+        }
+
+        if let task = vm.completionTask {
+            _ = try await task.value
+        }
+
+        #expect(mockComplete.executeCallCount == 1)
+        let originalEventID = try #require(vm.completionEventID)
+        #expect(mockComplete.executedCompletion?.eventID == originalEventID)
+
+        vm.finishLesson()
+        #expect(mockComplete.executeCallCount == 1)
+        #expect(vm.completionEventID == originalEventID)
     }
 }
 

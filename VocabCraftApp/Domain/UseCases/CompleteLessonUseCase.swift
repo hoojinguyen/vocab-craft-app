@@ -27,26 +27,53 @@ public struct LessonCompletionResult: Sendable, Equatable {
 }
 
 public protocol CompleteLessonUseCaseProtocol: Sendable {
+    // swiftlint:disable:next function_parameter_count
+    func execute(
+        stageId: String,
+        deckId: String,
+        stars: Int,
+        weakWordIds: [Int64],
+        progressFraction: Double,
+        completion: LessonCompletion?
+    ) async throws -> LessonCompletionResult
+}
+
+public extension CompleteLessonUseCaseProtocol {
     func execute(
         stageId: String,
         deckId: String,
         stars: Int,
         weakWordIds: [Int64],
         progressFraction: Double
-    ) async throws -> LessonCompletionResult
+    ) async throws -> LessonCompletionResult {
+        try await execute(
+            stageId: stageId,
+            deckId: deckId,
+            stars: stars,
+            weakWordIds: weakWordIds,
+            progressFraction: progressFraction,
+            completion: nil
+        )
+    }
 }
 
 public final class CompleteLessonUseCase: CompleteLessonUseCaseProtocol, Sendable {
     private let stageRepo: StageProgressRepositoryProtocol
     private let progressRepo: (any UserProgressRepositoryProtocol)?
+    private let journal: LearningJournal?
+    private let profileID: ProfileID?
     private let inFlightTasksLock = OSAllocatedUnfairLock(initialState: [String: Task<LessonCompletionResult, any Error>]())
 
     public init(
         stageRepo: StageProgressRepositoryProtocol,
-        progressRepo: (any UserProgressRepositoryProtocol)? = nil
+        progressRepo: (any UserProgressRepositoryProtocol)? = nil,
+        journal: LearningJournal? = nil,
+        profileID: ProfileID? = nil
     ) {
         self.stageRepo = stageRepo
         self.progressRepo = progressRepo
+        self.journal = journal
+        self.profileID = profileID
     }
 
     public func execute(
@@ -54,7 +81,8 @@ public final class CompleteLessonUseCase: CompleteLessonUseCaseProtocol, Sendabl
         deckId: String,
         stars: Int,
         weakWordIds: [Int64],
-        progressFraction: Double
+        progressFraction: Double,
+        completion: LessonCompletion? = nil
     ) async throws -> LessonCompletionResult {
         let sessionKey = "\(deckId):\(stageId)"
 
@@ -73,7 +101,8 @@ public final class CompleteLessonUseCase: CompleteLessonUseCaseProtocol, Sendabl
                     deckId: deckId,
                     stars: stars,
                     weakWordIds: weakWordIds,
-                    progressFraction: progressFraction
+                    progressFraction: progressFraction,
+                    completion: completion
                 )
             }
             state[sessionKey] = newTask
@@ -83,12 +112,14 @@ public final class CompleteLessonUseCase: CompleteLessonUseCaseProtocol, Sendabl
         return try await sessionTask.value
     }
 
+    // swiftlint:disable:next function_parameter_count
     private func performExecution(
         stageId: String,
         deckId: String,
         stars: Int,
         weakWordIds: [Int64],
-        progressFraction: Double
+        progressFraction: Double,
+        completion: LessonCompletion?
     ) async throws -> LessonCompletionResult {
         let isCheckpoint = stageId.hasPrefix("checkpoint_")
         let isCompleted = progressFraction >= 1.0 || stars > 0
@@ -111,6 +142,11 @@ public final class CompleteLessonUseCase: CompleteLessonUseCaseProtocol, Sendabl
                     deckId: deckId
                 )
             }
+        }
+
+        if let journal, let completion {
+            let targetProfileID = self.profileID ?? completion.originProfileID
+            try await journal.complete(completion, profileID: targetProfileID)
         }
 
         return LessonCompletionResult(

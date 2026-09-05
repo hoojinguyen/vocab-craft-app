@@ -205,5 +205,18 @@ public struct LessonLearningView: View {
         } message: { notice in
             Text(notice.message)
         }
+        .alert(
+            AppStrings.Lesson.attemptErrorTitleText,
+            isPresented: $viewModel.showAttemptPersistenceError
+        ) {
+            Button(AppStrings.Lesson.attemptErrorRetryActionText) {
+                Task {
+                    _ = try? await viewModel.retryPendingAttempt()
+                }
+            }
+            Button(AppStrings.Lesson.exitAlertCancelText, role: .cancel) {}
+        } message: {
+            Text(AppStrings.Lesson.attemptErrorMessageText)
+        }
     }
 }

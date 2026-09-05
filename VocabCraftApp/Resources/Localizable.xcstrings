@@ -766,6 +766,57 @@
         }
       }
     },
+    "app.lesson.attempt_error.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An error occurred while saving your exercise result. Please try again."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đã xảy ra lỗi khi lưu kết quả bài tập. Vui lòng thử lại."
+          }
+        }
+      }
+    },
+    "app.lesson.attempt_error.retry" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retry"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thử lại"
+          }
+        }
+      }
+    },
+    "app.lesson.attempt_error.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to Save Progress"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không thể lưu tiến độ"
+          }
+        }
+      }
+    },
     "app.lesson.countdown.subtitle" : {
       "extractionState" : "manual",
       "localizations" : {

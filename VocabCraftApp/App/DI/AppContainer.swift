@@ -41,6 +41,7 @@ public final class AppContainer {
 
     public let fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol
     public let completeLessonUseCase: CompleteLessonUseCaseProtocol
+    public let recordSenseAttemptUseCase: (any RecordSenseAttemptUseCaseProtocol)?
 
     public let fetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProtocol
     public let reviewWeakWordsUseCase: ReviewWeakWordsUseCaseProtocol
@@ -66,6 +67,7 @@ public final class AppContainer {
         userProgressRepository: (any UserProgressRepositoryProtocol)? = nil,
         fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol? = nil,
         completeLessonUseCase: CompleteLessonUseCaseProtocol? = nil,
+        recordSenseAttemptUseCase: (any RecordSenseAttemptUseCaseProtocol)? = nil,
         generateMixedReflexQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol? = nil,
         practiceDrillPlanGenerator: PracticeDrillPlanGeneratorProtocol? = nil,
         recordMixedDrillAttemptUseCase: RecordMixedDrillAttemptUseCaseProtocol? = nil,
@@ -136,7 +138,13 @@ public final class AppContainer {
         )
         self.completeLessonUseCase = completeLessonUseCase ?? CompleteLessonUseCase(
             stageRepo: resolvedStageRepo,
-            progressRepo: resolvedUserProgressRepo
+            progressRepo: resolvedUserProgressRepo,
+            journal: contentContext.journal,
+            profileID: LearningJournal.defaultGuestProfileID
+        )
+        self.recordSenseAttemptUseCase = Self.resolveRecordSenseAttemptUseCase(
+            provided: recordSenseAttemptUseCase,
+            contentContext: contentContext
         )
 
         // Personal Vault & Mixed Reflex Use Cases
@@ -257,10 +265,15 @@ public final class AppContainer {
             deckId: deckId,
             words: words,
             completeLessonUseCase: completeLessonUseCase,
+            recordSenseAttemptUseCase: recordSenseAttemptUseCase,
             ttsService: ttsService,
             soundEffectService: SoundEffectService.shared,
             speechEngine: makeReflexSpeechEngine()
         )
+    }
+
+    public func makeRecordSenseAttemptUseCase() -> (any RecordSenseAttemptUseCaseProtocol)? {
+        recordSenseAttemptUseCase
     }
 
     public func makeSettingsViewModel() -> SettingsViewModel {
@@ -392,6 +405,22 @@ public final class AppContainer {
             )
         }
         return ToggleWordBookmarkUseCase(progressRepo: progressRepo)
+    }
+
+    private static func resolveRecordSenseAttemptUseCase(
+        provided: (any RecordSenseAttemptUseCaseProtocol)?,
+        contentContext: ResolvedContentContext
+    ) -> (any RecordSenseAttemptUseCaseProtocol)? {
+        if let provided {
+            return provided
+        }
+        guard let journal = contentContext.journal else {
+            return nil
+        }
+        return RecordSenseAttemptUseCase(
+            journal: journal,
+            profileID: LearningJournal.defaultGuestProfileID
+        )
     }
 
     public static var mock: AppContainer {
