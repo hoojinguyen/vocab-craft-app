@@ -38,7 +38,9 @@
 		30009AC1BB7654E455DF /* SwiftDataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20009AC1BB7654E455DF /* SwiftDataModels.swift */; };
 		3000928AAF987BEB4203 /* UserSettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000928AAF987BEB4203 /* UserSettingsStore.swift */; };
 		300085D4BA7A4E3D273F /* VocabTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200085D4BA7A4E3D273F /* VocabTheme.swift */; };
+		3000A68BA3D199091703 /* JournalSchema.sql in Resources */ = {isa = PBXBuildFile; fileRef = 2000A68BA3D199091703 /* JournalSchema.sql */; };
 		3000350B2A9EFE507F9D /* LearningEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000350B2A9EFE507F9D /* LearningEvents.swift */; };
+		30003D23FAB5BAB45B33 /* LearningJournal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003D23FAB5BAB45B33 /* LearningJournal.swift */; };
 		3000B9DD402DCD172909 /* AppStrings+Lesson.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B9DD402DCD172909 /* AppStrings+Lesson.swift */; };
 		3000915BE5C96A7D1D18 /* AppStrings+Practice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000915BE5C96A7D1D18 /* AppStrings+Practice.swift */; };
 		300090EB5ABA9B7051A5 /* AppStrings+Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200090EB5ABA9B7051A5 /* AppStrings+Profile.swift */; };
@@ -180,6 +182,7 @@
 		30001611F67650D4D4BB /* AppRouterTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20001611F67650D4D4BB /* AppRouterTests.swift */; };
 		30004EEF46366B3A6AA6 /* ContentContractTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20004EEF46366B3A6AA6 /* ContentContractTests.swift */; };
 		3000C6A8F709B28ADA21 /* ContractFixture.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C6A8F709B28ADA21 /* ContractFixture.swift */; };
+		30009210019D3194CD84 /* LearningJournalTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20009210019D3194CD84 /* LearningJournalTests.swift */; };
 		30009C2EACBF639AB318 /* SQLiteContentRepositoryTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20009C2EACBF639AB318 /* SQLiteContentRepositoryTests.swift */; };
 		300051326088811D6E8E /* AudioSessionCoordinatorTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200051326088811D6E8E /* AudioSessionCoordinatorTests.swift */; };
 		3000D3E278C8A14AC843 /* SoundEffectAndTTSTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000D3E278C8A14AC843 /* SoundEffectAndTTSTests.swift */; };
@@ -345,7 +348,9 @@
 		20009AC1BB7654E455DF /* SwiftDataModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SwiftDataModels.swift"; sourceTree = "<group>"; };
 		2000928AAF987BEB4203 /* UserSettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserSettingsStore.swift"; sourceTree = "<group>"; };
 		200085D4BA7A4E3D273F /* VocabTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabTheme.swift"; sourceTree = "<group>"; };
+		2000A68BA3D199091703 /* JournalSchema.sql */ = {isa = PBXFileReference; lastKnownFileType = text; path = "JournalSchema.sql"; sourceTree = "<group>"; };
 		2000350B2A9EFE507F9D /* LearningEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningEvents.swift"; sourceTree = "<group>"; };
+		20003D23FAB5BAB45B33 /* LearningJournal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningJournal.swift"; sourceTree = "<group>"; };
 		2000B9DD402DCD172909 /* AppStrings+Lesson.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStrings+Lesson.swift"; sourceTree = "<group>"; };
 		2000915BE5C96A7D1D18 /* AppStrings+Practice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStrings+Practice.swift"; sourceTree = "<group>"; };
 		200090EB5ABA9B7051A5 /* AppStrings+Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStrings+Profile.swift"; sourceTree = "<group>"; };
@@ -477,6 +482,7 @@
 		20001611F67650D4D4BB /* AppRouterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppRouterTests.swift"; sourceTree = "<group>"; };
 		20004EEF46366B3A6AA6 /* ContentContractTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentContractTests.swift"; sourceTree = "<group>"; };
 		2000C6A8F709B28ADA21 /* ContractFixture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContractFixture.swift"; sourceTree = "<group>"; };
+		20009210019D3194CD84 /* LearningJournalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningJournalTests.swift"; sourceTree = "<group>"; };
 		20009C2EACBF639AB318 /* SQLiteContentRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SQLiteContentRepositoryTests.swift"; sourceTree = "<group>"; };
 		200051326088811D6E8E /* AudioSessionCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AudioSessionCoordinatorTests.swift"; sourceTree = "<group>"; };
 		2000D3E278C8A14AC843 /* SoundEffectAndTTSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SoundEffectAndTTSTests.swift"; sourceTree = "<group>"; };
@@ -748,7 +754,9 @@
 		4000041CB187F86EA831 /* Learning */ = {
 			isa = PBXGroup;
 			children = (
+				2000A68BA3D199091703 /* JournalSchema.sql */,
 				2000350B2A9EFE507F9D /* LearningEvents.swift */,
+				20003D23FAB5BAB45B33 /* LearningJournal.swift */,
 			);
 			path = "Learning";
 			sourceTree = "<group>";
@@ -1371,6 +1379,7 @@
 			children = (
 				20004EEF46366B3A6AA6 /* ContentContractTests.swift */,
 				2000C6A8F709B28ADA21 /* ContractFixture.swift */,
+				20009210019D3194CD84 /* LearningJournalTests.swift */,
 				20009C2EACBF639AB318 /* SQLiteContentRepositoryTests.swift */,
 			);
 			path = "Contract";
@@ -1698,6 +1707,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3000A68BA3D199091703 /* JournalSchema.sql in Resources */,
 				3000B135085E448B7AE0 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1758,6 +1768,7 @@
 				3000928AAF987BEB4203 /* UserSettingsStore.swift in Sources */,
 				300085D4BA7A4E3D273F /* VocabTheme.swift in Sources */,
 				3000350B2A9EFE507F9D /* LearningEvents.swift in Sources */,
+				30003D23FAB5BAB45B33 /* LearningJournal.swift in Sources */,
 				3000B9DD402DCD172909 /* AppStrings+Lesson.swift in Sources */,
 				3000915BE5C96A7D1D18 /* AppStrings+Practice.swift in Sources */,
 				300090EB5ABA9B7051A5 /* AppStrings+Profile.swift in Sources */,
@@ -1912,6 +1923,7 @@
 				30001611F67650D4D4BB /* AppRouterTests.swift in Test Sources */,
 				30004EEF46366B3A6AA6 /* ContentContractTests.swift in Test Sources */,
 				3000C6A8F709B28ADA21 /* ContractFixture.swift in Test Sources */,
+				30009210019D3194CD84 /* LearningJournalTests.swift in Test Sources */,
 				30009C2EACBF639AB318 /* SQLiteContentRepositoryTests.swift in Test Sources */,
 				300051326088811D6E8E /* AudioSessionCoordinatorTests.swift in Test Sources */,
 				3000D3E278C8A14AC843 /* SoundEffectAndTTSTests.swift in Test Sources */,

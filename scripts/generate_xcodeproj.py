@@ -71,7 +71,7 @@ def generate_pbxproj():
         if filename.endswith(".swift"):
             pbx_build_files.append(f'\t\t{build_id} /* {filename} in Sources */ = {{isa = PBXBuildFile; fileRef = {ref_id} /* {filename} */; }};')
             app_sources_build_files.append(f'\t\t\t\t{build_id} /* {filename} in Sources */,')
-        elif filename.endswith(".xcstrings") or filename.endswith(".json") or filename.endswith(".xcassets"):
+        elif filename.endswith(".xcstrings") or filename.endswith(".json") or filename.endswith(".xcassets") or filename.endswith(".sql"):
             pbx_build_files.append(f'\t\t{build_id} /* {filename} in Resources */ = {{isa = PBXBuildFile; fileRef = {ref_id} /* {filename} */; }};')
             app_resources_build_files.append(f'\t\t\t\t{build_id} /* {filename} in Resources */,')
 
