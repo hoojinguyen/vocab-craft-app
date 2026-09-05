@@ -62,7 +62,7 @@ public actor LearningJournal {
     private var db: OpaquePointer?
 
     private static let embeddedSchemaSQL = """
-    CREATE TABLE IF NOT EXISTS profiles (id TEXT PRIMARY KEY, kind TEXT NOT NULL, created_at TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS profiles (id TEXT PRIMARY KEY, kind TEXT NOT NULL, created_at TEXT NOT NULL, account_binding TEXT);
     CREATE TABLE IF NOT EXISTS attempts (
         attempt_id TEXT PRIMARY KEY, profile_id TEXT NOT NULL REFERENCES profiles(id),
         payload_json TEXT NOT NULL, submission_hash TEXT NOT NULL, created_at TEXT NOT NULL
@@ -81,6 +81,8 @@ public actor LearningJournal {
         PRIMARY KEY (profile_id, device_id), FOREIGN KEY (profile_id) REFERENCES profiles(id)
     );
     CREATE INDEX IF NOT EXISTS idx_attempts_profile_created ON attempts(profile_id, created_at);
+    CREATE INDEX IF NOT EXISTS idx_attempts_profile_hash ON attempts(profile_id, submission_hash);
+    CREATE INDEX IF NOT EXISTS idx_attempts_profile_sense ON attempts(profile_id, json_extract(payload_json, '$.sense_id'));
     CREATE INDEX IF NOT EXISTS idx_completions_profile_created ON completions(profile_id, created_at);
     CREATE INDEX IF NOT EXISTS idx_counters_profile_sense ON counters(profile_id, sense_id);
     """
@@ -284,17 +286,16 @@ public actor LearningJournal {
         try executeTransaction {
             try self.assertProfileExists(profileID: profileID)
 
+            let finalCompletion = self.normalizeCompletion(completion, profileID: profileID)
             if let existingPayload = try self.fetchExistingCompletionPayload(eventID: completion.eventID) {
-                if let decoded = try? JSONDecoder().decode(LessonCompletion.self, from: Data(existingPayload.utf8)),
-                   decoded.lessonID == completion.lessonID {
-                    return
-                } else {
+                guard let decoded = try? JSONDecoder().decode(LessonCompletion.self, from: Data(existingPayload.utf8)),
+                      decoded == finalCompletion else {
                     let msg = "Completion event \(completion.eventID) already exists with conflicting data"
                     throw LearningJournalError.conflict(msg)
                 }
+                return
             }
 
-            let finalCompletion = self.normalizeCompletion(completion, profileID: profileID)
             let encoder = JSONEncoder()
             encoder.outputFormatting = [.sortedKeys]
             let payloadData = try encoder.encode(finalCompletion)

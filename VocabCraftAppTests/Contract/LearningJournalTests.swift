@@ -217,6 +217,40 @@ final class LearningJournalTests: XCTestCase {
         XCTAssertEqual(counter?.correct, 1)
     }
 
+    func testCompletionConflictWithDifferentPayloadThrowsConflict() async throws {
+        let journal = try LearningJournal(url: temporaryJournalURL())
+        let profile = try await journal.createGuestProfile()
+        let eventID = EventID(rawValue: UUID())
+        let lessonA = LessonID(uuidString: "d1000000-0000-4000-8000-000000000001") ?? LessonID(rawValue: UUID())
+        let lessonB = LessonID(uuidString: "d1000000-0000-4000-8000-000000000002") ?? LessonID(rawValue: UUID())
+
+        let completionA = TestCompletion.make(eventID: eventID, lessonID: lessonA)
+        try await journal.complete(completionA, profileID: profile)
+
+        // Idempotent duplicate: identical completion succeeds without error
+        try await journal.complete(completionA, profileID: profile)
+
+        // Conflict: different payload with existing eventID throws .conflict
+        let completionB = TestCompletion.make(eventID: eventID, lessonID: lessonB)
+        do {
+            try await journal.complete(completionB, profileID: profile)
+            XCTFail("Expected conflict error for different completion payload with same eventID")
+        } catch let error as LearningJournalError {
+            switch error {
+            case .conflict:
+                break
+            default:
+                XCTFail("Expected .conflict error, got: \(error)")
+            }
+        } catch {
+            XCTFail("Expected LearningJournalError, got: \(error)")
+        }
+
+        let completed = try await journal.completedLessons(profileID: profile)
+        XCTAssertEqual(completed.count, 1)
+        XCTAssertEqual(completed.first?.lessonID, lessonA)
+    }
+
     func testTwoSensesForBookTrackedIndependently() async throws {
         let journal = try LearningJournal(url: temporaryJournalURL())
         let profile = try await journal.createGuestProfile()

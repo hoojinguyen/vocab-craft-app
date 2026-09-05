@@ -1,7 +1,8 @@
 CREATE TABLE IF NOT EXISTS profiles (
     id TEXT PRIMARY KEY,
     kind TEXT NOT NULL,
-    created_at TEXT NOT NULL
+    created_at TEXT NOT NULL,
+    account_binding TEXT
 );
 
 CREATE TABLE IF NOT EXISTS attempts (
@@ -39,5 +40,7 @@ CREATE TABLE IF NOT EXISTS profile_device_sequences (
 );
 
 CREATE INDEX IF NOT EXISTS idx_attempts_profile_created ON attempts(profile_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_attempts_profile_hash ON attempts(profile_id, submission_hash);
+CREATE INDEX IF NOT EXISTS idx_attempts_profile_sense ON attempts(profile_id, json_extract(payload_json, '$.sense_id'));
 CREATE INDEX IF NOT EXISTS idx_completions_profile_created ON completions(profile_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_counters_profile_sense ON counters(profile_id, sense_id);
