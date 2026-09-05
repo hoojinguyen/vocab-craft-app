@@ -1,6 +1,17 @@
 import CraftUIKit
 import Foundation
 
+/// Key identifying a specific completed lesson revision.
+public struct LessonCompletionKey: Hashable, Sendable {
+    public let lessonID: LessonID
+    public let revision: Int
+
+    public init(lessonID: LessonID, revision: Int) {
+        self.lessonID = lessonID
+        self.revision = revision
+    }
+}
+
 /// Pure Swift adapter that transforms SQLite content models and journal completions into CraftUIKit `LessonSection` models.
 public final class ContentLearningPathAdapter: Sendable {
     private let repository: any ContentRepository
@@ -14,9 +25,12 @@ public final class ContentLearningPathAdapter: Sendable {
     }
 
     public func load() async throws -> [LessonSection] {
+        _ = try? await journal.ensureDefaultGuestProfile(id: profileID)
         let decks = try await repository.fetchDecks()
         let completions = try await journal.completedLessons(profileID: profileID)
-        let completedSet = Set(completions.map { $0.lessonID.rawValue.uuidString.lowercased() })
+        let completedSet = Set(completions.map {
+            LessonCompletionKey(lessonID: $0.lessonID, revision: $0.lessonRevision)
+        })
 
         var hasFoundActive = false
         var sections: [LessonSection] = []
@@ -29,7 +43,8 @@ public final class ContentLearningPathAdapter: Sendable {
             for lesson in lessons {
                 let content = try await repository.fetchLessonContent(lessonID: lesson.id)
                 let lessonUUID = lesson.id.rawValue.uuidString.lowercased()
-                let isCompleted = completedSet.contains(lessonUUID)
+                let completionKey = LessonCompletionKey(lessonID: lesson.id, revision: lesson.revision)
+                let isCompleted = completedSet.contains(completionKey)
 
                 let node = buildNode(
                     lesson: lesson,

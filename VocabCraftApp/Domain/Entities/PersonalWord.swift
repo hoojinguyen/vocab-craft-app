@@ -64,7 +64,7 @@ public struct PersonalWord: Identifiable, Sendable, Equatable {
         sourceDeckTitle: String? = nil,
         sourceStageTitle: String? = nil
     ) {
-        self.id = 0
+        self.id = Int64(bitPattern: UInt64(truncatingIfNeeded: sense.id.rawValue.hashValue))
         self.senseID = sense.id
         self.lemma = sense.headword
         self.phonetic = sense.ipa ?? ""

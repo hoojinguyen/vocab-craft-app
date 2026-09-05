@@ -3,11 +3,7 @@ import Foundation
 /// Represents a single interactive exercise within a lesson session.
 public struct LessonExerciseItem: Identifiable, Sendable, Equatable {
     public let id: String
-    private let _word: TopicWordDTO?
-    public var word: TopicWordDTO {
-        if let word = _word { return word }
-        fatalError("Exercise was created from SenseDetail, not TopicWordDTO")
-    }
+    public let word: TopicWordDTO
     public let senseDetail: SenseDetail?
     public let senseID: SenseID?
     public let assignedMode: ReflexBlitzMode
@@ -17,19 +13,19 @@ public struct LessonExerciseItem: Identifiable, Sendable, Equatable {
     public let isRequeued: Bool
 
     public var lemma: String {
-        senseDetail?.headword ?? _word?.lemma ?? ""
+        senseDetail?.headword ?? word.lemma
     }
 
     public var exampleEn: String {
-        senseDetail?.examples.first?.textEN ?? _word?.exampleEn ?? ""
+        senseDetail?.examples.first?.textEN ?? word.exampleEn
     }
 
     public var exampleVi: String {
-        senseDetail?.examples.first?.textVI ?? _word?.exampleVi ?? ""
+        senseDetail?.examples.first?.textVI ?? word.exampleVi
     }
 
     public var pos: String {
-        senseDetail?.partOfSpeech.rawValue ?? _word?.pos ?? ""
+        senseDetail?.partOfSpeech.rawValue ?? word.pos
     }
 
     public init(
@@ -42,7 +38,7 @@ public struct LessonExerciseItem: Identifiable, Sendable, Equatable {
         isRequeued: Bool = false
     ) {
         self.id = id
-        self._word = word
+        self.word = word
         self.senseDetail = nil
         self.senseID = nil
         self.assignedMode = assignedMode
@@ -66,7 +62,19 @@ public struct LessonExerciseItem: Identifiable, Sendable, Equatable {
         isRequeued: Bool = false
     ) {
         self.id = id
-        self._word = nil
+        let hashId = Int64(bitPattern: UInt64(truncatingIfNeeded: sense.id.rawValue.hashValue))
+        self.word = TopicWordDTO(
+            id: hashId,
+            stageId: "",
+            lemma: sense.headword,
+            phonetic: sense.ipa ?? sense.pronunciations.first?.ipa ?? "",
+            pos: sense.partOfSpeech.rawValue,
+            cefrLevel: sense.cefrLevel.rawValue,
+            definitionVi: sense.definitionVI,
+            definitionEn: sense.definitionEN,
+            exampleEn: sense.examples.first?.textEN ?? "",
+            exampleVi: sense.examples.first?.textVI ?? ""
+        )
         self.senseDetail = sense
         self.senseID = sense.id
         self.assignedMode = assignedMode

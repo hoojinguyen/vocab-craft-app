@@ -164,6 +164,41 @@ public actor LearningJournal {
 
     // MARK: - Profile Management
 
+    public static let defaultGuestProfileID = ProfileID(rawValue: UUID(uuidString: "00000000-0000-0000-0000-000000000001") ?? UUID())
+
+    @discardableResult
+    public func ensureDefaultGuestProfile(id: ProfileID = defaultGuestProfileID) async throws -> ProfileID {
+        let checkSQL = "SELECT id FROM profiles WHERE id = ?;"
+        let checkStmt = try prepare(sql: checkSQL)
+        sqlite3_bind_text(checkStmt, 1, id.description, -1, SQLITE_TRANSIENT)
+        let checkResult = sqlite3_step(checkStmt)
+        sqlite3_finalize(checkStmt)
+
+        if checkResult == SQLITE_ROW {
+            try ensureDeviceSequenceTracked(profileID: id)
+            return id
+        }
+
+        let nowISO = ISO8601DateFormatter().string(from: Date())
+        try executeTransaction {
+            let insertProfileSQL = "INSERT OR IGNORE INTO profiles (id, kind, created_at) VALUES (?, 'guest', ?);"
+            let stmt = try self.prepare(sql: insertProfileSQL)
+            defer { sqlite3_finalize(stmt) }
+            sqlite3_bind_text(stmt, 1, id.description, -1, SQLITE_TRANSIENT)
+            sqlite3_bind_text(stmt, 2, nowISO, -1, SQLITE_TRANSIENT)
+
+            let stepResult = sqlite3_step(stmt)
+            guard stepResult == SQLITE_DONE else {
+                let database = try self.getDB()
+                throw LearningJournalError.sqliteError(stepResult, String(cString: sqlite3_errmsg(database)))
+            }
+
+            try self.ensureDeviceSequenceTracked(profileID: id)
+        }
+
+        return id
+    }
+
     public func activeGuestProfileID() async throws -> ProfileID? {
         let sql = "SELECT id FROM profiles WHERE kind = 'guest' ORDER BY created_at ASC LIMIT 1;"
         let stmt = try prepare(sql: sql)

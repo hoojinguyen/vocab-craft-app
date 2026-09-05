@@ -147,7 +147,8 @@ public final class AppContainer {
         )
         self.fetchPersonalVaultUseCase = vaultUseCases.vault
         self.reviewWeakWordsUseCase = vaultUseCases.review
-        self.toggleWordBookmarkUseCase = ToggleWordBookmarkUseCase(
+        self.toggleWordBookmarkUseCase = Self.resolveToggleBookmarkUseCase(
+            contentContext: contentContext,
             progressRepo: resolvedUserProgressRepo
         )
         self.generateMixedReflexQueueUseCase = generateMixedReflexQueueUseCase ?? GenerateMixedReflexQueueUseCase()
@@ -340,7 +341,7 @@ public final class AppContainer {
             return provided
         }
         if let repo = contentContext.repository, let journal = contentContext.journal {
-            let defaultProfileID = ProfileID(rawValue: UUID(uuidString: "00000000-0000-0000-0000-000000000001") ?? UUID())
+            let defaultProfileID = LearningJournal.defaultGuestProfileID
             let adapter = ContentLearningPathAdapter(repository: repo, journal: journal, profileID: defaultProfileID)
             return FetchLearningPathUseCase(adapter: adapter)
         }
@@ -358,7 +359,7 @@ public final class AppContainer {
         progressRepo: any UserProgressRepositoryProtocol
     ) -> ResolvedVaultUseCases {
         if let repo = contentContext.repository, let journal = contentContext.journal {
-            let defaultProfileID = ProfileID(rawValue: UUID(uuidString: "00000000-0000-0000-0000-000000000001") ?? UUID())
+            let defaultProfileID = LearningJournal.defaultGuestProfileID
             return ResolvedVaultUseCases(
                 vault: FetchPersonalVaultUseCase(
                     contentRepository: repo,
@@ -376,6 +377,21 @@ public final class AppContainer {
             vault: FetchPersonalVaultUseCase(dataSource: dataSource, progressRepo: progressRepo),
             review: ReviewWeakWordsUseCase(dataSource: dataSource, progressRepo: progressRepo)
         )
+    }
+
+    private static func resolveToggleBookmarkUseCase(
+        contentContext: ResolvedContentContext,
+        progressRepo: any UserProgressRepositoryProtocol
+    ) -> ToggleWordBookmarkUseCaseProtocol {
+        if let journal = contentContext.journal {
+            let defaultProfileID = LearningJournal.defaultGuestProfileID
+            return ToggleWordBookmarkUseCase(
+                progressRepo: progressRepo,
+                journal: journal,
+                profileID: defaultProfileID
+            )
+        }
+        return ToggleWordBookmarkUseCase(progressRepo: progressRepo)
     }
 
     public static var mock: AppContainer {

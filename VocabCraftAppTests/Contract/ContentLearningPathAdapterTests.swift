@@ -89,4 +89,31 @@ final class ContentLearningPathAdapterTests: XCTestCase {
         XCTAssertEqual(senseIDs.count, uniqueSenseIDs.count, "Global vault must not contain duplicate senses")
         XCTAssertTrue(uniqueSenseIDs.contains(expected.bookVerbID))
     }
+
+    func testAdapterRequiresMatchingLessonRevisionForCompletion() async throws {
+        let repository = try SQLiteContentRepository(
+            url: ContractFixture.bundleURL(),
+            manifest: ContractFixture.manifest()
+        )
+        let journal = try LearningJournal(url: ContractFixture.temporaryJournalURL())
+        let profile = try await journal.createGuestProfile()
+        let expected = try ContractFixture.expected()
+
+        let completion = TestCompletion.make(
+            originProfileID: profile,
+            lessonID: expected.orderedLessonIDs[0],
+            lessonRevision: 99
+        )
+        try await journal.complete(completion, profileID: profile)
+
+        let adapter = ContentLearningPathAdapter(
+            repository: repository,
+            journal: journal,
+            profileID: profile
+        )
+        let sections = try await adapter.load()
+        XCTAssertEqual(sections.count, 1)
+        let nodes = sections[0].nodes
+        XCTAssertEqual(nodes[0].state, .active, "Mismatched revision must not mark lesson as completed")
+    }
 }

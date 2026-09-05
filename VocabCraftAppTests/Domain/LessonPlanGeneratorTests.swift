@@ -203,6 +203,8 @@ struct LessonPlanGeneratorTests {
         #expect(multiwordItem != nil)
         #expect(multiwordItem?.clozeStages.initialParts.slot.contains("_") == true)
         #expect(multiwordItem?.senseID == sense1.id)
+        #expect(multiwordItem?.word.lemma == "look up")
+        #expect(multiwordItem?.word.id != 0)
     }
 }
 #endif

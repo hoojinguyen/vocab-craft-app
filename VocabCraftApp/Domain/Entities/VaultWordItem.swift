@@ -62,7 +62,7 @@ public struct VaultWordItem: Identifiable, Sendable, Equatable, ReflexDrillable 
         lastPracticedAt: Date? = nil,
         modeStats: ModeSuccessStats = ModeSuccessStats()
     ) {
-        self.id = 0
+        self.id = Int64(bitPattern: UInt64(truncatingIfNeeded: sense.id.rawValue.hashValue))
         self.senseID = sense.id
         self.lemma = sense.headword
         self.pos = sense.partOfSpeech.rawValue

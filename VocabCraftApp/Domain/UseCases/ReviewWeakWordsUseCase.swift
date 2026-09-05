@@ -130,7 +130,9 @@ public final class ReviewWeakWordsUseCase: ReviewWeakWordsUseCaseProtocol, Senda
     }
 
     private func resolveProfile(journal: LearningJournal) async throws -> ProfileID {
-        if let profileID { return profileID }
+        if let profileID {
+            return try await journal.ensureDefaultGuestProfile(id: profileID)
+        }
         return try await journal.createGuestProfile()
     }
 }
