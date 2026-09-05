@@ -19,6 +19,48 @@ public struct AudioSessionLease: Hashable, Sendable {
     }
 }
 
+#if !os(iOS)
+public enum AVAudioSession {
+    public struct Category: Hashable, Sendable {
+        let rawValue: String
+        public static let playback = Category(rawValue: "playback")
+        public static let playAndRecord = Category(rawValue: "playAndRecord")
+    }
+
+    public struct Mode: Hashable, Sendable {
+        let rawValue: String
+        public static let `default` = Mode(rawValue: "default")
+        public static let spokenAudio = Mode(rawValue: "spokenAudio")
+    }
+
+    public struct CategoryOptions: OptionSet, Sendable {
+        public let rawValue: UInt
+
+        public init(rawValue: UInt = 0) {
+            self.rawValue = rawValue
+        }
+
+        public static let defaultToSpeaker = CategoryOptions(rawValue: 1 << 0)
+        public static let allowBluetoothHFP = CategoryOptions(rawValue: 1 << 1)
+        public static let duckOthers = CategoryOptions(rawValue: 1 << 2)
+    }
+
+    public struct SetActiveOptions: OptionSet, Sendable {
+        public let rawValue: UInt
+
+        public init(rawValue: UInt = 0) {
+            self.rawValue = rawValue
+        }
+
+        public static let notifyOthersOnDeactivation = SetActiveOptions(rawValue: 1 << 0)
+    }
+
+    public enum PortOverride: Sendable {
+        case speaker
+    }
+}
+#endif
+
 public protocol AudioSessionCoordinating: Sendable {
     func acquire(_ intent: AudioSessionIntent) async throws -> AudioSessionLease
     func release(_ lease: AudioSessionLease) async
@@ -45,11 +87,9 @@ public actor AudioSessionCoordinator: AudioSessionCoordinating {
         self.hardware = hardware
     }
 
-    #if os(iOS)
     public init() {
         self.init(hardware: LiveAudioSessionHardware())
     }
-    #endif
 
     public var activeLeaseCount: Int {
         activeLeases.count
@@ -184,5 +224,19 @@ final class LiveAudioSessionHardware: AudioSessionHardware, @unchecked Sendable 
     func overrideOutputAudioPort(_ portOverride: AVAudioSession.PortOverride) throws {
         try session.overrideOutputAudioPort(portOverride)
     }
+}
+#else
+final class LiveAudioSessionHardware: AudioSessionHardware, @unchecked Sendable {
+    func setCategory(
+        _ category: AVAudioSession.Category,
+        mode: AVAudioSession.Mode,
+        options: AVAudioSession.CategoryOptions
+    ) throws {}
+
+    func setAllowHapticsAndSystemSoundsDuringRecording(_ inValue: Bool) throws {}
+
+    func setActive(_ active: Bool, options: AVAudioSession.SetActiveOptions) throws {}
+
+    func overrideOutputAudioPort(_ portOverride: AVAudioSession.PortOverride) throws {}
 }
 #endif

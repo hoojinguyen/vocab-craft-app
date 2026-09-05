@@ -17,11 +17,9 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
     private(set) var currentUtterance: AVSpeechUtterance?
     private var requestGeneration: UInt = 0
 
-    #if os(iOS)
     public override convenience init() {
         self.init(audioSessionCoordinator: AudioSessionCoordinator())
     }
-    #endif
 
     public init(audioSessionCoordinator: any AudioSessionCoordinating) {
         self.audioSessionCoordinator = audioSessionCoordinator
