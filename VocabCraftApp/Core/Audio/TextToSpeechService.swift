@@ -107,12 +107,9 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         return task
     }
 
-    public func speak(text: String, rate: Float = 1.0, locale: String = "en-US") {
+    private func makeUtterance(text: String, rate: Float, locale: String) -> AVSpeechUtterance? {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
-        LessonPerformanceDiagnostics.event("TTSRequest")
-
-        stop()
+        guard !trimmed.isEmpty else { return nil }
 
         let utterance = AVSpeechUtterance(string: trimmed)
 
@@ -123,6 +120,14 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         if let voice = Self.resolveVoice(for: locale) {
             utterance.voice = voice
         }
+        return utterance
+    }
+
+    public func speak(text: String, rate: Float = 1.0, locale: String = "en-US") {
+        guard let utterance = makeUtterance(text: text, rate: rate, locale: locale) else { return }
+        LessonPerformanceDiagnostics.event("TTSRequest")
+
+        stop()
 
         isSpeaking = true
         currentUtterance = utterance
@@ -151,22 +156,13 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
     }
 
     public func speakAsync(text: String, rate: Float = 1.0, locale: String = "en-US") async {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else {
+        guard let utterance = makeUtterance(text: text, rate: rate, locale: locale) else {
             isSpeaking = false
             currentUtterance = nil
             return
         }
 
         stop()
-
-        let utterance = AVSpeechUtterance(string: trimmed)
-
-        // Scale rate relative to AVSpeechUtteranceDefaultSpeechRate (0.5) so 1.0x = normal speed
-        let scaledRate = AVSpeechUtteranceDefaultSpeechRate * rate
-        utterance.rate = min(max(scaledRate, AVSpeechUtteranceMinimumSpeechRate), AVSpeechUtteranceMaximumSpeechRate)
-
-        utterance.voice = Self.resolveVoice(for: locale)
 
         isSpeaking = true
         currentUtterance = utterance
