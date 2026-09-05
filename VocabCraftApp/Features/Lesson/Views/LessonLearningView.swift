@@ -104,6 +104,21 @@ public struct LessonLearningView: View {
                                 )
                                 .id("discovery-\(word.id)")
 
+                            case .senseDiscovery(let sense, let idx, let total):
+                                LessonDiscoveryCardView(
+                                    sense: sense,
+                                    indexInCycle: idx,
+                                    totalInCycle: total,
+                                    onContinue: {
+                                        viewModel.stopAudio()
+                                        viewModel.advanceStep()
+                                    },
+                                    onPlayAudio: {
+                                        viewModel.playAudio(for: sense.headword)
+                                    }
+                                )
+                                .id("sense-discovery-\(sense.id.rawValue.uuidString.lowercased())")
+
                             case .exercise(let item):
                                 LessonExerciseContainerView(
                                     item: item,

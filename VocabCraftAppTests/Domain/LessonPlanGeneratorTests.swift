@@ -111,8 +111,13 @@ struct LessonPlanGeneratorTests {
     @Test("Handles empty input gracefully")
     func testEmptyWords() {
         let generator = LessonPlanGenerator()
-        let steps = generator.generatePlan(from: [], distractorPool: [])
+        let emptyWords: [TopicWordDTO] = []
+        let steps = generator.generatePlan(from: emptyWords, distractorPool: emptyWords)
         #expect(steps.isEmpty)
+
+        let emptySenses: [SenseDetail] = []
+        let senseSteps = generator.generatePlan(from: emptySenses, distractorPool: emptySenses)
+        #expect(senseSteps.isEmpty)
     }
 
     @Test("Generated exercise items include valid cloze stages with masked slots")
@@ -134,6 +139,70 @@ struct LessonPlanGeneratorTests {
             #expect(!stages.initialParts.prefix.lowercased().contains(lemma))
             #expect(!stages.initialParts.suffix.lowercased().contains(lemma))
         }
+    }
+
+    @Test("Generates plan from SenseDetail models with multiword support")
+    func testGeneratePlanFromSenses() {
+        let senseID1 = SenseID(rawValue: UUID())
+        let sense1 = SenseDetail(
+            id: senseID1,
+            entryID: EntryID(rawValue: UUID()),
+            headword: "look up",
+            entryKind: .phrasalVerb,
+            partOfSpeech: .verb,
+            definitionEN: "To search for information",
+            definitionVI: "Tra cứu thông tin",
+            cefrLevel: .a2,
+            examples: [
+                ExampleSnapshot(
+                    id: "ex1",
+                    senseID: senseID1,
+                    textEN: "I looked up the word in the dictionary.",
+                    textVI: "Tôi đã tra cứu từ trong từ điển."
+                )
+            ]
+        )
+        let senseID2 = SenseID(rawValue: UUID())
+        let sense2 = SenseDetail(
+            id: senseID2,
+            entryID: EntryID(rawValue: UUID()),
+            headword: "resilience",
+            entryKind: .word,
+            partOfSpeech: .noun,
+            definitionEN: "The capacity to recover quickly from difficulties",
+            definitionVI: "Sự kiên cường",
+            cefrLevel: .b2,
+            examples: [
+                ExampleSnapshot(
+                    id: "ex2",
+                    senseID: senseID2,
+                    textEN: "She showed great resilience in facing adversity.",
+                    textVI: "Cô ấy đã thể hiện sự kiên cường tuyệt vời."
+                )
+            ]
+        )
+
+        let generator = LessonPlanGenerator()
+        let steps = generator.generatePlan(from: [sense1, sense2], distractorPool: [sense1, sense2])
+        #expect(steps.count == 4)
+
+        let discoverySteps = steps.compactMap { step -> SenseDetail? in
+            if case .senseDiscovery(let sense, _, _) = step { return sense }
+            return nil
+        }
+        #expect(discoverySteps.count == 2)
+        #expect(discoverySteps[0].headword == "look up")
+        #expect(discoverySteps[1].headword == "resilience")
+
+        let exerciseSteps = steps.compactMap { step -> LessonExerciseItem? in
+            if case .exercise(let item) = step { return item }
+            return nil
+        }
+        #expect(exerciseSteps.count == 2)
+        let multiwordItem = exerciseSteps.first(where: { $0.lemma == "look up" })
+        #expect(multiwordItem != nil)
+        #expect(multiwordItem?.clozeStages.initialParts.slot.contains("_") == true)
+        #expect(multiwordItem?.senseID == sense1.id)
     }
 }
 #endif

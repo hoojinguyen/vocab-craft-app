@@ -39,8 +39,17 @@ CREATE TABLE IF NOT EXISTS profile_device_sequences (
     FOREIGN KEY (profile_id) REFERENCES profiles(id)
 );
 
+CREATE TABLE IF NOT EXISTS bookmarks (
+    profile_id TEXT NOT NULL,
+    sense_id TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    PRIMARY KEY (profile_id, sense_id),
+    FOREIGN KEY (profile_id) REFERENCES profiles(id)
+);
+
 CREATE INDEX IF NOT EXISTS idx_attempts_profile_created ON attempts(profile_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_attempts_profile_hash ON attempts(profile_id, submission_hash);
 CREATE INDEX IF NOT EXISTS idx_attempts_profile_sense ON attempts(profile_id, json_extract(payload_json, '$.sense_id'));
 CREATE INDEX IF NOT EXISTS idx_completions_profile_created ON completions(profile_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_counters_profile_sense ON counters(profile_id, sense_id);
+CREATE INDEX IF NOT EXISTS idx_bookmarks_profile ON bookmarks(profile_id);

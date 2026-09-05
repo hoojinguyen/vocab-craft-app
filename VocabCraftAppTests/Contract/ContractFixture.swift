@@ -228,4 +228,15 @@ public enum ContractFixture {
             invalidCases: invalidCases
         )
     }
+
+    public static func temporaryJournalURL() -> URL {
+        let dir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("LearningJournalTests-\(UUID().uuidString)")
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        return dir.appendingPathComponent("learning_journal.sqlite")
+    }
+}
+
+public func temporaryJournalURL() -> URL {
+    ContractFixture.temporaryJournalURL()
 }

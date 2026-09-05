@@ -107,18 +107,134 @@ public extension FetchPersonalVaultUseCaseProtocol {
 
 /// Retrieves the user's personal vault items, overlays live mastery and flags, and computes filter counts.
 public final class FetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProtocol, Sendable {
-    private let dataSource: VocabularyDataSourceProtocol
-    private let progressRepo: any UserProgressRepositoryProtocol
+    private let dataSource: VocabularyDataSourceProtocol?
+    private let progressRepo: (any UserProgressRepositoryProtocol)?
+    private let contentRepository: (any ContentRepository)?
+    private let journal: LearningJournal?
+    private let profileID: ProfileID?
 
     public init(
-        dataSource: VocabularyDataSourceProtocol,
-        progressRepo: any UserProgressRepositoryProtocol
+        dataSource: VocabularyDataSourceProtocol? = nil,
+        progressRepo: (any UserProgressRepositoryProtocol)? = nil,
+        contentRepository: (any ContentRepository)? = nil,
+        journal: LearningJournal? = nil,
+        profileID: ProfileID? = nil
     ) {
         self.dataSource = dataSource
         self.progressRepo = progressRepo
+        self.contentRepository = contentRepository
+        self.journal = journal
+        self.profileID = profileID
+    }
+
+    public convenience init(
+        contentRepository: any ContentRepository,
+        journal: LearningJournal,
+        profileID: ProfileID? = nil
+    ) {
+        self.init(
+            dataSource: nil,
+            progressRepo: nil,
+            contentRepository: contentRepository,
+            journal: journal,
+            profileID: profileID
+        )
+    }
+
+    public convenience init(
+        dataSource: VocabularyDataSourceProtocol,
+        progressRepo: any UserProgressRepositoryProtocol
+    ) {
+        self.init(
+            dataSource: dataSource,
+            progressRepo: progressRepo,
+            contentRepository: nil,
+            journal: nil,
+            profileID: nil
+        )
     }
 
     public func execute(filter: PersonalVaultFilter = .all, searchQuery: String? = nil) async throws -> PersonalVaultResult {
+        if let contentRepository, let journal {
+            return try await executeWithContentRepository(
+                contentRepository: contentRepository,
+                journal: journal,
+                filter: filter,
+                searchQuery: searchQuery
+            )
+        }
+
+        guard let dataSource, let progressRepo else {
+            return PersonalVaultResult(words: [], metrics: PersonalVaultMetrics())
+        }
+
+        return try await executeWithLegacyDataSource(
+            dataSource: dataSource,
+            progressRepo: progressRepo,
+            filter: filter,
+            searchQuery: searchQuery
+        )
+    }
+
+    private func executeWithContentRepository(
+        contentRepository: any ContentRepository,
+        journal: LearningJournal,
+        filter: PersonalVaultFilter,
+        searchQuery: String?
+    ) async throws -> PersonalVaultResult {
+        let profile = try await resolveProfile(journal: journal)
+        let payload = try await fetchSenseEntities(
+            contentRepository: contentRepository,
+            journal: journal,
+            profile: profile
+        )
+        let senses = payload.senses
+        let bookmarked = payload.bookmarked
+        let counterMap = payload.counters
+
+        var allPersonalWords: [PersonalWord] = []
+        allPersonalWords.reserveCapacity(senses.count)
+
+        for sense in senses {
+            let (total, correct) = counterMap[sense.id] ?? (0, 0)
+            let mastery = total == 0 ? 0 : min(5, Int((Double(correct) / Double(total)) * 5.0))
+            let isMastered = (total >= 4 && Double(correct) / Double(total) >= 0.8)
+            let needsReview = (total > 0 && Double(correct) / Double(total) < 0.7)
+            let isBookmarked = bookmarked.contains(sense.id)
+            let mistakeCount = max(0, total - correct)
+
+            let word = PersonalWord(
+                sense: sense,
+                masteryLevel: isMastered ? 4 : mastery,
+                isBookmarked: isBookmarked,
+                needsReview: needsReview,
+                mistakeCount: mistakeCount
+            )
+            allPersonalWords.append(word)
+        }
+
+        let metrics = computeMetrics(from: allPersonalWords)
+        var filteredWords = filterPersonalWords(allPersonalWords, by: filter)
+
+        if let query = searchQuery?.trimmingCharacters(in: .whitespacesAndNewlines), !query.isEmpty {
+            let lowerQuery = query.lowercased()
+            filteredWords = filteredWords.filter { word in
+                word.lemma.lowercased().contains(lowerQuery) ||
+                word.definitionVi.lowercased().contains(lowerQuery) ||
+                word.definitionEn.lowercased().contains(lowerQuery) ||
+                word.phonetic.lowercased().contains(lowerQuery)
+            }
+        }
+
+        return PersonalVaultResult(words: filteredWords, metrics: metrics)
+    }
+
+    private func executeWithLegacyDataSource(
+        dataSource: VocabularyDataSourceProtocol,
+        progressRepo: any UserProgressRepositoryProtocol,
+        filter: PersonalVaultFilter,
+        searchQuery: String?
+    ) async throws -> PersonalVaultResult {
         let allProgress = try await progressRepo.fetchAllProgress()
         let wordIds = Set(allProgress.map(\.wordId))
         let wordsList = try await dataSource.fetchWordsByIds(ids: wordIds)
@@ -149,31 +265,8 @@ public final class FetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProtocol,
             }
         }
 
-        let total = allPersonalWords.count
-        let mastered = allPersonalWords.filter { $0.masteryLevel >= 4 }.count
-        let bookmarked = allPersonalWords.filter(\.isBookmarked).count
-        let needsReview = allPersonalWords.filter(\.needsReview).count
-        let unmastered = max(0, total - mastered)
-
-        let metrics = PersonalVaultMetrics(
-            totalWords: total,
-            needsReviewCount: needsReview,
-            masteredCount: mastered,
-            bookmarkedCount: bookmarked,
-            unmasteredCount: unmastered
-        )
-
-        var filteredWords: [PersonalWord]
-        switch filter {
-        case .all:
-            filteredWords = allPersonalWords
-        case .needsReview:
-            filteredWords = allPersonalWords.filter(\.needsReview)
-        case .mastered:
-            filteredWords = allPersonalWords.filter { $0.masteryLevel >= 4 }
-        case .bookmarked:
-            filteredWords = allPersonalWords.filter(\.isBookmarked)
-        }
+        let metrics = computeMetrics(from: allPersonalWords)
+        var filteredWords = filterPersonalWords(allPersonalWords, by: filter)
 
         if let query = searchQuery?.trimmingCharacters(in: .whitespacesAndNewlines), !query.isEmpty {
             let lowerQuery = query.lowercased()
@@ -189,6 +282,37 @@ public final class FetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProtocol,
     }
 
     public func fetchVaultWords(filter: VaultTabFilter = .notMastered, searchQuery: String? = nil) async throws -> [VaultWordItem] {
+        if let contentRepository, let journal {
+            let profile = try await resolveProfile(journal: journal)
+            let payload = try await fetchSenseEntities(
+                contentRepository: contentRepository,
+                journal: journal,
+                profile: profile
+            )
+            let senses = payload.senses
+            let bookmarked = payload.bookmarked
+            let counterMap = payload.counters
+
+            var allVaultWords: [VaultWordItem] = []
+            allVaultWords.reserveCapacity(senses.count)
+
+            for sense in senses {
+                let (total, correct) = counterMap[sense.id] ?? (0, 0)
+                let isMastered = (total >= 4 && Double(correct) / Double(total) >= 0.8)
+                let isBookmarked = bookmarked.contains(sense.id)
+                let vaultWord = VaultWordItem(
+                    sense: sense,
+                    isMastered: isMastered,
+                    isBookmarked: isBookmarked,
+                    correctStreak: correct
+                )
+                allVaultWords.append(vaultWord)
+            }
+
+            return filterVaultWordItems(allVaultWords, by: filter, searchQuery: searchQuery)
+        }
+
+        guard let dataSource, let progressRepo else { return [] }
         let allProgress = try await progressRepo.fetchAllProgress()
         let wordIds = Set(allProgress.map(\.wordId))
         let wordsList = try await dataSource.fetchWordsByIds(ids: wordIds)
@@ -219,25 +343,95 @@ public final class FetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProtocol,
             }
         }
 
-        var filteredWords: [VaultWordItem]
+        return filterVaultWordItems(allVaultWords, by: filter, searchQuery: searchQuery)
+    }
+
+    private func resolveProfile(journal: LearningJournal) async throws -> ProfileID {
+        if let profileID { return profileID }
+        return try await journal.createGuestProfile()
+    }
+
+    private struct SenseEntitiesPayload {
+        let senses: [SenseDetail]
+        let bookmarked: Set<SenseID>
+        let counters: [SenseID: (total: Int, correct: Int)]
+    }
+
+    private func fetchSenseEntities(
+        contentRepository: any ContentRepository,
+        journal: LearningJournal,
+        profile: ProfileID
+    ) async throws -> SenseEntitiesPayload {
+        let completed = try await journal.completedLessons(profileID: profile)
+        var lessonSenseIDs: [SenseID] = []
+        for completion in completed {
+            let lessonDetail = try await contentRepository.fetchLessonContent(lessonID: completion.lessonID)
+            lessonSenseIDs.append(contentsOf: lessonDetail.senses.map(\.senseID))
+        }
+
+        let practiced = try await journal.practicedSenseIDs(profileID: profile)
+        let bookmarked = try await journal.bookmarkedSenseIDs(profileID: profile)
+
+        var uniqueSenseIDs: [SenseID] = []
+        var seen = Set<SenseID>()
+        for id in (lessonSenseIDs + Array(practiced) + Array(bookmarked)) where seen.insert(id).inserted {
+            uniqueSenseIDs.append(id)
+        }
+
+        let senses = try await contentRepository.fetchSenses(ids: uniqueSenseIDs)
+        var counterMap: [SenseID: (total: Int, correct: Int)] = [:]
+        for sense in senses {
+            let counterList = try await journal.counters(profileID: profile, senseID: sense.id)
+            let total = counterList.reduce(0) { $0 + $1.totalCount }
+            let correct = counterList.reduce(0) { $0 + $1.correctCount }
+            counterMap[sense.id] = (total, correct)
+        }
+
+        return SenseEntitiesPayload(senses: senses, bookmarked: bookmarked, counters: counterMap)
+    }
+
+    private func computeMetrics(from words: [PersonalWord]) -> PersonalVaultMetrics {
+        let total = words.count
+        let mastered = words.filter { $0.masteryLevel >= 4 }.count
+        let bookmarked = words.filter(\.isBookmarked).count
+        let needsReview = words.filter(\.needsReview).count
+        let unmastered = max(0, total - mastered)
+
+        return PersonalVaultMetrics(
+            totalWords: total,
+            needsReviewCount: needsReview,
+            masteredCount: mastered,
+            bookmarkedCount: bookmarked,
+            unmasteredCount: unmastered
+        )
+    }
+
+    private func filterPersonalWords(_ words: [PersonalWord], by filter: PersonalVaultFilter) -> [PersonalWord] {
         switch filter {
-        case .notMastered:
-            filteredWords = allVaultWords.filter { !$0.isMastered }
-        case .mastered:
-            filteredWords = allVaultWords.filter(\.isMastered)
-        case .bookmarked:
-            filteredWords = allVaultWords.filter(\.isBookmarked)
+        case .all: return words
+        case .needsReview: return words.filter(\.needsReview)
+        case .mastered: return words.filter { $0.masteryLevel >= 4 }
+        case .bookmarked: return words.filter(\.isBookmarked)
+        }
+    }
+
+    private func filterVaultWordItems(_ words: [VaultWordItem], by filter: VaultTabFilter, searchQuery: String?) -> [VaultWordItem] {
+        var filtered: [VaultWordItem]
+        switch filter {
+        case .notMastered: filtered = words.filter { !$0.isMastered }
+        case .mastered: filtered = words.filter(\.isMastered)
+        case .bookmarked: filtered = words.filter(\.isBookmarked)
         }
 
         if let query = searchQuery?.trimmingCharacters(in: .whitespacesAndNewlines), !query.isEmpty {
             let lowerQuery = query.lowercased()
-            filteredWords = filteredWords.filter { word in
+            filtered = filtered.filter { word in
                 word.lemma.lowercased().contains(lowerQuery) ||
                 word.definitionVi.lowercased().contains(lowerQuery) ||
                 word.phonetic.lowercased().contains(lowerQuery)
             }
         }
 
-        return filteredWords
+        return filtered
     }
 }

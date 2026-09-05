@@ -3,12 +3,34 @@ import Foundation
 /// Represents a single interactive exercise within a lesson session.
 public struct LessonExerciseItem: Identifiable, Sendable, Equatable {
     public let id: String
-    public let word: TopicWordDTO
+    private let _word: TopicWordDTO?
+    public var word: TopicWordDTO {
+        if let word = _word { return word }
+        fatalError("Exercise was created from SenseDetail, not TopicWordDTO")
+    }
+    public let senseDetail: SenseDetail?
+    public let senseID: SenseID?
     public let assignedMode: ReflexBlitzMode
     public let options: [ReflexBlitzOption]
     public let clozeStages: ReflexClozeStageSet
     public let attemptCount: Int
     public let isRequeued: Bool
+
+    public var lemma: String {
+        senseDetail?.headword ?? _word?.lemma ?? ""
+    }
+
+    public var exampleEn: String {
+        senseDetail?.examples.first?.textEN ?? _word?.exampleEn ?? ""
+    }
+
+    public var exampleVi: String {
+        senseDetail?.examples.first?.textVI ?? _word?.exampleVi ?? ""
+    }
+
+    public var pos: String {
+        senseDetail?.partOfSpeech.rawValue ?? _word?.pos ?? ""
+    }
 
     public init(
         id: String,
@@ -20,13 +42,40 @@ public struct LessonExerciseItem: Identifiable, Sendable, Equatable {
         isRequeued: Bool = false
     ) {
         self.id = id
-        self.word = word
+        self._word = word
+        self.senseDetail = nil
+        self.senseID = nil
         self.assignedMode = assignedMode
         self.options = options
         self.clozeStages = clozeStages ?? ReflexHintMaskGenerator.generateStages(
             lemma: word.lemma,
             sentenceEn: word.exampleEn,
             pos: word.pos
+        )
+        self.attemptCount = attemptCount
+        self.isRequeued = isRequeued
+    }
+
+    public init(
+        id: String,
+        sense: SenseDetail,
+        assignedMode: ReflexBlitzMode,
+        options: [ReflexBlitzOption] = [],
+        clozeStages: ReflexClozeStageSet? = nil,
+        attemptCount: Int = 1,
+        isRequeued: Bool = false
+    ) {
+        self.id = id
+        self._word = nil
+        self.senseDetail = sense
+        self.senseID = sense.id
+        self.assignedMode = assignedMode
+        self.options = options
+        let sentenceEn = sense.examples.first?.textEN ?? ""
+        self.clozeStages = clozeStages ?? ReflexHintMaskGenerator.generateStages(
+            lemma: sense.headword,
+            sentenceEn: sentenceEn,
+            pos: sense.partOfSpeech.rawValue
         )
         self.attemptCount = attemptCount
         self.isRequeued = isRequeued
@@ -65,6 +114,7 @@ public struct LessonSummaryModel: Sendable, Equatable {
 /// A sequential step in the lesson flow.
 public enum LessonStep: Identifiable, Sendable, Equatable {
     case discovery(word: TopicWordDTO, index: Int, totalInCycle: Int)
+    case senseDiscovery(sense: SenseDetail, index: Int, totalInCycle: Int)
     case exercise(item: LessonExerciseItem)
     case summary(summary: LessonSummaryModel)
 
@@ -72,6 +122,8 @@ public enum LessonStep: Identifiable, Sendable, Equatable {
         switch self {
         case .discovery(let word, let index, _):
             return "discovery-\(word.id)-\(index)"
+        case .senseDiscovery(let sense, let index, _):
+            return "sense-discovery-\(sense.id.rawValue.uuidString.lowercased())-\(index)"
         case .exercise(let item):
             return "exercise-\(item.id)"
         case .summary(let summary):

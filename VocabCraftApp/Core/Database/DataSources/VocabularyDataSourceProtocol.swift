@@ -133,3 +133,35 @@ public extension VocabularyDataSourceProtocol {
         }
     }
 }
+
+public struct UnavailableVocabularyDataSource: VocabularyDataSourceProtocol, Sendable {
+    public let reason: String
+
+    public init(reason: String = "Vocabulary data is unavailable because the content database is missing.") {
+        self.reason = reason
+    }
+
+    public func fetchTopicDecks() async throws -> [TopicDeckDTO] {
+        throw ContentRepositoryError.missingDatabase(reason)
+    }
+
+    public func fetchSubTopicStages(deckId: String) async throws -> [SubTopicStageDTO] {
+        throw ContentRepositoryError.missingDatabase(reason)
+    }
+
+    public func fetchWordsForStage(stageId: String) async throws -> [TopicWordDTO] {
+        throw ContentRepositoryError.missingDatabase(reason)
+    }
+
+    public func searchWords(query: String) async throws -> [TopicWordDTO] {
+        []
+    }
+
+    public func fetchWordById(id: Int64) async throws -> TopicWordDTO? {
+        nil
+    }
+
+    public func fetchAllWordsMap() async throws -> [Int64: TopicWordDTO] {
+        [:]
+    }
+}

@@ -96,14 +96,7 @@ final class LearningJournalTests: XCTestCase {
         }
         tempDirectories.removeAll()
     }
-
-    private func temporaryJournalURL() -> URL {
-        let dir = FileManager.default.temporaryDirectory
-            .appendingPathComponent("LearningJournalTests-\(UUID().uuidString)")
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        tempDirectories.append(dir)
-        return dir.appendingPathComponent("learning_journal.sqlite")
-    }
+    // Uses shared ContractFixture.temporaryJournalURL()
 
     func testRetryDoesNotDuplicatePractice() async throws {
         let journal = try LearningJournal(url: temporaryJournalURL())

@@ -70,6 +70,24 @@ final class AppContainerVocabularyTests: XCTestCase {
         XCTAssertNotNil(container.makeFetchLearningPathUseCase())
         XCTAssertNotNil(container.makeCompleteLessonUseCase())
     }
+
+    @MainActor
+    func test_appContainer_productionInitializer_whenMissingBundle_surfacesUnavailableState() async throws {
+        let container = AppContainer(useSampleData: false)
+        if case .unavailable(let reason) = container.contentAvailability {
+            XCTAssertFalse(reason.isEmpty)
+        } else {
+            XCTFail("Expected .unavailable state when bundle database is missing in production mode")
+        }
+        XCTAssertTrue(container.vocabularyDataSource is UnavailableVocabularyDataSource)
+        do {
+            _ = try await container.vocabularyDataSource.fetchTopicDecks()
+            XCTFail("Unavailable data source must throw error")
+        } catch {
+            // Expected error
+            XCTAssertNotNil(error)
+        }
+    }
 }
 
 #if canImport(Testing)

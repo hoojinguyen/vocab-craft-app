@@ -2,18 +2,26 @@ import Foundation
 import SpeechKit
 import SwiftData
 
+public enum ContentAvailability: Equatable, Sendable {
+    case ready
+    case unavailable(String)
+}
+
 /// Centralized Composition Root / Dependency Injection Container.
 @MainActor
 public final class AppContainer {
     // MARK: - Configuration
     /// Toggle to switch between curated sample dataset and production data source.
     public let useSampleData: Bool
+    public let contentAvailability: ContentAvailability
 
     public let datasetEngine: DatasetEngine?
     public let modelContainer: ModelContainer?
 
     // MARK: - Data Sources & Repositories
     public let vocabularyDataSource: VocabularyDataSourceProtocol
+    public let contentRepository: (any ContentRepository)?
+    public let learningJournal: LearningJournal?
     public let stageProgressRepository: StageProgressRepositoryProtocol
     public let userProgressRepository: any UserProgressRepositoryProtocol
 
@@ -52,6 +60,8 @@ public final class AppContainer {
         useMockData: Bool? = nil,
         useSampleData: Bool = true,
         vocabularyDataSource: VocabularyDataSourceProtocol? = nil,
+        contentRepository: (any ContentRepository)? = nil,
+        learningJournal: LearningJournal? = nil,
         stageProgressRepository: StageProgressRepositoryProtocol? = nil,
         userProgressRepository: (any UserProgressRepositoryProtocol)? = nil,
         fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol? = nil,
@@ -71,13 +81,22 @@ public final class AppContainer {
         self.datasetEngine = datasetEngine
         self.modelContainer = modelContainer
 
+        let contentContext = Self.resolveContentContext(
+            contentRepository: contentRepository,
+            learningJournal: learningJournal,
+            useSampleData: useSampleData
+        )
+        self.contentAvailability = contentContext.availability
+        self.contentRepository = contentContext.repository
+        self.learningJournal = contentContext.journal
+
         let progressActor: UserProgressModelActor? = modelContainer.map { UserProgressModelActor(modelContainer: $0) }
         let resolvedUserProgressRepo: any UserProgressRepositoryProtocol = userProgressRepository
             ?? (progressActor ?? MockUserProgressRepository())
         self.userProgressRepository = resolvedUserProgressRepo
 
         let resolvedDataSource: VocabularyDataSourceProtocol = vocabularyDataSource
-            ?? (useSampleData ? SampleVocabularyDataSource() : SampleVocabularyDataSource())
+            ?? (useSampleData ? SampleVocabularyDataSource() : UnavailableVocabularyDataSource())
         self.vocabularyDataSource = resolvedDataSource
 
         let resolvedStageRepo: StageProgressRepositoryProtocol = stageProgressRepository
@@ -109,7 +128,9 @@ public final class AppContainer {
         self.resetUserProgressUseCase = ResetUserProgressUseCase(srsRepository: srsRepo)
 
         // Learning Path Use Cases
-        self.fetchLearningPathUseCase = fetchLearningPathUseCase ?? FetchLearningPathUseCase(
+        self.fetchLearningPathUseCase = Self.resolveLearningPathUseCase(
+            provided: fetchLearningPathUseCase,
+            contentContext: contentContext,
             dataSource: resolvedDataSource,
             stageRepo: resolvedStageRepo
         )
@@ -119,14 +140,13 @@ public final class AppContainer {
         )
 
         // Personal Vault & Mixed Reflex Use Cases
-        self.fetchPersonalVaultUseCase = FetchPersonalVaultUseCase(
+        let vaultUseCases = Self.resolveVaultUseCases(
+            contentContext: contentContext,
             dataSource: resolvedDataSource,
             progressRepo: resolvedUserProgressRepo
         )
-        self.reviewWeakWordsUseCase = ReviewWeakWordsUseCase(
-            dataSource: resolvedDataSource,
-            progressRepo: resolvedUserProgressRepo
-        )
+        self.fetchPersonalVaultUseCase = vaultUseCases.vault
+        self.reviewWeakWordsUseCase = vaultUseCases.review
         self.toggleWordBookmarkUseCase = ToggleWordBookmarkUseCase(
             progressRepo: resolvedUserProgressRepo
         )
@@ -261,6 +281,100 @@ public final class AppContainer {
             notificationScheduler: AppNotificationScheduler(),
             progressRepo: userProgressRepository,
             stageRepo: stageProgressRepository
+        )
+    }
+
+    // MARK: - Private Helpers
+
+    private struct ResolvedContentContext {
+        let availability: ContentAvailability
+        let repository: (any ContentRepository)?
+        let journal: LearningJournal?
+    }
+
+    private static func resolveContentContext(
+        contentRepository: (any ContentRepository)?,
+        learningJournal: LearningJournal?,
+        useSampleData: Bool
+    ) -> ResolvedContentContext {
+        if let contentRepository {
+            return ResolvedContentContext(
+                availability: .ready,
+                repository: contentRepository,
+                journal: learningJournal
+            )
+        }
+        if useSampleData {
+            return ResolvedContentContext(
+                availability: .ready,
+                repository: nil,
+                journal: nil
+            )
+        }
+        let bundleDbURL = Bundle.main.url(forResource: "vocab_content", withExtension: "sqlite")
+        let bundleManifestURL = Bundle.main.url(forResource: "manifest", withExtension: "json")
+        if let dbURL = bundleDbURL, let manifestURL = bundleManifestURL,
+           let manifestData = try? Data(contentsOf: manifestURL),
+           let manifest = try? JSONDecoder().decode(ContentManifest.self, from: manifestData),
+           let repo = try? SQLiteContentRepository(url: dbURL, manifest: manifest) {
+            let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+                ?? FileManager.default.temporaryDirectory
+            let journalURL = appSupport.appendingPathComponent("learning_journal.sqlite")
+            let journal = try? LearningJournal(url: journalURL)
+            return ResolvedContentContext(availability: .ready, repository: repo, journal: journal)
+        }
+        return ResolvedContentContext(
+            availability: .unavailable("Content database not found in bundle."),
+            repository: nil,
+            journal: nil
+        )
+    }
+
+    private static func resolveLearningPathUseCase(
+        provided: FetchLearningPathUseCaseProtocol?,
+        contentContext: ResolvedContentContext,
+        dataSource: VocabularyDataSourceProtocol,
+        stageRepo: StageProgressRepositoryProtocol
+    ) -> FetchLearningPathUseCaseProtocol {
+        if let provided {
+            return provided
+        }
+        if let repo = contentContext.repository, let journal = contentContext.journal {
+            let defaultProfileID = ProfileID(rawValue: UUID(uuidString: "00000000-0000-0000-0000-000000000001") ?? UUID())
+            let adapter = ContentLearningPathAdapter(repository: repo, journal: journal, profileID: defaultProfileID)
+            return FetchLearningPathUseCase(adapter: adapter)
+        }
+        return FetchLearningPathUseCase(dataSource: dataSource, stageRepo: stageRepo)
+    }
+
+    private struct ResolvedVaultUseCases {
+        let vault: FetchPersonalVaultUseCaseProtocol
+        let review: ReviewWeakWordsUseCaseProtocol
+    }
+
+    private static func resolveVaultUseCases(
+        contentContext: ResolvedContentContext,
+        dataSource: VocabularyDataSourceProtocol,
+        progressRepo: any UserProgressRepositoryProtocol
+    ) -> ResolvedVaultUseCases {
+        if let repo = contentContext.repository, let journal = contentContext.journal {
+            let defaultProfileID = ProfileID(rawValue: UUID(uuidString: "00000000-0000-0000-0000-000000000001") ?? UUID())
+            return ResolvedVaultUseCases(
+                vault: FetchPersonalVaultUseCase(
+                    contentRepository: repo,
+                    journal: journal,
+                    profileID: defaultProfileID
+                ),
+                review: ReviewWeakWordsUseCase(
+                    contentRepository: repo,
+                    journal: journal,
+                    profileID: defaultProfileID
+                )
+            )
+        }
+        return ResolvedVaultUseCases(
+            vault: FetchPersonalVaultUseCase(dataSource: dataSource, progressRepo: progressRepo),
+            review: ReviewWeakWordsUseCase(dataSource: dataSource, progressRepo: progressRepo)
         )
     }
 

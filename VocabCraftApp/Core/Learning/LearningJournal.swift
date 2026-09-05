@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import CryptoKit
 import Foundation
 import SQLite3
@@ -55,6 +56,7 @@ public enum LearningJournalError: Error, LocalizedError, Equatable {
 
 // MARK: - LearningJournal Actor
 
+// swiftlint:disable:next type_body_length
 public actor LearningJournal {
     public let url: URL
     public let deviceID: DeviceID
@@ -80,11 +82,16 @@ public actor LearningJournal {
         profile_id TEXT NOT NULL, device_id TEXT NOT NULL, last_sequence INTEGER NOT NULL,
         PRIMARY KEY (profile_id, device_id), FOREIGN KEY (profile_id) REFERENCES profiles(id)
     );
+    CREATE TABLE IF NOT EXISTS bookmarks (
+        profile_id TEXT NOT NULL, sense_id TEXT NOT NULL, created_at TEXT NOT NULL,
+        PRIMARY KEY (profile_id, sense_id), FOREIGN KEY (profile_id) REFERENCES profiles(id)
+    );
     CREATE INDEX IF NOT EXISTS idx_attempts_profile_created ON attempts(profile_id, created_at);
     CREATE INDEX IF NOT EXISTS idx_attempts_profile_hash ON attempts(profile_id, submission_hash);
     CREATE INDEX IF NOT EXISTS idx_attempts_profile_sense ON attempts(profile_id, json_extract(payload_json, '$.sense_id'));
     CREATE INDEX IF NOT EXISTS idx_completions_profile_created ON completions(profile_id, created_at);
     CREATE INDEX IF NOT EXISTS idx_counters_profile_sense ON counters(profile_id, sense_id);
+    CREATE INDEX IF NOT EXISTS idx_bookmarks_profile ON bookmarks(profile_id);
     """
 
     public init(url: URL, deviceID: DeviceID = LearningJournal.defaultDeviceID()) throws {
@@ -446,6 +453,134 @@ public actor LearningJournal {
             }
         }
         return list
+    }
+
+    // MARK: - Bookmarks
+
+    @discardableResult
+    public func toggleBookmark(profileID: ProfileID, senseID: SenseID) async throws -> Bool {
+        try assertProfileExists(profileID: profileID)
+        let isCurrentlyBookmarked = try await isBookmarked(profileID: profileID, senseID: senseID)
+
+        if isCurrentlyBookmarked {
+            let sql = "DELETE FROM bookmarks WHERE profile_id = ? AND sense_id = ?;"
+            let stmt = try prepare(sql: sql)
+            defer { sqlite3_finalize(stmt) }
+            sqlite3_bind_text(stmt, 1, profileID.description, -1, SQLITE_TRANSIENT)
+            sqlite3_bind_text(stmt, 2, senseID.description, -1, SQLITE_TRANSIENT)
+            let stepResult = sqlite3_step(stmt)
+            guard stepResult == SQLITE_DONE else {
+                let database = try getDB()
+                throw LearningJournalError.sqliteError(stepResult, String(cString: sqlite3_errmsg(database)))
+            }
+            return false
+        } else {
+            let nowISO = ISO8601DateFormatter().string(from: Date())
+            let sql = "INSERT INTO bookmarks (profile_id, sense_id, created_at) VALUES (?, ?, ?);"
+            let stmt = try prepare(sql: sql)
+            defer { sqlite3_finalize(stmt) }
+            sqlite3_bind_text(stmt, 1, profileID.description, -1, SQLITE_TRANSIENT)
+            sqlite3_bind_text(stmt, 2, senseID.description, -1, SQLITE_TRANSIENT)
+            sqlite3_bind_text(stmt, 3, nowISO, -1, SQLITE_TRANSIENT)
+            let stepResult = sqlite3_step(stmt)
+            guard stepResult == SQLITE_DONE else {
+                let database = try getDB()
+                throw LearningJournalError.sqliteError(stepResult, String(cString: sqlite3_errmsg(database)))
+            }
+            return true
+        }
+    }
+
+    public func isBookmarked(profileID: ProfileID, senseID: SenseID) async throws -> Bool {
+        let sql = "SELECT 1 FROM bookmarks WHERE profile_id = ? AND sense_id = ? LIMIT 1;"
+        let stmt = try prepare(sql: sql)
+        defer { sqlite3_finalize(stmt) }
+        sqlite3_bind_text(stmt, 1, profileID.description, -1, SQLITE_TRANSIENT)
+        sqlite3_bind_text(stmt, 2, senseID.description, -1, SQLITE_TRANSIENT)
+        let stepResult = sqlite3_step(stmt)
+        if stepResult == SQLITE_ROW { return true }
+        if stepResult == SQLITE_DONE { return false }
+        let database = try getDB()
+        throw LearningJournalError.sqliteError(stepResult, String(cString: sqlite3_errmsg(database)))
+    }
+
+    public func bookmarkedSenseIDs(profileID: ProfileID) async throws -> Set<SenseID> {
+        let sql = "SELECT sense_id FROM bookmarks WHERE profile_id = ? ORDER BY created_at DESC;"
+        let stmt = try prepare(sql: sql)
+        defer { sqlite3_finalize(stmt) }
+        sqlite3_bind_text(stmt, 1, profileID.description, -1, SQLITE_TRANSIENT)
+
+        var set = Set<SenseID>()
+        while true {
+            let stepResult = sqlite3_step(stmt)
+            if stepResult == SQLITE_ROW {
+                let text = try columnRequiredText(stmt, 0, field: "sense_id")
+                if let senseID = SenseID(uuidString: text) {
+                    set.insert(senseID)
+                }
+            } else if stepResult == SQLITE_DONE {
+                break
+            } else {
+                let database = try getDB()
+                throw LearningJournalError.sqliteError(stepResult, String(cString: sqlite3_errmsg(database)))
+            }
+        }
+        return set
+    }
+
+    public func practicedSenseIDs(profileID: ProfileID) async throws -> Set<SenseID> {
+        let sql = "SELECT DISTINCT sense_id FROM counters WHERE profile_id = ?;"
+        let stmt = try prepare(sql: sql)
+        defer { sqlite3_finalize(stmt) }
+        sqlite3_bind_text(stmt, 1, profileID.description, -1, SQLITE_TRANSIENT)
+
+        var set = Set<SenseID>()
+        while true {
+            let stepResult = sqlite3_step(stmt)
+            if stepResult == SQLITE_ROW {
+                let text = try columnRequiredText(stmt, 0, field: "sense_id")
+                if let senseID = SenseID(uuidString: text) {
+                    set.insert(senseID)
+                }
+            } else if stepResult == SQLITE_DONE {
+                break
+            } else {
+                let database = try getDB()
+                throw LearningJournalError.sqliteError(stepResult, String(cString: sqlite3_errmsg(database)))
+            }
+        }
+        return set
+    }
+
+    public func weakSenseIDs(profileID: ProfileID, accuracyThreshold: Double = 0.7) async throws -> Set<SenseID> {
+        let sql = """
+        SELECT sense_id, SUM(total_count) as total, SUM(correct_count) as correct
+        FROM counters
+        WHERE profile_id = ?
+        GROUP BY sense_id
+        HAVING total > 0 AND (CAST(correct AS REAL) / total) < ?;
+        """
+        let stmt = try prepare(sql: sql)
+        defer { sqlite3_finalize(stmt) }
+        sqlite3_bind_text(stmt, 1, profileID.description, -1, SQLITE_TRANSIENT)
+        sqlite3_bind_double(stmt, 2, accuracyThreshold)
+
+        var set = Set<SenseID>()
+        while true {
+            let stepResult = sqlite3_step(stmt)
+            if stepResult == SQLITE_ROW {
+                let text = try columnRequiredText(stmt, 0, field: "sense_id")
+                if let senseID = SenseID(uuidString: text) {
+                    set.insert(senseID)
+                }
+            } else if stepResult == SQLITE_DONE {
+                break
+            } else {
+                let database = try getDB()
+                throw LearningJournalError.sqliteError(stepResult, String(cString: sqlite3_errmsg(database)))
+            }
+        }
+        return set
     }
 }
 

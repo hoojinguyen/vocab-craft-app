@@ -6,18 +6,44 @@ public protocol FetchLearningPathUseCaseProtocol: Sendable {
 }
 
 public final class FetchLearningPathUseCase: FetchLearningPathUseCaseProtocol, Sendable {
-    private let dataSource: VocabularyDataSourceProtocol
-    private let stageRepo: StageProgressRepositoryProtocol
+    private let adapter: ContentLearningPathAdapter?
+    private let legacyDataSource: VocabularyDataSourceProtocol?
+    private let legacyStageRepo: StageProgressRepositoryProtocol?
+
+    public init(adapter: ContentLearningPathAdapter) {
+        self.adapter = adapter
+        self.legacyDataSource = nil
+        self.legacyStageRepo = nil
+    }
+
+    public init(
+        repository: any ContentRepository,
+        journal: LearningJournal,
+        profileID: ProfileID
+    ) {
+        self.adapter = ContentLearningPathAdapter(repository: repository, journal: journal, profileID: profileID)
+        self.legacyDataSource = nil
+        self.legacyStageRepo = nil
+    }
 
     public init(
         dataSource: VocabularyDataSourceProtocol,
         stageRepo: StageProgressRepositoryProtocol
     ) {
-        self.dataSource = dataSource
-        self.stageRepo = stageRepo
+        self.adapter = nil
+        self.legacyDataSource = dataSource
+        self.legacyStageRepo = stageRepo
     }
 
     public func execute() async throws -> [LessonSection] {
+        if let adapter {
+            return try await adapter.load()
+        }
+
+        guard let dataSource = legacyDataSource, let stageRepo = legacyStageRepo else {
+            return []
+        }
+
         // Parallelize deck + progress fetch. Then fetch stages and words concurrently via TaskGroup
         async let decksTask = dataSource.fetchTopicDecks()
         async let progressTask = stageRepo.fetchAllStageProgress()

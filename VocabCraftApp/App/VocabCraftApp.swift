@@ -64,7 +64,12 @@ struct VocabCraftApp: App {
             #endif
         }
         let router = Self.createAppRouter(from: args)
-        self.appContainer = AppContainer(datasetEngine: engine, modelContainer: container, appRouter: router)
+        self.appContainer = AppContainer(
+            datasetEngine: engine,
+            modelContainer: container,
+            useSampleData: false,
+            appRouter: router
+        )
     }
 
     private static func createAppRouter(from args: [String]) -> AppRouter {
