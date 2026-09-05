@@ -46,6 +46,7 @@ public struct LessonLearningView: View {
                     iconName: "book.pages.fill",
                     tintColor: theme.colors.brandPrimary,
                     onFinish: {
+                        LessonPerformanceDiagnostics.event("LessonCountdownFinished")
                         withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                             isCountingDown = false
                         }
@@ -156,9 +157,11 @@ public struct LessonLearningView: View {
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: isCountingDown)
         .interactiveDismissDisabled(!viewModel.isSummaryStep)
         .onAppear {
+            LessonPerformanceDiagnostics.event("LessonScreenAppeared", detail: "countdown=\(isCountingDown)")
             viewModel.startSpeechSession()
         }
         .onDisappear {
+            LessonPerformanceDiagnostics.event("LessonScreenDisappeared")
             if !viewModel.isCompleted {
                 dismissOnce()
             }
@@ -174,6 +177,18 @@ public struct LessonLearningView: View {
             Button(AppStrings.Lesson.exitAlertCancelText, role: .cancel) {}
         } message: {
             Text(AppStrings.Lesson.exitAlertMessageText)
+        }
+        .alert(
+            viewModel.permissionNotice?.title ?? AppStrings.Lesson.permissionTitleText,
+            isPresented: $viewModel.isPermissionNoticePresented,
+            presenting: viewModel.permissionNotice
+        ) { _ in
+            Button(AppStrings.Lesson.permissionSettingsActionText) {
+                viewModel.openSettings()
+            }
+            Button(AppStrings.Lesson.permissionDismissActionText, role: .cancel) {}
+        } message: { notice in
+            Text(notice.message)
         }
     }
 }

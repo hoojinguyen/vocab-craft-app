@@ -10,9 +10,19 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
     private var activeContinuation: CheckedContinuation<Void, Never>?
     private var interruptionObserver: (any NSObjectProtocol)?
 
-    private var isAudioSessionConfigured: Bool = false
+    public let audioSessionCoordinator: any AudioSessionCoordinating
+    private(set) var activeLease: AudioSessionLease?
+    private(set) var playbackStartTask: Task<Void, Never>?
+    private(set) var playbackReleaseTask: Task<Void, Never>?
+    private(set) var currentUtterance: AVSpeechUtterance?
+    private var requestGeneration: UInt = 0
 
-    public override init() {
+    public override convenience init() {
+        self.init(audioSessionCoordinator: AudioSessionCoordinator())
+    }
+
+    public init(audioSessionCoordinator: any AudioSessionCoordinating) {
+        self.audioSessionCoordinator = audioSessionCoordinator
         super.init()
         synthesizer.delegate = self
         setupInterruptionObserver()
@@ -20,43 +30,8 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
     }
 
     public func prewarm() {
-        #if os(iOS) && !targetEnvironment(simulator)
-        Task.detached(priority: .utility) {
-            do {
-                let audioSession = AVAudioSession.sharedInstance()
-                try audioSession.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
-            } catch {
-                // Non-fatal pre-warming failure
-            }
-        }
-        #endif
         _ = Self.resolveVoice(for: "en-US")
     }
-
-    #if os(iOS)
-    private func ensureAudioSessionActive() {
-        #if !targetEnvironment(simulator)
-        do {
-            let audioSession = AVAudioSession.sharedInstance()
-            // When speech recognition is active, the session is already .playAndRecord
-            // which supports both mic input AND audio output. Switching to .playback
-            // would kill the mic and cause hardware audio crackling/pops.
-            if audioSession.category == .playAndRecord {
-                // Already configured for simultaneous record + playback — just ensure active
-                try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
-                return
-            }
-            if !isAudioSessionConfigured {
-                try audioSession.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
-                isAudioSessionConfigured = true
-            }
-            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
-        } catch {
-            print("Failed to activate AVAudioSession for TTS: \(error)")
-        }
-        #endif
-    }
-    #endif
 
     private func setupInterruptionObserver() {
         #if os(iOS) && !targetEnvironment(simulator)
@@ -97,11 +72,44 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         return voice
     }
 
-    public func speak(text: String, rate: Float = 1.0, locale: String = "en-US") {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
+    @discardableResult
+    private func acquirePlaybackLease(generation: UInt) async -> Bool {
+        let lease: AudioSessionLease
+        do {
+            lease = try await audioSessionCoordinator.acquire(.playback)
+        } catch {
+            LessonPerformanceDiagnostics.error("tts.audioSession.acquire", error: error)
+            if self.requestGeneration == generation {
+                self.isSpeaking = false
+                self.currentUtterance = nil
+            }
+            return false
+        }
 
-        stop()
+        guard !Task.isCancelled, self.requestGeneration == generation else {
+            await self.audioSessionCoordinator.release(lease)
+            return false
+        }
+
+        self.activeLease = lease
+        return true
+    }
+
+    @discardableResult
+    func releaseActiveLease() -> Task<Void, Never>? {
+        guard let lease = activeLease else { return nil }
+        activeLease = nil
+        let coordinator = audioSessionCoordinator
+        let task = Task {
+            await coordinator.release(lease)
+        }
+        playbackReleaseTask = task
+        return task
+    }
+
+    private func makeUtterance(text: String, rate: Float, locale: String) -> AVSpeechUtterance? {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
 
         let utterance = AVSpeechUtterance(string: trimmed)
 
@@ -112,44 +120,82 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         if let voice = Self.resolveVoice(for: locale) {
             utterance.voice = voice
         }
+        return utterance
+    }
 
-#if os(iOS)
-        ensureAudioSessionActive()
-#endif
+    public func speak(text: String, rate: Float = 1.0, locale: String = "en-US") {
+        guard let utterance = makeUtterance(text: text, rate: rate, locale: locale) else { return }
+        LessonPerformanceDiagnostics.event("TTSRequest")
+
+        stop()
 
         isSpeaking = true
-        let isTesting = NSClassFromString("XCTestCase") != nil
-        if isTesting {
+        currentUtterance = utterance
+        requestGeneration += 1
+        let currentGeneration = requestGeneration
+
+        playbackStartTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            let acquired = await self.acquirePlaybackLease(generation: currentGeneration)
+            guard acquired, !Task.isCancelled, self.requestGeneration == currentGeneration else {
+                if self.requestGeneration == currentGeneration {
+                    self.isSpeaking = false
+                    self.currentUtterance = nil
+                    self.releaseActiveLease()
+                }
+                return
+            }
+
             self.isSpeaking = true
-            return
+            let isTesting = NSClassFromString("XCTestCase") != nil
+            if isTesting {
+                return
+            }
+            self.synthesizer.speak(utterance)
         }
-        synthesizer.speak(utterance)
     }
 
     public func speakAsync(text: String, rate: Float = 1.0, locale: String = "en-US") async {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else {
+        guard let utterance = makeUtterance(text: text, rate: rate, locale: locale) else {
             isSpeaking = false
+            currentUtterance = nil
             return
         }
 
         stop()
 
-        let utterance = AVSpeechUtterance(string: trimmed)
+        isSpeaking = true
+        currentUtterance = utterance
+        requestGeneration += 1
+        let currentGeneration = requestGeneration
 
-        // Scale rate relative to AVSpeechUtteranceDefaultSpeechRate (0.5) so 1.0x = normal speed
-        let scaledRate = AVSpeechUtteranceDefaultSpeechRate * rate
-        utterance.rate = min(max(scaledRate, AVSpeechUtteranceMinimumSpeechRate), AVSpeechUtteranceMaximumSpeechRate)
+        let startTask = Task { @MainActor [weak self] in
+            guard let self else { return false }
+            return await self.acquirePlaybackLease(generation: currentGeneration)
+        }
+        playbackStartTask = Task {
+            _ = await startTask.value
+        }
 
-        utterance.voice = Self.resolveVoice(for: locale)
+        let acquired = await startTask.value
+        guard acquired, !Task.isCancelled, self.requestGeneration == currentGeneration else {
+            if self.requestGeneration == currentGeneration {
+                self.isSpeaking = false
+                self.currentUtterance = nil
+                self.releaseActiveLease()
+            }
+            return
+        }
 
-#if os(iOS)
-        ensureAudioSessionActive()
-#endif
+        self.isSpeaking = true
 
         let isTesting = NSClassFromString("XCTestCase") != nil
         if isTesting {
-            self.isSpeaking = false
+            if self.requestGeneration == currentGeneration {
+                self.isSpeaking = false
+                self.currentUtterance = nil
+                self.releaseActiveLease()
+            }
             return
         }
 
@@ -165,6 +211,8 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
                     self.synthesizer.stopSpeaking(at: .immediate)
                 }
                 self.isSpeaking = false
+                self.currentUtterance = nil
+                self.releaseActiveLease()
                 if let continuation = self.activeContinuation {
                     self.activeContinuation = nil
                     continuation.resume()
@@ -182,37 +230,51 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
     }
 
     public func stop() {
+        playbackStartTask?.cancel()
+        playbackStartTask = nil
+        requestGeneration += 1
+
         if synthesizer.isSpeaking {
             synthesizer.stopSpeaking(at: .immediate)
         }
         isSpeaking = false
+        currentUtterance = nil
         if let continuation = activeContinuation {
             activeContinuation = nil
             continuation.resume()
         }
+        releaseActiveLease()
     }
 
     // MARK: - AVSpeechSynthesizerDelegate
 
     public nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
         Task { @MainActor [weak self] in
+            LessonPerformanceDiagnostics.event("TTSFinished")
             guard let self = self else { return }
+            guard utterance === self.currentUtterance else { return }
+            self.currentUtterance = nil
             self.isSpeaking = false
             if let continuation = self.activeContinuation {
                 self.activeContinuation = nil
                 continuation.resume()
             }
+            self.releaseActiveLease()
         }
     }
 
     public nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
         Task { @MainActor [weak self] in
+            LessonPerformanceDiagnostics.event("TTSCancelled")
             guard let self = self else { return }
+            guard utterance === self.currentUtterance else { return }
+            self.currentUtterance = nil
             self.isSpeaking = false
             if let continuation = self.activeContinuation {
                 self.activeContinuation = nil
                 continuation.resume()
             }
+            self.releaseActiveLease()
         }
     }
 }

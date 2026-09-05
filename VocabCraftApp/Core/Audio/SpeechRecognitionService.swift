@@ -159,8 +159,9 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
         }
 
         let audioSession = AVAudioSession.sharedInstance()
-        try audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.defaultToSpeaker, .allowBluetoothHFP])
+        try audioSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetoothHFP])
         try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+        try? audioSession.overrideOutputAudioPort(.speaker)
         #endif
 
         guard let speechRecognizer = speechRecognizer, speechRecognizer.isAvailable else {

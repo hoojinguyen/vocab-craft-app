@@ -20,11 +20,9 @@ public struct CraftCountdownOverlay: View {
     public let goText: String
     public let onFinish: () -> Void
 
-    @State private var currentCount: Int
-    @State private var isShowingGo: Bool = false
+    @State private var sequence: CountdownSequence
     @State private var scale: CGFloat = 0.35
     @State private var opacity: Double = 0.0
-    @State private var isFinished: Bool = false
 
     public init(
         startNumber: Int = 3,
@@ -33,16 +31,51 @@ public struct CraftCountdownOverlay: View {
         iconName: String? = nil,
         tintColor: Color? = nil,
         goText: String = CraftLocalized.string("craft.countdown.go_text"),
+        clock: CountdownClock = SystemCountdownClock(),
+        haptics: (any CountdownHapticDriving)? = nil,
         onFinish: @escaping () -> Void
     ) {
-        self.startNumber = max(1, startNumber)
+        let clamped = max(1, startNumber)
+        self.startNumber = clamped
         self.title = title
         self.subtitle = subtitle
         self.iconName = iconName
         self.tintColor = tintColor
         self.goText = goText
         self.onFinish = onFinish
-        self._currentCount = State(initialValue: max(1, startNumber))
+        self._sequence = State(initialValue: CountdownSequence(
+            startNumber: clamped,
+            clock: clock,
+            haptics: haptics ?? CountdownHapticDriver.shared,
+            onFinish: onFinish
+        ))
+    }
+
+    public init(
+        sequence: CountdownSequence,
+        title: String? = nil,
+        subtitle: String? = nil,
+        iconName: String? = nil,
+        tintColor: Color? = nil,
+        goText: String = CraftLocalized.string("craft.countdown.go_text"),
+        onFinish: @escaping () -> Void
+    ) {
+        self.startNumber = sequence.startNumber
+        self.title = title
+        self.subtitle = subtitle
+        self.iconName = iconName
+        self.tintColor = tintColor
+        self.goText = goText
+        self.onFinish = onFinish
+        if let existing = sequence.onFinish {
+            sequence.onFinish = {
+                existing()
+                onFinish()
+            }
+        } else {
+            sequence.onFinish = onFinish
+        }
+        self._sequence = State(initialValue: sequence)
     }
 
     private var effectiveTint: Color {
@@ -58,8 +91,8 @@ public struct CraftCountdownOverlay: View {
             // Subtle Ambient Radial Glow centered behind the countdown
             RadialGradient(
                 colors: [
-                    (isShowingGo ? theme.colors.statusSuccess : effectiveTint).opacity(0.28),
-                    (isShowingGo ? theme.colors.statusSuccess : effectiveTint).opacity(0.08),
+                    (sequence.isShowingGo ? theme.colors.statusSuccess : effectiveTint).opacity(0.28),
+                    (sequence.isShowingGo ? theme.colors.statusSuccess : effectiveTint).opacity(0.08),
                     Color.clear
                 ],
                 center: .center,
@@ -104,11 +137,11 @@ public struct CraftCountdownOverlay: View {
 
                 // Grand Countdown Number or GO!
                 ZStack {
-                    Text(isShowingGo ? goText : "\(currentCount)")
+                    Text(sequence.isShowingGo ? goText : "\(sequence.currentCount)")
                         .font(.system(size: 92, weight: .heavy, design: .rounded))
                         .foregroundStyle(
                             LinearGradient(
-                                colors: isShowingGo
+                                colors: sequence.isShowingGo
                                     ? [theme.colors.statusSuccess, theme.colors.statusSuccess.opacity(0.85)]
                                     : [effectiveTint, theme.colors.accent],
                                 startPoint: .top,
@@ -130,61 +163,30 @@ public struct CraftCountdownOverlay: View {
         }
         .contentShape(Rectangle())
         .onTapGesture {
-            skipCountdown()
+            sequence.skip()
         }
         .task {
-            await runCountdown()
+            setupCallbacks()
+            await sequence.run()
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(isShowingGo ? goText : CraftLocalized.format("craft.countdown.label_format", currentCount))
+        .accessibilityLabel(sequence.isShowingGo ? goText : CraftLocalized.format("craft.countdown.label_format", sequence.currentCount))
         .accessibilityHint(CraftLocalized.string("craft.countdown.tap_to_skip_hint"))
         .accessibilityAddTraits(.isButton)
     }
 
-    // MARK: - Skip Action
-
     @MainActor
-    private func skipCountdown() {
-        guard !isFinished else { return }
-        isFinished = true
-        triggerHapticTick(isFinal: true)
-        onFinish()
-    }
-
-    // MARK: - Countdown Loop
-
-    @MainActor
-    private func runCountdown() async {
-        for number in stride(from: startNumber, through: 1, by: -1) {
-            guard !Task.isCancelled && !isFinished else { return }
-            currentCount = number
-            isShowingGo = false
-            triggerHapticTick(isFinal: false)
+    internal func setupCallbacks() {
+        let existingTick = sequence.onTick
+        sequence.onTick = { count in
+            existingTick?(count)
             animateBounce()
-
-            // 0.85s delay per count
-            do {
-                try await Task.sleep(nanoseconds: 850_000_000)
-            } catch {
-                return
-            }
-            guard !Task.isCancelled && !isFinished else { return }
         }
-
-        // Final GO!
-        isShowingGo = true
-        triggerHapticTick(isFinal: true)
-        animateBounce()
-
-        // 0.65s delay on GO before completion
-        do {
-            try await Task.sleep(nanoseconds: 650_000_000)
-        } catch {
-            return
+        let existingGo = sequence.onGo
+        sequence.onGo = {
+            existingGo?()
+            animateBounce()
         }
-        guard !Task.isCancelled && !isFinished else { return }
-        isFinished = true
-        onFinish()
     }
 
     private func animateBounce() {
@@ -201,20 +203,6 @@ public struct CraftCountdownOverlay: View {
             scale = 1.0
             opacity = 1.0
         }
-    }
-
-    private func triggerHapticTick(isFinal: Bool) {
-        #if os(iOS)
-        if isFinal {
-            let generator = UINotificationFeedbackGenerator()
-            generator.prepare()
-            generator.notificationOccurred(.success)
-        } else {
-            let generator = UIImpactFeedbackGenerator(style: .heavy)
-            generator.prepare()
-            generator.impactOccurred()
-        }
-        #endif
     }
 }
 

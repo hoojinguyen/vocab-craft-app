@@ -119,5 +119,25 @@ extension AppStrings {
         public static var loadErrorText: String {
             String(localized: "app.lesson.load_error", defaultValue: "Unable to load words for this lesson.", bundle: .module)
         }
+
+        public static var permissionTitle: LocalizedStringKey { "app.lesson.permission.title" }
+        public static var permissionTitleText: String {
+            String(localized: "app.lesson.permission.title", defaultValue: "Microphone Access Required", bundle: .module)
+        }
+
+        public static var permissionMessage: LocalizedStringKey { "app.lesson.permission.message" }
+        public static var permissionMessageText: String {
+            String(localized: "app.lesson.permission.message", defaultValue: "Please allow microphone access in Settings to practice speaking exercises.", bundle: .module)
+        }
+
+        public static var permissionSettingsAction: LocalizedStringKey { "app.lesson.permission.open_settings" }
+        public static var permissionSettingsActionText: String {
+            String(localized: "app.lesson.permission.open_settings", defaultValue: "Open Settings", bundle: .module)
+        }
+
+        public static var permissionDismissAction: LocalizedStringKey { "app.lesson.permission.dismiss" }
+        public static var permissionDismissActionText: String {
+            String(localized: "app.lesson.permission.dismiss", defaultValue: "Continue with Typing", bundle: .module)
+        }
     }
 }

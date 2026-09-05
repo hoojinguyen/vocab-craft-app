@@ -940,6 +940,42 @@
         }
       }
     },
+    "craft.fluid_journey.drawer_subtitle" : {
+      "comment" : "Subtitle of curriculum drawer header",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick a topic to jump to"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chọn chủ đề để học"
+          }
+        }
+      }
+    },
+    "craft.fluid_journey.drawer_title" : {
+      "comment" : "Title of curriculum drawer header",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learning Path"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lộ trình học"
+          }
+        }
+      }
+    },
     "craft.fluid_journey.expand_unit_hint" : {
       "comment" : "Hint for expanding accordion section in unit drawer",
       "extractionState" : "manual",
@@ -1857,6 +1893,42 @@
         }
       }
     },
+    "craft.speech.mic_unavailable_a11y" : {
+      "comment" : "Microphone unavailable accessibility label",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microphone unavailable"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Micro không khả dụng"
+          }
+        }
+      }
+    },
+    "craft.speech.preparing" : {
+      "comment" : "Speech recognition preparing state",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preparing..."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đang chuẩn bị..."
+          }
+        }
+      }
+    },
     "craft.speech.score_format" : {
       "comment" : "Pronunciation score percentage format",
       "extractionState" : "manual",
@@ -1907,6 +1979,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Thử nói lại"
+          }
+        }
+      }
+    },
+    "craft.speech.unavailable" : {
+      "comment" : "Speech recognition unavailable subtitle",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microphone unavailable"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Micro không khả dụng"
           }
         }
       }

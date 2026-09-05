@@ -58,8 +58,9 @@ public enum CraftLocalized {
     ///   - comment: An optional comment describing the context of the string.
     /// - Returns: A localized version of the string designated by `key` in the requested locale.
     public static func string(_ key: String, locale: Locale, comment: String = "") -> String {
-        let languageCode = locale.language.languageCode?.identifier ?? locale.identifier
-        return localizedString(forKey: key, language: languageCode)
+        let rawCode = locale.language.languageCode?.identifier ?? locale.identifier
+        let languageCode = rawCode.split(whereSeparator: { $0 == "_" || $0 == "-" }).first.map(String.init) ?? rawCode
+        return localizedString(forKey: key, language: languageCode.isEmpty ? nil : languageCode)
     }
 
     // MARK: - Public Formatting APIs
@@ -150,13 +151,27 @@ public enum CraftLocalized {
 
         // 2. Lookup in Localizable.xcstrings catalog directly (SPM CLI runtime)
         if let catalog = catalog, let entry = catalog.strings[key] {
-            if let lang = language {
+            if let lang = language, !lang.isEmpty {
                 if let value = entry.localizations?[lang]?.stringUnit?.value {
                     return value
+                }
+                let shortLang = String(lang.prefix(2))
+                if let value = entry.localizations?[shortLang]?.stringUnit?.value {
+                    return value
+                }
+                if let fallback = entry.localizations?[catalog.sourceLanguage]?.stringUnit?.value {
+                    return fallback
+                }
+                if let enFallback = entry.localizations?["en"]?.stringUnit?.value {
+                    return enFallback
                 }
             } else {
                 let preferredCode = Locale.current.language.languageCode?.identifier ?? catalog.sourceLanguage
                 if let value = entry.localizations?[preferredCode]?.stringUnit?.value {
+                    return value
+                }
+                let shortPreferred = String(preferredCode.prefix(2))
+                if let value = entry.localizations?[shortPreferred]?.stringUnit?.value {
                     return value
                 }
                 if let fallback = entry.localizations?[catalog.sourceLanguage]?.stringUnit?.value {

@@ -22,6 +22,10 @@ public struct CraftFluidJourney: View {
     /// Default vertical threshold (in points) at which a milestone pill triggers unit docking.
     public static let defaultDockThreshold: CGFloat = 140
 
+    /// Scroll anchor positioning a lesson node near the top of the viewport, just below
+    /// the floating pinned header overlay.
+    public static let nodeTopAnchor = UnitPoint(x: 0.5, y: 0.20)
+
     // MARK: - Properties
 
     /// Curriculum sections displayed along the fluid journey path.
@@ -80,6 +84,7 @@ public struct CraftFluidJourney: View {
     @Environment(\.craftTheme) var theme
     @Environment(\.craftSurfaceStyle) var environmentStyle
     @Environment(\.accessibilityReduceMotion) var reduceMotion
+    @Environment(\.locale) var locale
 
     /// Effective surface style resolved from explicit parameter, environment, or theme default.
     public var effectiveSurfaceStyle: CraftSurfaceStyle {
@@ -92,6 +97,7 @@ public struct CraftFluidJourney: View {
     @State private var selectedNodeForDetail: LessonNodeModel?
     @State private var pendingLessonToStart: LessonNodeModel?
     @State private var isDrawerPresented: Bool = false
+    @State private var drawerExpandedSectionIds: Set<String> = []
     @State private var hasScrolledToActive: Bool = false
     @State private var tabBarScrollReducer = CraftTabBarScrollPresentationReducer()
     @State private var tracksUserTabBarScroll: Bool = false
@@ -146,11 +152,14 @@ public struct CraftFluidJourney: View {
                     .onAppear {
                         handleInitialScroll(scrollProxy: scrollProxy)
                     }
+                    .onChange(of: sections) { _, _ in
+                        handleInitialScroll(scrollProxy: scrollProxy)
+                    }
                 )
                 .onChange(of: externalScrollTrigger) { _, newValue in
                     guard newValue > 0, let targetID = activeNodeID else { return }
                     withAnimation(reduceMotion ? nil : .smooth(duration: 0.45)) {
-                        scrollProxy.scrollTo(targetID, anchor: .center)
+                        scrollProxy.scrollTo(targetID, anchor: Self.nodeTopAnchor)
                     }
                 }
 
@@ -359,7 +368,7 @@ public extension CraftFluidJourney {
         if let firstTitle = sections.first?.title, !firstTitle.isEmpty {
             return firstTitle
         }
-        return CraftLocalized.string("craft.fluid_journey.unit_picker_title")
+        return CraftLocalized.string("craft.fluid_journey.unit_picker_title", locale: locale)
     }
 
     /// Resolves the subtitle displayed in the curriculum drawer header.
@@ -416,26 +425,26 @@ public extension CraftFluidJourney {
         }
 
         if node.kind == .checkpoint {
-            return CraftLocalized.string("craft.fluid_journey.challenge")
+            return CraftLocalized.string("craft.fluid_journey.challenge", locale: locale)
         }
 
         if node.kind == .treasureChest {
-            return CraftLocalized.string("craft.fluid_journey.claim_gift")
+            return CraftLocalized.string("craft.fluid_journey.claim_gift", locale: locale)
         }
 
         if let progress = node.progress, progress > 0.0 {
-            return CraftLocalized.string("craft.fluid_journey.continue")
+            return CraftLocalized.string("craft.fluid_journey.continue", locale: locale)
         }
 
         if index == 0 {
-            return CraftLocalized.string("craft.fluid_journey.start")
+            return CraftLocalized.string("craft.fluid_journey.start", locale: locale)
         }
 
         if totalNodes > 2 && index >= totalNodes - 2 {
-            return CraftLocalized.string("craft.fluid_journey.almost_there")
+            return CraftLocalized.string("craft.fluid_journey.almost_there", locale: locale)
         }
 
-        return CraftLocalized.string("craft.fluid_journey.keep_going")
+        return CraftLocalized.string("craft.fluid_journey.keep_going", locale: locale)
     }
 }
 
@@ -488,6 +497,11 @@ extension CraftFluidJourney {
             CraftPinnedUnitHeader(
                 section: headerSection(for: docked),
                 onTap: {
+                    // Parent-owned expansion state: survives sheet rebuilds and
+                    // guarantees the drawer re-renders on every toggle.
+                    if let dockedId = currentlyDockedSection?.id {
+                        drawerExpandedSectionIds = [dockedId]
+                    }
                     isDrawerPresented = true
                 }
             )
@@ -504,6 +518,7 @@ extension CraftFluidJourney {
             deckTitle: resolvedDeckTitle,
             deckSubtitle: resolvedDeckSubtitle,
             activeSectionId: currentlyDockedSection?.id ?? sections.first?.id ?? "",
+            expandedSectionIds: $drawerExpandedSectionIds,
             onAdjustPlan: onAdjustPlan,
             onSelectLesson: { sectionId, nodeId in
                 handleLessonSelection(sectionId: sectionId, nodeId: nodeId, scrollProxy: scrollProxy)
@@ -649,10 +664,15 @@ extension CraftFluidJourney {
         onSelectLesson?(sectionId, nodeId)
 
         Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(250))
+            try? await Task.sleep(for: .milliseconds(350))
             guard !Task.isCancelled else { return }
-            withAnimation(reduceMotion ? nil : .smooth(duration: 0.45)) {
-                scrollProxy.scrollTo(nodeId, anchor: .center)
+            let isFirstNode = sections.first?.nodes.first?.id == nodeId
+            withAnimation(reduceMotion ? nil : .smooth(duration: 0.5)) {
+                if isFirstNode {
+                    scrollProxy.scrollTo(nodeId, anchor: .top)
+                } else {
+                    scrollProxy.scrollTo(nodeId, anchor: Self.nodeTopAnchor)
+                }
             }
         }
     }
@@ -660,10 +680,19 @@ extension CraftFluidJourney {
     func handleInitialScroll(scrollProxy: ScrollViewProxy) {
         guard scrollToActive, !hasScrolledToActive, let targetID = activeNodeID else { return }
         hasScrolledToActive = true
+
+        // If the active node is already the very first node of the journey,
+        // it is already visible at natural resting scroll offset 0 (under the pinned header).
+        // Scrolling with anchor 0.20 would cause an unnatural upward hitch on fresh launch.
+        let isFirstNode = sections.first?.nodes.first?.id == targetID
+        guard !isFirstNode else { return }
+
         Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(50))
+            try? await Task.sleep(for: .milliseconds(150))
             guard !Task.isCancelled else { return }
-            scrollProxy.scrollTo(targetID, anchor: .center)
+            withAnimation(reduceMotion ? nil : .smooth(duration: 0.5)) {
+                scrollProxy.scrollTo(targetID, anchor: Self.nodeTopAnchor)
+            }
         }
     }
 

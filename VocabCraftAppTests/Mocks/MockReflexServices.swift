@@ -145,3 +145,200 @@ final class MockSpeechAssessmentService: SpeechAssessmentProtocol {
 }
 
 typealias MockSpeechAssessmentServiceForViewModel = MockSpeechAssessmentService
+
+@MainActor
+final class SuspendedMockReflexSpeechEngine: ReflexSpeechEngineProtocol {
+    var isSessionActive: Bool = true
+    var isWordActive: Bool = false
+    var liveTranscript: String = ""
+    var isListeningPaused: Bool = false
+    var onMatchDetected: ((String) -> Void)?
+    var onTranscriptUpdate: ((String) -> Void)?
+    var onError: ((Error) -> Void)?
+
+    private(set) var prepareCallCount = 0
+    private(set) var startListeningCallCount = 0
+    private(set) var beginWordCallCount = 0
+    private(set) var resumeListeningCallCount = 0
+    private(set) var pauseListeningCallCount = 0
+    private(set) var stopSessionCallCount = 0
+    private(set) var lastTargetLemma: String = ""
+    private(set) var lastContextualPhrases: [String] = []
+    var simulatedStartListeningError: (any Error)?
+    private var preparationContinuations: [UUID: CheckedContinuation<Void, Error>] = [:]
+    private var preparationStartWaiters: [CheckedContinuation<Void, Never>] = []
+    private var startListeningContinuations: [UUID: CheckedContinuation<Void, Error>] = [:]
+    private var startListeningStartWaiters: [CheckedContinuation<Void, Never>] = []
+    private var isCompleted = false
+    private var pendingError: Error?
+
+    func startSession(contextualPhrases: [String]) {
+        isSessionActive = true
+        isCompleted = false
+        pendingError = nil
+    }
+
+    func startSession(contextualPhrases: [String], lazy: Bool) {
+        isSessionActive = true
+        isCompleted = false
+        pendingError = nil
+    }
+
+    func stopSession() {
+        isSessionActive = false
+        stopSessionCallCount += 1
+        let continuations = Array(preparationContinuations.values)
+        preparationContinuations.removeAll()
+        for continuation in continuations {
+            continuation.resume(throwing: CancellationError())
+        }
+        let startContinuations = Array(startListeningContinuations.values)
+        startListeningContinuations.removeAll()
+        for continuation in startContinuations {
+            continuation.resume(throwing: CancellationError())
+        }
+    }
+
+    func pauseListening() { isListeningPaused = true; pauseListeningCallCount += 1 }
+    func resumeListening() { isListeningPaused = false; resumeListeningCallCount += 1 }
+
+    func waitUntilPreparationStarts(expectedCount: Int = 1) async {
+        guard prepareCallCount < expectedCount else { return }
+        await withCheckedContinuation { continuation in
+            preparationStartWaiters.append(continuation)
+        }
+    }
+
+    func prepareEngineIfNeeded() async throws {
+        prepareCallCount += 1
+        for waiter in preparationStartWaiters {
+            waiter.resume()
+        }
+        preparationStartWaiters.removeAll()
+
+        if let pendingError {
+            throw pendingError
+        }
+        if isCompleted {
+            return
+        }
+        guard isSessionActive else {
+            throw CancellationError()
+        }
+
+        let continuationID = UUID()
+        try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                if Task.isCancelled {
+                    continuation.resume(throwing: CancellationError())
+                } else {
+                    preparationContinuations[continuationID] = continuation
+                }
+            }
+        } onCancel: {
+            Task { @MainActor [weak self] in
+                if let continuation = self?.preparationContinuations.removeValue(forKey: continuationID) {
+                    continuation.resume(throwing: CancellationError())
+                }
+            }
+        }
+    }
+
+    func completePreparation() {
+        isCompleted = true
+        let continuations = Array(preparationContinuations.values)
+        preparationContinuations.removeAll()
+        for continuation in continuations {
+            continuation.resume()
+        }
+    }
+
+    func failPreparation(with error: Error) {
+        pendingError = error
+        let continuations = Array(preparationContinuations.values)
+        preparationContinuations.removeAll()
+        for continuation in continuations {
+            continuation.resume(throwing: error)
+        }
+    }
+
+    func waitUntilStartListeningStarts(expectedCount: Int = 1) async {
+        guard startListeningCallCount < expectedCount else { return }
+        await withCheckedContinuation { continuation in
+            startListeningStartWaiters.append(continuation)
+        }
+    }
+
+    func completeStartListening() {
+        let continuations = Array(startListeningContinuations.values)
+        startListeningContinuations.removeAll()
+        for continuation in continuations {
+            continuation.resume()
+        }
+    }
+
+    func failStartListening(with error: Error) {
+        simulatedStartListeningError = error
+        let continuations = Array(startListeningContinuations.values)
+        startListeningContinuations.removeAll()
+        for continuation in continuations {
+            continuation.resume(throwing: error)
+        }
+    }
+
+    func startListening(targetLemma: String, contextualPhrases: [String]) async throws {
+        startListeningCallCount += 1
+        lastTargetLemma = targetLemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        lastContextualPhrases = contextualPhrases
+
+        for waiter in startListeningStartWaiters {
+            waiter.resume()
+        }
+        startListeningStartWaiters.removeAll()
+
+        if let simulatedStartListeningError {
+            throw simulatedStartListeningError
+        }
+
+        guard isSessionActive else {
+            throw CancellationError()
+        }
+
+        let continuationID = UUID()
+        try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                if Task.isCancelled {
+                    continuation.resume(throwing: CancellationError())
+                } else {
+                    startListeningContinuations[continuationID] = continuation
+                }
+            }
+        } onCancel: {
+            Task { @MainActor [weak self] in
+                if let continuation = self?.startListeningContinuations.removeValue(forKey: continuationID) {
+                    continuation.resume(throwing: CancellationError())
+                }
+            }
+        }
+
+        guard isSessionActive else {
+            throw CancellationError()
+        }
+
+        isWordActive = true
+        liveTranscript = ""
+    }
+
+    func beginWord(targetLemma: String, contextualPhrases: [String]) {
+        beginWordCallCount += 1
+        lastTargetLemma = targetLemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        lastContextualPhrases = contextualPhrases
+        isWordActive = true
+    }
+
+    func endWord() {
+        isWordActive = false
+    }
+
+    func finalizeWordAudio() {}
+}

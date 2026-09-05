@@ -207,8 +207,9 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
     private func configureAudioSession() throws {
         let audioSession = AVAudioSession.sharedInstance()
         do {
-            try audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.defaultToSpeaker, .allowBluetoothHFP])
+            try audioSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetoothHFP])
             try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+            try? audioSession.overrideOutputAudioPort(.speaker)
         } catch {
             throw SpeechKitError.audioSessionConfigurationFailed
         }

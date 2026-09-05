@@ -128,45 +128,50 @@ public struct LessonExerciseContainerView: View {
                     )
                 }
 
-                // Auxiliary Controls (Hint & Skip)
-                if !viewModel.isFeedbackPresented {
-                    HStack(spacing: theme.spacing.md) {
+                // Auxiliary Controls (Hint, Retry & Skip)
+                HStack(spacing: theme.spacing.md) {
+                    CraftButton(
+                        AppStrings.Lesson.hintAction,
+                        iconName: "sparkles",
+                        variant: .ghost,
+                        size: .sm
+                    ) {
+                        viewModel.requestHint(for: item)
+                    }
+
+                    if item.assignedMode == .speaking {
+                        let isRetryAvailable = viewModel.speechState == .idle
                         CraftButton(
-                            AppStrings.Lesson.hintAction,
-                            iconName: "sparkles",
-                            variant: .ghost,
-                            size: .sm
+                            AppStrings.Common.retry,
+                            iconName: "mic.fill",
+                            variant: .outline,
+                            size: .sm,
+                            style: .outlined
                         ) {
-                            viewModel.requestHint(for: item)
+                            viewModel.retrySpeaking(for: item)
                         }
+                        .opacity(isRetryAvailable ? 1.0 : 0.0)
+                        .disabled(!isRetryAvailable || viewModel.isFeedbackPresented)
+                        .accessibilityHidden(!isRetryAvailable || viewModel.isFeedbackPresented)
+                    }
 
-                        if item.assignedMode == .speaking && viewModel.speechState == .idle {
-                            CraftButton(
-                                AppStrings.Common.retry,
-                                iconName: "mic.fill",
-                                variant: .outline,
-                                size: .sm,
-                                style: .outlined
-                            ) {
-                                viewModel.retrySpeaking(for: item)
-                            }
-                        }
-
-                        if item.assignedMode == .typing || item.assignedMode == .speaking {
-                            CraftButton(
-                                AppStrings.Lesson.skipAction,
-                                iconName: "forward.fill",
-                                variant: .outline,
-                                size: .sm,
-                                style: .outlined
-                            ) {
-                                viewModel.skipExercise(for: item)
-                            }
+                    if item.assignedMode == .typing || item.assignedMode == .speaking {
+                        CraftButton(
+                            AppStrings.Lesson.skipAction,
+                            iconName: "forward.fill",
+                            variant: .outline,
+                            size: .sm,
+                            style: .outlined
+                        ) {
+                            viewModel.skipExercise(for: item)
                         }
                     }
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.top, theme.spacing.xs)
                 }
+                .frame(maxWidth: .infinity, minHeight: 44, alignment: .center)
+                .padding(.top, theme.spacing.xs)
+                .opacity(viewModel.isFeedbackPresented ? 0.0 : 1.0)
+                .disabled(viewModel.isFeedbackPresented)
+                .accessibilityHidden(viewModel.isFeedbackPresented)
             }
             .padding(.horizontal, theme.spacing.base)
             .padding(.top, theme.spacing.xs)

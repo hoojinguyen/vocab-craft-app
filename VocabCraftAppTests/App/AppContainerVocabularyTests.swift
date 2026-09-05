@@ -71,3 +71,31 @@ final class AppContainerVocabularyTests: XCTestCase {
         XCTAssertNotNil(container.makeCompleteLessonUseCase())
     }
 }
+
+#if canImport(Testing)
+import Testing
+
+@Suite("AppContainer Audio Dependency Tests")
+struct AppContainerAudioDependencyTests {
+    @Test @MainActor func appContainerSharesCoordinatorBetweenTTSAndCreatedSpeechEngines() {
+        let container = AppContainer.mock
+        let coordinator = container.audioSessionCoordinator
+
+        let tts = container.ttsService as? TextToSpeechService
+        #expect(tts != nil)
+        #expect((tts?.audioSessionCoordinator as AnyObject?) === (coordinator as AnyObject))
+
+        let engine = container.makeReflexSpeechEngine() as? ResilientReflexSpeechEngine
+        #expect(engine != nil)
+        #expect((engine?.audioSessionCoordinator as AnyObject?) === (coordinator as AnyObject))
+    }
+
+    @Test @MainActor func vocabularyUsesAppContainerSpeechEngineFactory() {
+        let container = AppContainer.mock
+        let view = VocabularyView()
+        let drillEngine = view.makeDrillSpeechEngine(container: container) as? ResilientReflexSpeechEngine
+        #expect(drillEngine != nil)
+        #expect((drillEngine?.audioSessionCoordinator as AnyObject?) === (container.audioSessionCoordinator as AnyObject))
+    }
+}
+#endif

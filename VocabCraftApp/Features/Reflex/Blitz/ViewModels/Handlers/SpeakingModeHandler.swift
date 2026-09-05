@@ -27,13 +27,6 @@ public struct SpeakingModeHandler: ReflexModeHandlerProtocol {
         speechEngine: ReflexSpeechEngineProtocol,
         isKeyboardFallback: Bool
     ) -> ModeWordPreparationResult {
-        if !isKeyboardFallback {
-            speechEngine.beginWord(
-                targetLemma: word.lemma,
-                contextualPhrases: [word.lemma]
-            )
-        }
-
         if let planItem {
             return ModeWordPreparationResult(
                 options: planItem.options,

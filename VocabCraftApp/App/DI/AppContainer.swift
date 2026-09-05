@@ -22,6 +22,7 @@ public final class AppContainer {
     public let quickReflexAttemptRepository: QuickReflexAttemptRepositoryProtocol
 
     // MARK: - Services
+    public let audioSessionCoordinator: any AudioSessionCoordinating
     public let ttsService: TextToSpeechProtocol
     public let sttService: SpeechRecognitionProtocol
     public let speechAssessmentService: SpeechAssessmentProtocol
@@ -59,6 +60,7 @@ public final class AppContainer {
         practiceDrillPlanGenerator: PracticeDrillPlanGeneratorProtocol? = nil,
         recordMixedDrillAttemptUseCase: RecordMixedDrillAttemptUseCaseProtocol? = nil,
         initializeUserRoadmapUseCase: InitializeUserRoadmapUseCaseProtocol? = nil,
+        audioSessionCoordinator: (any AudioSessionCoordinating)? = nil,
         ttsService: TextToSpeechProtocol? = nil,
         sttService: SpeechRecognitionProtocol? = nil,
         speechAssessmentService: SpeechAssessmentProtocol? = nil,
@@ -93,7 +95,11 @@ public final class AppContainer {
         self.srsRepository = srsRepo
         self.quickReflexAttemptRepository = quickReflexAttemptRepo
 
-        let resolvedTTS = ttsService ?? TextToSpeechService()
+        let resolvedAudioCoordinator: any AudioSessionCoordinating = audioSessionCoordinator
+            ?? AudioSessionCoordinator()
+        self.audioSessionCoordinator = resolvedAudioCoordinator
+
+        let resolvedTTS = ttsService ?? TextToSpeechService(audioSessionCoordinator: resolvedAudioCoordinator)
         self.ttsService = resolvedTTS
         self.sttService = sttService ?? SpeechRecognitionService()
         self.speechAssessmentService = speechAssessmentService ?? SpeechAssessmentService()
@@ -193,7 +199,7 @@ public final class AppContainer {
     }
 
     public func makeReflexSpeechEngine() -> ReflexSpeechEngineProtocol {
-        ResilientReflexSpeechEngine()
+        ResilientReflexSpeechEngine(audioSessionCoordinator: audioSessionCoordinator)
     }
 
     public func makeReflexBlitzViewModel(words: [ReflexBlitzWordItem] = []) -> ReflexBlitzViewModel {

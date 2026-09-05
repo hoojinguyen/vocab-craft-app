@@ -1,67 +1,27 @@
 import AVFoundation
 import Foundation
 import Observation
+import os
 import Speech
 import SpeechKit
 
-/// Thread-safe buffer relay to bridge AVAudioEngine real-time audio tap callbacks with
-/// SFSpeechAudioBufferRecognitionRequest without capturing @MainActor isolated references.
-public final class AudioBufferRelay: @unchecked Sendable {
-    private let lock = NSLock()
-    private weak var activeRequest: SFSpeechAudioBufferRecognitionRequest?
-    private var isMuted: Bool = false
+enum LessonPerformanceDiagnostics {
+    private static let subsystem = Bundle.main.bundleIdentifier ?? "VocabCraftApp"
+    private static let logger = Logger(subsystem: subsystem, category: "LessonPerformance")
+    private static let signpostLog = OSLog(subsystem: subsystem, category: .pointsOfInterest)
 
-    public init() {}
-
-    public var isCurrentlyMuted: Bool {
-        lock.lock()
-        defer { lock.unlock() }
-        return isMuted
+    static func event(_ name: StaticString, detail: String = "") {
+        #if DEBUG
+        logger.notice("event=\(String(describing: name), privacy: .public) detail=\(detail, privacy: .public)")
+        os_signpost(.event, log: signpostLog, name: name, "%{public}@", detail as NSString)
+        #endif
     }
 
-    public var currentRequest: SFSpeechAudioBufferRecognitionRequest? {
-        lock.lock()
-        defer { lock.unlock() }
-        return activeRequest
-    }
-
-    public func setRequest(_ request: SFSpeechAudioBufferRecognitionRequest?) {
-        lock.lock()
-        defer { lock.unlock() }
-        activeRequest = request
-        isMuted = false
-    }
-
-    public func mute() {
-        lock.lock()
-        defer { lock.unlock() }
-        isMuted = true
-    }
-
-    public func unmute() {
-        lock.lock()
-        defer { lock.unlock() }
-        isMuted = false
-    }
-
-    /// Atomically detaches the active request and invokes endAudio() on it.
-    /// Guarantees that no background tap buffer can ever be appended after endAudio() is called.
-    public func detachAndEnd() {
-        lock.lock()
-        defer { lock.unlock() }
-        let requestToEnd = activeRequest
-        activeRequest = nil
-        isMuted = true
-        requestToEnd?.endAudio()
-    }
-
-    public func append(_ buffer: AVAudioPCMBuffer) {
-        lock.lock()
-        defer { lock.unlock() }
-        guard !isMuted, let request = activeRequest else {
-            return
-        }
-        request.append(buffer)
+    static func error(_ operation: String, error: Error) {
+        #if DEBUG
+        let nsError = error as NSError
+        logger.error("operation=\(operation, privacy: .public) domain=\(nsError.domain, privacy: .public) code=\(nsError.code)")
+        #endif
     }
 }
 
@@ -71,13 +31,8 @@ private final class InterruptionObserverToken: @unchecked Sendable {
     private let lock = NSLock()
     private var observer: (any NSObjectProtocol)?
 
-    init(observer: (any NSObjectProtocol)?) {
-        self.observer = observer
-    }
-
-    deinit {
-        cancel()
-    }
+    init(observer: (any NSObjectProtocol)?) { self.observer = observer }
+    deinit { cancel() }
 
     func cancel() {
         #if os(iOS)
@@ -85,9 +40,7 @@ private final class InterruptionObserverToken: @unchecked Sendable {
         let obs = observer
         observer = nil
         lock.unlock()
-        if let obs {
-            NotificationCenter.default.removeObserver(obs)
-        }
+        if let obs { NotificationCenter.default.removeObserver(obs) }
         #endif
     }
 }
@@ -107,18 +60,39 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     public var onError: ((Error) -> Void)?
 
     // MARK: - Engine layer (session-scoped)
-    private let speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
-    private var audioEngine: AVAudioEngine?
+    private var speechRecognizer: SFSpeechRecognizer? = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
+    private let audioController: any SpeechAudioEngineControlling
+    public private(set) var isEngineReady: Bool = false
     private var sessionContextualPhrases: [String] = []
-    private var isStartingEngine: Bool = false
-    private var pendingSetupTask: Task<Void, Never>?
+    private var pendingPreparationTask: Task<Void, Never>?
+    public private(set) var audioLifecycleTask: Task<Void, Never>?
+    public private(set) var sessionReleaseTask: Task<Void, Never>?
+    public private(set) var activeLease: AudioSessionLease?
+    private var activeStartTask: Task<Void, Error>?
+    private var wordGeneration: UInt = 0
+    private let authorizer: any SpeechAuthorizing
     private let bufferRelay = AudioBufferRelay()
+
+    var currentSpeechRecognizer: SFSpeechRecognizer? {
+        speechRecognizer
+    }
+
+    @discardableResult
+    func resolveSpeechRecognizer() -> SFSpeechRecognizer? {
+        if let recognizer = speechRecognizer, recognizer.isAvailable {
+            return recognizer
+        }
+        let refreshed = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
+        self.speechRecognizer = refreshed
+        return refreshed
+    }
 
     // MARK: - Request layer (word-scoped)
     private var activeRequest: SFSpeechAudioBufferRecognitionRequest?
     private var activeTask: SFSpeechRecognitionTask?
     private var currentTargetLemma: String = ""
     private var currentWordSessionToken: UUID = UUID()
+    private var hasReportedFirstRecognitionResult: Bool = false
 
     // MARK: - Throttle (nonisolated for real-time callback)
     private let throttleLock = NSLock()
@@ -135,40 +109,50 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         #endif
     }
 
-    public init() {}
+    public let audioSessionCoordinator: (any AudioSessionCoordinating)?
+
+    public convenience init(audioSessionCoordinator: (any AudioSessionCoordinating)? = nil) {
+        self.init(
+            audioController: SpeechAudioEngineController(),
+            audioSessionCoordinator: audioSessionCoordinator
+        )
+    }
+
+    init(
+        audioController: any SpeechAudioEngineControlling = SpeechAudioEngineController(),
+        audioSessionCoordinator: (any AudioSessionCoordinating)? = nil,
+        speechRecognizer: SFSpeechRecognizer? = SFSpeechRecognizer(locale: Locale(identifier: "en-US")),
+        authorizer: any SpeechAuthorizing = LiveSpeechAuthorizer()
+    ) {
+        self.audioController = audioController
+        self.audioSessionCoordinator = audioSessionCoordinator
+        self.speechRecognizer = speechRecognizer
+        self.authorizer = authorizer
+    }
 
     // MARK: - Session Lifecycle
 
     public func startSession(contextualPhrases: [String], lazy: Bool = false) {
         guard !isSessionActive else { return }
+        LessonPerformanceDiagnostics.event("SpeechSessionStart", detail: "lazy=\(lazy)")
         self.sessionContextualPhrases = contextualPhrases
-        self.isStartingEngine = false
         self.isListeningPaused = false
         self.isSessionActive = true
+        self.isEngineReady = false
         setupInterruptionObserver()
 
-        #if os(iOS)
-        Task.detached(priority: .userInitiated) {
-            do {
-                let session = AVAudioSession.sharedInstance()
-                try session.setCategory(
-                    .playAndRecord,
-                    mode: .spokenAudio,
-                    options: [.defaultToSpeaker, .allowBluetoothHFP, .allowBluetoothA2DP, .duckOthers]
-                )
-                try session.setActive(true, options: .notifyOthersOnDeactivation)
-            } catch {
-                // Non-fatal early audio session configuration
-            }
-        }
-        #endif
-
         if !lazy {
-            #if targetEnvironment(simulator) || os(macOS)
-            // Simulator: no real audio engine
-            #else
-            requestAuthorizationAndStartEngine()
-            #endif
+            pendingPreparationTask = Task { [weak self] in
+                do {
+                    try await self?.prepareEngineIfNeeded()
+                } catch is CancellationError {
+                    // Task cancellation is expected on stopSession
+                } catch {
+                    Task { @MainActor [weak self] in
+                        self?.onError?(error)
+                    }
+                }
+            }
         }
     }
 
@@ -177,95 +161,291 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     }
 
     public func stopSession() {
+        LessonPerformanceDiagnostics.event("SpeechSessionStop")
         removeInterruptionObserver()
-        pendingSetupTask?.cancel()
-        pendingSetupTask = nil
-        isStartingEngine = false
+        pendingPreparationTask?.cancel()
+        pendingPreparationTask = nil
+        activeStartTask?.cancel()
+        activeStartTask = nil
+        wordGeneration &+= 1
         isListeningPaused = false
         isSessionActive = false
+        isEngineReady = false
         endWord()
-        teardownEngine()
+        let leaseToRelease = activeLease
+        activeLease = nil
+        let coordinator = audioSessionCoordinator
+        self.sessionReleaseTask = enqueueAudioTransition { controller in
+            await controller.teardown()
+            if let leaseToRelease { await coordinator?.release(leaseToRelease) }
+        }
         sessionContextualPhrases = []
     }
 
     public func pauseListening() {
         isListeningPaused = true
-        pendingSetupTask?.cancel()
-        pendingSetupTask = nil
-        isStartingEngine = false
+        pendingPreparationTask?.cancel()
+        pendingPreparationTask = nil
         bufferRelay.mute()
         endWord()
-        #if !targetEnvironment(simulator) && !os(macOS)
-        if let engine = audioEngine, engine.isRunning {
-            engine.stop()
-        }
-        #endif
+        enqueueAudioTransition { controller in await controller.pause() }
     }
 
     public func resumeListening() {
         isListeningPaused = false
         bufferRelay.unmute()
-        #if !targetEnvironment(simulator) && !os(macOS)
         if isSessionActive {
-            if let engine = audioEngine {
-                if !engine.isRunning {
+            if !isEngineReady {
+                pendingPreparationTask?.cancel()
+                pendingPreparationTask = Task { [weak self] in
                     do {
-                        try engine.start()
+                        try await self?.prepareEngineIfNeeded()
+                    } catch is CancellationError {
+                        // Task cancellation is expected on stopSession
                     } catch {
-                        onError?(error)
+                        Task { @MainActor [weak self] in
+                            self?.onError?(error)
+                        }
                     }
                 }
-            } else if !isStartingEngine {
-                prepareEngineIfNeeded()
+            } else {
+                enqueueAudioTransition { [weak self] controller in
+                    do {
+                        try await controller.resume()
+                    } catch {
+                        Task { @MainActor [weak self] in
+                            self?.onError?(error)
+                        }
+                    }
+                }
             }
         }
-        #endif
     }
 
-    public func prepareEngineIfNeeded() {
-        #if !targetEnvironment(simulator) && !os(macOS)
-        guard isSessionActive, !isListeningPaused, audioEngine == nil, !isStartingEngine else { return }
-        requestAuthorizationAndStartEngine()
-        #endif
+    @discardableResult
+    private func enqueueAudioTransition(
+        _ operation: @escaping @Sendable (any SpeechAudioEngineControlling) async -> Void
+    ) -> Task<Void, Never> {
+        let previousTask = audioLifecycleTask
+        let controller = audioController
+        let transitionTask = Task {
+            _ = await previousTask?.value
+            await operation(controller)
+        }
+        audioLifecycleTask = transitionTask
+        return transitionTask
     }
 
-    // MARK: - Word Lifecycle
+    private func requestAuthorizationIfNeeded() async throws {
+        guard await authorizer.requestSpeechAuthorization() else {
+            throw SpeechCaptureError.speechRecognitionDenied
+        }
+        guard await authorizer.requestMicrophoneAuthorization() else {
+            throw SpeechCaptureError.microphoneDenied
+        }
+    }
 
-    public func beginWord(targetLemma: String, contextualPhrases: [String]) {
-        // End previous word if still active
+    public func prepareEngineIfNeeded() async throws {
+        guard isSessionActive else { return }
+        if let audioLifecycleTask { await audioLifecycleTask.value }
+        guard isSessionActive else { return }
+        try await requestAuthorizationIfNeeded()
+        guard isSessionActive, !Task.isCancelled else { throw CancellationError() }
+        do {
+            try await audioController.prepare(relay: bufferRelay)
+        } catch {
+            if !(error is CancellationError) { onError?(error) }
+            throw error
+        }
+        guard isSessionActive, !Task.isCancelled else {
+            isEngineReady = false
+            await audioController.teardown()
+            if Task.isCancelled { throw CancellationError() }
+            return
+        }
+        isEngineReady = true
+        isListeningPaused = false
+        bufferRelay.unmute()
+    }
+
+    private func ensureCurrentAndActive(generation: UInt) throws {
+        guard isSessionActive, !Task.isCancelled, self.wordGeneration == generation else {
+            throw SpeechCaptureError.cancelled
+        }
+    }
+
+    private func checkPermissions(generation: UInt) async throws {
+        try ensureCurrentAndActive(generation: generation)
+        guard await authorizer.requestSpeechAuthorization() else {
+            throw SpeechCaptureError.speechRecognitionDenied
+        }
+        try ensureCurrentAndActive(generation: generation)
+        guard await authorizer.requestMicrophoneAuthorization() else {
+            throw SpeechCaptureError.microphoneDenied
+        }
+        try ensureCurrentAndActive(generation: generation)
+    }
+
+    private func acquireDuplexLease(generation: UInt) async throws -> AudioSessionLease? {
+        guard let coordinator = audioSessionCoordinator else { return nil }
+        do {
+            return try await coordinator.acquire(.duplexSpeech)
+        } catch {
+            if error is CancellationError { throw SpeechCaptureError.cancelled }
+            throw SpeechCaptureError.audioSessionActivationFailed
+        }
+    }
+
+    private func prepareAndResumeAudio(relay: AudioBufferRelay) async throws {
+        do {
+            try await audioController.prepare(relay: relay)
+            try await audioController.resume()
+        } catch {
+            if error is CancellationError { throw SpeechCaptureError.cancelled }
+            onError?(error)
+            throw SpeechCaptureError.enginePreparationFailed
+        }
+    }
+
+    private func activateWordCapture(targetLemma: String, contextualPhrases: [String]) throws {
         if isWordActive {
             endWord()
         }
-
-        isListeningPaused = false
-
-        #if !targetEnvironment(simulator) && !os(macOS)
-        if isSessionActive, let engine = audioEngine, !engine.isRunning {
-            do {
-                try engine.start()
-            } catch {
-                onError?(error)
-                return
-            }
-        }
-        #endif
-
         let token = UUID()
         currentWordSessionToken = token
-        currentTargetLemma = targetLemma
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .lowercased()
+        currentTargetLemma = targetLemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         liveTranscript = ""
+        hasReportedFirstRecognitionResult = false
         isWordActive = true
 
-        #if targetEnvironment(simulator) || os(macOS)
-        // Simulator: no real recognition, test via simulateTranscript
-        #else
+        #if !targetEnvironment(simulator) && !os(macOS)
+        guard let recognizer = resolveSpeechRecognizer(), recognizer.isAvailable else {
+            isWordActive = false
+            onError?(SpeechCaptureError.recognizerUnavailable)
+            throw SpeechCaptureError.recognizerUnavailable
+        }
+
         startRecognitionRequest(
             targetLemma: currentTargetLemma,
             contextualPhrases: contextualPhrases,
             sessionToken: token
         )
+        #endif
+    }
+
+    public func startListening(targetLemma: String, contextualPhrases: [String]) async throws {
+        guard isSessionActive else {
+            throw SpeechCaptureError.cancelled
+        }
+
+        wordGeneration &+= 1
+        let generation = wordGeneration
+        activeStartTask?.cancel()
+
+        let task = Task { [weak self] in
+            guard let self else { throw SpeechCaptureError.cancelled }
+            try await self.performStartListening(
+                targetLemma: targetLemma,
+                contextualPhrases: contextualPhrases,
+                generation: generation
+            )
+        }
+        self.activeStartTask = task
+
+        do {
+            try await withTaskCancellationHandler {
+                try await task.value
+            } onCancel: {
+                task.cancel()
+            }
+            if self.wordGeneration == generation {
+                self.activeStartTask = nil
+            }
+        } catch {
+            if self.wordGeneration == generation {
+                self.activeStartTask = nil
+            }
+            throw error
+        }
+    }
+
+    private func performStartListening(
+        targetLemma: String,
+        contextualPhrases: [String],
+        generation: UInt
+    ) async throws {
+        if let audioLifecycleTask {
+            await audioLifecycleTask.value
+        }
+
+        var acquiredLease: AudioSessionLease?
+        do {
+            try await checkPermissions(generation: generation)
+            acquiredLease = try await acquireDuplexLease(generation: generation)
+            try ensureCurrentAndActive(generation: generation)
+            try await prepareAndResumeAudio(relay: bufferRelay)
+            try ensureCurrentAndActive(generation: generation)
+
+            let oldLease = self.activeLease
+            self.activeLease = acquiredLease
+            if let oldLease, oldLease != acquiredLease {
+                await audioSessionCoordinator?.release(oldLease)
+            }
+
+            try ensureCurrentAndActive(generation: generation)
+
+            isEngineReady = true
+            isListeningPaused = false
+            bufferRelay.unmute()
+
+            try activateWordCapture(targetLemma: targetLemma, contextualPhrases: contextualPhrases)
+        } catch {
+            let isStale = (self.wordGeneration != generation)
+            let coordinator = audioSessionCoordinator
+            if !isStale {
+                isEngineReady = false
+                bufferRelay.mute()
+                let lease = self.activeLease ?? acquiredLease
+                let extraLease = (acquiredLease != lease) ? acquiredLease : nil
+                self.activeLease = nil
+                enqueueAudioTransition { controller in
+                    await controller.teardown()
+                    if let lease { await coordinator?.release(lease) }
+                    if let extraLease { await coordinator?.release(extraLease) }
+                }
+            } else if let acquiredLease, acquiredLease != self.activeLease {
+                enqueueAudioTransition { _ in
+                    await coordinator?.release(acquiredLease)
+                }
+            }
+            throw error
+        }
+    }
+
+    // MARK: - Word Lifecycle
+
+    @available(*, deprecated, message: "Use startListening(targetLemma:contextualPhrases:) instead")
+    public func beginWord(targetLemma: String, contextualPhrases: [String]) {
+        guard isSessionActive else {
+            LessonPerformanceDiagnostics.event("SpeechWordBeginIgnored", detail: "sessionInactive")
+            return
+        }
+        LessonPerformanceDiagnostics.event("SpeechWordBegin", detail: "engineReady=\(isEngineReady) sessionActive=\(isSessionActive)")
+        if isWordActive {
+            endWord()
+        }
+        isListeningPaused = false
+        let token = UUID()
+        currentWordSessionToken = token
+        currentTargetLemma = targetLemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        liveTranscript = ""
+        hasReportedFirstRecognitionResult = false
+        isWordActive = true
+
+        #if targetEnvironment(simulator) || os(macOS)
+        // Simulator: no real recognition, test via simulateTranscript
+        #else
+        startRecognitionRequest(targetLemma: currentTargetLemma, contextualPhrases: contextualPhrases, sessionToken: token)
         #endif
     }
 
@@ -292,193 +472,9 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         onTranscriptUpdate?(text)
 
         if !currentTargetLemma.isEmpty,
-           ReflexSpeechMatcher.isReflexMatch(
-               spokenText: text,
-               targetLemma: currentTargetLemma
-           ) {
+           ReflexSpeechMatcher.isReflexMatch(spokenText: text, targetLemma: currentTargetLemma) {
             onMatchDetected?(currentTargetLemma)
         }
-    }
-}
-
-// MARK: - Audio Engine Management
-
-extension ResilientReflexSpeechEngine {
-    #if !targetEnvironment(simulator) && !os(macOS)
-    private func requestAuthorizationAndStartEngine() {
-        SFSpeechRecognizer.requestAuthorization { [weak self] status in
-            Task { @MainActor [weak self] in
-                guard let self, self.isSessionActive else { return }
-                guard status == .authorized else {
-                    self.onError?(NSError(
-                        domain: "ResilientReflexSpeech",
-                        code: 401,
-                        userInfo: [NSLocalizedDescriptionKey: "Speech recognition not authorized."]
-                    ))
-                    return
-                }
-                self.requestMicPermissionAndStartEngine()
-            }
-        }
-    }
-
-    private func requestMicPermissionAndStartEngine() {
-        #if os(iOS)
-        if #available(iOS 17.0, *) {
-            AVAudioApplication.requestRecordPermission { [weak self] granted in
-                Task { @MainActor [weak self] in
-                    guard let self, self.isSessionActive else { return }
-                    if granted {
-                        self.setupAndStartEngine()
-                    } else {
-                        self.onError?(NSError(
-                            domain: "ResilientReflexSpeech",
-                            code: 403,
-                            userInfo: [NSLocalizedDescriptionKey: "Microphone permission denied."]
-                        ))
-                    }
-                }
-            }
-        } else {
-            AVAudioSession.sharedInstance().requestRecordPermission { [weak self] granted in
-                Task { @MainActor [weak self] in
-                    guard let self, self.isSessionActive else { return }
-                    if granted {
-                        self.setupAndStartEngine()
-                    } else {
-                        self.onError?(NSError(
-                            domain: "ResilientReflexSpeech",
-                            code: 403,
-                            userInfo: [NSLocalizedDescriptionKey: "Microphone permission denied."]
-                        ))
-                    }
-                }
-            }
-        }
-        #else
-        setupAndStartEngine()
-        #endif
-    }
-
-    private func setupAndStartEngine() {
-        guard !isStartingEngine, !isListeningPaused else { return }
-        isStartingEngine = true
-
-        pendingSetupTask?.cancel()
-        pendingSetupTask = Task(priority: .userInitiated) {
-            #if os(iOS)
-            let sessionResult = await Task.detached(priority: .userInitiated) { () -> Result<Void, Error> in
-                do {
-                    let audioSession = AVAudioSession.sharedInstance()
-                    try audioSession.setCategory(
-                        .playAndRecord,
-                        mode: .spokenAudio,
-                        options: [.defaultToSpeaker, .allowBluetoothHFP, .allowBluetoothA2DP, .duckOthers]
-                    )
-                    try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
-                    return .success(())
-                } catch {
-                    return .failure(error)
-                }
-            }.value
-
-            self.isStartingEngine = false
-
-            guard !Task.isCancelled, self.isSessionActive, !self.isListeningPaused else {
-                if !self.isSessionActive {
-                    // Session was stopped while audio session activation was in-flight.
-                    // Switch back to playback category without deactivating shared session to protect CoreHaptics.
-                    Task.detached(priority: .userInitiated) {
-                        let session = AVAudioSession.sharedInstance()
-                        try? session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
-                    }
-                }
-                return
-            }
-
-            switch sessionResult {
-            case .success:
-                self.startAudioEngine()
-            case .failure(let error):
-                self.onError?(error)
-            }
-            #else
-            self.isStartingEngine = false
-            guard !Task.isCancelled, self.isSessionActive, !self.isListeningPaused else { return }
-            self.startAudioEngine()
-            #endif
-        }
-    }
-
-    private func startAudioEngine() {
-        do {
-            if let existingEngine = audioEngine {
-                existingEngine.inputNode.removeTap(onBus: 0)
-                if existingEngine.isRunning {
-                    existingEngine.stop()
-                }
-                audioEngine = nil
-            }
-
-            let engine = AVAudioEngine()
-            let inputNode = engine.inputNode
-
-            #if os(iOS)
-            do {
-                try inputNode.setVoiceProcessingEnabled(true)
-            } catch {
-                print("[ResilientReflexSpeechEngine] Voice processing unavailable: \(error)")
-            }
-            #endif
-
-            let recordingFormat = inputNode.outputFormat(forBus: 0)
-
-            guard recordingFormat.sampleRate > 0, recordingFormat.channelCount > 0 else {
-                throw NSError(
-                    domain: "ResilientReflexSpeech",
-                    code: 400,
-                    userInfo: [NSLocalizedDescriptionKey: "Invalid microphone format."]
-                )
-            }
-
-            let relay = self.bufferRelay
-            inputNode.installTap(onBus: 0, bufferSize: 2048, format: recordingFormat) { [relay] buffer, _ in
-                // Forward buffer to active request (thread-safe, Sendable relay)
-                relay.append(buffer)
-            }
-
-            engine.prepare()
-            try engine.start()
-            self.audioEngine = engine
-        } catch {
-            onError?(error)
-        }
-    }
-    #endif
-
-    private func teardownEngine() {
-        #if !targetEnvironment(simulator) && !os(macOS)
-        pendingSetupTask?.cancel()
-        pendingSetupTask = nil
-        isStartingEngine = false
-        bufferRelay.detachAndEnd()
-        if let engine = audioEngine {
-            engine.inputNode.removeTap(onBus: 0)
-            if engine.isRunning {
-                engine.stop()
-            }
-        }
-        audioEngine = nil
-
-        #if os(iOS)
-        if !isSessionActive {
-            Task.detached(priority: .userInitiated) {
-                let session = AVAudioSession.sharedInstance()
-                try? session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
-            }
-        }
-        #endif
-        #endif
     }
 }
 
@@ -494,13 +490,9 @@ extension ResilientReflexSpeechEngine {
             queue: .main
         ) { [weak self] notification in
             if Thread.isMainThread {
-                MainActor.assumeIsolated {
-                    self?.handleAudioInterruption(notification)
-                }
+                MainActor.assumeIsolated { self?.handleAudioInterruption(notification) }
             } else {
-                Task { @MainActor [weak self] in
-                    self?.handleAudioInterruption(notification)
-                }
+                Task { @MainActor [weak self] in self?.handleAudioInterruption(notification) }
             }
         }
         interruptionToken = InterruptionObserverToken(observer: observer)
@@ -529,22 +521,14 @@ extension ResilientReflexSpeechEngine {
         case .ended:
             let rawOptions = (userInfo[AVAudioSessionInterruptionOptionKey] as? UInt)
                 ?? ((userInfo[AVAudioSessionInterruptionOptionKey] as? NSNumber)?.uintValue)
-            if let rawOptions {
-                let options = AVAudioSession.InterruptionOptions(rawValue: rawOptions)
-                if options.contains(.shouldResume) {
-                    #if !targetEnvironment(simulator) && !os(macOS)
-                    if isSessionActive {
-                        let session = AVAudioSession.sharedInstance()
-                        try? session.setActive(true, options: .notifyOthersOnDeactivation)
-                    }
-                    #endif
-                    resumeListening()
-                }
+            if let rawOptions, AVAudioSession.InterruptionOptions(rawValue: rawOptions).contains(.shouldResume) {
+                resumeListening()
             }
         @unknown default:
             break
         }
     }
+
     #endif
 }
 
@@ -560,18 +544,12 @@ extension ResilientReflexSpeechEngine {
         request.shouldReportPartialResults = true
         request.taskHint = .search
 
-        var biasedPhrases = (sessionContextualPhrases + contextualPhrases)
-            .flatMap { phrase -> [String] in
-                let trimmed = phrase.trimmingCharacters(in: .whitespacesAndNewlines)
-                guard !trimmed.isEmpty else { return [] }
-                if trimmed.split(separator: " ").count <= 2 {
-                    return [trimmed]
-                }
-                return []
-            }
-        if !biasedPhrases.contains(targetLemma) {
-            biasedPhrases.append(targetLemma)
+        var biasedPhrases = (sessionContextualPhrases + contextualPhrases).flatMap { phrase -> [String] in
+            let trimmed = phrase.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty, trimmed.split(separator: " ").count <= 2 else { return [] }
+            return [trimmed]
         }
+        if !biasedPhrases.contains(targetLemma) { biasedPhrases.append(targetLemma) }
         request.contextualStrings = Array(Set(biasedPhrases))
 
         #if os(iOS)
@@ -583,17 +561,45 @@ extension ResilientReflexSpeechEngine {
         return request
     }
 
+    private func handleRecognitionTaskError(
+        _ error: Error,
+        targetLemma: String,
+        contextualPhrases: [String],
+        sessionToken: UUID
+    ) {
+        guard isWordActive, currentWordSessionToken == sessionToken else { return }
+
+        let nsError = error as NSError
+        // 216 = cancelled (normal), 1110 = timeout (60s limit)
+        if nsError.code == 1110 {
+            // 60s limit hit — safely re-open recognition request only if word & session remain active
+            guard self.isSessionActive, self.isEngineReady, self.isWordActive,
+                  self.currentWordSessionToken == sessionToken else { return }
+            self.bufferRelay.detachAndEnd()
+            self.activeTask?.cancel()
+            self.activeTask = nil
+            self.activeRequest = nil
+            #if targetEnvironment(simulator) || os(macOS)
+            // Simulator stub
+            #else
+            self.startRecognitionRequest(
+                targetLemma: targetLemma,
+                contextualPhrases: contextualPhrases,
+                sessionToken: sessionToken
+            )
+            #endif
+        } else if nsError.code != 216 && nsError.code != 203 && nsError.code != 301 {
+            self.onError?(error)
+        }
+    }
+
     private func startRecognitionRequest(
         targetLemma: String,
         contextualPhrases: [String],
         sessionToken: UUID
     ) {
-        guard let recognizer = speechRecognizer, recognizer.isAvailable else {
-            onError?(NSError(
-                domain: "ResilientReflexSpeech",
-                code: 503,
-                userInfo: [NSLocalizedDescriptionKey: "Speech recognizer unavailable."]
-            ))
+        guard let recognizer = resolveSpeechRecognizer(), recognizer.isAvailable else {
+            onError?(SpeechCaptureError.recognizerUnavailable)
             return
         }
 
@@ -615,29 +621,29 @@ extension ResilientReflexSpeechEngine {
 
             // Error handling — always dispatch immediately
             if let error {
+                LessonPerformanceDiagnostics.error("speech.recognition", error: error)
                 Task { @MainActor [weak self] in
-                    guard let self,
-                          self.isWordActive,
-                          self.currentWordSessionToken == sessionToken else { return }
-
-                    let nsError = error as NSError
-                    // 216 = cancelled (normal), 1110 = timeout (60s limit)
-                    if nsError.code == 1110 {
-                        // 60s limit hit — auto-recover
-                        self.endWord()
-                        self.beginWord(
-                            targetLemma: targetLemma,
-                            contextualPhrases: contextualPhrases
-                        )
-                    } else if nsError.code != 216 {
-                        self.onError?(error)
-                    }
+                    self?.handleRecognitionTaskError(
+                        error,
+                        targetLemma: targetLemma,
+                        contextualPhrases: contextualPhrases,
+                        sessionToken: sessionToken
+                    )
                 }
                 return
             }
 
             guard let result else { return }
             let spoken = result.bestTranscription.formattedString
+
+            Task { @MainActor [weak self] in
+                guard let self,
+                      self.isWordActive,
+                      self.currentWordSessionToken == sessionToken,
+                      !self.hasReportedFirstRecognitionResult else { return }
+                self.hasReportedFirstRecognitionResult = true
+                LessonPerformanceDiagnostics.event("SpeechFirstRecognitionResult")
+            }
 
             // Check match first — always dispatch match detection immediately
             let isMatch = ReflexSpeechMatcher.isReflexMatch(

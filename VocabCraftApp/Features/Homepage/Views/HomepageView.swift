@@ -109,6 +109,7 @@ public struct HomepageView: View {
                                         }
                                     }
                                 },
+                                scrollToActive: true,
                                 externalScrollTrigger: scrollToActiveNonce
                             )
                             .refreshable {

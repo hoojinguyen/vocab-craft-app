@@ -2,6 +2,9 @@ import CraftUIKit
 import Foundation
 import Observation
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 @MainActor
 @Observable
@@ -24,7 +27,19 @@ public final class LessonLearningViewModel: Identifiable {
     public var liveTranscript: String = ""
     public var speechState: CraftSpeechState = .idle
     public private(set) var isSpeakingDisabledForLesson: Bool = false
+    public var permissionNotice: LessonPermissionNotice?
+    public private(set) var hasPresentedPermissionNotice: Bool = false
+    public var isPermissionNoticePresented: Bool {
+        get { permissionNotice != nil }
+        set {
+            if !newValue {
+                permissionNotice = nil
+            }
+        }
+    }
     private(set) var autoPronounceTask: Task<Void, Never>?
+    private var speechStartTask: Task<Void, Never>?
+    private var speakingRequestGeneration: UInt = 0
 
     public private(set) var hintStage: Int = 0
     public private(set) var eliminatedOptionId: String?
@@ -61,6 +76,7 @@ public final class LessonLearningViewModel: Identifiable {
         let generatedSteps = planGenerator.generatePlan(from: words, distractorPool: words)
         self.steps = generatedSteps
         self.initialStepCount = generatedSteps.count
+        LessonPerformanceDiagnostics.event("LessonPlanReady", detail: "stepCount=\(generatedSteps.count)")
     }
 
     public var currentStep: LessonStep? {
@@ -105,6 +121,10 @@ public final class LessonLearningViewModel: Identifiable {
 
     public func advanceStep() {
         guard !isSummaryStep else { return }
+        LessonPerformanceDiagnostics.event(
+            "LessonStepAdvance",
+            detail: "fromIndex=\(currentStepIndex) stepCount=\(steps.count)"
+        )
         maxProgress = max(maxProgress, progress)
         autoPronounceTask?.cancel()
         autoPronounceTask = nil
@@ -217,7 +237,11 @@ public final class LessonLearningViewModel: Identifiable {
     public func startListeningForSpeaking(targetLemma: String, item: LessonExerciseItem) {
         guard !isSpeakingDisabledForLesson else { return }
         guard !isFeedbackPresented && speechState == .idle else { return }
-        speechState = .listening(audioLevels: [0.5, 0.6, 0.4])
+        LessonPerformanceDiagnostics.event(
+            "LessonSpeakingStart",
+            detail: "engineSessionActive=\(speechEngine.isSessionActive)"
+        )
+        speechState = .preparing
         liveTranscript = ""
 
         speechEngine.onTranscriptUpdate = { [weak self] transcript in
@@ -231,25 +255,66 @@ public final class LessonLearningViewModel: Identifiable {
             self.submitAnswer(isCorrect: true, for: item)
         }
 
-        speechEngine.onError = { [weak self] _ in
+        speechEngine.onError = { [weak self] error in
             guard let self, self.currentExerciseItem?.id == item.id else { return }
+            LessonPerformanceDiagnostics.error("lesson.speaking", error: error)
             self.speechState = .idle
         }
 
         if !speechEngine.isSessionActive {
             startSpeechSession()
         }
-        speechEngine.prepareEngineIfNeeded()
-        speechEngine.resumeListening()
-        speechEngine.beginWord(targetLemma: targetLemma, contextualPhrases: [targetLemma, item.word.exampleEn])
+
+        speakingRequestGeneration &+= 1
+        let requestGeneration = speakingRequestGeneration
+
+        speechStartTask?.cancel()
+        speechStartTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                try await self.speechEngine.startListening(
+                    targetLemma: targetLemma,
+                    contextualPhrases: [targetLemma, item.word.exampleEn]
+                )
+                try Task.checkCancellation()
+                guard self.currentExerciseItem?.id == item.id,
+                      !self.isFeedbackPresented,
+                      requestGeneration == self.speakingRequestGeneration else {
+                    if self.speechState == .preparing && requestGeneration == self.speakingRequestGeneration {
+                        self.speechState = .idle
+                    }
+                    return
+                }
+                self.speechState = .listening()
+            } catch is CancellationError {
+                if self.speechState == .preparing && requestGeneration == self.speakingRequestGeneration && self.currentExerciseItem?.id == item.id {
+                    self.speechState = .idle
+                }
+                return
+            } catch let error as SpeechCaptureError where error == .speechRecognitionDenied || error == .microphoneDenied {
+                LessonPerformanceDiagnostics.error("lesson.speaking.permission", error: error)
+                guard requestGeneration == self.speakingRequestGeneration else { return }
+                self.handlePermissionDenied(for: item)
+            } catch {
+                LessonPerformanceDiagnostics.error("lesson.speaking.start", error: error)
+                if requestGeneration == self.speakingRequestGeneration {
+                    self.speechState = .idle
+                }
+            }
+        }
     }
 
     public func stopListeningForSpeaking() {
+        speakingRequestGeneration &+= 1
+        speechStartTask?.cancel()
+        speechStartTask = nil
         speechEngine.pauseListening()
         speechEngine.onMatchDetected = nil
         speechEngine.onTranscriptUpdate = nil
         speechEngine.onError = nil
-        speechState = .idle
+        if speechState != .unavailable {
+            speechState = .idle
+        }
     }
 
     public func handleCantSpeakNow(for item: LessonExerciseItem) {
@@ -301,7 +366,59 @@ public final class LessonLearningViewModel: Identifiable {
         }
     }
 
+    public func handlePermissionDenied(for item: LessonExerciseItem) {
+        guard !isFeedbackPresented else { return }
+        stopListeningForSpeaking()
+        speechEngine.stopSession()
+        isSpeakingDisabledForLesson = true
+        speechState = .unavailable
+        hintStage = 0
+        eliminatedOptionId = nil
+
+        // Convert current exercise item to typing fallback
+        if currentExerciseItem?.id == item.id {
+            let convertedCurrentItem = convertToTypingFallback(item: item)
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+                steps[currentStepIndex] = .exercise(item: convertedCurrentItem)
+            }
+        }
+
+        // Convert any remaining speaking exercises in subsequent steps to typing fallback
+        for index in (currentStepIndex + 1)..<steps.count {
+            if case .exercise(let stepItem) = steps[index], stepItem.assignedMode == .speaking {
+                steps[index] = .exercise(item: convertToTypingFallback(item: stepItem))
+            }
+        }
+
+        if !hasPresentedPermissionNotice {
+            hasPresentedPermissionNotice = true
+            permissionNotice = LessonPermissionNotice()
+        }
+    }
+
+    private func convertToTypingFallback(item: LessonExerciseItem) -> LessonExerciseItem {
+        LessonExerciseItem(
+            id: "typing-\(item.word.id)-fallback-\(UUID().uuidString.prefix(4))",
+            word: item.word,
+            assignedMode: .typing,
+            options: [],
+            clozeStages: item.clozeStages,
+            attemptCount: item.attemptCount,
+            isRequeued: item.isRequeued
+        )
+    }
+
+    public func openSettings() {
+        #if canImport(UIKit)
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(url)
+        }
+        #endif
+    }
+
     public func cleanup() {
+        speechStartTask?.cancel()
+        speechStartTask = nil
         autoPronounceTask?.cancel()
         autoPronounceTask = nil
         stopListeningForSpeaking()
@@ -314,7 +431,24 @@ public final class LessonLearningViewModel: Identifiable {
         startListeningForSpeaking(targetLemma: item.word.lemma, item: item)
     }
 
-    private func finishLesson() {
+    deinit {
+        if Thread.isMainThread {
+            MainActor.assumeIsolated {
+                cleanup()
+            }
+        } else {
+            Task { @MainActor [speechEngine] in
+                speechEngine.pauseListening()
+                speechEngine.stopSession()
+            }
+        }
+    }
+}
+
+// MARK: - Lesson Completion & Persistence
+
+extension LessonLearningViewModel {
+    func finishLesson() {
         guard completionTask == nil else { return }
         ttsService.stop()
         cleanup()
@@ -404,18 +538,5 @@ public final class LessonLearningViewModel: Identifiable {
             return try await retryCompletion()
         }
         return nil
-    }
-
-    deinit {
-        if Thread.isMainThread {
-            MainActor.assumeIsolated {
-                cleanup()
-            }
-        } else {
-            Task { @MainActor [speechEngine] in
-                speechEngine.pauseListening()
-                speechEngine.stopSession()
-            }
-        }
     }
 }

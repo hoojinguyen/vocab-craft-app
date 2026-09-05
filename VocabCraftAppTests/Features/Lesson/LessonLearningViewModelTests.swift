@@ -44,72 +44,55 @@ final class MockCompleteLessonUseCase: CompleteLessonUseCaseProtocol, @unchecked
 @Suite("Lesson Learning ViewModel Tests")
 @MainActor
 struct LessonLearningViewModelTests {
+    private func makeWord(
+        id: Int64,
+        lemma: String,
+        phonetic: String,
+        defVi: String,
+        defEn: String,
+        exEn: String,
+        exVi: String
+    ) -> TopicWordDTO {
+        TopicWordDTO(
+            id: id, stageId: "stage_1", lemma: lemma, phonetic: phonetic,
+            pos: "noun", cefrLevel: "A1", definitionVi: defVi, definitionEn: defEn,
+            exampleEn: exEn, exampleVi: exVi
+        )
+    }
+
     private func makeSampleWords(count: Int = 2) -> [TopicWordDTO] {
         let all = [
-            TopicWordDTO(
-                id: 1,
-                stageId: "stage_1",
-                lemma: "apple",
-                phonetic: "/ˈæp.əl/",
-                pos: "noun",
-                cefrLevel: "A1",
-                definitionVi: "quả táo",
-                definitionEn: "a round fruit",
-                exampleEn: "She eats an apple.",
-                exampleVi: "Cô ấy ăn một quả táo."
-            ),
-            TopicWordDTO(
-                id: 2,
-                stageId: "stage_1",
-                lemma: "banana",
-                phonetic: "/bəˈnɑː.nə/",
-                pos: "noun",
-                cefrLevel: "A1",
-                definitionVi: "quả chuối",
-                definitionEn: "a long yellow fruit",
-                exampleEn: "Monkeys like bananas.",
-                exampleVi: "Khỉ thích chuối."
-            ),
-            TopicWordDTO(
-                id: 3,
-                stageId: "stage_1",
-                lemma: "cat",
-                phonetic: "/kæt/",
-                pos: "noun",
-                cefrLevel: "A1",
-                definitionVi: "con mèo",
-                definitionEn: "a small domesticated carnivorous mammal",
-                exampleEn: "The cat sleeps.",
-                exampleVi: "Con mèo đang ngủ."
-            ),
-            TopicWordDTO(
-                id: 4,
-                stageId: "stage_1",
-                lemma: "dog",
-                phonetic: "/dɒɡ/",
-                pos: "noun",
-                cefrLevel: "A1",
-                definitionVi: "con chó",
-                definitionEn: "a domesticated carnivorous mammal",
-                exampleEn: "The dog barks.",
-                exampleVi: "Con chó sủa."
-            )
+            makeWord(id: 1, lemma: "apple", phonetic: "/ˈæp.əl/", defVi: "quả táo", defEn: "a round fruit", exEn: "She eats an apple.", exVi: "Cô ấy ăn một quả táo."),
+            makeWord(id: 2, lemma: "banana", phonetic: "/bəˈnɑː.nə/", defVi: "quả chuối", defEn: "a long yellow fruit", exEn: "Monkeys like bananas.", exVi: "Khỉ thích chuối."),
+            makeWord(id: 3, lemma: "cat", phonetic: "/kæt/", defVi: "con mèo", defEn: "a small domesticated carnivorous mammal", exEn: "The cat sleeps.", exVi: "Con mèo đang ngủ."),
+            makeWord(id: 4, lemma: "dog", phonetic: "/dɒɡ/", defVi: "con chó", defEn: "a domesticated carnivorous mammal", exEn: "The dog barks.", exVi: "Con chó sủa.")
         ]
         return Array(all.prefix(count))
     }
 
+    private func makeVM(
+        stageId: String = "stage_1",
+        deckId: String = "deck_1",
+        words: [TopicWordDTO]? = nil,
+        completeLessonUseCase: CompleteLessonUseCaseProtocol? = nil,
+        ttsService: TextToSpeechProtocol? = nil,
+        soundEffectService: SoundEffectServiceProtocol? = nil,
+        speechEngine: ReflexSpeechEngineProtocol? = nil
+    ) -> LessonLearningViewModel {
+        LessonLearningViewModel(
+            stageId: stageId,
+            deckId: deckId,
+            words: words ?? makeSampleWords(),
+            completeLessonUseCase: completeLessonUseCase ?? MockCompleteLessonUseCase(),
+            ttsService: ttsService ?? MockTextToSpeechService(),
+            soundEffectService: soundEffectService ?? MockSoundEffectService(),
+            speechEngine: speechEngine ?? MockResilientReflexSpeechEngine()
+        )
+    }
+
     @Test("Initializes with discovery and exercise steps")
     func testInitialization() {
-        let words = makeSampleWords()
-        let vm = LessonLearningViewModel(
-            stageId: "stage_1",
-            deckId: "deck_1",
-            words: words,
-            completeLessonUseCase: MockCompleteLessonUseCase(),
-            ttsService: MockTextToSpeechService(),
-            soundEffectService: MockSoundEffectService(),
-            speechEngine: MockResilientReflexSpeechEngine()
-        )
+        let vm = makeVM()
 
         #expect(vm.steps.count == 4) // 2 discovery + 2 exercises
         #expect(vm.currentStepIndex == 0)
@@ -119,16 +102,7 @@ struct LessonLearningViewModelTests {
 
     @Test("Submitting a correct answer updates stats and presents feedback")
     func testCorrectAnswerSubmission() throws {
-        let words = makeSampleWords()
-        let vm = LessonLearningViewModel(
-            stageId: "stage_1",
-            deckId: "deck_1",
-            words: words,
-            completeLessonUseCase: MockCompleteLessonUseCase(),
-            ttsService: MockTextToSpeechService(),
-            soundEffectService: MockSoundEffectService(),
-            speechEngine: MockResilientReflexSpeechEngine()
-        )
+        let vm = makeVM()
 
         while vm.currentExerciseItem == nil && !vm.isSummaryStep {
             vm.advanceStep()
@@ -146,16 +120,7 @@ struct LessonLearningViewModelTests {
 
     @Test("Submitting an incorrect answer downgrades active mode and requeues")
     func testIncorrectAnswerRequeuing() throws {
-        let words = makeSampleWords()
-        let vm = LessonLearningViewModel(
-            stageId: "stage_1",
-            deckId: "deck_1",
-            words: words,
-            completeLessonUseCase: MockCompleteLessonUseCase(),
-            ttsService: MockTextToSpeechService(),
-            soundEffectService: MockSoundEffectService(),
-            speechEngine: MockResilientReflexSpeechEngine()
-        )
+        let vm = makeVM()
 
         while vm.currentExerciseItem == nil && !vm.isSummaryStep {
             vm.advanceStep()
@@ -185,16 +150,7 @@ struct LessonLearningViewModelTests {
 
     @Test("Second failure on same word does not requeue endlessly (Max 1 retry)")
     func testMaxOneRetryRule() throws {
-        let words = makeSampleWords()
-        let vm = LessonLearningViewModel(
-            stageId: "stage_1",
-            deckId: "deck_1",
-            words: words,
-            completeLessonUseCase: MockCompleteLessonUseCase(),
-            ttsService: MockTextToSpeechService(),
-            soundEffectService: MockSoundEffectService(),
-            speechEngine: MockResilientReflexSpeechEngine()
-        )
+        let vm = makeVM()
 
         // Advance to first exercise
         while vm.currentExerciseItem == nil && !vm.isSummaryStep {
@@ -226,16 +182,7 @@ struct LessonLearningViewModelTests {
 
     @Test("Requesting hint advances hintStage and eliminates wrong distractor")
     func testHintRequest() throws {
-        let words = makeSampleWords()
-        let vm = LessonLearningViewModel(
-            stageId: "stage_1",
-            deckId: "deck_1",
-            words: words,
-            completeLessonUseCase: MockCompleteLessonUseCase(),
-            ttsService: MockTextToSpeechService(),
-            soundEffectService: MockSoundEffectService(),
-            speechEngine: MockResilientReflexSpeechEngine()
-        )
+        let vm = makeVM()
 
         // Advance to first exercise with options
         while (vm.currentExerciseItem?.options.count ?? 0) < 2 && !vm.isSummaryStep {
@@ -267,16 +214,7 @@ struct LessonLearningViewModelTests {
 
     @Test("Progress does not jump backwards when an exercise is requeued on error")
     func testProgressDoesNotJumpBackwardsOnRequeue() throws {
-        let words = makeSampleWords()
-        let vm = LessonLearningViewModel(
-            stageId: "stage_1",
-            deckId: "deck_1",
-            words: words,
-            completeLessonUseCase: MockCompleteLessonUseCase(),
-            ttsService: MockTextToSpeechService(),
-            soundEffectService: MockSoundEffectService(),
-            speechEngine: MockResilientReflexSpeechEngine()
-        )
+        let vm = makeVM()
 
         // Advance to first exercise step
         while vm.currentExerciseItem == nil && !vm.isSummaryStep {
@@ -292,16 +230,7 @@ struct LessonLearningViewModelTests {
 
     @Test("Skipping exercise submits incorrect answer and triggers feedback")
     func testSkipExercise() throws {
-        let words = makeSampleWords()
-        let vm = LessonLearningViewModel(
-            stageId: "stage_1",
-            deckId: "deck_1",
-            words: words,
-            completeLessonUseCase: MockCompleteLessonUseCase(),
-            ttsService: MockTextToSpeechService(),
-            soundEffectService: MockSoundEffectService(),
-            speechEngine: MockResilientReflexSpeechEngine()
-        )
+        let vm = makeVM()
 
         while vm.currentExerciseItem == nil && !vm.isSummaryStep {
             vm.advanceStep()
@@ -317,17 +246,8 @@ struct LessonLearningViewModelTests {
 
     @Test("Completing all steps calculates 3 stars when 0 mistakes made and persists progress")
     func testFinishLessonWithThreeStars() async throws {
-        let words = makeSampleWords()
         let completeUseCase = MockCompleteLessonUseCase()
-        let vm = LessonLearningViewModel(
-            stageId: "stage_1",
-            deckId: "deck_1",
-            words: words,
-            completeLessonUseCase: completeUseCase,
-            ttsService: MockTextToSpeechService(),
-            soundEffectService: MockSoundEffectService(),
-            speechEngine: MockResilientReflexSpeechEngine()
-        )
+        let vm = makeVM(completeLessonUseCase: completeUseCase)
 
         // Advance through all steps until summary is reached
         while !vm.isSummaryStep {
@@ -388,7 +308,7 @@ struct LessonLearningViewModelTests {
     }
 
     @Test("Retrying speaking restarts speech engine listening for current item")
-    func testRetrySpeaking() throws {
+    func testRetrySpeaking() async throws {
         let words = makeSampleWords(count: 4)
         let speechEngine = MockResilientReflexSpeechEngine()
         let vm = LessonLearningViewModel(
@@ -417,11 +337,12 @@ struct LessonLearningViewModelTests {
         // Retry speaking
         vm.retrySpeaking(for: exerciseItem)
         #expect(speechEngine.isSessionActive)
-        if case .listening = vm.speechState {
-            #expect(Bool(true))
-        } else {
-            #expect(Bool(false), "Expected speechState to be listening after retry")
+        #expect(vm.speechState == .preparing || vm.speechState == .listening())
+        let deadline = ContinuousClock.now.advanced(by: .seconds(2))
+        while vm.speechState != .listening() && ContinuousClock.now < deadline {
+            await Task.yield()
         }
+        #expect(vm.speechState == .listening())
     }
 
     @Test("Hint requests are capped at 2 for non-speaking exercises and 3 for speaking")
@@ -536,8 +457,8 @@ struct LessonLearningViewModelTests {
         #expect(vm.speechEngine.isSessionActive == false)
     }
 
-    @Test("Verify startListeningForSpeaking lazily prepares engine and resumes listening")
-    func testStartListeningPreparesEngineAndResumesListening() throws {
+    @Test("Verify startListeningForSpeaking starts speech engine listening atomically")
+    func testStartListeningPreparesEngineAndResumesListening() async throws {
         let words = makeSampleWords(count: 4)
         let speechEngine = MockResilientReflexSpeechEngine()
         let vm = LessonLearningViewModel(
@@ -551,7 +472,7 @@ struct LessonLearningViewModelTests {
         )
         vm.startSpeechSession()
         #expect(speechEngine.isSessionActive == true)
-        #expect(speechEngine.prepareEngineIfNeededCallCount == 0)
+        #expect(speechEngine.startListeningCallCount == 0)
 
         // Advance to speaking exercise
         while vm.currentExerciseItem?.assignedMode != .speaking && !vm.isSummaryStep {
@@ -560,9 +481,12 @@ struct LessonLearningViewModelTests {
 
         let speakingItem = try #require(vm.currentExerciseItem)
         vm.startListeningForSpeaking(targetLemma: speakingItem.word.lemma, item: speakingItem)
+        let deadline1 = ContinuousClock.now.advanced(by: .seconds(2))
+        while speechEngine.startListeningCallCount == 0 && ContinuousClock.now < deadline1 {
+            await Task.yield()
+        }
 
-        #expect(speechEngine.prepareEngineIfNeededCallCount == 1)
-        #expect(speechEngine.resumeListeningCallCount == 1)
+        #expect(speechEngine.startListeningCallCount == 1)
 
         vm.stopListeningForSpeaking()
         #expect(speechEngine.pauseListeningCallCount == 1)
@@ -657,7 +581,7 @@ struct LessonLearningViewModelTests {
     }
 
     @Test("Verify startListeningForSpeaking is a no-op when feedback is presented or speechState is not idle")
-    func testStartListeningForSpeakingGuardedAgainstFeedbackAndNonIdle() throws {
+    func testStartListeningForSpeakingGuardedAgainstFeedbackAndNonIdle() async throws {
         let words = makeSampleWords(count: 4)
         let speechEngine = MockResilientReflexSpeechEngine()
         let vm = LessonLearningViewModel(
@@ -682,7 +606,7 @@ struct LessonLearningViewModelTests {
         vm.isFeedbackPresented = true
         vm.startListeningForSpeaking(targetLemma: speakingItem.word.lemma, item: speakingItem)
         #expect(vm.speechState == .idle)
-        #expect(speechEngine.beginWordCallCount == 0)
+        #expect(speechEngine.startListeningCallCount == 0)
 
         // Reset feedback
         vm.isFeedbackPresented = false
@@ -691,17 +615,18 @@ struct LessonLearningViewModelTests {
         vm.speechState = .evaluated(overallScore: 1.0)
         vm.startListeningForSpeaking(targetLemma: speakingItem.word.lemma, item: speakingItem)
         #expect(vm.speechState == .evaluated(overallScore: 1.0))
-        #expect(speechEngine.beginWordCallCount == 0)
+        #expect(speechEngine.startListeningCallCount == 0)
 
         // Case 3: When idle and feedback not presented, startListeningForSpeaking starts normally
         vm.speechState = .idle
         vm.startListeningForSpeaking(targetLemma: speakingItem.word.lemma, item: speakingItem)
-        if case .listening = vm.speechState {
-            #expect(Bool(true))
-        } else {
-            #expect(Bool(false), "Expected speechState to be listening")
+        #expect(vm.speechState == .preparing)
+        let deadline = ContinuousClock.now.advanced(by: .seconds(2))
+        while vm.speechState != .listening() && ContinuousClock.now < deadline {
+            await Task.yield()
         }
-        #expect(speechEngine.beginWordCallCount == 1)
+        #expect(vm.speechState == .listening())
+        #expect(speechEngine.startListeningCallCount == 1)
     }
 
     @Test("Verify autoPronounceTask speaks vocabulary word after 250ms for non-listening exercise")
@@ -833,6 +758,191 @@ struct LessonLearningViewModelTests {
         #expect(vm.speechState == .idle)
         #expect(speechEngine.isSessionActive == true)
         #expect(speechEngine.stopSessionCallCount == 0)
+    }
+
+    @Test("Speaking publishes preparing until atomic start returns")
+    @MainActor
+    func speakingPublishesPreparingUntilAtomicStartReturns() async throws {
+        let speech = SuspendedMockReflexSpeechEngine()
+        let words = makeSampleWords(count: 4)
+        let vm = LessonLearningViewModel(
+            stageId: "stage_test",
+            deckId: "deck_test",
+            words: words,
+            completeLessonUseCase: MockCompleteLessonUseCase(),
+            ttsService: MockTextToSpeechService(),
+            soundEffectService: MockSoundEffectService(),
+            speechEngine: speech
+        )
+        vm.startSpeechSession()
+        while vm.currentExerciseItem?.assignedMode != .speaking && !vm.isSummaryStep {
+            vm.advanceStep()
+        }
+        let item = try #require(vm.currentExerciseItem)
+
+        vm.startListeningForSpeaking(targetLemma: item.word.lemma, item: item)
+        await speech.waitUntilStartListeningStarts()
+        #expect(vm.speechState == .preparing)
+
+        speech.completeStartListening()
+        let deadline = ContinuousClock.now.advanced(by: .seconds(2))
+        while vm.speechState != .listening() && ContinuousClock.now < deadline {
+            await Task.yield()
+        }
+        #expect(vm.speechState == .listening())
+    }
+
+    @Test("Listening is published only after start succeeds")
+    @MainActor
+    func listeningIsPublishedOnlyAfterStartSucceeds() async throws {
+        let speech = SuspendedMockReflexSpeechEngine()
+        let words = makeSampleWords(count: 4)
+        let vm = LessonLearningViewModel(
+            stageId: "stage_test",
+            deckId: "deck_test",
+            words: words,
+            completeLessonUseCase: MockCompleteLessonUseCase(),
+            ttsService: MockTextToSpeechService(),
+            soundEffectService: MockSoundEffectService(),
+            speechEngine: speech
+        )
+        vm.startSpeechSession()
+        while vm.currentExerciseItem?.assignedMode != .speaking && !vm.isSummaryStep {
+            vm.advanceStep()
+        }
+        let item = try #require(vm.currentExerciseItem)
+
+        vm.startListeningForSpeaking(targetLemma: item.word.lemma, item: item)
+        await speech.waitUntilStartListeningStarts()
+        #expect(vm.speechState != .listening())
+        #expect(vm.speechState == .preparing)
+
+        speech.completeStartListening()
+        let deadline = ContinuousClock.now.advanced(by: .seconds(2))
+        while vm.speechState != .listening() && ContinuousClock.now < deadline {
+            await Task.yield()
+        }
+        #expect(vm.speechState == .listening())
+    }
+
+    @Test("Advance during preparing cannot update next exercise")
+    @MainActor
+    func advanceDuringPreparingCannotUpdateNextExercise() async throws {
+        let speech = SuspendedMockReflexSpeechEngine()
+        let words = makeSampleWords(count: 4)
+        let vm = LessonLearningViewModel(
+            stageId: "stage_test",
+            deckId: "deck_test",
+            words: words,
+            completeLessonUseCase: MockCompleteLessonUseCase(),
+            ttsService: MockTextToSpeechService(),
+            soundEffectService: MockSoundEffectService(),
+            speechEngine: speech
+        )
+        vm.startSpeechSession()
+        while vm.currentExerciseItem?.assignedMode != .speaking && !vm.isSummaryStep {
+            vm.advanceStep()
+        }
+        let speakingItem = try #require(vm.currentExerciseItem)
+
+        vm.startListeningForSpeaking(targetLemma: speakingItem.word.lemma, item: speakingItem)
+        await speech.waitUntilStartListeningStarts()
+        #expect(vm.speechState == .preparing)
+
+        // Advance before startListening completes
+        vm.advanceStep()
+        let nextItem = vm.currentExerciseItem
+
+        // Complete the suspended start
+        speech.completeStartListening()
+        await Task.yield()
+
+        // Verify the next step is not in listening state from the old exercise
+        #expect(vm.speechState != .listening())
+        if let nextItem {
+            #expect(nextItem.id != speakingItem.id)
+        }
+    }
+
+    @Test("Permission denied disables speaking for session and uses typing fallback")
+    @MainActor
+    func permissionDeniedDisablesSpeakingForSessionAndUsesTypingFallback() async throws {
+        let speech = SuspendedMockReflexSpeechEngine()
+        let words = makeSampleWords(count: 4)
+        let vm = LessonLearningViewModel(
+            stageId: "stage_test",
+            deckId: "deck_test",
+            words: words,
+            completeLessonUseCase: MockCompleteLessonUseCase(),
+            ttsService: MockTextToSpeechService(),
+            soundEffectService: MockSoundEffectService(),
+            speechEngine: speech
+        )
+        vm.startSpeechSession()
+        while vm.currentExerciseItem?.assignedMode != .speaking && !vm.isSummaryStep {
+            vm.advanceStep()
+        }
+        let speakingItem = try #require(vm.currentExerciseItem)
+
+        vm.startListeningForSpeaking(targetLemma: speakingItem.word.lemma, item: speakingItem)
+        await speech.waitUntilStartListeningStarts()
+        speech.failStartListening(with: SpeechCaptureError.speechRecognitionDenied)
+
+        let deadline = ContinuousClock.now.advanced(by: .seconds(2))
+        while !vm.isSpeakingDisabledForLesson && ContinuousClock.now < deadline {
+            await Task.yield()
+        }
+
+        #expect(vm.isSpeakingDisabledForLesson == true)
+        #expect(vm.speechState == .unavailable)
+        #expect(vm.currentExerciseItem?.assignedMode == .typing)
+        #expect(vm.permissionNotice != nil)
+
+        // Ensure all subsequent steps that were speaking are now typing
+        for step in vm.steps {
+            if case .exercise(let item) = step {
+                #expect(item.assignedMode != .speaking)
+            }
+        }
+    }
+
+    @Test("Permission notice is presented only once per session")
+    @MainActor
+    func permissionNoticeIsPresentedOnlyOncePerSession() async throws {
+        let speech = SuspendedMockReflexSpeechEngine()
+        let words = makeSampleWords(count: 4)
+        let vm = LessonLearningViewModel(
+            stageId: "stage_test",
+            deckId: "deck_test",
+            words: words,
+            completeLessonUseCase: MockCompleteLessonUseCase(),
+            ttsService: MockTextToSpeechService(),
+            soundEffectService: MockSoundEffectService(),
+            speechEngine: speech
+        )
+        vm.startSpeechSession()
+        while vm.currentExerciseItem?.assignedMode != .speaking && !vm.isSummaryStep {
+            vm.advanceStep()
+        }
+        let speakingItem = try #require(vm.currentExerciseItem)
+
+        vm.startListeningForSpeaking(targetLemma: speakingItem.word.lemma, item: speakingItem)
+        await speech.waitUntilStartListeningStarts()
+        speech.failStartListening(with: SpeechCaptureError.microphoneDenied)
+
+        let deadline = ContinuousClock.now.advanced(by: .seconds(2))
+        while vm.permissionNotice == nil && ContinuousClock.now < deadline {
+            await Task.yield()
+        }
+
+        #expect(vm.permissionNotice != nil)
+
+        // User dismisses the notice
+        vm.permissionNotice = nil
+
+        // Trigger permission denial logic again
+        vm.handlePermissionDenied(for: speakingItem)
+        #expect(vm.permissionNotice == nil)
     }
 }
 

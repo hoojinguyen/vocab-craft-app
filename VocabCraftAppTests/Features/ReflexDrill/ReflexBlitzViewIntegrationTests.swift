@@ -90,10 +90,11 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         XCTAssertEqual(vm.countdownCount, 3)
     }
 
-    func testBlitzViewDrillingSpeakingModeSpokenMatchAndReview() {
+    func testBlitzViewDrillingSpeakingModeSpokenMatchAndReview() async {
         let (vm, _, _, mockSpeechEngine) = makeViewModel()
         vm.selectMode(.speaking)
         vm.beginSessionDirectly()
+        await Task.yield()
 
         XCTAssertEqual(vm.phase, .drilling)
         XCTAssertEqual(vm.cardPhase, .activeCountdown)
@@ -122,6 +123,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
 
         // Advance to word 2
         vm.advanceToNextWord()
+        await Task.yield()
         XCTAssertEqual(vm.currentWordIndex, 1)
         guard let secondWord = vm.currentWord else {
             XCTFail("Expected second word to be non-nil")
@@ -566,6 +568,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
         // 1. Select Mode & Begin Session
         vm.selectMode(.speaking)
         vm.beginSessionDirectly()
+        await Task.yield()
         XCTAssertEqual(vm.phase, .drilling)
         XCTAssertEqual(vm.currentWordIndex, 0)
         let word1 = vm.currentWord!
@@ -581,6 +584,7 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
 
         // 3. Advance to Word 2 and Trigger Timeout
         vm.advanceToNextWord()
+        await Task.yield()
         XCTAssertEqual(vm.currentWordIndex, 1)
         let word2 = vm.currentWord!
         XCTAssertEqual(mockSpeechEngine.lastTargetLemma, word2.lemma)
