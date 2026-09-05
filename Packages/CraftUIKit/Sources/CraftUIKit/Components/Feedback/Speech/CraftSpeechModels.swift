@@ -38,4 +38,10 @@ public enum CraftSpeechState: Equatable, Sendable {
     case processing
     case evaluated(overallScore: Double)
     case unavailable
+
+    public var isListening: Bool {
+        if case .listening = self { return true }
+        return false
+    }
 }
+

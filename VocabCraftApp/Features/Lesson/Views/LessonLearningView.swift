@@ -178,5 +178,17 @@ public struct LessonLearningView: View {
         } message: {
             Text(AppStrings.Lesson.exitAlertMessageText)
         }
+        .alert(
+            viewModel.permissionNotice?.title ?? AppStrings.Lesson.permissionTitleText,
+            isPresented: $viewModel.isPermissionNoticePresented,
+            presenting: viewModel.permissionNotice
+        ) { _ in
+            Button(AppStrings.Lesson.permissionSettingsActionText) {
+                viewModel.openSettings()
+            }
+            Button(AppStrings.Lesson.permissionDismissActionText, role: .cancel) {}
+        } message: { notice in
+            Text(notice.message)
+        }
     }
 }

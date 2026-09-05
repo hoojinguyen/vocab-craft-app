@@ -159,6 +159,14 @@ final class CraftSpeechUIComponentTests: XCTestCase {
         XCTAssertNotEqual(unavailable, .idle)
         XCTAssertNotEqual(preparing, unavailable)
 
+        XCTAssertFalse(CraftSpeechState.idle.isListening)
+        XCTAssertFalse(preparing.isListening)
+        XCTAssertFalse(unavailable.isListening)
+        XCTAssertFalse(CraftSpeechState.processing.isListening)
+        XCTAssertFalse(CraftSpeechState.evaluated(overallScore: 90).isListening)
+        XCTAssertTrue(CraftSpeechState.listening().isListening)
+        XCTAssertTrue(CraftSpeechState.listening(audioLevels: [0.5]).isListening)
+
         let preparingHub = CraftTactileMicHubView(speechState: .preparing, onTapMic: {})
         let unavailableHub = CraftTactileMicHubView(speechState: .unavailable, onTapMic: {})
         XCTAssertNotNil(preparingHub.body)

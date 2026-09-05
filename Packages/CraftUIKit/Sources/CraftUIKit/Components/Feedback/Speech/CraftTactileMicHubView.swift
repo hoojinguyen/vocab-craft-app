@@ -25,8 +25,7 @@ public struct CraftTactileMicHubView: View {
     }
 
     private var isListening: Bool {
-        if case .listening = speechState { return true }
-        return false
+        speechState.isListening
     }
 
     private var isProcessing: Bool {
