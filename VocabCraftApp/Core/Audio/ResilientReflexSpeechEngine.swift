@@ -412,19 +412,22 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
 
             try activateWordCapture(targetLemma: targetLemma, contextualPhrases: contextualPhrases)
         } catch {
-            isEngineReady = false
-            bufferRelay.mute()
-            let lease = self.activeLease ?? acquiredLease
-            let extraLease = (acquiredLease != lease) ? acquiredLease : nil
-            self.activeLease = nil
+            let isStale = (self.wordGeneration != generation)
             let coordinator = audioSessionCoordinator
-            enqueueAudioTransition { controller in
-                await controller.teardown()
-                if let lease {
-                    await coordinator?.release(lease)
+            if !isStale {
+                isEngineReady = false
+                bufferRelay.mute()
+                let lease = self.activeLease ?? acquiredLease
+                let extraLease = (acquiredLease != lease) ? acquiredLease : nil
+                self.activeLease = nil
+                enqueueAudioTransition { controller in
+                    await controller.teardown()
+                    if let lease { await coordinator?.release(lease) }
+                    if let extraLease { await coordinator?.release(extraLease) }
                 }
-                if let extraLease {
-                    await coordinator?.release(extraLease)
+            } else if let acquiredLease, acquiredLease != self.activeLease {
+                enqueueAudioTransition { _ in
+                    await coordinator?.release(acquiredLease)
                 }
             }
             throw error
@@ -444,9 +447,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         isListeningPaused = false
         let token = UUID()
         currentWordSessionToken = token
-        currentTargetLemma = targetLemma
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .lowercased()
+        currentTargetLemma = targetLemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         liveTranscript = ""
         hasReportedFirstRecognitionResult = false
         isWordActive = true
@@ -485,10 +486,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         onTranscriptUpdate?(text)
 
         if !currentTargetLemma.isEmpty,
-           ReflexSpeechMatcher.isReflexMatch(
-               spokenText: text,
-               targetLemma: currentTargetLemma
-           ) {
+           ReflexSpeechMatcher.isReflexMatch(spokenText: text, targetLemma: currentTargetLemma) {
             onMatchDetected?(currentTargetLemma)
         }
     }
