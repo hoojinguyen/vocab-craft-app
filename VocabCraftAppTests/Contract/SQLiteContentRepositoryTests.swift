@@ -282,4 +282,73 @@ final class SQLiteContentRepositoryTests: XCTestCase {
         XCTAssertEqual(unwrappedSense.ipa, "/bʊk/")
         XCTAssertFalse(unwrappedSense.pronunciations.isEmpty)
     }
+
+    // 14. Lesson content yields senses with distinct ordered sortOrders matching fixture
+    func testLessonContentPreservesDistinctOrderedSortOrders() async throws {
+        let repo = try SQLiteContentRepository(
+            url: ContractFixture.bundleURL(),
+            manifest: ContractFixture.manifest()
+        )
+
+        let lesson1ID = try XCTUnwrap(LessonID(uuidString: "d1000000-0000-4000-8000-000000000001"))
+        let lesson1 = try await repo.fetchLessonContent(lessonID: lesson1ID)
+        XCTAssertEqual(lesson1.senses.map(\.sortOrder), [0, 1])
+
+        let lesson2ID = try XCTUnwrap(LessonID(uuidString: "d1000000-0000-4000-8000-000000000002"))
+        let lesson2 = try await repo.fetchLessonContent(lessonID: lesson2ID)
+        XCTAssertEqual(lesson2.senses.map(\.sortOrder), [0, 1, 2])
+    }
+
+    // 15. Missing required column throws corruptedDatabase instead of empty string
+    func testMissingRequiredColumnThrowsCorruptedDatabase() async throws {
+        let originalURL = try ContractFixture.bundleURL()
+        let tempURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("corrupted_null_\(UUID().uuidString).sqlite")
+        try FileManager.default.copyItem(at: originalURL, to: tempURL)
+        defer { try? FileManager.default.removeItem(at: tempURL) }
+
+        var db: OpaquePointer?
+        XCTAssertEqual(sqlite3_open(tempURL.path, &db), SQLITE_OK)
+        let dropSQL = """
+        CREATE TABLE dummy_entries AS SELECT * FROM entries;
+        DROP TABLE entries;
+        CREATE TABLE entries (id TEXT PRIMARY KEY, headword TEXT, lookup_key TEXT, entry_kind TEXT, revision INTEGER);
+        INSERT INTO entries SELECT id, NULL, lookup_key, entry_kind, revision FROM dummy_entries;
+        """
+        XCTAssertEqual(sqlite3_exec(db, dropSQL, nil, nil, nil), SQLITE_OK)
+        sqlite3_close(db)
+
+        let repo = try SQLiteContentRepository(url: tempURL, manifest: ContractFixture.manifest())
+        let bookEntryID = try XCTUnwrap(EntryID(uuidString: "a0000000-0000-4000-8000-000000000001"))
+        do {
+            _ = try await repo.fetchEntry(entryID: bookEntryID)
+            XCTFail("Expected corruptedDatabase error due to NULL headword")
+        } catch let ContentRepositoryError.corruptedDatabase(details) {
+            XCTAssertTrue(details.contains("headword"))
+        }
+    }
+
+    // 16. Invalid sense ID string in pronunciation throws corruptedDatabase
+    func testInvalidSenseIDInPronunciationThrowsCorruptedDatabase() async throws {
+        let originalURL = try ContractFixture.bundleURL()
+        let tempURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("corrupted_pron_\(UUID().uuidString).sqlite")
+        try FileManager.default.copyItem(at: originalURL, to: tempURL)
+        defer { try? FileManager.default.removeItem(at: tempURL) }
+
+        var db: OpaquePointer?
+        XCTAssertEqual(sqlite3_open(tempURL.path, &db), SQLITE_OK)
+        let updateSQL = "UPDATE pronunciations SET sense_id = 'not-a-valid-uuid' WHERE id = 'c1000000-0000-4000-8000-000000000001';"
+        XCTAssertEqual(sqlite3_exec(db, updateSQL, nil, nil, nil), SQLITE_OK)
+        sqlite3_close(db)
+
+        let repo = try SQLiteContentRepository(url: tempURL, manifest: ContractFixture.manifest())
+        let bookEntryID = try XCTUnwrap(EntryID(uuidString: "a0000000-0000-4000-8000-000000000001"))
+        do {
+            _ = try await repo.fetchEntry(entryID: bookEntryID)
+            XCTFail("Expected corruptedDatabase error due to invalid sense_id in pronunciation")
+        } catch let ContentRepositoryError.corruptedDatabase(details) {
+            XCTAssertTrue(details.contains("not-a-valid-uuid") || details.contains("pronunciation"))
+        }
+    }
 }

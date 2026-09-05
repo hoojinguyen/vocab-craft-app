@@ -53,9 +53,7 @@ public actor SQLiteContentRepository: ContentRepository {
     }
 
     deinit {
-        if let db {
-            sqlite3_close(db)
-        }
+        if let db { sqlite3_close(db) }
     }
 
     public func close() {
@@ -101,7 +99,11 @@ public actor SQLiteContentRepository: ContentRepository {
         let dbSchemaVersion = Int(sqlite3_column_int64(stmt, 0))
         let dbContentVersion = Int(sqlite3_column_int64(stmt, 1))
 
-        if dbSchemaVersion != 1 || dbSchemaVersion != manifest.datasetSchemaVersion {
+        if dbSchemaVersion != 1 {
+            throw ContentRepositoryError.unsupportedSchema(expected: 1, actual: dbSchemaVersion)
+        }
+
+        if dbSchemaVersion != manifest.datasetSchemaVersion {
             throw ContentRepositoryError.unsupportedSchema(expected: 1, actual: manifest.datasetSchemaVersion)
         }
 
@@ -167,18 +169,19 @@ public actor SQLiteContentRepository: ContentRepository {
         while true {
             let stepResult = sqlite3_step(stmt)
             if stepResult == SQLITE_ROW {
-                guard let idString = columnOptionalText(stmt, 0), let deckID = DeckID(uuidString: idString) else {
-                    throw ContentRepositoryError.corruptedDatabase("Invalid deck ID")
+                let idString = try columnRequiredText(stmt, 0, field: "id")
+                guard let deckID = DeckID(uuidString: idString) else {
+                    throw ContentRepositoryError.corruptedDatabase("Invalid deck ID: \(idString)")
                 }
                 let levels = try fetchCefrLevels(for: deckID)
                 decks.append(DeckSummary(
                     id: deckID,
-                    titleEN: columnText(stmt, 1),
-                    titleVI: columnText(stmt, 2),
+                    titleEN: try columnRequiredText(stmt, 1, field: "title_en"),
+                    titleVI: try columnRequiredText(stmt, 2, field: "title_vi"),
                     descriptionEN: columnOptionalText(stmt, 3),
                     descriptionVI: columnOptionalText(stmt, 4),
-                    iconKey: columnText(stmt, 5),
-                    themeKey: columnText(stmt, 6),
+                    iconKey: try columnRequiredText(stmt, 5, field: "icon_key"),
+                    themeKey: try columnRequiredText(stmt, 6, field: "theme_key"),
                     sortOrder: Int(sqlite3_column_int(stmt, 7)),
                     revision: Int(sqlite3_column_int(stmt, 8)),
                     cefrLevels: levels
@@ -203,15 +206,19 @@ public actor SQLiteContentRepository: ContentRepository {
         return try queryRows(sql: sql, bind: { stmt in
             sqlite3_bind_text(stmt, 1, deckID.description, -1, SQLITE_TRANSIENT)
         }, transform: { stmt in
-            guard let idString = columnOptionalText(stmt, 0), let lessonID = LessonID(uuidString: idString) else {
-                throw ContentRepositoryError.corruptedDatabase("Invalid lesson ID")
+            let idString = try columnRequiredText(stmt, 0, field: "id")
+            guard let lessonID = LessonID(uuidString: idString) else {
+                throw ContentRepositoryError.corruptedDatabase("Invalid lesson ID: \(idString)")
             }
             let senses = try fetchLessonSenses(lessonID: lessonID)
             return LessonDetail(
-                id: lessonID, deckID: deckID, titleEN: columnText(stmt, 2),
-                titleVI: columnText(stmt, 3), iconKey: columnText(stmt, 4),
+                id: lessonID, deckID: deckID,
+                titleEN: try columnRequiredText(stmt, 2, field: "title_en"),
+                titleVI: try columnRequiredText(stmt, 3, field: "title_vi"),
+                iconKey: try columnRequiredText(stmt, 4, field: "icon_key"),
                 sortOrder: Int(sqlite3_column_int(stmt, 5)),
-                revision: Int(sqlite3_column_int(stmt, 6)), senses: senses
+                revision: Int(sqlite3_column_int(stmt, 6)),
+                senses: senses
             )
         })
     }
@@ -228,15 +235,19 @@ public actor SQLiteContentRepository: ContentRepository {
 
         let stepResult = sqlite3_step(stmt)
         if stepResult == SQLITE_ROW {
-            guard let deckIDString = columnOptionalText(stmt, 1), let deckID = DeckID(uuidString: deckIDString) else {
+            let deckIDString = try columnRequiredText(stmt, 1, field: "deck_id")
+            guard let deckID = DeckID(uuidString: deckIDString) else {
                 throw ContentRepositoryError.corruptedDatabase("Invalid deck ID for lesson")
             }
             let senses = try fetchLessonSenses(lessonID: lessonID)
             return LessonDetail(
-                id: lessonID, deckID: deckID, titleEN: columnText(stmt, 2),
-                titleVI: columnText(stmt, 3), iconKey: columnText(stmt, 4),
+                id: lessonID, deckID: deckID,
+                titleEN: try columnRequiredText(stmt, 2, field: "title_en"),
+                titleVI: try columnRequiredText(stmt, 3, field: "title_vi"),
+                iconKey: try columnRequiredText(stmt, 4, field: "icon_key"),
                 sortOrder: Int(sqlite3_column_int(stmt, 5)),
-                revision: Int(sqlite3_column_int(stmt, 6)), senses: senses
+                revision: Int(sqlite3_column_int(stmt, 6)),
+                senses: senses
             )
         } else if stepResult == SQLITE_DONE {
             throw ContentRepositoryError.entityNotFound("Lesson \(lessonID.description) not found")
@@ -261,19 +272,33 @@ public actor SQLiteContentRepository: ContentRepository {
 
         let stepResult = sqlite3_step(stmt)
         if stepResult == SQLITE_ROW {
-            guard let entryIDString = columnOptionalText(stmt, 1), let entryID = EntryID(uuidString: entryIDString),
-                  let entryKind = EntryKind(rawValue: columnText(stmt, 3)),
-                  let partOfSpeech = PartOfSpeech(rawValue: columnText(stmt, 4)),
-                  let cefrLevel = CEFRLevel(rawValue: columnText(stmt, 7)) else {
-                throw ContentRepositoryError.corruptedDatabase("Invalid sense fields")
+            let entryIDString = try columnRequiredText(stmt, 1, field: "entry_id")
+            guard let entryID = EntryID(uuidString: entryIDString) else {
+                throw ContentRepositoryError.corruptedDatabase("Invalid entry ID: \(entryIDString)")
+            }
+            let headword = try columnRequiredText(stmt, 2, field: "headword")
+            let entryKindString = try columnRequiredText(stmt, 3, field: "entry_kind")
+            guard let entryKind = EntryKind(rawValue: entryKindString) else {
+                throw ContentRepositoryError.corruptedDatabase("Invalid entry_kind: \(entryKindString)")
+            }
+            let posString = try columnRequiredText(stmt, 4, field: "part_of_speech")
+            guard let partOfSpeech = PartOfSpeech(rawValue: posString) else {
+                throw ContentRepositoryError.corruptedDatabase("Invalid part_of_speech: \(posString)")
+            }
+            let defEN = try columnRequiredText(stmt, 5, field: "definition_en")
+            let defVI = try columnRequiredText(stmt, 6, field: "definition_vi")
+            let cefrString = try columnRequiredText(stmt, 7, field: "cefr_level")
+            guard let cefrLevel = CEFRLevel(rawValue: cefrString) else {
+                throw ContentRepositoryError.corruptedDatabase("Invalid cefr_level: \(cefrString)")
             }
 
             let pronunciations = try fetchPronunciations(senseID: senseID, entryID: entryID)
             return SenseDetail(
-                id: senseID, entryID: entryID, headword: columnText(stmt, 2),
+                id: senseID, entryID: entryID, headword: headword,
                 entryKind: entryKind, partOfSpeech: partOfSpeech,
-                definitionEN: columnText(stmt, 5), definitionVI: columnText(stmt, 6),
-                cefrLevel: cefrLevel, usageNoteEN: columnOptionalText(stmt, 8),
+                definitionEN: defEN, definitionVI: defVI,
+                cefrLevel: cefrLevel,
+                usageNoteEN: columnOptionalText(stmt, 8),
                 usageNoteVI: columnOptionalText(stmt, 9),
                 ipa: resolveIPA(pronunciations: pronunciations),
                 pronunciations: pronunciations,
@@ -299,10 +324,11 @@ public actor SQLiteContentRepository: ContentRepository {
 
         let stepResult = sqlite3_step(stmt)
         if stepResult == SQLITE_ROW {
-            let headword = columnText(stmt, 1)
-            let lookupKey = columnText(stmt, 2)
-            guard let entryKind = EntryKind(rawValue: columnText(stmt, 3)) else {
-                throw ContentRepositoryError.corruptedDatabase("Invalid entry_kind")
+            let headword = try columnRequiredText(stmt, 1, field: "headword")
+            let lookupKey = try columnRequiredText(stmt, 2, field: "lookup_key")
+            let entryKindString = try columnRequiredText(stmt, 3, field: "entry_kind")
+            guard let entryKind = EntryKind(rawValue: entryKindString) else {
+                throw ContentRepositoryError.corruptedDatabase("Invalid entry_kind: \(entryKindString)")
             }
             let revision = Int(sqlite3_column_int(stmt, 4))
             let pronunciations = try fetchPronunciationsForEntry(entryID: entryID)
@@ -347,7 +373,7 @@ public actor SQLiteContentRepository: ContentRepository {
         while true {
             let stepResult = sqlite3_step(stmt)
             if stepResult == SQLITE_ROW {
-                candidateSenses.append(try parseSenseSummaryRow(stmt, index: candidateSenses.count))
+                candidateSenses.append(try parseSenseSummaryRow(stmt, sortOrder: candidateSenses.count))
             } else if stepResult == SQLITE_DONE {
                 break
             } else {
@@ -410,21 +436,37 @@ extension SQLiteContentRepository {
         }
     }
 
-    fileprivate func parseSenseSummaryRow(_ stmt: OpaquePointer, index: Int) throws -> SenseSummary {
-        guard let senseIDString = columnOptionalText(stmt, 0), let senseID = SenseID(uuidString: senseIDString),
-              let entryIDString = columnOptionalText(stmt, 1), let entryID = EntryID(uuidString: entryIDString),
-              let entryKind = EntryKind(rawValue: columnText(stmt, 3)),
-              let partOfSpeech = PartOfSpeech(rawValue: columnText(stmt, 4)),
-              let cefrLevel = CEFRLevel(rawValue: columnText(stmt, 7)) else {
-            throw ContentRepositoryError.corruptedDatabase("Invalid sense summary row")
+    fileprivate func parseSenseSummaryRow(_ stmt: OpaquePointer, sortOrder: Int) throws -> SenseSummary {
+        let senseIDString = try columnRequiredText(stmt, 0, field: "id")
+        guard let senseID = SenseID(uuidString: senseIDString) else {
+            throw ContentRepositoryError.corruptedDatabase("Invalid sense ID: \(senseIDString)")
+        }
+        let entryIDString = try columnRequiredText(stmt, 1, field: "entry_id")
+        guard let entryID = EntryID(uuidString: entryIDString) else {
+            throw ContentRepositoryError.corruptedDatabase("Invalid entry ID: \(entryIDString)")
+        }
+        let headword = try columnRequiredText(stmt, 2, field: "headword")
+        let entryKindString = try columnRequiredText(stmt, 3, field: "entry_kind")
+        guard let entryKind = EntryKind(rawValue: entryKindString) else {
+            throw ContentRepositoryError.corruptedDatabase("Invalid entry_kind: \(entryKindString)")
+        }
+        let posString = try columnRequiredText(stmt, 4, field: "part_of_speech")
+        guard let partOfSpeech = PartOfSpeech(rawValue: posString) else {
+            throw ContentRepositoryError.corruptedDatabase("Invalid part_of_speech: \(posString)")
+        }
+        let defEN = try columnRequiredText(stmt, 5, field: "definition_en")
+        let defVI = try columnRequiredText(stmt, 6, field: "definition_vi")
+        let cefrString = try columnRequiredText(stmt, 7, field: "cefr_level")
+        guard let cefrLevel = CEFRLevel(rawValue: cefrString) else {
+            throw ContentRepositoryError.corruptedDatabase("Invalid cefr_level: \(cefrString)")
         }
         let pronunciations = try fetchPronunciations(senseID: senseID, entryID: entryID)
         return SenseSummary(
-            senseID: senseID, entryID: entryID, headword: columnText(stmt, 2),
+            senseID: senseID, entryID: entryID, headword: headword,
             entryKind: entryKind, partOfSpeech: partOfSpeech,
-            definitionEN: columnText(stmt, 5), definitionVI: columnText(stmt, 6),
+            definitionEN: defEN, definitionVI: defVI,
             cefrLevel: cefrLevel, ipa: resolveIPA(pronunciations: pronunciations),
-            sortOrder: index, revision: Int(sqlite3_column_int(stmt, 8))
+            sortOrder: sortOrder, revision: Int(sqlite3_column_int(stmt, 8))
         )
     }
 
@@ -439,7 +481,7 @@ extension SQLiteContentRepository {
         let rawLevels: [String] = try queryRows(sql: sql, bind: { stmt in
             sqlite3_bind_text(stmt, 1, deckID.description, -1, SQLITE_TRANSIENT)
         }, transform: { stmt in
-            columnText(stmt, 0)
+            try columnRequiredText(stmt, 0, field: "cefr_level")
         })
         let set = Set(rawLevels.compactMap { CEFRLevel(rawValue: $0) })
         return set.sorted()
@@ -448,7 +490,7 @@ extension SQLiteContentRepository {
     fileprivate func fetchLessonSenses(lessonID: LessonID) throws -> [SenseSummary] {
         let sql = """
         SELECT s.id, s.entry_id, e.headword, e.entry_kind,
-               s.part_of_speech, s.definition_en, s.definition_vi, s.cefr_level, s.revision
+               s.part_of_speech, s.definition_en, s.definition_vi, s.cefr_level, s.revision, ls.sort_order
         FROM lesson_senses ls
         JOIN senses s ON s.id = ls.sense_id
         JOIN entries e ON e.id = s.entry_id
@@ -458,7 +500,8 @@ extension SQLiteContentRepository {
         return try queryRows(sql: sql, bind: { stmt in
             sqlite3_bind_text(stmt, 1, lessonID.description, -1, SQLITE_TRANSIENT)
         }, transform: { stmt in
-            try parseSenseSummaryRow(stmt, index: 0)
+            let lessonSortOrder = Int(sqlite3_column_int(stmt, 9))
+            return try parseSenseSummaryRow(stmt, sortOrder: lessonSortOrder)
         })
     }
 
@@ -468,8 +511,9 @@ extension SQLiteContentRepository {
             sqlite3_bind_text(stmt, 1, senseID.description, -1, SQLITE_TRANSIENT)
         }, transform: { stmt in
             ExampleSnapshot(
-                id: columnText(stmt, 0), senseID: senseID,
-                textEN: columnText(stmt, 2), textVI: columnText(stmt, 3),
+                id: try columnRequiredText(stmt, 0, field: "id"), senseID: senseID,
+                textEN: try columnRequiredText(stmt, 2, field: "text_en"),
+                textVI: try columnRequiredText(stmt, 3, field: "text_vi"),
                 sortOrder: Int(sqlite3_column_int(stmt, 4))
             )
         })
@@ -481,8 +525,9 @@ extension SQLiteContentRepository {
             sqlite3_bind_text(stmt, 1, senseID.description, -1, SQLITE_TRANSIENT)
         }, transform: { stmt in
             CollocationSnapshot(
-                id: columnText(stmt, 0), senseID: senseID,
-                textEN: columnText(stmt, 2), textVI: columnText(stmt, 3),
+                id: try columnRequiredText(stmt, 0, field: "id"), senseID: senseID,
+                textEN: try columnRequiredText(stmt, 2, field: "text_en"),
+                textVI: try columnRequiredText(stmt, 3, field: "text_vi"),
                 exampleID: columnOptionalText(stmt, 4),
                 sortOrder: Int(sqlite3_column_int(stmt, 5))
             )
@@ -514,15 +559,27 @@ extension SQLiteContentRepository {
     }
 
     private func parsePronunciationRow(_ stmt: OpaquePointer, defaultEntryID: EntryID) throws -> PronunciationSnapshot {
-        let rawSense = columnOptionalText(stmt, 2)
-        let rowSenseID = rawSense != nil ? SenseID(uuidString: rawSense ?? "") : nil
-        guard let accent = Accent(rawValue: columnText(stmt, 3)) else {
-            throw ContentRepositoryError.corruptedDatabase("Invalid accent")
+        let id = try columnRequiredText(stmt, 0, field: "id")
+        let rowSenseID: SenseID?
+        if let rawSense = columnOptionalText(stmt, 2) {
+            guard let parsedSenseID = SenseID(uuidString: rawSense) else {
+                throw ContentRepositoryError.corruptedDatabase("Invalid sense ID in pronunciation: \(rawSense)")
+            }
+            rowSenseID = parsedSenseID
+        } else {
+            rowSenseID = nil
         }
+        let accentString = try columnRequiredText(stmt, 3, field: "accent")
+        guard let accent = Accent(rawValue: accentString) else {
+            throw ContentRepositoryError.corruptedDatabase("Invalid accent: \(accentString)")
+        }
+        let ipa = try columnRequiredText(stmt, 4, field: "ipa")
+        let sortOrder = Int(sqlite3_column_int(stmt, 5))
+
         return PronunciationSnapshot(
-            id: columnText(stmt, 0), entryID: defaultEntryID,
+            id: id, entryID: defaultEntryID,
             senseID: rowSenseID, accent: accent,
-            ipa: columnText(stmt, 4), sortOrder: Int(sqlite3_column_int(stmt, 5))
+            ipa: ipa, sortOrder: sortOrder
         )
     }
 
@@ -536,16 +593,25 @@ extension SQLiteContentRepository {
         return try queryRows(sql: sql, bind: { stmt in
             sqlite3_bind_text(stmt, 1, entryID.description, -1, SQLITE_TRANSIENT)
         }, transform: { stmt in
-            guard let senseIDString = columnOptionalText(stmt, 0), let senseID = SenseID(uuidString: senseIDString),
-                  let partOfSpeech = PartOfSpeech(rawValue: columnText(stmt, 2)),
-                  let cefrLevel = CEFRLevel(rawValue: columnText(stmt, 5)) else {
-                throw ContentRepositoryError.corruptedDatabase("Invalid sense in entry")
+            let senseIDString = try columnRequiredText(stmt, 0, field: "id")
+            guard let senseID = SenseID(uuidString: senseIDString) else {
+                throw ContentRepositoryError.corruptedDatabase("Invalid sense ID: \(senseIDString)")
+            }
+            let posString = try columnRequiredText(stmt, 2, field: "part_of_speech")
+            guard let partOfSpeech = PartOfSpeech(rawValue: posString) else {
+                throw ContentRepositoryError.corruptedDatabase("Invalid part_of_speech: \(posString)")
+            }
+            let defEN = try columnRequiredText(stmt, 3, field: "definition_en")
+            let defVI = try columnRequiredText(stmt, 4, field: "definition_vi")
+            let cefrString = try columnRequiredText(stmt, 5, field: "cefr_level")
+            guard let cefrLevel = CEFRLevel(rawValue: cefrString) else {
+                throw ContentRepositoryError.corruptedDatabase("Invalid cefr_level: \(cefrString)")
             }
             let pronunciations = try fetchPronunciations(senseID: senseID, entryID: entryID)
             return SenseSummary(
                 senseID: senseID, entryID: entryID, headword: headword,
                 entryKind: entryKind, partOfSpeech: partOfSpeech,
-                definitionEN: columnText(stmt, 3), definitionVI: columnText(stmt, 4),
+                definitionEN: defEN, definitionVI: defVI,
                 cefrLevel: cefrLevel, ipa: resolveIPA(pronunciations: pronunciations),
                 sortOrder: Int(sqlite3_column_int(stmt, 6)), revision: Int(sqlite3_column_int(stmt, 7))
             )
@@ -564,8 +630,10 @@ extension SQLiteContentRepository {
             sqlite3_bind_text(stmt, 1, senseID.description, -1, SQLITE_TRANSIENT)
         }, transform: { stmt in
             AttributionSnapshot(
-                id: columnText(stmt, 0), text: columnText(stmt, 1),
-                sourceURL: columnOptionalText(stmt, 2), licenseIdentifier: columnOptionalText(stmt, 3)
+                id: try columnRequiredText(stmt, 0, field: "id"),
+                text: try columnRequiredText(stmt, 1, field: "text"),
+                sourceURL: columnOptionalText(stmt, 2),
+                licenseIdentifier: columnOptionalText(stmt, 3)
             )
         })
     }
@@ -590,20 +658,16 @@ extension SQLiteContentRepository {
     private func parseCursorOffset(cursor: String?) -> Int {
         guard let cursor,
               let data = Data(base64Encoded: cursor),
-              let payload = try? JSONDecoder().decode(SQLiteSearchCursorPayload.self, from: data) else {
+              let payload = try? JSONDecoder().decode(SQLiteSearchCursorPayload.self, from: data),
+              payload.version == manifest.contentVersion else {
             return 0
         }
-        if payload.version == manifest.contentVersion {
-            return max(0, payload.offset)
-        }
-        return 0
+        return max(0, payload.offset)
     }
 
     private func encodeCursor(offset: Int) -> String? {
         let payload = SQLiteSearchCursorPayload(version: manifest.contentVersion, offset: offset)
-        guard let data = try? JSONEncoder().encode(payload) else {
-            return nil
-        }
+        guard let data = try? JSONEncoder().encode(payload) else { return nil }
         return data.base64EncodedString()
     }
 
@@ -614,8 +678,13 @@ extension SQLiteContentRepository {
             .replacingOccurrences(of: "_", with: "\\_")
     }
 
-    fileprivate func columnText(_ stmt: OpaquePointer, _ index: Int32) -> String {
-        guard let ptr = sqlite3_column_text(stmt, index) else { return "" }
+    fileprivate func columnRequiredText(_ stmt: OpaquePointer, _ index: Int32, field: String) throws -> String {
+        if sqlite3_column_type(stmt, index) == SQLITE_NULL {
+            throw ContentRepositoryError.corruptedDatabase("Missing required column '\(field)'")
+        }
+        guard let ptr = sqlite3_column_text(stmt, index) else {
+            throw ContentRepositoryError.corruptedDatabase("Missing required column '\(field)'")
+        }
         return String(cString: ptr)
     }
 
