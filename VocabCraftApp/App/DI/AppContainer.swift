@@ -20,8 +20,9 @@ public final class AppContainer {
 
     // MARK: - Data Sources & Repositories
     public let vocabularyDataSource: VocabularyDataSourceProtocol
-    public let contentRepository: (any ContentRepository)?
+    public private(set) var contentRepository: (any ContentRepository)?
     public let learningJournal: LearningJournal?
+    public let bundleManager: (any ContentBundleManagerProtocol)?
     public let stageProgressRepository: StageProgressRepositoryProtocol
     public let userProgressRepository: any UserProgressRepositoryProtocol
 
@@ -63,6 +64,7 @@ public final class AppContainer {
         vocabularyDataSource: VocabularyDataSourceProtocol? = nil,
         contentRepository: (any ContentRepository)? = nil,
         learningJournal: LearningJournal? = nil,
+        bundleManager: (any ContentBundleManagerProtocol)? = nil,
         stageProgressRepository: StageProgressRepositoryProtocol? = nil,
         userProgressRepository: (any UserProgressRepositoryProtocol)? = nil,
         fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol? = nil,
@@ -82,6 +84,8 @@ public final class AppContainer {
         self.useSampleData = useSampleData
         self.datasetEngine = datasetEngine
         self.modelContainer = modelContainer
+
+        self.bundleManager = Self.resolveBundleManager(provided: bundleManager, useSampleData: useSampleData)
 
         let contentContext = Self.resolveContentContext(
             contentRepository: contentRepository,
@@ -110,22 +114,16 @@ public final class AppContainer {
             ? MockVocabularyRepository()
             : VocabularyRepositoryImpl(datasetEngine: datasetEngine, progressActor: progressActor)
         let srsRepo = SRSRepositoryImpl(modelContext: modelContainer?.mainContext)
-        let quickReflexAttemptRepo = QuickReflexAttemptRepositoryImpl(modelContext: modelContainer?.mainContext)
-
         self.vocabularyRepository = vocabRepo
         self.srsRepository = srsRepo
-        self.quickReflexAttemptRepository = quickReflexAttemptRepo
+        self.quickReflexAttemptRepository = QuickReflexAttemptRepositoryImpl(modelContext: modelContainer?.mainContext)
 
-        let resolvedAudioCoordinator: any AudioSessionCoordinating = audioSessionCoordinator
-            ?? AudioSessionCoordinator()
-        self.audioSessionCoordinator = resolvedAudioCoordinator
-
-        let resolvedTTS = ttsService ?? TextToSpeechService(audioSessionCoordinator: resolvedAudioCoordinator)
-        self.ttsService = resolvedTTS
+        let coordinator = audioSessionCoordinator ?? AudioSessionCoordinator()
+        self.audioSessionCoordinator = coordinator
+        self.ttsService = ttsService ?? TextToSpeechService(audioSessionCoordinator: coordinator)
         self.sttService = sttService ?? SpeechRecognitionService()
         self.speechAssessmentService = speechAssessmentService ?? SpeechAssessmentService()
 
-        // Existing Use Cases
         self.evaluateSRSUseCase = EvaluateSRSUseCase(srsRepository: srsRepo)
         self.resetUserProgressUseCase = ResetUserProgressUseCase(srsRepository: srsRepo)
 
@@ -182,123 +180,33 @@ public final class AppContainer {
         )
     }
 
-    // MARK: - Use Case Factories
-
-    public func makeFetchLearningPathUseCase() -> FetchLearningPathUseCaseProtocol {
-        fetchLearningPathUseCase
-    }
-
-    public func makeCompleteLessonUseCase() -> CompleteLessonUseCaseProtocol {
-        completeLessonUseCase
-    }
-
-    public func makeGenerateMixedReflexQueueUseCase() -> GenerateMixedReflexQueueUseCaseProtocol {
-        generateMixedReflexQueueUseCase
-    }
-
-    public func makeRecordMixedDrillAttemptUseCase() -> RecordMixedDrillAttemptUseCaseProtocol {
-        recordMixedDrillAttemptUseCase
-    }
-
-    // MARK: - View Model Factories
-
-    public func makePersonalVaultViewModel() -> PersonalVaultViewModel {
-        PersonalVaultViewModel(
-            fetchVaultUseCase: fetchPersonalVaultUseCase,
-            toggleBookmarkUseCase: toggleWordBookmarkUseCase,
-            ttsService: ttsService,
-            userSettingsStore: userSettingsStore
-        )
-    }
-
-    public func makeSmartReviewViewModel(weakWords: [PersonalWord] = []) -> SmartReviewViewModel {
-        SmartReviewViewModel(
-            weakWords: weakWords,
-            reviewUseCase: reviewWeakWordsUseCase,
-            ttsService: ttsService
-        )
-    }
-
-    public func makeHomepageViewModel() -> HomepageViewModel {
-        HomepageViewModel(
-            fetchLearningPathUseCase: fetchLearningPathUseCase,
-            ttsService: ttsService,
-            userSettings: userSettingsStore
-        )
-    }
-
-    public func makeReflexSpeechEngine() -> ReflexSpeechEngineProtocol {
-        ResilientReflexSpeechEngine(audioSessionCoordinator: audioSessionCoordinator)
-    }
-
-    public func makeReflexBlitzViewModel(words: [ReflexBlitzWordItem] = []) -> ReflexBlitzViewModel {
-        let blitzWords = !words.isEmpty ? words : ReflexBlitzWordItem.defaultStarterWords
-        return ReflexBlitzViewModel(
-            words: blitzWords,
-            ttsService: ttsService,
-            evaluateSRSUseCase: evaluateSRSUseCase,
-            speechEngine: makeReflexSpeechEngine()
-        )
-    }
-
-    public func makeMixedReflexDrillViewModel(
-        selectedWords: [VaultWordItem],
-        allowSpeakingSkip: Bool = false
-    ) -> MixedReflexDrillViewModel {
-        MixedReflexDrillViewModel(
-            selectedWords: selectedWords,
-            queueUseCase: generateMixedReflexQueueUseCase,
-            planGenerator: practiceDrillPlanGenerator,
-            recordAttemptUseCase: recordMixedDrillAttemptUseCase,
-            ttsService: ttsService,
-            allowSpeakingSkip: allowSpeakingSkip
-        )
-    }
-
-    public func makeLessonLearningViewModel(
-        stageId: String,
-        deckId: String,
-        words: [TopicWordDTO]
-    ) -> LessonLearningViewModel {
-        LessonLearningViewModel(
-            stageId: stageId,
-            deckId: deckId,
-            words: words,
-            completeLessonUseCase: completeLessonUseCase,
-            recordSenseAttemptUseCase: recordSenseAttemptUseCase,
-            ttsService: ttsService,
-            soundEffectService: SoundEffectService.shared,
-            speechEngine: makeReflexSpeechEngine()
-        )
-    }
-
-    public func makeRecordSenseAttemptUseCase() -> (any RecordSenseAttemptUseCaseProtocol)? {
-        recordSenseAttemptUseCase
-    }
-
-    public func makeSettingsViewModel() -> SettingsViewModel {
-        SettingsViewModel(
-            store: userSettingsStore,
-            ttsService: ttsService,
-            resetProgressUseCase: resetUserProgressUseCase
-        )
-    }
-
-    public func makeInitializeUserRoadmapUseCase() -> InitializeUserRoadmapUseCaseProtocol {
-        initializeUserRoadmapUseCase
-    }
-
-    public func makeOnboardingViewModel() -> OnboardingViewModel {
-        OnboardingViewModel(
-            useCase: makeInitializeUserRoadmapUseCase(),
-            userSettings: userSettingsStore,
-            notificationScheduler: AppNotificationScheduler(),
-            progressRepo: userProgressRepository,
-            stageRepo: stageProgressRepository
-        )
-    }
-
     // MARK: - Private Helpers
+
+    private static func resolveBundleManager(
+        provided: (any ContentBundleManagerProtocol)?,
+        useSampleData: Bool
+    ) -> (any ContentBundleManagerProtocol)? {
+        if let provided { return provided }
+        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? FileManager.default.temporaryDirectory
+        let contentRootURL = appSupport.appendingPathComponent("VocabCraft/Content", isDirectory: true)
+        let baselineDbURL = Bundle.main.url(forResource: "vocab_content", withExtension: "sqlite")
+        let baselineManifestURL = Bundle.main.url(forResource: "manifest", withExtension: "json")
+        let baselineManifest: PublishedManifest?
+        if let baselineManifestURL, let data = try? Data(contentsOf: baselineManifestURL) {
+            baselineManifest = try? JSONDecoder().decode(PublishedManifest.self, from: data)
+        } else {
+            baselineManifest = nil
+        }
+        if !useSampleData || baselineDbURL != nil {
+            return ContentBundleManager(
+                rootURL: contentRootURL,
+                baselineURL: baselineDbURL,
+                baselineManifest: baselineManifest
+            )
+        }
+        return nil
+    }
 
     private struct ResolvedContentContext {
         let availability: ContentAvailability
@@ -325,22 +233,33 @@ public final class AppContainer {
                 journal: nil
             )
         }
+        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? FileManager.default.temporaryDirectory
+        let journalURL = appSupport.appendingPathComponent("learning_journal.sqlite")
+        let journal = try? LearningJournal(url: journalURL)
+
+        let contentRootURL = appSupport.appendingPathComponent("VocabCraft/Content", isDirectory: true)
+        let activeURL = contentRootURL.appendingPathComponent("active.json")
+        if let activeData = try? Data(contentsOf: activeURL),
+           let pointer = try? JSONDecoder().decode(ActiveContentPointer.self, from: activeData) {
+            let dbURL = contentRootURL.appendingPathComponent(pointer.databaseRelativePath)
+            if let repo = try? SQLiteContentRepository(url: dbURL) {
+                return ResolvedContentContext(availability: .ready, repository: repo, journal: journal)
+            }
+        }
+
         let bundleDbURL = Bundle.main.url(forResource: "vocab_content", withExtension: "sqlite")
         let bundleManifestURL = Bundle.main.url(forResource: "manifest", withExtension: "json")
         if let dbURL = bundleDbURL, let manifestURL = bundleManifestURL,
            let manifestData = try? Data(contentsOf: manifestURL),
            let manifest = try? JSONDecoder().decode(ContentManifest.self, from: manifestData),
            let repo = try? SQLiteContentRepository(url: dbURL, manifest: manifest) {
-            let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
-                ?? FileManager.default.temporaryDirectory
-            let journalURL = appSupport.appendingPathComponent("learning_journal.sqlite")
-            let journal = try? LearningJournal(url: journalURL)
             return ResolvedContentContext(availability: .ready, repository: repo, journal: journal)
         }
         return ResolvedContentContext(
             availability: .unavailable("Content database not found in bundle."),
             repository: nil,
-            journal: nil
+            journal: journal
         )
     }
 
@@ -433,4 +352,130 @@ public final class AppContainer {
         return AppContainer(useMockData: true, useSampleData: true, userSettingsStore: settings)
     }
     public static let shared = AppContainer(useMockData: false, useSampleData: false)
+}
+
+// MARK: - Factory Methods
+
+extension AppContainer {
+    public func makeFetchLearningPathUseCase() -> FetchLearningPathUseCaseProtocol {
+        fetchLearningPathUseCase
+    }
+
+    public func makeCompleteLessonUseCase() -> CompleteLessonUseCaseProtocol {
+        completeLessonUseCase
+    }
+
+    public func makeGenerateMixedReflexQueueUseCase() -> GenerateMixedReflexQueueUseCaseProtocol {
+        generateMixedReflexQueueUseCase
+    }
+
+    public func makeRecordMixedDrillAttemptUseCase() -> RecordMixedDrillAttemptUseCaseProtocol {
+        recordMixedDrillAttemptUseCase
+    }
+
+    public func makePersonalVaultViewModel() -> PersonalVaultViewModel {
+        PersonalVaultViewModel(
+            fetchVaultUseCase: fetchPersonalVaultUseCase,
+            toggleBookmarkUseCase: toggleWordBookmarkUseCase,
+            ttsService: ttsService,
+            userSettingsStore: userSettingsStore
+        )
+    }
+
+    public func makeSmartReviewViewModel(weakWords: [PersonalWord] = []) -> SmartReviewViewModel {
+        SmartReviewViewModel(
+            weakWords: weakWords,
+            reviewUseCase: reviewWeakWordsUseCase,
+            ttsService: ttsService
+        )
+    }
+
+    public func makeHomepageViewModel() -> HomepageViewModel {
+        HomepageViewModel(
+            fetchLearningPathUseCase: fetchLearningPathUseCase,
+            ttsService: ttsService,
+            userSettings: userSettingsStore
+        )
+    }
+
+    public func makeReflexSpeechEngine() -> ReflexSpeechEngineProtocol {
+        ResilientReflexSpeechEngine(audioSessionCoordinator: audioSessionCoordinator)
+    }
+
+    public func makeReflexBlitzViewModel(words: [ReflexBlitzWordItem] = []) -> ReflexBlitzViewModel {
+        let blitzWords = !words.isEmpty ? words : ReflexBlitzWordItem.defaultStarterWords
+        return ReflexBlitzViewModel(
+            words: blitzWords,
+            ttsService: ttsService,
+            evaluateSRSUseCase: evaluateSRSUseCase,
+            speechEngine: makeReflexSpeechEngine()
+        )
+    }
+
+    public func makeMixedReflexDrillViewModel(
+        selectedWords: [VaultWordItem],
+        allowSpeakingSkip: Bool = false
+    ) -> MixedReflexDrillViewModel {
+        MixedReflexDrillViewModel(
+            selectedWords: selectedWords,
+            queueUseCase: generateMixedReflexQueueUseCase,
+            planGenerator: practiceDrillPlanGenerator,
+            recordAttemptUseCase: recordMixedDrillAttemptUseCase,
+            ttsService: ttsService,
+            allowSpeakingSkip: allowSpeakingSkip
+        )
+    }
+
+    public func makeLessonLearningViewModel(
+        stageId: String,
+        deckId: String,
+        words: [TopicWordDTO]
+    ) -> LessonLearningViewModel {
+        LessonLearningViewModel(
+            stageId: stageId,
+            deckId: deckId,
+            words: words,
+            completeLessonUseCase: completeLessonUseCase,
+            recordSenseAttemptUseCase: recordSenseAttemptUseCase,
+            ttsService: ttsService,
+            soundEffectService: SoundEffectService.shared,
+            speechEngine: makeReflexSpeechEngine()
+        )
+    }
+
+    public func makeRecordSenseAttemptUseCase() -> (any RecordSenseAttemptUseCaseProtocol)? {
+        recordSenseAttemptUseCase
+    }
+
+    @discardableResult
+    public func openActiveHandle() async throws -> ContentHandle {
+        guard let bundleManager else {
+            throw ContentBundleError.missingBaseline
+        }
+        let handle = try await bundleManager.openActive()
+        self.contentRepository = handle.reader
+        return handle
+    }
+
+    public func makeSettingsViewModel() -> SettingsViewModel {
+        SettingsViewModel(
+            store: userSettingsStore,
+            ttsService: ttsService,
+            resetProgressUseCase: resetUserProgressUseCase
+        )
+    }
+
+    public func makeInitializeUserRoadmapUseCase() -> InitializeUserRoadmapUseCaseProtocol {
+        initializeUserRoadmapUseCase
+    }
+
+    public func makeOnboardingViewModel() -> OnboardingViewModel {
+        OnboardingViewModel(
+            useCase: makeInitializeUserRoadmapUseCase(),
+            userSettings: userSettingsStore,
+            notificationScheduler: AppNotificationScheduler(),
+            progressRepo: userProgressRepository,
+            stageRepo: stageProgressRepository
+        )
+    }
 }

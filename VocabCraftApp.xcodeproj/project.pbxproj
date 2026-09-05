@@ -23,6 +23,7 @@
 		300054D51843DFDCEB06 /* SpeechRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200054D51843DFDCEB06 /* SpeechRecognitionService.swift */; };
 		3000BEA090FB6DD9E928 /* TextToSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000BEA090FB6DD9E928 /* TextToSpeechService.swift */; };
 		300096D853E0F8987598 /* WordTokenResult+CraftUIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200096D853E0F8987598 /* WordTokenResult+CraftUIKit.swift */; };
+		30001A0765AFF78B8A5F /* ContentBundleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20001A0765AFF78B8A5F /* ContentBundleManager.swift */; };
 		30004AA317867BD94868 /* ContentIDs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20004AA317867BD94868 /* ContentIDs.swift */; };
 		3000AFEA42F4E79B7FB6 /* ContentModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000AFEA42F4E79B7FB6 /* ContentModels.swift */; };
 		3000E704269BD30A727F /* ContentRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000E704269BD30A727F /* ContentRepository.swift */; };
@@ -182,6 +183,7 @@
 		3001675F5FB5DD5A7191 /* DatasetDataSourceProtocol.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 2000FFCB867F894749B7 /* DatasetDataSourceProtocol.swift */; };
 		3000D1068B175FF1640D /* AppContainerVocabularyTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000D1068B175FF1640D /* AppContainerVocabularyTests.swift */; };
 		30001611F67650D4D4BB /* AppRouterTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20001611F67650D4D4BB /* AppRouterTests.swift */; };
+		3000996F1704AF0AA70F /* ContentBundleManagerTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000996F1704AF0AA70F /* ContentBundleManagerTests.swift */; };
 		30004EEF46366B3A6AA6 /* ContentContractTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20004EEF46366B3A6AA6 /* ContentContractTests.swift */; };
 		30005E303B1E86929900 /* ContentLearningPathAdapterTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20005E303B1E86929900 /* ContentLearningPathAdapterTests.swift */; };
 		3000C6A8F709B28ADA21 /* ContractFixture.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C6A8F709B28ADA21 /* ContractFixture.swift */; };
@@ -337,6 +339,7 @@
 		200054D51843DFDCEB06 /* SpeechRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeechRecognitionService.swift"; sourceTree = "<group>"; };
 		2000BEA090FB6DD9E928 /* TextToSpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TextToSpeechService.swift"; sourceTree = "<group>"; };
 		200096D853E0F8987598 /* WordTokenResult+CraftUIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WordTokenResult+CraftUIKit.swift"; sourceTree = "<group>"; };
+		20001A0765AFF78B8A5F /* ContentBundleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentBundleManager.swift"; sourceTree = "<group>"; };
 		20004AA317867BD94868 /* ContentIDs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentIDs.swift"; sourceTree = "<group>"; };
 		2000AFEA42F4E79B7FB6 /* ContentModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentModels.swift"; sourceTree = "<group>"; };
 		2000E704269BD30A727F /* ContentRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentRepository.swift"; sourceTree = "<group>"; };
@@ -486,6 +489,7 @@
 		200075A9C43B4E98CD5D /* VocabWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabWidgetView.swift"; sourceTree = "<group>"; };
 		2000D1068B175FF1640D /* AppContainerVocabularyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppContainerVocabularyTests.swift"; sourceTree = "<group>"; };
 		20001611F67650D4D4BB /* AppRouterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppRouterTests.swift"; sourceTree = "<group>"; };
+		2000996F1704AF0AA70F /* ContentBundleManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentBundleManagerTests.swift"; sourceTree = "<group>"; };
 		20004EEF46366B3A6AA6 /* ContentContractTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentContractTests.swift"; sourceTree = "<group>"; };
 		20005E303B1E86929900 /* ContentLearningPathAdapterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentLearningPathAdapterTests.swift"; sourceTree = "<group>"; };
 		2000C6A8F709B28ADA21 /* ContractFixture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContractFixture.swift"; sourceTree = "<group>"; };
@@ -702,6 +706,7 @@
 		400032A7D530AEEBE9FF /* Content */ = {
 			isa = PBXGroup;
 			children = (
+				20001A0765AFF78B8A5F /* ContentBundleManager.swift */,
 				20004AA317867BD94868 /* ContentIDs.swift */,
 				2000AFEA42F4E79B7FB6 /* ContentModels.swift */,
 				2000E704269BD30A727F /* ContentRepository.swift */,
@@ -1387,6 +1392,7 @@
 		40008A0E3575967BE2F2 /* Contract */ = {
 			isa = PBXGroup;
 			children = (
+				2000996F1704AF0AA70F /* ContentBundleManagerTests.swift */,
 				20004EEF46366B3A6AA6 /* ContentContractTests.swift */,
 				20005E303B1E86929900 /* ContentLearningPathAdapterTests.swift */,
 				2000C6A8F709B28ADA21 /* ContractFixture.swift */,
@@ -1764,6 +1770,7 @@
 				300054D51843DFDCEB06 /* SpeechRecognitionService.swift in Sources */,
 				3000BEA090FB6DD9E928 /* TextToSpeechService.swift in Sources */,
 				300096D853E0F8987598 /* WordTokenResult+CraftUIKit.swift in Sources */,
+				30001A0765AFF78B8A5F /* ContentBundleManager.swift in Sources */,
 				30004AA317867BD94868 /* ContentIDs.swift in Sources */,
 				3000AFEA42F4E79B7FB6 /* ContentModels.swift in Sources */,
 				3000E704269BD30A727F /* ContentRepository.swift in Sources */,
@@ -1935,6 +1942,7 @@
 				30022A3804DB171F946C /* VocabWidgetView.swift in Test Sources */,
 				3000D1068B175FF1640D /* AppContainerVocabularyTests.swift in Test Sources */,
 				30001611F67650D4D4BB /* AppRouterTests.swift in Test Sources */,
+				3000996F1704AF0AA70F /* ContentBundleManagerTests.swift in Test Sources */,
 				30004EEF46366B3A6AA6 /* ContentContractTests.swift in Test Sources */,
 				30005E303B1E86929900 /* ContentLearningPathAdapterTests.swift in Test Sources */,
 				3000C6A8F709B28ADA21 /* ContractFixture.swift in Test Sources */,

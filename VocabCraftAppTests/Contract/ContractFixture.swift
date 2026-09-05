@@ -167,6 +167,11 @@ public enum ContractFixture {
         return try decoder.decode(ContentManifest.self, from: data)
     }
 
+    public static func publishedManifest() throws -> PublishedManifest {
+        let contentManifest = try manifest()
+        return PublishedManifest(contentManifest: contentManifest)
+    }
+
     public static func loadSnapshot() throws -> DatasetSnapshot {
         let data = try loadData(for: "fixture.json")
         let decoder = JSONDecoder()

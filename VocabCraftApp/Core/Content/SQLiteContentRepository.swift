@@ -23,9 +23,8 @@ public actor SQLiteContentRepository: ContentRepository {
 
     private var db: OpaquePointer?
 
-    public init(url: URL, manifest: ContentManifest) throws {
+    public init(url: URL, manifest: ContentManifest? = nil) throws {
         self.url = url
-        self.manifest = manifest
 
         guard FileManager.default.fileExists(atPath: url.path) else {
             throw ContentRepositoryError.missingDatabase(url.path)
@@ -44,7 +43,12 @@ public actor SQLiteContentRepository: ContentRepository {
 
         do {
             try Self.validateIntegrity(db: dbPointer)
-            try Self.validateMetadata(db: dbPointer, manifest: manifest)
+            let (dbSchema, dbVersion) = try Self.validateMetadata(db: dbPointer, manifest: manifest)
+            self.manifest = manifest ?? ContentManifest(
+                contentVersion: dbVersion, datasetSchemaVersion: dbSchema, publishedAt: "",
+                bundleURL: "", sha256: "", byteSize: 0,
+                counts: ContentManifestCounts(entries: 0, senses: 0, decks: 0, lessons: 0)
+            )
         } catch {
             sqlite3_close(dbPointer)
             self.db = nil
@@ -83,7 +87,8 @@ public actor SQLiteContentRepository: ContentRepository {
         }
     }
 
-    private static func validateMetadata(db: OpaquePointer, manifest: ContentManifest) throws {
+    @discardableResult
+    private static func validateMetadata(db: OpaquePointer, manifest: ContentManifest?) throws -> (Int, Int) {
         var stmt: OpaquePointer?
         let sql = "SELECT dataset_schema_version, content_version FROM dataset_metadata LIMIT 1;"
         let resultCode = sqlite3_prepare_v2(db, sql, -1, &stmt, nil)
@@ -103,15 +108,17 @@ public actor SQLiteContentRepository: ContentRepository {
             throw ContentRepositoryError.unsupportedSchema(expected: 1, actual: dbSchemaVersion)
         }
 
-        if dbSchemaVersion != manifest.datasetSchemaVersion {
-            throw ContentRepositoryError.unsupportedSchema(expected: 1, actual: manifest.datasetSchemaVersion)
+        if let manifest {
+            if dbSchemaVersion != manifest.datasetSchemaVersion {
+                throw ContentRepositoryError.unsupportedSchema(expected: 1, actual: manifest.datasetSchemaVersion)
+            }
+            if dbContentVersion != manifest.contentVersion {
+                throw ContentRepositoryError.corruptedDatabase(
+                    "Content version mismatch: database has \(dbContentVersion), manifest has \(manifest.contentVersion)"
+                )
+            }
         }
-
-        if dbContentVersion != manifest.contentVersion {
-            throw ContentRepositoryError.corruptedDatabase(
-                "Content version mismatch: database has \(dbContentVersion), manifest has \(manifest.contentVersion)"
-            )
-        }
+        return (dbSchemaVersion, dbContentVersion)
     }
 
     // MARK: - Statement Execution Helpers
@@ -640,19 +647,10 @@ extension SQLiteContentRepository {
 
     fileprivate func resolveIPA(pronunciations: [PronunciationSnapshot], preferredAccent: Accent = .us) -> String? {
         let fallbackAccent: Accent = (preferredAccent == .us) ? .uk : .us
-        if let match = pronunciations.first(where: { $0.senseID != nil && $0.accent == preferredAccent }) {
-            return match.ipa
-        }
-        if let match = pronunciations.first(where: { $0.senseID == nil && $0.accent == preferredAccent }) {
-            return match.ipa
-        }
-        if let match = pronunciations.first(where: { $0.senseID != nil && $0.accent == fallbackAccent }) {
-            return match.ipa
-        }
-        if let match = pronunciations.first(where: { $0.senseID == nil && $0.accent == fallbackAccent }) {
-            return match.ipa
-        }
-        return nil
+        return pronunciations.first(where: { $0.senseID != nil && $0.accent == preferredAccent })?.ipa
+            ?? pronunciations.first(where: { $0.senseID == nil && $0.accent == preferredAccent })?.ipa
+            ?? pronunciations.first(where: { $0.senseID != nil && $0.accent == fallbackAccent })?.ipa
+            ?? pronunciations.first(where: { $0.senseID == nil && $0.accent == fallbackAccent })?.ipa
     }
 
     private func parseCursorOffset(cursor: String?) -> Int {
