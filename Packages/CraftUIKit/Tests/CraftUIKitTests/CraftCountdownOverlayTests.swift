@@ -42,6 +42,36 @@ struct CraftCountdownOverlayTests {
         #expect(haptics.events == [.completion])
     }
 
+    @Test func skipWhenShowingGoDoesNotEmitDuplicateCompletionHaptic() async {
+        let haptics = CountdownHapticSpy()
+        let clock = ImmediateCountdownClock()
+        var finishCount = 0
+        let model = CountdownSequence(
+            startNumber: 3,
+            clock: clock,
+            haptics: haptics,
+            onFinish: { finishCount += 1 }
+        )
+
+        model.onGo = {
+            #expect(model.isShowingGo == true)
+            model.skip()
+        }
+
+        await model.run()
+
+        #expect(model.isFinished == true)
+        #expect(finishCount == 1)
+        let completionCount = haptics.events.filter { $0 == .completion }.count
+        #expect(completionCount == 1)
+        #expect(haptics.events == [.prepare, .tick, .tick, .tick, .completion])
+
+        // Calling skip again must remain idempotent
+        model.skip()
+        #expect(finishCount == 1)
+        #expect(haptics.events.filter { $0 == .completion }.count == 1)
+    }
+
     @Test func reducedMotionDoesNotAlterEventEmission() async {
         let haptics = CountdownHapticSpy()
         let clock = ImmediateCountdownClock()
@@ -160,5 +190,69 @@ struct CraftCountdownOverlayTests {
 
         _ = modified
         #expect(isFinished == false)
+    }
+
+    // MARK: - Callback Chaining Tests
+
+    @Test func callbackChainingPreservesPreconfiguredCallbacks() async {
+        let haptics = CountdownHapticSpy()
+        let clock = ImmediateCountdownClock()
+
+        var preconfiguredFinishCalled = false
+        var overlayFinishCalled = false
+        var preconfiguredTicks: [Int] = []
+        var preconfiguredGoCalled = false
+
+        let sequence = CountdownSequence(
+            startNumber: 3,
+            clock: clock,
+            haptics: haptics,
+            onFinish: { preconfiguredFinishCalled = true }
+        )
+        sequence.onTick = { count in
+            preconfiguredTicks.append(count)
+        }
+        sequence.onGo = {
+            preconfiguredGoCalled = true
+        }
+
+        let overlay = CraftCountdownOverlay(
+            sequence: sequence,
+            onFinish: { overlayFinishCalled = true }
+        )
+
+        // Verify onFinish chaining preserves pre-existing callback on direct invocation
+        sequence.onFinish?()
+        #expect(preconfiguredFinishCalled == true)
+        #expect(overlayFinishCalled == true)
+
+        // Reset finish flags for execution pass
+        preconfiguredFinishCalled = false
+        overlayFinishCalled = false
+
+        // Setup callbacks in overlay (as executed during overlay appearance)
+        overlay.setupCallbacks()
+
+        await sequence.run()
+
+        #expect(preconfiguredTicks == [3, 2, 1])
+        #expect(preconfiguredGoCalled == true)
+        #expect(preconfiguredFinishCalled == true)
+        #expect(overlayFinishCalled == true)
+    }
+
+    @Test func overlayInitWithNilSequenceOnFinishSetsOnFinishDirectly() {
+        let sequence = CountdownSequence(startNumber: 3)
+        #expect(sequence.onFinish == nil)
+
+        var overlayFinishCalled = false
+        _ = CraftCountdownOverlay(
+            sequence: sequence,
+            onFinish: { overlayFinishCalled = true }
+        )
+
+        #expect(sequence.onFinish != nil)
+        sequence.onFinish?()
+        #expect(overlayFinishCalled == true)
     }
 }

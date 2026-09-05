@@ -67,7 +67,12 @@ public struct CraftCountdownOverlay: View {
         self.tintColor = tintColor
         self.goText = goText
         self.onFinish = onFinish
-        if sequence.onFinish == nil {
+        if let existing = sequence.onFinish {
+            sequence.onFinish = {
+                existing()
+                onFinish()
+            }
+        } else {
             sequence.onFinish = onFinish
         }
         self._sequence = State(initialValue: sequence)
@@ -161,19 +166,27 @@ public struct CraftCountdownOverlay: View {
             sequence.skip()
         }
         .task {
-            sequence.onTick = { _ in
-                animateBounce()
-            }
-            sequence.onGo = {
-                animateBounce()
-            }
-            animateBounce()
+            setupCallbacks()
             await sequence.run()
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(sequence.isShowingGo ? goText : CraftLocalized.format("craft.countdown.label_format", sequence.currentCount))
         .accessibilityHint(CraftLocalized.string("craft.countdown.tap_to_skip_hint"))
         .accessibilityAddTraits(.isButton)
+    }
+
+    @MainActor
+    internal func setupCallbacks() {
+        let existingTick = sequence.onTick
+        sequence.onTick = { count in
+            existingTick?(count)
+            animateBounce()
+        }
+        let existingGo = sequence.onGo
+        sequence.onGo = {
+            existingGo?()
+            animateBounce()
+        }
     }
 
     private func animateBounce() {

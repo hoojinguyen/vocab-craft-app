@@ -1,6 +1,5 @@
 import Foundation
 import Observation
-import SwiftUI
 #if os(iOS)
 import UIKit
 #endif
@@ -193,7 +192,9 @@ public final class CountdownSequence {
     public func skip() {
         guard !isFinished else { return }
         isFinished = true
-        haptics?.completion()
+        if !isShowingGo {
+            haptics?.completion()
+        }
         onFinish?()
     }
 }
