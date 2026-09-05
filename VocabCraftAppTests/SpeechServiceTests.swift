@@ -118,6 +118,7 @@ final class SpeechServiceTests: XCTestCase {
         XCTAssertEqual(engine.isSessionActive, false)
     }
 
+    @available(*, deprecated)
     func testEnginePauseListeningEndsActiveWord() {
         let engine = ResilientReflexSpeechEngine()
         engine.startSession(contextualPhrases: ["test"])
@@ -136,6 +137,7 @@ final class SpeechServiceTests: XCTestCase {
         XCTAssertFalse(engine.isSessionActive)
     }
 
+    @available(*, deprecated)
     func testEnginePauseListeningPreventsSimulatedMatchingUntilResumed() {
         let engine = ResilientReflexSpeechEngine()
         engine.startSession(contextualPhrases: ["apple", "banana"])

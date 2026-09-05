@@ -32,8 +32,5 @@ public extension ReflexSpeechEngineProtocol {
     func pauseListening() {}
     func resumeListening() {}
     func prepareEngineIfNeeded() async throws {}
-    func startListening(targetLemma: String, contextualPhrases: [String]) async throws {
-        beginWord(targetLemma: targetLemma, contextualPhrases: contextualPhrases)
-    }
     var isListeningPaused: Bool { false }
 }

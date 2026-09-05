@@ -26,6 +26,7 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
         XCTAssertFalse(engine.isWordActive)
     }
 
+    @available(*, deprecated)
     func testStopSession_deactivatesEverything() {
         engine.startSession(contextualPhrases: [])
         engine.beginWord(targetLemma: "test", contextualPhrases: [])
@@ -34,6 +35,7 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
         XCTAssertFalse(engine.isWordActive)
     }
 
+    @available(*, deprecated)
     func testBeginWord_activatesWord() {
         engine.startSession(contextualPhrases: [])
         engine.beginWord(targetLemma: "ephemeral", contextualPhrases: ["test"])
@@ -41,6 +43,7 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
         XCTAssertEqual(engine.liveTranscript, "")
     }
 
+    @available(*, deprecated)
     func testBeginWord_whenSessionInactive_doesNothing() {
         XCTAssertFalse(engine.isSessionActive)
         engine.beginWord(targetLemma: "ephemeral", contextualPhrases: ["test"])
@@ -77,6 +80,7 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
         }
     }
 
+    @available(*, deprecated)
     func testEndWord_deactivatesWordKeepsSession() {
         engine.startSession(contextualPhrases: [])
         engine.beginWord(targetLemma: "test", contextualPhrases: [])
@@ -85,6 +89,7 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
         XCTAssertTrue(engine.isSessionActive)
     }
 
+    @available(*, deprecated)
     func testPauseAndResumeListening_lifecycle() {
         engine.startSession(contextualPhrases: ["test"])
         engine.beginWord(targetLemma: "test", contextualPhrases: [])
@@ -98,6 +103,7 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
         XCTAssertTrue(engine.isSessionActive)
     }
 
+    @available(*, deprecated)
     func testMultipleWordCycles_nocrash() {
         engine.startSession(contextualPhrases: [])
         for i in 0..<10 {
@@ -108,6 +114,7 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
         XCTAssertFalse(engine.isWordActive)
     }
 
+    @available(*, deprecated)
     func testSimulateTranscript_updatesLiveTranscript() {
         var received: String?
         engine.onTranscriptUpdate = { received = $0 }
@@ -118,6 +125,7 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
         XCTAssertEqual(received, "hello world")
     }
 
+    @available(*, deprecated)
     func testSimulateTranscript_matchDetected() {
         var matched: String?
         engine.onMatchDetected = { matched = $0 }
@@ -127,6 +135,7 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
         XCTAssertEqual(matched, "ephemeral")
     }
 
+    @available(*, deprecated)
     func testSimulateTranscript_noMatchForWrongWord() {
         var matched: String?
         engine.onMatchDetected = { matched = $0 }
@@ -144,6 +153,7 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
         XCTAssertNil(received)
     }
 
+    @available(*, deprecated)
     func testBeginWord_endsPreviousWordAutomatically() {
         engine.startSession(contextualPhrases: [])
         engine.beginWord(targetLemma: "word1", contextualPhrases: [])
@@ -229,6 +239,7 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
         XCTAssertEqual(result, .success)
     }
 
+    @available(*, deprecated)
     func testTimeout1110_whenSessionNotActive_doesNotRestartRecognition() {
         engine.startSession(contextualPhrases: [])
         engine.beginWord(targetLemma: "test", contextualPhrases: [])
@@ -239,6 +250,7 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
     }
 
     #if os(iOS)
+    @available(*, deprecated)
     func testAudioInterruptionBegan_pausesListening() {
         engine.startSession(contextualPhrases: ["apple"])
         engine.beginWord(targetLemma: "apple", contextualPhrases: ["apple"])
@@ -257,6 +269,7 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
         XCTAssertTrue(engine.isListeningPaused, "Interruption began must set isListeningPaused to true")
     }
 
+    @available(*, deprecated)
     func testAudioInterruptionEndedWithShouldResume_resumesListening() {
         engine.startSession(contextualPhrases: ["apple"])
         engine.beginWord(targetLemma: "apple", contextualPhrases: ["apple"])
@@ -292,6 +305,7 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
         XCTAssertEqual(matchedLemma, "apple")
     }
 
+    @available(*, deprecated)
     func testAudioInterruptionEndedWithoutShouldResume_doesNotResume() {
         engine.startSession(contextualPhrases: ["apple"])
         engine.beginWord(targetLemma: "apple", contextualPhrases: ["apple"])
@@ -352,6 +366,7 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
         XCTAssertFalse(engine.isListeningPaused)
     }
 
+    @available(*, deprecated)
     func testAudioInterruptionWithNSNumberKeys() {
         engine.startSession(contextualPhrases: ["apple"])
         engine.beginWord(targetLemma: "apple", contextualPhrases: ["apple"])
