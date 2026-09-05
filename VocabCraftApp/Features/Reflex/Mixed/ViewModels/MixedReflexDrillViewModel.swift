@@ -1,3 +1,4 @@
+import CraftUIKit
 import Foundation
 import Observation
 
@@ -17,6 +18,11 @@ public final class MixedReflexDrillViewModel: Identifiable {
     public private(set) var currentClozeStages: ReflexClozeStageSet?
     public private(set) var currentEliminatedOptionId: String?
     public private(set) var currentHintBadgeText: String = ""
+    public var speechState: CraftSpeechState = .idle
+    public var isPermissionDenied: Bool = false
+    public var showPermissionAlert: Bool = false
+    public var permissionNotice: ReflexPermissionNotice?
+    public var elapsedTimeMs: Int = 0
     public let allowSpeakingSkip: Bool
     public private(set) var selectedWords: [VaultWordItem]
     private let queueUseCase: GenerateMixedReflexQueueUseCaseProtocol
@@ -242,5 +248,18 @@ public final class MixedReflexDrillViewModel: Identifiable {
 
     public func playAudio(for text: String) {
         ttsService?.speak(text: text)
+    }
+
+    public func fallbackSpeakingItemsToTyping() {
+        guard currentIndex < queue.count else { return }
+        for index in currentIndex..<queue.count where queue[index].assignedMode == .speaking {
+            queue[index] = MixedReflexDrillItem(
+                id: queue[index].id,
+                word: queue[index].word,
+                assignedMode: .typing,
+                isRetry: queue[index].isRetry
+            )
+        }
+        buildSessionPlan()
     }
 }

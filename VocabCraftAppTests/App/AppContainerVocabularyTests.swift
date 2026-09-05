@@ -89,5 +89,13 @@ struct AppContainerAudioDependencyTests {
         #expect(engine != nil)
         #expect((engine?.audioSessionCoordinator as AnyObject?) === (coordinator as AnyObject))
     }
+
+    @Test @MainActor func vocabularyUsesAppContainerSpeechEngineFactory() {
+        let container = AppContainer.mock
+        let view = VocabularyView()
+        let drillEngine = view.makeDrillSpeechEngine(container: container) as? ResilientReflexSpeechEngine
+        #expect(drillEngine != nil)
+        #expect((drillEngine?.audioSessionCoordinator as AnyObject?) === (container.audioSessionCoordinator as AnyObject))
+    }
 }
 #endif

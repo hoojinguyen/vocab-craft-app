@@ -19,14 +19,39 @@ public struct MixedReflexDrillView: View {
 
     @State private var isCountingDown: Bool
     @State private var timerTask: Task<Void, Never>?
+    @State private var speechStartTask: Task<Void, Never>?
     @State private var fractionRemaining: Double = 1.0
-    @State private var elapsedTimeMs: Int = 0
     @State private var cardPhase: ReflexCardPhase = .activeCountdown
     @State private var typingText: String = ""
     @State private var liveTranscript: String = ""
     @State private var currentOptions: [ReflexBlitzOption] = []
     @State private var showExitAlert: Bool = false
     @State private var wordStartTime: Date?
+
+    public var elapsedTimeMs: Int {
+        get { viewModel.elapsedTimeMs }
+        nonmutating set { viewModel.elapsedTimeMs = newValue }
+    }
+
+    public var speechState: CraftSpeechState {
+        get { viewModel.speechState }
+        nonmutating set { viewModel.speechState = newValue }
+    }
+
+    public var isPermissionDenied: Bool {
+        get { viewModel.isPermissionDenied }
+        nonmutating set { viewModel.isPermissionDenied = newValue }
+    }
+
+    public var showPermissionAlert: Bool {
+        get { viewModel.showPermissionAlert }
+        nonmutating set { viewModel.showPermissionAlert = newValue }
+    }
+
+    public var permissionNotice: ReflexPermissionNotice? {
+        get { viewModel.permissionNotice }
+        nonmutating set { viewModel.permissionNotice = newValue }
+    }
 
     public init(
         viewModel: MixedReflexDrillViewModel,
@@ -88,7 +113,7 @@ public struct MixedReflexDrillView: View {
                         viewModel.reDrillWeakWords()
                         isCountingDown = true
                         let contextualPhrases = viewModel.queue.map(\.word.lemma)
-                        speechEngine?.startSession(contextualPhrases: contextualPhrases)
+                        speechEngine?.startSession(contextualPhrases: contextualPhrases, lazy: true)
                     },
                     onFinish: onFinish
                 )
@@ -117,7 +142,7 @@ public struct MixedReflexDrillView: View {
         .onAppear {
             setupSpeechEngineCallbacks()
             let contextualPhrases = viewModel.queue.map(\.word.lemma)
-            speechEngine?.startSession(contextualPhrases: contextualPhrases)
+            speechEngine?.startSession(contextualPhrases: contextualPhrases, lazy: true)
             if !isCountingDown, let current = viewModel.currentItem {
                 startDrillItem(current)
             }
@@ -133,6 +158,18 @@ public struct MixedReflexDrillView: View {
             }
         } message: {
             Text(AppStrings.ReflexBlitz.exitDialogMessageText)
+        }
+        .alert(
+            permissionNotice?.title ?? AppStrings.Lesson.permissionTitleText,
+            isPresented: $viewModel.showPermissionAlert,
+            presenting: permissionNotice
+        ) { notice in
+            Button(notice.settingsActionTitle) {
+                openSettings()
+            }
+            Button(notice.dismissActionTitle, role: .cancel) {}
+        } message: { notice in
+            Text(notice.message)
         }
     }
 
@@ -317,9 +354,11 @@ private extension MixedReflexDrillView {
             clozeParts: ReflexClozeFormatter.extractTemplateParts(from: item.clozeSentenceEn),
             displayedSentence: isReviewed ? item.completedSentenceWithTargetWord : item.clozeSentenceEn,
             hintBadgeText: viewModel.currentHintBadgeText,
-            speechState: cardPhase == .activeCountdown ? .listening() : .evaluated(overallScore: isResultCorrect ? 100 : 0),
+            speechState: cardPhase == .activeCountdown ? speechState : .evaluated(overallScore: isResultCorrect ? 100 : 0),
             liveTranscript: liveTranscript,
             onCantSpeakNow: {
+                speechStartTask?.cancel()
+                speechStartTask = nil
                 timerTask?.cancel()
                 if viewModel.allowSpeakingSkip {
                     viewModel.skipSpeakingCurrentWord()
@@ -343,13 +382,14 @@ private extension MixedReflexDrillView {
 // MARK: - Drill Actions & Lifecycle
 public extension MixedReflexDrillView {
     func startDrillItem(_ item: MixedReflexDrillItem) {
+        speechStartTask?.cancel()
+        speechStartTask = nil
         timerTask?.cancel()
         fractionRemaining = 1.0
         elapsedTimeMs = 0
         cardPhase = .activeCountdown
         typingText = ""
         liveTranscript = ""
-        wordStartTime = Date()
 
         if item.assignedMode == .multipleChoice || item.assignedMode == .listening {
             currentOptions = viewModel.generateOptions(for: item)
@@ -358,22 +398,58 @@ public extension MixedReflexDrillView {
         }
 
         if item.assignedMode == .speaking {
+            if isPermissionDenied {
+                speechState = .unavailable
+                wordStartTime = Date()
+                startTimer(for: item)
+                return
+            }
+
+            speechState = .preparing
             if let engine = speechEngine, !engine.isSessionActive {
                 let phrases = viewModel.queue.map(\.word.lemma)
-                engine.startSession(contextualPhrases: phrases)
+                engine.startSession(contextualPhrases: phrases, lazy: true)
             }
-            speechEngine?.beginWord(
-                targetLemma: item.word.lemma,
-                contextualPhrases: [item.word.exampleSentenceEn]
-            )
+
+            if let speechEngine {
+                speechStartTask = Task { @MainActor in
+                    do {
+                        try await speechEngine.startListening(
+                            targetLemma: item.word.lemma,
+                            contextualPhrases: [item.word.exampleSentenceEn]
+                        )
+                        guard !Task.isCancelled else { return }
+                        guard viewModel.currentItem?.id == item.id else { return }
+                        speechState = .listening()
+                        wordStartTime = Date()
+                        startTimer(for: item)
+                    } catch let error as SpeechCaptureError where error == .speechRecognitionDenied || error == .microphoneDenied {
+                        handlePermissionDenied()
+                    } catch {
+                        guard !Task.isCancelled else { return }
+                        speechState = .unavailable
+                        wordStartTime = Date()
+                        startTimer(for: item)
+                    }
+                }
+            } else {
+                speechState = .unavailable
+                wordStartTime = Date()
+                startTimer(for: item)
+            }
         } else {
+            speechState = isPermissionDenied ? .unavailable : .idle
             speechEngine?.endWord()
+            if item.assignedMode == .listening {
+                viewModel.playAudioForCurrentWord()
+            }
+            wordStartTime = Date()
+            startTimer(for: item)
         }
+    }
 
-        if item.assignedMode == .listening {
-            viewModel.playAudioForCurrentWord()
-        }
-
+    private func startTimer(for item: MixedReflexDrillItem) {
+        timerTask?.cancel()
         let timeLimit = item.assignedMode.timeLimitSeconds
         timerTask = Task { @MainActor in
             let startTime = Date()
@@ -394,6 +470,8 @@ public extension MixedReflexDrillView {
 
     func selectOption(_ option: ReflexBlitzOption) {
         guard cardPhase == .activeCountdown else { return }
+        speechStartTask?.cancel()
+        speechStartTask = nil
         timerTask?.cancel()
         speechEngine?.finalizeWordAudio()
         speechEngine?.endWord()
@@ -418,6 +496,8 @@ public extension MixedReflexDrillView {
         guard !cleanText.isEmpty else { return }
 
         let isCorrect = cleanText.lowercased() == current.word.lemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        speechStartTask?.cancel()
+        speechStartTask = nil
         timerTask?.cancel()
         speechEngine?.finalizeWordAudio()
         speechEngine?.endWord()
@@ -444,6 +524,8 @@ public extension MixedReflexDrillView {
 
     func handleTimeout() {
         guard cardPhase == .activeCountdown else { return }
+        speechStartTask?.cancel()
+        speechStartTask = nil
         timerTask?.cancel()
         fractionRemaining = 0.0
         speechEngine?.finalizeWordAudio()
@@ -481,6 +563,8 @@ public extension MixedReflexDrillView {
                     guard self.cardPhase == .activeCountdown, let vm, let current = vm.currentItem else { return }
                     let isCorrect = ReflexSpeechMatcher.isReflexMatch(spokenText: matched, targetLemma: current.word.lemma)
                     if isCorrect {
+                        self.speechStartTask?.cancel()
+                        self.speechStartTask = nil
                         self.timerTask?.cancel()
                         speechEngine?.finalizeWordAudio()
                         speechEngine?.endWord()
@@ -511,7 +595,32 @@ public extension MixedReflexDrillView {
     }
 
     func stopDrillSession() {
+        speechStartTask?.cancel()
+        speechStartTask = nil
         timerTask?.cancel()
         speechEngine?.stopSession()
+    }
+
+    func handlePermissionDenied() {
+        speechStartTask?.cancel()
+        speechStartTask = nil
+        timerTask?.cancel()
+        speechEngine?.stopSession()
+        isPermissionDenied = true
+        speechState = .unavailable
+        permissionNotice = ReflexPermissionNotice()
+        showPermissionAlert = true
+        viewModel.fallbackSpeakingItemsToTyping()
+        if let current = viewModel.currentItem {
+            startDrillItem(current)
+        }
+    }
+
+    func openSettings() {
+        #if canImport(UIKit)
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(url)
+        }
+        #endif
     }
 }

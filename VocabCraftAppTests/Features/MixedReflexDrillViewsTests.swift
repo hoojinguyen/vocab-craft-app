@@ -502,6 +502,7 @@ struct MixedReflexDrillViewsTests {
         // Explicitly setup speech engine callbacks & start item
         drillView.setupSpeechEngineCallbacks()
         drillView.startDrillItem(item)
+        await Task.yield()
 
         #expect(mockSpeechEngine.onMatchDetected != nil)
         #expect(mockSpeechEngine.isWordActive == true)
@@ -519,6 +520,98 @@ struct MixedReflexDrillViewsTests {
         drillView.advanceToNextItem()
         #expect(drillView.viewModel.isCompleted == true)
         #expect(!finished)
+    }
+
+    @Test("Mixed timer waits for speech readiness before starting timer")
+    @MainActor
+    func mixedTimerWaitsForSpeechReadiness() async {
+        let words = [
+            VaultWordItem(id: 1, lemma: "eloquent", pos: "adj.", definitionVi: "Hùng biện", exampleSentenceEn: "She gave an eloquent speech.")
+        ]
+        final class MockSpeakingQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol {
+            let item: MixedReflexDrillItem
+            init(item: MixedReflexDrillItem) { self.item = item }
+            func generate(from words: [VaultWordItem]) -> [MixedReflexDrillItem] { [item] }
+            func requeueFailedItem(_ item: MixedReflexDrillItem) -> MixedReflexDrillItem { item }
+        }
+
+        let item = MixedReflexDrillItem(word: words[0], assignedMode: .speaking, isRetry: false)
+        let queueUseCase = MockSpeakingQueueUseCase(item: item)
+        let vm = MixedReflexDrillViewModel(selectedWords: words, queueUseCase: queueUseCase)
+        let mockSpeechEngine = MockResilientReflexSpeechEngine()
+        mockSpeechEngine.shouldSuspendStartListening = true
+
+        let drillView = MixedReflexDrillView(
+            viewModel: vm,
+            speechEngine: mockSpeechEngine,
+            startWithCountdown: false,
+            onFinish: {}
+        )
+        drillView.setupSpeechEngineCallbacks()
+        drillView.startDrillItem(item)
+        await Task.yield()
+
+        // While startListening is suspended:
+        #expect(mockSpeechEngine.startListeningCallCount == 1)
+        #expect(drillView.speechState == .preparing)
+        #expect(drillView.elapsedTimeMs == 0)
+
+        // Sleep 40ms to verify timer has NOT started
+        try? await Task.sleep(for: .milliseconds(40))
+        #expect(drillView.elapsedTimeMs == 0)
+
+        // Now complete startListening
+        mockSpeechEngine.startListeningContinuation?.resume()
+        mockSpeechEngine.startListeningContinuation = nil
+        mockSpeechEngine.shouldSuspendStartListening = false
+
+        // Sleep to allow timer loop to tick
+        try? await Task.sleep(for: .milliseconds(60))
+        #expect(drillView.speechState.isListening)
+        #expect(drillView.elapsedTimeMs > 0)
+    }
+
+    @Test("Mixed permission denial uses typing for remaining speaking items")
+    @MainActor
+    func mixedPermissionDenialUsesTypingForRemainingSpeakingItems() async {
+        let words = [
+            VaultWordItem(id: 1, lemma: "eloquent", pos: "adj.", definitionVi: "Hùng biện", exampleSentenceEn: "She gave an eloquent speech."),
+            VaultWordItem(id: 2, lemma: "resilient", pos: "adj.", definitionVi: "Kiên cường", exampleSentenceEn: "He is resilient."),
+            VaultWordItem(id: 3, lemma: "habit", pos: "n.", definitionVi: "Thói quen", exampleSentenceEn: "Habit is powerful.")
+        ]
+        final class MockCustomQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol {
+            let items: [MixedReflexDrillItem]
+            init(items: [MixedReflexDrillItem]) { self.items = items }
+            func generate(from words: [VaultWordItem]) -> [MixedReflexDrillItem] { items }
+            func requeueFailedItem(_ item: MixedReflexDrillItem) -> MixedReflexDrillItem { item }
+        }
+        let items = [
+            MixedReflexDrillItem(word: words[0], assignedMode: .speaking, isRetry: false),
+            MixedReflexDrillItem(word: words[1], assignedMode: .multipleChoice, isRetry: false),
+            MixedReflexDrillItem(word: words[2], assignedMode: .speaking, isRetry: false)
+        ]
+        let vm = MixedReflexDrillViewModel(selectedWords: words, queueUseCase: MockCustomQueueUseCase(items: items))
+        let mockSpeechEngine = MockResilientReflexSpeechEngine()
+        mockSpeechEngine.simulatedStartListeningError = SpeechCaptureError.microphoneDenied
+
+        let drillView = MixedReflexDrillView(
+            viewModel: vm,
+            speechEngine: mockSpeechEngine,
+            startWithCountdown: false,
+            onFinish: {}
+        )
+        drillView.setupSpeechEngineCallbacks()
+        drillView.startDrillItem(items[0])
+        await Task.yield()
+
+        try? await Task.sleep(for: .milliseconds(40))
+
+        #expect(vm.queue[0].assignedMode == .typing)
+        #expect(vm.queue[1].assignedMode == .multipleChoice)
+        #expect(vm.queue[2].assignedMode == .typing)
+        #expect(drillView.speechState == .unavailable)
+        #expect(drillView.isPermissionDenied == true)
+        #expect(drillView.showPermissionAlert == true)
     }
 }
 #endif

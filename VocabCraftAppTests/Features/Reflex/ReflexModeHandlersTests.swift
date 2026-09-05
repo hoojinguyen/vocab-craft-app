@@ -133,8 +133,9 @@ struct ReflexModeHandlersTests {
             speechEngine: mockSpeech,
             isKeyboardFallback: false
         )
-        #expect(mockSpeech.beginWordCallCount == 1)
-        #expect(mockSpeech.lastTargetLemma == "ephemeral")
+        #expect(mockSpeech.beginWordCallCount == 0)
+        #expect(mockSpeech.startListeningCallCount == 0)
+        #expect(mockSpeech.lastTargetLemma.isEmpty)
 
         handler.onWordCompleted(speechEngine: mockSpeech)
         #expect(mockSpeech.endWordCallCount == 1)

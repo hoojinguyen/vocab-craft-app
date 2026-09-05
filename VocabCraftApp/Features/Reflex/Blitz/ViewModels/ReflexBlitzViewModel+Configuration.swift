@@ -124,6 +124,14 @@ extension ReflexBlitzViewModel {
         #endif
     }
 
+    public func openSettings() {
+        #if canImport(UIKit)
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(url)
+        }
+        #endif
+    }
+
     public func submitSpeakingResult(isCorrect: Bool, responseTimeMs: Int) {
         guard phase == .drilling, cardPhase == .activeCountdown, let word = currentWord else { return }
         self.elapsedTimeMs = responseTimeMs

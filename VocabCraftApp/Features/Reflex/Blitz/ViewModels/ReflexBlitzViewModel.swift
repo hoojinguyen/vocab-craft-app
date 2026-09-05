@@ -1,3 +1,4 @@
+import CraftUIKit
 import Foundation
 import Observation
 import SwiftUI
@@ -28,6 +29,17 @@ public final class ReflexBlitzViewModel {
     public var maxComboStreak: Int = 0
     public var currentAttemptIsCorrect: Bool = false
     public var liveTranscript: String = ""
+    public var speechState: CraftSpeechState = .idle
+    public var permissionNotice: ReflexPermissionNotice?
+    public private(set) var hasPresentedPermissionNotice: Bool = false
+    public var isPermissionNoticePresented: Bool {
+        get { permissionNotice != nil }
+        set {
+            if !newValue {
+                permissionNotice = nil
+            }
+        }
+    }
     public var sessionSummary: ReflexBlitzSessionSummary?
     public var attempts: [ReflexBlitzAttempt] = []
     public var weeklyPracticedCount: Int = 0
@@ -62,6 +74,8 @@ public final class ReflexBlitzViewModel {
     private var timeoutTimerTask: Task<Void, Never>?
     private var advanceTask: Task<Void, Never>?
     private var reviewAudioTask: Task<Void, Never>?
+    private var speechStartTask: Task<Void, Never>?
+    private var wordGeneration: UInt = 0
     public var wordStartTime: Date?
 
     public var currentWord: ReflexBlitzWordItem? {
@@ -145,6 +159,9 @@ public final class ReflexBlitzViewModel {
     }
 
     func cancelActiveTimers() {
+        speechStartTask?.cancel()
+        speechStartTask = nil
+        wordGeneration &+= 1
         for task in hintTasks {
             task.cancel()
         }
@@ -196,7 +213,7 @@ public final class ReflexBlitzViewModel {
         countdownCount = 3
         if selectedMode == .speaking {
             let contextualPhrases = words.map(\.lemma)
-            speechEngine.startSession(contextualPhrases: contextualPhrases)
+            speechEngine.startSession(contextualPhrases: contextualPhrases, lazy: true)
         }
 
         countdownTask = Task { @MainActor [weak self] in
@@ -223,7 +240,7 @@ public final class ReflexBlitzViewModel {
         }
         if selectedMode == .speaking {
             let contextualPhrases = words.map(\.lemma)
-            speechEngine.startSession(contextualPhrases: contextualPhrases)
+            speechEngine.startSession(contextualPhrases: contextualPhrases, lazy: true)
         }
         beginDrilling()
     }
@@ -252,7 +269,7 @@ public final class ReflexBlitzViewModel {
         elapsedTimeMs = 0
         typingInput = ""
         liveTranscript = ""
-        wordStartTime = Date()
+        wordStartTime = nil
         phase = .drilling
 
         if let plan = sessionPlan, index >= 0 && index < plan.items.count {
@@ -275,7 +292,85 @@ public final class ReflexBlitzViewModel {
         self.currentEliminatedOptionId = prep.eliminatedOptionId
         self.currentHintBadgeText = prep.hintBadgeText
 
-        startStopwatch()
+        if selectedMode == .speaking {
+            self.speechState = .preparing
+            let currentGeneration = self.wordGeneration
+            let targetLemma = word.lemma
+            let contextualPhrases = [word.lemma, word.exampleSentenceEn]
+
+            if !speechEngine.isSessionActive {
+                let allPhrases = words.map(\.lemma)
+                speechEngine.startSession(contextualPhrases: allPhrases, lazy: true)
+            }
+
+            speechStartTask = Task { @MainActor [weak self] in
+                guard let self else { return }
+                do {
+                    try await self.speechEngine.startListening(
+                        targetLemma: targetLemma,
+                        contextualPhrases: contextualPhrases
+                    )
+                    try Task.checkCancellation()
+                    guard self.wordGeneration == currentGeneration,
+                          self.currentWordIndex == index,
+                          self.phase == .drilling,
+                          case .activeCountdown = self.cardPhase else {
+                        if self.speechState == .preparing && self.wordGeneration == currentGeneration {
+                            self.speechState = .idle
+                        }
+                        return
+                    }
+                    self.speechState = .listening()
+                    self.wordStartTime = Date()
+                    self.startStopwatch()
+                } catch is CancellationError {
+                    if self.wordGeneration == currentGeneration && self.speechState == .preparing {
+                        self.speechState = .idle
+                    }
+                } catch let error as SpeechCaptureError where error == .speechRecognitionDenied || error == .microphoneDenied {
+                    guard self.wordGeneration == currentGeneration else { return }
+                    self.handlePermissionDenied()
+                } catch {
+                    if self.wordGeneration == currentGeneration {
+                        self.speechState = .idle
+                        self.handleTimeout()
+                    }
+                }
+            }
+        } else {
+            self.speechState = .idle
+            self.wordStartTime = Date()
+            startStopwatch()
+        }
+    }
+
+    public func handlePermissionDenied() {
+        cancelActiveTimers()
+        speechStartTask?.cancel()
+        speechStartTask = nil
+        speechEngine.stopSession()
+        speechState = .unavailable
+        selectedMode = .typing
+        if !hasPresentedPermissionNotice {
+            hasPresentedPermissionNotice = true
+            permissionNotice = ReflexPermissionNotice()
+        }
+        if let word = currentWord {
+            let prep = currentHandler.prepareWord(
+                word: word,
+                allWords: words,
+                planItem: currentPlanItem,
+                ttsService: ttsService,
+                speechEngine: speechEngine,
+                isKeyboardFallback: true
+            )
+            self.currentOptions = prep.options
+            self.currentClozeStages = prep.clozeStages
+            self.currentEliminatedOptionId = prep.eliminatedOptionId
+            self.currentHintBadgeText = prep.hintBadgeText
+            self.wordStartTime = Date()
+            startStopwatch()
+        }
     }
 
     public func loadWordForTesting(at index: Int) {
@@ -495,5 +590,26 @@ extension ReflexBlitzViewModel {
             guard let self, self.cardPhase != .activeCountdown else { return }
             self.ttsService.speak(text: text, rate: rate, locale: "en-US")
         }
+    }
+}
+
+// MARK: - Reflex Permission Notice
+
+public struct ReflexPermissionNotice: Equatable, Sendable {
+    public let title: String
+    public let message: String
+    public let settingsActionTitle: String
+    public let dismissActionTitle: String
+
+    public init(
+        title: String = AppStrings.Lesson.permissionTitleText,
+        message: String = AppStrings.Lesson.permissionMessageText,
+        settingsActionTitle: String = AppStrings.Lesson.permissionSettingsActionText,
+        dismissActionTitle: String = AppStrings.Lesson.permissionDismissActionText
+    ) {
+        self.title = title
+        self.message = message
+        self.settingsActionTitle = settingsActionTitle
+        self.dismissActionTitle = dismissActionTitle
     }
 }

@@ -1,17 +1,14 @@
+import CraftUIKit
 import Foundation
-@testable import VocabCraftApp
-#if canImport(XCTest)
-import XCTest
+#if canImport(Testing)
+import Testing
 #endif
+@testable import VocabCraftApp
 
+#if canImport(Testing)
+@Suite("ReflexBlitzViewModel Speaking Tests")
 @MainActor
-final class ReflexBlitzViewModelSpeakingTests: XCTestCase {
-    private var mockSpeechEngine: MockResilientReflexSpeechEngine!
-    private var mockTTS: MockTextToSpeechService!
-    private var mockSRS: MockEvaluateSRSUseCase!
-    private var mockSound: MockSoundEffectService!
-    private var viewModel: ReflexBlitzViewModel!
-
+struct ReflexBlitzViewModelSpeakingTests {
     private let sampleWords = [
         ReflexBlitzWordItem(
             id: 1, lemma: "ephemeral", pos: "adj.",
@@ -25,150 +22,241 @@ final class ReflexBlitzViewModelSpeakingTests: XCTestCase {
         )
     ]
 
-    override func setUp() {
-        super.setUp()
-        mockSpeechEngine = MockResilientReflexSpeechEngine()
-        mockTTS = MockTextToSpeechService()
-        mockSRS = MockEvaluateSRSUseCase()
-        mockSound = MockSoundEffectService()
+    private func makeSUT() -> (
+        viewModel: ReflexBlitzViewModel,
+        speechEngine: MockResilientReflexSpeechEngine,
+        tts: MockTextToSpeechService,
+        sound: MockSoundEffectService
+    ) {
+        let mockSpeechEngine = MockResilientReflexSpeechEngine()
+        let mockTTS = MockTextToSpeechService()
+        let mockSRS = MockEvaluateSRSUseCase()
+        let mockSound = MockSoundEffectService()
 
-        viewModel = ReflexBlitzViewModel(
+        let viewModel = ReflexBlitzViewModel(
             words: sampleWords,
             ttsService: mockTTS,
             evaluateSRSUseCase: mockSRS,
             soundEffectService: mockSound,
             speechEngine: mockSpeechEngine
         )
+        return (viewModel, mockSpeechEngine, mockTTS, mockSound)
     }
 
-    override func tearDown() {
-        viewModel = nil
-        mockSpeechEngine = nil
-        mockTTS = nil
-        mockSRS = nil
-        mockSound = nil
-        super.tearDown()
-    }
+    // MARK: - Readiness-Gated Lifecycle Tests
 
-    // MARK: - Session Lifecycle
-
-    func testSpeakingMode_startCountdown_startsEngine() {
+    @Test("Speaking countdown does not start audio session or capture")
+    func speakingCountdownDoesNotStartAudioSessionOrCapture() {
+        let (viewModel, mockSpeechEngine, _, _) = makeSUT()
         viewModel.selectMode(.speaking)
-        XCTAssertTrue(mockSpeechEngine.isSessionActive)
-        XCTAssertEqual(mockSpeechEngine.startSessionCallCount, 1)
+        #expect(mockSpeechEngine.isWordActive == false)
+        #expect(mockSpeechEngine.startListeningCallCount == 0)
+        #expect(mockSpeechEngine.beginWordCallCount == 0)
+        #expect(mockSpeechEngine.lastStartSessionWasLazy == true)
     }
 
-    func testSpeakingMode_beginDrilling_callsBeginWord() {
+    @Test("Reflex stopwatch waits for speech readiness")
+    func reflexStopwatchWaitsForSpeechReadiness() async {
+        let (viewModel, mockSpeechEngine, _, _) = makeSUT()
+        mockSpeechEngine.shouldSuspendStartListening = true
         viewModel.startDrillSession(mode: .speaking, words: sampleWords)
-        XCTAssertEqual(mockSpeechEngine.beginWordCallCount, 1)
-        XCTAssertEqual(mockSpeechEngine.lastTargetLemma, "ephemeral")
-        XCTAssertTrue(mockSpeechEngine.isWordActive)
+        await Task.yield()
+
+        #expect(mockSpeechEngine.startListeningCallCount == 1)
+        #expect(mockSpeechEngine.isWordActive == false)
+        #expect(viewModel.speechState == .preparing)
+        #expect(viewModel.wordStartTime == nil)
+        #expect(viewModel.elapsedTimeMs == 0)
+        #expect(viewModel.hintStage == 0)
+
+        // Resume startListening
+        mockSpeechEngine.startListeningContinuation?.resume()
+        mockSpeechEngine.startListeningContinuation = nil
+        mockSpeechEngine.shouldSuspendStartListening = false
+
+        // Yield to allow async task to complete
+        try? await Task.sleep(for: .milliseconds(30))
+
+        #expect(viewModel.speechState.isListening)
+        #expect(viewModel.wordStartTime != nil)
+        #expect(mockSpeechEngine.isWordActive == true)
+    }
+
+    @Test("Reflex cancellation during start does not load stale word")
+    func reflexCancellationDuringStartDoesNotLoadStaleWord() async {
+        let (viewModel, mockSpeechEngine, _, _) = makeSUT()
+        mockSpeechEngine.shouldSuspendStartListening = true
+        viewModel.startDrillSession(mode: .speaking, words: sampleWords)
+        await Task.yield()
+
+        #expect(mockSpeechEngine.startListeningCallCount == 1)
+        let word0Continuation = mockSpeechEngine.startListeningContinuation
+
+        // Advance to next word while word 0 is still starting
+        mockSpeechEngine.shouldSuspendStartListening = false
+        viewModel.advanceToNextWord()
+        await Task.yield()
+
+        #expect(viewModel.currentWordIndex == 1)
+        #expect(viewModel.currentWord?.lemma == "vital")
+
+        // Resume word 0 continuation
+        word0Continuation?.resume()
+        try? await Task.sleep(for: .milliseconds(30))
+
+        #expect(viewModel.currentWordIndex == 1)
+        #expect(viewModel.currentWord?.lemma == "vital")
+    }
+
+    @Test("Reflex permission denial falls back to typing mode for remaining items")
+    func reflexPermissionDenialFallsBackToTyping() async {
+        let (viewModel, mockSpeechEngine, _, _) = makeSUT()
+        mockSpeechEngine.simulatedStartListeningError = SpeechCaptureError.microphoneDenied
+        viewModel.startDrillSession(mode: .speaking, words: sampleWords)
+        await Task.yield()
+
+        try? await Task.sleep(for: .milliseconds(30))
+
+        #expect(viewModel.selectedMode == .typing)
+        #expect(viewModel.speechState == .unavailable)
+        #expect(viewModel.isPermissionNoticePresented == true)
     }
 
     // MARK: - Match Detection
 
-    func testSpeakingMode_matchDetected_transitionsToReviewed() {
+    @Test("Speaking mode match detected transitions to reviewed")
+    func testSpeakingMode_matchDetected_transitionsToReviewed() async {
+        let (viewModel, mockSpeechEngine, _, _) = makeSUT()
         viewModel.startDrillSession(mode: .speaking, words: sampleWords)
+        await Task.yield()
         mockSpeechEngine.simulateMatch("ephemeral")
 
         if case .reviewed(let result) = viewModel.cardPhase {
-            XCTAssertTrue(result.isCorrect)
-            XCTAssertFalse(result.isTimeout)
+            #expect(result.isCorrect == true)
+            #expect(result.isTimeout == false)
         } else {
-            XCTFail("Expected reviewed state")
+            Issue.record("Expected reviewed state")
         }
     }
 
-    func testSpeakingMode_matchDetected_callsEndWord() {
+    @Test("Speaking mode match detected calls end word")
+    func testSpeakingMode_matchDetected_callsEndWord() async {
+        let (viewModel, mockSpeechEngine, _, _) = makeSUT()
         viewModel.startDrillSession(mode: .speaking, words: sampleWords)
+        await Task.yield()
         mockSpeechEngine.simulateMatch("ephemeral")
-        XCTAssertEqual(mockSpeechEngine.endWordCallCount, 1)
-        XCTAssertEqual(mockSpeechEngine.isWordActive, false)
+        #expect(mockSpeechEngine.endWordCallCount == 1)
+        #expect(mockSpeechEngine.isWordActive == false)
     }
 
-    func testSpeakingMode_matchDetected_playsSuccessChime() {
+    @Test("Speaking mode match detected plays success chime")
+    func testSpeakingMode_matchDetected_playsSuccessChime() async {
+        let (viewModel, mockSpeechEngine, _, mockSound) = makeSUT()
         viewModel.startDrillSession(mode: .speaking, words: sampleWords)
+        await Task.yield()
         mockSpeechEngine.simulateMatch("ephemeral")
-        XCTAssertTrue(mockSound.successChimePlayed)
+        #expect(mockSound.successChimePlayed == true)
     }
 
     // MARK: - Timeout
 
+    @Test("Speaking mode timeout transitions to reviewed")
     func testSpeakingMode_timeout_transitionsToReviewed() {
+        let (viewModel, _, _, _) = makeSUT()
         viewModel.startDrillSession(mode: .speaking, words: sampleWords)
         viewModel.simulateElapsedTime(ms: 6000)
 
         if case .reviewed(let result) = viewModel.cardPhase {
-            XCTAssertFalse(result.isCorrect)
-            XCTAssertTrue(result.isTimeout)
+            #expect(result.isCorrect == false)
+            #expect(result.isTimeout == true)
         } else {
-            XCTFail("Expected reviewed state")
+            Issue.record("Expected reviewed state")
         }
     }
 
+    @Test("Speaking mode timeout calls end word")
     func testSpeakingMode_timeout_callsEndWord() {
+        let (viewModel, mockSpeechEngine, _, _) = makeSUT()
         viewModel.startDrillSession(mode: .speaking, words: sampleWords)
         viewModel.simulateElapsedTime(ms: 6000)
-        XCTAssertTrue(mockSpeechEngine.endWordCallCount >= 1)
+        #expect(mockSpeechEngine.endWordCallCount >= 1)
     }
 
     // MARK: - Transcript Updates
 
-    func testSpeakingMode_transcriptUpdate_reflectedInViewModel() {
+    @Test("Speaking mode transcript update reflected in view model")
+    func testSpeakingMode_transcriptUpdate_reflectedInViewModel() async {
+        let (viewModel, mockSpeechEngine, _, _) = makeSUT()
         viewModel.startDrillSession(mode: .speaking, words: sampleWords)
+        await Task.yield()
         mockSpeechEngine.simulateTranscript("hello world")
-        XCTAssertEqual(viewModel.liveTranscript, "hello world")
+        #expect(viewModel.liveTranscript == "hello world")
     }
 
     // MARK: - Word Transition
 
-    func testSpeakingMode_advanceToNextWord_cyclesBeginEndWord() {
+    @Test("Speaking mode advance to next word cycles begin/end word")
+    func testSpeakingMode_advanceToNextWord_cyclesBeginEndWord() async {
+        let (viewModel, mockSpeechEngine, _, _) = makeSUT()
         viewModel.startDrillSession(mode: .speaking, words: sampleWords)
-        let initialBeginCount = mockSpeechEngine.beginWordCallCount
+        await Task.yield()
+        let initialStartCount = mockSpeechEngine.startListeningCallCount
 
         mockSpeechEngine.simulateMatch("ephemeral")
         viewModel.advanceToNextWord()
+        await Task.yield()
 
-        XCTAssertEqual(mockSpeechEngine.beginWordCallCount, initialBeginCount + 1)
-        XCTAssertEqual(mockSpeechEngine.lastTargetLemma, "vital")
+        #expect(mockSpeechEngine.startListeningCallCount >= initialStartCount + 1)
+        #expect(mockSpeechEngine.lastTargetLemma == "vital")
     }
 
     // MARK: - Hint Progression
 
+    @Test("Speaking mode hint stage 1 at 2500ms")
     func testSpeakingMode_hintStage1_at2500ms() {
+        let (viewModel, _, _, _) = makeSUT()
         viewModel.startDrillSession(mode: .speaking, words: sampleWords)
         viewModel.simulateElapsedTime(ms: 2500)
-        XCTAssertGreaterThanOrEqual(viewModel.hintStage, 1)
+        #expect(viewModel.hintStage >= 1)
     }
 
+    @Test("Speaking mode hint stage 2 at 4000ms")
     func testSpeakingMode_hintStage2_at4000ms() {
+        let (viewModel, _, _, _) = makeSUT()
         viewModel.startDrillSession(mode: .speaking, words: sampleWords)
         viewModel.simulateElapsedTime(ms: 4000)
-        XCTAssertGreaterThanOrEqual(viewModel.hintStage, 2)
+        #expect(viewModel.hintStage >= 2)
     }
 
+    @Test("Speaking mode hint stage 3 at 5000ms")
     func testSpeakingMode_hintStage3_at5000ms() {
+        let (viewModel, _, _, _) = makeSUT()
         viewModel.startDrillSession(mode: .speaking, words: sampleWords)
         viewModel.simulateElapsedTime(ms: 5000)
-        XCTAssertGreaterThanOrEqual(viewModel.hintStage, 3)
+        #expect(viewModel.hintStage >= 3)
     }
 
     // MARK: - Error Handling
 
+    @Test("Speaking mode speech engine error does not trigger keyboard fallback")
     func testSpeakingMode_speechEngineError_doesNotTriggerKeyboardFallback() {
+        let (viewModel, mockSpeechEngine, _, _) = makeSUT()
         viewModel.startDrillSession(mode: .speaking, words: sampleWords)
         let testError = NSError(domain: "test", code: 403, userInfo: nil)
         mockSpeechEngine.simulateError(testError)
-        XCTAssertEqual(viewModel.selectedMode, .speaking)
-        XCTAssertEqual(viewModel.cardPhase, .activeCountdown)
+        #expect(viewModel.selectedMode == .speaking)
+        #expect(viewModel.cardPhase == .activeCountdown)
     }
 
     // MARK: - Session End
 
+    @Test("Speaking mode finish session stops engine")
     func testSpeakingMode_finishSession_stopsEngine() {
+        let (viewModel, mockSpeechEngine, _, _) = makeSUT()
         viewModel.startDrillSession(mode: .speaking, words: sampleWords)
         viewModel.finishSession()
-        XCTAssertEqual(mockSpeechEngine.stopSessionCallCount, 1)
-        XCTAssertFalse(mockSpeechEngine.isSessionActive)
+        #expect(mockSpeechEngine.stopSessionCallCount == 1)
+        #expect(mockSpeechEngine.isSessionActive == false)
     }
 }
+#endif

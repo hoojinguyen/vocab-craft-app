@@ -7,7 +7,7 @@ import SwiftUI
 /// and the docked CraftFeedbackSheet review state.
 public struct ReflexBlitzView: View {
     @Environment(\.craftTheme) private var theme
-    public var viewModel: ReflexBlitzViewModel
+    @Bindable public var viewModel: ReflexBlitzViewModel
     @State private var typingInput: String = ""
     @State private var isConfettiTriggered: Bool = false
     public var onDismiss: () -> Void
@@ -103,6 +103,18 @@ public struct ReflexBlitzView: View {
         }
         .onDisappear {
             viewModel.cancelSession()
+        }
+        .alert(
+            viewModel.permissionNotice?.title ?? AppStrings.Lesson.permissionTitleText,
+            isPresented: $viewModel.isPermissionNoticePresented,
+            presenting: viewModel.permissionNotice
+        ) { notice in
+            Button(notice.settingsActionTitle) {
+                viewModel.openSettings()
+            }
+            Button(notice.dismissActionTitle, role: .cancel) {}
+        } message: { notice in
+            Text(notice.message)
         }
     }
 
@@ -233,7 +245,7 @@ public struct ReflexBlitzView: View {
             clozeParts: ReflexClozeFormatter.extractTemplateParts(from: word.clozeSentenceEn),
             displayedSentence: isReviewed ? word.completedSentenceWithTargetWord : word.clozeSentenceEn,
             hintBadgeText: viewModel.currentHintBadgeText,
-            speechState: viewModel.cardPhase == .activeCountdown ? .listening() : .evaluated(overallScore: viewModel.currentAttemptIsCorrect ? 100 : 0),
+            speechState: viewModel.cardPhase == .activeCountdown ? viewModel.speechState : .evaluated(overallScore: viewModel.currentAttemptIsCorrect ? 100 : 0),
             liveTranscript: viewModel.liveTranscript,
             onCantSpeakNow: nil,
             onReplayAudio: {

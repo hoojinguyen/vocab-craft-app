@@ -38,6 +38,11 @@ public struct VocabularyView: View {
     internal var isScrolledPastHeaderForTesting: Bool { isScrolledPastHeader }
     internal var measuredHeaderHeightForTesting: CGFloat { measuredHeaderHeight }
 
+    internal func makeDrillSpeechEngine(container: AppContainer? = nil) -> ReflexSpeechEngineProtocol {
+        let activeContainer = container ?? appContainer
+        return activeContainer.makeReflexSpeechEngine()
+    }
+
     private func resolvedVaultVM() -> PersonalVaultViewModel {
         vaultVM ?? appContainer.makePersonalVaultViewModel()
     }
@@ -226,7 +231,7 @@ public struct VocabularyView: View {
             .fullScreenCover(item: $activeDrillViewModel) { drillVM in
                 MixedReflexDrillView(
                     viewModel: drillVM,
-                    speechEngine: ResilientReflexSpeechEngine(),
+                    speechEngine: makeDrillSpeechEngine(),
                     onFinish: {
                         activeDrillViewModel = nil
                         Task {
@@ -239,7 +244,7 @@ public struct VocabularyView: View {
             .sheet(item: $activeDrillViewModel) { drillVM in
                 MixedReflexDrillView(
                     viewModel: drillVM,
-                    speechEngine: appContainer.makeReflexSpeechEngine(),
+                    speechEngine: makeDrillSpeechEngine(),
                     onFinish: {
                         activeDrillViewModel = nil
                         Task {

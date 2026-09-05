@@ -290,9 +290,10 @@ final class ReflexBlitzViewModelTests: XCTestCase {
 
     // MARK: - Speaking Modality
 
-    func testSpeakingModeSpokenMatchTransitionsToReviewedAndPausesListening() {
+    func testSpeakingModeSpokenMatchTransitionsToReviewedAndPausesListening() async {
         viewModel.selectMode(.speaking)
         viewModel.beginSessionDirectly()
+        await Task.yield()
         XCTAssertTrue(mockSpeechEngine.isWordActive)
 
         guard let targetLemma = viewModel.currentWord?.lemma else {
@@ -685,13 +686,15 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         XCTAssertFalse(mockTTS.isSpeaking)
     }
 
-    func testLiveTranscriptUpdatesPropagatedAndResetOnNextWord() {
+    func testLiveTranscriptUpdatesPropagatedAndResetOnNextWord() async {
         viewModel.selectMode(.speaking)
         viewModel.beginSessionDirectly()
+        await Task.yield()
         mockSpeechEngine.simulateTranscript("Speaking some words...")
         XCTAssertEqual(viewModel.liveTranscript, "Speaking some words...")
 
         viewModel.advanceToNextWord()
+        await Task.yield()
         XCTAssertEqual(viewModel.liveTranscript, "", "liveTranscript should reset to empty upon loading next word")
     }
 
