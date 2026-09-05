@@ -31,13 +31,8 @@ private final class InterruptionObserverToken: @unchecked Sendable {
     private let lock = NSLock()
     private var observer: (any NSObjectProtocol)?
 
-    init(observer: (any NSObjectProtocol)?) {
-        self.observer = observer
-    }
-
-    deinit {
-        cancel()
-    }
+    init(observer: (any NSObjectProtocol)?) { self.observer = observer }
+    deinit { cancel() }
 
     func cancel() {
         #if os(iOS)
@@ -45,9 +40,7 @@ private final class InterruptionObserverToken: @unchecked Sendable {
         let obs = observer
         observer = nil
         lock.unlock()
-        if let obs {
-            NotificationCenter.default.removeObserver(obs)
-        }
+        if let obs { NotificationCenter.default.removeObserver(obs) }
         #endif
     }
 }
@@ -118,13 +111,13 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
 
     public let audioSessionCoordinator: (any AudioSessionCoordinating)?
 
-    public init(
-        audioSessionCoordinator: (any AudioSessionCoordinating)? = nil
-    ) {
-        self.audioController = SpeechAudioEngineController()
-        self.audioSessionCoordinator = audioSessionCoordinator
-        self.speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))
-        self.authorizer = LiveSpeechAuthorizer()
+    public convenience init(audioSessionCoordinator: (any AudioSessionCoordinating)? = nil) {
+        self.init(
+            audioController: SpeechAudioEngineController(),
+            audioSessionCoordinator: audioSessionCoordinator,
+            speechRecognizer: SFSpeechRecognizer(locale: Locale(identifier: "en-US")),
+            authorizer: LiveSpeechAuthorizer()
+        )
     }
 
     init(
@@ -152,7 +145,15 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
 
         if !lazy {
             pendingPreparationTask = Task { [weak self] in
-                try? await self?.prepareEngineIfNeeded()
+                do {
+                    try await self?.prepareEngineIfNeeded()
+                } catch is CancellationError {
+                    // Task cancellation is expected on stopSession
+                } catch {
+                    Task { @MainActor [weak self] in
+                        self?.onError?(error)
+                    }
+                }
             }
         }
     }
@@ -178,9 +179,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         let coordinator = audioSessionCoordinator
         self.sessionReleaseTask = enqueueAudioTransition { controller in
             await controller.teardown()
-            if let leaseToRelease {
-                await coordinator?.release(leaseToRelease)
-            }
+            if let leaseToRelease { await coordinator?.release(leaseToRelease) }
         }
         sessionContextualPhrases = []
     }
@@ -191,9 +190,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         pendingPreparationTask = nil
         bufferRelay.mute()
         endWord()
-        enqueueAudioTransition { controller in
-            await controller.pause()
-        }
+        enqueueAudioTransition { controller in await controller.pause() }
     }
 
     public func resumeListening() {
@@ -203,7 +200,15 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
             if !isEngineReady {
                 pendingPreparationTask?.cancel()
                 pendingPreparationTask = Task { [weak self] in
-                    try? await self?.prepareEngineIfNeeded()
+                    do {
+                        try await self?.prepareEngineIfNeeded()
+                    } catch is CancellationError {
+                        // Task cancellation is expected on stopSession
+                    } catch {
+                        Task { @MainActor [weak self] in
+                            self?.onError?(error)
+                        }
+                    }
                 }
             } else {
                 enqueueAudioTransition { [weak self] controller in
@@ -244,28 +249,20 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
 
     public func prepareEngineIfNeeded() async throws {
         guard isSessionActive else { return }
-        if let audioLifecycleTask {
-            await audioLifecycleTask.value
-        }
+        if let audioLifecycleTask { await audioLifecycleTask.value }
         guard isSessionActive else { return }
         try await requestAuthorizationIfNeeded()
-        guard isSessionActive, !Task.isCancelled else {
-            throw CancellationError()
-        }
+        guard isSessionActive, !Task.isCancelled else { throw CancellationError() }
         do {
             try await audioController.prepare(relay: bufferRelay)
         } catch {
-            if !(error is CancellationError) {
-                onError?(error)
-            }
+            if !(error is CancellationError) { onError?(error) }
             throw error
         }
         guard isSessionActive, !Task.isCancelled else {
             isEngineReady = false
             await audioController.teardown()
-            if Task.isCancelled {
-                throw CancellationError()
-            }
+            if Task.isCancelled { throw CancellationError() }
             return
         }
         isEngineReady = true
@@ -296,9 +293,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         do {
             return try await coordinator.acquire(.duplexSpeech)
         } catch {
-            if error is CancellationError {
-                throw SpeechCaptureError.cancelled
-            }
+            if error is CancellationError { throw SpeechCaptureError.cancelled }
             throw SpeechCaptureError.audioSessionActivationFailed
         }
     }
@@ -308,9 +303,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
             try await audioController.prepare(relay: relay)
             try await audioController.resume()
         } catch {
-            if error is CancellationError {
-                throw SpeechCaptureError.cancelled
-            }
+            if error is CancellationError { throw SpeechCaptureError.cancelled }
             onError?(error)
             throw SpeechCaptureError.enginePreparationFailed
         }
@@ -322,9 +315,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         }
         let token = UUID()
         currentWordSessionToken = token
-        currentTargetLemma = targetLemma
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .lowercased()
+        currentTargetLemma = targetLemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         liveTranscript = ""
         hasReportedFirstRecognitionResult = false
         isWordActive = true
@@ -332,9 +323,8 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         #if !targetEnvironment(simulator) && !os(macOS)
         guard let recognizer = resolveSpeechRecognizer(), recognizer.isAvailable else {
             isWordActive = false
-            let error = SpeechCaptureError.recognizerUnavailable
-            onError?(error)
-            throw error
+            onError?(SpeechCaptureError.recognizerUnavailable)
+            throw SpeechCaptureError.recognizerUnavailable
         }
 
         startRecognitionRequest(
@@ -504,13 +494,9 @@ extension ResilientReflexSpeechEngine {
             queue: .main
         ) { [weak self] notification in
             if Thread.isMainThread {
-                MainActor.assumeIsolated {
-                    self?.handleAudioInterruption(notification)
-                }
+                MainActor.assumeIsolated { self?.handleAudioInterruption(notification) }
             } else {
-                Task { @MainActor [weak self] in
-                    self?.handleAudioInterruption(notification)
-                }
+                Task { @MainActor [weak self] in self?.handleAudioInterruption(notification) }
             }
         }
         interruptionToken = InterruptionObserverToken(observer: observer)
@@ -539,11 +525,8 @@ extension ResilientReflexSpeechEngine {
         case .ended:
             let rawOptions = (userInfo[AVAudioSessionInterruptionOptionKey] as? UInt)
                 ?? ((userInfo[AVAudioSessionInterruptionOptionKey] as? NSNumber)?.uintValue)
-            if let rawOptions {
-                let options = AVAudioSession.InterruptionOptions(rawValue: rawOptions)
-                if options.contains(.shouldResume) {
-                    resumeListening()
-                }
+            if let rawOptions, AVAudioSession.InterruptionOptions(rawValue: rawOptions).contains(.shouldResume) {
+                resumeListening()
             }
         @unknown default:
             break
@@ -565,18 +548,12 @@ extension ResilientReflexSpeechEngine {
         request.shouldReportPartialResults = true
         request.taskHint = .search
 
-        var biasedPhrases = (sessionContextualPhrases + contextualPhrases)
-            .flatMap { phrase -> [String] in
-                let trimmed = phrase.trimmingCharacters(in: .whitespacesAndNewlines)
-                guard !trimmed.isEmpty else { return [] }
-                if trimmed.split(separator: " ").count <= 2 {
-                    return [trimmed]
-                }
-                return []
-            }
-        if !biasedPhrases.contains(targetLemma) {
-            biasedPhrases.append(targetLemma)
+        var biasedPhrases = (sessionContextualPhrases + contextualPhrases).flatMap { phrase -> [String] in
+            let trimmed = phrase.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty, trimmed.split(separator: " ").count <= 2 else { return [] }
+            return [trimmed]
         }
+        if !biasedPhrases.contains(targetLemma) { biasedPhrases.append(targetLemma) }
         request.contextualStrings = Array(Set(biasedPhrases))
 
         #if os(iOS)
@@ -586,6 +563,38 @@ extension ResilientReflexSpeechEngine {
         #endif
 
         return request
+    }
+
+    private func handleRecognitionTaskError(
+        _ error: Error,
+        targetLemma: String,
+        contextualPhrases: [String],
+        sessionToken: UUID
+    ) {
+        guard isWordActive, currentWordSessionToken == sessionToken else { return }
+
+        let nsError = error as NSError
+        // 216 = cancelled (normal), 1110 = timeout (60s limit)
+        if nsError.code == 1110 {
+            // 60s limit hit — safely re-open recognition request only if word & session remain active
+            guard self.isSessionActive, self.isEngineReady, self.isWordActive,
+                  self.currentWordSessionToken == sessionToken else { return }
+            self.bufferRelay.detachAndEnd()
+            self.activeTask?.cancel()
+            self.activeTask = nil
+            self.activeRequest = nil
+            #if targetEnvironment(simulator) || os(macOS)
+            // Simulator stub
+            #else
+            self.startRecognitionRequest(
+                targetLemma: targetLemma,
+                contextualPhrases: contextualPhrases,
+                sessionToken: sessionToken
+            )
+            #endif
+        } else if nsError.code != 216 && nsError.code != 203 && nsError.code != 301 {
+            self.onError?(error)
+        }
     }
 
     private func startRecognitionRequest(
@@ -618,22 +627,12 @@ extension ResilientReflexSpeechEngine {
             if let error {
                 LessonPerformanceDiagnostics.error("speech.recognition", error: error)
                 Task { @MainActor [weak self] in
-                    guard let self,
-                          self.isWordActive,
-                          self.currentWordSessionToken == sessionToken else { return }
-
-                    let nsError = error as NSError
-                    // 216 = cancelled (normal), 1110 = timeout (60s limit)
-                    if nsError.code == 1110 {
-                        // 60s limit hit — auto-recover
-                        self.endWord()
-                        self.beginWord(
-                            targetLemma: targetLemma,
-                            contextualPhrases: contextualPhrases
-                        )
-                    } else if nsError.code != 216 && nsError.code != 203 && nsError.code != 301 {
-                        self.onError?(error)
-                    }
+                    self?.handleRecognitionTaskError(
+                        error,
+                        targetLemma: targetLemma,
+                        contextualPhrases: contextualPhrases,
+                        sessionToken: sessionToken
+                    )
                 }
                 return
             }

@@ -216,6 +216,15 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
         XCTAssertEqual(result, .success)
     }
 
+    func testTimeout1110_whenSessionNotActive_doesNotRestartRecognition() {
+        engine.startSession(contextualPhrases: [])
+        engine.beginWord(targetLemma: "test", contextualPhrases: [])
+        engine.stopSession()
+
+        XCTAssertFalse(engine.isSessionActive)
+        XCTAssertFalse(engine.isWordActive)
+    }
+
     #if os(iOS)
     func testAudioInterruptionBegan_pausesListening() {
         engine.startSession(contextualPhrases: ["apple"])
