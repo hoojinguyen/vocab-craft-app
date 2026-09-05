@@ -114,13 +114,26 @@ public struct EventFixtureData: Sendable {
 }
 
 public enum ContractFixture {
-    public static func bundleURL(for file: String) throws -> URL {
+    public static func bundleResourceURL(for file: String) -> URL? {
         let nsString = file as NSString
         let ext = nsString.pathExtension.isEmpty ? nil : nsString.pathExtension
         let name = nsString.deletingPathExtension
 
         let bundle = Bundle(for: ContractFixtureMarker.self)
         if let url = bundle.url(forResource: name, withExtension: ext) {
+            return url
+        }
+        if let url = bundle.url(forResource: name, withExtension: ext, subdirectory: "Contracts/v1") {
+            return url
+        }
+        if let url = bundle.url(forResource: name, withExtension: ext, subdirectory: "Resources/Contracts/v1") {
+            return url
+        }
+        return nil
+    }
+
+    public static func bundleURL(for file: String) throws -> URL {
+        if let url = bundleResourceURL(for: file) {
             return url
         }
 

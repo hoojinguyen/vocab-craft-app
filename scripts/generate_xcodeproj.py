@@ -8,9 +8,10 @@ def generate_id(prefix, path):
 
 def scan_files(base_dir):
     file_paths = []
+    valid_extensions = ('.swift', '.plist', '.entitlements', '.xcstrings', '.json', '.xcassets', '.sqlite', '.sql', '.txt')
     for root, _, files in os.walk(base_dir):
         for file in files:
-            if file.endswith('.swift') or file.endswith('.plist') or file.endswith('.entitlements') or file.endswith('.xcstrings') or file.endswith('.json') or file.endswith('.xcassets'):
+            if any(file.endswith(ext) for ext in valid_extensions):
                 full_path = os.path.join(root, file)
                 file_paths.append(full_path)
     file_paths.sort()
@@ -29,6 +30,10 @@ def get_file_type(filename):
         return "text.json"
     elif filename.endswith(".xcassets"):
         return "folder.assetcatalog"
+    elif filename.endswith(".sql") or filename.endswith(".txt"):
+        return "text"
+    elif filename.endswith(".sqlite"):
+        return "file"
     return "text"
 
 def generate_pbxproj():
@@ -52,6 +57,7 @@ def generate_pbxproj():
     app_resources_build_files = []
     widget_sources_build_files = []
     test_sources_build_files = []
+    test_resources_build_files = []
 
     # Process App Files
     for path in app_files:
@@ -105,6 +111,9 @@ def generate_pbxproj():
         if filename.endswith(".swift"):
             pbx_build_files.append(f'\t\t{build_id} /* {filename} in Test Sources */ = {{isa = PBXBuildFile; fileRef = {ref_id} /* {filename} */; }};')
             test_sources_build_files.append(f'\t\t\t\t{build_id} /* {filename} in Test Sources */,')
+        elif filename.endswith(".xcstrings") or filename.endswith(".json") or filename.endswith(".sql") or filename.endswith(".sqlite") or filename.endswith(".txt"):
+            pbx_build_files.append(f'\t\t{build_id} /* {filename} in Test Resources */ = {{isa = PBXBuildFile; fileRef = {ref_id} /* {filename} */; }};')
+            test_resources_build_files.append(f'\t\t\t\t{build_id} /* {filename} in Test Resources */,')
 
     # Helper for creating group structure recursively
     def create_groups_for_dir(dir_path, group_id_prefix):
@@ -118,7 +127,7 @@ def generate_pbxproj():
                 child_group_id = generate_id("4000", full_path)
                 children.append(f'\t\t\t\t{child_group_id} /* {entry} */,')
                 group_entries.extend(create_groups_for_dir(full_path, "4000"))
-            elif entry.endswith(".swift") or entry.endswith(".plist") or entry.endswith(".entitlements") or entry.endswith(".xcstrings") or entry.endswith(".json") or entry.endswith(".xcassets"):
+            elif any(entry.endswith(ext) for ext in ('.swift', '.plist', '.entitlements', '.xcstrings', '.json', '.xcassets', '.sqlite', '.sql', '.txt')):
                 file_ref_id = generate_id("2000", full_path)
                 children.append(f'\t\t\t\t{file_ref_id} /* {entry} */,')
 
@@ -148,6 +157,7 @@ def generate_pbxproj():
     app_resources_section = "\n".join(app_resources_build_files)
     widget_sources_section = "\n".join(widget_sources_build_files)
     test_sources_section = "\n".join(test_sources_build_files)
+    test_resources_section = "\n".join(test_resources_build_files)
 
     content = f"""// !$*UTF8*$!
 {{
@@ -304,6 +314,7 @@ def generate_pbxproj():
 			buildPhases = (
 				100000502D50000000000002 /* Sources */,
 				100000502D50000000000000 /* Frameworks */,
+				100000502D50000000000003 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -372,6 +383,14 @@ def generate_pbxproj():
 			buildActionMask = 2147483647;
 			files = (
 {app_resources_section}
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		}};
+		100000502D50000000000003 /* Resources */ = {{
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+{test_resources_section}
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		}};

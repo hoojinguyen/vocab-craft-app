@@ -331,7 +331,7 @@ public struct ContentReviewSnapshot: Codable, Hashable, Sendable, Identifiable {
     public let entityType: String
     public let entityID: String
     public let revision: Int
-    public let decision: String
+    public let decision: ReviewDecision
     public let reviewerID: String
     public let reviewedAt: String
     public let note: String?
@@ -350,7 +350,7 @@ public struct ContentSourceSnapshot: Codable, Hashable, Sendable, Identifiable {
     public let sourceName: String
     public let sourceURL: String?
     public let attributionText: String
-    public let rightsBasis: String
+    public let rightsBasis: RightsBasis
     public let licenseIdentifier: String?
     public let retrievedAt: String?
 

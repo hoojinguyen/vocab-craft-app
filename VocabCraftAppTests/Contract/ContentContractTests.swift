@@ -217,12 +217,42 @@ final class ContentContractTests: XCTestCase {
     }
 
     // 10. SenseDetail does not own lesson membership or stageId
-    func testSenseDetailDoesNotOwnLessonOrStage() {
-        let mirror = Mirror(reflecting: SenseDetail.self)
-        let propertyNames = mirror.children.compactMap(\.label)
+    func testSenseDetailDoesNotOwnLessonOrStage() throws {
+        let senseID = try XCTUnwrap(SenseID(uuidString: "b1000000-0000-4000-8000-000000000001"))
+        let entryID = try XCTUnwrap(EntryID(uuidString: "a1000000-0000-4000-8000-000000000001"))
+        let dummySense = SenseDetail(
+            id: senseID,
+            entryID: entryID,
+            headword: "run",
+            entryKind: .word,
+            partOfSpeech: .verb,
+            definitionEN: "move fast",
+            definitionVI: "chạy",
+            cefrLevel: .a1
+        )
+        let mirror = Mirror(reflecting: dummySense)
+        let propertyNames = Set(mirror.children.compactMap { $0.label })
+        XCTAssertTrue(propertyNames.contains("id"))
+        XCTAssertTrue(propertyNames.contains("entryID"))
+        XCTAssertTrue(propertyNames.contains("partOfSpeech"))
         XCTAssertFalse(propertyNames.contains("lessonId"))
         XCTAssertFalse(propertyNames.contains("lessonID"))
         XCTAssertFalse(propertyNames.contains("stageId"))
         XCTAssertFalse(propertyNames.contains("stageID"))
+    }
+
+    // 11. Bundle resource resolution resolves packaged resources
+    func testBundleResourceResolution() throws {
+        let expectedURL = ContractFixture.bundleResourceURL(for: "expected.json")
+        XCTAssertNotNil(expectedURL, "expected.json should resolve directly from test bundle")
+        if let expectedURL {
+            XCTAssertTrue(FileManager.default.fileExists(atPath: expectedURL.path))
+        }
+
+        let sqliteURL = ContractFixture.bundleResourceURL(for: "vocab_content.sqlite")
+        XCTAssertNotNil(sqliteURL, "vocab_content.sqlite should resolve directly from test bundle")
+        if let sqliteURL {
+            XCTAssertTrue(FileManager.default.fileExists(atPath: sqliteURL.path))
+        }
     }
 }

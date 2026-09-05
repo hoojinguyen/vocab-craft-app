@@ -247,6 +247,16 @@
 		300041B134BDE2385881 /* VocabularyViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200041B134BDE2385881 /* VocabularyViewTests.swift */; };
 		3000C272A49C7CAF5DDF /* MockReflexServices.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C272A49C7CAF5DDF /* MockReflexServices.swift */; };
 		3000329638D5564AD2D6 /* ReflexLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000329638D5564AD2D6 /* ReflexLocalizationTests.swift */; };
+		30005445286A16D59FC3 /* PROVENANCE.txt in Test Resources */ = {isa = PBXBuildFile; fileRef = 20005445286A16D59FC3 /* PROVENANCE.txt */; };
+		3000B5ED769C77DDDF45 /* catalog.json in Test Resources */ = {isa = PBXBuildFile; fileRef = 2000B5ED769C77DDDF45 /* catalog.json */; };
+		30009BCB47390A19644F /* dataset.schema.json in Test Resources */ = {isa = PBXBuildFile; fileRef = 20009BCB47390A19644F /* dataset.schema.json */; };
+		3000E820FC27D220F4F8 /* dataset.sql in Test Resources */ = {isa = PBXBuildFile; fileRef = 2000E820FC27D220F4F8 /* dataset.sql */; };
+		300000B7DFE53F97C7FC /* event-fixture.json in Test Resources */ = {isa = PBXBuildFile; fileRef = 200000B7DFE53F97C7FC /* event-fixture.json */; };
+		3000E88957FD56C1A3E8 /* event.schema.json in Test Resources */ = {isa = PBXBuildFile; fileRef = 2000E88957FD56C1A3E8 /* event.schema.json */; };
+		3000D58FA306425B5C17 /* expected.json in Test Resources */ = {isa = PBXBuildFile; fileRef = 2000D58FA306425B5C17 /* expected.json */; };
+		30008D7210C9EDBFF3A1 /* fixture-manifest.json in Test Resources */ = {isa = PBXBuildFile; fileRef = 20008D7210C9EDBFF3A1 /* fixture-manifest.json */; };
+		30008CCF826A9C8D58B1 /* fixture.json in Test Resources */ = {isa = PBXBuildFile; fileRef = 20008CCF826A9C8D58B1 /* fixture.json */; };
+		30003E25A628080F1408 /* vocab_content.sqlite in Test Resources */ = {isa = PBXBuildFile; fileRef = 20003E25A628080F1408 /* vocab_content.sqlite */; };
 		3000B1DEE633B1C8F81E /* SRSEngineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B1DEE633B1C8F81E /* SRSEngineTests.swift */; };
 		3000DC5CE2968AA846A6 /* SettingsLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000DC5CE2968AA846A6 /* SettingsLocalizationTests.swift */; };
 		30007E84695DF55F278D /* SettingsViewModelTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20007E84695DF55F278D /* SettingsViewModelTests.swift */; };
@@ -531,13 +541,16 @@
 		200041B134BDE2385881 /* VocabularyViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyViewTests.swift"; sourceTree = "<group>"; };
 		2000C272A49C7CAF5DDF /* MockReflexServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockReflexServices.swift"; sourceTree = "<group>"; };
 		2000329638D5564AD2D6 /* ReflexLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexLocalizationTests.swift"; sourceTree = "<group>"; };
+		20005445286A16D59FC3 /* PROVENANCE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "PROVENANCE.txt"; sourceTree = "<group>"; };
 		2000B5ED769C77DDDF45 /* catalog.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "catalog.json"; sourceTree = "<group>"; };
 		20009BCB47390A19644F /* dataset.schema.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "dataset.schema.json"; sourceTree = "<group>"; };
+		2000E820FC27D220F4F8 /* dataset.sql */ = {isa = PBXFileReference; lastKnownFileType = text; path = "dataset.sql"; sourceTree = "<group>"; };
 		200000B7DFE53F97C7FC /* event-fixture.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "event-fixture.json"; sourceTree = "<group>"; };
 		2000E88957FD56C1A3E8 /* event.schema.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "event.schema.json"; sourceTree = "<group>"; };
 		2000D58FA306425B5C17 /* expected.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "expected.json"; sourceTree = "<group>"; };
 		20008D7210C9EDBFF3A1 /* fixture-manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "fixture-manifest.json"; sourceTree = "<group>"; };
 		20008CCF826A9C8D58B1 /* fixture.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "fixture.json"; sourceTree = "<group>"; };
+		20003E25A628080F1408 /* vocab_content.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = "vocab_content.sqlite"; sourceTree = "<group>"; };
 		2000B1DEE633B1C8F81E /* SRSEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SRSEngineTests.swift"; sourceTree = "<group>"; };
 		2000DC5CE2968AA846A6 /* SettingsLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsLocalizationTests.swift"; sourceTree = "<group>"; };
 		20007E84695DF55F278D /* SettingsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsViewModelTests.swift"; sourceTree = "<group>"; };
@@ -1528,13 +1541,16 @@
 		4000A5A3A78D98847AF8 /* v1 */ = {
 			isa = PBXGroup;
 			children = (
+				20005445286A16D59FC3 /* PROVENANCE.txt */,
 				2000B5ED769C77DDDF45 /* catalog.json */,
 				20009BCB47390A19644F /* dataset.schema.json */,
+				2000E820FC27D220F4F8 /* dataset.sql */,
 				200000B7DFE53F97C7FC /* event-fixture.json */,
 				2000E88957FD56C1A3E8 /* event.schema.json */,
 				2000D58FA306425B5C17 /* expected.json */,
 				20008D7210C9EDBFF3A1 /* fixture-manifest.json */,
 				20008CCF826A9C8D58B1 /* fixture.json */,
+				20003E25A628080F1408 /* vocab_content.sqlite */,
 			);
 			path = "v1";
 			sourceTree = "<group>";
@@ -1605,6 +1621,7 @@
 			buildPhases = (
 				100000502D50000000000002 /* Sources */,
 				100000502D50000000000000 /* Frameworks */,
+				100000502D50000000000003 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -1673,6 +1690,23 @@
 			buildActionMask = 2147483647;
 			files = (
 				3000B135085E448B7AE0 /* Localizable.xcstrings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		100000502D50000000000003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				30005445286A16D59FC3 /* PROVENANCE.txt in Test Resources */,
+				3000B5ED769C77DDDF45 /* catalog.json in Test Resources */,
+				30009BCB47390A19644F /* dataset.schema.json in Test Resources */,
+				3000E820FC27D220F4F8 /* dataset.sql in Test Resources */,
+				300000B7DFE53F97C7FC /* event-fixture.json in Test Resources */,
+				3000E88957FD56C1A3E8 /* event.schema.json in Test Resources */,
+				3000D58FA306425B5C17 /* expected.json in Test Resources */,
+				30008D7210C9EDBFF3A1 /* fixture-manifest.json in Test Resources */,
+				30008CCF826A9C8D58B1 /* fixture.json in Test Resources */,
+				30003E25A628080F1408 /* vocab_content.sqlite in Test Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
