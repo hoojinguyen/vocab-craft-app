@@ -3118,7 +3118,7 @@ private struct CatalogVoiceMatchSection: View {
                 toastStyle = .info
                 toastSurfaceStyle = .glass
                 isToastPresented = true
-            case .processing:
+            case .processing, .preparing, .unavailable:
                 interactiveState = .idle
                 interactiveActualText = nil
                 toastTitle = "Reset to Idle"

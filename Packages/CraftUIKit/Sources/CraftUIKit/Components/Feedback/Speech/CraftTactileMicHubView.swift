@@ -34,6 +34,16 @@ public struct CraftTactileMicHubView: View {
         return false
     }
 
+    private var isPreparing: Bool {
+        if case .preparing = speechState { return true }
+        return false
+    }
+
+    private var isUnavailable: Bool {
+        if case .unavailable = speechState { return true }
+        return false
+    }
+
     public var body: some View {
         VStack(spacing: theme.spacing.md) {
             Button(action: onTapMic) {
@@ -59,23 +69,33 @@ public struct CraftTactileMicHubView: View {
                             LinearGradient(
                                 colors: isListening
                                     ? [theme.colors.brandPrimary, theme.colors.brandSecondary]
-                                    : [theme.colors.brandPrimary, theme.colors.brandPrimary.opacity(0.88)],
+                                    : isUnavailable
+                                        ? [theme.colors.textSecondary.opacity(0.4), theme.colors.textSecondary.opacity(0.3)]
+                                        : [theme.colors.brandPrimary, theme.colors.brandPrimary.opacity(0.88)],
                                 startPoint: .top,
                                 endPoint: .bottom
                             )
                         )
                         .frame(width: 80, height: 80)
                         .shadow(
-                            color: isListening ? theme.colors.brandPrimary.opacity(0.45) : theme.colors.brandPrimary.opacity(0.25),
+                            color: isListening
+                                ? theme.colors.brandPrimary.opacity(0.45)
+                                : isUnavailable
+                                    ? Color.clear
+                                    : theme.colors.brandPrimary.opacity(0.25),
                             radius: isListening ? 16 : 8,
                             x: 0,
                             y: isListening ? 6 : 4
                         )
 
-                    if isProcessing {
+                    if isProcessing || isPreparing {
                         ProgressView()
                             .tint(.white)
                             .scaleEffect(1.2)
+                    } else if isUnavailable {
+                        Image(systemName: "mic.slash.fill")
+                            .font(.system(size: 32, weight: .semibold))
+                            .foregroundColor(.white)
                     } else {
                         Image(systemName: isListening ? "waveform.and.mic" : "mic.fill")
                             .font(.system(size: 32, weight: .semibold))
@@ -87,17 +107,31 @@ public struct CraftTactileMicHubView: View {
                 .contentShape(Circle())
             }
             .buttonStyle(CraftTactileButtonStyle())
-            .disabled(isProcessing)
-            .accessibilityLabel(isListening ? CraftLocalized.string("craft.speech.mic_stop_a11y") : CraftLocalized.string("craft.speech.mic_start_a11y"))
+            .disabled(isProcessing || isPreparing || isUnavailable)
+            .accessibilityLabel(micAccessibilityLabel)
 
             if let statusSubtitle {
                 Text(statusSubtitle)
                     .font(theme.typography.label)
                     .fontWeight(.medium)
                     .foregroundColor(isListening ? theme.colors.brandPrimary : theme.colors.textSecondary)
+                    .animation(theme.animations.springSnappy, value: statusSubtitle)
             }
         }
         .sensoryFeedback(.impact(weight: .medium), trigger: isListening)
+    }
+
+    private var micAccessibilityLabel: String {
+        switch speechState {
+        case .listening:
+            return CraftLocalized.string("craft.speech.mic_stop_a11y")
+        case .unavailable:
+            return CraftLocalized.string("craft.speech.mic_unavailable_a11y")
+        case .preparing:
+            return CraftLocalized.string("craft.speech.preparing")
+        case .idle, .processing, .evaluated:
+            return CraftLocalized.string("craft.speech.mic_start_a11y")
+        }
     }
 
     private var statusSubtitle: String? {
@@ -107,12 +141,16 @@ public struct CraftTactileMicHubView: View {
         switch speechState {
         case .idle:
             return CraftLocalized.string("craft.speech.tap_to_speak")
+        case .preparing:
+            return CraftLocalized.string("craft.speech.preparing")
         case .listening:
             return CraftLocalized.string("craft.speech.listening")
         case .processing:
             return CraftLocalized.string("craft.speech.analyzing")
         case .evaluated:
             return CraftLocalized.string("craft.speech.try_again")
+        case .unavailable:
+            return CraftLocalized.string("craft.speech.unavailable")
         }
     }
 }
@@ -133,9 +171,11 @@ private struct CraftTactileButtonStyle: ButtonStyle {
 #Preview("Tactile Mic States") {
     VStack(spacing: 32) {
         CraftTactileMicHubView(speechState: .idle, onTapMic: {})
+        CraftTactileMicHubView(speechState: .preparing, onTapMic: {})
         CraftTactileMicHubView(speechState: .listening(audioLevels: [0.3, 0.6]), onTapMic: {})
         CraftTactileMicHubView(speechState: .processing, onTapMic: {})
         CraftTactileMicHubView(speechState: .evaluated(overallScore: 85), onTapMic: {})
+        CraftTactileMicHubView(speechState: .unavailable, onTapMic: {})
     }
     .padding()
 }

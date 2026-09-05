@@ -1893,6 +1893,42 @@
         }
       }
     },
+    "craft.speech.mic_unavailable_a11y" : {
+      "comment" : "Microphone unavailable accessibility label",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microphone unavailable"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Micro không khả dụng"
+          }
+        }
+      }
+    },
+    "craft.speech.preparing" : {
+      "comment" : "Speech recognition preparing state",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preparing..."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đang chuẩn bị..."
+          }
+        }
+      }
+    },
     "craft.speech.score_format" : {
       "comment" : "Pronunciation score percentage format",
       "extractionState" : "manual",
@@ -1943,6 +1979,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Thử nói lại"
+          }
+        }
+      }
+    },
+    "craft.speech.unavailable" : {
+      "comment" : "Speech recognition unavailable subtitle",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microphone unavailable"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Micro không khả dụng"
           }
         }
       }

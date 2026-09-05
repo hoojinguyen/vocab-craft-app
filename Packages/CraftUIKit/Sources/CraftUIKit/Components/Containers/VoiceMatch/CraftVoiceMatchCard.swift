@@ -200,3 +200,28 @@ public struct CraftVoiceMatchCard: View {
     .padding()
 }
 #endif
+
+#if canImport(PreviewsMacros)
+#Preview("CraftVoiceMatchCard - Preparing") {
+    CraftVoiceMatchCard(
+        originText: "It was a good job.",
+        subtitle: "Đó là một công việc tốt.",
+        speechState: .preparing,
+        onTapMic: {}
+    )
+    .padding()
+}
+#endif
+
+#if canImport(PreviewsMacros)
+#Preview("CraftVoiceMatchCard - Unavailable") {
+    CraftVoiceMatchCard(
+        originText: "It was a good job.",
+        subtitle: "Đó là một công việc tốt.",
+        speechState: .unavailable,
+        onTapMic: {}
+    )
+    .padding()
+}
+#endif
+

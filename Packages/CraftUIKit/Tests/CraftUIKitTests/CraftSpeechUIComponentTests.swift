@@ -148,5 +148,34 @@ final class CraftSpeechUIComponentTests: XCTestCase {
         XCTAssertNotNil(card)
         XCTAssertNotNil(card.body)
     }
+
+    func testCraftSpeechStatePreparingAndUnavailable() {
+        let preparing = CraftSpeechState.preparing
+        let unavailable = CraftSpeechState.unavailable
+
+        XCTAssertEqual(preparing, .preparing)
+        XCTAssertEqual(unavailable, .unavailable)
+        XCTAssertNotEqual(preparing, .idle)
+        XCTAssertNotEqual(unavailable, .idle)
+        XCTAssertNotEqual(preparing, unavailable)
+
+        let preparingHub = CraftTactileMicHubView(speechState: .preparing, onTapMic: {})
+        let unavailableHub = CraftTactileMicHubView(speechState: .unavailable, onTapMic: {})
+        XCTAssertNotNil(preparingHub.body)
+        XCTAssertNotNil(unavailableHub.body)
+
+        let preparingCard = CraftVoiceMatchCard(
+            originText: "apple",
+            speechState: .preparing,
+            onTapMic: {}
+        )
+        let unavailableCard = CraftVoiceMatchCard(
+            originText: "apple",
+            speechState: .unavailable,
+            onTapMic: {}
+        )
+        XCTAssertNotNil(preparingCard.body)
+        XCTAssertNotNil(unavailableCard.body)
+    }
 }
 

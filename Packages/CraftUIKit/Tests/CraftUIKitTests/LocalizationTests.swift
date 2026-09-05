@@ -489,6 +489,15 @@ final class LocalizationTests: XCTestCase {
         XCTAssertEqual(CraftLocalized.string("craft.speech.mic_stop_a11y"), "Stop recording")
         XCTAssertEqual(CraftLocalized.string("craft.speech.mic_stop_a11y", language: "vi"), "Dừng ghi âm")
 
+        XCTAssertEqual(CraftLocalized.string("craft.speech.preparing"), "Preparing...")
+        XCTAssertEqual(CraftLocalized.string("craft.speech.preparing", language: "vi"), "Đang chuẩn bị...")
+
+        XCTAssertEqual(CraftLocalized.string("craft.speech.unavailable"), "Microphone unavailable")
+        XCTAssertEqual(CraftLocalized.string("craft.speech.unavailable", language: "vi"), "Micro không khả dụng")
+
+        XCTAssertEqual(CraftLocalized.string("craft.speech.mic_unavailable_a11y"), "Microphone unavailable")
+        XCTAssertEqual(CraftLocalized.string("craft.speech.mic_unavailable_a11y", language: "vi"), "Micro không khả dụng")
+
         XCTAssertEqual(CraftLocalized.format("craft.speech.score_format", 95), "Score: 95%")
         XCTAssertEqual(CraftLocalized.format("craft.speech.score_format", language: "vi", 95), "Điểm: 95%")
     }

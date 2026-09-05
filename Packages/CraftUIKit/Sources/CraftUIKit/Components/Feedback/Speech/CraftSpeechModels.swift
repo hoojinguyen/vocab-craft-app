@@ -33,7 +33,9 @@ public struct CraftSpeechWordToken: Identifiable, Sendable, Equatable {
 
 public enum CraftSpeechState: Equatable, Sendable {
     case idle
+    case preparing
     case listening(audioLevels: [CGFloat] = [])
     case processing
     case evaluated(overallScore: Double)
+    case unavailable
 }

@@ -31,7 +31,11 @@ struct LessonLocalizationTests {
         "app.lesson.exercise.hint_action": ("Gợi ý", "Hint"),
         "app.lesson.exercise.skip_action": ("Bỏ qua", "Skip"),
         "app.lesson.countdown.subtitle": ("Chuẩn bị khám phá từ vựng và làm chủ bài học", "Get ready to discover words and master skills"),
-        "app.lesson.load_error": ("Không thể tải từ vựng cho bài học này.", "Unable to load words for this lesson.")
+        "app.lesson.load_error": ("Không thể tải từ vựng cho bài học này.", "Unable to load words for this lesson."),
+        "app.lesson.permission.title": ("Cần quyền truy cập micro", "Microphone Access Required"),
+        "app.lesson.permission.message": ("Vui lòng cho phép quyền truy cập micro trong Cài đặt để luyện tập các bài tập nói.", "Please allow microphone access in Settings to practice speaking exercises."),
+        "app.lesson.permission.open_settings": ("Mở Cài đặt", "Open Settings"),
+        "app.lesson.permission.dismiss": ("Tiếp tục bằng gõ phím", "Continue with Typing")
     ]
 
     @Test("AppStrings.Lesson accessors return valid non-empty values")
@@ -57,6 +61,10 @@ struct LessonLocalizationTests {
         #expect(!AppStrings.Lesson.skipActionText.isEmpty)
         #expect(!AppStrings.Lesson.countdownSubtitleText.isEmpty)
         #expect(!AppStrings.Lesson.loadErrorText.isEmpty)
+        #expect(!AppStrings.Lesson.permissionTitleText.isEmpty)
+        #expect(!AppStrings.Lesson.permissionMessageText.isEmpty)
+        #expect(!AppStrings.Lesson.permissionSettingsActionText.isEmpty)
+        #expect(!AppStrings.Lesson.permissionDismissActionText.isEmpty)
         #expect(AppStrings.Lesson.correctAnswerFormat("apple") == "Correct answer: apple")
         #expect(AppStrings.Lesson.xpEarnedFormat(25) == "+25 XP")
         #expect(AppStrings.Lesson.accuracyFormat(85) == "85%")
