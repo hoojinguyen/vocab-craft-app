@@ -17,12 +17,7 @@ public enum PartOfSpeech: String, Codable, Sendable, CaseIterable {
 
 // swiftlint:disable identifier_name
 public enum CEFRLevel: String, Codable, Sendable, CaseIterable, Comparable {
-    case a1 = "A1"
-    case a2 = "A2"
-    case b1 = "B1"
-    case b2 = "B2"
-    case c1 = "C1"
-    case c2 = "C2"
+    case a1 = "A1", a2 = "A2", b1 = "B1", b2 = "B2", c1 = "C1", c2 = "C2"
 
     private var rank: Int {
         switch self {
@@ -41,8 +36,7 @@ public enum CEFRLevel: String, Codable, Sendable, CaseIterable, Comparable {
 }
 
 public enum Accent: String, Codable, Sendable, CaseIterable {
-    case us
-    case uk
+    case us, uk
 }
 // swiftlint:enable identifier_name
 
@@ -155,6 +149,8 @@ public struct ExampleSnapshot: Codable, Hashable, Sendable, Identifiable {
     public let senseID: SenseID
     public let textEN: String
     public let textVI: String
+    public var textEn: String { textEN }
+    public var textVi: String { textVI }
     public let sortOrder: Int
 
     enum CodingKeys: String, CodingKey {
@@ -435,15 +431,12 @@ public struct DatasetSnapshot: Codable, Hashable, Sendable {
         attributions = try container.decode([AttributionSnapshot].self, forKey: .attributions)
         senseAttributions = try container.decode([SenseAttributionSnapshot].self, forKey: .senseAttributions)
         retiredSenses = try container.decode([RetiredSenseSnapshot].self, forKey: .retiredSenses)
-
         let decodedReviews = try container.decodeIfPresent([ContentReviewSnapshot].self, forKey: .reviews)
         let fallbackReviews = try container.decodeIfPresent([ContentReviewSnapshot].self, forKey: .contentReviews)
         reviews = decodedReviews ?? fallbackReviews
-
         let decodedSources = try container.decodeIfPresent([ContentSourceSnapshot].self, forKey: .sources)
         let fallbackSources = try container.decodeIfPresent([ContentSourceSnapshot].self, forKey: .contentSources)
         sources = decodedSources ?? fallbackSources
-
         let decodedLinks = try container.decodeIfPresent([ContentSourceLinkSnapshot].self, forKey: .sourceLinks)
         let fallbackLinks = try container.decodeIfPresent([ContentSourceLinkSnapshot].self, forKey: .contentSourceLinks)
         sourceLinks = decodedLinks ?? fallbackLinks
@@ -484,6 +477,8 @@ public struct SenseSummary: Codable, Hashable, Sendable, Identifiable {
     public let partOfSpeech: PartOfSpeech
     public let definitionEN: String
     public let definitionVI: String
+    public var definitionEn: String { definitionEN }
+    public var definitionVi: String { definitionVI }
     public let cefrLevel: CEFRLevel
     public let ipa: String?
     public let sortOrder: Int
@@ -532,9 +527,13 @@ public struct SenseDetail: Codable, Hashable, Sendable, Identifiable {
     public let partOfSpeech: PartOfSpeech
     public let definitionEN: String
     public let definitionVI: String
+    public var definitionEn: String { definitionEN }
+    public var definitionVi: String { definitionVI }
     public let cefrLevel: CEFRLevel
     public let usageNoteEN: String?
     public let usageNoteVI: String?
+    public var usageNoteEn: String? { usageNoteEN }
+    public var usageNoteVi: String? { usageNoteVI }
     public let ipa: String?
     public let pronunciations: [PronunciationSnapshot]
     public let examples: [ExampleSnapshot]
@@ -620,6 +619,8 @@ public struct LessonDetail: Codable, Hashable, Sendable, Identifiable {
     public let deckID: DeckID
     public let titleEN: String
     public let titleVI: String
+    public var titleEn: String { titleEN }
+    public var titleVi: String { titleVI }
     public let iconKey: String
     public let sortOrder: Int
     public let revision: Int
@@ -654,8 +655,12 @@ public struct DeckSummary: Codable, Hashable, Sendable, Identifiable {
     public let id: DeckID
     public let titleEN: String
     public let titleVI: String
+    public var titleEn: String { titleEN }
+    public var titleVi: String { titleVI }
     public let descriptionEN: String?
     public let descriptionVI: String?
+    public var descriptionEn: String? { descriptionEN }
+    public var descriptionVi: String? { descriptionVI }
     public let iconKey: String
     public let themeKey: String
     public let sortOrder: Int

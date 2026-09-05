@@ -56,7 +56,8 @@ public struct ExpectedContractData: Decodable, Sendable {
     public typealias Counts = ExpectedContractCounts
 
     public let bookVerbID: SenseID
-    public let bookVerbExampleVI: String
+    public let bookVerbExampleVi: String
+    public var bookVerbExampleVI: String { bookVerbExampleVi }
     public let counts: Counts
     public let orderedEntryIDs: [EntryID]
     public let orderedSenseIDs: [SenseID]
@@ -64,7 +65,7 @@ public struct ExpectedContractData: Decodable, Sendable {
 
     enum CodingKeys: String, CodingKey {
         case bookVerbID = "book_verb_id"
-        case bookVerbExampleVI = "book_verb_example_vi"
+        case bookVerbExampleVi = "book_verb_example_vi"
         case counts
         case orderedEntryIDs = "ordered_entry_ids"
         case orderedSenseIDs = "ordered_sense_ids"
@@ -132,6 +133,10 @@ public enum ContractFixture {
         return nil
     }
 
+    public static func bundleURL() throws -> URL {
+        try bundleURL(for: "vocab_content.sqlite")
+    }
+
     public static func bundleURL(for file: String) throws -> URL {
         if let url = bundleResourceURL(for: file) {
             return url
@@ -154,6 +159,12 @@ public enum ContractFixture {
     public static func loadData(for file: String) throws -> Data {
         let url = try bundleURL(for: file)
         return try Data(contentsOf: url)
+    }
+
+    public static func manifest() throws -> ContentManifest {
+        let data = try loadData(for: "fixture-manifest.json")
+        let decoder = JSONDecoder()
+        return try decoder.decode(ContentManifest.self, from: data)
     }
 
     public static func loadSnapshot() throws -> DatasetSnapshot {

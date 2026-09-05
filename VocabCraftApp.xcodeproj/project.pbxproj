@@ -25,6 +25,8 @@
 		300096D853E0F8987598 /* WordTokenResult+CraftUIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200096D853E0F8987598 /* WordTokenResult+CraftUIKit.swift */; };
 		30004AA317867BD94868 /* ContentIDs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20004AA317867BD94868 /* ContentIDs.swift */; };
 		3000AFEA42F4E79B7FB6 /* ContentModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000AFEA42F4E79B7FB6 /* ContentModels.swift */; };
+		3000E704269BD30A727F /* ContentRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000E704269BD30A727F /* ContentRepository.swift */; };
+		30002DB55F493B9C0645 /* SQLiteContentRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20002DB55F493B9C0645 /* SQLiteContentRepository.swift */; };
 		30005F5A8F8438E080F5 /* VocabularyDataSourceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005F5A8F8438E080F5 /* VocabularyDataSourceProtocol.swift */; };
 		300054D59B97E59482EE /* DatasetEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200054D59B97E59482EE /* DatasetEngine.swift */; };
 		3000D26FBFB21A7CA2FE /* DatasetModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000D26FBFB21A7CA2FE /* DatasetModels.swift */; };
@@ -178,6 +180,7 @@
 		30001611F67650D4D4BB /* AppRouterTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20001611F67650D4D4BB /* AppRouterTests.swift */; };
 		30004EEF46366B3A6AA6 /* ContentContractTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20004EEF46366B3A6AA6 /* ContentContractTests.swift */; };
 		3000C6A8F709B28ADA21 /* ContractFixture.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C6A8F709B28ADA21 /* ContractFixture.swift */; };
+		30009C2EACBF639AB318 /* SQLiteContentRepositoryTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20009C2EACBF639AB318 /* SQLiteContentRepositoryTests.swift */; };
 		300051326088811D6E8E /* AudioSessionCoordinatorTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200051326088811D6E8E /* AudioSessionCoordinatorTests.swift */; };
 		3000D3E278C8A14AC843 /* SoundEffectAndTTSTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000D3E278C8A14AC843 /* SoundEffectAndTTSTests.swift */; };
 		30001F0110E207A4ED7B /* SampleVocabularyDataSourceTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20001F0110E207A4ED7B /* SampleVocabularyDataSourceTests.swift */; };
@@ -329,6 +332,8 @@
 		200096D853E0F8987598 /* WordTokenResult+CraftUIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WordTokenResult+CraftUIKit.swift"; sourceTree = "<group>"; };
 		20004AA317867BD94868 /* ContentIDs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentIDs.swift"; sourceTree = "<group>"; };
 		2000AFEA42F4E79B7FB6 /* ContentModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentModels.swift"; sourceTree = "<group>"; };
+		2000E704269BD30A727F /* ContentRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentRepository.swift"; sourceTree = "<group>"; };
+		20002DB55F493B9C0645 /* SQLiteContentRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SQLiteContentRepository.swift"; sourceTree = "<group>"; };
 		20005F5A8F8438E080F5 /* VocabularyDataSourceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyDataSourceProtocol.swift"; sourceTree = "<group>"; };
 		200054D59B97E59482EE /* DatasetEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatasetEngine.swift"; sourceTree = "<group>"; };
 		2000D26FBFB21A7CA2FE /* DatasetModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatasetModels.swift"; sourceTree = "<group>"; };
@@ -472,6 +477,7 @@
 		20001611F67650D4D4BB /* AppRouterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppRouterTests.swift"; sourceTree = "<group>"; };
 		20004EEF46366B3A6AA6 /* ContentContractTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentContractTests.swift"; sourceTree = "<group>"; };
 		2000C6A8F709B28ADA21 /* ContractFixture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContractFixture.swift"; sourceTree = "<group>"; };
+		20009C2EACBF639AB318 /* SQLiteContentRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SQLiteContentRepositoryTests.swift"; sourceTree = "<group>"; };
 		200051326088811D6E8E /* AudioSessionCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AudioSessionCoordinatorTests.swift"; sourceTree = "<group>"; };
 		2000D3E278C8A14AC843 /* SoundEffectAndTTSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SoundEffectAndTTSTests.swift"; sourceTree = "<group>"; };
 		20001F0110E207A4ED7B /* SampleVocabularyDataSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SampleVocabularyDataSourceTests.swift"; sourceTree = "<group>"; };
@@ -684,6 +690,8 @@
 			children = (
 				20004AA317867BD94868 /* ContentIDs.swift */,
 				2000AFEA42F4E79B7FB6 /* ContentModels.swift */,
+				2000E704269BD30A727F /* ContentRepository.swift */,
+				20002DB55F493B9C0645 /* SQLiteContentRepository.swift */,
 			);
 			path = "Content";
 			sourceTree = "<group>";
@@ -1363,6 +1371,7 @@
 			children = (
 				20004EEF46366B3A6AA6 /* ContentContractTests.swift */,
 				2000C6A8F709B28ADA21 /* ContractFixture.swift */,
+				20009C2EACBF639AB318 /* SQLiteContentRepositoryTests.swift */,
 			);
 			path = "Contract";
 			sourceTree = "<group>";
@@ -1735,6 +1744,8 @@
 				300096D853E0F8987598 /* WordTokenResult+CraftUIKit.swift in Sources */,
 				30004AA317867BD94868 /* ContentIDs.swift in Sources */,
 				3000AFEA42F4E79B7FB6 /* ContentModels.swift in Sources */,
+				3000E704269BD30A727F /* ContentRepository.swift in Sources */,
+				30002DB55F493B9C0645 /* SQLiteContentRepository.swift in Sources */,
 				30005F5A8F8438E080F5 /* VocabularyDataSourceProtocol.swift in Sources */,
 				300054D59B97E59482EE /* DatasetEngine.swift in Sources */,
 				3000D26FBFB21A7CA2FE /* DatasetModels.swift in Sources */,
@@ -1901,6 +1912,7 @@
 				30001611F67650D4D4BB /* AppRouterTests.swift in Test Sources */,
 				30004EEF46366B3A6AA6 /* ContentContractTests.swift in Test Sources */,
 				3000C6A8F709B28ADA21 /* ContractFixture.swift in Test Sources */,
+				30009C2EACBF639AB318 /* SQLiteContentRepositoryTests.swift in Test Sources */,
 				300051326088811D6E8E /* AudioSessionCoordinatorTests.swift in Test Sources */,
 				3000D3E278C8A14AC843 /* SoundEffectAndTTSTests.swift in Test Sources */,
 				30001F0110E207A4ED7B /* SampleVocabularyDataSourceTests.swift in Test Sources */,
