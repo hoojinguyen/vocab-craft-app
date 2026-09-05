@@ -73,7 +73,7 @@ final class AppContainerVocabularyTests: XCTestCase {
 
     @MainActor
     func test_appContainer_productionInitializer_whenMissingBundle_surfacesUnavailableState() async throws {
-        let container = AppContainer(useSampleData: false)
+        let container = AppContainer(useSampleData: false, bundle: nil)
         if case .unavailable(let reason) = container.contentAvailability {
             XCTAssertFalse(reason.isEmpty)
         } else {
@@ -87,6 +87,22 @@ final class AppContainerVocabularyTests: XCTestCase {
             // Expected error
             XCTAssertNotNil(error)
         }
+    }
+
+    @MainActor
+    func test_appContainer_productionInitializer_whenBundlePresent_surfacesReadyState() async throws {
+        let container = AppContainer(useSampleData: false)
+        XCTAssertEqual(container.contentAvailability, .ready)
+        XCTAssertNotNil(container.contentRepository)
+
+        let repo = try XCTUnwrap(container.contentRepository)
+        let decks = try await repo.fetchDecks()
+        XCTAssertEqual(decks.count, 1)
+        XCTAssertEqual(decks.first?.titleEn, "Everyday Travel & Service")
+
+        let sections = try await container.fetchLearningPathUseCase.execute()
+        XCTAssertEqual(sections.count, 1)
+        XCTAssertEqual(sections.first?.nodes.count, 5)
     }
 }
 

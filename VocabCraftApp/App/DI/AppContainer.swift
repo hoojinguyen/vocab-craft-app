@@ -79,44 +79,46 @@ public final class AppContainer {
         sttService: SpeechRecognitionProtocol? = nil,
         speechAssessmentService: SpeechAssessmentProtocol? = nil,
         userSettingsStore: UserSettingsStore? = nil,
-        appRouter: AppRouter? = nil
+        appRouter: AppRouter? = nil,
+        bundle: Bundle? = .main
     ) {
         self.useSampleData = useSampleData
         self.datasetEngine = datasetEngine
         self.modelContainer = modelContainer
 
-        self.bundleManager = Self.resolveBundleManager(provided: bundleManager, useSampleData: useSampleData)
+        self.bundleManager = Self.resolveBundleManager(
+            provided: bundleManager,
+            useSampleData: useSampleData,
+            bundle: bundle
+        )
 
         let contentContext = Self.resolveContentContext(
             contentRepository: contentRepository,
             learningJournal: learningJournal,
-            useSampleData: useSampleData
+            useSampleData: useSampleData,
+            bundle: bundle
         )
         self.contentAvailability = contentContext.availability
         self.contentRepository = contentContext.repository
         self.learningJournal = contentContext.journal
 
-        let progressActor: UserProgressModelActor? = modelContainer.map { UserProgressModelActor(modelContainer: $0) }
-        let resolvedUserProgressRepo: any UserProgressRepositoryProtocol = userProgressRepository
-            ?? (progressActor ?? MockUserProgressRepository())
-        self.userProgressRepository = resolvedUserProgressRepo
-
-        let resolvedDataSource: VocabularyDataSourceProtocol = vocabularyDataSource
-            ?? (useSampleData ? SampleVocabularyDataSource() : UnavailableVocabularyDataSource())
-        self.vocabularyDataSource = resolvedDataSource
-
-        let resolvedStageRepo: StageProgressRepositoryProtocol = stageProgressRepository
-            ?? (modelContainer.map { StageProgressRepositoryImpl(modelContext: $0.mainContext) } ?? MockStageProgressRepository())
-        self.stageProgressRepository = resolvedStageRepo
-
-        let shouldMock = useMockData ?? (datasetEngine == nil)
-        let vocabRepo: VocabularyRepositoryProtocol = shouldMock
-            ? MockVocabularyRepository()
-            : VocabularyRepositoryImpl(datasetEngine: datasetEngine, progressActor: progressActor)
-        let srsRepo = SRSRepositoryImpl(modelContext: modelContainer?.mainContext)
-        self.vocabularyRepository = vocabRepo
-        self.srsRepository = srsRepo
-        self.quickReflexAttemptRepository = QuickReflexAttemptRepositoryImpl(modelContext: modelContainer?.mainContext)
+        let storage = Self.resolveStorage(
+            env: StorageEnvironment(
+                modelContainer: modelContainer,
+                datasetEngine: datasetEngine,
+                useMockData: useMockData,
+                useSampleData: useSampleData
+            ),
+            userProgressRepository: userProgressRepository,
+            vocabularyDataSource: vocabularyDataSource,
+            stageProgressRepository: stageProgressRepository
+        )
+        self.userProgressRepository = storage.userProgressRepo
+        self.vocabularyDataSource = storage.dataSource
+        self.stageProgressRepository = storage.stageRepo
+        self.vocabularyRepository = storage.vocabRepo
+        self.srsRepository = storage.srsRepo
+        self.quickReflexAttemptRepository = storage.quickReflexRepo
 
         let coordinator = audioSessionCoordinator ?? AudioSessionCoordinator()
         self.audioSessionCoordinator = coordinator
@@ -124,19 +126,19 @@ public final class AppContainer {
         self.sttService = sttService ?? SpeechRecognitionService()
         self.speechAssessmentService = speechAssessmentService ?? SpeechAssessmentService()
 
-        self.evaluateSRSUseCase = EvaluateSRSUseCase(srsRepository: srsRepo)
-        self.resetUserProgressUseCase = ResetUserProgressUseCase(srsRepository: srsRepo)
+        self.evaluateSRSUseCase = EvaluateSRSUseCase(srsRepository: storage.srsRepo)
+        self.resetUserProgressUseCase = ResetUserProgressUseCase(srsRepository: storage.srsRepo)
 
         // Learning Path Use Cases
         self.fetchLearningPathUseCase = Self.resolveLearningPathUseCase(
             provided: fetchLearningPathUseCase,
             contentContext: contentContext,
-            dataSource: resolvedDataSource,
-            stageRepo: resolvedStageRepo
+            dataSource: storage.dataSource,
+            stageRepo: storage.stageRepo
         )
         self.completeLessonUseCase = completeLessonUseCase ?? CompleteLessonUseCase(
-            stageRepo: resolvedStageRepo,
-            progressRepo: resolvedUserProgressRepo,
+            stageRepo: storage.stageRepo,
+            progressRepo: storage.userProgressRepo,
             journal: contentContext.journal,
             profileID: LearningJournal.defaultGuestProfileID
         )
@@ -148,50 +150,102 @@ public final class AppContainer {
         // Personal Vault & Mixed Reflex Use Cases
         let vaultUseCases = Self.resolveVaultUseCases(
             contentContext: contentContext,
-            dataSource: resolvedDataSource,
-            progressRepo: resolvedUserProgressRepo
+            dataSource: storage.dataSource,
+            progressRepo: storage.userProgressRepo
         )
         self.fetchPersonalVaultUseCase = vaultUseCases.vault
         self.reviewWeakWordsUseCase = vaultUseCases.review
         self.toggleWordBookmarkUseCase = Self.resolveToggleBookmarkUseCase(
             contentContext: contentContext,
-            progressRepo: resolvedUserProgressRepo
+            progressRepo: storage.userProgressRepo
         )
         self.generateMixedReflexQueueUseCase = generateMixedReflexQueueUseCase ?? GenerateMixedReflexQueueUseCase()
         self.practiceDrillPlanGenerator = practiceDrillPlanGenerator ?? PracticeDrillPlanGenerator()
         self.recordMixedDrillAttemptUseCase = recordMixedDrillAttemptUseCase ?? RecordMixedDrillAttemptUseCase(
-            progressRepo: resolvedUserProgressRepo,
-            dataSource: resolvedDataSource
+            progressRepo: storage.userProgressRepo,
+            dataSource: storage.dataSource
         )
 
-        #if canImport(SwiftDataMacros)
-        let hasPersistedRecords = modelContainer.map { SharedAppGroupContainer.hasPersistedUserRecords(in: $0) } ?? false
-        #else
-        let hasPersistedRecords = false
-        #endif
-        let effectiveUserSettingsStore = userSettingsStore ?? UserSettingsStore(hasPersistedAppData: hasPersistedRecords)
+        let effectiveUserSettingsStore = Self.resolveUserSettingsStore(provided: userSettingsStore, modelContainer: modelContainer)
         self.userSettingsStore = effectiveUserSettingsStore
         self.appRouter = appRouter ?? AppRouter()
 
         self.initializeUserRoadmapUseCase = initializeUserRoadmapUseCase ?? InitializeUserRoadmapUseCase(
-            dataSource: resolvedDataSource,
-            stageRepo: resolvedStageRepo,
+            dataSource: storage.dataSource,
+            stageRepo: storage.stageRepo,
             userSettings: effectiveUserSettingsStore
         )
     }
 
     // MARK: - Private Helpers
 
+    private struct ResolvedStorage {
+        let userProgressRepo: any UserProgressRepositoryProtocol
+        let dataSource: VocabularyDataSourceProtocol
+        let stageRepo: StageProgressRepositoryProtocol
+        let vocabRepo: VocabularyRepositoryProtocol
+        let srsRepo: SRSRepositoryProtocol
+        let quickReflexRepo: QuickReflexAttemptRepositoryProtocol
+    }
+
+    private struct StorageEnvironment {
+        let modelContainer: ModelContainer?
+        let datasetEngine: DatasetEngine?
+        let useMockData: Bool?
+        let useSampleData: Bool
+    }
+
+    private static func resolveStorage(
+        env: StorageEnvironment,
+        userProgressRepository: (any UserProgressRepositoryProtocol)?,
+        vocabularyDataSource: VocabularyDataSourceProtocol?,
+        stageProgressRepository: StageProgressRepositoryProtocol?
+    ) -> ResolvedStorage {
+        let progressActor: UserProgressModelActor? = env.modelContainer.map { UserProgressModelActor(modelContainer: $0) }
+        let userProgress = userProgressRepository ?? (progressActor ?? MockUserProgressRepository())
+        let dataSource = vocabularyDataSource ?? (env.useSampleData ? SampleVocabularyDataSource() : UnavailableVocabularyDataSource())
+        let stage = stageProgressRepository ?? (env.modelContainer.map { StageProgressRepositoryImpl(modelContext: $0.mainContext) } ?? MockStageProgressRepository())
+        let shouldMock = env.useMockData ?? (env.datasetEngine == nil)
+        let vocab: VocabularyRepositoryProtocol = shouldMock
+            ? MockVocabularyRepository()
+            : VocabularyRepositoryImpl(datasetEngine: env.datasetEngine, progressActor: progressActor)
+        let srs = SRSRepositoryImpl(modelContext: env.modelContainer?.mainContext)
+        let quick = QuickReflexAttemptRepositoryImpl(modelContext: env.modelContainer?.mainContext)
+        return ResolvedStorage(
+            userProgressRepo: userProgress,
+            dataSource: dataSource,
+            stageRepo: stage,
+            vocabRepo: vocab,
+            srsRepo: srs,
+            quickReflexRepo: quick
+        )
+    }
+
+    private static func resolveUserSettingsStore(
+        provided: UserSettingsStore?,
+        modelContainer: ModelContainer?
+    ) -> UserSettingsStore {
+        if let provided { return provided }
+        #if canImport(SwiftDataMacros)
+        let hasPersistedRecords = modelContainer.map { SharedAppGroupContainer.hasPersistedUserRecords(in: $0) } ?? false
+        #else
+        let hasPersistedRecords = false
+        #endif
+        return UserSettingsStore(hasPersistedAppData: hasPersistedRecords)
+    }
+
     private static func resolveBundleManager(
         provided: (any ContentBundleManagerProtocol)?,
-        useSampleData: Bool
+        useSampleData: Bool,
+        bundle: Bundle? = .main
     ) -> (any ContentBundleManagerProtocol)? {
         if let provided { return provided }
+        guard let bundle else { return nil }
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? FileManager.default.temporaryDirectory
         let contentRootURL = appSupport.appendingPathComponent("VocabCraft/Content", isDirectory: true)
-        let baselineDbURL = Bundle.main.url(forResource: "vocab_content", withExtension: "sqlite")
-        let baselineManifestURL = Bundle.main.url(forResource: "manifest", withExtension: "json")
+        let baselineDbURL = bundle.url(forResource: "vocab_content", withExtension: "sqlite")
+        let baselineManifestURL = bundle.url(forResource: "manifest", withExtension: "json")
         let baselineManifest: PublishedManifest?
         if let baselineManifestURL, let data = try? Data(contentsOf: baselineManifestURL) {
             baselineManifest = try? JSONDecoder().decode(PublishedManifest.self, from: data)
@@ -217,7 +271,8 @@ public final class AppContainer {
     private static func resolveContentContext(
         contentRepository: (any ContentRepository)?,
         learningJournal: LearningJournal?,
-        useSampleData: Bool
+        useSampleData: Bool,
+        bundle: Bundle? = .main
     ) -> ResolvedContentContext {
         if let contentRepository {
             return ResolvedContentContext(
@@ -248,13 +303,15 @@ public final class AppContainer {
             }
         }
 
-        let bundleDbURL = Bundle.main.url(forResource: "vocab_content", withExtension: "sqlite")
-        let bundleManifestURL = Bundle.main.url(forResource: "manifest", withExtension: "json")
-        if let dbURL = bundleDbURL, let manifestURL = bundleManifestURL,
-           let manifestData = try? Data(contentsOf: manifestURL),
-           let manifest = try? JSONDecoder().decode(ContentManifest.self, from: manifestData),
-           let repo = try? SQLiteContentRepository(url: dbURL, manifest: manifest) {
-            return ResolvedContentContext(availability: .ready, repository: repo, journal: journal)
+        if let bundle {
+            let bundleDbURL = bundle.url(forResource: "vocab_content", withExtension: "sqlite")
+            let bundleManifestURL = bundle.url(forResource: "manifest", withExtension: "json")
+            if let dbURL = bundleDbURL, let manifestURL = bundleManifestURL,
+               let manifestData = try? Data(contentsOf: manifestURL),
+               let manifest = try? JSONDecoder().decode(ContentManifest.self, from: manifestData),
+               let repo = try? SQLiteContentRepository(url: dbURL, manifest: manifest) {
+                return ResolvedContentContext(availability: .ready, repository: repo, journal: journal)
+            }
         }
         return ResolvedContentContext(
             availability: .unavailable("Content database not found in bundle."),

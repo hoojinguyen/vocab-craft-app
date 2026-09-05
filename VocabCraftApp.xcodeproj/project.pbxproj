@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3000C001299866F2CEE1 /* vocab_content.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 2000C001299866F2CEE1 /* vocab_content.sqlite */; };
+		3000C002299866F2CEE2 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 2000C002299866F2CEE2 /* manifest.json */; };
+		3000C003299866F2CEE3 /* NOTICE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 2000C003299866F2CEE3 /* NOTICE.txt */; };
+		3000C004299866F2CEE4 /* OfflineLearningAcceptanceTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C004299866F2CEE4 /* OfflineLearningAcceptanceTests.swift */; };
 		3000DE9D056D85598F6E /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DE9D056D85598F6E /* AppContainer.swift */; };
 		3000FAD85B1C0D0923C5 /* EnvironmentKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FAD85B1C0D0923C5 /* EnvironmentKeys.swift */; };
 		300012A79BAC11C11690 /* AppRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200012A79BAC11C11690 /* AppRouter.swift */; };
@@ -319,6 +323,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2000C001299866F2CEE1 /* vocab_content.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = "vocab_content.sqlite"; sourceTree = "<group>"; };
+		2000C002299866F2CEE2 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "manifest.json"; sourceTree = "<group>"; };
+		2000C003299866F2CEE3 /* NOTICE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "NOTICE.txt"; sourceTree = "<group>"; };
+		2000C004299866F2CEE4 /* OfflineLearningAcceptanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OfflineLearningAcceptanceTests.swift"; sourceTree = "<group>"; };
 		200000002D50000000000000 /* VocabCraftApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VocabCraftApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000402D50000000000000 /* VocabCraftWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VocabCraftWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000502D50000000000000 /* VocabCraftAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VocabCraftAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1324,9 +1332,20 @@
 			path = "Components";
 			sourceTree = "<group>";
 		};
+		4000FCC4299866F2CEE3 /* Content */ = {
+			isa = PBXGroup;
+			children = (
+				2000C001299866F2CEE1 /* vocab_content.sqlite */,
+				2000C002299866F2CEE2 /* manifest.json */,
+				2000C003299866F2CEE3 /* NOTICE.txt */,
+			);
+			path = "Content";
+			sourceTree = "<group>";
+		};
 		4000FCC4299866F2CEE2 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				4000FCC4299866F2CEE3 /* Content */,
 				2000B135085E448B7AE0 /* Localizable.xcstrings */,
 			);
 			path = "Resources";
@@ -1400,6 +1419,7 @@
 				20005E303B1E86929900 /* ContentLearningPathAdapterTests.swift */,
 				2000C6A8F709B28ADA21 /* ContractFixture.swift */,
 				20009210019D3194CD84 /* LearningJournalTests.swift */,
+				2000C004299866F2CEE4 /* OfflineLearningAcceptanceTests.swift */,
 				20009C2EACBF639AB318 /* SQLiteContentRepositoryTests.swift */,
 			);
 			path = "Contract";
@@ -1730,6 +1750,9 @@
 			files = (
 				3000A68BA3D199091703 /* JournalSchema.sql in Resources */,
 				3000B135085E448B7AE0 /* Localizable.xcstrings in Resources */,
+				3000C001299866F2CEE1 /* vocab_content.sqlite in Resources */,
+				3000C002299866F2CEE2 /* manifest.json in Resources */,
+				3000C003299866F2CEE3 /* NOTICE.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1951,6 +1974,7 @@
 				30005E303B1E86929900 /* ContentLearningPathAdapterTests.swift in Test Sources */,
 				3000C6A8F709B28ADA21 /* ContractFixture.swift in Test Sources */,
 				30009210019D3194CD84 /* LearningJournalTests.swift in Test Sources */,
+				3000C004299866F2CEE4 /* OfflineLearningAcceptanceTests.swift in Test Sources */,
 				30009C2EACBF639AB318 /* SQLiteContentRepositoryTests.swift in Test Sources */,
 				300051326088811D6E8E /* AudioSessionCoordinatorTests.swift in Test Sources */,
 				3000D3E278C8A14AC843 /* SoundEffectAndTTSTests.swift in Test Sources */,
