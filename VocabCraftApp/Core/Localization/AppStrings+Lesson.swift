@@ -158,5 +158,10 @@ extension AppStrings {
         public static var attemptErrorRetryActionText: String {
             String(localized: "app.lesson.attempt_error.retry", defaultValue: "Retry", bundle: .module)
         }
+
+        public static var attemptErrorDismissAction: LocalizedStringKey { "app.lesson.attempt_error.dismiss" }
+        public static var attemptErrorDismissActionText: String {
+            String(localized: "app.lesson.attempt_error.dismiss", defaultValue: "Cancel", bundle: .module)
+        }
     }
 }

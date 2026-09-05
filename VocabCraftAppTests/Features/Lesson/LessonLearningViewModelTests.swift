@@ -1093,6 +1093,64 @@ struct LessonLearningViewModelTests {
         #expect(mockComplete.executeCallCount == 1)
         #expect(vm.completionEventID == originalEventID)
     }
+
+    @Test("Retry completion preserves bit-for-bit identical completion payload across retries")
+    func testRetryCompletionPreservesBitForBitIdenticalPayload() async throws {
+        let mockComplete = MockCompleteLessonUseCase()
+        mockComplete.shouldFail = true
+        let vm = makeVM(completeLessonUseCase: mockComplete)
+
+        while !vm.isCompleted && !vm.isSummaryStep {
+            if let current = vm.currentExerciseItem {
+                vm.submitAnswer(isCorrect: true, for: current)
+            }
+            vm.advanceStep()
+        }
+
+        if let task = vm.completionTask {
+            do {
+                _ = try await task.value
+            } catch {
+                // Expected failure
+            }
+        }
+
+        #expect(vm.persistenceError != nil)
+        #expect(!vm.isCompleted)
+        let initialPendingCompletion = try #require(vm.pendingCompletion)
+
+        mockComplete.shouldFail = false
+        _ = try await vm.retryCompletion()
+
+        #expect(vm.isCompleted)
+        #expect(mockComplete.executeCallCount == 2)
+        let retriedCompletion = try #require(mockComplete.executedCompletion)
+        #expect(retriedCompletion == initialPendingCompletion)
+        #expect(retriedCompletion.completedAt == initialPendingCompletion.completedAt)
+        #expect(retriedCompletion.eventID == initialPendingCompletion.eventID)
+    }
+
+    @Test("Rapid synchronous taps do not spawn duplicate submission tasks")
+    func testRapidSynchronousTapsDoNotSpawnDuplicateTasks() async throws {
+        let mockRecorder = MockRecordSenseAttemptUseCase()
+        let vm = makeVM(recordSenseAttemptUseCase: mockRecorder)
+
+        while vm.currentExerciseItem == nil && !vm.isSummaryStep {
+            vm.advanceStep()
+        }
+        let exerciseItem = try #require(vm.currentExerciseItem)
+
+        vm.submitAnswer(isCorrect: true, for: exerciseItem)
+        #expect(vm.isSubmittingAnswer == true)
+        #expect(vm.submissionTask != nil)
+
+        // Rapid second tap is ignored synchronously due to isSubmittingAnswer == true
+        vm.submitAnswer(isCorrect: true, for: exerciseItem)
+        #expect(vm.isSubmittingAnswer == true)
+
+        _ = try await vm.awaitSubmission()
+        #expect(mockRecorder.executedAttempts.count == 1)
+    }
 }
 
 extension TopicWordDTO {

@@ -783,6 +783,23 @@
         }
       }
     },
+    "app.lesson.attempt_error.dismiss" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hủy"
+          }
+        }
+      }
+    },
     "app.lesson.attempt_error.retry" : {
       "extractionState" : "manual",
       "localizations" : {

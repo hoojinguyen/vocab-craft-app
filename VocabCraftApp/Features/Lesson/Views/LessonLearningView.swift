@@ -124,6 +124,7 @@ public struct LessonLearningView: View {
                                     item: item,
                                     viewModel: viewModel
                                 )
+                                .disabled(viewModel.isSubmittingAnswer)
                                 .id("exercise-\(item.id)")
 
                             case .summary(let summary):
@@ -214,7 +215,7 @@ public struct LessonLearningView: View {
                     _ = try? await viewModel.retryPendingAttempt()
                 }
             }
-            Button(AppStrings.Lesson.exitAlertCancelText, role: .cancel) {}
+            Button(AppStrings.Lesson.attemptErrorDismissActionText, role: .cancel) {}
         } message: {
             Text(AppStrings.Lesson.attemptErrorMessageText)
         }

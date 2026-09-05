@@ -38,7 +38,8 @@ struct LessonLocalizationTests {
         "app.lesson.permission.dismiss": ("Tiếp tục bằng gõ phím", "Continue with Typing"),
         "app.lesson.attempt_error.title": ("Không thể lưu tiến độ", "Unable to Save Progress"),
         "app.lesson.attempt_error.message": ("Đã xảy ra lỗi khi lưu kết quả bài tập. Vui lòng thử lại.", "An error occurred while saving your exercise result. Please try again."),
-        "app.lesson.attempt_error.retry": ("Thử lại", "Retry")
+        "app.lesson.attempt_error.retry": ("Thử lại", "Retry"),
+        "app.lesson.attempt_error.dismiss": ("Hủy", "Cancel")
     ]
 
     @Test("AppStrings.Lesson accessors return valid non-empty values")
@@ -46,6 +47,7 @@ struct LessonLocalizationTests {
         #expect(!AppStrings.Lesson.attemptErrorTitleText.isEmpty)
         #expect(!AppStrings.Lesson.attemptErrorMessageText.isEmpty)
         #expect(!AppStrings.Lesson.attemptErrorRetryActionText.isEmpty)
+        #expect(!AppStrings.Lesson.attemptErrorDismissActionText.isEmpty)
         #expect(!AppStrings.Lesson.discoveryTitleText.isEmpty)
         #expect(!AppStrings.Lesson.continueActionText.isEmpty)
         #expect(!AppStrings.Lesson.checkActionText.isEmpty)

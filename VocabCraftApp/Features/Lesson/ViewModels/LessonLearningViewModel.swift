@@ -67,6 +67,7 @@ public final class LessonLearningViewModel: Identifiable {
     public var attemptPersistenceError: (any Error)?
     public var showAttemptPersistenceError: Bool = false
     public private(set) var completionEventID: EventID?
+    public private(set) var pendingCompletion: LessonCompletion?
     private var stepStartTime: Date = Date()
     public private(set) var submissionTask: Task<AppendResult?, Error>?
 
@@ -181,22 +182,31 @@ public final class LessonLearningViewModel: Identifiable {
     }
 
     public func submitAnswer(isCorrect: Bool, for item: LessonExerciseItem) {
+        guard !isFeedbackPresented, !isSubmittingAnswer else { return }
+        guard currentExerciseItem?.id == item.id else { return }
+        isSubmittingAnswer = true
+
         if recordSenseAttemptUseCase == nil {
-            guard !isFeedbackPresented, !isSubmittingAnswer else { return }
-            guard currentExerciseItem?.id == item.id else { return }
+            isSubmittingAnswer = false
             applySuccessfulSubmission(isCorrect: isCorrect, for: item)
         } else {
             submissionTask = Task { @MainActor in
-                try await self.submitAnswerAsync(isCorrect: isCorrect, for: item)
+                try await self.submitAnswerAsync(isCorrect: isCorrect, for: item, prevalidated: true)
             }
         }
     }
 
     @discardableResult
-    public func submitAnswerAsync(isCorrect: Bool, for item: LessonExerciseItem) async throws -> AppendResult? {
-        guard !isFeedbackPresented, !isSubmittingAnswer else { return nil }
-        guard currentExerciseItem?.id == item.id else { return nil }
-        isSubmittingAnswer = true
+    public func submitAnswerAsync(
+        isCorrect: Bool,
+        for item: LessonExerciseItem,
+        prevalidated: Bool = false
+    ) async throws -> AppendResult? {
+        if !prevalidated {
+            guard !isFeedbackPresented, !isSubmittingAnswer else { return nil }
+            guard currentExerciseItem?.id == item.id else { return nil }
+            isSubmittingAnswer = true
+        }
 
         guard let recordSenseAttemptUseCase else {
             isSubmittingAnswer = false
@@ -591,7 +601,8 @@ extension LessonLearningViewModel {
 
         let stableEventID = self.completionEventID ?? EventID(rawValue: UUID())
         self.completionEventID = stableEventID
-        let completion = makeLessonCompletion(eventID: stableEventID)
+        let completion = self.pendingCompletion ?? makeLessonCompletion(eventID: stableEventID)
+        self.pendingCompletion = completion
 
         self.completionTask = Task {
             do {
@@ -630,7 +641,8 @@ extension LessonLearningViewModel {
 
         let stableEventID = self.completionEventID ?? EventID(rawValue: UUID())
         self.completionEventID = stableEventID
-        let completion = makeLessonCompletion(eventID: stableEventID)
+        let completion = self.pendingCompletion ?? makeLessonCompletion(eventID: stableEventID)
+        self.pendingCompletion = completion
 
         let task = Task {
             do {
