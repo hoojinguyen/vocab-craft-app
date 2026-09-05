@@ -40,12 +40,12 @@ public final class AppContainer {
     public let evaluateSRSUseCase: EvaluateSRSUseCaseProtocol
     public let resetUserProgressUseCase: ResetUserProgressUseCaseProtocol
 
-    public let fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol
-    public let completeLessonUseCase: CompleteLessonUseCaseProtocol
+    public private(set) var fetchLearningPathUseCase: FetchLearningPathUseCaseProtocol
+    public private(set) var completeLessonUseCase: CompleteLessonUseCaseProtocol
     public let recordSenseAttemptUseCase: (any RecordSenseAttemptUseCaseProtocol)?
 
-    public let fetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProtocol
-    public let reviewWeakWordsUseCase: ReviewWeakWordsUseCaseProtocol
+    public private(set) var fetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProtocol
+    public private(set) var reviewWeakWordsUseCase: ReviewWeakWordsUseCaseProtocol
     public let toggleWordBookmarkUseCase: ToggleWordBookmarkUseCaseProtocol
     public let generateMixedReflexQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol
     public let practiceDrillPlanGenerator: PracticeDrillPlanGeneratorProtocol
@@ -454,6 +454,31 @@ extension AppContainer {
         }
         let handle = try await bundleManager.openActive()
         self.contentRepository = handle.reader
+        if let journal = self.learningJournal {
+            let defaultProfileID = LearningJournal.defaultGuestProfileID
+            let adapter = ContentLearningPathAdapter(
+                repository: handle.reader,
+                journal: journal,
+                profileID: defaultProfileID
+            )
+            self.fetchLearningPathUseCase = FetchLearningPathUseCase(adapter: adapter)
+            self.fetchPersonalVaultUseCase = FetchPersonalVaultUseCase(
+                contentRepository: handle.reader,
+                journal: journal,
+                profileID: defaultProfileID
+            )
+            self.reviewWeakWordsUseCase = ReviewWeakWordsUseCase(
+                contentRepository: handle.reader,
+                journal: journal,
+                profileID: defaultProfileID
+            )
+            self.completeLessonUseCase = CompleteLessonUseCase(
+                stageRepo: stageProgressRepository,
+                progressRepo: userProgressRepository,
+                journal: journal,
+                profileID: defaultProfileID
+            )
+        }
         return handle
     }
 

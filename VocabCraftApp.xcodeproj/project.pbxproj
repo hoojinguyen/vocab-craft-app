@@ -23,6 +23,7 @@
 		300054D51843DFDCEB06 /* SpeechRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200054D51843DFDCEB06 /* SpeechRecognitionService.swift */; };
 		3000BEA090FB6DD9E928 /* TextToSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000BEA090FB6DD9E928 /* TextToSpeechService.swift */; };
 		300096D853E0F8987598 /* WordTokenResult+CraftUIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200096D853E0F8987598 /* WordTokenResult+CraftUIKit.swift */; };
+		3000754BAC16B56544E0 /* ContentBundleManager+SQLiteValidation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000754BAC16B56544E0 /* ContentBundleManager+SQLiteValidation.swift */; };
 		30001A0765AFF78B8A5F /* ContentBundleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20001A0765AFF78B8A5F /* ContentBundleManager.swift */; };
 		30004AA317867BD94868 /* ContentIDs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20004AA317867BD94868 /* ContentIDs.swift */; };
 		3000AFEA42F4E79B7FB6 /* ContentModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000AFEA42F4E79B7FB6 /* ContentModels.swift */; };
@@ -339,6 +340,7 @@
 		200054D51843DFDCEB06 /* SpeechRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeechRecognitionService.swift"; sourceTree = "<group>"; };
 		2000BEA090FB6DD9E928 /* TextToSpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TextToSpeechService.swift"; sourceTree = "<group>"; };
 		200096D853E0F8987598 /* WordTokenResult+CraftUIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WordTokenResult+CraftUIKit.swift"; sourceTree = "<group>"; };
+		2000754BAC16B56544E0 /* ContentBundleManager+SQLiteValidation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentBundleManager+SQLiteValidation.swift"; sourceTree = "<group>"; };
 		20001A0765AFF78B8A5F /* ContentBundleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentBundleManager.swift"; sourceTree = "<group>"; };
 		20004AA317867BD94868 /* ContentIDs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentIDs.swift"; sourceTree = "<group>"; };
 		2000AFEA42F4E79B7FB6 /* ContentModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentModels.swift"; sourceTree = "<group>"; };
@@ -706,6 +708,7 @@
 		400032A7D530AEEBE9FF /* Content */ = {
 			isa = PBXGroup;
 			children = (
+				2000754BAC16B56544E0 /* ContentBundleManager+SQLiteValidation.swift */,
 				20001A0765AFF78B8A5F /* ContentBundleManager.swift */,
 				20004AA317867BD94868 /* ContentIDs.swift */,
 				2000AFEA42F4E79B7FB6 /* ContentModels.swift */,
@@ -1770,6 +1773,7 @@
 				300054D51843DFDCEB06 /* SpeechRecognitionService.swift in Sources */,
 				3000BEA090FB6DD9E928 /* TextToSpeechService.swift in Sources */,
 				300096D853E0F8987598 /* WordTokenResult+CraftUIKit.swift in Sources */,
+				3000754BAC16B56544E0 /* ContentBundleManager+SQLiteValidation.swift in Sources */,
 				30001A0765AFF78B8A5F /* ContentBundleManager.swift in Sources */,
 				30004AA317867BD94868 /* ContentIDs.swift in Sources */,
 				3000AFEA42F4E79B7FB6 /* ContentModels.swift in Sources */,

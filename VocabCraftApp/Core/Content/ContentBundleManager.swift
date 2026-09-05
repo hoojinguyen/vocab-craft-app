@@ -252,114 +252,6 @@ extension ContentBundleManagerProtocol {
     }
 }
 
-// MARK: - SQLite Validation Extension
-
-extension SQLiteContentRepository {
-    public static func validateDatabase(at url: URL, expectedVersion: String? = nil) throws -> (schemaVersion: Int, contentVersion: Int) {
-        guard FileManager.default.fileExists(atPath: url.path) else {
-            throw ContentBundleError.invalidDatabase(reason: "File not found at \(url.path)")
-        }
-
-        var dbPointer: OpaquePointer?
-        let flags = SQLITE_OPEN_READONLY | SQLITE_OPEN_FULLMUTEX
-        let openResult = sqlite3_open_v2(url.path, &dbPointer, flags, nil)
-        guard openResult == SQLITE_OK, let dbPointer else {
-            let message = dbPointer != nil ? String(cString: sqlite3_errmsg(dbPointer)) : "Unknown open error"
-            if let dbPointer { sqlite3_close(dbPointer) }
-            throw ContentBundleError.invalidDatabase(reason: "Cannot open SQLite database: \(message)")
-        }
-        defer { sqlite3_close(dbPointer) }
-
-        // 1. PRAGMA integrity_check
-        var integrityStmt: OpaquePointer?
-        let integrityResult = sqlite3_prepare_v2(dbPointer, "PRAGMA integrity_check;", -1, &integrityStmt, nil)
-        guard integrityResult == SQLITE_OK, let integrityStmt else {
-            throw ContentBundleError.invalidDatabase(reason: "Integrity check failed to prepare")
-        }
-        defer { sqlite3_finalize(integrityStmt) }
-
-        if sqlite3_step(integrityStmt) == SQLITE_ROW {
-            guard let ptr = sqlite3_column_text(integrityStmt, 0) else {
-                throw ContentBundleError.invalidDatabase(reason: "Integrity check returned null")
-            }
-            let res = String(cString: ptr)
-            if res != "ok" {
-                throw ContentBundleError.invalidDatabase(reason: "Integrity check failed: \(res)")
-            }
-        } else {
-            throw ContentBundleError.invalidDatabase(reason: "Integrity check returned no rows")
-        }
-
-        // 2. Required tables check
-        let requiredTables: Set<String> = [
-            "dataset_metadata", "entries", "senses", "pronunciations",
-            "examples", "collocations", "decks", "lessons",
-            "lesson_senses", "attributions", "sense_attributions", "retired_senses"
-        ]
-
-        var tablesStmt: OpaquePointer?
-        let tablesResult = sqlite3_prepare_v2(dbPointer, "SELECT name FROM sqlite_master WHERE type='table';", -1, &tablesStmt, nil)
-        guard tablesResult == SQLITE_OK, let tablesStmt else {
-            throw ContentBundleError.invalidDatabase(reason: "Failed to query tables from database")
-        }
-        defer { sqlite3_finalize(tablesStmt) }
-
-        var existingTables: Set<String> = []
-        while sqlite3_step(tablesStmt) == SQLITE_ROW {
-            if let ptr = sqlite3_column_text(tablesStmt, 0) {
-                existingTables.insert(String(cString: ptr))
-            }
-        }
-
-        let missingTables = requiredTables.subtracting(existingTables)
-        if !missingTables.isEmpty {
-            throw ContentBundleError.invalidDatabase(
-                reason: "Missing required tables: \(missingTables.sorted().joined(separator: ", "))"
-            )
-        }
-
-        // 3. PRAGMA foreign_key_check
-        var fkStmt: OpaquePointer?
-        let fkResult = sqlite3_prepare_v2(dbPointer, "PRAGMA foreign_key_check;", -1, &fkStmt, nil)
-        guard fkResult == SQLITE_OK, let fkStmt else {
-            throw ContentBundleError.invalidDatabase(reason: "Foreign key check failed to prepare")
-        }
-        defer { sqlite3_finalize(fkStmt) }
-
-        if sqlite3_step(fkStmt) == SQLITE_ROW {
-            throw ContentBundleError.invalidDatabase(reason: "Foreign key constraint violation detected")
-        }
-
-        // 4. Schema version & content version check
-        var metaStmt: OpaquePointer?
-        let metaSql = "SELECT dataset_schema_version, content_version FROM dataset_metadata LIMIT 1;"
-        let metaResult = sqlite3_prepare_v2(dbPointer, metaSql, -1, &metaStmt, nil)
-        guard metaResult == SQLITE_OK, let metaStmt else {
-            throw ContentBundleError.invalidDatabase(reason: "Failed to read dataset_metadata")
-        }
-        defer { sqlite3_finalize(metaStmt) }
-
-        guard sqlite3_step(metaStmt) == SQLITE_ROW else {
-            throw ContentBundleError.invalidDatabase(reason: "dataset_metadata table is empty")
-        }
-
-        let schemaVersion = Int(sqlite3_column_int64(metaStmt, 0))
-        let contentVersion = Int(sqlite3_column_int64(metaStmt, 1))
-
-        if schemaVersion != 1 {
-            throw ContentBundleError.unsupportedSchemaVersion(schemaVersion)
-        }
-
-        if let expectedVersion, let expectedInt = Int(expectedVersion), contentVersion != expectedInt {
-            throw ContentBundleError.invalidDatabase(
-                reason: "Content version mismatch: database has \(contentVersion), expected \(expectedVersion)"
-            )
-        }
-
-        return (schemaVersion, contentVersion)
-    }
-}
-
 // MARK: - Content Bundle Manager Implementation
 
 public actor ContentBundleManager: ContentBundleManagerProtocol {
@@ -400,8 +292,14 @@ public actor ContentBundleManager: ContentBundleManagerProtocol {
         // Step 2: Fallback pointer check
         if let previousPointer = readPointer(from: previousPointerURL),
            let handle = tryLoadHandle(for: previousPointer) {
-            try? fileManager.removeItem(at: activePointerURL)
-            try? fileManager.copyItem(at: previousPointerURL, to: activePointerURL)
+            let tempPointerURL = rootURL.appendingPathComponent("active.json.restore.\(UUID().uuidString)")
+            if (try? fileManager.copyItem(at: previousPointerURL, to: tempPointerURL)) != nil {
+                if fileManager.fileExists(atPath: activePointerURL.path) {
+                    _ = try? fileManager.replaceItemAt(activePointerURL, withItemAt: tempPointerURL)
+                } else {
+                    try? fileManager.moveItem(at: tempPointerURL, to: activePointerURL)
+                }
+            }
             return handle
         }
 
@@ -452,13 +350,29 @@ public actor ContentBundleManager: ContentBundleManagerProtocol {
 
         _ = try SQLiteContentRepository.validateDatabase(at: fileURL, expectedVersion: manifest.contentVersion)
 
-        if let activePointer = readPointer(from: activePointerURL) {
-            let comparison = Self.compareVersions(manifest.contentVersion, activePointer.version)
+        let effectiveActiveVersion: String? = {
+            if let activePointer = readPointer(from: activePointerURL) {
+                return activePointer.version
+            }
+            if let previousPointer = readPointer(from: previousPointerURL) {
+                return previousPointer.version
+            }
+            if let baselineManifest {
+                return baselineManifest.contentVersion
+            }
+            if let baselineURL, let manifest = try? resolveBaselineManifest(for: baselineURL) {
+                return manifest.contentVersion
+            }
+            return nil
+        }()
+
+        if let currentVersion = effectiveActiveVersion {
+            let comparison = Self.compareVersions(manifest.contentVersion, currentVersion)
             if comparison == .orderedSame {
-                return .alreadyActive(version: activePointer.version)
+                return .alreadyActive(version: currentVersion)
             } else if comparison == .orderedAscending {
                 return .ignoredOlderVersion(
-                    activeVersion: activePointer.version,
+                    activeVersion: currentVersion,
                     candidateVersion: manifest.contentVersion
                 )
             }
@@ -482,7 +396,7 @@ public actor ContentBundleManager: ContentBundleManagerProtocol {
             let manifestData = try Data(contentsOf: manifestURL)
             let manifest = try JSONDecoder().decode(PublishedManifest.self, from: manifestData)
             _ = try SQLiteContentRepository.validateDatabase(at: dbURL, expectedVersion: manifest.contentVersion)
-            let repo = try SQLiteContentRepository(url: dbURL)
+            let repo = try SQLiteContentRepository(url: dbURL, manifest: manifest.toContentManifest())
             return ContentHandle(
                 reader: repo,
                 contentVersion: pointer.version,

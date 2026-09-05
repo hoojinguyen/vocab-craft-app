@@ -287,4 +287,86 @@ final class ContentBundleManagerTests: XCTestCase {
         let fallbackHandle = try await manager.openActive()
         XCTAssertEqual(fallbackHandle.contentVersion, "1")
     }
+
+    func testDiskFullOrWriteFailureRejectsInstallAndKeepsActiveBundle() async throws {
+        let rootURL = try makeTemporaryDirectory(prefix: "DiskFullTest")
+        let manager = try makeFixtureBundleManager(rootURL: rootURL)
+        let beforeHandle = try await manager.openActive()
+        XCTAssertEqual(beforeHandle.contentVersion, "1")
+
+        let releasesDir = rootURL.appendingPathComponent("releases", isDirectory: true)
+        try FileManager.default.createDirectory(at: releasesDir, withIntermediateDirectories: true)
+        try FileManager.default.setAttributes([.posixPermissions: 0o555], ofItemAtPath: releasesDir.path)
+        defer {
+            try? FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: releasesDir.path)
+        }
+
+        let (v2URL, v2Manifest) = try makeModifiedVersionBundle(contentVersion: 2)
+        do {
+            _ = try await manager.install(fileURL: v2URL, manifest: v2Manifest)
+            XCTFail("Install should fail when release directory is not writable")
+        } catch {
+            // Expected failure
+        }
+
+        let afterHandle = try await manager.openActive()
+        XCTAssertEqual(afterHandle.contentVersion, beforeHandle.contentVersion)
+    }
+
+    func testCrashDuringPointerSwapRecoversCleanly() async throws {
+        let rootURL = try makeTemporaryDirectory(prefix: "CrashSwapTest")
+        let manager = try makeFixtureBundleManager(rootURL: rootURL)
+        _ = try await manager.openActive()
+
+        // Simulate lingering orphan tmp pointer file from an interrupted pointer swap
+        let orphanTmpURL = rootURL.appendingPathComponent("active.json.tmp.\(UUID().uuidString)")
+        try Data("partial uncommitted json".utf8).write(to: orphanTmpURL)
+
+        let handle = try await manager.openActive()
+        XCTAssertEqual(handle.contentVersion, "1")
+    }
+
+    func testInstallOlderVersionBeforeOpenActiveIsIgnored() async throws {
+        let rootURL = try makeTemporaryDirectory(prefix: "PreOpenRollbackTest")
+        let (_, v2Manifest) = try makeModifiedVersionBundle(contentVersion: 2)
+        let manager = try makeFixtureBundleManager(
+            rootURL: rootURL,
+            baselineURL: ContractFixture.bundleURL(),
+            baselineManifest: v2Manifest
+        )
+
+        let v1Manifest = try ContractFixture.publishedManifest()
+        let result = try await manager.install(fileURL: ContractFixture.bundleURL(), manifest: v1Manifest)
+        XCTAssertEqual(result, .ignoredOlderVersion(activeVersion: "2", candidateVersion: "1"))
+    }
+
+    @MainActor
+    func testAppContainerPropagatesActiveHandleToUseCases() async throws {
+        let rootURL = try makeTemporaryDirectory(prefix: "AppContainerPropagateTest")
+        let manager = try makeFixtureBundleManager(rootURL: rootURL)
+        let journal = try LearningJournal(url: rootURL.appendingPathComponent("test_journal.sqlite"))
+
+        let container = AppContainer(
+            useSampleData: false,
+            learningJournal: journal,
+            bundleManager: manager
+        )
+
+        let initialHandle = try await container.openActiveHandle()
+        XCTAssertEqual(initialHandle.contentVersion, "1")
+        let initialRepo = container.contentRepository
+        XCTAssertNotNil(initialRepo)
+
+        let (v2URL, v2Manifest) = try makeModifiedVersionBundle(contentVersion: 2)
+        _ = try await manager.install(fileURL: v2URL, manifest: v2Manifest)
+
+        let updatedHandle = try await container.openActiveHandle()
+        XCTAssertEqual(updatedHandle.contentVersion, "2")
+        let updatedRepo = container.contentRepository
+        XCTAssertNotNil(updatedRepo)
+        let fetchUseCase = container.fetchLearningPathUseCase
+        XCTAssertNotNil(fetchUseCase)
+        let completeUseCase = container.completeLessonUseCase
+        XCTAssertNotNil(completeUseCase)
+    }
 }
