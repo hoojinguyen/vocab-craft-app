@@ -877,7 +877,6 @@ struct SpeechEngineStartupAtomicityTests {
     }
 }
 
-
 actor SuspendedSpeechAudioEngineController: SpeechAudioEngineControlling {
     private var preparationContinuations: [UUID: CheckedContinuation<Void, Error>] = [:]
     private var preparationStartWaiters: [CheckedContinuation<Void, Never>] = []
