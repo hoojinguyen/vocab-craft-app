@@ -669,5 +669,59 @@ struct MixedReflexDrillViewsTests {
         #expect(drillView.isPermissionDenied == false)
         #expect(drillView.showPermissionAlert == false)
     }
+
+    @Test("Mixed countdown ticks do not acquire capture and capture begins only on completion")
+    @MainActor
+    func testMixedCountdownTicksDoNotAcquireCaptureAndBeginsOnCompletion() async {
+        let words = [
+            VaultWordItem(id: 1, lemma: "eloquent", pos: "adj.", definitionVi: "Hùng biện", exampleSentenceEn: "She gave an eloquent speech.")
+        ]
+        final class MockSpeakingQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol {
+            let item: MixedReflexDrillItem
+            init(item: MixedReflexDrillItem) { self.item = item }
+            func generate(from words: [VaultWordItem]) -> [MixedReflexDrillItem] { [item] }
+            func requeueFailedItem(_ item: MixedReflexDrillItem) -> MixedReflexDrillItem { item }
+        }
+
+        let item = MixedReflexDrillItem(word: words[0], assignedMode: .speaking, isRetry: false)
+        let queueUseCase = MockSpeakingQueueUseCase(item: item)
+        let vm = MixedReflexDrillViewModel(selectedWords: words, queueUseCase: queueUseCase)
+        let mockSpeechEngine = MockResilientReflexSpeechEngine()
+
+        let drillView = MixedReflexDrillView(
+            viewModel: vm,
+            speechEngine: mockSpeechEngine,
+            startWithCountdown: true,
+            onFinish: {}
+        )
+        drillView.setupSpeechEngineCallbacks()
+
+        #expect(drillView.startWithCountdown == true)
+        #expect(mockSpeechEngine.startListeningCallCount == 0)
+        #expect(mockSpeechEngine.isWordActive == false)
+
+        let haptics = CountdownHapticSpy()
+        let clock = ImmediateCountdownClock()
+        let sequence = CountdownSequence(
+            startNumber: 3,
+            clock: clock,
+            haptics: haptics,
+            onFinish: {
+                drillView.startDrillItem(item)
+            }
+        )
+
+        sequence.onTick = { _ in
+            #expect(mockSpeechEngine.startListeningCallCount == 0)
+            #expect(mockSpeechEngine.isWordActive == false)
+        }
+
+        await sequence.run()
+        await Task.yield()
+
+        #expect(haptics.events == [.prepare, .tick, .tick, .tick, .completion])
+        #expect(mockSpeechEngine.startListeningCallCount == 1)
+        #expect(mockSpeechEngine.isWordActive == true)
+    }
 }
 #endif

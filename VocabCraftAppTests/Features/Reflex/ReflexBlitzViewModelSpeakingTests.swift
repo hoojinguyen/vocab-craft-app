@@ -272,6 +272,40 @@ struct ReflexBlitzViewModelSpeakingTests {
 
     // MARK: - Session End
 
+    @Test("Countdown ticks do not acquire capture and capture begins only after countdown completion")
+    func countdownTicksDoNotAcquireCaptureAndCaptureBeginsOnlyAfterCountdownCompletion() async {
+        let (viewModel, mockSpeechEngine, _, _) = makeSUT()
+        let haptics = CountdownHapticSpy()
+        let clock = ImmediateCountdownClock()
+        viewModel.selectMode(.speaking)
+
+        #expect(viewModel.phase == .countdown)
+        #expect(mockSpeechEngine.isWordActive == false)
+        #expect(mockSpeechEngine.startListeningCallCount == 0)
+
+        let sequence = CountdownSequence(
+            startNumber: 3,
+            clock: clock,
+            haptics: haptics,
+            onFinish: {
+                viewModel.beginSessionDirectly()
+            }
+        )
+
+        sequence.onTick = { _ in
+            #expect(mockSpeechEngine.isWordActive == false)
+            #expect(mockSpeechEngine.startListeningCallCount == 0)
+        }
+
+        await sequence.run()
+        await Task.yield()
+
+        #expect(haptics.events == [.prepare, .tick, .tick, .tick, .completion])
+        #expect(viewModel.phase == .drilling)
+        #expect(mockSpeechEngine.startListeningCallCount == 1)
+        #expect(mockSpeechEngine.isWordActive == true)
+    }
+
     @Test("Speaking mode finish session stops engine")
     func testSpeakingMode_finishSession_stopsEngine() {
         let (viewModel, mockSpeechEngine, _, _) = makeSUT()
