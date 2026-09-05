@@ -120,6 +120,28 @@ struct ReflexBlitzViewModelSpeakingTests {
         #expect(viewModel.selectedMode == .typing)
         #expect(viewModel.speechState == .unavailable)
         #expect(viewModel.isPermissionNoticePresented == true)
+        #expect(viewModel.wordStartTime == nil)
+
+        viewModel.dismissPermissionNotice()
+        #expect(viewModel.isPermissionNoticePresented == false)
+        #expect(viewModel.wordStartTime != nil)
+    }
+
+    @Test("Reflex permission alert tap-away dismissal starts deferred stopwatch")
+    func reflexPermissionAlertTapAwayDismissalStartsDeferredStopwatch() async {
+        let (viewModel, mockSpeechEngine, _, _) = makeSUT()
+        mockSpeechEngine.simulatedStartListeningError = SpeechCaptureError.speechRecognitionDenied
+        viewModel.startDrillSession(mode: .speaking, words: sampleWords)
+        await Task.yield()
+
+        try? await Task.sleep(for: .milliseconds(30))
+
+        #expect(viewModel.isPermissionNoticePresented == true)
+        #expect(viewModel.wordStartTime == nil)
+
+        viewModel.isPermissionNoticePresented = false
+        #expect(viewModel.isPermissionNoticePresented == false)
+        #expect(viewModel.wordStartTime != nil)
     }
 
     // MARK: - Match Detection
@@ -195,8 +217,8 @@ struct ReflexBlitzViewModelSpeakingTests {
 
     // MARK: - Word Transition
 
-    @Test("Speaking mode advance to next word cycles begin/end word")
-    func testSpeakingMode_advanceToNextWord_cyclesBeginEndWord() async {
+    @Test("Speaking mode advance to next word cycles start listening and end word")
+    func testSpeakingMode_advanceToNextWord_cyclesStartListeningAndEndWord() async {
         let (viewModel, mockSpeechEngine, _, _) = makeSUT()
         viewModel.startDrillSession(mode: .speaking, words: sampleWords)
         await Task.yield()

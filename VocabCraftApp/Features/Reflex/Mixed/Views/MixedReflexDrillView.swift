@@ -166,10 +166,18 @@ public struct MixedReflexDrillView: View {
         ) { notice in
             Button(notice.settingsActionTitle) {
                 openSettings()
+                dismissPermissionAlert()
             }
-            Button(notice.dismissActionTitle, role: .cancel) {}
+            Button(notice.dismissActionTitle, role: .cancel) {
+                dismissPermissionAlert()
+            }
         } message: { notice in
             Text(notice.message)
+        }
+        .onChange(of: viewModel.showPermissionAlert) { wasPresented, isPresented in
+            if wasPresented && !isPresented && permissionNotice != nil {
+                dismissPermissionAlert()
+            }
         }
     }
 
@@ -400,8 +408,10 @@ public extension MixedReflexDrillView {
         if item.assignedMode == .speaking {
             if isPermissionDenied {
                 speechState = .unavailable
-                wordStartTime = Date()
-                startTimer(for: item)
+                if !viewModel.showPermissionAlert {
+                    wordStartTime = Date()
+                    startTimer(for: item)
+                }
                 return
             }
 
@@ -421,21 +431,28 @@ public extension MixedReflexDrillView {
                         guard !Task.isCancelled else { return }
                         guard viewModel.currentItem?.id == item.id else { return }
                         speechState = .listening()
-                        wordStartTime = Date()
-                        startTimer(for: item)
+                        if !viewModel.showPermissionAlert {
+                            wordStartTime = Date()
+                            startTimer(for: item)
+                        }
                     } catch let error as SpeechCaptureError where error == .speechRecognitionDenied || error == .microphoneDenied {
+                        guard !Task.isCancelled, viewModel.currentItem?.id == item.id else { return }
                         handlePermissionDenied()
                     } catch {
-                        guard !Task.isCancelled else { return }
+                        guard !Task.isCancelled, viewModel.currentItem?.id == item.id else { return }
                         speechState = .unavailable
-                        wordStartTime = Date()
-                        startTimer(for: item)
+                        if !viewModel.showPermissionAlert {
+                            wordStartTime = Date()
+                            startTimer(for: item)
+                        }
                     }
                 }
             } else {
                 speechState = .unavailable
-                wordStartTime = Date()
-                startTimer(for: item)
+                if !viewModel.showPermissionAlert {
+                    wordStartTime = Date()
+                    startTimer(for: item)
+                }
             }
         } else {
             speechState = isPermissionDenied ? .unavailable : .idle
@@ -443,8 +460,10 @@ public extension MixedReflexDrillView {
             if item.assignedMode == .listening {
                 viewModel.playAudioForCurrentWord()
             }
-            wordStartTime = Date()
-            startTimer(for: item)
+            if !viewModel.showPermissionAlert {
+                wordStartTime = Date()
+                startTimer(for: item)
+            }
         }
     }
 
@@ -601,10 +620,20 @@ public extension MixedReflexDrillView {
         speechEngine?.stopSession()
     }
 
+    func dismissPermissionAlert() {
+        permissionNotice = nil
+        viewModel.showPermissionAlert = false
+        if case .activeCountdown = cardPhase, let current = viewModel.currentItem {
+            wordStartTime = Date()
+            startTimer(for: current)
+        }
+    }
+
     func handlePermissionDenied() {
         speechStartTask?.cancel()
         speechStartTask = nil
         timerTask?.cancel()
+        timerTask = nil
         speechEngine?.stopSession()
         isPermissionDenied = true
         speechState = .unavailable

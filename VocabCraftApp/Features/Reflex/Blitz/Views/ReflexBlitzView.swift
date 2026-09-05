@@ -111,8 +111,11 @@ public struct ReflexBlitzView: View {
         ) { notice in
             Button(notice.settingsActionTitle) {
                 viewModel.openSettings()
+                viewModel.dismissPermissionNotice()
             }
-            Button(notice.dismissActionTitle, role: .cancel) {}
+            Button(notice.dismissActionTitle, role: .cancel) {
+                viewModel.dismissPermissionNotice()
+            }
         } message: { notice in
             Text(notice.message)
         }

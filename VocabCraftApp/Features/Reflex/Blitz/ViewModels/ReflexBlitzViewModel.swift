@@ -35,9 +35,18 @@ public final class ReflexBlitzViewModel {
     public var isPermissionNoticePresented: Bool {
         get { permissionNotice != nil }
         set {
-            if !newValue {
-                permissionNotice = nil
+            if !newValue && permissionNotice != nil {
+                dismissPermissionNotice()
             }
+        }
+    }
+
+    public func dismissPermissionNotice() {
+        permissionNotice = nil
+        isPermissionNoticePresented = false
+        if phase == .drilling && cardPhase == .activeCountdown {
+            wordStartTime = Date()
+            startStopwatch()
         }
     }
     public var sessionSummary: ReflexBlitzSessionSummary?
@@ -321,8 +330,10 @@ public final class ReflexBlitzViewModel {
                         return
                     }
                     self.speechState = .listening()
-                    self.wordStartTime = Date()
-                    self.startStopwatch()
+                    if !self.isPermissionNoticePresented {
+                        self.wordStartTime = Date()
+                        self.startStopwatch()
+                    }
                 } catch is CancellationError {
                     if self.wordGeneration == currentGeneration && self.speechState == .preparing {
                         self.speechState = .idle
@@ -339,15 +350,15 @@ public final class ReflexBlitzViewModel {
             }
         } else {
             self.speechState = .idle
-            self.wordStartTime = Date()
-            startStopwatch()
+            if !isPermissionNoticePresented {
+                self.wordStartTime = Date()
+                startStopwatch()
+            }
         }
     }
 
     public func handlePermissionDenied() {
         cancelActiveTimers()
-        speechStartTask?.cancel()
-        speechStartTask = nil
         speechEngine.stopSession()
         speechState = .unavailable
         selectedMode = .typing
@@ -368,8 +379,10 @@ public final class ReflexBlitzViewModel {
             self.currentClozeStages = prep.clozeStages
             self.currentEliminatedOptionId = prep.eliminatedOptionId
             self.currentHintBadgeText = prep.hintBadgeText
-            self.wordStartTime = Date()
-            startStopwatch()
+            if !isPermissionNoticePresented {
+                self.wordStartTime = Date()
+                startStopwatch()
+            }
         }
     }
 
