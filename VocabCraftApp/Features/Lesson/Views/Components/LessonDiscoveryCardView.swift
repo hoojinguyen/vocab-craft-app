@@ -3,13 +3,46 @@ import SwiftUI
 
 /// Discovery card view introducing a new vocabulary word during a lesson's micro-cycle.
 public struct LessonDiscoveryCardView: View {
-    public let word: TopicWordDTO
+    public let word: TopicWordDTO?
+    public let sense: SenseDetail?
     public let indexInCycle: Int
     public let totalInCycle: Int
     public let onContinue: () -> Void
     public let onPlayAudio: () -> Void
 
     @Environment(\.craftTheme) private var theme
+
+    private var lemma: String {
+        sense?.headword ?? word?.lemma ?? ""
+    }
+
+    private var phonetic: String {
+        sense?.ipa ?? word?.phonetic ?? ""
+    }
+
+    private var pos: String {
+        sense?.partOfSpeech.rawValue ?? word?.pos ?? ""
+    }
+
+    private var cefrLevel: String {
+        sense?.cefrLevel.rawValue ?? word?.cefrLevel ?? ""
+    }
+
+    private var definitionVi: String {
+        sense?.definitionVI ?? word?.definitionVi ?? ""
+    }
+
+    private var exampleEn: String {
+        sense?.examples.first?.textEN ?? word?.exampleEn ?? ""
+    }
+
+    private var exampleVi: String {
+        sense?.examples.first?.textVI ?? word?.exampleVi ?? ""
+    }
+
+    private var stepIdentifier: String {
+        sense?.id.rawValue.uuidString.lowercased() ?? "\(word?.id ?? 0)"
+    }
 
     public init(
         word: TopicWordDTO,
@@ -19,6 +52,22 @@ public struct LessonDiscoveryCardView: View {
         onPlayAudio: @escaping () -> Void
     ) {
         self.word = word
+        self.sense = nil
+        self.indexInCycle = indexInCycle
+        self.totalInCycle = totalInCycle
+        self.onContinue = onContinue
+        self.onPlayAudio = onPlayAudio
+    }
+
+    public init(
+        sense: SenseDetail,
+        indexInCycle: Int,
+        totalInCycle: Int,
+        onContinue: @escaping () -> Void,
+        onPlayAudio: @escaping () -> Void
+    ) {
+        self.word = nil
+        self.sense = sense
         self.indexInCycle = indexInCycle
         self.totalInCycle = totalInCycle
         self.onContinue = onContinue
@@ -36,14 +85,14 @@ public struct LessonDiscoveryCardView: View {
                             HStack(alignment: .top) {
                                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
                                     CraftText(
-                                        word.lemma,
+                                        lemma,
                                         style: .titleLargeSerif,
                                         color: theme.colors.textPrimary
                                     )
 
-                                    if !word.phonetic.isEmpty {
+                                    if !phonetic.isEmpty {
                                         CraftText(
-                                            word.phonetic,
+                                            phonetic,
                                             style: .caption,
                                             color: theme.colors.textMuted
                                         )
@@ -72,9 +121,9 @@ public struct LessonDiscoveryCardView: View {
                                     )
                                 }
 
-                                if !word.pos.isEmpty {
+                                if !pos.isEmpty {
                                     CraftBadge(
-                                        word.pos,
+                                        pos,
                                         variant: .subtle,
                                         tone: .neutral,
                                         size: .sm,
@@ -82,9 +131,9 @@ public struct LessonDiscoveryCardView: View {
                                     )
                                 }
 
-                                if !word.cefrLevel.isEmpty {
+                                if !cefrLevel.isEmpty {
                                     CraftBadge(
-                                        word.cefrLevel,
+                                        cefrLevel,
                                         variant: .subtle,
                                         tone: .warning,
                                         size: .sm,
@@ -96,20 +145,20 @@ public struct LessonDiscoveryCardView: View {
                             CraftDivider()
 
                             CraftText(
-                                word.definitionVi,
+                                definitionVi,
                                 style: .titleMedium,
                                 color: theme.colors.textPrimary
                             )
 
-                            if !word.exampleEn.isEmpty {
+                            if !exampleEn.isEmpty {
                                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                                    Text(word.exampleEn)
+                                    Text(exampleEn)
                                         .font(theme.typography.bodySerif)
                                         .foregroundStyle(theme.colors.textPrimary)
 
-                                    if !word.exampleVi.isEmpty {
+                                    if !exampleVi.isEmpty {
                                         CraftText(
-                                            word.exampleVi,
+                                            exampleVi,
                                             style: .caption,
                                             color: theme.colors.textMuted
                                         )
@@ -141,7 +190,7 @@ public struct LessonDiscoveryCardView: View {
             .padding(.horizontal, theme.spacing.base)
             .padding(.bottom, theme.spacing.base)
         }
-        .task(id: word.id) {
+        .task(id: stepIdentifier) {
             // Give spring transition 300ms to complete smoothly before starting TTS
             try? await Task.sleep(for: .milliseconds(300))
             guard !Task.isCancelled else { return }

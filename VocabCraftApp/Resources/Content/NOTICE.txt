@@ -1,0 +1,26 @@
+VocabCraft Content Distribution Notice & Third-Party Provenance
+==============================================================
+
+Release Version: 1
+Dataset Schema Version: 1
+Language Pair: en -> vi
+Target Audience: Vietnamese learners of English (A1-B1)
+
+Sources & Attributions:
+-----------------------
+1. Wiktionary (English Wiktionary contributors)
+   - Source URL: https://en.wiktionary.org
+   - Rights Basis: CC BY-SA 4.0
+   - License Identifier: CC-BY-SA-4.0
+   - Attribution Notice: Content derived in part from English Wiktionary under Creative Commons Attribution-ShareAlike 4.0 International.
+
+2. VocabCraft Editorial Team
+   - Rights Basis: Proprietary Educational Content
+   - Attribution Notice: Vietnamese contextual definitions, pedagogical examples, collocations, and pronunciation alignments curated by VocabCraft Team.
+
+Checksums & Verification:
+-------------------------
+Bundle: vocab_content.sqlite
+SHA-256: 6c3402b5efdb29998f2769e812cd7df482abb777a7caf4ae807a413093bd2713
+Size: 303,104 bytes
+Verification Command: python3 -m scripts.content.verify_first_release --bundle vocab_content.sqlite --manifest manifest.json

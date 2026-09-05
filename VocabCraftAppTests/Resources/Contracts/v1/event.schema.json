@@ -1,0 +1,238 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vocabcraft.app/schemas/v1/event.schema.json",
+  "title": "LearningEvent",
+  "description": "Event schema for practice attempts and lesson completions in VocabCraft Phase 3A",
+  "oneOf": [
+    { "$ref": "#/$defs/PracticeAttempt" },
+    { "$ref": "#/$defs/LessonCompletion" }
+  ],
+  "$defs": {
+    "UUID": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "PracticeAttempt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_type",
+        "attempt_id",
+        "origin_profile_id",
+        "device_id",
+        "device_sequence",
+        "event_schema_version",
+        "sense_id",
+        "sense_revision",
+        "content_version",
+        "exercise_kind",
+        "capability",
+        "input_modes",
+        "response_mode",
+        "outcome",
+        "hint_count",
+        "retry_count",
+        "response_time_ms",
+        "occurred_at",
+        "client_srs_algorithm_version",
+        "evaluator_version"
+      ],
+      "properties": {
+        "event_type": {
+          "type": "string",
+          "const": "practice_attempt"
+        },
+        "attempt_id": { "$ref": "#/$defs/UUID" },
+        "origin_profile_id": { "$ref": "#/$defs/UUID" },
+        "device_id": { "$ref": "#/$defs/UUID" },
+        "device_sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "event_schema_version": {
+          "type": "integer",
+          "const": 1
+        },
+        "sense_id": { "$ref": "#/$defs/UUID" },
+        "sense_revision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "content_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "lesson_id": {
+          "oneOf": [
+            { "$ref": "#/$defs/UUID" },
+            { "type": "null" }
+          ]
+        },
+        "lesson_revision": {
+          "oneOf": [
+            { "type": "integer", "minimum": 1 },
+            { "type": "null" }
+          ]
+        },
+        "exercise_kind": {
+          "type": "string",
+          "enum": [
+            "recognition_choice",
+            "recall_text",
+            "recall_speech",
+            "application_text",
+            "application_speech",
+            "pronunciation"
+          ]
+        },
+        "capability": {
+          "oneOf": [
+            {
+              "type": "string",
+              "enum": ["recognition", "recall", "application"]
+            },
+            { "type": "null" }
+          ]
+        },
+        "input_modes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["text", "audio"]
+          },
+          "minItems": 1
+        },
+        "response_mode": {
+          "type": "string",
+          "enum": ["choice", "text", "speech"]
+        },
+        "outcome": {
+          "type": "string",
+          "enum": ["correct", "incorrect", "unscored"]
+        },
+        "score_milli": {
+          "oneOf": [
+            { "type": "integer", "minimum": 0, "maximum": 1000 },
+            { "type": "null" }
+          ]
+        },
+        "hint_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "retry_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "response_time_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "elapsed_since_previous_ms": {
+          "oneOf": [
+            { "type": "integer", "minimum": 0 },
+            { "type": "null" }
+          ]
+        },
+        "client_srs_algorithm_version": {
+          "type": "string",
+          "pattern": "^(none|[a-zA-Z0-9_.-]+)$"
+        },
+        "evaluator_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pronunciation_score_milli": {
+          "oneOf": [
+            { "type": "integer", "minimum": 0, "maximum": 1000 },
+            { "type": "null" }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "exercise_kind": { "const": "pronunciation" } }
+          },
+          "then": {
+            "properties": { "capability": { "type": "null" } }
+          },
+          "else": {
+            "properties": {
+              "capability": {
+                "type": "string",
+                "enum": ["recognition", "recall", "application"]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "evaluator_version": { "const": "unscored" } }
+          },
+          "then": {
+            "properties": { "outcome": { "const": "unscored" } }
+          }
+        },
+        {
+          "if": {
+            "properties": { "outcome": { "const": "unscored" } }
+          },
+          "then": {
+            "properties": { "score_milli": { "type": "null" } }
+          }
+        }
+      ]
+    },
+    "LessonCompletion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_type",
+        "event_id",
+        "origin_profile_id",
+        "device_id",
+        "device_sequence",
+        "event_schema_version",
+        "lesson_id",
+        "lesson_revision",
+        "content_version",
+        "completed_at"
+      ],
+      "properties": {
+        "event_type": {
+          "type": "string",
+          "const": "lesson_completion"
+        },
+        "event_id": { "$ref": "#/$defs/UUID" },
+        "origin_profile_id": { "$ref": "#/$defs/UUID" },
+        "device_id": { "$ref": "#/$defs/UUID" },
+        "device_sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "event_schema_version": {
+          "type": "integer",
+          "const": 1
+        },
+        "lesson_id": { "$ref": "#/$defs/UUID" },
+        "lesson_revision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "content_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "completed_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}
