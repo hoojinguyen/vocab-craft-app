@@ -840,7 +840,43 @@ struct SpeechEngineStartupAtomicityTests {
 
         #expect(engine.isWordActive == false)
     }
+
+    @Test("in-flight startListening task cancellation throws cancelled error and cleans up lease")
+    @MainActor
+    func inFlightStartListeningTaskCancellationThrowsCancelled() async throws {
+        let mockHardware = MockAudioSessionHardware()
+        let coordinator = AudioSessionCoordinator(hardware: mockHardware)
+        let controller = SuspendedSpeechAudioEngineController()
+        let engine = ResilientReflexSpeechEngine(
+            audioController: controller,
+            audioSessionCoordinator: coordinator
+        )
+        engine.startSession(contextualPhrases: [])
+
+        let startTask = Task {
+            try await engine.startListening(targetLemma: "apple", contextualPhrases: [])
+        }
+        await controller.waitUntilPreparationStarts(expectedCount: 1)
+
+        startTask.cancel()
+
+        do {
+            try await startTask.value
+            Issue.record("Expected cancellation error to be thrown")
+        } catch let error as SpeechCaptureError {
+            #expect(error == .cancelled)
+        } catch {
+            Issue.record("Expected SpeechCaptureError.cancelled, got \(error)")
+        }
+
+        #expect(engine.isWordActive == false)
+        #expect(await coordinator.activeLeaseCount == 0)
+
+        engine.stopSession()
+        _ = await engine.sessionReleaseTask?.value
+    }
 }
+
 
 actor SuspendedSpeechAudioEngineController: SpeechAudioEngineControlling {
     private var preparationContinuations: [UUID: CheckedContinuation<Void, Error>] = [:]
