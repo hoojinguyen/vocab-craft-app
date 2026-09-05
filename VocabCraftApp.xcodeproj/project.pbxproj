@@ -48,6 +48,7 @@
 		30009AC1BB7654E455DF /* SwiftDataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20009AC1BB7654E455DF /* SwiftDataModels.swift */; };
 		3000928AAF987BEB4203 /* UserSettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000928AAF987BEB4203 /* UserSettingsStore.swift */; };
 		300085D4BA7A4E3D273F /* VocabTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200085D4BA7A4E3D273F /* VocabTheme.swift */; };
+		3000A101C0DE778F0001 /* AppPermissionNotice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A101C0DE778F0001 /* AppPermissionNotice.swift */; };
 		3000B9DD402DCD172909 /* AppStrings+Lesson.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B9DD402DCD172909 /* AppStrings+Lesson.swift */; };
 		3000915BE5C96A7D1D18 /* AppStrings+Practice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000915BE5C96A7D1D18 /* AppStrings+Practice.swift */; };
 		300090EB5ABA9B7051A5 /* AppStrings+Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200090EB5ABA9B7051A5 /* AppStrings+Profile.swift */; };
@@ -336,6 +337,7 @@
 		20009AC1BB7654E455DF /* SwiftDataModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SwiftDataModels.swift"; sourceTree = "<group>"; };
 		2000928AAF987BEB4203 /* UserSettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserSettingsStore.swift"; sourceTree = "<group>"; };
 		200085D4BA7A4E3D273F /* VocabTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabTheme.swift"; sourceTree = "<group>"; };
+		2000A101C0DE778F0001 /* AppPermissionNotice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppPermissionNotice.swift"; sourceTree = "<group>"; };
 		2000B9DD402DCD172909 /* AppStrings+Lesson.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStrings+Lesson.swift"; sourceTree = "<group>"; };
 		2000915BE5C96A7D1D18 /* AppStrings+Practice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStrings+Practice.swift"; sourceTree = "<group>"; };
 		200090EB5ABA9B7051A5 /* AppStrings+Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStrings+Profile.swift"; sourceTree = "<group>"; };
@@ -622,9 +624,18 @@
 				4000B9FD3CB2F2042047 /* Database */,
 				40003153465D574812BC /* DesignSystem */,
 				400080019F7B3C6D2348 /* Localization */,
+				4000A101C0DE778F0001 /* Models */,
 				4000DA48C316E1ADA496 /* SRS */,
 			);
 			path = "Core";
+			sourceTree = "<group>";
+		};
+		4000A101C0DE778F0001 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				2000A101C0DE778F0001 /* AppPermissionNotice.swift */,
+			);
+			path = "Models";
 			sourceTree = "<group>";
 		};
 		4000778F3AC70FE2B174 /* Audio */ = {
@@ -1637,6 +1648,7 @@
 				30009AC1BB7654E455DF /* SwiftDataModels.swift in Sources */,
 				3000928AAF987BEB4203 /* UserSettingsStore.swift in Sources */,
 				300085D4BA7A4E3D273F /* VocabTheme.swift in Sources */,
+				3000A101C0DE778F0001 /* AppPermissionNotice.swift in Sources */,
 				3000B9DD402DCD172909 /* AppStrings+Lesson.swift in Sources */,
 				3000915BE5C96A7D1D18 /* AppStrings+Practice.swift in Sources */,
 				300090EB5ABA9B7051A5 /* AppStrings+Profile.swift in Sources */,
