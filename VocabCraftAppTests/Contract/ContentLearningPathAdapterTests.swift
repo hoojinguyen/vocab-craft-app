@@ -21,13 +21,17 @@ final class ContentLearningPathAdapterTests: XCTestCase {
         let sections = try await adapter.load()
         XCTAssertEqual(sections.count, 1)
         let section = sections[0]
-        XCTAssertEqual(section.nodes.count, 2)
+        XCTAssertEqual(section.nodes.count, 4)
 
         let expected = try ContractFixture.expected()
         XCTAssertEqual(section.nodes[0].id, expected.orderedLessonIDs[0].rawValue.uuidString.lowercased())
         XCTAssertEqual(section.nodes[1].id, expected.orderedLessonIDs[1].rawValue.uuidString.lowercased())
         XCTAssertEqual(section.nodes[0].state, .active)
         XCTAssertEqual(section.nodes[1].state, .upcoming)
+        XCTAssertEqual(section.nodes[2].kind, .checkpoint)
+        XCTAssertEqual(section.nodes[2].state, .locked)
+        XCTAssertEqual(section.nodes[3].kind, .treasureChest)
+        XCTAssertEqual(section.nodes[3].state, .locked)
     }
 
     func testAdapterReflectsLessonCompletion() async throws {
@@ -54,9 +58,12 @@ final class ContentLearningPathAdapterTests: XCTestCase {
         let sections = try await adapter.load()
         XCTAssertEqual(sections.count, 1)
         let nodes = sections[0].nodes
+        XCTAssertEqual(nodes.count, 4)
         XCTAssertEqual(nodes[0].state, .completed)
         XCTAssertEqual(nodes[0].stars, 3)
         XCTAssertEqual(nodes[1].state, .active)
+        XCTAssertEqual(nodes[2].state, .upcoming)
+        XCTAssertEqual(nodes[3].state, .locked)
     }
 
     func testSharedSenseAcrossLessonsDoesNotDuplicateInGlobalVault() async throws {
@@ -115,5 +122,27 @@ final class ContentLearningPathAdapterTests: XCTestCase {
         XCTAssertEqual(sections.count, 1)
         let nodes = sections[0].nodes
         XCTAssertEqual(nodes[0].state, .active, "Mismatched revision must not mark lesson as completed")
+    }
+
+    func testAdapterIncludesCheckpointAndTreasureNodes() async throws {
+        let repository = try SQLiteContentRepository(
+            url: ContractFixture.bundleURL(),
+            manifest: ContractFixture.manifest()
+        )
+        let journal = try LearningJournal(url: ContractFixture.temporaryJournalURL())
+        let profile = try await journal.createGuestProfile()
+        let adapter = ContentLearningPathAdapter(
+            repository: repository,
+            journal: journal,
+            profileID: profile
+        )
+        let sections = try await adapter.load()
+        XCTAssertEqual(sections.count, 1)
+        let section = sections[0]
+        XCTAssertEqual(section.nodes.count, 4, "Expected 2 standard lessons + 1 checkpoint + 1 treasure chest")
+        XCTAssertEqual(section.nodes[2].kind, .checkpoint)
+        XCTAssertEqual(section.nodes[3].kind, .treasureChest)
+        XCTAssertEqual(section.nodes[2].state, .locked)
+        XCTAssertEqual(section.nodes[3].state, .locked)
     }
 }

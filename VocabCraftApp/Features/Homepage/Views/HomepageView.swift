@@ -284,25 +284,103 @@ private extension HomepageView {
     func startLesson(for node: LessonNodeModel) {
         guard !isLaunchingLesson && activeLessonLearningVM == nil else { return }
 
-        let resolvedDeckId: String
-        if node.id.hasPrefix("checkpoint_") {
-            resolvedDeckId = String(node.id.dropFirst("checkpoint_".count))
-        } else {
-            resolvedDeckId = viewModel.sections.first(where: { sec in sec.nodes.contains(where: { $0.id == node.id }) })?.id ?? ""
-        }
-
+        let resolvedDeckId = resolveDeckId(for: node)
         guard !resolvedDeckId.isEmpty else {
-            completionToastData = CraftToastData(
-                title: AppStrings.Common.errorText,
-                message: AppStrings.Lesson.loadErrorText,
-                iconName: "exclamationmark.triangle.fill",
-                style: .danger,
-                surfaceStyle: .glass,
-                duration: 3.0
-            )
+            showLoadErrorToast()
             return
         }
 
+        if node.kind == .treasureChest {
+            claimTreasure(for: node, deckId: resolvedDeckId)
+            return
+        }
+
+        launchLessonTask(for: node, deckId: resolvedDeckId)
+    }
+
+    private func resolveDeckId(for node: LessonNodeModel) -> String {
+        if node.id.hasPrefix("checkpoint_") {
+            return String(node.id.dropFirst("checkpoint_".count))
+        }
+        if node.id.hasPrefix("treasure_") {
+            return String(node.id.dropFirst("treasure_".count))
+        }
+        return viewModel.sections.first(where: { sec in
+            sec.nodes.contains(where: { $0.id == node.id })
+        })?.id ?? ""
+    }
+
+    private func showLoadErrorToast(message: String? = nil) {
+        completionToastData = CraftToastData(
+            title: AppStrings.Common.errorText,
+            message: message ?? AppStrings.Lesson.loadErrorText,
+            iconName: "exclamationmark.triangle.fill",
+            style: .danger,
+            surfaceStyle: .glass,
+            duration: 3.0
+        )
+    }
+
+    private func claimTreasure(for node: LessonNodeModel, deckId: String) {
+        guard node.state == .bonus else { return }
+        isLaunchingLesson = true
+        Task {
+            defer {
+                Task { @MainActor in
+                    isLaunchingLesson = false
+                }
+            }
+            let xpReward = LessonEconomyPolicy.xpReward(for: .treasureChest)
+            do {
+                _ = try await appContainer.completeLessonUseCase.execute(
+                    stageId: node.id,
+                    deckId: deckId,
+                    stars: 3,
+                    weakWordIds: [],
+                    progressFraction: 1.0
+                )
+                await viewModel.loadLearningPath()
+                await MainActor.run {
+                    CraftHaptics.shared.success()
+                    homeConfettiTrigger = true
+                    completionToastData = CraftToastData(
+                        title: String(localized: "app.home.toast.treasure_claimed_title", defaultValue: "Đã mở rương quà!", bundle: .module),
+                        message: "+\(xpReward) XP",
+                        iconName: "gift.fill",
+                        style: .success,
+                        surfaceStyle: .glass,
+                        duration: 3.0
+                    )
+                }
+            } catch {
+                await MainActor.run {
+                    showLoadErrorToast(message: error.localizedDescription)
+                }
+            }
+        }
+    }
+
+    private func loadWords(for node: LessonNodeModel, deckId: String) async -> [TopicWordDTO] {
+        if node.id.hasPrefix("checkpoint_") {
+            let stages = (try? await appContainer.vocabularyDataSource.fetchSubTopicStages(deckId: deckId)) ?? []
+            return await withTaskGroup(of: [TopicWordDTO].self) { group in
+                for stage in stages {
+                    group.addTask {
+                        (try? await appContainer.vocabularyDataSource.fetchWordsForStage(stageId: stage.id)) ?? []
+                    }
+                }
+                var combined: [TopicWordDTO] = []
+                combined.reserveCapacity(stages.count * 8)
+                for await words in group {
+                    combined.append(contentsOf: words)
+                }
+                return combined
+            }
+        }
+        return (try? await appContainer.vocabularyDataSource.fetchWordsForStage(stageId: node.id)) ?? []
+    }
+
+    private func launchLessonTask(for node: LessonNodeModel, deckId: String) {
         isLaunchingLesson = true
         lessonLaunchTask?.cancel()
         lessonLaunchTask = Task {
@@ -312,41 +390,13 @@ private extension HomepageView {
                 }
             }
 
-            let words: [TopicWordDTO]
-            let deckId: String = resolvedDeckId
-            if node.id.hasPrefix("checkpoint_") {
-                let stages = (try? await appContainer.vocabularyDataSource.fetchSubTopicStages(deckId: deckId)) ?? []
-                let deckWords: [TopicWordDTO] = await withTaskGroup(of: [TopicWordDTO].self) { group in
-                    for stage in stages {
-                        group.addTask {
-                            (try? await appContainer.vocabularyDataSource.fetchWordsForStage(stageId: stage.id)) ?? []
-                        }
-                    }
-                    var combined: [TopicWordDTO] = []
-                    combined.reserveCapacity(stages.count * 8)
-                    for await words in group {
-                        combined.append(contentsOf: words)
-                    }
-                    return combined
-                }
-                words = deckWords
-            } else {
-                words = (try? await appContainer.vocabularyDataSource.fetchWordsForStage(stageId: node.id)) ?? []
-            }
-
+            let words = await loadWords(for: node, deckId: deckId)
             guard !Task.isCancelled else { return }
 
             guard !words.isEmpty else {
                 await MainActor.run {
                     guard !Task.isCancelled else { return }
-                    completionToastData = CraftToastData(
-                        title: AppStrings.Common.errorText,
-                        message: AppStrings.Lesson.loadErrorText,
-                        iconName: "exclamationmark.triangle.fill",
-                        style: .danger,
-                        surfaceStyle: .glass,
-                        duration: 3.0
-                    )
+                    showLoadErrorToast()
                 }
                 return
             }
@@ -424,9 +474,7 @@ private extension HomepageView {
                 let accuracy = summary.totalWords > 0 ? Double(summary.correctWords) / Double(summary.totalWords) : 1.0
                 let stars = accuracy >= 0.95 ? 3 : (accuracy >= 0.80 ? 2 : 1)
                 let weakWordIds = summary.weakWordAttempts.map { Int64($0.wordId) }
-                let deckId = node.id.hasPrefix("checkpoint_")
-                    ? String(node.id.dropFirst("checkpoint_".count))
-                    : (viewModel.sections.first(where: { sec in sec.nodes.contains(where: { $0.id == node.id }) })?.id ?? "")
+                let deckId = resolveDeckId(for: node)
 
                 do {
                     let result = try await appContainer.completeLessonUseCase.execute(

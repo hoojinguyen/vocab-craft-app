@@ -19,7 +19,7 @@ public final class AppContainer {
     public let modelContainer: ModelContainer?
 
     // MARK: - Data Sources & Repositories
-    public let vocabularyDataSource: VocabularyDataSourceProtocol
+    public private(set) var vocabularyDataSource: VocabularyDataSourceProtocol
     public private(set) var contentRepository: (any ContentRepository)?
     public let learningJournal: LearningJournal?
     public let bundleManager: (any ContentBundleManagerProtocol)?
@@ -107,7 +107,8 @@ public final class AppContainer {
                 modelContainer: modelContainer,
                 datasetEngine: datasetEngine,
                 useMockData: useMockData,
-                useSampleData: useSampleData
+                useSampleData: useSampleData,
+                contentRepository: contentContext.repository
             ),
             userProgressRepository: userProgressRepository,
             vocabularyDataSource: vocabularyDataSource,
@@ -193,6 +194,7 @@ public final class AppContainer {
         let datasetEngine: DatasetEngine?
         let useMockData: Bool?
         let useSampleData: Bool
+        let contentRepository: (any ContentRepository)?
     }
 
     private static func resolveStorage(
@@ -203,7 +205,16 @@ public final class AppContainer {
     ) -> ResolvedStorage {
         let progressActor: UserProgressModelActor? = env.modelContainer.map { UserProgressModelActor(modelContainer: $0) }
         let userProgress = userProgressRepository ?? (progressActor ?? MockUserProgressRepository())
-        let dataSource = vocabularyDataSource ?? (env.useSampleData ? SampleVocabularyDataSource() : UnavailableVocabularyDataSource())
+        let defaultDataSource: VocabularyDataSourceProtocol = {
+            if env.useSampleData {
+                return SampleVocabularyDataSource()
+            }
+            if let repo = env.contentRepository {
+                return ContentVocabularyDataSource(repository: repo)
+            }
+            return UnavailableVocabularyDataSource()
+        }()
+        let dataSource = vocabularyDataSource ?? defaultDataSource
         let stage = stageProgressRepository ?? (env.modelContainer.map { StageProgressRepositoryImpl(modelContext: $0.mainContext) } ?? MockStageProgressRepository())
         let shouldMock = env.useMockData ?? (env.datasetEngine == nil)
         let vocab: VocabularyRepositoryProtocol = shouldMock
@@ -293,17 +304,17 @@ public final class AppContainer {
         let journalURL = appSupport.appendingPathComponent("learning_journal.sqlite")
         let journal = try? LearningJournal(url: journalURL)
 
-        let contentRootURL = appSupport.appendingPathComponent("VocabCraft/Content", isDirectory: true)
-        let activeURL = contentRootURL.appendingPathComponent("active.json")
-        if let activeData = try? Data(contentsOf: activeURL),
-           let pointer = try? JSONDecoder().decode(ActiveContentPointer.self, from: activeData) {
-            let dbURL = contentRootURL.appendingPathComponent(pointer.databaseRelativePath)
-            if let repo = try? SQLiteContentRepository(url: dbURL) {
-                return ResolvedContentContext(availability: .ready, repository: repo, journal: journal)
-            }
-        }
-
         if let bundle {
+            let contentRootURL = appSupport.appendingPathComponent("VocabCraft/Content", isDirectory: true)
+            let activeURL = contentRootURL.appendingPathComponent("active.json")
+            if let activeData = try? Data(contentsOf: activeURL),
+               let pointer = try? JSONDecoder().decode(ActiveContentPointer.self, from: activeData) {
+                let dbURL = contentRootURL.appendingPathComponent(pointer.databaseRelativePath)
+                if let repo = try? SQLiteContentRepository(url: dbURL) {
+                    return ResolvedContentContext(availability: .ready, repository: repo, journal: journal)
+                }
+            }
+
             let bundleDbURL = bundle.url(forResource: "vocab_content", withExtension: "sqlite")
             let bundleManifestURL = bundle.url(forResource: "manifest", withExtension: "json")
             if let dbURL = bundleDbURL, let manifestURL = bundleManifestURL,
@@ -331,7 +342,12 @@ public final class AppContainer {
         }
         if let repo = contentContext.repository, let journal = contentContext.journal {
             let defaultProfileID = LearningJournal.defaultGuestProfileID
-            let adapter = ContentLearningPathAdapter(repository: repo, journal: journal, profileID: defaultProfileID)
+            let adapter = ContentLearningPathAdapter(
+                repository: repo,
+                journal: journal,
+                profileID: defaultProfileID,
+                stageProgressRepo: stageRepo
+            )
             return FetchLearningPathUseCase(adapter: adapter)
         }
         return FetchLearningPathUseCase(dataSource: dataSource, stageRepo: stageRepo)
@@ -511,12 +527,14 @@ extension AppContainer {
         }
         let handle = try await bundleManager.openActive()
         self.contentRepository = handle.reader
+        self.vocabularyDataSource = ContentVocabularyDataSource(repository: handle.reader)
         if let journal = self.learningJournal {
             let defaultProfileID = LearningJournal.defaultGuestProfileID
             let adapter = ContentLearningPathAdapter(
                 repository: handle.reader,
                 journal: journal,
-                profileID: defaultProfileID
+                profileID: defaultProfileID,
+                stageProgressRepo: stageProgressRepository
             )
             self.fetchLearningPathUseCase = FetchLearningPathUseCase(adapter: adapter)
             self.fetchPersonalVaultUseCase = FetchPersonalVaultUseCase(

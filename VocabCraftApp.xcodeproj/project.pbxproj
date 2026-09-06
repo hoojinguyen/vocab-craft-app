@@ -33,6 +33,7 @@
 		3000AFEA42F4E79B7FB6 /* ContentModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000AFEA42F4E79B7FB6 /* ContentModels.swift */; };
 		3000E704269BD30A727F /* ContentRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000E704269BD30A727F /* ContentRepository.swift */; };
 		30002DB55F493B9C0645 /* SQLiteContentRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20002DB55F493B9C0645 /* SQLiteContentRepository.swift */; };
+		3000C005299866F2CEE5 /* ContentVocabularyDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C005299866F2CEE5 /* ContentVocabularyDataSource.swift */; };
 		30005F5A8F8438E080F5 /* VocabularyDataSourceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005F5A8F8438E080F5 /* VocabularyDataSourceProtocol.swift */; };
 		300054D59B97E59482EE /* DatasetEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200054D59B97E59482EE /* DatasetEngine.swift */; };
 		3000D26FBFB21A7CA2FE /* DatasetModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000D26FBFB21A7CA2FE /* DatasetModels.swift */; };
@@ -354,6 +355,7 @@
 		2000AFEA42F4E79B7FB6 /* ContentModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentModels.swift"; sourceTree = "<group>"; };
 		2000E704269BD30A727F /* ContentRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentRepository.swift"; sourceTree = "<group>"; };
 		20002DB55F493B9C0645 /* SQLiteContentRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SQLiteContentRepository.swift"; sourceTree = "<group>"; };
+		2000C005299866F2CEE5 /* ContentVocabularyDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentVocabularyDataSource.swift"; sourceTree = "<group>"; };
 		20005F5A8F8438E080F5 /* VocabularyDataSourceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyDataSourceProtocol.swift"; sourceTree = "<group>"; };
 		200054D59B97E59482EE /* DatasetEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatasetEngine.swift"; sourceTree = "<group>"; };
 		2000D26FBFB21A7CA2FE /* DatasetModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatasetModels.swift"; sourceTree = "<group>"; };
@@ -722,6 +724,7 @@
 				2000AFEA42F4E79B7FB6 /* ContentModels.swift */,
 				2000E704269BD30A727F /* ContentRepository.swift */,
 				20002DB55F493B9C0645 /* SQLiteContentRepository.swift */,
+				2000C005299866F2CEE5 /* ContentVocabularyDataSource.swift */,
 			);
 			path = "Content";
 			sourceTree = "<group>";
@@ -1802,6 +1805,7 @@
 				3000AFEA42F4E79B7FB6 /* ContentModels.swift in Sources */,
 				3000E704269BD30A727F /* ContentRepository.swift in Sources */,
 				30002DB55F493B9C0645 /* SQLiteContentRepository.swift in Sources */,
+				3000C005299866F2CEE5 /* ContentVocabularyDataSource.swift in Sources */,
 				30005F5A8F8438E080F5 /* VocabularyDataSourceProtocol.swift in Sources */,
 				300054D59B97E59482EE /* DatasetEngine.swift in Sources */,
 				3000D26FBFB21A7CA2FE /* DatasetModels.swift in Sources */,

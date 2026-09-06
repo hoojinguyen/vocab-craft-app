@@ -122,8 +122,9 @@ public final class CompleteLessonUseCase: CompleteLessonUseCaseProtocol, Sendabl
         completion: LessonCompletion?
     ) async throws -> LessonCompletionResult {
         let isCheckpoint = stageId.hasPrefix("checkpoint_")
+        let isTreasure = stageId.hasPrefix("treasure_")
         let isCompleted = progressFraction >= 1.0 || stars > 0
-        let xpEarned = isCheckpoint ? 80 : 25
+        let xpEarned = isTreasure ? 150 : (isCheckpoint ? 80 : 25)
 
         try await stageRepo.saveStageProgress(
             stageId: stageId,

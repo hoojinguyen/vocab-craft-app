@@ -126,6 +126,28 @@ final class LearningPathUseCasesTests: XCTestCase {
         XCTAssertEqual(savedProgress?.score, 2)
     }
 
+    func test_completeLessonUseCase_treasureChest_awards150XP() async throws {
+        let sut = CompleteLessonUseCase(
+            stageRepo: stageRepo,
+            progressRepo: progressRepo
+        )
+
+        let result = try await sut.execute(
+            stageId: "treasure_deck_daily",
+            deckId: "deck_daily",
+            stars: 3,
+            weakWordIds: [],
+            progressFraction: 1.0
+        )
+
+        XCTAssertEqual(result.xpEarned, 150)
+        XCTAssertEqual(result.score, 3)
+
+        let savedProgress = try await stageRepo.fetchStageProgress(stageId: "treasure_deck_daily")
+        XCTAssertNotNil(savedProgress)
+        XCTAssertEqual(savedProgress?.isCompleted, true)
+    }
+
     func test_completeLessonUseCase_partialProgress_calculatesCorrectXPAndCompletion() async throws {
         let sut = CompleteLessonUseCase(
             stageRepo: stageRepo,

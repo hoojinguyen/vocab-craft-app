@@ -19,9 +19,15 @@ public final class FetchLearningPathUseCase: FetchLearningPathUseCaseProtocol, S
     public init(
         repository: any ContentRepository,
         journal: LearningJournal,
-        profileID: ProfileID
+        profileID: ProfileID,
+        stageProgressRepo: StageProgressRepositoryProtocol? = nil
     ) {
-        self.adapter = ContentLearningPathAdapter(repository: repository, journal: journal, profileID: profileID)
+        self.adapter = ContentLearningPathAdapter(
+            repository: repository,
+            journal: journal,
+            profileID: profileID,
+            stageProgressRepo: stageProgressRepo
+        )
         self.legacyDataSource = nil
         self.legacyStageRepo = nil
     }

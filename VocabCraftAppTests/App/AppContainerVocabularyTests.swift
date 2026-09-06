@@ -102,7 +102,12 @@ final class AppContainerVocabularyTests: XCTestCase {
 
         let sections = try await container.fetchLearningPathUseCase.execute()
         XCTAssertEqual(sections.count, 1)
-        XCTAssertEqual(sections.first?.nodes.count, 5)
+        XCTAssertEqual(sections.first?.nodes.count, 7, "Expected 5 standard lessons + 1 checkpoint + 1 treasure chest")
+
+        XCTAssertTrue(container.vocabularyDataSource is ContentVocabularyDataSource)
+        let firstLessonId = try XCTUnwrap(sections.first?.nodes.first?.id)
+        let words = try await container.vocabularyDataSource.fetchWordsForStage(stageId: firstLessonId)
+        XCTAssertFalse(words.isEmpty, "Words must be loadable from SQLite content repository via ContentVocabularyDataSource")
     }
 }
 
