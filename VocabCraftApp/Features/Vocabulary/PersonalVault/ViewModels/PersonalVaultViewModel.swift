@@ -185,58 +185,87 @@ public final class PersonalVaultViewModel {
     }
 
     public func toggleBookmark(wordId: Int64) async {
-        var didSucceed = false
+        let vaultIndex = vaultWords.firstIndex(where: { $0.id == wordId })
+        let personalIndex = words.firstIndex(where: { $0.id == wordId })
+
+        let previousState: Bool
+        if let vaultIndex {
+            previousState = vaultWords[vaultIndex].isBookmarked
+        } else if let personalIndex {
+            previousState = words[personalIndex].isBookmarked
+        } else if let current = selectedWordForDetail, current.id == wordId {
+            previousState = current.isBookmarked
+        } else {
+            if let toggleBookmarkUseCase {
+                do {
+                    _ = try await toggleBookmarkUseCase.execute(wordId: wordId)
+                } catch {
+                    errorMessage = error.localizedDescription
+                }
+            }
+            return
+        }
+
+        let newState = !previousState
+
+        // 1. Optimistic in-memory updates
+        applyBookmarkState(newState, for: wordId)
+        let optimisticCount = newState ? metrics.bookmarkedCount + 1 : max(0, metrics.bookmarkedCount - 1)
+        metrics = updatingBookmarkedCount(to: optimisticCount)
+
+        // 2. Background persistence
         if let toggleBookmarkUseCase {
             do {
                 _ = try await toggleBookmarkUseCase.execute(wordId: wordId)
-                await loadData()
-                didSucceed = true
             } catch {
+                // 3. Rollback on error
+                applyBookmarkState(previousState, for: wordId)
+                let revertedCount = previousState ? metrics.bookmarkedCount + 1 : max(0, metrics.bookmarkedCount - 1)
+                metrics = updatingBookmarkedCount(to: revertedCount)
                 errorMessage = error.localizedDescription
             }
-        } else {
-            // In-memory fallback if toggleBookmarkUseCase is not injected
-            if let idx = vaultWords.firstIndex(where: { $0.id == wordId }) {
-                let item = vaultWords[idx]
-                let updated = VaultWordItem(
-                    id: item.id,
-                    lemma: item.lemma,
-                    pos: item.pos,
-                    phonetic: item.phonetic,
-                    definitionVi: item.definitionVi,
-                    exampleSentenceEn: item.exampleSentenceEn,
-                    exampleSentenceVi: item.exampleSentenceVi,
-                    cefrLevel: item.cefrLevel,
-                    isMastered: item.isMastered,
-                    isBookmarked: !item.isBookmarked,
-                    correctStreak: item.correctStreak,
-                    practicedModes: item.practicedModes,
-                    lastPracticedAt: item.lastPracticedAt,
-                    modeStats: item.modeStats
-                )
-                vaultWords[idx] = updated
-                didSucceed = true
-            }
         }
+    }
 
-        if didSucceed, let current = selectedWordForDetail, current.id == wordId {
-            selectedWordForDetail = VaultWordItem(
-                id: current.id,
-                lemma: current.lemma,
-                pos: current.pos,
-                phonetic: current.phonetic,
-                definitionVi: current.definitionVi,
-                exampleSentenceEn: current.exampleSentenceEn,
-                exampleSentenceVi: current.exampleSentenceVi,
-                cefrLevel: current.cefrLevel,
-                isMastered: current.isMastered,
-                isBookmarked: !current.isBookmarked,
-                correctStreak: current.correctStreak,
-                practicedModes: current.practicedModes,
-                lastPracticedAt: current.lastPracticedAt,
-                modeStats: current.modeStats
-            )
+    private func applyBookmarkState(_ isBookmarked: Bool, for wordId: Int64) {
+        if let idx = vaultWords.firstIndex(where: { $0.id == wordId }) {
+            vaultWords[idx] = updatingBookmarkState(for: vaultWords[idx], isBookmarked: isBookmarked)
         }
+        if let pIdx = words.firstIndex(where: { $0.id == wordId }) {
+            words[pIdx].isBookmarked = isBookmarked
+        }
+        if let current = selectedWordForDetail, current.id == wordId {
+            selectedWordForDetail = updatingBookmarkState(for: current, isBookmarked: isBookmarked)
+        }
+    }
+
+    private func updatingBookmarkState(for item: VaultWordItem, isBookmarked: Bool) -> VaultWordItem {
+        VaultWordItem(
+            id: item.id,
+            lemma: item.lemma,
+            pos: item.pos,
+            phonetic: item.phonetic,
+            definitionVi: item.definitionVi,
+            exampleSentenceEn: item.exampleSentenceEn,
+            exampleSentenceVi: item.exampleSentenceVi,
+            cefrLevel: item.cefrLevel,
+            isMastered: item.isMastered,
+            isBookmarked: isBookmarked,
+            correctStreak: item.correctStreak,
+            practicedModes: item.practicedModes,
+            lastPracticedAt: item.lastPracticedAt,
+            modeStats: item.modeStats
+        )
+    }
+
+    private func updatingBookmarkedCount(to count: Int) -> PersonalVaultMetrics {
+        PersonalVaultMetrics(
+            totalWords: metrics.totalWords,
+            needsReviewCount: metrics.needsReviewCount,
+            masteredCount: metrics.masteredCount,
+            bookmarkedCount: count,
+            unmasteredCount: metrics.unmasteredCount
+        )
     }
 
     public func playAudio(for word: PersonalWord) {
