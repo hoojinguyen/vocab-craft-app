@@ -1,5 +1,4 @@
 import Foundation
-import SwiftUI
 
 /// Filter categories for the Personal Vault.
 public enum PersonalVaultFilter: String, CaseIterable, Sendable, Equatable {
@@ -7,24 +6,6 @@ public enum PersonalVaultFilter: String, CaseIterable, Sendable, Equatable {
     case needsReview
     case mastered
     case bookmarked
-
-    public var titleKey: LocalizedStringKey {
-        switch self {
-        case .all: return AppStrings.Vocabulary.filterAll
-        case .needsReview: return AppStrings.Vocabulary.filterReviewNeeded
-        case .mastered: return AppStrings.Vocabulary.filterMastered
-        case .bookmarked: return AppStrings.Vocabulary.filterSaved
-        }
-    }
-
-    public var title: String {
-        switch self {
-        case .all: return String(localized: "vocabulary.filterAll", defaultValue: "All", bundle: .module)
-        case .needsReview: return String(localized: "vocabulary.filterReviewNeeded", defaultValue: "Needs Review", bundle: .module)
-        case .mastered: return String(localized: "vocabulary.filterMastered", defaultValue: "Mastered", bundle: .module)
-        case .bookmarked: return String(localized: "vocabulary.filterSaved", defaultValue: "Saved", bundle: .module)
-        }
-    }
 }
 
 /// 3-tab filter for the redesigned Vocabulary Vault.
@@ -32,22 +13,6 @@ public enum VaultTabFilter: String, CaseIterable, Sendable, Equatable {
     case notMastered
     case mastered
     case bookmarked
-
-    public var titleKey: LocalizedStringKey {
-        switch self {
-        case .notMastered: return AppStrings.Vault.filterNotMasteredTitleKey
-        case .mastered: return AppStrings.Vault.filterMasteredTitleKey
-        case .bookmarked: return AppStrings.Vault.filterBookmarkedTitleKey
-        }
-    }
-
-    public var title: String {
-        switch self {
-        case .notMastered: return AppStrings.Vault.filterNotMasteredTitle
-        case .mastered: return AppStrings.Vault.filterMasteredTitle
-        case .bookmarked: return AppStrings.Vault.filterBookmarkedTitle
-        }
-    }
 }
 
 /// Aggregated metrics and word count statistics for the Personal Vault.

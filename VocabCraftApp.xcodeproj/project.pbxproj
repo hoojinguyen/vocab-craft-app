@@ -148,6 +148,7 @@
 		300063C2664EBD5E0999 /* HeroProfileCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200063C2664EBD5E0999 /* HeroProfileCard.swift */; };
 		300081BCAFC0C1C48B61 /* ProfileStatsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200081BCAFC0C1C48B61 /* ProfileStatsSheet.swift */; };
 		3000F862E9AA098E9263 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000F862E9AA098E9263 /* SettingsView.swift */; };
+		3000D4D52EF5CFFF2182 /* PersonalVaultFilter+Presentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000D4D52EF5CFFF2182 /* PersonalVaultFilter+Presentation.swift */; };
 		300012A179FE622F3D76 /* PersonalVaultViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200012A179FE622F3D76 /* PersonalVaultViewModel.swift */; };
 		3000EEB276F223298198 /* SmartReviewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000EEB276F223298198 /* SmartReviewViewModel.swift */; };
 		30001D198147D0BAA359 /* SmartReviewSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20001D198147D0BAA359 /* SmartReviewSessionView.swift */; };
@@ -447,6 +448,7 @@
 		200063C2664EBD5E0999 /* HeroProfileCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HeroProfileCard.swift"; sourceTree = "<group>"; };
 		200081BCAFC0C1C48B61 /* ProfileStatsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProfileStatsSheet.swift"; sourceTree = "<group>"; };
 		2000F862E9AA098E9263 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsView.swift"; sourceTree = "<group>"; };
+		2000D4D52EF5CFFF2182 /* PersonalVaultFilter+Presentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersonalVaultFilter+Presentation.swift"; sourceTree = "<group>"; };
 		200012A179FE622F3D76 /* PersonalVaultViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersonalVaultViewModel.swift"; sourceTree = "<group>"; };
 		2000EEB276F223298198 /* SmartReviewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SmartReviewViewModel.swift"; sourceTree = "<group>"; };
 		20001D198147D0BAA359 /* SmartReviewSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SmartReviewSessionView.swift"; sourceTree = "<group>"; };
@@ -1249,10 +1251,19 @@
 		4000BA0A37C22AF4E1B6 /* PersonalVault */ = {
 			isa = PBXGroup;
 			children = (
+				40002127EB0CA83F2327 /* Models */,
 				400066B256E0E264D273 /* ViewModels */,
 				4000FE07898233781BC8 /* Views */,
 			);
 			path = "PersonalVault";
+			sourceTree = "<group>";
+		};
+		40002127EB0CA83F2327 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				2000D4D52EF5CFFF2182 /* PersonalVaultFilter+Presentation.swift */,
+			);
+			path = "Models";
 			sourceTree = "<group>";
 		};
 		400066B256E0E264D273 /* ViewModels */ = {
@@ -1811,6 +1822,7 @@
 				300063C2664EBD5E0999 /* HeroProfileCard.swift in Sources */,
 				300081BCAFC0C1C48B61 /* ProfileStatsSheet.swift in Sources */,
 				3000F862E9AA098E9263 /* SettingsView.swift in Sources */,
+				3000D4D52EF5CFFF2182 /* PersonalVaultFilter+Presentation.swift in Sources */,
 				300012A179FE622F3D76 /* PersonalVaultViewModel.swift in Sources */,
 				3000EEB276F223298198 /* SmartReviewViewModel.swift in Sources */,
 				30001D198147D0BAA359 /* SmartReviewSessionView.swift in Sources */,
