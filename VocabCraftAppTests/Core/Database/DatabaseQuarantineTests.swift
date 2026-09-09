@@ -99,6 +99,11 @@ final class DatabaseQuarantineTests: XCTestCase {
         XCTAssertNotNil(initErrorWithBackup.errorDescription)
         XCTAssertTrue(initErrorWithBackup.errorDescription?.contains("backup_test.sqlite") == true)
         XCTAssertTrue(initErrorWithBackup.errorDescription?.contains("Corrupt header") == true)
+        XCTAssertFalse(initErrorWithBackup.errorDescription?.contains("%@") == true)
+        XCTAssertEqual(
+            initErrorWithBackup.errorDescription,
+            "Failed to load database. Backup created at backup_test.sqlite: Corrupt header"
+        )
 
         let initErrorNoBackup = DatabaseStoreError.storeInitializationFailed(
             description: "Disk full",
@@ -106,14 +111,69 @@ final class DatabaseQuarantineTests: XCTestCase {
         )
         XCTAssertNotNil(initErrorNoBackup.errorDescription)
         XCTAssertTrue(initErrorNoBackup.errorDescription?.contains("Disk full") == true)
+        XCTAssertFalse(initErrorNoBackup.errorDescription?.contains("%@") == true)
+        XCTAssertEqual(
+            initErrorNoBackup.errorDescription,
+            "Failed to load database: Disk full"
+        )
 
         let backupError = DatabaseStoreError.quarantineBackupFailed(description: "Permission denied")
         XCTAssertNotNil(backupError.errorDescription)
         XCTAssertTrue(backupError.errorDescription?.contains("Permission denied") == true)
+        XCTAssertFalse(backupError.errorDescription?.contains("%@") == true)
+        XCTAssertEqual(
+            backupError.errorDescription,
+            "Failed to create quarantine backup: Permission denied"
+        )
 
         let resetError = DatabaseStoreError.manualResetFailed(description: "Lock failure")
         XCTAssertNotNil(resetError.errorDescription)
         XCTAssertTrue(resetError.errorDescription?.contains("Lock failure") == true)
+        XCTAssertFalse(resetError.errorDescription?.contains("%@") == true)
+        XCTAssertEqual(
+            resetError.errorDescription,
+            "Failed to reset database: Lock failure"
+        )
+    }
+
+    func test_reset_store_throws_quarantine_backup_failed_when_quarantine_fails() throws {
+        let protectedDirectory = tempDirectory.appendingPathComponent("protected_store_dir", isDirectory: true)
+        try FileManager.default.createDirectory(at: protectedDirectory, withIntermediateDirectories: true)
+        let protectedStoreURL = protectedDirectory.appendingPathComponent("protected.sqlite")
+        try "IMPORTANT_USER_DATA".write(to: protectedStoreURL, atomically: true, encoding: .utf8)
+
+        // Make directory read-only so new backup files cannot be created in it
+        try FileManager.default.setAttributes([.posixPermissions: 0o555], ofItemAtPath: protectedDirectory.path)
+        defer {
+            // Restore write permissions so cleanup succeeds
+            try? FileManager.default.setAttributes([.posixPermissions: 0o777], ofItemAtPath: protectedDirectory.path)
+        }
+
+        let schema = Schema(versionedSchema: SchemaV2.self)
+        let config = ModelConfiguration(schema: schema, url: protectedStoreURL)
+
+        XCTAssertThrowsError(
+            try SharedAppGroupContainer.resetStoreWithQuarantine(
+                storeURL: protectedStoreURL,
+                configuration: config
+            )
+        ) { error in
+            guard let dbError = error as? DatabaseStoreError else {
+                XCTFail("Expected DatabaseStoreError, got \(error)")
+                return
+            }
+            switch dbError {
+            case .quarantineBackupFailed(let description):
+                XCTAssertFalse(description.isEmpty)
+            default:
+                XCTFail("Expected quarantineBackupFailed, got \(dbError)")
+            }
+        }
+
+        // Original file must NOT be deleted when quarantine fails
+        XCTAssertTrue(FileManager.default.fileExists(atPath: protectedStoreURL.path))
+        let remainingContent = try? String(contentsOf: protectedStoreURL, encoding: .utf8)
+        XCTAssertEqual(remainingContent, "IMPORTANT_USER_DATA")
     }
 }
 #endif

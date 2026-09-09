@@ -126,7 +126,13 @@ public struct SharedAppGroupContainer {
         configuration: ModelConfiguration? = nil,
         fileManager: FileManager = .default
     ) throws -> ModelContainer {
-        _ = quarantineCorruptStoreFiles(from: storeURL, fileManager: fileManager)
+        if fileManager.fileExists(atPath: storeURL.path) {
+            guard quarantineCorruptStoreFiles(from: storeURL, fileManager: fileManager) != nil else {
+                throw DatabaseStoreError.quarantineBackupFailed(
+                    description: "Failed to create quarantine backup before resetting store."
+                )
+            }
+        }
 
         let walCandidates = [
             URL(fileURLWithPath: storeURL.path + "-wal"),
