@@ -346,6 +346,12 @@ extension AppStrings {
         public static var appVersion: LocalizedStringKey { "app.settings.about.app_version" }
         public static var levelBadge: LocalizedStringKey { "app.settings.profile.level_badge" }
         public static var levelBadgeText: String { String(localized: "app.settings.profile.level_badge", defaultValue: "B2 Intermediate", bundle: .module) }
+
+        // Data & Storage Section
+        public static var sectionDataStorage: LocalizedStringKey { "app.settings.section.data_storage" }
+        public static var sectionDataStorageText: String {
+            String(localized: "app.settings.section.data_storage", defaultValue: "Data & Storage", bundle: .module)
+        }
     }
 
     // MARK: - AI Assistant View

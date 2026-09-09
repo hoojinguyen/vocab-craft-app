@@ -4829,6 +4829,23 @@
         }
       }
     },
+    "app.settings.section.data_storage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data & Storage"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dữ liệu & Bộ nhớ"
+          }
+        }
+      }
+    },
     "app.settings.section.dev_tools" : {
       "extractionState" : "manual",
       "localizations" : {

@@ -40,6 +40,7 @@ final class SettingsLocalizationTests: XCTestCase {
         "app.settings.appearance.haptics": ("Rung phản hồi", "Haptic Feedback"),
         "app.settings.appearance.sound_effects": ("Âm thanh hiệu ứng", "Sound Effects"),
         "app.settings.section.dev_tools": ("CÔNG CỤ PHÁT TRIỂN (DEV ONLY)", "DEVELOPER TOOLS (DEV ONLY)"),
+        "app.settings.section.data_storage": ("Dữ liệu & Bộ nhớ", "Data & Storage"),
         "app.settings.dev.theme_preset": ("Theme thiết kế (Design Preset)", "Design Preset Theme"),
         "app.settings.dev.catalog_title": ("CraftUIKit Catalog", "CraftUIKit Catalog"),
         "app.settings.dev.catalog_subtitle": ("Bộ sưu tập linh kiện & token giao diện", "Interactive component & token gallery"),
@@ -96,6 +97,7 @@ final class SettingsLocalizationTests: XCTestCase {
             "app.settings.appearance.haptics",
             "app.settings.appearance.sound_effects",
             "app.settings.section.dev_tools",
+            "app.settings.section.data_storage",
             "app.settings.dev.theme_preset",
             "app.settings.dev.catalog_title",
             "app.settings.dev.catalog_subtitle",
@@ -117,7 +119,7 @@ final class SettingsLocalizationTests: XCTestCase {
             "app.profile.badge_oxford_pioneer"
         ]
 
-        XCTAssertEqual(keys.count, 52, "There must be exactly 52 required keys for Settings and Profile")
+        XCTAssertEqual(keys.count, 53, "There must be exactly 53 required keys for Settings and Profile")
 
         for key in keys {
             XCTAssertNotNil(expectedSettingsKeys[key], "Key \(key) should be present in expected dictionary")
@@ -196,6 +198,7 @@ final class SettingsLocalizationTests: XCTestCase {
         XCTAssertEqual(AppStrings.Settings.themeDarkText, "Dark")
         XCTAssertEqual(AppStrings.Settings.themeLightText, "Light")
         XCTAssertEqual(AppStrings.Settings.themeSystemText, "System")
+        XCTAssertEqual(AppStrings.Settings.sectionDataStorageText, "Data & Storage")
 
         // LocalizedStringKey accessors
         XCTAssertNotNil(AppStrings.Settings.title)
@@ -232,6 +235,7 @@ final class SettingsLocalizationTests: XCTestCase {
         XCTAssertNotNil(AppStrings.Settings.haptics)
         XCTAssertNotNil(AppStrings.Settings.soundEffects)
         XCTAssertNotNil(AppStrings.Settings.sectionDevTools)
+        XCTAssertNotNil(AppStrings.Settings.sectionDataStorage)
         XCTAssertNotNil(AppStrings.Settings.themePreset)
         XCTAssertNotNil(AppStrings.Settings.craftCatalog)
         XCTAssertNotNil(AppStrings.Settings.craftCatalogSubtitle)
@@ -263,5 +267,57 @@ final class SettingsLocalizationTests: XCTestCase {
         XCTAssertNotNil(AppStrings.Profile.badgeReflexMaster)
         XCTAssertNotNil(AppStrings.Profile.badgeStreakBlaze)
         XCTAssertNotNil(AppStrings.Profile.badgeOxfordPioneer)
+    }
+
+    private static let catalogStrings: [String: [String: Any]]? = {
+        let potentialPaths: [String?] = [
+            Bundle.main.path(forResource: "Localizable", ofType: "xcstrings"),
+            URL(fileURLWithPath: #file)
+                .deletingLastPathComponent()
+                .deletingLastPathComponent()
+                .appendingPathComponent("VocabCraftApp/Resources/Localizable.xcstrings").path,
+            "VocabCraftApp/Resources/Localizable.xcstrings"
+        ]
+
+        for case let path? in potentialPaths {
+            if let fileData = try? Data(contentsOf: URL(fileURLWithPath: path)),
+               let json = try? JSONSerialization.jsonObject(with: fileData) as? [String: Any],
+               let strings = json["strings"] as? [String: [String: Any]] {
+                return strings
+            }
+        }
+        return nil
+    }()
+
+    static func lookupCatalog(key: String, language: String) -> String? {
+        guard let entry = catalogStrings?[key],
+              let localizations = entry["localizations"] as? [String: [String: Any]],
+              let langUnit = localizations[language],
+              let stringUnit = langUnit["stringUnit"] as? [String: Any],
+              let value = stringUnit["value"] as? String else {
+            return nil
+        }
+        return value
+    }
+
+    func testSettingsDataStorageSectionLocalization() {
+        let key = "app.settings.section.data_storage"
+        let englishValue = String(localized: String.LocalizationValue(key), bundle: .main, locale: Locale(identifier: "en"))
+        let vietnameseValue = String(localized: String.LocalizationValue(key), bundle: .main, locale: Locale(identifier: "vi"))
+        XCTAssertEqual(englishValue, "Data & Storage")
+        XCTAssertEqual(vietnameseValue, "Dữ liệu & Bộ nhớ")
+    }
+}
+
+private extension String {
+    init(localized value: String.LocalizationValue, bundle: Bundle, locale: Locale) {
+        let mirror = Mirror(reflecting: value)
+        let key = mirror.children.first(where: { $0.label == "key" })?.value as? String ?? ""
+        let lang = locale.language.languageCode?.identifier ?? "en"
+        if let translated = SettingsLocalizationTests.lookupCatalog(key: key, language: lang) {
+            self = translated
+        } else {
+            self = key
+        }
     }
 }
