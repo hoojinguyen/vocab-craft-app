@@ -270,6 +270,91 @@ struct PersonalVaultViewModelTests {
         #expect(picks.count == 3)
         #expect(vm.selectedWordIds.count == 3)
     }
+
+    @Test("Generation tracking ignores stale out-of-order response")
+    @MainActor
+    func testGenerationTrackingIgnoresStaleResponse() async {
+        let word1 = VaultWordItem(id: 1, lemma: "first", pos: "n.", definitionVi: "thứ nhất")
+        let word2 = VaultWordItem(id: 2, lemma: "second", pos: "n.", definitionVi: "thứ hai")
+
+        let slowStream = AsyncStream<Void>.makeStream()
+        let mockUseCase = MockFetchPersonalVaultUseCase()
+
+        var callCount = 0
+        mockUseCase.onFetchSnapshot = { _, _, _ in
+            callCount += 1
+            if callCount == 1 {
+                for await _ in slowStream.stream {
+                    break
+                }
+                return PersonalVaultSnapshot(
+                    metrics: PersonalVaultMetrics(totalWords: 1),
+                    personalWords: [],
+                    vaultWords: [word1]
+                )
+            } else {
+                return PersonalVaultSnapshot(
+                    metrics: PersonalVaultMetrics(totalWords: 1),
+                    personalWords: [],
+                    vaultWords: [word2]
+                )
+            }
+        }
+
+        let vm = PersonalVaultViewModel(fetchVaultUseCase: mockUseCase)
+
+        // Launch Request 1 (not cancelled, pauses inside onFetchSnapshot)
+        let task1 = Task { @MainActor in
+            await vm.loadData()
+        }
+
+        // Allow task1 to start and wait on slowStream
+        try? await Task.sleep(nanoseconds: 20_000_000)
+
+        // Fire Request 2 (completes immediately with word2)
+        await vm.loadData()
+
+        #expect(vm.vaultWords.map(\.id) == [2])
+
+        // Resume Request 1 and await completion
+        slowStream.continuation.yield()
+        _ = await task1.result
+
+        // Stale response from Request 1 should be ignored by generation tracking
+        #expect(vm.vaultWords.map(\.id) == [2])
+    }
+
+    @Test("Task cancellation prevents stale state assignment")
+    @MainActor
+    func testTaskCancellationPreventsStaleStateAssignment() async {
+        let word = VaultWordItem(id: 99, lemma: "test", pos: "n.", definitionVi: "kiểm tra")
+        let pauseStream = AsyncStream<Void>.makeStream()
+        let mockUseCase = MockFetchPersonalVaultUseCase()
+
+        mockUseCase.onFetchSnapshot = { _, _, _ in
+            for await _ in pauseStream.stream {
+                break
+            }
+            return PersonalVaultSnapshot(
+                metrics: PersonalVaultMetrics(totalWords: 1),
+                personalWords: [],
+                vaultWords: [word]
+            )
+        }
+
+        let vm = PersonalVaultViewModel(fetchVaultUseCase: mockUseCase)
+
+        let task = Task { @MainActor in
+            await vm.loadData()
+        }
+
+        try? await Task.sleep(nanoseconds: 20_000_000)
+        task.cancel()
+        pauseStream.continuation.yield()
+        _ = await task.result
+
+        #expect(vm.vaultWords.isEmpty)
+    }
 }
 
 // MARK: - Test Helpers
@@ -294,6 +379,7 @@ private final class MockTTS: TextToSpeechProtocol {
 
 private final class MockFetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProtocol, @unchecked Sendable {
     var vaultWords: [VaultWordItem]
+    var onFetchSnapshot: ((PersonalVaultFilter, VaultTabFilter, String?) async -> PersonalVaultSnapshot?)?
 
     init(vaultWords: [VaultWordItem] = []) {
         self.vaultWords = vaultWords
@@ -334,6 +420,23 @@ private final class MockFetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProt
         }
 
         return filtered
+    }
+
+    func fetchVaultSnapshot(
+        personalFilter: PersonalVaultFilter,
+        vaultFilter: VaultTabFilter,
+        searchQuery: String?
+    ) async throws -> PersonalVaultSnapshot {
+        if let onFetchSnapshot, let custom = await onFetchSnapshot(personalFilter, vaultFilter, searchQuery) {
+            return custom
+        }
+        let execResult = try await execute(filter: personalFilter, searchQuery: searchQuery)
+        let words = try await fetchVaultWords(filter: vaultFilter, searchQuery: searchQuery)
+        return PersonalVaultSnapshot(
+            metrics: execResult.metrics,
+            personalWords: execResult.words,
+            vaultWords: words
+        )
     }
 
     func toggleBookmark(wordId: Int64) {

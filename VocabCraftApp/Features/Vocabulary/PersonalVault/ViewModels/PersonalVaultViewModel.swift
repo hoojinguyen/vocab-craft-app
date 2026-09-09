@@ -23,6 +23,10 @@ public final class PersonalVaultViewModel {
         ttsService?.isSpeaking ?? false
     }
 
+    private var currentRequestId: UInt64 = 0
+    private var isRunningSearchTask = false
+    private var searchTask: Task<Void, Never>?
+
     private let fetchVaultUseCase: FetchPersonalVaultUseCaseProtocol?
     private let toggleBookmarkUseCase: ToggleWordBookmarkUseCaseProtocol?
     private let ttsService: TextToSpeechProtocol?
@@ -50,33 +54,36 @@ public final class PersonalVaultViewModel {
     }
 
     public func loadData() async {
-        isLoading = true
-        errorMessage = nil
-        do {
-            let query = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
-            let effectiveQuery = query.isEmpty ? nil : query
-
-            if let fetchVaultUseCase {
-                let result = try await fetchVaultUseCase.execute(
-                    filter: selectedFilter,
-                    searchQuery: effectiveQuery
-                )
-                guard !Task.isCancelled else { return }
-                words = result.words
-                metrics = result.metrics
-
-                let fetchedWords = try await fetchVaultUseCase.fetchVaultWords(
-                    filter: vaultTabFilter,
-                    searchQuery: effectiveQuery
-                )
-                guard !Task.isCancelled else { return }
-                vaultWords = fetchedWords
-            }
-        } catch {
-            guard !Task.isCancelled else { return }
-            errorMessage = error.localizedDescription
+        guard !Task.isCancelled else { return }
+        if !isRunningSearchTask {
+            searchTask?.cancel()
+            searchTask = nil
         }
         guard !Task.isCancelled else { return }
+        currentRequestId &+= 1
+        let requestId = currentRequestId
+        isLoading = true
+        errorMessage = nil
+
+        let query = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+        let effectiveQuery = query.isEmpty ? nil : query
+        do {
+            if let fetchVaultUseCase {
+                let snapshot = try await fetchVaultUseCase.fetchVaultSnapshot(
+                    personalFilter: selectedFilter,
+                    vaultFilter: vaultTabFilter,
+                    searchQuery: effectiveQuery
+                )
+                guard currentRequestId == requestId && !Task.isCancelled else { return }
+                words = snapshot.personalWords
+                metrics = snapshot.metrics
+                vaultWords = snapshot.vaultWords
+            }
+        } catch {
+            guard currentRequestId == requestId && !Task.isCancelled else { return }
+            errorMessage = error.localizedDescription
+        }
+        guard currentRequestId == requestId && !Task.isCancelled else { return }
         isLoading = false
     }
 
@@ -141,13 +148,15 @@ public final class PersonalVaultViewModel {
         return picked
     }
 
-    private var searchTask: Task<Void, Never>?
-
     public func setVaultFilter(_ filter: VaultTabFilter) {
         vaultTabFilter = filter
         searchTask?.cancel()
         searchTask = Task { [weak self] in
-            await self?.loadData()
+            guard !Task.isCancelled else { return }
+            guard let self else { return }
+            self.isRunningSearchTask = true
+            defer { self.isRunningSearchTask = false }
+            await self.loadData()
         }
     }
 
@@ -155,7 +164,11 @@ public final class PersonalVaultViewModel {
         selectedFilter = filter
         searchTask?.cancel()
         searchTask = Task { [weak self] in
-            await self?.loadData()
+            guard !Task.isCancelled else { return }
+            guard let self else { return }
+            self.isRunningSearchTask = true
+            defer { self.isRunningSearchTask = false }
+            await self.loadData()
         }
     }
 
@@ -163,7 +176,11 @@ public final class PersonalVaultViewModel {
         searchQuery = query
         searchTask?.cancel()
         searchTask = Task { [weak self] in
-            await self?.loadData()
+            guard !Task.isCancelled else { return }
+            guard let self else { return }
+            self.isRunningSearchTask = true
+            defer { self.isRunningSearchTask = false }
+            await self.loadData()
         }
     }
 
