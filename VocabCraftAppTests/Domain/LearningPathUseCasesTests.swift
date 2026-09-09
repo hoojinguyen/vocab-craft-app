@@ -25,8 +25,15 @@ final class LearningPathUseCasesTests: XCTestCase {
             stageRepo: stageRepo
         )
 
-        let sections = try await sut.execute()
+        let curriculum = try await sut.execute()
 
+        XCTAssertFalse(curriculum.decks.isEmpty)
+        XCTAssertEqual(curriculum.decks.count, 4)
+        XCTAssertFalse(curriculum.stages.isEmpty)
+        XCTAssertFalse(curriculum.words.isEmpty)
+        XCTAssertTrue(curriculum.progressList.isEmpty)
+
+        let sections = LearningPathDataMapper.map(curriculum: curriculum)
         XCTAssertFalse(sections.isEmpty)
         XCTAssertEqual(sections.count, 4)
 
@@ -58,7 +65,12 @@ final class LearningPathUseCasesTests: XCTestCase {
             stageRepo: stageRepo
         )
 
-        let sections = try await sut.execute()
+        let curriculum = try await sut.execute()
+        XCTAssertEqual(curriculum.progressList.count, 1)
+        XCTAssertEqual(curriculum.progressList.first?.stageId, "stage_daily_1")
+        XCTAssertEqual(curriculum.progressList.first?.isCompleted, true)
+
+        let sections = LearningPathDataMapper.map(curriculum: curriculum)
         let firstSection = sections[0]
 
         XCTAssertEqual(firstSection.nodes[0].state, LessonNodeState.completed)

@@ -112,7 +112,8 @@ public final class HomepageViewModel {
         isLoading = true
         errorMessage = nil
         do {
-            self.sections = try await useCase.execute()
+            let curriculum = try await useCase.execute()
+            self.sections = LearningPathDataMapper.map(curriculum: curriculum)
         } catch {
             self.errorMessage = error.localizedDescription
         }

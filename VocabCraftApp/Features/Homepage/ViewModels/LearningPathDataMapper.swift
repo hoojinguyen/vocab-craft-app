@@ -3,6 +3,18 @@ import Foundation
 
 /// Pure Swift mapper that transforms topic deck DTOs and user progress into CraftUIKit `LessonSection` models with linear progression.
 public struct LearningPathDataMapper: Sendable {
+    /// Maps a domain `LearningPathCurriculum` aggregate into presentation `LessonSection` models.
+    /// - Parameter curriculum: Domain model containing decks, stages, words, and user progress.
+    /// - Returns: An array of configured `LessonSection` models ready for presentation.
+    public static func map(curriculum: LearningPathCurriculum) -> [LessonSection] {
+        map(
+            decks: curriculum.decks,
+            stages: curriculum.stages,
+            words: curriculum.words,
+            progressList: curriculum.progressList
+        )
+    }
+
     /// Maps topic decks, subtopic stages, words, and user progress into learning path sections.
     /// - Parameters:
     ///   - decks: Topic deck DTOs representing the top-level learning units.

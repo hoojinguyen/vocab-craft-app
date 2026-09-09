@@ -365,4 +365,22 @@ final class LearningPathDataMapperTests: XCTestCase {
         XCTAssertEqual(sections[1].title, "Business")
         XCTAssertFalse(sections[1].title.contains("Unit"))
     }
+
+    func test_map_curriculum_producesExpectedSections() {
+        let curriculum = LearningPathCurriculum(
+            decks: sampleDecks,
+            stages: sampleStages,
+            words: sampleWords,
+            progressList: [
+                UserStageProgressData(stageId: "stage_daily_1", deckId: "deck_daily", isCompleted: true, score: 3, progressFraction: 1.0)
+            ]
+        )
+
+        let sections = LearningPathDataMapper.map(curriculum: curriculum)
+        XCTAssertEqual(sections.count, 2)
+        XCTAssertEqual(sections[0].id, "deck_daily")
+        XCTAssertEqual(sections[0].nodes[0].state, .completed)
+        XCTAssertEqual(sections[0].nodes[0].stars, 3)
+        XCTAssertEqual(sections[0].nodes[1].state, .active)
+    }
 }

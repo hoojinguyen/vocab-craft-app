@@ -1,8 +1,7 @@
-import CraftUIKit
 import Foundation
 
 public protocol FetchLearningPathUseCaseProtocol: Sendable {
-    func execute() async throws -> [LessonSection]
+    func execute() async throws -> LearningPathCurriculum
 }
 
 public final class FetchLearningPathUseCase: FetchLearningPathUseCaseProtocol, Sendable {
@@ -17,7 +16,7 @@ public final class FetchLearningPathUseCase: FetchLearningPathUseCaseProtocol, S
         self.stageRepo = stageRepo
     }
 
-    public func execute() async throws -> [LessonSection] {
+    public func execute() async throws -> LearningPathCurriculum {
         // Parallelize deck + progress fetch. Then fetch stages and words concurrently via TaskGroup
         async let decksTask = dataSource.fetchTopicDecks()
         async let progressTask = stageRepo.fetchAllStageProgress()
@@ -55,7 +54,7 @@ public final class FetchLearningPathUseCase: FetchLearningPathUseCaseProtocol, S
         }
 
         let progressList = try await progressTask
-        return LearningPathDataMapper.map(
+        return LearningPathCurriculum(
             decks: decks,
             stages: allStages,
             words: allWords,

@@ -62,6 +62,7 @@
 		300036675EAE3D605018 /* SuggestedWord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200036675EAE3D605018 /* SuggestedWord.swift */; };
 		300001EA5C596D2E5E45 /* VaultWordItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200001EA5C596D2E5E45 /* VaultWordItem.swift */; };
 		30002A121BF620A9A229 /* Word.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20002A121BF620A9A229 /* Word.swift */; };
+		300097262FBD5E9DE745 /* LearningPathCurriculum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200097262FBD5E9DE745 /* LearningPathCurriculum.swift */; };
 		3000B1DCD0DC16127C79 /* QuickReflexAttempt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B1DCD0DC16127C79 /* QuickReflexAttempt.swift */; };
 		30000FA7EFD24262AE55 /* ReflexDrillSessionPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000FA7EFD24262AE55 /* ReflexDrillSessionPlan.swift */; };
 		3000AD0A35CB0657E32D /* ReflexMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000AD0A35CB0657E32D /* ReflexMode.swift */; };
@@ -362,6 +363,7 @@
 		200036675EAE3D605018 /* SuggestedWord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SuggestedWord.swift"; sourceTree = "<group>"; };
 		200001EA5C596D2E5E45 /* VaultWordItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VaultWordItem.swift"; sourceTree = "<group>"; };
 		20002A121BF620A9A229 /* Word.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Word.swift"; sourceTree = "<group>"; };
+		200097262FBD5E9DE745 /* LearningPathCurriculum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LearningPathCurriculum.swift"; sourceTree = "<group>"; };
 		2000B1DCD0DC16127C79 /* QuickReflexAttempt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "QuickReflexAttempt.swift"; sourceTree = "<group>"; };
 		20000FA7EFD24262AE55 /* ReflexDrillSessionPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillSessionPlan.swift"; sourceTree = "<group>"; };
 		2000AD0A35CB0657E32D /* ReflexMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexMode.swift"; sourceTree = "<group>"; };
@@ -856,6 +858,7 @@
 		4000260E29F35C2EBCD5 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				200097262FBD5E9DE745 /* LearningPathCurriculum.swift */,
 				2000B1DCD0DC16127C79 /* QuickReflexAttempt.swift */,
 				4000107F161429117498 /* Reflex */,
 				200065DD5844D92B1800 /* UserStageProgressData.swift */,
@@ -1736,6 +1739,7 @@
 				300036675EAE3D605018 /* SuggestedWord.swift in Sources */,
 				300001EA5C596D2E5E45 /* VaultWordItem.swift in Sources */,
 				30002A121BF620A9A229 /* Word.swift in Sources */,
+				300097262FBD5E9DE745 /* LearningPathCurriculum.swift in Sources */,
 				3000B1DCD0DC16127C79 /* QuickReflexAttempt.swift in Sources */,
 				30000FA7EFD24262AE55 /* ReflexDrillSessionPlan.swift in Sources */,
 				3000AD0A35CB0657E32D /* ReflexMode.swift in Sources */,
