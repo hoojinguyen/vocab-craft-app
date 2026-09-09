@@ -26,10 +26,21 @@ public struct MixedReflexDrillView: View {
     @State private var liveTranscript: String = ""
     @State private var currentOptions: [ReflexBlitzOption] = []
     @State private var showExitAlert: Bool = false
-    @State private var wordStartTime: Date?
+    @State private var currentTimerStage: ReflexBlitzTimerStage = .steady
+    @State private var hintStage: Int = 0
+
+    public var wordStartTime: Date? {
+        get { viewModel.wordStartTime }
+        nonmutating set { viewModel.wordStartTime = newValue }
+    }
 
     public var elapsedTimeMs: Int {
-        get { viewModel.elapsedTimeMs }
+        get {
+            if let wordStartTime {
+                return max(0, Int(Date().timeIntervalSince(wordStartTime) * 1000))
+            }
+            return viewModel.elapsedTimeMs
+        }
         nonmutating set { viewModel.elapsedTimeMs = newValue }
     }
 
@@ -85,17 +96,8 @@ public struct MixedReflexDrillView: View {
     }
 
     public var timerStage: ReflexBlitzTimerStage {
-        guard let current = viewModel.currentItem else { return .steady }
-        let limit = current.assignedMode.timeLimitSeconds * 1000.0
-        let warningThreshold = limit * (3.5 / 6.0)
-        let urgentThreshold = limit * (5.0 / 6.0)
-        if Double(elapsedTimeMs) < warningThreshold {
-            return .steady
-        } else if Double(elapsedTimeMs) < urgentThreshold {
-            return .warning
-        } else {
-            return .urgent
-        }
+        get { currentTimerStage }
+        nonmutating set { currentTimerStage = newValue }
     }
 
     public var body: some View {
@@ -255,7 +257,7 @@ public struct MixedReflexDrillView: View {
 private extension MixedReflexDrillView {
     @ViewBuilder
     func challengeCard(for item: MixedReflexDrillItem) -> some View {
-        let currentHintStage = item.assignedMode.hintStage(forElapsedTimeMs: elapsedTimeMs)
+        let currentHintStage = max(hintStage, item.assignedMode.hintStage(forElapsedTimeMs: elapsedTimeMs))
         let isHintActive = currentHintStage >= 1
 
         switch item.assignedMode {
@@ -389,10 +391,29 @@ private extension MixedReflexDrillView {
 
 // MARK: - Drill Actions & Lifecycle
 public extension MixedReflexDrillView {
-    func startDrillItem(_ item: MixedReflexDrillItem) {
+    private func finalizeActiveEngineAndTimers() {
         speechStartTask?.cancel()
         speechStartTask = nil
         timerTask?.cancel()
+        timerTask = nil
+        speechEngine?.finalizeWordAudio()
+        speechEngine?.endWord()
+    }
+
+    private func recordResponseTime() -> Int {
+        let elapsedMs = wordStartTime.map { Int(Date().timeIntervalSince($0) * 1000) } ?? 500
+        let responseTimeMs = max(500, elapsedMs)
+        let timeLimit = viewModel.currentItem?.assignedMode.timeLimitSeconds ?? 6.0
+        fractionRemaining = max(0.0, min(1.0, 1.0 - (Double(elapsedMs) / 1000.0 / timeLimit)))
+        viewModel.elapsedTimeMs = responseTimeMs
+        return responseTimeMs
+    }
+
+    func startDrillItem(_ item: MixedReflexDrillItem) {
+        finalizeActiveEngineAndTimers()
+        wordStartTime = nil
+        timerStage = .steady
+        hintStage = 0
         fractionRemaining = 1.0
         elapsedTimeMs = 0
         cardPhase = .activeCountdown
@@ -469,43 +490,62 @@ public extension MixedReflexDrillView {
 
     private func startTimer(for item: MixedReflexDrillItem) {
         timerTask?.cancel()
+        if wordStartTime == nil {
+            wordStartTime = Date()
+        }
+        timerStage = .steady
+        hintStage = 0
         let timeLimit = item.assignedMode.timeLimitSeconds
-        timerTask = Task { @MainActor in
-            let startTime = Date()
-            while !Task.isCancelled {
-                try? await Task.sleep(for: .milliseconds(30))
-                let elapsed = Date().timeIntervalSince(startTime)
-                self.elapsedTimeMs = Int(elapsed * 1000)
-                let remaining = max(0, 1.0 - (elapsed / timeLimit))
-                self.fractionRemaining = remaining
 
-                if remaining <= 0 {
-                    handleTimeout()
-                    break
-                }
-            }
+        timerTask = Task { @MainActor in
+            // Milestone 1: Hint 1 (40%)
+            let hint1Delay = timeLimit * 0.40
+            try? await Task.sleep(for: .seconds(hint1Delay))
+            guard !Task.isCancelled else { return }
+            self.hintStage = 1
+
+            // Milestone 2: Warning (60%)
+            let warningDelay = timeLimit * 0.20
+            try? await Task.sleep(for: .seconds(warningDelay))
+            guard !Task.isCancelled else { return }
+            self.timerStage = .warning
+
+            // Milestone 3: Hint 2 (70%)
+            let hint2Delay = timeLimit * 0.10
+            try? await Task.sleep(for: .seconds(hint2Delay))
+            guard !Task.isCancelled else { return }
+            self.hintStage = 2
+
+            // Milestone 4: Urgent (80%)
+            let urgentDelay = timeLimit * 0.10
+            try? await Task.sleep(for: .seconds(urgentDelay))
+            guard !Task.isCancelled else { return }
+            self.timerStage = .urgent
+
+            // Milestone 5: Timeout (100%)
+            let timeoutDelay = timeLimit * 0.20
+            try? await Task.sleep(for: .seconds(timeoutDelay))
+            guard !Task.isCancelled else { return }
+            self.handleTimeout()
         }
     }
 
     func selectOption(_ option: ReflexBlitzOption) {
         guard cardPhase == .activeCountdown else { return }
-        speechStartTask?.cancel()
-        speechStartTask = nil
-        timerTask?.cancel()
-        speechEngine?.finalizeWordAudio()
-        speechEngine?.endWord()
+        finalizeActiveEngineAndTimers()
+        let responseTimeMs = recordResponseTime()
 
         withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
             cardPhase = .reviewed(result: ReflexCardResult(
                 isCorrect: option.isCorrect,
-                responseTimeMs: max(500, elapsedTimeMs),
+                responseTimeMs: responseTimeMs,
                 isTimeout: false,
                 selectedOption: option.text
             ))
         }
 
         Task {
-            await viewModel.submitAnswer(isCorrect: option.isCorrect, responseTimeMs: max(500, elapsedTimeMs))
+            await viewModel.submitAnswer(isCorrect: option.isCorrect, responseTimeMs: responseTimeMs)
         }
     }
 
@@ -515,16 +555,13 @@ public extension MixedReflexDrillView {
         guard !cleanText.isEmpty else { return }
 
         let isCorrect = cleanText.lowercased() == current.word.lemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        speechStartTask?.cancel()
-        speechStartTask = nil
-        timerTask?.cancel()
-        speechEngine?.finalizeWordAudio()
-        speechEngine?.endWord()
+        finalizeActiveEngineAndTimers()
+        let responseTimeMs = recordResponseTime()
 
         withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
             cardPhase = .reviewed(result: ReflexCardResult(
                 isCorrect: isCorrect,
-                responseTimeMs: max(500, elapsedTimeMs),
+                responseTimeMs: responseTimeMs,
                 isTimeout: false,
                 typedText: cleanText
             ))
@@ -537,23 +574,22 @@ public extension MixedReflexDrillView {
         }
 
         Task {
-            await viewModel.submitAnswer(isCorrect: isCorrect, responseTimeMs: max(500, elapsedTimeMs))
+            await viewModel.submitAnswer(isCorrect: isCorrect, responseTimeMs: responseTimeMs)
         }
     }
 
     func handleTimeout() {
         guard cardPhase == .activeCountdown else { return }
-        speechStartTask?.cancel()
-        speechStartTask = nil
-        timerTask?.cancel()
+        finalizeActiveEngineAndTimers()
         fractionRemaining = 0.0
-        speechEngine?.finalizeWordAudio()
-        speechEngine?.endWord()
+        let elapsedMs = wordStartTime.map { Int(Date().timeIntervalSince($0) * 1000) } ?? 500
+        let responseTimeMs = max(500, elapsedMs)
+        viewModel.elapsedTimeMs = responseTimeMs
 
         withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
             cardPhase = .reviewed(result: ReflexCardResult(
                 isCorrect: false,
-                responseTimeMs: max(1000, elapsedTimeMs),
+                responseTimeMs: responseTimeMs,
                 isTimeout: true
             ))
         }
@@ -563,7 +599,7 @@ public extension MixedReflexDrillView {
         }
 
         Task {
-            await viewModel.submitAnswer(isCorrect: false, responseTimeMs: max(1000, elapsedTimeMs))
+            await viewModel.submitAnswer(isCorrect: false, responseTimeMs: responseTimeMs)
         }
     }
 
@@ -582,21 +618,19 @@ public extension MixedReflexDrillView {
                     guard self.cardPhase == .activeCountdown, let vm, let current = vm.currentItem else { return }
                     let isCorrect = ReflexSpeechMatcher.isReflexMatch(spokenText: matched, targetLemma: current.word.lemma)
                     if isCorrect {
-                        self.speechStartTask?.cancel()
-                        self.speechStartTask = nil
-                        self.timerTask?.cancel()
-                        speechEngine?.finalizeWordAudio()
-                        speechEngine?.endWord()
+                        self.finalizeActiveEngineAndTimers()
+                        let responseTimeMs = self.recordResponseTime()
+
                         SoundEffectService.shared.playSuccessChime()
                         withAnimation(.spring(response: 0.38, dampingFraction: 0.82)) {
                             self.cardPhase = .reviewed(result: ReflexCardResult(
                                 isCorrect: true,
-                                responseTimeMs: max(500, self.elapsedTimeMs),
+                                responseTimeMs: responseTimeMs,
                                 isTimeout: false,
                                 recognizedSpoken: matched
                             ))
                         }
-                        await vm.submitAnswer(isCorrect: true, responseTimeMs: max(500, self.elapsedTimeMs))
+                        await vm.submitAnswer(isCorrect: true, responseTimeMs: responseTimeMs)
                     }
                 }
             }
@@ -614,9 +648,7 @@ public extension MixedReflexDrillView {
     }
 
     func stopDrillSession() {
-        speechStartTask?.cancel()
-        speechStartTask = nil
-        timerTask?.cancel()
+        finalizeActiveEngineAndTimers()
         speechEngine?.stopSession()
     }
 
@@ -630,10 +662,7 @@ public extension MixedReflexDrillView {
     }
 
     func handlePermissionDenied() {
-        speechStartTask?.cancel()
-        speechStartTask = nil
-        timerTask?.cancel()
-        timerTask = nil
+        finalizeActiveEngineAndTimers()
         speechEngine?.stopSession()
         isPermissionDenied = true
         speechState = .unavailable
