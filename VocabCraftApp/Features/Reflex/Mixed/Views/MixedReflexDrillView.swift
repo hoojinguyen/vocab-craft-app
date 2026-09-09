@@ -613,8 +613,8 @@ public extension MixedReflexDrillView {
     func setupSpeechEngineCallbacks() {
         if let speechEngine {
             let vm = viewModel
-            speechEngine.onMatchDetected = { [weak speechEngine, weak vm] matched in
-                Task { @MainActor [weak speechEngine, weak vm] in
+            speechEngine.onMatchDetected = { [weak vm] matched in
+                Task { @MainActor [weak vm] in
                     guard self.cardPhase == .activeCountdown, let vm, let current = vm.currentItem else { return }
                     let isCorrect = ReflexSpeechMatcher.isReflexMatch(spokenText: matched, targetLemma: current.word.lemma)
                     if isCorrect {
