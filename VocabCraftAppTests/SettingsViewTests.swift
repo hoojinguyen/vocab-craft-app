@@ -16,27 +16,18 @@ final class SettingsViewTests: XCTestCase {
         XCTAssertNotNil(view.viewModel)
     }
 
-    func testHeroProfileCardInitialization() {
-        var actionTapped = false
+    func testHeroProfileCardCompactRendering() {
+        var tapped = false
         let card = HeroProfileCard(
             userName: "Hooji N.",
             userLevel: "B2 Intermediate",
-            onTapAction: { actionTapped = true }
+            onTapAction: { tapped = true }
         )
         XCTAssertEqual(card.userName, "Hooji N.")
         XCTAssertEqual(card.userLevel, "B2 Intermediate")
         card.onTapAction?()
-        XCTAssertTrue(actionTapped)
-    }
-
-    func testHeroProfileCardBodyRendering() {
-        let card = HeroProfileCard(
-            userName: "Hooji N.",
-            userLevel: "B2 Intermediate",
-            onTapAction: {}
-        )
-        let body = card.body
-        XCTAssertNotNil(body)
+        XCTAssertTrue(tapped)
+        XCTAssertNotNil(card.body)
     }
 
     func testSettingsViewBodyRendering() {

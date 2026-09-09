@@ -1,8 +1,8 @@
 import CraftUIKit
 import SwiftUI
 
-/// Elevated hero profile header card displaying user avatar, CEFR level badge,
-/// perks summary, and profile action trigger in an elegant centered layout.
+/// Compact, Apple ID-style profile card row displaying user avatar, name, CEFR level badge,
+/// and chevron drill-down trigger in an elegant horizontal layout.
 public struct HeroProfileCard: View {
     @Environment(\.craftTheme) private var theme
     public let userName: String
@@ -20,68 +20,65 @@ public struct HeroProfileCard: View {
     }
 
     public var body: some View {
-        CraftCard(style: .elevated) {
-            VStack(alignment: .center, spacing: theme.spacing.md) {
-                // Centered Avatar with glowing aura ring
-                ZStack {
-                    Circle()
-                        .fill(theme.gradients.brandHero)
-                        .frame(width: 68, height: 68)
-                        .overlay(
-                            Circle()
-                                .strokeBorder(theme.colors.borderDefault, lineWidth: 2)
+        CraftCard(style: .outlined, padding: 0) {
+            Button(action: {
+                onTapAction?()
+            }) {
+                HStack(spacing: theme.spacing.md) {
+                    // Avatar Squircle / Circle with Gradient Aura
+                    ZStack {
+                        Circle()
+                            .fill(theme.gradients.brandHero)
+                            .frame(width: 48, height: 48)
+                            .overlay(
+                                Circle()
+                                    .strokeBorder(theme.colors.borderDefault, lineWidth: 1.5)
+                            )
+                            .craftShadow(theme.shadows.sm)
+
+                        Text(userName.prefix(1))
+                            .font(theme.typography.titleLarge)
+                            .fontWeight(.bold)
+                            .foregroundStyle(theme.colors.textInverse)
+                    }
+                    .accessibilityHidden(true)
+
+                    // User Name & Subtitle
+                    VStack(alignment: .leading, spacing: 2) {
+                        CraftText(
+                            userName,
+                            style: .headline,
+                            color: theme.colors.textPrimary
                         )
-                        .craftShadow(theme.shadows.md)
-
-                    Text(userName.prefix(1))
-                        .font(theme.typography.displayLarge)
                         .fontWeight(.bold)
-                        .foregroundStyle(theme.colors.textInverse)
-                }
-                .padding(.top, theme.spacing.xs)
 
-                // User Name & Level Badge
-                VStack(spacing: theme.spacing.xs) {
-                    CraftText(
-                        userName,
-                        style: .titleLarge,
-                        color: theme.colors.textPrimary
-                    )
-                    .fontWeight(.bold)
+                        CraftText(
+                            AppStrings.Settings.profileTagline,
+                            style: .caption,
+                            color: theme.colors.textSecondary
+                        )
+                        .lineLimit(1)
+                    }
 
+                    Spacer(minLength: theme.spacing.xs)
+
+                    // Level Badge & Chevron
                     CraftBadge(
                         userLevel,
                         symbol: .star,
                         variant: .subtle,
                         tone: .primary,
-                        size: .md
+                        size: .sm
                     )
+
+                    CraftIcon("chevron.right", size: .sm, color: theme.colors.textMuted)
                 }
-
-                // Subtitle / Tagline
-                CraftText(
-                    AppStrings.Settings.profileTagline,
-                    style: .caption,
-                    color: theme.colors.textSecondary
-                )
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.horizontal, theme.spacing.sm)
-
-                // Action Button
-                CraftButton(
-                    AppStrings.Settings.profileActionView,
-                    variant: .secondary,
-                    size: .md,
-                    action: {
-                        onTapAction?()
-                    }
-                )
-                .frame(maxWidth: .infinity)
-                .padding(.top, theme.spacing.xs / 2)
+                .padding(.horizontal, theme.spacing.base)
+                .padding(.vertical, theme.spacing.md)
+                .contentShape(Rectangle())
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, theme.spacing.xs)
+            .buttonStyle(.craftPress(scale: 0.98))
+            .accessibilityHint(AppStrings.Settings.profileActionViewText)
         }
     }
 }
