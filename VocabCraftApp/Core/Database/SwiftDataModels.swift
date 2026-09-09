@@ -7,22 +7,22 @@ import SwiftData
 @Model
 public final class UserWordProgress {
     @Attribute(.unique) public var wordId: Int64
-    public var cefrLevel: String
-    public var masteryLevel: Int
-    public var isBookmarked: Bool
-    public var easeFactor: Double
-    public var intervalDays: Int
-    public var nextReviewDate: Date
-    public var lastReviewDate: Date
-    public var totalReviews: Int
-    public var needsReview: Bool
-    public var mistakeCount: Int
+    public var cefrLevel: String = "A1"
+    public var masteryLevel: Int = 0
+    public var isBookmarked: Bool = false
+    public var easeFactor: Double = 2.5
+    public var intervalDays: Int = 1
+    public var nextReviewDate: Date = Date()
+    public var lastReviewDate: Date = Date()
+    public var totalReviews: Int = 0
+    public var needsReview: Bool = false
+    public var mistakeCount: Int = 0
     public var sourceDeckId: String?
     public var sourceNodeId: String?
-    public var consecutiveCorrectStreak: Int
-    public var practicedModesRaw: String
-    public var isMastered: Bool
-    public var modeSuccessCountsRaw: String
+    @Attribute(originalName: "correctStreak") public var consecutiveCorrectStreak: Int = 0
+    public var practicedModesRaw: String = ""
+    public var isMastered: Bool = false
+    public var modeSuccessCountsRaw: String = "{}"
 
     public init(
         wordId: Int64,
@@ -62,9 +62,9 @@ public final class UserWordProgress {
         self.modeSuccessCountsRaw = modeSuccessCountsRaw
     }
 
-    public var modeStats: ModeSuccessStats {
-        get { ModeSuccessStatsCodec.decode(modeSuccessCountsRaw) }
-        set { modeSuccessCountsRaw = ModeSuccessStatsCodec.encode(newValue) }
+    public var correctStreak: Int {
+        get { consecutiveCorrectStreak }
+        set { consecutiveCorrectStreak = newValue }
     }
 }
 
@@ -218,12 +218,12 @@ public final class QuickReflexAttemptRecord {
 @Model
 public final class WidgetCurrentState {
     @Attribute(.unique) public var id: String
-    public var currentWordId: Int64
-    public var lemma: String
-    public var ipaUs: String
-    public var definitionVi: String
-    public var exampleEn: String
-    public var lastUpdated: Date
+    public var currentWordId: Int64 = 0
+    public var lemma: String = ""
+    public var ipaUs: String = ""
+    public var definitionVi: String = ""
+    public var exampleEn: String = ""
+    public var lastUpdated: Date = Date()
 
     public init(
         id: String = "default_widget",
@@ -299,6 +299,11 @@ public final class UserWordProgress: @unchecked Sendable {
         self.practicedModesRaw = practicedModesRaw
         self.isMastered = isMastered
         self.modeSuccessCountsRaw = modeSuccessCountsRaw
+    }
+
+    public var correctStreak: Int {
+        get { consecutiveCorrectStreak }
+        set { consecutiveCorrectStreak = newValue }
     }
 }
 

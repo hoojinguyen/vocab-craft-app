@@ -25,6 +25,7 @@ let package = Package(
         .target(
             name: "VocabCraftApp",
             dependencies: [
+                "SwiftDataMacros",
                 .product(name: "CraftUIKit", package: "CraftUIKit"),
                 .product(name: "SpeechKit", package: "SpeechKit")
             ],
@@ -43,11 +44,16 @@ let package = Package(
                 "Info.plist"
             ]
         ),
+        .target(
+            name: "SwiftDataMacros",
+            path: "Packages/SwiftDataMacros"
+        ),
         .testTarget(
             name: "VocabCraftAppTests",
             dependencies: [
                 "VocabCraftApp",
                 "VocabCraftWidgetExtension",
+                "SwiftDataMacros",
                 .product(name: "CraftUIKit", package: "CraftUIKit"),
                 .product(name: "SpeechKit", package: "SpeechKit")
             ],

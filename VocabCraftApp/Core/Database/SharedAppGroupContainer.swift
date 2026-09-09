@@ -4,13 +4,6 @@ import SwiftData
 #endif
 
 #if canImport(SwiftDataMacros)
-public enum SchemaV1: VersionedSchema {
-    public static var versionIdentifier = Schema.Version(1, 0, 0)
-    public static var models: [any PersistentModel.Type] {
-        [UserWordProgress.self, ReflexSessionLog.self, WidgetCurrentState.self]
-    }
-}
-
 public enum SchemaV2: VersionedSchema {
     public static var versionIdentifier = Schema.Version(2, 0, 0)
     public static var models: [any PersistentModel.Type] {
@@ -80,6 +73,7 @@ public struct SharedAppGroupContainer {
         return fileManager.fileExists(atPath: url.path)
     }
 
+    @MainActor
     public static func hasPersistedUserRecords(in container: ModelContainer) -> Bool {
         let context = container.mainContext
         var wordDesc = FetchDescriptor<UserWordProgress>()
@@ -116,6 +110,7 @@ public struct SharedAppGroupContainer {
         false
     }
 
+    @MainActor
     public static func hasPersistedUserRecords(in container: Any?) -> Bool {
         false
     }

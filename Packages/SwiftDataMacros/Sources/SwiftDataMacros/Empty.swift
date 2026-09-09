@@ -1,0 +1,1 @@
+// Marker target enabling SwiftDataMacros

@@ -40,6 +40,7 @@ def generate_pbxproj():
     widget_shared_files = [
         "VocabCraftApp/Core/Database/DatasetEngine.swift",
         "VocabCraftApp/Core/Database/SharedAppGroupContainer.swift",
+        "VocabCraftApp/Core/Database/Schemas/AppSchemaV1.swift",
         "VocabCraftApp/Core/Database/SwiftDataModels.swift",
         "VocabCraftApp/Core/Database/DatasetModels.swift",
         "VocabCraftApp/Core/SRS/SRSEngine.swift",
@@ -530,6 +531,7 @@ def generate_pbxproj():
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_ENTITLEMENTS = VocabCraftApp/App/VocabCraftApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				"COPY_PHASE_STRIP[sdk=iphonesimulator*]" = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 58TYVC4N97;
 				GENERATE_INFOPLIST_FILE = NO;
