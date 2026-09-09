@@ -5,8 +5,6 @@ public struct SettingsView: View {
     @Environment(\.craftTheme) private var theme
     @Bindable public var viewModel: SettingsViewModel
     @State private var showResetAlert: Bool = false
-    @State private var showGoalInputAlert: Bool = false
-    @State private var goalInputText: String = ""
     @State private var showCatalogSheet: Bool = ProcessInfo.processInfo.arguments.contains("-open-catalog")
     @State private var showProfileSheet: Bool = false
 
@@ -76,20 +74,6 @@ public struct SettingsView: View {
         .sensoryFeedback(.impact(weight: .light), trigger: viewModel.store.isNotificationEnabled) { _, _ in viewModel.store.isHapticsEnabled }
         .sensoryFeedback(.impact(weight: .light), trigger: viewModel.store.isHapticsEnabled) { _, _ in viewModel.store.isHapticsEnabled }
         .sensoryFeedback(.impact(weight: .light), trigger: viewModel.store.isSoundEffectsEnabled) { _, _ in viewModel.store.isHapticsEnabled }
-        .alert(AppStrings.Settings.dailyGoal, isPresented: $showGoalInputAlert) {
-            TextField(AppStrings.Settings.dailyGoalPlaceholder, text: $goalInputText)
-                #if os(iOS)
-                .keyboardType(.numberPad)
-                #endif
-            Button(AppStrings.Common.cancel, role: .cancel) {}
-            Button(AppStrings.Common.save) {
-                if let val = Int(goalInputText), val >= 5, val <= 100 {
-                    viewModel.store.dailyGoalCount = val
-                }
-            }
-        } message: {
-            Text(AppStrings.Settings.dailyGoal)
-        }
         .alert(AppStrings.Settings.resetConfirmTitle, isPresented: $showResetAlert) {
             Button(AppStrings.Common.cancel, role: .cancel) {}
             Button(AppStrings.Common.reset, role: .destructive) {
@@ -107,13 +91,7 @@ public struct SettingsView: View {
     private var learningSection: some View {
         VStack(alignment: .leading, spacing: theme.spacing.xs) {
             sectionHeader(AppStrings.Settings.sectionLearning)
-            SettingsLearningCard(
-                store: viewModel.store,
-                onShowGoalInput: {
-                    goalInputText = "\(viewModel.store.dailyGoalCount)"
-                    showGoalInputAlert = true
-                }
-            )
+            SettingsLearningCard(store: viewModel.store)
         }
     }
 
@@ -177,7 +155,6 @@ public struct SettingsView: View {
 private struct SettingsLearningCard: View {
     @Environment(\.craftTheme) private var theme
     @Bindable var store: UserSettingsStore
-    let onShowGoalInput: () -> Void
 
     var body: some View {
         CraftCard(style: .outlined, padding: 0) {
@@ -191,9 +168,6 @@ private struct SettingsLearningCard: View {
                         step: 5,
                         unit: AppStrings.Common.wordUnit
                     )
-                    .onTapGesture(count: 2) {
-                        onShowGoalInput()
-                    }
                 }
 
                 CraftDivider()
