@@ -19,7 +19,7 @@ private final class MockFetchLearningPathUseCase: FetchLearningPathUseCaseProtoc
     var shouldThrowError: Error?
     var executeCallCount = 0
 
-    func execute() async throws -> LearningPathCurriculum {
+    func execute(forceRefresh: Bool = false) async throws -> LearningPathCurriculum {
         executeCallCount += 1
         if let error = shouldThrowError {
             throw error
