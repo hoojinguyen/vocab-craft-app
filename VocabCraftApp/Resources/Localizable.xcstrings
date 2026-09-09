@@ -9829,6 +9829,74 @@
           }
         }
       }
+    },
+    "app.database.error.backup_failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to create quarantine backup: %@"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không thể tạo bản sao lưu cách ly: %@"
+          }
+        }
+      }
+    },
+    "app.database.error.init_failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to load database: %@"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không thể tải cơ sở dữ liệu: %@"
+          }
+        }
+      }
+    },
+    "app.database.error.init_failed_backed_up" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to load database. Backup created at %@: %@"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không thể tải cơ sở dữ liệu. Bản sao lưu đã được tạo tại %@: %@"
+          }
+        }
+      }
+    },
+    "app.database.error.reset_failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to reset database: %@"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không thể đặt lại cơ sở dữ liệu: %@"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
