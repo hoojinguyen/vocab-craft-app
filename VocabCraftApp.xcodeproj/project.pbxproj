@@ -75,6 +75,7 @@
 		30007F7D19273EF8E04F /* ReflexSpeechEngineProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20007F7D19273EF8E04F /* ReflexSpeechEngineProtocol.swift */; };
 		30001B54BD9C7BC878A1 /* SRSRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20001B54BD9C7BC878A1 /* SRSRepositoryProtocol.swift */; };
 		3000410EFACF0E255E2A /* UserProgressRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000410EFACF0E255E2A /* UserProgressRepositoryProtocol.swift */; };
+		3000EC916D0862AF14E5 /* UserRoadmapSettingsProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000EC916D0862AF14E5 /* UserRoadmapSettingsProtocol.swift */; };
 		3000A91CFCCE87349186 /* VocabularyRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A91CFCCE87349186 /* VocabularyRepositoryProtocol.swift */; };
 		300063C6A8B57B3C3299 /* CompleteLessonUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200063C6A8B57B3C3299 /* CompleteLessonUseCase.swift */; };
 		3000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift */; };
@@ -376,6 +377,7 @@
 		20007F7D19273EF8E04F /* ReflexSpeechEngineProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexSpeechEngineProtocol.swift"; sourceTree = "<group>"; };
 		20001B54BD9C7BC878A1 /* SRSRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SRSRepositoryProtocol.swift"; sourceTree = "<group>"; };
 		2000410EFACF0E255E2A /* UserProgressRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserProgressRepositoryProtocol.swift"; sourceTree = "<group>"; };
+		2000EC916D0862AF14E5 /* UserRoadmapSettingsProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserRoadmapSettingsProtocol.swift"; sourceTree = "<group>"; };
 		2000A91CFCCE87349186 /* VocabularyRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyRepositoryProtocol.swift"; sourceTree = "<group>"; };
 		200063C6A8B57B3C3299 /* CompleteLessonUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CompleteLessonUseCase.swift"; sourceTree = "<group>"; };
 		2000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EvaluateSRSUseCase.swift"; sourceTree = "<group>"; };
@@ -893,6 +895,7 @@
 				20007F7D19273EF8E04F /* ReflexSpeechEngineProtocol.swift */,
 				20001B54BD9C7BC878A1 /* SRSRepositoryProtocol.swift */,
 				2000410EFACF0E255E2A /* UserProgressRepositoryProtocol.swift */,
+				2000EC916D0862AF14E5 /* UserRoadmapSettingsProtocol.swift */,
 				2000A91CFCCE87349186 /* VocabularyRepositoryProtocol.swift */,
 			);
 			path = "Protocols";
@@ -1752,6 +1755,7 @@
 				30007F7D19273EF8E04F /* ReflexSpeechEngineProtocol.swift in Sources */,
 				30001B54BD9C7BC878A1 /* SRSRepositoryProtocol.swift in Sources */,
 				3000410EFACF0E255E2A /* UserProgressRepositoryProtocol.swift in Sources */,
+				3000EC916D0862AF14E5 /* UserRoadmapSettingsProtocol.swift in Sources */,
 				3000A91CFCCE87349186 /* VocabularyRepositoryProtocol.swift in Sources */,
 				300063C6A8B57B3C3299 /* CompleteLessonUseCase.swift in Sources */,
 				3000B4B5FCC45C726654 /* EvaluateSRSUseCase.swift in Sources */,

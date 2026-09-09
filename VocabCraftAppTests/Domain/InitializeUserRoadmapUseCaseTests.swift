@@ -25,7 +25,7 @@ final class InitializeUserRoadmapUseCaseTests: XCTestCase {
     func testInitializeRoadmapForBeginnerA1() async throws {
         let dataSource = SampleVocabularyDataSource()
         let stageRepo = MockStageProgressRepository()
-        let settings = UserSettingsStore(defaults: testDefaults)
+        let settings = MockUserRoadmapSettings()
 
         let useCase = InitializeUserRoadmapUseCase(
             dataSource: dataSource,
@@ -40,10 +40,10 @@ final class InitializeUserRoadmapUseCaseTests: XCTestCase {
             notificationTimeInterval: 72000
         )
 
-        XCTAssertEqual(settings.selectedGoalDeckId, "deck_daily")
-        XCTAssertEqual(settings.assessedCefrLevel, "A1")
-        XCTAssertEqual(settings.dailyGoalCount, 10)
-        XCTAssertEqual(settings.notificationTimeInterval, 72000)
+        XCTAssertEqual(settings.savedDeckId, "deck_daily")
+        XCTAssertEqual(settings.savedCefrLevel, "A1")
+        XCTAssertEqual(settings.savedDailyGoalCount, 10)
+        XCTAssertEqual(settings.savedNotificationTimeInterval, 72000)
 
         // Stage 1 of deck_daily should be the starting stage
         XCTAssertEqual(result.startingStage.id, "stage_daily_1")
@@ -60,7 +60,7 @@ final class InitializeUserRoadmapUseCaseTests: XCTestCase {
     func testInitializeRoadmapForIntermediateB1AutoUnlocksFoundationalStage() async throws {
         let dataSource = SampleVocabularyDataSource()
         let stageRepo = MockStageProgressRepository()
-        let settings = UserSettingsStore(defaults: testDefaults)
+        let settings = MockUserRoadmapSettings()
 
         let useCase = InitializeUserRoadmapUseCase(
             dataSource: dataSource,
@@ -91,7 +91,7 @@ final class InitializeUserRoadmapUseCaseTests: XCTestCase {
     func testInitializeRoadmapFallbackWhenDataSourceFails() async throws {
         let failingDataSource = TestFailingVocabularyDataSource(shouldCancel: false)
         let stageRepo = MockStageProgressRepository()
-        let settings = UserSettingsStore(defaults: testDefaults)
+        let settings = MockUserRoadmapSettings()
 
         let useCase = InitializeUserRoadmapUseCase(
             dataSource: failingDataSource,
@@ -115,7 +115,7 @@ final class InitializeUserRoadmapUseCaseTests: XCTestCase {
     func testInitializeRoadmapCancellationDoesNotMutateProgress() async throws {
         let cancellingDataSource = TestFailingVocabularyDataSource(shouldCancel: true)
         let stageRepo = MockStageProgressRepository()
-        let settings = UserSettingsStore(defaults: testDefaults)
+        let settings = MockUserRoadmapSettings()
 
         let useCase = InitializeUserRoadmapUseCase(
             dataSource: cancellingDataSource,
@@ -137,14 +137,14 @@ final class InitializeUserRoadmapUseCaseTests: XCTestCase {
 
         let progressList = try await stageRepo.fetchAllStageProgress()
         XCTAssertTrue(progressList.isEmpty, "Progress should not be saved if synthesis was cancelled")
-        XCTAssertNotEqual(settings.selectedGoalDeckId, "deck_test", "Settings should not be written if cancelled")
+        XCTAssertNil(settings.savedDeckId, "Settings should not be written if cancelled")
     }
 
     @MainActor
     func testInitializeRoadmapShortStagePadsToThreeWords() async throws {
         let oneWordDataSource = TestOneWordVocabularyDataSource()
         let stageRepo = MockStageProgressRepository()
-        let settings = UserSettingsStore(defaults: testDefaults)
+        let settings = MockUserRoadmapSettings()
 
         let useCase = InitializeUserRoadmapUseCase(
             dataSource: oneWordDataSource,
@@ -167,7 +167,7 @@ final class InitializeUserRoadmapUseCaseTests: XCTestCase {
     func testInitializeRoadmapReconcilesStage1WhenChangingFromAdvancedToBeginner() async throws {
         let dataSource = SampleVocabularyDataSource()
         let stageRepo = MockStageProgressRepository()
-        let settings = UserSettingsStore(defaults: testDefaults)
+        let settings = MockUserRoadmapSettings()
 
         let useCase = InitializeUserRoadmapUseCase(
             dataSource: dataSource,
@@ -196,10 +196,48 @@ final class InitializeUserRoadmapUseCaseTests: XCTestCase {
         XCTAssertEqual(updatedProgress.first { $0.stageId == "stage_daily_1" }?.isCompleted, false)
     }
 
+    @MainActor
+    func testUserSettingsStoreConformsToUserRoadmapSettingsProtocol() {
+        let store = UserSettingsStore(defaults: testDefaults)
+        let settings: UserRoadmapSettingsProtocol = store
+
+        settings.saveRoadmapPreferences(
+            deckId: "deck_ielts",
+            cefrLevel: "C1",
+            dailyGoalCount: 25,
+            notificationTimeInterval: 36000
+        )
+
+        XCTAssertEqual(store.selectedGoalDeckId, "deck_ielts")
+        XCTAssertEqual(store.assessedCefrLevel, "C1")
+        XCTAssertEqual(store.dailyGoalCount, 25)
+        XCTAssertEqual(store.notificationTimeInterval, 36000)
+    }
+
     func testOnboardingDomainErrorLocalizedDescription() {
         let error = OnboardingDomainError.stageNotFound("deck_test")
         let description = error.localizedDescription
         XCTAssertTrue(description.contains("deck_test"))
+    }
+}
+
+@MainActor
+private final class MockUserRoadmapSettings: UserRoadmapSettingsProtocol {
+    var savedDeckId: String?
+    var savedCefrLevel: String?
+    var savedDailyGoalCount: Int?
+    var savedNotificationTimeInterval: Double?
+
+    func saveRoadmapPreferences(
+        deckId: String,
+        cefrLevel: String,
+        dailyGoalCount: Int,
+        notificationTimeInterval: Double
+    ) {
+        self.savedDeckId = deckId
+        self.savedCefrLevel = cefrLevel
+        self.savedDailyGoalCount = dailyGoalCount
+        self.savedNotificationTimeInterval = notificationTimeInterval
     }
 }
 
