@@ -70,6 +70,27 @@ final class AppContainerVocabularyTests: XCTestCase {
         XCTAssertNotNil(container.makeFetchLearningPathUseCase())
         XCTAssertNotNil(container.makeCompleteLessonUseCase())
     }
+
+    @MainActor
+    func test_sampleVaultDataSeeder_seedIfEmpty_seedsOnlyWhenEmpty() async throws {
+        let repo = MockUserProgressRepository()
+        let initial = try await repo.fetchAllProgress()
+        XCTAssertTrue(initial.isEmpty)
+
+        await SampleVaultDataSeeder.seedIfEmpty(repository: repo)
+        let afterFirstSeed = try await repo.fetchAllProgress()
+        XCTAssertFalse(afterFirstSeed.isEmpty)
+        let seededCount = afterFirstSeed.count
+
+        // Re-seeding when non-empty must be a no-op
+        await SampleVaultDataSeeder.seedIfEmpty(repository: repo)
+        let afterSecondSeed = try await repo.fetchAllProgress()
+        XCTAssertEqual(afterSecondSeed.count, seededCount)
+    }
+
+    func test_defaultProcessArguments_doesNotContainSeedSampleVault() {
+        XCTAssertFalse(ProcessInfo.processInfo.arguments.contains("-seed-sample-vault"))
+    }
 }
 
 #if canImport(Testing)
@@ -96,6 +117,12 @@ struct AppContainerAudioDependencyTests {
         let drillEngine = view.makeDrillSpeechEngine(container: container) as? ResilientReflexSpeechEngine
         #expect(drillEngine != nil)
         #expect((drillEngine?.audioSessionCoordinator as AnyObject?) === (container.audioSessionCoordinator as AnyObject))
+    }
+
+    @Test @MainActor func appContainerColdLaunchDoesNotAllocateEagerSpeechEngines() {
+        let container = AppContainer(useMockData: true)
+        #expect(container.ttsService is TextToSpeechService)
+        #expect(container.audioSessionCoordinator is AudioSessionCoordinator)
     }
 }
 #endif

@@ -1,4 +1,3 @@
-import SpeechKit
 import SwiftUI
 
 private struct AppContainerKey: EnvironmentKey {
@@ -11,10 +10,6 @@ private struct AppRouterKey: EnvironmentKey {
 
 private struct TextToSpeechKey: EnvironmentKey {
     static let defaultValue: TextToSpeechProtocol? = nil
-}
-
-private struct SpeechAssessmentServiceKey: EnvironmentKey {
-    static let defaultValue: SpeechAssessmentProtocol? = nil
 }
 
 public extension EnvironmentValues {
@@ -33,10 +28,5 @@ public extension EnvironmentValues {
     var ttsService: TextToSpeechProtocol? {
         get { self[TextToSpeechKey.self] }
         set { self[TextToSpeechKey.self] = newValue }
-    }
-
-    var speechAssessmentService: SpeechAssessmentProtocol? {
-        get { self[SpeechAssessmentServiceKey.self] }
-        set { self[SpeechAssessmentServiceKey.self] = newValue }
     }
 }

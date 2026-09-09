@@ -64,13 +64,11 @@ struct VocabCraftApp: App {
                 .environment(\.appContainer, appContainer)
                 .environment(\.appRouter, appContainer.appRouter)
                 .environment(\.ttsService, appContainer.ttsService)
-                .environment(\.speechAssessmentService, appContainer.speechAssessmentService)
         } else {
             HomepageView(viewModel: appContainer.makeHomepageViewModel())
                 .environment(\.appContainer, appContainer)
                 .environment(\.appRouter, appContainer.appRouter)
                 .environment(\.ttsService, appContainer.ttsService)
-                .environment(\.speechAssessmentService, appContainer.speechAssessmentService)
         }
     }
 }

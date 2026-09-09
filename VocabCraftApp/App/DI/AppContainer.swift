@@ -1,5 +1,4 @@
 import Foundation
-import SpeechKit
 import SwiftData
 
 /// Centralized Composition Root / Dependency Injection Container.
@@ -24,8 +23,6 @@ public final class AppContainer {
     // MARK: - Services
     public let audioSessionCoordinator: any AudioSessionCoordinating
     public let ttsService: TextToSpeechProtocol
-    public let sttService: SpeechRecognitionProtocol
-    public let speechAssessmentService: SpeechAssessmentProtocol
 
     // MARK: - Domain Use Cases
     public let evaluateSRSUseCase: EvaluateSRSUseCaseProtocol
@@ -62,8 +59,6 @@ public final class AppContainer {
         initializeUserRoadmapUseCase: InitializeUserRoadmapUseCaseProtocol? = nil,
         audioSessionCoordinator: (any AudioSessionCoordinating)? = nil,
         ttsService: TextToSpeechProtocol? = nil,
-        sttService: SpeechRecognitionProtocol? = nil,
-        speechAssessmentService: SpeechAssessmentProtocol? = nil,
         userSettingsStore: UserSettingsStore? = nil,
         appRouter: AppRouter? = nil
     ) {
@@ -101,8 +96,6 @@ public final class AppContainer {
 
         let resolvedTTS = ttsService ?? TextToSpeechService(audioSessionCoordinator: resolvedAudioCoordinator)
         self.ttsService = resolvedTTS
-        self.sttService = sttService ?? SpeechRecognitionService()
-        self.speechAssessmentService = speechAssessmentService ?? SpeechAssessmentService()
 
         // Existing Use Cases
         self.evaluateSRSUseCase = EvaluateSRSUseCase(srsRepository: srsRepo)

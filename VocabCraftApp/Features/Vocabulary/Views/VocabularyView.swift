@@ -288,7 +288,9 @@ public struct VocabularyView: View {
                     vaultVM = appContainer.makePersonalVaultViewModel()
                 }
                 await setupAutomationState()
-                await SampleVaultDataSeeder.seedIfEmpty(repository: appContainer.userProgressRepository)
+                if ProcessInfo.processInfo.arguments.contains("-seed-sample-vault") {
+                    await SampleVaultDataSeeder.seedIfEmpty(repository: appContainer.userProgressRepository)
+                }
                 if let vm = vaultVM, vm.vaultWords.isEmpty && !vm.isLoading {
                     await vm.loadData()
                 }
