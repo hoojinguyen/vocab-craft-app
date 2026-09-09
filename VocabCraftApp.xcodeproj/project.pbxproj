@@ -7,10 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3000936DD01FE299E6B8 /* AppBootstrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000936DD01FE299E6B8 /* AppBootstrapper.swift */; };
 		3000DE9D056D85598F6E /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DE9D056D85598F6E /* AppContainer.swift */; };
 		3000FAD85B1C0D0923C5 /* EnvironmentKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000FAD85B1C0D0923C5 /* EnvironmentKeys.swift */; };
 		300012A79BAC11C11690 /* AppRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200012A79BAC11C11690 /* AppRouter.swift */; };
 		300094814DC25601FEC3 /* TabItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200094814DC25601FEC3 /* TabItem.swift */; };
+		30000471F293F7AFFB2A /* DatabaseRecoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000471F293F7AFFB2A /* DatabaseRecoveryView.swift */; };
 		30005D17660A661FF2F5 /* VocabCraftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005D17660A661FF2F5 /* VocabCraftApp.swift */; };
 		3000C6AE7F8579C5EEFD /* AudioBufferRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000C6AE7F8579C5EEFD /* AudioBufferRelay.swift */; };
 		300055B1F504DEAD204D /* AudioSessionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200055B1F504DEAD204D /* AudioSessionCoordinator.swift */; };
@@ -175,6 +177,7 @@
 		3001A8C3A90BD362D3C1 /* SRSEngine.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003498E286D20C1EBC /* SRSEngine.swift */; };
 		3001AD5FDFF5088D97A2 /* UserStageProgressData.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 200065DD5844D92B1800 /* UserStageProgressData.swift */; };
 		3001675F5FB5DD5A7191 /* DatasetDataSourceProtocol.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 2000FFCB867F894749B7 /* DatasetDataSourceProtocol.swift */; };
+		300086C2CF16E1EBC9A9 /* AppBootstrapperTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200086C2CF16E1EBC9A9 /* AppBootstrapperTests.swift */; };
 		3000D1068B175FF1640D /* AppContainerVocabularyTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000D1068B175FF1640D /* AppContainerVocabularyTests.swift */; };
 		30001611F67650D4D4BB /* AppRouterTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20001611F67650D4D4BB /* AppRouterTests.swift */; };
 		300051326088811D6E8E /* AudioSessionCoordinatorTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200051326088811D6E8E /* AudioSessionCoordinatorTests.swift */; };
@@ -301,11 +304,13 @@
 		200000002D50000000000000 /* VocabCraftApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VocabCraftApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000402D50000000000000 /* VocabCraftWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VocabCraftWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000502D50000000000000 /* VocabCraftAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VocabCraftAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2000936DD01FE299E6B8 /* AppBootstrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppBootstrapper.swift"; sourceTree = "<group>"; };
 		2000DE9D056D85598F6E /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppContainer.swift"; sourceTree = "<group>"; };
 		2000FAD85B1C0D0923C5 /* EnvironmentKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EnvironmentKeys.swift"; sourceTree = "<group>"; };
 		20004DC19C2C12FAB3C7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info.plist"; sourceTree = "<group>"; };
 		200012A79BAC11C11690 /* AppRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppRouter.swift"; sourceTree = "<group>"; };
 		200094814DC25601FEC3 /* TabItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TabItem.swift"; sourceTree = "<group>"; };
+		20000471F293F7AFFB2A /* DatabaseRecoveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseRecoveryView.swift"; sourceTree = "<group>"; };
 		2000AE8014E8A9522B13 /* VocabCraftApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "VocabCraftApp.entitlements"; sourceTree = "<group>"; };
 		20005D17660A661FF2F5 /* VocabCraftApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftApp.swift"; sourceTree = "<group>"; };
 		2000C6AE7F8579C5EEFD /* AudioBufferRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AudioBufferRelay.swift"; sourceTree = "<group>"; };
@@ -458,6 +463,7 @@
 		2000473CACA7476916FA /* VocabWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabWidget.swift"; sourceTree = "<group>"; };
 		200002284C02A8E338C2 /* VocabWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabWidgetBundle.swift"; sourceTree = "<group>"; };
 		200075A9C43B4E98CD5D /* VocabWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabWidgetView.swift"; sourceTree = "<group>"; };
+		200086C2CF16E1EBC9A9 /* AppBootstrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppBootstrapperTests.swift"; sourceTree = "<group>"; };
 		2000D1068B175FF1640D /* AppContainerVocabularyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppContainerVocabularyTests.swift"; sourceTree = "<group>"; };
 		20001611F67650D4D4BB /* AppRouterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppRouterTests.swift"; sourceTree = "<group>"; };
 		200051326088811D6E8E /* AudioSessionCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AudioSessionCoordinatorTests.swift"; sourceTree = "<group>"; };
@@ -599,13 +605,23 @@
 		4000B900E72E73697418 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				4000C14D1FDEF735BA3B /* Bootstrap */,
 				400024B9E720CD376832 /* DI */,
 				20004DC19C2C12FAB3C7 /* Info.plist */,
 				40001840802A4AD49441 /* Navigation */,
+				4000A367DB3586FEE3F2 /* Views */,
 				2000AE8014E8A9522B13 /* VocabCraftApp.entitlements */,
 				20005D17660A661FF2F5 /* VocabCraftApp.swift */,
 			);
 			path = "App";
+			sourceTree = "<group>";
+		};
+		4000C14D1FDEF735BA3B /* Bootstrap */ = {
+			isa = PBXGroup;
+			children = (
+				2000936DD01FE299E6B8 /* AppBootstrapper.swift */,
+			);
+			path = "Bootstrap";
 			sourceTree = "<group>";
 		};
 		400024B9E720CD376832 /* DI */ = {
@@ -624,6 +640,14 @@
 				200094814DC25601FEC3 /* TabItem.swift */,
 			);
 			path = "Navigation";
+			sourceTree = "<group>";
+		};
+		4000A367DB3586FEE3F2 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				20000471F293F7AFFB2A /* DatabaseRecoveryView.swift */,
+			);
+			path = "Views";
 			sourceTree = "<group>";
 		};
 		400071CFB0497F428E99 /* Core */ = {
@@ -1322,6 +1346,7 @@
 		4000D124A443CB2C8687 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				200086C2CF16E1EBC9A9 /* AppBootstrapperTests.swift */,
 				2000D1068B175FF1640D /* AppContainerVocabularyTests.swift */,
 			);
 			path = "App";
@@ -1637,10 +1662,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3000936DD01FE299E6B8 /* AppBootstrapper.swift in Sources */,
 				3000DE9D056D85598F6E /* AppContainer.swift in Sources */,
 				3000FAD85B1C0D0923C5 /* EnvironmentKeys.swift in Sources */,
 				300012A79BAC11C11690 /* AppRouter.swift in Sources */,
 				300094814DC25601FEC3 /* TabItem.swift in Sources */,
+				30000471F293F7AFFB2A /* DatabaseRecoveryView.swift in Sources */,
 				30005D17660A661FF2F5 /* VocabCraftApp.swift in Sources */,
 				3000C6AE7F8579C5EEFD /* AudioBufferRelay.swift in Sources */,
 				300055B1F504DEAD204D /* AudioSessionCoordinator.swift in Sources */,
@@ -1818,6 +1845,7 @@
 				300293ED2147CD09D799 /* VocabWidget.swift in Test Sources */,
 				30026ECC61E8467758A1 /* VocabWidgetBundle.swift in Test Sources */,
 				30022A3804DB171F946C /* VocabWidgetView.swift in Test Sources */,
+				300086C2CF16E1EBC9A9 /* AppBootstrapperTests.swift in Test Sources */,
 				3000D1068B175FF1640D /* AppContainerVocabularyTests.swift in Test Sources */,
 				30001611F67650D4D4BB /* AppRouterTests.swift in Test Sources */,
 				300051326088811D6E8E /* AudioSessionCoordinatorTests.swift in Test Sources */,
