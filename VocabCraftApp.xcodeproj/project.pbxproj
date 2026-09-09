@@ -63,6 +63,8 @@
 		300001EA5C596D2E5E45 /* VaultWordItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200001EA5C596D2E5E45 /* VaultWordItem.swift */; };
 		30002A121BF620A9A229 /* Word.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20002A121BF620A9A229 /* Word.swift */; };
 		3000B1DCD0DC16127C79 /* QuickReflexAttempt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B1DCD0DC16127C79 /* QuickReflexAttempt.swift */; };
+		30000FA7EFD24262AE55 /* ReflexDrillSessionPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000FA7EFD24262AE55 /* ReflexDrillSessionPlan.swift */; };
+		3000AD0A35CB0657E32D /* ReflexMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000AD0A35CB0657E32D /* ReflexMode.swift */; };
 		300065DD5844D92B1800 /* UserStageProgressData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200065DD5844D92B1800 /* UserStageProgressData.swift */; };
 		30001EEEA598590BA38A /* MasteryEvaluationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20001EEEA598590BA38A /* MasteryEvaluationPolicy.swift */; };
 		30009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift */; };
@@ -132,9 +134,7 @@
 		300097FF868AE5CA128B /* ReflexCardResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200097FF868AE5CA128B /* ReflexCardResult.swift */; };
 		3000DE54239B77038649 /* ReflexClozeStageSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000DE54239B77038649 /* ReflexClozeStageSet.swift */; };
 		3000A914150939195A73 /* ReflexDrillPlanItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A914150939195A73 /* ReflexDrillPlanItem.swift */; };
-		3000669A78EB5976D9D4 /* ReflexDrillSessionPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000669A78EB5976D9D4 /* ReflexDrillSessionPlan.swift */; };
 		300062F735C241B182D9 /* ReflexHintMaskStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200062F735C241B182D9 /* ReflexHintMaskStrategy.swift */; };
-		300056A99476FEA015E8 /* ReflexMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200056A99476FEA015E8 /* ReflexMode.swift */; };
 		3000A5B377A7277F4EB7 /* ReflexSessionSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A5B377A7277F4EB7 /* ReflexSessionSummary.swift */; };
 		3000306F302360991113 /* ReflexClozeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000306F302360991113 /* ReflexClozeFormatter.swift */; };
 		300012A1ACC2ABC41650 /* ReflexDistractorGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200012A1ACC2ABC41650 /* ReflexDistractorGenerator.swift */; };
@@ -362,6 +362,8 @@
 		200001EA5C596D2E5E45 /* VaultWordItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VaultWordItem.swift"; sourceTree = "<group>"; };
 		20002A121BF620A9A229 /* Word.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Word.swift"; sourceTree = "<group>"; };
 		2000B1DCD0DC16127C79 /* QuickReflexAttempt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "QuickReflexAttempt.swift"; sourceTree = "<group>"; };
+		20000FA7EFD24262AE55 /* ReflexDrillSessionPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillSessionPlan.swift"; sourceTree = "<group>"; };
+		2000AD0A35CB0657E32D /* ReflexMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexMode.swift"; sourceTree = "<group>"; };
 		200065DD5844D92B1800 /* UserStageProgressData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserStageProgressData.swift"; sourceTree = "<group>"; };
 		20001EEEA598590BA38A /* MasteryEvaluationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MasteryEvaluationPolicy.swift"; sourceTree = "<group>"; };
 		20009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AudioServiceProtocols.swift"; sourceTree = "<group>"; };
@@ -431,9 +433,7 @@
 		200097FF868AE5CA128B /* ReflexCardResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexCardResult.swift"; sourceTree = "<group>"; };
 		2000DE54239B77038649 /* ReflexClozeStageSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexClozeStageSet.swift"; sourceTree = "<group>"; };
 		2000A914150939195A73 /* ReflexDrillPlanItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillPlanItem.swift"; sourceTree = "<group>"; };
-		2000669A78EB5976D9D4 /* ReflexDrillSessionPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDrillSessionPlan.swift"; sourceTree = "<group>"; };
 		200062F735C241B182D9 /* ReflexHintMaskStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexHintMaskStrategy.swift"; sourceTree = "<group>"; };
-		200056A99476FEA015E8 /* ReflexMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexMode.swift"; sourceTree = "<group>"; };
 		2000A5B377A7277F4EB7 /* ReflexSessionSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexSessionSummary.swift"; sourceTree = "<group>"; };
 		2000306F302360991113 /* ReflexClozeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexClozeFormatter.swift"; sourceTree = "<group>"; };
 		200012A1ACC2ABC41650 /* ReflexDistractorGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexDistractorGenerator.swift"; sourceTree = "<group>"; };
@@ -855,9 +855,19 @@
 			isa = PBXGroup;
 			children = (
 				2000B1DCD0DC16127C79 /* QuickReflexAttempt.swift */,
+				4000107F161429117498 /* Reflex */,
 				200065DD5844D92B1800 /* UserStageProgressData.swift */,
 			);
 			path = "Models";
+			sourceTree = "<group>";
+		};
+		4000107F161429117498 /* Reflex */ = {
+			isa = PBXGroup;
+			children = (
+				20000FA7EFD24262AE55 /* ReflexDrillSessionPlan.swift */,
+				2000AD0A35CB0657E32D /* ReflexMode.swift */,
+			);
+			path = "Reflex";
 			sourceTree = "<group>";
 		};
 		4000731A90F8FB364BE4 /* Policies */ = {
@@ -1148,9 +1158,7 @@
 				200097FF868AE5CA128B /* ReflexCardResult.swift */,
 				2000DE54239B77038649 /* ReflexClozeStageSet.swift */,
 				2000A914150939195A73 /* ReflexDrillPlanItem.swift */,
-				2000669A78EB5976D9D4 /* ReflexDrillSessionPlan.swift */,
 				200062F735C241B182D9 /* ReflexHintMaskStrategy.swift */,
-				200056A99476FEA015E8 /* ReflexMode.swift */,
 				2000A5B377A7277F4EB7 /* ReflexSessionSummary.swift */,
 			);
 			path = "Models";
@@ -1718,6 +1726,8 @@
 				300001EA5C596D2E5E45 /* VaultWordItem.swift in Sources */,
 				30002A121BF620A9A229 /* Word.swift in Sources */,
 				3000B1DCD0DC16127C79 /* QuickReflexAttempt.swift in Sources */,
+				30000FA7EFD24262AE55 /* ReflexDrillSessionPlan.swift in Sources */,
+				3000AD0A35CB0657E32D /* ReflexMode.swift in Sources */,
 				300065DD5844D92B1800 /* UserStageProgressData.swift in Sources */,
 				30001EEEA598590BA38A /* MasteryEvaluationPolicy.swift in Sources */,
 				30009BA5E0FA3F4BBCE5 /* AudioServiceProtocols.swift in Sources */,
@@ -1787,9 +1797,7 @@
 				300097FF868AE5CA128B /* ReflexCardResult.swift in Sources */,
 				3000DE54239B77038649 /* ReflexClozeStageSet.swift in Sources */,
 				3000A914150939195A73 /* ReflexDrillPlanItem.swift in Sources */,
-				3000669A78EB5976D9D4 /* ReflexDrillSessionPlan.swift in Sources */,
 				300062F735C241B182D9 /* ReflexHintMaskStrategy.swift in Sources */,
-				300056A99476FEA015E8 /* ReflexMode.swift in Sources */,
 				3000A5B377A7277F4EB7 /* ReflexSessionSummary.swift in Sources */,
 				3000306F302360991113 /* ReflexClozeFormatter.swift in Sources */,
 				300012A1ACC2ABC41650 /* ReflexDistractorGenerator.swift in Sources */,
