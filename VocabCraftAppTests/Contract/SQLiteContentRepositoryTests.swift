@@ -351,4 +351,65 @@ final class SQLiteContentRepositoryTests: XCTestCase {
             XCTAssertTrue(details.contains("not-a-valid-uuid") || details.contains("pronunciation"))
         }
     }
+
+    // 17. Live Release v2 bundle reader acceptance
+    func testReleaseV2LiveBundleReaderAcceptance() async throws {
+        let bundleURL = URL(fileURLWithPath: "/Users/hoojinguyen/Projects/vocab-craft-api/storage/bundles/v2/vocab_content.sqlite")
+        let manifestURL = URL(fileURLWithPath: "/Users/hoojinguyen/Projects/vocab-craft-api/storage/bundles/v2/manifest.json")
+        guard FileManager.default.fileExists(atPath: bundleURL.path),
+              FileManager.default.fileExists(atPath: manifestURL.path) else {
+            throw XCTSkip("Release v2 bundle or manifest not found at expected path")
+        }
+
+        let manifestData = try Data(contentsOf: manifestURL)
+        let manifest = try JSONDecoder().decode(ContentManifest.self, from: manifestData)
+        XCTAssertEqual(manifest.contentVersion, 2)
+        XCTAssertEqual(manifest.datasetSchemaVersion, 1)
+
+        let repo = try SQLiteContentRepository(url: bundleURL, manifest: manifest)
+
+        // 1. Candidate Sense: book (verb)
+        let bookVerbID = try XCTUnwrap(SenseID(uuidString: "4add4e65-b0d4-4380-addd-3a4629ad6e5f"))
+        let bookVerbSense = try await repo.fetchSense(senseID: bookVerbID)
+        let unwrappedBookVerb = try XCTUnwrap(bookVerbSense)
+        XCTAssertEqual(unwrappedBookVerb.partOfSpeech, .verb)
+        XCTAssertEqual(unwrappedBookVerb.cefrLevel, .a2)
+        XCTAssertEqual(unwrappedBookVerb.definitionVi, "đặt chỗ, đặt phòng hoặc mua vé trước")
+        XCTAssertEqual(unwrappedBookVerb.examples.first?.textVi, "Tôi đã đặt một phòng đôi tại khách sạn.")
+
+        // 2. Candidate Sense: book (noun)
+        let bookNounID = try XCTUnwrap(SenseID(uuidString: "b9b0e770-ad0e-4337-9bcb-e31d4d96a649"))
+        let bookNounSense = try await repo.fetchSense(senseID: bookNounID)
+        let unwrappedBookNoun = try XCTUnwrap(bookNounSense)
+        XCTAssertEqual(unwrappedBookNoun.partOfSpeech, .noun)
+        XCTAssertEqual(unwrappedBookNoun.cefrLevel, .a1)
+        XCTAssertEqual(unwrappedBookNoun.definitionVi, "cuốn sách, quyển sách")
+
+        // 3. Candidate Sense: check in (verb)
+        let checkInID = try XCTUnwrap(SenseID(uuidString: "7d8475d7-8c65-4741-8c05-5651fc6edad0"))
+        let checkInSense = try await repo.fetchSense(senseID: checkInID)
+        let unwrappedCheckIn = try XCTUnwrap(checkInSense)
+        XCTAssertEqual(unwrappedCheckIn.partOfSpeech, .verb)
+        XCTAssertEqual(unwrappedCheckIn.cefrLevel, .a2)
+        XCTAssertEqual(unwrappedCheckIn.definitionVi, "làm thủ tục nhận phòng khách sạn hoặc làm thủ tục bay")
+
+        // 4. Candidate Sense: give up (verb)
+        let giveUpID = try XCTUnwrap(SenseID(uuidString: "6b74765b-c0d4-408b-8bcd-c7d60a86d008"))
+        let giveUpSense = try await repo.fetchSense(senseID: giveUpID)
+        let unwrappedGiveUp = try XCTUnwrap(giveUpSense)
+        XCTAssertEqual(unwrappedGiveUp.partOfSpeech, .verb)
+        XCTAssertEqual(unwrappedGiveUp.cefrLevel, .b1)
+        XCTAssertEqual(unwrappedGiveUp.definitionVi, "từ bỏ, ngừng nỗ lực hoặc bỏ cuộc")
+
+        // 5. Lessons & Shared Membership
+        let hotelLessonID = try XCTUnwrap(LessonID(uuidString: "803f0cc1-b78e-4cce-893a-c84f23804ff4"))
+        let cityLessonID = try XCTUnwrap(LessonID(uuidString: "b5fa99d8-da68-4ad5-bdc6-fc53caa5a723"))
+        let hotelLesson = try await repo.fetchLessonContent(lessonID: hotelLessonID)
+        let cityLesson = try await repo.fetchLessonContent(lessonID: cityLessonID)
+
+        let hotelSenseIDs = hotelLesson.senses.map(\.senseID)
+        let citySenseIDs = cityLesson.senses.map(\.senseID)
+        XCTAssertTrue(hotelSenseIDs.contains(bookVerbID))
+        XCTAssertTrue(citySenseIDs.contains(bookVerbID))
+    }
 }
