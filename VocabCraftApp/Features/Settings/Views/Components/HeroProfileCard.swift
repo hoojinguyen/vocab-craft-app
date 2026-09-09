@@ -44,7 +44,7 @@ public struct HeroProfileCard: View {
                     .accessibilityHidden(true)
 
                     // User Name & Subtitle
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: theme.spacing.xxs) {
                         CraftText(
                             userName,
                             style: .headline,

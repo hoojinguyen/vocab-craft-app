@@ -19,6 +19,8 @@ public struct CraftListRow<TrailingContent: View>: View {
     public let iconName: String?
     public let iconColor: Color?
     public let iconBackgroundColor: Color?
+    public let titleColor: Color?
+    public let chevronColor: Color?
     public let showChevron: Bool
     public let action: (() -> Void)?
     public let trailingContent: TrailingContent
@@ -31,6 +33,8 @@ public struct CraftListRow<TrailingContent: View>: View {
         iconName: String? = nil,
         iconColor: Color? = nil,
         iconBackgroundColor: Color? = nil,
+        titleColor: Color? = nil,
+        chevronColor: Color? = nil,
         showChevron: Bool = false,
         action: (() -> Void)? = nil,
         @ViewBuilder trailing: () -> TrailingContent
@@ -42,6 +46,8 @@ public struct CraftListRow<TrailingContent: View>: View {
         self.iconName = iconName
         self.iconColor = iconColor
         self.iconBackgroundColor = iconBackgroundColor
+        self.titleColor = titleColor
+        self.chevronColor = chevronColor
         self.showChevron = showChevron
         self.action = action
         self.trailingContent = trailing()
@@ -55,6 +61,8 @@ public struct CraftListRow<TrailingContent: View>: View {
         iconName: String? = nil,
         iconColor: Color? = nil,
         iconBackgroundColor: Color? = nil,
+        titleColor: Color? = nil,
+        chevronColor: Color? = nil,
         showChevron: Bool = false,
         action: (() -> Void)? = nil,
         @ViewBuilder trailing: () -> TrailingContent
@@ -66,6 +74,8 @@ public struct CraftListRow<TrailingContent: View>: View {
         self.iconName = iconName
         self.iconColor = iconColor
         self.iconBackgroundColor = iconBackgroundColor
+        self.titleColor = titleColor
+        self.chevronColor = chevronColor
         self.showChevron = showChevron
         self.action = action
         self.trailingContent = trailing()
@@ -90,9 +100,9 @@ public struct CraftListRow<TrailingContent: View>: View {
             // Title and Subtitle
             VStack(alignment: .leading, spacing: theme.spacing.xs / 2) {
                 if let titleKey {
-                    CraftText(titleKey, style: .headline, color: theme.colors.textPrimary)
+                    CraftText(titleKey, style: .headline, color: titleColor ?? theme.colors.textPrimary)
                 } else if let rawTitle {
-                    CraftText(rawTitle, style: .headline, color: theme.colors.textPrimary)
+                    CraftText(rawTitle, style: .headline, color: titleColor ?? theme.colors.textPrimary)
                 }
 
                 if let subtitleKey {
@@ -108,7 +118,7 @@ public struct CraftListRow<TrailingContent: View>: View {
 
             // Optional Chevron
             if showChevron {
-                CraftIcon("chevron.right", size: .sm, color: theme.colors.textMuted)
+                CraftIcon("chevron.right", size: .sm, color: chevronColor ?? theme.colors.textMuted)
             }
         }
         .padding(.horizontal, theme.spacing.base)
@@ -136,6 +146,8 @@ public extension CraftListRow where TrailingContent == EmptyView {
         iconName: String? = nil,
         iconColor: Color? = nil,
         iconBackgroundColor: Color? = nil,
+        titleColor: Color? = nil,
+        chevronColor: Color? = nil,
         showChevron: Bool = true,
         action: (() -> Void)? = nil
     ) {
@@ -145,6 +157,8 @@ public extension CraftListRow where TrailingContent == EmptyView {
             iconName: iconName,
             iconColor: iconColor,
             iconBackgroundColor: iconBackgroundColor,
+            titleColor: titleColor,
+            chevronColor: chevronColor,
             showChevron: showChevron,
             action: action
         ) {
@@ -158,6 +172,8 @@ public extension CraftListRow where TrailingContent == EmptyView {
         iconName: String? = nil,
         iconColor: Color? = nil,
         iconBackgroundColor: Color? = nil,
+        titleColor: Color? = nil,
+        chevronColor: Color? = nil,
         showChevron: Bool = true,
         action: (() -> Void)? = nil
     ) {
@@ -167,6 +183,8 @@ public extension CraftListRow where TrailingContent == EmptyView {
             iconName: iconName,
             iconColor: iconColor,
             iconBackgroundColor: iconBackgroundColor,
+            titleColor: titleColor,
+            chevronColor: chevronColor,
             showChevron: showChevron,
             action: action
         ) {

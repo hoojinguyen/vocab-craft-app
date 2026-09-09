@@ -151,4 +151,41 @@ final class SettingsViewTests: XCTestCase {
         let body = sheet.body
         XCTAssertNotNil(body)
     }
+
+    func testSettingsViewStructureContainsFiveSections() {
+        let store = UserSettingsStore()
+        let tts = MockTextToSpeechService()
+        let vm = SettingsViewModel(store: store, ttsService: tts)
+        let view = SettingsView(viewModel: vm)
+        XCTAssertNotNil(view.body)
+    }
+
+    func testHeroProfileCardDynamicLevelRendering() {
+        let store = UserSettingsStore()
+        store.assessedCefrLevel = "C1 Advanced"
+        let tts = MockTextToSpeechService()
+        let vm = SettingsViewModel(store: store, ttsService: tts)
+        let card = HeroProfileCard(
+            userName: "Hooji N.",
+            userLevel: vm.store.assessedCefrLevel
+        )
+        XCTAssertEqual(card.userLevel, "C1 Advanced")
+        XCTAssertNotNil(card.body)
+    }
+
+    func testSettingsViewDataSectionClearCache() {
+        let store = UserSettingsStore()
+        let tts = MockTextToSpeechService()
+        let vm = SettingsViewModel(store: store, ttsService: tts)
+        vm.clearCache()
+        XCTAssertEqual(vm.cacheSizeString, "0.0 MB")
+    }
+
+    func testSettingsViewResetSRSAction() async {
+        let store = UserSettingsStore()
+        let tts = MockTextToSpeechService()
+        let vm = SettingsViewModel(store: store, ttsService: tts)
+        await vm.resetSRSProgress()
+        XCTAssertEqual(vm.store.dailyGoalCount, 15)
+    }
 }

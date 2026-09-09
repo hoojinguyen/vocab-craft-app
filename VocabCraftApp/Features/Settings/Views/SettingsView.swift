@@ -19,26 +19,23 @@ public struct SettingsView: View {
             ScrollView {
                 VStack(spacing: theme.spacing.lg) {
                     // 1. Hero Profile Card
-                    HeroProfileCard {
+                    HeroProfileCard(userLevel: viewModel.store.assessedCefrLevel) {
                         showProfileSheet = true
                     }
 
-                    // 2. 7-Day Streak Tracker Card
-                    CraftStreakCard(data: streakData, cardStyle: .outlined)
-
-                    // 3. Learning & SRS Section
+                    // 2. Learning & Goals Section
                     learningSection
 
-                    // 4. Audio & TTS Section
+                    // 3. Audio & Speech Section
                     audioSection
 
-                    // 5. Appearance & Experience Section
+                    // 4. Appearance & Feedback Section
                     appearanceSection
 
-                    // 6. Developer Tools Section
-                    developerSection
+                    // 5. Data & Storage Section
+                    dataSection
 
-                    // 7. About & App Info Section
+                    // 6. About & System Section
                     aboutSection
                 }
                 .padding(.horizontal, theme.spacing.base)
@@ -115,9 +112,6 @@ public struct SettingsView: View {
                 onShowGoalInput: {
                     goalInputText = "\(viewModel.store.dailyGoalCount)"
                     showGoalInputAlert = true
-                },
-                onShowResetAlert: {
-                    showResetAlert = true
                 }
             )
         }
@@ -143,10 +137,25 @@ public struct SettingsView: View {
         }
     }
 
-    private var developerSection: some View {
+    private var dataSection: some View {
         VStack(alignment: .leading, spacing: theme.spacing.xs) {
-            sectionHeader(AppStrings.Settings.sectionDevTools)
-            SettingsDeveloperCard(
+            sectionHeader(AppStrings.Settings.sectionDataStorage)
+            SettingsDataStorageCard(
+                cacheSizeString: viewModel.cacheSizeString,
+                onClearCache: {
+                    viewModel.clearCache()
+                },
+                onShowResetAlert: {
+                    showResetAlert = true
+                }
+            )
+        }
+    }
+
+    private var aboutSection: some View {
+        VStack(alignment: .leading, spacing: theme.spacing.xs) {
+            sectionHeader(AppStrings.Settings.sectionAbout)
+            SettingsAboutCard(
                 store: viewModel.store,
                 onOpenCatalog: {
                     showCatalogSheet = true
@@ -156,43 +165,10 @@ public struct SettingsView: View {
         }
     }
 
-    private var aboutSection: some View {
-        VStack(alignment: .leading, spacing: theme.spacing.xs) {
-            sectionHeader(AppStrings.Settings.sectionAbout)
-            SettingsAboutCard(
-                cacheSizeString: viewModel.cacheSizeString,
-                onClearCache: {
-                    viewModel.clearCache()
-                }
-            )
-        }
-    }
-
     private func sectionHeader(_ title: LocalizedStringKey) -> some View {
         CraftText(title, style: .caption, color: theme.colors.textSecondary)
             .fontWeight(.bold)
             .padding(.horizontal, theme.spacing.xs)
-    }
-
-    private var streakData: CraftStreakData {
-        let mockDays: [CraftStreakDay] = [
-            .init(id: "1", weekdaySymbol: "T2", status: .completed),
-            .init(id: "2", weekdaySymbol: "T3", status: .completed),
-            .init(id: "3", weekdaySymbol: "T4", status: .completed),
-            .init(id: "4", weekdaySymbol: "T5", status: .pending, isToday: true),
-            .init(id: "5", weekdaySymbol: "T6", status: .upcoming),
-            .init(id: "6", weekdaySymbol: "T7", status: .upcoming),
-            .init(id: "7", weekdaySymbol: "CN", status: .upcoming)
-        ]
-        return CraftStreakData(
-            currentStreak: 14,
-            bestStreak: 30,
-            freezeTokens: 2,
-            maxFreezeTokens: 3,
-            nextMilestoneDays: 21,
-            isCompletedToday: false,
-            weekDays: mockDays
-        )
     }
 }
 
@@ -202,44 +178,12 @@ private struct SettingsLearningCard: View {
     @Environment(\.craftTheme) private var theme
     @Bindable var store: UserSettingsStore
     let onShowGoalInput: () -> Void
-    let onShowResetAlert: () -> Void
 
     var body: some View {
         CraftCard(style: .outlined, padding: 0) {
             VStack(spacing: 0) {
                 CraftListRow(
-                    title: AppStrings.Settings.targetLevel,
-                    iconName: "graduationcap.fill",
-                    iconColor: theme.colors.brandPrimary,
-                    iconBackgroundColor: theme.colors.surfaceSubtle
-                ) {
-                    CraftBadge(AppStrings.Settings.levelBadge, symbol: .star, variant: .subtle, tone: .primary, size: .sm)
-                }
-
-                CraftDivider()
-
-                CraftListRow(
-                    title: AppStrings.Settings.appLanguage,
-                    iconName: "globe",
-                    iconColor: theme.colors.brandPrimary,
-                    iconBackgroundColor: theme.colors.surfaceSubtle
-                ) {
-                    Picker("", selection: $store.appLanguage) {
-                        Text(AppStrings.Settings.langSystem).tag("system")
-                        Text(AppStrings.Settings.langVietnamese).tag("vi")
-                        Text(AppStrings.Settings.langEnglish).tag("en")
-                    }
-                    .pickerStyle(.menu)
-                    .tint(theme.colors.brandPrimary)
-                }
-
-                CraftDivider()
-
-                CraftListRow(
-                    title: AppStrings.Settings.dailyGoal,
-                    iconName: "target",
-                    iconColor: theme.colors.brandPrimary,
-                    iconBackgroundColor: theme.colors.surfaceSubtle
+                    title: AppStrings.Settings.dailyGoal
                 ) {
                     CraftStepper(
                         value: $store.dailyGoalCount,
@@ -255,10 +199,7 @@ private struct SettingsLearningCard: View {
                 CraftDivider()
 
                 CraftListRow(
-                    title: AppStrings.Settings.reminders,
-                    iconName: "bell.fill",
-                    iconColor: theme.colors.brandPrimary,
-                    iconBackgroundColor: theme.colors.surfaceSubtle
+                    title: AppStrings.Settings.reminders
                 ) {
                     CraftSwitch(
                         isOn: Binding(
@@ -277,10 +218,7 @@ private struct SettingsLearningCard: View {
                     CraftDivider()
 
                     CraftListRow(
-                        title: AppStrings.Settings.reminderTime,
-                        iconName: "clock.fill",
-                        iconColor: theme.colors.brandPrimary,
-                        iconBackgroundColor: theme.colors.surfaceSubtle
+                        title: AppStrings.Settings.reminderTime
                     ) {
                         DatePicker(
                             "",
@@ -296,15 +234,15 @@ private struct SettingsLearningCard: View {
                 CraftDivider()
 
                 CraftListRow(
-                    title: AppStrings.Settings.resetSRS,
-                    subtitle: AppStrings.Settings.resetSRSSubtitle,
-                    iconName: "arrow.triangle.2.circlepath",
-                    iconColor: theme.colors.statusDanger,
-                    iconBackgroundColor: theme.colors.statusDanger.opacity(0.12),
-                    showChevron: true,
-                    action: onShowResetAlert
+                    title: AppStrings.Settings.targetLevel
                 ) {
-                    EmptyView()
+                    CraftBadge(
+                        store.assessedCefrLevel,
+                        symbol: .star,
+                        variant: .subtle,
+                        tone: .primary,
+                        size: .sm
+                    )
                 }
             }
         }
@@ -321,10 +259,7 @@ private struct SettingsAudioCard: View {
         CraftCard(style: .outlined, padding: 0) {
             VStack(spacing: 0) {
                 CraftListRow(
-                    title: AppStrings.Settings.audioAccent,
-                    iconName: "speaker.wave.2.fill",
-                    iconColor: theme.colors.brandPrimary,
-                    iconBackgroundColor: theme.colors.surfaceSubtle
+                    title: AppStrings.Settings.audioAccent
                 ) {
                     CraftSegmentedControl(
                         selection: $store.ttsVoiceGender,
@@ -340,12 +275,15 @@ private struct SettingsAudioCard: View {
                 CraftDivider()
 
                 VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                    CraftListRow(
-                        title: AppStrings.Settings.speechSpeed,
-                        iconName: "speedometer",
-                        iconColor: theme.colors.brandPrimary,
-                        iconBackgroundColor: theme.colors.surfaceSubtle
-                    ) {
+                    HStack {
+                        CraftText(
+                            AppStrings.Settings.speechSpeed,
+                            style: .headline,
+                            color: theme.colors.textPrimary
+                        )
+
+                        Spacer()
+
                         CraftBadge(
                             String(format: "%.2fx", store.ttsSpeed),
                             variant: .subtle,
@@ -353,12 +291,27 @@ private struct SettingsAudioCard: View {
                             size: .sm
                         )
                     }
+                    .padding(.horizontal, theme.spacing.base)
+                    .padding(.top, theme.spacing.sm)
 
-                    Slider(value: $store.ttsSpeed, in: 0.5...1.5, step: 0.05)
-                        .tint(theme.colors.brandPrimary)
-                        .padding(.horizontal, theme.spacing.base)
-                        .padding(.bottom, theme.spacing.xs)
+                    HStack(spacing: theme.spacing.sm) {
+                        Image(systemName: "tortoise")
+                            .foregroundStyle(theme.colors.textMuted)
+                            .accessibilityHidden(true)
+
+                        Slider(value: $store.ttsSpeed, in: 0.5...1.5, step: 0.05)
+                            .tint(theme.colors.brandPrimary)
+
+                        Image(systemName: "hare.fill")
+                            .foregroundStyle(theme.colors.textMuted)
+                            .accessibilityHidden(true)
+                    }
+                    .padding(.horizontal, theme.spacing.base)
+                    .padding(.bottom, theme.spacing.sm)
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel(Text(AppStrings.Settings.speechSpeed))
+                .accessibilityValue(Text(String(format: "%.2fx", store.ttsSpeed)))
 
                 CraftDivider()
 
@@ -398,12 +351,13 @@ private struct SettingsAppearanceCard: View {
     var body: some View {
         CraftCard(style: .outlined, padding: 0) {
             VStack(spacing: 0) {
-                CraftListRow(
-                    title: AppStrings.Settings.appearanceMode,
-                    iconName: "paintpalette.fill",
-                    iconColor: theme.colors.brandPrimary,
-                    iconBackgroundColor: theme.colors.surfaceSubtle
-                ) {
+                VStack(alignment: .leading, spacing: theme.spacing.sm) {
+                    CraftText(
+                        AppStrings.Settings.appearanceMode,
+                        style: .headline,
+                        color: theme.colors.textPrimary
+                    )
+
                     CraftSegmentedControl(
                         selection: $store.appTheme,
                         options: [
@@ -413,49 +367,15 @@ private struct SettingsAppearanceCard: View {
                         ],
                         style: .flat
                     )
-                    .frame(width: 200)
                 }
+                .padding(.horizontal, theme.spacing.base)
+                .padding(.vertical, theme.spacing.sm)
 
                 CraftDivider()
 
-                CraftListRow(
-                    title: AppStrings.Settings.haptics,
-                    iconName: "hand.tap.fill",
-                    iconColor: theme.colors.brandPrimary,
-                    iconBackgroundColor: theme.colors.surfaceSubtle
-                ) {
-                    CraftSwitch(isOn: $store.isHapticsEnabled, activeTint: theme.colors.brandPrimary)
-                }
-
-                CraftDivider()
-
-                CraftListRow(
-                    title: AppStrings.Settings.soundEffects,
-                    iconName: "waveform",
-                    iconColor: theme.colors.brandPrimary,
-                    iconBackgroundColor: theme.colors.surfaceSubtle
-                ) {
-                    CraftSwitch(isOn: $store.isSoundEffectsEnabled, activeTint: theme.colors.brandPrimary)
-                }
-            }
-        }
-    }
-}
-
-private struct SettingsDeveloperCard: View {
-    @Environment(\.craftTheme) private var theme
-    @Bindable var store: UserSettingsStore
-    let onOpenCatalog: () -> Void
-
-    var body: some View {
-        CraftCard(style: .outlined, padding: 0) {
-            VStack(spacing: 0) {
                 CraftListRow(
                     title: AppStrings.Settings.themePreset,
-                    subtitle: LocalizedStringKey(store.themePreset.displayName),
-                    iconName: "wand.and.stars",
-                    iconColor: theme.colors.brandPrimary,
-                    iconBackgroundColor: theme.colors.surfaceSubtle
+                    subtitle: LocalizedStringKey(store.themePreset.displayName)
                 ) {
                     Picker("", selection: $store.themePreset) {
                         ForEach(CraftThemePreset.allCases) { preset in
@@ -469,34 +389,34 @@ private struct SettingsDeveloperCard: View {
                 CraftDivider()
 
                 CraftListRow(
-                    title: AppStrings.Settings.craftCatalog,
-                    subtitle: AppStrings.Settings.craftCatalogSubtitle,
-                    iconName: "square.grid.2x2.fill",
-                    iconColor: theme.colors.brandPrimary,
-                    iconBackgroundColor: theme.colors.surfaceSubtle,
-                    showChevron: true,
-                    action: onOpenCatalog
+                    title: AppStrings.Settings.haptics
                 ) {
-                    EmptyView()
+                    CraftSwitch(isOn: $store.isHapticsEnabled, activeTint: theme.colors.brandPrimary)
+                }
+
+                CraftDivider()
+
+                CraftListRow(
+                    title: AppStrings.Settings.soundEffects
+                ) {
+                    CraftSwitch(isOn: $store.isSoundEffectsEnabled, activeTint: theme.colors.brandPrimary)
                 }
             }
         }
     }
 }
 
-private struct SettingsAboutCard: View {
+private struct SettingsDataStorageCard: View {
     @Environment(\.craftTheme) private var theme
     let cacheSizeString: String
     let onClearCache: () -> Void
+    let onShowResetAlert: () -> Void
 
     var body: some View {
         CraftCard(style: .outlined, padding: 0) {
             VStack(spacing: 0) {
                 CraftListRow(
-                    title: AppStrings.Settings.icloudSync,
-                    iconName: "icloud.fill",
-                    iconColor: theme.colors.textMuted,
-                    iconBackgroundColor: theme.colors.surfaceSubtle
+                    title: AppStrings.Settings.icloudSync
                 ) {
                     CraftBadge(
                         AppStrings.Settings.synced,
@@ -511,9 +431,6 @@ private struct SettingsAboutCard: View {
 
                 CraftListRow(
                     title: AppStrings.Settings.clearCache,
-                    iconName: "trash.fill",
-                    iconColor: theme.colors.textMuted,
-                    iconBackgroundColor: theme.colors.surfaceSubtle,
                     action: onClearCache
                 ) {
                     CraftText(
@@ -526,10 +443,51 @@ private struct SettingsAboutCard: View {
                 CraftDivider()
 
                 CraftListRow(
-                    title: AppStrings.Settings.appVersion,
-                    iconName: "info.circle.fill",
-                    iconColor: theme.colors.textMuted,
-                    iconBackgroundColor: theme.colors.surfaceSubtle
+                    title: AppStrings.Settings.resetSRS,
+                    subtitle: AppStrings.Settings.resetSRSSubtitle,
+                    titleColor: theme.colors.statusDanger,
+                    chevronColor: theme.colors.statusDanger.opacity(0.6),
+                    showChevron: true,
+                    action: onShowResetAlert
+                )
+            }
+        }
+    }
+}
+
+private struct SettingsAboutCard: View {
+    @Environment(\.craftTheme) private var theme
+    @Bindable var store: UserSettingsStore
+    let onOpenCatalog: () -> Void
+
+    var body: some View {
+        CraftCard(style: .outlined, padding: 0) {
+            VStack(spacing: 0) {
+                CraftListRow(
+                    title: AppStrings.Settings.appLanguage
+                ) {
+                    Picker("", selection: $store.appLanguage) {
+                        Text(AppStrings.Settings.langSystem).tag("system")
+                        Text(AppStrings.Settings.langVietnamese).tag("vi")
+                        Text(AppStrings.Settings.langEnglish).tag("en")
+                    }
+                    .pickerStyle(.menu)
+                    .tint(theme.colors.brandPrimary)
+                }
+
+                CraftDivider()
+
+                CraftListRow(
+                    title: AppStrings.Settings.craftCatalog,
+                    subtitle: AppStrings.Settings.craftCatalogSubtitle,
+                    showChevron: true,
+                    action: onOpenCatalog
+                )
+
+                CraftDivider()
+
+                CraftListRow(
+                    title: AppStrings.Settings.appVersion
                 ) {
                     CraftText(
                         appVersionString,
