@@ -1,0 +1,405 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vocabcraft.app/schemas/v1/dataset.schema.json",
+  "title": "DatasetSnapshot",
+  "description": "Canonical content snapshot schema for VocabCraft Phase 3A offline learning datasets",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "dataset_schema_version",
+    "content_version",
+    "published_at",
+    "content_language",
+    "explanation_language",
+    "entries",
+    "senses",
+    "pronunciations",
+    "examples",
+    "collocations",
+    "decks",
+    "lessons",
+    "lesson_senses",
+    "attributions",
+    "sense_attributions",
+    "retired_senses"
+  ],
+  "properties": {
+    "dataset_schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "content_version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "published_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "content_language": {
+      "type": "string",
+      "default": "en"
+    },
+    "explanation_language": {
+      "type": "string",
+      "default": "vi"
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Entry"
+      }
+    },
+    "senses": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Sense"
+      }
+    },
+    "pronunciations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Pronunciation"
+      }
+    },
+    "examples": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Example"
+      }
+    },
+    "collocations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Collocation"
+      }
+    },
+    "decks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Deck"
+      }
+    },
+    "lessons": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Lesson"
+      }
+    },
+    "lesson_senses": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/LessonSense"
+      }
+    },
+    "attributions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Attribution"
+      }
+    },
+    "sense_attributions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/SenseAttribution"
+      }
+    },
+    "retired_senses": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/RetiredSense"
+      }
+    },
+    "reviews": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ContentReview"
+      }
+    },
+    "content_reviews": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ContentReview"
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ContentSource"
+      }
+    },
+    "content_sources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ContentSource"
+      }
+    },
+    "source_links": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ContentSourceLink"
+      }
+    },
+    "content_source_links": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ContentSourceLink"
+      }
+    }
+  },
+  "$defs": {
+    "UUID": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "Entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "headword", "lookup_key", "entry_kind", "revision"],
+      "properties": {
+        "id": { "$ref": "#/$defs/UUID" },
+        "headword": { "type": "string", "minLength": 1 },
+        "lookup_key": { "type": "string", "minLength": 1 },
+        "entry_kind": {
+          "type": "string",
+          "enum": ["word", "phrasal_verb", "phrase", "idiom"]
+        },
+        "revision": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "Sense": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "entry_id",
+        "part_of_speech",
+        "definition_en",
+        "definition_vi",
+        "cefr_level",
+        "sort_order",
+        "revision"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/UUID" },
+        "entry_id": { "$ref": "#/$defs/UUID" },
+        "part_of_speech": {
+          "type": "string",
+          "enum": [
+            "noun", "verb", "adjective", "adverb", "pronoun",
+            "determiner", "preposition", "conjunction", "interjection",
+            "numeral", "particle", "other"
+          ]
+        },
+        "definition_en": { "type": "string", "minLength": 1 },
+        "definition_vi": { "type": "string", "minLength": 1 },
+        "cefr_level": {
+          "type": "string",
+          "enum": ["A1", "A2", "B1", "B2", "C1", "C2"]
+        },
+        "usage_note_en": { "type": ["string", "null"] },
+        "usage_note_vi": { "type": ["string", "null"] },
+        "sort_order": { "type": "integer", "minimum": 0 },
+        "revision": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "Pronunciation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "entry_id", "accent", "ipa", "sort_order"],
+      "properties": {
+        "id": { "$ref": "#/$defs/UUID" },
+        "entry_id": { "$ref": "#/$defs/UUID" },
+        "sense_id": {
+          "oneOf": [
+            { "$ref": "#/$defs/UUID" },
+            { "type": "null" }
+          ]
+        },
+        "accent": {
+          "type": "string",
+          "enum": ["us", "uk"]
+        },
+        "ipa": { "type": "string", "minLength": 1 },
+        "sort_order": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "Example": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "sense_id", "text_en", "text_vi", "sort_order"],
+      "properties": {
+        "id": { "$ref": "#/$defs/UUID" },
+        "sense_id": { "$ref": "#/$defs/UUID" },
+        "text_en": { "type": "string", "minLength": 1 },
+        "text_vi": { "type": "string", "minLength": 1 },
+        "sort_order": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "Collocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "sense_id", "text_en", "text_vi", "sort_order"],
+      "properties": {
+        "id": { "$ref": "#/$defs/UUID" },
+        "sense_id": { "$ref": "#/$defs/UUID" },
+        "text_en": { "type": "string", "minLength": 1 },
+        "text_vi": { "type": "string", "minLength": 1 },
+        "example_id": {
+          "oneOf": [
+            { "$ref": "#/$defs/UUID" },
+            { "type": "null" }
+          ]
+        },
+        "sort_order": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "Deck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title_en",
+        "title_vi",
+        "icon_key",
+        "theme_key",
+        "sort_order",
+        "revision"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/UUID" },
+        "title_en": { "type": "string", "minLength": 1 },
+        "title_vi": { "type": "string", "minLength": 1 },
+        "description_en": { "type": ["string", "null"] },
+        "description_vi": { "type": ["string", "null"] },
+        "icon_key": { "type": "string", "minLength": 1 },
+        "theme_key": { "type": "string", "minLength": 1 },
+        "sort_order": { "type": "integer", "minimum": 0 },
+        "revision": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "Lesson": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "deck_id",
+        "title_en",
+        "title_vi",
+        "icon_key",
+        "sort_order",
+        "revision"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/UUID" },
+        "deck_id": { "$ref": "#/$defs/UUID" },
+        "title_en": { "type": "string", "minLength": 1 },
+        "title_vi": { "type": "string", "minLength": 1 },
+        "icon_key": { "type": "string", "minLength": 1 },
+        "sort_order": { "type": "integer", "minimum": 0 },
+        "revision": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "LessonSense": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lesson_id", "sense_id", "sort_order"],
+      "properties": {
+        "lesson_id": { "$ref": "#/$defs/UUID" },
+        "sense_id": { "$ref": "#/$defs/UUID" },
+        "sort_order": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "Attribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "text"],
+      "properties": {
+        "id": { "$ref": "#/$defs/UUID" },
+        "text": { "type": "string", "minLength": 1 },
+        "source_url": { "type": ["string", "null"] },
+        "license_identifier": { "type": ["string", "null"] }
+      }
+    },
+    "SenseAttribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sense_id", "attribution_id"],
+      "properties": {
+        "sense_id": { "$ref": "#/$defs/UUID" },
+        "attribution_id": { "$ref": "#/$defs/UUID" }
+      }
+    },
+    "RetiredSense": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sense_id", "retired_in_version"],
+      "properties": {
+        "sense_id": { "$ref": "#/$defs/UUID" },
+        "retired_in_version": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "ContentReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "entity_type",
+        "entity_id",
+        "revision",
+        "decision",
+        "reviewer_id",
+        "reviewed_at"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/UUID" },
+        "entity_type": {
+          "type": "string",
+          "enum": ["entry", "sense", "deck", "lesson"]
+        },
+        "entity_id": { "$ref": "#/$defs/UUID" },
+        "revision": { "type": "integer", "minimum": 1 },
+        "decision": {
+          "type": "string",
+          "enum": ["approved", "rejected"]
+        },
+        "reviewer_id": { "type": "string", "minLength": 1 },
+        "reviewed_at": { "type": "string", "format": "date-time" },
+        "note": { "type": ["string", "null"] }
+      }
+    },
+    "ContentSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "source_name", "attribution_text", "rights_basis"],
+      "properties": {
+        "id": { "$ref": "#/$defs/UUID" },
+        "source_name": { "type": "string", "minLength": 1 },
+        "source_url": { "type": ["string", "null"] },
+        "attribution_text": { "type": "string", "minLength": 1 },
+        "rights_basis": {
+          "type": "string",
+          "enum": ["original", "licensed", "public_domain", "permission"]
+        },
+        "license_identifier": { "type": ["string", "null"] },
+        "retrieved_at": { "type": ["string", "null"], "format": "date-time" }
+      }
+    },
+    "ContentSourceLink": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_id", "entity_type", "entity_id", "revision"],
+      "properties": {
+        "source_id": { "$ref": "#/$defs/UUID" },
+        "entity_type": {
+          "type": "string",
+          "enum": ["entry", "sense", "deck", "lesson"]
+        },
+        "entity_id": { "$ref": "#/$defs/UUID" },
+        "revision": { "type": "integer", "minimum": 1 },
+        "locator": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

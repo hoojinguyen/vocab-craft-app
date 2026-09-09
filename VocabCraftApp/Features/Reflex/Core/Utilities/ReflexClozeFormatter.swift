@@ -118,8 +118,34 @@ public struct ReflexClozeFormatter: Sendable {
         "forget": ["forgets", "forgot", "forgotten", "forgetting"]
     ]
 
+    private static func multiwordPatterns(for cleanLemma: String, pos: String? = nil) -> [String] {
+        var patterns: [String] = []
+        let words = cleanLemma.split(separator: " ").map(String.init)
+        guard let firstWord = words.first, words.count > 1 else {
+            return ["(?i)\\b" + NSRegularExpression.escapedPattern(for: cleanLemma) + "\\b"]
+        }
+        let rest = words.dropFirst().joined(separator: " ")
+        let escapedRest = NSRegularExpression.escapedPattern(for: rest).replacingOccurrences(of: " ", with: "\\s+")
+        let firstWordPatterns = inflectionPatterns(for: firstWord, pos: pos)
+        for pattern in firstWordPatterns {
+            if pattern.hasSuffix("\\b") {
+                let trimmed = String(pattern.dropLast(2))
+                patterns.append(trimmed + "\\s+" + escapedRest + "\\b")
+            } else {
+                patterns.append(pattern + "\\s+" + escapedRest + "\\b")
+            }
+        }
+        let escapedWords = words.map { NSRegularExpression.escapedPattern(for: $0) }
+        patterns.append("(?i)\\b" + escapedWords.joined(separator: "\\s+") + "\\b")
+        return patterns
+    }
+
     /// Generates regex patterns for exact match, irregular variants, and English inflection variants with spelling alternations.
     private static func inflectionPatterns(for cleanLemma: String, pos: String? = nil) -> [String] {
+        if cleanLemma.contains(" ") {
+            return multiwordPatterns(for: cleanLemma, pos: pos)
+        }
+
         var patterns: [String] = []
         let escapedLemma = NSRegularExpression.escapedPattern(for: cleanLemma)
         let isAdjective = pos?.lowercased().contains("adj") == true

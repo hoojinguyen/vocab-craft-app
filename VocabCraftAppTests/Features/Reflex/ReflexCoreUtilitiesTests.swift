@@ -50,6 +50,11 @@ struct ReflexCoreUtilitiesTests {
         // Irregular verbs
         #expect(ReflexClozeFormatter.formatCloze(sentenceEn: "She went to the market.", lemma: "go") == "She [ _________ ] to the market.")
         #expect(ReflexClozeFormatter.formatCloze(sentenceEn: "I bought a book.", lemma: "buy") == "I [ _________ ] a book.")
+
+        // Multiword phrases
+        #expect(ReflexClozeFormatter.formatCloze(sentenceEn: "Please look up the word.", lemma: "look up") == "Please [ _________ ] the word.")
+        #expect(ReflexClozeFormatter.formatCloze(sentenceEn: "She looked up the definition in the dictionary.", lemma: "look up") == "She [ _________ ] the definition in the dictionary.")
+        #expect(ReflexClozeFormatter.formatCloze(sentenceEn: "He takes care of his sister.", lemma: "take care of") == "He [ _________ ] his sister.")
     }
 
     @Test("Distractor generator creates 4 unique options including target")

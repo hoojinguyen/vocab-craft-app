@@ -45,7 +45,7 @@ public struct LessonExerciseContainerView: View {
                         cardBorderColor: theme.colors.hairline.opacity(0.4),
                         eliminatedOptionId: viewModel.eliminatedOptionId,
                         onSelectOption: { option in
-                            guard !viewModel.isFeedbackPresented else { return }
+                            guard !viewModel.isFeedbackPresented, !viewModel.isSubmittingAnswer else { return }
                             selectedOption = option
                             viewModel.submitAnswer(isCorrect: option.isCorrect, for: item)
                         },
@@ -71,7 +71,7 @@ public struct LessonExerciseContainerView: View {
                         cardBorderColor: theme.colors.hairline.opacity(0.4),
                         eliminatedOptionId: viewModel.eliminatedOptionId,
                         onSelectOption: { option in
-                            guard !viewModel.isFeedbackPresented else { return }
+                            guard !viewModel.isFeedbackPresented, !viewModel.isSubmittingAnswer else { return }
                             selectedOption = option
                             viewModel.submitAnswer(isCorrect: option.isCorrect, for: item)
                         },
@@ -118,7 +118,7 @@ public struct LessonExerciseContainerView: View {
                         clozeParts: clozeStages.initialParts,
                         displayedSentence: viewModel.isFeedbackPresented ? item.word.exampleEn : "",
                         onSubmit: {
-                            guard !viewModel.isFeedbackPresented else { return }
+                            guard !viewModel.isFeedbackPresented, !viewModel.isSubmittingAnswer else { return }
                             let isCorrect = viewModel.typingText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == item.word.lemma.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
                             viewModel.submitAnswer(isCorrect: isCorrect, for: item)
                         },
@@ -136,11 +136,12 @@ public struct LessonExerciseContainerView: View {
                         variant: .ghost,
                         size: .sm
                     ) {
+                        guard !viewModel.isSubmittingAnswer else { return }
                         viewModel.requestHint(for: item)
                     }
 
                     if item.assignedMode == .speaking {
-                        let isRetryAvailable = viewModel.speechState == .idle
+                        let isRetryAvailable = viewModel.speechState == .idle && !viewModel.isSubmittingAnswer
                         CraftButton(
                             AppStrings.Common.retry,
                             iconName: "mic.fill",
@@ -148,10 +149,11 @@ public struct LessonExerciseContainerView: View {
                             size: .sm,
                             style: .outlined
                         ) {
+                            guard !viewModel.isSubmittingAnswer else { return }
                             viewModel.retrySpeaking(for: item)
                         }
                         .opacity(isRetryAvailable ? 1.0 : 0.0)
-                        .disabled(!isRetryAvailable || viewModel.isFeedbackPresented)
+                        .disabled(!isRetryAvailable || viewModel.isFeedbackPresented || viewModel.isSubmittingAnswer)
                         .accessibilityHidden(!isRetryAvailable || viewModel.isFeedbackPresented)
                     }
 
@@ -163,6 +165,7 @@ public struct LessonExerciseContainerView: View {
                             size: .sm,
                             style: .outlined
                         ) {
+                            guard !viewModel.isSubmittingAnswer else { return }
                             viewModel.skipExercise(for: item)
                         }
                     }
@@ -170,9 +173,10 @@ public struct LessonExerciseContainerView: View {
                 .frame(maxWidth: .infinity, minHeight: 44, alignment: .center)
                 .padding(.top, theme.spacing.xs)
                 .opacity(viewModel.isFeedbackPresented ? 0.0 : 1.0)
-                .disabled(viewModel.isFeedbackPresented)
+                .disabled(viewModel.isFeedbackPresented || viewModel.isSubmittingAnswer)
                 .accessibilityHidden(viewModel.isFeedbackPresented)
             }
+            .disabled(viewModel.isSubmittingAnswer)
             .padding(.horizontal, theme.spacing.base)
             .padding(.top, theme.spacing.xs)
             .padding(.bottom, theme.spacing.base)

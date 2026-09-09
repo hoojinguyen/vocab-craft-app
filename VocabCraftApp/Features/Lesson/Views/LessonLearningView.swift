@@ -104,11 +104,27 @@ public struct LessonLearningView: View {
                                 )
                                 .id("discovery-\(word.id)")
 
+                            case .senseDiscovery(let sense, let idx, let total):
+                                LessonDiscoveryCardView(
+                                    sense: sense,
+                                    indexInCycle: idx,
+                                    totalInCycle: total,
+                                    onContinue: {
+                                        viewModel.stopAudio()
+                                        viewModel.advanceStep()
+                                    },
+                                    onPlayAudio: {
+                                        viewModel.playAudio(for: sense.headword)
+                                    }
+                                )
+                                .id("sense-discovery-\(sense.id.rawValue.uuidString.lowercased())")
+
                             case .exercise(let item):
                                 LessonExerciseContainerView(
                                     item: item,
                                     viewModel: viewModel
                                 )
+                                .disabled(viewModel.isSubmittingAnswer)
                                 .id("exercise-\(item.id)")
 
                             case .summary(let summary):
@@ -189,6 +205,19 @@ public struct LessonLearningView: View {
             Button(AppStrings.Lesson.permissionDismissActionText, role: .cancel) {}
         } message: { notice in
             Text(notice.message)
+        }
+        .alert(
+            AppStrings.Lesson.attemptErrorTitleText,
+            isPresented: $viewModel.showAttemptPersistenceError
+        ) {
+            Button(AppStrings.Lesson.attemptErrorRetryActionText) {
+                Task {
+                    _ = try? await viewModel.retryPendingAttempt()
+                }
+            }
+            Button(AppStrings.Lesson.attemptErrorDismissActionText, role: .cancel) {}
+        } message: {
+            Text(AppStrings.Lesson.attemptErrorMessageText)
         }
     }
 }

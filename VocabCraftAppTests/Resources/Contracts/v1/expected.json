@@ -1,0 +1,35 @@
+{
+  "book_verb_id": "b0000000-0000-4000-8000-000000000002",
+  "book_verb_example_vi": "Tôi cần đặt một chuyến bay đi Đà Nẵng.",
+  "counts": {
+    "entries": 3,
+    "senses": 4,
+    "pronunciations": 6,
+    "examples": 4,
+    "collocations": 1,
+    "decks": 1,
+    "lessons": 2,
+    "lesson_senses": 5,
+    "attributions": 1,
+    "sense_attributions": 4,
+    "retired_senses": 0,
+    "reviews": 10,
+    "sources": 1,
+    "source_links": 3
+  },
+  "ordered_entry_ids": [
+    "a0000000-0000-4000-8000-000000000001",
+    "a0000000-0000-4000-8000-000000000002",
+    "a0000000-0000-4000-8000-000000000003"
+  ],
+  "ordered_sense_ids": [
+    "b0000000-0000-4000-8000-000000000001",
+    "b0000000-0000-4000-8000-000000000002",
+    "b0000000-0000-4000-8000-000000000003",
+    "b0000000-0000-4000-8000-000000000004"
+  ],
+  "ordered_lesson_ids": [
+    "d1000000-0000-4000-8000-000000000001",
+    "d1000000-0000-4000-8000-000000000002"
+  ]
+}

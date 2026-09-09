@@ -168,6 +168,11 @@ public final class PersonalVaultViewModel {
     }
 
     public func toggleBookmark(wordId: Int64) async {
+        if let item = vaultWords.first(where: { $0.id == wordId }), let senseID = item.senseID {
+            await toggleBookmark(senseID: senseID)
+            return
+        }
+
         var didSucceed = false
         if let toggleBookmarkUseCase {
             do {
@@ -183,6 +188,7 @@ public final class PersonalVaultViewModel {
                 let item = vaultWords[idx]
                 let updated = VaultWordItem(
                     id: item.id,
+                    senseID: item.senseID,
                     lemma: item.lemma,
                     pos: item.pos,
                     phonetic: item.phonetic,
@@ -205,6 +211,63 @@ public final class PersonalVaultViewModel {
         if didSucceed, let current = selectedWordForDetail, current.id == wordId {
             selectedWordForDetail = VaultWordItem(
                 id: current.id,
+                senseID: current.senseID,
+                lemma: current.lemma,
+                pos: current.pos,
+                phonetic: current.phonetic,
+                definitionVi: current.definitionVi,
+                exampleSentenceEn: current.exampleSentenceEn,
+                exampleSentenceVi: current.exampleSentenceVi,
+                cefrLevel: current.cefrLevel,
+                isMastered: current.isMastered,
+                isBookmarked: !current.isBookmarked,
+                correctStreak: current.correctStreak,
+                practicedModes: current.practicedModes,
+                lastPracticedAt: current.lastPracticedAt,
+                modeStats: current.modeStats
+            )
+        }
+    }
+
+    public func toggleBookmark(senseID: SenseID) async {
+        var didSucceed = false
+        if let toggleBookmarkUseCase {
+            do {
+                _ = try await toggleBookmarkUseCase.execute(senseID: senseID)
+                await loadData()
+                didSucceed = true
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+        } else {
+            if let idx = vaultWords.firstIndex(where: { $0.senseID == senseID }) {
+                let item = vaultWords[idx]
+                let updated = VaultWordItem(
+                    id: item.id,
+                    senseID: item.senseID,
+                    lemma: item.lemma,
+                    pos: item.pos,
+                    phonetic: item.phonetic,
+                    definitionVi: item.definitionVi,
+                    exampleSentenceEn: item.exampleSentenceEn,
+                    exampleSentenceVi: item.exampleSentenceVi,
+                    cefrLevel: item.cefrLevel,
+                    isMastered: item.isMastered,
+                    isBookmarked: !item.isBookmarked,
+                    correctStreak: item.correctStreak,
+                    practicedModes: item.practicedModes,
+                    lastPracticedAt: item.lastPracticedAt,
+                    modeStats: item.modeStats
+                )
+                vaultWords[idx] = updated
+                didSucceed = true
+            }
+        }
+
+        if didSucceed, let current = selectedWordForDetail, current.senseID == senseID {
+            selectedWordForDetail = VaultWordItem(
+                id: current.id,
+                senseID: current.senseID,
                 lemma: current.lemma,
                 pos: current.pos,
                 phonetic: current.phonetic,

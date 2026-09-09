@@ -119,6 +119,22 @@ public struct ReflexBlitzWordItem: Identifiable, Equatable, Sendable, ReflexDril
         )
     }
 
+    public init(from sense: SenseDetail) {
+        let firstExample = sense.examples.first
+        let sentenceEn = firstExample?.textEN.isEmpty == false ? (firstExample?.textEN ?? "") : "The word is \(sense.headword)."
+        let sentenceVi = firstExample?.textVI ?? ""
+        self.init(
+            id: 0,
+            lemma: sense.headword,
+            pos: sense.partOfSpeech.rawValue,
+            ipa: sense.ipa ?? "",
+            definitionVi: sense.definitionVI.isEmpty ? sense.definitionEN : sense.definitionVI,
+            exampleSentenceEn: sentenceEn,
+            exampleSentenceVi: sentenceVi,
+            level: sense.cefrLevel.rawValue
+        )
+    }
+
     public func generateOptions(mode: ReflexMode, allPool: [ReflexBlitzWordItem]) -> [ReflexBlitzOption] {
         ReflexDistractorGenerator.generateOptions(
             mode: mode,

@@ -1,0 +1,393 @@
+{
+  "dataset_schema_version": 1,
+  "content_version": 1,
+  "published_at": "2026-09-05T10:00:00.000Z",
+  "content_language": "en",
+  "explanation_language": "vi",
+  "entries": [
+    {
+      "id": "a0000000-0000-4000-8000-000000000001",
+      "headword": "book",
+      "lookup_key": "book",
+      "entry_kind": "word",
+      "revision": 1
+    },
+    {
+      "id": "a0000000-0000-4000-8000-000000000002",
+      "headword": "give up",
+      "lookup_key": "give up",
+      "entry_kind": "phrasal_verb",
+      "revision": 1
+    },
+    {
+      "id": "a0000000-0000-4000-8000-000000000003",
+      "headword": "check in",
+      "lookup_key": "check in",
+      "entry_kind": "phrasal_verb",
+      "revision": 1
+    }
+  ],
+  "senses": [
+    {
+      "id": "b0000000-0000-4000-8000-000000000001",
+      "entry_id": "a0000000-0000-4000-8000-000000000001",
+      "part_of_speech": "noun",
+      "definition_en": "a set of printed pages bound together inside a cover",
+      "definition_vi": "cuốn sách, quyển sách",
+      "cefr_level": "A1",
+      "usage_note_en": null,
+      "usage_note_vi": null,
+      "sort_order": 0,
+      "revision": 1
+    },
+    {
+      "id": "b0000000-0000-4000-8000-000000000002",
+      "entry_id": "a0000000-0000-4000-8000-000000000001",
+      "part_of_speech": "verb",
+      "definition_en": "to reserve accommodation, a place, or a ticket in advance",
+      "definition_vi": "đặt chỗ, đặt vé trước",
+      "cefr_level": "A2",
+      "usage_note_en": null,
+      "usage_note_vi": null,
+      "sort_order": 1,
+      "revision": 1
+    },
+    {
+      "id": "b0000000-0000-4000-8000-000000000003",
+      "entry_id": "a0000000-0000-4000-8000-000000000002",
+      "part_of_speech": "verb",
+      "definition_en": "to stop making an effort; to admit defeat",
+      "definition_vi": "từ bỏ, bỏ cuộc",
+      "cefr_level": "B1",
+      "usage_note_en": null,
+      "usage_note_vi": null,
+      "sort_order": 0,
+      "revision": 1
+    },
+    {
+      "id": "b0000000-0000-4000-8000-000000000004",
+      "entry_id": "a0000000-0000-4000-8000-000000000003",
+      "part_of_speech": "verb",
+      "definition_en": "to register at a hotel or airport",
+      "definition_vi": "làm thủ tục nhận phòng hoặc đăng ký chuyến bay",
+      "cefr_level": "A2",
+      "usage_note_en": null,
+      "usage_note_vi": null,
+      "sort_order": 0,
+      "revision": 1
+    }
+  ],
+  "pronunciations": [
+    {
+      "id": "c1000000-0000-4000-8000-000000000001",
+      "entry_id": "a0000000-0000-4000-8000-000000000001",
+      "sense_id": null,
+      "accent": "uk",
+      "ipa": "/bʊk/",
+      "sort_order": 0
+    },
+    {
+      "id": "c1000000-0000-4000-8000-000000000002",
+      "entry_id": "a0000000-0000-4000-8000-000000000001",
+      "sense_id": null,
+      "accent": "us",
+      "ipa": "/bʊk/",
+      "sort_order": 0
+    },
+    {
+      "id": "c1000000-0000-4000-8000-000000000003",
+      "entry_id": "a0000000-0000-4000-8000-000000000002",
+      "sense_id": null,
+      "accent": "uk",
+      "ipa": "/ɡɪv ʌp/",
+      "sort_order": 0
+    },
+    {
+      "id": "c1000000-0000-4000-8000-000000000004",
+      "entry_id": "a0000000-0000-4000-8000-000000000002",
+      "sense_id": null,
+      "accent": "us",
+      "ipa": "/ɡɪv ʌp/",
+      "sort_order": 0
+    },
+    {
+      "id": "c1000000-0000-4000-8000-000000000005",
+      "entry_id": "a0000000-0000-4000-8000-000000000003",
+      "sense_id": null,
+      "accent": "uk",
+      "ipa": "/tʃek ɪn/",
+      "sort_order": 0
+    },
+    {
+      "id": "c1000000-0000-4000-8000-000000000006",
+      "entry_id": "a0000000-0000-4000-8000-000000000003",
+      "sense_id": null,
+      "accent": "us",
+      "ipa": "/tʃek ɪn/",
+      "sort_order": 0
+    }
+  ],
+  "examples": [
+    {
+      "id": "e0000000-0000-4000-8000-000000000001",
+      "sense_id": "b0000000-0000-4000-8000-000000000001",
+      "text_en": "She read an interesting book about history.",
+      "text_vi": "Cô ấy đã đọc một cuốn sách thú vị về lịch sử.",
+      "sort_order": 0
+    },
+    {
+      "id": "e0000000-0000-4000-8000-000000000002",
+      "sense_id": "b0000000-0000-4000-8000-000000000002",
+      "text_en": "I need to book a flight to Da Nang.",
+      "text_vi": "Tôi cần đặt một chuyến bay đi Đà Nẵng.",
+      "sort_order": 0
+    },
+    {
+      "id": "e0000000-0000-4000-8000-000000000003",
+      "sense_id": "b0000000-0000-4000-8000-000000000003",
+      "text_en": "Never give up on your dreams.",
+      "text_vi": "Đừng bao giờ từ bỏ ước mơ của bạn.",
+      "sort_order": 0
+    },
+    {
+      "id": "e0000000-0000-4000-8000-000000000004",
+      "sense_id": "b0000000-0000-4000-8000-000000000004",
+      "text_en": "We arrived at the hotel and checked in immediately.",
+      "text_vi": "Chúng tôi đến khách sạn và làm thủ tục nhận phòng ngay lập tức.",
+      "sort_order": 0
+    }
+  ],
+  "collocations": [
+    {
+      "id": "c2000000-0000-4000-8000-000000000001",
+      "sense_id": "b0000000-0000-4000-8000-000000000002",
+      "text_en": "book a flight",
+      "text_vi": "đặt chuyến bay",
+      "example_id": "e0000000-0000-4000-8000-000000000002",
+      "sort_order": 0
+    }
+  ],
+  "decks": [
+    {
+      "id": "d0000000-0000-4000-8000-000000000001",
+      "title_en": "Core Vocabulary",
+      "title_vi": "Từ vựng cốt lõi",
+      "description_en": "Essential daily and travel English words",
+      "description_vi": "Các từ tiếng Anh thiết yếu hàng ngày và du lịch",
+      "icon_key": "book_open",
+      "theme_key": "ocean_blue",
+      "sort_order": 0,
+      "revision": 1
+    }
+  ],
+  "lessons": [
+    {
+      "id": "d1000000-0000-4000-8000-000000000001",
+      "deck_id": "d0000000-0000-4000-8000-000000000001",
+      "title_en": "Travel Essentials",
+      "title_vi": "Hành trang du lịch",
+      "icon_key": "plane",
+      "sort_order": 0,
+      "revision": 1
+    },
+    {
+      "id": "d1000000-0000-4000-8000-000000000002",
+      "deck_id": "d0000000-0000-4000-8000-000000000001",
+      "title_en": "Daily Actions",
+      "title_vi": "Hành động hàng ngày",
+      "icon_key": "bookmark",
+      "sort_order": 1,
+      "revision": 1
+    }
+  ],
+  "lesson_senses": [
+    {
+      "lesson_id": "d1000000-0000-4000-8000-000000000001",
+      "sense_id": "b0000000-0000-4000-8000-000000000004",
+      "sort_order": 0
+    },
+    {
+      "lesson_id": "d1000000-0000-4000-8000-000000000001",
+      "sense_id": "b0000000-0000-4000-8000-000000000002",
+      "sort_order": 1
+    },
+    {
+      "lesson_id": "d1000000-0000-4000-8000-000000000002",
+      "sense_id": "b0000000-0000-4000-8000-000000000001",
+      "sort_order": 0
+    },
+    {
+      "lesson_id": "d1000000-0000-4000-8000-000000000002",
+      "sense_id": "b0000000-0000-4000-8000-000000000002",
+      "sort_order": 1
+    },
+    {
+      "lesson_id": "d1000000-0000-4000-8000-000000000002",
+      "sense_id": "b0000000-0000-4000-8000-000000000003",
+      "sort_order": 2
+    }
+  ],
+  "attributions": [
+    {
+      "id": "f0000000-0000-4000-8000-000000000001",
+      "text": "test-only original fixture, not for production release",
+      "source_url": null,
+      "license_identifier": "CC0-1.0"
+    }
+  ],
+  "sense_attributions": [
+    {
+      "sense_id": "b0000000-0000-4000-8000-000000000001",
+      "attribution_id": "f0000000-0000-4000-8000-000000000001"
+    },
+    {
+      "sense_id": "b0000000-0000-4000-8000-000000000002",
+      "attribution_id": "f0000000-0000-4000-8000-000000000001"
+    },
+    {
+      "sense_id": "b0000000-0000-4000-8000-000000000003",
+      "attribution_id": "f0000000-0000-4000-8000-000000000001"
+    },
+    {
+      "sense_id": "b0000000-0000-4000-8000-000000000004",
+      "attribution_id": "f0000000-0000-4000-8000-000000000001"
+    }
+  ],
+  "retired_senses": [],
+  "reviews": [
+    {
+      "id": "f2000000-0000-4000-8000-000000000001",
+      "entity_type": "entry",
+      "entity_id": "a0000000-0000-4000-8000-000000000001",
+      "revision": 1,
+      "decision": "approved",
+      "reviewer_id": "reviewer-1",
+      "reviewed_at": "2026-09-05T09:00:00.000Z",
+      "note": "Approved book entry"
+    },
+    {
+      "id": "f2000000-0000-4000-8000-000000000002",
+      "entity_type": "entry",
+      "entity_id": "a0000000-0000-4000-8000-000000000002",
+      "revision": 1,
+      "decision": "approved",
+      "reviewer_id": "reviewer-1",
+      "reviewed_at": "2026-09-05T09:00:00.000Z",
+      "note": "Approved give up entry"
+    },
+    {
+      "id": "f2000000-0000-4000-8000-000000000003",
+      "entity_type": "entry",
+      "entity_id": "a0000000-0000-4000-8000-000000000003",
+      "revision": 1,
+      "decision": "approved",
+      "reviewer_id": "reviewer-1",
+      "reviewed_at": "2026-09-05T09:00:00.000Z",
+      "note": "Approved check in entry"
+    },
+    {
+      "id": "f2000000-0000-4000-8000-000000000004",
+      "entity_type": "sense",
+      "entity_id": "b0000000-0000-4000-8000-000000000001",
+      "revision": 1,
+      "decision": "approved",
+      "reviewer_id": "reviewer-1",
+      "reviewed_at": "2026-09-05T09:10:00.000Z",
+      "note": "Approved book noun sense"
+    },
+    {
+      "id": "f2000000-0000-4000-8000-000000000005",
+      "entity_type": "sense",
+      "entity_id": "b0000000-0000-4000-8000-000000000002",
+      "revision": 1,
+      "decision": "approved",
+      "reviewer_id": "reviewer-1",
+      "reviewed_at": "2026-09-05T09:15:00.000Z",
+      "note": "Approved book verb sense"
+    },
+    {
+      "id": "f2000000-0000-4000-8000-000000000006",
+      "entity_type": "sense",
+      "entity_id": "b0000000-0000-4000-8000-000000000003",
+      "revision": 1,
+      "decision": "approved",
+      "reviewer_id": "reviewer-1",
+      "reviewed_at": "2026-09-05T09:20:00.000Z",
+      "note": "Approved give up sense"
+    },
+    {
+      "id": "f2000000-0000-4000-8000-000000000007",
+      "entity_type": "sense",
+      "entity_id": "b0000000-0000-4000-8000-000000000004",
+      "revision": 1,
+      "decision": "approved",
+      "reviewer_id": "reviewer-1",
+      "reviewed_at": "2026-09-05T09:25:00.000Z",
+      "note": "Approved check in sense"
+    },
+    {
+      "id": "f2000000-0000-4000-8000-000000000008",
+      "entity_type": "deck",
+      "entity_id": "d0000000-0000-4000-8000-000000000001",
+      "revision": 1,
+      "decision": "approved",
+      "reviewer_id": "reviewer-1",
+      "reviewed_at": "2026-09-05T09:30:00.000Z",
+      "note": "Approved core deck"
+    },
+    {
+      "id": "f2000000-0000-4000-8000-000000000009",
+      "entity_type": "lesson",
+      "entity_id": "d1000000-0000-4000-8000-000000000001",
+      "revision": 1,
+      "decision": "approved",
+      "reviewer_id": "reviewer-1",
+      "reviewed_at": "2026-09-05T09:35:00.000Z",
+      "note": "Approved travel essentials lesson"
+    },
+    {
+      "id": "f2000000-0000-4000-8000-00000000000a",
+      "entity_type": "lesson",
+      "entity_id": "d1000000-0000-4000-8000-000000000002",
+      "revision": 1,
+      "decision": "approved",
+      "reviewer_id": "reviewer-1",
+      "reviewed_at": "2026-09-05T09:40:00.000Z",
+      "note": "Approved daily actions lesson"
+    }
+  ],
+  "sources": [
+    {
+      "id": "f3000000-0000-4000-8000-000000000001",
+      "source_name": "VocabCraft Test Authoring",
+      "source_url": null,
+      "attribution_text": "test-only original fixture, not for production release",
+      "rights_basis": "original",
+      "license_identifier": "CC0-1.0",
+      "retrieved_at": "2026-09-05T08:00:00.000Z"
+    }
+  ],
+  "source_links": [
+    {
+      "source_id": "f3000000-0000-4000-8000-000000000001",
+      "entity_type": "entry",
+      "entity_id": "a0000000-0000-4000-8000-000000000001",
+      "revision": 1,
+      "locator": "entry:book"
+    },
+    {
+      "source_id": "f3000000-0000-4000-8000-000000000001",
+      "entity_type": "entry",
+      "entity_id": "a0000000-0000-4000-8000-000000000002",
+      "revision": 1,
+      "locator": "entry:give up"
+    },
+    {
+      "source_id": "f3000000-0000-4000-8000-000000000001",
+      "entity_type": "entry",
+      "entity_id": "a0000000-0000-4000-8000-000000000003",
+      "revision": 1,
+      "locator": "entry:check in"
+    }
+  ]
+}

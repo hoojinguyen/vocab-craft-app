@@ -304,4 +304,27 @@ final class VocabularyUseCasesTests: XCTestCase {
         let state2 = try await sut.execute(wordId: 1)
         XCTAssertFalse(state2)
     }
+
+    func test_toggleWordBookmarkUseCase_senseBookmark() async throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let journalURL = tempDir.appendingPathComponent("journal.sqlite")
+        let journal = try LearningJournal(url: journalURL)
+        let profile = try await journal.createGuestProfile()
+        let senseID = SenseID(rawValue: UUID())
+
+        let sut = ToggleWordBookmarkUseCase(journal: journal, profileID: profile)
+
+        let isBookmarked1 = try await sut.execute(senseID: senseID)
+        XCTAssertTrue(isBookmarked1)
+        let bookmarkedSet1 = try await journal.bookmarkedSenseIDs(profileID: profile)
+        XCTAssertTrue(bookmarkedSet1.contains(senseID))
+
+        let isBookmarked2 = try await sut.execute(senseID: senseID)
+        XCTAssertFalse(isBookmarked2)
+        let bookmarkedSet2 = try await journal.bookmarkedSenseIDs(profileID: profile)
+        XCTAssertFalse(bookmarkedSet2.contains(senseID))
+    }
 }

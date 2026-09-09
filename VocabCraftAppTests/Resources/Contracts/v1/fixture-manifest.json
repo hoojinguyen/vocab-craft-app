@@ -1,0 +1,16 @@
+{
+  "content_version": 1,
+  "dataset_schema_version": 1,
+  "published_at": "2026-09-05T10:00:00.000Z",
+  "content_language": "en",
+  "explanation_language": "vi",
+  "bundle_url": "/v1/content/releases/1/bundle",
+  "sha256": "4da2ec2ac17b7abbf71bfad1b5e7ab00c66ca115739eba2444c15f6c00d9f3cb",
+  "byte_size": 180224,
+  "counts": {
+    "entries": 3,
+    "senses": 4,
+    "decks": 1,
+    "lessons": 2
+  }
+}

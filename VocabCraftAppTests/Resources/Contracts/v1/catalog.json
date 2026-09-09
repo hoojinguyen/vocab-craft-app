@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "icon_keys": {
+    "book_open": "token.icon.book_open",
+    "bookmark": "token.icon.bookmark",
+    "graduation_cap": "token.icon.graduation_cap",
+    "plane": "token.icon.plane",
+    "chat": "token.icon.chat",
+    "sparkles": "token.icon.sparkles",
+    "compass": "token.icon.compass",
+    "star": "token.icon.star"
+  },
+  "theme_keys": {
+    "ocean_blue": "token.theme.ocean_blue",
+    "forest_green": "token.theme.forest_green",
+    "sunset_amber": "token.theme.sunset_amber",
+    "royal_purple": "token.theme.royal_purple",
+    "slate_gray": "token.theme.slate_gray"
+  }
+}

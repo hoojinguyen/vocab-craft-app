@@ -139,5 +139,29 @@ extension AppStrings {
         public static var permissionDismissActionText: String {
             String(localized: "app.lesson.permission.dismiss", defaultValue: "Continue with Typing", bundle: .module)
         }
+
+        public static var attemptErrorTitle: LocalizedStringKey { "app.lesson.attempt_error.title" }
+        public static var attemptErrorTitleText: String {
+            String(localized: "app.lesson.attempt_error.title", defaultValue: "Unable to Save Progress", bundle: .module)
+        }
+
+        public static var attemptErrorMessage: LocalizedStringKey { "app.lesson.attempt_error.message" }
+        public static var attemptErrorMessageText: String {
+            String(
+                localized: "app.lesson.attempt_error.message",
+                defaultValue: "An error occurred while saving your exercise result. Please try again.",
+                bundle: .module
+            )
+        }
+
+        public static var attemptErrorRetryAction: LocalizedStringKey { "app.lesson.attempt_error.retry" }
+        public static var attemptErrorRetryActionText: String {
+            String(localized: "app.lesson.attempt_error.retry", defaultValue: "Retry", bundle: .module)
+        }
+
+        public static var attemptErrorDismissAction: LocalizedStringKey { "app.lesson.attempt_error.dismiss" }
+        public static var attemptErrorDismissActionText: String {
+            String(localized: "app.lesson.attempt_error.dismiss", defaultValue: "Cancel", bundle: .module)
+        }
     }
 }

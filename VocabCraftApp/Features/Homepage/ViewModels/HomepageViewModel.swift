@@ -180,7 +180,9 @@ public final class HomepageViewModel {
                 nextNode.state = .active
                 sections[sIdx].nodes[nIdx + 1] = nextNode
             }
-            if nIdx + 2 < sections[sIdx].nodes.count && sections[sIdx].nodes[nIdx + 2].state == .locked {
+            if nIdx + 2 < sections[sIdx].nodes.count &&
+                sections[sIdx].nodes[nIdx + 2].state == .locked &&
+                sections[sIdx].nodes[nIdx + 2].kind != .treasureChest {
                 sections[sIdx].nodes[nIdx + 2].state = .upcoming
             }
         } else {

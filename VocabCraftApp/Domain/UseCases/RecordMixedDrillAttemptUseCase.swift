@@ -1,3 +1,7 @@
+// NOTE (Phase 3A / Task 5):
+// Lesson attempts are recorded via RecordSenseAttemptUseCase directly into LearningJournal (B3).
+// RecordMixedDrillAttemptUseCase currently handles the mixed drill practice flow with
+// UserProgressRepository and will be wired into LearningJournal in the subsequent Mixed Reflex Phase.
 import Foundation
 
 public protocol RecordMixedDrillAttemptUseCaseProtocol: Sendable {
