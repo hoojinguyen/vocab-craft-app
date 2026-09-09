@@ -479,3 +479,16 @@ public final class WidgetCurrentState: @unchecked Sendable {
     }
 }
 #endif
+
+extension UserStageProgress {
+    public func toData() -> UserStageProgressData {
+        UserStageProgressData(
+            stageId: stageId,
+            deckId: deckId,
+            isCompleted: isCompleted,
+            score: score,
+            progressFraction: progressFraction,
+            completedAt: completedAt
+        )
+    }
+}

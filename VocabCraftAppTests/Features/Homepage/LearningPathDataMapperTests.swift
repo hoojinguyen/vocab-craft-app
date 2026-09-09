@@ -55,7 +55,7 @@ final class LearningPathDataMapperTests: XCTestCase {
     }
 
     func test_new_user_first_node_active_rest_locked() {
-        let progressList: [UserStageProgress] = []
+        let progressList: [UserStageProgressData] = []
 
         let sections = LearningPathDataMapper.map(
             decks: sampleDecks,
@@ -111,7 +111,7 @@ final class LearningPathDataMapperTests: XCTestCase {
 
     func test_completed_first_node_unlocks_second_node_with_stars() {
         let progressList = [
-            UserStageProgress(stageId: "stage_daily_1", deckId: "deck_daily", isCompleted: true, score: 3, progressFraction: 1.0)
+            UserStageProgressData(stageId: "stage_daily_1", deckId: "deck_daily", isCompleted: true, score: 3, progressFraction: 1.0)
         ]
 
         let sections = LearningPathDataMapper.map(
@@ -149,8 +149,8 @@ final class LearningPathDataMapperTests: XCTestCase {
 
     func test_all_standard_nodes_completed_unlocks_checkpoint_node() {
         let progressList = [
-            UserStageProgress(stageId: "stage_daily_1", deckId: "deck_daily", isCompleted: true, score: 3, progressFraction: 1.0),
-            UserStageProgress(stageId: "stage_daily_2", deckId: "deck_daily", isCompleted: true, score: 2, progressFraction: 1.0)
+            UserStageProgressData(stageId: "stage_daily_1", deckId: "deck_daily", isCompleted: true, score: 3, progressFraction: 1.0),
+            UserStageProgressData(stageId: "stage_daily_2", deckId: "deck_daily", isCompleted: true, score: 2, progressFraction: 1.0)
         ]
 
         let sections = LearningPathDataMapper.map(
@@ -186,9 +186,9 @@ final class LearningPathDataMapperTests: XCTestCase {
 
     func test_checkpoint_completed_unlocks_next_unit_first_node() {
         let progressList = [
-            UserStageProgress(stageId: "stage_daily_1", deckId: "deck_daily", isCompleted: true, score: 3, progressFraction: 1.0),
-            UserStageProgress(stageId: "stage_daily_2", deckId: "deck_daily", isCompleted: true, score: 3, progressFraction: 1.0),
-            UserStageProgress(stageId: "checkpoint_deck_daily", deckId: "deck_daily", isCompleted: true, score: 3, progressFraction: 1.0)
+            UserStageProgressData(stageId: "stage_daily_1", deckId: "deck_daily", isCompleted: true, score: 3, progressFraction: 1.0),
+            UserStageProgressData(stageId: "stage_daily_2", deckId: "deck_daily", isCompleted: true, score: 3, progressFraction: 1.0),
+            UserStageProgressData(stageId: "checkpoint_deck_daily", deckId: "deck_daily", isCompleted: true, score: 3, progressFraction: 1.0)
         ]
 
         let sections = LearningPathDataMapper.map(
@@ -220,7 +220,7 @@ final class LearningPathDataMapperTests: XCTestCase {
 
     func test_in_progress_node_preserves_progress_fraction() {
         let progressList = [
-            UserStageProgress(stageId: "stage_daily_1", deckId: "deck_daily", isCompleted: false, score: 0, progressFraction: 0.5)
+            UserStageProgressData(stageId: "stage_daily_1", deckId: "deck_daily", isCompleted: false, score: 0, progressFraction: 0.5)
         ]
 
         let sections = LearningPathDataMapper.map(
@@ -252,9 +252,9 @@ final class LearningPathDataMapperTests: XCTestCase {
 
     func test_percentage_scores_converted_to_stars_properly() {
         let progressList = [
-            UserStageProgress(stageId: "stage_daily_1", deckId: "deck_daily", isCompleted: true, score: 98, progressFraction: 1.0),
-            UserStageProgress(stageId: "stage_daily_2", deckId: "deck_daily", isCompleted: true, score: 85, progressFraction: 1.0),
-            UserStageProgress(stageId: "checkpoint_deck_daily", deckId: "deck_daily", isCompleted: true, score: 75, progressFraction: 1.0)
+            UserStageProgressData(stageId: "stage_daily_1", deckId: "deck_daily", isCompleted: true, score: 98, progressFraction: 1.0),
+            UserStageProgressData(stageId: "stage_daily_2", deckId: "deck_daily", isCompleted: true, score: 85, progressFraction: 1.0),
+            UserStageProgressData(stageId: "checkpoint_deck_daily", deckId: "deck_daily", isCompleted: true, score: 75, progressFraction: 1.0)
         ]
 
         let sections = LearningPathDataMapper.map(
@@ -311,10 +311,10 @@ final class LearningPathDataMapperTests: XCTestCase {
 
     func test_treasure_completed_branch_showsCompletedWithStars() {
         let progressList = [
-            UserStageProgress(stageId: "stage_daily_1", deckId: "deck_daily", isCompleted: true, score: 3, progressFraction: 1.0),
-            UserStageProgress(stageId: "stage_daily_2", deckId: "deck_daily", isCompleted: true, score: 3, progressFraction: 1.0),
-            UserStageProgress(stageId: "checkpoint_deck_daily", deckId: "deck_daily", isCompleted: true, score: 3, progressFraction: 1.0),
-            UserStageProgress(stageId: "treasure_deck_daily", deckId: "deck_daily", isCompleted: true, score: 2, progressFraction: 1.0)
+            UserStageProgressData(stageId: "stage_daily_1", deckId: "deck_daily", isCompleted: true, score: 3, progressFraction: 1.0),
+            UserStageProgressData(stageId: "stage_daily_2", deckId: "deck_daily", isCompleted: true, score: 3, progressFraction: 1.0),
+            UserStageProgressData(stageId: "checkpoint_deck_daily", deckId: "deck_daily", isCompleted: true, score: 3, progressFraction: 1.0),
+            UserStageProgressData(stageId: "treasure_deck_daily", deckId: "deck_daily", isCompleted: true, score: 2, progressFraction: 1.0)
         ]
 
         let sections = LearningPathDataMapper.map(

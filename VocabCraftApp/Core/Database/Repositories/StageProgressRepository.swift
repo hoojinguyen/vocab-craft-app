@@ -2,9 +2,9 @@ import Foundation
 import SwiftData
 
 public protocol StageProgressRepositoryProtocol: Sendable {
-    @MainActor func fetchStageProgress(stageId: String) async throws -> UserStageProgress?
+    @MainActor func fetchStageProgress(stageId: String) async throws -> UserStageProgressData?
     @MainActor func fetchCompletedStageIds(deckId: String) async throws -> Set<String>
-    @MainActor func fetchAllStageProgress() async throws -> [UserStageProgress]
+    @MainActor func fetchAllStageProgress() async throws -> [UserStageProgressData]
     @MainActor func saveStageProgress(stageId: String, deckId: String, isCompleted: Bool, score: Int, progressFraction: Double) async throws
     @MainActor func saveStageProgress(stageId: String, deckId: String, isCompleted: Bool, score: Int) async throws
 }
@@ -31,12 +31,12 @@ public final class StageProgressRepositoryImpl: StageProgressRepositoryProtocol,
     }
 
     @MainActor
-    public func fetchStageProgress(stageId: String) async throws -> UserStageProgress? {
+    public func fetchStageProgress(stageId: String) async throws -> UserStageProgressData? {
         guard let context = modelContext else { return nil }
         let descriptor = FetchDescriptor<UserStageProgress>(
             predicate: #Predicate { $0.stageId == stageId }
         )
-        return try context.fetch(descriptor).first
+        return try context.fetch(descriptor).first?.toData()
     }
 
     @MainActor
@@ -50,10 +50,10 @@ public final class StageProgressRepositoryImpl: StageProgressRepositoryProtocol,
     }
 
     @MainActor
-    public func fetchAllStageProgress() async throws -> [UserStageProgress] {
+    public func fetchAllStageProgress() async throws -> [UserStageProgressData] {
         guard let context = modelContext else { return [] }
         let descriptor = FetchDescriptor<UserStageProgress>()
-        return try context.fetch(descriptor)
+        return try context.fetch(descriptor).map { $0.toData() }
     }
 
     @MainActor
@@ -65,7 +65,10 @@ public final class StageProgressRepositoryImpl: StageProgressRepositoryProtocol,
         progressFraction: Double
     ) async throws {
         guard let context = modelContext else { return }
-        if let existing = try await fetchStageProgress(stageId: stageId) {
+        let descriptor = FetchDescriptor<UserStageProgress>(
+            predicate: #Predicate { $0.stageId == stageId }
+        )
+        if let existing = try context.fetch(descriptor).first {
             existing.isCompleted = isCompleted
             existing.score = score
             existing.progressFraction = progressFraction
@@ -86,12 +89,12 @@ public final class StageProgressRepositoryImpl: StageProgressRepositoryProtocol,
 }
 #else
 public final class StageProgressRepositoryImpl: StageProgressRepositoryProtocol, @unchecked Sendable {
-    private var records: [String: UserStageProgress] = [:]
+    private var records: [String: UserStageProgressData] = [:]
 
     public init(modelContext: Any? = nil) {}
 
     @MainActor
-    public func fetchStageProgress(stageId: String) async throws -> UserStageProgress? {
+    public func fetchStageProgress(stageId: String) async throws -> UserStageProgressData? {
         records[stageId]
     }
 
@@ -101,7 +104,7 @@ public final class StageProgressRepositoryImpl: StageProgressRepositoryProtocol,
     }
 
     @MainActor
-    public func fetchAllStageProgress() async throws -> [UserStageProgress] {
+    public func fetchAllStageProgress() async throws -> [UserStageProgressData] {
         Array(records.values)
     }
 
@@ -113,37 +116,30 @@ public final class StageProgressRepositoryImpl: StageProgressRepositoryProtocol,
         score: Int,
         progressFraction: Double
     ) async throws {
-        if let existing = records[stageId] {
-            existing.isCompleted = isCompleted
-            existing.score = score
-            existing.progressFraction = progressFraction
-            existing.completedAt = Date()
-        } else {
-            let record = UserStageProgress(
-                stageId: stageId,
-                deckId: deckId,
-                isCompleted: isCompleted,
-                score: score,
-                progressFraction: progressFraction,
-                completedAt: Date()
-            )
-            records[stageId] = record
-        }
+        let record = UserStageProgressData(
+            stageId: stageId,
+            deckId: deckId,
+            isCompleted: isCompleted,
+            score: score,
+            progressFraction: progressFraction,
+            completedAt: Date()
+        )
+        records[stageId] = record
     }
 }
 #endif
 
 public final class MockStageProgressRepository: StageProgressRepositoryProtocol, @unchecked Sendable {
-    private var records: [String: UserStageProgress] = [:]
+    private var records: [String: UserStageProgressData] = [:]
     @MainActor public private(set) var saveCallCount: Int = 0
     public var delayNanoseconds: UInt64 = 0
 
-    public init(records: [String: UserStageProgress] = [:]) {
+    public init(records: [String: UserStageProgressData] = [:]) {
         self.records = records
     }
 
     @MainActor
-    public func fetchStageProgress(stageId: String) async throws -> UserStageProgress? {
+    public func fetchStageProgress(stageId: String) async throws -> UserStageProgressData? {
         records[stageId]
     }
 
@@ -154,7 +150,7 @@ public final class MockStageProgressRepository: StageProgressRepositoryProtocol,
     }
 
     @MainActor
-    public func fetchAllStageProgress() async throws -> [UserStageProgress] {
+    public func fetchAllStageProgress() async throws -> [UserStageProgressData] {
         Array(records.values)
     }
 
@@ -170,21 +166,14 @@ public final class MockStageProgressRepository: StageProgressRepositoryProtocol,
             try? await Task.sleep(nanoseconds: delayNanoseconds)
         }
         saveCallCount += 1
-        if let existing = records[stageId] {
-            existing.isCompleted = isCompleted
-            existing.score = score
-            existing.progressFraction = progressFraction
-            existing.completedAt = Date()
-        } else {
-            let record = UserStageProgress(
-                stageId: stageId,
-                deckId: deckId,
-                isCompleted: isCompleted,
-                score: score,
-                progressFraction: progressFraction,
-                completedAt: Date()
-            )
-            records[stageId] = record
-        }
+        let record = UserStageProgressData(
+            stageId: stageId,
+            deckId: deckId,
+            isCompleted: isCompleted,
+            score: score,
+            progressFraction: progressFraction,
+            completedAt: Date()
+        )
+        records[stageId] = record
     }
 }

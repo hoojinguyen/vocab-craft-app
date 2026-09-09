@@ -14,7 +14,7 @@ public struct LearningPathDataMapper: Sendable {
         decks: [TopicDeckDTO],
         stages: [SubTopicStageDTO],
         words: [TopicWordDTO],
-        progressList: [UserStageProgress]
+        progressList: [UserStageProgressData]
     ) -> [LessonSection] {
         guard !decks.isEmpty else { return [] }
 
@@ -97,7 +97,7 @@ public struct LearningPathDataMapper: Sendable {
     private static func buildStandardNode(
         stage: SubTopicStageDTO,
         words: [TopicWordDTO],
-        progress: UserStageProgress?,
+        progress: UserStageProgressData?,
         hasFoundActive: inout Bool
     ) -> LessonNodeModel {
         let wordCount = words.count
@@ -166,7 +166,7 @@ public struct LearningPathDataMapper: Sendable {
         deck: TopicDeckDTO,
         deckWordCount: Int,
         sectionNodes: [LessonNodeModel],
-        progressMap: [String: UserStageProgress],
+        progressMap: [String: UserStageProgressData],
         hasFoundActive: inout Bool
     ) -> LessonNodeModel {
         let checkpointId = "checkpoint_\(deck.id)"
@@ -224,7 +224,7 @@ public struct LearningPathDataMapper: Sendable {
 
     private static func buildTreasureNode(
         deck: TopicDeckDTO,
-        progressMap: [String: UserStageProgress],
+        progressMap: [String: UserStageProgressData],
         hasFoundActive: inout Bool
     ) -> LessonNodeModel {
         let treasureId = "treasure_\(deck.id)"
