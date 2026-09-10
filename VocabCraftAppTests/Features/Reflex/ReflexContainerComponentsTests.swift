@@ -8,6 +8,7 @@ import Testing
 
 #if canImport(Testing)
 @Suite("ReflexContainerComponents Tests")
+@MainActor
 struct ReflexContainerComponentsTests {
     @Test("Validates ReflexReviewedConsolidationView instantiation and properties")
     func testReviewedView() {

@@ -1,6 +1,8 @@
 import Foundation
 import SQLite3
 
+extension OpaquePointer: @unchecked Sendable {}
+
 @MainActor
 public final class DatasetEngine: DatasetDataSourceProtocol {
     private var db: OpaquePointer?

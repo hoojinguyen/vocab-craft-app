@@ -3,7 +3,7 @@ import Foundation
 import SwiftData
 #endif
 
-#if canImport(SwiftDataMacros)
+#if canImport(SwiftDataMacros) || canImport(SwiftData)
 public enum AppMigrationPlan: SchemaMigrationPlan {
     public static var schemas: [any VersionedSchema.Type] {
         [SchemaV1.self, SchemaV2.self]

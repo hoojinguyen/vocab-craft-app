@@ -3,7 +3,7 @@ import Foundation
 import SwiftData
 #endif
 
-#if canImport(SwiftDataMacros)
+#if canImport(SwiftDataMacros) || canImport(SwiftData)
 public enum SchemaV1: VersionedSchema {
     public static let versionIdentifier = Schema.Version(1, 0, 0)
     public static var models: [any PersistentModel.Type] {

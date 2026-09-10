@@ -3,7 +3,7 @@ import Foundation
 import SwiftData
 #endif
 
-#if canImport(SwiftDataMacros)
+#if canImport(SwiftDataMacros) || canImport(SwiftData)
 public typealias UserWordProgress = SchemaV2.UserWordProgress
 public typealias UserStageProgress = SchemaV2.UserStageProgress
 public typealias ReflexSessionLog = SchemaV2.ReflexSessionLog
@@ -27,7 +27,7 @@ public final class UserWordProgress: @unchecked Sendable {
     public var consecutiveCorrectStreak: Int
     public var practicedModesRaw: String
     public var isMastered: Bool
-    public var modeSuccessCountsRaw: String
+    public var modeSuccessCountsRaw: String = "{}"
 
     public init(
         wordId: Int64,
@@ -46,7 +46,7 @@ public final class UserWordProgress: @unchecked Sendable {
         consecutiveCorrectStreak: Int = 0,
         practicedModesRaw: String = "",
         isMastered: Bool = false,
-        modeSuccessCountsRaw: String = ""
+        modeSuccessCountsRaw: String = "{}"
     ) {
         self.wordId = wordId
         self.cefrLevel = cefrLevel
@@ -246,7 +246,7 @@ public final class WidgetCurrentState: @unchecked Sendable {
 }
 #endif
 
-#if !canImport(SwiftDataMacros)
+#if !(canImport(SwiftDataMacros) || canImport(SwiftData))
 extension UserStageProgress {
     public func toData() -> UserStageProgressData {
         UserStageProgressData(

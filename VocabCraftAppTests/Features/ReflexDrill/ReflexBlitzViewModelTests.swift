@@ -42,8 +42,8 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         )
     ]
 
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
+        try await super.setUp()
         mockTTS = MockTextToSpeechService()
         mockSRS = MockEvaluateSRSUseCase()
         mockSound = MockSoundEffectService()
@@ -58,13 +58,13 @@ final class ReflexBlitzViewModelTests: XCTestCase {
         )
     }
 
-    override func tearDown() {
+    override func tearDown() async throws {
         viewModel = nil
         mockTTS = nil
         mockSRS = nil
         mockSound = nil
         mockSpeechEngine = nil
-        super.tearDown()
+        try await super.tearDown()
     }
 
     // MARK: - Initial State & Mode Selection
