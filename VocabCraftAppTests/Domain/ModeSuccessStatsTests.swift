@@ -93,7 +93,7 @@ struct ModeSuccessStatsTests {
     func testUserWordProgressModeStats() {
         let progress = UserWordProgress(wordId: 101)
         #expect(progress.modeStats == ModeSuccessStats())
-        #expect(progress.modeSuccessCountsRaw == "")
+        #expect(progress.modeSuccessCountsRaw == "{}")
 
         var stats = ModeSuccessStats()
         stats.increment(for: .speaking)
@@ -203,7 +203,7 @@ final class ModeSuccessStatsXCTestCase: XCTestCase {
     func testUserWordProgressModeStats() {
         let progress = UserWordProgress(wordId: 101)
         XCTAssertEqual(progress.modeStats, ModeSuccessStats())
-        XCTAssertEqual(progress.modeSuccessCountsRaw, "")
+        XCTAssertEqual(progress.modeSuccessCountsRaw, "{}")
 
         var stats = ModeSuccessStats()
         stats.increment(for: .speaking)

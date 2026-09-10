@@ -53,7 +53,7 @@ public enum SchemaV2: VersionedSchema {
             consecutiveCorrectStreak: Int = 0,
             practicedModesRaw: String = "",
             isMastered: Bool = false,
-            modeSuccessCountsRaw: String = ""
+            modeSuccessCountsRaw: String = "{}"
         ) {
             self.wordId = wordId
             self.cefrLevel = cefrLevel
