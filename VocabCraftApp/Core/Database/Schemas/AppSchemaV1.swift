@@ -5,7 +5,7 @@ import SwiftData
 
 #if canImport(SwiftDataMacros)
 public enum SchemaV1: VersionedSchema {
-    public static var versionIdentifier = Schema.Version(1, 0, 0)
+    public static let versionIdentifier = Schema.Version(1, 0, 0)
     public static var models: [any PersistentModel.Type] {
         [
             SchemaV1.UserWordProgress.self,

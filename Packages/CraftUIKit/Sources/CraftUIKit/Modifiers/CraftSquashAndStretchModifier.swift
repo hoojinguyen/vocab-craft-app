@@ -20,7 +20,7 @@ public struct SquashValues: Equatable, Sendable {
 /// A ViewModifier that applies physics-based keyframe squash-and-stretch feedback when triggered.
 ///
 /// Automatically bypasses keyframe motion when `accessibilityReduceMotion` is active.
-public struct CraftSquashAndStretchModifier<T: Equatable>: ViewModifier {
+public struct CraftSquashAndStretchModifier<T: Equatable & Sendable>: ViewModifier {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     public let trigger: T
 
@@ -70,7 +70,7 @@ public extension View {
     ///
     /// - Parameter trigger: An equatable value that triggers the squash-and-stretch cycle upon modification.
     /// - Returns: A modified view that performs squash-and-stretch keyframe animations.
-    func craftSquashAndStretch<T: Equatable>(trigger: T) -> some View {
+    func craftSquashAndStretch<T: Equatable & Sendable>(trigger: T) -> some View {
         modifier(CraftSquashAndStretchModifier(trigger: trigger))
     }
 }

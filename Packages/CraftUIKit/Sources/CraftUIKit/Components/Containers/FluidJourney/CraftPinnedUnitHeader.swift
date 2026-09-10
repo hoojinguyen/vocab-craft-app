@@ -57,10 +57,10 @@ public struct CraftPinnedUnitHeader: View, Equatable {
     public let cornerRadius: CGFloat?
 
     /// Action closure triggered when the user taps the header card.
-    public let onTap: (@Sendable () -> Void)?
+    public let onTap: (@MainActor @Sendable () -> Void)?
 
     /// Backward-compatible alias for `onTap`.
-    public var onHeaderTap: (@Sendable () -> Void)? {
+    public var onHeaderTap: (@MainActor @Sendable () -> Void)? {
         onTap
     }
 
@@ -89,7 +89,7 @@ public struct CraftPinnedUnitHeader: View, Equatable {
         section: LessonSection,
         surfaceStyle: CraftSurfaceStyle? = nil,
         cornerRadius: CGFloat? = nil,
-        onTap: (@Sendable () -> Void)? = nil
+        onTap: (@MainActor @Sendable () -> Void)? = nil
     ) {
         self.section = section
         self.surfaceStyle = surfaceStyle
@@ -108,14 +108,14 @@ public struct CraftPinnedUnitHeader: View, Equatable {
         section: LessonSection,
         surfaceStyle: CraftSurfaceStyle? = nil,
         cornerRadius: CGFloat? = nil,
-        onHeaderTap: (@Sendable () -> Void)?
+        onHeaderTap: (@MainActor @Sendable () -> Void)?
     ) {
         self.init(section: section, surfaceStyle: surfaceStyle, cornerRadius: cornerRadius, onTap: onHeaderTap)
     }
 
     // MARK: - Equatable Conformance
 
-    public static func == (lhs: CraftPinnedUnitHeader, rhs: CraftPinnedUnitHeader) -> Bool {
+    public nonisolated static func == (lhs: CraftPinnedUnitHeader, rhs: CraftPinnedUnitHeader) -> Bool {
         lhs.section == rhs.section &&
         lhs.cornerRadius == rhs.cornerRadius &&
         lhs.surfaceStyle == rhs.surfaceStyle

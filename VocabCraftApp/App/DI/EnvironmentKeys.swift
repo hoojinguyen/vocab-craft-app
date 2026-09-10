@@ -25,6 +25,7 @@ public extension EnvironmentValues {
         set { self[AppRouterKey.self] = newValue }
     }
 
+    @MainActor
     var ttsService: TextToSpeechProtocol? {
         get { self[TextToSpeechKey.self] }
         set { self[TextToSpeechKey.self] = newValue }

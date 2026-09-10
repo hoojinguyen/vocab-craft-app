@@ -9,8 +9,8 @@ import VocabCraftApp
 #endif
 
 public struct NextWordIntent: AppIntent {
-    public static var title: LocalizedStringResource = "app.widget.intent.next_word.title"
-    public static var description = IntentDescription("app.widget.intent.next_word.description")
+    public static let title: LocalizedStringResource = "app.widget.intent.next_word.title"
+    public static let description = IntentDescription("app.widget.intent.next_word.description")
 
     public init() {}
 

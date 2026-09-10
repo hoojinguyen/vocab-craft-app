@@ -34,7 +34,8 @@ let package = Package(
                 "App/Info.plist",
                 "App/VocabCraftApp.entitlements"
             ],
-            resources: [.process("Resources")]
+            resources: [.process("Resources")],
+            swiftSettings: [.enableUpcomingFeature("StrictConcurrency")]
         ),
         .target(
             name: "VocabCraftWidgetExtension",
@@ -42,7 +43,8 @@ let package = Package(
             path: "VocabCraftWidgetExtension",
             exclude: [
                 "Info.plist"
-            ]
+            ],
+            swiftSettings: [.enableUpcomingFeature("StrictConcurrency")]
         ),
         .target(
             name: "SwiftDataMacros",
@@ -57,7 +59,8 @@ let package = Package(
                 .product(name: "CraftUIKit", package: "CraftUIKit"),
                 .product(name: "SpeechKit", package: "SpeechKit")
             ],
-            path: "VocabCraftAppTests"
+            path: "VocabCraftAppTests",
+            swiftSettings: [.enableUpcomingFeature("StrictConcurrency")]
         )
     ]
 )

@@ -54,14 +54,16 @@ final class SwiftDataModelsTests: XCTestCase {
             let configuration = ModelConfiguration(schema: schema, url: storeURL)
             let v1Container = try ModelContainer(for: schema, configurations: [configuration])
             let v1Context = v1Container.mainContext
-            v1Context.insert(UserWordProgress(
+            v1Context.insert(SchemaV1.UserWordProgress(
                 wordId: 909,
-                masteryLevel: 3,
+                repetitionLevel: 3,
+                interval: 12.0,
                 easeFactor: 2.7,
-                intervalDays: 12,
                 nextReviewDate: expectedReviewDate,
-                lastReviewDate: expectedReviewDate,
-                totalReviews: 8
+                isBookmarked: false,
+                isMastered: false,
+                correctStreak: 5,
+                mistakeCount: 0
             ))
             try v1Context.save()
         }
@@ -79,7 +81,8 @@ final class SwiftDataModelsTests: XCTestCase {
             predicate: #Predicate { $0.wordId == 909 }
         ))
         XCTAssertEqual(progress.count, 1)
-        XCTAssertEqual(progress.first?.masteryLevel, 3)
+        XCTAssertEqual(progress.first?.easeFactor, 2.7)
+        XCTAssertEqual(progress.first?.consecutiveCorrectStreak, 5)
         XCTAssertEqual(progress.first?.nextReviewDate, expectedReviewDate)
 
         let attempt = QuickReflexAttemptRecord(

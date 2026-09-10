@@ -695,7 +695,7 @@ public struct CraftPathNode<CustomPayload: Sendable>: View {
 }
 
 extension CraftPathNode: Equatable where CustomPayload: Equatable {
-    public static func == (lhs: CraftPathNode<CustomPayload>, rhs: CraftPathNode<CustomPayload>) -> Bool {
+    nonisolated public static func == (lhs: CraftPathNode<CustomPayload>, rhs: CraftPathNode<CustomPayload>) -> Bool {
         lhs.model == rhs.model && lhs.calloutText == rhs.calloutText
     }
 }

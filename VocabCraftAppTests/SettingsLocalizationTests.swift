@@ -5,6 +5,7 @@ import SwiftUI
 import XCTest
 #endif
 
+@MainActor
 final class SettingsLocalizationTests: XCTestCase {
     private let expectedSettingsKeys: [String: (vi: String, en: String)] = [
         "app.settings.title": ("Cài đặt", "Settings"),
@@ -269,6 +270,7 @@ final class SettingsLocalizationTests: XCTestCase {
         XCTAssertNotNil(AppStrings.Profile.badgeOxfordPioneer)
     }
 
+    @MainActor
     private static let catalogStrings: [String: [String: Any]]? = {
         let potentialPaths: [String?] = [
             Bundle.main.path(forResource: "Localizable", ofType: "xcstrings"),
@@ -289,6 +291,7 @@ final class SettingsLocalizationTests: XCTestCase {
         return nil
     }()
 
+    @MainActor
     static func lookupCatalog(key: String, language: String) -> String? {
         guard let entry = catalogStrings?[key],
               let localizations = entry["localizations"] as? [String: [String: Any]],
@@ -310,6 +313,7 @@ final class SettingsLocalizationTests: XCTestCase {
 }
 
 private extension String {
+    @MainActor
     init(localized value: String.LocalizationValue, bundle: Bundle, locale: Locale) {
         let mirror = Mirror(reflecting: value)
         let key = mirror.children.first(where: { $0.label == "key" })?.value as? String ?? ""

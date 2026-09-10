@@ -6,13 +6,13 @@ import SwiftData
 import XCTest
 #endif
 
+@MainActor
 final class StageProgressRepositoryTests: XCTestCase {
     var container: ModelContainer!
     var sut: StageProgressRepositoryImpl!
 
-    @MainActor
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
+        try await super.setUp()
         let schema = Schema([UserWordProgress.self, UserStageProgress.self])
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         container = try! ModelContainer(for: schema, configurations: [config])

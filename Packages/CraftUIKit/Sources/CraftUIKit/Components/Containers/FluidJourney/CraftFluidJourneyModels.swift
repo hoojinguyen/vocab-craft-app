@@ -16,7 +16,7 @@ public enum FluidJourneyNodeOffset {
 /// Preference key reporting the vertical scroll coordinate (`minY`) of unit milestone pills
 /// back to the parent `CraftFluidJourney` container.
 public struct FluidJourneyMilestonePreferenceKey: PreferenceKey, Sendable {
-    public static var defaultValue: [String: CGFloat] = [:]
+    public static let defaultValue: [String: CGFloat] = [:]
 
     public static func reduce(value: inout [String: CGFloat], nextValue: () -> [String: CGFloat]) {
         value.merge(nextValue(), uniquingKeysWith: { $1 })

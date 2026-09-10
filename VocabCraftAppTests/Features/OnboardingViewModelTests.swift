@@ -80,17 +80,17 @@ final class OnboardingViewModelTests: XCTestCase {
         UserSettingsStore(defaults: testDefaults)
     }
 
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
+        try await super.setUp()
         suiteName = "test_onboarding_\(UUID().uuidString)"
         testDefaults = UserDefaults(suiteName: suiteName)!
     }
 
-    override func tearDown() {
+    override func tearDown() async throws {
         if let suiteName {
             testDefaults?.removePersistentDomain(forName: suiteName)
         }
-        super.tearDown()
+        try await super.tearDown()
     }
 
     func testInitialStateAndStepProgression() {

@@ -7,8 +7,8 @@ import SwiftUI
 public struct CraftLessonDetailSheet: View {
     public let node: LessonNodeModel
     public let surfaceStyle: CraftSurfaceStyle?
-    public let onStart: (@Sendable (LessonNodeModel) -> Void)?
-    public let onDismiss: (@Sendable () -> Void)?
+    public let onStart: (@MainActor @Sendable (LessonNodeModel) -> Void)?
+    public let onDismiss: (@MainActor @Sendable () -> Void)?
 
     @Environment(\.craftTheme) private var theme
     @Environment(\.craftSurfaceStyle) private var environmentStyle
@@ -21,8 +21,8 @@ public struct CraftLessonDetailSheet: View {
     public init(
         node: LessonNodeModel,
         surfaceStyle: CraftSurfaceStyle? = nil,
-        onStart: (@Sendable (LessonNodeModel) -> Void)? = nil,
-        onDismiss: (@Sendable () -> Void)? = nil
+        onStart: (@MainActor @Sendable (LessonNodeModel) -> Void)? = nil,
+        onDismiss: (@MainActor @Sendable () -> Void)? = nil
     ) {
         self.node = node
         self.surfaceStyle = surfaceStyle

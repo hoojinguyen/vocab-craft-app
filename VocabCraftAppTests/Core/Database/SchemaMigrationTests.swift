@@ -354,9 +354,5 @@ final class SchemaMigrationTests: XCTestCase {
             }
         }
     }
-
-    func test_v2_container_rejects_corrupted_store_and_creates_backup() throws {
-        try test_v2_container_quarantines_corrupt_store_and_throws_store_init_failed()
-    }
 }
 #endif

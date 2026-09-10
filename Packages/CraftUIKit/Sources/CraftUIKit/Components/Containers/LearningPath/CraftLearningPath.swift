@@ -19,8 +19,8 @@ public struct CraftLearningPath: View {
     public let sections: [LessonSection]
     public let winding: SerpentineWinding
     public let rowPattern: RowPattern
-    public let onNodeTap: (@Sendable (LessonNodeModel) -> Void)?
-    public let onStartLesson: (@Sendable (LessonNodeModel) -> Void)?
+    public let onNodeTap: (@MainActor @Sendable (LessonNodeModel) -> Void)?
+    public let onStartLesson: (@MainActor @Sendable (LessonNodeModel) -> Void)?
     public let showDetailModal: Bool
     public let scrollToActive: Bool
     public let showCelebration: Bool
@@ -28,7 +28,7 @@ public struct CraftLearningPath: View {
 
     // Customization hooks
     public let topHeaderBuilder: (() -> AnyView)?
-    public let detailSheetBuilder: (@Sendable (LessonNodeModel, @escaping (LessonNodeModel) -> Void, @escaping () -> Void) -> AnyView)?
+    public let detailSheetBuilder: (@MainActor @Sendable (LessonNodeModel, @escaping @MainActor (LessonNodeModel) -> Void, @escaping @MainActor () -> Void) -> AnyView)?
     public let backgroundViewBuilder: (() -> AnyView)?
     public let emptyStateViewBuilder: (() -> AnyView)?
     public let stickyHUDBuilder: (@Sendable (LessonSection) -> AnyView)?
@@ -84,8 +84,8 @@ public struct CraftLearningPath: View {
         section: LessonSection,
         winding: SerpentineWinding = .standard,
         rowPattern: RowPattern = .standard,
-        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
-        onStartLesson: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        onNodeTap: (@MainActor @Sendable (LessonNodeModel) -> Void)? = nil,
+        onStartLesson: (@MainActor @Sendable (LessonNodeModel) -> Void)? = nil,
         showDetailModal: Bool = true,
         scrollToActive: Bool = true,
         showCelebration: Bool = true,
@@ -134,7 +134,7 @@ public struct CraftLearningPath: View {
     ///   - connectorDotDiameter: Optional connector dot diameter.
     ///   - connectorDotSpacing: Optional connector dot spacing.
     ///   - connectorTurnRadius: Optional connector turn corner radius.
-    ///   - connectorEdgeInset: Optional connector edge inset margin.
+    ///   - connectorEdgeInset: Optional edge inset margin for connector turns.
     ///   - onSectionAppear: Optional closure invoked when a section appears.
     ///   - onAutoScrolled: Optional closure invoked when auto-scroll completes.
     ///   - onNodeImpression: Optional closure invoked when a node impression is recorded.
@@ -144,8 +144,8 @@ public struct CraftLearningPath: View {
         sections: [LessonSection],
         winding: SerpentineWinding = .standard,
         rowPattern: RowPattern = .standard,
-        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
-        onStartLesson: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        onNodeTap: (@MainActor @Sendable (LessonNodeModel) -> Void)? = nil,
+        onStartLesson: (@MainActor @Sendable (LessonNodeModel) -> Void)? = nil,
         showDetailModal: Bool = true,
         scrollToActive: Bool = true,
         showCelebration: Bool = true,
@@ -153,7 +153,7 @@ public struct CraftLearningPath: View {
         scrollAnimation: Animation = .spring(response: 0.5, dampingFraction: 0.8),
         scrollAnchor: UnitPoint = .center,
         topHeaderBuilder: (() -> AnyView)? = nil,
-        detailSheetBuilder: (@Sendable (LessonNodeModel, @escaping (LessonNodeModel) -> Void, @escaping () -> Void) -> AnyView)? = nil,
+        detailSheetBuilder: (@MainActor @Sendable (LessonNodeModel, @escaping @MainActor (LessonNodeModel) -> Void, @escaping @MainActor () -> Void) -> AnyView)? = nil,
         backgroundViewBuilder: (() -> AnyView)? = nil,
         emptyStateViewBuilder: (() -> AnyView)? = nil,
         stickyHUDBuilder: (@Sendable (LessonSection) -> AnyView)? = nil,
@@ -198,12 +198,12 @@ public struct CraftLearningPath: View {
     }
 
     /// Creates a multi-section learning path with a custom ViewBuilder for the floating sticky HUD.
-    public init<HUDContent: View>(
+    public init<HUDContent: View & Sendable>(
         sections: [LessonSection],
         winding: SerpentineWinding = .standard,
         rowPattern: RowPattern = .standard,
-        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
-        onStartLesson: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        onNodeTap: (@MainActor @Sendable (LessonNodeModel) -> Void)? = nil,
+        onStartLesson: (@MainActor @Sendable (LessonNodeModel) -> Void)? = nil,
         showDetailModal: Bool = true,
         scrollToActive: Bool = true,
         showCelebration: Bool = true,
@@ -211,7 +211,7 @@ public struct CraftLearningPath: View {
         scrollAnimation: Animation = .spring(response: 0.5, dampingFraction: 0.8),
         scrollAnchor: UnitPoint = .center,
         topHeaderBuilder: (() -> AnyView)? = nil,
-        detailSheetBuilder: (@Sendable (LessonNodeModel, @escaping (LessonNodeModel) -> Void, @escaping () -> Void) -> AnyView)? = nil,
+        detailSheetBuilder: (@MainActor @Sendable (LessonNodeModel, @escaping @MainActor (LessonNodeModel) -> Void, @escaping @MainActor () -> Void) -> AnyView)? = nil,
         backgroundViewBuilder: (() -> AnyView)? = nil,
         emptyStateViewBuilder: (() -> AnyView)? = nil,
         connectorDotDiameter: CGFloat? = nil,
@@ -253,12 +253,12 @@ public struct CraftLearningPath: View {
     }
 
     /// Creates a single-section learning path with a custom ViewBuilder for the floating sticky HUD.
-    public init<HUDContent: View>(
+    public init<HUDContent: View & Sendable>(
         section: LessonSection,
         winding: SerpentineWinding = .standard,
         rowPattern: RowPattern = .standard,
-        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
-        onStartLesson: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        onNodeTap: (@MainActor @Sendable (LessonNodeModel) -> Void)? = nil,
+        onStartLesson: (@MainActor @Sendable (LessonNodeModel) -> Void)? = nil,
         showDetailModal: Bool = true,
         scrollToActive: Bool = true,
         showCelebration: Bool = true,
@@ -389,7 +389,9 @@ public struct CraftLearningPath: View {
             } else {
                 CraftLessonDetailSheet(
                     node: node,
-                    onStart: handleStartLesson,
+                    onStart: { started in
+                        handleStartLesson(started)
+                    },
                     onDismiss: {
                         selectedNodeForDetail = nil
                     }
