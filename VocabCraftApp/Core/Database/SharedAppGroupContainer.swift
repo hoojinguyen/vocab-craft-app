@@ -4,19 +4,6 @@ import SwiftData
 #endif
 
 #if canImport(SwiftDataMacros)
-public enum SchemaV2: VersionedSchema {
-    public static var versionIdentifier = Schema.Version(2, 0, 0)
-    public static var models: [any PersistentModel.Type] {
-        [
-            UserWordProgress.self,
-            UserStageProgress.self,
-            ReflexSessionLog.self,
-            WidgetCurrentState.self,
-            QuickReflexAttemptRecord.self
-        ]
-    }
-}
-
 public enum AppMigrationPlan: SchemaMigrationPlan {
     public static var schemas: [any VersionedSchema.Type] {
         [SchemaV1.self, SchemaV2.self]

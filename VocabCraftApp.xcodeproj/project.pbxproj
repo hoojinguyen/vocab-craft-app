@@ -34,6 +34,7 @@
 		30002C6B2C47FA88CE8A /* SampleVocabularyDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20002C6B2C47FA88CE8A /* SampleVocabularyDataSource.swift */; };
 		30009AA9B419BF018831 /* VocabularySampleDataset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20009AA9B419BF018831 /* VocabularySampleDataset.swift */; };
 		30008B2D46F266C6CB6D /* AppSchemaV1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20008B2D46F266C6CB6D /* AppSchemaV1.swift */; };
+		30000F28552F24FC2B4D /* AppSchemaV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20000F28552F24FC2B4D /* AppSchemaV2.swift */; };
 		30008C6450FFC705ADA3 /* SharedAppGroupContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20008C6450FFC705ADA3 /* SharedAppGroupContainer.swift */; };
 		30009AC1BB7654E455DF /* SwiftDataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20009AC1BB7654E455DF /* SwiftDataModels.swift */; };
 		3000928AAF987BEB4203 /* UserSettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000928AAF987BEB4203 /* UserSettingsStore.swift */; };
@@ -175,6 +176,7 @@
 		300132D6AE8B05DECF03 /* DatasetEngine.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 200054D59B97E59482EE /* DatasetEngine.swift */; };
 		30010ECE298907299966 /* SharedAppGroupContainer.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20008C6450FFC705ADA3 /* SharedAppGroupContainer.swift */; };
 		300192AADDE32B39E162 /* AppSchemaV1.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20008B2D46F266C6CB6D /* AppSchemaV1.swift */; };
+		3001A50C47B37C22C092 /* AppSchemaV2.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20000F28552F24FC2B4D /* AppSchemaV2.swift */; };
 		3001573EA4CC3FAE2D09 /* SwiftDataModels.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20009AC1BB7654E455DF /* SwiftDataModels.swift */; };
 		30019977515C5A5B7FC8 /* DatasetModels.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 2000D26FBFB21A7CA2FE /* DatasetModels.swift */; };
 		3001A8C3A90BD362D3C1 /* SRSEngine.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003498E286D20C1EBC /* SRSEngine.swift */; };
@@ -336,6 +338,7 @@
 		20002C6B2C47FA88CE8A /* SampleVocabularyDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SampleVocabularyDataSource.swift"; sourceTree = "<group>"; };
 		20009AA9B419BF018831 /* VocabularySampleDataset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularySampleDataset.swift"; sourceTree = "<group>"; };
 		20008B2D46F266C6CB6D /* AppSchemaV1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppSchemaV1.swift"; sourceTree = "<group>"; };
+		20000F28552F24FC2B4D /* AppSchemaV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppSchemaV2.swift"; sourceTree = "<group>"; };
 		20008C6450FFC705ADA3 /* SharedAppGroupContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SharedAppGroupContainer.swift"; sourceTree = "<group>"; };
 		20009AC1BB7654E455DF /* SwiftDataModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SwiftDataModels.swift"; sourceTree = "<group>"; };
 		2000928AAF987BEB4203 /* UserSettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserSettingsStore.swift"; sourceTree = "<group>"; };
@@ -735,6 +738,7 @@
 			isa = PBXGroup;
 			children = (
 				20008B2D46F266C6CB6D /* AppSchemaV1.swift */,
+				20000F28552F24FC2B4D /* AppSchemaV2.swift */,
 			);
 			path = "Schemas";
 			sourceTree = "<group>";
@@ -1714,6 +1718,7 @@
 				30002C6B2C47FA88CE8A /* SampleVocabularyDataSource.swift in Sources */,
 				30009AA9B419BF018831 /* VocabularySampleDataset.swift in Sources */,
 				30008B2D46F266C6CB6D /* AppSchemaV1.swift in Sources */,
+				30000F28552F24FC2B4D /* AppSchemaV2.swift in Sources */,
 				30008C6450FFC705ADA3 /* SharedAppGroupContainer.swift in Sources */,
 				30009AC1BB7654E455DF /* SwiftDataModels.swift in Sources */,
 				3000928AAF987BEB4203 /* UserSettingsStore.swift in Sources */,
@@ -1856,6 +1861,7 @@
 				300132D6AE8B05DECF03 /* DatasetEngine.swift in Widget Sources */,
 				30010ECE298907299966 /* SharedAppGroupContainer.swift in Widget Sources */,
 				300192AADDE32B39E162 /* AppSchemaV1.swift in Widget Sources */,
+				3001A50C47B37C22C092 /* AppSchemaV2.swift in Widget Sources */,
 				3001573EA4CC3FAE2D09 /* SwiftDataModels.swift in Widget Sources */,
 				30019977515C5A5B7FC8 /* DatasetModels.swift in Widget Sources */,
 				3001A8C3A90BD362D3C1 /* SRSEngine.swift in Widget Sources */,
