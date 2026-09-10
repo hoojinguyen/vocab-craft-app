@@ -43,6 +43,11 @@ struct VocabCraftApp: App {
                     case .ready:
                         if let appContainer = bootstrapper.appContainer {
                             contentView(for: appContainer)
+                        } else {
+                            ProgressView()
+                                .task {
+                                    bootstrapper.bootstrap()
+                                }
                         }
                     }
                 }

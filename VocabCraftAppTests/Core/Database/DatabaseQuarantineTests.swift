@@ -1,4 +1,4 @@
-#if canImport(SwiftDataMacros)
+#if canImport(SwiftDataMacros) || canImport(SwiftData)
 import Foundation
 import SwiftData
 @testable import VocabCraftApp

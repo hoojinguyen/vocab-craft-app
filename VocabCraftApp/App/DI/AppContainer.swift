@@ -130,7 +130,7 @@ public final class AppContainer {
             dataSource: resolvedDataSource
         )
 
-        #if canImport(SwiftDataMacros)
+        #if canImport(SwiftDataMacros) || canImport(SwiftData)
         let hasPersistedRecords = modelContainer.map { SharedAppGroupContainer.hasPersistedUserRecords(in: $0) } ?? false
         #else
         let hasPersistedRecords = false

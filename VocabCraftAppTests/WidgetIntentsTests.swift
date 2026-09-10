@@ -1,5 +1,5 @@
 import Foundation
-#if canImport(SwiftDataMacros)
+#if canImport(SwiftDataMacros) || canImport(SwiftData)
 import AppIntents
 import SwiftData
 import SwiftUI

@@ -22,7 +22,7 @@ extension StageProgressRepositoryProtocol {
     }
 }
 
-#if canImport(SwiftDataMacros)
+#if canImport(SwiftDataMacros) || canImport(SwiftData)
 public final class StageProgressRepositoryImpl: StageProgressRepositoryProtocol, @unchecked Sendable {
     private let modelContext: ModelContext?
 

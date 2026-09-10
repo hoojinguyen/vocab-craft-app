@@ -14,7 +14,7 @@ public struct MarkLearnedIntent: AppIntent {
 
     public init() {}
 
-    #if canImport(SwiftDataMacros)
+    #if canImport(SwiftDataMacros) || canImport(SwiftData)
     @MainActor
     @discardableResult
     public func perform() async throws -> some IntentResult {

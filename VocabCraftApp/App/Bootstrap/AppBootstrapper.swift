@@ -4,7 +4,7 @@ import Observation
 import SwiftData
 #endif
 
-#if canImport(SwiftDataMacros)
+#if canImport(SwiftDataMacros) || canImport(SwiftData)
 @Observable
 @MainActor
 public final class AppBootstrapper {

@@ -7,7 +7,7 @@ import WidgetKit
 import VocabCraftApp
 #endif
 
-#if canImport(SwiftDataMacros)
+#if canImport(SwiftDataMacros) || canImport(SwiftData)
 public enum WidgetContainerHolder {
     public static let sharedContainer: ModelContainer? = {
         let isTesting = NSClassFromString("XCTestCase") != nil
@@ -38,7 +38,7 @@ public struct VocabWidgetProvider: TimelineProvider {
     }
 
     public func getSnapshot(in context: Context, completion: @escaping (VocabWidgetEntry) -> Void) {
-        #if canImport(SwiftDataMacros)
+        #if canImport(SwiftDataMacros) || canImport(SwiftData)
         if let entry = fetchCurrentEntry() {
             completion(entry)
         } else {
@@ -50,7 +50,7 @@ public struct VocabWidgetProvider: TimelineProvider {
     }
 
     public func getTimeline(in context: Context, completion: @escaping (Timeline<VocabWidgetEntry>) -> Void) {
-        #if canImport(SwiftDataMacros)
+        #if canImport(SwiftDataMacros) || canImport(SwiftData)
         let entry = fetchCurrentEntry() ?? makePlaceholder()
         #else
         let entry = makePlaceholder()
@@ -60,7 +60,7 @@ public struct VocabWidgetProvider: TimelineProvider {
         completion(timeline)
     }
 
-    #if canImport(SwiftDataMacros)
+    #if canImport(SwiftDataMacros) || canImport(SwiftData)
     public func fetchCurrentEntry(in container: ModelContainer? = nil) -> VocabWidgetEntry? {
         guard let targetContainer = container ?? WidgetContainerHolder.sharedContainer else {
             return nil
