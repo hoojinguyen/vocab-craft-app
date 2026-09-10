@@ -9,37 +9,25 @@ public enum DatabaseStoreError: LocalizedError, Sendable, Equatable {
         switch self {
         case .storeInitializationFailed(let desc, let backupURL):
             if let backupURL {
-                return String(
-                    format: String(
-                        localized: "app.database.error.init_failed_backed_up",
-                        defaultValue: "Failed to load database. Backup created at %@: %@"
-                    ),
+                return AppLocalized.format(
+                    "app.database.error.init_failed_backed_up",
                     backupURL.lastPathComponent,
                     desc
                 )
             } else {
-                return String(
-                    format: String(
-                        localized: "app.database.error.init_failed",
-                        defaultValue: "Failed to load database: %@"
-                    ),
+                return AppLocalized.format(
+                    "app.database.error.init_failed",
                     desc
                 )
             }
         case .quarantineBackupFailed(let desc):
-            return String(
-                format: String(
-                    localized: "app.database.error.backup_failed",
-                    defaultValue: "Failed to create quarantine backup: %@"
-                ),
+            return AppLocalized.format(
+                "app.database.error.backup_failed",
                 desc
             )
         case .manualResetFailed(let desc):
-            return String(
-                format: String(
-                    localized: "app.database.error.reset_failed",
-                    defaultValue: "Failed to reset database: %@"
-                ),
+            return AppLocalized.format(
+                "app.database.error.reset_failed",
                 desc
             )
         }

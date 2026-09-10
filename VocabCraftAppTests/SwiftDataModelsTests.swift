@@ -11,16 +11,16 @@ final class SwiftDataModelsTests: XCTestCase {
     var container: ModelContainer!
     var context: ModelContext!
 
-    override func setUpWithError() throws {
-        try super.setUpWithError()
+    override func setUp() async throws {
+        try await super.setUp()
         container = try SharedAppGroupContainer.createContainer(inMemory: true)
         context = container.mainContext
     }
 
-    override func tearDownWithError() throws {
+    override func tearDown() async throws {
         context = nil
         container = nil
-        try super.tearDownWithError()
+        try await super.tearDown()
     }
 
     // MARK: - App Group Container Tests

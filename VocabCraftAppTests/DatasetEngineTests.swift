@@ -9,8 +9,8 @@ import XCTest
 final class DatasetEngineTests: XCTestCase {
     var testDbPath: String!
 
-    override func setUpWithError() throws {
-        try super.setUpWithError()
+    override func setUp() async throws {
+        try await super.setUp()
         let tempDir = FileManager.default.temporaryDirectory
         testDbPath = tempDir.appendingPathComponent("test_dataset_\(UUID().uuidString).db").path
 
@@ -135,11 +135,11 @@ final class DatasetEngineTests: XCTestCase {
         }
     }
 
-    override func tearDownWithError() throws {
+    override func tearDown() async throws {
         if let path = testDbPath, FileManager.default.fileExists(atPath: path) {
             try? FileManager.default.removeItem(atPath: path)
         }
-        try super.tearDownWithError()
+        try await super.tearDown()
     }
 
     func testDatasetEngineInitializationSuccess() {

@@ -175,5 +175,53 @@ final class DatabaseQuarantineTests: XCTestCase {
         let remainingContent = try? String(contentsOf: protectedStoreURL, encoding: .utf8)
         XCTAssertEqual(remainingContent, "IMPORTANT_USER_DATA")
     }
+
+    func test_reset_store_with_quarantine_aborts_and_preserves_originals_when_wal_backup_fails() throws {
+        let storeURL = tempDirectory.appendingPathComponent("wal_protected.sqlite")
+        let walURL = tempDirectory.appendingPathComponent("wal_protected.sqlite-wal")
+        try "MAIN_STORE_DATA".write(to: storeURL, atomically: true, encoding: .utf8)
+        try "UNCHECKPOINTED_WAL_DATA".write(to: walURL, atomically: true, encoding: .utf8)
+
+        let customFM = FailingWalCopyFileManager()
+
+        let schema = Schema(versionedSchema: SchemaV2.self)
+        let config = ModelConfiguration(schema: schema, url: storeURL)
+
+        XCTAssertThrowsError(
+            try SharedAppGroupContainer.resetStoreWithQuarantine(
+                storeURL: storeURL,
+                configuration: config,
+                fileManager: customFM
+            )
+        ) { error in
+            guard let dbError = error as? DatabaseStoreError else {
+                XCTFail("Expected DatabaseStoreError, got \(error)")
+                return
+            }
+            switch dbError {
+            case .quarantineBackupFailed(let description):
+                XCTAssertFalse(description.isEmpty)
+            default:
+                XCTFail("Expected quarantineBackupFailed, got \(dbError)")
+            }
+        }
+
+        // Both original sqlite AND wal files must NOT be deleted when WAL copy fails
+        XCTAssertTrue(FileManager.default.fileExists(atPath: storeURL.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: walURL.path))
+        XCTAssertEqual(try? String(contentsOf: storeURL, encoding: .utf8), "MAIN_STORE_DATA")
+        XCTAssertEqual(try? String(contentsOf: walURL, encoding: .utf8), "UNCHECKPOINTED_WAL_DATA")
+    }
+}
+
+private final class FailingWalCopyFileManager: FileManager {
+    var shouldFailWalCopy = true
+
+    override func copyItem(at srcURL: URL, to dstURL: URL) throws {
+        if shouldFailWalCopy && srcURL.path.hasSuffix("-wal") {
+            throw NSError(domain: NSCocoaErrorDomain, code: NSFileWriteUnknownError, userInfo: [NSLocalizedDescriptionKey: "Simulated WAL copy failure"])
+        }
+        try super.copyItem(at: srcURL, to: dstURL)
+    }
 }
 #endif

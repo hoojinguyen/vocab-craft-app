@@ -105,7 +105,13 @@ final class SchemaMigrationTests: XCTestCase {
             session2ID: baseline.session2ID
         )
 
-        // Step 5: Verify new V2 entity types (UserStageProgress, QuickReflexAttemptRecord)
+        // Step 5: Verify WidgetCurrentState migration preserves all attributes
+        try verifyMigratedWidget(
+            in: v2Container,
+            expectedDate: baseline.widgetDate
+        )
+
+        // Step 6: Verify new V2 entity types (UserStageProgress, QuickReflexAttemptRecord)
         try verifyNewV2EntityOperations(in: v2Container)
     }
 
@@ -115,7 +121,8 @@ final class SchemaMigrationTests: XCTestCase {
         date2: Date,
         date3: Date,
         session1ID: UUID,
-        session2ID: UUID
+        session2ID: UUID,
+        widgetDate: Date
     ) {
         let v1Schema = Schema(versionedSchema: SchemaV1.self)
         let v1Config = ModelConfiguration(schema: v1Schema, url: storeURL)
@@ -189,12 +196,41 @@ final class SchemaMigrationTests: XCTestCase {
             timestamp: Date(timeIntervalSince1970: 1_700_050_000)
         )
 
+        let widgetDate = Date(timeIntervalSince1970: 1_705_000_000)
+        let widget = SchemaV1.WidgetCurrentState(
+            id: "current",
+            activeWord: "serendipity",
+            phonetic: "/ˌser.ənˈdɪp.ə.ti/",
+            meaningVi: "sự tình cờ may mắn",
+            exampleSentence: "A fortunate stroke of serendipity.",
+            updatedAt: widgetDate
+        )
+
         v1Container.mainContext.insert(session1)
         v1Container.mainContext.insert(session2)
+        v1Container.mainContext.insert(widget)
 
         try v1Container.mainContext.save()
 
-        return (date1, date2, date3, session1ID, session2ID)
+        return (date1, date2, date3, session1ID, session2ID, widgetDate)
+    }
+
+    @MainActor
+    private func verifyMigratedWidget(
+        in v2Container: ModelContainer,
+        expectedDate: Date
+    ) throws {
+        let widgetDesc = FetchDescriptor<WidgetCurrentState>()
+        let widgets = try v2Container.mainContext.fetch(widgetDesc)
+        XCTAssertEqual(widgets.count, 1)
+
+        let migrated = try XCTUnwrap(widgets.first)
+        XCTAssertEqual(migrated.id, "current")
+        XCTAssertEqual(migrated.lemma, "serendipity")
+        XCTAssertEqual(migrated.ipaUs, "/ˌser.ənˈdɪp.ə.ti/")
+        XCTAssertEqual(migrated.definitionVi, "sự tình cờ may mắn")
+        XCTAssertEqual(migrated.exampleEn, "A fortunate stroke of serendipity.")
+        XCTAssertEqual(migrated.lastUpdated, expectedDate)
     }
 
     @MainActor

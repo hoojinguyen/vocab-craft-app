@@ -46,6 +46,7 @@ def generate_pbxproj():
         "VocabCraftApp/Core/Database/SwiftDataModels.swift",
         "VocabCraftApp/Core/Database/DatasetModels.swift",
         "VocabCraftApp/Core/SRS/SRSEngine.swift",
+        "VocabCraftApp/Core/Localization/AppLocalized.swift",
         "VocabCraftApp/Domain/Models/UserStageProgressData.swift",
         "VocabCraftApp/Domain/Protocols/DatasetDataSourceProtocol.swift"
     ]

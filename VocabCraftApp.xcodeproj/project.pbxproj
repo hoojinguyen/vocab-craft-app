@@ -39,6 +39,7 @@
 		30009AC1BB7654E455DF /* SwiftDataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20009AC1BB7654E455DF /* SwiftDataModels.swift */; };
 		3000928AAF987BEB4203 /* UserSettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000928AAF987BEB4203 /* UserSettingsStore.swift */; };
 		300085D4BA7A4E3D273F /* VocabTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200085D4BA7A4E3D273F /* VocabTheme.swift */; };
+		30003E23131D39F88BEF /* AppLocalized.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20003E23131D39F88BEF /* AppLocalized.swift */; };
 		3000B9DD402DCD172909 /* AppStrings+Lesson.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000B9DD402DCD172909 /* AppStrings+Lesson.swift */; };
 		3000915BE5C96A7D1D18 /* AppStrings+Practice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000915BE5C96A7D1D18 /* AppStrings+Practice.swift */; };
 		300090EB5ABA9B7051A5 /* AppStrings+Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200090EB5ABA9B7051A5 /* AppStrings+Profile.swift */; };
@@ -180,6 +181,7 @@
 		3001573EA4CC3FAE2D09 /* SwiftDataModels.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20009AC1BB7654E455DF /* SwiftDataModels.swift */; };
 		30019977515C5A5B7FC8 /* DatasetModels.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 2000D26FBFB21A7CA2FE /* DatasetModels.swift */; };
 		3001A8C3A90BD362D3C1 /* SRSEngine.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003498E286D20C1EBC /* SRSEngine.swift */; };
+		3001A5AF673BCE0FB1CB /* AppLocalized.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 20003E23131D39F88BEF /* AppLocalized.swift */; };
 		3001AD5FDFF5088D97A2 /* UserStageProgressData.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 200065DD5844D92B1800 /* UserStageProgressData.swift */; };
 		3001675F5FB5DD5A7191 /* DatasetDataSourceProtocol.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 2000FFCB867F894749B7 /* DatasetDataSourceProtocol.swift */; };
 		300086C2CF16E1EBC9A9 /* AppBootstrapperTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200086C2CF16E1EBC9A9 /* AppBootstrapperTests.swift */; };
@@ -343,6 +345,7 @@
 		20009AC1BB7654E455DF /* SwiftDataModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SwiftDataModels.swift"; sourceTree = "<group>"; };
 		2000928AAF987BEB4203 /* UserSettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserSettingsStore.swift"; sourceTree = "<group>"; };
 		200085D4BA7A4E3D273F /* VocabTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabTheme.swift"; sourceTree = "<group>"; };
+		20003E23131D39F88BEF /* AppLocalized.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppLocalized.swift"; sourceTree = "<group>"; };
 		2000B9DD402DCD172909 /* AppStrings+Lesson.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStrings+Lesson.swift"; sourceTree = "<group>"; };
 		2000915BE5C96A7D1D18 /* AppStrings+Practice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStrings+Practice.swift"; sourceTree = "<group>"; };
 		200090EB5ABA9B7051A5 /* AppStrings+Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppStrings+Profile.swift"; sourceTree = "<group>"; };
@@ -754,6 +757,7 @@
 		400080019F7B3C6D2348 /* Localization */ = {
 			isa = PBXGroup;
 			children = (
+				20003E23131D39F88BEF /* AppLocalized.swift */,
 				2000B9DD402DCD172909 /* AppStrings+Lesson.swift */,
 				2000915BE5C96A7D1D18 /* AppStrings+Practice.swift */,
 				200090EB5ABA9B7051A5 /* AppStrings+Profile.swift */,
@@ -1723,6 +1727,7 @@
 				30009AC1BB7654E455DF /* SwiftDataModels.swift in Sources */,
 				3000928AAF987BEB4203 /* UserSettingsStore.swift in Sources */,
 				300085D4BA7A4E3D273F /* VocabTheme.swift in Sources */,
+				30003E23131D39F88BEF /* AppLocalized.swift in Sources */,
 				3000B9DD402DCD172909 /* AppStrings+Lesson.swift in Sources */,
 				3000915BE5C96A7D1D18 /* AppStrings+Practice.swift in Sources */,
 				300090EB5ABA9B7051A5 /* AppStrings+Profile.swift in Sources */,
@@ -1865,6 +1870,7 @@
 				3001573EA4CC3FAE2D09 /* SwiftDataModels.swift in Widget Sources */,
 				30019977515C5A5B7FC8 /* DatasetModels.swift in Widget Sources */,
 				3001A8C3A90BD362D3C1 /* SRSEngine.swift in Widget Sources */,
+				3001A5AF673BCE0FB1CB /* AppLocalized.swift in Widget Sources */,
 				3001AD5FDFF5088D97A2 /* UserStageProgressData.swift in Widget Sources */,
 				3001675F5FB5DD5A7191 /* DatasetDataSourceProtocol.swift in Widget Sources */,
 			);

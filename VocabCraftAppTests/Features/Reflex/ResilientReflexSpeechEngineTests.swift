@@ -9,15 +9,15 @@ import XCTest
 final class ResilientReflexSpeechEngineTests: XCTestCase {
     private var engine: ResilientReflexSpeechEngine!
 
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
+        try await super.setUp()
         engine = ResilientReflexSpeechEngine()
     }
 
-    override func tearDown() {
+    override func tearDown() async throws {
         engine.stopSession()
         engine = nil
-        super.tearDown()
+        try await super.tearDown()
     }
 
     func testStartSession_activatesSession() {

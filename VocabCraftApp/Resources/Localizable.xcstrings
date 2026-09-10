@@ -222,6 +222,23 @@
         }
       }
     },
+    "app.database.error.quarantine_before_reset_failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to create quarantine backup before resetting store."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không thể tạo bản sao lưu cách ly trước khi đặt lại cơ sở dữ liệu."
+          }
+        }
+      }
+    },
     "app.database.error.init_failed" : {
       "extractionState" : "manual",
       "localizations" : {

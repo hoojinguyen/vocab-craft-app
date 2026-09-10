@@ -46,6 +46,14 @@ public struct SharedAppGroupContainer {
         let backupFileName = "\(baseName)_backup_\(timestamp).sqlite"
         let backupURL = directory.appendingPathComponent(backupFileName)
 
+        let cleanupFailedBackup: () -> Void = {
+            try? fileManager.removeItem(at: backupURL)
+            let backupWal = URL(fileURLWithPath: backupURL.path + "-wal")
+            try? fileManager.removeItem(at: backupWal)
+            let backupShm = URL(fileURLWithPath: backupURL.path + "-shm")
+            try? fileManager.removeItem(at: backupShm)
+        }
+
         do {
             if fileManager.fileExists(atPath: backupURL.path) {
                 try fileManager.removeItem(at: backupURL)
@@ -61,8 +69,15 @@ public struct SharedAppGroupContainer {
         ]
         for wal in walCandidates where fileManager.fileExists(atPath: wal.path) {
             let backupWal = URL(fileURLWithPath: backupURL.path + "-wal")
-            try? fileManager.removeItem(at: backupWal)
-            try? fileManager.copyItem(at: wal, to: backupWal)
+            do {
+                if fileManager.fileExists(atPath: backupWal.path) {
+                    try fileManager.removeItem(at: backupWal)
+                }
+                try fileManager.copyItem(at: wal, to: backupWal)
+            } catch {
+                cleanupFailedBackup()
+                return nil
+            }
             break
         }
 
@@ -72,8 +87,15 @@ public struct SharedAppGroupContainer {
         ]
         for shm in shmCandidates where fileManager.fileExists(atPath: shm.path) {
             let backupShm = URL(fileURLWithPath: backupURL.path + "-shm")
-            try? fileManager.removeItem(at: backupShm)
-            try? fileManager.copyItem(at: shm, to: backupShm)
+            do {
+                if fileManager.fileExists(atPath: backupShm.path) {
+                    try fileManager.removeItem(at: backupShm)
+                }
+                try fileManager.copyItem(at: shm, to: backupShm)
+            } catch {
+                cleanupFailedBackup()
+                return nil
+            }
             break
         }
 
@@ -116,7 +138,7 @@ public struct SharedAppGroupContainer {
         if fileManager.fileExists(atPath: storeURL.path) {
             guard quarantineCorruptStoreFiles(from: storeURL, fileManager: fileManager) != nil else {
                 throw DatabaseStoreError.quarantineBackupFailed(
-                    description: "Failed to create quarantine backup before resetting store."
+                    description: AppLocalized.string("app.database.error.quarantine_before_reset_failed")
                 )
             }
         }

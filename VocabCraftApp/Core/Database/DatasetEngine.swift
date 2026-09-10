@@ -1,27 +1,35 @@
 import Foundation
 import SQLite3
 
-extension OpaquePointer: @unchecked Sendable {}
+private struct SQLiteDatabaseHandle: @unchecked Sendable {
+    var raw: OpaquePointer?
+}
 
 @MainActor
 public final class DatasetEngine: DatasetDataSourceProtocol {
-    private var db: OpaquePointer?
+    private let dbHandle: SQLiteDatabaseHandle
+
+    private var db: OpaquePointer? {
+        dbHandle.raw
+    }
 
     public init?(dbPath: String? = Bundle.main.path(forResource: "english_dataset", ofType: "db")) {
         guard let path = dbPath, !path.isEmpty else { return nil }
         guard FileManager.default.fileExists(atPath: path) else { return nil }
 
-        if sqlite3_open_v2(path, &db, SQLITE_OPEN_READONLY | SQLITE_OPEN_FULLMUTEX, nil) != SQLITE_OK {
-            if let db = db {
-                sqlite3_close(db)
+        var pointer: OpaquePointer?
+        if sqlite3_open_v2(path, &pointer, SQLITE_OPEN_READONLY | SQLITE_OPEN_FULLMUTEX, nil) != SQLITE_OK {
+            if let pointer = pointer {
+                sqlite3_close(pointer)
             }
             return nil
         }
+        self.dbHandle = SQLiteDatabaseHandle(raw: pointer)
     }
 
     deinit {
-        if let db = db {
-            sqlite3_close(db)
+        if let raw = dbHandle.raw {
+            sqlite3_close(raw)
         }
     }
 

@@ -6,6 +6,7 @@ import SwiftUI
 import XCTest
 #endif
 
+@MainActor
 final class VocabThemeTests: XCTestCase {
     func testVocabColorTokensInitialization() {
         let tokens = VocabColorTokens()

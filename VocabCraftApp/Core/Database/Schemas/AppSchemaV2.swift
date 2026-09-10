@@ -241,11 +241,11 @@ public enum SchemaV2: VersionedSchema {
     public final class WidgetCurrentState {
         @Attribute(.unique) public var id: String
         public var currentWordId: Int64 = 0
-        public var lemma: String = ""
-        public var ipaUs: String = ""
-        public var definitionVi: String = ""
-        public var exampleEn: String = ""
-        public var lastUpdated: Date = Date()
+        @Attribute(originalName: "activeWord") public var lemma: String = ""
+        @Attribute(originalName: "phonetic") public var ipaUs: String = ""
+        @Attribute(originalName: "meaningVi") public var definitionVi: String = ""
+        @Attribute(originalName: "exampleSentence") public var exampleEn: String = ""
+        @Attribute(originalName: "updatedAt") public var lastUpdated: Date = Date()
 
         public init(
             id: String = "default_widget",

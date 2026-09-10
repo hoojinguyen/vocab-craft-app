@@ -32,6 +32,7 @@ public final class PersonalVaultViewModel {
     private let ttsService: TextToSpeechProtocol?
     private let smartSelector: SmartVaultWordSelectorProtocol
     public let userSettingsStore: UserSettingsStore?
+    private var pendingBookmarkMutations: [Int64: (isBookmarked: Bool, timestamp: Date)] = [:]
 
     public init(
         fetchVaultUseCase: FetchPersonalVaultUseCaseProtocol? = nil,
@@ -62,6 +63,7 @@ public final class PersonalVaultViewModel {
         guard !Task.isCancelled else { return }
         currentRequestId &+= 1
         let requestId = currentRequestId
+        let loadStartTime = Date()
         isLoading = true
         errorMessage = nil
 
@@ -75,9 +77,40 @@ public final class PersonalVaultViewModel {
                     searchQuery: effectiveQuery
                 )
                 guard currentRequestId == requestId && !Task.isCancelled else { return }
-                words = snapshot.personalWords
-                metrics = snapshot.metrics
-                vaultWords = snapshot.vaultWords
+
+                var resolvedVaultWords = snapshot.vaultWords
+                var resolvedPersonalWords = snapshot.personalWords
+                var bookmarkedDelta = 0
+
+                let recentMutations = pendingBookmarkMutations.filter { $0.value.timestamp >= loadStartTime }
+                for (wordId, mutation) in recentMutations {
+                    if let idx = resolvedVaultWords.firstIndex(where: { $0.id == wordId }) {
+                        let old = resolvedVaultWords[idx].isBookmarked
+                        if old != mutation.isBookmarked {
+                            resolvedVaultWords[idx] = updatingBookmarkState(for: resolvedVaultWords[idx], isBookmarked: mutation.isBookmarked)
+                            bookmarkedDelta += mutation.isBookmarked ? 1 : -1
+                        }
+                    }
+                    if let pIdx = resolvedPersonalWords.firstIndex(where: { $0.id == wordId }) {
+                        resolvedPersonalWords[pIdx].isBookmarked = mutation.isBookmarked
+                    }
+                    if let current = selectedWordForDetail, current.id == wordId {
+                        selectedWordForDetail = updatingBookmarkState(for: current, isBookmarked: mutation.isBookmarked)
+                    }
+                }
+
+                let newBookmarkedCount = max(0, snapshot.metrics.bookmarkedCount + bookmarkedDelta)
+                let resolvedMetrics = PersonalVaultMetrics(
+                    totalWords: snapshot.metrics.totalWords,
+                    needsReviewCount: snapshot.metrics.needsReviewCount,
+                    masteredCount: snapshot.metrics.masteredCount,
+                    bookmarkedCount: newBookmarkedCount,
+                    unmasteredCount: snapshot.metrics.unmasteredCount
+                )
+
+                words = resolvedPersonalWords
+                metrics = resolvedMetrics
+                vaultWords = resolvedVaultWords
             }
         } catch {
             guard currentRequestId == requestId && !Task.isCancelled else { return }
@@ -209,6 +242,7 @@ public final class PersonalVaultViewModel {
         let newState = !previousState
 
         // 1. Optimistic in-memory updates
+        pendingBookmarkMutations[wordId] = (newState, Date())
         applyBookmarkState(newState, for: wordId)
         let optimisticCount = newState ? metrics.bookmarkedCount + 1 : max(0, metrics.bookmarkedCount - 1)
         metrics = updatingBookmarkedCount(to: optimisticCount)
@@ -219,6 +253,7 @@ public final class PersonalVaultViewModel {
                 _ = try await toggleBookmarkUseCase.execute(wordId: wordId)
             } catch {
                 // 3. Rollback on error
+                pendingBookmarkMutations[wordId] = (previousState, Date())
                 applyBookmarkState(previousState, for: wordId)
                 let revertedCount = previousState ? metrics.bookmarkedCount + 1 : max(0, metrics.bookmarkedCount - 1)
                 metrics = updatingBookmarkedCount(to: revertedCount)
