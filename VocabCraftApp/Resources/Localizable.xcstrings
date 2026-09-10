@@ -205,6 +205,74 @@
         }
       }
     },
+    "app.database.error.backup_failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to create quarantine backup: %@"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không thể tạo bản sao lưu cách ly: %@"
+          }
+        }
+      }
+    },
+    "app.database.error.init_failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to load database: %@"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không thể tải cơ sở dữ liệu: %@"
+          }
+        }
+      }
+    },
+    "app.database.error.init_failed_backed_up" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to load database. Backup created at %@: %@"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không thể tải cơ sở dữ liệu. Bản sao lưu đã được tạo tại %@: %@"
+          }
+        }
+      }
+    },
+    "app.database.error.reset_failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to reset database: %@"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không thể đặt lại cơ sở dữ liệu: %@"
+          }
+        }
+      }
+    },
     "app.home.header.daily_goal_a11y_format" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2615,6 +2683,142 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Từ đã học"
+          }
+        }
+      }
+    },
+    "app.recovery.backup_location" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup location: %@"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vị trí sao lưu: %@"
+          }
+        }
+      }
+    },
+    "app.recovery.cancel_button" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Huỷ"
+          }
+        }
+      }
+    },
+    "app.recovery.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to load your study progress. A safety backup has been created."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không thể tải tiến độ học tập. Bản sao lưu an toàn đã được khởi tạo."
+          }
+        }
+      }
+    },
+    "app.recovery.reset_button" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset Database"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đặt lại dữ liệu"
+          }
+        }
+      }
+    },
+    "app.recovery.reset_confirm_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your previous data was securely backed up. Are you sure you want to start fresh?"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dữ liệu cũ đã được sao lưu an toàn. Bạn có chắc chắn muốn tạo mới không?"
+          }
+        }
+      }
+    },
+    "app.recovery.reset_confirm_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset Database?"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đặt lại cơ sở dữ liệu?"
+          }
+        }
+      }
+    },
+    "app.recovery.retry_button" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retry"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thử lại"
+          }
+        }
+      }
+    },
+    "app.recovery.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data Loading Error"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lỗi tải dữ liệu"
           }
         }
       }
@@ -9113,9 +9317,6 @@
         }
       }
     },
-    "Testing..." : {
-
-    },
     "Travel & Food" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -9826,210 +10027,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld/%lld từ đã thuộc"
-          }
-        }
-      }
-    },
-    "app.database.error.backup_failed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Failed to create quarantine backup: %@"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không thể tạo bản sao lưu cách ly: %@"
-          }
-        }
-      }
-    },
-    "app.database.error.init_failed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Failed to load database: %@"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không thể tải cơ sở dữ liệu: %@"
-          }
-        }
-      }
-    },
-    "app.database.error.init_failed_backed_up" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Failed to load database. Backup created at %@: %@"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không thể tải cơ sở dữ liệu. Bản sao lưu đã được tạo tại %@: %@"
-          }
-        }
-      }
-    },
-    "app.database.error.reset_failed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Failed to reset database: %@"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không thể đặt lại cơ sở dữ liệu: %@"
-          }
-        }
-      }
-    },
-    "app.recovery.backup_location" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Backup location: %@"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vị trí sao lưu: %@"
-          }
-        }
-      }
-    },
-    "app.recovery.cancel_button" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cancel"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Huỷ"
-          }
-        }
-      }
-    },
-    "app.recovery.message" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unable to load your study progress. A safety backup has been created."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không thể tải tiến độ học tập. Bản sao lưu an toàn đã được khởi tạo."
-          }
-        }
-      }
-    },
-    "app.recovery.reset_button" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reset Database"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đặt lại dữ liệu"
-          }
-        }
-      }
-    },
-    "app.recovery.reset_confirm_message" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your previous data was securely backed up. Are you sure you want to start fresh?"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dữ liệu cũ đã được sao lưu an toàn. Bạn có chắc chắn muốn tạo mới không?"
-          }
-        }
-      }
-    },
-    "app.recovery.reset_confirm_title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reset Database?"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đặt lại cơ sở dữ liệu?"
-          }
-        }
-      }
-    },
-    "app.recovery.retry_button" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Retry"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thử lại"
-          }
-        }
-      }
-    },
-    "app.recovery.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Data Loading Error"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lỗi tải dữ liệu"
           }
         }
       }

@@ -19,7 +19,6 @@ public struct HomepageView: View {
     @State private var vaultVM: PersonalVaultViewModel?
     @State private var settingsVM: SettingsViewModel?
     @State private var reflexBlitzVM: ReflexBlitzViewModel?
-    @State private var activeLessonNode: LessonNodeModel?
     @State private var activeLessonLearningVM: LessonLearningViewModel?
     @State private var lessonLaunchTask: Task<Void, Never>?
     @State private var isLaunchingLesson: Bool = false
@@ -134,8 +133,8 @@ public struct HomepageView: View {
                     onDismiss: {
                         handleReflexDismiss()
                     },
-                    onFinishSession: { summary in
-                        handleReflexSessionFinished(summary: summary)
+                    onFinishSession: { _ in
+                        handleReflexSessionFinished()
                     }
                 )
                 .ignoresSafeArea(edges: .bottom)
@@ -413,67 +412,12 @@ private extension HomepageView {
         }
     }
 
-    private func handleReflexSessionFinished(summary: ReflexBlitzSessionSummary) {
-        let node = activeLessonNode
-        reflexBlitzVM = nil
-        activeLessonNode = nil
-
-        if let node {
-            appRouter.navigateToHome()
-            Task {
-                let accuracy = summary.totalWords > 0 ? Double(summary.correctWords) / Double(summary.totalWords) : 1.0
-                let stars = accuracy >= 0.95 ? 3 : (accuracy >= 0.80 ? 2 : 1)
-                let weakWordIds = summary.weakWordAttempts.map { Int64($0.wordId) }
-                let deckId = node.id.hasPrefix("checkpoint_")
-                    ? String(node.id.dropFirst("checkpoint_".count))
-                    : (viewModel.sections.first(where: { sec in sec.nodes.contains(where: { $0.id == node.id }) })?.id ?? "")
-
-                do {
-                    let result = try await appContainer.completeLessonUseCase.execute(
-                        stageId: node.id,
-                        deckId: deckId,
-                        stars: stars,
-                        weakWordIds: weakWordIds,
-                        progressFraction: 1.0
-                    )
-                    await viewModel.loadLearningPath()
-                    // Reward feedback: confetti + toast only on success — show fixed policy reward, not stars * xp
-                    await MainActor.run {
-                        let earnedXP = result.xpEarned
-                        let starIcons = String(repeating: "★", count: stars)
-                        CraftHaptics.shared.success()
-                        homeConfettiTrigger = true
-                        completionToastData = CraftToastData(
-                            title: String(localized: "app.home.toast.completed_title", defaultValue: "Completed!", bundle: .module),
-                            message: "+\(earnedXP) XP • \(starIcons) \(String(localized: "app.home.toast.stars_suffix", defaultValue: " • Great Job!", bundle: .module))",
-                            iconName: "star.fill",
-                            style: .success,
-                            surfaceStyle: .glass,
-                            duration: 3.0
-                        )
-                    }
-                } catch {
-                    await MainActor.run {
-                        completionToastData = CraftToastData(
-                            title: String(localized: "common.error", defaultValue: "Error", bundle: .module),
-                            message: error.localizedDescription,
-                            iconName: "exclamationmark.triangle.fill",
-                            style: .danger,
-                            surfaceStyle: .glass,
-                            duration: 3.0
-                        )
-                    }
-                }
-            }
-        } else {
-            let vm = appContainer.makeReflexBlitzViewModel()
-            self.reflexBlitzVM = vm
-        }
+    private func handleReflexSessionFinished() {
+        reflexBlitzVM = appContainer.makeReflexBlitzViewModel()
     }
 
     private func handleReflexDismiss() {
         reflexBlitzVM = nil
-        activeLessonNode = nil
         appRouter.navigateToHome()
     }
 }
