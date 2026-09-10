@@ -379,14 +379,14 @@ private struct ReflexSpeakingLiveBadge: View, Equatable {
     let isResultCorrect: Bool
     @Environment(\.craftTheme) private var theme
 
-    private var renderedToken: String {
+    nonisolated private var renderedToken: String {
         liveTranscript
             .split(separator: " ")
             .last
             .map(String.init) ?? liveTranscript
     }
 
-    static func == (lhs: Self, rhs: Self) -> Bool {
+    nonisolated static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.renderedToken == rhs.renderedToken &&
         lhs.isReviewed == rhs.isReviewed &&
         lhs.isResultCorrect == rhs.isResultCorrect

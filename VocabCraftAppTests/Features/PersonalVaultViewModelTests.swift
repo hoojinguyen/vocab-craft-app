@@ -270,6 +270,386 @@ struct PersonalVaultViewModelTests {
         #expect(picks.count == 3)
         #expect(vm.selectedWordIds.count == 3)
     }
+
+    @Test("Generation tracking ignores stale out-of-order response")
+    @MainActor
+    func testGenerationTrackingIgnoresStaleResponse() async {
+        let word1 = VaultWordItem(id: 1, lemma: "first", pos: "n.", definitionVi: "thứ nhất")
+        let word2 = VaultWordItem(id: 2, lemma: "second", pos: "n.", definitionVi: "thứ hai")
+
+        let slowStream = AsyncStream<Void>.makeStream()
+        let mockUseCase = MockFetchPersonalVaultUseCase()
+
+        var callCount = 0
+        mockUseCase.onFetchSnapshot = { _, _, _ in
+            callCount += 1
+            if callCount == 1 {
+                for await _ in slowStream.stream {
+                    break
+                }
+                return PersonalVaultSnapshot(
+                    metrics: PersonalVaultMetrics(totalWords: 1),
+                    personalWords: [],
+                    vaultWords: [word1]
+                )
+            } else {
+                return PersonalVaultSnapshot(
+                    metrics: PersonalVaultMetrics(totalWords: 1),
+                    personalWords: [],
+                    vaultWords: [word2]
+                )
+            }
+        }
+
+        let vm = PersonalVaultViewModel(fetchVaultUseCase: mockUseCase)
+
+        // Launch Request 1 (not cancelled, pauses inside onFetchSnapshot)
+        let task1 = Task { @MainActor in
+            await vm.loadData()
+        }
+
+        // Allow task1 to start and wait on slowStream
+        try? await Task.sleep(nanoseconds: 20_000_000)
+
+        // Fire Request 2 (completes immediately with word2)
+        await vm.loadData()
+
+        #expect(vm.vaultWords.map(\.id) == [2])
+
+        // Resume Request 1 and await completion
+        slowStream.continuation.yield()
+        _ = await task1.result
+
+        // Stale response from Request 1 should be ignored by generation tracking
+        #expect(vm.vaultWords.map(\.id) == [2])
+    }
+
+    @Test("Task cancellation prevents stale state assignment")
+    @MainActor
+    func testTaskCancellationPreventsStaleStateAssignment() async {
+        let word = VaultWordItem(id: 99, lemma: "test", pos: "n.", definitionVi: "kiểm tra")
+        let pauseStream = AsyncStream<Void>.makeStream()
+        let mockUseCase = MockFetchPersonalVaultUseCase()
+
+        mockUseCase.onFetchSnapshot = { _, _, _ in
+            for await _ in pauseStream.stream {
+                break
+            }
+            return PersonalVaultSnapshot(
+                metrics: PersonalVaultMetrics(totalWords: 1),
+                personalWords: [],
+                vaultWords: [word]
+            )
+        }
+
+        let vm = PersonalVaultViewModel(fetchVaultUseCase: mockUseCase)
+
+        let task = Task { @MainActor in
+            await vm.loadData()
+        }
+
+        try? await Task.sleep(nanoseconds: 20_000_000)
+        task.cancel()
+        pauseStream.continuation.yield()
+        _ = await task.result
+
+        #expect(vm.vaultWords.isEmpty)
+    }
+    @Test("Optimistic bookmark toggle updates in-memory state and metrics instantly before background persistence completes")
+    @MainActor
+    func testOptimisticBookmarkToggleUpdatesInstantlyBeforePersistenceResolves() async {
+        let word = VaultWordItem(id: 10, lemma: "momentum", pos: "n.", definitionVi: "Đà phát triển", isBookmarked: false)
+        let personalWord = PersonalWord(
+            id: 10,
+            lemma: "momentum",
+            phonetic: "/məˈmentəm/",
+            pos: "n.",
+            cefrLevel: "B2",
+            definitionVi: "Đà phát triển",
+            definitionEn: "force or speed of movement",
+            exampleEn: "Gain momentum",
+            exampleVi: "Tạo đà",
+            isBookmarked: false
+        )
+
+        let pauseStream = AsyncStream<Void>.makeStream()
+        let mockUseCase = MockFetchPersonalVaultUseCase()
+        mockUseCase.onFetchSnapshot = { _, _, _ in
+            PersonalVaultSnapshot(
+                metrics: PersonalVaultMetrics(totalWords: 1, bookmarkedCount: 0),
+                personalWords: [personalWord],
+                vaultWords: [word]
+            )
+        }
+
+        let mockBookmarkUseCase = MockToggleBookmarkUseCase()
+        mockBookmarkUseCase.onExecute = { _ in
+            for await _ in pauseStream.stream {
+                break
+            }
+            return true
+        }
+
+        let vm = PersonalVaultViewModel(
+            fetchVaultUseCase: mockUseCase,
+            toggleBookmarkUseCase: mockBookmarkUseCase
+        )
+
+        await vm.loadData()
+        #expect(vm.vaultWords.first?.isBookmarked == false)
+        #expect(vm.words.first?.isBookmarked == false)
+        #expect(vm.metrics.bookmarkedCount == 0)
+
+        // Launch bookmark toggle in background Task
+        let toggleTask = Task { @MainActor in
+            await vm.toggleBookmark(wordId: 10)
+        }
+
+        // Allow toggleBookmark to start executing up to the await point
+        try? await Task.sleep(nanoseconds: 20_000_000)
+
+        // Verify optimistic update happened before persistence resolved
+        #expect(vm.vaultWords.first(where: { $0.id == 10 })?.isBookmarked == true)
+        #expect(vm.words.first(where: { $0.id == 10 })?.isBookmarked == true)
+        #expect(vm.metrics.bookmarkedCount == 1)
+
+        // Let background persistence finish
+        pauseStream.continuation.yield()
+        _ = await toggleTask.result
+
+        // Verify state remains consistent and no errors
+        #expect(vm.vaultWords.first(where: { $0.id == 10 })?.isBookmarked == true)
+        #expect(vm.words.first(where: { $0.id == 10 })?.isBookmarked == true)
+        #expect(vm.metrics.bookmarkedCount == 1)
+        #expect(vm.errorMessage == nil)
+    }
+
+    @Test("Bookmark toggle rolls back in-memory state and metrics when persistence fails")
+    @MainActor
+    func testBookmarkToggleRollbackOnError() async {
+        let word1 = VaultWordItem(id: 1, lemma: "serene", pos: "adj.", definitionVi: "Thanh bình", isBookmarked: false)
+        let personalWord1 = PersonalWord(
+            id: 1,
+            lemma: "serene",
+            phonetic: "/səˈriːn/",
+            pos: "adj.",
+            cefrLevel: "C1",
+            definitionVi: "Thanh bình",
+            definitionEn: "calm, peaceful",
+            exampleEn: "A serene lake",
+            exampleVi: "Hồ thanh bình",
+            isBookmarked: false
+        )
+
+        let mockUseCase = MockFetchPersonalVaultUseCase()
+        mockUseCase.onFetchSnapshot = { _, _, _ in
+            PersonalVaultSnapshot(
+                metrics: PersonalVaultMetrics(totalWords: 1, bookmarkedCount: 0),
+                personalWords: [personalWord1],
+                vaultWords: [word1]
+            )
+        }
+
+        struct DummyNetworkError: LocalizedError {
+            var errorDescription: String? { "Persistence failed" }
+        }
+
+        let pauseStream = AsyncStream<Void>.makeStream()
+        let mockBookmarkUseCase = MockToggleBookmarkUseCase()
+        mockBookmarkUseCase.onExecute = { _ in
+            for await _ in pauseStream.stream {
+                break
+            }
+            throw DummyNetworkError()
+        }
+
+        let vm = PersonalVaultViewModel(
+            fetchVaultUseCase: mockUseCase,
+            toggleBookmarkUseCase: mockBookmarkUseCase
+        )
+
+        await vm.loadData()
+        vm.selectWordForDetail(word1)
+        #expect(vm.vaultWords.first?.isBookmarked == false)
+        #expect(vm.words.first?.isBookmarked == false)
+        #expect(vm.metrics.bookmarkedCount == 0)
+        #expect(vm.selectedWordForDetail?.isBookmarked == false)
+
+        // Launch bookmark toggle (false -> optimistically true -> persistence throws -> rollback to false)
+        let toggleTask = Task { @MainActor in
+            await vm.toggleBookmark(wordId: 1)
+        }
+
+        // Allow task to reach await persistence
+        try? await Task.sleep(nanoseconds: 20_000_000)
+
+        // Verify optimistic flip occurred before failure
+        #expect(vm.vaultWords.first(where: { $0.id == 1 })?.isBookmarked == true)
+        #expect(vm.words.first(where: { $0.id == 1 })?.isBookmarked == true)
+        #expect(vm.metrics.bookmarkedCount == 1)
+        #expect(vm.selectedWordForDetail?.isBookmarked == true)
+
+        // Unblock stream and allow failure to throw
+        pauseStream.continuation.yield()
+        _ = await toggleTask.result
+
+        // Verify complete rollback
+        #expect(vm.vaultWords.first(where: { $0.id == 1 })?.isBookmarked == false)
+        #expect(vm.words.first(where: { $0.id == 1 })?.isBookmarked == false)
+        #expect(vm.metrics.bookmarkedCount == 0)
+        #expect(vm.selectedWordForDetail?.isBookmarked == false)
+        #expect(vm.errorMessage == "Persistence failed")
+    }
+
+    @Test("Bookmark un-toggle rolls back in-memory state and metrics when persistence fails")
+    @MainActor
+    func testBookmarkUntoggleRollbackOnError() async {
+        let word2 = VaultWordItem(id: 2, lemma: "lucid", pos: "adj.", definitionVi: "Rõ ràng", isBookmarked: true)
+        let personalWord2 = PersonalWord(
+            id: 2,
+            lemma: "lucid",
+            phonetic: "/ˈluːsɪd/",
+            pos: "adj.",
+            cefrLevel: "B2",
+            definitionVi: "Rõ ràng",
+            definitionEn: "expressed clearly",
+            exampleEn: "A lucid explanation",
+            exampleVi: "Lời giải thích rõ ràng",
+            isBookmarked: true
+        )
+
+        let mockUseCase = MockFetchPersonalVaultUseCase()
+        mockUseCase.onFetchSnapshot = { _, _, _ in
+            PersonalVaultSnapshot(
+                metrics: PersonalVaultMetrics(totalWords: 1, bookmarkedCount: 1),
+                personalWords: [personalWord2],
+                vaultWords: [word2]
+            )
+        }
+
+        struct DummyNetworkError: LocalizedError {
+            var errorDescription: String? { "Persistence failed" }
+        }
+
+        let pauseStream = AsyncStream<Void>.makeStream()
+        let mockBookmarkUseCase = MockToggleBookmarkUseCase()
+        mockBookmarkUseCase.onExecute = { _ in
+            for await _ in pauseStream.stream {
+                break
+            }
+            throw DummyNetworkError()
+        }
+
+        let vm = PersonalVaultViewModel(
+            fetchVaultUseCase: mockUseCase,
+            toggleBookmarkUseCase: mockBookmarkUseCase
+        )
+
+        await vm.loadData()
+        vm.selectWordForDetail(word2)
+        #expect(vm.vaultWords.first?.isBookmarked == true)
+        #expect(vm.words.first?.isBookmarked == true)
+        #expect(vm.metrics.bookmarkedCount == 1)
+        #expect(vm.selectedWordForDetail?.isBookmarked == true)
+
+        // Launch bookmark un-toggle (true -> optimistically false -> persistence throws -> rollback to true)
+        let toggleTask = Task { @MainActor in
+            await vm.toggleBookmark(wordId: 2)
+        }
+
+        // Allow task to reach await persistence
+        try? await Task.sleep(nanoseconds: 20_000_000)
+
+        // Verify optimistic flip occurred before failure
+        #expect(vm.vaultWords.first(where: { $0.id == 2 })?.isBookmarked == false)
+        #expect(vm.words.first(where: { $0.id == 2 })?.isBookmarked == false)
+        #expect(vm.metrics.bookmarkedCount == 0)
+        #expect(vm.selectedWordForDetail?.isBookmarked == false)
+
+        // Unblock stream and allow failure to throw
+        pauseStream.continuation.yield()
+        _ = await toggleTask.result
+
+        // Verify complete rollback
+        #expect(vm.vaultWords.first(where: { $0.id == 2 })?.isBookmarked == true)
+        #expect(vm.words.first(where: { $0.id == 2 })?.isBookmarked == true)
+        #expect(vm.metrics.bookmarkedCount == 1)
+        #expect(vm.selectedWordForDetail?.isBookmarked == true)
+        #expect(vm.errorMessage == "Persistence failed")
+    }
+
+    @Test("In-flight stale snapshot cannot overwrite recent successful bookmark toggle")
+    @MainActor
+    func testStaleSnapshotDoesNotOverwriteRecentBookmarkMutation() async {
+        let initialWords = [
+            VaultWordItem(id: 101, lemma: "resilience", pos: "n.", definitionVi: "Kiên cường", isBookmarked: false),
+            VaultWordItem(id: 102, lemma: "serendipity", pos: "n.", definitionVi: "May mắn", isBookmarked: false)
+        ]
+        let initialPersonalWords = [
+            PersonalWord(
+                id: 101,
+                lemma: "resilience",
+                phonetic: "/rɪˈzɪl.jəns/",
+                pos: "n.",
+                cefrLevel: "C1",
+                definitionVi: "Kiên cường",
+                definitionEn: "capacity to recover quickly",
+                exampleEn: "Remarkable resilience",
+                exampleVi: "Khả năng kiên cường đáng nể",
+                isBookmarked: false
+            )
+        ]
+        let mockFetchUseCase = MockFetchPersonalVaultUseCase(vaultWords: initialWords)
+        let mockToggleUseCase = MockToggleBookmarkUseCase(mockUseCase: mockFetchUseCase)
+
+        var snapshotStream: (stream: AsyncStream<Void>, continuation: AsyncStream<Void>.Continuation)!
+        var continuationStorage: AsyncStream<Void>.Continuation?
+        let stream = AsyncStream<Void> { continuation in
+            continuationStorage = continuation
+        }
+        snapshotStream = (stream, continuationStorage!)
+
+        mockFetchUseCase.onFetchSnapshot = { _, _, _ in
+            for await _ in snapshotStream.stream {
+                break
+            }
+            return PersonalVaultSnapshot(
+                metrics: PersonalVaultMetrics(
+                    totalWords: 2,
+                    needsReviewCount: 0,
+                    masteredCount: 0,
+                    bookmarkedCount: 0,
+                    unmasteredCount: 2
+                ),
+                personalWords: initialPersonalWords,
+                vaultWords: initialWords
+            )
+        }
+
+        let vm = PersonalVaultViewModel(
+            fetchVaultUseCase: mockFetchUseCase,
+            toggleBookmarkUseCase: mockToggleUseCase,
+            mockWords: initialWords
+        )
+
+        let loadTask = Task {
+            await vm.loadData()
+        }
+
+        try? await Task.sleep(nanoseconds: 20_000_000)
+
+        await vm.toggleBookmark(wordId: 101)
+
+        #expect(vm.vaultWords.first(where: { $0.id == 101 })?.isBookmarked == true)
+        #expect(vm.metrics.bookmarkedCount == 1)
+
+        snapshotStream.continuation.yield()
+        _ = await loadTask.result
+
+        #expect(vm.vaultWords.first(where: { $0.id == 101 })?.isBookmarked == true)
+        #expect(vm.words.first(where: { $0.id == 101 })?.isBookmarked == true)
+        #expect(vm.metrics.bookmarkedCount == 1)
+    }
 }
 
 // MARK: - Test Helpers
@@ -294,6 +674,7 @@ private final class MockTTS: TextToSpeechProtocol {
 
 private final class MockFetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProtocol, @unchecked Sendable {
     var vaultWords: [VaultWordItem]
+    var onFetchSnapshot: ((PersonalVaultFilter, VaultTabFilter, String?) async -> PersonalVaultSnapshot?)?
 
     init(vaultWords: [VaultWordItem] = []) {
         self.vaultWords = vaultWords
@@ -336,6 +717,23 @@ private final class MockFetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProt
         return filtered
     }
 
+    func fetchVaultSnapshot(
+        personalFilter: PersonalVaultFilter,
+        vaultFilter: VaultTabFilter,
+        searchQuery: String?
+    ) async throws -> PersonalVaultSnapshot {
+        if let onFetchSnapshot, let custom = await onFetchSnapshot(personalFilter, vaultFilter, searchQuery) {
+            return custom
+        }
+        let execResult = try await execute(filter: personalFilter, searchQuery: searchQuery)
+        let words = try await fetchVaultWords(filter: vaultFilter, searchQuery: searchQuery)
+        return PersonalVaultSnapshot(
+            metrics: execResult.metrics,
+            personalWords: execResult.words,
+            vaultWords: words
+        )
+    }
+
     func toggleBookmark(wordId: Int64) {
         if let index = vaultWords.firstIndex(where: { $0.id == wordId }) {
             let old = vaultWords[index]
@@ -359,16 +757,24 @@ private final class MockFetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProt
 }
 
 private final class MockToggleBookmarkUseCase: ToggleWordBookmarkUseCaseProtocol, @unchecked Sendable {
-    private let mockUseCase: MockFetchPersonalVaultUseCase
+    private let mockUseCase: MockFetchPersonalVaultUseCase?
     var executedWordIds: [Int64] = []
+    var errorToThrow: (any Error)?
+    var onExecute: ((Int64) async throws -> Bool)?
 
-    init(mockUseCase: MockFetchPersonalVaultUseCase) {
+    init(mockUseCase: MockFetchPersonalVaultUseCase? = nil) {
         self.mockUseCase = mockUseCase
     }
 
     func execute(wordId: Int64) async throws -> Bool {
         executedWordIds.append(wordId)
-        mockUseCase.toggleBookmark(wordId: wordId)
+        if let onExecute {
+            return try await onExecute(wordId)
+        }
+        if let errorToThrow {
+            throw errorToThrow
+        }
+        mockUseCase?.toggleBookmark(wordId: wordId)
         return true
     }
 }

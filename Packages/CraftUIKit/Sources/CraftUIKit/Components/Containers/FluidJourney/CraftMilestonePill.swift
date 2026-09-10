@@ -67,7 +67,7 @@ public struct CraftMilestonePill: View, Equatable {
 
     // MARK: - Equatable Conformance
 
-    public static func == (lhs: CraftMilestonePill, rhs: CraftMilestonePill) -> Bool {
+    public nonisolated static func == (lhs: CraftMilestonePill, rhs: CraftMilestonePill) -> Bool {
         lhs.sectionId == rhs.sectionId &&
         lhs.title == rhs.title &&
         lhs.coordinateSpaceName == rhs.coordinateSpaceName &&

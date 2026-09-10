@@ -1,5 +1,4 @@
 import Foundation
-import SwiftUI
 
 /// Filter categories for the Personal Vault.
 public enum PersonalVaultFilter: String, CaseIterable, Sendable, Equatable {
@@ -7,24 +6,6 @@ public enum PersonalVaultFilter: String, CaseIterable, Sendable, Equatable {
     case needsReview
     case mastered
     case bookmarked
-
-    public var titleKey: LocalizedStringKey {
-        switch self {
-        case .all: return AppStrings.Vocabulary.filterAll
-        case .needsReview: return AppStrings.Vocabulary.filterReviewNeeded
-        case .mastered: return AppStrings.Vocabulary.filterMastered
-        case .bookmarked: return AppStrings.Vocabulary.filterSaved
-        }
-    }
-
-    public var title: String {
-        switch self {
-        case .all: return String(localized: "vocabulary.filterAll", defaultValue: "All", bundle: .module)
-        case .needsReview: return String(localized: "vocabulary.filterReviewNeeded", defaultValue: "Needs Review", bundle: .module)
-        case .mastered: return String(localized: "vocabulary.filterMastered", defaultValue: "Mastered", bundle: .module)
-        case .bookmarked: return String(localized: "vocabulary.filterSaved", defaultValue: "Saved", bundle: .module)
-        }
-    }
 }
 
 /// 3-tab filter for the redesigned Vocabulary Vault.
@@ -32,22 +13,6 @@ public enum VaultTabFilter: String, CaseIterable, Sendable, Equatable {
     case notMastered
     case mastered
     case bookmarked
-
-    public var titleKey: LocalizedStringKey {
-        switch self {
-        case .notMastered: return AppStrings.Vault.filterNotMasteredTitleKey
-        case .mastered: return AppStrings.Vault.filterMasteredTitleKey
-        case .bookmarked: return AppStrings.Vault.filterBookmarkedTitleKey
-        }
-    }
-
-    public var title: String {
-        switch self {
-        case .notMastered: return AppStrings.Vault.filterNotMasteredTitle
-        case .mastered: return AppStrings.Vault.filterMasteredTitle
-        case .bookmarked: return AppStrings.Vault.filterBookmarkedTitle
-        }
-    }
 }
 
 /// Aggregated metrics and word count statistics for the Personal Vault.
@@ -89,10 +54,32 @@ public struct PersonalVaultResult: Sendable, Equatable {
     }
 }
 
+/// Consolidated snapshot containing Personal Vault metrics, personal words, and vault words.
+public struct PersonalVaultSnapshot: Sendable, Equatable {
+    public let metrics: PersonalVaultMetrics
+    public let personalWords: [PersonalWord]
+    public let vaultWords: [VaultWordItem]
+
+    public init(
+        metrics: PersonalVaultMetrics,
+        personalWords: [PersonalWord],
+        vaultWords: [VaultWordItem]
+    ) {
+        self.metrics = metrics
+        self.personalWords = personalWords
+        self.vaultWords = vaultWords
+    }
+}
+
 /// Protocol for fetching and filtering Personal Vault words and calculating statistics.
 public protocol FetchPersonalVaultUseCaseProtocol: Sendable {
     func execute(filter: PersonalVaultFilter, searchQuery: String?) async throws -> PersonalVaultResult
     func fetchVaultWords(filter: VaultTabFilter, searchQuery: String?) async throws -> [VaultWordItem]
+    func fetchVaultSnapshot(
+        personalFilter: PersonalVaultFilter,
+        vaultFilter: VaultTabFilter,
+        searchQuery: String?
+    ) async throws -> PersonalVaultSnapshot
 }
 
 public extension FetchPersonalVaultUseCaseProtocol {
@@ -102,6 +89,18 @@ public extension FetchPersonalVaultUseCaseProtocol {
 
     func fetchVaultWords(filter: VaultTabFilter = .notMastered, searchQuery: String? = nil) async throws -> [VaultWordItem] {
         try await fetchVaultWords(filter: filter, searchQuery: searchQuery)
+    }
+
+    func fetchVaultSnapshot(
+        personalFilter: PersonalVaultFilter = .all,
+        vaultFilter: VaultTabFilter = .notMastered,
+        searchQuery: String? = nil
+    ) async throws -> PersonalVaultSnapshot {
+        try await fetchVaultSnapshot(
+            personalFilter: personalFilter,
+            vaultFilter: vaultFilter,
+            searchQuery: searchQuery
+        )
     }
 }
 
@@ -163,28 +162,7 @@ public final class FetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProtocol,
             unmasteredCount: unmastered
         )
 
-        var filteredWords: [PersonalWord]
-        switch filter {
-        case .all:
-            filteredWords = allPersonalWords
-        case .needsReview:
-            filteredWords = allPersonalWords.filter(\.needsReview)
-        case .mastered:
-            filteredWords = allPersonalWords.filter { $0.masteryLevel >= 4 }
-        case .bookmarked:
-            filteredWords = allPersonalWords.filter(\.isBookmarked)
-        }
-
-        if let query = searchQuery?.trimmingCharacters(in: .whitespacesAndNewlines), !query.isEmpty {
-            let lowerQuery = query.lowercased()
-            filteredWords = filteredWords.filter { word in
-                word.lemma.lowercased().contains(lowerQuery) ||
-                word.definitionVi.lowercased().contains(lowerQuery) ||
-                word.definitionEn.lowercased().contains(lowerQuery) ||
-                word.phonetic.lowercased().contains(lowerQuery)
-            }
-        }
-
+        let filteredWords = filterPersonalWords(allPersonalWords, filter: filter, searchQuery: searchQuery)
         return PersonalVaultResult(words: filteredWords, metrics: metrics)
     }
 
@@ -219,25 +197,142 @@ public final class FetchPersonalVaultUseCase: FetchPersonalVaultUseCaseProtocol,
             }
         }
 
-        var filteredWords: [VaultWordItem]
+        return filterVaultWords(allVaultWords, filter: filter, searchQuery: searchQuery)
+    }
+
+    public func fetchVaultSnapshot(
+        personalFilter: PersonalVaultFilter = .all,
+        vaultFilter: VaultTabFilter = .notMastered,
+        searchQuery: String? = nil
+    ) async throws -> PersonalVaultSnapshot {
+        let allProgress = try await progressRepo.fetchAllProgress()
+        let wordIds = Set(allProgress.map(\.wordId))
+        let wordsList = try await dataSource.fetchWordsByIds(ids: wordIds)
+        let wordsMap = Dictionary(wordsList.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+
+        var allPersonalWords: [PersonalWord] = []
+        var allVaultWords: [VaultWordItem] = []
+        allPersonalWords.reserveCapacity(allProgress.count)
+        allVaultWords.reserveCapacity(allProgress.count)
+
+        for progress in allProgress {
+            guard let wordDTO = wordsMap[progress.wordId] else { continue }
+
+            let personalWord = PersonalWord(
+                id: wordDTO.id,
+                lemma: wordDTO.lemma,
+                phonetic: wordDTO.phonetic,
+                pos: wordDTO.pos,
+                cefrLevel: wordDTO.cefrLevel,
+                definitionVi: wordDTO.definitionVi,
+                definitionEn: wordDTO.definitionEn,
+                exampleEn: wordDTO.exampleEn,
+                exampleVi: wordDTO.exampleVi,
+                masteryLevel: progress.masteryLevel,
+                isBookmarked: progress.isBookmarked,
+                needsReview: progress.needsReview,
+                mistakeCount: progress.mistakeCount,
+                sourceDeckTitle: nil,
+                sourceStageTitle: nil
+            )
+            allPersonalWords.append(personalWord)
+
+            let isMastered = progress.isMastered || progress.masteryLevel >= 4
+            let vaultWord = VaultWordItem(
+                id: wordDTO.id,
+                lemma: wordDTO.lemma,
+                pos: wordDTO.pos,
+                phonetic: wordDTO.phonetic,
+                definitionVi: wordDTO.definitionVi,
+                exampleSentenceEn: wordDTO.exampleEn,
+                exampleSentenceVi: wordDTO.exampleVi,
+                cefrLevel: wordDTO.cefrLevel,
+                isMastered: isMastered,
+                isBookmarked: progress.isBookmarked,
+                correctStreak: progress.consecutiveCorrectStreak,
+                practicedModes: progress.practicedModes,
+                lastPracticedAt: progress.lastReviewDate,
+                modeStats: progress.modeStats
+            )
+            allVaultWords.append(vaultWord)
+        }
+
+        let total = allPersonalWords.count
+        let mastered = allPersonalWords.filter { $0.masteryLevel >= 4 }.count
+        let bookmarked = allPersonalWords.filter(\.isBookmarked).count
+        let needsReview = allPersonalWords.filter(\.needsReview).count
+        let unmastered = max(0, total - mastered)
+
+        let metrics = PersonalVaultMetrics(
+            totalWords: total,
+            needsReviewCount: needsReview,
+            masteredCount: mastered,
+            bookmarkedCount: bookmarked,
+            unmasteredCount: unmastered
+        )
+
+        let filteredPersonal = filterPersonalWords(allPersonalWords, filter: personalFilter, searchQuery: searchQuery)
+        let filteredVault = filterVaultWords(allVaultWords, filter: vaultFilter, searchQuery: searchQuery)
+
+        return PersonalVaultSnapshot(
+            metrics: metrics,
+            personalWords: filteredPersonal,
+            vaultWords: filteredVault
+        )
+    }
+
+    private func filterPersonalWords(
+        _ words: [PersonalWord],
+        filter: PersonalVaultFilter,
+        searchQuery: String?
+    ) -> [PersonalWord] {
+        var filtered: [PersonalWord]
         switch filter {
-        case .notMastered:
-            filteredWords = allVaultWords.filter { !$0.isMastered }
+        case .all:
+            filtered = words
+        case .needsReview:
+            filtered = words.filter(\.needsReview)
         case .mastered:
-            filteredWords = allVaultWords.filter(\.isMastered)
+            filtered = words.filter { $0.masteryLevel >= 4 }
         case .bookmarked:
-            filteredWords = allVaultWords.filter(\.isBookmarked)
+            filtered = words.filter(\.isBookmarked)
         }
 
         if let query = searchQuery?.trimmingCharacters(in: .whitespacesAndNewlines), !query.isEmpty {
             let lowerQuery = query.lowercased()
-            filteredWords = filteredWords.filter { word in
+            filtered = filtered.filter { word in
+                word.lemma.lowercased().contains(lowerQuery) ||
+                word.definitionVi.lowercased().contains(lowerQuery) ||
+                word.definitionEn.lowercased().contains(lowerQuery) ||
+                word.phonetic.lowercased().contains(lowerQuery)
+            }
+        }
+        return filtered
+    }
+
+    private func filterVaultWords(
+        _ words: [VaultWordItem],
+        filter: VaultTabFilter,
+        searchQuery: String?
+    ) -> [VaultWordItem] {
+        var filtered: [VaultWordItem]
+        switch filter {
+        case .notMastered:
+            filtered = words.filter { !$0.isMastered }
+        case .mastered:
+            filtered = words.filter(\.isMastered)
+        case .bookmarked:
+            filtered = words.filter(\.isBookmarked)
+        }
+
+        if let query = searchQuery?.trimmingCharacters(in: .whitespacesAndNewlines), !query.isEmpty {
+            let lowerQuery = query.lowercased()
+            filtered = filtered.filter { word in
                 word.lemma.lowercased().contains(lowerQuery) ||
                 word.definitionVi.lowercased().contains(lowerQuery) ||
                 word.phonetic.lowercased().contains(lowerQuery)
             }
         }
-
-        return filteredWords
+        return filtered
     }
 }

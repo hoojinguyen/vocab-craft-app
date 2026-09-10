@@ -8,6 +8,7 @@ import Testing
 
 #if canImport(Testing)
 @Suite("ReflexMultipleChoiceModeView Tests")
+@MainActor
 struct ReflexMultipleChoiceModeViewTests {
     @Test("Instantiates ReflexMultipleChoiceModeView in active and unreviewed state")
     func testMultipleChoiceViewActive() {

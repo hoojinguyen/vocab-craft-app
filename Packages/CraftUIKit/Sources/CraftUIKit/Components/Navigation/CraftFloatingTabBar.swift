@@ -226,7 +226,7 @@ enum CraftTabBarGlassSurface: Sendable {
 
 /// Legacy preference key retained for source compatibility with clients that inspect tab bounds.
 public struct CraftTabBarItemPreferenceKey: PreferenceKey {
-    public static var defaultValue: [String: CGRect] = [:]
+    public static let defaultValue: [String: CGRect] = [:]
     public static func reduce(value: inout [String: CGRect], nextValue: () -> [String: CGRect]) {
         value.merge(nextValue(), uniquingKeysWith: { $1 })
     }

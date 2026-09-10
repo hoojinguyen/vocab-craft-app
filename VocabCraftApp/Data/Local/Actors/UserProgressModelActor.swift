@@ -82,7 +82,7 @@ public struct UserWordProgressData: Sendable, Equatable {
     }
 }
 
-#if canImport(SwiftDataMacros)
+#if canImport(SwiftDataMacros) || canImport(SwiftData)
 @ModelActor
 public actor UserProgressModelActor: UserProgressRepositoryProtocol {
     private func fetchEntity(wordId: Int64) throws -> UserWordProgress? {

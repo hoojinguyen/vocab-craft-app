@@ -27,13 +27,13 @@ public struct CraftUnitDrawerSheet: View, Equatable {
     public let activeSectionId: String
 
     /// Optional callback invoked when the adjust plan button is tapped.
-    public let onAdjustPlan: (@Sendable () -> Void)?
+    public let onAdjustPlan: (@MainActor @Sendable () -> Void)?
 
     /// Callback invoked when a sub-lesson item is selected, passing section ID and node ID.
-    public let onSelectLesson: @Sendable (String, String) -> Void
+    public let onSelectLesson: @MainActor @Sendable (String, String) -> Void
 
     /// Callback invoked when the sheet is dismissed.
-    public let onDismiss: @Sendable () -> Void
+    public let onDismiss: @MainActor @Sendable () -> Void
 
     // MARK: - Environment
 
@@ -75,9 +75,9 @@ public struct CraftUnitDrawerSheet: View, Equatable {
         deckSubtitle: String,
         activeSectionId: String,
         expandedSectionIds: Binding<Set<String>>? = nil,
-        onAdjustPlan: (@Sendable () -> Void)? = nil,
-        onSelectLesson: @escaping @Sendable (String, String) -> Void,
-        onDismiss: @escaping @Sendable () -> Void
+        onAdjustPlan: (@MainActor @Sendable () -> Void)? = nil,
+        onSelectLesson: @escaping @MainActor @Sendable (String, String) -> Void,
+        onDismiss: @escaping @MainActor @Sendable () -> Void
     ) {
         self.sections = sections
         self.deckTitle = deckTitle
@@ -96,8 +96,8 @@ public struct CraftUnitDrawerSheet: View, Equatable {
         deckTitle: String,
         deckSubtitle: String,
         activeSectionId: String,
-        onSelectLesson: @escaping @Sendable (String, String) -> Void,
-        onDismiss: @escaping @Sendable () -> Void
+        onSelectLesson: @escaping @MainActor @Sendable (String, String) -> Void,
+        onDismiss: @escaping @MainActor @Sendable () -> Void
     ) {
         self.init(
             sections: sections,
@@ -113,7 +113,7 @@ public struct CraftUnitDrawerSheet: View, Equatable {
 
     // MARK: - Equatable Conformance
 
-    public static func == (lhs: CraftUnitDrawerSheet, rhs: CraftUnitDrawerSheet) -> Bool {
+    public nonisolated static func == (lhs: CraftUnitDrawerSheet, rhs: CraftUnitDrawerSheet) -> Bool {
         lhs.sections == rhs.sections &&
         lhs.deckTitle == rhs.deckTitle &&
         lhs.deckSubtitle == rhs.deckSubtitle &&

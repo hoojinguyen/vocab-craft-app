@@ -23,6 +23,7 @@ public final class MixedReflexDrillViewModel: Identifiable {
     public var showPermissionAlert: Bool = false
     public var permissionNotice: ReflexPermissionNotice?
     public var elapsedTimeMs: Int = 0
+    public var wordStartTime: Date?
     public let allowSpeakingSkip: Bool
     public private(set) var selectedWords: [VaultWordItem]
     private let queueUseCase: GenerateMixedReflexQueueUseCaseProtocol
@@ -186,6 +187,8 @@ public final class MixedReflexDrillViewModel: Identifiable {
         self.comboStreak = 0
         self.maxComboStreak = 0
         self.attempts = []
+        self.elapsedTimeMs = 0
+        self.wordStartTime = nil
         self.isCompleted = self.queue.isEmpty
         self.sessionSummary = nil
         if !self.queue.isEmpty {

@@ -113,7 +113,7 @@ public struct CraftSmartConnector: View, Equatable {
         self.customColor = customColor
     }
 
-    public static func == (lhs: CraftSmartConnector, rhs: CraftSmartConnector) -> Bool {
+    nonisolated public static func == (lhs: CraftSmartConnector, rhs: CraftSmartConnector) -> Bool {
         lhs.from == rhs.from &&
         lhs.to == rhs.to &&
         lhs.style == rhs.style &&
@@ -299,7 +299,7 @@ public struct CraftSnakeDottedSegmentView: View, Equatable {
         self.customColor = customColor
     }
 
-    public static func == (lhs: CraftSnakeDottedSegmentView, rhs: CraftSnakeDottedSegmentView) -> Bool {
+    nonisolated public static func == (lhs: CraftSnakeDottedSegmentView, rhs: CraftSnakeDottedSegmentView) -> Bool {
         lhs.segment == rhs.segment &&
         lhs.fromState == rhs.fromState &&
         lhs.toState == rhs.toState &&

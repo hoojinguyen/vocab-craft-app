@@ -586,7 +586,7 @@ public struct CraftButton: View {
                 Text(verbatim: isUppercase ? rawTitle.uppercased() : rawTitle)
                     .tracking(tracking ?? 0)
             } else {
-                Text(rawTitle)
+                Text(LocalizedStringKey(rawTitle))
                     .textCase(isUppercase ? .uppercase : nil)
                     .tracking(tracking ?? 0)
             }

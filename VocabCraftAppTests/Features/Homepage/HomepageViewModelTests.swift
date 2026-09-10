@@ -10,17 +10,69 @@ import XCTest
 @testable import VocabCraftApp
 
 private final class MockFetchLearningPathUseCase: FetchLearningPathUseCaseProtocol, @unchecked Sendable {
-    var stubbedSections: [LessonSection] = []
+    var stubbedCurriculum: LearningPathCurriculum = LearningPathCurriculum(
+        decks: [],
+        stages: [],
+        words: [],
+        progressList: []
+    )
     var shouldThrowError: Error?
     var executeCallCount = 0
 
-    func execute() async throws -> [LessonSection] {
+    func execute(forceRefresh: Bool = false) async throws -> LearningPathCurriculum {
         executeCallCount += 1
         if let error = shouldThrowError {
             throw error
         }
-        return stubbedSections
+        return stubbedCurriculum
     }
+}
+
+private func makeSampleCurriculum() -> LearningPathCurriculum {
+    LearningPathCurriculum(
+        decks: [
+            TopicDeckDTO(
+                id: "deck_1",
+                title: "Unit 1: Basics",
+                iconName: "book.fill",
+                badgeColorHex: "#38B2AC",
+                cefrLevel: "A1",
+                sortOrder: 1
+            )
+        ],
+        stages: [
+            SubTopicStageDTO(
+                id: "node_1",
+                deckId: "deck_1",
+                title: "Greetings",
+                iconName: "hand.wave.fill",
+                sortOrder: 1
+            )
+        ],
+        words: [
+            TopicWordDTO(
+                id: 1,
+                stageId: "node_1",
+                lemma: "Hello",
+                phonetic: "/həˈloʊ/",
+                pos: "noun",
+                cefrLevel: "A1",
+                definitionVi: "Xin chào",
+                definitionEn: "Hello",
+                exampleEn: "Hello world",
+                exampleVi: "Xin chào thế giới"
+            )
+        ],
+        progressList: [
+            UserStageProgressData(
+                stageId: "node_1",
+                deckId: "deck_1",
+                isCompleted: true,
+                score: 3,
+                progressFraction: 1.0
+            )
+        ]
+    )
 }
 
 private final class MockTTS: TextToSpeechProtocol {
@@ -169,8 +221,7 @@ struct HomepageViewModelTestingTests {
     @MainActor
     func testLoadLearningPathSuccess() async {
         let mockUseCase = MockFetchLearningPathUseCase()
-        let sampleSection = makeSampleSection()
-        mockUseCase.stubbedSections = [sampleSection]
+        mockUseCase.stubbedCurriculum = makeSampleCurriculum()
 
         let vm = HomepageViewModel(fetchLearningPathUseCase: mockUseCase)
 
@@ -479,8 +530,7 @@ final class HomepageViewModelTests: XCTestCase {
 
     func testLoadLearningPathSuccess() async {
         let mockUseCase = MockFetchLearningPathUseCase()
-        let sampleSection = makeSampleSection()
-        mockUseCase.stubbedSections = [sampleSection]
+        mockUseCase.stubbedCurriculum = makeSampleCurriculum()
 
         let vm = HomepageViewModel(fetchLearningPathUseCase: mockUseCase)
 

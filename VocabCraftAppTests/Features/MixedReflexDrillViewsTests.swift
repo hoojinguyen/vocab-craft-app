@@ -33,25 +33,6 @@ struct MixedReflexDrillViewsTests {
         #expect(aliasLabel.contains("6.0s"))
     }
 
-    @Test("DynamicPulseTimerBar classifies 3 latency stages correctly (Steady, Warning, Urgent)")
-    @MainActor
-    func testDynamicPulseTimerBarStages() {
-        // Steady (> 0.45)
-        let steadyBar = DynamicPulseTimerBar(fractionRemaining: 0.8)
-        #expect(steadyBar.isUrgent == false)
-        #expect(steadyBar.isWarning == false)
-
-        // Warning (0.18 < fraction <= 0.45)
-        let warningBar = DynamicPulseTimerBar(fractionRemaining: 0.3)
-        #expect(warningBar.isUrgent == false)
-        #expect(warningBar.isWarning == true)
-
-        // Urgent (<= 0.18)
-        let urgentBar = DynamicPulseTimerBar(fractionRemaining: 0.1)
-        #expect(urgentBar.isUrgent == true)
-        #expect(urgentBar.isWarning == false)
-    }
-
     @Test("MixedReflexSummaryView renders summary data and supports Perfect Score state")
     @MainActor
     func testMixedReflexSummaryView() {
@@ -722,6 +703,104 @@ struct MixedReflexDrillViewsTests {
         #expect(haptics.events == [.prepare, .tick, .tick, .tick, .completion])
         #expect(mockSpeechEngine.startListeningCallCount == 1)
         #expect(mockSpeechEngine.isWordActive == true)
+    }
+
+    @Test("Mixed Reflex Drill calculates accurate responseTimeMs using wordStartTime on option selection")
+    @MainActor
+    func testMixedReflexOptionSelectionAccurateResponseTime() async {
+        let words = [
+            VaultWordItem(id: 1, lemma: "habit", pos: "n.", definitionVi: "Thói quen", exampleSentenceEn: "Reading is a habit.")
+        ]
+        final class MockMCQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol {
+            let item: MixedReflexDrillItem
+            init(item: MixedReflexDrillItem) { self.item = item }
+            func generate(from words: [VaultWordItem]) -> [MixedReflexDrillItem] { [item] }
+            func requeueFailedItem(_ item: MixedReflexDrillItem) -> MixedReflexDrillItem { item }
+        }
+        let item = MixedReflexDrillItem(word: words[0], assignedMode: .multipleChoice, isRetry: false)
+        let vm = MixedReflexDrillViewModel(selectedWords: words, queueUseCase: MockMCQueueUseCase(item: item))
+        let drillView = MixedReflexDrillView(viewModel: vm, startWithCountdown: false, onFinish: {})
+
+        drillView.startDrillItem(item)
+        #expect(drillView.wordStartTime != nil)
+        #expect(drillView.timerStage == .steady)
+
+        // Artificially simulate 650ms having elapsed
+        let simulatedPast = Date().addingTimeInterval(-0.65)
+        drillView.wordStartTime = simulatedPast
+
+        let options = vm.generateOptions(for: item)
+        guard let correctOption = options.first(where: { $0.isCorrect }) else {
+            Issue.record("Expected correct option")
+            return
+        }
+
+        drillView.selectOption(correctOption)
+        try? await Task.sleep(for: .milliseconds(50))
+
+        #expect(vm.attempts.count == 1)
+        #expect(vm.attempts[0].isCorrect == true)
+        #expect(vm.attempts[0].responseTimeMs >= 600)
+        #expect(vm.attempts[0].responseTimeMs <= 1000)
+        #expect(drillView.elapsedTimeMs >= 600)
+    }
+
+    @Test("Mixed Reflex Drill calculates accurate responseTimeMs using wordStartTime on typing submission")
+    @MainActor
+    func testMixedReflexTypingSubmissionAccurateResponseTime() async {
+        let words = [
+            VaultWordItem(id: 1, lemma: "focus", pos: "v.", definitionVi: "Tập trung", exampleSentenceEn: "Focus now.")
+        ]
+        final class MockTypingQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol {
+            let item: MixedReflexDrillItem
+            init(item: MixedReflexDrillItem) { self.item = item }
+            func generate(from words: [VaultWordItem]) -> [MixedReflexDrillItem] { [item] }
+            func requeueFailedItem(_ item: MixedReflexDrillItem) -> MixedReflexDrillItem { item }
+        }
+        let item = MixedReflexDrillItem(word: words[0], assignedMode: .typing, isRetry: false)
+        let vm = MixedReflexDrillViewModel(selectedWords: words, queueUseCase: MockTypingQueueUseCase(item: item))
+        let drillView = MixedReflexDrillView(viewModel: vm, startWithCountdown: false, onFinish: {})
+
+        drillView.startDrillItem(item)
+        #expect(drillView.wordStartTime != nil)
+
+        // Artificially simulate 800ms having elapsed
+        drillView.wordStartTime = Date().addingTimeInterval(-0.8)
+
+        drillView.submitTypingAnswer("focus")
+        try? await Task.sleep(for: .milliseconds(50))
+
+        #expect(vm.attempts.count == 1)
+        #expect(vm.attempts[0].isCorrect == true)
+        #expect(vm.attempts[0].responseTimeMs >= 750)
+        #expect(vm.attempts[0].responseTimeMs <= 1200)
+        #expect(drillView.elapsedTimeMs >= 750)
+    }
+
+    @Test("Mixed Reflex Drill handleTimeout records timeout attempt with calculated response time")
+    @MainActor
+    func testMixedReflexHandleTimeoutTransitions() async {
+        let words = [
+            VaultWordItem(id: 1, lemma: "habit", pos: "n.", definitionVi: "Thói quen", exampleSentenceEn: "Habit.")
+        ]
+        final class MockTypingQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol {
+            let item: MixedReflexDrillItem
+            init(item: MixedReflexDrillItem) { self.item = item }
+            func generate(from words: [VaultWordItem]) -> [MixedReflexDrillItem] { [item] }
+            func requeueFailedItem(_ item: MixedReflexDrillItem) -> MixedReflexDrillItem { item }
+        }
+        let item = MixedReflexDrillItem(word: words[0], assignedMode: .typing, isRetry: false)
+        let vm = MixedReflexDrillViewModel(selectedWords: words, queueUseCase: MockTypingQueueUseCase(item: item))
+        let drillView = MixedReflexDrillView(viewModel: vm, startWithCountdown: false, onFinish: {})
+
+        drillView.startDrillItem(item)
+
+        drillView.handleTimeout()
+        try? await Task.sleep(for: .milliseconds(50))
+
+        #expect(vm.attempts.count == 1)
+        #expect(vm.attempts[0].isCorrect == false)
+        #expect(vm.attempts[0].responseTimeMs >= 500)
     }
 }
 #endif

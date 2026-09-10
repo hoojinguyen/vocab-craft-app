@@ -61,7 +61,7 @@ private struct ShimmerAnimatableModifier: AnimatableModifier {
     let highlightColor: Color
     let reduceMotion: Bool
 
-    var animatableData: CGFloat {
+    nonisolated var animatableData: CGFloat {
         get { phase }
         set { phase = newValue }
     }

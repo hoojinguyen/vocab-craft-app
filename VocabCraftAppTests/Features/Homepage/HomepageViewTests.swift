@@ -262,7 +262,7 @@ final class HomepageViewTests: XCTestCase {
             ]
         )
 
-        var tappedSectionID: String?
+        let tappedSectionID = ValueBox<String?>(nil)
         let path = CraftLearningPath(
             section: section,
             pinSectionHeaders: true,
@@ -277,7 +277,7 @@ final class HomepageViewTests: XCTestCase {
                 )
             },
             stickyHUDBuilder: { sec in
-                tappedSectionID = sec.id
+                tappedSectionID.value = sec.id
                 return AnyView(Text(sec.title))
             }
         )
@@ -286,7 +286,7 @@ final class HomepageViewTests: XCTestCase {
         XCTAssertNotNil(path.topHeaderBuilder)
         XCTAssertNotNil(path.stickyHUDBuilder)
         _ = path.stickyHUDBuilder?(section)
-        XCTAssertEqual(tappedSectionID, "sec_unit_1")
+        XCTAssertEqual(tappedSectionID.value, "sec_unit_1")
         XCTAssertNotNil(path.body)
     }
 
@@ -301,17 +301,17 @@ final class HomepageViewTests: XCTestCase {
             ]
         )
 
-        var tappedNode: LessonNodeModel?
-        var startedNode: LessonNodeModel?
+        let tappedNode = ValueBox<LessonNodeModel?>(nil)
+        let startedNode = ValueBox<LessonNodeModel?>(nil)
         let journey = CraftFluidJourney(
             sections: [section],
             deckTitle: "UNIT 1 • Everyday Phrases",
             deckSubtitle: "Intro",
             onNodeTap: { node in
-                tappedNode = node
+                tappedNode.value = node
             },
             onStartLesson: { node in
-                startedNode = node
+                startedNode.value = node
             },
             externalScrollTrigger: 2
         )
@@ -322,8 +322,8 @@ final class HomepageViewTests: XCTestCase {
         XCTAssertEqual(journey.externalScrollTrigger, 2)
         journey.onNodeTap?(section.nodes[0])
         journey.onStartLesson?(section.nodes[0])
-        XCTAssertEqual(tappedNode?.id, "node_1")
-        XCTAssertEqual(startedNode?.id, "node_1")
+        XCTAssertEqual(tappedNode.value?.id, "node_1")
+        XCTAssertEqual(startedNode.value?.id, "node_1")
         XCTAssertNotNil(journey.body)
     }
 
@@ -346,5 +346,12 @@ final class HomepageViewTests: XCTestCase {
         header.onAvatarTap?()
         XCTAssertTrue(avatarTapped)
         XCTAssertEqual(router.selectedTab, .settings)
+    }
+}
+
+private final class ValueBox<T>: @unchecked Sendable {
+    var value: T
+    init(_ value: T) {
+        self.value = value
     }
 }

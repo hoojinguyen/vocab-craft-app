@@ -3,6 +3,18 @@ import Foundation
 
 /// Pure Swift mapper that transforms topic deck DTOs and user progress into CraftUIKit `LessonSection` models with linear progression.
 public struct LearningPathDataMapper: Sendable {
+    /// Maps a domain `LearningPathCurriculum` aggregate into presentation `LessonSection` models.
+    /// - Parameter curriculum: Domain model containing decks, stages, words, and user progress.
+    /// - Returns: An array of configured `LessonSection` models ready for presentation.
+    public static func map(curriculum: LearningPathCurriculum) -> [LessonSection] {
+        map(
+            decks: curriculum.decks,
+            stages: curriculum.stages,
+            words: curriculum.words,
+            progressList: curriculum.progressList
+        )
+    }
+
     /// Maps topic decks, subtopic stages, words, and user progress into learning path sections.
     /// - Parameters:
     ///   - decks: Topic deck DTOs representing the top-level learning units.
@@ -14,7 +26,7 @@ public struct LearningPathDataMapper: Sendable {
         decks: [TopicDeckDTO],
         stages: [SubTopicStageDTO],
         words: [TopicWordDTO],
-        progressList: [UserStageProgress]
+        progressList: [UserStageProgressData]
     ) -> [LessonSection] {
         guard !decks.isEmpty else { return [] }
 
@@ -97,7 +109,7 @@ public struct LearningPathDataMapper: Sendable {
     private static func buildStandardNode(
         stage: SubTopicStageDTO,
         words: [TopicWordDTO],
-        progress: UserStageProgress?,
+        progress: UserStageProgressData?,
         hasFoundActive: inout Bool
     ) -> LessonNodeModel {
         let wordCount = words.count
@@ -166,7 +178,7 @@ public struct LearningPathDataMapper: Sendable {
         deck: TopicDeckDTO,
         deckWordCount: Int,
         sectionNodes: [LessonNodeModel],
-        progressMap: [String: UserStageProgress],
+        progressMap: [String: UserStageProgressData],
         hasFoundActive: inout Bool
     ) -> LessonNodeModel {
         let checkpointId = "checkpoint_\(deck.id)"
@@ -224,7 +236,7 @@ public struct LearningPathDataMapper: Sendable {
 
     private static func buildTreasureNode(
         deck: TopicDeckDTO,
-        progressMap: [String: UserStageProgress],
+        progressMap: [String: UserStageProgressData],
         hasFoundActive: inout Bool
     ) -> LessonNodeModel {
         let treasureId = "treasure_\(deck.id)"

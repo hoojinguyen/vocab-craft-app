@@ -2404,9 +2404,9 @@ private struct CatalogJourneyPathSection: View {
     @Binding var scrollToActive: Bool
     @Binding var sections: [LessonSection]
     @Binding var selectedNodeID: String
-    let onNodeSelected: (LessonNodeModel) -> Void
-    let onStartLesson: (LessonNodeModel) -> Void
-    let onTriggerCelebration: () -> Void
+    let onNodeSelected: @MainActor @Sendable (LessonNodeModel) -> Void
+    let onStartLesson: @MainActor @Sendable (LessonNodeModel) -> Void
+    let onTriggerCelebration: @MainActor @Sendable () -> Void
 
     private let sampleShapes: [CraftNodeShape] = [.circle, .hexagon, .diamond, .squircle, .star]
     private let sampleSurfaceStyles: [CraftSurfaceStyle] = [.tactile3D, .glass, .elevated, .outlined, .flat]

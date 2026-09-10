@@ -16,7 +16,7 @@ public struct Craft3DFlipModifier: AnimatableModifier {
     public let perspective: CGFloat
     public let reduceMotion: Bool
 
-    public var animatableData: Double {
+    public nonisolated var animatableData: Double {
         get { progress }
         set { progress = newValue }
     }
@@ -80,7 +80,7 @@ public struct CraftSpecularGlareModifier: AnimatableModifier {
     public let isEnabled: Bool
     public let colorScheme: ColorScheme
 
-    public var animatableData: Double {
+    public nonisolated var animatableData: Double {
         get { progress }
         set { progress = newValue }
     }
@@ -489,7 +489,7 @@ public struct CraftFlipCard<Front: View, Back: View>: View {
 // MARK: - Card Face Height Preference Key
 
 private struct CraftCardFaceHeightPreferenceKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
+    static let defaultValue: CGFloat = 0
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value = max(value, nextValue())
     }

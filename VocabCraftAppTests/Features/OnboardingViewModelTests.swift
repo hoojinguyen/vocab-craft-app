@@ -80,17 +80,17 @@ final class OnboardingViewModelTests: XCTestCase {
         UserSettingsStore(defaults: testDefaults)
     }
 
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
+        try await super.setUp()
         suiteName = "test_onboarding_\(UUID().uuidString)"
         testDefaults = UserDefaults(suiteName: suiteName)!
     }
 
-    override func tearDown() {
+    override func tearDown() async throws {
         if let suiteName {
             testDefaults?.removePersistentDomain(forName: suiteName)
         }
-        super.tearDown()
+        try await super.tearDown()
     }
 
     func testInitialStateAndStepProgression() {
@@ -473,7 +473,7 @@ final class FlakyStageProgressRepository: StageProgressRepositoryProtocol, @unch
     @MainActor var shouldThrow: Bool = false
     @MainActor var saveCallCount: Int = 0
 
-    @MainActor func fetchStageProgress(stageId: String) async throws -> UserStageProgress? {
+    @MainActor func fetchStageProgress(stageId: String) async throws -> UserStageProgressData? {
         if shouldThrow {
             struct FlakyError: Error {}
             throw FlakyError()
@@ -482,7 +482,7 @@ final class FlakyStageProgressRepository: StageProgressRepositoryProtocol, @unch
     }
 
     @MainActor func fetchCompletedStageIds(deckId: String) async throws -> Set<String> { [] }
-    @MainActor func fetchAllStageProgress() async throws -> [UserStageProgress] { [] }
+    @MainActor func fetchAllStageProgress() async throws -> [UserStageProgressData] { [] }
     @MainActor func saveStageProgress(stageId: String, deckId: String, isCompleted: Bool, score: Int, progressFraction: Double) async throws {
         saveCallCount += 1
     }
@@ -491,13 +491,13 @@ final class FlakyStageProgressRepository: StageProgressRepositoryProtocol, @unch
 final class ThrowingFetchStageProgressRepository: StageProgressRepositoryProtocol, @unchecked Sendable {
     @MainActor var saveCallCount: Int = 0
 
-    @MainActor func fetchStageProgress(stageId: String) async throws -> UserStageProgress? {
+    @MainActor func fetchStageProgress(stageId: String) async throws -> UserStageProgressData? {
         struct TestFetchError: Error {}
         throw TestFetchError()
     }
 
     @MainActor func fetchCompletedStageIds(deckId: String) async throws -> Set<String> { [] }
-    @MainActor func fetchAllStageProgress() async throws -> [UserStageProgress] { [] }
+    @MainActor func fetchAllStageProgress() async throws -> [UserStageProgressData] { [] }
     @MainActor func saveStageProgress(stageId: String, deckId: String, isCompleted: Bool, score: Int, progressFraction: Double) async throws {
         saveCallCount += 1
     }

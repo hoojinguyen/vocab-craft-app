@@ -41,12 +41,12 @@ public protocol InitializeUserRoadmapUseCaseProtocol: Sendable {
 public final class InitializeUserRoadmapUseCase: InitializeUserRoadmapUseCaseProtocol, Sendable {
     private let dataSource: VocabularyDataSourceProtocol
     private let stageRepo: StageProgressRepositoryProtocol
-    private let userSettings: UserSettingsStore
+    private let userSettings: UserRoadmapSettingsProtocol
 
     public init(
         dataSource: VocabularyDataSourceProtocol,
         stageRepo: StageProgressRepositoryProtocol,
-        userSettings: UserSettingsStore
+        userSettings: UserRoadmapSettingsProtocol
     ) {
         self.dataSource = dataSource
         self.stageRepo = stageRepo
@@ -126,10 +126,12 @@ public final class InitializeUserRoadmapUseCase: InitializeUserRoadmapUseCasePro
         try Task.checkCancellation()
 
         // 4. Persist user preferences only after roadmap synthesis succeeds
-        userSettings.selectedGoalDeckId = deckId
-        userSettings.assessedCefrLevel = cefrLevel
-        userSettings.dailyGoalCount = dailyGoalCount
-        userSettings.notificationTimeInterval = notificationTimeInterval
+        userSettings.saveRoadmapPreferences(
+            deckId: deckId,
+            cefrLevel: cefrLevel,
+            dailyGoalCount: dailyGoalCount,
+            notificationTimeInterval: notificationTimeInterval
+        )
 
         return RoadmapInitializationResult(
             startingStage: startingStage,

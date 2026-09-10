@@ -23,11 +23,16 @@ public final class PersonalVaultViewModel {
         ttsService?.isSpeaking ?? false
     }
 
+    private var currentRequestId: UInt64 = 0
+    private var isRunningSearchTask = false
+    private var searchTask: Task<Void, Never>?
+
     private let fetchVaultUseCase: FetchPersonalVaultUseCaseProtocol?
     private let toggleBookmarkUseCase: ToggleWordBookmarkUseCaseProtocol?
     private let ttsService: TextToSpeechProtocol?
     private let smartSelector: SmartVaultWordSelectorProtocol
     public let userSettingsStore: UserSettingsStore?
+    private var pendingBookmarkMutations: [Int64: (isBookmarked: Bool, timestamp: Date)] = [:]
 
     public init(
         fetchVaultUseCase: FetchPersonalVaultUseCaseProtocol? = nil,
@@ -50,33 +55,68 @@ public final class PersonalVaultViewModel {
     }
 
     public func loadData() async {
-        isLoading = true
-        errorMessage = nil
-        do {
-            let query = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
-            let effectiveQuery = query.isEmpty ? nil : query
-
-            if let fetchVaultUseCase {
-                let result = try await fetchVaultUseCase.execute(
-                    filter: selectedFilter,
-                    searchQuery: effectiveQuery
-                )
-                guard !Task.isCancelled else { return }
-                words = result.words
-                metrics = result.metrics
-
-                let fetchedWords = try await fetchVaultUseCase.fetchVaultWords(
-                    filter: vaultTabFilter,
-                    searchQuery: effectiveQuery
-                )
-                guard !Task.isCancelled else { return }
-                vaultWords = fetchedWords
-            }
-        } catch {
-            guard !Task.isCancelled else { return }
-            errorMessage = error.localizedDescription
+        guard !Task.isCancelled else { return }
+        if !isRunningSearchTask {
+            searchTask?.cancel()
+            searchTask = nil
         }
         guard !Task.isCancelled else { return }
+        currentRequestId &+= 1
+        let requestId = currentRequestId
+        let loadStartTime = Date()
+        isLoading = true
+        errorMessage = nil
+
+        let query = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+        let effectiveQuery = query.isEmpty ? nil : query
+        do {
+            if let fetchVaultUseCase {
+                let snapshot = try await fetchVaultUseCase.fetchVaultSnapshot(
+                    personalFilter: selectedFilter,
+                    vaultFilter: vaultTabFilter,
+                    searchQuery: effectiveQuery
+                )
+                guard currentRequestId == requestId && !Task.isCancelled else { return }
+
+                var resolvedVaultWords = snapshot.vaultWords
+                var resolvedPersonalWords = snapshot.personalWords
+                var bookmarkedDelta = 0
+
+                let recentMutations = pendingBookmarkMutations.filter { $0.value.timestamp >= loadStartTime }
+                for (wordId, mutation) in recentMutations {
+                    if let idx = resolvedVaultWords.firstIndex(where: { $0.id == wordId }) {
+                        let old = resolvedVaultWords[idx].isBookmarked
+                        if old != mutation.isBookmarked {
+                            resolvedVaultWords[idx] = updatingBookmarkState(for: resolvedVaultWords[idx], isBookmarked: mutation.isBookmarked)
+                            bookmarkedDelta += mutation.isBookmarked ? 1 : -1
+                        }
+                    }
+                    if let pIdx = resolvedPersonalWords.firstIndex(where: { $0.id == wordId }) {
+                        resolvedPersonalWords[pIdx].isBookmarked = mutation.isBookmarked
+                    }
+                    if let current = selectedWordForDetail, current.id == wordId {
+                        selectedWordForDetail = updatingBookmarkState(for: current, isBookmarked: mutation.isBookmarked)
+                    }
+                }
+
+                let newBookmarkedCount = max(0, snapshot.metrics.bookmarkedCount + bookmarkedDelta)
+                let resolvedMetrics = PersonalVaultMetrics(
+                    totalWords: snapshot.metrics.totalWords,
+                    needsReviewCount: snapshot.metrics.needsReviewCount,
+                    masteredCount: snapshot.metrics.masteredCount,
+                    bookmarkedCount: newBookmarkedCount,
+                    unmasteredCount: snapshot.metrics.unmasteredCount
+                )
+
+                words = resolvedPersonalWords
+                metrics = resolvedMetrics
+                vaultWords = resolvedVaultWords
+            }
+        } catch {
+            guard currentRequestId == requestId && !Task.isCancelled else { return }
+            errorMessage = error.localizedDescription
+        }
+        guard currentRequestId == requestId && !Task.isCancelled else { return }
         isLoading = false
     }
 
@@ -141,13 +181,15 @@ public final class PersonalVaultViewModel {
         return picked
     }
 
-    private var searchTask: Task<Void, Never>?
-
     public func setVaultFilter(_ filter: VaultTabFilter) {
         vaultTabFilter = filter
         searchTask?.cancel()
         searchTask = Task { [weak self] in
-            await self?.loadData()
+            guard !Task.isCancelled else { return }
+            guard let self else { return }
+            self.isRunningSearchTask = true
+            defer { self.isRunningSearchTask = false }
+            await self.loadData()
         }
     }
 
@@ -155,7 +197,11 @@ public final class PersonalVaultViewModel {
         selectedFilter = filter
         searchTask?.cancel()
         searchTask = Task { [weak self] in
-            await self?.loadData()
+            guard !Task.isCancelled else { return }
+            guard let self else { return }
+            self.isRunningSearchTask = true
+            defer { self.isRunningSearchTask = false }
+            await self.loadData()
         }
     }
 
@@ -163,63 +209,98 @@ public final class PersonalVaultViewModel {
         searchQuery = query
         searchTask?.cancel()
         searchTask = Task { [weak self] in
-            await self?.loadData()
+            guard !Task.isCancelled else { return }
+            guard let self else { return }
+            self.isRunningSearchTask = true
+            defer { self.isRunningSearchTask = false }
+            await self.loadData()
         }
     }
 
     public func toggleBookmark(wordId: Int64) async {
-        var didSucceed = false
+        let vaultIndex = vaultWords.firstIndex(where: { $0.id == wordId })
+        let personalIndex = words.firstIndex(where: { $0.id == wordId })
+
+        let previousState: Bool
+        if let vaultIndex {
+            previousState = vaultWords[vaultIndex].isBookmarked
+        } else if let personalIndex {
+            previousState = words[personalIndex].isBookmarked
+        } else if let current = selectedWordForDetail, current.id == wordId {
+            previousState = current.isBookmarked
+        } else {
+            if let toggleBookmarkUseCase {
+                do {
+                    _ = try await toggleBookmarkUseCase.execute(wordId: wordId)
+                } catch {
+                    errorMessage = error.localizedDescription
+                }
+            }
+            return
+        }
+
+        let newState = !previousState
+
+        // 1. Optimistic in-memory updates
+        pendingBookmarkMutations[wordId] = (newState, Date())
+        applyBookmarkState(newState, for: wordId)
+        let optimisticCount = newState ? metrics.bookmarkedCount + 1 : max(0, metrics.bookmarkedCount - 1)
+        metrics = updatingBookmarkedCount(to: optimisticCount)
+
+        // 2. Background persistence
         if let toggleBookmarkUseCase {
             do {
                 _ = try await toggleBookmarkUseCase.execute(wordId: wordId)
-                await loadData()
-                didSucceed = true
             } catch {
+                // 3. Rollback on error
+                pendingBookmarkMutations[wordId] = (previousState, Date())
+                applyBookmarkState(previousState, for: wordId)
+                let revertedCount = previousState ? metrics.bookmarkedCount + 1 : max(0, metrics.bookmarkedCount - 1)
+                metrics = updatingBookmarkedCount(to: revertedCount)
                 errorMessage = error.localizedDescription
             }
-        } else {
-            // In-memory fallback if toggleBookmarkUseCase is not injected
-            if let idx = vaultWords.firstIndex(where: { $0.id == wordId }) {
-                let item = vaultWords[idx]
-                let updated = VaultWordItem(
-                    id: item.id,
-                    lemma: item.lemma,
-                    pos: item.pos,
-                    phonetic: item.phonetic,
-                    definitionVi: item.definitionVi,
-                    exampleSentenceEn: item.exampleSentenceEn,
-                    exampleSentenceVi: item.exampleSentenceVi,
-                    cefrLevel: item.cefrLevel,
-                    isMastered: item.isMastered,
-                    isBookmarked: !item.isBookmarked,
-                    correctStreak: item.correctStreak,
-                    practicedModes: item.practicedModes,
-                    lastPracticedAt: item.lastPracticedAt,
-                    modeStats: item.modeStats
-                )
-                vaultWords[idx] = updated
-                didSucceed = true
-            }
         }
+    }
 
-        if didSucceed, let current = selectedWordForDetail, current.id == wordId {
-            selectedWordForDetail = VaultWordItem(
-                id: current.id,
-                lemma: current.lemma,
-                pos: current.pos,
-                phonetic: current.phonetic,
-                definitionVi: current.definitionVi,
-                exampleSentenceEn: current.exampleSentenceEn,
-                exampleSentenceVi: current.exampleSentenceVi,
-                cefrLevel: current.cefrLevel,
-                isMastered: current.isMastered,
-                isBookmarked: !current.isBookmarked,
-                correctStreak: current.correctStreak,
-                practicedModes: current.practicedModes,
-                lastPracticedAt: current.lastPracticedAt,
-                modeStats: current.modeStats
-            )
+    private func applyBookmarkState(_ isBookmarked: Bool, for wordId: Int64) {
+        if let idx = vaultWords.firstIndex(where: { $0.id == wordId }) {
+            vaultWords[idx] = updatingBookmarkState(for: vaultWords[idx], isBookmarked: isBookmarked)
         }
+        if let pIdx = words.firstIndex(where: { $0.id == wordId }) {
+            words[pIdx].isBookmarked = isBookmarked
+        }
+        if let current = selectedWordForDetail, current.id == wordId {
+            selectedWordForDetail = updatingBookmarkState(for: current, isBookmarked: isBookmarked)
+        }
+    }
+
+    private func updatingBookmarkState(for item: VaultWordItem, isBookmarked: Bool) -> VaultWordItem {
+        VaultWordItem(
+            id: item.id,
+            lemma: item.lemma,
+            pos: item.pos,
+            phonetic: item.phonetic,
+            definitionVi: item.definitionVi,
+            exampleSentenceEn: item.exampleSentenceEn,
+            exampleSentenceVi: item.exampleSentenceVi,
+            cefrLevel: item.cefrLevel,
+            isMastered: item.isMastered,
+            isBookmarked: isBookmarked,
+            correctStreak: item.correctStreak,
+            practicedModes: item.practicedModes,
+            lastPracticedAt: item.lastPracticedAt,
+            modeStats: item.modeStats
+        )
+    }
+
+    private func updatingBookmarkedCount(to count: Int) -> PersonalVaultMetrics {
+        PersonalVaultMetrics(
+            totalWords: metrics.totalWords,
+            needsReviewCount: metrics.needsReviewCount,
+            masteredCount: metrics.masteredCount,
+            bookmarkedCount: count,
+            unmasteredCount: metrics.unmasteredCount
+        )
     }
 
     public func playAudio(for word: PersonalWord) {

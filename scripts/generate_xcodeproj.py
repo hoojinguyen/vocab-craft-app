@@ -38,11 +38,16 @@ def generate_pbxproj():
 
     # Widget shared files from main app
     widget_shared_files = [
+        "VocabCraftApp/Core/Database/DatabaseStoreError.swift",
         "VocabCraftApp/Core/Database/DatasetEngine.swift",
         "VocabCraftApp/Core/Database/SharedAppGroupContainer.swift",
+        "VocabCraftApp/Core/Database/Schemas/AppSchemaV1.swift",
+        "VocabCraftApp/Core/Database/Schemas/AppSchemaV2.swift",
         "VocabCraftApp/Core/Database/SwiftDataModels.swift",
         "VocabCraftApp/Core/Database/DatasetModels.swift",
         "VocabCraftApp/Core/SRS/SRSEngine.swift",
+        "VocabCraftApp/Core/Localization/AppLocalized.swift",
+        "VocabCraftApp/Domain/Models/UserStageProgressData.swift",
         "VocabCraftApp/Domain/Protocols/DatasetDataSourceProtocol.swift"
     ]
 
@@ -448,6 +453,7 @@ def generate_pbxproj():
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_COMPILATION_MODE = singlefile;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			}};
@@ -481,6 +487,7 @@ def generate_pbxproj():
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			}};
@@ -514,6 +521,7 @@ def generate_pbxproj():
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			}};
@@ -530,6 +538,7 @@ def generate_pbxproj():
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_ENTITLEMENTS = VocabCraftApp/App/VocabCraftApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				"COPY_PHASE_STRIP[sdk=iphonesimulator*]" = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 58TYVC4N97;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -543,6 +552,7 @@ def generate_pbxproj():
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			}};
@@ -570,6 +580,7 @@ def generate_pbxproj():
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "WIDGET_EXTENSION $(inherited)";
+				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			}};
@@ -596,6 +607,7 @@ def generate_pbxproj():
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "WIDGET_EXTENSION $(inherited)";
+				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			}};
@@ -620,6 +632,7 @@ def generate_pbxproj():
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VocabCraftApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VocabCraftApp";
@@ -645,6 +658,7 @@ def generate_pbxproj():
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VocabCraftApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VocabCraftApp";

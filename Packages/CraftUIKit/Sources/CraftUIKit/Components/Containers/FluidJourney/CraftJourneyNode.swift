@@ -39,7 +39,7 @@ public struct CraftJourneyNode: View, Equatable {
     public let node: LessonNodeModel
     public let surfaceStyle: CraftSurfaceStyle?
     public let isSuspended: Bool
-    public let onTap: (@Sendable () -> Void)?
+    public let onTap: (@MainActor @Sendable () -> Void)?
 
     @Environment(\.craftTheme) private var theme
     @Environment(\.craftSurfaceStyle) private var environmentSurfaceStyle
@@ -59,7 +59,7 @@ public struct CraftJourneyNode: View, Equatable {
         node: LessonNodeModel,
         surfaceStyle: CraftSurfaceStyle? = nil,
         isSuspended: Bool = false,
-        onTap: (@Sendable () -> Void)? = nil
+        onTap: (@MainActor @Sendable () -> Void)? = nil
     ) {
         self.node = node
         self.surfaceStyle = surfaceStyle
@@ -71,14 +71,14 @@ public struct CraftJourneyNode: View, Equatable {
         model: LessonNodeModel,
         surfaceStyle: CraftSurfaceStyle? = nil,
         isSuspended: Bool = false,
-        onTap: (@Sendable () -> Void)? = nil
+        onTap: (@MainActor @Sendable () -> Void)? = nil
     ) {
         self.init(node: model, surfaceStyle: surfaceStyle, isSuspended: isSuspended, onTap: onTap)
     }
 
     // MARK: - Equatable Conformance
 
-    public static func == (lhs: CraftJourneyNode, rhs: CraftJourneyNode) -> Bool {
+    public nonisolated static func == (lhs: CraftJourneyNode, rhs: CraftJourneyNode) -> Bool {
         lhs.node == rhs.node && lhs.surfaceStyle == rhs.surfaceStyle && lhs.isSuspended == rhs.isSuspended
     }
 

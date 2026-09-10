@@ -217,3 +217,19 @@ public final class UserSettingsStore {
         self.assessedCefrLevel = defaults.string(forKey: "assessed_cefr_level") ?? "A1"
     }
 }
+
+// MARK: - UserRoadmapSettingsProtocol Conformance
+
+extension UserSettingsStore: UserRoadmapSettingsProtocol {
+    public func saveRoadmapPreferences(
+        deckId: String,
+        cefrLevel: String,
+        dailyGoalCount: Int,
+        notificationTimeInterval: Double
+    ) {
+        self.selectedGoalDeckId = deckId
+        self.assessedCefrLevel = cefrLevel
+        self.dailyGoalCount = dailyGoalCount
+        self.notificationTimeInterval = notificationTimeInterval
+    }
+}

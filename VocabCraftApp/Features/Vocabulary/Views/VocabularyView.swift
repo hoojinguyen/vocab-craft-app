@@ -288,7 +288,9 @@ public struct VocabularyView: View {
                     vaultVM = appContainer.makePersonalVaultViewModel()
                 }
                 await setupAutomationState()
-                await SampleVaultDataSeeder.seedIfEmpty(repository: appContainer.userProgressRepository)
+                if ProcessInfo.processInfo.arguments.contains("-seed-sample-vault") {
+                    await SampleVaultDataSeeder.seedIfEmpty(repository: appContainer.userProgressRepository)
+                }
                 if let vm = vaultVM, vm.vaultWords.isEmpty && !vm.isLoading {
                     await vm.loadData()
                 }
@@ -429,7 +431,7 @@ public struct VocabularyView: View {
 
 /// Tracks vertical scroll offset of the page header relative to the scroll container.
 struct HeaderOffsetPreferenceKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
+    static let defaultValue: CGFloat = 0
 
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value = nextValue()
@@ -440,7 +442,7 @@ struct HeaderOffsetPreferenceKey: PreferenceKey {
 
 /// Tracks dynamic rendered height of the page header (adapting to Dynamic Type accessibility scaling).
 struct HeaderHeightPreferenceKey: PreferenceKey {
-    static var defaultValue: CGFloat = 50
+    static let defaultValue: CGFloat = 50
 
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         let next = nextValue()

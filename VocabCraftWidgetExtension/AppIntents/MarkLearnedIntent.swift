@@ -9,12 +9,12 @@ import VocabCraftApp
 #endif
 
 public struct MarkLearnedIntent: AppIntent {
-    public static var title: LocalizedStringResource = "app.widget.intent.mark_learned.title"
-    public static var description = IntentDescription("app.widget.intent.mark_learned.description")
+    public static let title: LocalizedStringResource = "app.widget.intent.mark_learned.title"
+    public static let description = IntentDescription("app.widget.intent.mark_learned.description")
 
     public init() {}
 
-    #if canImport(SwiftDataMacros)
+    #if canImport(SwiftDataMacros) || canImport(SwiftData)
     @MainActor
     @discardableResult
     public func perform() async throws -> some IntentResult {

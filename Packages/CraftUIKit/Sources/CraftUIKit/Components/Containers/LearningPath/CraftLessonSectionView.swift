@@ -6,7 +6,7 @@ import SwiftUI
 public struct NodeAnchorPreferenceKey: PreferenceKey {
     public typealias Value = [String: Anchor<CGPoint>]
 
-    public static var defaultValue: [String: Anchor<CGPoint>] = [:]
+    public static let defaultValue: [String: Anchor<CGPoint>] = [:]
 
     public static func reduce(value: inout [String: Anchor<CGPoint>], nextValue: () -> [String: Anchor<CGPoint>]) {
         value.merge(nextValue(), uniquingKeysWith: { $1 })
@@ -192,7 +192,7 @@ public struct CraftLessonSectionHeaderView: View {
 public struct CraftLessonSectionBodyView: View {
     public let section: LessonSection
     public let rowPattern: RowPattern
-    public let onNodeTap: (@Sendable (LessonNodeModel) -> Void)?
+    public let onNodeTap: (@MainActor @Sendable (LessonNodeModel) -> Void)?
     public let onNodeImpression: (@Sendable (LessonNodeModel) -> Void)?
     public let impressionThreshold: TimeInterval
     
@@ -218,7 +218,7 @@ public struct CraftLessonSectionBodyView: View {
     ///   - impressionThreshold: Duration in seconds a node must be visible before impression triggers.
     public init(
         section: LessonSection,
-        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        onNodeTap: (@MainActor @Sendable (LessonNodeModel) -> Void)? = nil,
         connectorDotDiameter: CGFloat? = nil,
         connectorDotSpacing: CGFloat? = nil,
         connectorTurnRadius: CGFloat? = nil,
@@ -253,7 +253,7 @@ public struct CraftLessonSectionBodyView: View {
     public init(
         section: LessonSection,
         rowPattern: RowPattern = .standard,
-        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        onNodeTap: (@MainActor @Sendable (LessonNodeModel) -> Void)? = nil,
         connectorDotDiameter: CGFloat? = nil,
         connectorDotSpacing: CGFloat? = nil,
         connectorTurnRadius: CGFloat? = nil,
@@ -318,7 +318,7 @@ public struct CraftLessonSectionBodyView: View {
 public struct CraftLessonSectionView: View {
     public let section: LessonSection
     public let rowPattern: RowPattern
-    public let onNodeTap: (@Sendable (LessonNodeModel) -> Void)?
+    public let onNodeTap: (@MainActor @Sendable (LessonNodeModel) -> Void)?
     public let onNodeImpression: (@Sendable (LessonNodeModel) -> Void)?
     public let impressionThreshold: TimeInterval
     public var dockThreshold: CGFloat
@@ -339,7 +339,7 @@ public struct CraftLessonSectionView: View {
     ///   - onDockChange: Optional closure invoked when the header dock status changes.
     public init(
         section: LessonSection,
-        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        onNodeTap: (@MainActor @Sendable (LessonNodeModel) -> Void)? = nil,
         onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
         impressionThreshold: TimeInterval = 0.5,
         dockThreshold: CGFloat = 0,
@@ -367,7 +367,7 @@ public struct CraftLessonSectionView: View {
     public init(
         section: LessonSection,
         rowPattern: RowPattern = .standard,
-        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        onNodeTap: (@MainActor @Sendable (LessonNodeModel) -> Void)? = nil,
         onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
         impressionThreshold: TimeInterval = 0.5,
         dockThreshold: CGFloat = 0,

@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - CraftJourneyRow PreferenceKey
 
 private struct JourneyRowWidthPreferenceKey: PreferenceKey {
-    static var defaultValue: CGFloat = 360
+    static let defaultValue: CGFloat = 360
 
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         let next = nextValue()

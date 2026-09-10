@@ -130,7 +130,7 @@ public struct ActiveCalloutBubble: View, Equatable {
 
     // MARK: - Equatable Conformance
 
-    public static func == (lhs: ActiveCalloutBubble, rhs: ActiveCalloutBubble) -> Bool {
+    public nonisolated static func == (lhs: ActiveCalloutBubble, rhs: ActiveCalloutBubble) -> Bool {
         lhs.text == rhs.text &&
         lhs.isVisible == rhs.isVisible &&
         lhs.isSuspended == rhs.isSuspended
@@ -199,7 +199,7 @@ public struct ActiveCalloutBubble: View, Equatable {
 public struct CraftLessonNode: View, Equatable {
     public let model: LessonNodeModel
     public let calloutText: String?
-    public let onTap: (@Sendable () -> Void)?
+    public let onTap: (@MainActor @Sendable () -> Void)?
     public let onNodeImpression: (@Sendable (LessonNodeModel) -> Void)?
     public let impressionThreshold: TimeInterval
 
@@ -219,7 +219,7 @@ public struct CraftLessonNode: View, Equatable {
     public init(
         model: LessonNodeModel,
         calloutText: String? = nil,
-        onTap: (@Sendable () -> Void)? = nil,
+        onTap: (@MainActor @Sendable () -> Void)? = nil,
         onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
         impressionThreshold: TimeInterval = 0.5
     ) {
@@ -232,7 +232,7 @@ public struct CraftLessonNode: View, Equatable {
 
     // MARK: - Equatable Conformance
 
-    public static func == (lhs: CraftLessonNode, rhs: CraftLessonNode) -> Bool {
+    public nonisolated static func == (lhs: CraftLessonNode, rhs: CraftLessonNode) -> Bool {
         lhs.model == rhs.model &&
         lhs.calloutText == rhs.calloutText &&
         abs(lhs.impressionThreshold - rhs.impressionThreshold) < 0.0001

@@ -7,9 +7,14 @@ import XCTest
 final class MockResilientReflexSpeechEngineTests: XCTestCase {
     private var engine: MockResilientReflexSpeechEngine!
 
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
+        try await super.setUp()
         engine = MockResilientReflexSpeechEngine()
+    }
+
+    override func tearDown() async throws {
+        engine = nil
+        try await super.tearDown()
     }
 
     func testStartSession_setsActive() {

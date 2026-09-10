@@ -3,7 +3,7 @@ import Foundation
 import SwiftData
 #endif
 
-#if canImport(SwiftDataMacros)
+#if canImport(SwiftDataMacros) || canImport(SwiftData)
 /// A SwiftData-backed store for quick-reflex learning attempts.
 @MainActor
 public final class QuickReflexAttemptRepositoryImpl: QuickReflexAttemptRepositoryProtocol {

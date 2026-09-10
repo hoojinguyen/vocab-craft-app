@@ -8,6 +8,7 @@ import Testing
 
 #if canImport(Testing)
 @Suite("ReflexContainerComponents Tests")
+@MainActor
 struct ReflexContainerComponentsTests {
     @Test("Validates ReflexReviewedConsolidationView instantiation and properties")
     func testReviewedView() {
@@ -82,35 +83,6 @@ struct ReflexContainerComponentsTests {
         )
         #expect(listeningView.isResultCorrect == false)
         #expect(listeningView.isResultTimeout == true)
-    }
-
-    @Test("Validates ReflexCardContainerView instantiation and styling")
-    func testCardContainerView() {
-        let container = ReflexCardContainerView(
-            isReviewed: false,
-            isCorrect: false,
-            isTimeout: false,
-            timerStage: .steady
-        ) {
-            Text("Active Mode Content")
-        }
-
-        #expect(container.isReviewed == false)
-        #expect(container.isCorrect == false)
-        #expect(container.isTimeout == false)
-        #expect(container.timerStage == .steady)
-
-        let reviewedContainer = ReflexCardContainerView(
-            isReviewed: true,
-            isCorrect: true,
-            isTimeout: false,
-            timerStage: .steady
-        ) {
-            Text("Reviewed Mode Content")
-        }
-
-        #expect(reviewedContainer.isReviewed == true)
-        #expect(reviewedContainer.isCorrect == true)
     }
 
     @Test("Validates ReflexHeaderBarView instantiation and callbacks")

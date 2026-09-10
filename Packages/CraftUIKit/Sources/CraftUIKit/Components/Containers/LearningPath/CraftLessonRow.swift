@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - RowWidthPreferenceKey
 
 private struct RowWidthPreferenceKey: PreferenceKey {
-    static var defaultValue: CGFloat = 360
+    static let defaultValue: CGFloat = 360
 
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         let next = nextValue()
@@ -28,7 +28,7 @@ public struct CraftLessonRow: View, Equatable {
     public let rowLayout: SnakeRowLayout?
     public let node: LessonNodeModel
     public let offsetRatio: CGFloat
-    public let onNodeTap: (@Sendable (LessonNodeModel) -> Void)?
+    public let onNodeTap: (@MainActor @Sendable (LessonNodeModel) -> Void)?
     public let onNodeImpression: (@Sendable (LessonNodeModel) -> Void)?
     public let impressionThreshold: TimeInterval
 
@@ -51,7 +51,7 @@ public struct CraftLessonRow: View, Equatable {
     ///   - impressionThreshold: Duration in seconds a node must be visible before impression triggers.
     public init(
         rowLayout: SnakeRowLayout,
-        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        onNodeTap: (@MainActor @Sendable (LessonNodeModel) -> Void)? = nil,
         onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
         impressionThreshold: TimeInterval = 0.5
     ) {
@@ -80,7 +80,7 @@ public struct CraftLessonRow: View, Equatable {
     public init(
         node: LessonNodeModel,
         offsetRatio: CGFloat = 0.0,
-        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        onNodeTap: (@MainActor @Sendable (LessonNodeModel) -> Void)? = nil,
         onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
         impressionThreshold: TimeInterval = 0.5
     ) {
@@ -98,7 +98,7 @@ public struct CraftLessonRow: View, Equatable {
     public init(
         nodes: [LessonNodeModel],
         arrangement: LessonRowArrangement = .single,
-        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        onNodeTap: (@MainActor @Sendable (LessonNodeModel) -> Void)? = nil,
         onNodeImpression: (@Sendable (LessonNodeModel) -> Void)? = nil,
         impressionThreshold: TimeInterval = 0.5
     ) {
@@ -114,13 +114,18 @@ public struct CraftLessonRow: View, Equatable {
 
     // MARK: - Equatable Conformance
 
-    public static func == (lhs: CraftLessonRow, rhs: CraftLessonRow) -> Bool {
+    nonisolated public static func == (lhs: CraftLessonRow, rhs: CraftLessonRow) -> Bool {
         lhs.rowLayout == rhs.rowLayout &&
         lhs.node == rhs.node &&
         abs(lhs.offsetRatio - rhs.offsetRatio) < 0.0001 &&
         lhs.nodes == rhs.nodes &&
         lhs.arrangement == rhs.arrangement &&
         abs(lhs.impressionThreshold - rhs.impressionThreshold) < 0.0001
+    }
+
+    private func makeTapAction(for targetNode: LessonNodeModel) -> (@MainActor @Sendable () -> Void)? {
+        guard let onNodeTap else { return nil }
+        return { @MainActor @Sendable in onNodeTap(targetNode) }
     }
 
     // MARK: - Body
@@ -143,7 +148,7 @@ public struct CraftLessonRow: View, Equatable {
                 let xOffset = measuredWidth * (pNode.slot.xRatio - 0.50)
                 CraftLessonNode(
                     model: pNode.node,
-                    onTap: onNodeTap != nil ? { onNodeTap?(pNode.node) } : nil,
+                    onTap: makeTapAction(for: pNode.node),
                     onNodeImpression: onNodeImpression,
                     impressionThreshold: impressionThreshold
                 )
@@ -178,7 +183,7 @@ public struct CraftLessonRow: View, Equatable {
         return ZStack(alignment: .center) {
             CraftLessonNode(
                 model: node,
-                onTap: onNodeTap != nil ? { onNodeTap?(node) } : nil,
+                onTap: makeTapAction(for: node),
                 onNodeImpression: onNodeImpression,
                 impressionThreshold: impressionThreshold
             )
@@ -250,7 +255,7 @@ public struct CraftLessonRow: View, Equatable {
     private func nodeView(for node: LessonNodeModel) -> some View {
         CraftLessonNode(
             model: node,
-            onTap: onNodeTap != nil ? { onNodeTap?(node) } : nil,
+            onTap: makeTapAction(for: node),
             onNodeImpression: onNodeImpression,
             impressionThreshold: impressionThreshold
         )

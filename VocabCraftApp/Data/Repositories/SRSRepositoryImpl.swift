@@ -3,7 +3,7 @@ import Foundation
 import SwiftData
 #endif
 
-#if canImport(SwiftDataMacros)
+#if canImport(SwiftDataMacros) || canImport(SwiftData)
 @MainActor
 public final class SRSRepositoryImpl: SRSRepositoryProtocol {
     private let modelContext: ModelContext?

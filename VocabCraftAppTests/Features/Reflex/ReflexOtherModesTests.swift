@@ -8,6 +8,7 @@ import Testing
 
 #if canImport(Testing)
 @Suite("ReflexOtherModes Tests")
+@MainActor
 struct ReflexOtherModesTests {
     @Test("Instantiates SpeakingModeView with live transcript, cloze stages, and callbacks")
     func testSpeakingModeView() {

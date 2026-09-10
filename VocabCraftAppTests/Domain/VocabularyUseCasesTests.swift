@@ -245,6 +245,55 @@ final class VocabularyUseCasesTests: XCTestCase {
         XCTAssertEqual(searchResult.first?.lemma, "Resilience")
     }
 
+    func test_fetchPersonalVaultUseCase_fetchVaultSnapshot_singlePassConsolidation() async throws {
+        let progressRepo = MockUserProgressActor(initialData: [
+            UserWordProgressData(wordId: 1, masteryLevel: 5, isBookmarked: false, needsReview: false, mistakeCount: 0, isMastered: true),
+            UserWordProgressData(wordId: 2, masteryLevel: 1, isBookmarked: true, needsReview: true, mistakeCount: 2, isMastered: false),
+            UserWordProgressData(wordId: 3, masteryLevel: 4, isBookmarked: true, needsReview: false, mistakeCount: 0, isMastered: true)
+        ])
+        let sut = FetchPersonalVaultUseCase(dataSource: dataSource, progressRepo: progressRepo)
+
+        let snapshot = try await sut.fetchVaultSnapshot(
+            personalFilter: .all,
+            vaultFilter: .notMastered,
+            searchQuery: nil
+        )
+
+        XCTAssertEqual(snapshot.metrics.totalWords, 3)
+        XCTAssertEqual(snapshot.metrics.masteredCount, 2)
+        XCTAssertEqual(snapshot.metrics.needsReviewCount, 1)
+        XCTAssertEqual(snapshot.metrics.bookmarkedCount, 2)
+        XCTAssertEqual(snapshot.metrics.unmasteredCount, 1)
+
+        XCTAssertEqual(snapshot.personalWords.count, 3)
+        XCTAssertEqual(snapshot.vaultWords.count, 1)
+        XCTAssertEqual(snapshot.vaultWords.first?.id, 2)
+
+        let searchSnapshot = try await sut.fetchVaultSnapshot(
+            personalFilter: .mastered,
+            vaultFilter: .mastered,
+            searchQuery: "Resilience"
+        )
+        XCTAssertEqual(searchSnapshot.personalWords.count, 1)
+        XCTAssertEqual(searchSnapshot.personalWords.first?.lemma, "Resilience")
+        XCTAssertEqual(searchSnapshot.vaultWords.count, 1)
+        XCTAssertEqual(searchSnapshot.vaultWords.first?.lemma, "Resilience")
+        XCTAssertEqual(searchSnapshot.metrics.totalWords, 3)
+    }
+
+    func test_fetchPersonalVaultUseCase_fetchVaultSnapshot_skipsNonExistentWordsGracefully() async throws {
+        let progressRepo = MockUserProgressActor(initialData: [
+            UserWordProgressData(wordId: 1, masteryLevel: 4),
+            UserWordProgressData(wordId: 999999, masteryLevel: 4)
+        ])
+        let sut = FetchPersonalVaultUseCase(dataSource: dataSource, progressRepo: progressRepo)
+
+        let snapshot = try await sut.fetchVaultSnapshot(personalFilter: .all, vaultFilter: .mastered, searchQuery: nil)
+        XCTAssertEqual(snapshot.personalWords.count, 1)
+        XCTAssertEqual(snapshot.vaultWords.count, 1)
+        XCTAssertEqual(snapshot.metrics.totalWords, 1)
+    }
+
     func test_fetchPersonalVaultUseCase_skipsNonExistentWordsGracefully() async throws {
         let progressRepo = MockUserProgressActor(initialData: [
             UserWordProgressData(wordId: 1, masteryLevel: 4),

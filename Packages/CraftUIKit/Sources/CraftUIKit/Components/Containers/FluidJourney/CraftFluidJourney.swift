@@ -44,10 +44,10 @@ public struct CraftFluidJourney: View {
     public let deckSubtitle: String?
 
     /// Callback closure invoked when any lesson node is tapped.
-    public let onNodeTap: (@Sendable (LessonNodeModel) -> Void)?
+    public let onNodeTap: (@MainActor @Sendable (LessonNodeModel) -> Void)?
 
     /// Callback closure invoked when a lesson is started or resumed from the detail modal.
-    public let onStartLesson: (@Sendable (LessonNodeModel) -> Void)?
+    public let onStartLesson: (@MainActor @Sendable (LessonNodeModel) -> Void)?
 
     /// Callback closure invoked when user scrolling changes the floating tab bar presentation state.
     public let onTabBarPresentationChange: (@Sendable (CraftTabBarPresentation) -> Void)?
@@ -200,8 +200,8 @@ public extension CraftFluidJourney {
         isSuspended: Bool = false,
         deckTitle: String? = nil,
         deckSubtitle: String? = nil,
-        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
-        onStartLesson: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        onNodeTap: (@MainActor @Sendable (LessonNodeModel) -> Void)? = nil,
+        onStartLesson: (@MainActor @Sendable (LessonNodeModel) -> Void)? = nil,
         onTabBarPresentationChange: (@Sendable (CraftTabBarPresentation) -> Void)? = nil,
         onSelectLesson: (@Sendable (String, String) -> Void)? = nil,
         onAdjustPlan: (@Sendable () -> Void)? = nil,
@@ -265,8 +265,8 @@ public extension CraftFluidJourney {
         isSuspended: Bool = false,
         deckTitle: String? = nil,
         deckSubtitle: String? = nil,
-        onNodeTap: (@Sendable (LessonNodeModel) -> Void)? = nil,
-        onStartLesson: (@Sendable (LessonNodeModel) -> Void)? = nil,
+        onNodeTap: (@MainActor @Sendable (LessonNodeModel) -> Void)? = nil,
+        onStartLesson: (@MainActor @Sendable (LessonNodeModel) -> Void)? = nil,
         onTabBarPresentationChange: (@Sendable (CraftTabBarPresentation) -> Void)? = nil,
         onSelectLesson: (@Sendable (String, String) -> Void)? = nil,
         onAdjustPlan: (@Sendable () -> Void)? = nil,
@@ -479,9 +479,7 @@ extension CraftFluidJourney {
                             node: node,
                             surfaceStyle: surfaceStyle,
                             isSuspended: isSuspended,
-                            onTap: node.state == .locked ? nil : {
-                                handleNodeTap(node)
-                            }
+                            onTap: makeNodeTapAction(for: node)
                         )
                     }
                     .offset(x: offset(for: node.id))
@@ -635,6 +633,13 @@ extension CraftFluidJourney {
 // MARK: - Actions & Scroll Handling Extension
 
 extension CraftFluidJourney {
+    private func makeNodeTapAction(for node: LessonNodeModel) -> (@MainActor @Sendable () -> Void)? {
+        guard node.state != .locked else { return nil }
+        return { @MainActor @Sendable in
+            handleNodeTap(node)
+        }
+    }
+
     func handleNodeTap(_ node: LessonNodeModel) {
         guard node.state != .locked else { return }
 

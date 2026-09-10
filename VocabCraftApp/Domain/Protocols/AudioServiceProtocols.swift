@@ -2,7 +2,7 @@ import Foundation
 
 /// Protocol abstraction for Text-to-Speech audio playback.
 @MainActor
-public protocol TextToSpeechProtocol: AnyObject {
+public protocol TextToSpeechProtocol: AnyObject, Sendable {
     var isSpeaking: Bool { get }
     func speak(text: String, rate: Float, locale: String)
     func speakAsync(text: String, rate: Float, locale: String) async

@@ -1,4 +1,4 @@
-#if canImport(SwiftDataMacros)
+#if canImport(SwiftDataMacros) || canImport(SwiftData)
 import Foundation
 import SwiftData
 @testable import VocabCraftApp
@@ -11,16 +11,16 @@ final class QuickReflexAttemptRepositoryTests: XCTestCase {
     private var container: ModelContainer!
     private var repository: QuickReflexAttemptRepositoryImpl!
 
-    override func setUpWithError() throws {
-        try super.setUpWithError()
+    override func setUp() async throws {
+        try await super.setUp()
         container = try SharedAppGroupContainer.createContainer(inMemory: true)
         repository = QuickReflexAttemptRepositoryImpl(modelContext: container.mainContext)
     }
 
-    override func tearDownWithError() throws {
+    override func tearDown() async throws {
         repository = nil
         container = nil
-        try super.tearDownWithError()
+        try await super.tearDown()
     }
 
     func testSavePersistsEvery3TierLearningSignal() async throws {
