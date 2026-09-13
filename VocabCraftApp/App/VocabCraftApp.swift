@@ -9,6 +9,7 @@ import SwiftUI
 #endif
 struct VocabCraftApp: App {
     @State private var themeManager = CraftThemeManager.shared
+    @State private var mockDismissed = false
     @State private var bootstrapper = AppBootstrapper()
 
     init() {}
@@ -24,32 +25,7 @@ struct VocabCraftApp: App {
                 if NSClassFromString("XCTestCase") != nil {
                     Text(verbatim: "Testing...")
                 } else {
-                    switch bootstrapper.state {
-                    case .loading:
-                        ProgressView()
-                            .task {
-                                bootstrapper.bootstrap()
-                            }
-                    case .error(let error):
-                        DatabaseRecoveryView(
-                            error: error,
-                            onRetry: {
-                                bootstrapper.retry()
-                            },
-                            onConfirmReset: {
-                                bootstrapper.confirmReset()
-                            }
-                        )
-                    case .ready:
-                        if let appContainer = bootstrapper.appContainer {
-                            contentView(for: appContainer)
-                        } else {
-                            ProgressView()
-                                .task {
-                                    bootstrapper.bootstrap()
-                                }
-                        }
-                    }
+                    appContent
                 }
             }
             .onOpenURL { url in
@@ -57,6 +33,47 @@ struct VocabCraftApp: App {
             }
             .craftTheme(themeManager.currentPreset.theme)
             .preferredColorScheme(themeManager.preferredColorScheme)
+        }
+    }
+
+    @ViewBuilder private var appContent: some View {
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-test-conversation-ui") && !mockDismissed {
+            ConversationMockView { mockDismissed = true }
+        } else {
+            bootstrappedContent
+        }
+        #else
+        bootstrappedContent
+        #endif
+    }
+
+    @ViewBuilder private var bootstrappedContent: some View {
+        switch bootstrapper.state {
+        case .loading:
+            ProgressView()
+                .task {
+                    bootstrapper.bootstrap()
+                }
+        case .error(let error):
+            DatabaseRecoveryView(
+                error: error,
+                onRetry: {
+                    bootstrapper.retry()
+                },
+                onConfirmReset: {
+                    bootstrapper.confirmReset()
+                }
+            )
+        case .ready:
+            if let appContainer = bootstrapper.appContainer {
+                contentView(for: appContainer)
+            } else {
+                ProgressView()
+                    .task {
+                        bootstrapper.bootstrap()
+                    }
+            }
         }
     }
 

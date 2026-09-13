@@ -274,6 +274,17 @@
 		900000000000000000000004 /* CraftUIKit in Frameworks */ = {isa = PBXBuildFile; productRef = 900000000000000000000002 /* CraftUIKit */; };
 		900000000000000000000007 /* SpeechKit in Frameworks */ = {isa = PBXBuildFile; productRef = 900000000000000000000006 /* SpeechKit */; };
 		900000000000000000000008 /* SpeechKit in Frameworks */ = {isa = PBXBuildFile; productRef = 900000000000000000000006 /* SpeechKit */; };
+		B090B6026D0D1325BFBC8AE6 /* ConversationSessionStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1F8513CCC4918F8D15654D1; };
+		6FB5163539022B7EAC88ADB2 /* ConversationMockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CDC565FB69EDDC7E66D20EE; };
+		AF8903C630F1C51A2F53E440 /* ConversationMockControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C61F059B4EBA5EE1FF74CDB; };
+		5B8AFF2650EBE6D5A19D0688 /* ConversationMockSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = A87E0B7D8E10096738DC8357; };
+		B18D36987B9C550D19840D57 /* ConversationModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A76C5CA2DFB093C1FA941A4D; };
+		DDE5D608B001593E704DA91C /* ConversationScrollPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1F749FFFECC0BA735EE019; };
+		0EC666F4098E61F5E45B7FFB /* SampleConversationRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 121E5DF4EDD9E408ACD195C7; };
+		C93F4D88B336C29B5D8B6D0B /* AppStrings+Conversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C67BB55F9DEB11EAAD7389; };
+		23FF1BFDCC5F683BE409588D /* ConversationScrollPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDFEFAE7CB10153D6FA8ABA; };
+		5C0FD3880B972260E590FFEF /* ConversationSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5A76258F3C5F4EBE2D0D5B; };
+		DAFD94B3503D977CBEF85D10 /* ConversationSampleFixture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DAE7A97C967B099EDC6F785; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -560,6 +571,17 @@
 		20002D118E9433DF0306 /* UserProgressModelActorConcurrencyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserProgressModelActorConcurrencyTests.swift"; sourceTree = "<group>"; };
 		2000CD9B3F3B4D5FDBA7 /* UserSettingsStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserSettingsStoreTests.swift"; sourceTree = "<group>"; };
 		200084512C285C79A09D /* WidgetIntentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetIntentsTests.swift"; sourceTree = "<group>"; };
+		F1F8513CCC4918F8D15654D1 /* ConversationSessionStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftApp/Features/Conversation/ConversationSessionStorage.swift"; sourceTree = SOURCE_ROOT; };
+		9CDC565FB69EDDC7E66D20EE /* ConversationMockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftApp/Features/Conversation/ConversationMockView.swift"; sourceTree = SOURCE_ROOT; };
+		2C61F059B4EBA5EE1FF74CDB /* ConversationMockControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftApp/Features/Conversation/ConversationMockControls.swift"; sourceTree = SOURCE_ROOT; };
+		A87E0B7D8E10096738DC8357 /* ConversationMockSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftApp/Features/Conversation/ConversationMockSession.swift"; sourceTree = SOURCE_ROOT; };
+		A76C5CA2DFB093C1FA941A4D /* ConversationModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftApp/Features/Conversation/ConversationModels.swift"; sourceTree = SOURCE_ROOT; };
+		CC1F749FFFECC0BA735EE019 /* ConversationScrollPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftApp/Features/Conversation/ConversationScrollPolicy.swift"; sourceTree = SOURCE_ROOT; };
+		121E5DF4EDD9E408ACD195C7 /* SampleConversationRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftApp/Features/Conversation/SampleConversationRepository.swift"; sourceTree = SOURCE_ROOT; };
+		E9C67BB55F9DEB11EAAD7389 /* AppStrings+Conversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftApp/Core/Localization/AppStrings+Conversation.swift"; sourceTree = SOURCE_ROOT; };
+		2DDFEFAE7CB10153D6FA8ABA /* ConversationScrollPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftAppTests/Features/ConversationScrollPolicyTests.swift"; sourceTree = SOURCE_ROOT; };
+		5D5A76258F3C5F4EBE2D0D5B /* ConversationSessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftAppTests/Features/ConversationSessionTests.swift"; sourceTree = SOURCE_ROOT; };
+		0DAE7A97C967B099EDC6F785 /* ConversationSampleFixture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftApp/Features/Conversation/ConversationSampleFixture.swift"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -594,6 +616,17 @@
 		400000002D50000000000000 /* MainGroup */ = {
 			isa = PBXGroup;
 			children = (
+				0DAE7A97C967B099EDC6F785 /* ConversationSampleFixture.swift */,
+				F1F8513CCC4918F8D15654D1 /* ConversationSessionStorage.swift */,
+				9CDC565FB69EDDC7E66D20EE /* ConversationMockView.swift */,
+				2C61F059B4EBA5EE1FF74CDB /* ConversationMockControls.swift */,
+				A87E0B7D8E10096738DC8357 /* ConversationMockSession.swift */,
+				A76C5CA2DFB093C1FA941A4D /* ConversationModels.swift */,
+				CC1F749FFFECC0BA735EE019 /* ConversationScrollPolicy.swift */,
+				121E5DF4EDD9E408ACD195C7 /* SampleConversationRepository.swift */,
+				E9C67BB55F9DEB11EAAD7389 /* AppStrings+Conversation.swift */,
+				2DDFEFAE7CB10153D6FA8ABA /* ConversationScrollPolicyTests.swift */,
+				5D5A76258F3C5F4EBE2D0D5B /* ConversationSessionTests.swift */,
 				4000432B3B0C43E7B202 /* VocabCraftApp */,
 				4000A799196F19CD5094 /* VocabCraftWidgetExtension */,
 				4000A4B5D97C10747B92 /* VocabCraftAppTests */,
@@ -1695,6 +1728,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DAFD94B3503D977CBEF85D10 /* ConversationSampleFixture.swift */,
+				C93F4D88B336C29B5D8B6D0B /* AppStrings+Conversation.swift */,
+				0EC666F4098E61F5E45B7FFB /* SampleConversationRepository.swift */,
+				DDE5D608B001593E704DA91C /* ConversationScrollPolicy.swift */,
+				B18D36987B9C550D19840D57 /* ConversationModels.swift */,
+				5B8AFF2650EBE6D5A19D0688 /* ConversationMockSession.swift */,
+				AF8903C630F1C51A2F53E440 /* ConversationMockControls.swift */,
+				6FB5163539022B7EAC88ADB2 /* ConversationMockView.swift */,
+				B090B6026D0D1325BFBC8AE6 /* ConversationSessionStorage.swift */,
 				3000936DD01FE299E6B8 /* AppBootstrapper.swift in Sources */,
 				3000DE9D056D85598F6E /* AppContainer.swift in Sources */,
 				3000FAD85B1C0D0923C5 /* EnvironmentKeys.swift in Sources */,
@@ -1880,6 +1922,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5C0FD3880B972260E590FFEF /* ConversationSessionTests.swift */,
+				23FF1BFDCC5F683BE409588D /* ConversationScrollPolicyTests.swift */,
 				300235B0F0A087879BE8 /* MarkLearnedIntent.swift in Test Sources */,
 				3002883BA9872E20B13D /* NextWordIntent.swift in Test Sources */,
 				300293ED2147CD09D799 /* VocabWidget.swift in Test Sources */,
@@ -2019,6 +2063,7 @@
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_COMPILATION_MODE = singlefile;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
