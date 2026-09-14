@@ -127,6 +127,9 @@ public final class ConversationAudioAdapter: ConversationAudioClient {
     public func play(text: String, locale: String = "en-US") async -> ConversationPlaybackResult {
         operationGeneration += 1
         let generation = operationGeneration
+        if let existingCaptureID = activeCapture?.id {
+            finishCapture(.cancelled, captureID: existingCaptureID)
+        }
         guard !Task.isCancelled else { return .cancelled }
         let result = await player.play(text: text, locale: locale)
         guard !Task.isCancelled, generation == operationGeneration else { return .cancelled }
@@ -184,7 +187,7 @@ public final class ConversationAudioAdapter: ConversationAudioClient {
                             self?.receivePartial(transcript, captureID: captureID, onPartial: onPartial)
                         },
                         onFinal: { [weak self] transcript in
-                            guard let self else { return }
+                            guard let self, self.activeCapture?.id == captureID else { return }
                             let currentLatest = self.activeCapture?.latestTranscript ?? ""
                             let candidate = transcript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                                 ? currentLatest

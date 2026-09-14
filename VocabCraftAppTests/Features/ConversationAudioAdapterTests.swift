@@ -80,6 +80,31 @@ struct ConversationAudioAdapterTests {
         #expect(events == ["acquire", "release", "caller-after-capture"])
     }
 
+    @Test("invoking play while capture is active cancels capture and stops recognition")
+    func playCancelsActiveCapture() async {
+        let recognizer = TestConversationRecognizer()
+        let coordinator = TestConversationAudioCoordinator()
+        let adapter = makeAdapter(recognizer: recognizer, coordinator: coordinator)
+
+        let captureTask = Task {
+            await adapter.capture(
+                targetSentence: "What is our next milestone?",
+                contextualPhrases: ["What is our next milestone?"],
+                onListening: {},
+                onPartial: { _ in }
+            )
+        }
+        await recognizer.waitUntilStarted()
+
+        let playResult = await adapter.play(text: "Hello from partner")
+
+        #expect(playResult == .finished)
+        #expect(await captureTask.value == .cancelled)
+        #expect(recognizer.stopCount == 1)
+        #expect(!recognizer.isRunning)
+        #expect(await coordinator.releasedLeaseCount() == 1)
+    }
+
     @Test("stop while authorization is pending prevents a late capture")
     func stopWhileAuthorizationIsPending() async {
         let recognizer = TestConversationRecognizer(suspendsAuthorization: true)
