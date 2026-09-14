@@ -1,4 +1,7 @@
 import Foundation
+#if DEBUG
+import SpeechKit
+#endif
 import SwiftData
 
 /// Centralized Composition Root / Dependency Injection Container.
@@ -256,6 +259,30 @@ public final class AppContainer {
             stageRepo: stageProgressRepository
         )
     }
+
+    #if DEBUG
+    public func makeConversationLiveSession(
+        conversation: ConversationScript,
+        storage: (any ConversationSessionStorage)? = nil
+    ) -> ConversationLiveSession {
+        let resolvedStorage = storage ?? ConversationUserDefaultsStorage(key: ConversationLiveSession.liveStorageKey)
+        let effectiveTTS: TextToSpeechService
+        if let liveTTS = ttsService as? TextToSpeechService {
+            effectiveTTS = liveTTS
+        } else {
+            effectiveTTS = TextToSpeechService(audioSessionCoordinator: audioSessionCoordinator)
+        }
+        let player = TextToSpeechConversationPlayer(service: effectiveTTS)
+        let recognizer = SpeechKitConversationRecognizer(engine: SpeechRecognitionEngine(managesAudioSession: false))
+        let audioAdapter = ConversationAudioAdapter(
+            player: player,
+            recognizer: recognizer,
+            audioSessionCoordinator: audioSessionCoordinator
+        )
+        return ConversationLiveSession.restore(conversation: conversation, storage: resolvedStorage, audio: audioAdapter)
+            ?? ConversationLiveSession(conversation: conversation, storage: resolvedStorage, audio: audioAdapter)
+    }
+    #endif
 
     public static var mock: AppContainer {
         let defaults = UserDefaults(suiteName: "mock_app_container_\(UUID().uuidString)") ?? .standard

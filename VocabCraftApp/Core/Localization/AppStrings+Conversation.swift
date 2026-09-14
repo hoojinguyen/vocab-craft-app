@@ -35,5 +35,21 @@ extension AppStrings {
         public static var confirmReplaceMessage: LocalizedStringKey { "app.conversation.confirm_replace_message" }
         public static var replace: LocalizedStringKey { "app.conversation.replace" }
         public static var cancel: LocalizedStringKey { "app.conversation.cancel" }
+
+        // swiftlint:disable:next nesting
+        public enum Live {
+            public static var notice: LocalizedStringKey { "app.conversation.live.notice" }
+            public static var preparing: LocalizedStringKey { "app.conversation.live.preparing" }
+            public static var listening: LocalizedStringKey { "app.conversation.live.listening" }
+            public static var partner: LocalizedStringKey { "app.conversation.live.partner" }
+            public static var evaluating: LocalizedStringKey { "app.conversation.live.evaluating" }
+            public static var permission: LocalizedStringKey { "app.conversation.live.permission" }
+            public static var unavailable: LocalizedStringKey { "app.conversation.live.unavailable" }
+            public static var captureError: LocalizedStringKey { "app.conversation.live.capture_error" }
+            public static var playbackError: LocalizedStringKey { "app.conversation.live.playback_error" }
+            public static var hearSample: LocalizedStringKey { "app.conversation.live.hear_sample" }
+            public static var openSettings: LocalizedStringKey { "app.conversation.live.open_settings" }
+            public static var anotherSample: LocalizedStringKey { "app.conversation.live.another_sample" }
+        }
     }
 }

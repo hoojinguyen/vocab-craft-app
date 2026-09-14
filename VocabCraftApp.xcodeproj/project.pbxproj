@@ -285,6 +285,17 @@
 		23FF1BFDCC5F683BE409588D /* ConversationScrollPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDFEFAE7CB10153D6FA8ABA; };
 		5C0FD3880B972260E590FFEF /* ConversationSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5A76258F3C5F4EBE2D0D5B; };
 		DAFD94B3503D977CBEF85D10 /* ConversationSampleFixture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DAE7A97C967B099EDC6F785; };
+		B40000012D50000000000001 /* ConversationTurnEvaluator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40000012D50000000000001; };
+		B40000022D50000000000002 /* ConversationAudioAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40000022D50000000000002; };
+		B40000032D50000000000003 /* ConversationLiveAudioClients.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40000032D50000000000003; };
+		B40000042D50000000000004 /* ConversationLiveSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40000042D50000000000004; };
+		B40000052D50000000000005 /* ConversationLiveControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40000052D50000000000005; };
+		B40000062D50000000000006 /* ConversationLiveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40000062D50000000000006; };
+		B40000072D50000000000007 /* ConversationTurnEvaluatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40000072D50000000000007; };
+		B40000082D50000000000008 /* ConversationLiveSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40000082D50000000000008; };
+		B40000092D50000000000009 /* ConversationAudioAdapterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40000092D50000000000009; };
+		B400000A2D5000000000000A /* ConversationPlaybackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C400000A2D5000000000000A; };
+		B400000B2D5000000000000B /* ConversationLiveViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C400000B2D5000000000000B; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -582,6 +593,17 @@
 		2DDFEFAE7CB10153D6FA8ABA /* ConversationScrollPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftAppTests/Features/ConversationScrollPolicyTests.swift"; sourceTree = SOURCE_ROOT; };
 		5D5A76258F3C5F4EBE2D0D5B /* ConversationSessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftAppTests/Features/ConversationSessionTests.swift"; sourceTree = SOURCE_ROOT; };
 		0DAE7A97C967B099EDC6F785 /* ConversationSampleFixture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftApp/Features/Conversation/ConversationSampleFixture.swift"; sourceTree = SOURCE_ROOT; };
+		C40000012D50000000000001 /* ConversationTurnEvaluator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftApp/Features/Conversation/ConversationTurnEvaluator.swift"; sourceTree = SOURCE_ROOT; };
+		C40000022D50000000000002 /* ConversationAudioAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftApp/Features/Conversation/ConversationAudioAdapter.swift"; sourceTree = SOURCE_ROOT; };
+		C40000032D50000000000003 /* ConversationLiveAudioClients.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftApp/Features/Conversation/ConversationLiveAudioClients.swift"; sourceTree = SOURCE_ROOT; };
+		C40000042D50000000000004 /* ConversationLiveSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftApp/Features/Conversation/ConversationLiveSession.swift"; sourceTree = SOURCE_ROOT; };
+		C40000052D50000000000005 /* ConversationLiveControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftApp/Features/Conversation/ConversationLiveControls.swift"; sourceTree = SOURCE_ROOT; };
+		C40000062D50000000000006 /* ConversationLiveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftApp/Features/Conversation/ConversationLiveView.swift"; sourceTree = SOURCE_ROOT; };
+		C40000072D50000000000007 /* ConversationTurnEvaluatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftAppTests/Features/ConversationTurnEvaluatorTests.swift"; sourceTree = SOURCE_ROOT; };
+		C40000082D50000000000008 /* ConversationLiveSessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftAppTests/Features/ConversationLiveSessionTests.swift"; sourceTree = SOURCE_ROOT; };
+		C40000092D50000000000009 /* ConversationAudioAdapterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftAppTests/Features/ConversationAudioAdapterTests.swift"; sourceTree = SOURCE_ROOT; };
+		C400000A2D5000000000000A /* ConversationPlaybackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftAppTests/Features/ConversationPlaybackTests.swift"; sourceTree = SOURCE_ROOT; };
+		C400000B2D5000000000000B /* ConversationLiveViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabCraftAppTests/Features/ConversationLiveViewTests.swift"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -627,6 +649,17 @@
 				E9C67BB55F9DEB11EAAD7389 /* AppStrings+Conversation.swift */,
 				2DDFEFAE7CB10153D6FA8ABA /* ConversationScrollPolicyTests.swift */,
 				5D5A76258F3C5F4EBE2D0D5B /* ConversationSessionTests.swift */,
+				C40000012D50000000000001 /* ConversationTurnEvaluator.swift */,
+				C40000022D50000000000002 /* ConversationAudioAdapter.swift */,
+				C40000032D50000000000003 /* ConversationLiveAudioClients.swift */,
+				C40000042D50000000000004 /* ConversationLiveSession.swift */,
+				C40000052D50000000000005 /* ConversationLiveControls.swift */,
+				C40000062D50000000000006 /* ConversationLiveView.swift */,
+				C40000072D50000000000007 /* ConversationTurnEvaluatorTests.swift */,
+				C40000082D50000000000008 /* ConversationLiveSessionTests.swift */,
+				C40000092D50000000000009 /* ConversationAudioAdapterTests.swift */,
+				C400000A2D5000000000000A /* ConversationPlaybackTests.swift */,
+				C400000B2D5000000000000B /* ConversationLiveViewTests.swift */,
 				4000432B3B0C43E7B202 /* VocabCraftApp */,
 				4000A799196F19CD5094 /* VocabCraftWidgetExtension */,
 				4000A4B5D97C10747B92 /* VocabCraftAppTests */,
@@ -1737,6 +1770,12 @@
 				AF8903C630F1C51A2F53E440 /* ConversationMockControls.swift */,
 				6FB5163539022B7EAC88ADB2 /* ConversationMockView.swift */,
 				B090B6026D0D1325BFBC8AE6 /* ConversationSessionStorage.swift */,
+				B40000012D50000000000001 /* ConversationTurnEvaluator.swift in Sources */,
+				B40000022D50000000000002 /* ConversationAudioAdapter.swift in Sources */,
+				B40000032D50000000000003 /* ConversationLiveAudioClients.swift in Sources */,
+				B40000042D50000000000004 /* ConversationLiveSession.swift in Sources */,
+				B40000052D50000000000005 /* ConversationLiveControls.swift in Sources */,
+				B40000062D50000000000006 /* ConversationLiveView.swift in Sources */,
 				3000936DD01FE299E6B8 /* AppBootstrapper.swift in Sources */,
 				3000DE9D056D85598F6E /* AppContainer.swift in Sources */,
 				3000FAD85B1C0D0923C5 /* EnvironmentKeys.swift in Sources */,
@@ -1924,6 +1963,11 @@
 			files = (
 				5C0FD3880B972260E590FFEF /* ConversationSessionTests.swift */,
 				23FF1BFDCC5F683BE409588D /* ConversationScrollPolicyTests.swift */,
+				B40000072D50000000000007 /* ConversationTurnEvaluatorTests.swift in Sources */,
+				B40000082D50000000000008 /* ConversationLiveSessionTests.swift in Sources */,
+				B40000092D50000000000009 /* ConversationAudioAdapterTests.swift in Sources */,
+				B400000A2D5000000000000A /* ConversationPlaybackTests.swift in Sources */,
+				B400000B2D5000000000000B /* ConversationLiveViewTests.swift in Sources */,
 				300235B0F0A087879BE8 /* MarkLearnedIntent.swift in Test Sources */,
 				3002883BA9872E20B13D /* NextWordIntent.swift in Test Sources */,
 				300293ED2147CD09D799 /* VocabWidget.swift in Test Sources */,

@@ -122,6 +122,7 @@ public final class ConversationLiveSession {
 
     public func performCurrentTurn() async {
         guard !isPerformingTurn else { return }
+        guard !isPlayingSample else { return }
         guard conversation.turns.indices.contains(currentTurnIndex) else { return }
         let turn = conversation.turns[currentTurnIndex]
 

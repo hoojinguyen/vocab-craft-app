@@ -18,6 +18,7 @@ public struct HomepageView: View {
     @State private var viewModel: HomepageViewModel
     #if DEBUG
     @State private var isConversationPresented = false
+    @State private var isConversationMockPresented = false
     #endif
     @State private var vaultVM: PersonalVaultViewModel?
     @State private var settingsVM: SettingsViewModel?
@@ -169,11 +170,17 @@ public struct HomepageView: View {
         #if DEBUG
         #if os(iOS)
         .fullScreenCover(isPresented: $isConversationPresented) {
-            ConversationMockView { isConversationPresented = false }
+            ConversationLiveView { isConversationPresented = false }
+        }
+        .fullScreenCover(isPresented: $isConversationMockPresented) {
+            ConversationMockView { isConversationMockPresented = false }
         }
         #else
         .sheet(isPresented: $isConversationPresented) {
-            ConversationMockView { isConversationPresented = false }
+            ConversationLiveView { isConversationPresented = false }
+        }
+        .sheet(isPresented: $isConversationMockPresented) {
+            ConversationMockView { isConversationMockPresented = false }
         }
         #endif
         #endif
@@ -269,7 +276,7 @@ public struct HomepageView: View {
 private extension HomepageView {
     var isLessonPresented: Bool {
         #if DEBUG
-        activeLessonLearningVM != nil || isConversationPresented
+        activeLessonLearningVM != nil || isConversationPresented || isConversationMockPresented
         #else
         activeLessonLearningVM != nil
         #endif
@@ -303,6 +310,13 @@ private extension HomepageView {
 private extension HomepageView {
     func handleTestLaunchArguments() {
         let args = ProcessInfo.processInfo.arguments
+        #if DEBUG
+        if args.contains("-test-conversation-mock-ui") {
+            isConversationMockPresented = true
+        } else if args.contains("-test-conversation-live-ui") {
+            isConversationPresented = true
+        }
+        #endif
         guard args.contains("-test-lesson-feedback-incorrect") || args.contains("-test-lesson-feedback-correct") else { return }
         let isCorrect = args.contains("-test-lesson-feedback-correct")
         Task {
