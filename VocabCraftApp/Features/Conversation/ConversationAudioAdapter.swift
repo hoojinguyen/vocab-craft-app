@@ -25,6 +25,11 @@ public enum ConversationRecognitionError: Error, Equatable, Sendable {
 public protocol ConversationSpeechPlaying: AnyObject {
     func play(text: String, locale: String) async -> ConversationPlaybackResult
     func stop()
+    func teardown() async
+}
+
+public extension ConversationSpeechPlaying {
+    func teardown() async {}
 }
 
 @MainActor
@@ -120,9 +125,12 @@ public final class ConversationAudioAdapter: ConversationAudioClient {
     }
 
     public func play(text: String, locale: String = "en-US") async -> ConversationPlaybackResult {
+        operationGeneration += 1
+        let generation = operationGeneration
         guard !Task.isCancelled else { return .cancelled }
         let result = await player.play(text: text, locale: locale)
-        return Task.isCancelled ? .cancelled : result
+        guard !Task.isCancelled, generation == operationGeneration else { return .cancelled }
+        return result
     }
 
     public func capture(
@@ -133,10 +141,18 @@ public final class ConversationAudioAdapter: ConversationAudioClient {
     ) async -> ConversationCaptureResult {
         operationGeneration += 1
         let generation = operationGeneration
+        if let existingCaptureID = activeCapture?.id {
+            finishCapture(.cancelled, captureID: existingCaptureID)
+        }
         guard !Task.isCancelled else { return .cancelled }
+
         let isAuthorized = await recognizer.requestAuthorization()
         guard !Task.isCancelled, generation == operationGeneration else { return .cancelled }
         guard isAuthorized else { return .permissionDenied }
+
+        player.stop()
+        await player.teardown()
+        guard !Task.isCancelled, generation == operationGeneration else { return .cancelled }
 
         let lease: AudioSessionLease
         do {
@@ -152,23 +168,30 @@ public final class ConversationAudioAdapter: ConversationAudioClient {
         let captureID = UUID()
         return await withTaskCancellationHandler {
             await withCheckedContinuation { continuation in
-                guard !Task.isCancelled else {
-                    Task { await self.audioSessionCoordinator.release(lease) }
-                    continuation.resume(returning: .cancelled)
+                guard !Task.isCancelled, generation == self.operationGeneration else {
+                    Task { [audioSessionCoordinator] in
+                        await audioSessionCoordinator.release(lease)
+                        continuation.resume(returning: .cancelled)
+                    }
                     return
                 }
 
-                activeCapture = ActiveCapture(id: captureID, continuation: continuation, lease: lease)
+                self.activeCapture = ActiveCapture(id: captureID, continuation: continuation, lease: lease)
                 do {
-                    try recognizer.start(
+                    try self.recognizer.start(
                         contextualPhrases: contextualPhrases,
                         onPartial: { [weak self] transcript in
                             self?.receivePartial(transcript, captureID: captureID, onPartial: onPartial)
                         },
                         onFinal: { [weak self] transcript in
-                            self?.finishCapture(
-                                transcript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                                    ? .silence : .transcript(transcript),
+                            guard let self else { return }
+                            let currentLatest = self.activeCapture?.latestTranscript ?? ""
+                            let candidate = transcript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                                ? currentLatest
+                                : transcript
+                            let trimmed = candidate.trimmingCharacters(in: .whitespacesAndNewlines)
+                            self.finishCapture(
+                                trimmed.isEmpty ? .silence : .transcript(trimmed),
                                 captureID: captureID
                             )
                         },
@@ -180,16 +203,16 @@ public final class ConversationAudioAdapter: ConversationAudioClient {
                         }
                     )
                 } catch let error as ConversationRecognitionError {
-                    finishCapture(error == .unavailable ? .unavailable : .failed, captureID: captureID)
+                    self.finishCapture(error == .unavailable ? .unavailable : .failed, captureID: captureID)
                     return
                 } catch {
-                    finishCapture(.failed, captureID: captureID)
+                    self.finishCapture(.failed, captureID: captureID)
                     return
                 }
 
                 onListening()
-                scheduleTimer(.initialSilence, after: capturePolicy.initialSilence, captureID: captureID)
-                scheduleTimer(.maximumDuration, after: capturePolicy.maximumDuration, captureID: captureID)
+                self.scheduleTimer(.initialSilence, after: self.capturePolicy.initialSilence, captureID: captureID)
+                self.scheduleTimer(.maximumDuration, after: self.capturePolicy.maximumDuration, captureID: captureID)
             }
         } onCancel: {
             Task { @MainActor [weak self] in
@@ -211,10 +234,23 @@ public final class ConversationAudioAdapter: ConversationAudioClient {
         onPartial: @MainActor @Sendable (String) -> Void
     ) {
         guard var capture = activeCapture, capture.id == captureID else { return }
-        capture.latestTranscript = transcript
+        let trimmed = transcript.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            // Empty partial does not cancel initial silence or reset trailing timer.
+            return
+        }
+
+        // Non-empty speech detected: cancel initial silence
         capture.initialSilenceTask?.cancel()
+        capture.initialSilenceTask = nil
+
+        // Only reset trailing timer if transcript actually changed
+        guard transcript != capture.latestTranscript else { return }
+
+        capture.latestTranscript = transcript
         capture.trailingInactivityTask?.cancel()
         activeCapture = capture
+
         onPartial(transcript)
         scheduleTimer(.trailingInactivity, after: capturePolicy.trailingInactivity, captureID: captureID)
     }
@@ -245,7 +281,7 @@ public final class ConversationAudioAdapter: ConversationAudioClient {
         guard let capture = activeCapture, capture.id == captureID else { return }
         switch kind {
         case .initialSilence:
-            guard capture.latestTranscript.isEmpty else { return }
+            guard capture.latestTranscript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
             finishCapture(.silence, captureID: captureID)
         case .trailingInactivity, .maximumDuration:
             let transcript = capture.latestTranscript.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -285,6 +321,10 @@ public final class TextToSpeechConversationPlayer: ConversationSpeechPlaying {
 
     public func stop() {
         service.stop()
+    }
+
+    public func teardown() async {
+        await service.playbackReleaseTask?.value
     }
 }
 
