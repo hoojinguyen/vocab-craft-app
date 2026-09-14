@@ -39,7 +39,7 @@ struct ConversationLiveControls: View {
         case .preparing:
             CraftTactileMicHubView(
                 speechState: .preparing,
-                customSubtitle: AppLocalized.string("app.conversation.live.preparing"),
+                customSubtitle: AppStrings.Conversation.Live.rawPreparing,
                 onTapMic: session.pause
             )
 
@@ -58,14 +58,14 @@ struct ConversationLiveControls: View {
         case .listening:
             CraftTactileMicHubView(
                 speechState: .listening(),
-                customSubtitle: AppLocalized.string("app.conversation.live.listening"),
+                customSubtitle: AppStrings.Conversation.Live.rawListening,
                 onTapMic: session.pause
             )
 
         case .evaluating:
             CraftTactileMicHubView(
                 speechState: .processing,
-                customSubtitle: AppLocalized.string("app.conversation.live.evaluating"),
+                customSubtitle: AppStrings.Conversation.Live.rawEvaluating,
                 onTapMic: {}
             )
 

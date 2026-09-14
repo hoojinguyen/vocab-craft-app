@@ -50,6 +50,19 @@ extension AppStrings {
             public static var hearSample: LocalizedStringKey { "app.conversation.live.hear_sample" }
             public static var openSettings: LocalizedStringKey { "app.conversation.live.open_settings" }
             public static var anotherSample: LocalizedStringKey { "app.conversation.live.another_sample" }
+
+            public static var rawNotice: String { AppLocalized.string("app.conversation.live.notice") }
+            public static var rawPreparing: String { AppLocalized.string("app.conversation.live.preparing") }
+            public static var rawListening: String { AppLocalized.string("app.conversation.live.listening") }
+            public static var rawPartner: String { AppLocalized.string("app.conversation.live.partner") }
+            public static var rawEvaluating: String { AppLocalized.string("app.conversation.live.evaluating") }
+            public static var rawPermission: String { AppLocalized.string("app.conversation.live.permission") }
+            public static var rawUnavailable: String { AppLocalized.string("app.conversation.live.unavailable") }
+            public static var rawCaptureError: String { AppLocalized.string("app.conversation.live.capture_error") }
+            public static var rawPlaybackError: String { AppLocalized.string("app.conversation.live.playback_error") }
+            public static var rawHearSample: String { AppLocalized.string("app.conversation.live.hear_sample") }
+            public static var rawOpenSettings: String { AppLocalized.string("app.conversation.live.open_settings") }
+            public static var rawAnotherSample: String { AppLocalized.string("app.conversation.live.another_sample") }
         }
     }
 }

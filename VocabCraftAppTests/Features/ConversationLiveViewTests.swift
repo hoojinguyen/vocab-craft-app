@@ -272,6 +272,22 @@ struct ConversationLiveViewTests {
         #expect(!didClose)
     }
 
+    @Test("AppStrings.Conversation.Live typed string accessors resolve non-empty")
+    func typedStringAccessorsResolve() {
+        #expect(!AppStrings.Conversation.Live.rawPreparing.isEmpty)
+        #expect(!AppStrings.Conversation.Live.rawListening.isEmpty)
+        #expect(!AppStrings.Conversation.Live.rawEvaluating.isEmpty)
+        #expect(!AppStrings.Conversation.Live.rawNotice.isEmpty)
+        #expect(!AppStrings.Conversation.Live.rawPartner.isEmpty)
+        #expect(!AppStrings.Conversation.Live.rawPermission.isEmpty)
+        #expect(!AppStrings.Conversation.Live.rawUnavailable.isEmpty)
+        #expect(!AppStrings.Conversation.Live.rawCaptureError.isEmpty)
+        #expect(!AppStrings.Conversation.Live.rawPlaybackError.isEmpty)
+        #expect(!AppStrings.Conversation.Live.rawHearSample.isEmpty)
+        #expect(!AppStrings.Conversation.Live.rawOpenSettings.isEmpty)
+        #expect(!AppStrings.Conversation.Live.rawAnotherSample.isEmpty)
+    }
+
     private func mapToCaptureResult(_ failure: ConversationLiveFailure) -> ConversationCaptureResult {
         switch failure {
         case .noSpeech: .silence

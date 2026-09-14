@@ -32,10 +32,13 @@ public struct ConversationLiveView: View {
                     session: session,
                     onGenerate: requestReplacement
                 )
-            } else {
+            } else if hasLoadError {
                 Text(AppStrings.Lesson.loadErrorText)
                     .font(theme.typography.bodyMedium)
                     .foregroundStyle(theme.colors.statusDanger)
+            } else {
+                ProgressView()
+                    .tint(theme.colors.accent)
             }
         }
         .padding(theme.spacing.base)
