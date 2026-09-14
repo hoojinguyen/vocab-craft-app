@@ -238,17 +238,19 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
             if self.requestGeneration == currentGeneration {
                 self.isSpeaking = false
                 self.currentUtterance = nil
+                _ = self.releaseActiveLease()
+                await self.playbackReleaseTask?.value
             }
-            _ = self.releaseActiveLease()
-            await self.playbackReleaseTask?.value
             return .cancelled
         }
 
         guard acquired else {
-            self.isSpeaking = false
-            self.currentUtterance = nil
-            _ = self.releaseActiveLease()
-            await self.playbackReleaseTask?.value
+            if self.requestGeneration == currentGeneration {
+                self.isSpeaking = false
+                self.currentUtterance = nil
+                _ = self.releaseActiveLease()
+                await self.playbackReleaseTask?.value
+            }
             return .failed
         }
 
@@ -291,8 +293,12 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         }
 
         timeoutTask.cancel()
-        _ = releaseActiveLease()
-        await playbackReleaseTask?.value
+        if self.requestGeneration == currentGeneration {
+            _ = releaseActiveLease()
+            await playbackReleaseTask?.value
+        } else {
+            await playbackReleaseTask?.value
+        }
         return result
     }
 
