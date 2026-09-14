@@ -51,10 +51,18 @@ struct VocabCraftApp: App {
     @ViewBuilder private var bootstrappedContent: some View {
         switch bootstrapper.state {
         case .loading:
-            ProgressView()
-                .task {
-                    bootstrapper.bootstrap()
+            ZStack {
+                themeManager.currentPreset.theme.colors.canvasBackground.ignoresSafeArea()
+                VStack(spacing: 16) {
+                    ProgressView()
+                        .controlSize(.large)
+                    Text(CraftLocalized.string("craft.common.state.loading"))
+                        .foregroundStyle(themeManager.currentPreset.theme.colors.textSecondary)
                 }
+            }
+            .task {
+                bootstrapper.bootstrap()
+            }
         case .error(let error):
             DatabaseRecoveryView(
                 error: error,
@@ -69,10 +77,14 @@ struct VocabCraftApp: App {
             if let appContainer = bootstrapper.appContainer {
                 contentView(for: appContainer)
             } else {
-                ProgressView()
-                    .task {
-                        bootstrapper.bootstrap()
-                    }
+                ZStack {
+                    themeManager.currentPreset.theme.colors.canvasBackground.ignoresSafeArea()
+                    ProgressView()
+                        .controlSize(.large)
+                }
+                .task {
+                    bootstrapper.bootstrap()
+                }
             }
         }
     }
