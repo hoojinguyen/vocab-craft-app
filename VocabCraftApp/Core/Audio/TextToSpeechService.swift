@@ -2,12 +2,49 @@ import AVFoundation
 import Foundation
 import Observation
 
+public enum SpeechPlaybackCompletion: Equatable, Sendable {
+    case finished
+    case cancelled
+    case failed
+}
+
+@MainActor
+public protocol TextToSpeechSynthesizing: AnyObject {
+    var delegate: (any AVSpeechSynthesizerDelegate)? { get set }
+    var isSpeaking: Bool { get }
+    func speak(_ utterance: AVSpeechUtterance)
+    func stopSpeaking(at boundary: AVSpeechBoundary) -> Bool
+}
+
+@MainActor
+final class DefaultTextToSpeechSynthesizer: TextToSpeechSynthesizing {
+    private let synthesizer = AVSpeechSynthesizer()
+
+    var delegate: (any AVSpeechSynthesizerDelegate)? {
+        get { synthesizer.delegate }
+        set { synthesizer.delegate = newValue }
+    }
+
+    var isSpeaking: Bool {
+        synthesizer.isSpeaking
+    }
+
+    func speak(_ utterance: AVSpeechUtterance) {
+        synthesizer.speak(utterance)
+    }
+
+    func stopSpeaking(at boundary: AVSpeechBoundary) -> Bool {
+        synthesizer.stopSpeaking(at: boundary)
+    }
+}
+
 @MainActor
 @Observable
 public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, TextToSpeechProtocol {
-    private let synthesizer = AVSpeechSynthesizer()
+    private let synthesizer: any TextToSpeechSynthesizing
+    public var playbackTimeout: Duration = .seconds(30)
     public var isSpeaking: Bool = false
-    private var activeContinuation: CheckedContinuation<Void, Never>?
+    private var activeContinuation: CheckedContinuation<SpeechPlaybackCompletion, Never>?
     private var interruptionObserver: (any NSObjectProtocol)?
 
     public let audioSessionCoordinator: any AudioSessionCoordinating
@@ -21,10 +58,21 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         self.init(audioSessionCoordinator: AudioSessionCoordinator())
     }
 
-    public init(audioSessionCoordinator: any AudioSessionCoordinating) {
+    public convenience init(audioSessionCoordinator: any AudioSessionCoordinating) {
+        self.init(
+            audioSessionCoordinator: audioSessionCoordinator,
+            synthesizer: DefaultTextToSpeechSynthesizer()
+        )
+    }
+
+    public init(
+        audioSessionCoordinator: any AudioSessionCoordinating,
+        synthesizer: any TextToSpeechSynthesizing
+    ) {
         self.audioSessionCoordinator = audioSessionCoordinator
+        self.synthesizer = synthesizer
         super.init()
-        synthesizer.delegate = self
+        self.synthesizer.delegate = self
         setupInterruptionObserver()
         prewarm()
     }
@@ -156,10 +204,18 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
     }
 
     public func speakAsync(text: String, rate: Float = 1.0, locale: String = "en-US") async {
+        _ = await speakWithCompletion(text: text, rate: rate, locale: locale)
+    }
+
+    public func speakWithCompletion(
+        text: String,
+        rate: Float = 1.0,
+        locale: String = "en-US"
+    ) async -> SpeechPlaybackCompletion {
         guard let utterance = makeUtterance(text: text, rate: rate, locale: locale) else {
             isSpeaking = false
             currentUtterance = nil
-            return
+            return .failed
         }
 
         stop()
@@ -178,55 +234,65 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         }
 
         let acquired = await startTask.value
-        guard acquired, !Task.isCancelled, self.requestGeneration == currentGeneration else {
+        if Task.isCancelled {
             if self.requestGeneration == currentGeneration {
                 self.isSpeaking = false
                 self.currentUtterance = nil
                 self.releaseActiveLease()
             }
-            return
+            return .cancelled
+        }
+        guard acquired, self.requestGeneration == currentGeneration else {
+            if self.requestGeneration == currentGeneration {
+                self.isSpeaking = false
+                self.currentUtterance = nil
+                self.releaseActiveLease()
+            }
+            return .failed
         }
 
         self.isSpeaking = true
 
-        let isTesting = NSClassFromString("XCTestCase") != nil
-        if isTesting {
-            if self.requestGeneration == currentGeneration {
-                self.isSpeaking = false
-                self.currentUtterance = nil
-                self.releaseActiveLease()
-            }
-            return
-        }
-
+        let timeoutDuration = playbackTimeout
         let timeoutTask = Task { @MainActor [weak self] in
             do {
-                try await Task.sleep(nanoseconds: 8_000_000_000)
+                try await Task.sleep(for: timeoutDuration)
             } catch {
                 return
             }
             guard let self = self else { return }
+            guard self.requestGeneration == currentGeneration else { return }
             if self.activeContinuation != nil {
                 if self.synthesizer.isSpeaking {
-                    self.synthesizer.stopSpeaking(at: .immediate)
+                    _ = self.synthesizer.stopSpeaking(at: .immediate)
                 }
                 self.isSpeaking = false
                 self.currentUtterance = nil
                 self.releaseActiveLease()
                 if let continuation = self.activeContinuation {
                     self.activeContinuation = nil
-                    continuation.resume()
+                    continuation.resume(returning: .failed)
                 }
             }
         }
 
-        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
-            self.activeContinuation = continuation
-            self.isSpeaking = true
-            self.synthesizer.speak(utterance)
+        let result = await withTaskCancellationHandler {
+            await withCheckedContinuation { continuation in
+                self.activeContinuation = continuation
+                self.isSpeaking = true
+                self.synthesizer.speak(utterance)
+            }
+        } onCancel: {
+            Task { @MainActor [weak self] in
+                guard let self, self.requestGeneration == currentGeneration else { return }
+                self.stop()
+            }
         }
 
         timeoutTask.cancel()
+        _ = releaseActiveLease()
+        await playbackReleaseTask?.value
+        return result
     }
 
     public func stop() {
@@ -235,13 +301,13 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         requestGeneration += 1
 
         if synthesizer.isSpeaking {
-            synthesizer.stopSpeaking(at: .immediate)
+            _ = synthesizer.stopSpeaking(at: .immediate)
         }
         isSpeaking = false
         currentUtterance = nil
         if let continuation = activeContinuation {
             activeContinuation = nil
-            continuation.resume()
+            continuation.resume(returning: .cancelled)
         }
         releaseActiveLease()
     }
@@ -249,32 +315,40 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
     // MARK: - AVSpeechSynthesizerDelegate
 
     public nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+        let utteranceID = ObjectIdentifier(utterance)
         Task { @MainActor [weak self] in
             LessonPerformanceDiagnostics.event("TTSFinished")
             guard let self = self else { return }
-            guard utterance === self.currentUtterance else { return }
+            guard let currentUtterance = self.currentUtterance,
+                  ObjectIdentifier(currentUtterance) == utteranceID else {
+                return
+            }
             self.currentUtterance = nil
             self.isSpeaking = false
+            self.releaseActiveLease()
             if let continuation = self.activeContinuation {
                 self.activeContinuation = nil
-                continuation.resume()
+                continuation.resume(returning: .finished)
             }
-            self.releaseActiveLease()
         }
     }
 
     public nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
+        let utteranceID = ObjectIdentifier(utterance)
         Task { @MainActor [weak self] in
             LessonPerformanceDiagnostics.event("TTSCancelled")
             guard let self = self else { return }
-            guard utterance === self.currentUtterance else { return }
+            guard let currentUtterance = self.currentUtterance,
+                  ObjectIdentifier(currentUtterance) == utteranceID else {
+                return
+            }
             self.currentUtterance = nil
             self.isSpeaking = false
+            self.releaseActiveLease()
             if let continuation = self.activeContinuation {
                 self.activeContinuation = nil
-                continuation.resume()
+                continuation.resume(returning: .cancelled)
             }
-            self.releaseActiveLease()
         }
     }
 }

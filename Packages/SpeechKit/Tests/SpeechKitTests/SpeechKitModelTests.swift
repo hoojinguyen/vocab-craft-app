@@ -176,4 +176,18 @@ final class SpeechKitModelTests: XCTestCase {
         XCTAssertTrue(mock.didStopAssessing)
         XCTAssertFalse(mock.isListening)
     }
+
+    // MARK: - SpeechRecognitionEngine Initialization Tests
+
+    func testSpeechRecognitionEngine_initializationWithManagesAudioSession() {
+        let defaultEngine = SpeechRecognitionEngine()
+        XCTAssertFalse(defaultEngine.isRecording)
+
+        let customEngine = SpeechRecognitionEngine(
+            locale: Locale(identifier: "en-US"),
+            managesAudioSession: false
+        )
+        XCTAssertFalse(customEngine.isRecording)
+    }
 }
+

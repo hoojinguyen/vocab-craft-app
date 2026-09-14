@@ -19,6 +19,7 @@ public protocol SpeechRecognitionEngineProtocol: AnyObject, Sendable {
 /// with contextual string biasing for language learning vocabulary.
 public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEngineProtocol, @unchecked Sendable {
     private let speechRecognizer: SFSpeechRecognizer?
+    private let managesAudioSession: Bool
     private var audioEngine: AVAudioEngine?
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     private var recognitionTask: SFSpeechRecognitionTask?
@@ -34,8 +35,12 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
     }
 
     /// Initializes the engine for a specific locale (defaults to "en-US").
-    public init(locale: Locale = Locale(identifier: "en-US")) {
+    public init(
+        locale: Locale = Locale(identifier: "en-US"),
+        managesAudioSession: Bool = true
+    ) {
         self.speechRecognizer = SFSpeechRecognizer(locale: locale)
+        self.managesAudioSession = managesAudioSession
         super.init()
     }
 
@@ -168,7 +173,9 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
 
         do {
             #if os(iOS)
-            try configureAudioSession()
+            if managesAudioSession {
+                try configureAudioSession()
+            }
             #endif
 
             let request = makeRecognitionRequest(
@@ -325,7 +332,9 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
         recognitionTask = nil
 
         #if os(iOS)
-        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        if managesAudioSession {
+            try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        }
         #endif
     }
 }
