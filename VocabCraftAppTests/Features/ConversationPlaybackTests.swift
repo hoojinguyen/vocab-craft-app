@@ -353,9 +353,144 @@ struct ConversationPlaybackTests {
         recognizer.stop()
         #expect(mockEngine.stopCallCount == 1)
     }
+
+    @Test("cancelling outer task returns cancelled and fully releases audio lease")
+    func cancellingOuterTaskReturnsCancelled() async {
+        let coordinator = PlaybackTestAudioCoordinator()
+        let synthesizer = MockTextToSpeechSynthesizer()
+        let service = TextToSpeechService(
+            audioSessionCoordinator: coordinator,
+            synthesizer: synthesizer
+        )
+
+        let task = Task { @MainActor in
+            await service.speakWithCompletion(
+                text: "Outer task cancelled during active playback.",
+                rate: 1,
+                locale: "en-US"
+            )
+        }
+
+        for _ in 0..<50 {
+            if synthesizer.spokenUtterances.count == 1 { break }
+            await Task.yield()
+        }
+
+        #expect(service.isSpeaking == true)
+        #expect(await coordinator.activeLeaseCount == 1)
+
+        task.cancel()
+        let result = await task.value
+
+        #expect(result == .cancelled)
+        #expect(service.isSpeaking == false)
+        #expect(await coordinator.activeLeaseCount == 0)
+    }
+
+    @Test("calling stop while lease acquisition is in flight returns cancelled")
+    func stopWhileLeaseAcquisitionInFlightReturnsCancelled() async {
+        let coordinator = DelayedPlaybackTestAudioCoordinator()
+        let synthesizer = MockTextToSpeechSynthesizer()
+        let service = TextToSpeechService(
+            audioSessionCoordinator: coordinator,
+            synthesizer: synthesizer
+        )
+
+        let task = Task { @MainActor in
+            await service.speakWithCompletion(
+                text: "Stop called while lease is being acquired.",
+                rate: 1,
+                locale: "en-US"
+            )
+        }
+
+        for _ in 0..<50 {
+            if await coordinator.isAcquireInFlight() { break }
+            await Task.yield()
+        }
+
+        #expect(await coordinator.isAcquireInFlight() == true)
+
+        service.stop()
+        await coordinator.resumeAcquire()
+
+        let result = await task.value
+        #expect(result == .cancelled)
+        #expect(service.isSpeaking == false)
+        #expect(synthesizer.spokenUtterances.isEmpty)
+        #expect(await coordinator.activeLeaseCount == 0)
+    }
+
+    @Test("cancelling outer task while lease acquisition is in flight returns cancelled")
+    func cancellingTaskWhileLeaseAcquisitionInFlightReturnsCancelled() async {
+        let coordinator = DelayedPlaybackTestAudioCoordinator()
+        let synthesizer = MockTextToSpeechSynthesizer()
+        let service = TextToSpeechService(
+            audioSessionCoordinator: coordinator,
+            synthesizer: synthesizer
+        )
+
+        let task = Task { @MainActor in
+            await service.speakWithCompletion(
+                text: "Cancelled before lease completes acquisition.",
+                rate: 1,
+                locale: "en-US"
+            )
+        }
+
+        for _ in 0..<50 {
+            if await coordinator.isAcquireInFlight() { break }
+            await Task.yield()
+        }
+
+        #expect(await coordinator.isAcquireInFlight() == true)
+
+        task.cancel()
+        await coordinator.resumeAcquire()
+
+        let result = await task.value
+        #expect(result == .cancelled)
+        #expect(service.isSpeaking == false)
+        #expect(synthesizer.spokenUtterances.isEmpty)
+        #expect(await coordinator.activeLeaseCount == 0)
+    }
 }
 
 // MARK: - Test Helpers
+
+private actor DelayedPlaybackTestAudioCoordinator: AudioSessionCoordinating {
+    private(set) var activeLeases: [UUID: AudioSessionLease] = [:]
+    private var acquireContinuation: CheckedContinuation<Void, Never>?
+    private var hasWaiter: Bool = false
+
+    func acquire(_ intent: AudioSessionIntent) async throws -> AudioSessionLease {
+        await withCheckedContinuation { continuation in
+            acquireContinuation = continuation
+            hasWaiter = true
+        }
+        let lease = AudioSessionLease(generation: 1, intent: intent)
+        activeLeases[lease.id] = lease
+        return lease
+    }
+
+    func release(_ lease: AudioSessionLease) async {
+        activeLeases.removeValue(forKey: lease.id)
+    }
+
+    func isAcquireInFlight() -> Bool {
+        hasWaiter
+    }
+
+    func resumeAcquire() {
+        hasWaiter = false
+        acquireContinuation?.resume()
+        acquireContinuation = nil
+    }
+
+    var activeLeaseCount: Int {
+        activeLeases.count
+    }
+}
 
 private actor PlaybackTestAudioCoordinator: AudioSessionCoordinating {
     enum Failure: Error { case unavailable }

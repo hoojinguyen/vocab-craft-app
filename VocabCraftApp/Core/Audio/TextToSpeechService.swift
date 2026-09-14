@@ -234,20 +234,21 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         }
 
         let acquired = await startTask.value
-        if Task.isCancelled {
+        if Task.isCancelled || self.requestGeneration != currentGeneration {
             if self.requestGeneration == currentGeneration {
                 self.isSpeaking = false
                 self.currentUtterance = nil
-                self.releaseActiveLease()
             }
+            _ = self.releaseActiveLease()
+            await self.playbackReleaseTask?.value
             return .cancelled
         }
-        guard acquired, self.requestGeneration == currentGeneration else {
-            if self.requestGeneration == currentGeneration {
-                self.isSpeaking = false
-                self.currentUtterance = nil
-                self.releaseActiveLease()
-            }
+
+        guard acquired else {
+            self.isSpeaking = false
+            self.currentUtterance = nil
+            _ = self.releaseActiveLease()
+            await self.playbackReleaseTask?.value
             return .failed
         }
 
