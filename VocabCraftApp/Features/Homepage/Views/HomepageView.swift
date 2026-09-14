@@ -16,6 +16,9 @@ enum HomepageTabBarPresentationPolicy {
 /// Integrated Homepage view showcasing in-scroll HomeTopHeaderView, CraftFluidJourney gamified journey, and liquid glass navigation.
 public struct HomepageView: View {
     @State private var viewModel: HomepageViewModel
+    #if DEBUG
+    @State private var isConversationPresented = false
+    #endif
     @State private var vaultVM: PersonalVaultViewModel?
     @State private var settingsVM: SettingsViewModel?
     @State private var reflexBlitzVM: ReflexBlitzViewModel?
@@ -62,6 +65,10 @@ public struct HomepageView: View {
                     )
                     .background(theme.colors.canvasBackground)
 
+                    #if DEBUG
+                    conversationLesson
+                    #endif
+
                     Group {
                         if (viewModel.isLoading && viewModel.sections.isEmpty) || ProcessInfo.processInfo.arguments.contains("-test-home-skeleton") {
                              HomeSkeletonView()
@@ -82,7 +89,7 @@ public struct HomepageView: View {
                             CraftFluidJourney(
                                 sections: viewModel.sections,
                                 surfaceStyle: .tactile3D,
-                                isSuspended: activeLessonLearningVM != nil,
+                                isSuspended: isLessonPresented,
                                 deckTitle: viewModel.currentDeckTitle,
                                 deckSubtitle: viewModel.currentDeckSubtitle,
                                 onNodeTap: { node in
@@ -159,6 +166,17 @@ public struct HomepageView: View {
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
+        #if DEBUG
+        #if os(iOS)
+        .fullScreenCover(isPresented: $isConversationPresented) {
+            ConversationMockView { isConversationPresented = false }
+        }
+        #else
+        .sheet(isPresented: $isConversationPresented) {
+            ConversationMockView { isConversationPresented = false }
+        }
+        #endif
+        #endif
         .craftConfetti(isTriggered: $homeConfettiTrigger, particleCount: 36)
         .craftToast(item: $completionToastData, position: .top)
         .onAppear {
@@ -246,6 +264,38 @@ public struct HomepageView: View {
         }
         #endif
     }
+}
+
+private extension HomepageView {
+    var isLessonPresented: Bool {
+        #if DEBUG
+        activeLessonLearningVM != nil || isConversationPresented
+        #else
+        activeLessonLearningVM != nil
+        #endif
+    }
+
+    #if DEBUG
+    var conversationLesson: some View {
+        CraftCard(style: .outlined) {
+            VStack(alignment: .leading, spacing: theme.spacing.sm) {
+                Text(AppStrings.Conversation.lessonTitle)
+                    .font(theme.typography.titleMedium)
+                    .foregroundStyle(theme.colors.textPrimary)
+                Text(AppStrings.Conversation.lessonSubtitle)
+                    .font(theme.typography.caption)
+                    .foregroundStyle(theme.colors.textSecondary)
+                CraftButton(AppStrings.Conversation.start, variant: .primary, size: .md) {
+                    isConversationPresented = true
+                }
+                .accessibilityIdentifier("conversation.lesson.start")
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.horizontal, theme.spacing.base)
+        .padding(.vertical, theme.spacing.sm)
+    }
+    #endif
 }
 
 // MARK: - Lesson & Reflex Orchestration Extension

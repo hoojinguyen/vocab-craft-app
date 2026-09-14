@@ -1,6 +1,8 @@
 {
   "sourceLanguage" : "vi",
   "strings" : {
+    "app.conversation.lesson.title" : {"extractionState": "manual", "localizations": {"en": {"stringUnit": {"state": "translated", "value": "Sample conversation lesson"}}, "vi": {"stringUnit": {"state": "translated", "value": "Bài học hội thoại mẫu"}}}},
+    "app.conversation.lesson.subtitle" : {"extractionState": "manual", "localizations": {"en": {"stringUnit": {"state": "translated", "value": "Try a short dialogue • Simulated listening and speaking"}}, "vi": {"stringUnit": {"state": "translated", "value": "Thử một hội thoại ngắn • Mô phỏng nghe và nói"}}}},
     "app.conversation.cancel" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel" } }, "vi" : { "stringUnit" : { "state" : "translated", "value" : "Hủy" } } } },
     "app.conversation.close" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Close" } }, "vi" : { "stringUnit" : { "state" : "translated", "value" : "Đóng" } } } },
     "app.conversation.completed" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Conversation complete" } }, "vi" : { "stringUnit" : { "state" : "translated", "value" : "Đã hoàn thành hội thoại" } } } },

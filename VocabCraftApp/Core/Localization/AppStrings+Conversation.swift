@@ -3,6 +3,8 @@ import SwiftUI
 
 extension AppStrings {
     public enum Conversation {
+        public static var lessonTitle: LocalizedStringKey { "app.conversation.lesson.title" }
+        public static var lessonSubtitle: LocalizedStringKey { "app.conversation.lesson.subtitle" }
         public static var title: LocalizedStringKey { "app.conversation.title" }
         public static var simulationNotice: LocalizedStringKey { "app.conversation.simulation_notice" }
         public static var situation: LocalizedStringKey { "app.conversation.situation" }

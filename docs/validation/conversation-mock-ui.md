@@ -4,7 +4,7 @@ Branch: `codex/conversation-ui` (isolated worktree `.worktrees/conversation-ui`)
 
 ## Try it
 
-Open `VocabCraft.xcworkspace` in this worktree. Use the VocabCraftApp scheme in Debug and add `-test-conversation-ui` under Run > Arguments Passed On Launch. The simulator currently has this screen open.
+Open `VocabCraft.xcworkspace` in this worktree and use the VocabCraftApp scheme in Debug. On Home, tap **Start practice** in **Sample conversation lesson** directly below the header. Close returns to Home. No launch argument is required. The existing `-test-conversation-ui` argument remains available for direct UI debugging.
 
 Choose either role and start. Expand **DEBUG simulated result** to select pass, retry, or no speech; the outcome resolves after a short delay. Tap a turn to reveal Vietnamese. Pause and reopen to test Continue. Switch roles after completion or generate another sample outside active playback/listening. The generation-failure switch preserves the current dialogue/progress.
 
@@ -27,3 +27,11 @@ The full Xcode test run still reports 14 pre-existing SwiftData Sendable warning
 The user requested sample-driven UI while the API is pending, so production speech/API tasks were deferred. Debug-only local persistence validates resume without a production schema migration. The coordinator completed implementation after the implementer reached its usage limit, followed by independent review.
 
 The project file changes intentionally add source/test membership and DEBUG compilation conditions. No unrelated Xcode user-state metadata is included.
+
+## Home entry and physical device — 2026-09-14
+
+Added a Debug-only lesson card on Home using CraftCard and CraftButton, with EN/VI copy. Its Start button presents the existing conversation screen; the learning-path animation suspends while the conversation is open. No production learning progress is awarded by this mock.
+
+Verified Start opens the conversation on Simulator. Full simulator suite: 787 passed, zero failures/skips. Full SwiftPM app suite: 432 XCTest +309 Swift Testing passed. CraftUIKit: 653 XCTest +84 Swift Testing passed; focused localization: 13 passed. SwiftLint and diff checks clean. Physical-device Debug build succeeded with existing concurrency warnings outside the changed files.
+
+Installed and launched on the connected iPhone **Hooji** successfully after the user unlocked it. Launch returned process ID 9699, with no special launch arguments. Physical touch interaction remains for the user to try.
