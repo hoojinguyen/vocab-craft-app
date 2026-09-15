@@ -1,23 +1,11 @@
 @preconcurrency import AVFoundation
 import Foundation
+import SpeechKit
 
-public enum AudioSessionIntent: Hashable, Sendable {
-    case playback
-    case speechCapture
-    case duplexSpeech
-}
-
-public struct AudioSessionLease: Hashable, Sendable {
-    public let id: UUID
-    public let generation: UInt
-    public let intent: AudioSessionIntent
-
-    public init(id: UUID = UUID(), generation: UInt, intent: AudioSessionIntent) {
-        self.id = id
-        self.generation = generation
-        self.intent = intent
-    }
-}
+public typealias AudioSessionIntent = SpeechKit.AudioSessionIntent
+public typealias AudioSessionLease = SpeechKit.AudioSessionLease
+public typealias AudioSessionCoordinating = SpeechKit.AudioSessionCoordinating
+public typealias AudioSessionEvent = SpeechKit.AudioSessionEvent
 
 #if !os(iOS)
 public enum AVAudioSession {
@@ -61,11 +49,6 @@ public enum AVAudioSession {
 }
 #endif
 
-public protocol AudioSessionCoordinating: Sendable {
-    func acquire(_ intent: AudioSessionIntent) async throws -> AudioSessionLease
-    func release(_ lease: AudioSessionLease) async
-}
-
 public protocol AudioSessionHardware: Sendable {
     func setCategory(
         _ category: AVAudioSession.Category,
@@ -77,14 +60,96 @@ public protocol AudioSessionHardware: Sendable {
     func overrideOutputAudioPort(_ portOverride: AVAudioSession.PortOverride) throws
 }
 
+private final class EventBroadcaster: @unchecked Sendable {
+    private let lock = NSLock()
+    private var continuations: [UUID: AsyncStream<AudioSessionEvent>.Continuation] = [:]
+
+    func register(_ continuation: AsyncStream<AudioSessionEvent>.Continuation, for id: UUID) {
+        lock.withLock {
+            continuations[id] = continuation
+        }
+    }
+
+    func unregister(for id: UUID) {
+        lock.withLock {
+            _ = continuations.removeValue(forKey: id)
+        }
+    }
+
+    func broadcast(_ event: AudioSessionEvent) {
+        let list = lock.withLock {
+            Array(continuations.values)
+        }
+        for continuation in list {
+            continuation.yield(event)
+        }
+    }
+}
+
+#if os(iOS)
+private final class NotificationObserverBox: @unchecked Sendable {
+    private var tokens: [NSObjectProtocol] = []
+
+    func add(_ token: NSObjectProtocol) {
+        tokens.append(token)
+    }
+
+    deinit {
+        for token in tokens {
+            NotificationCenter.default.removeObserver(token)
+        }
+    }
+}
+#endif
+
 public actor AudioSessionCoordinator: AudioSessionCoordinating {
     private let hardware: any AudioSessionHardware
+    private let broadcaster = EventBroadcaster()
+    #if os(iOS)
+    private let observerBox = NotificationObserverBox()
+    #endif
     private var activeLeases: [UUID: AudioSessionLease] = [:]
     private(set) public var generation: UInt = 0
     private(set) public var effectiveIntent: AudioSessionIntent?
 
     public init(hardware: any AudioSessionHardware) {
         self.hardware = hardware
+        #if os(iOS)
+        let notificationCenter = NotificationCenter.default
+        let interruption = notificationCenter.addObserver(
+            forName: AVAudioSession.interruptionNotification,
+            object: nil,
+            queue: nil
+        ) { [weak self] notification in
+            guard let self else { return }
+            Task {
+                await self.handleInterruption(notification)
+            }
+        }
+        let routeChange = notificationCenter.addObserver(
+            forName: AVAudioSession.routeChangeNotification,
+            object: nil,
+            queue: nil
+        ) { [weak self] notification in
+            guard let self else { return }
+            Task {
+                await self.handleRouteChange(notification)
+            }
+        }
+        let mediaReset = notificationCenter.addObserver(
+            forName: AVAudioSession.mediaServicesWereResetNotification,
+            object: nil,
+            queue: nil
+        ) { [weak self] _ in
+            guard let self else { return }
+            Task {
+                await self.handleMediaServicesReset()
+            }
+        }
+        self.observerBox.add(interruption)
+        self.observerBox.add(routeChange)
+        self.observerBox.add(mediaReset)
+        #endif
     }
 
     public init() {
@@ -98,6 +163,41 @@ public actor AudioSessionCoordinator: AudioSessionCoordinating {
     public var currentGeneration: UInt {
         generation
     }
+
+    // MARK: - Event Stream
+
+    nonisolated public var events: AsyncStream<AudioSessionEvent> {
+        AsyncStream { continuation in
+            let id = UUID()
+            self.registerContinuation(continuation, for: id)
+            continuation.onTermination = { [weak self] _ in
+                Task { [weak self] in
+                    await self?.unregisterContinuation(for: id)
+                }
+            }
+        }
+    }
+
+    nonisolated func registerContinuation(
+        _ continuation: AsyncStream<AudioSessionEvent>.Continuation,
+        for id: UUID
+    ) {
+        broadcaster.register(continuation, for: id)
+    }
+
+    func unregisterContinuation(for id: UUID) {
+        broadcaster.unregister(for: id)
+    }
+
+    private func broadcast(_ event: AudioSessionEvent) {
+        broadcaster.broadcast(event)
+    }
+
+    public func broadcastEventForTesting(_ event: AudioSessionEvent) {
+        broadcast(event)
+    }
+
+    // MARK: - Lease Management
 
     public func acquire(_ intent: AudioSessionIntent) async throws -> AudioSessionLease {
         let nextGeneration = generation + 1
@@ -148,13 +248,18 @@ public actor AudioSessionCoordinator: AudioSessionCoordinating {
         if leases.isEmpty {
             return nil
         }
-        if leases.values.contains(where: { $0.intent == .duplexSpeech }) {
+
+        let hasDuplex = leases.values.contains { $0.intent == .duplexSpeech }
+        let hasCapture = leases.values.contains { $0.intent == .speechCapture }
+        let hasPlayback = leases.values.contains { $0.intent == .playback }
+
+        if hasDuplex || (hasCapture && hasPlayback) {
             return .duplexSpeech
-        }
-        if leases.values.contains(where: { $0.intent == .speechCapture }) {
+        } else if hasCapture {
             return .speechCapture
+        } else {
+            return .playback
         }
-        return .playback
     }
 
     private func isCaptureOrDuplex(_ intent: AudioSessionIntent?) -> Bool {
@@ -198,6 +303,63 @@ public actor AudioSessionCoordinator: AudioSessionCoordinating {
                 try hardware.setActive(false, options: [.notifyOthersOnDeactivation])
             }
         }
+    }
+
+    // MARK: - System Notifications
+
+    #if os(iOS)
+    func handleInterruption(_ notification: Notification) {
+        guard let userInfo = notification.userInfo else { return }
+        let rawType = (userInfo[AVAudioSessionInterruptionTypeKey] as? UInt)
+            ?? ((userInfo[AVAudioSessionInterruptionTypeKey] as? NSNumber)?.uintValue)
+        guard let rawType, let type = AVAudioSession.InterruptionType(rawValue: rawType) else {
+            return
+        }
+
+        switch type {
+        case .began:
+            broadcast(.interruptionBegan)
+        case .ended:
+            let rawOptions = (userInfo[AVAudioSessionInterruptionOptionKey] as? UInt)
+                ?? ((userInfo[AVAudioSessionInterruptionOptionKey] as? NSNumber)?.uintValue)
+            var shouldResume = false
+            if let rawOptions {
+                shouldResume = AVAudioSession.InterruptionOptions(rawValue: rawOptions).contains(.shouldResume)
+            }
+            broadcast(.interruptionEnded(shouldResume: shouldResume))
+        @unknown default:
+            break
+        }
+    }
+
+    func handleRouteChange(_ notification: Notification) {
+        guard let userInfo = notification.userInfo else { return }
+        let rawReason = (userInfo[AVAudioSessionRouteChangeReasonKey] as? UInt)
+            ?? ((userInfo[AVAudioSessionRouteChangeReasonKey] as? NSNumber)?.uintValue)
+        guard let rawReason, let reason = AVAudioSession.RouteChangeReason(rawValue: rawReason) else {
+            return
+        }
+
+        let eventReason: AudioSessionEvent.RouteChangeReason
+        switch reason {
+        case .newDeviceAvailable:
+            eventReason = .newDeviceAvailable
+        case .oldDeviceUnavailable:
+            eventReason = .oldDeviceUnavailable
+        case .categoryChange:
+            eventReason = .categoryChange
+        default:
+            eventReason = .other
+        }
+        broadcast(.routeChanged(reason: eventReason))
+    }
+    #endif
+
+    public func handleMediaServicesReset() {
+        activeLeases.removeAll()
+        generation &+= 1
+        effectiveIntent = nil
+        broadcast(.mediaServicesReset)
     }
 }
 

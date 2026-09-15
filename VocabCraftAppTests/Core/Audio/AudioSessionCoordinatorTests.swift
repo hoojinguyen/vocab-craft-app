@@ -141,6 +141,161 @@ struct AudioSessionCoordinatorTests {
         #expect(await coordinator.activeLeaseCount == 1)
         #expect(mock.operations.contains(.overrideOutputAudioPort(.speaker)))
     }
+
+    @Test("Dynamic escalation: Concurrent speechCapture and playback leases escalate effective intent to duplexSpeech")
+    func concurrentCaptureAndPlaybackEscalatesToDuplex() async throws {
+        let mock = MockAudioSessionHardware()
+        let coordinator = AudioSessionCoordinator(hardware: mock)
+
+        let captureLease = try await coordinator.acquire(.speechCapture)
+        #expect(await coordinator.effectiveIntent == .speechCapture)
+
+        let playbackLease = try await coordinator.acquire(.playback)
+        #expect(await coordinator.effectiveIntent == .duplexSpeech)
+        #expect(await coordinator.activeLeaseCount == 2)
+
+        // Releasing playback restores speechCapture
+        await coordinator.release(playbackLease)
+        #expect(await coordinator.effectiveIntent == .speechCapture)
+
+        await coordinator.release(captureLease)
+        #expect(await coordinator.effectiveIntent == nil)
+        #expect(mock.operations.last == .setActive(false, options: [.notifyOthersOnDeactivation]))
+    }
+
+    @Test("Media services reset invalidates all active leases and emits reset event")
+    func mediaServicesResetClearsLeasesAndBroadcastsEvent() async throws {
+        let mock = MockAudioSessionHardware()
+        let coordinator = AudioSessionCoordinator(hardware: mock)
+
+        let stream = coordinator.events
+        var iterator = stream.makeAsyncIterator()
+
+        let lease = try await coordinator.acquire(.speechCapture)
+        #expect(await coordinator.activeLeaseCount == 1)
+
+        // Trigger media services reset
+        await coordinator.handleMediaServicesReset()
+
+        #expect(await coordinator.activeLeaseCount == 0)
+        #expect(await coordinator.effectiveIntent == nil)
+        #expect(await coordinator.currentGeneration > lease.generation)
+
+        let event = await iterator.next()
+        #expect(event == .mediaServicesReset)
+    }
+
+    @Test("Broadcast event emits to active event stream")
+    func broadcastEventEmitsToActiveStream() async throws {
+        let mock = MockAudioSessionHardware()
+        let coordinator = AudioSessionCoordinator(hardware: mock)
+
+        let stream = coordinator.events
+        var iterator = stream.makeAsyncIterator()
+
+        await coordinator.broadcastEventForTesting(.interruptionBegan)
+        let event1 = await iterator.next()
+        #expect(event1 == .interruptionBegan)
+
+        await coordinator.broadcastEventForTesting(.interruptionEnded(shouldResume: true))
+        let event2 = await iterator.next()
+        #expect(event2 == .interruptionEnded(shouldResume: true))
+
+        await coordinator.broadcastEventForTesting(.routeChanged(reason: .newDeviceAvailable))
+        let event3 = await iterator.next()
+        #expect(event3 == .routeChanged(reason: .newDeviceAvailable))
+    }
+
+    #if os(iOS)
+    @Test("System interruption notifications are parsed and broadcast correctly")
+    func systemInterruptionNotificationsBroadcastCorrectly() async throws {
+        let mock = MockAudioSessionHardware()
+        let coordinator = AudioSessionCoordinator(hardware: mock)
+
+        let stream = coordinator.events
+        var iterator = stream.makeAsyncIterator()
+
+        // Began
+        let beganNotification = Notification(
+            name: AVAudioSession.interruptionNotification,
+            object: nil,
+            userInfo: [
+                AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.began.rawValue
+            ]
+        )
+        await coordinator.handleInterruption(beganNotification)
+        let event1 = await iterator.next()
+        #expect(event1 == .interruptionBegan)
+
+        // Ended with shouldResume = true
+        let endedResumeNotification = Notification(
+            name: AVAudioSession.interruptionNotification,
+            object: nil,
+            userInfo: [
+                AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.ended.rawValue,
+                AVAudioSessionInterruptionOptionKey: AVAudioSession.InterruptionOptions.shouldResume.rawValue
+            ]
+        )
+        await coordinator.handleInterruption(endedResumeNotification)
+        let event2 = await iterator.next()
+        #expect(event2 == .interruptionEnded(shouldResume: true))
+
+        // Ended with shouldResume = false
+        let endedNoResumeNotification = Notification(
+            name: AVAudioSession.interruptionNotification,
+            object: nil,
+            userInfo: [
+                AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.ended.rawValue,
+                AVAudioSessionInterruptionOptionKey: UInt(0)
+            ]
+        )
+        await coordinator.handleInterruption(endedNoResumeNotification)
+        let event3 = await iterator.next()
+        #expect(event3 == .interruptionEnded(shouldResume: false))
+    }
+
+    @Test("System route change notifications are parsed and broadcast correctly")
+    func systemRouteChangeNotificationsBroadcastCorrectly() async throws {
+        let mock = MockAudioSessionHardware()
+        let coordinator = AudioSessionCoordinator(hardware: mock)
+
+        let stream = coordinator.events
+        var iterator = stream.makeAsyncIterator()
+
+        let routeChangeNotification = Notification(
+            name: AVAudioSession.routeChangeNotification,
+            object: nil,
+            userInfo: [
+                AVAudioSessionRouteChangeReasonKey: AVAudioSession.RouteChangeReason.newDeviceAvailable.rawValue
+            ]
+        )
+        await coordinator.handleRouteChange(routeChangeNotification)
+        let event1 = await iterator.next()
+        #expect(event1 == .routeChanged(reason: .newDeviceAvailable))
+
+        let routeChangeOldDevice = Notification(
+            name: AVAudioSession.routeChangeNotification,
+            object: nil,
+            userInfo: [
+                AVAudioSessionRouteChangeReasonKey: AVAudioSession.RouteChangeReason.oldDeviceUnavailable.rawValue
+            ]
+        )
+        await coordinator.handleRouteChange(routeChangeOldDevice)
+        let event2 = await iterator.next()
+        #expect(event2 == .routeChanged(reason: .oldDeviceUnavailable))
+
+        let routeChangeCategory = Notification(
+            name: AVAudioSession.routeChangeNotification,
+            object: nil,
+            userInfo: [
+                AVAudioSessionRouteChangeReasonKey: AVAudioSession.RouteChangeReason.categoryChange.rawValue
+            ]
+        )
+        await coordinator.handleRouteChange(routeChangeCategory)
+        let event3 = await iterator.next()
+        #expect(event3 == .routeChanged(reason: .categoryChange))
+    }
+    #endif
 }
 
 // MARK: - MockAudioSessionHardware
