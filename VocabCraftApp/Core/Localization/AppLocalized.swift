@@ -39,6 +39,13 @@ public enum AppLocalized: Sendable {
         if let containingAppBundle = Bundle(url: containingAppURL) {
             potentialURLs.append(containingAppBundle.url(forResource: "Localizable", withExtension: "xcstrings"))
         }
+        let repoCandidate = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .appendingPathComponent("VocabCraftApp/Resources/Localizable.xcstrings")
+        potentialURLs.append(repoCandidate)
+        potentialURLs.append(URL(fileURLWithPath: "VocabCraftApp/Resources/Localizable.xcstrings"))
         for case let url? in potentialURLs {
             if let data = try? Data(contentsOf: url),
                let decoded = try? JSONDecoder().decode(AppStringCatalog.self, from: data) {
@@ -132,5 +139,36 @@ public enum AppLocalized: Sendable {
         }
 
         return key
+    }
+}
+
+extension String {
+    public init(localized key: String.LocalizationValue) {
+        let mirror = Mirror(reflecting: key)
+        let keyString = mirror.children.first(where: { $0.label == "key" })?.value as? String ?? ""
+        if !keyString.isEmpty {
+            self = AppLocalized.string(keyString)
+        } else {
+            #if SWIFT_PACKAGE
+            self.init(localized: key, bundle: Bundle.module)
+            #else
+            self.init(localized: key, bundle: Bundle.main)
+            #endif
+        }
+    }
+
+    public init(localized key: String.LocalizationValue, locale: Locale) {
+        let mirror = Mirror(reflecting: key)
+        let keyString = mirror.children.first(where: { $0.label == "key" })?.value as? String ?? ""
+        let lang = locale.language.languageCode?.identifier ?? "en"
+        if !keyString.isEmpty {
+            self = AppLocalized.string(keyString, language: lang)
+        } else {
+            #if SWIFT_PACKAGE
+            self.init(localized: key, bundle: Bundle.module, locale: locale)
+            #else
+            self.init(localized: key, bundle: Bundle.main, locale: locale)
+            #endif
+        }
     }
 }

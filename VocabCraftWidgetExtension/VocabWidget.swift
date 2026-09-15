@@ -29,10 +29,10 @@ public struct VocabWidgetProvider: TimelineProvider {
     public func makePlaceholder() -> VocabWidgetEntry {
         VocabWidgetEntry(
             date: Date(),
-            lemma: "Abandon",
-            ipaUs: "/əˈbæn.dən/",
-            definitionVi: "Từ bỏ, ruồng bỏ",
-            exampleEn: "He decided to abandon the plan.",
+            lemma: String(localized: "app.widget.placeholder.lemma"),
+            ipaUs: String(localized: "app.widget.placeholder.ipa"),
+            definitionVi: String(localized: "app.widget.placeholder.definition"),
+            exampleEn: String(localized: "app.widget.placeholder.example"),
             masteryLevel: 0
         )
     }

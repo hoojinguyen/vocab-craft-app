@@ -251,6 +251,7 @@
 		300051810A7B65A07F9A /* VocabularyModelsTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200051810A7B65A07F9A /* VocabularyModelsTests.swift */; };
 		30005C654C6659FCC839 /* VocabularyRedesignViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20005C654C6659FCC839 /* VocabularyRedesignViewTests.swift */; };
 		300041B134BDE2385881 /* VocabularyViewTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200041B134BDE2385881 /* VocabularyViewTests.swift */; };
+		3000F5A959551AA69EA9 /* WidgetLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000F5A959551AA69EA9 /* WidgetLocalizationTests.swift */; };
 		3000C272A49C7CAF5DDF /* MockReflexServices.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000C272A49C7CAF5DDF /* MockReflexServices.swift */; };
 		3000329638D5564AD2D6 /* ReflexLocalizationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000329638D5564AD2D6 /* ReflexLocalizationTests.swift */; };
 		3000B1DEE633B1C8F81E /* SRSEngineTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000B1DEE633B1C8F81E /* SRSEngineTests.swift */; };
@@ -539,6 +540,7 @@
 		200051810A7B65A07F9A /* VocabularyModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyModelsTests.swift"; sourceTree = "<group>"; };
 		20005C654C6659FCC839 /* VocabularyRedesignViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyRedesignViewTests.swift"; sourceTree = "<group>"; };
 		200041B134BDE2385881 /* VocabularyViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyViewTests.swift"; sourceTree = "<group>"; };
+		2000F5A959551AA69EA9 /* WidgetLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WidgetLocalizationTests.swift"; sourceTree = "<group>"; };
 		2000C272A49C7CAF5DDF /* MockReflexServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockReflexServices.swift"; sourceTree = "<group>"; };
 		2000329638D5564AD2D6 /* ReflexLocalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ReflexLocalizationTests.swift"; sourceTree = "<group>"; };
 		2000B1DEE633B1C8F81E /* SRSEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SRSEngineTests.swift"; sourceTree = "<group>"; };
@@ -1446,6 +1448,7 @@
 				4000E102CB9FECDF3753 /* Reflex */,
 				4000222CDC96FC1A1DA8 /* ReflexDrill */,
 				4000829CC0FFDB01C99C /* Vocabulary */,
+				4000BCC709DD8E699FBE /* Widget */,
 			);
 			path = "Features";
 			sourceTree = "<group>";
@@ -1521,6 +1524,14 @@
 				200041B134BDE2385881 /* VocabularyViewTests.swift */,
 			);
 			path = "Vocabulary";
+			sourceTree = "<group>";
+		};
+		4000BCC709DD8E699FBE /* Widget */ = {
+			isa = PBXGroup;
+			children = (
+				2000F5A959551AA69EA9 /* WidgetLocalizationTests.swift */,
+			);
+			path = "Widget";
 			sourceTree = "<group>";
 		};
 		40001795D309886C29B1 /* Mocks */ = {
@@ -1940,6 +1951,7 @@
 				300051810A7B65A07F9A /* VocabularyModelsTests.swift in Test Sources */,
 				30005C654C6659FCC839 /* VocabularyRedesignViewTests.swift in Test Sources */,
 				300041B134BDE2385881 /* VocabularyViewTests.swift in Test Sources */,
+				3000F5A959551AA69EA9 /* WidgetLocalizationTests.swift in Test Sources */,
 				3000C272A49C7CAF5DDF /* MockReflexServices.swift in Test Sources */,
 				3000329638D5564AD2D6 /* ReflexLocalizationTests.swift in Test Sources */,
 				3000B1DEE633B1C8F81E /* SRSEngineTests.swift in Test Sources */,

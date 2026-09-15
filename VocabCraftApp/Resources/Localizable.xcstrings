@@ -6087,6 +6087,74 @@
         }
       }
     },
+    "app.widget.placeholder.definition" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To give up completely"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Từ bỏ, ruồng bỏ"
+          }
+        }
+      }
+    },
+    "app.widget.placeholder.example" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "He decided to abandon the plan."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anh ấy quyết định từ bỏ kế hoạch."
+          }
+        }
+      }
+    },
+    "app.widget.placeholder.ipa" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "/əˈbæn.dən/"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "/əˈbæn.dən/"
+          }
+        }
+      }
+    },
+    "app.widget.placeholder.lemma" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abandon"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abandon"
+          }
+        }
+      }
+    },
     "Business & Tech" : {
       "extractionState" : "manual",
       "localizations" : {
