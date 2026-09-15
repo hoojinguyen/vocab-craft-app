@@ -19,6 +19,8 @@ public protocol SpeechRecognitionEngineProtocol: AnyObject, Sendable {
 /// with contextual string biasing for language learning vocabulary.
 public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEngineProtocol, @unchecked Sendable {
     private let speechRecognizer: SFSpeechRecognizer?
+    private let audioCoordinator: (any AudioSessionCoordinating)?
+    private var activeLease: AudioSessionLease?
     private var audioEngine: AVAudioEngine?
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     private var recognitionTask: SFSpeechRecognitionTask?
@@ -33,9 +35,13 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
         return _isRecording
     }
 
-    /// Initializes the engine for a specific locale (defaults to "en-US").
-    public init(locale: Locale = Locale(identifier: "en-US")) {
+    /// Initializes the engine for a specific locale (defaults to "en-US") and optional audio session coordinator.
+    public init(
+        locale: Locale = Locale(identifier: "en-US"),
+        audioCoordinator: (any AudioSessionCoordinating)? = nil
+    ) {
         self.speechRecognizer = SFSpeechRecognizer(locale: locale)
+        self.audioCoordinator = audioCoordinator
         super.init()
     }
 
@@ -43,32 +49,30 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
         stop()
     }
 
+    private func handleAcquiredLease(_ lease: AudioSessionLease?) -> AudioSessionLease? {
+        lock.withLock {
+            if !_isRecording {
+                return lease
+            }
+            self.activeLease = lease
+            return nil
+        }
+    }
+
     /// Requests user authorization for microphone and speech recognition.
     public func requestAuthorization(completion: @escaping @Sendable (Bool) -> Void) {
-        #if targetEnvironment(simulator)
+        #if targetEnvironment(simulator) || os(macOS)
         DispatchQueue.main.async {
             completion(true)
         }
         #elseif os(iOS)
-        if #available(iOS 17.0, *) {
-            AVAudioApplication.requestRecordPermission { micGranted in
-                guard micGranted else {
-                    completion(false)
-                    return
-                }
-                SFSpeechRecognizer.requestAuthorization { authStatus in
-                    completion(authStatus == .authorized)
-                }
+        AVAudioApplication.requestRecordPermission { micGranted in
+            guard micGranted else {
+                completion(false)
+                return
             }
-        } else {
-            AVAudioSession.sharedInstance().requestRecordPermission { micGranted in
-                guard micGranted else {
-                    completion(false)
-                    return
-                }
-                SFSpeechRecognizer.requestAuthorization { authStatus in
-                    completion(authStatus == .authorized)
-                }
+            SFSpeechRecognizer.requestAuthorization { authStatus in
+                completion(authStatus == .authorized)
             }
         }
         #else
@@ -98,13 +102,29 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
         onError: @escaping @Sendable (Error) -> Void
     ) throws {
         lock.lock()
-        defer { lock.unlock() }
-
         if _isRecording {
             stopInternal()
         }
+        lock.unlock()
 
-        #if targetEnvironment(simulator)
+        if let coordinator = audioCoordinator {
+            let semaphore = DispatchSemaphore(value: 0)
+            Task.detached { [weak self] in
+                let lease = try? await coordinator.acquire(.speechCapture)
+                if let self {
+                    if let leaseToRelease = self.handleAcquiredLease(lease) {
+                        await coordinator.release(leaseToRelease)
+                    }
+                }
+                semaphore.signal()
+            }
+            _ = semaphore.wait(timeout: .now() + .milliseconds(200))
+        }
+
+        lock.lock()
+        defer { lock.unlock() }
+
+        #if targetEnvironment(simulator) || os(macOS)
         startSimulatorTask(
             phrases: contextualPhrases,
             onPartialResult: onPartialResult,
@@ -120,7 +140,7 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
         #endif
     }
 
-    #if targetEnvironment(simulator)
+    #if targetEnvironment(simulator) || os(macOS)
     private func startSimulatorTask(
         phrases: [String],
         onPartialResult: @escaping @Sendable (String) -> Void,
@@ -167,10 +187,6 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
         }
 
         do {
-            #if os(iOS)
-            try configureAudioSession()
-            #endif
-
             let request = makeRecognitionRequest(
                 supportsOnDevice: recognizer.supportsOnDeviceRecognition,
                 contextualPhrases: contextualPhrases
@@ -202,19 +218,6 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
             throw error
         }
     }
-
-    #if os(iOS)
-    private func configureAudioSession() throws {
-        let audioSession = AVAudioSession.sharedInstance()
-        do {
-            try audioSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetoothHFP])
-            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
-            try? audioSession.overrideOutputAudioPort(.speaker)
-        } catch {
-            throw SpeechKitError.audioSessionConfigurationFailed
-        }
-    }
-    #endif
 
     private func makeRecognitionRequest(
         supportsOnDevice: Bool,
@@ -307,6 +310,13 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
     private func stopInternal() {
         _isRecording = false
 
+        if let lease = activeLease, let coordinator = audioCoordinator {
+            activeLease = nil
+            Task {
+                await coordinator.release(lease)
+            }
+        }
+
         simulationTask?.cancel()
         simulationTask = nil
 
@@ -323,9 +333,5 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
 
         recognitionTask?.cancel()
         recognitionTask = nil
-
-        #if os(iOS)
-        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
-        #endif
     }
 }

@@ -58,6 +58,39 @@ final class MockSpeechRecognitionEngine: SpeechRecognitionEngineProtocol, @unche
     }
 }
 
+// MARK: - Mock Tracking Audio Coordinator
+
+final class MockTrackingAudioCoordinator: AudioSessionCoordinating, @unchecked Sendable {
+    private let lock = NSLock()
+    private var _acquiredIntents: [AudioSessionIntent] = []
+    private var _releasedLeases: [AudioSessionLease] = []
+
+    var acquiredIntents: [AudioSessionIntent] {
+        lock.withLock { _acquiredIntents }
+    }
+
+    var releasedLeases: [AudioSessionLease] {
+        lock.withLock { _releasedLeases }
+    }
+
+    func acquire(_ intent: AudioSessionIntent) async throws -> AudioSessionLease {
+        lock.withLock {
+            _acquiredIntents.append(intent)
+        }
+        return AudioSessionLease(id: UUID(), generation: 1, intent: intent)
+    }
+
+    func release(_ lease: AudioSessionLease) async {
+        lock.withLock {
+            _releasedLeases.append(lease)
+        }
+    }
+
+    var events: AsyncStream<AudioSessionEvent> {
+        AsyncStream { $0.finish() }
+    }
+}
+
 // MARK: - Safe Box for Sendable Closures
 
 private final class SafeBoolBox: @unchecked Sendable {
@@ -413,5 +446,52 @@ final class SpeechAssessmentServiceTests: XCTestCase {
         XCTAssertFalse(didFireSilence.value)
         try await Task.sleep(for: .milliseconds(100))
         XCTAssertTrue(didFireSilence.value, "Trailing silence timer should fire after activity registered")
+    }
+
+    // MARK: - SpeechRecognitionEngine Coordinator Integration Tests
+
+    func testSpeechRecognitionEngine_acquiresAndReleasesLeaseThroughCoordinator() throws {
+        let mockCoordinator = MockTrackingAudioCoordinator()
+        let engine = SpeechRecognitionEngine(audioCoordinator: mockCoordinator)
+
+        try engine.start(
+            contextualPhrases: ["test"],
+            onPartialResult: { _ in },
+            onFinalResult: { _ in },
+            onError: { _ in }
+        )
+
+        XCTAssertTrue(engine.isRecording)
+        XCTAssertEqual(mockCoordinator.acquiredIntents, [.speechCapture])
+
+        engine.stop()
+        XCTAssertFalse(engine.isRecording)
+        // Release is scheduled asynchronously on stop
+    }
+
+    func testSpeechRecognitionEngine_releasesLeaseOnStop() async throws {
+        let mockCoordinator = MockTrackingAudioCoordinator()
+        let engine = SpeechRecognitionEngine(audioCoordinator: mockCoordinator)
+
+        try engine.start(
+            contextualPhrases: ["test"],
+            onPartialResult: { _ in },
+            onFinalResult: { _ in },
+            onError: { _ in }
+        )
+
+        XCTAssertTrue(engine.isRecording)
+        XCTAssertEqual(mockCoordinator.acquiredIntents, [.speechCapture])
+
+        engine.stop()
+        XCTAssertFalse(engine.isRecording)
+
+        // Wait for asynchronous release task to complete
+        for _ in 0..<20 {
+            if !mockCoordinator.releasedLeases.isEmpty { break }
+            try await Task.sleep(for: .milliseconds(10))
+        }
+
+        XCTAssertEqual(mockCoordinator.releasedLeases.map(\.intent), [.speechCapture])
     }
 }
