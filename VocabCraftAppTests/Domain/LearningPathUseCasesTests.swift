@@ -6,13 +6,13 @@ import XCTest
 #endif
 
 final class LearningPathUseCasesTests: XCTestCase {
-    private var dataSource: SampleVocabularyDataSource!
+    private var dataSource: BundledVocabularyDataSource!
     private var stageRepo: MockStageProgressRepository!
     private var progressRepo: MockUserProgressRepository!
 
     override func setUp() {
         super.setUp()
-        dataSource = SampleVocabularyDataSource()
+        dataSource = BundledVocabularyDataSource()
         stageRepo = MockStageProgressRepository()
         progressRepo = MockUserProgressRepository()
     }

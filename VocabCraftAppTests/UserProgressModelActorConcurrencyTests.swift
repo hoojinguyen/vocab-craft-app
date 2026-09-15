@@ -70,7 +70,7 @@ final class UserProgressModelActorConcurrencyTests: XCTestCase {
     }
 
     func testAppContainerWiresProgressActorToVocabRepo() async throws {
-        let appContainer = AppContainer(datasetEngine: DatasetEngine(), modelContainer: container)
+        let appContainer = AppContainer(modelContainer: container)
         let decks = try await appContainer.vocabularyDataSource.fetchTopicDecks()
         XCTAssertFalse(decks.isEmpty)
         XCTAssertNotNil(appContainer.resetUserProgressUseCase)

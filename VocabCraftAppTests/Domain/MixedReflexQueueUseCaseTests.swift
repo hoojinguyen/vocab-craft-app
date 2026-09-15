@@ -53,7 +53,7 @@ struct MixedReflexQueueUseCaseTests {
     @Test("Records first correct answer, increments streak, and appends practiced mode")
     func testRecordAttemptFirstCorrectAnswer() async throws {
         let mockRepo = MockUserProgressRepository()
-        let mockDataSource = SampleVocabularyDataSource()
+        let mockDataSource = BundledVocabularyDataSource()
         let sut = RecordMixedDrillAttemptUseCase(progressRepo: mockRepo, dataSource: mockDataSource)
 
         let result = try await sut.execute(wordId: 1, mode: .multipleChoice, isCorrect: true)
@@ -73,7 +73,7 @@ struct MixedReflexQueueUseCaseTests {
                 practicedModes: [.multipleChoice]
             )
         ])
-        let mockDataSource = SampleVocabularyDataSource()
+        let mockDataSource = BundledVocabularyDataSource()
         let sut = RecordMixedDrillAttemptUseCase(progressRepo: mockRepo, dataSource: mockDataSource)
 
         let result = try await sut.execute(wordId: 1, mode: .speaking, isCorrect: true)
@@ -94,7 +94,7 @@ struct MixedReflexQueueUseCaseTests {
                 isMastered: true
             )
         ])
-        let mockDataSource = SampleVocabularyDataSource()
+        let mockDataSource = BundledVocabularyDataSource()
         let sut = RecordMixedDrillAttemptUseCase(progressRepo: mockRepo, dataSource: mockDataSource)
 
         let result = try await sut.execute(wordId: 1, mode: .typing, isCorrect: false)
@@ -107,7 +107,7 @@ struct MixedReflexQueueUseCaseTests {
     @Test("Returns nil for non-existent word ID in data source")
     func testRecordAttemptNonExistentWordReturnsNil() async throws {
         let mockRepo = MockUserProgressRepository()
-        let mockDataSource = SampleVocabularyDataSource()
+        let mockDataSource = BundledVocabularyDataSource()
         let sut = RecordMixedDrillAttemptUseCase(progressRepo: mockRepo, dataSource: mockDataSource)
 
         let result = try await sut.execute(wordId: 999999, mode: .multipleChoice, isCorrect: true)
@@ -141,7 +141,7 @@ struct MixedReflexQueueUseCaseTests {
                 isMastered: true
             )
         ])
-        let mockDataSource = SampleVocabularyDataSource()
+        let mockDataSource = BundledVocabularyDataSource()
         let sut = FetchPersonalVaultUseCase(dataSource: mockDataSource, progressRepo: mockRepo)
 
         let notMastered = try await sut.fetchVaultWords(filter: .notMastered)

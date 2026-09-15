@@ -8,7 +8,6 @@ public final class AppContainer {
     /// Toggle to switch between curated sample dataset and production data source.
     public let useSampleData: Bool
 
-    public let datasetEngine: DatasetEngine?
     public let modelContainer: ModelContainer?
 
     // MARK: - Data Sources & Repositories
@@ -44,7 +43,6 @@ public final class AppContainer {
     public let appRouter: AppRouter
 
     public init(
-        datasetEngine: DatasetEngine? = nil,
         modelContainer: ModelContainer? = nil,
         useMockData: Bool? = nil,
         useSampleData: Bool = true,
@@ -63,7 +61,6 @@ public final class AppContainer {
         appRouter: AppRouter? = nil
     ) {
         self.useSampleData = useSampleData
-        self.datasetEngine = datasetEngine
         self.modelContainer = modelContainer
 
         let progressActor: UserProgressModelActor? = modelContainer.map { UserProgressModelActor(modelContainer: $0) }

@@ -25,44 +25,27 @@ public struct NextWordIntent: AppIntent {
 
     @MainActor
     @discardableResult
-    public func perform(in context: ModelContext, dbEngine: DatasetEngine? = nil) async throws -> some IntentResult {
-        let engine = dbEngine ?? DatasetEngine()
-        let randomWord = engine?.getRandomWordForWidget()
-
+    public func perform(in context: ModelContext) async throws -> some IntentResult {
         let states = try context.fetch(FetchDescriptor<WidgetCurrentState>())
         let existingState = states.first
 
-        let newWordId: Int64
-        let lemma: String
-        let ipaUs: String
-        let definitionVi: String
-        let exampleEn: String
-
-        if let word = randomWord {
-            newWordId = word.id
-            lemma = word.lemma
-            ipaUs = word.ipaUs ?? ""
-            definitionVi = word.definitionVi ?? (word.definitionEn ?? "")
-            exampleEn = word.example ?? ""
-        } else {
-            // Fallback word rotation if sqlite database is unavailable
-            // swiftlint:disable:next large_tuple
-            let fallbackWords: [(Int64, String, String, String, String)] = [
-                (101, "Abandon", "/əˈbæn.dən/", "Từ bỏ, ruồng bỏ", "He decided to abandon the plan."),
-                (102, "Brilliant", "/ˈbrɪl.jənt/", "Rực rỡ, xuất sắc", "She gave a brilliant performance."),
-                (103, "Resilient", "/rɪˈzɪl.jənt/", "Kiên cường, phục hồi nhanh", "The team was remarkably resilient."),
-                (104, "Eloquent", "/ˈel.ə.kwənt/", "Hùng hồn, trôi chảy", "An eloquent speech inspired everyone."),
-                (105, "Persistent", "/pəˈsɪs.tənt/", "Bền bỉ, nhẫn nại", "Success comes with persistent effort.")
-            ]
-            let currentId = existingState?.currentWordId ?? 0
-            let nextIndex = ((fallbackWords.firstIndex(where: { $0.0 == currentId }) ?? -1) + 1) % fallbackWords.count
-            let selected = fallbackWords[nextIndex]
-            newWordId = selected.0
-            lemma = selected.1
-            ipaUs = selected.2
-            definitionVi = selected.3
-            exampleEn = selected.4
-        }
+        // Word rotation across featured vocabulary
+        // swiftlint:disable:next large_tuple
+        let words: [(Int64, String, String, String, String)] = [
+            (101, "Abandon", "/əˈbæn.dən/", "Từ bỏ, ruồng bỏ", "He decided to abandon the plan."),
+            (102, "Brilliant", "/ˈbrɪl.jənt/", "Rực rỡ, xuất sắc", "She gave a brilliant performance."),
+            (103, "Resilient", "/rɪˈzɪl.jənt/", "Kiên cường, phục hồi nhanh", "The team was remarkably resilient."),
+            (104, "Eloquent", "/ˈel.ə.kwənt/", "Hùng hồn, trôi chảy", "An eloquent speech inspired everyone."),
+            (105, "Persistent", "/pəˈsɪs.tənt/", "Bền bỉ, nhẫn nại", "Success comes with persistent effort.")
+        ]
+        let currentId = existingState?.currentWordId ?? 0
+        let nextIndex = ((words.firstIndex(where: { $0.0 == currentId }) ?? -1) + 1) % words.count
+        let selected = words[nextIndex]
+        let newWordId = selected.0
+        let lemma = selected.1
+        let ipaUs = selected.2
+        let definitionVi = selected.3
+        let exampleEn = selected.4
 
         if let state = existingState {
             state.currentWordId = newWordId

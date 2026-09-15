@@ -291,7 +291,7 @@ struct RecordMixedDrillModeSuccessStatsTests {
     @Test("Recording correct drill attempt increments modeSuccessStats for that mode")
     func testRecordAttemptIncrementsModeStats() async throws {
         let mockRepo = MockUserProgressRepository()
-        let mockDataSource = SampleVocabularyDataSource()
+        let mockDataSource = BundledVocabularyDataSource()
         let useCase = RecordMixedDrillAttemptUseCase(progressRepo: mockRepo, dataSource: mockDataSource)
 
         let result = try await useCase.execute(wordId: 1, mode: .speaking, isCorrect: true)
@@ -306,7 +306,7 @@ struct RecordMixedDrillModeSuccessStatsTests {
     @Test("Recording incorrect drill attempt does not increment modeSuccessStats")
     func testRecordAttemptIncorrectDoesNotIncrementModeStats() async throws {
         let mockRepo = MockUserProgressRepository()
-        let mockDataSource = SampleVocabularyDataSource()
+        let mockDataSource = BundledVocabularyDataSource()
         let useCase = RecordMixedDrillAttemptUseCase(progressRepo: mockRepo, dataSource: mockDataSource)
 
         let result = try await useCase.execute(wordId: 1, mode: .speaking, isCorrect: false)

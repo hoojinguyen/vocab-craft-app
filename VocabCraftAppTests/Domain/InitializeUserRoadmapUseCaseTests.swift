@@ -23,7 +23,7 @@ final class InitializeUserRoadmapUseCaseTests: XCTestCase {
 
     @MainActor
     func testInitializeRoadmapForBeginnerA1() async throws {
-        let dataSource = SampleVocabularyDataSource()
+        let dataSource = BundledVocabularyDataSource()
         let stageRepo = MockStageProgressRepository()
         let settings = MockUserRoadmapSettings()
 
@@ -58,7 +58,7 @@ final class InitializeUserRoadmapUseCaseTests: XCTestCase {
 
     @MainActor
     func testInitializeRoadmapForIntermediateB1AutoUnlocksFoundationalStage() async throws {
-        let dataSource = SampleVocabularyDataSource()
+        let dataSource = BundledVocabularyDataSource()
         let stageRepo = MockStageProgressRepository()
         let settings = MockUserRoadmapSettings()
 
@@ -165,7 +165,7 @@ final class InitializeUserRoadmapUseCaseTests: XCTestCase {
 
     @MainActor
     func testInitializeRoadmapReconcilesStage1WhenChangingFromAdvancedToBeginner() async throws {
-        let dataSource = SampleVocabularyDataSource()
+        let dataSource = BundledVocabularyDataSource()
         let stageRepo = MockStageProgressRepository()
         let settings = MockUserRoadmapSettings()
 

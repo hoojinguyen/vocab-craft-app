@@ -13,7 +13,7 @@ public struct OnboardingFirstLessonView: View {
     @Environment(\.ttsService) private var ttsService
 
     public init(words: [TopicWordDTO], onFinish: @escaping () -> Void) {
-        self.words = words.isEmpty ? VocabularySampleDataset.starterWords() : words
+        self.words = words.isEmpty ? MockVocabularyDataSource.starterWords() : words
         self.onFinish = onFinish
     }
 

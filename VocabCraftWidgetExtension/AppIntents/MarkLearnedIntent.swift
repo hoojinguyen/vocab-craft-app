@@ -25,11 +25,11 @@ public struct MarkLearnedIntent: AppIntent {
 
     @MainActor
     @discardableResult
-    public func perform(in context: ModelContext, dbEngine: DatasetEngine? = nil) async throws -> some IntentResult {
+    public func perform(in context: ModelContext) async throws -> some IntentResult {
         let states = try context.fetch(FetchDescriptor<WidgetCurrentState>())
         guard let currentState = states.first else {
             // If no current state, trigger NextWordIntent to establish initial state
-            try await NextWordIntent().perform(in: context, dbEngine: dbEngine)
+            try await NextWordIntent().perform(in: context)
             return .result()
         }
 
@@ -73,7 +73,7 @@ public struct MarkLearnedIntent: AppIntent {
         try context.save()
 
         // Rotate to next word state
-        try await NextWordIntent().perform(in: context, dbEngine: dbEngine)
+        try await NextWordIntent().perform(in: context)
 
         WidgetCenter.shared.reloadTimelines(ofKind: "VocabWidget")
         return .result()
