@@ -1,40 +1,88 @@
 import Foundation
 
-public struct TopicDeckDTO: Identifiable, Sendable, Equatable {
+public struct TopicDeckDTO: Identifiable, Sendable, Equatable, Codable {
     public let id: String
     public let title: String
     public let iconName: String
     public let badgeColorHex: String
     public let cefrLevel: String
     public let sortOrder: Int
+    public let stages: [SubTopicStageDTO]
 
-    public init(id: String, title: String, iconName: String, badgeColorHex: String, cefrLevel: String, sortOrder: Int) {
+    public init(
+        id: String,
+        title: String,
+        iconName: String,
+        badgeColorHex: String,
+        cefrLevel: String,
+        sortOrder: Int,
+        stages: [SubTopicStageDTO] = []
+    ) {
         self.id = id
         self.title = title
         self.iconName = iconName
         self.badgeColorHex = badgeColorHex
         self.cefrLevel = cefrLevel
         self.sortOrder = sortOrder
+        self.stages = stages
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id, title, iconName, badgeColorHex, cefrLevel, sortOrder, stages
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(String.self, forKey: .id)
+        self.title = try container.decode(String.self, forKey: .title)
+        self.iconName = try container.decode(String.self, forKey: .iconName)
+        self.badgeColorHex = try container.decode(String.self, forKey: .badgeColorHex)
+        self.cefrLevel = try container.decode(String.self, forKey: .cefrLevel)
+        self.sortOrder = try container.decode(Int.self, forKey: .sortOrder)
+        self.stages = try container.decodeIfPresent([SubTopicStageDTO].self, forKey: .stages) ?? []
     }
 }
 
-public struct SubTopicStageDTO: Identifiable, Sendable, Equatable {
+public struct SubTopicStageDTO: Identifiable, Sendable, Equatable, Codable {
     public let id: String
     public let deckId: String
     public let title: String
     public let iconName: String
     public let sortOrder: Int
+    public let words: [TopicWordDTO]
 
-    public init(id: String, deckId: String, title: String, iconName: String, sortOrder: Int) {
+    public init(
+        id: String,
+        deckId: String,
+        title: String,
+        iconName: String,
+        sortOrder: Int,
+        words: [TopicWordDTO] = []
+    ) {
         self.id = id
         self.deckId = deckId
         self.title = title
         self.iconName = iconName
         self.sortOrder = sortOrder
+        self.words = words
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id, deckId, title, iconName, sortOrder, words
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(String.self, forKey: .id)
+        self.deckId = try container.decode(String.self, forKey: .deckId)
+        self.title = try container.decode(String.self, forKey: .title)
+        self.iconName = try container.decode(String.self, forKey: .iconName)
+        self.sortOrder = try container.decode(Int.self, forKey: .sortOrder)
+        self.words = try container.decodeIfPresent([TopicWordDTO].self, forKey: .words) ?? []
     }
 }
 
-public struct TopicWordDTO: Identifiable, Sendable, Equatable {
+public struct TopicWordDTO: Identifiable, Sendable, Equatable, Codable {
     public let id: Int64
     public let stageId: String
     public let lemma: String
@@ -68,6 +116,44 @@ public struct TopicWordDTO: Identifiable, Sendable, Equatable {
         self.definitionEn = definitionEn
         self.exampleEn = exampleEn
         self.exampleVi = exampleVi
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id, stageId, lemma, phonetic, ipaUs, pos, cefrLevel, definitionVi, definitionEn, exampleEn, exampleVi
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(Int64.self, forKey: .id)
+        self.stageId = try container.decodeIfPresent(String.self, forKey: .stageId) ?? ""
+        self.lemma = try container.decode(String.self, forKey: .lemma)
+        if let phonetic = try container.decodeIfPresent(String.self, forKey: .phonetic) {
+            self.phonetic = phonetic
+        } else if let ipaUs = try container.decodeIfPresent(String.self, forKey: .ipaUs) {
+            self.phonetic = ipaUs
+        } else {
+            self.phonetic = ""
+        }
+        self.pos = try container.decode(String.self, forKey: .pos)
+        self.cefrLevel = try container.decode(String.self, forKey: .cefrLevel)
+        self.definitionVi = try container.decode(String.self, forKey: .definitionVi)
+        self.definitionEn = try container.decode(String.self, forKey: .definitionEn)
+        self.exampleEn = try container.decode(String.self, forKey: .exampleEn)
+        self.exampleVi = try container.decode(String.self, forKey: .exampleVi)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(stageId, forKey: .stageId)
+        try container.encode(lemma, forKey: .lemma)
+        try container.encode(phonetic, forKey: .phonetic)
+        try container.encode(pos, forKey: .pos)
+        try container.encode(cefrLevel, forKey: .cefrLevel)
+        try container.encode(definitionVi, forKey: .definitionVi)
+        try container.encode(definitionEn, forKey: .definitionEn)
+        try container.encode(exampleEn, forKey: .exampleEn)
+        try container.encode(exampleVi, forKey: .exampleVi)
     }
 }
 
