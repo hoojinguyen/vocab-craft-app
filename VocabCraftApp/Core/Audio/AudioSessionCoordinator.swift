@@ -354,6 +354,9 @@ public actor AudioSessionCoordinator: AudioSessionCoordinating {
     #endif
 
     public func handleMediaServicesReset() {
+        // Note: When media services are reset by the OS, active audio session hardware is
+        // implicitly invalidated and torn down. We clear all tracked leases, advance the
+        // generation counter to invalidate in-flight leases, and broadcast the reset event.
         activeLeases.removeAll()
         generation &+= 1
         effectiveIntent = nil
