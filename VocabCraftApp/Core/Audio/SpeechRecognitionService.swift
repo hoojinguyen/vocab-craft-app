@@ -21,18 +21,35 @@ public enum SpeechRecognitionError: Error, LocalizedError {
 }
 
 private final class ServiceCleanupBox: @unchecked Sendable {
-    var eventSubscriptionTask: Task<Void, Never>?
-    var activeLease: AudioSessionLease?
+    private let lock = NSLock()
+    private var _eventSubscriptionTask: Task<Void, Never>?
+    private var _activeLease: AudioSessionLease?
     let audioSessionCoordinator: any AudioSessionCoordinating
 
     init(audioSessionCoordinator: any AudioSessionCoordinating) {
         self.audioSessionCoordinator = audioSessionCoordinator
     }
 
+    var eventSubscriptionTask: Task<Void, Never>? {
+        get { lock.withLock { _eventSubscriptionTask } }
+        set { lock.withLock { _eventSubscriptionTask = newValue } }
+    }
+
+    var activeLease: AudioSessionLease? {
+        get { lock.withLock { _activeLease } }
+        set { lock.withLock { _activeLease = newValue } }
+    }
+
     func cleanup() {
-        eventSubscriptionTask?.cancel()
-        if let lease = activeLease {
-            activeLease = nil
+        let (task, lease) = lock.withLock { () -> (Task<Void, Never>?, AudioSessionLease?) in
+            let task = _eventSubscriptionTask
+            _eventSubscriptionTask = nil
+            let lease = _activeLease
+            _activeLease = nil
+            return (task, lease)
+        }
+        task?.cancel()
+        if let lease {
             let coordinator = audioSessionCoordinator
             Task {
                 await coordinator.release(lease)

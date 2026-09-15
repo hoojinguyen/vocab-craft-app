@@ -171,9 +171,7 @@ public actor AudioSessionCoordinator: AudioSessionCoordinating {
             let id = UUID()
             self.registerContinuation(continuation, for: id)
             continuation.onTermination = { [weak self] _ in
-                Task { [weak self] in
-                    await self?.unregisterContinuation(for: id)
-                }
+                self?.unregisterContinuation(for: id)
             }
         }
     }
@@ -185,7 +183,7 @@ public actor AudioSessionCoordinator: AudioSessionCoordinating {
         broadcaster.register(continuation, for: id)
     }
 
-    func unregisterContinuation(for id: UUID) {
+    nonisolated func unregisterContinuation(for id: UUID) {
         broadcaster.unregister(for: id)
     }
 
@@ -200,7 +198,7 @@ public actor AudioSessionCoordinator: AudioSessionCoordinating {
     // MARK: - Lease Management
 
     public func acquire(_ intent: AudioSessionIntent) async throws -> AudioSessionLease {
-        let nextGeneration = generation + 1
+        let nextGeneration = generation &+ 1
         let candidateLease = AudioSessionLease(
             id: UUID(),
             generation: nextGeneration,
