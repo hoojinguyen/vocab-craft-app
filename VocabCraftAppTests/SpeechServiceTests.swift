@@ -764,6 +764,39 @@ struct TTSAudioSessionTests {
         #expect(await coordinator.activeLeaseCount == 0)
         #expect(tts.isSpeaking == false)
     }
+
+    @Test("TextToSpeechService stops speaking on coordinator interruptionBegan event")
+    @MainActor
+    func ttsStopsOnInterruptionEvent() async throws {
+        let mockHardware = MockAudioSessionHardware()
+        let coordinator = AudioSessionCoordinator(hardware: mockHardware)
+        let tts = TextToSpeechService(audioSessionCoordinator: coordinator)
+
+        tts.speak(text: "Pronunciation sample")
+        await tts.playbackStartTask?.value
+        #expect(tts.isSpeaking)
+
+        await coordinator.broadcastEventForTesting(.interruptionBegan)
+        // Small yield to allow async event task to execute
+        try await Task.sleep(for: .milliseconds(50))
+        #expect(!tts.isSpeaking)
+    }
+
+    @Test("TextToSpeechService stops speaking on coordinator mediaServicesReset event")
+    @MainActor
+    func ttsStopsOnMediaServicesResetEvent() async throws {
+        let mockHardware = MockAudioSessionHardware()
+        let coordinator = AudioSessionCoordinator(hardware: mockHardware)
+        let tts = TextToSpeechService(audioSessionCoordinator: coordinator)
+
+        tts.speak(text: "Pronunciation sample")
+        await tts.playbackStartTask?.value
+        #expect(tts.isSpeaking)
+
+        await coordinator.broadcastEventForTesting(.mediaServicesReset)
+        try await Task.sleep(for: .milliseconds(50))
+        #expect(!tts.isSpeaking)
+    }
 }
 
 @Suite("Speech Engine Startup Atomicity Tests")

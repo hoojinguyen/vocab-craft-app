@@ -25,23 +25,11 @@ enum LessonPerformanceDiagnostics {
     }
 }
 
-/// Thread-safe holder for an NSNotificationCenter observer token.
-/// Automatically removes the observer when deallocated or explicitly cancelled.
-private final class InterruptionObserverToken: @unchecked Sendable {
-    private let lock = NSLock()
-    private var observer: (any NSObjectProtocol)?
+private final class ReflexCleanupBox: @unchecked Sendable {
+    var eventSubscriptionTask: Task<Void, Never>?
 
-    init(observer: (any NSObjectProtocol)?) { self.observer = observer }
-    deinit { cancel() }
-
-    func cancel() {
-        #if os(iOS)
-        lock.lock()
-        let obs = observer
-        observer = nil
-        lock.unlock()
-        if let obs { NotificationCenter.default.removeObserver(obs) }
-        #endif
+    func cleanup() {
+        eventSubscriptionTask?.cancel()
     }
 }
 
@@ -100,18 +88,24 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
     /// Minimum interval between MainActor dispatches for partial results (seconds)
     private let throttleInterval: CFAbsoluteTime = 0.15
 
-    private var interruptionToken: InterruptionObserverToken?
-    var hasInterruptionObserver: Bool {
-        #if os(iOS)
-        interruptionToken != nil
-        #else
-        false
-        #endif
+    private let cleanupBox = ReflexCleanupBox()
+    private var eventSubscriptionTask: Task<Void, Never>? {
+        get { cleanupBox.eventSubscriptionTask }
+        set { cleanupBox.eventSubscriptionTask = newValue }
+    }
+
+    public var hasEventSubscription: Bool {
+        eventSubscriptionTask != nil
+    }
+
+    @available(*, deprecated, renamed: "hasEventSubscription")
+    public var hasInterruptionObserver: Bool {
+        hasEventSubscription
     }
 
     public let audioSessionCoordinator: (any AudioSessionCoordinating)?
 
-    public convenience init(audioSessionCoordinator: (any AudioSessionCoordinating)? = nil) {
+    public convenience init(audioSessionCoordinator: (any AudioSessionCoordinating)? = AudioSessionCoordinator()) {
         self.init(
             audioController: SpeechAudioEngineController(),
             audioSessionCoordinator: audioSessionCoordinator
@@ -130,6 +124,10 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         self.authorizer = authorizer
     }
 
+    deinit {
+        cleanupBox.cleanup()
+    }
+
     // MARK: - Session Lifecycle
 
     public func startSession(contextualPhrases: [String], lazy: Bool = false) {
@@ -139,7 +137,7 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         self.isListeningPaused = false
         self.isSessionActive = true
         self.isEngineReady = false
-        setupInterruptionObserver()
+        subscribeToAudioSessionEvents()
 
         if !lazy {
             pendingPreparationTask = Task { [weak self] in
@@ -162,7 +160,9 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
 
     public func stopSession() {
         LessonPerformanceDiagnostics.event("SpeechSessionStop")
-        removeInterruptionObserver()
+        eventSubscriptionTask?.cancel()
+        eventSubscriptionTask = nil
+        cleanupBox.eventSubscriptionTask = nil
         pendingPreparationTask?.cancel()
         pendingPreparationTask = nil
         activeStartTask?.cancel()
@@ -180,6 +180,32 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
             if let leaseToRelease { await coordinator?.release(leaseToRelease) }
         }
         sessionContextualPhrases = []
+    }
+
+    private func subscribeToAudioSessionEvents() {
+        eventSubscriptionTask?.cancel()
+        guard let coordinator = audioSessionCoordinator else { return }
+        let events = coordinator.events
+        let task = Task { @MainActor [weak self] in
+            for await event in events {
+                guard let self, self.isSessionActive else { break }
+                switch event {
+                case .interruptionBegan:
+                    self.pauseListening()
+                case .interruptionEnded(let shouldResume):
+                    if shouldResume {
+                        self.resumeListening()
+                    }
+                case .mediaServicesReset:
+                    self.stopSession()
+                    self.onError?(SpeechCaptureError.enginePreparationFailed)
+                default:
+                    break
+                }
+            }
+        }
+        self.eventSubscriptionTask = task
+        self.cleanupBox.eventSubscriptionTask = task
     }
 
     public func pauseListening() {
@@ -306,7 +332,11 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
             throw SpeechCaptureError.enginePreparationFailed
         }
     }
+}
 
+// MARK: - Word Lifecycle
+
+extension ResilientReflexSpeechEngine {
     private func activateWordCapture(targetLemma: String, contextualPhrases: [String]) throws {
         if isWordActive {
             endWord()
@@ -476,60 +506,6 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
             onMatchDetected?(currentTargetLemma)
         }
     }
-}
-
-// MARK: - Audio Interruption Management
-
-extension ResilientReflexSpeechEngine {
-    private func setupInterruptionObserver() {
-        #if os(iOS)
-        guard interruptionToken == nil else { return }
-        let observer = NotificationCenter.default.addObserver(
-            forName: AVAudioSession.interruptionNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] notification in
-            if Thread.isMainThread {
-                MainActor.assumeIsolated { self?.handleAudioInterruption(notification) }
-            } else {
-                Task { @MainActor [weak self] in self?.handleAudioInterruption(notification) }
-            }
-        }
-        interruptionToken = InterruptionObserverToken(observer: observer)
-        #endif
-    }
-
-    private func removeInterruptionObserver() {
-        #if os(iOS)
-        interruptionToken?.cancel()
-        interruptionToken = nil
-        #endif
-    }
-
-    #if os(iOS)
-    func handleAudioInterruption(_ notification: Notification) {
-        guard isSessionActive, let userInfo = notification.userInfo else { return }
-        let rawType = (userInfo[AVAudioSessionInterruptionTypeKey] as? UInt)
-            ?? ((userInfo[AVAudioSessionInterruptionTypeKey] as? NSNumber)?.uintValue)
-        guard let rawType, let type = AVAudioSession.InterruptionType(rawValue: rawType) else {
-            return
-        }
-
-        switch type {
-        case .began:
-            pauseListening()
-        case .ended:
-            let rawOptions = (userInfo[AVAudioSessionInterruptionOptionKey] as? UInt)
-                ?? ((userInfo[AVAudioSessionInterruptionOptionKey] as? NSNumber)?.uintValue)
-            if let rawOptions, AVAudioSession.InterruptionOptions(rawValue: rawOptions).contains(.shouldResume) {
-                resumeListening()
-            }
-        @unknown default:
-            break
-        }
-    }
-
-    #endif
 }
 
 // MARK: - Recognition Request Management

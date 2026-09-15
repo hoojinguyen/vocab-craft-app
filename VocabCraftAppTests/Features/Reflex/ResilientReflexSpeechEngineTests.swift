@@ -7,16 +7,22 @@ import XCTest
 
 @MainActor
 final class ResilientReflexSpeechEngineTests: XCTestCase {
+    private var mockHardware: MockAudioSessionHardware!
+    private var coordinator: AudioSessionCoordinator!
     private var engine: ResilientReflexSpeechEngine!
 
     override func setUp() async throws {
         try await super.setUp()
-        engine = ResilientReflexSpeechEngine()
+        mockHardware = MockAudioSessionHardware()
+        coordinator = AudioSessionCoordinator(hardware: mockHardware)
+        engine = ResilientReflexSpeechEngine(audioSessionCoordinator: coordinator)
     }
 
     override func tearDown() async throws {
         engine.stopSession()
         engine = nil
+        coordinator = nil
+        mockHardware = nil
         try await super.tearDown()
     }
 
@@ -249,109 +255,92 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
         XCTAssertFalse(engine.isWordActive)
     }
 
-    #if os(iOS)
-    @available(*, deprecated)
-    func testAudioInterruptionBegan_pausesListening() {
+    func testAudioInterruptionBegan_pausesListening() async throws {
         engine.startSession(contextualPhrases: ["apple"])
-        engine.beginWord(targetLemma: "apple", contextualPhrases: ["apple"])
+        try await engine.startListening(targetLemma: "apple", contextualPhrases: ["apple"])
         XCTAssertTrue(engine.isWordActive)
         XCTAssertTrue(engine.isSessionActive)
 
-        let notification = Notification(
-            name: AVAudioSession.interruptionNotification,
-            object: nil,
-            userInfo: [AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.began.rawValue]
-        )
-        engine.handleAudioInterruption(notification)
+        await coordinator.broadcastEventForTesting(.interruptionBegan)
+        try await Task.sleep(for: .milliseconds(50))
 
         XCTAssertFalse(engine.isWordActive, "Interruption began must pause listening and deactivate current word")
         XCTAssertTrue(engine.isSessionActive, "Session must remain active across interruption")
         XCTAssertTrue(engine.isListeningPaused, "Interruption began must set isListeningPaused to true")
     }
 
-    @available(*, deprecated)
-    func testAudioInterruptionEndedWithShouldResume_resumesListening() {
+    func testAudioInterruptionEndedWithShouldResume_resumesListening() async throws {
         engine.startSession(contextualPhrases: ["apple"])
-        engine.beginWord(targetLemma: "apple", contextualPhrases: ["apple"])
+        try await engine.startListening(targetLemma: "apple", contextualPhrases: ["apple"])
 
-        // Interruption began
-        let beganNotification = Notification(
-            name: AVAudioSession.interruptionNotification,
-            object: nil,
-            userInfo: [AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.began.rawValue]
-        )
-        engine.handleAudioInterruption(beganNotification)
+        await coordinator.broadcastEventForTesting(.interruptionBegan)
+        try await Task.sleep(for: .milliseconds(50))
         XCTAssertFalse(engine.isWordActive)
         XCTAssertTrue(engine.isListeningPaused)
 
-        // Interruption ended with shouldResume
-        let endedNotification = Notification(
-            name: AVAudioSession.interruptionNotification,
-            object: nil,
-            userInfo: [
-                AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.ended.rawValue,
-                AVAudioSessionInterruptionOptionKey: AVAudioSession.InterruptionOptions.shouldResume.rawValue
-            ]
-        )
-        engine.handleAudioInterruption(endedNotification)
+        await coordinator.broadcastEventForTesting(.interruptionEnded(shouldResume: true))
+        try await Task.sleep(for: .milliseconds(50))
 
         XCTAssertTrue(engine.isSessionActive)
         XCTAssertFalse(engine.isListeningPaused)
         // Can begin word and match normally after resuming
         var matchedLemma: String?
         engine.onMatchDetected = { matchedLemma = $0 }
-        engine.beginWord(targetLemma: "apple", contextualPhrases: ["apple"])
+        try await engine.startListening(targetLemma: "apple", contextualPhrases: ["apple"])
         engine.simulateTranscript("apple")
         XCTAssertEqual(matchedLemma, "apple")
     }
 
-    @available(*, deprecated)
-    func testAudioInterruptionEndedWithoutShouldResume_doesNotResume() {
+    func testAudioInterruptionEndedWithoutShouldResume_doesNotResume() async throws {
         engine.startSession(contextualPhrases: ["apple"])
-        engine.beginWord(targetLemma: "apple", contextualPhrases: ["apple"])
+        try await engine.startListening(targetLemma: "apple", contextualPhrases: ["apple"])
 
-        // Interruption began
-        let beganNotification = Notification(
-            name: AVAudioSession.interruptionNotification,
-            object: nil,
-            userInfo: [AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.began.rawValue]
-        )
-        engine.handleAudioInterruption(beganNotification)
+        await coordinator.broadcastEventForTesting(.interruptionBegan)
+        try await Task.sleep(for: .milliseconds(50))
         XCTAssertFalse(engine.isWordActive)
 
-        // Interruption ended without options
-        let endedNotification = Notification(
-            name: AVAudioSession.interruptionNotification,
-            object: nil,
-            userInfo: [AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.ended.rawValue]
-        )
-        engine.handleAudioInterruption(endedNotification)
+        await coordinator.broadcastEventForTesting(.interruptionEnded(shouldResume: false))
+        try await Task.sleep(for: .milliseconds(50))
 
         XCTAssertTrue(engine.isSessionActive)
-        XCTAssertFalse(engine.isWordActive)
+        XCTAssertTrue(engine.isListeningPaused)
     }
 
-    func testStopSessionDeregistersInterruptionObserver() {
+    func testMediaServicesResetStopsSessionAndDeliversError() async throws {
+        var receivedError: (any Error)?
+        engine.onError = { error in
+            receivedError = error
+        }
+
         engine.startSession(contextualPhrases: ["apple"])
-        #if os(iOS)
-        XCTAssertTrue(engine.hasInterruptionObserver, "Interruption observer must be registered when session starts")
-        #endif
+        try await engine.startListening(targetLemma: "apple", contextualPhrases: ["apple"])
+        XCTAssertTrue(engine.isSessionActive)
+
+        await coordinator.broadcastEventForTesting(.mediaServicesReset)
+        try await Task.sleep(for: .milliseconds(50))
+
+        XCTAssertFalse(engine.isSessionActive)
+        guard let speechError = receivedError as? SpeechCaptureError else {
+            XCTFail("Expected SpeechCaptureError, got \(String(describing: receivedError))")
+            return
+        }
+        XCTAssertEqual(speechError, .enginePreparationFailed)
+    }
+
+    func testStopSessionDeregistersEventSubscription() async throws {
+        engine.startSession(contextualPhrases: ["apple"])
+        XCTAssertTrue(engine.hasEventSubscription, "Event subscription must be registered when session starts")
 
         engine.stopSession()
 
-        #if os(iOS)
-        XCTAssertFalse(engine.hasInterruptionObserver, "Interruption observer must be deregistered when session stops")
-        #endif
+        XCTAssertFalse(engine.hasEventSubscription, "Event subscription must be deregistered when session stops")
         XCTAssertFalse(engine.isSessionActive)
 
-        // Posting notification through NotificationCenter after deregistration is harmless
-        NotificationCenter.default.post(
-            name: AVAudioSession.interruptionNotification,
-            object: nil,
-            userInfo: [AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.began.rawValue]
-        )
+        await coordinator.broadcastEventForTesting(.interruptionBegan)
+        try await Task.sleep(for: .milliseconds(50))
 
         XCTAssertFalse(engine.isSessionActive)
+        XCTAssertFalse(engine.isListeningPaused)
     }
 
     func testPauseListeningResetsIsStartingEngineAndAllowsResume() {
@@ -366,50 +355,13 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
         XCTAssertFalse(engine.isListeningPaused)
     }
 
-    @available(*, deprecated)
-    func testAudioInterruptionWithNSNumberKeys() {
-        engine.startSession(contextualPhrases: ["apple"])
-        engine.beginWord(targetLemma: "apple", contextualPhrases: ["apple"])
-
-        // Began with NSNumber
-        let beganType = NSNumber(value: AVAudioSession.InterruptionType.began.rawValue)
-        let beganNotification = Notification(
-            name: AVAudioSession.interruptionNotification,
-            object: nil,
-            userInfo: [AVAudioSessionInterruptionTypeKey: beganType]
-        )
-        engine.handleAudioInterruption(beganNotification)
+    func testEventsWhenSessionInactiveDoNothing() async throws {
+        XCTAssertFalse(engine.isSessionActive)
+        await coordinator.broadcastEventForTesting(.interruptionBegan)
+        try await Task.sleep(for: .milliseconds(50))
+        XCTAssertFalse(engine.isSessionActive)
         XCTAssertFalse(engine.isWordActive)
-
-        // Ended with NSNumbers
-        let endedType = NSNumber(value: AVAudioSession.InterruptionType.ended.rawValue)
-        let shouldResumeOpt = NSNumber(value: AVAudioSession.InterruptionOptions.shouldResume.rawValue)
-        let endedNotification = Notification(
-            name: AVAudioSession.interruptionNotification,
-            object: nil,
-            userInfo: [
-                AVAudioSessionInterruptionTypeKey: endedType,
-                AVAudioSessionInterruptionOptionKey: shouldResumeOpt
-            ]
-        )
-        engine.handleAudioInterruption(endedNotification)
-        XCTAssertTrue(engine.isSessionActive)
         XCTAssertFalse(engine.isListeningPaused)
-    }
-
-    func testHandleInterruptionWhenSessionInactiveDoesNothing() {
-        XCTAssertFalse(engine.isSessionActive)
-        let notification = Notification(
-            name: AVAudioSession.interruptionNotification,
-            object: nil,
-            userInfo: [
-                AVAudioSessionInterruptionTypeKey: AVAudioSession.InterruptionType.ended.rawValue,
-                AVAudioSessionInterruptionOptionKey: AVAudioSession.InterruptionOptions.shouldResume.rawValue
-            ]
-        )
-        engine.handleAudioInterruption(notification)
-        XCTAssertFalse(engine.isSessionActive)
-        XCTAssertFalse(engine.isWordActive)
     }
 
     func testPauseAndResumeListeningLifecycle() {
@@ -428,5 +380,4 @@ final class ResilientReflexSpeechEngineTests: XCTestCase {
         engine.stopSession()
         XCTAssertFalse(engine.isListeningPaused)
     }
-    #endif
 }

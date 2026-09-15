@@ -2,13 +2,25 @@ import AVFoundation
 import Foundation
 import Observation
 
+private final class TTSCleanupBox: @unchecked Sendable {
+    var eventSubscriptionTask: Task<Void, Never>?
+
+    func cleanup() {
+        eventSubscriptionTask?.cancel()
+    }
+}
+
 @MainActor
 @Observable
 public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, TextToSpeechProtocol {
     private let synthesizer = AVSpeechSynthesizer()
     public var isSpeaking: Bool = false
     private var activeContinuation: CheckedContinuation<Void, Never>?
-    private var interruptionObserver: (any NSObjectProtocol)?
+    private let cleanupBox = TTSCleanupBox()
+    private var eventSubscriptionTask: Task<Void, Never>? {
+        get { cleanupBox.eventSubscriptionTask }
+        set { cleanupBox.eventSubscriptionTask = newValue }
+    }
 
     public let audioSessionCoordinator: any AudioSessionCoordinating
     private(set) var activeLease: AudioSessionLease?
@@ -25,32 +37,33 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
         self.audioSessionCoordinator = audioSessionCoordinator
         super.init()
         synthesizer.delegate = self
-        setupInterruptionObserver()
+        subscribeToAudioSessionEvents()
         prewarm()
+    }
+
+    deinit {
+        cleanupBox.cleanup()
     }
 
     public func prewarm() {
         _ = Self.resolveVoice(for: "en-US")
     }
 
-    private func setupInterruptionObserver() {
-        #if os(iOS) && !targetEnvironment(simulator)
-        interruptionObserver = NotificationCenter.default.addObserver(
-            forName: AVAudioSession.interruptionNotification,
-            object: AVAudioSession.sharedInstance(),
-            queue: .main
-        ) { [weak self] notification in
-            guard let userInfo = notification.userInfo,
-                  let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
-                  let type = AVAudioSession.InterruptionType(rawValue: typeValue) else { return }
-
-            if type == .began {
-                Task { @MainActor [weak self] in
-                    self?.stop()
+    private func subscribeToAudioSessionEvents() {
+        let events = audioSessionCoordinator.events
+        let task = Task { @MainActor [weak self] in
+            for await event in events {
+                guard let self else { break }
+                switch event {
+                case .interruptionBegan, .mediaServicesReset:
+                    self.stop()
+                default:
+                    break
                 }
             }
         }
-        #endif
+        self.eventSubscriptionTask = task
+        self.cleanupBox.eventSubscriptionTask = task
     }
 
     private nonisolated(unsafe) static var cachedVoices: [String: AVSpeechSynthesisVoice] = [:]
