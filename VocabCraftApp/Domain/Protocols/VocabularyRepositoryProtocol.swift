@@ -26,3 +26,15 @@ public protocol VocabularyRepositoryProtocol: AnyObject, Sendable {
     /// - Returns: An array of ``SuggestedWord`` entities.
     func fetchSuggestedWords(limit: Int) async throws -> [SuggestedWord]
 }
+
+public extension VocabularyRepositoryProtocol {
+    /// Fetches vocabulary word records using the default limit of 50.
+    func fetchWordRecords() async throws -> [Word] {
+        try await fetchWordRecords(limit: 50)
+    }
+
+    /// Fetches daily suggested words using the default limit of 10.
+    func fetchSuggestedWords() async throws -> [SuggestedWord] {
+        try await fetchSuggestedWords(limit: 10)
+    }
+}

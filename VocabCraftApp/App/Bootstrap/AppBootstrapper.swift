@@ -54,11 +54,11 @@ public final class AppBootstrapper {
                 try? modelContainer.mainContext.save()
             }
 
-            let engine = DatasetEngine()
+            let dataSource = BundledVocabularyDataSource()
             let router = Self.createAppRouter(from: arguments)
             self.appContainer = AppContainer(
-                datasetEngine: engine,
                 modelContainer: modelContainer,
+                vocabularyDataSource: dataSource,
                 appRouter: router
             )
             self.state = .ready
@@ -88,11 +88,11 @@ public final class AppBootstrapper {
             }
             self.container = newContainer
 
-            let engine = DatasetEngine()
+            let dataSource = BundledVocabularyDataSource()
             let router = Self.createAppRouter(from: arguments)
             self.appContainer = AppContainer(
-                datasetEngine: engine,
                 modelContainer: newContainer,
+                vocabularyDataSource: dataSource,
                 appRouter: router
             )
             self.state = .ready

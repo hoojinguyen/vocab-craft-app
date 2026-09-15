@@ -72,17 +72,17 @@ public final class AppContainer {
         self.userProgressRepository = resolvedUserProgressRepo
 
         let resolvedDataSource: VocabularyDataSourceProtocol = vocabularyDataSource
-            ?? (useSampleData ? SampleVocabularyDataSource() : SampleVocabularyDataSource())
+            ?? BundledVocabularyDataSource()
         self.vocabularyDataSource = resolvedDataSource
 
         let resolvedStageRepo: StageProgressRepositoryProtocol = stageProgressRepository
             ?? (modelContainer.map { StageProgressRepositoryImpl(modelContext: $0.mainContext) } ?? MockStageProgressRepository())
         self.stageProgressRepository = resolvedStageRepo
 
-        let shouldMock = useMockData ?? (datasetEngine == nil)
+        let shouldMock = useMockData ?? false
         let vocabRepo: VocabularyRepositoryProtocol = shouldMock
             ? MockVocabularyRepository()
-            : VocabularyRepositoryImpl(datasetEngine: datasetEngine, progressActor: progressActor)
+            : VocabularyRepositoryImpl(dataSource: resolvedDataSource, progressActor: progressActor)
         let srsRepo = SRSRepositoryImpl(modelContext: modelContainer?.mainContext)
         let quickReflexAttemptRepo = QuickReflexAttemptRepositoryImpl(modelContext: modelContainer?.mainContext)
 
