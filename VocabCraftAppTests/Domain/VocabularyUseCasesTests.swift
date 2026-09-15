@@ -182,12 +182,13 @@ final class MockUserProgressActor: UserProgressRepositoryProtocol, @unchecked Se
     }
 }
 
+@MainActor
 final class VocabularyUseCasesTests: XCTestCase {
     var dataSource: BundledVocabularyDataSource!
     var stageRepo: StageProgressRepositoryImpl!
 
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
+        try await super.setUp()
         dataSource = BundledVocabularyDataSource()
         stageRepo = StageProgressRepositoryImpl(modelContext: nil)
     }

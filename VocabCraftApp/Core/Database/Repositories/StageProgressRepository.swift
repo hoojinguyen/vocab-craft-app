@@ -1,16 +1,16 @@
 import Foundation
 import SwiftData
 
+@MainActor
 public protocol StageProgressRepositoryProtocol: Sendable {
-    @MainActor func fetchStageProgress(stageId: String) async throws -> UserStageProgressData?
-    @MainActor func fetchCompletedStageIds(deckId: String) async throws -> Set<String>
-    @MainActor func fetchAllStageProgress() async throws -> [UserStageProgressData]
-    @MainActor func saveStageProgress(stageId: String, deckId: String, isCompleted: Bool, score: Int, progressFraction: Double) async throws
-    @MainActor func saveStageProgress(stageId: String, deckId: String, isCompleted: Bool, score: Int) async throws
+    func fetchStageProgress(stageId: String) async throws -> UserStageProgressData?
+    func fetchCompletedStageIds(deckId: String) async throws -> Set<String>
+    func fetchAllStageProgress() async throws -> [UserStageProgressData]
+    func saveStageProgress(stageId: String, deckId: String, isCompleted: Bool, score: Int, progressFraction: Double) async throws
+    func saveStageProgress(stageId: String, deckId: String, isCompleted: Bool, score: Int) async throws
 }
 
 extension StageProgressRepositoryProtocol {
-    @MainActor
     public func saveStageProgress(stageId: String, deckId: String, isCompleted: Bool, score: Int) async throws {
         try await saveStageProgress(
             stageId: stageId,
@@ -23,14 +23,14 @@ extension StageProgressRepositoryProtocol {
 }
 
 #if canImport(SwiftDataMacros) || canImport(SwiftData)
-public final class StageProgressRepositoryImpl: StageProgressRepositoryProtocol, @unchecked Sendable {
+@MainActor
+public final class StageProgressRepositoryImpl: StageProgressRepositoryProtocol {
     private let modelContext: ModelContext?
 
     public init(modelContext: ModelContext?) {
         self.modelContext = modelContext
     }
 
-    @MainActor
     public func fetchStageProgress(stageId: String) async throws -> UserStageProgressData? {
         guard let context = modelContext else { return nil }
         let descriptor = FetchDescriptor<UserStageProgress>(
@@ -39,7 +39,6 @@ public final class StageProgressRepositoryImpl: StageProgressRepositoryProtocol,
         return try context.fetch(descriptor).first?.toData()
     }
 
-    @MainActor
     public func fetchCompletedStageIds(deckId: String) async throws -> Set<String> {
         guard let context = modelContext else { return [] }
         let descriptor = FetchDescriptor<UserStageProgress>(
@@ -49,14 +48,12 @@ public final class StageProgressRepositoryImpl: StageProgressRepositoryProtocol,
         return Set(list.map(\.stageId))
     }
 
-    @MainActor
     public func fetchAllStageProgress() async throws -> [UserStageProgressData] {
         guard let context = modelContext else { return [] }
         let descriptor = FetchDescriptor<UserStageProgress>()
         return try context.fetch(descriptor).map { $0.toData() }
     }
 
-    @MainActor
     public func saveStageProgress(
         stageId: String,
         deckId: String,
@@ -88,27 +85,24 @@ public final class StageProgressRepositoryImpl: StageProgressRepositoryProtocol,
     }
 }
 #else
-public final class StageProgressRepositoryImpl: StageProgressRepositoryProtocol, @unchecked Sendable {
+@MainActor
+public final class StageProgressRepositoryImpl: StageProgressRepositoryProtocol {
     private var records: [String: UserStageProgressData] = [:]
 
     public init(modelContext: Any? = nil) {}
 
-    @MainActor
     public func fetchStageProgress(stageId: String) async throws -> UserStageProgressData? {
         records[stageId]
     }
 
-    @MainActor
     public func fetchCompletedStageIds(deckId: String) async throws -> Set<String> {
         Set(records.values.filter { $0.deckId == deckId && $0.isCompleted }.map(\.stageId))
     }
 
-    @MainActor
     public func fetchAllStageProgress() async throws -> [UserStageProgressData] {
         Array(records.values)
     }
 
-    @MainActor
     public func saveStageProgress(
         stageId: String,
         deckId: String,
@@ -129,32 +123,29 @@ public final class StageProgressRepositoryImpl: StageProgressRepositoryProtocol,
 }
 #endif
 
-public final class MockStageProgressRepository: StageProgressRepositoryProtocol, @unchecked Sendable {
+@MainActor
+public final class MockStageProgressRepository: StageProgressRepositoryProtocol {
     private var records: [String: UserStageProgressData] = [:]
-    @MainActor public private(set) var saveCallCount: Int = 0
+    public private(set) var saveCallCount: Int = 0
     public var delayNanoseconds: UInt64 = 0
 
     public init(records: [String: UserStageProgressData] = [:]) {
         self.records = records
     }
 
-    @MainActor
     public func fetchStageProgress(stageId: String) async throws -> UserStageProgressData? {
         records[stageId]
     }
 
-    @MainActor
     public func fetchCompletedStageIds(deckId: String) async throws -> Set<String> {
         let completed = records.values.filter { $0.deckId == deckId && $0.isCompleted }
         return Set(completed.map(\.stageId))
     }
 
-    @MainActor
     public func fetchAllStageProgress() async throws -> [UserStageProgressData] {
         Array(records.values)
     }
 
-    @MainActor
     public func saveStageProgress(
         stageId: String,
         deckId: String,

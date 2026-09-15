@@ -5,13 +5,14 @@ import Foundation
 import XCTest
 #endif
 
+@MainActor
 final class LearningPathUseCasesTests: XCTestCase {
     private var dataSource: BundledVocabularyDataSource!
     private var stageRepo: MockStageProgressRepository!
     private var progressRepo: MockUserProgressRepository!
 
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
+        try await super.setUp()
         dataSource = BundledVocabularyDataSource()
         stageRepo = MockStageProgressRepository()
         progressRepo = MockUserProgressRepository()
@@ -283,7 +284,7 @@ final class LearningPathUseCasesTests: XCTestCase {
         XCTAssertEqual(res1.score, 3)
 
         // Verifies dedup: stage progress was saved exactly once, and weak words were recorded once (2 words * 1)
-        let saveCount = await stageRepo.saveCallCount
+        let saveCount = stageRepo.saveCallCount
         XCTAssertEqual(saveCount, 1)
         XCTAssertEqual(progressRepo.recordChallengeCallCount, 2)
     }
@@ -358,13 +359,13 @@ private final class SpyVocabularyDataSource: VocabularyDataSourceProtocol, @unch
     }
 }
 
-private final class SpyStageProgressRepository: StageProgressRepositoryProtocol, @unchecked Sendable {
+@MainActor
+private final class SpyStageProgressRepository: StageProgressRepositoryProtocol {
     private let base: StageProgressRepositoryProtocol
-    private let lock = NSLock()
     private var _fetchAllStageProgressCallCount = 0
 
     var fetchAllStageProgressCallCount: Int {
-        lock.withLock { _fetchAllStageProgressCallCount }
+        _fetchAllStageProgressCallCount
     }
 
     init(base: StageProgressRepositoryProtocol) {
@@ -372,26 +373,22 @@ private final class SpyStageProgressRepository: StageProgressRepositoryProtocol,
     }
 
     private func incrementAllStageProgress() {
-        lock.withLock { _fetchAllStageProgressCallCount += 1 }
+        _fetchAllStageProgressCallCount += 1
     }
 
-    @MainActor
     func fetchStageProgress(stageId: String) async throws -> UserStageProgressData? {
         try await base.fetchStageProgress(stageId: stageId)
     }
 
-    @MainActor
     func fetchCompletedStageIds(deckId: String) async throws -> Set<String> {
         try await base.fetchCompletedStageIds(deckId: deckId)
     }
 
-    @MainActor
     func fetchAllStageProgress() async throws -> [UserStageProgressData] {
         incrementAllStageProgress()
         return try await base.fetchAllStageProgress()
     }
 
-    @MainActor
     func saveStageProgress(
         stageId: String,
         deckId: String,
