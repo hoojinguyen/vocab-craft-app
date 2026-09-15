@@ -3,10 +3,28 @@ import Foundation
 import Observation
 
 private final class TTSCleanupBox: @unchecked Sendable {
-    var eventSubscriptionTask: Task<Void, Never>?
+    private let lock = NSLock()
+    private var _eventSubscriptionTask: Task<Void, Never>?
+
+    var eventSubscriptionTask: Task<Void, Never>? {
+        get {
+            lock.lock()
+            defer { lock.unlock() }
+            return _eventSubscriptionTask
+        }
+        set {
+            lock.lock()
+            defer { lock.unlock() }
+            _eventSubscriptionTask = newValue
+        }
+    }
 
     func cleanup() {
-        eventSubscriptionTask?.cancel()
+        lock.lock()
+        let task = _eventSubscriptionTask
+        _eventSubscriptionTask = nil
+        lock.unlock()
+        task?.cancel()
     }
 }
 
@@ -63,7 +81,6 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
             }
         }
         self.eventSubscriptionTask = task
-        self.cleanupBox.eventSubscriptionTask = task
     }
 
     private nonisolated(unsafe) static var cachedVoices: [String: AVSpeechSynthesisVoice] = [:]

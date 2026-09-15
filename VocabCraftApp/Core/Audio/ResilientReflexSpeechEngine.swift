@@ -26,10 +26,28 @@ enum LessonPerformanceDiagnostics {
 }
 
 private final class ReflexCleanupBox: @unchecked Sendable {
-    var eventSubscriptionTask: Task<Void, Never>?
+    private let lock = NSLock()
+    private var _eventSubscriptionTask: Task<Void, Never>?
+
+    var eventSubscriptionTask: Task<Void, Never>? {
+        get {
+            lock.lock()
+            defer { lock.unlock() }
+            return _eventSubscriptionTask
+        }
+        set {
+            lock.lock()
+            defer { lock.unlock() }
+            _eventSubscriptionTask = newValue
+        }
+    }
 
     func cleanup() {
-        eventSubscriptionTask?.cancel()
+        lock.lock()
+        let task = _eventSubscriptionTask
+        _eventSubscriptionTask = nil
+        lock.unlock()
+        task?.cancel()
     }
 }
 
@@ -162,7 +180,6 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
         LessonPerformanceDiagnostics.event("SpeechSessionStop")
         eventSubscriptionTask?.cancel()
         eventSubscriptionTask = nil
-        cleanupBox.eventSubscriptionTask = nil
         pendingPreparationTask?.cancel()
         pendingPreparationTask = nil
         activeStartTask?.cancel()
@@ -205,7 +222,6 @@ public final class ResilientReflexSpeechEngine: ReflexSpeechEngineProtocol {
             }
         }
         self.eventSubscriptionTask = task
-        self.cleanupBox.eventSubscriptionTask = task
     }
 
     public func pauseListening() {

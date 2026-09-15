@@ -109,6 +109,31 @@ struct AppContainerAudioDependencyTests {
         let engine = container.makeReflexSpeechEngine() as? ResilientReflexSpeechEngine
         #expect(engine != nil)
         #expect((engine?.audioSessionCoordinator as AnyObject?) === (coordinator as AnyObject))
+
+        let stt = container.makeSpeechRecognitionService() as? SpeechRecognitionService
+        #expect(stt != nil)
+        #expect((stt?.audioSessionCoordinator as AnyObject?) === (coordinator as AnyObject))
+    }
+
+    @Test @MainActor func appContainerUsesInjectedCoordinatorAcrossAllAudioServices() {
+        let customCoordinator = AudioSessionCoordinator()
+        let container = AppContainer(
+            useMockData: true,
+            audioSessionCoordinator: customCoordinator
+        )
+        #expect((container.audioSessionCoordinator as AnyObject) === (customCoordinator as AnyObject))
+
+        let tts = container.ttsService as? TextToSpeechService
+        #expect(tts != nil)
+        #expect((tts?.audioSessionCoordinator as AnyObject?) === (customCoordinator as AnyObject))
+
+        let engine = container.makeReflexSpeechEngine() as? ResilientReflexSpeechEngine
+        #expect(engine != nil)
+        #expect((engine?.audioSessionCoordinator as AnyObject?) === (customCoordinator as AnyObject))
+
+        let stt = container.makeSpeechRecognitionService() as? SpeechRecognitionService
+        #expect(stt != nil)
+        #expect((stt?.audioSessionCoordinator as AnyObject?) === (customCoordinator as AnyObject))
     }
 
     @Test @MainActor func vocabularyUsesAppContainerSpeechEngineFactory() {

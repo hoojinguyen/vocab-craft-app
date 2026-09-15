@@ -195,6 +195,10 @@ public final class AppContainer {
         ResilientReflexSpeechEngine(audioSessionCoordinator: audioSessionCoordinator)
     }
 
+    public func makeSpeechRecognitionService(locale: String = "en-US") -> SpeechRecognitionProtocol {
+        SpeechRecognitionService(locale: locale, audioSessionCoordinator: audioSessionCoordinator)
+    }
+
     public func makeReflexBlitzViewModel(words: [ReflexBlitzWordItem] = []) -> ReflexBlitzViewModel {
         let blitzWords = !words.isEmpty ? words : ReflexBlitzWordItem.defaultStarterWords
         return ReflexBlitzViewModel(
