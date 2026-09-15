@@ -112,11 +112,13 @@ final class SpeechServiceTests: XCTestCase {
 
         try stt.startListening()
         #expect(stt.isRecording)
+        _ = await stt.leaseAcquisitionTask?.value
         #expect(await coordinator.activeLeaseCount == 1)
         #expect(await coordinator.effectiveIntent == .speechCapture)
 
         stt.stopListening()
         #expect(!stt.isRecording)
+        _ = await stt.leaseReleaseTask?.value
         #expect(await coordinator.activeLeaseCount == 0)
     }
 
@@ -151,6 +153,57 @@ final class SpeechServiceTests: XCTestCase {
         #expect(!stt.isRecording)
         #expect(receivedError != nil)
         _ = await stt.leaseReleaseTask?.value
+        #expect(await coordinator.activeLeaseCount == 0)
+    }
+
+    func testSTTService_mediaServicesResetStopsListeningAndDeliversError() async throws {
+        let mockHardware = MockAudioSessionHardware()
+        let coordinator = AudioSessionCoordinator(hardware: mockHardware)
+        let stt = SpeechRecognitionService(audioSessionCoordinator: coordinator)
+
+        var receivedError: (any Error)?
+        stt.startListening(
+            onResult: { _ in },
+            onError: { error in
+                receivedError = error
+            }
+        )
+
+        _ = await stt.leaseAcquisitionTask?.value
+        #expect(stt.isRecording)
+        #expect(await coordinator.activeLeaseCount == 1)
+
+        await coordinator.broadcastEventForTesting(.mediaServicesReset)
+        for _ in 0..<20 {
+            if !stt.isRecording { break }
+            await Task.yield()
+        }
+
+        #expect(!stt.isRecording)
+        guard let speechError = receivedError as? SpeechRecognitionError else {
+            Issue.record("Expected SpeechRecognitionError, got \(String(describing: receivedError))")
+            return
+        }
+        #expect(speechError == .recognizerUnavailable)
+        _ = await stt.leaseReleaseTask?.value
+        #expect(await coordinator.activeLeaseCount == 0)
+    }
+
+    func testSTTService_deinitReleasesActiveLease() async throws {
+        let mockHardware = MockAudioSessionHardware()
+        let coordinator = AudioSessionCoordinator(hardware: mockHardware)
+        var stt: SpeechRecognitionService? = SpeechRecognitionService(audioSessionCoordinator: coordinator)
+
+        try stt?.startListening()
+        _ = await stt?.leaseAcquisitionTask?.value
+        #expect(await coordinator.activeLeaseCount == 1)
+
+        stt = nil
+        for _ in 0..<20 {
+            if await coordinator.activeLeaseCount == 0 { break }
+            await Task.yield()
+        }
+
         #expect(await coordinator.activeLeaseCount == 0)
     }
 

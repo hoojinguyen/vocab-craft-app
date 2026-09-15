@@ -20,6 +20,27 @@ public enum SpeechRecognitionError: Error, LocalizedError {
     }
 }
 
+private final class ServiceCleanupBox: @unchecked Sendable {
+    var eventSubscriptionTask: Task<Void, Never>?
+    var activeLease: AudioSessionLease?
+    let audioSessionCoordinator: any AudioSessionCoordinating
+
+    init(audioSessionCoordinator: any AudioSessionCoordinating) {
+        self.audioSessionCoordinator = audioSessionCoordinator
+    }
+
+    func cleanup() {
+        eventSubscriptionTask?.cancel()
+        if let lease = activeLease {
+            activeLease = nil
+            let coordinator = audioSessionCoordinator
+            Task {
+                await coordinator.release(lease)
+            }
+        }
+    }
+}
+
 @MainActor
 @Observable
 public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol {
@@ -33,6 +54,7 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
     private var simulationTask: Task<Void, Never>?
     private var authorizationRequestID = 0
     private var eventSubscriptionTask: Task<Void, Never>?
+    private let cleanupBox: ServiceCleanupBox
 
     public let audioSessionCoordinator: any AudioSessionCoordinating
     private(set) var activeLease: AudioSessionLease?
@@ -48,6 +70,7 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
         audioSessionCoordinator: any AudioSessionCoordinating = AudioSessionCoordinator()
     ) {
         self.audioSessionCoordinator = audioSessionCoordinator
+        self.cleanupBox = ServiceCleanupBox(audioSessionCoordinator: audioSessionCoordinator)
         let isTesting = NSClassFromString("XCTestCase") != nil
         if isTesting {
             self.speechRecognizer = nil
@@ -58,17 +81,29 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
         subscribeToAudioSessionEvents()
     }
 
+    deinit {
+        cleanupBox.cleanup()
+    }
+
     private func subscribeToAudioSessionEvents() {
-        eventSubscriptionTask = Task { @MainActor [weak self, events = audioSessionCoordinator.events] in
+        let task = Task { @MainActor [weak self, events = audioSessionCoordinator.events] in
             for await event in events {
                 guard let self else { break }
                 guard self.isRecording else { continue }
-                if case .interruptionBegan = event {
+                switch event {
+                case .interruptionBegan:
                     self.stopListening()
                     self.onErrorCallback?(SpeechRecognitionError.notAuthorized)
+                case .mediaServicesReset:
+                    self.stopListening()
+                    self.onErrorCallback?(SpeechRecognitionError.recognizerUnavailable)
+                default:
+                    break
                 }
             }
         }
+        self.eventSubscriptionTask = task
+        self.cleanupBox.eventSubscriptionTask = task
     }
 
     public func requestAuthorization(completion: @escaping (Bool) -> Void) {
@@ -128,6 +163,7 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
                     return
                 }
                 self.activeLease = lease
+                self.cleanupBox.activeLease = lease
             } catch {
                 self.stopListening()
                 self.onErrorCallback?(error)
@@ -239,6 +275,7 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
 
         if let lease = activeLease {
             activeLease = nil
+            cleanupBox.activeLease = nil
             let task = Task { [coordinator = audioSessionCoordinator] in
                 await coordinator.release(lease)
             }
