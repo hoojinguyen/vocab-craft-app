@@ -450,7 +450,7 @@ final class SpeechAssessmentServiceTests: XCTestCase {
 
     // MARK: - SpeechRecognitionEngine Coordinator Integration Tests
 
-    func testSpeechRecognitionEngine_acquiresAndReleasesLeaseThroughCoordinator() throws {
+    func testSpeechRecognitionEngine_acquiresAndReleasesLeaseThroughCoordinator() async throws {
         let mockCoordinator = MockTrackingAudioCoordinator()
         let engine = SpeechRecognitionEngine(audioCoordinator: mockCoordinator)
 
@@ -462,36 +462,51 @@ final class SpeechAssessmentServiceTests: XCTestCase {
         )
 
         XCTAssertTrue(engine.isRecording)
+
+        // Wait for async acquisition to register
+        for _ in 0..<20 {
+            if !mockCoordinator.acquiredIntents.isEmpty { break }
+            try await Task.sleep(for: .milliseconds(10))
+        }
+
         XCTAssertEqual(mockCoordinator.acquiredIntents, [.speechCapture])
-
-        engine.stop()
-        XCTAssertFalse(engine.isRecording)
-        // Release is scheduled asynchronously on stop
-    }
-
-    func testSpeechRecognitionEngine_releasesLeaseOnStop() async throws {
-        let mockCoordinator = MockTrackingAudioCoordinator()
-        let engine = SpeechRecognitionEngine(audioCoordinator: mockCoordinator)
-
-        try engine.start(
-            contextualPhrases: ["test"],
-            onPartialResult: { _ in },
-            onFinalResult: { _ in },
-            onError: { _ in }
-        )
-
-        XCTAssertTrue(engine.isRecording)
-        XCTAssertEqual(mockCoordinator.acquiredIntents, [.speechCapture])
+        // Explicitly assert the lease is actively held and NOT prematurely released while recording
+        XCTAssertTrue(mockCoordinator.releasedLeases.isEmpty, "Lease must not be released while engine is recording")
 
         engine.stop()
         XCTAssertFalse(engine.isRecording)
 
-        // Wait for asynchronous release task to complete
+        // Explicitly assert lease is released after engine stops
         for _ in 0..<20 {
             if !mockCoordinator.releasedLeases.isEmpty { break }
             try await Task.sleep(for: .milliseconds(10))
         }
 
+        XCTAssertEqual(mockCoordinator.releasedLeases.map(\.intent), [.speechCapture])
+    }
+
+    func testSpeechRecognitionEngine_earlyStopBeforeAcquisitionCompletes_releasesLease() async throws {
+        let mockCoordinator = MockTrackingAudioCoordinator()
+        let engine = SpeechRecognitionEngine(audioCoordinator: mockCoordinator)
+
+        try engine.start(
+            contextualPhrases: ["test"],
+            onPartialResult: { _ in },
+            onFinalResult: { _ in },
+            onError: { _ in }
+        )
+
+        // Stop immediately to simulate cancellation while acquisition is in flight
+        engine.stop()
+        XCTAssertFalse(engine.isRecording)
+
+        // Wait for in-flight acquisition task to complete and release the orphaned lease
+        for _ in 0..<20 {
+            if !mockCoordinator.releasedLeases.isEmpty { break }
+            try await Task.sleep(for: .milliseconds(10))
+        }
+
+        XCTAssertEqual(mockCoordinator.acquiredIntents, [.speechCapture])
         XCTAssertEqual(mockCoordinator.releasedLeases.map(\.intent), [.speechCapture])
     }
 }

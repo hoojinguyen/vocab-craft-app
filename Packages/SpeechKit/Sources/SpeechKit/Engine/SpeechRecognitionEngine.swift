@@ -21,6 +21,7 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
     private let speechRecognizer: SFSpeechRecognizer?
     private let audioCoordinator: (any AudioSessionCoordinating)?
     private var activeLease: AudioSessionLease?
+    private var leaseAcquisitionTask: Task<Void, Never>?
     private var audioEngine: AVAudioEngine?
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     private var recognitionTask: SFSpeechRecognitionTask?
@@ -47,16 +48,6 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
 
     deinit {
         stop()
-    }
-
-    private func handleAcquiredLease(_ lease: AudioSessionLease?) -> AudioSessionLease? {
-        lock.withLock {
-            if !_isRecording {
-                return lease
-            }
-            self.activeLease = lease
-            return nil
-        }
     }
 
     /// Requests user authorization for microphone and speech recognition.
@@ -102,36 +93,49 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
         onError: @escaping @Sendable (Error) -> Void
     ) throws {
         lock.lock()
+        defer { lock.unlock() }
+
         if _isRecording {
             stopInternal()
         }
-        lock.unlock()
+
+        let sessionId = UUID()
+        self.currentSessionId = sessionId
+        self._isRecording = true
 
         if let coordinator = audioCoordinator {
-            let semaphore = DispatchSemaphore(value: 0)
-            Task.detached { [weak self] in
+            leaseAcquisitionTask?.cancel()
+            leaseAcquisitionTask = Task { [weak self, sessionId] in
                 let lease = try? await coordinator.acquire(.speechCapture)
-                if let self {
-                    if let leaseToRelease = self.handleAcquiredLease(lease) {
-                        await coordinator.release(leaseToRelease)
+                guard let self else {
+                    if let lease {
+                        await coordinator.release(lease)
                     }
+                    return
                 }
-                semaphore.signal()
+                let leaseToRelease: AudioSessionLease? = self.lock.withLock {
+                    guard self.currentSessionId == sessionId, self._isRecording else {
+                        return lease
+                    }
+                    self.activeLease = lease
+                    return nil
+                }
+                if let leaseToRelease {
+                    await coordinator.release(leaseToRelease)
+                }
             }
-            _ = semaphore.wait(timeout: .now() + .milliseconds(200))
         }
-
-        lock.lock()
-        defer { lock.unlock() }
 
         #if targetEnvironment(simulator) || os(macOS)
         startSimulatorTask(
+            sessionId: sessionId,
             phrases: contextualPhrases,
             onPartialResult: onPartialResult,
             onFinalResult: onFinalResult
         )
         #else
         try startDeviceRecognition(
+            sessionId: sessionId,
             contextualPhrases: contextualPhrases,
             onPartialResult: onPartialResult,
             onFinalResult: onFinalResult,
@@ -142,14 +146,11 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
 
     #if targetEnvironment(simulator) || os(macOS)
     private func startSimulatorTask(
+        sessionId: UUID,
         phrases: [String],
         onPartialResult: @escaping @Sendable (String) -> Void,
         onFinalResult: @escaping @Sendable (String) -> Void
     ) {
-        _isRecording = true
-        let sessionId = UUID()
-        self.currentSessionId = sessionId
-
         simulationTask?.cancel()
         simulationTask = Task { [weak self] in
             guard let self = self else { return }
@@ -177,16 +178,17 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
     }
 
     private func startDeviceRecognition(
+        sessionId: UUID,
         contextualPhrases: [String],
         onPartialResult: @escaping @Sendable (String) -> Void,
         onFinalResult: @escaping @Sendable (String) -> Void,
         onError: @escaping @Sendable (Error) -> Void
     ) throws {
-        guard let recognizer = speechRecognizer, recognizer.isAvailable else {
-            throw SpeechKitError.recognizerUnavailable
-        }
-
         do {
+            guard let recognizer = speechRecognizer, recognizer.isAvailable else {
+                throw SpeechKitError.recognizerUnavailable
+            }
+
             let request = makeRecognitionRequest(
                 supportsOnDevice: recognizer.supportsOnDeviceRecognition,
                 contextualPhrases: contextualPhrases
@@ -195,9 +197,6 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
 
             let engine = try setupAudioEngine(for: request)
             self.audioEngine = engine
-
-            let sessionId = UUID()
-            self.currentSessionId = sessionId
 
             let handlers = RecognitionHandlers(
                 onPartialResult: onPartialResult,
@@ -211,8 +210,6 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
                 sessionId: sessionId,
                 handlers: handlers
             )
-
-            _isRecording = true
         } catch {
             stopInternal()
             throw error
@@ -309,6 +306,10 @@ public final class SpeechRecognitionEngine: NSObject, SpeechRecognitionEnginePro
 
     private func stopInternal() {
         _isRecording = false
+        currentSessionId = UUID()
+
+        leaseAcquisitionTask?.cancel()
+        leaseAcquisitionTask = nil
 
         if let lease = activeLease, let coordinator = audioCoordinator {
             activeLease = nil
