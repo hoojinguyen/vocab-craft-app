@@ -1,7 +1,8 @@
 import Foundation
 
 /// Business UseCase for computing SRS intervals and updating user mastery.
-public protocol EvaluateSRSUseCaseProtocol: AnyObject {
+@MainActor
+public protocol EvaluateSRSUseCaseProtocol: AnyObject, Sendable {
     func evaluateResponse(
         currentMastery: Int,
         easeFactor: Double,
@@ -16,6 +17,7 @@ public protocol EvaluateSRSUseCaseProtocol: AnyObject {
     ) async throws -> SRSResult
 }
 
+@MainActor
 public final class EvaluateSRSUseCase: EvaluateSRSUseCaseProtocol {
     private let srsRepository: SRSRepositoryProtocol
 

@@ -1,9 +1,11 @@
 import Foundation
 
-public protocol ResetUserProgressUseCaseProtocol: AnyObject {
+@MainActor
+public protocol ResetUserProgressUseCaseProtocol: AnyObject, Sendable {
     func executeResetAllProgress() async throws
 }
 
+@MainActor
 public final class ResetUserProgressUseCase: ResetUserProgressUseCaseProtocol {
     private let srsRepository: SRSRepositoryProtocol
 

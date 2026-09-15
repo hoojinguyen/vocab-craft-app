@@ -100,6 +100,12 @@ private final class NotificationObserverBox: @unchecked Sendable {
         }
     }
 }
+private final class NotificationTransferBox: @unchecked Sendable {
+    let notification: Notification
+    init(_ notification: Notification) {
+        self.notification = notification
+    }
+}
 #endif
 
 public actor AudioSessionCoordinator: AudioSessionCoordinating {
@@ -122,8 +128,9 @@ public actor AudioSessionCoordinator: AudioSessionCoordinating {
             queue: nil
         ) { [weak self] notification in
             guard let self else { return }
+            let box = NotificationTransferBox(notification)
             Task {
-                await self.handleInterruption(notification)
+                await self.handleInterruption(box.notification)
             }
         }
         let routeChange = notificationCenter.addObserver(
@@ -132,8 +139,9 @@ public actor AudioSessionCoordinator: AudioSessionCoordinating {
             queue: nil
         ) { [weak self] notification in
             guard let self else { return }
+            let box = NotificationTransferBox(notification)
             Task {
-                await self.handleRouteChange(notification)
+                await self.handleRouteChange(box.notification)
             }
         }
         let mediaReset = notificationCenter.addObserver(

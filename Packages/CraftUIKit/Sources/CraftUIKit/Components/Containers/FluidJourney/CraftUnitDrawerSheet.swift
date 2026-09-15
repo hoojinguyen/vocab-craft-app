@@ -117,8 +117,7 @@ public struct CraftUnitDrawerSheet: View, Equatable {
         lhs.sections == rhs.sections &&
         lhs.deckTitle == rhs.deckTitle &&
         lhs.deckSubtitle == rhs.deckSubtitle &&
-        lhs.activeSectionId == rhs.activeSectionId &&
-        lhs.currentExpandedSectionIds == rhs.currentExpandedSectionIds
+        lhs.activeSectionId == rhs.activeSectionId
     }
 
     // MARK: - Public Actions & Queries

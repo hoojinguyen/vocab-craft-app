@@ -30,7 +30,8 @@ public struct SRSProgressItem: Equatable, Sendable {
 }
 
 /// Repository abstraction for Spaced Repetition persistence.
-public protocol SRSRepositoryProtocol: AnyObject {
+@MainActor
+public protocol SRSRepositoryProtocol: AnyObject, Sendable {
     func getProgress(wordId: Int64) async throws -> SRSProgressItem?
     func saveProgress(_ item: SRSProgressItem) async throws
     func logReflexSession(drillId: Int64, responseTimeMs: Int, accuracyScore: Double) async throws

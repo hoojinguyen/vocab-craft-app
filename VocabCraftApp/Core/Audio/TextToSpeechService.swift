@@ -28,6 +28,13 @@ private final class TTSCleanupBox: @unchecked Sendable {
     }
 }
 
+private final class UtteranceTransferBox: @unchecked Sendable {
+    let utterance: AVSpeechUtterance
+    init(_ utterance: AVSpeechUtterance) {
+        self.utterance = utterance
+    }
+}
+
 @MainActor
 @Observable
 public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, TextToSpeechProtocol {
@@ -279,10 +286,11 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
     // MARK: - AVSpeechSynthesizerDelegate
 
     public nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+        let box = UtteranceTransferBox(utterance)
         Task { @MainActor [weak self] in
             LessonPerformanceDiagnostics.event("TTSFinished")
             guard let self = self else { return }
-            guard utterance === self.currentUtterance else { return }
+            guard box.utterance === self.currentUtterance else { return }
             self.currentUtterance = nil
             self.isSpeaking = false
             if let continuation = self.activeContinuation {
@@ -294,10 +302,11 @@ public final class TextToSpeechService: NSObject, AVSpeechSynthesizerDelegate, T
     }
 
     public nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
+        let box = UtteranceTransferBox(utterance)
         Task { @MainActor [weak self] in
             LessonPerformanceDiagnostics.event("TTSCancelled")
             guard let self = self else { return }
-            guard utterance === self.currentUtterance else { return }
+            guard box.utterance === self.currentUtterance else { return }
             self.currentUtterance = nil
             self.isSpeaking = false
             if let continuation = self.activeContinuation {

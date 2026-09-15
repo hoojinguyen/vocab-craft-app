@@ -1,7 +1,7 @@
 import Foundation
 
 @MainActor
-public protocol ReflexSpeechEngineProtocol: AnyObject {
+public protocol ReflexSpeechEngineProtocol: AnyObject, Sendable {
     var isSessionActive: Bool { get }
     var isWordActive: Bool { get }
     var liveTranscript: String { get }

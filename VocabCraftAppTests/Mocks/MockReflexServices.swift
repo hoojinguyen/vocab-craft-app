@@ -83,6 +83,7 @@ final class MockTextToSpeechService: TextToSpeechProtocol {
     }
 }
 
+@MainActor
 final class MockEvaluateSRSUseCase: EvaluateSRSUseCaseProtocol {
     func evaluateResponse(currentMastery: Int, easeFactor: Double, isCorrect: Bool, responseTimeMs: Int) -> SRSResult {
         SRSResult(
