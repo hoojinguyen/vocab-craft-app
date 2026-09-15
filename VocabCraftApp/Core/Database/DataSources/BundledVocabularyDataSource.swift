@@ -68,7 +68,7 @@ public final class BundledVocabularyDataSource: VocabularyDataSourceProtocol, Se
     public func fetchWordsByIds(ids: Set<Int64>) async throws -> [TopicWordDTO] {
         guard !ids.isEmpty else { return [] }
         let catalog = try await getOrLoadCatalog()
-        return ids.compactMap { catalog.wordById[$0] }
+        return ids.sorted().compactMap { catalog.wordById[$0] }
     }
 
     public func fetchAllWordsMap() async throws -> [Int64: TopicWordDTO] {
@@ -92,7 +92,6 @@ public final class BundledVocabularyDataSource: VocabularyDataSourceProtocol, Se
             throw VocabularyCatalogError.decodingFailed(description: error.localizedDescription)
         }
 
-        var allStages: [SubTopicStageDTO] = []
         var allWords: [TopicWordDTO] = []
         var stagesByDeck: [String: [SubTopicStageDTO]] = [:]
         var stageById: [String: SubTopicStageDTO] = [:]
@@ -109,7 +108,6 @@ public final class BundledVocabularyDataSource: VocabularyDataSourceProtocol, Se
 
             for stage in sortedStages {
                 stageById[stage.id] = stage
-                allStages.append(stage)
                 wordsByStage[stage.id] = stage.words
 
                 for word in stage.words {
@@ -173,6 +171,7 @@ public final class BundledVocabularyDataSource: VocabularyDataSourceProtocol, Se
     private static func fallbackData() -> Data? {
         let currentFilePath = URL(fileURLWithPath: #filePath)
         let candidateURL = currentFilePath
+            .deletingLastPathComponent()
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .deletingLastPathComponent()

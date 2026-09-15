@@ -26,6 +26,8 @@
 		3000BEA090FB6DD9E928 /* TextToSpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000BEA090FB6DD9E928 /* TextToSpeechService.swift */; };
 		300096D853E0F8987598 /* WordTokenResult+CraftUIKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200096D853E0F8987598 /* WordTokenResult+CraftUIKit.swift */; };
 		30005F5A8F8438E080F5 /* VocabularyDataSourceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20005F5A8F8438E080F5 /* VocabularyDataSourceProtocol.swift */; };
+		3000A17BC8244E4890C1 /* VocabularyCatalogDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A17BC8244E4890C1 /* VocabularyCatalogDTO.swift */; };
+		3000E885B5F34E84920B /* BundledVocabularyDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000E885B5F34E84920B /* BundledVocabularyDataSource.swift */; };
 		300077EE9358A77430BE /* DatabaseStoreError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200077EE9358A77430BE /* DatabaseStoreError.swift */; };
 		300054D59B97E59482EE /* DatasetEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200054D59B97E59482EE /* DatasetEngine.swift */; };
 		3000D26FBFB21A7CA2FE /* DatasetModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000D26FBFB21A7CA2FE /* DatasetModels.swift */; };
@@ -163,6 +165,7 @@
 		30002F7276D162B86C67 /* PracticeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20002F7276D162B86C67 /* PracticeSelectionView.swift */; };
 		3000AE48F46F0BF167D1 /* VocabularyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000AE48F46F0BF167D1 /* VocabularyView.swift */; };
 		3000B135085E448B7AE0 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 2000B135085E448B7AE0 /* Localizable.xcstrings */; };
+		3000F6A102D6474F9B31 /* vocabulary_catalog.json in Resources */ = {isa = PBXBuildFile; fileRef = 2000F6A102D6474F9B31 /* vocabulary_catalog.json */; };
 		300014ABEEFD5E14865F /* MarkLearnedIntent.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 200014ABEEFD5E14865F /* MarkLearnedIntent.swift */; };
 		300235B0F0A087879BE8 /* MarkLearnedIntent.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 200014ABEEFD5E14865F /* MarkLearnedIntent.swift */; };
 		3000C94DD80FE52023FA /* NextWordIntent.swift in Widget Sources */ = {isa = PBXBuildFile; fileRef = 2000C94DD80FE52023FA /* NextWordIntent.swift */; };
@@ -193,6 +196,7 @@
 		3000F16A18C973F6D3F4 /* SchemaMigrationTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000F16A18C973F6D3F4 /* SchemaMigrationTests.swift */; };
 		3000698B6C252CC2C824 /* StageProgressRepositoryConcurrencyTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000698B6C252CC2C824 /* StageProgressRepositoryConcurrencyTests.swift */; };
 		30001F0110E207A4ED7B /* SampleVocabularyDataSourceTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20001F0110E207A4ED7B /* SampleVocabularyDataSourceTests.swift */; };
+		30007B318DE81A9F4E5A /* BundledVocabularyDataSourceTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20007B318DE81A9F4E5A /* BundledVocabularyDataSourceTests.swift */; };
 		30001CC68ABABFC8C69D /* SpeechKitAdapterTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 20001CC68ABABFC8C69D /* SpeechKitAdapterTests.swift */; };
 		3000EEEE8E2C250DF925 /* StageProgressRepositoryTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000EEEE8E2C250DF925 /* StageProgressRepositoryTests.swift */; };
 		3000BD895DED76C5E5D2 /* DatasetDataSourceTests.swift in Test Sources */ = {isa = PBXBuildFile; fileRef = 2000BD895DED76C5E5D2 /* DatasetDataSourceTests.swift */; };
@@ -332,6 +336,8 @@
 		2000BEA090FB6DD9E928 /* TextToSpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TextToSpeechService.swift"; sourceTree = "<group>"; };
 		200096D853E0F8987598 /* WordTokenResult+CraftUIKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WordTokenResult+CraftUIKit.swift"; sourceTree = "<group>"; };
 		20005F5A8F8438E080F5 /* VocabularyDataSourceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyDataSourceProtocol.swift"; sourceTree = "<group>"; };
+		2000A17BC8244E4890C1 /* VocabularyCatalogDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyCatalogDTO.swift"; sourceTree = "<group>"; };
+		2000E885B5F34E84920B /* BundledVocabularyDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BundledVocabularyDataSource.swift"; sourceTree = "<group>"; };
 		200077EE9358A77430BE /* DatabaseStoreError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatabaseStoreError.swift"; sourceTree = "<group>"; };
 		200054D59B97E59482EE /* DatasetEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatasetEngine.swift"; sourceTree = "<group>"; };
 		2000D26FBFB21A7CA2FE /* DatasetModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatasetModels.swift"; sourceTree = "<group>"; };
@@ -469,6 +475,7 @@
 		20002F7276D162B86C67 /* PracticeSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PracticeSelectionView.swift"; sourceTree = "<group>"; };
 		2000AE48F46F0BF167D1 /* VocabularyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VocabularyView.swift"; sourceTree = "<group>"; };
 		2000B135085E448B7AE0 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = "Localizable.xcstrings"; sourceTree = "<group>"; };
+		2000F6A102D6474F9B31 /* vocabulary_catalog.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "vocabulary_catalog.json"; sourceTree = "<group>"; };
 		200014ABEEFD5E14865F /* MarkLearnedIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MarkLearnedIntent.swift"; sourceTree = "<group>"; };
 		2000C94DD80FE52023FA /* NextWordIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NextWordIntent.swift"; sourceTree = "<group>"; };
 		200017F5C24B744B988C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info.plist"; sourceTree = "<group>"; };
@@ -484,6 +491,7 @@
 		2000F16A18C973F6D3F4 /* SchemaMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SchemaMigrationTests.swift"; sourceTree = "<group>"; };
 		2000698B6C252CC2C824 /* StageProgressRepositoryConcurrencyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StageProgressRepositoryConcurrencyTests.swift"; sourceTree = "<group>"; };
 		20001F0110E207A4ED7B /* SampleVocabularyDataSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SampleVocabularyDataSourceTests.swift"; sourceTree = "<group>"; };
+		20007B318DE81A9F4E5A /* BundledVocabularyDataSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BundledVocabularyDataSourceTests.swift"; sourceTree = "<group>"; };
 		20001CC68ABABFC8C69D /* SpeechKitAdapterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpeechKitAdapterTests.swift"; sourceTree = "<group>"; };
 		2000EEEE8E2C250DF925 /* StageProgressRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StageProgressRepositoryTests.swift"; sourceTree = "<group>"; };
 		2000BD895DED76C5E5D2 /* DatasetDataSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DatasetDataSourceTests.swift"; sourceTree = "<group>"; };
@@ -715,6 +723,8 @@
 			isa = PBXGroup;
 			children = (
 				20005F5A8F8438E080F5 /* VocabularyDataSourceProtocol.swift */,
+				2000A17BC8244E4890C1 /* VocabularyCatalogDTO.swift */,
+				2000E885B5F34E84920B /* BundledVocabularyDataSource.swift */,
 			);
 			path = "DataSources";
 			sourceTree = "<group>";
@@ -1322,6 +1332,7 @@
 			isa = PBXGroup;
 			children = (
 				2000B135085E448B7AE0 /* Localizable.xcstrings */,
+				2000F6A102D6474F9B31 /* vocabulary_catalog.json */,
 			);
 			path = "Resources";
 			sourceTree = "<group>";
@@ -1412,6 +1423,7 @@
 				20008B3C9C43AFE4C6DC /* DatabaseQuarantineTests.swift */,
 				2000F16A18C973F6D3F4 /* SchemaMigrationTests.swift */,
 				2000698B6C252CC2C824 /* StageProgressRepositoryConcurrencyTests.swift */,
+				20007B318DE81A9F4E5A /* BundledVocabularyDataSourceTests.swift */,
 			);
 			path = "Database";
 			sourceTree = "<group>";
@@ -1685,6 +1697,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3000B135085E448B7AE0 /* Localizable.xcstrings in Resources */,
+				3000F6A102D6474F9B31 /* vocabulary_catalog.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1714,6 +1727,8 @@
 				3000BEA090FB6DD9E928 /* TextToSpeechService.swift in Sources */,
 				300096D853E0F8987598 /* WordTokenResult+CraftUIKit.swift in Sources */,
 				30005F5A8F8438E080F5 /* VocabularyDataSourceProtocol.swift in Sources */,
+				3000A17BC8244E4890C1 /* VocabularyCatalogDTO.swift in Sources */,
+				3000E885B5F34E84920B /* BundledVocabularyDataSource.swift in Sources */,
 				300077EE9358A77430BE /* DatabaseStoreError.swift in Sources */,
 				300054D59B97E59482EE /* DatasetEngine.swift in Sources */,
 				3000D26FBFB21A7CA2FE /* DatasetModels.swift in Sources */,
@@ -1894,6 +1909,7 @@
 				3000F16A18C973F6D3F4 /* SchemaMigrationTests.swift in Test Sources */,
 				3000698B6C252CC2C824 /* StageProgressRepositoryConcurrencyTests.swift in Test Sources */,
 				30001F0110E207A4ED7B /* SampleVocabularyDataSourceTests.swift in Test Sources */,
+				30007B318DE81A9F4E5A /* BundledVocabularyDataSourceTests.swift in Test Sources */,
 				30001CC68ABABFC8C69D /* SpeechKitAdapterTests.swift in Test Sources */,
 				3000EEEE8E2C250DF925 /* StageProgressRepositoryTests.swift in Test Sources */,
 				3000BD895DED76C5E5D2 /* DatasetDataSourceTests.swift in Test Sources */,

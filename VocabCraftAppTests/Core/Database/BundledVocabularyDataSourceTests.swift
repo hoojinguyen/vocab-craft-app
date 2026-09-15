@@ -62,8 +62,9 @@ struct BundledVocabularyDataSourceTests {
         let singleWord = try await dataSource.fetchWordById(id: 26)
         #expect(singleWord?.lemma == "Algorithm")
 
-        let batchWords = try await dataSource.fetchWordsByIds(ids: Set([26, 27, 28]))
+        let batchWords = try await dataSource.fetchWordsByIds(ids: Set([28, 26, 27]))
         #expect(batchWords.count == 3)
+        #expect(batchWords.map(\.id) == [26, 27, 28])
     }
 
     @Test("Fetches individual deck by ID")
