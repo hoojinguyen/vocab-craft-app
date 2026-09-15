@@ -41,15 +41,7 @@ public final class LiveSpeechAuthorizer: SpeechAuthorizing, @unchecked Sendable 
 
     public func requestMicrophoneAuthorization() async -> Bool {
         #if os(iOS) && !targetEnvironment(simulator)
-        if #available(iOS 17.0, *) {
-            return await AVAudioApplication.requestRecordPermission()
-        } else {
-            return await withCheckedContinuation { continuation in
-                AVAudioSession.sharedInstance().requestRecordPermission { granted in
-                    continuation.resume(returning: granted)
-                }
-            }
-        }
+        return await AVAudioApplication.requestRecordPermission()
         #else
         return true
         #endif

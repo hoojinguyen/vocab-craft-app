@@ -32,13 +32,22 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
     private var onErrorCallback: ((Error) -> Void)?
     private var simulationTask: Task<Void, Never>?
     private var authorizationRequestID = 0
-    private var interruptionObserver: (any NSObjectProtocol)?
+    private var eventSubscriptionTask: Task<Void, Never>?
+
+    public let audioSessionCoordinator: any AudioSessionCoordinating
+    private(set) var activeLease: AudioSessionLease?
+    public private(set) var leaseAcquisitionTask: Task<Void, Never>?
+    public private(set) var leaseReleaseTask: Task<Void, Never>?
 
     public var isRecording: Bool = false
     public var isListening: Bool { isRecording }
     public var recognizedText: String = ""
 
-    public init(locale: String = "en-US") {
+    public init(
+        locale: String = "en-US",
+        audioSessionCoordinator: any AudioSessionCoordinating = AudioSessionCoordinator()
+    ) {
+        self.audioSessionCoordinator = audioSessionCoordinator
         let isTesting = NSClassFromString("XCTestCase") != nil
         if isTesting {
             self.speechRecognizer = nil
@@ -46,29 +55,20 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
             self.speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: locale))
         }
         super.init()
-        setupInterruptionObserver()
+        subscribeToAudioSessionEvents()
     }
 
-    private func setupInterruptionObserver() {
-        #if os(iOS)
-        interruptionObserver = NotificationCenter.default.addObserver(
-            forName: AVAudioSession.interruptionNotification,
-            object: AVAudioSession.sharedInstance(),
-            queue: .main
-        ) { [weak self] notification in
-            guard let userInfo = notification.userInfo,
-                  let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
-                  let type = AVAudioSession.InterruptionType(rawValue: typeValue) else { return }
-
-            if type == .began {
-                Task { @MainActor [weak self] in
-                    guard let self = self, self.isRecording else { return }
+    private func subscribeToAudioSessionEvents() {
+        eventSubscriptionTask = Task { @MainActor [weak self, events = audioSessionCoordinator.events] in
+            for await event in events {
+                guard let self else { break }
+                guard self.isRecording else { continue }
+                if case .interruptionBegan = event {
                     self.stopListening()
                     self.onErrorCallback?(SpeechRecognitionError.notAuthorized)
                 }
             }
         }
-        #endif
     }
 
     public func requestAuthorization(completion: @escaping (Bool) -> Void) {
@@ -82,14 +82,8 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
             }
 
             #if os(iOS)
-            if #available(iOS 17.0, *) {
-                AVAudioApplication.requestRecordPermission { granted in
-                    DispatchQueue.main.async { completion(granted) }
-                }
-            } else {
-                AVAudioSession.sharedInstance().requestRecordPermission { granted in
-                    DispatchQueue.main.async { completion(granted) }
-                }
+            AVAudioApplication.requestRecordPermission { granted in
+                DispatchQueue.main.async { completion(granted) }
             }
             #else
             DispatchQueue.main.async { completion(true) }
@@ -123,6 +117,24 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
     public func startListening() throws {
         stopListening()
 
+        authorizationRequestID += 1
+        let requestID = authorizationRequestID
+        let task = Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                let lease = try await self.audioSessionCoordinator.acquire(.speechCapture)
+                guard !Task.isCancelled, self.authorizationRequestID == requestID else {
+                    await self.audioSessionCoordinator.release(lease)
+                    return
+                }
+                self.activeLease = lease
+            } catch {
+                self.stopListening()
+                self.onErrorCallback?(error)
+            }
+        }
+        self.leaseAcquisitionTask = task
+
         #if targetEnvironment(simulator)
         isRecording = true
         recognizedText = ""
@@ -148,20 +160,9 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
         }
 
         #if os(iOS)
-        let isRecordGranted: Bool
-        if #available(iOS 17.0, *) {
-            isRecordGranted = AVAudioApplication.shared.recordPermission == .granted
-        } else {
-            isRecordGranted = AVAudioSession.sharedInstance().recordPermission == .granted
-        }
-        guard isRecordGranted else {
+        guard AVAudioApplication.shared.recordPermission == .granted else {
             throw SpeechRecognitionError.notAuthorized
         }
-
-        let audioSession = AVAudioSession.sharedInstance()
-        try audioSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetoothHFP])
-        try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
-        try? audioSession.overrideOutputAudioPort(.speaker)
         #endif
 
         guard let speechRecognizer = speechRecognizer, speechRecognizer.isAvailable else {
@@ -231,8 +232,18 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
         // An authorization callback may arrive after cancellation. Advancing this
         // token prevents it from starting a new capture session.
         authorizationRequestID += 1
+        leaseAcquisitionTask?.cancel()
+        leaseAcquisitionTask = nil
         simulationTask?.cancel()
         simulationTask = nil
+
+        if let lease = activeLease {
+            activeLease = nil
+            let task = Task { [coordinator = audioSessionCoordinator] in
+                await coordinator.release(lease)
+            }
+            leaseReleaseTask = task
+        }
 
         guard isRecording else { return }
         isRecording = false
@@ -253,9 +264,5 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
 
         recognitionRequest = nil
         recognitionTask = nil
-
-        #if os(iOS)
-        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
-        #endif
     }
 }

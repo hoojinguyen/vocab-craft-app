@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import Foundation
 #if os(iOS)
 import AVFoundation
@@ -102,6 +103,63 @@ final class SpeechServiceTests: XCTestCase {
 
         waitForExpectations(timeout: 5.0, handler: nil)
         #endif
+    }
+
+    func testSTTService_acquiresAndReleasesLeaseThroughCoordinator() async throws {
+        let mockHardware = MockAudioSessionHardware()
+        let coordinator = AudioSessionCoordinator(hardware: mockHardware)
+        let stt = SpeechRecognitionService(audioSessionCoordinator: coordinator)
+
+        try stt.startListening()
+        #expect(stt.isRecording)
+        #expect(await coordinator.activeLeaseCount == 1)
+        #expect(await coordinator.effectiveIntent == .speechCapture)
+
+        stt.stopListening()
+        #expect(!stt.isRecording)
+        #expect(await coordinator.activeLeaseCount == 0)
+    }
+
+    func testSTTService_defaultInitializerUsesCoordinator() {
+        let stt = SpeechRecognitionService()
+        #expect(stt.audioSessionCoordinator is AudioSessionCoordinator)
+    }
+
+    func testSTTService_interruptionStopsListeningAndDeliversError() async throws {
+        let mockHardware = MockAudioSessionHardware()
+        let coordinator = AudioSessionCoordinator(hardware: mockHardware)
+        let stt = SpeechRecognitionService(audioSessionCoordinator: coordinator)
+
+        var receivedError: (any Error)?
+        stt.startListening(
+            onResult: { _ in },
+            onError: { error in
+                receivedError = error
+            }
+        )
+
+        _ = await stt.leaseAcquisitionTask?.value
+        #expect(stt.isRecording)
+        #expect(await coordinator.activeLeaseCount == 1)
+
+        await coordinator.broadcastEventForTesting(.interruptionBegan)
+        for _ in 0..<20 {
+            if !stt.isRecording { break }
+            await Task.yield()
+        }
+
+        #expect(!stt.isRecording)
+        #expect(receivedError != nil)
+        _ = await stt.leaseReleaseTask?.value
+        #expect(await coordinator.activeLeaseCount == 0)
+    }
+
+    func testLiveSpeechAuthorizer_requestsAuthorizationOnSimulator() async {
+        let authorizer = LiveSpeechAuthorizer()
+        let speechAuth = await authorizer.requestSpeechAuthorization()
+        let micAuth = await authorizer.requestMicrophoneAuthorization()
+        #expect(speechAuth == true)
+        #expect(micAuth == true)
     }
 
     // MARK: - ResilientReflexSpeechEngine Tests
