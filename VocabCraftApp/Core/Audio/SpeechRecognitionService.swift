@@ -125,7 +125,7 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
 
     public func requestAuthorization(completion: @escaping @Sendable @MainActor (Bool) -> Void) {
         #if targetEnvironment(simulator)
-        Task { @MainActor in completion(true) }
+        completion(true)
         #else
         SFSpeechRecognizer.requestAuthorization { status in
             guard status == .authorized else {
@@ -193,17 +193,15 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
         recognizedText = ""
         simulationTask?.cancel()
         simulationTask = Task { @MainActor [weak self] in
-            guard let self = self else { return }
             try? await Task.sleep(for: .milliseconds(400))
-            if !Task.isCancelled && self.isRecording {
-                self.recognizedText = "A black dog"
-                self.onResultCallback?("A black dog")
-            }
+            guard let self, !Task.isCancelled, self.isRecording else { return }
+            self.recognizedText = "A black dog"
+            self.onResultCallback?("A black dog")
+
             try? await Task.sleep(for: .milliseconds(600))
-            if !Task.isCancelled && self.isRecording {
-                self.recognizedText = "A black dog jumps over the fence"
-                self.onResultCallback?("A black dog jumps over the fence")
-            }
+            guard !Task.isCancelled, self.isRecording else { return }
+            self.recognizedText = "A black dog jumps over the fence"
+            self.onResultCallback?("A black dog jumps over the fence")
         }
         return
         #else

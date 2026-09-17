@@ -658,10 +658,11 @@ extension ResilientReflexSpeechEngine {
 
             // Throttle non-match partial results to reduce MainActor pressure.
             // SFSpeechRecognizer fires 30-50 callbacks/sec; we cap UI updates at ~7/sec.
+            let isFinal = result.isFinal
             let now = CFAbsoluteTimeGetCurrent()
             self.throttleLock.lock()
             let elapsed = now - self.lastDispatchTime
-            let shouldDispatch = elapsed >= self.throttleInterval
+            let shouldDispatch = isFinal || (elapsed >= self.throttleInterval)
             if shouldDispatch {
                 self.lastDispatchTime = now
             }

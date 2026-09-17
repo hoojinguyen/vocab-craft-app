@@ -78,6 +78,7 @@ public final class SRSRepositoryImpl: SRSRepositoryProtocol {
         guard let context = modelContext else { return }
         try context.delete(model: UserWordProgress.self)
         try context.delete(model: ReflexSessionLog.self)
+        try context.delete(model: QuickReflexAttemptRecord.self)
         try context.save()
     }
 }
