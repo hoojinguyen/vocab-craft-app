@@ -18,6 +18,23 @@
         }
       }
     },
+    "app.deck.tag.featured" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Featured Vocabulary"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Từ vựng nổi bật"
+          }
+        }
+      }
+    },
     "app.ai_assistant.badge_coming_soon" : {
       "extractionState" : "manual",
       "localizations" : {

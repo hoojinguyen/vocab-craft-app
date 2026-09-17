@@ -196,7 +196,7 @@ public final class OnboardingViewModel {
     public func completeOnboardingAndDismiss() {
         guard !isCompleting else { return }
 
-        let starterWords = roadmapResult?.starterWords ?? MockVocabularyDataSource.starterWords()
+        let starterWords = roadmapResult?.starterWords ?? BundledVocabularyDataSource.starterWords()
         let stageId = roadmapResult?.startingStage.id ?? "stage_daily_1"
         let deckId = userSettings.selectedGoalDeckId
 

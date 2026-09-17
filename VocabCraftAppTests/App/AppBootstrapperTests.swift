@@ -112,5 +112,26 @@ final class AppBootstrapperTests: XCTestCase {
             XCTFail("Expected error state after failed confirmReset")
         }
     }
+
+    func test_bootstrapper_transitions_to_error_when_catalog_validation_fails() {
+        let sut = AppBootstrapper(
+            inMemoryOnly: true,
+            dataSourceProvider: {
+                BundledVocabularyDataSource(resourceName: "non_existent_catalog_file_xyz")
+            }
+        )
+        sut.bootstrap()
+        switch sut.state {
+        case .error(let error):
+            switch error {
+            case .storeInitializationFailed:
+                XCTAssertNil(sut.appContainer)
+            default:
+                XCTFail("Expected .storeInitializationFailed, got \(error)")
+            }
+        default:
+            XCTFail("Expected .error state when catalog is missing, got \(sut.state)")
+        }
+    }
 }
 #endif

@@ -45,7 +45,15 @@ def generate_pbxproj():
         "VocabCraftApp/Core/Database/SwiftDataModels.swift",
         "VocabCraftApp/Core/SRS/SRSEngine.swift",
         "VocabCraftApp/Core/Localization/AppLocalized.swift",
-        "VocabCraftApp/Domain/Models/UserStageProgressData.swift"
+        "VocabCraftApp/Domain/Models/UserStageProgressData.swift",
+        "VocabCraftApp/Core/Database/DataSources/VocabularyDataSourceProtocol.swift",
+        "VocabCraftApp/Core/Database/DataSources/VocabularyCatalogDTO.swift",
+        "VocabCraftApp/Core/Database/DataSources/BundledVocabularyDataSource.swift"
+    ]
+
+    widget_shared_resources = [
+        "VocabCraftApp/Resources/Localizable.xcstrings",
+        "VocabCraftApp/Resources/vocabulary_catalog.json"
     ]
 
     pbx_build_files = []
@@ -53,6 +61,7 @@ def generate_pbxproj():
     app_sources_build_files = []
     app_resources_build_files = []
     widget_sources_build_files = []
+    widget_resources_build_files = []
     test_sources_build_files = []
 
     # Process App Files
@@ -94,6 +103,14 @@ def generate_pbxproj():
         build_id = generate_id("3001", path + "_widget")
         pbx_build_files.append(f'\t\t{build_id} /* {filename} in Widget Sources */ = {{isa = PBXBuildFile; fileRef = {ref_id} /* {filename} */; }};')
         widget_sources_build_files.append(f'\t\t\t\t{build_id} /* {filename} in Widget Sources */,')
+
+    # Process Widget Shared Resources
+    for path in widget_shared_resources:
+        filename = os.path.basename(path)
+        ref_id = generate_id("2000", path)
+        build_id = generate_id("3001", path + "_widget_resource")
+        pbx_build_files.append(f'\t\t{build_id} /* {filename} in Widget Resources */ = {{isa = PBXBuildFile; fileRef = {ref_id} /* {filename} */; }};')
+        widget_resources_build_files.append(f'\t\t\t\t{build_id} /* {filename} in Widget Resources */,')
 
     # Process Test Files
     for path in test_files:
@@ -149,6 +166,7 @@ def generate_pbxproj():
     app_sources_section = "\n".join(app_sources_build_files)
     app_resources_section = "\n".join(app_resources_build_files)
     widget_sources_section = "\n".join(widget_sources_build_files)
+    widget_resources_section = "\n".join(widget_resources_build_files)
     test_sources_section = "\n".join(test_sources_build_files)
 
     content = f"""// !$*UTF8*$!
@@ -290,6 +308,7 @@ def generate_pbxproj():
 			buildPhases = (
 				100000402D50000000000002 /* Sources */,
 				100000402D50000000000000 /* Frameworks */,
+				100000402D50000000000003 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -374,6 +393,14 @@ def generate_pbxproj():
 			buildActionMask = 2147483647;
 			files = (
 {app_resources_section}
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		}};
+		100000402D50000000000003 /* Resources */ = {{
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+{widget_resources_section}
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		}};

@@ -22,17 +22,20 @@ public final class AppBootstrapper {
     private let arguments: [String]
     private let containerProvider: (() throws -> ModelContainer)?
     private let resetProvider: (() throws -> ModelContainer)?
+    private let dataSourceProvider: (() throws -> BundledVocabularyDataSource)?
 
     public init(
         inMemoryOnly: Bool = false,
         arguments: [String] = ProcessInfo.processInfo.arguments,
         containerProvider: (() throws -> ModelContainer)? = nil,
-        resetProvider: (() throws -> ModelContainer)? = nil
+        resetProvider: (() throws -> ModelContainer)? = nil,
+        dataSourceProvider: (() throws -> BundledVocabularyDataSource)? = nil
     ) {
         self.inMemoryOnly = inMemoryOnly
         self.arguments = arguments
         self.containerProvider = containerProvider
         self.resetProvider = resetProvider
+        self.dataSourceProvider = dataSourceProvider
     }
 
     public func bootstrap() {
@@ -54,7 +57,14 @@ public final class AppBootstrapper {
                 try? modelContainer.mainContext.save()
             }
 
-            let dataSource = BundledVocabularyDataSource()
+            let dataSource: BundledVocabularyDataSource
+            if let dataSourceProvider {
+                dataSource = try dataSourceProvider()
+            } else {
+                dataSource = BundledVocabularyDataSource()
+            }
+            try dataSource.validateCatalog()
+
             let router = Self.createAppRouter(from: arguments)
             self.appContainer = AppContainer(
                 modelContainer: modelContainer,
@@ -177,7 +187,8 @@ public final class AppBootstrapper {
         inMemoryOnly: Bool = false,
         arguments: [String] = [],
         containerProvider: (() throws -> Any)? = nil,
-        resetProvider: (() throws -> Any)? = nil
+        resetProvider: (() throws -> Any)? = nil,
+        dataSourceProvider: (() throws -> Any)? = nil
     ) {}
 
     public func bootstrap() {}

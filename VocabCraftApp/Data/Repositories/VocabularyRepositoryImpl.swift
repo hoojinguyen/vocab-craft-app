@@ -70,9 +70,10 @@ public final class VocabularyRepositoryImpl: VocabularyRepositoryProtocol {
     public func fetchSuggestedWords(limit: Int) async throws -> [SuggestedWord] {
         let records = try await dataSource.searchWords(query: "")
         let limited = Array(records.prefix(max(0, limit)))
-        if limited.isEmpty {
-            return MockVocabularyDataSource.shared.mockSuggestedWords
+        guard !limited.isEmpty else {
+            return []
         }
+        let featuredTag = String(localized: "app.deck.tag.featured")
         return limited.map { r in
             SuggestedWord(
                 id: String(r.id),
@@ -84,7 +85,7 @@ public final class VocabularyRepositoryImpl: VocabularyRepositoryProtocol {
                 definitionEn: r.definitionEn,
                 example: r.exampleEn,
                 isBookmarked: false,
-                topicTag: "Featured Vocabulary"
+                topicTag: featuredTag
             )
         }
     }

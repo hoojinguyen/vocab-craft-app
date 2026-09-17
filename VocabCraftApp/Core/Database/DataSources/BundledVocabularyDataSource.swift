@@ -76,6 +76,60 @@ public final class BundledVocabularyDataSource: VocabularyDataSourceProtocol, Se
         return catalog.wordById
     }
 
+    /// Validates that the underlying catalog resource exists and can be successfully decoded.
+    public func validateCatalog() throws {
+        _ = try Self.loadAndIndex(bundle: bundle, resourceName: resourceName)
+    }
+
+    /// Provides canonical starter words for roadmap synthesis and onboarding fallbacks.
+    public static func starterWords(forStageId stageId: String? = nil) -> [TopicWordDTO] {
+        let catalog = try? loadAndIndex(bundle: .main, resourceName: "vocabulary_catalog")
+        if let stageId, let words = catalog?.wordsByStage[stageId], !words.isEmpty {
+            return words
+        }
+        if let words = catalog?.allWords, !words.isEmpty {
+            return Array(words.prefix(3))
+        }
+        return [
+            TopicWordDTO(
+                id: 1,
+                stageId: stageId ?? "stage_daily_1",
+                lemma: "Resilience",
+                phonetic: "/rɪˈzɪl.jəns/",
+                pos: "noun",
+                cefrLevel: "B2",
+                definitionVi: "Khả năng phục hồi, kiên cường",
+                definitionEn: "The capacity to recover quickly from difficulties",
+                exampleEn: "Her resilience helped her overcome difficulties.",
+                exampleVi: "Sự kiên cường giúp cô ấy vượt qua khó khăn."
+            ),
+            TopicWordDTO(
+                id: 2,
+                stageId: stageId ?? "stage_daily_1",
+                lemma: "Overwhelmed",
+                phonetic: "/ˌoʊ.vɚˈwelmd/",
+                pos: "adjective",
+                cefrLevel: "B1",
+                definitionVi: "Bị ngợp, quá tải",
+                definitionEn: "Completely overcome by emotions or tasks",
+                exampleEn: "He felt overwhelmed by the workload.",
+                exampleVi: "Anh ấy cảm thấy quá tải vì khối lượng công việc."
+            ),
+            TopicWordDTO(
+                id: 3,
+                stageId: stageId ?? "stage_daily_1",
+                lemma: "Spontaneous",
+                phonetic: "/spɑːnˈteɪ.ni.əs/",
+                pos: "adjective",
+                cefrLevel: "B2",
+                definitionVi: "Tự phát, ngẫu hứng",
+                definitionEn: "Performed or occurring as a result of a sudden impulse",
+                exampleEn: "We took a spontaneous road trip.",
+                exampleVi: "Chúng tôi đã có một chuyến đi phượt ngẫu hứng."
+            )
+        ]
+    }
+
     // MARK: - Internal Storage & Loading
 
     private func getOrLoadCatalog() async throws -> IndexedCatalog {

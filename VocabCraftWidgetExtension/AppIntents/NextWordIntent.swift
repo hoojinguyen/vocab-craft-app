@@ -26,26 +26,31 @@ public struct NextWordIntent: AppIntent {
     @MainActor
     @discardableResult
     public func perform(in context: ModelContext) async throws -> some IntentResult {
+        try await perform(in: context, dataSource: BundledVocabularyDataSource())
+    }
+
+    @MainActor
+    @discardableResult
+    public func perform(
+        in context: ModelContext,
+        dataSource: VocabularyDataSourceProtocol
+    ) async throws -> some IntentResult {
         let states = try context.fetch(FetchDescriptor<WidgetCurrentState>())
         let existingState = states.first
 
-        // Word rotation across featured vocabulary
-        // swiftlint:disable:next large_tuple
-        let words: [(Int64, String, String, String, String)] = [
-            (101, "Abandon", "/əˈbæn.dən/", "Từ bỏ, ruồng bỏ", "He decided to abandon the plan."),
-            (102, "Brilliant", "/ˈbrɪl.jənt/", "Rực rỡ, xuất sắc", "She gave a brilliant performance."),
-            (103, "Resilient", "/rɪˈzɪl.jənt/", "Kiên cường, phục hồi nhanh", "The team was remarkably resilient."),
-            (104, "Eloquent", "/ˈel.ə.kwənt/", "Hùng hồn, trôi chảy", "An eloquent speech inspired everyone."),
-            (105, "Persistent", "/pəˈsɪs.tənt/", "Bền bỉ, nhẫn nại", "Success comes with persistent effort.")
-        ]
+        let words = (try? await dataSource.searchWords(query: "")) ?? []
+        guard !words.isEmpty else {
+            return .result()
+        }
+
         let currentId = existingState?.currentWordId ?? 0
-        let nextIndex = ((words.firstIndex(where: { $0.0 == currentId }) ?? -1) + 1) % words.count
+        let nextIndex = ((words.firstIndex(where: { $0.id == currentId }) ?? -1) + 1) % words.count
         let selected = words[nextIndex]
-        let newWordId = selected.0
-        let lemma = selected.1
-        let ipaUs = selected.2
-        let definitionVi = selected.3
-        let exampleEn = selected.4
+        let newWordId = selected.id
+        let lemma = selected.lemma
+        let ipaUs = selected.phonetic
+        let definitionVi = selected.definitionVi
+        let exampleEn = selected.exampleEn
 
         if let state = existingState {
             state.currentWordId = newWordId

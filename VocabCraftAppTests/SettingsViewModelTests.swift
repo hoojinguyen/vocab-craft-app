@@ -5,7 +5,7 @@ import XCTest
 #endif
 
 @MainActor
-public final class MockResetUserProgressUseCase: ResetUserProgressUseCaseProtocol, @unchecked Sendable {
+public final class MockResetUserProgressUseCase: ResetUserProgressUseCaseProtocol {
     public var didCallReset: Bool = false
     public var shouldThrowError: Bool = false
 
