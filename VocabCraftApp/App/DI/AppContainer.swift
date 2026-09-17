@@ -216,6 +216,7 @@ public final class AppContainer {
             planGenerator: practiceDrillPlanGenerator,
             recordAttemptUseCase: recordMixedDrillAttemptUseCase,
             ttsService: ttsService,
+            speechEngine: makeReflexSpeechEngine(),
             allowSpeakingSkip: allowSpeakingSkip
         )
     }

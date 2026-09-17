@@ -11,7 +11,7 @@ public struct PracticeDrillPlanGenerator: PracticeDrillPlanGeneratorProtocol, Se
 
     public func generatePlan(from words: [VaultWordItem]) -> ReflexDrillSessionPlan {
         guard !words.isEmpty else {
-            return ReflexDrillSessionPlan(mode: .multipleChoice, items: [])
+            return ReflexDrillSessionPlan(mode: nil, items: [])
         }
 
         var assignedModes: [ReflexMode] = []
@@ -80,6 +80,6 @@ public struct PracticeDrillPlanGenerator: PracticeDrillPlanGeneratorProtocol, Se
             items.append(planItem)
         }
 
-        return ReflexDrillSessionPlan(mode: .multipleChoice, items: items)
+        return ReflexDrillSessionPlan(mode: nil, items: items)
     }
 }

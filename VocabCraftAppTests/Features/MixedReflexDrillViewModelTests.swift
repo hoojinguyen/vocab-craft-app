@@ -154,6 +154,7 @@ struct MixedReflexDrillViewModelTests {
         let vm = MixedReflexDrillViewModel(selectedWords: words, queueUseCase: queueUseCase)
 
         #expect(vm.sessionPlan != nil)
+        #expect(vm.sessionPlan?.isMixed == true)
         #expect(vm.sessionPlan?.items.count == 2)
         #expect(vm.currentPlanItem != nil)
         #expect(vm.currentClozeStages != nil)

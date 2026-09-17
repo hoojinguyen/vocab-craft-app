@@ -71,7 +71,7 @@ public struct MixedReflexDrillView: View {
         onFinish: @escaping () -> Void
     ) {
         self.viewModel = viewModel
-        self.speechEngine = speechEngine ?? ResilientReflexSpeechEngine()
+        self.speechEngine = speechEngine ?? viewModel.speechEngine ?? ResilientReflexSpeechEngine()
         self.startWithCountdown = startWithCountdown
         self.onFinish = onFinish
         self._isCountingDown = State(initialValue: startWithCountdown)

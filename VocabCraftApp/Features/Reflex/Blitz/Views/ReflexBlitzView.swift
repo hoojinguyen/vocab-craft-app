@@ -250,7 +250,9 @@ public struct ReflexBlitzView: View {
             hintBadgeText: viewModel.currentHintBadgeText,
             speechState: viewModel.cardPhase == .activeCountdown ? viewModel.speechState : .evaluated(overallScore: viewModel.currentAttemptIsCorrect ? 100 : 0),
             liveTranscript: viewModel.liveTranscript,
-            onCantSpeakNow: nil,
+            onCantSpeakNow: {
+                viewModel.skip()
+            },
             onReplayAudio: {
                 viewModel.speakCurrentWord()
             }

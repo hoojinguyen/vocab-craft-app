@@ -174,6 +174,7 @@ public struct HomepageView: View {
                 let vm = appContainer.makeReflexBlitzViewModel()
                 vm.applyReviewConfig(config)
                 self.reflexBlitzVM = vm
+                appRouter.pendingReflexBlitzConfig = nil
             } else if appRouter.selectedTab == .reflex && reflexBlitzVM == nil {
                 let vm = appContainer.makeReflexBlitzViewModel()
                 self.reflexBlitzVM = vm
@@ -187,17 +188,13 @@ public struct HomepageView: View {
         #endif
         .onOpenURL { url in
             appRouter.handleDeepLink(url: url)
-            if let config = appRouter.pendingReflexBlitzConfig {
-                let vm = appContainer.makeReflexBlitzViewModel()
-                vm.applyReviewConfig(config)
-                self.reflexBlitzVM = vm
-            }
         }
         .onChange(of: appRouter.pendingReflexBlitzConfig) { _, newConfig in
             if let config = newConfig {
                 let vm = appContainer.makeReflexBlitzViewModel()
                 vm.applyReviewConfig(config)
                 self.reflexBlitzVM = vm
+                appRouter.pendingReflexBlitzConfig = nil
             }
         }
         .onChange(of: appRouter.selectedTab) { _, newTab in

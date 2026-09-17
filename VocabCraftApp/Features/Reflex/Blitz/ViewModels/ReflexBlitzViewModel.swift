@@ -43,7 +43,6 @@ public final class ReflexBlitzViewModel {
 
     public func dismissPermissionNotice() {
         permissionNotice = nil
-        isPermissionNoticePresented = false
         if phase == .drilling && cardPhase == .activeCountdown {
             wordStartTime = Date()
             startStopwatch()

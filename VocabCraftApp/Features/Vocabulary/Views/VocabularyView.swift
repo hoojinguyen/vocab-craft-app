@@ -231,7 +231,6 @@ public struct VocabularyView: View {
             .fullScreenCover(item: $activeDrillViewModel) { drillVM in
                 MixedReflexDrillView(
                     viewModel: drillVM,
-                    speechEngine: makeDrillSpeechEngine(),
                     onFinish: {
                         activeDrillViewModel = nil
                         Task {
@@ -244,7 +243,6 @@ public struct VocabularyView: View {
             .sheet(item: $activeDrillViewModel) { drillVM in
                 MixedReflexDrillView(
                     viewModel: drillVM,
-                    speechEngine: makeDrillSpeechEngine(),
                     onFinish: {
                         activeDrillViewModel = nil
                         Task {

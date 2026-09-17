@@ -26,6 +26,7 @@ public final class MixedReflexDrillViewModel: Identifiable {
     public var wordStartTime: Date?
     public let allowSpeakingSkip: Bool
     public private(set) var selectedWords: [VaultWordItem]
+    public let speechEngine: (any ReflexSpeechEngineProtocol)?
     private let queueUseCase: GenerateMixedReflexQueueUseCaseProtocol
     private let planGenerator: PracticeDrillPlanGeneratorProtocol?
     private let recordAttemptUseCase: RecordMixedDrillAttemptUseCaseProtocol?
@@ -37,6 +38,7 @@ public final class MixedReflexDrillViewModel: Identifiable {
         planGenerator: PracticeDrillPlanGeneratorProtocol? = nil,
         recordAttemptUseCase: RecordMixedDrillAttemptUseCaseProtocol? = nil,
         ttsService: TextToSpeechProtocol? = nil,
+        speechEngine: (any ReflexSpeechEngineProtocol)? = nil,
         allowSpeakingSkip: Bool = false
     ) {
         self.selectedWords = selectedWords
@@ -44,6 +46,7 @@ public final class MixedReflexDrillViewModel: Identifiable {
         self.planGenerator = planGenerator
         self.recordAttemptUseCase = recordAttemptUseCase
         self.ttsService = ttsService
+        self.speechEngine = speechEngine
         self.allowSpeakingSkip = allowSpeakingSkip
 
         if let planGenerator {
@@ -119,18 +122,22 @@ public final class MixedReflexDrillViewModel: Identifiable {
             let retryPlanItem = createPlanItem(for: retryItem)
             var items = sessionPlan?.items ?? []
             items.append(retryPlanItem)
-            self.sessionPlan = ReflexDrillSessionPlan(mode: .multipleChoice, items: items)
+            self.sessionPlan = ReflexDrillSessionPlan(mode: nil, items: items)
         }
 
         if current.assignedMode != .listening {
             playAudioForCurrentWord()
         }
 
-        _ = try? await recordAttemptUseCase?.execute(
-            wordId: current.word.id,
-            mode: current.assignedMode,
-            isCorrect: isCorrect
-        )
+        do {
+            try await recordAttemptUseCase?.execute(
+                wordId: current.word.id,
+                mode: current.assignedMode,
+                isCorrect: isCorrect
+            )
+        } catch {
+            print("[MixedReflexDrillViewModel] Failed to record attempt for word \(current.word.id): \(error)")
+        }
     }
 
     /// Advances to the next item in the queue and triggers session completion if exhausted.
@@ -158,7 +165,7 @@ public final class MixedReflexDrillViewModel: Identifiable {
         let retryPlanItem = createPlanItem(for: retryItem)
         var items = sessionPlan?.items ?? []
         items.append(retryPlanItem)
-        self.sessionPlan = ReflexDrillSessionPlan(mode: .multipleChoice, items: items)
+        self.sessionPlan = ReflexDrillSessionPlan(mode: nil, items: items)
 
         advanceToNextItem()
     }
@@ -217,7 +224,7 @@ public final class MixedReflexDrillViewModel: Identifiable {
 
     private func buildSessionPlan() {
         let planItems = queue.map { createPlanItem(for: $0) }
-        self.sessionPlan = ReflexDrillSessionPlan(mode: .multipleChoice, items: planItems)
+        self.sessionPlan = ReflexDrillSessionPlan(mode: nil, items: planItems)
         loadPlanItem(at: currentIndex)
     }
 
