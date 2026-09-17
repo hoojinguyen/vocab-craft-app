@@ -1,6 +1,23 @@
 {
   "sourceLanguage" : "vi",
   "strings" : {
+    "%@: %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@: %2$@"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@: %2$@"
+          }
+        }
+      }
+    },
     "Academic Research" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -14,23 +31,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nghiên cứu Học thuật"
-          }
-        }
-      }
-    },
-    "app.deck.tag.featured" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Featured Vocabulary"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Từ vựng nổi bật"
           }
         }
       }
@@ -239,23 +239,6 @@
         }
       }
     },
-    "app.database.error.quarantine_before_reset_failed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Failed to create quarantine backup before resetting store."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không thể tạo bản sao lưu cách ly trước khi đặt lại cơ sở dữ liệu."
-          }
-        }
-      }
-    },
     "app.database.error.init_failed" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -290,6 +273,23 @@
         }
       }
     },
+    "app.database.error.quarantine_before_reset_failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to create quarantine backup before resetting store."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không thể tạo bản sao lưu cách ly trước khi đặt lại cơ sở dữ liệu."
+          }
+        }
+      }
+    },
     "app.database.error.reset_failed" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -303,6 +303,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Không thể đặt lại cơ sở dữ liệu: %@"
+          }
+        }
+      }
+    },
+    "app.deck.tag.featured" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Featured Vocabulary"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Từ vựng nổi bật"
           }
         }
       }

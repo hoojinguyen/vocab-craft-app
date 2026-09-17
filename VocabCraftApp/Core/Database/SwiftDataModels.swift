@@ -3,6 +3,10 @@ import Foundation
 import SwiftData
 #endif
 
+// KeyPaths are immutable property accessors. Conforming KeyPath to Sendable satisfies
+// Swift 6 strict concurrency checks during Foundation #Predicate macro expansions on SwiftData @Model types.
+extension KeyPath: @unchecked @retroactive Sendable {}
+
 #if canImport(SwiftDataMacros) || canImport(SwiftData)
 public typealias UserWordProgress = SchemaV2.UserWordProgress
 public typealias UserStageProgress = SchemaV2.UserStageProgress

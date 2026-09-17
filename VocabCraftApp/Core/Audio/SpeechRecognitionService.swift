@@ -123,22 +123,22 @@ public final class SpeechRecognitionService: NSObject, SpeechRecognitionProtocol
         self.cleanupBox.eventSubscriptionTask = task
     }
 
-    public func requestAuthorization(completion: @escaping (Bool) -> Void) {
+    public func requestAuthorization(completion: @escaping @Sendable @MainActor (Bool) -> Void) {
         #if targetEnvironment(simulator)
-        DispatchQueue.main.async { completion(true) }
+        Task { @MainActor in completion(true) }
         #else
         SFSpeechRecognizer.requestAuthorization { status in
             guard status == .authorized else {
-                DispatchQueue.main.async { completion(false) }
+                Task { @MainActor in completion(false) }
                 return
             }
 
             #if os(iOS)
             AVAudioApplication.requestRecordPermission { granted in
-                DispatchQueue.main.async { completion(granted) }
+                Task { @MainActor in completion(granted) }
             }
             #else
-            DispatchQueue.main.async { completion(true) }
+            Task { @MainActor in completion(true) }
             #endif
         }
         #endif
