@@ -10,6 +10,7 @@ public struct ReflexBlitzView: View {
     @Bindable public var viewModel: ReflexBlitzViewModel
     @State private var typingInput: String = ""
     @State private var isConfettiTriggered: Bool = false
+    @State private var showExitAlert: Bool = false
     public var onDismiss: () -> Void
     public var onFinishSession: ((ReflexBlitzSessionSummary) -> Void)?
 
@@ -119,6 +120,23 @@ public struct ReflexBlitzView: View {
         } message: { notice in
             Text(notice.message)
         }
+        .alert(
+            AppStrings.ReflexBlitz.exitDialogTitleText,
+            isPresented: $showExitAlert
+        ) {
+            Button(AppStrings.ReflexBlitz.exitDialogConfirmText, role: .destructive) {
+                viewModel.cancelSession()
+                viewModel.resetToModeSelection()
+            }
+            Button(AppStrings.ReflexBlitz.exitDialogCancelText, role: .cancel) {
+                if viewModel.cardPhase == .activeCountdown {
+                    viewModel.resumeCurrentDrill()
+                }
+            }
+        } message: {
+            Text(AppStrings.ReflexBlitz.exitDialogMessageText)
+        }
+        .interactiveDismissDisabled(viewModel.phase == .drilling || viewModel.phase == .countdown)
     }
 
     private func modalityTintColor(for mode: ReflexBlitzMode) -> Color {
@@ -182,11 +200,13 @@ public struct ReflexBlitzView: View {
                     attempts: viewModel.attempts,
                     wordStartTime: viewModel.wordStartTime,
                     timeLimitSeconds: viewModel.selectedMode.timeLimitSeconds,
-                    isTimerActive: viewModel.cardPhase == .activeCountdown,
+                    isTimerActive: viewModel.cardPhase == .activeCountdown && !viewModel.isPaused,
                     showSkipInHeader: false,
                     onClose: {
-                        viewModel.cancelSession()
-                        viewModel.phase = .modeSelection
+                        if viewModel.cardPhase == .activeCountdown {
+                            viewModel.pauseCurrentDrill()
+                        }
+                        showExitAlert = true
                     },
                     onSkip: {
                         viewModel.handleTimeout()

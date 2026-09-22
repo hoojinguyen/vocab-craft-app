@@ -94,6 +94,7 @@ extension ReflexBlitzViewModel {
         currentAttemptIsCorrect = false
         cardPhase = .activeCountdown
         elapsedTimeMs = 0
+        isPaused = false
         typingInput = ""
         liveTranscript = ""
         wordStartTime = nil

@@ -98,6 +98,7 @@ extension ReflexBlitzViewModel {
     }
 
     public func cancelSession() {
+        isPaused = false
         cancelAllTasks()
         speechEngine.stopSession()
         ttsService.stop()

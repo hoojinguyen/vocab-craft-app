@@ -24,6 +24,8 @@ public final class MixedReflexDrillViewModel: Identifiable {
     public var permissionNotice: ReflexPermissionNotice?
     public var elapsedTimeMs: Int = 0
     public var wordStartTime: Date?
+    public var isTimerPaused: Bool = false
+    public var pausedElapsedMs: Int = 0
     public let allowSpeakingSkip: Bool
     public private(set) var selectedWords: [VaultWordItem]
     public let speechEngine: (any ReflexSpeechEngineProtocol)?
@@ -130,7 +132,7 @@ public final class MixedReflexDrillViewModel: Identifiable {
         }
 
         do {
-            try await recordAttemptUseCase?.execute(
+            _ = try await recordAttemptUseCase?.execute(
                 wordId: current.word.id,
                 mode: current.assignedMode,
                 isCorrect: isCorrect

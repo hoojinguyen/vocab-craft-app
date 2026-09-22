@@ -25,9 +25,19 @@ public struct MixedReflexDrillView: View {
     @State var typingText: String = ""
     @State var liveTranscript: String = ""
     @State var currentOptions: [ReflexBlitzOption] = []
-    @State var showExitAlert: Bool = false
+    @State private var showExitAlert: Bool = false
     @State var currentTimerStage: ReflexBlitzTimerStage = .steady
     @State var hintStage: Int = 0
+
+    public var isTimerPaused: Bool {
+        get { viewModel.isTimerPaused }
+        nonmutating set { viewModel.isTimerPaused = newValue }
+    }
+
+    public var pausedElapsedMs: Int {
+        get { viewModel.pausedElapsedMs }
+        nonmutating set { viewModel.pausedElapsedMs = newValue }
+    }
 
     public var wordStartTime: Date? {
         get { viewModel.wordStartTime }
@@ -36,6 +46,9 @@ public struct MixedReflexDrillView: View {
 
     public var elapsedTimeMs: Int {
         get {
+            if isTimerPaused {
+                return pausedElapsedMs
+            }
             if let wordStartTime {
                 return max(0, Int(Date().timeIntervalSince(wordStartTime) * 1000))
             }
@@ -152,15 +165,21 @@ public struct MixedReflexDrillView: View {
         .onDisappear {
             stopDrillSession()
         }
-        .alert(AppStrings.ReflexBlitz.exitDialogTitleText, isPresented: $showExitAlert) {
-            Button(AppStrings.ReflexBlitz.exitDialogCancelText, role: .cancel) {}
+        .alert(
+            AppStrings.ReflexBlitz.exitDialogTitleText,
+            isPresented: $showExitAlert
+        ) {
             Button(AppStrings.ReflexBlitz.exitDialogConfirmText, role: .destructive) {
                 stopDrillSession()
                 onFinish()
             }
+            Button(AppStrings.ReflexBlitz.exitDialogCancelText, role: .cancel) {
+                resumeDrillSession()
+            }
         } message: {
             Text(AppStrings.ReflexBlitz.exitDialogMessageText)
         }
+        .interactiveDismissDisabled(true)
         .alert(
             permissionNotice?.title ?? AppStrings.Lesson.permissionTitleText,
             isPresented: $viewModel.showPermissionAlert,
@@ -197,9 +216,10 @@ public struct MixedReflexDrillView: View {
                     attempts: viewModel.attempts,
                     wordStartTime: wordStartTime,
                     timeLimitSeconds: currentItem.assignedMode.timeLimitSeconds,
-                    isTimerActive: cardPhase == .activeCountdown,
+                    isTimerActive: cardPhase == .activeCountdown && !isTimerPaused,
                     showSkipInHeader: false,
                     onClose: {
+                        pauseDrillSession()
                         showExitAlert = true
                     },
                     onSkip: {

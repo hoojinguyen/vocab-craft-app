@@ -87,6 +87,8 @@ public final class ReflexBlitzViewModel {
     var wordGeneration: UInt = 0
     public var wordStartTime: Date?
 
+    public var isPaused: Bool = false
+
     public var currentWord: ReflexBlitzWordItem? {
         guard currentWordIndex >= 0 && currentWordIndex < words.count else { return nil }
         return words[currentWordIndex]
@@ -97,19 +99,30 @@ public final class ReflexBlitzViewModel {
         return Double(currentWordIndex) / Double(words.count)
     }
 
+    public var currentEffectiveElapsedMs: Double {
+        if isPaused {
+            return Double(elapsedTimeMs)
+        } else if let wordStartTime {
+            return max(Double(elapsedTimeMs), Date().timeIntervalSince(wordStartTime) * 1000.0)
+        } else {
+            return Double(elapsedTimeMs)
+        }
+    }
+
     public var fractionRemaining: Double {
         let limit = currentHandler.timeLimitSeconds * 1000.0
         guard limit > 0 else { return 0 }
-        return max(0.0, min(1.0, 1.0 - Double(elapsedTimeMs) / limit))
+        return max(0.0, min(1.0, 1.0 - currentEffectiveElapsedMs / limit))
     }
 
     public var timerStage: ReflexBlitzTimerStage {
         let limit = currentHandler.timeLimitSeconds * 1000.0
         let warningThreshold = limit * (3.5 / 6.0)
         let urgentThreshold = limit * (5.0 / 6.0)
-        if Double(elapsedTimeMs) < warningThreshold {
+        let currentElapsed = currentEffectiveElapsedMs
+        if currentElapsed < warningThreshold {
             return .steady
-        } else if Double(elapsedTimeMs) < urgentThreshold {
+        } else if currentElapsed < urgentThreshold {
             return .warning
         } else {
             return .urgent

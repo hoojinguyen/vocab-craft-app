@@ -838,4 +838,36 @@ final class ReflexBlitzViewModelTests: XCTestCase {
             XCTFail("Expected cardPhase to be .reviewed")
         }
     }
+
+    // MARK: - Pause & Resume Drills
+
+    func testPauseAndResumeCurrentDrillPreservesProgress() {
+        viewModel.startDrillSession(mode: .multipleChoice)
+        XCTAssertEqual(viewModel.phase, .drilling)
+        XCTAssertEqual(viewModel.cardPhase, .activeCountdown)
+        XCTAssertFalse(viewModel.isPaused)
+
+        viewModel.simulateElapsedTime(ms: 1500)
+        XCTAssertEqual(viewModel.elapsedTimeMs, 1500)
+
+        viewModel.pauseCurrentDrill()
+        XCTAssertTrue(viewModel.isPaused)
+
+        let pausedFraction = viewModel.fractionRemaining
+        XCTAssertLessThan(pausedFraction, 1.0)
+        XCTAssertGreaterThan(pausedFraction, 0.0)
+
+        viewModel.resumeCurrentDrill()
+        XCTAssertFalse(viewModel.isPaused)
+        XCTAssertNotNil(viewModel.wordStartTime)
+
+        viewModel.cancelSession()
+        XCTAssertFalse(viewModel.isPaused)
+    }
+
+    func testPauseIgnoredWhenNotInActiveDrilling() {
+        XCTAssertEqual(viewModel.phase, .modeSelection)
+        viewModel.pauseCurrentDrill()
+        XCTAssertFalse(viewModel.isPaused)
+    }
 }

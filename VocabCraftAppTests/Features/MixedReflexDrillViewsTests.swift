@@ -802,5 +802,33 @@ struct MixedReflexDrillViewsTests {
         #expect(vm.attempts[0].isCorrect == false)
         #expect(vm.attempts[0].responseTimeMs >= 500)
     }
+
+    @Test("MixedReflexDrillView pause and resume session preserves timer state")
+    @MainActor
+    func testMixedReflexDrillViewPauseAndResumeSession() async {
+        let words = [
+            VaultWordItem(id: 1, lemma: "habit", pos: "n.", definitionVi: "Thói quen")
+        ]
+        struct MockQueueUseCase: GenerateMixedReflexQueueUseCaseProtocol {
+            let item: MixedReflexDrillItem
+            func generate(from words: [VaultWordItem]) -> [MixedReflexDrillItem] { [item] }
+            func requeueFailedItem(_ item: MixedReflexDrillItem) -> MixedReflexDrillItem { item }
+        }
+        let item = MixedReflexDrillItem(word: words[0], assignedMode: .multipleChoice, isRetry: false)
+        let vm = MixedReflexDrillViewModel(selectedWords: words, queueUseCase: MockQueueUseCase(item: item))
+        let drillView = MixedReflexDrillView(viewModel: vm, startWithCountdown: false, onFinish: {})
+
+        drillView.startDrillItem(item)
+        #expect(drillView.isTimerPaused == false)
+
+        drillView.pauseDrillSession()
+        #expect(drillView.isTimerPaused == true)
+
+        drillView.resumeDrillSession()
+        #expect(drillView.isTimerPaused == false)
+
+        drillView.stopDrillSession()
+        #expect(drillView.isTimerPaused == false)
+    }
 }
 #endif

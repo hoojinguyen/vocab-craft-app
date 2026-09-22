@@ -922,4 +922,22 @@ final class ReflexBlitzViewIntegrationTests: XCTestCase {
             XCTAssertNotNil(view.drillingView, "Failed for mode \(mode)")
         }
     }
+
+    func testBlitzViewDrillingViewRendersWithExitAlertSupport() {
+        let (vm, _, _, _) = makeViewModel()
+        vm.selectMode(.multipleChoice)
+        vm.beginSessionDirectly()
+
+        let view = ReflexBlitzView(viewModel: vm, onDismiss: {})
+        XCTAssertNotNil(view.body)
+        XCTAssertNotNil(view.drillingView)
+
+        // Verify pausing during active drilling
+        vm.pauseCurrentDrill()
+        XCTAssertTrue(vm.isPaused)
+
+        // Verify resuming drill
+        vm.resumeCurrentDrill()
+        XCTAssertFalse(vm.isPaused)
+    }
 }
