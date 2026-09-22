@@ -262,9 +262,8 @@ public final class AppContainer {
     // MARK: - AI Assistant Factories
 
     public var llmProvider: LLMProviderProtocol {
-        let key = userSettingsStore.geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !key.isEmpty {
-            return GeminiLLMProvider(apiKey: key)
+        if userSettingsStore.isGeminiApiKeyConfigured {
+            return GeminiLLMProvider(apiKey: userSettingsStore.geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines))
         }
         if let envKey = ProcessInfo.processInfo.environment["GEMINI_API_KEY"],
            !envKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {

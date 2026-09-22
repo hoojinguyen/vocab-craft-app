@@ -71,4 +71,21 @@ struct AppContainerAITests {
         #expect(store2.geminiApiKey == "AIzaSySavedKey789")
         #expect(container2.llmProvider is GeminiLLMProvider)
     }
+
+    @Test @MainActor
+    func testIsGeminiApiKeyConfigured() {
+        let defaults = UserDefaults(suiteName: "test_key_configured_\(UUID().uuidString)") ?? .standard
+        let store = UserSettingsStore(defaults: defaults)
+
+        #expect(!store.isGeminiApiKeyConfigured)
+
+        store.geminiApiKey = "   \n  \t  "
+        #expect(!store.isGeminiApiKeyConfigured)
+
+        store.geminiApiKey = "AIzaSyValidKey123"
+        #expect(store.isGeminiApiKeyConfigured)
+
+        store.geminiApiKey = ""
+        #expect(!store.isGeminiApiKeyConfigured)
+    }
 }

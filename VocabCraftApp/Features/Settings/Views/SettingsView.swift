@@ -339,10 +339,6 @@ public struct SettingsAICard: View {
         self.store = store
     }
 
-    private var isApiKeyConfigured: Bool {
-        !store.geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-
     public var body: some View {
         CraftCard(style: .outlined, padding: 0) {
             VStack(spacing: 0) {
@@ -350,12 +346,12 @@ public struct SettingsAICard: View {
                     title: AppStrings.Settings.aiGeminiKeyTitle
                 ) {
                     CraftBadge(
-                        isApiKeyConfigured
+                        store.isGeminiApiKeyConfigured
                             ? AppStrings.Settings.aiGeminiActive
                             : AppStrings.Settings.aiGeminiMock,
-                        symbol: isApiKeyConfigured ? .check : .sparkles,
+                        symbol: store.isGeminiApiKeyConfigured ? .check : .sparkles,
                         variant: .subtle,
-                        tone: isApiKeyConfigured ? .success : .neutral,
+                        tone: store.isGeminiApiKeyConfigured ? .success : .neutral,
                         size: .sm
                     )
                 }
@@ -367,12 +363,12 @@ public struct SettingsAICard: View {
                         Group {
                             if isSecure {
                                 SecureField(
-                                    AppStrings.Settings.aiGeminiKeyPlaceholderText,
+                                    AppStrings.Settings.aiGeminiKeyPlaceholder,
                                     text: $store.geminiApiKey
                                 )
                             } else {
                                 TextField(
-                                    AppStrings.Settings.aiGeminiKeyPlaceholderText,
+                                    AppStrings.Settings.aiGeminiKeyPlaceholder,
                                     text: $store.geminiApiKey
                                 )
                             }

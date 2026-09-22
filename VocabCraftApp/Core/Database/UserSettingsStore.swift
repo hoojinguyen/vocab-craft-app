@@ -61,6 +61,10 @@ public final class UserSettingsStore {
         }
     }
 
+    public var isGeminiApiKeyConfigured: Bool {
+        !geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
     public var appearanceMode: CraftAppearanceMode {
         get { CraftThemeManager.shared.appearanceMode }
         set { CraftThemeManager.shared.setAppearanceMode(newValue) }

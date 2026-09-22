@@ -40,7 +40,7 @@ public struct AIAssistantHubView: View {
                         }
                     }
 
-                    if settingsStore.geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    if !settingsStore.isGeminiApiKeyConfigured {
                         configNoticeBanner
                     }
 

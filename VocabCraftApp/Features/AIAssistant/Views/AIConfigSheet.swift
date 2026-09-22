@@ -18,10 +18,6 @@ public struct AIConfigSheet: View {
         self._apiKey = State(initialValue: store.geminiApiKey)
     }
 
-    private var isApiKeyConfigured: Bool {
-        !apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-
     public var body: some View {
         NavigationStack {
             ScrollView {
@@ -29,7 +25,7 @@ public struct AIConfigSheet: View {
                     // Status Badge & Description
                     VStack(alignment: .leading, spacing: theme.spacing.sm) {
                         HStack {
-                            if isApiKeyConfigured {
+                            if store.isGeminiApiKeyConfigured {
                                 CraftBadge(
                                     AppStrings.Settings.aiGeminiStatusConnected,
                                     symbol: .check,
@@ -67,12 +63,12 @@ public struct AIConfigSheet: View {
                                 Group {
                                     if isSecure {
                                         SecureField(
-                                            AppStrings.Settings.aiGeminiKeyPlaceholderText,
+                                            AppStrings.Settings.aiGeminiKeyPlaceholder,
                                             text: $apiKey
                                         )
                                     } else {
                                         TextField(
-                                            AppStrings.Settings.aiGeminiKeyPlaceholderText,
+                                            AppStrings.Settings.aiGeminiKeyPlaceholder,
                                             text: $apiKey
                                         )
                                     }
