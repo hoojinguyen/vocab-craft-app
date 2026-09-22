@@ -354,6 +354,36 @@ extension AppStrings {
         public static var sectionDataStorageText: String {
             String(localized: "app.settings.section.data_storage", defaultValue: "Data & Storage", bundle: .module)
         }
+
+        // AI Configuration Section
+        public static var sectionAI: LocalizedStringKey { "app.settings.section.ai" }
+        public static var sectionAIText: String { String(localized: "app.settings.section.ai", defaultValue: "AI CONFIGURATION", bundle: .module) }
+        public static var aiGeminiKeyTitle: LocalizedStringKey { "app.settings.ai.gemini_key_title" }
+        public static var aiGeminiKeyTitleText: String { String(localized: "app.settings.ai.gemini_key_title", defaultValue: "Gemini API Key", bundle: .module) }
+        public static var aiGeminiKeyPlaceholder: LocalizedStringKey { "app.settings.ai.gemini_key_placeholder" }
+        public static var aiGeminiKeyPlaceholderText: String { String(localized: "app.settings.ai.gemini_key_placeholder", defaultValue: "Enter Gemini API Key...", bundle: .module) }
+        public static var aiGeminiStatusConnected: LocalizedStringKey { "app.settings.ai.gemini_status_connected" }
+        public static var aiGeminiStatusConnectedText: String { String(localized: "app.settings.ai.gemini_status_connected", defaultValue: "Active (Gemini 1.5 Flash)", bundle: .module) }
+        public static var aiGeminiStatusMock: LocalizedStringKey { "app.settings.ai.gemini_status_mock" }
+        public static var aiGeminiStatusMockText: String { String(localized: "app.settings.ai.gemini_status_mock", defaultValue: "Mock Mode (Demo)", bundle: .module) }
+        public static var aiGeminiActive: LocalizedStringKey { "app.settings.ai.gemini_active" }
+        public static var aiGeminiActiveText: String { String(localized: "app.settings.ai.gemini_active", defaultValue: "Active", bundle: .module) }
+        public static var aiGeminiMock: LocalizedStringKey { "app.settings.ai.gemini_mock" }
+        public static var aiGeminiMockText: String { String(localized: "app.settings.ai.gemini_mock", defaultValue: "Mock Mode", bundle: .module) }
+        public static var aiGeminiHelpText: LocalizedStringKey { "app.settings.ai.gemini_help_text" }
+        public static var aiGeminiHelpTextString: String {
+            String(
+                localized: "app.settings.ai.gemini_help_text",
+                defaultValue: "Get a free Gemini API key at Google AI Studio to unlock natural roleplay dialogues.",
+                bundle: .module
+            )
+        }
+        public static var aiShowKey: LocalizedStringKey { "app.settings.ai.show_key" }
+        public static var aiShowKeyText: String { String(localized: "app.settings.ai.show_key", defaultValue: "Show API Key", bundle: .module) }
+        public static var aiHideKey: LocalizedStringKey { "app.settings.ai.hide_key" }
+        public static var aiHideKeyText: String { String(localized: "app.settings.ai.hide_key", defaultValue: "Hide API Key", bundle: .module) }
+        public static var aiClearKey: LocalizedStringKey { "app.settings.ai.clear_key" }
+        public static var aiClearKeyText: String { String(localized: "app.settings.ai.clear_key", defaultValue: "Clear API Key", bundle: .module) }
     }
 
     // MARK: - AI Assistant View
@@ -390,6 +420,18 @@ extension AppStrings {
         public static var dailyMissionBadgeText: String { String(localized: "app.ai_assistant.hub.daily_mission_badge", defaultValue: "Daily Recommended Scenario", bundle: .module) }
         public static var actionStartRoleplay: LocalizedStringKey { "app.ai_assistant.hub.action_start_roleplay" }
         public static var actionStartRoleplayText: String { String(localized: "app.ai_assistant.hub.action_start_roleplay", defaultValue: "Start Roleplay", bundle: .module) }
+        public static var configureApiKey: LocalizedStringKey { "app.ai_assistant.hub.configure_api_key" }
+        public static var configureApiKeyText: String { String(localized: "app.ai_assistant.hub.configure_api_key", defaultValue: "Configure API Key", bundle: .module) }
+        public static var apiKeySheetTitle: LocalizedStringKey { "app.ai_assistant.hub.api_key_sheet_title" }
+        public static var apiKeySheetTitleText: String { String(localized: "app.ai_assistant.hub.api_key_sheet_title", defaultValue: "Gemini API Setup", bundle: .module) }
+        public static var apiKeyBannerDesc: LocalizedStringKey { "app.ai_assistant.hub.api_key_banner_desc" }
+        public static var apiKeyBannerDescText: String {
+            String(
+                localized: "app.ai_assistant.hub.api_key_banner_desc",
+                defaultValue: "Add your Gemini API key to unlock natural AI roleplay conversations and feedback.",
+                bundle: .module
+            )
+        }
         public static var targetWordsTitle: LocalizedStringKey { "app.ai_assistant.room.target_words_title" }
         public static var targetWordsTitleText: String { String(localized: "app.ai_assistant.room.target_words_title", defaultValue: "Target Words", bundle: .module) }
         public static var refineSuggestionButton: LocalizedStringKey { "app.ai_assistant.room.refine_button" }

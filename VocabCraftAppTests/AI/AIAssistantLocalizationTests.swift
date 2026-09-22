@@ -101,6 +101,22 @@ struct AIAssistantLocalizationTests {
         "app.ai_assistant.scenario.daily.desc": (
             vi: "Luyện tập các từ còn yếu trong cuộc trò chuyện tự nhiên",
             en: "Practice your weak words in a natural conversation"
+        ),
+        "app.ai_assistant.room.play_audio": (
+            vi: "Phát âm thanh hội thoại",
+            en: "Play dialogue audio"
+        ),
+        "app.ai_assistant.hub.configure_api_key": (
+            vi: "Cấu hình khóa API",
+            en: "Configure API Key"
+        ),
+        "app.ai_assistant.hub.api_key_sheet_title": (
+            vi: "Thiết lập khóa API Gemini",
+            en: "Gemini API Setup"
+        ),
+        "app.ai_assistant.hub.api_key_banner_desc": (
+            vi: "Thêm khóa API Gemini để mở khóa các cuộc trò chuyện và nhận xét AI tự nhiên.",
+            en: "Add your Gemini API key to unlock natural AI roleplay conversations and feedback."
         )
     ]
 
@@ -127,7 +143,11 @@ struct AIAssistantLocalizationTests {
             AppStrings.AIAssistant.summaryTakeawaysTitle,
             AppStrings.AIAssistant.actionDone,
             AppStrings.AIAssistant.fallbackReply,
-            AppStrings.AIAssistant.inputPlaceholder
+            AppStrings.AIAssistant.inputPlaceholder,
+            AppStrings.AIAssistant.audioPlayButton,
+            AppStrings.AIAssistant.configureApiKey,
+            AppStrings.AIAssistant.apiKeySheetTitle,
+            AppStrings.AIAssistant.apiKeyBannerDesc
         ]
         for key in keys {
             #expect(key != nil)
@@ -152,6 +172,45 @@ struct AIAssistantLocalizationTests {
         #expect(AppStrings.AIAssistant.summaryMasteredWordsText == "Target Words Mastered")
         #expect(AppStrings.AIAssistant.summaryTakeawaysTitleText == "Refined Phrasing Takeaways")
         #expect(AppStrings.AIAssistant.actionDoneText == "Back to Hub")
+        #expect(AppStrings.AIAssistant.audioPlayButtonText == "Play dialogue audio")
+        #expect(AppStrings.AIAssistant.configureApiKeyText == "Configure API Key")
+        #expect(AppStrings.AIAssistant.apiKeySheetTitleText == "Gemini API Setup")
+        #expect(AppStrings.AIAssistant.apiKeyBannerDescText == "Add your Gemini API key to unlock natural AI roleplay conversations and feedback.")
+    }
+
+    @Test("AppStrings Settings AI configuration keys exist")
+    func testAppStringsSettingsAIKeys() {
+        let keys: [LocalizedStringKey?] = [
+            AppStrings.Settings.sectionAI,
+            AppStrings.Settings.aiGeminiKeyTitle,
+            AppStrings.Settings.aiGeminiKeyPlaceholder,
+            AppStrings.Settings.aiGeminiStatusConnected,
+            AppStrings.Settings.aiGeminiStatusMock,
+            AppStrings.Settings.aiGeminiActive,
+            AppStrings.Settings.aiGeminiMock,
+            AppStrings.Settings.aiGeminiHelpText,
+            AppStrings.Settings.aiShowKey,
+            AppStrings.Settings.aiHideKey,
+            AppStrings.Settings.aiClearKey
+        ]
+        for key in keys {
+            #expect(key != nil)
+        }
+    }
+
+    @Test("AppStrings Settings AI text accessors return English defaults")
+    func testAppStringsSettingsAITextAccessors() {
+        #expect(AppStrings.Settings.sectionAIText == "AI CONFIGURATION")
+        #expect(AppStrings.Settings.aiGeminiKeyTitleText == "Gemini API Key")
+        #expect(AppStrings.Settings.aiGeminiKeyPlaceholderText == "Enter Gemini API Key...")
+        #expect(AppStrings.Settings.aiGeminiStatusConnectedText == "Active (Gemini 1.5 Flash)")
+        #expect(AppStrings.Settings.aiGeminiStatusMockText == "Mock Mode (Demo)")
+        #expect(AppStrings.Settings.aiGeminiActiveText == "Active")
+        #expect(AppStrings.Settings.aiGeminiMockText == "Mock Mode")
+        #expect(AppStrings.Settings.aiGeminiHelpTextString == "Get a free Gemini API key at Google AI Studio to unlock natural roleplay dialogues.")
+        #expect(AppStrings.Settings.aiShowKeyText == "Show API Key")
+        #expect(AppStrings.Settings.aiHideKeyText == "Hide API Key")
+        #expect(AppStrings.Settings.aiClearKeyText == "Clear API Key")
     }
 
     @Test("Localizable.xcstrings catalog integrity for AI Assistant keys")
@@ -210,5 +269,66 @@ struct AIAssistantLocalizationTests {
             let viVal = try #require(viUnit["value"] as? String, "Key \(key) missing VI value")
             #expect(viVal == expected.vi, "Key \(key) VI value mismatch: expected '\(expected.vi)' but got '\(viVal)'")
         }
+    }
+
+    @Test("Verify new AI configuration and audio strings exist in catalog")
+    func testNewAIConfigurationAndAudioStringsExistInCatalog() throws {
+        let potentialUrls: [URL?] = [
+            Bundle.module.url(forResource: "Localizable", withExtension: "xcstrings"),
+            Bundle.main.url(forResource: "Localizable", withExtension: "xcstrings"),
+            URL(fileURLWithPath: "VocabCraftApp/Resources/Localizable.xcstrings"),
+            URL(fileURLWithPath: #filePath)
+                .deletingLastPathComponent()
+                .deletingLastPathComponent()
+                .appendingPathComponent("VocabCraftApp/Resources/Localizable.xcstrings")
+        ]
+        guard let catalogUrl = potentialUrls.compactMap({ $0 }).first(where: { FileManager.default.fileExists(atPath: $0.path) }) else {
+            Issue.record("Localizable.xcstrings not found in module bundle")
+            return
+        }
+        let data = try Data(contentsOf: catalogUrl)
+        let json = try JSONDecoder().decode(StringCatalogDTO.self, from: data)
+
+        let requiredKeys = [
+            "app.settings.section.ai",
+            "app.settings.ai.gemini_key_title",
+            "app.settings.ai.gemini_key_placeholder",
+            "app.settings.ai.gemini_status_connected",
+            "app.settings.ai.gemini_status_mock",
+            "app.settings.ai.gemini_active",
+            "app.settings.ai.gemini_mock",
+            "app.settings.ai.gemini_help_text",
+            "app.settings.ai.show_key",
+            "app.settings.ai.hide_key",
+            "app.settings.ai.clear_key",
+            "app.ai_assistant.room.play_audio",
+            "app.ai_assistant.hub.configure_api_key",
+            "app.ai_assistant.hub.api_key_sheet_title",
+            "app.ai_assistant.hub.api_key_banner_desc"
+        ]
+
+        for key in requiredKeys {
+            #expect(json.strings[key] != nil, "Missing key: \(key)")
+            #expect(json.strings[key]?.localizations["en"] != nil, "Missing 'en' for \(key)")
+            #expect(json.strings[key]?.localizations["vi"] != nil, "Missing 'vi' for \(key)")
+        }
+    }
+}
+
+struct StringCatalogDTO: Decodable {
+    let strings: [String: StringEntryDTO]
+
+    struct StringEntryDTO: Decodable {
+        let extractionState: String?
+        let localizations: [String: LocalizationDTO]
+    }
+
+    struct LocalizationDTO: Decodable {
+        let stringUnit: StringUnitDTO?
+    }
+
+    struct StringUnitDTO: Decodable {
+        let state: String
+        let value: String
     }
 }

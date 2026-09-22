@@ -205,6 +205,57 @@
         }
       }
     },
+    "app.ai_assistant.hub.api_key_banner_desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add your Gemini API key to unlock natural AI roleplay conversations and feedback."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thêm khóa API Gemini để mở khóa các cuộc trò chuyện và nhận xét AI tự nhiên."
+          }
+        }
+      }
+    },
+    "app.ai_assistant.hub.api_key_sheet_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gemini API Setup"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thiết lập khóa API Gemini"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.hub.configure_api_key" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configure API Key"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cấu hình khóa API"
+          }
+        }
+      }
+    },
     "app.ai_assistant.hub.daily_mission_badge" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4999,6 +5050,176 @@
         }
       }
     },
+    "app.settings.ai.clear_key" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear API Key"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xóa khóa API"
+          }
+        }
+      }
+    },
+    "app.settings.ai.gemini_active" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đang hoạt động"
+          }
+        }
+      }
+    },
+    "app.settings.ai.gemini_help_text" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get a free Gemini API key at Google AI Studio to unlock natural roleplay dialogues."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhận khóa API Gemini miễn phí tại Google AI Studio để mở khóa đối thoại nhập vai tự nhiên."
+          }
+        }
+      }
+    },
+    "app.settings.ai.gemini_key_placeholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter Gemini API Key..."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhập khóa API Gemini..."
+          }
+        }
+      }
+    },
+    "app.settings.ai.gemini_key_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gemini API Key"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Khóa API Gemini"
+          }
+        }
+      }
+    },
+    "app.settings.ai.gemini_mock" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mock Mode"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chế độ giả lập"
+          }
+        }
+      }
+    },
+    "app.settings.ai.gemini_status_connected" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active (Gemini 1.5 Flash)"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đang hoạt động (Gemini 1.5 Flash)"
+          }
+        }
+      }
+    },
+    "app.settings.ai.gemini_status_mock" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mock Mode (Demo)"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chế độ giả lập (Demo)"
+          }
+        }
+      }
+    },
+    "app.settings.ai.hide_key" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide API Key"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ẩn khóa API"
+          }
+        }
+      }
+    },
+    "app.settings.ai.show_key" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show API Key"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hiện khóa API"
+          }
+        }
+      }
+    },
     "app.settings.appearance.haptics" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5573,6 +5794,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "THÔNG TIN ỨNG DỤNG"
+          }
+        }
+      }
+    },
+    "app.settings.section.ai" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI CONFIGURATION"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CẤU HÌNH AI"
           }
         }
       }
