@@ -44,7 +44,7 @@ public final class GeminiLLMProvider: LLMProviderProtocol, Sendable {
         }
 
         guard let endpoint = URL(
-            string: "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=\(apiKey)"
+            string: "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
         ) else {
             throw GeminiError.invalidResponse
         }
@@ -52,6 +52,7 @@ public final class GeminiLLMProvider: LLMProviderProtocol, Sendable {
         var request = URLRequest(url: endpoint)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(apiKey, forHTTPHeaderField: "x-goog-api-key")
 
         let contents = messages.map { msg -> [String: Any] in
             let role = msg.role == .user ? "user" : "model"

@@ -46,6 +46,10 @@ struct AIAssistantLocalizationTests {
             vi: "Tôi hiểu rồi! Hãy tiếp tục nhé.",
             en: "I see! Please go on."
         ),
+        "app.ai_assistant.room.input_placeholder": (
+            vi: "Nhập tin nhắn...",
+            en: "Type a message..."
+        ),
         "app.ai_assistant.summary.congratulations": (
             vi: "Hoàn thành buổi đàm thoại!",
             en: "Roleplay Completed!"
@@ -122,7 +126,8 @@ struct AIAssistantLocalizationTests {
             AppStrings.AIAssistant.summaryMasteredWords,
             AppStrings.AIAssistant.summaryTakeawaysTitle,
             AppStrings.AIAssistant.actionDone,
-            AppStrings.AIAssistant.fallbackReply
+            AppStrings.AIAssistant.fallbackReply,
+            AppStrings.AIAssistant.inputPlaceholder
         ]
         for key in keys {
             #expect(key != nil)
@@ -141,6 +146,7 @@ struct AIAssistantLocalizationTests {
         #expect(AppStrings.AIAssistant.discardConfirmTitleText == "Leave Roleplay?")
         #expect(AppStrings.AIAssistant.discardConfirmMessageText == "Your current conversation progress will not be saved.")
         #expect(AppStrings.AIAssistant.fallbackReplyText == "I see! Please go on.")
+        #expect(AppStrings.AIAssistant.inputPlaceholderText == "Type a message...")
         #expect(AppStrings.AIAssistant.summaryCongratulationsText == "Roleplay Completed!")
         #expect(AppStrings.AIAssistant.summaryFluencyScoreText == "Fluency Score")
         #expect(AppStrings.AIAssistant.summaryMasteredWordsText == "Target Words Mastered")

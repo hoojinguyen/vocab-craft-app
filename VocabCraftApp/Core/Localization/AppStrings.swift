@@ -412,6 +412,12 @@ extension AppStrings {
         public static var actionDoneText: String { String(localized: "app.ai_assistant.summary.action_done", defaultValue: "Back to Hub", bundle: .module) }
         public static var fallbackReply: LocalizedStringKey { "app.ai_assistant.room.fallback_reply" }
         public static var fallbackReplyText: String { String(localized: "app.ai_assistant.room.fallback_reply", defaultValue: "I see! Please go on.", bundle: .module) }
+        public static var inputPlaceholder: LocalizedStringKey {
+            LocalizedStringKey("app.ai_assistant.room.input_placeholder")
+        }
+        public static var inputPlaceholderText: String {
+            String(localized: "app.ai_assistant.room.input_placeholder", defaultValue: "Type a message...", bundle: .module)
+        }
 
         // Topics
         public static var topicAll: LocalizedStringKey { "app.ai_assistant.topic.all" }

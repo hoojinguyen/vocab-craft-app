@@ -273,4 +273,40 @@ struct RoleplayViewModelsTests {
         #expect(vm.sessionSummary?.refinements.first?.originalUserSentence == "I want a beverage")
         #expect(vm.sessionSummary?.refinements.first?.refinedNativeSentence == "Could I have a beverage?")
     }
+
+    @Test @MainActor
+    func testRoleplayRoomViewModelFallbackOnUseCaseError() async {
+        let mockProvider = MockLLMProvider()
+        mockProvider.shouldThrowError = true
+        let executeUseCase = ExecuteRoleplayTurnUseCase(llmProvider: mockProvider)
+        let completeUseCase = CompleteRoleplaySessionUseCase()
+
+        let scenario = RoleplayScenario(
+            id: "cafe",
+            titleKey: "Cafe",
+            descriptionKey: "Desc",
+            topic: .dining,
+            difficulty: .beginner,
+            characterName: "Barista",
+            characterRole: "Barista",
+            userRole: "Customer",
+            initialGreeting: "Welcome!",
+            targetWordIds: ["beverage"],
+            iconSymbol: "cup.fill"
+        )
+
+        let vm = RoleplayRoomViewModel(
+            scenario: scenario,
+            executeTurnUseCase: executeUseCase,
+            completeSessionUseCase: completeUseCase
+        )
+
+        await vm.sendMessage("Hello barista")
+        #expect(vm.messages.count == 3) // Greeting + User + Fallback
+        let fallbackMsg = vm.messages[2]
+        #expect(fallbackMsg.isUser == false)
+        #expect(fallbackMsg.text == AppStrings.AIAssistant.fallbackReplyText)
+        #expect(fallbackMsg.characterName == "Barista")
+        #expect(!vm.isSending)
+    }
 }

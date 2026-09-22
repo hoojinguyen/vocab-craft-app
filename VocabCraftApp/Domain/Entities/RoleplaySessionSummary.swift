@@ -1,11 +1,12 @@
 import Foundation
 
 public struct SentenceRefinementPair: Codable, Sendable, Equatable, Identifiable {
-    public var id: String { originalUserSentence }
+    public let id: UUID
     public let originalUserSentence: String
     public let refinedNativeSentence: String
 
-    public init(originalUserSentence: String, refinedNativeSentence: String) {
+    public init(id: UUID = UUID(), originalUserSentence: String, refinedNativeSentence: String) {
+        self.id = id
         self.originalUserSentence = originalUserSentence
         self.refinedNativeSentence = refinedNativeSentence
     }

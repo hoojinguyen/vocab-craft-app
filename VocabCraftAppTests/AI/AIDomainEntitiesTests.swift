@@ -61,7 +61,8 @@ struct AIDomainEntitiesTests {
         #expect(summary.fluencyScore == 85)
         #expect(summary.xpEarned == 50)
         #expect(summary.refinements.count == 1)
-        #expect(summary.refinements.first?.id == "I want coffee")
+        #expect(summary.refinements.first?.id == refinement.id)
+        #expect(summary.refinements.first?.originalUserSentence == "I want coffee")
     }
 
     @Test("LLMChatMessage initialization and equality")

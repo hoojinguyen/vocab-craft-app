@@ -5,11 +5,13 @@ public struct RoleplaySummaryView: View {
     public let summary: RoleplaySessionSummary
     public let onDismiss: () -> Void
     @Environment(\.craftTheme) private var theme
-    @State private var confettiTrigger = true
+    @State private var confettiTrigger: Bool
 
     public init(summary: RoleplaySessionSummary, onDismiss: @escaping () -> Void) {
         self.summary = summary
         self.onDismiss = onDismiss
+        let ratio = summary.targetWordsAttempted.isEmpty ? 1.0 : Double(summary.targetWordsMastered.count) / Double(summary.targetWordsAttempted.count)
+        self._confettiTrigger = State(initialValue: ratio >= 0.8)
     }
 
     public var body: some View {

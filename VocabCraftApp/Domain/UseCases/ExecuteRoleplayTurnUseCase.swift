@@ -12,15 +12,20 @@ public final class ExecuteRoleplayTurnUseCase: Sendable {
         userUtterance: String,
         chatHistory: [LLMChatMessage]
     ) async throws -> RoleplayTurnOutput {
-        // Fast local detection of target words in user input
-        let lowercasedInput = userUtterance.lowercased()
+        // Fast local detection of target words in user input using word-boundary matching
         let detectedLocalWords = scenario.targetWordIds.filter { word in
-            lowercasedInput.contains(word.lowercased())
+            let pattern = "\\b\(NSRegularExpression.escapedPattern(for: word))\\b"
+            guard let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) else {
+                return false
+            }
+            let range = NSRange(location: 0, length: userUtterance.utf16.count)
+            return regex.firstMatch(in: userUtterance, options: [], range: range) != nil
         }
 
+        let topicDescriptor = scenario.topic.rawValue.replacingOccurrences(of: "_", with: " ").capitalized
         let systemPrompt = """
         You are \(scenario.characterName), a \(scenario.characterRole) in a roleplay conversation with the user who is a \(scenario.userRole).
-        Maintain an authentic, friendly persona suitable for the scene: \(scenario.titleKey).
+        Maintain an authentic, friendly persona suitable for the scene: \(topicDescriptor).
         Target vocabulary for the user: \(scenario.targetWordIds.joined(separator: ", ")).
         Return JSON conforming to RoleplayTurnOutput schema:
         - characterReply: your in-character spoken dialogue
@@ -32,28 +37,18 @@ public final class ExecuteRoleplayTurnUseCase: Sendable {
         var fullHistory = chatHistory
         fullHistory.append(LLMChatMessage(role: .user, content: userUtterance))
 
-        do {
-            let output: RoleplayTurnOutput = try await llmProvider.sendStructuredMessage(
-                messages: fullHistory,
-                systemPrompt: systemPrompt,
-                responseSchema: RoleplayTurnOutput.self
-            )
-            // Union local detected words with LLM recognized words
-            let combinedWords = Array(Set(output.targetWordsUsed + detectedLocalWords)).sorted()
-            return RoleplayTurnOutput(
-                characterReply: output.characterReply,
-                targetWordsUsed: combinedWords,
-                refinementSuggestion: output.refinementSuggestion,
-                pedagogicalNote: output.pedagogicalNote
-            )
-        } catch {
-            // Fallback response on provider failure if mock or recoverable
-            return RoleplayTurnOutput(
-                characterReply: "I hear you! That makes total sense in this situation.",
-                targetWordsUsed: detectedLocalWords,
-                refinementSuggestion: nil,
-                pedagogicalNote: nil
-            )
-        }
+        let output: RoleplayTurnOutput = try await llmProvider.sendStructuredMessage(
+            messages: fullHistory,
+            systemPrompt: systemPrompt,
+            responseSchema: RoleplayTurnOutput.self
+        )
+        // Union local detected words with LLM recognized words
+        let combinedWords = Array(Set(output.targetWordsUsed + detectedLocalWords)).sorted()
+        return RoleplayTurnOutput(
+            characterReply: output.characterReply,
+            targetWordsUsed: combinedWords,
+            refinementSuggestion: output.refinementSuggestion,
+            pedagogicalNote: output.pedagogicalNote
+        )
     }
 }

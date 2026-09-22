@@ -178,7 +178,7 @@ public struct RoleplayRoomView: View {
 
     private var bottomInputBar: some View {
         HStack(spacing: theme.spacing.sm) {
-            TextField(AppStrings.Common.search, text: $viewModel.inputText)
+            TextField(AppStrings.AIAssistant.inputPlaceholder, text: $viewModel.inputText)
                 .textFieldStyle(.plain)
                 .padding(theme.spacing.sm)
                 .background(theme.colors.surfaceCard)
@@ -191,6 +191,7 @@ public struct RoleplayRoomView: View {
                 symbol: .check,
                 size: .md,
                 variant: .filled,
+                isLoading: viewModel.isSending,
                 accessibilityLabelKey: AppStrings.Common.confirm
             ) {
                 Task { await viewModel.sendMessage(viewModel.inputText) }

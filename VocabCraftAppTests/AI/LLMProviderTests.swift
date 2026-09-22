@@ -90,6 +90,7 @@ struct LLMProviderTests {
             #expect(request.url?.absoluteString.contains("gemini-1.5-flash") == true)
             #expect(request.httpMethod == "POST")
             #expect(request.value(forHTTPHeaderField: "Content-Type") == "application/json")
+            #expect(request.value(forHTTPHeaderField: "x-goog-api-key") == "fake-key")
 
             let responseJSON: [String: Any] = [
                 "candidates": [

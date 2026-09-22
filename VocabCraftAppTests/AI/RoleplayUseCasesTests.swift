@@ -103,8 +103,8 @@ struct RoleplayUseCasesTests {
         #expect(result.pedagogicalNote == "Great vocabulary usage!")
     }
 
-    @Test("ExecuteRoleplayTurnUseCase falls back gracefully when LLM throws")
-    func testExecuteRoleplayTurnFallbackOnError() async throws {
+    @Test("ExecuteRoleplayTurnUseCase rethrows error when LLM provider throws")
+    func testExecuteRoleplayTurnRethrowsOnError() async {
         let mockProvider = MockLLMProvider()
         mockProvider.shouldThrowError = true
         let useCase = ExecuteRoleplayTurnUseCase(llmProvider: mockProvider)
@@ -123,16 +123,49 @@ struct RoleplayUseCasesTests {
             iconSymbol: "cup.and.saucer"
         )
 
+        await #expect(throws: Error.self) {
+            _ = try await useCase.execute(
+                scenario: scenario,
+                userUtterance: "What is your best beverage?",
+                chatHistory: []
+            )
+        }
+    }
+
+    @Test("ExecuteRoleplayTurnUseCase word-boundary regex prevents substring false positives")
+    func testExecuteRoleplayTurnWordBoundaryRegex() async throws {
+        let mockOutput = RoleplayTurnOutput(
+            characterReply: "Hello there!",
+            targetWordsUsed: [],
+            refinementSuggestion: nil,
+            pedagogicalNote: nil
+        )
+        let mockProvider = MockLLMProvider(mockTurnOutput: mockOutput)
+        let useCase = ExecuteRoleplayTurnUseCase(llmProvider: mockProvider)
+
+        let scenario = RoleplayScenario(
+            id: "cafe-order",
+            titleKey: "title",
+            descriptionKey: "desc",
+            topic: .dining,
+            difficulty: .beginner,
+            characterName: "Barista",
+            characterRole: "Barista",
+            userRole: "Customer",
+            initialGreeting: "Hi!",
+            targetWordIds: ["age", "tea"],
+            iconSymbol: "cup.and.saucer"
+        )
+
+        // "beverage" contains "age" as a substring, but NOT as a word boundary
         let result = try await useCase.execute(
             scenario: scenario,
-            userUtterance: "What is your best beverage?",
+            userUtterance: "I like this beverage and steam.",
             chatHistory: []
         )
 
-        #expect(result.characterReply == "I hear you! That makes total sense in this situation.")
-        #expect(result.targetWordsUsed.contains("beverage"))
-        #expect(result.refinementSuggestion == nil)
-        #expect(result.pedagogicalNote == nil)
+        #expect(!result.targetWordsUsed.contains("age"))
+        #expect(!result.targetWordsUsed.contains("tea"))
     }
 
     // MARK: - CompleteRoleplaySessionUseCase Tests

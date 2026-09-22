@@ -358,6 +358,23 @@
         }
       }
     },
+    "app.ai_assistant.room.input_placeholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Type a message..."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhập tin nhắn..."
+          }
+        }
+      }
+    },
     "app.ai_assistant.topic.all" : {
       "extractionState" : "manual",
       "localizations" : {

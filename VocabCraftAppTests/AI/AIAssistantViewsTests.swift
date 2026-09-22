@@ -90,6 +90,45 @@ struct AIAssistantViewsTests {
     }
 
     @Test @MainActor
+    func testRoleplaySummaryViewConfettiThreshold() {
+        let highSummary = RoleplaySessionSummary(
+            scenarioId: "test-cafe",
+            totalTurns: 2,
+            targetWordsAttempted: ["latte", "croissant"],
+            targetWordsMastered: ["latte", "croissant"],
+            fluencyScore: 90,
+            xpEarned: 40,
+            refinements: []
+        )
+        let highView = RoleplaySummaryView(summary: highSummary, onDismiss: {})
+        _ = highView.body
+
+        let emptySummary = RoleplaySessionSummary(
+            scenarioId: "test-cafe",
+            totalTurns: 0,
+            targetWordsAttempted: [],
+            targetWordsMastered: [],
+            fluencyScore: 60,
+            xpEarned: 10,
+            refinements: []
+        )
+        let emptyView = RoleplaySummaryView(summary: emptySummary, onDismiss: {})
+        _ = emptyView.body
+
+        let lowSummary = RoleplaySessionSummary(
+            scenarioId: "test-cafe",
+            totalTurns: 2,
+            targetWordsAttempted: ["latte", "croissant"],
+            targetWordsMastered: ["latte"],
+            fluencyScore: 50,
+            xpEarned: 15,
+            refinements: []
+        )
+        let lowView = RoleplaySummaryView(summary: lowSummary, onDismiss: {})
+        _ = lowView.body
+    }
+
+    @Test @MainActor
     func testHomepageViewEmbedsAIAssistantHubView() {
         let container = AppContainer()
         let homeVM = container.makeHomepageViewModel()
