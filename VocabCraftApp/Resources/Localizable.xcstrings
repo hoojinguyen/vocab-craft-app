@@ -341,6 +341,125 @@
         }
       }
     },
+    "app.ai_assistant.room.fallback_reply" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I see! Please go on."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tôi hiểu rồi! Hãy tiếp tục nhé."
+          }
+        }
+      }
+    },
+    "app.ai_assistant.topic.all" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tất cả"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.topic.daily_life" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daily Life"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đời sống"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.topic.dining" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dining"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ăn uống"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.topic.interview" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interview"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Phỏng vấn"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.topic.travel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Travel"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du lịch"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.topic.workplace" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Workplace"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Công sở"
+          }
+        }
+      }
+    },
     "app.ai_assistant.scenario.cafe.desc" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6610,6 +6729,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hủy"
+          }
+        }
+      }
+    },
+    "common.confirm" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xác nhận"
           }
         }
       }

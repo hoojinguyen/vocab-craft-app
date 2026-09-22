@@ -42,6 +42,10 @@ struct AIAssistantLocalizationTests {
             vi: "Tiến trình trò chuyện hiện tại sẽ không được lưu.",
             en: "Your current conversation progress will not be saved."
         ),
+        "app.ai_assistant.room.fallback_reply": (
+            vi: "Tôi hiểu rồi! Hãy tiếp tục nhé.",
+            en: "I see! Please go on."
+        ),
         "app.ai_assistant.summary.congratulations": (
             vi: "Hoàn thành buổi đàm thoại!",
             en: "Roleplay Completed!"
@@ -117,7 +121,8 @@ struct AIAssistantLocalizationTests {
             AppStrings.AIAssistant.summaryFluencyScore,
             AppStrings.AIAssistant.summaryMasteredWords,
             AppStrings.AIAssistant.summaryTakeawaysTitle,
-            AppStrings.AIAssistant.actionDone
+            AppStrings.AIAssistant.actionDone,
+            AppStrings.AIAssistant.fallbackReply
         ]
         for key in keys {
             #expect(key != nil)
@@ -135,6 +140,7 @@ struct AIAssistantLocalizationTests {
         #expect(AppStrings.AIAssistant.actionFinishSessionText == "Finish")
         #expect(AppStrings.AIAssistant.discardConfirmTitleText == "Leave Roleplay?")
         #expect(AppStrings.AIAssistant.discardConfirmMessageText == "Your current conversation progress will not be saved.")
+        #expect(AppStrings.AIAssistant.fallbackReplyText == "I see! Please go on.")
         #expect(AppStrings.AIAssistant.summaryCongratulationsText == "Roleplay Completed!")
         #expect(AppStrings.AIAssistant.summaryFluencyScoreText == "Fluency Score")
         #expect(AppStrings.AIAssistant.summaryMasteredWordsText == "Target Words Mastered")

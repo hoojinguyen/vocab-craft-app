@@ -15,6 +15,8 @@ public enum AppStrings {
     public enum Common {
         public static var ok: LocalizedStringKey { "common.ok" }
         public static var cancel: LocalizedStringKey { "common.cancel" }
+        public static var confirm: LocalizedStringKey { "common.confirm" }
+        public static var confirmText: String { String(localized: "common.confirm", defaultValue: "Confirm", bundle: .module) }
         public static var save: LocalizedStringKey { "common.save" }
         public static var reset: LocalizedStringKey { "common.reset" }
         public static var search: LocalizedStringKey { "common.search" }
@@ -408,6 +410,16 @@ extension AppStrings {
         public static var summaryTakeawaysTitleText: String { String(localized: "app.ai_assistant.summary.takeaways_title", defaultValue: "Refined Phrasing Takeaways", bundle: .module) }
         public static var actionDone: LocalizedStringKey { "app.ai_assistant.summary.action_done" }
         public static var actionDoneText: String { String(localized: "app.ai_assistant.summary.action_done", defaultValue: "Back to Hub", bundle: .module) }
+        public static var fallbackReply: LocalizedStringKey { "app.ai_assistant.room.fallback_reply" }
+        public static var fallbackReplyText: String { String(localized: "app.ai_assistant.room.fallback_reply", defaultValue: "I see! Please go on.", bundle: .module) }
+
+        // Topics
+        public static var topicAll: LocalizedStringKey { "app.ai_assistant.topic.all" }
+        public static var topicDailyLife: LocalizedStringKey { "app.ai_assistant.topic.daily_life" }
+        public static var topicDining: LocalizedStringKey { "app.ai_assistant.topic.dining" }
+        public static var topicInterview: LocalizedStringKey { "app.ai_assistant.topic.interview" }
+        public static var topicTravel: LocalizedStringKey { "app.ai_assistant.topic.travel" }
+        public static var topicWorkplace: LocalizedStringKey { "app.ai_assistant.topic.workplace" }
     }
 
     // MARK: - Home Learning Path

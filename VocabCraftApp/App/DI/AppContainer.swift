@@ -259,6 +259,42 @@ public final class AppContainer {
         )
     }
 
+    // MARK: - AI Assistant Factories
+
+    public lazy var llmProvider: LLMProviderProtocol = {
+        #if DEBUG
+        return MockLLMProvider()
+        #else
+        return GeminiLLMProvider(apiKey: ProcessInfo.processInfo.environment["GEMINI_API_KEY"] ?? "")
+        #endif
+    }()
+
+    public func makeFetchRoleplayScenariosUseCase() -> FetchRoleplayScenariosUseCase {
+        FetchRoleplayScenariosUseCase()
+    }
+
+    public func makeExecuteRoleplayTurnUseCase() -> ExecuteRoleplayTurnUseCase {
+        ExecuteRoleplayTurnUseCase(llmProvider: llmProvider)
+    }
+
+    public func makeCompleteRoleplaySessionUseCase() -> CompleteRoleplaySessionUseCase {
+        CompleteRoleplaySessionUseCase()
+    }
+
+    @MainActor
+    public func makeAIAssistantHubViewModel() -> AIAssistantHubViewModel {
+        AIAssistantHubViewModel(fetchScenariosUseCase: makeFetchRoleplayScenariosUseCase())
+    }
+
+    @MainActor
+    public func makeRoleplayRoomViewModel(for scenario: RoleplayScenario) -> RoleplayRoomViewModel {
+        RoleplayRoomViewModel(
+            scenario: scenario,
+            executeTurnUseCase: makeExecuteRoleplayTurnUseCase(),
+            completeSessionUseCase: makeCompleteRoleplaySessionUseCase()
+        )
+    }
+
     public static var mock: AppContainer {
         let defaults = UserDefaults(suiteName: "mock_app_container_\(UUID().uuidString)") ?? .standard
         defaults.set(14, forKey: "current_streak")

@@ -63,7 +63,7 @@ public final class RoleplayRoomViewModel {
 
     public func sendMessage(_ text: String) async {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
+        guard !isSending, !trimmed.isEmpty else { return }
 
         inputText = ""
         isSending = true
