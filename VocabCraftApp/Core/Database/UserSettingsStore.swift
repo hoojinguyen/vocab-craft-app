@@ -55,6 +55,12 @@ public final class UserSettingsStore {
         }
     }
 
+    public var geminiApiKey: String {
+        didSet {
+            defaults.set(geminiApiKey, forKey: "gemini_api_key")
+        }
+    }
+
     public var appearanceMode: CraftAppearanceMode {
         get { CraftThemeManager.shared.appearanceMode }
         set { CraftThemeManager.shared.setAppearanceMode(newValue) }
@@ -153,6 +159,7 @@ public final class UserSettingsStore {
         self.notificationTimeInterval = defaults.object(forKey: "notification_time_interval") != nil ? defaults.double(forKey: "notification_time_interval") : 72000
         self.ttsVoiceGender = defaults.string(forKey: "tts_voice_gender") ?? "US"
         self.ttsSpeed = defaults.object(forKey: "tts_speed") != nil ? defaults.double(forKey: "tts_speed") : 1.0
+        self.geminiApiKey = defaults.string(forKey: "gemini_api_key") ?? ""
         self.appLanguage = defaults.string(forKey: "app_language") ?? "system"
         self.isHapticsEnabled = defaults.object(forKey: "is_haptics_enabled") != nil ? defaults.bool(forKey: "is_haptics_enabled") : true
         self.isSoundEffectsEnabled = defaults.object(forKey: "is_sound_effects_enabled") != nil ? defaults.bool(forKey: "is_sound_effects_enabled") : true

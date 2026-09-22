@@ -261,12 +261,17 @@ public final class AppContainer {
 
     // MARK: - AI Assistant Factories
 
-    public lazy var llmProvider: LLMProviderProtocol = {
-        if let envKey = ProcessInfo.processInfo.environment["GEMINI_API_KEY"], !envKey.isEmpty {
+    public var llmProvider: LLMProviderProtocol {
+        let key = userSettingsStore.geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !key.isEmpty {
+            return GeminiLLMProvider(apiKey: key)
+        }
+        if let envKey = ProcessInfo.processInfo.environment["GEMINI_API_KEY"],
+           !envKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             return GeminiLLMProvider(apiKey: envKey)
         }
         return MockLLMProvider()
-    }()
+    }
 
     public func makeFetchRoleplayScenariosUseCase() -> FetchRoleplayScenariosUseCase {
         FetchRoleplayScenariosUseCase()
