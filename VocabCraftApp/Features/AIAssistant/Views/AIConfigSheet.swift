@@ -2,6 +2,7 @@ import CraftUIKit
 import SwiftUI
 
 /// Modal sheet for viewing, updating, and clearing the Gemini API key.
+@MainActor
 public struct AIConfigSheet: View {
     @Environment(\.craftTheme) private var theme
     @Environment(\.dismiss) private var dismiss

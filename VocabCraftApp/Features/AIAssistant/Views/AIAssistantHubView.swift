@@ -95,7 +95,7 @@ public struct AIAssistantHubView: View {
                     size: .md,
                     color: theme.colors.accent
                 )
-                .frame(width: 36, height: 36)
+                .padding(theme.spacing.sm)
                 .background(theme.colors.accent.opacity(0.12))
                 .clipShape(Circle())
 

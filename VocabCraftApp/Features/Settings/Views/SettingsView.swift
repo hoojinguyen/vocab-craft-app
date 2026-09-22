@@ -328,10 +328,12 @@ private struct SettingsAudioCard: View {
     }
 }
 
+@MainActor
 public struct SettingsAICard: View {
     @Environment(\.craftTheme) private var theme
     @Bindable public var store: UserSettingsStore
     @State private var isSecure: Bool = true
+    @FocusState private var isFieldFocused: Bool
 
     public init(store: UserSettingsStore) {
         self.store = store
@@ -375,6 +377,10 @@ public struct SettingsAICard: View {
                                 )
                             }
                         }
+                        .focused($isFieldFocused)
+                        .onSubmit {
+                            store.geminiApiKey = store.geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+                        }
                         .font(theme.typography.bodyMedium)
                         .foregroundStyle(theme.colors.textPrimary)
                         .tint(theme.colors.brandPrimary)
@@ -407,6 +413,11 @@ public struct SettingsAICard: View {
                     .padding(.vertical, theme.spacing.xs)
                     .background(theme.colors.surfaceSubtle)
                     .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
+                    .onChange(of: isFieldFocused) { _, isFocused in
+                        if !isFocused {
+                            store.geminiApiKey = store.geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+                        }
+                    }
 
                     Text(AppStrings.Settings.aiGeminiHelpText)
                         .font(theme.typography.caption)
