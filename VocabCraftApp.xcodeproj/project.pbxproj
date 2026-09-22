@@ -7,6 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3000A1A10000000000000001 /* GeminiLLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000001 /* GeminiLLMProvider.swift */; };
+		3000A1A10000000000000002 /* MockLLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000002 /* MockLLMProvider.swift */; };
+		3000A1A10000000000000003 /* RoleplayScenarioCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000003 /* RoleplayScenarioCatalog.swift */; };
+		3000A1A10000000000000004 /* RoleplayScenario.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000004 /* RoleplayScenario.swift */; };
+		3000A1A10000000000000005 /* RoleplaySessionSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000005 /* RoleplaySessionSummary.swift */; };
+		3000A1A10000000000000006 /* RoleplayTurnOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000006 /* RoleplayTurnOutput.swift */; };
+		3000A1A10000000000000007 /* LLMProviderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000007 /* LLMProviderProtocol.swift */; };
+		3000A1A10000000000000008 /* FetchRoleplayScenariosUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000008 /* FetchRoleplayScenariosUseCase.swift */; };
+		3000A1A10000000000000009 /* ExecuteRoleplayTurnUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000009 /* ExecuteRoleplayTurnUseCase.swift */; };
+		3000A1A10000000000000010 /* CompleteRoleplaySessionUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000010 /* CompleteRoleplaySessionUseCase.swift */; };
+		3000A1A10000000000000011 /* AIAssistantHubViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000011 /* AIAssistantHubViewModel.swift */; };
+		3000A1A10000000000000012 /* RoleplayRoomViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000012 /* RoleplayRoomViewModel.swift */; };
+		3000A1A10000000000000013 /* AIAssistantHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000013 /* AIAssistantHubView.swift */; };
+		3000A1A10000000000000014 /* RoleplayRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000014 /* RoleplayRoomView.swift */; };
+		3000A1A10000000000000015 /* RoleplaySummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000015 /* RoleplaySummaryView.swift */; };
 		300000402D50000000000002 /* VocabCraftWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 200000402D50000000000000 /* VocabCraftWidgetExtension.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		300001EA5C596D2E5E45 /* VaultWordItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200001EA5C596D2E5E45 /* VaultWordItem.swift */; };
 		300002284C02A8E338C2 /* VocabWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200002284C02A8E338C2 /* VocabWidgetBundle.swift */; };
@@ -324,6 +339,21 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2000A1A10000000000000001 /* GeminiLLMProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GeminiLLMProvider.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000002 /* MockLLMProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MockLLMProvider.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000003 /* RoleplayScenarioCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayScenarioCatalog.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000004 /* RoleplayScenario.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayScenario.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000005 /* RoleplaySessionSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplaySessionSummary.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000006 /* RoleplayTurnOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayTurnOutput.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000007 /* LLMProviderProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LLMProviderProtocol.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000008 /* FetchRoleplayScenariosUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FetchRoleplayScenariosUseCase.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000009 /* ExecuteRoleplayTurnUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ExecuteRoleplayTurnUseCase.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000010 /* CompleteRoleplaySessionUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CompleteRoleplaySessionUseCase.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000011 /* AIAssistantHubViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAssistantHubViewModel.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000012 /* RoleplayRoomViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayRoomViewModel.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000013 /* AIAssistantHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAssistantHubView.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000014 /* RoleplayRoomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayRoomView.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000015 /* RoleplaySummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplaySummaryView.swift"; sourceTree = "<group>"; };
 		200000002D50000000000000 /* VocabCraftApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VocabCraftApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000402D50000000000000 /* VocabCraftWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VocabCraftWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000502D50000000000000 /* VocabCraftAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VocabCraftAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -622,6 +652,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4000A1A1DATA000000000001 /* AI */ = {
+			isa = PBXGroup;
+			children = (
+				2000A1A10000000000000001 /* GeminiLLMProvider.swift */,
+				2000A1A10000000000000002 /* MockLLMProvider.swift */,
+				2000A1A10000000000000003 /* RoleplayScenarioCatalog.swift */,
+			);
+			path = AI;
+			sourceTree = "<group>";
+		};
+		4000A1A1VMOD000000000001 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				2000A1A10000000000000011 /* AIAssistantHubViewModel.swift */,
+				2000A1A10000000000000012 /* RoleplayRoomViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
 		400000002D50000000000000 = {
 			isa = PBXGroup;
 			children = (
@@ -1115,6 +1164,9 @@
 			isa = PBXGroup;
 			children = (
 				20009B0FAE4B52815801 /* AIAssistantPlaceholderView.swift */,
+							2000A1A10000000000000013 /* AIAssistantHubView.swift */,
+				2000A1A10000000000000014 /* RoleplayRoomView.swift */,
+				2000A1A10000000000000015 /* RoleplaySummaryView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1149,6 +1201,9 @@
 				20006D78C4524120F696 /* ReviewWeakWordsUseCase.swift */,
 				20009B56D7887F9A77B3 /* SmartVaultWordSelector.swift */,
 				20001BF345803150242B /* ToggleWordBookmarkUseCase.swift */,
+							2000A1A10000000000000008 /* FetchRoleplayScenariosUseCase.swift */,
+				2000A1A10000000000000009 /* ExecuteRoleplayTurnUseCase.swift */,
+				2000A1A10000000000000010 /* CompleteRoleplaySessionUseCase.swift */,
 			);
 			path = UseCases;
 			sourceTree = "<group>";
@@ -1179,6 +1234,7 @@
 				2000410EFACF0E255E2A /* UserProgressRepositoryProtocol.swift */,
 				2000EC916D0862AF14E5 /* UserRoadmapSettingsProtocol.swift */,
 				2000A91CFCCE87349186 /* VocabularyRepositoryProtocol.swift */,
+							2000A1A10000000000000007 /* LLMProviderProtocol.swift */,
 			);
 			path = Protocols;
 			sourceTree = "<group>";
@@ -1207,6 +1263,7 @@
 			isa = PBXGroup;
 			children = (
 				400077F7E07D3729FF5D /* Views */,
+							4000A1A1VMOD000000000001 /* ViewModels */,
 			);
 			path = AIAssistant;
 			sourceTree = "<group>";
@@ -1281,6 +1338,7 @@
 			children = (
 				40009A7A10F832BFCD13 /* Local */,
 				40001FE94D3B22BA736B /* Repositories */,
+							4000A1A1DATA000000000001 /* AI */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -1424,6 +1482,9 @@
 				200036675EAE3D605018 /* SuggestedWord.swift */,
 				200001EA5C596D2E5E45 /* VaultWordItem.swift */,
 				20002A121BF620A9A229 /* Word.swift */,
+							2000A1A10000000000000004 /* RoleplayScenario.swift */,
+				2000A1A10000000000000005 /* RoleplaySessionSummary.swift */,
+				2000A1A10000000000000006 /* RoleplayTurnOutput.swift */,
 			);
 			path = Entities;
 			sourceTree = "<group>";
@@ -1927,6 +1988,21 @@
 				30008DEFBD9AB171825A /* VaultWordRowView.swift in Sources */,
 				30002F7276D162B86C67 /* PracticeSelectionView.swift in Sources */,
 				3000AE48F46F0BF167D1 /* VocabularyView.swift in Sources */,
+							3000A1A10000000000000001 /* GeminiLLMProvider.swift in Sources */,
+				3000A1A10000000000000002 /* MockLLMProvider.swift in Sources */,
+				3000A1A10000000000000003 /* RoleplayScenarioCatalog.swift in Sources */,
+				3000A1A10000000000000004 /* RoleplayScenario.swift in Sources */,
+				3000A1A10000000000000005 /* RoleplaySessionSummary.swift in Sources */,
+				3000A1A10000000000000006 /* RoleplayTurnOutput.swift in Sources */,
+				3000A1A10000000000000007 /* LLMProviderProtocol.swift in Sources */,
+				3000A1A10000000000000008 /* FetchRoleplayScenariosUseCase.swift in Sources */,
+				3000A1A10000000000000009 /* ExecuteRoleplayTurnUseCase.swift in Sources */,
+				3000A1A10000000000000010 /* CompleteRoleplaySessionUseCase.swift in Sources */,
+				3000A1A10000000000000011 /* AIAssistantHubViewModel.swift in Sources */,
+				3000A1A10000000000000012 /* RoleplayRoomViewModel.swift in Sources */,
+				3000A1A10000000000000013 /* AIAssistantHubView.swift in Sources */,
+				3000A1A10000000000000014 /* RoleplayRoomView.swift in Sources */,
+				3000A1A10000000000000015 /* RoleplaySummaryView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
