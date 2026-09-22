@@ -17,80 +17,81 @@ public struct RoleplaySummaryView: View {
             theme.colors.canvasBackground
                 .ignoresSafeArea()
 
-            VStack(spacing: theme.spacing.lg) {
-                Spacer()
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: theme.spacing.lg) {
+                    CraftIcon(.sparkles, size: .xl, color: theme.colors.accent)
+                        .padding(.top, theme.spacing.xl)
 
-                CraftIcon(.sparkles, size: .xl, color: theme.colors.accent)
+                    Text(AppStrings.AIAssistant.summaryCongratulations)
+                        .font(theme.typography.titleLarge)
+                        .fontWeight(.bold)
+                        .foregroundStyle(theme.colors.textPrimary)
 
-                Text(AppStrings.AIAssistant.summaryCongratulations)
-                    .font(theme.typography.titleLarge)
-                    .fontWeight(.bold)
-                    .foregroundStyle(theme.colors.textPrimary)
+                    CraftCard(style: .outlined, cornerRadius: theme.radii.xl, padding: theme.spacing.lg) {
+                        VStack(spacing: theme.spacing.md) {
+                            HStack {
+                                Text(AppStrings.AIAssistant.summaryFluencyScore)
+                                    .font(theme.typography.bodyLarge)
+                                    .foregroundStyle(theme.colors.textSecondary)
+                                Spacer()
+                                Text("\(summary.fluencyScore)%")
+                                    .font(theme.typography.titleLarge)
+                                    .fontWeight(.bold)
+                                    .foregroundStyle(theme.colors.statusSuccess)
+                            }
 
-                CraftCard(style: .outlined, cornerRadius: theme.radii.xl, padding: theme.spacing.lg) {
-                    VStack(spacing: theme.spacing.md) {
-                        HStack {
-                            Text(AppStrings.AIAssistant.summaryFluencyScore)
-                                .font(theme.typography.bodyLarge)
-                                .foregroundStyle(theme.colors.textSecondary)
-                            Spacer()
-                            Text("\(summary.fluencyScore)%")
-                                .font(theme.typography.titleLarge)
-                                .fontWeight(.bold)
-                                .foregroundStyle(theme.colors.statusSuccess)
-                        }
+                            Divider()
 
-                        Divider()
-
-                        HStack {
-                            Text(AppStrings.AIAssistant.summaryMasteredWords)
-                                .font(theme.typography.bodyLarge)
-                                .foregroundStyle(theme.colors.textSecondary)
-                            Spacer()
-                            Text("\(summary.targetWordsMastered.count) / \(summary.targetWordsAttempted.count)")
-                                .font(theme.typography.headline)
-                                .fontWeight(.bold)
-                                .foregroundStyle(theme.colors.brandPrimary)
-                        }
-                    }
-                }
-                .padding(.horizontal, theme.spacing.base)
-
-                if !summary.refinements.isEmpty {
-                    CraftCard(style: .outlined, cornerRadius: theme.radii.xl, padding: theme.spacing.md) {
-                        VStack(alignment: .leading, spacing: theme.spacing.xs) {
-                            Text(AppStrings.AIAssistant.summaryTakeawaysTitle)
-                                .font(theme.typography.headline)
-                                .fontWeight(.bold)
-                                .foregroundStyle(theme.colors.textPrimary)
-
-                            ForEach(summary.refinements) { refinement in
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(refinement.originalUserSentence)
-                                        .font(theme.typography.caption)
-                                        .foregroundStyle(theme.colors.textMuted)
-                                    Text(refinement.refinedNativeSentence)
-                                        .font(theme.typography.bodyMedium)
-                                        .foregroundStyle(theme.colors.brandPrimary)
-                                }
+                            HStack {
+                                Text(AppStrings.AIAssistant.summaryMasteredWords)
+                                    .font(theme.typography.bodyLarge)
+                                    .foregroundStyle(theme.colors.textSecondary)
+                                Spacer()
+                                Text("\(summary.targetWordsMastered.count) / \(summary.targetWordsAttempted.count)")
+                                    .font(theme.typography.headline)
+                                    .fontWeight(.bold)
+                                    .foregroundStyle(theme.colors.brandPrimary)
                             }
                         }
                     }
                     .padding(.horizontal, theme.spacing.base)
-                }
 
-                Spacer()
+                    if !summary.refinements.isEmpty {
+                        CraftCard(style: .outlined, cornerRadius: theme.radii.xl, padding: theme.spacing.md) {
+                            VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                                Text(AppStrings.AIAssistant.summaryTakeawaysTitle)
+                                    .font(theme.typography.headline)
+                                    .fontWeight(.bold)
+                                    .foregroundStyle(theme.colors.textPrimary)
 
-                CraftButton(
-                    AppStrings.AIAssistant.actionDone,
-                    variant: .primary,
-                    size: .lg,
-                    isFullWidth: true
-                ) {
-                    onDismiss()
+                                ForEach(summary.refinements) { refinement in
+                                    VStack(alignment: .leading, spacing: theme.spacing.xxs) {
+                                        Text(refinement.originalUserSentence)
+                                            .font(theme.typography.caption)
+                                            .foregroundStyle(theme.colors.textMuted)
+                                        Text(refinement.refinedNativeSentence)
+                                            .font(theme.typography.bodyMedium)
+                                            .foregroundStyle(theme.colors.brandPrimary)
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.horizontal, theme.spacing.base)
+                    }
+
+                    CraftButton(
+                        AppStrings.AIAssistant.actionDone,
+                        variant: .primary,
+                        size: .lg,
+                        isFullWidth: true
+                    ) {
+                        onDismiss()
+                    }
+                    .padding(.horizontal, theme.spacing.base)
+                    .padding(.top, theme.spacing.md)
+                    .padding(.bottom, theme.spacing.xl)
                 }
-                .padding(.horizontal, theme.spacing.base)
-                .padding(.bottom, theme.spacing.xl)
+                .frame(maxWidth: .infinity)
             }
         }
         .craftConfetti(isTriggered: $confettiTrigger, particleCount: 36)

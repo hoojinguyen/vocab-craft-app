@@ -121,57 +121,61 @@ extension ReflexBlitzViewModel {
         self.currentHintBadgeText = prep.hintBadgeText
 
         if selectedMode == .speaking {
-            self.speechState = .preparing
-            let currentGeneration = self.wordGeneration
-            let targetLemma = word.lemma
-            let contextualPhrases = [word.lemma, word.exampleSentenceEn]
-
-            if !speechEngine.isSessionActive {
-                let allPhrases = words.map(\.lemma)
-                speechEngine.startSession(contextualPhrases: allPhrases, lazy: true)
-            }
-
-            speechStartTask = Task { @MainActor [weak self] in
-                guard let self else { return }
-                do {
-                    try await self.speechEngine.startListening(
-                        targetLemma: targetLemma,
-                        contextualPhrases: contextualPhrases
-                    )
-                    try Task.checkCancellation()
-                    guard self.wordGeneration == currentGeneration,
-                          self.currentWordIndex == index,
-                          self.phase == .drilling,
-                          case .activeCountdown = self.cardPhase else {
-                        if self.speechState == .preparing && self.wordGeneration == currentGeneration {
-                            self.speechState = .idle
-                        }
-                        return
-                    }
-                    self.speechState = .listening()
-                    if !self.isPermissionNoticePresented {
-                        self.wordStartTime = Date()
-                        self.startStopwatch()
-                    }
-                } catch is CancellationError {
-                    if self.wordGeneration == currentGeneration && self.speechState == .preparing {
-                        self.speechState = .idle
-                    }
-                } catch let error as SpeechCaptureError where error == .speechRecognitionDenied || error == .microphoneDenied {
-                    guard self.wordGeneration == currentGeneration else { return }
-                    self.handlePermissionDenied()
-                } catch {
-                    if self.wordGeneration == currentGeneration {
-                        self.speechState = .idle
-                        self.handleTimeout()
-                    }
-                }
-            }
+            prepareSpeakingWordSession(for: word, at: index)
         } else {
             self.speechState = .idle
             if !isPermissionNoticePresented {
                 self.wordStartTime = Date()
                 startStopwatch()
+            }
+        }
+    }
+
+    private func prepareSpeakingWordSession(for word: ReflexBlitzWordItem, at index: Int) {
+        self.speechState = .preparing
+        let currentGeneration = self.wordGeneration
+        let targetLemma = word.lemma
+        let contextualPhrases = [word.lemma, word.exampleSentenceEn]
+
+        if !speechEngine.isSessionActive {
+            let allPhrases = words.map(\.lemma)
+            speechEngine.startSession(contextualPhrases: allPhrases, lazy: true)
+        }
+
+        speechStartTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                try await self.speechEngine.startListening(
+                    targetLemma: targetLemma,
+                    contextualPhrases: contextualPhrases
+                )
+                try Task.checkCancellation()
+                guard self.wordGeneration == currentGeneration,
+                      self.currentWordIndex == index,
+                      self.phase == .drilling,
+                      case .activeCountdown = self.cardPhase else {
+                    if self.speechState == .preparing && self.wordGeneration == currentGeneration {
+                        self.speechState = .idle
+                    }
+                    return
+                }
+                self.speechState = .listening()
+                if !self.isPermissionNoticePresented {
+                    self.wordStartTime = Date()
+                    self.startStopwatch()
+                }
+            } catch is CancellationError {
+                if self.wordGeneration == currentGeneration && self.speechState == .preparing {
+                    self.speechState = .idle
+                }
+            } catch let error as SpeechCaptureError where error == .speechRecognitionDenied || error == .microphoneDenied {
+                guard self.wordGeneration == currentGeneration else { return }
+                self.handlePermissionDenied()
+            } catch {
+                if self.wordGeneration == currentGeneration {
+                    self.speechState = .idle
+                    self.handleTimeout()
+                }
             }
         }
     }

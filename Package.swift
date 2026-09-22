@@ -32,7 +32,8 @@ let package = Package(
             path: "VocabCraftApp",
             exclude: [
                 "App/Info.plist",
-                "App/VocabCraftApp.entitlements"
+                "App/VocabCraftApp.entitlements",
+                "App/PrivacyInfo.xcprivacy"
             ],
             resources: [.process("Resources")],
             swiftSettings: [.enableUpcomingFeature("StrictConcurrency")]
@@ -42,7 +43,8 @@ let package = Package(
             dependencies: ["VocabCraftApp"],
             path: "VocabCraftWidgetExtension",
             exclude: [
-                "Info.plist"
+                "Info.plist",
+                "VocabCraftWidgetExtension.entitlements"
             ],
             swiftSettings: [.enableUpcomingFeature("StrictConcurrency")]
         ),

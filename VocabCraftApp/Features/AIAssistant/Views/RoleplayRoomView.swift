@@ -68,7 +68,7 @@ public struct RoleplayRoomView: View {
 
             Spacer()
 
-            VStack(spacing: 2) {
+            VStack(spacing: theme.spacing.xxs) {
                 Text(viewModel.scenario.characterName)
                     .font(theme.typography.headline)
                     .fontWeight(.bold)
@@ -98,7 +98,7 @@ public struct RoleplayRoomView: View {
                 Text(AppStrings.AIAssistant.targetWordsTitle)
                     .font(theme.typography.caption)
                     .foregroundStyle(theme.colors.textSecondary)
-                    .padding(.trailing, 4)
+                    .padding(.trailing, theme.spacing.xs)
 
                 ForEach(viewModel.scenario.targetWordIds, id: \.self) { word in
                     let isMastered = viewModel.masteredWords.contains(word)
@@ -150,7 +150,7 @@ public struct RoleplayRoomView: View {
                     .clipShape(RoundedRectangle(cornerRadius: theme.radii.lg))
 
                 if let refinement = message.refinementSuggestion {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: theme.spacing.xs) {
                         Button {
                             viewModel.toggleRefinement(for: message.id)
                         } label: {
@@ -183,6 +183,9 @@ public struct RoleplayRoomView: View {
                 .padding(theme.spacing.sm)
                 .background(theme.colors.surfaceCard)
                 .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
+                .onSubmit {
+                    Task { await viewModel.sendMessage(viewModel.inputText) }
+                }
 
             CraftIconButton(
                 symbol: .check,

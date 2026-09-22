@@ -17,7 +17,8 @@ public struct MixedReflexDrillView: View {
     public let onFinish: () -> Void
     public let startWithCountdown: Bool
 
-    @State var isCountingDown: Bool
+    @State private var isCountingDown: Bool
+    // swiftlint:disable private_swiftui_state
     @State var timerTask: Task<Void, Never>?
     @State var speechStartTask: Task<Void, Never>?
     @State var fractionRemaining: Double = 1.0
@@ -25,9 +26,10 @@ public struct MixedReflexDrillView: View {
     @State var typingText: String = ""
     @State var liveTranscript: String = ""
     @State var currentOptions: [ReflexBlitzOption] = []
-    @State private var showExitAlert: Bool = false
     @State var currentTimerStage: ReflexBlitzTimerStage = .steady
     @State var hintStage: Int = 0
+    // swiftlint:enable private_swiftui_state
+    @State private var showExitAlert: Bool = false
 
     public var isTimerPaused: Bool {
         get { viewModel.isTimerPaused }
