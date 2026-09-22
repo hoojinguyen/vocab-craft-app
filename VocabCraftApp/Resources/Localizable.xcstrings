@@ -188,6 +188,380 @@
         }
       }
     },
+    "app.ai_assistant.hub.action_start_roleplay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start Roleplay"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bắt đầu nhập vai"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.hub.daily_mission_badge" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daily Recommended Scenario"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tình huống đề xuất hôm nay"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.hub.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Master active speaking through interactive roleplay"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Làm chủ từ vựng chủ động qua đàm thoại nhập vai"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.hub.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI Assistant"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trợ lý AI"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.room.action_finish" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finish"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kết thúc"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.room.discard_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your current conversation progress will not be saved."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiến trình trò chuyện hiện tại sẽ không được lưu."
+          }
+        }
+      }
+    },
+    "app.ai_assistant.room.discard_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leave Roleplay?"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rời khỏi buổi đàm thoại?"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.room.refine_button" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "💡 See natural phrasing"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "💡 Xem gợi ý diễn đạt tự nhiên"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.room.target_words_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Target Words"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Từ vựng mục tiêu"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.scenario.cafe.desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Practice ordering drinks and snacks with a barista"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Luyện tập gọi đồ uống và đồ ăn nhẹ với nhân viên pha chế"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.scenario.cafe.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cafe Ordering"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gọi món tại quán cà phê"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.scenario.daily.desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Practice your weak words in a natural conversation"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Luyện tập các từ còn yếu trong cuộc trò chuyện tự nhiên"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.scenario.daily.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daily Vocabulary Practice"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Luyện từ vựng hàng ngày"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.scenario.hotel.desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inquire about amenities and check into your room"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hỏi về tiện nghi và làm thủ tục nhận phòng"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.scenario.hotel.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hotel Check-in"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhận phòng khách sạn"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.scenario.interview.desc" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Answer challenging behavioral questions with confidence"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tự tin trả lời các câu hỏi tình huống hành vi thử thách"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.scenario.interview.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Job Interview"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Phỏng vấn xin việc"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.summary.action_done" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back to Hub"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quay về trang chính"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.summary.congratulations" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Roleplay Completed!"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoàn thành buổi đàm thoại!"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.summary.fluency_score" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fluency Score"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Điểm trôi chảy"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.summary.mastered_words" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Target Words Mastered"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Từ mục tiêu đã làm chủ"
+          }
+        }
+      }
+    },
+    "app.ai_assistant.summary.takeaways_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refined Phrasing Takeaways"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gợi ý diễn đạt nâng cao"
+          }
+        }
+      }
+    },
     "app.ai_assistant.title" : {
       "extractionState" : "manual",
       "localizations" : {

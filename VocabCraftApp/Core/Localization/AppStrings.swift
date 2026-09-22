@@ -378,6 +378,36 @@ extension AppStrings {
         public static var featureContextDescription: LocalizedStringKey { "app.ai_assistant.feature_context_desc" }
         public static var featurePronunciationTitle: LocalizedStringKey { "app.ai_assistant.feature_pronunciation_title" }
         public static var featurePronunciationDescription: LocalizedStringKey { "app.ai_assistant.feature_pronunciation_desc" }
+
+        // Roleplay Hub & Room
+        public static var hubTitle: LocalizedStringKey { "app.ai_assistant.hub.title" }
+        public static var hubTitleText: String { String(localized: "app.ai_assistant.hub.title", defaultValue: "AI Assistant", bundle: .module) }
+        public static var hubSubtitle: LocalizedStringKey { "app.ai_assistant.hub.subtitle" }
+        public static var hubSubtitleText: String { String(localized: "app.ai_assistant.hub.subtitle", defaultValue: "Master active speaking through interactive roleplay", bundle: .module) }
+        public static var dailyMissionBadge: LocalizedStringKey { "app.ai_assistant.hub.daily_mission_badge" }
+        public static var dailyMissionBadgeText: String { String(localized: "app.ai_assistant.hub.daily_mission_badge", defaultValue: "Daily Recommended Scenario", bundle: .module) }
+        public static var actionStartRoleplay: LocalizedStringKey { "app.ai_assistant.hub.action_start_roleplay" }
+        public static var actionStartRoleplayText: String { String(localized: "app.ai_assistant.hub.action_start_roleplay", defaultValue: "Start Roleplay", bundle: .module) }
+        public static var targetWordsTitle: LocalizedStringKey { "app.ai_assistant.room.target_words_title" }
+        public static var targetWordsTitleText: String { String(localized: "app.ai_assistant.room.target_words_title", defaultValue: "Target Words", bundle: .module) }
+        public static var refineSuggestionButton: LocalizedStringKey { "app.ai_assistant.room.refine_button" }
+        public static var refineSuggestionButtonText: String { String(localized: "app.ai_assistant.room.refine_button", defaultValue: "💡 See natural phrasing", bundle: .module) }
+        public static var actionFinishSession: LocalizedStringKey { "app.ai_assistant.room.action_finish" }
+        public static var actionFinishSessionText: String { String(localized: "app.ai_assistant.room.action_finish", defaultValue: "Finish", bundle: .module) }
+        public static var discardConfirmTitle: LocalizedStringKey { "app.ai_assistant.room.discard_title" }
+        public static var discardConfirmTitleText: String { String(localized: "app.ai_assistant.room.discard_title", defaultValue: "Leave Roleplay?", bundle: .module) }
+        public static var discardConfirmMessage: LocalizedStringKey { "app.ai_assistant.room.discard_message" }
+        public static var discardConfirmMessageText: String { String(localized: "app.ai_assistant.room.discard_message", defaultValue: "Your current conversation progress will not be saved.", bundle: .module) }
+        public static var summaryCongratulations: LocalizedStringKey { "app.ai_assistant.summary.congratulations" }
+        public static var summaryCongratulationsText: String { String(localized: "app.ai_assistant.summary.congratulations", defaultValue: "Roleplay Completed!", bundle: .module) }
+        public static var summaryFluencyScore: LocalizedStringKey { "app.ai_assistant.summary.fluency_score" }
+        public static var summaryFluencyScoreText: String { String(localized: "app.ai_assistant.summary.fluency_score", defaultValue: "Fluency Score", bundle: .module) }
+        public static var summaryMasteredWords: LocalizedStringKey { "app.ai_assistant.summary.mastered_words" }
+        public static var summaryMasteredWordsText: String { String(localized: "app.ai_assistant.summary.mastered_words", defaultValue: "Target Words Mastered", bundle: .module) }
+        public static var summaryTakeawaysTitle: LocalizedStringKey { "app.ai_assistant.summary.takeaways_title" }
+        public static var summaryTakeawaysTitleText: String { String(localized: "app.ai_assistant.summary.takeaways_title", defaultValue: "Refined Phrasing Takeaways", bundle: .module) }
+        public static var actionDone: LocalizedStringKey { "app.ai_assistant.summary.action_done" }
+        public static var actionDoneText: String { String(localized: "app.ai_assistant.summary.action_done", defaultValue: "Back to Hub", bundle: .module) }
     }
 
     // MARK: - Home Learning Path
