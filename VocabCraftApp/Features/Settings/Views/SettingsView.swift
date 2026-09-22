@@ -27,7 +27,10 @@ public struct SettingsView: View {
                     // 3. Audio & Speech Section
                     audioSection
 
-                    // 4. Appearance & Feedback Section
+                    // 4. AI Configuration Section
+                    aiSection
+
+                    // 5. Appearance & Feedback Section
                     appearanceSection
 
                     // 5. Data & Storage Section
@@ -105,6 +108,13 @@ public struct SettingsView: View {
                     viewModel.playAudioPreview()
                 }
             )
+        }
+    }
+
+    private var aiSection: some View {
+        VStack(alignment: .leading, spacing: theme.spacing.xs) {
+            sectionHeader(AppStrings.Settings.sectionAI)
+            SettingsAICard(store: viewModel.store)
         }
     }
 
@@ -313,6 +323,96 @@ private struct SettingsAudioCard: View {
                         EmptyView()
                     }
                 }
+            }
+        }
+    }
+}
+
+public struct SettingsAICard: View {
+    @Environment(\.craftTheme) private var theme
+    @Bindable public var store: UserSettingsStore
+    @State private var isSecure: Bool = true
+
+    public init(store: UserSettingsStore) {
+        self.store = store
+    }
+
+    private var isApiKeyConfigured: Bool {
+        !store.geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    public var body: some View {
+        CraftCard(style: .outlined, padding: 0) {
+            VStack(spacing: 0) {
+                CraftListRow(
+                    title: AppStrings.Settings.aiGeminiKeyTitle
+                ) {
+                    CraftBadge(
+                        isApiKeyConfigured
+                            ? AppStrings.Settings.aiGeminiActive
+                            : AppStrings.Settings.aiGeminiMock,
+                        symbol: isApiKeyConfigured ? .check : .sparkles,
+                        variant: .subtle,
+                        tone: isApiKeyConfigured ? .success : .neutral,
+                        size: .sm
+                    )
+                }
+
+                CraftDivider()
+
+                VStack(alignment: .leading, spacing: theme.spacing.xs) {
+                    HStack(spacing: theme.spacing.xs) {
+                        Group {
+                            if isSecure {
+                                SecureField(
+                                    AppStrings.Settings.aiGeminiKeyPlaceholderText,
+                                    text: $store.geminiApiKey
+                                )
+                            } else {
+                                TextField(
+                                    AppStrings.Settings.aiGeminiKeyPlaceholderText,
+                                    text: $store.geminiApiKey
+                                )
+                            }
+                        }
+                        .font(theme.typography.bodyMedium)
+                        .foregroundStyle(theme.colors.textPrimary)
+                        .tint(theme.colors.brandPrimary)
+                        .autocorrectionDisabled()
+                        #if os(iOS)
+                        .textInputAutocapitalization(.never)
+                        #endif
+
+                        if !store.geminiApiKey.isEmpty {
+                            CraftIconButton(
+                                symbol: .clear,
+                                size: .sm,
+                                variant: .ghost,
+                                accessibilityLabelKey: AppStrings.Settings.aiClearKey
+                            ) {
+                                store.geminiApiKey = ""
+                            }
+                        }
+
+                        CraftIconButton(
+                            symbol: isSecure ? .eye : .eyeSlash,
+                            size: .sm,
+                            variant: .ghost,
+                            accessibilityLabelKey: isSecure ? AppStrings.Settings.aiShowKey : AppStrings.Settings.aiHideKey
+                        ) {
+                            isSecure.toggle()
+                        }
+                    }
+                    .padding(.horizontal, theme.spacing.sm)
+                    .padding(.vertical, theme.spacing.xs)
+                    .background(theme.colors.surfaceSubtle)
+                    .clipShape(RoundedRectangle(cornerRadius: theme.radii.md))
+
+                    Text(AppStrings.Settings.aiGeminiHelpText)
+                        .font(theme.typography.caption)
+                        .foregroundStyle(theme.colors.textSecondary)
+                }
+                .padding(theme.spacing.md)
             }
         }
     }

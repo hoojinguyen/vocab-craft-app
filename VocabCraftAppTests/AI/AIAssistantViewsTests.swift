@@ -156,4 +156,60 @@ struct AIAssistantViewsTests {
         _ = homeView.body
         #expect(container.userSettingsStore.hasCompletedOnboarding)
     }
+
+    @Test @MainActor
+    func testAIConfigSheetRendersAndSavesKey() {
+        let defaults = UserDefaults(suiteName: "test_ai_config_sheet_\(UUID().uuidString)") ?? .standard
+        let store = UserSettingsStore(defaults: defaults)
+        var dismissed = false
+        let sheet = AIConfigSheet(store: store) {
+            dismissed = true
+        }
+        _ = sheet.body
+
+        sheet.save("AIzaSyTestKey12345")
+        #expect(store.geminiApiKey == "AIzaSyTestKey12345")
+
+        sheet.onDismiss()
+        #expect(dismissed)
+    }
+
+    @Test @MainActor
+    func testSettingsAICardRendersAndUpdatesKey() {
+        let defaults = UserDefaults(suiteName: "test_settings_ai_card_\(UUID().uuidString)") ?? .standard
+        let store = UserSettingsStore(defaults: defaults)
+        let card = SettingsAICard(store: store)
+        _ = card.body
+        #expect(store.geminiApiKey.isEmpty)
+
+        store.geminiApiKey = "test-gemini-key"
+        #expect(store.geminiApiKey == "test-gemini-key")
+        _ = card.body
+    }
+
+    @Test @MainActor
+    func testSettingsViewIncludesAICard() {
+        let defaults = UserDefaults(suiteName: "test_settings_view_\(UUID().uuidString)") ?? .standard
+        let store = UserSettingsStore(defaults: defaults)
+        let vm = SettingsViewModel(
+            store: store,
+            ttsService: MockTextToSpeechService(),
+            resetProgressUseCase: ResetUserProgressUseCase(srsRepository: MockSRSRepository())
+        )
+        let view = SettingsView(viewModel: vm)
+        _ = view.body
+    }
+
+    @Test @MainActor
+    func testAIAssistantHubViewWithStoreAndBanner() async {
+        let defaults = UserDefaults(suiteName: "test_ai_hub_store_\(UUID().uuidString)") ?? .standard
+        let store = UserSettingsStore(defaults: defaults)
+        let container = AppContainer(userSettingsStore: store)
+        let vm = container.makeAIAssistantHubViewModel()
+        let view = AIAssistantHubView(viewModel: vm, store: store)
+        _ = view.body
+
+        await vm.loadScenarios()
+        #expect(!vm.scenarios.isEmpty)
+    }
 }

@@ -4,11 +4,18 @@ import SwiftUI
 public struct AIAssistantHubView: View {
     @State private var viewModel: AIAssistantHubViewModel
     @State private var activeScenario: RoleplayScenario?
+    @State private var showConfigSheet: Bool = false
+    private let customStore: UserSettingsStore?
     @Environment(\.appContainer) private var appContainer
     @Environment(\.craftTheme) private var theme
 
-    public init(viewModel: AIAssistantHubViewModel) {
+    public init(viewModel: AIAssistantHubViewModel, store: UserSettingsStore? = nil) {
         self._viewModel = State(initialValue: viewModel)
+        self.customStore = store
+    }
+
+    private var settingsStore: UserSettingsStore {
+        customStore ?? appContainer.userSettingsStore
     }
 
     public var body: some View {
@@ -22,7 +29,20 @@ public struct AIAssistantHubView: View {
                         AppStrings.AIAssistant.hubTitle,
                         alignment: .leading,
                         enableScrollFade: false
-                    )
+                    ) {
+                        CraftIconButton(
+                            symbol: .settings,
+                            size: .md,
+                            variant: .subtle,
+                            accessibilityLabelKey: AppStrings.AIAssistant.configureApiKey
+                        ) {
+                            showConfigSheet = true
+                        }
+                    }
+
+                    if settingsStore.geminiApiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        configNoticeBanner
+                    }
 
                     if let daily = viewModel.dailyScenario {
                         heroDailyCard(for: daily)
@@ -43,6 +63,9 @@ public struct AIAssistantHubView: View {
                 await viewModel.loadScenarios()
             }
         }
+        .sheet(isPresented: $showConfigSheet) {
+            AIConfigSheet(store: settingsStore)
+        }
         #if os(iOS)
         .fullScreenCover(item: $activeScenario) { scenario in
             RoleplayRoomView(
@@ -58,6 +81,46 @@ public struct AIAssistantHubView: View {
             )
         }
         #endif
+    }
+
+    private var configNoticeBanner: some View {
+        CraftCard(
+            style: .outlined,
+            cornerRadius: theme.radii.lg,
+            padding: theme.spacing.md
+        ) {
+            HStack(spacing: theme.spacing.md) {
+                CraftIcon(
+                    CraftSymbol.sparkles.rawValue,
+                    size: .md,
+                    color: theme.colors.accent
+                )
+                .frame(width: 36, height: 36)
+                .background(theme.colors.accent.opacity(0.12))
+                .clipShape(Circle())
+
+                VStack(alignment: .leading, spacing: theme.spacing.xxs) {
+                    Text(AppStrings.AIAssistant.apiKeySheetTitle)
+                        .font(theme.typography.headline)
+                        .fontWeight(.bold)
+                        .foregroundStyle(theme.colors.textPrimary)
+
+                    Text(AppStrings.AIAssistant.apiKeyBannerDesc)
+                        .font(theme.typography.caption)
+                        .foregroundStyle(theme.colors.textSecondary)
+                }
+
+                Spacer()
+
+                CraftButton(
+                    AppStrings.AIAssistant.configureApiKey,
+                    variant: .secondary,
+                    size: .sm
+                ) {
+                    showConfigSheet = true
+                }
+            }
+        }
     }
 
     private func heroDailyCard(for scenario: RoleplayScenario) -> some View {

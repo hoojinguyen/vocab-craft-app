@@ -22,6 +22,7 @@
 		3000A1A10000000000000013 /* AIAssistantHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000013 /* AIAssistantHubView.swift */; };
 		3000A1A10000000000000014 /* RoleplayRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000014 /* RoleplayRoomView.swift */; };
 		3000A1A10000000000000015 /* RoleplaySummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000015 /* RoleplaySummaryView.swift */; };
+		3000A1A10000000000000016 /* AIConfigSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000016 /* AIConfigSheet.swift */; };
 		300000402D50000000000002 /* VocabCraftWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 200000402D50000000000000 /* VocabCraftWidgetExtension.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		300001EA5C596D2E5E45 /* VaultWordItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200001EA5C596D2E5E45 /* VaultWordItem.swift */; };
 		300002284C02A8E338C2 /* VocabWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200002284C02A8E338C2 /* VocabWidgetBundle.swift */; };
@@ -354,6 +355,7 @@
 		2000A1A10000000000000013 /* AIAssistantHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIAssistantHubView.swift"; sourceTree = "<group>"; };
 		2000A1A10000000000000014 /* RoleplayRoomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayRoomView.swift"; sourceTree = "<group>"; };
 		2000A1A10000000000000015 /* RoleplaySummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplaySummaryView.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000016 /* AIConfigSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIConfigSheet.swift"; sourceTree = "<group>"; };
 		200000002D50000000000000 /* VocabCraftApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VocabCraftApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000402D50000000000000 /* VocabCraftWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VocabCraftWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000502D50000000000000 /* VocabCraftAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VocabCraftAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1167,6 +1169,7 @@
 							2000A1A10000000000000013 /* AIAssistantHubView.swift */,
 				2000A1A10000000000000014 /* RoleplayRoomView.swift */,
 				2000A1A10000000000000015 /* RoleplaySummaryView.swift */,
+				2000A1A10000000000000016 /* AIConfigSheet.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -2003,6 +2006,7 @@
 				3000A1A10000000000000013 /* AIAssistantHubView.swift in Sources */,
 				3000A1A10000000000000014 /* RoleplayRoomView.swift in Sources */,
 				3000A1A10000000000000015 /* RoleplaySummaryView.swift in Sources */,
+				3000A1A10000000000000016 /* AIConfigSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
