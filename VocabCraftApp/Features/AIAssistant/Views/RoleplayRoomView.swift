@@ -138,7 +138,7 @@ public struct RoleplayRoomView: View {
     }
 
     private func messageRow(_ message: DisplayChatMessage) -> some View {
-        HStack {
+        HStack(alignment: .bottom, spacing: theme.spacing.xs) {
             if message.isUser { Spacer() }
 
             VStack(alignment: message.isUser ? .trailing : .leading, spacing: theme.spacing.xs) {
@@ -169,6 +169,17 @@ public struct RoleplayRoomView: View {
                                 .clipShape(RoundedRectangle(cornerRadius: theme.radii.sm))
                         }
                     }
+                }
+            }
+
+            if !message.isUser {
+                CraftIconButton(
+                    symbol: .audio,
+                    size: .sm,
+                    variant: .subtle,
+                    accessibilityLabelKey: AppStrings.AIAssistant.audioPlayButton
+                ) {
+                    viewModel.playSpeech(for: message.text)
                 }
             }
 

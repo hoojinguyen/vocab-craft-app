@@ -295,7 +295,8 @@ public final class AppContainer {
         RoleplayRoomViewModel(
             scenario: scenario,
             executeTurnUseCase: makeExecuteRoleplayTurnUseCase(),
-            completeSessionUseCase: makeCompleteRoleplaySessionUseCase()
+            completeSessionUseCase: makeCompleteRoleplaySessionUseCase(),
+            ttsService: ttsService
         )
     }
 

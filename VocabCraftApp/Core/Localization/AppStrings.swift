@@ -418,6 +418,8 @@ extension AppStrings {
         public static var inputPlaceholderText: String {
             String(localized: "app.ai_assistant.room.input_placeholder", defaultValue: "Type a message...", bundle: .module)
         }
+        public static var audioPlayButton: LocalizedStringKey { "app.ai_assistant.room.play_audio" }
+        public static var audioPlayButtonText: String { String(localized: "app.ai_assistant.room.play_audio", defaultValue: "Play dialogue audio", bundle: .module) }
 
         // Topics
         public static var topicAll: LocalizedStringKey { "app.ai_assistant.topic.all" }

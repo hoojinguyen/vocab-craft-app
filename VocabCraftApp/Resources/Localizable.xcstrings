@@ -375,6 +375,23 @@
         }
       }
     },
+    "app.ai_assistant.room.play_audio" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Play dialogue audio"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Phát âm thanh hội thoại"
+          }
+        }
+      }
+    },
     "app.ai_assistant.topic.all" : {
       "extractionState" : "manual",
       "localizations" : {

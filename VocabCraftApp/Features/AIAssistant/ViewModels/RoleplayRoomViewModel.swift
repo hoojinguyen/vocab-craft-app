@@ -39,17 +39,20 @@ public final class RoleplayRoomViewModel {
 
     private let executeTurnUseCase: ExecuteRoleplayTurnUseCase
     private let completeSessionUseCase: CompleteRoleplaySessionUseCase
+    private let ttsService: (any TextToSpeechProtocol)?
     private var chatHistory: [LLMChatMessage] = []
     private var gatheredRefinements: [SentenceRefinementPair] = []
 
     public init(
         scenario: RoleplayScenario,
         executeTurnUseCase: ExecuteRoleplayTurnUseCase,
-        completeSessionUseCase: CompleteRoleplaySessionUseCase
+        completeSessionUseCase: CompleteRoleplaySessionUseCase,
+        ttsService: (any TextToSpeechProtocol)? = nil
     ) {
         self.scenario = scenario
         self.executeTurnUseCase = executeTurnUseCase
         self.completeSessionUseCase = completeSessionUseCase
+        self.ttsService = ttsService
 
         // Setup initial greeting
         let greeting = DisplayChatMessage(
@@ -59,6 +62,12 @@ public final class RoleplayRoomViewModel {
         )
         self.messages.append(greeting)
         self.chatHistory.append(LLMChatMessage(role: .model, content: scenario.initialGreeting))
+    }
+
+    public func playSpeech(for text: String) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        ttsService?.speak(text: trimmed)
     }
 
     public func sendMessage(_ text: String) async {
@@ -101,6 +110,7 @@ public final class RoleplayRoomViewModel {
                 characterName: scenario.characterName
             )
             messages.append(aiMsg)
+            playSpeech(for: output.characterReply)
 
             // Update state
             chatHistory.append(LLMChatMessage(role: .user, content: trimmed))

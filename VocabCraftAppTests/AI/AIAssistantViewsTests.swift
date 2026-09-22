@@ -60,6 +60,26 @@ struct AIAssistantViewsTests {
     }
 
     @Test @MainActor
+    func testRoleplayRoomViewModelSpeechPlayback() async {
+        let scenario = makeSampleScenario()
+        let mockTTS = MockTextToSpeechService()
+        let vm = RoleplayRoomViewModel(
+            scenario: scenario,
+            executeTurnUseCase: ExecuteRoleplayTurnUseCase(llmProvider: MockLLMProvider()),
+            completeSessionUseCase: CompleteRoleplaySessionUseCase(),
+            ttsService: mockTTS
+        )
+
+        vm.playSpeech(for: "Welcome to the coffee shop!")
+        #expect(mockTTS.isSpeaking == true)
+
+        mockTTS.stop()
+        await vm.sendMessage("Hello!")
+        // Verify auto-play triggered for character reply
+        #expect(mockTTS.isSpeaking == true)
+    }
+
+    @Test @MainActor
     func testRoleplaySummaryViewInitialization() {
         let summary = RoleplaySessionSummary(
             scenarioId: "test-cafe",
