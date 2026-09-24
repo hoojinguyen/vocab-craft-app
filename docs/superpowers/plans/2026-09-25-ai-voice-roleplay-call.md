@@ -57,7 +57,7 @@ struct VoiceConversationStateTests {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `xcodebuild test -scheme VocabCraftApp -destination "platform=iOS Simulator,name=iPhone 17 Pro" -only-testing:VocabCraftAppTests/VoiceConversationStateTests`
+Run: `xcodebuild test -scheme VocabCraftApp -destination "platform=iOS Simulator,name=iPhone 17" -only-testing:VocabCraftAppTests/VoiceConversationStateTests`
 Expected: FAIL with "cannot find type 'VoiceCallState' in scope"
 
 - [ ] **Step 3: Write minimal implementation**
@@ -96,7 +96,7 @@ public protocol VoiceConversationEngineProtocol: AnyObject, Sendable {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `xcodebuild test -scheme VocabCraftApp -destination "platform=iOS Simulator,name=iPhone 17 Pro" -only-testing:VocabCraftAppTests/VoiceConversationStateTests`
+Run: `xcodebuild test -scheme VocabCraftApp -destination "platform=iOS Simulator,name=iPhone 17" -only-testing:VocabCraftAppTests/VoiceConversationStateTests`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
@@ -168,7 +168,7 @@ struct IntelligentMockLLMProviderTests {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `xcodebuild test -scheme VocabCraftApp -destination "platform=iOS Simulator,name=iPhone 17 Pro" -only-testing:VocabCraftAppTests/IntelligentMockLLMProviderTests`
+Run: `xcodebuild test -scheme VocabCraftApp -destination "platform=iOS Simulator,name=iPhone 17" -only-testing:VocabCraftAppTests/IntelligentMockLLMProviderTests`
 Expected: FAIL with "cannot find 'IntelligentMockLLMProvider' in scope"
 
 - [ ] **Step 3: Write minimal implementation**
@@ -260,7 +260,7 @@ public final class IntelligentMockLLMProvider: LLMProviderProtocol, @unchecked S
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `xcodebuild test -scheme VocabCraftApp -destination "platform=iOS Simulator,name=iPhone 17 Pro" -only-testing:VocabCraftAppTests/IntelligentMockLLMProviderTests`
+Run: `xcodebuild test -scheme VocabCraftApp -destination "platform=iOS Simulator,name=iPhone 17" -only-testing:VocabCraftAppTests/IntelligentMockLLMProviderTests`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
@@ -330,7 +330,7 @@ struct TurnBasedVoiceConversationEngineTests {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `xcodebuild test -scheme VocabCraftApp -destination "platform=iOS Simulator,name=iPhone 17 Pro" -only-testing:VocabCraftAppTests/TurnBasedVoiceConversationEngineTests`
+Run: `xcodebuild test -scheme VocabCraftApp -destination "platform=iOS Simulator,name=iPhone 17" -only-testing:VocabCraftAppTests/TurnBasedVoiceConversationEngineTests`
 Expected: FAIL with "cannot find 'TurnBasedVoiceConversationEngine' in scope"
 
 - [ ] **Step 3: Write minimal implementation**
@@ -496,7 +496,7 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `xcodebuild test -scheme VocabCraftApp -destination "platform=iOS Simulator,name=iPhone 17 Pro" -only-testing:VocabCraftAppTests/TurnBasedVoiceConversationEngineTests`
+Run: `xcodebuild test -scheme VocabCraftApp -destination "platform=iOS Simulator,name=iPhone 17" -only-testing:VocabCraftAppTests/TurnBasedVoiceConversationEngineTests`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
@@ -1049,7 +1049,7 @@ git commit -m "feat(localization): add bilingual localization keys for Voice Cal
 
 - [ ] **Step 1: Run complete test suite**
 
-Run: `xcodebuild test -scheme VocabCraftApp -destination "platform=iOS Simulator,name=iPhone 17 Pro"`
+Run: `xcodebuild test -scheme VocabCraftApp -destination "platform=iOS Simulator,name=iPhone 17"`
 Expected: 100% test pass rate.
 
 - [ ] **Step 2: Run SwiftLint**
@@ -1059,7 +1059,7 @@ Expected: 0 violations, 0 warnings.
 
 - [ ] **Step 3: Run full clean build on Xcode**
 
-Run: `xcodebuild clean build -scheme VocabCraftApp -destination "platform=iOS Simulator,name=iPhone 17 Pro"`
+Run: `xcodebuild clean build -scheme VocabCraftApp -destination "platform=iOS Simulator,name=iPhone 17"`
 Expected: **0 errors, 0 warnings**.
 
 - [ ] **Step 4: Manual Device Verification**
