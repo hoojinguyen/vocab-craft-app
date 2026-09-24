@@ -23,6 +23,9 @@
 		3000A1A10000000000000014 /* RoleplayRoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000014 /* RoleplayRoomView.swift */; };
 		3000A1A10000000000000015 /* RoleplaySummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000015 /* RoleplaySummaryView.swift */; };
 		3000A1A10000000000000016 /* AIConfigSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000016 /* AIConfigSheet.swift */; };
+		3000A1A10000000000000017 /* VoiceConversationStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000017 /* VoiceConversationStateTests.swift */; };
+		3000A1A10000000000000018 /* RoleplayMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000018 /* RoleplayMessage.swift */; };
+		3000A1A10000000000000019 /* VoiceConversationEngineProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000019 /* VoiceConversationEngineProtocol.swift */; };
 		300000402D50000000000002 /* VocabCraftWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 200000402D50000000000000 /* VocabCraftWidgetExtension.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		300001EA5C596D2E5E45 /* VaultWordItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200001EA5C596D2E5E45 /* VaultWordItem.swift */; };
 		300002284C02A8E338C2 /* VocabWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200002284C02A8E338C2 /* VocabWidgetBundle.swift */; };
@@ -356,6 +359,9 @@
 		2000A1A10000000000000014 /* RoleplayRoomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayRoomView.swift"; sourceTree = "<group>"; };
 		2000A1A10000000000000015 /* RoleplaySummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplaySummaryView.swift"; sourceTree = "<group>"; };
 		2000A1A10000000000000016 /* AIConfigSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIConfigSheet.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000017 /* VoiceConversationStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VoiceConversationStateTests.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000018 /* RoleplayMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayMessage.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000019 /* VoiceConversationEngineProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VoiceConversationEngineProtocol.swift"; sourceTree = "<group>"; };
 		200000002D50000000000000 /* VocabCraftApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VocabCraftApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000402D50000000000000 /* VocabCraftWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VocabCraftWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000502D50000000000000 /* VocabCraftAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VocabCraftAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1238,6 +1244,7 @@
 				2000EC916D0862AF14E5 /* UserRoadmapSettingsProtocol.swift */,
 				2000A91CFCCE87349186 /* VocabularyRepositoryProtocol.swift */,
 							2000A1A10000000000000007 /* LLMProviderProtocol.swift */,
+				2000A1A10000000000000019 /* VoiceConversationEngineProtocol.swift */,
 			);
 			path = Protocols;
 			sourceTree = "<group>";
@@ -1288,6 +1295,14 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		4000A1A1TEST000000000001 /* AI */ = {
+			isa = PBXGroup;
+			children = (
+				2000A1A10000000000000017 /* VoiceConversationStateTests.swift */,
+			);
+			path = AI;
+			sourceTree = "<group>";
+		};
 		4000A43204724448D0C9 /* Reflex */ = {
 			isa = PBXGroup;
 			children = (
@@ -1299,6 +1314,7 @@
 		4000A4B5D97C10747B92 /* VocabCraftAppTests */ = {
 			isa = PBXGroup;
 			children = (
+				4000A1A1TEST000000000001 /* AI */,
 				4000D124A443CB2C8687 /* App */,
 				20001611F67650D4D4BB /* AppRouterTests.swift */,
 				40005E5E6E56B12F0885 /* Core */,
@@ -1488,6 +1504,7 @@
 							2000A1A10000000000000004 /* RoleplayScenario.swift */,
 				2000A1A10000000000000005 /* RoleplaySessionSummary.swift */,
 				2000A1A10000000000000006 /* RoleplayTurnOutput.swift */,
+				2000A1A10000000000000018 /* RoleplayMessage.swift */,
 			);
 			path = Entities;
 			sourceTree = "<group>";
@@ -2007,6 +2024,8 @@
 				3000A1A10000000000000014 /* RoleplayRoomView.swift in Sources */,
 				3000A1A10000000000000015 /* RoleplaySummaryView.swift in Sources */,
 				3000A1A10000000000000016 /* AIConfigSheet.swift in Sources */,
+				3000A1A10000000000000018 /* RoleplayMessage.swift in Sources */,
+				3000A1A10000000000000019 /* VoiceConversationEngineProtocol.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2128,6 +2147,7 @@
 				30002D118E9433DF0306 /* UserProgressModelActorConcurrencyTests.swift in Sources */,
 				3000CD9B3F3B4D5FDBA7 /* UserSettingsStoreTests.swift in Sources */,
 				300084512C285C79A09D /* WidgetIntentsTests.swift in Sources */,
+				3000A1A10000000000000017 /* VoiceConversationStateTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
