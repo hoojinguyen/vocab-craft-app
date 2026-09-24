@@ -100,6 +100,7 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
     }
 
     public func processUserUtterance(_ utterance: String) async {
+        guard state != .ended else { return }
         speechService.stopListening()
         silenceTask?.cancel()
         silenceTask = nil
@@ -115,6 +116,8 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
 
         do {
             let output = try await executeTurnUseCase.execute(scenario: scenario, conversation: messages)
+            guard state == .thinking else { return }
+
             for word in output.targetWordsUsed {
                 masteredTargetWords.insert(word)
             }
@@ -133,7 +136,8 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
             ttsService.speak(text: output.characterReply)
             scheduleSpeechFinishedTransition()
         } catch {
-            state = .listening(liveTranscript: "")
+            guard state == .thinking else { return }
+            startListening()
         }
     }
 

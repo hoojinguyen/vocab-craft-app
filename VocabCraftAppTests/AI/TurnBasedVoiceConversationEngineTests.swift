@@ -232,4 +232,62 @@ struct TurnBasedVoiceConversationEngineTests {
         #expect(!mockTTS.isSpeaking)
         #expect(summary.scenarioId == scenario.id)
     }
+
+    @Test("Turn error catches gracefully and reactivates speech recognition")
+    @MainActor
+    func turnErrorReactivatesListening() async {
+        let scenario = makeTestScenario()
+        let mockTTS = MockTextToSpeechService()
+        let mockSpeech = MockSpeechRecognitionService()
+        let mockLLM = MockLLMProvider()
+        mockLLM.shouldThrowError = true
+        let executeUseCase = ExecuteRoleplayTurnUseCase(llmProvider: mockLLM)
+        let completeUseCase = CompleteRoleplaySessionUseCase()
+
+        let engine = TurnBasedVoiceConversationEngine(
+            scenario: scenario,
+            ttsService: mockTTS,
+            speechService: mockSpeech,
+            executeTurnUseCase: executeUseCase,
+            completeSessionUseCase: completeUseCase
+        )
+
+        engine.startListening()
+        #expect(mockSpeech.isListening)
+
+        await engine.processUserUtterance("Trigger error utterance")
+
+        #expect(engine.state == .listening(liveTranscript: ""))
+        #expect(mockSpeech.isListening)
+    }
+
+    @Test("End call during thinking state prevents resurrecting call to speaking")
+    @MainActor
+    func endCallDuringThinkingPreventsResurrection() async {
+        let scenario = makeTestScenario()
+        let mockTTS = MockTextToSpeechService()
+        let mockSpeech = MockSpeechRecognitionService()
+        let mockLLM = MockLLMProvider()
+        let executeUseCase = ExecuteRoleplayTurnUseCase(llmProvider: mockLLM)
+        let completeUseCase = CompleteRoleplaySessionUseCase()
+
+        let engine = TurnBasedVoiceConversationEngine(
+            scenario: scenario,
+            ttsService: mockTTS,
+            speechService: mockSpeech,
+            executeTurnUseCase: executeUseCase,
+            completeSessionUseCase: completeUseCase
+        )
+
+        engine.startListening()
+        // Simulate user ending call before utterance completes or while thinking
+        _ = await engine.endCall()
+        #expect(engine.state == .ended)
+
+        // Process utterance now should be a no-op because state != .thinking after endCall
+        await engine.processUserUtterance("Belated speech")
+
+        #expect(engine.state == .ended)
+        #expect(!mockTTS.isSpeaking)
+    }
 }
