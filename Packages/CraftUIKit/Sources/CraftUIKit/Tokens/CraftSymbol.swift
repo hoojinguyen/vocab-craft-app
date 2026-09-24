@@ -45,6 +45,8 @@ public enum CraftSymbol: String, Sendable, CaseIterable, Equatable, Hashable {
     case waveform = "waveform"
     case play = "play.fill"
     case pause = "pause.fill"
+    case docText = "doc.text"
+    case slash = "mic.slash.fill"
 
     // MARK: Feedback, Status & Learning
     case check = "checkmark"

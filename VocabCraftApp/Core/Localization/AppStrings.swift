@@ -470,6 +470,28 @@ extension AppStrings {
         public static var topicInterview: LocalizedStringKey { "app.ai_assistant.topic.interview" }
         public static var topicTravel: LocalizedStringKey { "app.ai_assistant.topic.travel" }
         public static var topicWorkplace: LocalizedStringKey { "app.ai_assistant.topic.workplace" }
+
+        // Voice Call Screen
+        public static var callActiveBadge: LocalizedStringKey { "app.ai_assistant.call.active_badge" }
+        public static var callActiveBadgeText: String { String(localized: "app.ai_assistant.call.active_badge", defaultValue: "Live Call", bundle: .module) }
+        public static var stateIdle: LocalizedStringKey { "app.ai_assistant.call.state_idle" }
+        public static var stateIdleText: String { String(localized: "app.ai_assistant.call.state_idle", defaultValue: "Connecting...", bundle: .module) }
+        public static var stateSpeaking: LocalizedStringKey { "app.ai_assistant.call.state_speaking" }
+        public static var stateSpeakingText: String { String(localized: "app.ai_assistant.call.state_speaking", defaultValue: "Speaking...", bundle: .module) }
+        public static var stateListening: LocalizedStringKey { "app.ai_assistant.call.state_listening" }
+        public static var stateListeningText: String { String(localized: "app.ai_assistant.call.state_listening", defaultValue: "Listening...", bundle: .module) }
+        public static var stateThinking: LocalizedStringKey { "app.ai_assistant.call.state_thinking" }
+        public static var stateThinkingText: String { String(localized: "app.ai_assistant.call.state_thinking", defaultValue: "Thinking...", bundle: .module) }
+        public static var stateEnded: LocalizedStringKey { "app.ai_assistant.call.state_ended" }
+        public static var stateEndedText: String { String(localized: "app.ai_assistant.call.state_ended", defaultValue: "Call Ended", bundle: .module) }
+        public static var toggleCaptions: LocalizedStringKey { "app.ai_assistant.call.toggle_captions" }
+        public static var toggleCaptionsText: String { String(localized: "app.ai_assistant.call.toggle_captions", defaultValue: "Toggle captions", bundle: .module) }
+        public static var muteMicrophone: LocalizedStringKey { "app.ai_assistant.call.mute_microphone" }
+        public static var muteMicrophoneText: String { String(localized: "app.ai_assistant.call.mute_microphone", defaultValue: "Mute microphone", bundle: .module) }
+        public static var unmuteMicrophone: LocalizedStringKey { "app.ai_assistant.call.unmute_microphone" }
+        public static var unmuteMicrophoneText: String { String(localized: "app.ai_assistant.call.unmute_microphone", defaultValue: "Unmute microphone", bundle: .module) }
+        public static var endCall: LocalizedStringKey { "app.ai_assistant.call.end_call" }
+        public static var endCallText: String { String(localized: "app.ai_assistant.call.end_call", defaultValue: "End call", bundle: .module) }
     }
 
     // MARK: - Home Learning Path

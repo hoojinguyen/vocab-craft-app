@@ -74,3 +74,34 @@ public final class CraftHaptics: Sendable {
         #endif
     }
 }
+
+/// Static convenience interface for system tactile feedback.
+public enum CraftHapticFeedback {
+    public static func success() {
+        CraftHaptics.shared.success()
+    }
+
+    public static func warning() {
+        CraftHaptics.shared.warning()
+    }
+
+    public static func error() {
+        CraftHaptics.shared.error()
+    }
+
+    public static func selection() {
+        CraftHaptics.shared.selection()
+    }
+
+    public static func light() {
+        CraftHaptics.shared.light()
+    }
+
+    public static func medium() {
+        CraftHaptics.shared.medium()
+    }
+
+    public static func heavy() {
+        CraftHaptics.shared.heavy()
+    }
+}

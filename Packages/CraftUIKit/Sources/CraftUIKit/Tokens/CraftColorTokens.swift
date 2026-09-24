@@ -54,6 +54,7 @@ public protocol CraftColorTokens: Sendable {
 }
 
 public extension CraftColorTokens {
+    var danger: Color { statusDanger }
     var streakStarter: Color { brandPrimary }
     var streakBlaze: Color { accent }
     var streakLegendary: Color { .craftDynamic(light: Color(hex: 0x7C3AED), dark: Color(hex: 0xA78BFA)) }

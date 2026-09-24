@@ -117,6 +117,46 @@ struct AIAssistantLocalizationTests {
         "app.ai_assistant.hub.api_key_banner_desc": (
             vi: "Thêm khóa API Gemini để mở khóa các cuộc trò chuyện và nhận xét AI tự nhiên.",
             en: "Add your Gemini API key to unlock natural AI roleplay conversations and feedback."
+        ),
+        "app.ai_assistant.call.active_badge": (
+            vi: "Cuộc gọi trực tiếp",
+            en: "Live Call"
+        ),
+        "app.ai_assistant.call.state_idle": (
+            vi: "Đang kết nối...",
+            en: "Connecting..."
+        ),
+        "app.ai_assistant.call.state_speaking": (
+            vi: "Đang nói...",
+            en: "Speaking..."
+        ),
+        "app.ai_assistant.call.state_listening": (
+            vi: "Đang nghe...",
+            en: "Listening..."
+        ),
+        "app.ai_assistant.call.state_thinking": (
+            vi: "Đang suy nghĩ...",
+            en: "Thinking..."
+        ),
+        "app.ai_assistant.call.state_ended": (
+            vi: "Cuộc gọi đã kết thúc",
+            en: "Call Ended"
+        ),
+        "app.ai_assistant.call.toggle_captions": (
+            vi: "Bật/tắt phụ đề",
+            en: "Toggle captions"
+        ),
+        "app.ai_assistant.call.mute_microphone": (
+            vi: "Tắt mic",
+            en: "Mute microphone"
+        ),
+        "app.ai_assistant.call.unmute_microphone": (
+            vi: "Bật mic",
+            en: "Unmute microphone"
+        ),
+        "app.ai_assistant.call.end_call": (
+            vi: "Kết thúc cuộc gọi",
+            en: "End call"
         )
     ]
 
@@ -128,7 +168,6 @@ struct AIAssistantLocalizationTests {
         #expect(title != nil)
         #expect(start != nil)
         #expect(finish != nil)
-
         // Verify remaining LocalizedStringKey accessors are accessible
         let keys: [LocalizedStringKey?] = [
             AppStrings.AIAssistant.hubSubtitle,
@@ -147,7 +186,17 @@ struct AIAssistantLocalizationTests {
             AppStrings.AIAssistant.audioPlayButton,
             AppStrings.AIAssistant.configureApiKey,
             AppStrings.AIAssistant.apiKeySheetTitle,
-            AppStrings.AIAssistant.apiKeyBannerDesc
+            AppStrings.AIAssistant.apiKeyBannerDesc,
+            AppStrings.AIAssistant.callActiveBadge,
+            AppStrings.AIAssistant.stateIdle,
+            AppStrings.AIAssistant.stateSpeaking,
+            AppStrings.AIAssistant.stateListening,
+            AppStrings.AIAssistant.stateThinking,
+            AppStrings.AIAssistant.stateEnded,
+            AppStrings.AIAssistant.toggleCaptions,
+            AppStrings.AIAssistant.muteMicrophone,
+            AppStrings.AIAssistant.unmuteMicrophone,
+            AppStrings.AIAssistant.endCall
         ]
         for key in keys {
             #expect(key != nil)
@@ -167,6 +216,16 @@ struct AIAssistantLocalizationTests {
         #expect(AppStrings.AIAssistant.discardConfirmMessageText == "Your current conversation progress will not be saved.")
         #expect(AppStrings.AIAssistant.fallbackReplyText == "I see! Please go on.")
         #expect(AppStrings.AIAssistant.inputPlaceholderText == "Type a message...")
+        #expect(AppStrings.AIAssistant.callActiveBadgeText == "Live Call")
+        #expect(AppStrings.AIAssistant.stateIdleText == "Connecting...")
+        #expect(AppStrings.AIAssistant.stateSpeakingText == "Speaking...")
+        #expect(AppStrings.AIAssistant.stateListeningText == "Listening...")
+        #expect(AppStrings.AIAssistant.stateThinkingText == "Thinking...")
+        #expect(AppStrings.AIAssistant.stateEndedText == "Call Ended")
+        #expect(AppStrings.AIAssistant.toggleCaptionsText == "Toggle captions")
+        #expect(AppStrings.AIAssistant.muteMicrophoneText == "Mute microphone")
+        #expect(AppStrings.AIAssistant.unmuteMicrophoneText == "Unmute microphone")
+        #expect(AppStrings.AIAssistant.endCallText == "End call")
         #expect(AppStrings.AIAssistant.summaryCongratulationsText == "Roleplay Completed!")
         #expect(AppStrings.AIAssistant.summaryFluencyScoreText == "Fluency Score")
         #expect(AppStrings.AIAssistant.summaryMasteredWordsText == "Target Words Mastered")
