@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 import Testing
 @testable import VocabCraftApp
 
@@ -46,5 +47,23 @@ struct VoiceConversationStateTests {
         #expect(userMsg.pedagogicalNote == "Good greeting")
         #expect(aiMsg.refinementSuggestion == nil)
         #expect(aiMsg.pedagogicalNote == nil)
+    }
+
+    @Test("Verify CraftVoiceOrbView renders for all VoiceCallStates")
+    @MainActor
+    func orbViewRendering() {
+        let testStates: [VoiceCallState] = [
+            .idle,
+            .speaking(characterText: "Hello there!"),
+            .listening(liveTranscript: "I would like a latte"),
+            .thinking,
+            .ended
+        ]
+
+        for state in testStates {
+            let orb = CraftVoiceOrbView(state: state)
+            #expect(orb.state == state)
+            _ = orb.body
+        }
     }
 }
