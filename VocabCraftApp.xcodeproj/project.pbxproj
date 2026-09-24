@@ -25,9 +25,11 @@
 		3000A1A10000000000000016 /* AIConfigSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000016 /* AIConfigSheet.swift */; };
 		3000A1A10000000000000017 /* VoiceConversationStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000017 /* VoiceConversationStateTests.swift */; };
 		3000A1A10000000000000020 /* IntelligentMockLLMProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000020 /* IntelligentMockLLMProviderTests.swift */; };
+		3000A1A10000000000000023 /* TurnBasedVoiceConversationEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000023 /* TurnBasedVoiceConversationEngineTests.swift */; };
 		3000A1A10000000000000018 /* RoleplayMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000018 /* RoleplayMessage.swift */; };
 		3000A1A10000000000000019 /* VoiceConversationEngineProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000019 /* VoiceConversationEngineProtocol.swift */; };
 		3000A1A10000000000000021 /* IntelligentMockLLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000021 /* IntelligentMockLLMProvider.swift */; };
+		3000A1A10000000000000022 /* TurnBasedVoiceConversationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2000A1A10000000000000022 /* TurnBasedVoiceConversationEngine.swift */; };
 		300000402D50000000000002 /* VocabCraftWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 200000402D50000000000000 /* VocabCraftWidgetExtension.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		300001EA5C596D2E5E45 /* VaultWordItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200001EA5C596D2E5E45 /* VaultWordItem.swift */; };
 		300002284C02A8E338C2 /* VocabWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 200002284C02A8E338C2 /* VocabWidgetBundle.swift */; };
@@ -363,9 +365,11 @@
 		2000A1A10000000000000016 /* AIConfigSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AIConfigSheet.swift"; sourceTree = "<group>"; };
 		2000A1A10000000000000017 /* VoiceConversationStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VoiceConversationStateTests.swift"; sourceTree = "<group>"; };
 		2000A1A10000000000000020 /* IntelligentMockLLMProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IntelligentMockLLMProviderTests.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000023 /* TurnBasedVoiceConversationEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TurnBasedVoiceConversationEngineTests.swift"; sourceTree = "<group>"; };
 		2000A1A10000000000000018 /* RoleplayMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RoleplayMessage.swift"; sourceTree = "<group>"; };
 		2000A1A10000000000000019 /* VoiceConversationEngineProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VoiceConversationEngineProtocol.swift"; sourceTree = "<group>"; };
 		2000A1A10000000000000021 /* IntelligentMockLLMProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IntelligentMockLLMProvider.swift"; sourceTree = "<group>"; };
+		2000A1A10000000000000022 /* TurnBasedVoiceConversationEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TurnBasedVoiceConversationEngine.swift"; sourceTree = "<group>"; };
 		200000002D50000000000000 /* VocabCraftApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VocabCraftApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000402D50000000000000 /* VocabCraftWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VocabCraftWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		200000502D50000000000000 /* VocabCraftAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VocabCraftAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1218,6 +1222,7 @@
 							2000A1A10000000000000008 /* FetchRoleplayScenariosUseCase.swift */,
 				2000A1A10000000000000009 /* ExecuteRoleplayTurnUseCase.swift */,
 				2000A1A10000000000000010 /* CompleteRoleplaySessionUseCase.swift */,
+				2000A1A10000000000000022 /* TurnBasedVoiceConversationEngine.swift */,
 			);
 			path = UseCases;
 			sourceTree = "<group>";
@@ -1305,6 +1310,7 @@
 			children = (
 				2000A1A10000000000000017 /* VoiceConversationStateTests.swift */,
 				2000A1A10000000000000020 /* IntelligentMockLLMProviderTests.swift */,
+				2000A1A10000000000000023 /* TurnBasedVoiceConversationEngineTests.swift */,
 			);
 			path = AI;
 			sourceTree = "<group>";
@@ -2033,6 +2039,7 @@
 				3000A1A10000000000000018 /* RoleplayMessage.swift in Sources */,
 				3000A1A10000000000000019 /* VoiceConversationEngineProtocol.swift in Sources */,
 				3000A1A10000000000000021 /* IntelligentMockLLMProvider.swift in Sources */,
+				3000A1A10000000000000022 /* TurnBasedVoiceConversationEngine.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2156,6 +2163,7 @@
 				300084512C285C79A09D /* WidgetIntentsTests.swift in Sources */,
 				3000A1A10000000000000017 /* VoiceConversationStateTests.swift in Sources */,
 				3000A1A10000000000000020 /* IntelligentMockLLMProviderTests.swift in Sources */,
+				3000A1A10000000000000023 /* TurnBasedVoiceConversationEngineTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

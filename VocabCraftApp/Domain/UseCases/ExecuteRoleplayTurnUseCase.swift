@@ -51,4 +51,30 @@ public final class ExecuteRoleplayTurnUseCase: Sendable {
             pedagogicalNote: output.pedagogicalNote
         )
     }
+
+    public func execute(
+        scenario: RoleplayScenario,
+        conversation: [RoleplayMessage]
+    ) async throws -> RoleplayTurnOutput {
+        let userUtterance = conversation.last(where: { $0.sender == .user })?.text ?? ""
+        let previousMessages: [RoleplayMessage]
+        if let lastIndex = conversation.lastIndex(where: { $0.sender == .user }) {
+            previousMessages = Array(conversation.prefix(upTo: lastIndex))
+        } else {
+            previousMessages = []
+        }
+        let chatHistory = previousMessages.map { msg -> LLMChatMessage in
+            switch msg.sender {
+            case .user:
+                return LLMChatMessage(role: .user, content: msg.text)
+            case .character:
+                return LLMChatMessage(role: .model, content: msg.text)
+            }
+        }
+        return try await execute(
+            scenario: scenario,
+            userUtterance: userUtterance,
+            chatHistory: chatHistory
+        )
+    }
 }
