@@ -269,7 +269,7 @@ public final class AppContainer {
            !envKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             return GeminiLLMProvider(apiKey: envKey)
         }
-        return MockLLMProvider()
+        return IntelligentMockLLMProvider()
     }
 
     public func makeFetchRoleplayScenariosUseCase() -> FetchRoleplayScenariosUseCase {
@@ -297,6 +297,18 @@ public final class AppContainer {
             completeSessionUseCase: makeCompleteRoleplaySessionUseCase(),
             ttsService: ttsService
         )
+    }
+
+    @MainActor
+    public func makeRoleplayVoiceCallViewModel(for scenario: RoleplayScenario) -> RoleplayVoiceCallViewModel {
+        let engine = TurnBasedVoiceConversationEngine(
+            scenario: scenario,
+            ttsService: ttsService,
+            speechService: makeSpeechRecognitionService(),
+            executeTurnUseCase: makeExecuteRoleplayTurnUseCase(),
+            completeSessionUseCase: makeCompleteRoleplaySessionUseCase()
+        )
+        return RoleplayVoiceCallViewModel(engine: engine)
     }
 
     public static var mock: AppContainer {

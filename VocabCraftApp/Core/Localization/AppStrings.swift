@@ -472,6 +472,8 @@ extension AppStrings {
         public static var topicWorkplace: LocalizedStringKey { "app.ai_assistant.topic.workplace" }
 
         // Voice Call Screen
+        public static var startVoiceCall: LocalizedStringKey { "app.ai_assistant.call.start_call" }
+        public static var startVoiceCallText: String { String(localized: "app.ai_assistant.call.start_call", defaultValue: "Start Voice Call", bundle: .module) }
         public static var callActiveBadge: LocalizedStringKey { "app.ai_assistant.call.active_badge" }
         public static var callActiveBadgeText: String { String(localized: "app.ai_assistant.call.active_badge", defaultValue: "Live Call", bundle: .module) }
         public static var stateIdle: LocalizedStringKey { "app.ai_assistant.call.state_idle" }

@@ -4,6 +4,7 @@ import SwiftUI
 public struct AIAssistantHubView: View {
     @State private var viewModel: AIAssistantHubViewModel
     @State private var activeScenario: RoleplayScenario?
+    @State private var activeVoiceCallScenario: RoleplayScenario?
     @State private var showConfigSheet: Bool = false
     private let customStore: UserSettingsStore?
     @Environment(\.appContainer) private var appContainer
@@ -73,11 +74,23 @@ public struct AIAssistantHubView: View {
                 onDismiss: { activeScenario = nil }
             )
         }
+        .fullScreenCover(item: $activeVoiceCallScenario) { scenario in
+            RoleplayVoiceCallView(
+                viewModel: appContainer.makeRoleplayVoiceCallViewModel(for: scenario),
+                onDismiss: { activeVoiceCallScenario = nil }
+            )
+        }
         #else
         .sheet(item: $activeScenario) { scenario in
             RoleplayRoomView(
                 viewModel: appContainer.makeRoleplayRoomViewModel(for: scenario),
                 onDismiss: { activeScenario = nil }
+            )
+        }
+        .sheet(item: $activeVoiceCallScenario) { scenario in
+            RoleplayVoiceCallView(
+                viewModel: appContainer.makeRoleplayVoiceCallViewModel(for: scenario),
+                onDismiss: { activeVoiceCallScenario = nil }
             )
         }
         #endif
@@ -162,13 +175,23 @@ public struct AIAssistantHubView: View {
                     }
                 }
 
-                CraftButton(
-                    AppStrings.AIAssistant.actionStartRoleplay,
-                    variant: .primary,
-                    size: .md,
-                    isFullWidth: true
-                ) {
-                    activeScenario = scenario
+                HStack(spacing: theme.spacing.sm) {
+                    CraftButton(
+                        AppStrings.AIAssistant.startVoiceCall,
+                        variant: .primary,
+                        size: .md,
+                        isFullWidth: true
+                    ) {
+                        activeVoiceCallScenario = scenario
+                    }
+
+                    CraftButton(
+                        AppStrings.AIAssistant.actionStartRoleplay,
+                        variant: .secondary,
+                        size: .md
+                    ) {
+                        activeScenario = scenario
+                    }
                 }
                 .padding(.top, theme.spacing.xs)
             }
@@ -255,12 +278,23 @@ public struct AIAssistantHubView: View {
 
                         Spacer()
 
-                        CraftButton(
-                            AppStrings.AIAssistant.actionStartRoleplay,
-                            variant: .secondary,
-                            size: .sm
-                        ) {
-                            activeScenario = scenario
+                        HStack(spacing: theme.spacing.xs) {
+                            CraftIconButton(
+                                symbol: .audio,
+                                size: .md,
+                                variant: .subtle,
+                                accessibilityLabelKey: AppStrings.AIAssistant.startVoiceCall
+                            ) {
+                                activeVoiceCallScenario = scenario
+                            }
+
+                            CraftButton(
+                                AppStrings.AIAssistant.actionStartRoleplay,
+                                variant: .secondary,
+                                size: .sm
+                            ) {
+                                activeScenario = scenario
+                            }
                         }
                     }
                 }

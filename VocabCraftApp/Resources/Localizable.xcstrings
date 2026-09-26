@@ -800,6 +800,23 @@
         }
       }
     },
+    "app.ai_assistant.call.start_call" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start Voice Call"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bắt đầu gọi thoại"
+          }
+        }
+      }
+    },
     "app.ai_assistant.call.active_badge" : {
       "extractionState" : "manual",
       "localizations" : {
