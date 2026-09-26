@@ -70,8 +70,16 @@ struct TurnBasedVoiceConversationEngineTests {
         await engine.startCall()
         #expect(engine.state == .speaking(characterText: scenario.initialGreeting))
 
-        // Wait for speech delay task to fire
-        try? await Task.sleep(for: .milliseconds(60))
+        // Wait for speech delay task to fire with resilient polling
+        var didTransition = false
+        for _ in 0..<40 {
+            if case .listening = engine.state, mockSpeech.isListening {
+                didTransition = true
+                break
+            }
+            try? await Task.sleep(for: .milliseconds(25))
+        }
+        #expect(didTransition)
         #expect(engine.state == .listening(liveTranscript: ""))
         #expect(mockSpeech.isListening)
     }
