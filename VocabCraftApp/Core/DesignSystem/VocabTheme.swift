@@ -148,10 +148,3 @@ public struct VocabTheme: CraftTheme {
         self.depths = depths
     }
 }
-
-// MARK: - Color Token Semantic Aliases
-
-public extension CraftColorTokens {
-    var warning: Color { statusWarning }
-    var danger: Color { statusDanger }
-}

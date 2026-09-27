@@ -494,6 +494,8 @@ extension AppStrings {
         public static var unmuteMicrophoneText: String { String(localized: "app.ai_assistant.call.unmute_microphone", defaultValue: "Unmute microphone", bundle: .module) }
         public static var endCall: LocalizedStringKey { "app.ai_assistant.call.end_call" }
         public static var endCallText: String { String(localized: "app.ai_assistant.call.end_call", defaultValue: "End call", bundle: .module) }
+        public static var finishTurn: LocalizedStringKey { "app.ai_assistant.call.finish_turn" }
+        public static var finishTurnText: String { String(localized: "app.ai_assistant.call.finish_turn", defaultValue: "Tap when finished speaking", bundle: .module) }
     }
 
     // MARK: - Home Learning Path

@@ -157,6 +157,10 @@ struct AIAssistantLocalizationTests {
         "app.ai_assistant.call.end_call": (
             vi: "Kết thúc cuộc gọi",
             en: "End call"
+        ),
+        "app.ai_assistant.call.finish_turn": (
+            vi: "Chạm khi nói xong",
+            en: "Tap when finished speaking"
         )
     ]
 

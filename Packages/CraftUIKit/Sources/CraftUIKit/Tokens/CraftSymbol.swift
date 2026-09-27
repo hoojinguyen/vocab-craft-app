@@ -46,7 +46,12 @@ public enum CraftSymbol: String, Sendable, CaseIterable, Equatable, Hashable {
     case play = "play.fill"
     case pause = "pause.fill"
     case docText = "doc.text"
-    case slash = "mic.slash.fill"
+    case micSlash = "mic.slash.fill"
+    case phone = "phone.fill"
+    case phoneDown = "phone.down.fill"
+
+    @available(*, deprecated, renamed: "micSlash")
+    public static var slash: CraftSymbol { .micSlash }
 
     // MARK: Feedback, Status & Learning
     case check = "checkmark"

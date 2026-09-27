@@ -4,12 +4,12 @@ import SwiftUI
 /// Full-screen calling screen for real-time voice roleplay conversations with an AI character.
 @MainActor
 public struct RoleplayVoiceCallView: View {
-    @State private var viewModel: RoleplayVoiceCallViewModel
+    @Bindable public var viewModel: RoleplayVoiceCallViewModel
     private let onDismiss: () -> Void
     @Environment(\.craftTheme) private var theme
 
     public init(viewModel: RoleplayVoiceCallViewModel, onDismiss: @escaping () -> Void) {
-        self._viewModel = State(initialValue: viewModel)
+        self.viewModel = viewModel
         self.onDismiss = onDismiss
     }
 
@@ -102,13 +102,24 @@ public struct RoleplayVoiceCallView: View {
 
                 ForEach(viewModel.scenario.targetWordIds, id: \.self) { word in
                     let isMastered = viewModel.masteredTargetWords.contains(word)
-                    CraftBadge(
-                        LocalizedStringKey(word),
-                        iconName: isMastered ? "checkmark.circle.fill" : nil,
-                        variant: isMastered ? .solid : .subtle,
-                        tone: isMastered ? .success : .neutral,
-                        size: .sm
-                    )
+                    Group {
+                        if isMastered {
+                            CraftBadge(
+                                verbatim: word,
+                                symbol: .checkmarkCircle,
+                                variant: .solid,
+                                tone: .success,
+                                size: .sm
+                            )
+                        } else {
+                            CraftBadge(
+                                verbatim: word,
+                                variant: .subtle,
+                                tone: .neutral,
+                                size: .sm
+                            )
+                        }
+                    }
                     .scaleEffect(isMastered ? 1.05 : 1.0)
                     .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isMastered)
                 }
@@ -137,6 +148,18 @@ public struct RoleplayVoiceCallView: View {
                 subtitlesCard
             }
 
+            // Tap when finished speaking (hands-free manual override)
+            if case .listening = viewModel.state {
+                CraftButton(
+                    AppStrings.AIAssistant.finishTurn,
+                    variant: .secondary,
+                    size: .sm
+                ) {
+                    viewModel.finishSpeaking()
+                }
+                .transition(.opacity.combined(with: .scale(scale: 0.95)))
+            }
+
             HStack(spacing: theme.spacing.lg) {
                 // Subtitles toggle
                 CraftIconButton(
@@ -149,21 +172,19 @@ public struct RoleplayVoiceCallView: View {
                 }
 
                 // Hang Up Button (Red)
-                Button {
+                CraftIconButton(
+                    symbol: .phoneDown,
+                    size: .xl,
+                    shape: .circle,
+                    variant: .danger,
+                    accessibilityLabelKey: AppStrings.AIAssistant.endCall
+                ) {
                     Task { await viewModel.endCall() }
-                } label: {
-                    Image(systemName: "phone.down.fill")
-                        .font(.system(size: 24, weight: .bold))
-                        .foregroundStyle(theme.colors.textInverse)
-                        .padding(theme.spacing.base)
-                        .background(theme.colors.danger)
-                        .clipShape(Circle())
                 }
-                .accessibilityLabel(AppStrings.AIAssistant.endCall)
 
                 // Mute toggle
                 CraftIconButton(
-                    symbol: viewModel.isMuted ? .slash : .audio,
+                    symbol: viewModel.isMuted ? .micSlash : .audio,
                     size: .lg,
                     variant: viewModel.isMuted ? .filled : .subtle,
                     accessibilityLabelKey: viewModel.isMuted ? AppStrings.AIAssistant.unmuteMicrophone : AppStrings.AIAssistant.muteMicrophone
@@ -204,9 +225,9 @@ public struct RoleplayVoiceCallView: View {
         case .speaking(let text):
             return text
         case .listening(let transcript):
-            return transcript.isEmpty ? "..." : transcript
+            return transcript.isEmpty ? AppStrings.AIAssistant.stateListeningText : transcript
         case .thinking:
-            return "..."
+            return AppStrings.AIAssistant.stateThinkingText
         case .idle, .ended:
             return ""
         }

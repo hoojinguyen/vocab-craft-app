@@ -35,16 +35,21 @@ struct TurnBasedVoiceConversationEngineTests {
             ttsService: mockTTS,
             speechService: mockSpeech,
             executeTurnUseCase: executeUseCase,
-            completeSessionUseCase: completeUseCase,
-            speechDelaySeconds: 0.05,
-            silenceDelaySeconds: 0.05
+            completeSessionUseCase: completeUseCase
         )
+
+        var capturedStateDuringSpeech: VoiceCallState?
+        mockTTS.onSpeakAsync = { _, _, _ in
+            capturedStateDuringSpeech = engine.state
+        }
 
         #expect(engine.state == .idle)
         await engine.startCall()
         #expect(engine.messages.count == 1)
-        #expect(engine.state == .speaking(characterText: scenario.initialGreeting))
+        #expect(capturedStateDuringSpeech == .speaking(characterText: scenario.initialGreeting))
         #expect(mockTTS.lastSpokenText == scenario.initialGreeting)
+        #expect(engine.state == .listening(liveTranscript: ""))
+        #expect(mockSpeech.isListening)
     }
 
     @Test("Engine transitions from speaking to listening after speech delay")
@@ -62,24 +67,16 @@ struct TurnBasedVoiceConversationEngineTests {
             ttsService: mockTTS,
             speechService: mockSpeech,
             executeTurnUseCase: executeUseCase,
-            completeSessionUseCase: completeUseCase,
-            speechDelaySeconds: 0.02,
-            silenceDelaySeconds: 0.02
+            completeSessionUseCase: completeUseCase
         )
 
-        await engine.startCall()
-        #expect(engine.state == .speaking(characterText: scenario.initialGreeting))
-
-        // Wait for speech delay task to fire with resilient polling
-        var didTransition = false
-        for _ in 0..<40 {
-            if case .listening = engine.state, mockSpeech.isListening {
-                didTransition = true
-                break
-            }
-            try? await Task.sleep(for: .milliseconds(25))
+        var stateWhileSpeaking: VoiceCallState?
+        mockTTS.onSpeakAsync = { _, _, _ in
+            stateWhileSpeaking = engine.state
         }
-        #expect(didTransition)
+
+        await engine.startCall()
+        #expect(stateWhileSpeaking == .speaking(characterText: scenario.initialGreeting))
         #expect(engine.state == .listening(liveTranscript: ""))
         #expect(mockSpeech.isListening)
     }
@@ -99,16 +96,13 @@ struct TurnBasedVoiceConversationEngineTests {
             ttsService: mockTTS,
             speechService: mockSpeech,
             executeTurnUseCase: executeUseCase,
-            completeSessionUseCase: completeUseCase,
-            speechDelaySeconds: 1.0,
-            silenceDelaySeconds: 1.0
+            completeSessionUseCase: completeUseCase
         )
 
         engine.startListening()
         #expect(engine.state == .listening(liveTranscript: ""))
 
         mockSpeech.simulateResult("I would like an")
-        // Yield to allow @MainActor Task to execute
         await Task.yield()
         #expect(engine.state == .listening(liveTranscript: "I would like an"))
     }
@@ -134,10 +128,13 @@ struct TurnBasedVoiceConversationEngineTests {
             ttsService: mockTTS,
             speechService: mockSpeech,
             executeTurnUseCase: executeUseCase,
-            completeSessionUseCase: completeUseCase,
-            speechDelaySeconds: 1.0,
-            silenceDelaySeconds: 1.0
+            completeSessionUseCase: completeUseCase
         )
+
+        var stateDuringReply: VoiceCallState?
+        mockTTS.onSpeakAsync = { _, _, _ in
+            stateDuringReply = engine.state
+        }
 
         engine.startListening()
         mockSpeech.simulateResult("Can I get an espresso?")
@@ -151,8 +148,9 @@ struct TurnBasedVoiceConversationEngineTests {
         #expect(engine.messages[0].text == "Can I get an espresso?")
         #expect(engine.messages[1].text == "One hot espresso coming right up!")
         #expect(engine.messages[1].refinementSuggestion == "You could say: 'May I please have an espresso?'")
-        #expect(engine.state == .speaking(characterText: "One hot espresso coming right up!"))
+        #expect(stateDuringReply == .speaking(characterText: "One hot espresso coming right up!"))
         #expect(mockTTS.lastSpokenText == "One hot espresso coming right up!")
+        #expect(engine.state == .listening(liveTranscript: ""))
     }
 
     @Test("Toggle mute stops and resumes speech listening")
@@ -230,7 +228,6 @@ struct TurnBasedVoiceConversationEngineTests {
         )
 
         await engine.startCall()
-        engine.startListening()
         #expect(mockSpeech.isListening)
 
         let summary = await engine.endCall()
@@ -288,11 +285,9 @@ struct TurnBasedVoiceConversationEngineTests {
         )
 
         engine.startListening()
-        // Simulate user ending call before utterance completes or while thinking
         _ = await engine.endCall()
         #expect(engine.state == .ended)
 
-        // Process utterance now should be a no-op because state != .thinking after endCall
         await engine.processUserUtterance("Belated speech")
 
         #expect(engine.state == .ended)

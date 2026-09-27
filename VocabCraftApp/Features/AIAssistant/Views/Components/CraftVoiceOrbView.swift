@@ -7,53 +7,52 @@ public struct CraftVoiceOrbView: View {
     public let state: VoiceCallState
     @Environment(\.craftTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var isBreathing = false
 
     public init(state: VoiceCallState) {
         self.state = state
     }
 
     public var body: some View {
-        ZStack {
-            // Background ambient outer glow
-            Circle()
-                .fill(orbColor.opacity(0.18))
-                .frame(width: 220, height: 220)
-                .scaleEffect(scaleForState)
-                .blur(radius: 20)
+        PhaseAnimator([false, true], trigger: state) { isExpanded in
+            ZStack {
+                // Background ambient outer glow
+                Circle()
+                    .fill(orbColor.opacity(0.18))
+                    .frame(width: 220, height: 220)
+                    .scaleEffect(outerGlowScale(isExpanded: isExpanded))
+                    .blur(radius: 20)
 
-            // Middle soundwave ring
-            Circle()
-                .stroke(orbColor.opacity(0.35), lineWidth: 2)
-                .frame(width: 170, height: 170)
-                .scaleEffect(reduceMotion ? 1.0 : (isBreathing ? 1.08 : 0.94))
+                // Middle soundwave ring
+                Circle()
+                    .stroke(orbColor.opacity(0.35), lineWidth: 2)
+                    .frame(width: 170, height: 170)
+                    .scaleEffect(reduceMotion ? 1.0 : (isExpanded ? 1.08 : 0.94))
 
-            // Inner core liquid glass orb
-            Circle()
-                .fill(
-                    RadialGradient(
-                        colors: [orbColor, orbColor.opacity(0.65), theme.colors.surfaceCard],
-                        center: .center,
-                        startRadius: 10,
-                        endRadius: 70
+                // Inner core liquid glass orb
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [orbColor, orbColor.opacity(0.65), theme.colors.surfaceCard],
+                            center: .center,
+                            startRadius: 10,
+                            endRadius: 70
+                        )
                     )
-                )
-                .frame(width: 130, height: 130)
-                .shadow(color: orbColor.opacity(0.4), radius: 15, x: 0, y: 0)
-                .overlay {
-                    stateIcon
-                        .font(.system(size: 38, weight: .semibold))
-                        .foregroundStyle(theme.colors.textInverse)
-                }
+                    .frame(width: 130, height: 130)
+                    .shadow(color: orbColor.opacity(0.4), radius: 15, x: 0, y: 0)
+                    .overlay {
+                        CraftIcon(
+                            stateSymbol,
+                            size: .lg,
+                            color: theme.colors.textInverse
+                        )
+                    }
+            }
+        } animation: { _ in
+            animationForState
         }
         .accessibilityHidden(true)
-        .animation(.easeInOut(duration: animationDuration).repeatForever(autoreverses: true), value: isBreathing)
         .animation(.easeInOut(duration: 0.35), value: state)
-        .onAppear {
-            if !reduceMotion {
-                isBreathing = true
-            }
-        }
     }
 
     private var orbColor: Color {
@@ -71,42 +70,45 @@ public struct CraftVoiceOrbView: View {
         }
     }
 
-    private var scaleForState: CGFloat {
+    private func outerGlowScale(isExpanded: Bool) -> CGFloat {
         if reduceMotion { return 1.0 }
         switch state {
         case .speaking:
-            return isBreathing ? 1.15 : 0.98
+            return isExpanded ? 1.15 : 0.98
         case .listening:
-            return isBreathing ? 1.25 : 1.02
+            return isExpanded ? 1.25 : 1.02
         case .thinking:
-            return isBreathing ? 1.05 : 0.95
+            return isExpanded ? 1.05 : 0.95
         case .idle, .ended:
             return 1.0
         }
     }
 
-    private var animationDuration: Double {
+    private var animationForState: Animation {
         switch state {
-        case .speaking: return 0.7
-        case .listening: return 0.5
-        case .thinking: return 1.2
-        case .idle, .ended: return 1.5
+        case .speaking:
+            return .easeInOut(duration: 0.7).repeatForever(autoreverses: true)
+        case .listening:
+            return .easeInOut(duration: 0.5).repeatForever(autoreverses: true)
+        case .thinking:
+            return .easeInOut(duration: 1.2).repeatForever(autoreverses: true)
+        case .idle, .ended:
+            return .easeInOut(duration: 1.5).repeatForever(autoreverses: true)
         }
     }
 
-    @ViewBuilder
-    private var stateIcon: some View {
+    private var stateSymbol: CraftSymbol {
         switch state {
         case .idle:
-            Image(systemName: "phone.fill")
+            return .phone
         case .speaking:
-            Image(systemName: "waveform")
+            return .waveform
         case .listening:
-            Image(systemName: "mic.fill")
+            return .mic
         case .thinking:
-            Image(systemName: "sparkles")
+            return .sparkles
         case .ended:
-            Image(systemName: "phone.down.fill")
+            return .phoneDown
         }
     }
 }

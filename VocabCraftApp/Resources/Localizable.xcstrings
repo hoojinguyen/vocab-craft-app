@@ -987,6 +987,23 @@
         }
       }
     },
+    "app.ai_assistant.call.finish_turn" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap when finished speaking"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chạm khi nói xong"
+          }
+        }
+      }
+    },
     "app.database.error.backup_failed" : {
       "extractionState" : "manual",
       "localizations" : {

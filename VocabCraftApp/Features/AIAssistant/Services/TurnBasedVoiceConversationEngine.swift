@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import SpeechKit
 
 /// Orchestrates turn-based voice conversations between the user and an AI roleplay character,
 /// coordinating TTS, speech recognition, silence detection, and LLM turn execution.
@@ -17,11 +18,10 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
     private let speechService: SpeechRecognitionProtocol
     private let executeTurnUseCase: ExecuteRoleplayTurnUseCase
     private let completeSessionUseCase: CompleteRoleplaySessionUseCase
-    private let speechDelaySeconds: Double
     private let silenceDelaySeconds: Double
 
-    private var silenceTask: Task<Void, Never>?
-    private var speechTask: Task<Void, Never>?
+    private var silenceDetector: SilenceDetector?
+    private var activeSpeechTask: Task<Void, Never>?
 
     public init(
         scenario: RoleplayScenario,
@@ -29,7 +29,6 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
         speechService: SpeechRecognitionProtocol,
         executeTurnUseCase: ExecuteRoleplayTurnUseCase,
         completeSessionUseCase: CompleteRoleplaySessionUseCase,
-        speechDelaySeconds: Double = 2.5,
         silenceDelaySeconds: Double = 1.5
     ) {
         self.scenario = scenario
@@ -37,8 +36,27 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
         self.speechService = speechService
         self.executeTurnUseCase = executeTurnUseCase
         self.completeSessionUseCase = completeSessionUseCase
-        self.speechDelaySeconds = speechDelaySeconds
         self.silenceDelaySeconds = silenceDelaySeconds
+    }
+
+    /// Convenience initializer maintaining compatibility for callers passing speechDelaySeconds.
+    public convenience init(
+        scenario: RoleplayScenario,
+        ttsService: TextToSpeechProtocol,
+        speechService: SpeechRecognitionProtocol,
+        executeTurnUseCase: ExecuteRoleplayTurnUseCase,
+        completeSessionUseCase: CompleteRoleplaySessionUseCase,
+        speechDelaySeconds: Double,
+        silenceDelaySeconds: Double = 1.5
+    ) {
+        self.init(
+            scenario: scenario,
+            ttsService: ttsService,
+            speechService: speechService,
+            executeTurnUseCase: executeTurnUseCase,
+            completeSessionUseCase: completeSessionUseCase,
+            silenceDelaySeconds: silenceDelaySeconds
+        )
     }
 
     public func startCall() async {
@@ -50,17 +68,41 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
             timestamp: Date()
         )
         messages.append(initialMessage)
-        state = .speaking(characterText: greeting)
+        await playCharacterSpeech(greeting)
+    }
 
-        ttsService.speak(text: greeting)
-        scheduleSpeechFinishedTransition()
+    public func playCharacterSpeech(_ text: String) async {
+        guard state != .ended else { return }
+        silenceDetector?.cancel()
+        state = .speaking(characterText: text)
+
+        await ttsService.speakAsync(text: text)
+
+        guard state != .ended else { return }
+        if case .speaking = state {
+            startListening()
+        }
     }
 
     public func startListening() {
         guard !isMuted else { return }
-        speechTask?.cancel()
-        speechTask = nil
         state = .listening(liveTranscript: "")
+
+        silenceDetector?.cancel()
+        silenceDetector = SilenceDetector(
+            initialSilenceDuration: .seconds(10),
+            trailingSilenceDuration: .milliseconds(Int(silenceDelaySeconds * 1000)),
+            onSilence: { [weak self] in
+                Task { @MainActor [weak self] in
+                    guard let self, case .listening(let transcript) = self.state else { return }
+                    if !transcript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        await self.processUserUtterance(transcript)
+                    }
+                }
+            }
+        )
+        silenceDetector?.arm()
+
         speechService.startListening(
             onResult: { [weak self] transcript in
                 Task { @MainActor [weak self] in
@@ -70,7 +112,13 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
             },
             onError: { [weak self] _ in
                 Task { @MainActor [weak self] in
-                    self?.finishUserTurnManually()
+                    guard let self else { return }
+                    if case .listening(let transcript) = self.state,
+                       !transcript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        await self.processUserUtterance(transcript)
+                    } else {
+                        self.silenceDetector?.cancel()
+                    }
                 }
             }
         )
@@ -78,20 +126,13 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
 
     private func handleTranscriptUpdate(_ transcript: String) {
         state = .listening(liveTranscript: transcript)
-        silenceTask?.cancel()
-        silenceTask = Task { @MainActor [weak self] in
-            guard let self else { return }
-            try? await Task.sleep(for: .seconds(self.silenceDelaySeconds))
-            guard !Task.isCancelled else { return }
-            if !transcript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                await self.processUserUtterance(transcript)
-            }
+        if !transcript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            silenceDetector?.registerActivity()
         }
     }
 
     public func finishUserTurnManually() {
-        silenceTask?.cancel()
-        silenceTask = nil
+        silenceDetector?.cancel()
         if case .listening(let transcript) = state, !transcript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             Task { @MainActor [weak self] in
                 await self?.processUserUtterance(transcript)
@@ -102,8 +143,7 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
     public func processUserUtterance(_ utterance: String) async {
         guard state != .ended else { return }
         speechService.stopListening()
-        silenceTask?.cancel()
-        silenceTask = nil
+        silenceDetector?.cancel()
         state = .thinking
 
         let userMessage = RoleplayMessage(
@@ -132,24 +172,10 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
             )
             messages.append(aiMessage)
 
-            state = .speaking(characterText: output.characterReply)
-            ttsService.speak(text: output.characterReply)
-            scheduleSpeechFinishedTransition()
+            await playCharacterSpeech(output.characterReply)
         } catch {
             guard state == .thinking else { return }
             startListening()
-        }
-    }
-
-    private func scheduleSpeechFinishedTransition() {
-        speechTask?.cancel()
-        speechTask = Task { @MainActor [weak self] in
-            guard let self else { return }
-            try? await Task.sleep(for: .seconds(self.speechDelaySeconds))
-            guard !Task.isCancelled else { return }
-            if case .speaking = self.state {
-                self.startListening()
-            }
         }
     }
 
@@ -157,8 +183,7 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
         isMuted.toggle()
         if isMuted {
             speechService.stopListening()
-            silenceTask?.cancel()
-            silenceTask = nil
+            silenceDetector?.cancel()
         } else if case .listening = state {
             startListening()
         }
@@ -169,15 +194,15 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
     }
 
     public func endCall() async -> RoleplaySessionSummary {
-        speechTask?.cancel()
-        speechTask = nil
-        silenceTask?.cancel()
-        silenceTask = nil
+        activeSpeechTask?.cancel()
+        activeSpeechTask = nil
+        silenceDetector?.cancel()
+        silenceDetector = nil
         speechService.stopListening()
         ttsService.stop()
         state = .ended
 
-        return completeSessionUseCase.execute(
+        return await completeSessionUseCase.execute(
             scenario: scenario,
             messages: messages,
             masteredWords: masteredTargetWords

@@ -1241,7 +1241,6 @@
 							2000A1A10000000000000008 /* FetchRoleplayScenariosUseCase.swift */,
 				2000A1A10000000000000009 /* ExecuteRoleplayTurnUseCase.swift */,
 				2000A1A10000000000000010 /* CompleteRoleplaySessionUseCase.swift */,
-				2000A1A10000000000000022 /* TurnBasedVoiceConversationEngine.swift */,
 			);
 			path = UseCases;
 			sourceTree = "<group>";
@@ -1298,11 +1297,20 @@
 			path = Lesson;
 			sourceTree = "<group>";
 		};
+		4000A1A1SERV000000000001 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				2000A1A10000000000000022 /* TurnBasedVoiceConversationEngine.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
 		40009832B6EBBEFE8B72 /* AIAssistant */ = {
 			isa = PBXGroup;
 			children = (
 				400077F7E07D3729FF5D /* Views */,
-							4000A1A1VMOD000000000001 /* ViewModels */,
+				4000A1A1VMOD000000000001 /* ViewModels */,
+				4000A1A1SERV000000000001 /* Services */,
 			);
 			path = AIAssistant;
 			sourceTree = "<group>";

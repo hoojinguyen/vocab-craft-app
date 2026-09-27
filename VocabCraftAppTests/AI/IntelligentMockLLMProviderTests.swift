@@ -66,6 +66,27 @@ struct IntelligentMockLLMProviderTests {
         #expect(output.refinementSuggestion?.contains("STAR") == true)
     }
 
+    @Test("Advances job interview scenario on second turn")
+    func interviewScenarioSecondTurn() async throws {
+        let provider = IntelligentMockLLMProvider()
+        let messages = [
+            LLMChatMessage(role: .user, content: "In my previous experience, I led cross-functional team collaboration."),
+            LLMChatMessage(role: .model, content: "Thank you for sharing that. Could you tell me about a time you handled a tight deadline or challenge?"),
+            LLMChatMessage(role: .user, content: "Under tight deadline pressure, I demonstrated clear leadership.")
+        ]
+
+        let output = try await provider.sendStructuredMessage(
+            messages: messages,
+            systemPrompt: "You are the hiring manager.",
+            responseSchema: RoleplayTurnOutput.self
+        )
+
+        #expect(output.targetWordsUsed.contains("deadline"))
+        #expect(output.targetWordsUsed.contains("leadership"))
+        #expect(output.characterReply.contains("questions for us"))
+        #expect(output.refinementSuggestion != nil)
+    }
+
     @Test("Handles hotel check-in scenario turn")
     func hotelScenarioTurn() async throws {
         let provider = IntelligentMockLLMProvider()
@@ -82,6 +103,27 @@ struct IntelligentMockLLMProviderTests {
         #expect(output.targetWordsUsed.contains("reservation"))
         #expect(output.targetWordsUsed.contains("passport"))
         #expect(!output.characterReply.isEmpty)
+        #expect(output.refinementSuggestion != nil)
+    }
+
+    @Test("Advances hotel check-in scenario on second turn")
+    func hotelScenarioSecondTurn() async throws {
+        let provider = IntelligentMockLLMProvider()
+        let messages = [
+            LLMChatMessage(role: .user, content: "Hello, I have a hotel reservation and here is my passport."),
+            LLMChatMessage(role: .model, content: "I found your reservation right here. May I have your passport or ID card, please?"),
+            LLMChatMessage(role: .user, content: "What amenities and complimentary services are included?")
+        ]
+
+        let output = try await provider.sendStructuredMessage(
+            messages: messages,
+            systemPrompt: "You are the hotel concierge.",
+            responseSchema: RoleplayTurnOutput.self
+        )
+
+        #expect(output.targetWordsUsed.contains("amenities"))
+        #expect(output.targetWordsUsed.contains("complimentary"))
+        #expect(output.characterReply.contains("keycard"))
         #expect(output.refinementSuggestion != nil)
     }
 
