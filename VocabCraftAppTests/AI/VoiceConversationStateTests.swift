@@ -66,4 +66,34 @@ struct VoiceConversationStateTests {
             _ = orb.body
         }
     }
+
+    @Test("Verify OrbVisualState discrete mapping and stability during transcript mutation")
+    func orbVisualStateMappingAndStability() {
+        // Discrete mapping
+        #expect(VoiceCallState.idle.visualState == .idle)
+        #expect(VoiceCallState.speaking(characterText: "Hello").visualState == .speaking)
+        #expect(VoiceCallState.listening(liveTranscript: "").visualState == .listening)
+        #expect(VoiceCallState.thinking.visualState == .thinking)
+        #expect(VoiceCallState.ended.visualState == .ended)
+
+        // Stability during live transcript updates (decoupling from animation jitter)
+        let listeningEmpty = VoiceCallState.listening(liveTranscript: "")
+        let listeningWord1 = VoiceCallState.listening(liveTranscript: "I")
+        let listeningWord2 = VoiceCallState.listening(liveTranscript: "I would")
+        let listeningSentence = VoiceCallState.listening(liveTranscript: "I would like a cappuccino please")
+
+        #expect(listeningEmpty != listeningWord1)
+        #expect(listeningWord1 != listeningWord2)
+        #expect(listeningEmpty.visualState == listeningWord1.visualState)
+        #expect(listeningWord1.visualState == listeningWord2.visualState)
+        #expect(listeningWord2.visualState == listeningSentence.visualState)
+        #expect(listeningSentence.visualState == .listening)
+
+        // Stability during speaking text updates
+        let speakingShort = VoiceCallState.speaking(characterText: "Hi")
+        let speakingLong = VoiceCallState.speaking(characterText: "Hi, what kind of coffee would you like today?")
+        #expect(speakingShort != speakingLong)
+        #expect(speakingShort.visualState == speakingLong.visualState)
+        #expect(speakingLong.visualState == .speaking)
+    }
 }
