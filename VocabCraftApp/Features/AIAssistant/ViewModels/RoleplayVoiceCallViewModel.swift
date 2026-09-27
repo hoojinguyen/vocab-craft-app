@@ -8,10 +8,13 @@ import Observation
 public final class RoleplayVoiceCallViewModel {
     public let engine: VoiceConversationEngineProtocol
     public var sessionSummary: RoleplaySessionSummary?
+    public private(set) var isCallCancelled: Bool = false
+    private let callStartTime: Date
     private var previousMasteredCount: Int = 0
 
-    public init(engine: VoiceConversationEngineProtocol) {
+    public init(engine: VoiceConversationEngineProtocol, callStartTime: Date = Date()) {
         self.engine = engine
+        self.callStartTime = callStartTime
         self.previousMasteredCount = engine.masteredTargetWords.count
     }
 
@@ -39,7 +42,14 @@ public final class RoleplayVoiceCallViewModel {
 
     public func endCall() async {
         let summary = await engine.endCall()
-        self.sessionSummary = summary
+        let elapsed = Date().timeIntervalSince(callStartTime)
+        if elapsed < 3.0 && summary.totalTurns == 0 {
+            // Accidental quick dismissal
+            self.sessionSummary = nil
+            self.isCallCancelled = true
+        } else {
+            self.sessionSummary = summary
+        }
     }
 
     public func checkForNewTargetWordMastered() {

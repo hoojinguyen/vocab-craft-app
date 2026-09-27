@@ -283,7 +283,8 @@ public final class AppContainer {
     public func makeCompleteRoleplaySessionUseCase() -> CompleteRoleplaySessionUseCase {
         CompleteRoleplaySessionUseCase(
             userSettingsStore: userSettingsStore,
-            userProgressRepository: userProgressRepository
+            userProgressRepository: userProgressRepository,
+            vocabularyDataSource: vocabularyDataSource
         )
     }
 

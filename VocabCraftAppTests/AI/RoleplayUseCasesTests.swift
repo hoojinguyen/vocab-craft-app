@@ -211,4 +211,47 @@ struct RoleplayUseCasesTests {
         #expect(summary.fluencyScore == 60)
         #expect(summary.xpEarned == 10)
     }
+
+    @Test("CompleteRoleplaySessionUseCase persists mastered words to UserProgressRepository")
+    func testCompleteRoleplaySessionPersistsMasteredWords() async throws {
+        let mockProgressRepo = MockUserProgressRepository()
+        let mockVocabSource = MockVocabularyDataSource()
+        let useCase = CompleteRoleplaySessionUseCase(
+            userSettingsStore: nil,
+            userProgressRepository: mockProgressRepo,
+            vocabularyDataSource: mockVocabSource
+        )
+
+        let scenario = RoleplayScenario(
+            id: "cafe-order",
+            titleKey: "title",
+            descriptionKey: "desc",
+            topic: .dining,
+            difficulty: .beginner,
+            characterName: "Barista",
+            characterRole: "Barista",
+            userRole: "Customer",
+            initialGreeting: "Hi!",
+            targetWordIds: ["resilience", "spontaneous"],
+            iconSymbol: "cup.and.saucer"
+        )
+
+        let messages = [
+            RoleplayMessage(sender: .character(name: "Barista"), text: "Hi!"),
+            RoleplayMessage(sender: .user, text: "I have great resilience.")
+        ]
+
+        let summary = await useCase.execute(
+            scenario: scenario,
+            messages: messages,
+            masteredWords: ["Resilience"]
+        )
+
+        #expect(summary.targetWordsMastered == ["Resilience"])
+        #expect(mockProgressRepo.recordChallengeCallCount == 1)
+        let progress = try await mockProgressRepo.getProgress(wordId: 1)
+        #expect(progress != nil)
+        #expect(progress?.masteryLevel == 1)
+        #expect(progress?.sourceDeckId == "cafe-order")
+    }
 }

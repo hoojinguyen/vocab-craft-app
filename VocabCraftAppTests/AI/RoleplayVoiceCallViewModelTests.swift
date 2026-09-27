@@ -172,6 +172,80 @@ struct RoleplayVoiceCallViewModelTests {
         vm.checkForNewTargetWordMastered()
         #expect(vm.masteredTargetWords.count == 2)
     }
+
+    @Test("endCall treats call lasting < 3.0s with 0 turns as accidental call")
+    @MainActor
+    func endCallAccidentalDismissalGuard() async {
+        let scenario = makeTestScenario()
+        let zeroTurnSummary = RoleplaySessionSummary(
+            scenarioId: scenario.id,
+            totalTurns: 0,
+            targetWordsAttempted: scenario.targetWordIds,
+            targetWordsMastered: [],
+            fluencyScore: 60,
+            xpEarned: 10,
+            refinements: []
+        )
+        let engine = MockVoiceConversationEngine(scenario: scenario, mockSummary: zeroTurnSummary)
+        let vm = RoleplayVoiceCallViewModel(engine: engine, callStartTime: Date())
+
+        #expect(vm.isCallCancelled == false)
+        #expect(vm.sessionSummary == nil)
+
+        await vm.endCall()
+
+        #expect(engine.endCallInvoked == true)
+        #expect(vm.isCallCancelled == true)
+        #expect(vm.sessionSummary == nil)
+    }
+
+    @Test("endCall preserves summary if call lasted > 3s even with 0 turns")
+    @MainActor
+    func endCallPreservesSummaryWhenDurationExceedsThreshold() async {
+        let scenario = makeTestScenario()
+        let zeroTurnSummary = RoleplaySessionSummary(
+            scenarioId: scenario.id,
+            totalTurns: 0,
+            targetWordsAttempted: scenario.targetWordIds,
+            targetWordsMastered: [],
+            fluencyScore: 60,
+            xpEarned: 10,
+            refinements: []
+        )
+        let engine = MockVoiceConversationEngine(scenario: scenario, mockSummary: zeroTurnSummary)
+        let vm = RoleplayVoiceCallViewModel(engine: engine, callStartTime: Date().addingTimeInterval(-4.0))
+
+        await vm.endCall()
+
+        #expect(engine.endCallInvoked == true)
+        #expect(vm.isCallCancelled == false)
+        #expect(vm.sessionSummary != nil)
+        #expect(vm.sessionSummary?.totalTurns == 0)
+    }
+
+    @Test("endCall preserves summary if call lasted < 3s but turns > 0")
+    @MainActor
+    func endCallPreservesSummaryWhenTurnsGreaterThanZero() async {
+        let scenario = makeTestScenario()
+        let turnSummary = RoleplaySessionSummary(
+            scenarioId: scenario.id,
+            totalTurns: 1,
+            targetWordsAttempted: scenario.targetWordIds,
+            targetWordsMastered: ["espresso"],
+            fluencyScore: 70,
+            xpEarned: 25,
+            refinements: []
+        )
+        let engine = MockVoiceConversationEngine(scenario: scenario, mockSummary: turnSummary)
+        let vm = RoleplayVoiceCallViewModel(engine: engine, callStartTime: Date())
+
+        await vm.endCall()
+
+        #expect(engine.endCallInvoked == true)
+        #expect(vm.isCallCancelled == false)
+        #expect(vm.sessionSummary != nil)
+        #expect(vm.sessionSummary?.totalTurns == 1)
+    }
 }
 
 // MARK: - Test Mock
