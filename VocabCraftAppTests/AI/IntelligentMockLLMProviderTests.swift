@@ -165,4 +165,65 @@ struct IntelligentMockLLMProviderTests {
             )
         }
     }
+
+    @Test("Detects dynamic catalog target words for Cafe scenario")
+    func detectsCatalogCafeWords() async throws {
+        let provider = IntelligentMockLLMProvider()
+        let messages = [
+            LLMChatMessage(role: .user, content: "Could I please order a hot beverage and a fresh pastry?")
+        ]
+        let systemPrompt = "You are Emma, a Barista. Target vocabulary for the user: beverage, pastry, complimentary."
+        let output: RoleplayTurnOutput = try await provider.sendStructuredMessage(
+            messages: messages,
+            systemPrompt: systemPrompt,
+            responseSchema: RoleplayTurnOutput.self
+        )
+        #expect(output.targetWordsUsed.contains("beverage"))
+        #expect(output.targetWordsUsed.contains("pastry"))
+    }
+
+    @Test("Detects dynamic catalog target words for Hotel scenario")
+    func detectsCatalogHotelWords() async throws {
+        let provider = IntelligentMockLLMProvider()
+        let messages = [
+            LLMChatMessage(role: .user, content: "We need to accommodate the reservation.")
+        ]
+        let systemPrompt = "You are David, Front Desk Concierge. Target vocabulary for the user: reservation, amenities, accommodate."
+        let output: RoleplayTurnOutput = try await provider.sendStructuredMessage(
+            messages: messages,
+            systemPrompt: systemPrompt,
+            responseSchema: RoleplayTurnOutput.self
+        )
+        #expect(output.targetWordsUsed.contains("accommodate"))
+        #expect(output.targetWordsUsed.contains("reservation"))
+    }
+
+    @Test("Detects dynamic catalog target words for Interview scenario")
+    func detectsCatalogInterviewWords() async throws {
+        let provider = IntelligentMockLLMProvider()
+        let messages = [
+            LLMChatMessage(role: .user, content: "I took the initiative to build an innovative solution and collaborate with peers.")
+        ]
+        let systemPrompt = "You are Ms. Jenkins, Lead Hiring Manager. Target vocabulary for the user: collaborate, innovative, initiative."
+        let output: RoleplayTurnOutput = try await provider.sendStructuredMessage(
+            messages: messages,
+            systemPrompt: systemPrompt,
+            responseSchema: RoleplayTurnOutput.self
+        )
+        #expect(output.targetWordsUsed.contains("initiative"))
+        #expect(output.targetWordsUsed.contains("innovative"))
+        #expect(output.targetWordsUsed.contains("collaborate"))
+    }
+
+    @Test("Directly extracts target words with dynamic expected words")
+    func extractTargetWordsWithExpectedWords() {
+        let provider = IntelligentMockLLMProvider()
+        let extracted = provider.extractTargetWords(
+            from: "I want a beverage and some gelato",
+            expectedWords: ["gelato", "pastry"]
+        )
+        #expect(extracted.contains("beverage"))
+        #expect(extracted.contains("gelato"))
+        #expect(!extracted.contains("pastry"))
+    }
 }
