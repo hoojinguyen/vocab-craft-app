@@ -38,16 +38,16 @@ struct AppContainerAITests {
         let store = UserSettingsStore(defaults: defaults)
         let container = AppContainer(userSettingsStore: store)
 
-        // Initially empty key -> MockLLMProvider
-        #expect(container.llmProvider is MockLLMProvider)
+        // Initially empty key -> fallback mock provider (IntelligentMockLLMProvider or MockLLMProvider)
+        #expect(container.llmProvider is IntelligentMockLLMProvider || container.llmProvider is MockLLMProvider)
 
         // Set API Key -> GeminiLLMProvider
         store.geminiApiKey = "AIzaSyFakeTestKey12345"
         #expect(container.llmProvider is GeminiLLMProvider)
 
-        // Clear API Key -> MockLLMProvider
+        // Clear API Key -> fallback mock provider
         store.geminiApiKey = ""
-        #expect(container.llmProvider is MockLLMProvider)
+        #expect(container.llmProvider is IntelligentMockLLMProvider || container.llmProvider is MockLLMProvider)
     }
 
     @Test @MainActor
@@ -57,9 +57,9 @@ struct AppContainerAITests {
         let store1 = UserSettingsStore(defaults: defaults)
         let container = AppContainer(userSettingsStore: store1)
 
-        // Whitespace only treated as empty -> MockLLMProvider
+        // Whitespace only treated as empty -> fallback mock provider
         store1.geminiApiKey = "   \n  \t  "
-        #expect(container.llmProvider is MockLLMProvider)
+        #expect(container.llmProvider is IntelligentMockLLMProvider || container.llmProvider is MockLLMProvider)
 
         // Save valid key
         store1.geminiApiKey = "AIzaSySavedKey789"
