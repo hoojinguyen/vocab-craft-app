@@ -44,6 +44,11 @@ public struct RoleplayVoiceCallView: View {
         .onChange(of: viewModel.masteredTargetWords.count) { _, _ in
             viewModel.checkForNewTargetWordMastered()
         }
+        .onChange(of: viewModel.isCallCancelled) { _, isCancelled in
+            if isCancelled {
+                onDismiss()
+            }
+        }
         #if os(iOS)
         .fullScreenCover(item: $viewModel.sessionSummary) { summary in
             RoleplaySummaryView(summary: summary) {
@@ -144,53 +149,70 @@ public struct RoleplayVoiceCallView: View {
 
     private var bottomControlsStage: some View {
         VStack(spacing: theme.spacing.md) {
-            if viewModel.isSubtitlesVisible {
+            if viewModel.isSubtitlesVisible && viewModel.state != .idle && viewModel.state != .ended {
                 subtitlesCard
+                    .transition(.opacity)
             }
 
-            // Tap when finished speaking (hands-free manual override)
-            if case .listening = viewModel.state {
-                CraftButton(
-                    AppStrings.AIAssistant.finishTurn,
-                    variant: .secondary,
-                    size: .sm
-                ) {
-                    viewModel.finishSpeaking()
+            // Fixed height container for manual turn button / error banner
+            ZStack {
+                if viewModel.engine.audioErrorMessage != nil {
+                    HStack(spacing: theme.spacing.xs) {
+                        CraftIcon(.sparkles, size: .sm, color: theme.colors.statusDanger)
+                        Text(AppStrings.AIAssistant.retry)
+                            .font(theme.typography.caption)
+                            .foregroundStyle(theme.colors.statusDanger)
+                    }
+                    .accessibilityAddTraits(.isButton)
+                    .contentShape(Rectangle())
+                    .onTapGesture { viewModel.engine.retryListening() }
+                } else if case .listening = viewModel.state {
+                    CraftButton(
+                        AppStrings.AIAssistant.finishTurn,
+                        variant: .secondary,
+                        size: .sm
+                    ) {
+                        viewModel.finishSpeaking()
+                    }
                 }
-                .transition(.opacity.combined(with: .scale(scale: 0.95)))
+            }
+            .frame(height: 48) // Fixed height prevents jumping!
+
+            bottomActionButtons
+        }
+    }
+
+    private var bottomActionButtons: some View {
+        HStack(spacing: theme.spacing.lg) {
+            // Subtitles toggle
+            CraftIconButton(
+                symbol: .docText,
+                size: .lg,
+                variant: viewModel.isSubtitlesVisible ? .filled : .subtle,
+                accessibilityLabelKey: AppStrings.AIAssistant.toggleCaptions
+            ) {
+                viewModel.toggleSubtitles()
             }
 
-            HStack(spacing: theme.spacing.lg) {
-                // Subtitles toggle
-                CraftIconButton(
-                    symbol: .docText,
-                    size: .lg,
-                    variant: viewModel.isSubtitlesVisible ? .filled : .subtle,
-                    accessibilityLabelKey: AppStrings.AIAssistant.toggleCaptions
-                ) {
-                    viewModel.toggleSubtitles()
-                }
+            // Hang Up Button (Red)
+            CraftIconButton(
+                symbol: .phoneDown,
+                size: .xl,
+                shape: .circle,
+                variant: .danger,
+                accessibilityLabelKey: AppStrings.AIAssistant.endCall
+            ) {
+                Task { await viewModel.endCall() }
+            }
 
-                // Hang Up Button (Red)
-                CraftIconButton(
-                    symbol: .phoneDown,
-                    size: .xl,
-                    shape: .circle,
-                    variant: .danger,
-                    accessibilityLabelKey: AppStrings.AIAssistant.endCall
-                ) {
-                    Task { await viewModel.endCall() }
-                }
-
-                // Mute toggle
-                CraftIconButton(
-                    symbol: viewModel.isMuted ? .micSlash : .audio,
-                    size: .lg,
-                    variant: viewModel.isMuted ? .filled : .subtle,
-                    accessibilityLabelKey: viewModel.isMuted ? AppStrings.AIAssistant.unmuteMicrophone : AppStrings.AIAssistant.muteMicrophone
-                ) {
-                    viewModel.toggleMute()
-                }
+            // Mute toggle
+            CraftIconButton(
+                symbol: viewModel.isMuted ? .micSlash : .audio,
+                size: .lg,
+                variant: viewModel.isMuted ? .filled : .subtle,
+                accessibilityLabelKey: viewModel.isMuted ? AppStrings.AIAssistant.unmuteMicrophone : AppStrings.AIAssistant.muteMicrophone
+            ) {
+                viewModel.toggleMute()
             }
         }
     }
@@ -201,13 +223,73 @@ public struct RoleplayVoiceCallView: View {
             cornerRadius: theme.radii.lg,
             padding: theme.spacing.md
         ) {
-            Text(currentSubtitleText)
-                .font(theme.typography.bodyMedium)
-                .foregroundStyle(theme.colors.textPrimary)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity)
-                .lineLimit(3)
+            VStack(spacing: theme.spacing.xs) {
+                switch viewModel.state {
+                case .speaking(let text):
+                    Text(text)
+                        .font(theme.typography.bodyMedium)
+                        .foregroundStyle(theme.colors.textPrimary)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
+                        .lineLimit(4)
+
+                case .listening(let transcript):
+                    if let previousAI = lastAIMessageText, !previousAI.isEmpty {
+                        Text(previousAI)
+                            .font(theme.typography.caption)
+                            .foregroundStyle(theme.colors.textSecondary)
+                            .opacity(0.6)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity)
+                            .lineLimit(2)
+                    }
+
+                    if transcript.isEmpty {
+                        Text(AppStrings.AIAssistant.speakPrompt)
+                            .font(theme.typography.bodyMedium)
+                            .foregroundStyle(theme.colors.textMuted)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity)
+                            .lineLimit(2)
+                    } else {
+                        Text(transcript)
+                            .font(theme.typography.bodyMedium)
+                            .foregroundStyle(theme.colors.textPrimary)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity)
+                            .lineLimit(3)
+                    }
+
+                case .thinking:
+                    if let previousAI = lastAIMessageText, !previousAI.isEmpty {
+                        Text(previousAI)
+                            .font(theme.typography.caption)
+                            .foregroundStyle(theme.colors.textSecondary)
+                            .opacity(0.6)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity)
+                            .lineLimit(2)
+                    }
+
+                    Text(AppStrings.AIAssistant.stateThinking)
+                        .font(theme.typography.bodyMedium)
+                        .foregroundStyle(theme.colors.textSecondary)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
+                        .lineLimit(2)
+
+                case .idle, .ended:
+                    EmptyView()
+                }
+            }
         }
+    }
+
+    private var lastAIMessageText: String? {
+        viewModel.engine.messages.last(where: {
+            if case .character = $0.sender { return true }
+            return false
+        })?.text ?? viewModel.scenario.initialGreeting
     }
 
     private var stateDescription: LocalizedStringKey {
@@ -217,19 +299,6 @@ public struct RoleplayVoiceCallView: View {
         case .listening: return AppStrings.AIAssistant.stateListening
         case .thinking: return AppStrings.AIAssistant.stateThinking
         case .ended: return AppStrings.AIAssistant.stateEnded
-        }
-    }
-
-    private var currentSubtitleText: String {
-        switch viewModel.state {
-        case .speaking(let text):
-            return text
-        case .listening(let transcript):
-            return transcript.isEmpty ? AppStrings.AIAssistant.stateListeningText : transcript
-        case .thinking:
-            return AppStrings.AIAssistant.stateThinkingText
-        case .idle, .ended:
-            return ""
         }
     }
 }

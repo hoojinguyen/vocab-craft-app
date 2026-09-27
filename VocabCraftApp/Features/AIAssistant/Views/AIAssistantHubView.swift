@@ -1,3 +1,7 @@
+#if os(iOS)
+import AVFoundation
+import Speech
+#endif
 import CraftUIKit
 import SwiftUI
 
@@ -6,9 +10,11 @@ public struct AIAssistantHubView: View {
     @State private var activeScenario: RoleplayScenario?
     @State private var activeVoiceCallScenario: RoleplayScenario?
     @State private var showConfigSheet: Bool = false
+    @State private var showPermissionDeniedAlert: Bool = false
     private let customStore: UserSettingsStore?
     @Environment(\.appContainer) private var appContainer
     @Environment(\.craftTheme) private var theme
+    @Environment(\.openURL) private var openURL
 
     public init(viewModel: AIAssistantHubViewModel, store: UserSettingsStore? = nil) {
         self._viewModel = State(initialValue: viewModel)
@@ -94,6 +100,21 @@ public struct AIAssistantHubView: View {
             )
         }
         #endif
+        .alert(
+            AppStrings.AIAssistant.permissionTitle,
+            isPresented: $showPermissionDeniedAlert
+        ) {
+            #if os(iOS)
+            Button(AppStrings.AIAssistant.openSettings) {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    openURL(url)
+                }
+            }
+            #endif
+            Button(AppStrings.Common.cancel, role: .cancel) {}
+        } message: {
+            Text(AppStrings.AIAssistant.permissionMessage)
+        }
     }
 
     private var configNoticeBanner: some View {
@@ -167,7 +188,7 @@ public struct AIAssistantHubView: View {
                 HStack(spacing: theme.spacing.xs) {
                     ForEach(scenario.targetWordIds, id: \.self) { word in
                         CraftBadge(
-                            LocalizedStringKey(word),
+                            verbatim: word,
                             variant: .subtle,
                             tone: .neutral,
                             size: .sm
@@ -182,7 +203,7 @@ public struct AIAssistantHubView: View {
                         size: .md,
                         isFullWidth: true
                     ) {
-                        activeVoiceCallScenario = scenario
+                        startVoiceCall(for: scenario)
                     }
 
                     CraftButton(
@@ -285,7 +306,7 @@ public struct AIAssistantHubView: View {
                                 variant: .subtle,
                                 accessibilityLabelKey: AppStrings.AIAssistant.startVoiceCall
                             ) {
-                                activeVoiceCallScenario = scenario
+                                startVoiceCall(for: scenario)
                             }
 
                             CraftButton(
@@ -300,5 +321,46 @@ public struct AIAssistantHubView: View {
                 }
             }
         }
+    }
+
+    private func startVoiceCall(for scenario: RoleplayScenario) {
+        #if os(iOS)
+        #if targetEnvironment(simulator)
+        activeVoiceCallScenario = scenario
+        #else
+        let speechStatus = SFSpeechRecognizer.authorizationStatus()
+        let micPermission = AVAudioApplication.shared.recordPermission
+
+        if speechStatus == .denied || speechStatus == .restricted || micPermission == .denied {
+            showPermissionDeniedAlert = true
+            return
+        }
+
+        if speechStatus == .notDetermined || micPermission == .undetermined {
+            Task {
+                let speechGranted = await withCheckedContinuation { continuation in
+                    SFSpeechRecognizer.requestAuthorization { status in
+                        continuation.resume(returning: status == .authorized)
+                    }
+                }
+                guard speechGranted else {
+                    showPermissionDeniedAlert = true
+                    return
+                }
+                let micGranted = await AVAudioApplication.requestRecordPermission()
+                guard micGranted else {
+                    showPermissionDeniedAlert = true
+                    return
+                }
+                activeVoiceCallScenario = scenario
+            }
+            return
+        }
+
+        activeVoiceCallScenario = scenario
+        #endif
+        #else
+        activeVoiceCallScenario = scenario
+        #endif
     }
 }

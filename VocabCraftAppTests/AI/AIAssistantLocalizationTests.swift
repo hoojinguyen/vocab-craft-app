@@ -161,6 +161,26 @@ struct AIAssistantLocalizationTests {
         "app.ai_assistant.call.finish_turn": (
             vi: "Chạm khi nói xong",
             en: "Tap when finished speaking"
+        ),
+        "app.ai_assistant.call.open_settings": (
+            vi: "Mở Cài đặt",
+            en: "Open Settings"
+        ),
+        "app.ai_assistant.call.permission_message": (
+            vi: "VocabCraft cần quyền truy cập Micro để đàm thoại với AI.",
+            en: "VocabCraft needs microphone access for interactive voice roleplay."
+        ),
+        "app.ai_assistant.call.permission_title": (
+            vi: "Quyền Microphone & Nhận diện",
+            en: "Microphone & Speech Permission"
+        ),
+        "app.ai_assistant.call.retry": (
+            vi: "Thử lại",
+            en: "Retry"
+        ),
+        "app.ai_assistant.call.speak_prompt": (
+            vi: "Hãy nói vào micro...",
+            en: "Speak into the microphone..."
         )
     ]
 
@@ -200,7 +220,12 @@ struct AIAssistantLocalizationTests {
             AppStrings.AIAssistant.toggleCaptions,
             AppStrings.AIAssistant.muteMicrophone,
             AppStrings.AIAssistant.unmuteMicrophone,
-            AppStrings.AIAssistant.endCall
+            AppStrings.AIAssistant.endCall,
+            AppStrings.AIAssistant.permissionTitle,
+            AppStrings.AIAssistant.permissionMessage,
+            AppStrings.AIAssistant.openSettings,
+            AppStrings.AIAssistant.retry,
+            AppStrings.AIAssistant.speakPrompt
         ]
         for key in keys {
             #expect(key != nil)
@@ -239,6 +264,11 @@ struct AIAssistantLocalizationTests {
         #expect(AppStrings.AIAssistant.configureApiKeyText == "Configure API Key")
         #expect(AppStrings.AIAssistant.apiKeySheetTitleText == "Gemini API Setup")
         #expect(AppStrings.AIAssistant.apiKeyBannerDescText == "Add your Gemini API key to unlock natural AI roleplay conversations and feedback.")
+        #expect(AppStrings.AIAssistant.permissionTitleText == "Microphone & Speech Permission")
+        #expect(AppStrings.AIAssistant.permissionMessageText == "VocabCraft needs microphone access for interactive voice roleplay.")
+        #expect(AppStrings.AIAssistant.openSettingsText == "Open Settings")
+        #expect(AppStrings.AIAssistant.retryText == "Retry")
+        #expect(AppStrings.AIAssistant.speakPromptText == "Speak into the microphone...")
     }
 
     @Test("AppStrings Settings AI configuration keys exist")

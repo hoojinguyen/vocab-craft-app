@@ -496,6 +496,30 @@ extension AppStrings {
         public static var endCallText: String { String(localized: "app.ai_assistant.call.end_call", defaultValue: "End call", bundle: .module) }
         public static var finishTurn: LocalizedStringKey { "app.ai_assistant.call.finish_turn" }
         public static var finishTurnText: String { String(localized: "app.ai_assistant.call.finish_turn", defaultValue: "Tap when finished speaking", bundle: .module) }
+        public static var permissionTitle: LocalizedStringKey { "app.ai_assistant.call.permission_title" }
+        public static var permissionTitleText: String {
+            String(localized: "app.ai_assistant.call.permission_title", defaultValue: "Microphone & Speech Permission", bundle: .module)
+        }
+        public static var permissionMessage: LocalizedStringKey { "app.ai_assistant.call.permission_message" }
+        public static var permissionMessageText: String {
+            String(
+                localized: "app.ai_assistant.call.permission_message",
+                defaultValue: "VocabCraft needs microphone access for interactive voice roleplay.",
+                bundle: .module
+            )
+        }
+        public static var openSettings: LocalizedStringKey { "app.ai_assistant.call.open_settings" }
+        public static var openSettingsText: String {
+            String(localized: "app.ai_assistant.call.open_settings", defaultValue: "Open Settings", bundle: .module)
+        }
+        public static var retry: LocalizedStringKey { "app.ai_assistant.call.retry" }
+        public static var retryText: String {
+            String(localized: "app.ai_assistant.call.retry", defaultValue: "Retry", bundle: .module)
+        }
+        public static var speakPrompt: LocalizedStringKey { "app.ai_assistant.call.speak_prompt" }
+        public static var speakPromptText: String {
+            String(localized: "app.ai_assistant.call.speak_prompt", defaultValue: "Speak into the microphone...", bundle: .module)
+        }
     }
 
     // MARK: - Home Learning Path
