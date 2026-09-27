@@ -10,6 +10,7 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
     public private(set) var state: VoiceCallState = .idle
     public private(set) var isMuted: Bool = false
     public private(set) var isSubtitlesVisible: Bool = true
+    public private(set) var audioErrorMessage: String?
     public let scenario: RoleplayScenario
     public private(set) var messages: [RoleplayMessage] = []
     public private(set) var masteredTargetWords: Set<String> = []
@@ -68,7 +69,10 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
             timestamp: Date()
         )
         messages.append(initialMessage)
-        await playCharacterSpeech(greeting)
+        activeSpeechTask = Task { @MainActor [weak self] in
+            await self?.playCharacterSpeech(greeting)
+        }
+        await activeSpeechTask?.value
     }
 
     public func playCharacterSpeech(_ text: String) async {
@@ -85,8 +89,9 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
     }
 
     public func startListening() {
-        guard !isMuted else { return }
+        audioErrorMessage = nil
         state = .listening(liveTranscript: "")
+        guard !isMuted else { return }
 
         silenceDetector?.cancel()
         silenceDetector = SilenceDetector(
@@ -110,13 +115,14 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
                     self.handleTranscriptUpdate(transcript)
                 }
             },
-            onError: { [weak self] _ in
+            onError: { [weak self] error in
                 Task { @MainActor [weak self] in
                     guard let self else { return }
                     if case .listening(let transcript) = self.state,
                        !transcript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                         await self.processUserUtterance(transcript)
                     } else {
+                        self.audioErrorMessage = error.localizedDescription
                         self.silenceDetector?.cancel()
                     }
                 }
@@ -132,12 +138,18 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
     }
 
     public func finishUserTurnManually() {
+        guard case .listening(let transcript) = state else { return }
+        let trimmed = transcript.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
         silenceDetector?.cancel()
-        if case .listening(let transcript) = state, !transcript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            Task { @MainActor [weak self] in
-                await self?.processUserUtterance(transcript)
-            }
+        Task { @MainActor [weak self] in
+            await self?.processUserUtterance(trimmed)
         }
+    }
+
+    public func retryListening() {
+        audioErrorMessage = nil
+        startListening()
     }
 
     public func processUserUtterance(_ utterance: String) async {
@@ -172,7 +184,10 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
             )
             messages.append(aiMessage)
 
-            await playCharacterSpeech(output.characterReply)
+            activeSpeechTask = Task { @MainActor [weak self] in
+                await self?.playCharacterSpeech(output.characterReply)
+            }
+            await activeSpeechTask?.value
         } catch {
             guard state == .thinking else { return }
             startListening()
@@ -184,8 +199,10 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
         if isMuted {
             speechService.stopListening()
             silenceDetector?.cancel()
-        } else if case .listening = state {
-            startListening()
+        } else {
+            if case .listening = state {
+                startListening()
+            }
         }
     }
 

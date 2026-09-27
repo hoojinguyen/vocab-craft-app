@@ -20,6 +20,130 @@ struct TurnBasedVoiceConversationEngineTests {
         )
     }
 
+    private func makeExecuteUseCase(llmProvider: MockLLMProvider = MockLLMProvider()) -> ExecuteRoleplayTurnUseCase {
+        ExecuteRoleplayTurnUseCase(llmProvider: llmProvider)
+    }
+
+    private func makeCompleteUseCase() -> CompleteRoleplaySessionUseCase {
+        CompleteRoleplaySessionUseCase()
+    }
+
+    @Test("Toggling mute while speaking transitions cleanly to listening state")
+    @MainActor
+    func muteWhileSpeakingTransitionsCleanly() async {
+        let mockTTS = MockTextToSpeechService()
+        let mockSpeech = MockSpeechRecognitionService()
+        let engine = TurnBasedVoiceConversationEngine(
+            scenario: makeTestScenario(),
+            ttsService: mockTTS,
+            speechService: mockSpeech,
+            executeTurnUseCase: makeExecuteUseCase(),
+            completeSessionUseCase: makeCompleteUseCase()
+        )
+        mockTTS.onSpeakAsync = { _, _, _ in
+            engine.toggleMute()
+            #expect(engine.isMuted)
+        }
+        await engine.startCall()
+        #expect(engine.state == .listening(liveTranscript: ""))
+        #expect(!mockSpeech.isListening) // Mic should not be capturing while muted
+    }
+
+    @Test("finishUserTurnManually with empty transcript does not cancel silence detector")
+    @MainActor
+    func finishTurnWithEmptyTranscriptPreservesDetector() async {
+        let mockSpeech = MockSpeechRecognitionService()
+        let engine = TurnBasedVoiceConversationEngine(
+            scenario: makeTestScenario(),
+            ttsService: MockTextToSpeechService(),
+            speechService: mockSpeech,
+            executeTurnUseCase: makeExecuteUseCase(),
+            completeSessionUseCase: makeCompleteUseCase()
+        )
+        engine.startListening()
+        engine.finishUserTurnManually() // Empty transcript
+        #expect(engine.state == .listening(liveTranscript: ""))
+    }
+
+    @Test("Speech recognition error with empty transcript records error message and retry restores listening")
+    @MainActor
+    func speechRecognitionErrorHandlingAndRetry() async {
+        let mockSpeech = MockSpeechRecognitionService()
+        let engine = TurnBasedVoiceConversationEngine(
+            scenario: makeTestScenario(),
+            ttsService: MockTextToSpeechService(),
+            speechService: mockSpeech,
+            executeTurnUseCase: makeExecuteUseCase(),
+            completeSessionUseCase: makeCompleteUseCase()
+        )
+        engine.startListening()
+        #expect(engine.audioErrorMessage == nil)
+
+        let sampleError = NSError(domain: "SpeechTest", code: 101, userInfo: [NSLocalizedDescriptionKey: "Microphone access denied"])
+        mockSpeech.simulateError(sampleError)
+        await Task.yield()
+
+        #expect(engine.audioErrorMessage == "Microphone access denied")
+
+        engine.retryListening()
+        #expect(engine.audioErrorMessage == nil)
+        #expect(mockSpeech.isListening)
+    }
+
+    @Test("Speech recognition error with buffered transcript processes utterance")
+    @MainActor
+    func speechRecognitionErrorWithBufferedTranscriptProcessesUtterance() async {
+        let mockSpeech = MockSpeechRecognitionService()
+        let mockLLM = MockLLMProvider(mockTurnOutput: RoleplayTurnOutput(
+            characterReply: "Sure thing!",
+            targetWordsUsed: ["espresso"],
+            refinementSuggestion: nil,
+            pedagogicalNote: nil
+        ))
+        let engine = TurnBasedVoiceConversationEngine(
+            scenario: makeTestScenario(),
+            ttsService: MockTextToSpeechService(),
+            speechService: mockSpeech,
+            executeTurnUseCase: makeExecuteUseCase(llmProvider: mockLLM),
+            completeSessionUseCase: makeCompleteUseCase()
+        )
+        engine.startListening()
+        mockSpeech.simulateResult("I want espresso")
+        await Task.yield()
+
+        let sampleError = NSError(domain: "SpeechTest", code: 500, userInfo: [NSLocalizedDescriptionKey: "Audio stream disrupted"])
+        mockSpeech.simulateError(sampleError)
+        await Task.yield()
+
+        #expect(engine.audioErrorMessage == nil)
+        #expect(engine.messages.contains(where: { $0.text == "I want espresso" }))
+    }
+
+    @Test("Unmuting while in listening state resumes speech listening")
+    @MainActor
+    func unmuteWhileListeningResumesMic() async {
+        let mockTTS = MockTextToSpeechService()
+        let mockSpeech = MockSpeechRecognitionService()
+        let engine = TurnBasedVoiceConversationEngine(
+            scenario: makeTestScenario(),
+            ttsService: mockTTS,
+            speechService: mockSpeech,
+            executeTurnUseCase: makeExecuteUseCase(),
+            completeSessionUseCase: makeCompleteUseCase()
+        )
+        mockTTS.onSpeakAsync = { _, _, _ in
+            engine.toggleMute()
+        }
+        await engine.startCall()
+        #expect(engine.isMuted)
+        #expect(!mockSpeech.isListening)
+        #expect(engine.state == .listening(liveTranscript: ""))
+
+        engine.toggleMute()
+        #expect(!engine.isMuted)
+        #expect(mockSpeech.isListening)
+    }
+
     @Test("Engine transitions from idle to speaking on startCall")
     @MainActor
     func startCallLifecycle() async {
@@ -292,5 +416,30 @@ struct TurnBasedVoiceConversationEngineTests {
 
         #expect(engine.state == .ended)
         #expect(!mockTTS.isSpeaking)
+    }
+
+    @Test("End call during speaking state cancels active speech task and keeps engine ended")
+    @MainActor
+    func endCallDuringSpeakingCancelsActiveSpeechTask() async {
+        let scenario = makeTestScenario()
+        let mockTTS = MockTextToSpeechService()
+        let mockSpeech = MockSpeechRecognitionService()
+        let engine = TurnBasedVoiceConversationEngine(
+            scenario: scenario,
+            ttsService: mockTTS,
+            speechService: mockSpeech,
+            executeTurnUseCase: makeExecuteUseCase(),
+            completeSessionUseCase: makeCompleteUseCase()
+        )
+
+        mockTTS.onSpeakAsync = { _, _, _ in
+            _ = await engine.endCall()
+        }
+
+        await engine.startCall()
+
+        #expect(engine.state == .ended)
+        #expect(!mockTTS.isSpeaking)
+        #expect(!mockSpeech.isListening)
     }
 }
