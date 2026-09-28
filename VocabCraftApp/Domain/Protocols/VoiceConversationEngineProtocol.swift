@@ -16,6 +16,8 @@ public protocol VoiceConversationEngineProtocol: AnyObject, Sendable {
     var isMuted: Bool { get }
     var isSubtitlesVisible: Bool { get }
     var audioErrorMessage: String? { get }
+    var audioLevel: Float { get }
+    var suggestedResponses: [String] { get }
     var scenario: RoleplayScenario { get }
     var messages: [RoleplayMessage] { get }
     var masteredTargetWords: Set<String> { get }
@@ -30,5 +32,7 @@ public protocol VoiceConversationEngineProtocol: AnyObject, Sendable {
 
 public extension VoiceConversationEngineProtocol {
     var audioErrorMessage: String? { nil }
+    var audioLevel: Float { 0.0 }
+    var suggestedResponses: [String] { [] }
     func retryListening() {}
 }

@@ -93,4 +93,27 @@ final class SilenceDetectorTests: XCTestCase {
         await fulfillment(of: [expectation], timeout: 1.0)
         XCTAssertEqual(counter.value, 1)
     }
+
+    func testSilenceDetector_initialSilenceEntersStandbyWithoutCancelling() async throws {
+        let expectation = expectation(description: "Trailing silence detected after standby")
+        let detector = SilenceDetector(
+            initialSilenceDuration: .milliseconds(30),
+            trailingSilenceDuration: .milliseconds(50)
+        ) {
+            expectation.fulfill()
+        }
+
+        detector.arm()
+        XCTAssertFalse(detector.isInStandby)
+
+        // Wait past initial silence timeout (30ms) -> should enter standby without firing callback
+        try await Task.sleep(for: .milliseconds(60))
+        XCTAssertTrue(detector.isInStandby)
+
+        // Speech activity registered after standby should resume trailing silence detection
+        detector.registerActivity()
+        XCTAssertFalse(detector.isInStandby)
+
+        await fulfillment(of: [expectation], timeout: 1.0)
+    }
 }

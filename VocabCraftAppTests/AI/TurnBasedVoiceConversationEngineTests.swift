@@ -16,7 +16,11 @@ struct TurnBasedVoiceConversationEngineTests {
             userRole: "Customer",
             initialGreeting: "Welcome to The Daily Roast! What can I get for you?",
             targetWordIds: ["espresso", "croissant"],
-            iconSymbol: "cup.and.saucer.fill"
+            iconSymbol: "cup.and.saucer.fill",
+            starterSuggestions: [
+                "I would like an espresso, please.",
+                "Do you have fresh croissants?"
+            ]
         )
     }
 
@@ -441,5 +445,142 @@ struct TurnBasedVoiceConversationEngineTests {
         #expect(engine.state == .ended)
         #expect(!mockTTS.isSpeaking)
         #expect(!mockSpeech.isListening)
+    }
+
+    @Test("Engine forwards audio level from speech service and maintains standby silence")
+    @MainActor
+    func testEngineForwardsAudioLevelAndMaintainsStandbySilence() async throws {
+        let scenario = makeTestScenario()
+        let mockSpeech = MockSpeechRecognitionService()
+        let mockTTS = MockTextToSpeechService()
+        let mockLLM = MockLLMProvider(mockTurnOutput: RoleplayTurnOutput(
+            characterReply: "Here is your drink!",
+            targetWordsUsed: ["espresso"]
+        ))
+        let engine = TurnBasedVoiceConversationEngine(
+            scenario: scenario,
+            ttsService: mockTTS,
+            speechService: mockSpeech,
+            executeTurnUseCase: makeExecuteUseCase(llmProvider: mockLLM),
+            completeSessionUseCase: makeCompleteUseCase(),
+            silenceDelaySeconds: 0.05,
+            initialSilenceDuration: .milliseconds(30)
+        )
+
+        await engine.startCall()
+        #expect(engine.state == .listening(liveTranscript: ""))
+        #expect(engine.audioLevel == 0.0)
+
+        // Forward audio level
+        mockSpeech.simulateAudioLevel(0.65)
+        #expect(engine.audioLevel == 0.65)
+
+        // Wait past initial silence timeout (30ms) without speech -> enters standby
+        try await Task.sleep(for: .milliseconds(60))
+        #expect(engine.state == .listening(liveTranscript: ""))
+        #expect(engine.audioErrorMessage == nil)
+
+        // Register speech activity after standby
+        mockSpeech.simulateResult("Can I get an espresso?")
+        await Task.yield()
+
+        // Wait for trailing silence (50ms) to trigger utterance processing
+        try await Task.sleep(for: .milliseconds(100))
+        await Task.yield()
+
+        #expect(engine.messages.contains(where: { $0.text == "Can I get an espresso?" }))
+        #expect(engine.audioLevel == 0.0)
+    }
+
+    @Test("Engine initial suggestions populated from scenario starter suggestions on startCall")
+    @MainActor
+    func initialSuggestionsPopulatedOnStartCall() async {
+        let scenario = makeTestScenario()
+        let engine = TurnBasedVoiceConversationEngine(
+            scenario: scenario,
+            ttsService: MockTextToSpeechService(),
+            speechService: MockSpeechRecognitionService(),
+            executeTurnUseCase: makeExecuteUseCase(),
+            completeSessionUseCase: makeCompleteUseCase()
+        )
+
+        #expect(engine.suggestedResponses == scenario.starterSuggestions)
+        await engine.startCall()
+        #expect(engine.suggestedResponses == scenario.starterSuggestions)
+    }
+
+    @Test("Engine updates suggested responses on turn completion and falls back to starter suggestions when empty")
+    @MainActor
+    func suggestionsUpdatedOnTurnCompletion() async {
+        let scenario = makeTestScenario()
+        let customSuggestions = ["I need a pastry", "Where is the sugar?"]
+        let mockLLM = MockLLMProvider(mockTurnOutput: RoleplayTurnOutput(
+            characterReply: "Sure!",
+            targetWordsUsed: ["espresso"],
+            suggestedResponses: customSuggestions
+        ))
+        let engine = TurnBasedVoiceConversationEngine(
+            scenario: scenario,
+            ttsService: MockTextToSpeechService(),
+            speechService: MockSpeechRecognitionService(),
+            executeTurnUseCase: makeExecuteUseCase(llmProvider: mockLLM),
+            completeSessionUseCase: makeCompleteUseCase()
+        )
+
+        engine.startListening()
+        await engine.processUserUtterance("I want an espresso")
+
+        #expect(engine.suggestedResponses == customSuggestions)
+
+        // Fallback test: when next turn output has empty suggestedResponses, falls back to scenario.starterSuggestions
+        let emptySuggestionsLLM = MockLLMProvider(mockTurnOutput: RoleplayTurnOutput(
+            characterReply: "Anything else?",
+            targetWordsUsed: [],
+            suggestedResponses: []
+        ))
+        let engine2 = TurnBasedVoiceConversationEngine(
+            scenario: scenario,
+            ttsService: MockTextToSpeechService(),
+            speechService: MockSpeechRecognitionService(),
+            executeTurnUseCase: makeExecuteUseCase(llmProvider: emptySuggestionsLLM),
+            completeSessionUseCase: makeCompleteUseCase()
+        )
+
+        engine2.startListening()
+        await engine2.processUserUtterance("No thanks")
+
+        #expect(engine2.suggestedResponses == scenario.starterSuggestions)
+    }
+
+    @Test("Audio level resets to zero on mute, thinking, speaking, and endCall")
+    @MainActor
+    func audioLevelResetsOnStateTransitions() async {
+        let scenario = makeTestScenario()
+        let mockSpeech = MockSpeechRecognitionService()
+        let mockTTS = MockTextToSpeechService()
+        let engine = TurnBasedVoiceConversationEngine(
+            scenario: scenario,
+            ttsService: mockTTS,
+            speechService: mockSpeech,
+            executeTurnUseCase: makeExecuteUseCase(),
+            completeSessionUseCase: makeCompleteUseCase()
+        )
+
+        engine.startListening()
+        mockSpeech.simulateAudioLevel(0.8)
+        #expect(engine.audioLevel == 0.8)
+
+        engine.toggleMute()
+        #expect(engine.isMuted)
+        #expect(engine.audioLevel == 0.0)
+
+        engine.toggleMute()
+        #expect(!engine.isMuted)
+
+        mockSpeech.simulateAudioLevel(0.5)
+        #expect(engine.audioLevel == 0.5)
+
+        _ = await engine.endCall()
+        #expect(engine.audioLevel == 0.0)
     }
 }

@@ -11,6 +11,8 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
     public private(set) var isMuted: Bool = false
     public private(set) var isSubtitlesVisible: Bool = true
     public private(set) var audioErrorMessage: String?
+    public private(set) var audioLevel: Float = 0.0
+    public private(set) var suggestedResponses: [String] = []
     public let scenario: RoleplayScenario
     public private(set) var messages: [RoleplayMessage] = []
     public private(set) var masteredTargetWords: Set<String> = []
@@ -20,6 +22,7 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
     private let executeTurnUseCase: ExecuteRoleplayTurnUseCase
     private let completeSessionUseCase: CompleteRoleplaySessionUseCase
     private let silenceDelaySeconds: Double
+    private let initialSilenceDuration: Duration
 
     private var silenceDetector: SilenceDetector?
     private var activeSpeechTask: Task<Void, Never>?
@@ -30,7 +33,8 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
         speechService: SpeechRecognitionProtocol,
         executeTurnUseCase: ExecuteRoleplayTurnUseCase,
         completeSessionUseCase: CompleteRoleplaySessionUseCase,
-        silenceDelaySeconds: Double = 1.5
+        silenceDelaySeconds: Double = 1.5,
+        initialSilenceDuration: Duration = .seconds(10)
     ) {
         self.scenario = scenario
         self.ttsService = ttsService
@@ -38,6 +42,8 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
         self.executeTurnUseCase = executeTurnUseCase
         self.completeSessionUseCase = completeSessionUseCase
         self.silenceDelaySeconds = silenceDelaySeconds
+        self.initialSilenceDuration = initialSilenceDuration
+        self.suggestedResponses = scenario.starterSuggestions
     }
 
     /// Convenience initializer maintaining compatibility for callers passing speechDelaySeconds.
@@ -48,7 +54,8 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
         executeTurnUseCase: ExecuteRoleplayTurnUseCase,
         completeSessionUseCase: CompleteRoleplaySessionUseCase,
         speechDelaySeconds: Double,
-        silenceDelaySeconds: Double = 1.5
+        silenceDelaySeconds: Double = 1.5,
+        initialSilenceDuration: Duration = .seconds(10)
     ) {
         self.init(
             scenario: scenario,
@@ -56,11 +63,13 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
             speechService: speechService,
             executeTurnUseCase: executeTurnUseCase,
             completeSessionUseCase: completeSessionUseCase,
-            silenceDelaySeconds: silenceDelaySeconds
+            silenceDelaySeconds: silenceDelaySeconds,
+            initialSilenceDuration: initialSilenceDuration
         )
     }
 
     public func startCall() async {
+        suggestedResponses = scenario.starterSuggestions
         let greeting = scenario.initialGreeting
         let initialMessage = RoleplayMessage(
             id: UUID(),
@@ -77,6 +86,7 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
 
     public func playCharacterSpeech(_ text: String) async {
         guard state != .ended else { return }
+        audioLevel = 0.0
         silenceDetector?.cancel()
         state = .speaking(characterText: text)
 
@@ -89,13 +99,14 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
     }
 
     public func startListening() {
+        audioLevel = 0.0
         audioErrorMessage = nil
         state = .listening(liveTranscript: "")
         guard !isMuted else { return }
 
         silenceDetector?.cancel()
         silenceDetector = SilenceDetector(
-            initialSilenceDuration: .seconds(10),
+            initialSilenceDuration: initialSilenceDuration,
             trailingSilenceDuration: .milliseconds(Int(silenceDelaySeconds * 1000)),
             onSilence: { [weak self] in
                 Task { @MainActor [weak self] in
@@ -115,9 +126,21 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
                     self.handleTranscriptUpdate(transcript)
                 }
             },
+            onAudioLevel: { [weak self] level in
+                if Thread.isMainThread {
+                    MainActor.assumeIsolated {
+                        self?.audioLevel = level
+                    }
+                } else {
+                    Task { @MainActor [weak self] in
+                        self?.audioLevel = level
+                    }
+                }
+            },
             onError: { [weak self] error in
                 Task { @MainActor [weak self] in
                     guard let self else { return }
+                    self.audioLevel = 0.0
                     if case .listening(let transcript) = self.state,
                        !transcript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                         await self.processUserUtterance(transcript)
@@ -154,6 +177,7 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
 
     public func processUserUtterance(_ utterance: String) async {
         guard state != .ended else { return }
+        audioLevel = 0.0
         speechService.stopListening()
         silenceDetector?.cancel()
         state = .thinking
@@ -173,6 +197,8 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
             for word in output.targetWordsUsed {
                 masteredTargetWords.insert(word)
             }
+
+            suggestedResponses = output.suggestedResponses.isEmpty ? scenario.starterSuggestions : output.suggestedResponses
 
             let aiMessage = RoleplayMessage(
                 id: UUID(),
@@ -197,6 +223,7 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
     public func toggleMute() {
         isMuted.toggle()
         if isMuted {
+            audioLevel = 0.0
             speechService.stopListening()
             silenceDetector?.cancel()
         } else {
@@ -215,6 +242,7 @@ public final class TurnBasedVoiceConversationEngine: VoiceConversationEngineProt
         activeSpeechTask = nil
         silenceDetector?.cancel()
         silenceDetector = nil
+        audioLevel = 0.0
         speechService.stopListening()
         ttsService.stop()
         state = .ended
