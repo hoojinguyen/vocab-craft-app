@@ -96,4 +96,45 @@ struct VoiceConversationStateTests {
         #expect(speakingShort.visualState == speakingLong.visualState)
         #expect(speakingLong.visualState == .speaking)
     }
+
+    @Test("Verify CraftVoiceOrbView dynamic scaling and symbol selection with audioLevel")
+    @MainActor
+    func orbDynamicAudioMeteringPulse() {
+        // AudioLevel 0.0 (Silence / Standby in listening)
+        let silentOrb = CraftVoiceOrbView(state: .listening(liveTranscript: ""), audioLevel: 0.0)
+        #expect(silentOrb.audioLevel == 0.0)
+        #expect(silentOrb.stateSymbol == .mic)
+        #expect(abs(silentOrb.outerGlowScale(isExpanded: true) - 1.0) < 0.001)
+        #expect(abs(silentOrb.soundwaveRingScale(isExpanded: true) - 1.0) < 0.001)
+
+        // AudioLevel 0.5 (Moderate speech)
+        let moderateOrb = CraftVoiceOrbView(state: .listening(liveTranscript: "Hello"), audioLevel: 0.5)
+        #expect(moderateOrb.audioLevel == 0.5)
+        #expect(moderateOrb.stateSymbol == .waveform)
+        #expect(abs(moderateOrb.outerGlowScale(isExpanded: true) - 1.175) < 0.001)
+        #expect(abs(moderateOrb.soundwaveRingScale(isExpanded: true) - 1.175) < 0.001)
+
+        // AudioLevel 1.0 (Maximum speech peak)
+        let peakOrb = CraftVoiceOrbView(state: .listening(liveTranscript: "I want coffee!"), audioLevel: 1.0)
+        #expect(peakOrb.audioLevel == 1.0)
+        #expect(peakOrb.stateSymbol == .waveform)
+        #expect(abs(peakOrb.outerGlowScale(isExpanded: true) - 1.35) < 0.001)
+        #expect(abs(peakOrb.soundwaveRingScale(isExpanded: true) - 1.35) < 0.001)
+
+        // Threshold boundary tests for audioLevel 0.08
+        let atThresholdOrb = CraftVoiceOrbView(state: .listening(liveTranscript: ""), audioLevel: 0.08)
+        #expect(atThresholdOrb.stateSymbol == .mic)
+        let aboveThresholdOrb = CraftVoiceOrbView(state: .listening(liveTranscript: ""), audioLevel: 0.081)
+        #expect(aboveThresholdOrb.stateSymbol == .waveform)
+
+        // Reduce motion respect
+        #expect(peakOrb.outerGlowScale(isExpanded: true, reduceMotion: true) == 1.0)
+        #expect(peakOrb.soundwaveRingScale(isExpanded: true, reduceMotion: true) == 1.0)
+
+        // Non-listening states ignore audioLevel for symbol and custom scale
+        let speakingOrb = CraftVoiceOrbView(state: .speaking(characterText: "Hi"), audioLevel: 0.9)
+        #expect(speakingOrb.stateSymbol == .waveform)
+        #expect(speakingOrb.outerGlowScale(isExpanded: true) == 1.15)
+        #expect(speakingOrb.outerGlowScale(isExpanded: false) == 0.98)
+    }
 }

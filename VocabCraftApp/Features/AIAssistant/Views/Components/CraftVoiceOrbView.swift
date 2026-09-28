@@ -32,15 +32,17 @@ extension VoiceCallState {
 @MainActor
 public struct CraftVoiceOrbView: View {
     public let state: VoiceCallState
+    public let audioLevel: Float
     @Environment(\.craftTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isBreathing = false
 
-    public init(state: VoiceCallState) {
+    public init(state: VoiceCallState, audioLevel: Float = 0.0) {
         self.state = state
+        self.audioLevel = audioLevel
     }
 
-    private var visualState: OrbVisualState {
+    var visualState: OrbVisualState {
         state.visualState
     }
 
@@ -48,16 +50,16 @@ public struct CraftVoiceOrbView: View {
         ZStack {
             // Background ambient outer glow
             Circle()
-                .fill(orbColor.opacity(0.18))
+                .fill(orbColor.opacity(outerGlowOpacity))
                 .frame(width: 220, height: 220)
-                .scaleEffect(outerGlowScale(isExpanded: isBreathing))
-                .blur(radius: 20)
+                .scaleEffect(outerGlowScale(isExpanded: isBreathing, audioLevel: audioLevel))
+                .blur(radius: outerGlowBlur)
 
             // Middle soundwave ring
             Circle()
                 .stroke(orbColor.opacity(0.35), lineWidth: 2)
                 .frame(width: 170, height: 170)
-                .scaleEffect(reduceMotion ? 1.0 : (isBreathing ? 1.08 : 0.94))
+                .scaleEffect(soundwaveRingScale(isExpanded: isBreathing, audioLevel: audioLevel))
 
             // Inner core liquid glass orb
             Circle()
@@ -70,7 +72,7 @@ public struct CraftVoiceOrbView: View {
                     )
                 )
                 .frame(width: 130, height: 130)
-                .shadow(color: orbColor.opacity(0.4), radius: 15, x: 0, y: 0)
+                .shadow(color: orbColor.opacity(coreShadowOpacity), radius: coreShadowRadius, x: 0, y: 0)
                 .overlay {
                     CraftIcon(
                         stateSymbol,
@@ -91,6 +93,7 @@ public struct CraftVoiceOrbView: View {
             }
         }
         .animation(.easeInOut(duration: 0.35), value: visualState)
+        .animation(.easeOut(duration: 0.1), value: audioLevel)
     }
 
     private func startBreathingIfNeeded() {
@@ -115,13 +118,31 @@ public struct CraftVoiceOrbView: View {
         }
     }
 
-    private func outerGlowScale(isExpanded: Bool) -> CGFloat {
-        if reduceMotion { return 1.0 }
+    var outerGlowOpacity: Double {
+        visualState == .listening ? 0.18 + Double(audioLevel) * 0.12 : 0.18
+    }
+
+    var outerGlowBlur: CGFloat {
+        visualState == .listening ? 20 + CGFloat(audioLevel) * 10 : 20
+    }
+
+    var coreShadowRadius: CGFloat {
+        visualState == .listening ? 15 + CGFloat(audioLevel) * 15 : 15
+    }
+
+    var coreShadowOpacity: Double {
+        visualState == .listening ? 0.4 + Double(audioLevel) * 0.3 : 0.4
+    }
+
+    func outerGlowScale(isExpanded: Bool, audioLevel: Float? = nil, reduceMotion: Bool? = nil) -> CGFloat {
+        let isReduced = reduceMotion ?? self.reduceMotion
+        if isReduced { return 1.0 }
+        let level = audioLevel ?? self.audioLevel
         switch visualState {
         case .speaking:
             return isExpanded ? 1.15 : 0.98
         case .listening:
-            return isExpanded ? 1.25 : 1.02
+            return 1.0 + CGFloat(level) * 0.35
         case .thinking:
             return isExpanded ? 1.05 : 0.95
         case .idle, .ended:
@@ -129,14 +150,26 @@ public struct CraftVoiceOrbView: View {
         }
     }
 
-    private var stateSymbol: CraftSymbol {
+    func soundwaveRingScale(isExpanded: Bool, audioLevel: Float? = nil, reduceMotion: Bool? = nil) -> CGFloat {
+        let isReduced = reduceMotion ?? self.reduceMotion
+        if isReduced { return 1.0 }
+        let level = audioLevel ?? self.audioLevel
+        switch visualState {
+        case .listening:
+            return 1.0 + CGFloat(level) * 0.35
+        default:
+            return isExpanded ? 1.08 : 0.94
+        }
+    }
+
+    var stateSymbol: CraftSymbol {
         switch visualState {
         case .idle:
             return .phone
         case .speaking:
             return .waveform
         case .listening:
-            return .mic
+            return audioLevel > 0.08 ? .waveform : .mic
         case .thinking:
             return .sparkles
         case .ended:
